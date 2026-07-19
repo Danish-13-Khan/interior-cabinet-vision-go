@@ -613,25 +613,25 @@ function SnapGuides({
   const wallThreshold = 0.2;
   if (Math.abs(cx - halfW - (-roomHalfW)) < wallThreshold) {
     guides.push([
-      [-roomHalfW, 0.001, -(cz - halfD)],
+      [-roomHalfW, 0.001, cz - halfD],
       [-roomHalfW, 0.001, cz + halfD],
     ]);
   }
   if (Math.abs(cx + halfW - roomHalfW) < wallThreshold) {
     guides.push([
-      [roomHalfW, 0.001, -(cz - halfD)],
+      [roomHalfW, 0.001, cz - halfD],
       [roomHalfW, 0.001, cz + halfD],
     ]);
   }
   if (Math.abs(cz - halfD - (-roomHalfD)) < wallThreshold) {
     guides.push([
-      [-(cx - halfW), 0.001, -roomHalfD],
+      [cx - halfW, 0.001, -roomHalfD],
       [cx + halfW, 0.001, -roomHalfD],
     ]);
   }
   if (Math.abs(cz + halfD - roomHalfD) < wallThreshold) {
     guides.push([
-      [-(cx - halfW), 0.001, roomHalfD],
+      [cx - halfW, 0.001, roomHalfD],
       [cx + halfW, 0.001, roomHalfD],
     ]);
   }
