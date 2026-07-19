@@ -7,6 +7,7 @@ import {
   type CabinetSceneHandle,
 } from "./components/CabinetScene";
 import { DimensionControls } from "./components/DimensionControls";
+import { RoomSettings } from "./components/RoomSettings";
 import { CutlistPanel } from "./components/CutlistPanel";
 import { ProjectBrowser } from "./components/ProjectBrowser";
 import {
@@ -876,6 +877,10 @@ function App() {
       </section>
 
       <aside className="properties-panel">
+        <RoomSettings
+          dimensions={room.dimensions}
+          onChange={(dims) => setRoom({ ...room, dimensions: dims })}
+        />
         <DimensionControls
           cabinetCount={project.cabinets.length}
           cabinetCutlistItems={cabinetCutlistItems}
