@@ -31,6 +31,7 @@ import {
 } from "../domain/cabinetGeometry";
 import { Cabinet } from "./Cabinet";
 import { DimensionGuides } from "./DimensionGuides";
+import type { RoomConfig } from "../domain/roomModel";
 
 type ViewPreset = "iso" | "front" | "side" | "top";
 type ResizeAxis = "width" | "height" | "depth";
@@ -42,6 +43,7 @@ export type CabinetSceneHandle = {
 type CabinetSceneProps = {
   project: CabinetProject;
   snapSizeMm: number;
+  room?: RoomConfig;
   onCabinetMove: (cabinetId: string, placement: CabinetInstance["placement"]) => boolean;
   onCabinetRotate?: (cabinetId: string, rotation: number) => void;
   selectedCabinetId: string | null;
