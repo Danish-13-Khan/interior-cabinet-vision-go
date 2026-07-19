@@ -19,6 +19,7 @@ import {
   getWallPlacement,
   normalizeRotationAngle,
   projectHasCollision,
+  cabinetsOverlap,
   supportsWallPlacement,
   type CabinetConfig,
   type CabinetDimensions,
@@ -41,6 +42,7 @@ import {
   roomPresets,
   type RoomPresetId,
 } from "./domain/roomPresets";
+import { DEFAULT_ROOM, type RoomConfig } from "./domain/roomModel";
 
 type SavedProjectBrowserEntry = {
   id: string;
@@ -48,6 +50,7 @@ type SavedProjectBrowserEntry = {
   thumbnail: string;
   updatedAt: string;
   project: CabinetProject;
+  room: RoomConfig;
 };
 
 const PROJECT_BROWSER_STORAGE_KEY = "cabinet-designer-project-browser";
@@ -128,6 +131,7 @@ function persistSavedProjects(projects: SavedProjectBrowserEntry[]) {
 function App() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
+  const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
   const [savedProjects, setSavedProjects] = useState<SavedProjectBrowserEntry[]>(() =>
     readSavedProjects(),
   );
@@ -198,6 +202,7 @@ function App() {
       thumbnail,
       updatedAt: new Date().toISOString(),
       project: safeProject,
+      room,
     };
 
     const nextProjects = [entry, ...savedProjects].slice(0, 16);
@@ -402,23 +407,48 @@ function App() {
     return true;
   }
 
-  function handleAddCabinet(type: CabinetType = "base") {
-    const basePlacement: CabinetPlacement = {
-      x: project.cabinets.length * 700 - 1000,
-      y: 0,
-      z: 0,
-      rotation: 0,
-      attachment: "floor",
-    };
-    const config = getDefaultCabinetConfig(type);
-    const placement =
-      supportsWallPlacement(type)
-        ? getWallPlacement(basePlacement, type, config.dimensions, "back-wall")
-        : clampCabinetPlacement(basePlacement, config.dimensions);
+  function cabinetsOverlapAny(p: CabinetProject, candidate: CabinetInstance): boolean {
+    return p.cabinets.some((c) => cabinetsOverlap(c, candidate));
+  }
 
-    const newCabinet: CabinetInstance = {
+  function handleAddCabinet(type: CabinetType = "base") {
+    const config = getDefaultCabinetConfig(type);
+
+    // Try up to 5 placement offsets to avoid collision
+    const tmpCab: CabinetInstance = {
       id: createCabinetId(),
       name: createItemName(type, project.cabinets.length + 1),
+      placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" },
+      config,
+    };
+    let placement: CabinetPlacement | null = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const basePlacement: CabinetPlacement = {
+        x: project.cabinets.length * 700 - 1000 + attempt * 400,
+        y: 0,
+        z: 0,
+        rotation: 0,
+        attachment: "floor",
+      };
+      const candidate = supportsWallPlacement(type)
+        ? getWallPlacement(basePlacement, type, config.dimensions, "back-wall")
+        : clampCabinetPlacement(basePlacement, config.dimensions);
+      const testCab = { ...tmpCab, placement: candidate };
+      if (!cabinetsOverlapAny(project, testCab)) {
+        placement = candidate;
+        break;
+      }
+    }
+    if (!placement) {
+      placement = clampCabinetPlacement(
+        { x: project.cabinets.length * 700 - 1000, y: 0, z: 0, rotation: 0, attachment: "floor" },
+        config.dimensions,
+      );
+    }
+
+    const newCabinet: CabinetInstance = {
+      id: tmpCab.id,
+      name: tmpCab.name,
       placement,
       config,
     };
@@ -456,6 +486,25 @@ function App() {
       name: `${selectedCabinet.name} Copy`,
       placement: clampCabinetPlacement(offsetPlacement, selectedCabinet.config.dimensions),
     };
+
+    // Try shifting if the duplicate overlaps
+    if (cabinetsOverlapAny(project, duplicate)) {
+      for (let shift = 1; shift <= 4; shift++) {
+        const shifted = clampCabinetPlacement(
+          {
+            ...offsetPlacement,
+            x: offsetPlacement.x + shift * 500,
+            y: offsetPlacement.y + shift * 100,
+          },
+          selectedCabinet.config.dimensions,
+        );
+        const shiftedDup = { ...duplicate, placement: shifted };
+        if (!cabinetsOverlapAny(project, shiftedDup)) {
+          duplicate.placement = shifted;
+          break;
+        }
+      }
+    }
 
     setProject((currentProject) =>
       clampCabinetProject({
@@ -527,9 +576,10 @@ function App() {
         targetPath,
         JSON.stringify(
           {
-            version: 1,
+            version: 2,
             savedAt: new Date().toISOString(),
             project,
+            room,
           },
           null,
           2,
@@ -562,12 +612,13 @@ function App() {
         path: selectedPath,
       });
       const parsed = JSON.parse(raw) as
-        | { project?: CabinetProject; config?: CabinetConfig };
+        | { project?: CabinetProject; config?: CabinetConfig; room?: RoomConfig };
 
       if (parsed.project) {
         const safeProject = clampCabinetProject(parsed.project);
         setProject(safeProject);
         setSelectedCabinetId(safeProject.cabinets[0]?.id ?? null);
+        if (parsed.room) setRoom(parsed.room);
       } else if (parsed.config) {
         const migratedProject = clampCabinetProject({
           version: 1,
@@ -654,6 +705,7 @@ function App() {
 
     const safeProject = clampCabinetProject(entry.project);
     setProject(safeProject);
+    setRoom(entry.room);
     setSelectedCabinetId(safeProject.cabinets[0]?.id ?? null);
     setSelectedPanelName(null);
     setProjectStatus(`Loaded "${entry.name}" from the project browser.`);
@@ -784,6 +836,7 @@ function App() {
         <CabinetScene
           ref={sceneRef}
           project={project}
+          room={room}
           snapSizeMm={CABINET_GRID_SNAP_MM}
           onCabinetMove={handleCabinetMove}
           onCabinetRotate={handleCabinetRotate}
