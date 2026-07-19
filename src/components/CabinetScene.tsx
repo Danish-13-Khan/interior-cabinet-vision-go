@@ -38,6 +38,7 @@ type ResizeAxis = "width" | "height" | "depth";
 
 export type CabinetSceneHandle = {
   captureThumbnail: () => string | null;
+  setViewPreset: (preset: ViewPreset) => void;
 };
 
 type CabinetSceneProps = {
@@ -694,12 +695,14 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
     () => ({
       captureThumbnail() {
         if (!canvasRef.current) return null;
-
         try {
           return canvasRef.current.toDataURL("image/png", 1);
         } catch {
           return null;
         }
+      },
+      setViewPreset(preset: ViewPreset) {
+        setViewPreset(preset);
       },
     }),
     [],

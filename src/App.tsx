@@ -800,10 +800,10 @@ function App() {
         </div>
         <div className="toolbar-right">
           <span className="tb-label">View:</span>
-          <button type="button" className="tb-btn" disabled title="ISO view">ISO</button>
-          <button type="button" className="tb-btn" disabled title="Front view">Front</button>
-          <button type="button" className="tb-btn" disabled title="Side view">Side</button>
-          <button type="button" className="tb-btn" disabled title="Top view">Top</button>
+          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("iso")} title="ISO view">ISO</button>
+          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("front")} title="Front view">Front</button>
+          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("side")} title="Side view">Side</button>
+          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("top")} title="Top view">Top</button>
         </div>
       </header>
       <div className="app-body">
