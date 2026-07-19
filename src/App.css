@@ -198,6 +198,43 @@ select {
   word-break: break-word;
 }
 
+
+/* ── Room Settings ── */
+.room-settings {
+  background: #fff;
+}
+
+.room-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.room-fields .field-group label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #8895a7;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.room-input {
+  padding: 5px 8px;
+  border: 1px solid #e2e5ea;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 0.8rem;
+  color: #2d3748;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.room-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.12);
+}
+
 /* ── Properties Panel (right inspector) ── */
 .properties-panel {
   width: min(320px, 100%);
