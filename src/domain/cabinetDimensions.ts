@@ -40,6 +40,12 @@ export type CabinetInstance = {
   config: CabinetConfig;
 };
 
+export type RoomBounds = {
+  widthMm: number;
+  depthMm: number;
+  heightMm: number;
+};
+
 export type CabinetProject = {
   version: number;
   cabinets: CabinetInstance[];
@@ -429,16 +435,24 @@ function getCabinetFootprint(
 export function clampCabinetPlacement(
   placement: CabinetPlacement,
   dimensions: CabinetDimensions,
+  roomBounds: RoomBounds = {
+    widthMm: ROOM_WIDTH_MM,
+    depthMm: ROOM_DEPTH_MM,
+    heightMm: ROOM_HEIGHT_MM,
+  },
 ): CabinetPlacement {
   const rotation = normalizeRotationAngle(placement.rotation);
   const footprint = getFootprintDimensions(dimensions, rotation);
   const halfWidth = footprint.width / 2;
   const halfDepth = footprint.depth / 2;
   const attachment = placement.attachment;
+  const roomWidth = roomBounds.widthMm;
+  const roomDepth = roomBounds.depthMm;
+  const roomHeight = roomBounds.heightMm;
 
   const clampedY = Math.min(
     Math.max(Number.isFinite(placement.y) ? placement.y : 0, 0),
-    ROOM_HEIGHT_MM - dimensions.height,
+    roomHeight - dimensions.height,
   );
 
   const basePlacement: CabinetPlacement = {
@@ -452,8 +466,8 @@ export function clampCabinetPlacement(
   if (attachment === "back-wall") {
     return {
       ...basePlacement,
-      x: Math.min(Math.max(basePlacement.x, -ROOM_WIDTH_MM / 2 + halfWidth), ROOM_WIDTH_MM / 2 - halfWidth),
-      z: -ROOM_DEPTH_MM / 2 + halfDepth,
+      x: Math.min(Math.max(basePlacement.x, -roomWidth / 2 + halfWidth), roomWidth / 2 - halfWidth),
+      z: -roomDepth / 2 + halfDepth,
       rotation: 0,
     };
   }
@@ -461,8 +475,8 @@ export function clampCabinetPlacement(
   if (attachment === "left-wall") {
     return {
       ...basePlacement,
-      x: -ROOM_WIDTH_MM / 2 + halfDepth,
-      z: Math.min(Math.max(basePlacement.z, -ROOM_DEPTH_MM / 2 + halfWidth), ROOM_DEPTH_MM / 2 - halfWidth),
+      x: -roomWidth / 2 + halfDepth,
+      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + halfWidth), roomDepth / 2 - halfWidth),
       rotation: 90,
     };
   }
@@ -470,8 +484,8 @@ export function clampCabinetPlacement(
   if (attachment === "right-wall") {
     return {
       ...basePlacement,
-      x: ROOM_WIDTH_MM / 2 - halfDepth,
-      z: Math.min(Math.max(basePlacement.z, -ROOM_DEPTH_MM / 2 + halfWidth), ROOM_DEPTH_MM / 2 - halfWidth),
+      x: roomWidth / 2 - halfDepth,
+      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + halfWidth), roomDepth / 2 - halfWidth),
       rotation: 270,
     };
   }
@@ -479,8 +493,8 @@ export function clampCabinetPlacement(
   return {
     ...basePlacement,
     y: 0,
-    x: Math.min(Math.max(basePlacement.x, -ROOM_WIDTH_MM / 2 + halfWidth), ROOM_WIDTH_MM / 2 - halfWidth),
-    z: Math.min(Math.max(basePlacement.z, -ROOM_DEPTH_MM / 2 + halfDepth), ROOM_DEPTH_MM / 2 - halfDepth),
+    x: Math.min(Math.max(basePlacement.x, -roomWidth / 2 + halfWidth), roomWidth / 2 - halfWidth),
+    z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + halfDepth), roomDepth / 2 - halfDepth),
   };
 }
 
@@ -489,6 +503,7 @@ export function getWallPlacement(
   type: CabinetType,
   dimensions: CabinetDimensions,
   attachment: CabinetPlacement["attachment"],
+  roomBounds?: RoomBounds,
 ): CabinetPlacement {
   return clampCabinetPlacement(
     {
@@ -502,9 +517,10 @@ export function getWallPlacement(
             ? 90
             : attachment === "right-wall"
               ? 270
-              : currentPlacement.rotation,
+      : currentPlacement.rotation,
     },
     dimensions,
+    roomBounds,
   );
 }
 

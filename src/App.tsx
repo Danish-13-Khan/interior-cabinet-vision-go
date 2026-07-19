@@ -12,6 +12,7 @@ import { WallEditor } from "./components/WallEditor";
 import { DoorWindowEditor } from "./components/DoorWindowEditor";
 import { CutlistPanel } from "./components/CutlistPanel";
 import { ProjectBrowser } from "./components/ProjectBrowser";
+import { TwoDView } from "./components/TwoDView";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -47,7 +48,11 @@ import {
   roomPresets,
   type RoomPresetId,
 } from "./domain/roomPresets";
-import { DEFAULT_ROOM, type RoomConfig } from "./domain/roomModel";
+import {
+  DEFAULT_ROOM,
+  cabinetBlocksOpening,
+  type RoomConfig,
+} from "./domain/roomModel";
 import { exportProjectPdf } from "./domain/pdfExport";
 
 type SavedProjectBrowserEntry = {
@@ -138,6 +143,7 @@ function App() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
+  const [planView, setPlanView] = useState<"top" | "front" | "side">("top");
   const [savedProjects, setSavedProjects] = useState<SavedProjectBrowserEntry[]>(() =>
     readSavedProjects(),
   );
@@ -170,6 +176,14 @@ function App() {
         : createCabinetDerivedMetrics(defaultCabinetProject.cabinets[0].config),
     [selectedCabinet],
   );
+  const roomBounds = useMemo(
+    () => ({
+      widthMm: room.dimensions.widthMm,
+      depthMm: room.dimensions.depthMm,
+      heightMm: room.dimensions.heightMm,
+    }),
+    [room.dimensions.depthMm, room.dimensions.heightMm, room.dimensions.widthMm],
+  );
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -178,6 +192,35 @@ function App() {
 
     return () => window.clearTimeout(timer);
   }, [projectStatus]);
+
+  useEffect(() => {
+    setProject((currentProject) => {
+      let changed = false;
+
+      const cabinets = currentProject.cabinets.map((cabinet) => {
+        const placement = clampCabinetPlacement(
+          cabinet.placement,
+          cabinet.config.dimensions,
+          roomBounds,
+        );
+
+        if (
+          placement.x !== cabinet.placement.x ||
+          placement.y !== cabinet.placement.y ||
+          placement.z !== cabinet.placement.z ||
+          placement.rotation !== cabinet.placement.rotation ||
+          placement.attachment !== cabinet.placement.attachment
+        ) {
+          changed = true;
+          return { ...cabinet, placement };
+        }
+
+        return cabinet;
+      });
+
+      return changed ? { ...currentProject, cabinets } : currentProject;
+    });
+  }, [roomBounds]);
 
   function setProjectAndPersist(nextProjects: SavedProjectBrowserEntry[]) {
     setSavedProjects(nextProjects);
@@ -192,6 +235,37 @@ function App() {
           cabinet.id === cabinetId ? updater(cabinet) : cabinet,
         ),
       }),
+    );
+  }
+
+  function clampPlacementInRoom(
+    placement: CabinetPlacement,
+    dimensions: CabinetDimensions,
+  ) {
+    return clampCabinetPlacement(placement, dimensions, roomBounds);
+  }
+
+  function cabinetWouldBlockOpening(
+    cabinetId: string,
+    placement: CabinetPlacement,
+    dimensions?: CabinetDimensions,
+  ) {
+    const currentCabinet = project.cabinets.find((cabinet) => cabinet.id === cabinetId);
+
+    if (!currentCabinet) {
+      return false;
+    }
+
+    return cabinetBlocksOpening(
+      {
+        ...currentCabinet,
+        placement,
+        config: {
+          ...currentCabinet.config,
+          dimensions: dimensions ?? currentCabinet.config.dimensions,
+        },
+      },
+      room,
     );
   }
 
@@ -252,10 +326,14 @@ function App() {
         attachment: nextAttachment,
       },
       nextConfig.dimensions,
+      roomBounds,
     );
 
-    if (projectHasCollision(project, selectedCabinetId, nextPlacement, nextConfig.dimensions)) {
-      setProjectStatus("Change blocked: item would collide after this update.");
+    if (
+      projectHasCollision(project, selectedCabinetId, nextPlacement, nextConfig.dimensions) ||
+      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement, nextConfig.dimensions)
+    ) {
+      setProjectStatus("Change blocked: item would collide or block an opening.");
       return;
     }
 
@@ -271,7 +349,7 @@ function App() {
       return;
     }
 
-    const nextPlacement = clampCabinetPlacement(
+    const nextPlacement = clampPlacementInRoom(
       {
         ...selectedCabinet.placement,
         [axis]: value,
@@ -279,8 +357,11 @@ function App() {
       selectedCabinet.config.dimensions,
     );
 
-    if (projectHasCollision(project, selectedCabinetId, nextPlacement)) {
-      setProjectStatus("Placement blocked: room items cannot overlap.");
+    if (
+      projectHasCollision(project, selectedCabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement)
+    ) {
+      setProjectStatus("Placement blocked: room items cannot overlap or block openings.");
       return;
     }
 
@@ -295,7 +376,7 @@ function App() {
       return;
     }
 
-    const nextPlacement = clampCabinetPlacement(
+    const nextPlacement = clampPlacementInRoom(
       {
         ...selectedCabinet.placement,
         rotation: normalizeRotationAngle(rotation),
@@ -303,8 +384,11 @@ function App() {
       selectedCabinet.config.dimensions,
     );
 
-    if (projectHasCollision(project, selectedCabinetId, nextPlacement)) {
-      setProjectStatus("Rotation blocked: item would collide at that angle.");
+    if (
+      projectHasCollision(project, selectedCabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement)
+    ) {
+      setProjectStatus("Rotation blocked: item would collide or block an opening.");
       return;
     }
 
@@ -328,10 +412,14 @@ function App() {
       selectedCabinet.config.type,
       selectedCabinet.config.dimensions,
       attachment,
+      roomBounds,
     );
 
-    if (projectHasCollision(project, selectedCabinetId, nextPlacement)) {
-      setProjectStatus("Wall placement blocked: item would overlap another object.");
+    if (
+      projectHasCollision(project, selectedCabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement)
+    ) {
+      setProjectStatus("Wall placement blocked: item would overlap or block an opening.");
       return;
     }
 
@@ -352,10 +440,13 @@ function App() {
       ...cabinet.config,
       dimensions,
     });
-    const nextPlacement = clampCabinetPlacement(cabinet.placement, nextConfig.dimensions);
+    const nextPlacement = clampPlacementInRoom(cabinet.placement, nextConfig.dimensions);
 
-    if (projectHasCollision(project, cabinetId, nextPlacement, nextConfig.dimensions)) {
-      setProjectStatus("Resize blocked: item would collide with another object.");
+    if (
+      projectHasCollision(project, cabinetId, nextPlacement, nextConfig.dimensions) ||
+      cabinetWouldBlockOpening(cabinetId, nextPlacement, nextConfig.dimensions)
+    ) {
+      setProjectStatus("Resize blocked: item would collide or block an opening.");
       return;
     }
 
@@ -373,10 +464,13 @@ function App() {
       return false;
     }
 
-    const nextPlacement = clampCabinetPlacement(placement, cabinet.config.dimensions);
+    const nextPlacement = clampPlacementInRoom(placement, cabinet.config.dimensions);
 
-    if (projectHasCollision(project, cabinetId, nextPlacement)) {
-      setProjectStatus("Move blocked: room items cannot overlap.");
+    if (
+      projectHasCollision(project, cabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(cabinetId, nextPlacement)
+    ) {
+      setProjectStatus("Move blocked: room items cannot overlap or block openings.");
       return false;
     }
 
@@ -395,13 +489,16 @@ function App() {
       return false;
     }
 
-    const nextPlacement = clampCabinetPlacement(
+    const nextPlacement = clampPlacementInRoom(
       { ...cabinet.placement, rotation: normalizeRotationAngle(rotation) },
       cabinet.config.dimensions,
     );
 
-    if (projectHasCollision(project, cabinetId, nextPlacement)) {
-      setProjectStatus("Rotation blocked: item would collide at that angle.");
+    if (
+      projectHasCollision(project, cabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(cabinetId, nextPlacement)
+    ) {
+      setProjectStatus("Rotation blocked: item would collide or block an opening.");
       return false;
     }
 
@@ -437,10 +534,10 @@ function App() {
         attachment: "floor",
       };
       const candidate = supportsWallPlacement(type)
-        ? getWallPlacement(basePlacement, type, config.dimensions, "back-wall")
-        : clampCabinetPlacement(basePlacement, config.dimensions);
+        ? getWallPlacement(basePlacement, type, config.dimensions, "back-wall", roomBounds)
+        : clampCabinetPlacement(basePlacement, config.dimensions, roomBounds);
       const testCab = { ...tmpCab, placement: candidate };
-      if (!cabinetsOverlapAny(project, testCab)) {
+      if (!cabinetsOverlapAny(project, testCab) && !cabinetBlocksOpening(testCab, room)) {
         placement = candidate;
         break;
       }
@@ -449,6 +546,7 @@ function App() {
       placement = clampCabinetPlacement(
         { x: project.cabinets.length * 700 - 1000, y: 0, z: 0, rotation: 0, attachment: "floor" },
         config.dimensions,
+        roomBounds,
       );
     }
 
@@ -490,11 +588,11 @@ function App() {
       ...selectedCabinet,
       id: createCabinetId(),
       name: `${selectedCabinet.name} Copy`,
-      placement: clampCabinetPlacement(offsetPlacement, selectedCabinet.config.dimensions),
+      placement: clampCabinetPlacement(offsetPlacement, selectedCabinet.config.dimensions, roomBounds),
     };
 
     // Try shifting if the duplicate overlaps
-    if (cabinetsOverlapAny(project, duplicate)) {
+    if (cabinetsOverlapAny(project, duplicate) || cabinetBlocksOpening(duplicate, room)) {
       for (let shift = 1; shift <= 4; shift++) {
         const shifted = clampCabinetPlacement(
           {
@@ -503,9 +601,10 @@ function App() {
             y: offsetPlacement.y + shift * 100,
           },
           selectedCabinet.config.dimensions,
+          roomBounds,
         );
         const shiftedDup = { ...duplicate, placement: shifted };
-        if (!cabinetsOverlapAny(project, shiftedDup)) {
+        if (!cabinetsOverlapAny(project, shiftedDup) && !cabinetBlocksOpening(shiftedDup, room)) {
           duplicate.placement = shifted;
           break;
         }
@@ -950,6 +1049,26 @@ function App() {
             {validationMessages.map((m) => <span key={m} className="output-warn">{m}</span>)}
           </div>
         ) : null}
+        <div className="plans-panel">
+          <div className="plans-panel-header">
+            <span className="plans-panel-title">2D Planning Views</span>
+            <div className="plans-panel-tabs">
+              {(["top", "front", "side"] as const).map((view) => (
+                <button
+                  key={view}
+                  type="button"
+                  className={`tb-btn ${planView === view ? "tb-accent" : ""}`}
+                  onClick={() => setPlanView(view)}
+                >
+                  {view === "top" ? "Top" : view === "front" ? "Front" : "Side"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="plans-panel-canvas">
+            <TwoDView project={project} room={room} view={planView} />
+          </div>
+        </div>
         <div className="output-cutlists">
           <CutlistPanel items={cabinetCutlistItems} title="Selected Item" />
           <CutlistPanel items={cutlistItems} title="Project Total" />

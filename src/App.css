@@ -381,7 +381,7 @@ select {
 .output-panel {
   display: flex;
   flex-direction: column;
-  max-height: 200px;
+  max-height: 420px;
   flex-shrink: 0;
   background: #fafbfc;
   border-top: 1px solid #e2e5ea;
@@ -437,6 +437,42 @@ select {
   padding: 8px 14px;
   overflow-x: auto;
   min-height: 0;
+}
+
+.plans-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 4px;
+  border-bottom: 1px solid #e8eaee;
+}
+
+.plans-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plans-panel-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.plans-panel-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.plans-panel-canvas {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: auto;
+  padding-bottom: 4px;
 }
 
 .output-cutlists .cutlist-panel {
@@ -1076,6 +1112,11 @@ select {
   .viewport-panel {
     padding: 0 14px 14px;
     min-height: 0;
+  }
+
+  .plans-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

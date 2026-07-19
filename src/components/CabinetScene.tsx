@@ -18,9 +18,6 @@ import {
   clampCabinetWidth,
   getFootprintDimensions,
   millimetresToMetres,
-  ROOM_DEPTH_MM,
-  ROOM_HEIGHT_MM,
-  ROOM_WIDTH_MM,
   snapMillimetresToGrid,
   usesRotatedFootprint,
 } from "../domain/cabinetDimensions";
@@ -56,6 +53,7 @@ type CabinetSceneProps = {
 
 type CameraControllerProps = {
   items: CabinetSceneItem[];
+  roomDimensions: RoomShellDims;
   selectedCabinetId: string | null;
   viewPreset: ViewPreset;
   fitVersion: number;
@@ -70,6 +68,7 @@ type ResizeHandleProps = {
 
 type MoveHandleProps = {
   cabinet: CabinetSceneItem;
+  roomDimensions: RoomShellDims;
   snapSizeMm: number;
   allCabinets?: CabinetSceneItem[];
   onMove: (placement: CabinetInstance["placement"]) => boolean;
@@ -118,6 +117,7 @@ function getSceneTarget(items: CabinetSceneItem[], selectedCabinetId: string | n
 
 function CameraController({
   items,
+  roomDimensions,
   selectedCabinetId,
   viewPreset,
   fitVersion,
@@ -143,9 +143,9 @@ function CameraController({
         return accumulator;
       },
       {
-        width: millimetresToMetres(ROOM_WIDTH_MM) / 2,
-        height: millimetresToMetres(ROOM_HEIGHT_MM) * 0.5,
-        depth: millimetresToMetres(ROOM_DEPTH_MM) / 2,
+        width: millimetresToMetres(roomDimensions.widthMm) / 2,
+        height: millimetresToMetres(roomDimensions.heightMm) * 0.5,
+        depth: millimetresToMetres(roomDimensions.depthMm) / 2,
       },
     );
     const span = Math.max(extents.width * 2, extents.height, extents.depth * 2);
@@ -172,7 +172,7 @@ function CameraController({
 
     controlsRef.current?.target.copy(target);
     controlsRef.current?.update();
-  }, [camera, controlsRef, fitVersion, items, selectedCabinetId, viewPreset]);
+  }, [camera, controlsRef, fitVersion, items, roomDimensions.depthMm, roomDimensions.heightMm, roomDimensions.widthMm, selectedCabinetId, viewPreset]);
 
   return null;
 }
@@ -447,7 +447,14 @@ function smartSnap(value: number, myWidth: number, targets: { x: number; w: numb
   return best;
 }
 
-function MoveHandle({ cabinet, snapSizeMm, allCabinets, onMove, onDragStateChange }: MoveHandleProps) {
+function MoveHandle({
+  cabinet,
+  roomDimensions,
+  snapSizeMm,
+  allCabinets,
+  onMove,
+  onDragStateChange,
+}: MoveHandleProps) {
   const dragPlaneRef = useRef<Plane | null>(null);
   const dragOffsetRef = useRef(new Vector3());
   const pointerRef = useRef(new Vector3());
@@ -459,8 +466,8 @@ function MoveHandle({ cabinet, snapSizeMm, allCabinets, onMove, onDragStateChang
   const DEAD_ZONE_PX = 5;
 
   function getDragPlane(attachment: CabinetInstance["placement"]["attachment"]): Plane {
-    const halfDepthM = ROOM_DEPTH_MM / 2000;
-    const halfWidthM = ROOM_WIDTH_MM / 2000;
+    const halfDepthM = roomDimensions.depthMm / 2000;
+    const halfWidthM = roomDimensions.widthMm / 2000;
     switch (attachment) {
       case "floor": return new Plane(new Vector3(0, 1, 0), 0);
       case "back-wall": return new Plane(new Vector3(0, 0, 1), halfDepthM);
@@ -515,10 +522,13 @@ function MoveHandle({ cabinet, snapSizeMm, allCabinets, onMove, onDragStateChang
     cz = smartSnap(cz, fp.depth, others.map(o => ({ x: o.placement.z, w: getFootprintDimensions(o.config.dimensions, o.placement.rotation).depth })), snapSizeMm);
 
     // Wall attraction: snap to wall planes when close
-    const hw = ROOM_WIDTH_MM / 2;
+    const hw = roomDimensions.widthMm / 2;
+    const hd = roomDimensions.depthMm / 2;
     const wallThreshold = 120;
     if (Math.abs(cx - fp.width / 2 - (-hw)) < wallThreshold) cx = -hw + fp.width / 2;
     if (Math.abs(cx + fp.width / 2 - hw) < wallThreshold) cx = hw - fp.width / 2;
+    if (Math.abs(cz - fp.depth / 2 - (-hd)) < wallThreshold) cz = -hd + fp.depth / 2;
+    if (Math.abs(cz + fp.depth / 2 - hd) < wallThreshold) cz = hd - fp.depth / 2;
 
     if (attachment === "floor") {
       onMove({
@@ -669,9 +679,11 @@ function RoomShell({ dims, doors, windows }: {
 
 function SnapGuides({
   cabinet,
+  roomDimensions,
   snapSizeMm,
 }: {
   cabinet: CabinetSceneItem;
+  roomDimensions: RoomShellDims;
   snapSizeMm: number;
 }) {
   const footprint = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
@@ -679,8 +691,8 @@ function SnapGuides({
   const halfD = footprint.depth / 2000;
   const cx = cabinet.placement.x / 1000;
   const cz = cabinet.placement.z / 1000;
-  const roomHalfW = ROOM_WIDTH_MM / 2000;
-  const roomHalfD = ROOM_DEPTH_MM / 2000;
+  const roomHalfW = roomDimensions.widthMm / 2000;
+  const roomHalfD = roomDimensions.depthMm / 2000;
   const snapMm = snapSizeMm / 1000;
 
   const guides: [number, number, number][][] = [];
@@ -761,6 +773,14 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
   const [hovered, setHovered] = useState<{ cabinetId: string; panelName: PanelName } | null>(null);
   const [isolateSelected, setIsolateSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const roomDimensions = room?.dimensions ?? {
+    widthMm: 6000,
+    depthMm: 4000,
+    heightMm: 2800,
+    showBackWall: true,
+    showLeftWall: true,
+    showRightWall: true,
+  };
 
   const items = useMemo(
     () => project.cabinets.map((cabinet) => createCabinetSceneItem(cabinet)),
@@ -859,6 +879,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <SceneCaptureBridge onCanvasReady={handleCanvasReady} />
         <CameraController
           items={items}
+          roomDimensions={roomDimensions}
           selectedCabinetId={selectedCabinetId}
           viewPreset={viewPreset}
           fitVersion={fitVersion}
@@ -869,14 +890,14 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <directionalLight position={[5.2, 6.5, 4.4]} intensity={1.4} castShadow />
         <gridHelper
           args={[
-            millimetresToMetres(Math.max(ROOM_WIDTH_MM, ROOM_DEPTH_MM)),
-            Math.max(ROOM_WIDTH_MM, ROOM_DEPTH_MM) / snapSizeMm,
+            millimetresToMetres(Math.max(roomDimensions.widthMm, roomDimensions.depthMm)),
+            Math.max(roomDimensions.widthMm, roomDimensions.depthMm) / snapSizeMm,
             "#b6c0ca",
             "#d8dde3",
           ]}
         />
         <RoomShell
-          dims={room ? room.dimensions : { widthMm: 6000, depthMm: 4000, heightMm: 2800, showBackWall: true, showLeftWall: true, showRightWall: true }}
+          dims={roomDimensions}
           doors={room ? room.doors : []}
           windows={room ? room.windows : []}
         />
@@ -923,12 +944,17 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           <>
             <MoveHandle
               cabinet={selectedCabinet}
+              roomDimensions={roomDimensions}
               snapSizeMm={snapSizeMm}
               allCabinets={items}
               onMove={(placement) => onCabinetMove(selectedCabinet.id, placement)}
               onDragStateChange={setIsDragging}
             />
-            <SnapGuides cabinet={selectedCabinet} snapSizeMm={snapSizeMm} />
+            <SnapGuides
+              cabinet={selectedCabinet}
+              roomDimensions={roomDimensions}
+              snapSizeMm={snapSizeMm}
+            />
             <RotateHandle
               cabinet={selectedCabinet}
               onRotate={(placement) => {
