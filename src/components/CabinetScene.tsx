@@ -71,6 +71,7 @@ type ResizeHandleProps = {
 type MoveHandleProps = {
   cabinet: CabinetSceneItem;
   snapSizeMm: number;
+  allCabinets?: CabinetSceneItem[];
   onMove: (placement: CabinetInstance["placement"]) => boolean;
   onDragStateChange?: (dragging: boolean) => void;
 };
@@ -419,7 +420,34 @@ function ResizeHandle({ axis, cabinet, onResize }: ResizeHandleProps) {
   );
 }
 
-function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHandleProps) {
+
+function smartSnap(value: number, myWidth: number, targets: { x: number; w: number }[], grid: number): number {
+  let best = value;
+
+  // Grid snap
+  best = snapMillimetresToGrid(best, grid);
+
+  // Alignment snap: align left/right/center edges with other cabinets
+  const ALIGN_THRESHOLD = 25;
+  for (const t of targets) {
+    // My left edge → their left edge
+    if (Math.abs(best - myWidth / 2 - (t.x - t.w / 2)) < ALIGN_THRESHOLD)
+      best = t.x - t.w / 2 + myWidth / 2;
+    // My right edge → their right edge
+    if (Math.abs(best + myWidth / 2 - (t.x + t.w / 2)) < ALIGN_THRESHOLD)
+      best = t.x + t.w / 2 - myWidth / 2;
+    // My left edge → their right edge (flush adjacency)
+    if (Math.abs(best - myWidth / 2 - (t.x + t.w / 2)) < ALIGN_THRESHOLD)
+      best = t.x + t.w / 2 + myWidth / 2;
+    // My right edge → their left edge (flush adjacency)
+    if (Math.abs(best + myWidth / 2 - (t.x - t.w / 2)) < ALIGN_THRESHOLD)
+      best = t.x - t.w / 2 - myWidth / 2;
+  }
+
+  return best;
+}
+
+function MoveHandle({ cabinet, snapSizeMm, allCabinets, onMove, onDragStateChange }: MoveHandleProps) {
   const dragPlaneRef = useRef<Plane | null>(null);
   const dragOffsetRef = useRef(new Vector3());
   const pointerRef = useRef(new Vector3());
@@ -475,25 +503,41 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
     const wy = hitPoint.y + dragOffsetRef.current.y;
     const wz = hitPoint.z + dragOffsetRef.current.z;
     const attachment = cabinet.placement.attachment;
+    const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
+
+    let cx = wx * 1000;
+    let cz = wz * 1000;
+    let cy = wy * 1000;
+
+    // Smart snap: wall, alignment, adjacency
+    const others = allCabinets ? allCabinets.filter(c => c.id !== cabinet.id) : [];
+    cx = smartSnap(cx, fp.width, others.map(o => ({ x: o.placement.x, w: getFootprintDimensions(o.config.dimensions, o.placement.rotation).width })), snapSizeMm);
+    cz = smartSnap(cz, fp.depth, others.map(o => ({ x: o.placement.z, w: getFootprintDimensions(o.config.dimensions, o.placement.rotation).depth })), snapSizeMm);
+
+    // Wall attraction: snap to wall planes when close
+    const hw = ROOM_WIDTH_MM / 2;
+    const wallThreshold = 120;
+    if (Math.abs(cx - fp.width / 2 - (-hw)) < wallThreshold) cx = -hw + fp.width / 2;
+    if (Math.abs(cx + fp.width / 2 - hw) < wallThreshold) cx = hw - fp.width / 2;
 
     if (attachment === "floor") {
       onMove({
         ...cabinet.placement,
-        x: snapMillimetresToGrid(wx * 1000, snapSizeMm),
+        x: snapMillimetresToGrid(cx, snapSizeMm),
         y: 0,
-        z: snapMillimetresToGrid(wz * 1000, snapSizeMm),
+        z: snapMillimetresToGrid(cz, snapSizeMm),
       });
     } else if (attachment === "back-wall") {
       onMove({
         ...cabinet.placement,
-        x: snapMillimetresToGrid(wx * 1000, snapSizeMm),
-        y: snapMillimetresToGrid(Math.max(0, wy * 1000), snapSizeMm),
+        x: snapMillimetresToGrid(cx, snapSizeMm),
+        y: snapMillimetresToGrid(Math.max(0, cy), snapSizeMm),
       });
     } else {
       onMove({
         ...cabinet.placement,
-        y: snapMillimetresToGrid(Math.max(0, wy * 1000), snapSizeMm),
-        z: snapMillimetresToGrid(wz * 1000, snapSizeMm),
+        y: snapMillimetresToGrid(Math.max(0, cy), snapSizeMm),
+        z: snapMillimetresToGrid(cz, snapSizeMm),
       });
     }
   }
@@ -880,6 +924,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
             <MoveHandle
               cabinet={selectedCabinet}
               snapSizeMm={snapSizeMm}
+              allCabinets={items}
               onMove={(placement) => onCabinetMove(selectedCabinet.id, placement)}
               onDragStateChange={setIsDragging}
             />
