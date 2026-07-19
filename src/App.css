@@ -32,11 +32,95 @@ select {
 
 .app-shell {
   display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 100vh;
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 32%),
     linear-gradient(180deg, #f4f7fa 0%, #e8edf2 100%);
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Top Toolbar ── */
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 14px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(114, 128, 143, 0.16);
+  backdrop-filter: blur(10px);
+  gap: 12px;
+}
+
+.toolbar-left,
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #3d4f63;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.tb-btn:hover {
+  background: rgba(220, 228, 238, 0.55);
+  border-color: rgba(157, 171, 185, 0.35);
+}
+
+.tb-btn:active {
+  background: rgba(200, 212, 226, 0.6);
+}
+
+.tb-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tb-btn.tb-accent {
+  color: #4a6d8c;
+  background: rgba(200, 218, 238, 0.45);
+}
+
+.tb-btn.tb-accent:hover {
+  background: rgba(180, 205, 230, 0.6);
+}
+
+.tb-sep {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: rgba(157, 171, 185, 0.3);
+}
+
+.tb-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #8a97a7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 2px;
 }
 
 /* ── Object Palette (left sidebar) ── */
