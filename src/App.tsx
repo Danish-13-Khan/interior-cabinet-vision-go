@@ -43,6 +43,7 @@ import {
   type RoomPresetId,
 } from "./domain/roomPresets";
 import { DEFAULT_ROOM, type RoomConfig } from "./domain/roomModel";
+import { exportProjectPdf } from "./domain/pdfExport";
 
 type SavedProjectBrowserEntry = {
   id: string;
@@ -695,6 +696,34 @@ function App() {
       setProjectStatus(`Project export failed: ${getErrorMessage(error)}`);
     }
   }
+  async function handleExportPdf() {
+    try {
+      const targetPath = await save({
+        title: "Export PDF Report",
+        defaultPath: "cabinet-project.pdf",
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+      if (!targetPath) {
+        setProjectStatus("PDF export cancelled.");
+        return;
+      }
+      setProjectStatus("Generating PDF...");
+      const screenshot = captureThumbnail();
+      const blob = await exportProjectPdf(project, screenshot, "Cabinet Project");
+      const arrayBuf = await blob.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuf);
+      // Base64-encode for Tauri's string-based IPC
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+      await invoke("save_binary_file", { path: targetPath, base64Data: base64 });
+      setProjectStatus("PDF report saved.");
+    } catch (error) {
+      setProjectStatus("PDF export failed: " + getErrorMessage(error));
+    }
+  }
 
   function handleLoadSavedProject(projectId: string) {
     const entry = savedProjects.find((item) => item.id === projectId);
@@ -818,6 +847,7 @@ function App() {
           onDuplicateSavedProject={handleDuplicateSavedProject}
           onExportCutlistCsv={handleExportCutlistCsv}
           onExportProjectJson={handleExportProjectJson}
+          onExportPdf={handleExportPdf}
           onLoadProject={handleLoadProject}
           onLoadSavedProject={handleLoadSavedProject}
           onPlacementChange={handlePlacementChange}

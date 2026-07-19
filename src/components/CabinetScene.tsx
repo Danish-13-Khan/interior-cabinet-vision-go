@@ -422,9 +422,12 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
   const dragPlaneRef = useRef<Plane | null>(null);
   const dragOffsetRef = useRef(new Vector3());
   const pointerRef = useRef(new Vector3());
+  const dragStartedRef = useRef(false);
+  const startScreenRef = useRef({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const center = getCabinetWorldCenter(cabinet);
   const centerVec = useMemo(() => new Vector3(...center), [center]);
+  const DEAD_ZONE_PX = 5;
 
   function getDragPlane(attachment: CabinetInstance["placement"]["attachment"]): Plane {
     const halfDepthM = ROOM_DEPTH_MM / 2000;
@@ -439,36 +442,37 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
     event.stopPropagation();
-
-    const attachment = cabinet.placement.attachment;
-    dragPlaneRef.current = getDragPlane(attachment);
-    const hitPoint = event.ray.intersectPlane(dragPlaneRef.current, pointerRef.current);
-    if (hitPoint) {
-      dragOffsetRef.current.copy(centerVec).sub(hitPoint);
-    }
-
-    setIsDragging(true);
-    onDragStateChange?.(true);
-
-    const el = event.nativeEvent?.target as HTMLElement | undefined;
-    if (el?.setPointerCapture) {
-      el.setPointerCapture((event.nativeEvent as PointerEvent).pointerId);
-    }
+    const ne = event.nativeEvent as PointerEvent;
+    startScreenRef.current = { x: ne.clientX, y: ne.clientY };
+    dragStartedRef.current = false;
+    dragPlaneRef.current = getDragPlane(cabinet.placement.attachment);
   }
 
   function handlePointerMove(event: ThreeEvent<PointerEvent>) {
-    if (!dragPlaneRef.current || !(event.buttons & 1)) return;
+    if (!dragPlaneRef.current) return;
+    const ne = event.nativeEvent as PointerEvent;
+
+    if (!dragStartedRef.current) {
+      const dx = ne.clientX - startScreenRef.current.x;
+      const dy = ne.clientY - startScreenRef.current.y;
+      if (Math.sqrt(dx * dx + dy * dy) < DEAD_ZONE_PX) return;
+      const hitPoint = event.ray.intersectPlane(dragPlaneRef.current, pointerRef.current);
+      if (hitPoint) dragOffsetRef.current.copy(centerVec).sub(hitPoint);
+      dragStartedRef.current = true;
+      setIsDragging(true);
+      onDragStateChange?.(true);
+      if ((ne.target as HTMLElement)?.setPointerCapture) {
+        (ne.target as HTMLElement).setPointerCapture(ne.pointerId);
+      }
+    }
 
     event.stopPropagation();
-
     const hitPoint = event.ray.intersectPlane(dragPlaneRef.current, pointerRef.current);
     if (!hitPoint) return;
 
-    // Apply stored offset so the object follows the pointer smoothly.
     const wx = hitPoint.x + dragOffsetRef.current.x;
     const wy = hitPoint.y + dragOffsetRef.current.y;
     const wz = hitPoint.z + dragOffsetRef.current.z;
-
     const attachment = cabinet.placement.attachment;
 
     if (attachment === "floor") {
@@ -485,7 +489,6 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
         y: snapMillimetresToGrid(Math.max(0, wy * 1000), snapSizeMm),
       });
     } else {
-      // left-wall or right-wall
       onMove({
         ...cabinet.placement,
         y: snapMillimetresToGrid(Math.max(0, wy * 1000), snapSizeMm),
@@ -496,19 +499,22 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
 
   function handlePointerUp(event: ThreeEvent<PointerEvent>) {
     dragPlaneRef.current = null;
-    setIsDragging(false);
-    onDragStateChange?.(false);
-
-    const el = event.nativeEvent?.target as HTMLElement | undefined;
-    if (el?.releasePointerCapture) {
-      el.releasePointerCapture((event.nativeEvent as PointerEvent).pointerId);
+    if (dragStartedRef.current) {
+      dragStartedRef.current = false;
+      setIsDragging(false);
+      onDragStateChange?.(false);
+      const ne = event.nativeEvent as PointerEvent;
+      if ((ne.target as HTMLElement)?.releasePointerCapture) {
+        (ne.target as HTMLElement).releasePointerCapture(ne.pointerId);
+      }
     }
   }
 
   return (
     <group position={center}>
       <Sphere
-        args={[0.1, 16, 16]}
+        args={[0.18, 16, 16]}
+        renderOrder={1}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -518,6 +524,8 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
           roughness={0.25}
           emissive={isDragging ? "#295fc7" : "#000000"}
           emissiveIntensity={isDragging ? 0.3 : 0}
+          depthTest={false}
+          depthWrite={false}
         />
       </Sphere>
       <Html center>
@@ -867,6 +875,8 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           ref={controlsRef}
           makeDefault
           enableDamping
+          dampingFactor={0.15}
+          rotateSpeed={0.8}
           enabled={!isDragging}
           minDistance={1.1}
           maxDistance={14}
