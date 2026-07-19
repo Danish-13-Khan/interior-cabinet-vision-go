@@ -536,7 +536,38 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
   );
 }
 
-function RoomShell({ dims }: { dims: { widthMm: number; depthMm: number; heightMm: number; showBackWall: boolean; showLeftWall: boolean; showRightWall: boolean } }) {
+type RoomShellDims = {
+  widthMm: number; depthMm: number; heightMm: number;
+  showBackWall: boolean; showLeftWall: boolean; showRightWall: boolean;
+};
+
+function WallOpening({ side, posMm, widthMm, heightMm, sillMm, color, halfW, halfD }: {
+  side: string; posMm: number; widthMm: number; heightMm: number;
+  sillMm: number; color: string; halfW: number; halfD: number;
+}) {
+  const w = widthMm / 1000;
+  const h = heightMm / 1000;
+  const sy = sillMm / 1000;
+  let cx: number, cz: number;
+
+  if (side === "back-wall") { cx = posMm / 1000; cz = -halfD; }
+  else if (side === "left-wall") { cx = -halfW; cz = posMm / 1000; }
+  else { cx = halfW; cz = posMm / 1000; }
+
+  return (
+    <mesh position={[cx, sy + h / 2, cz]}
+      rotation-y={side === "back-wall" ? 0 : side === "left-wall" ? Math.PI / 2 : -Math.PI / 2}>
+      <planeGeometry args={[w, h]} />
+      <meshBasicMaterial color={color} side={2} transparent opacity={0.4} />
+    </mesh>
+  );
+}
+
+function RoomShell({ dims, doors, windows }: {
+  dims: RoomShellDims;
+  doors: { id: string; side: string; positionMm: number; widthMm: number; heightMm: number }[];
+  windows: { id: string; side: string; positionMm: number; widthMm: number; heightMm: number; sillHeightMm: number }[];
+}) {
   const halfW = dims.widthMm / 2000;
   const halfD = dims.depthMm / 2000;
   const h = dims.heightMm / 1000;
@@ -576,6 +607,18 @@ function RoomShell({ dims }: { dims: { widthMm: number; depthMm: number; heightM
         color="#c8ced6"
         lineWidth={1.2}
       />
+      {/* Doors */}
+      {doors.map((door) => (
+        <WallOpening key={door.id} side={door.side} posMm={door.positionMm}
+          widthMm={door.widthMm} heightMm={door.heightMm} sillMm={0}
+          color="#93c5fd" halfW={halfW} halfD={halfD} />
+      ))}
+      {/* Windows */}
+      {windows.map((win) => (
+        <WallOpening key={win.id} side={win.side} posMm={win.positionMm}
+          widthMm={win.widthMm} heightMm={win.heightMm} sillMm={win.sillHeightMm}
+          color="#a5d6a7" halfW={halfW} halfD={halfD} />
+      ))}
     </group>
   );
 }
@@ -788,7 +831,11 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
             "#d8dde3",
           ]}
         />
-        <RoomShell dims={room ? room.dimensions : { widthMm: 6000, depthMm: 4000, heightMm: 2800, showBackWall: true, showLeftWall: true, showRightWall: true }} />
+        <RoomShell
+          dims={room ? room.dimensions : { widthMm: 6000, depthMm: 4000, heightMm: 2800, showBackWall: true, showLeftWall: true, showRightWall: true }}
+          doors={room ? room.doors : []}
+          windows={room ? room.windows : []}
+        />
 
         {items.map((cabinet) => {
           const isSelectedCabinet = cabinet.id === selectedCabinetId;

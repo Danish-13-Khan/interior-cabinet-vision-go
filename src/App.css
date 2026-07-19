@@ -239,6 +239,89 @@ select {
   cursor: pointer;
 }
 
+
+/* ── Door/Window Editor ── */
+.dw-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: 1px solid #e8eaee;
+  border-radius: 5px;
+  background: #fafbfc;
+}
+
+.dw-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  width: 40px;
+}
+
+.dw-item select,
+.dw-item input {
+  padding: 3px 6px;
+  border: 1px solid #e2e5ea;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: #2d3748;
+  background: #fff;
+  min-width: 0;
+  width: 60px;
+}
+
+.dw-item select:focus,
+.dw-item input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.dw-remove {
+  padding: 2px 6px;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.68rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.dw-remove:hover {
+  background: #fee2e2;
+}
+
+.dw-add {
+  display: flex;
+  gap: 6px;
+}
+
+.dw-add select {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid #e2e5ea;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  background: #fff;
+}
+
+.dw-add button {
+  padding: 5px 14px;
+  border: 1px solid #3b82f6;
+  border-radius: 5px;
+  background: #eef2ff;
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dw-add button:hover {
+  background: #dbeafe;
+}
+
 /* ── Room Settings ── */
 .room-settings {
   background: #fff;
