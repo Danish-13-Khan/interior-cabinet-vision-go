@@ -783,6 +783,28 @@ function App() {
 
   return (
     <main className="app-shell">
+      <header className="app-toolbar">
+        <div className="toolbar-left">
+          <button type="button" className="tb-btn" onClick={handleReset} title="New project">New</button>
+          <button type="button" className="tb-btn" onClick={handleLoadProject} title="Open JSON file">Open</button>
+          <button type="button" className="tb-btn" onClick={handleSaveProject} title="Save JSON file">Save</button>
+          <span className="tb-sep" />
+          <button type="button" className="tb-btn" onClick={handleExportProjectJson} title="Export JSON">Export JSON</button>
+          <button type="button" className="tb-btn" onClick={handleExportCutlistCsv} title="Export CSV">Export CSV</button>
+          <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf} title="Download PDF">Export PDF</button>
+          <span className="tb-sep" />
+          <button type="button" className="tb-btn" disabled title="Undo (coming soon)">↩</button>
+          <button type="button" className="tb-btn" disabled title="Redo (coming soon)">↪</button>
+        </div>
+        <div className="toolbar-right">
+          <span className="tb-label">View:</span>
+          <button type="button" className="tb-btn" disabled title="ISO view">ISO</button>
+          <button type="button" className="tb-btn" disabled title="Front view">Front</button>
+          <button type="button" className="tb-btn" disabled title="Side view">Side</button>
+          <button type="button" className="tb-btn" disabled title="Top view">Top</button>
+        </div>
+      </header>
+      <div className="app-body">
       <aside className="object-palette">
         <div className="palette-header">Add Items</div>
         {objectCategories.map((category) => (
@@ -880,6 +902,7 @@ function App() {
           }}
         />
       </section>
+      </div>
     </main>
   );
 }
