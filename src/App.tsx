@@ -9,6 +9,7 @@ import {
 import { DimensionControls } from "./components/DimensionControls";
 import { RoomSettings } from "./components/RoomSettings";
 import { WallEditor } from "./components/WallEditor";
+import { DoorWindowEditor } from "./components/DoorWindowEditor";
 import { CutlistPanel } from "./components/CutlistPanel";
 import { ProjectBrowser } from "./components/ProjectBrowser";
 import {
@@ -887,6 +888,12 @@ function App() {
           showLeftWall={room.dimensions.showLeftWall}
           showRightWall={room.dimensions.showRightWall}
           onChange={(walls) => setRoom({ ...room, dimensions: { ...room.dimensions, ...walls } })}
+        />
+        <DoorWindowEditor
+          doors={room.doors}
+          windows={room.windows}
+          onChangeDoors={(doors) => setRoom({ ...room, doors })}
+          onChangeWindows={(windows) => setRoom({ ...room, windows })}
         />
         <DimensionControls
           cabinetCount={project.cabinets.length}
