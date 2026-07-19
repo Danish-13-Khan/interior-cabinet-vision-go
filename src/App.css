@@ -125,13 +125,13 @@ select {
 
 /* ── Library Sidebar (left) ── */
 .library-sidebar {
-  width: 72px;
+  width: 220px;
   flex-shrink: 0;
-  padding: 10px 6px;
+  padding: 10px 8px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.78);
   border-right: 1px solid rgba(114, 128, 143, 0.18);
   backdrop-filter: blur(12px);
@@ -253,26 +253,72 @@ select {
 /* ── Bottom Output Panel ── */
 .output-panel {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 32px;
-  padding: 0 16px;
+  flex-direction: column;
+  max-height: 220px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   border-top: 1px solid rgba(114, 128, 143, 0.14);
   font-size: 0.72rem;
   color: #5d6d7e;
+  overflow-y: auto;
+}
+
+.output-bar {
+  display: flex;
+  align-items: center;
   gap: 16px;
+  padding: 6px 14px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(114, 128, 143, 0.08);
 }
 
 .output-status {
   font-weight: 600;
   color: #3d4f63;
+  white-space: nowrap;
 }
 
 .output-stats {
   color: #8a97a7;
   font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.output-bar-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.output-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 14px;
+  background: rgba(255, 248, 236, 0.6);
+  border-bottom: 1px solid rgba(221, 186, 124, 0.3);
+}
+
+.output-warn {
+  font-size: 0.68rem;
+  color: #8b6e3c;
+}
+
+.output-cutlists {
+  display: flex;
+  gap: 12px;
+  padding: 8px 14px;
+  overflow-x: auto;
+  min-height: 0;
+}
+
+.output-cutlists .cutlist-panel {
+  flex: 1;
+  min-width: 220px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(201, 210, 220, 0.5);
 }
 
 .controls-card {
