@@ -64,6 +64,7 @@ type DimensionControlsProps = {
   onDuplicateSavedProject: (projectId: string) => void;
   onExportCutlistCsv: () => Promise<void>;
   onExportProjectJson: () => Promise<void>;
+  onExportPdf: () => Promise<void>;
   onLoadProject: () => Promise<void>;
   onLoadSavedProject: (projectId: string) => void;
   onPlacementChange: (axis: "x" | "y" | "z", value: number) => void;
@@ -111,6 +112,7 @@ export function DimensionControls({
   onDuplicateSavedProject,
   onExportCutlistCsv,
   onExportProjectJson,
+  onExportPdf,
   onLoadProject,
   onLoadSavedProject,
   onPlacementChange,
@@ -639,6 +641,12 @@ export function DimensionControls({
           </button>
           <button type="button" onClick={onExportCutlistCsv}>
             Export Parts CSV
+          </button>
+        </div>
+
+        <div className="project-actions">
+          <button type="button" onClick={onExportPdf}>
+            Download PDF Report
           </button>
         </div>
 

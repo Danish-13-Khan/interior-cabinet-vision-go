@@ -1,4 +1,5 @@
 use std::fs;
+use base64::Engine;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -16,6 +17,14 @@ fn load_project_file(path: String) -> Result<String, String> {
     fs::read_to_string(path).map_err(|error| error.to_string())
 }
 
+#[tauri::command]
+fn save_binary_file(path: String, base64_data: String) -> Result<(), String> {
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(base64_data.as_bytes())
+        .map_err(|e| e.to_string())?;
+    fs::write(path, bytes).map_err(|error| error.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -25,7 +34,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             greet,
             save_project_file,
-            load_project_file
+            load_project_file,
+            save_binary_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
