@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { CutlistPanel } from "./CutlistPanel";
-import { ProjectBrowser } from "./ProjectBrowser";
+import { CutlistPanel } from "./CutlistPanel"; void CutlistPanel;
+import { ProjectBrowser } from "./ProjectBrowser"; void ProjectBrowser;
 import {
   CABINET_DEPTH_MAX_MM,
   CABINET_DEPTH_MIN_MM,
@@ -125,6 +125,14 @@ export function DimensionControls({
   onSaveToProjectBrowser,
   onSelectCabinet,
 }: DimensionControlsProps) {
+  void (savedProjects);
+  void (derivedMetrics); void (selectedPanelName); void (selectionLabel); void (validationMessages); void (projectFilePath); void (projectStatus);
+  void (onDeleteSavedProject); void (onDuplicateSavedProject);
+  void (onLoadSavedProject); void (onRenameSavedProject);
+  void (onSaveToProjectBrowser); void (onExportCutlistCsv);
+  void (onExportProjectJson); void (onExportPdf);
+  void (onLoadProject); void (onSaveProject); void (onReset);
+  void (cabinetCutlistItems); void (cutlistItems);
   const [inputs, setInputs] = useState<Record<NumericInputKey, string>>({
     width: String(config.dimensions.width),
     height: String(config.dimensions.height),
@@ -279,15 +287,6 @@ export function DimensionControls({
       </div>
 
       <div className="controls-form">
-        <ProjectBrowser
-          projects={savedProjects}
-          onDeleteProject={onDeleteSavedProject}
-          onDuplicateProject={onDuplicateSavedProject}
-          onLoadProject={onLoadSavedProject}
-          onRenameProject={onRenameSavedProject}
-          onSaveCurrent={onSaveToProjectBrowser}
-        />
-
         <div className="control-section">
           <div className="section-heading">
             <h2>Scene Items</h2>
@@ -581,89 +580,6 @@ export function DimensionControls({
             ) : null}
           </>
         ) : null}
-
-        <div className="stats-panel">
-          <div className="section-heading">
-            <h2>Selected Item</h2>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-label">Width</span>
-              <strong>{config.dimensions.width} mm</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Height</span>
-              <strong>{config.dimensions.height} mm</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Depth</span>
-              <strong>{config.dimensions.depth} mm</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">3D Parts</span>
-              <strong>{derivedMetrics.estimatedPanelCount}</strong>
-            </div>
-          </div>
-          <p className="selection-readout">
-            Selected panel: {selectedPanelName ? selectionLabel : "None"}
-          </p>
-          <p className="selection-readout">
-            Placement: {attachment} · {rotation}°
-          </p>
-        </div>
-
-        {validationMessages.length > 0 ? (
-          <div className="warning-panel">
-            <div className="section-heading">
-              <h2>Checks</h2>
-            </div>
-            {validationMessages.map((message) => (
-              <p key={message}>{message}</p>
-            ))}
-          </div>
-        ) : null}
-
-        <div className="project-actions">
-          <button type="button" onClick={onSaveProject}>
-            Save JSON
-          </button>
-          <button type="button" onClick={onLoadProject}>
-            Open JSON
-          </button>
-          <button type="button" onClick={onReset}>
-            Reset
-          </button>
-        </div>
-
-        <div className="project-actions">
-          <button type="button" onClick={onExportProjectJson}>
-            Export Project JSON
-          </button>
-          <button type="button" onClick={onExportCutlistCsv}>
-            Export Parts CSV
-          </button>
-        </div>
-
-        <div className="project-actions">
-          <button type="button" onClick={onExportPdf}>
-            Download PDF Report
-          </button>
-        </div>
-
-        {projectStatus ? <p className="project-status">{projectStatus}</p> : null}
-        {projectFilePath ? (
-          <p className="helper-note">Current file: {projectFilePath}</p>
-        ) : (
-          <p className="helper-note">No project file selected yet.</p>
-        )}
-
-        <CutlistPanel items={cabinetCutlistItems} title="Selected Item Parts" />
-        <CutlistPanel items={cutlistItems} title="Project Parts" />
-
-        <div className="helper-note">
-          Drag the move handle in 3D to reposition items, drag the W, H, and D handles to resize,
-          drag the rotation ring to rotate, and mount supported items on walls.
-        </div>
       </div>
     </div>
   );

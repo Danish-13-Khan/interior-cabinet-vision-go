@@ -875,9 +875,6 @@ select {
     font-size: 1.2rem;
   }
 
-  .settings-panel {
-    width: min(320px, calc(100% - 64px));
-  }
 }
 
 @media (max-width: 900px) {
