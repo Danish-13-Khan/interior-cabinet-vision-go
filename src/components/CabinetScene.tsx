@@ -536,35 +536,33 @@ function MoveHandle({ cabinet, snapSizeMm, onMove, onDragStateChange }: MoveHand
   );
 }
 
-function RoomShell() {
-  const halfW = ROOM_WIDTH_MM / 2000;
-  const halfD = ROOM_DEPTH_MM / 2000;
-  const h = ROOM_HEIGHT_MM / 1000;
+function RoomShell({ dims }: { dims: { widthMm: number; depthMm: number; heightMm: number; showBackWall: boolean; showLeftWall: boolean; showRightWall: boolean } }) {
+  const halfW = dims.widthMm / 2000;
+  const halfD = dims.depthMm / 2000;
+  const h = dims.heightMm / 1000;
 
-  const wallLines: [number, number, number][][] = [
-    // back wall bottom
-    [[-halfW, 0, -halfD], [halfW, 0, -halfD]],
-    // left wall bottom
-    [[-halfW, 0, -halfD], [-halfW, 0, halfD]],
-    // right wall bottom
-    [[halfW, 0, -halfD], [halfW, 0, halfD]],
-    // back wall top
-    [[-halfW, h, -halfD], [halfW, h, -halfD]],
-    // left wall top
-    [[-halfW, h, -halfD], [-halfW, h, halfD]],
-    // right wall top
-    [[halfW, h, -halfD], [halfW, h, halfD]],
-    // vertical corners
-    [[-halfW, 0, -halfD], [-halfW, h, -halfD]],
-    [[halfW, 0, -halfD], [halfW, h, -halfD]],
-    [[-halfW, 0, halfD], [-halfW, h, halfD]],
-    [[halfW, 0, halfD], [halfW, h, halfD]],
-  ];
+  const wallLines: [number, number, number][][] = [];
+  if (dims.showBackWall) {
+    wallLines.push([[-halfW, 0, -halfD], [halfW, 0, -halfD]]);
+    wallLines.push([[-halfW, h, -halfD], [halfW, h, -halfD]]);
+    wallLines.push([[-halfW, 0, -halfD], [-halfW, h, -halfD]]);
+    wallLines.push([[halfW, 0, -halfD], [halfW, h, -halfD]]);
+  }
+  if (dims.showLeftWall) {
+    wallLines.push([[-halfW, 0, -halfD], [-halfW, 0, halfD]]);
+    wallLines.push([[-halfW, h, -halfD], [-halfW, h, halfD]]);
+    wallLines.push([[-halfW, 0, halfD], [-halfW, h, halfD]]);
+  }
+  if (dims.showRightWall) {
+    wallLines.push([[halfW, 0, -halfD], [halfW, 0, halfD]]);
+    wallLines.push([[halfW, h, -halfD], [halfW, h, halfD]]);
+    wallLines.push([[halfW, 0, halfD], [halfW, h, halfD]]);
+  }
 
   return (
     <group>
       {wallLines.map((points, i) => (
-        <Line key={i} points={points as [number, number, number][]} color="#b6beca" lineWidth={1} />
+        <Line key={i} points={points} color="#b6beca" lineWidth={1} />
       ))}
       {/* Floor rectangle */}
       <Line
@@ -658,6 +656,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
   {
     project,
     snapSizeMm,
+    room,
     onCabinetMove,
     onCabinetRotate,
     selectedCabinetId,
@@ -789,7 +788,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
             "#d8dde3",
           ]}
         />
-        <RoomShell />
+        <RoomShell dims={room ? room.dimensions : { widthMm: 6000, depthMm: 4000, heightMm: 2800, showBackWall: true, showLeftWall: true, showRightWall: true }} />
 
         {items.map((cabinet) => {
           const isSelectedCabinet = cabinet.id === selectedCabinetId;

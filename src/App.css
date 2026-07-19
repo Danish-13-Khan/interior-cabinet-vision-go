@@ -199,6 +199,46 @@ select {
 }
 
 
+
+/* ── Wall Editor ── */
+.wall-toggles {
+  display: flex;
+  gap: 6px;
+}
+
+.wall-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid #e2e5ea;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  user-select: none;
+}
+
+.wall-toggle:hover {
+  border-color: #c4cad4;
+  background: #f7f8fa;
+}
+
+.wall-toggle.active {
+  border-color: #3b82f6;
+  background: #eef2ff;
+  color: #2563eb;
+}
+
+.wall-toggle input[type="checkbox"] {
+  accent-color: #3b82f6;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
 /* ── Room Settings ── */
 .room-settings {
   background: #fff;

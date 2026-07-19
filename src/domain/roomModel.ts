@@ -7,6 +7,9 @@ export type RoomDimensions = {
   depthMm: number;   // Z-axis
   heightMm: number;  // Y-axis
   wallThicknessMm: number;
+  showBackWall: boolean;
+  showLeftWall: boolean;
+  showRightWall: boolean;
 };
 
 export type DoorSide = "left-wall" | "right-wall" | "back-wall";
@@ -45,6 +48,9 @@ export const DEFAULT_ROOM: RoomConfig = {
     depthMm: 4000,
     heightMm: 2800,
     wallThicknessMm: 120,
+    showBackWall: true,
+    showLeftWall: true,
+    showRightWall: true,
   },
   doors: [
     {
@@ -244,5 +250,8 @@ export function clampRoomDimensions(dims: RoomDimensions): RoomDimensions {
     depthMm: Math.max(ROOM_DEPTH_MIN_MM, Math.min(ROOM_DEPTH_MAX_MM, dims.depthMm)),
     heightMm: Math.max(ROOM_HEIGHT_MIN_MM, Math.min(ROOM_HEIGHT_MAX_MM, dims.heightMm)),
     wallThicknessMm: Math.max(WALL_THICKNESS_MIN_MM, Math.min(WALL_THICKNESS_MAX_MM, dims.wallThicknessMm)),
+    showBackWall: dims.showBackWall,
+    showLeftWall: dims.showLeftWall,
+    showRightWall: dims.showRightWall,
   };
 }
