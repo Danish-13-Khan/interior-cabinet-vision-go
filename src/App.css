@@ -123,6 +123,21 @@ select {
   margin-right: 2px;
 }
 
+/* ── Library Sidebar (left) ── */
+.library-sidebar {
+  width: 72px;
+  flex-shrink: 0;
+  padding: 10px 6px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.78);
+  border-right: 1px solid rgba(114, 128, 143, 0.18);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+}
+
 /* ── Object Palette (left sidebar) ── */
 .object-palette {
   width: 78px;
@@ -205,7 +220,20 @@ select {
   word-break: break-word;
 }
 
-/* ── Settings Panel ── */
+/* ── Properties Panel (right inspector) ── */
+.properties-panel {
+  width: min(340px, 100%);
+  flex-shrink: 0;
+  padding: 14px;
+  box-sizing: border-box;
+  display: flex;
+  min-height: 0;
+  border-left: 1px solid rgba(114, 128, 143, 0.16);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+/* ── Settings Panel (legacy) ── */
 .settings-panel {
   width: min(380px, 100%);
   flex-shrink: 0;
@@ -218,8 +246,33 @@ select {
 .viewport-panel {
   flex: 1;
   min-width: 0;
-  padding: 14px 14px 14px 0;
+  padding: 10px;
   box-sizing: border-box;
+}
+
+/* ── Bottom Output Panel ── */
+.output-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 16px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.85);
+  border-top: 1px solid rgba(114, 128, 143, 0.14);
+  font-size: 0.72rem;
+  color: #5d6d7e;
+  gap: 16px;
+}
+
+.output-status {
+  font-weight: 600;
+  color: #3d4f63;
+}
+
+.output-stats {
+  color: #8a97a7;
+  font-size: 0.7rem;
 }
 
 .controls-card {
@@ -826,6 +879,7 @@ select {
     flex-direction: column;
   }
 
+  .library-sidebar,
   .object-palette {
     flex-direction: row;
     width: 100%;
@@ -852,6 +906,7 @@ select {
     border-radius: 20px;
   }
 
+  .properties-panel,
   .settings-panel {
     width: 100%;
     padding: 14px 14px 10px;
