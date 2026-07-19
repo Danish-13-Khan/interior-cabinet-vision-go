@@ -1,4 +1,7 @@
-import type { CabinetInstance } from "./cabinetDimensions";
+import {
+  getFootprintDimensions,
+  type CabinetInstance,
+} from "./cabinetDimensions";
 
 // ── Room Model ──────────────────────────────────────────────
 
@@ -210,11 +213,16 @@ function getCabinetRoomBounds(cabinet: CabinetInstance): {
   minX: number; maxX: number; minZ: number; maxZ: number;
   minY: number; maxY: number;
 } {
+  const footprint = getFootprintDimensions(
+    cabinet.config.dimensions,
+    cabinet.placement.rotation,
+  );
+
   return {
-    minX: cabinet.placement.x - cabinet.config.dimensions.width / 2,
-    maxX: cabinet.placement.x + cabinet.config.dimensions.width / 2,
-    minZ: cabinet.placement.z - cabinet.config.dimensions.depth / 2,
-    maxZ: cabinet.placement.z + cabinet.config.dimensions.depth / 2,
+    minX: cabinet.placement.x - footprint.width / 2,
+    maxX: cabinet.placement.x + footprint.width / 2,
+    minZ: cabinet.placement.z - footprint.depth / 2,
+    maxZ: cabinet.placement.z + footprint.depth / 2,
     minY: cabinet.placement.y,
     maxY: cabinet.placement.y + cabinet.config.dimensions.height,
   };
