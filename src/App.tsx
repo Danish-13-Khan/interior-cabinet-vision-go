@@ -805,7 +805,7 @@ function App() {
         </div>
       </header>
       <div className="app-body">
-      <aside className="object-palette">
+      <aside className="library-sidebar">
         <div className="palette-header">Add Items</div>
         {objectCategories.map((category) => (
           <button
@@ -845,7 +845,26 @@ function App() {
         ))}
       </aside>
 
-      <aside className="settings-panel">
+      <section className="viewport-panel" aria-label="3D room viewport">
+        <CabinetScene
+          ref={sceneRef}
+          project={project}
+          room={room}
+          snapSizeMm={CABINET_GRID_SNAP_MM}
+          onCabinetMove={handleCabinetMove}
+          onCabinetRotate={handleCabinetRotate}
+          selectedCabinetId={selectedCabinetId}
+          selectedPanelName={selectedPanelName}
+          onCabinetResize={handleCabinetResize}
+          onSelectedCabinetChange={setSelectedCabinetId}
+          onSelectedPanelChange={(cabinetId, name) => {
+            setSelectedCabinetId(cabinetId);
+            setSelectedPanelName(name);
+          }}
+        />
+      </section>
+
+      <aside className="properties-panel">
         <DimensionControls
           cabinetCount={project.cabinets.length}
           cabinetCutlistItems={cabinetCutlistItems}
@@ -884,25 +903,12 @@ function App() {
         />
       </aside>
 
-      <section className="viewport-panel" aria-label="3D room viewport">
-        <CabinetScene
-          ref={sceneRef}
-          project={project}
-          room={room}
-          snapSizeMm={CABINET_GRID_SNAP_MM}
-          onCabinetMove={handleCabinetMove}
-          onCabinetRotate={handleCabinetRotate}
-          selectedCabinetId={selectedCabinetId}
-          selectedPanelName={selectedPanelName}
-          onCabinetResize={handleCabinetResize}
-          onSelectedCabinetChange={setSelectedCabinetId}
-          onSelectedPanelChange={(cabinetId, name) => {
-            setSelectedCabinetId(cabinetId);
-            setSelectedPanelName(name);
-          }}
-        />
-      </section>
       </div>
+      <footer className="output-panel">
+        <span className="output-status">{projectStatus || "Ready"}</span>
+        <span className="output-stats">{project.cabinets.length} items &middot; {selectedCabinet ? selectedCabinet.config.dimensions.width + " × " + selectedCabinet.config.dimensions.height + " × " + selectedCabinet.config.dimensions.depth + " mm" : "No selection"}</span>
+      </footer>
+
     </main>
   );
 }
