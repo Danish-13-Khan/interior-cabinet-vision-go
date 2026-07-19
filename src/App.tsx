@@ -7,6 +7,8 @@ import {
   type CabinetSceneHandle,
 } from "./components/CabinetScene";
 import { DimensionControls } from "./components/DimensionControls";
+import { CutlistPanel } from "./components/CutlistPanel";
+import { ProjectBrowser } from "./components/ProjectBrowser";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -843,6 +845,15 @@ function App() {
             <span className="palette-cat-label">{preset.label}</span>
           </button>
         ))}
+        <div className="palette-divider" />
+        <ProjectBrowser
+          projects={sortedSavedProjects}
+          onDeleteProject={handleDeleteSavedProject}
+          onDuplicateProject={handleDuplicateSavedProject}
+          onLoadProject={handleLoadSavedProject}
+          onRenameProject={handleRenameSavedProject}
+          onSaveCurrent={saveCurrentProjectToBrowser}
+        />
       </aside>
 
       <section className="viewport-panel" aria-label="3D room viewport">
@@ -905,8 +916,25 @@ function App() {
 
       </div>
       <footer className="output-panel">
-        <span className="output-status">{projectStatus || "Ready"}</span>
-        <span className="output-stats">{project.cabinets.length} items &middot; {selectedCabinet ? selectedCabinet.config.dimensions.width + " × " + selectedCabinet.config.dimensions.height + " × " + selectedCabinet.config.dimensions.depth + " mm" : "No selection"}</span>
+        <div className="output-bar">
+          <span className="output-status">{projectStatus || "Ready"}</span>
+          <span className="output-stats">{project.cabinets.length} items &middot; {selectedCabinet ? selectedCabinet.config.dimensions.width + " × " + selectedCabinet.config.dimensions.height + " × " + selectedCabinet.config.dimensions.depth + " mm" : "No selection"}</span>
+          <span className="output-bar-actions">
+            <button type="button" className="tb-btn" onClick={handleSaveProject}>Save JSON</button>
+            <button type="button" className="tb-btn" onClick={handleExportProjectJson}>Export JSON</button>
+            <button type="button" className="tb-btn" onClick={handleExportCutlistCsv}>Export CSV</button>
+            <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf}>Export PDF</button>
+          </span>
+        </div>
+        {validationMessages.length > 0 ? (
+          <div className="output-warnings">
+            {validationMessages.map((m) => <span key={m} className="output-warn">{m}</span>)}
+          </div>
+        ) : null}
+        <div className="output-cutlists">
+          <CutlistPanel items={cabinetCutlistItems} title="Selected Item" />
+          <CutlistPanel items={cutlistItems} title="Project Total" />
+        </div>
       </footer>
 
     </main>
