@@ -1964,8 +1964,8 @@ function App() {
                   <span>{workspaceLabel}</span>
                   <span>
                     {selectedCabinetIds.length > 0
-                      ? `${selectedCabinetIds.length} selected`
-                      : "Click an item to select"}
+                      ? `${selectedCabinetIds.length} selected · drag to move · snap ${projectPreferences.snapSizeMm} mm`
+                      : "Click to select · drag cabinets to move"}
                   </span>
                 </div>
                 <div className="drawing-sheet-scroll">
@@ -1976,7 +1976,10 @@ function App() {
                     countertops={planningWorkflow.countertops}
                     selectedCabinetIds={selectedCabinetIds}
                     activeCabinetId={activeCabinetId}
+                    snapSizeMm={projectPreferences.snapSizeMm}
+                    showGrid={projectPreferences.showGrid}
                     onSelectCabinet={handleWorkspaceSelectCabinet}
+                    onCabinetMove={handleCabinetMove}
                   />
                 </div>
               </div>

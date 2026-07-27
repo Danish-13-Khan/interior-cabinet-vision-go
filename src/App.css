@@ -1020,6 +1020,16 @@ select {
 
 .technical-view {
   display: inline-block;
+  user-select: none;
+  touch-action: none;
+}
+
+.technical-view.is-dragging {
+  cursor: grabbing;
+}
+
+.technical-view.is-dragging .twod-cabinet {
+  cursor: grabbing;
 }
 
 .technical-view svg {

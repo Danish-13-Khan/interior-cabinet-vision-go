@@ -200,46 +200,95 @@ export async function exportProjectPdf(
     y += rowHeight;
   });
 
-  const topView = createTechnicalView(project, room, "top", countertops);
-  const frontView = createTechnicalView(project, room, "front", countertops);
-  const sideView = createTechnicalView(project, room, "side", countertops);
+  const topView = createTechnicalView(project, room, "top", countertops, {
+    mode: "print",
+    showGrid: false,
+    showDimensionChains: true,
+    showWallLabels: true,
+    showElevationDetails: true,
+    title: "Room Plan",
+    projectName: title,
+  });
+  const frontView = createTechnicalView(project, room, "front", countertops, {
+    mode: "print",
+    showDimensionChains: true,
+    showWallLabels: true,
+    showElevationDetails: true,
+    title: "Front Elevation",
+    projectName: title,
+  });
+  const sideView = createTechnicalView(project, room, "side", countertops, {
+    mode: "print",
+    showDimensionChains: true,
+    showWallLabels: true,
+    showElevationDetails: true,
+    title: "Side Elevation",
+    projectName: title,
+  });
   const technicalViews = [
-    { label: "Room Plan", result: topView },
-    { label: "Front Elevation", result: frontView },
-    { label: "Side Elevation", result: sideView },
+    { label: "Room Plan", result: topView, sheetCode: "A-101" },
+    { label: "Front Elevation", result: frontView, sheetCode: "A-201" },
+    { label: "Side Elevation", result: sideView, sheetCode: "A-202" },
   ];
 
   for (const view of technicalViews) {
     doc.addPage();
-    doc.setFillColor(247, 248, 250);
+    doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, pageHeight, "F");
     let viewY = margin;
-    doc.setFontSize(15);
-    doc.setTextColor(34, 44, 59);
-    doc.text(view.label, margin, viewY);
-    viewY += 8;
+
+    doc.setDrawColor(71, 85, 105);
+    doc.setLineWidth(0.4);
+    doc.rect(margin, viewY, contentWidth, 16);
+    doc.line(margin + contentWidth * 0.55, viewY, margin + contentWidth * 0.55, viewY + 16);
+    doc.line(margin + contentWidth * 0.78, viewY, margin + contentWidth * 0.78, viewY + 16);
+
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text(title, margin + 3, viewY + 6.5);
+    doc.setFontSize(8);
+    doc.setTextColor(71, 85, 105);
+    doc.text(view.label, margin + 3, viewY + 12.5);
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.text(view.sheetCode, margin + contentWidth * 0.55 + 3, viewY + 6.5);
+    doc.setFontSize(8);
+    doc.setTextColor(71, 85, 105);
+    doc.text("Scale 1:100", margin + contentWidth * 0.55 + 3, viewY + 12.5);
+    doc.text("TECHNICAL", margin + contentWidth * 0.78 + 3, viewY + 6.5);
+    doc.text(new Date().toLocaleDateString(), margin + contentWidth * 0.78 + 3, viewY + 12.5);
+    viewY += 22;
 
     const viewImage = await svgToPngDataUrl(view.result.svg);
-    const scale = Math.min(contentWidth / view.result.width, 190 / view.result.height);
+    const scale = Math.min(contentWidth / view.result.width, 175 / view.result.height);
     const drawWidth = view.result.width * scale;
     const drawHeight = view.result.height * scale;
 
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(margin, viewY, contentWidth, drawHeight + 12, 3, 3, "F");
-    doc.setDrawColor(225, 230, 236);
-    doc.roundedRect(margin, viewY, contentWidth, drawHeight + 12, 3, 3);
-    doc.addImage(viewImage, "PNG", margin + 4, viewY + 4, drawWidth, drawHeight);
+    doc.setDrawColor(148, 163, 184);
+    doc.rect(margin, viewY, contentWidth, drawHeight + 8);
+    doc.addImage(
+      viewImage,
+      "PNG",
+      margin + (contentWidth - drawWidth) / 2,
+      viewY + 4,
+      drawWidth,
+      drawHeight,
+    );
 
-    viewY += drawHeight + 20;
-    doc.setFontSize(11);
-    doc.setTextColor(34, 44, 59);
-    doc.text("Notes", margin, viewY);
-    viewY += 4;
-    doc.setDrawColor(214, 220, 228);
-    doc.roundedRect(margin, viewY, contentWidth, 44, 3, 3);
-    doc.setFontSize(8.5);
-    doc.setTextColor(114, 125, 139);
-    doc.text("Use this area for design decisions, revision notes, site checks, and approval marks.", margin + 4, viewY + 8);
+    viewY += drawHeight + 14;
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.text("Revision / Site Notes", margin, viewY);
+    viewY += 3;
+    doc.setDrawColor(148, 163, 184);
+    doc.rect(margin, viewY, contentWidth, 36);
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(
+      "Mark clearances, appliance models, filler decisions, and approval initials.",
+      margin + 3,
+      viewY + 7,
+    );
   }
 
   doc.addPage();
