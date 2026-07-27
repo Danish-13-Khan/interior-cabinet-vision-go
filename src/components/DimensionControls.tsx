@@ -1,18 +1,8 @@
 import { useEffect, useState } from "react";
 import { CutlistPanel } from "./CutlistPanel"; void CutlistPanel;
 import { ProjectBrowser } from "./ProjectBrowser"; void ProjectBrowser;
+import { CabinetPropertyGrid } from "./CabinetPropertyGrid";
 import {
-  CABINET_DEPTH_MAX_MM,
-  CABINET_DEPTH_MIN_MM,
-  CABINET_DEPTH_STEP_MM,
-  CABINET_DRAWER_MAX,
-  CABINET_DRAWER_MIN,
-  CABINET_HEIGHT_MAX_MM,
-  CABINET_HEIGHT_MIN_MM,
-  CABINET_HEIGHT_STEP_MM,
-  CABINET_WIDTH_MAX_MM,
-  CABINET_WIDTH_MIN_MM,
-  CABINET_WIDTH_STEP_MM,
   cabinetTypeLabels,
   clampCabinetDepth,
   clampCabinetHeight,
@@ -21,18 +11,11 @@ import {
   clampShelfCount,
   clampToeKickHeight,
   clampToeKickInset,
-  getDefaultCabinetConfig,
   normalizeRotationAngle,
-  supportsDoors,
-  supportsDrawers,
-  supportsEndPanels,
-  supportsShelves,
-  supportsToeKick,
   supportsWallPlacement,
   type CabinetConfig,
   type CabinetInstance,
   type CabinetPlacement,
-  type CabinetType,
 } from "../domain/cabinetDimensions";
 import type { CabinetPart } from "../domain/cabinetConstruction";
 import type {
@@ -243,10 +226,6 @@ export function DimensionControls({
     selectedPlacement?.z,
   ]);
 
-  function handleTypeChange(type: CabinetType) {
-    onConfigChange(getDefaultCabinetConfig(type));
-  }
-
   function handleNumericInputChange(key: NumericInputKey, value: string) {
     setInputs((currentInputs) => ({
       ...currentInputs,
@@ -348,15 +327,7 @@ export function DimensionControls({
     setEditCabinetNameValue("");
   }
 
-  const showDrawerTools = supportsDrawers(config.type);
-  const showEndPanelTools = supportsEndPanels(config.type);
   const buildRules = config.buildRules;
-  const showStructureSection =
-    supportsShelves(config.type) ||
-    supportsDoors(config.type) ||
-    supportsToeKick(config.type) ||
-    showDrawerTools ||
-    showEndPanelTools;
   const showWallTools = supportsWallPlacement(config.type);
   const attachment = selectedPlacement?.attachment ?? "floor";
   const rotation = normalizeRotationAngle(selectedPlacement?.rotation ?? 0);
@@ -365,7 +336,7 @@ export function DimensionControls({
     <div className="controls-card">
       <div className="controls-header">
         <h1>Inspector</h1>
-        <p>Edit selection, placement, structure, and materials.</p>
+        <p>Cabinet specification, placement, and materials.</p>
       </div>
 
       <div className="controls-form">
@@ -585,51 +556,11 @@ export function DimensionControls({
 
         {activeCabinetId ? (
           <>
+            <CabinetPropertyGrid config={config} onConfigChange={onConfigChange} />
+
             <div className="control-section">
               <div className="section-heading">
-                <h2>Dimensions</h2>
-              </div>
-
-              <div className="field-grid">
-                <div className="field-group">
-                  <label htmlFor="dim-width">Width (mm)</label>
-                  <input
-                    id="dim-width"
-                    type="number"
-                    min={CABINET_WIDTH_MIN_MM}
-                    max={CABINET_WIDTH_MAX_MM}
-                    step={CABINET_WIDTH_STEP_MM}
-                    value={inputs.width}
-                    onChange={(event) => handleNumericInputChange("width", event.currentTarget.value)}
-                    onBlur={() => handleBlur("width")}
-                  />
-                </div>
-                <div className="field-group">
-                  <label htmlFor="dim-height">Height (mm)</label>
-                  <input
-                    id="dim-height"
-                    type="number"
-                    min={CABINET_HEIGHT_MIN_MM}
-                    max={CABINET_HEIGHT_MAX_MM}
-                    step={CABINET_HEIGHT_STEP_MM}
-                    value={inputs.height}
-                    onChange={(event) => handleNumericInputChange("height", event.currentTarget.value)}
-                    onBlur={() => handleBlur("height")}
-                  />
-                </div>
-                <div className="field-group">
-                  <label htmlFor="dim-depth">Depth (mm)</label>
-                  <input
-                    id="dim-depth"
-                    type="number"
-                    min={CABINET_DEPTH_MIN_MM}
-                    max={CABINET_DEPTH_MAX_MM}
-                    step={CABINET_DEPTH_STEP_MM}
-                    value={inputs.depth}
-                    onChange={(event) => handleNumericInputChange("depth", event.currentTarget.value)}
-                    onBlur={() => handleBlur("depth")}
-                  />
-                </div>
+                <h2>Placement</h2>
               </div>
 
               <div className="field-grid">
@@ -646,27 +577,6 @@ export function DimensionControls({
                     <option value={270}>270°</option>
                   </select>
                 </div>
-
-                <div className="field-group">
-                  <label htmlFor="type-select">Type</label>
-                  <select
-                    id="type-select"
-                    value={config.type}
-                    onChange={(event) => handleTypeChange(event.target.value as CabinetType)}
-                  >
-                    {(Object.keys(cabinetTypeLabels) as CabinetType[]).map((type) => (
-                      <option key={type} value={type}>
-                        {cabinetTypeLabels[type]}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="control-section">
-              <div className="section-heading">
-                <h2>Placement</h2>
               </div>
 
               {showWallTools ? (
@@ -741,115 +651,6 @@ export function DimensionControls({
                 </div>
               </div>
             </div>
-
-            {showStructureSection ? (
-              <div className="control-section">
-                <div className="section-heading">
-                  <h2>Structure</h2>
-                </div>
-
-                {supportsShelves(config.type) ? (
-                  <div className="field-group">
-                    <label htmlFor="shelf-count">Shelves</label>
-                    <input
-                      id="shelf-count"
-                      type="number"
-                      min={0}
-                      max={6}
-                      step={1}
-                      value={inputs.shelfCount}
-                      onChange={(event) => handleNumericInputChange("shelfCount", event.currentTarget.value)}
-                      onBlur={() => handleBlur("shelfCount")}
-                    />
-                  </div>
-                ) : null}
-
-                {showDrawerTools ? (
-                  <div className="field-group">
-                    <label htmlFor="drawer-count">Drawers</label>
-                    <input
-                      id="drawer-count"
-                      type="number"
-                      min={CABINET_DRAWER_MIN}
-                      max={CABINET_DRAWER_MAX}
-                      step={1}
-                      value={inputs.drawerCount}
-                      onChange={(event) => handleNumericInputChange("drawerCount", event.currentTarget.value)}
-                      onBlur={() => handleBlur("drawerCount")}
-                    />
-                  </div>
-                ) : null}
-
-                {supportsDoors(config.type) ? (
-                  <div className="field-group checkbox-group">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={config.hasDoors}
-                        onChange={(event) => onConfigChange({ hasDoors: event.currentTarget.checked })}
-                      />
-                      Doors
-                    </label>
-                  </div>
-                ) : null}
-
-                {supportsToeKick(config.type) ? (
-                  <div className="field-grid">
-                    <div className="field-group">
-                      <label htmlFor="toe-kick-height">Toe Kick Height</label>
-                      <input
-                        id="toe-kick-height"
-                        type="number"
-                        min={80}
-                        max={180}
-                        step={10}
-                        value={inputs.toeKickHeight}
-                        onChange={(event) => handleNumericInputChange("toeKickHeight", event.currentTarget.value)}
-                        onBlur={() => handleBlur("toeKickHeight")}
-                      />
-                    </div>
-                    <div className="field-group">
-                      <label htmlFor="toe-kick-inset">Toe Kick Inset</label>
-                      <input
-                        id="toe-kick-inset"
-                        type="number"
-                        min={20}
-                        max={120}
-                        step={10}
-                        value={inputs.toeKickInset}
-                        onChange={(event) => handleNumericInputChange("toeKickInset", event.currentTarget.value)}
-                        onBlur={() => handleBlur("toeKickInset")}
-                      />
-                    </div>
-                  </div>
-                ) : null}
-
-                {showEndPanelTools ? (
-                  <div className="field-grid">
-                    <div className="field-group checkbox-group">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={config.leftEndPanel}
-                          onChange={(event) => onConfigChange({ leftEndPanel: event.currentTarget.checked })}
-                        />
-                        Left End Panel
-                      </label>
-                    </div>
-                    <div className="field-group checkbox-group">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={config.rightEndPanel}
-                          onChange={(event) => onConfigChange({ rightEndPanel: event.currentTarget.checked })}
-                        />
-                        Right End Panel
-                      </label>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
 
             {buildRules ? (
               <div className="control-section">

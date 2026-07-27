@@ -3,20 +3,33 @@ import {
   resolveCabinetMaterialSpec,
   type CabinetBuildRules,
 } from "./materialSystem";
+import {
+  createDefaultComposition,
+  resolveCabinetComposition,
+  syncFlatFieldsFromComposition,
+  type CabinetComposition,
+} from "./cabinetComposition";
+import type { CabinetType } from "./cabinetCapabilities";
 
-export type CabinetType =
-  | "base"
-  | "wall"
-  | "tall"
-  | "drawer"
-  | "sink"
-  | "corner"
-  | "open-shelf"
-  | "almirah"
-  | "table"
-  | "chair"
-  | "sofa"
-  | "mirror";
+export type { CabinetComposition } from "./cabinetComposition";
+export type { CabinetType } from "./cabinetCapabilities";
+export {
+  isStorageType,
+  supportsCountertop,
+  supportsDoors,
+  supportsDrawers,
+  supportsEndPanels,
+  supportsShelves,
+  supportsToeKick,
+  supportsWallPlacement,
+} from "./cabinetCapabilities";
+import {
+  isStorageType,
+  supportsDoors,
+  supportsDrawers,
+  supportsShelves,
+  supportsToeKick,
+} from "./cabinetCapabilities";
 
 export type CabinetDimensions = {
   width: number;
@@ -37,6 +50,8 @@ export type CabinetConfig = {
   leftEndPanel?: boolean;
   rightEndPanel?: boolean;
   buildRules?: Partial<CabinetBuildRules>;
+  /** Structured Core Cabinets–style composition. Flat fields stay in sync for geometry. */
+  composition?: CabinetComposition;
 };
 
 export type CabinetPlacement = {
@@ -414,67 +429,18 @@ export const defaultCabinetProject: CabinetProject = {
 
 export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
   const preset = cabinetTypePresets[type];
-
-  return {
+  const base: CabinetConfig = {
     ...preset,
     dimensions: { ...preset.dimensions },
     buildRules: { ...(preset.buildRules ?? DEFAULT_BUILD_RULES) },
   };
-}
+  const composition = createDefaultComposition(type, base);
 
-export function isStorageType(type: CabinetType): boolean {
-  return (
-    type === "base" ||
-    type === "wall" ||
-    type === "tall" ||
-    type === "drawer" ||
-    type === "sink" ||
-    type === "corner" ||
-    type === "open-shelf" ||
-    type === "almirah"
-  );
-}
-
-export function supportsShelves(type: CabinetType): boolean {
-  return isStorageType(type);
-}
-
-export function supportsDoors(type: CabinetType): boolean {
-  return type !== "drawer" && type !== "open-shelf" && isStorageType(type);
-}
-
-export function supportsDrawers(type: CabinetType): boolean {
-  return type === "drawer";
-}
-
-export function supportsToeKick(type: CabinetType): boolean {
-  return (
-    type === "base" ||
-    type === "tall" ||
-    type === "drawer" ||
-    type === "sink" ||
-    type === "corner" ||
-    type === "open-shelf" ||
-    type === "almirah"
-  );
-}
-
-export function supportsWallPlacement(type: CabinetType): boolean {
-  return type === "wall" || type === "mirror";
-}
-
-export function supportsEndPanels(type: CabinetType): boolean {
-  return isStorageType(type);
-}
-
-export function supportsCountertop(type: CabinetType): boolean {
-  return (
-    type === "base" ||
-    type === "drawer" ||
-    type === "sink" ||
-    type === "corner" ||
-    type === "open-shelf"
-  );
+  return {
+    ...base,
+    ...syncFlatFieldsFromComposition(composition),
+    composition,
+  };
 }
 
 export function millimetresToMetres(valueInMillimetres: number): number {
@@ -641,16 +607,75 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
   const hasDoors = supportsDoors(merged.type);
   const hasDrawers = supportsDrawers(merged.type);
 
+  const shelfCount = hasShelves ? clampShelfCount(merged.shelfCount) : 0;
+  const drawerCount = hasDrawers ? clampDrawerCount(merged.drawerCount ?? 0) : 0;
+  const hasDoorsFlag = hasDoors ? Boolean(merged.hasDoors) : false;
+  const toeKickHeight = hasToeKick ? clampToeKickHeight(merged.toeKickHeight) : 0;
+  const toeKickInset = hasToeKick ? clampToeKickInset(merged.toeKickInset) : 0;
+  const seedComposition =
+    merged.composition ??
+    createDefaultComposition(merged.type, {
+      ...merged,
+      dimensions: safeDimensions,
+      shelfCount,
+      hasDoors: hasDoorsFlag,
+      drawerCount,
+      toeKickHeight,
+      toeKickInset,
+      leftEndPanel: Boolean(merged.leftEndPanel),
+      rightEndPanel: Boolean(merged.rightEndPanel),
+    });
+
+  const composition = resolveCabinetComposition({
+    ...merged,
+    dimensions: safeDimensions,
+    shelfCount,
+    hasDoors: hasDoorsFlag,
+    drawerCount,
+    toeKickHeight,
+    toeKickInset,
+    leftEndPanel: Boolean(merged.leftEndPanel),
+    rightEndPanel: Boolean(merged.rightEndPanel),
+    composition: {
+      ...seedComposition,
+      shelves: {
+        ...seedComposition.shelves,
+        count: shelfCount,
+      },
+      drawers: {
+        ...seedComposition.drawers,
+        count: drawerCount,
+      },
+      doors: {
+        ...seedComposition.doors,
+        enabled: hasDoorsFlag,
+        style: hasDoorsFlag
+          ? seedComposition.doors.style === "none"
+            ? safeDimensions.width < 600
+              ? "single"
+              : "double"
+            : seedComposition.doors.style
+          : "none",
+      },
+      toeKick: {
+        ...seedComposition.toeKick,
+        enabled: toeKickHeight > 0,
+        heightMm: toeKickHeight,
+        insetMm: toeKickInset,
+      },
+      endPanels: {
+        left: Boolean(merged.leftEndPanel),
+        right: Boolean(merged.rightEndPanel),
+      },
+    },
+  });
+  const flat = syncFlatFieldsFromComposition(composition);
+
   return {
     ...merged,
     dimensions: safeDimensions,
-    shelfCount: hasShelves ? clampShelfCount(merged.shelfCount) : 0,
-    hasDoors: hasDoors ? Boolean(merged.hasDoors) : false,
-    drawerCount: hasDrawers ? clampDrawerCount(merged.drawerCount ?? 0) : 0,
-    toeKickHeight: hasToeKick ? clampToeKickHeight(merged.toeKickHeight) : 0,
-    toeKickInset: hasToeKick ? clampToeKickInset(merged.toeKickInset) : 0,
-    leftEndPanel: Boolean(merged.leftEndPanel),
-    rightEndPanel: Boolean(merged.rightEndPanel),
+    ...flat,
+    composition,
     buildRules: {
       ...merged.buildRules,
       carcassThicknessMm: resolvedMaterialSpec.carcassMaterial.thicknessMm,

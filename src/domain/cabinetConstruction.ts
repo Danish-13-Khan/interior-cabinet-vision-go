@@ -1,6 +1,12 @@
 import type { CabinetConfig, CabinetDimensions } from "./cabinetDimensions";
 import { clampCabinetConfig, supportsDoors, supportsDrawers, supportsEndPanels, supportsShelves } from "./cabinetDimensions";
 import {
+  getResolvedDividerCount,
+  getResolvedDoorCount,
+  getResolvedFillers,
+  resolveCabinetComposition,
+} from "./cabinetComposition";
+import {
   BACK_PANEL_RULES,
   DEFAULT_BUILD_RULES,
   resolveCabinetMaterialSpec,
@@ -195,10 +201,11 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
   }
 
   if (supportsShelves(safeConfig.type) && safeConfig.shelfCount > 0) {
+    const shelvesAdjustable = resolveCabinetComposition(safeConfig).shelves.adjustable;
     parts.push(
       createPart(
         "shelf",
-        "Adjustable Shelf",
+        shelvesAdjustable ? "Adjustable Shelf" : "Fixed Shelf",
         "Shelf",
         safeConfig.shelfCount,
         innerWidth,
@@ -212,15 +219,16 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
     );
   }
 
-  if (safeConfig.type === "corner") {
+  const dividerCount = getResolvedDividerCount(safeConfig);
+  if (dividerCount > 0) {
     parts.push(
       createPart(
-        "corner-divider",
-        "Corner Divider",
+        "divider",
+        safeConfig.type === "corner" ? "Corner Divider" : "Vertical Divider",
         "Divider",
-        1,
+        dividerCount,
         innerHeight - safeConfig.toeKickHeight,
-        dimensions.depth * 0.45,
+        Math.max(120, dimensions.depth * 0.45),
         buildRules.carcassThicknessMm,
         buildRules.grainDirection,
         materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
@@ -231,10 +239,10 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
   }
 
   if (supportsDoors(safeConfig.type) && safeConfig.hasDoors) {
-    const doorQty = safeConfig.dimensions.width < 600 ? 1 : 2;
+    const doorQty = Math.max(1, getResolvedDoorCount(safeConfig));
     const doorWidth = doorQty === 1
       ? safeConfig.dimensions.width - 4
-      : (safeConfig.dimensions.width - 12) / 2;
+      : (safeConfig.dimensions.width - 12) / doorQty;
     const doorHeight = safeConfig.dimensions.height - safeConfig.toeKickHeight - 8;
     parts.push(
       createPart(
@@ -311,6 +319,44 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
         materialSpec.drawerBoxMaterial.boardMaterialId.toUpperCase(),
         materialSpec.drawerBoxMaterial.finishId,
         "none",
+      ),
+    );
+  }
+
+  const fillers = getResolvedFillers(safeConfig);
+  if (fillers.leftMm > 0) {
+    parts.push(
+      createPart(
+        "filler-left",
+        "Left Filler",
+        "EndPanel",
+        1,
+        dimensions.height - safeConfig.toeKickHeight,
+        fillers.leftMm,
+        buildRules.carcassThicknessMm,
+        buildRules.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+        "Run filler strip",
+      ),
+    );
+  }
+  if (fillers.rightMm > 0) {
+    parts.push(
+      createPart(
+        "filler-right",
+        "Right Filler",
+        "EndPanel",
+        1,
+        dimensions.height - safeConfig.toeKickHeight,
+        fillers.rightMm,
+        buildRules.carcassThicknessMm,
+        buildRules.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+        "Run filler strip",
       ),
     );
   }
