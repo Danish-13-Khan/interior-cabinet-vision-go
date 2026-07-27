@@ -96,6 +96,14 @@ type AlignmentMode =
   | "distribute-x"
   | "distribute-z";
 
+type CommandItem = {
+  id: string;
+  label: string;
+  hint: string;
+  shortcut: string;
+  action: () => void;
+};
+
 function deepClone<T>(value: T): T {
   if (typeof structuredClone === "function") {
     return structuredClone(value);
@@ -257,6 +265,9 @@ function App() {
   const [projectStatus, setProjectStatus] = useState("");
   const [projectFilePath, setProjectFilePath] = useState<string | null>(null);
   const [historyTick, setHistoryTick] = useState(0);
+  const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState("");
+  const [isShortcutSheetOpen, setIsShortcutSheetOpen] = useState(false);
 
   const selectedCabinet =
     project.cabinets.find((cabinet) => cabinet.id === activeCabinetId) ?? null;
@@ -1205,6 +1216,12 @@ function App() {
     );
   }
 
+  function closeCommandSurfaces() {
+    setIsCommandBarOpen(false);
+    setCommandQuery("");
+    setIsShortcutSheetOpen(false);
+  }
+
   function handleAlignSelection(mode: AlignmentMode) {
     const editable = getSelectedEditableCabinets();
     if (editable.length < 2) return;
@@ -1312,6 +1329,39 @@ function App() {
         return;
       }
 
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsCommandBarOpen((value) => !value);
+        setIsShortcutSheetOpen(false);
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+        if (isTypingTarget) return;
+        event.preventDefault();
+        void handleSaveProject();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "n") {
+        if (isTypingTarget) return;
+        event.preventDefault();
+        handleReset();
+        return;
+      }
+
+      if (!isTypingTarget && event.key === "?") {
+        event.preventDefault();
+        setIsShortcutSheetOpen((value) => !value);
+        setIsCommandBarOpen(false);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeCommandSurfaces();
+        return;
+      }
+
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "y") {
         event.preventDefault();
         handleRedo();
@@ -1355,6 +1405,35 @@ function App() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [project, room, selectedCabinets, selectedCabinetIds, projectPreferences.snapSizeMm, activeCabinetId]);
+
+  const commandItems = useMemo<CommandItem[]>(
+    () => [
+      { id: "new", label: "New Project", hint: "Reset the current project", shortcut: "Cmd/Ctrl+N", action: handleReset },
+      { id: "save", label: "Save Project", hint: "Save project JSON to disk", shortcut: "Cmd/Ctrl+S", action: () => { void handleSaveProject(); } },
+      { id: "undo", label: "Undo", hint: "Reverse the last change", shortcut: "Cmd/Ctrl+Z", action: handleUndo },
+      { id: "redo", label: "Redo", hint: "Reapply the last undone change", shortcut: "Cmd/Ctrl+Shift+Z", action: handleRedo },
+      { id: "copy", label: "Copy Selection", hint: "Copy selected items", shortcut: "Cmd/Ctrl+C", action: handleCopySelection },
+      { id: "paste", label: "Paste Selection", hint: "Paste copied items", shortcut: "Cmd/Ctrl+V", action: handlePasteSelection },
+      { id: "group", label: "Group Selection", hint: "Create a group from selected items", shortcut: "Toolbar", action: handleCreateGroup },
+      { id: "ungroup", label: "Ungroup Selection", hint: "Remove selected items from their group", shortcut: "Toolbar", action: handleClearGroup },
+      { id: "align-left", label: "Align Left", hint: "Align selected items to the left edge", shortcut: "Toolbar", action: () => handleAlignSelection("align-left") },
+      { id: "distribute-x", label: "Distribute X", hint: "Evenly space selected items horizontally", shortcut: "Toolbar", action: () => handleAlignSelection("distribute-x") },
+      { id: "toggle-grid", label: "Toggle Grid", hint: "Show or hide the viewport grid", shortcut: "Toolbar", action: () => handleProjectPreferenceChange({ showGrid: !projectPreferences.showGrid }) },
+      { id: "shortcuts", label: "Show Shortcuts", hint: "Open keyboard shortcut cheat sheet", shortcut: "?", action: () => setIsShortcutSheetOpen(true) },
+    ],
+    [projectPreferences.showGrid, selectedCabinetIds.length],
+  );
+
+  const filteredCommandItems = useMemo(() => {
+    const query = commandQuery.trim().toLowerCase();
+    if (!query) {
+      return commandItems;
+    }
+
+    return commandItems.filter((item) =>
+      `${item.label} ${item.hint} ${item.shortcut}`.toLowerCase().includes(query),
+    );
+  }, [commandItems, commandQuery]);
 
   async function writeFile(path: string, contents: string) {
     await invoke("save_project_file", {
@@ -1635,6 +1714,9 @@ function App() {
           <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-center-x")} disabled={selectedCabinetIds.length < 2}>Center X</button>
           <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-top")} disabled={selectedCabinetIds.length < 2}>Top</button>
           <button type="button" className="tb-btn" onClick={() => handleAlignSelection("distribute-x")} disabled={selectedCabinetIds.length < 3}>Distribute X</button>
+          <span className="tb-sep" />
+          <button type="button" className="tb-btn" onClick={() => { setIsCommandBarOpen(true); setIsShortcutSheetOpen(false); }} title="Command palette">Commands</button>
+          <button type="button" className="tb-btn" onClick={() => { setIsShortcutSheetOpen(true); setIsCommandBarOpen(false); }} title="Shortcut help">Shortcuts</button>
         </div>
       </header>
       <div className="app-body">
@@ -1734,6 +1816,18 @@ function App() {
 
             replaceSelection([cabinetId], cabinetId, name);
           }}
+          onMarqueeSelect={(cabinetIds, additive) => {
+            if (additive) {
+              replaceSelection(
+                Array.from(new Set([...selectedCabinetIds, ...cabinetIds])),
+                cabinetIds[0] ?? activeCabinetId,
+                null,
+              );
+              return;
+            }
+
+            replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
+          }}
         />
       </section>
 
@@ -1818,6 +1912,72 @@ function App() {
       </aside>
 
       </div>
+      {isCommandBarOpen ? (
+        <div className="command-bar-backdrop" onClick={closeCommandSurfaces}>
+          <div className="command-bar" onClick={(event) => event.stopPropagation()}>
+            <div className="command-bar-header">
+              <strong>Command Palette</strong>
+              <span>Cmd/Ctrl+K</span>
+            </div>
+            <input
+              className="command-bar-input"
+              autoFocus
+              placeholder="Search commands, tools, and editor actions"
+              value={commandQuery}
+              onChange={(event) => setCommandQuery(event.currentTarget.value)}
+            />
+            <div className="command-bar-list">
+              {filteredCommandItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="command-bar-item"
+                  onClick={() => {
+                    item.action();
+                    setIsCommandBarOpen(false);
+                    setCommandQuery("");
+                  }}
+                >
+                  <span>
+                    <strong>{item.label}</strong>
+                    <small>{item.hint}</small>
+                  </span>
+                  <kbd>{item.shortcut}</kbd>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {isShortcutSheetOpen ? (
+        <div className="command-bar-backdrop" onClick={closeCommandSurfaces}>
+          <div className="shortcut-sheet" onClick={(event) => event.stopPropagation()}>
+            <div className="command-bar-header">
+              <strong>Shortcut Cheat Sheet</strong>
+              <span>Press ? to toggle</span>
+            </div>
+            <div className="shortcut-grid">
+              {[
+                ["Cmd/Ctrl+K", "Open command palette"],
+                ["?", "Open shortcut help"],
+                ["Cmd/Ctrl+Z", "Undo"],
+                ["Cmd/Ctrl+Shift+Z", "Redo"],
+                ["Cmd/Ctrl+C", "Copy selection"],
+                ["Cmd/Ctrl+V", "Paste selection"],
+                ["Cmd/Ctrl+D", "Duplicate selection"],
+                ["Cmd/Ctrl+A", "Select all items"],
+                ["Shift + Drag", "Marquee select in viewport"],
+                ["Delete", "Remove selected items"],
+              ].map(([shortcut, description]) => (
+                <div key={shortcut} className="shortcut-row">
+                  <kbd>{shortcut}</kbd>
+                  <span>{description}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
       <footer className="output-panel">
         <div className="output-bar">
           <span className="output-status">{projectStatus || "Ready"}</span>

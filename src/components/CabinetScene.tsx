@@ -7,10 +7,11 @@ import {
   useRef,
   useState,
 } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { Canvas, type ThreeEvent, useThree } from "@react-three/fiber";
 import { Html, Line, OrbitControls, Sphere } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { MOUSE, Plane, Vector3 } from "three";
+import { Camera, MOUSE, Plane, Vector2, Vector3 } from "three";
 import type { CabinetInstance, CabinetProject } from "../domain/cabinetDimensions";
 import {
   clampCabinetDepth,
@@ -57,6 +58,7 @@ type CabinetSceneProps = {
   onCabinetResize: (cabinetId: string, dimensions: CabinetInstance["config"]["dimensions"]) => void;
   onSelectedCabinetChange: (cabinetId: string | null, additive?: boolean) => void;
   onSelectedPanelChange: (cabinetId: string | null, name: PanelName | null, additive?: boolean) => void;
+  onMarqueeSelect?: (cabinetIds: string[], additive?: boolean) => void;
 };
 
 type CameraControllerProps = {
@@ -197,6 +199,74 @@ function SceneCaptureBridge({
   }, [gl, onCanvasReady]);
 
   return null;
+}
+
+function SceneViewportBridge({
+  onViewportChange,
+}: {
+  onViewportChange: (camera: Camera, size: { width: number; height: number }) => void;
+}) {
+  const { camera, size } = useThree();
+
+  useEffect(() => {
+    onViewportChange(camera, size);
+  }, [camera, onViewportChange, size]);
+
+  return null;
+}
+
+function getGroupColor(groupId: string | null | undefined) {
+  if (!groupId) {
+    return "#8aa0b6";
+  }
+
+  const palette = ["#4f86c6", "#4ca87d", "#c17b41", "#9b6bd3", "#c0577a", "#5385a1"];
+  let hash = 0;
+  for (let index = 0; index < groupId.length; index += 1) {
+    hash = (hash * 31 + groupId.charCodeAt(index)) >>> 0;
+  }
+  return palette[hash % palette.length];
+}
+
+function GroupOutline({ cabinet }: { cabinet: CabinetSceneItem }) {
+  if (!cabinet.groupId) {
+    return null;
+  }
+
+  const width = cabinet.config.dimensions.width / 1000 + 0.03;
+  const depth = cabinet.config.dimensions.depth / 1000 + 0.03;
+  const height = cabinet.config.dimensions.height / 1000 + 0.03;
+  const halfWidth = width / 2;
+  const halfDepth = depth / 2;
+  const halfHeight = height / 2;
+  const color = getGroupColor(cabinet.groupId);
+
+  const basePoints: [number, number, number][] = [
+    [-halfWidth, -halfHeight, -halfDepth],
+    [halfWidth, -halfHeight, -halfDepth],
+    [halfWidth, -halfHeight, halfDepth],
+    [-halfWidth, -halfHeight, halfDepth],
+    [-halfWidth, -halfHeight, -halfDepth],
+  ];
+  const topPoints: [number, number, number][] = basePoints.map(([x, , z]) => [x, halfHeight, z]);
+
+  return (
+    <group>
+      <Line points={basePoints} color={color} lineWidth={1.2} />
+      <Line points={topPoints} color={color} lineWidth={1.2} />
+      {[
+        [[-halfWidth, -halfHeight, -halfDepth], [-halfWidth, halfHeight, -halfDepth]],
+        [[halfWidth, -halfHeight, -halfDepth], [halfWidth, halfHeight, -halfDepth]],
+        [[halfWidth, -halfHeight, halfDepth], [halfWidth, halfHeight, halfDepth]],
+        [[-halfWidth, -halfHeight, halfDepth], [-halfWidth, halfHeight, halfDepth]],
+      ].map((points, index) => (
+        <Line key={index} points={points as [number, number, number][]} color={color} lineWidth={1.2} />
+      ))}
+      <Html position={[0, halfHeight + 0.08, 0]} center>
+        <span className="group-badge">Group</span>
+      </Html>
+    </group>
+  );
 }
 
 function RotateHandle({ cabinet, onRotate }: RotateHandleProps) {
@@ -831,16 +901,27 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
     onCabinetResize,
     onSelectedCabinetChange,
     onSelectedPanelChange,
+    onMarqueeSelect,
   },
   ref,
 ) {
+  const sceneFrameRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const viewportCameraRef = useRef<Camera | null>(null);
+  const viewportSizeRef = useRef({ width: 1, height: 1 });
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
   const [fitVersion, setFitVersion] = useState(0);
   const [hovered, setHovered] = useState<{ cabinetId: string; panelName: PanelName } | null>(null);
   const [isolateSelected, setIsolateSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [marqueeRect, setMarqueeRect] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const marqueeStartRef = useRef<{ x: number; y: number; additive: boolean } | null>(null);
   const roomDimensions = room?.dimensions ?? {
     widthMm: 6000,
     depthMm: 4000,
@@ -862,6 +943,11 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
 
   const handleCanvasReady = useCallback((element: HTMLCanvasElement) => {
     canvasRef.current = element;
+  }, []);
+
+  const handleViewportChange = useCallback((camera: Camera, size: { width: number; height: number }) => {
+    viewportCameraRef.current = camera;
+    viewportSizeRef.current = size;
   }, []);
 
   useImperativeHandle(
@@ -886,8 +972,119 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
     setFitVersion((prev) => prev + 1);
   }, [items.length, activeCabinetId]);
 
+  function toLocalPoint(event: ReactPointerEvent<HTMLDivElement>) {
+    const rect = sceneFrameRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return null;
+    }
+
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
+  function projectCabinetToViewport(cabinet: CabinetSceneItem) {
+    if (!viewportCameraRef.current) {
+      return null;
+    }
+
+    const position = new Vector3(...getCabinetWorldCenter(cabinet));
+    position.project(viewportCameraRef.current);
+
+    return new Vector2(
+      (position.x * 0.5 + 0.5) * viewportSizeRef.current.width,
+      (-position.y * 0.5 + 0.5) * viewportSizeRef.current.height,
+    );
+  }
+
+  function handleMarqueePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || !event.shiftKey) {
+      return;
+    }
+
+    const point = toLocalPoint(event);
+    if (!point) {
+      return;
+    }
+
+    marqueeStartRef.current = {
+      ...point,
+      additive: event.metaKey || event.ctrlKey,
+    };
+    setMarqueeRect({
+      x: point.x,
+      y: point.y,
+      width: 0,
+      height: 0,
+    });
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  function handleMarqueePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const start = marqueeStartRef.current;
+    if (!start) {
+      return;
+    }
+
+    const point = toLocalPoint(event);
+    if (!point) {
+      return;
+    }
+
+    setMarqueeRect({
+      x: Math.min(start.x, point.x),
+      y: Math.min(start.y, point.y),
+      width: Math.abs(point.x - start.x),
+      height: Math.abs(point.y - start.y),
+    });
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  function handleMarqueePointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    const start = marqueeStartRef.current;
+    const rect = marqueeRect;
+    marqueeStartRef.current = null;
+
+    if (!start || !rect) {
+      return;
+    }
+
+    const selectedIds = items
+      .filter((cabinet) => {
+        const point = projectCabinetToViewport(cabinet);
+        if (!point) {
+          return false;
+        }
+
+        return (
+          point.x >= rect.x &&
+          point.x <= rect.x + rect.width &&
+          point.y >= rect.y &&
+          point.y <= rect.y + rect.height
+        );
+      })
+      .map((cabinet) => cabinet.id);
+
+    if (selectedIds.length > 0) {
+      onMarqueeSelect?.(selectedIds, start.additive);
+    }
+
+    setMarqueeRect(null);
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   return (
-    <div className="scene-frame">
+    <div
+      ref={sceneFrameRef}
+      className={`scene-frame ${marqueeRect ? "scene-frame-marquee" : ""}`}
+      onPointerDownCapture={handleMarqueePointerDown}
+      onPointerMoveCapture={handleMarqueePointerMove}
+      onPointerUpCapture={handleMarqueePointerUp}
+    >
       <div className="scene-toolbar">
         <button
           type="button"
@@ -930,9 +1127,20 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <span className="scene-hint">
           {selectedCabinet
             ? `Selected: ${selectedCabinet.name} (${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm)`
-            : "Click an item to select it. Use the palette to add items."}
+            : "Click an item to select it. Shift-drag for marquee selection."}
         </span>
       </div>
+      {marqueeRect ? (
+        <div
+          className="scene-marquee"
+          style={{
+            left: marqueeRect.x,
+            top: marqueeRect.y,
+            width: marqueeRect.width,
+            height: marqueeRect.height,
+          }}
+        />
+      ) : null}
 
       <Canvas
         shadows
@@ -945,6 +1153,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         }}
       >
         <SceneCaptureBridge onCanvasReady={handleCanvasReady} />
+        <SceneViewportBridge onViewportChange={handleViewportChange} />
         <CameraController
           items={items}
           roomDimensions={roomDimensions}
@@ -1003,6 +1212,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
                   onSelectedPanelChange(cabinetId, name, additive);
                 }}
               />
+              <GroupOutline cabinet={cabinet} />
               {isActiveCabinet ? <DimensionGuides config={cabinet.config} /> : null}
               {/* Item label */}
               <Html position={[0, cabinet.config.dimensions.height / 2000 + 0.12, 0]} center>
