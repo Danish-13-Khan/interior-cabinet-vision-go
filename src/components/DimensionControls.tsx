@@ -48,6 +48,11 @@ import {
   MATERIAL_PRESETS,
   THICKNESS_PRESETS,
 } from "../domain/materialSystem";
+import type {
+  CabinetGroup,
+  CabinetLayer,
+  ProjectPreferences,
+} from "../domain/cabinetDimensions";
 type SavedProjectSummary = {
   id: string;
   name: string;
@@ -66,23 +71,48 @@ type DimensionControlsProps = {
   projectStatus: string;
   savedProjects: SavedProjectSummary[];
   snapSizeMm: number;
-  selectedCabinetId: string | null;
+  selectedCabinetIds: string[];
+  activeCabinetId: string | null;
   selectedPanelName: PanelName | null;
   selectedPlacement: CabinetPlacement | null;
+  selectedLayerId: string;
+  selectedGroupId: string | null;
+  layers: CabinetLayer[];
+  groups: CabinetGroup[];
+  preferences: ProjectPreferences;
   selectionLabel: string;
   validationMessages: string[];
   constructionParts: CabinetPart[];
   onAttachmentChange: (attachment: CabinetPlacement["attachment"]) => void;
+  onAlignSelection: (
+    mode:
+      | "align-left"
+      | "align-center-x"
+      | "align-right"
+      | "align-top"
+      | "align-center-z"
+      | "align-bottom"
+      | "distribute-x"
+      | "distribute-z",
+  ) => void;
+  onAssignLayer: (layerId: string) => void;
   onConfigChange: (config: Partial<CabinetConfig>) => void;
+  onCopySelection: () => void;
+  onCreateGroup: () => void;
+  onCreateLayer: () => void;
+  onClearGroup: () => void;
   onDeleteSavedProject: (projectId: string) => void;
   onDuplicateCabinet: () => void;
   onDuplicateSavedProject: (projectId: string) => void;
   onExportCutlistCsv: () => Promise<void>;
   onExportProjectJson: () => Promise<void>;
   onExportPdf: () => Promise<void>;
+  onLayerChange: (layerId: string, patch: Partial<CabinetLayer>) => void;
   onLoadProject: () => Promise<void>;
   onLoadSavedProject: (projectId: string) => void;
+  onPasteSelection: () => void;
   onPlacementChange: (axis: "x" | "y" | "z", value: number) => void;
+  onPreferenceChange: (patch: Partial<ProjectPreferences>) => void;
   onRemoveCabinet: () => void;
   onRenameCabinet: (cabinetId: string, name: string) => void;
   onRenameSavedProject: (projectId: string, name: string) => void;
@@ -90,7 +120,10 @@ type DimensionControlsProps = {
   onRotationChange: (rotation: number) => void;
   onSaveProject: () => Promise<void>;
   onSaveToProjectBrowser: () => void | Promise<void>;
-  onSelectCabinet: (cabinetId: string) => void;
+  onSelectCabinet: (cabinetId: string, additive?: boolean) => void;
+  onSelectAll: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 };
 
 type NumericInputKey =
@@ -116,23 +149,38 @@ export function DimensionControls({
   projectStatus,
   savedProjects,
   snapSizeMm,
-  selectedCabinetId,
+  selectedCabinetIds,
+  activeCabinetId,
   selectedPanelName,
   selectedPlacement,
+  selectedLayerId,
+  selectedGroupId,
+  layers,
+  groups,
+  preferences,
   selectionLabel,
   validationMessages,
   constructionParts,
   onAttachmentChange,
+  onAlignSelection,
+  onAssignLayer,
   onConfigChange,
+  onCopySelection,
+  onCreateGroup,
+  onCreateLayer,
+  onClearGroup,
   onDeleteSavedProject,
   onDuplicateCabinet,
   onDuplicateSavedProject,
   onExportCutlistCsv,
   onExportProjectJson,
   onExportPdf,
+  onLayerChange,
   onLoadProject,
   onLoadSavedProject,
+  onPasteSelection,
   onPlacementChange,
+  onPreferenceChange,
   onRemoveCabinet,
   onRenameCabinet,
   onRenameSavedProject,
@@ -141,6 +189,9 @@ export function DimensionControls({
   onSaveProject,
   onSaveToProjectBrowser,
   onSelectCabinet,
+  onSelectAll,
+  onUndo,
+  onRedo,
 }: DimensionControlsProps) {
   void (savedProjects);
   void (derivedMetrics); void (selectedPanelName); void (selectionLabel); void (validationMessages); void (projectFilePath); void (projectStatus);
@@ -330,8 +381,12 @@ export function DimensionControls({
               return (
                 <div
                   key={cabinet.id}
-                  className={`cabinet-list-item ${cabinet.id === selectedCabinetId ? "active" : ""}`}
-                  onClick={() => onSelectCabinet(cabinet.id)}
+                  className={`cabinet-list-item ${selectedCabinetIds.includes(cabinet.id) ? "active" : ""}`}
+                  onClick={(event) =>
+                    onSelectCabinet(
+                      cabinet.id,
+                      event.metaKey || event.ctrlKey || event.shiftKey,
+                    )}
                 >
                   <span className="cabinet-list-icon">
                     {cabinetTypeLabels[cabinet.config.type].charAt(0)}
@@ -364,26 +419,171 @@ export function DimensionControls({
                   <span className="cabinet-list-type">
                     {cabinetTypeLabels[cabinet.config.type]}
                   </span>
+                  {cabinet.groupId ? <span className="cabinet-list-type">Grouped</span> : null}
                 </div>
               );
             })}
           </div>
 
           <div className="project-actions">
-            <button type="button" onClick={onDuplicateCabinet} disabled={!selectedCabinetId}>
+            <button type="button" onClick={onUndo}>
+              Undo
+            </button>
+            <button type="button" onClick={onRedo}>
+              Redo
+            </button>
+          </div>
+
+          <div className="project-actions">
+            <button type="button" onClick={onCopySelection} disabled={selectedCabinetIds.length === 0}>
+              Copy
+            </button>
+            <button type="button" onClick={onPasteSelection}>
+              Paste
+            </button>
+            <button type="button" onClick={onSelectAll}>
+              Select All
+            </button>
+          </div>
+
+          <div className="project-actions">
+            <button type="button" onClick={onDuplicateCabinet} disabled={selectedCabinetIds.length === 0}>
               Duplicate
             </button>
             <button
               type="button"
               onClick={onRemoveCabinet}
-              disabled={!selectedCabinetId || cabinets.length <= 1}
+              disabled={selectedCabinetIds.length === 0 || cabinets.length <= 1}
             >
               Remove
             </button>
           </div>
         </div>
 
-        {selectedCabinetId ? (
+        <div className="control-section">
+          <div className="section-heading">
+            <h2>Workflow</h2>
+            <span>{selectedCabinetIds.length} selected</span>
+          </div>
+
+          <div className="field-grid">
+            <div className="field-group">
+              <label htmlFor="layer-select">Layer</label>
+              <select
+                id="layer-select"
+                value={selectedLayerId}
+                onChange={(event) => onAssignLayer(event.currentTarget.value)}
+              >
+                {layers.map((layer) => (
+                  <option key={layer.id} value={layer.id}>
+                    {layer.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field-group">
+              <label htmlFor="group-status">Group</label>
+              <input
+                id="group-status"
+                type="text"
+                value={selectedGroupId ? groups.find((group) => group.id === selectedGroupId)?.name ?? "Grouped" : "None"}
+                readOnly
+              />
+            </div>
+          </div>
+
+          <div className="project-actions">
+            <button type="button" onClick={onCreateLayer}>
+              New Layer
+            </button>
+            <button type="button" onClick={onCreateGroup} disabled={selectedCabinetIds.length < 2}>
+              Group
+            </button>
+            <button type="button" onClick={onClearGroup} disabled={selectedCabinetIds.length === 0}>
+              Ungroup
+            </button>
+          </div>
+
+          <div className="project-actions">
+            <button type="button" onClick={() => onAlignSelection("align-left")} disabled={selectedCabinetIds.length < 2}>
+              Align Left
+            </button>
+            <button type="button" onClick={() => onAlignSelection("align-center-x")} disabled={selectedCabinetIds.length < 2}>
+              Center X
+            </button>
+            <button type="button" onClick={() => onAlignSelection("align-top")} disabled={selectedCabinetIds.length < 2}>
+              Align Top
+            </button>
+            <button type="button" onClick={() => onAlignSelection("distribute-x")} disabled={selectedCabinetIds.length < 3}>
+              Distribute X
+            </button>
+          </div>
+        </div>
+
+        <div className="control-section">
+          <div className="section-heading">
+            <h2>Preferences</h2>
+          </div>
+
+          <div className="field-grid">
+            <div className="field-group">
+              <label htmlFor="snap-size">Snap Grid (mm)</label>
+              <select
+                id="snap-size"
+                value={preferences.snapSizeMm}
+                onChange={(event) => onPreferenceChange({ snapSizeMm: Number(event.currentTarget.value) })}
+              >
+                {[10, 25, 50, 100, 200].map((size) => (
+                  <option key={size} value={size}>
+                    {size} mm
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="field-grid">
+            <div className="field-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={preferences.showGrid}
+                  onChange={(event) => onPreferenceChange({ showGrid: event.currentTarget.checked })}
+                />
+                Show grid
+              </label>
+            </div>
+            <div className="field-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={preferences.autoSaveToBrowser}
+                  onChange={(event) => onPreferenceChange({ autoSaveToBrowser: event.currentTarget.checked })}
+                />
+                Auto save browser snapshots
+              </label>
+            </div>
+          </div>
+
+          <div className="parts-list">
+            {layers.map((layer) => (
+              <div key={layer.id} className="parts-list-item">
+                <strong>{layer.name}</strong>
+                <span>{layer.visible ? "Visible" : "Hidden"} · {layer.locked ? "Locked" : "Editable"}</span>
+                <span className="button-row">
+                  <button type="button" onClick={() => onLayerChange(layer.id, { visible: !layer.visible })}>
+                    {layer.visible ? "Hide" : "Show"}
+                  </button>
+                  <button type="button" onClick={() => onLayerChange(layer.id, { locked: !layer.locked })}>
+                    {layer.locked ? "Unlock" : "Lock"}
+                  </button>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {activeCabinetId ? (
           <>
             <div className="control-section">
               <div className="section-heading">

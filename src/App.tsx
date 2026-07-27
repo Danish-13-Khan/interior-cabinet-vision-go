@@ -23,14 +23,18 @@ import {
   defaultCabinetProject,
   getCabinetValidationMessages,
   getDefaultCabinetConfig,
+  getFootprintDimensions,
   getWallPlacement,
   normalizeRotationAngle,
   projectHasCollision,
   cabinetsOverlap,
+  snapMillimetresToGrid,
   supportsWallPlacement,
+  type CabinetGroup,
   type CabinetConfig,
   type CabinetDimensions,
   type CabinetInstance,
+  type CabinetLayer,
   type CabinetPlacement,
   type CabinetProject,
   type CabinetType,
@@ -72,6 +76,92 @@ type SavedProjectBrowserEntry = {
 };
 
 const PROJECT_BROWSER_STORAGE_KEY = "cabinet-designer-project-browser";
+const HISTORY_LIMIT = 80;
+
+type EditorSnapshot = {
+  project: CabinetProject;
+  room: RoomConfig;
+  selectedCabinetIds: string[];
+  activeCabinetId: string | null;
+  selectedPanelName: PanelName | null;
+};
+
+type AlignmentMode =
+  | "align-left"
+  | "align-center-x"
+  | "align-right"
+  | "align-top"
+  | "align-center-z"
+  | "align-bottom"
+  | "distribute-x"
+  | "distribute-z";
+
+function deepClone<T>(value: T): T {
+  if (typeof structuredClone === "function") {
+    return structuredClone(value);
+  }
+
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function createDefaultLayer(): CabinetLayer {
+  return {
+    id: "layer-default",
+    name: "Default Layer",
+    visible: true,
+    locked: false,
+  };
+}
+
+function createEditorSnapshot(
+  project: CabinetProject,
+  room: RoomConfig,
+  selectedCabinetIds: string[],
+  activeCabinetId: string | null,
+  selectedPanelName: PanelName | null,
+): EditorSnapshot {
+  return deepClone({
+    project,
+    room,
+    selectedCabinetIds,
+    activeCabinetId,
+    selectedPanelName,
+  });
+}
+
+function sanitizeSelection(project: CabinetProject, selectedIds: string[], activeId: string | null) {
+  const validIds = new Set(project.cabinets.map((cabinet) => cabinet.id));
+  const nextSelectedIds = selectedIds.filter((id) => validIds.has(id));
+  const nextActiveId =
+    activeId && validIds.has(activeId)
+      ? activeId
+      : nextSelectedIds[0] ?? project.cabinets[0]?.id ?? null;
+
+  return {
+    selectedCabinetIds: nextActiveId
+      ? Array.from(new Set([nextActiveId, ...nextSelectedIds]))
+      : [],
+    activeCabinetId: nextActiveId,
+  };
+}
+
+function getCabinetBounds(cabinet: CabinetInstance) {
+  const footprint = getFootprintDimensions(
+    cabinet.config.dimensions,
+    cabinet.placement.rotation,
+  );
+
+  return {
+    minX: cabinet.placement.x - footprint.width / 2,
+    maxX: cabinet.placement.x + footprint.width / 2,
+    minZ: cabinet.placement.z - footprint.depth / 2,
+    maxZ: cabinet.placement.z + footprint.depth / 2,
+    centerX: cabinet.placement.x,
+    centerZ: cabinet.placement.z,
+    width: footprint.width,
+    depth: footprint.depth,
+  };
+}
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -148,24 +238,47 @@ function persistSavedProjects(projects: SavedProjectBrowserEntry[]) {
 
 function App() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
+  const historyPastRef = useRef<EditorSnapshot[]>([]);
+  const historyFutureRef = useRef<EditorSnapshot[]>([]);
+  const clipboardRef = useRef<CabinetInstance[]>([]);
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
   const [planView, setPlanView] = useState<"top" | "front" | "side">("top");
   const [savedProjects, setSavedProjects] = useState<SavedProjectBrowserEntry[]>(() =>
     readSavedProjects(),
   );
-  const [selectedCabinetId, setSelectedCabinetId] = useState<string | null>(
+  const [selectedCabinetIds, setSelectedCabinetIds] = useState<string[]>([
+    defaultCabinetProject.cabinets[0]?.id ?? "",
+  ].filter(Boolean));
+  const [activeCabinetId, setActiveCabinetId] = useState<string | null>(
     defaultCabinetProject.cabinets[0]?.id ?? null,
   );
   const [selectedPanelName, setSelectedPanelName] = useState<PanelName | null>(null);
   const [projectStatus, setProjectStatus] = useState("");
   const [projectFilePath, setProjectFilePath] = useState<string | null>(null);
+  const [historyTick, setHistoryTick] = useState(0);
 
   const selectedCabinet =
-    project.cabinets.find((cabinet) => cabinet.id === selectedCabinetId) ?? null;
+    project.cabinets.find((cabinet) => cabinet.id === activeCabinetId) ?? null;
+  const selectedCabinets = useMemo(
+    () => project.cabinets.filter((cabinet) => selectedCabinetIds.includes(cabinet.id)),
+    [project.cabinets, selectedCabinetIds],
+  );
   const selectedConfig = selectedCabinet?.config ?? defaultCabinetProject.cabinets[0].config;
   const selectedPlacement =
     selectedCabinet?.placement ?? defaultCabinetProject.cabinets[0].placement;
+  const selectedLayerId = selectedCabinet?.layerId ?? project.layers?.[0]?.id ?? "layer-default";
+  const selectedGroupId = selectedCabinet?.groupId ?? null;
+  const projectPreferences =
+    project.preferences ?? defaultCabinetProject.preferences ?? {
+      snapSizeMm: CABINET_GRID_SNAP_MM,
+      showGrid: true,
+      autoSaveToBrowser: true,
+    };
+  const layers = project.layers ?? [createDefaultLayer()];
+  const groups = project.groups ?? [];
+  const canUndo = historyPastRef.current.length > 0;
+  const canRedo = historyFutureRef.current.length > 0;
   const validationMessages = useMemo(
     () => getCabinetValidationMessages(selectedConfig),
     [selectedConfig],
@@ -202,6 +315,82 @@ function App() {
     () => createProjectReport(project, room),
     [project, room],
   );
+
+  function refreshHistoryState() {
+    setHistoryTick((value) => value + 1);
+  }
+
+  function applySnapshot(snapshot: EditorSnapshot) {
+    const safeProject = clampCabinetProject(snapshot.project);
+    const safeSelection = sanitizeSelection(
+      safeProject,
+      snapshot.selectedCabinetIds,
+      snapshot.activeCabinetId,
+    );
+    setProject(safeProject);
+    setRoom(snapshot.room);
+    setSelectedCabinetIds(safeSelection.selectedCabinetIds);
+    setActiveCabinetId(safeSelection.activeCabinetId);
+    setSelectedPanelName(snapshot.selectedPanelName);
+  }
+
+  function captureSnapshot(): EditorSnapshot {
+    return createEditorSnapshot(
+      project,
+      room,
+      selectedCabinetIds,
+      activeCabinetId,
+      selectedPanelName,
+    );
+  }
+
+  function commitSnapshot(snapshot: EditorSnapshot, status?: string) {
+    historyPastRef.current = [...historyPastRef.current, captureSnapshot()].slice(-HISTORY_LIMIT);
+    historyFutureRef.current = [];
+    applySnapshot(snapshot);
+    if (status) {
+      setProjectStatus(status);
+    }
+    refreshHistoryState();
+  }
+
+  function replaceSelection(ids: string[], nextActiveId?: string | null, nextPanelName: PanelName | null = null) {
+    const safeSelection = sanitizeSelection(project, ids, nextActiveId ?? ids[0] ?? null);
+    setSelectedCabinetIds(safeSelection.selectedCabinetIds);
+    setActiveCabinetId(safeSelection.activeCabinetId);
+    setSelectedPanelName(nextPanelName);
+  }
+
+  function toggleCabinetSelection(cabinetId: string) {
+    const isSelected = selectedCabinetIds.includes(cabinetId);
+    if (isSelected && selectedCabinetIds.length === 1) {
+      replaceSelection([cabinetId], cabinetId, null);
+      return;
+    }
+
+    const nextIds = isSelected
+      ? selectedCabinetIds.filter((id) => id !== cabinetId)
+      : [...selectedCabinetIds, cabinetId];
+
+    replaceSelection(nextIds, isSelected ? nextIds[0] ?? null : cabinetId, null);
+  }
+
+  function getLayerForCabinet(cabinet: CabinetInstance) {
+    return layers.find((layer) => layer.id === cabinet.layerId) ?? layers[0];
+  }
+
+  function isCabinetLocked(cabinet: CabinetInstance) {
+    return getLayerForCabinet(cabinet)?.locked ?? false;
+  }
+
+  function getVisibleProject(): CabinetProject {
+    return {
+      ...project,
+      cabinets: project.cabinets.filter((cabinet) => getLayerForCabinet(cabinet)?.visible !== false),
+    };
+  }
+
+  void historyTick;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -243,17 +432,6 @@ function App() {
   function setProjectAndPersist(nextProjects: SavedProjectBrowserEntry[]) {
     setSavedProjects(nextProjects);
     persistSavedProjects(nextProjects);
-  }
-
-  function updateCabinet(cabinetId: string, updater: (cabinet: CabinetInstance) => CabinetInstance) {
-    setProject((currentProject) =>
-      clampCabinetProject({
-        ...currentProject,
-        cabinets: currentProject.cabinets.map((cabinet) =>
-          cabinet.id === cabinetId ? updater(cabinet) : cabinet,
-        ),
-      }),
-    );
   }
 
   function clampPlacementInRoom(
@@ -308,31 +486,209 @@ function App() {
     setProjectStatus("Saved current room to the project browser.");
   }
 
-  function handleAutoAlignRuns() {
-    setProject((currentProject) => {
-      const alignedPlacements = new Map<string, CabinetPlacement>();
+  function commitProjectChange(
+    updater: (currentProject: CabinetProject, currentRoom: RoomConfig) => {
+      project: CabinetProject;
+      room?: RoomConfig;
+      selectedCabinetIds?: string[];
+      activeCabinetId?: string | null;
+      selectedPanelName?: PanelName | null;
+    } | null,
+    status?: string,
+  ) {
+    const nextState = updater(project, room);
 
-      for (const run of createCabinetPlanningWorkflow(currentProject, roomBounds).runs) {
-        const placements = createRunAlignedPlacements(run, currentProject, roomBounds);
-        for (const [cabinetId, placement] of Object.entries(placements)) {
-          alignedPlacements.set(cabinetId, placement);
-        }
-      }
+    if (!nextState) {
+      return;
+    }
 
-      if (alignedPlacements.size === 0) {
-        return currentProject;
-      }
+    const safeProject = clampCabinetProject(nextState.project);
+    const safeSelection = sanitizeSelection(
+      safeProject,
+      nextState.selectedCabinetIds ?? selectedCabinetIds,
+      nextState.activeCabinetId ?? activeCabinetId,
+    );
 
-      return {
-        ...currentProject,
-        cabinets: currentProject.cabinets.map((cabinet) => ({
-          ...cabinet,
-          placement: alignedPlacements.get(cabinet.id) ?? cabinet.placement,
-        })),
+    commitSnapshot(
+      {
+        project: safeProject,
+        room: nextState.room ?? room,
+        selectedCabinetIds: safeSelection.selectedCabinetIds,
+        activeCabinetId: safeSelection.activeCabinetId,
+        selectedPanelName:
+          nextState.selectedPanelName === undefined
+            ? selectedPanelName
+            : nextState.selectedPanelName,
+      },
+      status,
+    );
+  }
+
+  function updateCabinet(cabinetId: string, updater: (cabinet: CabinetInstance) => CabinetInstance, status?: string) {
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          cabinets: currentProject.cabinets.map((cabinet) =>
+            cabinet.id === cabinetId ? updater(cabinet) : cabinet,
+          ),
+        },
+      }),
+      status,
+    );
+  }
+
+  function getSelectedEditableCabinets() {
+    return selectedCabinets.filter((cabinet) => !isCabinetLocked(cabinet));
+  }
+
+  function selectionContainsLockedCabinet() {
+    return selectedCabinets.some((cabinet) => isCabinetLocked(cabinet));
+  }
+
+  function handleUndo() {
+    const previous = historyPastRef.current.at(-1);
+    if (!previous) return;
+
+    historyPastRef.current = historyPastRef.current.slice(0, -1);
+    historyFutureRef.current = [captureSnapshot(), ...historyFutureRef.current].slice(0, HISTORY_LIMIT);
+    applySnapshot(previous);
+    setProjectStatus("Undid the last change.");
+    refreshHistoryState();
+  }
+
+  function handleRedo() {
+    const next = historyFutureRef.current[0];
+    if (!next) return;
+
+    historyFutureRef.current = historyFutureRef.current.slice(1);
+    historyPastRef.current = [...historyPastRef.current, captureSnapshot()].slice(-HISTORY_LIMIT);
+    applySnapshot(next);
+    setProjectStatus("Redid the last change.");
+    refreshHistoryState();
+  }
+
+  function handleCopySelection() {
+    if (selectedCabinets.length === 0) return;
+    clipboardRef.current = deepClone(selectedCabinets);
+    setProjectStatus(`Copied ${selectedCabinets.length} item${selectedCabinets.length === 1 ? "" : "s"}.`);
+  }
+
+  function createOffsetDuplicate(
+    cabinet: CabinetInstance,
+    offsetIndex: number,
+    currentProject: CabinetProject,
+  ) {
+    const basePlacement =
+      cabinet.placement.attachment === "floor"
+        ? {
+            ...cabinet.placement,
+            x: cabinet.placement.x + 400 + offsetIndex * 120,
+            z: cabinet.placement.z + 200 + offsetIndex * 80,
+          }
+        : {
+            ...cabinet.placement,
+            y: cabinet.placement.y + 120 + offsetIndex * 60,
+          };
+
+    let placement = clampCabinetPlacement(basePlacement, cabinet.config.dimensions, roomBounds);
+    const duplicate: CabinetInstance = {
+      ...deepClone(cabinet),
+      id: createCabinetId(),
+      name: `${cabinet.name} Copy`,
+      placement,
+    };
+
+    for (let shift = 0; shift < 6; shift += 1) {
+      const shiftedPlacement = clampCabinetPlacement(
+        cabinet.placement.attachment === "floor"
+          ? {
+              ...basePlacement,
+              x: basePlacement.x + shift * 300,
+              z: basePlacement.z + shift * 150,
+            }
+          : {
+              ...basePlacement,
+              y: basePlacement.y + shift * 90,
+            },
+        cabinet.config.dimensions,
+        roomBounds,
+      );
+      const shiftedDuplicate = {
+        ...duplicate,
+        placement: shiftedPlacement,
       };
-    });
+      if (
+        !currentProject.cabinets.some((existing) => cabinetsOverlap(existing, shiftedDuplicate)) &&
+        !cabinetBlocksOpening(shiftedDuplicate, room)
+      ) {
+        placement = shiftedPlacement;
+        break;
+      }
+    }
 
-    setProjectStatus("Aligned cabinets into planning runs.");
+    return {
+      ...duplicate,
+      placement,
+    };
+  }
+
+  function handlePasteSelection() {
+    if (clipboardRef.current.length === 0) return;
+
+    commitProjectChange(
+      (currentProject) => {
+        const duplicates = clipboardRef.current.map((cabinet, index) =>
+          createOffsetDuplicate(cabinet, index, currentProject),
+        );
+
+        return {
+          project: {
+            ...currentProject,
+            cabinets: [...currentProject.cabinets, ...duplicates],
+          },
+          selectedCabinetIds: duplicates.map((cabinet) => cabinet.id),
+          activeCabinetId: duplicates[0]?.id ?? null,
+          selectedPanelName: null,
+        };
+      },
+      `Pasted ${clipboardRef.current.length} item${clipboardRef.current.length === 1 ? "" : "s"}.`,
+    );
+  }
+
+  function handleSelectAll() {
+    replaceSelection(project.cabinets.map((cabinet) => cabinet.id), project.cabinets[0]?.id ?? null, null);
+    setProjectStatus("Selected all scene items.");
+  }
+
+  function handleAutoAlignRuns() {
+    commitProjectChange(
+      (currentProject) => {
+        const alignedPlacements = new Map<string, CabinetPlacement>();
+
+        for (const run of createCabinetPlanningWorkflow(currentProject, roomBounds).runs) {
+          const placements = createRunAlignedPlacements(run, currentProject, roomBounds);
+          for (const [cabinetId, placement] of Object.entries(placements)) {
+            alignedPlacements.set(cabinetId, placement);
+          }
+        }
+
+        if (alignedPlacements.size === 0) {
+          return null;
+        }
+
+        return {
+          project: {
+            ...currentProject,
+            cabinets: currentProject.cabinets.map((cabinet) => ({
+              ...cabinet,
+              placement: alignedPlacements.get(cabinet.id) ?? cabinet.placement,
+            })),
+          },
+        };
+      },
+      "Aligned cabinets into planning runs.",
+    );
   }
 
   function handleLoadRoomPreset(presetId: RoomPresetId) {
@@ -340,14 +696,24 @@ function App() {
     if (!preset) return;
 
     const presetProject = createRoomPresetProject(preset);
-    setProject(presetProject);
-    setSelectedCabinetId(presetProject.cabinets[0]?.id ?? null);
-    setSelectedPanelName(null);
-    setProjectStatus(`Loaded ${preset.label} room preset.`);
+    commitSnapshot(
+      {
+        project: presetProject,
+        room,
+        selectedCabinetIds: presetProject.cabinets[0]?.id ? [presetProject.cabinets[0].id] : [],
+        activeCabinetId: presetProject.cabinets[0]?.id ?? null,
+        selectedPanelName: null,
+      },
+      `Loaded ${preset.label} room preset.`,
+    );
   }
 
   function handleConfigChange(updatedConfig: Partial<CabinetConfig>) {
-    if (!selectedCabinetId || !selectedCabinet) {
+    if (!activeCabinetId || !selectedCabinet) {
+      return;
+    }
+    if (isCabinetLocked(selectedCabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return;
     }
 
@@ -375,22 +741,26 @@ function App() {
     );
 
     if (
-      projectHasCollision(project, selectedCabinetId, nextPlacement, nextConfig.dimensions) ||
-      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement, nextConfig.dimensions)
+      projectHasCollision(project, activeCabinetId, nextPlacement, nextConfig.dimensions) ||
+      cabinetWouldBlockOpening(activeCabinetId, nextPlacement, nextConfig.dimensions)
     ) {
       setProjectStatus("Change blocked: item would collide or block an opening.");
       return;
     }
 
-    updateCabinet(selectedCabinetId, (cabinet) => ({
+    updateCabinet(activeCabinetId, (cabinet) => ({
       ...cabinet,
       placement: nextPlacement,
       config: nextConfig,
-    }));
+    }), "Updated the selected item.");
   }
 
   function handlePlacementChange(axis: "x" | "y" | "z", value: number) {
-    if (!selectedCabinetId || !selectedCabinet || !Number.isFinite(value)) {
+    if (!activeCabinetId || !selectedCabinet || !Number.isFinite(value)) {
+      return;
+    }
+    if (isCabinetLocked(selectedCabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return;
     }
 
@@ -403,21 +773,25 @@ function App() {
     );
 
     if (
-      projectHasCollision(project, selectedCabinetId, nextPlacement) ||
-      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement)
+      projectHasCollision(project, activeCabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(activeCabinetId, nextPlacement)
     ) {
       setProjectStatus("Placement blocked: room items cannot overlap or block openings.");
       return;
     }
 
-    updateCabinet(selectedCabinetId, (cabinet) => ({
+    updateCabinet(activeCabinetId, (cabinet) => ({
       ...cabinet,
       placement: nextPlacement,
-    }));
+    }), "Moved the selected item.");
   }
 
   function handleRotationChange(rotation: number) {
-    if (!selectedCabinetId || !selectedCabinet) {
+    if (!activeCabinetId || !selectedCabinet) {
+      return;
+    }
+    if (isCabinetLocked(selectedCabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return;
     }
 
@@ -430,21 +804,25 @@ function App() {
     );
 
     if (
-      projectHasCollision(project, selectedCabinetId, nextPlacement) ||
-      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement)
+      projectHasCollision(project, activeCabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(activeCabinetId, nextPlacement)
     ) {
       setProjectStatus("Rotation blocked: item would collide or block an opening.");
       return;
     }
 
-    updateCabinet(selectedCabinetId, (cabinet) => ({
+    updateCabinet(activeCabinetId, (cabinet) => ({
       ...cabinet,
       placement: nextPlacement,
-    }));
+    }), "Rotated the selected item.");
   }
 
   function handleAttachmentChange(attachment: CabinetPlacement["attachment"]) {
-    if (!selectedCabinetId || !selectedCabinet) {
+    if (!activeCabinetId || !selectedCabinet) {
+      return;
+    }
+    if (isCabinetLocked(selectedCabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return;
     }
 
@@ -461,23 +839,27 @@ function App() {
     );
 
     if (
-      projectHasCollision(project, selectedCabinetId, nextPlacement) ||
-      cabinetWouldBlockOpening(selectedCabinetId, nextPlacement)
+      projectHasCollision(project, activeCabinetId, nextPlacement) ||
+      cabinetWouldBlockOpening(activeCabinetId, nextPlacement)
     ) {
       setProjectStatus("Wall placement blocked: item would overlap or block an opening.");
       return;
     }
 
-    updateCabinet(selectedCabinetId, (cabinet) => ({
+    updateCabinet(activeCabinetId, (cabinet) => ({
       ...cabinet,
       placement: nextPlacement,
-    }));
+    }), "Updated the wall attachment.");
   }
 
   function handleCabinetResize(cabinetId: string, dimensions: CabinetDimensions) {
     const cabinet = project.cabinets.find((item) => item.id === cabinetId);
 
     if (!cabinet) {
+      return;
+    }
+    if (isCabinetLocked(cabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return;
     }
 
@@ -499,13 +881,17 @@ function App() {
       ...currentCabinet,
       placement: nextPlacement,
       config: nextConfig,
-    }));
+    }), "Resized the selected item.");
   }
 
   function handleCabinetMove(cabinetId: string, placement: CabinetPlacement) {
     const cabinet = project.cabinets.find((item) => item.id === cabinetId);
 
     if (!cabinet) {
+      return false;
+    }
+    if (isCabinetLocked(cabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return false;
     }
 
@@ -522,7 +908,7 @@ function App() {
     updateCabinet(cabinetId, (currentCabinet) => ({
       ...currentCabinet,
       placement: nextPlacement,
-    }));
+    }), "Moved the selected item.");
 
     return true;
   }
@@ -531,6 +917,10 @@ function App() {
     const cabinet = project.cabinets.find((item) => item.id === cabinetId);
 
     if (!cabinet) {
+      return false;
+    }
+    if (isCabinetLocked(cabinet)) {
+      setProjectStatus("This item is on a locked layer.");
       return false;
     }
 
@@ -550,17 +940,14 @@ function App() {
     updateCabinet(cabinetId, (currentCabinet) => ({
       ...currentCabinet,
       placement: nextPlacement,
-    }));
+    }), "Rotated the selected item.");
 
     return true;
   }
 
-  function cabinetsOverlapAny(p: CabinetProject, candidate: CabinetInstance): boolean {
-    return p.cabinets.some((c) => cabinetsOverlap(c, candidate));
-  }
-
   function handleAddCabinet(type: CabinetType = "base") {
     const config = getDefaultCabinetConfig(type);
+    const defaultLayerId = layers[0]?.id ?? "layer-default";
 
     // Try up to 5 placement offsets to avoid collision
     const tmpCab: CabinetInstance = {
@@ -568,6 +955,8 @@ function App() {
       name: createItemName(type, project.cabinets.length + 1),
       placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" },
       config,
+      layerId: defaultLayerId,
+      groupId: null,
     };
     let placement: CabinetPlacement | null = null;
     for (let attempt = 0; attempt < 5; attempt++) {
@@ -582,7 +971,7 @@ function App() {
         ? getWallPlacement(basePlacement, type, config.dimensions, "back-wall", roomBounds)
         : clampCabinetPlacement(basePlacement, config.dimensions, roomBounds);
       const testCab = { ...tmpCab, placement: candidate };
-      if (!cabinetsOverlapAny(project, testCab) && !cabinetBlocksOpening(testCab, room)) {
+      if (!project.cabinets.some((existing) => cabinetsOverlap(existing, testCab)) && !cabinetBlocksOpening(testCab, room)) {
         placement = candidate;
         break;
       }
@@ -600,105 +989,372 @@ function App() {
       name: tmpCab.name,
       placement,
       config,
+      layerId: defaultLayerId,
+      groupId: null,
     };
 
-    setProject((currentProject) =>
-      clampCabinetProject({
-        ...currentProject,
-        cabinets: [...currentProject.cabinets, newCabinet],
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          cabinets: [...currentProject.cabinets, newCabinet],
+        },
+        selectedCabinetIds: [newCabinet.id],
+        activeCabinetId: newCabinet.id,
+        selectedPanelName: null,
       }),
+      `Added ${cabinetTypeLabels[type].toLowerCase()} to the room scene.`,
     );
-    setSelectedCabinetId(newCabinet.id);
-    setSelectedPanelName(null);
-    setProjectStatus(`Added ${cabinetTypeLabels[type].toLowerCase()} to the room scene.`);
   }
 
   function handleDuplicateCabinet() {
-    if (!selectedCabinet) {
+    if (selectedCabinets.length === 0) {
+      return;
+    }
+    const editable = getSelectedEditableCabinets();
+    if (editable.length === 0) {
+      setProjectStatus("Selected items are on locked layers.");
       return;
     }
 
-    const offsetPlacement =
-      selectedCabinet.placement.attachment === "floor"
-        ? {
-            ...selectedCabinet.placement,
-            x: selectedCabinet.placement.x + 700,
-          }
-        : {
-            ...selectedCabinet.placement,
-            y: selectedCabinet.placement.y + 150,
-          };
-
-    const duplicate: CabinetInstance = {
-      ...selectedCabinet,
-      id: createCabinetId(),
-      name: `${selectedCabinet.name} Copy`,
-      placement: clampCabinetPlacement(offsetPlacement, selectedCabinet.config.dimensions, roomBounds),
-    };
-
-    // Try shifting if the duplicate overlaps
-    if (cabinetsOverlapAny(project, duplicate) || cabinetBlocksOpening(duplicate, room)) {
-      for (let shift = 1; shift <= 4; shift++) {
-        const shifted = clampCabinetPlacement(
-          {
-            ...offsetPlacement,
-            x: offsetPlacement.x + shift * 500,
-            y: offsetPlacement.y + shift * 100,
-          },
-          selectedCabinet.config.dimensions,
-          roomBounds,
+    commitProjectChange(
+      (currentProject) => {
+        const duplicates = editable.map((cabinet, index) =>
+          createOffsetDuplicate(cabinet, index, currentProject),
         );
-        const shiftedDup = { ...duplicate, placement: shifted };
-        if (!cabinetsOverlapAny(project, shiftedDup) && !cabinetBlocksOpening(shiftedDup, room)) {
-          duplicate.placement = shifted;
-          break;
-        }
-      }
-    }
 
-    setProject((currentProject) =>
-      clampCabinetProject({
-        ...currentProject,
-        cabinets: [...currentProject.cabinets, duplicate],
-      }),
+        return {
+          project: {
+            ...currentProject,
+            cabinets: [...currentProject.cabinets, ...duplicates],
+          },
+          selectedCabinetIds: duplicates.map((cabinet) => cabinet.id),
+          activeCabinetId: duplicates[0]?.id ?? null,
+          selectedPanelName: null,
+        };
+      },
+      `Duplicated ${editable.length} item${editable.length === 1 ? "" : "s"}.`,
     );
-    setSelectedCabinetId(duplicate.id);
-    setSelectedPanelName(null);
-    setProjectStatus("Duplicated the selected room item.");
   }
 
   function handleRemoveCabinet() {
-    if (!selectedCabinetId || project.cabinets.length === 1) {
+    if (selectedCabinetIds.length === 0 || project.cabinets.length <= selectedCabinetIds.length) {
+      return;
+    }
+    if (selectionContainsLockedCabinet()) {
+      setProjectStatus("Locked-layer items cannot be removed.");
       return;
     }
 
     const nextCabinets = project.cabinets.filter(
-      (cabinet) => cabinet.id !== selectedCabinetId,
+      (cabinet) => !selectedCabinetIds.includes(cabinet.id),
     );
 
-    setProject((currentProject) => ({
-      ...currentProject,
-      cabinets: nextCabinets,
-    }));
-    setSelectedCabinetId(nextCabinets[0]?.id ?? null);
-    setSelectedPanelName(null);
-    setProjectStatus("Removed the selected room item.");
+    commitProjectChange(
+      () => ({
+        project: {
+          ...project,
+          cabinets: nextCabinets,
+        },
+        selectedCabinetIds: nextCabinets[0]?.id ? [nextCabinets[0].id] : [],
+        activeCabinetId: nextCabinets[0]?.id ?? null,
+        selectedPanelName: null,
+      }),
+      `Removed ${selectedCabinetIds.length} item${selectedCabinetIds.length === 1 ? "" : "s"}.`,
+    );
   }
 
   function handleReset() {
-    setProject(defaultCabinetProject);
-    setSelectedCabinetId(defaultCabinetProject.cabinets[0]?.id ?? null);
-    setSelectedPanelName(null);
+    commitSnapshot(
+      {
+        project: defaultCabinetProject,
+        room: DEFAULT_ROOM,
+        selectedCabinetIds: defaultCabinetProject.cabinets[0]?.id
+          ? [defaultCabinetProject.cabinets[0].id]
+          : [],
+        activeCabinetId: defaultCabinetProject.cabinets[0]?.id ?? null,
+        selectedPanelName: null,
+      },
+      "Reset the whole project.",
+    );
     setProjectFilePath(null);
-    setProjectStatus("Reset the whole project.");
   }
 
   function handleRenameCabinet(cabinetId: string, newName: string) {
     updateCabinet(cabinetId, (cabinet) => ({
       ...cabinet,
       name: newName.trim() || cabinet.name,
-    }));
+    }), "Renamed the selected item.");
   }
+
+  function handleDuplicateLayer() {
+    const nextLayer: CabinetLayer = {
+      id: `layer-${Date.now()}`,
+      name: `Layer ${layers.length + 1}`,
+      visible: true,
+      locked: false,
+    };
+
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          layers: [...(currentProject.layers ?? [createDefaultLayer()]), nextLayer],
+        },
+      }),
+      "Added a new layer.",
+    );
+  }
+
+  function handleLayerChange(layerId: string, patch: Partial<CabinetLayer>) {
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          layers: (currentProject.layers ?? [createDefaultLayer()]).map((layer) =>
+            layer.id === layerId ? { ...layer, ...patch } : layer,
+          ),
+        },
+      }),
+      "Updated layer settings.",
+    );
+  }
+
+  function handleAssignLayer(layerId: string) {
+    if (selectedCabinets.length === 0) return;
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          cabinets: currentProject.cabinets.map((cabinet) =>
+            selectedCabinetIds.includes(cabinet.id)
+              ? { ...cabinet, layerId }
+              : cabinet,
+          ),
+        },
+      }),
+      "Assigned the selection to a layer.",
+    );
+  }
+
+  function handleCreateGroup() {
+    if (selectedCabinetIds.length < 2) return;
+    const group: CabinetGroup = {
+      id: `group-${Date.now()}`,
+      name: `Group ${groups.length + 1}`,
+    };
+
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          groups: [...(currentProject.groups ?? []), group],
+          cabinets: currentProject.cabinets.map((cabinet) =>
+            selectedCabinetIds.includes(cabinet.id)
+              ? { ...cabinet, groupId: group.id }
+              : cabinet,
+          ),
+        },
+      }),
+      "Grouped the selected items.",
+    );
+  }
+
+  function handleClearGroup() {
+    if (selectedCabinetIds.length === 0) return;
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          cabinets: currentProject.cabinets.map((cabinet) =>
+            selectedCabinetIds.includes(cabinet.id)
+              ? { ...cabinet, groupId: null }
+              : cabinet,
+          ),
+        },
+      }),
+      "Removed the selected items from their group.",
+    );
+  }
+
+  function handleProjectPreferenceChange(
+    patch: Partial<NonNullable<CabinetProject["preferences"]>>,
+  ) {
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          preferences: {
+            snapSizeMm:
+              currentProject.preferences?.snapSizeMm ??
+              defaultCabinetProject.preferences?.snapSizeMm ??
+              CABINET_GRID_SNAP_MM,
+            showGrid:
+              currentProject.preferences?.showGrid ??
+              defaultCabinetProject.preferences?.showGrid ??
+              true,
+            autoSaveToBrowser:
+              currentProject.preferences?.autoSaveToBrowser ??
+              defaultCabinetProject.preferences?.autoSaveToBrowser ??
+              true,
+            ...patch,
+          },
+        },
+      }),
+      "Updated project preferences.",
+    );
+  }
+
+  function handleAlignSelection(mode: AlignmentMode) {
+    const editable = getSelectedEditableCabinets();
+    if (editable.length < 2) return;
+
+    const bounds = editable.map((cabinet) => ({
+      cabinet,
+      bounds: getCabinetBounds(cabinet),
+    }));
+
+    const sortedByX = [...bounds].sort((first, second) => first.bounds.centerX - second.bounds.centerX);
+    const sortedByZ = [...bounds].sort((first, second) => first.bounds.centerZ - second.bounds.centerZ);
+    const left = Math.min(...bounds.map((item) => item.bounds.minX));
+    const right = Math.max(...bounds.map((item) => item.bounds.maxX));
+    const top = Math.min(...bounds.map((item) => item.bounds.minZ));
+    const bottom = Math.max(...bounds.map((item) => item.bounds.maxZ));
+    const centerX = bounds.reduce((sum, item) => sum + item.bounds.centerX, 0) / bounds.length;
+    const centerZ = bounds.reduce((sum, item) => sum + item.bounds.centerZ, 0) / bounds.length;
+
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          cabinets: currentProject.cabinets.map((cabinet) => {
+            if (!selectedCabinetIds.includes(cabinet.id) || isCabinetLocked(cabinet)) {
+              return cabinet;
+            }
+
+            const item = bounds.find((entry) => entry.cabinet.id === cabinet.id);
+            if (!item) {
+              return cabinet;
+            }
+
+            let nextX = cabinet.placement.x;
+            let nextZ = cabinet.placement.z;
+
+            switch (mode) {
+              case "align-left":
+                nextX = left + item.bounds.width / 2;
+                break;
+              case "align-center-x":
+                nextX = centerX;
+                break;
+              case "align-right":
+                nextX = right - item.bounds.width / 2;
+                break;
+              case "align-top":
+                nextZ = top + item.bounds.depth / 2;
+                break;
+              case "align-center-z":
+                nextZ = centerZ;
+                break;
+              case "align-bottom":
+                nextZ = bottom - item.bounds.depth / 2;
+                break;
+              case "distribute-x": {
+                const index = sortedByX.findIndex((entry) => entry.cabinet.id === cabinet.id);
+                const span = right - left;
+                const step = sortedByX.length > 1 ? span / (sortedByX.length - 1) : 0;
+                nextX = left + step * index;
+                break;
+              }
+              case "distribute-z": {
+                const index = sortedByZ.findIndex((entry) => entry.cabinet.id === cabinet.id);
+                const span = bottom - top;
+                const step = sortedByZ.length > 1 ? span / (sortedByZ.length - 1) : 0;
+                nextZ = top + step * index;
+                break;
+              }
+            }
+
+            return {
+              ...cabinet,
+              placement: clampPlacementInRoom(
+                {
+                  ...cabinet.placement,
+                  x: snapMillimetresToGrid(nextX, projectPreferences.snapSizeMm),
+                  z: snapMillimetresToGrid(nextZ, projectPreferences.snapSizeMm),
+                },
+                cabinet.config.dimensions,
+              ),
+            };
+          }),
+        },
+      }),
+      "Aligned the selected items.",
+    );
+  }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const isTypingTarget =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable;
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        handleRedo();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "c") {
+        if (isTypingTarget) return;
+        event.preventDefault();
+        handleCopySelection();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "v") {
+        if (isTypingTarget) return;
+        event.preventDefault();
+        handlePasteSelection();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
+        if (isTypingTarget) return;
+        event.preventDefault();
+        handleDuplicateCabinet();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "a") {
+        if (isTypingTarget) return;
+        event.preventDefault();
+        handleSelectAll();
+        return;
+      }
+
+      if ((event.key === "Delete" || event.key === "Backspace") && !isTypingTarget) {
+        event.preventDefault();
+        handleRemoveCabinet();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [project, room, selectedCabinets, selectedCabinetIds, projectPreferences.snapSizeMm, activeCabinetId]);
 
   async function writeFile(path: string, contents: string) {
     await invoke("save_project_file", {
@@ -766,9 +1422,13 @@ function App() {
 
       if (parsed.project) {
         const safeProject = clampCabinetProject(parsed.project);
-        setProject(safeProject);
-        setSelectedCabinetId(safeProject.cabinets[0]?.id ?? null);
-        if (parsed.room) setRoom(parsed.room);
+        applySnapshot({
+          project: safeProject,
+          room: parsed.room ?? room,
+          selectedCabinetIds: safeProject.cabinets[0]?.id ? [safeProject.cabinets[0].id] : [],
+          activeCabinetId: safeProject.cabinets[0]?.id ?? null,
+          selectedPanelName: null,
+        });
       } else if (parsed.config) {
         const migratedProject = clampCabinetProject({
           version: 1,
@@ -778,16 +1438,22 @@ function App() {
               name: "Cabinet 1",
               placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" },
               config: parsed.config,
+              layerId: "layer-default",
+              groupId: null,
             },
           ],
         });
-        setProject(migratedProject);
-        setSelectedCabinetId(migratedProject.cabinets[0]?.id ?? null);
+        applySnapshot({
+          project: migratedProject,
+          room,
+          selectedCabinetIds: migratedProject.cabinets[0]?.id ? [migratedProject.cabinets[0].id] : [],
+          activeCabinetId: migratedProject.cabinets[0]?.id ?? null,
+          selectedPanelName: null,
+        });
       } else {
         throw new Error("Invalid project file format.");
       }
 
-      setSelectedPanelName(null);
       setProjectFilePath(selectedPath);
       setProjectStatus("Project loaded from JSON file.");
     } catch (error) {
@@ -888,10 +1554,13 @@ function App() {
     }
 
     const safeProject = clampCabinetProject(entry.project);
-    setProject(safeProject);
-    setRoom(entry.room);
-    setSelectedCabinetId(safeProject.cabinets[0]?.id ?? null);
-    setSelectedPanelName(null);
+    applySnapshot({
+      project: safeProject,
+      room: entry.room,
+      selectedCabinetIds: safeProject.cabinets[0]?.id ? [safeProject.cabinets[0].id] : [],
+      activeCabinetId: safeProject.cabinets[0]?.id ?? null,
+      selectedPanelName: null,
+    });
     setProjectStatus(`Loaded "${entry.name}" from the project browser.`);
   }
 
@@ -944,13 +1613,16 @@ function App() {
           <button type="button" className="tb-btn" onClick={handleLoadProject} title="Open JSON file">Open</button>
           <button type="button" className="tb-btn" onClick={handleSaveProject} title="Save JSON file">Save</button>
           <span className="tb-sep" />
+          <button type="button" className="tb-btn" onClick={handleUndo} disabled={!canUndo} title="Undo">↩</button>
+          <button type="button" className="tb-btn" onClick={handleRedo} disabled={!canRedo} title="Redo">↪</button>
+          <button type="button" className="tb-btn" onClick={handleCopySelection} disabled={selectedCabinetIds.length === 0} title="Copy">Copy</button>
+          <button type="button" className="tb-btn" onClick={handlePasteSelection} disabled={clipboardRef.current.length === 0} title="Paste">Paste</button>
+          <button type="button" className="tb-btn" onClick={handleDuplicateCabinet} disabled={selectedCabinetIds.length === 0} title="Duplicate">Duplicate</button>
+          <span className="tb-sep" />
           <button type="button" className="tb-btn" onClick={handleAutoAlignRuns} title="Auto align cabinet runs">Align Runs</button>
           <button type="button" className="tb-btn" onClick={handleExportProjectJson} title="Export JSON">Export JSON</button>
           <button type="button" className="tb-btn" onClick={handleExportCutlistCsv} title="Export CSV">Export CSV</button>
           <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf} title="Download PDF">Export PDF</button>
-          <span className="tb-sep" />
-          <button type="button" className="tb-btn" disabled title="Undo (coming soon)">↩</button>
-          <button type="button" className="tb-btn" disabled title="Redo (coming soon)">↪</button>
         </div>
         <div className="toolbar-right">
           <span className="tb-label">View:</span>
@@ -958,6 +1630,11 @@ function App() {
           <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("front")} title="Front view">Front</button>
           <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("side")} title="Side view">Side</button>
           <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("top")} title="Top view">Top</button>
+          <span className="tb-sep" />
+          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-left")} disabled={selectedCabinetIds.length < 2}>Left</button>
+          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-center-x")} disabled={selectedCabinetIds.length < 2}>Center X</button>
+          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-top")} disabled={selectedCabinetIds.length < 2}>Top</button>
+          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("distribute-x")} disabled={selectedCabinetIds.length < 3}>Distribute X</button>
         </div>
       </header>
       <div className="app-body">
@@ -1016,20 +1693,46 @@ function App() {
       <section className="viewport-panel" aria-label="3D room viewport">
         <CabinetScene
           ref={sceneRef}
-          project={project}
+          project={getVisibleProject()}
           room={room}
           countertops={planningWorkflow.countertops}
           fillers={planningWorkflow.fillers}
-          snapSizeMm={CABINET_GRID_SNAP_MM}
+          snapSizeMm={projectPreferences.snapSizeMm}
+          showGrid={projectPreferences.showGrid}
           onCabinetMove={handleCabinetMove}
           onCabinetRotate={handleCabinetRotate}
-          selectedCabinetId={selectedCabinetId}
+          selectedCabinetIds={selectedCabinetIds}
+          activeCabinetId={activeCabinetId}
           selectedPanelName={selectedPanelName}
           onCabinetResize={handleCabinetResize}
-          onSelectedCabinetChange={setSelectedCabinetId}
-          onSelectedPanelChange={(cabinetId, name) => {
-            setSelectedCabinetId(cabinetId);
-            setSelectedPanelName(name);
+          onSelectedCabinetChange={(cabinetId, additive) => {
+            if (!cabinetId) {
+              replaceSelection([], null, null);
+              return;
+            }
+
+            if (additive) {
+              toggleCabinetSelection(cabinetId);
+              return;
+            }
+
+            replaceSelection([cabinetId], cabinetId, null);
+          }}
+          onSelectedPanelChange={(cabinetId, name, additive) => {
+            if (!cabinetId) {
+              replaceSelection([], null, null);
+              return;
+            }
+
+            if (additive) {
+              const nextIds = selectedCabinetIds.includes(cabinetId)
+                ? selectedCabinetIds
+                : [...selectedCabinetIds, cabinetId];
+              replaceSelection(nextIds, cabinetId, name);
+              return;
+            }
+
+            replaceSelection([cabinetId], cabinetId, name);
           }}
         />
       </section>
@@ -1062,23 +1765,38 @@ function App() {
           projectFilePath={projectFilePath}
           projectStatus={projectStatus}
           savedProjects={sortedSavedProjects}
-          snapSizeMm={CABINET_GRID_SNAP_MM}
-          selectedCabinetId={selectedCabinetId}
+          snapSizeMm={projectPreferences.snapSizeMm}
+          selectedCabinetIds={selectedCabinetIds}
+          activeCabinetId={activeCabinetId}
           selectedPanelName={selectedPanelName}
           selectedPlacement={selectedPlacement}
+          selectedLayerId={selectedLayerId}
+          selectedGroupId={selectedGroupId}
+          layers={layers}
+          groups={groups}
+          preferences={projectPreferences}
           selectionLabel={selectedPanelName ? getPanelDisplayName(selectedPanelName) : "None"}
           validationMessages={validationMessages}
           onAttachmentChange={handleAttachmentChange}
+          onAlignSelection={handleAlignSelection}
+          onAssignLayer={handleAssignLayer}
           onConfigChange={handleConfigChange}
+          onCopySelection={handleCopySelection}
+          onCreateGroup={handleCreateGroup}
+          onCreateLayer={handleDuplicateLayer}
+          onClearGroup={handleClearGroup}
           onDeleteSavedProject={handleDeleteSavedProject}
           onDuplicateCabinet={handleDuplicateCabinet}
           onDuplicateSavedProject={handleDuplicateSavedProject}
           onExportCutlistCsv={handleExportCutlistCsv}
           onExportProjectJson={handleExportProjectJson}
           onExportPdf={handleExportPdf}
+          onLayerChange={handleLayerChange}
           onLoadProject={handleLoadProject}
           onLoadSavedProject={handleLoadSavedProject}
+          onPasteSelection={handlePasteSelection}
           onPlacementChange={handlePlacementChange}
+          onPreferenceChange={handleProjectPreferenceChange}
           onRemoveCabinet={handleRemoveCabinet}
           onRenameCabinet={handleRenameCabinet}
           onRenameSavedProject={handleRenameSavedProject}
@@ -1086,7 +1804,16 @@ function App() {
           onRotationChange={handleRotationChange}
           onSaveProject={handleSaveProject}
           onSaveToProjectBrowser={saveCurrentProjectToBrowser}
-          onSelectCabinet={setSelectedCabinetId}
+          onSelectCabinet={(cabinetId, additive) => {
+            if (additive) {
+              toggleCabinetSelection(cabinetId);
+              return;
+            }
+            replaceSelection([cabinetId], cabinetId, null);
+          }}
+          onSelectAll={handleSelectAll}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
         />
       </aside>
 

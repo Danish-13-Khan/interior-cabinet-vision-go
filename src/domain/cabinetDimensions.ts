@@ -52,6 +52,26 @@ export type CabinetInstance = {
   name: string;
   placement: CabinetPlacement;
   config: CabinetConfig;
+  layerId?: string;
+  groupId?: string | null;
+};
+
+export type CabinetLayer = {
+  id: string;
+  name: string;
+  visible: boolean;
+  locked: boolean;
+};
+
+export type CabinetGroup = {
+  id: string;
+  name: string;
+};
+
+export type ProjectPreferences = {
+  snapSizeMm: number;
+  showGrid: boolean;
+  autoSaveToBrowser: boolean;
 };
 
 export type RoomBounds = {
@@ -63,6 +83,9 @@ export type RoomBounds = {
 export type CabinetProject = {
   version: number;
   cabinets: CabinetInstance[];
+  layers?: CabinetLayer[];
+  groups?: CabinetGroup[];
+  preferences?: ProjectPreferences;
 };
 
 export const CABINET_WIDTH_MIN_MM = 500;
@@ -369,8 +392,24 @@ export const defaultCabinetProject: CabinetProject = {
       name: "Cabinet 1",
       placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" },
       config: defaultCabinetConfig,
+      layerId: "layer-default",
+      groupId: null,
     },
   ],
+  layers: [
+    {
+      id: "layer-default",
+      name: "Default Layer",
+      visible: true,
+      locked: false,
+    },
+  ],
+  groups: [],
+  preferences: {
+    snapSizeMm: CABINET_GRID_SNAP_MM,
+    showGrid: true,
+    autoSaveToBrowser: true,
+  },
 };
 
 export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
@@ -627,12 +666,38 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
 }
 
 export function clampCabinetProject(project: CabinetProject): CabinetProject {
+  const layers = Array.isArray(project.layers) && project.layers.length > 0
+    ? project.layers.map((layer, index) => ({
+        id: layer.id || `layer-${index + 1}`,
+        name: layer.name?.trim() || `Layer ${index + 1}`,
+        visible: layer.visible !== false,
+        locked: Boolean(layer.locked),
+      }))
+    : [...(defaultCabinetProject.layers ?? [])];
+  const groups = Array.isArray(project.groups)
+    ? project.groups.map((group, index) => ({
+        id: group.id || `group-${index + 1}`,
+        name: group.name?.trim() || `Group ${index + 1}`,
+      }))
+    : [];
+  const validLayerIds = new Set(layers.map((layer) => layer.id));
+  const validGroupIds = new Set(groups.map((group) => group.id));
+  const defaultLayerId = layers[0]?.id ?? "layer-default";
+
   return {
     version: 1,
     cabinets: project.cabinets.map((cabinet, index) => ({
       ...cabinet,
       id: cabinet.id || `cabinet-${index + 1}`,
       name: cabinet.name || `Cabinet ${index + 1}`,
+      layerId:
+        cabinet.layerId && validLayerIds.has(cabinet.layerId)
+          ? cabinet.layerId
+          : defaultLayerId,
+      groupId:
+        cabinet.groupId && validGroupIds.has(cabinet.groupId)
+          ? cabinet.groupId
+          : null,
       config: clampCabinetConfig(cabinet.config),
       placement: clampCabinetPlacement(
         {
@@ -652,6 +717,16 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
         clampCabinetConfig(cabinet.config).dimensions,
       ),
     })),
+    layers,
+    groups,
+    preferences: {
+      snapSizeMm:
+        project.preferences?.snapSizeMm && Number.isFinite(project.preferences.snapSizeMm)
+          ? Math.max(10, Math.min(500, snapMillimetresToGrid(project.preferences.snapSizeMm, 10)))
+          : defaultCabinetProject.preferences?.snapSizeMm ?? CABINET_GRID_SNAP_MM,
+      showGrid: project.preferences?.showGrid !== false,
+      autoSaveToBrowser: project.preferences?.autoSaveToBrowser !== false,
+    },
   };
 }
 
