@@ -26,6 +26,10 @@ import {
   type CabinetSceneItem,
   type PanelName,
 } from "../domain/cabinetGeometry";
+import type {
+  CountertopSegment,
+  RunFiller,
+} from "../domain/cabinetLibrary";
 import { Cabinet } from "./Cabinet";
 import { DimensionGuides } from "./DimensionGuides";
 import type { RoomConfig } from "../domain/roomModel";
@@ -42,6 +46,8 @@ type CabinetSceneProps = {
   project: CabinetProject;
   snapSizeMm: number;
   room?: RoomConfig;
+  countertops?: CountertopSegment[];
+  fillers?: RunFiller[];
   onCabinetMove: (cabinetId: string, placement: CabinetInstance["placement"]) => boolean;
   onCabinetRotate?: (cabinetId: string, rotation: number) => void;
   selectedCabinetId: string | null;
@@ -751,11 +757,69 @@ function SnapGuides({
   );
 }
 
+function CountertopMeshes({ countertops = [] }: { countertops?: CountertopSegment[] }) {
+  return (
+    <group>
+      {countertops.map((countertop) => (
+        <mesh
+          key={countertop.id}
+          position={[
+            countertop.positionX / 1000,
+            countertop.positionY / 1000 + countertop.thicknessMm / 2000,
+            countertop.positionZ / 1000,
+          ]}
+          receiveShadow
+          castShadow
+        >
+          <boxGeometry
+            args={[
+              countertop.widthMm / 1000,
+              countertop.thicknessMm / 1000,
+              countertop.depthMm / 1000,
+            ]}
+          />
+          <meshStandardMaterial color="#85715d" roughness={0.58} metalness={0.06} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function FillerMeshes({ fillers = [] }: { fillers?: RunFiller[] }) {
+  return (
+    <group>
+      {fillers.map((filler) => (
+        <mesh
+          key={filler.id}
+          position={[
+            filler.position.x / 1000,
+            filler.size.height / 2000,
+            filler.position.z / 1000,
+          ]}
+          receiveShadow
+          castShadow
+        >
+          <boxGeometry
+            args={[
+              filler.size.width / 1000,
+              filler.size.height / 1000,
+              filler.size.depth / 1000,
+            ]}
+          />
+          <meshStandardMaterial color="#c7b090" roughness={0.7} metalness={0.04} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(function CabinetScene(
   {
     project,
     snapSizeMm,
     room,
+    countertops,
+    fillers,
     onCabinetMove,
     onCabinetRotate,
     selectedCabinetId,
@@ -901,6 +965,8 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           doors={room ? room.doors : []}
           windows={room ? room.windows : []}
         />
+        <CountertopMeshes countertops={countertops} />
+        <FillerMeshes fillers={fillers} />
 
         {items.map((cabinet) => {
           const isSelectedCabinet = cabinet.id === selectedCabinetId;

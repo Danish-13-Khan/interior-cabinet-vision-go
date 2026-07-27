@@ -44,7 +44,6 @@ import {
 } from "./domain/cabinetGeometry";
 import {
   createRoomPresetProject,
-  objectCategories,
   roomPresets,
   type RoomPresetId,
 } from "./domain/roomPresets";
@@ -54,6 +53,11 @@ import {
   type RoomConfig,
 } from "./domain/roomModel";
 import { exportProjectPdf } from "./domain/pdfExport";
+import {
+  cabinetLibrary,
+  createCabinetPlanningWorkflow,
+  createRunAlignedPlacements,
+} from "./domain/cabinetLibrary";
 
 type SavedProjectBrowserEntry = {
   id: string;
@@ -153,7 +157,6 @@ function App() {
   const [selectedPanelName, setSelectedPanelName] = useState<PanelName | null>(null);
   const [projectStatus, setProjectStatus] = useState("");
   const [projectFilePath, setProjectFilePath] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("storage");
 
   const selectedCabinet =
     project.cabinets.find((cabinet) => cabinet.id === selectedCabinetId) ?? null;
@@ -183,6 +186,10 @@ function App() {
       heightMm: room.dimensions.heightMm,
     }),
     [room.dimensions.depthMm, room.dimensions.heightMm, room.dimensions.widthMm],
+  );
+  const planningWorkflow = useMemo(
+    () => createCabinetPlanningWorkflow(project, roomBounds),
+    [project, roomBounds],
   );
 
   useEffect(() => {
@@ -288,6 +295,33 @@ function App() {
     const nextProjects = [entry, ...savedProjects].slice(0, 16);
     setProjectAndPersist(nextProjects);
     setProjectStatus("Saved current room to the project browser.");
+  }
+
+  function handleAutoAlignRuns() {
+    setProject((currentProject) => {
+      const alignedPlacements = new Map<string, CabinetPlacement>();
+
+      for (const run of createCabinetPlanningWorkflow(currentProject, roomBounds).runs) {
+        const placements = createRunAlignedPlacements(run, currentProject, roomBounds);
+        for (const [cabinetId, placement] of Object.entries(placements)) {
+          alignedPlacements.set(cabinetId, placement);
+        }
+      }
+
+      if (alignedPlacements.size === 0) {
+        return currentProject;
+      }
+
+      return {
+        ...currentProject,
+        cabinets: currentProject.cabinets.map((cabinet) => ({
+          ...cabinet,
+          placement: alignedPlacements.get(cabinet.id) ?? cabinet.placement,
+        })),
+      };
+    });
+
+    setProjectStatus("Aligned cabinets into planning runs.");
   }
 
   function handleLoadRoomPreset(presetId: RoomPresetId) {
@@ -893,6 +927,7 @@ function App() {
           <button type="button" className="tb-btn" onClick={handleLoadProject} title="Open JSON file">Open</button>
           <button type="button" className="tb-btn" onClick={handleSaveProject} title="Save JSON file">Save</button>
           <span className="tb-sep" />
+          <button type="button" className="tb-btn" onClick={handleAutoAlignRuns} title="Auto align cabinet runs">Align Runs</button>
           <button type="button" className="tb-btn" onClick={handleExportProjectJson} title="Export JSON">Export JSON</button>
           <button type="button" className="tb-btn" onClick={handleExportCutlistCsv} title="Export CSV">Export CSV</button>
           <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf} title="Download PDF">Export PDF</button>
@@ -911,23 +946,26 @@ function App() {
       <div className="app-body">
       <aside className="library-sidebar">
         <div className="palette-header">Add Items</div>
-        {objectCategories.map((category) => (
-          <button
-            key={category.id}
-            type="button"
-            className={`palette-category-btn ${activeCategory === category.id ? "active" : ""}`}
-            title={`Add ${category.label.toLowerCase()} item`}
-            onClick={() => {
-              setActiveCategory(category.id);
-              const defaultType = category.types[0];
-              if (defaultType) handleAddCabinet(defaultType);
-            }}
-          >
-            <span className="palette-cat-icon">
-              {category.id === "storage" ? "▦" : category.id === "seating" ? "🪑" : category.id === "tables" ? "⬜" : "🖼"}
-            </span>
-            <span className="palette-cat-label">{category.label}</span>
-          </button>
+        {cabinetLibrary.map((category) => (
+          <div key={category.id} className="palette-library-group">
+            <div className="palette-section-label">{category.label}</div>
+            <div className="palette-family-grid">
+              {category.types.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className="palette-family-btn"
+                  title={`Add ${cabinetTypeLabels[type]}`}
+                  onClick={() => handleAddCabinet(type)}
+                >
+                  <span className="palette-cat-icon">
+                    {type === "drawer" ? "▤" : type === "sink" ? "◫" : type === "corner" ? "◩" : type === "open-shelf" ? "☰" : type === "wall" ? "⬒" : type === "tall" || type === "almirah" ? "▥" : "▦"}
+                  </span>
+                  <span className="palette-cat-label">{cabinetTypeLabels[type]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
 
         <div className="palette-divider" />
@@ -963,6 +1001,8 @@ function App() {
           ref={sceneRef}
           project={project}
           room={room}
+          countertops={planningWorkflow.countertops}
+          fillers={planningWorkflow.fillers}
           snapSizeMm={CABINET_GRID_SNAP_MM}
           onCabinetMove={handleCabinetMove}
           onCabinetRotate={handleCabinetRotate}
@@ -1066,7 +1106,12 @@ function App() {
             </div>
           </div>
           <div className="plans-panel-canvas">
-            <TwoDView project={project} room={room} view={planView} />
+            <TwoDView
+              project={project}
+              room={room}
+              view={planView}
+              countertops={planningWorkflow.countertops}
+            />
           </div>
         </div>
         <div className="output-cutlists">

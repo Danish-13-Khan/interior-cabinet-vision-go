@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import { getFootprintDimensions, usesRotatedFootprint } from "../domain/cabinetDimensions";
+import type { CountertopSegment } from "../domain/cabinetLibrary";
 import type { RoomConfig } from "../domain/roomModel";
-import type { Countertop } from "../domain/countertop";
 
 type TwoDViewProps = {
   project: CabinetProject;
   room: RoomConfig;
   view: "top" | "front" | "side";
-  countertops?: Countertop[];
+  countertops?: CountertopSegment[];
 };
 
 const SCALE = 3;
