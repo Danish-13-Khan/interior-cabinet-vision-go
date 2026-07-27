@@ -506,6 +506,19 @@ select {
   padding-bottom: 4px;
 }
 
+.technical-view {
+  display: inline-block;
+}
+
+.technical-view svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid #d3dae4;
+  background: #fbfdff;
+}
+
 .output-cutlists .cutlist-panel {
   flex: 1;
   min-width: 220px;

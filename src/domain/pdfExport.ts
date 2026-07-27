@@ -1,7 +1,14 @@
 import { jsPDF } from "jspdf";
 import type { CabinetProject } from "./cabinetDimensions";
 import { cabinetTypeLabels } from "./cabinetDimensions";
+import type { CountertopSegment } from "./cabinetLibrary";
 import { createCabinetCutlist, type CabinetCutlistItem } from "./cabinetGeometry";
+import {
+  createTechnicalView,
+  formatProjectTechnicalSummary,
+  svgToPngDataUrl,
+} from "./technicalViews";
+import type { RoomConfig } from "./roomModel";
 
 async function optimizeSceneImage(dataUrl: string | null): Promise<string | null> {
   if (!dataUrl) {
@@ -67,6 +74,8 @@ export async function exportProjectPdf(
   project: CabinetProject,
   sceneScreenshot: string | null,
   projectName: string,
+  room: RoomConfig,
+  countertops: CountertopSegment[] = [],
 ): Promise<Blob> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = 210;
@@ -109,13 +118,8 @@ export async function exportProjectPdf(
     margin + (summaryCardWidth + 4) * 2,
     y,
     summaryCardWidth,
-    "Unique Parts",
-    String(
-      project.cabinets.reduce(
-        (count, cabinet) => count + createCabinetCutlist(cabinet.config).length,
-        0,
-      ),
-    ),
+    "Room Size",
+    `${room.dimensions.widthMm} x ${room.dimensions.depthMm}`,
   );
   y += 21;
 
@@ -130,8 +134,21 @@ export async function exportProjectPdf(
     doc.setFontSize(8);
     doc.setTextColor(113, 123, 137);
     doc.text("3D scene preview", margin + 2, y + imageHeight - 3);
-    y += imageHeight + 8;
+  y += imageHeight + 8;
   }
+
+  doc.setFontSize(13);
+  doc.setTextColor(34, 44, 59);
+  doc.text("Project Summary", margin, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setTextColor(84, 96, 113);
+  for (const line of formatProjectTechnicalSummary(project, room)) {
+    doc.text(line, margin, y);
+    y += 5;
+  }
+  y += 2;
 
   doc.setFontSize(13);
   doc.setTextColor(34, 44, 59);
@@ -181,6 +198,48 @@ export async function exportProjectPdf(
     });
     y += rowHeight;
   });
+
+  const topView = createTechnicalView(project, room, "top", countertops);
+  const frontView = createTechnicalView(project, room, "front", countertops);
+  const sideView = createTechnicalView(project, room, "side", countertops);
+  const technicalViews = [
+    { label: "Room Plan", result: topView },
+    { label: "Front Elevation", result: frontView },
+    { label: "Side Elevation", result: sideView },
+  ];
+
+  for (const view of technicalViews) {
+    doc.addPage();
+    doc.setFillColor(247, 248, 250);
+    doc.rect(0, 0, pageWidth, pageHeight, "F");
+    let viewY = margin;
+    doc.setFontSize(15);
+    doc.setTextColor(34, 44, 59);
+    doc.text(view.label, margin, viewY);
+    viewY += 8;
+
+    const viewImage = await svgToPngDataUrl(view.result.svg);
+    const scale = Math.min(contentWidth / view.result.width, 190 / view.result.height);
+    const drawWidth = view.result.width * scale;
+    const drawHeight = view.result.height * scale;
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin, viewY, contentWidth, drawHeight + 12, 3, 3, "F");
+    doc.setDrawColor(225, 230, 236);
+    doc.roundedRect(margin, viewY, contentWidth, drawHeight + 12, 3, 3);
+    doc.addImage(viewImage, "PNG", margin + 4, viewY + 4, drawWidth, drawHeight);
+
+    viewY += drawHeight + 20;
+    doc.setFontSize(11);
+    doc.setTextColor(34, 44, 59);
+    doc.text("Notes", margin, viewY);
+    viewY += 4;
+    doc.setDrawColor(214, 220, 228);
+    doc.roundedRect(margin, viewY, contentWidth, 44, 3, 3);
+    doc.setFontSize(8.5);
+    doc.setTextColor(114, 125, 139);
+    doc.text("Use this area for design decisions, revision notes, site checks, and approval marks.", margin + 4, viewY + 8);
+  }
 
   doc.addPage();
   doc.setFillColor(247, 248, 250);
