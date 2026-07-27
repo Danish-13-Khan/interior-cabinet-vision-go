@@ -25,6 +25,19 @@ function FieldControl({
     return <span className="property-grid-readonly">{String(value || "—")}</span>;
   }
 
+  if (field.type === "action") {
+    return (
+      <button
+        type="button"
+        className="property-grid-action"
+        onClick={() => onChange(true)}
+        title={field.hint}
+      >
+        {field.actionLabel ?? field.label}
+      </button>
+    );
+  }
+
   if (field.type === "boolean") {
     return (
       <input

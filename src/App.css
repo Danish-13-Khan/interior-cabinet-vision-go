@@ -1293,6 +1293,23 @@ select {
   word-break: break-word;
 }
 
+.property-grid-action {
+  appearance: none;
+  border: 1px solid #c5ced8;
+  border-radius: 2px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.64rem;
+  font-weight: 650;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.property-grid-action:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* ── Editable Name Input ── */
 .editable-name-row {
   display: flex;

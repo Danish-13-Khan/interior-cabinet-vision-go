@@ -8,8 +8,31 @@ import {
   supportsShelves,
   supportsToeKick,
 } from "./cabinetCapabilities";
+import { getFamilyOpeningRules } from "./cabinetFamilyRules";
+import {
+  aggregateOpeningMetrics,
+  collectOpeningLeaves,
+  createDefaultOpeningStructure,
+  describeOpeningStructure,
+  migrateLegacyOpeningsToStructure,
+  normalizeOpeningStructure,
+  openingStructureToLegacyStyle,
+  updateOpeningLeaf,
+  type DoorHinge,
+  type DoorStyle,
+  type OpeningLeaf,
+  type OpeningStructure,
+  type OpeningStyle,
+} from "./cabinetOpeningStructure";
 
-export type OpeningStyle = "door" | "drawer" | "open" | "mixed";
+export type { DoorHinge, DoorStyle, OpeningStyle } from "./cabinetOpeningStructure";
+export type {
+  OpeningStructure,
+  OpeningContentType,
+  OpeningLeaf,
+  OpeningNode,
+  OpeningSplitAxis,
+} from "./cabinetOpeningStructure";
 
 const SHELF_MIN = 0;
 const SHELF_MAX = 6;
@@ -34,9 +57,6 @@ export type CabinetShelfSpec = {
 export type CabinetDividerSpec = {
   count: number;
 };
-
-export type DoorStyle = "none" | "single" | "double" | "bi-fold";
-export type DoorHinge = "left" | "right" | "both";
 
 export type CabinetDoorSpec = {
   enabled: boolean;
@@ -67,7 +87,9 @@ export type CabinetEndPanelSpec = {
 };
 
 export type CabinetComposition = {
+  /** @deprecated Prefer openingStructure leaves; kept for compatibility. */
   openings: CabinetOpening[];
+  openingStructure?: OpeningStructure;
   shelves: CabinetShelfSpec;
   dividers: CabinetDividerSpec;
   doors: CabinetDoorSpec;
@@ -132,18 +154,6 @@ export function getCompositionCapabilities(type: CabinetType): CompositionCapabi
   };
 }
 
-function defaultOpeningStyle(type: CabinetType): OpeningStyle {
-  if (type === "drawer") return "drawer";
-  if (type === "open-shelf") return "open";
-  if (type === "sink") return "open";
-  return "door";
-}
-
-function defaultDoorStyle(type: CabinetType, widthMm: number, hasDoors: boolean): DoorStyle {
-  if (!supportsDoors(type) || !hasDoors) return "none";
-  return widthMm < 600 ? "single" : "double";
-}
-
 function doorCountForStyle(style: DoorStyle, widthMm: number): number {
   if (style === "none") return 0;
   if (style === "single") return 1;
@@ -151,49 +161,77 @@ function doorCountForStyle(style: DoorStyle, widthMm: number): number {
   return widthMm < 600 ? 1 : 2;
 }
 
+function resolveStructureForComposition(
+  type: CabinetType,
+  composition: Partial<CabinetComposition> | undefined,
+  seed: Partial<CabinetConfig> | undefined,
+  widthMm: number,
+): OpeningStructure {
+  if (composition?.openingStructure) {
+    return normalizeOpeningStructure(type, composition.openingStructure, widthMm);
+  }
+
+  return normalizeOpeningStructure(
+    type,
+    migrateLegacyOpeningsToStructure(
+      type,
+      widthMm,
+      composition?.openings?.[0]?.style,
+      seed?.shelfCount ?? composition?.shelves?.count ?? (supportsShelves(type) ? 1 : 0),
+      seed?.drawerCount ?? composition?.drawers?.count ?? (type === "drawer" ? 3 : 0),
+      seed?.hasDoors ?? composition?.doors?.enabled ?? supportsDoors(type),
+    ),
+    widthMm,
+  );
+}
+
 export function createDefaultComposition(
   type: CabinetType,
   seed?: Partial<CabinetConfig>,
 ): CabinetComposition {
   const width = seed?.dimensions?.width ?? 900;
-  const shelfCount = seed?.shelfCount ?? (supportsShelves(type) ? 1 : 0);
-  const drawerCount = seed?.drawerCount ?? (type === "drawer" ? 3 : 0);
-  const hasDoors = seed?.hasDoors ?? supportsDoors(type);
-  const doorStyle = defaultDoorStyle(type, width, hasDoors);
-  const toeKickEnabled = supportsToeKick(type) && (seed?.toeKickHeight ?? 100) > 0;
-  const openingStyle =
-    drawerCount > 0 && hasDoors
-      ? "mixed"
-      : drawerCount > 0
-        ? "drawer"
-        : defaultOpeningStyle(type);
+  const familyRules = getFamilyOpeningRules(type);
+  const openingStructure = createDefaultOpeningStructure(type, width);
+  const metrics = aggregateOpeningMetrics(openingStructure);
+  const toeKickEnabled =
+    familyRules.defaultToeKick &&
+    supportsToeKick(type) &&
+    (seed?.toeKickHeight ?? 100) > 0;
 
   return {
-    openings: supportsOpenings(type)
+    openings: familyRules.supportsOpenings
       ? [
           {
-            id: "opening-primary",
-            label: type === "sink" ? "Sink Bay" : "Primary Opening",
-            style: openingStyle,
+            id: openingStructure.activeOpeningId,
+            label: "Primary Opening",
+            style: openingStructureToLegacyStyle(openingStructure),
           },
         ]
       : [],
+    openingStructure,
     shelves: {
-      count: supportsShelves(type) ? clampInt(shelfCount, SHELF_MIN, SHELF_MAX, 0) : 0,
-      adjustable: true,
+      count: supportsShelves(type)
+        ? clampInt(metrics.shelfCount || seed?.shelfCount || 0, SHELF_MIN, SHELF_MAX, 0)
+        : 0,
+      adjustable: metrics.shelvesAdjustable,
     },
     dividers: {
-      count: type === "corner" ? 1 : 0,
+      count:
+        type === "corner"
+          ? Math.max(1, metrics.dividerCount)
+          : clampInt(metrics.dividerCount, 0, DIVIDER_MAX, 0),
     },
     doors: {
-      enabled: doorStyle !== "none",
-      style: doorStyle,
-      hinge: doorStyle === "single" ? "left" : "both",
-      count: doorCountForStyle(doorStyle, width),
+      enabled: metrics.hasDoors,
+      style: metrics.doorStyle,
+      hinge: metrics.doorHinge,
+      count: metrics.hasDoors
+        ? metrics.doorCount || doorCountForStyle(metrics.doorStyle, width)
+        : 0,
     },
     drawers: {
-      count: supportsCompositionDrawers(type)
-        ? clampInt(drawerCount, DRAWER_MIN, DRAWER_MAX, 0)
+      count: supportsDrawers(type)
+        ? clampInt(metrics.drawerCount || seed?.drawerCount || 0, DRAWER_MIN, DRAWER_MAX, 0)
         : 0,
       equalHeights: true,
     },
@@ -227,50 +265,99 @@ export function createDefaultComposition(
   };
 }
 
+function syncSingleLeafFromComposition(
+  type: CabinetType,
+  structure: OpeningStructure,
+  composition: CabinetComposition,
+  widthMm: number,
+): OpeningStructure {
+  const leaves = collectOpeningLeaves(structure.root);
+  if (leaves.length !== 1) return structure;
+  const leaf = leaves[0];
+  const patch: Partial<OpeningLeaf> = {};
+
+  if (leaf.contentType === "drawer-stack") {
+    patch.drawerCount = composition.drawers.count;
+  }
+  if (leaf.contentType === "open-shelf" || leaf.contentType === "door") {
+    patch.shelfCount = composition.shelves.count;
+    patch.shelvesAdjustable = composition.shelves.adjustable;
+  }
+  if (leaf.contentType === "door" && composition.doors.enabled) {
+    patch.doorStyle =
+      composition.doors.style === "none"
+        ? widthMm < 600
+          ? "single"
+          : "double"
+        : composition.doors.style;
+    patch.doorHinge = composition.doors.hinge;
+  }
+
+  return updateOpeningLeaf(structure, leaf.id, patch, type, widthMm);
+}
+
 export function normalizeComposition(
   type: CabinetType,
   composition: CabinetComposition,
   dimensionsWidthMm: number,
 ): CabinetComposition {
   const caps = getCompositionCapabilities(type);
+  let openingStructure = resolveStructureForComposition(
+    type,
+    composition,
+    {
+      shelfCount: composition.shelves.count,
+      drawerCount: composition.drawers.count,
+      hasDoors: composition.doors.enabled,
+    },
+    dimensionsWidthMm,
+  );
+  openingStructure = syncSingleLeafFromComposition(
+    type,
+    openingStructure,
+    composition,
+    dimensionsWidthMm,
+  );
+  const metrics = aggregateOpeningMetrics(openingStructure);
   const doorStyle =
-    !caps.doors || !composition.doors.enabled || composition.doors.style === "none"
+    !caps.doors || !metrics.hasDoors || metrics.doorStyle === "none"
       ? "none"
-      : composition.doors.style;
+      : metrics.doorStyle;
   const drawerCount = caps.drawers
-    ? clampInt(composition.drawers.count, DRAWER_MIN, DRAWER_MAX, 0)
+    ? clampInt(metrics.drawerCount || composition.drawers.count, DRAWER_MIN, DRAWER_MAX, 0)
     : 0;
   const doorEnabled = doorStyle !== "none";
-  let openingStyle = composition.openings[0]?.style ?? defaultOpeningStyle(type);
-
-  if (drawerCount > 0 && doorEnabled) openingStyle = "mixed";
-  else if (drawerCount > 0) openingStyle = "drawer";
-  else if (doorEnabled) openingStyle = "door";
-  else if (type === "open-shelf" || type === "sink") openingStyle = "open";
-
+  const openingStyle = openingStructureToLegacyStyle(openingStructure);
   const toeKickEnabled = caps.toeKick && composition.toeKick.enabled;
+  const shelfCount = caps.shelves
+    ? clampInt(metrics.shelfCount || composition.shelves.count, SHELF_MIN, SHELF_MAX, 0)
+    : 0;
 
   return {
     openings: caps.openings
       ? [
           {
-            id: composition.openings[0]?.id ?? "opening-primary",
-            label:
-              composition.openings[0]?.label?.trim() ||
-              (type === "sink" ? "Sink Bay" : "Primary Opening"),
+            id: openingStructure.activeOpeningId,
+            label: "Opening Structure",
             style: openingStyle,
           },
         ]
       : [],
+    openingStructure,
     shelves: {
-      count: caps.shelves
-        ? clampInt(composition.shelves.count, SHELF_MIN, SHELF_MAX, 0)
-        : 0,
-      adjustable: caps.shelves ? Boolean(composition.shelves.adjustable) : false,
+      count: shelfCount,
+      adjustable: caps.shelves
+        ? Boolean(metrics.shelvesAdjustable || composition.shelves.adjustable)
+        : false,
     },
     dividers: {
       count: caps.dividers
-        ? clampInt(composition.dividers.count, 0, DIVIDER_MAX, type === "corner" ? 1 : 0)
+        ? clampInt(
+            Math.max(metrics.dividerCount, composition.dividers.count),
+            0,
+            DIVIDER_MAX,
+            type === "corner" ? 1 : 0,
+          )
         : 0,
     },
     doors: {
@@ -278,11 +365,13 @@ export function normalizeComposition(
       style: doorStyle,
       hinge:
         doorStyle === "single"
-          ? composition.doors.hinge === "right"
+          ? metrics.doorHinge === "right"
             ? "right"
             : "left"
           : "both",
-      count: doorCountForStyle(doorStyle, dimensionsWidthMm),
+      count: doorEnabled
+        ? metrics.doorCount || doorCountForStyle(doorStyle, dimensionsWidthMm)
+        : 0,
     },
     drawers: {
       count: drawerCount,
@@ -322,7 +411,15 @@ export function resolveCabinetComposition(config: CabinetConfig): CabinetComposi
   const seed = config.composition
     ? config.composition
     : createDefaultComposition(config.type, config);
-  return normalizeComposition(config.type, seed, config.dimensions.width);
+  return normalizeComposition(
+    config.type,
+    {
+      ...createDefaultComposition(config.type, config),
+      ...seed,
+      openings: seed.openings ?? [],
+    },
+    config.dimensions.width,
+  );
 }
 
 export function syncFlatFieldsFromComposition(
@@ -363,7 +460,9 @@ export function getResolvedFillers(config: CabinetConfig): CabinetFillerSpec {
 
 export function describeComposition(composition: CabinetComposition): string {
   const parts: string[] = [];
-  if (composition.openings[0]) {
+  if (composition.openingStructure) {
+    parts.push(describeOpeningStructure(composition.openingStructure));
+  } else if (composition.openings[0]) {
     parts.push(`${composition.openings[0].label} (${composition.openings[0].style})`);
   }
   if (composition.shelves.count > 0) {

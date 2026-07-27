@@ -29,15 +29,25 @@ import {
   type CabinetComposition,
   type DoorHinge,
   type DoorStyle,
-  type OpeningStyle,
 } from "./cabinetComposition";
+import { getFamilyOpeningRules } from "./cabinetFamilyRules";
+import {
+  collectOpeningLeaves,
+  getActiveOpeningLeaf,
+  openingStructureToLegacyStyle,
+  setActiveOpening,
+  setOpeningContentType,
+  splitOpening,
+  updateOpeningLeaf,
+  type OpeningContentType,
+} from "./cabinetOpeningStructure";
 import {
   ENGINEERED_CABINET_PRESETS,
   getEngineeredCabinetPreset,
   listEngineeredPresetsForFamily,
 } from "./cabinetPresets";
 
-export type PropertyFieldType = "number" | "boolean" | "enum" | "readonly";
+export type PropertyFieldType = "number" | "boolean" | "enum" | "readonly" | "action";
 
 export type PropertyFieldOption = {
   value: string;
@@ -54,6 +64,7 @@ export type PropertyFieldDef = {
   step?: number;
   options?: PropertyFieldOption[];
   hint?: string;
+  actionLabel?: string;
 };
 
 export type PropertySectionDef = {
@@ -65,8 +76,26 @@ export type PropertySectionDef = {
 
 export type PropertyFieldValue = string | number | boolean;
 
+const CONTENT_TYPE_LABELS: Record<OpeningContentType, string> = {
+  door: "Door Opening",
+  "drawer-stack": "Drawer Stack",
+  "open-shelf": "Open Shelf Section",
+  divider: "Divider Section",
+  empty: "Empty",
+};
+
 function compositionOf(config: CabinetConfig): CabinetComposition {
   return resolveCabinetComposition(config);
+}
+
+function patchOpeningStructure(
+  config: CabinetConfig,
+  patch: (composition: CabinetComposition) => CabinetComposition["openingStructure"],
+): CabinetConfig {
+  return patchComposition(config, (composition) => ({
+    ...composition,
+    openingStructure: patch(composition) ?? composition.openingStructure,
+  }));
 }
 
 export function getCabinetEditorValue(
@@ -74,6 +103,10 @@ export function getCabinetEditorValue(
   fieldId: string,
 ): PropertyFieldValue {
   const composition = compositionOf(config);
+  const structure = composition.openingStructure;
+  const activeLeaf = structure ? getActiveOpeningLeaf(structure) : null;
+  const leaves = structure ? collectOpeningLeaves(structure.root) : [];
+  const rules = getFamilyOpeningRules(config.type);
 
   switch (fieldId) {
     case "family":
@@ -82,16 +115,43 @@ export function getCabinetEditorValue(
       return "";
     case "specSummary":
       return describeComposition(composition);
+    case "familyRulesNote":
+      return rules.notes;
     case "width":
       return config.dimensions.width;
     case "height":
       return config.dimensions.height;
     case "depth":
       return config.dimensions.depth;
-    case "openingLabel":
-      return composition.openings[0]?.label ?? "—";
+    case "openingTree":
+      return structure
+        ? leaves
+            .map((leaf) => `${leaf.label} (${CONTENT_TYPE_LABELS[leaf.contentType]})`)
+            .join(" · ")
+        : "—";
+    case "activeOpening":
+      return activeLeaf?.id ?? "";
+    case "openingContentType":
+      return activeLeaf?.contentType ?? "empty";
+    case "openingRatio":
+      return Math.round((activeLeaf?.ratio ?? 1) * 100);
+    case "openingLeafDoorStyle":
+      return activeLeaf?.doorStyle ?? "none";
+    case "openingLeafDoorHinge":
+      return activeLeaf?.doorHinge ?? "left";
+    case "openingLeafDrawerCount":
+      return activeLeaf?.drawerCount ?? 0;
+    case "openingLeafShelfCount":
+      return activeLeaf?.shelfCount ?? 0;
     case "openingStyle":
-      return composition.openings[0]?.style ?? "open";
+      return structure
+        ? openingStructureToLegacyStyle(structure)
+        : (composition.openings[0]?.style ?? "open");
+    case "openingLabel":
+      return activeLeaf?.label ?? composition.openings[0]?.label ?? "—";
+    case "splitVertical":
+    case "splitHorizontal":
+      return false;
     case "shelfCount":
       return composition.shelves.count;
     case "shelvesAdjustable":
@@ -132,6 +192,10 @@ export function getCabinetEditorValue(
 export function getCabinetEditorSections(config: CabinetConfig): PropertySectionDef[] {
   const caps = getCompositionCapabilities(config.type);
   const composition = compositionOf(config);
+  const structure = composition.openingStructure;
+  const activeLeaf = structure ? getActiveOpeningLeaf(structure) : null;
+  const leaves = structure ? collectOpeningLeaves(structure.root) : [];
+  const rules = getFamilyOpeningRules(config.type);
   const familyOptions = (Object.keys(cabinetTypeLabels) as CabinetType[]).map((type) => ({
     value: type,
     label: cabinetTypeLabels[type],
@@ -167,6 +231,12 @@ export function getCabinetEditorSections(config: CabinetConfig): PropertySection
           id: "specSummary",
           label: "Composition",
           type: "readonly",
+        },
+        {
+          id: "familyRulesNote",
+          label: "Family rules",
+          type: "readonly",
+          hint: rules.notes,
         },
       ],
     },
@@ -205,28 +275,132 @@ export function getCabinetEditorSections(config: CabinetConfig): PropertySection
     },
   ];
 
-  if (caps.openings) {
+  if (caps.openings && rules.supportsOpenings) {
+    const openingFields: PropertyFieldDef[] = [
+      {
+        id: "openingTree",
+        label: "Structure",
+        type: "readonly",
+      },
+      {
+        id: "openingStyle",
+        label: "Aggregate",
+        type: "readonly",
+        hint: "Derived from opening leaves",
+      },
+      {
+        id: "activeOpening",
+        label: "Active opening",
+        type: "enum",
+        options: leaves.map((leaf) => ({
+          value: leaf.id,
+          label: `${leaf.label} · ${CONTENT_TYPE_LABELS[leaf.contentType]}`,
+        })),
+      },
+      {
+        id: "openingContentType",
+        label: "Content",
+        type: "enum",
+        options: rules.allowedContentTypes.map((value) => ({
+          value,
+          label: CONTENT_TYPE_LABELS[value],
+        })),
+      },
+    ];
+
+    if (leaves.length > 1 && activeLeaf) {
+      openingFields.push({
+        id: "openingRatio",
+        label: "Leaf share",
+        type: "number",
+        unit: "%",
+        min: 5,
+        max: 95,
+        step: 5,
+        hint: "Relative share within parent split",
+      });
+    }
+
+    if (activeLeaf?.contentType === "door") {
+      openingFields.push({
+        id: "openingLeafDoorStyle",
+        label: "Door style",
+        type: "enum",
+        options: [
+          { value: "single", label: "Single" },
+          { value: "double", label: "Double" },
+          { value: "bi-fold", label: "Bi-fold" },
+        ],
+      });
+      if (activeLeaf.doorStyle === "single") {
+        openingFields.push({
+          id: "openingLeafDoorHinge",
+          label: "Hinge",
+          type: "enum",
+          options: [
+            { value: "left", label: "Left" },
+            { value: "right", label: "Right" },
+          ],
+        });
+      }
+      if (caps.shelves) {
+        openingFields.push({
+          id: "openingLeafShelfCount",
+          label: "Shelves in bay",
+          type: "number",
+          min: CABINET_SHELF_MIN,
+          max: CABINET_SHELF_MAX,
+          step: 1,
+        });
+      }
+    }
+
+    if (activeLeaf?.contentType === "drawer-stack") {
+      openingFields.push({
+        id: "openingLeafDrawerCount",
+        label: "Drawers in stack",
+        type: "number",
+        min: 1,
+        max: CABINET_DRAWER_MAX,
+        step: 1,
+      });
+    }
+
+    if (activeLeaf?.contentType === "open-shelf") {
+      openingFields.push({
+        id: "openingLeafShelfCount",
+        label: "Shelves in section",
+        type: "number",
+        min: CABINET_SHELF_MIN,
+        max: CABINET_SHELF_MAX,
+        step: 1,
+      });
+    }
+
+    if (rules.allowVerticalSplit) {
+      openingFields.push({
+        id: "splitVertical",
+        label: "Split",
+        type: "action",
+        actionLabel: "Vertical",
+        hint: "Split active opening side-by-side",
+      });
+    }
+    if (rules.allowHorizontalSplit) {
+      openingFields.push({
+        id: "splitHorizontal",
+        label: rules.allowVerticalSplit ? " " : "Split",
+        type: "action",
+        actionLabel: "Horizontal",
+        hint: "Stack openings top / bottom",
+      });
+    }
+
     sections.push({
       id: "openings",
       label: "Openings",
-      fields: [
-        {
-          id: "openingLabel",
-          label: "Bay",
-          type: "readonly",
-        },
-        {
-          id: "openingStyle",
-          label: "Style",
-          type: "enum",
-          options: [
-            { value: "door", label: "Door bay" },
-            { value: "drawer", label: "Drawer bay" },
-            { value: "open", label: "Open bay" },
-            { value: "mixed", label: "Mixed" },
-          ],
-        },
-      ],
+      hint: rules.notes,
+      fields: openingFields,
     });
   }
 
@@ -457,42 +631,143 @@ export function applyCabinetEditorChange(
     });
   }
 
+  const widthMm = config.dimensions.width;
+
   switch (fieldId) {
-    case "openingStyle":
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        openings: composition.openings.map((opening, index) =>
-          index === 0
-            ? { ...opening, style: value as OpeningStyle }
-            : opening,
-        ),
-        doors: {
-          ...composition.doors,
-          enabled: value === "door" || value === "mixed",
-          style:
-            value === "door" || value === "mixed"
-              ? composition.doors.style === "none"
-                ? config.dimensions.width < 600
-                  ? "single"
-                  : "double"
-                : composition.doors.style
-              : "none",
-        },
-        drawers: {
-          ...composition.drawers,
-          count:
-            value === "drawer" || value === "mixed"
-              ? Math.max(1, composition.drawers.count)
-              : value === "open"
-                ? 0
-                : composition.drawers.count,
-        },
-      }));
+    case "activeOpening":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        return setActiveOpening(composition.openingStructure, String(value));
+      });
+    case "openingContentType":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return setOpeningContentType(
+          composition.openingStructure,
+          active.id,
+          value as OpeningContentType,
+          config.type,
+          widthMm,
+        );
+      });
+    case "openingRatio":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return updateOpeningLeaf(
+          composition.openingStructure,
+          active.id,
+          { ratio: Number(value) / 100 },
+          config.type,
+          widthMm,
+        );
+      });
+    case "openingLeafDoorStyle":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return updateOpeningLeaf(
+          composition.openingStructure,
+          active.id,
+          { doorStyle: value as DoorStyle },
+          config.type,
+          widthMm,
+        );
+      });
+    case "openingLeafDoorHinge":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return updateOpeningLeaf(
+          composition.openingStructure,
+          active.id,
+          { doorHinge: value as DoorHinge },
+          config.type,
+          widthMm,
+        );
+      });
+    case "openingLeafDrawerCount":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return updateOpeningLeaf(
+          composition.openingStructure,
+          active.id,
+          { drawerCount: Number(value) },
+          config.type,
+          widthMm,
+        );
+      });
+    case "openingLeafShelfCount":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return updateOpeningLeaf(
+          composition.openingStructure,
+          active.id,
+          { shelfCount: Number(value) },
+          config.type,
+          widthMm,
+        );
+      });
+    case "splitVertical":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return splitOpening(
+          composition.openingStructure,
+          active.id,
+          "vertical",
+          config.type,
+          widthMm,
+        );
+      });
+    case "splitHorizontal":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return splitOpening(
+          composition.openingStructure,
+          active.id,
+          "horizontal",
+          config.type,
+          widthMm,
+        );
+      });
     case "shelfCount":
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        shelves: { ...composition.shelves, count: Number(value) },
-      }));
+      return patchComposition(config, (composition) => {
+        const next = {
+          ...composition,
+          shelves: { ...composition.shelves, count: Number(value) },
+        };
+        if (!composition.openingStructure) return next;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (
+          active &&
+          (active.contentType === "open-shelf" || active.contentType === "door")
+        ) {
+          return {
+            ...next,
+            openingStructure: updateOpeningLeaf(
+              composition.openingStructure,
+              active.id,
+              { shelfCount: Number(value) },
+              config.type,
+              widthMm,
+            ),
+          };
+        }
+        return next;
+      });
     case "shelvesAdjustable":
       return patchComposition(config, (composition) => ({
         ...composition,
@@ -505,40 +780,147 @@ export function applyCabinetEditorChange(
       }));
     case "doorsEnabled": {
       const enabled = Boolean(value);
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        doors: {
-          ...composition.doors,
-          enabled,
-          style: enabled
-            ? composition.doors.style === "none"
-              ? config.dimensions.width < 600
-                ? "single"
-                : "double"
-              : composition.doors.style
-            : "none",
-        },
-      }));
+      return patchComposition(config, (composition) => {
+        let openingStructure = composition.openingStructure;
+        if (openingStructure) {
+          const active = getActiveOpeningLeaf(openingStructure);
+          if (active) {
+            const allowed = getFamilyOpeningRules(config.type).allowedContentTypes;
+            const nextType = enabled
+              ? "door"
+              : allowed.includes("open-shelf")
+                ? "open-shelf"
+                : (allowed[0] ?? "empty");
+            if (allowed.includes(nextType)) {
+              openingStructure = setOpeningContentType(
+                openingStructure,
+                active.id,
+                nextType,
+                config.type,
+                widthMm,
+              );
+            }
+          }
+        }
+        return {
+          ...composition,
+          openingStructure,
+          doors: {
+            ...composition.doors,
+            enabled,
+            style: enabled
+              ? composition.doors.style === "none"
+                ? config.dimensions.width < 600
+                  ? "single"
+                  : "double"
+                : composition.doors.style
+              : "none",
+          },
+        };
+      });
     }
     case "doorStyle":
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        doors: {
-          ...composition.doors,
-          style: value as DoorStyle,
-          enabled: value !== "none",
-        },
-      }));
+      return patchComposition(config, (composition) => {
+        let openingStructure = composition.openingStructure;
+        if (openingStructure) {
+          const active = getActiveOpeningLeaf(openingStructure);
+          if (active?.contentType === "door") {
+            openingStructure = updateOpeningLeaf(
+              openingStructure,
+              active.id,
+              { doorStyle: value as DoorStyle },
+              config.type,
+              widthMm,
+            );
+          } else if (value !== "none" && active) {
+            openingStructure = setOpeningContentType(
+              openingStructure,
+              active.id,
+              "door",
+              config.type,
+              widthMm,
+            );
+            openingStructure = updateOpeningLeaf(
+              openingStructure,
+              active.id,
+              { doorStyle: value as DoorStyle },
+              config.type,
+              widthMm,
+            );
+          }
+        }
+        return {
+          ...composition,
+          openingStructure,
+          doors: {
+            ...composition.doors,
+            style: value as DoorStyle,
+            enabled: value !== "none",
+          },
+        };
+      });
     case "doorHinge":
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        doors: { ...composition.doors, hinge: value as DoorHinge },
-      }));
+      return patchComposition(config, (composition) => {
+        let openingStructure = composition.openingStructure;
+        if (openingStructure) {
+          const active = getActiveOpeningLeaf(openingStructure);
+          if (active?.contentType === "door") {
+            openingStructure = updateOpeningLeaf(
+              openingStructure,
+              active.id,
+              { doorHinge: value as DoorHinge },
+              config.type,
+              widthMm,
+            );
+          }
+        }
+        return {
+          ...composition,
+          openingStructure,
+          doors: { ...composition.doors, hinge: value as DoorHinge },
+        };
+      });
     case "drawerCount":
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        drawers: { ...composition.drawers, count: Number(value) },
-      }));
+      return patchComposition(config, (composition) => {
+        let openingStructure = composition.openingStructure;
+        if (openingStructure) {
+          const active = getActiveOpeningLeaf(openingStructure);
+          if (active?.contentType === "drawer-stack") {
+            openingStructure = updateOpeningLeaf(
+              openingStructure,
+              active.id,
+              { drawerCount: Number(value) },
+              config.type,
+              widthMm,
+            );
+          } else if (
+            Number(value) > 0 &&
+            active &&
+            collectOpeningLeaves(openingStructure.root).length === 1 &&
+            getFamilyOpeningRules(config.type).allowedContentTypes.includes("drawer-stack")
+          ) {
+            openingStructure = setOpeningContentType(
+              openingStructure,
+              active.id,
+              "drawer-stack",
+              config.type,
+              widthMm,
+            );
+            openingStructure = updateOpeningLeaf(
+              openingStructure,
+              active.id,
+              { drawerCount: Number(value) },
+              config.type,
+              widthMm,
+            );
+          }
+        }
+        return {
+          ...composition,
+          openingStructure,
+          drawers: { ...composition.drawers, count: Number(value) },
+        };
+      });
     case "drawersEqualHeights":
       return patchComposition(config, (composition) => ({
         ...composition,
@@ -550,9 +932,7 @@ export function applyCabinetEditorChange(
         toeKick: {
           ...composition.toeKick,
           enabled: Boolean(value),
-          heightMm: Boolean(value)
-            ? composition.toeKick.heightMm || 100
-            : 0,
+          heightMm: Boolean(value) ? composition.toeKick.heightMm || 100 : 0,
           insetMm: Boolean(value) ? composition.toeKick.insetMm || 60 : 0,
         },
       }));
