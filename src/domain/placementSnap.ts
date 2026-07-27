@@ -4,6 +4,7 @@ import {
   type CabinetInstance,
   type CabinetPlacement,
 } from "./cabinetDimensions";
+import type { CabinetRun } from "./cabinetLibrary";
 
 export type SnapTarget = {
   center: number;
@@ -21,8 +22,25 @@ export type PlanSnapResult = {
   guides: SnapGuide[];
 };
 
+export type DimensionChain = {
+  positions: number[];
+  labels: string[];
+};
+
 const ALIGN_THRESHOLD_MM = 25;
 const WALL_THRESHOLD_MM = 120;
+
+function uniqueSortedEdges(edges: number[]): number[] {
+  return Array.from(new Set(edges.map((value) => Math.round(value)))).sort((a, b) => a - b);
+}
+
+function labelsBetween(positions: number[]): string[] {
+  const labels: string[] = [];
+  for (let index = 0; index < positions.length - 1; index += 1) {
+    labels.push(`${positions[index + 1] - positions[index]}`);
+  }
+  return labels;
+}
 
 export function smartSnapAxis(
   value: number,
@@ -33,6 +51,7 @@ export function smartSnapAxis(
   let best = snapMillimetresToGrid(value, gridSizeMm);
   const guides: SnapGuide[] = [];
   let snappedGuide: number | null = null;
+  let kind: SnapGuide["kind"] = "align";
 
   for (const target of targets) {
     const myLeft = best - mySize / 2;
@@ -43,18 +62,23 @@ export function smartSnapAxis(
     if (Math.abs(myLeft - theirLeft) < ALIGN_THRESHOLD_MM) {
       best = theirLeft + mySize / 2;
       snappedGuide = theirLeft;
+      kind = "align";
     } else if (Math.abs(myRight - theirRight) < ALIGN_THRESHOLD_MM) {
       best = theirRight - mySize / 2;
       snappedGuide = theirRight;
+      kind = "align";
     } else if (Math.abs(myLeft - theirRight) < ALIGN_THRESHOLD_MM) {
       best = theirRight + mySize / 2;
       snappedGuide = theirRight;
+      kind = "adjacency";
     } else if (Math.abs(myRight - theirLeft) < ALIGN_THRESHOLD_MM) {
       best = theirLeft - mySize / 2;
       snappedGuide = theirLeft;
+      kind = "adjacency";
     } else if (Math.abs(best - target.center) < ALIGN_THRESHOLD_MM) {
       best = target.center;
       snappedGuide = target.center;
+      kind = "align";
     }
   }
 
@@ -62,11 +86,56 @@ export function smartSnapAxis(
     guides.push({
       axis: "x",
       positionMm: snappedGuide,
-      kind: "align",
+      kind,
     });
   }
 
   return { value: best, guides };
+}
+
+export function snapElevationHeight(options: {
+  proposedY: number;
+  heightMm: number;
+  others: CabinetInstance[];
+  roomHeightMm: number;
+  gridSizeMm: number;
+  sillHeightsMm?: number[];
+}): { y: number; guides: SnapGuide[] } {
+  const { proposedY, heightMm, others, roomHeightMm, gridSizeMm, sillHeightsMm = [] } = options;
+  const guides: SnapGuide[] = [];
+  let y = Math.max(0, Math.min(roomHeightMm - heightMm, proposedY));
+
+  const targets: SnapTarget[] = others.map((item) => ({
+    center: item.placement.y + item.config.dimensions.height / 2,
+    size: item.config.dimensions.height,
+  }));
+
+  for (const sill of sillHeightsMm) {
+    targets.push({ center: sill, size: 0 });
+  }
+
+  const snapped = smartSnapAxis(y + heightMm / 2, heightMm, targets, gridSizeMm);
+  y = Math.max(0, snapped.value - heightMm / 2);
+
+  for (const guide of snapped.guides) {
+    guides.push({ ...guide, axis: "y" });
+  }
+
+  // Floor / ceiling attraction
+  if (Math.abs(y) < ALIGN_THRESHOLD_MM) {
+    y = 0;
+    guides.push({ axis: "y", positionMm: 0, kind: "wall" });
+  }
+  if (Math.abs(y + heightMm - roomHeightMm) < WALL_THRESHOLD_MM) {
+    y = Math.max(0, roomHeightMm - heightMm);
+    guides.push({ axis: "y", positionMm: roomHeightMm, kind: "wall" });
+  }
+
+  y = snapMillimetresToGrid(y, gridSizeMm);
+  guides.push({ axis: "y", positionMm: y, kind: "grid" });
+  guides.push({ axis: "y", positionMm: y + heightMm, kind: "grid" });
+
+  return { y, guides };
 }
 
 export function snapPlanPlacement(options: {
@@ -156,7 +225,7 @@ export function snapPlanPlacement(options: {
 export function collectPlanDimensionChain(
   cabinets: CabinetInstance[],
   roomWidthMm: number,
-): { positions: number[]; labels: string[] } {
+): DimensionChain {
   const halfW = roomWidthMm / 2;
   const edges = [-halfW];
 
@@ -167,10 +236,108 @@ export function collectPlanDimensionChain(
   }
 
   edges.push(halfW);
-  const unique = Array.from(new Set(edges.map((value) => Math.round(value)))).sort((a, b) => a - b);
-  const labels: string[] = [];
-  for (let index = 0; index < unique.length - 1; index += 1) {
-    labels.push(`${unique[index + 1] - unique[index]}`);
+  const positions = uniqueSortedEdges(edges);
+  return { positions, labels: labelsBetween(positions) };
+}
+
+export function collectPlanDepthChain(
+  cabinets: CabinetInstance[],
+  roomDepthMm: number,
+): DimensionChain {
+  const halfD = roomDepthMm / 2;
+  const edges = [-halfD];
+
+  for (const cabinet of cabinets) {
+    const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
+    edges.push(cabinet.placement.z - fp.depth / 2);
+    edges.push(cabinet.placement.z + fp.depth / 2);
   }
-  return { positions: unique, labels };
+
+  edges.push(halfD);
+  const positions = uniqueSortedEdges(edges);
+  return { positions, labels: labelsBetween(positions) };
+}
+
+export function collectRunDimensionChain(
+  run: CabinetRun,
+  cabinets: CabinetInstance[],
+): DimensionChain | null {
+  const runCabinets = run.cabinetIds
+    .map((id) => cabinets.find((cabinet) => cabinet.id === id))
+    .filter((cabinet): cabinet is CabinetInstance => Boolean(cabinet))
+    .sort((a, b) =>
+      run.axis === "x"
+        ? a.placement.x - b.placement.x
+        : a.placement.z - b.placement.z,
+    );
+
+  if (runCabinets.length === 0) return null;
+
+  const edges: number[] = [];
+  for (const cabinet of runCabinets) {
+    const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
+    if (run.axis === "x") {
+      edges.push(cabinet.placement.x - fp.width / 2);
+      edges.push(cabinet.placement.x + fp.width / 2);
+    } else {
+      edges.push(cabinet.placement.z - fp.depth / 2);
+      edges.push(cabinet.placement.z + fp.depth / 2);
+    }
+  }
+
+  const positions = uniqueSortedEdges(edges);
+  if (positions.length < 2) return null;
+  return { positions, labels: labelsBetween(positions) };
+}
+
+export function collectElevationHorizontalChain(
+  cabinets: CabinetInstance[],
+  roomSpanMm: number,
+  axis: "x" | "z",
+): DimensionChain {
+  const half = roomSpanMm / 2;
+  const edges = [-half];
+
+  for (const cabinet of cabinets) {
+    const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
+    if (axis === "x") {
+      edges.push(cabinet.placement.x - fp.width / 2);
+      edges.push(cabinet.placement.x + fp.width / 2);
+    } else {
+      edges.push(cabinet.placement.z - fp.depth / 2);
+      edges.push(cabinet.placement.z + fp.depth / 2);
+    }
+  }
+
+  edges.push(half);
+  const positions = uniqueSortedEdges(edges);
+  return { positions, labels: labelsBetween(positions) };
+}
+
+/** Positions measured from floor up (mm). */
+export function collectElevationVerticalChain(
+  cabinets: CabinetInstance[],
+  roomHeightMm: number,
+): DimensionChain {
+  const edges = [0];
+
+  for (const cabinet of cabinets) {
+    edges.push(cabinet.placement.y);
+    edges.push(cabinet.placement.y + cabinet.config.dimensions.height);
+  }
+
+  edges.push(roomHeightMm);
+  const positions = uniqueSortedEdges(edges);
+  return { positions, labels: labelsBetween(positions) };
+}
+
+export function resolveSelectedCabinets(
+  cabinets: CabinetInstance[],
+  selectedCabinetIds: string[] | undefined,
+  activeCabinetId: string | null | undefined,
+): CabinetInstance[] {
+  const ids = new Set(selectedCabinetIds ?? []);
+  if (activeCabinetId) ids.add(activeCabinetId);
+  if (ids.size === 0) return [];
+  return cabinets.filter((cabinet) => ids.has(cabinet.id));
 }

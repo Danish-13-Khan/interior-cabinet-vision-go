@@ -3,9 +3,9 @@ import type {
   CabinetPlacement,
   CabinetProject,
 } from "../domain/cabinetDimensions";
-import type { CountertopSegment } from "../domain/cabinetLibrary";
+import type { CabinetRun, CountertopSegment } from "../domain/cabinetLibrary";
 import type { SnapGuide } from "../domain/placementSnap";
-import { snapPlanPlacement } from "../domain/placementSnap";
+import { snapElevationHeight, snapPlanPlacement } from "../domain/placementSnap";
 import {
   createTechnicalView,
   type TechnicalViewKind,
@@ -17,6 +17,7 @@ type TwoDViewProps = {
   room: RoomConfig;
   view: TechnicalViewKind;
   countertops?: CountertopSegment[];
+  runs?: CabinetRun[];
   selectedCabinetIds?: string[];
   activeCabinetId?: string | null;
   snapSizeMm?: number;
@@ -39,6 +40,7 @@ export function TwoDView({
   room,
   view,
   countertops,
+  runs = [],
   selectedCabinetIds = [],
   activeCabinetId = null,
   snapSizeMm = 50,
@@ -69,6 +71,7 @@ export function TwoDView({
         showElevationDetails: true,
         snapGuides,
         ghostPlacement,
+        runs,
       }),
     [
       activeCabinetId,
@@ -76,6 +79,7 @@ export function TwoDView({
       ghostPlacement,
       project,
       room,
+      runs,
       selectedCabinetIds,
       showGrid,
       snapGuides,
@@ -128,9 +132,10 @@ export function TwoDView({
       };
     }
 
+    const others = project.cabinets.filter((item) => item.id !== cabinetId);
     const snapped = snapPlanPlacement({
       cabinet,
-      others: project.cabinets.filter((item) => item.id !== cabinetId),
+      others,
       proposed: next,
       roomWidthMm: room.dimensions.widthMm,
       roomDepthMm: room.dimensions.depthMm,
@@ -138,24 +143,61 @@ export function TwoDView({
     });
 
     if (view === "front") {
+      const sillHeights = room.windows
+        .filter((item) => item.side === "back-wall")
+        .map((item) => item.sillHeightMm);
+      const heightSnap = snapElevationHeight({
+        proposedY: next.y,
+        heightMm: cabinet.config.dimensions.height,
+        others: others.filter(
+          (item) =>
+            item.placement.attachment === "floor" ||
+            item.placement.attachment === "back-wall",
+        ),
+        roomHeightMm: room.dimensions.heightMm,
+        gridSizeMm: snapSizeMm,
+        sillHeightsMm: sillHeights,
+      });
       return {
         placement: {
           ...snapped.placement,
-          y: Math.round(next.y / snapSizeMm) * snapSizeMm,
+          y: origin.attachment === "floor" ? 0 : heightSnap.y,
           z: origin.z,
         },
-        guides: snapped.guides.filter((guide) => guide.axis === "x"),
+        guides: [
+          ...snapped.guides.filter((guide) => guide.axis === "x"),
+          ...(origin.attachment === "floor" ? [] : heightSnap.guides),
+        ],
       };
     }
 
     if (view === "side") {
+      const sillHeights = room.windows
+        .filter((item) => item.side === "left-wall" || item.side === "right-wall")
+        .map((item) => item.sillHeightMm);
+      const heightSnap = snapElevationHeight({
+        proposedY: next.y,
+        heightMm: cabinet.config.dimensions.height,
+        others: others.filter(
+          (item) =>
+            item.placement.attachment === "floor" ||
+            item.placement.attachment === "left-wall" ||
+            item.placement.attachment === "right-wall",
+        ),
+        roomHeightMm: room.dimensions.heightMm,
+        gridSizeMm: snapSizeMm,
+        sillHeightsMm: sillHeights,
+      });
       return {
         placement: {
           ...snapped.placement,
           x: origin.x,
-          y: Math.round(next.y / snapSizeMm) * snapSizeMm,
+          y: origin.attachment === "floor" ? 0 : heightSnap.y,
         },
-        guides: snapped.guides.filter((guide) => guide.axis === "z"),
+        guides: [
+          ...snapped.guides.filter((guide) => guide.axis === "z"),
+          ...(origin.attachment === "floor" ? [] : heightSnap.guides),
+        ],
       };
     }
 

@@ -1964,16 +1964,17 @@ function App() {
                   <span>{workspaceLabel}</span>
                   <span>
                     {selectedCabinetIds.length > 0
-                      ? `${selectedCabinetIds.length} selected · drag to move · snap ${projectPreferences.snapSizeMm} mm`
-                      : "Click to select · drag cabinets to move"}
+                      ? `${selectedCabinetIds.length} selected · drag to move · snap ${projectPreferences.snapSizeMm} mm · selected dims on`
+                      : "Click to select · drag cabinets · snap guides · dimension chains"}
                   </span>
                 </div>
                 <div className="drawing-sheet-scroll">
                   <TwoDView
-                    project={project}
+                    project={getVisibleProject()}
                     room={room}
                     view={twoDViewKind}
                     countertops={planningWorkflow.countertops}
+                    runs={planningWorkflow.runs}
                     selectedCabinetIds={selectedCabinetIds}
                     activeCabinetId={activeCabinetId}
                     snapSizeMm={projectPreferences.snapSizeMm}

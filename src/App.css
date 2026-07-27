@@ -1032,14 +1032,75 @@ select {
   cursor: grabbing;
 }
 
-.technical-view svg {
+.technical-view svg,
+.technical-view .twod-draft {
   display: block;
   max-width: none;
   height: auto;
   border-radius: 0;
-  border: 1px solid #9eacbc;
-  background: #fafbfc;
+  border: 1px solid #7c8b9c;
+  background: #f8fafc;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Drafting line hierarchy */
+.technical-view .twod-wall {
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-cabinet {
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-cabinet-opening {
+  opacity: 0.95;
+}
+
+.technical-view .twod-opening {
+  opacity: 0.95;
+}
+
+.technical-view .twod-annotation,
+.technical-view .twod-label {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.technical-view .twod-label {
+  paint-order: stroke;
+  stroke: rgba(248, 250, 252, 0.85);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+
+.technical-view .twod-dim {
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-dim-selected {
+  opacity: 1;
+}
+
+.technical-view .twod-guide {
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.technical-view .twod-guide-adjacency {
+  opacity: 1;
+}
+
+.technical-view .twod-grid {
+  pointer-events: none;
+}
+
+.technical-view .twod-selected,
+.technical-view .twod-active {
+  filter: drop-shadow(0 0 0.5px rgba(37, 99, 235, 0.35));
+}
+
+.technical-view .twod-countertop {
+  pointer-events: none;
 }
 
 .output-cutlists .cutlist-panel {
