@@ -1,16 +1,17 @@
-import type { CabinetCutlistItem } from "../domain/cabinetGeometry";
+import type { ProductionCutlistLine } from "../domain/productionCutlist";
 
 type CutlistPanelProps = {
-  items: CabinetCutlistItem[];
+  items: ProductionCutlistLine[];
   title?: string;
 };
 
+/** Compact cutlist preview; prefer ReportCenter for production inspection. */
 export function CutlistPanel({ items, title = "Cutlist" }: CutlistPanelProps) {
   return (
     <div className="cutlist-panel">
       <div className="section-heading">
         <h2>{title}</h2>
-        <span>{items.length} item types</span>
+        <span>{items.length} lines</span>
       </div>
 
       <div className="cutlist-table">
@@ -24,7 +25,9 @@ export function CutlistPanel({ items, title = "Cutlist" }: CutlistPanelProps) {
           <div key={item.key} className="cutlist-row">
             <div>
               <strong>{item.label}</strong>
-              <span>{item.material}</span>
+              <span>
+                {item.material} · {item.cabinetName}
+              </span>
             </div>
             <span>{item.quantity}</span>
             <span>

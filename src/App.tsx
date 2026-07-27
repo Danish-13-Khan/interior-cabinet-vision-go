@@ -10,10 +10,9 @@ import { DimensionControls } from "./components/DimensionControls";
 import { RoomSettings } from "./components/RoomSettings";
 import { WallEditor } from "./components/WallEditor";
 import { DoorWindowEditor } from "./components/DoorWindowEditor";
-import { CutlistPanel } from "./components/CutlistPanel";
 import { ProjectBrowser } from "./components/ProjectBrowser";
 import { TwoDView } from "./components/TwoDView";
-import { ProjectReportPanel } from "./components/ProjectReportPanel";
+import { ReportCenter } from "./components/ReportCenter";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -40,11 +39,8 @@ import {
   type CabinetType,
 } from "./domain/cabinetDimensions";
 import {
-  createCabinetCutlist,
   createCabinetDerivedMetrics,
-  createProjectCutlist,
   getPanelDisplayName,
-  type CabinetCutlistItem,
   type PanelName,
 } from "./domain/cabinetGeometry";
 import {
@@ -65,6 +61,16 @@ import {
   createRunAlignedPlacements,
 } from "./domain/cabinetLibrary";
 import { createProjectReport } from "./domain/projectReport";
+import {
+  csvFromProductionCutlist,
+  createCabinetProductionCutlist,
+  createProjectProductionCutlist,
+} from "./domain/productionCutlist";
+import {
+  clampCostingSettings,
+  DEFAULT_COSTING_SETTINGS,
+  type CostingSettings,
+} from "./domain/costingSettings";
 
 type SavedProjectBrowserEntry = {
   id: string;
@@ -195,24 +201,6 @@ function createItemName(type: CabinetType, index: number) {
   return `${cabinetTypeLabels[type]} ${index}`;
 }
 
-function createCutlistCsv(items: CabinetCutlistItem[]): string {
-  const rows = [
-    ["Part", "Material", "Quantity", "LengthMm", "WidthMm", "ThicknessMm"],
-    ...items.map((item) => [
-      item.label,
-      item.material,
-      String(item.quantity),
-      String(item.lengthMm),
-      String(item.widthMm),
-      String(item.thicknessMm),
-    ]),
-  ];
-
-  return rows
-    .map((row) => row.map((value) => `"${value.split('"').join('""')}"`).join(","))
-    .join("\n");
-}
-
 function getProjectDisplayName(project: CabinetProject, count: number) {
   const lead = project.cabinets[0]?.name ?? "Room Layout";
   return project.cabinets.length > 1 ? `${lead} + ${project.cabinets.length - 1} more` : `${lead} ${count}`;
@@ -286,7 +274,9 @@ function App() {
       snapSizeMm: CABINET_GRID_SNAP_MM,
       showGrid: true,
       autoSaveToBrowser: true,
+      costing: DEFAULT_COSTING_SETTINGS,
     };
+  const costingSettings = clampCostingSettings(projectPreferences.costing);
   const layers = project.layers ?? [createDefaultLayer()];
   const groups = project.groups ?? [];
   const canUndo = historyPastRef.current.length > 0;
@@ -295,9 +285,9 @@ function App() {
     () => getCabinetValidationMessages(selectedConfig),
     [selectedConfig],
   );
-  const cutlistItems = useMemo(() => createProjectCutlist(project), [project]);
+  const cutlistItems = useMemo(() => createProjectProductionCutlist(project), [project]);
   const cabinetCutlistItems = useMemo(
-    () => (selectedCabinet ? createCabinetCutlist(selectedCabinet.config) : []),
+    () => (selectedCabinet ? createCabinetProductionCutlist(selectedCabinet) : []),
     [selectedCabinet],
   );
   const derivedMetrics = useMemo(
@@ -1209,6 +1199,9 @@ function App() {
               currentProject.preferences?.autoSaveToBrowser ??
               defaultCabinetProject.preferences?.autoSaveToBrowser ??
               true,
+            costing: clampCostingSettings(
+              currentProject.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
+            ),
             ...patch,
           },
         },
@@ -1554,8 +1547,8 @@ function App() {
         return;
       }
 
-      await writeFile(targetPath, createCutlistCsv(cutlistItems));
-      setProjectStatus("Cutlist exported to CSV.");
+      await writeFile(targetPath, csvFromProductionCutlist(cutlistItems));
+      setProjectStatus("Production cutlist exported to CSV.");
     } catch (error) {
       setProjectStatus(`CSV export failed: ${getErrorMessage(error)}`);
     }
@@ -2165,7 +2158,7 @@ function App() {
               className={`tb-btn ${statusDockOpen ? "tb-accent" : ""}`}
               onClick={() => setStatusDockOpen((open) => !open)}
             >
-              {statusDockOpen ? "Hide Report" : "Report / Cutlist"}
+              {statusDockOpen ? "Hide Reports" : "Reports"}
             </button>
             <button type="button" className="tb-btn" onClick={handleSaveProject}>Save</button>
             <button type="button" className="tb-btn" onClick={handleExportProjectJson}>JSON</button>
@@ -2180,11 +2173,17 @@ function App() {
         ) : null}
         {statusDockOpen ? (
           <div className="status-dock">
-            <ProjectReportPanel report={projectReport} />
-            <div className="output-cutlists">
-              <CutlistPanel items={cabinetCutlistItems} title="Selected Item" />
-              <CutlistPanel items={cutlistItems} title="Project Total" />
-            </div>
+            <ReportCenter
+              report={projectReport}
+              selectedCabinetId={activeCabinetId}
+              costingSettings={costingSettings}
+              onCostingChange={(next: CostingSettings) =>
+                handleProjectPreferenceChange({
+                  costing: clampCostingSettings(next),
+                })
+              }
+              onSelectCabinet={(cabinetId) => handleWorkspaceSelectCabinet(cabinetId, false)}
+            />
           </div>
         ) : null}
       </footer>
