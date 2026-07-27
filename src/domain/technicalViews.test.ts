@@ -85,4 +85,25 @@ describe("technical view rendering", () => {
     expect(result.svg).toContain('data-cabinet-id="base-1"');
     expect(result.svg).toContain("#1d4ed8");
   });
+
+  it("adds wall labels, dimension chains, and print title blocks", () => {
+    const interactive = createTechnicalView(project, room, "top", [], {
+      mode: "interactive",
+      showWallLabels: true,
+      showDimensionChains: true,
+    });
+    expect(interactive.svg).toContain("BACK WALL");
+    expect(interactive.svg).toContain("LEFT");
+    expect(interactive.originX).toBeGreaterThan(0);
+
+    const printSheet = createTechnicalView(project, room, "front", [], {
+      mode: "print",
+      title: "Front Elevation",
+      projectName: "Demo Kitchen",
+      showElevationDetails: true,
+    });
+    expect(printSheet.svg).toContain("TECHNICAL SHEET");
+    expect(printSheet.svg).toContain("Demo Kitchen");
+    expect(printSheet.svg).toContain("FRONT ELEV.");
+  });
 });
