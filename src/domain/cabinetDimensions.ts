@@ -10,6 +10,11 @@ import {
   type CabinetComposition,
 } from "./cabinetComposition";
 import type { CabinetType } from "./cabinetCapabilities";
+import type { CostingSettings } from "./costingSettings";
+import {
+  clampCostingSettings,
+  DEFAULT_COSTING_SETTINGS,
+} from "./costingSettings";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetType } from "./cabinetCapabilities";
@@ -87,6 +92,7 @@ export type ProjectPreferences = {
   snapSizeMm: number;
   showGrid: boolean;
   autoSaveToBrowser: boolean;
+  costing?: CostingSettings;
 };
 
 export type RoomBounds = {
@@ -424,6 +430,7 @@ export const defaultCabinetProject: CabinetProject = {
     snapSizeMm: CABINET_GRID_SNAP_MM,
     showGrid: true,
     autoSaveToBrowser: true,
+    costing: { ...DEFAULT_COSTING_SETTINGS },
   },
 };
 
@@ -751,6 +758,9 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
           : defaultCabinetProject.preferences?.snapSizeMm ?? CABINET_GRID_SNAP_MM,
       showGrid: project.preferences?.showGrid !== false,
       autoSaveToBrowser: project.preferences?.autoSaveToBrowser !== false,
+      costing: clampCostingSettings(
+        project.preferences?.costing ?? defaultCabinetProject.preferences?.costing,
+      ),
     },
   };
 }

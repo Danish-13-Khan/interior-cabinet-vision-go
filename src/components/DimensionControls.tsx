@@ -19,10 +19,10 @@ import {
 } from "../domain/cabinetDimensions";
 import type { CabinetPart } from "../domain/cabinetConstruction";
 import type {
-  CabinetCutlistItem,
   CabinetDerivedMetrics,
   PanelName,
 } from "../domain/cabinetGeometry";
+import type { ProductionCutlistLine } from "../domain/productionCutlist";
 import {
   BACK_PANEL_RULES,
   EDGE_BANDING_OPTIONS,
@@ -45,11 +45,11 @@ type SavedProjectSummary = {
 
 type DimensionControlsProps = {
   cabinetCount: number;
-  cabinetCutlistItems: CabinetCutlistItem[];
+  cabinetCutlistItems: ProductionCutlistLine[];
   cabinets: CabinetInstance[];
   config: CabinetConfig;
   derivedMetrics: CabinetDerivedMetrics;
-  cutlistItems: CabinetCutlistItem[];
+  cutlistItems: ProductionCutlistLine[];
   projectFilePath: string | null;
   projectStatus: string;
   savedProjects: SavedProjectSummary[];

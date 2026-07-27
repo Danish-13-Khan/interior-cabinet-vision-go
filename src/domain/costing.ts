@@ -1,9 +1,7 @@
-// ── Cabinet Costing ──────────────────────────────────────────
-
 import type { CabinetInstance } from "./cabinetDimensions";
-import type { CabinetCutlistItem } from "./cabinetGeometry";
 import type { CabinetConstruction } from "./cabinetConstruction";
 import { defaultConstruction } from "./cabinetConstruction";
+import type { ProductionCutlistLine } from "./productionCutlist";
 import type { CabinetMaterialSpec } from "./materialSystem";
 import {
   BOARD_MATERIALS,
@@ -15,8 +13,19 @@ import {
   type FinishId,
   type EdgeBandingId,
 } from "./materialSystem";
+import type { CostingSettings } from "./costingSettings";
+import {
+  clampCostingSettings,
+  DEFAULT_COSTING_SETTINGS,
+} from "./costingSettings";
 
-// ── Hardware ──────────────────────────────────────────────────
+export type { CostingSettings, CostingPreset } from "./costingSettings";
+export {
+  COSTING_PRESETS,
+  DEFAULT_COSTING_SETTINGS,
+  clampCostingSettings,
+  getCostingPreset,
+} from "./costingSettings";
 
 export type HardwareItem = {
   id: string;
@@ -38,39 +47,69 @@ export const HARDWARE_CATALOG: HardwareItem[] = [
   { id: "wall-bracket", label: "Wall mounting bracket", costPerUnit: 55 },
 ];
 
-// ── Costing Helpers ───────────────────────────────────────────
 
 function getBoardCost(materialId: BoardMaterialId, thicknessMm: number): number {
-  const mat = BOARD_MATERIALS.find((m) => m.id === materialId);
+  const mat = BOARD_MATERIALS.find((item) => item.id === materialId);
   if (!mat) return 0;
-  // Find closest thickness
   const keys = Object.keys(mat.costPerM2).map(Number).sort((a, b) => a - b);
   const closest = keys.reduce((prev, curr) =>
-    Math.abs(curr - thicknessMm) < Math.abs(prev - thicknessMm) ? curr : prev
+    Math.abs(curr - thicknessMm) < Math.abs(prev - thicknessMm) ? curr : prev,
   );
   return mat.costPerM2[closest] ?? 0;
 }
 
 function getFinishCost(finishId: FinishId): number {
-  return FINISHES.find((f) => f.id === finishId)?.costPerM2 ?? 0;
+  return FINISHES.find((item) => item.id === finishId)?.costPerM2 ?? 0;
 }
 
 function getEdgeBandCost(edgeBandId: EdgeBandingId): number {
-  return EDGE_BANDING_OPTIONS.find((e) => e.id === edgeBandId)?.costPerM ?? 0;
+  return EDGE_BANDING_OPTIONS.find((item) => item.id === edgeBandId)?.costPerM ?? 0;
 }
 
-// ── Perimeter for edge banding ────────────────────────────────
+function hardwareUnitCost(id: string): number {
+  return HARDWARE_CATALOG.find((item) => item.id === id)?.costPerUnit ?? 0;
+}
 
-function partPerimeterMm(lengthMm: number, widthMm: number, edgeBandedSides: number = 4): number {
-  // Assume all 4 sides banded by default, or 2 long sides
-  if (edgeBandedSides === 2) return lengthMm * 2;
+function hardwareLabel(id: string): string {
+  return HARDWARE_CATALOG.find((item) => item.id === id)?.label ?? id;
+}
+
+function partPerimeterMm(lengthMm: number, widthMm: number): number {
   return (lengthMm + widthMm) * 2;
 }
 
-// ── Hardware count per cabinet ────────────────────────────────
+function boardSpecForLine(
+  line: ProductionCutlistLine,
+  materials: CabinetMaterialSpec,
+) {
+  switch (line.category) {
+    case "Door":
+    case "DrawerFront":
+      return materials.doorMaterial;
+    case "Back":
+      return materials.backMaterial;
+    case "Shelf":
+      return materials.shelfMaterial;
+    case "DrawerBox":
+      return materials.drawerBoxMaterial;
+    default:
+      return materials.carcassMaterial;
+  }
+}
 
-function countHardware(cabinet: CabinetInstance, construction: CabinetConstruction): number {
-  let total = 0;
+export type HardwareLine = {
+  id: string;
+  label: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+};
+
+function buildHardwareLines(
+  cabinet: CabinetInstance,
+  construction: CabinetConstruction,
+  settings: CostingSettings,
+): HardwareLine[] {
   const doorPart = construction.parts.find((part) => part.category === "Door");
   const drawerFrontPart = construction.parts.find((part) => part.category === "DrawerFront");
   const shelfPart = construction.parts.find((part) => part.category === "Shelf");
@@ -81,148 +120,167 @@ function countHardware(cabinet: CabinetInstance, construction: CabinetConstructi
   const drawerFrontCount = drawerFrontPart?.quantity ?? 0;
   const shelfCount = shelfPart?.quantity ?? 0;
 
-  // Hinges: 2 per door
-  total += doorCount * 2 * HARDWARE_CATALOG.find((h) => h.id === "hinge-soft")!.costPerUnit;
+  const lines: HardwareLine[] = [];
 
-  // Drawer slides: 1 pair per drawer
-  total += drawerBoxPartCount * HARDWARE_CATALOG.find((h) => h.id === "drawer-slide-soft")!.costPerUnit;
-
-  // Handles: 1 per door + 1 per drawer front
-  const handleCost = HARDWARE_CATALOG.find((h) => h.id === "handle-bar")!.costPerUnit;
-  total += (doorCount + drawerFrontCount) * handleCost;
-
-  // Shelf pins: 4 per shelf
-  total += shelfCount * 4 * HARDWARE_CATALOG.find((h) => h.id === "shelf-pin")!.costPerUnit;
-
-  // Connectors: ~8 per cabinet
-  total += 8 * HARDWARE_CATALOG.find((h) => h.id === "connector")!.costPerUnit;
-
-  // Screws: 1 pack
-  total += HARDWARE_CATALOG.find((h) => h.id === "screw-pack")!.costPerUnit;
-
-  // Legs: 4 if floor-standing
-  if (cabinet.placement.attachment === "floor") {
-    total += 4 * HARDWARE_CATALOG.find((h) => h.id === "leg-adj")!.costPerUnit;
-  } else {
-    total += 2 * HARDWARE_CATALOG.find((h) => h.id === "wall-bracket")!.costPerUnit;
+  function push(id: string, quantity: number) {
+    if (quantity <= 0) return;
+    const unitCost = hardwareUnitCost(id);
+    lines.push({
+      id,
+      label: hardwareLabel(id),
+      quantity,
+      unitCost,
+      totalCost: Math.round(unitCost * quantity),
+    });
   }
 
-  return total;
-}
+  push(settings.hingeId, doorCount * 2);
+  push(settings.drawerSlideId, drawerBoxPartCount);
+  push(settings.handleId, doorCount + drawerFrontCount);
+  push("shelf-pin", shelfCount * 4);
+  push("connector", 8);
+  push("screw-pack", 1);
+  if (cabinet.placement.attachment === "floor") {
+    push("leg-adj", 4);
+  } else {
+    push("wall-bracket", 2);
+  }
 
-// ── Cabinet Cost ──────────────────────────────────────────────
+  return lines;
+}
 
 export type CabinetCost = {
   cabinetId: string;
   cabinetName: string;
+  boardCost: number;
+  wasteCost: number;
   materialCost: number;
   hardwareCost: number;
   finishCost: number;
   edgeBandCost: number;
   labourCost: number;
   totalCost: number;
+  hardwareLines: HardwareLine[];
   breakdown: string[];
 };
 
 export function calculateCabinetCost(
   cabinet: CabinetInstance,
   construction: CabinetConstruction,
-  cutlistItems: CabinetCutlistItem[],
+  lines: ProductionCutlistLine[],
   materials: CabinetMaterialSpec = DEFAULT_CABINET_MATERIAL,
+  settings: CostingSettings = DEFAULT_COSTING_SETTINGS,
 ): CabinetCost {
-  let materialCost = 0;
+  const safeSettings = clampCostingSettings(settings);
+  let boardCost = 0;
   let edgeBandCost = 0;
   let finishCost = 0;
   const breakdown: string[] = [];
 
-  for (const item of cutlistItems) {
-    const areaM2 = (item.lengthMm * item.widthMm * item.quantity) / 1_000_000;
-
-    // Material
-    const spec = item.material === "Door"
-      ? materials.doorMaterial
-      : item.material === "Back Panel"
-        ? materials.backMaterial
-        : materials.carcassMaterial;
-
-    const boardCost = getBoardCost(spec.boardMaterialId, item.thicknessMm) * areaM2;
-    materialCost += boardCost;
-
-    // Finish
-    const finishC = getFinishCost(spec.finishId) * areaM2;
-    finishCost += finishC;
-
-    // Edge banding
+  for (const line of lines) {
+    const areaM2 = (line.lengthMm * line.widthMm * line.quantity) / 1_000_000;
+    const spec = boardSpecForLine(line, materials);
+    boardCost +=
+      getBoardCost(spec.boardMaterialId, line.thicknessMm) *
+      areaM2 *
+      safeSettings.materialRateMultiplier;
+    finishCost += getFinishCost(spec.finishId) * areaM2;
     if (spec.edgeBandingId !== "none") {
-      const perimeter = partPerimeterMm(item.lengthMm, item.widthMm);
-      edgeBandCost += (getEdgeBandCost(spec.edgeBandingId) * perimeter / 1000) * item.quantity;
+      const perimeter = partPerimeterMm(line.lengthMm, line.widthMm);
+      edgeBandCost +=
+        (getEdgeBandCost(spec.edgeBandingId) * perimeter) / 1000 * line.quantity;
     }
   }
 
-  const hardwareCost = countHardware(cabinet, construction);
-  const labourCost = materialCost * 0.4; // ~40% of material for labour
+  const wasteCost = boardCost * (safeSettings.wastePercent / 100);
+  const hardwareLines = buildHardwareLines(cabinet, construction, safeSettings);
+  const hardwareCost = hardwareLines.reduce((sum, line) => sum + line.totalCost, 0);
+  const labourCost = (boardCost + wasteCost) * (safeSettings.labourPercent / 100);
+  const materialTotal = boardCost + wasteCost + finishCost + edgeBandCost;
+  const total = materialTotal + hardwareCost + labourCost;
 
-  breakdown.push(`Board material: ₹${Math.round(materialCost).toLocaleString()}`);
+  breakdown.push(`Board: ₹${Math.round(boardCost).toLocaleString()}`);
+  if (wasteCost > 0) {
+    breakdown.push(`Waste ${safeSettings.wastePercent}%: ₹${Math.round(wasteCost).toLocaleString()}`);
+  }
   breakdown.push(`Finishes: ₹${Math.round(finishCost).toLocaleString()}`);
   breakdown.push(`Edge banding: ₹${Math.round(edgeBandCost).toLocaleString()}`);
   breakdown.push(`Hardware: ₹${Math.round(hardwareCost).toLocaleString()}`);
-  breakdown.push(`Labour: ₹${Math.round(labourCost).toLocaleString()}`);
-
-  const materialTotal = materialCost + finishCost + edgeBandCost;
-  const total = materialTotal + hardwareCost + labourCost;
+  breakdown.push(`Labour ${safeSettings.labourPercent}%: ₹${Math.round(labourCost).toLocaleString()}`);
 
   return {
     cabinetId: cabinet.id,
     cabinetName: cabinet.name,
+    boardCost: Math.round(boardCost),
+    wasteCost: Math.round(wasteCost),
     materialCost: Math.round(materialTotal),
     hardwareCost: Math.round(hardwareCost),
     finishCost: Math.round(finishCost),
     edgeBandCost: Math.round(edgeBandCost),
     labourCost: Math.round(labourCost),
     totalCost: Math.round(total),
+    hardwareLines,
     breakdown,
   };
 }
-
-// ── Project Cost Summary ──────────────────────────────────────
 
 export type ProjectCost = {
   cabinets: CabinetCost[];
   totalMaterial: number;
   totalHardware: number;
   totalLabour: number;
+  totalWaste: number;
+  hardwareAllowance: number;
   grandTotal: number;
+  settings: CostingSettings;
 };
 
 export function calculateProjectCost(
   cabinets: CabinetInstance[],
   constructionMap: Map<string, CabinetConstruction>,
-  cutlistMap: Map<string, CabinetCutlistItem[]>,
+  cutlistMap: Map<string, ProductionCutlistLine[]>,
   materials: CabinetMaterialSpec = DEFAULT_CABINET_MATERIAL,
+  settings: CostingSettings = DEFAULT_COSTING_SETTINGS,
 ): ProjectCost {
+  const safeSettings = clampCostingSettings(settings);
   let totalMaterial = 0;
   let totalHardware = 0;
   let totalLabour = 0;
+  let totalWaste = 0;
   const costs: CabinetCost[] = [];
 
   for (const cab of cabinets) {
-    const construction = constructionMap.get(cab.id) ?? defaultConstruction(cab.config.dimensions);
+    const construction =
+      constructionMap.get(cab.id) ?? defaultConstruction(cab.config.dimensions);
     const cutlist = cutlistMap.get(cab.id) ?? [];
     const resolvedMaterials = cab.config.buildRules
       ? resolveCabinetMaterialSpec(cab.config.buildRules)
       : materials;
-    const cost = calculateCabinetCost(cab, construction, cutlist, resolvedMaterials);
+    const cost = calculateCabinetCost(
+      cab,
+      construction,
+      cutlist,
+      resolvedMaterials,
+      safeSettings,
+    );
     costs.push(cost);
-    totalMaterial += cost.materialCost + cost.finishCost + cost.edgeBandCost;
+    totalMaterial += cost.materialCost;
     totalHardware += cost.hardwareCost;
     totalLabour += cost.labourCost;
+    totalWaste += cost.wasteCost;
   }
 
+  const hardwareAllowance = safeSettings.hardwareAllowance;
   return {
     cabinets: costs,
     totalMaterial: Math.round(totalMaterial),
     totalHardware: Math.round(totalHardware),
     totalLabour: Math.round(totalLabour),
-    grandTotal: Math.round(totalMaterial + totalHardware + totalLabour),
+    totalWaste: Math.round(totalWaste),
+    hardwareAllowance,
+    grandTotal: Math.round(
+      totalMaterial + totalHardware + totalLabour + hardwareAllowance,
+    ),
+    settings: safeSettings,
   };
 }

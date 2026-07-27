@@ -1,7 +1,6 @@
 import { jsPDF } from "jspdf";
 import type { CabinetProject } from "./cabinetDimensions";
 import type { CountertopSegment } from "./cabinetLibrary";
-import { type CabinetCutlistItem } from "./cabinetGeometry";
 import { createProjectReport } from "./projectReport";
 import {
   createTechnicalView,
@@ -349,17 +348,25 @@ export async function exportProjectPdf(
   drawLabeledValue(doc, margin + 46, y, 42, "Hardware", `Rs ${report.projectCost.totalHardware.toLocaleString()}`);
   drawLabeledValue(doc, margin + 92, y, 42, "Labour", `Rs ${report.projectCost.totalLabour.toLocaleString()}`);
   drawLabeledValue(doc, margin + 138, y, 44, "Total", `Rs ${report.projectCost.grandTotal.toLocaleString()}`);
-  y += 24;
+  y += 20;
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    `Waste included Rs ${report.projectCost.totalWaste.toLocaleString()}  ·  Allowance Rs ${report.projectCost.hardwareAllowance.toLocaleString()}  ·  Preset ${report.projectCost.settings.presetId}`,
+    margin,
+    y,
+  );
+  y += 8;
 
   doc.setFontSize(13);
   doc.setTextColor(34, 44, 59);
-  doc.text("Full Cutlist", margin, y);
+  doc.text("Production Cutlist", margin, y);
   y += 6;
 
-  const allItems: CabinetCutlistItem[] = report.projectCutlist;
+  const allItems = report.productionCutlist;
 
-  const cutHeaders = ["Part", "Material", "Thk", "Qty", "Length", "Width"];
-  const cutColWidths = [58, 32, 14, 14, 24, 24];
+  const cutHeaders = ["Cabinet", "Part", "Material", "Thk", "Qty", "L", "W"];
+  const cutColWidths = [32, 36, 28, 12, 12, 18, 18];
   const cutTableWidth = cutColWidths.reduce((total, value) => total + value, 0);
 
   doc.setFillColor(232, 237, 243);
@@ -382,8 +389,9 @@ export async function exportProjectPdf(
     }
 
     const row = [
-      item.label,
-      item.material,
+      item.cabinetName.length > 14 ? `${item.cabinetName.slice(0, 13)}…` : item.cabinetName,
+      item.label.length > 16 ? `${item.label.slice(0, 15)}…` : item.label,
+      item.material.length > 12 ? `${item.material.slice(0, 11)}…` : item.material,
       String(item.thicknessMm),
       String(item.quantity),
       String(item.lengthMm),
@@ -397,6 +405,41 @@ export async function exportProjectPdf(
     });
     y += rowHeight;
   });
+
+  // Grouped by material appendix
+  y = ensurePageSpace(doc, y + 10, 20, pageHeight, margin);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 44, 59);
+  doc.text("Cutlist by Material", margin, y);
+  y += 6;
+
+  for (const group of report.groupedByMaterial) {
+    y = ensurePageSpace(doc, y, 14, pageHeight, margin);
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.text(
+      `${group.title}  ·  ${group.totalQuantity} pcs  ·  ${group.totalAreaM2.toFixed(2)} m2`,
+      margin,
+      y,
+    );
+    y += 5;
+    doc.setFontSize(8);
+    doc.setTextColor(71, 85, 105);
+    for (const line of group.lines.slice(0, 12)) {
+      y = ensurePageSpace(doc, y, 5, pageHeight, margin);
+      doc.text(
+        `${line.cabinetName}: ${line.label}  ${line.quantity}x  ${line.lengthMm}x${line.widthMm}x${line.thicknessMm}`,
+        margin + 2,
+        y,
+      );
+      y += 4.2;
+    }
+    if (group.lines.length > 12) {
+      doc.text(`… +${group.lines.length - 12} more lines`, margin + 2, y);
+      y += 5;
+    }
+    y += 2;
+  }
 
   const totalPages = doc.getNumberOfPages();
   for (let page = 1; page <= totalPages; page += 1) {
