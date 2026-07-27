@@ -364,8 +364,8 @@ export function DimensionControls({
   return (
     <div className="controls-card">
       <div className="controls-header">
-        <h1>Room Designer</h1>
-        <p>Design rooms by adding furniture, rotating items, and mounting on walls.</p>
+        <h1>Inspector</h1>
+        <p>Edit selection, placement, structure, and materials.</p>
       </div>
 
       <div className="controls-form">

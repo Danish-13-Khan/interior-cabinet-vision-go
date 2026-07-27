@@ -15,8 +15,54 @@ export type TechnicalViewResult = {
   svg: string;
 };
 
+export type TechnicalViewOptions = {
+  selectedCabinetIds?: string[];
+  activeCabinetId?: string | null;
+};
+
 const SCALE = 4;
 const MARGIN = 48;
+
+function cabinetPaint(
+  cabinetId: string,
+  baseFill: string,
+  options: TechnicalViewOptions,
+) {
+  const selectedIds = options.selectedCabinetIds ?? [];
+  const isActive = options.activeCabinetId === cabinetId;
+  const isSelected = selectedIds.includes(cabinetId);
+
+  if (isActive) {
+    return {
+      fill: "#93c5fd",
+      stroke: "#1d4ed8",
+      strokeWidth: "2.4",
+    };
+  }
+
+  if (isSelected) {
+    return {
+      fill: "#bfdbfe",
+      stroke: "#2563eb",
+      strokeWidth: "2",
+    };
+  }
+
+  return {
+    fill: baseFill,
+    stroke: "#775b33",
+    strokeWidth: "1.2",
+  };
+}
+
+function cabinetRectAttrs(
+  cabinetId: string,
+  baseFill: string,
+  options: TechnicalViewOptions,
+) {
+  const paint = cabinetPaint(cabinetId, baseFill, options);
+  return `fill="${paint.fill}" stroke="${paint.stroke}" stroke-width="${paint.strokeWidth}" rx="2" data-cabinet-id="${cabinetId}" class="twod-cabinet" style="cursor:pointer"`;
+}
 
 function escapeXml(text: string) {
   return text
@@ -64,7 +110,12 @@ function dimensionLabel(valueMm: number) {
   return `${Math.round(valueMm)} mm`;
 }
 
-function topView(project: CabinetProject, room: RoomConfig, countertops: CountertopSegment[] = []): TechnicalViewResult {
+function topView(
+  project: CabinetProject,
+  room: RoomConfig,
+  countertops: CountertopSegment[] = [],
+  options: TechnicalViewOptions = {},
+): TechnicalViewResult {
   const rw = room.dimensions.widthMm;
   const rd = room.dimensions.depthMm;
   const svgWidth = rw / SCALE + MARGIN * 2;
@@ -73,13 +124,13 @@ function topView(project: CabinetProject, room: RoomConfig, countertops: Counter
   const oy = MARGIN + rd / SCALE / 2;
   const elements: string[] = [];
 
-  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="#f8fafc"`));
+  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="#f4f6f8" class="twod-sheet"`));
   elements.push(rect(
     ox - rw / SCALE / 2,
     oy - rd / SCALE / 2,
     rw / SCALE,
     rd / SCALE,
-    `fill="#f4f7fa" stroke="#8797ab" stroke-width="2" rx="8"`,
+    `fill="#fafbfc" stroke="#6b7c8f" stroke-width="1.5"`,
   ));
 
   for (const cabinet of project.cabinets) {
@@ -94,19 +145,19 @@ function topView(project: CabinetProject, room: RoomConfig, countertops: Counter
       cy - bd / 2,
       bw,
       bd,
-      `fill="${fill}" stroke="#775b33" stroke-width="1.2" rx="3"`,
+      cabinetRectAttrs(cabinet.id, fill, options),
     ));
     elements.push(text(
       cx,
       cy + 3,
       shortLabel(cabinet.name),
-      `font-size="9" font-weight="700" fill="#3a2d1a" text-anchor="middle"`,
+      `font-size="9" font-weight="700" fill="#3a2d1a" text-anchor="middle" pointer-events="none"`,
     ));
     elements.push(text(
       cx,
       cy + bd / 2 + 12,
       dimensionLabel(fp.width),
-      `font-size="8" fill="#5f6f84" text-anchor="middle"`,
+      `font-size="8" fill="#5f6f84" text-anchor="middle" pointer-events="none"`,
     ));
   }
 
@@ -154,7 +205,11 @@ function topView(project: CabinetProject, room: RoomConfig, countertops: Counter
   };
 }
 
-function frontView(project: CabinetProject, room: RoomConfig): TechnicalViewResult {
+function frontView(
+  project: CabinetProject,
+  room: RoomConfig,
+  options: TechnicalViewOptions = {},
+): TechnicalViewResult {
   const rw = room.dimensions.widthMm;
   const rh = room.dimensions.heightMm;
   const svgWidth = rw / SCALE + MARGIN * 2;
@@ -163,13 +218,13 @@ function frontView(project: CabinetProject, room: RoomConfig): TechnicalViewResu
   const oy = MARGIN + rh / SCALE / 2;
   const elements: string[] = [];
 
-  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="#f8fafc"`));
+  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="#f4f6f8" class="twod-sheet"`));
   elements.push(rect(
     ox - rw / SCALE / 2,
     oy - rh / SCALE / 2,
     rw / SCALE,
     rh / SCALE,
-    `fill="#fbfdff" stroke="#94a3b8" stroke-width="2" rx="8"`,
+    `fill="#fafbfc" stroke="#6b7c8f" stroke-width="1.5"`,
   ));
 
   for (const window of room.windows.filter((item) => item.side === "back-wall")) {
@@ -195,9 +250,9 @@ function frontView(project: CabinetProject, room: RoomConfig): TechnicalViewResu
     const x = ox + cabinet.placement.x / SCALE - width / 2;
     const y = oy + rh / SCALE / 2 - (cabinet.placement.y + cabinet.config.dimensions.height) / SCALE;
     const fill = cabinet.placement.attachment === "back-wall" ? "#d7c2a1" : "#cba775";
-    elements.push(rect(x, y, width, height, `fill="${fill}" stroke="#775b33" stroke-width="1.2" rx="3"`));
-    elements.push(text(x + width / 2, y - 4, shortLabel(cabinet.name), `font-size="8.5" fill="#4b5563" text-anchor="middle"`));
-    elements.push(text(x + width / 2, y + height + 11, dimensionLabel(cabinet.config.dimensions.width), `font-size="8" fill="#64748b" text-anchor="middle"`));
+    elements.push(rect(x, y, width, height, cabinetRectAttrs(cabinet.id, fill, options)));
+    elements.push(text(x + width / 2, y - 4, shortLabel(cabinet.name), `font-size="8.5" fill="#4b5563" text-anchor="middle" pointer-events="none"`));
+    elements.push(text(x + width / 2, y + height + 11, dimensionLabel(cabinet.config.dimensions.width), `font-size="8" fill="#64748b" text-anchor="middle" pointer-events="none"`));
   }
 
   const roomDimX = ox - rw / SCALE / 2 - 18;
@@ -211,7 +266,11 @@ function frontView(project: CabinetProject, room: RoomConfig): TechnicalViewResu
   };
 }
 
-function sideView(project: CabinetProject, room: RoomConfig): TechnicalViewResult {
+function sideView(
+  project: CabinetProject,
+  room: RoomConfig,
+  options: TechnicalViewOptions = {},
+): TechnicalViewResult {
   const rd = room.dimensions.depthMm;
   const rh = room.dimensions.heightMm;
   const svgWidth = rd / SCALE + MARGIN * 2;
@@ -220,13 +279,13 @@ function sideView(project: CabinetProject, room: RoomConfig): TechnicalViewResul
   const oy = MARGIN + rh / SCALE / 2;
   const elements: string[] = [];
 
-  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="#f8fafc"`));
+  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="#f4f6f8" class="twod-sheet"`));
   elements.push(rect(
     ox - rd / SCALE / 2,
     oy - rh / SCALE / 2,
     rd / SCALE,
     rh / SCALE,
-    `fill="#fbfdff" stroke="#94a3b8" stroke-width="2" rx="8"`,
+    `fill="#fafbfc" stroke="#6b7c8f" stroke-width="1.5"`,
   ));
 
   for (const window of room.windows.filter((item) => item.side === "left-wall" || item.side === "right-wall")) {
@@ -250,9 +309,9 @@ function sideView(project: CabinetProject, room: RoomConfig): TechnicalViewResul
     const x = ox + cabinet.placement.z / SCALE - depth / 2;
     const y = oy + rh / SCALE / 2 - (cabinet.placement.y + cabinet.config.dimensions.height) / SCALE;
     const fill = cabinet.placement.attachment === "floor" ? "#cba775" : "#d7c2a1";
-    elements.push(rect(x, y, depth, height, `fill="${fill}" stroke="#775b33" stroke-width="1.2" rx="3"`));
-    elements.push(text(x + depth / 2, y - 4, shortLabel(cabinet.name), `font-size="8.5" fill="#4b5563" text-anchor="middle"`));
-    elements.push(text(x + depth / 2, y + height + 11, dimensionLabel(cabinet.config.dimensions.depth), `font-size="8" fill="#64748b" text-anchor="middle"`));
+    elements.push(rect(x, y, depth, height, cabinetRectAttrs(cabinet.id, fill, options)));
+    elements.push(text(x + depth / 2, y - 4, shortLabel(cabinet.name), `font-size="8.5" fill="#4b5563" text-anchor="middle" pointer-events="none"`));
+    elements.push(text(x + depth / 2, y + height + 11, dimensionLabel(cabinet.config.dimensions.depth), `font-size="8" fill="#64748b" text-anchor="middle" pointer-events="none"`));
   }
 
   const roomDimX = ox - rd / SCALE / 2 - 18;
@@ -271,14 +330,15 @@ export function createTechnicalView(
   room: RoomConfig,
   view: TechnicalViewKind,
   countertops: CountertopSegment[] = [],
+  options: TechnicalViewOptions = {},
 ): TechnicalViewResult {
   switch (view) {
     case "front":
-      return frontView(project, room);
+      return frontView(project, room, options);
     case "side":
-      return sideView(project, room);
+      return sideView(project, room, options);
     default:
-      return topView(project, room, countertops);
+      return topView(project, room, countertops, options);
   }
 }
 

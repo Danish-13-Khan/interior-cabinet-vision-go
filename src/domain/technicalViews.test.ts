@@ -75,4 +75,14 @@ describe("technical view rendering", () => {
     expect(result.svg).toContain("560 mm");
     expect(result.height).toBeGreaterThan(700);
   });
+
+  it("highlights selected cabinets in technical views", () => {
+    const result = createTechnicalView(project, room, "top", [], {
+      selectedCabinetIds: ["base-1"],
+      activeCabinetId: "base-1",
+    });
+
+    expect(result.svg).toContain('data-cabinet-id="base-1"');
+    expect(result.svg).toContain("#1d4ed8");
+  });
 });

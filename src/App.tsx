@@ -251,7 +251,8 @@ function App() {
   const clipboardRef = useRef<CabinetInstance[]>([]);
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
-  const [planView, setPlanView] = useState<"top" | "front" | "side">("top");
+  const [workspaceTab, setWorkspaceTab] = useState<"plan" | "front" | "side" | "3d">("plan");
+  const [statusDockOpen, setStatusDockOpen] = useState(false);
   const [savedProjects, setSavedProjects] = useState<SavedProjectBrowserEntry[]>(() =>
     readSavedProjects(),
   );
@@ -1684,234 +1685,398 @@ function App() {
     [savedProjects],
   );
 
+
+  const workspaceLabel =
+    workspaceTab === "plan"
+      ? "Plan"
+      : workspaceTab === "front"
+        ? "Front Elevation"
+        : workspaceTab === "side"
+          ? "Side Elevation"
+          : "3D View";
+
+  const twoDViewKind =
+    workspaceTab === "front" ? "front" : workspaceTab === "side" ? "side" : "top";
+
+  function handleWorkspaceSelectCabinet(cabinetId: string | null, additive: boolean) {
+    if (!cabinetId) {
+      replaceSelection([], null, null);
+      return;
+    }
+
+    if (additive) {
+      toggleCabinetSelection(cabinetId);
+      return;
+    }
+
+    replaceSelection([cabinetId], cabinetId, null);
+  }
+
   return (
     <main className="app-shell">
-      <header className="app-toolbar">
-        <div className="toolbar-left">
-          <button type="button" className="tb-btn" onClick={handleReset} title="New project">New</button>
-          <button type="button" className="tb-btn" onClick={handleLoadProject} title="Open JSON file">Open</button>
-          <button type="button" className="tb-btn" onClick={handleSaveProject} title="Save JSON file">Save</button>
-          <span className="tb-sep" />
-          <button type="button" className="tb-btn" onClick={handleUndo} disabled={!canUndo} title="Undo">↩</button>
-          <button type="button" className="tb-btn" onClick={handleRedo} disabled={!canRedo} title="Redo">↪</button>
-          <button type="button" className="tb-btn" onClick={handleCopySelection} disabled={selectedCabinetIds.length === 0} title="Copy">Copy</button>
-          <button type="button" className="tb-btn" onClick={handlePasteSelection} disabled={clipboardRef.current.length === 0} title="Paste">Paste</button>
-          <button type="button" className="tb-btn" onClick={handleDuplicateCabinet} disabled={selectedCabinetIds.length === 0} title="Duplicate">Duplicate</button>
-          <span className="tb-sep" />
-          <button type="button" className="tb-btn" onClick={handleAutoAlignRuns} title="Auto align cabinet runs">Align Runs</button>
-          <button type="button" className="tb-btn" onClick={handleExportProjectJson} title="Export JSON">Export JSON</button>
-          <button type="button" className="tb-btn" onClick={handleExportCutlistCsv} title="Export CSV">Export CSV</button>
-          <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf} title="Download PDF">Export PDF</button>
+      <header className="app-ribbon" aria-label="Command ribbon">
+        <div className="ribbon-brand">
+          <strong>Cabinet Planner</strong>
+          <span>{workspaceLabel}</span>
         </div>
-        <div className="toolbar-right">
-          <span className="tb-label">View:</span>
-          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("iso")} title="ISO view">ISO</button>
-          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("front")} title="Front view">Front</button>
-          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("side")} title="Side view">Side</button>
-          <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("top")} title="Top view">Top</button>
-          <span className="tb-sep" />
-          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-left")} disabled={selectedCabinetIds.length < 2}>Left</button>
-          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-center-x")} disabled={selectedCabinetIds.length < 2}>Center X</button>
-          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-top")} disabled={selectedCabinetIds.length < 2}>Top</button>
-          <button type="button" className="tb-btn" onClick={() => handleAlignSelection("distribute-x")} disabled={selectedCabinetIds.length < 3}>Distribute X</button>
-          <span className="tb-sep" />
-          <button type="button" className="tb-btn" onClick={() => { setIsCommandBarOpen(true); setIsShortcutSheetOpen(false); }} title="Command palette">Commands</button>
-          <button type="button" className="tb-btn" onClick={() => { setIsShortcutSheetOpen(true); setIsCommandBarOpen(false); }} title="Shortcut help">Shortcuts</button>
+
+        <div className="ribbon-group">
+          <span className="ribbon-group-label">File</span>
+          <div className="ribbon-group-actions">
+            <button type="button" className="tb-btn" onClick={handleReset} title="New project">New</button>
+            <button type="button" className="tb-btn" onClick={handleLoadProject} title="Open JSON file">Open</button>
+            <button type="button" className="tb-btn" onClick={handleSaveProject} title="Save JSON file">Save</button>
+          </div>
+        </div>
+
+        <div className="ribbon-group">
+          <span className="ribbon-group-label">Edit</span>
+          <div className="ribbon-group-actions">
+            <button type="button" className="tb-btn" onClick={handleUndo} disabled={!canUndo} title="Undo">Undo</button>
+            <button type="button" className="tb-btn" onClick={handleRedo} disabled={!canRedo} title="Redo">Redo</button>
+            <button type="button" className="tb-btn" onClick={handleCopySelection} disabled={selectedCabinetIds.length === 0} title="Copy">Copy</button>
+            <button type="button" className="tb-btn" onClick={handlePasteSelection} disabled={clipboardRef.current.length === 0} title="Paste">Paste</button>
+            <button type="button" className="tb-btn" onClick={handleDuplicateCabinet} disabled={selectedCabinetIds.length === 0} title="Duplicate">Duplicate</button>
+          </div>
+        </div>
+
+        <div className="ribbon-group">
+          <span className="ribbon-group-label">Arrange</span>
+          <div className="ribbon-group-actions">
+            <button type="button" className="tb-btn" onClick={handleAutoAlignRuns} title="Auto align cabinet runs">Align Runs</button>
+            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-left")} disabled={selectedCabinetIds.length < 2}>Left</button>
+            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-center-x")} disabled={selectedCabinetIds.length < 2}>Center X</button>
+            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-top")} disabled={selectedCabinetIds.length < 2}>Top</button>
+            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("distribute-x")} disabled={selectedCabinetIds.length < 3}>Distribute X</button>
+          </div>
+        </div>
+
+        <div className="ribbon-group">
+          <span className="ribbon-group-label">Export</span>
+          <div className="ribbon-group-actions">
+            <button type="button" className="tb-btn" onClick={handleExportProjectJson} title="Export JSON">JSON</button>
+            <button type="button" className="tb-btn" onClick={handleExportCutlistCsv} title="Export CSV">CSV</button>
+            <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf} title="Download PDF">PDF</button>
+          </div>
+        </div>
+
+        {workspaceTab === "3d" ? (
+          <div className="ribbon-group">
+            <span className="ribbon-group-label">3D Camera</span>
+            <div className="ribbon-group-actions">
+              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("iso")} title="ISO view">ISO</button>
+              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("front")} title="Front camera">Front</button>
+              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("side")} title="Side camera">Side</button>
+              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("top")} title="Top camera">Top</button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="ribbon-group ribbon-group-end">
+          <span className="ribbon-group-label">Tools</span>
+          <div className="ribbon-group-actions">
+            <button type="button" className="tb-btn" onClick={() => { setIsCommandBarOpen(true); setIsShortcutSheetOpen(false); }} title="Command palette">Commands</button>
+            <button type="button" className="tb-btn" onClick={() => { setIsShortcutSheetOpen(true); setIsCommandBarOpen(false); }} title="Shortcut help">Shortcuts</button>
+          </div>
         </div>
       </header>
+
       <div className="app-body">
-      <aside className="library-sidebar">
-        <div className="palette-header">Add Items</div>
-        {cabinetLibrary.map((category) => (
-          <div key={category.id} className="palette-library-group">
-            <div className="palette-section-label">{category.label}</div>
-            <div className="palette-family-grid">
-              {category.types.map((type) => (
+        <aside className="tool-rail" aria-label="Tool rail">
+          <div className="rail-section">
+            <div className="rail-section-title">Add Items</div>
+            {cabinetLibrary.map((category) => (
+              <div key={category.id} className="palette-library-group">
+                <div className="palette-section-label">{category.label}</div>
+                <div className="palette-family-grid">
+                  {category.types.map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      className="palette-family-btn"
+                      title={`Add ${cabinetTypeLabels[type]}`}
+                      onClick={() => handleAddCabinet(type)}
+                    >
+                      <span className="palette-cat-icon">
+                        {type === "drawer" ? "▤" : type === "sink" ? "◫" : type === "corner" ? "◩" : type === "open-shelf" ? "☰" : type === "wall" ? "⬒" : type === "tall" || type === "almirah" ? "▥" : "▦"}
+                      </span>
+                      <span className="palette-cat-label">{cabinetTypeLabels[type]}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rail-section scene-tree-panel">
+            <div className="rail-section-title">
+              <span>Scene Objects</span>
+              <span className="rail-count">{project.cabinets.length}</span>
+            </div>
+            <div className="scene-tree-list">
+              {project.cabinets.map((cabinet) => {
+                const isActive = activeCabinetId === cabinet.id;
+                const isSelected = selectedCabinetIds.includes(cabinet.id);
+                return (
+                  <button
+                    key={cabinet.id}
+                    type="button"
+                    className={`scene-tree-item ${isSelected ? "is-selected" : ""} ${isActive ? "is-active" : ""}`}
+                    onClick={(event) =>
+                      handleWorkspaceSelectCabinet(
+                        cabinet.id,
+                        event.metaKey || event.ctrlKey || event.shiftKey,
+                      )
+                    }
+                    title={`${cabinet.name} · ${cabinetTypeLabels[cabinet.config.type]}`}
+                  >
+                    <span className="scene-tree-icon">
+                      {cabinetTypeLabels[cabinet.config.type].charAt(0)}
+                    </span>
+                    <span className="scene-tree-copy">
+                      <strong>{cabinet.name}</strong>
+                      <small>{cabinetTypeLabels[cabinet.config.type]}</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rail-section">
+            <div className="rail-section-title">Room Presets</div>
+            <div className="preset-rail-list">
+              {roomPresets.map((preset) => (
                 <button
-                  key={type}
+                  key={preset.id}
                   type="button"
-                  className="palette-family-btn"
-                  title={`Add ${cabinetTypeLabels[type]}`}
-                  onClick={() => handleAddCabinet(type)}
+                  className="palette-preset-btn"
+                  title={preset.description}
+                  onClick={() => handleLoadRoomPreset(preset.id)}
                 >
-                  <span className="palette-cat-icon">
-                    {type === "drawer" ? "▤" : type === "sink" ? "◫" : type === "corner" ? "◩" : type === "open-shelf" ? "☰" : type === "wall" ? "⬒" : type === "tall" || type === "almirah" ? "▥" : "▦"}
+                  <span className="palette-preset-icon">
+                    {preset.id === "small-bedroom" ? "🛏" : preset.id === "living-room" ? "🛋" : "💼"}
                   </span>
-                  <span className="palette-cat-label">{cabinetTypeLabels[type]}</span>
+                  <span className="palette-cat-label">{preset.label}</span>
                 </button>
               ))}
             </div>
           </div>
-        ))}
 
-        <div className="palette-divider" />
+          <div className="rail-section">
+            <ProjectBrowser
+              projects={sortedSavedProjects}
+              onDeleteProject={handleDeleteSavedProject}
+              onDuplicateProject={handleDuplicateSavedProject}
+              onLoadProject={handleLoadSavedProject}
+              onRenameProject={handleRenameSavedProject}
+              onSaveCurrent={saveCurrentProjectToBrowser}
+            />
+          </div>
+        </aside>
 
-        <div className="palette-section-label">Presets</div>
-        {roomPresets.map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            className="palette-preset-btn"
-            title={preset.description}
-            onClick={() => handleLoadRoomPreset(preset.id)}
-          >
-            <span className="palette-preset-icon">
-              {preset.id === "small-bedroom" ? "🛏" : preset.id === "living-room" ? "🛋" : "💼"}
+        <section className="workspace-panel" aria-label="Drawing workspace">
+          <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
+            {(
+              [
+                { id: "plan", label: "Plan" },
+                { id: "front", label: "Front Elevation" },
+                { id: "side", label: "Side Elevation" },
+                { id: "3d", label: "3D" },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={workspaceTab === tab.id}
+                className={`workspace-tab ${workspaceTab === tab.id ? "is-active" : ""}`}
+                onClick={() => setWorkspaceTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="workspace-canvas">
+            {workspaceTab === "3d" ? (
+              <div className="viewport-panel" aria-label="3D room viewport">
+                <CabinetScene
+                  ref={sceneRef}
+                  project={getVisibleProject()}
+                  room={room}
+                  countertops={planningWorkflow.countertops}
+                  fillers={planningWorkflow.fillers}
+                  snapSizeMm={projectPreferences.snapSizeMm}
+                  showGrid={projectPreferences.showGrid}
+                  onCabinetMove={handleCabinetMove}
+                  onCabinetRotate={handleCabinetRotate}
+                  selectedCabinetIds={selectedCabinetIds}
+                  activeCabinetId={activeCabinetId}
+                  selectedPanelName={selectedPanelName}
+                  onCabinetResize={handleCabinetResize}
+                  onSelectedCabinetChange={(cabinetId, additive) => {
+                    if (!cabinetId) {
+                      replaceSelection([], null, null);
+                      return;
+                    }
+
+                    if (additive) {
+                      toggleCabinetSelection(cabinetId);
+                      return;
+                    }
+
+                    replaceSelection([cabinetId], cabinetId, null);
+                  }}
+                  onSelectedPanelChange={(cabinetId, name, additive) => {
+                    if (!cabinetId) {
+                      replaceSelection([], null, null);
+                      return;
+                    }
+
+                    if (additive) {
+                      const nextIds = selectedCabinetIds.includes(cabinetId)
+                        ? selectedCabinetIds
+                        : [...selectedCabinetIds, cabinetId];
+                      replaceSelection(nextIds, cabinetId, name);
+                      return;
+                    }
+
+                    replaceSelection([cabinetId], cabinetId, name);
+                  }}
+                  onMarqueeSelect={(cabinetIds, additive) => {
+                    if (additive) {
+                      replaceSelection(
+                        Array.from(new Set([...selectedCabinetIds, ...cabinetIds])),
+                        cabinetIds[0] ?? activeCabinetId,
+                        null,
+                      );
+                      return;
+                    }
+
+                    replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="drawing-sheet" aria-label={`${workspaceLabel} drawing`}>
+                <div className="drawing-sheet-meta">
+                  <span>{workspaceLabel}</span>
+                  <span>
+                    {selectedCabinetIds.length > 0
+                      ? `${selectedCabinetIds.length} selected`
+                      : "Click an item to select"}
+                  </span>
+                </div>
+                <div className="drawing-sheet-scroll">
+                  <TwoDView
+                    project={project}
+                    room={room}
+                    view={twoDViewKind}
+                    countertops={planningWorkflow.countertops}
+                    selectedCabinetIds={selectedCabinetIds}
+                    activeCabinetId={activeCabinetId}
+                    onSelectCabinet={handleWorkspaceSelectCabinet}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <aside className="inspector-panel" aria-label="Properties inspector">
+          <div className="inspector-header">
+            <strong>Properties</strong>
+            <span>
+              {selectedCabinet
+                ? selectedCabinet.name
+                : selectedCabinetIds.length > 1
+                  ? `${selectedCabinetIds.length} items`
+                  : "No selection"}
             </span>
-            <span className="palette-cat-label">{preset.label}</span>
-          </button>
-        ))}
-        <div className="palette-divider" />
-        <ProjectBrowser
-          projects={sortedSavedProjects}
-          onDeleteProject={handleDeleteSavedProject}
-          onDuplicateProject={handleDuplicateSavedProject}
-          onLoadProject={handleLoadSavedProject}
-          onRenameProject={handleRenameSavedProject}
-          onSaveCurrent={saveCurrentProjectToBrowser}
-        />
-      </aside>
-
-      <section className="viewport-panel" aria-label="3D room viewport">
-        <CabinetScene
-          ref={sceneRef}
-          project={getVisibleProject()}
-          room={room}
-          countertops={planningWorkflow.countertops}
-          fillers={planningWorkflow.fillers}
-          snapSizeMm={projectPreferences.snapSizeMm}
-          showGrid={projectPreferences.showGrid}
-          onCabinetMove={handleCabinetMove}
-          onCabinetRotate={handleCabinetRotate}
-          selectedCabinetIds={selectedCabinetIds}
-          activeCabinetId={activeCabinetId}
-          selectedPanelName={selectedPanelName}
-          onCabinetResize={handleCabinetResize}
-          onSelectedCabinetChange={(cabinetId, additive) => {
-            if (!cabinetId) {
-              replaceSelection([], null, null);
-              return;
-            }
-
-            if (additive) {
-              toggleCabinetSelection(cabinetId);
-              return;
-            }
-
-            replaceSelection([cabinetId], cabinetId, null);
-          }}
-          onSelectedPanelChange={(cabinetId, name, additive) => {
-            if (!cabinetId) {
-              replaceSelection([], null, null);
-              return;
-            }
-
-            if (additive) {
-              const nextIds = selectedCabinetIds.includes(cabinetId)
-                ? selectedCabinetIds
-                : [...selectedCabinetIds, cabinetId];
-              replaceSelection(nextIds, cabinetId, name);
-              return;
-            }
-
-            replaceSelection([cabinetId], cabinetId, name);
-          }}
-          onMarqueeSelect={(cabinetIds, additive) => {
-            if (additive) {
-              replaceSelection(
-                Array.from(new Set([...selectedCabinetIds, ...cabinetIds])),
-                cabinetIds[0] ?? activeCabinetId,
-                null,
-              );
-              return;
-            }
-
-            replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
-          }}
-        />
-      </section>
-
-      <aside className="properties-panel">
-        <RoomSettings
-          dimensions={room.dimensions}
-          onChange={(dims) => setRoom({ ...room, dimensions: dims })}
-        />
-        <WallEditor
-          showBackWall={room.dimensions.showBackWall}
-          showLeftWall={room.dimensions.showLeftWall}
-          showRightWall={room.dimensions.showRightWall}
-          onChange={(walls) => setRoom({ ...room, dimensions: { ...room.dimensions, ...walls } })}
-        />
-        <DoorWindowEditor
-          doors={room.doors}
-          windows={room.windows}
-          onChangeDoors={(doors) => setRoom({ ...room, doors })}
-          onChangeWindows={(windows) => setRoom({ ...room, windows })}
-        />
-        <DimensionControls
-          cabinetCount={project.cabinets.length}
-          cabinetCutlistItems={cabinetCutlistItems}
-          cabinets={project.cabinets}
-          config={selectedConfig}
-          constructionParts={selectedConstruction?.parts ?? []}
-          derivedMetrics={derivedMetrics}
-          cutlistItems={cutlistItems}
-          projectFilePath={projectFilePath}
-          projectStatus={projectStatus}
-          savedProjects={sortedSavedProjects}
-          snapSizeMm={projectPreferences.snapSizeMm}
-          selectedCabinetIds={selectedCabinetIds}
-          activeCabinetId={activeCabinetId}
-          selectedPanelName={selectedPanelName}
-          selectedPlacement={selectedPlacement}
-          selectedLayerId={selectedLayerId}
-          selectedGroupId={selectedGroupId}
-          layers={layers}
-          groups={groups}
-          preferences={projectPreferences}
-          selectionLabel={selectedPanelName ? getPanelDisplayName(selectedPanelName) : "None"}
-          validationMessages={validationMessages}
-          onAttachmentChange={handleAttachmentChange}
-          onAlignSelection={handleAlignSelection}
-          onAssignLayer={handleAssignLayer}
-          onConfigChange={handleConfigChange}
-          onCopySelection={handleCopySelection}
-          onCreateGroup={handleCreateGroup}
-          onCreateLayer={handleDuplicateLayer}
-          onClearGroup={handleClearGroup}
-          onDeleteSavedProject={handleDeleteSavedProject}
-          onDuplicateCabinet={handleDuplicateCabinet}
-          onDuplicateSavedProject={handleDuplicateSavedProject}
-          onExportCutlistCsv={handleExportCutlistCsv}
-          onExportProjectJson={handleExportProjectJson}
-          onExportPdf={handleExportPdf}
-          onLayerChange={handleLayerChange}
-          onLoadProject={handleLoadProject}
-          onLoadSavedProject={handleLoadSavedProject}
-          onPasteSelection={handlePasteSelection}
-          onPlacementChange={handlePlacementChange}
-          onPreferenceChange={handleProjectPreferenceChange}
-          onRemoveCabinet={handleRemoveCabinet}
-          onRenameCabinet={handleRenameCabinet}
-          onRenameSavedProject={handleRenameSavedProject}
-          onReset={handleReset}
-          onRotationChange={handleRotationChange}
-          onSaveProject={handleSaveProject}
-          onSaveToProjectBrowser={saveCurrentProjectToBrowser}
-          onSelectCabinet={(cabinetId, additive) => {
-            if (additive) {
-              toggleCabinetSelection(cabinetId);
-              return;
-            }
-            replaceSelection([cabinetId], cabinetId, null);
-          }}
-          onSelectAll={handleSelectAll}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-        />
-      </aside>
-
+          </div>
+          <div className="inspector-scroll">
+            <RoomSettings
+              dimensions={room.dimensions}
+              onChange={(dims) => setRoom({ ...room, dimensions: dims })}
+            />
+            <WallEditor
+              showBackWall={room.dimensions.showBackWall}
+              showLeftWall={room.dimensions.showLeftWall}
+              showRightWall={room.dimensions.showRightWall}
+              onChange={(walls) => setRoom({ ...room, dimensions: { ...room.dimensions, ...walls } })}
+            />
+            <DoorWindowEditor
+              doors={room.doors}
+              windows={room.windows}
+              onChangeDoors={(doors) => setRoom({ ...room, doors })}
+              onChangeWindows={(windows) => setRoom({ ...room, windows })}
+            />
+            <DimensionControls
+              cabinetCount={project.cabinets.length}
+              cabinetCutlistItems={cabinetCutlistItems}
+              cabinets={project.cabinets}
+              config={selectedConfig}
+              constructionParts={selectedConstruction?.parts ?? []}
+              derivedMetrics={derivedMetrics}
+              cutlistItems={cutlistItems}
+              projectFilePath={projectFilePath}
+              projectStatus={projectStatus}
+              savedProjects={sortedSavedProjects}
+              snapSizeMm={projectPreferences.snapSizeMm}
+              selectedCabinetIds={selectedCabinetIds}
+              activeCabinetId={activeCabinetId}
+              selectedPanelName={selectedPanelName}
+              selectedPlacement={selectedPlacement}
+              selectedLayerId={selectedLayerId}
+              selectedGroupId={selectedGroupId}
+              layers={layers}
+              groups={groups}
+              preferences={projectPreferences}
+              selectionLabel={selectedPanelName ? getPanelDisplayName(selectedPanelName) : "None"}
+              validationMessages={validationMessages}
+              onAttachmentChange={handleAttachmentChange}
+              onAlignSelection={handleAlignSelection}
+              onAssignLayer={handleAssignLayer}
+              onConfigChange={handleConfigChange}
+              onCopySelection={handleCopySelection}
+              onCreateGroup={handleCreateGroup}
+              onCreateLayer={handleDuplicateLayer}
+              onClearGroup={handleClearGroup}
+              onDeleteSavedProject={handleDeleteSavedProject}
+              onDuplicateCabinet={handleDuplicateCabinet}
+              onDuplicateSavedProject={handleDuplicateSavedProject}
+              onExportCutlistCsv={handleExportCutlistCsv}
+              onExportProjectJson={handleExportProjectJson}
+              onExportPdf={handleExportPdf}
+              onLayerChange={handleLayerChange}
+              onLoadProject={handleLoadProject}
+              onLoadSavedProject={handleLoadSavedProject}
+              onPasteSelection={handlePasteSelection}
+              onPlacementChange={handlePlacementChange}
+              onPreferenceChange={handleProjectPreferenceChange}
+              onRemoveCabinet={handleRemoveCabinet}
+              onRenameCabinet={handleRenameCabinet}
+              onRenameSavedProject={handleRenameSavedProject}
+              onReset={handleReset}
+              onRotationChange={handleRotationChange}
+              onSaveProject={handleSaveProject}
+              onSaveToProjectBrowser={saveCurrentProjectToBrowser}
+              onSelectCabinet={(cabinetId, additive) => {
+                if (additive) {
+                  toggleCabinetSelection(cabinetId);
+                  return;
+                }
+                replaceSelection([cabinetId], cabinetId, null);
+              }}
+              onSelectAll={handleSelectAll}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+            />
+          </div>
+        </aside>
       </div>
+
       {isCommandBarOpen ? (
         <div className="command-bar-backdrop" onClick={closeCommandSurfaces}>
           <div className="command-bar" onClick={(event) => event.stopPropagation()}>
@@ -1978,15 +2143,30 @@ function App() {
           </div>
         </div>
       ) : null}
-      <footer className="output-panel">
+
+      <footer className="status-strip">
         <div className="output-bar">
           <span className="output-status">{projectStatus || "Ready"}</span>
-          <span className="output-stats">{project.cabinets.length} items &middot; {selectedCabinet ? selectedCabinet.config.dimensions.width + " × " + selectedCabinet.config.dimensions.height + " × " + selectedCabinet.config.dimensions.depth + " mm" : "No selection"}</span>
+          <span className="output-stats">
+            {workspaceLabel} · {project.cabinets.length} items ·{" "}
+            {selectedCabinet
+              ? `${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm`
+              : selectedCabinetIds.length > 1
+                ? `${selectedCabinetIds.length} selected`
+                : "No selection"}
+          </span>
           <span className="output-bar-actions">
-            <button type="button" className="tb-btn" onClick={handleSaveProject}>Save JSON</button>
-            <button type="button" className="tb-btn" onClick={handleExportProjectJson}>Export JSON</button>
-            <button type="button" className="tb-btn" onClick={handleExportCutlistCsv}>Export CSV</button>
-            <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf}>Export PDF</button>
+            <button
+              type="button"
+              className={`tb-btn ${statusDockOpen ? "tb-accent" : ""}`}
+              onClick={() => setStatusDockOpen((open) => !open)}
+            >
+              {statusDockOpen ? "Hide Report" : "Report / Cutlist"}
+            </button>
+            <button type="button" className="tb-btn" onClick={handleSaveProject}>Save</button>
+            <button type="button" className="tb-btn" onClick={handleExportProjectJson}>JSON</button>
+            <button type="button" className="tb-btn" onClick={handleExportCutlistCsv}>CSV</button>
+            <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf}>PDF</button>
           </span>
         </div>
         {validationMessages.length > 0 ? (
@@ -1994,38 +2174,16 @@ function App() {
             {validationMessages.map((m) => <span key={m} className="output-warn">{m}</span>)}
           </div>
         ) : null}
-        <div className="plans-panel">
-          <div className="plans-panel-header">
-            <span className="plans-panel-title">2D Planning Views</span>
-            <div className="plans-panel-tabs">
-              {(["top", "front", "side"] as const).map((view) => (
-                <button
-                  key={view}
-                  type="button"
-                  className={`tb-btn ${planView === view ? "tb-accent" : ""}`}
-                  onClick={() => setPlanView(view)}
-                >
-                  {view === "top" ? "Top" : view === "front" ? "Front" : "Side"}
-                </button>
-              ))}
+        {statusDockOpen ? (
+          <div className="status-dock">
+            <ProjectReportPanel report={projectReport} />
+            <div className="output-cutlists">
+              <CutlistPanel items={cabinetCutlistItems} title="Selected Item" />
+              <CutlistPanel items={cutlistItems} title="Project Total" />
             </div>
           </div>
-          <div className="plans-panel-canvas">
-            <TwoDView
-              project={project}
-              room={room}
-              view={planView}
-              countertops={planningWorkflow.countertops}
-            />
-          </div>
-        </div>
-        <ProjectReportPanel report={projectReport} />
-        <div className="output-cutlists">
-          <CutlistPanel items={cabinetCutlistItems} title="Selected Item" />
-          <CutlistPanel items={cutlistItems} title="Project Total" />
-        </div>
+        ) : null}
       </footer>
-
     </main>
   );
 }
