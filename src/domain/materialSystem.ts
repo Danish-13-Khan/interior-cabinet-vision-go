@@ -1,5 +1,7 @@
 // ── Material System ──────────────────────────────────────────
 
+export type MaterialPresetId = "ply-premium" | "mdf-painted" | "particle-economy";
+
 // ── Board Material ───────────────────────────────────────────
 
 export type BoardMaterialId = "mdf" | "ply" | "particle" | "hdhmr";
@@ -167,3 +169,120 @@ export const DEFAULT_CABINET_MATERIAL: CabinetMaterialSpec = {
   drawerBoxMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "ply", thicknessMm: 12, finishId: "laminate", edgeBandingId: "none" },
   shelfMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "hdhmr", thicknessMm: 18, finishId: "laminate", edgeBandingId: "abs-1mm" },
 };
+
+export type MaterialPreset = {
+  id: MaterialPresetId;
+  label: string;
+  description: string;
+  spec: CabinetMaterialSpec;
+};
+
+export const MATERIAL_PRESETS: MaterialPreset[] = [
+  {
+    id: "ply-premium",
+    label: "Plywood Premium",
+    description: "Moisture-resistant ply carcass with painted MDF shutters.",
+    spec: {
+      carcassMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "ply", thicknessMm: 18, finishId: "wood-oak", edgeBandingId: "abs-1mm", grainDirection: "lengthwise" },
+      backMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "ply", thicknessMm: 6, finishId: "laminate", edgeBandingId: "none", backPanelType: "grooved", grainDirection: "crosswise" },
+      doorMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "mdf", thicknessMm: 18, finishId: "white-matte", edgeBandingId: "abs-2mm", grainDirection: "lengthwise" },
+      drawerBoxMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "ply", thicknessMm: 12, finishId: "laminate", edgeBandingId: "none", grainDirection: "crosswise" },
+      shelfMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "ply", thicknessMm: 18, finishId: "wood-oak", edgeBandingId: "abs-1mm", grainDirection: "lengthwise" },
+    },
+  },
+  {
+    id: "mdf-painted",
+    label: "MDF Painted",
+    description: "Paint-grade MDF exterior with MDF/HDHMR carcass parts.",
+    spec: {
+      carcassMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "mdf", thicknessMm: 18, finishId: "white-matte", edgeBandingId: "abs-1mm", grainDirection: "none" },
+      backMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "mdf", thicknessMm: 6, finishId: "white-matte", edgeBandingId: "none", backPanelType: "grooved", grainDirection: "none" },
+      doorMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "mdf", thicknessMm: 18, finishId: "white-gloss", edgeBandingId: "abs-2mm", grainDirection: "none" },
+      drawerBoxMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "ply", thicknessMm: 12, finishId: "laminate", edgeBandingId: "none", grainDirection: "crosswise" },
+      shelfMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "mdf", thicknessMm: 18, finishId: "white-matte", edgeBandingId: "abs-1mm", grainDirection: "none" },
+    },
+  },
+  {
+    id: "particle-economy",
+    label: "Particle Economy",
+    description: "Budget particle board layout with laminate finish.",
+    spec: {
+      carcassMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "particle", thicknessMm: 18, finishId: "laminate", edgeBandingId: "pvc-0.5mm", grainDirection: "lengthwise" },
+      backMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "particle", thicknessMm: 6, finishId: "laminate", edgeBandingId: "none", backPanelType: "screwed", grainDirection: "crosswise" },
+      doorMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "particle", thicknessMm: 18, finishId: "grey", edgeBandingId: "pvc-1mm", grainDirection: "lengthwise" },
+      drawerBoxMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "particle", thicknessMm: 12, finishId: "laminate", edgeBandingId: "none", grainDirection: "crosswise" },
+      shelfMaterial: { ...DEFAULT_PART_MATERIAL, boardMaterialId: "particle", thicknessMm: 18, finishId: "laminate", edgeBandingId: "pvc-0.5mm", grainDirection: "lengthwise" },
+    },
+  },
+];
+
+export type CabinetBuildRules = {
+  materialPresetId: MaterialPresetId;
+  carcassThicknessMm: number;
+  backPanelThicknessMm: number;
+  shelfThicknessMm: number;
+  drawerBoxThicknessMm: number;
+  finishId: FinishId;
+  edgeBandingId: EdgeBandingId;
+  grainDirection: GrainDirection;
+  backPanelType: BackPanelType;
+};
+
+export const DEFAULT_BUILD_RULES: CabinetBuildRules = {
+  materialPresetId: "ply-premium",
+  carcassThicknessMm: 18,
+  backPanelThicknessMm: 6,
+  shelfThicknessMm: 18,
+  drawerBoxThicknessMm: 12,
+  finishId: "wood-oak",
+  edgeBandingId: "abs-1mm",
+  grainDirection: "lengthwise",
+  backPanelType: "grooved",
+};
+
+export function getMaterialPreset(id: MaterialPresetId): MaterialPreset {
+  return MATERIAL_PRESETS.find((preset) => preset.id === id) ?? MATERIAL_PRESETS[0];
+}
+
+export function resolveCabinetMaterialSpec(
+  rules: Partial<CabinetBuildRules> | undefined,
+): CabinetMaterialSpec {
+  const mergedRules = { ...DEFAULT_BUILD_RULES, ...(rules ?? {}) };
+  const preset = getMaterialPreset(mergedRules.materialPresetId);
+
+  return {
+    carcassMaterial: {
+      ...preset.spec.carcassMaterial,
+      thicknessMm: mergedRules.carcassThicknessMm,
+      finishId: mergedRules.finishId,
+      edgeBandingId: mergedRules.edgeBandingId,
+      grainDirection: mergedRules.grainDirection,
+      backPanelType: mergedRules.backPanelType,
+    },
+    backMaterial: {
+      ...preset.spec.backMaterial,
+      thicknessMm: mergedRules.backPanelThicknessMm,
+      finishId: mergedRules.finishId,
+      backPanelType: mergedRules.backPanelType,
+      grainDirection: mergedRules.grainDirection === "none" ? "crosswise" : mergedRules.grainDirection,
+    },
+    doorMaterial: {
+      ...preset.spec.doorMaterial,
+      finishId: mergedRules.finishId,
+      edgeBandingId: mergedRules.edgeBandingId,
+      grainDirection: mergedRules.grainDirection,
+    },
+    drawerBoxMaterial: {
+      ...preset.spec.drawerBoxMaterial,
+      thicknessMm: mergedRules.drawerBoxThicknessMm,
+      grainDirection: mergedRules.grainDirection === "none" ? "crosswise" : mergedRules.grainDirection,
+    },
+    shelfMaterial: {
+      ...preset.spec.shelfMaterial,
+      thicknessMm: mergedRules.shelfThicknessMm,
+      finishId: mergedRules.finishId,
+      edgeBandingId: mergedRules.edgeBandingId,
+      grainDirection: mergedRules.grainDirection,
+    },
+  };
+}
