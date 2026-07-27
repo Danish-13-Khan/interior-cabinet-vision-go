@@ -13,6 +13,7 @@ import { DoorWindowEditor } from "./components/DoorWindowEditor";
 import { CutlistPanel } from "./components/CutlistPanel";
 import { ProjectBrowser } from "./components/ProjectBrowser";
 import { TwoDView } from "./components/TwoDView";
+import { ProjectReportPanel } from "./components/ProjectReportPanel";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -59,6 +60,7 @@ import {
   createCabinetPlanningWorkflow,
   createRunAlignedPlacements,
 } from "./domain/cabinetLibrary";
+import { createProjectReport } from "./domain/projectReport";
 
 type SavedProjectBrowserEntry = {
   id: string;
@@ -195,6 +197,10 @@ function App() {
   const planningWorkflow = useMemo(
     () => createCabinetPlanningWorkflow(project, roomBounds),
     [project, roomBounds],
+  );
+  const projectReport = useMemo(
+    () => createProjectReport(project, room),
+    [project, room],
   );
 
   useEffect(() => {
@@ -1126,6 +1132,7 @@ function App() {
             />
           </div>
         </div>
+        <ProjectReportPanel report={projectReport} />
         <div className="output-cutlists">
           <CutlistPanel items={cabinetCutlistItems} title="Selected Item" />
           <CutlistPanel items={cutlistItems} title="Project Total" />

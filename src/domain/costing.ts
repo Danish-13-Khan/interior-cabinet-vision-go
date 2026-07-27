@@ -10,6 +10,7 @@ import {
   FINISHES,
   EDGE_BANDING_OPTIONS,
   DEFAULT_CABINET_MATERIAL,
+  resolveCabinetMaterialSpec,
   type BoardMaterialId,
   type FinishId,
   type EdgeBandingId,
@@ -207,7 +208,10 @@ export function calculateProjectCost(
   for (const cab of cabinets) {
     const construction = constructionMap.get(cab.id) ?? defaultConstruction(cab.config.dimensions);
     const cutlist = cutlistMap.get(cab.id) ?? [];
-    const cost = calculateCabinetCost(cab, construction, cutlist, materials);
+    const resolvedMaterials = cab.config.buildRules
+      ? resolveCabinetMaterialSpec(cab.config.buildRules)
+      : materials;
+    const cost = calculateCabinetCost(cab, construction, cutlist, resolvedMaterials);
     costs.push(cost);
     totalMaterial += cost.materialCost + cost.finishCost + cost.edgeBandCost;
     totalHardware += cost.hardwareCost;

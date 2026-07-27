@@ -1,8 +1,8 @@
 import { jsPDF } from "jspdf";
 import type { CabinetProject } from "./cabinetDimensions";
-import { cabinetTypeLabels } from "./cabinetDimensions";
 import type { CountertopSegment } from "./cabinetLibrary";
-import { createCabinetCutlist, type CabinetCutlistItem } from "./cabinetGeometry";
+import { type CabinetCutlistItem } from "./cabinetGeometry";
+import { createProjectReport } from "./projectReport";
 import {
   createTechnicalView,
   formatProjectTechnicalSummary,
@@ -84,6 +84,7 @@ export async function exportProjectPdf(
   const contentWidth = pageWidth - margin * 2;
   const title = projectName.trim() || "Room Project";
   const optimizedImage = await optimizeSceneImage(sceneScreenshot);
+  const report = createProjectReport(project, room);
   let y = margin;
 
   doc.setFillColor(247, 248, 250);
@@ -111,7 +112,7 @@ export async function exportProjectPdf(
     y,
     summaryCardWidth,
     "Cabinets",
-    String(project.cabinets.filter((item) => item.config.type === "base" || item.config.type === "wall" || item.config.type === "tall" || item.config.type === "almirah").length),
+    String(report.summary.cabinetCount),
   );
   drawLabeledValue(
     doc,
@@ -119,7 +120,7 @@ export async function exportProjectPdf(
     y,
     summaryCardWidth,
     "Room Size",
-    `${room.dimensions.widthMm} x ${room.dimensions.depthMm}`,
+    report.summary.roomSizeLabel,
   );
   y += 21;
 
@@ -172,7 +173,7 @@ export async function exportProjectPdf(
   y += rowHeight;
 
   doc.setTextColor(40, 50, 65);
-  project.cabinets.forEach((cabinet, index) => {
+  report.itemList.forEach((cabinet, index) => {
     y = ensurePageSpace(doc, y, rowHeight, pageHeight, margin);
 
     if (index % 2 === 0) {
@@ -182,13 +183,13 @@ export async function exportProjectPdf(
 
     const row = [
       cabinet.name.length > 17 ? `${cabinet.name.slice(0, 16)}...` : cabinet.name,
-      cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type,
-      String(cabinet.config.dimensions.width),
-      String(cabinet.config.dimensions.height),
-      String(cabinet.config.dimensions.depth),
-      String(Math.round(cabinet.placement.x)),
-      String(Math.round(cabinet.placement.z)),
-      `${cabinet.placement.rotation}°`,
+      cabinet.typeLabel,
+      String(cabinet.widthMm),
+      String(cabinet.heightMm),
+      String(cabinet.depthMm),
+      String(cabinet.x),
+      String(cabinet.z),
+      `${cabinet.rotation}°`,
     ];
 
     currentX = margin;
@@ -248,29 +249,65 @@ export async function exportProjectPdf(
 
   doc.setFontSize(13);
   doc.setTextColor(34, 44, 59);
+  doc.text("Material Summary", margin, y);
+  y += 6;
+
+  const materialHeaders = ["Material", "Thk", "Area m2", "Boards"];
+  const materialWidths = [78, 20, 34, 28];
+  const materialTableWidth = materialWidths.reduce((total, value) => total + value, 0);
+
+  doc.setFillColor(232, 237, 243);
+  doc.rect(margin, y, materialTableWidth, rowHeight, "F");
+  doc.setFontSize(8);
+  doc.setTextColor(65, 76, 91);
+  currentX = margin;
+  materialHeaders.forEach((header, index) => {
+    doc.text(header, currentX + 1.3, y + rowHeight - 2.1);
+    currentX += materialWidths[index];
+  });
+  y += rowHeight;
+
+  report.materialSummary.forEach((item, index) => {
+    y = ensurePageSpace(doc, y, rowHeight, pageHeight, margin);
+
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(margin, y, materialTableWidth, rowHeight, "F");
+    }
+
+    const row = [
+      item.material,
+      String(item.thicknessMm),
+      item.totalAreaM2.toFixed(2),
+      String(item.estimatedBoards),
+    ];
+
+    currentX = margin;
+    row.forEach((value, cellIndex) => {
+      doc.text(value, currentX + 1.3, y + rowHeight - 2.1);
+      currentX += materialWidths[cellIndex];
+    });
+    y += rowHeight;
+  });
+
+  y = ensurePageSpace(doc, y + 8, 48, pageHeight, margin);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 44, 59);
+  doc.text("Project Costing", margin, y);
+  y += 8;
+
+  drawLabeledValue(doc, margin, y, 42, "Material", `Rs ${report.projectCost.totalMaterial.toLocaleString()}`);
+  drawLabeledValue(doc, margin + 46, y, 42, "Hardware", `Rs ${report.projectCost.totalHardware.toLocaleString()}`);
+  drawLabeledValue(doc, margin + 92, y, 42, "Labour", `Rs ${report.projectCost.totalLabour.toLocaleString()}`);
+  drawLabeledValue(doc, margin + 138, y, 44, "Total", `Rs ${report.projectCost.grandTotal.toLocaleString()}`);
+  y += 24;
+
+  doc.setFontSize(13);
+  doc.setTextColor(34, 44, 59);
   doc.text("Full Cutlist", margin, y);
   y += 6;
 
-  const allItems: CabinetCutlistItem[] = [];
-  for (const cabinet of project.cabinets) {
-    const items = createCabinetCutlist(cabinet.config);
-
-    for (const item of items) {
-      const existing = allItems.find(
-        (candidate) =>
-          candidate.key === item.key &&
-          candidate.lengthMm === item.lengthMm &&
-          candidate.widthMm === item.widthMm &&
-          candidate.thicknessMm === item.thicknessMm,
-      );
-
-      if (existing) {
-        existing.quantity += item.quantity;
-      } else {
-        allItems.push({ ...item });
-      }
-    }
-  }
+  const allItems: CabinetCutlistItem[] = report.projectCutlist;
 
   const cutHeaders = ["Part", "Material", "Thk", "Qty", "Length", "Width"];
   const cutColWidths = [58, 32, 14, 14, 24, 24];

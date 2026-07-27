@@ -412,7 +412,7 @@ select {
 .output-panel {
   display: flex;
   flex-direction: column;
-  max-height: 420px;
+  max-height: 640px;
   flex-shrink: 0;
   background: #fafbfc;
   border-top: 1px solid #e2e5ea;
@@ -468,6 +468,94 @@ select {
   padding: 8px 14px;
   overflow-x: auto;
   min-height: 0;
+}
+
+.report-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px 4px;
+  border-bottom: 1px solid #e8eaee;
+}
+
+.report-summary-grid,
+.report-cost-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.report-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(201, 210, 220, 0.6);
+}
+
+.report-card-wide {
+  grid-column: span 2;
+}
+
+.report-card-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #7b8a98;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.report-card strong {
+  font-size: 0.95rem;
+  color: #243442;
+}
+
+.report-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.report-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.82);
+  border: 1px solid rgba(201, 210, 220, 0.55);
+}
+
+.report-table,
+.report-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-row,
+.report-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(214, 220, 228, 0.65);
+}
+
+.report-row strong,
+.report-group strong {
+  font-size: 0.8rem;
+  color: #243442;
+}
+
+.report-row span,
+.report-group span {
+  font-size: 0.72rem;
+  color: #667786;
 }
 
 .plans-panel {
@@ -1187,6 +1275,16 @@ select {
   .plans-panel-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .report-summary-grid,
+  .report-cost-grid,
+  .report-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .report-card-wide {
+    grid-column: span 1;
   }
 }
 
