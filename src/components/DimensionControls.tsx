@@ -5,6 +5,8 @@ import {
   CABINET_DEPTH_MAX_MM,
   CABINET_DEPTH_MIN_MM,
   CABINET_DEPTH_STEP_MM,
+  CABINET_DRAWER_MAX,
+  CABINET_DRAWER_MIN,
   CABINET_HEIGHT_MAX_MM,
   CABINET_HEIGHT_MIN_MM,
   CABINET_HEIGHT_STEP_MM,
@@ -15,12 +17,15 @@ import {
   clampCabinetDepth,
   clampCabinetHeight,
   clampCabinetWidth,
+  clampDrawerCount,
   clampShelfCount,
   clampToeKickHeight,
   clampToeKickInset,
   getDefaultCabinetConfig,
   normalizeRotationAngle,
   supportsDoors,
+  supportsDrawers,
+  supportsEndPanels,
   supportsShelves,
   supportsToeKick,
   supportsWallPlacement,
@@ -83,6 +88,7 @@ type NumericInputKey =
   | "height"
   | "depth"
   | "shelfCount"
+  | "drawerCount"
   | "toeKickHeight"
   | "toeKickInset"
   | "placementX"
@@ -138,6 +144,7 @@ export function DimensionControls({
     height: String(config.dimensions.height),
     depth: String(config.dimensions.depth),
     shelfCount: String(config.shelfCount),
+    drawerCount: String(config.drawerCount ?? 0),
     toeKickHeight: String(config.toeKickHeight),
     toeKickInset: String(config.toeKickInset),
     placementX: String(selectedPlacement?.x ?? 0),
@@ -154,6 +161,7 @@ export function DimensionControls({
       height: String(config.dimensions.height),
       depth: String(config.dimensions.depth),
       shelfCount: String(config.shelfCount),
+      drawerCount: String(config.drawerCount ?? 0),
       toeKickHeight: String(config.toeKickHeight),
       toeKickInset: String(config.toeKickInset),
       placementX: String(selectedPlacement?.x ?? 0),
@@ -165,6 +173,7 @@ export function DimensionControls({
     config.dimensions.height,
     config.dimensions.width,
     config.shelfCount,
+    config.drawerCount,
     config.toeKickHeight,
     config.toeKickInset,
     selectedPlacement?.x,
@@ -220,6 +229,9 @@ export function DimensionControls({
       case "shelfCount":
         onConfigChange({ shelfCount: clampShelfCount(parsedValue) });
         return;
+      case "drawerCount":
+        onConfigChange({ drawerCount: clampDrawerCount(parsedValue) });
+        return;
       case "toeKickHeight":
         onConfigChange({ toeKickHeight: clampToeKickHeight(parsedValue) });
         return;
@@ -244,6 +256,7 @@ export function DimensionControls({
       height: config.dimensions.height,
       depth: config.dimensions.depth,
       shelfCount: config.shelfCount,
+      drawerCount: config.drawerCount ?? 0,
       toeKickHeight: config.toeKickHeight,
       toeKickInset: config.toeKickInset,
       placementX: selectedPlacement?.x ?? 0,
@@ -273,8 +286,14 @@ export function DimensionControls({
     setEditCabinetNameValue("");
   }
 
+  const showDrawerTools = supportsDrawers(config.type);
+  const showEndPanelTools = supportsEndPanels(config.type);
   const showStructureSection =
-    supportsShelves(config.type) || supportsDoors(config.type) || supportsToeKick(config.type);
+    supportsShelves(config.type) ||
+    supportsDoors(config.type) ||
+    supportsToeKick(config.type) ||
+    showDrawerTools ||
+    showEndPanelTools;
   const showWallTools = supportsWallPlacement(config.type);
   const attachment = selectedPlacement?.attachment ?? "floor";
   const rotation = normalizeRotationAngle(selectedPlacement?.rotation ?? 0);
@@ -533,6 +552,22 @@ export function DimensionControls({
                   </div>
                 ) : null}
 
+                {showDrawerTools ? (
+                  <div className="field-group">
+                    <label htmlFor="drawer-count">Drawers</label>
+                    <input
+                      id="drawer-count"
+                      type="number"
+                      min={CABINET_DRAWER_MIN}
+                      max={CABINET_DRAWER_MAX}
+                      step={1}
+                      value={inputs.drawerCount}
+                      onChange={(event) => handleNumericInputChange("drawerCount", event.currentTarget.value)}
+                      onBlur={() => handleBlur("drawerCount")}
+                    />
+                  </div>
+                ) : null}
+
                 {supportsDoors(config.type) ? (
                   <div className="field-group checkbox-group">
                     <label>
@@ -573,6 +608,31 @@ export function DimensionControls({
                         onChange={(event) => handleNumericInputChange("toeKickInset", event.currentTarget.value)}
                         onBlur={() => handleBlur("toeKickInset")}
                       />
+                    </div>
+                  </div>
+                ) : null}
+
+                {showEndPanelTools ? (
+                  <div className="field-grid">
+                    <div className="field-group checkbox-group">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={config.leftEndPanel}
+                          onChange={(event) => onConfigChange({ leftEndPanel: event.currentTarget.checked })}
+                        />
+                        Left End Panel
+                      </label>
+                    </div>
+                    <div className="field-group checkbox-group">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={config.rightEndPanel}
+                          onChange={(event) => onConfigChange({ rightEndPanel: event.currentTarget.checked })}
+                        />
+                        Right End Panel
+                      </label>
                     </div>
                   </div>
                 ) : null}

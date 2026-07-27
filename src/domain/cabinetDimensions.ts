@@ -2,6 +2,10 @@ export type CabinetType =
   | "base"
   | "wall"
   | "tall"
+  | "drawer"
+  | "sink"
+  | "corner"
+  | "open-shelf"
   | "almirah"
   | "table"
   | "chair"
@@ -21,8 +25,11 @@ export type CabinetConfig = {
   dimensions: CabinetDimensions;
   shelfCount: number;
   hasDoors: boolean;
+  drawerCount?: number;
   toeKickHeight: number;
   toeKickInset: number;
+  leftEndPanel?: boolean;
+  rightEndPanel?: boolean;
 };
 
 export type CabinetPlacement = {
@@ -62,6 +69,8 @@ export const CABINET_DEPTH_MAX_MM = 900;
 export const CABINET_DEPTH_STEP_MM = 10;
 export const CABINET_SHELF_MIN = 0;
 export const CABINET_SHELF_MAX = 6;
+export const CABINET_DRAWER_MIN = 0;
+export const CABINET_DRAWER_MAX = 8;
 export const CABINET_TOE_KICK_HEIGHT_MIN_MM = 80;
 export const CABINET_TOE_KICK_HEIGHT_MAX_MM = 180;
 export const CABINET_TOE_KICK_INSET_MIN_MM = 20;
@@ -76,6 +85,10 @@ export const cabinetTypeLabels: Record<CabinetType, string> = {
   base: "Base Cabinet",
   wall: "Wall Cabinet",
   tall: "Tall Cabinet",
+  drawer: "Drawer Cabinet",
+  sink: "Sink Cabinet",
+  corner: "Corner Cabinet",
+  "open-shelf": "Open Shelf Cabinet",
   almirah: "Almirah",
   table: "Table",
   chair: "Chair",
@@ -95,8 +108,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 1,
     hasDoors: true,
+    drawerCount: 0,
     toeKickHeight: 100,
     toeKickInset: 60,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
   wall: {
     type: "wall",
@@ -109,8 +125,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 1,
     hasDoors: true,
+    drawerCount: 0,
     toeKickHeight: 0,
     toeKickInset: 0,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
   tall: {
     type: "tall",
@@ -123,8 +142,79 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 4,
     hasDoors: true,
+    drawerCount: 0,
     toeKickHeight: 100,
     toeKickInset: 60,
+    leftEndPanel: true,
+    rightEndPanel: true,
+  },
+  drawer: {
+    type: "drawer",
+    dimensions: {
+      width: 900,
+      height: 720,
+      depth: 560,
+      boardThickness: 18,
+      backPanelThickness: 6,
+    },
+    shelfCount: 0,
+    hasDoors: false,
+    drawerCount: 3,
+    toeKickHeight: 100,
+    toeKickInset: 60,
+    leftEndPanel: false,
+    rightEndPanel: false,
+  },
+  sink: {
+    type: "sink",
+    dimensions: {
+      width: 900,
+      height: 720,
+      depth: 600,
+      boardThickness: 18,
+      backPanelThickness: 6,
+    },
+    shelfCount: 0,
+    hasDoors: true,
+    drawerCount: 0,
+    toeKickHeight: 100,
+    toeKickInset: 60,
+    leftEndPanel: false,
+    rightEndPanel: false,
+  },
+  corner: {
+    type: "corner",
+    dimensions: {
+      width: 1000,
+      height: 720,
+      depth: 1000,
+      boardThickness: 18,
+      backPanelThickness: 6,
+    },
+    shelfCount: 1,
+    hasDoors: true,
+    drawerCount: 0,
+    toeKickHeight: 100,
+    toeKickInset: 60,
+    leftEndPanel: false,
+    rightEndPanel: false,
+  },
+  "open-shelf": {
+    type: "open-shelf",
+    dimensions: {
+      width: 900,
+      height: 720,
+      depth: 360,
+      boardThickness: 18,
+      backPanelThickness: 6,
+    },
+    shelfCount: 3,
+    hasDoors: false,
+    drawerCount: 0,
+    toeKickHeight: 100,
+    toeKickInset: 60,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
   almirah: {
     type: "almirah",
@@ -137,8 +227,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 4,
     hasDoors: true,
+    drawerCount: 0,
     toeKickHeight: 80,
     toeKickInset: 40,
+    leftEndPanel: true,
+    rightEndPanel: true,
   },
   table: {
     type: "table",
@@ -151,8 +244,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 0,
     hasDoors: false,
+    drawerCount: 0,
     toeKickHeight: 0,
     toeKickInset: 0,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
   chair: {
     type: "chair",
@@ -165,8 +261,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 0,
     hasDoors: false,
+    drawerCount: 0,
     toeKickHeight: 0,
     toeKickInset: 0,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
   sofa: {
     type: "sofa",
@@ -179,8 +278,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 0,
     hasDoors: false,
+    drawerCount: 0,
     toeKickHeight: 0,
     toeKickInset: 0,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
   mirror: {
     type: "mirror",
@@ -193,8 +295,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     },
     shelfCount: 0,
     hasDoors: false,
+    drawerCount: 0,
     toeKickHeight: 0,
     toeKickInset: 0,
+    leftEndPanel: false,
+    rightEndPanel: false,
   },
 };
 
@@ -222,7 +327,16 @@ export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
 }
 
 export function isStorageType(type: CabinetType): boolean {
-  return type === "base" || type === "wall" || type === "tall" || type === "almirah";
+  return (
+    type === "base" ||
+    type === "wall" ||
+    type === "tall" ||
+    type === "drawer" ||
+    type === "sink" ||
+    type === "corner" ||
+    type === "open-shelf" ||
+    type === "almirah"
+  );
 }
 
 export function supportsShelves(type: CabinetType): boolean {
@@ -230,15 +344,41 @@ export function supportsShelves(type: CabinetType): boolean {
 }
 
 export function supportsDoors(type: CabinetType): boolean {
-  return isStorageType(type);
+  return type !== "drawer" && type !== "open-shelf" && isStorageType(type);
+}
+
+export function supportsDrawers(type: CabinetType): boolean {
+  return type === "drawer";
 }
 
 export function supportsToeKick(type: CabinetType): boolean {
-  return type === "base" || type === "tall" || type === "almirah";
+  return (
+    type === "base" ||
+    type === "tall" ||
+    type === "drawer" ||
+    type === "sink" ||
+    type === "corner" ||
+    type === "open-shelf" ||
+    type === "almirah"
+  );
 }
 
 export function supportsWallPlacement(type: CabinetType): boolean {
   return type === "wall" || type === "mirror";
+}
+
+export function supportsEndPanels(type: CabinetType): boolean {
+  return isStorageType(type);
+}
+
+export function supportsCountertop(type: CabinetType): boolean {
+  return (
+    type === "base" ||
+    type === "drawer" ||
+    type === "sink" ||
+    type === "corner" ||
+    type === "open-shelf"
+  );
 }
 
 export function millimetresToMetres(valueInMillimetres: number): number {
@@ -335,6 +475,17 @@ export function clampShelfCount(shelfCount: number): number {
   );
 }
 
+export function clampDrawerCount(drawerCount: number): number {
+  return Math.round(
+    clampWithinRange(
+      drawerCount,
+      CABINET_DRAWER_MIN,
+      CABINET_DRAWER_MAX,
+      0,
+    ),
+  );
+}
+
 export function clampToeKickHeight(toeKickHeight: number): number {
   return clampWithinRange(
     toeKickHeight,
@@ -367,18 +518,31 @@ export function clampCabinetDimensions(
 }
 
 export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
-  const safeDimensions = clampCabinetDimensions(config.dimensions);
-  const hasToeKick = supportsToeKick(config.type);
-  const hasShelves = supportsShelves(config.type);
-  const hasDoors = supportsDoors(config.type);
+  const preset = cabinetTypePresets[config.type] ?? defaultCabinetConfig;
+  const merged = {
+    ...preset,
+    ...config,
+    dimensions: {
+      ...preset.dimensions,
+      ...config.dimensions,
+    },
+  };
+  const safeDimensions = clampCabinetDimensions(merged.dimensions);
+  const hasToeKick = supportsToeKick(merged.type);
+  const hasShelves = supportsShelves(merged.type);
+  const hasDoors = supportsDoors(merged.type);
+  const hasDrawers = supportsDrawers(merged.type);
 
   return {
-    ...config,
+    ...merged,
     dimensions: safeDimensions,
-    shelfCount: hasShelves ? clampShelfCount(config.shelfCount) : 0,
-    hasDoors: hasDoors ? Boolean(config.hasDoors) : false,
-    toeKickHeight: hasToeKick ? clampToeKickHeight(config.toeKickHeight) : 0,
-    toeKickInset: hasToeKick ? clampToeKickInset(config.toeKickInset) : 0,
+    shelfCount: hasShelves ? clampShelfCount(merged.shelfCount) : 0,
+    hasDoors: hasDoors ? Boolean(merged.hasDoors) : false,
+    drawerCount: hasDrawers ? clampDrawerCount(merged.drawerCount ?? 0) : 0,
+    toeKickHeight: hasToeKick ? clampToeKickHeight(merged.toeKickHeight) : 0,
+    toeKickInset: hasToeKick ? clampToeKickInset(merged.toeKickInset) : 0,
+    leftEndPanel: Boolean(merged.leftEndPanel),
+    rightEndPanel: Boolean(merged.rightEndPanel),
   };
 }
 
