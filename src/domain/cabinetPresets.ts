@@ -2,6 +2,7 @@ import type { CabinetConfig, CabinetType } from "./cabinetDimensions";
 import { getDefaultCabinetConfig } from "./cabinetDimensions";
 import {
   createDefaultComposition,
+  normalizeComposition,
   syncFlatFieldsFromComposition,
   type CabinetComposition,
 } from "./cabinetComposition";
@@ -35,7 +36,8 @@ function withComposition(
     composition: base.composition,
   };
   const defaults = createDefaultComposition(family, seed);
-  const composition: CabinetComposition = {
+  const widthMm = seed.dimensions.width;
+  const compositionSeed: CabinetComposition = {
     ...defaults,
     ...overrides.composition,
     shelves: {
@@ -67,7 +69,14 @@ function withComposition(
       ...(overrides.composition?.endPanels ?? {}),
     },
     openings: overrides.composition?.openings ?? defaults.openings,
+    // When a preset supplies opening style / door-drawer intent, migrate unless
+    // an explicit openingStructure is provided.
+    openingStructure: overrides.composition
+      ? overrides.composition.openingStructure
+      : defaults.openingStructure,
   };
+
+  const composition = normalizeComposition(family, compositionSeed, widthMm);
 
   return {
     ...seed,

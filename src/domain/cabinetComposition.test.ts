@@ -15,6 +15,7 @@ import {
 } from "./cabinetEditorSchema";
 import { getEngineeredCabinetPreset, listEngineeredPresetsForFamily } from "./cabinetPresets";
 import { createCabinetConstruction } from "./cabinetConstruction";
+import { collectOpeningLeaves } from "./cabinetOpeningStructure";
 
 describe("cabinet composition", () => {
   it("creates family-specific default composition", () => {
@@ -97,6 +98,11 @@ describe("cabinet editor schema", () => {
     expect(applied.drawerCount).toBe(1);
     expect(applied.hasDoors).toBe(true);
     expect(getCabinetEditorValue(applied, "openingStyle")).toBe("mixed");
+    expect(applied.composition?.openingStructure).toBeDefined();
+    expect(
+      applied.composition?.openingStructure &&
+        collectOpeningLeaves(applied.composition.openingStructure.root).length,
+    ).toBeGreaterThan(1);
 
     const withShelves = applyCabinetEditorChange(applied, "shelfCount", 3);
     expect(withShelves.shelfCount).toBe(3);
