@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { getDefaultCabinetConfig, type CabinetProject } from "./cabinetDimensions";
+import { getDefaultCabinetConfig, type CabinetInstance, type CabinetProject } from "./cabinetDimensions";
+import type { CabinetRun } from "./cabinetLibrary";
+import {
+  collectElevationVerticalChain,
+  collectPlanDepthChain,
+  collectPlanDimensionChain,
+  collectRunDimensionChain,
+  snapElevationHeight,
+  snapPlanPlacement,
+} from "./placementSnap";
 import { createTechnicalView } from "./technicalViews";
 import type { RoomConfig } from "./roomModel";
 
@@ -45,6 +54,12 @@ const project: CabinetProject = {
       config: getDefaultCabinetConfig("base"),
     },
     {
+      id: "base-2",
+      name: "Base Cabinet B",
+      placement: { x: 0, y: 0, z: -1720, rotation: 0, attachment: "floor" },
+      config: getDefaultCabinetConfig("base"),
+    },
+    {
       id: "wall-1",
       name: "Wall Cabinet",
       placement: { x: 600, y: 1400, z: -1840, rotation: 0, attachment: "back-wall" },
@@ -53,12 +68,118 @@ const project: CabinetProject = {
   ],
 };
 
+function makeCabinet(
+  id: string,
+  x: number,
+  z: number,
+  width = 900,
+): CabinetInstance {
+  const config = getDefaultCabinetConfig("base");
+  return {
+    id,
+    name: id,
+    placement: { x, y: 0, z, rotation: 0, attachment: "floor" },
+    config: {
+      ...config,
+      dimensions: { ...config.dimensions, width },
+    },
+  };
+}
+
+describe("placement snap", () => {
+  it("snaps cabinet centers toward neighboring edges", () => {
+    const moving = makeCabinet("a", 0, 0);
+    const neighbor = makeCabinet("b", 950, 0);
+    const result = snapPlanPlacement({
+      cabinet: moving,
+      others: [neighbor],
+      proposed: {
+        x: 40,
+        y: 0,
+        z: 12,
+        rotation: 0,
+        attachment: "floor",
+      },
+      roomWidthMm: 6000,
+      roomDepthMm: 4000,
+      gridSizeMm: 50,
+    });
+
+    expect(result.placement.x % 50).toBe(0);
+    expect(result.placement.z % 50).toBe(0);
+    expect(result.guides.length).toBeGreaterThan(0);
+  });
+
+  it("builds plan width and depth dimension chains", () => {
+    const cabinets = [makeCabinet("a", -900, -500), makeCabinet("b", 900, 500)];
+    const widthChain = collectPlanDimensionChain(cabinets, 6000);
+    const depthChain = collectPlanDepthChain(cabinets, 4000);
+
+    expect(widthChain.positions[0]).toBe(-3000);
+    expect(widthChain.positions[widthChain.positions.length - 1]).toBe(3000);
+    expect(widthChain.labels.length).toBe(widthChain.positions.length - 1);
+    expect(depthChain.positions[0]).toBe(-2000);
+    expect(depthChain.positions[depthChain.positions.length - 1]).toBe(2000);
+  });
+
+  it("builds run and elevation vertical chains", () => {
+    const cabinets = [makeCabinet("a", -900, 0), makeCabinet("b", 0, 0)];
+    const run: CabinetRun = {
+      id: "run-1",
+      side: "back-wall",
+      axis: "x",
+      cabinetIds: ["a", "b"],
+      cornerTransition: false,
+    };
+    const runChain = collectRunDimensionChain(run, cabinets);
+    expect(runChain).not.toBeNull();
+    expect(runChain!.labels.length).toBeGreaterThan(0);
+
+    const vertical = collectElevationVerticalChain(
+      [
+        {
+          ...makeCabinet("wall", 0, 0),
+          placement: { x: 0, y: 1400, z: 0, rotation: 0, attachment: "back-wall" },
+          config: getDefaultCabinetConfig("wall"),
+        },
+      ],
+      2800,
+    );
+    expect(vertical.positions).toContain(0);
+    expect(vertical.positions).toContain(2800);
+    expect(vertical.positions).toContain(1400);
+  });
+
+  it("snaps elevation heights to neighbors and grid", () => {
+    const wall = getDefaultCabinetConfig("wall");
+    const result = snapElevationHeight({
+      proposedY: 1388,
+      heightMm: wall.dimensions.height,
+      others: [
+        {
+          id: "peer",
+          name: "peer",
+          placement: { x: 0, y: 1400, z: 0, rotation: 0, attachment: "back-wall" },
+          config: wall,
+        },
+      ],
+      roomHeightMm: 2800,
+      gridSizeMm: 50,
+      sillHeightsMm: [950],
+    });
+
+    expect(result.y % 50).toBe(0);
+    expect(result.guides.some((guide) => guide.axis === "y")).toBe(true);
+  });
+});
+
 describe("technical view rendering", () => {
   it("renders a top view with labels and room dimensions", () => {
     const result = createTechnicalView(project, room, "top", []);
 
     expect(result.svg).toContain("Base Cabinet");
     expect(result.svg).toContain("6000 mm");
+    expect(result.svg).toContain('class="twod-wall"');
     expect(result.width).toBeGreaterThan(1000);
   });
 
@@ -67,6 +188,7 @@ describe("technical view rendering", () => {
 
     expect(result.svg).toContain("Wall Cabinet");
     expect(result.svg).toContain("2800 mm");
+    expect(result.svg).toContain("twod-cabinet-wall");
   });
 
   it("renders side elevation depth annotations", () => {
@@ -76,7 +198,7 @@ describe("technical view rendering", () => {
     expect(result.height).toBeGreaterThan(700);
   });
 
-  it("highlights selected cabinets in technical views", () => {
+  it("highlights selected cabinets and draws selected dimensions", () => {
     const result = createTechnicalView(project, room, "top", [], {
       selectedCabinetIds: ["base-1"],
       activeCabinetId: "base-1",
@@ -84,17 +206,39 @@ describe("technical view rendering", () => {
 
     expect(result.svg).toContain('data-cabinet-id="base-1"');
     expect(result.svg).toContain("#1d4ed8");
+    expect(result.svg).toContain("twod-dim-selected");
+    expect(result.svg).toContain("twod-selected");
   });
 
-  it("adds wall labels, dimension chains, and print title blocks", () => {
+  it("adds wall labels, dimension chains, run chains, and print title blocks", () => {
     const interactive = createTechnicalView(project, room, "top", [], {
       mode: "interactive",
       showWallLabels: true,
       showDimensionChains: true,
+      runs: [
+        {
+          id: "run-1",
+          side: "back-wall",
+          axis: "x",
+          cabinetIds: ["base-1", "base-2"],
+          cornerTransition: false,
+        },
+      ],
     });
     expect(interactive.svg).toContain("BACK WALL");
     expect(interactive.svg).toContain("LEFT");
+    expect(interactive.svg).toContain("twod-dim");
     expect(interactive.originX).toBeGreaterThan(0);
+
+    const front = createTechnicalView(project, room, "front", [], {
+      mode: "interactive",
+      showDimensionChains: true,
+      showGrid: true,
+      selectedCabinetIds: ["wall-1"],
+      activeCabinetId: "wall-1",
+    });
+    expect(front.svg).toContain("twod-dim-selected");
+    expect(front.svg).toContain("twod-grid");
 
     const printSheet = createTechnicalView(project, room, "front", [], {
       mode: "print",
