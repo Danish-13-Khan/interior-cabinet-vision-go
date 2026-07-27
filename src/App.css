@@ -870,6 +870,32 @@ select {
   background: rgba(250, 235, 235, 0.85);
 }
 
+.parts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.parts-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid rgba(201, 210, 220, 0.55);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.parts-list-item strong {
+  font-size: 0.82rem;
+  color: #243442;
+}
+
+.parts-list-item span {
+  font-size: 0.72rem;
+  color: #667786;
+}
+
 /* ── Sort Controls ── */
 .sort-controls {
   display: flex;

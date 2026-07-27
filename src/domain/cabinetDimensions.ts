@@ -1,3 +1,9 @@
+import {
+  DEFAULT_BUILD_RULES,
+  resolveCabinetMaterialSpec,
+  type CabinetBuildRules,
+} from "./materialSystem";
+
 export type CabinetType =
   | "base"
   | "wall"
@@ -30,6 +36,7 @@ export type CabinetConfig = {
   toeKickInset: number;
   leftEndPanel?: boolean;
   rightEndPanel?: boolean;
+  buildRules?: Partial<CabinetBuildRules>;
 };
 
 export type CabinetPlacement = {
@@ -113,6 +120,10 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 60,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "wood-oak",
+    },
   },
   wall: {
     type: "wall",
@@ -130,6 +141,10 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 0,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "white-matte",
+    },
   },
   tall: {
     type: "tall",
@@ -147,6 +162,10 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 60,
     leftEndPanel: true,
     rightEndPanel: true,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "wood-walnut",
+    },
   },
   drawer: {
     type: "drawer",
@@ -164,6 +183,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 60,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "grey",
+      backPanelType: "grooved",
+    },
   },
   sink: {
     type: "sink",
@@ -181,6 +205,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 60,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "white-matte",
+      backPanelType: "screwed",
+    },
   },
   corner: {
     type: "corner",
@@ -198,6 +227,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 60,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "wood-oak",
+      backPanelType: "grooved",
+    },
   },
   "open-shelf": {
     type: "open-shelf",
@@ -215,6 +249,11 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 60,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "wood-oak",
+      backPanelType: "none",
+    },
   },
   almirah: {
     type: "almirah",
@@ -232,6 +271,10 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 40,
     leftEndPanel: true,
     rightEndPanel: true,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "wood-walnut",
+    },
   },
   table: {
     type: "table",
@@ -249,6 +292,9 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 0,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+    },
   },
   chair: {
     type: "chair",
@@ -266,6 +312,9 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 0,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+    },
   },
   sofa: {
     type: "sofa",
@@ -283,6 +332,9 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 0,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+    },
   },
   mirror: {
     type: "mirror",
@@ -300,6 +352,10 @@ const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
     toeKickInset: 0,
     leftEndPanel: false,
     rightEndPanel: false,
+    buildRules: {
+      ...DEFAULT_BUILD_RULES,
+      finishId: "white-matte",
+    },
   },
 };
 
@@ -323,6 +379,7 @@ export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
   return {
     ...preset,
     dimensions: { ...preset.dimensions },
+    buildRules: { ...(preset.buildRules ?? DEFAULT_BUILD_RULES) },
   };
 }
 
@@ -526,7 +583,19 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
       ...preset.dimensions,
       ...config.dimensions,
     },
+    buildRules: {
+      ...(preset.buildRules ?? DEFAULT_BUILD_RULES),
+      ...(config.buildRules ?? {}),
+    },
   };
+  merged.dimensions = {
+    ...merged.dimensions,
+    boardThickness:
+      merged.buildRules.carcassThicknessMm ?? merged.dimensions.boardThickness,
+    backPanelThickness:
+      merged.buildRules.backPanelThicknessMm ?? merged.dimensions.backPanelThickness,
+  };
+  const resolvedMaterialSpec = resolveCabinetMaterialSpec(merged.buildRules);
   const safeDimensions = clampCabinetDimensions(merged.dimensions);
   const hasToeKick = supportsToeKick(merged.type);
   const hasShelves = supportsShelves(merged.type);
@@ -543,6 +612,17 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
     toeKickInset: hasToeKick ? clampToeKickInset(merged.toeKickInset) : 0,
     leftEndPanel: Boolean(merged.leftEndPanel),
     rightEndPanel: Boolean(merged.rightEndPanel),
+    buildRules: {
+      ...merged.buildRules,
+      carcassThicknessMm: resolvedMaterialSpec.carcassMaterial.thicknessMm,
+      backPanelThicknessMm: resolvedMaterialSpec.backMaterial.thicknessMm,
+      shelfThicknessMm: resolvedMaterialSpec.shelfMaterial.thicknessMm,
+      drawerBoxThicknessMm: resolvedMaterialSpec.drawerBoxMaterial.thicknessMm,
+      finishId: resolvedMaterialSpec.doorMaterial.finishId,
+      edgeBandingId: resolvedMaterialSpec.carcassMaterial.edgeBandingId,
+      grainDirection: resolvedMaterialSpec.carcassMaterial.grainDirection,
+      backPanelType: resolvedMaterialSpec.backMaterial.backPanelType,
+    },
   };
 }
 

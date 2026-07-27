@@ -53,6 +53,7 @@ import {
   type RoomConfig,
 } from "./domain/roomModel";
 import { exportProjectPdf } from "./domain/pdfExport";
+import { createCabinetConstruction } from "./domain/cabinetConstruction";
 import {
   cabinetLibrary,
   createCabinetPlanningWorkflow,
@@ -177,6 +178,10 @@ function App() {
       selectedCabinet
         ? createCabinetDerivedMetrics(selectedCabinet.config)
         : createCabinetDerivedMetrics(defaultCabinetProject.cabinets[0].config),
+    [selectedCabinet],
+  );
+  const selectedConstruction = useMemo(
+    () => (selectedCabinet ? createCabinetConstruction(selectedCabinet.config) : null),
     [selectedCabinet],
   );
   const roomBounds = useMemo(
@@ -1045,6 +1050,7 @@ function App() {
           cabinetCutlistItems={cabinetCutlistItems}
           cabinets={project.cabinets}
           config={selectedConfig}
+          constructionParts={selectedConstruction?.parts ?? []}
           derivedMetrics={derivedMetrics}
           cutlistItems={cutlistItems}
           projectFilePath={projectFilePath}

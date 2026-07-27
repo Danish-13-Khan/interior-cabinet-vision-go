@@ -1,266 +1,407 @@
-// ── Cabinet Construction Details ────────────────────────────
-// Augments the base CabinetConfig with workshop-level construction options.
+import type { CabinetConfig, CabinetDimensions } from "./cabinetDimensions";
+import { clampCabinetConfig, supportsDoors, supportsDrawers, supportsEndPanels, supportsShelves } from "./cabinetDimensions";
+import {
+  BACK_PANEL_RULES,
+  DEFAULT_BUILD_RULES,
+  resolveCabinetMaterialSpec,
+  type CabinetBuildRules,
+  type GrainDirection,
+} from "./materialSystem";
 
-import type { CabinetDimensions } from "./cabinetDimensions";
+export type PartCategory =
+  | "Side"
+  | "TopBottom"
+  | "Back"
+  | "Shelf"
+  | "Divider"
+  | "Door"
+  | "DrawerBox"
+  | "DrawerFront"
+  | "EndPanel"
+  | "ToeKick"
+  | "Stretcher";
 
-// ── Component Types ─────────────────────────────────────────
-
-export type SidePanel = {
-  label: string;       // e.g. "Left Side Panel"
-  thicknessMm: number; // board thickness for this panel
-  widthMm: number;     // = cabinet depth
-  heightMm: number;    // = cabinet height
-  grain: GrainDirection;
-};
-
-export type BackPanel = {
+export type CabinetPart = {
+  id: string;
   label: string;
-  thicknessMm: number;
-  widthMm: number;    // = internal width
-  heightMm: number;   // = internal height (between top/bottom)
-  grain: GrainDirection;
-  rabbeted: boolean;  // inset into side panels
-};
-
-export type Shelf = {
-  label: string;
-  thicknessMm: number;
-  widthMm: number;    // internal width
-  depthMm: number;    // internal depth - back panel
-  count: number;      // number of identical shelves
-  grain: GrainDirection;
-  adjustable: boolean;
-};
-
-export type Partition = {
-  label: string;
-  thicknessMm: number;
-  depthMm: number;
-  heightMm: number;   // internal height
-  offsetFromLeftMm: number;
-  grain: GrainDirection;
-};
-
-export type DrawerBox = {
-  label: string;
-  frontThicknessMm: number;
-  sideThicknessMm: number;
-  bottomThicknessMm: number;
+  category: PartCategory;
+  quantity: number;
+  lengthMm: number;
   widthMm: number;
-  depthMm: number;
-  heightMm: number;
-  slideType: "side-mount" | "under-mount";
-  count: number;
-  grain: GrainDirection;
-};
-
-export type DrawerFront = {
-  label: string;
   thicknessMm: number;
-  widthMm: number;
-  heightMm: number;
-  overlay: "full-overlay" | "inset" | "half-overlay";
-  count: number;
   grain: GrainDirection;
+  materialLabel: string;
+  finishLabel: string;
+  edgeBandingLabel: string;
+  notes?: string;
 };
-
-export type FillerPanel = {
-  label: string;
-  thicknessMm: number;
-  widthMm: number;
-  heightMm: number;
-  grain: GrainDirection;
-};
-
-export type EndPanel = {
-  label: string;
-  thicknessMm: number;
-  widthMm: number;    // = depth
-  heightMm: number;   // = height
-  side: "left" | "right";
-  grain: GrainDirection;
-};
-
-export type Stretcher = {
-  label: string;
-  thicknessMm: number;
-  widthMm: number;    // internal width
-  depthMm: number;    // ~80mm typical
-  count: number;      // typically 2 (top + bottom back)
-  grain: GrainDirection;
-};
-
-// ── Construction Style ───────────────────────────────────────
-
-export type ConstructionStyle = "frameless" | "face-frame";
-
-export type FaceFrameConfig = {
-  enabled: boolean;
-  stileWidthMm: number;
-  railWidthMm: number;
-  thicknessMm: number;
-};
-
-// ── Grain Direction ──────────────────────────────────────────
-
-export type GrainDirection = "vertical" | "horizontal" | "none";
-
-// ── Full Construction Configuration ──────────────────────────
 
 export type CabinetConstruction = {
-  style: ConstructionStyle;
-  faceFrame?: FaceFrameConfig;
-
-  sides: SidePanel[];          // 2 typically
-  back: BackPanel | null;
-  topBottomThicknessMm: number; // shared thickness for top+ bottom panels
-
-  shelves: Shelf[];
-  partitions: Partition[];
-  drawers: DrawerBox[];
-  drawerFronts: DrawerFront[];
-  fillers: FillerPanel[];
-  endPanels: EndPanel[];
-  stretchers: Stretcher[];
-  toeKickHeightMm: number;
-  toeKickInsetMm: number;
-
-  hasDoors: boolean;
-  doorOverlay: "full-overlay" | "inset" | "half-overlay";
-  doorWidthMm: number;
-  doorHeightMm: number;
+  buildRules: CabinetBuildRules;
+  parts: CabinetPart[];
 };
 
-// ── Default Construction ─────────────────────────────────────
-
-export function defaultConstruction(
-  outerDims: CabinetDimensions,
-): CabinetConstruction {
-  const bw = outerDims.boardThickness;
-  const bpH = outerDims.backPanelThickness;
-  const iw = outerDims.width - bw * 2;
-  const ih = outerDims.height - bw * 2 - 100; // subtract toe kick
-
+function createPart(
+  id: string,
+  label: string,
+  category: PartCategory,
+  quantity: number,
+  lengthMm: number,
+  widthMm: number,
+  thicknessMm: number,
+  grain: GrainDirection,
+  materialLabel: string,
+  finishLabel: string,
+  edgeBandingLabel: string,
+  notes?: string,
+): CabinetPart {
   return {
-    style: "frameless",
-    sides: [
-      { label: "Left Side", thicknessMm: bw, widthMm: outerDims.depth, heightMm: outerDims.height, grain: "vertical" },
-      { label: "Right Side", thicknessMm: bw, widthMm: outerDims.depth, heightMm: outerDims.height, grain: "vertical" },
-    ],
-    back: { label: "Back Panel", thicknessMm: bpH, widthMm: iw, heightMm: ih, grain: "horizontal", rabbeted: true },
-    topBottomThicknessMm: bw,
-    shelves: [],
-    partitions: [],
-    drawers: [],
-    drawerFronts: [],
-    fillers: [],
-    endPanels: [],
-    stretchers: [],
-    toeKickHeightMm: 100,
-    toeKickInsetMm: 60,
-    hasDoors: false,
-    doorOverlay: "full-overlay",
-    doorWidthMm: iw / 2 - 2,
-    doorHeightMm: ih,
+    id,
+    label,
+    category,
+    quantity,
+    lengthMm: Math.max(0, Math.round(lengthMm)),
+    widthMm: Math.max(0, Math.round(widthMm)),
+    thicknessMm: Math.max(1, Math.round(thicknessMm)),
+    grain,
+    materialLabel,
+    finishLabel,
+    edgeBandingLabel,
+    notes,
   };
 }
 
-// ── Helpers ──────────────────────────────────────────────────
+function getInnerMeasurements(dimensions: CabinetDimensions) {
+  const innerWidth = dimensions.width - dimensions.boardThickness * 2;
+  const innerHeight = dimensions.height - dimensions.boardThickness * 2;
+  const innerDepth = dimensions.depth - dimensions.backPanelThickness;
 
-export function getConstructionFlatParts(cc: CabinetConstruction): {
-  label: string; key: string; qty: number; lengthMm: number; widthMm: number;
-  thicknessMm: number; grain: GrainDirection; category: string;
-}[] {
-  const parts: ReturnType<typeof getConstructionFlatParts> = [];
+  return {
+    innerWidth,
+    innerHeight,
+    innerDepth,
+  };
+}
 
-  // Sides
-  for (const s of cc.sides) {
-    parts.push({ label: s.label, key: s.label, qty: 1, lengthMm: s.heightMm, widthMm: s.widthMm, thicknessMm: s.thicknessMm, grain: s.grain, category: "Side" });
-  }
+export function createCabinetConstruction(config: CabinetConfig): CabinetConstruction {
+  const safeConfig = clampCabinetConfig(config);
+  const buildRules: CabinetBuildRules = {
+    ...DEFAULT_BUILD_RULES,
+    ...(safeConfig.buildRules ?? {}),
+  };
+  const materialSpec = resolveCabinetMaterialSpec(buildRules);
+  const { dimensions } = safeConfig;
+  const { innerWidth, innerHeight, innerDepth } = getInnerMeasurements(dimensions);
+  const backRule = BACK_PANEL_RULES[buildRules.backPanelType];
+  const rebateMm = buildRules.backPanelType === "grooved" ? backRule.rebateMm : 0;
+  const backWidth = buildRules.backPanelType === "none" ? 0 : innerWidth + rebateMm;
+  const backHeight = buildRules.backPanelType === "none"
+    ? 0
+    : innerHeight - (safeConfig.toeKickHeight > 0 ? safeConfig.toeKickHeight : 0) + rebateMm;
+  const usableShelfDepth = innerDepth - 30;
+  const parts: CabinetPart[] = [];
 
-  // Top + Bottom (shared thickness)
-  ({}) // dummy usage
-  const outer = cc.sides[0]; // reference
-  const ih = outer ? outer.heightMm - cc.topBottomThicknessMm * 2 - cc.toeKickHeightMm : 0;
   parts.push(
-    { label: "Top Panel", key: "top", qty: 1, lengthMm: outer ? ih + cc.topBottomThicknessMm : 0, widthMm: outer ? outer.widthMm : 0, thicknessMm: cc.topBottomThicknessMm, grain: "horizontal", category: "Top/Bottom" },
-    { label: "Bottom Panel", key: "bottom", qty: 1, lengthMm: outer ? ih + cc.topBottomThicknessMm : 0, widthMm: outer ? outer.widthMm : 0, thicknessMm: cc.topBottomThicknessMm, grain: "horizontal", category: "Top/Bottom" },
+    createPart(
+      "left-side",
+      "Left Side Panel",
+      "Side",
+      1,
+      dimensions.height,
+      dimensions.depth,
+      buildRules.carcassThicknessMm,
+      buildRules.grainDirection === "none" ? "lengthwise" : buildRules.grainDirection,
+      materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+      materialSpec.carcassMaterial.finishId,
+      materialSpec.carcassMaterial.edgeBandingId,
+    ),
+    createPart(
+      "right-side",
+      "Right Side Panel",
+      "Side",
+      1,
+      dimensions.height,
+      dimensions.depth,
+      buildRules.carcassThicknessMm,
+      buildRules.grainDirection === "none" ? "lengthwise" : buildRules.grainDirection,
+      materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+      materialSpec.carcassMaterial.finishId,
+      materialSpec.carcassMaterial.edgeBandingId,
+    ),
+    createPart(
+      "top",
+      safeConfig.type === "sink" ? "Front Rail" : "Top Panel",
+      "TopBottom",
+      1,
+      innerWidth,
+      safeConfig.type === "sink" ? Math.min(dimensions.depth * 0.16, 90) : dimensions.depth,
+      buildRules.carcassThicknessMm,
+      buildRules.grainDirection,
+      materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+      materialSpec.carcassMaterial.finishId,
+      materialSpec.carcassMaterial.edgeBandingId,
+      safeConfig.type === "sink" ? "Sink cabinet front rail" : undefined,
+    ),
+    createPart(
+      "bottom",
+      "Bottom Panel",
+      "TopBottom",
+      1,
+      innerWidth,
+      dimensions.depth,
+      buildRules.carcassThicknessMm,
+      buildRules.grainDirection,
+      materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+      materialSpec.carcassMaterial.finishId,
+      materialSpec.carcassMaterial.edgeBandingId,
+    ),
   );
 
-  // Back
-  if (cc.back) {
-    parts.push({ label: cc.back.label, key: "back", qty: 1, lengthMm: cc.back.heightMm, widthMm: cc.back.widthMm, thicknessMm: cc.back.thicknessMm, grain: cc.back.grain, category: "Back" });
-  }
-
-  // Shelves
-  for (const s of cc.shelves) {
-    parts.push({ label: s.label, key: s.label, qty: s.count, lengthMm: s.widthMm, widthMm: s.depthMm, thicknessMm: s.thicknessMm, grain: s.grain, category: "Shelf" });
-  }
-
-  // Partitions
-  for (const p of cc.partitions) {
-    parts.push({ label: p.label, key: p.label, qty: 1, lengthMm: p.heightMm, widthMm: p.depthMm, thicknessMm: p.thicknessMm, grain: p.grain, category: "Partition" });
-  }
-
-  // Drawer boxes
-  for (const d of cc.drawers) {
+  if (safeConfig.type === "sink") {
     parts.push(
-      { label: `${d.label} Front`, key: `${d.label}-front`, qty: d.count, lengthMm: d.heightMm, widthMm: d.widthMm, thicknessMm: d.frontThicknessMm, grain: d.grain, category: "Drawer" },
-      { label: `${d.label} Side`, key: `${d.label}-side`, qty: d.count * 2, lengthMm: d.depthMm, widthMm: d.heightMm, thicknessMm: d.sideThicknessMm, grain: "horizontal", category: "Drawer" },
-      { label: `${d.label} Bottom`, key: `${d.label}-bottom`, qty: d.count, lengthMm: d.widthMm, widthMm: d.depthMm, thicknessMm: d.bottomThicknessMm, grain: "horizontal", category: "Drawer" },
+      createPart(
+        "back-rail",
+        "Back Rail",
+        "Stretcher",
+        1,
+        innerWidth,
+        Math.min(dimensions.depth * 0.16, 90),
+        buildRules.carcassThicknessMm,
+        buildRules.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+      ),
     );
   }
 
-  // Drawer fronts
-  for (const df of cc.drawerFronts) {
-    parts.push({ label: df.label, key: df.label, qty: df.count, lengthMm: df.heightMm, widthMm: df.widthMm, thicknessMm: df.thicknessMm, grain: df.grain, category: "DrawerFront" });
-  }
-
-  // Fillers
-  for (const f of cc.fillers) {
-    parts.push({ label: f.label, key: f.label, qty: 1, lengthMm: f.heightMm, widthMm: f.widthMm, thicknessMm: f.thicknessMm, grain: f.grain, category: "Filler" });
-  }
-
-  // End panels
-  for (const ep of cc.endPanels) {
-    parts.push({ label: ep.label, key: ep.label, qty: 1, lengthMm: ep.heightMm, widthMm: ep.widthMm, thicknessMm: ep.thicknessMm, grain: ep.grain, category: "EndPanel" });
-  }
-
-  // Stretchers
-  for (const st of cc.stretchers) {
-    parts.push({ label: st.label, key: st.label, qty: st.count, lengthMm: st.widthMm, widthMm: st.depthMm, thicknessMm: st.thicknessMm, grain: st.grain, category: "Stretcher" });
-  }
-
-  // Doors
-  if (cc.hasDoors) {
+  if (buildRules.backPanelType !== "none") {
     parts.push(
-      { label: "Left Door", key: "left-door", qty: 1, lengthMm: cc.doorHeightMm, widthMm: cc.doorWidthMm, thicknessMm: cc.topBottomThicknessMm, grain: "vertical", category: "Door" },
-      { label: "Right Door", key: "right-door", qty: 1, lengthMm: cc.doorHeightMm, widthMm: cc.doorWidthMm, thicknessMm: cc.topBottomThicknessMm, grain: "vertical", category: "Door" },
+      createPart(
+        "back",
+        "Back Panel",
+        "Back",
+        1,
+        backHeight,
+        backWidth,
+        buildRules.backPanelThicknessMm,
+        materialSpec.backMaterial.grainDirection,
+        materialSpec.backMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.backMaterial.finishId,
+        materialSpec.backMaterial.edgeBandingId,
+        backRule.description,
+      ),
     );
   }
 
-  // Toe Kick
-  if (cc.toeKickHeightMm > 0) {
-    const tw = outer ? outer.widthMm - cc.sides[0].thicknessMm * 2 : 0;
-    parts.push({ label: "Toe Kick", key: "toe-kick", qty: 1, lengthMm: tw, widthMm: cc.toeKickHeightMm, thicknessMm: cc.topBottomThicknessMm, grain: "horizontal", category: "ToeKick" });
-  }
-
-  // Face frame parts
-  if (cc.faceFrame?.enabled) {
-    const ff = cc.faceFrame;
-    const stileH = outer ? outer.heightMm - cc.toeKickHeightMm : 0;
+  if (supportsShelves(safeConfig.type) && safeConfig.shelfCount > 0) {
     parts.push(
-      { label: "Left Stile", key: "left-stile", qty: 1, lengthMm: stileH, widthMm: ff.stileWidthMm, thicknessMm: ff.thicknessMm, grain: "vertical", category: "FaceFrame" },
-      { label: "Right Stile", key: "right-stile", qty: 1, lengthMm: stileH, widthMm: ff.stileWidthMm, thicknessMm: ff.thicknessMm, grain: "vertical", category: "FaceFrame" },
+      createPart(
+        "shelf",
+        "Adjustable Shelf",
+        "Shelf",
+        safeConfig.shelfCount,
+        innerWidth,
+        usableShelfDepth,
+        buildRules.shelfThicknessMm,
+        materialSpec.shelfMaterial.grainDirection,
+        materialSpec.shelfMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.shelfMaterial.finishId,
+        materialSpec.shelfMaterial.edgeBandingId,
+      ),
     );
-    if (ff.railWidthMm > 0) {
-      const rw = outer ? outer.widthMm - ff.stileWidthMm * 2 : 0;
-      parts.push(
-        { label: "Top Rail", key: "top-rail", qty: 1, lengthMm: rw, widthMm: ff.railWidthMm, thicknessMm: ff.thicknessMm, grain: "horizontal", category: "FaceFrame" },
-        { label: "Bottom Rail", key: "bottom-rail", qty: 1, lengthMm: rw, widthMm: ff.railWidthMm, thicknessMm: ff.thicknessMm, grain: "horizontal", category: "FaceFrame" },
-      );
-    }
   }
 
-  return parts;
+  if (safeConfig.type === "corner") {
+    parts.push(
+      createPart(
+        "corner-divider",
+        "Corner Divider",
+        "Divider",
+        1,
+        innerHeight - safeConfig.toeKickHeight,
+        dimensions.depth * 0.45,
+        buildRules.carcassThicknessMm,
+        buildRules.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+      ),
+    );
+  }
+
+  if (supportsDoors(safeConfig.type) && safeConfig.hasDoors) {
+    const doorQty = safeConfig.dimensions.width < 600 ? 1 : 2;
+    const doorWidth = doorQty === 1
+      ? safeConfig.dimensions.width - 4
+      : (safeConfig.dimensions.width - 12) / 2;
+    const doorHeight = safeConfig.dimensions.height - safeConfig.toeKickHeight - 8;
+    parts.push(
+      createPart(
+        "door",
+        "Door",
+        "Door",
+        doorQty,
+        doorHeight,
+        doorWidth,
+        buildRules.carcassThicknessMm,
+        materialSpec.doorMaterial.grainDirection,
+        materialSpec.doorMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.doorMaterial.finishId,
+        materialSpec.doorMaterial.edgeBandingId,
+      ),
+    );
+  }
+
+  if (supportsDrawers(safeConfig.type) && (safeConfig.drawerCount ?? 0) > 0) {
+    const drawerCount = safeConfig.drawerCount ?? 0;
+    const drawerFrontHeight = (safeConfig.dimensions.height - safeConfig.toeKickHeight - 8 - (drawerCount - 1) * 4) / drawerCount;
+    const drawerInnerWidth = innerWidth - 26;
+    const drawerDepth = Math.max(250, innerDepth - 20);
+
+    parts.push(
+      createPart(
+        "drawer-front",
+        "Drawer Front",
+        "DrawerFront",
+        drawerCount,
+        drawerFrontHeight,
+        safeConfig.dimensions.width - 8,
+        buildRules.carcassThicknessMm,
+        materialSpec.doorMaterial.grainDirection,
+        materialSpec.doorMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.doorMaterial.finishId,
+        materialSpec.doorMaterial.edgeBandingId,
+      ),
+      createPart(
+        "drawer-side",
+        "Drawer Side",
+        "DrawerBox",
+        drawerCount * 2,
+        drawerDepth,
+        140,
+        buildRules.drawerBoxThicknessMm,
+        materialSpec.drawerBoxMaterial.grainDirection,
+        materialSpec.drawerBoxMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.drawerBoxMaterial.finishId,
+        materialSpec.drawerBoxMaterial.edgeBandingId,
+      ),
+      createPart(
+        "drawer-front-back",
+        "Drawer Front/Back",
+        "DrawerBox",
+        drawerCount * 2,
+        drawerInnerWidth,
+        140,
+        buildRules.drawerBoxThicknessMm,
+        materialSpec.drawerBoxMaterial.grainDirection,
+        materialSpec.drawerBoxMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.drawerBoxMaterial.finishId,
+        materialSpec.drawerBoxMaterial.edgeBandingId,
+      ),
+      createPart(
+        "drawer-bottom",
+        "Drawer Bottom",
+        "DrawerBox",
+        drawerCount,
+        drawerInnerWidth,
+        drawerDepth,
+        Math.min(6, buildRules.drawerBoxThicknessMm),
+        "crosswise",
+        materialSpec.drawerBoxMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.drawerBoxMaterial.finishId,
+        "none",
+      ),
+    );
+  }
+
+  if (supportsEndPanels(safeConfig.type) && safeConfig.leftEndPanel) {
+    parts.push(
+      createPart(
+        "left-end-panel",
+        "Left End Panel",
+        "EndPanel",
+        1,
+        dimensions.height,
+        dimensions.depth,
+        buildRules.carcassThicknessMm,
+        materialSpec.carcassMaterial.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+      ),
+    );
+  }
+
+  if (supportsEndPanels(safeConfig.type) && safeConfig.rightEndPanel) {
+    parts.push(
+      createPart(
+        "right-end-panel",
+        "Right End Panel",
+        "EndPanel",
+        1,
+        dimensions.height,
+        dimensions.depth,
+        buildRules.carcassThicknessMm,
+        materialSpec.carcassMaterial.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+      ),
+    );
+  }
+
+  if (safeConfig.toeKickHeight > 0) {
+    parts.push(
+      createPart(
+        "toe-kick",
+        "Toe Kick",
+        "ToeKick",
+        1,
+        innerWidth,
+        safeConfig.toeKickHeight,
+        buildRules.carcassThicknessMm,
+        "crosswise",
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+      ),
+    );
+  }
+
+  return {
+    buildRules,
+    parts,
+  };
+}
+
+export function defaultConstruction(outerDims: CabinetDimensions): CabinetConstruction {
+  return createCabinetConstruction({
+    type: "base",
+    dimensions: outerDims,
+    shelfCount: 1,
+    hasDoors: true,
+    drawerCount: 0,
+    toeKickHeight: 100,
+    toeKickInset: 60,
+    leftEndPanel: false,
+    rightEndPanel: false,
+  });
+}
+
+export function getConstructionFlatParts(construction: CabinetConstruction) {
+  return construction.parts.map((part) => ({
+    label: part.label,
+    key: part.id,
+    qty: part.quantity,
+    lengthMm: part.lengthMm,
+    widthMm: part.widthMm,
+    thicknessMm: part.thicknessMm,
+    grain: part.grain,
+    category: part.category,
+    material: part.materialLabel,
+    finish: part.finishLabel,
+    edgeBanding: part.edgeBandingLabel,
+    notes: part.notes,
+  }));
 }

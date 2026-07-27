@@ -70,20 +70,28 @@ function partPerimeterMm(lengthMm: number, widthMm: number, edgeBandedSides: num
 
 function countHardware(cabinet: CabinetInstance, construction: CabinetConstruction): number {
   let total = 0;
+  const doorPart = construction.parts.find((part) => part.category === "Door");
+  const drawerFrontPart = construction.parts.find((part) => part.category === "DrawerFront");
+  const shelfPart = construction.parts.find((part) => part.category === "Shelf");
+  const drawerBoxPartCount = construction.parts
+    .filter((part) => part.category === "DrawerBox")
+    .reduce((sum, part) => Math.max(sum, Math.ceil(part.quantity / 2)), 0);
+  const doorCount = doorPart?.quantity ?? 0;
+  const drawerFrontCount = drawerFrontPart?.quantity ?? 0;
+  const shelfCount = shelfPart?.quantity ?? 0;
 
   // Hinges: 2 per door
-  const doorCount = construction.hasDoors ? (cabinet.config.dimensions.width < 600 ? 1 : 2) : 0;
   total += doorCount * 2 * HARDWARE_CATALOG.find((h) => h.id === "hinge-soft")!.costPerUnit;
 
   // Drawer slides: 1 pair per drawer
-  total += construction.drawers.length * HARDWARE_CATALOG.find((h) => h.id === "drawer-slide-soft")!.costPerUnit;
+  total += drawerBoxPartCount * HARDWARE_CATALOG.find((h) => h.id === "drawer-slide-soft")!.costPerUnit;
 
   // Handles: 1 per door + 1 per drawer front
   const handleCost = HARDWARE_CATALOG.find((h) => h.id === "handle-bar")!.costPerUnit;
-  total += (doorCount + construction.drawerFronts.length) * handleCost;
+  total += (doorCount + drawerFrontCount) * handleCost;
 
   // Shelf pins: 4 per shelf
-  total += construction.shelves.length * 4 * HARDWARE_CATALOG.find((h) => h.id === "shelf-pin")!.costPerUnit;
+  total += shelfCount * 4 * HARDWARE_CATALOG.find((h) => h.id === "shelf-pin")!.costPerUnit;
 
   // Connectors: ~8 per cabinet
   total += 8 * HARDWARE_CATALOG.find((h) => h.id === "connector")!.costPerUnit;
@@ -214,4 +222,3 @@ export function calculateProjectCost(
     grandTotal: Math.round(totalMaterial + totalHardware + totalLabour),
   };
 }
-
