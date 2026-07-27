@@ -847,7 +847,13 @@ function App() {
       }
       setProjectStatus("Generating PDF...");
       const screenshot = captureThumbnail();
-      const blob = await exportProjectPdf(project, screenshot, "Cabinet Project");
+      const blob = await exportProjectPdf(
+        project,
+        screenshot,
+        "Cabinet Project",
+        room,
+        planningWorkflow.countertops,
+      );
       const arrayBuf = await blob.arrayBuffer();
       const bytes = new Uint8Array(arrayBuf);
       // Base64-encode for Tauri's string-based IPC
