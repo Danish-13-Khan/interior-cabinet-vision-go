@@ -45,16 +45,18 @@ export type CabinetSceneHandle = {
 type CabinetSceneProps = {
   project: CabinetProject;
   snapSizeMm: number;
+  showGrid?: boolean;
   room?: RoomConfig;
   countertops?: CountertopSegment[];
   fillers?: RunFiller[];
   onCabinetMove: (cabinetId: string, placement: CabinetInstance["placement"]) => boolean;
   onCabinetRotate?: (cabinetId: string, rotation: number) => void;
-  selectedCabinetId: string | null;
+  selectedCabinetIds: string[];
+  activeCabinetId: string | null;
   selectedPanelName: PanelName | null;
   onCabinetResize: (cabinetId: string, dimensions: CabinetInstance["config"]["dimensions"]) => void;
-  onSelectedCabinetChange: (cabinetId: string | null) => void;
-  onSelectedPanelChange: (cabinetId: string | null, name: PanelName | null) => void;
+  onSelectedCabinetChange: (cabinetId: string | null, additive?: boolean) => void;
+  onSelectedPanelChange: (cabinetId: string | null, name: PanelName | null, additive?: boolean) => void;
 };
 
 type CameraControllerProps = {
@@ -817,12 +819,14 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
   {
     project,
     snapSizeMm,
+    showGrid = true,
     room,
     countertops,
     fillers,
     onCabinetMove,
     onCabinetRotate,
-    selectedCabinetId,
+    selectedCabinetIds,
+    activeCabinetId,
     selectedPanelName,
     onCabinetResize,
     onSelectedCabinetChange,
@@ -852,8 +856,8 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
   );
 
   const selectedCabinet = useMemo(
-    () => items.find((item) => item.id === selectedCabinetId) ?? null,
-    [items, selectedCabinetId],
+    () => items.find((item) => item.id === activeCabinetId) ?? null,
+    [items, activeCabinetId],
   );
 
   const handleCanvasReady = useCallback((element: HTMLCanvasElement) => {
@@ -880,7 +884,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
 
   useEffect(() => {
     setFitVersion((prev) => prev + 1);
-  }, [items.length, selectedCabinetId]);
+  }, [items.length, activeCabinetId]);
 
   return (
     <div className="scene-frame">
@@ -944,7 +948,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <CameraController
           items={items}
           roomDimensions={roomDimensions}
-          selectedCabinetId={selectedCabinetId}
+          selectedCabinetId={activeCabinetId}
           viewPreset={viewPreset}
           fitVersion={fitVersion}
           controlsRef={controlsRef}
@@ -952,14 +956,16 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <color attach="background" args={["#f4f6f8"]} />
         <ambientLight intensity={1.1} />
         <directionalLight position={[5.2, 6.5, 4.4]} intensity={1.4} castShadow />
-        <gridHelper
-          args={[
-            millimetresToMetres(Math.max(roomDimensions.widthMm, roomDimensions.depthMm)),
-            Math.max(roomDimensions.widthMm, roomDimensions.depthMm) / snapSizeMm,
-            "#b6c0ca",
-            "#d8dde3",
-          ]}
-        />
+        {showGrid ? (
+          <gridHelper
+            args={[
+              millimetresToMetres(Math.max(roomDimensions.widthMm, roomDimensions.depthMm)),
+              Math.max(roomDimensions.widthMm, roomDimensions.depthMm) / snapSizeMm,
+              "#b6c0ca",
+              "#d8dde3",
+            ]}
+          />
+        ) : null}
         <RoomShell
           dims={roomDimensions}
           doors={room ? room.doors : []}
@@ -969,7 +975,8 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <FillerMeshes fillers={fillers} />
 
         {items.map((cabinet) => {
-          const isSelectedCabinet = cabinet.id === selectedCabinetId;
+          const isSelectedCabinet = selectedCabinetIds.includes(cabinet.id);
+          const isActiveCabinet = cabinet.id === activeCabinetId;
           const groupPosition = getCabinetWorldCenter(cabinet);
 
           return (
@@ -984,24 +991,45 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
                 hoveredPanelName={
                   hovered?.cabinetId === cabinet.id ? hovered.panelName : null
                 }
-                isolatedPanelName={isSelectedCabinet && isolateSelected ? selectedPanelName : null}
-                selectedPanelName={isSelectedCabinet ? selectedPanelName : null}
+                isolatedPanelName={isActiveCabinet && isolateSelected ? selectedPanelName : null}
+                selectedPanelName={isActiveCabinet ? selectedPanelName : null}
                 isCabinetSelected={isSelectedCabinet}
                 onHoverPanel={(cabinetId, name) =>
                   setHovered(name ? { cabinetId, panelName: name } : null)
                 }
                 onSelectPanel={(cabinetId, name) => {
-                  onSelectedCabinetChange(cabinetId);
-                  onSelectedPanelChange(cabinetId, name);
+                  const additive = false;
+                  onSelectedCabinetChange(cabinetId, additive);
+                  onSelectedPanelChange(cabinetId, name, additive);
                 }}
               />
-              {isSelectedCabinet ? <DimensionGuides config={cabinet.config} /> : null}
+              {isActiveCabinet ? <DimensionGuides config={cabinet.config} /> : null}
               {/* Item label */}
               <Html position={[0, cabinet.config.dimensions.height / 2000 + 0.12, 0]} center>
-                <span className={`item-label ${isSelectedCabinet ? "item-label-selected" : ""}`}>
+                <span className={`item-label ${isActiveCabinet ? "item-label-selected" : ""}`}>
                   {cabinet.name}
                 </span>
               </Html>
+              <mesh
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const additive = event.nativeEvent.metaKey || event.nativeEvent.ctrlKey || event.nativeEvent.shiftKey;
+                  onSelectedCabinetChange(cabinet.id, additive);
+                  if (!additive) {
+                    onSelectedPanelChange(cabinet.id, null, false);
+                  }
+                }}
+                visible={false}
+              >
+                <boxGeometry
+                  args={[
+                    cabinet.config.dimensions.width / 1000 + 0.05,
+                    cabinet.config.dimensions.height / 1000 + 0.05,
+                    cabinet.config.dimensions.depth / 1000 + 0.05,
+                  ]}
+                />
+                <meshBasicMaterial transparent opacity={0} />
+              </mesh>
             </group>
           );
         })}
