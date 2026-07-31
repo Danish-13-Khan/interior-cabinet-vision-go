@@ -13,6 +13,7 @@ import { DoorWindowEditor } from "./components/DoorWindowEditor";
 import { ProjectBrowser } from "./components/ProjectBrowser";
 import { TwoDView } from "./components/TwoDView";
 import { ReportCenter } from "./components/ReportCenter";
+import { LibraryRail } from "./components/LibraryRail";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -21,7 +22,6 @@ import {
   clampCabinetProject,
   defaultCabinetProject,
   getCabinetValidationMessages,
-  getDefaultCabinetConfig,
   getFootprintDimensions,
   getWallPlacement,
   normalizeRotationAngle,
@@ -56,7 +56,6 @@ import {
 import { exportProjectPdf } from "./domain/pdfExport";
 import { createCabinetConstruction } from "./domain/cabinetConstruction";
 import {
-  cabinetLibrary,
   createCabinetPlanningWorkflow,
   createRunAlignedPlacements,
 } from "./domain/cabinetLibrary";
@@ -71,6 +70,24 @@ import {
   DEFAULT_COSTING_SETTINGS,
   type CostingSettings,
 } from "./domain/costingSettings";
+import {
+  clampProjectStandards,
+  DEFAULT_PROJECT_STANDARDS,
+} from "./domain/projectStandards";
+import {
+  createConfigFromFamily,
+  createConfigFromLibraryItem,
+} from "./domain/cabinetLibraryCatalog";
+import {
+  createConfigFromTemplate,
+  createProjectFromStarter,
+  createTemplateFromCabinet,
+  loadUserTemplatesFromStorage,
+  removeUserTemplate,
+  saveUserTemplatesToStorage,
+  upsertUserTemplate,
+  type CabinetTemplate,
+} from "./domain/cabinetTemplates";
 
 type SavedProjectBrowserEntry = {
   id: string;
@@ -257,6 +274,9 @@ function App() {
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
   const [isShortcutSheetOpen, setIsShortcutSheetOpen] = useState(false);
+  const [userTemplates, setUserTemplates] = useState<CabinetTemplate[]>(() =>
+    loadUserTemplatesFromStorage(),
+  );
 
   const selectedCabinet =
     project.cabinets.find((cabinet) => cabinet.id === activeCabinetId) ?? null;
@@ -275,8 +295,10 @@ function App() {
       showGrid: true,
       autoSaveToBrowser: true,
       costing: DEFAULT_COSTING_SETTINGS,
+      standards: DEFAULT_PROJECT_STANDARDS,
     };
   const costingSettings = clampCostingSettings(projectPreferences.costing);
+  const projectStandards = clampProjectStandards(projectPreferences.standards);
   const layers = project.layers ?? [createDefaultLayer()];
   const groups = project.groups ?? [];
   const canUndo = historyPastRef.current.length > 0;
@@ -947,11 +969,9 @@ function App() {
     return true;
   }
 
-  function handleAddCabinet(type: CabinetType = "base") {
-    const config = getDefaultCabinetConfig(type);
+  function placeNewCabinet(config: CabinetConfig, nameHint: string) {
+    const type = config.type;
     const defaultLayerId = layers[0]?.id ?? "layer-default";
-
-    // Try up to 5 placement offsets to avoid collision
     const tmpCab: CabinetInstance = {
       id: createCabinetId(),
       name: createItemName(type, project.cabinets.length + 1),
@@ -961,7 +981,7 @@ function App() {
       groupId: null,
     };
     let placement: CabinetPlacement | null = null;
-    for (let attempt = 0; attempt < 5; attempt++) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
       const basePlacement: CabinetPlacement = {
         x: project.cabinets.length * 700 - 1000 + attempt * 400,
         y: 0,
@@ -973,14 +993,23 @@ function App() {
         ? getWallPlacement(basePlacement, type, config.dimensions, "back-wall", roomBounds)
         : clampCabinetPlacement(basePlacement, config.dimensions, roomBounds);
       const testCab = { ...tmpCab, placement: candidate };
-      if (!project.cabinets.some((existing) => cabinetsOverlap(existing, testCab)) && !cabinetBlocksOpening(testCab, room)) {
+      if (
+        !project.cabinets.some((existing) => cabinetsOverlap(existing, testCab)) &&
+        !cabinetBlocksOpening(testCab, room)
+      ) {
         placement = candidate;
         break;
       }
     }
     if (!placement) {
       placement = clampCabinetPlacement(
-        { x: project.cabinets.length * 700 - 1000, y: 0, z: 0, rotation: 0, attachment: "floor" },
+        {
+          x: project.cabinets.length * 700 - 1000,
+          y: 0,
+          z: 0,
+          rotation: 0,
+          attachment: "floor",
+        },
         config.dimensions,
         roomBounds,
       );
@@ -1005,8 +1034,82 @@ function App() {
         activeCabinetId: newCabinet.id,
         selectedPanelName: null,
       }),
-      `Added ${cabinetTypeLabels[type].toLowerCase()} to the room scene.`,
+      `Added ${nameHint} to the room scene.`,
     );
+  }
+
+  function handleAddCabinet(type: CabinetType = "base") {
+    placeNewCabinet(
+      createConfigFromFamily(type, projectStandards),
+      cabinetTypeLabels[type].toLowerCase(),
+    );
+  }
+
+  function handleAddLibraryItem(itemId: string) {
+    const config = createConfigFromLibraryItem(itemId, projectStandards);
+    if (!config) {
+      setProjectStatus("Library item could not be resolved.");
+      return;
+    }
+    placeNewCabinet(config, config.type);
+  }
+
+  function handleAddTemplate(templateId: string) {
+    const template = userTemplates.find((item) => item.id === templateId);
+    if (!template) {
+      setProjectStatus("Template not found.");
+      return;
+    }
+    placeNewCabinet(
+      createConfigFromTemplate(template, projectStandards),
+      template.name.toLowerCase(),
+    );
+  }
+
+  function handleSaveCabinetTemplate(name?: string) {
+    if (!selectedCabinet) {
+      setProjectStatus("Select a cabinet to save as a template.");
+      return;
+    }
+    const template = createTemplateFromCabinet(selectedCabinet, name);
+    const next = upsertUserTemplate(userTemplates, template);
+    setUserTemplates(next);
+    saveUserTemplatesToStorage(next);
+    setProjectStatus(`Saved template “${template.name}”.`);
+  }
+
+  function handleDeleteTemplate(templateId: string) {
+    const next = removeUserTemplate(userTemplates, templateId);
+    setUserTemplates(next);
+    saveUserTemplatesToStorage(next);
+    setProjectStatus("Deleted cabinet template.");
+  }
+
+  function handleApplyStarter(starterId: string) {
+    const starter = createProjectFromStarter(starterId, projectStandards);
+    if (!starter) {
+      setProjectStatus("Starter template not found.");
+      return;
+    }
+    const safeProject = clampCabinetProject({
+      ...starter.project,
+      preferences: {
+        ...projectPreferences,
+        ...starter.project.preferences,
+        standards: projectStandards,
+      },
+    });
+    commitSnapshot(
+      {
+        project: safeProject,
+        room: starter.room,
+        selectedCabinetIds: safeProject.cabinets[0]?.id ? [safeProject.cabinets[0].id] : [],
+        activeCabinetId: safeProject.cabinets[0]?.id ?? null,
+        selectedPanelName: null,
+      },
+      `Loaded starter “${starterId}”.`,
+    );
+    setProjectFilePath(null);
   }
 
   function handleDuplicateCabinet() {
@@ -1201,6 +1304,9 @@ function App() {
               true,
             costing: clampCostingSettings(
               currentProject.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
+            ),
+            standards: clampProjectStandards(
+              currentProject.preferences?.standards ?? DEFAULT_PROJECT_STANDARDS,
             ),
             ...patch,
           },
@@ -1776,30 +1882,14 @@ function App() {
 
       <div className="app-body">
         <aside className="tool-rail" aria-label="Tool rail">
-          <div className="rail-section">
-            <div className="rail-section-title">Add Items</div>
-            {cabinetLibrary.map((category) => (
-              <div key={category.id} className="palette-library-group">
-                <div className="palette-section-label">{category.label}</div>
-                <div className="palette-family-grid">
-                  {category.types.map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      className="palette-family-btn"
-                      title={`Add ${cabinetTypeLabels[type]}`}
-                      onClick={() => handleAddCabinet(type)}
-                    >
-                      <span className="palette-cat-icon">
-                        {type === "drawer" ? "▤" : type === "sink" ? "◫" : type === "corner" ? "◩" : type === "open-shelf" ? "☰" : type === "wall" ? "⬒" : type === "tall" || type === "almirah" ? "▥" : "▦"}
-                      </span>
-                      <span className="palette-cat-label">{cabinetTypeLabels[type]}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <LibraryRail
+            templates={userTemplates}
+            onAddFamily={handleAddCabinet}
+            onAddLibraryItem={handleAddLibraryItem}
+            onAddTemplate={handleAddTemplate}
+            onDeleteTemplate={handleDeleteTemplate}
+            onApplyStarter={handleApplyStarter}
+          />
 
           <div className="rail-section scene-tree-panel">
             <div className="rail-section-title">
@@ -2052,6 +2142,7 @@ function App() {
               onPasteSelection={handlePasteSelection}
               onPlacementChange={handlePlacementChange}
               onPreferenceChange={handleProjectPreferenceChange}
+              onSaveCabinetTemplate={handleSaveCabinetTemplate}
               onRemoveCabinet={handleRemoveCabinet}
               onRenameCabinet={handleRenameCabinet}
               onRenameSavedProject={handleRenameSavedProject}
