@@ -15,6 +15,11 @@ import {
   clampCostingSettings,
   DEFAULT_COSTING_SETTINGS,
 } from "./costingSettings";
+import type { ProjectStandards } from "./projectStandards";
+import {
+  clampProjectStandards,
+  DEFAULT_PROJECT_STANDARDS,
+} from "./projectStandards";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetType } from "./cabinetCapabilities";
@@ -93,6 +98,7 @@ export type ProjectPreferences = {
   showGrid: boolean;
   autoSaveToBrowser: boolean;
   costing?: CostingSettings;
+  standards?: ProjectStandards;
 };
 
 export type RoomBounds = {
@@ -431,6 +437,7 @@ export const defaultCabinetProject: CabinetProject = {
     showGrid: true,
     autoSaveToBrowser: true,
     costing: { ...DEFAULT_COSTING_SETTINGS },
+    standards: { ...DEFAULT_PROJECT_STANDARDS },
   },
 };
 
@@ -760,6 +767,9 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       autoSaveToBrowser: project.preferences?.autoSaveToBrowser !== false,
       costing: clampCostingSettings(
         project.preferences?.costing ?? defaultCabinetProject.preferences?.costing,
+      ),
+      standards: clampProjectStandards(
+        project.preferences?.standards ?? defaultCabinetProject.preferences?.standards,
       ),
     },
   };
