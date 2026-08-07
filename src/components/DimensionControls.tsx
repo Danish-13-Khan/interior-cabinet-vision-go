@@ -40,6 +40,7 @@ import type {
   CabinetLayer,
   ProjectPreferences,
 } from "../domain/cabinetDimensions";
+import type { ManufacturingIssue } from "../domain/manufacturingRules";
 type SavedProjectSummary = {
   id: string;
   name: string;
@@ -69,6 +70,7 @@ type DimensionControlsProps = {
   preferences: ProjectPreferences;
   selectionLabel: string;
   validationMessages: string[];
+  manufacturingIssues: ManufacturingIssue[];
   constructionParts: CabinetPart[];
   onAttachmentChange: (attachment: CabinetPlacement["attachment"]) => void;
   onAlignSelection: (
@@ -148,6 +150,7 @@ export function DimensionControls({
   preferences,
   selectionLabel,
   validationMessages,
+  manufacturingIssues,
   constructionParts,
   onAttachmentChange,
   onAlignSelection,
@@ -183,13 +186,14 @@ export function DimensionControls({
   onRedo,
 }: DimensionControlsProps) {
   void (savedProjects);
-  void (derivedMetrics); void (selectedPanelName); void (selectionLabel); void (validationMessages); void (projectFilePath); void (projectStatus);
+  void (derivedMetrics); void (selectedPanelName); void (selectionLabel); void (projectFilePath); void (projectStatus);
   void (onDeleteSavedProject); void (onDuplicateSavedProject);
   void (onLoadSavedProject); void (onRenameSavedProject);
   void (onSaveToProjectBrowser); void (onExportCutlistCsv);
   void (onExportProjectJson); void (onExportPdf);
   void (onLoadProject); void (onSaveProject); void (onReset);
   void (cabinetCutlistItems); void (cutlistItems);
+  void (validationMessages);
   const [inputs, setInputs] = useState<Record<NumericInputKey, string>>({
     width: String(config.dimensions.width),
     height: String(config.dimensions.height),
@@ -346,6 +350,29 @@ export function DimensionControls({
       </div>
 
       <div className="controls-form">
+        {manufacturingIssues.length > 0 ? (
+          <div className="control-section manufacturing-rules-panel">
+            <div className="section-heading">
+              <h2>Manufacturing Rules</h2>
+              <span>
+                {manufacturingIssues.filter((issue) => issue.severity === "error").length} errors ·{" "}
+                {manufacturingIssues.filter((issue) => issue.severity === "warning").length} warnings
+              </span>
+            </div>
+            <ul className="manufacturing-issue-list">
+              {manufacturingIssues.map((issue) => (
+                <li
+                  key={`${issue.code}-${issue.message}`}
+                  className={`manufacturing-issue severity-${issue.severity}`}
+                >
+                  <strong>{issue.severity === "error" ? "Error" : "Warning"}</strong>
+                  <span>{issue.message}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="control-section">
           <div className="section-heading">
             <h2>Scene Items</h2>

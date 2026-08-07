@@ -63,6 +63,10 @@ import {
 } from "./domain/cabinetLibrary";
 import { createProjectReport } from "./domain/projectReport";
 import {
+  evaluateCabinetRules,
+  type ManufacturingIssue,
+} from "./domain/manufacturingRules";
+import {
   csvFromProductionCutlist,
   createCabinetProductionCutlist,
   createProjectProductionCutlist,
@@ -310,9 +314,21 @@ function App() {
   const canUndo = historyPastRef.current.length > 0;
   const canRedo = historyFutureRef.current.length > 0;
   const validationMessages = useMemo(
-    () => getCabinetValidationMessages(selectedConfig),
-    [selectedConfig],
+    () =>
+      getCabinetValidationMessages(
+        selectedConfig,
+        selectedCabinet?.placement ?? null,
+        room.dimensions.heightMm,
+      ),
+    [room.dimensions.heightMm, selectedCabinet?.placement, selectedConfig],
   );
+  const manufacturingIssues = useMemo((): ManufacturingIssue[] => {
+    if (!selectedCabinet) return [];
+    return evaluateCabinetRules(selectedCabinet.config, {
+      placement: selectedCabinet.placement,
+      roomHeightMm: room.dimensions.heightMm,
+    }).filter((issue) => issue.severity === "error" || issue.severity === "warning");
+  }, [room.dimensions.heightMm, selectedCabinet]);
   const cutlistItems = useMemo(() => createProjectProductionCutlist(project), [project]);
   const cabinetCutlistItems = useMemo(
     () => (selectedCabinet ? createCabinetProductionCutlist(selectedCabinet) : []),
@@ -2150,6 +2166,7 @@ function App() {
               preferences={projectPreferences}
               selectionLabel={selectedPanelName ? getPanelDisplayName(selectedPanelName) : "None"}
               validationMessages={validationMessages}
+              manufacturingIssues={manufacturingIssues}
               onAttachmentChange={handleAttachmentChange}
               onAlignSelection={handleAlignSelection}
               onAssignLayer={handleAssignLayer}
@@ -2288,7 +2305,14 @@ function App() {
         </div>
         {validationMessages.length > 0 ? (
           <div className="output-warnings">
-            {validationMessages.map((m) => <span key={m} className="output-warn">{m}</span>)}
+            {validationMessages.map((m) => (
+              <span
+                key={m}
+                className={`output-warn ${m.startsWith("Error:") ? "output-warn-error" : ""}`}
+              >
+                {m}
+              </span>
+            ))}
           </div>
         ) : null}
         {statusDockOpen ? (

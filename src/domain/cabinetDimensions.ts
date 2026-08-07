@@ -22,6 +22,7 @@ import {
 } from "./projectStandards";
 import type { ProjectJobMeta } from "./jobMeta";
 import { clampJobMeta, createDefaultJobMeta } from "./jobMeta";
+import { applyManufacturingFixes, evaluateCabinetRules, formatManufacturingIssues, getMinDividersForShelfSpan, applyWallMountPlacementFix } from "./manufacturingRules";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetType } from "./cabinetCapabilities";
@@ -36,7 +37,6 @@ export {
   supportsWallPlacement,
 } from "./cabinetCapabilities";
 import {
-  isStorageType,
   supportsDoors,
   supportsDrawers,
   supportsShelves,
@@ -505,10 +505,6 @@ export function getDefaultBottomOffsetMm(type: CabinetType): number {
   }
 }
 
-function isFiniteWithinRange(value: number, min: number, max: number): boolean {
-  return Number.isFinite(value) && value >= min && value <= max;
-}
-
 function clampWithinRange(
   value: number,
   min: number,
@@ -604,7 +600,7 @@ export function clampCabinetDimensions(
 
 export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
   const preset = cabinetTypePresets[config.type] ?? defaultCabinetConfig;
-  const merged = {
+  const manufacturing = applyManufacturingFixes({
     ...preset,
     ...config,
     dimensions: {
@@ -615,13 +611,14 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
       ...(preset.buildRules ?? DEFAULT_BUILD_RULES),
       ...(config.buildRules ?? {}),
     },
-  };
+  });
+  const merged = manufacturing.config;
   merged.dimensions = {
     ...merged.dimensions,
     boardThickness:
-      merged.buildRules.carcassThicknessMm ?? merged.dimensions.boardThickness,
+      merged.buildRules?.carcassThicknessMm ?? merged.dimensions.boardThickness,
     backPanelThickness:
-      merged.buildRules.backPanelThicknessMm ?? merged.dimensions.backPanelThickness,
+      merged.buildRules?.backPanelThicknessMm ?? merged.dimensions.backPanelThickness,
   };
   const resolvedMaterialSpec = resolveCabinetMaterialSpec(merged.buildRules);
   const safeDimensions = clampCabinetDimensions(merged.dimensions);
@@ -690,6 +687,19 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
         left: Boolean(merged.leftEndPanel),
         right: Boolean(merged.rightEndPanel),
       },
+      dividers: {
+        ...seedComposition.dividers,
+        count: Math.max(
+          seedComposition.dividers.count,
+          merged.composition?.dividers?.count ?? 0,
+          getMinDividersForShelfSpan({
+            ...merged,
+            dimensions: safeDimensions,
+            shelfCount,
+            composition: seedComposition,
+          }),
+        ),
+      },
     },
   });
   const flat = syncFlatFieldsFromComposition(composition);
@@ -747,12 +757,13 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
           ? cabinet.groupId
           : null,
       config: clampCabinetConfig(cabinet.config),
-      placement: clampCabinetPlacement(
-        {
+      placement: (() => {
+        const type = cabinet.config?.type ?? "base";
+        const rawPlacement = {
           x: Number.isFinite(cabinet.placement?.x) ? cabinet.placement.x : index * 1200,
           y: Number.isFinite(cabinet.placement?.y)
             ? cabinet.placement.y
-            : getDefaultBottomOffsetMm(cabinet.config?.type ?? "base"),
+            : getDefaultBottomOffsetMm(type),
           z: Number.isFinite(cabinet.placement?.z) ? cabinet.placement.z : 0,
           rotation: normalizeRotationAngle(cabinet.placement?.rotation ?? 0),
           attachment:
@@ -761,9 +772,13 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
             cabinet.placement?.attachment === "right-wall"
               ? cabinet.placement.attachment
               : "floor",
-        },
-        clampCabinetConfig(cabinet.config).dimensions,
-      ),
+        } as CabinetPlacement;
+        const mounted = applyWallMountPlacementFix(type, rawPlacement).placement;
+        return clampCabinetPlacement(
+          mounted,
+          clampCabinetConfig(cabinet.config).dimensions,
+        );
+      })(),
     })),
     layers,
     groups,
@@ -958,64 +973,16 @@ export function projectHasCollision(
   });
 }
 
-export function getCabinetValidationMessages(config: CabinetConfig): string[] {
+export function getCabinetValidationMessages(
+  config: CabinetConfig,
+  placement?: CabinetPlacement | null,
+  roomHeightMm?: number,
+): string[] {
   const safeConfig = clampCabinetConfig(config);
-  const {
-    width,
-    height,
-    depth,
-    boardThickness,
-    backPanelThickness,
-  } = safeConfig.dimensions;
-  const toeKickHeight = safeConfig.toeKickHeight;
-  const openingWidth = width - boardThickness * 2;
-  const openingHeight = height - boardThickness * 2 - toeKickHeight;
-  const shelfDepth = depth - backPanelThickness - 30;
-  const messages: string[] = [];
-
-  if (!isStorageType(safeConfig.type)) {
-    if (!isFiniteWithinRange(width, CABINET_WIDTH_MIN_MM, CABINET_WIDTH_MAX_MM)) {
-      messages.push("Width was outside the safe range and has been clamped.");
-    }
-
-    if (width < 400 || depth < 300) {
-      messages.push("This furniture piece is getting compact for comfortable use.");
-    }
-
-    if (height > 2200) {
-      messages.push("Tall freestanding pieces may need wall fixing in a real room.");
-    }
-
-    return messages;
-  }
-
-  if (!isFiniteWithinRange(width, CABINET_WIDTH_MIN_MM, CABINET_WIDTH_MAX_MM)) {
-    messages.push("Width was outside the safe range and has been clamped.");
-  }
-
-  if (openingWidth < 120) {
-    messages.push("Internal width is too small for shelves or doors.");
-  }
-
-  if (openingHeight < 180) {
-    messages.push("Internal height is too small after the top, bottom, and toe kick.");
-  }
-
-  if (shelfDepth < 120) {
-    messages.push("Usable shelf depth is getting too shallow.");
-  }
-
-  if (safeConfig.shelfCount > 0) {
-    const shelfSpacing = openingHeight / (safeConfig.shelfCount + 1);
-
-    if (shelfSpacing < 140) {
-      messages.push("Shelf count is high for the current cabinet height.");
-    }
-  }
-
-  if (safeConfig.hasDoors && width < 450) {
-    messages.push("Doors are narrow at this width.");
-  }
-
-  return messages;
+  return formatManufacturingIssues(
+    evaluateCabinetRules(safeConfig, {
+      placement: placement ?? null,
+      roomHeightMm,
+    }),
+  );
 }
