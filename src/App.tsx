@@ -11,9 +11,11 @@ import { RoomSettings } from "./components/RoomSettings";
 import { WallEditor } from "./components/WallEditor";
 import { DoorWindowEditor } from "./components/DoorWindowEditor";
 import { ProjectBrowser } from "./components/ProjectBrowser";
+import { JobWorkflowPanel } from "./components/JobWorkflowPanel";
 import { TwoDView } from "./components/TwoDView";
 import { ReportCenter } from "./components/ReportCenter";
 import { LibraryRail } from "./components/LibraryRail";
+import { patchJobMeta, formatJobTitle, clampJobMeta, JOB_STATUS_LABELS, type ProjectJobMeta } from "./domain/jobMeta";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -219,6 +221,10 @@ function createItemName(type: CabinetType, index: number) {
 }
 
 function getProjectDisplayName(project: CabinetProject, count: number) {
+  const job = clampJobMeta(project.job);
+  if (job.projectNumber || job.customerName) {
+    return formatJobTitle(job);
+  }
   const lead = project.cabinets[0]?.name ?? "Room Layout";
   return project.cabinets.length > 1 ? `${lead} + ${project.cabinets.length - 1} more` : `${lead} ${count}`;
 }
@@ -336,8 +342,8 @@ function App() {
     [project, roomBounds],
   );
   const projectReport = useMemo(
-    () => createProjectReport(project, room),
-    [project, room],
+    () => createProjectReport(project, room, planningWorkflow),
+    [planningWorkflow, project, room],
   );
 
   function refreshHistoryState() {
@@ -1282,6 +1288,18 @@ function App() {
     );
   }
 
+  function handleJobMetaChange(patch: Partial<ProjectJobMeta>) {
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          job: patchJobMeta(currentProject.job, patch),
+        },
+      }),
+      "Updated job workflow.",
+    );
+  }
+
   function handleProjectPreferenceChange(
     patch: Partial<NonNullable<CabinetProject["preferences"]>>,
   ) {
@@ -1706,7 +1724,7 @@ function App() {
       const blob = await exportProjectPdf(
         project,
         screenshot,
-        "Cabinet Project",
+        getProjectDisplayName(project, 1),
         room,
         planningWorkflow.countertops,
       );
@@ -1778,9 +1796,15 @@ function App() {
 
   const sortedSavedProjects = useMemo(
     () =>
-      [...savedProjects].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-      ),
+      [...savedProjects]
+        .sort(
+          (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        )
+        .map((entry) => ({
+          ...entry,
+          job: entry.project.job,
+          cabinetCount: entry.project.cabinets.length,
+        })),
     [savedProjects],
   );
 
@@ -2083,6 +2107,10 @@ function App() {
             </span>
           </div>
           <div className="inspector-scroll">
+            <JobWorkflowPanel
+              job={project.job ?? defaultCabinetProject.job!}
+              onChange={handleJobMetaChange}
+            />
             <RoomSettings
               dimensions={room.dimensions}
               onChange={(dims) => setRoom({ ...room, dimensions: dims })}
@@ -2236,7 +2264,8 @@ function App() {
         <div className="output-bar">
           <span className="output-status">{projectStatus || "Ready"}</span>
           <span className="output-stats">
-            {workspaceLabel} · {project.cabinets.length} items ·{" "}
+            {workspaceLabel} · {formatJobTitle(clampJobMeta(project.job))} ·{" "}
+            {JOB_STATUS_LABELS[clampJobMeta(project.job).status]} · {project.cabinets.length} items ·{" "}
             {selectedCabinet
               ? `${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm`
               : selectedCabinetIds.length > 1

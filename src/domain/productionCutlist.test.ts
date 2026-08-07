@@ -68,8 +68,10 @@ describe("production cutlist", () => {
     expect(byMaterial.length).toBeGreaterThan(0);
     expect(byThickness.length).toBeGreaterThan(0);
     expect(byMaterial[0].lines[0].cabinetName).toBeTruthy();
+    expect(csvFromProductionCutlist(lines)).toContain("Shop Ref");
     expect(csvFromProductionCutlist(lines)).toContain("Cabinet");
     expect(csvFromProductionCutlist(lines)).toContain("Base Cabinet");
+    expect(lines[0].shopRef).toMatch(/^C0\d-P/);
   });
 });
 
@@ -137,5 +139,8 @@ describe("project report", () => {
     expect(report.perItemCutlists[1].lines.length).toBeGreaterThan(0);
     expect(report.perItemCutlists[1].cost.totalCost).toBeGreaterThan(0);
     expect(report.materialSummary[0].lineCount).toBeGreaterThan(0);
+    expect(report.cabinetSchedule).toHaveLength(2);
+    expect(report.job).toBeTruthy();
+    expect(report.packetSections.length).toBeGreaterThan(0);
   });
 });

@@ -7,10 +7,12 @@ import {
 import { HARDWARE_CATALOG } from "../domain/costing";
 import type { ProjectReport } from "../domain/projectReport";
 import type { ProductionCutlistLine } from "../domain/productionCutlist";
+import { JOB_STATUS_LABELS } from "../domain/jobMeta";
 
 export type ReportCenterTab =
-  | "summary"
-  | "cabinets"
+  | "packet"
+  | "schedule"
+  | "runs"
   | "materials"
   | "cutlist"
   | "costing";
@@ -45,6 +47,7 @@ function CutlistTable({
       <table className="shop-table">
         <thead>
           <tr>
+            <th>Ref</th>
             <th>Source</th>
             <th>Part</th>
             <th>Material</th>
@@ -57,6 +60,9 @@ function CutlistTable({
         <tbody>
           {lines.map((line) => (
             <tr key={line.key}>
+              <td>
+                <code className="shop-ref">{line.shopRef}</code>
+              </td>
               <td>
                 <button
                   type="button"
@@ -96,7 +102,7 @@ export function ReportCenter({
   onCostingChange,
   onSelectCabinet,
 }: ReportCenterProps) {
-  const [tab, setTab] = useState<ReportCenterTab>("summary");
+  const [tab, setTab] = useState<ReportCenterTab>("packet");
   const [cutlistMode, setCutlistMode] = useState<CutlistGroupMode>("material");
 
   const selectedLines = useMemo(() => {
@@ -128,11 +134,12 @@ export function ReportCenter({
 
   return (
     <div className="report-center">
-      <div className="report-center-tabs" role="tablist" aria-label="Production reports">
+      <div className="report-center-tabs" role="tablist" aria-label="Production packet">
         {(
           [
-            ["summary", "Summary"],
-            ["cabinets", "Cabinets"],
+            ["packet", "Packet"],
+            ["schedule", "Schedule"],
+            ["runs", "Runs"],
             ["materials", "Materials"],
             ["cutlist", "Cutlist"],
             ["costing", "Costing"],
@@ -152,34 +159,73 @@ export function ReportCenter({
       </div>
 
       <div className="report-center-body">
-        {tab === "summary" ? (
+        {tab === "packet" ? (
           <div className="report-doc">
             <header className="report-doc-header">
               <div>
-                <strong>Production Report</strong>
-                <span>Shop summary · {report.summary.roomSizeLabel}</span>
+                <strong>Production Packet</strong>
+                <span>
+                  {report.jobTitle} · {report.jobSubtitle}
+                </span>
               </div>
-              <span>{report.summary.partLineCount} part lines</span>
+              <span className={`job-status-badge status-${report.job.status}`}>
+                {JOB_STATUS_LABELS[report.job.status]}
+              </span>
             </header>
 
             <div className="report-summary-grid">
               <div className="report-card">
-                <span className="report-card-label">Project Items</span>
-                <strong>{report.summary.itemCount}</strong>
+                <span className="report-card-label">Project #</span>
+                <strong>{report.summary.projectNumber}</strong>
               </div>
               <div className="report-card">
-                <span className="report-card-label">Cabinet Items</span>
+                <span className="report-card-label">Customer</span>
+                <strong>{report.summary.customerName}</strong>
+              </div>
+              <div className="report-card">
+                <span className="report-card-label">Revision</span>
+                <strong>{report.summary.revision}</strong>
+              </div>
+              <div className="report-card">
+                <span className="report-card-label">Cabinets</span>
                 <strong>{report.summary.cabinetCount}</strong>
               </div>
               <div className="report-card">
-                <span className="report-card-label">Project Total</span>
+                <span className="report-card-label">Runs</span>
+                <strong>{report.summary.runCount}</strong>
+              </div>
+              <div className="report-card">
+                <span className="report-card-label">Part lines</span>
+                <strong>{report.summary.partLineCount}</strong>
+              </div>
+              <div className="report-card">
+                <span className="report-card-label">Project total</span>
                 <strong>{money(report.projectCost.grandTotal)}</strong>
               </div>
               <div className="report-card report-card-wide">
-                <span className="report-card-label">Room Size</span>
+                <span className="report-card-label">Room</span>
                 <strong>{report.summary.roomSizeLabel}</strong>
               </div>
             </div>
+
+            {report.job.notes ? (
+              <section className="report-subsection">
+                <h3>Job notes</h3>
+                <p className="job-notes-preview">{report.job.notes}</p>
+              </section>
+            ) : null}
+
+            <section className="report-subsection">
+              <h3>Packet contents</h3>
+              <ol className="packet-toc">
+                {report.packetSections.map((section) => (
+                  <li key={section.id}>
+                    <strong>{section.title}</strong>
+                    <span>{section.description}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
 
             <div className="report-cost-grid">
               <div className="report-card">
@@ -202,53 +248,106 @@ export function ReportCenter({
           </div>
         ) : null}
 
-        {tab === "cabinets" ? (
+        {tab === "schedule" ? (
           <div className="report-doc">
             <header className="report-doc-header">
               <div>
-                <strong>Cabinet List</strong>
-                <span>{report.itemList.length} items with cutlist and cost</span>
+                <strong>Cabinet Schedule</strong>
+                <span>
+                  {report.cabinetSchedule.length} marks · shop-ready sizes and run assignment
+                </span>
               </div>
             </header>
             <div className="shop-table-wrap">
               <table className="shop-table">
                 <thead>
                   <tr>
+                    <th>Mark</th>
                     <th>Cabinet</th>
                     <th>Type</th>
                     <th>Size (mm)</th>
+                    <th>Run</th>
                     <th>Parts</th>
                     <th>Cost</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {report.perItemCutlists.map((row) => {
-                    const item = report.itemList.find((entry) => entry.id === row.cabinetId);
-                    return (
-                      <tr key={row.cabinetId}>
-                        <td>
-                          <button
-                            type="button"
-                            className="shop-source-btn"
-                            onClick={() => onSelectCabinet?.(row.cabinetId)}
-                          >
-                            {row.cabinetName}
-                          </button>
-                        </td>
-                        <td>{item?.typeLabel ?? "—"}</td>
-                        <td>
-                          {item
-                            ? `${item.widthMm} × ${item.heightMm} × ${item.depthMm}`
-                            : "—"}
-                        </td>
-                        <td>{row.lines.length}</td>
-                        <td>{money(row.cost.totalCost)}</td>
-                      </tr>
-                    );
-                  })}
+                  {report.cabinetSchedule.map((row) => (
+                    <tr key={row.cabinetId}>
+                      <td>
+                        <code className="shop-ref">{row.mark}</code>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="shop-source-btn"
+                          onClick={() => onSelectCabinet?.(row.cabinetId)}
+                        >
+                          {row.cabinetName}
+                        </button>
+                      </td>
+                      <td>{row.typeLabel}</td>
+                      <td>
+                        {row.widthMm} × {row.heightMm} × {row.depthMm}
+                      </td>
+                      <td>{row.runLabel ?? "—"}</td>
+                      <td>{row.partCount}</td>
+                      <td>{money(row.totalCost)}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
+          </div>
+        ) : null}
+
+        {tab === "runs" ? (
+          <div className="report-doc">
+            <header className="report-doc-header">
+              <div>
+                <strong>Room / Run Summary</strong>
+                <span>
+                  {report.runSummaries.length} detected runs · fillers and countertops
+                </span>
+              </div>
+            </header>
+            {report.runSummaries.length === 0 ? (
+              <p className="report-empty">
+                No cabinet runs detected yet. Place cabinets along a wall to form a run.
+              </p>
+            ) : (
+              <div className="shop-table-wrap">
+                <table className="shop-table">
+                  <thead>
+                    <tr>
+                      <th>Run</th>
+                      <th>Side</th>
+                      <th>Cabinets</th>
+                      <th>Length</th>
+                      <th>Fillers</th>
+                      <th>Tops</th>
+                      <th>Corner</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.runSummaries.map((run) => (
+                      <tr key={run.runId}>
+                        <td>
+                          <strong>{run.label}</strong>
+                          <span className="shop-sub">{run.cabinetNames.join(", ")}</span>
+                        </td>
+                        <td>{run.side}</td>
+                        <td>{run.cabinetCount}</td>
+                        <td>{run.lengthMm} mm</td>
+                        <td>{run.fillerCount}</td>
+                        <td>{run.countertopCount}</td>
+                        <td>{run.hasCorner ? "Yes" : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         ) : null}
 
@@ -256,7 +355,7 @@ export function ReportCenter({
           <div className="report-doc">
             <header className="report-doc-header">
               <div>
-                <strong>Material Summary</strong>
+                <strong>Material Takeoff</strong>
                 <span>Board estimates from production cutlist</span>
               </div>
             </header>
@@ -297,7 +396,7 @@ export function ReportCenter({
                 <span>
                   {selectedCabinetId
                     ? `${selectedLines.length} lines for selection · ${report.productionCutlist.length} project`
-                    : `${report.productionCutlist.length} production lines`}
+                    : `${report.productionCutlist.length} production lines with shop refs`}
                 </span>
               </div>
               <div className="cutlist-mode-toggle">
@@ -356,8 +455,10 @@ export function ReportCenter({
           <div className="report-doc">
             <header className="report-doc-header">
               <div>
-                <strong>Costing</strong>
-                <span>Material, hardware, labour, and project allowance</span>
+                <strong>Costing Summary</strong>
+                <span>
+                  {report.jobTitle} · material, hardware, labour, and allowance
+                </span>
               </div>
               <strong>{money(report.projectCost.grandTotal)}</strong>
             </header>
@@ -503,6 +604,7 @@ export function ReportCenter({
               <table className="shop-table">
                 <thead>
                   <tr>
+                    <th>Mark</th>
                     <th>Cabinet</th>
                     <th>Material</th>
                     <th>Hardware</th>
@@ -511,25 +613,33 @@ export function ReportCenter({
                   </tr>
                 </thead>
                 <tbody>
-                  {report.projectCost.cabinets.map((cost) => (
-                    <tr key={cost.cabinetId}>
-                      <td>
-                        <button
-                          type="button"
-                          className="shop-source-btn"
-                          onClick={() => onSelectCabinet?.(cost.cabinetId)}
-                        >
-                          {cost.cabinetName}
-                        </button>
-                      </td>
-                      <td>{money(cost.materialCost)}</td>
-                      <td>{money(cost.hardwareCost)}</td>
-                      <td>{money(cost.labourCost)}</td>
-                      <td>
-                        <strong>{money(cost.totalCost)}</strong>
-                      </td>
-                    </tr>
-                  ))}
+                  {report.projectCost.cabinets.map((cost, index) => {
+                    const mark = report.cabinetSchedule.find(
+                      (row) => row.cabinetId === cost.cabinetId,
+                    )?.mark ?? `C${String(index + 1).padStart(2, "0")}`;
+                    return (
+                      <tr key={cost.cabinetId}>
+                        <td>
+                          <code className="shop-ref">{mark}</code>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="shop-source-btn"
+                            onClick={() => onSelectCabinet?.(cost.cabinetId)}
+                          >
+                            {cost.cabinetName}
+                          </button>
+                        </td>
+                        <td>{money(cost.materialCost)}</td>
+                        <td>{money(cost.hardwareCost)}</td>
+                        <td>{money(cost.labourCost)}</td>
+                        <td>
+                          <strong>{money(cost.totalCost)}</strong>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
