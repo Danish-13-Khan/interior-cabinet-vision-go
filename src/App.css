@@ -1248,6 +1248,37 @@ select {
   color: var(--ink);
 }
 
+.quote-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quote-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quote-terms label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.62rem;
+  font-weight: 650;
+  color: #475569;
+}
+
+.quote-terms textarea {
+  padding: 6px 8px;
+  border: 1px solid #c5ced8;
+  border-radius: 2px;
+  font-size: 0.68rem;
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+
 .report-empty {
   margin: 0;
   padding: 12px;

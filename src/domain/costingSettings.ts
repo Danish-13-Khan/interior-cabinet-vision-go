@@ -3,7 +3,9 @@ export type CostingSettings = {
   wastePercent: number;
   labourPercent: number;
   hardwareAllowance: number;
+  labourAllowance: number;
   materialRateMultiplier: number;
+  finishRateMultiplier: number;
   hingeId: string;
   drawerSlideId: string;
   handleId: string;
@@ -14,7 +16,9 @@ export const DEFAULT_COSTING_SETTINGS: CostingSettings = {
   wastePercent: 10,
   labourPercent: 40,
   hardwareAllowance: 0,
+  labourAllowance: 0,
   materialRateMultiplier: 1,
+  finishRateMultiplier: 1,
   hingeId: "hinge-soft",
   drawerSlideId: "drawer-slide-soft",
   handleId: "handle-bar",
@@ -41,7 +45,9 @@ export const COSTING_PRESETS: CostingPreset[] = [
       wastePercent: 8,
       labourPercent: 35,
       hardwareAllowance: 0,
+      labourAllowance: 0,
       materialRateMultiplier: 0.95,
+      finishRateMultiplier: 0.95,
       hingeId: "hinge-standard",
       drawerSlideId: "drawer-slide-standard",
       handleId: "handle-knob",
@@ -62,7 +68,9 @@ export const COSTING_PRESETS: CostingPreset[] = [
       wastePercent: 12,
       labourPercent: 45,
       hardwareAllowance: 2500,
+      labourAllowance: 1500,
       materialRateMultiplier: 1.05,
+      finishRateMultiplier: 1.15,
       hingeId: "hinge-soft",
       drawerSlideId: "drawer-slide-soft",
       handleId: "handle-bar",
@@ -83,9 +91,14 @@ export function clampCostingSettings(
     wastePercent: Math.min(40, Math.max(0, Number(seed.wastePercent) || 0)),
     labourPercent: Math.min(100, Math.max(0, Number(seed.labourPercent) || 0)),
     hardwareAllowance: Math.max(0, Math.round(Number(seed.hardwareAllowance) || 0)),
+    labourAllowance: Math.max(0, Math.round(Number(seed.labourAllowance) || 0)),
     materialRateMultiplier: Math.min(
       2,
       Math.max(0.5, Number(seed.materialRateMultiplier) || 1),
+    ),
+    finishRateMultiplier: Math.min(
+      2,
+      Math.max(0.5, Number(seed.finishRateMultiplier) || 1),
     ),
     hingeId: KNOWN_HINGES.has(seed.hingeId)
       ? seed.hingeId

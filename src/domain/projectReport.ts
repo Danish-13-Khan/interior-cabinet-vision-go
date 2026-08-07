@@ -33,6 +33,16 @@ import {
   createCabinetPlanningWorkflow,
   type CabinetPlanningWorkflow,
 } from "./cabinetLibrary";
+import {
+  buildProjectQuote,
+  type ProjectQuote,
+} from "./projectQuote";
+import {
+  clampQuoteHistory,
+  clampQuoteSettings,
+  DEFAULT_QUOTE_SETTINGS,
+  type QuoteSnapshot,
+} from "./quoteSettings";
 
 export type CabinetScheduleRow = {
   mark: string;
@@ -104,6 +114,8 @@ export type ProjectReport = {
   groupedByThickness: ProductionCutlistGroup[];
   groupedByCabinet: ProductionCutlistGroup[];
   projectCost: ProjectCost;
+  quote: ProjectQuote;
+  quoteHistory: QuoteSnapshot[];
   packetSections: Array<{ id: string; title: string; description: string }>;
 };
 
@@ -153,6 +165,9 @@ export function createProjectReport(
 ): ProjectReport {
   const settings = clampCostingSettings(
     project.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
+  );
+  const quoteSettings = clampQuoteSettings(
+    project.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
   );
   const job = clampJobMeta(project.job ?? createDefaultJobMeta());
   const productionCutlist = createProjectProductionCutlist(project);
@@ -235,6 +250,15 @@ export function createProjectReport(
     };
   });
 
+  const cabinetMarks = new Map(
+    cabinetSchedule.map((row) => [row.cabinetId, row.mark] as const),
+  );
+  const quote = buildProjectQuote(projectCost, quoteSettings, job, {
+    quotedAt: job.quotedAt ?? new Date().toISOString(),
+    cabinetMarks,
+  });
+  const quoteHistory = clampQuoteHistory(project.quoteHistory);
+
   const runSummaries: RunSummaryRow[] = workflow.runs.map((run, index) => {
     const names = run.cabinetIds
       .map((id) => project.cabinets.find((cabinet) => cabinet.id === id)?.name)
@@ -287,6 +311,8 @@ export function createProjectReport(
     groupedByThickness: groupCutlistByThickness(productionCutlist),
     groupedByCabinet: groupCutlistByCabinet(productionCutlist),
     projectCost,
+    quote,
+    quoteHistory,
     packetSections: [
       {
         id: "cover",
@@ -317,6 +343,11 @@ export function createProjectReport(
         id: "costing",
         title: "Costing Summary",
         description: "Material, hardware, labour, and totals",
+      },
+      {
+        id: "quote",
+        title: "Quote / Estimate",
+        description: "Itemized sell prices, markup, tax, and revision snapshots",
       },
     ],
   };

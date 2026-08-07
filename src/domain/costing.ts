@@ -186,7 +186,8 @@ export function calculateCabinetCost(
       getBoardCost(spec.boardMaterialId, line.thicknessMm) *
       areaM2 *
       safeSettings.materialRateMultiplier;
-    finishCost += getFinishCost(spec.finishId) * areaM2;
+    finishCost +=
+      getFinishCost(spec.finishId) * areaM2 * safeSettings.finishRateMultiplier;
     if (spec.edgeBandingId !== "none") {
       const perimeter = partPerimeterMm(line.lengthMm, line.widthMm);
       edgeBandCost +=
@@ -232,7 +233,9 @@ export type ProjectCost = {
   totalHardware: number;
   totalLabour: number;
   totalWaste: number;
+  totalFinish: number;
   hardwareAllowance: number;
+  labourAllowance: number;
   grandTotal: number;
   settings: CostingSettings;
 };
@@ -249,6 +252,7 @@ export function calculateProjectCost(
   let totalHardware = 0;
   let totalLabour = 0;
   let totalWaste = 0;
+  let totalFinish = 0;
   const costs: CabinetCost[] = [];
 
   for (const cab of cabinets) {
@@ -270,18 +274,22 @@ export function calculateProjectCost(
     totalHardware += cost.hardwareCost;
     totalLabour += cost.labourCost;
     totalWaste += cost.wasteCost;
+    totalFinish += cost.finishCost;
   }
 
   const hardwareAllowance = safeSettings.hardwareAllowance;
+  const labourAllowance = safeSettings.labourAllowance;
   return {
     cabinets: costs,
     totalMaterial: Math.round(totalMaterial),
     totalHardware: Math.round(totalHardware),
     totalLabour: Math.round(totalLabour),
     totalWaste: Math.round(totalWaste),
+    totalFinish: Math.round(totalFinish),
     hardwareAllowance,
+    labourAllowance,
     grandTotal: Math.round(
-      totalMaterial + totalHardware + totalLabour + hardwareAllowance,
+      totalMaterial + totalHardware + totalLabour + hardwareAllowance + labourAllowance,
     ),
     settings: safeSettings,
   };

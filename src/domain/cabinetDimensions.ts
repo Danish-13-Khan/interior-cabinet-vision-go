@@ -36,10 +36,17 @@ import {
   shelvesAreAdjustable,
   type CabinetConstructionSpec,
 } from "./cabinetConstructionSpec";
+import type { QuoteSettings, QuoteSnapshot } from "./quoteSettings";
+import {
+  clampQuoteHistory,
+  clampQuoteSettings,
+  DEFAULT_QUOTE_SETTINGS,
+} from "./quoteSettings";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetConstructionSpec } from "./cabinetConstructionSpec";
 export type { ProjectDrafting, DraftingDisplayPreferences } from "./draftingAnnotations";
+export type { QuoteSettings, QuoteSnapshot } from "./quoteSettings";
 export type { CabinetType } from "./cabinetCapabilities";
 export {
   isStorageType,
@@ -117,6 +124,7 @@ export type ProjectPreferences = {
   showGrid: boolean;
   autoSaveToBrowser: boolean;
   costing?: CostingSettings;
+  quote?: QuoteSettings;
   standards?: ProjectStandards;
   drafting?: DraftingDisplayPreferences;
 };
@@ -135,6 +143,7 @@ export type CabinetProject = {
   preferences?: ProjectPreferences;
   job?: ProjectJobMeta;
   drafting?: ProjectDrafting;
+  quoteHistory?: QuoteSnapshot[];
 };
 
 export const CABINET_WIDTH_MIN_MM = 500;
@@ -459,10 +468,12 @@ export const defaultCabinetProject: CabinetProject = {
     showGrid: true,
     autoSaveToBrowser: true,
     costing: { ...DEFAULT_COSTING_SETTINGS },
+    quote: { ...DEFAULT_QUOTE_SETTINGS },
     standards: { ...DEFAULT_PROJECT_STANDARDS },
     drafting: { ...DEFAULT_DRAFTING_DISPLAY },
   },
   drafting: { ...DEFAULT_DRAFTING },
+  quoteHistory: [],
   job: createDefaultJobMeta({
     projectNumber: "JOB-001",
     customerName: "",
@@ -827,6 +838,9 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       costing: clampCostingSettings(
         project.preferences?.costing ?? defaultCabinetProject.preferences?.costing,
       ),
+      quote: clampQuoteSettings(
+        project.preferences?.quote ?? defaultCabinetProject.preferences?.quote,
+      ),
       standards: clampProjectStandards(
         project.preferences?.standards ?? defaultCabinetProject.preferences?.standards,
       ),
@@ -835,6 +849,7 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       ),
     },
     drafting: clampProjectDrafting(project.drafting ?? defaultCabinetProject.drafting),
+    quoteHistory: clampQuoteHistory(project.quoteHistory ?? defaultCabinetProject.quoteHistory),
     job: clampJobMeta(project.job ?? defaultCabinetProject.job),
   };
 }
