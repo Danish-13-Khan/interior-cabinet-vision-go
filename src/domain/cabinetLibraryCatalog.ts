@@ -18,7 +18,7 @@ import {
   DEFAULT_PROJECT_STANDARDS,
   type ProjectStandards,
 } from "./projectStandards";
-import type { CabinetFamilyLibraryEntry } from "./libraryManager";
+import type { CabinetFamilyLibraryEntry } from "./workshopLibrary";
 
 export type CabinetLibraryItemSource = "engineered" | "family-default" | "user";
 

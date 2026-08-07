@@ -2,12 +2,6 @@ import { useMemo, useState } from "react";
 import type { CabinetConfig } from "../domain/cabinetDimensions";
 import type { ProjectStandards } from "../domain/projectStandards";
 import {
-  createCabinetPresetFromConfig,
-  createCountertopEntry,
-  createDoorStyleEntry,
-  createHardwareEntry,
-  createMaterialEntry,
-  createStandardsPackEntry,
   exportWorkshopLibraryJson,
   importWorkshopLibraryJson,
   librarySummary,
@@ -19,10 +13,14 @@ import {
   mergeWorkshopLibraries,
   saveWorkshopLibrary,
   type WorkshopLibraryPack,
-} from "../domain/libraryManager";
-import { FINISHES, MATERIAL_PRESETS, EDGE_BANDING_OPTIONS } from "../domain/materialSystem";
-import type { DoorStyle } from "../domain/cabinetOpeningStructure";
-import type { HardwareKind } from "../domain/hardwareSystem";
+} from "../domain/workshopLibrary";
+import { LibraryOverviewTab } from "./libraryManager/LibraryOverviewTab";
+import { LibraryCabinetsTab } from "./libraryManager/LibraryCabinetsTab";
+import { LibraryDoorsTab } from "./libraryManager/LibraryDoorsTab";
+import { LibraryMaterialsTab } from "./libraryManager/LibraryMaterialsTab";
+import { LibraryHardwareTab } from "./libraryManager/LibraryHardwareTab";
+import { LibraryCountertopsTab } from "./libraryManager/LibraryCountertopsTab";
+import { LibraryStandardsTab } from "./libraryManager/LibraryStandardsTab";
 
 type LibraryManagerTab =
   | "overview"
@@ -85,7 +83,10 @@ export function LibraryManagerPanel({
       try {
         const imported = importWorkshopLibraryJson(String(reader.result ?? ""));
         const merged = mergeWorkshopLibraries(library, imported);
-        persist(merged, `Imported and merged library (${imported.cabinetPresets.length} cabinet presets).`);
+        persist(
+          merged,
+          `Imported and merged library (${imported.cabinetPresets.length} cabinet presets).`,
+        );
       } catch {
         setMessage("Import failed: invalid library JSON.");
       }
@@ -154,376 +155,40 @@ export function LibraryManagerPanel({
       {message ? <p className="library-manager-message">{message}</p> : null}
 
       <div className="library-manager-body">
-        {tab === "overview" ? (
-          <div className="report-summary-grid">
-            <div className="report-card">
-              <span className="report-card-label">Door styles</span>
-              <strong>{summary.doorStyles}</strong>
-            </div>
-            <div className="report-card">
-              <span className="report-card-label">Materials</span>
-              <strong>{summary.materials}</strong>
-            </div>
-            <div className="report-card">
-              <span className="report-card-label">Hardware</span>
-              <strong>{summary.hardware}</strong>
-            </div>
-            <div className="report-card">
-              <span className="report-card-label">Countertops</span>
-              <strong>{summary.countertops}</strong>
-            </div>
-            <div className="report-card">
-              <span className="report-card-label">Standards packs</span>
-              <strong>{summary.standardsPacks}</strong>
-            </div>
-            <div className="report-card">
-              <span className="report-card-label">User cabinet presets</span>
-              <strong>{summary.cabinetPresets}</strong>
-            </div>
-          </div>
-        ) : null}
-
+        {tab === "overview" ? <LibraryOverviewTab summary={summary} /> : null}
         {tab === "cabinets" ? (
-          <section className="report-subsection">
-            <div className="library-section-actions">
-              <button
-                type="button"
-                className="tb-btn tb-accent"
-                disabled={!selectedConfig}
-                onClick={() => {
-                  if (!selectedConfig) return;
-                  const name = window.prompt("Cabinet preset name:", "Library preset");
-                  if (!name?.trim()) return;
-                  const entry = createCabinetPresetFromConfig(selectedConfig, name.trim());
-                  persist(
-                    {
-                      ...library,
-                      cabinetPresets: [...library.cabinetPresets, entry],
-                    },
-                    `Saved cabinet preset ${entry.label} v${entry.version}.`,
-                  );
-                }}
-              >
-                Save selected cabinet to library
-              </button>
-            </div>
-            <div className="shop-table-wrap">
-              <table className="shop-table">
-                <thead>
-                  <tr>
-                    <th>Preset</th>
-                    <th>Family</th>
-                    <th>Version</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {library.cabinetPresets.length === 0 ? (
-                    <tr>
-                      <td colSpan={4}>No user cabinet presets yet.</td>
-                    </tr>
-                  ) : (
-                    library.cabinetPresets.map((preset) => (
-                      <tr key={preset.id}>
-                        <td>
-                          <strong>{preset.label}</strong>
-                          <span className="shop-sub">{preset.description}</span>
-                        </td>
-                        <td>{preset.family}</td>
-                        <td>v{preset.version}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="shop-source-btn"
-                            onClick={() =>
-                              persist(
-                                {
-                                  ...library,
-                                  cabinetPresets: library.cabinetPresets.filter(
-                                    (item) => item.id !== preset.id,
-                                  ),
-                                },
-                                `Removed ${preset.label}.`,
-                              )
-                            }
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibraryCabinetsTab
+            library={library}
+            selectedConfig={selectedConfig}
+            onPersist={persist}
+          />
         ) : null}
-
         {tab === "doors" ? (
-          <section className="report-subsection">
-            <div className="library-section-actions">
-              <button
-                type="button"
-                className="tb-btn"
-                onClick={() => {
-                  const label = window.prompt("Door style name:", "Custom single");
-                  if (!label?.trim()) return;
-                  const style = (window.prompt("Style (single/double/bi-fold):", "single") ||
-                    "single") as DoorStyle;
-                  const entry = createDoorStyleEntry(label.trim(), style);
-                  persist(
-                    { ...library, doorStyles: [...library.doorStyles, entry] },
-                    `Added door style ${entry.label}.`,
-                  );
-                }}
-              >
-                Add door style
-              </button>
-            </div>
-            <div className="shop-table-wrap">
-              <table className="shop-table">
-                <thead>
-                  <tr>
-                    <th>Style</th>
-                    <th>Door</th>
-                    <th>Version</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {doorStyles.map((entry) => (
-                    <tr key={entry.id}>
-                      <td>
-                        <strong>{entry.label}</strong>
-                        <span className="shop-sub">{entry.description}</span>
-                      </td>
-                      <td>{entry.doorStyle}</td>
-                      <td>v{entry.version}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibraryDoorsTab library={library} doorStyles={doorStyles} onPersist={persist} />
         ) : null}
-
         {tab === "materials" ? (
-          <section className="report-subsection">
-            <div className="library-section-actions">
-              <button
-                type="button"
-                className="tb-btn"
-                onClick={() => {
-                  const label = window.prompt("Material library name:", "Shop painted MDF");
-                  if (!label?.trim()) return;
-                  const entry = createMaterialEntry(
-                    label.trim(),
-                    MATERIAL_PRESETS[1]?.id ?? "mdf-painted",
-                    FINISHES[0]?.id ?? "white-matte",
-                    EDGE_BANDING_OPTIONS[0]?.id ?? "abs-1mm",
-                    "User material pack",
-                  );
-                  persist(
-                    { ...library, materials: [...library.materials, entry] },
-                    `Added material ${entry.label}.`,
-                  );
-                }}
-              >
-                Add material pack
-              </button>
-            </div>
-            <div className="shop-table-wrap">
-              <table className="shop-table">
-                <thead>
-                  <tr>
-                    <th>Material</th>
-                    <th>Preset</th>
-                    <th>Finish</th>
-                    <th>Edge</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {materials.map((entry) => (
-                    <tr key={entry.id}>
-                      <td>
-                        <strong>{entry.label}</strong>
-                      </td>
-                      <td>{entry.materialPresetId}</td>
-                      <td>{entry.finishId}</td>
-                      <td>{entry.edgeBandingId}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibraryMaterialsTab library={library} materials={materials} onPersist={persist} />
         ) : null}
-
         {tab === "hardware" ? (
-          <section className="report-subsection">
-            <div className="library-section-actions">
-              <button
-                type="button"
-                className="tb-btn"
-                onClick={() => {
-                  const label = window.prompt("Hardware name:", "Custom soft hinge");
-                  if (!label?.trim()) return;
-                  const kind = (window.prompt(
-                    "Kind (hinge/slide/handle/accessory):",
-                    "hinge",
-                  ) || "hinge") as HardwareKind;
-                  const cost = Number(window.prompt("Unit cost ₹:", "100") || 100);
-                  const entry = createHardwareEntry(label.trim(), kind, cost);
-                  persist(
-                    { ...library, hardware: [...library.hardware, entry] },
-                    `Added hardware ${entry.label}.`,
-                  );
-                }}
-              >
-                Add hardware SKU
-              </button>
-            </div>
-            <div className="shop-table-wrap">
-              <table className="shop-table">
-                <thead>
-                  <tr>
-                    <th>Hardware</th>
-                    <th>Kind</th>
-                    <th>Cost</th>
-                    <th>Source</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {hardware.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <strong>{item.label}</strong>
-                      </td>
-                      <td>{item.kind}</td>
-                      <td>₹{item.costPerUnit}</td>
-                      <td>{"userDefined" in item && item.userDefined ? "User" : "Built-in"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibraryHardwareTab library={library} hardware={hardware} onPersist={persist} />
         ) : null}
-
         {tab === "countertops" ? (
-          <section className="report-subsection">
-            <div className="library-section-actions">
-              <button
-                type="button"
-                className="tb-btn"
-                onClick={() => {
-                  const label = window.prompt("Countertop preset name:", "Shop laminate 28");
-                  if (!label?.trim()) return;
-                  const entry = createCountertopEntry(label.trim(), {
-                    thicknessMm: projectStandards.countertopThicknessMm,
-                    overhangFrontMm: projectStandards.countertopOverhangFrontMm,
-                    overhangSidesMm: projectStandards.countertopOverhangSidesMm,
-                  });
-                  persist(
-                    { ...library, countertops: [...library.countertops, entry] },
-                    `Added countertop ${entry.label}.`,
-                  );
-                }}
-              >
-                Add countertop preset
-              </button>
-            </div>
-            <div className="shop-table-wrap">
-              <table className="shop-table">
-                <thead>
-                  <tr>
-                    <th>Preset</th>
-                    <th>Thickness</th>
-                    <th>Overhangs</th>
-                    <th>Material</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {countertops.map((entry) => (
-                    <tr key={entry.id}>
-                      <td>
-                        <strong>{entry.label}</strong>
-                      </td>
-                      <td>{entry.thicknessMm} mm</td>
-                      <td>
-                        F{entry.overhangFrontMm} / S{entry.overhangSidesMm}
-                      </td>
-                      <td>{entry.materialLabel}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibraryCountertopsTab
+            library={library}
+            countertops={countertops}
+            projectStandards={projectStandards}
+            onPersist={persist}
+          />
         ) : null}
-
         {tab === "standards" ? (
-          <section className="report-subsection">
-            <div className="library-section-actions">
-              <button
-                type="button"
-                className="tb-btn"
-                onClick={() => {
-                  const label = window.prompt("Standards pack name:", "Current project standards");
-                  if (!label?.trim()) return;
-                  const entry = createStandardsPackEntry(
-                    label.trim(),
-                    projectStandards,
-                    "Saved from active project standards",
-                  );
-                  persist(
-                    {
-                      ...library,
-                      standardsPacks: [...library.standardsPacks, entry],
-                    },
-                    `Saved standards pack ${entry.label} v${entry.version}.`,
-                  );
-                }}
-              >
-                Save current standards pack
-              </button>
-            </div>
-            <div className="shop-table-wrap">
-              <table className="shop-table">
-                <thead>
-                  <tr>
-                    <th>Pack</th>
-                    <th>Material</th>
-                    <th>Version</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {standardsPacks.map((pack) => (
-                    <tr key={pack.id}>
-                      <td>
-                        <strong>{pack.label}</strong>
-                        <span className="shop-sub">{pack.description}</span>
-                      </td>
-                      <td>{pack.standards.materialPresetId}</td>
-                      <td>v{pack.version}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="shop-source-btn"
-                          onClick={() => {
-                            onApplyStandardsPack(pack.standards);
-                            setMessage(`Applied standards pack ${pack.label}.`);
-                          }}
-                        >
-                          Apply
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibraryStandardsTab
+            library={library}
+            standardsPacks={standardsPacks}
+            projectStandards={projectStandards}
+            onPersist={persist}
+            onApplyStandardsPack={onApplyStandardsPack}
+            onMessage={setMessage}
+          />
         ) : null}
       </div>
     </div>

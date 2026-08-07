@@ -116,11 +116,7 @@ import {
   upsertUserTemplate,
   type CabinetTemplate,
 } from "./domain/cabinetTemplates";
-import {
-  loadWorkshopLibrary,
-  saveWorkshopLibrary,
-  type WorkshopLibraryPack,
-} from "./domain/libraryManager";
+import { useWorkshopLibrary } from "./hooks/useWorkshopLibrary";
 import {
   createDefaultLayer,
   createEditorSnapshot,
@@ -169,9 +165,8 @@ function App() {
   const [commandQuery, setCommandQuery] = useState("");
   const [isShortcutSheetOpen, setIsShortcutSheetOpen] = useState(false);
   const [libraryManagerOpen, setLibraryManagerOpen] = useState(false);
-  const [workshopLibrary, setWorkshopLibrary] = useState<WorkshopLibraryPack>(
-    () => loadWorkshopLibrary(),
-  );
+  const { library: workshopLibrary, setLibrary: setWorkshopLibrary } =
+    useWorkshopLibrary();
   const [userTemplates, setUserTemplates] = useState<CabinetTemplate[]>(() =>
     loadUserTemplatesFromStorage(),
   );
@@ -2117,10 +2112,7 @@ function App() {
               library={workshopLibrary}
               projectStandards={projectStandards}
               selectedConfig={selectedCabinet?.config ?? null}
-              onLibraryChange={(next) => {
-                setWorkshopLibrary(next);
-                saveWorkshopLibrary(next);
-              }}
+              onLibraryChange={setWorkshopLibrary}
               onApplyStandardsPack={(standards) => {
                 handleProjectPreferenceChange({
                   standards: clampProjectStandards(standards),
