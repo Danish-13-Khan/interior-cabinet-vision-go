@@ -77,6 +77,22 @@ import {
 } from "./domain/cabinetLibrary";
 import { createProjectReport } from "./domain/projectReport";
 import {
+  addEmptyProjectRoom,
+  addRoomFromTemplate,
+  createWholeProjectReport,
+  duplicateProjectRoom,
+  getActiveProjectRoom,
+  getRoomTemplate,
+  listProjectRooms,
+  normalizeMultiRoomProject,
+  removeProjectRoom,
+  renameProjectRoom,
+  switchProjectRoom,
+  writeActiveRoomState,
+  type RoomTemplateId,
+} from "./domain/projectRooms";
+import { RoomNavigator } from "./components/RoomNavigator";
+import {
   evaluateCabinetRules,
   type ManufacturingIssue,
 } from "./domain/manufacturingRules";
@@ -253,20 +269,29 @@ function App() {
     () => createProjectReport(project, room, planningWorkflow),
     [planningWorkflow, project, room],
   );
+  const wholeProjectReport = useMemo(
+    () => createWholeProjectReport(project),
+    [project],
+  );
+  const projectRooms = useMemo(() => listProjectRooms(project), [project]);
 
   function refreshHistoryState() {
     setHistoryTick((value) => value + 1);
   }
 
   function applySnapshot(snapshot: EditorSnapshot) {
-    const safeProject = clampCabinetProject(snapshot.project);
+    const safeProject = normalizeMultiRoomProject(
+      clampCabinetProject(snapshot.project),
+      snapshot.room,
+    );
+    const activeRoom = getActiveProjectRoom(safeProject);
     const safeSelection = sanitizeSelection(
       safeProject,
       snapshot.selectedCabinetIds,
       snapshot.activeCabinetId,
     );
     setProject(safeProject);
-    setRoom(snapshot.room);
+    setRoom(activeRoom.config);
     setSelectedCabinetIds(safeSelection.selectedCabinetIds);
     setActiveCabinetId(safeSelection.activeCabinetId);
     setSelectedPanelName(snapshot.selectedPanelName);
@@ -408,7 +433,10 @@ function App() {
   }
 
   function saveCurrentProjectToBrowser(nameOverride?: string) {
-    const safeProject = clampCabinetProject(project);
+    const safeProject = normalizeMultiRoomProject(
+      writeActiveRoomState(project, project.cabinets, room),
+      room,
+    );
     const thumbnail = captureThumbnail();
     const entry: SavedProjectBrowserEntry = {
       id: `saved-${Date.now()}`,
@@ -416,12 +444,12 @@ function App() {
       thumbnail,
       updatedAt: new Date().toISOString(),
       project: safeProject,
-      room,
+      room: getActiveProjectRoom(safeProject).config,
     };
 
     const nextProjects = [entry, ...savedProjects].slice(0, 16);
     setProjectAndPersist(nextProjects);
-    setProjectStatus("Saved current room to the project browser.");
+    setProjectStatus("Saved current project to the browser.");
   }
 
   function commitProjectChange(
@@ -440,7 +468,17 @@ function App() {
       return;
     }
 
-    const safeProject = clampCabinetProject(nextState.project);
+    const nextRoom = nextState.room ?? room;
+    const synced = writeActiveRoomState(
+      nextState.project,
+      nextState.project.cabinets,
+      nextRoom,
+    );
+    const safeProject = normalizeMultiRoomProject(
+      clampCabinetProject(synced),
+      nextRoom,
+    );
+    const activeRoom = getActiveProjectRoom(safeProject);
     const safeSelection = sanitizeSelection(
       safeProject,
       nextState.selectedCabinetIds ?? selectedCabinetIds,
@@ -450,7 +488,7 @@ function App() {
     commitSnapshot(
       {
         project: safeProject,
-        room: nextState.room ?? room,
+        room: activeRoom.config,
         selectedCabinetIds: safeSelection.selectedCabinetIds,
         activeCabinetId: safeSelection.activeCabinetId,
         selectedPanelName:
@@ -459,6 +497,92 @@ function App() {
             : nextState.selectedPanelName,
       },
       status,
+    );
+  }
+
+  function commitRoomProject(
+    nextProject: CabinetProject,
+    status: string,
+  ) {
+    const safeProject = normalizeMultiRoomProject(
+      clampCabinetProject(nextProject),
+      room,
+    );
+    const activeRoom = getActiveProjectRoom(safeProject);
+    commitSnapshot(
+      {
+        project: safeProject,
+        room: activeRoom.config,
+        selectedCabinetIds: safeProject.cabinets[0]?.id
+          ? [safeProject.cabinets[0].id]
+          : [],
+        activeCabinetId: safeProject.cabinets[0]?.id ?? null,
+        selectedPanelName: null,
+      },
+      status,
+    );
+  }
+
+  function handleRoomConfigChange(nextRoom: RoomConfig) {
+    commitProjectChange(
+      (currentProject) => ({
+        project: currentProject,
+        room: nextRoom,
+      }),
+      "Updated room configuration.",
+    );
+  }
+
+  function handleSelectProjectRoom(roomId: string) {
+    if (roomId === project.activeRoomId) return;
+    commitRoomProject(
+      switchProjectRoom(project, roomId, project.cabinets, room),
+      "Switched active room.",
+    );
+  }
+
+  function handleAddProjectRoom() {
+    commitRoomProject(
+      addEmptyProjectRoom(project, project.cabinets, room),
+      "Added a new room.",
+    );
+  }
+
+  function handleDuplicateProjectRoom(roomId: string) {
+    commitRoomProject(
+      duplicateProjectRoom(project, roomId, project.cabinets, room),
+      "Duplicated room.",
+    );
+  }
+
+  function handleRenameProjectRoom(roomId: string) {
+    const current = listProjectRooms(project).find((entry) => entry.id === roomId);
+    const name = window.prompt("Room name", current?.name ?? "Room");
+    if (!name?.trim()) return;
+    commitRoomProject(
+      renameProjectRoom(project, roomId, name.trim(), project.cabinets, room),
+      `Renamed room to “${name.trim()}”.`,
+    );
+  }
+
+  function handleRemoveProjectRoom(roomId: string) {
+    if (listProjectRooms(project).length <= 1) {
+      setProjectStatus("Keep at least one room in the project.");
+      return;
+    }
+    if (!window.confirm("Delete this room and its cabinets?")) return;
+    commitRoomProject(
+      removeProjectRoom(project, roomId, project.cabinets, room),
+      "Removed room.",
+    );
+  }
+
+  function handleAddRoomFromTemplate(templateId: RoomTemplateId) {
+    const template = getRoomTemplate(templateId);
+    if (!template) return;
+    commitRoomProject(
+      addRoomFromTemplate(project, project.cabinets, room, template.build()),
+      `Added room from “${template.label}” template.`,
     );
   }
 
@@ -635,15 +759,20 @@ function App() {
     if (!preset) return;
 
     const presetProject = createRoomPresetProject(preset);
-    commitSnapshot(
-      {
-        project: presetProject,
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          cabinets: presetProject.cabinets,
+        },
         room,
-        selectedCabinetIds: presetProject.cabinets[0]?.id ? [presetProject.cabinets[0].id] : [],
+        selectedCabinetIds: presetProject.cabinets[0]?.id
+          ? [presetProject.cabinets[0].id]
+          : [],
         activeCabinetId: presetProject.cabinets[0]?.id ?? null,
         selectedPanelName: null,
-      },
-      `Loaded ${preset.label} room preset.`,
+      }),
+      `Loaded ${preset.label} into the active room.`,
     );
   }
 
@@ -1512,9 +1641,12 @@ function App() {
         targetPath,
         JSON.stringify(
           {
-            version: 2,
+            version: 3,
             savedAt: new Date().toISOString(),
-            project,
+            project: normalizeMultiRoomProject(
+              writeActiveRoomState(project, project.cabinets, room),
+              room,
+            ),
             room,
           },
           null,
@@ -1551,10 +1683,14 @@ function App() {
         | { project?: CabinetProject; config?: CabinetConfig; room?: RoomConfig };
 
       if (parsed.project) {
-        const safeProject = clampCabinetProject(parsed.project);
+        const safeProject = normalizeMultiRoomProject(
+          clampCabinetProject(parsed.project),
+          parsed.room ?? DEFAULT_ROOM,
+        );
+        const activeRoom = getActiveProjectRoom(safeProject);
         applySnapshot({
           project: safeProject,
-          room: parsed.room ?? room,
+          room: activeRoom.config,
           selectedCabinetIds: safeProject.cabinets[0]?.id ? [safeProject.cabinets[0].id] : [],
           activeCabinetId: safeProject.cabinets[0]?.id ?? null,
           selectedPanelName: null,
@@ -1743,14 +1879,15 @@ function App() {
   );
 
 
+  const activeRoomName = getActiveProjectRoom(project).name;
   const workspaceLabel =
     workspaceTab === "plan"
-      ? "Plan"
+      ? `${activeRoomName} · Plan`
       : workspaceTab === "front"
-        ? "Front Elevation"
+        ? `${activeRoomName} · Front`
         : workspaceTab === "side"
-          ? "Side Elevation"
-          : "3D View";
+          ? `${activeRoomName} · Side`
+          : `${activeRoomName} · 3D`;
 
   const twoDViewKind =
     workspaceTab === "front" ? "front" : workspaceTab === "side" ? "side" : "top";
@@ -1821,6 +1958,17 @@ function App() {
             activeCabinetId={activeCabinetId}
             selectedCabinetIds={selectedCabinetIds}
             onSelectCabinet={handleWorkspaceSelectCabinet}
+          />
+
+          <RoomNavigator
+            rooms={projectRooms}
+            activeRoomId={project.activeRoomId ?? projectRooms[0]?.id ?? null}
+            onSelectRoom={handleSelectProjectRoom}
+            onAddRoom={handleAddProjectRoom}
+            onDuplicateRoom={handleDuplicateProjectRoom}
+            onRenameRoom={handleRenameProjectRoom}
+            onRemoveRoom={handleRemoveProjectRoom}
+            onAddFromTemplate={handleAddRoomFromTemplate}
           />
 
           <RoomPresetRail onLoadPreset={handleLoadRoomPreset} />
@@ -2018,19 +2166,28 @@ function App() {
             />
             <RoomSettings
               dimensions={room.dimensions}
-              onChange={(dims) => setRoom({ ...room, dimensions: dims })}
+              onChange={(dims) =>
+                handleRoomConfigChange({ ...room, dimensions: dims })
+              }
             />
             <WallEditor
               showBackWall={room.dimensions.showBackWall}
               showLeftWall={room.dimensions.showLeftWall}
               showRightWall={room.dimensions.showRightWall}
-              onChange={(walls) => setRoom({ ...room, dimensions: { ...room.dimensions, ...walls } })}
+              onChange={(walls) =>
+                handleRoomConfigChange({
+                  ...room,
+                  dimensions: { ...room.dimensions, ...walls },
+                })
+              }
             />
             <DoorWindowEditor
               doors={room.doors}
               windows={room.windows}
-              onChangeDoors={(doors) => setRoom({ ...room, doors })}
-              onChangeWindows={(windows) => setRoom({ ...room, windows })}
+              onChangeDoors={(doors) => handleRoomConfigChange({ ...room, doors })}
+              onChangeWindows={(windows) =>
+                handleRoomConfigChange({ ...room, windows })
+              }
             />
             <DimensionControls
               cabinetCount={project.cabinets.length}
@@ -2156,6 +2313,7 @@ function App() {
         onExportCsv={handleExportCutlistCsv}
         onExportPdf={handleExportPdf}
         report={projectReport}
+        wholeProject={wholeProjectReport}
         selectedCabinetId={activeCabinetId}
         costingSettings={costingSettings}
         quoteSettings={quoteSettings}

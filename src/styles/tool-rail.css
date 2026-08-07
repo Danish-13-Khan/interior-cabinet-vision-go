@@ -368,3 +368,88 @@
   font-size: 0.6rem;
   color: var(--muted);
 }
+
+.room-navigator {
+  padding-bottom: 10px;
+}
+
+.room-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.room-nav-row {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  border: 1px solid #d5dde6;
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.room-nav-row.is-active {
+  border-color: #7aa7cd;
+  box-shadow: inset 3px 0 0 var(--selection);
+  background: var(--accent-soft);
+}
+
+.room-nav-select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.room-nav-select strong {
+  font-size: 0.72rem;
+  color: var(--ink);
+}
+
+.room-nav-select span {
+  font-size: 0.58rem;
+  color: var(--muted);
+}
+
+.room-nav-actions {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #e2e8f0;
+}
+
+.room-nav-icon-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.room-nav-icon-btn:hover:not(:disabled) {
+  background: #eef2f6;
+  color: #0f172a;
+}
+
+.room-nav-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.room-nav-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}

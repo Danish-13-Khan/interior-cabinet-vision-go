@@ -1,0 +1,107 @@
+import type { ProjectRoom } from "../domain/projectRooms";
+import { ROOM_TEMPLATES, type RoomTemplateId } from "../domain/projectRooms";
+
+type RoomNavigatorProps = {
+  rooms: ProjectRoom[];
+  activeRoomId: string | null;
+  onSelectRoom: (roomId: string) => void;
+  onAddRoom: () => void;
+  onDuplicateRoom: (roomId: string) => void;
+  onRenameRoom: (roomId: string) => void;
+  onRemoveRoom: (roomId: string) => void;
+  onAddFromTemplate: (templateId: RoomTemplateId) => void;
+};
+
+export function RoomNavigator({
+  rooms,
+  activeRoomId,
+  onSelectRoom,
+  onAddRoom,
+  onDuplicateRoom,
+  onRenameRoom,
+  onRemoveRoom,
+  onAddFromTemplate,
+}: RoomNavigatorProps) {
+  return (
+    <div className="rail-section room-navigator">
+      <div className="rail-section-title">
+        <span>Rooms</span>
+        <span className="rail-count">{rooms.length}</span>
+      </div>
+
+      <div className="room-nav-list">
+        {rooms.map((room) => {
+          const isActive = room.id === activeRoomId;
+          return (
+            <div
+              key={room.id}
+              className={`room-nav-row ${isActive ? "is-active" : ""}`}
+            >
+              <button
+                type="button"
+                className="room-nav-select"
+                onClick={() => onSelectRoom(room.id)}
+                title={`${room.name} · ${room.cabinets.length} items`}
+              >
+                <strong>{room.name}</strong>
+                <span>
+                  {room.cabinets.length} items · {room.config.dimensions.widthMm}×
+                  {room.config.dimensions.depthMm}
+                </span>
+              </button>
+              <div className="room-nav-actions">
+                <button
+                  type="button"
+                  className="room-nav-icon-btn"
+                  title="Rename room"
+                  onClick={() => onRenameRoom(room.id)}
+                >
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  className="room-nav-icon-btn"
+                  title="Duplicate room"
+                  onClick={() => onDuplicateRoom(room.id)}
+                >
+                  ⧉
+                </button>
+                <button
+                  type="button"
+                  className="room-nav-icon-btn"
+                  title="Delete room"
+                  disabled={rooms.length <= 1}
+                  onClick={() => onRemoveRoom(room.id)}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="room-nav-toolbar">
+        <button type="button" className="tb-btn" onClick={onAddRoom}>
+          Add Room
+        </button>
+      </div>
+
+      <div className="palette-section-label">Room Templates</div>
+      <div className="library-item-list">
+        {ROOM_TEMPLATES.map((template) => (
+          <button
+            key={template.id}
+            type="button"
+            className="library-item-btn"
+            title={template.description}
+            onClick={() => onAddFromTemplate(template.id)}
+          >
+            <strong>{template.label}</strong>
+            <span>{template.description}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

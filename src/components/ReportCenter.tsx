@@ -11,6 +11,8 @@ import { JOB_STATUS_LABELS } from "../domain/jobMeta";
 import type { QuoteSettings } from "../domain/quoteSettings";
 import { formatQuoteMoney } from "../domain/quoteSettings";
 import type { SheetOptimizerSettings } from "../domain/sheetStock";
+import type { WholeProjectReport } from "../domain/projectRooms";
+import { WholeProjectRoomsPanel } from "./WholeProjectRoomsPanel";
 import {
   DEFAULT_SHEET_STOCK,
   getSheetStockDefinition,
@@ -18,6 +20,7 @@ import {
 
 export type ReportCenterTab =
   | "packet"
+  | "rooms"
   | "schedule"
   | "runs"
   | "materials"
@@ -29,6 +32,7 @@ export type ReportCenterTab =
 
 type ReportCenterProps = {
   report: ProjectReport;
+  wholeProject?: WholeProjectReport | null;
   selectedCabinetId?: string | null;
   costingSettings: CostingSettings;
   quoteSettings: QuoteSettings;
@@ -112,6 +116,7 @@ function CutlistTable({
 
 export function ReportCenter({
   report,
+  wholeProject = null,
   selectedCabinetId = null,
   costingSettings,
   quoteSettings,
@@ -173,6 +178,7 @@ export function ReportCenter({
         {(
           [
             ["packet", "Packet"],
+            ["rooms", "Rooms"],
             ["schedule", "Schedule"],
             ["runs", "Runs"],
             ["materials", "Materials"],
@@ -288,6 +294,16 @@ export function ReportCenter({
               </div>
             </div>
           </div>
+        ) : null}
+
+        {tab === "rooms" ? (
+          wholeProject ? (
+            <WholeProjectRoomsPanel wholeProject={wholeProject} />
+          ) : (
+            <div className="report-doc">
+              <p className="rail-empty">Whole-project room data is unavailable.</p>
+            </div>
+          )
         ) : null}
 
         {tab === "schedule" ? (

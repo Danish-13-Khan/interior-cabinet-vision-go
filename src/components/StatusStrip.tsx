@@ -2,6 +2,7 @@ import type { CostingSettings } from "../domain/costingSettings";
 import type { QuoteSettings } from "../domain/quoteSettings";
 import type { SheetOptimizerSettings } from "../domain/sheetStock";
 import type { ProjectReport } from "../domain/projectReport";
+import type { WholeProjectReport } from "../domain/projectRooms";
 import { ReportCenter } from "./ReportCenter";
 
 type StatusStripProps = {
@@ -28,6 +29,7 @@ type StatusStripProps = {
   onSheetOptimizerChange: (next: SheetOptimizerSettings) => void;
   onFreezeQuote: () => void;
   onSelectCabinet: (cabinetId: string) => void;
+  wholeProject?: WholeProjectReport | null;
 };
 
 export function StatusStrip({
@@ -54,6 +56,7 @@ export function StatusStrip({
   onSheetOptimizerChange,
   onFreezeQuote,
   onSelectCabinet,
+  wholeProject = null,
 }: StatusStripProps) {
   return (
     <footer className="status-strip">
@@ -101,6 +104,7 @@ export function StatusStrip({
         <div className="status-dock">
           <ReportCenter
             report={report}
+            wholeProject={wholeProject}
             selectedCabinetId={selectedCabinetId}
             costingSettings={costingSettings}
             quoteSettings={quoteSettings}
