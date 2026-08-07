@@ -1,0 +1,50 @@
+/* ── Cutlist Panel ── */
+.cutlist-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cutlist-header {
+  display: grid;
+  grid-template-columns: 1fr 60px 160px;
+  gap: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #7b8a98;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cutlist-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 160px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(201, 210, 220, 0.35);
+}
+
+.cutlist-row:last-child {
+  border-bottom: none;
+}
+
+.cutlist-row strong {
+  font-size: 0.82rem;
+  color: #243442;
+}
+
+.cutlist-row span {
+  font-size: 0.78rem;
+}
+
+/* ── Warning Panel ── */
+.warning-panel p {
+  margin: 0;
+  color: #8b6e3c;
+  font-size: 0.8rem;
+}
+
+.warning-panel p + p {
+  margin-top: 3px;
+}

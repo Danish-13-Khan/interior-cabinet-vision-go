@@ -18,6 +18,9 @@ export type ProjectStandards = {
   materialPresetId: MaterialPresetId;
   finishId: FinishId;
   edgeBandingId: EdgeBandingId;
+  countertopThicknessMm: number;
+  countertopOverhangFrontMm: number;
+  countertopOverhangSidesMm: number;
 };
 
 export const DEFAULT_PROJECT_STANDARDS: ProjectStandards = {
@@ -30,6 +33,9 @@ export const DEFAULT_PROJECT_STANDARDS: ProjectStandards = {
   materialPresetId: DEFAULT_BUILD_RULES.materialPresetId,
   finishId: DEFAULT_BUILD_RULES.finishId,
   edgeBandingId: DEFAULT_BUILD_RULES.edgeBandingId,
+  countertopThicknessMm: 28,
+  countertopOverhangFrontMm: 30,
+  countertopOverhangSidesMm: 20,
 };
 
 const CARCASS_THICKNESSES = new Set([16, 18, 25]);
@@ -94,5 +100,38 @@ export function clampProjectStandards(
     edgeBandingId: EDGE_IDS.has(seed.edgeBandingId)
       ? seed.edgeBandingId
       : DEFAULT_PROJECT_STANDARDS.edgeBandingId,
+    countertopThicknessMm: Math.min(
+      60,
+      Math.max(
+        12,
+        Math.round(
+          Number.isFinite(Number(seed.countertopThicknessMm))
+            ? Number(seed.countertopThicknessMm)
+            : DEFAULT_PROJECT_STANDARDS.countertopThicknessMm,
+        ),
+      ),
+    ),
+    countertopOverhangFrontMm: Math.min(
+      80,
+      Math.max(
+        0,
+        Math.round(
+          Number.isFinite(Number(seed.countertopOverhangFrontMm))
+            ? Number(seed.countertopOverhangFrontMm)
+            : DEFAULT_PROJECT_STANDARDS.countertopOverhangFrontMm,
+        ),
+      ),
+    ),
+    countertopOverhangSidesMm: Math.min(
+      60,
+      Math.max(
+        0,
+        Math.round(
+          Number.isFinite(Number(seed.countertopOverhangSidesMm))
+            ? Number(seed.countertopOverhangSidesMm)
+            : DEFAULT_PROJECT_STANDARDS.countertopOverhangSidesMm,
+        ),
+      ),
+    ),
   };
 }

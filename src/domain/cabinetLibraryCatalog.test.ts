@@ -81,6 +81,27 @@ describe("cabinet library catalog", () => {
     expect(config?.type).toBe("base");
     expect(config?.hasDoors).toBe(true);
   });
+
+  it("resolves user cabinet presets through the catalog", () => {
+    const preset = {
+      id: "preset-1",
+      label: "User tall",
+      family: "tall" as const,
+      description: "Custom tall",
+      config: getDefaultCabinetConfig("tall"),
+      version: 3,
+      updatedAt: new Date().toISOString(),
+    };
+    const item = getCabinetLibraryItem(`user-${preset.id}`, [preset]);
+    expect(item?.source).toBe("user");
+    expect(item?.version).toBe(3);
+    const config = createConfigFromLibraryItem(
+      `user-${preset.id}`,
+      DEFAULT_PROJECT_STANDARDS,
+      [preset],
+    );
+    expect(config?.type).toBe("tall");
+  });
 });
 
 describe("cabinet templates", () => {

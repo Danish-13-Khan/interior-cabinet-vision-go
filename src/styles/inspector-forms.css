@@ -1,0 +1,155 @@
+/* ── Editable Name Input ── */
+.editable-name-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.editable-name-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid rgba(157, 171, 185, 0.65);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.92rem;
+  color: #243442;
+}
+
+.editable-name-input:focus {
+  outline: none;
+  border-color: #7b93ac;
+  box-shadow: 0 0 0 3px rgba(123, 147, 172, 0.18);
+}
+
+.name-save-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(112, 137, 160, 0.55);
+  border-radius: 10px;
+  background: rgba(244, 249, 253, 0.95);
+  color: #3d566b;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.name-save-btn:hover {
+  background: rgba(231, 240, 248, 0.95);
+  border-color: rgba(82, 110, 138, 0.7);
+}
+
+/* ── Type Toggle ── */
+.type-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.type-toggle button {
+  padding: 6px 12px;
+  border: 1px solid rgba(157, 171, 185, 0.55);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #3d566b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.type-toggle button:hover {
+  background: rgba(231, 240, 248, 0.95);
+  border-color: rgba(112, 137, 160, 0.7);
+}
+
+.type-toggle button:active {
+  background: rgba(210, 224, 237, 0.95);
+}
+
+/* ── Field Grid ── */
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-group label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #4d5e6e;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.field-group input {
+  padding: 7px 10px;
+  border: 1px solid rgba(157, 171, 185, 0.55);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  color: #243442;
+}
+
+.field-group input:focus {
+  outline: none;
+  border-color: #7b93ac;
+  box-shadow: 0 0 0 3px rgba(123, 147, 172, 0.18);
+}
+
+/* ── Toggle Row ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-row label {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #4d5e6e;
+}
+
+/* ── Slider Group ── */
+.slider-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.slider-group .field-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Stats Panel ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #8895a7;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.stat-item strong {
+  font-size: 0.88rem;
+  color: #2d3748;
+}

@@ -1,0 +1,182 @@
+:root {
+  --shell-bg: #dce2e8;
+  --panel-bg: #f3f5f7;
+  --panel-raised: #fafbfc;
+  --panel-border: #b8c2cd;
+  --ink: #1c2733;
+  --muted: #5f6f80;
+  --accent: #1f4f7a;
+  --accent-soft: #e4eef6;
+  --selection: #2563eb;
+  --drawing-bg: #e8edf2;
+  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--shell-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
+  background: var(--shell-bg);
+  color: var(--ink);
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.command-bar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 88px;
+  background: rgba(22, 30, 40, 0.22);
+  backdrop-filter: blur(10px);
+}
+
+.command-bar,
+.shortcut-sheet {
+  width: min(680px, calc(100vw - 32px));
+  border: 1px solid rgba(188, 198, 209, 0.72);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 30px 80px rgba(35, 48, 64, 0.24);
+  overflow: hidden;
+}
+
+.command-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 10px;
+  color: #546577;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.command-bar-header strong {
+  color: #1f2b37;
+  font-size: 0.98rem;
+}
+
+.command-bar-input {
+  width: calc(100% - 32px);
+  margin: 0 16px 14px;
+  padding: 12px 14px;
+  border: 1px solid #d8dfe7;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #203142;
+}
+
+.command-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  padding: 0 12px 14px;
+  overflow-y: auto;
+}
+
+.command-bar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e1e7ee;
+  border-radius: 16px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.command-bar-item:hover {
+  border-color: #bfd0e4;
+  background: #f8fbff;
+}
+
+.command-bar-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.command-bar-item strong {
+  color: #1d2d3c;
+  font-size: 0.86rem;
+}
+
+.command-bar-item small {
+  color: #708296;
+  font-size: 0.74rem;
+}
+
+.command-bar-item kbd,
+.shortcut-row kbd {
+  padding: 5px 8px;
+  border: 1px solid #d5dde7;
+  border-bottom-width: 2px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #546577;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.shortcut-sheet {
+  padding-bottom: 12px;
+}
+
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e1e7ee;
+  border-radius: 16px;
+  background: #fff;
+  color: #304355;
+  font-size: 0.82rem;
+}

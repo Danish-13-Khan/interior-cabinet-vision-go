@@ -14,8 +14,14 @@ import { ProjectBrowser } from "./components/ProjectBrowser";
 import { JobWorkflowPanel } from "./components/JobWorkflowPanel";
 import { TwoDView, type DraftingTool } from "./components/TwoDView";
 import { DraftingPanel } from "./components/DraftingPanel";
-import { ReportCenter } from "./components/ReportCenter";
 import { LibraryRail } from "./components/LibraryRail";
+import { LibraryManagerPanel } from "./components/LibraryManagerPanel";
+import { AppRibbon } from "./components/AppRibbon";
+import { SceneTreePanel } from "./components/SceneTreePanel";
+import { RoomPresetRail } from "./components/RoomPresetRail";
+import { CommandPalette, type CommandItem } from "./components/CommandPalette";
+import { ShortcutSheet } from "./components/ShortcutSheet";
+import { StatusStrip } from "./components/StatusStrip";
 import { patchJobMeta, formatJobTitle, clampJobMeta, JOB_STATUS_LABELS, type ProjectJobMeta } from "./domain/jobMeta";
 import {
   clampDraftingDisplay,
@@ -33,7 +39,6 @@ import {
   clampCabinetProject,
   defaultCabinetProject,
   getCabinetValidationMessages,
-  getFootprintDimensions,
   getWallPlacement,
   normalizeRotationAngle,
   projectHasCollision,
@@ -83,18 +88,15 @@ import {
 import {
   clampCostingSettings,
   DEFAULT_COSTING_SETTINGS,
-  type CostingSettings,
 } from "./domain/costingSettings";
 import {
   clampQuoteSettings,
   DEFAULT_QUOTE_SETTINGS,
-  type QuoteSettings,
 } from "./domain/quoteSettings";
 import { createQuoteSnapshotFromQuote } from "./domain/projectQuote";
 import {
   clampSheetOptimizerSettings,
   DEFAULT_SHEET_OPTIMIZER,
-  type SheetOptimizerSettings,
 } from "./domain/sheetStock";
 import {
   clampProjectStandards,
@@ -114,170 +116,31 @@ import {
   upsertUserTemplate,
   type CabinetTemplate,
 } from "./domain/cabinetTemplates";
-
-type SavedProjectBrowserEntry = {
-  id: string;
-  name: string;
-  thumbnail: string;
-  updatedAt: string;
-  project: CabinetProject;
-  room: RoomConfig;
-};
-
-const PROJECT_BROWSER_STORAGE_KEY = "cabinet-designer-project-browser";
-const HISTORY_LIMIT = 80;
-
-type EditorSnapshot = {
-  project: CabinetProject;
-  room: RoomConfig;
-  selectedCabinetIds: string[];
-  activeCabinetId: string | null;
-  selectedPanelName: PanelName | null;
-};
-
-type AlignmentMode =
-  | "align-left"
-  | "align-center-x"
-  | "align-right"
-  | "align-top"
-  | "align-center-z"
-  | "align-bottom"
-  | "distribute-x"
-  | "distribute-z";
-
-type CommandItem = {
-  id: string;
-  label: string;
-  hint: string;
-  shortcut: string;
-  action: () => void;
-};
-
-function deepClone<T>(value: T): T {
-  if (typeof structuredClone === "function") {
-    return structuredClone(value);
-  }
-
-  return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function createDefaultLayer(): CabinetLayer {
-  return {
-    id: "layer-default",
-    name: "Default Layer",
-    visible: true,
-    locked: false,
-  };
-}
-
-function createEditorSnapshot(
-  project: CabinetProject,
-  room: RoomConfig,
-  selectedCabinetIds: string[],
-  activeCabinetId: string | null,
-  selectedPanelName: PanelName | null,
-): EditorSnapshot {
-  return deepClone({
-    project,
-    room,
-    selectedCabinetIds,
-    activeCabinetId,
-    selectedPanelName,
-  });
-}
-
-function sanitizeSelection(project: CabinetProject, selectedIds: string[], activeId: string | null) {
-  const validIds = new Set(project.cabinets.map((cabinet) => cabinet.id));
-  const nextSelectedIds = selectedIds.filter((id) => validIds.has(id));
-  const nextActiveId =
-    activeId && validIds.has(activeId)
-      ? activeId
-      : nextSelectedIds[0] ?? project.cabinets[0]?.id ?? null;
-
-  return {
-    selectedCabinetIds: nextActiveId
-      ? Array.from(new Set([nextActiveId, ...nextSelectedIds]))
-      : [],
-    activeCabinetId: nextActiveId,
-  };
-}
-
-function getCabinetBounds(cabinet: CabinetInstance) {
-  const footprint = getFootprintDimensions(
-    cabinet.config.dimensions,
-    cabinet.placement.rotation,
-  );
-
-  return {
-    minX: cabinet.placement.x - footprint.width / 2,
-    maxX: cabinet.placement.x + footprint.width / 2,
-    minZ: cabinet.placement.z - footprint.depth / 2,
-    maxZ: cabinet.placement.z + footprint.depth / 2,
-    centerX: cabinet.placement.x,
-    centerZ: cabinet.placement.z,
-    width: footprint.width,
-    depth: footprint.depth,
-  };
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  if (typeof error === "string") {
-    return error;
-  }
-
-  if (typeof error === "object" && error !== null) {
-    return JSON.stringify(error);
-  }
-
-  return "Unknown error";
-}
-
-function createCabinetId() {
-  return `cabinet-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-}
-
-function createItemName(type: CabinetType, index: number) {
-  return `${cabinetTypeLabels[type]} ${index}`;
-}
-
-function getProjectDisplayName(project: CabinetProject, count: number) {
-  const job = clampJobMeta(project.job);
-  if (job.projectNumber || job.customerName) {
-    return formatJobTitle(job);
-  }
-  const lead = project.cabinets[0]?.name ?? "Room Layout";
-  return project.cabinets.length > 1 ? `${lead} + ${project.cabinets.length - 1} more` : `${lead} ${count}`;
-}
-
-function readSavedProjects(): SavedProjectBrowserEntry[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const raw = window.localStorage.getItem(PROJECT_BROWSER_STORAGE_KEY);
-
-    if (!raw) {
-      return [];
-    }
-
-    const parsed = JSON.parse(raw) as SavedProjectBrowserEntry[];
-    return parsed.map((entry) => ({
-      ...entry,
-      project: clampCabinetProject(entry.project),
-    }));
-  } catch {
-    return [];
-  }
-}
-
-function persistSavedProjects(projects: SavedProjectBrowserEntry[]) {
-  window.localStorage.setItem(PROJECT_BROWSER_STORAGE_KEY, JSON.stringify(projects));
-}
+import {
+  loadWorkshopLibrary,
+  saveWorkshopLibrary,
+  type WorkshopLibraryPack,
+} from "./domain/libraryManager";
+import {
+  createDefaultLayer,
+  createEditorSnapshot,
+  HISTORY_LIMIT,
+  sanitizeSelection,
+  type EditorSnapshot,
+} from "./domain/editorSnapshot";
+import {
+  getProjectDisplayName,
+  persistSavedProjects,
+  readSavedProjects,
+  type SavedProjectBrowserEntry,
+} from "./domain/projectBrowserStorage";
+import { createCabinetId, createItemName } from "./domain/cabinetIds";
+import {
+  computeAlignmentTargets,
+  type AlignmentMode,
+} from "./domain/cabinetAlignment";
+import { deepClone } from "./utils/clone";
+import { getErrorMessage } from "./utils/errors";
 
 function App() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
@@ -305,6 +168,10 @@ function App() {
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
   const [isShortcutSheetOpen, setIsShortcutSheetOpen] = useState(false);
+  const [libraryManagerOpen, setLibraryManagerOpen] = useState(false);
+  const [workshopLibrary, setWorkshopLibrary] = useState<WorkshopLibraryPack>(
+    () => loadWorkshopLibrary(),
+  );
   const [userTemplates, setUserTemplates] = useState<CabinetTemplate[]>(() =>
     loadUserTemplatesFromStorage(),
   );
@@ -623,7 +490,8 @@ function App() {
   }
 
   function handleUndo() {
-    const previous = historyPastRef.current.at(-1);
+    const past = historyPastRef.current;
+    const previous = past[past.length - 1];
     if (!previous) return;
 
     historyPastRef.current = historyPastRef.current.slice(0, -1);
@@ -1098,7 +966,11 @@ function App() {
   }
 
   function handleAddLibraryItem(itemId: string) {
-    const config = createConfigFromLibraryItem(itemId, projectStandards);
+    const config = createConfigFromLibraryItem(
+      itemId,
+      projectStandards,
+      workshopLibrary.cabinetPresets,
+    );
     if (!config) {
       setProjectStatus("Library item could not be resolved.");
       return;
@@ -1452,19 +1324,8 @@ function App() {
     const editable = getSelectedEditableCabinets();
     if (editable.length < 2) return;
 
-    const bounds = editable.map((cabinet) => ({
-      cabinet,
-      bounds: getCabinetBounds(cabinet),
-    }));
-
-    const sortedByX = [...bounds].sort((first, second) => first.bounds.centerX - second.bounds.centerX);
-    const sortedByZ = [...bounds].sort((first, second) => first.bounds.centerZ - second.bounds.centerZ);
-    const left = Math.min(...bounds.map((item) => item.bounds.minX));
-    const right = Math.max(...bounds.map((item) => item.bounds.maxX));
-    const top = Math.min(...bounds.map((item) => item.bounds.minZ));
-    const bottom = Math.max(...bounds.map((item) => item.bounds.maxZ));
-    const centerX = bounds.reduce((sum, item) => sum + item.bounds.centerX, 0) / bounds.length;
-    const centerZ = bounds.reduce((sum, item) => sum + item.bounds.centerZ, 0) / bounds.length;
+    const targets = computeAlignmentTargets(editable, mode);
+    const targetById = new Map(targets.map((item) => [item.id, item]));
 
     commitProjectChange(
       (currentProject) => ({
@@ -1475,47 +1336,9 @@ function App() {
               return cabinet;
             }
 
-            const item = bounds.find((entry) => entry.cabinet.id === cabinet.id);
-            if (!item) {
+            const target = targetById.get(cabinet.id);
+            if (!target) {
               return cabinet;
-            }
-
-            let nextX = cabinet.placement.x;
-            let nextZ = cabinet.placement.z;
-
-            switch (mode) {
-              case "align-left":
-                nextX = left + item.bounds.width / 2;
-                break;
-              case "align-center-x":
-                nextX = centerX;
-                break;
-              case "align-right":
-                nextX = right - item.bounds.width / 2;
-                break;
-              case "align-top":
-                nextZ = top + item.bounds.depth / 2;
-                break;
-              case "align-center-z":
-                nextZ = centerZ;
-                break;
-              case "align-bottom":
-                nextZ = bottom - item.bounds.depth / 2;
-                break;
-              case "distribute-x": {
-                const index = sortedByX.findIndex((entry) => entry.cabinet.id === cabinet.id);
-                const span = right - left;
-                const step = sortedByX.length > 1 ? span / (sortedByX.length - 1) : 0;
-                nextX = left + step * index;
-                break;
-              }
-              case "distribute-z": {
-                const index = sortedByZ.findIndex((entry) => entry.cabinet.id === cabinet.id);
-                const span = bottom - top;
-                const step = sortedByZ.length > 1 ? span / (sortedByZ.length - 1) : 0;
-                nextZ = top + step * index;
-                break;
-              }
             }
 
             return {
@@ -1523,8 +1346,8 @@ function App() {
               placement: clampPlacementInRoom(
                 {
                   ...cabinet.placement,
-                  x: snapMillimetresToGrid(nextX, projectPreferences.snapSizeMm),
-                  z: snapMillimetresToGrid(nextZ, projectPreferences.snapSizeMm),
+                  x: snapMillimetresToGrid(target.x, projectPreferences.snapSizeMm),
+                  z: snapMillimetresToGrid(target.z, projectPreferences.snapSizeMm),
                 },
                 cabinet.config.dimensions,
               ),
@@ -1645,6 +1468,13 @@ function App() {
       { id: "align-left", label: "Align Left", hint: "Align selected items to the left edge", shortcut: "Toolbar", action: () => handleAlignSelection("align-left") },
       { id: "distribute-x", label: "Distribute X", hint: "Evenly space selected items horizontally", shortcut: "Toolbar", action: () => handleAlignSelection("distribute-x") },
       { id: "toggle-grid", label: "Toggle Grid", hint: "Show or hide the viewport grid", shortcut: "Toolbar", action: () => handleProjectPreferenceChange({ showGrid: !projectPreferences.showGrid }) },
+      {
+        id: "library-manager",
+        label: "Library Manager",
+        hint: "Manage door, material, hardware, and cabinet libraries",
+        shortcut: "Rail",
+        action: () => setLibraryManagerOpen(true),
+      },
       { id: "shortcuts", label: "Show Shortcuts", hint: "Open keyboard shortcut cheat sheet", shortcut: "?", action: () => setIsShortcutSheetOpen(true) },
     ],
     [projectPreferences.showGrid, selectedCabinetIds.length],
@@ -1946,138 +1776,59 @@ function App() {
 
   return (
     <main className="app-shell">
-      <header className="app-ribbon" aria-label="Command ribbon">
-        <div className="ribbon-brand">
-          <strong>Cabinet Planner</strong>
-          <span>{workspaceLabel}</span>
-        </div>
-
-        <div className="ribbon-group">
-          <span className="ribbon-group-label">File</span>
-          <div className="ribbon-group-actions">
-            <button type="button" className="tb-btn" onClick={handleReset} title="New project">New</button>
-            <button type="button" className="tb-btn" onClick={handleLoadProject} title="Open JSON file">Open</button>
-            <button type="button" className="tb-btn" onClick={handleSaveProject} title="Save JSON file">Save</button>
-          </div>
-        </div>
-
-        <div className="ribbon-group">
-          <span className="ribbon-group-label">Edit</span>
-          <div className="ribbon-group-actions">
-            <button type="button" className="tb-btn" onClick={handleUndo} disabled={!canUndo} title="Undo">Undo</button>
-            <button type="button" className="tb-btn" onClick={handleRedo} disabled={!canRedo} title="Redo">Redo</button>
-            <button type="button" className="tb-btn" onClick={handleCopySelection} disabled={selectedCabinetIds.length === 0} title="Copy">Copy</button>
-            <button type="button" className="tb-btn" onClick={handlePasteSelection} disabled={clipboardRef.current.length === 0} title="Paste">Paste</button>
-            <button type="button" className="tb-btn" onClick={handleDuplicateCabinet} disabled={selectedCabinetIds.length === 0} title="Duplicate">Duplicate</button>
-          </div>
-        </div>
-
-        <div className="ribbon-group">
-          <span className="ribbon-group-label">Arrange</span>
-          <div className="ribbon-group-actions">
-            <button type="button" className="tb-btn" onClick={handleAutoAlignRuns} title="Auto align cabinet runs">Align Runs</button>
-            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-left")} disabled={selectedCabinetIds.length < 2}>Left</button>
-            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-center-x")} disabled={selectedCabinetIds.length < 2}>Center X</button>
-            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("align-top")} disabled={selectedCabinetIds.length < 2}>Top</button>
-            <button type="button" className="tb-btn" onClick={() => handleAlignSelection("distribute-x")} disabled={selectedCabinetIds.length < 3}>Distribute X</button>
-          </div>
-        </div>
-
-        <div className="ribbon-group">
-          <span className="ribbon-group-label">Export</span>
-          <div className="ribbon-group-actions">
-            <button type="button" className="tb-btn" onClick={handleExportProjectJson} title="Export JSON">JSON</button>
-            <button type="button" className="tb-btn" onClick={handleExportCutlistCsv} title="Export CSV">CSV</button>
-            <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf} title="Download PDF">PDF</button>
-          </div>
-        </div>
-
-        {workspaceTab === "3d" ? (
-          <div className="ribbon-group">
-            <span className="ribbon-group-label">3D Camera</span>
-            <div className="ribbon-group-actions">
-              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("iso")} title="ISO view">ISO</button>
-              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("front")} title="Front camera">Front</button>
-              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("side")} title="Side camera">Side</button>
-              <button type="button" className="tb-btn" onClick={() => sceneRef.current?.setViewPreset("top")} title="Top camera">Top</button>
-            </div>
-          </div>
-        ) : null}
-
-        <div className="ribbon-group ribbon-group-end">
-          <span className="ribbon-group-label">Tools</span>
-          <div className="ribbon-group-actions">
-            <button type="button" className="tb-btn" onClick={() => { setIsCommandBarOpen(true); setIsShortcutSheetOpen(false); }} title="Command palette">Commands</button>
-            <button type="button" className="tb-btn" onClick={() => { setIsShortcutSheetOpen(true); setIsCommandBarOpen(false); }} title="Shortcut help">Shortcuts</button>
-          </div>
-        </div>
-      </header>
+      <AppRibbon
+        workspaceLabel={workspaceLabel}
+        workspaceTab={workspaceTab}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        hasSelection={selectedCabinetIds.length > 0}
+        hasClipboard={clipboardRef.current.length > 0}
+        selectionCount={selectedCabinetIds.length}
+        onNew={handleReset}
+        onOpen={handleLoadProject}
+        onSave={handleSaveProject}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onCopy={handleCopySelection}
+        onPaste={handlePasteSelection}
+        onDuplicate={handleDuplicateCabinet}
+        onAlignRuns={handleAutoAlignRuns}
+        onAlign={handleAlignSelection}
+        onExportJson={handleExportProjectJson}
+        onExportCsv={handleExportCutlistCsv}
+        onExportPdf={handleExportPdf}
+        onSetViewPreset={(preset) => sceneRef.current?.setViewPreset(preset)}
+        onOpenCommands={() => {
+          setIsCommandBarOpen(true);
+          setIsShortcutSheetOpen(false);
+        }}
+        onOpenShortcuts={() => {
+          setIsShortcutSheetOpen(true);
+          setIsCommandBarOpen(false);
+        }}
+      />
 
       <div className="app-body">
         <aside className="tool-rail" aria-label="Tool rail">
           <LibraryRail
             templates={userTemplates}
+            userCabinetPresets={workshopLibrary.cabinetPresets}
             onAddFamily={handleAddCabinet}
             onAddLibraryItem={handleAddLibraryItem}
             onAddTemplate={handleAddTemplate}
             onDeleteTemplate={handleDeleteTemplate}
             onApplyStarter={handleApplyStarter}
+            onOpenLibraryManager={() => setLibraryManagerOpen(true)}
           />
 
-          <div className="rail-section scene-tree-panel">
-            <div className="rail-section-title">
-              <span>Scene Objects</span>
-              <span className="rail-count">{project.cabinets.length}</span>
-            </div>
-            <div className="scene-tree-list">
-              {project.cabinets.map((cabinet) => {
-                const isActive = activeCabinetId === cabinet.id;
-                const isSelected = selectedCabinetIds.includes(cabinet.id);
-                return (
-                  <button
-                    key={cabinet.id}
-                    type="button"
-                    className={`scene-tree-item ${isSelected ? "is-selected" : ""} ${isActive ? "is-active" : ""}`}
-                    onClick={(event) =>
-                      handleWorkspaceSelectCabinet(
-                        cabinet.id,
-                        event.metaKey || event.ctrlKey || event.shiftKey,
-                      )
-                    }
-                    title={`${cabinet.name} · ${cabinetTypeLabels[cabinet.config.type]}`}
-                  >
-                    <span className="scene-tree-icon">
-                      {cabinetTypeLabels[cabinet.config.type].charAt(0)}
-                    </span>
-                    <span className="scene-tree-copy">
-                      <strong>{cabinet.name}</strong>
-                      <small>{cabinetTypeLabels[cabinet.config.type]}</small>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <SceneTreePanel
+            cabinets={project.cabinets}
+            activeCabinetId={activeCabinetId}
+            selectedCabinetIds={selectedCabinetIds}
+            onSelectCabinet={handleWorkspaceSelectCabinet}
+          />
 
-          <div className="rail-section">
-            <div className="rail-section-title">Room Presets</div>
-            <div className="preset-rail-list">
-              {roomPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  className="palette-preset-btn"
-                  title={preset.description}
-                  onClick={() => handleLoadRoomPreset(preset.id)}
-                >
-                  <span className="palette-preset-icon">
-                    {preset.id === "small-bedroom" ? "🛏" : preset.id === "living-room" ? "🛋" : "💼"}
-                  </span>
-                  <span className="palette-cat-label">{preset.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <RoomPresetRail onLoadPreset={handleLoadRoomPreset} />
 
           <div className="rail-section">
             <ProjectBrowser
@@ -2353,140 +2104,88 @@ function App() {
         </aside>
       </div>
 
-      {isCommandBarOpen ? (
-        <div className="command-bar-backdrop" onClick={closeCommandSurfaces}>
-          <div className="command-bar" onClick={(event) => event.stopPropagation()}>
-            <div className="command-bar-header">
-              <strong>Command Palette</strong>
-              <span>Cmd/Ctrl+K</span>
-            </div>
-            <input
-              className="command-bar-input"
-              autoFocus
-              placeholder="Search commands, tools, and editor actions"
-              value={commandQuery}
-              onChange={(event) => setCommandQuery(event.currentTarget.value)}
+      {libraryManagerOpen ? (
+        <div
+          className="command-bar-backdrop"
+          onClick={() => setLibraryManagerOpen(false)}
+        >
+          <div
+            className="library-manager-shell"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <LibraryManagerPanel
+              library={workshopLibrary}
+              projectStandards={projectStandards}
+              selectedConfig={selectedCabinet?.config ?? null}
+              onLibraryChange={(next) => {
+                setWorkshopLibrary(next);
+                saveWorkshopLibrary(next);
+              }}
+              onApplyStandardsPack={(standards) => {
+                handleProjectPreferenceChange({
+                  standards: clampProjectStandards(standards),
+                });
+                setProjectStatus("Applied standards pack from library.");
+              }}
+              onClose={() => setLibraryManagerOpen(false)}
             />
-            <div className="command-bar-list">
-              {filteredCommandItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className="command-bar-item"
-                  onClick={() => {
-                    item.action();
-                    setIsCommandBarOpen(false);
-                    setCommandQuery("");
-                  }}
-                >
-                  <span>
-                    <strong>{item.label}</strong>
-                    <small>{item.hint}</small>
-                  </span>
-                  <kbd>{item.shortcut}</kbd>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : null}
-      {isShortcutSheetOpen ? (
-        <div className="command-bar-backdrop" onClick={closeCommandSurfaces}>
-          <div className="shortcut-sheet" onClick={(event) => event.stopPropagation()}>
-            <div className="command-bar-header">
-              <strong>Shortcut Cheat Sheet</strong>
-              <span>Press ? to toggle</span>
-            </div>
-            <div className="shortcut-grid">
-              {[
-                ["Cmd/Ctrl+K", "Open command palette"],
-                ["?", "Open shortcut help"],
-                ["Cmd/Ctrl+Z", "Undo"],
-                ["Cmd/Ctrl+Shift+Z", "Redo"],
-                ["Cmd/Ctrl+C", "Copy selection"],
-                ["Cmd/Ctrl+V", "Paste selection"],
-                ["Cmd/Ctrl+D", "Duplicate selection"],
-                ["Cmd/Ctrl+A", "Select all items"],
-                ["Shift + Drag", "Marquee select in viewport"],
-                ["Delete", "Remove selected items"],
-              ].map(([shortcut, description]) => (
-                <div key={shortcut} className="shortcut-row">
-                  <kbd>{shortcut}</kbd>
-                  <span>{description}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       ) : null}
 
-      <footer className="status-strip">
-        <div className="output-bar">
-          <span className="output-status">{projectStatus || "Ready"}</span>
-          <span className="output-stats">
-            {workspaceLabel} · {formatJobTitle(clampJobMeta(project.job))} ·{" "}
-            {JOB_STATUS_LABELS[clampJobMeta(project.job).status]} · {project.cabinets.length} items ·{" "}
-            {selectedCabinet
-              ? `${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm`
-              : selectedCabinetIds.length > 1
-                ? `${selectedCabinetIds.length} selected`
-                : "No selection"}
-          </span>
-          <span className="output-bar-actions">
-            <button
-              type="button"
-              className={`tb-btn ${statusDockOpen ? "tb-accent" : ""}`}
-              onClick={() => setStatusDockOpen((open) => !open)}
-            >
-              {statusDockOpen ? "Hide Reports" : "Reports"}
-            </button>
-            <button type="button" className="tb-btn" onClick={handleSaveProject}>Save</button>
-            <button type="button" className="tb-btn" onClick={handleExportProjectJson}>JSON</button>
-            <button type="button" className="tb-btn" onClick={handleExportCutlistCsv}>CSV</button>
-            <button type="button" className="tb-btn tb-accent" onClick={handleExportPdf}>PDF</button>
-          </span>
-        </div>
-        {validationMessages.length > 0 ? (
-          <div className="output-warnings">
-            {validationMessages.map((m) => (
-              <span
-                key={m}
-                className={`output-warn ${m.startsWith("Error:") ? "output-warn-error" : ""}`}
-              >
-                {m}
-              </span>
-            ))}
-          </div>
-        ) : null}
-        {statusDockOpen ? (
-          <div className="status-dock">
-            <ReportCenter
-              report={projectReport}
-              selectedCabinetId={activeCabinetId}
-              costingSettings={costingSettings}
-              quoteSettings={quoteSettings}
-              sheetOptimizerSettings={sheetOptimizerSettings}
-              onCostingChange={(next: CostingSettings) =>
-                handleProjectPreferenceChange({
-                  costing: clampCostingSettings(next),
-                })
-              }
-              onQuoteChange={(next: QuoteSettings) =>
-                handleProjectPreferenceChange({
-                  quote: clampQuoteSettings(next),
-                })
-              }
-              onSheetOptimizerChange={(next: SheetOptimizerSettings) =>
-                handleProjectPreferenceChange({
-                  sheetOptimizer: clampSheetOptimizerSettings(next),
-                })
-              }
-              onFreezeQuote={handleFreezeQuoteSnapshot}
-              onSelectCabinet={(cabinetId) => handleWorkspaceSelectCabinet(cabinetId, false)}
-            />
-          </div>
-        ) : null}
-      </footer>
+      {isCommandBarOpen ? (
+        <CommandPalette
+          query={commandQuery}
+          items={filteredCommandItems}
+          onQueryChange={setCommandQuery}
+          onClose={closeCommandSurfaces}
+        />
+      ) : null}
+      {isShortcutSheetOpen ? <ShortcutSheet onClose={closeCommandSurfaces} /> : null}
+
+      <StatusStrip
+        projectStatus={projectStatus}
+        workspaceLabel={workspaceLabel}
+        jobTitle={formatJobTitle(clampJobMeta(project.job))}
+        jobStatusLabel={JOB_STATUS_LABELS[clampJobMeta(project.job).status]}
+        cabinetCount={project.cabinets.length}
+        selectionSummary={
+          selectedCabinet
+            ? `${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm`
+            : selectedCabinetIds.length > 1
+              ? `${selectedCabinetIds.length} selected`
+              : "No selection"
+        }
+        validationMessages={validationMessages}
+        statusDockOpen={statusDockOpen}
+        onToggleStatusDock={() => setStatusDockOpen((open) => !open)}
+        onSave={handleSaveProject}
+        onExportJson={handleExportProjectJson}
+        onExportCsv={handleExportCutlistCsv}
+        onExportPdf={handleExportPdf}
+        report={projectReport}
+        selectedCabinetId={activeCabinetId}
+        costingSettings={costingSettings}
+        quoteSettings={quoteSettings}
+        sheetOptimizerSettings={sheetOptimizerSettings}
+        onCostingChange={(next) =>
+          handleProjectPreferenceChange({
+            costing: clampCostingSettings(next),
+          })
+        }
+        onQuoteChange={(next) =>
+          handleProjectPreferenceChange({
+            quote: clampQuoteSettings(next),
+          })
+        }
+        onSheetOptimizerChange={(next) =>
+          handleProjectPreferenceChange({
+            sheetOptimizer: clampSheetOptimizerSettings(next),
+          })
+        }
+        onFreezeQuote={handleFreezeQuoteSnapshot}
+        onSelectCabinet={(cabinetId) => handleWorkspaceSelectCabinet(cabinetId, false)}
+      />
     </main>
   );
 }

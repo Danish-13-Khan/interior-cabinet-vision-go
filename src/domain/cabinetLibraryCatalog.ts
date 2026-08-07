@@ -18,8 +18,9 @@ import {
   DEFAULT_PROJECT_STANDARDS,
   type ProjectStandards,
 } from "./projectStandards";
+import type { CabinetFamilyLibraryEntry } from "./libraryManager";
 
-export type CabinetLibraryItemSource = "engineered" | "family-default";
+export type CabinetLibraryItemSource = "engineered" | "family-default" | "user";
 
 export type CabinetLibraryItem = {
   id: string;
@@ -29,6 +30,7 @@ export type CabinetLibraryItem = {
   source: CabinetLibraryItemSource;
   /** Engineered preset id when source is engineered; otherwise family type. */
   presetId?: string;
+  version?: number;
 };
 
 function familyDefaultId(type: CabinetType) {
@@ -58,16 +60,42 @@ export function listEngineeredLibraryItems(): CabinetLibraryItem[] {
   }));
 }
 
-export function listCabinetLibraryItems(): CabinetLibraryItem[] {
-  return [...listFamilyLibraryItems(), ...listEngineeredLibraryItems()];
+export function listUserCabinetLibraryItems(
+  presets: CabinetFamilyLibraryEntry[] = [],
+): CabinetLibraryItem[] {
+  return presets.map((preset) => ({
+    id: `user-${preset.id}`,
+    label: preset.label,
+    family: preset.family,
+    description: `${preset.description} · v${preset.version}`,
+    source: "user" as const,
+    presetId: preset.id,
+    version: preset.version,
+  }));
 }
 
-export function listCabinetLibraryItemsForFamily(family: CabinetType): CabinetLibraryItem[] {
-  return listCabinetLibraryItems().filter((item) => item.family === family);
+export function listCabinetLibraryItems(
+  userPresets: CabinetFamilyLibraryEntry[] = [],
+): CabinetLibraryItem[] {
+  return [
+    ...listFamilyLibraryItems(),
+    ...listEngineeredLibraryItems(),
+    ...listUserCabinetLibraryItems(userPresets),
+  ];
 }
 
-export function getCabinetLibraryItem(id: string): CabinetLibraryItem | null {
-  return listCabinetLibraryItems().find((item) => item.id === id) ?? null;
+export function listCabinetLibraryItemsForFamily(
+  family: CabinetType,
+  userPresets: CabinetFamilyLibraryEntry[] = [],
+): CabinetLibraryItem[] {
+  return listCabinetLibraryItems(userPresets).filter((item) => item.family === family);
+}
+
+export function getCabinetLibraryItem(
+  id: string,
+  userPresets: CabinetFamilyLibraryEntry[] = [],
+): CabinetLibraryItem | null {
+  return listCabinetLibraryItems(userPresets).find((item) => item.id === id) ?? null;
 }
 
 export function applyStandardsToConfig(
@@ -111,9 +139,16 @@ export function applyStandardsToConfig(
   });
 }
 
-export function resolveLibraryItemConfig(item: CabinetLibraryItem): CabinetConfig {
+export function resolveLibraryItemConfig(
+  item: CabinetLibraryItem,
+  userPresets: CabinetFamilyLibraryEntry[] = [],
+): CabinetConfig {
   if (item.source === "engineered" && item.presetId) {
     const preset = getEngineeredCabinetPreset(item.presetId);
+    if (preset) return clampCabinetConfig(preset.config);
+  }
+  if (item.source === "user" && item.presetId) {
+    const preset = userPresets.find((entry) => entry.id === item.presetId);
     if (preset) return clampCabinetConfig(preset.config);
   }
   return getDefaultCabinetConfig(item.family);
@@ -122,10 +157,11 @@ export function resolveLibraryItemConfig(item: CabinetLibraryItem): CabinetConfi
 export function createConfigFromLibraryItem(
   itemId: string,
   standards: ProjectStandards = DEFAULT_PROJECT_STANDARDS,
+  userPresets: CabinetFamilyLibraryEntry[] = [],
 ): CabinetConfig | null {
-  const item = getCabinetLibraryItem(itemId);
+  const item = getCabinetLibraryItem(itemId, userPresets);
   if (!item) return null;
-  return applyStandardsToConfig(resolveLibraryItemConfig(item), standards);
+  return applyStandardsToConfig(resolveLibraryItemConfig(item, userPresets), standards);
 }
 
 export function createConfigFromFamily(
@@ -135,13 +171,15 @@ export function createConfigFromFamily(
   return applyStandardsToConfig(getDefaultCabinetConfig(family), standards);
 }
 
-export function listLibraryGroups() {
+export function listLibraryGroups(userPresets: CabinetFamilyLibraryEntry[] = []) {
   return cabinetLibrary.map((category) => ({
     id: category.id,
     label: category.label,
     families: category.types,
     items: category.types.flatMap((family) => [
-      ...listCabinetLibraryItemsForFamily(family).filter((item) => item.source === "family-default"),
+      ...listCabinetLibraryItemsForFamily(family, userPresets).filter(
+        (item) => item.source === "family-default",
+      ),
       ...listEngineeredPresetsForFamily(family).map((preset: EngineeredCabinetPreset) => ({
         id: `engineered-${preset.id}`,
         label: preset.label,
@@ -150,6 +188,7 @@ export function listLibraryGroups() {
         source: "engineered" as const,
         presetId: preset.id,
       })),
+      ...listUserCabinetLibraryItems(userPresets).filter((item) => item.family === family),
     ]),
   }));
 }

@@ -2,33 +2,43 @@ import type { CabinetType } from "../domain/cabinetDimensions";
 import { cabinetTypeLabels } from "../domain/cabinetDimensions";
 import { listLibraryGroups } from "../domain/cabinetLibraryCatalog";
 import type { CabinetTemplate } from "../domain/cabinetTemplates";
-import {
-  PROJECT_STARTER_TEMPLATES,
-} from "../domain/cabinetTemplates";
+import { PROJECT_STARTER_TEMPLATES } from "../domain/cabinetTemplates";
+import type { CabinetFamilyLibraryEntry } from "../domain/libraryManager";
 
 type LibraryRailProps = {
   templates: CabinetTemplate[];
+  userCabinetPresets?: CabinetFamilyLibraryEntry[];
   onAddFamily: (type: CabinetType) => void;
   onAddLibraryItem: (itemId: string) => void;
   onAddTemplate: (templateId: string) => void;
   onDeleteTemplate: (templateId: string) => void;
   onApplyStarter: (starterId: string) => void;
+  onOpenLibraryManager?: () => void;
 };
 
 export function LibraryRail({
   templates,
+  userCabinetPresets = [],
   onAddFamily,
   onAddLibraryItem,
   onAddTemplate,
   onDeleteTemplate,
   onApplyStarter,
+  onOpenLibraryManager,
 }: LibraryRailProps) {
-  const groups = listLibraryGroups();
+  const groups = listLibraryGroups(userCabinetPresets);
 
   return (
     <>
       <div className="rail-section">
-        <div className="rail-section-title">Cabinet Library</div>
+        <div className="rail-section-title">
+          <span>Cabinet Library</span>
+          {onOpenLibraryManager ? (
+            <button type="button" className="rail-link-btn" onClick={onOpenLibraryManager}>
+              Manage
+            </button>
+          ) : null}
+        </div>
         {groups.map((group) => (
           <div key={group.id} className="palette-library-group">
             <div className="palette-section-label">{group.label}</div>
@@ -62,7 +72,7 @@ export function LibraryRail({
             </div>
             <div className="library-item-list">
               {group.items
-                .filter((item) => item.source === "engineered")
+                .filter((item) => item.source === "engineered" || item.source === "user")
                 .map((item) => (
                   <button
                     key={item.id}
@@ -71,7 +81,10 @@ export function LibraryRail({
                     title={item.description}
                     onClick={() => onAddLibraryItem(item.id)}
                   >
-                    <strong>{item.label}</strong>
+                    <strong>
+                      {item.label}
+                      {item.source === "user" ? " · user" : ""}
+                    </strong>
                     <span>{item.description}</span>
                   </button>
                 ))}
@@ -99,7 +112,7 @@ export function LibraryRail({
                 >
                   <strong>{template.name}</strong>
                   <span>
-                    {cabinetTypeLabels[template.family]} · reusable preset
+                    {cabinetTypeLabels[template.family]} · v{template.version ?? 1}
                   </span>
                 </button>
                 <button
