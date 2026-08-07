@@ -14,9 +14,24 @@ import {
   collectPlanDepthChain,
   collectPlanDimensionChain,
   collectRunDimensionChain,
+  filterDimensionChain,
   resolveSelectedCabinets,
 } from "./placementSnap";
 import type { RoomConfig } from "./roomModel";
+import {
+  clampDraftingDisplay,
+  clampProjectDrafting,
+  draftingVisibleInView,
+  formatApplianceTag,
+  formatCabinetTag,
+  formatOpeningTag,
+  renderCabinetTagSvg,
+  renderLeaderSvg,
+  renderNoteSvg,
+  type DraftingDisplayPreferences,
+  type ProjectDrafting,
+} from "./draftingAnnotations";
+import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "./jobMeta";
 
 export type TechnicalViewKind = "top" | "front" | "side";
 
@@ -37,8 +52,13 @@ export type TechnicalViewOptions = {
   showDimensionChains?: boolean;
   showWallLabels?: boolean;
   showElevationDetails?: boolean;
+  showCabinetTags?: boolean;
+  showOpeningTags?: boolean;
+  showApplianceTags?: boolean;
+  dimMinSegmentMm?: number;
   title?: string;
   projectName?: string;
+  sheetMeta?: string;
   snapGuides?: SnapGuide[];
   ghostPlacement?: {
     cabinetId: string;
@@ -47,6 +67,7 @@ export type TechnicalViewOptions = {
     z: number;
   } | null;
   runs?: CabinetRun[];
+  drafting?: ProjectDrafting;
 };
 
 export const TECHNICAL_VIEW_SCALE = 4;
@@ -377,20 +398,57 @@ function titleBlock(
   projectName: string,
   viewLabel: string,
   scaleText: string,
+  sheetMeta = "",
 ) {
-  const blockH = 28;
-  const y = 8;
+  const blockH = 32;
+  const y = 6;
   return [
-    rect(8, y, svgWidth - 16, blockH, `class="twod-annotation" fill="#ffffff" stroke="#475569" stroke-width="1"`),
-    line(svgWidth - 220, y, svgWidth - 220, y + blockH, `stroke="#475569" stroke-width="1"`),
-    line(svgWidth - 120, y, svgWidth - 120, y + blockH, `stroke="#475569" stroke-width="1"`),
-    text(14, y + 12, shortLabel(projectName || "Cabinet Project", 28), `font-size="10" font-weight="700" fill="#0f172a"`),
-    text(14, y + 23, title, `font-size="8" fill="#475569"`),
-    text(svgWidth - 215, y + 12, viewLabel, `font-size="8" font-weight="700" fill="#0f172a"`),
-    text(svgWidth - 215, y + 23, scaleText, `font-size="8" fill="#475569"`),
-    text(svgWidth - 115, y + 12, "TECHNICAL SHEET", `font-size="8" font-weight="700" fill="#0f172a"`),
-    text(svgWidth - 115, y + 23, new Date().toLocaleDateString(), `font-size="8" fill="#475569"`),
+    rect(8, y, svgWidth - 16, blockH, `class="twod-titleblock" fill="#ffffff" stroke="#334155" stroke-width="1.25"`),
+    line(svgWidth - 240, y, svgWidth - 240, y + blockH, `class="twod-titleblock" stroke="#334155" stroke-width="1"`),
+    line(svgWidth - 130, y, svgWidth - 130, y + blockH, `class="twod-titleblock" stroke="#334155" stroke-width="1"`),
+    text(14, y + 12, shortLabel(projectName || "Cabinet Project", 32), `class="twod-titleblock-text" font-size="10" font-weight="700" fill="#0f172a"`),
+    text(14, y + 24, shortLabel(title + (sheetMeta ? ` · ${sheetMeta}` : ""), 42), `class="twod-titleblock-text" font-size="8" fill="#475569"`),
+    text(svgWidth - 235, y + 12, viewLabel, `class="twod-titleblock-text" font-size="8" font-weight="700" fill="#0f172a"`),
+    text(svgWidth - 235, y + 24, scaleText, `class="twod-titleblock-text" font-size="8" fill="#475569"`),
+    text(svgWidth - 125, y + 12, "TECHNICAL SHEET", `class="twod-titleblock-text" font-size="8" font-weight="700" fill="#0f172a"`),
+    text(svgWidth - 125, y + 24, new Date().toLocaleDateString(), `class="twod-titleblock-text" font-size="8" fill="#475569"`),
   ];
+}
+
+function resolveDisplay(options: TechnicalViewOptions): DraftingDisplayPreferences {
+  return clampDraftingDisplay({
+    showCabinetTags: options.showCabinetTags,
+    showOpeningTags: options.showOpeningTags,
+    showApplianceTags: options.showApplianceTags,
+    showDimensionChains: options.showDimensionChains,
+    showWallLabels: options.showWallLabels,
+    dimMinSegmentMm: options.dimMinSegmentMm,
+  });
+}
+
+function draftingLayer(
+  drafting: ProjectDrafting | undefined,
+  view: TechnicalViewKind,
+  mapPoint: (point: { x: number; y: number; z: number }) => { x: number; y: number },
+) {
+  const safe = clampProjectDrafting(drafting);
+  const elements: string[] = [];
+  for (const note of safe.notes) {
+    if (!draftingVisibleInView(note.view, view)) continue;
+    const point = mapPoint(note.anchor);
+    elements.push(...renderNoteSvg(point.x, point.y, note.text));
+  }
+  for (const leader of safe.leaders) {
+    if (!draftingVisibleInView(leader.view, view)) continue;
+    const target = mapPoint(leader.target);
+    const label = mapPoint(leader.label);
+    elements.push(...renderLeaderSvg(target.x, target.y, label.x, label.y, leader.text));
+  }
+  return elements;
+}
+
+function cabinetIndexMap(project: CabinetProject) {
+  return new Map(project.cabinets.map((cabinet, index) => [cabinet.id, index]));
 }
 
 function gridLines(
@@ -493,8 +551,10 @@ function cabinetPlanGraphics(
   ox: number,
   oy: number,
   options: TechnicalViewOptions,
+  cabinetIndex = 0,
 ) {
   const elements: string[] = [];
+  const display = resolveDisplay(options);
   const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
   const ghost =
     options.ghostPlacement?.cabinetId === cabinet.id ? options.ghostPlacement : null;
@@ -530,9 +590,13 @@ function cabinetPlanGraphics(
       cy - bd / 2,
       cx + bw / 2,
       cy - bd / 2,
-      `class="twod-cabinet-front" stroke="#292524" stroke-width="2" pointer-events="none"`,
+      `class="twod-cabinet-front" stroke="#292524" stroke-width="2.25" pointer-events="none"`,
     ),
   );
+
+  if (display.showCabinetTags) {
+    elements.push(...renderCabinetTagSvg(cx, cy - bd / 2 - 10, formatCabinetTag(cabinetIndex)));
+  }
 
   const typeLabel = cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type;
   elements.push(
@@ -551,6 +615,21 @@ function cabinetPlanGraphics(
       `class="twod-annotation" font-size="7.5" fill="#57534e" text-anchor="middle" pointer-events="none"`,
     ),
   );
+
+  if (display.showApplianceTags) {
+    const appliance = formatApplianceTag(cabinet.config.type);
+    if (appliance) {
+      elements.push(
+        text(
+          cx,
+          cy + 20,
+          appliance,
+          `class="twod-tag twod-tag-appliance" font-size="7" font-weight="700" fill="#9a3412" text-anchor="middle" pointer-events="none"`,
+        ),
+      );
+    }
+  }
+
   elements.push(
     text(
       cx,
@@ -572,8 +651,10 @@ function cabinetElevationGraphics(
   options: TechnicalViewOptions,
   fill: string,
   spanLabelMm: number,
+  cabinetIndex = 0,
 ) {
   const elements: string[] = [];
+  const display = resolveDisplay(options);
   const wallMounted = cabinet.placement.attachment !== "floor";
   elements.push(
     rect(
@@ -584,6 +665,12 @@ function cabinetElevationGraphics(
       cabinetRectAttrs(cabinet.id, fill, options, wallMounted ? "twod-cabinet-wall" : "twod-cabinet-floor"),
     ),
   );
+
+  if (display.showCabinetTags) {
+    elements.push(
+      ...renderCabinetTagSvg(x + width / 2, y - 8, formatCabinetTag(cabinetIndex)),
+    );
+  }
 
   if (options.showElevationDetails !== false) {
     const toe = cabinet.config.toeKickHeight > 0 ? cabinet.config.toeKickHeight / SCALE : 0;
@@ -720,6 +807,14 @@ function topView(
   const elements: string[] = [];
   const showChains = options.showDimensionChains !== false;
   const showWallLabels = options.showWallLabels !== false;
+  const display = resolveDisplay(options);
+  const indexMap = cabinetIndexMap(project);
+  const sheetMeta =
+    options.sheetMeta ??
+    (() => {
+      const job = clampJobMeta(project.job);
+      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
+    })();
 
   elements.push(rect(0, 0, svgWidth, svgHeight, `fill="${options.mode === "print" ? "#ffffff" : "#f1f5f9"}" class="twod-sheet"`));
 
@@ -731,6 +826,7 @@ function topView(
         options.projectName ?? "Cabinet Project",
         "PLAN",
         `1:${SCALE * 25}`,
+        sheetMeta,
       ),
     );
   }
@@ -744,18 +840,20 @@ function topView(
     oy - rd / SCALE / 2,
     rw / SCALE,
     rd / SCALE,
-    `class="twod-wall" fill="#f8fafc" stroke="#1e293b" stroke-width="2"`,
+    `class="twod-wall twod-wall-outline" fill="#f8fafc" stroke="#0f172a" stroke-width="2.25"`,
   ));
 
-  if (showWallLabels) {
-    elements.push(text(ox, oy - rd / SCALE / 2 - 8, "BACK WALL", `class="twod-annotation" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
-    elements.push(text(ox, oy + rd / SCALE / 2 + 14, "FRONT", `class="twod-annotation" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
-    elements.push(text(ox - rw / SCALE / 2 - 10, oy, "LEFT", `class="twod-annotation" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(-90 ${ox - rw / SCALE / 2 - 10} ${oy})"`));
-    elements.push(text(ox + rw / SCALE / 2 + 12, oy, "RIGHT", `class="twod-annotation" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(90 ${ox + rw / SCALE / 2 + 12} ${oy})"`));
+  if (showWallLabels && display.showWallLabels) {
+    elements.push(text(ox, oy - rd / SCALE / 2 - 8, "BACK WALL", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
+    elements.push(text(ox, oy + rd / SCALE / 2 + 14, "FRONT", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
+    elements.push(text(ox - rw / SCALE / 2 - 10, oy, "LEFT", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(-90 ${ox - rw / SCALE / 2 - 10} ${oy})"`));
+    elements.push(text(ox + rw / SCALE / 2 + 12, oy, "RIGHT", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(90 ${ox + rw / SCALE / 2 + 12} ${oy})"`));
   }
 
   for (const cabinet of project.cabinets) {
-    elements.push(...cabinetPlanGraphics(cabinet, ox, oy, options));
+    elements.push(
+      ...cabinetPlanGraphics(cabinet, ox, oy, options, indexMap.get(cabinet.id) ?? 0),
+    );
   }
 
   for (const countertop of countertops) {
@@ -770,24 +868,42 @@ function topView(
     ));
   }
 
-  for (const door of room.doors) {
+  for (const [doorIndex, door] of room.doors.entries()) {
     const dx = door.side === "back-wall" ? ox + door.positionMm / SCALE
       : door.side === "left-wall" ? ox - rw / SCALE / 2 - 6 : ox + rw / SCALE / 2 + 2;
     const dy = door.side === "back-wall" ? oy - rd / SCALE / 2 - 6 : oy + door.positionMm / SCALE;
     const dw = door.side === "back-wall" ? door.widthMm / SCALE : 4;
     const dh = door.side === "back-wall" ? 4 : door.widthMm / SCALE;
-    elements.push(rect(dx - dw / 2, dy - dh / 2, dw, dh, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"`));
-    elements.push(text(dx, dy - 6, "DR", `class="twod-annotation" font-size="7" fill="#1d4ed8" text-anchor="middle"`));
+    elements.push(rect(dx - dw / 2, dy - dh / 2, dw, dh, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.35"`));
+    if (display.showOpeningTags) {
+      elements.push(
+        text(
+          dx,
+          dy - 8,
+          formatOpeningTag("door", doorIndex, door.widthMm, door.heightMm),
+          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
+        ),
+      );
+    }
   }
 
-  for (const win of room.windows) {
+  for (const [winIndex, win] of room.windows.entries()) {
     const wx = win.side === "back-wall" ? ox + win.positionMm / SCALE
       : win.side === "left-wall" ? ox - rw / SCALE / 2 - 6 : ox + rw / SCALE / 2 + 2;
     const wy = win.side === "back-wall" ? oy - rd / SCALE / 2 - 6 : oy + win.positionMm / SCALE;
     const ww = win.side === "back-wall" ? win.widthMm / SCALE : 4;
     const wh = win.side === "back-wall" ? 4 : win.widthMm / SCALE;
-    elements.push(rect(wx - ww / 2, wy - wh / 2, ww, wh, `class="twod-opening" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.2"`));
-    elements.push(text(wx, wy - 6, "WN", `class="twod-annotation" font-size="7" fill="#0f766e" text-anchor="middle"`));
+    elements.push(rect(wx - ww / 2, wy - wh / 2, ww, wh, `class="twod-opening" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.35"`));
+    if (display.showOpeningTags) {
+      elements.push(
+        text(
+          wx,
+          wy - 8,
+          formatOpeningTag("window", winIndex, win.widthMm, win.heightMm, win.sillHeightMm),
+          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#0f766e" text-anchor="middle"`,
+        ),
+      );
+    }
   }
 
   if (options.snapGuides?.length) {
@@ -798,29 +914,29 @@ function topView(
 
   // Overall room dimensions
   const topDimY = oy - rd / SCALE / 2 - 24;
-  elements.push(line(ox - rw / SCALE / 2, topDimY, ox + rw / SCALE / 2, topDimY, `class="twod-dim" stroke="#0f172a" stroke-width="1.15"`));
+  elements.push(line(ox - rw / SCALE / 2, topDimY, ox + rw / SCALE / 2, topDimY, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
   elements.push(dimTick(ox - rw / SCALE / 2, topDimY, true));
   elements.push(dimTick(ox + rw / SCALE / 2, topDimY, true));
-  elements.push(text(ox, topDimY - 4, `${dimensionLabel(rw)} mm`, `class="twod-annotation" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
+  elements.push(text(ox, topDimY - 4, `${dimensionLabel(rw)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
 
   const leftDimX = ox - rw / SCALE / 2 - 24;
-  elements.push(line(leftDimX, oy - rd / SCALE / 2, leftDimX, oy + rd / SCALE / 2, `class="twod-dim" stroke="#0f172a" stroke-width="1.15"`));
+  elements.push(line(leftDimX, oy - rd / SCALE / 2, leftDimX, oy + rd / SCALE / 2, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
   elements.push(dimTick(leftDimX, oy - rd / SCALE / 2, false));
   elements.push(dimTick(leftDimX, oy + rd / SCALE / 2, false));
-  elements.push(text(leftDimX - 4, oy, `${dimensionLabel(rd)} mm`, `class="twod-annotation" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
+  elements.push(text(leftDimX - 4, oy, `${dimensionLabel(rd)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
 
-  if (showChains && project.cabinets.length > 0) {
-    const widthChain = collectPlanDimensionChain(project.cabinets, rw);
+  if (showChains && display.showDimensionChains && project.cabinets.length > 0) {
+    const minSeg = display.dimMinSegmentMm;
+    const widthChain = filterDimensionChain(collectPlanDimensionChain(project.cabinets, rw), minSeg);
     elements.push(...dimensionChainHorizontal(widthChain.positions, widthChain.labels, ox, oy + rd / SCALE / 2 + 28));
 
-    const depthChain = collectPlanDepthChain(project.cabinets, rd);
+    const depthChain = filterDimensionChain(collectPlanDepthChain(project.cabinets, rd), minSeg);
     const depthChainX = ox + rw / SCALE / 2 + 28;
-    // Render depth chain as vertical labels along right side using horizontal helper rotated via positions on Z
     const floorish = oy;
     if (depthChain.positions.length >= 2) {
       const z0 = floorish + depthChain.positions[0] / SCALE;
       const z1 = floorish + depthChain.positions[depthChain.positions.length - 1] / SCALE;
-      elements.push(line(depthChainX, z0, depthChainX, z1, `class="twod-dim" stroke="#334155" stroke-width="1"`));
+      elements.push(line(depthChainX, z0, depthChainX, z1, `class="twod-dim twod-dim-chain" stroke="#334155" stroke-width="1"`));
       for (let index = 0; index < depthChain.positions.length; index += 1) {
         const z = floorish + depthChain.positions[index] / SCALE;
         elements.push(dimTick(depthChainX, z, false));
@@ -831,23 +947,63 @@ function topView(
               depthChainX + 4,
               mid + 3,
               `${depthChain.labels[index]} mm`,
-              `class="twod-annotation" font-size="7.5" fill="#1e293b" text-anchor="start" pointer-events="none"`,
+              `class="twod-annotation twod-dim-chain" font-size="7.5" fill="#1e293b" text-anchor="start" pointer-events="none"`,
             ),
           );
         }
       }
     }
 
-    // Run dimension chains for multi-cabinet runs
+    let runOffset = 0;
     for (const run of options.runs ?? []) {
       if (run.cabinetIds.length < 2) continue;
       const chain = collectRunDimensionChain(run, project.cabinets);
       if (!chain) continue;
+      const filtered = filterDimensionChain(chain, minSeg);
       if (run.axis === "x") {
-        elements.push(...dimensionChainHorizontal(chain.positions, chain.labels, ox, oy + rd / SCALE / 2 + 44));
+        elements.push(
+          ...dimensionChainHorizontal(
+            filtered.positions,
+            filtered.labels,
+            ox,
+            oy + rd / SCALE / 2 + 44 + runOffset,
+          ),
+        );
+        runOffset += 14;
+      } else {
+        const runX = ox + rw / SCALE / 2 + 44 + runOffset;
+        if (filtered.positions.length >= 2) {
+          const z0 = floorish + filtered.positions[0] / SCALE;
+          const z1 = floorish + filtered.positions[filtered.positions.length - 1] / SCALE;
+          elements.push(line(runX, z0, runX, z1, `class="twod-dim twod-dim-run" stroke="#475569" stroke-width="1"`));
+          for (let index = 0; index < filtered.positions.length; index += 1) {
+            const z = floorish + filtered.positions[index] / SCALE;
+            elements.push(dimTick(runX, z, false));
+            if (index < filtered.labels.length) {
+              const mid =
+                floorish + (filtered.positions[index] + filtered.positions[index + 1]) / 2 / SCALE;
+              elements.push(
+                text(
+                  runX + 4,
+                  mid + 3,
+                  `${filtered.labels[index]} mm`,
+                  `class="twod-annotation twod-dim-run" font-size="7" fill="#334155" text-anchor="start" pointer-events="none"`,
+                ),
+              );
+            }
+          }
+          runOffset += 14;
+        }
       }
     }
   }
+
+  elements.push(
+    ...draftingLayer(options.drafting ?? project.drafting, "top", (point) => ({
+      x: ox + point.x / SCALE,
+      y: oy + point.z / SCALE,
+    })),
+  );
 
   return {
     width: svgWidth,
@@ -871,6 +1027,14 @@ function frontView(
   const ox = MARGIN + rw / SCALE / 2;
   const oy = MARGIN + rh / SCALE / 2 + (options.mode === "print" ? 18 : 0);
   const elements: string[] = [];
+  const display = resolveDisplay(options);
+  const indexMap = cabinetIndexMap(project);
+  const sheetMeta =
+    options.sheetMeta ??
+    (() => {
+      const job = clampJobMeta(project.job);
+      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
+    })();
 
   elements.push(rect(0, 0, svgWidth, svgHeight, `fill="${options.mode === "print" ? "#ffffff" : "#f1f5f9"}" class="twod-sheet"`));
   if (options.mode === "print") {
@@ -881,6 +1045,7 @@ function frontView(
         options.projectName ?? "Cabinet Project",
         "FRONT ELEV.",
         `1:${SCALE * 25}`,
+        sheetMeta,
       ),
     );
   }
@@ -894,7 +1059,7 @@ function frontView(
     oy - rh / SCALE / 2,
     rw / SCALE,
     rh / SCALE,
-    `class="twod-wall" fill="#f8fafc" stroke="#1e293b" stroke-width="2"`,
+    `class="twod-wall twod-wall-outline" fill="#f8fafc" stroke="#0f172a" stroke-width="2.25"`,
   ));
 
   // Floor line emphasis
@@ -903,25 +1068,43 @@ function frontView(
     oy + rh / SCALE / 2,
     ox + rw / SCALE / 2,
     oy + rh / SCALE / 2,
-    `class="twod-wall" stroke="#0f172a" stroke-width="2.2"`,
+    `class="twod-wall twod-floor-line" stroke="#0f172a" stroke-width="2.4"`,
   ));
 
-  if (options.showWallLabels !== false) {
-    elements.push(text(ox, oy - rh / SCALE / 2 - 8, "BACK WALL ELEVATION", `class="twod-annotation" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
+  if (display.showWallLabels) {
+    elements.push(text(ox, oy - rh / SCALE / 2 - 8, "BACK WALL ELEVATION", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
   }
 
-  for (const window of room.windows.filter((item) => item.side === "back-wall")) {
+  for (const [winIndex, window] of room.windows.filter((item) => item.side === "back-wall").entries()) {
     const x = ox + window.positionMm / SCALE - window.widthMm / SCALE / 2;
     const y = oy + rh / SCALE / 2 - (window.sillHeightMm + window.heightMm) / SCALE;
-    elements.push(rect(x, y, window.widthMm / SCALE, window.heightMm / SCALE, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.35"`));
-    elements.push(text(x + window.widthMm / SCALE / 2, y - 3, "WINDOW", `class="twod-annotation" font-size="7" fill="#1d4ed8" text-anchor="middle"`));
+    elements.push(rect(x, y, window.widthMm / SCALE, window.heightMm / SCALE, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.45"`));
+    if (display.showOpeningTags) {
+      elements.push(
+        text(
+          x + window.widthMm / SCALE / 2,
+          y - 4,
+          formatOpeningTag("window", winIndex, window.widthMm, window.heightMm, window.sillHeightMm),
+          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
+        ),
+      );
+    }
   }
 
-  for (const door of room.doors.filter((item) => item.side === "back-wall")) {
+  for (const [doorIndex, door] of room.doors.filter((item) => item.side === "back-wall").entries()) {
     const x = ox + door.positionMm / SCALE - door.widthMm / SCALE / 2;
     const y = oy + rh / SCALE / 2 - door.heightMm / SCALE;
-    elements.push(rect(x, y, door.widthMm / SCALE, door.heightMm / SCALE, `class="twod-opening" fill="#eff6ff" stroke="#2563eb" stroke-width="1.35"`));
-    elements.push(text(x + door.widthMm / SCALE / 2, y - 3, "DOOR", `class="twod-annotation" font-size="7" fill="#1d4ed8" text-anchor="middle"`));
+    elements.push(rect(x, y, door.widthMm / SCALE, door.heightMm / SCALE, `class="twod-opening" fill="#eff6ff" stroke="#2563eb" stroke-width="1.45"`));
+    if (display.showOpeningTags) {
+      elements.push(
+        text(
+          x + door.widthMm / SCALE / 2,
+          y - 4,
+          formatOpeningTag("door", doorIndex, door.widthMm, door.heightMm),
+          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
+        ),
+      );
+    }
   }
 
   const visibleCabinets = project.cabinets.filter((cabinet) => {
@@ -941,7 +1124,19 @@ function frontView(
       rh / SCALE / 2 -
       ((ghost?.y ?? cabinet.placement.y) + cabinet.config.dimensions.height) / SCALE;
     const fill = cabinet.placement.attachment === "back-wall" ? "#d6c3a4" : "#c4a574";
-    elements.push(...cabinetElevationGraphics(cabinet, x, y, width, height, options, fill, fp.width));
+    elements.push(
+      ...cabinetElevationGraphics(
+        cabinet,
+        x,
+        y,
+        width,
+        height,
+        options,
+        fill,
+        fp.width,
+        indexMap.get(cabinet.id) ?? 0,
+      ),
+    );
   }
 
   if (options.snapGuides?.length) {
@@ -952,19 +1147,33 @@ function frontView(
 
   // Overall dims
   const roomDimX = ox - rw / SCALE / 2 - 24;
-  elements.push(line(roomDimX, oy - rh / SCALE / 2, roomDimX, oy + rh / SCALE / 2, `class="twod-dim" stroke="#0f172a" stroke-width="1.15"`));
-  elements.push(text(roomDimX - 4, oy, `${dimensionLabel(rh)} mm`, `class="twod-annotation" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
+  elements.push(line(roomDimX, oy - rh / SCALE / 2, roomDimX, oy + rh / SCALE / 2, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
+  elements.push(text(roomDimX - 4, oy, `${dimensionLabel(rh)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
   const bottomDimY = oy + rh / SCALE / 2 + 18;
-  elements.push(line(ox - rw / SCALE / 2, bottomDimY, ox + rw / SCALE / 2, bottomDimY, `class="twod-dim" stroke="#0f172a" stroke-width="1.15"`));
-  elements.push(text(ox, bottomDimY + 11, `${dimensionLabel(rw)} mm`, `class="twod-annotation" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
+  elements.push(line(ox - rw / SCALE / 2, bottomDimY, ox + rw / SCALE / 2, bottomDimY, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
+  elements.push(text(ox, bottomDimY + 11, `${dimensionLabel(rw)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
 
-  if (options.showDimensionChains !== false && visibleCabinets.length > 0) {
-    const horizontal = collectElevationHorizontalChain(visibleCabinets, rw, "x");
+  if (display.showDimensionChains && visibleCabinets.length > 0) {
+    const minSeg = display.dimMinSegmentMm;
+    const horizontal = filterDimensionChain(
+      collectElevationHorizontalChain(visibleCabinets, rw, "x"),
+      minSeg,
+    );
     elements.push(...dimensionChainHorizontal(horizontal.positions, horizontal.labels, ox, oy + rh / SCALE / 2 + 34));
 
-    const vertical = collectElevationVerticalChain(visibleCabinets, rh);
+    const vertical = filterDimensionChain(
+      collectElevationVerticalChain(visibleCabinets, rh),
+      minSeg,
+    );
     elements.push(...dimensionChainVertical(vertical.positions, vertical.labels, ox + rw / SCALE / 2 + 28, oy, rh));
   }
+
+  elements.push(
+    ...draftingLayer(options.drafting ?? project.drafting, "front", (point) => ({
+      x: ox + point.x / SCALE,
+      y: oy + rh / SCALE / 2 - point.y / SCALE,
+    })),
+  );
 
   return {
     width: svgWidth,
@@ -988,6 +1197,14 @@ function sideView(
   const ox = MARGIN + rd / SCALE / 2;
   const oy = MARGIN + rh / SCALE / 2 + (options.mode === "print" ? 18 : 0);
   const elements: string[] = [];
+  const display = resolveDisplay(options);
+  const indexMap = cabinetIndexMap(project);
+  const sheetMeta =
+    options.sheetMeta ??
+    (() => {
+      const job = clampJobMeta(project.job);
+      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
+    })();
 
   elements.push(rect(0, 0, svgWidth, svgHeight, `fill="${options.mode === "print" ? "#ffffff" : "#f1f5f9"}" class="twod-sheet"`));
   if (options.mode === "print") {
@@ -998,6 +1215,7 @@ function sideView(
         options.projectName ?? "Cabinet Project",
         "SIDE ELEV.",
         `1:${SCALE * 25}`,
+        sheetMeta,
       ),
     );
   }
@@ -1011,7 +1229,7 @@ function sideView(
     oy - rh / SCALE / 2,
     rd / SCALE,
     rh / SCALE,
-    `class="twod-wall" fill="#f8fafc" stroke="#1e293b" stroke-width="2"`,
+    `class="twod-wall twod-wall-outline" fill="#f8fafc" stroke="#0f172a" stroke-width="2.25"`,
   ));
 
   elements.push(line(
@@ -1019,25 +1237,47 @@ function sideView(
     oy + rh / SCALE / 2,
     ox + rd / SCALE / 2,
     oy + rh / SCALE / 2,
-    `class="twod-wall" stroke="#0f172a" stroke-width="2.2"`,
+    `class="twod-wall twod-floor-line" stroke="#0f172a" stroke-width="2.4"`,
   ));
 
-  if (options.showWallLabels !== false) {
-    elements.push(text(ox, oy - rh / SCALE / 2 - 8, "SIDE WALL ELEVATION", `class="twod-annotation" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
+  if (display.showWallLabels) {
+    elements.push(text(ox, oy - rh / SCALE / 2 - 8, "SIDE WALL ELEVATION", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
   }
 
-  for (const window of room.windows.filter((item) => item.side === "left-wall" || item.side === "right-wall")) {
+  for (const [winIndex, window] of room.windows
+    .filter((item) => item.side === "left-wall" || item.side === "right-wall")
+    .entries()) {
     const x = ox + window.positionMm / SCALE - window.widthMm / SCALE / 2;
     const y = oy + rh / SCALE / 2 - (window.sillHeightMm + window.heightMm) / SCALE;
-    elements.push(rect(x, y, window.widthMm / SCALE, window.heightMm / SCALE, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.35"`));
-    elements.push(text(x + window.widthMm / SCALE / 2, y - 3, "WINDOW", `class="twod-annotation" font-size="7" fill="#1d4ed8" text-anchor="middle"`));
+    elements.push(rect(x, y, window.widthMm / SCALE, window.heightMm / SCALE, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.45"`));
+    if (display.showOpeningTags) {
+      elements.push(
+        text(
+          x + window.widthMm / SCALE / 2,
+          y - 4,
+          formatOpeningTag("window", winIndex, window.widthMm, window.heightMm, window.sillHeightMm),
+          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
+        ),
+      );
+    }
   }
 
-  for (const door of room.doors.filter((item) => item.side === "left-wall" || item.side === "right-wall")) {
+  for (const [doorIndex, door] of room.doors
+    .filter((item) => item.side === "left-wall" || item.side === "right-wall")
+    .entries()) {
     const x = ox + door.positionMm / SCALE - door.widthMm / SCALE / 2;
     const y = oy + rh / SCALE / 2 - door.heightMm / SCALE;
-    elements.push(rect(x, y, door.widthMm / SCALE, door.heightMm / SCALE, `class="twod-opening" fill="#eff6ff" stroke="#2563eb" stroke-width="1.35"`));
-    elements.push(text(x + door.widthMm / SCALE / 2, y - 3, "DOOR", `class="twod-annotation" font-size="7" fill="#1d4ed8" text-anchor="middle"`));
+    elements.push(rect(x, y, door.widthMm / SCALE, door.heightMm / SCALE, `class="twod-opening" fill="#eff6ff" stroke="#2563eb" stroke-width="1.45"`));
+    if (display.showOpeningTags) {
+      elements.push(
+        text(
+          x + door.widthMm / SCALE / 2,
+          y - 4,
+          formatOpeningTag("door", doorIndex, door.widthMm, door.heightMm),
+          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
+        ),
+      );
+    }
   }
 
   const visibleCabinets = project.cabinets.filter(
@@ -1059,7 +1299,19 @@ function sideView(
       rh / SCALE / 2 -
       ((ghost?.y ?? cabinet.placement.y) + cabinet.config.dimensions.height) / SCALE;
     const fill = cabinet.placement.attachment === "floor" ? "#c4a574" : "#d6c3a4";
-    elements.push(...cabinetElevationGraphics(cabinet, x, y, depth, height, options, fill, fp.depth));
+    elements.push(
+      ...cabinetElevationGraphics(
+        cabinet,
+        x,
+        y,
+        depth,
+        height,
+        options,
+        fill,
+        fp.depth,
+        indexMap.get(cabinet.id) ?? 0,
+      ),
+    );
   }
 
   if (options.snapGuides?.length) {
@@ -1069,19 +1321,33 @@ function sideView(
   elements.push(...selectedElevationDimensions(visibleCabinets, rh, ox, oy, options, "z"));
 
   const roomDimX = ox - rd / SCALE / 2 - 24;
-  elements.push(line(roomDimX, oy - rh / SCALE / 2, roomDimX, oy + rh / SCALE / 2, `class="twod-dim" stroke="#0f172a" stroke-width="1.15"`));
-  elements.push(text(roomDimX - 4, oy, `${dimensionLabel(rh)} mm`, `class="twod-annotation" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
+  elements.push(line(roomDimX, oy - rh / SCALE / 2, roomDimX, oy + rh / SCALE / 2, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
+  elements.push(text(roomDimX - 4, oy, `${dimensionLabel(rh)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
   const bottomDimY = oy + rh / SCALE / 2 + 18;
-  elements.push(line(ox - rd / SCALE / 2, bottomDimY, ox + rd / SCALE / 2, bottomDimY, `class="twod-dim" stroke="#0f172a" stroke-width="1.15"`));
-  elements.push(text(ox, bottomDimY + 11, `${dimensionLabel(rd)} mm`, `class="twod-annotation" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
+  elements.push(line(ox - rd / SCALE / 2, bottomDimY, ox + rd / SCALE / 2, bottomDimY, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
+  elements.push(text(ox, bottomDimY + 11, `${dimensionLabel(rd)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
 
-  if (options.showDimensionChains !== false && visibleCabinets.length > 0) {
-    const horizontal = collectElevationHorizontalChain(visibleCabinets, rd, "z");
+  if (display.showDimensionChains && visibleCabinets.length > 0) {
+    const minSeg = display.dimMinSegmentMm;
+    const horizontal = filterDimensionChain(
+      collectElevationHorizontalChain(visibleCabinets, rd, "z"),
+      minSeg,
+    );
     elements.push(...dimensionChainHorizontal(horizontal.positions, horizontal.labels, ox, oy + rh / SCALE / 2 + 34));
 
-    const vertical = collectElevationVerticalChain(visibleCabinets, rh);
+    const vertical = filterDimensionChain(
+      collectElevationVerticalChain(visibleCabinets, rh),
+      minSeg,
+    );
     elements.push(...dimensionChainVertical(vertical.positions, vertical.labels, ox + rd / SCALE / 2 + 28, oy, rh));
   }
+
+  elements.push(
+    ...draftingLayer(options.drafting ?? project.drafting, "side", (point) => ({
+      x: ox + point.z / SCALE,
+      y: oy + rh / SCALE / 2 - point.y / SCALE,
+    })),
+  );
 
   return {
     width: svgWidth,

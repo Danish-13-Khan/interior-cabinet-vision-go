@@ -1,11 +1,12 @@
 import { jsPDF } from "jspdf";
 import type { CabinetProject } from "./cabinetDimensions";
-import type { CountertopSegment } from "./cabinetLibrary";
+import type { CountertopSegment, CabinetRun } from "./cabinetLibrary";
 import { createProjectReport } from "./projectReport";
 import {
   createTechnicalView,
   formatProjectTechnicalSummary,
   svgToPngDataUrl,
+  TECHNICAL_VIEW_SCALE,
 } from "./technicalViews";
 import type { RoomConfig } from "./roomModel";
 import {
@@ -15,6 +16,7 @@ import {
   formatJobTitle,
   JOB_STATUS_LABELS,
 } from "./jobMeta";
+import { clampProjectDrafting } from "./draftingAnnotations";
 
 async function optimizeSceneImage(dataUrl: string | null): Promise<string | null> {
   if (!dataUrl) {
@@ -82,6 +84,7 @@ export async function exportProjectPdf(
   projectName: string,
   room: RoomConfig,
   countertops: CountertopSegment[] = [],
+  runs: CabinetRun[] = [],
 ): Promise<Blob> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = 210;
@@ -279,30 +282,45 @@ export async function exportProjectPdf(
     }
   }
 
+  const drafting = clampProjectDrafting(project.drafting);
+  const scaleText = `1:${TECHNICAL_VIEW_SCALE * 25}`;
   const topView = createTechnicalView(project, room, "top", countertops, {
     mode: "print",
     showGrid: false,
     showDimensionChains: true,
     showWallLabels: true,
     showElevationDetails: true,
+    showCabinetTags: true,
+    showOpeningTags: true,
+    showApplianceTags: true,
     title: "Room Plan",
     projectName: title,
+    runs,
+    drafting,
   });
   const frontView = createTechnicalView(project, room, "front", countertops, {
     mode: "print",
     showDimensionChains: true,
     showWallLabels: true,
     showElevationDetails: true,
+    showCabinetTags: true,
+    showOpeningTags: true,
+    showApplianceTags: true,
     title: "Front Elevation",
     projectName: title,
+    drafting,
   });
   const sideView = createTechnicalView(project, room, "side", countertops, {
     mode: "print",
     showDimensionChains: true,
     showWallLabels: true,
     showElevationDetails: true,
+    showCabinetTags: true,
+    showOpeningTags: true,
+    showApplianceTags: true,
     title: "Side Elevation",
     projectName: title,
+    drafting,
   });
   const technicalViews = [
     { label: "Room Plan", result: topView, sheetCode: "A-101" },
@@ -333,9 +351,13 @@ export async function exportProjectPdf(
     doc.text(view.sheetCode, margin + contentWidth * 0.55 + 3, viewY + 6.5);
     doc.setFontSize(8);
     doc.setTextColor(71, 85, 105);
-    doc.text("Scale 1:100", margin + contentWidth * 0.55 + 3, viewY + 12.5);
+    doc.text(scaleText, margin + contentWidth * 0.55 + 3, viewY + 12.5);
     doc.text("TECHNICAL", margin + contentWidth * 0.78 + 3, viewY + 6.5);
-    doc.text(new Date().toLocaleDateString(), margin + contentWidth * 0.78 + 3, viewY + 12.5);
+    doc.text(
+      `Rev ${report.summary.revision}`,
+      margin + contentWidth * 0.78 + 3,
+      viewY + 12.5,
+    );
     viewY += 22;
 
     const viewImage = await svgToPngDataUrl(view.result.svg);
@@ -363,11 +385,24 @@ export async function exportProjectPdf(
     doc.rect(margin, viewY, contentWidth, 36);
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
-    doc.text(
-      "Mark clearances, appliance models, filler decisions, and approval initials.",
-      margin + 3,
-      viewY + 7,
-    );
+    const sheetNotes = drafting.notes
+      .filter((note) => note.view === "all" || note.view === (view.label.includes("Plan") ? "top" : view.label.includes("Front") ? "front" : "side"))
+      .map((note) => note.text);
+    const leaderNotes = drafting.leaders
+      .filter((leader) => leader.view === "all" || leader.view === (view.label.includes("Plan") ? "top" : view.label.includes("Front") ? "front" : "side"))
+      .map((leader) => leader.text);
+    const seeded = [...sheetNotes, ...leaderNotes].slice(0, 4);
+    if (seeded.length === 0) {
+      doc.text(
+        "Mark clearances, appliance models, filler decisions, and approval initials.",
+        margin + 3,
+        viewY + 7,
+      );
+    } else {
+      seeded.forEach((line, index) => {
+        doc.text(`• ${line}`, margin + 3, viewY + 7 + index * 7);
+      });
+    }
   }
 
   doc.addPage();

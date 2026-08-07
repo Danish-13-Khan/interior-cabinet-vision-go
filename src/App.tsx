@@ -12,10 +12,19 @@ import { WallEditor } from "./components/WallEditor";
 import { DoorWindowEditor } from "./components/DoorWindowEditor";
 import { ProjectBrowser } from "./components/ProjectBrowser";
 import { JobWorkflowPanel } from "./components/JobWorkflowPanel";
-import { TwoDView } from "./components/TwoDView";
+import { TwoDView, type DraftingTool } from "./components/TwoDView";
+import { DraftingPanel } from "./components/DraftingPanel";
 import { ReportCenter } from "./components/ReportCenter";
 import { LibraryRail } from "./components/LibraryRail";
 import { patchJobMeta, formatJobTitle, clampJobMeta, JOB_STATUS_LABELS, type ProjectJobMeta } from "./domain/jobMeta";
+import {
+  clampDraftingDisplay,
+  clampProjectDrafting,
+  DEFAULT_DRAFTING,
+  DEFAULT_DRAFTING_DISPLAY,
+  type DraftingLeader,
+  type DraftingNote,
+} from "./domain/draftingAnnotations";
 import {
   CABINET_GRID_SNAP_MM,
   cabinetTypeLabels,
@@ -267,6 +276,7 @@ function App() {
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
   const [workspaceTab, setWorkspaceTab] = useState<"plan" | "front" | "side" | "3d">("plan");
+  const [draftingTool, setDraftingTool] = useState<DraftingTool>("select");
   const [statusDockOpen, setStatusDockOpen] = useState(false);
   const [savedProjects, setSavedProjects] = useState<SavedProjectBrowserEntry[]>(() =>
     readSavedProjects(),
@@ -306,9 +316,12 @@ function App() {
       autoSaveToBrowser: true,
       costing: DEFAULT_COSTING_SETTINGS,
       standards: DEFAULT_PROJECT_STANDARDS,
+      drafting: DEFAULT_DRAFTING_DISPLAY,
     };
   const costingSettings = clampCostingSettings(projectPreferences.costing);
   const projectStandards = clampProjectStandards(projectPreferences.standards);
+  const draftingDisplay = clampDraftingDisplay(projectPreferences.drafting);
+  const projectDrafting = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
   const layers = project.layers ?? [createDefaultLayer()];
   const groups = project.groups ?? [];
   const canUndo = historyPastRef.current.length > 0;
@@ -1342,12 +1355,47 @@ function App() {
             standards: clampProjectStandards(
               currentProject.preferences?.standards ?? DEFAULT_PROJECT_STANDARDS,
             ),
+            drafting: clampDraftingDisplay(
+              currentProject.preferences?.drafting ?? DEFAULT_DRAFTING_DISPLAY,
+            ),
             ...patch,
           },
         },
       }),
       "Updated project preferences.",
     );
+  }
+
+  function handleDraftingChange(next: ReturnType<typeof clampProjectDrafting>) {
+    commitProjectChange(
+      (currentProject) => ({
+        project: {
+          ...currentProject,
+          drafting: clampProjectDrafting(next),
+        },
+      }),
+      "Updated drafting annotations.",
+    );
+  }
+
+  function handleAddDraftingNote(note: DraftingNote) {
+    const current = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
+    handleDraftingChange({
+      ...current,
+      notes: [...current.notes, note],
+    });
+    setDraftingTool("select");
+    setProjectStatus("Added drawing note.");
+  }
+
+  function handleAddDraftingLeader(leader: DraftingLeader) {
+    const current = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
+    handleDraftingChange({
+      ...current,
+      leaders: [...current.leaders, leader],
+    });
+    setDraftingTool("select");
+    setProjectStatus("Added leader callout.");
   }
 
   function closeCommandSurfaces() {
@@ -1743,6 +1791,7 @@ function App() {
         getProjectDisplayName(project, 1),
         room,
         planningWorkflow.countertops,
+        planningWorkflow.runs,
       );
       const arrayBuf = await blob.arrayBuffer();
       const bytes = new Uint8Array(arrayBuf);
@@ -2014,7 +2063,10 @@ function App() {
                 role="tab"
                 aria-selected={workspaceTab === tab.id}
                 className={`workspace-tab ${workspaceTab === tab.id ? "is-active" : ""}`}
-                onClick={() => setWorkspaceTab(tab.id)}
+                onClick={() => {
+                  setWorkspaceTab(tab.id);
+                  setDraftingTool("select");
+                }}
               >
                 {tab.label}
               </button>
@@ -2086,9 +2138,31 @@ function App() {
                 <div className="drawing-sheet-meta">
                   <span>{workspaceLabel}</span>
                   <span>
-                    {selectedCabinetIds.length > 0
-                      ? `${selectedCabinetIds.length} selected · drag to move · snap ${projectPreferences.snapSizeMm} mm · selected dims on`
-                      : "Click to select · drag cabinets · snap guides · dimension chains"}
+                    {draftingTool !== "select"
+                      ? draftingTool === "note"
+                        ? "Note tool · click to place text note"
+                        : "Leader tool · click target, then label"
+                      : selectedCabinetIds.length > 0
+                        ? `${selectedCabinetIds.length} selected · drag to move · snap ${projectPreferences.snapSizeMm} mm · selected dims on`
+                        : "Click to select · drag cabinets · snap guides · dimension chains"}
+                  </span>
+                  <span className="drawing-drafting-tools">
+                    {(
+                      [
+                        ["select", "Select"],
+                        ["note", "Note"],
+                        ["leader", "Leader"],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`tb-btn ${draftingTool === id ? "tb-accent" : ""}`}
+                        onClick={() => setDraftingTool(id)}
+                      >
+                        {label}
+                      </button>
+                    ))}
                   </span>
                 </div>
                 <div className="drawing-sheet-scroll">
@@ -2102,8 +2176,12 @@ function App() {
                     activeCabinetId={activeCabinetId}
                     snapSizeMm={projectPreferences.snapSizeMm}
                     showGrid={projectPreferences.showGrid}
+                    draftingDisplay={draftingDisplay}
+                    draftingTool={draftingTool}
                     onSelectCabinet={handleWorkspaceSelectCabinet}
                     onCabinetMove={handleCabinetMove}
+                    onAddNote={handleAddDraftingNote}
+                    onAddLeader={handleAddDraftingLeader}
                   />
                 </div>
               </div>
@@ -2126,6 +2204,27 @@ function App() {
             <JobWorkflowPanel
               job={project.job ?? defaultCabinetProject.job!}
               onChange={handleJobMetaChange}
+            />
+            <DraftingPanel
+              drafting={projectDrafting}
+              display={draftingDisplay}
+              onDisplayChange={(patch) =>
+                handleProjectPreferenceChange({
+                  drafting: clampDraftingDisplay({ ...draftingDisplay, ...patch }),
+                })
+              }
+              onDeleteNote={(id) =>
+                handleDraftingChange({
+                  ...projectDrafting,
+                  notes: projectDrafting.notes.filter((note) => note.id !== id),
+                })
+              }
+              onDeleteLeader={(id) =>
+                handleDraftingChange({
+                  ...projectDrafting,
+                  leaders: projectDrafting.leaders.filter((leader) => leader.id !== id),
+                })
+              }
             />
             <RoomSettings
               dimensions={room.dimensions}
