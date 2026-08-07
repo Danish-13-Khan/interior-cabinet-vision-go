@@ -743,7 +743,7 @@ function App() {
           ...currentProject,
           cabinets: presetProject.cabinets,
         },
-        room,
+        room: preset.roomConfig,
         selectedCabinetIds: presetProject.cabinets[0]?.id
           ? [presetProject.cabinets[0].id]
           : [],

@@ -114,18 +114,12 @@ export function buildProjectQuote(
   const taxAmount = roundMoney(taxableAmount * (settings.taxPercent / 100));
   const sellTotal = roundMoney(taxableAmount + taxAmount);
 
-  const workshopCabinetTotal = projectCost.cabinets.reduce(
-    (sum, cabinet) => sum + cabinet.totalCost,
-    0,
-  );
   const cabinetLines: QuoteCabinetLine[] = projectCost.cabinets.map((cabinet, index) => {
     const finishPremium = roundMoney(
       cabinet.finishCost * (settings.finishPremiumPercent / 100),
     );
     const workshopCost = cabinet.totalCost;
-    const share =
-      workshopCabinetTotal > 0 ? workshopCost / workshopCabinetTotal : 1 / Math.max(1, projectCost.cabinets.length);
-    const sellPrice = roundMoney(baseBeforeMarkup * share * (1 + settings.markupPercent / 100));
+    const sellPrice = roundMoney(workshopCost);
     return {
       cabinetId: cabinet.cabinetId,
       cabinetName: cabinet.cabinetName,
@@ -142,10 +136,11 @@ export function buildProjectQuote(
     };
   });
 
-  // Re-scale cabinet sell prices so they roughly track sell-before-tax/discount structure.
+  // Cabinet estimate lines should represent the workshop subtotal minus any project-wide
+  // hardware allowance that is shown as a separate estimate line below.
   const cabinetSellSum = cabinetLines.reduce((sum, line) => sum + line.sellPrice, 0);
   const targetCabinetSell = roundMoney(
-    baseBeforeMarkup + markupAmount - hardwareAllowance - labourAllowance,
+    workshopSubtotal - hardwareAllowance,
   );
   if (cabinetSellSum > 0 && targetCabinetSell > 0) {
     const scale = targetCabinetSell / cabinetSellSum;

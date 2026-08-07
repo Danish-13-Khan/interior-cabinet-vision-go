@@ -75,4 +75,40 @@ describe("projectReview", () => {
     expect(released.job.status).toBe("production");
     expect(released.review.history[0]?.releasedForProduction).toBe(true);
   });
+
+  it("syncs live manufacturing issues into review notes without duplicating them", () => {
+    const invalidProject = {
+      ...defaultCabinetProject,
+      cabinets: defaultCabinetProject.cabinets.map((cabinet) => ({
+        ...cabinet,
+        config: {
+          ...cabinet.config,
+          dimensions: {
+            ...cabinet.config.dimensions,
+            width: 500,
+            height: 2400,
+            depth: 900,
+          },
+        },
+      })),
+    };
+
+    const first = createRevisionSnapshot(invalidProject);
+    const manufacturingCount = first.nextReview.notes.filter(
+      (note) => note.source === "manufacturing",
+    ).length;
+    expect(manufacturingCount).toBe(first.snapshot.openIssues.length);
+    expect(manufacturingCount).toBeGreaterThan(0);
+
+    const applied = applyReviewStateToProject(
+      invalidProject,
+      first.nextReview,
+      first.nextJob,
+    );
+    const second = createRevisionSnapshot(applied);
+    const secondManufacturingCount = second.nextReview.notes.filter(
+      (note) => note.source === "manufacturing",
+    ).length;
+    expect(secondManufacturingCount).toBe(second.snapshot.openIssues.length);
+  });
 });

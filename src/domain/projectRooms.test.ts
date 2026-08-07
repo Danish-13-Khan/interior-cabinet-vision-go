@@ -6,6 +6,7 @@ import {
   createWholeProjectReport,
   duplicateProjectRoom,
   getActiveProjectRoom,
+  getRoomTemplate,
   listProjectRooms,
   normalizeMultiRoomProject,
   switchProjectRoom,
@@ -81,5 +82,13 @@ describe("project rooms", () => {
     expect(whole.schedule.length).toBe(whole.totalItemCount);
     expect(whole.roomSummaries).toHaveLength(2);
     expect(whole.totalCost).toBeGreaterThanOrEqual(0);
+  });
+
+  it("preserves preset room dimensions when creating rooms from templates", () => {
+    const template = getRoomTemplate("small-bedroom");
+    expect(template).not.toBeNull();
+    const room = template!.build();
+    expect(room.config.dimensions.widthMm).toBe(4200);
+    expect(room.config.dimensions.depthMm).toBe(3400);
   });
 });

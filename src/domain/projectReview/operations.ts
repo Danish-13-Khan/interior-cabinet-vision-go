@@ -59,7 +59,12 @@ export function collectLiveReviewIssues(
     resolved: false,
     createdAt: new Date().toISOString(),
   }));
-  return clampReviewNotes([...existingNotes.filter((note) => !note.resolved), ...fromRules]);
+  return clampReviewNotes([
+    ...existingNotes.filter(
+      (note) => !note.resolved && note.source !== "manufacturing",
+    ),
+    ...fromRules,
+  ]);
 }
 
 export function createRevisionSnapshot(
@@ -103,7 +108,7 @@ export function createRevisionSnapshot(
     snapshot,
     nextJob,
     nextReview: {
-      notes: review.notes,
+      notes: openIssues,
       history: nextHistory,
     },
   };
