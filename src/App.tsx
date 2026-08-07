@@ -86,6 +86,12 @@ import {
   type CostingSettings,
 } from "./domain/costingSettings";
 import {
+  clampQuoteSettings,
+  DEFAULT_QUOTE_SETTINGS,
+  type QuoteSettings,
+} from "./domain/quoteSettings";
+import { createQuoteSnapshotFromQuote } from "./domain/projectQuote";
+import {
   clampProjectStandards,
   DEFAULT_PROJECT_STANDARDS,
 } from "./domain/projectStandards";
@@ -315,10 +321,12 @@ function App() {
       showGrid: true,
       autoSaveToBrowser: true,
       costing: DEFAULT_COSTING_SETTINGS,
+      quote: DEFAULT_QUOTE_SETTINGS,
       standards: DEFAULT_PROJECT_STANDARDS,
       drafting: DEFAULT_DRAFTING_DISPLAY,
     };
   const costingSettings = clampCostingSettings(projectPreferences.costing);
+  const quoteSettings = clampQuoteSettings(projectPreferences.quote);
   const projectStandards = clampProjectStandards(projectPreferences.standards);
   const draftingDisplay = clampDraftingDisplay(projectPreferences.drafting);
   const projectDrafting = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
@@ -1352,6 +1360,9 @@ function App() {
             costing: clampCostingSettings(
               currentProject.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
             ),
+            quote: clampQuoteSettings(
+              currentProject.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
+            ),
             standards: clampProjectStandards(
               currentProject.preferences?.standards ?? DEFAULT_PROJECT_STANDARDS,
             ),
@@ -1363,6 +1374,27 @@ function App() {
         },
       }),
       "Updated project preferences.",
+    );
+  }
+
+  function handleFreezeQuoteSnapshot() {
+    const snapshot = createQuoteSnapshotFromQuote(projectReport.quote);
+    commitProjectChange(
+      (currentProject) => {
+        const nextHistory = [snapshot, ...(currentProject.quoteHistory ?? [])].slice(0, 12);
+        const shouldMarkQuoted =
+          !currentProject.job?.status || currentProject.job.status === "draft";
+        return {
+          project: {
+            ...currentProject,
+            quoteHistory: nextHistory,
+            job: shouldMarkQuoted
+              ? patchJobMeta(currentProject.job, { status: "quoted" })
+              : clampJobMeta(currentProject.job),
+          },
+        };
+      },
+      `Froze quote snapshot for revision ${snapshot.revision}.`,
     );
   }
 
@@ -2420,11 +2452,18 @@ function App() {
               report={projectReport}
               selectedCabinetId={activeCabinetId}
               costingSettings={costingSettings}
+              quoteSettings={quoteSettings}
               onCostingChange={(next: CostingSettings) =>
                 handleProjectPreferenceChange({
                   costing: clampCostingSettings(next),
                 })
               }
+              onQuoteChange={(next: QuoteSettings) =>
+                handleProjectPreferenceChange({
+                  quote: clampQuoteSettings(next),
+                })
+              }
+              onFreezeQuote={handleFreezeQuoteSnapshot}
               onSelectCabinet={(cabinetId) => handleWorkspaceSelectCabinet(cabinetId, false)}
             />
           </div>

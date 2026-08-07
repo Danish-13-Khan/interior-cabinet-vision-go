@@ -120,8 +120,13 @@ describe("costing", () => {
     );
 
     expect(cost.hardwareAllowance).toBe(2500);
+    expect(cost.labourAllowance).toBe(1500);
     expect(cost.grandTotal).toBe(
-      cost.totalMaterial + cost.totalHardware + cost.totalLabour + cost.hardwareAllowance,
+      cost.totalMaterial +
+        cost.totalHardware +
+        cost.totalLabour +
+        cost.hardwareAllowance +
+        cost.labourAllowance,
     );
   });
 });
