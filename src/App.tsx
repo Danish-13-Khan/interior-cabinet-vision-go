@@ -2,23 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import "./App.css";
-import {
-  CabinetScene,
-  type CabinetSceneHandle,
-} from "./components/CabinetScene";
-import { DimensionControls } from "./components/DimensionControls";
-import { RoomSettings } from "./components/RoomSettings";
-import { WallEditor } from "./components/WallEditor";
-import { DoorWindowEditor } from "./components/DoorWindowEditor";
-import { ProjectBrowser } from "./components/ProjectBrowser";
-import { JobWorkflowPanel } from "./components/JobWorkflowPanel";
-import { TwoDView, type DraftingTool } from "./components/TwoDView";
-import { DraftingPanel } from "./components/DraftingPanel";
-import { LibraryRail } from "./components/LibraryRail";
+import { type CabinetSceneHandle } from "./components/CabinetScene";
+import { type DraftingTool } from "./components/TwoDView";
 import { LibraryManagerPanel } from "./components/LibraryManagerPanel";
 import { AppRibbon } from "./components/AppRibbon";
-import { SceneTreePanel } from "./components/SceneTreePanel";
-import { RoomPresetRail } from "./components/RoomPresetRail";
 import { CommandPalette, type CommandItem } from "./components/CommandPalette";
 import { ShortcutSheet } from "./components/ShortcutSheet";
 import { StatusStrip } from "./components/StatusStrip";
@@ -56,7 +43,6 @@ import {
 } from "./domain/cabinetDimensions";
 import {
   createCabinetDerivedMetrics,
-  getPanelDisplayName,
   type PanelName,
 } from "./domain/cabinetGeometry";
 import {
@@ -95,7 +81,6 @@ import {
   writeActiveRoomState,
   type RoomTemplateId,
 } from "./domain/projectRooms";
-import { RoomNavigator } from "./components/RoomNavigator";
 import {
   evaluateCabinetRules,
   type ManufacturingIssue,
@@ -130,26 +115,23 @@ import {
   createConfigFromTemplate,
   createProjectFromStarter,
   createTemplateFromCabinet,
-  loadUserTemplatesFromStorage,
-  removeUserTemplate,
-  saveUserTemplatesToStorage,
-  upsertUserTemplate,
-  type CabinetTemplate,
 } from "./domain/cabinetTemplates";
 import { useWorkshopLibrary } from "./hooks/useWorkshopLibrary";
+import { AppToolRail } from "./components/AppToolRail";
+import { AppWorkspace } from "./components/AppWorkspace";
+import { AppInspector } from "./components/AppInspector";
+import { createOffsetDuplicate } from "./domain/cabinetDuplication";
+import { useEditorHistory, captureEditorSnapshot } from "./hooks/useEditorHistory";
+import { useEditorShortcuts } from "./hooks/useEditorShortcuts";
+import { useUserTemplates } from "./hooks/useUserTemplates";
+import { useSavedProjectBrowser } from "./hooks/useSavedProjectBrowser";
+
 import {
   createDefaultLayer,
-  createEditorSnapshot,
-  HISTORY_LIMIT,
   sanitizeSelection,
   type EditorSnapshot,
 } from "./domain/editorSnapshot";
-import {
-  getProjectDisplayName,
-  persistSavedProjects,
-  readSavedProjects,
-  type SavedProjectBrowserEntry,
-} from "./domain/projectBrowserStorage";
+import { getProjectDisplayName } from "./domain/projectBrowserStorage";
 import { createCabinetId, createItemName } from "./domain/cabinetIds";
 import {
   computeAlignmentTargets,
@@ -160,17 +142,12 @@ import { getErrorMessage } from "./utils/errors";
 
 function App() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
-  const historyPastRef = useRef<EditorSnapshot[]>([]);
-  const historyFutureRef = useRef<EditorSnapshot[]>([]);
   const clipboardRef = useRef<CabinetInstance[]>([]);
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
   const [workspaceTab, setWorkspaceTab] = useState<"plan" | "front" | "side" | "3d">("plan");
   const [draftingTool, setDraftingTool] = useState<DraftingTool>("select");
   const [statusDockOpen, setStatusDockOpen] = useState(false);
-  const [savedProjects, setSavedProjects] = useState<SavedProjectBrowserEntry[]>(() =>
-    readSavedProjects(),
-  );
   const [selectedCabinetIds, setSelectedCabinetIds] = useState<string[]>([
     defaultCabinetProject.cabinets[0]?.id ?? "",
   ].filter(Boolean));
@@ -180,16 +157,13 @@ function App() {
   const [selectedPanelName, setSelectedPanelName] = useState<PanelName | null>(null);
   const [projectStatus, setProjectStatus] = useState("");
   const [projectFilePath, setProjectFilePath] = useState<string | null>(null);
-  const [historyTick, setHistoryTick] = useState(0);
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
   const [isShortcutSheetOpen, setIsShortcutSheetOpen] = useState(false);
   const [libraryManagerOpen, setLibraryManagerOpen] = useState(false);
   const { library: workshopLibrary, setLibrary: setWorkshopLibrary } =
     useWorkshopLibrary();
-  const [userTemplates, setUserTemplates] = useState<CabinetTemplate[]>(() =>
-    loadUserTemplatesFromStorage(),
-  );
+  const { templates: userTemplates, saveTemplate, deleteTemplate } = useUserTemplates();
 
   const selectedCabinet =
     project.cabinets.find((cabinet) => cabinet.id === activeCabinetId) ?? null;
@@ -223,8 +197,6 @@ function App() {
   const projectDrafting = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
   const layers = project.layers ?? [createDefaultLayer()];
   const groups = project.groups ?? [];
-  const canUndo = historyPastRef.current.length > 0;
-  const canRedo = historyFutureRef.current.length > 0;
   const validationMessages = useMemo(
     () =>
       getCabinetValidationMessages(
@@ -283,10 +255,6 @@ function App() {
   );
   const projectRooms = useMemo(() => listProjectRooms(project), [project]);
 
-  function refreshHistoryState() {
-    setHistoryTick((value) => value + 1);
-  }
-
   function applySnapshot(snapshot: EditorSnapshot) {
     const safeProject = normalizeMultiRoomProject(
       clampCabinetProject(snapshot.project),
@@ -306,7 +274,7 @@ function App() {
   }
 
   function captureSnapshot(): EditorSnapshot {
-    return createEditorSnapshot(
+    return captureEditorSnapshot(
       project,
       room,
       selectedCabinetIds,
@@ -315,15 +283,26 @@ function App() {
     );
   }
 
-  function commitSnapshot(snapshot: EditorSnapshot, status?: string) {
-    historyPastRef.current = [...historyPastRef.current, captureSnapshot()].slice(-HISTORY_LIMIT);
-    historyFutureRef.current = [];
-    applySnapshot(snapshot);
-    if (status) {
-      setProjectStatus(status);
-    }
-    refreshHistoryState();
-  }
+  const { canUndo, canRedo, commitSnapshot, handleUndo, handleRedo } = useEditorHistory({
+    captureCurrent: captureSnapshot,
+    applySnapshot,
+    onStatus: setProjectStatus,
+  });
+
+  const {
+    sortedSavedProjects,
+    saveCurrentProjectToBrowser,
+    handleLoadSavedProject,
+    handleDeleteSavedProject,
+    handleRenameSavedProject,
+    handleDuplicateSavedProject,
+  } = useSavedProjectBrowser({
+    project,
+    room,
+    captureThumbnail: () => sceneRef.current?.captureThumbnail() ?? "",
+    applySnapshot,
+    onStatus: setProjectStatus,
+  });
 
   function replaceSelection(ids: string[], nextActiveId?: string | null, nextPanelName: PanelName | null = null) {
     const safeSelection = sanitizeSelection(project, ids, nextActiveId ?? ids[0] ?? null);
@@ -360,8 +339,6 @@ function App() {
       cabinets: project.cabinets.filter((cabinet) => getLayerForCabinet(cabinet)?.visible !== false),
     };
   }
-
-  void historyTick;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -400,11 +377,6 @@ function App() {
     });
   }, [roomBounds]);
 
-  function setProjectAndPersist(nextProjects: SavedProjectBrowserEntry[]) {
-    setSavedProjects(nextProjects);
-    persistSavedProjects(nextProjects);
-  }
-
   function clampPlacementInRoom(
     placement: CabinetPlacement,
     dimensions: CabinetDimensions,
@@ -438,26 +410,6 @@ function App() {
 
   function captureThumbnail() {
     return sceneRef.current?.captureThumbnail() ?? "";
-  }
-
-  function saveCurrentProjectToBrowser(nameOverride?: string) {
-    const safeProject = normalizeMultiRoomProject(
-      writeActiveRoomState(project, project.cabinets, room),
-      room,
-    );
-    const thumbnail = captureThumbnail();
-    const entry: SavedProjectBrowserEntry = {
-      id: `saved-${Date.now()}`,
-      name: nameOverride ?? getProjectDisplayName(safeProject, savedProjects.length + 1),
-      thumbnail,
-      updatedAt: new Date().toISOString(),
-      project: safeProject,
-      room: getActiveProjectRoom(safeProject).config,
-    };
-
-    const nextProjects = [entry, ...savedProjects].slice(0, 16);
-    setProjectAndPersist(nextProjects);
-    setProjectStatus("Saved current project to the browser.");
   }
 
   function commitProjectChange(
@@ -616,92 +568,10 @@ function App() {
     return selectedCabinets.some((cabinet) => isCabinetLocked(cabinet));
   }
 
-  function handleUndo() {
-    const past = historyPastRef.current;
-    const previous = past[past.length - 1];
-    if (!previous) return;
-
-    historyPastRef.current = historyPastRef.current.slice(0, -1);
-    historyFutureRef.current = [captureSnapshot(), ...historyFutureRef.current].slice(0, HISTORY_LIMIT);
-    applySnapshot(previous);
-    setProjectStatus("Undid the last change.");
-    refreshHistoryState();
-  }
-
-  function handleRedo() {
-    const next = historyFutureRef.current[0];
-    if (!next) return;
-
-    historyFutureRef.current = historyFutureRef.current.slice(1);
-    historyPastRef.current = [...historyPastRef.current, captureSnapshot()].slice(-HISTORY_LIMIT);
-    applySnapshot(next);
-    setProjectStatus("Redid the last change.");
-    refreshHistoryState();
-  }
-
   function handleCopySelection() {
     if (selectedCabinets.length === 0) return;
     clipboardRef.current = deepClone(selectedCabinets);
     setProjectStatus(`Copied ${selectedCabinets.length} item${selectedCabinets.length === 1 ? "" : "s"}.`);
-  }
-
-  function createOffsetDuplicate(
-    cabinet: CabinetInstance,
-    offsetIndex: number,
-    currentProject: CabinetProject,
-  ) {
-    const basePlacement =
-      cabinet.placement.attachment === "floor"
-        ? {
-            ...cabinet.placement,
-            x: cabinet.placement.x + 400 + offsetIndex * 120,
-            z: cabinet.placement.z + 200 + offsetIndex * 80,
-          }
-        : {
-            ...cabinet.placement,
-            y: cabinet.placement.y + 120 + offsetIndex * 60,
-          };
-
-    let placement = clampCabinetPlacement(basePlacement, cabinet.config.dimensions, roomBounds);
-    const duplicate: CabinetInstance = {
-      ...deepClone(cabinet),
-      id: createCabinetId(),
-      name: `${cabinet.name} Copy`,
-      placement,
-    };
-
-    for (let shift = 0; shift < 6; shift += 1) {
-      const shiftedPlacement = clampCabinetPlacement(
-        cabinet.placement.attachment === "floor"
-          ? {
-              ...basePlacement,
-              x: basePlacement.x + shift * 300,
-              z: basePlacement.z + shift * 150,
-            }
-          : {
-              ...basePlacement,
-              y: basePlacement.y + shift * 90,
-            },
-        cabinet.config.dimensions,
-        roomBounds,
-      );
-      const shiftedDuplicate = {
-        ...duplicate,
-        placement: shiftedPlacement,
-      };
-      if (
-        !currentProject.cabinets.some((existing) => cabinetsOverlap(existing, shiftedDuplicate)) &&
-        !cabinetBlocksOpening(shiftedDuplicate, room)
-      ) {
-        placement = shiftedPlacement;
-        break;
-      }
-    }
-
-    return {
-      ...duplicate,
-      placement,
-    };
   }
 
   function handlePasteSelection() {
@@ -710,7 +580,7 @@ function App() {
     commitProjectChange(
       (currentProject) => {
         const duplicates = clipboardRef.current.map((cabinet, index) =>
-          createOffsetDuplicate(cabinet, index, currentProject),
+          createOffsetDuplicate(cabinet, index, currentProject, room, roomBounds),
         );
 
         return {
@@ -1128,16 +998,12 @@ function App() {
       return;
     }
     const template = createTemplateFromCabinet(selectedCabinet, name);
-    const next = upsertUserTemplate(userTemplates, template);
-    setUserTemplates(next);
-    saveUserTemplatesToStorage(next);
+    saveTemplate(template);
     setProjectStatus(`Saved template “${template.name}”.`);
   }
 
   function handleDeleteTemplate(templateId: string) {
-    const next = removeUserTemplate(userTemplates, templateId);
-    setUserTemplates(next);
-    saveUserTemplatesToStorage(next);
+    deleteTemplate(templateId);
     setProjectStatus("Deleted cabinet template.");
   }
 
@@ -1181,7 +1047,7 @@ function App() {
     commitProjectChange(
       (currentProject) => {
         const duplicates = editable.map((cabinet, index) =>
-          createOffsetDuplicate(cabinet, index, currentProject),
+          createOffsetDuplicate(cabinet, index, currentProject, room, roomBounds),
         );
 
         return {
@@ -1491,101 +1357,26 @@ function App() {
     );
   }
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      const target = event.target as HTMLElement | null;
-      const isTypingTarget =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        target?.isContentEditable;
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
-        event.preventDefault();
-        if (event.shiftKey) {
-          handleRedo();
-        } else {
-          handleUndo();
-        }
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setIsCommandBarOpen((value) => !value);
-        setIsShortcutSheetOpen(false);
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        void handleSaveProject();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "n") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        handleReset();
-        return;
-      }
-
-      if (!isTypingTarget && event.key === "?") {
-        event.preventDefault();
-        setIsShortcutSheetOpen((value) => !value);
-        setIsCommandBarOpen(false);
-        return;
-      }
-
-      if (event.key === "Escape") {
-        closeCommandSurfaces();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "y") {
-        event.preventDefault();
-        handleRedo();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "c") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        handleCopySelection();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "v") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        handlePasteSelection();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        handleDuplicateCabinet();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "a") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        handleSelectAll();
-        return;
-      }
-
-      if ((event.key === "Delete" || event.key === "Backspace") && !isTypingTarget) {
-        event.preventDefault();
-        handleRemoveCabinet();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [project, room, selectedCabinets, selectedCabinetIds, projectPreferences.snapSizeMm, activeCabinetId]);
+  useEditorShortcuts({
+    onUndo: handleUndo,
+    onRedo: handleRedo,
+    onSave: () => { void handleSaveProject(); },
+    onNew: handleReset,
+    onCopy: handleCopySelection,
+    onPaste: handlePasteSelection,
+    onDuplicate: handleDuplicateCabinet,
+    onSelectAll: handleSelectAll,
+    onRemove: handleRemoveCabinet,
+    onToggleCommandPalette: () => {
+      setIsCommandBarOpen((value) => !value);
+      setIsShortcutSheetOpen(false);
+    },
+    onToggleShortcuts: () => {
+      setIsShortcutSheetOpen((value) => !value);
+      setIsCommandBarOpen(false);
+    },
+    onEscape: closeCommandSurfaces,
+  });
 
   const commandItems = useMemo<CommandItem[]>(
     () => [
@@ -1872,70 +1663,6 @@ function App() {
     }
   }
 
-  function handleLoadSavedProject(projectId: string) {
-    const entry = savedProjects.find((item) => item.id === projectId);
-
-    if (!entry) {
-      return;
-    }
-
-    const safeProject = clampCabinetProject(entry.project);
-    applySnapshot({
-      project: safeProject,
-      room: entry.room,
-      selectedCabinetIds: safeProject.cabinets[0]?.id ? [safeProject.cabinets[0].id] : [],
-      activeCabinetId: safeProject.cabinets[0]?.id ?? null,
-      selectedPanelName: null,
-    });
-    setProjectStatus(`Loaded "${entry.name}" from the project browser.`);
-  }
-
-  function handleDeleteSavedProject(projectId: string) {
-    const nextProjects = savedProjects.filter((item) => item.id !== projectId);
-    setProjectAndPersist(nextProjects);
-    setProjectStatus("Removed project from the browser.");
-  }
-
-  function handleRenameSavedProject(projectId: string, newName: string) {
-    const trimmed = newName.trim();
-    if (!trimmed) return;
-
-    const nextProjects = savedProjects.map((item) =>
-      item.id === projectId ? { ...item, name: trimmed } : item,
-    );
-    setProjectAndPersist(nextProjects);
-    setProjectStatus(`Renamed project to "${trimmed}".`);
-  }
-
-  function handleDuplicateSavedProject(projectId: string) {
-    const entry = savedProjects.find((item) => item.id === projectId);
-    if (!entry) return;
-
-    const duplicate: SavedProjectBrowserEntry = {
-      ...entry,
-      id: `saved-${Date.now()}`,
-      name: `${entry.name} Copy`,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const nextProjects = [duplicate, ...savedProjects].slice(0, 16);
-    setProjectAndPersist(nextProjects);
-    setProjectStatus(`Duplicated "${entry.name}".`);
-  }
-
-  const sortedSavedProjects = useMemo(
-    () =>
-      [...savedProjects]
-        .sort(
-          (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        )
-        .map((entry) => ({
-          ...entry,
-          job: entry.project.job,
-          cabinetCount: entry.project.cabinets.length,
-        })),
-    [savedProjects],
-  );
 
 
   const activeRoomName = getActiveProjectRoom(project).name;
@@ -1947,9 +1674,6 @@ function App() {
         : workspaceTab === "side"
           ? `${activeRoomName} · Side`
           : `${activeRoomName} · 3D`;
-
-  const twoDViewKind =
-    workspaceTab === "front" ? "front" : workspaceTab === "side" ? "side" : "top";
 
   function handleWorkspaceSelectCabinet(cabinetId: string | null, additive: boolean) {
     if (!cabinetId) {
@@ -2000,319 +1724,137 @@ function App() {
       />
 
       <div className="app-body">
-        <aside className="tool-rail" aria-label="Tool rail">
-          <LibraryRail
-            templates={userTemplates}
-            userCabinetPresets={workshopLibrary.cabinetPresets}
-            onAddFamily={handleAddCabinet}
-            onAddLibraryItem={handleAddLibraryItem}
-            onAddTemplate={handleAddTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-            onApplyStarter={handleApplyStarter}
-            onOpenLibraryManager={() => setLibraryManagerOpen(true)}
-          />
+        <AppToolRail
+          templates={userTemplates}
+          userCabinetPresets={workshopLibrary.cabinetPresets}
+          cabinets={project.cabinets}
+          activeCabinetId={activeCabinetId}
+          selectedCabinetIds={selectedCabinetIds}
+          rooms={projectRooms}
+          activeRoomId={project.activeRoomId ?? projectRooms[0]?.id ?? null}
+          savedProjects={sortedSavedProjects}
+          onAddFamily={handleAddCabinet}
+          onAddLibraryItem={handleAddLibraryItem}
+          onAddTemplate={handleAddTemplate}
+          onDeleteTemplate={handleDeleteTemplate}
+          onApplyStarter={handleApplyStarter}
+          onOpenLibraryManager={() => setLibraryManagerOpen(true)}
+          onSelectCabinet={handleWorkspaceSelectCabinet}
+          onSelectRoom={handleSelectProjectRoom}
+          onAddRoom={handleAddProjectRoom}
+          onDuplicateRoom={handleDuplicateProjectRoom}
+          onRenameRoom={handleRenameProjectRoom}
+          onRemoveRoom={handleRemoveProjectRoom}
+          onAddFromTemplate={handleAddRoomFromTemplate}
+          onLoadRoomPreset={handleLoadRoomPreset}
+          onDeleteSavedProject={handleDeleteSavedProject}
+          onDuplicateSavedProject={handleDuplicateSavedProject}
+          onLoadSavedProject={handleLoadSavedProject}
+          onRenameSavedProject={handleRenameSavedProject}
+          onSaveCurrentProject={saveCurrentProjectToBrowser}
+        />
 
-          <SceneTreePanel
-            cabinets={project.cabinets}
-            activeCabinetId={activeCabinetId}
-            selectedCabinetIds={selectedCabinetIds}
-            onSelectCabinet={handleWorkspaceSelectCabinet}
-          />
+        <AppWorkspace
+          ref={sceneRef}
+          workspaceTab={workspaceTab}
+          workspaceLabel={workspaceLabel}
+          draftingTool={draftingTool}
+          project={getVisibleProject()}
+          room={room}
+          planningWorkflow={planningWorkflow}
+          snapSizeMm={projectPreferences.snapSizeMm}
+          showGrid={projectPreferences.showGrid}
+          selectedCabinetIds={selectedCabinetIds}
+          activeCabinetId={activeCabinetId}
+          selectedPanelName={selectedPanelName}
+          draftingDisplay={draftingDisplay}
+          onWorkspaceTabChange={(tab) => {
+            setWorkspaceTab(tab);
+            setDraftingTool("select");
+          }}
+          onDraftingToolChange={setDraftingTool}
+          onCabinetMove={handleCabinetMove}
+          onCabinetRotate={handleCabinetRotate}
+          onCabinetResize={handleCabinetResize}
+          onReplaceSelection={replaceSelection}
+          onToggleCabinetSelection={toggleCabinetSelection}
+          onSelectCabinet={handleWorkspaceSelectCabinet}
+          onAddNote={handleAddDraftingNote}
+          onAddLeader={handleAddDraftingLeader}
+        />
 
-          <RoomNavigator
-            rooms={projectRooms}
-            activeRoomId={project.activeRoomId ?? projectRooms[0]?.id ?? null}
-            onSelectRoom={handleSelectProjectRoom}
-            onAddRoom={handleAddProjectRoom}
-            onDuplicateRoom={handleDuplicateProjectRoom}
-            onRenameRoom={handleRenameProjectRoom}
-            onRemoveRoom={handleRemoveProjectRoom}
-            onAddFromTemplate={handleAddRoomFromTemplate}
-          />
-
-          <RoomPresetRail onLoadPreset={handleLoadRoomPreset} />
-
-          <div className="rail-section">
-            <ProjectBrowser
-              projects={sortedSavedProjects}
-              onDeleteProject={handleDeleteSavedProject}
-              onDuplicateProject={handleDuplicateSavedProject}
-              onLoadProject={handleLoadSavedProject}
-              onRenameProject={handleRenameSavedProject}
-              onSaveCurrent={saveCurrentProjectToBrowser}
-            />
-          </div>
-        </aside>
-
-        <section className="workspace-panel" aria-label="Drawing workspace">
-          <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
-            {(
-              [
-                { id: "plan", label: "Plan" },
-                { id: "front", label: "Front Elevation" },
-                { id: "side", label: "Side Elevation" },
-                { id: "3d", label: "3D" },
-              ] as const
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={workspaceTab === tab.id}
-                className={`workspace-tab ${workspaceTab === tab.id ? "is-active" : ""}`}
-                onClick={() => {
-                  setWorkspaceTab(tab.id);
-                  setDraftingTool("select");
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="workspace-canvas">
-            {workspaceTab === "3d" ? (
-              <div className="viewport-panel" aria-label="3D room viewport">
-                <CabinetScene
-                  ref={sceneRef}
-                  project={getVisibleProject()}
-                  room={room}
-                  countertops={planningWorkflow.countertops}
-                  fillers={planningWorkflow.fillers}
-                  snapSizeMm={projectPreferences.snapSizeMm}
-                  showGrid={projectPreferences.showGrid}
-                  onCabinetMove={handleCabinetMove}
-                  onCabinetRotate={handleCabinetRotate}
-                  selectedCabinetIds={selectedCabinetIds}
-                  activeCabinetId={activeCabinetId}
-                  selectedPanelName={selectedPanelName}
-                  onCabinetResize={handleCabinetResize}
-                  onSelectedCabinetChange={(cabinetId, additive) => {
-                    if (!cabinetId) {
-                      replaceSelection([], null, null);
-                      return;
-                    }
-
-                    if (additive) {
-                      toggleCabinetSelection(cabinetId);
-                      return;
-                    }
-
-                    replaceSelection([cabinetId], cabinetId, null);
-                  }}
-                  onSelectedPanelChange={(cabinetId, name, additive) => {
-                    if (!cabinetId) {
-                      replaceSelection([], null, null);
-                      return;
-                    }
-
-                    if (additive) {
-                      const nextIds = selectedCabinetIds.includes(cabinetId)
-                        ? selectedCabinetIds
-                        : [...selectedCabinetIds, cabinetId];
-                      replaceSelection(nextIds, cabinetId, name);
-                      return;
-                    }
-
-                    replaceSelection([cabinetId], cabinetId, name);
-                  }}
-                  onMarqueeSelect={(cabinetIds, additive) => {
-                    if (additive) {
-                      replaceSelection(
-                        Array.from(new Set([...selectedCabinetIds, ...cabinetIds])),
-                        cabinetIds[0] ?? activeCabinetId,
-                        null,
-                      );
-                      return;
-                    }
-
-                    replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="drawing-sheet" aria-label={`${workspaceLabel} drawing`}>
-                <div className="drawing-sheet-meta">
-                  <span>{workspaceLabel}</span>
-                  <span>
-                    {draftingTool !== "select"
-                      ? draftingTool === "note"
-                        ? "Note tool · click to place text note"
-                        : "Leader tool · click target, then label"
-                      : selectedCabinetIds.length > 0
-                        ? `${selectedCabinetIds.length} selected · drag to move · snap ${projectPreferences.snapSizeMm} mm · selected dims on`
-                        : "Click to select · drag cabinets · snap guides · dimension chains"}
-                  </span>
-                  <span className="drawing-drafting-tools">
-                    {(
-                      [
-                        ["select", "Select"],
-                        ["note", "Note"],
-                        ["leader", "Leader"],
-                      ] as const
-                    ).map(([id, label]) => (
-                      <button
-                        key={id}
-                        type="button"
-                        className={`tb-btn ${draftingTool === id ? "tb-accent" : ""}`}
-                        onClick={() => setDraftingTool(id)}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </span>
-                </div>
-                <div className="drawing-sheet-scroll">
-                  <TwoDView
-                    project={getVisibleProject()}
-                    room={room}
-                    view={twoDViewKind}
-                    countertops={planningWorkflow.countertops}
-                    runs={planningWorkflow.runs}
-                    selectedCabinetIds={selectedCabinetIds}
-                    activeCabinetId={activeCabinetId}
-                    snapSizeMm={projectPreferences.snapSizeMm}
-                    showGrid={projectPreferences.showGrid}
-                    draftingDisplay={draftingDisplay}
-                    draftingTool={draftingTool}
-                    onSelectCabinet={handleWorkspaceSelectCabinet}
-                    onCabinetMove={handleCabinetMove}
-                    onAddNote={handleAddDraftingNote}
-                    onAddLeader={handleAddDraftingLeader}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <aside className="inspector-panel" aria-label="Properties inspector">
-          <div className="inspector-header">
-            <strong>Properties</strong>
-            <span>
-              {selectedCabinet
-                ? selectedCabinet.name
-                : selectedCabinetIds.length > 1
-                  ? `${selectedCabinetIds.length} items`
-                  : "No selection"}
-            </span>
-          </div>
-          <div className="inspector-scroll">
-            <JobWorkflowPanel
-              job={project.job ?? defaultCabinetProject.job!}
-              onChange={handleJobMetaChange}
-            />
-            <DraftingPanel
-              drafting={projectDrafting}
-              display={draftingDisplay}
-              onDisplayChange={(patch) =>
-                handleProjectPreferenceChange({
-                  drafting: clampDraftingDisplay({ ...draftingDisplay, ...patch }),
-                })
-              }
-              onDeleteNote={(id) =>
-                handleDraftingChange({
-                  ...projectDrafting,
-                  notes: projectDrafting.notes.filter((note) => note.id !== id),
-                })
-              }
-              onDeleteLeader={(id) =>
-                handleDraftingChange({
-                  ...projectDrafting,
-                  leaders: projectDrafting.leaders.filter((leader) => leader.id !== id),
-                })
-              }
-            />
-            <RoomSettings
-              dimensions={room.dimensions}
-              onChange={(dims) =>
-                handleRoomConfigChange({ ...room, dimensions: dims })
-              }
-            />
-            <WallEditor
-              showBackWall={room.dimensions.showBackWall}
-              showLeftWall={room.dimensions.showLeftWall}
-              showRightWall={room.dimensions.showRightWall}
-              onChange={(walls) =>
-                handleRoomConfigChange({
-                  ...room,
-                  dimensions: { ...room.dimensions, ...walls },
-                })
-              }
-            />
-            <DoorWindowEditor
-              doors={room.doors}
-              windows={room.windows}
-              onChangeDoors={(doors) => handleRoomConfigChange({ ...room, doors })}
-              onChangeWindows={(windows) =>
-                handleRoomConfigChange({ ...room, windows })
-              }
-            />
-            <DimensionControls
-              cabinetCount={project.cabinets.length}
-              cabinetCutlistItems={cabinetCutlistItems}
-              cabinets={project.cabinets}
-              config={selectedConfig}
-              constructionParts={selectedConstruction?.parts ?? []}
-              derivedMetrics={derivedMetrics}
-              cutlistItems={cutlistItems}
-              projectFilePath={projectFilePath}
-              projectStatus={projectStatus}
-              savedProjects={sortedSavedProjects}
-              snapSizeMm={projectPreferences.snapSizeMm}
-              selectedCabinetIds={selectedCabinetIds}
-              activeCabinetId={activeCabinetId}
-              selectedPanelName={selectedPanelName}
-              selectedPlacement={selectedPlacement}
-              selectedLayerId={selectedLayerId}
-              selectedGroupId={selectedGroupId}
-              layers={layers}
-              groups={groups}
-              preferences={projectPreferences}
-              selectionLabel={selectedPanelName ? getPanelDisplayName(selectedPanelName) : "None"}
-              validationMessages={validationMessages}
-              manufacturingIssues={manufacturingIssues}
-              onAttachmentChange={handleAttachmentChange}
-              onAlignSelection={handleAlignSelection}
-              onAssignLayer={handleAssignLayer}
-              onConfigChange={handleConfigChange}
-              onCopySelection={handleCopySelection}
-              onCreateGroup={handleCreateGroup}
-              onCreateLayer={handleDuplicateLayer}
-              onClearGroup={handleClearGroup}
-              onDeleteSavedProject={handleDeleteSavedProject}
-              onDuplicateCabinet={handleDuplicateCabinet}
-              onDuplicateSavedProject={handleDuplicateSavedProject}
-              onExportCutlistCsv={handleExportCutlistCsv}
-              onExportProjectJson={handleExportProjectJson}
-              onExportPdf={handleExportPdf}
-              onLayerChange={handleLayerChange}
-              onLoadProject={handleLoadProject}
-              onLoadSavedProject={handleLoadSavedProject}
-              onPasteSelection={handlePasteSelection}
-              onPlacementChange={handlePlacementChange}
-              onPreferenceChange={handleProjectPreferenceChange}
-              onSaveCabinetTemplate={handleSaveCabinetTemplate}
-              onRemoveCabinet={handleRemoveCabinet}
-              onRenameCabinet={handleRenameCabinet}
-              onRenameSavedProject={handleRenameSavedProject}
-              onReset={handleReset}
-              onRotationChange={handleRotationChange}
-              onSaveProject={handleSaveProject}
-              onSaveToProjectBrowser={saveCurrentProjectToBrowser}
-              onSelectCabinet={(cabinetId, additive) => {
-                if (additive) {
-                  toggleCabinetSelection(cabinetId);
-                  return;
-                }
-                replaceSelection([cabinetId], cabinetId, null);
-              }}
-              onSelectAll={handleSelectAll}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-            />
-          </div>
-        </aside>
+        <AppInspector
+          selectedCabinet={selectedCabinet}
+          selectedCabinetIds={selectedCabinetIds}
+          job={project.job ?? defaultCabinetProject.job!}
+          onJobChange={handleJobMetaChange}
+          projectDrafting={projectDrafting}
+          draftingDisplay={draftingDisplay}
+          onDraftingDisplayChange={(patch) =>
+            handleProjectPreferenceChange({ drafting: patch })
+          }
+          onDraftingChange={handleDraftingChange}
+          room={room}
+          onRoomConfigChange={handleRoomConfigChange}
+          project={project}
+          cabinetCutlistItems={cabinetCutlistItems}
+          selectedConfig={selectedConfig}
+          constructionParts={selectedConstruction?.parts ?? []}
+          derivedMetrics={derivedMetrics}
+          cutlistItems={cutlistItems}
+          projectFilePath={projectFilePath}
+          projectStatus={projectStatus}
+          savedProjects={sortedSavedProjects}
+          snapSizeMm={projectPreferences.snapSizeMm}
+          activeCabinetId={activeCabinetId}
+          selectedPanelName={selectedPanelName}
+          selectedPlacement={selectedPlacement}
+          selectedLayerId={selectedLayerId}
+          selectedGroupId={selectedGroupId}
+          layers={layers}
+          groups={groups}
+          preferences={projectPreferences}
+          validationMessages={validationMessages}
+          manufacturingIssues={manufacturingIssues}
+          onAttachmentChange={handleAttachmentChange}
+          onAlignSelection={handleAlignSelection}
+          onAssignLayer={handleAssignLayer}
+          onConfigChange={handleConfigChange}
+          onCopySelection={handleCopySelection}
+          onCreateGroup={handleCreateGroup}
+          onCreateLayer={handleDuplicateLayer}
+          onClearGroup={handleClearGroup}
+          onDeleteSavedProject={handleDeleteSavedProject}
+          onDuplicateCabinet={handleDuplicateCabinet}
+          onDuplicateSavedProject={handleDuplicateSavedProject}
+          onExportCutlistCsv={handleExportCutlistCsv}
+          onExportProjectJson={handleExportProjectJson}
+          onExportPdf={handleExportPdf}
+          onLayerChange={handleLayerChange}
+          onLoadProject={handleLoadProject}
+          onLoadSavedProject={handleLoadSavedProject}
+          onPasteSelection={handlePasteSelection}
+          onPlacementChange={handlePlacementChange}
+          onPreferenceChange={handleProjectPreferenceChange}
+          onSaveCabinetTemplate={handleSaveCabinetTemplate}
+          onRemoveCabinet={handleRemoveCabinet}
+          onRenameCabinet={handleRenameCabinet}
+          onRenameSavedProject={handleRenameSavedProject}
+          onReset={handleReset}
+          onRotationChange={handleRotationChange}
+          onSaveProject={handleSaveProject}
+          onSaveToProjectBrowser={saveCurrentProjectToBrowser}
+          onSelectCabinet={(cabinetId, additive) => {
+            if (additive) {
+              toggleCabinetSelection(cabinetId);
+              return;
+            }
+            replaceSelection([cabinetId], cabinetId, null);
+          }}
+          onSelectAll={handleSelectAll}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+        />
       </div>
 
       {libraryManagerOpen ? (
