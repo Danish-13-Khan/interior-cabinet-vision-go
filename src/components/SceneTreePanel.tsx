@@ -5,6 +5,10 @@ type SceneTreePanelProps = {
   activeCabinetId: string | null;
   selectedCabinetIds: string[];
   onSelectCabinet: (cabinetId: string, additive: boolean) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
 };
 
 export function SceneTreePanel({
@@ -12,6 +16,7 @@ export function SceneTreePanel({
   activeCabinetId,
   selectedCabinetIds,
   onSelectCabinet,
+  onCabinetContextMenu,
 }: SceneTreePanelProps) {
   return (
     <div className="rail-section scene-tree-panel">
@@ -34,6 +39,14 @@ export function SceneTreePanel({
                   event.metaKey || event.ctrlKey || event.shiftKey,
                 )
               }
+              onContextMenu={(event) => {
+                if (!onCabinetContextMenu) return;
+                event.preventDefault();
+                onCabinetContextMenu(cabinet.id, {
+                  x: event.clientX,
+                  y: event.clientY,
+                });
+              }}
               title={`${cabinet.name} · ${cabinetTypeLabels[cabinet.config.type]}`}
             >
               <span className="scene-tree-icon">

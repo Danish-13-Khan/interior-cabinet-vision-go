@@ -125,6 +125,16 @@ import { useEditorHistory, captureEditorSnapshot } from "./hooks/useEditorHistor
 import { useEditorShortcuts } from "./hooks/useEditorShortcuts";
 import { useUserTemplates } from "./hooks/useUserTemplates";
 import { useSavedProjectBrowser } from "./hooks/useSavedProjectBrowser";
+import { useDesktopLayout } from "./hooks/useDesktopLayout";
+import { useShortcutMap } from "./hooks/useShortcutMap";
+import { useRecentFiles } from "./hooks/useRecentFiles";
+import { loadInitialSessionState, useSessionPersist } from "./hooks/useSessionPersist";
+import { PaneResizeHandle } from "./components/PaneResizeHandle";
+import { ContextMenu, type ContextMenuItem } from "./components/ContextMenu";
+import {
+  formatShortcutBinding,
+  upsertRecentCommandId,
+} from "./domain/desktopUx";
 
 import {
   createDefaultLayer,
@@ -143,11 +153,22 @@ import { getErrorMessage } from "./utils/errors";
 function App() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
   const clipboardRef = useRef<CabinetInstance[]>([]);
+  const initialSession = useRef(loadInitialSessionState()).current;
   const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
-  const [workspaceTab, setWorkspaceTab] = useState<"plan" | "front" | "side" | "3d">("plan");
-  const [draftingTool, setDraftingTool] = useState<DraftingTool>("select");
-  const [statusDockOpen, setStatusDockOpen] = useState(false);
+  const {
+    layout,
+    setLayout,
+    setWorkspaceTab,
+    toggleToolRail,
+    toggleInspector,
+    cycleWorkspaceTab,
+  } = useDesktopLayout();
+  const workspaceTab = layout.workspaceTab;
+  const statusDockOpen = layout.statusDockOpen;
+  const [draftingTool, setDraftingTool] = useState<DraftingTool>(
+    initialSession.draftingTool,
+  );
   const [selectedCabinetIds, setSelectedCabinetIds] = useState<string[]>([
     defaultCabinetProject.cabinets[0]?.id ?? "",
   ].filter(Boolean));
@@ -156,14 +177,25 @@ function App() {
   );
   const [selectedPanelName, setSelectedPanelName] = useState<PanelName | null>(null);
   const [projectStatus, setProjectStatus] = useState("");
-  const [projectFilePath, setProjectFilePath] = useState<string | null>(null);
+  const [projectFilePath, setProjectFilePath] = useState<string | null>(
+    initialSession.projectFilePath,
+  );
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
   const [isShortcutSheetOpen, setIsShortcutSheetOpen] = useState(false);
   const [libraryManagerOpen, setLibraryManagerOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    items: ContextMenuItem[];
+  } | null>(null);
+  const [recentCommandIds, setRecentCommandIds] = useState<string[]>([]);
+  const sessionRestoreAttempted = useRef(false);
   const { library: workshopLibrary, setLibrary: setWorkshopLibrary } =
     useWorkshopLibrary();
   const { templates: userTemplates, saveTemplate, deleteTemplate } = useUserTemplates();
+  const { shortcutMap, setBinding, resetShortcuts } = useShortcutMap();
+  const { recentFiles, rememberFile, forgetFile } = useRecentFiles();
 
   const selectedCabinet =
     project.cabinets.find((cabinet) => cabinet.id === activeCabinetId) ?? null;
@@ -303,6 +335,59 @@ function App() {
     applySnapshot,
     onStatus: setProjectStatus,
   });
+
+  useSessionPersist({
+    projectFilePath,
+    workspaceTab,
+    draftingTool,
+    selectedCabinetIds,
+    activeCabinetId,
+    layout,
+  });
+
+  useEffect(() => {
+    if (sessionRestoreAttempted.current) return;
+    sessionRestoreAttempted.current = true;
+    const session = initialSession;
+    if (!session.restoreLastFile || !session.projectFilePath) return;
+    void (async () => {
+      try {
+        const raw = await invoke<string>("load_project_file", {
+          path: session.projectFilePath,
+        });
+        const parsed = JSON.parse(raw) as {
+          project?: CabinetProject;
+          room?: RoomConfig;
+        };
+        if (!parsed.project) return;
+        const safeProject = normalizeMultiRoomProject(
+          clampCabinetProject(parsed.project),
+          parsed.room ?? DEFAULT_ROOM,
+        );
+        const activeRoom = getActiveProjectRoom(safeProject);
+        const preferredIds = session.selectedCabinetIds.filter((id) =>
+          safeProject.cabinets.some((cabinet) => cabinet.id === id),
+        );
+        const fallbackId = safeProject.cabinets[0]?.id ?? null;
+        applySnapshot({
+          project: safeProject,
+          room: activeRoom.config,
+          selectedCabinetIds: preferredIds.length
+            ? preferredIds
+            : fallbackId
+              ? [fallbackId]
+              : [],
+          activeCabinetId: preferredIds[0] ?? fallbackId,
+          selectedPanelName: null,
+        });
+        setProjectFilePath(session.projectFilePath);
+        rememberFile(session.projectFilePath!);
+        setProjectStatus("Restored previous session file.");
+      } catch {
+        setProjectStatus("Could not restore previous session file.");
+      }
+    })();
+  }, [initialSession, rememberFile]);
 
   function replaceSelection(ids: string[], nextActiveId?: string | null, nextPanelName: PanelName | null = null) {
     const safeSelection = sanitizeSelection(project, ids, nextActiveId ?? ids[0] ?? null);
@@ -1370,58 +1455,74 @@ function App() {
     onToggleCommandPalette: () => {
       setIsCommandBarOpen((value) => !value);
       setIsShortcutSheetOpen(false);
+      setContextMenu(null);
     },
     onToggleShortcuts: () => {
       setIsShortcutSheetOpen((value) => !value);
       setIsCommandBarOpen(false);
+      setContextMenu(null);
     },
-    onEscape: closeCommandSurfaces,
-  });
+    onEscape: () => {
+      closeCommandSurfaces();
+      setContextMenu(null);
+    },
+    onViewPlan: () => {
+      setWorkspaceTab("plan");
+      setDraftingTool("select");
+    },
+    onViewFront: () => {
+      setWorkspaceTab("front");
+      setDraftingTool("select");
+    },
+    onViewSide: () => {
+      setWorkspaceTab("side");
+      setDraftingTool("select");
+    },
+    onView3d: () => {
+      setWorkspaceTab("3d");
+      setDraftingTool("select");
+    },
+    onToggleToolRail: toggleToolRail,
+    onToggleInspector: toggleInspector,
+    onCycleWorkspace: () => {
+      cycleWorkspaceTab();
+      setDraftingTool("select");
+    },
+  }, shortcutMap);
 
   const commandItems = useMemo<CommandItem[]>(
     () => [
-      { id: "new", label: "New Project", hint: "Reset the current project", shortcut: "Cmd/Ctrl+N", action: handleReset },
-      { id: "save", label: "Save Project", hint: "Save project JSON to disk", shortcut: "Cmd/Ctrl+S", action: () => { void handleSaveProject(); } },
-      { id: "undo", label: "Undo", hint: "Reverse the last change", shortcut: "Cmd/Ctrl+Z", action: handleUndo },
-      { id: "redo", label: "Redo", hint: "Reapply the last undone change", shortcut: "Cmd/Ctrl+Shift+Z", action: handleRedo },
-      { id: "copy", label: "Copy Selection", hint: "Copy selected items", shortcut: "Cmd/Ctrl+C", action: handleCopySelection },
-      { id: "paste", label: "Paste Selection", hint: "Paste copied items", shortcut: "Cmd/Ctrl+V", action: handlePasteSelection },
-      { id: "group", label: "Group Selection", hint: "Create a group from selected items", shortcut: "Toolbar", action: handleCreateGroup },
-      { id: "ungroup", label: "Ungroup Selection", hint: "Remove selected items from their group", shortcut: "Toolbar", action: handleClearGroup },
-      { id: "align-left", label: "Align Left", hint: "Align selected items to the left edge", shortcut: "Toolbar", action: () => handleAlignSelection("align-left") },
-      { id: "distribute-x", label: "Distribute X", hint: "Evenly space selected items horizontally", shortcut: "Toolbar", action: () => handleAlignSelection("distribute-x") },
-      { id: "toggle-grid", label: "Toggle Grid", hint: "Show or hide the viewport grid", shortcut: "Toolbar", action: () => handleProjectPreferenceChange({ showGrid: !projectPreferences.showGrid }) },
-      {
-        id: "library-manager",
-        label: "Library Manager",
-        hint: "Manage door, material, hardware, and cabinet libraries",
-        shortcut: "Rail",
-        action: () => setLibraryManagerOpen(true),
-      },
-      {
-        id: "export-machine-json",
-        label: "Export Machine JSON (preview)",
-        hint: "Machining intent metadata — not a CNC program",
-        shortcut: "Export",
-        action: () => {
-          void handleExportMachineJson();
-        },
-      },
-      { id: "shortcuts", label: "Show Shortcuts", hint: "Open keyboard shortcut cheat sheet", shortcut: "?", action: () => setIsShortcutSheetOpen(true) },
+      { id: "new", label: "New Project", hint: "Reset the current project", shortcut: formatShortcutBinding(shortcutMap.new), category: "File", keywords: ["reset"], action: handleReset },
+      { id: "open", label: "Open Project", hint: "Open a project JSON from disk", shortcut: "File", category: "File", keywords: ["load"], action: () => { void handleLoadProject(); } },
+      { id: "save", label: "Save Project", hint: "Save project JSON to disk", shortcut: formatShortcutBinding(shortcutMap.save), category: "File", action: () => { void handleSaveProject(); } },
+      { id: "undo", label: "Undo", hint: "Reverse the last change", shortcut: formatShortcutBinding(shortcutMap.undo), category: "Edit", action: handleUndo },
+      { id: "redo", label: "Redo", hint: "Reapply the last undone change", shortcut: formatShortcutBinding(shortcutMap.redo), category: "Edit", action: handleRedo },
+      { id: "copy", label: "Copy Selection", hint: "Copy selected items", shortcut: formatShortcutBinding(shortcutMap.copy), category: "Edit", action: handleCopySelection },
+      { id: "paste", label: "Paste Selection", hint: "Paste copied items", shortcut: formatShortcutBinding(shortcutMap.paste), category: "Edit", action: handlePasteSelection },
+      { id: "duplicate", label: "Duplicate Selection", hint: "Duplicate selected cabinets", shortcut: formatShortcutBinding(shortcutMap.duplicate), category: "Edit", action: handleDuplicateCabinet },
+      { id: "select-all", label: "Select All", hint: "Select every cabinet in the room", shortcut: formatShortcutBinding(shortcutMap.selectAll), category: "Edit", action: handleSelectAll },
+      { id: "remove", label: "Remove Selection", hint: "Delete selected cabinets", shortcut: formatShortcutBinding(shortcutMap.remove), category: "Edit", keywords: ["delete"], action: handleRemoveCabinet },
+      { id: "group", label: "Group Selection", hint: "Create a group from selected items", shortcut: "Toolbar", category: "Edit", action: handleCreateGroup },
+      { id: "ungroup", label: "Ungroup Selection", hint: "Remove selected items from their group", shortcut: "Toolbar", category: "Edit", action: handleClearGroup },
+      { id: "align-left", label: "Align Left", hint: "Align selected items to the left edge", shortcut: "Toolbar", category: "Arrange", action: () => handleAlignSelection("align-left") },
+      { id: "distribute-x", label: "Distribute X", hint: "Evenly space selected items horizontally", shortcut: "Toolbar", category: "Arrange", action: () => handleAlignSelection("distribute-x") },
+      { id: "align-runs", label: "Align Runs", hint: "Auto-align cabinet runs along walls", shortcut: "Toolbar", category: "Arrange", action: handleAutoAlignRuns },
+      { id: "view-plan", label: "Plan View", hint: "Switch workspace to plan", shortcut: formatShortcutBinding(shortcutMap.viewPlan), category: "View", action: () => { setWorkspaceTab("plan"); setDraftingTool("select"); } },
+      { id: "view-front", label: "Front Elevation", hint: "Switch workspace to front", shortcut: formatShortcutBinding(shortcutMap.viewFront), category: "View", action: () => { setWorkspaceTab("front"); setDraftingTool("select"); } },
+      { id: "view-side", label: "Side Elevation", hint: "Switch workspace to side", shortcut: formatShortcutBinding(shortcutMap.viewSide), category: "View", action: () => { setWorkspaceTab("side"); setDraftingTool("select"); } },
+      { id: "view-3d", label: "3D View", hint: "Switch workspace to 3D", shortcut: formatShortcutBinding(shortcutMap.view3d), category: "View", action: () => { setWorkspaceTab("3d"); setDraftingTool("select"); } },
+      { id: "toggle-rail", label: "Toggle Tool Rail", hint: "Show or hide the left tool rail", shortcut: formatShortcutBinding(shortcutMap.toggleToolRail), category: "View", action: toggleToolRail },
+      { id: "toggle-inspector", label: "Toggle Inspector", hint: "Show or hide the properties inspector", shortcut: formatShortcutBinding(shortcutMap.toggleInspector), category: "View", action: toggleInspector },
+      { id: "toggle-grid", label: "Toggle Grid", hint: "Show or hide the viewport grid", shortcut: "View", category: "View", action: () => handleProjectPreferenceChange({ showGrid: !projectPreferences.showGrid }) },
+      { id: "library-manager", label: "Library Manager", hint: "Manage door, material, hardware, and cabinet libraries", shortcut: "Rail", category: "Tools", action: () => setLibraryManagerOpen(true) },
+      { id: "export-json", label: "Export Project JSON", hint: "Download project JSON", shortcut: "Export", category: "Export", action: () => { void handleExportProjectJson(); } },
+      { id: "export-csv", label: "Export Cutlist CSV", hint: "Download production cutlist CSV", shortcut: "Export", category: "Export", action: () => { void handleExportCutlistCsv(); } },
+      { id: "export-pdf", label: "Export PDF", hint: "Download project PDF report", shortcut: "Export", category: "Export", action: () => { void handleExportPdf(); } },
+      { id: "export-machine-json", label: "Export Machine JSON (preview)", hint: "Machining intent metadata — not a CNC program", shortcut: "Export", category: "Export", action: () => { void handleExportMachineJson(); } },
+      { id: "shortcuts", label: "Configure Shortcuts", hint: "Open keyboard shortcut editor", shortcut: formatShortcutBinding(shortcutMap.shortcutHelp), category: "Tools", action: () => setIsShortcutSheetOpen(true) },
     ],
-    [projectPreferences.showGrid, selectedCabinetIds.length],
+    [projectPreferences.showGrid, selectedCabinetIds.length, shortcutMap],
   );
-
-  const filteredCommandItems = useMemo(() => {
-    const query = commandQuery.trim().toLowerCase();
-    if (!query) {
-      return commandItems;
-    }
-
-    return commandItems.filter((item) =>
-      `${item.label} ${item.hint} ${item.shortcut}`.toLowerCase().includes(query),
-    );
-  }, [commandItems, commandQuery]);
 
   async function writeFile(path: string, contents: string) {
     await invoke("save_project_file", {
@@ -1463,6 +1564,7 @@ function App() {
       );
 
       setProjectFilePath(targetPath);
+      rememberFile(targetPath);
       saveCurrentProjectToBrowser(targetPath.split("/").pop()?.replace(/\.json$/i, ""));
       setProjectStatus("Project saved to JSON file.");
     } catch (error) {
@@ -1529,9 +1631,66 @@ function App() {
       }
 
       setProjectFilePath(selectedPath);
+      rememberFile(selectedPath);
       setProjectStatus("Project loaded from JSON file.");
     } catch (error) {
       setProjectStatus(`Load failed: ${getErrorMessage(error)}`);
+    }
+  }
+
+  async function handleOpenRecentFile(path: string) {
+    try {
+      const raw = await invoke<string>("load_project_file", { path });
+      const parsed = JSON.parse(raw) as {
+        project?: CabinetProject;
+        config?: CabinetConfig;
+        room?: RoomConfig;
+      };
+      if (parsed.project) {
+        const safeProject = normalizeMultiRoomProject(
+          clampCabinetProject(parsed.project),
+          parsed.room ?? DEFAULT_ROOM,
+        );
+        const activeRoom = getActiveProjectRoom(safeProject);
+        applySnapshot({
+          project: safeProject,
+          room: activeRoom.config,
+          selectedCabinetIds: safeProject.cabinets[0]?.id ? [safeProject.cabinets[0].id] : [],
+          activeCabinetId: safeProject.cabinets[0]?.id ?? null,
+          selectedPanelName: null,
+        });
+      } else if (parsed.config) {
+        const migratedProject = clampCabinetProject({
+          version: 1,
+          cabinets: [
+            {
+              id: "cabinet-1",
+              name: "Cabinet 1",
+              placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" },
+              config: parsed.config,
+              layerId: "layer-default",
+              groupId: null,
+            },
+          ],
+        });
+        applySnapshot({
+          project: migratedProject,
+          room,
+          selectedCabinetIds: migratedProject.cabinets[0]?.id
+            ? [migratedProject.cabinets[0].id]
+            : [],
+          activeCabinetId: migratedProject.cabinets[0]?.id ?? null,
+          selectedPanelName: null,
+        });
+      } else {
+        throw new Error("Invalid project file format.");
+      }
+      setProjectFilePath(path);
+      rememberFile(path);
+      setProjectStatus(`Opened recent file “${path.split(/[/\\]/).pop()}”.`);
+    } catch (error) {
+      forgetFile(path);
+      setProjectStatus(`Recent file failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -1689,8 +1848,138 @@ function App() {
     replaceSelection([cabinetId], cabinetId, null);
   }
 
+  function openCabinetContextMenu(cabinetId: string, point: { x: number; y: number }) {
+    if (!selectedCabinetIds.includes(cabinetId)) {
+      replaceSelection([cabinetId], cabinetId, null);
+    }
+    setContextMenu({
+      x: point.x,
+      y: point.y,
+      items: [
+        {
+          id: "dup",
+          label: "Duplicate",
+          shortcut: formatShortcutBinding(shortcutMap.duplicate),
+          action: handleDuplicateCabinet,
+        },
+        {
+          id: "copy",
+          label: "Copy",
+          shortcut: formatShortcutBinding(shortcutMap.copy),
+          action: handleCopySelection,
+        },
+        {
+          id: "rename",
+          label: "Rename…",
+          action: () => {
+            const cabinet = project.cabinets.find((item) => item.id === cabinetId);
+            if (!cabinet) return;
+            const next = window.prompt("Rename cabinet:", cabinet.name);
+            if (next && next.trim()) handleRenameCabinet(cabinetId, next.trim());
+          },
+        },
+        { id: "sep", label: "", separator: true },
+        {
+          id: "delete",
+          label: "Delete",
+          shortcut: formatShortcutBinding(shortcutMap.remove),
+          danger: true,
+          action: handleRemoveCabinet,
+        },
+      ],
+    });
+  }
+
+  function openProjectContextMenu(projectId: string, point: { x: number; y: number }) {
+    const entry = sortedSavedProjects.find((item) => item.id === projectId);
+    setContextMenu({
+      x: point.x,
+      y: point.y,
+      items: [
+        {
+          id: "open",
+          label: "Open",
+          action: () => handleLoadSavedProject(projectId),
+        },
+        {
+          id: "dup",
+          label: "Duplicate",
+          action: () => handleDuplicateSavedProject(projectId),
+        },
+        {
+          id: "rename",
+          label: "Rename…",
+          action: () => {
+            const next = window.prompt("Rename job:", entry?.name ?? "");
+            if (next && next.trim()) handleRenameSavedProject(projectId, next.trim());
+          },
+        },
+        { id: "sep", label: "", separator: true },
+        {
+          id: "delete",
+          label: "Delete",
+          danger: true,
+          action: () => handleDeleteSavedProject(projectId),
+        },
+      ],
+    });
+  }
+
+  function openWorkspaceContextMenu(point: { x: number; y: number }) {
+    setContextMenu({
+      x: point.x,
+      y: point.y,
+      items: [
+        {
+          id: "paste",
+          label: "Paste",
+          shortcut: formatShortcutBinding(shortcutMap.paste),
+          disabled: clipboardRef.current.length === 0,
+          action: handlePasteSelection,
+        },
+        {
+          id: "select-all",
+          label: "Select All",
+          shortcut: formatShortcutBinding(shortcutMap.selectAll),
+          action: handleSelectAll,
+        },
+        { id: "sep", label: "", separator: true },
+        {
+          id: "grid",
+          label: projectPreferences.showGrid ? "Hide Grid" : "Show Grid",
+          action: () =>
+            handleProjectPreferenceChange({ showGrid: !projectPreferences.showGrid }),
+        },
+        {
+          id: "toggle-rail",
+          label: layout.toolRailVisible ? "Hide Tool Rail" : "Show Tool Rail",
+          action: toggleToolRail,
+        },
+        {
+          id: "toggle-inspector",
+          label: layout.inspectorVisible ? "Hide Inspector" : "Show Inspector",
+          action: toggleInspector,
+        },
+      ],
+    });
+  }
+
+  const tabShortcutHints = {
+    plan: formatShortcutBinding(shortcutMap.viewPlan),
+    front: formatShortcutBinding(shortcutMap.viewFront),
+    side: formatShortcutBinding(shortcutMap.viewSide),
+    "3d": formatShortcutBinding(shortcutMap.view3d),
+  };
+
   return (
-    <main className="app-shell">
+    <main
+      className="app-shell"
+      style={{
+        ["--tool-rail-width" as string]: `${layout.toolRailWidthPx}px`,
+        ["--inspector-width" as string]: `${layout.inspectorWidthPx}px`,
+        ["--status-dock-height" as string]: `${layout.statusDockHeightPx}px`,
+      }}
+    >
       <AppRibbon
         workspaceLabel={workspaceLabel}
         workspaceTab={workspaceTab}
@@ -1699,9 +1988,14 @@ function App() {
         hasSelection={selectedCabinetIds.length > 0}
         hasClipboard={clipboardRef.current.length > 0}
         selectionCount={selectedCabinetIds.length}
+        toolRailVisible={layout.toolRailVisible}
+        inspectorVisible={layout.inspectorVisible}
+        recentFiles={recentFiles}
         onNew={handleReset}
         onOpen={handleLoadProject}
         onSave={handleSaveProject}
+        onOpenRecent={(path) => { void handleOpenRecentFile(path); }}
+        onClearRecent={forgetFile}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onCopy={handleCopySelection}
@@ -1713,6 +2007,8 @@ function App() {
         onExportCsv={handleExportCutlistCsv}
         onExportPdf={handleExportPdf}
         onSetViewPreset={(preset) => sceneRef.current?.setViewPreset(preset)}
+        onToggleToolRail={toggleToolRail}
+        onToggleInspector={toggleInspector}
         onOpenCommands={() => {
           setIsCommandBarOpen(true);
           setIsShortcutSheetOpen(false);
@@ -1724,6 +2020,8 @@ function App() {
       />
 
       <div className="app-body">
+        {layout.toolRailVisible ? (
+          <>
         <AppToolRail
           templates={userTemplates}
           userCabinetPresets={workshopLibrary.cabinetPresets}
@@ -1752,7 +2050,18 @@ function App() {
           onLoadSavedProject={handleLoadSavedProject}
           onRenameSavedProject={handleRenameSavedProject}
           onSaveCurrentProject={saveCurrentProjectToBrowser}
+          onCabinetContextMenu={openCabinetContextMenu}
+          onProjectContextMenu={openProjectContextMenu}
+          style={{ width: layout.toolRailWidthPx }}
         />
+        <PaneResizeHandle
+          axis="x"
+          value={layout.toolRailWidthPx}
+          ariaLabel="Resize tool rail"
+          onChange={(toolRailWidthPx) => setLayout({ toolRailWidthPx })}
+        />
+          </>
+        ) : null}
 
         <AppWorkspace
           ref={sceneRef}
@@ -1781,8 +2090,19 @@ function App() {
           onSelectCabinet={handleWorkspaceSelectCabinet}
           onAddNote={handleAddDraftingNote}
           onAddLeader={handleAddDraftingLeader}
+          onWorkspaceContextMenu={openWorkspaceContextMenu}
+          tabShortcutHints={tabShortcutHints}
         />
 
+        {layout.inspectorVisible ? (
+          <>
+        <PaneResizeHandle
+          axis="x"
+          value={layout.inspectorWidthPx}
+          invert
+          ariaLabel="Resize inspector"
+          onChange={(inspectorWidthPx) => setLayout({ inspectorWidthPx })}
+        />
         <AppInspector
           selectedCabinet={selectedCabinet}
           selectedCabinetIds={selectedCabinetIds}
@@ -1854,7 +2174,10 @@ function App() {
           onSelectAll={handleSelectAll}
           onUndo={handleUndo}
           onRedo={handleRedo}
+          style={{ width: layout.inspectorWidthPx }}
         />
+          </>
+        ) : null}
       </div>
 
       {libraryManagerOpen ? (
@@ -1886,13 +2209,33 @@ function App() {
       {isCommandBarOpen ? (
         <CommandPalette
           query={commandQuery}
-          items={filteredCommandItems}
+          items={commandItems}
+          recentCommandIds={recentCommandIds}
           onQueryChange={setCommandQuery}
           onClose={closeCommandSurfaces}
+          onRunCommand={(commandId) =>
+            setRecentCommandIds((ids) => upsertRecentCommandId(ids, commandId))
+          }
         />
       ) : null}
-      {isShortcutSheetOpen ? <ShortcutSheet onClose={closeCommandSurfaces} /> : null}
+      {isShortcutSheetOpen ? (
+        <ShortcutSheet
+          shortcutMap={shortcutMap}
+          onClose={closeCommandSurfaces}
+          onChangeBinding={setBinding}
+          onReset={resetShortcuts}
+        />
+      ) : null}
+      {contextMenu ? (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onClose={() => setContextMenu(null)}
+        />
+      ) : null}
 
+      <div className="status-dock-shell">
       <StatusStrip
         projectStatus={projectStatus}
         workspaceLabel={workspaceLabel}
@@ -1908,7 +2251,9 @@ function App() {
         }
         validationMessages={validationMessages}
         statusDockOpen={statusDockOpen}
-        onToggleStatusDock={() => setStatusDockOpen((open) => !open)}
+        dockHeightPx={layout.statusDockHeightPx}
+        onToggleStatusDock={() => setLayout({ statusDockOpen: !statusDockOpen })}
+        onDockHeightChange={(statusDockHeightPx) => setLayout({ statusDockHeightPx })}
         onSave={handleSaveProject}
         onExportJson={handleExportProjectJson}
         onExportCsv={handleExportCutlistCsv}
@@ -1944,6 +2289,7 @@ function App() {
         onFreezeQuote={handleFreezeQuoteSnapshot}
         onSelectCabinet={(cabinetId) => handleWorkspaceSelectCabinet(cabinetId, false)}
       />
+      </div>
     </main>
   );
 }

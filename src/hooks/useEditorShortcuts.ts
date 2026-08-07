@@ -1,4 +1,9 @@
 import { useEffect, useRef } from "react";
+import {
+  eventMatchesBinding,
+  type ShortcutActionId,
+  type ShortcutMap,
+} from "../domain/desktopUx";
 
 type EditorShortcutActions = {
   onUndo: () => void;
@@ -13,100 +18,94 @@ type EditorShortcutActions = {
   onToggleCommandPalette: () => void;
   onToggleShortcuts: () => void;
   onEscape: () => void;
+  onViewPlan: () => void;
+  onViewFront: () => void;
+  onViewSide: () => void;
+  onView3d: () => void;
+  onToggleToolRail: () => void;
+  onToggleInspector: () => void;
+  onCycleWorkspace: () => void;
 };
 
-export function useEditorShortcuts(actions: EditorShortcutActions) {
+const ACTION_KEYS: Array<[ShortcutActionId, keyof EditorShortcutActions]> = [
+  ["undo", "onUndo"],
+  ["redo", "onRedo"],
+  ["save", "onSave"],
+  ["new", "onNew"],
+  ["copy", "onCopy"],
+  ["paste", "onPaste"],
+  ["duplicate", "onDuplicate"],
+  ["selectAll", "onSelectAll"],
+  ["remove", "onRemove"],
+  ["commandPalette", "onToggleCommandPalette"],
+  ["shortcutHelp", "onToggleShortcuts"],
+  ["viewPlan", "onViewPlan"],
+  ["viewFront", "onViewFront"],
+  ["viewSide", "onViewSide"],
+  ["view3d", "onView3d"],
+  ["toggleToolRail", "onToggleToolRail"],
+  ["toggleInspector", "onToggleInspector"],
+  ["cycleWorkspace", "onCycleWorkspace"],
+];
+
+const BLOCKED_WHILE_TYPING: ShortcutActionId[] = [
+  "save",
+  "new",
+  "copy",
+  "paste",
+  "duplicate",
+  "selectAll",
+  "remove",
+  "viewPlan",
+  "viewFront",
+  "viewSide",
+  "view3d",
+  "toggleToolRail",
+  "toggleInspector",
+  "cycleWorkspace",
+  "shortcutHelp",
+];
+
+export function useEditorShortcuts(
+  actions: EditorShortcutActions,
+  shortcutMap: ShortcutMap,
+) {
   const actionsRef = useRef(actions);
+  const mapRef = useRef(shortcutMap);
   actionsRef.current = actions;
+  mapRef.current = shortcutMap;
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      const current = actionsRef.current;
       const target = event.target as HTMLElement | null;
       const isTypingTarget =
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||
         target instanceof HTMLSelectElement ||
-        target?.isContentEditable;
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
-        event.preventDefault();
-        if (event.shiftKey) current.onRedo();
-        else current.onUndo();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        current.onToggleCommandPalette();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        current.onSave();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "n") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        current.onNew();
-        return;
-      }
-
-      if (!isTypingTarget && event.key === "?") {
-        event.preventDefault();
-        current.onToggleShortcuts();
-        return;
-      }
+        Boolean(target?.isContentEditable);
 
       if (event.key === "Escape") {
-        current.onEscape();
+        actionsRef.current.onEscape();
         return;
       }
 
+      // Built-in redo alias (Ctrl/Cmd+Y) even if remapped away from Shift+Z.
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "y") {
         event.preventDefault();
-        current.onRedo();
+        actionsRef.current.onRedo();
         return;
       }
 
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "c") {
-        if (isTypingTarget) return;
+      for (const [actionId, handlerKey] of ACTION_KEYS) {
+        const binding = mapRef.current[actionId];
+        if (!eventMatchesBinding(event, binding)) continue;
+        if (isTypingTarget && BLOCKED_WHILE_TYPING.includes(actionId)) {
+          continue;
+        }
         event.preventDefault();
-        current.onCopy();
+        const handler = actionsRef.current[handlerKey];
+        handler();
         return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "v") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        current.onPaste();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        current.onDuplicate();
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "a") {
-        if (isTypingTarget) return;
-        event.preventDefault();
-        current.onSelectAll();
-        return;
-      }
-
-      if (
-        (event.key === "Delete" || event.key === "Backspace") &&
-        !isTypingTarget
-      ) {
-        event.preventDefault();
-        current.onRemove();
       }
     }
 

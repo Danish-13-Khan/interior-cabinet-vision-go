@@ -25,6 +25,10 @@ type ProjectBrowserProps = {
   onLoadProject: (projectId: string) => void;
   onRenameProject: (projectId: string, name: string) => void;
   onSaveCurrent: () => void | Promise<void>;
+  onProjectContextMenu?: (
+    projectId: string,
+    point: { x: number; y: number },
+  ) => void;
 };
 
 function formatSavedAt(value: string) {
@@ -40,6 +44,7 @@ export function ProjectBrowser({
   onLoadProject,
   onRenameProject,
   onSaveCurrent,
+  onProjectContextMenu,
 }: ProjectBrowserProps) {
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
   const [query, setQuery] = useState("");
@@ -104,7 +109,18 @@ export function ProjectBrowser({
             const job = clampJobMeta(project.job ?? createDefaultJobMeta());
             const title = formatJobTitle(job, project.name);
             return (
-              <article key={project.id} className="project-browser-card job-browser-card">
+              <article
+                key={project.id}
+                className="project-browser-card job-browser-card"
+                onContextMenu={(event) => {
+                  if (!onProjectContextMenu) return;
+                  event.preventDefault();
+                  onProjectContextMenu(project.id, {
+                    x: event.clientX,
+                    y: event.clientY,
+                  });
+                }}
+              >
                 <button
                   type="button"
                   className="project-browser-thumb"
