@@ -826,6 +826,119 @@ select {
   font-weight: 550;
 }
 
+.drawing-drafting-tools {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.drafting-tool-hint {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.technical-view {
+  position: relative;
+}
+
+.technical-view.drafting-tool-note,
+.technical-view.drafting-tool-leader {
+  cursor: crosshair;
+}
+
+.drafting-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.drafting-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.66rem;
+  color: #475569;
+}
+
+.drafting-min-seg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.66rem;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.drafting-min-seg input {
+  width: 64px;
+  font-size: 0.7rem;
+  padding: 3px 5px;
+  border: 1px solid #c5ced8;
+  border-radius: 3px;
+}
+
+.drafting-annotation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drafting-annotation-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  background: #f8fafc;
+}
+
+.drafting-annotation-row strong {
+  display: block;
+  font-size: 0.62rem;
+  color: #334155;
+}
+
+.drafting-annotation-row span {
+  font-size: 0.66rem;
+  color: #64748b;
+}
+
+.technical-view .twod-wall-outline,
+.technical-view .twod-floor-line {
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-dim-overall {
+  opacity: 1;
+}
+
+.technical-view .twod-dim-chain,
+.technical-view .twod-dim-run {
+  opacity: 0.95;
+}
+
+.technical-view .twod-wall-label {
+  letter-spacing: 0.06em;
+}
+
+.technical-view .twod-tag-text,
+.technical-view .twod-note-text,
+.technical-view .twod-leader-text {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
 .drawing-sheet-scroll {
   flex: 1;
   min-height: 0;

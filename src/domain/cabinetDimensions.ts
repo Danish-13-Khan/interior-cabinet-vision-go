@@ -24,6 +24,14 @@ import type { ProjectJobMeta } from "./jobMeta";
 import { clampJobMeta, createDefaultJobMeta } from "./jobMeta";
 import { applyManufacturingFixes, evaluateCabinetRules, formatManufacturingIssues, getMinDividersForShelfSpan, applyWallMountPlacementFix } from "./manufacturingRules";
 import {
+  clampDraftingDisplay,
+  clampProjectDrafting,
+  DEFAULT_DRAFTING,
+  DEFAULT_DRAFTING_DISPLAY,
+  type DraftingDisplayPreferences,
+  type ProjectDrafting,
+} from "./draftingAnnotations";
+import {
   normalizeConstructionSpec,
   shelvesAreAdjustable,
   type CabinetConstructionSpec,
@@ -31,6 +39,7 @@ import {
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetConstructionSpec } from "./cabinetConstructionSpec";
+export type { ProjectDrafting, DraftingDisplayPreferences } from "./draftingAnnotations";
 export type { CabinetType } from "./cabinetCapabilities";
 export {
   isStorageType,
@@ -109,6 +118,7 @@ export type ProjectPreferences = {
   autoSaveToBrowser: boolean;
   costing?: CostingSettings;
   standards?: ProjectStandards;
+  drafting?: DraftingDisplayPreferences;
 };
 
 export type RoomBounds = {
@@ -124,6 +134,7 @@ export type CabinetProject = {
   groups?: CabinetGroup[];
   preferences?: ProjectPreferences;
   job?: ProjectJobMeta;
+  drafting?: ProjectDrafting;
 };
 
 export const CABINET_WIDTH_MIN_MM = 500;
@@ -449,7 +460,9 @@ export const defaultCabinetProject: CabinetProject = {
     autoSaveToBrowser: true,
     costing: { ...DEFAULT_COSTING_SETTINGS },
     standards: { ...DEFAULT_PROJECT_STANDARDS },
+    drafting: { ...DEFAULT_DRAFTING_DISPLAY },
   },
+  drafting: { ...DEFAULT_DRAFTING },
   job: createDefaultJobMeta({
     projectNumber: "JOB-001",
     customerName: "",
@@ -817,7 +830,11 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       standards: clampProjectStandards(
         project.preferences?.standards ?? defaultCabinetProject.preferences?.standards,
       ),
+      drafting: clampDraftingDisplay(
+        project.preferences?.drafting ?? defaultCabinetProject.preferences?.drafting,
+      ),
     },
+    drafting: clampProjectDrafting(project.drafting ?? defaultCabinetProject.drafting),
     job: clampJobMeta(project.job ?? defaultCabinetProject.job),
   };
 }

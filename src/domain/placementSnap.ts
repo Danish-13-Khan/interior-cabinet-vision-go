@@ -42,6 +42,33 @@ function labelsBetween(positions: number[]): string[] {
   return labels;
 }
 
+/** Drop tiny intermediate segments for cleaner shop dimension chains. */
+export function filterDimensionChain(
+  chain: DimensionChain,
+  minSegmentMm = 40,
+): DimensionChain {
+  if (chain.positions.length < 2) return chain;
+  const positions: number[] = [chain.positions[0]];
+  for (let index = 1; index < chain.positions.length - 1; index += 1) {
+    const previous = positions[positions.length - 1];
+    if (Math.abs(chain.positions[index] - previous) >= minSegmentMm) {
+      positions.push(chain.positions[index]);
+    }
+  }
+  const last = chain.positions[chain.positions.length - 1];
+  if (positions[positions.length - 1] !== last) {
+    if (
+      positions.length > 1 &&
+      Math.abs(last - positions[positions.length - 1]) < minSegmentMm
+    ) {
+      positions[positions.length - 1] = last;
+    } else {
+      positions.push(last);
+    }
+  }
+  return { positions, labels: labelsBetween(positions) };
+}
+
 export function smartSnapAxis(
   value: number,
   mySize: number,

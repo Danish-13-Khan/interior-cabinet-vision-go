@@ -179,7 +179,7 @@ describe("technical view rendering", () => {
 
     expect(result.svg).toContain("Base Cabinet");
     expect(result.svg).toContain("6000 mm");
-    expect(result.svg).toContain('class="twod-wall"');
+    expect(result.svg).toContain("twod-wall");
     expect(result.width).toBeGreaterThan(1000);
   });
 

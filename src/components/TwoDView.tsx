@@ -8,9 +8,23 @@ import type { SnapGuide } from "../domain/placementSnap";
 import { snapElevationHeight, snapPlanPlacement } from "../domain/placementSnap";
 import {
   createTechnicalView,
+  elevationFrontSvgToWorldMm,
+  elevationSideSvgToWorldMm,
+  planSvgToWorldMm,
   type TechnicalViewKind,
 } from "../domain/technicalViews";
 import type { RoomConfig } from "../domain/roomModel";
+import {
+  clampDraftingDisplay,
+  createDraftingId,
+  worldPointForView,
+  type DraftingDisplayPreferences,
+  type DraftingLeader,
+  type DraftingNote,
+  type DraftingWorldPoint,
+} from "../domain/draftingAnnotations";
+
+export type DraftingTool = "select" | "note" | "leader";
 
 type TwoDViewProps = {
   project: CabinetProject;
@@ -22,8 +36,12 @@ type TwoDViewProps = {
   activeCabinetId?: string | null;
   snapSizeMm?: number;
   showGrid?: boolean;
+  draftingDisplay?: DraftingDisplayPreferences;
+  draftingTool?: DraftingTool;
   onSelectCabinet?: (cabinetId: string | null, additive: boolean) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
+  onAddNote?: (note: DraftingNote) => void;
+  onAddLeader?: (leader: DraftingLeader) => void;
 };
 
 type DragState = {
@@ -45,8 +63,12 @@ export function TwoDView({
   activeCabinetId = null,
   snapSizeMm = 50,
   showGrid = true,
+  draftingDisplay,
+  draftingTool = "select",
   onSelectCabinet,
   onCabinetMove,
+  onAddNote,
+  onAddLeader,
 }: TwoDViewProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -58,6 +80,9 @@ export function TwoDView({
     y: number;
     z: number;
   } | null>(null);
+  const [leaderTarget, setLeaderTarget] = useState<DraftingWorldPoint | null>(null);
+
+  const display = clampDraftingDisplay(draftingDisplay ?? project.preferences?.drafting);
 
   const technicalView = useMemo(
     () =>
@@ -66,16 +91,27 @@ export function TwoDView({
         activeCabinetId,
         mode: "interactive",
         showGrid,
-        showDimensionChains: true,
-        showWallLabels: true,
+        showDimensionChains: display.showDimensionChains,
+        showWallLabels: display.showWallLabels,
+        showCabinetTags: display.showCabinetTags,
+        showOpeningTags: display.showOpeningTags,
+        showApplianceTags: display.showApplianceTags,
         showElevationDetails: true,
+        dimMinSegmentMm: display.dimMinSegmentMm,
         snapGuides,
         ghostPlacement,
         runs,
+        drafting: project.drafting,
       }),
     [
       activeCabinetId,
       countertops,
+      display.dimMinSegmentMm,
+      display.showApplianceTags,
+      display.showCabinetTags,
+      display.showDimensionChains,
+      display.showOpeningTags,
+      display.showWallLabels,
       ghostPlacement,
       project,
       room,
@@ -86,6 +122,48 @@ export function TwoDView({
       view,
     ],
   );
+
+  function worldFromClient(clientX: number, clientY: number): DraftingWorldPoint | null {
+    const host = hostRef.current;
+    const svg = host?.querySelector("svg");
+    if (!svg) return null;
+    const bounds = svg.getBoundingClientRect();
+    if (bounds.width <= 0 || bounds.height <= 0) return null;
+    const scaleX = technicalView.width / bounds.width;
+    const scaleY = technicalView.height / bounds.height;
+    const svgX = (clientX - bounds.left) * scaleX;
+    const svgY = (clientY - bounds.top) * scaleY;
+    if (view === "front") {
+      const point = elevationFrontSvgToWorldMm(
+        svgX,
+        svgY,
+        technicalView.originX,
+        technicalView.originY,
+        room.dimensions.heightMm,
+        technicalView.scale,
+      );
+      return worldPointForView(view, { x: point.x, y: point.y, z: 0 });
+    }
+    if (view === "side") {
+      const point = elevationSideSvgToWorldMm(
+        svgX,
+        svgY,
+        technicalView.originX,
+        technicalView.originY,
+        room.dimensions.heightMm,
+        technicalView.scale,
+      );
+      return worldPointForView(view, { x: 0, y: point.y, z: point.z });
+    }
+    const point = planSvgToWorldMm(
+      svgX,
+      svgY,
+      technicalView.originX,
+      technicalView.originY,
+      technicalView.scale,
+    );
+    return worldPointForView(view, { x: point.x, y: 0, z: point.z });
+  }
 
   function proposePlacement(
     cabinetId: string,
@@ -205,6 +283,8 @@ export function TwoDView({
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (draftingTool !== "select") return;
+
     const target = event.target as Element | null;
     const cabinetNode = target?.closest?.("[data-cabinet-id]");
     const cabinetId = cabinetNode?.getAttribute("data-cabinet-id");
@@ -279,6 +359,44 @@ export function TwoDView({
       suppressClickRef.current = false;
       return;
     }
+
+    if (draftingTool === "note" && onAddNote) {
+      const world = worldFromClient(event.clientX, event.clientY);
+      if (!world) return;
+      const text = window.prompt("Annotation note:", "Site note");
+      if (!text?.trim()) return;
+      onAddNote({
+        id: createDraftingId("note"),
+        view,
+        text: text.trim(),
+        anchor: world,
+      });
+      return;
+    }
+
+    if (draftingTool === "leader" && onAddLeader) {
+      const world = worldFromClient(event.clientX, event.clientY);
+      if (!world) return;
+      if (!leaderTarget) {
+        setLeaderTarget(world);
+        return;
+      }
+      const text = window.prompt("Leader callout:", "Callout");
+      if (!text?.trim()) {
+        setLeaderTarget(null);
+        return;
+      }
+      onAddLeader({
+        id: createDraftingId("leader"),
+        view,
+        text: text.trim(),
+        target: leaderTarget,
+        label: world,
+      });
+      setLeaderTarget(null);
+      return;
+    }
+
     if (!onSelectCabinet) return;
 
     const target = event.target as Element | null;
@@ -294,14 +412,21 @@ export function TwoDView({
   return (
     <div
       ref={hostRef}
-      className={`technical-view ${snapGuides.length > 0 ? "is-dragging" : ""}`}
+      className={`technical-view drafting-tool-${draftingTool} ${snapGuides.length > 0 ? "is-dragging" : ""}`}
       style={{ width: technicalView.width, height: technicalView.height }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onClick={handleClick}
-      dangerouslySetInnerHTML={{ __html: technicalView.svg }}
-    />
+    >
+      {leaderTarget ? (
+        <div className="drafting-tool-hint">Leader: click label position</div>
+      ) : null}
+      <div
+        className="technical-view-svg"
+        dangerouslySetInnerHTML={{ __html: technicalView.svg }}
+      />
+    </div>
   );
 }
