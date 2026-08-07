@@ -43,6 +43,11 @@ import {
   DEFAULT_QUOTE_SETTINGS,
   type QuoteSnapshot,
 } from "./quoteSettings";
+import { planSheetYield, type ProjectSheetYield } from "./sheetYield";
+import {
+  clampSheetOptimizerSettings,
+  DEFAULT_SHEET_OPTIMIZER,
+} from "./sheetStock";
 
 export type CabinetScheduleRow = {
   mark: string;
@@ -110,6 +115,7 @@ export type ProjectReport = {
   }>;
   productionCutlist: ProductionCutlistLine[];
   materialSummary: MaterialBoardEstimate[];
+  sheetYield: ProjectSheetYield;
   groupedByMaterial: ProductionCutlistGroup[];
   groupedByThickness: ProductionCutlistGroup[];
   groupedByCabinet: ProductionCutlistGroup[];
@@ -277,6 +283,21 @@ export function createProjectReport(
     };
   });
 
+  const sheetOptimizer = clampSheetOptimizerSettings(
+    project.preferences?.sheetOptimizer ?? DEFAULT_SHEET_OPTIMIZER,
+  );
+  const sheetYield = planSheetYield(productionCutlist, sheetOptimizer);
+  const materialSummary = computeProductionMaterialSummary(productionCutlist).map((row) => {
+    const yieldGroup = sheetYield.groups.find(
+      (group) =>
+        group.material === row.material && group.thicknessMm === row.thicknessMm,
+    );
+    return {
+      ...row,
+      estimatedBoards: yieldGroup?.sheetsUsed ?? row.estimatedBoards,
+    };
+  });
+
   return {
     job,
     jobTitle: formatJobTitle(job, "Cabinet Project"),
@@ -306,7 +327,8 @@ export function createProjectReport(
     runSummaries,
     perItemCutlists,
     productionCutlist,
-    materialSummary: computeProductionMaterialSummary(productionCutlist),
+    materialSummary,
+    sheetYield,
     groupedByMaterial: groupCutlistByMaterial(productionCutlist),
     groupedByThickness: groupCutlistByThickness(productionCutlist),
     groupedByCabinet: groupCutlistByCabinet(productionCutlist),
@@ -333,6 +355,11 @@ export function createProjectReport(
         id: "materials",
         title: "Material Takeoff",
         description: "Board estimates by material and thickness",
+      },
+      {
+        id: "optimize",
+        title: "Sheet Yield",
+        description: "Sheet definitions, cut grouping, waste, and offcuts",
       },
       {
         id: "cutlist",

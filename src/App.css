@@ -1279,6 +1279,41 @@ select {
   resize: vertical;
 }
 
+.optimizer-toggle {
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px !important;
+}
+
+.yield-sheet-card {
+  margin-bottom: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.yield-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.68rem;
+}
+
+.yield-sheet-header span {
+  color: #64748b;
+}
+
+.yield-offcut-note {
+  margin: 0;
+  padding: 6px 8px 8px;
+  font-size: 0.64rem;
+  color: #64748b;
+}
+
 .report-empty {
   margin: 0;
   padding: 12px;
