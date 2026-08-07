@@ -25,6 +25,7 @@ export type CabinetTemplate = {
   family: CabinetType;
   description: string;
   config: CabinetConfig;
+  version: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -39,6 +40,7 @@ export function clampCabinetTemplate(
     family: template.family,
     description: template.description?.trim() || "User cabinet template",
     config: clampCabinetConfig(template.config),
+    version: Math.max(1, Math.round(Number(template.version) || 1)),
     createdAt: template.createdAt || now,
     updatedAt: template.updatedAt || now,
   };
@@ -55,6 +57,7 @@ export function createTemplateFromCabinet(
     family: cabinet.config.type,
     description: `Saved from ${cabinet.name}`,
     config: clampCabinetConfig(cabinet.config),
+    version: 1,
     createdAt: now,
     updatedAt: now,
   });
@@ -99,10 +102,15 @@ export function upsertUserTemplate(
   templates: CabinetTemplate[],
   template: CabinetTemplate,
 ): CabinetTemplate[] {
-  const next = templates.filter((item) => item.id !== template.id);
-  return [...next, clampCabinetTemplate(template)].sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
+  const existing = templates.find((item) => item.id === template.id);
+  const nextTemplate = clampCabinetTemplate({
+    ...template,
+    createdAt: existing?.createdAt ?? template.createdAt,
+    version: existing ? existing.version + 1 : Math.max(1, template.version ?? 1),
+    updatedAt: new Date().toISOString(),
+  });
+  const next = templates.filter((item) => item.id !== nextTemplate.id);
+  return [...next, nextTemplate].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function removeUserTemplate(
