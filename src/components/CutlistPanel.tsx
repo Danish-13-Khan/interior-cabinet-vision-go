@@ -16,7 +16,7 @@ export function CutlistPanel({ items, title = "Cutlist" }: CutlistPanelProps) {
 
       <div className="cutlist-table">
         <div className="cutlist-header">
-          <span>Part</span>
+          <span>Ref / Part</span>
           <span>Qty</span>
           <span>Size (mm)</span>
         </div>
@@ -24,7 +24,10 @@ export function CutlistPanel({ items, title = "Cutlist" }: CutlistPanelProps) {
         {items.map((item) => (
           <div key={item.key} className="cutlist-row">
             <div>
-              <strong>{item.label}</strong>
+              <strong>
+                {item.shopRef ? `${item.shopRef} · ` : ""}
+                {item.label}
+              </strong>
               <span>
                 {item.material} · {item.cabinetName}
               </span>

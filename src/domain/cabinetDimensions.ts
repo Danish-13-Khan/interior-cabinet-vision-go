@@ -20,6 +20,8 @@ import {
   clampProjectStandards,
   DEFAULT_PROJECT_STANDARDS,
 } from "./projectStandards";
+import type { ProjectJobMeta } from "./jobMeta";
+import { clampJobMeta, createDefaultJobMeta } from "./jobMeta";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetType } from "./cabinetCapabilities";
@@ -113,6 +115,7 @@ export type CabinetProject = {
   layers?: CabinetLayer[];
   groups?: CabinetGroup[];
   preferences?: ProjectPreferences;
+  job?: ProjectJobMeta;
 };
 
 export const CABINET_WIDTH_MIN_MM = 500;
@@ -439,6 +442,12 @@ export const defaultCabinetProject: CabinetProject = {
     costing: { ...DEFAULT_COSTING_SETTINGS },
     standards: { ...DEFAULT_PROJECT_STANDARDS },
   },
+  job: createDefaultJobMeta({
+    projectNumber: "JOB-001",
+    customerName: "",
+    revision: "A",
+    status: "draft",
+  }),
 };
 
 export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
@@ -772,6 +781,7 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
         project.preferences?.standards ?? defaultCabinetProject.preferences?.standards,
       ),
     },
+    job: clampJobMeta(project.job ?? defaultCabinetProject.job),
   };
 }
 

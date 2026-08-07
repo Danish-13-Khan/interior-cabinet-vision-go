@@ -8,6 +8,7 @@ import {
 export type ProductionCutlistLine = {
   key: string;
   partId: string;
+  shopRef: string;
   label: string;
   quantity: number;
   lengthMm: number;
@@ -20,6 +21,7 @@ export type ProductionCutlistLine = {
   category: PartCategory | string;
   cabinetId: string;
   cabinetName: string;
+  cabinetIndex: number;
   notes?: string;
 };
 
@@ -43,13 +45,21 @@ function lineAreaM2(line: ProductionCutlistLine) {
   return (line.lengthMm * line.widthMm * line.quantity) / 1_000_000;
 }
 
+function formatShopRef(cabinetIndex: number, partIndex: number) {
+  const cab = String(cabinetIndex).padStart(2, "0");
+  const part = String(partIndex).padStart(2, "0");
+  return `C${cab}-P${part}`;
+}
+
 export function createCabinetProductionCutlist(
   cabinet: CabinetInstance,
+  cabinetIndex = 1,
 ): ProductionCutlistLine[] {
   const construction = createCabinetConstruction(cabinet.config);
-  return getConstructionFlatParts(construction).map((part) => ({
+  return getConstructionFlatParts(construction).map((part, partIndex) => ({
     key: `${cabinet.id}:${part.key}`,
     partId: part.key,
+    shopRef: formatShopRef(cabinetIndex, partIndex + 1),
     label: part.label,
     quantity: part.qty,
     lengthMm: part.lengthMm,
@@ -62,6 +72,7 @@ export function createCabinetProductionCutlist(
     category: part.category,
     cabinetId: cabinet.id,
     cabinetName: cabinet.name,
+    cabinetIndex,
     notes: part.notes,
   }));
 }
@@ -69,7 +80,9 @@ export function createCabinetProductionCutlist(
 export function createProjectProductionCutlist(
   project: CabinetProject,
 ): ProductionCutlistLine[] {
-  return project.cabinets.flatMap((cabinet) => createCabinetProductionCutlist(cabinet));
+  return project.cabinets.flatMap((cabinet, index) =>
+    createCabinetProductionCutlist(cabinet, index + 1),
+  );
 }
 
 function groupLines(
@@ -170,6 +183,7 @@ export function computeProductionMaterialSummary(
 
 export function csvFromProductionCutlist(lines: ProductionCutlistLine[]): string {
   const header = [
+    "Shop Ref",
     "Cabinet",
     "Part",
     "Category",
@@ -184,6 +198,7 @@ export function csvFromProductionCutlist(lines: ProductionCutlistLine[]): string
     "Notes",
   ];
   const rows = lines.map((line) => [
+    line.shopRef,
     line.cabinetName,
     line.label,
     String(line.category),

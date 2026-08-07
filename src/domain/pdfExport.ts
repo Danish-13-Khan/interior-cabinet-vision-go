@@ -8,6 +8,13 @@ import {
   svgToPngDataUrl,
 } from "./technicalViews";
 import type { RoomConfig } from "./roomModel";
+import {
+  clampJobMeta,
+  createDefaultJobMeta,
+  formatJobSubtitle,
+  formatJobTitle,
+  JOB_STATUS_LABELS,
+} from "./jobMeta";
 
 async function optimizeSceneImage(dataUrl: string | null): Promise<string | null> {
   if (!dataUrl) {
@@ -81,7 +88,11 @@ export async function exportProjectPdf(
   const pageHeight = 297;
   const margin = 14;
   const contentWidth = pageWidth - margin * 2;
-  const title = projectName.trim() || "Room Project";
+  const job = clampJobMeta(project.job ?? createDefaultJobMeta());
+  const title =
+    formatJobTitle(job, projectName.trim() || "Cabinet Project") ||
+    projectName.trim() ||
+    "Cabinet Project";
   const optimizedImage = await optimizeSceneImage(sceneScreenshot);
   const report = createProjectReport(project, room);
   let y = margin;
@@ -89,35 +100,67 @@ export async function exportProjectPdf(
   doc.setFillColor(247, 248, 250);
   doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-  doc.setFontSize(20);
+  doc.setFontSize(18);
   doc.setTextColor(34, 44, 59);
+  doc.text("Production Packet", margin, y);
+  y += 7;
+
+  doc.setFontSize(14);
   doc.text(title, margin, y);
-  y += 7.5;
+  y += 6;
 
   doc.setFontSize(9);
   doc.setTextColor(104, 116, 132);
   doc.text(
-    `Exported ${new Date().toLocaleString()} | ${project.cabinets.length} room items`,
+    `${formatJobSubtitle(job)}  ·  Exported ${new Date().toLocaleString()}  ·  ${project.cabinets.length} items`,
     margin,
     y,
   );
   y += 8;
 
-  const summaryCardWidth = (contentWidth - 8) / 3;
-  drawLabeledValue(doc, margin, y, summaryCardWidth, "Items", String(project.cabinets.length));
+  const summaryCardWidth = (contentWidth - 12) / 4;
+  drawLabeledValue(doc, margin, y, summaryCardWidth, "Project #", report.summary.projectNumber);
   drawLabeledValue(
     doc,
     margin + summaryCardWidth + 4,
     y,
     summaryCardWidth,
-    "Cabinets",
-    String(report.summary.cabinetCount),
+    "Customer",
+    report.summary.customerName,
   );
   drawLabeledValue(
     doc,
     margin + (summaryCardWidth + 4) * 2,
     y,
     summaryCardWidth,
+    "Status",
+    JOB_STATUS_LABELS[job.status],
+  );
+  drawLabeledValue(
+    doc,
+    margin + (summaryCardWidth + 4) * 3,
+    y,
+    summaryCardWidth,
+    "Revision",
+    report.summary.revision,
+  );
+  y += 19;
+
+  const secondRowWidth = (contentWidth - 8) / 3;
+  drawLabeledValue(doc, margin, y, secondRowWidth, "Cabinets", String(report.summary.cabinetCount));
+  drawLabeledValue(
+    doc,
+    margin + secondRowWidth + 4,
+    y,
+    secondRowWidth,
+    "Runs",
+    String(report.summary.runCount),
+  );
+  drawLabeledValue(
+    doc,
+    margin + (secondRowWidth + 4) * 2,
+    y,
+    secondRowWidth,
     "Room Size",
     report.summary.roomSizeLabel,
   );
@@ -150,13 +193,24 @@ export async function exportProjectPdf(
   }
   y += 2;
 
+  if (job.notes) {
+    doc.setFontSize(9);
+    doc.setTextColor(71, 85, 105);
+    const noteLines = doc.splitTextToSize(`Notes: ${job.notes}`, contentWidth);
+    for (const line of noteLines.slice(0, 4)) {
+      doc.text(line, margin, y);
+      y += 4.5;
+    }
+    y += 2;
+  }
+
   doc.setFontSize(13);
   doc.setTextColor(34, 44, 59);
-  doc.text("Item Summary", margin, y);
+  doc.text("Cabinet Schedule", margin, y);
   y += 6;
 
-  const headers = ["Name", "Type", "W", "H", "D", "X", "Z", "Rot"];
-  const colWidths = [39, 33, 13, 13, 13, 16, 16, 17];
+  const headers = ["Mark", "Name", "Type", "W", "H", "D", "Run"];
+  const colWidths = [16, 42, 30, 14, 14, 14, 42];
   const rowHeight = 7;
   const tableWidth = colWidths.reduce((total, value) => total + value, 0);
 
@@ -172,7 +226,7 @@ export async function exportProjectPdf(
   y += rowHeight;
 
   doc.setTextColor(40, 50, 65);
-  report.itemList.forEach((cabinet, index) => {
+  report.cabinetSchedule.forEach((cabinet, index) => {
     y = ensurePageSpace(doc, y, rowHeight, pageHeight, margin);
 
     if (index % 2 === 0) {
@@ -180,15 +234,17 @@ export async function exportProjectPdf(
       doc.rect(margin, y, tableWidth, rowHeight, "F");
     }
 
+    const runLabel = cabinet.runLabel ?? "—";
     const row = [
-      cabinet.name.length > 17 ? `${cabinet.name.slice(0, 16)}...` : cabinet.name,
-      cabinet.typeLabel,
+      cabinet.mark,
+      cabinet.cabinetName.length > 20
+        ? `${cabinet.cabinetName.slice(0, 19)}…`
+        : cabinet.cabinetName,
+      cabinet.typeLabel.length > 14 ? `${cabinet.typeLabel.slice(0, 13)}…` : cabinet.typeLabel,
       String(cabinet.widthMm),
       String(cabinet.heightMm),
       String(cabinet.depthMm),
-      String(cabinet.x),
-      String(cabinet.z),
-      `${cabinet.rotation}°`,
+      runLabel.length > 22 ? `${runLabel.slice(0, 21)}…` : runLabel,
     ];
 
     currentX = margin;
@@ -198,6 +254,30 @@ export async function exportProjectPdf(
     });
     y += rowHeight;
   });
+
+  if (report.runSummaries.length > 0) {
+    y = ensurePageSpace(doc, y + 8, 24, pageHeight, margin);
+    doc.setFontSize(13);
+    doc.setTextColor(34, 44, 59);
+    doc.text("Room / Run Summary", margin, y);
+    y += 6;
+
+    for (const run of report.runSummaries) {
+      y = ensurePageSpace(doc, y, 10, pageHeight, margin);
+      doc.setFontSize(9);
+      doc.setTextColor(15, 23, 42);
+      doc.text(
+        `${run.label}  ·  ${run.cabinetCount} cabinets  ·  ${run.lengthMm} mm  ·  fillers ${run.fillerCount}  ·  tops ${run.countertopCount}`,
+        margin,
+        y,
+      );
+      y += 4.5;
+      doc.setFontSize(8);
+      doc.setTextColor(71, 85, 105);
+      doc.text(run.cabinetNames.join(", ") || "—", margin + 2, y);
+      y += 5.5;
+    }
+  }
 
   const topView = createTechnicalView(project, room, "top", countertops, {
     mode: "print",
@@ -365,8 +445,8 @@ export async function exportProjectPdf(
 
   const allItems = report.productionCutlist;
 
-  const cutHeaders = ["Cabinet", "Part", "Material", "Thk", "Qty", "L", "W"];
-  const cutColWidths = [32, 36, 28, 12, 12, 18, 18];
+  const cutHeaders = ["Ref", "Cabinet", "Part", "Material", "Thk", "Qty", "L", "W"];
+  const cutColWidths = [18, 28, 34, 26, 12, 12, 16, 16];
   const cutTableWidth = cutColWidths.reduce((total, value) => total + value, 0);
 
   doc.setFillColor(232, 237, 243);
@@ -389,9 +469,10 @@ export async function exportProjectPdf(
     }
 
     const row = [
-      item.cabinetName.length > 14 ? `${item.cabinetName.slice(0, 13)}…` : item.cabinetName,
-      item.label.length > 16 ? `${item.label.slice(0, 15)}…` : item.label,
-      item.material.length > 12 ? `${item.material.slice(0, 11)}…` : item.material,
+      item.shopRef,
+      item.cabinetName.length > 12 ? `${item.cabinetName.slice(0, 11)}…` : item.cabinetName,
+      item.label.length > 15 ? `${item.label.slice(0, 14)}…` : item.label,
+      item.material.length > 11 ? `${item.material.slice(0, 10)}…` : item.material,
       String(item.thicknessMm),
       String(item.quantity),
       String(item.lengthMm),
@@ -428,7 +509,7 @@ export async function exportProjectPdf(
     for (const line of group.lines.slice(0, 12)) {
       y = ensurePageSpace(doc, y, 5, pageHeight, margin);
       doc.text(
-        `${line.cabinetName}: ${line.label}  ${line.quantity}x  ${line.lengthMm}x${line.widthMm}x${line.thicknessMm}`,
+        `${line.shopRef}  ${line.cabinetName}: ${line.label}  ${line.quantity}x  ${line.lengthMm}x${line.widthMm}x${line.thicknessMm}`,
         margin + 2,
         y,
       );
@@ -446,6 +527,11 @@ export async function exportProjectPdf(
     doc.setPage(page);
     doc.setFontSize(7);
     doc.setTextColor(156, 166, 178);
+    doc.text(
+      `${report.summary.projectNumber} · Rev ${report.summary.revision} · ${JOB_STATUS_LABELS[job.status]}`,
+      margin,
+      pageHeight - 7.5,
+    );
     doc.text(`Page ${page} of ${totalPages}`, pageWidth - margin, pageHeight - 7.5, {
       align: "right",
     });
