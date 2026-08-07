@@ -92,6 +92,11 @@ import {
 } from "./domain/quoteSettings";
 import { createQuoteSnapshotFromQuote } from "./domain/projectQuote";
 import {
+  clampSheetOptimizerSettings,
+  DEFAULT_SHEET_OPTIMIZER,
+  type SheetOptimizerSettings,
+} from "./domain/sheetStock";
+import {
   clampProjectStandards,
   DEFAULT_PROJECT_STANDARDS,
 } from "./domain/projectStandards";
@@ -322,11 +327,15 @@ function App() {
       autoSaveToBrowser: true,
       costing: DEFAULT_COSTING_SETTINGS,
       quote: DEFAULT_QUOTE_SETTINGS,
+      sheetOptimizer: DEFAULT_SHEET_OPTIMIZER,
       standards: DEFAULT_PROJECT_STANDARDS,
       drafting: DEFAULT_DRAFTING_DISPLAY,
     };
   const costingSettings = clampCostingSettings(projectPreferences.costing);
   const quoteSettings = clampQuoteSettings(projectPreferences.quote);
+  const sheetOptimizerSettings = clampSheetOptimizerSettings(
+    projectPreferences.sheetOptimizer,
+  );
   const projectStandards = clampProjectStandards(projectPreferences.standards);
   const draftingDisplay = clampDraftingDisplay(projectPreferences.drafting);
   const projectDrafting = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
@@ -1362,6 +1371,9 @@ function App() {
             ),
             quote: clampQuoteSettings(
               currentProject.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
+            ),
+            sheetOptimizer: clampSheetOptimizerSettings(
+              currentProject.preferences?.sheetOptimizer ?? DEFAULT_SHEET_OPTIMIZER,
             ),
             standards: clampProjectStandards(
               currentProject.preferences?.standards ?? DEFAULT_PROJECT_STANDARDS,
@@ -2453,6 +2465,7 @@ function App() {
               selectedCabinetId={activeCabinetId}
               costingSettings={costingSettings}
               quoteSettings={quoteSettings}
+              sheetOptimizerSettings={sheetOptimizerSettings}
               onCostingChange={(next: CostingSettings) =>
                 handleProjectPreferenceChange({
                   costing: clampCostingSettings(next),
@@ -2461,6 +2474,11 @@ function App() {
               onQuoteChange={(next: QuoteSettings) =>
                 handleProjectPreferenceChange({
                   quote: clampQuoteSettings(next),
+                })
+              }
+              onSheetOptimizerChange={(next: SheetOptimizerSettings) =>
+                handleProjectPreferenceChange({
+                  sheetOptimizer: clampSheetOptimizerSettings(next),
                 })
               }
               onFreezeQuote={handleFreezeQuoteSnapshot}

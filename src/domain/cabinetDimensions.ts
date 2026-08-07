@@ -42,11 +42,17 @@ import {
   clampQuoteSettings,
   DEFAULT_QUOTE_SETTINGS,
 } from "./quoteSettings";
+import type { SheetOptimizerSettings } from "./sheetStock";
+import {
+  clampSheetOptimizerSettings,
+  DEFAULT_SHEET_OPTIMIZER,
+} from "./sheetStock";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetConstructionSpec } from "./cabinetConstructionSpec";
 export type { ProjectDrafting, DraftingDisplayPreferences } from "./draftingAnnotations";
 export type { QuoteSettings, QuoteSnapshot } from "./quoteSettings";
+export type { SheetOptimizerSettings } from "./sheetStock";
 export type { CabinetType } from "./cabinetCapabilities";
 export {
   isStorageType,
@@ -125,6 +131,7 @@ export type ProjectPreferences = {
   autoSaveToBrowser: boolean;
   costing?: CostingSettings;
   quote?: QuoteSettings;
+  sheetOptimizer?: SheetOptimizerSettings;
   standards?: ProjectStandards;
   drafting?: DraftingDisplayPreferences;
 };
@@ -469,6 +476,7 @@ export const defaultCabinetProject: CabinetProject = {
     autoSaveToBrowser: true,
     costing: { ...DEFAULT_COSTING_SETTINGS },
     quote: { ...DEFAULT_QUOTE_SETTINGS },
+    sheetOptimizer: { ...DEFAULT_SHEET_OPTIMIZER },
     standards: { ...DEFAULT_PROJECT_STANDARDS },
     drafting: { ...DEFAULT_DRAFTING_DISPLAY },
   },
@@ -840,6 +848,10 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       ),
       quote: clampQuoteSettings(
         project.preferences?.quote ?? defaultCabinetProject.preferences?.quote,
+      ),
+      sheetOptimizer: clampSheetOptimizerSettings(
+        project.preferences?.sheetOptimizer ??
+          defaultCabinetProject.preferences?.sheetOptimizer,
       ),
       standards: clampProjectStandards(
         project.preferences?.standards ?? defaultCabinetProject.preferences?.standards,
