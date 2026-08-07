@@ -5,6 +5,7 @@ import type { ProjectReport } from "../domain/projectReport";
 import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
 import { ReportCenter } from "./ReportCenter";
+import { PaneResizeHandle } from "./PaneResizeHandle";
 
 type StatusStripProps = {
   projectStatus: string;
@@ -15,7 +16,9 @@ type StatusStripProps = {
   selectionSummary: string;
   validationMessages: string[];
   statusDockOpen: boolean;
+  dockHeightPx?: number;
   onToggleStatusDock: () => void;
+  onDockHeightChange?: (heightPx: number) => void;
   onSave: () => void;
   onExportJson: () => void;
   onExportCsv: () => void;
@@ -45,7 +48,9 @@ export function StatusStrip({
   selectionSummary,
   validationMessages,
   statusDockOpen,
+  dockHeightPx = 280,
   onToggleStatusDock,
+  onDockHeightChange,
   onSave,
   onExportJson,
   onExportCsv,
@@ -108,24 +113,39 @@ export function StatusStrip({
         </div>
       ) : null}
       {statusDockOpen ? (
-        <div className="status-dock">
-          <ReportCenter
-            report={report}
-            wholeProject={wholeProject}
-            machineJob={machineJob}
-            onExportMachineJson={onExportMachineJson}
-            onExportMachineCsv={onExportMachineCsv}
-            selectedCabinetId={selectedCabinetId}
-            costingSettings={costingSettings}
-            quoteSettings={quoteSettings}
-            sheetOptimizerSettings={sheetOptimizerSettings}
-            onCostingChange={onCostingChange}
-            onQuoteChange={onQuoteChange}
-            onSheetOptimizerChange={onSheetOptimizerChange}
-            onFreezeQuote={onFreezeQuote}
-            onSelectCabinet={onSelectCabinet}
-          />
-        </div>
+        <>
+          {onDockHeightChange ? (
+            <PaneResizeHandle
+              axis="y"
+              value={dockHeightPx}
+              min={160}
+              max={520}
+              ariaLabel="Resize status dock"
+              onChange={onDockHeightChange}
+            />
+          ) : null}
+          <div
+            className="status-dock"
+            style={{ height: dockHeightPx, maxHeight: "none" }}
+          >
+            <ReportCenter
+              report={report}
+              wholeProject={wholeProject}
+              machineJob={machineJob}
+              onExportMachineJson={onExportMachineJson}
+              onExportMachineCsv={onExportMachineCsv}
+              selectedCabinetId={selectedCabinetId}
+              costingSettings={costingSettings}
+              quoteSettings={quoteSettings}
+              sheetOptimizerSettings={sheetOptimizerSettings}
+              onCostingChange={onCostingChange}
+              onQuoteChange={onQuoteChange}
+              onSheetOptimizerChange={onSheetOptimizerChange}
+              onFreezeQuote={onFreezeQuote}
+              onSelectCabinet={onSelectCabinet}
+            />
+          </div>
+        </>
       ) : null}
     </footer>
   );

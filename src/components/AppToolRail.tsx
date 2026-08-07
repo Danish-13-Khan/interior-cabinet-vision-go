@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { CabinetTemplate } from "../domain/cabinetTemplates";
 import type { CabinetFamilyLibraryEntry } from "../domain/workshopLibrary";
 import type { CabinetType } from "../domain/cabinetDimensions";
@@ -49,6 +50,15 @@ type AppToolRailProps = {
   onLoadSavedProject: (projectId: string) => void;
   onRenameSavedProject: (projectId: string, name: string) => void;
   onSaveCurrentProject: () => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
+  onProjectContextMenu?: (
+    projectId: string,
+    point: { x: number; y: number },
+  ) => void;
+  style?: CSSProperties;
 };
 
 export function AppToolRail({
@@ -79,9 +89,12 @@ export function AppToolRail({
   onLoadSavedProject,
   onRenameSavedProject,
   onSaveCurrentProject,
+  onCabinetContextMenu,
+  onProjectContextMenu,
+  style,
 }: AppToolRailProps) {
   return (
-    <aside className="tool-rail" aria-label="Tool rail">
+    <aside className="tool-rail" aria-label="Tool rail" style={style}>
       <LibraryRail
         templates={templates}
         userCabinetPresets={userCabinetPresets}
@@ -98,6 +111,7 @@ export function AppToolRail({
         activeCabinetId={activeCabinetId}
         selectedCabinetIds={selectedCabinetIds}
         onSelectCabinet={onSelectCabinet}
+        onCabinetContextMenu={onCabinetContextMenu}
       />
 
       <RoomNavigator
@@ -121,6 +135,7 @@ export function AppToolRail({
           onLoadProject={onLoadSavedProject}
           onRenameProject={onRenameSavedProject}
           onSaveCurrent={onSaveCurrentProject}
+          onProjectContextMenu={onProjectContextMenu}
         />
       </div>
     </aside>

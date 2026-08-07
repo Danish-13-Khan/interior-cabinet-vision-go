@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
+import type { RecentFileEntry } from "../domain/desktopUx";
 
 type AppRibbonProps = {
   workspaceLabel: string;
@@ -8,9 +10,14 @@ type AppRibbonProps = {
   hasSelection: boolean;
   hasClipboard: boolean;
   selectionCount: number;
+  toolRailVisible: boolean;
+  inspectorVisible: boolean;
+  recentFiles: RecentFileEntry[];
   onNew: () => void;
   onOpen: () => void;
   onSave: () => void;
+  onOpenRecent: (path: string) => void;
+  onClearRecent?: (path: string) => void;
   onUndo: () => void;
   onRedo: () => void;
   onCopy: () => void;
@@ -22,6 +29,8 @@ type AppRibbonProps = {
   onExportCsv: () => void;
   onExportPdf: () => void;
   onSetViewPreset: (preset: "iso" | "front" | "side" | "top") => void;
+  onToggleToolRail: () => void;
+  onToggleInspector: () => void;
   onOpenCommands: () => void;
   onOpenShortcuts: () => void;
 };
@@ -34,9 +43,14 @@ export function AppRibbon({
   hasSelection,
   hasClipboard,
   selectionCount,
+  toolRailVisible,
+  inspectorVisible,
+  recentFiles,
   onNew,
   onOpen,
   onSave,
+  onOpenRecent,
+  onClearRecent,
   onUndo,
   onRedo,
   onCopy,
@@ -48,9 +62,13 @@ export function AppRibbon({
   onExportCsv,
   onExportPdf,
   onSetViewPreset,
+  onToggleToolRail,
+  onToggleInspector,
   onOpenCommands,
   onOpenShortcuts,
 }: AppRibbonProps) {
+  const [recentOpen, setRecentOpen] = useState(false);
+
   return (
     <header className="app-ribbon" aria-label="Command ribbon">
       <div className="ribbon-brand">
@@ -67,6 +85,52 @@ export function AppRibbon({
           <button type="button" className="tb-btn" onClick={onOpen} title="Open JSON file">
             Open
           </button>
+          <div className="ribbon-menu">
+            <button
+              type="button"
+              className="tb-btn"
+              title="Recent files"
+              aria-expanded={recentOpen}
+              onClick={() => setRecentOpen((value) => !value)}
+            >
+              Recent
+            </button>
+            {recentOpen ? (
+              <div className="ribbon-menu-panel" role="menu">
+                {recentFiles.length === 0 ? (
+                  <div className="ribbon-menu-empty">No recent files</div>
+                ) : (
+                  recentFiles.map((file) => (
+                    <div key={file.path} className="ribbon-menu-row">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="ribbon-menu-item"
+                        title={file.path}
+                        onClick={() => {
+                          onOpenRecent(file.path);
+                          setRecentOpen(false);
+                        }}
+                      >
+                        <strong>{file.name}</strong>
+                        <small>{file.path}</small>
+                      </button>
+                      {onClearRecent ? (
+                        <button
+                          type="button"
+                          className="ribbon-menu-forget"
+                          title="Remove from recent"
+                          onClick={() => onClearRecent(file.path)}
+                        >
+                          ×
+                        </button>
+                      ) : null}
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : null}
+          </div>
           <button type="button" className="tb-btn" onClick={onSave} title="Save JSON file">
             Save
           </button>
@@ -149,6 +213,28 @@ export function AppRibbon({
             disabled={selectionCount < 3}
           >
             Distribute X
+          </button>
+        </div>
+      </div>
+
+      <div className="ribbon-group">
+        <span className="ribbon-group-label">View</span>
+        <div className="ribbon-group-actions">
+          <button
+            type="button"
+            className={`tb-btn ${toolRailVisible ? "tb-accent" : ""}`}
+            onClick={onToggleToolRail}
+            title="Toggle tool rail"
+          >
+            Rail
+          </button>
+          <button
+            type="button"
+            className={`tb-btn ${inspectorVisible ? "tb-accent" : ""}`}
+            onClick={onToggleInspector}
+            title="Toggle inspector"
+          >
+            Inspector
           </button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   DimensionControls,
 } from "./DimensionControls";
@@ -99,6 +100,7 @@ type AppInspectorProps = {
   onSelectAll: () => void;
   onUndo: () => void;
   onRedo: () => void;
+  style?: CSSProperties;
 };
 
 export function AppInspector({
@@ -164,9 +166,10 @@ export function AppInspector({
   onSelectAll,
   onUndo,
   onRedo,
+  style,
 }: AppInspectorProps) {
   return (
-    <aside className="inspector-panel" aria-label="Properties inspector">
+    <aside className="inspector-panel" aria-label="Properties inspector" style={style}>
       <div className="inspector-header">
         <strong>Properties</strong>
         <span>

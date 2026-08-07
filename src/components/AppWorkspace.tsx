@@ -40,6 +40,8 @@ type AppWorkspaceProps = {
   onSelectCabinet: (cabinetId: string | null, additive: boolean) => void;
   onAddNote: (note: DraftingNote) => void;
   onAddLeader: (leader: DraftingLeader) => void;
+  onWorkspaceContextMenu?: (point: { x: number; y: number }) => void;
+  tabShortcutHints?: Partial<Record<WorkspaceTab, string>>;
 };
 
 export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
@@ -67,6 +69,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onSelectCabinet,
       onAddNote,
       onAddLeader,
+      onWorkspaceContextMenu,
+      tabShortcutHints,
     },
     sceneRef,
   ) {
@@ -78,7 +82,17 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
           : "top";
 
     return (
-      <section className="workspace-panel" aria-label="Drawing workspace">
+      <section
+        className="workspace-panel"
+        aria-label="Drawing workspace"
+        onContextMenu={(event) => {
+          if (!onWorkspaceContextMenu) return;
+          const target = event.target as HTMLElement | null;
+          if (target?.closest("button, input, textarea, select, a")) return;
+          event.preventDefault();
+          onWorkspaceContextMenu({ x: event.clientX, y: event.clientY });
+        }}
+      >
         <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
           {(
             [
@@ -94,9 +108,21 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               role="tab"
               aria-selected={workspaceTab === tab.id}
               className={`workspace-tab ${workspaceTab === tab.id ? "is-active" : ""}`}
+              title={
+                tabShortcutHints?.[tab.id]
+                  ? `${tab.label} (${tabShortcutHints[tab.id]})`
+                  : tab.label
+              }
               onClick={() => onWorkspaceTabChange(tab.id)}
+              onDoubleClick={() => {
+                onWorkspaceTabChange(tab.id);
+                onDraftingToolChange("select");
+              }}
             >
               {tab.label}
+              {tabShortcutHints?.[tab.id] ? (
+                <kbd className="workspace-tab-kbd">{tabShortcutHints[tab.id]}</kbd>
+              ) : null}
             </button>
           ))}
         </div>
