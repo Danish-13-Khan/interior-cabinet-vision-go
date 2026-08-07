@@ -4,6 +4,7 @@ import type { SheetOptimizerSettings } from "../domain/sheetStock";
 import type { ProjectReport } from "../domain/projectReport";
 import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
+import type { ReviewNoteSeverity } from "../domain/projectReview";
 import { ReportCenter } from "./ReportCenter";
 import { PaneResizeHandle } from "./PaneResizeHandle";
 
@@ -37,6 +38,14 @@ type StatusStripProps = {
   machineJob?: MachineJobDocument | null;
   onExportMachineJson?: () => void;
   onExportMachineCsv?: () => void;
+  onFreezeRevision?: (note: string, bumpRevision: boolean) => void;
+  onAddReviewNote?: (message: string, severity: ReviewNoteSeverity) => void;
+  onResolveReviewNote?: (noteId: string, resolved: boolean) => void;
+  onApproveReview?: (approvedBy: string) => void;
+  onReleaseForProduction?: () => void;
+  onExportRevisionSummary?: () => void;
+  approvalBlockedReasons?: string[];
+  releaseBlockedReasons?: string[];
 };
 
 export function StatusStrip({
@@ -69,6 +78,14 @@ export function StatusStrip({
   machineJob = null,
   onExportMachineJson,
   onExportMachineCsv,
+  onFreezeRevision,
+  onAddReviewNote,
+  onResolveReviewNote,
+  onApproveReview,
+  onReleaseForProduction,
+  onExportRevisionSummary,
+  approvalBlockedReasons = [],
+  releaseBlockedReasons = [],
 }: StatusStripProps) {
   return (
     <footer className="status-strip">
@@ -143,6 +160,14 @@ export function StatusStrip({
               onSheetOptimizerChange={onSheetOptimizerChange}
               onFreezeQuote={onFreezeQuote}
               onSelectCabinet={onSelectCabinet}
+              onFreezeRevision={onFreezeRevision}
+              onAddReviewNote={onAddReviewNote}
+              onResolveReviewNote={onResolveReviewNote}
+              onApproveReview={onApproveReview}
+              onReleaseForProduction={onReleaseForProduction}
+              onExportRevisionSummary={onExportRevisionSummary}
+              approvalBlockedReasons={approvalBlockedReasons}
+              releaseBlockedReasons={releaseBlockedReasons}
             />
           </div>
         </>

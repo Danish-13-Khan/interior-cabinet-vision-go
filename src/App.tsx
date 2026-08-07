@@ -100,6 +100,19 @@ import {
 } from "./domain/quoteSettings";
 import { createQuoteSnapshotFromQuote } from "./domain/projectQuote";
 import {
+  addReviewNote,
+  applyReviewStateToProject,
+  approveProjectReview,
+  canApproveForRelease,
+  canReleaseForProduction,
+  createRevisionSnapshot,
+  exportRevisionSummaryPdf,
+  getProjectReviewState,
+  releaseForProduction,
+  setReviewNoteResolved,
+  type ReviewNoteSeverity,
+} from "./domain/projectReview";
+import {
   clampSheetOptimizerSettings,
   DEFAULT_SHEET_OPTIMIZER,
 } from "./domain/sheetStock";
@@ -286,6 +299,8 @@ function App() {
     [cutlistItems, project],
   );
   const projectRooms = useMemo(() => listProjectRooms(project), [project]);
+  const approvalGate = useMemo(() => canApproveForRelease(project), [project]);
+  const releaseGate = useMemo(() => canReleaseForProduction(project), [project]);
 
   function applySnapshot(snapshot: EditorSnapshot) {
     const safeProject = normalizeMultiRoomProject(
@@ -1365,6 +1380,112 @@ function App() {
     );
   }
 
+  function handleFreezeRevision(note: string, bumpRevision: boolean) {
+    commitProjectChange(
+      (currentProject) => {
+        const frozen = createRevisionSnapshot(currentProject, {
+          note,
+          bumpRevision,
+        });
+        return {
+          project: applyReviewStateToProject(
+            currentProject,
+            frozen.nextReview,
+            frozen.nextJob,
+          ),
+        };
+      },
+      `Froze revision snapshot${bumpRevision ? " and bumped revision" : ""}.`,
+    );
+  }
+
+  function handleAddReviewNote(message: string, severity: ReviewNoteSeverity) {
+    commitProjectChange((currentProject) => {
+      const review = addReviewNote(getProjectReviewState(currentProject), {
+        message,
+        severity,
+      });
+      return {
+        project: applyReviewStateToProject(currentProject, review),
+      };
+    }, "Added review note.");
+  }
+
+  function handleResolveReviewNote(noteId: string, resolved: boolean) {
+    commitProjectChange((currentProject) => {
+      const review = setReviewNoteResolved(
+        getProjectReviewState(currentProject),
+        noteId,
+        resolved,
+      );
+      return {
+        project: applyReviewStateToProject(currentProject, review),
+      };
+    }, resolved ? "Resolved review note." : "Reopened review note.");
+  }
+
+  function handleApproveReview(approvedBy: string) {
+    const result = approveProjectReview(project, approvedBy);
+    if ("error" in result) {
+      setProjectStatus(`Approval blocked: ${result.error}`);
+      return;
+    }
+    commitProjectChange(
+      (currentProject) => ({
+        project: applyReviewStateToProject(
+          currentProject,
+          result.review,
+          result.job,
+        ),
+      }),
+      "Project marked approved.",
+    );
+  }
+
+  function handleReleaseForProduction() {
+    const result = releaseForProduction(project);
+    if ("error" in result) {
+      setProjectStatus(`Release blocked: ${result.error}`);
+      return;
+    }
+    commitProjectChange(
+      (currentProject) => ({
+        project: applyReviewStateToProject(
+          currentProject,
+          result.review,
+          result.job,
+        ),
+      }),
+      "Released for production.",
+    );
+  }
+
+  async function handleExportRevisionSummary() {
+    try {
+      const targetPath = await save({
+        title: "Export Revision Summary PDF",
+        defaultPath: "cabinet-revision-summary.pdf",
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+      if (!targetPath) {
+        setProjectStatus("Revision summary export cancelled.");
+        return;
+      }
+      const blob = await exportRevisionSummaryPdf(project);
+      const arrayBuf = await blob.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuf);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+      await invoke("save_binary_file", { path: targetPath, base64Data: base64 });
+      setProjectStatus("Revision summary PDF saved.");
+    } catch (error) {
+      setProjectStatus(`Revision summary failed: ${getErrorMessage(error)}`);
+    }
+  }
+
   function handleDraftingChange(next: ReturnType<typeof clampProjectDrafting>) {
     commitProjectChange(
       (currentProject) => ({
@@ -1519,6 +1640,9 @@ function App() {
       { id: "export-csv", label: "Export Cutlist CSV", hint: "Download production cutlist CSV", shortcut: "Export", category: "Export", action: () => { void handleExportCutlistCsv(); } },
       { id: "export-pdf", label: "Export PDF", hint: "Download project PDF report", shortcut: "Export", category: "Export", action: () => { void handleExportPdf(); } },
       { id: "export-machine-json", label: "Export Machine JSON (preview)", hint: "Machining intent metadata — not a CNC program", shortcut: "Export", category: "Export", action: () => { void handleExportMachineJson(); } },
+      { id: "freeze-revision", label: "Freeze Revision", hint: "Snapshot revision fingerprint and change log", shortcut: "Review", category: "Review", action: () => handleFreezeRevision("", true) },
+      { id: "release-production", label: "Release for Production", hint: "Mark approved revision released for shop", shortcut: "Review", category: "Review", action: handleReleaseForProduction },
+      { id: "export-revision-summary", label: "Export Revision Summary PDF", hint: "Printable approval and change log", shortcut: "Review", category: "Review", action: () => { void handleExportRevisionSummary(); } },
       { id: "shortcuts", label: "Configure Shortcuts", hint: "Open keyboard shortcut editor", shortcut: formatShortcutBinding(shortcutMap.shortcutHelp), category: "Tools", action: () => setIsShortcutSheetOpen(true) },
     ],
     [projectPreferences.showGrid, selectedCabinetIds.length, shortcutMap],
@@ -2288,6 +2412,14 @@ function App() {
         }
         onFreezeQuote={handleFreezeQuoteSnapshot}
         onSelectCabinet={(cabinetId) => handleWorkspaceSelectCabinet(cabinetId, false)}
+        onFreezeRevision={handleFreezeRevision}
+        onAddReviewNote={handleAddReviewNote}
+        onResolveReviewNote={handleResolveReviewNote}
+        onApproveReview={handleApproveReview}
+        onReleaseForProduction={handleReleaseForProduction}
+        onExportRevisionSummary={() => { void handleExportRevisionSummary(); }}
+        approvalBlockedReasons={approvalGate.reasons}
+        releaseBlockedReasons={releaseGate.reasons}
       />
       </div>
     </main>

@@ -705,6 +705,29 @@ export async function exportProjectPdf(
     }
   }
 
+  if (report.review.history.length > 0) {
+    y = ensurePageSpace(doc, y + 6, 24, pageHeight, margin);
+    doc.setFontSize(10);
+    doc.setTextColor(34, 44, 59);
+    doc.text("Design Revision / Approval Log", margin, y);
+    y += 5;
+    doc.setFontSize(8);
+    doc.setTextColor(71, 85, 105);
+    for (const snap of report.review.history.slice(0, 8)) {
+      y = ensurePageSpace(doc, y, 8, pageHeight, margin);
+      doc.text(
+        `Rev ${snap.revision}  ·  ${JOB_STATUS_LABELS[snap.status]}  ·  ${new Date(snap.createdAt).toLocaleDateString()}  ·  cabinets ${snap.fingerprint.cabinetCount}  ·  sell Rs ${snap.fingerprint.sellTotal.toLocaleString()}${snap.releasedForProduction ? "  ·  RELEASED" : ""}`,
+        margin,
+        y,
+      );
+      y += 4;
+      if (snap.changeLog[0]) {
+        doc.text(`  ${snap.changeLog[0].summary}`, margin, y);
+        y += 4;
+      }
+    }
+  }
+
   y += 4;
 
   doc.setFontSize(13);

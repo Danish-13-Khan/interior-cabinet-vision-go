@@ -53,6 +53,12 @@ import {
   type CabinetHardwareSummary,
   type HardwareScheduleRow,
 } from "./hardwareSystem";
+import {
+  createRevisionFingerprint,
+  getProjectReviewState,
+  type ProjectReviewState,
+  type RevisionFingerprint,
+} from "./projectReview";
 
 export type CabinetScheduleRow = {
   mark: string;
@@ -129,6 +135,8 @@ export type ProjectReport = {
   projectCost: ProjectCost;
   quote: ProjectQuote;
   quoteHistory: QuoteSnapshot[];
+  review: ProjectReviewState;
+  currentFingerprint: RevisionFingerprint;
   packetSections: Array<{ id: string; title: string; description: string }>;
 };
 
@@ -271,6 +279,8 @@ export function createProjectReport(
     cabinetMarks,
   });
   const quoteHistory = clampQuoteHistory(project.quoteHistory);
+  const review = getProjectReviewState(project);
+  const currentFingerprint = createRevisionFingerprint(project, review.notes);
 
   const runSummaries: RunSummaryRow[] = workflow.runs.map((run, index) => {
     const names = run.cabinetIds
@@ -353,11 +363,18 @@ export function createProjectReport(
     projectCost,
     quote,
     quoteHistory,
+    review,
+    currentFingerprint,
     packetSections: [
       {
         id: "cover",
         title: "Job Cover",
         description: "Customer, project number, revision, and status",
+      },
+      {
+        id: "review",
+        title: "Review / Revisions",
+        description: "Snapshots, change log, approval, and release gates",
       },
       {
         id: "schedule",
