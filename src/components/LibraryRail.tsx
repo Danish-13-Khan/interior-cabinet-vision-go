@@ -3,7 +3,7 @@ import { cabinetTypeLabels } from "../domain/cabinetDimensions";
 import { listLibraryGroups } from "../domain/cabinetLibraryCatalog";
 import type { CabinetTemplate } from "../domain/cabinetTemplates";
 import { PROJECT_STARTER_TEMPLATES } from "../domain/cabinetTemplates";
-import type { CabinetFamilyLibraryEntry } from "../domain/libraryManager";
+import type { CabinetFamilyLibraryEntry } from "../domain/workshopLibrary";
 
 type LibraryRailProps = {
   templates: CabinetTemplate[];
