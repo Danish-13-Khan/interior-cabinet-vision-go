@@ -1,3 +1,5 @@
+import { HARDWARE_CATALOG } from "./hardwareSystem";
+
 export type CostingSettings = {
   presetId: string;
   wastePercent: number;
@@ -24,9 +26,15 @@ export const DEFAULT_COSTING_SETTINGS: CostingSettings = {
   handleId: "handle-bar",
 };
 
-const KNOWN_HINGES = new Set(["hinge-soft", "hinge-standard"]);
-const KNOWN_SLIDES = new Set(["drawer-slide-soft", "drawer-slide-standard"]);
-const KNOWN_HANDLES = new Set(["handle-bar", "handle-knob"]);
+const KNOWN_HINGES = new Set(
+  HARDWARE_CATALOG.filter((item) => item.kind === "hinge").map((item) => item.id),
+);
+const KNOWN_SLIDES = new Set(
+  HARDWARE_CATALOG.filter((item) => item.kind === "slide").map((item) => item.id),
+);
+const KNOWN_HANDLES = new Set(
+  HARDWARE_CATALOG.filter((item) => item.kind === "handle").map((item) => item.id),
+);
 
 export type CostingPreset = {
   id: string;

@@ -47,12 +47,15 @@ import {
   clampSheetOptimizerSettings,
   DEFAULT_SHEET_OPTIMIZER,
 } from "./sheetStock";
+import type { CabinetHardwareSpec } from "./hardwareSystem";
+import { normalizeCabinetHardware } from "./hardwareSystem";
 
 export type { CabinetComposition } from "./cabinetComposition";
 export type { CabinetConstructionSpec } from "./cabinetConstructionSpec";
 export type { ProjectDrafting, DraftingDisplayPreferences } from "./draftingAnnotations";
 export type { QuoteSettings, QuoteSnapshot } from "./quoteSettings";
 export type { SheetOptimizerSettings } from "./sheetStock";
+export type { CabinetHardwareSpec } from "./hardwareSystem";
 export type { CabinetType } from "./cabinetCapabilities";
 export {
   isStorageType,
@@ -94,6 +97,8 @@ export type CabinetConfig = {
   composition?: CabinetComposition;
   /** How the carcass, shelves, doors, and drawer boxes are built. */
   construction?: CabinetConstructionSpec;
+  /** Per-cabinet hardware, accessories, and appliance insert selection. */
+  hardware?: CabinetHardwareSpec;
 };
 
 export type CabinetPlacement = {
@@ -506,6 +511,7 @@ export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
     construction: normalizeConstructionSpec(type, undefined, {
       shelvesAdjustable: composition.shelves.adjustable,
     }),
+    hardware: normalizeCabinetHardware(type, undefined),
   };
 }
 
@@ -748,6 +754,7 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
   const construction = normalizeConstructionSpec(merged.type, merged.construction, {
     shelvesAdjustable: composition.shelves.adjustable,
   });
+  const hardware = normalizeCabinetHardware(merged.type, merged.hardware);
   const syncedComposition = {
     ...composition,
     shelves: {
@@ -763,6 +770,7 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
     ...flat,
     composition: syncedComposition,
     construction,
+    hardware,
     buildRules: {
       ...merged.buildRules,
       carcassThicknessMm: resolvedMaterialSpec.carcassMaterial.thicknessMm,

@@ -543,6 +543,61 @@ export async function exportProjectPdf(
     if (sheetSamples >= 4) break;
   }
 
+  y = ensurePageSpace(doc, y + 8, 36, pageHeight, margin);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 44, 59);
+  doc.text("Hardware Schedule", margin, y);
+  y += 6;
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    `${report.hardwareSchedule.length} SKUs  ·  hardware total Rs ${report.projectCost.totalHardware.toLocaleString()}  ·  allowance Rs ${report.projectCost.hardwareAllowance.toLocaleString()}`,
+    margin,
+    y,
+  );
+  y += 6;
+
+  const hwHeaders = ["Hardware", "Kind", "Qty", "Unit", "Total", "Marks"];
+  const hwWidths = [52, 22, 14, 20, 22, 30];
+  const hwTableWidth = hwWidths.reduce((sum, value) => sum + value, 0);
+  doc.setFillColor(232, 237, 243);
+  doc.rect(margin, y, hwTableWidth, rowHeight, "F");
+  doc.setFontSize(8);
+  doc.setTextColor(65, 76, 91);
+  currentX = margin;
+  hwHeaders.forEach((header, index) => {
+    doc.text(header, currentX + 1.3, y + rowHeight - 2.1);
+    currentX += hwWidths[index];
+  });
+  y += rowHeight;
+
+  report.hardwareSchedule.slice(0, 18).forEach((row, index) => {
+    y = ensurePageSpace(doc, y, rowHeight, pageHeight, margin);
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(margin, y, hwTableWidth, rowHeight, "F");
+    }
+    const values = [
+      row.label.length > 24 ? `${row.label.slice(0, 23)}…` : row.label,
+      row.kind,
+      String(row.quantity),
+      String(row.unitCost),
+      String(row.totalCost),
+      row.cabinetMarks.slice(0, 4).join(" "),
+    ];
+    currentX = margin;
+    values.forEach((value, cellIndex) => {
+      doc.text(value, currentX + 1.3, y + rowHeight - 2.1);
+      currentX += hwWidths[cellIndex];
+    });
+    y += rowHeight;
+  });
+  if (report.hardwareSchedule.length > 18) {
+    doc.setTextColor(100, 116, 139);
+    doc.text(`… +${report.hardwareSchedule.length - 18} more hardware lines`, margin, y);
+    y += 5;
+  }
+
   y = ensurePageSpace(doc, y + 8, 48, pageHeight, margin);
   doc.setFontSize(13);
   doc.setTextColor(34, 44, 59);
