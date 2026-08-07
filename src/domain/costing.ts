@@ -18,6 +18,10 @@ import {
   clampCostingSettings,
   DEFAULT_COSTING_SETTINGS,
 } from "./costingSettings";
+import {
+  buildHardwareLines,
+  type HardwareLine,
+} from "./hardwareSystem";
 
 export type { CostingSettings, CostingPreset } from "./costingSettings";
 export {
@@ -26,27 +30,13 @@ export {
   clampCostingSettings,
   getCostingPreset,
 } from "./costingSettings";
-
-export type HardwareItem = {
-  id: string;
-  label: string;
-  costPerUnit: number;
-};
-
-export const HARDWARE_CATALOG: HardwareItem[] = [
-  { id: "hinge-soft", label: "Soft-close hinge", costPerUnit: 85 },
-  { id: "hinge-standard", label: "Standard hinge", costPerUnit: 25 },
-  { id: "drawer-slide-soft", label: "Soft-close drawer slide (pair)", costPerUnit: 280 },
-  { id: "drawer-slide-standard", label: "Standard drawer slide (pair)", costPerUnit: 120 },
-  { id: "handle-bar", label: "Bar handle", costPerUnit: 95 },
-  { id: "handle-knob", label: "Knob handle", costPerUnit: 40 },
-  { id: "shelf-pin", label: "Shelf support pin", costPerUnit: 8 },
-  { id: "leg-adj", label: "Adjustable leg", costPerUnit: 45 },
-  { id: "connector", label: "Cam+dowel connector set", costPerUnit: 12 },
-  { id: "screw-pack", label: "Screw pack (50pcs)", costPerUnit: 35 },
-  { id: "wall-bracket", label: "Wall mounting bracket", costPerUnit: 55 },
-];
-
+export {
+  HARDWARE_CATALOG,
+  buildHardwareLines,
+  type HardwareItem,
+  type HardwareLine,
+  type HardwareKind,
+} from "./hardwareSystem";
 
 function getBoardCost(materialId: BoardMaterialId, thicknessMm: number): number {
   const mat = BOARD_MATERIALS.find((item) => item.id === materialId);
@@ -64,14 +54,6 @@ function getFinishCost(finishId: FinishId): number {
 
 function getEdgeBandCost(edgeBandId: EdgeBandingId): number {
   return EDGE_BANDING_OPTIONS.find((item) => item.id === edgeBandId)?.costPerM ?? 0;
-}
-
-function hardwareUnitCost(id: string): number {
-  return HARDWARE_CATALOG.find((item) => item.id === id)?.costPerUnit ?? 0;
-}
-
-function hardwareLabel(id: string): string {
-  return HARDWARE_CATALOG.find((item) => item.id === id)?.label ?? id;
 }
 
 function partPerimeterMm(lengthMm: number, widthMm: number): number {
@@ -95,60 +77,6 @@ function boardSpecForLine(
     default:
       return materials.carcassMaterial;
   }
-}
-
-export type HardwareLine = {
-  id: string;
-  label: string;
-  quantity: number;
-  unitCost: number;
-  totalCost: number;
-};
-
-function buildHardwareLines(
-  cabinet: CabinetInstance,
-  construction: CabinetConstruction,
-  settings: CostingSettings,
-): HardwareLine[] {
-  const doorPart = construction.parts.find((part) => part.category === "Door");
-  const drawerFrontPart = construction.parts.find((part) => part.category === "DrawerFront");
-  const shelfPart = construction.parts.find((part) => part.category === "Shelf");
-  const drawerBoxPartCount = construction.parts
-    .filter((part) => part.category === "DrawerBox")
-    .reduce((sum, part) => Math.max(sum, Math.ceil(part.quantity / 2)), 0);
-  const doorCount = doorPart?.quantity ?? 0;
-  const drawerFrontCount = drawerFrontPart?.quantity ?? 0;
-  const shelfCount = shelfPart?.quantity ?? 0;
-
-  const lines: HardwareLine[] = [];
-
-  function push(id: string, quantity: number) {
-    if (quantity <= 0) return;
-    const unitCost = hardwareUnitCost(id);
-    lines.push({
-      id,
-      label: hardwareLabel(id),
-      quantity,
-      unitCost,
-      totalCost: Math.round(unitCost * quantity),
-    });
-  }
-
-  push(settings.hingeId, doorCount * 2);
-  push(settings.drawerSlideId, drawerBoxPartCount);
-  push(settings.handleId, doorCount + drawerFrontCount);
-  if (construction.constructionSpec.shelfMount === "adjustable-pins") {
-    push("shelf-pin", shelfCount * 4);
-  }
-  push("connector", 8);
-  push("screw-pack", 1);
-  if (cabinet.placement.attachment === "floor") {
-    push("leg-adj", 4);
-  } else {
-    push("wall-bracket", 2);
-  }
-
-  return lines;
 }
 
 export type CabinetCost = {

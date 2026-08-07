@@ -67,6 +67,16 @@ import {
   type ShelfMount,
 } from "./cabinetConstructionSpec";
 import { isStorageType } from "./cabinetCapabilities";
+import {
+  ACCESSORY_CATALOG_IDS,
+  APPLIANCE_INSERT_OPTIONS,
+  describeHardwareSpec,
+  getHardwareItem,
+  hardwareItemsOfKind,
+  isAccessoryCompatible,
+  normalizeCabinetHardware,
+  type ApplianceInsertKind,
+} from "./hardwareSystem";
 
 export type PropertyFieldType = "number" | "boolean" | "enum" | "readonly" | "action";
 
@@ -112,6 +122,21 @@ function compositionOf(config: CabinetConfig): CabinetComposition {
 function constructionOf(config: CabinetConfig) {
   return normalizeConstructionSpec(config.type, config.construction, {
     shelvesAdjustable: compositionOf(config).shelves.adjustable,
+  });
+}
+
+function hardwareOf(config: CabinetConfig) {
+  return normalizeCabinetHardware(config.type, config.hardware);
+}
+
+function patchHardware(
+  config: CabinetConfig,
+  patch: Partial<ReturnType<typeof hardwareOf>>,
+): CabinetConfig {
+  const current = hardwareOf(config);
+  return clampCabinetConfig({
+    ...config,
+    hardware: normalizeCabinetHardware(config.type, { ...current, ...patch }),
   });
 }
 
@@ -178,6 +203,26 @@ export function getCabinetEditorValue(
       return constructionOf(config).shelfMount;
     case "drawerBoxStyle":
       return constructionOf(config).drawerBoxStyle;
+    case "hardwareSummary":
+      return describeHardwareSpec(hardwareOf(config));
+    case "hingeId":
+      return hardwareOf(config).hingeId;
+    case "slideId":
+      return hardwareOf(config).slideId;
+    case "handleId":
+      return hardwareOf(config).handleId;
+    case "legId":
+      return hardwareOf(config).legId;
+    case "bracketId":
+      return hardwareOf(config).bracketId;
+    case "includeShelfPins":
+      return hardwareOf(config).includeShelfPins;
+    case "insertKind":
+      return hardwareOf(config).insertKind;
+    case "accessoryPrimary":
+      return hardwareOf(config).accessories[0]?.id ?? "";
+    case "accessoryPrimaryQty":
+      return hardwareOf(config).accessories[0]?.quantity ?? 0;
     case "faceFrameStile":
       return constructionOf(config).faceFrame.stileWidthMm;
     case "faceFrameRail":
@@ -583,6 +628,119 @@ export function getCabinetEditorSections(config: CabinetConfig): PropertySection
       hint: "How the cabinet is built for shop output",
       fields: constructionFields,
     });
+
+    const hardware = hardwareOf(config);
+    const accessoryOptions = ACCESSORY_CATALOG_IDS.filter((id) =>
+      isAccessoryCompatible(id, config.type, hardware.insertKind),
+    ).map((id) => ({
+      value: id,
+      label: getHardwareItem(id)?.label ?? id,
+    }));
+    const hardwareFields: PropertyFieldDef[] = [
+      {
+        id: "hardwareSummary",
+        label: "Summary",
+        type: "readonly",
+      },
+      {
+        id: "insertKind",
+        label: "Appliance insert",
+        type: "enum",
+        options: APPLIANCE_INSERT_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        })),
+        hint: "Sink / cooktop / dishwasher compatibility",
+      },
+    ];
+    if (caps.doors) {
+      hardwareFields.push({
+        id: "hingeId",
+        label: "Hinge",
+        type: "enum",
+        options: hardwareItemsOfKind("hinge").map((item) => ({
+          value: item.id,
+          label: `${item.label} (₹${item.costPerUnit})`,
+        })),
+      });
+    }
+    if (caps.drawers) {
+      hardwareFields.push({
+        id: "slideId",
+        label: "Drawer slide",
+        type: "enum",
+        options: hardwareItemsOfKind("slide").map((item) => ({
+          value: item.id,
+          label: `${item.label} (₹${item.costPerUnit})`,
+        })),
+      });
+    }
+    if (caps.doors || caps.drawers) {
+      hardwareFields.push({
+        id: "handleId",
+        label: "Handle",
+        type: "enum",
+        options: hardwareItemsOfKind("handle").map((item) => ({
+          value: item.id,
+          label: `${item.label} (₹${item.costPerUnit})`,
+        })),
+      });
+    }
+    hardwareFields.push(
+      {
+        id: "legId",
+        label: "Support legs",
+        type: "enum",
+        options: [
+          { value: "none", label: "None" },
+          ...hardwareItemsOfKind("leg").map((item) => ({
+            value: item.id,
+            label: `${item.label} (₹${item.costPerUnit})`,
+          })),
+        ],
+      },
+      {
+        id: "bracketId",
+        label: "Wall brackets",
+        type: "enum",
+        options: [
+          { value: "none", label: "None" },
+          ...hardwareItemsOfKind("bracket").map((item) => ({
+            value: item.id,
+            label: `${item.label} (₹${item.costPerUnit})`,
+          })),
+        ],
+      },
+      {
+        id: "includeShelfPins",
+        label: "Shelf pins",
+        type: "boolean",
+      },
+    );
+    if (accessoryOptions.length > 0) {
+      hardwareFields.push(
+        {
+          id: "accessoryPrimary",
+          label: "Accessory",
+          type: "enum",
+          options: [{ value: "", label: "None" }, ...accessoryOptions],
+        },
+        {
+          id: "accessoryPrimaryQty",
+          label: "Accessory qty",
+          type: "number",
+          min: 0,
+          max: 4,
+          step: 1,
+        },
+      );
+    }
+    sections.push({
+      id: "hardware",
+      label: "Hardware",
+      hint: "Hinges, slides, handles, legs, and accessories",
+      fields: hardwareFields,
+    });
   }
 
   if (caps.dividers) {
@@ -959,6 +1117,42 @@ export function applyCabinetEditorChange(
           railWidthMm: Number(value),
         },
       });
+    case "hingeId":
+      return patchHardware(config, { hingeId: String(value) });
+    case "slideId":
+      return patchHardware(config, { slideId: String(value) });
+    case "handleId":
+      return patchHardware(config, { handleId: String(value) });
+    case "legId":
+      return patchHardware(config, { legId: String(value) });
+    case "bracketId":
+      return patchHardware(config, { bracketId: String(value) });
+    case "includeShelfPins":
+      return patchHardware(config, { includeShelfPins: Boolean(value) });
+    case "insertKind":
+      return patchHardware(config, {
+        insertKind: String(value) as ApplianceInsertKind,
+        accessories: hardwareOf(config).accessories.filter((line) =>
+          isAccessoryCompatible(line.id, config.type, String(value) as ApplianceInsertKind),
+        ),
+      });
+    case "accessoryPrimary": {
+      const id = String(value);
+      const qty = Math.max(1, hardwareOf(config).accessories[0]?.quantity ?? 1);
+      return patchHardware(config, {
+        accessories: id
+          ? [{ id, quantity: qty }]
+          : [],
+      });
+    }
+    case "accessoryPrimaryQty": {
+      const qty = Number(value);
+      const current = hardwareOf(config).accessories[0];
+      if (!current) return config;
+      return patchHardware(config, {
+        accessories: qty > 0 ? [{ id: current.id, quantity: qty }] : [],
+      });
+    }
     case "dividerCount":
       return patchComposition(config, (composition) => ({
         ...composition,

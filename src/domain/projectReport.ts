@@ -48,6 +48,11 @@ import {
   clampSheetOptimizerSettings,
   DEFAULT_SHEET_OPTIMIZER,
 } from "./sheetStock";
+import {
+  createHardwareSchedule,
+  type CabinetHardwareSummary,
+  type HardwareScheduleRow,
+} from "./hardwareSystem";
 
 export type CabinetScheduleRow = {
   mark: string;
@@ -116,6 +121,8 @@ export type ProjectReport = {
   productionCutlist: ProductionCutlistLine[];
   materialSummary: MaterialBoardEstimate[];
   sheetYield: ProjectSheetYield;
+  hardwareSchedule: HardwareScheduleRow[];
+  hardwareByCabinet: CabinetHardwareSummary[];
   groupedByMaterial: ProductionCutlistGroup[];
   groupedByThickness: ProductionCutlistGroup[];
   groupedByCabinet: ProductionCutlistGroup[];
@@ -298,6 +305,15 @@ export function createProjectReport(
     };
   });
 
+  const hardwareLinesByCabinet = new Map(
+    projectCost.cabinets.map((cost) => [cost.cabinetId, cost.hardwareLines] as const),
+  );
+  const hardwareScheduleBundle = createHardwareSchedule(
+    project.cabinets,
+    hardwareLinesByCabinet,
+    cabinetMarks,
+  );
+
   return {
     job,
     jobTitle: formatJobTitle(job, "Cabinet Project"),
@@ -329,6 +345,8 @@ export function createProjectReport(
     productionCutlist,
     materialSummary,
     sheetYield,
+    hardwareSchedule: hardwareScheduleBundle.project,
+    hardwareByCabinet: hardwareScheduleBundle.byCabinet,
     groupedByMaterial: groupCutlistByMaterial(productionCutlist),
     groupedByThickness: groupCutlistByThickness(productionCutlist),
     groupedByCabinet: groupCutlistByCabinet(productionCutlist),
@@ -360,6 +378,11 @@ export function createProjectReport(
         id: "optimize",
         title: "Sheet Yield",
         description: "Sheet definitions, cut grouping, waste, and offcuts",
+      },
+      {
+        id: "hardware",
+        title: "Hardware Schedule",
+        description: "Hinges, slides, handles, legs, accessories, and costs",
       },
       {
         id: "cutlist",
