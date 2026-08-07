@@ -15,6 +15,8 @@ import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
 import { WholeProjectRoomsPanel } from "./WholeProjectRoomsPanel";
 import { MachiningPreviewPanel } from "./machineExport/MachiningPreviewPanel";
+import { ReviewWorkflowPanel } from "./ReviewWorkflowPanel";
+import type { ReviewNoteSeverity } from "../domain/projectReview";
 import {
   DEFAULT_SHEET_STOCK,
   getSheetStockDefinition,
@@ -31,7 +33,8 @@ export type ReportCenterTab =
   | "cutlist"
   | "machining"
   | "costing"
-  | "quote";
+  | "quote"
+  | "review";
 
 type ReportCenterProps = {
   report: ProjectReport;
@@ -48,6 +51,14 @@ type ReportCenterProps = {
   onSheetOptimizerChange: (next: SheetOptimizerSettings) => void;
   onFreezeQuote?: () => void;
   onSelectCabinet?: (cabinetId: string) => void;
+  onFreezeRevision?: (note: string, bumpRevision: boolean) => void;
+  onAddReviewNote?: (message: string, severity: ReviewNoteSeverity) => void;
+  onResolveReviewNote?: (noteId: string, resolved: boolean) => void;
+  onApproveReview?: (approvedBy: string) => void;
+  onReleaseForProduction?: () => void;
+  onExportRevisionSummary?: () => void;
+  approvalBlockedReasons?: string[];
+  releaseBlockedReasons?: string[];
 };
 
 type CutlistGroupMode = "material" | "thickness" | "cabinet" | "flat";
@@ -135,6 +146,14 @@ export function ReportCenter({
   onSheetOptimizerChange,
   onFreezeQuote,
   onSelectCabinet,
+  onFreezeRevision,
+  onAddReviewNote,
+  onResolveReviewNote,
+  onApproveReview,
+  onReleaseForProduction,
+  onExportRevisionSummary,
+  approvalBlockedReasons = [],
+  releaseBlockedReasons = [],
 }: ReportCenterProps) {
   const [tab, setTab] = useState<ReportCenterTab>("packet");
   const [cutlistMode, setCutlistMode] = useState<CutlistGroupMode>("material");
@@ -187,6 +206,7 @@ export function ReportCenter({
         {(
           [
             ["packet", "Packet"],
+            ["review", "Review"],
             ["rooms", "Rooms"],
             ["schedule", "Schedule"],
             ["runs", "Runs"],
@@ -304,6 +324,23 @@ export function ReportCenter({
               </div>
             </div>
           </div>
+        ) : null}
+
+        {tab === "review" ? (
+          <ReviewWorkflowPanel
+            review={report.review}
+            currentFingerprint={report.currentFingerprint}
+            onFreezeRevision={(note, bump) => onFreezeRevision?.(note, bump)}
+            onAddNote={(message, severity) => onAddReviewNote?.(message, severity)}
+            onResolveNote={(noteId, resolved) =>
+              onResolveReviewNote?.(noteId, resolved)
+            }
+            onApprove={(name) => onApproveReview?.(name)}
+            onRelease={() => onReleaseForProduction?.()}
+            onExportRevisionSummary={() => onExportRevisionSummary?.()}
+            approvalBlockedReasons={approvalBlockedReasons}
+            releaseBlockedReasons={releaseBlockedReasons}
+          />
         ) : null}
 
         {tab === "rooms" ? (

@@ -42,6 +42,11 @@ import {
   clampQuoteSettings,
   DEFAULT_QUOTE_SETTINGS,
 } from "./quoteSettings";
+import type { ReviewNote, RevisionSnapshot } from "./projectReview/types";
+import {
+  clampReviewNotes,
+  clampRevisionHistory,
+} from "./projectReview/clamp";
 import type { SheetOptimizerSettings } from "./sheetStock";
 import {
   clampSheetOptimizerSettings,
@@ -156,6 +161,10 @@ export type CabinetProject = {
   job?: ProjectJobMeta;
   drafting?: ProjectDrafting;
   quoteHistory?: QuoteSnapshot[];
+  /** Live review / issue flags carried with the project. */
+  reviewNotes?: ReviewNote[];
+  /** Frozen revision snapshots for approval / compare / release. */
+  revisionHistory?: RevisionSnapshot[];
   /** Multi-room plan; each room owns its cabinets and RoomConfig. */
   rooms?: import("./projectRooms/types").ProjectRoom[];
   activeRoomId?: string;
@@ -490,6 +499,8 @@ export const defaultCabinetProject: CabinetProject = {
   },
   drafting: { ...DEFAULT_DRAFTING },
   quoteHistory: [],
+  reviewNotes: [],
+  revisionHistory: [],
   job: createDefaultJobMeta({
     projectNumber: "JOB-001",
     customerName: "",
@@ -873,6 +884,10 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
     },
     drafting: clampProjectDrafting(project.drafting ?? defaultCabinetProject.drafting),
     quoteHistory: clampQuoteHistory(project.quoteHistory ?? defaultCabinetProject.quoteHistory),
+    reviewNotes: clampReviewNotes(project.reviewNotes ?? defaultCabinetProject.reviewNotes),
+    revisionHistory: clampRevisionHistory(
+      project.revisionHistory ?? defaultCabinetProject.revisionHistory,
+    ),
     job: clampJobMeta(project.job ?? defaultCabinetProject.job),
   };
 }
