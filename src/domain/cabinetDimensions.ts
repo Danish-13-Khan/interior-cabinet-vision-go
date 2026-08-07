@@ -156,6 +156,9 @@ export type CabinetProject = {
   job?: ProjectJobMeta;
   drafting?: ProjectDrafting;
   quoteHistory?: QuoteSnapshot[];
+  /** Multi-room plan; each room owns its cabinets and RoomConfig. */
+  rooms?: import("./projectRooms/types").ProjectRoom[];
+  activeRoomId?: string;
 };
 
 export const CABINET_WIDTH_MIN_MM = 500;
