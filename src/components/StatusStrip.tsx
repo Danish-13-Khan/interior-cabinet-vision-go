@@ -3,6 +3,7 @@ import type { QuoteSettings } from "../domain/quoteSettings";
 import type { SheetOptimizerSettings } from "../domain/sheetStock";
 import type { ProjectReport } from "../domain/projectReport";
 import type { WholeProjectReport } from "../domain/projectRooms";
+import type { MachineJobDocument } from "../domain/machineExport";
 import { ReportCenter } from "./ReportCenter";
 
 type StatusStripProps = {
@@ -30,6 +31,9 @@ type StatusStripProps = {
   onFreezeQuote: () => void;
   onSelectCabinet: (cabinetId: string) => void;
   wholeProject?: WholeProjectReport | null;
+  machineJob?: MachineJobDocument | null;
+  onExportMachineJson?: () => void;
+  onExportMachineCsv?: () => void;
 };
 
 export function StatusStrip({
@@ -57,6 +61,9 @@ export function StatusStrip({
   onFreezeQuote,
   onSelectCabinet,
   wholeProject = null,
+  machineJob = null,
+  onExportMachineJson,
+  onExportMachineCsv,
 }: StatusStripProps) {
   return (
     <footer className="status-strip">
@@ -105,6 +112,9 @@ export function StatusStrip({
           <ReportCenter
             report={report}
             wholeProject={wholeProject}
+            machineJob={machineJob}
+            onExportMachineJson={onExportMachineJson}
+            onExportMachineCsv={onExportMachineCsv}
             selectedCabinetId={selectedCabinetId}
             costingSettings={costingSettings}
             quoteSettings={quoteSettings}

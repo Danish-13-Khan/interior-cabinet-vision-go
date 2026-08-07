@@ -12,7 +12,9 @@ import type { QuoteSettings } from "../domain/quoteSettings";
 import { formatQuoteMoney } from "../domain/quoteSettings";
 import type { SheetOptimizerSettings } from "../domain/sheetStock";
 import type { WholeProjectReport } from "../domain/projectRooms";
+import type { MachineJobDocument } from "../domain/machineExport";
 import { WholeProjectRoomsPanel } from "./WholeProjectRoomsPanel";
+import { MachiningPreviewPanel } from "./machineExport/MachiningPreviewPanel";
 import {
   DEFAULT_SHEET_STOCK,
   getSheetStockDefinition,
@@ -27,12 +29,16 @@ export type ReportCenterTab =
   | "optimize"
   | "hardware"
   | "cutlist"
+  | "machining"
   | "costing"
   | "quote";
 
 type ReportCenterProps = {
   report: ProjectReport;
   wholeProject?: WholeProjectReport | null;
+  machineJob?: MachineJobDocument | null;
+  onExportMachineJson?: () => void;
+  onExportMachineCsv?: () => void;
   selectedCabinetId?: string | null;
   costingSettings: CostingSettings;
   quoteSettings: QuoteSettings;
@@ -117,6 +123,9 @@ function CutlistTable({
 export function ReportCenter({
   report,
   wholeProject = null,
+  machineJob = null,
+  onExportMachineJson,
+  onExportMachineCsv,
   selectedCabinetId = null,
   costingSettings,
   quoteSettings,
@@ -185,6 +194,7 @@ export function ReportCenter({
             ["optimize", "Optimize"],
             ["hardware", "Hardware"],
             ["cutlist", "Cutlist"],
+            ["machining", "Machining"],
             ["costing", "Costing"],
             ["quote", "Quote"],
           ] as const
@@ -820,6 +830,23 @@ export function ReportCenter({
               </div>
             )}
           </div>
+        ) : null}
+
+        {tab === "machining" ? (
+          machineJob ? (
+            <MachiningPreviewPanel
+              document={machineJob}
+              onExportJson={onExportMachineJson}
+              onExportCsv={onExportMachineCsv}
+            />
+          ) : (
+            <div className="report-doc">
+              <p className="rail-empty">
+                Machining preview unavailable. Machine export is intent-only and does not
+                produce CNC programs.
+              </p>
+            </div>
+          )
         ) : null}
 
         {tab === "costing" ? (

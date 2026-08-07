@@ -77,6 +77,10 @@ import {
 } from "./domain/cabinetLibrary";
 import { createProjectReport } from "./domain/projectReport";
 import {
+  createMachineJobDocument,
+  exportProjectMachineFile,
+} from "./domain/machineExport";
+import {
   addEmptyProjectRoom,
   addRoomFromTemplate,
   createWholeProjectReport,
@@ -272,6 +276,10 @@ function App() {
   const wholeProjectReport = useMemo(
     () => createWholeProjectReport(project),
     [project],
+  );
+  const machineJobDocument = useMemo(
+    () => createMachineJobDocument(project, cutlistItems),
+    [cutlistItems, project],
   );
   const projectRooms = useMemo(() => listProjectRooms(project), [project]);
 
@@ -1599,6 +1607,15 @@ function App() {
         shortcut: "Rail",
         action: () => setLibraryManagerOpen(true),
       },
+      {
+        id: "export-machine-json",
+        label: "Export Machine JSON (preview)",
+        hint: "Machining intent metadata — not a CNC program",
+        shortcut: "Export",
+        action: () => {
+          void handleExportMachineJson();
+        },
+      },
       { id: "shortcuts", label: "Show Shortcuts", hint: "Open keyboard shortcut cheat sheet", shortcut: "?", action: () => setIsShortcutSheetOpen(true) },
     ],
     [projectPreferences.showGrid, selectedCabinetIds.length],
@@ -1724,6 +1741,48 @@ function App() {
       setProjectStatus("Project loaded from JSON file.");
     } catch (error) {
       setProjectStatus(`Load failed: ${getErrorMessage(error)}`);
+    }
+  }
+
+  async function handleExportMachineJson() {
+    try {
+      const exported = exportProjectMachineFile(project, "json-preview");
+      const targetPath = await save({
+        title: "Export Machine Intent JSON (preview)",
+        defaultPath: "cabinet-machine-preview.json",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!targetPath) {
+        setProjectStatus("Machine JSON export cancelled.");
+        return;
+      }
+      await writeFile(targetPath, exported.contents);
+      setProjectStatus(
+        "Exported machining intent JSON (preview only — not a CNC program).",
+      );
+    } catch (error) {
+      setProjectStatus(`Machine JSON export failed: ${getErrorMessage(error)}`);
+    }
+  }
+
+  async function handleExportMachineCsv() {
+    try {
+      const exported = exportProjectMachineFile(project, "csv-ops-preview");
+      const targetPath = await save({
+        title: "Export Machine Operations CSV (preview)",
+        defaultPath: "cabinet-machine-ops-preview.csv",
+        filters: [{ name: "CSV", extensions: ["csv"] }],
+      });
+      if (!targetPath) {
+        setProjectStatus("Machine CSV export cancelled.");
+        return;
+      }
+      await writeFile(targetPath, exported.contents);
+      setProjectStatus(
+        "Exported machining operations CSV (preview only — not a CNC program).",
+      );
+    } catch (error) {
+      setProjectStatus(`Machine CSV export failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -2314,6 +2373,13 @@ function App() {
         onExportPdf={handleExportPdf}
         report={projectReport}
         wholeProject={wholeProjectReport}
+        machineJob={machineJobDocument}
+        onExportMachineJson={() => {
+          void handleExportMachineJson();
+        }}
+        onExportMachineCsv={() => {
+          void handleExportMachineCsv();
+        }}
         selectedCabinetId={activeCabinetId}
         costingSettings={costingSettings}
         quoteSettings={quoteSettings}
