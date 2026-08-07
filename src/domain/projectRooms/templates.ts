@@ -126,7 +126,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
       const project = createRoomPresetProject(preset);
       return createDefaultProjectRoom(
         withFreshIds(project.cabinets, `tpl-${preset.id}`),
-        DEFAULT_ROOM,
+        preset.roomConfig,
         preset.label,
       );
     },

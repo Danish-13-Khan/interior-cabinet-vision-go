@@ -89,6 +89,9 @@ describe("quote + estimating", () => {
     expect(report.quote.taxAmount).toBeGreaterThan(0);
     expect(report.quote.sellTotal).toBeGreaterThan(report.quote.workshopSubtotal);
     expect(report.quote.estimateLines.some((line) => line.kind === "cabinet")).toBe(true);
+    expect(
+      report.quote.estimateLines.reduce((sum, line) => sum + line.amount, 0),
+    ).toBe(report.quote.sellTotal);
     expect(report.packetSections.some((section) => section.id === "quote")).toBe(true);
   });
 

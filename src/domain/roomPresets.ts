@@ -1,4 +1,5 @@
 import type { CabinetInstance, CabinetProject, CabinetType } from "./cabinetDimensions";
+import { DEFAULT_ROOM, type RoomConfig } from "./roomModel";
 
 export type RoomPresetId = "small-bedroom" | "living-room" | "office";
 
@@ -6,7 +7,38 @@ export type RoomPreset = {
   id: RoomPresetId;
   label: string;
   description: string;
+  roomConfig: RoomConfig;
   cabinets: CabinetInstance[];
+};
+
+const SMALL_BEDROOM_ROOM: RoomConfig = {
+  ...DEFAULT_ROOM,
+  dimensions: {
+    ...DEFAULT_ROOM.dimensions,
+    widthMm: 4200,
+    depthMm: 3400,
+    heightMm: 2700,
+  },
+};
+
+const LIVING_ROOM_ROOM: RoomConfig = {
+  ...DEFAULT_ROOM,
+  dimensions: {
+    ...DEFAULT_ROOM.dimensions,
+    widthMm: 5600,
+    depthMm: 4200,
+    heightMm: 2800,
+  },
+};
+
+const OFFICE_ROOM: RoomConfig = {
+  ...DEFAULT_ROOM,
+  dimensions: {
+    ...DEFAULT_ROOM.dimensions,
+    widthMm: 4800,
+    depthMm: 3600,
+    heightMm: 2800,
+  },
 };
 
 export const roomPresets: RoomPreset[] = [
@@ -14,6 +46,7 @@ export const roomPresets: RoomPreset[] = [
     id: "small-bedroom",
     label: "Small Bedroom",
     description: "A compact bedroom with a wardrobe, a side table, and a chair.",
+    roomConfig: SMALL_BEDROOM_ROOM,
     cabinets: [
       {
         id: "preset-sbr-wardrobe",
@@ -60,6 +93,7 @@ export const roomPresets: RoomPreset[] = [
     id: "living-room",
     label: "Living Room",
     description: "A living room with a sofa, coffee table, and a storage cabinet.",
+    roomConfig: LIVING_ROOM_ROOM,
     cabinets: [
       {
         id: "preset-lr-sofa",
@@ -106,6 +140,7 @@ export const roomPresets: RoomPreset[] = [
     id: "office",
     label: "Office",
     description: "A home office with a desk, chair, and storage cabinet.",
+    roomConfig: OFFICE_ROOM,
     cabinets: [
       {
         id: "preset-of-desk",
