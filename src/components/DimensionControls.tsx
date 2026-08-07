@@ -1045,6 +1045,7 @@ export function DimensionControls({
                       <span>
                         {part.materialLabel} · {part.finishLabel} · {part.edgeBandingLabel}
                       </span>
+                      {part.notes ? <span className="parts-list-note">{part.notes}</span> : null}
                     </div>
                   ))}
                 </div>

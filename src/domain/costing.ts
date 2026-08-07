@@ -137,7 +137,9 @@ function buildHardwareLines(
   push(settings.hingeId, doorCount * 2);
   push(settings.drawerSlideId, drawerBoxPartCount);
   push(settings.handleId, doorCount + drawerFrontCount);
-  push("shelf-pin", shelfCount * 4);
+  if (construction.constructionSpec.shelfMount === "adjustable-pins") {
+    push("shelf-pin", shelfCount * 4);
+  }
   push("connector", 8);
   push("screw-pack", 1);
   if (cabinet.placement.attachment === "floor") {

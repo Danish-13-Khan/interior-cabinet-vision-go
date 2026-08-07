@@ -23,8 +23,14 @@ import {
 import type { ProjectJobMeta } from "./jobMeta";
 import { clampJobMeta, createDefaultJobMeta } from "./jobMeta";
 import { applyManufacturingFixes, evaluateCabinetRules, formatManufacturingIssues, getMinDividersForShelfSpan, applyWallMountPlacementFix } from "./manufacturingRules";
+import {
+  normalizeConstructionSpec,
+  shelvesAreAdjustable,
+  type CabinetConstructionSpec,
+} from "./cabinetConstructionSpec";
 
 export type { CabinetComposition } from "./cabinetComposition";
+export type { CabinetConstructionSpec } from "./cabinetConstructionSpec";
 export type { CabinetType } from "./cabinetCapabilities";
 export {
   isStorageType,
@@ -64,6 +70,8 @@ export type CabinetConfig = {
   buildRules?: Partial<CabinetBuildRules>;
   /** Structured Core Cabinets–style composition. Flat fields stay in sync for geometry. */
   composition?: CabinetComposition;
+  /** How the carcass, shelves, doors, and drawer boxes are built. */
+  construction?: CabinetConstructionSpec;
 };
 
 export type CabinetPlacement = {
@@ -463,6 +471,9 @@ export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
     ...base,
     ...syncFlatFieldsFromComposition(composition),
     composition,
+    construction: normalizeConstructionSpec(type, undefined, {
+      shelvesAdjustable: composition.shelves.adjustable,
+    }),
   };
 }
 
@@ -702,13 +713,24 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
       },
     },
   });
-  const flat = syncFlatFieldsFromComposition(composition);
+  const construction = normalizeConstructionSpec(merged.type, merged.construction, {
+    shelvesAdjustable: composition.shelves.adjustable,
+  });
+  const syncedComposition = {
+    ...composition,
+    shelves: {
+      ...composition.shelves,
+      adjustable: shelvesAreAdjustable(construction.shelfMount),
+    },
+  };
+  const flat = syncFlatFieldsFromComposition(syncedComposition);
 
   return {
     ...merged,
     dimensions: safeDimensions,
     ...flat,
-    composition,
+    composition: syncedComposition,
+    construction,
     buildRules: {
       ...merged.buildRules,
       carcassThicknessMm: resolvedMaterialSpec.carcassMaterial.thicknessMm,

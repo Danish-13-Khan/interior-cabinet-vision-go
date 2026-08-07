@@ -2239,6 +2239,11 @@ select {
   color: #667786;
 }
 
+.parts-list-note {
+  color: #5b6b7c !important;
+  font-style: italic;
+}
+
 /* ── Sort Controls ── */
 .sort-controls {
   display: flex;
