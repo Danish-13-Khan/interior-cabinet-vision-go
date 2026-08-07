@@ -46,6 +46,27 @@ import {
   getEngineeredCabinetPreset,
   listEngineeredPresetsForFamily,
 } from "./cabinetPresets";
+import {
+  CARCASS_STYLE_OPTIONS,
+  CASE_JOINERY_OPTIONS,
+  DOOR_MOUNT_OPTIONS,
+  DRAWER_BOX_STYLE_OPTIONS,
+  FACE_FRAME_RAIL_MAX_MM,
+  FACE_FRAME_RAIL_MIN_MM,
+  FACE_FRAME_STILE_MAX_MM,
+  FACE_FRAME_STILE_MIN_MM,
+  SHELF_MOUNT_OPTIONS,
+  describeConstructionSpec,
+  normalizeConstructionSpec,
+  shelfMountFromAdjustable,
+  shelvesAreAdjustable,
+  type CarcassStyle,
+  type CaseJoinery,
+  type DoorMount,
+  type DrawerBoxStyle,
+  type ShelfMount,
+} from "./cabinetConstructionSpec";
+import { isStorageType } from "./cabinetCapabilities";
 
 export type PropertyFieldType = "number" | "boolean" | "enum" | "readonly" | "action";
 
@@ -88,6 +109,34 @@ function compositionOf(config: CabinetConfig): CabinetComposition {
   return resolveCabinetComposition(config);
 }
 
+function constructionOf(config: CabinetConfig) {
+  return normalizeConstructionSpec(config.type, config.construction, {
+    shelvesAdjustable: compositionOf(config).shelves.adjustable,
+  });
+}
+
+function patchConstruction(
+  config: CabinetConfig,
+  patch: Partial<ReturnType<typeof constructionOf>>,
+): CabinetConfig {
+  const current = constructionOf(config);
+  const next = normalizeConstructionSpec(config.type, { ...current, ...patch, faceFrame: {
+    ...current.faceFrame,
+    ...(patch.faceFrame ?? {}),
+  }});
+  const withConstruction = { ...config, construction: next };
+  if (patch.shelfMount !== undefined) {
+    return patchComposition(withConstruction, (composition) => ({
+      ...composition,
+      shelves: {
+        ...composition.shelves,
+        adjustable: shelvesAreAdjustable(next.shelfMount),
+      },
+    }));
+  }
+  return withConstruction;
+}
+
 function patchOpeningStructure(
   config: CabinetConfig,
   patch: (composition: CabinetComposition) => CabinetComposition["openingStructure"],
@@ -117,6 +166,22 @@ export function getCabinetEditorValue(
       return describeComposition(composition);
     case "familyRulesNote":
       return rules.notes;
+    case "constructionSummary":
+      return describeConstructionSpec(constructionOf(config));
+    case "carcassStyle":
+      return constructionOf(config).carcassStyle;
+    case "caseJoinery":
+      return constructionOf(config).caseJoinery;
+    case "doorMount":
+      return constructionOf(config).doorMount;
+    case "shelfMount":
+      return constructionOf(config).shelfMount;
+    case "drawerBoxStyle":
+      return constructionOf(config).drawerBoxStyle;
+    case "faceFrameStile":
+      return constructionOf(config).faceFrame.stileWidthMm;
+    case "faceFrameRail":
+      return constructionOf(config).faceFrame.railWidthMm;
     case "width":
       return config.dimensions.width;
     case "height":
@@ -421,8 +486,102 @@ export function getCabinetEditorSections(config: CabinetConfig): PropertySection
           id: "shelvesAdjustable",
           label: "Adjustable",
           type: "boolean",
+          hint: "Synced with shelf mount in Construction",
         },
       ],
+    });
+  }
+
+  if (isStorageType(config.type)) {
+    const construction = constructionOf(config);
+    const constructionFields: PropertyFieldDef[] = [
+      {
+        id: "constructionSummary",
+        label: "Summary",
+        type: "readonly",
+      },
+      {
+        id: "carcassStyle",
+        label: "Carcass",
+        type: "enum",
+        options: CARCASS_STYLE_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        })),
+      },
+      {
+        id: "caseJoinery",
+        label: "Case joinery",
+        type: "enum",
+        options: CASE_JOINERY_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        })),
+        hint: "Sides / top / bottom assembly",
+      },
+      {
+        id: "shelfMount",
+        label: "Shelf mount",
+        type: "enum",
+        options: SHELF_MOUNT_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        })),
+      },
+    ];
+
+    if (caps.doors) {
+      constructionFields.push({
+        id: "doorMount",
+        label: "Door mount",
+        type: "enum",
+        options: DOOR_MOUNT_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        })),
+      });
+    }
+
+    if (caps.drawers) {
+      constructionFields.push({
+        id: "drawerBoxStyle",
+        label: "Drawer box",
+        type: "enum",
+        options: DRAWER_BOX_STYLE_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        })),
+      });
+    }
+
+    if (construction.carcassStyle === "face-frame") {
+      constructionFields.push(
+        {
+          id: "faceFrameStile",
+          label: "Stile width",
+          type: "number",
+          unit: "mm",
+          min: FACE_FRAME_STILE_MIN_MM,
+          max: FACE_FRAME_STILE_MAX_MM,
+          step: 1,
+        },
+        {
+          id: "faceFrameRail",
+          label: "Rail width",
+          type: "number",
+          unit: "mm",
+          min: FACE_FRAME_RAIL_MIN_MM,
+          max: FACE_FRAME_RAIL_MAX_MM,
+          step: 1,
+        },
+      );
+    }
+
+    sections.push({
+      id: "construction",
+      label: "Construction",
+      hint: "How the cabinet is built for shop output",
+      fields: constructionFields,
     });
   }
 
@@ -769,10 +928,37 @@ export function applyCabinetEditorChange(
         return next;
       });
     case "shelvesAdjustable":
-      return patchComposition(config, (composition) => ({
-        ...composition,
-        shelves: { ...composition.shelves, adjustable: Boolean(value) },
-      }));
+      return patchConstruction(
+        patchComposition(config, (composition) => ({
+          ...composition,
+          shelves: { ...composition.shelves, adjustable: Boolean(value) },
+        })),
+        { shelfMount: shelfMountFromAdjustable(Boolean(value)) },
+      );
+    case "carcassStyle":
+      return patchConstruction(config, { carcassStyle: String(value) as CarcassStyle });
+    case "caseJoinery":
+      return patchConstruction(config, { caseJoinery: String(value) as CaseJoinery });
+    case "doorMount":
+      return patchConstruction(config, { doorMount: String(value) as DoorMount });
+    case "shelfMount":
+      return patchConstruction(config, { shelfMount: String(value) as ShelfMount });
+    case "drawerBoxStyle":
+      return patchConstruction(config, { drawerBoxStyle: String(value) as DrawerBoxStyle });
+    case "faceFrameStile":
+      return patchConstruction(config, {
+        faceFrame: {
+          ...constructionOf(config).faceFrame,
+          stileWidthMm: Number(value),
+        },
+      });
+    case "faceFrameRail":
+      return patchConstruction(config, {
+        faceFrame: {
+          ...constructionOf(config).faceFrame,
+          railWidthMm: Number(value),
+        },
+      });
     case "dividerCount":
       return patchComposition(config, (composition) => ({
         ...composition,

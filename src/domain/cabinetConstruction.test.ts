@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getDefaultCabinetConfig } from "./cabinetDimensions";
 import { createCabinetConstruction } from "./cabinetConstruction";
+import { normalizeConstructionSpec } from "./cabinetConstructionSpec";
 import { resolveCabinetMaterialSpec } from "./materialSystem";
 
 describe("cabinet construction", () => {
@@ -9,6 +10,7 @@ describe("cabinet construction", () => {
 
     expect(construction.parts.some((part) => part.category === "DrawerBox")).toBe(true);
     expect(construction.parts.some((part) => part.category === "DrawerFront")).toBe(true);
+    expect(construction.constructionSpec.drawerBoxStyle).toBeTruthy();
   });
 
   it("removes back panel parts for open shelf cabinets with no back rule", () => {
@@ -16,6 +18,19 @@ describe("cabinet construction", () => {
     const construction = createCabinetConstruction(config);
 
     expect(construction.parts.some((part) => part.category === "Back")).toBe(false);
+  });
+
+  it("applies grooved back rebate sizing", () => {
+    const construction = createCabinetConstruction({
+      ...getDefaultCabinetConfig("base"),
+      buildRules: {
+        ...getDefaultCabinetConfig("base").buildRules,
+        backPanelType: "grooved",
+      },
+      construction: normalizeConstructionSpec("base", undefined),
+    });
+    const back = construction.parts.find((part) => part.category === "Back");
+    expect(back?.notes).toMatch(/Grooved/i);
   });
 });
 
