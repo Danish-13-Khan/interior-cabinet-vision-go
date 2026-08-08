@@ -1,0 +1,185 @@
+import {
+  defaultCabinetProject,
+} from "../domain/cabinetDimensions";
+import {
+  getActiveProjectRoom,
+} from "../domain/projectRooms";
+import {
+  formatShortcutBinding,
+  upsertRecentCommandId,
+} from "../domain/desktopUx";
+import { useProjectFileIo } from "./useProjectFileIo";
+import { useRoomProjectOps } from "./useRoomProjectOps";
+import { useReviewWorkflow } from "./useReviewWorkflow";
+import { useProjectPreferences } from "./useProjectPreferences";
+import { useAppContextMenus } from "./useAppContextMenus";
+import { useAppCommandUi } from "./useAppCommandUi";
+import { useAppControllerCabinets } from "./useAppControllerCabinets";
+import { useAppControllerSession } from "./useAppControllerSession";
+
+export function useAppController() {
+  const s = useAppControllerSession();
+
+  const fileIo = useProjectFileIo({
+    project: s.project,
+    room: s.room,
+    projectFilePath: s.projectFilePath,
+    setProjectFilePath: s.setProjectFilePath,
+    cutlistItems: s.cutlistItems,
+    planningWorkflow: s.planningWorkflow,
+    applySnapshot: s.applySnapshot,
+    onStatus: s.setProjectStatus,
+    rememberFile: s.rememberFile,
+    forgetFile: s.forgetFile,
+    saveCurrentProjectToBrowser: s.saveCurrentProjectToBrowser,
+    captureThumbnail: () => s.sceneRef.current?.captureThumbnail() ?? "",
+    initialSession: s.initialSession,
+  });
+
+  const rooms = useRoomProjectOps({
+    project: s.project,
+    room: s.room,
+    commitProjectChange: s.commitProjectChange,
+    commitSnapshot: s.commitSnapshot,
+    onStatus: s.setProjectStatus,
+  });
+
+  const cabinets = useAppControllerCabinets({
+    project: s.project,
+    room: s.room,
+    roomBounds: s.roomBounds,
+    activeCabinetId: s.activeCabinetId,
+    selectedCabinet: s.selectedCabinet,
+    selectedCabinets: s.selectedCabinets,
+    selectedCabinetIds: s.selectedCabinetIds,
+    layers: s.layers,
+    groups: s.groups,
+    projectPreferences: s.projectPreferences,
+    projectStandards: s.projectStandards,
+    workshopCabinetPresets: s.workshopLibrary.cabinetPresets,
+    userTemplates: s.userTemplates,
+    clipboardRef: s.clipboardRef,
+    commitProjectChange: s.commitProjectChange,
+    commitSnapshot: s.commitSnapshot,
+    replaceSelection: s.replaceSelection,
+    isCabinetLocked: s.isCabinetLocked,
+    setProjectFilePath: s.setProjectFilePath,
+    saveTemplate: s.saveTemplate,
+    deleteTemplate: s.deleteTemplate,
+    onStatus: s.setProjectStatus,
+  });
+
+  const review = useReviewWorkflow({
+    project: s.project,
+    projectReport: s.projectReport,
+    commitProjectChange: s.commitProjectChange,
+    onStatus: s.setProjectStatus,
+  });
+
+  const preferences = useProjectPreferences({
+    project: s.project,
+    commitProjectChange: s.commitProjectChange,
+    setDraftingTool: s.setDraftingTool,
+    onStatus: s.setProjectStatus,
+  });
+
+  const menus = useAppContextMenus({
+    project: s.project,
+    selectedCabinetIds: s.selectedCabinetIds,
+    projectPreferences: s.projectPreferences,
+    clipboardRef: s.clipboardRef,
+    shortcutMap: s.shortcutMap,
+    sortedSavedProjects: s.sortedSavedProjects,
+    toolRailVisible: s.layout.toolRailVisible,
+    inspectorVisible: s.layout.inspectorVisible,
+    setContextMenu: s.setContextMenu,
+    replaceSelection: s.replaceSelection,
+    handleDuplicateCabinet: cabinets.handleDuplicateCabinet,
+    handleCopySelection: cabinets.handleCopySelection,
+    handleRenameCabinet: cabinets.handleRenameCabinet,
+    handleRemoveCabinet: cabinets.handleRemoveCabinet,
+    handlePasteSelection: cabinets.handlePasteSelection,
+    handleSelectAll: cabinets.handleSelectAll,
+    handleProjectPreferenceChange: preferences.handleProjectPreferenceChange,
+    handleLoadSavedProject: s.handleLoadSavedProject,
+    handleDuplicateSavedProject: s.handleDuplicateSavedProject,
+    handleRenameSavedProject: s.handleRenameSavedProject,
+    handleDeleteSavedProject: s.handleDeleteSavedProject,
+    toggleToolRail: s.toggleToolRail,
+    toggleInspector: s.toggleInspector,
+  });
+
+  const { closeCommandSurfaces, commandItems } = useAppCommandUi({
+    shortcutMap: s.shortcutMap,
+    showGrid: s.projectPreferences.showGrid,
+    setIsCommandBarOpen: s.setIsCommandBarOpen,
+    setCommandQuery: s.setCommandQuery,
+    setIsShortcutSheetOpen: s.setIsShortcutSheetOpen,
+    setLibraryManagerOpen: s.setLibraryManagerOpen,
+    setContextMenu: s.setContextMenu,
+    setWorkspaceTab: s.setWorkspaceTab,
+    setDraftingTool: s.setDraftingTool,
+    toggleToolRail: s.toggleToolRail,
+    toggleInspector: s.toggleInspector,
+    cycleWorkspaceTab: s.cycleWorkspaceTab,
+    onUndo: s.handleUndo,
+    onRedo: s.handleRedo,
+    onSave: () => { void fileIo.handleSaveProject(); },
+    onReset: cabinets.handleReset,
+    onCopy: cabinets.handleCopySelection,
+    onPaste: cabinets.handlePasteSelection,
+    onDuplicate: cabinets.handleDuplicateCabinet,
+    onSelectAll: cabinets.handleSelectAll,
+    onRemove: cabinets.handleRemoveCabinet,
+    onCreateGroup: cabinets.handleCreateGroup,
+    onClearGroup: cabinets.handleClearGroup,
+    onAlignSelection: cabinets.handleAlignSelection,
+    onAutoAlignRuns: cabinets.handleAutoAlignRuns,
+    onToggleGrid: () =>
+      preferences.handleProjectPreferenceChange({
+        showGrid: !s.projectPreferences.showGrid,
+      }),
+    onLoadProject: fileIo.handleLoadProject,
+    onSaveProject: fileIo.handleSaveProject,
+    onExportProjectJson: fileIo.handleExportProjectJson,
+    onExportCutlistCsv: fileIo.handleExportCutlistCsv,
+    onExportPdf: fileIo.handleExportPdf,
+    onExportMachineJson: fileIo.handleExportMachineJson,
+    onFreezeRevision: () => review.handleFreezeRevision("", true),
+    onReleaseForProduction: review.handleReleaseForProduction,
+    onExportRevisionSummary: review.handleExportRevisionSummary,
+  });
+
+  const activeRoomName = getActiveProjectRoom(s.project).name;
+  const workspaceLabel =
+    s.workspaceTab === "plan"
+      ? `${activeRoomName} · Plan`
+      : s.workspaceTab === "front"
+        ? `${activeRoomName} · Front`
+        : s.workspaceTab === "side"
+          ? `${activeRoomName} · Side`
+          : `${activeRoomName} · 3D`;
+
+  const tabShortcutHints = {
+    plan: formatShortcutBinding(s.shortcutMap.viewPlan),
+    front: formatShortcutBinding(s.shortcutMap.viewFront),
+    side: formatShortcutBinding(s.shortcutMap.viewSide),
+    "3d": formatShortcutBinding(s.shortcutMap.view3d),
+  };
+
+  return {
+    ...s,
+    ...fileIo,
+    ...rooms,
+    ...cabinets,
+    ...review,
+    ...preferences,
+    ...menus,
+    closeCommandSurfaces,
+    commandItems,
+    workspaceLabel,
+    tabShortcutHints,
+    upsertRecentCommandId,
+    defaultCabinetProject,
+  };
+}

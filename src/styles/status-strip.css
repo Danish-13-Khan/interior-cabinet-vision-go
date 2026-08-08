@@ -1,0 +1,129 @@
+/* ── Bottom Status Strip ── */
+/* ── Bottom Status Strip ── */
+
+.status-strip,
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: #e9eef3;
+  border-top: 1px solid var(--panel-border);
+  font-size: 0.68rem;
+  color: #4a5d70;
+}
+
+.status-dock {
+  max-height: min(48vh, 420px);
+  overflow-y: auto;
+  border-top: 1px solid #cfd7e0;
+  background: var(--panel-raised);
+}
+
+.output-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+  min-height: 28px;
+}
+
+.output-status {
+  font-weight: 650;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.output-stats {
+  color: var(--muted);
+  font-size: 0.66rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.output-bar-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 3px;
+}
+
+.output-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 3px 10px;
+  background: #fff8e8;
+  border-top: 1px solid #ead7a2;
+}
+
+.output-warn {
+  font-size: 0.64rem;
+  color: #7a6230;
+}
+
+.output-warn-error {
+  color: #9f2d2d;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+.manufacturing-rules-panel .manufacturing-issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manufacturing-issue {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.manufacturing-issue.severity-warning {
+  background: #fff8e8;
+  border-color: #ead7a2;
+}
+
+.manufacturing-issue.severity-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.manufacturing-issue strong {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.manufacturing-issue.severity-warning strong {
+  color: #92400e;
+}
+
+.manufacturing-issue.severity-error strong {
+  color: #9f2d2d;
+}
+
+.manufacturing-issue span {
+  font-size: 0.68rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.output-cutlists {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  min-height: 0;
+}

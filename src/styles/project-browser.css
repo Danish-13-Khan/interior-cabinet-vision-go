@@ -1,0 +1,249 @@
+/* ── Project Actions ── */
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.project-actions button {
+  padding: 4px 8px;
+  border: 1px solid #c5ced8;
+  border-radius: 3px;
+  background: #fff;
+  color: #3d4f63;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.project-actions button:hover {
+  background: #e8edf2;
+  border-color: #9eb0c2;
+}
+
+.project-browser-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.project-browser-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 3px;
+  background: #fff;
+  border: 1px solid #d5dde6;
+}
+
+.project-browser-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border: 1px solid #d5dde6;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #e8edf2;
+  cursor: pointer;
+  padding: 0;
+}
+
+.project-browser-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-browser-thumb span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 0.64rem;
+  color: #9aa8b6;
+}
+
+.project-browser-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.project-browser-meta strong {
+  font-size: 0.72rem;
+  color: var(--ink);
+}
+
+.project-browser-meta span {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.project-browser-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.project-browser-actions button {
+  padding: 3px 7px;
+  border: 1px solid #c5ced8;
+  border-radius: 3px;
+  background: #fff;
+  color: #3d4f63;
+  font-size: 0.62rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.project-browser-actions button:hover {
+  background: #e8edf2;
+}
+
+.project-browser-actions button.danger {
+  color: #a04848;
+  border-color: #e0bcbc;
+}
+
+.project-browser-actions button.danger:hover {
+  background: #faf0f0;
+}
+
+.job-browser-filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.job-browser-filters input,
+.job-browser-filters select {
+  width: 100%;
+  font-size: 0.7rem;
+  padding: 5px 7px;
+  border: 1px solid #c5ced8;
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.job-browser-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.job-status-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.job-status-badge.status-draft {
+  background: #eef2f6;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.job-status-badge.status-quoted {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.job-status-badge.status-approved {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.job-status-badge.status-production {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+
+
+/* ── Sort Controls ── */
+.sort-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sort-controls span {
+  font-size: 0.68rem;
+  color: #7b8a98;
+  font-weight: 600;
+}
+
+.sort-controls button {
+  padding: 3px 10px;
+  border: 1px solid rgba(157, 171, 185, 0.45);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #3d566b;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sort-controls button.active {
+  background: rgba(189, 206, 222, 0.55);
+  border-color: rgba(112, 137, 160, 0.5);
+}
+
+.sort-controls button:hover {
+  background: rgba(231, 240, 248, 0.92);
+}
+
+/* ── Rename Inline ── */
+.rename-inline {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.rename-inline input {
+  flex: 1;
+  padding: 3px 8px;
+  border: 1px solid rgba(157, 171, 185, 0.65);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.78rem;
+  color: #243442;
+  min-width: 0;
+}
+
+.rename-inline input:focus {
+  outline: none;
+  border-color: #7b93ac;
+  box-shadow: 0 0 0 2px rgba(123, 147, 172, 0.18);
+}
+
+.rename-inline button {
+  padding: 3px 8px;
+  border: 1px solid rgba(157, 171, 185, 0.45);
+  border-radius: 8px;
+  background: rgba(244, 249, 253, 0.95);
+  color: #3d566b;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rename-inline button:hover {
+  background: rgba(231, 240, 248, 0.95);
+}
