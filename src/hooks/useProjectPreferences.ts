@@ -27,6 +27,12 @@ import {
   type DraftingLeader,
   type DraftingNote,
 } from "../domain/draftingAnnotations";
+import {
+  removeDimOffset,
+  removeTagOffset,
+  upsertDimOffset,
+  upsertTagOffset,
+} from "../domain/draftingEdit";
 import type { CommitProjectChange } from "./projectCommit";
 
 type UseProjectPreferencesArgs = {
@@ -99,24 +105,101 @@ export function useProjectPreferences({
     );
   }
 
-  function handleAddDraftingNote(note: DraftingNote) {
+  function withDrafting(
+    mutate: (current: ReturnType<typeof clampProjectDrafting>) => ReturnType<
+      typeof clampProjectDrafting
+    >,
+    status?: string,
+  ) {
     const current = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
-    handleDraftingChange({
-      ...current,
-      notes: [...current.notes, note],
-    });
+    handleDraftingChange(mutate(current));
+    if (status) onStatus(status);
+  }
+
+  function handleAddDraftingNote(note: DraftingNote) {
+    withDrafting(
+      (current) => ({ ...current, notes: [...current.notes, note] }),
+      "Added drawing note.",
+    );
     setDraftingTool("select");
-    onStatus("Added drawing note.");
   }
 
   function handleAddDraftingLeader(leader: DraftingLeader) {
-    const current = clampProjectDrafting(project.drafting ?? DEFAULT_DRAFTING);
-    handleDraftingChange({
-      ...current,
-      leaders: [...current.leaders, leader],
-    });
+    withDrafting(
+      (current) => ({ ...current, leaders: [...current.leaders, leader] }),
+      "Added leader callout.",
+    );
     setDraftingTool("select");
-    onStatus("Added leader callout.");
+  }
+
+  function handleUpdateDraftingNote(note: DraftingNote) {
+    withDrafting((current) => ({
+      ...current,
+      notes: current.notes.map((item) => (item.id === note.id ? note : item)),
+    }));
+  }
+
+  function handleUpdateDraftingLeader(leader: DraftingLeader) {
+    withDrafting((current) => ({
+      ...current,
+      leaders: current.leaders.map((item) =>
+        item.id === leader.id ? leader : item,
+      ),
+    }));
+  }
+
+  function handleDeleteDraftingNote(id: string) {
+    withDrafting(
+      (current) => ({
+        ...current,
+        notes: current.notes.filter((item) => item.id !== id),
+      }),
+      "Deleted note.",
+    );
+  }
+
+  function handleDeleteDraftingLeader(id: string) {
+    withDrafting(
+      (current) => ({
+        ...current,
+        leaders: current.leaders.filter((item) => item.id !== id),
+      }),
+      "Deleted leader.",
+    );
+  }
+
+  function handleUpsertDimOffset(id: string, dx: number, dy: number) {
+    withDrafting((current) => ({
+      ...current,
+      dimOffsets: upsertDimOffset(current.dimOffsets, { id, dx, dy }),
+    }));
+  }
+
+  function handleResetDimOffset(id: string) {
+    withDrafting(
+      (current) => ({
+        ...current,
+        dimOffsets: removeDimOffset(current.dimOffsets, id),
+      }),
+      "Reset dimension anchor.",
+    );
+  }
+
+  function handleUpsertTagOffset(cabinetId: string, dx: number, dy: number) {
+    withDrafting((current) => ({
+      ...current,
+      tagOffsets: upsertTagOffset(current.tagOffsets, { cabinetId, dx, dy }),
+    }));
+  }
+
+  function handleResetTagOffset(cabinetId: string) {
+    withDrafting(
+      (current) => ({
+        ...current,
+        tagOffsets: removeTagOffset(current.tagOffsets, cabinetId),
+      }),
+      "Reset cabinet tag.",
+    );
   }
 
   return {
@@ -124,5 +207,13 @@ export function useProjectPreferences({
     handleDraftingChange,
     handleAddDraftingNote,
     handleAddDraftingLeader,
+    handleUpdateDraftingNote,
+    handleUpdateDraftingLeader,
+    handleDeleteDraftingNote,
+    handleDeleteDraftingLeader,
+    handleUpsertDimOffset,
+    handleResetDimOffset,
+    handleUpsertTagOffset,
+    handleResetTagOffset,
   };
 }

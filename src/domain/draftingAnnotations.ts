@@ -22,9 +22,23 @@ export type DraftingLeader = {
   label: DraftingWorldPoint;
 };
 
+export type DraftingDimOffset = {
+  id: string;
+  dx: number;
+  dy: number;
+};
+
+export type DraftingTagOffset = {
+  cabinetId: string;
+  dx: number;
+  dy: number;
+};
+
 export type ProjectDrafting = {
   notes: DraftingNote[];
   leaders: DraftingLeader[];
+  dimOffsets?: DraftingDimOffset[];
+  tagOffsets?: DraftingTagOffset[];
 };
 
 export type DraftingDisplayPreferences = {
@@ -131,6 +145,8 @@ export function clampProjectDrafting(
 ): ProjectDrafting {
   const notes = Array.isArray(drafting?.notes) ? drafting!.notes : [];
   const leaders = Array.isArray(drafting?.leaders) ? drafting!.leaders : [];
+  const dimOffsets = Array.isArray(drafting?.dimOffsets) ? drafting!.dimOffsets : [];
+  const tagOffsets = Array.isArray(drafting?.tagOffsets) ? drafting!.tagOffsets : [];
 
   const safeNotes: DraftingNote[] = notes
     .slice(0, MAX_DRAFTING_ANNOTATIONS)
@@ -150,9 +166,29 @@ export function clampProjectDrafting(
     label: clampPoint(leader.label),
   }));
 
+  const safeDimOffsets: DraftingDimOffset[] = dimOffsets
+    .slice(0, 80)
+    .map((item, index) => ({
+      id: String(item.id || `dim-${index + 1}`),
+      dx: Number.isFinite(item.dx) ? Math.max(-120, Math.min(120, Number(item.dx))) : 0,
+      dy: Number.isFinite(item.dy) ? Math.max(-120, Math.min(120, Number(item.dy))) : 0,
+    }))
+    .filter((item) => item.dx !== 0 || item.dy !== 0);
+
+  const safeTagOffsets: DraftingTagOffset[] = tagOffsets
+    .slice(0, 80)
+    .map((item) => ({
+      cabinetId: String(item.cabinetId || ""),
+      dx: Number.isFinite(item.dx) ? Math.max(-120, Math.min(120, Number(item.dx))) : 0,
+      dy: Number.isFinite(item.dy) ? Math.max(-120, Math.min(120, Number(item.dy))) : 0,
+    }))
+    .filter((item) => item.cabinetId && (item.dx !== 0 || item.dy !== 0));
+
   return {
     notes: safeNotes,
     leaders: safeLeaders,
+    dimOffsets: safeDimOffsets,
+    tagOffsets: safeTagOffsets,
   };
 }
 
@@ -171,12 +207,21 @@ export function escapeDraftingXml(value: string) {
     .replace(/"/g, "&quot;");
 }
 
-export function renderNoteSvg(x: number, y: number, text: string) {
+export function renderNoteSvg(
+  x: number,
+  y: number,
+  text: string,
+  options: { id?: string; selected?: boolean } = {},
+) {
   const label = escapeDraftingXml(text);
   const width = Math.min(160, Math.max(48, label.length * 5.2 + 12));
+  const selected = options.selected ? " is-selected" : "";
+  const idAttr = options.id
+    ? ` data-note-id="${escapeDraftingXml(options.id)}" data-draft-object="note"`
+    : "";
   return [
-    `<rect x="${x}" y="${y - 11}" width="${width}" height="16" rx="2" class="twod-note" fill="#fffbeb" stroke="#b45309" stroke-width="1" />`,
-    `<text x="${x + 6}" y="${y}" class="twod-note-text" font-size="8" fill="#92400e">${label}</text>`,
+    `<rect x="${x}" y="${y - 11}" width="${width}" height="16" rx="2" class="twod-note${selected}"${idAttr} style="cursor:move" />`,
+    `<text x="${x + 6}" y="${y}" class="twod-note-text" font-size="8" fill="#92400e" pointer-events="none">${label}</text>`,
   ];
 }
 
@@ -186,23 +231,38 @@ export function renderLeaderSvg(
   labelX: number,
   labelY: number,
   text: string,
+  options: { id?: string; selected?: boolean } = {},
 ) {
   const label = escapeDraftingXml(text);
   const width = Math.min(140, Math.max(40, label.length * 5.2 + 10));
+  const selected = options.selected ? " is-selected" : "";
+  const id = options.id ? escapeDraftingXml(options.id) : "";
+  const idAttr = id
+    ? ` data-leader-id="${id}" data-draft-object="leader"`
+    : "";
   return [
-    `<line x1="${targetX}" y1="${targetY}" x2="${labelX}" y2="${labelY}" class="twod-leader" stroke="#0f172a" stroke-width="1" />`,
-    `<circle cx="${targetX}" cy="${targetY}" r="2.2" class="twod-leader" fill="#0f172a" />`,
-    `<rect x="${labelX}" y="${labelY - 11}" width="${width}" height="16" rx="2" class="twod-leader-label" fill="#ffffff" stroke="#334155" stroke-width="1" />`,
-    `<text x="${labelX + 5}" y="${labelY}" class="twod-leader-text" font-size="8" fill="#0f172a">${label}</text>`,
+    `<line x1="${targetX}" y1="${targetY}" x2="${labelX}" y2="${labelY}" class="twod-leader${selected}"${idAttr} pointer-events="none" />`,
+    `<circle cx="${targetX}" cy="${targetY}" r="4" class="twod-leader-handle twod-leader-target${selected}"${idAttr} data-leader-handle="target" style="cursor:move" />`,
+    `<rect x="${labelX}" y="${labelY - 11}" width="${width}" height="16" rx="2" class="twod-leader-label${selected}"${idAttr} data-leader-handle="label" style="cursor:move" />`,
+    `<text x="${labelX + 5}" y="${labelY}" class="twod-leader-text" font-size="8" fill="#0f172a" pointer-events="none">${label}</text>`,
   ];
 }
 
-export function renderCabinetTagSvg(x: number, y: number, tag: string) {
+export function renderCabinetTagSvg(
+  x: number,
+  y: number,
+  tag: string,
+  options: { cabinetId?: string; selected?: boolean } = {},
+) {
   const label = escapeDraftingXml(tag);
   const width = Math.max(28, label.length * 6 + 8);
+  const selected = options.selected ? " is-selected" : "";
+  const idAttr = options.cabinetId
+    ? ` data-tag-cabinet-id="${escapeDraftingXml(options.cabinetId)}" data-draft-object="tag"`
+    : "";
   return [
-    `<rect x="${x - width / 2}" y="${y - 8}" width="${width}" height="12" rx="2" class="twod-tag twod-tag-cabinet" fill="#0f172a" stroke="#0f172a" />`,
-    `<text x="${x}" y="${y + 1}" class="twod-tag-text" font-size="7.5" font-weight="700" fill="#f8fafc" text-anchor="middle">${label}</text>`,
+    `<rect x="${x - width / 2}" y="${y - 8}" width="${width}" height="12" rx="2" class="twod-tag twod-tag-cabinet${selected}"${idAttr} style="cursor:move" />`,
+    `<text x="${x}" y="${y + 1}" class="twod-tag-text" font-size="7.5" font-weight="700" fill="#f8fafc" text-anchor="middle" pointer-events="none">${label}</text>`,
   ];
 }
 

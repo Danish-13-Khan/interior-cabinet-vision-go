@@ -14,6 +14,7 @@ import {
   elevationSectionMarkers,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetElevationGraphics, cabinetRectAttrs } from "./cabinetSvg";
 import { SCALE } from "./constants";
 import {
@@ -221,6 +222,13 @@ export function frontView(
       overallDimX(roomLeft, "left"),
       dimensionLabel(rh),
       roomLeft,
+      "overall",
+      "end",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "front-overall-h",
+        options.activeDraftObjectId,
+      ),
     ),
     ...overallSpanHorizontal(
       roomLeft,
@@ -228,11 +236,18 @@ export function frontView(
       overallDimY(roomBottom, "below"),
       dimensionLabel(rw),
       roomBottom,
+      "overall",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "front-overall-w",
+        options.activeDraftObjectId,
+      ),
     ),
   );
 
   if (display.showDimensionChains && visibleCabinets.length > 0) {
     const minSeg = display.dimMinSegmentMm;
+    const drafting = options.drafting ?? project.drafting;
     const horizontal = filterDimensionChain(
       collectElevationHorizontalChain(visibleCabinets, rw, "x"),
       minSeg,
@@ -245,6 +260,7 @@ export function frontView(
         chainLaneY(roomBottom, 0),
         "chain",
         roomBottom,
+        resolveDimOpts(drafting, "front-chain-w", options.activeDraftObjectId),
       ),
     );
 
@@ -261,15 +277,21 @@ export function frontView(
         rh,
         "chain",
         roomRight,
+        resolveDimOpts(drafting, "front-chain-h", options.activeDraftObjectId),
       ),
     );
   }
 
   elements.push(
-    ...draftingLayer(options.drafting ?? project.drafting, "front", (point) => ({
-      x: ox + point.x / SCALE,
-      y: oy + rh / SCALE / 2 - point.y / SCALE,
-    })),
+    ...draftingLayer(
+      options.drafting ?? project.drafting,
+      "front",
+      (point) => ({
+        x: ox + point.x / SCALE,
+        y: oy + rh / SCALE / 2 - point.y / SCALE,
+      }),
+      options.activeDraftObjectId,
+    ),
   );
 
   return {

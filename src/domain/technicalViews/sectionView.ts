@@ -10,6 +10,7 @@ import {
   detailCalloutBubble,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { resolveDimOpts } from "./resolveDimOpts";
 import { SCALE } from "./constants";
 import {
   overallSpanHorizontal,
@@ -174,6 +175,13 @@ export function sectionView(
       overallDimX(roomLeft, "left"),
       dimensionLabel(rh),
       roomLeft,
+      "overall",
+      "end",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "section-overall-h",
+        options.activeDraftObjectId,
+      ),
     ),
     ...overallSpanHorizontal(
       roomLeft,
@@ -181,6 +189,12 @@ export function sectionView(
       overallDimY(roomBottom, "below"),
       dimensionLabel(rd),
       roomBottom,
+      "overall",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "section-overall-d",
+        options.activeDraftObjectId,
+      ),
     ),
   );
 
@@ -194,10 +208,15 @@ export function sectionView(
   );
 
   elements.push(
-    ...draftingLayer(options.drafting ?? project.drafting, "section", (point) => ({
-      x: ox + point.z / SCALE,
-      y: oy + rh / SCALE / 2 - point.y / SCALE,
-    })),
+    ...draftingLayer(
+      options.drafting ?? project.drafting,
+      "section",
+      (point) => ({
+        x: ox + point.z / SCALE,
+        y: oy + rh / SCALE / 2 - point.y / SCALE,
+      }),
+      options.activeDraftObjectId,
+    ),
   );
 
   return {

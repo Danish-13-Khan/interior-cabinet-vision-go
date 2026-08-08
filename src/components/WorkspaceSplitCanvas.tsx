@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useRef } from "react";
+import { forwardRef, useMemo, useRef, useState } from "react";
 import {
   CabinetScene,
   type CabinetSceneHandle,
@@ -6,6 +6,7 @@ import {
 import { DrawingSheetChrome } from "./DrawingSheetChrome";
 import { DrawingSheetTabs } from "./DrawingSheetTabs";
 import { ElevationOpeningToolbar } from "./ElevationOpeningToolbar";
+import { TechnicalObjectToolbar } from "./TechnicalObjectToolbar";
 import { TwoDView, type DraftingTool } from "./TwoDView";
 import { WorkspaceViewPane } from "./WorkspaceViewPane";
 import { WorkspaceSplitHandle } from "./WorkspaceSplitHandle";
@@ -22,6 +23,7 @@ import type {
   DraftingLeader,
   DraftingNote,
 } from "../domain/draftingAnnotations";
+import type { TechnicalObjectSelection } from "../domain/draftingEdit";
 import type { CabinetPlanningWorkflow } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 import type { DrawingSheetId } from "../domain/drawingSheets";
@@ -70,6 +72,14 @@ type WorkspaceSplitCanvasProps = {
   ) => void;
   onAddNote: (note: DraftingNote) => void;
   onAddLeader: (leader: DraftingLeader) => void;
+  onUpdateNote: (note: DraftingNote) => void;
+  onUpdateLeader: (leader: DraftingLeader) => void;
+  onDeleteNote: (id: string) => void;
+  onDeleteLeader: (id: string) => void;
+  onUpsertDimOffset: (id: string, dx: number, dy: number) => void;
+  onResetDimOffset: (id: string) => void;
+  onUpsertTagOffset: (cabinetId: string, dx: number, dy: number) => void;
+  onResetTagOffset: (cabinetId: string) => void;
 };
 
 export const WorkspaceSplitCanvas = forwardRef<
@@ -109,10 +119,20 @@ export const WorkspaceSplitCanvas = forwardRef<
     onElevationOpeningCommand,
     onAddNote,
     onAddLeader,
+    onUpdateNote,
+    onUpdateLeader,
+    onDeleteNote,
+    onDeleteLeader,
+    onUpsertDimOffset,
+    onResetDimOffset,
+    onUpsertTagOffset,
+    onResetTagOffset,
   },
   sceneRef,
 ) {
   const splitRef = useRef<HTMLDivElement | null>(null);
+  const [draftSelection, setDraftSelection] =
+    useState<TechnicalObjectSelection>(null);
   const elevTab: WorkspaceTabId = workspaceTab === "side" ? "side" : "front";
   const elevView = elevTab === "side" ? "side" : "front";
   const elevTitle = elevTab === "side" ? "Side Elevation" : "Front Elevation";
@@ -164,15 +184,21 @@ export const WorkspaceSplitCanvas = forwardRef<
     selectedCabinetIds,
     activeCabinetId,
     activeOpeningId,
+    draftSelection,
     snapSizeMm,
     showGrid,
     draftingDisplay,
     draftingTool,
     onSelectCabinet,
     onSelectOpening,
+    onSelectDraftObject: setDraftSelection,
     onCabinetMove,
     onAddNote,
     onAddLeader,
+    onUpdateNote,
+    onUpdateLeader,
+    onUpsertDimOffset,
+    onUpsertTagOffset,
   } as const;
 
   function setCameraPreset(preset: ViewPreset) {
@@ -185,6 +211,34 @@ export const WorkspaceSplitCanvas = forwardRef<
     <DraftingToolButtons
       draftingTool={draftingTool}
       onDraftingToolChange={onDraftingToolChange}
+    />
+  );
+
+  const objectToolbar = (
+    <TechnicalObjectToolbar
+      selection={draftSelection}
+      drafting={project.drafting}
+      draftingTool={draftingTool}
+      onUpdateNoteText={(id, text) => {
+        const note = project.drafting?.notes?.find((item) => item.id === id);
+        if (!note) return;
+        onUpdateNote({ ...note, text });
+      }}
+      onUpdateLeaderText={(id, text) => {
+        const leader = project.drafting?.leaders?.find((item) => item.id === id);
+        if (!leader) return;
+        onUpdateLeader({ ...leader, text });
+      }}
+      onDeleteNote={(id) => {
+        onDeleteNote(id);
+        setDraftSelection(null);
+      }}
+      onDeleteLeader={(id) => {
+        onDeleteLeader(id);
+        setDraftSelection(null);
+      }}
+      onResetDimOffset={onResetDimOffset}
+      onResetTagOffset={onResetTagOffset}
     />
   );
 
@@ -218,7 +272,11 @@ export const WorkspaceSplitCanvas = forwardRef<
                 : undefined
             }
           >
-            <DrawingSheetChrome meta={sheetMetaFor(activeSheetId)} active>
+            <DrawingSheetChrome
+              meta={sheetMetaFor(activeSheetId)}
+              active
+              banner={objectToolbar}
+            >
               <TwoDView
                 {...twoDCommon}
                 view={
@@ -252,6 +310,7 @@ export const WorkspaceSplitCanvas = forwardRef<
               <DrawingSheetChrome
                 meta={sheetMetaFor("plan")}
                 active={activeSheetId === "plan"}
+                banner={objectToolbar}
               >
                 <TwoDView {...twoDCommon} view="top" />
               </DrawingSheetChrome>
@@ -292,21 +351,24 @@ export const WorkspaceSplitCanvas = forwardRef<
                   activeSheetId === "front" || activeSheetId === "side"
                 }
                 banner={
-                  elevView === "front" && onElevationOpeningCommand ? (
-                    <ElevationOpeningToolbar
-                      config={activeCabinet?.config ?? null}
-                      activeOpeningId={
-                        activeCabinetId === activeCabinet?.id
-                          ? activeOpeningId
-                          : null
-                      }
-                      draftingTool={draftingTool}
-                      onCommand={(command) => {
-                        if (!activeCabinetId) return;
-                        onElevationOpeningCommand(activeCabinetId, command);
-                      }}
-                    />
-                  ) : null
+                  <>
+                    {objectToolbar}
+                    {elevView === "front" && onElevationOpeningCommand ? (
+                      <ElevationOpeningToolbar
+                        config={activeCabinet?.config ?? null}
+                        activeOpeningId={
+                          activeCabinetId === activeCabinet?.id
+                            ? activeOpeningId
+                            : null
+                        }
+                        draftingTool={draftingTool}
+                        onCommand={(command) => {
+                          if (!activeCabinetId) return;
+                          onElevationOpeningCommand(activeCabinetId, command);
+                        }}
+                      />
+                    ) : null}
+                  </>
                 }
               >
                 <TwoDView {...twoDCommon} view={elevView} />

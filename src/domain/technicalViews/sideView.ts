@@ -10,6 +10,7 @@ import {
 } from "../placementSnap";
 import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
+import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { SCALE } from "./constants";
 import {
@@ -175,6 +176,13 @@ export function sideView(
       overallDimX(roomLeft, "left"),
       dimensionLabel(rh),
       roomLeft,
+      "overall",
+      "end",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "side-overall-h",
+        options.activeDraftObjectId,
+      ),
     ),
     ...overallSpanHorizontal(
       roomLeft,
@@ -182,11 +190,18 @@ export function sideView(
       overallDimY(roomBottom, "below"),
       dimensionLabel(rd),
       roomBottom,
+      "overall",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "side-overall-d",
+        options.activeDraftObjectId,
+      ),
     ),
   );
 
   if (display.showDimensionChains && visibleCabinets.length > 0) {
     const minSeg = display.dimMinSegmentMm;
+    const drafting = options.drafting ?? project.drafting;
     const horizontal = filterDimensionChain(
       collectElevationHorizontalChain(visibleCabinets, rd, "z"),
       minSeg,
@@ -199,6 +214,7 @@ export function sideView(
         chainLaneY(roomBottom, 0),
         "chain",
         roomBottom,
+        resolveDimOpts(drafting, "side-chain-d", options.activeDraftObjectId),
       ),
     );
 
@@ -215,15 +231,21 @@ export function sideView(
         rh,
         "chain",
         roomRight,
+        resolveDimOpts(drafting, "side-chain-h", options.activeDraftObjectId),
       ),
     );
   }
 
   elements.push(
-    ...draftingLayer(options.drafting ?? project.drafting, "side", (point) => ({
-      x: ox + point.z / SCALE,
-      y: oy + rh / SCALE / 2 - point.y / SCALE,
-    })),
+    ...draftingLayer(
+      options.drafting ?? project.drafting,
+      "side",
+      (point) => ({
+        x: ox + point.z / SCALE,
+        y: oy + rh / SCALE / 2 - point.y / SCALE,
+      }),
+      options.activeDraftObjectId,
+    ),
   );
 
   return {
