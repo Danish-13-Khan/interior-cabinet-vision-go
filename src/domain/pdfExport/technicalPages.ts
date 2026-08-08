@@ -7,23 +7,20 @@ import {
 } from "../cabinetLibrary";
 import type { RoomConfig } from "../roomModel";
 import type { ProjectReport } from "../projectReport";
-import { getDrawingSheet, type DrawingSheetId } from "../drawingSheets";
+import { getDrawingSheet } from "../drawingSheets";
 import { createTechnicalView, svgToPngDataUrl } from "../technicalViews";
 import { clampProjectDrafting } from "../draftingAnnotations";
+import { clampJobMeta } from "../jobMeta";
+import {
+  A4_PRINT_METRICS,
+  PRINTABLE_SHEET_SET,
+  buildTitleBlockData,
+  collectPrintNoteLines,
+  drawPdfInfoAndNotes,
+  drawPdfTitleBlock,
+  fitDrawingToContent,
+} from "../printLayout";
 import type { PdfLayout } from "./helpers";
-
-const PDF_SHEETS: Array<{
-  sheetId: DrawingSheetId;
-  view: "top" | "front" | "side" | "section" | "detail" | "report";
-  noteView: "top" | "front" | "side" | "all";
-}> = [
-  { sheetId: "plan", view: "top", noteView: "top" },
-  { sheetId: "front", view: "front", noteView: "front" },
-  { sheetId: "side", view: "side", noteView: "side" },
-  { sheetId: "section", view: "section", noteView: "side" },
-  { sheetId: "detail", view: "detail", noteView: "side" },
-  { sheetId: "report", view: "report", noteView: "all" },
-];
 
 export async function drawTechnicalPages(
   layout: PdfLayout,
@@ -38,7 +35,7 @@ export async function drawTechnicalPages(
   },
 ): Promise<void> {
   const { doc, pageWidth, pageHeight, margin, contentWidth } = layout;
-  const { title, project, room, countertops, runs, report } = args;
+  const { title, project, room, countertops, runs } = args;
   const fillers =
     args.fillers ??
     createCabinetPlanningWorkflow(project, {
@@ -48,6 +45,7 @@ export async function drawTechnicalPages(
     }).fillers;
 
   const drafting = clampProjectDrafting(project.drafting);
+  const job = clampJobMeta(project.job);
   const shared = {
     mode: "print" as const,
     showGrid: false,
@@ -68,7 +66,7 @@ export async function drawTechnicalPages(
     drafting,
   };
 
-  for (const page of PDF_SHEETS) {
+  for (const page of PRINTABLE_SHEET_SET) {
     const sheet = getDrawingSheet(page.sheetId);
     const result = createTechnicalView(project, room, page.view, countertops, {
       ...shared,
@@ -79,82 +77,46 @@ export async function drawTechnicalPages(
     doc.addPage();
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, pageHeight, "F");
-    let viewY = margin;
 
-    doc.setDrawColor(71, 85, 105);
-    doc.setLineWidth(0.4);
-    doc.rect(margin, viewY, contentWidth, 16);
-    doc.line(margin + contentWidth * 0.55, viewY, margin + contentWidth * 0.55, viewY + 16);
-    doc.line(margin + contentWidth * 0.78, viewY, margin + contentWidth * 0.78, viewY + 16);
+    const titleData = buildTitleBlockData({
+      project,
+      options: {
+        ...shared,
+        title: sheet.title,
+        sheetCode: sheet.code,
+      },
+      sheetTitle: sheet.title,
+      viewLabel: page.viewLabel,
+      scaleText: sheet.scaleText,
+      sheetCode: sheet.code,
+    });
 
-    doc.setFontSize(11);
-    doc.setTextColor(15, 23, 42);
-    doc.text(title, margin + 3, viewY + 6.5);
-    doc.setFontSize(8);
-    doc.setTextColor(71, 85, 105);
-    doc.text(sheet.title, margin + 3, viewY + 12.5);
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    doc.text(sheet.code, margin + contentWidth * 0.55 + 3, viewY + 6.5);
-    doc.setFontSize(8);
-    doc.setTextColor(71, 85, 105);
-    doc.text(sheet.scaleText, margin + contentWidth * 0.55 + 3, viewY + 12.5);
-    doc.text("TECHNICAL", margin + contentWidth * 0.78 + 3, viewY + 6.5);
-    doc.text(
-      `Rev ${report.summary.revision}`,
-      margin + contentWidth * 0.78 + 3,
-      viewY + 12.5,
+    let viewY = drawPdfTitleBlock(layout, margin, titleData);
+
+    const { drawWidth, drawHeight } = fitDrawingToContent(
+      result.width,
+      result.height,
+      contentWidth,
+      A4_PRINT_METRICS.drawingMaxHeightMm,
     );
-    viewY += 22;
-
     const viewImage = await svgToPngDataUrl(result.svg);
-    const scale = Math.min(contentWidth / result.width, 175 / result.height);
-    const drawWidth = result.width * scale;
-    const drawHeight = result.height * scale;
 
     doc.setDrawColor(148, 163, 184);
-    doc.rect(margin, viewY, contentWidth, drawHeight + 8);
+    doc.setLineWidth(0.3);
+    doc.rect(margin, viewY, contentWidth, drawHeight + 6);
     doc.addImage(
       viewImage,
       "PNG",
       margin + (contentWidth - drawWidth) / 2,
-      viewY + 4,
+      viewY + 3,
       drawWidth,
       drawHeight,
     );
+    viewY += drawHeight + 10;
 
-    if (page.sheetId === "report" || page.sheetId === "detail") continue;
+    if (!page.includeNotesArea) continue;
 
-    viewY += drawHeight + 14;
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    doc.text("Revision / Site Notes", margin, viewY);
-    viewY += 3;
-    doc.setDrawColor(148, 163, 184);
-    doc.rect(margin, viewY, contentWidth, 36);
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-    const sheetNotes = drafting.notes
-      .filter(
-        (note) => note.view === "all" || note.view === page.noteView,
-      )
-      .map((note) => note.text);
-    const leaderNotes = drafting.leaders
-      .filter(
-        (leader) => leader.view === "all" || leader.view === page.noteView,
-      )
-      .map((leader) => leader.text);
-    const seeded = [...sheetNotes, ...leaderNotes].slice(0, 4);
-    if (seeded.length === 0) {
-      doc.text(
-        "Mark clearances, appliance models, filler decisions, and approval initials.",
-        margin + 3,
-        viewY + 7,
-      );
-    } else {
-      seeded.forEach((line, index) => {
-        doc.text(`• ${line}`, margin + 3, viewY + 7 + index * 7);
-      });
-    }
+    const notes = collectPrintNoteLines(drafting, page.noteView, job.notes);
+    drawPdfInfoAndNotes(layout, viewY, titleData, notes);
   }
 }

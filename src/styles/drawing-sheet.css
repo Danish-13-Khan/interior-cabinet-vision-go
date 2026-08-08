@@ -210,6 +210,55 @@
   letter-spacing: 0.04em;
 }
 
+.technical-view .twod-titleblock-muted {
+  fill: #64707c;
+  font-weight: 500;
+}
+
+.technical-view .twod-notes-area {
+  fill: #ffffff;
+  stroke: var(--titleblock-rule);
+  stroke-width: 1px;
+}
+
+.technical-view .twod-notes-area-rule {
+  stroke: var(--titleblock-rule);
+  stroke-width: 0.7px;
+  fill: none;
+}
+
+.technical-view .twod-notes-area-label {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  fill: #0f1419;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  stroke: none;
+}
+
+.technical-view .twod-notes-area-text {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  fill: #3a4550;
+  stroke: none;
+}
+
+.technical-view .twod-info-block {
+  fill: #f8fafc;
+  stroke: var(--titleblock-rule);
+  stroke-width: 0.9px;
+}
+
+.technical-view .twod-info-block-rule {
+  stroke: var(--titleblock-rule);
+  stroke-width: 0.7px;
+  fill: none;
+}
+
+.technical-view .twod-info-block-text {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  fill: #1c242c;
+  stroke: none;
+}
+
 .technical-view .twod-section-cut {
   stroke: #0a3d6b;
   stroke-width: 1.6px;

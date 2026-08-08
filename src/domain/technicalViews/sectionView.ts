@@ -2,7 +2,6 @@ import {
   getFootprintDimensions,
   type CabinetProject,
 } from "../cabinetDimensions";
-import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import type { RoomConfig } from "../roomModel";
 import {
   cabinetsIntersectingCut,
@@ -10,6 +9,7 @@ import {
   detailCalloutBubble,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { printChromeSvg } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { SCALE } from "./constants";
 import {
@@ -24,7 +24,6 @@ import {
   wrapTechnicalSvg,
 } from "./sheetFrame";
 import { dimensionLabel, line, text } from "./svgPrimitives";
-import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import {
   draftingLayer,
@@ -58,25 +57,21 @@ export function sectionView(
   });
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
-  const sheetMeta =
-    options.sheetMeta ??
-    (() => {
-      const job = clampJobMeta(project.job);
-      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
-    })();
 
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
   if (frame.print) {
     elements.push(
-      ...titleBlock(
+      ...printChromeSvg({
         svgWidth,
-        options.title ?? plane.label,
-        options.projectName ?? "Cabinet Project",
-        plane.label,
-        `1:${SCALE * 25}`,
-        sheetMeta,
-        options.sheetCode ?? "A-301",
-      ),
+        svgHeight,
+        project,
+        options,
+        sheetTitle: plane.label,
+        viewLabel: plane.label,
+        scaleText: `1:${SCALE * 25}`,
+        sheetCode: "A-301",
+        noteView: "side",
+      }),
     );
   }
 

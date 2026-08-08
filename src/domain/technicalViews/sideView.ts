@@ -2,7 +2,6 @@ import {
   getFootprintDimensions,
   type CabinetProject,
 } from "../cabinetDimensions";
-import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import {
   collectElevationHorizontalChain,
   collectElevationVerticalChain,
@@ -10,6 +9,7 @@ import {
 } from "../placementSnap";
 import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
+import { printChromeSvg } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { SCALE } from "./constants";
@@ -32,7 +32,6 @@ import {
   wrapTechnicalSvg,
 } from "./sheetFrame";
 import { dimensionLabel } from "./svgPrimitives";
-import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import {
   cabinetIndexMap,
@@ -61,25 +60,21 @@ export function sideView(
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
   const indexMap = cabinetIndexMap(project);
-  const sheetMeta =
-    options.sheetMeta ??
-    (() => {
-      const job = clampJobMeta(project.job);
-      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
-    })();
 
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
   if (frame.print) {
     elements.push(
-      ...titleBlock(
+      ...printChromeSvg({
         svgWidth,
-        options.title ?? "Side Elevation",
-        options.projectName ?? "Cabinet Project",
-        "SIDE ELEV.",
-        `1:${SCALE * 25}`,
-        sheetMeta,
-        options.sheetCode ?? "A-202",
-      ),
+        svgHeight,
+        project,
+        options,
+        sheetTitle: "Side Elevation",
+        viewLabel: "SIDE ELEV.",
+        scaleText: `1:${SCALE * 25}`,
+        sheetCode: "A-202",
+        noteView: "side",
+      }),
     );
   }
 

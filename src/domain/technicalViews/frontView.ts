@@ -2,7 +2,6 @@ import {
   getFootprintDimensions,
   type CabinetProject,
 } from "../cabinetDimensions";
-import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import {
   collectElevationHorizontalChain,
   collectElevationVerticalChain,
@@ -14,6 +13,7 @@ import {
   elevationSectionMarkers,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { printChromeSvg } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetElevationGraphics, cabinetRectAttrs } from "./cabinetSvg";
 import { SCALE } from "./constants";
@@ -36,7 +36,6 @@ import {
   wrapTechnicalSvg,
 } from "./sheetFrame";
 import { dimensionLabel, rect, text } from "./svgPrimitives";
-import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import {
   cabinetIndexMap,
@@ -65,25 +64,21 @@ export function frontView(
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
   const indexMap = cabinetIndexMap(project);
-  const sheetMeta =
-    options.sheetMeta ??
-    (() => {
-      const job = clampJobMeta(project.job);
-      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
-    })();
 
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
   if (frame.print) {
     elements.push(
-      ...titleBlock(
+      ...printChromeSvg({
         svgWidth,
-        options.title ?? "Front Elevation",
-        options.projectName ?? "Cabinet Project",
-        "FRONT ELEV.",
-        `1:${SCALE * 25}`,
-        sheetMeta,
-        options.sheetCode ?? "A-201",
-      ),
+        svgHeight,
+        project,
+        options,
+        sheetTitle: "Front Elevation",
+        viewLabel: "FRONT ELEV.",
+        scaleText: `1:${SCALE * 25}`,
+        sheetCode: "A-201",
+        noteView: "front",
+      }),
     );
   }
 
