@@ -10,6 +10,7 @@ import type { ElevationOpeningToolbarState } from "./types";
 
 export function getElevationOpeningToolbarState(
   config: CabinetConfig | null | undefined,
+  activeOpeningIdOverride?: string | null,
 ): ElevationOpeningToolbarState {
   if (!config) {
     return {
@@ -43,7 +44,15 @@ export function getElevationOpeningToolbarState(
   }
 
   const leaves = collectOpeningLeaves(structure.root);
-  const active = getActiveOpeningLeaf(structure);
+  const resolvedActiveId =
+    activeOpeningIdOverride &&
+    findOpeningNode(structure.root, activeOpeningIdOverride)?.kind === "leaf"
+      ? activeOpeningIdOverride
+      : structure.activeOpeningId;
+  const active = getActiveOpeningLeaf({
+    ...structure,
+    activeOpeningId: resolvedActiveId,
+  });
   const activeNode = active
     ? findOpeningNode(structure.root, active.id)
     : null;
@@ -52,7 +61,7 @@ export function getElevationOpeningToolbarState(
 
   return {
     supportsOpenings: true,
-    activeOpeningId: active?.id ?? structure.activeOpeningId,
+    activeOpeningId: active?.id ?? resolvedActiveId,
     activeLabel: active?.label ?? null,
     activeContentType: active?.contentType ?? null,
     leafCount: leaves.length,

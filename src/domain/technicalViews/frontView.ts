@@ -11,7 +11,7 @@ import {
 } from "../placementSnap";
 import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
-import { cabinetElevationGraphics } from "./cabinetSvg";
+import { cabinetElevationGraphics, cabinetRectAttrs } from "./cabinetSvg";
 import { MARGIN, SCALE } from "./constants";
 import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
 import {
@@ -129,6 +129,11 @@ export function frontView(
     const side = cabinet.placement.attachment;
     return side === "floor" || side === "back-wall";
   });
+  const sideWallProfiles = project.cabinets.filter(
+    (cabinet) =>
+      cabinet.placement.attachment === "left-wall" ||
+      cabinet.placement.attachment === "right-wall",
+  );
 
   for (const cabinet of visibleCabinets) {
     const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
@@ -153,6 +158,37 @@ export function frontView(
         fill,
         fp.width,
         indexMap.get(cabinet.id) ?? 0,
+      ),
+    );
+  }
+
+  for (const cabinet of sideWallProfiles) {
+    const fp = getFootprintDimensions(cabinet.config.dimensions, cabinet.placement.rotation);
+    const profileWidth = fp.depth / SCALE;
+    const height = cabinet.config.dimensions.height / SCALE;
+    const y =
+      oy +
+      rh / SCALE / 2 -
+      (cabinet.placement.y + cabinet.config.dimensions.height) / SCALE;
+    const x =
+      cabinet.placement.attachment === "left-wall"
+        ? ox - rw / SCALE / 2
+        : ox + rw / SCALE / 2 - profileWidth;
+    elements.push(
+      rect(
+        x,
+        y,
+        profileWidth,
+        height,
+        `${cabinetRectAttrs(cabinet.id, "#e7dcc8", options, "twod-cabinet-edge-profile")} stroke-dasharray="3 2"`,
+      ),
+    );
+    elements.push(
+      text(
+        x + profileWidth / 2,
+        y - 4,
+        `${cabinet.placement.attachment === "left-wall" ? "L" : "R"} profile`,
+        `class="twod-annotation" font-size="6.5" fill="#57534e" text-anchor="middle" pointer-events="none"`,
       ),
     );
   }
