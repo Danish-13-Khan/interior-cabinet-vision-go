@@ -30,59 +30,19 @@ export function cabinetClassName(
   const isActive = options.activeCabinetId === cabinetId;
   const isSelected = selectedIds.includes(cabinetId);
   const parts = ["twod-cabinet", extra];
+  if (options.mode === "print") parts.push("twod-print");
   if (isActive) parts.push("twod-active");
   if (isSelected) parts.push("twod-selected");
   return parts.filter(Boolean).join(" ");
 }
 
-export function cabinetPaint(
-  cabinetId: string,
-  baseFill: string,
-  options: TechnicalViewOptions,
-) {
-  if (options.mode === "print") {
-    return {
-      fill: baseFill,
-      stroke: "#334155",
-      strokeWidth: "1.5",
-    };
-  }
-
-  const selectedIds = options.selectedCabinetIds ?? [];
-  const isActive = options.activeCabinetId === cabinetId;
-  const isSelected = selectedIds.includes(cabinetId);
-
-  if (isActive) {
-    return {
-      fill: "#93c5fd",
-      stroke: "#1d4ed8",
-      strokeWidth: "2.4",
-    };
-  }
-
-  if (isSelected) {
-    return {
-      fill: "#bfdbfe",
-      stroke: "#2563eb",
-      strokeWidth: "2",
-    };
-  }
-
-  return {
-    fill: baseFill,
-    stroke: "#57534e",
-    strokeWidth: "1.35",
-  };
-}
-
 export function cabinetRectAttrs(
   cabinetId: string,
-  baseFill: string,
+  _baseFill: string,
   options: TechnicalViewOptions,
   extraClass = "",
 ) {
-  const paint = cabinetPaint(cabinetId, baseFill, options);
-  return `fill="${paint.fill}" stroke="${paint.stroke}" stroke-width="${paint.strokeWidth}" rx="1" data-cabinet-id="${cabinetId}" class="${cabinetClassName(cabinetId, options, extraClass)}" style="cursor:grab"`;
+  return `data-cabinet-id="${cabinetId}" class="${cabinetClassName(cabinetId, options, extraClass)}" style="cursor:grab"`;
 }
 
 export function cabinetPlanGraphics(
@@ -102,13 +62,22 @@ export function cabinetPlanGraphics(
   const bw = fp.width / SCALE;
   const bd = fp.depth / SCALE;
   const wallMounted = cabinet.placement.attachment !== "floor";
-  const fill = wallMounted
-    ? "#d6c3a4"
-    : usesRotatedFootprint(cabinet.placement.rotation)
-      ? "#d0b48a"
-      : "#c4a574";
+  const rotated = usesRotatedFootprint(cabinet.placement.rotation);
+  const fillClass = wallMounted
+    ? "twod-cabinet-wall"
+    : rotated
+      ? "twod-cabinet-rotated"
+      : "twod-cabinet-floor";
 
-  elements.push(rect(cx - bw / 2, cy - bd / 2, bw, bd, cabinetRectAttrs(cabinet.id, fill, options, wallMounted ? "twod-cabinet-wall" : "twod-cabinet-floor")));
+  elements.push(
+    rect(
+      cx - bw / 2,
+      cy - bd / 2,
+      bw,
+      bd,
+      cabinetRectAttrs(cabinet.id, "", options, fillClass),
+    ),
+  );
 
   if (cabinet.config.toeKickHeight > 0 && cabinet.config.toeKickInset > 0) {
     const inset = cabinet.config.toeKickInset / SCALE;
@@ -118,7 +87,7 @@ export function cabinetPlanGraphics(
         cy + bd / 2 - inset,
         Math.max(2, bw - inset * 2),
         Math.max(1, inset),
-        `class="twod-cabinet-opening" fill="none" stroke="#78716c" stroke-width="0.75" stroke-dasharray="2 2" pointer-events="none"`,
+        `class="twod-cabinet-opening twod-toe-kick-plan" pointer-events="none"`,
       ),
     );
   }
@@ -129,29 +98,29 @@ export function cabinetPlanGraphics(
       cy - bd / 2,
       cx + bw / 2,
       cy - bd / 2,
-      `class="twod-cabinet-front" stroke="#292524" stroke-width="2.25" pointer-events="none"`,
+      `class="twod-cabinet-front" pointer-events="none"`,
     ),
   );
 
   if (display.showCabinetTags) {
-    elements.push(...renderCabinetTagSvg(cx, cy - bd / 2 - 10, formatCabinetTag(cabinetIndex)));
+    elements.push(...renderCabinetTagSvg(cx, cy - bd / 2 - 8, formatCabinetTag(cabinetIndex)));
   }
 
   const typeLabel = cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type;
   elements.push(
     text(
       cx,
-      cy - 2,
-      shortLabel(cabinet.name, 14),
-      `class="twod-label" font-size="9" font-weight="700" fill="#1c1917" text-anchor="middle" pointer-events="none"`,
+      cy - 1,
+      shortLabel(cabinet.name, 12),
+      `class="twod-label twod-cabinet-name" font-size="8" text-anchor="middle" pointer-events="none"`,
     ),
   );
   elements.push(
     text(
       cx,
-      cy + 9,
-      shortLabel(typeLabel, 14),
-      `class="twod-annotation" font-size="7.5" fill="#57534e" text-anchor="middle" pointer-events="none"`,
+      cy + 8,
+      shortLabel(typeLabel, 12),
+      `class="twod-annotation twod-cabinet-type" font-size="6.5" text-anchor="middle" pointer-events="none"`,
     ),
   );
 
@@ -161,9 +130,9 @@ export function cabinetPlanGraphics(
       elements.push(
         text(
           cx,
-          cy + 20,
+          cy + 17,
           appliance,
-          `class="twod-tag twod-tag-appliance" font-size="7" font-weight="700" fill="#9a3412" text-anchor="middle" pointer-events="none"`,
+          `class="twod-tag twod-tag-appliance" font-size="6.5" text-anchor="middle" pointer-events="none"`,
         ),
       );
     }
@@ -172,9 +141,9 @@ export function cabinetPlanGraphics(
   elements.push(
     text(
       cx,
-      cy + bd / 2 + 11,
+      cy + bd / 2 + 9,
       `${dimensionLabel(fp.width)}×${dimensionLabel(fp.depth)}`,
-      `class="twod-annotation" font-size="7.5" fill="#44403c" text-anchor="middle" pointer-events="none"`,
+      `class="twod-annotation twod-cabinet-size" font-size="6.5" text-anchor="middle" pointer-events="none"`,
     ),
   );
 
@@ -188,7 +157,7 @@ export function cabinetElevationGraphics(
   width: number,
   height: number,
   options: TechnicalViewOptions,
-  fill: string,
+  _fill: string,
   spanLabelMm: number,
   cabinetIndex = 0,
 ) {
@@ -201,13 +170,18 @@ export function cabinetElevationGraphics(
       y,
       width,
       height,
-      cabinetRectAttrs(cabinet.id, fill, options, wallMounted ? "twod-cabinet-wall" : "twod-cabinet-floor"),
+      cabinetRectAttrs(
+        cabinet.id,
+        "",
+        options,
+        wallMounted ? "twod-cabinet-wall" : "twod-cabinet-floor",
+      ),
     ),
   );
 
   if (display.showCabinetTags) {
     elements.push(
-      ...renderCabinetTagSvg(x + width / 2, y - 8, formatCabinetTag(cabinetIndex)),
+      ...renderCabinetTagSvg(x + width / 2, y - 6, formatCabinetTag(cabinetIndex)),
     );
   }
 
@@ -226,25 +200,25 @@ export function cabinetElevationGraphics(
   elements.push(
     text(
       x + width / 2,
-      y - 14,
-      shortLabel(cabinet.name, 16),
-      `class="twod-label" font-size="8.5" font-weight="700" fill="#1c1917" text-anchor="middle" pointer-events="none"`,
+      y - 12,
+      shortLabel(cabinet.name, 14),
+      `class="twod-label twod-cabinet-name" font-size="7.5" text-anchor="middle" pointer-events="none"`,
     ),
   );
   elements.push(
     text(
       x + width / 2,
-      y - 4,
-      shortLabel(typeLabel, 14),
-      `class="twod-annotation" font-size="7" fill="#57534e" text-anchor="middle" pointer-events="none"`,
+      y - 3,
+      shortLabel(typeLabel, 12),
+      `class="twod-annotation twod-cabinet-type" font-size="6.5" text-anchor="middle" pointer-events="none"`,
     ),
   );
   elements.push(
     text(
       x + width / 2,
-      y + height + 11,
+      y + height + 9,
       `${dimensionLabel(spanLabelMm)} mm`,
-      `class="twod-annotation" font-size="7.5" fill="#44403c" text-anchor="middle" pointer-events="none"`,
+      `class="twod-annotation twod-cabinet-size" font-size="6.5" text-anchor="middle" pointer-events="none"`,
     ),
   );
 

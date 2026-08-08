@@ -1,54 +1,179 @@
-/* Technical drafting line hierarchy — denser CAD presentation */
+/* CAD line hierarchy + technical selection (Phase 2D-A/B/C/D) */
 
 .technical-view .twod-sheet {
   fill: var(--drawing-bg);
 }
 
+.technical-view .twod-draft[data-mode="print"] .twod-sheet {
+  fill: #ffffff;
+}
+
+/* Walls / room shell */
 .technical-view .twod-wall,
 .technical-view .twod-wall-outline,
-.technical-view .twod-floor-line {
+.technical-view .twod-floor-line,
+.technical-view .twod-ceiling-line {
   stroke: var(--draft-wall);
-  stroke-width: 2.5px;
+  fill: none;
+  stroke-width: 2.35px;
   opacity: 1;
   vector-effect: non-scaling-stroke;
 }
 
+.technical-view .twod-plan-floor,
+.technical-view .twod-elev-field {
+  fill: #fbfcfd;
+  stroke: var(--draft-wall);
+  stroke-width: 2.35px;
+}
+
+.technical-view .twod-wall-inner {
+  fill: none;
+  stroke: var(--draft-wall);
+  stroke-width: 0.7px;
+  opacity: 0.45;
+}
+
+.technical-view .twod-floor-line {
+  stroke-width: 2.6px;
+}
+
+.technical-view .twod-ceiling-line {
+  stroke-width: 1.1px;
+  opacity: 0.55;
+}
+
+/* Cabinets */
 .technical-view .twod-cabinet {
+  fill: #c9b08a;
   stroke: var(--draft-cabinet);
-  stroke-width: 1.75px;
+  stroke-width: 1.55px;
   opacity: 1;
   vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-cabinet-wall {
+  fill: #d4c2a6;
+}
+
+.technical-view .twod-cabinet-rotated {
+  fill: #c4ad86;
+}
+
+.technical-view .twod-cabinet-edge-profile {
+  fill: #e4d8c4;
+  stroke-dasharray: 3 2;
+  stroke-width: 1.1px;
+  opacity: 0.85;
+}
+
+.technical-view .twod-cabinet-front {
+  stroke: #1a1a1a;
+  stroke-width: 2.1px;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-toe-kick-plan {
+  fill: none;
+  stroke: #6b6560;
+  stroke-width: 0.7px;
+  stroke-dasharray: 2 2;
+}
+
+.technical-view .twod-mount-line {
+  stroke: var(--draft-dim-secondary);
+  stroke-width: 0.85px;
+  stroke-dasharray: 3 2;
+  opacity: 0.7;
+}
+
+/* Openings */
+.technical-view .twod-opening,
+.technical-view .twod-opening-door {
+  fill: #e8eef5;
+  stroke: #1a3a5c;
+  stroke-width: 1.25px;
+}
+
+.technical-view .twod-opening-window {
+  fill: #e6f2f0;
+  stroke: #1a4d48;
+  stroke-width: 1.25px;
+}
+
+.technical-view .twod-opening-glass,
+.technical-view .twod-opening-swing {
+  stroke: #2a5a55;
+  stroke-width: 0.7px;
+  fill: none;
+  opacity: 0.75;
+}
+
+.technical-view .twod-opening-swing {
+  stroke: #1a3a5c;
+  stroke-dasharray: 2 2;
+}
+
+.technical-view .twod-opening-face {
+  stroke: var(--draft-cabinet);
+  stroke-width: 1.05px;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-opening-chrome {
+  fill: none;
+  stroke: #4a4540;
+  stroke-width: 1px;
+}
+
+.technical-view .twod-opening-boundary {
+  stroke: #2a3038;
+  stroke-width: 1.15px;
+  stroke-dasharray: 3 2;
+  fill: none;
 }
 
 .technical-view .twod-cabinet-opening,
-.technical-view .twod-opening {
-  opacity: 0.96;
+.technical-view .twod-door-handle,
+.technical-view .twod-drawer-pull {
+  stroke: #2a2622;
+  stroke-width: 1.2px;
+  fill: none;
 }
 
+.technical-view .twod-shelf-line {
+  stroke: #6b6560;
+  stroke-width: 0.8px;
+  stroke-dasharray: 2 2;
+  fill: none;
+}
+
+/* Runs / countertops */
 .technical-view .twod-run-band {
-  opacity: 0.9;
+  opacity: 0.88;
   stroke: var(--draft-run);
 }
 
 .technical-view .twod-run-baseline {
-  stroke-width: 1.5px;
+  stroke-width: 1.35px;
   stroke: var(--draft-run);
 }
 
 .technical-view .twod-countertop {
-  stroke-width: 1.55px;
-  opacity: 0.95;
-}
-
-.technical-view .twod-run-filler,
-.technical-view .twod-run-gap {
+  fill: none;
+  stroke: #3d5a1f;
+  stroke-width: 1.35px;
+  stroke-dasharray: 4 2;
   opacity: 0.92;
 }
 
+/* Dimensions */
 .technical-view .twod-dim,
 .technical-view .twod-dim-overall {
   stroke: var(--draft-dim);
-  stroke-width: 1.35px;
+  stroke-width: 1.2px;
+  fill: none;
   opacity: 1;
   vector-effect: non-scaling-stroke;
 }
@@ -56,61 +181,177 @@
 .technical-view .twod-dim-chain,
 .technical-view .twod-dim-run {
   stroke: var(--draft-dim-secondary);
-  stroke-width: 1px;
+  stroke-width: 0.95px;
   opacity: 0.95;
+}
+
+.technical-view .twod-dim-ext {
+  stroke-width: 0.7px;
+  opacity: 0.85;
+}
+
+.technical-view .twod-dim-witness {
+  stroke-width: 0.95px;
 }
 
 .technical-view .twod-dim-selected {
   stroke: var(--selection);
-  stroke-width: 1.45px;
-  opacity: 1;
+  stroke-width: 1.15px;
+  opacity: 0.95;
 }
 
+.technical-view .twod-wall-clearance {
+  stroke: #1a5a72;
+  stroke-width: 0.85px;
+  stroke-dasharray: 3 2;
+  fill: none;
+  opacity: 0.85;
+}
+
+.technical-view .twod-annotation.twod-wall-clearance {
+  fill: #1a5a72;
+  font-weight: 550;
+}
+
+/* Grid / guides / reference */
 .technical-view .twod-grid {
   stroke: var(--draft-grid);
-  opacity: 0.5;
+  stroke-width: 0.45px;
+  opacity: 0.55;
   pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 .technical-view .twod-guide {
-  opacity: 0.72;
+  stroke-width: 1px;
+  stroke-dasharray: 4 3;
+  opacity: 0.65;
   pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
+.technical-view .twod-guide-wall {
+  stroke: #b45309;
+}
+
+.technical-view .twod-guide-adjacency {
+  stroke: #0f766e;
+}
+
+.technical-view .twod-guide-align {
+  stroke: #1d4ed8;
+}
+
+.technical-view .twod-guide-grid {
+  stroke: #94a3b8;
+}
+
+/* Text / tags — dense, technical */
 .technical-view .twod-annotation,
 .technical-view .twod-label,
 .technical-view .twod-run-label,
 .technical-view .twod-countertop-label,
 .technical-view .twod-run-length,
-.technical-view .twod-tag {
+.technical-view .twod-tag,
+.technical-view .twod-wall-label,
+.technical-view .twod-opening-label,
+.technical-view .twod-opening-size {
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   letter-spacing: 0.01em;
   paint-order: stroke;
-  stroke: rgba(255, 255, 255, 0.94);
-  stroke-width: 2.1px;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 1.8px;
   stroke-linejoin: round;
+  fill: #1c242c;
+}
+
+.technical-view .twod-wall-label {
+  fill: #64707c;
+  font-weight: 650;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+}
+
+.technical-view .twod-cabinet-name {
+  fill: #141414;
+  font-weight: 650;
+}
+
+.technical-view .twod-cabinet-type,
+.technical-view .twod-cabinet-size,
+.technical-view .twod-edge-profile {
+  fill: #4a524c;
+  font-weight: 500;
+}
+
+.technical-view .twod-tag-appliance {
+  fill: #7c2d12;
+  font-weight: 650;
+}
+
+.technical-view .twod-tag-opening {
+  fill: #1a3a5c;
+  font-weight: 650;
 }
 
 .technical-view .twod-annotation.twod-dim-overall,
 .technical-view .twod-annotation.twod-dim-chain,
-.technical-view .twod-annotation.twod-dim-run {
+.technical-view .twod-annotation.twod-dim-run,
+.technical-view .twod-annotation.twod-dim-selected {
   fill: var(--draft-dim);
   font-weight: 650;
 }
 
-.technical-view .twod-selected,
-.technical-view .twod-active {
-  filter: none;
-  stroke: var(--selection) !important;
-  stroke-width: 2px;
+.technical-view .twod-annotation.twod-dim-selected {
+  fill: var(--selection);
 }
 
-.technical-view .twod-selected {
+.technical-view .twod-opening-size {
+  fill: #64707c;
+  font-weight: 500;
+}
+
+/* Selection — technical, not app-like */
+.technical-view .twod-cabinet.twod-selected {
   fill: var(--selection-fill);
+  stroke: var(--selection);
+  stroke-width: 1.85px;
+  filter: none;
+}
+
+.technical-view .twod-cabinet.twod-active {
+  fill: rgba(10, 95, 168, 0.22);
+  stroke: var(--selection);
+  stroke-width: 2.15px;
+  filter: none;
 }
 
 .technical-view .twod-opening-face.is-active-opening,
 .technical-view .twod-opening-chrome.is-active-opening {
-  stroke: var(--selection) !important;
-  stroke-width: 2px;
+  stroke: var(--selection);
+  stroke-width: 1.75px;
+}
+
+.technical-view .twod-opening-active-tick {
+  stroke: var(--selection);
+  stroke-width: 1.6px;
+  fill: none;
+}
+
+.technical-view .twod-opening-label.is-active-opening {
+  fill: #0a3d6b;
+  font-weight: 650;
+}
+
+/* Print mode: mute selection chrome */
+.technical-view .twod-draft[data-mode="print"] .twod-cabinet.twod-selected,
+.technical-view .twod-draft[data-mode="print"] .twod-cabinet.twod-active,
+.technical-view .twod-cabinet.twod-print {
+  fill: #c9b08a;
+  stroke: var(--draft-cabinet);
+  stroke-width: 1.55px;
+}
+
+.technical-view .twod-draft[data-mode="print"] .twod-cabinet-wall.twod-print {
+  fill: #d4c2a6;
 }

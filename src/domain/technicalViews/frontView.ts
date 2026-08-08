@@ -2,7 +2,6 @@ import {
   getFootprintDimensions,
   type CabinetProject,
 } from "../cabinetDimensions";
-import { formatOpeningTag } from "../draftingAnnotations";
 import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import {
   collectElevationHorizontalChain,
@@ -12,16 +11,27 @@ import {
 import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
 import { cabinetElevationGraphics, cabinetRectAttrs } from "./cabinetSvg";
-import { MARGIN, SCALE } from "./constants";
-import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
+import { SCALE } from "./constants";
 import {
   dimensionChainHorizontal,
   dimensionChainVertical,
-  dimensionLabel,
-  line,
-  rect,
-  text,
-} from "./svgPrimitives";
+  overallSpanHorizontal,
+  overallSpanVertical,
+} from "./dimGraphics";
+import { chainLaneX, chainLaneY, overallDimX, overallDimY } from "./dimLayout";
+import {
+  elevationOpeningsGraphics,
+  elevationRoomShell,
+  wallCabinetClearances,
+} from "./elevationGraphics";
+import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
+import {
+  computeSheetFrame,
+  sheetBackground,
+  wrapTechnicalSvg,
+} from "./sheetFrame";
+import { dimensionLabel, rect, text } from "./svgPrimitives";
+import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import {
   cabinetIndexMap,
@@ -30,7 +40,6 @@ import {
   resolveDisplay,
   selectedElevationDimensions,
   snapGuideLines,
-  titleBlock,
 } from "./viewLayers";
 
 export function frontView(
@@ -40,12 +49,16 @@ export function frontView(
 ): TechnicalViewResult {
   const rw = room.dimensions.widthMm;
   const rh = room.dimensions.heightMm;
-  const svgWidth = rw / SCALE + MARGIN * 2 + 20;
-  const svgHeight = rh / SCALE + MARGIN * 2 + (options.mode === "print" ? 20 : 0) + 20;
-  const ox = MARGIN + rw / SCALE / 2;
-  const oy = MARGIN + rh / SCALE / 2 + (options.mode === "print" ? 18 : 0);
-  const elements: string[] = [];
   const display = resolveDisplay(options);
+  const frame = computeSheetFrame({
+    spanMm: rw,
+    crossMm: rh,
+    mode: options.mode,
+    bottomLanes: display.showDimensionChains ? 40 : 28,
+    sideLanes: display.showDimensionChains ? 32 : 18,
+  });
+  const { svgWidth, svgHeight, ox, oy } = frame;
+  const elements: string[] = [];
   const indexMap = cabinetIndexMap(project);
   const sheetMeta =
     options.sheetMeta ??
@@ -54,8 +67,8 @@ export function frontView(
       return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
     })();
 
-  elements.push(rect(0, 0, svgWidth, svgHeight, `fill="${options.mode === "print" ? "#ffffff" : "#f1f5f9"}" class="twod-sheet"`));
-  if (options.mode === "print") {
+  elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
+  if (frame.print) {
     elements.push(
       ...titleBlock(
         svgWidth,
@@ -69,61 +82,22 @@ export function frontView(
   }
 
   if (options.showGrid) {
-    elements.push(...elevationGrid(ox, oy, rw, rh, 500));
+    elements.push(...elevationGrid(ox, oy, rw, rh));
   }
 
-  elements.push(rect(
-    ox - rw / SCALE / 2,
-    oy - rh / SCALE / 2,
-    rw / SCALE,
-    rh / SCALE,
-    `class="twod-wall twod-wall-outline" fill="#f8fafc" stroke="#0f172a" stroke-width="2.25"`,
-  ));
+  elements.push(
+    ...elevationRoomShell(
+      ox,
+      oy,
+      rw,
+      rh,
+      display.showWallLabels ? "BACK WALL ELEVATION" : null,
+    ),
+  );
 
-  // Floor line emphasis
-  elements.push(line(
-    ox - rw / SCALE / 2,
-    oy + rh / SCALE / 2,
-    ox + rw / SCALE / 2,
-    oy + rh / SCALE / 2,
-    `class="twod-wall twod-floor-line" stroke="#0f172a" stroke-width="2.4"`,
-  ));
-
-  if (display.showWallLabels) {
-    elements.push(text(ox, oy - rh / SCALE / 2 - 8, "BACK WALL ELEVATION", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle"`));
-  }
-
-  for (const [winIndex, window] of room.windows.filter((item) => item.side === "back-wall").entries()) {
-    const x = ox + window.positionMm / SCALE - window.widthMm / SCALE / 2;
-    const y = oy + rh / SCALE / 2 - (window.sillHeightMm + window.heightMm) / SCALE;
-    elements.push(rect(x, y, window.widthMm / SCALE, window.heightMm / SCALE, `class="twod-opening" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.45"`));
-    if (display.showOpeningTags) {
-      elements.push(
-        text(
-          x + window.widthMm / SCALE / 2,
-          y - 4,
-          formatOpeningTag("window", winIndex, window.widthMm, window.heightMm, window.sillHeightMm),
-          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
-        ),
-      );
-    }
-  }
-
-  for (const [doorIndex, door] of room.doors.filter((item) => item.side === "back-wall").entries()) {
-    const x = ox + door.positionMm / SCALE - door.widthMm / SCALE / 2;
-    const y = oy + rh / SCALE / 2 - door.heightMm / SCALE;
-    elements.push(rect(x, y, door.widthMm / SCALE, door.heightMm / SCALE, `class="twod-opening" fill="#eff6ff" stroke="#2563eb" stroke-width="1.45"`));
-    if (display.showOpeningTags) {
-      elements.push(
-        text(
-          x + door.widthMm / SCALE / 2,
-          y - 4,
-          formatOpeningTag("door", doorIndex, door.widthMm, door.heightMm),
-          `class="twod-tag twod-tag-opening" font-size="7" font-weight="700" fill="#1d4ed8" text-anchor="middle"`,
-        ),
-      );
-    }
-  }
+  elements.push(
+    ...elevationOpeningsGraphics(room, ox, oy, rh, ["back-wall"], options),
+  );
 
   const visibleCabinets = project.cabinets.filter((cabinet) => {
     const side = cabinet.placement.attachment;
@@ -146,7 +120,6 @@ export function frontView(
       oy +
       rh / SCALE / 2 -
       ((ghost?.y ?? cabinet.placement.y) + cabinet.config.dimensions.height) / SCALE;
-    const fill = cabinet.placement.attachment === "back-wall" ? "#d6c3a4" : "#c4a574";
     elements.push(
       ...cabinetElevationGraphics(
         cabinet,
@@ -155,7 +128,7 @@ export function frontView(
         width,
         height,
         options,
-        fill,
+        "",
         fp.width,
         indexMap.get(cabinet.id) ?? 0,
       ),
@@ -180,20 +153,17 @@ export function frontView(
         y,
         profileWidth,
         height,
-        `${cabinetRectAttrs(cabinet.id, "#e7dcc8", options, "twod-cabinet-edge-profile")} stroke-dasharray="3 2"`,
+        `${cabinetRectAttrs(cabinet.id, "", options, "twod-cabinet-edge-profile")}`,
       ),
-    );
-    elements.push(
       text(
         x + profileWidth / 2,
-        y - 4,
+        y - 3,
         `${cabinet.placement.attachment === "left-wall" ? "L" : "R"} profile`,
-        `class="twod-annotation" font-size="6.5" fill="#57534e" text-anchor="middle" pointer-events="none"`,
+        `class="twod-annotation twod-edge-profile" font-size="6" text-anchor="middle" pointer-events="none"`,
       ),
     );
   }
 
-  // Run drafting: fillers, labels, countertop spans, run dim chains
   elements.push(
     ...renderElevationRunDrafting({
       viewAxis: "x",
@@ -209,34 +179,15 @@ export function frontView(
     }),
   );
 
-  // Wall-cabinet height relationships: clearances above floor cabinets / below ceiling
-  const wallCabinets = visibleCabinets.filter((cabinet) => cabinet.placement.attachment === "back-wall");
-  const floorCabinets = visibleCabinets.filter((cabinet) => cabinet.placement.attachment === "floor");
-  for (const wallCab of wallCabinets) {
-    const bottom = wallCab.placement.y;
-    const top = wallCab.placement.y + wallCab.config.dimensions.height;
-    const ceilingClear = rh - top;
-    const cx = ox + wallCab.placement.x / SCALE;
-    const bottomY = oy + rh / SCALE / 2 - bottom / SCALE;
-    const topY = oy + rh / SCALE / 2 - top / SCALE;
-    const ceilingY = oy - rh / SCALE / 2;
-    if (ceilingClear > 20) {
-      elements.push(line(cx + 18, topY, cx + 18, ceilingY, `class="twod-dim twod-wall-clearance" stroke="#0369a1" stroke-width="1" stroke-dasharray="3 2"`));
-      elements.push(text(cx + 22, (topY + ceilingY) / 2, `${dimensionLabel(ceilingClear)} clear`, `class="twod-annotation" font-size="6.5" fill="#0369a1"`));
-    }
-    for (const floorCab of floorCabinets) {
-      if (Math.abs(floorCab.placement.x - wallCab.placement.x) > Math.max(floorCab.config.dimensions.width, wallCab.config.dimensions.width)) {
-        continue;
-      }
-      const gap = bottom - (floorCab.placement.y + floorCab.config.dimensions.height);
-      if (gap > 20) {
-        const floorTopY = oy + rh / SCALE / 2 - (floorCab.placement.y + floorCab.config.dimensions.height) / SCALE;
-        elements.push(line(cx - 18, floorTopY, cx - 18, bottomY, `class="twod-dim twod-wall-clearance" stroke="#0369a1" stroke-width="1" stroke-dasharray="3 2"`));
-        elements.push(text(cx - 22, (floorTopY + bottomY) / 2, `${dimensionLabel(gap)} gap`, `class="twod-annotation" font-size="6.5" fill="#0369a1" text-anchor="end"`));
-      }
-      break;
-    }
-  }
+  const wallCabinets = visibleCabinets.filter(
+    (cabinet) => cabinet.placement.attachment === "back-wall",
+  );
+  const floorCabinets = visibleCabinets.filter(
+    (cabinet) => cabinet.placement.attachment === "floor",
+  );
+  elements.push(
+    ...wallCabinetClearances(wallCabinets, floorCabinets, rh, ox, oy),
+  );
 
   if (options.snapGuides?.length) {
     elements.push(...snapGuideLines(options.snapGuides, ox, oy, rw, rh, "front"));
@@ -244,13 +195,27 @@ export function frontView(
 
   elements.push(...selectedElevationDimensions(visibleCabinets, rh, ox, oy, options, "x"));
 
-  // Overall dims
-  const roomDimX = ox - rw / SCALE / 2 - 24;
-  elements.push(line(roomDimX, oy - rh / SCALE / 2, roomDimX, oy + rh / SCALE / 2, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
-  elements.push(text(roomDimX - 4, oy, `${dimensionLabel(rh)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="end"`));
-  const bottomDimY = oy + rh / SCALE / 2 + 18;
-  elements.push(line(ox - rw / SCALE / 2, bottomDimY, ox + rw / SCALE / 2, bottomDimY, `class="twod-dim twod-dim-overall" stroke="#0f172a" stroke-width="1.35"`));
-  elements.push(text(ox, bottomDimY + 11, `${dimensionLabel(rw)} mm`, `class="twod-annotation twod-dim-overall" font-size="9" font-weight="700" fill="#0f172a" text-anchor="middle"`));
+  const roomTop = oy - rh / SCALE / 2;
+  const roomBottom = oy + rh / SCALE / 2;
+  const roomLeft = ox - rw / SCALE / 2;
+  const roomRight = ox + rw / SCALE / 2;
+
+  elements.push(
+    ...overallSpanVertical(
+      roomTop,
+      roomBottom,
+      overallDimX(roomLeft, "left"),
+      dimensionLabel(rh),
+      roomLeft,
+    ),
+    ...overallSpanHorizontal(
+      roomLeft,
+      roomRight,
+      overallDimY(roomBottom, "below"),
+      dimensionLabel(rw),
+      roomBottom,
+    ),
+  );
 
   if (display.showDimensionChains && visibleCabinets.length > 0) {
     const minSeg = display.dimMinSegmentMm;
@@ -258,13 +223,32 @@ export function frontView(
       collectElevationHorizontalChain(visibleCabinets, rw, "x"),
       minSeg,
     );
-    elements.push(...dimensionChainHorizontal(horizontal.positions, horizontal.labels, ox, oy + rh / SCALE / 2 + 34));
+    elements.push(
+      ...dimensionChainHorizontal(
+        horizontal.positions,
+        horizontal.labels,
+        ox,
+        chainLaneY(roomBottom, 0),
+        "chain",
+        roomBottom,
+      ),
+    );
 
     const vertical = filterDimensionChain(
       collectElevationVerticalChain(visibleCabinets, rh),
       minSeg,
     );
-    elements.push(...dimensionChainVertical(vertical.positions, vertical.labels, ox + rw / SCALE / 2 + 28, oy, rh));
+    elements.push(
+      ...dimensionChainVertical(
+        vertical.positions,
+        vertical.labels,
+        chainLaneX(roomRight, 0),
+        oy,
+        rh,
+        "chain",
+        roomRight,
+      ),
+    );
   }
 
   elements.push(
@@ -280,6 +264,6 @@ export function frontView(
     originX: ox,
     originY: oy,
     scale: SCALE,
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" class="twod-draft">${elements.join("")}</svg>`,
+    svg: wrapTechnicalSvg(frame, "front", elements),
   };
 }

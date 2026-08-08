@@ -1,0 +1,77 @@
+/* Sheet framing + print / viewport presentation (Phase 2D-D) */
+
+.technical-view {
+  --sheet-frame: #1c242c;
+  --sheet-frame-soft: #4a5560;
+  --titleblock-bg: #ffffff;
+  --titleblock-rule: #2a3540;
+}
+
+.technical-view .workspace-pane-canvas,
+.technical-view .twod-viewport,
+.technical-view .technical-svg-host {
+  background:
+    linear-gradient(180deg, #f4f6f8 0%, #eef1f4 100%);
+}
+
+.technical-view .twod-draft {
+  display: block;
+  margin: 0 auto;
+  background: var(--drawing-bg);
+  box-shadow:
+    0 0 0 1px rgba(28, 36, 44, 0.22),
+    0 0 0 3px rgba(28, 36, 44, 0.06);
+}
+
+.technical-view .twod-draft[data-mode="print"] {
+  box-shadow:
+    0 0 0 1.25px var(--sheet-frame),
+    0 0 0 4px #fff,
+    0 0 0 5px rgba(28, 36, 44, 0.35);
+}
+
+.technical-view .twod-titleblock {
+  fill: var(--titleblock-bg);
+  stroke: var(--titleblock-rule);
+  stroke-width: 1.1px;
+}
+
+.technical-view .twod-titleblock-rule {
+  stroke: var(--titleblock-rule);
+  stroke-width: 0.9px;
+  fill: none;
+}
+
+.technical-view .twod-titleblock-text {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  fill: #1c242c;
+  letter-spacing: 0.02em;
+  stroke: none;
+}
+
+.technical-view .twod-titleblock-strong {
+  font-weight: 700;
+  fill: #0f1419;
+  letter-spacing: 0.04em;
+}
+
+/* Tighter pane chrome around the drawing */
+.technical-view .workspace-view-pane .pane-body,
+.technical-view .workspace-pane .pane-canvas {
+  padding: 4px 6px;
+}
+
+.technical-view .workspace-view-pane.is-maximized .pane-body {
+  padding: 6px 8px;
+}
+
+@media print {
+  .technical-view .twod-draft {
+    box-shadow: none;
+  }
+
+  .technical-view .twod-guide,
+  .technical-view .twod-grid {
+    opacity: 0.25;
+  }
+}

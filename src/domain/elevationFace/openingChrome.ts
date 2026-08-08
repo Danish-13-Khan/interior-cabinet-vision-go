@@ -101,7 +101,7 @@ export function renderOpeningBoundaries(
             top.y,
             bottom.x,
             bottom.y,
-            `class="twod-opening-boundary" stroke="#1e293b" stroke-width="1.35" stroke-dasharray="4 2" pointer-events="none"`,
+            `class="twod-opening-boundary" pointer-events="none"`,
           ),
         );
       } else {
@@ -127,7 +127,7 @@ export function renderOpeningBoundaries(
             left.y,
             right.x,
             right.y,
-            `class="twod-opening-boundary" stroke="#1e293b" stroke-width="1.35" stroke-dasharray="4 2" pointer-events="none"`,
+            `class="twod-opening-boundary" pointer-events="none"`,
           ),
         );
       }
@@ -155,12 +155,12 @@ export function renderOpeningChrome(
       box.y,
       box.width,
       box.height,
-      `class="twod-opening-chrome ${active ? "is-active-opening" : ""}" data-opening-chrome="${opening.id}" fill="none" stroke="${active ? "#1d4ed8" : "#57534e"}" stroke-width="${active ? 2 : 1.05}" pointer-events="none"`,
+      `class="twod-opening-chrome ${active ? "is-active-opening" : ""}" data-opening-chrome="${opening.id}" pointer-events="none"`,
     ),
   );
 
   if (active) {
-    const tick = 5;
+    const tick = 4;
     const corners: Array<[number, number, number, number]> = [
       [box.x, box.y, box.x + tick, box.y],
       [box.x, box.y, box.x, box.y + tick],
@@ -178,28 +178,28 @@ export function renderOpeningChrome(
           y1,
           x2,
           y2,
-          `class="twod-opening-active-tick" stroke="#1d4ed8" stroke-width="2" pointer-events="none"`,
+          `class="twod-opening-active-tick" pointer-events="none"`,
         ),
       );
     }
   }
 
-  if (box.width > 36 && box.height > 22) {
+  if (box.width > 32 && box.height > 18) {
     elements.push(
       text(
         box.x + box.width / 2,
-        box.y + Math.min(14, box.height * 0.28),
+        box.y + Math.min(12, box.height * 0.28),
         escapeXml(`${opening.label} · ${contentLabel}`),
-        `class="twod-opening-label" text-anchor="middle" font-size="9" font-weight="650" fill="${active ? "#1e3a8a" : "#334155"}" pointer-events="none"`,
+        `class="twod-opening-label ${active ? "is-active-opening" : ""}" text-anchor="middle" font-size="7.5" pointer-events="none"`,
       ),
     );
-    if (box.height > 34) {
+    if (box.height > 28) {
       elements.push(
         text(
           box.x + box.width / 2,
-          box.y + Math.min(26, box.height * 0.48),
+          box.y + Math.min(22, box.height * 0.48),
           escapeXml(sizeLabel),
-          `class="twod-opening-size" text-anchor="middle" font-size="8" fill="#64748b" pointer-events="none"`,
+          `class="twod-opening-size" text-anchor="middle" font-size="6.5" pointer-events="none"`,
         ),
       );
     }
