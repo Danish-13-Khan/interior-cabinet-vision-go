@@ -3,7 +3,18 @@ import type {
   CabinetElevationFaceLayout,
   OpeningFaceRect,
 } from "../openingLayout";
+import type { OpeningContentType } from "../cabinetOpeningStructure";
 import { faceToSvg, line, rect } from "./svgPrimitives";
+
+function openingHitAttrs(
+  cabinetId: string,
+  openingId: string,
+  contentType: OpeningContentType,
+  active: boolean,
+  extra: string,
+) {
+  return `class="twod-opening-face ${active ? "is-active-opening" : ""}" data-cabinet-id="${cabinetId}" data-opening-id="${openingId}" data-content-type="${contentType}" ${extra}`;
+}
 
 export function renderDoorLeaf(
   opening: OpeningFaceRect,
@@ -51,7 +62,13 @@ export function renderDoorLeaf(
         dy,
         doorW,
         dh,
-        `class="twod-opening-face ${active ? "is-active-opening" : ""}" data-cabinet-id="${cabinet.id}" data-opening-id="${opening.id}" fill="rgba(255,255,255,0.35)" stroke="${active ? "#1d4ed8" : "#44403c"}" stroke-width="${active ? 1.6 : 1.05}"`,
+        openingHitAttrs(
+          cabinet.id,
+          opening.id,
+          opening.contentType,
+          active,
+          `fill="rgba(255,255,255,0.35)" stroke="${active ? "#1d4ed8" : "#44403c"}" stroke-width="${active ? 1.6 : 1.05}"`,
+        ),
       ),
     );
     const handleX =
@@ -104,7 +121,13 @@ export function renderDrawerStack(
         dy + 1 / scale,
         width - 4 / scale,
         drawerH - 2 / scale,
-        `class="twod-opening-face ${active ? "is-active-opening" : ""}" data-cabinet-id="${cabinet.id}" data-opening-id="${opening.id}" fill="rgba(255,255,255,0.28)" stroke="${active ? "#1d4ed8" : "#44403c"}" stroke-width="${active ? 1.6 : 1.05}"`,
+        openingHitAttrs(
+          cabinet.id,
+          opening.id,
+          opening.contentType,
+          active,
+          `fill="rgba(255,255,255,0.28)" stroke="${active ? "#1d4ed8" : "#44403c"}" stroke-width="${active ? 1.6 : 1.05}"`,
+        ),
       ),
     );
     elements.push(
@@ -150,7 +173,13 @@ export function renderOpenShelf(
       topLeft.y,
       width,
       height,
-      `class="twod-opening-face ${active ? "is-active-opening" : ""}" data-cabinet-id="${cabinet.id}" data-opening-id="${opening.id}" fill="rgba(248,250,252,0.5)" stroke="${active ? "#1d4ed8" : "#78716c"}" stroke-width="${active ? 1.5 : 1}" stroke-dasharray="3 2"`,
+      openingHitAttrs(
+        cabinet.id,
+        opening.id,
+        opening.contentType,
+        active,
+        `fill="rgba(248,250,252,0.5)" stroke="${active ? "#1d4ed8" : "#78716c"}" stroke-width="${active ? 1.5 : 1}" stroke-dasharray="3 2"`,
+      ),
     ),
   );
   const shelves = Math.max(0, opening.shelfCount);
@@ -199,7 +228,13 @@ export function renderDividerOrEmpty(
         topLeft.y,
         4 / scale,
         height,
-        `class="twod-opening-face ${active ? "is-active-opening" : ""}" data-cabinet-id="${cabinet.id}" data-opening-id="${opening.id}" fill="${active ? "#93c5fd" : "#a8a29e"}" stroke="#44403c" stroke-width="0.8"`,
+        openingHitAttrs(
+          cabinet.id,
+          opening.id,
+          opening.contentType,
+          active,
+          `fill="${active ? "#93c5fd" : "#a8a29e"}" stroke="#44403c" stroke-width="0.8"`,
+        ),
       ),
     ];
   }
@@ -209,7 +244,13 @@ export function renderDividerOrEmpty(
       topLeft.y,
       width,
       height,
-      `class="twod-opening-face ${active ? "is-active-opening" : ""}" data-cabinet-id="${cabinet.id}" data-opening-id="${opening.id}" fill="rgba(255,255,255,0.15)" stroke="${active ? "#1d4ed8" : "#a8a29e"}" stroke-width="1" stroke-dasharray="2 2"`,
+      openingHitAttrs(
+        cabinet.id,
+        opening.id,
+        opening.contentType,
+        active,
+        `fill="rgba(255,255,255,0.15)" stroke="${active ? "#1d4ed8" : "#a8a29e"}" stroke-width="1" stroke-dasharray="2 2"`,
+      ),
     ),
   ];
 }

@@ -3,6 +3,7 @@ import {
   CabinetScene,
   type CabinetSceneHandle,
 } from "./CabinetScene";
+import { ElevationOpeningToolbar } from "./ElevationOpeningToolbar";
 import { TwoDView, type DraftingTool } from "./TwoDView";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { CabinetDimensions, CabinetPlacement } from "../domain/cabinetDimensions";
@@ -10,6 +11,7 @@ import type { PanelName } from "../domain/cabinetGeometry";
 import type { RoomConfig } from "../domain/roomModel";
 import type { DraftingDisplayPreferences, DraftingLeader, DraftingNote } from "../domain/draftingAnnotations";
 import type { CabinetPlanningWorkflow } from "../domain/cabinetLibrary";
+import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 
 type WorkspaceTab = "plan" | "front" | "side" | "3d";
 
@@ -39,6 +41,10 @@ type AppWorkspaceProps = {
   onToggleCabinetSelection: (cabinetId: string) => void;
   onSelectCabinet: (cabinetId: string | null, additive: boolean) => void;
   onSelectOpening?: (cabinetId: string, openingId: string) => void;
+  onElevationOpeningCommand?: (
+    cabinetId: string,
+    command: ElevationOpeningCommand,
+  ) => void;
   onAddNote: (note: DraftingNote) => void;
   onAddLeader: (leader: DraftingLeader) => void;
   onWorkspaceContextMenu?: (point: { x: number; y: number }) => void;
@@ -69,6 +75,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onToggleCabinetSelection,
       onSelectCabinet,
       onSelectOpening,
+      onElevationOpeningCommand,
       onAddNote,
       onAddLeader,
       onWorkspaceContextMenu,
@@ -82,6 +89,9 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
         : workspaceTab === "side"
           ? "side"
           : "top";
+    const activeCabinet = project.cabinets.find(
+      (cabinet) => cabinet.id === activeCabinetId,
+    );
 
     return (
       <section
@@ -195,7 +205,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                       : "Leader tool · click target, then label"
                     : workspaceTab === "front"
                       ? selectedCabinetIds.length > 0
-                        ? "Front elevation · click openings to edit · drag cabinets · wall height clearances on"
+                        ? "Front elevation · select openings · split & assign content · drag cabinets"
                         : "Front elevation authoring · click a cabinet face or opening"
                       : selectedCabinetIds.length > 0
                         ? `${selectedCabinetIds.length} selected · drag to move · snap ${snapSizeMm} mm · selected dims on`
@@ -220,6 +230,16 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                   ))}
                 </span>
               </div>
+              {workspaceTab === "front" && onElevationOpeningCommand ? (
+                <ElevationOpeningToolbar
+                  config={activeCabinet?.config ?? null}
+                  draftingTool={draftingTool}
+                  onCommand={(command) => {
+                    if (!activeCabinetId) return;
+                    onElevationOpeningCommand(activeCabinetId, command);
+                  }}
+                />
+              ) : null}
               <div className="drawing-sheet-scroll">
                 <TwoDView
                   project={project}
@@ -231,8 +251,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                   selectedCabinetIds={selectedCabinetIds}
                   activeCabinetId={activeCabinetId}
                   activeOpeningId={
-                    project.cabinets.find((cabinet) => cabinet.id === activeCabinetId)
-                      ?.config.composition?.openingStructure?.activeOpeningId ?? null
+                    activeCabinet?.config.composition?.openingStructure
+                      ?.activeOpeningId ?? null
                   }
                   snapSizeMm={snapSizeMm}
                   showGrid={showGrid}

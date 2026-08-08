@@ -24,6 +24,10 @@ export function line(
   return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${attrs} />`;
 }
 
+export function text(x: number, y: number, value: string, attrs: string) {
+  return `<text x="${x}" y="${y}" ${attrs}>${value}</text>`;
+}
+
 /** Convert face-local mm (origin bottom-left of carcass) to SVG within cabinet box. */
 export function faceToSvg(
   faceXMm: number,

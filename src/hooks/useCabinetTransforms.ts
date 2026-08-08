@@ -11,14 +11,7 @@ import {
   type CabinetPlacement,
   type CabinetProject,
 } from "../domain/cabinetDimensions";
-import {
-  resolveCabinetComposition,
-  syncFlatFieldsFromComposition,
-  normalizeComposition,
-} from "../domain/cabinetComposition";
-import { setActiveOpening } from "../domain/cabinetOpeningStructure";
 import { cabinetBlocksOpening, type RoomConfig } from "../domain/roomModel";
-import type { PanelName } from "../domain/cabinetGeometry";
 import type { CommitProjectChange } from "./projectCommit";
 
 type RoomBounds = {
@@ -34,11 +27,6 @@ type UseCabinetTransformsArgs = {
   activeCabinetId: string | null;
   selectedCabinet: CabinetInstance | null;
   commitProjectChange: CommitProjectChange;
-  replaceSelection: (
-    ids: string[],
-    nextActiveId?: string | null,
-    nextPanelName?: PanelName | null,
-  ) => void;
   isCabinetLocked: (cabinet: CabinetInstance) => boolean;
   onStatus: (status: string) => void;
 };
@@ -50,7 +38,6 @@ export function useCabinetTransforms({
   activeCabinetId,
   selectedCabinet,
   commitProjectChange,
-  replaceSelection,
   isCabinetLocked,
   onStatus,
 }: UseCabinetTransformsArgs) {
@@ -344,43 +331,6 @@ export function useCabinetTransforms({
     return true;
   }
 
-  function handleSelectOpening(cabinetId: string, openingId: string) {
-    const cabinet = project.cabinets.find((item) => item.id === cabinetId);
-    if (!cabinet) return;
-    if (isCabinetLocked(cabinet)) {
-      onStatus("This item is on a locked layer.");
-      return;
-    }
-
-    replaceSelection([cabinetId], cabinetId, null);
-    const composition = resolveCabinetComposition(cabinet.config);
-    if (!composition.openingStructure) {
-      onStatus("Selected cabinet has no opening structure.");
-      return;
-    }
-    const nextStructure = setActiveOpening(
-      composition.openingStructure,
-      openingId,
-    );
-    const nextComposition = normalizeComposition(
-      cabinet.config.type,
-      { ...composition, openingStructure: nextStructure },
-      cabinet.config.dimensions.width,
-    );
-    updateCabinet(
-      cabinetId,
-      (current) => ({
-        ...current,
-        config: clampCabinetConfig({
-          ...current.config,
-          composition: nextComposition,
-          ...syncFlatFieldsFromComposition(nextComposition),
-        }),
-      }),
-      "Selected opening in front elevation.",
-    );
-  }
-
   return {
     updateCabinet,
     clampPlacementInRoom,
@@ -391,6 +341,5 @@ export function useCabinetTransforms({
     handleCabinetResize,
     handleCabinetMove,
     handleCabinetRotate,
-    handleSelectOpening,
   };
 }
