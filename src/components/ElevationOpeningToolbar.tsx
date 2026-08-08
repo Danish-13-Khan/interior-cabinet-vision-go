@@ -8,16 +8,18 @@ import {
 
 type ElevationOpeningToolbarProps = {
   config: CabinetConfig | null;
+  activeOpeningId?: string | null;
   draftingTool: "select" | "note" | "leader";
   onCommand: (command: ElevationOpeningCommand) => void;
 };
 
 export function ElevationOpeningToolbar({
   config,
+  activeOpeningId = null,
   draftingTool,
   onCommand,
 }: ElevationOpeningToolbarProps) {
-  const state = getElevationOpeningToolbarState(config);
+  const state = getElevationOpeningToolbarState(config, activeOpeningId);
   if (!state.supportsOpenings || draftingTool !== "select") return null;
 
   return (

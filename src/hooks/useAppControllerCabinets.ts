@@ -27,6 +27,7 @@ type UseAppControllerCabinetsArgs = {
   room: RoomConfig;
   roomBounds: RoomBounds;
   activeCabinetId: string | null;
+  activeOpeningId: string | null;
   selectedCabinet: CabinetInstance | null;
   selectedCabinets: CabinetInstance[];
   selectedCabinetIds: string[];
@@ -44,6 +45,7 @@ type UseAppControllerCabinetsArgs = {
     nextActiveId?: string | null,
     nextPanelName?: PanelName | null,
   ) => void;
+  setActiveOpeningId: (openingId: string | null, cabinetId?: string | null) => void;
   isCabinetLocked: (cabinet: CabinetInstance) => boolean;
   setProjectFilePath: (path: string | null) => void;
   saveTemplate: (template: CabinetTemplate) => void;
@@ -56,6 +58,7 @@ export function useAppControllerCabinets({
   room,
   roomBounds,
   activeCabinetId,
+  activeOpeningId,
   selectedCabinet,
   selectedCabinets,
   selectedCabinetIds,
@@ -69,6 +72,7 @@ export function useAppControllerCabinets({
   commitProjectChange,
   commitSnapshot,
   replaceSelection,
+  setActiveOpeningId,
   isCabinetLocked,
   setProjectFilePath,
   saveTemplate,
@@ -90,6 +94,9 @@ export function useAppControllerCabinets({
     project,
     updateCabinet: transforms.updateCabinet,
     replaceSelection,
+    activeCabinetId,
+    activeOpeningId,
+    setActiveOpeningId,
     isCabinetLocked,
     onStatus,
   });

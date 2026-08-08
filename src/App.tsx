@@ -106,6 +106,7 @@ function App() {
           showGrid: c.projectPreferences.showGrid,
           selectedCabinetIds: c.selectedCabinetIds,
           activeCabinetId: c.activeCabinetId,
+          activeOpeningId: c.activeOpeningId,
           selectedPanelName: c.selectedPanelName,
           draftingDisplay: c.draftingDisplay,
           onWorkspaceTabChange: (tab) => {

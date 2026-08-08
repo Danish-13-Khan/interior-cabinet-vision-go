@@ -26,6 +26,7 @@ type AppWorkspaceProps = {
   showGrid: boolean;
   selectedCabinetIds: string[];
   activeCabinetId: string | null;
+  activeOpeningId: string | null;
   selectedPanelName: PanelName | null;
   draftingDisplay: DraftingDisplayPreferences;
   onWorkspaceTabChange: (tab: WorkspaceTab) => void;
@@ -64,6 +65,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       showGrid,
       selectedCabinetIds,
       activeCabinetId,
+      activeOpeningId,
       selectedPanelName,
       draftingDisplay,
       onWorkspaceTabChange,
@@ -233,6 +235,9 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               {workspaceTab === "front" && onElevationOpeningCommand ? (
                 <ElevationOpeningToolbar
                   config={activeCabinet?.config ?? null}
+                  activeOpeningId={
+                    activeCabinetId === activeCabinet?.id ? activeOpeningId : null
+                  }
                   draftingTool={draftingTool}
                   onCommand={(command) => {
                     if (!activeCabinetId) return;
@@ -250,10 +255,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                   fillers={planningWorkflow.fillers}
                   selectedCabinetIds={selectedCabinetIds}
                   activeCabinetId={activeCabinetId}
-                  activeOpeningId={
-                    activeCabinet?.config.composition?.openingStructure
-                      ?.activeOpeningId ?? null
-                  }
+                  activeOpeningId={activeOpeningId}
                   snapSizeMm={snapSizeMm}
                   showGrid={showGrid}
                   draftingDisplay={draftingDisplay}

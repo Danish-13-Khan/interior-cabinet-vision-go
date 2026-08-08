@@ -16,12 +16,13 @@ import type { ElevationOpeningCommand } from "./types";
 export function applyElevationOpeningCommand(
   config: CabinetConfig,
   command: ElevationOpeningCommand,
+  activeOpeningIdOverride?: string | null,
 ): CabinetConfig {
   const composition = resolveCabinetComposition(config);
   const structure = composition.openingStructure;
   if (!structure) return config;
 
-  const openingId = structure.activeOpeningId;
+  const openingId = activeOpeningIdOverride ?? structure.activeOpeningId;
   let nextStructure = structure;
 
   if (command.kind === "split-vertical") {

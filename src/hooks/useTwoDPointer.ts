@@ -83,6 +83,7 @@ export function useTwoDPointer({
     const openingCabinetId = openingNode?.getAttribute("data-cabinet-id");
     if (openingId && openingCabinetId && onSelectOpening && (view === "front" || view === "side")) {
       onSelectOpening(openingCabinetId, openingId);
+      return;
     }
 
     const cabinetNode = target?.closest?.("[data-cabinet-id]");

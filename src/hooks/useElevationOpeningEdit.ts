@@ -1,14 +1,5 @@
-import {
-  clampCabinetConfig,
-  type CabinetInstance,
-  type CabinetProject,
-} from "../domain/cabinetDimensions";
-import {
-  normalizeComposition,
-  resolveCabinetComposition,
-  syncFlatFieldsFromComposition,
-} from "../domain/cabinetComposition";
-import { setActiveOpening } from "../domain/cabinetOpeningStructure";
+import { type CabinetInstance, type CabinetProject } from "../domain/cabinetDimensions";
+import { resolveCabinetComposition } from "../domain/cabinetComposition";
 import {
   applyElevationOpeningCommand,
   elevationOpeningCommandStatus,
@@ -28,6 +19,9 @@ type UseElevationOpeningEditArgs = {
     nextActiveId?: string | null,
     nextPanelName?: PanelName | null,
   ) => void;
+  activeCabinetId: string | null;
+  activeOpeningId: string | null;
+  setActiveOpeningId: (openingId: string | null, cabinetId?: string | null) => void;
   isCabinetLocked: (cabinet: CabinetInstance) => boolean;
   onStatus: (status: string) => void;
 };
@@ -36,6 +30,9 @@ export function useElevationOpeningEdit({
   project,
   updateCabinet,
   replaceSelection,
+  activeCabinetId,
+  activeOpeningId,
+  setActiveOpeningId,
   isCabinetLocked,
   onStatus,
 }: UseElevationOpeningEditArgs) {
@@ -48,32 +45,14 @@ export function useElevationOpeningEdit({
     }
 
     replaceSelection([cabinetId], cabinetId, null);
-    const composition = resolveCabinetComposition(cabinet.config);
-    if (!composition.openingStructure) {
+    const structure = resolveCabinetComposition(cabinet.config).openingStructure;
+    if (!structure) {
       onStatus("Selected cabinet has no opening structure.");
       return;
     }
-    const nextStructure = setActiveOpening(
-      composition.openingStructure,
-      openingId,
-    );
-    const nextComposition = normalizeComposition(
-      cabinet.config.type,
-      { ...composition, openingStructure: nextStructure },
-      cabinet.config.dimensions.width,
-    );
-    updateCabinet(
-      cabinetId,
-      (current) => ({
-        ...current,
-        config: clampCabinetConfig({
-          ...current.config,
-          composition: nextComposition,
-          ...syncFlatFieldsFromComposition(nextComposition),
-        }),
-      }),
-      "Selected opening in front elevation.",
-    );
+    if (!structure.root || !openingId) return;
+    setActiveOpeningId(openingId, cabinetId);
+    onStatus("Selected opening in front elevation.");
   }
 
   function handleElevationOpeningCommand(
@@ -87,11 +66,18 @@ export function useElevationOpeningEdit({
       return;
     }
 
-    const nextConfig = applyElevationOpeningCommand(cabinet.config, command);
+    const nextConfig = applyElevationOpeningCommand(
+      cabinet.config,
+      command,
+      activeCabinetId === cabinetId ? activeOpeningId : null,
+    );
     if (nextConfig === cabinet.config) {
       onStatus("Opening edit blocked by family rules.");
       return;
     }
+
+    const nextStructure = resolveCabinetComposition(nextConfig).openingStructure;
+    setActiveOpeningId(nextStructure?.activeOpeningId ?? null, cabinetId);
 
     updateCabinet(
       cabinetId,

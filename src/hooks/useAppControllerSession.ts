@@ -10,6 +10,8 @@ import {
 } from "../domain/cabinetDimensions";
 import { type PanelName } from "../domain/cabinetGeometry";
 import { DEFAULT_ROOM, type RoomConfig } from "../domain/roomModel";
+import { resolveCabinetComposition } from "../domain/cabinetComposition";
+import { findOpeningNode } from "../domain/cabinetOpeningStructure";
 import {
   getActiveProjectRoom,
   normalizeMultiRoomProject,
@@ -55,6 +57,10 @@ export function useAppControllerSession() {
     defaultCabinetProject.cabinets[0]?.id ?? null,
   );
   const [selectedPanelName, setSelectedPanelName] = useState<PanelName | null>(null);
+  const [activeOpeningSelection, setActiveOpeningSelection] = useState<{
+    cabinetId: string;
+    openingId: string;
+  } | null>(null);
   const [projectStatus, setProjectStatus] = useState("");
   const [projectFilePath, setProjectFilePath] = useState<string | null>(
     initialSession.projectFilePath,
@@ -98,6 +104,15 @@ export function useAppControllerSession() {
     setSelectedCabinetIds(safeSelection.selectedCabinetIds);
     setActiveCabinetId(safeSelection.activeCabinetId);
     setSelectedPanelName(snapshot.selectedPanelName);
+    setActiveOpeningSelection(null);
+  }
+
+  function setActiveOpeningId(openingId: string | null, cabinetId?: string | null) {
+    if (!openingId || !cabinetId) {
+      setActiveOpeningSelection(null);
+      return;
+    }
+    setActiveOpeningSelection({ cabinetId, openingId });
   }
 
   function captureSnapshot(): EditorSnapshot {
@@ -163,6 +178,42 @@ export function useAppControllerSession() {
   });
 
   useEffect(() => {
+    if (!activeOpeningSelection) return;
+    if (activeOpeningSelection.cabinetId !== activeCabinetId) {
+      setActiveOpeningSelection(null);
+      return;
+    }
+
+    const cabinet = project.cabinets.find(
+      (item) => item.id === activeOpeningSelection.cabinetId,
+    );
+    const structure = cabinet
+      ? resolveCabinetComposition(cabinet.config).openingStructure
+      : null;
+    if (!structure) {
+      setActiveOpeningSelection(null);
+      return;
+    }
+    const exists = Boolean(
+      findOpeningNode(structure.root, activeOpeningSelection.openingId),
+    );
+    if (!exists) {
+      setActiveOpeningSelection({
+        cabinetId: activeOpeningSelection.cabinetId,
+        openingId: structure.activeOpeningId,
+      });
+    }
+  }, [activeCabinetId, activeOpeningSelection, project]);
+
+  const activeOpeningId =
+    activeOpeningSelection?.cabinetId === activeCabinetId
+      ? activeOpeningSelection.openingId
+      : derived.selectedCabinet
+        ? resolveCabinetComposition(derived.selectedCabinet.config).openingStructure
+            ?.activeOpeningId ?? null
+        : null;
+
+  useEffect(() => {
     const timer = window.setTimeout(() => {
       setProjectStatus("");
     }, 2600);
@@ -188,6 +239,7 @@ export function useAppControllerSession() {
     setDraftingTool,
     selectedCabinetIds,
     activeCabinetId,
+    activeOpeningId,
     selectedPanelName,
     projectStatus,
     setProjectStatus,
@@ -235,5 +287,6 @@ export function useAppControllerSession() {
     getVisibleProject,
     handleWorkspaceSelectCabinet,
     commitProjectChange,
+    setActiveOpeningId,
   };
 }
