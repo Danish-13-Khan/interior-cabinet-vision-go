@@ -12,6 +12,10 @@ import {
   type DraftingLeader,
   type DraftingNote,
 } from "../domain/draftingAnnotations";
+import {
+  draftHighlightId,
+  type TechnicalObjectSelection,
+} from "../domain/draftingEdit";
 import { useTwoDPointer } from "../hooks/useTwoDPointer";
 import type { TechnicalViewMetrics } from "./twoDView/placementHelpers";
 import type { DraftingTool } from "./twoDView/types";
@@ -28,15 +32,21 @@ type TwoDViewProps = {
   selectedCabinetIds?: string[];
   activeCabinetId?: string | null;
   activeOpeningId?: string | null;
+  draftSelection?: TechnicalObjectSelection;
   snapSizeMm?: number;
   showGrid?: boolean;
   draftingDisplay?: DraftingDisplayPreferences;
   draftingTool?: DraftingTool;
   onSelectCabinet?: (cabinetId: string | null, additive: boolean) => void;
   onSelectOpening?: (cabinetId: string, openingId: string) => void;
+  onSelectDraftObject?: (selection: TechnicalObjectSelection) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onAddNote?: (note: DraftingNote) => void;
   onAddLeader?: (leader: DraftingLeader) => void;
+  onUpdateNote?: (note: DraftingNote) => void;
+  onUpdateLeader?: (leader: DraftingLeader) => void;
+  onUpsertDimOffset?: (id: string, dx: number, dy: number) => void;
+  onUpsertTagOffset?: (cabinetId: string, dx: number, dy: number) => void;
 };
 
 export function TwoDView({
@@ -49,15 +59,21 @@ export function TwoDView({
   selectedCabinetIds = [],
   activeCabinetId = null,
   activeOpeningId = null,
+  draftSelection = null,
   snapSizeMm = 50,
   showGrid = true,
   draftingDisplay,
   draftingTool = "select",
   onSelectCabinet,
   onSelectOpening,
+  onSelectDraftObject,
   onCabinetMove,
   onAddNote,
   onAddLeader,
+  onUpdateNote,
+  onUpdateLeader,
+  onUpsertDimOffset,
+  onUpsertTagOffset,
 }: TwoDViewProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const technicalViewRef = useRef<TechnicalViewMetrics>({
@@ -68,6 +84,7 @@ export function TwoDView({
     scale: 1,
   });
   const display = clampDraftingDisplay(draftingDisplay ?? project.preferences?.drafting);
+  const activeDraftObjectId = draftHighlightId(draftSelection);
 
   const {
     snapGuides,
@@ -87,9 +104,14 @@ export function TwoDView({
     draftingTool,
     onSelectCabinet,
     onSelectOpening,
+    onSelectDraftObject,
     onCabinetMove,
     onAddNote,
     onAddLeader,
+    onUpdateNote,
+    onUpdateLeader,
+    onUpsertDimOffset,
+    onUpsertTagOffset,
   });
 
   const technicalView = useMemo(
@@ -98,6 +120,7 @@ export function TwoDView({
         selectedCabinetIds,
         activeCabinetId,
         activeOpeningId,
+        activeDraftObjectId,
         mode: "interactive",
         showGrid,
         showDimensionChains: display.showDimensionChains,
@@ -121,6 +144,7 @@ export function TwoDView({
       }),
     [
       activeCabinetId,
+      activeDraftObjectId,
       activeOpeningId,
       countertops,
       display.dimMinSegmentMm,

@@ -16,6 +16,7 @@ import type { SnapGuide } from "../placementSnap";
 import { resolveSelectedCabinets } from "../placementSnap";
 import { GRID_STEP_MM, SCALE } from "./constants";
 import { dimTick } from "./dimGraphics";
+import { resolveDimOpts } from "./resolveDimOpts";
 import { dimensionLabel, line, text } from "./svgPrimitives";
 import type { TechnicalViewKind, TechnicalViewOptions } from "./types";
 
@@ -32,6 +33,7 @@ export function selectedPlanDimensions(
     options.selectedCabinetIds,
     options.activeCabinetId,
   );
+  const drafting = clampProjectDrafting(options.drafting);
   const elements: string[] = [];
 
   for (const cabinet of selected) {
@@ -43,43 +45,64 @@ export function selectedPlanDimensions(
     const bw = fp.width / SCALE;
     const bd = fp.depth / SCALE;
 
-    const widthY = cy + bd / 2 + 12;
+    const widthId = `selected-${cabinet.id}-w`;
+    const depthId = `selected-${cabinet.id}-d`;
+    const widthOpts = resolveDimOpts(drafting, widthId, options.activeDraftObjectId);
+    const depthOpts = resolveDimOpts(drafting, depthId, options.activeDraftObjectId);
+
+    const widthY = cy + bd / 2 + 12 + (widthOpts.dy ?? 0);
+    const wdx = widthOpts.dx ?? 0;
     elements.push(
       line(
-        cx - bw / 2,
+        cx - bw / 2 + wdx,
         widthY,
-        cx + bw / 2,
+        cx + bw / 2 + wdx,
         widthY,
-        `class="twod-dim twod-dim-selected" data-dim="selected"`,
+        `class="twod-dim twod-dim-selected${widthOpts.selected ? " is-selected" : ""}" data-dim-id="${widthId}" data-draft-object="dim" data-dim="selected" data-dim-axis="y" style="cursor:ns-resize"`,
+      ),
+      line(
+        cx - bw / 2 + wdx,
+        widthY,
+        cx + bw / 2 + wdx,
+        widthY,
+        `class="twod-dim twod-dim-hit" data-dim-id="${widthId}" data-draft-object="dim" data-dim-axis="y" style="cursor:ns-resize" stroke-width="10" opacity="0"`,
       ),
     );
-    elements.push(dimTick(cx - bw / 2, widthY, true, "selected"));
-    elements.push(dimTick(cx + bw / 2, widthY, true, "selected"));
+    elements.push(dimTick(cx - bw / 2 + wdx, widthY, true, "selected", widthOpts));
+    elements.push(dimTick(cx + bw / 2 + wdx, widthY, true, "selected", widthOpts));
     elements.push(
       text(
-        cx,
+        cx + wdx,
         widthY - 3,
         `${dimensionLabel(fp.width)} mm`,
         `class="twod-annotation twod-dim-selected" font-size="7" text-anchor="middle" pointer-events="none"`,
       ),
     );
 
-    const depthX = cx + bw / 2 + 12;
+    const depthX = cx + bw / 2 + 12 + (depthOpts.dx ?? 0);
+    const ddy = depthOpts.dy ?? 0;
     elements.push(
       line(
         depthX,
-        cy - bd / 2,
+        cy - bd / 2 + ddy,
         depthX,
-        cy + bd / 2,
-        `class="twod-dim twod-dim-selected" data-dim="selected"`,
+        cy + bd / 2 + ddy,
+        `class="twod-dim twod-dim-selected${depthOpts.selected ? " is-selected" : ""}" data-dim-id="${depthId}" data-draft-object="dim" data-dim="selected" data-dim-axis="x" style="cursor:ew-resize"`,
+      ),
+      line(
+        depthX,
+        cy - bd / 2 + ddy,
+        depthX,
+        cy + bd / 2 + ddy,
+        `class="twod-dim twod-dim-hit" data-dim-id="${depthId}" data-draft-object="dim" data-dim-axis="x" style="cursor:ew-resize" stroke-width="10" opacity="0"`,
       ),
     );
-    elements.push(dimTick(depthX, cy - bd / 2, false, "selected"));
-    elements.push(dimTick(depthX, cy + bd / 2, false, "selected"));
+    elements.push(dimTick(depthX, cy - bd / 2 + ddy, false, "selected", depthOpts));
+    elements.push(dimTick(depthX, cy + bd / 2 + ddy, false, "selected", depthOpts));
     elements.push(
       text(
         depthX + 3,
-        cy + 2.5,
+        cy + 2.5 + ddy,
         `${dimensionLabel(fp.depth)} mm`,
         `class="twod-annotation twod-dim-selected" font-size="7" text-anchor="start" pointer-events="none"`,
       ),
@@ -102,6 +125,7 @@ export function selectedElevationDimensions(
     options.selectedCabinetIds,
     options.activeCabinetId,
   );
+  const drafting = clampProjectDrafting(options.drafting);
   const elements: string[] = [];
   const floorY = oy + roomHeightMm / SCALE / 2;
 
@@ -122,42 +146,63 @@ export function selectedElevationDimensions(
     const left = x - span / SCALE / 2;
     const right = x + span / SCALE / 2;
 
-    const heightX = right + 10;
+    const heightId = `selected-${cabinet.id}-h`;
+    const widthId = `selected-${cabinet.id}-w`;
+    const heightOpts = resolveDimOpts(drafting, heightId, options.activeDraftObjectId);
+    const widthOpts = resolveDimOpts(drafting, widthId, options.activeDraftObjectId);
+
+    const heightX = right + 10 + (heightOpts.dx ?? 0);
+    const hdy = heightOpts.dy ?? 0;
     elements.push(
       line(
         heightX,
-        topY,
+        topY + hdy,
         heightX,
-        bottomY,
-        `class="twod-dim twod-dim-selected" data-dim="selected"`,
+        bottomY + hdy,
+        `class="twod-dim twod-dim-selected${heightOpts.selected ? " is-selected" : ""}" data-dim-id="${heightId}" data-draft-object="dim" data-dim="selected" data-dim-axis="x" style="cursor:ew-resize"`,
+      ),
+      line(
+        heightX,
+        topY + hdy,
+        heightX,
+        bottomY + hdy,
+        `class="twod-dim twod-dim-hit" data-dim-id="${heightId}" data-draft-object="dim" data-dim-axis="x" style="cursor:ew-resize" stroke-width="10" opacity="0"`,
       ),
     );
-    elements.push(dimTick(heightX, topY, false, "selected"));
-    elements.push(dimTick(heightX, bottomY, false, "selected"));
+    elements.push(dimTick(heightX, topY + hdy, false, "selected", heightOpts));
+    elements.push(dimTick(heightX, bottomY + hdy, false, "selected", heightOpts));
     elements.push(
       text(
         heightX + 3,
-        (topY + bottomY) / 2 + 2.5,
+        (topY + bottomY) / 2 + 2.5 + hdy,
         `${dimensionLabel(height)} mm`,
         `class="twod-annotation twod-dim-selected" font-size="7" text-anchor="start" pointer-events="none"`,
       ),
     );
 
-    const widthY = topY - 8;
+    const widthY = topY - 8 + (widthOpts.dy ?? 0);
+    const wdx = widthOpts.dx ?? 0;
     elements.push(
       line(
-        left,
+        left + wdx,
         widthY,
-        right,
+        right + wdx,
         widthY,
-        `class="twod-dim twod-dim-selected" data-dim="selected"`,
+        `class="twod-dim twod-dim-selected${widthOpts.selected ? " is-selected" : ""}" data-dim-id="${widthId}" data-draft-object="dim" data-dim="selected" data-dim-axis="y" style="cursor:ns-resize"`,
+      ),
+      line(
+        left + wdx,
+        widthY,
+        right + wdx,
+        widthY,
+        `class="twod-dim twod-dim-hit" data-dim-id="${widthId}" data-draft-object="dim" data-dim-axis="y" style="cursor:ns-resize" stroke-width="10" opacity="0"`,
       ),
     );
-    elements.push(dimTick(left, widthY, true, "selected"));
-    elements.push(dimTick(right, widthY, true, "selected"));
+    elements.push(dimTick(left + wdx, widthY, true, "selected", widthOpts));
+    elements.push(dimTick(right + wdx, widthY, true, "selected", widthOpts));
     elements.push(
       text(
-        x,
+        x + wdx,
         widthY - 2,
         `${dimensionLabel(span)} mm`,
         `class="twod-annotation twod-dim-selected" font-size="7" text-anchor="middle" pointer-events="none"`,
@@ -206,6 +251,7 @@ export function draftingLayer(
   drafting: ProjectDrafting | undefined,
   view: TechnicalViewKind,
   mapPoint: (point: { x: number; y: number; z: number }) => { x: number; y: number },
+  activeDraftObjectId?: string | null,
 ) {
   const sheetView =
     view === "section" || view === "detail" || view === "report"
@@ -218,13 +264,23 @@ export function draftingLayer(
   for (const note of safe.notes) {
     if (!draftingVisibleInView(note.view, sheetView)) continue;
     const point = mapPoint(note.anchor);
-    elements.push(...renderNoteSvg(point.x, point.y, note.text));
+    elements.push(
+      ...renderNoteSvg(point.x, point.y, note.text, {
+        id: note.id,
+        selected: activeDraftObjectId === note.id,
+      }),
+    );
   }
   for (const leader of safe.leaders) {
     if (!draftingVisibleInView(leader.view, sheetView)) continue;
     const target = mapPoint(leader.target);
     const label = mapPoint(leader.label);
-    elements.push(...renderLeaderSvg(target.x, target.y, label.x, label.y, leader.text));
+    elements.push(
+      ...renderLeaderSvg(target.x, target.y, label.x, label.y, leader.text, {
+        id: leader.id,
+        selected: activeDraftObjectId === leader.id,
+      }),
+    );
   }
   return elements;
 }

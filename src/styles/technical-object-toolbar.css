@@ -1,0 +1,26 @@
+.technical-object-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 4px 2px;
+}
+
+.technical-object-toolbar-meta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted, #64748b);
+}
+
+.technical-object-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.technical-object-toolbar-hint {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}

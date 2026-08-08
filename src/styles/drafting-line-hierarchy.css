@@ -200,6 +200,27 @@
   opacity: 0.95;
 }
 
+.technical-view .twod-dim.is-selected,
+.technical-view .twod-dim-selected.is-selected {
+  stroke: #c2410c;
+  stroke-width: 1.45px;
+  opacity: 1;
+}
+
+.technical-view .twod-note.is-selected,
+.technical-view .twod-leader-label.is-selected,
+.technical-view .twod-leader-handle.is-selected,
+.technical-view .twod-tag-cabinet.is-selected {
+  stroke: #c2410c;
+  stroke-width: 1.4px;
+  filter: drop-shadow(0 0 0.5px rgba(194, 65, 12, 0.45));
+}
+
+.technical-view .twod-leader.is-selected {
+  stroke: #c2410c;
+  stroke-width: 1.25px;
+}
+
 .technical-view .twod-wall-clearance {
   stroke: #1a5a72;
   stroke-width: 0.85px;

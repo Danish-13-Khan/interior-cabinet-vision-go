@@ -43,6 +43,8 @@ export type TechnicalViewOptions = {
   projectName?: string;
   sheetMeta?: string;
   sheetCode?: string;
+  /** Highlight selected drafting object id (note/leader/dim/tag). */
+  activeDraftObjectId?: string | null;
   snapGuides?: SnapGuide[];
   ghostPlacement?: {
     cabinetId: string;

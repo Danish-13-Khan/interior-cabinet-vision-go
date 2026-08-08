@@ -13,6 +13,7 @@ import {
   planSectionMarkers,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetPlanGraphics } from "./cabinetSvg";
 import { DIM_RUN_CHAIN_STEP, SCALE } from "./constants";
 import {
@@ -162,6 +163,12 @@ export function topView(
       topDimY,
       dimensionLabel(rw),
       roomTop,
+      "overall",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "plan-overall-w",
+        options.activeDraftObjectId,
+      ),
     ),
     ...overallSpanVertical(
       roomTop,
@@ -169,11 +176,19 @@ export function topView(
       leftDimX,
       dimensionLabel(rd),
       roomLeft,
+      "overall",
+      "end",
+      resolveDimOpts(
+        options.drafting ?? project.drafting,
+        "plan-overall-d",
+        options.activeDraftObjectId,
+      ),
     ),
   );
 
   if (showChains && display.showDimensionChains && project.cabinets.length > 0) {
     const minSeg = display.dimMinSegmentMm;
+    const drafting = options.drafting ?? project.drafting;
     const widthChain = filterDimensionChain(
       collectPlanDimensionChain(project.cabinets, rw),
       minSeg,
@@ -186,6 +201,7 @@ export function topView(
         chainLaneY(roomBottom, 0),
         "chain",
         roomBottom,
+        resolveDimOpts(drafting, "plan-chain-w", options.activeDraftObjectId),
       ),
     );
 
@@ -201,6 +217,7 @@ export function topView(
         oy,
         "chain",
         roomRight,
+        resolveDimOpts(drafting, "plan-chain-d", options.activeDraftObjectId),
       ),
     );
 
@@ -210,6 +227,7 @@ export function topView(
       const chain = collectRunDimensionChain(run, project.cabinets);
       if (!chain) continue;
       const filtered = filterDimensionChain(chain, minSeg);
+      const runDimId = `plan-run-${run.id}`;
       if (run.axis === "x") {
         elements.push(
           ...dimensionChainHorizontal(
@@ -219,6 +237,7 @@ export function topView(
             chainLaneY(roomBottom, 1 + runOffset),
             "run",
             roomBottom,
+            resolveDimOpts(drafting, runDimId, options.activeDraftObjectId),
           ),
         );
         runOffset += 1;
@@ -231,6 +250,7 @@ export function topView(
             oy,
             "run",
             roomRight,
+            resolveDimOpts(drafting, runDimId, options.activeDraftObjectId),
           ),
         );
         runOffset += 1;
@@ -239,10 +259,15 @@ export function topView(
   }
 
   elements.push(
-    ...draftingLayer(options.drafting ?? project.drafting, "top", (point) => ({
-      x: ox + point.x / SCALE,
-      y: oy + point.z / SCALE,
-    })),
+    ...draftingLayer(
+      options.drafting ?? project.drafting,
+      "top",
+      (point) => ({
+        x: ox + point.x / SCALE,
+        y: oy + point.z / SCALE,
+      }),
+      options.activeDraftObjectId,
+    ),
   );
 
   return {

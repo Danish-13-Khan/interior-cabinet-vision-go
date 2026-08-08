@@ -8,7 +8,9 @@ import {
   formatApplianceTag,
   formatCabinetTag,
   renderCabinetTagSvg,
+  clampProjectDrafting,
 } from "../draftingAnnotations";
+import { getTagOffset } from "../draftingEdit";
 import { renderElevationFaceGraphics } from "../elevationFaceGraphics";
 import { SCALE } from "./constants";
 import {
@@ -103,7 +105,17 @@ export function cabinetPlanGraphics(
   );
 
   if (display.showCabinetTags) {
-    elements.push(...renderCabinetTagSvg(cx, cy - bd / 2 - 8, formatCabinetTag(cabinetIndex)));
+    const drafting = clampProjectDrafting(options.drafting);
+    const tagOff = getTagOffset(drafting.tagOffsets, cabinet.id);
+    const tagSelected = options.activeDraftObjectId === `tag-${cabinet.id}`;
+    elements.push(
+      ...renderCabinetTagSvg(
+        cx + tagOff.dx,
+        cy - bd / 2 - 8 + tagOff.dy,
+        formatCabinetTag(cabinetIndex),
+        { cabinetId: cabinet.id, selected: tagSelected },
+      ),
+    );
   }
 
   const typeLabel = cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type;
@@ -181,8 +193,16 @@ export function cabinetElevationGraphics(
   );
 
   if (display.showCabinetTags) {
+    const drafting = clampProjectDrafting(options.drafting);
+    const tagOff = getTagOffset(drafting.tagOffsets, cabinet.id);
+    const tagSelected = options.activeDraftObjectId === `tag-${cabinet.id}`;
     elements.push(
-      ...renderCabinetTagSvg(x + width / 2, y - 6, formatCabinetTag(cabinetIndex)),
+      ...renderCabinetTagSvg(
+        x + width / 2 + tagOff.dx,
+        y - 6 + tagOff.dy,
+        formatCabinetTag(cabinetIndex),
+        { cabinetId: cabinet.id, selected: tagSelected },
+      ),
     );
   }
 

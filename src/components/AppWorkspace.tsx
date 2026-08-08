@@ -65,6 +65,14 @@ type AppWorkspaceProps = {
   ) => void;
   onAddNote: (note: DraftingNote) => void;
   onAddLeader: (leader: DraftingLeader) => void;
+  onUpdateNote: (note: DraftingNote) => void;
+  onUpdateLeader: (leader: DraftingLeader) => void;
+  onDeleteNote: (id: string) => void;
+  onDeleteLeader: (id: string) => void;
+  onUpsertDimOffset: (id: string, dx: number, dy: number) => void;
+  onResetDimOffset: (id: string) => void;
+  onUpsertTagOffset: (cabinetId: string, dx: number, dy: number) => void;
+  onResetTagOffset: (cabinetId: string) => void;
   onWorkspaceContextMenu?: (point: { x: number; y: number }) => void;
   tabShortcutHints?: Partial<Record<WorkspaceTabId, string>>;
 };
@@ -117,6 +125,14 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onElevationOpeningCommand,
       onAddNote,
       onAddLeader,
+      onUpdateNote,
+      onUpdateLeader,
+      onDeleteNote,
+      onDeleteLeader,
+      onUpsertDimOffset,
+      onResetDimOffset,
+      onUpsertTagOffset,
+      onResetTagOffset,
       onWorkspaceContextMenu,
       tabShortcutHints,
     },
@@ -303,6 +319,14 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               onElevationOpeningCommand={onElevationOpeningCommand}
               onAddNote={onAddNote}
               onAddLeader={onAddLeader}
+              onUpdateNote={onUpdateNote}
+              onUpdateLeader={onUpdateLeader}
+              onDeleteNote={onDeleteNote}
+              onDeleteLeader={onDeleteLeader}
+              onUpsertDimOffset={onUpsertDimOffset}
+              onResetDimOffset={onResetDimOffset}
+              onUpsertTagOffset={onUpsertTagOffset}
+              onResetTagOffset={onResetTagOffset}
             />
           </div>
         </div>

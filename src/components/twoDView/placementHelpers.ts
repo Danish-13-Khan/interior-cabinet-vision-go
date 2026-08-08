@@ -73,6 +73,26 @@ export function worldFromClient(
   return worldPointForView(view, { x: point.x, y: 0, z: point.z });
 }
 
+export function svgDeltaFromClient(
+  host: HTMLDivElement | null,
+  technicalView: TechnicalViewMetrics,
+  clientX: number,
+  clientY: number,
+  startClientX: number,
+  startClientY: number,
+): { dx: number; dy: number } | null {
+  const svg = host?.querySelector("svg");
+  if (!svg) return null;
+  const bounds = svg.getBoundingClientRect();
+  if (bounds.width <= 0 || bounds.height <= 0) return null;
+  const scaleX = technicalView.width / bounds.width;
+  const scaleY = technicalView.height / bounds.height;
+  return {
+    dx: (clientX - startClientX) * scaleX,
+    dy: (clientY - startClientY) * scaleY,
+  };
+}
+
 export function proposePlacement(
   project: CabinetProject,
   room: RoomConfig,
