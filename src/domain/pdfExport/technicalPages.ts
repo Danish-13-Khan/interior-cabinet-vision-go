@@ -7,13 +7,22 @@ import {
 } from "../cabinetLibrary";
 import type { RoomConfig } from "../roomModel";
 import type { ProjectReport } from "../projectReport";
-import {
-  createTechnicalView,
-  svgToPngDataUrl,
-  TECHNICAL_VIEW_SCALE,
-} from "../technicalViews";
+import { getDrawingSheet, type DrawingSheetId } from "../drawingSheets";
+import { createTechnicalView, svgToPngDataUrl } from "../technicalViews";
 import { clampProjectDrafting } from "../draftingAnnotations";
 import type { PdfLayout } from "./helpers";
+
+const PDF_SHEETS: Array<{
+  sheetId: DrawingSheetId;
+  view: "top" | "front" | "side" | "section" | "report";
+  noteView: "top" | "front" | "side" | "all";
+}> = [
+  { sheetId: "plan", view: "top", noteView: "top" },
+  { sheetId: "front", view: "front", noteView: "front" },
+  { sheetId: "side", view: "side", noteView: "side" },
+  { sheetId: "section", view: "section", noteView: "side" },
+  { sheetId: "report", view: "report", noteView: "all" },
+];
 
 export async function drawTechnicalPages(
   layout: PdfLayout,
@@ -38,7 +47,6 @@ export async function drawTechnicalPages(
     }).fillers;
 
   const drafting = clampProjectDrafting(project.drafting);
-  const scaleText = `1:${TECHNICAL_VIEW_SCALE * 25}`;
   const shared = {
     mode: "print" as const,
     showGrid: false,
@@ -58,25 +66,15 @@ export async function drawTechnicalPages(
     countertops,
     drafting,
   };
-  const topView = createTechnicalView(project, room, "top", countertops, {
-    ...shared,
-    title: "Room Plan",
-  });
-  const frontView = createTechnicalView(project, room, "front", countertops, {
-    ...shared,
-    title: "Front Elevation",
-  });
-  const sideView = createTechnicalView(project, room, "side", countertops, {
-    ...shared,
-    title: "Side Elevation",
-  });
-  const technicalViews = [
-    { label: "Room Plan", result: topView, sheetCode: "A-101" },
-    { label: "Front Elevation", result: frontView, sheetCode: "A-201" },
-    { label: "Side Elevation", result: sideView, sheetCode: "A-202" },
-  ];
 
-  for (const view of technicalViews) {
+  for (const page of PDF_SHEETS) {
+    const sheet = getDrawingSheet(page.sheetId);
+    const result = createTechnicalView(project, room, page.view, countertops, {
+      ...shared,
+      title: sheet.title,
+      sheetCode: sheet.code,
+    });
+
     doc.addPage();
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, pageHeight, "F");
@@ -93,13 +91,13 @@ export async function drawTechnicalPages(
     doc.text(title, margin + 3, viewY + 6.5);
     doc.setFontSize(8);
     doc.setTextColor(71, 85, 105);
-    doc.text(view.label, margin + 3, viewY + 12.5);
+    doc.text(sheet.title, margin + 3, viewY + 12.5);
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
-    doc.text(view.sheetCode, margin + contentWidth * 0.55 + 3, viewY + 6.5);
+    doc.text(sheet.code, margin + contentWidth * 0.55 + 3, viewY + 6.5);
     doc.setFontSize(8);
     doc.setTextColor(71, 85, 105);
-    doc.text(scaleText, margin + contentWidth * 0.55 + 3, viewY + 12.5);
+    doc.text(sheet.scaleText, margin + contentWidth * 0.55 + 3, viewY + 12.5);
     doc.text("TECHNICAL", margin + contentWidth * 0.78 + 3, viewY + 6.5);
     doc.text(
       `Rev ${report.summary.revision}`,
@@ -108,10 +106,10 @@ export async function drawTechnicalPages(
     );
     viewY += 22;
 
-    const viewImage = await svgToPngDataUrl(view.result.svg);
-    const scale = Math.min(contentWidth / view.result.width, 175 / view.result.height);
-    const drawWidth = view.result.width * scale;
-    const drawHeight = view.result.height * scale;
+    const viewImage = await svgToPngDataUrl(result.svg);
+    const scale = Math.min(contentWidth / result.width, 175 / result.height);
+    const drawWidth = result.width * scale;
+    const drawHeight = result.height * scale;
 
     doc.setDrawColor(148, 163, 184);
     doc.rect(margin, viewY, contentWidth, drawHeight + 8);
@@ -124,6 +122,8 @@ export async function drawTechnicalPages(
       drawHeight,
     );
 
+    if (page.sheetId === "report") continue;
+
     viewY += drawHeight + 14;
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
@@ -134,10 +134,14 @@ export async function drawTechnicalPages(
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
     const sheetNotes = drafting.notes
-      .filter((note) => note.view === "all" || note.view === (view.label.includes("Plan") ? "top" : view.label.includes("Front") ? "front" : "side"))
+      .filter(
+        (note) => note.view === "all" || note.view === page.noteView,
+      )
       .map((note) => note.text);
     const leaderNotes = drafting.leaders
-      .filter((leader) => leader.view === "all" || leader.view === (view.label.includes("Plan") ? "top" : view.label.includes("Front") ? "front" : "side"))
+      .filter(
+        (leader) => leader.view === "all" || leader.view === page.noteView,
+      )
       .map((leader) => leader.text);
     const seeded = [...sheetNotes, ...leaderNotes].slice(0, 4);
     if (seeded.length === 0) {

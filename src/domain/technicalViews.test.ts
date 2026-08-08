@@ -282,7 +282,7 @@ describe("technical view rendering", () => {
       projectName: "Demo Kitchen",
       showElevationDetails: true,
     });
-    expect(printSheet.svg).toContain("TECHNICAL SHEET");
+    expect(printSheet.svg).toContain("A-201");
     expect(printSheet.svg).toContain("Demo Kitchen");
     expect(printSheet.svg).toContain("FRONT ELEV.");
   });

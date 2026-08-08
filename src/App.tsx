@@ -97,6 +97,7 @@ function App() {
         }}
         workspaceProps={{
           workspaceTab: c.workspaceTab,
+          activeSheetId: c.layout.activeSheetId,
           workspaceLabel: c.workspaceLabel,
           draftingTool: c.draftingTool,
           project: c.getVisibleProject(),
@@ -114,10 +115,15 @@ function App() {
           splitPlanWidthPct: c.layout.splitPlanWidthPct,
           splitTopRowPct: c.layout.splitTopRowPct,
           sceneBrowserVisible: c.layout.sceneBrowserVisible,
+          sheetBrowserVisible: c.layout.sheetBrowserVisible,
           onWorkspaceTabChange: (tab) => {
             c.setWorkspaceTab(tab);
+            if (tab === "plan" || tab === "front" || tab === "side") {
+              c.setLayout({ activeSheetId: tab });
+            }
             c.setDraftingTool("select");
           },
+          onActiveSheetChange: (activeSheetId) => c.setLayout({ activeSheetId }),
           onDraftingToolChange: c.setDraftingTool,
           onSplitPlanWidthChange: (splitPlanWidthPct) =>
             c.setLayout({ splitPlanWidthPct }),
@@ -126,6 +132,10 @@ function App() {
           onToggleSceneBrowser: () =>
             c.setLayout({
               sceneBrowserVisible: !c.layout.sceneBrowserVisible,
+            }),
+          onToggleSheetBrowser: () =>
+            c.setLayout({
+              sheetBrowserVisible: !c.layout.sheetBrowserVisible,
             }),
           onSelectRoom: c.handleSelectProjectRoom,
           onCabinetMove: c.handleCabinetMove,

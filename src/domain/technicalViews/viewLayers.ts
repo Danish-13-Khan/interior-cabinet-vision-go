@@ -207,15 +207,21 @@ export function draftingLayer(
   view: TechnicalViewKind,
   mapPoint: (point: { x: number; y: number; z: number }) => { x: number; y: number },
 ) {
+  const sheetView =
+    view === "section" || view === "report"
+      ? "side"
+      : view === "top"
+        ? "top"
+        : view;
   const safe = clampProjectDrafting(drafting);
   const elements: string[] = [];
   for (const note of safe.notes) {
-    if (!draftingVisibleInView(note.view, view)) continue;
+    if (!draftingVisibleInView(note.view, sheetView)) continue;
     const point = mapPoint(note.anchor);
     elements.push(...renderNoteSvg(point.x, point.y, note.text));
   }
   for (const leader of safe.leaders) {
-    if (!draftingVisibleInView(leader.view, view)) continue;
+    if (!draftingVisibleInView(leader.view, sheetView)) continue;
     const target = mapPoint(leader.target);
     const label = mapPoint(leader.label);
     elements.push(...renderLeaderSvg(target.x, target.y, label.x, label.y, leader.text));

@@ -16,6 +16,7 @@ import {
   createDraftingId,
   type DraftingLeader,
   type DraftingNote,
+  type DraftingViewTarget,
   type DraftingWorldPoint,
 } from "../domain/draftingAnnotations";
 import type { DraftingTool } from "../components/twoDView/types";
@@ -24,6 +25,12 @@ import {
   worldFromClient,
   type TechnicalViewMetrics,
 } from "../components/twoDView/placementHelpers";
+
+function draftingViewFor(view: TechnicalViewKind): DraftingViewTarget {
+  if (view === "section") return "side";
+  if (view === "report") return "all";
+  return view;
+}
 
 type DragState = {
   cabinetId: string;
@@ -180,7 +187,7 @@ export function useTwoDPointer({
       if (!text?.trim()) return;
       onAddNote({
         id: createDraftingId("note"),
-        view,
+        view: draftingViewFor(view),
         text: text.trim(),
         anchor: world,
       });
@@ -208,7 +215,7 @@ export function useTwoDPointer({
       }
       onAddLeader({
         id: createDraftingId("leader"),
-        view,
+        view: draftingViewFor(view),
         text: text.trim(),
         target: leaderTarget,
         label: world,

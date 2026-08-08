@@ -15,10 +15,13 @@ import type {
 import type { CabinetPlanningWorkflow, CabinetRun } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
+import type { DrawingSheetId } from "../domain/drawingSheets";
 import type { ProjectRoom } from "../domain/projectRooms";
+import { WorkspaceSheetBrowser } from "./WorkspaceSheetBrowser";
 
 type AppWorkspaceProps = {
   workspaceTab: WorkspaceTabId;
+  activeSheetId: DrawingSheetId;
   workspaceLabel: string;
   draftingTool: DraftingTool;
   project: CabinetProject;
@@ -36,11 +39,14 @@ type AppWorkspaceProps = {
   splitPlanWidthPct: number;
   splitTopRowPct: number;
   sceneBrowserVisible: boolean;
+  sheetBrowserVisible: boolean;
   onWorkspaceTabChange: (tab: WorkspaceTabId) => void;
+  onActiveSheetChange: (sheetId: DrawingSheetId) => void;
   onDraftingToolChange: (tool: DraftingTool) => void;
   onSplitPlanWidthChange: (pct: number) => void;
   onSplitTopRowChange: (pct: number) => void;
   onToggleSceneBrowser: () => void;
+  onToggleSheetBrowser: () => void;
   onSelectRoom: (roomId: string) => void;
   onCabinetMove: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onCabinetRotate: (cabinetId: string, rotation: number) => boolean;
@@ -74,6 +80,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
   function AppWorkspace(
     {
       workspaceTab,
+      activeSheetId,
       workspaceLabel,
       draftingTool,
       project,
@@ -91,11 +98,14 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       splitPlanWidthPct,
       splitTopRowPct,
       sceneBrowserVisible,
+      sheetBrowserVisible,
       onWorkspaceTabChange,
+      onActiveSheetChange,
       onDraftingToolChange,
       onSplitPlanWidthChange,
       onSplitTopRowChange,
       onToggleSceneBrowser,
+      onToggleSheetBrowser,
       onSelectRoom,
       onCabinetMove,
       onCabinetRotate,
@@ -130,17 +140,33 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
     function handleToggleMaximize(tab: WorkspaceTabId) {
       setMaximizedPane((current) => (current === tab ? null : tab));
       onWorkspaceTabChange(tab);
+      if (tab === "plan" || tab === "front" || tab === "side") {
+        onActiveSheetChange(tab);
+      }
+    }
+
+    function handleSelectSheet(sheetId: DrawingSheetId) {
+      onActiveSheetChange(sheetId);
+      if (sheetId === "plan" || sheetId === "front" || sheetId === "side") {
+        onWorkspaceTabChange(sheetId);
+        setMaximizedPane(null);
+      } else {
+        setMaximizedPane(null);
+      }
+      onDraftingToolChange("select");
     }
 
     function handleSelectRun(run: CabinetRun) {
       onReplaceSelection(run.cabinetIds, run.cabinetIds[0] ?? null, null);
       onWorkspaceTabChange("plan");
+      onActiveSheetChange("plan");
       setMaximizedPane(null);
     }
 
     function handleSelectOpening(cabinetId: string, openingId: string) {
       onSelectOpening?.(cabinetId, openingId);
       onWorkspaceTabChange("front");
+      onActiveSheetChange("front");
       setMaximizedPane(null);
     }
 
@@ -173,10 +199,16 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                 }
                 onClick={() => {
                   onWorkspaceTabChange(tab.id);
+                  if (tab.id === "plan" || tab.id === "front" || tab.id === "side") {
+                    onActiveSheetChange(tab.id);
+                  }
                   setMaximizedPane(null);
                 }}
                 onDoubleClick={() => {
                   onWorkspaceTabChange(tab.id);
+                  if (tab.id === "plan" || tab.id === "front" || tab.id === "side") {
+                    onActiveSheetChange(tab.id);
+                  }
                   onDraftingToolChange("select");
                   setMaximizedPane(tab.id);
                 }}
@@ -190,6 +222,14 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
           </div>
           <button
             type="button"
+            className={`tb-btn ${sheetBrowserVisible ? "tb-accent" : ""}`}
+            title="Toggle sheet browser"
+            onClick={onToggleSheetBrowser}
+          >
+            Sheets
+          </button>
+          <button
+            type="button"
             className={`tb-btn ${sceneBrowserVisible ? "tb-accent" : ""}`}
             title="Toggle scene browser"
             onClick={onToggleSceneBrowser}
@@ -197,12 +237,19 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             Objects
           </button>
           <span className="workspace-focus-hint">
-            Split · Plan + Elev + 3D
+            Sheets · Plan/Front/Side/Section/Report
             {maximizedPane ? " · max" : ""}
           </span>
         </div>
 
         <div className="workspace-body">
+          {sheetBrowserVisible ? (
+            <WorkspaceSheetBrowser
+              activeSheetId={activeSheetId}
+              onSelectSheet={handleSelectSheet}
+            />
+          ) : null}
+
           {sceneBrowserVisible ? (
             <WorkspaceSceneBrowser
               rooms={rooms}
@@ -225,6 +272,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             <WorkspaceSplitCanvas
               ref={sceneRef}
               workspaceTab={workspaceTab}
+              activeSheetId={activeSheetId}
               maximizedPane={maximizedPane}
               splitPlanWidthPct={splitPlanWidthPct}
               splitTopRowPct={splitTopRowPct}
@@ -240,6 +288,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               selectedPanelName={selectedPanelName}
               draftingDisplay={draftingDisplay}
               onFocusPane={onWorkspaceTabChange}
+              onSelectSheet={handleSelectSheet}
               onToggleMaximize={handleToggleMaximize}
               onSplitPlanWidthChange={onSplitPlanWidthChange}
               onSplitTopRowChange={onSplitTopRowChange}

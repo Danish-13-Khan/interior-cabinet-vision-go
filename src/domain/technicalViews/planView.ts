@@ -76,6 +76,7 @@ export function topView(
         "PLAN",
         `1:${SCALE * 25}`,
         sheetMeta,
+        options.sheetCode ?? "A-101",
       ),
     );
   }

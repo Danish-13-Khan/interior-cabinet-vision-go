@@ -77,6 +77,7 @@ export function sideView(
         "SIDE ELEV.",
         `1:${SCALE * 25}`,
         sheetMeta,
+        options.sheetCode ?? "A-202",
       ),
     );
   }

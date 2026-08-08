@@ -2,6 +2,13 @@ export const DESKTOP_LAYOUT_STORAGE_KEY = "cabinet-designer-desktop-layout";
 
 export type WorkspaceTabId = "plan" | "front" | "side" | "3d";
 
+export type DrawingSheetId =
+  | "plan"
+  | "front"
+  | "side"
+  | "section"
+  | "report";
+
 export type DesktopLayoutPrefs = {
   toolRailWidthPx: number;
   inspectorWidthPx: number;
@@ -10,11 +17,14 @@ export type DesktopLayoutPrefs = {
   inspectorVisible: boolean;
   statusDockOpen: boolean;
   workspaceTab: WorkspaceTabId;
+  /** Active technical drawing sheet in the drafting area. */
+  activeSheetId: DrawingSheetId;
   /** Plan column share vs elevation (percent). */
   splitPlanWidthPct: number;
   /** Top drafting row share vs 3D (percent). */
   splitTopRowPct: number;
   sceneBrowserVisible: boolean;
+  sheetBrowserVisible: boolean;
 };
 
 export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
@@ -25,9 +35,11 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   inspectorVisible: true,
   statusDockOpen: false,
   workspaceTab: "front",
+  activeSheetId: "front",
   splitPlanWidthPct: 50,
   splitTopRowPct: 68,
   sceneBrowserVisible: true,
+  sheetBrowserVisible: true,
 };
 
 const WIDTH_MIN = 160;
@@ -49,14 +61,29 @@ export function clampDesktopLayout(
     inspectorVisible: Boolean(next.inspectorVisible),
     statusDockOpen: Boolean(next.statusDockOpen),
     workspaceTab: normalizeWorkspaceTab(next.workspaceTab),
+    activeSheetId: normalizeDrawingSheetId(next.activeSheetId ?? next.workspaceTab),
     splitPlanWidthPct: clamp(next.splitPlanWidthPct, SPLIT_MIN, SPLIT_MAX),
     splitTopRowPct: clamp(next.splitTopRowPct, SPLIT_MIN, SPLIT_MAX),
     sceneBrowserVisible: next.sceneBrowserVisible !== false,
+    sheetBrowserVisible: next.sheetBrowserVisible !== false,
   };
 }
 
 export function normalizeWorkspaceTab(value: unknown): WorkspaceTabId {
   if (value === "plan" || value === "front" || value === "side" || value === "3d") {
+    return value;
+  }
+  return "plan";
+}
+
+export function normalizeDrawingSheetId(value: unknown): DrawingSheetId {
+  if (
+    value === "plan" ||
+    value === "front" ||
+    value === "side" ||
+    value === "section" ||
+    value === "report"
+  ) {
     return value;
   }
   return "plan";
