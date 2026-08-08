@@ -1,51 +1,3 @@
-/* Drafting line hierarchy */
-.technical-view .twod-wall {
-  vector-effect: non-scaling-stroke;
-}
-
-.technical-view .twod-cabinet {
-  vector-effect: non-scaling-stroke;
-}
-
-.technical-view .twod-cabinet-opening {
-  opacity: 0.95;
-}
-
-.technical-view .twod-opening {
-  opacity: 0.95;
-}
-
-.technical-view .twod-annotation,
-.technical-view .twod-label {
-  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-  letter-spacing: 0.01em;
-}
-
-.technical-view .twod-dim {
-  vector-effect: non-scaling-stroke;
-}
-
-.technical-view .twod-dim-selected {
-  opacity: 1;
-}
-
-.technical-view .twod-guide {
-  opacity: 0.95;
-  pointer-events: none;
-}
-
-.technical-view .twod-guide-adjacency {
-  opacity: 1;
-}
-
-.technical-view .twod-grid {
-  pointer-events: none;
-}
-
-.technical-view .twod-countertop {
-  pointer-events: none;
-}
-
 .output-cutlists .cutlist-panel {
   flex: 1;
   min-width: 220px;
@@ -312,27 +264,6 @@
 .property-grid-action:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-
-/* Front elevation opening authoring */
-.twod-opening-face {
-  cursor: pointer;
-}
-
-.twod-opening-face.is-active-opening {
-  filter: none;
-  stroke: var(--selection) !important;
-}
-
-.twod-toe-kick,
-.twod-filler,
-.twod-end-panel,
-.twod-run-filler {
-  pointer-events: none;
-}
-
-.twod-wall-clearance {
-  opacity: 0.9;
 }
 
 .workspace-tab[aria-selected="true"] {

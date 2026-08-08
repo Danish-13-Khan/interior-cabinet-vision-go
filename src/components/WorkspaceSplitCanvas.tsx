@@ -142,9 +142,10 @@ export const WorkspaceSplitCanvas = forwardRef<
   const maxKey =
     maximizedPane === "side" ? "front" : maximizedPane;
   const sheetMode =
-    activeSheetId === "section" ||
-    activeSheetId === "detail" ||
-    activeSheetId === "report"
+    workspaceTab !== "3d" &&
+    (activeSheetId === "section" ||
+      activeSheetId === "detail" ||
+      activeSheetId === "report")
       ? "single"
       : "split";
   const splitClass = [
@@ -242,6 +243,11 @@ export const WorkspaceSplitCanvas = forwardRef<
     />
   );
 
+  const restoreSheetId: DrawingSheetId =
+    workspaceTab === "plan" || workspaceTab === "front" || workspaceTab === "side"
+      ? workspaceTab
+      : "front";
+
   return (
     <div className="workspace-drafting-root">
       <DrawingSheetTabs
@@ -265,7 +271,10 @@ export const WorkspaceSplitCanvas = forwardRef<
             focused
             maximized
             onFocus={() => onSelectSheet(activeSheetId)}
-            onToggleMaximize={() => onFocusPane("plan")}
+            onToggleMaximize={() => {
+              onSelectSheet(restoreSheetId);
+              onFocusPane(workspaceTab);
+            }}
             toolbar={
               activeSheetId === "section" || activeSheetId === "detail"
                 ? draftingTools
