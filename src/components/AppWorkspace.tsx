@@ -1,22 +1,24 @@
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import {
-  CabinetScene,
   type CabinetSceneHandle,
 } from "./CabinetScene";
-import { ElevationOpeningToolbar } from "./ElevationOpeningToolbar";
-import { TwoDView, type DraftingTool } from "./TwoDView";
+import { WorkspaceSplitCanvas } from "./WorkspaceSplitCanvas";
+import type { DraftingTool } from "./TwoDView";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { CabinetDimensions, CabinetPlacement } from "../domain/cabinetDimensions";
 import type { PanelName } from "../domain/cabinetGeometry";
 import type { RoomConfig } from "../domain/roomModel";
-import type { DraftingDisplayPreferences, DraftingLeader, DraftingNote } from "../domain/draftingAnnotations";
+import type {
+  DraftingDisplayPreferences,
+  DraftingLeader,
+  DraftingNote,
+} from "../domain/draftingAnnotations";
 import type { CabinetPlanningWorkflow } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
-
-type WorkspaceTab = "plan" | "front" | "side" | "3d";
+import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
 
 type AppWorkspaceProps = {
-  workspaceTab: WorkspaceTab;
+  workspaceTab: WorkspaceTabId;
   workspaceLabel: string;
   draftingTool: DraftingTool;
   project: CabinetProject;
@@ -29,7 +31,7 @@ type AppWorkspaceProps = {
   activeOpeningId: string | null;
   selectedPanelName: PanelName | null;
   draftingDisplay: DraftingDisplayPreferences;
-  onWorkspaceTabChange: (tab: WorkspaceTab) => void;
+  onWorkspaceTabChange: (tab: WorkspaceTabId) => void;
   onDraftingToolChange: (tool: DraftingTool) => void;
   onCabinetMove: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onCabinetRotate: (cabinetId: string, rotation: number) => boolean;
@@ -49,8 +51,15 @@ type AppWorkspaceProps = {
   onAddNote: (note: DraftingNote) => void;
   onAddLeader: (leader: DraftingLeader) => void;
   onWorkspaceContextMenu?: (point: { x: number; y: number }) => void;
-  tabShortcutHints?: Partial<Record<WorkspaceTab, string>>;
+  tabShortcutHints?: Partial<Record<WorkspaceTabId, string>>;
 };
+
+const FOCUS_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
+  { id: "plan", label: "Plan" },
+  { id: "front", label: "Front" },
+  { id: "side", label: "Side" },
+  { id: "3d", label: "3D" },
+];
 
 export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
   function AppWorkspace(
@@ -85,15 +94,34 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
     },
     sceneRef,
   ) {
-    const twoDViewKind =
-      workspaceTab === "front"
-        ? "front"
-        : workspaceTab === "side"
-          ? "side"
-          : "top";
-    const activeCabinet = project.cabinets.find(
-      (cabinet) => cabinet.id === activeCabinetId,
-    );
+    const [maximizedPane, setMaximizedPane] = useState<WorkspaceTabId | null>(null);
+
+    useEffect(() => {
+      if (!maximizedPane) return;
+      if (maximizedPane === "front" || maximizedPane === "side") {
+        if (workspaceTab !== "front" && workspaceTab !== "side") {
+          setMaximizedPane(null);
+        }
+        return;
+      }
+      if (maximizedPane !== workspaceTab) {
+        setMaximizedPane(null);
+      }
+    }, [maximizedPane, workspaceTab]);
+
+    function handleToggleMaximize(tab: WorkspaceTabId) {
+      setMaximizedPane((current) => {
+        if (current === tab) return null;
+        if (
+          (current === "front" || current === "side") &&
+          (tab === "front" || tab === "side")
+        ) {
+          return current === tab ? null : tab;
+        }
+        return tab;
+      });
+      onWorkspaceTabChange(tab);
+    }
 
     return (
       <section
@@ -107,168 +135,76 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
           onWorkspaceContextMenu({ x: event.clientX, y: event.clientY });
         }}
       >
-        <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
-          {(
-            [
-              { id: "front", label: "Front Elevation" },
-              { id: "plan", label: "Plan" },
-              { id: "side", label: "Side Elevation" },
-              { id: "3d", label: "3D" },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={workspaceTab === tab.id}
-              className={`workspace-tab ${workspaceTab === tab.id ? "is-active" : ""}`}
-              title={
-                tabShortcutHints?.[tab.id]
-                  ? `${tab.label} (${tabShortcutHints[tab.id]})`
-                  : tab.label
-              }
-              onClick={() => onWorkspaceTabChange(tab.id)}
-              onDoubleClick={() => {
-                onWorkspaceTabChange(tab.id);
-                onDraftingToolChange("select");
-              }}
-            >
-              {tab.label}
-              {tabShortcutHints?.[tab.id] ? (
-                <kbd className="workspace-tab-kbd">{tabShortcutHints[tab.id]}</kbd>
-              ) : null}
-            </button>
-          ))}
+        <div className="workspace-focus-bar" role="tablist" aria-label="Focus viewport">
+          <span className="workspace-focus-label">{workspaceLabel}</span>
+          <div className="workspace-tabs">
+            {FOCUS_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={workspaceTab === tab.id}
+                className={`workspace-tab ${workspaceTab === tab.id ? "is-active" : ""}`}
+                title={
+                  tabShortcutHints?.[tab.id]
+                    ? `${tab.label} (${tabShortcutHints[tab.id]})`
+                    : tab.label
+                }
+                onClick={() => {
+                  onWorkspaceTabChange(tab.id);
+                  setMaximizedPane(null);
+                }}
+                onDoubleClick={() => {
+                  onWorkspaceTabChange(tab.id);
+                  onDraftingToolChange("select");
+                  setMaximizedPane(tab.id);
+                }}
+              >
+                {tab.label}
+                {tabShortcutHints?.[tab.id] ? (
+                  <kbd className="workspace-tab-kbd">{tabShortcutHints[tab.id]}</kbd>
+                ) : null}
+              </button>
+            ))}
+          </div>
+          <span className="workspace-focus-hint">
+            Split · Plan + Elevation + 3D
+            {maximizedPane ? " · maximized" : ""}
+          </span>
         </div>
 
         <div className="workspace-canvas">
-          {workspaceTab === "3d" ? (
-            <div className="viewport-panel" aria-label="3D room viewport">
-              <CabinetScene
-                ref={sceneRef}
-                project={project}
-                room={room}
-                countertops={planningWorkflow.countertops}
-                fillers={planningWorkflow.fillers}
-                snapSizeMm={snapSizeMm}
-                showGrid={showGrid}
-                onCabinetMove={onCabinetMove}
-                onCabinetRotate={onCabinetRotate}
-                selectedCabinetIds={selectedCabinetIds}
-                activeCabinetId={activeCabinetId}
-                selectedPanelName={selectedPanelName}
-                onCabinetResize={onCabinetResize}
-                onSelectedCabinetChange={(cabinetId, additive) => {
-                  if (!cabinetId) {
-                    onReplaceSelection([], null, null);
-                    return;
-                  }
-                  if (additive) {
-                    onToggleCabinetSelection(cabinetId);
-                    return;
-                  }
-                  onReplaceSelection([cabinetId], cabinetId, null);
-                }}
-                onSelectedPanelChange={(cabinetId, name, additive) => {
-                  if (!cabinetId) {
-                    onReplaceSelection([], null, null);
-                    return;
-                  }
-                  if (additive) {
-                    const nextIds = selectedCabinetIds.includes(cabinetId)
-                      ? selectedCabinetIds
-                      : [...selectedCabinetIds, cabinetId];
-                    onReplaceSelection(nextIds, cabinetId, name);
-                    return;
-                  }
-                  onReplaceSelection([cabinetId], cabinetId, name);
-                }}
-                onMarqueeSelect={(cabinetIds, additive) => {
-                  if (additive) {
-                    onReplaceSelection(
-                      Array.from(new Set([...selectedCabinetIds, ...cabinetIds])),
-                      cabinetIds[0] ?? activeCabinetId,
-                      null,
-                    );
-                    return;
-                  }
-                  onReplaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
-                }}
-              />
-            </div>
-          ) : (
-            <div className="drawing-sheet" aria-label={`${workspaceLabel} drawing`}>
-              <div className="drawing-sheet-meta">
-                <span>{workspaceLabel}</span>
-                <span>
-                  {draftingTool !== "select"
-                    ? draftingTool === "note"
-                      ? "Note tool · click to place text note"
-                      : "Leader tool · click target, then label"
-                    : workspaceTab === "front"
-                      ? selectedCabinetIds.length > 0
-                        ? "Front elevation · select openings · split & assign content · drag cabinets"
-                        : "Front elevation authoring · click a cabinet face or opening"
-                      : selectedCabinetIds.length > 0
-                        ? `${selectedCabinetIds.length} selected · drag to move · snap ${snapSizeMm} mm · selected dims on`
-                        : "Click to select · drag cabinets · snap guides · dimension chains"}
-                </span>
-                <span className="drawing-drafting-tools">
-                  {(
-                    [
-                      ["select", "Select"],
-                      ["note", "Note"],
-                      ["leader", "Leader"],
-                    ] as const
-                  ).map(([id, label]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      className={`tb-btn ${draftingTool === id ? "tb-accent" : ""}`}
-                      onClick={() => onDraftingToolChange(id)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </span>
-              </div>
-              {workspaceTab === "front" && onElevationOpeningCommand ? (
-                <ElevationOpeningToolbar
-                  config={activeCabinet?.config ?? null}
-                  activeOpeningId={
-                    activeCabinetId === activeCabinet?.id ? activeOpeningId : null
-                  }
-                  draftingTool={draftingTool}
-                  onCommand={(command) => {
-                    if (!activeCabinetId) return;
-                    onElevationOpeningCommand(activeCabinetId, command);
-                  }}
-                />
-              ) : null}
-              <div className="drawing-sheet-scroll">
-                <TwoDView
-                  project={project}
-                  room={room}
-                  view={twoDViewKind}
-                  countertops={planningWorkflow.countertops}
-                  runs={planningWorkflow.runs}
-                  fillers={planningWorkflow.fillers}
-                  selectedCabinetIds={selectedCabinetIds}
-                  activeCabinetId={activeCabinetId}
-                  activeOpeningId={activeOpeningId}
-                  snapSizeMm={snapSizeMm}
-                  showGrid={showGrid}
-                  draftingDisplay={draftingDisplay}
-                  draftingTool={draftingTool}
-                  onSelectCabinet={onSelectCabinet}
-                  onSelectOpening={onSelectOpening}
-                  onCabinetMove={onCabinetMove}
-                  onAddNote={onAddNote}
-                  onAddLeader={onAddLeader}
-                />
-              </div>
-            </div>
-          )}
+          <WorkspaceSplitCanvas
+            ref={sceneRef}
+            workspaceTab={workspaceTab}
+            maximizedPane={maximizedPane}
+            draftingTool={draftingTool}
+            project={project}
+            room={room}
+            planningWorkflow={planningWorkflow}
+            snapSizeMm={snapSizeMm}
+            showGrid={showGrid}
+            selectedCabinetIds={selectedCabinetIds}
+            activeCabinetId={activeCabinetId}
+            activeOpeningId={activeOpeningId}
+            selectedPanelName={selectedPanelName}
+            draftingDisplay={draftingDisplay}
+            onFocusPane={(tab) => {
+              onWorkspaceTabChange(tab);
+            }}
+            onToggleMaximize={handleToggleMaximize}
+            onDraftingToolChange={onDraftingToolChange}
+            onCabinetMove={onCabinetMove}
+            onCabinetRotate={onCabinetRotate}
+            onCabinetResize={onCabinetResize}
+            onReplaceSelection={onReplaceSelection}
+            onToggleCabinetSelection={onToggleCabinetSelection}
+            onSelectCabinet={onSelectCabinet}
+            onSelectOpening={onSelectOpening}
+            onElevationOpeningCommand={onElevationOpeningCommand}
+            onAddNote={onAddNote}
+            onAddLeader={onAddLeader}
+          />
         </div>
       </section>
     );

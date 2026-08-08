@@ -21,6 +21,13 @@
   letter-spacing: 0.01em;
 }
 
+.technical-view .twod-annotation {
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 2.4px;
+  stroke-linejoin: round;
+}
+
 .technical-view .twod-label {
   paint-order: stroke;
   stroke: rgba(248, 250, 252, 0.85);
@@ -51,7 +58,12 @@
 
 .technical-view .twod-selected,
 .technical-view .twod-active {
-  filter: drop-shadow(0 0 0.5px rgba(37, 99, 235, 0.35));
+  filter: none;
+  stroke: var(--selection) !important;
+}
+
+.technical-view .twod-selected {
+  fill: var(--selection-fill);
 }
 
 .technical-view .twod-countertop {
@@ -332,7 +344,8 @@
 }
 
 .twod-opening-face.is-active-opening {
-  filter: drop-shadow(0 0 0.5px #1d4ed8);
+  filter: none;
+  stroke: var(--selection) !important;
 }
 
 .twod-toe-kick,

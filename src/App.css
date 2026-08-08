@@ -4,6 +4,7 @@
 @import "./styles/scene-tree-nav.css";
 @import "./styles/room-editors.css";
 @import "./styles/workspace-inspector.css";
+@import "./styles/workspace-split.css";
 @import "./styles/status-strip.css";
 @import "./styles/report-center.css";
 @import "./styles/report-tables.css";

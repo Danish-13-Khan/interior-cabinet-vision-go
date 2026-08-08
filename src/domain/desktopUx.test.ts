@@ -18,7 +18,7 @@ describe("desktopUx layout", () => {
       inspectorWidthPx: 900,
       workspaceTab: "front",
     });
-    expect(layout.toolRailWidthPx).toBe(180);
+    expect(layout.toolRailWidthPx).toBe(160);
     expect(layout.inspectorWidthPx).toBe(480);
     expect(layout.workspaceTab).toBe("front");
   });

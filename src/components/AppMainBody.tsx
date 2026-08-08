@@ -38,6 +38,7 @@ export function AppMainBody({
           <PaneResizeHandle
             axis="x"
             value={toolRailWidthPx}
+            min={160}
             ariaLabel="Resize tool rail"
             onChange={onToolRailWidthChange}
           />
@@ -51,6 +52,7 @@ export function AppMainBody({
           <PaneResizeHandle
             axis="x"
             value={inspectorWidthPx}
+            min={160}
             invert
             ariaLabel="Resize inspector"
             onChange={onInspectorWidthChange}
