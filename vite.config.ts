@@ -7,6 +7,52 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react()],
+  build: {
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return undefined;
+          }
+
+          if (
+            id.includes("/react/") ||
+            id.includes("/react-dom/") ||
+            id.includes("/scheduler/")
+          ) {
+            return "react-vendor";
+          }
+
+          if (id.includes("/three/")) {
+            return "three-core";
+          }
+
+          if (id.includes("@react-three/fiber")) {
+            return "r3f-vendor";
+          }
+
+          if (id.includes("@react-three/drei")) {
+            return "drei-vendor";
+          }
+
+          if (id.includes("/jspdf/")) {
+            return "jspdf-vendor";
+          }
+
+          if (id.includes("html2canvas") || id.includes("dompurify")) {
+            return "export-helpers";
+          }
+
+          if (id.includes("@tauri-apps/")) {
+            return "tauri-vendor";
+          }
+
+          return undefined;
+        },
+      },
+    },
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
