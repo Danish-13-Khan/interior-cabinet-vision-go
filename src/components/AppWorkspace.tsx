@@ -38,6 +38,7 @@ type AppWorkspaceProps = {
   ) => void;
   onToggleCabinetSelection: (cabinetId: string) => void;
   onSelectCabinet: (cabinetId: string | null, additive: boolean) => void;
+  onSelectOpening?: (cabinetId: string, openingId: string) => void;
   onAddNote: (note: DraftingNote) => void;
   onAddLeader: (leader: DraftingLeader) => void;
   onWorkspaceContextMenu?: (point: { x: number; y: number }) => void;
@@ -67,6 +68,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onReplaceSelection,
       onToggleCabinetSelection,
       onSelectCabinet,
+      onSelectOpening,
       onAddNote,
       onAddLeader,
       onWorkspaceContextMenu,
@@ -96,8 +98,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
         <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
           {(
             [
-              { id: "plan", label: "Plan" },
               { id: "front", label: "Front Elevation" },
+              { id: "plan", label: "Plan" },
               { id: "side", label: "Side Elevation" },
               { id: "3d", label: "3D" },
             ] as const
@@ -191,9 +193,13 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                     ? draftingTool === "note"
                       ? "Note tool · click to place text note"
                       : "Leader tool · click target, then label"
-                    : selectedCabinetIds.length > 0
-                      ? `${selectedCabinetIds.length} selected · drag to move · snap ${snapSizeMm} mm · selected dims on`
-                      : "Click to select · drag cabinets · snap guides · dimension chains"}
+                    : workspaceTab === "front"
+                      ? selectedCabinetIds.length > 0
+                        ? "Front elevation · click openings to edit · drag cabinets · wall height clearances on"
+                        : "Front elevation authoring · click a cabinet face or opening"
+                      : selectedCabinetIds.length > 0
+                        ? `${selectedCabinetIds.length} selected · drag to move · snap ${snapSizeMm} mm · selected dims on`
+                        : "Click to select · drag cabinets · snap guides · dimension chains"}
                 </span>
                 <span className="drawing-drafting-tools">
                   {(
@@ -221,13 +227,19 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
                   view={twoDViewKind}
                   countertops={planningWorkflow.countertops}
                   runs={planningWorkflow.runs}
+                  fillers={planningWorkflow.fillers}
                   selectedCabinetIds={selectedCabinetIds}
                   activeCabinetId={activeCabinetId}
+                  activeOpeningId={
+                    project.cabinets.find((cabinet) => cabinet.id === activeCabinetId)
+                      ?.config.composition?.openingStructure?.activeOpeningId ?? null
+                  }
                   snapSizeMm={snapSizeMm}
                   showGrid={showGrid}
                   draftingDisplay={draftingDisplay}
                   draftingTool={draftingTool}
                   onSelectCabinet={onSelectCabinet}
+                  onSelectOpening={onSelectOpening}
                   onCabinetMove={onCabinetMove}
                   onAddNote={onAddNote}
                   onAddLeader={onAddLeader}

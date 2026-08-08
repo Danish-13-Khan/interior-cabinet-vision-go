@@ -236,9 +236,12 @@ describe("technical view rendering", () => {
       showGrid: true,
       selectedCabinetIds: ["wall-1"],
       activeCabinetId: "wall-1",
+      showElevationDetails: true,
     });
     expect(front.svg).toContain("twod-dim-selected");
     expect(front.svg).toContain("twod-grid");
+    expect(front.svg).toContain("data-opening-id");
+    expect(front.svg).toContain("twod-opening-face");
 
     const printSheet = createTechnicalView(project, room, "front", [], {
       mode: "print",

@@ -9,6 +9,7 @@ import {
   supportsToeKick,
 } from "./cabinetCapabilities";
 import { getFamilyOpeningRules } from "./cabinetFamilyRules";
+import { getFamilyEngineeringDefaults } from "./cabinetFamilyEngineering";
 import {
   aggregateOpeningMetrics,
   collectOpeningLeaves,
@@ -191,12 +192,13 @@ export function createDefaultComposition(
 ): CabinetComposition {
   const width = seed?.dimensions?.width ?? 900;
   const familyRules = getFamilyOpeningRules(type);
+  const engineering = getFamilyEngineeringDefaults(type);
   const openingStructure = createDefaultOpeningStructure(type, width);
   const metrics = aggregateOpeningMetrics(openingStructure);
   const toeKickEnabled =
-    familyRules.defaultToeKick &&
+    engineering.toeKick.enabled &&
     supportsToeKick(type) &&
-    (seed?.toeKickHeight ?? 100) > 0;
+    (seed?.toeKickHeight ?? engineering.toeKick.heightMm) > 0;
 
   return {
     openings: familyRules.supportsOpenings
@@ -239,28 +241,28 @@ export function createDefaultComposition(
       enabled: toeKickEnabled,
       heightMm: toeKickEnabled
         ? clampInt(
-            seed?.toeKickHeight ?? 100,
+            seed?.toeKickHeight ?? engineering.toeKick.heightMm,
             TOE_KICK_HEIGHT_MIN_MM,
             TOE_KICK_HEIGHT_MAX_MM,
-            100,
+            engineering.toeKick.heightMm || 100,
           )
         : 0,
       insetMm: toeKickEnabled
         ? clampInt(
-            seed?.toeKickInset ?? 60,
+            seed?.toeKickInset ?? engineering.toeKick.insetMm,
             TOE_KICK_INSET_MIN_MM,
             TOE_KICK_INSET_MAX_MM,
-            60,
+            engineering.toeKick.insetMm || 50,
           )
         : 0,
     },
     fillers: {
-      leftMm: 0,
-      rightMm: 0,
+      leftMm: engineering.fillers.leftMm,
+      rightMm: engineering.fillers.rightMm,
     },
     endPanels: {
-      left: Boolean(seed?.leftEndPanel),
-      right: Boolean(seed?.rightEndPanel),
+      left: Boolean(seed?.leftEndPanel ?? engineering.endPanels.left),
+      right: Boolean(seed?.rightEndPanel ?? engineering.endPanels.right),
     },
   };
 }

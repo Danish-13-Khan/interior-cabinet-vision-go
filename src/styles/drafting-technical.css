@@ -325,3 +325,27 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/* Front elevation opening authoring */
+.twod-opening-face {
+  cursor: pointer;
+}
+
+.twod-opening-face.is-active-opening {
+  filter: drop-shadow(0 0 0.5px #1d4ed8);
+}
+
+.twod-toe-kick,
+.twod-filler,
+.twod-end-panel,
+.twod-run-filler {
+  pointer-events: none;
+}
+
+.twod-wall-clearance {
+  opacity: 0.9;
+}
+
+.workspace-tab[aria-selected="true"] {
+  font-weight: 700;
+}

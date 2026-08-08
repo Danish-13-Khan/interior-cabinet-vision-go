@@ -133,6 +133,12 @@ import { useWorkshopLibrary } from "./hooks/useWorkshopLibrary";
 import { AppToolRail } from "./components/AppToolRail";
 import { AppWorkspace } from "./components/AppWorkspace";
 import { AppInspector } from "./components/AppInspector";
+import {
+  resolveCabinetComposition,
+  syncFlatFieldsFromComposition,
+  normalizeComposition,
+} from "./domain/cabinetComposition";
+import { setActiveOpening } from "./domain/cabinetOpeningStructure";
 import { createOffsetDuplicate } from "./domain/cabinetDuplication";
 import { useEditorHistory, captureEditorSnapshot } from "./hooks/useEditorHistory";
 import { useEditorShortcuts } from "./hooks/useEditorShortcuts";
@@ -1958,6 +1964,40 @@ function App() {
           ? `${activeRoomName} · Side`
           : `${activeRoomName} · 3D`;
 
+  function handleSelectOpening(cabinetId: string, openingId: string) {
+    const cabinet = project.cabinets.find((item) => item.id === cabinetId);
+    if (!cabinet) return;
+    if (isCabinetLocked(cabinet)) {
+      setProjectStatus("This item is on a locked layer.");
+      return;
+    }
+
+    replaceSelection([cabinetId], cabinetId, null);
+    const composition = resolveCabinetComposition(cabinet.config);
+    if (!composition.openingStructure) {
+      setProjectStatus("Selected cabinet has no opening structure.");
+      return;
+    }
+    const nextStructure = setActiveOpening(composition.openingStructure, openingId);
+    const nextComposition = normalizeComposition(
+      cabinet.config.type,
+      { ...composition, openingStructure: nextStructure },
+      cabinet.config.dimensions.width,
+    );
+    updateCabinet(
+      cabinetId,
+      (current) => ({
+        ...current,
+        config: clampCabinetConfig({
+          ...current.config,
+          composition: nextComposition,
+          ...syncFlatFieldsFromComposition(nextComposition),
+        }),
+      }),
+      "Selected opening in front elevation.",
+    );
+  }
+
   function handleWorkspaceSelectCabinet(cabinetId: string | null, additive: boolean) {
     if (!cabinetId) {
       replaceSelection([], null, null);
@@ -2212,6 +2252,7 @@ function App() {
           onReplaceSelection={replaceSelection}
           onToggleCabinetSelection={toggleCabinetSelection}
           onSelectCabinet={handleWorkspaceSelectCabinet}
+          onSelectOpening={handleSelectOpening}
           onAddNote={handleAddDraftingNote}
           onAddLeader={handleAddDraftingLeader}
           onWorkspaceContextMenu={openWorkspaceContextMenu}
