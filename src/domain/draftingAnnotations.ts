@@ -33,6 +33,10 @@ export type DraftingDisplayPreferences = {
   showApplianceTags: boolean;
   showDimensionChains: boolean;
   showWallLabels: boolean;
+  showRunBands: boolean;
+  showRunLabels: boolean;
+  showFillers: boolean;
+  showCountertopSpans: boolean;
   dimMinSegmentMm: number;
 };
 
@@ -47,6 +51,10 @@ export const DEFAULT_DRAFTING_DISPLAY: DraftingDisplayPreferences = {
   showApplianceTags: true,
   showDimensionChains: true,
   showWallLabels: true,
+  showRunBands: true,
+  showRunLabels: true,
+  showFillers: true,
+  showCountertopSpans: true,
   dimMinSegmentMm: 40,
 };
 
@@ -109,6 +117,10 @@ export function clampDraftingDisplay(
     showApplianceTags: merged.showApplianceTags !== false,
     showDimensionChains: merged.showDimensionChains !== false,
     showWallLabels: merged.showWallLabels !== false,
+    showRunBands: merged.showRunBands !== false,
+    showRunLabels: merged.showRunLabels !== false,
+    showFillers: merged.showFillers !== false,
+    showCountertopSpans: merged.showCountertopSpans !== false,
     dimMinSegmentMm:
       Number.isFinite(minSeg) ? Math.min(200, Math.max(10, Math.round(minSeg))) : 40,
   };

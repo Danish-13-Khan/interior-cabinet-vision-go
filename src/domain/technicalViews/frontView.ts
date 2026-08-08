@@ -9,9 +9,11 @@ import {
   collectElevationVerticalChain,
   filterDimensionChain,
 } from "../placementSnap";
+import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { MARGIN, SCALE } from "./constants";
+import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
 import {
   dimensionChainHorizontal,
   dimensionChainVertical,
@@ -155,30 +157,21 @@ export function frontView(
     );
   }
 
-  // Run fillers in front elevation (gap fillers between cabinets)
-  for (const filler of options.fillers ?? []) {
-    const width = filler.size.width / SCALE;
-    const height = filler.size.height / SCALE;
-    const x = ox + filler.position.x / SCALE - width / 2;
-    const y = oy + rh / SCALE / 2 - (filler.position.y + filler.size.height) / SCALE;
-    elements.push(
-      rect(
-        x,
-        y,
-        width,
-        height,
-        `class="twod-run-filler" fill="rgba(148,163,184,0.45)" stroke="#475569" stroke-width="1" pointer-events="none"`,
-      ),
-    );
-    elements.push(
-      text(
-        x + width / 2,
-        y + height / 2 + 2,
-        `${Math.round(filler.widthMm)}`,
-        `class="twod-annotation" font-size="6.5" fill="#334155" text-anchor="middle" pointer-events="none"`,
-      ),
-    );
-  }
+  // Run drafting: fillers, labels, countertop spans, run dim chains
+  elements.push(
+    ...renderElevationRunDrafting({
+      viewAxis: "x",
+      runs: options.runs ?? [],
+      cabinets: visibleCabinets,
+      fillers: options.fillers ?? [],
+      countertops: options.countertops ?? [],
+      roomHeightMm: rh,
+      ox,
+      oy,
+      scale: SCALE,
+      options: runDraftingOptionsFromDisplay(display),
+    }),
+  );
 
   // Wall-cabinet height relationships: clearances above floor cabinets / below ceiling
   const wallCabinets = visibleCabinets.filter((cabinet) => cabinet.placement.attachment === "back-wall");

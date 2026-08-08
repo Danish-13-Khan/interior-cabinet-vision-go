@@ -215,6 +215,47 @@ describe("technical view rendering", () => {
       mode: "interactive",
       showWallLabels: true,
       showDimensionChains: true,
+      showRunBands: true,
+      showRunLabels: true,
+      showFillers: true,
+      showCountertopSpans: true,
+      runs: [
+        {
+          id: "run-1",
+          side: "back-wall",
+          axis: "x",
+          cabinetIds: ["base-1", "base-2"],
+          cornerTransition: false,
+        },
+      ],
+      fillers: [
+        {
+          id: "filler-1",
+          runId: "run-1",
+          side: "end",
+          widthMm: 60,
+          position: { x: -200, y: 0, z: -1720 },
+          size: { width: 60, height: 720, depth: 560 },
+        },
+      ],
+    });
+    expect(interactive.svg).toContain("BACK WALL");
+    expect(interactive.svg).toContain("LEFT");
+    expect(interactive.svg).toContain("twod-dim");
+    expect(interactive.svg).toContain("twod-run-band");
+    expect(interactive.svg).toContain("twod-run-label");
+    expect(interactive.svg).toContain("twod-run-filler");
+    expect(interactive.originX).toBeGreaterThan(0);
+
+    const front = createTechnicalView(project, room, "front", [], {
+      mode: "interactive",
+      showDimensionChains: true,
+      showGrid: true,
+      selectedCabinetIds: ["wall-1"],
+      activeCabinetId: "wall-1",
+      showElevationDetails: true,
+      showRunLabels: true,
+      showRunBands: true,
       runs: [
         {
           id: "run-1",
@@ -225,19 +266,6 @@ describe("technical view rendering", () => {
         },
       ],
     });
-    expect(interactive.svg).toContain("BACK WALL");
-    expect(interactive.svg).toContain("LEFT");
-    expect(interactive.svg).toContain("twod-dim");
-    expect(interactive.originX).toBeGreaterThan(0);
-
-    const front = createTechnicalView(project, room, "front", [], {
-      mode: "interactive",
-      showDimensionChains: true,
-      showGrid: true,
-      selectedCabinetIds: ["wall-1"],
-      activeCabinetId: "wall-1",
-      showElevationDetails: true,
-    });
     expect(front.svg).toContain("twod-dim-selected");
     expect(front.svg).toContain("twod-grid");
     expect(front.svg).toContain("data-opening-id");
@@ -245,6 +273,8 @@ describe("technical view rendering", () => {
     expect(front.svg).toContain("twod-opening-chrome");
     expect(front.svg).toContain("twod-opening-label");
     expect(front.svg).toContain("data-content-type");
+    expect(front.svg).toContain("twod-run-label");
+    expect(front.svg).toContain("twod-run-baseline");
 
     const printSheet = createTechnicalView(project, room, "front", [], {
       mode: "print",

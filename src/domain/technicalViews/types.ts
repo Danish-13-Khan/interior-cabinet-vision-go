@@ -1,5 +1,5 @@
 import type { SnapGuide } from "../placementSnap";
-import type { CabinetRun, RunFiller } from "../cabinetLibrary";
+import type { CabinetRun, CountertopSegment, RunFiller } from "../cabinetLibrary";
 import type { ProjectDrafting } from "../draftingAnnotations";
 
 export type TechnicalViewKind = "top" | "front" | "side";
@@ -21,6 +21,10 @@ export type TechnicalViewOptions = {
   showGrid?: boolean;
   showDimensionChains?: boolean;
   showWallLabels?: boolean;
+  showRunBands?: boolean;
+  showRunLabels?: boolean;
+  showFillers?: boolean;
+  showCountertopSpans?: boolean;
   showElevationDetails?: boolean;
   showCabinetTags?: boolean;
   showOpeningTags?: boolean;
@@ -38,5 +42,6 @@ export type TechnicalViewOptions = {
   } | null;
   runs?: CabinetRun[];
   fillers?: RunFiller[];
+  countertops?: CountertopSegment[];
   drafting?: ProjectDrafting;
 };

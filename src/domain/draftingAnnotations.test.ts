@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  clampDraftingDisplay,
   clampProjectDrafting,
   formatApplianceTag,
   formatCabinetTag,
@@ -93,6 +94,15 @@ describe("drafting annotations", () => {
       leaders: [],
     });
     expect(clamped.notes[0].text).toBe("Hello");
+  });
+
+  it("defaults run drafting display preferences on", () => {
+    const display = clampDraftingDisplay({});
+    expect(display.showRunBands).toBe(true);
+    expect(display.showRunLabels).toBe(true);
+    expect(display.showFillers).toBe(true);
+    expect(display.showCountertopSpans).toBe(true);
+    expect(clampDraftingDisplay({ showRunLabels: false }).showRunLabels).toBe(false);
   });
 
   it("filters tiny dimension chain segments", () => {
