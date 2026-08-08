@@ -14,6 +14,7 @@ import type { PanelName } from "../domain/cabinetGeometry";
 import { useCabinetTransforms } from "./useCabinetTransforms";
 import { useCabinetEditing } from "./useCabinetEditing";
 import { useCabinetLibraryOps } from "./useCabinetLibraryOps";
+import { useElevationOpeningEdit } from "./useElevationOpeningEdit";
 
 type RoomBounds = {
   widthMm: number;
@@ -81,6 +82,13 @@ export function useAppControllerCabinets({
     activeCabinetId,
     selectedCabinet,
     commitProjectChange,
+    isCabinetLocked,
+    onStatus,
+  });
+
+  const elevationOpenings = useElevationOpeningEdit({
+    project,
+    updateCabinet: transforms.updateCabinet,
     replaceSelection,
     isCabinetLocked,
     onStatus,
@@ -126,6 +134,7 @@ export function useAppControllerCabinets({
 
   return {
     ...transforms,
+    ...elevationOpenings,
     ...editing,
     ...library,
   };

@@ -242,6 +242,9 @@ describe("technical view rendering", () => {
     expect(front.svg).toContain("twod-grid");
     expect(front.svg).toContain("data-opening-id");
     expect(front.svg).toContain("twod-opening-face");
+    expect(front.svg).toContain("twod-opening-chrome");
+    expect(front.svg).toContain("twod-opening-label");
+    expect(front.svg).toContain("data-content-type");
 
     const printSheet = createTechnicalView(project, room, "front", [], {
       mode: "print",

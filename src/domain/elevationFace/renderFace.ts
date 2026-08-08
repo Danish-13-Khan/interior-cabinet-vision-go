@@ -9,6 +9,10 @@ import {
   renderDrawerStack,
   renderOpenShelf,
 } from "./renderOpenings";
+import {
+  renderOpeningBoundaries,
+  renderOpeningChrome,
+} from "./openingChrome";
 import { line, rect, type ElevationSvgOptions } from "./svgPrimitives";
 
 /**
@@ -104,6 +108,10 @@ export function renderElevationFaceGraphics(
     );
   }
 
+  elements.push(
+    ...renderOpeningBoundaries(layout, cabinetSvgX, cabinetSvgY, scale),
+  );
+
   for (const opening of layout.openings) {
     const active = activeId === opening.id;
     if (opening.contentType === "door") {
@@ -155,6 +163,16 @@ export function renderElevationFaceGraphics(
         ),
       );
     }
+    elements.push(
+      ...renderOpeningChrome(
+        opening,
+        layout,
+        cabinetSvgX,
+        cabinetSvgY,
+        scale,
+        active,
+      ),
+    );
   }
 
   return elements;

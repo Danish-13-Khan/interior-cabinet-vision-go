@@ -120,6 +120,7 @@ function App() {
           onToggleCabinetSelection: c.toggleCabinetSelection,
           onSelectCabinet: c.handleWorkspaceSelectCabinet,
           onSelectOpening: c.handleSelectOpening,
+          onElevationOpeningCommand: c.handleElevationOpeningCommand,
           onAddNote: c.handleAddDraftingNote,
           onAddLeader: c.handleAddDraftingLeader,
           onWorkspaceContextMenu: c.openWorkspaceContextMenu,
