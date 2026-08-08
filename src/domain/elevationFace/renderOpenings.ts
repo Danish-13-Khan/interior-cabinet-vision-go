@@ -67,7 +67,7 @@ export function renderDoorLeaf(
           opening.id,
           opening.contentType,
           active,
-          `fill="rgba(255,255,255,0.35)" stroke="${active ? "#1d4ed8" : "#44403c"}" stroke-width="${active ? 1.6 : 1.05}"`,
+          `fill="rgba(255,255,255,0.22)"`,
         ),
       ),
     );
@@ -79,7 +79,7 @@ export function renderDoorLeaf(
         dy + dh * 0.45,
         handleX,
         dy + dh * 0.55,
-        `class="twod-cabinet-opening" stroke="#292524" stroke-width="1.5" pointer-events="none"`,
+        `class="twod-cabinet-opening twod-door-handle" pointer-events="none"`,
       ),
     );
   }
@@ -126,7 +126,7 @@ export function renderDrawerStack(
           opening.id,
           opening.contentType,
           active,
-          `fill="rgba(255,255,255,0.28)" stroke="${active ? "#1d4ed8" : "#44403c"}" stroke-width="${active ? 1.6 : 1.05}"`,
+          `fill="rgba(255,255,255,0.2)"`,
         ),
       ),
     );
@@ -136,7 +136,7 @@ export function renderDrawerStack(
         dy + drawerH / 2,
         topLeft.x + width / 2 + 8 / scale,
         dy + drawerH / 2,
-        `class="twod-cabinet-opening" stroke="#292524" stroke-width="1.4" pointer-events="none"`,
+        `class="twod-cabinet-opening twod-drawer-pull" pointer-events="none"`,
       ),
     );
   }
@@ -178,7 +178,7 @@ export function renderOpenShelf(
         opening.id,
         opening.contentType,
         active,
-        `fill="rgba(248,250,252,0.5)" stroke="${active ? "#1d4ed8" : "#78716c"}" stroke-width="${active ? 1.5 : 1}" stroke-dasharray="3 2"`,
+        `fill="rgba(248,250,252,0.35)"`,
       ),
     ),
   );
@@ -191,7 +191,7 @@ export function renderOpenShelf(
         sy,
         topLeft.x + width - 2 / scale,
         sy,
-        `class="twod-cabinet-opening" stroke="#78716c" stroke-width="0.9" stroke-dasharray="3 2" pointer-events="none"`,
+        `class="twod-cabinet-opening twod-shelf-line" pointer-events="none"`,
       ),
     );
   }
@@ -233,7 +233,7 @@ export function renderDividerOrEmpty(
           opening.id,
           opening.contentType,
           active,
-          `fill="${active ? "#93c5fd" : "#a8a29e"}" stroke="#44403c" stroke-width="0.8"`,
+          `fill="#8a8680"`,
         ),
       ),
     ];
@@ -249,7 +249,7 @@ export function renderDividerOrEmpty(
         opening.id,
         opening.contentType,
         active,
-        `fill="rgba(255,255,255,0.15)" stroke="${active ? "#1d4ed8" : "#a8a29e"}" stroke-width="1" stroke-dasharray="2 2"`,
+        `fill="rgba(255,255,255,0.12)"`,
       ),
     ),
   ];

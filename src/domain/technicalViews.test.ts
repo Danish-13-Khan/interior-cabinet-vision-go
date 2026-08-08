@@ -205,7 +205,7 @@ describe("technical view rendering", () => {
     });
 
     expect(result.svg).toContain('data-cabinet-id="base-1"');
-    expect(result.svg).toContain("#1d4ed8");
+    expect(result.svg).toContain("twod-active");
     expect(result.svg).toContain("twod-dim-selected");
     expect(result.svg).toContain("twod-selected");
   });

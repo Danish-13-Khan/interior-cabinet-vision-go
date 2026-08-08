@@ -1,7 +1,7 @@
 import type { CabinetInstance } from "../cabinetDimensions";
 import type { CabinetRun, CountertopSegment, RunFiller } from "../cabinetLibrary";
+import { dimensionChainHorizontal } from "../technicalViews/dimGraphics";
 import {
-  dimensionChainHorizontal,
   dimensionLabel,
   line,
   rect,
