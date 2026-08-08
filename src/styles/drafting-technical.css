@@ -21,20 +21,6 @@
   letter-spacing: 0.01em;
 }
 
-.technical-view .twod-annotation {
-  paint-order: stroke;
-  stroke: rgba(255, 255, 255, 0.92);
-  stroke-width: 2.4px;
-  stroke-linejoin: round;
-}
-
-.technical-view .twod-label {
-  paint-order: stroke;
-  stroke: rgba(248, 250, 252, 0.85);
-  stroke-width: 2.5px;
-  stroke-linejoin: round;
-}
-
 .technical-view .twod-dim {
   vector-effect: non-scaling-stroke;
 }
@@ -56,16 +42,6 @@
   pointer-events: none;
 }
 
-.technical-view .twod-selected,
-.technical-view .twod-active {
-  filter: none;
-  stroke: var(--selection) !important;
-}
-
-.technical-view .twod-selected {
-  fill: var(--selection-fill);
-}
-
 .technical-view .twod-countertop {
   pointer-events: none;
 }
@@ -85,7 +61,7 @@
   overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   padding: 0;
 }
 
@@ -95,8 +71,8 @@
 }
 
 .controls-header h1 {
-  font-size: 0.78rem;
-  line-height: 1.2;
+  font-size: 0.68rem;
+  line-height: 1.15;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }

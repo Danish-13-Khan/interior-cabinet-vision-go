@@ -1,0 +1,128 @@
+/* Command palette / shortcut overlays (kept separate from shell tokens) */
+
+.command-bar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 64px;
+  background: rgba(22, 30, 40, 0.32);
+}
+
+.command-bar,
+.shortcut-sheet {
+  width: min(620px, calc(100vw - 20px));
+  border: 1px solid var(--ribbon-border);
+  border-radius: var(--radius-control);
+  background: var(--panel-raised);
+  box-shadow: 0 12px 32px rgba(26, 35, 48, 0.3);
+  overflow: hidden;
+}
+
+.command-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--ribbon-bg);
+}
+
+.command-bar-header strong {
+  color: var(--ink);
+  font-size: 0.8rem;
+}
+
+.command-bar-input {
+  width: calc(100% - 20px);
+  margin: 8px 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-control);
+  background: #fff;
+  color: var(--ink);
+}
+
+.command-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 400px;
+  padding: 0 8px 8px;
+  overflow-y: auto;
+}
+
+.command-bar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-control);
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.command-bar-item:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.command-bar-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.command-bar-item strong {
+  color: var(--ink);
+  font-size: 0.76rem;
+}
+
+.command-bar-item small {
+  color: var(--muted);
+  font-size: 0.64rem;
+}
+
+.command-bar-item kbd,
+.shortcut-row kbd {
+  padding: 2px 5px;
+  border: 1px solid var(--panel-border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-control);
+  background: var(--panel-raised);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.shortcut-sheet {
+  padding-bottom: 6px;
+}
+
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  padding: 0 10px 10px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-control);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.72rem;
+}

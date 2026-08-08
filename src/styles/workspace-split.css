@@ -1,32 +1,32 @@
-/* Split drafting workspace: Plan | Elevation over 3D */
+/* Split drafting workspace — dense CAD chrome */
 
 .workspace-focus-bar {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
-  min-height: 24px;
-  padding: 0 4px;
-  background: #e2e8ef;
-  border-bottom: 1px solid #8e9aab;
+  min-height: 22px;
+  padding: 0 3px;
+  background: var(--workspace-focus-bg);
+  border-bottom: 1px solid var(--workspace-gutter);
 }
 
 .workspace-focus-label {
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #5a6b7c;
+  letter-spacing: 0.05em;
+  color: var(--muted);
   white-space: nowrap;
-  padding-right: 6px;
-  border-right: 1px solid #b4bfcc;
+  padding-right: 5px;
+  border-right: 1px solid var(--panel-border);
 }
 
 .workspace-focus-hint {
   margin-left: auto;
-  font-size: 0.56rem;
+  font-size: 0.52rem;
   font-weight: 600;
-  color: #7a8898;
+  color: #708090;
   white-space: nowrap;
 }
 
@@ -38,54 +38,54 @@
 }
 
 .workspace-focus-bar .workspace-tab {
-  padding: 4px 8px;
-  font-size: 0.64rem;
+  padding: 3px 7px;
+  font-size: 0.6rem;
   border-bottom-width: 2px;
 }
 
 .workspace-tab-kbd {
-  margin-left: 3px;
-  padding: 0 3px;
-  border: 1px solid #c5ced8;
-  border-radius: 1px;
-  background: #f8fafc;
-  font-size: 0.54rem;
+  margin-left: 2px;
+  padding: 0 2px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 0.5rem;
   font-weight: 700;
-  color: #64748b;
+  color: var(--muted);
 }
 
 .workspace-body {
   flex: 1;
   min-height: 0;
   display: flex;
-  background: #8e9aab;
+  background: var(--workspace-chrome);
 }
 
 .workspace-scene-browser {
-  width: 168px;
+  width: var(--browser-width);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: #e8edf2;
-  border-right: 1px solid #7f8c9c;
+  background: var(--browser-bg);
+  border-right: 1px solid var(--workspace-gutter);
   overflow: hidden;
 }
 
 .workspace-scene-browser-header {
   flex-shrink: 0;
-  padding: 4px 6px;
-  font-size: 0.58rem;
+  padding: 3px 5px;
+  font-size: 0.52rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #4a5d70;
-  background: #dce3ea;
-  border-bottom: 1px solid #b4bfcc;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: var(--browser-header-bg);
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .wsb-section {
-  border-bottom: 1px solid #c5ced8;
+  border-bottom: 1px solid var(--panel-border);
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -95,33 +95,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 6px;
-  font-size: 0.56rem;
+  padding: 2px 5px;
+  font-size: 0.5rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #64748b;
-  background: #eef2f6;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .wsb-section-title span {
-  color: #94a3b8;
+  color: #8090a0;
 }
 
 .wsb-list {
   display: flex;
   flex-direction: column;
-  max-height: 120px;
+  max-height: 108px;
   overflow: auto;
 }
 
 .wsb-item {
   appearance: none;
   border: 0;
-  border-bottom: 1px solid #dbe2e9;
+  border-bottom: 1px solid rgba(140, 155, 170, 0.35);
   background: transparent;
   text-align: left;
-  padding: 3px 6px;
+  padding: 2px 5px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -129,37 +129,39 @@
 }
 
 .wsb-item strong {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 650;
-  color: #1e293b;
+  color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.15;
 }
 
 .wsb-item small {
-  font-size: 0.54rem;
-  color: #64748b;
+  font-size: 0.5rem;
+  color: var(--muted);
+  line-height: 1.1;
 }
 
 .wsb-item:hover {
-  background: #f8fafc;
+  background: var(--browser-row-hover);
 }
 
 .wsb-item.is-selected {
-  background: #e8f1fa;
+  background: var(--browser-row-selected);
 }
 
 .wsb-item.is-active {
-  background: #d9e8f6;
+  background: var(--browser-row-active);
   box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .wsb-empty {
   margin: 0;
-  padding: 6px;
-  font-size: 0.58rem;
-  color: #94a3b8;
+  padding: 4px 5px;
+  font-size: 0.54rem;
+  color: #8090a0;
 }
 
 .workspace-canvas {
@@ -176,14 +178,14 @@
   display: grid;
   grid-template-columns:
     minmax(0, var(--split-plan-pct, 50%))
-    4px
-    minmax(0, calc(100% - var(--split-plan-pct, 50%) - 4px));
+    3px
+    minmax(0, calc(100% - var(--split-plan-pct, 50%) - 3px));
   grid-template-rows:
-    minmax(0, var(--split-top-pct, 64%))
-    4px
-    minmax(0, calc(100% - var(--split-top-pct, 64%) - 4px));
+    minmax(0, var(--split-top-pct, 68%))
+    3px
+    minmax(0, calc(100% - var(--split-top-pct, 68%) - 3px));
   gap: 0;
-  background: #7f8c9c;
+  background: var(--workspace-gutter);
 }
 
 .workspace-split > .workspace-pane[data-pane="plan"] {
@@ -229,7 +231,7 @@
 }
 
 .workspace-split-handle {
-  background: #9aa8b5;
+  background: var(--workspace-gutter);
   border: 0;
   padding: 0;
   z-index: 3;
@@ -245,7 +247,7 @@
 
 .workspace-split-handle:hover,
 .workspace-split-handle.is-dragging {
-  background: #6b8fb0;
+  background: var(--workspace-split-hover);
 }
 
 .workspace-pane {
@@ -254,29 +256,29 @@
   display: flex;
   flex-direction: column;
   background: var(--panel-bg);
-  border: 1px solid #6f7d8d;
+  border: 1px solid var(--workspace-gutter);
 }
 
 .workspace-pane.is-focused {
   border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px rgba(31, 79, 122, 0.45);
+  box-shadow: inset 0 0 0 1px var(--focus-ring);
 }
 
 .workspace-pane-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
-  min-height: 22px;
-  padding: 0 2px 0 5px;
+  gap: 3px;
+  min-height: 20px;
+  padding: 0 2px 0 4px;
   flex-shrink: 0;
-  background: #dde3ea;
-  border-bottom: 1px solid #9aa8b5;
+  background: var(--workspace-pane-header);
+  border-bottom: 1px solid var(--workspace-gutter);
 }
 
 .workspace-pane.is-focused .workspace-pane-header {
-  background: #d5e3f0;
-  border-bottom-color: #7f9bb8;
+  background: var(--workspace-pane-header-focus);
+  border-bottom-color: var(--accent);
 }
 
 .workspace-pane-title {
@@ -285,33 +287,34 @@
   background: transparent;
   display: inline-flex;
   align-items: baseline;
-  gap: 5px;
-  padding: 2px 1px;
+  gap: 4px;
+  padding: 1px 0;
   cursor: pointer;
-  color: #334155;
-  font-size: 0.6rem;
+  color: var(--ink);
+  font-size: 0.56rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .workspace-pane-title small {
-  font-size: 0.54rem;
+  font-size: 0.5rem;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
-  color: #708296;
+  color: var(--muted);
 }
 
 .workspace-pane-tools {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
 }
 
 .workspace-pane-max-btn {
-  padding: 1px 5px !important;
-  font-size: 0.58rem !important;
+  padding: 1px 4px !important;
+  font-size: 0.54rem !important;
+  min-height: 16px !important;
 }
 
 .workspace-pane-body {
@@ -319,7 +322,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--drawing-bg);
 }
 
 .drawing-sheet-embedded {
@@ -327,17 +330,17 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  background: #ffffff;
+  background: var(--drawing-bg);
 }
 
 .drawing-sheet-embedded .drawing-sheet-scroll {
-  padding: 4px;
-  background: #ffffff;
+  padding: 2px;
+  background: var(--drawing-bg);
 }
 
 .viewport-panel-embedded {
   padding: 0;
-  background: #cfd6de;
+  background: #c5ced8;
   position: relative;
 }
 
@@ -348,6 +351,7 @@
 
 .scene-pane-camera .tb-btn {
   min-width: 0;
-  padding: 1px 5px;
-  font-size: 0.58rem;
+  padding: 1px 4px;
+  font-size: 0.54rem;
+  min-height: 16px;
 }

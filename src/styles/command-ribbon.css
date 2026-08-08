@@ -1,13 +1,13 @@
-/* ── Top desktop toolbar ── */
+/* ── Top desktop ribbon (steel / muted blue) ── */
 .app-ribbon,
 .app-toolbar {
   display: flex;
   align-items: stretch;
-  height: 44px;
-  padding: 0 4px;
+  height: 36px;
+  padding: 0 2px;
   flex-shrink: 0;
-  background: #e9eef3;
-  border-bottom: 1px solid var(--panel-border);
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--ribbon-border);
   gap: 0;
   overflow-x: auto;
 }
@@ -16,34 +16,36 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 118px;
-  padding: 0 10px 0 6px;
-  border-right: 1px solid #b4bfcc;
-  margin-right: 2px;
+  min-width: 108px;
+  padding: 0 8px 0 6px;
+  border-right: 1px solid var(--ribbon-group-border);
+  margin-right: 1px;
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .ribbon-brand strong {
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--ink);
+  line-height: 1.1;
 }
 
 .ribbon-brand span {
-  font-size: 0.56rem;
+  font-size: 0.5rem;
   font-weight: 650;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
+  letter-spacing: 0.06em;
+  color: var(--ribbon-label);
 }
 
 .ribbon-group {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
-  padding: 2px 6px;
-  border-right: 1px solid #c5ced8;
+  gap: 1px;
+  padding: 1px 5px;
+  border-right: 1px solid var(--ribbon-group-border);
 }
 
 .ribbon-group-end {
@@ -52,11 +54,12 @@
 }
 
 .ribbon-group-label {
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #7a8898;
+  letter-spacing: 0.07em;
+  color: var(--ribbon-label);
+  line-height: 1;
 }
 
 .ribbon-group-actions,
@@ -64,31 +67,32 @@
 .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
 }
 
 .tb-btn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 3px 7px;
+  gap: 2px;
+  padding: 2px 6px;
   border: 1px solid transparent;
   border-radius: var(--radius-control);
   background: transparent;
-  color: #334155;
-  font-size: 0.68rem;
+  color: var(--ink);
+  font-size: 0.64rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  min-height: 20px;
 }
 
 .tb-btn:hover {
-  background: #fff;
-  border-color: #b8c2cd;
+  background: rgba(255, 255, 255, 0.7);
+  border-color: var(--ribbon-group-border);
 }
 
 .tb-btn:active {
-  background: #dde3ea;
+  background: var(--accent-soft);
 }
 
 .tb-btn:disabled {
@@ -99,26 +103,26 @@
 .tb-btn.tb-accent {
   color: var(--accent);
   background: var(--accent-soft);
-  border-color: #a9c2d8;
+  border-color: #9bb4c9;
 }
 
 .tb-btn.tb-accent:hover {
-  background: #cfe0ee;
+  background: #c5d8e9;
 }
 
 .tb-sep {
   display: inline-block;
   width: 1px;
-  height: 16px;
-  margin: 0 3px;
-  background: #b8c2cd;
+  height: 14px;
+  margin: 0 2px;
+  background: var(--ribbon-group-border);
 }
 
 .tb-label {
-  font-size: 0.56rem;
+  font-size: 0.5rem;
   font-weight: 700;
-  color: #7a8898;
+  color: var(--ribbon-label);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-right: 2px;
+  margin-right: 1px;
 }
