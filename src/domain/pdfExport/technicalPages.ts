@@ -1,5 +1,10 @@
 import type { CabinetProject } from "../cabinetDimensions";
-import type { CountertopSegment, CabinetRun } from "../cabinetLibrary";
+import {
+  createCabinetPlanningWorkflow,
+  type CountertopSegment,
+  type CabinetRun,
+  type RunFiller,
+} from "../cabinetLibrary";
 import type { RoomConfig } from "../roomModel";
 import type { ProjectReport } from "../projectReport";
 import {
@@ -18,16 +23,24 @@ export async function drawTechnicalPages(
     room: RoomConfig;
     countertops: CountertopSegment[];
     runs: CabinetRun[];
+    fillers?: RunFiller[];
     report: ProjectReport;
   },
 ): Promise<void> {
   const { doc, pageWidth, pageHeight, margin, contentWidth } = layout;
   const { title, project, room, countertops, runs, report } = args;
+  const fillers =
+    args.fillers ??
+    createCabinetPlanningWorkflow(project, {
+      widthMm: room.dimensions.widthMm,
+      depthMm: room.dimensions.depthMm,
+      heightMm: room.dimensions.heightMm,
+    }).fillers;
 
   const drafting = clampProjectDrafting(project.drafting);
   const scaleText = `1:${TECHNICAL_VIEW_SCALE * 25}`;
-  const topView = createTechnicalView(project, room, "top", countertops, {
-    mode: "print",
+  const shared = {
+    mode: "print" as const,
     showGrid: false,
     showDimensionChains: true,
     showWallLabels: true,
@@ -35,34 +48,27 @@ export async function drawTechnicalPages(
     showCabinetTags: true,
     showOpeningTags: true,
     showApplianceTags: true,
-    title: "Room Plan",
+    showRunBands: true,
+    showRunLabels: true,
+    showFillers: true,
+    showCountertopSpans: true,
     projectName: title,
     runs,
+    fillers,
+    countertops,
     drafting,
+  };
+  const topView = createTechnicalView(project, room, "top", countertops, {
+    ...shared,
+    title: "Room Plan",
   });
   const frontView = createTechnicalView(project, room, "front", countertops, {
-    mode: "print",
-    showDimensionChains: true,
-    showWallLabels: true,
-    showElevationDetails: true,
-    showCabinetTags: true,
-    showOpeningTags: true,
-    showApplianceTags: true,
+    ...shared,
     title: "Front Elevation",
-    projectName: title,
-    drafting,
   });
   const sideView = createTechnicalView(project, room, "side", countertops, {
-    mode: "print",
-    showDimensionChains: true,
-    showWallLabels: true,
-    showElevationDetails: true,
-    showCabinetTags: true,
-    showOpeningTags: true,
-    showApplianceTags: true,
+    ...shared,
     title: "Side Elevation",
-    projectName: title,
-    drafting,
   });
   const technicalViews = [
     { label: "Room Plan", result: topView, sheetCode: "A-101" },

@@ -185,6 +185,10 @@ export function resolveDisplay(options: TechnicalViewOptions): DraftingDisplayPr
     showApplianceTags: options.showApplianceTags,
     showDimensionChains: options.showDimensionChains,
     showWallLabels: options.showWallLabels,
+    showRunBands: options.showRunBands,
+    showRunLabels: options.showRunLabels,
+    showFillers: options.showFillers,
+    showCountertopSpans: options.showCountertopSpans,
     dimMinSegmentMm: options.dimMinSegmentMm,
   });
 }

@@ -20,13 +20,17 @@ export function createTechnicalView(
   countertops: CountertopSegment[] = [],
   options: TechnicalViewOptions = {},
 ): TechnicalViewResult {
+  const withTops: TechnicalViewOptions = {
+    ...options,
+    countertops: options.countertops ?? countertops,
+  };
   switch (view) {
     case "front":
-      return frontView(project, room, options);
+      return frontView(project, room, withTops);
     case "side":
-      return sideView(project, room, options);
+      return sideView(project, room, withTops);
     default:
-      return topView(project, room, countertops, options);
+      return topView(project, room, countertops, withTops);
   }
 }
 

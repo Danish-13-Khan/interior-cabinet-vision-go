@@ -1,0 +1,71 @@
+/* Line-weight hierarchy for technical drafting readability */
+
+.technical-view .twod-wall,
+.technical-view .twod-wall-outline,
+.technical-view .twod-floor-line {
+  stroke-width: 2.35px;
+  opacity: 1;
+}
+
+.technical-view .twod-cabinet {
+  stroke-width: 1.65px;
+  opacity: 1;
+}
+
+.technical-view .twod-run-band {
+  opacity: 0.95;
+}
+
+.technical-view .twod-run-baseline {
+  stroke-width: 1.4px;
+}
+
+.technical-view .twod-countertop {
+  stroke-width: 1.5px;
+  opacity: 0.95;
+}
+
+.technical-view .twod-run-filler {
+  opacity: 0.92;
+}
+
+.technical-view .twod-run-gap {
+  opacity: 0.9;
+}
+
+.technical-view .twod-dim-overall {
+  stroke-width: 1.4px;
+  opacity: 1;
+}
+
+.technical-view .twod-dim-chain,
+.technical-view .twod-dim-run {
+  stroke-width: 1px;
+  opacity: 0.92;
+}
+
+.technical-view .twod-grid {
+  opacity: 0.55;
+}
+
+.technical-view .twod-guide {
+  opacity: 0.7;
+}
+
+.technical-view .twod-run-label,
+.technical-view .twod-countertop-label,
+.technical-view .twod-run-length {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+  paint-order: stroke;
+  stroke: rgba(248, 250, 252, 0.9);
+  stroke-width: 2.25px;
+  stroke-linejoin: round;
+}
+
+.technical-view .twod-tag {
+  paint-order: stroke;
+  stroke: rgba(248, 250, 252, 0.9);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+}

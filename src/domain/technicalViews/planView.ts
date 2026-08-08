@@ -8,9 +8,11 @@ import {
   collectRunDimensionChain,
   filterDimensionChain,
 } from "../placementSnap";
+import { renderPlanRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
 import { cabinetPlanGraphics } from "./cabinetSvg";
 import { MARGIN, SCALE } from "./constants";
+import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
 import {
   dimensionChainHorizontal,
   dimensionLabel,
@@ -88,22 +90,40 @@ export function topView(
     elements.push(text(ox + rw / SCALE / 2 + 12, oy, "RIGHT", `class="twod-wall-label" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(90 ${ox + rw / SCALE / 2 + 12} ${oy})"`));
   }
 
+  const runs = options.runs ?? [];
+  const fillers = options.fillers ?? [];
+  const tops = options.countertops ?? countertops;
+  elements.push(
+    ...renderPlanRunDrafting({
+      runs,
+      cabinets: project.cabinets,
+      fillers,
+      countertops: tops,
+      ox,
+      oy,
+      scale: SCALE,
+      options: runDraftingOptionsFromDisplay(display),
+    }),
+  );
+
   for (const cabinet of project.cabinets) {
     elements.push(
       ...cabinetPlanGraphics(cabinet, ox, oy, options, indexMap.get(cabinet.id) ?? 0),
     );
   }
 
-  for (const countertop of countertops) {
-    const cx = ox + countertop.positionX / SCALE;
-    const cz = oy + countertop.positionZ / SCALE;
-    elements.push(rect(
-      cx - countertop.widthMm / SCALE / 2,
-      cz - countertop.depthMm / SCALE / 2,
-      countertop.widthMm / SCALE,
-      countertop.depthMm / SCALE,
-      `class="twod-countertop" fill="none" stroke="#4d7c0f" stroke-width="1.5" stroke-dasharray="5 3"`,
-    ));
+  if (!display.showCountertopSpans) {
+    for (const countertop of tops) {
+      const cx = ox + countertop.positionX / SCALE;
+      const cz = oy + countertop.positionZ / SCALE;
+      elements.push(rect(
+        cx - countertop.widthMm / SCALE / 2,
+        cz - countertop.depthMm / SCALE / 2,
+        countertop.widthMm / SCALE,
+        countertop.depthMm / SCALE,
+        `class="twod-countertop" fill="none" stroke="#4d7c0f" stroke-width="1.5" stroke-dasharray="5 3"`,
+      ));
+    }
   }
 
   for (const [doorIndex, door] of room.doors.entries()) {

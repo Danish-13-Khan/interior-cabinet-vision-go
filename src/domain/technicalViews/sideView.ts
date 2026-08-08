@@ -9,9 +9,11 @@ import {
   collectElevationVerticalChain,
   filterDimensionChain,
 } from "../placementSnap";
+import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { MARGIN, SCALE } from "./constants";
+import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
 import {
   dimensionChainHorizontal,
   dimensionChainVertical,
@@ -159,6 +161,21 @@ export function sideView(
       ),
     );
   }
+
+  elements.push(
+    ...renderElevationRunDrafting({
+      viewAxis: "z",
+      runs: options.runs ?? [],
+      cabinets: visibleCabinets,
+      fillers: options.fillers ?? [],
+      countertops: options.countertops ?? [],
+      roomHeightMm: rh,
+      ox,
+      oy,
+      scale: SCALE,
+      options: runDraftingOptionsFromDisplay(display),
+    }),
+  );
 
   if (options.snapGuides?.length) {
     elements.push(...snapGuideLines(options.snapGuides, ox, oy, rd, rh, "side"));

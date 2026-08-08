@@ -38,6 +38,10 @@ export function DraftingPanel({
             ["showApplianceTags", "Appliance tags"],
             ["showDimensionChains", "Dim chains"],
             ["showWallLabels", "Wall labels"],
+            ["showRunBands", "Run bands"],
+            ["showRunLabels", "Run labels"],
+            ["showFillers", "Fillers / gaps"],
+            ["showCountertopSpans", "Countertop spans"],
           ] as const
         ).map(([key, label]) => (
           <label key={key} className="drafting-toggle">
