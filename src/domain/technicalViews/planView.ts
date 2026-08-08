@@ -91,7 +91,14 @@ export function topView(
   }
 
   elements.push(
-    ...planRoomOutline(ox, oy, rw, rd, display.showWallLabels && options.showWallLabels !== false),
+    ...planRoomOutline(
+      ox,
+      oy,
+      rw,
+      rd,
+      display.showWallLabels && options.showWallLabels !== false,
+      room.dimensions.wallThicknessMm,
+    ),
   );
 
   const runs = options.runs ?? [];

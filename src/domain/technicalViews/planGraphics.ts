@@ -4,39 +4,11 @@ import type { TechnicalViewOptions } from "./types";
 import { resolveDisplay } from "./viewLayers";
 import type { RoomConfig } from "../roomModel";
 import { formatOpeningTag } from "../draftingAnnotations";
-
-type PlanOpeningSide = "back-wall" | "left-wall" | "right-wall";
-
-function planOpeningRect(
-  ox: number,
-  oy: number,
-  rw: number,
-  rd: number,
-  side: PlanOpeningSide,
-  positionMm: number,
-  widthMm: number,
-  kind: "door" | "window",
-) {
-  const dx =
-    side === "back-wall"
-      ? ox + positionMm / SCALE
-      : side === "left-wall"
-        ? ox - rw / SCALE / 2 - 5
-        : ox + rw / SCALE / 2 + 1;
-  const dy =
-    side === "back-wall" ? oy - rd / SCALE / 2 - 5 : oy + positionMm / SCALE;
-  const dw = side === "back-wall" ? widthMm / SCALE : 3.5;
-  const dh = side === "back-wall" ? 3.5 : widthMm / SCALE;
-  return {
-    x: dx - dw / 2,
-    y: dy - dh / 2,
-    w: dw,
-    h: dh,
-    cx: dx,
-    cy: dy,
-    cls: kind === "door" ? "twod-opening twod-opening-door" : "twod-opening twod-opening-window",
-  };
-}
+import {
+  planDoorConvention,
+  planWindowConvention,
+  wallThicknessSvg,
+} from "../constructionGraphics";
 
 export function planRoomOutline(
   ox: number,
@@ -44,20 +16,36 @@ export function planRoomOutline(
   rw: number,
   rd: number,
   showWallLabels: boolean,
+  wallThicknessMm = 120,
 ) {
   const left = ox - rw / SCALE / 2;
   const top = oy - rd / SCALE / 2;
   const w = rw / SCALE;
   const d = rd / SCALE;
+  const thick = wallThicknessSvg(wallThicknessMm, SCALE);
   const elements = [
     rect(left, top, w, d, `class="twod-wall twod-wall-outline twod-plan-floor"`),
-    // Inner face for wall thickness read
     rect(
-      left + 1.5,
-      top + 1.5,
-      Math.max(2, w - 3),
-      Math.max(2, d - 3),
+      left + thick,
+      top + thick,
+      Math.max(2, w - thick * 2),
+      Math.max(2, d - thick * 2),
       `class="twod-wall twod-wall-inner"`,
+    ),
+    // Reference centerlines
+    line(
+      ox,
+      top,
+      ox,
+      top + d,
+      `class="twod-line-center twod-wall-centerline" pointer-events="none"`,
+    ),
+    line(
+      left,
+      oy,
+      left + w,
+      oy,
+      `class="twod-line-center twod-wall-centerline" pointer-events="none"`,
     ),
   ];
   if (showWallLabels) {
@@ -100,17 +88,29 @@ export function planOpeningsGraphics(
   const display = resolveDisplay(options);
   const rw = room.dimensions.widthMm;
   const rd = room.dimensions.depthMm;
+  const wallT = wallThicknessSvg(room.dimensions.wallThicknessMm, SCALE);
   const elements: string[] = [];
 
   for (const [doorIndex, door] of room.doors.entries()) {
-    const side = door.side as PlanOpeningSide;
-    const geom = planOpeningRect(ox, oy, rw, rd, side, door.positionMm, door.widthMm, "door");
-    elements.push(rect(geom.x, geom.y, geom.w, geom.h, `class="${geom.cls}"`));
+    elements.push(
+      ...planDoorConvention(ox, oy, rw, rd, SCALE, wallT, door),
+    );
     if (display.showOpeningTags) {
+      const side = door.side;
+      const cx =
+        side === "back-wall"
+          ? ox + door.positionMm / SCALE
+          : side === "left-wall"
+            ? ox - rw / SCALE / 2
+            : ox + rw / SCALE / 2;
+      const cy =
+        side === "back-wall"
+          ? oy - rd / SCALE / 2
+          : oy + door.positionMm / SCALE;
       elements.push(
         text(
-          geom.cx,
-          geom.cy - 6,
+          cx,
+          cy - wallT - 4,
           formatOpeningTag("door", doorIndex, door.widthMm, door.heightMm),
           `class="twod-tag twod-tag-opening" font-size="6.5" text-anchor="middle"`,
         ),
@@ -119,25 +119,32 @@ export function planOpeningsGraphics(
   }
 
   for (const [winIndex, win] of room.windows.entries()) {
-    const side = win.side as PlanOpeningSide;
-    const geom = planOpeningRect(ox, oy, rw, rd, side, win.positionMm, win.widthMm, "window");
-    elements.push(rect(geom.x, geom.y, geom.w, geom.h, `class="${geom.cls}"`));
-    // Glass tick
     elements.push(
-      line(
-        geom.cx - geom.w * 0.35,
-        geom.cy,
-        geom.cx + geom.w * 0.35,
-        geom.cy,
-        `class="twod-opening-glass" pointer-events="none"`,
-      ),
+      ...planWindowConvention(ox, oy, rw, rd, SCALE, wallT, win),
     );
     if (display.showOpeningTags) {
+      const side = win.side;
+      const cx =
+        side === "back-wall"
+          ? ox + win.positionMm / SCALE
+          : side === "left-wall"
+            ? ox - rw / SCALE / 2
+            : ox + rw / SCALE / 2;
+      const cy =
+        side === "back-wall"
+          ? oy - rd / SCALE / 2
+          : oy + win.positionMm / SCALE;
       elements.push(
         text(
-          geom.cx,
-          geom.cy - 6,
-          formatOpeningTag("window", winIndex, win.widthMm, win.heightMm, win.sillHeightMm),
+          cx,
+          cy - wallT - 4,
+          formatOpeningTag(
+            "window",
+            winIndex,
+            win.widthMm,
+            win.heightMm,
+            win.sillHeightMm,
+          ),
           `class="twod-tag twod-tag-opening" font-size="6.5" text-anchor="middle"`,
         ),
       );

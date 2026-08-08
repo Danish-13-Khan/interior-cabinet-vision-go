@@ -11,6 +11,10 @@ import {
   clampProjectDrafting,
 } from "../draftingAnnotations";
 import { getTagOffset } from "../draftingEdit";
+import {
+  renderFamilyPlanSymbol,
+  renderWallPhantomFootprint,
+} from "../constructionGraphics";
 import { renderElevationFaceGraphics } from "../elevationFaceGraphics";
 import { SCALE } from "./constants";
 import {
@@ -81,6 +85,10 @@ export function cabinetPlanGraphics(
     ),
   );
 
+  if (wallMounted) {
+    elements.push(...renderWallPhantomFootprint(cx, cy, bw, bd));
+  }
+
   if (cabinet.config.toeKickHeight > 0 && cabinet.config.toeKickInset > 0) {
     const inset = cabinet.config.toeKickInset / SCALE;
     elements.push(
@@ -89,7 +97,7 @@ export function cabinetPlanGraphics(
         cy + bd / 2 - inset,
         Math.max(2, bw - inset * 2),
         Math.max(1, inset),
-        `class="twod-cabinet-opening twod-toe-kick-plan" pointer-events="none"`,
+        `class="twod-cabinet-opening twod-toe-kick-plan twod-line-hidden" pointer-events="none"`,
       ),
     );
   }
@@ -102,6 +110,10 @@ export function cabinetPlanGraphics(
       cy - bd / 2,
       `class="twod-cabinet-front" pointer-events="none"`,
     ),
+  );
+
+  elements.push(
+    ...renderFamilyPlanSymbol(cabinet.config.type, cx, cy, bw, bd),
   );
 
   if (display.showCabinetTags) {

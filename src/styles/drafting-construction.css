@@ -1,0 +1,123 @@
+/* Construction graphics: hidden / phantom / reference / center roles */
+
+.technical-view .twod-line-hidden {
+  stroke: #5c6570;
+  stroke-width: 0.7px;
+  stroke-dasharray: 3.5 2;
+  fill: none;
+  opacity: 0.65;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-line-phantom {
+  stroke: #64748b;
+  stroke-width: 0.85px;
+  stroke-dasharray: 6 2.5 1.5 2.5;
+  fill: none;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-line-reference {
+  stroke: #7a8490;
+  stroke-width: 0.65px;
+  stroke-dasharray: 7 3;
+  fill: none;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-line-center {
+  stroke: #8b5a2b;
+  stroke-width: 0.55px;
+  stroke-dasharray: 9 2.5 1.5 2.5;
+  fill: none;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-door-swing,
+.technical-view .twod-opening-swing {
+  stroke: #1a3a5c;
+  stroke-width: 0.85px;
+  fill: none;
+  opacity: 0.8;
+}
+
+.technical-view .twod-door-hinge {
+  stroke: #57534e;
+  stroke-width: 0.9px;
+}
+
+.technical-view .twod-door-fold {
+  stroke: #78716c;
+  stroke-width: 0.7px;
+}
+
+.technical-view .twod-drawer-reveal {
+  stroke: #a8a29e;
+  stroke-width: 0.55px;
+}
+
+.technical-view .twod-shelf-board {
+  stroke: #78716c;
+  stroke-width: 0.5px;
+}
+
+.technical-view .twod-shelf-pin {
+  stroke: #78716c;
+  stroke-width: 0.65px;
+}
+
+.technical-view .twod-toe-kick-line,
+.technical-view .twod-toe-kick-return {
+  stroke: #57534e;
+  stroke-width: 1px;
+  fill: none;
+}
+
+.technical-view .twod-filler-hatch {
+  stroke: #64748b;
+  stroke-width: 0.55px;
+}
+
+.technical-view .twod-end-panel-edge {
+  stroke: #44403c;
+  stroke-width: 0.9px;
+}
+
+.technical-view .twod-family-symbol {
+  stroke: #334155;
+  stroke-width: 0.85px;
+  fill: none;
+  opacity: 0.85;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-sink-bowl,
+.technical-view .twod-sink-drain,
+.technical-view .twod-corner-mark {
+  stroke: #1e3a5f;
+  stroke-width: 0.9px;
+}
+
+.technical-view .twod-cabinet-phantom {
+  stroke: #64748b;
+  opacity: 0.5;
+}
+
+.technical-view .twod-opening-jamb {
+  fill: #e8eef5;
+}
+
+.technical-view .twod-opening-window.twod-opening-jamb {
+  fill: #e6f2f0;
+}
+
+.technical-view .twod-wall-centerline {
+  opacity: 0.28;
+}
+
+.technical-view .twod-ffl-line {
+  opacity: 0.4;
+}
