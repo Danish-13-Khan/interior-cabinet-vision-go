@@ -237,7 +237,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             Objects
           </button>
           <span className="workspace-focus-hint">
-            Sheets · Plan/Front/Side/Section/Report
+            Sheets · Plan/Front/Side/Section/Detail/Report
             {maximizedPane ? " · max" : ""}
           </span>
         </div>

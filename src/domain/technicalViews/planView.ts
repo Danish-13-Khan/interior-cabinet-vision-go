@@ -9,6 +9,10 @@ import {
 } from "../placementSnap";
 import { renderPlanRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
+import {
+  planSectionMarkers,
+  resolveSectionCutPlane,
+} from "../sectionCut";
 import { cabinetPlanGraphics } from "./cabinetSvg";
 import { DIM_RUN_CHAIN_STEP, SCALE } from "./constants";
 import {
@@ -128,6 +132,15 @@ export function topView(
   }
 
   elements.push(...planOpeningsGraphics(room, ox, oy, options));
+
+  if (options.showSectionMarkers !== false) {
+    const plane = resolveSectionCutPlane(project, {
+      activeCabinetId: options.activeCabinetId,
+      selectedCabinetIds: options.selectedCabinetIds,
+      cutPlaneXMm: options.cutPlaneXMm,
+    });
+    elements.push(...planSectionMarkers(plane, ox, oy, rd));
+  }
 
   if (options.snapGuides?.length) {
     elements.push(...snapGuideLines(options.snapGuides, ox, oy, rw, rd, "top"));

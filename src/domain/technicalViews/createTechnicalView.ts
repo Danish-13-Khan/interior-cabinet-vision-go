@@ -6,6 +6,7 @@ import type { CountertopSegment } from "../cabinetLibrary";
 import type { RoomConfig } from "../roomModel";
 import { frontView } from "./frontView";
 import { topView } from "./planView";
+import { detailView } from "./detailView";
 import { reportSheetView } from "./reportSheetView";
 import { sectionView } from "./sectionView";
 import { sideView } from "./sideView";
@@ -33,6 +34,8 @@ export function createTechnicalView(
       return sideView(project, room, withTops);
     case "section":
       return sectionView(project, room, withTops);
+    case "detail":
+      return detailView(project, room, withTops);
     case "report":
       return reportSheetView(project, room, withTops);
     default:

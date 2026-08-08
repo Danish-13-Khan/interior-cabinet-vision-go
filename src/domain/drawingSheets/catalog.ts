@@ -2,6 +2,7 @@ import { TECHNICAL_VIEW_SCALE } from "../technicalViews/constants";
 import type { DrawingSheetDef, DrawingSheetId } from "./types";
 
 const SCALE_TEXT = `1:${TECHNICAL_VIEW_SCALE * 25}`;
+const DETAIL_SCALE_TEXT = `1:${Math.round((TECHNICAL_VIEW_SCALE * 25) / 2.2)}`;
 
 export const DRAWING_SHEETS: readonly DrawingSheetDef[] = [
   {
@@ -44,6 +45,15 @@ export const DRAWING_SHEETS: readonly DrawingSheetDef[] = [
     technicalView: "section",
   },
   {
+    id: "detail",
+    code: "A-501",
+    title: "Cabinet Detail DET-1",
+    shortLabel: "Detail",
+    scaleText: DETAIL_SCALE_TEXT,
+    group: "detail",
+    technicalView: "detail",
+  },
+  {
     id: "report",
     code: "A-401",
     title: "Cabinet Schedule",
@@ -63,6 +73,7 @@ export function normalizeDrawingSheetId(value: unknown): DrawingSheetId {
     value === "front" ||
     value === "side" ||
     value === "section" ||
+    value === "detail" ||
     value === "report"
   ) {
     return value;

@@ -62,7 +62,7 @@ export function worldFromClient(
     );
     return worldPointForView("side", { x: 0, y: point.y, z: point.z });
   }
-  if (view === "report") return null;
+  if (view === "report" || view === "detail") return null;
   const point = planSvgToWorldMm(
     svgX,
     svgY,
@@ -103,7 +103,7 @@ export function proposePlacement(
   const deltaZ = dySvg * technicalView.scale;
 
   let next: CabinetPlacement = { ...origin };
-  if (view === "report") {
+  if (view === "report" || view === "detail") {
     return null;
   }
   if (view === "top") {

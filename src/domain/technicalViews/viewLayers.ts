@@ -208,7 +208,7 @@ export function draftingLayer(
   mapPoint: (point: { x: number; y: number; z: number }) => { x: number; y: number },
 ) {
   const sheetView =
-    view === "section" || view === "report"
+    view === "section" || view === "detail" || view === "report"
       ? "side"
       : view === "top"
         ? "top"

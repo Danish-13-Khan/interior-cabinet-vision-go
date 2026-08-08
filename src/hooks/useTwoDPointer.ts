@@ -27,7 +27,7 @@ import {
 } from "../components/twoDView/placementHelpers";
 
 function draftingViewFor(view: TechnicalViewKind): DraftingViewTarget {
-  if (view === "section") return "side";
+  if (view === "section" || view === "detail") return "side";
   if (view === "report") return "all";
   return view;
 }

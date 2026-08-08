@@ -117,6 +117,7 @@ export function TwoDView({
         fillers,
         countertops,
         drafting: project.drafting,
+        showSectionMarkers: true,
       }),
     [
       activeCabinetId,

@@ -43,7 +43,7 @@ export function sheetBackground(svgWidth: number, svgHeight: number, print: bool
 
 export function wrapTechnicalSvg(
   frame: SheetFrame,
-  view: "plan" | "front" | "side" | "section" | "report",
+  view: "plan" | "front" | "side" | "section" | "detail" | "report",
   elements: string[],
 ) {
   const mode = frame.print ? "print" : "interactive";
