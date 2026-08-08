@@ -1,8 +1,7 @@
 import { forwardRef, useEffect, useState } from "react";
-import {
-  type CabinetSceneHandle,
-} from "./CabinetScene";
+import { type CabinetSceneHandle } from "./CabinetScene";
 import { WorkspaceSplitCanvas } from "./WorkspaceSplitCanvas";
+import { WorkspaceSceneBrowser } from "./WorkspaceSceneBrowser";
 import type { DraftingTool } from "./TwoDView";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { CabinetDimensions, CabinetPlacement } from "../domain/cabinetDimensions";
@@ -13,9 +12,10 @@ import type {
   DraftingLeader,
   DraftingNote,
 } from "../domain/draftingAnnotations";
-import type { CabinetPlanningWorkflow } from "../domain/cabinetLibrary";
+import type { CabinetPlanningWorkflow, CabinetRun } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
+import type { ProjectRoom } from "../domain/projectRooms";
 
 type AppWorkspaceProps = {
   workspaceTab: WorkspaceTabId;
@@ -24,6 +24,8 @@ type AppWorkspaceProps = {
   project: CabinetProject;
   room: RoomConfig;
   planningWorkflow: CabinetPlanningWorkflow;
+  rooms: ProjectRoom[];
+  activeRoomId: string | null;
   snapSizeMm: number;
   showGrid: boolean;
   selectedCabinetIds: string[];
@@ -31,8 +33,15 @@ type AppWorkspaceProps = {
   activeOpeningId: string | null;
   selectedPanelName: PanelName | null;
   draftingDisplay: DraftingDisplayPreferences;
+  splitPlanWidthPct: number;
+  splitTopRowPct: number;
+  sceneBrowserVisible: boolean;
   onWorkspaceTabChange: (tab: WorkspaceTabId) => void;
   onDraftingToolChange: (tool: DraftingTool) => void;
+  onSplitPlanWidthChange: (pct: number) => void;
+  onSplitTopRowChange: (pct: number) => void;
+  onToggleSceneBrowser: () => void;
+  onSelectRoom: (roomId: string) => void;
   onCabinetMove: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onCabinetRotate: (cabinetId: string, rotation: number) => boolean;
   onCabinetResize: (cabinetId: string, dimensions: CabinetDimensions) => void;
@@ -70,6 +79,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       project,
       room,
       planningWorkflow,
+      rooms,
+      activeRoomId,
       snapSizeMm,
       showGrid,
       selectedCabinetIds,
@@ -77,8 +88,15 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       activeOpeningId,
       selectedPanelName,
       draftingDisplay,
+      splitPlanWidthPct,
+      splitTopRowPct,
+      sceneBrowserVisible,
       onWorkspaceTabChange,
       onDraftingToolChange,
+      onSplitPlanWidthChange,
+      onSplitTopRowChange,
+      onToggleSceneBrowser,
+      onSelectRoom,
       onCabinetMove,
       onCabinetRotate,
       onCabinetResize,
@@ -110,17 +128,20 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
     }, [maximizedPane, workspaceTab]);
 
     function handleToggleMaximize(tab: WorkspaceTabId) {
-      setMaximizedPane((current) => {
-        if (current === tab) return null;
-        if (
-          (current === "front" || current === "side") &&
-          (tab === "front" || tab === "side")
-        ) {
-          return current === tab ? null : tab;
-        }
-        return tab;
-      });
+      setMaximizedPane((current) => (current === tab ? null : tab));
       onWorkspaceTabChange(tab);
+    }
+
+    function handleSelectRun(run: CabinetRun) {
+      onReplaceSelection(run.cabinetIds, run.cabinetIds[0] ?? null, null);
+      onWorkspaceTabChange("plan");
+      setMaximizedPane(null);
+    }
+
+    function handleSelectOpening(cabinetId: string, openingId: string) {
+      onSelectOpening?.(cabinetId, openingId);
+      onWorkspaceTabChange("front");
+      setMaximizedPane(null);
     }
 
     return (
@@ -167,44 +188,74 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            className={`tb-btn ${sceneBrowserVisible ? "tb-accent" : ""}`}
+            title="Toggle scene browser"
+            onClick={onToggleSceneBrowser}
+          >
+            Objects
+          </button>
           <span className="workspace-focus-hint">
-            Split · Plan + Elevation + 3D
-            {maximizedPane ? " · maximized" : ""}
+            Split · Plan + Elev + 3D
+            {maximizedPane ? " · max" : ""}
           </span>
         </div>
 
-        <div className="workspace-canvas">
-          <WorkspaceSplitCanvas
-            ref={sceneRef}
-            workspaceTab={workspaceTab}
-            maximizedPane={maximizedPane}
-            draftingTool={draftingTool}
-            project={project}
-            room={room}
-            planningWorkflow={planningWorkflow}
-            snapSizeMm={snapSizeMm}
-            showGrid={showGrid}
-            selectedCabinetIds={selectedCabinetIds}
-            activeCabinetId={activeCabinetId}
-            activeOpeningId={activeOpeningId}
-            selectedPanelName={selectedPanelName}
-            draftingDisplay={draftingDisplay}
-            onFocusPane={(tab) => {
-              onWorkspaceTabChange(tab);
-            }}
-            onToggleMaximize={handleToggleMaximize}
-            onDraftingToolChange={onDraftingToolChange}
-            onCabinetMove={onCabinetMove}
-            onCabinetRotate={onCabinetRotate}
-            onCabinetResize={onCabinetResize}
-            onReplaceSelection={onReplaceSelection}
-            onToggleCabinetSelection={onToggleCabinetSelection}
-            onSelectCabinet={onSelectCabinet}
-            onSelectOpening={onSelectOpening}
-            onElevationOpeningCommand={onElevationOpeningCommand}
-            onAddNote={onAddNote}
-            onAddLeader={onAddLeader}
-          />
+        <div className="workspace-body">
+          {sceneBrowserVisible ? (
+            <WorkspaceSceneBrowser
+              rooms={rooms}
+              activeRoomId={activeRoomId}
+              cabinets={project.cabinets}
+              runs={planningWorkflow.runs}
+              activeCabinetId={activeCabinetId}
+              selectedCabinetIds={selectedCabinetIds}
+              activeOpeningId={activeOpeningId}
+              onSelectRoom={onSelectRoom}
+              onSelectCabinet={(cabinetId, additive) =>
+                onSelectCabinet(cabinetId, additive)
+              }
+              onSelectRun={handleSelectRun}
+              onSelectOpening={handleSelectOpening}
+            />
+          ) : null}
+
+          <div className="workspace-canvas">
+            <WorkspaceSplitCanvas
+              ref={sceneRef}
+              workspaceTab={workspaceTab}
+              maximizedPane={maximizedPane}
+              splitPlanWidthPct={splitPlanWidthPct}
+              splitTopRowPct={splitTopRowPct}
+              draftingTool={draftingTool}
+              project={project}
+              room={room}
+              planningWorkflow={planningWorkflow}
+              snapSizeMm={snapSizeMm}
+              showGrid={showGrid}
+              selectedCabinetIds={selectedCabinetIds}
+              activeCabinetId={activeCabinetId}
+              activeOpeningId={activeOpeningId}
+              selectedPanelName={selectedPanelName}
+              draftingDisplay={draftingDisplay}
+              onFocusPane={onWorkspaceTabChange}
+              onToggleMaximize={handleToggleMaximize}
+              onSplitPlanWidthChange={onSplitPlanWidthChange}
+              onSplitTopRowChange={onSplitTopRowChange}
+              onDraftingToolChange={onDraftingToolChange}
+              onCabinetMove={onCabinetMove}
+              onCabinetRotate={onCabinetRotate}
+              onCabinetResize={onCabinetResize}
+              onReplaceSelection={onReplaceSelection}
+              onToggleCabinetSelection={onToggleCabinetSelection}
+              onSelectCabinet={onSelectCabinet}
+              onSelectOpening={onSelectOpening}
+              onElevationOpeningCommand={onElevationOpeningCommand}
+              onAddNote={onAddNote}
+              onAddLeader={onAddLeader}
+            />
+          </div>
         </div>
       </section>
     );

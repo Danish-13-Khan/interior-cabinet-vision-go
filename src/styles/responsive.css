@@ -33,27 +33,44 @@
     min-height: 360px;
   }
 
-  .workspace-split {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(180px, 1fr) minmax(180px, 1fr) minmax(200px, 1fr);
+  .workspace-body {
+    flex-direction: column;
   }
 
-  .workspace-split > .workspace-pane[data-pane="plan"],
-  .workspace-split > .workspace-pane[data-pane="front"],
-  .workspace-split > .workspace-pane[data-pane="3d"] {
-    grid-column: 1;
+  .workspace-scene-browser {
+    width: 100%;
+    max-height: 140px;
+    border-right: none;
+    border-bottom: 1px solid #7f8c9c;
+  }
+
+  .workspace-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(140px, 1fr) 4px minmax(140px, 1fr) 4px minmax(160px, 1fr);
   }
 
   .workspace-split > .workspace-pane[data-pane="plan"] {
+    grid-column: 1;
     grid-row: 1;
   }
 
+  .workspace-split > .workspace-split-v {
+    display: none;
+  }
+
   .workspace-split > .workspace-pane[data-pane="front"] {
-    grid-row: 2;
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .workspace-split > .workspace-split-h {
+    grid-column: 1;
+    grid-row: 4;
   }
 
   .workspace-split > .workspace-pane[data-pane="3d"] {
-    grid-row: 3;
+    grid-column: 1;
+    grid-row: 5;
   }
 
   .app-ribbon {

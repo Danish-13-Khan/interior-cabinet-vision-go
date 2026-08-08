@@ -102,6 +102,8 @@ function App() {
           project: c.getVisibleProject(),
           room: c.room,
           planningWorkflow: c.planningWorkflow,
+          rooms: c.projectRooms,
+          activeRoomId: c.project.activeRoomId ?? c.projectRooms[0]?.id ?? null,
           snapSizeMm: c.projectPreferences.snapSizeMm,
           showGrid: c.projectPreferences.showGrid,
           selectedCabinetIds: c.selectedCabinetIds,
@@ -109,11 +111,23 @@ function App() {
           activeOpeningId: c.activeOpeningId,
           selectedPanelName: c.selectedPanelName,
           draftingDisplay: c.draftingDisplay,
+          splitPlanWidthPct: c.layout.splitPlanWidthPct,
+          splitTopRowPct: c.layout.splitTopRowPct,
+          sceneBrowserVisible: c.layout.sceneBrowserVisible,
           onWorkspaceTabChange: (tab) => {
             c.setWorkspaceTab(tab);
             c.setDraftingTool("select");
           },
           onDraftingToolChange: c.setDraftingTool,
+          onSplitPlanWidthChange: (splitPlanWidthPct) =>
+            c.setLayout({ splitPlanWidthPct }),
+          onSplitTopRowChange: (splitTopRowPct) =>
+            c.setLayout({ splitTopRowPct }),
+          onToggleSceneBrowser: () =>
+            c.setLayout({
+              sceneBrowserVisible: !c.layout.sceneBrowserVisible,
+            }),
+          onSelectRoom: c.handleSelectProjectRoom,
           onCabinetMove: c.handleCabinetMove,
           onCabinetRotate: c.handleCabinetRotate,
           onCabinetResize: c.handleCabinetResize,

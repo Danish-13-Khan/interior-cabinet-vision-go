@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useRef } from "react";
 import {
   CabinetScene,
   type CabinetSceneHandle,
@@ -6,6 +6,11 @@ import {
 import { ElevationOpeningToolbar } from "./ElevationOpeningToolbar";
 import { TwoDView, type DraftingTool } from "./TwoDView";
 import { WorkspaceViewPane } from "./WorkspaceViewPane";
+import { WorkspaceSplitHandle } from "./WorkspaceSplitHandle";
+import {
+  DraftingToolButtons,
+  SceneCameraButtons,
+} from "./WorkspacePaneTools";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { CabinetDimensions, CabinetPlacement } from "../domain/cabinetDimensions";
 import type { PanelName } from "../domain/cabinetGeometry";
@@ -18,10 +23,13 @@ import type {
 import type { CabinetPlanningWorkflow } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
+import type { ViewPreset } from "./cabinetScene/types";
 
 type WorkspaceSplitCanvasProps = {
   workspaceTab: WorkspaceTabId;
   maximizedPane: WorkspaceTabId | null;
+  splitPlanWidthPct: number;
+  splitTopRowPct: number;
   draftingTool: DraftingTool;
   project: CabinetProject;
   room: RoomConfig;
@@ -35,6 +43,8 @@ type WorkspaceSplitCanvasProps = {
   draftingDisplay: DraftingDisplayPreferences;
   onFocusPane: (tab: WorkspaceTabId) => void;
   onToggleMaximize: (tab: WorkspaceTabId) => void;
+  onSplitPlanWidthChange: (pct: number) => void;
+  onSplitTopRowChange: (pct: number) => void;
   onDraftingToolChange: (tool: DraftingTool) => void;
   onCabinetMove: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onCabinetRotate: (cabinetId: string, rotation: number) => boolean;
@@ -55,35 +65,6 @@ type WorkspaceSplitCanvasProps = {
   onAddLeader: (leader: DraftingLeader) => void;
 };
 
-function DraftingToolButtons({
-  draftingTool,
-  onDraftingToolChange,
-}: {
-  draftingTool: DraftingTool;
-  onDraftingToolChange: (tool: DraftingTool) => void;
-}) {
-  return (
-    <span className="drawing-drafting-tools">
-      {(
-        [
-          ["select", "Select"],
-          ["note", "Note"],
-          ["leader", "Leader"],
-        ] as const
-      ).map(([id, label]) => (
-        <button
-          key={id}
-          type="button"
-          className={`tb-btn ${draftingTool === id ? "tb-accent" : ""}`}
-          onClick={() => onDraftingToolChange(id)}
-        >
-          {label}
-        </button>
-      ))}
-    </span>
-  );
-}
-
 export const WorkspaceSplitCanvas = forwardRef<
   CabinetSceneHandle,
   WorkspaceSplitCanvasProps
@@ -91,6 +72,8 @@ export const WorkspaceSplitCanvas = forwardRef<
   {
     workspaceTab,
     maximizedPane,
+    splitPlanWidthPct,
+    splitTopRowPct,
     draftingTool,
     project,
     room,
@@ -104,6 +87,8 @@ export const WorkspaceSplitCanvas = forwardRef<
     draftingDisplay,
     onFocusPane,
     onToggleMaximize,
+    onSplitPlanWidthChange,
+    onSplitTopRowChange,
     onDraftingToolChange,
     onCabinetMove,
     onCabinetRotate,
@@ -118,15 +103,18 @@ export const WorkspaceSplitCanvas = forwardRef<
   },
   sceneRef,
 ) {
+  const splitRef = useRef<HTMLDivElement | null>(null);
   const elevTab: WorkspaceTabId = workspaceTab === "side" ? "side" : "front";
   const elevView = elevTab === "side" ? "side" : "front";
   const elevTitle = elevTab === "side" ? "Side Elevation" : "Front Elevation";
   const activeCabinet = project.cabinets.find(
     (cabinet) => cabinet.id === activeCabinetId,
   );
+  const maxKey =
+    maximizedPane === "side" ? "front" : maximizedPane;
   const splitClass = [
     "workspace-split",
-    maximizedPane ? `is-max-${maximizedPane === "side" ? "front" : maximizedPane}` : "",
+    maxKey ? `is-max-${maxKey}` : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -151,23 +139,34 @@ export const WorkspaceSplitCanvas = forwardRef<
     onAddLeader,
   } as const;
 
+  function setCameraPreset(preset: ViewPreset) {
+    const handle =
+      sceneRef && typeof sceneRef === "object" ? sceneRef.current : null;
+    handle?.setViewPreset(preset);
+  }
+
   return (
-    <div className={splitClass}>
+    <div
+      ref={splitRef}
+      className={splitClass}
+      style={{
+        ["--split-plan-pct" as string]: `${splitPlanWidthPct}%`,
+        ["--split-top-pct" as string]: `${splitTopRowPct}%`,
+      }}
+    >
       <WorkspaceViewPane
         paneId="plan"
         title="Plan"
-        subtitle="Top view"
+        subtitle="Top"
         focused={workspaceTab === "plan"}
         maximized={maximizedPane === "plan"}
         onFocus={() => onFocusPane("plan")}
         onToggleMaximize={() => onToggleMaximize("plan")}
         toolbar={
-          workspaceTab === "plan" ? (
-            <DraftingToolButtons
-              draftingTool={draftingTool}
-              onDraftingToolChange={onDraftingToolChange}
-            />
-          ) : null
+          <DraftingToolButtons
+            draftingTool={draftingTool}
+            onDraftingToolChange={onDraftingToolChange}
+          />
         }
       >
         <div className="drawing-sheet drawing-sheet-embedded">
@@ -176,6 +175,17 @@ export const WorkspaceSplitCanvas = forwardRef<
           </div>
         </div>
       </WorkspaceViewPane>
+
+      {!maximizedPane ? (
+        <WorkspaceSplitHandle
+          axis="x"
+          valuePct={splitPlanWidthPct}
+          containerRef={splitRef}
+          ariaLabel="Resize plan and elevation"
+          className="workspace-split-v"
+          onChange={onSplitPlanWidthChange}
+        />
+      ) : null}
 
       <WorkspaceViewPane
         paneId="front"
@@ -186,12 +196,10 @@ export const WorkspaceSplitCanvas = forwardRef<
         onFocus={() => onFocusPane(elevTab)}
         onToggleMaximize={() => onToggleMaximize(elevTab)}
         toolbar={
-          workspaceTab === "front" || workspaceTab === "side" ? (
-            <DraftingToolButtons
-              draftingTool={draftingTool}
-              onDraftingToolChange={onDraftingToolChange}
-            />
-          ) : null
+          <DraftingToolButtons
+            draftingTool={draftingTool}
+            onDraftingToolChange={onDraftingToolChange}
+          />
         }
       >
         <div className="drawing-sheet drawing-sheet-embedded">
@@ -214,6 +222,17 @@ export const WorkspaceSplitCanvas = forwardRef<
         </div>
       </WorkspaceViewPane>
 
+      {!maximizedPane ? (
+        <WorkspaceSplitHandle
+          axis="y"
+          valuePct={splitTopRowPct}
+          containerRef={splitRef}
+          ariaLabel="Resize drafting and 3D"
+          className="workspace-split-h"
+          onChange={onSplitTopRowChange}
+        />
+      ) : null}
+
       <WorkspaceViewPane
         paneId="3d"
         title="3D"
@@ -222,6 +241,7 @@ export const WorkspaceSplitCanvas = forwardRef<
         maximized={maximizedPane === "3d"}
         onFocus={() => onFocusPane("3d")}
         onToggleMaximize={() => onToggleMaximize("3d")}
+        toolbar={<SceneCameraButtons onSetViewPreset={setCameraPreset} />}
       >
         <div className="viewport-panel viewport-panel-embedded" aria-label="3D room viewport">
           <CabinetScene
