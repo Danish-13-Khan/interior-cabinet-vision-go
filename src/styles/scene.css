@@ -5,10 +5,10 @@
   height: 100%;
   min-height: 0;
   flex: 1;
-  border-radius: 3px;
+  border-radius: 0;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #aeb9c6;
+  background: #ffffff;
+  border: 1px solid #8e9aab;
 }
 
 .scene-frame-marquee {

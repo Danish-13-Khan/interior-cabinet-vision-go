@@ -1,0 +1,194 @@
+/* Split drafting workspace: Plan | Elevation over 3D */
+
+.workspace-focus-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: 28px;
+  padding: 0 6px;
+  background: #e8edf2;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.workspace-focus-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5a6b7c;
+  white-space: nowrap;
+  padding-right: 6px;
+  border-right: 1px solid #c5ced8;
+}
+
+.workspace-focus-hint {
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #7a8898;
+  white-space: nowrap;
+}
+
+.workspace-focus-bar .workspace-tabs {
+  background: transparent;
+  border-bottom: 0;
+  padding: 0;
+  gap: 1px;
+}
+
+.workspace-focus-bar .workspace-tab {
+  padding: 5px 9px;
+  font-size: 0.68rem;
+  border-bottom-width: 2px;
+}
+
+.workspace-tab-kbd {
+  margin-left: 4px;
+  padding: 1px 4px;
+  border: 1px solid #c5ced8;
+  border-radius: 2px;
+  background: #f8fafc;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.workspace-split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 0;
+  background: #9aa8b5;
+}
+
+.workspace-split > .workspace-pane[data-pane="plan"] {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.workspace-split > .workspace-pane[data-pane="front"] {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.workspace-split > .workspace-pane[data-pane="3d"] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.workspace-split.is-max-plan > .workspace-pane[data-pane="plan"],
+.workspace-split.is-max-front > .workspace-pane[data-pane="front"],
+.workspace-split.is-max-3d > .workspace-pane[data-pane="3d"] {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  z-index: 2;
+}
+
+.workspace-split.is-max-plan > .workspace-pane:not([data-pane="plan"]),
+.workspace-split.is-max-front > .workspace-pane:not([data-pane="front"]),
+.workspace-split.is-max-3d > .workspace-pane:not([data-pane="3d"]) {
+  display: none;
+}
+
+.workspace-pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid #8e9aab;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.workspace-pane.is-focused {
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 0 0 2px rgba(31, 79, 122, 0.35);
+}
+
+.workspace-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 4px 0 6px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #f4f6f8 0%, #e4e9ef 100%);
+  border-bottom: 1px solid #b4bfcc;
+}
+
+.workspace-pane.is-focused .workspace-pane-header {
+  background: linear-gradient(180deg, #edf3f9 0%, #d9e6f2 100%);
+  border-bottom-color: #9bb3c9;
+}
+
+.workspace-pane-title {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 2px;
+  cursor: pointer;
+  color: #334155;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.workspace-pane-title small {
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #708296;
+}
+
+.workspace-pane-tools {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.workspace-pane-max-btn {
+  padding: 2px 6px !important;
+  font-size: 0.62rem !important;
+}
+
+.workspace-pane-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.drawing-sheet-embedded {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #ffffff;
+}
+
+.drawing-sheet-embedded .drawing-sheet-scroll {
+  padding: 8px;
+  background: #ffffff;
+}
+
+.viewport-panel-embedded {
+  padding: 0;
+  background: #dfe5eb;
+}
+
+.viewport-panel-embedded .scene-frame {
+  border-radius: 0;
+  border: 0;
+}

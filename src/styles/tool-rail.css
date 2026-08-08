@@ -1,7 +1,7 @@
 /* ── Left Tool Rail ── */
 .tool-rail,
 .library-sidebar {
-  width: 248px;
+  width: 200px;
   flex-shrink: 0;
   padding: 0;
   box-sizing: border-box;
@@ -14,8 +14,8 @@
 }
 
 .rail-section {
-  padding: 8px;
-  border-bottom: 1px solid #cfd7e0;
+  padding: 6px;
+  border-bottom: 1px solid #c5ced8;
 }
 
 .rail-link-btn {

@@ -13,16 +13,16 @@ export type DesktopLayoutPrefs = {
 };
 
 export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
-  toolRailWidthPx: 248,
-  inspectorWidthPx: 300,
-  statusDockHeightPx: 280,
+  toolRailWidthPx: 200,
+  inspectorWidthPx: 280,
+  statusDockHeightPx: 260,
   toolRailVisible: true,
   inspectorVisible: true,
   statusDockOpen: false,
   workspaceTab: "front",
 };
 
-const WIDTH_MIN = 180;
+const WIDTH_MIN = 160;
 const WIDTH_MAX = 480;
 const DOCK_MIN = 160;
 const DOCK_MAX = 520;

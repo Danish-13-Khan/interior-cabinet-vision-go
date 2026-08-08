@@ -33,6 +33,29 @@
     min-height: 360px;
   }
 
+  .workspace-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(180px, 1fr) minmax(180px, 1fr) minmax(200px, 1fr);
+  }
+
+  .workspace-split > .workspace-pane[data-pane="plan"],
+  .workspace-split > .workspace-pane[data-pane="front"],
+  .workspace-split > .workspace-pane[data-pane="3d"] {
+    grid-column: 1;
+  }
+
+  .workspace-split > .workspace-pane[data-pane="plan"] {
+    grid-row: 1;
+  }
+
+  .workspace-split > .workspace-pane[data-pane="front"] {
+    grid-row: 2;
+  }
+
+  .workspace-split > .workspace-pane[data-pane="3d"] {
+    grid-row: 3;
+  }
+
   .app-ribbon {
     height: auto;
     flex-wrap: wrap;
