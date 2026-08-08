@@ -26,7 +26,7 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   statusDockOpen: false,
   workspaceTab: "front",
   splitPlanWidthPct: 50,
-  splitTopRowPct: 64,
+  splitTopRowPct: 68,
   sceneBrowserVisible: true,
 };
 

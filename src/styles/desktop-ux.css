@@ -70,7 +70,7 @@
   min-width: 196px;
   padding: 6px;
   border: 1px solid #c5d0db;
-  border-radius: 10px;
+  border-radius: 2px;
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 18px 40px rgba(28, 39, 51, 0.22);
   display: flex;
@@ -133,7 +133,7 @@
   overflow: auto;
   padding: 6px;
   border: 1px solid #c5d0db;
-  border-radius: 10px;
+  border-radius: 2px;
   background: #fff;
   box-shadow: 0 16px 36px rgba(28, 39, 51, 0.18);
 }

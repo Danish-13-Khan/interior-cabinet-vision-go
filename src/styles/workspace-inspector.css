@@ -1,11 +1,11 @@
-/* ── Center Workspace + Right Inspector ── */
+/* ── Center Workspace + Right Inspector (warmer panel) ── */
 .workspace-panel {
   flex: 1;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #b7c0cb;
+  background: var(--workspace-chrome);
 }
 
 .workspace-tabs {
@@ -13,9 +13,9 @@
   align-items: stretch;
   gap: 0;
   flex-shrink: 0;
-  background: #e8edf2;
-  border-bottom: 1px solid var(--panel-border);
-  padding: 0 4px;
+  background: var(--workspace-focus-bg);
+  border-bottom: 1px solid var(--workspace-gutter);
+  padding: 0 2px;
 }
 
 .workspace-tab {
@@ -23,22 +23,22 @@
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: #5a6b7c;
-  font-size: 0.68rem;
+  color: var(--muted);
+  font-size: 0.62rem;
   font-weight: 650;
-  padding: 6px 10px;
+  padding: 4px 8px;
   cursor: pointer;
 }
 
 .workspace-tab:hover {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.45);
 }
 
 .workspace-tab.is-active {
   color: var(--accent);
   border-bottom-color: var(--accent);
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .workspace-canvas {
@@ -54,8 +54,8 @@
   display: flex;
   flex-direction: column;
   margin: 0;
-  border: 1px solid #8e9aab;
-  background: #ffffff;
+  border: 1px solid var(--workspace-gutter);
+  background: var(--drawing-bg);
   box-shadow: none;
   border-radius: 0;
 }
@@ -64,13 +64,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 3px 8px;
-  border-bottom: 1px solid #b4bfcc;
-  background: #eef2f6;
-  font-size: 0.64rem;
+  gap: 6px;
+  padding: 2px 6px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--workspace-pane-header);
+  font-size: 0.58rem;
   font-weight: 650;
-  color: #4a5d70;
+  color: var(--muted);
   flex-shrink: 0;
 }
 
@@ -81,21 +81,21 @@
 
 .drawing-drafting-tools {
   display: flex;
-  gap: 2px;
+  gap: 1px;
   margin-left: auto;
 }
 
 .drafting-tool-hint {
   position: absolute;
-  top: 8px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
-  padding: 3px 7px;
-  border-radius: 2px;
-  background: #0f172a;
-  color: #f8fafc;
-  font-size: 0.64rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-control);
+  background: var(--status-bg);
+  color: var(--status-fg);
+  font-size: 0.58rem;
   font-weight: 650;
 }
 
@@ -111,61 +111,61 @@
 .drafting-toggle-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3px;
-  margin-bottom: 6px;
+  gap: 2px;
+  margin-bottom: 4px;
 }
 
 .drafting-toggle {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.62rem;
-  color: #475569;
+  gap: 4px;
+  font-size: 0.58rem;
+  color: var(--muted);
 }
 
 .drafting-min-seg {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.62rem;
-  color: #64748b;
-  margin-bottom: 6px;
+  gap: 4px;
+  font-size: 0.58rem;
+  color: var(--muted);
+  margin-bottom: 4px;
 }
 
 .drafting-min-seg input {
-  width: 58px;
-  font-size: 0.66rem;
-  padding: 2px 4px;
-  border: 1px solid #b8c2cd;
+  width: 52px;
+  font-size: 0.62rem;
+  padding: 1px 3px;
+  border: 1px solid var(--panel-border);
   border-radius: var(--radius-control);
 }
 
 .drafting-annotation-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .drafting-annotation-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 6px;
-  padding: 5px;
-  border: 1px solid #c5ced8;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--panel-border);
   border-radius: var(--radius-control);
-  background: #f8fafc;
+  background: var(--panel-raised);
 }
 
 .drafting-annotation-row strong {
   display: block;
-  font-size: 0.6rem;
-  color: #334155;
+  font-size: 0.56rem;
+  color: var(--ink);
 }
 
 .drafting-annotation-row span {
-  font-size: 0.62rem;
-  color: #64748b;
+  font-size: 0.58rem;
+  color: var(--muted);
 }
 
 .technical-view .twod-wall-outline,
@@ -183,7 +183,7 @@
 }
 
 .technical-view .twod-wall-label {
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 
 .technical-view .twod-tag-text,
@@ -196,47 +196,47 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 8px;
+  padding: 2px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background: #ffffff;
+  background: var(--drawing-bg);
 }
 
 .inspector-panel,
 .properties-panel {
-  width: min(280px, 100%);
+  width: min(268px, 100%);
   flex-shrink: 0;
   padding: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--panel-bg);
-  border-left: 1px solid var(--panel-border);
+  background: var(--inspector-bg);
+  border-left: 1px solid var(--inspector-border);
 }
 
 .inspector-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  padding: 5px 8px;
-  border-bottom: 1px solid var(--panel-border);
-  background: #e2e8ef;
+  gap: 4px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--inspector-border);
+  background: var(--inspector-header-bg);
   flex-shrink: 0;
 }
 
 .inspector-header strong {
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #4a5d70;
+  color: #6a5e54;
 }
 
 .inspector-header span {
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -247,10 +247,10 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 6px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .viewport-panel {
@@ -261,5 +261,5 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  background: #dfe5eb;
+  background: #c5ced8;
 }

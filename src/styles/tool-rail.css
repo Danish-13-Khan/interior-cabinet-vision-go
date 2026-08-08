@@ -1,4 +1,4 @@
-/* ── Left Tool Rail ── */
+/* ── Left Tool Rail (cooler gray-blue) ── */
 .tool-rail,
 .library-sidebar {
   width: 200px;
@@ -8,43 +8,61 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: var(--panel-bg);
-  border-right: 1px solid var(--panel-border);
+  background: var(--rail-bg);
+  border-right: 1px solid var(--rail-border);
   overflow-y: auto;
 }
 
 .rail-section {
-  padding: 6px;
-  border-bottom: 1px solid #c5ced8;
+  padding: 4px;
+  border-bottom: 1px solid var(--rail-section-border);
+}
+
+.rail-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 3px;
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.rail-count {
+  color: #8090a0;
+  font-weight: 650;
 }
 
 .rail-link-btn {
   appearance: none;
-  border: 1px solid #cfd8e3;
-  background: #f8fafc;
-  color: #334155;
-  font-size: 0.58rem;
+  border: 1px solid var(--rail-section-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+  font-size: 0.54rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 1px 5px;
+  border-radius: var(--radius-control);
   cursor: pointer;
 }
 
 .rail-link-btn:hover {
-  background: #eef4fb;
-  border-color: #b7c7d8;
+  background: var(--accent-soft);
+  border-color: #9bb4c9;
 }
 
 .library-manager-shell {
   width: min(920px, calc(100vw - 32px));
   max-height: min(82vh, 760px);
   overflow: hidden;
-  border: 1px solid rgba(188, 198, 209, 0.72);
-  border-radius: 16px;
+  border: 1px solid var(--rail-border);
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 30px 80px rgba(35, 48, 64, 0.24);
+  box-shadow: 0 16px 40px rgba(35, 48, 64, 0.28);
 }
 
 .library-manager {

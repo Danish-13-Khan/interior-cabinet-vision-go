@@ -7,8 +7,8 @@
   flex: 1;
   border-radius: 0;
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid #8e9aab;
+  background: var(--drawing-bg);
+  border: 1px solid var(--workspace-gutter);
 }
 
 .scene-frame-marquee {
