@@ -3,7 +3,7 @@ import type {
   CabinetPlacement,
   CabinetProject,
 } from "../domain/cabinetDimensions";
-import type { CabinetRun, CountertopSegment } from "../domain/cabinetLibrary";
+import type { CabinetRun, CountertopSegment, RunFiller } from "../domain/cabinetLibrary";
 import type { SnapGuide } from "../domain/placementSnap";
 import { snapElevationHeight, snapPlanPlacement } from "../domain/placementSnap";
 import {
@@ -32,13 +32,16 @@ type TwoDViewProps = {
   view: TechnicalViewKind;
   countertops?: CountertopSegment[];
   runs?: CabinetRun[];
+  fillers?: RunFiller[];
   selectedCabinetIds?: string[];
   activeCabinetId?: string | null;
+  activeOpeningId?: string | null;
   snapSizeMm?: number;
   showGrid?: boolean;
   draftingDisplay?: DraftingDisplayPreferences;
   draftingTool?: DraftingTool;
   onSelectCabinet?: (cabinetId: string | null, additive: boolean) => void;
+  onSelectOpening?: (cabinetId: string, openingId: string) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onAddNote?: (note: DraftingNote) => void;
   onAddLeader?: (leader: DraftingLeader) => void;
@@ -59,13 +62,16 @@ export function TwoDView({
   view,
   countertops,
   runs = [],
+  fillers = [],
   selectedCabinetIds = [],
   activeCabinetId = null,
+  activeOpeningId = null,
   snapSizeMm = 50,
   showGrid = true,
   draftingDisplay,
   draftingTool = "select",
   onSelectCabinet,
+  onSelectOpening,
   onCabinetMove,
   onAddNote,
   onAddLeader,
@@ -89,6 +95,7 @@ export function TwoDView({
       createTechnicalView(project, room, view, countertops, {
         selectedCabinetIds,
         activeCabinetId,
+        activeOpeningId,
         mode: "interactive",
         showGrid,
         showDimensionChains: display.showDimensionChains,
@@ -101,10 +108,12 @@ export function TwoDView({
         snapGuides,
         ghostPlacement,
         runs,
+        fillers,
         drafting: project.drafting,
       }),
     [
       activeCabinetId,
+      activeOpeningId,
       countertops,
       display.dimMinSegmentMm,
       display.showApplianceTags,
@@ -112,6 +121,7 @@ export function TwoDView({
       display.showDimensionChains,
       display.showOpeningTags,
       display.showWallLabels,
+      fillers,
       ghostPlacement,
       project,
       room,
@@ -286,6 +296,14 @@ export function TwoDView({
     if (draftingTool !== "select") return;
 
     const target = event.target as Element | null;
+    const openingNode = target?.closest?.("[data-opening-id]");
+    const openingId = openingNode?.getAttribute("data-opening-id");
+    const openingCabinetId = openingNode?.getAttribute("data-cabinet-id");
+    if (openingId && openingCabinetId && onSelectOpening && (view === "front" || view === "side")) {
+      onSelectOpening(openingCabinetId, openingId);
+      // Still allow drag from opening face for cabinet move
+    }
+
     const cabinetNode = target?.closest?.("[data-cabinet-id]");
     const cabinetId = cabinetNode?.getAttribute("data-cabinet-id");
     if (!cabinetId) return;

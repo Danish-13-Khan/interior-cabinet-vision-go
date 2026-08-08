@@ -19,7 +19,7 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   toolRailVisible: true,
   inspectorVisible: true,
   statusDockOpen: false,
-  workspaceTab: "plan",
+  workspaceTab: "front",
 };
 
 const WIDTH_MIN = 180;

@@ -6,7 +6,8 @@ import {
   type CabinetInstance,
   type CabinetProject,
 } from "./cabinetDimensions";
-import type { CabinetRun, CountertopSegment } from "./cabinetLibrary";
+import type { CabinetRun, CountertopSegment, RunFiller } from "./cabinetLibrary";
+import { renderElevationFaceGraphics } from "./elevationFaceGraphics";
 import type { SnapGuide } from "./placementSnap";
 import {
   collectElevationHorizontalChain,
@@ -47,6 +48,7 @@ export type TechnicalViewResult = {
 export type TechnicalViewOptions = {
   selectedCabinetIds?: string[];
   activeCabinetId?: string | null;
+  activeOpeningId?: string | null;
   mode?: "interactive" | "print";
   showGrid?: boolean;
   showDimensionChains?: boolean;
@@ -67,6 +69,7 @@ export type TechnicalViewOptions = {
     z: number;
   } | null;
   runs?: CabinetRun[];
+  fillers?: RunFiller[];
   drafting?: ProjectDrafting;
 };
 
@@ -672,55 +675,16 @@ function cabinetElevationGraphics(
     );
   }
 
-  if (options.showElevationDetails !== false) {
-    const toe = cabinet.config.toeKickHeight > 0 ? cabinet.config.toeKickHeight / SCALE : 0;
-    if (toe > 0) {
-      elements.push(
-        line(x, y + height - toe, x + width, y + height - toe, `class="twod-cabinet-opening" stroke="#57534e" stroke-width="1" pointer-events="none"`),
-      );
-    }
-
-    if (cabinet.config.hasDoors) {
-      const doorGap = 2;
-      const doorCount = cabinet.config.dimensions.width < 600 ? 1 : 2;
-      const doorW = (width - doorGap * (doorCount + 1)) / doorCount;
-      for (let index = 0; index < doorCount; index += 1) {
-        const dx = x + doorGap + index * (doorW + doorGap);
-        const dy = y + 3;
-        const dh = height - toe - 6;
-        elements.push(
-          rect(dx, dy, doorW, dh, `class="twod-cabinet-opening" fill="none" stroke="#44403c" stroke-width="1.05" pointer-events="none"`),
-        );
-        const handleX = index === 0 && doorCount === 2 ? dx + doorW - 4 : dx + 4;
-        elements.push(
-          line(handleX, dy + dh * 0.45, handleX, dy + dh * 0.55, `class="twod-cabinet-opening" stroke="#292524" stroke-width="1.5" pointer-events="none"`),
-        );
-      }
-    }
-
-    if ((cabinet.config.drawerCount ?? 0) > 0) {
-      const count = cabinet.config.drawerCount ?? 0;
-      const usable = height - toe - 6;
-      const drawerH = usable / count;
-      for (let index = 0; index < count; index += 1) {
-        const dy = y + 3 + index * drawerH;
-        elements.push(
-          rect(x + 3, dy, width - 6, drawerH - 2, `class="twod-cabinet-opening" fill="none" stroke="#44403c" stroke-width="1.05" pointer-events="none"`),
-        );
-        elements.push(
-          line(x + width / 2 - 8, dy + drawerH / 2, x + width / 2 + 8, dy + drawerH / 2, `class="twod-cabinet-opening" stroke="#292524" stroke-width="1.4" pointer-events="none"`),
-        );
-      }
-    }
-
-    if (cabinet.config.shelfCount > 0 && !cabinet.config.hasDoors) {
-      const usable = height - toe - 8;
-      for (let index = 1; index <= cabinet.config.shelfCount; index += 1) {
-        const sy = y + 4 + (usable * index) / (cabinet.config.shelfCount + 1);
-        elements.push(line(x + 3, sy, x + width - 3, sy, `class="twod-cabinet-opening" stroke="#78716c" stroke-width="0.9" stroke-dasharray="3 2" pointer-events="none"`));
-      }
-    }
-  }
+  elements.push(
+    ...renderElevationFaceGraphics(cabinet, x, y, width, height, {
+      showDetails: options.showElevationDetails !== false,
+      activeOpeningId:
+        options.activeCabinetId === cabinet.id
+          ? options.activeOpeningId ?? null
+          : null,
+      scale: SCALE,
+    }),
+  );
 
   const typeLabel = cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type;
   elements.push(
@@ -1137,6 +1101,60 @@ function frontView(
         indexMap.get(cabinet.id) ?? 0,
       ),
     );
+  }
+
+  // Run fillers in front elevation (gap fillers between cabinets)
+  for (const filler of options.fillers ?? []) {
+    const width = filler.size.width / SCALE;
+    const height = filler.size.height / SCALE;
+    const x = ox + filler.position.x / SCALE - width / 2;
+    const y = oy + rh / SCALE / 2 - (filler.position.y + filler.size.height) / SCALE;
+    elements.push(
+      rect(
+        x,
+        y,
+        width,
+        height,
+        `class="twod-run-filler" fill="rgba(148,163,184,0.45)" stroke="#475569" stroke-width="1" pointer-events="none"`,
+      ),
+    );
+    elements.push(
+      text(
+        x + width / 2,
+        y + height / 2 + 2,
+        `${Math.round(filler.widthMm)}`,
+        `class="twod-annotation" font-size="6.5" fill="#334155" text-anchor="middle" pointer-events="none"`,
+      ),
+    );
+  }
+
+  // Wall-cabinet height relationships: clearances above floor cabinets / below ceiling
+  const wallCabinets = visibleCabinets.filter((cabinet) => cabinet.placement.attachment === "back-wall");
+  const floorCabinets = visibleCabinets.filter((cabinet) => cabinet.placement.attachment === "floor");
+  for (const wallCab of wallCabinets) {
+    const bottom = wallCab.placement.y;
+    const top = wallCab.placement.y + wallCab.config.dimensions.height;
+    const ceilingClear = rh - top;
+    const cx = ox + wallCab.placement.x / SCALE;
+    const bottomY = oy + rh / SCALE / 2 - bottom / SCALE;
+    const topY = oy + rh / SCALE / 2 - top / SCALE;
+    const ceilingY = oy - rh / SCALE / 2;
+    if (ceilingClear > 20) {
+      elements.push(line(cx + 18, topY, cx + 18, ceilingY, `class="twod-dim twod-wall-clearance" stroke="#0369a1" stroke-width="1" stroke-dasharray="3 2"`));
+      elements.push(text(cx + 22, (topY + ceilingY) / 2, `${dimensionLabel(ceilingClear)} clear`, `class="twod-annotation" font-size="6.5" fill="#0369a1"`));
+    }
+    for (const floorCab of floorCabinets) {
+      if (Math.abs(floorCab.placement.x - wallCab.placement.x) > Math.max(floorCab.config.dimensions.width, wallCab.config.dimensions.width)) {
+        continue;
+      }
+      const gap = bottom - (floorCab.placement.y + floorCab.config.dimensions.height);
+      if (gap > 20) {
+        const floorTopY = oy + rh / SCALE / 2 - (floorCab.placement.y + floorCab.config.dimensions.height) / SCALE;
+        elements.push(line(cx - 18, floorTopY, cx - 18, bottomY, `class="twod-dim twod-wall-clearance" stroke="#0369a1" stroke-width="1" stroke-dasharray="3 2"`));
+        elements.push(text(cx - 22, (floorTopY + bottomY) / 2, `${dimensionLabel(gap)} gap`, `class="twod-annotation" font-size="6.5" fill="#0369a1" text-anchor="end"`));
+      }
+      break;
+    }
   }
 
   if (options.snapGuides?.length) {
