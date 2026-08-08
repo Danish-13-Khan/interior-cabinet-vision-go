@@ -1,14 +1,13 @@
 import type { CabinetProject } from "../cabinetDimensions";
-import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import { createProjectReport } from "../projectReport";
 import type { RoomConfig } from "../roomModel";
+import { printChromeSvg } from "../printLayout";
 import { TITLE_BLOCK_HEIGHT } from "./constants";
 import {
   computeSheetFrame,
   sheetBackground,
 } from "./sheetFrame";
 import { line, rect, shortLabel, text } from "./svgPrimitives";
-import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 
 const ROW_H = 16;
@@ -41,30 +40,28 @@ export function reportSheetView(
     mode: options.mode ?? "print",
     bottomLanes: 12,
     sideLanes: 8,
+    includeNotesArea: false,
   });
   // Override to fixed sheet size for schedules
   const svgWidth = Math.max(frame.svgWidth, 820);
   const svgHeight = Math.max(frame.svgHeight, contentH + 56);
   const print = options.mode === "print" || options.mode === undefined;
   const elements: string[] = [];
-  const sheetMeta =
-    options.sheetMeta ??
-    (() => {
-      const job = clampJobMeta(project.job);
-      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
-    })();
 
   elements.push(sheetBackground(svgWidth, svgHeight, true));
   elements.push(
-    ...titleBlock(
+    ...printChromeSvg({
       svgWidth,
-      options.title ?? "Cabinet Schedule",
-      options.projectName ?? report.jobTitle,
-      "REPORT",
-      "NTS",
-      sheetMeta,
-      options.sheetCode ?? "A-401",
-    ),
+      svgHeight,
+      project,
+      options: { ...options, mode: options.mode ?? "print" },
+      sheetTitle: "Cabinet Schedule",
+      viewLabel: "REPORT",
+      scaleText: "NTS",
+      sheetCode: "A-401",
+      noteView: "all",
+      includeNotesArea: false,
+    }),
   );
 
   const left = 24;

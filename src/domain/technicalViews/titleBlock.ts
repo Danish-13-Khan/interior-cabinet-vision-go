@@ -1,6 +1,10 @@
-import { TITLE_BLOCK_HEIGHT } from "./constants";
-import { line, rect, shortLabel, text } from "./svgPrimitives";
+import { renderStandardTitleBlock } from "../printLayout/titleBlockSvg";
+import type { TitleBlockData } from "../printLayout/types";
 
+/**
+ * Back-compat wrapper: builds a standard title block from legacy args.
+ * Prefer `printChromeSvg` / `renderStandardTitleBlock` for new call sites.
+ */
 export function titleBlock(
   svgWidth: number,
   title: string,
@@ -9,68 +13,22 @@ export function titleBlock(
   scaleText: string,
   sheetMeta = "",
   sheetCode = "",
+  extras?: Partial<TitleBlockData>,
 ) {
-  const blockH = TITLE_BLOCK_HEIGHT;
-  const y = 4;
-  const inset = 6;
-  const codeLabel = sheetCode || "TECHNICAL SHEET";
-  return [
-    rect(
-      inset,
-      y,
-      svgWidth - inset * 2,
-      blockH,
-      `class="twod-titleblock"`,
-    ),
-    line(
-      svgWidth - 220,
-      y,
-      svgWidth - 220,
-      y + blockH,
-      `class="twod-titleblock-rule"`,
-    ),
-    line(
-      svgWidth - 118,
-      y,
-      svgWidth - 118,
-      y + blockH,
-      `class="twod-titleblock-rule"`,
-    ),
-    text(
-      inset + 6,
-      y + 11,
-      shortLabel(projectName || "Cabinet Project", 34),
-      `class="twod-titleblock-text twod-titleblock-strong" font-size="9" text-anchor="start"`,
-    ),
-    text(
-      inset + 6,
-      y + 22,
-      shortLabel(title + (sheetMeta ? ` · ${sheetMeta}` : ""), 44),
-      `class="twod-titleblock-text" font-size="7" text-anchor="start"`,
-    ),
-    text(
-      svgWidth - 214,
-      y + 11,
-      viewLabel,
-      `class="twod-titleblock-text twod-titleblock-strong" font-size="7.5" text-anchor="start"`,
-    ),
-    text(
-      svgWidth - 214,
-      y + 22,
-      scaleText,
-      `class="twod-titleblock-text" font-size="7" text-anchor="start"`,
-    ),
-    text(
-      svgWidth - 112,
-      y + 11,
-      codeLabel,
-      `class="twod-titleblock-text twod-titleblock-strong" font-size="7.5" text-anchor="start"`,
-    ),
-    text(
-      svgWidth - 112,
-      y + 22,
-      new Date().toLocaleDateString(),
-      `class="twod-titleblock-text" font-size="7" text-anchor="start"`,
-    ),
-  ];
+  const data: TitleBlockData = {
+    projectName: projectName || "Cabinet Project",
+    sheetTitle: title,
+    viewLabel,
+    sheetCode: sheetCode || "TECHNICAL SHEET",
+    scaleText,
+    projectNumber: extras?.projectNumber ?? "—",
+    customerName: extras?.customerName ?? "—",
+    revision: extras?.revision ?? "A",
+    statusLabel: extras?.statusLabel ?? "Draft",
+    dateText: extras?.dateText ?? new Date().toLocaleDateString(),
+    drawnBy: extras?.drawnBy ?? "Designer",
+    checkedBy: extras?.checkedBy ?? "—",
+    metaLine: sheetMeta || extras?.metaLine || "",
+  };
+  return renderStandardTitleBlock(svgWidth, data);
 }

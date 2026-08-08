@@ -1,5 +1,7 @@
 import {
   MARGIN,
+  PRINT_INFO_BLOCK_HEIGHT,
+  PRINT_NOTES_HEIGHT,
   PRINT_TOP_PAD,
   SCALE,
   TITLE_BLOCK_HEIGHT,
@@ -13,6 +15,8 @@ export type SheetFrameInput = {
   bottomLanes?: number;
   /** Extra side space for dimension lanes (SVG px). */
   sideLanes?: number;
+  /** Reserve bottom notes + info blocks (print). Default true. */
+  includeNotesArea?: boolean;
 };
 
 export type SheetFrame = {
@@ -28,9 +32,13 @@ export function computeSheetFrame(input: SheetFrameInput): SheetFrame {
   const print = input.mode === "print";
   const bottom = input.bottomLanes ?? (print ? 28 : 36);
   const side = input.sideLanes ?? (print ? 16 : 20);
+  const notes =
+    print && input.includeNotesArea !== false
+      ? PRINT_NOTES_HEIGHT + PRINT_INFO_BLOCK_HEIGHT + 8
+      : 0;
   const top = print ? PRINT_TOP_PAD + TITLE_BLOCK_HEIGHT : 0;
   const svgWidth = input.spanMm / SCALE + MARGIN * 2 + side;
-  const svgHeight = input.crossMm / SCALE + MARGIN * 2 + top + bottom;
+  const svgHeight = input.crossMm / SCALE + MARGIN * 2 + top + bottom + notes;
   const ox = MARGIN + input.spanMm / SCALE / 2;
   const oy = MARGIN + input.crossMm / SCALE / 2 + (print ? PRINT_TOP_PAD : 0);
   return { svgWidth, svgHeight, ox, oy, scale: SCALE, print };

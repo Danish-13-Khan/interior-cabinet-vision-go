@@ -9,6 +9,7 @@ import {
   formatJobTitle,
   JOB_STATUS_LABELS,
 } from "../jobMeta";
+import { A4_PRINT_METRICS } from "../printLayout";
 import { optimizeSceneImage, type PdfLayout } from "./helpers";
 import { drawCoverSection } from "./coverSection";
 import { drawTechnicalPages } from "./technicalPages";
@@ -25,10 +26,10 @@ export async function exportProjectPdf(
   runs: CabinetRun[] = [],
 ): Promise<Blob> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const pageWidth = 210;
-  const pageHeight = 297;
-  const margin = 14;
-  const contentWidth = pageWidth - margin * 2;
+  const pageWidth = A4_PRINT_METRICS.pageWidthMm;
+  const pageHeight = A4_PRINT_METRICS.pageHeightMm;
+  const margin = A4_PRINT_METRICS.marginMm;
+  const contentWidth = A4_PRINT_METRICS.contentWidthMm;
   const job = clampJobMeta(project.job ?? createDefaultJobMeta());
   const title =
     formatJobTitle(job, projectName.trim() || "Cabinet Project") ||

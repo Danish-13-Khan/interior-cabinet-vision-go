@@ -1,6 +1,5 @@
 import type { CabinetProject } from "../cabinetDimensions";
 import type { CountertopSegment } from "../cabinetLibrary";
-import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import {
   collectPlanDepthChain,
   collectPlanDimensionChain,
@@ -13,6 +12,7 @@ import {
   planSectionMarkers,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { printChromeSvg } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetPlanGraphics } from "./cabinetSvg";
 import { DIM_RUN_CHAIN_STEP, SCALE } from "./constants";
@@ -31,7 +31,6 @@ import {
   wrapTechnicalSvg,
 } from "./sheetFrame";
 import { dimensionLabel, rect } from "./svgPrimitives";
-import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import {
   cabinetIndexMap,
@@ -63,26 +62,22 @@ export function topView(
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
   const indexMap = cabinetIndexMap(project);
-  const sheetMeta =
-    options.sheetMeta ??
-    (() => {
-      const job = clampJobMeta(project.job);
-      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
-    })();
 
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
 
   if (frame.print) {
     elements.push(
-      ...titleBlock(
+      ...printChromeSvg({
         svgWidth,
-        options.title ?? "Room Plan",
-        options.projectName ?? "Cabinet Project",
-        "PLAN",
-        `1:${SCALE * 25}`,
-        sheetMeta,
-        options.sheetCode ?? "A-101",
-      ),
+        svgHeight,
+        project,
+        options,
+        sheetTitle: "Room Plan",
+        viewLabel: "PLAN",
+        scaleText: `1:${SCALE * 25}`,
+        sheetCode: "A-101",
+        noteView: "top",
+      }),
     );
   }
 

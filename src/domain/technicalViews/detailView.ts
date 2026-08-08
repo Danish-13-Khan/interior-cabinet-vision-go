@@ -7,7 +7,6 @@ import {
   getConstructionFlatParts,
   getConstructionSummary,
 } from "../cabinetConstruction";
-import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import type { RoomConfig } from "../roomModel";
 import {
   cabinetSectionCutGraphics,
@@ -15,6 +14,7 @@ import {
   detailZoomFrame,
   resolveSectionCutPlane,
 } from "../sectionCut";
+import { printChromeSvg } from "../printLayout";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { SCALE } from "./constants";
 import {
@@ -23,7 +23,6 @@ import {
   wrapTechnicalSvg,
 } from "./sheetFrame";
 import { line, rect, text } from "./svgPrimitives";
-import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import { resolveDisplay } from "./viewLayers";
 
@@ -55,28 +54,26 @@ export function detailView(
     mode: options.mode ?? "print",
     bottomLanes: 24,
     sideLanes: 20,
+    includeNotesArea: options.mode === "print",
   });
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
   const display = resolveDisplay(options);
-  const sheetMeta =
-    options.sheetMeta ??
-    (() => {
-      const job = clampJobMeta(project.job);
-      return `${formatJobTitle(job)} · ${formatJobSubtitle(job)}`;
-    })();
 
   elements.push(sheetBackground(svgWidth, svgHeight, true));
   elements.push(
-    ...titleBlock(
+    ...printChromeSvg({
       svgWidth,
-      options.title ?? "Cabinet Detail DET-1",
-      options.projectName ?? "Cabinet Project",
-      "DETAIL",
-      `1:${Math.round((SCALE * 25) / DETAIL_SCALE)}`,
-      sheetMeta,
-      options.sheetCode ?? "A-501",
-    ),
+      svgHeight,
+      project,
+      options: { ...options, mode: options.mode ?? "print" },
+      sheetTitle: "Cabinet Detail DET-1",
+      viewLabel: "DETAIL",
+      scaleText: `1:${Math.round((SCALE * 25) / DETAIL_SCALE)}`,
+      sheetCode: "A-501",
+      noteView: "side",
+      includeNotesArea: options.mode === "print",
+    }),
   );
 
   elements.push(

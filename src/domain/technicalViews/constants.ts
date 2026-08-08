@@ -1,8 +1,13 @@
 export const TECHNICAL_VIEW_SCALE = 4;
 /** Tighter sheet framing for CAD-like composition. */
 export const TECHNICAL_VIEW_MARGIN = 40;
-export const TITLE_BLOCK_HEIGHT = 28;
-export const PRINT_TOP_PAD = 14;
+/** Standard print title block (project / scale / sheet / rev cells). */
+export const TITLE_BLOCK_HEIGHT = 36;
+export const PRINT_TOP_PAD = 10;
+/** Bottom notes band on printable sheets. */
+export const PRINT_NOTES_HEIGHT = 40;
+/** Revision/date/info strip above notes. */
+export const PRINT_INFO_BLOCK_HEIGHT = 14;
 export const SHEET_INSET = 6;
 export const GRID_STEP_MM = 500;
 
