@@ -17,38 +17,48 @@
 
 .scene-toolbar {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
+  top: 4px;
+  right: 4px;
+  z-index: 5;
   display: flex;
-  gap: 4px;
+  gap: 2px;
+  pointer-events: auto;
 }
 
-.scene-toolbar button {
-  padding: 4px 8px;
-  border: 1px solid #c5ced8;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #3d4f63;
-  font-size: 0.66rem;
-  font-weight: 650;
+.scene-toolbar button,
+.scene-toolbar .toolbar-btn {
+  padding: 2px 6px;
+  border: 1px solid #8e9aab;
+  border-radius: 1px;
+  background: rgba(248, 250, 252, 0.96);
+  color: #334155;
+  font-size: 0.6rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.scene-toolbar button:hover {
-  background: #eef2f6;
+.scene-toolbar button:hover,
+.scene-toolbar .toolbar-btn:hover {
+  background: #e8edf2;
+}
+
+.scene-toolbar button.active,
+.scene-toolbar .toolbar-btn.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: #7f9bb8;
 }
 
 .scene-overlay {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  max-width: 220px;
-  padding: 6px 8px;
-  border: 1px solid #c5ced8;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.94);
+  top: 4px;
+  left: 4px;
+  z-index: 4;
+  max-width: 240px;
+  padding: 3px 6px;
+  border: 1px solid #8e9aab;
+  border-radius: 1px;
+  background: rgba(248, 250, 252, 0.94);
   pointer-events: none;
 }
 

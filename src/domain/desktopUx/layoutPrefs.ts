@@ -10,6 +10,11 @@ export type DesktopLayoutPrefs = {
   inspectorVisible: boolean;
   statusDockOpen: boolean;
   workspaceTab: WorkspaceTabId;
+  /** Plan column share vs elevation (percent). */
+  splitPlanWidthPct: number;
+  /** Top drafting row share vs 3D (percent). */
+  splitTopRowPct: number;
+  sceneBrowserVisible: boolean;
 };
 
 export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
@@ -20,12 +25,17 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   inspectorVisible: true,
   statusDockOpen: false,
   workspaceTab: "front",
+  splitPlanWidthPct: 50,
+  splitTopRowPct: 64,
+  sceneBrowserVisible: true,
 };
 
 const WIDTH_MIN = 160;
 const WIDTH_MAX = 480;
 const DOCK_MIN = 160;
 const DOCK_MAX = 520;
+const SPLIT_MIN = 28;
+const SPLIT_MAX = 72;
 
 export function clampDesktopLayout(
   value: Partial<DesktopLayoutPrefs> | null | undefined,
@@ -39,6 +49,9 @@ export function clampDesktopLayout(
     inspectorVisible: Boolean(next.inspectorVisible),
     statusDockOpen: Boolean(next.statusDockOpen),
     workspaceTab: normalizeWorkspaceTab(next.workspaceTab),
+    splitPlanWidthPct: clamp(next.splitPlanWidthPct, SPLIT_MIN, SPLIT_MAX),
+    splitTopRowPct: clamp(next.splitTopRowPct, SPLIT_MIN, SPLIT_MAX),
+    sceneBrowserVisible: next.sceneBrowserVisible !== false,
   };
 }
 

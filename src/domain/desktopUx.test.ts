@@ -22,6 +22,23 @@ describe("desktopUx layout", () => {
     expect(layout.inspectorWidthPx).toBe(480);
     expect(layout.workspaceTab).toBe("front");
   });
+
+  it("defaults and clamps workspace split percentages", () => {
+    const defaults = clampDesktopLayout({});
+    expect(defaults.splitPlanWidthPct).toBe(50);
+    expect(defaults.splitTopRowPct).toBe(64);
+    expect(defaults.sceneBrowserVisible).toBe(true);
+    expect(defaults.splitTopRowPct).toBeGreaterThan(50);
+
+    const clamped = clampDesktopLayout({
+      splitPlanWidthPct: 5,
+      splitTopRowPct: 99,
+      sceneBrowserVisible: false,
+    });
+    expect(clamped.splitPlanWidthPct).toBe(28);
+    expect(clamped.splitTopRowPct).toBe(72);
+    expect(clamped.sceneBrowserVisible).toBe(false);
+  });
 });
 
 describe("desktopUx shortcuts", () => {
