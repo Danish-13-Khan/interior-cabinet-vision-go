@@ -1,6 +1,7 @@
 import type { CabinetInstance } from "../cabinetDimensions";
 import { formatOpeningTag } from "../draftingAnnotations";
 import type { DoorSide, RoomConfig, WindowSide } from "../roomModel";
+import { elevRoomDoorSwing } from "../constructionGraphics";
 import { SCALE } from "./constants";
 import { dimensionLabel, line, rect, text } from "./svgPrimitives";
 import type { TechnicalViewOptions } from "./types";
@@ -21,8 +22,14 @@ export function elevationRoomShell(
   const elements = [
     rect(left, top, w, h, `class="twod-wall twod-wall-outline twod-elev-field"`),
     line(left, floorY, left + w, floorY, `class="twod-wall twod-floor-line"`),
-    // Ceiling tick
     line(left, top, left + w, top, `class="twod-wall twod-ceiling-line"`),
+    line(
+      left,
+      floorY - 2,
+      left + w,
+      floorY - 2,
+      `class="twod-line-reference twod-ffl-line" pointer-events="none"`,
+    ),
   ];
   if (wallLabel) {
     elements.push(
@@ -59,8 +66,23 @@ export function elevationOpeningsGraphics(
     const h = window.heightMm / SCALE;
     elements.push(rect(x, y, w, h, `class="twod-opening twod-opening-window"`));
     elements.push(
+      line(x, y, x + w, y, `class="twod-opening-head twod-line-reference" pointer-events="none"`),
+      line(
+        x,
+        y + h,
+        x + w,
+        y + h,
+        `class="twod-opening-sill twod-line-reference" pointer-events="none"`,
+      ),
       line(x + 2, y + 2, x + w - 2, y + h - 2, `class="twod-opening-glass" pointer-events="none"`),
       line(x + w - 2, y + 2, x + 2, y + h - 2, `class="twod-opening-glass" pointer-events="none"`),
+      line(
+        x + w / 2,
+        y,
+        x + w / 2,
+        y + h,
+        `class="twod-line-center twod-opening-mullion" pointer-events="none"`,
+      ),
     );
     if (display.showOpeningTags) {
       elements.push(
@@ -89,15 +111,9 @@ export function elevationOpeningsGraphics(
     const w = door.widthMm / SCALE;
     const h = door.heightMm / SCALE;
     elements.push(rect(x, y, w, h, `class="twod-opening twod-opening-door"`));
-    // Swing arc hint
     elements.push(
-      line(
-        x + w,
-        floorY,
-        x + w + Math.min(12, w * 0.35),
-        floorY - Math.min(14, h * 0.2),
-        `class="twod-opening-swing" pointer-events="none"`,
-      ),
+      line(x, y, x + w, y, `class="twod-opening-head twod-line-reference" pointer-events="none"`),
+      ...elevRoomDoorSwing(x, floorY, w, h, door.swingDirection),
     );
     if (display.showOpeningTags) {
       elements.push(

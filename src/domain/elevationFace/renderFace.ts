@@ -4,6 +4,11 @@ import {
   type CabinetElevationFaceLayout,
 } from "../openingLayout";
 import {
+  renderCarcassFillers,
+  renderEndPanels,
+  renderToeKickBand,
+} from "../constructionGraphics";
+import {
   renderDividerOrEmpty,
   renderDoorLeaf,
   renderDrawerStack,
@@ -13,7 +18,7 @@ import {
   renderOpeningBoundaries,
   renderOpeningChrome,
 } from "./openingChrome";
-import { line, rect, type ElevationSvgOptions } from "./svgPrimitives";
+import type { ElevationSvgOptions } from "./svgPrimitives";
 
 /**
  * Draw engineered cabinet face details for front/side elevation.
@@ -34,79 +39,36 @@ export function renderElevationFaceGraphics(
   const scale = options.scale;
   const activeId =
     options.activeOpeningId ?? layout.activeOpeningId ?? null;
+  const boardT = cabinet.config.dimensions.boardThickness ?? 18;
 
-  // Toe kick band
-  if (layout.toeKickHeightMm > 0) {
-    const toeH = layout.toeKickHeightMm / scale;
-    elements.push(
-      rect(
-        cabinetSvgX,
-        cabinetSvgY + cabinetSvgHeight - toeH,
-        cabinetSvgWidth,
-        toeH,
-        `class="twod-toe-kick" fill="rgba(68,64,60,0.18)" stroke="#57534e" stroke-width="1" pointer-events="none"`,
-      ),
-    );
-    elements.push(
-      line(
-        cabinetSvgX,
-        cabinetSvgY + cabinetSvgHeight - toeH,
-        cabinetSvgX + cabinetSvgWidth,
-        cabinetSvgY + cabinetSvgHeight - toeH,
-        `class="twod-toe-kick-line" stroke="#57534e" stroke-width="1.1" pointer-events="none"`,
-      ),
-    );
-  }
-
-  // Carcass fillers
-  if (layout.leftFillerMm > 0) {
-    const w = layout.leftFillerMm / scale;
-    elements.push(
-      rect(
-        cabinetSvgX,
-        cabinetSvgY,
-        w,
-        cabinetSvgHeight - layout.toeKickHeightMm / scale,
-        `class="twod-filler" fill="rgba(148,163,184,0.35)" stroke="#64748b" stroke-width="0.9" pointer-events="none"`,
-      ),
-    );
-  }
-  if (layout.rightFillerMm > 0) {
-    const w = layout.rightFillerMm / scale;
-    elements.push(
-      rect(
-        cabinetSvgX + cabinetSvgWidth - w,
-        cabinetSvgY,
-        w,
-        cabinetSvgHeight - layout.toeKickHeightMm / scale,
-        `class="twod-filler" fill="rgba(148,163,184,0.35)" stroke="#64748b" stroke-width="0.9" pointer-events="none"`,
-      ),
-    );
-  }
-
-  // End panels as thicker outer edges
-  if (layout.leftEndPanel) {
-    elements.push(
-      rect(
-        cabinetSvgX - 3,
-        cabinetSvgY,
-        3,
-        cabinetSvgHeight,
-        `class="twod-end-panel" fill="#78716c" stroke="#44403c" stroke-width="0.6" pointer-events="none"`,
-      ),
-    );
-  }
-  if (layout.rightEndPanel) {
-    elements.push(
-      rect(
-        cabinetSvgX + cabinetSvgWidth,
-        cabinetSvgY,
-        3,
-        cabinetSvgHeight,
-        `class="twod-end-panel" fill="#78716c" stroke="#44403c" stroke-width="0.6" pointer-events="none"`,
-      ),
-    );
-  }
+  elements.push(
+    ...renderToeKickBand(
+      cabinetSvgX,
+      cabinetSvgY,
+      cabinetSvgWidth,
+      cabinetSvgHeight,
+      layout,
+      scale,
+      cabinet.config.toeKickInset ?? 0,
+    ),
+    ...renderCarcassFillers(
+      cabinetSvgX,
+      cabinetSvgY,
+      cabinetSvgWidth,
+      cabinetSvgHeight,
+      layout,
+      scale,
+    ),
+    ...renderEndPanels(
+      cabinetSvgX,
+      cabinetSvgY,
+      cabinetSvgWidth,
+      cabinetSvgHeight,
+      layout,
+      boardT,
+      scale,
+    ),
+  );
 
   elements.push(
     ...renderOpeningBoundaries(layout, cabinetSvgX, cabinetSvgY, scale),
