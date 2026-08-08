@@ -2,7 +2,7 @@ import type { SnapGuide } from "../placementSnap";
 import type { CabinetRun, CountertopSegment, RunFiller } from "../cabinetLibrary";
 import type { ProjectDrafting } from "../draftingAnnotations";
 
-export type TechnicalViewKind = "top" | "front" | "side";
+export type TechnicalViewKind = "top" | "front" | "side" | "section" | "report";
 
 export type TechnicalViewResult = {
   width: number;
@@ -33,6 +33,7 @@ export type TechnicalViewOptions = {
   title?: string;
   projectName?: string;
   sheetMeta?: string;
+  sheetCode?: string;
   snapGuides?: SnapGuide[];
   ghostPlacement?: {
     cabinetId: string;

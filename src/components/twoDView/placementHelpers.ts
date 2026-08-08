@@ -51,7 +51,7 @@ export function worldFromClient(
     );
     return worldPointForView(view, { x: point.x, y: point.y, z: 0 });
   }
-  if (view === "side") {
+  if (view === "side" || view === "section") {
     const point = elevationSideSvgToWorldMm(
       svgX,
       svgY,
@@ -60,8 +60,9 @@ export function worldFromClient(
       roomHeightMm,
       technicalView.scale,
     );
-    return worldPointForView(view, { x: 0, y: point.y, z: point.z });
+    return worldPointForView("side", { x: 0, y: point.y, z: point.z });
   }
+  if (view === "report") return null;
   const point = planSvgToWorldMm(
     svgX,
     svgY,
@@ -102,6 +103,9 @@ export function proposePlacement(
   const deltaZ = dySvg * technicalView.scale;
 
   let next: CabinetPlacement = { ...origin };
+  if (view === "report") {
+    return null;
+  }
   if (view === "top") {
     next = {
       ...origin,
@@ -115,6 +119,7 @@ export function proposePlacement(
       y: Math.max(0, origin.y + deltaY),
     };
   } else {
+    // side + section
     next = {
       ...origin,
       z: origin.z + deltaX,
@@ -161,7 +166,7 @@ export function proposePlacement(
     };
   }
 
-  if (view === "side") {
+  if (view === "side" || view === "section") {
     const sillHeights = room.windows
       .filter((item) => item.side === "left-wall" || item.side === "right-wall")
       .map((item) => item.sillHeightMm);

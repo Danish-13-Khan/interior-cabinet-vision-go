@@ -8,10 +8,12 @@ export function titleBlock(
   viewLabel: string,
   scaleText: string,
   sheetMeta = "",
+  sheetCode = "",
 ) {
   const blockH = TITLE_BLOCK_HEIGHT;
   const y = 4;
   const inset = 6;
+  const codeLabel = sheetCode || "TECHNICAL SHEET";
   return [
     rect(
       inset,
@@ -61,7 +63,7 @@ export function titleBlock(
     text(
       svgWidth - 112,
       y + 11,
-      "TECHNICAL SHEET",
+      codeLabel,
       `class="twod-titleblock-text twod-titleblock-strong" font-size="7.5" text-anchor="start"`,
     ),
     text(
