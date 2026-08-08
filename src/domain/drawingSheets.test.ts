@@ -36,18 +36,20 @@ const project: CabinetProject = {
 };
 
 describe("drawingSheets catalog", () => {
-  it("defines plan/front/side/section/report with sheet codes", () => {
+  it("defines plan/front/side/section/detail/report with sheet codes", () => {
     expect(DRAWING_SHEETS.map((sheet) => sheet.id)).toEqual([
       "plan",
       "front",
       "side",
       "section",
+      "detail",
       "report",
     ]);
     expect(getDrawingSheet("plan").code).toBe("A-101");
     expect(getDrawingSheet("front").code).toBe("A-201");
     expect(getDrawingSheet("side").code).toBe("A-202");
     expect(getDrawingSheet("section").code).toBe("A-301");
+    expect(getDrawingSheet("detail").code).toBe("A-501");
     expect(getDrawingSheet("report").code).toBe("A-401");
     expect(getDrawingSheet("plan").scaleText).toMatch(/^1:/);
     expect(getDrawingSheet("report").scaleText).toBe("NTS");
@@ -56,6 +58,7 @@ describe("drawingSheets catalog", () => {
   it("normalizes unknown sheet ids", () => {
     expect(normalizeDrawingSheetId("nope")).toBe("plan");
     expect(normalizeDrawingSheetId("section")).toBe("section");
+    expect(normalizeDrawingSheetId("detail")).toBe("detail");
   });
 });
 

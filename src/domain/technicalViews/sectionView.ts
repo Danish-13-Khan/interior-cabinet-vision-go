@@ -4,7 +4,12 @@ import {
 } from "../cabinetDimensions";
 import { clampJobMeta, formatJobSubtitle, formatJobTitle } from "../jobMeta";
 import type { RoomConfig } from "../roomModel";
-import { cabinetElevationGraphics } from "./cabinetSvg";
+import {
+  cabinetsIntersectingCut,
+  cabinetSectionCutGraphics,
+  detailCalloutBubble,
+  resolveSectionCutPlane,
+} from "../sectionCut";
 import { SCALE } from "./constants";
 import {
   overallSpanHorizontal,
@@ -21,18 +26,14 @@ import { dimensionLabel, line, text } from "./svgPrimitives";
 import { titleBlock } from "./titleBlock";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import {
-  cabinetIndexMap,
   draftingLayer,
   elevationGrid,
   resolveDisplay,
   selectedElevationDimensions,
 } from "./viewLayers";
 
-const CUT_TOLERANCE_MM = 700;
-
 /**
- * Section A-A: vertical cut looking toward +X through mid-room X,
- * showing depth (Z) × height with cut cabinets emphasized.
+ * Section A-A with true cabinet carcass section cuts.
  */
 export function sectionView(
   project: CabinetProject,
@@ -42,16 +43,20 @@ export function sectionView(
   const rd = room.dimensions.depthMm;
   const rh = room.dimensions.heightMm;
   const display = resolveDisplay(options);
+  const plane = resolveSectionCutPlane(project, {
+    activeCabinetId: options.activeCabinetId,
+    selectedCabinetIds: options.selectedCabinetIds,
+    cutPlaneXMm: options.cutPlaneXMm,
+  });
   const frame = computeSheetFrame({
     spanMm: rd,
     crossMm: rh,
     mode: options.mode,
-    bottomLanes: 32,
-    sideLanes: 24,
+    bottomLanes: 36,
+    sideLanes: 28,
   });
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
-  const indexMap = cabinetIndexMap(project);
   const sheetMeta =
     options.sheetMeta ??
     (() => {
@@ -64,9 +69,9 @@ export function sectionView(
     elements.push(
       ...titleBlock(
         svgWidth,
-        options.title ?? "Section A-A",
+        options.title ?? plane.label,
         options.projectName ?? "Cabinet Project",
-        "SECTION A-A",
+        plane.label,
         `1:${SCALE * 25}`,
         sheetMeta,
         options.sheetCode ?? "A-301",
@@ -84,11 +89,12 @@ export function sectionView(
       oy,
       rd,
       rh,
-      display.showWallLabels ? "SECTION A-A · LOOKING RIGHT" : null,
+      display.showWallLabels
+        ? `${plane.label} · LOOKING ${plane.looking.toUpperCase()}`
+        : null,
     ),
   );
 
-  // Cut plane glyph (left of drawing)
   const cutX = ox - rd / SCALE / 2 - 10;
   const roomTop = oy - rh / SCALE / 2;
   const roomBottom = oy + rh / SCALE / 2;
@@ -97,24 +103,19 @@ export function sectionView(
     text(
       cutX - 4,
       roomTop + 10,
-      "A",
+      plane.mark,
       `class="twod-section-mark" font-size="9" text-anchor="end"`,
     ),
     text(
       cutX - 4,
       roomBottom - 4,
-      "A",
+      plane.mark,
       `class="twod-section-mark" font-size="9" text-anchor="end"`,
     ),
   );
 
-  const cutCabinets = project.cabinets.filter((cabinet) => {
-    const fp = getFootprintDimensions(
-      cabinet.config.dimensions,
-      cabinet.placement.rotation,
-    );
-    return Math.abs(cabinet.placement.x) <= fp.width / 2 + CUT_TOLERANCE_MM;
-  });
+  const cutCabinets = cabinetsIntersectingCut(project.cabinets, plane);
+  let primaryBox: { x: number; y: number; w: number; h: number } | null = null;
 
   for (const cabinet of cutCabinets) {
     const fp = getFootprintDimensions(
@@ -133,38 +134,31 @@ export function sectionView(
       rh / SCALE / 2 -
       ((ghost?.y ?? cabinet.placement.y) + cabinet.config.dimensions.height) /
         SCALE;
-    const nearCut = Math.abs(cabinet.placement.x) <= fp.width / 2 + 120;
+    const isPrimary = cabinet.id === plane.cabinetId;
     elements.push(
-      ...cabinetElevationGraphics(
-        cabinet,
-        x,
-        y,
-        depth,
-        height,
-        options,
-        "",
-        fp.depth,
-        indexMap.get(cabinet.id) ?? 0,
+      ...cabinetSectionCutGraphics(cabinet, x, y, SCALE, {
+        emphasize: isPrimary,
+        showLabels: true,
+      }),
+    );
+    if (isPrimary) {
+      primaryBox = { x, y, w: depth, h: height };
+    }
+  }
+
+  if (primaryBox) {
+    elements.push(
+      ...detailCalloutBubble(
+        primaryBox.x + primaryBox.w + 16,
+        primaryBox.y + 14,
+        "1",
+        plane.detailRef,
+        {
+          x: primaryBox.x + primaryBox.w,
+          y: primaryBox.y + primaryBox.h * 0.35,
+        },
       ),
     );
-    if (nearCut) {
-      elements.push(
-        line(
-          x,
-          y,
-          x + depth,
-          y + height,
-          `class="twod-section-hatch" pointer-events="none"`,
-        ),
-        line(
-          x + depth,
-          y,
-          x,
-          y + height,
-          `class="twod-section-hatch" pointer-events="none"`,
-        ),
-      );
-    }
   }
 
   elements.push(
@@ -194,13 +188,13 @@ export function sectionView(
     text(
       ox,
       roomBottom + 28,
-      "CUT PLANE AT ROOM CENTER · DEPTH PROFILE",
+      `CUT @ X=${Math.round(plane.xMm)} mm · SEE ${plane.detailRef}`,
       `class="twod-wall-label" font-size="6.5" text-anchor="middle"`,
     ),
   );
 
   elements.push(
-    ...draftingLayer(options.drafting ?? project.drafting, "side", (point) => ({
+    ...draftingLayer(options.drafting ?? project.drafting, "section", (point) => ({
       x: ox + point.z / SCALE,
       y: oy + rh / SCALE / 2 - point.y / SCALE,
     })),

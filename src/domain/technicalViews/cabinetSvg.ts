@@ -160,6 +160,7 @@ export function cabinetElevationGraphics(
   _fill: string,
   spanLabelMm: number,
   cabinetIndex = 0,
+  drawScale = SCALE,
 ) {
   const elements: string[] = [];
   const display = resolveDisplay(options);
@@ -192,7 +193,7 @@ export function cabinetElevationGraphics(
         options.activeCabinetId === cabinet.id
           ? options.activeOpeningId ?? null
           : null,
-      scale: SCALE,
+      scale: drawScale,
     }),
   );
 

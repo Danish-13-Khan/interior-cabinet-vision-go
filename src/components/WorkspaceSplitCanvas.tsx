@@ -122,7 +122,9 @@ export const WorkspaceSplitCanvas = forwardRef<
   const maxKey =
     maximizedPane === "side" ? "front" : maximizedPane;
   const sheetMode =
-    activeSheetId === "section" || activeSheetId === "report"
+    activeSheetId === "section" ||
+    activeSheetId === "detail" ||
+    activeSheetId === "report"
       ? "single"
       : "split";
   const splitClass = [
@@ -210,12 +212,22 @@ export const WorkspaceSplitCanvas = forwardRef<
             maximized
             onFocus={() => onSelectSheet(activeSheetId)}
             onToggleMaximize={() => onFocusPane("plan")}
-            toolbar={activeSheetId === "section" ? draftingTools : undefined}
+            toolbar={
+              activeSheetId === "section" || activeSheetId === "detail"
+                ? draftingTools
+                : undefined
+            }
           >
             <DrawingSheetChrome meta={sheetMetaFor(activeSheetId)} active>
               <TwoDView
                 {...twoDCommon}
-                view={activeSheetId === "report" ? "report" : "section"}
+                view={
+                  activeSheetId === "report"
+                    ? "report"
+                    : activeSheetId === "detail"
+                      ? "detail"
+                      : "section"
+                }
                 draftingTool={
                   activeSheetId === "report" ? "select" : draftingTool
                 }

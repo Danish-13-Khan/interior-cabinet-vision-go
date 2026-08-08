@@ -14,13 +14,14 @@ import type { PdfLayout } from "./helpers";
 
 const PDF_SHEETS: Array<{
   sheetId: DrawingSheetId;
-  view: "top" | "front" | "side" | "section" | "report";
+  view: "top" | "front" | "side" | "section" | "detail" | "report";
   noteView: "top" | "front" | "side" | "all";
 }> = [
   { sheetId: "plan", view: "top", noteView: "top" },
   { sheetId: "front", view: "front", noteView: "front" },
   { sheetId: "side", view: "side", noteView: "side" },
   { sheetId: "section", view: "section", noteView: "side" },
+  { sheetId: "detail", view: "detail", noteView: "side" },
   { sheetId: "report", view: "report", noteView: "all" },
 ];
 
@@ -122,7 +123,7 @@ export async function drawTechnicalPages(
       drawHeight,
     );
 
-    if (page.sheetId === "report") continue;
+    if (page.sheetId === "report" || page.sheetId === "detail") continue;
 
     viewY += drawHeight + 14;
     doc.setFontSize(9);

@@ -10,6 +10,10 @@ import {
 } from "../placementSnap";
 import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
+import {
+  elevationSectionMarkers,
+  resolveSectionCutPlane,
+} from "../sectionCut";
 import { cabinetElevationGraphics, cabinetRectAttrs } from "./cabinetSvg";
 import { SCALE } from "./constants";
 import {
@@ -99,6 +103,15 @@ export function frontView(
   elements.push(
     ...elevationOpeningsGraphics(room, ox, oy, rh, ["back-wall"], options),
   );
+
+  if (options.showSectionMarkers !== false) {
+    const plane = resolveSectionCutPlane(project, {
+      activeCabinetId: options.activeCabinetId,
+      selectedCabinetIds: options.selectedCabinetIds,
+      cutPlaneXMm: options.cutPlaneXMm,
+    });
+    elements.push(...elevationSectionMarkers(plane, ox, oy, rh));
+  }
 
   const visibleCabinets = project.cabinets.filter((cabinet) => {
     const side = cabinet.placement.attachment;

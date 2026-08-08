@@ -7,6 +7,7 @@ export type DrawingSheetId =
   | "front"
   | "side"
   | "section"
+  | "detail"
   | "report";
 
 export type DesktopLayoutPrefs = {
@@ -82,6 +83,7 @@ export function normalizeDrawingSheetId(value: unknown): DrawingSheetId {
     value === "front" ||
     value === "side" ||
     value === "section" ||
+    value === "detail" ||
     value === "report"
   ) {
     return value;

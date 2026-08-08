@@ -216,17 +216,100 @@
   fill: none;
 }
 
+.technical-view .twod-section-marker,
+.technical-view .twod-section-cut-line {
+  stroke: #0a3d6b;
+  stroke-width: 1.15px;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
 .technical-view .twod-section-mark {
   fill: #0a3d6b;
   font-weight: 750;
   stroke: none;
 }
 
+.technical-view .twod-section-mark-label {
+  fill: #1a4a72;
+  font-weight: 650;
+  stroke: none;
+  letter-spacing: 0.04em;
+}
+
 .technical-view .twod-section-hatch {
   stroke: #2a3540;
-  stroke-width: 0.7px;
+  stroke-width: 0.55px;
   opacity: 0.55;
   fill: none;
+}
+
+.technical-view .twod-section-board {
+  fill: #d7c4a3;
+  stroke: #2a3540;
+  stroke-width: 0.85px;
+}
+
+.technical-view .twod-section-carcass {
+  fill: rgba(201, 176, 138, 0.35);
+}
+
+.technical-view .twod-section-cut-active {
+  stroke: #0a3d6b;
+  stroke-width: 1.85px;
+}
+
+.technical-view .twod-section-shelf {
+  stroke: #44403c;
+  stroke-width: 1px;
+}
+
+.technical-view .twod-section-drawer {
+  fill: rgba(255, 255, 255, 0.45);
+  stroke: #57534e;
+  stroke-width: 0.8px;
+}
+
+.technical-view .twod-section-front {
+  stroke-width: 2px;
+}
+
+.technical-view .twod-detail-bubble {
+  fill: #ffffff;
+  stroke: #0a3d6b;
+  stroke-width: 1.35px;
+}
+
+.technical-view .twod-detail-bubble-text {
+  fill: #0a3d6b;
+  font-weight: 750;
+  stroke: none;
+}
+
+.technical-view .twod-detail-ref {
+  fill: #0a3d6b;
+  font-weight: 700;
+  stroke: none;
+}
+
+.technical-view .twod-detail-leader {
+  stroke: #0a3d6b;
+  stroke-width: 0.9px;
+  stroke-dasharray: 3 2;
+  fill: none;
+}
+
+.technical-view .twod-detail-frame {
+  fill: none;
+  stroke: #0a3d6b;
+  stroke-width: 1.1px;
+  stroke-dasharray: 5 3;
+}
+
+.technical-view .twod-detail-schedule {
+  fill: #f5f7f9;
+  stroke: #2a3540;
+  stroke-width: 0.6px;
 }
 
 .technical-view .twod-schedule-header {
