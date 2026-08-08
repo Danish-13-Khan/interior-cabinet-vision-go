@@ -1,0 +1,57 @@
+/* ── Plans / technical view (status dock) ── */
+.plans-panel {
+  display: none;
+}
+
+.plans-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plans-panel-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.plans-panel-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.plans-panel-canvas {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: auto;
+  padding-bottom: 4px;
+}
+
+.technical-view {
+  display: inline-block;
+  user-select: none;
+  touch-action: none;
+}
+
+.technical-view.is-dragging {
+  cursor: grabbing;
+}
+
+.technical-view.is-dragging .twod-cabinet {
+  cursor: grabbing;
+}
+
+.technical-view svg,
+.technical-view .twod-draft {
+  display: block;
+  max-width: none;
+  height: auto;
+  border-radius: 0;
+  border: 1px solid #7c8b9c;
+  background: #f8fafc;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}

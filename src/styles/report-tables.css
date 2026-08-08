@@ -1,0 +1,304 @@
+/* ── Report tables & yield ── */
+.shop-table-wrap {
+  overflow: auto;
+  border: 1px solid #d5dde6;
+  border-radius: 3px;
+  background: #fff;
+}
+
+.shop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.66rem;
+}
+
+.shop-table th,
+.shop-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #e8edf2;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.shop-table th {
+  background: #eef2f6;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+}
+
+.shop-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.shop-sub {
+  display: block;
+  color: #64748b;
+  font-size: 0.58rem;
+}
+
+.shop-source-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: #1d4ed8;
+  font: inherit;
+  font-weight: 650;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.shop-source-btn:hover {
+  text-decoration: underline;
+}
+
+.cutlist-mode-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.cutlist-mode-toggle button {
+  appearance: none;
+  border: 1px solid #c5ced8;
+  background: #fff;
+  color: #475569;
+  font-size: 0.6rem;
+  font-weight: 650;
+  padding: 3px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.cutlist-mode-toggle button.is-active {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.cutlist-group-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cutlist-group-card {
+  border: 1px solid #d5dde6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cutlist-group-card > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  background: #eef2f6;
+  border-bottom: 1px solid #d5dde6;
+}
+
+.cutlist-group-card > header strong {
+  font-size: 0.68rem;
+  color: #0f172a;
+}
+
+.cutlist-group-card > header span {
+  font-size: 0.58rem;
+  color: #64748b;
+}
+
+.cutlist-group-card .shop-table-wrap {
+  border: none;
+  border-radius: 0;
+}
+
+.costing-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.costing-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.62rem;
+  font-weight: 650;
+  color: #475569;
+}
+
+.costing-controls input,
+.costing-controls select {
+  padding: 4px 6px;
+  border: 1px solid #c5ced8;
+  border-radius: 2px;
+  font-size: 0.68rem;
+  background: #fff;
+  color: var(--ink);
+}
+
+.quote-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quote-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quote-terms label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.62rem;
+  font-weight: 650;
+  color: #475569;
+}
+
+.quote-terms textarea {
+  padding: 6px 8px;
+  border: 1px solid #c5ced8;
+  border-radius: 2px;
+  font-size: 0.68rem;
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+
+.optimizer-toggle {
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px !important;
+}
+
+.yield-sheet-card {
+  margin-bottom: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.yield-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.68rem;
+}
+
+.yield-sheet-header span {
+  color: #64748b;
+}
+
+.yield-offcut-note {
+  margin: 0;
+  padding: 6px 8px 8px;
+  font-size: 0.64rem;
+  color: #64748b;
+}
+
+.report-empty {
+  margin: 0;
+  padding: 12px;
+  color: #64748b;
+  font-size: 0.68rem;
+}
+
+.report-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px 4px;
+  border-bottom: 1px solid #e0e6ec;
+}
+
+.report-summary-grid,
+.report-cost-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.report-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  background: #f7f9fb;
+  border: 1px solid #d5dde6;
+}
+
+.report-card-wide {
+  grid-column: span 2;
+}
+
+.report-card-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #7a8898;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.report-card strong {
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
+.report-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.report-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  background: #f7f9fb;
+  border: 1px solid #d5dde6;
+}
+
+.report-table,
+.report-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-row,
+.report-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 7px;
+  border-radius: 3px;
+  background: #fff;
+  border: 1px solid #e0e6ec;
+}
+
+.report-row strong,
+.report-group strong {
+  font-size: 0.72rem;
+  color: var(--ink);
+}
+
+.report-row span,
+.report-group span {
+  font-size: 0.64rem;
+  color: var(--muted);
+}

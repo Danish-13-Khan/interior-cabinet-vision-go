@@ -1,0 +1,136 @@
+/* Review / approval workflow */
+
+.review-workflow-panel .review-section {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #d8e0e8;
+}
+
+.review-workflow-panel h3 {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.review-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.review-form-row input[type="text"],
+.review-form-row select {
+  min-width: 160px;
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.review-check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.review-note-list,
+.review-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border: 1px solid #d7e0ea;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.review-note > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.review-note strong {
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.review-note.severity-blocker,
+.review-note.severity-error {
+  border-color: #f5c2c7;
+  background: #fff5f5;
+}
+
+.review-note.severity-warning {
+  border-color: #f6e05e;
+  background: #fffbeb;
+}
+
+.review-note.is-resolved {
+  opacity: 0.7;
+}
+
+.review-resolved {
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.review-compare {
+  padding: 8px 10px;
+  border: 1px solid #d7e0ea;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.review-compare ul,
+.review-changelog {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.review-history-card {
+  padding: 10px;
+  border: 1px solid #d7e0ea;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.review-history-card header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.review-released {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #166534;
+  background: #dcfce7;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.review-history-note {
+  margin: 4px 0 8px;
+  color: #475569;
+  font-size: 0.74rem;
+}

@@ -1,0 +1,42 @@
+import type { SnapGuide } from "../placementSnap";
+import type { CabinetRun, RunFiller } from "../cabinetLibrary";
+import type { ProjectDrafting } from "../draftingAnnotations";
+
+export type TechnicalViewKind = "top" | "front" | "side";
+
+export type TechnicalViewResult = {
+  width: number;
+  height: number;
+  svg: string;
+  originX: number;
+  originY: number;
+  scale: number;
+};
+
+export type TechnicalViewOptions = {
+  selectedCabinetIds?: string[];
+  activeCabinetId?: string | null;
+  activeOpeningId?: string | null;
+  mode?: "interactive" | "print";
+  showGrid?: boolean;
+  showDimensionChains?: boolean;
+  showWallLabels?: boolean;
+  showElevationDetails?: boolean;
+  showCabinetTags?: boolean;
+  showOpeningTags?: boolean;
+  showApplianceTags?: boolean;
+  dimMinSegmentMm?: number;
+  title?: string;
+  projectName?: string;
+  sheetMeta?: string;
+  snapGuides?: SnapGuide[];
+  ghostPlacement?: {
+    cabinetId: string;
+    x: number;
+    y: number;
+    z: number;
+  } | null;
+  runs?: CabinetRun[];
+  fillers?: RunFiller[];
+  drafting?: ProjectDrafting;
+};

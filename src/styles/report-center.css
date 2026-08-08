@@ -1,0 +1,79 @@
+/* ── Report Center ── */
+.report-center {
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+}
+
+.report-center-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid #d5dde6;
+  background: #eef2f6;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.report-center-tab {
+  appearance: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: #5b6b7c;
+  font-size: 0.66rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 3px 3px 0 0;
+}
+
+.report-center-tab.is-active {
+  background: #fff;
+  border-color: #d5dde6;
+  color: #1e293b;
+}
+
+.report-center-body {
+  padding: 8px;
+  background: #fff;
+}
+
+.report-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-doc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.report-doc-header strong {
+  display: block;
+  font-size: 0.78rem;
+  color: #0f172a;
+}
+
+.report-doc-header span {
+  font-size: 0.62rem;
+  color: #64748b;
+}
+
+.report-subsection h3 {
+  margin: 0 0 6px;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+}
+
+/* ── Report tables & panels ── */

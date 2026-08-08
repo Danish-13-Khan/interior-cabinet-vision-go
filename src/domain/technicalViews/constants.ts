@@ -1,0 +1,5 @@
+export const TECHNICAL_VIEW_SCALE = 4;
+export const TECHNICAL_VIEW_MARGIN = 56;
+
+export const SCALE = TECHNICAL_VIEW_SCALE;
+export const MARGIN = TECHNICAL_VIEW_MARGIN;

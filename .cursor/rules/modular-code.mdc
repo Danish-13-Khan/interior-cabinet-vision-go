@@ -8,7 +8,8 @@ alwaysApply: true
 Prefer focused modules over growing god-files (`App.tsx`, large panels, fat CSS).
 
 ## Hard limits
-- Avoid adding large chunks to files already over ~800 lines. Extract first, then wire.
+- Prefer files under **~300 lines**; soft ceiling **~400 lines**. Split before adding large chunks.
+- Never grow a file already over ~400 lines without extracting first.
 - New pure logic belongs in `src/domain/` with colocated `*.test.ts`.
 - Shared non-domain helpers go in `src/utils/`.
 - Reusable React state machines go in `src/hooks/`.
@@ -16,10 +17,13 @@ Prefer focused modules over growing god-files (`App.tsx`, large panels, fat CSS)
 - Styles live in `src/styles/*` and are imported from `src/App.css` (do not re-monolith CSS).
 
 ## App.tsx role
-`App.tsx` is the composition/controller root only: own project/room/selection state, `commitProjectChange`, and wire extracted components/hooks. Do not dump new ribbon/status/modal JSX or pure helpers back into it.
+`App.tsx` is the composition/controller root only: own project/room/selection state, `commitProjectChange`, and wire extracted components/hooks. Do not dump new ribbon/status/modal JSX or pure helpers back into it. Prefer orchestration hooks (`useProjectFileIo`, `useRoomOperations`, etc.) when App grows.
 
 ## Extraction order when a file grows
 1. Pure helpers / domain functions
 2. Presentational components
 3. Hooks for history, I/O, shortcuts, storage-backed libraries
 4. Keep orchestration and selection mutation in the controller until those hooks stabilize
+
+## Folder pattern
+For multi-concern domains, use a folder with `index.ts` re-exports (see `projectRooms/`, `projectReview/`, `desktopUx/`, `technicalViews/`).
