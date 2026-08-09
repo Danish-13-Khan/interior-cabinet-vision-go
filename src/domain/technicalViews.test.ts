@@ -128,6 +128,7 @@ describe("placement snap", () => {
       id: "run-1",
       side: "back-wall",
       axis: "x",
+      band: "base",
       cabinetIds: ["a", "b"],
       cornerTransition: false,
     };
@@ -224,6 +225,7 @@ describe("technical view rendering", () => {
           id: "run-1",
           side: "back-wall",
           axis: "x",
+          band: "base",
           cabinetIds: ["base-1", "base-2"],
           cornerTransition: false,
         },
@@ -261,6 +263,7 @@ describe("technical view rendering", () => {
           id: "run-1",
           side: "back-wall",
           axis: "x",
+          band: "base",
           cabinetIds: ["base-1", "base-2"],
           cornerTransition: false,
         },

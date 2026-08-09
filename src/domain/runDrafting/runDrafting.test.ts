@@ -22,6 +22,7 @@ describe("runDrafting", () => {
     id: "run-1",
     side: "back-wall",
     axis: "x",
+    band: "base",
     cabinetIds: ["a", "b"],
     cornerTransition: true,
   };
