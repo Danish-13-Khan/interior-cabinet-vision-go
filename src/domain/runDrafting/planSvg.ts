@@ -5,6 +5,8 @@ import {
   rect,
   text,
 } from "../technicalViews/svgPrimitives";
+import { formatFillerMark } from "../shopTerms";
+import { renderFillerMark, renderRunMarker } from "../draftingSymbols";
 import {
   buildAllRunPlanBounds,
   collectRunGapSegments,
@@ -63,14 +65,15 @@ function renderRunLabel(bounds: RunPlanBounds, ox: number, oy: number, scale: nu
     (bounds.axis === "x" ? bounds.minZ / scale - 10 : bounds.centerZ / scale);
   const lengthNote = `${Math.round(bounds.lengthMm)} mm`;
   return [
+    ...renderRunMarker(labelX - 36, labelY - 1, bounds.shortCode),
     text(
-      labelX,
+      labelX + 8,
       labelY,
-      bounds.label,
+      bounds.label.replace(`${bounds.shortCode} · `, ""),
       `class="twod-run-label" font-size="8" font-weight="700" text-anchor="middle" pointer-events="none"`,
     ),
     text(
-      labelX,
+      labelX + 8,
       labelY + 10,
       lengthNote,
       `class="twod-run-length" font-size="7" text-anchor="middle" pointer-events="none"`,
@@ -166,6 +169,7 @@ export function renderPlanRunDrafting(args: {
       const depth = filler.size.depth / scale;
       const x = ox + filler.position.x / scale - width / 2;
       const y = oy + filler.position.z / scale - depth / 2;
+      const fillerIndex = fillers.indexOf(filler);
       elements.push(
         rect(
           x,
@@ -176,11 +180,11 @@ export function renderPlanRunDrafting(args: {
         ),
       );
       elements.push(
-        text(
+        ...renderFillerMark(
           x + width / 2,
           y + depth / 2 + 2,
+          formatFillerMark(fillerIndex),
           `${Math.round(filler.widthMm)}`,
-          `class="twod-annotation twod-run-gap-label" font-size="6.5" text-anchor="middle" pointer-events="none"`,
         ),
       );
     }

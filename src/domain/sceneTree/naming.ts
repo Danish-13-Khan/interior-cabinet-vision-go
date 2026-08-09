@@ -1,112 +1,78 @@
 import {
-  cabinetTypeLabels,
-  type CabinetInstance,
-  type CabinetType,
+  familyGlyph,
+  familyShort,
+  familyTerm,
+  familyTone,
+  formatCabinetMark,
+  formatOpeningMark,
+  openingContentTerm,
+  openingGlyph,
+  wallGlyph,
+} from "../shopTerms";
+import type {
+  CabinetInstance,
+  CabinetType,
 } from "../cabinetDimensions";
-import { formatCabinetTag } from "../draftingAnnotations";
 import { formatRunDraftLabel, formatRunSideLabel } from "../runDrafting";
 import type { CabinetRun, CabinetRunSide } from "../cabinetLibrary";
-import type { OpeningContentType, OpeningLeaf } from "../cabinetOpeningStructure";
-
-const CONTENT_TYPE_LABELS: Record<OpeningContentType, string> = {
-  door: "Door Opening",
-  "drawer-stack": "Drawer Stack",
-  "open-shelf": "Open Shelf Section",
-  divider: "Divider Section",
-  empty: "Empty",
-};
+import type { OpeningLeaf } from "../cabinetOpeningStructure";
 
 /** Compact family glyphs for the object tree (CAD-style marks). */
 export const cabinetFamilyIcons: Record<CabinetType, string> = {
-  base: "B",
-  wall: "W",
-  tall: "T",
-  drawer: "D",
-  sink: "S",
-  corner: "C",
-  "open-shelf": "O",
-  almirah: "A",
-  table: "Tb",
-  chair: "Ch",
-  sofa: "Sf",
-  mirror: "M",
+  base: familyGlyph("base"),
+  wall: familyGlyph("wall"),
+  tall: familyGlyph("tall"),
+  drawer: familyGlyph("drawer"),
+  sink: familyGlyph("sink"),
+  corner: familyGlyph("corner"),
+  "open-shelf": familyGlyph("open-shelf"),
+  almirah: familyGlyph("almirah"),
+  table: familyGlyph("table"),
+  chair: familyGlyph("chair"),
+  sofa: familyGlyph("sofa"),
+  mirror: familyGlyph("mirror"),
 };
 
 export const cabinetFamilyTones: Record<CabinetType, string> = {
-  base: "base",
-  wall: "wall",
-  tall: "tall",
-  drawer: "drawer",
-  sink: "sink",
-  corner: "corner",
-  "open-shelf": "shelf",
-  almirah: "tall",
-  table: "furn",
-  chair: "furn",
-  sofa: "furn",
-  mirror: "wall",
-};
-
-const openingIcons: Record<OpeningContentType, string> = {
-  door: "OP",
-  "drawer-stack": "DW",
-  "open-shelf": "SH",
-  divider: "DV",
-  empty: "—",
+  base: familyTone("base"),
+  wall: familyTone("wall"),
+  tall: familyTone("tall"),
+  drawer: familyTone("drawer"),
+  sink: familyTone("sink"),
+  corner: familyTone("corner"),
+  "open-shelf": familyTone("open-shelf"),
+  almirah: familyTone("almirah"),
+  table: familyTone("table"),
+  chair: familyTone("chair"),
+  sofa: familyTone("sofa"),
+  mirror: familyTone("mirror"),
 };
 
 export function cabinetFamilyIcon(type: CabinetType) {
-  return cabinetFamilyIcons[type] ?? "?";
+  return familyGlyph(type);
 }
 
 export function cabinetFamilyTone(type: CabinetType) {
-  return cabinetFamilyTones[type] ?? "base";
+  return familyTone(type);
 }
 
 export function formatCabinetStructuredName(
   cabinet: CabinetInstance,
   markIndex: number,
 ) {
-  const mark = formatCabinetTag(markIndex);
+  const mark = formatCabinetMark(markIndex);
   const family = shortFamilyLabel(cabinet.config.type);
   const { width, height } = cabinet.config.dimensions;
   return {
     mark,
     label: `${mark} · ${cabinet.name}`,
     detail: `${family} · ${Math.round(width)}×${Math.round(height)}`,
-    title: `${mark} · ${cabinet.name} · ${cabinetTypeLabels[cabinet.config.type]} · ${Math.round(width)}×${Math.round(height)}×${Math.round(cabinet.config.dimensions.depth)}`,
+    title: `${mark} · ${cabinet.name} · ${familyTerm(cabinet.config.type)} · ${Math.round(width)}×${Math.round(height)}×${Math.round(cabinet.config.dimensions.depth)}`,
   };
 }
 
 export function shortFamilyLabel(type: CabinetType) {
-  switch (type) {
-    case "base":
-      return "Base";
-    case "wall":
-      return "Wall";
-    case "tall":
-      return "Tall";
-    case "drawer":
-      return "Drawer";
-    case "sink":
-      return "Sink";
-    case "corner":
-      return "Corner";
-    case "open-shelf":
-      return "Shelf";
-    case "almirah":
-      return "Almirah";
-    case "table":
-      return "Table";
-    case "chair":
-      return "Chair";
-    case "sofa":
-      return "Sofa";
-    case "mirror":
-      return "Mirror";
-    default:
-      return cabinetTypeLabels[type] ?? type;
-  }
+  return familyShort(type);
 }
 
 export function formatWallTreeLabel(side: CabinetRunSide) {
@@ -118,32 +84,14 @@ export function formatRunTreeLabel(run: CabinetRun, index: number) {
 }
 
 export function formatOpeningStructuredName(leaf: OpeningLeaf, index: number) {
-  const code =
-    leaf.contentType === "door"
-      ? `OP-${index + 1}`
-      : leaf.contentType === "drawer-stack"
-        ? `DW-${index + 1}`
-        : leaf.contentType === "open-shelf"
-          ? `SH-${index + 1}`
-          : leaf.contentType === "divider"
-            ? `DV-${index + 1}`
-            : `OC-${index + 1}`;
+  const code = formatOpeningMark(leaf.contentType, index);
   return {
-    icon: openingIcons[leaf.contentType] ?? "OC",
+    icon: openingGlyph(leaf.contentType),
     label: `${code} · ${leaf.label}`,
-    detail: CONTENT_TYPE_LABELS[leaf.contentType] ?? leaf.contentType,
+    detail: openingContentTerm(leaf.contentType),
   };
 }
 
 export function wallIcon(side: CabinetRunSide) {
-  switch (side) {
-    case "back-wall":
-      return "BW";
-    case "left-wall":
-      return "LW";
-    case "right-wall":
-      return "RW";
-    default:
-      return "FR";
-  }
+  return wallGlyph(side);
 }

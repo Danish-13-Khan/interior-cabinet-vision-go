@@ -93,6 +93,7 @@ describe("desktopUx viewport hud", () => {
     );
     expect(draftingToolLabel("leader")).toBe("Leader");
     expect(workspaceTabLabel("plan")).toBe("Plan");
+    expect(workspaceTabLabel("3d")).toBe("Model");
   });
 });
 

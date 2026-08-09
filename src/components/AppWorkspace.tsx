@@ -103,9 +103,9 @@ type AppWorkspaceProps = {
 
 const FOCUS_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
   { id: "plan", label: "Plan" },
-  { id: "front", label: "Front" },
+  { id: "front", label: "Elev." },
   { id: "side", label: "Side" },
-  { id: "3d", label: "3D" },
+  { id: "3d", label: "Model" },
 ];
 
 export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
@@ -291,7 +291,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             Objects
           </button>
           <span className="workspace-focus-hint">
-            Sheets · Plan/Front/Side/Section/Detail/Report
+            Sheets · Plan / Elev. / Side / Section / Detail / Schedule
             {maximizedPane ? " · max" : ""}
           </span>
         </div>

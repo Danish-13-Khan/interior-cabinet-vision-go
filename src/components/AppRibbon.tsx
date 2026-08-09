@@ -72,7 +72,7 @@ export function AppRibbon({
   return (
     <header className="app-ribbon" aria-label="Command ribbon">
       <div className="ribbon-brand">
-        <strong>Cabinet Planner</strong>
+        <strong>Cabinet Designer</strong>
         <span>{workspaceLabel}</span>
       </div>
 
@@ -256,7 +256,7 @@ export function AppRibbon({
 
       {workspaceTab === "3d" ? (
         <div className="ribbon-group">
-          <span className="ribbon-group-label">3D Camera</span>
+          <span className="ribbon-group-label">Model Camera</span>
           <div className="ribbon-group-actions">
             <button type="button" className="tb-btn" onClick={() => onSetViewPreset("iso")} title="ISO view">
               ISO

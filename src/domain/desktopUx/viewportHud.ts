@@ -32,7 +32,7 @@ export function workspaceTabLabel(
   tab: ViewportHudState["workspaceTab"],
 ): string {
   if (tab === "plan") return "Plan";
-  if (tab === "front") return "Front";
+  if (tab === "front") return "Elev.";
   if (tab === "side") return "Side";
-  return "3D";
+  return "Model";
 }

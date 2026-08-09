@@ -1,9 +1,9 @@
-/* ── Report tables & yield ── */
+/* ── Report tables & yield — shop document tables ── */
 .shop-table-wrap {
   overflow: auto;
-  border: 1px solid #d5dde6;
-  border-radius: 3px;
-  background: #fff;
+  border: 1px solid var(--report-rule, #2a3540);
+  border-radius: 0;
+  background: var(--report-surface, #fff);
 }
 
 .shop-table {
@@ -15,29 +15,37 @@
 .shop-table th,
 .shop-table td {
   padding: 4px 6px;
-  border-bottom: 1px solid #e8edf2;
+  border-bottom: 1px solid #c5ccd6;
   text-align: left;
   vertical-align: top;
   white-space: nowrap;
 }
 
 .shop-table th {
-  background: #eef2f6;
-  color: #475569;
+  background: var(--report-chrome, #e8edf2);
+  color: var(--ink);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  font-size: 0.58rem;
   position: sticky;
   top: 0;
 }
 
 .shop-table tbody tr:nth-child(even) {
-  background: #f8fafc;
+  background: #f5f7f9;
+}
+
+.shop-table .shop-ref,
+.shop-table td:first-child {
+  font-family: var(--font-mono);
+  font-weight: 650;
+  color: var(--shop-mark, #1e4d72);
 }
 
 .shop-sub {
   display: block;
-  color: #64748b;
+  color: var(--report-muted, #5a6a7a);
   font-size: 0.58rem;
 }
 
@@ -45,8 +53,9 @@
   appearance: none;
   border: none;
   background: none;
-  color: #1d4ed8;
+  color: var(--shop-link, #0a3d6b);
   font: inherit;
+  font-family: var(--font-mono);
   font-weight: 650;
   padding: 0;
   cursor: pointer;
@@ -65,20 +74,20 @@
 
 .cutlist-mode-toggle button {
   appearance: none;
-  border: 1px solid #c5ced8;
-  background: #fff;
-  color: #475569;
+  border: 1px solid var(--panel-border, #7a8798);
+  background: var(--report-surface, #fff);
+  color: var(--ink);
   font-size: 0.6rem;
   font-weight: 650;
   padding: 3px 6px;
-  border-radius: 2px;
+  border-radius: 0;
   cursor: pointer;
 }
 
 .cutlist-mode-toggle button.is-active {
-  border-color: #2563eb;
-  color: #1d4ed8;
-  background: #eff6ff;
+  border-color: var(--accent, #1e4d72);
+  color: var(--draft-cut, #0a3d6b);
+  background: var(--accent-soft, #c8d7e6);
 }
 
 .cutlist-group-stack {
@@ -88,9 +97,10 @@
 }
 
 .cutlist-group-card {
-  border: 1px solid #d5dde6;
-  border-radius: 3px;
+  border: 1px solid var(--report-rule, #2a3540);
+  border-radius: 0;
   overflow: hidden;
+  background: var(--report-surface, #fff);
 }
 
 .cutlist-group-card > header {
