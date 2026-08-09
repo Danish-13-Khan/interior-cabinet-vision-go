@@ -117,8 +117,25 @@
 
 .technical-view .twod-opening-face {
   stroke: var(--draft-cabinet);
-  stroke-width: 1.05px;
+  stroke-width: 0.95px;
   vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-opening-face[data-content-type="door"],
+.technical-view .twod-opening-face[data-content-type="drawer-stack"] {
+  fill: rgba(255, 255, 255, 0.3);
+}
+
+.technical-view .twod-opening-face[data-content-type="open-shelf"] {
+  fill: rgba(248, 250, 252, 0.42);
+}
+
+.technical-view .twod-opening-face[data-content-type="divider"] {
+  fill: #8a8680;
+}
+
+.technical-view .twod-opening-face[data-content-type="empty"] {
+  fill: rgba(255, 255, 255, 0.14);
 }
 
 .technical-view .twod-opening-chrome {

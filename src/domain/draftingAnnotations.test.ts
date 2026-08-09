@@ -3,7 +3,9 @@ import {
   clampDraftingDisplay,
   clampProjectDrafting,
   formatApplianceTag,
+  formatCabinetElevationLabel,
   formatCabinetTag,
+  formatFaceOpeningTag,
   formatOpeningTag,
 } from "./draftingAnnotations";
 import { filterDimensionChain } from "./placementSnap";
@@ -86,6 +88,11 @@ describe("drafting annotations", () => {
     expect(formatOpeningTag("door", 0, 900, 2100)).toContain("DR-1");
     expect(formatOpeningTag("window", 0, 1200, 900, 950)).toContain("S950");
     expect(formatApplianceTag("sink")).toContain("SINK");
+    expect(formatFaceOpeningTag("door", 0)).toBe("OP-1");
+    expect(formatFaceOpeningTag("drawer-stack", 2)).toBe("DW-3");
+    expect(formatCabinetElevationLabel("C01", "Base Unit", 900, 720)).toContain(
+      "C01 · Base Unit",
+    );
   });
 
   it("clamps drafting annotation counts and text", () => {

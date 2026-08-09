@@ -22,6 +22,8 @@ export type OpeningFaceRect = {
   doorHinge?: DoorHinge;
   drawerCount: number;
   shelfCount: number;
+  /** Stable shop marker index within the cabinet face (0-based). */
+  markerIndex: number;
 };
 
 export type CabinetElevationFaceLayout = {
@@ -32,9 +34,18 @@ export type CabinetElevationFaceLayout = {
   rightFillerMm: number;
   leftEndPanel: boolean;
   rightEndPanel: boolean;
+  boardThicknessMm: number;
+  /** Side / top / bottom carcass board insets inside the face. */
+  faceInsetLeftMm: number;
+  faceInsetRightMm: number;
+  faceInsetTopMm: number;
+  faceInsetBottomMm: number;
   /** Opening face width after fillers (end panels drawn outside). */
   faceWidthMm: number;
   faceHeightMm: number;
+  /** Clear opening inside carcass boards. */
+  clearWidthMm: number;
+  clearHeightMm: number;
   openings: OpeningFaceRect[];
   activeOpeningId: string | null;
 };
@@ -45,7 +56,7 @@ function layoutNode(
   yMm: number,
   widthMm: number,
   heightMm: number,
-): OpeningFaceRect[] {
+): Omit<OpeningFaceRect, "markerIndex">[] {
   if (node.kind === "leaf") {
     return [
       {
@@ -64,30 +75,28 @@ function layoutNode(
     ];
   }
 
-  const totalRatio = node.children.reduce(
-    (sum, child) => sum + (child.kind === "leaf" ? child.ratio : 1),
-    0,
-  ) || 1;
+  const totalRatio =
+    node.children.reduce(
+      (sum, child) => sum + (child.kind === "leaf" ? child.ratio : 1),
+      0,
+    ) || 1;
 
   const childSizes = node.children.map((child) => {
     const ratio = child.kind === "leaf" ? child.ratio : 1 / node.children.length;
     return ratio / totalRatio;
   });
 
-  // Normalize equal share for nested splits without leaf ratios
   const normalized =
     node.children.every((child) => child.kind === "split")
       ? node.children.map(() => 1 / node.children.length)
       : childSizes.map((value, index) => {
           const child = node.children[index]!;
           if (child.kind === "split") {
-            // Use remaining share equally among split siblings if mixed — keep ratio path
             return value;
           }
           return value;
         });
 
-  // Prefer explicit leaf ratios; for pure splits use equal division
   const shares = node.children.map((child, index) => {
     if (child.kind === "leaf") return Math.max(0.05, child.ratio);
     if (node.children.every((item) => item.kind === "split")) {
@@ -97,7 +106,7 @@ function layoutNode(
   });
   const shareTotal = shares.reduce((sum, value) => sum + value, 0) || 1;
 
-  const rects: OpeningFaceRect[] = [];
+  const rects: Omit<OpeningFaceRect, "markerIndex">[] = [];
   let cursor = 0;
   for (let index = 0; index < node.children.length; index += 1) {
     const child = node.children[index]!;
@@ -109,10 +118,7 @@ function layoutNode(
       );
       cursor += childWidth;
     } else {
-      // horizontal: stack from top of face downward in elevation (y grows up in mm space)
-      // Face y=0 is bottom; first child (top of tree) is at top of face.
       const childHeight = heightMm * share;
-      // Place from top: remaining height above bottom
       const topOffset = heightMm - cursor - childHeight;
       rects.push(
         ...layoutNode(child, xMm, yMm + topOffset, widthMm, childHeight),
@@ -131,10 +137,11 @@ export function layoutOpeningStructure(
 ): OpeningFaceRect[] {
   const width = Math.max(1, faceWidthMm);
   const height = Math.max(1, faceHeightMm);
-  return layoutNode(structure.root, 0, 0, width, height).map((rect) => ({
+  return layoutNode(structure.root, 0, 0, width, height).map((rect, index) => ({
     ...rect,
     widthMm: Math.max(1, rect.widthMm),
     heightMm: Math.max(1, rect.heightMm),
+    markerIndex: index,
   }));
 }
 
@@ -145,6 +152,7 @@ export function layoutCabinetElevationFace(
   const composition = resolveCabinetComposition(config);
   const carcassWidthMm = config.dimensions.width;
   const carcassHeightMm = config.dimensions.height;
+  const boardThicknessMm = Math.max(12, config.dimensions.boardThickness ?? 18);
   const toeKickHeightMm = composition.toeKick.enabled
     ? composition.toeKick.heightMm
     : 0;
@@ -155,16 +163,37 @@ export function layoutCabinetElevationFace(
     carcassWidthMm - leftFillerMm - rightFillerMm,
   );
   const faceHeightMm = Math.max(1, carcassHeightMm - toeKickHeightMm);
+
+  // Carcass boards inset the clear opening (shop-drawing segmentation).
+  const faceInsetLeftMm = Math.min(boardThicknessMm, faceWidthMm * 0.2);
+  const faceInsetRightMm = faceInsetLeftMm;
+  const faceInsetTopMm = Math.min(boardThicknessMm, faceHeightMm * 0.2);
+  const faceInsetBottomMm = Math.min(boardThicknessMm, faceHeightMm * 0.2);
+  const clearWidthMm = Math.max(
+    1,
+    faceWidthMm - faceInsetLeftMm - faceInsetRightMm,
+  );
+  const clearHeightMm = Math.max(
+    1,
+    faceHeightMm - faceInsetTopMm - faceInsetBottomMm,
+  );
+
   const structure = composition.openingStructure
     ? normalizeOpeningStructure(
         config.type,
         composition.openingStructure,
-        faceWidthMm,
+        clearWidthMm,
       )
     : null;
-  const openings = structure
-    ? layoutOpeningStructure(structure, faceWidthMm, faceHeightMm)
+  const rawOpenings = structure
+    ? layoutOpeningStructure(structure, clearWidthMm, clearHeightMm)
     : [];
+  const openings = rawOpenings.map((opening, index) => ({
+    ...opening,
+    xMm: opening.xMm + faceInsetLeftMm,
+    yMm: opening.yMm + faceInsetBottomMm,
+    markerIndex: index,
+  }));
 
   return {
     carcassWidthMm,
@@ -174,8 +203,15 @@ export function layoutCabinetElevationFace(
     rightFillerMm,
     leftEndPanel: composition.endPanels.left,
     rightEndPanel: composition.endPanels.right,
+    boardThicknessMm,
+    faceInsetLeftMm,
+    faceInsetRightMm,
+    faceInsetTopMm,
+    faceInsetBottomMm,
     faceWidthMm,
     faceHeightMm,
+    clearWidthMm,
+    clearHeightMm,
     openings,
     activeOpeningId: structure?.activeOpeningId ?? null,
   };

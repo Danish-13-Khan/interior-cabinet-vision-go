@@ -28,6 +28,13 @@ export function renderToeKickBand(
       y,
       cabinetSvgX + cabinetSvgWidth,
       y,
+      `class="twod-toe-kick-line twod-line-outline" pointer-events="none"`,
+    ),
+    line(
+      cabinetSvgX,
+      y + toeH,
+      cabinetSvgX + cabinetSvgWidth,
+      y + toeH,
       `class="twod-toe-kick-line" pointer-events="none"`,
     ),
   ];
@@ -102,7 +109,7 @@ export function renderEndPanels(
   scale: number,
 ): string[] {
   const elements: string[] = [];
-  const panelW = Math.max(2.5, Math.min(5, boardThicknessMm / scale));
+  const panelW = Math.max(1.8, boardThicknessMm / scale);
   if (layout.leftEndPanel) {
     elements.push(
       rect(
@@ -118,6 +125,13 @@ export function renderEndPanels(
         cabinetSvgX - panelW,
         cabinetSvgY + cabinetSvgHeight,
         `class="twod-end-panel-edge" pointer-events="none"`,
+      ),
+      line(
+        cabinetSvgX,
+        cabinetSvgY,
+        cabinetSvgX,
+        cabinetSvgY + cabinetSvgHeight,
+        `class="twod-end-panel-edge twod-line-outline" pointer-events="none"`,
       ),
     );
   }
@@ -136,6 +150,13 @@ export function renderEndPanels(
         cabinetSvgX + cabinetSvgWidth + panelW,
         cabinetSvgY + cabinetSvgHeight,
         `class="twod-end-panel-edge" pointer-events="none"`,
+      ),
+      line(
+        cabinetSvgX + cabinetSvgWidth,
+        cabinetSvgY,
+        cabinetSvgX + cabinetSvgWidth,
+        cabinetSvgY + cabinetSvgHeight,
+        `class="twod-end-panel-edge twod-line-outline" pointer-events="none"`,
       ),
     );
   }

@@ -74,6 +74,9 @@ describe("constructionGraphics", () => {
     expect(svg).toContain("twod-door-swing");
     expect(svg).toContain("twod-toe-kick");
     expect(svg).toContain("twod-door-handle");
+    expect(svg).toContain("twod-carcass-board");
+    expect(svg).toContain("twod-opening-marker");
+    expect(svg).toContain("twod-door-leaf-edge");
   });
 
   it("includes construction classes in plan and front views", () => {

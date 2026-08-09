@@ -79,9 +79,13 @@
 .technical-view .twod-door-swing,
 .technical-view .twod-opening-swing {
   stroke: #1a3a5c;
-  stroke-width: 0.85px;
+  stroke-width: 0.95px;
   fill: none;
-  opacity: 0.8;
+  opacity: 0.88;
+}
+
+.technical-view .twod-door-swing-chord {
+  opacity: 0.45;
 }
 
 .technical-view .twod-door-hinge {
@@ -94,15 +98,31 @@
   stroke-width: 0.7px;
 }
 
+.technical-view .twod-door-leaf-edge,
+.technical-view .twod-drawer-front-edge {
+  stroke: var(--draft-outline);
+  stroke-width: 0.85px;
+  fill: none;
+  opacity: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+
 .technical-view .twod-drawer-reveal {
   stroke: var(--draft-reference);
   stroke-width: 0.55px;
 }
 
+.technical-view .twod-drawer-index {
+  fill: #57534e;
+  stroke: none;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
 .technical-view .twod-shelf-board {
   stroke: var(--draft-interior);
   stroke-width: 0.55px;
-  fill: rgba(120, 113, 108, 0.38);
+  fill: rgba(120, 113, 108, 0.42);
 }
 
 .technical-view .twod-shelf-line {
@@ -115,6 +135,51 @@
 .technical-view .twod-shelf-pin {
   stroke: var(--draft-hidden);
   stroke-width: 0.65px;
+}
+
+.technical-view .twod-carcass-board {
+  fill: rgba(180, 160, 130, 0.55);
+  stroke: var(--draft-cabinet);
+  stroke-width: 0.7px;
+}
+
+.technical-view .twod-clear-opening,
+.technical-view .twod-shelf-cavity,
+.technical-view .twod-empty-cavity {
+  stroke: var(--draft-interior);
+  fill: none;
+}
+
+.technical-view .twod-divider-edge {
+  stroke: var(--draft-outline);
+  stroke-width: 0.9px;
+}
+
+.technical-view .twod-opening-marker {
+  fill: #e8eef4;
+  stroke: var(--draft-cut);
+  stroke-width: 0.7px;
+}
+
+.technical-view .twod-opening-marker.is-active-opening {
+  fill: var(--accent-soft);
+  stroke: var(--selection);
+}
+
+.technical-view .twod-opening-marker-text {
+  fill: var(--draft-cut);
+  stroke: none;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.technical-view .twod-opening-marker-text.is-active-opening {
+  fill: var(--selection);
+}
+
+.technical-view .twod-cabinet-elev-title {
+  fill: #141414;
+  font-weight: 700;
 }
 
 .technical-view .twod-carcass-side,

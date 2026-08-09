@@ -6,6 +6,7 @@ import {
 } from "../cabinetDimensions";
 import {
   formatApplianceTag,
+  formatCabinetElevationLabel,
   formatCabinetTag,
   renderCabinetTagSvg,
   clampProjectDrafting,
@@ -233,28 +234,35 @@ export function cabinetElevationGraphics(
   );
 
   const typeLabel = cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type;
+  const elevTag = formatCabinetTag(cabinetIndex);
+  const elevTitle = formatCabinetElevationLabel(
+    elevTag,
+    cabinet.name,
+    spanLabelMm,
+    cabinet.config.dimensions.height,
+  );
   elements.push(
     text(
       x + width / 2,
-      y - 12,
-      shortLabel(cabinet.name, 14),
-      `class="twod-label twod-cabinet-name" font-size="7.5" text-anchor="middle" pointer-events="none"`,
+      y - 14,
+      elevTitle,
+      `class="twod-label twod-cabinet-elev-title" font-size="7" text-anchor="middle" pointer-events="none"`,
     ),
   );
   elements.push(
     text(
       x + width / 2,
-      y - 3,
-      shortLabel(typeLabel, 12),
-      `class="twod-annotation twod-cabinet-type" font-size="6.5" text-anchor="middle" pointer-events="none"`,
+      y - 4,
+      shortLabel(typeLabel, 14),
+      `class="twod-annotation twod-cabinet-type" font-size="6" text-anchor="middle" pointer-events="none"`,
     ),
   );
   elements.push(
     text(
       x + width / 2,
-      y + height + 9,
-      `${dimensionLabel(spanLabelMm)} mm`,
-      `class="twod-annotation twod-cabinet-size" font-size="6.5" text-anchor="middle" pointer-events="none"`,
+      y + height + 10,
+      `${dimensionLabel(spanLabelMm)} × ${dimensionLabel(cabinet.config.dimensions.height)} mm`,
+      `class="twod-annotation twod-cabinet-size twod-cabinet-elev-size" font-size="6.5" text-anchor="middle" pointer-events="none"`,
     ),
   );
 

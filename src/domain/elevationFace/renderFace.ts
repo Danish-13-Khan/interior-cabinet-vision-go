@@ -8,6 +8,7 @@ import {
   renderEndPanels,
   renderToeKickBand,
 } from "../constructionGraphics";
+import { renderCarcassFrame } from "./carcassFrame";
 import {
   renderDividerOrEmpty,
   renderDoorLeaf,
@@ -39,7 +40,7 @@ export function renderElevationFaceGraphics(
   const scale = options.scale;
   const activeId =
     options.activeOpeningId ?? layout.activeOpeningId ?? null;
-  const boardT = cabinet.config.dimensions.boardThickness ?? 18;
+  const boardT = layout.boardThicknessMm;
 
   elements.push(
     ...renderToeKickBand(
@@ -66,6 +67,14 @@ export function renderElevationFaceGraphics(
       cabinetSvgHeight,
       layout,
       boardT,
+      scale,
+    ),
+    ...renderCarcassFrame(
+      cabinetSvgX,
+      cabinetSvgY,
+      cabinetSvgWidth,
+      cabinetSvgHeight,
+      layout,
       scale,
     ),
   );
@@ -141,5 +150,5 @@ export function renderElevationFaceGraphics(
 }
 
 export function describeElevationFace(layout: CabinetElevationFaceLayout): string {
-  return `${layout.openings.length} openings · face ${Math.round(layout.faceWidthMm)}×${Math.round(layout.faceHeightMm)} · toe ${layout.toeKickHeightMm}`;
+  return `${layout.openings.length} openings · clear ${Math.round(layout.clearWidthMm)}×${Math.round(layout.clearHeightMm)} · toe ${layout.toeKickHeightMm}`;
 }
