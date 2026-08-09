@@ -1,0 +1,216 @@
+/* ── Cabinet object tree (room > wall > run > cabinet > opening) ── */
+.cabinet-tree-browser {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.cabinet-tree-browser.is-compact .cabinet-tree-scroll {
+  max-height: 220px;
+}
+
+.cabinet-tree-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 5px;
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.cabinet-tree-toolbar span:last-of-type {
+  margin-left: auto;
+  color: #8090a0;
+}
+
+.cabinet-tree-clear-isolate {
+  appearance: none;
+  border: 0;
+  background: var(--browser-row-selected);
+  color: var(--ink);
+  font-size: 0.5rem;
+  font-weight: 650;
+  padding: 1px 5px;
+  cursor: pointer;
+  border-radius: var(--radius-control);
+}
+
+.cabinet-tree-scroll {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+.workspace-scene-browser .cabinet-tree-scroll {
+  max-height: none;
+}
+
+.cabinet-tree-empty {
+  margin: 0;
+  padding: 6px 5px;
+  font-size: 0.54rem;
+  color: #8090a0;
+}
+
+.cabinet-tree-row {
+  display: grid;
+  grid-template-columns: 14px 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 4px 1px calc(4px + var(--tree-depth, 0) * 10px);
+  border: 0;
+  border-bottom: 1px solid rgba(140, 155, 170, 0.28);
+  background: transparent;
+  cursor: pointer;
+  min-height: 22px;
+}
+
+.cabinet-tree-row:hover {
+  background: var(--browser-row-hover);
+}
+
+.cabinet-tree-row.is-selected {
+  background: var(--browser-row-selected);
+}
+
+.cabinet-tree-row.is-active {
+  background: var(--browser-row-active);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.cabinet-tree-row.is-isolated .cabinet-tree-icon {
+  outline: 1px solid var(--accent);
+}
+
+.cabinet-tree-twist {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  font-size: 0.55rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.cabinet-tree-twist.is-leaf {
+  cursor: default;
+  opacity: 0;
+}
+
+.cabinet-tree-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: #fff;
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: var(--ink);
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.cabinet-tree-icon.tone-base { background: #e8f0f7; }
+.cabinet-tree-icon.tone-wall { background: #eef4ea; }
+.cabinet-tree-icon.tone-tall { background: #f3eee8; }
+.cabinet-tree-icon.tone-drawer { background: #efeaf6; }
+.cabinet-tree-icon.tone-sink { background: #e7f3f3; }
+.cabinet-tree-icon.tone-corner { background: #f7efe6; }
+.cabinet-tree-icon.tone-shelf { background: #eef2e8; }
+.cabinet-tree-icon.tone-furn { background: #f2f2f2; }
+.cabinet-tree-icon.tone-room { background: #e6ebf2; }
+.cabinet-tree-icon.tone-run { background: #ece8f4; }
+.cabinet-tree-icon.tone-opening { background: #f7f4e8; }
+
+.cabinet-tree-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0;
+}
+
+.cabinet-tree-copy strong {
+  font-size: 0.58rem;
+  font-weight: 650;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.15;
+}
+
+.cabinet-tree-copy small {
+  font-size: 0.48rem;
+  color: var(--muted);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cabinet-tree-rename {
+  width: 100%;
+  min-width: 0;
+  font-size: 0.58rem;
+  padding: 1px 3px;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  background: #fff;
+}
+
+.cabinet-tree-actions {
+  display: none;
+  align-items: center;
+  gap: 0;
+}
+
+.cabinet-tree-row:hover .cabinet-tree-actions,
+.cabinet-tree-row.is-active .cabinet-tree-actions {
+  display: inline-flex;
+}
+
+.cabinet-tree-action {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  font-size: 0.55rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.cabinet-tree-action:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.cabinet-tree-action.is-on {
+  color: var(--accent);
+}
+
+.scene-tree-panel .cabinet-tree-browser {
+  border: 1px solid var(--rail-section-border);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.workspace-scene-browser {
+  display: flex;
+  flex-direction: column;
+}

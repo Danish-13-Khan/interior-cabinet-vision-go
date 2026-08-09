@@ -29,6 +29,7 @@ type UseProjectCommitArgs = {
   activeCabinetId: string | null;
   selectedPanelName: PanelName | null;
   layers: { id: string; locked?: boolean; visible?: boolean }[];
+  isolatedCabinetIds?: string[] | null;
   setProject: Dispatch<SetStateAction<CabinetProject>>;
   setSelectedCabinetIds: (ids: string[]) => void;
   setActiveCabinetId: (id: string | null) => void;
@@ -44,6 +45,7 @@ export function useProjectCommit({
   activeCabinetId,
   selectedPanelName,
   layers,
+  isolatedCabinetIds = null,
   setProject,
   setSelectedCabinetIds,
   setActiveCabinetId,
@@ -88,11 +90,16 @@ export function useProjectCommit({
   }
 
   function getVisibleProject(): CabinetProject {
+    let cabinets = project.cabinets.filter(
+      (cabinet) => getLayerForCabinet(cabinet)?.visible !== false,
+    );
+    if (isolatedCabinetIds && isolatedCabinetIds.length > 0) {
+      const allowed = new Set(isolatedCabinetIds);
+      cabinets = cabinets.filter((cabinet) => allowed.has(cabinet.id));
+    }
     return {
       ...project,
-      cabinets: project.cabinets.filter(
-        (cabinet) => getLayerForCabinet(cabinet)?.visible !== false,
-      ),
+      cabinets,
     };
   }
 

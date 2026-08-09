@@ -76,6 +76,49 @@ export function useRoomProjectOps({
     );
   }
 
+  /** Switch room (if needed) and apply an explicit cabinet selection. */
+  function handleSelectCabinetsInRoom(
+    roomId: string,
+    cabinetIds: string[],
+    activeId: string | null = cabinetIds[0] ?? null,
+  ) {
+    if (roomId === project.activeRoomId) {
+      return false;
+    }
+
+    const switched = switchProjectRoom(project, roomId, project.cabinets, room);
+    const safeProject = normalizeMultiRoomProject(
+      clampCabinetProject(switched),
+      room,
+    );
+    const activeRoom = getActiveProjectRoom(safeProject);
+    const validIds = cabinetIds.filter((id) =>
+      safeProject.cabinets.some((cabinet) => cabinet.id === id),
+    );
+    commitSnapshot(
+      {
+        project: safeProject,
+        room: activeRoom.config,
+        selectedCabinetIds: validIds,
+        activeCabinetId:
+          (activeId && validIds.includes(activeId) ? activeId : validIds[0]) ??
+          null,
+        selectedPanelName: null,
+      },
+      "Switched room from cabinet tree.",
+    );
+    return true;
+  }
+
+  function handleRenameProjectRoomTo(roomId: string, name: string) {
+    const nextName = name.trim();
+    if (!nextName) return;
+    commitRoomProject(
+      renameProjectRoom(project, roomId, nextName, project.cabinets, room),
+      `Renamed room to “${nextName}”.`,
+    );
+  }
+
   function handleAddProjectRoom() {
     commitRoomProject(
       addEmptyProjectRoom(project, project.cabinets, room),
@@ -147,9 +190,11 @@ export function useRoomProjectOps({
     commitRoomProject,
     handleRoomConfigChange,
     handleSelectProjectRoom,
+    handleSelectCabinetsInRoom,
     handleAddProjectRoom,
     handleDuplicateProjectRoom,
     handleRenameProjectRoom,
+    handleRenameProjectRoomTo,
     handleRemoveProjectRoom,
     handleAddRoomFromTemplate,
     handleLoadRoomPreset,

@@ -67,11 +67,13 @@ function App() {
         toolRailProps={{
           templates: c.userTemplates,
           userCabinetPresets: c.workshopLibrary.cabinetPresets,
-          cabinets: c.project.cabinets,
-          activeCabinetId: c.activeCabinetId,
-          selectedCabinetIds: c.selectedCabinetIds,
           rooms: c.projectRooms,
           activeRoomId: c.project.activeRoomId ?? c.projectRooms[0]?.id ?? null,
+          runs: c.planningWorkflow.runs,
+          activeCabinetId: c.activeCabinetId,
+          selectedCabinetIds: c.selectedCabinetIds,
+          activeOpeningId: c.activeOpeningId,
+          isolatedCabinetIds: c.isolatedCabinetIds,
           savedProjects: c.sortedSavedProjects,
           onAddFamily: c.handleAddCabinet,
           onAddLibraryItem: c.handleAddLibraryItem,
@@ -81,6 +83,18 @@ function App() {
           onOpenLibraryManager: () => c.setLibraryManagerOpen(true),
           onSelectCabinet: c.handleWorkspaceSelectCabinet,
           onSelectRoom: c.handleSelectProjectRoom,
+          onSelectRun: (run) => {
+            c.replaceSelection(run.cabinetIds, run.cabinetIds[0] ?? null, null);
+            c.setWorkspaceTab("plan");
+            c.setLayout({ activeSheetId: "plan" });
+          },
+          onSelectOpening: c.handleSelectOpening,
+          onSelectCabinets: c.handleTreeSelectCabinets,
+          onRenameCabinet: c.handleRenameCabinet,
+          onRenameRoomTo: c.handleRenameProjectRoomTo,
+          onIsolate: c.handleTreeIsolate,
+          onFocus: c.handleTreeFocus,
+          onReorderCabinet: c.handleTreeReorder,
           onAddRoom: c.handleAddProjectRoom,
           onDuplicateRoom: c.handleDuplicateProjectRoom,
           onRenameRoom: c.handleRenameProjectRoom,
@@ -92,7 +106,6 @@ function App() {
           onLoadSavedProject: c.handleLoadSavedProject,
           onRenameSavedProject: c.handleRenameSavedProject,
           onSaveCurrentProject: c.saveCurrentProjectToBrowser,
-          onCabinetContextMenu: c.openCabinetContextMenu,
           onProjectContextMenu: c.openProjectContextMenu,
         }}
         workspaceProps={{
@@ -145,6 +158,13 @@ function App() {
           onToggleCabinetSelection: c.toggleCabinetSelection,
           onSelectCabinet: c.handleWorkspaceSelectCabinet,
           onSelectOpening: c.handleSelectOpening,
+          onSelectCabinetsFromTree: c.handleTreeSelectCabinets,
+          onRenameCabinet: c.handleRenameCabinet,
+          onRenameRoom: c.handleRenameProjectRoomTo,
+          isolatedCabinetIds: c.isolatedCabinetIds,
+          onTreeIsolate: c.handleTreeIsolate,
+          onTreeFocus: c.handleTreeFocus,
+          onTreeReorder: c.handleTreeReorder,
           onElevationOpeningCommand: c.handleElevationOpeningCommand,
           onAddNote: c.handleAddDraftingNote,
           onAddLeader: c.handleAddDraftingLeader,

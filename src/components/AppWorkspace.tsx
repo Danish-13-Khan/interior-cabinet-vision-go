@@ -59,6 +59,18 @@ type AppWorkspaceProps = {
   onToggleCabinetSelection: (cabinetId: string) => void;
   onSelectCabinet: (cabinetId: string | null, additive: boolean) => void;
   onSelectOpening?: (cabinetId: string, openingId: string) => void;
+  onSelectCabinetsFromTree: (
+    roomId: string,
+    cabinetIds: string[],
+    activeId: string | null,
+    additive: boolean,
+  ) => void;
+  onRenameCabinet: (cabinetId: string, name: string) => void;
+  onRenameRoom: (roomId: string, name: string) => void;
+  isolatedCabinetIds: string[] | null;
+  onTreeIsolate: (cabinetIds: string[]) => void;
+  onTreeFocus: (cabinetIds: string[], activeId: string | null) => void;
+  onTreeReorder: (runId: string, cabinetId: string, direction: -1 | 1) => void;
   onElevationOpeningCommand?: (
     cabinetId: string,
     command: ElevationOpeningCommand,
@@ -122,6 +134,13 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onToggleCabinetSelection,
       onSelectCabinet,
       onSelectOpening,
+      onSelectCabinetsFromTree,
+      onRenameCabinet,
+      onRenameRoom,
+      isolatedCabinetIds,
+      onTreeIsolate,
+      onTreeFocus,
+      onTreeReorder,
       onElevationOpeningCommand,
       onAddNote,
       onAddLeader,
@@ -270,17 +289,23 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             <WorkspaceSceneBrowser
               rooms={rooms}
               activeRoomId={activeRoomId}
-              cabinets={project.cabinets}
               runs={planningWorkflow.runs}
               activeCabinetId={activeCabinetId}
               selectedCabinetIds={selectedCabinetIds}
               activeOpeningId={activeOpeningId}
+              isolatedCabinetIds={isolatedCabinetIds}
               onSelectRoom={onSelectRoom}
               onSelectCabinet={(cabinetId, additive) =>
                 onSelectCabinet(cabinetId, additive)
               }
               onSelectRun={handleSelectRun}
               onSelectOpening={handleSelectOpening}
+              onSelectCabinets={onSelectCabinetsFromTree}
+              onRenameCabinet={onRenameCabinet}
+              onRenameRoom={onRenameRoom}
+              onIsolate={onTreeIsolate}
+              onFocus={onTreeFocus}
+              onReorderCabinet={onTreeReorder}
             />
           ) : null}
 

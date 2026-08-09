@@ -61,6 +61,9 @@ export function useAppControllerSession() {
     cabinetId: string;
     openingId: string;
   } | null>(null);
+  const [isolatedCabinetIds, setIsolatedCabinetIds] = useState<string[] | null>(
+    null,
+  );
   const [projectStatus, setProjectStatus] = useState("");
   const [projectFilePath, setProjectFilePath] = useState<string | null>(
     initialSession.projectFilePath,
@@ -170,6 +173,7 @@ export function useAppControllerSession() {
     activeCabinetId,
     selectedPanelName,
     layers: derived.layers,
+    isolatedCabinetIds,
     setProject,
     setSelectedCabinetIds,
     setActiveCabinetId,
@@ -241,6 +245,8 @@ export function useAppControllerSession() {
     activeCabinetId,
     activeOpeningId,
     selectedPanelName,
+    isolatedCabinetIds,
+    setIsolatedCabinetIds,
     projectStatus,
     setProjectStatus,
     projectFilePath,

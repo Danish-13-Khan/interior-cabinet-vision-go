@@ -3,6 +3,7 @@
 @import "./styles/command-ribbon.css";
 @import "./styles/tool-rail.css";
 @import "./styles/scene-tree-nav.css";
+@import "./styles/cabinet-tree.css";
 @import "./styles/room-editors.css";
 @import "./styles/workspace-inspector.css";
 @import "./styles/workspace-split.css";
