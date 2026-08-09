@@ -219,10 +219,10 @@ export function useAppController() {
     s.workspaceTab === "plan"
       ? `${activeRoomName} · Plan`
       : s.workspaceTab === "front"
-        ? `${activeRoomName} · Front`
+        ? `${activeRoomName} · Elev.`
         : s.workspaceTab === "side"
           ? `${activeRoomName} · Side`
-          : `${activeRoomName} · 3D`;
+          : `${activeRoomName} · Model`;
 
   const tabShortcutHints = {
     plan: formatShortcutBinding(s.shortcutMap.viewPlan),

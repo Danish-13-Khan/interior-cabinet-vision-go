@@ -24,7 +24,7 @@ export function DraftingPanel({
   return (
     <div className="control-section drafting-panel">
       <div className="section-heading">
-        <h2>2D Drafting</h2>
+        <h2>Technical Drafting</h2>
         <span>
           {drafting.notes.length} notes · {drafting.leaders.length} leaders
         </span>
@@ -33,9 +33,9 @@ export function DraftingPanel({
       <div className="drafting-toggle-grid">
         {(
           [
-            ["showCabinetTags", "Cabinet tags"],
-            ["showOpeningTags", "Opening tags"],
-            ["showApplianceTags", "Appliance tags"],
+            ["showCabinetTags", "Cabinet marks"],
+            ["showOpeningTags", "Opening marks"],
+            ["showApplianceTags", "Appliance marks"],
             ["showOverallDims", "Overall dims"],
             ["showDimensionChains", "Chain dims"],
             ["showRunDims", "Run dims"],
@@ -44,8 +44,8 @@ export function DraftingPanel({
             ["showClearanceDims", "Clearance dims"],
             ["showWallLabels", "Wall labels"],
             ["showRunBands", "Run bands"],
-            ["showRunLabels", "Run labels"],
-            ["showFillers", "Fillers / gaps"],
+            ["showRunLabels", "Run marks"],
+            ["showFillers", "Fillers (FL)"],
             ["showCountertopSpans", "Countertop spans"],
           ] as const
         ).map(([key, label]) => (

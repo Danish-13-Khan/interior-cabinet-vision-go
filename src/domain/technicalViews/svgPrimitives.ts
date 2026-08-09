@@ -40,6 +40,10 @@ export function text(
   return `<text x="${x}" y="${y}" ${attrs}>${escapeXml(value)}</text>`;
 }
 
+export function circle(cx: number, cy: number, r: number, attrs: string) {
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" ${attrs} />`;
+}
+
 export function dimensionLabel(valueMm: number) {
   return `${Math.round(valueMm)}`;
 }

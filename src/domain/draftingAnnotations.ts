@@ -1,3 +1,10 @@
+import {
+  formatCabinetMark,
+  formatElevationTagLine,
+  formatOpeningMark,
+  formatWallOpeningMark,
+} from "./shopTerms";
+
 export type DraftingViewTarget = "top" | "front" | "side" | "all";
 export type DraftingSheetView = "top" | "front" | "side";
 
@@ -101,7 +108,7 @@ export function createDraftingId(prefix: string) {
 }
 
 export function formatCabinetTag(index: number) {
-  return `C${String(index + 1).padStart(2, "0")}`;
+  return formatCabinetMark(index);
 }
 
 export function formatOpeningTag(
@@ -111,27 +118,12 @@ export function formatOpeningTag(
   heightMm: number,
   sillHeightMm?: number,
 ) {
-  const code = kind === "door" ? "DR" : "WN";
-  const size = `${Math.round(widthMm)}×${Math.round(heightMm)}`;
-  if (kind === "window" && typeof sillHeightMm === "number") {
-    return `${code}-${index + 1} ${size} S${Math.round(sillHeightMm)}`;
-  }
-  return `${code}-${index + 1} ${size}`;
+  return formatWallOpeningMark(kind, index, widthMm, heightMm, sillHeightMm);
 }
 
 /** Shop marker for cabinet-face openings (doors, drawers, shelves). */
 export function formatFaceOpeningTag(contentType: string, index: number) {
-  const code =
-    contentType === "door"
-      ? "OP"
-      : contentType === "drawer-stack"
-        ? "DW"
-        : contentType === "open-shelf"
-          ? "SH"
-          : contentType === "divider"
-            ? "DV"
-            : "OC";
-  return `${code}-${index + 1}`;
+  return formatOpeningMark(contentType, index);
 }
 
 export function formatCabinetElevationLabel(
@@ -140,8 +132,7 @@ export function formatCabinetElevationLabel(
   widthMm: number,
   heightMm: number,
 ) {
-  const short = name.length > 16 ? `${name.slice(0, 15)}…` : name;
-  return `${tag} · ${short} · ${Math.round(widthMm)}×${Math.round(heightMm)}`;
+  return formatElevationTagLine(tag, name, widthMm, heightMm);
 }
 
 export function formatApplianceTag(type: string) {

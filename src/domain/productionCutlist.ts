@@ -4,6 +4,7 @@ import {
   getConstructionFlatParts,
   type PartCategory,
 } from "./cabinetConstruction";
+import { formatPartShopRef } from "./shopTerms";
 
 export type ProductionCutlistLine = {
   key: string;
@@ -46,9 +47,7 @@ function lineAreaM2(line: ProductionCutlistLine) {
 }
 
 function formatShopRef(cabinetIndex: number, partIndex: number) {
-  const cab = String(cabinetIndex).padStart(2, "0");
-  const part = String(partIndex).padStart(2, "0");
-  return `C${cab}-P${part}`;
+  return formatPartShopRef(cabinetIndex, partIndex);
 }
 
 export function createCabinetProductionCutlist(

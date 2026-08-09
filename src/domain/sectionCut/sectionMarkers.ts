@@ -1,5 +1,6 @@
 import { SCALE } from "../technicalViews/constants";
 import { line, text } from "../technicalViews/svgPrimitives";
+import { renderSectionBubble } from "../draftingSymbols";
 import type { SectionCutPlane } from "./cutPlane";
 
 function arrowHead(
@@ -32,7 +33,7 @@ function arrowHead(
   ];
 }
 
-/** Plan: cut line across depth with A markers looking toward +X. */
+/** Plan: cut line across depth with circle section bubbles looking toward cut. */
 export function planSectionMarkers(
   plane: SectionCutPlane,
   ox: number,
@@ -47,20 +48,10 @@ export function planSectionMarkers(
     line(x, top, x, bottom, `class="twod-section-marker twod-section-cut-line"`),
     ...arrowHead(x + look * 7, top + 10, plane.looking),
     ...arrowHead(x + look * 7, bottom - 10, plane.looking),
+    ...renderSectionBubble(x + look * 14, top + 10, plane.mark),
+    ...renderSectionBubble(x + look * 14, bottom - 10, plane.mark),
     text(
-      x + look * 12,
-      top + 12,
-      plane.mark,
-      `class="twod-section-mark" font-size="8" text-anchor="${plane.looking === "right" ? "start" : "end"}"`,
-    ),
-    text(
-      x + look * 12,
-      bottom - 4,
-      plane.mark,
-      `class="twod-section-mark" font-size="8" text-anchor="${plane.looking === "right" ? "start" : "end"}"`,
-    ),
-    text(
-      x + look * 14,
+      x + look * 24,
       (top + bottom) / 2,
       plane.label,
       `class="twod-section-mark-label" font-size="6" text-anchor="${plane.looking === "right" ? "start" : "end"}"`,
@@ -68,7 +59,7 @@ export function planSectionMarkers(
   ];
 }
 
-/** Front elevation: vertical cut marker at plane X. */
+/** Front elevation: vertical cut marker with section bubbles. */
 export function elevationSectionMarkers(
   plane: SectionCutPlane,
   ox: number,
@@ -82,17 +73,7 @@ export function elevationSectionMarkers(
     line(x, top, x, bottom, `class="twod-section-marker twod-section-cut-line"`),
     ...arrowHead(x, top + 2, "down", 4),
     ...arrowHead(x, bottom - 2, "up", 4),
-    text(
-      x + 6,
-      top + 10,
-      plane.mark,
-      `class="twod-section-mark" font-size="8" text-anchor="start"`,
-    ),
-    text(
-      x + 6,
-      bottom - 4,
-      plane.mark,
-      `class="twod-section-mark" font-size="8" text-anchor="start"`,
-    ),
+    ...renderSectionBubble(x + 12, top + 10, plane.mark),
+    ...renderSectionBubble(x + 12, bottom - 10, plane.mark),
   ];
 }

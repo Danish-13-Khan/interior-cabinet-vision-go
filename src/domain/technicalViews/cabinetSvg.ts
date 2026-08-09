@@ -11,6 +11,8 @@ import {
   renderCabinetTagSvg,
   clampProjectDrafting,
 } from "../draftingAnnotations";
+import { renderElevationMark } from "../draftingSymbols";
+import { familyShort } from "../shopTerms";
 import { getTagOffset } from "../draftingEdit";
 import {
   renderFamilyPlanSymbol,
@@ -233,7 +235,7 @@ export function cabinetElevationGraphics(
     }),
   );
 
-  const typeLabel = cabinetTypeLabels[cabinet.config.type] ?? cabinet.config.type;
+  const typeLabel = familyShort(cabinet.config.type);
   const elevTag = formatCabinetTag(cabinetIndex);
   const elevTitle = formatCabinetElevationLabel(
     elevTag,
@@ -242,17 +244,20 @@ export function cabinetElevationGraphics(
     cabinet.config.dimensions.height,
   );
   elements.push(
+    ...renderElevationMark(x + width / 2, y - 22, elevTag),
+  );
+  elements.push(
     text(
       x + width / 2,
-      y - 14,
-      elevTitle,
+      y - 10,
+      elevTitle.replace(`${elevTag} · `, ""),
       `class="twod-label twod-cabinet-elev-title" font-size="7" text-anchor="middle" pointer-events="none"`,
     ),
   );
   elements.push(
     text(
       x + width / 2,
-      y - 4,
+      y - 2,
       shortLabel(typeLabel, 14),
       `class="twod-annotation twod-cabinet-type" font-size="6" text-anchor="middle" pointer-events="none"`,
     ),

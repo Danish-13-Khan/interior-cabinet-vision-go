@@ -1,7 +1,8 @@
+import { formatRunMark } from "../shopTerms";
 import type { CabinetRun, CabinetRunSide } from "../cabinetLibrary";
 
 export function formatRunShortCode(index: number) {
-  return `R${String(index + 1).padStart(2, "0")}`;
+  return formatRunMark(index);
 }
 
 export function formatRunSideLabel(side: CabinetRunSide) {

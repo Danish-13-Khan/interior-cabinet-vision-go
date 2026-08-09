@@ -1,16 +1,18 @@
-/* ── Report Center ── */
+/* ── Report Center — matches drawing-sheet / title-block chrome ── */
 .report-center {
   display: flex;
   flex-direction: column;
   min-height: 240px;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  color: var(--ink);
 }
 
 .report-center-tabs {
   display: flex;
-  gap: 2px;
-  padding: 6px 8px 0;
-  border-bottom: 1px solid #d5dde6;
-  background: #eef2f6;
+  gap: 1px;
+  padding: 2px 4px 0;
+  border-bottom: 1px solid var(--workspace-gutter, #b8c0ca);
+  background: var(--report-chrome, #b8c3d0);
   position: sticky;
   top: 0;
   z-index: 2;
@@ -21,31 +23,35 @@
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
-  color: #5b6b7c;
-  font-size: 0.66rem;
+  color: var(--report-muted, #5a6a7a);
+  font-size: 0.62rem;
   font-weight: 650;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 6px 10px;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
   cursor: pointer;
-  border-radius: 3px 3px 0 0;
+  border-radius: 0;
 }
 
 .report-center-tab.is-active {
-  background: #fff;
-  border-color: #d5dde6;
-  color: #1e293b;
+  background: var(--report-surface, #fff);
+  border-color: var(--workspace-gutter, #b8c0ca);
+  border-bottom-color: var(--report-surface, #fff);
+  color: var(--ink);
 }
 
 .report-center-body {
   padding: 8px;
-  background: #fff;
+  background: var(--report-bg, #f4f6f8);
 }
 
 .report-doc {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background: var(--report-surface, #fff);
+  border: 1px solid var(--report-rule, #2a3540);
+  padding: 8px 10px;
 }
 
 .report-doc-header {
@@ -54,26 +60,27 @@
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--report-rule, #2a3540);
 }
 
 .report-doc-header strong {
   display: block;
   font-size: 0.78rem;
-  color: #0f172a;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
 .report-doc-header span {
   font-size: 0.62rem;
-  color: #64748b;
+  color: var(--report-muted, #5a6a7a);
 }
 
 .report-subsection h3 {
   margin: 0 0 6px;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #475569;
+  letter-spacing: 0.06em;
+  color: var(--accent, #1e4d72);
+  font-family: var(--font-mono);
 }
-
-/* ── Report tables & panels ── */

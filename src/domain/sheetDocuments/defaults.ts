@@ -1,4 +1,5 @@
 import { DRAWING_SHEETS, type DrawingSheetId } from "../drawingSheets";
+import { viewSheetLabel } from "../shopTerms";
 import type {
   ProjectSheetSet,
   SheetDocument,
@@ -8,12 +9,12 @@ import type {
 } from "./types";
 
 const VIEW_LABELS: Record<SheetViewKind, string> = {
-  top: "PLAN",
-  front: "FRONT ELEV.",
-  side: "SIDE ELEV.",
-  section: "SECTION",
-  detail: "DETAIL",
-  report: "REPORT",
+  top: viewSheetLabel("top"),
+  front: viewSheetLabel("front"),
+  side: viewSheetLabel("side"),
+  section: viewSheetLabel("section"),
+  detail: viewSheetLabel("detail"),
+  report: viewSheetLabel("report"),
 };
 
 function catalogView(id: DrawingSheetId): SheetViewKind {

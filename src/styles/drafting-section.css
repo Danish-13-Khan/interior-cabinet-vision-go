@@ -28,6 +28,58 @@
   letter-spacing: 0.04em;
 }
 
+.technical-view .twod-section-bubble {
+  fill: #ffffff;
+  stroke: var(--draft-cut);
+  stroke-width: 1.2px;
+}
+
+.technical-view .twod-section-bubble-rule {
+  stroke: var(--draft-cut);
+  stroke-width: 0.8px;
+  fill: none;
+}
+
+.technical-view .twod-section-bubble-text {
+  fill: var(--draft-cut);
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  stroke: none;
+}
+
+.technical-view .twod-elev-mark {
+  fill: var(--draft-cut);
+  stroke: none;
+}
+
+.technical-view .twod-elev-mark-text {
+  fill: #f8fafc;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  stroke: none;
+}
+
+.technical-view .twod-filler-mark {
+  fill: #eef2f6;
+  stroke: var(--draft-run);
+  stroke-width: 0.85px;
+}
+
+.technical-view .twod-filler-mark-text {
+  fill: var(--draft-run);
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  stroke: none;
+}
+
+.technical-view .twod-run-marker {
+  fill: var(--draft-run);
+  stroke: none;
+}
+
+.technical-view .twod-run-marker-text {
+  fill: #f8fafc;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  stroke: none;
+}
+
 .technical-view .twod-section-hatch {
   stroke: var(--draft-hatch);
   stroke-width: 0.5px;

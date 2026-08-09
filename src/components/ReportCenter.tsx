@@ -67,7 +67,7 @@ const TABS = [
   ["schedule", "Schedule"],
   ["runs", "Runs"],
   ["materials", "Materials"],
-  ["optimize", "Optimize"],
+  ["optimize", "Nesting"],
   ["hardware", "Hardware"],
   ["cutlist", "Cutlist"],
   ["machining", "Machining"],
