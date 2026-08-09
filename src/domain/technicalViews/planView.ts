@@ -22,7 +22,8 @@ import {
   overallSpanHorizontal,
   overallSpanVertical,
 } from "./dimGraphics";
-import { chainLaneX, chainLaneY, overallDimX, overallDimY } from "./dimLayout";
+import { createDimLaneAllocator } from "./dimLayout";
+import { resolveDimVisibility } from "./dimVisibility";
 import { planOpeningsGraphics, planRoomOutline } from "./planGraphics";
 import { runDraftingOptionsFromDisplay } from "./runDraftingOptions";
 import {
@@ -51,6 +52,8 @@ export function topView(
   const rd = room.dimensions.depthMm;
   const showChains = options.showDimensionChains !== false;
   const display = resolveDisplay(options);
+  const dimVis = resolveDimVisibility(display, "top");
+  const lanes = createDimLaneAllocator();
   const runLaneCount = (options.runs ?? []).filter((run) => run.cabinetIds.length >= 2).length;
   const frame = computeSheetFrame({
     spanMm: rw,
@@ -149,46 +152,48 @@ export function topView(
     elements.push(...snapGuideLines(options.snapGuides, ox, oy, rw, rd, "top"));
   }
 
-  elements.push(...selectedPlanDimensions(project.cabinets, ox, oy, options));
+  if (dimVis.selected) {
+    elements.push(...selectedPlanDimensions(project.cabinets, ox, oy, options));
+  }
 
   const roomTop = oy - rd / SCALE / 2;
   const roomBottom = oy + rd / SCALE / 2;
   const roomLeft = ox - rw / SCALE / 2;
   const roomRight = ox + rw / SCALE / 2;
-  const topDimY = overallDimY(roomTop, "above");
-  const leftDimX = overallDimX(roomLeft, "left");
 
-  elements.push(
-    ...overallSpanHorizontal(
-      roomLeft,
-      roomRight,
-      topDimY,
-      dimensionLabel(rw),
-      roomTop,
-      "overall",
-      resolveDimOpts(
-        options.drafting ?? project.drafting,
-        "plan-overall-w",
-        options.activeDraftObjectId,
+  if (dimVis.overall) {
+    elements.push(
+      ...overallSpanHorizontal(
+        roomLeft,
+        roomRight,
+        lanes.overallY(roomTop, "above"),
+        dimensionLabel(rw),
+        roomTop,
+        "overall",
+        resolveDimOpts(
+          options.drafting ?? project.drafting,
+          "plan-overall-w",
+          options.activeDraftObjectId,
+        ),
       ),
-    ),
-    ...overallSpanVertical(
-      roomTop,
-      roomBottom,
-      leftDimX,
-      dimensionLabel(rd),
-      roomLeft,
-      "overall",
-      "end",
-      resolveDimOpts(
-        options.drafting ?? project.drafting,
-        "plan-overall-d",
-        options.activeDraftObjectId,
+      ...overallSpanVertical(
+        roomTop,
+        roomBottom,
+        lanes.overallX(roomLeft, "left"),
+        dimensionLabel(rd),
+        roomLeft,
+        "overall",
+        "end",
+        resolveDimOpts(
+          options.drafting ?? project.drafting,
+          "plan-overall-d",
+          options.activeDraftObjectId,
+        ),
       ),
-    ),
-  );
+    );
+  }
 
-  if (showChains && display.showDimensionChains && project.cabinets.length > 0) {
+  if (showChains && dimVis.chain && project.cabinets.length > 0) {
     const minSeg = display.dimMinSegmentMm;
     const drafting = options.drafting ?? project.drafting;
     const widthChain = filterDimensionChain(
@@ -200,7 +205,7 @@ export function topView(
         widthChain.positions,
         widthChain.labels,
         ox,
-        chainLaneY(roomBottom, 0),
+        lanes.chainY(roomBottom, "below"),
         "chain",
         roomBottom,
         resolveDimOpts(drafting, "plan-chain-w", options.activeDraftObjectId),
@@ -215,7 +220,7 @@ export function topView(
       ...dimensionChainPlanDepth(
         depthChain.positions,
         depthChain.labels,
-        chainLaneX(roomRight, 0),
+        lanes.chainX(roomRight, "right"),
         oy,
         "chain",
         roomRight,
@@ -223,39 +228,38 @@ export function topView(
       ),
     );
 
-    let runOffset = 0;
-    for (const run of options.runs ?? []) {
-      if (run.cabinetIds.length < 2) continue;
-      const chain = collectRunDimensionChain(run, project.cabinets);
-      if (!chain) continue;
-      const filtered = filterDimensionChain(chain, minSeg);
-      const runDimId = `plan-run-${run.id}`;
-      if (run.axis === "x") {
-        elements.push(
-          ...dimensionChainHorizontal(
-            filtered.positions,
-            filtered.labels,
-            ox,
-            chainLaneY(roomBottom, 1 + runOffset),
-            "run",
-            roomBottom,
-            resolveDimOpts(drafting, runDimId, options.activeDraftObjectId),
-          ),
-        );
-        runOffset += 1;
-      } else {
-        elements.push(
-          ...dimensionChainPlanDepth(
-            filtered.positions,
-            filtered.labels,
-            chainLaneX(roomRight, 1 + runOffset),
-            oy,
-            "run",
-            roomRight,
-            resolveDimOpts(drafting, runDimId, options.activeDraftObjectId),
-          ),
-        );
-        runOffset += 1;
+    if (dimVis.run) {
+      for (const run of options.runs ?? []) {
+        if (run.cabinetIds.length < 2) continue;
+        const chain = collectRunDimensionChain(run, project.cabinets);
+        if (!chain) continue;
+        const filtered = filterDimensionChain(chain, minSeg);
+        const runDimId = `plan-run-${run.id}`;
+        if (run.axis === "x") {
+          elements.push(
+            ...dimensionChainHorizontal(
+              filtered.positions,
+              filtered.labels,
+              ox,
+              lanes.runY(roomBottom, "below"),
+              "run",
+              roomBottom,
+              resolveDimOpts(drafting, runDimId, options.activeDraftObjectId),
+            ),
+          );
+        } else {
+          elements.push(
+            ...dimensionChainPlanDepth(
+              filtered.positions,
+              filtered.labels,
+              lanes.runX(roomRight, "right"),
+              oy,
+              "run",
+              roomRight,
+              resolveDimOpts(drafting, runDimId, options.activeDraftObjectId),
+            ),
+          );
+        }
       }
     }
   }
