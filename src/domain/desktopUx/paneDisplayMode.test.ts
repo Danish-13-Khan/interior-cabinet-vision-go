@@ -27,9 +27,19 @@ describe("paneDisplayMode", () => {
     expect(prefs.showRunLabels).toBe(false);
   });
 
-  it("clean mode drops dimensions and construction overlays", () => {
+  it("dims mode emphasizes authored dimension kinds", () => {
+    const prefs = displayPrefsForMode("dims", DEFAULT_DRAFTING_DISPLAY);
+    expect(prefs.showDimensionChains).toBe(true);
+    expect(prefs.showOverallDims).toBe(true);
+    expect(prefs.showOpeningDims).toBe(true);
+    expect(prefs.showCabinetTags).toBe(false);
+  });
+
+  it("clean mode drops dimension kinds", () => {
     const prefs = displayPrefsForMode("clean", DEFAULT_DRAFTING_DISPLAY);
     expect(prefs.showDimensionChains).toBe(false);
+    expect(prefs.showOverallDims).toBe(false);
+    expect(prefs.showSelectedDims).toBe(false);
     expect(prefs.showFillers).toBe(false);
     expect(prefs.showCountertopSpans).toBe(false);
     expect(prefs.showCabinetTags).toBe(true);

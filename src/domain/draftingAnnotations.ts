@@ -46,6 +46,11 @@ export type DraftingDisplayPreferences = {
   showOpeningTags: boolean;
   showApplianceTags: boolean;
   showDimensionChains: boolean;
+  showOverallDims: boolean;
+  showSelectedDims: boolean;
+  showOpeningDims: boolean;
+  showRunDims: boolean;
+  showClearanceDims: boolean;
   showWallLabels: boolean;
   showRunBands: boolean;
   showRunLabels: boolean;
@@ -64,6 +69,11 @@ export const DEFAULT_DRAFTING_DISPLAY: DraftingDisplayPreferences = {
   showOpeningTags: true,
   showApplianceTags: true,
   showDimensionChains: true,
+  showOverallDims: true,
+  showSelectedDims: true,
+  showOpeningDims: true,
+  showRunDims: true,
+  showClearanceDims: true,
   showWallLabels: true,
   showRunBands: true,
   showRunLabels: true,
@@ -155,6 +165,11 @@ export function clampDraftingDisplay(
     showOpeningTags: merged.showOpeningTags !== false,
     showApplianceTags: merged.showApplianceTags !== false,
     showDimensionChains: merged.showDimensionChains !== false,
+    showOverallDims: merged.showOverallDims !== false,
+    showSelectedDims: merged.showSelectedDims !== false,
+    showOpeningDims: merged.showOpeningDims !== false,
+    showRunDims: merged.showRunDims !== false,
+    showClearanceDims: merged.showClearanceDims !== false,
     showWallLabels: merged.showWallLabels !== false,
     showRunBands: merged.showRunBands !== false,
     showRunLabels: merged.showRunLabels !== false,

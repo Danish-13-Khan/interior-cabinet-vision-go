@@ -11,9 +11,12 @@ import {
 } from "./technicalViews/dimGraphics";
 import {
   chainLaneY,
+  createDimLaneAllocator,
   overallDimX,
   overallDimY,
 } from "./technicalViews/dimLayout";
+import { resolveDimVisibility } from "./technicalViews/dimVisibility";
+import { clampDraftingDisplay } from "./draftingAnnotations";
 import { computeSheetFrame, wrapTechnicalSvg } from "./technicalViews/sheetFrame";
 import { createTechnicalView } from "./technicalViews";
 import { getDefaultCabinetConfig, type CabinetProject } from "./cabinetDimensions";
@@ -52,14 +55,34 @@ describe("dimLayout", () => {
     expect(overallDimX(50, "left")).toBe(50 - DIM_OVERALL_OFFSET);
     expect(chainLaneY(200, 1)).toBe(200 + DIM_CHAIN_OFFSET + DIM_RUN_CHAIN_STEP);
   });
+
+  it("allocates stacked lanes without colliding overall and chain", () => {
+    const lanes = createDimLaneAllocator();
+    const overall = lanes.overallY(100, "below");
+    const chain = lanes.chainY(100, "below");
+    const run = lanes.runY(100, "below");
+    expect(overall).toBe(100 + DIM_OVERALL_OFFSET);
+    expect(chain).toBeGreaterThan(overall);
+    expect(run).toBeGreaterThan(chain);
+  });
 });
 
 describe("dimGraphics", () => {
-  it("emits extension and witness classes on chains", () => {
-    const svg = dimensionChainHorizontal([-900, 0, 900], ["900", "900"], 200, 120, "chain", 100).join("");
+  it("emits extension, witness, arrow, and grip classes on chains", () => {
+    const svg = dimensionChainHorizontal(
+      [-900, 0, 900],
+      ["900", "900"],
+      200,
+      120,
+      "chain",
+      100,
+      { dimId: "plan-chain-w" },
+    ).join("");
     expect(svg).toContain('data-dim="chain"');
     expect(svg).toContain("twod-dim-ext");
     expect(svg).toContain("twod-dim-witness");
+    expect(svg).toContain("twod-dim-arrow");
+    expect(svg).toContain("twod-dim-grip");
     expect(svg).toContain("900 mm");
   });
 
@@ -121,5 +144,32 @@ describe("technical view drafting fidelity", () => {
     expect(view.svg).toContain("twod-titleblock");
     expect(view.svg).toContain('data-mode="print"');
     expect(view.svg).toContain("FRONT ELEV.");
+  });
+});
+
+describe("dimVisibility", () => {
+  it("gates overall, chain, opening, and selected kinds per view", () => {
+    const full = resolveDimVisibility(clampDraftingDisplay({}), "front");
+    expect(full.overall).toBe(true);
+    expect(full.chain).toBe(true);
+    expect(full.opening).toBe(true);
+    expect(full.selected).toBe(true);
+
+    const clean = resolveDimVisibility(
+      clampDraftingDisplay({
+        showOverallDims: false,
+        showDimensionChains: false,
+        showOpeningDims: false,
+        showSelectedDims: false,
+      }),
+      "front",
+    );
+    expect(clean.overall).toBe(false);
+    expect(clean.chain).toBe(false);
+    expect(clean.opening).toBe(false);
+
+    const plan = resolveDimVisibility(clampDraftingDisplay({}), "top");
+    expect(plan.opening).toBe(false);
+    expect(plan.run).toBe(true);
   });
 });

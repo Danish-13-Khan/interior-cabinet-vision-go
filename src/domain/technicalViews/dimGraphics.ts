@@ -1,47 +1,19 @@
 import { SCALE } from "./constants";
+import { dimLabelGap } from "./dimLayout";
+import type { DimKind, DimRenderOptions } from "./dimGraphicsTypes";
 import {
-  dimExtLen,
-  dimLabelGap,
-  dimTickHalf,
-} from "./dimLayout";
-import { line, text } from "./svgPrimitives";
+  dimArrow,
+  dimClass,
+  dimEndTick,
+  dimGrip,
+  dimHitAttrs,
+  dimLabelText,
+  labelBandWidth,
+  witnessToEdge,
+} from "./dimMarks";
+import { line } from "./svgPrimitives";
 
-export type DimKind = "overall" | "chain" | "run" | "selected" | "clearance";
-
-export type DimRenderOptions = {
-  dimId?: string;
-  dx?: number;
-  dy?: number;
-  selected?: boolean;
-};
-
-function dimClass(kind: DimKind, extra = "") {
-  const base =
-    kind === "overall"
-      ? "twod-dim twod-dim-overall"
-      : kind === "run"
-        ? "twod-dim twod-dim-run"
-        : kind === "selected"
-          ? "twod-dim twod-dim-selected"
-          : kind === "clearance"
-            ? "twod-dim twod-wall-clearance"
-            : "twod-dim twod-dim-chain";
-  return `${base}${extra ? ` ${extra}` : ""}`;
-}
-
-function dimHitAttrs(
-  kind: DimKind,
-  opts: DimRenderOptions | undefined,
-  cursor: "ns-resize" | "ew-resize",
-  extra = "",
-) {
-  const selected = opts?.selected ? " is-selected" : "";
-  const axis = cursor === "ew-resize" ? "x" : "y";
-  const idAttr = opts?.dimId
-    ? ` data-dim-id="${opts.dimId}" data-draft-object="dim" data-dim="${kind}" data-dim-axis="${axis}"`
-    : ` data-dim="${kind}" data-dim-axis="${axis}"`;
-  return `class="${dimClass(kind, extra)}${selected}"${idAttr} style="cursor:${cursor}"`;
-}
+export type { DimKind, DimRenderOptions } from "./dimGraphicsTypes";
 
 export function dimTick(
   x: number,
@@ -50,60 +22,79 @@ export function dimTick(
   kind: DimKind = "chain",
   opts?: DimRenderOptions,
 ) {
-  const half = dimTickHalf();
-  const cursor = horizontal ? "ns-resize" : "ew-resize";
-  if (horizontal) {
-    return line(
-      x,
-      y - half,
-      x,
-      y + half,
-      dimHitAttrs(kind, opts, cursor, "twod-dim-witness"),
-    );
-  }
-  return line(
-    x - half,
-    y,
-    x + half,
-    y,
-    dimHitAttrs(kind, opts, cursor, "twod-dim-witness"),
-  );
+  return dimEndTick(x, y, horizontal, kind, opts);
 }
 
-function extensionPairHorizontal(
-  x: number,
-  dimY: number,
-  towardY: number,
-  kind: DimKind,
-  opts?: DimRenderOptions,
-) {
-  const ext = dimExtLen();
-  const dir = towardY < dimY ? -1 : 1;
-  return line(
-    x,
-    dimY,
-    x,
-    dimY + dir * ext,
-    dimHitAttrs(kind, opts, "ns-resize", "twod-dim-ext"),
-  );
-}
-
-function extensionPairVertical(
+function splitHorizontalDimLine(
+  x0: number,
+  x1: number,
   y: number,
-  dimX: number,
-  towardX: number,
+  label: string,
   kind: DimKind,
   opts?: DimRenderOptions,
 ) {
-  const ext = dimExtLen();
-  const dir = towardX < dimX ? -1 : 1;
-  return line(
-    dimX,
-    y,
-    dimX + dir * ext,
-    y,
-    dimHitAttrs(kind, opts, "ew-resize", "twod-dim-ext"),
-  );
+  const mid = (x0 + x1) / 2;
+  const gap = labelBandWidth(`${label} mm`) / 2;
+  const leftEnd = mid - gap;
+  const rightStart = mid + gap;
+  const elements: string[] = [];
+  if (leftEnd > x0 + 2) {
+    elements.push(line(x0, y, leftEnd, y, dimHitAttrs(kind, opts, "ns-resize")));
+  }
+  if (x1 > rightStart + 2) {
+    elements.push(line(rightStart, y, x1, y, dimHitAttrs(kind, opts, "ns-resize")));
+  }
+  if (elements.length === 0) {
+    elements.push(line(x0, y, x1, y, dimHitAttrs(kind, opts, "ns-resize")));
+  }
+  return elements;
+}
+
+function splitVerticalDimLine(
+  y0: number,
+  y1: number,
+  x: number,
+  label: string,
+  kind: DimKind,
+  opts?: DimRenderOptions,
+) {
+  const gap = labelBandWidth(`${label} mm`) / 2;
+  const topEnd = Math.min(y0, y1) + gap;
+  const bottomStart = Math.max(y0, y1) - gap;
+  const lo = Math.min(y0, y1);
+  const hi = Math.max(y0, y1);
+  const elements: string[] = [];
+  if (topEnd > lo + 2) {
+    elements.push(line(x, lo, x, topEnd, dimHitAttrs(kind, opts, "ew-resize")));
+  }
+  if (hi > bottomStart + 2) {
+    elements.push(line(x, bottomStart, x, hi, dimHitAttrs(kind, opts, "ew-resize")));
+  }
+  if (elements.length === 0) {
+    elements.push(line(x, y0, x, y1, dimHitAttrs(kind, opts, "ew-resize")));
+  }
+  return elements;
+}
+
+function hitLane(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  kind: DimKind,
+  opts: DimRenderOptions | undefined,
+  cursor: "ns-resize" | "ew-resize",
+) {
+  if (!opts?.dimId) return [];
+  return [
+    line(
+      x0,
+      y0,
+      x1,
+      y1,
+      `${dimHitAttrs(kind, opts, cursor, "twod-dim-hit")} stroke-width="12" opacity="0"`,
+    ),
+  ];
 }
 
 export function dimensionChainHorizontal(
@@ -124,36 +115,33 @@ export function dimensionChainHorizontal(
   const edgeY = (geometryEdgeY ?? y - 8) + (opts?.dy ?? 0);
 
   elements.push(
-    line(x0, dimY, x1, dimY, dimHitAttrs(kind, opts, "ns-resize")),
+    ...splitHorizontalDimLine(x0, x1, dimY, labels.join("+") || "0", kind, opts),
   );
-  // Wider invisible hit lane
-  if (opts?.dimId) {
-    elements.push(
-      line(
-        x0,
-        dimY,
-        x1,
-        dimY,
-        `${dimHitAttrs(kind, opts, "ns-resize", "twod-dim-hit")} stroke-width="10" opacity="0"`,
-      ),
-    );
-  }
+  elements.push(...hitLane(x0, dimY, x1, dimY, kind, opts, "ns-resize"));
+  elements.push(dimGrip((x0 + x1) / 2, dimY, kind, opts));
 
   for (let index = 0; index < positionsMm.length; index += 1) {
     const x = ox + positionsMm[index]! / SCALE + (opts?.dx ?? 0);
-    elements.push(extensionPairHorizontal(x, dimY, edgeY, kind, opts));
-    elements.push(dimTick(x, dimY, true, kind, opts));
+    elements.push(witnessToEdge(x, dimY, edgeY, true, kind, opts));
+    elements.push(dimEndTick(x, dimY, true, kind, opts));
+    if (index === 0) {
+      elements.push(dimArrow(x, dimY, true, true, kind, opts));
+    }
+    if (index === positionsMm.length - 1) {
+      elements.push(dimArrow(x, dimY, true, false, kind, opts));
+    }
     if (index < labels.length) {
       const mid =
         ox +
         (positionsMm[index]! + positionsMm[index + 1]!) / 2 / SCALE +
         (opts?.dx ?? 0);
       elements.push(
-        text(
+        dimLabelText(
           mid,
           dimY - dimLabelGap(),
-          `${labels[index]} mm`,
-          `class="twod-annotation ${dimClass(kind)}" data-dim="${kind}" font-size="7" text-anchor="middle" pointer-events="none"`,
+          labels[index]!,
+          kind,
+          `font-size="7" text-anchor="middle" pointer-events="none"`,
         ),
       );
     }
@@ -183,32 +171,32 @@ export function dimensionChainVertical(
   const y1 = toSvgY(positionsMm[positionsMm.length - 1]!);
   const edgeX = (geometryEdgeX ?? x - 8) + (opts?.dx ?? 0);
 
-  elements.push(line(dimX, y0, dimX, y1, dimHitAttrs(kind, opts, "ew-resize")));
-  if (opts?.dimId) {
-    elements.push(
-      line(
-        dimX,
-        y0,
-        dimX,
-        y1,
-        `${dimHitAttrs(kind, opts, "ew-resize", "twod-dim-hit")} stroke-width="10" opacity="0"`,
-      ),
-    );
-  }
+  elements.push(
+    ...splitVerticalDimLine(y0, y1, dimX, labels.join("+") || "0", kind, opts),
+  );
+  elements.push(...hitLane(dimX, y0, dimX, y1, kind, opts, "ew-resize"));
+  elements.push(dimGrip(dimX, (y0 + y1) / 2, kind, opts));
 
   for (let index = 0; index < positionsMm.length; index += 1) {
     const y = toSvgY(positionsMm[index]!);
-    elements.push(extensionPairVertical(y, dimX, edgeX, kind, opts));
-    elements.push(dimTick(dimX, y, false, kind, opts));
+    elements.push(witnessToEdge(y, dimX, edgeX, false, kind, opts));
+    elements.push(dimEndTick(dimX, y, false, kind, opts));
+    if (index === 0) {
+      elements.push(dimArrow(dimX, y, false, positionsMm[0]! < positionsMm.at(-1)!, kind, opts));
+    }
+    if (index === positionsMm.length - 1) {
+      elements.push(dimArrow(dimX, y, false, positionsMm[0]! > positionsMm.at(-1)!, kind, opts));
+    }
     if (index < labels.length) {
       const mid =
         (toSvgY(positionsMm[index]!) + toSvgY(positionsMm[index + 1]!)) / 2;
       elements.push(
-        text(
+        dimLabelText(
           dimX - dimLabelGap(),
           mid + 2.5,
-          `${labels[index]} mm`,
-          `class="twod-annotation ${dimClass(kind)}" data-dim="${kind}" font-size="7" text-anchor="end" pointer-events="none"`,
+          labels[index]!,
+          kind,
+          `font-size="7" text-anchor="end" pointer-events="none"`,
         ),
       );
     }
@@ -233,31 +221,31 @@ export function dimensionChainPlanDepth(
   const z0 = oy + positionsMm[0]! / SCALE + (opts?.dy ?? 0);
   const z1 = oy + positionsMm[positionsMm.length - 1]! / SCALE + (opts?.dy ?? 0);
   const edgeX = (geometryEdgeX ?? chainX - 8) + (opts?.dx ?? 0);
-  elements.push(line(dimX, z0, dimX, z1, dimHitAttrs(kind, opts, "ew-resize")));
-  if (opts?.dimId) {
-    elements.push(
-      line(
-        dimX,
-        z0,
-        dimX,
-        z1,
-        `${dimHitAttrs(kind, opts, "ew-resize", "twod-dim-hit")} stroke-width="10" opacity="0"`,
-      ),
-    );
-  }
+  elements.push(
+    ...splitVerticalDimLine(z0, z1, dimX, labels.join("+") || "0", kind, opts),
+  );
+  elements.push(...hitLane(dimX, z0, dimX, z1, kind, opts, "ew-resize"));
+  elements.push(dimGrip(dimX, (z0 + z1) / 2, kind, opts));
   for (let index = 0; index < positionsMm.length; index += 1) {
     const z = oy + positionsMm[index]! / SCALE + (opts?.dy ?? 0);
-    elements.push(extensionPairVertical(z, dimX, edgeX, kind, opts));
-    elements.push(dimTick(dimX, z, false, kind, opts));
+    elements.push(witnessToEdge(z, dimX, edgeX, false, kind, opts));
+    elements.push(dimEndTick(dimX, z, false, kind, opts));
+    if (index === 0) elements.push(dimArrow(dimX, z, false, true, kind, opts));
+    if (index === positionsMm.length - 1) {
+      elements.push(dimArrow(dimX, z, false, false, kind, opts));
+    }
     if (index < labels.length) {
       const mid =
-        oy + (positionsMm[index]! + positionsMm[index + 1]!) / 2 / SCALE + (opts?.dy ?? 0);
+        oy +
+        (positionsMm[index]! + positionsMm[index + 1]!) / 2 / SCALE +
+        (opts?.dy ?? 0);
       elements.push(
-        text(
+        dimLabelText(
           dimX + dimLabelGap(),
           mid + 2.5,
-          `${labels[index]} mm`,
-          `class="twod-annotation ${dimClass(kind)}" data-dim="${kind}" font-size="6.5" text-anchor="start" pointer-events="none"`,
+          labels[index]!,
+          kind,
+          `font-size="6.5" text-anchor="start" pointer-events="none"`,
         ),
       );
     }
@@ -265,7 +253,7 @@ export function dimensionChainPlanDepth(
   return elements;
 }
 
-/** Single overall span with extensions + ticks (SVG coords). */
+/** Single overall span with witnesses, arrows, and grip. */
 export function overallSpanHorizontal(
   x0: number,
   x1: number,
@@ -277,29 +265,26 @@ export function overallSpanHorizontal(
 ) {
   const y = dimY + (opts?.dy ?? 0);
   const dx = opts?.dx ?? 0;
-  const labelAbove = y <= edgeY + (opts?.dy ?? 0);
+  const a = x0 + dx;
+  const b = x1 + dx;
+  const edge = edgeY + (opts?.dy ?? 0);
+  const labelAbove = y <= edge;
   return [
-    line(x0 + dx, y, x1 + dx, y, dimHitAttrs(kind, opts, "ns-resize")),
-    ...(opts?.dimId
-      ? [
-          line(
-            x0 + dx,
-            y,
-            x1 + dx,
-            y,
-            `${dimHitAttrs(kind, opts, "ns-resize", "twod-dim-hit")} stroke-width="10" opacity="0"`,
-          ),
-        ]
-      : []),
-    extensionPairHorizontal(x0 + dx, y, edgeY + (opts?.dy ?? 0), kind, opts),
-    extensionPairHorizontal(x1 + dx, y, edgeY + (opts?.dy ?? 0), kind, opts),
-    dimTick(x0 + dx, y, true, kind, opts),
-    dimTick(x1 + dx, y, true, kind, opts),
-    text(
-      (x0 + x1) / 2 + dx,
+    ...splitHorizontalDimLine(a, b, y, labelMm, kind, opts),
+    ...hitLane(a, y, b, y, kind, opts, "ns-resize"),
+    dimGrip((a + b) / 2, y, kind, opts),
+    witnessToEdge(a, y, edge, true, kind, opts),
+    witnessToEdge(b, y, edge, true, kind, opts),
+    dimEndTick(a, y, true, kind, opts),
+    dimEndTick(b, y, true, kind, opts),
+    dimArrow(a, y, true, true, kind, opts),
+    dimArrow(b, y, true, false, kind, opts),
+    dimLabelText(
+      (a + b) / 2,
       labelAbove ? y - dimLabelGap() : y + dimLabelGap() + 6,
-      `${labelMm} mm`,
-      `class="twod-annotation ${dimClass(kind)}" data-dim="${kind}" font-size="8" text-anchor="middle" pointer-events="none"`,
+      labelMm,
+      kind,
+      `font-size="8" text-anchor="middle" pointer-events="none"`,
     ),
   ];
 }
@@ -316,30 +301,29 @@ export function overallSpanVertical(
 ) {
   const x = dimX + (opts?.dx ?? 0);
   const dy = opts?.dy ?? 0;
+  const a = y0 + dy;
+  const b = y1 + dy;
+  const edge = edgeX + (opts?.dx ?? 0);
   const labelX =
     labelAnchor === "end" ? x - dimLabelGap() : x + dimLabelGap();
   return [
-    line(x, y0 + dy, x, y1 + dy, dimHitAttrs(kind, opts, "ew-resize")),
-    ...(opts?.dimId
-      ? [
-          line(
-            x,
-            y0 + dy,
-            x,
-            y1 + dy,
-            `${dimHitAttrs(kind, opts, "ew-resize", "twod-dim-hit")} stroke-width="10" opacity="0"`,
-          ),
-        ]
-      : []),
-    extensionPairVertical(y0 + dy, x, edgeX + (opts?.dx ?? 0), kind, opts),
-    extensionPairVertical(y1 + dy, x, edgeX + (opts?.dx ?? 0), kind, opts),
-    dimTick(x, y0 + dy, false, kind, opts),
-    dimTick(x, y1 + dy, false, kind, opts),
-    text(
+    ...splitVerticalDimLine(a, b, x, labelMm, kind, opts),
+    ...hitLane(x, a, x, b, kind, opts, "ew-resize"),
+    dimGrip(x, (a + b) / 2, kind, opts),
+    witnessToEdge(a, x, edge, false, kind, opts),
+    witnessToEdge(b, x, edge, false, kind, opts),
+    dimEndTick(x, a, false, kind, opts),
+    dimEndTick(x, b, false, kind, opts),
+    dimArrow(x, a, false, a > b, kind, opts),
+    dimArrow(x, b, false, b > a, kind, opts),
+    dimLabelText(
       labelX,
-      (y0 + y1) / 2 + 2.5 + dy,
-      `${labelMm} mm`,
-      `class="twod-annotation ${dimClass(kind)}" data-dim="${kind}" font-size="8" text-anchor="${labelAnchor}" pointer-events="none"`,
+      (a + b) / 2 + 2.5,
+      labelMm,
+      kind,
+      `font-size="8" text-anchor="${labelAnchor}" pointer-events="none"`,
     ),
   ];
 }
+
+export { dimClass };

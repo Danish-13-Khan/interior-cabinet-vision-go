@@ -26,6 +26,11 @@ export type TechnicalViewOptions = {
   mode?: "interactive" | "print";
   showGrid?: boolean;
   showDimensionChains?: boolean;
+  showOverallDims?: boolean;
+  showSelectedDims?: boolean;
+  showOpeningDims?: boolean;
+  showRunDims?: boolean;
+  showClearanceDims?: boolean;
   showWallLabels?: boolean;
   showRunBands?: boolean;
   showRunLabels?: boolean;

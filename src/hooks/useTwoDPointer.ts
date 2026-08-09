@@ -52,7 +52,8 @@ type CabinetDrag = {
 type DimDrag = {
   kind: "dim";
   id: string;
-  axis: "x" | "y";
+  axis: "x" | "y" | "both";
+  freeAxis: boolean;
   pointerId: number;
   startClientX: number;
   startClientY: number;
@@ -206,13 +207,15 @@ export function useTwoDPointer({
       const drafting = clampProjectDrafting(project.drafting);
       const origin = getDimOffset(drafting.dimOffsets, dimId);
       const axisAttr = dimNode?.getAttribute("data-dim-axis");
-      const axis = axisAttr === "x" ? "x" : "y";
+      const axis =
+        axisAttr === "x" ? "x" : axisAttr === "both" ? "both" : "y";
       onSelectDraftObject?.({ kind: "dim", id: dimId });
       onSelectCabinet?.(null, false);
       dragRef.current = {
         kind: "dim",
         id: dimId,
         axis,
+        freeAxis: event.shiftKey || axisAttr === "both",
         pointerId: event.pointerId,
         startClientX: event.clientX,
         startClientY: event.clientY,
@@ -321,10 +324,11 @@ export function useTwoDPointer({
         drag.startClientY,
       );
       if (!delta) return;
+      const free = drag.freeAxis || drag.axis === "both" || event.shiftKey;
       onUpsertDimOffset(
         drag.id,
-        drag.axis === "x" ? drag.originDx + delta.dx : drag.originDx,
-        drag.axis === "y" ? drag.originDy + delta.dy : drag.originDy,
+        free || drag.axis === "x" ? drag.originDx + delta.dx : drag.originDx,
+        free || drag.axis === "y" ? drag.originDy + delta.dy : drag.originDy,
       );
       return;
     }

@@ -23,7 +23,8 @@ import {
   overallSpanHorizontal,
   overallSpanVertical,
 } from "./dimGraphics";
-import { chainLaneX, chainLaneY, overallDimX, overallDimY } from "./dimLayout";
+import { createDimLaneAllocator } from "./dimLayout";
+import { resolveDimVisibility } from "./dimVisibility";
 import {
   elevationOpeningsGraphics,
   elevationRoomShell,
@@ -44,6 +45,7 @@ import {
   resolveDisplay,
   selectedElevationDimensions,
   snapGuideLines,
+  openingElevationDimensions,
 } from "./viewLayers";
 
 export function frontView(
@@ -54,12 +56,14 @@ export function frontView(
   const rw = room.dimensions.widthMm;
   const rh = room.dimensions.heightMm;
   const display = resolveDisplay(options);
+  const dimVis = resolveDimVisibility(display, "front");
+  const lanes = createDimLaneAllocator();
   const frame = computeSheetFrame({
     spanMm: rw,
     crossMm: rh,
     mode: options.mode,
-    bottomLanes: display.showDimensionChains ? 40 : 28,
-    sideLanes: display.showDimensionChains ? 32 : 18,
+    bottomLanes: dimVis.chain ? 40 : 28,
+    sideLanes: dimVis.chain ? 32 : 18,
   });
   const { svgWidth, svgHeight, ox, oy } = frame;
   const elements: string[] = [];
@@ -203,44 +207,69 @@ export function frontView(
     elements.push(...snapGuideLines(options.snapGuides, ox, oy, rw, rh, "front"));
   }
 
-  elements.push(...selectedElevationDimensions(visibleCabinets, rh, ox, oy, options, "x"));
+  if (dimVis.selected) {
+    elements.push(
+      ...selectedElevationDimensions(
+        visibleCabinets,
+        rh,
+        ox,
+        oy,
+        options,
+        "x",
+        dimVis.clearance,
+      ),
+    );
+  }
+
+  if (dimVis.opening) {
+    const active =
+      visibleCabinets.find((c) => c.id === options.activeCabinetId) ??
+      visibleCabinets[0];
+    if (active) {
+      elements.push(
+        ...openingElevationDimensions(active, rh, ox, oy, options, "x"),
+      );
+    }
+  }
 
   const roomTop = oy - rh / SCALE / 2;
   const roomBottom = oy + rh / SCALE / 2;
   const roomLeft = ox - rw / SCALE / 2;
   const roomRight = ox + rw / SCALE / 2;
 
-  elements.push(
-    ...overallSpanVertical(
-      roomTop,
-      roomBottom,
-      overallDimX(roomLeft, "left"),
-      dimensionLabel(rh),
-      roomLeft,
-      "overall",
-      "end",
-      resolveDimOpts(
-        options.drafting ?? project.drafting,
-        "front-overall-h",
-        options.activeDraftObjectId,
+  if (dimVis.overall) {
+    elements.push(
+      ...overallSpanVertical(
+        roomTop,
+        roomBottom,
+        lanes.overallX(roomLeft, "left"),
+        dimensionLabel(rh),
+        roomLeft,
+        "overall",
+        "end",
+        resolveDimOpts(
+          options.drafting ?? project.drafting,
+          "front-overall-h",
+          options.activeDraftObjectId,
+        ),
       ),
-    ),
-    ...overallSpanHorizontal(
-      roomLeft,
-      roomRight,
-      overallDimY(roomBottom, "below"),
-      dimensionLabel(rw),
-      roomBottom,
-      "overall",
-      resolveDimOpts(
-        options.drafting ?? project.drafting,
-        "front-overall-w",
-        options.activeDraftObjectId,
+      ...overallSpanHorizontal(
+        roomLeft,
+        roomRight,
+        lanes.overallY(roomBottom, "below"),
+        dimensionLabel(rw),
+        roomBottom,
+        "overall",
+        resolveDimOpts(
+          options.drafting ?? project.drafting,
+          "front-overall-w",
+          options.activeDraftObjectId,
+        ),
       ),
-    ),
-  );
+    );
+  }
 
-  if (display.showDimensionChains && visibleCabinets.length > 0) {
+  if (dimVis.chain && visibleCabinets.length > 0) {
     const minSeg = display.dimMinSegmentMm;
     const drafting = options.drafting ?? project.drafting;
     const horizontal = filterDimensionChain(
@@ -252,7 +281,7 @@ export function frontView(
         horizontal.positions,
         horizontal.labels,
         ox,
-        chainLaneY(roomBottom, 0),
+        lanes.chainY(roomBottom, "below"),
         "chain",
         roomBottom,
         resolveDimOpts(drafting, "front-chain-w", options.activeDraftObjectId),
@@ -267,7 +296,7 @@ export function frontView(
       ...dimensionChainVertical(
         vertical.positions,
         vertical.labels,
-        chainLaneX(roomRight, 0),
+        lanes.chainX(roomRight, "right"),
         oy,
         rh,
         "chain",

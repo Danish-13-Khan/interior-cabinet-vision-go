@@ -233,6 +233,51 @@
   opacity: 0.95;
 }
 
+.technical-view .twod-dim-opening {
+  stroke: var(--draft-cut);
+  stroke-width: 1px;
+  fill: none;
+}
+
+.technical-view .twod-dim-arrow {
+  fill: var(--draft-dim);
+  stroke: none;
+}
+
+.technical-view .twod-dim-overall.twod-dim-arrow {
+  fill: var(--draft-dim);
+}
+
+.technical-view .twod-dim-chain.twod-dim-arrow,
+.technical-view .twod-dim-run.twod-dim-arrow {
+  fill: var(--draft-dim-secondary);
+}
+
+.technical-view .twod-dim-opening.twod-dim-arrow {
+  fill: var(--draft-cut);
+}
+
+.technical-view .twod-dim-selected.twod-dim-arrow {
+  fill: var(--selection);
+}
+
+.technical-view .twod-dim-witness-line {
+  stroke-width: 0.65px;
+  opacity: 0.8;
+}
+
+.technical-view .twod-dim-grip {
+  fill: var(--panel-raised, #e8edf2);
+  stroke: var(--selection);
+  stroke-width: 1px;
+  opacity: 0.95;
+}
+
+.technical-view .twod-dim-grip.is-selected {
+  fill: var(--accent-soft);
+  stroke: var(--draft-edit, var(--selection));
+}
+
 .technical-view .twod-dim-ext {
   stroke-width: 0.7px;
   opacity: 0.85;

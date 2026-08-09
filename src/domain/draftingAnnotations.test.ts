@@ -109,6 +109,8 @@ describe("drafting annotations", () => {
     expect(display.showRunLabels).toBe(true);
     expect(display.showFillers).toBe(true);
     expect(display.showCountertopSpans).toBe(true);
+    expect(display.showOverallDims).toBe(true);
+    expect(display.showOpeningDims).toBe(true);
     expect(clampDraftingDisplay({ showRunLabels: false }).showRunLabels).toBe(false);
   });
 
