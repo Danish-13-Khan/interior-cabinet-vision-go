@@ -123,11 +123,15 @@ describe("constructionGraphics", () => {
     expect(plan.svg).toContain("twod-door-swing");
     expect(plan.svg).toContain("twod-family-symbol");
     expect(plan.svg).toContain("twod-line-center");
+    expect(plan.svg).toContain("twod-line-interior");
+    expect(plan.svg).toContain("twod-carcass-side");
+    expect(plan.svg).toContain('id="hatch-section"');
 
     const front = createTechnicalView(project, room, "front", [], {
       showElevationDetails: true,
     });
     expect(front.svg).toContain("twod-door-swing");
     expect(front.svg).toContain("twod-ffl-line");
+    expect(front.svg).toContain("twod-hatch-defs");
   });
 });

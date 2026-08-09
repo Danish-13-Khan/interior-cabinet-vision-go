@@ -242,14 +242,14 @@ export function renderOpenShelf(
         sy - shelfThick / 2,
         width - 4 / scale,
         shelfThick,
-        `class="twod-shelf-board" fill="rgba(120,113,108,0.35)" pointer-events="none"`,
+        `class="twod-shelf-board" pointer-events="none"`,
       ),
       line(
         topLeft.x + 2 / scale,
         sy,
         topLeft.x + width - 2 / scale,
         sy,
-        `class="twod-cabinet-opening twod-shelf-line" pointer-events="none"`,
+        `class="twod-cabinet-opening twod-shelf-line twod-line-interior" pointer-events="none"`,
       ),
     );
     // Adjustable shelf pin ticks (hidden convention)

@@ -6,6 +6,7 @@ import {
   SCALE,
   TITLE_BLOCK_HEIGHT,
 } from "./constants";
+import { draftingHatchDefs } from "../constructionGraphics/hatch";
 
 export type SheetFrameInput = {
   spanMm: number;
@@ -55,5 +56,5 @@ export function wrapTechnicalSvg(
   elements: string[],
 ) {
   const mode = frame.print ? "print" : "interactive";
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${frame.svgWidth}" height="${frame.svgHeight}" viewBox="0 0 ${frame.svgWidth} ${frame.svgHeight}" class="twod-draft" data-view="${view}" data-mode="${mode}">${elements.join("")}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${frame.svgWidth}" height="${frame.svgHeight}" viewBox="0 0 ${frame.svgWidth} ${frame.svgHeight}" class="twod-draft" data-view="${view}" data-mode="${mode}">${draftingHatchDefs()}${elements.join("")}</svg>`;
 }

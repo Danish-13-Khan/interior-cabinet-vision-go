@@ -3,35 +3,10 @@ import {
   createCabinetConstruction,
   getConstructionSummary,
 } from "../cabinetConstruction";
+import { hatchFill } from "../constructionGraphics/hatch";
 import { layoutCabinetElevationFace } from "../openingLayout";
 import { SCALE } from "../technicalViews/constants";
 import { line, rect, text } from "../technicalViews/svgPrimitives";
-
-function hatchFill(
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  step = 3.5,
-) {
-  const elements: string[] = [];
-  elements.push(
-    rect(x, y, w, h, `class="twod-section-board" pointer-events="none"`),
-  );
-  const max = w + h;
-  for (let d = -h; d < max; d += step) {
-    const x1 = x + Math.max(0, d);
-    const y1 = y + Math.max(0, -d);
-    const x2 = x + Math.min(w, d + h);
-    const y2 = y + Math.min(h, w - d);
-    if (x2 > x1 && y2 > y1) {
-      elements.push(
-        line(x1, y1, x2, y2, `class="twod-section-hatch" pointer-events="none"`),
-      );
-    }
-  }
-  return elements;
-}
 
 /**
  * True cabinet section cut: depth × height carcass with shelves / toe kick.
@@ -54,7 +29,6 @@ export function cabinetSectionCutGraphics(
   const toe = layout.toeKickHeightMm / scale;
   const emphasize = options.emphasize !== false;
 
-  // Carcass outer
   elements.push(
     rect(
       svgX,
@@ -65,10 +39,7 @@ export function cabinetSectionCutGraphics(
     ),
   );
 
-  // Back panel (left in section looking right)
   elements.push(...hatchFill(svgX, svgY, thick, height - toe));
-
-  // Top / bottom / front rails
   elements.push(...hatchFill(svgX, svgY, depth, thick));
   elements.push(
     ...hatchFill(svgX, svgY + height - thick - toe, depth, thick),
@@ -77,7 +48,6 @@ export function cabinetSectionCutGraphics(
     ...hatchFill(svgX + depth - thick, svgY, thick, height - toe),
   );
 
-  // Toe kick recess
   if (toe > 0.5) {
     const inset = Math.max(thick, (cabinet.config.toeKickInset || 60) / scale);
     elements.push(
@@ -91,7 +61,6 @@ export function cabinetSectionCutGraphics(
     );
   }
 
-  // Interior shelves from opening leaves
   for (const opening of layout.openings) {
     if (opening.contentType === "open-shelf" || opening.shelfCount > 0) {
       const shelves = Math.max(1, opening.shelfCount || 1);
@@ -107,7 +76,7 @@ export function cabinetSectionCutGraphics(
             sy,
             svgX + depth - thick - 1,
             sy,
-            `class="twod-section-shelf" pointer-events="none"`,
+            `class="twod-section-shelf twod-line-interior" pointer-events="none"`,
           ),
         );
       }
@@ -134,7 +103,6 @@ export function cabinetSectionCutGraphics(
     }
   }
 
-  // Front face indicator
   elements.push(
     line(
       svgX + depth,

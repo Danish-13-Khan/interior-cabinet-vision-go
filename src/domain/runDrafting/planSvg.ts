@@ -26,7 +26,7 @@ function endTick(
         y - mark,
         x,
         y + mark,
-        `class="twod-countertop-end" stroke="#3f6212" stroke-width="1.4" pointer-events="none"`,
+        `class="twod-countertop-end" pointer-events="none"`,
       ),
     ];
   }
@@ -36,7 +36,7 @@ function endTick(
       y,
       x + mark,
       y,
-      `class="twod-countertop-end" stroke="#3f6212" stroke-width="1.4" pointer-events="none"`,
+      `class="twod-countertop-end" pointer-events="none"`,
     ),
   ];
 }
@@ -52,7 +52,7 @@ function renderRunBand(bounds: RunPlanBounds, ox: number, oy: number, scale: num
     y,
     width,
     height,
-    `class="twod-run-band" data-run-id="${bounds.runId}" fill="rgba(148,163,184,0.12)" stroke="#64748b" stroke-width="1.2" stroke-dasharray="6 3" pointer-events="none"`,
+    `class="twod-run-band" data-run-id="${bounds.runId}" pointer-events="none"`,
   );
 }
 
@@ -67,13 +67,13 @@ function renderRunLabel(bounds: RunPlanBounds, ox: number, oy: number, scale: nu
       labelX,
       labelY,
       bounds.label,
-      `class="twod-run-label" font-size="8" font-weight="700" fill="#334155" text-anchor="middle" pointer-events="none"`,
+      `class="twod-run-label" font-size="8" font-weight="700" text-anchor="middle" pointer-events="none"`,
     ),
     text(
       labelX,
       labelY + 10,
       lengthNote,
-      `class="twod-run-length" font-size="7" fill="#64748b" text-anchor="middle" pointer-events="none"`,
+      `class="twod-run-length" font-size="7" text-anchor="middle" pointer-events="none"`,
     ),
   ];
 }
@@ -88,20 +88,20 @@ function renderCornerMark(bounds: RunPlanBounds, ox: number, oy: number, scale: 
       cy - 5,
       cx + 5,
       cy + 5,
-      `class="twod-run-corner" stroke="#b45309" stroke-width="1.5" pointer-events="none"`,
+      `class="twod-run-corner" pointer-events="none"`,
     ),
     line(
       cx - 5,
       cy + 5,
       cx + 5,
       cy - 5,
-      `class="twod-run-corner" stroke="#b45309" stroke-width="1.5" pointer-events="none"`,
+      `class="twod-run-corner" pointer-events="none"`,
     ),
     text(
       cx + 8,
       cy + 3,
       "CRN",
-      `class="twod-run-corner-label" font-size="6.5" font-weight="700" fill="#b45309" pointer-events="none"`,
+      `class="twod-run-corner-label" font-size="6.5" font-weight="700" pointer-events="none"`,
     ),
   ];
 }
@@ -147,7 +147,7 @@ export function renderPlanRunDrafting(args: {
             y,
             gap.size.width / scale,
             gap.size.depth / scale,
-            `class="twod-run-filler twod-run-gap" fill="rgba(251,191,36,0.28)" stroke="#b45309" stroke-width="0.95" pointer-events="none"`,
+            `class="twod-run-filler twod-run-gap" pointer-events="none"`,
           ),
         );
         elements.push(
@@ -155,7 +155,7 @@ export function renderPlanRunDrafting(args: {
             x + gap.size.width / scale / 2,
             y + gap.size.depth / scale / 2 + 2,
             `${Math.round(gap.widthMm)}`,
-            `class="twod-annotation twod-run-gap-label" font-size="6.5" fill="#334155" text-anchor="middle" pointer-events="none"`,
+            `class="twod-annotation twod-run-gap-label" font-size="6.5" text-anchor="middle" pointer-events="none"`,
           ),
         );
       }
@@ -172,7 +172,7 @@ export function renderPlanRunDrafting(args: {
           y,
           width,
           depth,
-          `class="twod-run-filler" data-filler-id="${filler.id}" fill="rgba(100,116,139,0.35)" stroke="#334155" stroke-width="1" pointer-events="none"`,
+          `class="twod-run-filler" data-filler-id="${filler.id}" pointer-events="none"`,
         ),
       );
       elements.push(
@@ -180,7 +180,7 @@ export function renderPlanRunDrafting(args: {
           x + width / 2,
           y + depth / 2 + 2,
           `${Math.round(filler.widthMm)}`,
-          `class="twod-annotation twod-run-gap-label" font-size="6.5" fill="#334155" text-anchor="middle" pointer-events="none"`,
+          `class="twod-annotation twod-run-gap-label" font-size="6.5" text-anchor="middle" pointer-events="none"`,
         ),
       );
     }
@@ -198,7 +198,7 @@ export function renderPlanRunDrafting(args: {
           cz - d / 2,
           w,
           d,
-          `class="twod-countertop" data-run-id="${countertop.runId}" fill="none" stroke="#4d7c0f" stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"`,
+          `class="twod-countertop" data-run-id="${countertop.runId}" pointer-events="none"`,
         ),
       );
       const axis = Math.abs(w) >= Math.abs(d) ? "x" : "z";
@@ -211,7 +211,7 @@ export function renderPlanRunDrafting(args: {
           cx,
           cz - d / 2 - 4,
           `CT ${dimensionLabel(countertop.widthMm)}`,
-          `class="twod-countertop-label" font-size="6.5" font-weight="650" fill="#3f6212" text-anchor="middle" pointer-events="none"`,
+          `class="twod-countertop-label" font-size="6.5" font-weight="650" text-anchor="middle" pointer-events="none"`,
         ),
       );
     }

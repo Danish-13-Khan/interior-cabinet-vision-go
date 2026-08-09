@@ -1,0 +1,85 @@
+/* Selection graphics — obvious but controlled */
+
+.technical-view .twod-cabinet.twod-selected {
+  fill: var(--selection-fill);
+  stroke: var(--selection);
+  stroke-width: 1.75px;
+  filter: none;
+}
+
+.technical-view .twod-cabinet.twod-active {
+  fill: var(--selection-active-fill);
+  stroke: var(--selection);
+  stroke-width: 2.05px;
+  filter: none;
+}
+
+.technical-view .twod-cabinet.twod-active.twod-selected {
+  stroke-width: 2.2px;
+}
+
+.technical-view .twod-opening-face.is-active-opening,
+.technical-view .twod-opening-chrome.is-active-opening {
+  stroke: var(--selection);
+  stroke-width: 1.7px;
+}
+
+.technical-view .twod-opening-active-tick {
+  stroke: var(--selection);
+  stroke-width: 1.55px;
+  fill: none;
+}
+
+.technical-view .twod-opening-label.is-active-opening {
+  fill: var(--draft-cut);
+  font-weight: 650;
+}
+
+.technical-view .twod-dim-selected {
+  stroke: var(--selection);
+  stroke-width: 1.15px;
+  opacity: 0.95;
+}
+
+.technical-view .twod-dim.is-selected,
+.technical-view .twod-dim-selected.is-selected {
+  stroke: var(--draft-edit);
+  stroke-width: 1.35px;
+  opacity: 1;
+}
+
+.technical-view .twod-note.is-selected,
+.technical-view .twod-leader-label.is-selected,
+.technical-view .twod-leader-handle.is-selected,
+.technical-view .twod-tag-cabinet.is-selected {
+  stroke: var(--draft-edit);
+  stroke-width: 1.3px;
+  filter: none;
+}
+
+.technical-view .twod-leader.is-selected {
+  stroke: var(--draft-edit);
+  stroke-width: 1.2px;
+}
+
+.technical-view .twod-annotation.twod-dim-selected {
+  fill: var(--selection);
+}
+
+.technical-view .twod-annotation.twod-dim.is-selected,
+.technical-view .twod-annotation.twod-dim-selected.is-selected {
+  fill: var(--draft-edit);
+}
+
+/* Print mode: mute selection chrome */
+.technical-view .twod-draft[data-mode="print"] .twod-cabinet.twod-selected,
+.technical-view .twod-draft[data-mode="print"] .twod-cabinet.twod-active,
+.technical-view .twod-cabinet.twod-print {
+  fill: var(--draft-cabinet-fill);
+  stroke: var(--draft-cabinet);
+  stroke-width: 1.55px;
+}
+
+.technical-view .twod-draft[data-mode="print"] .twod-cabinet-wall.twod-print {
+  fill: var(--draft-cabinet-fill-wall);
+}

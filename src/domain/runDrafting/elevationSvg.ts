@@ -56,7 +56,7 @@ export function renderElevationRunDrafting(args: {
           y,
           width,
           height,
-          `class="twod-run-filler" data-filler-id="${filler.id}" fill="rgba(148,163,184,0.45)" stroke="#475569" stroke-width="1" pointer-events="none"`,
+          `class="twod-run-filler" data-filler-id="${filler.id}" pointer-events="none"`,
         ),
       );
       elements.push(
@@ -64,7 +64,7 @@ export function renderElevationRunDrafting(args: {
           x + width / 2,
           y + height / 2 + 2,
           `${Math.round(filler.widthMm)}`,
-          `class="twod-annotation twod-run-gap-label" font-size="6.5" fill="#334155" text-anchor="middle" pointer-events="none"`,
+          `class="twod-annotation twod-run-gap-label" font-size="6.5" text-anchor="middle" pointer-events="none"`,
         ),
       );
     }
@@ -90,7 +90,7 @@ export function renderElevationRunDrafting(args: {
           baseline,
           x1,
           baseline,
-          `class="twod-run-band twod-run-baseline" stroke="#64748b" stroke-width="1.35" pointer-events="none"`,
+          `class="twod-run-band twod-run-baseline" pointer-events="none"`,
         ),
       );
     }
@@ -101,7 +101,7 @@ export function renderElevationRunDrafting(args: {
           (x0 + x1) / 2,
           baseline + 10,
           `${bounds.shortCode} · ${dimensionLabel(runOverallLengthMm(run, cabinets))} mm`,
-          `class="twod-run-label" font-size="7.5" font-weight="700" fill="#334155" text-anchor="middle" pointer-events="none"`,
+          `class="twod-run-label" font-size="7.5" font-weight="700" text-anchor="middle" pointer-events="none"`,
         ),
       );
       if (bounds.cornerTransition) {
@@ -110,7 +110,7 @@ export function renderElevationRunDrafting(args: {
             x1 + 4,
             baseline + 10,
             "CRN",
-            `class="twod-run-corner-label" font-size="6.5" font-weight="700" fill="#b45309" pointer-events="none"`,
+            `class="twod-run-corner-label" font-size="6.5" font-weight="700" pointer-events="none"`,
           ),
         );
       }
@@ -130,7 +130,7 @@ export function renderElevationRunDrafting(args: {
             ctY,
             ox + ctEnd / scale,
             ctY,
-            `class="twod-countertop twod-countertop-elev" stroke="#4d7c0f" stroke-width="1.6" stroke-dasharray="4 2" pointer-events="none"`,
+            `class="twod-countertop twod-countertop-elev" pointer-events="none"`,
           ),
         );
         elements.push(
@@ -138,7 +138,7 @@ export function renderElevationRunDrafting(args: {
             ox + (ctStart + ctEnd) / 2 / scale,
             ctY - 4,
             `CT ${dimensionLabel(countertop.widthMm)}`,
-            `class="twod-countertop-label" font-size="6.5" fill="#3f6212" text-anchor="middle" pointer-events="none"`,
+            `class="twod-countertop-label" font-size="6.5" text-anchor="middle" pointer-events="none"`,
           ),
         );
       }
