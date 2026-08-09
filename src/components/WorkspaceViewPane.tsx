@@ -7,6 +7,7 @@ type WorkspaceViewPaneProps = {
   maximized: boolean;
   subtitle?: string;
   toolbar?: ReactNode;
+  status?: ReactNode;
   onFocus: () => void;
   onToggleMaximize: () => void;
   children: ReactNode;
@@ -19,6 +20,7 @@ export function WorkspaceViewPane({
   maximized,
   subtitle,
   toolbar,
+  status,
   onFocus,
   onToggleMaximize,
   children,
@@ -37,6 +39,7 @@ export function WorkspaceViewPane({
           onClick={onFocus}
           title={`Focus ${title}`}
         >
+          <span className="workspace-pane-title-mark" aria-hidden />
           <span>{title}</span>
           {subtitle ? <small>{subtitle}</small> : null}
         </button>
@@ -56,6 +59,9 @@ export function WorkspaceViewPane({
         </div>
       </header>
       <div className="workspace-pane-body">{children}</div>
+      {status ? (
+        <footer className="workspace-pane-status">{status}</footer>
+      ) : null}
     </section>
   );
 }

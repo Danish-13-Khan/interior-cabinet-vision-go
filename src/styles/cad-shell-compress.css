@@ -169,9 +169,9 @@
     2px
     minmax(0, calc(100% - var(--split-plan-pct, 50%) - 2px));
   grid-template-rows:
-    minmax(0, var(--split-top-pct, 68%))
+    minmax(0, var(--split-top-pct, 72%))
     2px
-    minmax(0, calc(100% - var(--split-top-pct, 68%) - 2px));
+    minmax(0, calc(100% - var(--split-top-pct, 72%) - 2px));
 }
 
 .workspace-pane {

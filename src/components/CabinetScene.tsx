@@ -108,6 +108,9 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
       setViewPreset(preset: ViewPreset) {
         setViewPreset(preset);
       },
+      fitView() {
+        setFitVersion((prev) => prev + 1);
+      },
     }),
     [],
   );

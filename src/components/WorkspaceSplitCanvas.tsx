@@ -1,19 +1,13 @@
 import { forwardRef, useMemo, useRef, useState } from "react";
-import {
-  CabinetScene,
-  type CabinetSceneHandle,
-} from "./CabinetScene";
-import { DrawingSheetChrome } from "./DrawingSheetChrome";
+import type { CabinetSceneHandle } from "./CabinetScene";
 import { DrawingSheetTabs } from "./DrawingSheetTabs";
 import { ElevationOpeningToolbar } from "./ElevationOpeningToolbar";
 import { TechnicalObjectToolbar } from "./TechnicalObjectToolbar";
-import { TwoDView, type DraftingTool } from "./TwoDView";
-import { WorkspaceViewPane } from "./WorkspaceViewPane";
+import { WorkspaceDrawingPane } from "./WorkspaceDrawingPane";
+import { WorkspaceScenePane } from "./WorkspaceScenePane";
 import { WorkspaceSplitHandle } from "./WorkspaceSplitHandle";
-import {
-  DraftingToolButtons,
-  SceneCameraButtons,
-} from "./WorkspacePaneTools";
+import { DraftingToolButtons } from "./WorkspacePaneTools";
+import type { DraftingTool } from "./TwoDView";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { CabinetDimensions, CabinetPlacement } from "../domain/cabinetDimensions";
 import type { PanelName } from "../domain/cabinetGeometry";
@@ -30,7 +24,6 @@ import type { DrawingSheetId } from "../domain/drawingSheets";
 import { getDrawingSheet } from "../domain/drawingSheets";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
 import { clampJobMeta, formatJobTitle } from "../domain/jobMeta";
-import type { ViewPreset } from "./cabinetScene/types";
 
 type WorkspaceSplitCanvasProps = {
   workspaceTab: WorkspaceTabId;
@@ -135,6 +128,7 @@ export const WorkspaceSplitCanvas = forwardRef<
     useState<TechnicalObjectSelection>(null);
   const elevTab: WorkspaceTabId = workspaceTab === "side" ? "side" : "front";
   const elevView = elevTab === "side" ? "side" : "front";
+  const elevSheetId: DrawingSheetId = elevTab === "side" ? "side" : "front";
   const elevTitle = elevTab === "side" ? "Side Elevation" : "Front Elevation";
   const activeCabinet = project.cabinets.find(
     (cabinet) => cabinet.id === activeCabinetId,
@@ -165,17 +159,6 @@ export const WorkspaceSplitCanvas = forwardRef<
     [project.job],
   );
 
-  const sheetMetaFor = (id: DrawingSheetId) => {
-    const def = getDrawingSheet(id);
-    return {
-      code: def.code,
-      title: def.title,
-      scaleText: def.scaleText,
-      projectName,
-      revision,
-    };
-  };
-
   const twoDCommon = {
     project,
     room,
@@ -201,12 +184,6 @@ export const WorkspaceSplitCanvas = forwardRef<
     onUpsertDimOffset,
     onUpsertTagOffset,
   } as const;
-
-  function setCameraPreset(preset: ViewPreset) {
-    const handle =
-      sceneRef && typeof sceneRef === "object" ? sceneRef.current : null;
-    handle?.setViewPreset(preset);
-  }
 
   const draftingTools = (
     <DraftingToolButtons
@@ -248,6 +225,13 @@ export const WorkspaceSplitCanvas = forwardRef<
       ? workspaceTab
       : "front";
 
+  const singleView =
+    activeSheetId === "report"
+      ? "report"
+      : activeSheetId === "detail"
+        ? "detail"
+        : "section";
+
   return (
     <div className="workspace-drafting-root">
       <DrawingSheetTabs
@@ -264,66 +248,52 @@ export const WorkspaceSplitCanvas = forwardRef<
         }}
       >
         {sheetMode === "single" ? (
-          <WorkspaceViewPane
+          <WorkspaceDrawingPane
             paneId={activeSheetId}
+            sheetId={activeSheetId}
             title={getDrawingSheet(activeSheetId).title}
-            subtitle={getDrawingSheet(activeSheetId).code}
             focused
             maximized
+            projectName={projectName}
+            revision={revision}
+            view={singleView}
+            draftingToolbar={
+              activeSheetId === "section" || activeSheetId === "detail"
+                ? draftingTools
+                : undefined
+            }
+            banner={objectToolbar}
             onFocus={() => onSelectSheet(activeSheetId)}
             onToggleMaximize={() => {
               onSelectSheet(restoreSheetId);
               onFocusPane(workspaceTab);
             }}
-            toolbar={
-              activeSheetId === "section" || activeSheetId === "detail"
-                ? draftingTools
-                : undefined
-            }
-          >
-            <DrawingSheetChrome
-              meta={sheetMetaFor(activeSheetId)}
-              active
-              banner={objectToolbar}
-            >
-              <TwoDView
-                {...twoDCommon}
-                view={
-                  activeSheetId === "report"
-                    ? "report"
-                    : activeSheetId === "detail"
-                      ? "detail"
-                      : "section"
-                }
-                draftingTool={
-                  activeSheetId === "report" ? "select" : draftingTool
-                }
-              />
-            </DrawingSheetChrome>
-          </WorkspaceViewPane>
+            twoDProps={{
+              ...twoDCommon,
+              draftingTool:
+                activeSheetId === "report" ? "select" : draftingTool,
+            }}
+          />
         ) : (
           <>
-            <WorkspaceViewPane
+            <WorkspaceDrawingPane
               paneId="plan"
+              sheetId="plan"
               title="Plan"
-              subtitle={getDrawingSheet("plan").code}
               focused={workspaceTab === "plan" || activeSheetId === "plan"}
               maximized={maximizedPane === "plan"}
+              projectName={projectName}
+              revision={revision}
+              view="top"
+              draftingToolbar={draftingTools}
+              banner={objectToolbar}
               onFocus={() => {
                 onSelectSheet("plan");
                 onFocusPane("plan");
               }}
               onToggleMaximize={() => onToggleMaximize("plan")}
-              toolbar={draftingTools}
-            >
-              <DrawingSheetChrome
-                meta={sheetMetaFor("plan")}
-                active={activeSheetId === "plan"}
-                banner={objectToolbar}
-              >
-                <TwoDView {...twoDCommon} view="top" />
-              </DrawingSheetChrome>
-            </WorkspaceViewPane>
+              twoDProps={twoDCommon}
+            />
 
             {!maximizedPane ? (
               <WorkspaceSplitHandle
@@ -336,10 +306,10 @@ export const WorkspaceSplitCanvas = forwardRef<
               />
             ) : null}
 
-            <WorkspaceViewPane
+            <WorkspaceDrawingPane
               paneId="front"
+              sheetId={elevSheetId}
               title={elevTitle}
-              subtitle={getDrawingSheet(elevTab === "side" ? "side" : "front").code}
               focused={
                 workspaceTab === "front" ||
                 workspaceTab === "side" ||
@@ -347,42 +317,37 @@ export const WorkspaceSplitCanvas = forwardRef<
                 activeSheetId === "side"
               }
               maximized={maximizedPane === "front" || maximizedPane === "side"}
+              projectName={projectName}
+              revision={revision}
+              view={elevView}
+              draftingToolbar={draftingTools}
+              banner={
+                <>
+                  {objectToolbar}
+                  {elevView === "front" && onElevationOpeningCommand ? (
+                    <ElevationOpeningToolbar
+                      config={activeCabinet?.config ?? null}
+                      activeOpeningId={
+                        activeCabinetId === activeCabinet?.id
+                          ? activeOpeningId
+                          : null
+                      }
+                      draftingTool={draftingTool}
+                      onCommand={(command) => {
+                        if (!activeCabinetId) return;
+                        onElevationOpeningCommand(activeCabinetId, command);
+                      }}
+                    />
+                  ) : null}
+                </>
+              }
               onFocus={() => {
-                onSelectSheet(elevTab === "side" ? "side" : "front");
+                onSelectSheet(elevSheetId);
                 onFocusPane(elevTab);
               }}
               onToggleMaximize={() => onToggleMaximize(elevTab)}
-              toolbar={draftingTools}
-            >
-              <DrawingSheetChrome
-                meta={sheetMetaFor(elevTab === "side" ? "side" : "front")}
-                active={
-                  activeSheetId === "front" || activeSheetId === "side"
-                }
-                banner={
-                  <>
-                    {objectToolbar}
-                    {elevView === "front" && onElevationOpeningCommand ? (
-                      <ElevationOpeningToolbar
-                        config={activeCabinet?.config ?? null}
-                        activeOpeningId={
-                          activeCabinetId === activeCabinet?.id
-                            ? activeOpeningId
-                            : null
-                        }
-                        draftingTool={draftingTool}
-                        onCommand={(command) => {
-                          if (!activeCabinetId) return;
-                          onElevationOpeningCommand(activeCabinetId, command);
-                        }}
-                      />
-                    ) : null}
-                  </>
-                }
-              >
-                <TwoDView {...twoDCommon} view={elevView} />
-              </DrawingSheetChrome>
-            </WorkspaceViewPane>
+              twoDProps={twoDCommon}
+            />
 
             {!maximizedPane ? (
               <WorkspaceSplitHandle
@@ -395,79 +360,27 @@ export const WorkspaceSplitCanvas = forwardRef<
               />
             ) : null}
 
-            <WorkspaceViewPane
-              paneId="3d"
-              title="3D"
-              subtitle="Perspective"
+            <WorkspaceScenePane
+              sceneRef={sceneRef}
               focused={workspaceTab === "3d"}
               maximized={maximizedPane === "3d"}
+              project={project}
+              room={room}
+              countertops={planningWorkflow.countertops}
+              fillers={planningWorkflow.fillers}
+              snapSizeMm={snapSizeMm}
+              showGrid={showGrid}
+              selectedCabinetIds={selectedCabinetIds}
+              activeCabinetId={activeCabinetId}
+              selectedPanelName={selectedPanelName}
               onFocus={() => onFocusPane("3d")}
               onToggleMaximize={() => onToggleMaximize("3d")}
-              toolbar={<SceneCameraButtons onSetViewPreset={setCameraPreset} />}
-            >
-              <div
-                className="viewport-panel viewport-panel-embedded"
-                aria-label="3D room viewport"
-              >
-                <CabinetScene
-                  ref={sceneRef}
-                  project={project}
-                  room={room}
-                  countertops={planningWorkflow.countertops}
-                  fillers={planningWorkflow.fillers}
-                  snapSizeMm={snapSizeMm}
-                  showGrid={showGrid}
-                  onCabinetMove={onCabinetMove}
-                  onCabinetRotate={onCabinetRotate}
-                  selectedCabinetIds={selectedCabinetIds}
-                  activeCabinetId={activeCabinetId}
-                  selectedPanelName={selectedPanelName}
-                  onCabinetResize={onCabinetResize}
-                  onSelectedCabinetChange={(cabinetId, additive) => {
-                    if (!cabinetId) {
-                      onReplaceSelection([], null, null);
-                      return;
-                    }
-                    if (additive) {
-                      onToggleCabinetSelection(cabinetId);
-                      return;
-                    }
-                    onReplaceSelection([cabinetId], cabinetId, null);
-                  }}
-                  onSelectedPanelChange={(cabinetId, name, additive) => {
-                    if (!cabinetId) {
-                      onReplaceSelection([], null, null);
-                      return;
-                    }
-                    if (additive) {
-                      const nextIds = selectedCabinetIds.includes(cabinetId)
-                        ? selectedCabinetIds
-                        : [...selectedCabinetIds, cabinetId];
-                      onReplaceSelection(nextIds, cabinetId, name);
-                      return;
-                    }
-                    onReplaceSelection([cabinetId], cabinetId, name);
-                  }}
-                  onMarqueeSelect={(cabinetIds, additive) => {
-                    if (additive) {
-                      onReplaceSelection(
-                        Array.from(
-                          new Set([...selectedCabinetIds, ...cabinetIds]),
-                        ),
-                        cabinetIds[0] ?? activeCabinetId,
-                        null,
-                      );
-                      return;
-                    }
-                    onReplaceSelection(
-                      cabinetIds,
-                      cabinetIds[0] ?? null,
-                      null,
-                    );
-                  }}
-                />
-              </div>
-            </WorkspaceViewPane>
+              onCabinetMove={onCabinetMove}
+              onCabinetRotate={onCabinetRotate}
+              onCabinetResize={onCabinetResize}
+              onReplaceSelection={onReplaceSelection}
+              onToggleCabinetSelection={onToggleCabinetSelection}
+            />
           </>
         )}
       </div>

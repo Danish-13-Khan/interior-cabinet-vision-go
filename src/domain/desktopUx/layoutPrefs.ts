@@ -38,7 +38,8 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   workspaceTab: "front",
   activeSheetId: "front",
   splitPlanWidthPct: 50,
-  splitTopRowPct: 68,
+  /** Drawing panes dominate; 3D stays a support strip. */
+  splitTopRowPct: 72,
   sceneBrowserVisible: true,
   sheetBrowserVisible: true,
 };
@@ -48,7 +49,7 @@ const WIDTH_MAX = 480;
 const DOCK_MIN = 160;
 const DOCK_MAX = 520;
 const SPLIT_MIN = 28;
-const SPLIT_MAX = 72;
+const SPLIT_MAX = 80;
 
 export function clampDesktopLayout(
   value: Partial<DesktopLayoutPrefs> | null | undefined,
