@@ -15,11 +15,15 @@ import {
   constructionOf,
   hardwareOf,
 } from "./helpers";
+import { getMaterialsEditorValue } from "./applyMaterials";
 
 export function getCabinetEditorValue(
   config: CabinetConfig,
   fieldId: string,
 ): PropertyFieldValue {
+  const materialsValue = getMaterialsEditorValue(config, fieldId);
+  if (materialsValue !== null) return materialsValue;
+
   const composition = compositionOf(config);
   const structure = composition.openingStructure;
   const activeLeaf = structure ? getActiveOpeningLeaf(structure) : null;

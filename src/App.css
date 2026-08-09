@@ -6,6 +6,7 @@
 @import "./styles/cabinet-tree.css";
 @import "./styles/room-editors.css";
 @import "./styles/workspace-inspector.css";
+@import "./styles/engineering-inspector.css";
 @import "./styles/workspace-split.css";
 @import "./styles/status-strip.css";
 @import "./styles/report-center.css";

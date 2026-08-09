@@ -1,18 +1,21 @@
-import { CutlistPanel } from "./CutlistPanel"; void CutlistPanel;
-import { ProjectBrowser } from "./ProjectBrowser"; void ProjectBrowser;
+import { useMemo, useState } from "react";
 import { CabinetPropertyGrid } from "./CabinetPropertyGrid";
 import {
   normalizeRotationAngle,
   supportsWallPlacement,
 } from "../domain/cabinetDimensions";
+import {
+  PROPERTY_GROUP_LABELS,
+  PROPERTY_GROUP_ORDER,
+  collectPropertyFieldIssues,
+  getCabinetEditorSections,
+  worstFieldSeverity,
+  type PropertyGroupId,
+} from "../domain/cabinetEditorSchema";
+import { clampProjectStandards } from "../domain/projectStandards";
 import { ManufacturingRulesSection } from "./dimensionControls/ManufacturingRulesSection";
-import { SceneItemsSection } from "./dimensionControls/SceneItemsSection";
-import { WorkflowSection } from "./dimensionControls/WorkflowSection";
-import { PreferencesSection } from "./dimensionControls/PreferencesSection";
-import { ProjectStandardsSection } from "./dimensionControls/ProjectStandardsSection";
 import { TemplatesSection } from "./dimensionControls/TemplatesSection";
 import { PlacementSection } from "./dimensionControls/PlacementSection";
-import { MaterialBuildSection } from "./dimensionControls/MaterialBuildSection";
 import { PartsSection } from "./dimensionControls/PartsSection";
 import { useNumericInputs } from "./dimensionControls/useNumericInputs";
 import type { DimensionControlsProps } from "./dimensionControls/types";
@@ -20,83 +23,20 @@ import type { DimensionControlsProps } from "./dimensionControls/types";
 export type { DimensionControlsProps } from "./dimensionControls/types";
 
 export function DimensionControls({
-  cabinetCount,
-  cabinetCutlistItems,
-  cabinets,
   config,
-  derivedMetrics,
-  cutlistItems,
-  projectFilePath,
-  projectStatus,
-  savedProjects,
   snapSizeMm,
-  selectedCabinetIds,
   activeCabinetId,
-  selectedPanelName,
   selectedPlacement,
-  selectedLayerId,
-  selectedGroupId,
-  layers,
-  groups,
   preferences,
-  selectionLabel,
-  validationMessages,
   manufacturingIssues,
   constructionParts,
   onAttachmentChange,
-  onAlignSelection,
-  onAssignLayer,
   onConfigChange,
-  onCopySelection,
-  onCreateGroup,
-  onCreateLayer,
-  onClearGroup,
-  onDeleteSavedProject,
-  onDuplicateCabinet,
-  onDuplicateSavedProject,
-  onExportCutlistCsv,
-  onExportProjectJson,
-  onExportPdf,
-  onLayerChange,
-  onLoadProject,
-  onLoadSavedProject,
-  onPasteSelection,
   onPlacementChange,
-  onPreferenceChange,
   onSaveCabinetTemplate,
-  onRemoveCabinet,
-  onRenameCabinet,
-  onRenameSavedProject,
-  onReset,
   onRotationChange,
-  onSaveProject,
-  onSaveToProjectBrowser,
-  onSelectCabinet,
-  onSelectAll,
-  onUndo,
-  onRedo,
 }: DimensionControlsProps) {
-  void savedProjects;
-  void derivedMetrics;
-  void selectedPanelName;
-  void selectionLabel;
-  void projectFilePath;
-  void projectStatus;
-  void onDeleteSavedProject;
-  void onDuplicateSavedProject;
-  void onLoadSavedProject;
-  void onRenameSavedProject;
-  void onSaveToProjectBrowser;
-  void onExportCutlistCsv;
-  void onExportProjectJson;
-  void onExportPdf;
-  void onLoadProject;
-  void onSaveProject;
-  void onReset;
-  void cabinetCutlistItems;
-  void cutlistItems;
-  void validationMessages;
-
+  const [activeGroup, setActiveGroup] = useState<PropertyGroupId>("dimensions");
   const { inputs, handleNumericInputChange, handleBlur } = useNumericInputs(
     config,
     selectedPlacement,
@@ -104,85 +44,108 @@ export function DimensionControls({
     onPlacementChange,
   );
 
-  const buildRules = config.buildRules;
+  const projectStandards = clampProjectStandards(preferences.standards);
+  const fieldIssues = useMemo(
+    () =>
+      collectPropertyFieldIssues(config, manufacturingIssues, projectStandards),
+    [config, manufacturingIssues, projectStandards],
+  );
+  const schemaGroups = useMemo(() => {
+    const present = new Set(
+      getCabinetEditorSections(config).map((section) => section.group),
+    );
+    return PROPERTY_GROUP_ORDER.filter(
+      (group) =>
+        group === "placement" ||
+        group === "reports" ||
+        present.has(group),
+    );
+  }, [config]);
+
+  const resolvedGroup = schemaGroups.includes(activeGroup)
+    ? activeGroup
+    : schemaGroups[0] ?? "dimensions";
+
+  const placementSeverity = worstFieldSeverity([
+    ...(fieldIssues.attachment ?? []),
+    ...(fieldIssues.placementY ?? []),
+  ]);
+
   const showWallTools = supportsWallPlacement(config.type);
   const attachment = selectedPlacement?.attachment ?? "floor";
   const rotation = normalizeRotationAngle(selectedPlacement?.rotation ?? 0);
 
+  if (!activeCabinetId) {
+    return (
+      <div className="controls-card engineering-panel">
+        <div className="controls-header">
+          <h1>Cabinet</h1>
+          <p>Select a cabinet to edit engineering properties.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="controls-card">
+    <div className="controls-card engineering-panel">
       <div className="controls-header">
-        <h1>Inspector</h1>
-        <p>Cabinet specification, placement, and materials.</p>
+        <h1>Engineering</h1>
+        <p>
+          {PROPERTY_GROUP_LABELS[resolvedGroup]} · constrained fields & family presets
+        </p>
       </div>
 
-      <div className="controls-form">
-        <ManufacturingRulesSection manufacturingIssues={manufacturingIssues} />
+      <ManufacturingRulesSection manufacturingIssues={manufacturingIssues} />
 
-        <SceneItemsSection
-          cabinetCount={cabinetCount}
-          cabinets={cabinets}
-          selectedCabinetIds={selectedCabinetIds}
-          onSelectCabinet={onSelectCabinet}
-          onRenameCabinet={onRenameCabinet}
-          onUndo={onUndo}
-          onRedo={onRedo}
-          onCopySelection={onCopySelection}
-          onPasteSelection={onPasteSelection}
-          onSelectAll={onSelectAll}
-          onDuplicateCabinet={onDuplicateCabinet}
-          onRemoveCabinet={onRemoveCabinet}
-        />
+      <div className="engineering-group-nav" role="tablist" aria-label="Engineering groups">
+        {schemaGroups.map((group) => (
+          <button
+            key={group}
+            type="button"
+            role="tab"
+            aria-selected={resolvedGroup === group}
+            className={`engineering-group-tab ${resolvedGroup === group ? "is-active" : ""} ${group === "placement" && placementSeverity ? `has-${placementSeverity}` : ""}`}
+            onClick={() => setActiveGroup(group)}
+          >
+            {PROPERTY_GROUP_LABELS[group]}
+          </button>
+        ))}
+      </div>
 
-        <WorkflowSection
-          selectedCabinetIds={selectedCabinetIds}
-          selectedLayerId={selectedLayerId}
-          selectedGroupId={selectedGroupId}
-          layers={layers}
-          groups={groups}
-          onAssignLayer={onAssignLayer}
-          onCreateLayer={onCreateLayer}
-          onCreateGroup={onCreateGroup}
-          onClearGroup={onClearGroup}
-          onAlignSelection={onAlignSelection}
-        />
+      <div className="controls-form engineering-group-body">
+        {resolvedGroup === "placement" ? (
+          <PlacementSection
+            showWallTools={showWallTools}
+            attachment={attachment}
+            rotation={rotation}
+            snapSizeMm={snapSizeMm}
+            inputs={inputs}
+            fieldIssues={fieldIssues}
+            onRotationChange={onRotationChange}
+            onAttachmentChange={onAttachmentChange}
+            handleNumericInputChange={handleNumericInputChange}
+            handleBlur={handleBlur}
+          />
+        ) : null}
 
-        <PreferencesSection
-          preferences={preferences}
-          layers={layers}
-          onPreferenceChange={onPreferenceChange}
-          onLayerChange={onLayerChange}
-        />
-
-        <ProjectStandardsSection
-          preferences={preferences}
-          onPreferenceChange={onPreferenceChange}
-        />
-
-        {activeCabinetId ? (
+        {resolvedGroup !== "placement" && resolvedGroup !== "reports" ? (
           <>
-            <TemplatesSection onSaveCabinetTemplate={onSaveCabinetTemplate} />
-
-            <CabinetPropertyGrid config={config} onConfigChange={onConfigChange} />
-
-            <PlacementSection
-              showWallTools={showWallTools}
-              attachment={attachment}
-              rotation={rotation}
-              snapSizeMm={snapSizeMm}
-              inputs={inputs}
-              onRotationChange={onRotationChange}
-              onAttachmentChange={onAttachmentChange}
-              handleNumericInputChange={handleNumericInputChange}
-              handleBlur={handleBlur}
-            />
-
-            {buildRules ? (
-              <MaterialBuildSection buildRules={buildRules} onConfigChange={onConfigChange} />
+            {resolvedGroup === "dimensions" ? (
+              <TemplatesSection onSaveCabinetTemplate={onSaveCabinetTemplate} />
             ) : null}
-
-            <PartsSection constructionParts={constructionParts} />
+            <CabinetPropertyGrid
+              config={config}
+              onConfigChange={onConfigChange}
+              manufacturingIssues={manufacturingIssues}
+              projectStandards={projectStandards}
+              activeGroup={resolvedGroup}
+              hideGroupNav
+            />
           </>
+        ) : null}
+
+        {resolvedGroup === "reports" ? (
+          <PartsSection constructionParts={constructionParts} />
         ) : null}
       </div>
     </div>

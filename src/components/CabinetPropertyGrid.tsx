@@ -1,15 +1,30 @@
+import { useMemo, useState } from "react";
 import type { CabinetConfig } from "../domain/cabinetDimensions";
+import type { ManufacturingIssue } from "../domain/manufacturingRules";
+import type { ProjectStandards } from "../domain/projectStandards";
 import {
   applyCabinetEditorChange,
+  collectPropertyFieldIssues,
   getCabinetEditorSections,
   getCabinetEditorValue,
+  PROPERTY_GROUP_LABELS,
+  PROPERTY_GROUP_ORDER,
+  worstFieldSeverity,
   type PropertyFieldDef,
+  type PropertyFieldIssue,
   type PropertyFieldValue,
+  type PropertyGroupId,
+  type PropertySectionDef,
 } from "../domain/cabinetEditorSchema";
 
 type CabinetPropertyGridProps = {
   config: CabinetConfig;
   onConfigChange: (next: CabinetConfig | Partial<CabinetConfig>) => void;
+  manufacturingIssues?: ManufacturingIssue[];
+  projectStandards?: ProjectStandards | null;
+  /** When set, only render sections for this engineering group. */
+  activeGroup?: PropertyGroupId | null;
+  hideGroupNav?: boolean;
 };
 
 function FieldControl({
@@ -81,37 +96,138 @@ function FieldControl({
   );
 }
 
-export function CabinetPropertyGrid({ config, onConfigChange }: CabinetPropertyGridProps) {
-  const sections = getCabinetEditorSections(config);
+function FieldIssueHint({ issues }: { issues: PropertyFieldIssue[] }) {
+  if (issues.length === 0) return null;
+  const primary = issues[0]!;
+  return (
+    <span className={`property-grid-issue severity-${primary.severity}`} title={issues.map((i) => i.message).join(" · ")}>
+      {primary.message}
+    </span>
+  );
+}
+
+function SectionBlock({
+  section,
+  config,
+  fieldIssues,
+  onFieldChange,
+}: {
+  section: PropertySectionDef;
+  config: CabinetConfig;
+  fieldIssues: Record<string, PropertyFieldIssue[]>;
+  onFieldChange: (fieldId: string, value: PropertyFieldValue) => void;
+}) {
+  return (
+    <section className="property-grid-section" data-group={section.group}>
+      <header className="property-grid-section-header">
+        <h2>{section.label}</h2>
+        {section.hint ? <span>{section.hint}</span> : null}
+      </header>
+      <div className="property-grid-rows">
+        {section.fields.map((field) => {
+          const issues = fieldIssues[field.id] ?? [];
+          const severity = worstFieldSeverity(issues);
+          return (
+            <div
+              key={field.id}
+              className={`property-grid-row ${severity ? `has-${severity}` : ""}`}
+              title={field.hint}
+            >
+              <span className="property-grid-label">{field.label}</span>
+              <span className="property-grid-control">
+                <FieldControl
+                  field={field}
+                  value={getCabinetEditorValue(config, field.id)}
+                  onChange={(next) => onFieldChange(field.id, next)}
+                />
+              </span>
+              <FieldIssueHint issues={issues} />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function CabinetPropertyGrid({
+  config,
+  onConfigChange,
+  manufacturingIssues = [],
+  projectStandards = null,
+  activeGroup = null,
+  hideGroupNav = false,
+}: CabinetPropertyGridProps) {
+  const sections = useMemo(() => getCabinetEditorSections(config), [config]);
+  const fieldIssues = useMemo(
+    () =>
+      collectPropertyFieldIssues(config, manufacturingIssues, projectStandards),
+    [config, manufacturingIssues, projectStandards],
+  );
+
+  const availableGroups = useMemo(() => {
+    const present = new Set(sections.map((section) => section.group));
+    return PROPERTY_GROUP_ORDER.filter((group) => present.has(group));
+  }, [sections]);
+
+  const [localGroup, setLocalGroup] = useState<PropertyGroupId | null>(null);
+  const selectedGroup =
+    activeGroup ??
+    localGroup ??
+    availableGroups[0] ??
+    "dimensions";
+
+  const visibleSections = sections.filter(
+    (section) => section.group === selectedGroup,
+  );
 
   function handleFieldChange(fieldId: string, value: PropertyFieldValue) {
-    onConfigChange(applyCabinetEditorChange(config, fieldId, value));
+    onConfigChange(
+      applyCabinetEditorChange(config, fieldId, value, projectStandards),
+    );
   }
 
   return (
     <div className="cabinet-property-grid">
-      {sections.map((section) => (
-        <section key={section.id} className="property-grid-section">
-          <header className="property-grid-section-header">
-            <h2>{section.label}</h2>
-            {section.hint ? <span>{section.hint}</span> : null}
-          </header>
-          <div className="property-grid-rows">
-            {section.fields.map((field) => (
-              <label key={field.id} className="property-grid-row" title={field.hint}>
-                <span className="property-grid-label">{field.label}</span>
-                <span className="property-grid-control">
-                  <FieldControl
-                    field={field}
-                    value={getCabinetEditorValue(config, field.id)}
-                    onChange={(next) => handleFieldChange(field.id, next)}
-                  />
-                </span>
-              </label>
-            ))}
-          </div>
-        </section>
-      ))}
+      {!hideGroupNav && availableGroups.length > 1 ? (
+        <div className="property-group-nav" role="tablist" aria-label="Property groups">
+          {availableGroups.map((group) => {
+            const groupIssues = sections
+              .filter((section) => section.group === group)
+              .flatMap((section) =>
+                section.fields.flatMap((field) => fieldIssues[field.id] ?? []),
+              );
+            const severity = worstFieldSeverity(groupIssues);
+            return (
+              <button
+                key={group}
+                type="button"
+                role="tab"
+                aria-selected={selectedGroup === group}
+                className={`property-group-tab ${selectedGroup === group ? "is-active" : ""} ${severity ? `has-${severity}` : ""}`}
+                onClick={() => setLocalGroup(group)}
+              >
+                {PROPERTY_GROUP_LABELS[group]}
+                {severity ? <i aria-hidden /> : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {visibleSections.length === 0 ? (
+        <p className="property-grid-empty">No fields for this group on this family.</p>
+      ) : (
+        visibleSections.map((section) => (
+          <SectionBlock
+            key={section.id}
+            section={section}
+            config={config}
+            fieldIssues={fieldIssues}
+            onFieldChange={handleFieldChange}
+          />
+        ))
+      )}
     </div>
   );
 }
