@@ -66,10 +66,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 3px 8px;
-  border-bottom: 1px solid #c5c8d0;
-  background: linear-gradient(180deg, #f7f8fa 0%, #eef1f4 100%);
+  gap: 6px;
+  padding: 1px 5px;
+  border-bottom: 1px solid var(--panel-border, #c5c8d0);
+  background: var(--workspace-pane-header, #b8c3d0);
   font-size: 0.58rem;
   flex-shrink: 0;
 }

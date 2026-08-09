@@ -200,7 +200,7 @@
 
 .inspector-panel,
 .properties-panel {
-  width: min(268px, 100%);
+  width: min(236px, 100%);
   flex-shrink: 0;
   padding: 0;
   box-sizing: border-box;

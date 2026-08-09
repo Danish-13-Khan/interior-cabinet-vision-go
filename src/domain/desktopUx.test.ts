@@ -23,6 +23,13 @@ describe("desktopUx layout", () => {
     expect(layout.workspaceTab).toBe("front");
   });
 
+  it("defaults to compressed CAD dock widths", () => {
+    const defaults = clampDesktopLayout({});
+    expect(defaults.toolRailWidthPx).toBe(176);
+    expect(defaults.inspectorWidthPx).toBe(236);
+    expect(defaults.statusDockHeightPx).toBe(200);
+  });
+
   it("defaults and clamps workspace split percentages", () => {
     const defaults = clampDesktopLayout({});
     expect(defaults.splitPlanWidthPct).toBe(50);

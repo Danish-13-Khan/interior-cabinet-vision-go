@@ -29,9 +29,9 @@ export type DesktopLayoutPrefs = {
 };
 
 export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
-  toolRailWidthPx: 200,
-  inspectorWidthPx: 280,
-  statusDockHeightPx: 260,
+  toolRailWidthPx: 176,
+  inspectorWidthPx: 236,
+  statusDockHeightPx: 200,
   toolRailVisible: true,
   inspectorVisible: true,
   statusDockOpen: false,

@@ -82,16 +82,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(135, 111, 82, 0.75);
-  color: #5f4d38;
-  font-size: 0.72rem;
+  min-width: 0;
+  height: auto;
+  padding: 1px 5px;
+  border-radius: var(--radius-control);
+  background: rgba(248, 250, 252, 0.96);
+  border: 1px solid #8e9aab;
+  color: #334155;
+  font-size: 0.58rem;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(71, 56, 39, 0.14);
+  box-shadow: none;
 }
 
 .move-badge {
@@ -101,44 +101,45 @@
 }
 
 .scene-hint {
-  padding: 3px 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(145, 162, 177, 0.65);
-  color: #667786;
-  font-size: 0.68rem;
+  padding: 1px 5px;
+  border-radius: var(--radius-control);
+  background: rgba(248, 250, 252, 0.94);
+  border: 1px solid #8e9aab;
+  color: #4a5a6a;
+  font-size: 0.58rem;
   font-weight: 600;
   white-space: nowrap;
+  box-shadow: none;
 }
 
 .group-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
+  min-width: 0;
+  padding: 1px 5px;
+  border-radius: var(--radius-control);
+  background: rgba(248, 250, 252, 0.96);
   border: 1px solid rgba(79, 134, 198, 0.75);
-  color: #4f86c6;
-  font-size: 0.66rem;
+  color: #3d6a96;
+  font-size: 0.58rem;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(79, 134, 198, 0.18);
+  box-shadow: none;
 }
 
 /* ── Scene labels (item name tags) ── */
 .scene-label {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(112, 137, 160, 0.45);
-  border-radius: 8px;
-  padding: 2px 8px;
-  font-size: 0.66rem;
+  background: rgba(248, 250, 252, 0.96);
+  border: 1px solid #8e9aab;
+  border-radius: var(--radius-control);
+  padding: 1px 5px;
+  font-size: 0.58rem;
   font-weight: 700;
-  color: #3d566b;
+  color: #334155;
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
-  box-shadow: 0 2px 8px rgba(93, 110, 129, 0.12);
+  box-shadow: none;
 }
 
 .scene-frame canvas {
