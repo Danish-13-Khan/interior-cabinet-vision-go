@@ -127,6 +127,10 @@
 
 .workspace-sheet-browser-header {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
   padding: 3px 5px;
   font-size: 0.52rem;
   font-weight: 700;
@@ -134,6 +138,165 @@
   letter-spacing: 0.05em;
   color: #5a6570;
   border-bottom: 1px solid var(--workspace-gutter, #b8c0ca);
+}
+
+.wsb-mini-btn {
+  border: 1px solid var(--workspace-gutter, #b8c0ca);
+  background: #fff;
+  color: #1c242c;
+  font-size: 0.52rem;
+  font-weight: 650;
+  padding: 1px 5px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.wsb-mini-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.workspace-sheet-browser-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px;
+  border-top: 1px solid var(--workspace-gutter, #b8c0ca);
+  background: #eef2f6;
+}
+
+.wsb-place-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.wsb-notes-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5a6570;
+}
+
+.wsb-notes {
+  width: 100%;
+  resize: vertical;
+  min-height: 48px;
+  border: 1px solid var(--workspace-gutter, #b8c0ca);
+  border-radius: 2px;
+  font-size: 0.58rem;
+  padding: 4px;
+  font-family: inherit;
+  background: #fff;
+  color: #1c242c;
+}
+
+.drawing-sheet-viewport-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 5px;
+  border-bottom: 1px solid var(--panel-border, #c5c8d0);
+  background: #eef2f6;
+}
+
+.drawing-sheet-viewport-chip {
+  font-size: 0.52rem;
+  font-weight: 650;
+  color: #0a3d6b;
+  border: 1px solid #c5ccd6;
+  background: #fff;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.drawing-sheet-doc-footer {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 6px;
+  padding: 4px 6px;
+  border-top: 1px solid var(--panel-border, #c5c8d0);
+  background: #f5f7f9;
+  font-size: 0.55rem;
+  color: #3a4550;
+}
+
+.drawing-sheet-rev-area,
+.drawing-sheet-notes-area {
+  min-width: 0;
+}
+
+.drawing-sheet-rev-area strong,
+.drawing-sheet-notes-area strong {
+  display: block;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5a6570;
+  margin-bottom: 2px;
+}
+
+.drawing-sheet-notes-area ul {
+  margin: 0;
+  padding-left: 14px;
+}
+
+.sheet-composition {
+  position: relative;
+  width: 1100px;
+  height: 720px;
+  background: #fff;
+  border: 1px solid #2a3540;
+  box-shadow:
+    0 0 0 1px rgba(28, 36, 44, 0.2),
+    0 0 0 4px #fff,
+    0 0 0 5px rgba(28, 36, 44, 0.28);
+}
+
+.sheet-composition-viewport {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid #c5ccd6;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.sheet-composition-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 2px 5px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  background: #eef2f6;
+  border-bottom: 1px solid #c5ccd6;
+  color: #1c242c;
+  flex-shrink: 0;
+}
+
+.sheet-composition-viewport .technical-view {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.technical-view .twod-revision-table {
+  fill: #f8fafc;
+  stroke: var(--titleblock-rule);
+  stroke-width: 0.9px;
+}
+
+.technical-view .twod-revision-table-head,
+.technical-view .twod-revision-table-text {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  fill: #1c242c;
+  stroke: none;
 }
 
 .drawing-sheet-browser-item {

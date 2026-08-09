@@ -19,6 +19,8 @@ export type TitleBlockData = {
 
 export type PrintSheetSpec = {
   sheetId: DrawingSheetId;
+  /** Project sheet document id when printing from a named sheet set. */
+  documentId?: string;
   view: "top" | "front" | "side" | "section" | "detail" | "report";
   noteView: "top" | "front" | "side" | "all";
   viewLabel: string;

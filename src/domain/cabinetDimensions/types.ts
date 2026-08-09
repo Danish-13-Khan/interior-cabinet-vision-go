@@ -108,4 +108,6 @@ export type CabinetProject = {
   /** Multi-room plan; each room owns its cabinets and RoomConfig. */
   rooms?: import("../projectRooms/types").ProjectRoom[];
   activeRoomId?: string;
+  /** Named drawing sheets with viewports, notes, and revision rows. */
+  sheetSet?: import("../sheetDocuments/types").ProjectSheetSet;
 };

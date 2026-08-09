@@ -48,6 +48,8 @@ export type TechnicalViewOptions = {
   projectName?: string;
   sheetMeta?: string;
   sheetCode?: string;
+  /** When false, print mode skips embedded SVG title/notes (PDF draws its own). */
+  embedSheetChrome?: boolean;
   /** Highlight selected drafting object id (note/leader/dim/tag). */
   activeDraftObjectId?: string | null;
   snapGuides?: SnapGuide[];

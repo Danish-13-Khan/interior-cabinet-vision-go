@@ -146,6 +146,25 @@
   color: #64748b;
 }
 
+.packet-sheet-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.packet-sheet-link:hover strong {
+  color: #0a3d6b;
+  text-decoration: underline;
+}
+
 .job-notes-preview {
   margin: 0;
   padding: 8px 10px;

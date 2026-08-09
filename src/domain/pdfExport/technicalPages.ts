@@ -7,7 +7,11 @@ import {
 } from "../cabinetLibrary";
 import type { RoomConfig } from "../roomModel";
 import type { ProjectReport } from "../projectReport";
-import { getDrawingSheet } from "../drawingSheets";
+import {
+  getProjectSheetSet,
+  printableSheetSpecsFromSet,
+  resolveSheetChrome,
+} from "../sheetDocuments";
 import { createTechnicalView, svgToPngDataUrl } from "../technicalViews";
 import { clampProjectDrafting } from "../draftingAnnotations";
 import { clampJobMeta } from "../jobMeta";
@@ -46,8 +50,15 @@ export async function drawTechnicalPages(
 
   const drafting = clampProjectDrafting(project.drafting);
   const job = clampJobMeta(project.job);
+  const sheetSet = getProjectSheetSet(project);
+  const pages =
+    printableSheetSpecsFromSet(sheetSet).length > 0
+      ? printableSheetSpecsFromSet(sheetSet)
+      : [...PRINTABLE_SHEET_SET];
+
   const shared = {
     mode: "print" as const,
+    embedSheetChrome: false,
     showGrid: false,
     showDimensionChains: true,
     showWallLabels: true,
@@ -66,12 +77,12 @@ export async function drawTechnicalPages(
     drafting,
   };
 
-  for (const page of PRINTABLE_SHEET_SET) {
-    const sheet = getDrawingSheet(page.sheetId);
+  for (const page of pages) {
+    const chrome = resolveSheetChrome(page.documentId ?? page.sheetId, project);
     const result = createTechnicalView(project, room, page.view, countertops, {
       ...shared,
-      title: sheet.title,
-      sheetCode: sheet.code,
+      title: chrome.title,
+      sheetCode: chrome.code,
     });
 
     doc.addPage();
@@ -82,13 +93,13 @@ export async function drawTechnicalPages(
       project,
       options: {
         ...shared,
-        title: sheet.title,
-        sheetCode: sheet.code,
+        title: chrome.title,
+        sheetCode: chrome.code,
       },
-      sheetTitle: sheet.title,
-      viewLabel: page.viewLabel,
-      scaleText: sheet.scaleText,
-      sheetCode: sheet.code,
+      sheetTitle: chrome.title,
+      viewLabel: page.viewLabel || chrome.viewLabel,
+      scaleText: chrome.scaleText,
+      sheetCode: chrome.code,
     });
 
     let viewY = drawPdfTitleBlock(layout, margin, titleData);
@@ -116,7 +127,10 @@ export async function drawTechnicalPages(
 
     if (!page.includeNotesArea) continue;
 
-    const notes = collectPrintNoteLines(drafting, page.noteView, job.notes);
+    const notes = [
+      ...chrome.notes,
+      ...collectPrintNoteLines(drafting, page.noteView, job.notes),
+    ].slice(0, 6);
     drawPdfInfoAndNotes(layout, viewY, titleData, notes);
   }
 }

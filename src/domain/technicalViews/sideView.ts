@@ -9,7 +9,7 @@ import {
 } from "../placementSnap";
 import { renderElevationRunDrafting } from "../runDrafting";
 import type { RoomConfig } from "../roomModel";
-import { printChromeSvg } from "../printLayout";
+import { embedResolvedPrintChrome } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { SCALE } from "./constants";
@@ -68,15 +68,12 @@ export function sideView(
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
   if (frame.print) {
     elements.push(
-      ...printChromeSvg({
+      ...embedResolvedPrintChrome({
+        sheetId: "side",
         svgWidth,
         svgHeight,
         project,
         options,
-        sheetTitle: "Side Elevation",
-        viewLabel: "SIDE ELEV.",
-        scaleText: `1:${SCALE * 25}`,
-        sheetCode: "A-202",
         noteView: "side",
       }),
     );

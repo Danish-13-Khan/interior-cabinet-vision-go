@@ -21,13 +21,17 @@ import type { TechnicalObjectSelection } from "../domain/draftingEdit";
 import type { CabinetPlanningWorkflow } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 import type { DrawingSheetId } from "../domain/drawingSheets";
-import { getDrawingSheet } from "../domain/drawingSheets";
+import {
+  catalogIdFromSheetId,
+  findSheetDocument,
+  getProjectSheetSet,
+} from "../domain/sheetDocuments";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
 import { clampJobMeta, formatJobTitle } from "../domain/jobMeta";
 
 type WorkspaceSplitCanvasProps = {
   workspaceTab: WorkspaceTabId;
-  activeSheetId: DrawingSheetId;
+  activeSheetId: string;
   maximizedPane: WorkspaceTabId | null;
   splitPlanWidthPct: number;
   splitTopRowPct: number;
@@ -43,7 +47,7 @@ type WorkspaceSplitCanvasProps = {
   selectedPanelName: PanelName | null;
   draftingDisplay: DraftingDisplayPreferences;
   onFocusPane: (tab: WorkspaceTabId) => void;
-  onSelectSheet: (sheetId: DrawingSheetId) => void;
+  onSelectSheet: (sheetId: string) => void;
   onToggleMaximize: (tab: WorkspaceTabId) => void;
   onSplitPlanWidthChange: (pct: number) => void;
   onSplitTopRowChange: (pct: number) => void;
@@ -135,11 +139,18 @@ export const WorkspaceSplitCanvas = forwardRef<
   );
   const maxKey =
     maximizedPane === "side" ? "front" : maximizedPane;
+  const activeDoc = useMemo(
+    () => findSheetDocument(getProjectSheetSet(project), activeSheetId),
+    [project, activeSheetId],
+  );
+  const catalogSheetId = catalogIdFromSheetId(activeSheetId);
+  const isComposition = (activeDoc?.viewports.length ?? 0) > 1;
   const sheetMode =
     workspaceTab !== "3d" &&
-    (activeSheetId === "section" ||
-      activeSheetId === "detail" ||
-      activeSheetId === "report")
+    (isComposition ||
+      catalogSheetId === "section" ||
+      catalogSheetId === "detail" ||
+      catalogSheetId === "report")
       ? "single"
       : "split";
   const splitClass = [
@@ -226,15 +237,23 @@ export const WorkspaceSplitCanvas = forwardRef<
       : "front";
 
   const singleView =
-    activeSheetId === "report"
+    catalogSheetId === "report"
       ? "report"
-      : activeSheetId === "detail"
+      : catalogSheetId === "detail"
         ? "detail"
-        : "section";
+        : catalogSheetId === "section"
+          ? "section"
+          : activeDoc?.primaryView === "front"
+            ? "front"
+            : activeDoc?.primaryView === "side"
+              ? "side"
+              : "top";
+  const singleSheetId = activeDoc?.id ?? catalogSheetId;
 
   return (
     <div className="workspace-drafting-root">
       <DrawingSheetTabs
+        project={project}
         activeSheetId={activeSheetId}
         onSelectSheet={onSelectSheet}
       />
@@ -249,21 +268,23 @@ export const WorkspaceSplitCanvas = forwardRef<
       >
         {sheetMode === "single" ? (
           <WorkspaceDrawingPane
-            paneId={activeSheetId}
-            sheetId={activeSheetId}
-            title={getDrawingSheet(activeSheetId).title}
+            paneId={singleSheetId}
+            sheetId={singleSheetId}
+            title={activeDoc?.name}
             focused
             maximized
             projectName={projectName}
             revision={revision}
             view={singleView}
             draftingToolbar={
-              activeSheetId === "section" || activeSheetId === "detail"
+              catalogSheetId === "section" ||
+              catalogSheetId === "detail" ||
+              isComposition
                 ? draftingTools
                 : undefined
             }
             banner={objectToolbar}
-            onFocus={() => onSelectSheet(activeSheetId)}
+            onFocus={() => onSelectSheet(singleSheetId)}
             onToggleMaximize={() => {
               onSelectSheet(restoreSheetId);
               onFocusPane(workspaceTab);
@@ -271,7 +292,7 @@ export const WorkspaceSplitCanvas = forwardRef<
             twoDProps={{
               ...twoDCommon,
               draftingTool:
-                activeSheetId === "report" ? "select" : draftingTool,
+                catalogSheetId === "report" ? "select" : draftingTool,
             }}
           />
         ) : (
@@ -280,7 +301,7 @@ export const WorkspaceSplitCanvas = forwardRef<
               paneId="plan"
               sheetId="plan"
               title="Plan"
-              focused={workspaceTab === "plan" || activeSheetId === "plan"}
+              focused={workspaceTab === "plan" || catalogSheetId === "plan"}
               maximized={maximizedPane === "plan"}
               projectName={projectName}
               revision={revision}
@@ -313,8 +334,8 @@ export const WorkspaceSplitCanvas = forwardRef<
               focused={
                 workspaceTab === "front" ||
                 workspaceTab === "side" ||
-                activeSheetId === "front" ||
-                activeSheetId === "side"
+                catalogSheetId === "front" ||
+                catalogSheetId === "side"
               }
               maximized={maximizedPane === "front" || maximizedPane === "side"}
               projectName={projectName}

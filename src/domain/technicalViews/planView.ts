@@ -12,7 +12,7 @@ import {
   planSectionMarkers,
   resolveSectionCutPlane,
 } from "../sectionCut";
-import { printChromeSvg } from "../printLayout";
+import { embedResolvedPrintChrome } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetPlanGraphics } from "./cabinetSvg";
 import { DIM_RUN_CHAIN_STEP, SCALE } from "./constants";
@@ -70,15 +70,12 @@ export function topView(
 
   if (frame.print) {
     elements.push(
-      ...printChromeSvg({
+      ...embedResolvedPrintChrome({
+        sheetId: "plan",
         svgWidth,
         svgHeight,
         project,
         options,
-        sheetTitle: "Room Plan",
-        viewLabel: "PLAN",
-        scaleText: `1:${SCALE * 25}`,
-        sheetCode: "A-101",
         noteView: "top",
       }),
     );

@@ -14,7 +14,8 @@ export {
   renderPrintNotesArea,
   renderRevisionInfoBlock,
 } from "./notesAreaSvg";
-export { printBottomReservePx, printChromeSvg } from "./printChrome";
+export { printBottomReservePx, printChromeSvg, shouldEmbedSheetChrome } from "./printChrome";
+export { embedResolvedPrintChrome } from "./embedResolvedChrome";
 export {
   A4_PRINT_METRICS,
   drawPdfInfoAndNotes,
