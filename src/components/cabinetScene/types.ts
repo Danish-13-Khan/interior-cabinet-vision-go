@@ -11,6 +11,7 @@ export type ResizeAxis = "width" | "height" | "depth";
 export type CabinetSceneHandle = {
   captureThumbnail: () => string | null;
   setViewPreset: (preset: ViewPreset) => void;
+  fitView: () => void;
 };
 
 export type CabinetSceneProps = {

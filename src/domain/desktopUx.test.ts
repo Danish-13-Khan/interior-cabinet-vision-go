@@ -33,7 +33,7 @@ describe("desktopUx layout", () => {
   it("defaults and clamps workspace split percentages", () => {
     const defaults = clampDesktopLayout({});
     expect(defaults.splitPlanWidthPct).toBe(50);
-    expect(defaults.splitTopRowPct).toBe(68);
+    expect(defaults.splitTopRowPct).toBe(72);
     expect(defaults.sceneBrowserVisible).toBe(true);
     expect(defaults.splitTopRowPct).toBeGreaterThan(50);
 
@@ -43,7 +43,7 @@ describe("desktopUx layout", () => {
       sceneBrowserVisible: false,
     });
     expect(clamped.splitPlanWidthPct).toBe(28);
-    expect(clamped.splitTopRowPct).toBe(72);
+    expect(clamped.splitTopRowPct).toBe(80);
     expect(clamped.sceneBrowserVisible).toBe(false);
   });
 });

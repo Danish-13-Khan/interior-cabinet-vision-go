@@ -1,0 +1,194 @@
+/* Drawing-first pane navigation and operational chrome */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pane-nav-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-right: 2px;
+}
+
+.pane-nav-tools .tb-btn {
+  min-width: 1.4rem;
+  padding: 1px 4px;
+  font-size: 0.52rem;
+}
+
+.pane-nav-display {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 2px;
+}
+
+.pane-nav-display select {
+  appearance: none;
+  border: 1px solid var(--workspace-gutter, #8a96a4);
+  background: var(--panel-bg, #d5dde6);
+  color: var(--ink, #1a222c);
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0 4px;
+  min-height: 16px;
+  max-width: 4.6rem;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.pane-nav-scale {
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--muted, #4a5563);
+  padding: 0 4px;
+  white-space: nowrap;
+  border-left: 1px solid var(--workspace-gutter, #8a96a4);
+  margin-left: 2px;
+}
+
+.workspace-pane-title-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 0;
+  background: var(--muted, #6b7785);
+  flex-shrink: 0;
+}
+
+.workspace-pane.is-focused .workspace-pane-title-mark {
+  background: var(--workspace-active-border, var(--accent, #2f6fed));
+}
+
+.workspace-pane-status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-height: 15px;
+  padding: 0 5px;
+  border-top: 1px solid var(--workspace-gutter, #8a96a4);
+  background: linear-gradient(
+    180deg,
+    #c4ced9 0%,
+    #b8c3d0 100%
+  );
+  font-size: 0.48rem;
+  color: var(--muted, #3d4652);
+}
+
+.workspace-pane-status-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.workspace-pane-status-line strong {
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink, #1a222c);
+}
+
+.workspace-pane-status-ready {
+  color: #2a4a6a;
+  font-weight: 600;
+}
+
+.workspace-pane.is-focused .workspace-pane-status {
+  background: linear-gradient(
+    180deg,
+    #b4c6d8 0%,
+    #a8bcd0 100%
+  );
+  border-top-color: var(--workspace-active-border, var(--accent));
+}
+
+.drawing-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(70, 90, 110, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(70, 90, 110, 0.05) 1px, transparent 1px),
+    #d8e0e8;
+  background-size: 16px 16px, 16px 16px, auto;
+  cursor: default;
+  touch-action: none;
+}
+
+.drawing-viewport.is-panning {
+  cursor: grab;
+}
+
+.drawing-viewport.is-panning:active {
+  cursor: grabbing;
+}
+
+.drawing-viewport.is-panning .drawing-viewport-content {
+  pointer-events: none;
+}
+
+.drawing-viewport-content {
+  width: max-content;
+  height: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  will-change: transform;
+}
+
+.drawing-viewport-hud {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  z-index: 2;
+  display: inline-flex;
+  gap: 6px;
+  padding: 1px 5px;
+  background: rgba(40, 52, 66, 0.72);
+  color: #e8eef4;
+  font-size: 0.46rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.viewport-panel-embedded {
+  position: relative;
+}
+
+.scene-pane-hud {
+  z-index: 3;
+}
+
+.drawing-sheet-embedded .drawing-sheet-scroll {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-pane.is-focused {
+  z-index: 1;
+}
+
+.workspace-pane[data-pane="3d"] .workspace-pane-title small {
+  opacity: 0.85;
+}

@@ -181,9 +181,9 @@
     3px
     minmax(0, calc(100% - var(--split-plan-pct, 50%) - 3px));
   grid-template-rows:
-    minmax(0, var(--split-top-pct, 68%))
+    minmax(0, var(--split-top-pct, 72%))
     3px
-    minmax(0, calc(100% - var(--split-top-pct, 68%) - 3px));
+    minmax(0, calc(100% - var(--split-top-pct, 72%) - 3px));
   gap: 0;
   background: var(--workspace-gutter);
 }
