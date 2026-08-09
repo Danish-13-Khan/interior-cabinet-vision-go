@@ -103,6 +103,7 @@ describe("section and detail rendering", () => {
     expect(plan.svg).toContain("twod-section-cut-line");
     expect(plan.svg).toContain("SECTION A-A");
     expect(front.svg).toContain("twod-section-marker");
+    expect(front.svg).toContain("SECTION A-A");
   });
 });
 

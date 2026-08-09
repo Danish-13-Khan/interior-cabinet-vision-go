@@ -243,9 +243,11 @@ export function cabinetElevationGraphics(
     spanLabelMm,
     cabinet.config.dimensions.height,
   );
-  elements.push(
-    ...renderElevationMark(x + width / 2, y - 22, elevTag),
-  );
+  if (display.showCabinetTags) {
+    elements.push(
+      ...renderElevationMark(x + width / 2, y - 22, elevTag),
+    );
+  }
   elements.push(
     text(
       x + width / 2,
