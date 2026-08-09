@@ -2,12 +2,11 @@ import type { MutableRefObject } from "react";
 import {
   defaultCabinetProject,
   type CabinetInstance,
-  type CabinetPlacement,
   type CabinetProject,
 } from "../domain/cabinetDimensions";
 import {
   createCabinetPlanningWorkflow,
-  createRunAlignedPlacements,
+  createAllRunAlignedPlacements,
 } from "../domain/cabinetLibrary";
 import { createOffsetDuplicate } from "../domain/cabinetDuplication";
 import { DEFAULT_ROOM, type RoomConfig } from "../domain/roomModel";
@@ -111,33 +110,26 @@ export function useCabinetSelectionOps({
   function handleAutoAlignRuns() {
     commitProjectChange(
       (currentProject) => {
-        const alignedPlacements = new Map<string, CabinetPlacement>();
+        const workflow = createCabinetPlanningWorkflow(currentProject, roomBounds);
+        const alignedPlacements = createAllRunAlignedPlacements(
+          workflow.runs,
+          currentProject,
+          roomBounds,
+        );
 
-        for (const run of createCabinetPlanningWorkflow(currentProject, roomBounds)
-          .runs) {
-          const placements = createRunAlignedPlacements(
-            run,
-            currentProject,
-            roomBounds,
-          );
-          for (const [cabinetId, placement] of Object.entries(placements)) {
-            alignedPlacements.set(cabinetId, placement);
-          }
-        }
-
-        if (alignedPlacements.size === 0) return null;
+        if (Object.keys(alignedPlacements).length === 0) return null;
 
         return {
           project: {
             ...currentProject,
             cabinets: currentProject.cabinets.map((cabinet) => ({
               ...cabinet,
-              placement: alignedPlacements.get(cabinet.id) ?? cabinet.placement,
+              placement: alignedPlacements[cabinet.id] ?? cabinet.placement,
             })),
           },
         };
       },
-      "Aligned cabinets into planning runs.",
+      "Aligned cabinets into wall runs.",
     );
   }
 

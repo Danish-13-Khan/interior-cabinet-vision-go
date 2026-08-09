@@ -3,8 +3,10 @@ import {
   snapMillimetresToGrid,
   type CabinetInstance,
   type CabinetPlacement,
+  type RoomBounds,
 } from "./cabinetDimensions";
 import type { CabinetRun } from "./cabinetLibrary";
+import { snapPlacementIntoRuns } from "./cabinetRuns";
 
 export type SnapTarget = {
   center: number;
@@ -172,6 +174,7 @@ export function snapPlanPlacement(options: {
   roomWidthMm: number;
   roomDepthMm: number;
   gridSizeMm: number;
+  runs?: CabinetRun[];
 }): PlanSnapResult {
   const { cabinet, others, proposed, roomWidthMm, roomDepthMm, gridSizeMm } = options;
   const footprint = getFootprintDimensions(cabinet.config.dimensions, proposed.rotation);
@@ -231,6 +234,23 @@ export function snapPlanPlacement(options: {
     z = halfD - footprint.depth / 2;
     guides.push({ axis: "z", positionMm: halfD, kind: "wall" });
   }
+
+  const roomBounds: RoomBounds = {
+    widthMm: roomWidthMm,
+    depthMm: roomDepthMm,
+    heightMm: 2800,
+  };
+  const runSnap = snapPlacementIntoRuns({
+    cabinet,
+    others,
+    proposed: { ...proposed, x, y, z },
+    roomBounds,
+    runs: options.runs,
+  });
+  x = runSnap.placement.x;
+  z = runSnap.placement.z;
+  y = runSnap.placement.y;
+  guides.push(...runSnap.guides);
 
   x = snapMillimetresToGrid(x, gridSizeMm);
   z = snapMillimetresToGrid(z, gridSizeMm);
