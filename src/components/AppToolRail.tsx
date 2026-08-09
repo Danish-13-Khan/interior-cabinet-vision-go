@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import type { CabinetTemplate } from "../domain/cabinetTemplates";
 import type { CabinetFamilyLibraryEntry } from "../domain/workshopLibrary";
 import type { CabinetType } from "../domain/cabinetDimensions";
-import type { CabinetInstance } from "../domain/cabinetDimensions";
+import type { CabinetRun } from "../domain/cabinetLibrary";
 import type { ProjectRoom, RoomTemplateId } from "../domain/projectRooms";
 import type { RoomPresetId } from "../domain/roomPresets";
 import { LibraryRail } from "./LibraryRail";
@@ -25,11 +25,13 @@ type SavedProjectCard = {
 type AppToolRailProps = {
   templates: CabinetTemplate[];
   userCabinetPresets: CabinetFamilyLibraryEntry[];
-  cabinets: CabinetInstance[];
-  activeCabinetId: string | null;
-  selectedCabinetIds: string[];
   rooms: ProjectRoom[];
   activeRoomId: string | null;
+  runs: CabinetRun[];
+  activeCabinetId: string | null;
+  selectedCabinetIds: string[];
+  activeOpeningId: string | null;
+  isolatedCabinetIds: string[] | null;
   savedProjects: SavedProjectCard[];
   onAddFamily: (type: CabinetType) => void;
   onAddLibraryItem: (itemId: string) => void;
@@ -39,6 +41,19 @@ type AppToolRailProps = {
   onOpenLibraryManager: () => void;
   onSelectCabinet: (cabinetId: string, additive: boolean) => void;
   onSelectRoom: (roomId: string) => void;
+  onSelectRun: (run: CabinetRun) => void;
+  onSelectOpening: (cabinetId: string, openingId: string) => void;
+  onSelectCabinets: (
+    roomId: string,
+    cabinetIds: string[],
+    activeId: string | null,
+    additive: boolean,
+  ) => void;
+  onRenameCabinet: (cabinetId: string, name: string) => void;
+  onRenameRoomTo: (roomId: string, name: string) => void;
+  onIsolate: (cabinetIds: string[]) => void;
+  onFocus: (cabinetIds: string[], activeId: string | null) => void;
+  onReorderCabinet: (runId: string, cabinetId: string, direction: -1 | 1) => void;
   onAddRoom: () => void;
   onDuplicateRoom: (roomId: string) => void;
   onRenameRoom: (roomId: string) => void;
@@ -50,10 +65,6 @@ type AppToolRailProps = {
   onLoadSavedProject: (projectId: string) => void;
   onRenameSavedProject: (projectId: string, name: string) => void;
   onSaveCurrentProject: () => void;
-  onCabinetContextMenu?: (
-    cabinetId: string,
-    point: { x: number; y: number },
-  ) => void;
   onProjectContextMenu?: (
     projectId: string,
     point: { x: number; y: number },
@@ -64,11 +75,13 @@ type AppToolRailProps = {
 export function AppToolRail({
   templates,
   userCabinetPresets,
-  cabinets,
-  activeCabinetId,
-  selectedCabinetIds,
   rooms,
   activeRoomId,
+  runs,
+  activeCabinetId,
+  selectedCabinetIds,
+  activeOpeningId,
+  isolatedCabinetIds,
   savedProjects,
   onAddFamily,
   onAddLibraryItem,
@@ -78,6 +91,14 @@ export function AppToolRail({
   onOpenLibraryManager,
   onSelectCabinet,
   onSelectRoom,
+  onSelectRun,
+  onSelectOpening,
+  onSelectCabinets,
+  onRenameCabinet,
+  onRenameRoomTo,
+  onIsolate,
+  onFocus,
+  onReorderCabinet,
   onAddRoom,
   onDuplicateRoom,
   onRenameRoom,
@@ -89,7 +110,6 @@ export function AppToolRail({
   onLoadSavedProject,
   onRenameSavedProject,
   onSaveCurrentProject,
-  onCabinetContextMenu,
   onProjectContextMenu,
   style,
 }: AppToolRailProps) {
@@ -107,11 +127,23 @@ export function AppToolRail({
       />
 
       <SceneTreePanel
-        cabinets={cabinets}
+        rooms={rooms}
+        activeRoomId={activeRoomId}
+        runs={runs}
         activeCabinetId={activeCabinetId}
         selectedCabinetIds={selectedCabinetIds}
+        activeOpeningId={activeOpeningId}
+        isolatedCabinetIds={isolatedCabinetIds}
+        onSelectRoom={onSelectRoom}
         onSelectCabinet={onSelectCabinet}
-        onCabinetContextMenu={onCabinetContextMenu}
+        onSelectRun={onSelectRun}
+        onSelectOpening={onSelectOpening}
+        onSelectCabinets={onSelectCabinets}
+        onRenameCabinet={onRenameCabinet}
+        onRenameRoom={onRenameRoomTo}
+        onIsolate={onIsolate}
+        onFocus={onFocus}
+        onReorderCabinet={onReorderCabinet}
       />
 
       <RoomNavigator

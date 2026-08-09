@@ -72,6 +72,11 @@
   overflow: hidden;
 }
 
+.workspace-scene-browser .cabinet-tree-browser {
+  flex: 1;
+  min-height: 0;
+}
+
 .workspace-scene-browser-header {
   flex-shrink: 0;
   padding: 3px 5px;

@@ -16,6 +16,7 @@ import { useAppContextMenus } from "./useAppContextMenus";
 import { useAppCommandUi } from "./useAppCommandUi";
 import { useAppControllerCabinets } from "./useAppControllerCabinets";
 import { useAppControllerSession } from "./useAppControllerSession";
+import { useSceneTreeOps } from "./useSceneTreeOps";
 
 export function useAppController() {
   const s = useAppControllerSession();
@@ -68,6 +69,21 @@ export function useAppController() {
     setProjectFilePath: s.setProjectFilePath,
     saveTemplate: s.saveTemplate,
     deleteTemplate: s.deleteTemplate,
+    onStatus: s.setProjectStatus,
+  });
+
+  const sceneTree = useSceneTreeOps({
+    project: s.project,
+    roomBounds: s.roomBounds,
+    activeRoomId: s.project.activeRoomId ?? null,
+    runs: s.planningWorkflow.runs,
+    selectedCabinetIds: s.selectedCabinetIds,
+    isolatedCabinetIds: s.isolatedCabinetIds,
+    setIsolatedCabinetIds: s.setIsolatedCabinetIds,
+    commitProjectChange: s.commitProjectChange,
+    replaceSelection: s.replaceSelection,
+    selectCabinetsInRoom: rooms.handleSelectCabinetsInRoom,
+    fitView: () => s.sceneRef.current?.fitView(),
     onStatus: s.setProjectStatus,
   });
 
@@ -174,6 +190,7 @@ export function useAppController() {
     ...fileIo,
     ...rooms,
     ...cabinets,
+    ...sceneTree,
     ...review,
     ...preferences,
     ...menus,
