@@ -4,6 +4,7 @@ import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
 import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
 import { useAppController } from "./hooks/useAppController";
+import { getProjectSheetSet } from "./domain/sheetDocuments";
 
 function App() {
   const c = useAppController();
@@ -86,7 +87,7 @@ function App() {
           onSelectRun: (run) => {
             c.replaceSelection(run.cabinetIds, run.cabinetIds[0] ?? null, null);
             c.setWorkspaceTab("plan");
-            c.setLayout({ activeSheetId: "plan" });
+            c.handleSelectSheetDocument("plan");
           },
           onSelectOpening: c.handleSelectOpening,
           onSelectCabinets: c.handleTreeSelectCabinets,
@@ -110,7 +111,7 @@ function App() {
         }}
         workspaceProps={{
           workspaceTab: c.workspaceTab,
-          activeSheetId: c.layout.activeSheetId,
+          activeSheetId: getProjectSheetSet(c.project).activeSheetId,
           workspaceLabel: c.workspaceLabel,
           draftingTool: c.draftingTool,
           project: c.getVisibleProject(),
@@ -132,11 +133,15 @@ function App() {
           onWorkspaceTabChange: (tab) => {
             c.setWorkspaceTab(tab);
             if (tab === "plan" || tab === "front" || tab === "side") {
-              c.setLayout({ activeSheetId: tab });
+              c.handleSelectSheetDocument(tab);
             }
             c.setDraftingTool("select");
           },
-          onActiveSheetChange: (activeSheetId) => c.setLayout({ activeSheetId }),
+          onActiveSheetChange: c.handleSelectSheetDocument,
+          onRenameSheet: c.handleRenameSheet,
+          onSetSheetNotes: c.handleSetSheetNotes,
+          onAddCombinedSheet: c.handleAddCombinedSheet,
+          onPlaceView: c.handlePlaceView,
           onDraftingToolChange: c.setDraftingTool,
           onSplitPlanWidthChange: (splitPlanWidthPct) =>
             c.setLayout({ splitPlanWidthPct }),
@@ -315,6 +320,10 @@ function App() {
         onExportRevisionSummary={() => { void c.handleExportRevisionSummary(); }}
         approvalBlockedReasons={c.approvalGate.reasons}
         releaseBlockedReasons={c.releaseGate.reasons}
+        onOpenSheet={(sheetId) => {
+          c.handleSelectSheetDocument(sheetId);
+          c.setLayout({ sheetBrowserVisible: true, statusDockOpen: false });
+        }}
       />
     </main>
   );

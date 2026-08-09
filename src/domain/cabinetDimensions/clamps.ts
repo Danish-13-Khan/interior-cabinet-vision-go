@@ -25,6 +25,7 @@ import {
   clampDraftingDisplay,
   clampProjectDrafting,
 } from "../draftingAnnotations";
+import { clampProjectSheetSet } from "../sheetDocuments";
 import {
   normalizeConstructionSpec,
   shelvesAreAdjustable,
@@ -393,5 +394,9 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       project.revisionHistory ?? defaultCabinetProject.revisionHistory,
     ),
     job: clampJobMeta(project.job ?? defaultCabinetProject.job),
+    sheetSet: clampProjectSheetSet(
+      project.sheetSet,
+      project.sheetSet?.activeSheetId ?? "plan",
+    ),
   };
 }

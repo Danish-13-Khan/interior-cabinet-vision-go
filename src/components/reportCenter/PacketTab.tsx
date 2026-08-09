@@ -1,12 +1,19 @@
 import { JOB_STATUS_LABELS } from "../../domain/jobMeta";
 import type { ProjectReport } from "../../domain/projectReport";
+import type { SheetDocument } from "../../domain/sheetDocuments";
 import { money } from "./helpers";
 
 type PacketTabProps = {
   report: ProjectReport;
+  sheets?: SheetDocument[];
+  onOpenSheet?: (sheetId: string) => void;
 };
 
-export function PacketTab({ report }: PacketTabProps) {
+export function PacketTab({
+  report,
+  sheets = [],
+  onOpenSheet,
+}: PacketTabProps) {
   const quote = report.quote;
 
   return (
@@ -61,6 +68,33 @@ export function PacketTab({ report }: PacketTabProps) {
           <strong>{report.summary.roomSizeLabel}</strong>
         </div>
       </div>
+
+      {sheets.length > 0 ? (
+        <section className="report-subsection">
+          <h3>Drawing sheets</h3>
+          <ol className="packet-toc packet-sheet-toc">
+            {sheets.map((sheet) => (
+              <li key={sheet.id}>
+                <button
+                  type="button"
+                  className="packet-sheet-link"
+                  onClick={() => onOpenSheet?.(sheet.id)}
+                >
+                  <strong>
+                    {sheet.code} · {sheet.name}
+                  </strong>
+                  <span>
+                    {sheet.viewports
+                      .map((viewport) => viewport.title)
+                      .join(" · ")}{" "}
+                    · {sheet.scaleText}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
 
       {report.job.notes ? (
         <section className="report-subsection">

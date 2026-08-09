@@ -1,27 +1,37 @@
+import { useMemo } from "react";
 import {
-  DRAWING_SHEETS,
-  type DrawingSheetId,
-} from "../domain/drawingSheets";
+  getProjectSheetSet,
+  type SheetDocument,
+} from "../domain/sheetDocuments";
+import type { CabinetProject } from "../domain/cabinetDimensions";
 
 type DrawingSheetTabsProps = {
-  activeSheetId: DrawingSheetId;
-  onSelectSheet: (sheetId: DrawingSheetId) => void;
+  project: CabinetProject;
+  activeSheetId: string;
+  onSelectSheet: (sheetId: string) => void;
 };
 
+function isActive(sheet: SheetDocument, activeSheetId: string) {
+  return sheet.id === activeSheetId || sheet.catalogId === activeSheetId;
+}
+
 export function DrawingSheetTabs({
+  project,
   activeSheetId,
   onSelectSheet,
 }: DrawingSheetTabsProps) {
+  const sheets = useMemo(() => getProjectSheetSet(project).sheets, [project]);
+
   return (
     <div className="drawing-sheet-tabs" role="tablist" aria-label="Drawing sheets">
-      {DRAWING_SHEETS.map((sheet) => (
+      {sheets.map((sheet) => (
         <button
           key={sheet.id}
           type="button"
           role="tab"
-          aria-selected={activeSheetId === sheet.id}
-          className={`drawing-sheet-tab ${activeSheetId === sheet.id ? "is-active" : ""}`}
-          title={`${sheet.code} · ${sheet.title} · ${sheet.scaleText}`}
+          aria-selected={isActive(sheet, activeSheetId)}
+          className={`drawing-sheet-tab ${isActive(sheet, activeSheetId) ? "is-active" : ""}`}
+          title={`${sheet.code} · ${sheet.name} · ${sheet.scaleText}`}
           onClick={() => onSelectSheet(sheet.id)}
         >
           <span className="drawing-sheet-tab-code">{sheet.code}</span>

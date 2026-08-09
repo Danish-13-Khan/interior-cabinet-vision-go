@@ -17,6 +17,8 @@ import { useAppCommandUi } from "./useAppCommandUi";
 import { useAppControllerCabinets } from "./useAppControllerCabinets";
 import { useAppControllerSession } from "./useAppControllerSession";
 import { useSceneTreeOps } from "./useSceneTreeOps";
+import { useSheetDocumentOps } from "./useSheetDocumentOps";
+import type { DrawingSheetId } from "../domain/drawingSheets";
 
 export function useAppController() {
   const s = useAppControllerSession();
@@ -84,6 +86,17 @@ export function useAppController() {
     replaceSelection: s.replaceSelection,
     selectCabinetsInRoom: rooms.handleSelectCabinetsInRoom,
     fitView: () => s.sceneRef.current?.fitView(),
+    onStatus: s.setProjectStatus,
+  });
+
+  const sheets = useSheetDocumentOps({
+    commitProjectChange: s.commitProjectChange,
+    onSelectCatalogSheet: (sheetId: DrawingSheetId) => {
+      s.setLayout({ activeSheetId: sheetId });
+      if (sheetId === "plan" || sheetId === "front" || sheetId === "side") {
+        s.setWorkspaceTab(sheetId);
+      }
+    },
     onStatus: s.setProjectStatus,
   });
 
@@ -191,6 +204,7 @@ export function useAppController() {
     ...rooms,
     ...cabinets,
     ...sceneTree,
+    ...sheets,
     ...review,
     ...preferences,
     ...menus,

@@ -9,7 +9,7 @@ import {
   detailCalloutBubble,
   resolveSectionCutPlane,
 } from "../sectionCut";
-import { printChromeSvg } from "../printLayout";
+import { embedResolvedPrintChrome } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { SCALE } from "./constants";
 import {
@@ -61,15 +61,15 @@ export function sectionView(
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
   if (frame.print) {
     elements.push(
-      ...printChromeSvg({
+      ...embedResolvedPrintChrome({
+        sheetId: "section",
         svgWidth,
         svgHeight,
         project,
-        options,
-        sheetTitle: plane.label,
-        viewLabel: plane.label,
-        scaleText: `1:${SCALE * 25}`,
-        sheetCode: "A-301",
+        options: {
+          ...options,
+          title: options.title ?? plane.label,
+        },
         noteView: "side",
       }),
     );

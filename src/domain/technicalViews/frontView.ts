@@ -13,7 +13,7 @@ import {
   elevationSectionMarkers,
   resolveSectionCutPlane,
 } from "../sectionCut";
-import { printChromeSvg } from "../printLayout";
+import { embedResolvedPrintChrome } from "../printLayout";
 import { resolveDimOpts } from "./resolveDimOpts";
 import { cabinetElevationGraphics, cabinetRectAttrs } from "./cabinetSvg";
 import { SCALE } from "./constants";
@@ -72,15 +72,12 @@ export function frontView(
   elements.push(sheetBackground(svgWidth, svgHeight, frame.print));
   if (frame.print) {
     elements.push(
-      ...printChromeSvg({
+      ...embedResolvedPrintChrome({
+        sheetId: "front",
         svgWidth,
         svgHeight,
         project,
         options,
-        sheetTitle: "Front Elevation",
-        viewLabel: "FRONT ELEV.",
-        scaleText: `1:${SCALE * 25}`,
-        sheetCode: "A-201",
         noteView: "front",
       }),
     );

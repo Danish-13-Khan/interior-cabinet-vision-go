@@ -11,15 +11,20 @@ import {
   type PaneDisplayMode,
 } from "../domain/desktopUx/paneDisplayMode";
 import { DEFAULT_DRAFTING_DISPLAY } from "../domain/draftingAnnotations";
-import type { DrawingSheetId } from "../domain/drawingSheets";
-import { getDrawingSheet } from "../domain/drawingSheets";
+import {
+  catalogIdFromSheetId,
+  findSheetDocument,
+  getProjectSheetSet,
+  resolveSheetChrome,
+  sheetMetaFromChrome,
+} from "../domain/sheetDocuments";
 
 type TwoDProps = ComponentProps<typeof TwoDView>;
 
 type WorkspaceDrawingPaneProps = {
   paneId: string;
-  sheetId: DrawingSheetId;
-  title: string;
+  sheetId: string;
+  title?: string;
   focused: boolean;
   maximized: boolean;
   projectName: string;
@@ -34,6 +39,21 @@ type WorkspaceDrawingPaneProps = {
     draftingDisplay?: TwoDProps["draftingDisplay"];
   };
 };
+
+function viewForKind(
+  kind: string,
+): TwoDProps["view"] {
+  if (
+    kind === "front" ||
+    kind === "side" ||
+    kind === "section" ||
+    kind === "detail" ||
+    kind === "report"
+  ) {
+    return kind;
+  }
+  return "top";
+}
 
 export function WorkspaceDrawingPane({
   paneId,
@@ -51,7 +71,22 @@ export function WorkspaceDrawingPane({
   onToggleMaximize,
   twoDProps,
 }: WorkspaceDrawingPaneProps) {
-  const sheet = getDrawingSheet(sheetId);
+  const chrome = useMemo(
+    () => resolveSheetChrome(sheetId, twoDProps.project),
+    [sheetId, twoDProps.project],
+  );
+  const sheetDoc = useMemo(() => {
+    const set = getProjectSheetSet(twoDProps.project);
+    return findSheetDocument(set, sheetId);
+  }, [sheetId, twoDProps.project]);
+  const multiView = (sheetDoc?.viewports.length ?? 0) > 1;
+  const catalogSheetId = catalogIdFromSheetId(sheetId);
+  const meta = sheetMetaFromChrome({
+    ...chrome,
+    projectName: chrome.projectName ?? projectName,
+    revision: chrome.revision ?? revision,
+  });
+
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const nav = usePaneViewNav();
@@ -83,15 +118,16 @@ export function WorkspaceDrawingPane({
   }
 
   const cabinetCount = twoDProps.project.cabinets.length;
-  const statusLine = [sheet.code, sheet.scaleText, `${cabinetCount} cab`, statusExtra]
+  const paneTitle = title ?? chrome.title;
+  const statusLine = [chrome.code, chrome.scaleText, `${cabinetCount} cab`, statusExtra]
     .filter(Boolean)
     .join(" · ");
 
   return (
     <WorkspaceViewPane
       paneId={paneId}
-      title={title}
-      subtitle={sheet.code}
+      title={paneTitle}
+      subtitle={chrome.code}
       focused={focused}
       maximized={maximized}
       onFocus={onFocus}
@@ -100,7 +136,7 @@ export function WorkspaceDrawingPane({
         <>
           <WorkspacePaneNavTools
             transform={nav.transform}
-            sheetScaleText={sheet.scaleText}
+            sheetScaleText={chrome.scaleText}
             displayMode={displayMode}
             panActive={nav.panActive}
             onFit={handleFit}
@@ -114,7 +150,7 @@ export function WorkspaceDrawingPane({
       }
       status={
         <span className="workspace-pane-status-line">
-          <strong>{title}</strong>
+          <strong>{paneTitle}</strong>
           <span>{statusLine}</span>
           {cabinetCount === 0 ? (
             <span className="workspace-pane-status-ready">Ready · place cabinets</span>
@@ -123,15 +159,12 @@ export function WorkspaceDrawingPane({
       }
     >
       <DrawingSheetChrome
-        meta={{
-          code: sheet.code,
-          title: sheet.title,
-          scaleText: sheet.scaleText,
-          projectName,
-          revision,
-        }}
+        meta={meta}
         active={focused}
         banner={banner}
+        notes={chrome.notes}
+        revisionRows={chrome.revisionRows}
+        viewports={chrome.viewports}
       >
         <div
           ref={viewportRef}
@@ -166,16 +199,45 @@ export function WorkspaceDrawingPane({
               transform: `translate(${nav.transform.panX}px, ${nav.transform.panY}px) scale(${nav.transform.zoom})`,
             }}
           >
-            <TwoDView
-              {...twoDProps}
-              view={view}
-              draftingDisplay={draftingDisplay}
-              draftingTool={nav.panActive ? "select" : twoDProps.draftingTool}
-            />
+            {multiView && sheetDoc ? (
+              <div className="sheet-composition" data-sheet={sheetDoc.id}>
+                {sheetDoc.viewports.map((viewport) => (
+                  <div
+                    key={viewport.id}
+                    className="sheet-composition-viewport"
+                    style={{
+                      left: `${viewport.x * 100}%`,
+                      top: `${viewport.y * 100}%`,
+                      width: `${viewport.width * 100}%`,
+                      height: `${viewport.height * 100}%`,
+                    }}
+                  >
+                    <div className="sheet-composition-label">
+                      <span>{viewport.title}</span>
+                      <span>{viewport.scaleText ?? chrome.scaleText}</span>
+                    </div>
+                    <TwoDView
+                      {...twoDProps}
+                      view={viewForKind(viewport.viewKind)}
+                      draftingDisplay={draftingDisplay}
+                      draftingTool={nav.panActive ? "select" : twoDProps.draftingTool}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <TwoDView
+                {...twoDProps}
+                view={view}
+                draftingDisplay={draftingDisplay}
+                draftingTool={nav.panActive ? "select" : twoDProps.draftingTool}
+              />
+            )}
           </div>
           <div className="drawing-viewport-hud" aria-hidden>
-            <span>{sheet.shortLabel}</span>
-            <span>{sheet.scaleText}</span>
+            <span>{chrome.shortLabel}</span>
+            <span>{chrome.scaleText}</span>
+            <span>{catalogSheetId}</span>
           </div>
         </div>
       </DrawingSheetChrome>

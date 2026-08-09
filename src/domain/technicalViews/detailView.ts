@@ -14,7 +14,7 @@ import {
   detailZoomFrame,
   resolveSectionCutPlane,
 } from "../sectionCut";
-import { printChromeSvg } from "../printLayout";
+import { embedResolvedPrintChrome } from "../printLayout";
 import { cabinetElevationGraphics } from "./cabinetSvg";
 import { SCALE } from "./constants";
 import {
@@ -62,17 +62,13 @@ export function detailView(
 
   elements.push(sheetBackground(svgWidth, svgHeight, true));
   elements.push(
-    ...printChromeSvg({
+    ...embedResolvedPrintChrome({
+      sheetId: "detail",
       svgWidth,
       svgHeight,
       project,
       options: { ...options, mode: options.mode ?? "print" },
-      sheetTitle: "Cabinet Detail DET-1",
-      viewLabel: "DETAIL",
-      scaleText: `1:${Math.round((SCALE * 25) / DETAIL_SCALE)}`,
-      sheetCode: "A-501",
       noteView: "side",
-      includeNotesArea: options.mode === "print",
     }),
   );
 

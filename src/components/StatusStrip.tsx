@@ -46,6 +46,8 @@ type StatusStripProps = {
   onExportRevisionSummary?: () => void;
   approvalBlockedReasons?: string[];
   releaseBlockedReasons?: string[];
+  sheets?: import("../domain/sheetDocuments").SheetDocument[];
+  onOpenSheet?: (sheetId: string) => void;
 };
 
 export function StatusStrip({
@@ -86,6 +88,8 @@ export function StatusStrip({
   onExportRevisionSummary,
   approvalBlockedReasons = [],
   releaseBlockedReasons = [],
+  sheets = [],
+  onOpenSheet,
 }: StatusStripProps) {
   return (
     <footer className="status-strip">
@@ -168,6 +172,8 @@ export function StatusStrip({
               onExportRevisionSummary={onExportRevisionSummary}
               approvalBlockedReasons={approvalBlockedReasons}
               releaseBlockedReasons={releaseBlockedReasons}
+              sheets={sheets}
+              onOpenSheet={onOpenSheet}
             />
           </div>
         </>

@@ -11,6 +11,7 @@ import type { ProjectReport } from "../domain/projectReport";
 import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
 import type { ReviewNoteSeverity } from "../domain/projectReview";
+import { getProjectSheetSet } from "../domain/sheetDocuments";
 
 type AppStatusDockProps = {
   project: CabinetProject;
@@ -51,6 +52,7 @@ type AppStatusDockProps = {
   onExportRevisionSummary: () => void;
   approvalBlockedReasons: string[];
   releaseBlockedReasons: string[];
+  onOpenSheet?: (sheetId: string) => void;
 };
 
 export function AppStatusDock({
@@ -88,8 +90,10 @@ export function AppStatusDock({
   onExportRevisionSummary,
   approvalBlockedReasons,
   releaseBlockedReasons,
+  onOpenSheet,
 }: AppStatusDockProps) {
   const job = clampJobMeta(project.job);
+  const sheets = getProjectSheetSet(project).sheets;
   const selectionSummary = selectedCabinet
     ? `${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm`
     : selectedCabinetIds.length > 1
@@ -144,6 +148,8 @@ export function AppStatusDock({
         onExportRevisionSummary={onExportRevisionSummary}
         approvalBlockedReasons={approvalBlockedReasons}
         releaseBlockedReasons={releaseBlockedReasons}
+        sheets={sheets}
+        onOpenSheet={onOpenSheet}
       />
     </div>
   );

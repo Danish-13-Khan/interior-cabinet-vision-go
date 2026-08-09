@@ -56,6 +56,8 @@ type ReportCenterProps = {
   onExportRevisionSummary?: () => void;
   approvalBlockedReasons?: string[];
   releaseBlockedReasons?: string[];
+  sheets?: import("../domain/sheetDocuments").SheetDocument[];
+  onOpenSheet?: (sheetId: string) => void;
 };
 
 const TABS = [
@@ -96,6 +98,8 @@ export function ReportCenter({
   onExportRevisionSummary,
   approvalBlockedReasons = [],
   releaseBlockedReasons = [],
+  sheets = [],
+  onOpenSheet,
 }: ReportCenterProps) {
   const [tab, setTab] = useState<ReportCenterTab>("packet");
 
@@ -117,7 +121,13 @@ export function ReportCenter({
       </div>
 
       <div className="report-center-body">
-        {tab === "packet" ? <PacketTab report={report} /> : null}
+        {tab === "packet" ? (
+          <PacketTab
+            report={report}
+            sheets={sheets}
+            onOpenSheet={onOpenSheet}
+          />
+        ) : null}
 
         {tab === "review" ? (
           <ReviewWorkflowPanel

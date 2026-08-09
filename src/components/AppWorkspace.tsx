@@ -15,13 +15,14 @@ import type {
 import type { CabinetPlanningWorkflow, CabinetRun } from "../domain/cabinetLibrary";
 import type { ElevationOpeningCommand } from "../domain/elevationOpeningEdit";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
-import type { DrawingSheetId } from "../domain/drawingSheets";
 import type { ProjectRoom } from "../domain/projectRooms";
+import type { SheetViewKind } from "../domain/sheetDocuments";
+import { catalogIdFromSheetId } from "../domain/sheetDocuments";
 import { WorkspaceSheetBrowser } from "./WorkspaceSheetBrowser";
 
 type AppWorkspaceProps = {
   workspaceTab: WorkspaceTabId;
-  activeSheetId: DrawingSheetId;
+  activeSheetId: string;
   workspaceLabel: string;
   draftingTool: DraftingTool;
   project: CabinetProject;
@@ -41,7 +42,11 @@ type AppWorkspaceProps = {
   sceneBrowserVisible: boolean;
   sheetBrowserVisible: boolean;
   onWorkspaceTabChange: (tab: WorkspaceTabId) => void;
-  onActiveSheetChange: (sheetId: DrawingSheetId) => void;
+  onActiveSheetChange: (sheetId: string) => void;
+  onRenameSheet: (sheetId: string, name: string) => void;
+  onSetSheetNotes: (sheetId: string, notes: string[]) => void;
+  onAddCombinedSheet: () => void;
+  onPlaceView: (sheetId: string, viewKind: SheetViewKind) => void;
   onDraftingToolChange: (tool: DraftingTool) => void;
   onSplitPlanWidthChange: (pct: number) => void;
   onSplitTopRowChange: (pct: number) => void;
@@ -121,6 +126,10 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       sheetBrowserVisible,
       onWorkspaceTabChange,
       onActiveSheetChange,
+      onRenameSheet,
+      onSetSheetNotes,
+      onAddCombinedSheet,
+      onPlaceView,
       onDraftingToolChange,
       onSplitPlanWidthChange,
       onSplitTopRowChange,
@@ -180,10 +189,11 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       }
     }
 
-    function handleSelectSheet(sheetId: DrawingSheetId) {
+    function handleSelectSheet(sheetId: string) {
       onActiveSheetChange(sheetId);
-      if (sheetId === "plan" || sheetId === "front" || sheetId === "side") {
-        onWorkspaceTabChange(sheetId);
+      const catalogId = catalogIdFromSheetId(sheetId, project);
+      if (catalogId === "plan" || catalogId === "front" || catalogId === "side") {
+        onWorkspaceTabChange(catalogId);
         setMaximizedPane(null);
       } else {
         setMaximizedPane(null);
@@ -280,8 +290,13 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
         <div className="workspace-body">
           {sheetBrowserVisible ? (
             <WorkspaceSheetBrowser
+              project={project}
               activeSheetId={activeSheetId}
               onSelectSheet={handleSelectSheet}
+              onRenameSheet={onRenameSheet}
+              onSetSheetNotes={onSetSheetNotes}
+              onAddCombinedSheet={onAddCombinedSheet}
+              onPlaceView={onPlaceView}
             />
           ) : null}
 

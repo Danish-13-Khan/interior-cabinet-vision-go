@@ -1,7 +1,7 @@
 import type { CabinetProject } from "../cabinetDimensions";
 import { createProjectReport } from "../projectReport";
 import type { RoomConfig } from "../roomModel";
-import { printChromeSvg } from "../printLayout";
+import { embedResolvedPrintChrome } from "../printLayout";
 import { TITLE_BLOCK_HEIGHT } from "./constants";
 import {
   computeSheetFrame,
@@ -50,17 +50,13 @@ export function reportSheetView(
 
   elements.push(sheetBackground(svgWidth, svgHeight, true));
   elements.push(
-    ...printChromeSvg({
+    ...embedResolvedPrintChrome({
+      sheetId: "report",
       svgWidth,
       svgHeight,
       project,
       options: { ...options, mode: options.mode ?? "print" },
-      sheetTitle: "Cabinet Schedule",
-      viewLabel: "REPORT",
-      scaleText: "NTS",
-      sheetCode: "A-401",
       noteView: "all",
-      includeNotesArea: false,
     }),
   );
 
