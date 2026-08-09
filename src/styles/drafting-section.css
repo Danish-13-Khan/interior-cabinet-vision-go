@@ -1,0 +1,82 @@
+/* Section / detail cut graphics */
+
+.technical-view .twod-section-cut,
+.technical-view .twod-line-cut {
+  stroke: var(--draft-cut);
+  stroke-width: 1.6px;
+  fill: none;
+}
+
+.technical-view .twod-section-marker,
+.technical-view .twod-section-cut-line {
+  stroke: var(--draft-cut);
+  stroke-width: 1.15px;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.technical-view .twod-section-mark {
+  fill: var(--draft-cut);
+  font-weight: 750;
+  stroke: none;
+}
+
+.technical-view .twod-section-mark-label {
+  fill: #1a4a72;
+  font-weight: 650;
+  stroke: none;
+  letter-spacing: 0.04em;
+}
+
+.technical-view .twod-section-hatch {
+  stroke: var(--draft-hatch);
+  stroke-width: 0.5px;
+  opacity: 0.62;
+  fill: none;
+}
+
+.technical-view .twod-section-board {
+  fill: var(--draft-board-fill);
+  stroke: var(--draft-hatch);
+  stroke-width: 0.85px;
+}
+
+.technical-view .twod-section-carcass {
+  fill: rgba(201, 176, 138, 0.32);
+}
+
+.technical-view .twod-section-cut-active {
+  stroke: var(--draft-cut);
+  stroke-width: 1.85px;
+}
+
+.technical-view .twod-section-shelf {
+  stroke: var(--draft-interior);
+  stroke-width: 1px;
+}
+
+.technical-view .twod-section-drawer {
+  fill: rgba(255, 255, 255, 0.45);
+  stroke: #57534e;
+  stroke-width: 0.8px;
+}
+
+.technical-view .twod-section-front {
+  stroke-width: 2px;
+}
+
+.technical-view .twod-detail-bubble {
+  fill: #ffffff;
+  stroke: var(--draft-cut);
+  stroke-width: 1.35px;
+}
+
+.technical-view .twod-detail-bubble-text {
+  fill: var(--draft-cut);
+  font-weight: 750;
+  stroke: none;
+}
+
+.technical-view .twod-detail-ref {
+  fill: var(--draft-cut);
+}

@@ -24,6 +24,8 @@ export function renderFamilyPlanSymbol(
     case "base":
       elements.push(
         line(left, bottom, right, bottom, `class="twod-family-symbol twod-cabinet-front" pointer-events="none"`),
+        line(left, top, left, bottom, `class="twod-family-symbol twod-line-interior" pointer-events="none"`),
+        line(right, top, right, bottom, `class="twod-family-symbol twod-line-interior" pointer-events="none"`),
         path(
           `M ${left} ${bottom} A ${w} ${w} 0 0 1 ${left + Math.min(w, d)} ${bottom - Math.min(w, d)}`,
           `class="twod-family-symbol twod-door-swing twod-line-hidden" fill="none" pointer-events="none"`,
@@ -40,21 +42,25 @@ export function renderFamilyPlanSymbol(
           `class="twod-family-symbol twod-line-phantom" fill="none" pointer-events="none"`,
         ),
         line(left, cy, right, cy, `class="twod-family-symbol twod-line-center" pointer-events="none"`),
+        line(left, top + d * 0.35, right, top + d * 0.35, `class="twod-family-symbol twod-line-interior" pointer-events="none"`),
+        line(left, top + d * 0.65, right, top + d * 0.65, `class="twod-family-symbol twod-line-interior" pointer-events="none"`),
       );
       break;
     case "tall":
     case "almirah":
       elements.push(
         line(cx, top, cx, bottom, `class="twod-family-symbol twod-line-center" pointer-events="none"`),
-        line(left, top + d * 0.15, left, bottom - d * 0.15, `class="twod-family-symbol" pointer-events="none"`),
-        line(right, top + d * 0.15, right, bottom - d * 0.15, `class="twod-family-symbol" pointer-events="none"`),
+        line(left, top + d * 0.15, left, bottom - d * 0.15, `class="twod-family-symbol twod-line-interior" pointer-events="none"`),
+        line(right, top + d * 0.15, right, bottom - d * 0.15, `class="twod-family-symbol twod-line-interior" pointer-events="none"`),
+        line(left, top + d * 0.4, right, top + d * 0.4, `class="twod-family-symbol twod-shelf-line" pointer-events="none"`),
+        line(left, top + d * 0.7, right, top + d * 0.7, `class="twod-family-symbol twod-shelf-line" pointer-events="none"`),
       );
       break;
     case "drawer":
-      for (const t of [0.25, 0.5, 0.75]) {
+      for (const t of [0.2, 0.4, 0.6, 0.8]) {
         const y = top + d * t;
         elements.push(
-          line(left, y, right, y, `class="twod-family-symbol twod-drawer-pull" pointer-events="none"`),
+          line(left, y, right, y, `class="twod-family-symbol twod-drawer-pull twod-line-interior" pointer-events="none"`),
         );
       }
       break;

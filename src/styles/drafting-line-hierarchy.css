@@ -1,4 +1,4 @@
-/* CAD line hierarchy + technical selection (Phase 2D-A/B/C/D) */
+/* CAD object hierarchy — walls, cabinets, openings, dims, guides */
 
 .technical-view .twod-sheet {
   fill: var(--drawing-bg);
@@ -8,7 +8,7 @@
   fill: #ffffff;
 }
 
-/* Walls / room shell */
+/* Walls / room shell — heaviest outlines */
 .technical-view .twod-wall,
 .technical-view .twod-wall-outline,
 .technical-view .twod-floor-line,
@@ -43,9 +43,9 @@
   opacity: 0.55;
 }
 
-/* Cabinets */
+/* Cabinets — primary outlines */
 .technical-view .twod-cabinet {
-  fill: #c9b08a;
+  fill: var(--draft-cabinet-fill);
   stroke: var(--draft-cabinet);
   stroke-width: 1.55px;
   opacity: 1;
@@ -53,11 +53,11 @@
 }
 
 .technical-view .twod-cabinet-wall {
-  fill: #d4c2a6;
+  fill: var(--draft-cabinet-fill-wall);
 }
 
 .technical-view .twod-cabinet-rotated {
-  fill: #c4ad86;
+  fill: var(--draft-cabinet-fill-rotated);
 }
 
 .technical-view .twod-cabinet-edge-profile {
@@ -68,7 +68,7 @@
 }
 
 .technical-view .twod-cabinet-front {
-  stroke: #1a1a1a;
+  stroke: var(--draft-outline);
   stroke-width: 2.1px;
   fill: none;
   vector-effect: non-scaling-stroke;
@@ -76,7 +76,7 @@
 
 .technical-view .twod-toe-kick-plan {
   fill: none;
-  stroke: #6b6560;
+  stroke: var(--draft-hidden);
   stroke-width: 0.7px;
   stroke-dasharray: 2 2;
 }
@@ -138,41 +138,72 @@
 .technical-view .twod-door-handle,
 .technical-view .twod-drawer-pull {
   stroke: #2a2622;
-  stroke-width: 1.2px;
-  fill: none;
-}
-
-.technical-view .twod-shelf-line {
-  stroke: #6b6560;
-  stroke-width: 0.8px;
-  stroke-dasharray: 2 2;
+  stroke-width: 1.15px;
   fill: none;
 }
 
 /* Runs / countertops */
 .technical-view .twod-run-band {
-  opacity: 0.88;
+  fill: rgba(148, 163, 184, 0.12);
   stroke: var(--draft-run);
+  stroke-width: 1.15px;
+  stroke-dasharray: 6 3;
+  opacity: 0.9;
 }
 
 .technical-view .twod-run-baseline {
   stroke-width: 1.35px;
   stroke: var(--draft-run);
+  fill: none;
+  stroke-dasharray: none;
+}
+
+.technical-view .twod-run-filler {
+  fill: var(--draft-filler-fill);
+  stroke: var(--draft-run);
+  stroke-width: 0.95px;
+}
+
+.technical-view .twod-run-gap {
+  fill: var(--draft-gap-fill);
+  stroke: var(--draft-corner);
+  stroke-width: 0.95px;
+}
+
+.technical-view .twod-run-corner {
+  stroke: var(--draft-corner);
+  stroke-width: 1.35px;
+  fill: none;
+}
+
+.technical-view .twod-run-corner-label {
+  fill: var(--draft-corner);
 }
 
 .technical-view .twod-countertop {
   fill: none;
-  stroke: #3d5a1f;
+  stroke: var(--draft-countertop);
   stroke-width: 1.35px;
   stroke-dasharray: 4 2;
   opacity: 0.92;
 }
 
+.technical-view .twod-countertop-end {
+  stroke: var(--draft-countertop);
+  stroke-width: 1.35px;
+  fill: none;
+}
+
+.technical-view .twod-countertop-label {
+  fill: var(--draft-countertop);
+}
+
 /* Dimensions */
 .technical-view .twod-dim,
-.technical-view .twod-dim-overall {
+.technical-view .twod-dim-overall,
+.technical-view .twod-line-dimension {
   stroke: var(--draft-dim);
-  stroke-width: 1.2px;
+  stroke-width: 1.15px;
   fill: none;
   opacity: 1;
   vector-effect: non-scaling-stroke;
@@ -194,33 +225,6 @@
   stroke-width: 0.95px;
 }
 
-.technical-view .twod-dim-selected {
-  stroke: var(--selection);
-  stroke-width: 1.15px;
-  opacity: 0.95;
-}
-
-.technical-view .twod-dim.is-selected,
-.technical-view .twod-dim-selected.is-selected {
-  stroke: #c2410c;
-  stroke-width: 1.45px;
-  opacity: 1;
-}
-
-.technical-view .twod-note.is-selected,
-.technical-view .twod-leader-label.is-selected,
-.technical-view .twod-leader-handle.is-selected,
-.technical-view .twod-tag-cabinet.is-selected {
-  stroke: #c2410c;
-  stroke-width: 1.4px;
-  filter: drop-shadow(0 0 0.5px rgba(194, 65, 12, 0.45));
-}
-
-.technical-view .twod-leader.is-selected {
-  stroke: #c2410c;
-  stroke-width: 1.25px;
-}
-
 .technical-view .twod-wall-clearance {
   stroke: #1a5a72;
   stroke-width: 0.85px;
@@ -234,7 +238,7 @@
   font-weight: 550;
 }
 
-/* Grid / guides / reference */
+/* Grid / guides */
 .technical-view .twod-grid {
   stroke: var(--draft-grid);
   stroke-width: 0.45px;
@@ -243,8 +247,9 @@
   vector-effect: non-scaling-stroke;
 }
 
-.technical-view .twod-guide {
-  stroke-width: 1px;
+.technical-view .twod-guide,
+.technical-view .twod-line-guide {
+  stroke-width: 0.95px;
   stroke-dasharray: 4 3;
   opacity: 0.65;
   pointer-events: none;
@@ -260,14 +265,14 @@
 }
 
 .technical-view .twod-guide-align {
-  stroke: #1d4ed8;
+  stroke: var(--selection);
 }
 
 .technical-view .twod-guide-grid {
   stroke: #94a3b8;
 }
 
-/* Text / tags — dense, technical */
+/* Text / tags */
 .technical-view .twod-annotation,
 .technical-view .twod-label,
 .technical-view .twod-run-label,
@@ -323,56 +328,11 @@
   font-weight: 650;
 }
 
-.technical-view .twod-annotation.twod-dim-selected {
-  fill: var(--selection);
-}
-
 .technical-view .twod-opening-size {
   fill: #64707c;
   font-weight: 500;
 }
 
-/* Selection — technical, not app-like */
-.technical-view .twod-cabinet.twod-selected {
-  fill: var(--selection-fill);
-  stroke: var(--selection);
-  stroke-width: 1.85px;
-  filter: none;
-}
-
-.technical-view .twod-cabinet.twod-active {
-  fill: rgba(10, 95, 168, 0.22);
-  stroke: var(--selection);
-  stroke-width: 2.15px;
-  filter: none;
-}
-
-.technical-view .twod-opening-face.is-active-opening,
-.technical-view .twod-opening-chrome.is-active-opening {
-  stroke: var(--selection);
-  stroke-width: 1.75px;
-}
-
-.technical-view .twod-opening-active-tick {
-  stroke: var(--selection);
-  stroke-width: 1.6px;
-  fill: none;
-}
-
-.technical-view .twod-opening-label.is-active-opening {
-  fill: #0a3d6b;
-  font-weight: 650;
-}
-
-/* Print mode: mute selection chrome */
-.technical-view .twod-draft[data-mode="print"] .twod-cabinet.twod-selected,
-.technical-view .twod-draft[data-mode="print"] .twod-cabinet.twod-active,
-.technical-view .twod-cabinet.twod-print {
-  fill: #c9b08a;
-  stroke: var(--draft-cabinet);
-  stroke-width: 1.55px;
-}
-
-.technical-view .twod-draft[data-mode="print"] .twod-cabinet-wall.twod-print {
-  fill: #d4c2a6;
+.technical-view .twod-run-gap-label {
+  fill: #334155;
 }

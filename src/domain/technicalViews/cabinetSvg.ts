@@ -13,6 +13,7 @@ import {
 import { getTagOffset } from "../draftingEdit";
 import {
   renderFamilyPlanSymbol,
+  renderPlanCarcassInterior,
   renderWallPhantomFootprint,
 } from "../constructionGraphics";
 import { renderElevationFaceGraphics } from "../elevationFaceGraphics";
@@ -111,6 +112,8 @@ export function cabinetPlanGraphics(
       `class="twod-cabinet-front" pointer-events="none"`,
     ),
   );
+
+  elements.push(...renderPlanCarcassInterior(cx, cy, bw, bd));
 
   elements.push(
     ...renderFamilyPlanSymbol(cabinet.config.type, cx, cy, bw, bd),

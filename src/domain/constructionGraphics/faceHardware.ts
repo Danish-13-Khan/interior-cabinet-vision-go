@@ -1,4 +1,5 @@
 import type { CabinetElevationFaceLayout } from "../openingLayout";
+import { hatchFill } from "./hatch";
 import { line, rect } from "./svg";
 
 /** Stronger toe-kick band with recess return line. */
@@ -20,7 +21,7 @@ export function renderToeKickBand(
       y,
       cabinetSvgWidth,
       toeH,
-      `class="twod-toe-kick" fill="rgba(68,64,60,0.2)" pointer-events="none"`,
+      `class="twod-toe-kick" pointer-events="none"`,
     ),
     line(
       cabinetSvgX,
@@ -65,38 +66,26 @@ export function renderCarcassFillers(
   if (layout.leftFillerMm > 0) {
     const w = layout.leftFillerMm / scale;
     elements.push(
-      rect(
+      ...hatchFill(
         cabinetSvgX,
         cabinetSvgY,
         w,
         bodyH,
-        `class="twod-filler" fill="rgba(148,163,184,0.4)" pointer-events="none"`,
-      ),
-      line(
-        cabinetSvgX + w / 2,
-        cabinetSvgY + 2,
-        cabinetSvgX + w / 2,
-        cabinetSvgY + bodyH - 2,
-        `class="twod-filler-hatch twod-line-reference" pointer-events="none"`,
+        "filler",
+        "twod-filler twod-filler-board",
       ),
     );
   }
   if (layout.rightFillerMm > 0) {
     const w = layout.rightFillerMm / scale;
     elements.push(
-      rect(
+      ...hatchFill(
         cabinetSvgX + cabinetSvgWidth - w,
         cabinetSvgY,
         w,
         bodyH,
-        `class="twod-filler" fill="rgba(148,163,184,0.4)" pointer-events="none"`,
-      ),
-      line(
-        cabinetSvgX + cabinetSvgWidth - w / 2,
-        cabinetSvgY + 2,
-        cabinetSvgX + cabinetSvgWidth - w / 2,
-        cabinetSvgY + bodyH - 2,
-        `class="twod-filler-hatch twod-line-reference" pointer-events="none"`,
+        "filler",
+        "twod-filler twod-filler-board",
       ),
     );
   }
@@ -121,7 +110,7 @@ export function renderEndPanels(
         cabinetSvgY,
         panelW,
         cabinetSvgHeight,
-        `class="twod-end-panel" fill="#6b6560" pointer-events="none"`,
+        `class="twod-end-panel" pointer-events="none"`,
       ),
       line(
         cabinetSvgX - panelW,
@@ -139,7 +128,7 @@ export function renderEndPanels(
         cabinetSvgY,
         panelW,
         cabinetSvgHeight,
-        `class="twod-end-panel" fill="#6b6560" pointer-events="none"`,
+        `class="twod-end-panel" pointer-events="none"`,
       ),
       line(
         cabinetSvgX + cabinetSvgWidth + panelW,

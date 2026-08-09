@@ -20,3 +20,9 @@ export {
   planWindowConvention,
   wallThicknessSvg,
 } from "./wallOpenings";
+export {
+  draftingHatchDefs,
+  hatchFill,
+  patternFillRect,
+} from "./hatch";
+export { renderPlanCarcassInterior } from "./planCarcass";
