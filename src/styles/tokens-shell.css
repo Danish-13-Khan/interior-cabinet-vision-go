@@ -1,74 +1,93 @@
 :root {
-  /* Core ink / surfaces */
-  --ink: #17202a;
-  --muted: #5a6b7c;
-  --shell-bg: #b8c2cd;
-  --panel-bg: #e8ecf0;
-  --panel-raised: #f4f6f8;
-  --panel-border: #8795a5;
-  --drawing-bg: #ffffff;
-  --radius-control: 1px;
+  /* Density scale — CAD shell compression */
+  --space-0: 0;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --radius-control: 0;
+  --radius-panel: 0;
+  --chrome-border: 1px solid var(--panel-border);
+  --shadow-none: none;
+  --shadow-menu: 0 8px 18px rgba(20, 32, 44, 0.22);
 
-  /* Accent / selection (controlled blue) */
-  --accent: #1a4f78;
-  --accent-soft: #d5e4f1;
-  --selection: #0a5fa8;
-  --selection-fill: rgba(10, 95, 168, 0.13);
-  --focus-ring: rgba(26, 79, 120, 0.55);
+  /* Core ink / surfaces — blue-gray technical chrome */
+  --ink: #141c26;
+  --muted: #5a6a7a;
+  --shell-bg: #8e9aab;
+  --panel-bg: #dce2e9;
+  --panel-raised: #e8edf2;
+  --panel-border: #7a8798;
+  --drawing-bg: #f4f6f8;
+  --canvas-bg: #eceff2;
 
-  /* Section color language */
-  --ribbon-bg: #d7e1ec;
-  --ribbon-border: #8ea0b4;
-  --ribbon-group-border: #a8b7c7;
-  --ribbon-label: #5f7388;
+  /* Accent / selection (restrained steel blue) */
+  --accent: #1e4d72;
+  --accent-soft: #c8d7e6;
+  --selection: #155a96;
+  --selection-fill: rgba(21, 90, 150, 0.14);
+  --focus-ring: rgba(30, 77, 114, 0.5);
 
-  --rail-bg: #dce4ec;
-  --rail-border: #7f92a6;
-  --rail-section-border: #b4c2d0;
-  --rail-header-bg: #cfdae5;
+  /* Ribbon */
+  --ribbon-bg: #c5d0dc;
+  --ribbon-border: #6f7f91;
+  --ribbon-group-border: #8f9eae;
+  --ribbon-label: #4f5f70;
+  --ribbon-height: 30px;
 
-  --workspace-chrome: #9aa6b4;
-  --workspace-focus-bg: #d5dde6;
-  --workspace-pane-header: #cfd7e0;
-  --workspace-pane-header-focus: #c5d5e6;
-  --workspace-gutter: #6d7c8c;
-  --workspace-split-hover: #5f7f9c;
+  /* Tool rail */
+  --rail-bg: #cfd8e2;
+  --rail-border: #6a7a8c;
+  --rail-section-border: #9aabba;
+  --rail-header-bg: #bec9d5;
 
-  --browser-bg: #d8e0e8;
-  --browser-header-bg: #c8d3de;
-  --browser-row-hover: #eef2f6;
-  --browser-row-selected: #dce8f4;
-  --browser-row-active: #cfe0f0;
-  --browser-width: 146px;
+  /* Workspace chrome / docks */
+  --workspace-chrome: #8b98a8;
+  --workspace-focus-bg: #c2ccd8;
+  --workspace-pane-header: #b8c3d0;
+  --workspace-pane-header-focus: #a8bcd0;
+  --workspace-gutter: #5a6878;
+  --workspace-split-hover: #3d5f7a;
+  --workspace-active-border: #1e4d72;
 
-  --inspector-bg: #ebe6e1;
-  --inspector-header-bg: #e0d9d2;
-  --inspector-border: #b5aaa0;
+  --browser-bg: #c8d2dc;
+  --browser-header-bg: #b4c0cd;
+  --browser-row-hover: #dde4eb;
+  --browser-row-selected: #c7d7e8;
+  --browser-row-active: #b5cce0;
+  --browser-width: 132px;
 
-  --status-bg: #3f4a57;
-  --status-fg: #d7dee6;
-  --status-muted: #9aa6b4;
-  --status-dock-bg: #eceff2;
-  --status-border: #2f3844;
+  /* Inspector — same cool chrome family (not warm card) */
+  --inspector-bg: #d4dbe4;
+  --inspector-header-bg: #c0cad6;
+  --inspector-border: #6f7f91;
 
-  --warn-bg: #f5efdf;
-  --warn-border: #c9b48a;
-  --warn-fg: #7a5c28;
-  --error-bg: #f3e6e6;
-  --error-border: #c99a9a;
-  --error-fg: #8a3030;
+  /* Status */
+  --status-bg: #2c3540;
+  --status-fg: #d5dde6;
+  --status-muted: #8f9eae;
+  --status-dock-bg: #dce2e9;
+  --status-border: #1e262f;
+  --status-bar-height: 20px;
+
+  --warn-bg: #efe8d8;
+  --warn-border: #b9a47a;
+  --warn-fg: #6e5324;
+  --error-bg: #eadfdf;
+  --error-border: #b88a8a;
+  --error-fg: #7a2a2a;
 
   /* Drafting hierarchy accents */
-  --draft-wall: #101820;
-  --draft-cabinet: #2a3542;
-  --draft-dim: #1e2a38;
-  --draft-dim-secondary: #4a5a6a;
-  --draft-grid: rgba(100, 120, 140, 0.28);
-  --draft-run: #5a6a7a;
+  --draft-wall: #0e141a;
+  --draft-cabinet: #243040;
+  --draft-dim: #1a2634;
+  --draft-dim-secondary: #455566;
+  --draft-grid: rgba(90, 110, 130, 0.26);
+  --draft-run: #526274;
 
   font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 12px;
-  line-height: 1.28;
+  font-size: 11.5px;
+  line-height: 1.22;
   font-weight: 400;
   color: var(--ink);
   background: var(--shell-bg);

@@ -1,7 +1,7 @@
 /* ── Left Tool Rail (cooler gray-blue) ── */
 .tool-rail,
 .library-sidebar {
-  width: 200px;
+  width: 176px;
   flex-shrink: 0;
   padding: 0;
   box-sizing: border-box;

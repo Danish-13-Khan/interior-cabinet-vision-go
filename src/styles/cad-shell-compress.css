@@ -1,0 +1,419 @@
+/**
+ * CAD Shell Compression — density + flat chrome overrides.
+ * Loaded after feature styles so docked regions feel like a desktop CAD shell.
+ */
+
+/* ── Ribbon ── */
+.app-ribbon,
+.app-toolbar {
+  height: var(--ribbon-height);
+  min-height: var(--ribbon-height);
+  padding: 0;
+  gap: 0;
+}
+
+.ribbon-brand {
+  min-width: 92px;
+  padding: 0 6px 0 4px;
+  margin-right: 0;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ribbon-brand strong {
+  font-size: 0.62rem;
+}
+
+.ribbon-brand span {
+  font-size: 0.46rem;
+}
+
+.ribbon-group {
+  padding: 0 4px;
+  gap: 0;
+}
+
+.ribbon-group-label {
+  font-size: 0.44rem;
+  letter-spacing: 0.06em;
+}
+
+.tb-btn {
+  padding: 1px 5px;
+  min-height: 18px;
+  font-size: 0.6rem;
+  border-radius: var(--radius-control);
+}
+
+.tb-btn:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.tb-sep {
+  height: 12px;
+  margin: 0 1px;
+}
+
+/* ── Tool rail / inspector docks ── */
+.tool-rail,
+.library-sidebar {
+  width: var(--tool-rail-width, 176px);
+}
+
+.inspector-panel,
+.properties-panel {
+  width: var(--inspector-width, min(236px, 100%));
+}
+
+.rail-section {
+  padding: var(--space-2);
+}
+
+.rail-section-title {
+  margin-bottom: 2px;
+  font-size: 0.52rem;
+}
+
+.library-item-list,
+.palette-library-group,
+.palette-family-grid {
+  gap: 2px;
+  margin-top: 3px;
+}
+
+.library-item-btn,
+.palette-family-btn,
+.palette-category-btn,
+.palette-preset-btn,
+.template-delete-btn {
+  border-radius: var(--radius-control);
+  padding: 3px 5px;
+  box-shadow: none;
+  transition: none;
+}
+
+.library-item-btn {
+  border-color: var(--panel-border);
+  background: var(--panel-raised);
+}
+
+.library-item-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.palette-family-btn {
+  padding: 4px 3px;
+  border-color: var(--panel-border);
+}
+
+.inspector-header {
+  padding: 2px 5px;
+  min-height: 20px;
+}
+
+.inspector-header strong {
+  color: var(--ribbon-label);
+  font-size: 0.54rem;
+}
+
+.inspector-scroll {
+  padding: var(--space-2);
+  gap: var(--space-2);
+}
+
+/* ── Focus bar / pane tabs ── */
+.workspace-focus-bar {
+  min-height: 18px;
+  padding: 0 2px;
+  gap: 2px;
+}
+
+.workspace-focus-label {
+  font-size: 0.5rem;
+  padding-right: 4px;
+}
+
+.workspace-focus-hint {
+  font-size: 0.48rem;
+}
+
+.workspace-tabs {
+  padding: 0;
+}
+
+.workspace-tab {
+  padding: 2px 6px;
+  font-size: 0.58rem;
+  gap: 3px;
+  border-bottom-width: 2px;
+}
+
+.workspace-tab-kbd {
+  border-radius: var(--radius-control);
+  padding: 0 2px;
+  font-size: 0.46rem;
+  background: rgba(255, 255, 255, 0.4);
+  border-color: var(--panel-border);
+}
+
+.workspace-focus-bar .workspace-tab {
+  padding: 2px 5px;
+  font-size: 0.56rem;
+}
+
+/* ── Split panes — desktop CAD feel ── */
+.workspace-split {
+  background: var(--workspace-gutter);
+  grid-template-columns:
+    minmax(0, var(--split-plan-pct, 50%))
+    2px
+    minmax(0, calc(100% - var(--split-plan-pct, 50%) - 2px));
+  grid-template-rows:
+    minmax(0, var(--split-top-pct, 68%))
+    2px
+    minmax(0, calc(100% - var(--split-top-pct, 68%) - 2px));
+}
+
+.workspace-pane {
+  border: 1px solid var(--workspace-gutter);
+  border-radius: var(--radius-panel);
+  box-shadow: none;
+  background: var(--panel-bg);
+}
+
+.workspace-pane.is-focused {
+  border-color: var(--workspace-active-border);
+  box-shadow: inset 0 0 0 1px var(--workspace-active-border);
+}
+
+.workspace-pane-header {
+  min-height: 18px;
+  padding: 0 2px 0 3px;
+  background: var(--workspace-pane-header);
+}
+
+.workspace-pane.is-focused .workspace-pane-header {
+  background: var(--workspace-pane-header-focus);
+  border-bottom-color: var(--workspace-active-border);
+}
+
+.workspace-pane-title {
+  font-size: 0.52rem;
+  gap: 3px;
+}
+
+.workspace-pane-title small {
+  font-size: 0.48rem;
+}
+
+.workspace-pane-body,
+.drawing-sheet-embedded,
+.drawing-sheet-embedded .drawing-sheet-scroll,
+.drawing-sheet-scroll {
+  background: var(--drawing-bg);
+}
+
+.drawing-sheet-embedded .drawing-sheet-scroll,
+.drawing-sheet-scroll {
+  padding: 1px;
+}
+
+.viewport-panel,
+.viewport-panel-embedded {
+  background: var(--canvas-bg);
+}
+
+.workspace-scene-browser {
+  width: var(--browser-width);
+}
+
+.workspace-scene-browser-header,
+.wsb-section-title {
+  padding: 2px 4px;
+  font-size: 0.48rem;
+}
+
+.wsb-item {
+  padding: 1px 4px;
+}
+
+.wsb-item strong {
+  font-size: 0.54rem;
+}
+
+.wsb-item small {
+  font-size: 0.46rem;
+}
+
+.wsb-list {
+  max-height: 96px;
+}
+
+/* ── Sheet tabs / meta ── */
+.drawing-sheet-tabs {
+  padding: 0 2px;
+  gap: 0;
+  background: var(--workspace-chrome);
+  border-bottom-color: var(--workspace-gutter);
+}
+
+.drawing-sheet-tab {
+  padding: 2px 6px;
+  gap: 3px;
+  border-radius: 0;
+  font-size: 0.58rem;
+}
+
+.drawing-sheet-tab.is-active {
+  background: var(--drawing-bg);
+  border-color: var(--workspace-gutter);
+  border-bottom-color: var(--drawing-bg);
+}
+
+.drawing-sheet-meta {
+  padding: 1px 5px;
+  gap: 6px;
+  background: var(--workspace-pane-header);
+  border-bottom-color: var(--panel-border);
+}
+
+.drawing-sheet.is-active-sheet {
+  box-shadow: inset 0 0 0 1px var(--workspace-active-border);
+}
+
+/* ── Status strip / dock ── */
+.output-bar {
+  min-height: var(--status-bar-height);
+  padding: 0 5px;
+  gap: 6px;
+}
+
+.output-status {
+  font-size: 0.56rem;
+}
+
+.output-stats {
+  font-size: 0.54rem;
+}
+
+.output-warnings {
+  padding: 1px 5px;
+  gap: 3px;
+}
+
+.output-cutlists {
+  gap: 4px;
+  padding: 4px 5px;
+}
+
+.status-dock-shell .status-dock {
+  height: var(--status-dock-height, 200px);
+}
+
+.manufacturing-issue {
+  padding: 3px 5px;
+  border-radius: var(--radius-control);
+  box-shadow: none;
+}
+
+/* ── Flat menus / overlays (less card-like) ── */
+.context-menu,
+.ribbon-menu-panel,
+.library-manager-shell {
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-menu);
+  border-color: var(--panel-border);
+}
+
+.context-menu {
+  padding: 2px;
+  min-width: 176px;
+}
+
+.context-menu-item,
+.ribbon-menu-item,
+.ribbon-menu-forget {
+  border-radius: var(--radius-control);
+  padding: 4px 7px;
+}
+
+.ribbon-menu-panel {
+  padding: 2px;
+  top: 100%;
+}
+
+.ribbon-menu-item {
+  padding: 5px 7px;
+}
+
+.pane-resize-x {
+  width: 3px;
+  margin: 0 -1px;
+}
+
+.pane-resize-y {
+  height: 3px;
+  margin: -1px 0;
+}
+
+/* ── Scene chrome — no pill badges ── */
+.resize-badge,
+.move-badge,
+.scene-hint,
+.group-badge,
+.scene-label {
+  border-radius: var(--radius-control);
+  box-shadow: none;
+  padding: 1px 5px;
+  font-size: 0.58rem;
+}
+
+.resize-badge,
+.group-badge {
+  min-width: 0;
+  height: auto;
+}
+
+.scene-toolbar button,
+.scene-toolbar .toolbar-btn,
+.scene-overlay {
+  border-radius: var(--radius-control);
+}
+
+.scene-marquee {
+  border-radius: 0;
+}
+
+/* ── Forms / room editors — flatten ── */
+.field-grid {
+  gap: 6px;
+}
+
+.type-toggle {
+  gap: 3px;
+}
+
+.type-toggle button,
+.editable-name-input,
+.name-save-btn,
+.room-field input,
+.room-field select,
+.room-editor button,
+.opening-row,
+.room-chip {
+  border-radius: var(--radius-control) !important;
+}
+
+.editable-name-input:focus,
+.name-save-btn:hover,
+.type-toggle button:hover {
+  box-shadow: none;
+  transition: none;
+}
+
+.report-center .report-tab,
+.plans-panel .plans-card,
+.review-card {
+  border-radius: var(--radius-control);
+  box-shadow: none;
+}
