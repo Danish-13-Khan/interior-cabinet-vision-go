@@ -25,6 +25,10 @@ type WorkspaceSceneBrowserProps = {
   onIsolate: (cabinetIds: string[]) => void;
   onFocus: (cabinetIds: string[], activeId: string | null) => void;
   onReorderCabinet: (runId: string, cabinetId: string, direction: -1 | 1) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
 };
 
 export function WorkspaceSceneBrowser({
@@ -45,6 +49,7 @@ export function WorkspaceSceneBrowser({
   onIsolate,
   onFocus,
   onReorderCabinet,
+  onCabinetContextMenu,
 }: WorkspaceSceneBrowserProps) {
   return (
     <aside className="workspace-scene-browser" aria-label="Cabinet tree">
@@ -67,6 +72,7 @@ export function WorkspaceSceneBrowser({
         onIsolate={onIsolate}
         onFocus={onFocus}
         onReorderCabinet={onReorderCabinet}
+        onCabinetContextMenu={onCabinetContextMenu}
       />
     </aside>
   );

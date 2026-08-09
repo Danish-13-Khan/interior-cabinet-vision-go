@@ -3,6 +3,7 @@ import type { DraftingTool } from "../components/TwoDView";
 import type { ContextMenuItem } from "../components/ContextMenu";
 import type { ShortcutMap } from "../domain/desktopUx";
 import type { DesktopLayoutPrefs } from "../domain/desktopUx";
+import type { CabinetType } from "../domain/cabinetDimensions";
 import { useEditorShortcuts } from "./useEditorShortcuts";
 import { useAppCommandItems } from "./useAppCommandItems";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
@@ -10,6 +11,7 @@ import type { AlignmentMode } from "../domain/cabinetAlignment";
 type UseAppCommandUiArgs = {
   shortcutMap: ShortcutMap;
   showGrid: boolean;
+  snapSizeMm: number;
   setIsCommandBarOpen: Dispatch<SetStateAction<boolean>>;
   setCommandQuery: Dispatch<SetStateAction<string>>;
   setIsShortcutSheetOpen: Dispatch<SetStateAction<boolean>>;
@@ -36,6 +38,10 @@ type UseAppCommandUiArgs = {
   onAlignSelection: (mode: AlignmentMode) => void;
   onAutoAlignRuns: () => void;
   onToggleGrid: () => void;
+  onRotate90: () => void;
+  onCycleSnap: () => void;
+  onAddCabinet: (type: CabinetType) => void;
+  onToggleSheetBrowser: () => void;
   onLoadProject: () => void | Promise<void>;
   onSaveProject: () => void | Promise<void>;
   onExportProjectJson: () => void | Promise<void>;
@@ -50,6 +56,7 @@ type UseAppCommandUiArgs = {
 export function useAppCommandUi({
   shortcutMap,
   showGrid,
+  snapSizeMm,
   setIsCommandBarOpen,
   setCommandQuery,
   setIsShortcutSheetOpen,
@@ -74,6 +81,10 @@ export function useAppCommandUi({
   onAlignSelection,
   onAutoAlignRuns,
   onToggleGrid,
+  onRotate90,
+  onCycleSnap,
+  onAddCabinet,
+  onToggleSheetBrowser,
   onLoadProject,
   onSaveProject,
   onExportProjectJson,
@@ -116,6 +127,7 @@ export function useAppCommandUi({
       onEscape: () => {
         closeCommandSurfaces();
         setContextMenu(null);
+        setDraftingTool("select");
       },
       onViewPlan: () => {
         setWorkspaceTab("plan");
@@ -139,6 +151,12 @@ export function useAppCommandUi({
         cycleWorkspaceTab();
         setDraftingTool("select");
       },
+      onDraftSelect: () => setDraftingTool("select"),
+      onDraftNote: () => setDraftingTool("note"),
+      onDraftLeader: () => setDraftingTool("leader"),
+      onToggleGrid,
+      onRotate90,
+      onCycleSnap,
     },
     shortcutMap,
   );
@@ -146,6 +164,7 @@ export function useAppCommandUi({
   const commandItems = useAppCommandItems({
     shortcutMap,
     showGrid,
+    snapSizeMm,
     onReset,
     onLoadProject,
     onSaveProject,
@@ -161,7 +180,11 @@ export function useAppCommandUi({
     onAlignSelection,
     onAutoAlignRuns,
     onSetWorkspaceTab: setWorkspaceTab,
-    onSetDraftingToolSelect: () => setDraftingTool("select"),
+    onSetDraftingTool: setDraftingTool,
+    onRotate90,
+    onCycleSnap,
+    onAddCabinet,
+    onToggleSheetBrowser,
     onToggleToolRail: toggleToolRail,
     onToggleInspector: toggleInspector,
     onToggleGrid,

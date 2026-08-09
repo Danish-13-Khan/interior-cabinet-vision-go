@@ -3,6 +3,7 @@ import type { CabinetInstance, CabinetProject } from "../domain/cabinetDimension
 import type { ContextMenuItem } from "../components/ContextMenu";
 import { formatShortcutBinding, type ShortcutMap } from "../domain/desktopUx";
 import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
+import type { DraftingTool } from "../components/twoDView/types";
 
 type ContextMenuState = {
   x: number;
@@ -19,6 +20,7 @@ type UseAppContextMenusArgs = {
   sortedSavedProjects: SavedProjectBrowserEntry[];
   toolRailVisible: boolean;
   inspectorVisible: boolean;
+  draftingTool: DraftingTool;
   setContextMenu: (menu: ContextMenuState | null) => void;
   replaceSelection: (
     ids: string[],
@@ -31,9 +33,14 @@ type UseAppContextMenusArgs = {
   handleRemoveCabinet: () => void;
   handlePasteSelection: () => void;
   handleSelectAll: () => void;
+  handleCreateGroup: () => void;
+  handleClearGroup: () => void;
+  handleAutoAlignRuns: () => void;
+  handleRotate90: () => void;
   handleProjectPreferenceChange: (
     patch: Partial<NonNullable<CabinetProject["preferences"]>>,
   ) => void;
+  setDraftingTool: (tool: DraftingTool) => void;
   handleLoadSavedProject: (projectId: string) => void;
   handleDuplicateSavedProject: (projectId: string) => void;
   handleRenameSavedProject: (projectId: string, name: string) => void;
@@ -41,6 +48,79 @@ type UseAppContextMenusArgs = {
   toggleToolRail: () => void;
   toggleInspector: () => void;
 };
+
+function cabinetEditItems(args: {
+  shortcutMap: ShortcutMap;
+  cabinetId: string;
+  project: CabinetProject;
+  handleDuplicateCabinet: () => void;
+  handleCopySelection: () => void;
+  handleRenameCabinet: (cabinetId: string, newName: string) => void;
+  handleRemoveCabinet: () => void;
+  handleCreateGroup: () => void;
+  handleClearGroup: () => void;
+  handleAutoAlignRuns: () => void;
+  handleRotate90: () => void;
+}): ContextMenuItem[] {
+  return [
+    {
+      id: "dup",
+      label: "Duplicate",
+      shortcut: formatShortcutBinding(args.shortcutMap.duplicate),
+      action: args.handleDuplicateCabinet,
+    },
+    {
+      id: "copy",
+      label: "Copy",
+      shortcut: formatShortcutBinding(args.shortcutMap.copy),
+      action: args.handleCopySelection,
+    },
+    {
+      id: "rename",
+      label: "Rename…",
+      action: () => {
+        const cabinet = args.project.cabinets.find(
+          (item) => item.id === args.cabinetId,
+        );
+        if (!cabinet) return;
+        const next = window.prompt("Rename cabinet:", cabinet.name);
+        if (next && next.trim()) {
+          args.handleRenameCabinet(args.cabinetId, next.trim());
+        }
+      },
+    },
+    {
+      id: "rotate",
+      label: "Rotate 90°",
+      shortcut: formatShortcutBinding(args.shortcutMap.rotate90),
+      action: args.handleRotate90,
+    },
+    { id: "sep-edit", label: "", separator: true },
+    {
+      id: "group",
+      label: "Group",
+      action: args.handleCreateGroup,
+    },
+    {
+      id: "ungroup",
+      label: "Ungroup",
+      action: args.handleClearGroup,
+    },
+    {
+      id: "align-runs",
+      label: "Align Runs",
+      action: args.handleAutoAlignRuns,
+    },
+    { id: "sep-del", label: "", separator: true },
+    {
+      id: "delete",
+      label: "Delete",
+      shortcut: formatShortcutBinding(args.shortcutMap.remove),
+      danger: true,
+      action: args.handleRemoveCabinet,
+    },
+  ];
+}
 
 export function useAppContextMenus({
   project,
@@ -51,6 +131,7 @@ export function useAppContextMenus({
   sortedSavedProjects,
   toolRailVisible,
   inspectorVisible,
+  draftingTool,
   setContextMenu,
   replaceSelection,
   handleDuplicateCabinet,
@@ -59,7 +140,12 @@ export function useAppContextMenus({
   handleRemoveCabinet,
   handlePasteSelection,
   handleSelectAll,
+  handleCreateGroup,
+  handleClearGroup,
+  handleAutoAlignRuns,
+  handleRotate90,
   handleProjectPreferenceChange,
+  setDraftingTool,
   handleLoadSavedProject,
   handleDuplicateSavedProject,
   handleRenameSavedProject,
@@ -77,38 +163,19 @@ export function useAppContextMenus({
     setContextMenu({
       x: point.x,
       y: point.y,
-      items: [
-        {
-          id: "dup",
-          label: "Duplicate",
-          shortcut: formatShortcutBinding(shortcutMap.duplicate),
-          action: handleDuplicateCabinet,
-        },
-        {
-          id: "copy",
-          label: "Copy",
-          shortcut: formatShortcutBinding(shortcutMap.copy),
-          action: handleCopySelection,
-        },
-        {
-          id: "rename",
-          label: "Rename…",
-          action: () => {
-            const cabinet = project.cabinets.find((item) => item.id === cabinetId);
-            if (!cabinet) return;
-            const next = window.prompt("Rename cabinet:", cabinet.name);
-            if (next && next.trim()) handleRenameCabinet(cabinetId, next.trim());
-          },
-        },
-        { id: "sep", label: "", separator: true },
-        {
-          id: "delete",
-          label: "Delete",
-          shortcut: formatShortcutBinding(shortcutMap.remove),
-          danger: true,
-          action: handleRemoveCabinet,
-        },
-      ],
+      items: cabinetEditItems({
+        shortcutMap,
+        cabinetId,
+        project,
+        handleDuplicateCabinet,
+        handleCopySelection,
+        handleRenameCabinet,
+        handleRemoveCabinet,
+        handleCreateGroup,
+        handleClearGroup,
+        handleAutoAlignRuns,
+        handleRotate90,
+      }),
     });
   }
 
@@ -136,7 +203,9 @@ export function useAppContextMenus({
           label: "Rename…",
           action: () => {
             const next = window.prompt("Rename job:", entry?.name ?? "");
-            if (next && next.trim()) handleRenameSavedProject(projectId, next.trim());
+            if (next && next.trim()) {
+              handleRenameSavedProject(projectId, next.trim());
+            }
           },
         },
         { id: "sep", label: "", separator: true },
@@ -151,10 +220,32 @@ export function useAppContextMenus({
   }
 
   function openWorkspaceContextMenu(point: { x: number; y: number }) {
+    const activeId = selectedCabinetIds[0];
+    const selectionItems =
+      activeId != null
+        ? [
+            ...cabinetEditItems({
+              shortcutMap,
+              cabinetId: activeId,
+              project,
+              handleDuplicateCabinet,
+              handleCopySelection,
+              handleRenameCabinet,
+              handleRemoveCabinet,
+              handleCreateGroup,
+              handleClearGroup,
+              handleAutoAlignRuns,
+              handleRotate90,
+            }),
+            { id: "sep-sel", label: "", separator: true },
+          ]
+        : [];
+
     setContextMenu({
       x: point.x,
       y: point.y,
       items: [
+        ...selectionItems,
         {
           id: "paste",
           label: "Paste",
@@ -168,10 +259,33 @@ export function useAppContextMenus({
           shortcut: formatShortcutBinding(shortcutMap.selectAll),
           action: handleSelectAll,
         },
-        { id: "sep", label: "", separator: true },
+        { id: "sep-tools", label: "", separator: true },
+        {
+          id: "tool-select",
+          label: "Select Tool",
+          shortcut: formatShortcutBinding(shortcutMap.draftSelect),
+          disabled: draftingTool === "select",
+          action: () => setDraftingTool("select"),
+        },
+        {
+          id: "tool-note",
+          label: "Note Tool",
+          shortcut: formatShortcutBinding(shortcutMap.draftNote),
+          disabled: draftingTool === "note",
+          action: () => setDraftingTool("note"),
+        },
+        {
+          id: "tool-leader",
+          label: "Leader Tool",
+          shortcut: formatShortcutBinding(shortcutMap.draftLeader),
+          disabled: draftingTool === "leader",
+          action: () => setDraftingTool("leader"),
+        },
+        { id: "sep-view", label: "", separator: true },
         {
           id: "grid",
           label: projectPreferences.showGrid ? "Hide Grid" : "Show Grid",
+          shortcut: formatShortcutBinding(shortcutMap.toggleGrid),
           action: () =>
             handleProjectPreferenceChange({
               showGrid: !projectPreferences.showGrid,

@@ -33,6 +33,10 @@ type CabinetTreeBrowserProps = {
   onIsolate: (cabinetIds: string[]) => void;
   onFocus: (cabinetIds: string[], activeId: string | null) => void;
   onReorderCabinet: (runId: string, cabinetId: string, direction: -1 | 1) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
 };
 
 function defaultExpandedIds(
@@ -68,6 +72,7 @@ export function CabinetTreeBrowser({
   onIsolate,
   onFocus,
   onReorderCabinet,
+  onCabinetContextMenu,
 }: CabinetTreeBrowserProps) {
   const tree = useMemo(() => buildSceneTree(rooms), [rooms]);
   const [expanded, setExpanded] = useState(() =>
@@ -242,6 +247,7 @@ export function CabinetTreeBrowser({
                 if (!entry.runId || !entry.cabinetId) return;
                 onReorderCabinet(entry.runId, entry.cabinetId, direction);
               }}
+              onCabinetContextMenu={onCabinetContextMenu}
             />
           ))
         )}

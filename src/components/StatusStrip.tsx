@@ -5,8 +5,10 @@ import type { ProjectReport } from "../domain/projectReport";
 import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
 import type { ReviewNoteSeverity } from "../domain/projectReview";
+import type { ViewportHudState } from "../domain/desktopUx";
 import { ReportCenter } from "./ReportCenter";
 import { PaneResizeHandle } from "./PaneResizeHandle";
+import { StatusHudSegments } from "./StatusHudSegments";
 
 type StatusStripProps = {
   projectStatus: string;
@@ -16,6 +18,9 @@ type StatusStripProps = {
   cabinetCount: number;
   selectionSummary: string;
   validationMessages: string[];
+  hud: ViewportHudState;
+  onCycleSnap?: () => void;
+  onToggleGrid?: () => void;
   statusDockOpen: boolean;
   dockHeightPx?: number;
   onToggleStatusDock: () => void;
@@ -58,6 +63,9 @@ export function StatusStrip({
   cabinetCount,
   selectionSummary,
   validationMessages,
+  hud,
+  onCycleSnap,
+  onToggleGrid,
   statusDockOpen,
   dockHeightPx = 280,
   onToggleStatusDock,
@@ -95,6 +103,11 @@ export function StatusStrip({
     <footer className="status-strip">
       <div className="output-bar">
         <span className="output-status">{projectStatus || "Ready"}</span>
+        <StatusHudSegments
+          hud={hud}
+          onCycleSnap={onCycleSnap}
+          onToggleGrid={onToggleGrid}
+        />
         <span className="output-stats">
           {workspaceLabel} · {jobTitle} · {jobStatusLabel} · {cabinetCount} items ·{" "}
           {selectionSummary}

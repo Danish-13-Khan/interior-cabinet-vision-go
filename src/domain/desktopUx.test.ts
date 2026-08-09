@@ -3,12 +3,17 @@ import {
   clampDesktopLayout,
   clampShortcutMap,
   createRecentFileEntry,
+  cycleSnapSizeMm,
+  draftingToolLabel,
   eventMatchesBinding,
+  formatPointerHud,
   formatShortcutBinding,
+  nearestSnapPresetMm,
   rankCommands,
   scoreCommandMatch,
   upsertRecentCommandId,
   upsertRecentFile,
+  workspaceTabLabel,
 } from "./desktopUx/index";
 
 describe("desktopUx layout", () => {
@@ -60,6 +65,34 @@ describe("desktopUx shortcuts", () => {
         map.save,
       ),
     ).toBe(true);
+  });
+
+  it("includes drafting and snap density shortcuts", () => {
+    const map = clampShortcutMap({});
+    expect(map.draftSelect.key).toBe("v");
+    expect(map.draftNote.key).toBe("n");
+    expect(map.rotate90.key).toBe("r");
+    expect(map.cycleSnap.shift).toBe(true);
+    expect(formatShortcutBinding(map.toggleGrid)).toContain("G");
+  });
+});
+
+describe("desktopUx snap cycle", () => {
+  it("cycles snap presets", () => {
+    expect(cycleSnapSizeMm(50)).toBe(100);
+    expect(cycleSnapSizeMm(200)).toBe(10);
+    expect(nearestSnapPresetMm(48)).toBe(50);
+  });
+});
+
+describe("desktopUx viewport hud", () => {
+  it("formats pointer coordinates for the status bar", () => {
+    expect(formatPointerHud(null)).toContain("—");
+    expect(formatPointerHud({ x: 120.4, y: 0, z: 880.2 })).toBe(
+      "X 120  Y 0  Z 880",
+    );
+    expect(draftingToolLabel("leader")).toBe("Leader");
+    expect(workspaceTabLabel("plan")).toBe("Plan");
   });
 });
 

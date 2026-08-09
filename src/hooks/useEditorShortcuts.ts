@@ -25,6 +25,12 @@ type EditorShortcutActions = {
   onToggleToolRail: () => void;
   onToggleInspector: () => void;
   onCycleWorkspace: () => void;
+  onDraftSelect: () => void;
+  onDraftNote: () => void;
+  onDraftLeader: () => void;
+  onToggleGrid: () => void;
+  onRotate90: () => void;
+  onCycleSnap: () => void;
 };
 
 const ACTION_KEYS: Array<[ShortcutActionId, keyof EditorShortcutActions]> = [
@@ -46,6 +52,12 @@ const ACTION_KEYS: Array<[ShortcutActionId, keyof EditorShortcutActions]> = [
   ["toggleToolRail", "onToggleToolRail"],
   ["toggleInspector", "onToggleInspector"],
   ["cycleWorkspace", "onCycleWorkspace"],
+  ["draftSelect", "onDraftSelect"],
+  ["draftNote", "onDraftNote"],
+  ["draftLeader", "onDraftLeader"],
+  ["toggleGrid", "onToggleGrid"],
+  ["rotate90", "onRotate90"],
+  ["cycleSnap", "onCycleSnap"],
 ];
 
 const BLOCKED_WHILE_TYPING: ShortcutActionId[] = [
@@ -64,6 +76,12 @@ const BLOCKED_WHILE_TYPING: ShortcutActionId[] = [
   "toggleInspector",
   "cycleWorkspace",
   "shortcutHelp",
+  "draftSelect",
+  "draftNote",
+  "draftLeader",
+  "toggleGrid",
+  "rotate90",
+  "cycleSnap",
 ];
 
 export function useEditorShortcuts(

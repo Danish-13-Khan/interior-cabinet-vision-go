@@ -21,6 +21,10 @@ type CabinetTreeRowProps = {
   onIsolate: (node: SceneTreeNode) => void;
   onFocus: (node: SceneTreeNode) => void;
   onReorder: (node: SceneTreeNode, direction: -1 | 1) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
 };
 
 function isNodeSelected(
@@ -79,6 +83,7 @@ export function CabinetTreeRow({
   onIsolate,
   onFocus,
   onReorder,
+  onCabinetContextMenu,
 }: CabinetTreeRowProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const hasChildren = node.children.length > 0;
@@ -144,6 +149,12 @@ export function CabinetTreeRow({
         onContextMenu={(event) => {
           event.preventDefault();
           onActivate(node, false);
+          if (node.cabinetId && onCabinetContextMenu) {
+            onCabinetContextMenu(node.cabinetId, {
+              x: event.clientX,
+              y: event.clientY,
+            });
+          }
         }}
         role="treeitem"
         aria-expanded={hasChildren ? isExpanded : undefined}
@@ -266,6 +277,7 @@ export function CabinetTreeRow({
               onIsolate={onIsolate}
               onFocus={onFocus}
               onReorder={onReorder}
+              onCabinetContextMenu={onCabinetContextMenu}
             />
           ))
         : null}

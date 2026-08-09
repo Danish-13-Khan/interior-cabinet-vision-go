@@ -91,6 +91,13 @@ type AppWorkspaceProps = {
   onUpsertTagOffset: (cabinetId: string, dx: number, dy: number) => void;
   onResetTagOffset: (cabinetId: string) => void;
   onWorkspaceContextMenu?: (point: { x: number; y: number }) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
+  onPointerWorld?: (
+    point: import("../domain/draftingAnnotations").DraftingWorldPoint | null,
+  ) => void;
   tabShortcutHints?: Partial<Record<WorkspaceTabId, string>>;
 };
 
@@ -162,6 +169,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onUpsertTagOffset,
       onResetTagOffset,
       onWorkspaceContextMenu,
+      onCabinetContextMenu,
+      onPointerWorld,
       tabShortcutHints,
     },
     sceneRef,
@@ -321,6 +330,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               onIsolate={onTreeIsolate}
               onFocus={onTreeFocus}
               onReorderCabinet={onTreeReorder}
+              onCabinetContextMenu={onCabinetContextMenu}
             />
           ) : null}
 
@@ -367,6 +377,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               onResetDimOffset={onResetDimOffset}
               onUpsertTagOffset={onUpsertTagOffset}
               onResetTagOffset={onResetTagOffset}
+              onCabinetContextMenu={onCabinetContextMenu}
+              onPointerWorld={onPointerWorld}
             />
           </div>
         </div>
