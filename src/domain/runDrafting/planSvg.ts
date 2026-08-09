@@ -14,6 +14,12 @@ import {
 import type { CabinetRun, RunDraftingOptions, RunPlanBounds } from "./types";
 import type { CabinetInstance } from "../cabinetDimensions";
 
+function fillerMarkIndex(fillers: RunFiller[], filler: RunFiller) {
+  const stableOrder = [...fillers].sort((a, b) => a.id.localeCompare(b.id));
+  const index = stableOrder.findIndex((item) => item.id === filler.id);
+  return index >= 0 ? index : 0;
+}
+
 function endTick(
   x: number,
   y: number,
@@ -169,7 +175,7 @@ export function renderPlanRunDrafting(args: {
       const depth = filler.size.depth / scale;
       const x = ox + filler.position.x / scale - width / 2;
       const y = oy + filler.position.z / scale - depth / 2;
-      const fillerIndex = fillers.indexOf(filler);
+      const stableIndex = fillerMarkIndex(fillers, filler);
       elements.push(
         rect(
           x,
@@ -183,7 +189,7 @@ export function renderPlanRunDrafting(args: {
         ...renderFillerMark(
           x + width / 2,
           y + depth / 2 + 2,
-          formatFillerMark(fillerIndex),
+          formatFillerMark(stableIndex),
           `${Math.round(filler.widthMm)}`,
         ),
       );

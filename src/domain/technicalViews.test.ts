@@ -192,6 +192,15 @@ describe("technical view rendering", () => {
     expect(result.svg).toContain("twod-cabinet-wall");
   });
 
+  it("hides elevation cabinet marks when cabinet tags are disabled", () => {
+    const result = createTechnicalView(project, room, "front", [], {
+      showCabinetTags: false,
+    });
+
+    expect(result.svg).not.toContain("twod-elev-mark");
+    expect(result.svg).not.toContain("twod-tag-cabinet");
+  });
+
   it("renders side elevation depth annotations", () => {
     const result = createTechnicalView(project, room, "side", []);
 
@@ -248,6 +257,42 @@ describe("technical view rendering", () => {
     expect(interactive.svg).toContain("twod-run-label");
     expect(interactive.svg).toContain("twod-run-filler");
     expect(interactive.originX).toBeGreaterThan(0);
+
+    const reorderedFillers = createTechnicalView(project, room, "top", [], {
+      mode: "interactive",
+      showRunLabels: true,
+      showFillers: true,
+      runs: [
+        {
+          id: "run-1",
+          side: "back-wall",
+          axis: "x",
+          band: "base",
+          cabinetIds: ["base-1", "base-2"],
+          cornerTransition: false,
+        },
+      ],
+      fillers: [
+        {
+          id: "filler-1",
+          runId: "run-1",
+          side: "end",
+          widthMm: 60,
+          position: { x: -200, y: 0, z: -1720 },
+          size: { width: 60, height: 720, depth: 560 },
+        },
+        {
+          id: "filler-0",
+          runId: "run-1",
+          side: "start",
+          widthMm: 80,
+          position: { x: -1600, y: 0, z: -1720 },
+          size: { width: 80, height: 720, depth: 560 },
+        },
+      ],
+    });
+    expect(reorderedFillers.svg).toContain("FL-1 80");
+    expect(reorderedFillers.svg).toContain("FL-2 60");
 
     const front = createTechnicalView(project, room, "front", [], {
       mode: "interactive",

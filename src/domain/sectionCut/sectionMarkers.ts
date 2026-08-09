@@ -75,5 +75,11 @@ export function elevationSectionMarkers(
     ...arrowHead(x, bottom - 2, "up", 4),
     ...renderSectionBubble(x + 12, top + 10, plane.mark),
     ...renderSectionBubble(x + 12, bottom - 10, plane.mark),
+    text(
+      x + 24,
+      (top + bottom) / 2,
+      plane.label,
+      `class="twod-section-mark-label" font-size="6" text-anchor="start"`,
+    ),
   ];
 }
