@@ -7,6 +7,7 @@ import {
 import {
   formatShortcutBinding,
   upsertRecentCommandId,
+  cycleSnapSizeMm,
 } from "../domain/desktopUx";
 import { useProjectFileIo } from "./useProjectFileIo";
 import { useRoomProjectOps } from "./useRoomProjectOps";
@@ -123,6 +124,7 @@ export function useAppController() {
     sortedSavedProjects: s.sortedSavedProjects,
     toolRailVisible: s.layout.toolRailVisible,
     inspectorVisible: s.layout.inspectorVisible,
+    draftingTool: s.draftingTool,
     setContextMenu: s.setContextMenu,
     replaceSelection: s.replaceSelection,
     handleDuplicateCabinet: cabinets.handleDuplicateCabinet,
@@ -131,7 +133,19 @@ export function useAppController() {
     handleRemoveCabinet: cabinets.handleRemoveCabinet,
     handlePasteSelection: cabinets.handlePasteSelection,
     handleSelectAll: cabinets.handleSelectAll,
+    handleCreateGroup: cabinets.handleCreateGroup,
+    handleClearGroup: cabinets.handleClearGroup,
+    handleAutoAlignRuns: cabinets.handleAutoAlignRuns,
+    handleRotate90: () => {
+      const cabinet = s.selectedCabinet;
+      if (!cabinet) return;
+      cabinets.handleCabinetRotate(
+        cabinet.id,
+        cabinet.placement.rotation + 90,
+      );
+    },
     handleProjectPreferenceChange: preferences.handleProjectPreferenceChange,
+    setDraftingTool: s.setDraftingTool,
     handleLoadSavedProject: s.handleLoadSavedProject,
     handleDuplicateSavedProject: s.handleDuplicateSavedProject,
     handleRenameSavedProject: s.handleRenameSavedProject,
@@ -143,6 +157,7 @@ export function useAppController() {
   const { closeCommandSurfaces, commandItems } = useAppCommandUi({
     shortcutMap: s.shortcutMap,
     showGrid: s.projectPreferences.showGrid,
+    snapSizeMm: s.projectPreferences.snapSizeMm,
     setIsCommandBarOpen: s.setIsCommandBarOpen,
     setCommandQuery: s.setCommandQuery,
     setIsShortcutSheetOpen: s.setIsShortcutSheetOpen,
@@ -169,6 +184,24 @@ export function useAppController() {
     onToggleGrid: () =>
       preferences.handleProjectPreferenceChange({
         showGrid: !s.projectPreferences.showGrid,
+      }),
+    onRotate90: () => {
+      const cabinet = s.selectedCabinet;
+      if (!cabinet) return;
+      cabinets.handleCabinetRotate(
+        cabinet.id,
+        cabinet.placement.rotation + 90,
+      );
+    },
+    onCycleSnap: () => {
+      preferences.handleProjectPreferenceChange({
+        snapSizeMm: cycleSnapSizeMm(s.projectPreferences.snapSizeMm),
+      });
+    },
+    onAddCabinet: cabinets.handleAddCabinet,
+    onToggleSheetBrowser: () =>
+      s.setLayout({
+        sheetBrowserVisible: !s.layout.sheetBrowserVisible,
       }),
     onLoadProject: fileIo.handleLoadProject,
     onSaveProject: fileIo.handleSaveProject,

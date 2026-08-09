@@ -5,6 +5,7 @@ import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
+import { cycleSnapSizeMm } from "./domain/desktopUx";
 
 function App() {
   const c = useAppController();
@@ -182,6 +183,8 @@ function App() {
           onUpsertTagOffset: c.handleUpsertTagOffset,
           onResetTagOffset: c.handleResetTagOffset,
           onWorkspaceContextMenu: c.openWorkspaceContextMenu,
+          onCabinetContextMenu: c.openCabinetContextMenu,
+          onPointerWorld: c.setPointerWorld,
           tabShortcutHints: c.tabShortcutHints,
         }}
         inspectorProps={{
@@ -324,6 +327,27 @@ function App() {
           c.handleSelectSheetDocument(sheetId);
           c.setLayout({ sheetBrowserVisible: true, statusDockOpen: false });
         }}
+        hud={{
+          pointer: c.pointerWorld,
+          snapSizeMm: c.projectPreferences.snapSizeMm,
+          showGrid: c.projectPreferences.showGrid,
+          draftingTool: c.draftingTool,
+          workspaceTab: c.workspaceTab,
+          sheetLabel: getProjectSheetSet(c.project).sheets.find(
+            (sheet) =>
+              sheet.id === getProjectSheetSet(c.project).activeSheetId,
+          )?.code,
+        }}
+        onCycleSnap={() =>
+          c.handleProjectPreferenceChange({
+            snapSizeMm: cycleSnapSizeMm(c.projectPreferences.snapSizeMm),
+          })
+        }
+        onToggleGrid={() =>
+          c.handleProjectPreferenceChange({
+            showGrid: !c.projectPreferences.showGrid,
+          })
+        }
       />
     </main>
   );

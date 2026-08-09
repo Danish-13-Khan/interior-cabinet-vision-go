@@ -10,6 +10,7 @@ import {
 } from "../domain/cabinetDimensions";
 import { type PanelName } from "../domain/cabinetGeometry";
 import { DEFAULT_ROOM, type RoomConfig } from "../domain/roomModel";
+import type { DraftingWorldPoint } from "../domain/draftingAnnotations";
 import { resolveCabinetComposition } from "../domain/cabinetComposition";
 import { findOpeningNode } from "../domain/cabinetOpeningStructure";
 import {
@@ -78,6 +79,9 @@ export function useAppControllerSession() {
     items: ContextMenuItem[];
   } | null>(null);
   const [recentCommandIds, setRecentCommandIds] = useState<string[]>([]);
+  const [pointerWorld, setPointerWorld] = useState<DraftingWorldPoint | null>(
+    null,
+  );
   const { library: workshopLibrary, setLibrary: setWorkshopLibrary } =
     useWorkshopLibrary();
   const { templates: userTemplates, saveTemplate, deleteTemplate } = useUserTemplates();
@@ -263,6 +267,8 @@ export function useAppControllerSession() {
     setContextMenu,
     recentCommandIds,
     setRecentCommandIds,
+    pointerWorld,
+    setPointerWorld,
     workshopLibrary,
     setWorkshopLibrary,
     userTemplates,

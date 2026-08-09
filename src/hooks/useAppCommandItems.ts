@@ -1,11 +1,15 @@
 import { useMemo } from "react";
 import type { CommandItem } from "../components/CommandPalette";
+import type { DraftingTool } from "../components/twoDView/types";
 import { formatShortcutBinding, type ShortcutMap } from "../domain/desktopUx";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
+import type { CabinetType } from "../domain/cabinetDimensions";
+import { buildDraftingCabinetCommands } from "./commandItems/draftingCabinetCommands";
 
 type UseAppCommandItemsArgs = {
   shortcutMap: ShortcutMap;
   showGrid: boolean;
+  snapSizeMm: number;
   onReset: () => void;
   onLoadProject: () => void | Promise<void>;
   onSaveProject: () => void | Promise<void>;
@@ -21,7 +25,11 @@ type UseAppCommandItemsArgs = {
   onAlignSelection: (mode: AlignmentMode) => void;
   onAutoAlignRuns: () => void;
   onSetWorkspaceTab: (tab: "plan" | "front" | "side" | "3d") => void;
-  onSetDraftingToolSelect: () => void;
+  onSetDraftingTool: (tool: DraftingTool) => void;
+  onRotate90: () => void;
+  onCycleSnap: () => void;
+  onAddCabinet: (type: CabinetType) => void;
+  onToggleSheetBrowser: () => void;
   onToggleToolRail: () => void;
   onToggleInspector: () => void;
   onToggleGrid: () => void;
@@ -39,6 +47,7 @@ type UseAppCommandItemsArgs = {
 export function useAppCommandItems({
   shortcutMap,
   showGrid,
+  snapSizeMm,
   onReset,
   onLoadProject,
   onSaveProject,
@@ -54,7 +63,11 @@ export function useAppCommandItems({
   onAlignSelection,
   onAutoAlignRuns,
   onSetWorkspaceTab,
-  onSetDraftingToolSelect,
+  onSetDraftingTool,
+  onRotate90,
+  onCycleSnap,
+  onAddCabinet,
+  onToggleSheetBrowser,
   onToggleToolRail,
   onToggleInspector,
   onToggleGrid,
@@ -85,13 +98,30 @@ export function useAppCommandItems({
       { id: "align-left", label: "Align Left", hint: "Align selected items to the left edge", shortcut: "Toolbar", category: "Arrange", action: () => onAlignSelection("align-left") },
       { id: "distribute-x", label: "Distribute X", hint: "Evenly space selected items horizontally", shortcut: "Toolbar", category: "Arrange", action: () => onAlignSelection("distribute-x") },
       { id: "align-runs", label: "Align Runs", hint: "Auto-align cabinet runs along walls", shortcut: "Toolbar", category: "Arrange", action: onAutoAlignRuns },
-      { id: "view-plan", label: "Plan View", hint: "Switch workspace to plan", shortcut: formatShortcutBinding(shortcutMap.viewPlan), category: "View", action: () => { onSetWorkspaceTab("plan"); onSetDraftingToolSelect(); } },
-      { id: "view-front", label: "Front Elevation", hint: "Switch workspace to front", shortcut: formatShortcutBinding(shortcutMap.viewFront), category: "View", action: () => { onSetWorkspaceTab("front"); onSetDraftingToolSelect(); } },
-      { id: "view-side", label: "Side Elevation", hint: "Switch workspace to side", shortcut: formatShortcutBinding(shortcutMap.viewSide), category: "View", action: () => { onSetWorkspaceTab("side"); onSetDraftingToolSelect(); } },
-      { id: "view-3d", label: "3D View", hint: "Switch workspace to 3D", shortcut: formatShortcutBinding(shortcutMap.view3d), category: "View", action: () => { onSetWorkspaceTab("3d"); onSetDraftingToolSelect(); } },
+      ...buildDraftingCabinetCommands({
+        shortcutMap,
+        snapSizeMm,
+        onSetDraftingTool,
+        onRotate90,
+        onCycleSnap,
+        onAddCabinet,
+        onAlignSelection,
+        onToggleSheetBrowser,
+      }),
+      { id: "view-plan", label: "Plan View", hint: "Switch workspace to plan", shortcut: formatShortcutBinding(shortcutMap.viewPlan), category: "View", action: () => { onSetWorkspaceTab("plan"); onSetDraftingTool("select"); } },
+      { id: "view-front", label: "Front Elevation", hint: "Switch workspace to front", shortcut: formatShortcutBinding(shortcutMap.viewFront), category: "View", action: () => { onSetWorkspaceTab("front"); onSetDraftingTool("select"); } },
+      { id: "view-side", label: "Side Elevation", hint: "Switch workspace to side", shortcut: formatShortcutBinding(shortcutMap.viewSide), category: "View", action: () => { onSetWorkspaceTab("side"); onSetDraftingTool("select"); } },
+      { id: "view-3d", label: "3D View", hint: "Switch workspace to 3D", shortcut: formatShortcutBinding(shortcutMap.view3d), category: "View", action: () => { onSetWorkspaceTab("3d"); onSetDraftingTool("select"); } },
       { id: "toggle-rail", label: "Toggle Tool Rail", hint: "Show or hide the left tool rail", shortcut: formatShortcutBinding(shortcutMap.toggleToolRail), category: "View", action: onToggleToolRail },
       { id: "toggle-inspector", label: "Toggle Inspector", hint: "Show or hide the properties inspector", shortcut: formatShortcutBinding(shortcutMap.toggleInspector), category: "View", action: onToggleInspector },
-      { id: "toggle-grid", label: "Toggle Grid", hint: "Show or hide the viewport grid", shortcut: "View", category: "View", action: onToggleGrid },
+      {
+        id: "toggle-grid",
+        label: showGrid ? "Hide Grid" : "Show Grid",
+        hint: "Show or hide the viewport grid",
+        shortcut: formatShortcutBinding(shortcutMap.toggleGrid),
+        category: "View",
+        action: onToggleGrid,
+      },
       { id: "library-manager", label: "Library Manager", hint: "Manage door, material, hardware, and cabinet libraries", shortcut: "Rail", category: "Tools", action: onOpenLibraryManager },
       { id: "export-json", label: "Export Project JSON", hint: "Download project JSON", shortcut: "Export", category: "Export", action: () => { void onExportProjectJson(); } },
       { id: "export-csv", label: "Export Cutlist CSV", hint: "Download production cutlist CSV", shortcut: "Export", category: "Export", action: () => { void onExportCutlistCsv(); } },
@@ -102,7 +132,6 @@ export function useAppCommandItems({
       { id: "export-revision-summary", label: "Export Revision Summary PDF", hint: "Printable approval and change log", shortcut: "Review", category: "Review", action: () => { void onExportRevisionSummary(); } },
       { id: "shortcuts", label: "Configure Shortcuts", hint: "Open keyboard shortcut editor", shortcut: formatShortcutBinding(shortcutMap.shortcutHelp), category: "Tools", action: onOpenShortcuts },
     ],
-    // Actions are stable wiring from App; showGrid + shortcutMap drive labels/behavior.
-    [showGrid, shortcutMap],
+    [showGrid, snapSizeMm, shortcutMap],
   );
 }

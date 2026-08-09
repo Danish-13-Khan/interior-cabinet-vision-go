@@ -77,6 +77,13 @@ type WorkspaceSplitCanvasProps = {
   onResetDimOffset: (id: string) => void;
   onUpsertTagOffset: (cabinetId: string, dx: number, dy: number) => void;
   onResetTagOffset: (cabinetId: string) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
+  onPointerWorld?: (
+    point: import("../domain/draftingAnnotations").DraftingWorldPoint | null,
+  ) => void;
 };
 
 export const WorkspaceSplitCanvas = forwardRef<
@@ -124,6 +131,8 @@ export const WorkspaceSplitCanvas = forwardRef<
     onResetDimOffset,
     onUpsertTagOffset,
     onResetTagOffset,
+    onCabinetContextMenu,
+    onPointerWorld,
   },
   sceneRef,
 ) {
@@ -194,6 +203,8 @@ export const WorkspaceSplitCanvas = forwardRef<
     onUpdateLeader,
     onUpsertDimOffset,
     onUpsertTagOffset,
+    onPointerWorld,
+    onCabinetContextMenu,
   } as const;
 
   const draftingTools = (

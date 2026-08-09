@@ -18,7 +18,13 @@ export type ShortcutActionId =
   | "view3d"
   | "toggleToolRail"
   | "toggleInspector"
-  | "cycleWorkspace";
+  | "cycleWorkspace"
+  | "draftSelect"
+  | "draftNote"
+  | "draftLeader"
+  | "toggleGrid"
+  | "rotate90"
+  | "cycleSnap";
 
 export type ShortcutBinding = {
   key: string;
@@ -49,6 +55,12 @@ export const SHORTCUT_ACTION_LABELS: Record<ShortcutActionId, string> = {
   toggleToolRail: "Toggle tool rail",
   toggleInspector: "Toggle inspector",
   cycleWorkspace: "Cycle workspace view",
+  draftSelect: "Drafting select tool",
+  draftNote: "Drafting note tool",
+  draftLeader: "Drafting leader tool",
+  toggleGrid: "Toggle grid",
+  rotate90: "Rotate selection 90°",
+  cycleSnap: "Cycle snap size",
 };
 
 export const DEFAULT_SHORTCUT_MAP: ShortcutMap = {
@@ -70,6 +82,12 @@ export const DEFAULT_SHORTCUT_MAP: ShortcutMap = {
   toggleToolRail: { key: "[", meta: true, ctrl: true },
   toggleInspector: { key: "]", meta: true, ctrl: true },
   cycleWorkspace: { key: "Tab", meta: true, ctrl: true },
+  draftSelect: { key: "v" },
+  draftNote: { key: "n" },
+  draftLeader: { key: "l" },
+  toggleGrid: { key: "g" },
+  rotate90: { key: "r" },
+  cycleSnap: { key: "s", shift: true },
 };
 
 export function clampShortcutBinding(

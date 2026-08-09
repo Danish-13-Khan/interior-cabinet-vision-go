@@ -40,12 +40,57 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.status-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-family: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  font-size: 0.55rem;
+}
+
+.status-hud-coords {
+  color: #d7e2ec;
+  padding: 0 4px;
+  min-width: 11.5rem;
+  white-space: nowrap;
+}
+
+.status-hud-chip {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.35);
+  color: #e2e8f0;
+  border-radius: 2px;
+  padding: 0 5px;
+  line-height: 1.5;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.status-hud-chip.is-static {
+  cursor: default;
+}
+
+.status-hud-chip.is-on,
+.status-hud-chip.is-accent {
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #bae6fd;
+}
+
+.status-hud-chip:hover:not(.is-static) {
+  background: rgba(30, 41, 59, 0.75);
 }
 
 .output-bar-actions {
   margin-left: auto;
   display: flex;
   gap: 2px;
+  flex-shrink: 0;
 }
 
 .output-bar-actions .tb-btn {

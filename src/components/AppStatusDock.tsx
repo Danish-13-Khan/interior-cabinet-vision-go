@@ -53,6 +53,9 @@ type AppStatusDockProps = {
   approvalBlockedReasons: string[];
   releaseBlockedReasons: string[];
   onOpenSheet?: (sheetId: string) => void;
+  hud: import("../domain/desktopUx").ViewportHudState;
+  onCycleSnap?: () => void;
+  onToggleGrid?: () => void;
 };
 
 export function AppStatusDock({
@@ -91,6 +94,9 @@ export function AppStatusDock({
   approvalBlockedReasons,
   releaseBlockedReasons,
   onOpenSheet,
+  hud,
+  onCycleSnap,
+  onToggleGrid,
 }: AppStatusDockProps) {
   const job = clampJobMeta(project.job);
   const sheets = getProjectSheetSet(project).sheets;
@@ -110,6 +116,9 @@ export function AppStatusDock({
         cabinetCount={project.cabinets.length}
         selectionSummary={selectionSummary}
         validationMessages={validationMessages}
+        hud={hud}
+        onCycleSnap={onCycleSnap}
+        onToggleGrid={onToggleGrid}
         statusDockOpen={statusDockOpen}
         dockHeightPx={dockHeightPx}
         onToggleStatusDock={onToggleStatusDock}

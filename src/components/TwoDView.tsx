@@ -18,6 +18,7 @@ import {
 } from "../domain/draftingEdit";
 import { useTwoDPointer } from "../hooks/useTwoDPointer";
 import type { TechnicalViewMetrics } from "./twoDView/placementHelpers";
+import { worldFromClient } from "./twoDView/placementHelpers";
 import type { DraftingTool } from "./twoDView/types";
 
 export type { DraftingTool };
@@ -47,6 +48,11 @@ type TwoDViewProps = {
   onUpdateLeader?: (leader: DraftingLeader) => void;
   onUpsertDimOffset?: (id: string, dx: number, dy: number) => void;
   onUpsertTagOffset?: (cabinetId: string, dx: number, dy: number) => void;
+  onPointerWorld?: (point: import("../domain/draftingAnnotations").DraftingWorldPoint | null) => void;
+  onCabinetContextMenu?: (
+    cabinetId: string,
+    point: { x: number; y: number },
+  ) => void;
 };
 
 export function TwoDView({
@@ -74,6 +80,8 @@ export function TwoDView({
   onUpdateLeader,
   onUpsertDimOffset,
   onUpsertTagOffset,
+  onPointerWorld,
+  onCabinetContextMenu,
 }: TwoDViewProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const technicalViewRef = useRef<TechnicalViewMetrics>({
@@ -193,10 +201,38 @@ export function TwoDView({
       className={`technical-view drafting-tool-${draftingTool} ${snapGuides.length > 0 ? "is-dragging" : ""}`}
       style={{ width: technicalView.width, height: technicalView.height }}
       onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
+      onPointerMove={(event) => {
+        handlePointerMove(event);
+        if (!onPointerWorld) return;
+        onPointerWorld(
+          worldFromClient(
+            hostRef.current,
+            technicalViewRef.current,
+            view,
+            room.dimensions.heightMm,
+            event.clientX,
+            event.clientY,
+          ),
+        );
+      }}
+      onPointerLeave={() => onPointerWorld?.(null)}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onClick={handleClick}
+      onContextMenu={(event) => {
+        const target = event.target as Element | null;
+        const cabinetId = target
+          ?.closest?.("[data-cabinet-id]")
+          ?.getAttribute("data-cabinet-id");
+        if (cabinetId && onCabinetContextMenu) {
+          event.preventDefault();
+          event.stopPropagation();
+          onCabinetContextMenu(cabinetId, {
+            x: event.clientX,
+            y: event.clientY,
+          });
+        }
+      }}
     >
       {leaderTarget ? (
         <div className="drafting-tool-hint">Leader: click label position</div>
