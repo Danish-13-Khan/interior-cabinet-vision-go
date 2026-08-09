@@ -147,6 +147,7 @@ export function appendOpeningsSection(
 
     sections.push({
       id: "openings",
+      group: "openings",
       label: "Openings",
       hint: rules.notes,
       fields: openingFields,

@@ -23,6 +23,7 @@ export function appendCompositionSections(
   if (caps.shelves) {
     sections.push({
       id: "shelves",
+      group: "construction",
       label: "Shelves",
       fields: [
         {
@@ -45,6 +46,7 @@ export function appendCompositionSections(
   if (caps.dividers) {
     sections.push({
       id: "dividers",
+      group: "construction",
       label: "Dividers",
       fields: [
         {
@@ -60,7 +62,10 @@ export function appendCompositionSections(
     });
   }
 
-  if (caps.doors) {
+  // Prefer Openings as source of truth when the family supports structured openings.
+  const preferOpenings = caps.openings && Boolean(composition.openingStructure);
+
+  if (caps.doors && !preferOpenings) {
     const doorFields: PropertyFieldDef[] = [
       {
         id: "doorsEnabled",
@@ -100,14 +105,16 @@ export function appendCompositionSections(
 
     sections.push({
       id: "doors",
+      group: "construction",
       label: "Doors",
       fields: doorFields,
     });
   }
 
-  if (caps.drawers) {
+  if (caps.drawers && !preferOpenings) {
     sections.push({
       id: "drawers",
+      group: "construction",
       label: "Drawers",
       fields: [
         {
@@ -130,6 +137,7 @@ export function appendCompositionSections(
   if (caps.toeKick) {
     sections.push({
       id: "toeKick",
+      group: "construction",
       label: "Toe Kick",
       fields: [
         {
@@ -162,6 +170,7 @@ export function appendCompositionSections(
   if (caps.fillers) {
     sections.push({
       id: "fillers",
+      group: "construction",
       label: "Fillers",
       fields: [
         {
@@ -189,6 +198,7 @@ export function appendCompositionSections(
   if (caps.endPanels) {
     sections.push({
       id: "endPanels",
+      group: "construction",
       label: "End Panels",
       fields: [
         {

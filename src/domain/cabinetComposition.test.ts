@@ -78,12 +78,13 @@ describe("cabinet editor schema", () => {
       (section) => section.id,
     );
 
-    expect(baseSections).toContain("doors");
-    expect(baseSections).toContain("drawers");
+    expect(baseSections).toContain("openings");
+    expect(baseSections).toContain("materials");
     expect(baseSections).toContain("fillers");
+    expect(baseSections).not.toContain("doors");
     expect(wallSections).not.toContain("toeKick");
+    expect(drawerSections).toContain("openings");
     expect(drawerSections).not.toContain("doors");
-    expect(drawerSections).toContain("drawers");
   });
 
   it("applies engineered presets and editor field changes", () => {

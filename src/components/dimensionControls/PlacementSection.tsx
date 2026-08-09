@@ -1,4 +1,5 @@
 import type { CabinetPlacement } from "../../domain/cabinetDimensions";
+import type { PropertyFieldIssue } from "../../domain/cabinetEditorSchema";
 import type { NumericInputKey } from "./types";
 
 export function PlacementSection({
@@ -7,6 +8,7 @@ export function PlacementSection({
   rotation,
   snapSizeMm,
   inputs,
+  fieldIssues = {},
   onRotationChange,
   onAttachmentChange,
   handleNumericInputChange,
@@ -17,15 +19,20 @@ export function PlacementSection({
   rotation: number;
   snapSizeMm: number;
   inputs: Record<NumericInputKey, string>;
+  fieldIssues?: Record<string, PropertyFieldIssue[]>;
   onRotationChange: (rotation: number) => void;
   onAttachmentChange: (attachment: CabinetPlacement["attachment"]) => void;
   handleNumericInputChange: (key: NumericInputKey, value: string) => void;
   handleBlur: (key: NumericInputKey) => void;
 }) {
+  const attachmentIssue = fieldIssues.attachment?.[0];
+  const yIssue = fieldIssues.placementY?.[0];
+
   return (
-    <div className="control-section">
+    <div className="control-section engineering-placement">
       <div className="section-heading">
         <h2>Placement</h2>
+        <span>Rotation · attachment · world mm</span>
       </div>
 
       <div className="field-grid">
@@ -45,40 +52,36 @@ export function PlacementSection({
       </div>
 
       {showWallTools ? (
-        <div className="wall-tools">
+        <div className={`wall-tools ${attachmentIssue ? `has-${attachmentIssue.severity}` : ""}`}>
           <label>Attachment</label>
           <div className="button-row">
-            <button
-              type="button"
-              className={attachment === "floor" ? "active" : ""}
-              onClick={() => onAttachmentChange("floor")}
-            >
-              Floor
-            </button>
-            <button
-              type="button"
-              className={attachment === "back-wall" ? "active" : ""}
-              onClick={() => onAttachmentChange("back-wall")}
-            >
-              Back Wall
-            </button>
-            <button
-              type="button"
-              className={attachment === "left-wall" ? "active" : ""}
-              onClick={() => onAttachmentChange("left-wall")}
-            >
-              Left Wall
-            </button>
-            <button
-              type="button"
-              className={attachment === "right-wall" ? "active" : ""}
-              onClick={() => onAttachmentChange("right-wall")}
-            >
-              Right Wall
-            </button>
+            {(
+              [
+                ["floor", "Floor"],
+                ["back-wall", "Back Wall"],
+                ["left-wall", "Left Wall"],
+                ["right-wall", "Right Wall"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={attachment === value ? "active" : ""}
+                onClick={() => onAttachmentChange(value)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
+          {attachmentIssue ? (
+            <p className={`property-grid-issue severity-${attachmentIssue.severity}`}>
+              {attachmentIssue.message}
+            </p>
+          ) : null}
         </div>
-      ) : null}
+      ) : (
+        <p className="engineering-note">Floor-mounted family — wall attachment locked.</p>
+      )}
 
       <div className="field-grid">
         <div className="field-group">
@@ -92,7 +95,7 @@ export function PlacementSection({
             onBlur={() => handleBlur("placementX")}
           />
         </div>
-        <div className="field-group">
+        <div className={`field-group ${yIssue ? `has-${yIssue.severity}` : ""}`}>
           <label htmlFor="placement-y">Y</label>
           <input
             id="placement-y"
@@ -102,6 +105,11 @@ export function PlacementSection({
             onChange={(event) => handleNumericInputChange("placementY", event.currentTarget.value)}
             onBlur={() => handleBlur("placementY")}
           />
+          {yIssue ? (
+            <span className={`property-grid-issue severity-${yIssue.severity}`}>
+              {yIssue.message}
+            </span>
+          ) : null}
         </div>
         <div className="field-group">
           <label htmlFor="placement-z">Z</label>

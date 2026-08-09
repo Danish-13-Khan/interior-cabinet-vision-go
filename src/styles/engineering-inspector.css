@@ -1,0 +1,185 @@
+/* Structured property editing — engineering panel */
+.inspector-scope-nav {
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--panel-border);
+  background: #e4eaef;
+}
+
+.inspector-scope-tab {
+  appearance: none;
+  border: 0;
+  border-right: 1px solid var(--panel-border);
+  background: transparent;
+  padding: 4px 8px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.inspector-scope-tab.is-active {
+  background: var(--panel-raised);
+  color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.engineering-panel .controls-header h1 {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.engineering-panel .controls-header p {
+  font-size: 0.56rem;
+  margin: 0;
+}
+
+.engineering-group-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid #cfd8e2;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0 0 6px;
+  background: #dfe6ed;
+}
+
+.engineering-group-tab,
+.property-group-tab {
+  appearance: none;
+  border: 0;
+  border-right: 1px solid #cfd8e2;
+  background: transparent;
+  padding: 3px 6px;
+  font-size: 0.52rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #5a6b7c;
+  cursor: pointer;
+}
+
+.engineering-group-tab:last-child,
+.property-group-tab:last-child {
+  border-right: 0;
+}
+
+.engineering-group-tab.is-active,
+.property-group-tab.is-active {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.engineering-group-tab.has-error,
+.property-group-tab.has-error,
+.property-grid-row.has-error {
+  box-shadow: inset 0 -2px 0 #c0392b;
+}
+
+.engineering-group-tab.has-warning,
+.property-group-tab.has-warning,
+.property-grid-row.has-warning {
+  box-shadow: inset 0 -2px 0 #d68910;
+}
+
+.engineering-group-tab.has-info,
+.property-group-tab.has-info,
+.property-grid-row.has-info {
+  box-shadow: inset 0 -2px 0 #2e86ab;
+}
+
+.property-group-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 6px;
+  border: 1px solid #d5dde6;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.property-group-tab i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+
+.property-grid-row {
+  grid-template-columns: minmax(72px, 36%) 1fr;
+  grid-template-rows: auto auto;
+}
+
+.property-grid-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.property-grid-control {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.property-grid-issue {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  font-size: 0.5rem;
+  line-height: 1.2;
+  margin: 0 0 2px;
+  color: #6b7c8d;
+}
+
+.property-grid-issue.severity-error {
+  color: #a93226;
+}
+
+.property-grid-issue.severity-warning {
+  color: #b9770e;
+}
+
+.property-grid-issue.severity-info {
+  color: #1a5276;
+}
+
+.property-grid-empty,
+.engineering-note {
+  margin: 4px 0;
+  font-size: 0.56rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.engineering-issue-strip {
+  margin-bottom: 6px;
+}
+
+.engineering-placement .wall-tools.has-error,
+.engineering-placement .field-group.has-error input {
+  border-color: #c0392b;
+}
+
+.engineering-placement .wall-tools.has-warning,
+.engineering-placement .field-group.has-warning input {
+  border-color: #d68910;
+}
+
+.property-grid-row.has-error .property-grid-control input,
+.property-grid-row.has-error .property-grid-control select,
+.property-grid-row.has-warning .property-grid-control input,
+.property-grid-row.has-warning .property-grid-control select {
+  border-color: #c5a26a;
+}
+
+.property-grid-row.has-error .property-grid-control input,
+.property-grid-row.has-error .property-grid-control select {
+  border-color: #c0392b;
+}

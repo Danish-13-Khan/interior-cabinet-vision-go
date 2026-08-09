@@ -33,11 +33,14 @@ import {
   patchHardware,
 } from "./helpers";
 import { tryApplyOpeningEditorChange } from "./applyOpenings";
+import { tryApplyMaterialsEditorChange } from "./applyMaterials";
+import type { ProjectStandards } from "../projectStandards";
 
 export function applyCabinetEditorChange(
   config: CabinetConfig,
   fieldId: string,
   value: PropertyFieldValue,
+  standards?: ProjectStandards | null,
 ): CabinetConfig {
   if (fieldId === "family") {
     return getDefaultCabinetConfig(value as CabinetType);
@@ -60,6 +63,14 @@ export function applyCabinetEditorChange(
       },
     });
   }
+
+  const materialsResult = tryApplyMaterialsEditorChange(
+    config,
+    fieldId,
+    value,
+    standards,
+  );
+  if (materialsResult) return clampCabinetConfig(materialsResult);
 
   const widthMm = config.dimensions.width;
   const openingResult = tryApplyOpeningEditorChange(config, fieldId, value, widthMm);

@@ -115,6 +115,7 @@ export function appendConstructionHardwareSections(
 
     sections.push({
       id: "construction",
+      group: "construction",
       label: "Construction",
       hint: "How the cabinet is built for shop output",
       fields: constructionFields,
@@ -228,6 +229,7 @@ export function appendConstructionHardwareSections(
     }
     sections.push({
       id: "hardware",
+      group: "construction",
       label: "Hardware",
       hint: "Hinges, slides, handles, legs, and accessories",
       fields: hardwareFields,
