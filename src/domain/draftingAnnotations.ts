@@ -109,6 +109,31 @@ export function formatOpeningTag(
   return `${code}-${index + 1} ${size}`;
 }
 
+/** Shop marker for cabinet-face openings (doors, drawers, shelves). */
+export function formatFaceOpeningTag(contentType: string, index: number) {
+  const code =
+    contentType === "door"
+      ? "OP"
+      : contentType === "drawer-stack"
+        ? "DW"
+        : contentType === "open-shelf"
+          ? "SH"
+          : contentType === "divider"
+            ? "DV"
+            : "OC";
+  return `${code}-${index + 1}`;
+}
+
+export function formatCabinetElevationLabel(
+  tag: string,
+  name: string,
+  widthMm: number,
+  heightMm: number,
+) {
+  const short = name.length > 16 ? `${name.slice(0, 15)}…` : name;
+  return `${tag} · ${short} · ${Math.round(widthMm)}×${Math.round(heightMm)}`;
+}
+
 export function formatApplianceTag(type: string) {
   switch (type) {
     case "sink":

@@ -3,6 +3,7 @@ import type {
   OpeningFaceRect,
 } from "../openingLayout";
 import { ELEVATION_CONTENT_SHORT_LABELS } from "../elevationOpeningEdit";
+import { formatFaceOpeningTag } from "../draftingAnnotations";
 import { faceToSvg, line, rect, text } from "./svgPrimitives";
 
 function openingSvgBox(
@@ -101,7 +102,7 @@ export function renderOpeningBoundaries(
             top.y,
             bottom.x,
             bottom.y,
-            `class="twod-opening-boundary" pointer-events="none"`,
+            `class="twod-opening-boundary twod-line-outline" pointer-events="none"`,
           ),
         );
       } else {
@@ -127,7 +128,7 @@ export function renderOpeningBoundaries(
             left.y,
             right.x,
             right.y,
-            `class="twod-opening-boundary" pointer-events="none"`,
+            `class="twod-opening-boundary twod-line-outline" pointer-events="none"`,
           ),
         );
       }
@@ -147,6 +148,7 @@ export function renderOpeningChrome(
   const box = openingSvgBox(opening, layout, cabinetSvgX, cabinetSvgY, scale);
   const elements: string[] = [];
   const contentLabel = ELEVATION_CONTENT_SHORT_LABELS[opening.contentType];
+  const marker = formatFaceOpeningTag(opening.contentType, opening.markerIndex);
   const sizeLabel = `${Math.round(opening.widthMm)}×${Math.round(opening.heightMm)}`;
 
   elements.push(
@@ -158,6 +160,26 @@ export function renderOpeningChrome(
       `class="twod-opening-chrome ${active ? "is-active-opening" : ""}" data-opening-chrome="${opening.id}" pointer-events="none"`,
     ),
   );
+
+  // Shop marker bubble (top-left)
+  if (box.width > 20 && box.height > 14) {
+    const markW = Math.max(18, marker.length * 4.2 + 6);
+    elements.push(
+      rect(
+        box.x + 2,
+        box.y + 2,
+        markW,
+        9,
+        `class="twod-opening-marker ${active ? "is-active-opening" : ""}" pointer-events="none"`,
+      ),
+      text(
+        box.x + 2 + markW / 2,
+        box.y + 9,
+        escapeXml(marker),
+        `class="twod-opening-marker-text ${active ? "is-active-opening" : ""}" text-anchor="middle" font-size="5.5" pointer-events="none"`,
+      ),
+    );
+  }
 
   if (active) {
     const tick = 4;
@@ -184,22 +206,22 @@ export function renderOpeningChrome(
     }
   }
 
-  if (box.width > 32 && box.height > 18) {
+  if (box.width > 36 && box.height > 22) {
     elements.push(
       text(
         box.x + box.width / 2,
-        box.y + Math.min(12, box.height * 0.28),
+        box.y + Math.min(18, box.height * 0.42),
         escapeXml(`${opening.label} · ${contentLabel}`),
-        `class="twod-opening-label ${active ? "is-active-opening" : ""}" text-anchor="middle" font-size="7.5" pointer-events="none"`,
+        `class="twod-opening-label ${active ? "is-active-opening" : ""}" text-anchor="middle" font-size="7" pointer-events="none"`,
       ),
     );
-    if (box.height > 28) {
+    if (box.height > 32) {
       elements.push(
         text(
           box.x + box.width / 2,
-          box.y + Math.min(22, box.height * 0.48),
+          box.y + Math.min(28, box.height * 0.58),
           escapeXml(sizeLabel),
-          `class="twod-opening-size" text-anchor="middle" font-size="6.5" pointer-events="none"`,
+          `class="twod-opening-size" text-anchor="middle" font-size="6" pointer-events="none"`,
         ),
       );
     }

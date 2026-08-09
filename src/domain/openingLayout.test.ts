@@ -67,7 +67,12 @@ describe("openingLayout", () => {
     expect(layout.leftEndPanel).toBe(true);
     expect(layout.faceHeightMm).toBe(config.dimensions.height - 100);
     expect(layout.faceWidthMm).toBe(config.dimensions.width - 60);
+    expect(layout.boardThicknessMm).toBeGreaterThan(0);
+    expect(layout.clearWidthMm).toBeLessThan(layout.faceWidthMm);
+    expect(layout.clearHeightMm).toBeLessThan(layout.faceHeightMm);
     expect(layout.openings.length).toBeGreaterThan(0);
+    expect(layout.openings[0]?.markerIndex).toBe(0);
+    expect(layout.openings[0]?.xMm).toBeGreaterThanOrEqual(layout.faceInsetLeftMm - 0.01);
   });
 });
 

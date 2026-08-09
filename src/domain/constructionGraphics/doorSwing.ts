@@ -41,7 +41,7 @@ export function hingeSideForLeaf(
 
 /**
  * Elevation swing arc for a door leaf (quarter circle into the room).
- * Hinge at leaf edge; arc sweeps toward open position.
+ * Hinge at leaf edge; arc sweeps toward open position with a guide chord.
  */
 export function elevDoorSwingArc(
   leafX: number,
@@ -53,14 +53,16 @@ export function elevDoorSwingArc(
   const hingeX = hingeSide === "left" ? leafX : leafX + leafW;
   const hingeY = leafY + leafH;
   const tipX = hingeSide === "left" ? leafX + leafW : leafX;
-  const openX = hingeSide === "left" ? hingeX + leafW * 0.15 : hingeX - leafW * 0.15;
-  const openY = hingeY - leafW;
+  const openX = hingeSide === "left" ? hingeX + leafW * 0.22 : hingeX - leafW * 0.22;
+  const openY = Math.max(leafY + 1, hingeY - leafW * 0.95);
   const sweep = hingeSide === "left" ? 1 : 0;
-  const d = quarterArcPath(hingeX, hingeY, tipX, hingeY, openX, Math.max(leafY, openY), sweep);
-  return path(
+  const d = quarterArcPath(hingeX, hingeY, tipX, hingeY, openX, openY, sweep);
+  const arc = path(
     d,
-    `class="twod-door-swing twod-line-hidden" fill="none" pointer-events="none"`,
+    `class="twod-door-swing" fill="none" pointer-events="none"`,
   );
+  const chord = `<line x1="${tipX}" y1="${hingeY}" x2="${openX}" y2="${openY}" class="twod-door-swing-chord twod-line-hidden" pointer-events="none" />`;
+  return `${arc}${chord}`;
 }
 
 export function elevBifoldFolds(
