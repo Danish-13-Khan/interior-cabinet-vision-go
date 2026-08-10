@@ -7,3 +7,4 @@ export * from "./paneViewNav";
 export * from "./paneDisplayMode";
 export * from "./snapCycle";
 export * from "./viewportHud";
+export * from "./workbench";

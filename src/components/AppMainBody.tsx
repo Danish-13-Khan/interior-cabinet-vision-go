@@ -1,11 +1,15 @@
-import type { ComponentProps, RefObject } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
 import { AppToolRail } from "./AppToolRail";
 import { AppWorkspace } from "./AppWorkspace";
 import { AppInspector } from "./AppInspector";
 import { PaneResizeHandle } from "./PaneResizeHandle";
 import type { CabinetSceneHandle } from "./CabinetScene";
+import type { WorkbenchMode } from "../domain/desktopUx";
 
 type AppMainBodyProps = {
+  workbenchMode: WorkbenchMode;
+  reportWorkspace: ReactNode;
+  jobWorkspace: ReactNode;
   toolRailVisible: boolean;
   inspectorVisible: boolean;
   toolRailWidthPx: number;
@@ -19,6 +23,9 @@ type AppMainBodyProps = {
 };
 
 export function AppMainBody({
+  workbenchMode,
+  reportWorkspace,
+  jobWorkspace,
   toolRailVisible,
   inspectorVisible,
   toolRailWidthPx,
@@ -30,9 +37,12 @@ export function AppMainBody({
   workspaceProps,
   inspectorProps,
 }: AppMainBodyProps) {
+  const isOutputWorkspace = workbenchMode === "production" || workbenchMode === "reports";
+  const showToolRail = toolRailVisible && workbenchMode !== "drawings" && !isOutputWorkspace;
+
   return (
     <div className="app-body">
-      {toolRailVisible ? (
+      {showToolRail ? (
         <>
           <AppToolRail {...toolRailProps} style={{ width: toolRailWidthPx }} />
           <PaneResizeHandle
@@ -45,9 +55,13 @@ export function AppMainBody({
         </>
       ) : null}
 
-      <AppWorkspace ref={sceneRef} {...workspaceProps} />
+      {isOutputWorkspace
+        ? reportWorkspace
+        : workbenchMode === "job"
+          ? jobWorkspace
+          : <AppWorkspace ref={sceneRef} {...workspaceProps} />}
 
-      {inspectorVisible ? (
+      {!isOutputWorkspace && inspectorVisible ? (
         <>
           <PaneResizeHandle
             axis="x"

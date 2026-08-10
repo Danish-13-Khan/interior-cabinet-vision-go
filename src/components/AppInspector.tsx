@@ -1,12 +1,10 @@
-import { useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { DimensionControls } from "./DimensionControls";
 import { RoomSettings } from "./RoomSettings";
 import { WallEditor } from "./WallEditor";
 import { DoorWindowEditor } from "./DoorWindowEditor";
 import { JobWorkflowPanel } from "./JobWorkflowPanel";
 import { DraftingPanel } from "./DraftingPanel";
-import { SceneItemsSection } from "./dimensionControls/SceneItemsSection";
-import { WorkflowSection } from "./dimensionControls/WorkflowSection";
 import { PreferencesSection } from "./dimensionControls/PreferencesSection";
 import { ProjectStandardsSection } from "./dimensionControls/ProjectStandardsSection";
 import { getPanelDisplayName, type PanelName } from "../domain/cabinetGeometry";
@@ -31,6 +29,7 @@ import {
   type ProjectDrafting,
 } from "../domain/draftingAnnotations";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
+import type { WorkbenchMode } from "../domain/desktopUx";
 
 type SavedProjectSummary = {
   id: string;
@@ -39,9 +38,8 @@ type SavedProjectSummary = {
   updatedAt: string;
 };
 
-type InspectorTab = "cabinet" | "room" | "project";
-
 type AppInspectorProps = {
+  workbenchMode: WorkbenchMode;
   selectedCabinet: CabinetInstance | null;
   selectedCabinetIds: string[];
   job: ProjectJobMeta;
@@ -111,6 +109,7 @@ type AppInspectorProps = {
 
 export function AppInspector(props: AppInspectorProps) {
   const {
+    workbenchMode,
     selectedCabinet,
     selectedCabinetIds,
     job,
@@ -160,12 +159,19 @@ export function AppInspector(props: AppInspectorProps) {
     style,
   } = props;
 
-  const [tab, setTab] = useState<InspectorTab>("cabinet");
+  const inspectorTitle =
+    workbenchMode === "cabinets"
+      ? "Cabinet Properties"
+      : workbenchMode === "room"
+        ? "Room Properties"
+        : workbenchMode === "drawings"
+          ? "Drawing Properties"
+          : "Job Properties";
 
   return (
     <aside className="inspector-panel" aria-label="Properties inspector" style={style}>
       <div className="inspector-header">
-        <strong>Properties</strong>
+        <strong>{inspectorTitle}</strong>
         <span>
           {selectedCabinet
             ? selectedCabinet.name
@@ -175,29 +181,8 @@ export function AppInspector(props: AppInspectorProps) {
         </span>
       </div>
 
-      <div className="inspector-scope-nav" role="tablist" aria-label="Inspector scope">
-        {(
-          [
-            ["cabinet", "Cabinet"],
-            ["room", "Room"],
-            ["project", "Project"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={tab === id}
-            className={`inspector-scope-tab ${tab === id ? "is-active" : ""}`}
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       <div className="inspector-scroll">
-        {tab === "cabinet" ? (
+        {workbenchMode === "cabinets" ? (
           <DimensionControls
             cabinetCount={project.cabinets.length}
             cabinetCutlistItems={props.cabinetCutlistItems}
@@ -261,7 +246,7 @@ export function AppInspector(props: AppInspectorProps) {
           />
         ) : null}
 
-        {tab === "room" ? (
+        {workbenchMode === "room" ? (
           <>
             <RoomSettings
               dimensions={room.dimensions}
@@ -289,9 +274,24 @@ export function AppInspector(props: AppInspectorProps) {
           </>
         ) : null}
 
-        {tab === "project" ? (
+        {workbenchMode === "job" ? (
           <>
             <JobWorkflowPanel job={job} onChange={onJobChange} />
+            <PreferencesSection
+              preferences={preferences}
+              layers={layers}
+              onPreferenceChange={onPreferenceChange}
+              onLayerChange={onLayerChange}
+            />
+            <ProjectStandardsSection
+              preferences={preferences}
+              onPreferenceChange={onPreferenceChange}
+            />
+          </>
+        ) : null}
+
+        {workbenchMode === "drawings" ? (
+          <>
             <DraftingPanel
               drafting={projectDrafting}
               display={draftingDisplay}
@@ -312,42 +312,6 @@ export function AppInspector(props: AppInspectorProps) {
                   leaders: projectDrafting.leaders.filter((leader) => leader.id !== id),
                 })
               }
-            />
-            <SceneItemsSection
-              cabinetCount={project.cabinets.length}
-              cabinets={project.cabinets}
-              selectedCabinetIds={selectedCabinetIds}
-              onSelectCabinet={onSelectCabinet}
-              onRenameCabinet={onRenameCabinet}
-              onUndo={onUndo}
-              onRedo={onRedo}
-              onCopySelection={onCopySelection}
-              onPasteSelection={onPasteSelection}
-              onSelectAll={onSelectAll}
-              onDuplicateCabinet={onDuplicateCabinet}
-              onRemoveCabinet={onRemoveCabinet}
-            />
-            <WorkflowSection
-              selectedCabinetIds={selectedCabinetIds}
-              selectedLayerId={selectedLayerId}
-              selectedGroupId={selectedGroupId}
-              layers={layers}
-              groups={groups}
-              onAssignLayer={onAssignLayer}
-              onCreateLayer={onCreateLayer}
-              onCreateGroup={onCreateGroup}
-              onClearGroup={onClearGroup}
-              onAlignSelection={onAlignSelection}
-            />
-            <PreferencesSection
-              preferences={preferences}
-              layers={layers}
-              onPreferenceChange={onPreferenceChange}
-              onLayerChange={onLayerChange}
-            />
-            <ProjectStandardsSection
-              preferences={preferences}
-              onPreferenceChange={onPreferenceChange}
             />
           </>
         ) : null}

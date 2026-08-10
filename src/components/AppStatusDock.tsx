@@ -14,6 +14,7 @@ import type { ReviewNoteSeverity } from "../domain/projectReview";
 import { getProjectSheetSet } from "../domain/sheetDocuments";
 
 type AppStatusDockProps = {
+  workbenchMode: import("../domain/desktopUx").WorkbenchMode;
   project: CabinetProject;
   projectStatus: string;
   workspaceLabel: string;
@@ -59,6 +60,7 @@ type AppStatusDockProps = {
 };
 
 export function AppStatusDock({
+  workbenchMode,
   project,
   projectStatus,
   workspaceLabel,
@@ -109,6 +111,7 @@ export function AppStatusDock({
   return (
     <div className="status-dock-shell">
       <StatusStrip
+        workbenchMode={workbenchMode}
         projectStatus={projectStatus}
         workspaceLabel={workspaceLabel}
         jobTitle={formatJobTitle(job)}
