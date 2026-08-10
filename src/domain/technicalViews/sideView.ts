@@ -89,7 +89,9 @@ export function sideView(
       oy,
       rd,
       rh,
-      display.showWallLabels ? "SIDE WALL ELEVATION" : null,
+      display.showWallLabels
+        ? `${options.wallLabel ?? "Side Wall"} Elevation`.toUpperCase()
+        : null,
     ),
   );
 

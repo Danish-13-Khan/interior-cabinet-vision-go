@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import type {
+  CabinetDimensions,
   CabinetPlacement,
   CabinetProject,
 } from "../domain/cabinetDimensions";
@@ -30,6 +31,7 @@ type TwoDViewProps = {
   countertops?: CountertopSegment[];
   runs?: CabinetRun[];
   fillers?: RunFiller[];
+  wallLabel?: string;
   selectedCabinetIds?: string[];
   activeCabinetId?: string | null;
   activeOpeningId?: string | null;
@@ -43,6 +45,7 @@ type TwoDViewProps = {
   onResizeOpening?: (cabinetId: string, openingId: string, ratio: number) => void;
   onSelectDraftObject?: (selection: TechnicalObjectSelection) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
+  onCabinetResize?: (cabinetId: string, dimensions: CabinetDimensions) => void;
   onAddNote?: (note: DraftingNote) => void;
   onAddLeader?: (leader: DraftingLeader) => void;
   onUpdateNote?: (note: DraftingNote) => void;
@@ -63,6 +66,7 @@ export function TwoDView({
   countertops,
   runs = [],
   fillers = [],
+  wallLabel,
   selectedCabinetIds = [],
   activeCabinetId = null,
   activeOpeningId = null,
@@ -76,6 +80,7 @@ export function TwoDView({
   onResizeOpening,
   onSelectDraftObject,
   onCabinetMove,
+  onCabinetResize,
   onAddNote,
   onAddLeader,
   onUpdateNote,
@@ -117,6 +122,7 @@ export function TwoDView({
     onResizeOpening,
     onSelectDraftObject,
     onCabinetMove,
+    onCabinetResize,
     onAddNote,
     onAddLeader,
     onUpdateNote,
@@ -157,6 +163,7 @@ export function TwoDView({
         countertops,
         drafting: project.drafting,
         showSectionMarkers: true,
+        wallLabel,
       }),
     [
       activeCabinetId,
@@ -187,6 +194,7 @@ export function TwoDView({
       showGrid,
       snapGuides,
       view,
+      wallLabel,
     ],
   );
 

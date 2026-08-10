@@ -5,6 +5,7 @@ import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
 import { ReportCenter } from "./components/ReportCenter";
 import { JobWorkspace } from "./components/JobWorkspace";
+import { createWallLayoutSummary, type WallLayoutSide } from "./domain/wallLayout";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
 import {
@@ -25,6 +26,27 @@ function App() {
     activeRoom?.name ?? "Room",
     c.selectedCabinet?.name,
   );
+  const activeWallSide = c.layout.activeWallSide;
+  const wallLayout = createWallLayoutSummary({
+    project: c.project,
+    room: c.room,
+    roomBounds: c.roomBounds,
+    workflow: c.planningWorkflow,
+    side: activeWallSide,
+  });
+  const activeWallRun =
+    c.planningWorkflow.runs.find(
+      (run) =>
+        run.side === activeWallSide &&
+        Boolean(c.activeCabinetId && run.cabinetIds.includes(c.activeCabinetId)),
+    ) ?? null;
+
+  function handleActiveWallChange(side: WallLayoutSide) {
+    const view = side === "back-wall" ? "front" : "side";
+    c.setLayout({ activeWallSide: side, workspaceTab: view });
+    c.handleSelectSheetDocument(view);
+    c.setDraftingTool("select");
+  }
 
   function handleWorkbenchModeChange(mode: WorkbenchMode) {
     const patch: Parameters<typeof c.setLayout>[0] = {
@@ -169,6 +191,17 @@ function App() {
         sceneRef={c.sceneRef}
         toolRailProps={{
           workbenchMode,
+          activeWall: activeWallSide,
+          wallLayout,
+          onActiveWallChange: handleActiveWallChange,
+          onSelectWallCabinets: () =>
+            c.replaceSelection(
+              wallLayout.cabinetIds,
+              wallLayout.cabinetIds[0] ?? null,
+              null,
+            ),
+          onAutoPackWallRuns: () => c.handleAutoAlignWallRuns(activeWallSide),
+          onFinishWallRunEnds: () => c.handleFinishWallRunEnds(activeWallSide),
           templates: c.userTemplates,
           userCabinetPresets: c.workshopLibrary.cabinetPresets,
           rooms: c.projectRooms,
@@ -179,9 +212,11 @@ function App() {
           selectedCabinetIds: c.selectedCabinetIds,
           isolatedCabinetIds: c.isolatedCabinetIds,
           savedProjects: c.sortedSavedProjects,
-          onAddFamily: c.handleAddCabinet,
-          onAddLibraryItem: c.handleAddLibraryItem,
-          onAddTemplate: c.handleAddTemplate,
+          onAddFamily: (type) => c.handleAddCabinetToWall(type, activeWallSide),
+          onAddLibraryItem: (itemId) =>
+            c.handleAddLibraryItemToWall(itemId, activeWallSide),
+          onAddTemplate: (templateId) =>
+            c.handleAddTemplateToWall(templateId, activeWallSide),
           onDeleteTemplate: c.handleDeleteTemplate,
           onApplyStarter: c.handleApplyStarter,
           onOpenLibraryManager: () => c.setLibraryManagerOpen(true),
@@ -219,6 +254,22 @@ function App() {
           workbenchMode,
           breadcrumb,
           splitViewEnabled: c.layout.splitViewEnabled,
+          activeWallSide,
+          wallCabinetIds: wallLayout.cabinetIds,
+          wallLengthMm: wallLayout.lengthMm,
+          onCatalogDrop: (item, preferredPrimaryMm) => {
+            if (item.kind === "family") {
+              c.handleAddCabinetToWall(
+                item.id as import("./domain/cabinetDimensions").CabinetType,
+                activeWallSide,
+                preferredPrimaryMm,
+              );
+            } else if (item.kind === "library") {
+              c.handleAddLibraryItemToWall(item.id, activeWallSide, preferredPrimaryMm);
+            } else {
+              c.handleAddTemplateToWall(item.id, activeWallSide, preferredPrimaryMm);
+            }
+          },
           workspaceTab: c.workspaceTab,
           activeSheetId: getProjectSheetSet(c.project).activeSheetId,
           workspaceLabel: c.workspaceLabel,
@@ -302,6 +353,23 @@ function App() {
         }}
         inspectorProps={{
           workbenchMode,
+          activeWallRun,
+          wallLayout,
+          activeWallRunFillerCount: activeWallRun
+            ? c.planningWorkflow.fillers.filter((item) => item.runId === activeWallRun.id).length
+            : 0,
+          activeWallRunCountertopCount: activeWallRun
+            ? c.planningWorkflow.countertops.filter((item) => item.runId === activeWallRun.id).length
+            : 0,
+          onSelectActiveWallRun: () => {
+            if (!activeWallRun) return;
+            c.replaceSelection(
+              activeWallRun.cabinetIds,
+              activeWallRun.cabinetIds[0] ?? null,
+              null,
+            );
+          },
+          onAutoPackWallRuns: () => c.handleAutoAlignWallRuns(activeWallSide),
           selectedCabinet: c.selectedCabinet,
           selectedCabinetIds: c.selectedCabinetIds,
           job: c.project.job ?? c.defaultCabinetProject.job!,

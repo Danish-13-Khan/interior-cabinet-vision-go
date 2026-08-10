@@ -23,6 +23,10 @@ import type { ProjectStandards } from "../domain/projectStandards";
 import type { CabinetFamilyLibraryEntry } from "../domain/workshopLibrary";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
+import {
+  findAvailableWallPlacement,
+  type WallLayoutSide,
+} from "../domain/wallLayout";
 
 type RoomBounds = {
   widthMm: number;
@@ -65,7 +69,12 @@ export function useCabinetLibraryOps({
   setProjectFilePath,
   onStatus,
 }: UseCabinetLibraryOpsArgs) {
-  function placeNewCabinet(config: CabinetConfig, nameHint: string) {
+  function placeNewCabinet(
+    config: CabinetConfig,
+    nameHint: string,
+    wallSide?: WallLayoutSide,
+    preferredPrimaryMm?: number,
+  ) {
     const defaultLayerId = layers[0]?.id ?? "layer-default";
     const tmpCab: CabinetInstance = {
       id: createCabinetId(),
@@ -75,13 +84,29 @@ export function useCabinetLibraryOps({
       layerId: defaultLayerId,
       groupId: null,
     };
-    const placement = findPlacementForNewCabinet(
-      project,
-      room,
-      roomBounds,
-      config,
-      tmpCab,
-    );
+    const placement = wallSide
+      ? findAvailableWallPlacement({
+          project,
+          room,
+          roomBounds,
+          config,
+          side: wallSide,
+          provisionalId: tmpCab.id,
+          preferredPrimaryMm,
+          snapMm: projectPreferences.snapSizeMm,
+        })
+      : findPlacementForNewCabinet(
+          project,
+          room,
+          roomBounds,
+          config,
+          tmpCab,
+        );
+
+    if (!placement) {
+      onStatus("No clear span is available on the selected wall.");
+      return;
+    }
 
     const newCabinet: CabinetInstance = {
       id: tmpCab.id,
@@ -102,7 +127,9 @@ export function useCabinetLibraryOps({
         activeCabinetId: newCabinet.id,
         selectedPanelName: null,
       }),
-      `Added ${nameHint} to the room scene.`,
+      wallSide
+        ? `Added ${nameHint} to the selected wall run.`
+        : `Added ${nameHint} to the room scene.`,
     );
   }
 
@@ -110,6 +137,19 @@ export function useCabinetLibraryOps({
     placeNewCabinet(
       createConfigFromFamily(type, projectStandards),
       cabinetTypeLabels[type].toLowerCase(),
+    );
+  }
+
+  function handleAddCabinetToWall(
+    type: CabinetType,
+    wallSide: WallLayoutSide,
+    preferredPrimaryMm?: number,
+  ) {
+    placeNewCabinet(
+      createConfigFromFamily(type, projectStandards),
+      cabinetTypeLabels[type].toLowerCase(),
+      wallSide,
+      preferredPrimaryMm,
     );
   }
 
@@ -126,6 +166,23 @@ export function useCabinetLibraryOps({
     placeNewCabinet(config, config.type);
   }
 
+  function handleAddLibraryItemToWall(
+    itemId: string,
+    wallSide: WallLayoutSide,
+    preferredPrimaryMm?: number,
+  ) {
+    const config = createConfigFromLibraryItem(
+      itemId,
+      projectStandards,
+      workshopCabinetPresets,
+    );
+    if (!config) {
+      onStatus("Library item could not be resolved.");
+      return;
+    }
+    placeNewCabinet(config, config.type, wallSide, preferredPrimaryMm);
+  }
+
   function handleAddTemplate(templateId: string) {
     const template = userTemplates.find((item) => item.id === templateId);
     if (!template) {
@@ -135,6 +192,24 @@ export function useCabinetLibraryOps({
     placeNewCabinet(
       createConfigFromTemplate(template, projectStandards),
       template.name.toLowerCase(),
+    );
+  }
+
+  function handleAddTemplateToWall(
+    templateId: string,
+    wallSide: WallLayoutSide,
+    preferredPrimaryMm?: number,
+  ) {
+    const template = userTemplates.find((item) => item.id === templateId);
+    if (!template) {
+      onStatus("Template not found.");
+      return;
+    }
+    placeNewCabinet(
+      createConfigFromTemplate(template, projectStandards),
+      template.name.toLowerCase(),
+      wallSide,
+      preferredPrimaryMm,
     );
   }
 
@@ -184,8 +259,11 @@ export function useCabinetLibraryOps({
 
   return {
     handleAddCabinet,
+    handleAddCabinetToWall,
     handleAddLibraryItem,
+    handleAddLibraryItemToWall,
     handleAddTemplate,
+    handleAddTemplateToWall,
     handleSaveCabinetTemplate,
     handleDeleteTemplate,
     handleApplyStarter,

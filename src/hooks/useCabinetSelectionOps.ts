@@ -1,5 +1,6 @@
 import type { MutableRefObject } from "react";
 import {
+  clampCabinetConfig,
   defaultCabinetProject,
   type CabinetInstance,
   type CabinetProject,
@@ -8,11 +9,13 @@ import {
   createCabinetPlanningWorkflow,
   createAllRunAlignedPlacements,
 } from "../domain/cabinetLibrary";
+import { orderedRunCabinets } from "../domain/cabinetRuns";
 import { createOffsetDuplicate } from "../domain/cabinetDuplication";
 import { DEFAULT_ROOM, type RoomConfig } from "../domain/roomModel";
 import { deepClone } from "../utils/clone";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
 import type { PanelName } from "../domain/cabinetGeometry";
+import type { WallLayoutSide } from "../domain/wallLayout";
 
 type RoomBounds = {
   widthMm: number;
@@ -133,6 +136,68 @@ export function useCabinetSelectionOps({
     );
   }
 
+  function handleAutoAlignWallRuns(side: WallLayoutSide) {
+    commitProjectChange(
+      (currentProject) => {
+        const workflow = createCabinetPlanningWorkflow(currentProject, roomBounds);
+        const wallRuns = workflow.runs.filter((run) => run.side === side);
+        const alignedPlacements = createAllRunAlignedPlacements(
+          wallRuns,
+          currentProject,
+          roomBounds,
+        );
+        if (Object.keys(alignedPlacements).length === 0) return null;
+        return {
+          project: {
+            ...currentProject,
+            cabinets: currentProject.cabinets.map((cabinet) => ({
+              ...cabinet,
+              placement: alignedPlacements[cabinet.id] ?? cabinet.placement,
+            })),
+          },
+        };
+      },
+      "Packed the selected wall runs.",
+    );
+  }
+
+  function handleFinishWallRunEnds(side: WallLayoutSide) {
+    commitProjectChange(
+      (currentProject) => {
+        const workflow = createCabinetPlanningWorkflow(currentProject, roomBounds);
+        const endFlags = new Map<string, { left: boolean; right: boolean }>();
+        for (const run of workflow.runs.filter(
+          (item) => item.side === side && item.band !== "wall",
+        )) {
+          const members = orderedRunCabinets(run.cabinetIds, currentProject.cabinets, run.axis);
+          const first = members[0];
+          const last = members[members.length - 1];
+          if (first) endFlags.set(first.id, { ...(endFlags.get(first.id) ?? { left: false, right: false }), left: true });
+          if (last) endFlags.set(last.id, { ...(endFlags.get(last.id) ?? { left: false, right: false }), right: true });
+        }
+        if (endFlags.size === 0) return null;
+        return {
+          project: {
+            ...currentProject,
+            cabinets: currentProject.cabinets.map((cabinet) => {
+              const flags = endFlags.get(cabinet.id);
+              if (!flags) return cabinet;
+              return {
+                ...cabinet,
+                config: clampCabinetConfig({
+                  ...cabinet.config,
+                  leftEndPanel: flags.left || cabinet.config.leftEndPanel,
+                  rightEndPanel: flags.right || cabinet.config.rightEndPanel,
+                }),
+              };
+            }),
+          },
+        };
+      },
+      "Added finished end panels to the selected wall runs.",
+    );
+  }
+
   function handleDuplicateCabinet() {
     if (selectedCabinets.length === 0) return;
     const editable = getSelectedEditableCabinets();
@@ -220,6 +285,8 @@ export function useCabinetSelectionOps({
     handlePasteSelection,
     handleSelectAll,
     handleAutoAlignRuns,
+    handleAutoAlignWallRuns,
+    handleFinishWallRunEnds,
     handleDuplicateCabinet,
     handleRemoveCabinet,
     handleReset,

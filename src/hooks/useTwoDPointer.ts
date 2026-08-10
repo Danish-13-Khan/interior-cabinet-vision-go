@@ -6,6 +6,7 @@ import {
   type RefObject,
 } from "react";
 import type {
+  CabinetDimensions,
   CabinetPlacement,
   CabinetProject,
 } from "../domain/cabinetDimensions";
@@ -109,7 +110,18 @@ type OpeningResizeDrag = {
   moved: boolean;
 };
 
-type DragState = CabinetDrag | DimDrag | TagDrag | NoteDrag | LeaderDrag | OpeningResizeDrag;
+type CabinetResizeDrag = {
+  kind: "cabinet-resize";
+  cabinetId: string;
+  pointerId: number;
+  startClientX: number;
+  startClientY: number;
+  originDimensions: CabinetDimensions;
+  sign: number;
+  moved: boolean;
+};
+
+type DragState = CabinetDrag | DimDrag | TagDrag | NoteDrag | LeaderDrag | OpeningResizeDrag | CabinetResizeDrag;
 
 type UseTwoDPointerArgs = {
   hostRef: RefObject<HTMLDivElement | null>;
@@ -124,6 +136,7 @@ type UseTwoDPointerArgs = {
   onResizeOpening?: (cabinetId: string, openingId: string, ratio: number) => void;
   onSelectDraftObject?: (selection: TechnicalObjectSelection) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
+  onCabinetResize?: (cabinetId: string, dimensions: CabinetDimensions) => void;
   onAddNote?: (note: DraftingNote) => void;
   onAddLeader?: (leader: DraftingLeader) => void;
   onUpdateNote?: (note: DraftingNote) => void;
@@ -145,6 +158,7 @@ export function useTwoDPointer({
   onResizeOpening,
   onSelectDraftObject,
   onCabinetMove,
+  onCabinetResize,
   onAddNote,
   onAddLeader,
   onUpdateNote,
@@ -167,6 +181,28 @@ export function useTwoDPointer({
     if (draftingTool !== "select") return;
 
     const target = event.target as Element | null;
+    const cabinetResizeNode = target?.closest?.("[data-cabinet-resize]");
+    const cabinetResizeId = cabinetResizeNode?.getAttribute("data-cabinet-id");
+    if (cabinetResizeId && onCabinetResize) {
+      const cabinet = project.cabinets.find((item) => item.id === cabinetResizeId);
+      if (!cabinet) return;
+      dragRef.current = {
+        kind: "cabinet-resize",
+        cabinetId: cabinetResizeId,
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        originDimensions: { ...cabinet.config.dimensions },
+        sign: Number(cabinetResizeNode?.getAttribute("data-resize-sign")) || 1,
+        moved: false,
+      };
+      onSelectCabinet?.(cabinetResizeId, false);
+      suppressClickRef.current = false;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      event.preventDefault();
+      return;
+    }
+
     const resizeNode = target?.closest?.("[data-opening-resize]");
     const resizeOpeningId = resizeNode?.getAttribute("data-opening-id");
     const resizeCabinetId = resizeNode?.getAttribute("data-cabinet-id");
@@ -397,6 +433,25 @@ export function useTwoDPointer({
         Math.min(0.95, Math.max(0.05, drag.originRatio + deltaMm / drag.parentSpanMm)) * 100,
       ) / 100;
       onResizeOpening(drag.cabinetId, drag.openingId, ratio);
+      return;
+    }
+
+    if (drag.kind === "cabinet-resize" && onCabinetResize) {
+      const delta = svgDeltaFromClient(
+        hostRef.current,
+        technicalViewRef.current,
+        event.clientX,
+        event.clientY,
+        drag.startClientX,
+        drag.startClientY,
+      );
+      if (!delta) return;
+      const deltaMm = delta.dx * technicalViewRef.current.scale * drag.sign;
+      const width = Math.max(
+        200,
+        Math.round((drag.originDimensions.width + deltaMm) / snapSizeMm) * snapSizeMm,
+      );
+      onCabinetResize(drag.cabinetId, { ...drag.originDimensions, width });
       return;
     }
 
