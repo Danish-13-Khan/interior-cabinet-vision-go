@@ -3,10 +3,15 @@ import react from "@vitejs/plugin-react";
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
+// @ts-expect-error process is a nodejs global
+const githubPages = process.env.GITHUB_PAGES === "true";
+// Repo name for project Pages URL: https://<user>.github.io/<repo>/
+const pagesBase = "/interior-cabinet-vision-go/";
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react()],
+  base: githubPages ? pagesBase : "/",
   build: {
     chunkSizeWarningLimit: 800,
     rollupOptions: {

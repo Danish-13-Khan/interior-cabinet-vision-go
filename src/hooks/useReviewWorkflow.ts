@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
-import { save } from "@tauri-apps/plugin-dialog";
 import {
   clampJobMeta,
   patchJobMeta,
@@ -19,8 +17,8 @@ import {
 import { createQuoteSnapshotFromQuote } from "../domain/projectQuote";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { createProjectReport } from "../domain/projectReport";
-import { blobToBase64 } from "../utils/blobBase64";
 import { getErrorMessage } from "../utils/errors";
+import { promptSavePath, writeBinaryBlob } from "../platform/desktopFiles";
 import type { CommitProjectChange } from "./projectCommit";
 
 type ProjectReport = ReturnType<typeof createProjectReport>;
@@ -156,18 +154,17 @@ export function useReviewWorkflow({
 
   async function handleExportRevisionSummary() {
     try {
-      const targetPath = await save({
+      const targetPath = await promptSavePath({
         title: "Export Revision Summary PDF",
         defaultPath: "cabinet-revision-summary.pdf",
-        filters: [{ name: "PDF", extensions: ["pdf"] }],
+        extensions: ["pdf"],
       });
       if (!targetPath) {
         onStatus("Revision summary export cancelled.");
         return;
       }
       const blob = await exportRevisionSummaryPdf(project);
-      const base64 = await blobToBase64(blob);
-      await invoke("save_binary_file", { path: targetPath, base64Data: base64 });
+      await writeBinaryBlob(targetPath, blob);
       onStatus("Revision summary PDF saved.");
     } catch (error) {
       onStatus(`Revision summary failed: ${getErrorMessage(error)}`);

@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { open, save } from "@tauri-apps/plugin-dialog";
 import {
   clampCabinetProject,
   type CabinetConfig,
@@ -19,8 +17,15 @@ import { getProjectDisplayName } from "../domain/projectBrowserStorage";
 import type { createCabinetPlanningWorkflow } from "../domain/cabinetLibrary";
 import type { createProjectProductionCutlist } from "../domain/productionCutlist";
 import type { DesktopSessionState } from "../domain/desktopUx";
-import { blobToBase64 } from "../utils/blobBase64";
 import { getErrorMessage } from "../utils/errors";
+import {
+  isTauriRuntime,
+  openTextProjectFile,
+  promptSavePath,
+  readTextFile,
+  writeBinaryBlob,
+  writeTextFile,
+} from "../platform/desktopFiles";
 import type { ApplySnapshot } from "./projectCommit";
 
 type CutlistItem = ReturnType<typeof createProjectProductionCutlist>[number];
@@ -101,13 +106,12 @@ export function useProjectFileIo({
   useEffect(() => {
     if (sessionRestoreAttempted.current) return;
     sessionRestoreAttempted.current = true;
+    if (!isTauriRuntime()) return;
     const session = initialSession;
     if (!session.restoreLastFile || !session.projectFilePath) return;
     void (async () => {
       try {
-        const raw = await invoke<string>("load_project_file", {
-          path: session.projectFilePath,
-        });
+        const raw = await readTextFile(session.projectFilePath!);
         const parsed = JSON.parse(raw) as ParsedProjectFile;
         if (!parsed.project) return;
         const { project: safeProject, room: activeRoom } = snapshotFromParsedFile(
@@ -139,7 +143,7 @@ export function useProjectFileIo({
   }, [applySnapshot, initialSession, onStatus, rememberFile, setProjectFilePath]);
 
   const writeFile = useCallback(async (path: string, contents: string) => {
-    await invoke("save_project_file", { path, contents });
+    await writeTextFile(path, contents);
   }, []);
 
   const applyLoadedFile = useCallback(
@@ -165,10 +169,10 @@ export function useProjectFileIo({
     try {
       const targetPath =
         projectFilePath ??
-        (await save({
+        (await promptSavePath({
           title: "Save Cabinet Project",
           defaultPath: "cabinet-project.json",
-          filters: [{ name: "Cabinet Project", extensions: ["json"] }],
+          extensions: ["json"],
         }));
 
       if (!targetPath) {
@@ -196,9 +200,13 @@ export function useProjectFileIo({
       setProjectFilePath(targetPath);
       rememberFile(targetPath);
       saveCurrentProjectToBrowser(
-        targetPath.split("/").pop()?.replace(/\.json$/i, ""),
+        targetPath.split(/[/\\]/).pop()?.replace(/\.json$/i, ""),
       );
-      onStatus("Project saved to JSON file.");
+      onStatus(
+        isTauriRuntime()
+          ? "Project saved to JSON file."
+          : "Project downloaded as JSON.",
+      );
     } catch (error) {
       onStatus(`Save failed: ${getErrorMessage(error)}`);
     }
@@ -215,25 +223,20 @@ export function useProjectFileIo({
 
   const handleLoadProject = useCallback(async () => {
     try {
-      const selectedPath = await open({
+      const opened = await openTextProjectFile({
         title: "Open Cabinet Project",
-        multiple: false,
-        directory: false,
-        filters: [{ name: "Cabinet Project", extensions: ["json"] }],
+        extensions: ["json"],
       });
-
-      if (!selectedPath || Array.isArray(selectedPath)) {
+      if (!opened) {
         onStatus("Load cancelled.");
         return;
       }
-
-      const raw = await invoke<string>("load_project_file", {
-        path: selectedPath,
-      });
       applyLoadedFile(
-        JSON.parse(raw) as ParsedProjectFile,
-        selectedPath,
-        "Project loaded from JSON file.",
+        JSON.parse(opened.contents) as ParsedProjectFile,
+        opened.path,
+        isTauriRuntime()
+          ? "Project loaded from JSON file."
+          : "Project loaded from browser file.",
       );
     } catch (error) {
       onStatus(`Load failed: ${getErrorMessage(error)}`);
@@ -243,7 +246,11 @@ export function useProjectFileIo({
   const handleOpenRecentFile = useCallback(
     async (path: string) => {
       try {
-        const raw = await invoke<string>("load_project_file", { path });
+        if (!isTauriRuntime()) {
+          onStatus("Recent disk files need the desktop app. Use Open instead.");
+          return;
+        }
+        const raw = await readTextFile(path);
         applyLoadedFile(
           JSON.parse(raw) as ParsedProjectFile,
           path,
@@ -260,10 +267,10 @@ export function useProjectFileIo({
   const handleExportMachineJson = useCallback(async () => {
     try {
       const exported = exportProjectMachineFile(project, "json-preview");
-      const targetPath = await save({
+      const targetPath = await promptSavePath({
         title: "Export Machine Intent JSON (preview)",
         defaultPath: "cabinet-machine-preview.json",
-        filters: [{ name: "JSON", extensions: ["json"] }],
+        extensions: ["json"],
       });
       if (!targetPath) {
         onStatus("Machine JSON export cancelled.");
@@ -281,10 +288,10 @@ export function useProjectFileIo({
   const handleExportMachineCsv = useCallback(async () => {
     try {
       const exported = exportProjectMachineFile(project, "csv-ops-preview");
-      const targetPath = await save({
+      const targetPath = await promptSavePath({
         title: "Export Machine Operations CSV (preview)",
         defaultPath: "cabinet-machine-ops-preview.csv",
-        filters: [{ name: "CSV", extensions: ["csv"] }],
+        extensions: ["csv"],
       });
       if (!targetPath) {
         onStatus("Machine CSV export cancelled.");
@@ -301,10 +308,10 @@ export function useProjectFileIo({
 
   const handleExportCutlistCsv = useCallback(async () => {
     try {
-      const targetPath = await save({
+      const targetPath = await promptSavePath({
         title: "Export Cutlist CSV",
         defaultPath: "cabinet-cutlist.csv",
-        filters: [{ name: "CSV", extensions: ["csv"] }],
+        extensions: ["csv"],
       });
 
       if (!targetPath) {
@@ -321,10 +328,10 @@ export function useProjectFileIo({
 
   const handleExportProjectJson = useCallback(async () => {
     try {
-      const targetPath = await save({
+      const targetPath = await promptSavePath({
         title: "Export Project JSON",
         defaultPath: "cabinet-project-export.json",
-        filters: [{ name: "JSON", extensions: ["json"] }],
+        extensions: ["json"],
       });
 
       if (!targetPath) {
@@ -352,10 +359,10 @@ export function useProjectFileIo({
 
   const handleExportPdf = useCallback(async () => {
     try {
-      const targetPath = await save({
+      const targetPath = await promptSavePath({
         title: "Export PDF Report",
         defaultPath: "cabinet-project.pdf",
-        filters: [{ name: "PDF", extensions: ["pdf"] }],
+        extensions: ["pdf"],
       });
       if (!targetPath) {
         onStatus("PDF export cancelled.");
@@ -371,8 +378,7 @@ export function useProjectFileIo({
         planningWorkflow.countertops,
         planningWorkflow.runs,
       );
-      const base64 = await blobToBase64(blob);
-      await invoke("save_binary_file", { path: targetPath, base64Data: base64 });
+      await writeBinaryBlob(targetPath, blob);
       onStatus("PDF report saved.");
     } catch (error) {
       onStatus("PDF export failed: " + getErrorMessage(error));
