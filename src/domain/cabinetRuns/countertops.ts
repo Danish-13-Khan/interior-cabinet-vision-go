@@ -32,7 +32,10 @@ function splitCountertopGroups(
   for (let index = 1; index < sorted.length; index += 1) {
     const cabinet = sorted[index]!;
     const previous = current[current.length - 1]!;
-    if (cabinetsAreAdjacent(previous, cabinet, axis, RUN_GAP_TOLERANCE_MM)) {
+    if (
+      !previous.config.countertopBreakAfter &&
+      cabinetsAreAdjacent(previous, cabinet, axis, RUN_GAP_TOLERANCE_MM)
+    ) {
       current.push(cabinet);
     } else {
       groups.push(current);

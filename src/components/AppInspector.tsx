@@ -49,6 +49,10 @@ type AppInspectorProps = {
   activeWallRunCountertopCount: number;
   onSelectActiveWallRun: () => void;
   onAutoPackWallRuns: () => void;
+  onCompleteWallRuns: () => void;
+  onReplaceCabinetInRun: (type: CabinetInstance["config"]["type"]) => void;
+  onSplitCabinetInRun: () => void;
+  onToggleCountertopBreak: () => void;
   selectedCabinet: CabinetInstance | null;
   selectedCabinetIds: string[];
   job: ProjectJobMeta;
@@ -125,6 +129,10 @@ export function AppInspector(props: AppInspectorProps) {
     activeWallRunCountertopCount,
     onSelectActiveWallRun,
     onAutoPackWallRuns,
+    onCompleteWallRuns,
+    onReplaceCabinetInRun,
+    onSplitCabinetInRun,
+    onToggleCountertopBreak,
     selectedCabinet,
     selectedCabinetIds,
     job,
@@ -202,10 +210,19 @@ export function AppInspector(props: AppInspectorProps) {
           <WallRunInspector
             run={activeWallRun}
             summary={wallLayout}
+            project={project}
+            activeCabinet={selectedCabinet}
             fillerCount={activeWallRunFillerCount}
             countertopCount={activeWallRunCountertopCount}
             onSelectRun={onSelectActiveWallRun}
+            onSelectCabinet={(cabinetId) => onSelectCabinet(cabinetId, false)}
             onAutoPack={onAutoPackWallRuns}
+            onCompleteWall={onCompleteWallRuns}
+            onReplaceFamily={onReplaceCabinetInRun}
+            onSplitCabinet={onSplitCabinetInRun}
+            onToggleCountertopBreak={onToggleCountertopBreak}
+            onDuplicateCabinet={onDuplicateCabinet}
+            onDeleteCabinet={onRemoveCabinet}
           />
           <DimensionControls
             cabinetCount={project.cabinets.length}

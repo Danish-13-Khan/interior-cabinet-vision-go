@@ -37,6 +37,8 @@ export type CabinetConfig = {
   toeKickInset: number;
   leftEndPanel?: boolean;
   rightEndPanel?: boolean;
+  /** End the generated countertop after this cabinet in its wall run. */
+  countertopBreakAfter?: boolean;
   buildRules?: Partial<CabinetBuildRules>;
   /** Structured Core Cabinets–style composition. Flat fields stay in sync for geometry. */
   composition?: CabinetComposition;

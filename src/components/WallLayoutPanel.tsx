@@ -79,12 +79,12 @@ export function WallLayoutPanel({
         <button type="button" onClick={onAutoPack} disabled={summary.runIds.length === 0}>
           Auto Pack Runs
         </button>
-        <button type="button" onClick={onFinishEnds} disabled={summary.runIds.length === 0}>
-          Finish Ends
+        <button type="button" className="is-primary" onClick={onFinishEnds} disabled={summary.runIds.length === 0}>
+          Complete Wall
         </button>
       </div>
 
-      <p className="wall-layout-hint">Catalog items place into the first clear snapped span on this wall.</p>
+      <p className="wall-layout-hint">Drag catalog items into the elevation. Complete Wall packs runs and finishes exposed ends.</p>
     </section>
   );
 }

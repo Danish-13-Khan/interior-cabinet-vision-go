@@ -65,6 +65,24 @@ describe("wall layout", () => {
     expect(cabinetBelongsToWall(left, "back-wall", bounds)).toBe(false);
   });
 
+  it("places a dropped cabinet in the nearest clear span", () => {
+    const existing = cabinet("center", "base", 0, -1720);
+    const value = project([existing]);
+    const placement = findAvailableWallPlacement({
+      project: value,
+      room: DEFAULT_ROOM,
+      roomBounds: bounds,
+      config: getDefaultCabinetConfig("base"),
+      side: "back-wall",
+      provisionalId: "dropped",
+      preferredPrimaryMm: 1800,
+      snapMm: 50,
+    });
+
+    expect(placement).not.toBeNull();
+    expect(placement!.x).toBeGreaterThan(900);
+  });
+
   it("places a base cabinet flush to the selected side wall", () => {
     const placement = findAvailableWallPlacement({
       project: project([]),

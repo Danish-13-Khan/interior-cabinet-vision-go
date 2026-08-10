@@ -380,7 +380,9 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               try {
                 const item = JSON.parse(raw) as { kind: "family" | "library" | "template"; id: string };
                 if (!["family", "library", "template"].includes(item.kind) || !item.id) return;
-                const bounds = event.currentTarget.getBoundingClientRect();
+                const target = event.target as HTMLElement | null;
+                const dropViewport = target?.closest<HTMLElement>(".drawing-viewport");
+                const bounds = (dropViewport ?? event.currentTarget).getBoundingClientRect();
                 const ratio = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
                 onCatalogDrop(item, (ratio - 0.5) * wallLengthMm);
               } catch {
