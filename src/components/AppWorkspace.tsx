@@ -19,8 +19,12 @@ import type { ProjectRoom } from "../domain/projectRooms";
 import type { SheetViewKind } from "../domain/sheetDocuments";
 import { catalogIdFromSheetId } from "../domain/sheetDocuments";
 import { WorkspaceSheetBrowser } from "./WorkspaceSheetBrowser";
+import type { WorkbenchMode } from "../domain/desktopUx";
 
 type AppWorkspaceProps = {
+  workbenchMode: WorkbenchMode;
+  breadcrumb: string;
+  splitViewEnabled: boolean;
   workspaceTab: WorkspaceTabId;
   activeSheetId: string;
   workspaceLabel: string;
@@ -50,6 +54,7 @@ type AppWorkspaceProps = {
   onDraftingToolChange: (tool: DraftingTool) => void;
   onSplitPlanWidthChange: (pct: number) => void;
   onSplitTopRowChange: (pct: number) => void;
+  onSplitViewEnabledChange: (enabled: boolean) => void;
   onToggleSceneBrowser: () => void;
   onToggleSheetBrowser: () => void;
   onSelectRoom: (roomId: string) => void;
@@ -112,6 +117,9 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
   function AppWorkspace(
     {
       workspaceTab,
+      workbenchMode,
+      breadcrumb,
+      splitViewEnabled,
       activeSheetId,
       workspaceLabel,
       draftingTool,
@@ -140,6 +148,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       onDraftingToolChange,
       onSplitPlanWidthChange,
       onSplitTopRowChange,
+      onSplitViewEnabledChange,
       onToggleSceneBrowser,
       onToggleSheetBrowser,
       onSelectRoom,
@@ -176,6 +185,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
     sceneRef,
   ) {
     const [maximizedPane, setMaximizedPane] = useState<WorkspaceTabId | null>(null);
+    const effectiveMaximizedPane = splitViewEnabled ? maximizedPane : workspaceTab;
 
     useEffect(() => {
       if (!maximizedPane) return;
@@ -237,7 +247,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
         }}
       >
         <div className="workspace-focus-bar" role="tablist" aria-label="Focus viewport">
-          <span className="workspace-focus-label">{workspaceLabel}</span>
+          <span className="workspace-focus-label" title={workspaceLabel}>{breadcrumb}</span>
           <div className="workspace-tabs">
             {FOCUS_TABS.map((tab) => (
               <button
@@ -276,28 +286,38 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
           </div>
           <button
             type="button"
+            className={`tb-btn ${splitViewEnabled ? "tb-accent" : ""}`}
+            title="Show multiple synchronized views"
+            onClick={() => {
+              onSplitViewEnabledChange(!splitViewEnabled);
+              setMaximizedPane(null);
+            }}
+          >
+            {splitViewEnabled ? "Single View" : "Split View"}
+          </button>
+          {workbenchMode === "drawings" ? <button
+            type="button"
             className={`tb-btn ${sheetBrowserVisible ? "tb-accent" : ""}`}
             title="Toggle sheet browser"
             onClick={onToggleSheetBrowser}
           >
             Sheets
-          </button>
-          <button
+          </button> : null}
+          {workbenchMode === "job" ? <button
             type="button"
             className={`tb-btn ${sceneBrowserVisible ? "tb-accent" : ""}`}
             title="Toggle scene browser"
             onClick={onToggleSceneBrowser}
           >
             Objects
-          </button>
+          </button> : null}
           <span className="workspace-focus-hint">
-            Sheets · Plan / Elev. / Side / Section / Detail / Schedule
-            {maximizedPane ? " · max" : ""}
+            {splitViewEnabled ? "Multi-view drafting" : "Focused workspace"}
           </span>
         </div>
 
         <div className="workspace-body">
-          {sheetBrowserVisible ? (
+          {workbenchMode === "drawings" && sheetBrowserVisible ? (
             <WorkspaceSheetBrowser
               project={project}
               activeSheetId={activeSheetId}
@@ -309,7 +329,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             />
           ) : null}
 
-          {sceneBrowserVisible ? (
+          {workbenchMode === "job" && sceneBrowserVisible ? (
             <WorkspaceSceneBrowser
               rooms={rooms}
               activeRoomId={activeRoomId}
@@ -339,7 +359,7 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               ref={sceneRef}
               workspaceTab={workspaceTab}
               activeSheetId={activeSheetId}
-              maximizedPane={maximizedPane}
+              maximizedPane={effectiveMaximizedPane}
               splitPlanWidthPct={splitPlanWidthPct}
               splitTopRowPct={splitTopRowPct}
               draftingTool={draftingTool}

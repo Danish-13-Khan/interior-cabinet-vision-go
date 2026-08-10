@@ -12,6 +12,7 @@ import { RoomPresetRail } from "./RoomPresetRail";
 import { ProjectBrowser } from "./ProjectBrowser";
 
 import type { ProjectJobMeta } from "../domain/jobMeta";
+import type { WorkbenchMode } from "../domain/desktopUx";
 
 type SavedProjectCard = {
   id: string;
@@ -23,6 +24,7 @@ type SavedProjectCard = {
 };
 
 type AppToolRailProps = {
+  workbenchMode: WorkbenchMode;
   templates: CabinetTemplate[];
   userCabinetPresets: CabinetFamilyLibraryEntry[];
   rooms: ProjectRoom[];
@@ -73,6 +75,7 @@ type AppToolRailProps = {
 };
 
 export function AppToolRail({
+  workbenchMode,
   templates,
   userCabinetPresets,
   rooms,
@@ -115,7 +118,12 @@ export function AppToolRail({
 }: AppToolRailProps) {
   return (
     <aside className="tool-rail" aria-label="Tool rail" style={style}>
-      <LibraryRail
+      <div className="context-panel-heading">
+        <strong>{workbenchMode === "job" ? "Job Browser" : workbenchMode === "room" ? "Room Tools" : workbenchMode === "drawings" ? "Drawing Objects" : "Cabinet Catalog"}</strong>
+        <span>Context tools</span>
+      </div>
+
+      {workbenchMode === "cabinets" ? <LibraryRail
         templates={templates}
         userCabinetPresets={userCabinetPresets}
         onAddFamily={onAddFamily}
@@ -124,9 +132,9 @@ export function AppToolRail({
         onDeleteTemplate={onDeleteTemplate}
         onApplyStarter={onApplyStarter}
         onOpenLibraryManager={onOpenLibraryManager}
-      />
+      /> : null}
 
-      <SceneTreePanel
+      {workbenchMode === "room" || workbenchMode === "cabinets" || workbenchMode === "drawings" ? <SceneTreePanel
         rooms={rooms}
         activeRoomId={activeRoomId}
         runs={runs}
@@ -144,9 +152,9 @@ export function AppToolRail({
         onIsolate={onIsolate}
         onFocus={onFocus}
         onReorderCabinet={onReorderCabinet}
-      />
+      /> : null}
 
-      <RoomNavigator
+      {workbenchMode === "job" || workbenchMode === "room" ? <RoomNavigator
         rooms={rooms}
         activeRoomId={activeRoomId}
         onSelectRoom={onSelectRoom}
@@ -155,11 +163,11 @@ export function AppToolRail({
         onRenameRoom={onRenameRoom}
         onRemoveRoom={onRemoveRoom}
         onAddFromTemplate={onAddFromTemplate}
-      />
+      /> : null}
 
-      <RoomPresetRail onLoadPreset={onLoadRoomPreset} />
+      {workbenchMode === "room" ? <RoomPresetRail onLoadPreset={onLoadRoomPreset} /> : null}
 
-      <div className="rail-section">
+      {workbenchMode === "job" ? <div className="rail-section">
         <ProjectBrowser
           projects={savedProjects}
           onDeleteProject={onDeleteSavedProject}
@@ -169,7 +177,7 @@ export function AppToolRail({
           onSaveCurrent={onSaveCurrentProject}
           onProjectContextMenu={onProjectContextMenu}
         />
-      </div>
+      </div> : null}
     </aside>
   );
 }

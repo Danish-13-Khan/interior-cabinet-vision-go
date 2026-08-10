@@ -1,8 +1,14 @@
 import { useState } from "react";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
 import type { RecentFileEntry } from "../domain/desktopUx";
+import {
+  WORKBENCH_LABELS,
+  WORKBENCH_MODES,
+  type WorkbenchMode,
+} from "../domain/desktopUx";
 
 type AppRibbonProps = {
+  workbenchMode: WorkbenchMode;
   workspaceLabel: string;
   workspaceTab: "plan" | "front" | "side" | "3d";
   canUndo: boolean;
@@ -33,9 +39,11 @@ type AppRibbonProps = {
   onToggleInspector: () => void;
   onOpenCommands: () => void;
   onOpenShortcuts: () => void;
+  onWorkbenchModeChange: (mode: WorkbenchMode) => void;
 };
 
 export function AppRibbon({
+  workbenchMode,
   workspaceLabel,
   workspaceTab,
   canUndo,
@@ -66,6 +74,7 @@ export function AppRibbon({
   onToggleInspector,
   onOpenCommands,
   onOpenShortcuts,
+  onWorkbenchModeChange,
 }: AppRibbonProps) {
   const [recentOpen, setRecentOpen] = useState(false);
 
@@ -73,8 +82,22 @@ export function AppRibbon({
     <header className="app-ribbon" aria-label="Command ribbon">
       <div className="ribbon-brand">
         <strong>Cabinet Designer</strong>
-        <span>{workspaceLabel}</span>
+        <span>{WORKBENCH_LABELS[workbenchMode]} · {workspaceLabel}</span>
       </div>
+
+      <nav className="ribbon-workbenches" aria-label="Application workspaces">
+        {WORKBENCH_MODES.map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            className={`ribbon-workbench-tab ${workbenchMode === mode ? "is-active" : ""}`}
+            aria-current={workbenchMode === mode ? "page" : undefined}
+            onClick={() => onWorkbenchModeChange(mode)}
+          >
+            {WORKBENCH_LABELS[mode]}
+          </button>
+        ))}
+      </nav>
 
       <div className="ribbon-group">
         <span className="ribbon-group-label">File</span>
@@ -137,7 +160,7 @@ export function AppRibbon({
         </div>
       </div>
 
-      <div className="ribbon-group">
+      {workbenchMode === "cabinets" || workbenchMode === "room" ? <div className="ribbon-group">
         <span className="ribbon-group-label">Edit</span>
         <div className="ribbon-group-actions">
           <button type="button" className="tb-btn" onClick={onUndo} disabled={!canUndo} title="Undo">
@@ -174,9 +197,9 @@ export function AppRibbon({
             Duplicate
           </button>
         </div>
-      </div>
+      </div> : null}
 
-      <div className="ribbon-group">
+      {workbenchMode === "cabinets" ? <div className="ribbon-group">
         <span className="ribbon-group-label">Arrange</span>
         <div className="ribbon-group-actions">
           <button type="button" className="tb-btn" onClick={onAlignRuns} title="Auto align cabinet runs">
@@ -215,9 +238,9 @@ export function AppRibbon({
             Distribute X
           </button>
         </div>
-      </div>
+      </div> : null}
 
-      <div className="ribbon-group">
+      {workbenchMode !== "production" && workbenchMode !== "reports" ? <div className="ribbon-group">
         <span className="ribbon-group-label">View</span>
         <div className="ribbon-group-actions">
           <button
@@ -237,9 +260,9 @@ export function AppRibbon({
             Inspector
           </button>
         </div>
-      </div>
+      </div> : null}
 
-      <div className="ribbon-group">
+      {workbenchMode === "production" ? <div className="ribbon-group">
         <span className="ribbon-group-label">Export</span>
         <div className="ribbon-group-actions">
           <button type="button" className="tb-btn" onClick={onExportJson} title="Export JSON">
@@ -248,13 +271,21 @@ export function AppRibbon({
           <button type="button" className="tb-btn" onClick={onExportCsv} title="Export CSV">
             CSV
           </button>
-          <button type="button" className="tb-btn tb-accent" onClick={onExportPdf} title="Download PDF">
-            PDF
-          </button>
         </div>
-      </div>
+      </div> : null}
 
-      {workspaceTab === "3d" ? (
+      {workbenchMode === "drawings" || workbenchMode === "reports" ? (
+        <div className="ribbon-group">
+          <span className="ribbon-group-label">Output</span>
+          <div className="ribbon-group-actions">
+            <button type="button" className="tb-btn tb-accent" onClick={onExportPdf} title="Download PDF">
+              PDF
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {(workbenchMode === "room" || workbenchMode === "cabinets") && workspaceTab === "3d" ? (
         <div className="ribbon-group">
           <span className="ribbon-group-label">Model Camera</span>
           <div className="ribbon-group-actions">

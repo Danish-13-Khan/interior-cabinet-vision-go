@@ -11,6 +11,7 @@ import { PaneResizeHandle } from "./PaneResizeHandle";
 import { StatusHudSegments } from "./StatusHudSegments";
 
 type StatusStripProps = {
+  workbenchMode?: import("../domain/desktopUx").WorkbenchMode;
   projectStatus: string;
   workspaceLabel: string;
   jobTitle: string;
@@ -56,6 +57,7 @@ type StatusStripProps = {
 };
 
 export function StatusStrip({
+  workbenchMode = "cabinets",
   projectStatus,
   workspaceLabel,
   jobTitle,
@@ -68,12 +70,7 @@ export function StatusStrip({
   onToggleGrid,
   statusDockOpen,
   dockHeightPx = 280,
-  onToggleStatusDock,
   onDockHeightChange,
-  onSave,
-  onExportJson,
-  onExportCsv,
-  onExportPdf,
   report,
   selectedCabinetId,
   costingSettings,
@@ -105,6 +102,7 @@ export function StatusStrip({
         <span className="output-status">{projectStatus || "Ready"}</span>
         <StatusHudSegments
           hud={hud}
+          workbenchMode={workbenchMode}
           onCycleSnap={onCycleSnap}
           onToggleGrid={onToggleGrid}
         />
@@ -113,25 +111,11 @@ export function StatusStrip({
           {selectionSummary}
         </span>
         <span className="output-bar-actions">
-          <button
-            type="button"
-            className={`tb-btn ${statusDockOpen ? "tb-accent" : ""}`}
-            onClick={onToggleStatusDock}
-          >
-            {statusDockOpen ? "Hide Reports" : "Reports"}
-          </button>
-          <button type="button" className="tb-btn" onClick={onSave}>
-            Save
-          </button>
-          <button type="button" className="tb-btn" onClick={onExportJson}>
-            JSON
-          </button>
-          <button type="button" className="tb-btn" onClick={onExportCsv}>
-            CSV
-          </button>
-          <button type="button" className="tb-btn tb-accent" onClick={onExportPdf}>
-            PDF
-          </button>
+          <span className={validationMessages.length > 0 ? "status-warning-count" : "status-ready"}>
+            {validationMessages.length > 0
+              ? `${validationMessages.length} warning${validationMessages.length === 1 ? "" : "s"}`
+              : "No warnings"}
+          </span>
         </span>
       </div>
       {validationMessages.length > 0 ? (

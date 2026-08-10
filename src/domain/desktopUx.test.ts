@@ -39,7 +39,9 @@ describe("desktopUx layout", () => {
     const defaults = clampDesktopLayout({});
     expect(defaults.splitPlanWidthPct).toBe(50);
     expect(defaults.splitTopRowPct).toBe(72);
-    expect(defaults.sceneBrowserVisible).toBe(true);
+    expect(defaults.sceneBrowserVisible).toBe(false);
+    expect(defaults.workbenchMode).toBe("cabinets");
+    expect(defaults.splitViewEnabled).toBe(false);
     expect(defaults.splitTopRowPct).toBeGreaterThan(50);
 
     const clamped = clampDesktopLayout({

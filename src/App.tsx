@@ -3,12 +3,47 @@ import { AppRibbon } from "./components/AppRibbon";
 import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
 import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
+import { ReportCenter } from "./components/ReportCenter";
+import { JobWorkspace } from "./components/JobWorkspace";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
-import { cycleSnapSizeMm } from "./domain/desktopUx";
+import {
+  cycleSnapSizeMm,
+  workbenchBreadcrumb,
+  WORKBENCH_LABELS,
+  type WorkbenchMode,
+} from "./domain/desktopUx";
 
 function App() {
   const c = useAppController();
+  const workbenchMode = c.layout.workbenchMode;
+  const activeRoom = c.projectRooms.find(
+    (room) => room.id === (c.project.activeRoomId ?? c.projectRooms[0]?.id),
+  );
+  const breadcrumb = workbenchBreadcrumb(
+    workbenchMode,
+    activeRoom?.name ?? "Room",
+    c.selectedCabinet?.name,
+  );
+
+  function handleWorkbenchModeChange(mode: WorkbenchMode) {
+    const patch: Parameters<typeof c.setLayout>[0] = {
+      workbenchMode: mode,
+      statusDockOpen: false,
+    };
+    if (mode === "room") {
+      patch.workspaceTab = "plan";
+      patch.sheetBrowserVisible = false;
+    } else if (mode === "cabinets") {
+      patch.workspaceTab = c.activeOpeningId ? "front" : c.workspaceTab;
+      patch.sheetBrowserVisible = false;
+    } else if (mode === "drawings") {
+      patch.sheetBrowserVisible = true;
+      patch.sceneBrowserVisible = false;
+    }
+    c.setLayout(patch);
+    c.setDraftingTool("select");
+  }
 
   return (
     <main
@@ -20,7 +55,14 @@ function App() {
       }}
     >
       <AppRibbon
-        workspaceLabel={c.workspaceLabel}
+        workbenchMode={workbenchMode}
+        workspaceLabel={
+          workbenchMode === "room" ||
+          workbenchMode === "cabinets" ||
+          workbenchMode === "drawings"
+            ? c.workspaceLabel
+            : activeRoom?.name ?? "Project"
+        }
         workspaceTab={c.workspaceTab}
         canUndo={c.canUndo}
         canRedo={c.canRedo}
@@ -56,9 +98,68 @@ function App() {
           c.setIsShortcutSheetOpen(true);
           c.setIsCommandBarOpen(false);
         }}
+        onWorkbenchModeChange={handleWorkbenchModeChange}
       />
 
       <AppMainBody
+        workbenchMode={workbenchMode}
+        reportWorkspace={(
+          <section className="workflow-output-workspace" aria-label={`${WORKBENCH_LABELS[workbenchMode]} workspace`}>
+            <header className="workflow-output-header">
+              <div>
+                <strong>{WORKBENCH_LABELS[workbenchMode]}</strong>
+                <span>{breadcrumb}</span>
+              </div>
+              <small>{workbenchMode === "production" ? "Workshop preparation and costing" : "Project documents and approvals"}</small>
+            </header>
+            <ReportCenter
+              key={workbenchMode}
+              mode={workbenchMode === "production" ? "production" : "reports"}
+              report={c.projectReport}
+              wholeProject={c.wholeProjectReport}
+              machineJob={c.machineJobDocument}
+              onExportMachineJson={() => { void c.handleExportMachineJson(); }}
+              onExportMachineCsv={() => { void c.handleExportMachineCsv(); }}
+              selectedCabinetId={c.activeCabinetId}
+              costingSettings={c.costingSettings}
+              quoteSettings={c.quoteSettings}
+              sheetOptimizerSettings={c.sheetOptimizerSettings}
+              onCostingChange={(costing) => c.handleProjectPreferenceChange({ costing })}
+              onQuoteChange={(quote) => c.handleProjectPreferenceChange({ quote })}
+              onSheetOptimizerChange={(sheetOptimizer) => c.handleProjectPreferenceChange({ sheetOptimizer })}
+              onFreezeQuote={c.handleFreezeQuoteSnapshot}
+              onSelectCabinet={(cabinetId) => {
+                c.handleWorkspaceSelectCabinet(cabinetId, false);
+                handleWorkbenchModeChange("cabinets");
+              }}
+              onFreezeRevision={c.handleFreezeRevision}
+              onAddReviewNote={c.handleAddReviewNote}
+              onResolveReviewNote={c.handleResolveReviewNote}
+              onApproveReview={c.handleApproveReview}
+              onReleaseForProduction={c.handleReleaseForProduction}
+              onExportRevisionSummary={() => { void c.handleExportRevisionSummary(); }}
+              approvalBlockedReasons={c.approvalGate.reasons}
+              releaseBlockedReasons={c.releaseGate.reasons}
+              sheets={getProjectSheetSet(c.project).sheets}
+              onOpenSheet={(sheetId) => {
+                c.handleSelectSheetDocument(sheetId);
+                handleWorkbenchModeChange("drawings");
+              }}
+            />
+          </section>
+        )}
+        jobWorkspace={(
+          <JobWorkspace
+            job={c.project.job ?? c.defaultCabinetProject.job!}
+            roomCount={c.projectRooms.length}
+            cabinetCount={c.project.cabinets.length}
+            projectStatus={c.projectStatus}
+            onNew={c.handleReset}
+            onOpen={c.handleLoadProject}
+            onSave={c.handleSaveProject}
+            onNavigate={handleWorkbenchModeChange}
+          />
+        )}
         toolRailVisible={c.layout.toolRailVisible}
         inspectorVisible={c.layout.inspectorVisible}
         toolRailWidthPx={c.layout.toolRailWidthPx}
@@ -67,6 +168,7 @@ function App() {
         onInspectorWidthChange={(inspectorWidthPx) => c.setLayout({ inspectorWidthPx })}
         sceneRef={c.sceneRef}
         toolRailProps={{
+          workbenchMode,
           templates: c.userTemplates,
           userCabinetPresets: c.workshopLibrary.cabinetPresets,
           rooms: c.projectRooms,
@@ -90,7 +192,10 @@ function App() {
             c.setWorkspaceTab("plan");
             c.handleSelectSheetDocument("plan");
           },
-          onSelectOpening: c.handleSelectOpening,
+          onSelectOpening: (cabinetId, openingId) => {
+            c.handleSelectOpening(cabinetId, openingId);
+            handleWorkbenchModeChange("cabinets");
+          },
           onSelectCabinets: c.handleTreeSelectCabinets,
           onRenameCabinet: c.handleRenameCabinet,
           onRenameRoomTo: c.handleRenameProjectRoomTo,
@@ -111,6 +216,9 @@ function App() {
           onProjectContextMenu: c.openProjectContextMenu,
         }}
         workspaceProps={{
+          workbenchMode,
+          breadcrumb,
+          splitViewEnabled: c.layout.splitViewEnabled,
           workspaceTab: c.workspaceTab,
           activeSheetId: getProjectSheetSet(c.project).activeSheetId,
           workspaceLabel: c.workspaceLabel,
@@ -148,6 +256,8 @@ function App() {
             c.setLayout({ splitPlanWidthPct }),
           onSplitTopRowChange: (splitTopRowPct) =>
             c.setLayout({ splitTopRowPct }),
+          onSplitViewEnabledChange: (splitViewEnabled) =>
+            c.setLayout({ splitViewEnabled }),
           onToggleSceneBrowser: () =>
             c.setLayout({
               sceneBrowserVisible: !c.layout.sceneBrowserVisible,
@@ -163,7 +273,10 @@ function App() {
           onReplaceSelection: c.replaceSelection,
           onToggleCabinetSelection: c.toggleCabinetSelection,
           onSelectCabinet: c.handleWorkspaceSelectCabinet,
-          onSelectOpening: c.handleSelectOpening,
+          onSelectOpening: (cabinetId, openingId) => {
+            c.handleSelectOpening(cabinetId, openingId);
+            handleWorkbenchModeChange("cabinets");
+          },
           onSelectCabinetsFromTree: c.handleTreeSelectCabinets,
           onRenameCabinet: c.handleRenameCabinet,
           onRenameRoom: c.handleRenameProjectRoomTo,
@@ -188,6 +301,7 @@ function App() {
           tabShortcutHints: c.tabShortcutHints,
         }}
         inspectorProps={{
+          workbenchMode,
           selectedCabinet: c.selectedCabinet,
           selectedCabinetIds: c.selectedCabinetIds,
           job: c.project.job ?? c.defaultCabinetProject.job!,
@@ -291,15 +405,16 @@ function App() {
       />
 
       <AppStatusDock
+        workbenchMode={workbenchMode}
         project={c.project}
         projectStatus={c.projectStatus}
-        workspaceLabel={c.workspaceLabel}
+        workspaceLabel={WORKBENCH_LABELS[workbenchMode]}
         selectedCabinet={c.selectedCabinet}
         selectedCabinetIds={c.selectedCabinetIds}
         validationMessages={c.validationMessages}
-        statusDockOpen={c.statusDockOpen}
+        statusDockOpen={false}
         dockHeightPx={c.layout.statusDockHeightPx}
-        onToggleStatusDock={() => c.setLayout({ statusDockOpen: !c.statusDockOpen })}
+        onToggleStatusDock={() => handleWorkbenchModeChange("reports")}
         onDockHeightChange={(statusDockHeightPx) => c.setLayout({ statusDockHeightPx })}
         onSave={c.handleSaveProject}
         onExportJson={c.handleExportProjectJson}

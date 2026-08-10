@@ -1,3 +1,5 @@
+import { normalizeWorkbenchMode, type WorkbenchMode } from "./workbench";
+
 export const DESKTOP_LAYOUT_STORAGE_KEY = "cabinet-designer-desktop-layout";
 
 export type WorkspaceTabId = "plan" | "front" | "side" | "3d";
@@ -17,6 +19,7 @@ export type DesktopLayoutPrefs = {
   toolRailVisible: boolean;
   inspectorVisible: boolean;
   statusDockOpen: boolean;
+  workbenchMode: WorkbenchMode;
   workspaceTab: WorkspaceTabId;
   /** Active technical drawing sheet in the drafting area. */
   activeSheetId: DrawingSheetId;
@@ -26,6 +29,7 @@ export type DesktopLayoutPrefs = {
   splitTopRowPct: number;
   sceneBrowserVisible: boolean;
   sheetBrowserVisible: boolean;
+  splitViewEnabled: boolean;
 };
 
 export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
@@ -35,13 +39,15 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   toolRailVisible: true,
   inspectorVisible: true,
   statusDockOpen: false,
+  workbenchMode: "cabinets",
   workspaceTab: "front",
   activeSheetId: "front",
   splitPlanWidthPct: 50,
   /** Drawing panes dominate; 3D stays a support strip. */
   splitTopRowPct: 72,
-  sceneBrowserVisible: true,
-  sheetBrowserVisible: true,
+  sceneBrowserVisible: false,
+  sheetBrowserVisible: false,
+  splitViewEnabled: false,
 };
 
 const WIDTH_MIN = 160;
@@ -62,12 +68,14 @@ export function clampDesktopLayout(
     toolRailVisible: Boolean(next.toolRailVisible),
     inspectorVisible: Boolean(next.inspectorVisible),
     statusDockOpen: Boolean(next.statusDockOpen),
+    workbenchMode: normalizeWorkbenchMode(next.workbenchMode),
     workspaceTab: normalizeWorkspaceTab(next.workspaceTab),
     activeSheetId: normalizeDrawingSheetId(next.activeSheetId ?? next.workspaceTab),
     splitPlanWidthPct: clamp(next.splitPlanWidthPct, SPLIT_MIN, SPLIT_MAX),
     splitTopRowPct: clamp(next.splitTopRowPct, SPLIT_MIN, SPLIT_MAX),
     sceneBrowserVisible: next.sceneBrowserVisible !== false,
     sheetBrowserVisible: next.sheetBrowserVisible !== false,
+    splitViewEnabled: Boolean(next.splitViewEnabled),
   };
 }
 

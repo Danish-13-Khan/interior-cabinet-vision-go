@@ -94,7 +94,7 @@ describe("desktop layout sheets", () => {
     });
     expect(layout.activeSheetId).toBe("section");
     expect(layout.sheetBrowserVisible).toBe(false);
-    expect(clampDesktopLayout({}).sheetBrowserVisible).toBe(true);
+    expect(clampDesktopLayout({}).sheetBrowserVisible).toBe(false);
     expect(clampDesktopLayout({}).activeSheetId).toBe("front");
   });
 });

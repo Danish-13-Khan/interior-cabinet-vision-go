@@ -33,7 +33,8 @@ export type ReportCenterTab =
   | "quote"
   | "review";
 
-type ReportCenterProps = {
+export type ReportCenterProps = {
+  mode?: "all" | "production" | "reports";
   report: ProjectReport;
   wholeProject?: WholeProjectReport | null;
   machineJob?: MachineJobDocument | null;
@@ -76,6 +77,7 @@ const TABS = [
 ] as const satisfies ReadonlyArray<readonly [ReportCenterTab, string]>;
 
 export function ReportCenter({
+  mode = "all",
   report,
   wholeProject = null,
   machineJob = null,
@@ -101,12 +103,21 @@ export function ReportCenter({
   sheets = [],
   onOpenSheet,
 }: ReportCenterProps) {
-  const [tab, setTab] = useState<ReportCenterTab>("packet");
+  const availableTabs = TABS.filter(([id]) =>
+    mode === "production"
+      ? ["materials", "optimize", "hardware", "cutlist", "machining", "costing"].includes(id)
+      : mode === "reports"
+        ? ["packet", "review", "rooms", "schedule", "runs", "quote"].includes(id)
+        : true,
+  );
+  const [tab, setTab] = useState<ReportCenterTab>(
+    mode === "production" ? "materials" : "packet",
+  );
 
   return (
     <div className="report-center">
       <div className="report-center-tabs" role="tablist" aria-label="Production packet">
-        {TABS.map(([id, label]) => (
+        {availableTabs.map(([id, label]) => (
           <button
             key={id}
             type="button"
