@@ -4,6 +4,12 @@ export type ElevationOpeningSplitCommand =
   | { kind: "split-vertical" }
   | { kind: "split-horizontal" };
 
+export type ElevationOpeningStructureCommand =
+  | { kind: "merge" }
+  | { kind: "delete" }
+  | { kind: "reset" }
+  | { kind: "set-ratio"; ratio: number; openingId?: string };
+
 export type ElevationOpeningContentCommand = {
   kind: "set-content";
   contentType: OpeningContentType;
@@ -11,6 +17,7 @@ export type ElevationOpeningContentCommand = {
 
 export type ElevationOpeningCommand =
   | ElevationOpeningSplitCommand
+  | ElevationOpeningStructureCommand
   | ElevationOpeningContentCommand;
 
 export type ElevationOpeningToolbarState = {
@@ -22,6 +29,8 @@ export type ElevationOpeningToolbarState = {
   maxLeaves: number;
   canSplitVertical: boolean;
   canSplitHorizontal: boolean;
+  canMerge: boolean;
+  canDelete: boolean;
   allowedContentTypes: OpeningContentType[];
 };
 

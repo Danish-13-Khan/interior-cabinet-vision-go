@@ -46,11 +46,16 @@ export function renderDrawerStack(
     count * 4,
     height - topGap - bottomGap - centerGap * (count - 1),
   );
-  const drawerH = available / count;
+  const ratios =
+    opening.drawerRatios?.length === count
+      ? opening.drawerRatios
+      : Array.from({ length: count }, () => 1 / count);
   const frontW = Math.max(2, width - sideGap * 2);
 
+  let drawerCursor = topLeft.y + topGap;
   for (let index = 0; index < count; index += 1) {
-    const dy = topLeft.y + topGap + index * (drawerH + centerGap);
+    const drawerH = available * (ratios[index] ?? 1 / count);
+    const dy = drawerCursor;
     elements.push(
       rect(
         topLeft.x + sideGap,
@@ -109,6 +114,7 @@ export function renderDrawerStack(
         ),
       );
     }
+    drawerCursor += drawerH + centerGap;
   }
   return elements;
 }

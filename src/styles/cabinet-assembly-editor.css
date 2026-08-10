@@ -1,0 +1,206 @@
+.assembly-editor {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 12px;
+}
+
+.assembly-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-border);
+}
+
+.assembly-summary span {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 7px 8px;
+  background: var(--panel-bg);
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.assembly-summary strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.assembly-section {
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+
+.assembly-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 27px;
+  padding: 4px 7px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--inspector-header-bg);
+}
+
+.assembly-section-heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+}
+
+.assembly-section-heading span {
+  color: var(--muted);
+  font-size: 0.56rem;
+}
+
+.assembly-opening-list {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.assembly-opening-card {
+  display: grid;
+  grid-template-columns: 35px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 5px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+}
+
+.assembly-opening-card:hover {
+  border-color: var(--panel-border-strong);
+  background: var(--browser-row-hover);
+}
+
+.assembly-opening-card.is-active {
+  border-color: var(--selection);
+  background: var(--selection-fill);
+}
+
+.assembly-opening-mark {
+  padding: 3px 2px;
+  border: 1px solid currentColor;
+  color: var(--accent);
+  font-size: 0.54rem;
+  font-weight: 750;
+  text-align: center;
+}
+
+.assembly-opening-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.assembly-opening-copy strong,
+.assembly-opening-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assembly-opening-copy strong {
+  font-size: 0.62rem;
+}
+
+.assembly-opening-copy small {
+  color: var(--muted);
+  font-size: 0.54rem;
+}
+
+.assembly-field,
+.assembly-toggle {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.8fr) minmax(96px, 1.2fr);
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 4px 7px;
+  border-bottom: 1px solid rgba(122, 135, 152, 0.45);
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.assembly-field input,
+.assembly-field select {
+  width: 100%;
+  min-width: 0;
+}
+
+.assembly-range-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 5px;
+}
+
+.assembly-range-control strong {
+  color: var(--ink);
+  text-align: right;
+}
+
+.assembly-toggle {
+  grid-template-columns: 18px minmax(68px, 0.8fr) minmax(90px, 1.2fr);
+}
+
+.assembly-toggle small {
+  color: var(--muted);
+  text-align: right;
+}
+
+.assembly-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 6px;
+}
+
+.assembly-action-grid button {
+  min-height: 27px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-raised);
+  color: var(--ink);
+  font-size: 0.58rem;
+}
+
+.assembly-action-grid button:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--browser-row-hover);
+}
+
+.assembly-action-grid .assembly-reset {
+  grid-column: 1 / -1;
+}
+
+.assembly-ready,
+.assembly-issues p {
+  margin: 0;
+  padding: 7px;
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.assembly-ready {
+  color: var(--success, #356b49);
+}
+
+.assembly-issues p + p {
+  border-top: 1px solid rgba(122, 135, 152, 0.45);
+}
+
+.assembly-issues .is-error {
+  color: var(--danger, #9a332f);
+  background: color-mix(in srgb, var(--danger, #9a332f) 7%, transparent);
+}
+
+.assembly-issues .is-warning {
+  color: var(--warning, #805b18);
+  background: color-mix(in srgb, var(--warning, #805b18) 7%, transparent);
+}

@@ -6,6 +6,7 @@ import type {
   OpeningContentType,
   OpeningLeaf,
   OpeningNode,
+  OpeningSplit,
   OpeningStructure,
   OpeningStyle,
 } from "./types";
@@ -36,6 +37,7 @@ export function createOpeningLeaf(
     doorStyle: options.doorStyle ?? (contentType === "door" ? "double" : "none"),
     doorHinge: options.doorHinge ?? "left",
     drawerCount: options.drawerCount ?? (contentType === "drawer-stack" ? 3 : 0),
+    drawerRatios: options.drawerRatios,
     shelfCount: options.shelfCount ?? (contentType === "open-shelf" ? 2 : 0),
     shelvesAdjustable: options.shelvesAdjustable ?? true,
   };
@@ -62,6 +64,23 @@ export function collectOpeningLeaves(node: OpeningNode): OpeningLeaf[] {
 export function collectOpeningNodes(node: OpeningNode): OpeningNode[] {
   if (node.kind === "leaf") return [node];
   return [node, ...node.children.flatMap((child) => collectOpeningNodes(child))];
+}
+
+export function getOpeningNodeRatio(node: OpeningNode): number {
+  return clampRatio(node.ratio ?? 1, 1);
+}
+
+export function findOpeningParent(
+  node: OpeningNode,
+  childId: string,
+): OpeningSplit | null {
+  if (node.kind === "leaf") return null;
+  if (node.children.some((child) => child.id === childId)) return node;
+  for (const child of node.children) {
+    const found = findOpeningParent(child, childId);
+    if (found) return found;
+  }
+  return null;
 }
 
 export function findOpeningNode(node: OpeningNode, id: string): OpeningNode | null {

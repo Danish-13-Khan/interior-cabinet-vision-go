@@ -24,6 +24,7 @@ export type DimensionControlsProps = {
   snapSizeMm: number;
   selectedCabinetIds: string[];
   activeCabinetId: string | null;
+  activeOpeningId?: string | null;
   selectedPanelName: PanelName | null;
   selectedPlacement: CabinetPlacement | null;
   selectedLayerId: string;
@@ -74,6 +75,7 @@ export type DimensionControlsProps = {
   onSaveProject: () => Promise<void>;
   onSaveToProjectBrowser: () => void | Promise<void>;
   onSelectCabinet: (cabinetId: string, additive?: boolean) => void;
+  onSelectOpening?: (cabinetId: string, openingId: string) => void;
   onSelectAll: () => void;
   onUndo: () => void;
   onRedo: () => void;

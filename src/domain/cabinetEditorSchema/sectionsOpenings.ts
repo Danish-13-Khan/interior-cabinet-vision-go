@@ -55,6 +55,12 @@ export function appendOpeningsSection(
           label: CONTENT_TYPE_LABELS[value],
         })),
       },
+      {
+        id: "openingLabel",
+        label: "Opening name",
+        type: "text",
+        hint: "Shop-facing opening label",
+      },
     ];
 
     if (leaves.length > 1 && activeLeaf) {
@@ -101,6 +107,12 @@ export function appendOpeningsSection(
           max: CABINET_SHELF_MAX,
           step: 1,
         });
+        openingFields.push({
+          id: "openingLeafShelvesAdjustable",
+          label: "Shelf mode",
+          type: "boolean",
+          hint: "On for adjustable pins; off for fixed shelves",
+        });
       }
     }
 
@@ -124,6 +136,12 @@ export function appendOpeningsSection(
         max: CABINET_SHELF_MAX,
         step: 1,
       });
+      openingFields.push({
+        id: "openingLeafShelvesAdjustable",
+        label: "Shelf mode",
+        type: "boolean",
+        hint: "On for adjustable pins; off for fixed shelves",
+      });
     }
 
     if (rules.allowVerticalSplit) {
@@ -144,6 +162,32 @@ export function appendOpeningsSection(
         hint: "Stack openings top / bottom",
       });
     }
+
+    if (leaves.length > 1) {
+      openingFields.push(
+        {
+          id: "mergeOpening",
+          label: "Structure",
+          type: "action",
+          actionLabel: "Merge siblings",
+          hint: "Keep this opening and remove its sibling split",
+        },
+        {
+          id: "deleteOpening",
+          label: " ",
+          type: "action",
+          actionLabel: "Delete opening",
+          hint: "Remove this opening and expand the remaining sibling",
+        },
+      );
+    }
+    openingFields.push({
+      id: "resetAssembly",
+      label: "Reset",
+      type: "action",
+      actionLabel: "Family default",
+      hint: "Restore the default assembly for this cabinet family",
+    });
 
     sections.push({
       id: "openings",

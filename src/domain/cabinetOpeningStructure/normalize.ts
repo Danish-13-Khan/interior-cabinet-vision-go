@@ -33,6 +33,18 @@ export function normalizeLeaf(
           : "double"
       : "none";
 
+  const drawerCount =
+    contentType === "drawer-stack"
+      ? Math.min(8, Math.max(1, Math.round(leaf.drawerCount ?? 3)))
+      : 0;
+  const rawDrawerRatios =
+    contentType === "drawer-stack" && leaf.drawerRatios?.length === drawerCount
+      ? leaf.drawerRatios.map((ratio) =>
+          Number.isFinite(ratio) ? Math.max(0.08, ratio) : 1,
+        )
+      : undefined;
+  const drawerRatioTotal = rawDrawerRatios?.reduce((sum, ratio) => sum + ratio, 0) ?? 0;
+
   return {
     ...leaf,
     kind: "leaf",
@@ -46,10 +58,11 @@ export function normalizeLeaf(
           ? "right"
           : "left"
         : "both",
-    drawerCount:
-      contentType === "drawer-stack"
-        ? Math.min(8, Math.max(1, Math.round(leaf.drawerCount ?? 3)))
-        : 0,
+    drawerCount,
+    drawerRatios:
+      rawDrawerRatios && drawerRatioTotal > 0
+        ? rawDrawerRatios.map((ratio) => ratio / drawerRatioTotal)
+        : undefined,
     shelfCount:
       contentType === "open-shelf"
         ? Math.min(6, Math.max(0, Math.round(leaf.shelfCount ?? 2)))
@@ -106,10 +119,16 @@ function normalizeNode(
           : "vertical";
 
   // Normalize ratios to sum ~1
-  const ratioSum = children.reduce((sum, child) => sum + (child.kind === "leaf" ? child.ratio : 0.5), 0) || 1;
+  const ratioSum = children.reduce(
+    (sum, child) => sum + clampRatio(child.ratio ?? 1, 1),
+    0,
+  ) || 1;
   const normalizedChildren = children.map((child) => {
-    if (child.kind !== "leaf") return child;
-    return { ...child, ratio: clampRatio(child.ratio / ratioSum, 1 / children.length) };
+    const normalizedRatio = clampRatio(
+      (child.ratio ?? 1) / ratioSum,
+      1 / children.length,
+    );
+    return { ...child, ratio: normalizedRatio };
   });
 
   const leaves = normalizedChildren.flatMap((child) => collectOpeningLeaves(child));
@@ -121,6 +140,7 @@ function normalizeNode(
     kind: "split",
     id: node.id || nextOpeningId("split"),
     label: node.label.trim() || (axis === "horizontal" ? "Horizontal Split" : "Vertical Split"),
+    ratio: clampRatio(node.ratio ?? 1, 1),
     axis,
     children: normalizedChildren,
   };

@@ -37,3 +37,23 @@
 .twod-opening-chrome.is-active-opening {
   filter: none;
 }
+
+.twod-opening-resize-handle {
+  stroke: var(--selection);
+  stroke-width: 7;
+  stroke-opacity: 0.34;
+  pointer-events: stroke;
+  vector-effect: non-scaling-stroke;
+}
+
+.twod-opening-resize-handle:hover {
+  stroke-opacity: 0.72;
+}
+
+.twod-opening-resize-handle.is-vertical {
+  cursor: ew-resize;
+}
+
+.twod-opening-resize-handle.is-horizontal {
+  cursor: ns-resize;
+}

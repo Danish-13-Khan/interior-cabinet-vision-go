@@ -63,6 +63,7 @@ type AppInspectorProps = {
   savedProjects: SavedProjectSummary[];
   snapSizeMm: number;
   activeCabinetId: string | null;
+  activeOpeningId?: string | null;
   selectedPanelName: PanelName | null;
   selectedPlacement: CabinetPlacement;
   selectedLayerId: string;
@@ -101,6 +102,7 @@ type AppInspectorProps = {
   onSaveProject: () => Promise<void>;
   onSaveToProjectBrowser: () => void;
   onSelectCabinet: (cabinetId: string, additive?: boolean) => void;
+  onSelectOpening?: (cabinetId: string, openingId: string) => void;
   onSelectAll: () => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -124,6 +126,7 @@ export function AppInspector(props: AppInspectorProps) {
     constructionParts,
     snapSizeMm,
     activeCabinetId,
+    activeOpeningId,
     selectedPanelName,
     selectedPlacement,
     selectedLayerId,
@@ -150,6 +153,7 @@ export function AppInspector(props: AppInspectorProps) {
     onRenameCabinet,
     onRotationChange,
     onSelectCabinet,
+    onSelectOpening,
     onSelectAll,
     onUndo,
     onRedo,
@@ -208,6 +212,7 @@ export function AppInspector(props: AppInspectorProps) {
             snapSizeMm={snapSizeMm}
             selectedCabinetIds={selectedCabinetIds}
             activeCabinetId={activeCabinetId}
+            activeOpeningId={activeOpeningId}
             selectedPanelName={selectedPanelName}
             selectedPlacement={selectedPlacement}
             selectedLayerId={selectedLayerId}
@@ -249,6 +254,7 @@ export function AppInspector(props: AppInspectorProps) {
             onSaveProject={props.onSaveProject}
             onSaveToProjectBrowser={props.onSaveToProjectBrowser}
             onSelectCabinet={onSelectCabinet}
+            onSelectOpening={onSelectOpening}
             onSelectAll={onSelectAll}
             onUndo={onUndo}
             onRedo={onRedo}

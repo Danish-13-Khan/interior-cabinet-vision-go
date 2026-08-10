@@ -8,6 +8,10 @@ import {
   syncFlatFieldsFromComposition,
 } from "../cabinetComposition";
 import {
+  createDefaultOpeningStructure,
+  deleteOpening,
+  mergeOpening,
+  setOpeningRatio,
   setOpeningContentType,
   splitOpening,
 } from "../cabinetOpeningStructure";
@@ -22,7 +26,10 @@ export function applyElevationOpeningCommand(
   const structure = composition.openingStructure;
   if (!structure) return config;
 
-  const openingId = activeOpeningIdOverride ?? structure.activeOpeningId;
+  const openingId =
+    command.kind === "set-ratio" && command.openingId
+      ? command.openingId
+      : activeOpeningIdOverride ?? structure.activeOpeningId;
   let nextStructure = structure;
 
   if (command.kind === "split-vertical") {
@@ -38,6 +45,33 @@ export function applyElevationOpeningCommand(
       structure,
       openingId,
       "horizontal",
+      config.type,
+      config.dimensions.width,
+    );
+  } else if (command.kind === "merge") {
+    nextStructure = mergeOpening(
+      structure,
+      openingId,
+      config.type,
+      config.dimensions.width,
+    );
+  } else if (command.kind === "delete") {
+    nextStructure = deleteOpening(
+      structure,
+      openingId,
+      config.type,
+      config.dimensions.width,
+    );
+  } else if (command.kind === "reset") {
+    nextStructure = createDefaultOpeningStructure(
+      config.type,
+      config.dimensions.width,
+    );
+  } else if (command.kind === "set-ratio") {
+    nextStructure = setOpeningRatio(
+      structure,
+      openingId,
+      command.ratio,
       config.type,
       config.dimensions.width,
     );
@@ -75,5 +109,9 @@ export function elevationOpeningCommandStatus(
   if (command.kind === "split-horizontal") {
     return "Split opening horizontally in front elevation.";
   }
+  if (command.kind === "merge") return "Merged the selected assembly opening.";
+  if (command.kind === "delete") return "Deleted the selected assembly opening.";
+  if (command.kind === "reset") return "Reset the cabinet assembly.";
+  if (command.kind === "set-ratio") return "Resized the cabinet opening.";
   return `Set opening content to ${command.contentType} in front elevation.`;
 }

@@ -101,6 +101,8 @@ export function getCabinetEditorValue(
       return activeLeaf?.drawerCount ?? 0;
     case "openingLeafShelfCount":
       return activeLeaf?.shelfCount ?? 0;
+    case "openingLeafShelvesAdjustable":
+      return activeLeaf?.shelvesAdjustable ?? true;
     case "openingStyle":
       return structure
         ? openingStructureToLegacyStyle(structure)
@@ -109,6 +111,9 @@ export function getCabinetEditorValue(
       return activeLeaf?.label ?? composition.openings[0]?.label ?? "—";
     case "splitVertical":
     case "splitHorizontal":
+    case "mergeOpening":
+    case "deleteOpening":
+    case "resetAssembly":
       return false;
     case "shelfCount":
       return composition.shelves.count;
