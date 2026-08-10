@@ -122,6 +122,20 @@ describe("cabinet run assembly", () => {
     expect(workflow.countertops.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("splits a generated countertop at an authored break", () => {
+    const first = makeCabinet("base-1", "base", -450, -1720);
+    first.config = { ...first.config, countertopBreakAfter: true };
+    const project: CabinetProject = {
+      version: 1,
+      cabinets: [first, makeCabinet("base-2", "base", 450, -1720)],
+    };
+
+    const workflow = createCabinetPlanningWorkflow(project, roomBounds);
+    expect(workflow.countertops).toHaveLength(2);
+    expect(workflow.countertops[0]!.cabinetIds).toEqual(["base-1"]);
+    expect(workflow.countertops[1]!.cabinetIds).toEqual(["base-2"]);
+  });
+
   it("snaps a cabinet onto a neighboring run line", () => {
     const others = [
       makeCabinet("base-1", "base", -900, -1720),

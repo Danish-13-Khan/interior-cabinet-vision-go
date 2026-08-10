@@ -210,10 +210,18 @@ export function createWallLayoutSummary(options: {
   const runIds = workflow.runs
     .filter((run) => run.side === side)
     .map((run) => run.id);
-  const floorBands = bands.filter((band) => band.band !== "wall");
+  const floorAxis = side === "back-wall" ? "x" : "z";
+  const occupiedFloorIntervals = mergeIntervals(
+    cabinets
+      .filter((cabinet) => runBandForType(cabinet.config.type) !== "wall")
+      .map((cabinet) => getRunExtent(cabinet, floorAxis)),
+  );
   const occupiedFloorMm = Math.min(
     lengthMm,
-    floorBands.reduce((total, band) => total + band.occupiedMm, 0),
+    occupiedFloorIntervals.reduce(
+      (total, interval) => total + interval.end - interval.start,
+      0,
+    ),
   );
 
   return {
@@ -284,7 +292,12 @@ export function findAvailableWallPlacement(options: {
   }
   for (let position = start; position <= end; position += snap) positions.push(position);
 
-  for (const position of [...new Set(positions)]) {
+  const candidates = [...new Set(positions)];
+  if (preferred != null && Number.isFinite(preferred)) {
+    candidates.sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred));
+  }
+
+  for (const position of candidates) {
     const placement = placementAt(config, side, position, roomBounds);
     const candidate: CabinetInstance = {
       id: provisionalId,

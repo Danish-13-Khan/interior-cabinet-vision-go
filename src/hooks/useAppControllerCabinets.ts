@@ -15,6 +15,7 @@ import { useCabinetTransforms } from "./useCabinetTransforms";
 import { useCabinetEditing } from "./useCabinetEditing";
 import { useCabinetLibraryOps } from "./useCabinetLibraryOps";
 import { useElevationOpeningEdit } from "./useElevationOpeningEdit";
+import { useCabinetRunOps } from "./useCabinetRunOps";
 
 type RoomBounds = {
   widthMm: number;
@@ -139,10 +140,21 @@ export function useAppControllerCabinets({
     onStatus,
   });
 
+  const runAuthoring = useCabinetRunOps({
+    project,
+    roomBounds,
+    selectedCabinet,
+    projectStandards,
+    commitProjectChange,
+    isCabinetLocked,
+    onStatus,
+  });
+
   return {
     ...transforms,
     ...elevationOpenings,
     ...editing,
     ...library,
+    ...runAuthoring,
   };
 }
