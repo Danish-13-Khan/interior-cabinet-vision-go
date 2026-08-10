@@ -8,6 +8,7 @@ import {
   supportsWallPlacement,
 } from "../cabinetCapabilities";
 import { getFamilyOpeningRules } from "../cabinetFamilyRules";
+import { createDefaultComposition } from "../cabinetComposition";
 import type { CabinetConfig, CabinetPlacement } from "../cabinetDimensions";
 import {
   BOARD_MATERIALS,
@@ -194,29 +195,22 @@ export function applyManufacturingFixes(config: CabinetConfig): {
     }
   }
 
-  // Shelf span: auto-add a center divider when span clearly exceeds material limit.
-  if (supportsShelves(next.type) && next.shelfCount > 0) {
-    const materialSpec = resolveCabinetMaterialSpec(next.buildRules);
-    const openingWidth = next.dimensions.width - next.dimensions.boardThickness * 2;
+  // Shelf span: auto-add dividers when span clearly exceeds material limit.
+  if (supportsShelves(next.type) && next.shelfCount > 0 && next.type !== "corner") {
+    const needed = getMinDividersForShelfSpan(next);
     const dividerCount = next.composition?.dividers?.count ?? 0;
-    const unsupportedSpan =
-      dividerCount > 0 ? openingWidth / (dividerCount + 1) : openingWidth;
-    const maxSpan = getMaxUnsupportedShelfSpanMm(
-      materialSpec.shelfMaterial.thicknessMm,
-      materialSpec.shelfMaterial.boardMaterialId,
-    );
-    if (unsupportedSpan > maxSpan && dividerCount < 1 && next.type !== "corner") {
+    if (needed > dividerCount) {
+      const baseComposition =
+        next.composition ?? createDefaultComposition(next.type, next);
       next = {
         ...next,
-        composition: next.composition
-          ? {
-              ...next.composition,
-              dividers: {
-                ...next.composition.dividers,
-                count: 1,
-              },
-            }
-          : next.composition,
+        composition: {
+          ...baseComposition,
+          dividers: {
+            ...baseComposition.dividers,
+            count: needed,
+          },
+        },
       };
       fixes.push({
         code: "SHELF_SPAN",
@@ -268,19 +262,22 @@ export function applyWallMountPlacementFix(
 }
 
 export function getMinDividersForShelfSpan(config: CabinetConfig): number {
+  const current = config.composition?.dividers?.count ?? 0;
   if (!supportsShelves(config.type) || config.shelfCount <= 0 || config.type === "corner") {
-    return 0;
+    return current;
   }
   const materialSpec = resolveCabinetMaterialSpec(config.buildRules);
-  const openingWidth = config.dimensions.width - config.dimensions.boardThickness * 2;
-  const current = config.composition?.dividers?.count ?? 0;
-  const unsupportedSpan = current > 0 ? openingWidth / (current + 1) : openingWidth;
+  const openingWidth = Math.max(
+    0,
+    config.dimensions.width - config.dimensions.boardThickness * 2,
+  );
   const maxSpan = getMaxUnsupportedShelfSpanMm(
     materialSpec.shelfMaterial.thicknessMm,
     materialSpec.shelfMaterial.boardMaterialId,
   );
-  if (unsupportedSpan > maxSpan) {
-    return Math.max(1, current);
+  if (maxSpan <= 0 || openingWidth <= maxSpan) {
+    return current;
   }
-  return current;
+  const needed = Math.ceil(openingWidth / maxSpan) - 1;
+  return Math.max(current, needed);
 }

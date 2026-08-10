@@ -15,6 +15,7 @@ import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
 import { DEFAULT_QUOTE_SETTINGS } from "../quoteSettings";
 import { DEFAULT_SHEET_OPTIMIZER } from "../sheetStock";
 import { normalizeCabinetHardware } from "../hardwareSystem";
+import { getMinDividersForShelfSpan } from "../manufacturingRules";
 import type { CabinetConfig, CabinetProject } from "./types";
 
 export const CABINET_WIDTH_MIN_MM = 500;
@@ -319,8 +320,7 @@ export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
     buildRules: { ...(preset.buildRules ?? DEFAULT_BUILD_RULES) },
   };
   const composition = createDefaultComposition(type, base);
-
-  return {
+  const draft: CabinetConfig = {
     ...base,
     ...syncFlatFieldsFromComposition(composition),
     composition,
@@ -328,6 +328,20 @@ export function getDefaultCabinetConfig(type: CabinetType): CabinetConfig {
       shelvesAdjustable: composition.shelves.adjustable,
     }),
     hardware: normalizeCabinetHardware(type, undefined),
+  };
+  const minDividers = getMinDividersForShelfSpan(draft);
+  if (minDividers <= composition.dividers.count) {
+    return draft;
+  }
+  return {
+    ...draft,
+    composition: {
+      ...composition,
+      dividers: {
+        ...composition.dividers,
+        count: minDividers,
+      },
+    },
   };
 }
 

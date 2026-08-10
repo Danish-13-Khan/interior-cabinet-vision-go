@@ -36,7 +36,9 @@ export function useAppControllerSession() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
   const clipboardRef = useRef<CabinetInstance[]>([]);
   const initialSession = useRef(loadInitialSessionState()).current;
-  const [project, setProject] = useState<CabinetProject>(defaultCabinetProject);
+  const [project, setProject] = useState<CabinetProject>(() =>
+    clampCabinetProject(defaultCabinetProject),
+  );
   const [room, setRoom] = useState<RoomConfig>(DEFAULT_ROOM);
   const {
     layout,

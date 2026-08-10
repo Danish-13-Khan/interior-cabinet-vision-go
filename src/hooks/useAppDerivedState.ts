@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import {
   CABINET_GRID_SNAP_MM,
+  clampCabinetConfig,
   defaultCabinetProject,
   getCabinetValidationMessages,
   type CabinetInstance,
@@ -110,12 +111,12 @@ export function useAppDerivedState({
   );
   const manufacturingIssues = useMemo((): ManufacturingIssue[] => {
     if (!selectedCabinet) return [];
-    return evaluateCabinetRules(selectedCabinet.config, {
+    const safeConfig = clampCabinetConfig(selectedCabinet.config);
+    return evaluateCabinetRules(safeConfig, {
       placement: selectedCabinet.placement,
       roomHeightMm: room.dimensions.heightMm,
     }).filter((issue) => issue.severity === "error" || issue.severity === "warning");
-  }, [room.dimensions.heightMm, selectedCabinet]);
-  const cutlistItems = useMemo(() => createProjectProductionCutlist(project), [project]);
+  }, [room.dimensions.heightMm, selectedCabinet]);  const cutlistItems = useMemo(() => createProjectProductionCutlist(project), [project]);
   const cabinetCutlistItems = useMemo(
     () => (selectedCabinet ? createCabinetProductionCutlist(selectedCabinet) : []),
     [selectedCabinet],
