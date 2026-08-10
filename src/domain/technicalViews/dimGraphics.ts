@@ -181,11 +181,12 @@ export function dimensionChainVertical(
     const y = toSvgY(positionsMm[index]!);
     elements.push(witnessToEdge(y, dimX, edgeX, false, kind, opts));
     elements.push(dimEndTick(dimX, y, false, kind, opts));
+    const lastPos = positionsMm[positionsMm.length - 1]!;
     if (index === 0) {
-      elements.push(dimArrow(dimX, y, false, positionsMm[0]! < positionsMm.at(-1)!, kind, opts));
+      elements.push(dimArrow(dimX, y, false, positionsMm[0]! < lastPos, kind, opts));
     }
     if (index === positionsMm.length - 1) {
-      elements.push(dimArrow(dimX, y, false, positionsMm[0]! > positionsMm.at(-1)!, kind, opts));
+      elements.push(dimArrow(dimX, y, false, positionsMm[0]! > lastPos, kind, opts));
     }
     if (index < labels.length) {
       const mid =
