@@ -62,4 +62,36 @@ describe("elevationOpeningEdit", () => {
     });
     expect(next).toBe(config);
   });
+
+  it("resizes, merges, deletes, and resets from elevation commands", () => {
+    const config = getDefaultCabinetConfig("base");
+    const split = applyElevationOpeningCommand(config, { kind: "split-vertical" });
+    const splitStructure = resolveCabinetComposition(split).openingStructure!;
+    const leaves = collectOpeningLeaves(splitStructure.root);
+
+    const resized = applyElevationOpeningCommand(split, {
+      kind: "set-ratio",
+      openingId: leaves[0]!.id,
+      ratio: 0.35,
+    });
+    expect(
+      collectOpeningLeaves(resolveCabinetComposition(resized).openingStructure!.root)[0]?.ratio,
+    ).toBeCloseTo(0.35, 2);
+
+    const deleted = applyElevationOpeningCommand(resized, { kind: "delete" });
+    expect(
+      collectOpeningLeaves(resolveCabinetComposition(deleted).openingStructure!.root),
+    ).toHaveLength(1);
+
+    const splitAgain = applyElevationOpeningCommand(deleted, { kind: "split-vertical" });
+    const merged = applyElevationOpeningCommand(splitAgain, { kind: "merge" });
+    expect(
+      collectOpeningLeaves(resolveCabinetComposition(merged).openingStructure!.root),
+    ).toHaveLength(1);
+
+    const reset = applyElevationOpeningCommand(splitAgain, { kind: "reset" });
+    expect(
+      collectOpeningLeaves(resolveCabinetComposition(reset).openingStructure!.root),
+    ).toHaveLength(1);
+  });
 });

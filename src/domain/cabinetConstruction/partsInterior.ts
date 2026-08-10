@@ -3,10 +3,8 @@ import {
   supportsDrawers,
   supportsShelves,
 } from "../cabinetDimensions";
-import {
-  getResolvedDividerCount,
-  getResolvedDoorCount,
-} from "../cabinetComposition";
+import { collectAssemblyBoundaries } from "../cabinetAssembly";
+import { getResolvedDividerCount } from "../cabinetComposition";
 import {
   DOOR_GAP,
   getDoorMountLabel,
@@ -15,6 +13,7 @@ import {
 } from "../cabinetConstructionSpec";
 import { createPart, doorFrontSize } from "./helpers";
 import type { ConstructionContext } from "./context";
+import { layoutCabinetElevationFace } from "../openingLayout";
 
 export function appendInteriorParts(ctx: ConstructionContext): void {
   const {
@@ -23,43 +22,81 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
     constructionSpec,
     materialSpec,
     dimensions,
-    innerWidth,
     innerHeight,
     innerDepth,
-    shelfAdjustable,
     shelfDepth,
     faceOpeningWidth,
     faceOpeningHeight,
     parts,
   } = ctx;
 
-  if (supportsShelves(safeConfig.type) && safeConfig.shelfCount > 0) {
+  const face = layoutCabinetElevationFace(safeConfig);
+  const shelfOpenings = face.openings.filter(
+    (opening) =>
+      supportsShelves(safeConfig.type) &&
+      (opening.contentType === "door" || opening.contentType === "open-shelf") &&
+      opening.shelfCount > 0,
+  );
+  for (const opening of shelfOpenings) {
+    const suffix = shelfOpenings.length === 1 ? "" : `-${opening.id}`;
     parts.push(
       createPart(
-        "shelf",
-        shelfAdjustable ? "Adjustable Shelf" : "Fixed Shelf",
+        `shelf${suffix}`,
+        opening.shelvesAdjustable ? "Adjustable Shelf" : "Fixed Shelf",
         "Shelf",
-        safeConfig.shelfCount,
-        innerWidth,
+        opening.shelfCount,
+        opening.widthMm,
         shelfDepth,
         buildRules.shelfThicknessMm,
         materialSpec.shelfMaterial.grainDirection,
         materialSpec.shelfMaterial.boardMaterialId.toUpperCase(),
         materialSpec.shelfMaterial.finishId,
         materialSpec.shelfMaterial.edgeBandingId,
-        getShelfMountNote(constructionSpec.shelfMount),
+        opening.shelvesAdjustable
+          ? getShelfMountNote("adjustable-pins")
+          : getShelfMountNote("fixed-dado"),
       ),
     );
   }
 
-  const dividerCount = getResolvedDividerCount(safeConfig);
-  if (dividerCount > 0) {
+  const boundaries = collectAssemblyBoundaries(face.openings);
+  for (let index = 0; index < boundaries.length; index += 1) {
+    const boundary = boundaries[index]!;
+    const vertical = boundary.axis === "vertical";
+    parts.push(
+      createPart(
+        `${vertical ? "divider" : "partition"}-${index + 1}`,
+        vertical ? "Vertical Divider" : "Fixed Partition",
+        vertical ? "Divider" : "Shelf",
+        1,
+        boundary.endMm - boundary.startMm,
+        shelfDepth,
+        buildRules.carcassThicknessMm,
+        buildRules.grainDirection,
+        materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
+        materialSpec.carcassMaterial.finishId,
+        materialSpec.carcassMaterial.edgeBandingId,
+        constructionSpec.caseJoinery === "dado"
+          ? "Housed assembly partition"
+          : "Screwed assembly partition",
+      ),
+    );
+  }
+
+  const boundaryDividerCount = boundaries.filter(
+    (boundary) => boundary.axis === "vertical",
+  ).length;
+  const additionalDividerCount = Math.max(
+    0,
+    getResolvedDividerCount(safeConfig) - boundaryDividerCount,
+  );
+  if (additionalDividerCount > 0) {
     parts.push(
       createPart(
         "divider",
         safeConfig.type === "corner" ? "Corner Divider" : "Vertical Divider",
         "Divider",
-        dividerCount,
+        additionalDividerCount,
         innerHeight - safeConfig.toeKickHeight,
         Math.max(120, dimensions.depth * 0.45),
         buildRules.carcassThicknessMm,
@@ -67,32 +104,45 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
         materialSpec.carcassMaterial.boardMaterialId.toUpperCase(),
         materialSpec.carcassMaterial.finishId,
         materialSpec.carcassMaterial.edgeBandingId,
-        constructionSpec.caseJoinery === "dado"
-          ? "Housed divider · dado into top/bottom"
-          : "Screwed vertical divider",
+        "Fixed assembly divider",
       ),
     );
   }
 
-  if (supportsDoors(safeConfig.type) && safeConfig.hasDoors) {
-    const doorQty = Math.max(1, getResolvedDoorCount(safeConfig));
-    const { width: doorWidth, height: doorHeight } = doorFrontSize(
-      constructionSpec.doorMount,
-      safeConfig.dimensions.width,
-      safeConfig.dimensions.height,
-      safeConfig.toeKickHeight,
-      doorQty,
-      faceOpeningWidth,
-      faceOpeningHeight,
-    );
+  const doorOpenings = face.openings.filter(
+    (opening) => supportsDoors(safeConfig.type) && opening.contentType === "door",
+  );
+  for (const opening of doorOpenings) {
+    const doorQty = opening.doorStyle === "single" ? 1 : 2;
+    const singleFullOpening = face.openings.length === 1;
+    const size = singleFullOpening
+      ? doorFrontSize(
+          constructionSpec.doorMount,
+          safeConfig.dimensions.width,
+          safeConfig.dimensions.height,
+          safeConfig.toeKickHeight,
+          doorQty,
+          faceOpeningWidth,
+          faceOpeningHeight,
+        )
+      : {
+          width:
+            (opening.widthMm -
+              DOOR_GAP[constructionSpec.doorMount].sideMm * 2 -
+              DOOR_GAP[constructionSpec.doorMount].centerMm * (doorQty - 1)) /
+            doorQty,
+          height:
+            opening.heightMm - DOOR_GAP[constructionSpec.doorMount].bottomMm,
+        };
+    const suffix = doorOpenings.length === 1 ? "" : `-${opening.id}`;
     parts.push(
       createPart(
-        "door",
-        "Door",
+        `door${suffix}`,
+        opening.label,
         "Door",
         doorQty,
-        doorHeight,
-        doorWidth,
+        size.height,
+        size.width,
         buildRules.carcassThicknessMm,
         materialSpec.doorMaterial.grainDirection,
         materialSpec.doorMaterial.boardMaterialId.toUpperCase(),
@@ -103,19 +153,17 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
     );
   }
 
-  if (supportsDrawers(safeConfig.type) && (safeConfig.drawerCount ?? 0) > 0) {
-    const drawerCount = safeConfig.drawerCount ?? 0;
+  const drawerOpenings = face.openings.filter(
+    (opening) => supportsDrawers(safeConfig.type) && opening.contentType === "drawer-stack",
+  );
+  for (const opening of drawerOpenings) {
+    const drawerCount = Math.max(1, opening.drawerCount);
     const gaps = DOOR_GAP[constructionSpec.doorMount];
-    const frontWidth =
-      constructionSpec.doorMount === "inset"
-        ? faceOpeningWidth - gaps.sideMm * 2
-        : safeConfig.dimensions.width - gaps.sideMm * 2;
+    const frontWidth = opening.widthMm - gaps.sideMm * 2;
     const availableFrontHeight =
-      (constructionSpec.doorMount === "inset" ? faceOpeningHeight : safeConfig.dimensions.height - safeConfig.toeKickHeight) -
-      gaps.bottomMm -
-      (drawerCount - 1) * gaps.centerMm;
+      opening.heightMm - gaps.bottomMm - (drawerCount - 1) * gaps.centerMm;
     const drawerFrontHeight = availableFrontHeight / drawerCount;
-    const drawerInnerWidth = innerWidth - 26;
+    const drawerInnerWidth = Math.max(120, opening.widthMm - 26);
     const drawerDepth = Math.max(250, innerDepth - 20);
     const boxSideHeight =
       constructionSpec.drawerBoxStyle === "dovetail" ? 150 : 140;
@@ -129,23 +177,45 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
         : getDrawerBoxStyleNote(constructionSpec.drawerBoxStyle);
     const boxNote = getDrawerBoxStyleNote(constructionSpec.drawerBoxStyle);
 
+    const suffix = drawerOpenings.length === 1 ? "" : `-${opening.id}`;
+    const customFronts = opening.drawerRatios?.length === drawerCount;
+    const frontParts = customFronts
+      ? opening.drawerRatios!.map((ratio, index) =>
+          createPart(
+            `drawer-front${suffix}-${index + 1}`,
+            `${opening.label} Front ${index + 1}`,
+            "DrawerFront",
+            1,
+            availableFrontHeight * ratio,
+            frontWidth,
+            buildRules.carcassThicknessMm,
+            materialSpec.doorMaterial.grainDirection,
+            materialSpec.doorMaterial.boardMaterialId.toUpperCase(),
+            materialSpec.doorMaterial.finishId,
+            materialSpec.doorMaterial.edgeBandingId,
+            `${getDoorMountLabel(constructionSpec.doorMount)} custom front`,
+          ),
+        )
+      : [
+          createPart(
+            `drawer-front${suffix}`,
+            `${opening.label} Front`,
+            "DrawerFront",
+            drawerCount,
+            drawerFrontHeight,
+            frontWidth,
+            buildRules.carcassThicknessMm,
+            materialSpec.doorMaterial.grainDirection,
+            materialSpec.doorMaterial.boardMaterialId.toUpperCase(),
+            materialSpec.doorMaterial.finishId,
+            materialSpec.doorMaterial.edgeBandingId,
+            `${getDoorMountLabel(constructionSpec.doorMount)} front`,
+          ),
+        ];
     parts.push(
+      ...frontParts,
       createPart(
-        "drawer-front",
-        "Drawer Front",
-        "DrawerFront",
-        drawerCount,
-        drawerFrontHeight,
-        frontWidth,
-        buildRules.carcassThicknessMm,
-        materialSpec.doorMaterial.grainDirection,
-        materialSpec.doorMaterial.boardMaterialId.toUpperCase(),
-        materialSpec.doorMaterial.finishId,
-        materialSpec.doorMaterial.edgeBandingId,
-        `${getDoorMountLabel(constructionSpec.doorMount)} front`,
-      ),
-      createPart(
-        "drawer-side",
+        `drawer-side${suffix}`,
         "Drawer Side",
         "DrawerBox",
         drawerCount * 2,
@@ -159,7 +229,7 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
         boxNote,
       ),
       createPart(
-        "drawer-front-back",
+        `drawer-front-back${suffix}`,
         "Drawer Front/Back",
         "DrawerBox",
         drawerCount * 2,
@@ -173,7 +243,7 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
         boxNote,
       ),
       createPart(
-        "drawer-bottom",
+        `drawer-bottom${suffix}`,
         "Drawer Bottom",
         "DrawerBox",
         drawerCount,

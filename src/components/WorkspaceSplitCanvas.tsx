@@ -195,6 +195,14 @@ export const WorkspaceSplitCanvas = forwardRef<
     draftingTool,
     onSelectCabinet,
     onSelectOpening,
+    onResizeOpening: onElevationOpeningCommand
+      ? (cabinetId: string, openingId: string, ratio: number) =>
+          onElevationOpeningCommand(cabinetId, {
+            kind: "set-ratio",
+            openingId,
+            ratio,
+          })
+      : undefined,
     onSelectDraftObject: setDraftSelection,
     onCabinetMove,
     onAddNote,

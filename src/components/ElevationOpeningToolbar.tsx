@@ -61,6 +61,34 @@ export function ElevationOpeningToolbar({
           />
         ))}
       </div>
+      <div className="elevation-opening-toolbar-group" aria-label="Opening structure">
+        <button
+          type="button"
+          className="tb-btn"
+          disabled={!state.canMerge}
+          title="Merge the selected opening with its siblings"
+          onClick={() => onCommand({ kind: "merge" })}
+        >
+          Merge
+        </button>
+        <button
+          type="button"
+          className="tb-btn"
+          disabled={!state.canDelete}
+          title="Delete the selected opening"
+          onClick={() => onCommand({ kind: "delete" })}
+        >
+          Delete
+        </button>
+        <button
+          type="button"
+          className="tb-btn"
+          title="Restore the family default assembly"
+          onClick={() => onCommand({ kind: "reset" })}
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

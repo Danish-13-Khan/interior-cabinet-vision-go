@@ -21,6 +21,8 @@ export type OpeningLeaf = {
   doorStyle?: DoorStyle;
   doorHinge?: DoorHinge;
   drawerCount?: number;
+  /** Relative drawer-front heights, normalized to one. Undefined means equal. */
+  drawerRatios?: number[];
   shelfCount?: number;
   shelvesAdjustable?: boolean;
 };
@@ -30,6 +32,8 @@ export type OpeningSplit = {
   id: string;
   label: string;
   axis: OpeningSplitAxis;
+  /** Share of this branch within its parent split. Optional for legacy projects. */
+  ratio?: number;
   children: OpeningNode[];
 };
 

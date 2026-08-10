@@ -32,6 +32,9 @@ import {
   worldFromClient,
   type TechnicalViewMetrics,
 } from "../components/twoDView/placementHelpers";
+import { resolveCabinetComposition } from "../domain/cabinetComposition";
+import { findOpeningNode } from "../domain/cabinetOpeningStructure";
+import { layoutCabinetElevationFace } from "../domain/openingLayout";
 
 function draftingViewFor(view: TechnicalViewKind): DraftingViewTarget {
   if (view === "section" || view === "detail") return "side";
@@ -92,7 +95,21 @@ type LeaderDrag = {
   moved: boolean;
 };
 
-type DragState = CabinetDrag | DimDrag | TagDrag | NoteDrag | LeaderDrag;
+type OpeningResizeDrag = {
+  kind: "opening-resize";
+  cabinetId: string;
+  openingId: string;
+  axis: "vertical" | "horizontal";
+  sign: number;
+  pointerId: number;
+  startClientX: number;
+  startClientY: number;
+  originRatio: number;
+  parentSpanMm: number;
+  moved: boolean;
+};
+
+type DragState = CabinetDrag | DimDrag | TagDrag | NoteDrag | LeaderDrag | OpeningResizeDrag;
 
 type UseTwoDPointerArgs = {
   hostRef: RefObject<HTMLDivElement | null>;
@@ -104,6 +121,7 @@ type UseTwoDPointerArgs = {
   draftingTool: DraftingTool;
   onSelectCabinet?: (cabinetId: string | null, additive: boolean) => void;
   onSelectOpening?: (cabinetId: string, openingId: string) => void;
+  onResizeOpening?: (cabinetId: string, openingId: string, ratio: number) => void;
   onSelectDraftObject?: (selection: TechnicalObjectSelection) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onAddNote?: (note: DraftingNote) => void;
@@ -124,6 +142,7 @@ export function useTwoDPointer({
   draftingTool,
   onSelectCabinet,
   onSelectOpening,
+  onResizeOpening,
   onSelectDraftObject,
   onCabinetMove,
   onAddNote,
@@ -148,6 +167,51 @@ export function useTwoDPointer({
     if (draftingTool !== "select") return;
 
     const target = event.target as Element | null;
+    const resizeNode = target?.closest?.("[data-opening-resize]");
+    const resizeOpeningId = resizeNode?.getAttribute("data-opening-id");
+    const resizeCabinetId = resizeNode?.getAttribute("data-cabinet-id");
+    const resizeAxis = resizeNode?.getAttribute("data-opening-resize");
+    if (
+      resizeOpeningId &&
+      resizeCabinetId &&
+      onResizeOpening &&
+      (resizeAxis === "vertical" || resizeAxis === "horizontal")
+    ) {
+      const cabinet = project.cabinets.find((item) => item.id === resizeCabinetId);
+      const structure = cabinet
+        ? resolveCabinetComposition(cabinet.config).openingStructure
+        : null;
+      const leaf = structure
+        ? findOpeningNode(structure.root, resizeOpeningId)
+        : null;
+      const opening = cabinet
+        ? layoutCabinetElevationFace(cabinet.config).openings.find(
+            (item) => item.id === resizeOpeningId,
+          )
+        : null;
+      if (!cabinet || leaf?.kind !== "leaf" || !opening) return;
+      const originRatio = leaf.ratio ?? 0.5;
+      const openingSpan = resizeAxis === "vertical" ? opening.widthMm : opening.heightMm;
+      dragRef.current = {
+        kind: "opening-resize",
+        cabinetId: resizeCabinetId,
+        openingId: resizeOpeningId,
+        axis: resizeAxis,
+        sign: Number(resizeNode?.getAttribute("data-resize-sign")) || 1,
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        originRatio,
+        parentSpanMm: openingSpan / Math.max(0.05, originRatio),
+        moved: false,
+      };
+      onSelectOpening?.(resizeCabinetId, resizeOpeningId);
+      suppressClickRef.current = false;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      event.preventDefault();
+      return;
+    }
+
     const openingNode = target?.closest?.("[data-opening-id]");
     const openingId = openingNode?.getAttribute("data-opening-id");
     const openingCabinetId = openingNode?.getAttribute("data-cabinet-id");
@@ -311,6 +375,28 @@ export function useTwoDPointer({
         z: proposed.placement.z,
       });
       onCabinetMove(drag.cabinetId, proposed.placement);
+      return;
+    }
+
+
+    if (drag.kind === "opening-resize" && onResizeOpening) {
+      const delta = svgDeltaFromClient(
+        hostRef.current,
+        technicalViewRef.current,
+        event.clientX,
+        event.clientY,
+        drag.startClientX,
+        drag.startClientY,
+      );
+      if (!delta) return;
+      const deltaMm =
+        (drag.axis === "vertical" ? delta.dx : delta.dy) *
+        technicalViewRef.current.scale *
+        drag.sign;
+      const ratio = Math.round(
+        Math.min(0.95, Math.max(0.05, drag.originRatio + deltaMm / drag.parentSpanMm)) * 100,
+      ) / 100;
+      onResizeOpening(drag.cabinetId, drag.openingId, ratio);
       return;
     }
 

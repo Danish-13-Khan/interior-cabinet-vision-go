@@ -3,12 +3,14 @@ import type { CabinetConstruction } from "../cabinetConstruction";
 import { getResolvedDoorCount, resolveCabinetComposition } from "../cabinetComposition";
 import { getHardwareItem, normalizeCabinetHardware } from "./normalize";
 import type { HardwareLine } from "./types";
+import { layoutCabinetElevationFace } from "../openingLayout";
 
 export function resolveHardwareCounts(
   cabinet: CabinetInstance,
   construction: CabinetConstruction,
 ): {
   doorCount: number;
+  hingeCount: number;
   drawerCount: number;
   handleCount: number;
   shelfCount: number;
@@ -31,9 +33,19 @@ export function resolveHardwareCounts(
     composition.shelves.count,
     construction.parts.find((part) => part.category === "Shelf")?.quantity ?? 0,
   );
+  const hingeCount = layoutCabinetElevationFace(cabinet.config).openings.reduce(
+    (sum, opening) => {
+      if (opening.contentType !== "door") return sum;
+      const leaves = opening.doorStyle === "single" ? 1 : 2;
+      const perLeaf = opening.heightMm > 1500 ? 4 : opening.heightMm > 900 ? 3 : 2;
+      return sum + leaves * perLeaf;
+    },
+    0,
+  );
 
   return {
     doorCount,
+    hingeCount,
     drawerCount,
     handleCount: doorCount + drawerFrontCount,
     shelfCount,
@@ -76,7 +88,7 @@ export function buildHardwareLines(
     hardware.insertKind === "dishwasher-gap" ||
     hardware.insertKind === "cooktop";
 
-  push(hardware.hingeId, counts.doorCount * 2);
+  push(hardware.hingeId, counts.hingeCount);
   push(
     hardware.slideId,
     insertBlocksDrawers ? 0 : counts.drawerCount,

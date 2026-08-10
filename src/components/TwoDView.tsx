@@ -40,6 +40,7 @@ type TwoDViewProps = {
   draftingTool?: DraftingTool;
   onSelectCabinet?: (cabinetId: string | null, additive: boolean) => void;
   onSelectOpening?: (cabinetId: string, openingId: string) => void;
+  onResizeOpening?: (cabinetId: string, openingId: string, ratio: number) => void;
   onSelectDraftObject?: (selection: TechnicalObjectSelection) => void;
   onCabinetMove?: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onAddNote?: (note: DraftingNote) => void;
@@ -72,6 +73,7 @@ export function TwoDView({
   draftingTool = "select",
   onSelectCabinet,
   onSelectOpening,
+  onResizeOpening,
   onSelectDraftObject,
   onCabinetMove,
   onAddNote,
@@ -112,6 +114,7 @@ export function TwoDView({
     draftingTool,
     onSelectCabinet,
     onSelectOpening,
+    onResizeOpening,
     onSelectDraftObject,
     onCabinetMove,
     onAddNote,

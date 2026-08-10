@@ -1,4 +1,4 @@
-export type PropertyFieldType = "number" | "boolean" | "enum" | "readonly" | "action";
+export type PropertyFieldType = "number" | "text" | "boolean" | "enum" | "readonly" | "action";
 
 /** Top-level engineering groups in the structured property inspector. */
 export type PropertyGroupId =

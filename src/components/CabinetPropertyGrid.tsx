@@ -80,6 +80,17 @@ function FieldControl({
     );
   }
 
+  if (field.type === "text") {
+    return (
+      <input
+        type="text"
+        value={String(value ?? "")}
+        onChange={(event) => onChange(event.currentTarget.value)}
+        aria-label={field.label}
+      />
+    );
+  }
+
   return (
     <span className="property-grid-number">
       <input

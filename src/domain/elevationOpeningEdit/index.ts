@@ -2,6 +2,7 @@ export type {
   ElevationOpeningCommand,
   ElevationOpeningContentCommand,
   ElevationOpeningSplitCommand,
+  ElevationOpeningStructureCommand,
   ElevationOpeningToolbarState,
 } from "./types";
 export { ELEVATION_CONTENT_SHORT_LABELS } from "./types";

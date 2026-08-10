@@ -19,13 +19,18 @@ export {
   createOpeningLeaf,
   describeOpeningStructure,
   findOpeningNode,
+  findOpeningParent,
   getActiveOpeningLeaf,
+  getOpeningNodeRatio,
   openingStructureToLegacyStyle,
 } from "./queries";
 export { normalizeOpeningStructure } from "./normalize";
 export {
+  deleteOpening,
+  mergeOpening,
   setActiveOpening,
   setOpeningContentType,
+  setOpeningRatio,
   splitOpening,
   updateOpeningLeaf,
 } from "./operations";

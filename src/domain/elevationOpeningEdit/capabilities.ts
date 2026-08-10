@@ -22,6 +22,8 @@ export function getElevationOpeningToolbarState(
       maxLeaves: 0,
       canSplitVertical: false,
       canSplitHorizontal: false,
+      canMerge: false,
+      canDelete: false,
       allowedContentTypes: [],
     };
   }
@@ -39,6 +41,8 @@ export function getElevationOpeningToolbarState(
       maxLeaves: rules.maxLeaves,
       canSplitVertical: false,
       canSplitHorizontal: false,
+      canMerge: false,
+      canDelete: false,
       allowedContentTypes: [],
     };
   }
@@ -70,6 +74,8 @@ export function getElevationOpeningToolbarState(
       Boolean(activeIsLeaf) && rules.allowVerticalSplit && underLeafCap,
     canSplitHorizontal:
       Boolean(activeIsLeaf) && rules.allowHorizontalSplit && underLeafCap,
+    canMerge: Boolean(activeIsLeaf) && leaves.length > 1,
+    canDelete: Boolean(activeIsLeaf) && leaves.length > 1,
     allowedContentTypes: [...rules.allowedContentTypes],
   };
 }

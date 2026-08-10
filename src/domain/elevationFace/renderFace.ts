@@ -137,6 +137,7 @@ export function renderElevationFaceGraphics(
     elements.push(
       ...renderOpeningChrome(
         opening,
+        cabinet.id,
         layout,
         cabinetSvgX,
         cabinetSvgY,

@@ -139,6 +139,7 @@ export function renderOpeningBoundaries(
 
 export function renderOpeningChrome(
   opening: OpeningFaceRect,
+  cabinetId: string,
   layout: CabinetElevationFaceLayout,
   cabinetSvgX: number,
   cabinetSvgY: number,
@@ -203,6 +204,33 @@ export function renderOpeningChrome(
           `class="twod-opening-active-tick" pointer-events="none"`,
         ),
       );
+    }
+
+    if (opening.parentAxis && opening.siblingCount > 1) {
+      const trailing = opening.siblingIndex < opening.siblingCount - 1;
+      if (opening.parentAxis === "vertical") {
+        const handleX = trailing ? box.x + box.width : box.x;
+        elements.push(
+          line(
+            handleX,
+            box.y,
+            handleX,
+            box.y + box.height,
+            `class="twod-opening-resize-handle is-vertical" data-cabinet-id="${cabinetId}" data-opening-id="${opening.id}" data-opening-resize="vertical" data-resize-sign="${trailing ? 1 : -1}"`,
+          ),
+        );
+      } else {
+        const handleY = trailing ? box.y + box.height : box.y;
+        elements.push(
+          line(
+            box.x,
+            handleY,
+            box.x + box.width,
+            handleY,
+            `class="twod-opening-resize-handle is-horizontal" data-cabinet-id="${cabinetId}" data-opening-id="${opening.id}" data-opening-resize="horizontal" data-resize-sign="${trailing ? 1 : -1}"`,
+          ),
+        );
+      }
     }
   }
 

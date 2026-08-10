@@ -19,6 +19,7 @@ import { PlacementSection } from "./dimensionControls/PlacementSection";
 import { PartsSection } from "./dimensionControls/PartsSection";
 import { useNumericInputs } from "./dimensionControls/useNumericInputs";
 import type { DimensionControlsProps } from "./dimensionControls/types";
+import { CabinetAssemblyEditor } from "./CabinetAssemblyEditor";
 
 export type { DimensionControlsProps } from "./dimensionControls/types";
 
@@ -26,12 +27,14 @@ export function DimensionControls({
   config,
   snapSizeMm,
   activeCabinetId,
+  activeOpeningId,
   selectedPlacement,
   preferences,
   manufacturingIssues,
   constructionParts,
   onAttachmentChange,
   onConfigChange,
+  onSelectOpening,
   onPlacementChange,
   onSaveCabinetTemplate,
   onRotationChange,
@@ -128,7 +131,7 @@ export function DimensionControls({
           />
         ) : null}
 
-        {resolvedGroup !== "placement" && resolvedGroup !== "reports" ? (
+        {resolvedGroup !== "placement" && resolvedGroup !== "reports" && resolvedGroup !== "openings" ? (
           <>
             {resolvedGroup === "dimensions" ? (
               <TemplatesSection onSaveCabinetTemplate={onSaveCabinetTemplate} />
@@ -142,6 +145,15 @@ export function DimensionControls({
               hideGroupNav
             />
           </>
+        ) : null}
+
+        {resolvedGroup === "openings" ? (
+          <CabinetAssemblyEditor
+            config={config}
+            activeOpeningId={activeOpeningId}
+            onConfigChange={(next) => onConfigChange(next)}
+            onSelectOpening={(openingId) => onSelectOpening?.(activeCabinetId, openingId)}
+          />
         ) : null}
 
         {resolvedGroup === "reports" ? (

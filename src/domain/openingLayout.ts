@@ -7,7 +7,10 @@ import type {
   OpeningNode,
   OpeningStructure,
 } from "./cabinetOpeningStructure";
-import { normalizeOpeningStructure } from "./cabinetOpeningStructure";
+import {
+  getOpeningNodeRatio,
+  normalizeOpeningStructure,
+} from "./cabinetOpeningStructure";
 
 export type OpeningFaceRect = {
   id: string;
@@ -21,7 +24,12 @@ export type OpeningFaceRect = {
   doorStyle?: DoorStyle;
   doorHinge?: DoorHinge;
   drawerCount: number;
+  drawerRatios?: number[];
   shelfCount: number;
+  shelvesAdjustable: boolean;
+  parentAxis?: "vertical" | "horizontal";
+  siblingIndex: number;
+  siblingCount: number;
   /** Stable shop marker index within the cabinet face (0-based). */
   markerIndex: number;
 };
@@ -56,6 +64,9 @@ function layoutNode(
   yMm: number,
   widthMm: number,
   heightMm: number,
+  parentAxis?: "vertical" | "horizontal",
+  siblingIndex = 0,
+  siblingCount = 1,
 ): Omit<OpeningFaceRect, "markerIndex">[] {
   if (node.kind === "leaf") {
     return [
@@ -70,40 +81,17 @@ function layoutNode(
         doorStyle: node.doorStyle,
         doorHinge: node.doorHinge,
         drawerCount: node.drawerCount ?? 0,
+        drawerRatios: node.drawerRatios,
         shelfCount: node.shelfCount ?? 0,
+        shelvesAdjustable: node.shelvesAdjustable !== false,
+        parentAxis,
+        siblingIndex,
+        siblingCount,
       },
     ];
   }
 
-  const totalRatio =
-    node.children.reduce(
-      (sum, child) => sum + (child.kind === "leaf" ? child.ratio : 1),
-      0,
-    ) || 1;
-
-  const childSizes = node.children.map((child) => {
-    const ratio = child.kind === "leaf" ? child.ratio : 1 / node.children.length;
-    return ratio / totalRatio;
-  });
-
-  const normalized =
-    node.children.every((child) => child.kind === "split")
-      ? node.children.map(() => 1 / node.children.length)
-      : childSizes.map((value, index) => {
-          const child = node.children[index]!;
-          if (child.kind === "split") {
-            return value;
-          }
-          return value;
-        });
-
-  const shares = node.children.map((child, index) => {
-    if (child.kind === "leaf") return Math.max(0.05, child.ratio);
-    if (node.children.every((item) => item.kind === "split")) {
-      return 1;
-    }
-    return normalized[index] ?? 1;
-  });
+  const shares = node.children.map((child) => getOpeningNodeRatio(child));
   const shareTotal = shares.reduce((sum, value) => sum + value, 0) || 1;
 
   const rects: Omit<OpeningFaceRect, "markerIndex">[] = [];
@@ -114,14 +102,32 @@ function layoutNode(
     if (node.axis === "vertical") {
       const childWidth = widthMm * share;
       rects.push(
-        ...layoutNode(child, xMm + cursor, yMm, childWidth, heightMm),
+        ...layoutNode(
+          child,
+          xMm + cursor,
+          yMm,
+          childWidth,
+          heightMm,
+          node.axis,
+          index,
+          node.children.length,
+        ),
       );
       cursor += childWidth;
     } else {
       const childHeight = heightMm * share;
       const topOffset = heightMm - cursor - childHeight;
       rects.push(
-        ...layoutNode(child, xMm, yMm + topOffset, widthMm, childHeight),
+        ...layoutNode(
+          child,
+          xMm,
+          yMm + topOffset,
+          widthMm,
+          childHeight,
+          node.axis,
+          index,
+          node.children.length,
+        ),
       );
       cursor += childHeight;
     }

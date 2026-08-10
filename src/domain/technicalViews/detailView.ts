@@ -25,6 +25,13 @@ import {
 import { line, rect, text } from "./svgPrimitives";
 import type { TechnicalViewOptions, TechnicalViewResult } from "./types";
 import { resolveDisplay } from "./viewLayers";
+import { layoutCabinetElevationFace } from "../openingLayout";
+import {
+  summarizeCabinetAssembly,
+  validateCabinetAssembly,
+} from "../cabinetAssembly";
+import { resolveCabinetMaterialSpec } from "../materialSystem";
+import { describeHardwareSpec, normalizeCabinetHardware } from "../hardwareSystem";
 
 const DETAIL_SCALE = 2.2;
 
@@ -166,6 +173,10 @@ export function detailView(
   const construction = createCabinetConstruction(cabinet.config);
   const summary = getConstructionSummary(construction);
   const parts = getConstructionFlatParts(construction).slice(0, 8);
+  const assembly = summarizeCabinetAssembly(cabinet.config);
+  const assemblyIssues = validateCabinetAssembly(cabinet.config);
+  const face = layoutCabinetElevationFace(cabinet.config);
+  const materials = resolveCabinetMaterialSpec(cabinet.config.buildRules);
   let listY = elevY + elevH + 28;
   elements.push(
     text(
@@ -199,6 +210,62 @@ export function detailView(
     );
     listY += 12;
   }
+
+  const scheduleX = secX;
+  let scheduleY = elevY + elevH + 28;
+  elements.push(
+    text(
+      scheduleX,
+      scheduleY,
+      "ASSEMBLY SCHEDULE",
+      `class="twod-wall-label" font-size="7" text-anchor="start"`,
+    ),
+  );
+  scheduleY += 12;
+  elements.push(
+    text(
+      scheduleX,
+      scheduleY,
+      `${assembly.openingCount} openings · ${assembly.doorCount} doors · ${assembly.drawerCount} drawers · ${assembly.shelfCount} shelves`,
+      `class="twod-annotation" font-size="6.5" text-anchor="start"`,
+    ),
+  );
+  scheduleY += 12;
+  for (const [index, opening] of face.openings.entries()) {
+    const content = opening.contentType.replace("-", " ").toUpperCase();
+    elements.push(
+      text(
+        scheduleX,
+        scheduleY,
+        `OP-${index + 1}  ${opening.label}  ${content}  ${Math.round(opening.widthMm)}×${Math.round(opening.heightMm)}`,
+        `class="twod-schedule-td" font-size="6.2" text-anchor="start"`,
+      ),
+    );
+    scheduleY += 11;
+  }
+  scheduleY += 4;
+  elements.push(
+    text(
+      scheduleX,
+      scheduleY,
+      `CARCASS ${materials.carcassMaterial.boardMaterialId.toUpperCase()} ${materials.carcassMaterial.thicknessMm}mm · DOOR ${materials.doorMaterial.boardMaterialId.toUpperCase()}`,
+      `class="twod-annotation" font-size="6" text-anchor="start"`,
+    ),
+    text(
+      scheduleX,
+      scheduleY + 10,
+      describeHardwareSpec(normalizeCabinetHardware(cabinet.config.type, cabinet.config.hardware)),
+      `class="twod-annotation" font-size="6" text-anchor="start"`,
+    ),
+    text(
+      scheduleX,
+      scheduleY + 20,
+      assemblyIssues.length === 0
+        ? "BUILD CHECK: READY"
+        : `BUILD CHECK: ${assemblyIssues.length} NOTICE${assemblyIssues.length === 1 ? "" : "S"}`,
+      `class="twod-wall-label" font-size="6" text-anchor="start"`,
+    ),
+  );
 
   elements.push(
     line(elevX, listY + 8, elevX + 520, listY + 8, `class="twod-schedule-rule"`),

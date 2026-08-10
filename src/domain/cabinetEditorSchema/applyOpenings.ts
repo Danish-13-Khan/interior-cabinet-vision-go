@@ -1,9 +1,13 @@
 import type { CabinetConfig } from "../cabinetDimensions";
 import type { DoorHinge, DoorStyle } from "../cabinetComposition";
 import {
+  createDefaultOpeningStructure,
+  deleteOpening,
   getActiveOpeningLeaf,
+  mergeOpening,
   setActiveOpening,
   setOpeningContentType,
+  setOpeningRatio,
   splitOpening,
   updateOpeningLeaf,
   type OpeningContentType,
@@ -42,10 +46,23 @@ export function tryApplyOpeningEditorChange(
         if (!composition.openingStructure) return composition.openingStructure;
         const active = getActiveOpeningLeaf(composition.openingStructure);
         if (!active) return composition.openingStructure;
+        return setOpeningRatio(
+          composition.openingStructure,
+          active.id,
+          Number(value) / 100,
+          config.type,
+          widthMm,
+        );
+      });
+    case "openingLabel":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
         return updateOpeningLeaf(
           composition.openingStructure,
           active.id,
-          { ratio: Number(value) / 100 },
+          { label: String(value) },
           config.type,
           widthMm,
         );
@@ -102,6 +119,19 @@ export function tryApplyOpeningEditorChange(
           widthMm,
         );
       });
+    case "openingLeafShelvesAdjustable":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return updateOpeningLeaf(
+          composition.openingStructure,
+          active.id,
+          { shelvesAdjustable: Boolean(value) },
+          config.type,
+          widthMm,
+        );
+      });
     case "splitVertical":
       return patchOpeningStructure(config, (composition) => {
         if (!composition.openingStructure) return composition.openingStructure;
@@ -128,6 +158,34 @@ export function tryApplyOpeningEditorChange(
           widthMm,
         );
       });
+    case "mergeOpening":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return mergeOpening(
+          composition.openingStructure,
+          active.id,
+          config.type,
+          widthMm,
+        );
+      });
+    case "deleteOpening":
+      return patchOpeningStructure(config, (composition) => {
+        if (!composition.openingStructure) return composition.openingStructure;
+        const active = getActiveOpeningLeaf(composition.openingStructure);
+        if (!active) return composition.openingStructure;
+        return deleteOpening(
+          composition.openingStructure,
+          active.id,
+          config.type,
+          widthMm,
+        );
+      });
+    case "resetAssembly":
+      return patchOpeningStructure(config, () =>
+        createDefaultOpeningStructure(config.type, widthMm),
+      );
     default:
       return null;
   }

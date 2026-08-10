@@ -73,8 +73,8 @@ function App() {
           activeRoomId: c.project.activeRoomId ?? c.projectRooms[0]?.id ?? null,
           runs: c.planningWorkflow.runs,
           activeCabinetId: c.activeCabinetId,
-          selectedCabinetIds: c.selectedCabinetIds,
           activeOpeningId: c.activeOpeningId,
+          selectedCabinetIds: c.selectedCabinetIds,
           isolatedCabinetIds: c.isolatedCabinetIds,
           savedProjects: c.sortedSavedProjects,
           onAddFamily: c.handleAddCabinet,
@@ -210,6 +210,7 @@ function App() {
           savedProjects: c.sortedSavedProjects,
           snapSizeMm: c.projectPreferences.snapSizeMm,
           activeCabinetId: c.activeCabinetId,
+          activeOpeningId: c.activeOpeningId,
           selectedPanelName: c.selectedPanelName,
           selectedPlacement: c.selectedPlacement,
           selectedLayerId: c.selectedLayerId,
@@ -254,6 +255,7 @@ function App() {
             }
             c.replaceSelection([cabinetId], cabinetId, null);
           },
+          onSelectOpening: c.handleSelectOpening,
           onSelectAll: c.handleSelectAll,
           onUndo: c.handleUndo,
           onRedo: c.handleRedo,
