@@ -1,5 +1,12 @@
 name: Deploy GitHub Pages
 
+# Publishes Vite build to the gh-pages branch.
+# One-time repo setup (required):
+#   1. Repo must be Public (free Pages) OR have a plan that allows private Pages
+#   2. Settings → Pages → Source: Deploy from a branch
+#   3. Branch: gh-pages / (root) → Save
+# Site: https://Danish-13-Khan.github.io/interior-cabinet-vision-go/
+
 on:
   push:
     branches: [main]
@@ -33,8 +40,12 @@ jobs:
         env:
           GITHUB_PAGES: "true"
 
-      - name: Add .nojekyll
-        run: touch dist/.nojekyll
+      - name: Verify build output
+        run: |
+          test -f dist/index.html
+          test -d dist/assets
+          touch dist/.nojekyll
+          echo "Build OK — publishing to gh-pages"
 
       - name: Publish to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
@@ -43,3 +54,10 @@ jobs:
           publish_dir: ./dist
           publish_branch: gh-pages
           force_orphan: true
+
+      - name: Deployment published
+        run: |
+          echo "gh-pages branch updated."
+          echo "If the site URL still 404s, enable Pages once:"
+          echo "Settings → Pages → Deploy from a branch → gh-pages → / (root)"
+          echo "URL: https://Danish-13-Khan.github.io/interior-cabinet-vision-go/"
