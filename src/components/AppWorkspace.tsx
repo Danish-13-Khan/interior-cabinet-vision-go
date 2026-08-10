@@ -20,11 +20,19 @@ import type { SheetViewKind } from "../domain/sheetDocuments";
 import { catalogIdFromSheetId } from "../domain/sheetDocuments";
 import { WorkspaceSheetBrowser } from "./WorkspaceSheetBrowser";
 import type { WorkbenchMode } from "../domain/desktopUx";
+import type { WallLayoutSide } from "../domain/wallLayout";
 
 type AppWorkspaceProps = {
   workbenchMode: WorkbenchMode;
   breadcrumb: string;
   splitViewEnabled: boolean;
+  activeWallSide: WallLayoutSide;
+  wallCabinetIds: string[];
+  wallLengthMm: number;
+  onCatalogDrop: (
+    item: { kind: "family" | "library" | "template"; id: string },
+    preferredPrimaryMm: number,
+  ) => void;
   workspaceTab: WorkspaceTabId;
   activeSheetId: string;
   workspaceLabel: string;
@@ -120,6 +128,10 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       workbenchMode,
       breadcrumb,
       splitViewEnabled,
+      activeWallSide,
+      wallCabinetIds,
+      wallLengthMm,
+      onCatalogDrop,
       activeSheetId,
       workspaceLabel,
       draftingTool,
@@ -354,7 +366,28 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
             />
           ) : null}
 
-          <div className="workspace-canvas">
+          <div
+            className="workspace-canvas"
+            onDragOver={(event) => {
+              if (!event.dataTransfer.types.includes("application/x-cabinet-layout-item")) return;
+              event.preventDefault();
+              event.dataTransfer.dropEffect = "copy";
+            }}
+            onDrop={(event) => {
+              const raw = event.dataTransfer.getData("application/x-cabinet-layout-item");
+              if (!raw) return;
+              event.preventDefault();
+              try {
+                const item = JSON.parse(raw) as { kind: "family" | "library" | "template"; id: string };
+                if (!["family", "library", "template"].includes(item.kind) || !item.id) return;
+                const bounds = event.currentTarget.getBoundingClientRect();
+                const ratio = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+                onCatalogDrop(item, (ratio - 0.5) * wallLengthMm);
+              } catch {
+                // Ignore malformed external drag data.
+              }
+            }}
+          >
             <WorkspaceSplitCanvas
               ref={sceneRef}
               workspaceTab={workspaceTab}
@@ -373,6 +406,8 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               activeOpeningId={activeOpeningId}
               selectedPanelName={selectedPanelName}
               draftingDisplay={draftingDisplay}
+              focusedWallSide={workbenchMode === "cabinets" ? activeWallSide : null}
+              focusedWallCabinetIds={workbenchMode === "cabinets" ? wallCabinetIds : null}
               onFocusPane={onWorkspaceTabChange}
               onSelectSheet={handleSelectSheet}
               onToggleMaximize={handleToggleMaximize}

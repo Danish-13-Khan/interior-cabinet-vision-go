@@ -42,16 +42,19 @@ describe("desktopUx layout", () => {
     expect(defaults.sceneBrowserVisible).toBe(false);
     expect(defaults.workbenchMode).toBe("cabinets");
     expect(defaults.splitViewEnabled).toBe(false);
+    expect(defaults.activeWallSide).toBe("back-wall");
     expect(defaults.splitTopRowPct).toBeGreaterThan(50);
 
     const clamped = clampDesktopLayout({
       splitPlanWidthPct: 5,
       splitTopRowPct: 99,
       sceneBrowserVisible: false,
+      activeWallSide: "left-wall",
     });
     expect(clamped.splitPlanWidthPct).toBe(28);
     expect(clamped.splitTopRowPct).toBe(80);
     expect(clamped.sceneBrowserVisible).toBe(false);
+    expect(clamped.activeWallSide).toBe("left-wall");
   });
 });
 

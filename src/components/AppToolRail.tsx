@@ -13,6 +13,8 @@ import { ProjectBrowser } from "./ProjectBrowser";
 
 import type { ProjectJobMeta } from "../domain/jobMeta";
 import type { WorkbenchMode } from "../domain/desktopUx";
+import type { WallLayoutSide, WallLayoutSummary } from "../domain/wallLayout";
+import { WallLayoutPanel } from "./WallLayoutPanel";
 
 type SavedProjectCard = {
   id: string;
@@ -25,6 +27,12 @@ type SavedProjectCard = {
 
 type AppToolRailProps = {
   workbenchMode: WorkbenchMode;
+  activeWall: WallLayoutSide;
+  wallLayout: WallLayoutSummary;
+  onActiveWallChange: (side: WallLayoutSide) => void;
+  onSelectWallCabinets: () => void;
+  onAutoPackWallRuns: () => void;
+  onFinishWallRunEnds: () => void;
   templates: CabinetTemplate[];
   userCabinetPresets: CabinetFamilyLibraryEntry[];
   rooms: ProjectRoom[];
@@ -76,6 +84,12 @@ type AppToolRailProps = {
 
 export function AppToolRail({
   workbenchMode,
+  activeWall,
+  wallLayout,
+  onActiveWallChange,
+  onSelectWallCabinets,
+  onAutoPackWallRuns,
+  onFinishWallRunEnds,
   templates,
   userCabinetPresets,
   rooms,
@@ -122,6 +136,15 @@ export function AppToolRail({
         <strong>{workbenchMode === "job" ? "Job Browser" : workbenchMode === "room" ? "Room Tools" : workbenchMode === "drawings" ? "Drawing Objects" : "Cabinet Catalog"}</strong>
         <span>Context tools</span>
       </div>
+
+      {workbenchMode === "cabinets" ? <WallLayoutPanel
+        activeWall={activeWall}
+        summary={wallLayout}
+        onWallChange={onActiveWallChange}
+        onSelectWallCabinets={onSelectWallCabinets}
+        onAutoPack={onAutoPackWallRuns}
+        onFinishEnds={onFinishWallRunEnds}
+      /> : null}
 
       {workbenchMode === "cabinets" ? <LibraryRail
         templates={templates}

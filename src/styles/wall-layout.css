@@ -1,0 +1,227 @@
+.wall-layout-panel {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  padding: 6px;
+  border-bottom: 1px solid var(--rail-section-border);
+  background: #d8e0e8;
+}
+
+.wall-layout-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wall-layout-title > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wall-layout-title strong {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wall-layout-title span,
+.wall-layout-hint {
+  font-size: 0.56rem;
+  color: var(--muted);
+}
+
+.wall-health {
+  padding: 2px 5px;
+  border: 1px solid #7ea18a;
+  background: #dceadf;
+  color: #2d5b3a !important;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.wall-health.is-warning {
+  border-color: var(--warn-border);
+  background: var(--warn-bg);
+  color: var(--warn-fg) !important;
+}
+
+.wall-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 5px;
+  border: 1px solid #8190a0;
+}
+
+.wall-selector button {
+  min-height: 24px;
+  border: 0;
+  border-right: 1px solid #9aa7b4;
+  background: #edf1f4;
+  color: #425466;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wall-selector button:last-child {
+  border-right: 0;
+}
+
+.wall-selector button.is-active {
+  background: var(--accent);
+  color: white;
+}
+
+.wall-layout-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 5px;
+  border: 1px solid #a2afbb;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.wall-layout-metrics div {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 2px;
+  border-right: 1px solid #bdc7d0;
+}
+
+.wall-layout-metrics div:last-child {
+  border-right: 0;
+}
+
+.wall-layout-metrics span,
+.wall-layout-metrics small {
+  font-size: 0.5rem;
+  color: var(--muted);
+}
+
+.wall-layout-metrics strong {
+  font-size: 0.68rem;
+  color: var(--ink);
+}
+
+.wall-layout-output {
+  display: flex;
+  gap: 8px;
+  padding: 4px 1px;
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  color: #4c6072;
+}
+
+.wall-layout-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+  color: var(--warn-fg);
+  font-size: 0.55rem;
+}
+
+.wall-layout-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3px;
+}
+
+.wall-layout-actions button {
+  min-height: 24px;
+  border: 1px solid #8493a2;
+  background: #edf1f4;
+  color: #2e4051;
+  font-size: 0.58rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wall-layout-actions button:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wall-layout-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.wall-layout-hint {
+  margin: 5px 0 0;
+  line-height: 1.3;
+}
+
+.palette-family-btn[draggable="true"],
+.library-item-btn[draggable="true"] {
+  cursor: grab;
+}
+
+.palette-family-btn[draggable="true"]:active,
+.library-item-btn[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.twod-cabinet-resize-handle {
+  fill: #fff;
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  cursor: ew-resize;
+}
+
+.wall-run-inspector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--panel-border);
+  margin-top: 4px;
+}
+
+.wall-run-inspector-grid div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px 5px;
+  border-right: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.wall-run-inspector-grid div:nth-child(even) {
+  border-right: 0;
+}
+
+.wall-run-inspector-grid div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.wall-run-inspector-grid span {
+  color: var(--muted);
+  font-size: 0.56rem;
+}
+
+.wall-run-inspector-grid strong {
+  font-size: 0.62rem;
+  text-transform: capitalize;
+}
+
+.wall-run-inspector-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.wall-run-inspector-actions button {
+  min-height: 23px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-raised);
+  color: var(--ink);
+  font-size: 0.58rem;
+  font-weight: 700;
+  cursor: pointer;
+}

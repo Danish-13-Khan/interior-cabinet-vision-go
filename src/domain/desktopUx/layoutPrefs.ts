@@ -1,4 +1,5 @@
 import { normalizeWorkbenchMode, type WorkbenchMode } from "./workbench";
+import { normalizeWallLayoutSide, type WallLayoutSide } from "../wallLayout";
 
 export const DESKTOP_LAYOUT_STORAGE_KEY = "cabinet-designer-desktop-layout";
 
@@ -30,6 +31,7 @@ export type DesktopLayoutPrefs = {
   sceneBrowserVisible: boolean;
   sheetBrowserVisible: boolean;
   splitViewEnabled: boolean;
+  activeWallSide: WallLayoutSide;
 };
 
 export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
@@ -48,6 +50,7 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   sceneBrowserVisible: false,
   sheetBrowserVisible: false,
   splitViewEnabled: false,
+  activeWallSide: "back-wall",
 };
 
 const WIDTH_MIN = 160;
@@ -76,6 +79,7 @@ export function clampDesktopLayout(
     sceneBrowserVisible: next.sceneBrowserVisible !== false,
     sheetBrowserVisible: next.sheetBrowserVisible !== false,
     splitViewEnabled: Boolean(next.splitViewEnabled),
+    activeWallSide: normalizeWallLayoutSide(next.activeWallSide),
   };
 }
 

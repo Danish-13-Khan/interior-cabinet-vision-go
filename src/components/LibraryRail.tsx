@@ -1,3 +1,4 @@
+import type { DragEvent } from "react";
 import type { CabinetType } from "../domain/cabinetDimensions";
 import { cabinetTypeLabels } from "../domain/cabinetDimensions";
 import { listLibraryGroups } from "../domain/cabinetLibraryCatalog";
@@ -27,6 +28,17 @@ export function LibraryRail({
   onOpenLibraryManager,
 }: LibraryRailProps) {
   const groups = listLibraryGroups(userCabinetPresets);
+  function beginDrag(
+    event: DragEvent<HTMLButtonElement>,
+    kind: "family" | "library" | "template",
+    id: string,
+  ) {
+    event.dataTransfer.effectAllowed = "copy";
+    event.dataTransfer.setData(
+      "application/x-cabinet-layout-item",
+      JSON.stringify({ kind, id }),
+    );
+  }
 
   return (
     <>
@@ -47,9 +59,11 @@ export function LibraryRail({
                 <button
                   key={type}
                   type="button"
+                  draggable
                   className="palette-family-btn"
                   title={`Add default ${cabinetTypeLabels[type]}`}
                   onClick={() => onAddFamily(type)}
+                  onDragStart={(event) => beginDrag(event, "family", type)}
                 >
                   <span className="palette-cat-icon">
                     {type === "drawer"
@@ -77,9 +91,11 @@ export function LibraryRail({
                   <button
                     key={item.id}
                     type="button"
+                    draggable
                     className="library-item-btn"
                     title={item.description}
                     onClick={() => onAddLibraryItem(item.id)}
+                    onDragStart={(event) => beginDrag(event, "library", item.id)}
                   >
                     <strong>
                       {item.label}
@@ -106,9 +122,11 @@ export function LibraryRail({
               <div key={template.id} className="template-rail-row">
                 <button
                   type="button"
+                  draggable
                   className="library-item-btn"
                   title={template.description}
                   onClick={() => onAddTemplate(template.id)}
+                  onDragStart={(event) => beginDrag(event, "template", template.id)}
                 >
                   <strong>{template.name}</strong>
                   <span>

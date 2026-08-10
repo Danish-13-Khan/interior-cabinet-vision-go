@@ -30,6 +30,9 @@ import {
 } from "../domain/draftingAnnotations";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
 import type { WorkbenchMode } from "../domain/desktopUx";
+import type { CabinetRun } from "../domain/cabinetLibrary";
+import type { WallLayoutSummary } from "../domain/wallLayout";
+import { WallRunInspector } from "./WallRunInspector";
 
 type SavedProjectSummary = {
   id: string;
@@ -40,6 +43,12 @@ type SavedProjectSummary = {
 
 type AppInspectorProps = {
   workbenchMode: WorkbenchMode;
+  activeWallRun: CabinetRun | null;
+  wallLayout: WallLayoutSummary;
+  activeWallRunFillerCount: number;
+  activeWallRunCountertopCount: number;
+  onSelectActiveWallRun: () => void;
+  onAutoPackWallRuns: () => void;
   selectedCabinet: CabinetInstance | null;
   selectedCabinetIds: string[];
   job: ProjectJobMeta;
@@ -110,6 +119,12 @@ type AppInspectorProps = {
 export function AppInspector(props: AppInspectorProps) {
   const {
     workbenchMode,
+    activeWallRun,
+    wallLayout,
+    activeWallRunFillerCount,
+    activeWallRunCountertopCount,
+    onSelectActiveWallRun,
+    onAutoPackWallRuns,
     selectedCabinet,
     selectedCabinetIds,
     job,
@@ -183,6 +198,15 @@ export function AppInspector(props: AppInspectorProps) {
 
       <div className="inspector-scroll">
         {workbenchMode === "cabinets" ? (
+          <>
+          <WallRunInspector
+            run={activeWallRun}
+            summary={wallLayout}
+            fillerCount={activeWallRunFillerCount}
+            countertopCount={activeWallRunCountertopCount}
+            onSelectRun={onSelectActiveWallRun}
+            onAutoPack={onAutoPackWallRuns}
+          />
           <DimensionControls
             cabinetCount={project.cabinets.length}
             cabinetCutlistItems={props.cabinetCutlistItems}
@@ -244,6 +268,7 @@ export function AppInspector(props: AppInspectorProps) {
             onUndo={onUndo}
             onRedo={onRedo}
           />
+          </>
         ) : null}
 
         {workbenchMode === "room" ? (

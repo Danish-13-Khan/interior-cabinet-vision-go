@@ -23,6 +23,7 @@ import { renderElevationFaceGraphics } from "../elevationFaceGraphics";
 import { SCALE } from "./constants";
 import {
   dimensionLabel,
+  circle,
   line,
   rect,
   shortLabel,
@@ -209,6 +210,24 @@ export function cabinetElevationGraphics(
       ),
     ),
   );
+
+  if (options.mode !== "print" && options.activeCabinetId === cabinet.id) {
+    const midY = y + height / 2;
+    elements.push(
+      circle(
+        x,
+        midY,
+        4,
+        `class="twod-cabinet-resize-handle" data-cabinet-id="${cabinet.id}" data-cabinet-resize="width" data-resize-sign="-1"`,
+      ),
+      circle(
+        x + width,
+        midY,
+        4,
+        `class="twod-cabinet-resize-handle" data-cabinet-id="${cabinet.id}" data-cabinet-resize="width" data-resize-sign="1"`,
+      ),
+    );
+  }
 
   if (display.showCabinetTags) {
     const drafting = clampProjectDrafting(options.drafting);

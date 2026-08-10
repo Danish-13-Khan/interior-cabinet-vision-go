@@ -45,6 +45,7 @@ export type TechnicalViewOptions = {
   /** Optional override for section cut plane X (mm). */
   cutPlaneXMm?: number;
   title?: string;
+  wallLabel?: string;
   projectName?: string;
   sheetMeta?: string;
   sheetCode?: string;

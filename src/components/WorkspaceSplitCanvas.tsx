@@ -28,6 +28,7 @@ import {
 } from "../domain/sheetDocuments";
 import type { WorkspaceTabId } from "../domain/desktopUx/layoutPrefs";
 import { clampJobMeta, formatJobTitle } from "../domain/jobMeta";
+import { WALL_LAYOUT_LABELS, type WallLayoutSide } from "../domain/wallLayout";
 
 type WorkspaceSplitCanvasProps = {
   workspaceTab: WorkspaceTabId;
@@ -46,6 +47,8 @@ type WorkspaceSplitCanvasProps = {
   activeOpeningId: string | null;
   selectedPanelName: PanelName | null;
   draftingDisplay: DraftingDisplayPreferences;
+  focusedWallSide?: WallLayoutSide | null;
+  focusedWallCabinetIds?: string[] | null;
   onFocusPane: (tab: WorkspaceTabId) => void;
   onSelectSheet: (sheetId: string) => void;
   onToggleMaximize: (tab: WorkspaceTabId) => void;
@@ -107,6 +110,8 @@ export const WorkspaceSplitCanvas = forwardRef<
     activeOpeningId,
     selectedPanelName,
     draftingDisplay,
+    focusedWallSide = null,
+    focusedWallCabinetIds = null,
     onFocusPane,
     onSelectSheet,
     onToggleMaximize,
@@ -114,8 +119,8 @@ export const WorkspaceSplitCanvas = forwardRef<
     onSplitTopRowChange,
     onDraftingToolChange,
     onCabinetMove,
-    onCabinetRotate,
     onCabinetResize,
+    onCabinetRotate,
     onReplaceSelection,
     onToggleCabinetSelection,
     onSelectCabinet,
@@ -146,6 +151,30 @@ export const WorkspaceSplitCanvas = forwardRef<
   const activeCabinet = project.cabinets.find(
     (cabinet) => cabinet.id === activeCabinetId,
   );
+  const elevationProject = useMemo(
+    () =>
+      focusedWallCabinetIds
+        ? {
+            ...project,
+            cabinets: project.cabinets.filter((cabinet) =>
+              focusedWallCabinetIds.includes(cabinet.id),
+            ),
+          }
+        : project,
+    [focusedWallCabinetIds, project],
+  );
+  const elevationWorkflow = useMemo(() => {
+    if (!focusedWallSide) return planningWorkflow;
+    const runs = planningWorkflow.runs.filter((run) => run.side === focusedWallSide);
+    const runIds = new Set(runs.map((run) => run.id));
+    return {
+      runs,
+      fillers: planningWorkflow.fillers.filter((filler) => runIds.has(filler.runId)),
+      countertops: planningWorkflow.countertops.filter((countertop) =>
+        runIds.has(countertop.runId),
+      ),
+    };
+  }, [focusedWallSide, planningWorkflow]);
   const maxKey =
     maximizedPane === "side" ? "front" : maximizedPane;
   const activeDoc = useMemo(
@@ -205,6 +234,7 @@ export const WorkspaceSplitCanvas = forwardRef<
       : undefined,
     onSelectDraftObject: setDraftSelection,
     onCabinetMove,
+    onCabinetResize,
     onAddNote,
     onAddLeader,
     onUpdateNote,
@@ -213,6 +243,21 @@ export const WorkspaceSplitCanvas = forwardRef<
     onUpsertTagOffset,
     onPointerWorld,
     onCabinetContextMenu,
+  } as const;
+  const elevationTwoDCommon = {
+    ...twoDCommon,
+    project: elevationProject,
+    room: focusedWallSide
+      ? {
+          ...room,
+          doors: room.doors.filter((door) => door.side === focusedWallSide),
+          windows: room.windows.filter((window) => window.side === focusedWallSide),
+        }
+      : room,
+    wallLabel: focusedWallSide ? WALL_LAYOUT_LABELS[focusedWallSide] : undefined,
+    countertops: elevationWorkflow.countertops,
+    runs: elevationWorkflow.runs,
+    fillers: elevationWorkflow.fillers,
   } as const;
 
   const draftingTools = (
@@ -386,7 +431,7 @@ export const WorkspaceSplitCanvas = forwardRef<
                 onFocusPane(elevTab);
               }}
               onToggleMaximize={() => onToggleMaximize(elevTab)}
-              twoDProps={twoDCommon}
+              twoDProps={elevationTwoDCommon}
             />
 
             {!maximizedPane ? (

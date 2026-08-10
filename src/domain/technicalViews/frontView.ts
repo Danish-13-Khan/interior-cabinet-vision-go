@@ -93,7 +93,9 @@ export function frontView(
       oy,
       rw,
       rh,
-      display.showWallLabels ? "BACK WALL ELEVATION" : null,
+      display.showWallLabels
+        ? `${options.wallLabel ?? "Back Wall"} Elevation`.toUpperCase()
+        : null,
     ),
   );
 
