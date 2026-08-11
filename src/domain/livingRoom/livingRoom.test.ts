@@ -11,6 +11,7 @@ import {
   LIVING_ROOM_LIGHTING_RECIPES,
   LIVING_ROOM_MATERIAL_IDS,
   LIVING_ROOM_PRESET_ID,
+  inspectLivingRoomPlan,
 } from ".";
 
 const NOW = "2026-08-11T18:30:00.000Z";
@@ -59,6 +60,7 @@ describe("Living Room Starter Contract", () => {
     expect(project.rooms[0]!.extensions?.floorMaterialId).toBe(
       LIVING_ROOM_MATERIAL_IDS.naturalOak,
     );
+    expect(inspectLivingRoomPlan(project)).toEqual([]);
   });
 
   it("includes three switchable lighting recipes and three camera presets", () => {
@@ -117,4 +119,3 @@ describe("Living Room Starter Contract", () => {
     expect(loaded.project.interiorDocument).toEqual(project);
   });
 });
-

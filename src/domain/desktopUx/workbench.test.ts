@@ -5,6 +5,7 @@ describe("workbench", () => {
   it("normalizes unknown modes to cabinets", () => {
     expect(normalizeWorkbenchMode("unknown")).toBe("cabinets");
     expect(normalizeWorkbenchMode("production")).toBe("production");
+    expect(normalizeWorkbenchMode("interiors")).toBe("interiors");
   });
 
   it("builds a contextual breadcrumb", () => {
@@ -13,6 +14,9 @@ describe("workbench", () => {
     );
     expect(workbenchBreadcrumb("drawings", "Kitchen")).toBe(
       "Job > Kitchen > Drawings",
+    );
+    expect(workbenchBreadcrumb("interiors", "Living Room")).toBe(
+      "Job > Living Room > Interior Plan",
     );
   });
 });

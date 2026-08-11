@@ -217,6 +217,8 @@ project documents apart from generated project/entity IDs.
 
 ### LR-03 - Plan-First Authoring
 
+**Status:** Complete (August 11, 2026)
+
 Deliver the complete 2D living-room workflow with direct manipulation,
 dimensions, snapping, constraints, collision feedback, contextual commands,
 and undo/redo.

@@ -160,7 +160,7 @@ export function AppRibbon({
         </div>
       </div>
 
-      {workbenchMode === "cabinets" || workbenchMode === "room" ? <div className="ribbon-group">
+      {workbenchMode === "cabinets" || workbenchMode === "room" || workbenchMode === "interiors" ? <div className="ribbon-group">
         <span className="ribbon-group-label">Edit</span>
         <div className="ribbon-group-actions">
           <button type="button" className="tb-btn" onClick={onUndo} disabled={!canUndo} title="Undo">
@@ -169,33 +169,13 @@ export function AppRibbon({
           <button type="button" className="tb-btn" onClick={onRedo} disabled={!canRedo} title="Redo">
             Redo
           </button>
-          <button
-            type="button"
-            className="tb-btn"
-            onClick={onCopy}
-            disabled={!hasSelection}
-            title="Copy"
-          >
-            Copy
-          </button>
-          <button
-            type="button"
-            className="tb-btn"
-            onClick={onPaste}
-            disabled={!hasClipboard}
-            title="Paste"
-          >
-            Paste
-          </button>
-          <button
-            type="button"
-            className="tb-btn"
-            onClick={onDuplicate}
-            disabled={!hasSelection}
-            title="Duplicate"
-          >
-            Duplicate
-          </button>
+          {workbenchMode !== "interiors" ? (
+            <>
+              <button type="button" className="tb-btn" onClick={onCopy} disabled={!hasSelection} title="Copy">Copy</button>
+              <button type="button" className="tb-btn" onClick={onPaste} disabled={!hasClipboard} title="Paste">Paste</button>
+              <button type="button" className="tb-btn" onClick={onDuplicate} disabled={!hasSelection} title="Duplicate">Duplicate</button>
+            </>
+          ) : null}
         </div>
       </div> : null}
 

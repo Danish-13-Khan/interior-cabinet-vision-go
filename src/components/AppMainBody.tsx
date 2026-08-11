@@ -10,6 +10,7 @@ type AppMainBodyProps = {
   workbenchMode: WorkbenchMode;
   reportWorkspace: ReactNode;
   jobWorkspace: ReactNode;
+  interiorWorkspace: ReactNode;
   toolRailVisible: boolean;
   inspectorVisible: boolean;
   toolRailWidthPx: number;
@@ -26,6 +27,7 @@ export function AppMainBody({
   workbenchMode,
   reportWorkspace,
   jobWorkspace,
+  interiorWorkspace,
   toolRailVisible,
   inspectorVisible,
   toolRailWidthPx,
@@ -38,7 +40,11 @@ export function AppMainBody({
   inspectorProps,
 }: AppMainBodyProps) {
   const isOutputWorkspace = workbenchMode === "production" || workbenchMode === "reports";
-  const showToolRail = toolRailVisible && workbenchMode !== "drawings" && !isOutputWorkspace;
+  const showToolRail =
+    toolRailVisible &&
+    workbenchMode !== "drawings" &&
+    workbenchMode !== "interiors" &&
+    !isOutputWorkspace;
 
   return (
     <div className="app-body">
@@ -59,9 +65,11 @@ export function AppMainBody({
         ? reportWorkspace
         : workbenchMode === "job"
           ? jobWorkspace
+          : workbenchMode === "interiors"
+            ? interiorWorkspace
           : <AppWorkspace ref={sceneRef} {...workspaceProps} />}
 
-      {!isOutputWorkspace && inspectorVisible ? (
+      {!isOutputWorkspace && workbenchMode !== "interiors" && inspectorVisible ? (
         <>
           <PaneResizeHandle
             axis="x"
