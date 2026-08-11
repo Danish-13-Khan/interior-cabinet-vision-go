@@ -296,16 +296,143 @@ src/
 Domain modules must not import React, React Three Fiber, Three.js, Tauri, or DOM
 APIs. Platform and rendering adapters consume domain output, not the reverse.
 
-## Technology
+## Tooling and Stack Contract
 
-- Tauri 2
-- React 19
-- TypeScript
-- Vite
-- Three.js through `@react-three/fiber`
-- `@react-three/drei` for scene controls and helpers
-- CSS for the desktop interface
-- Vitest for domain and unit tests
+This stack is the committed foundation for the Living Room Visualizer MVP. It
+should continue after the MVP unless a measured product requirement proves that
+one layer must be extended. New tools must fit behind the boundaries below
+rather than replacing the project document or duplicating geometry state.
+
+| Area | Tool | Responsibility |
+| --- | --- | --- |
+| Desktop runtime | Tauri 2 and Rust | Native application packaging, OS integration, filesystem access, and dialogs |
+| Interface | React 19 | Desktop shell, plan workspace, inspectors, 3D viewport, and Render Studio |
+| Application language | TypeScript 5 | Project schema, geometry, commands, validation, and application logic |
+| Interface styling | CSS | Purpose-built professional desktop UI without a component framework |
+| Build tooling | Vite 6 | Development server, production bundling, and chunk splitting |
+| 2D authoring | SVG and React | Plans, elevations, dimensions, labels, grips, and snapping guides |
+| Spatial rules | Pure TypeScript | Walls, openings, footprints, snapping, intersections, and collision checks |
+| 3D engine | Three.js | Geometry, materials, lights, cameras, shadows, and WebGL rendering |
+| React 3D integration | `@react-three/fiber` | Declarative Three.js scene integration with React |
+| 3D utilities | `@react-three/drei` | Orbit controls and selected scene helpers |
+| Project persistence | Versioned JSON | Portable, local, reusable `InteriorProject` document |
+| Native persistence | Tauri dialog and filesystem plugins | Save, open, autosave, recovery, and image output |
+| PDF output | jsPDF | Technical sheets, reports, and project documents |
+| Unit testing | Vitest | Domain, geometry, validation, migration, and compiler tests |
+| End-to-end testing | Playwright, introduced during the MVP | Browser-surface Plan-to-Model-to-Render workflow testing |
+| Source and delivery | Git and GitHub | Branching, review, releases, and the web demonstration build |
+
+### CAD Approach
+
+The MVP does not use AutoCAD, OpenCASCADE, a CAD kernel, or a second geometry
+runtime. Its CAD-style authoring pipeline is:
+
+```mermaid
+flowchart LR
+    Project["InteriorProject JSON"] --> Geometry["Pure TypeScript Geometry and Constraints"]
+    Geometry --> Drafting["SVG Plan and Technical Drawings"]
+    Geometry --> Scene["Three.js Scene Compiler"]
+    Drafting --> Commands["Selection and Authoring Commands"]
+    Commands --> Project
+    Scene --> Preview["Interactive 3D"]
+    Scene --> Render["Presentation Render"]
+```
+
+Pure domain modules calculate walls, openings, footprints, measurements,
+dimensions, clearances, collision rules, parametric objects, and coordinate
+conversion. SVG is the 2D authoring surface because it provides crisp vector
+lines, selectable objects, printable output, and direct pointer interaction.
+
+Three.js is a visualization and rendering adapter. It must not become the
+source of room dimensions, object placement, or material assignments.
+
+### Rendering Tools
+
+The MVP uses the Three.js `WebGLRenderer` for both interactive preview and
+high-resolution image generation. The presentation pipeline will use:
+
+- `MeshStandardMaterial` and `MeshPhysicalMaterial`.
+- sRGB output and ACES filmic tone mapping.
+- Controlled exposure and physically credible roughness and metalness.
+- Directional, ambient, spot, and area-light recipes.
+- Soft shadows, ambient occlusion, and antialiasing.
+- Procedural wood, fabric, floor, wall, metal, glass, and rug appearance.
+- Camera recipes and offscreen 1920x1080 or 2560x1440 PNG rendering.
+
+Rendering must be accessed through a `RenderEngine` application contract. A
+future WebGPU, path-tracing, native, or cloud renderer can implement that
+contract without changing `InteriorProject` or the 2D authoring workflow.
+
+### State and Data
+
+Redux and a database are not required for this MVP.
+
+- React hooks own temporary interface state such as open panels and viewport zoom.
+- The command system owns persistent project mutations and undo/redo history.
+- `InteriorProject` remains the only saved design state.
+- Domain selectors derive room objects, cabinet lists, scene nodes, and reports.
+- Tauri writes project JSON, recovery snapshots, thumbnails, and exported images.
+- No feature may maintain separate editable copies of the 2D and 3D layout.
+
+### Furniture and Asset Strategy
+
+The MVP uses procedural, parametric furniture and locally generated material
+appearance. This keeps the first release deterministic, offline, legally safe,
+and compatible with the original no-external-model requirement.
+
+After the MVP proves the complete workflow, the asset layer may add:
+
+- Blender as an offline model-authoring and optimization tool.
+- Local glTF or GLB furniture assets.
+- Draco-compressed geometry.
+- KTX2-compressed PBR textures.
+- Licensed and versioned local asset packs.
+
+Blender and asset converters are build-time tools, not application runtime
+dependencies. Catalog IDs and material-slot IDs remain stable whether an object
+uses procedural geometry or a future GLB asset.
+
+### Post-MVP Extension Points
+
+| Future requirement | Extension approach |
+| --- | --- |
+| DXF or DWG exchange | Add import/export adapters around domain entities |
+| SketchUp content | Convert or import into catalog objects without changing project structure |
+| Higher-end rendering | Implement another `RenderEngine` adapter |
+| Cloud collaboration | Add a repository/synchronization adapter around project JSON |
+| Advanced manufacturing | Add machining, optimization, and machine-export domain modules |
+| Photorealistic libraries | Add a controlled local GLB and PBR asset pipeline |
+
+No post-MVP adapter may make a proprietary file format, rendering engine, or
+cloud service the source of project truth.
+
+### Tools Intentionally Excluded
+
+- Electron.
+- Unity or Unreal Engine.
+- Redux for project state.
+- Backend APIs, databases, authentication, or cloud services during the MVP.
+- OpenCASCADE or another CAD kernel.
+- Third-party UI component libraries.
+- Runtime dependence on Blender.
+- Unlicensed external textures or furniture models.
+
+### Stack Decision
+
+```text
+Tauri + React + TypeScript
+SVG for 2D CAD-style authoring
+Pure TypeScript for geometry and spatial rules
+Three.js + React Three Fiber for synchronized 3D
+Three.js WebGL for MVP presentation rendering
+Versioned InteriorProject JSON as the source of truth
+Vitest + Playwright for quality assurance
+Local-first filesystem persistence
+```
+
+This combination is sufficient for a production-quality living-room MVP and
+keeps clear upgrade paths for future rooms, cabinet engineering, richer assets,
+renderers, exchange formats, and manufacturing workflows.
 
 ## Development
 
