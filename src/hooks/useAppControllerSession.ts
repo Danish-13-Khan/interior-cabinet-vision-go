@@ -31,6 +31,7 @@ import { useRecentFiles } from "./useRecentFiles";
 import { loadInitialSessionState, useSessionPersist } from "./useSessionPersist";
 import { useProjectCommit } from "./useProjectCommit";
 import { useAppDerivedState } from "./useAppDerivedState";
+import { createLivingRoomPlanThumbnail } from "../domain/livingRoom";
 
 export function useAppControllerSession() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
@@ -150,7 +151,9 @@ export function useAppControllerSession() {
   } = useSavedProjectBrowser({
     project,
     room,
-    captureThumbnail: () => sceneRef.current?.captureThumbnail() ?? "",
+    captureThumbnail: () => project.interiorDocument
+      ? createLivingRoomPlanThumbnail(project.interiorDocument)
+      : sceneRef.current?.captureThumbnail() ?? "",
     applySnapshot,
     onStatus: setProjectStatus,
   });

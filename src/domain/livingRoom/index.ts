@@ -30,6 +30,16 @@ export {
   type RenderQualityPreset,
 } from "./renderStudio";
 export {
+  clearLivingRoomRecovery,
+  createLivingRoomPlanThumbnail,
+  createLivingRoomRecoverySnapshot,
+  interiorProjectFingerprint,
+  LIVING_ROOM_RECOVERY_STORAGE_KEY,
+  persistLivingRoomRecovery,
+  readLivingRoomRecovery,
+  type LivingRoomRecoverySnapshot,
+} from "./desktopExperience";
+export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";

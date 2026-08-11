@@ -59,10 +59,15 @@ export function useLivingRoomPlanEditor({
 }: UseLivingRoomPlanEditorArgs) {
   const document = currentLivingRoomDocument(project);
   const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
+  const [projectHomeOpen, setProjectHomeOpen] = useState(() => !document);
 
   useEffect(() => {
     const validIds = new Set(document?.objects.map((object) => object.id) ?? []);
     setSelectedObjectIds((current) => current.filter((id) => validIds.has(id)));
+  }, [document]);
+
+  useEffect(() => {
+    if (!document) setProjectHomeOpen(true);
   }, [document]);
 
   const selectedObjects = useMemo(
@@ -75,11 +80,18 @@ export function useLivingRoomPlanEditor({
     [document],
   );
 
-  function createStarter() {
-    const starter = createLivingRoomStarterProject({
+  function createStarter(options: {
+    projectName?: string;
+    styleId?: LivingRoomStyleId;
+  } = {}) {
+    const base = createLivingRoomStarterProject({
       projectId: `living-room-${Date.now()}`,
+      projectName: options.projectName,
       now: new Date().toISOString(),
     });
+    const starter = options.styleId && options.styleId !== "warm-contemporary"
+      ? applyLivingRoomStyle(base, options.styleId)
+      : base;
     const compatible = cabinetProjectFromInteriorProject(starter);
     commitSnapshot(
       {
@@ -92,6 +104,23 @@ export function useLivingRoomPlanEditor({
       "Created the Living Room Starter plan.",
     );
     setSelectedObjectIds([starter.objects[0]!.id]);
+    setProjectHomeOpen(false);
+  }
+
+  function restoreDocument(nextDocument: InteriorProject) {
+    const compatible = cabinetProjectFromInteriorProject(nextDocument);
+    commitSnapshot(
+      {
+        project: compatible.project,
+        room: compatible.room,
+        selectedCabinetIds: [],
+        activeCabinetId: null,
+        selectedPanelName: null,
+      },
+      `Opened ${nextDocument.name}.`,
+    );
+    setSelectedObjectIds(nextDocument.objects[0]?.id ? [nextDocument.objects[0].id] : []);
+    setProjectHomeOpen(false);
   }
 
   function commitDocument(
@@ -268,7 +297,11 @@ export function useLivingRoomPlanEditor({
     selectedInteriorObjectIds: selectedObjectIds,
     selectedInteriorObjects: selectedObjects,
     livingRoomIssues: issues,
+    livingRoomProjectHomeOpen: projectHomeOpen,
     createLivingRoomStarter: createStarter,
+    restoreLivingRoomDocument: restoreDocument,
+    openLivingRoomProjectHome: () => setProjectHomeOpen(true),
+    closeLivingRoomProjectHome: () => setProjectHomeOpen(false),
     selectInteriorObject: selectObject,
     moveInteriorObject: moveObject,
     resizeInteriorObject: resizeObject,
