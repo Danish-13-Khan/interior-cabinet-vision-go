@@ -228,6 +228,8 @@ the 3D view.
 
 ### LR-04 - Deterministic Scene Compilation
 
+**Status:** Complete (August 11, 2026)
+
 Add object adapters, procedural geometry, material resolution, geometry caches,
 safe placeholders, and synchronized selection/transforms between 2D and 3D.
 

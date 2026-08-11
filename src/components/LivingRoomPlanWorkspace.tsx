@@ -11,6 +11,7 @@ import {
   type LivingRoomCatalogId,
   type LivingRoomPlanIssue,
 } from "../domain/livingRoom";
+import { LivingRoomModelView } from "./LivingRoomModelView";
 import { LivingRoomPlanView } from "./LivingRoomPlanView";
 
 type LivingRoomPlanWorkspaceProps = {
@@ -82,6 +83,7 @@ function NumberField({
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
+  const [workspaceView, setWorkspaceView] = useState<"plan" | "model">("plan");
   const activeObject = props.selectedObjects[0] ?? null;
   const room = props.project?.rooms.find(
     (item) => item.id === props.project?.activeRoomId,
@@ -202,7 +204,23 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             </button>
           </div>
           <div className="lr-toolbar-group lr-toolbar-view">
-            <span>Drafting</span>
+            <span>View</span>
+            <div className="lr-view-switch" role="group" aria-label="Interior workspace view">
+              <button
+                type="button"
+                className={workspaceView === "plan" ? "is-active" : ""}
+                onClick={() => setWorkspaceView("plan")}
+              >
+                Plan
+              </button>
+              <button
+                type="button"
+                className={workspaceView === "model" ? "is-active" : ""}
+                onClick={() => setWorkspaceView("model")}
+              >
+                Model
+              </button>
+            </div>
             <label>
               <input
                 type="checkbox"
@@ -218,25 +236,36 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           </div>
         </header>
         <div className="lr-plan-titlebar">
-          <strong>PLAN · LIVING ROOM</strong>
+          <strong>{workspaceView === "plan" ? "PLAN" : "MODEL"} · LIVING ROOM</strong>
           <span>{props.project.objects.length} objects · {props.selectedIds.length} selected</span>
-          <small>Scale: Fit · Units: mm</small>
+          <small>{workspaceView === "plan" ? "Scale: Fit" : "Perspective"} · Units: mm</small>
         </div>
         <div className="lr-plan-canvas">
-          <LivingRoomPlanView
-            project={props.project}
-            selectedIds={props.selectedIds}
-            issues={props.issues}
-            snapSizeMm={snapSizeMm}
-            showGrid={showGrid}
-            onSelect={props.onSelect}
-            onMove={props.onMove}
-            onResize={props.onResize}
-          />
+          {workspaceView === "plan" ? (
+            <LivingRoomPlanView
+              project={props.project}
+              selectedIds={props.selectedIds}
+              issues={props.issues}
+              snapSizeMm={snapSizeMm}
+              showGrid={showGrid}
+              onSelect={props.onSelect}
+              onMove={props.onMove}
+              onResize={props.onResize}
+            />
+          ) : (
+            <LivingRoomModelView
+              project={props.project}
+              selectedIds={props.selectedIds}
+              snapSizeMm={snapSizeMm}
+              showGrid={showGrid}
+              onSelect={props.onSelect}
+              onMove={props.onMove}
+            />
+          )}
         </div>
         <footer className="lr-plan-status">
           <span>SNAP {snapSizeMm}</span>
-          <span>ORTHO ON</span>
+          <span>{workspaceView === "plan" ? "ORTHO ON" : "ORBIT READY"}</span>
           <span>GRID {showGrid ? "ON" : "OFF"}</span>
           <span className={props.issues.length ? "has-warning" : ""}>
             {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
