@@ -196,6 +196,8 @@ asset pipelines belong after the complete authoring workflow is proven.
 
 ### LR-01 - Universal Project Spine
 
+**Status:** Complete (August 11, 2026)
+
 Introduce the versioned `InteriorProject`, stable entity IDs, runtime
 validation, migrations, cabinet compatibility selectors, and safe JSON
 round-tripping.
