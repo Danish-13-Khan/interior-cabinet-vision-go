@@ -102,7 +102,12 @@ export function AppStatusDock({
 }: AppStatusDockProps) {
   const job = clampJobMeta(project.job);
   const sheets = getProjectSheetSet(project).sheets;
-  const selectionSummary = selectedCabinet
+  const interiorObjectCount = project.interiorDocument?.objects.length ?? 0;
+  const selectionSummary = workbenchMode === "interiors"
+    ? selectedCabinetIds.length > 0
+      ? `${selectedCabinetIds.length} interior object${selectedCabinetIds.length === 1 ? "" : "s"} selected`
+      : "No interior selection"
+    : selectedCabinet
     ? `${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm`
     : selectedCabinetIds.length > 1
       ? `${selectedCabinetIds.length} selected`
@@ -116,7 +121,7 @@ export function AppStatusDock({
         workspaceLabel={workspaceLabel}
         jobTitle={formatJobTitle(job)}
         jobStatusLabel={JOB_STATUS_LABELS[job.status]}
-        cabinetCount={project.cabinets.length}
+        cabinetCount={workbenchMode === "interiors" ? interiorObjectCount : project.cabinets.length}
         selectionSummary={selectionSummary}
         validationMessages={validationMessages}
         hud={hud}

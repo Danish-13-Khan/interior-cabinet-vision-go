@@ -20,6 +20,7 @@ import { useAppControllerSession } from "./useAppControllerSession";
 import { useSceneTreeOps } from "./useSceneTreeOps";
 import { useSheetDocumentOps } from "./useSheetDocumentOps";
 import type { DrawingSheetId } from "../domain/drawingSheets";
+import { useLivingRoomPlanEditor } from "./useLivingRoomPlanEditor";
 
 export function useAppController() {
   const s = useAppControllerSession();
@@ -113,6 +114,13 @@ export function useAppController() {
     commitProjectChange: s.commitProjectChange,
     setDraftingTool: s.setDraftingTool,
     onStatus: s.setProjectStatus,
+  });
+
+  const livingRoom = useLivingRoomPlanEditor({
+    project: s.project,
+    room: s.room,
+    commitProjectChange: s.commitProjectChange,
+    commitSnapshot: s.commitSnapshot,
   });
 
   const menus = useAppContextMenus({
@@ -240,6 +248,7 @@ export function useAppController() {
     ...sheets,
     ...review,
     ...preferences,
+    ...livingRoom,
     ...menus,
     closeCommandSurfaces,
     commandItems,

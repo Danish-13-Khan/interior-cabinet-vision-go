@@ -5,6 +5,7 @@ import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
 import { ReportCenter } from "./components/ReportCenter";
 import { JobWorkspace } from "./components/JobWorkspace";
+import { LivingRoomPlanWorkspace } from "./components/LivingRoomPlanWorkspace";
 import { createWallLayoutSummary, type WallLayoutSide } from "./domain/wallLayout";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
@@ -62,6 +63,11 @@ function App() {
     } else if (mode === "drawings") {
       patch.sheetBrowserVisible = true;
       patch.sceneBrowserVisible = false;
+    } else if (mode === "interiors") {
+      patch.workspaceTab = "plan";
+      patch.sceneBrowserVisible = false;
+      patch.sheetBrowserVisible = false;
+      if (!c.livingRoomDocument) c.createLivingRoomStarter();
     }
     c.setLayout(patch);
     c.setDraftingTool("select");
@@ -180,6 +186,34 @@ function App() {
             onOpen={c.handleLoadProject}
             onSave={c.handleSaveProject}
             onNavigate={handleWorkbenchModeChange}
+          />
+        )}
+        interiorWorkspace={(
+          <LivingRoomPlanWorkspace
+            project={c.livingRoomDocument}
+            selectedIds={c.selectedInteriorObjectIds}
+            selectedObjects={c.selectedInteriorObjects}
+            issues={c.livingRoomIssues}
+            canUndo={c.canUndo}
+            canRedo={c.canRedo}
+            toolRailVisible={c.layout.toolRailVisible}
+            inspectorVisible={c.layout.inspectorVisible}
+            toolRailWidthPx={c.layout.toolRailWidthPx}
+            inspectorWidthPx={c.layout.inspectorWidthPx}
+            onCreateStarter={c.createLivingRoomStarter}
+            onSelect={c.selectInteriorObject}
+            onMove={c.moveInteriorObject}
+            onResize={c.resizeInteriorObject}
+            onSetRotation={c.setInteriorObjectRotation}
+            onRotateSelection={c.rotateInteriorSelection}
+            onAddCatalogObject={c.addLivingRoomCatalogObject}
+            onDuplicate={c.duplicateInteriorSelection}
+            onDelete={c.deleteInteriorSelection}
+            onAlign={c.alignInteriorSelection}
+            onNudge={c.nudgeInteriorSelection}
+            onRoomDimensions={c.setLivingRoomDimensions}
+            onUndo={c.handleUndo}
+            onRedo={c.handleRedo}
           />
         )}
         toolRailVisible={c.layout.toolRailVisible}
@@ -482,8 +516,16 @@ function App() {
         projectStatus={c.projectStatus}
         workspaceLabel={WORKBENCH_LABELS[workbenchMode]}
         selectedCabinet={c.selectedCabinet}
-        selectedCabinetIds={c.selectedCabinetIds}
-        validationMessages={c.validationMessages}
+        selectedCabinetIds={
+          workbenchMode === "interiors"
+            ? c.selectedInteriorObjectIds
+            : c.selectedCabinetIds
+        }
+        validationMessages={
+          workbenchMode === "interiors"
+            ? c.livingRoomIssues.map((issue) => issue.message)
+            : c.validationMessages
+        }
         statusDockOpen={false}
         dockHeightPx={c.layout.statusDockHeightPx}
         onToggleStatusDock={() => handleWorkbenchModeChange("reports")}

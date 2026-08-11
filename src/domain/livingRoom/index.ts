@@ -28,4 +28,30 @@ export {
   LIVING_ROOM_PRESET_VERSION,
   type LivingRoomStarterOptions,
 } from "./preset";
-
+export {
+  boundsDistance,
+  boundsOverlap,
+  getObjectPlanBounds,
+  getRoomPlanBounds,
+  type PlanBounds,
+} from "./planGeometry";
+export {
+  snapLivingRoomObject,
+  type PlanSnapGuide,
+  type PlanSnapResult,
+} from "./planSnapping";
+export {
+  inspectLivingRoomPlan,
+  type LivingRoomPlanIssue,
+} from "./planConstraints";
+export {
+  addLivingRoomObject,
+  alignLivingRoomObjects,
+  deleteLivingRoomObjects,
+  duplicateLivingRoomObject,
+  moveLivingRoomObject,
+  resizeLivingRoom,
+  resizeLivingRoomObject,
+  rotateLivingRoomObject,
+  type LivingRoomAlignMode,
+} from "./planCommands";

@@ -105,29 +105,29 @@ const OBJECT_LAYOUT: readonly {
   {
     key: "sofa",
     catalogItemId: "living:sofa-3-seat",
-    position: { x: 0, y: 0, z: 980 },
+    position: { x: 0, y: 0, z: 1150 },
     rotationY: 180,
   },
   {
     key: "lounge-chair",
     catalogItemId: "living:lounge-chair",
-    position: { x: -1850, y: 0, z: 300 },
+    position: { x: -2100, y: 0, z: 300 },
     rotationY: 45,
   },
   {
     key: "coffee-table",
     catalogItemId: "living:coffee-table",
-    position: { x: 0, y: 0, z: 120 },
+    position: { x: 0, y: 0, z: -50 },
   },
   {
     key: "side-table",
     catalogItemId: "living:side-table",
-    position: { x: 1500, y: 0, z: 930 },
+    position: { x: 1700, y: 0, z: 930 },
   },
   {
     key: "tv-unit",
     catalogItemId: "living:tv-unit",
-    position: { x: 0, y: 0, z: -2020 },
+    position: { x: 0, y: 0, z: -1950 },
   },
   {
     key: "area-rug",
@@ -143,7 +143,7 @@ const OBJECT_LAYOUT: readonly {
   {
     key: "floor-lamp",
     catalogItemId: "living:floor-lamp",
-    position: { x: 2250, y: 0, z: 1350 },
+    position: { x: 2500, y: 0, z: 700 },
   },
 ];
 

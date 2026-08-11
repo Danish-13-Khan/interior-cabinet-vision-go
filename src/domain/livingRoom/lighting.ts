@@ -64,7 +64,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
         key: "floor-lamp",
         name: "Floor Lamp Glow",
         kind: "point",
-        position: { x: 2250, y: 1420, z: 1350 },
+        position: { x: 2500, y: 1420, z: 700 },
         color: "#ffc17a",
         intensity: 7.5,
         parameters: { rangeMm: 3200 },
