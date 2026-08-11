@@ -6,6 +6,7 @@ import type {
   RenderSettings,
   Size3Mm,
 } from "../domain/interiorProject";
+import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
 import {
   LIVING_ROOM_CATALOG,
   type LivingRoomAlignMode,
@@ -13,11 +14,13 @@ import {
   type LivingRoomLightingRecipeId,
   type LivingRoomPlanIssue,
   type LivingRoomRenderResult,
+  type LivingRoomRecoverySnapshot,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { LivingRoomModelView } from "./LivingRoomModelView";
 import { LivingRoomPlanView } from "./LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "./LivingRoomRenderStudio";
+import { LivingRoomProjectHome } from "./LivingRoomProjectHome";
 
 type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -30,7 +33,19 @@ type LivingRoomPlanWorkspaceProps = {
   inspectorVisible: boolean;
   toolRailWidthPx: number;
   inspectorWidthPx: number;
-  onCreateStarter: () => void;
+  projectHomeOpen: boolean;
+  isDirty: boolean;
+  autosaveState: "idle" | "saving" | "saved" | "error";
+  lastAutosavedAt: string | null;
+  recovery: LivingRoomRecoverySnapshot | null;
+  recentProjects: SavedProjectBrowserEntry[];
+  onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId }) => void;
+  onOpenProjectHome: () => void;
+  onCloseProjectHome: () => void;
+  onOpenRecentProject: (projectId: string) => void;
+  onDeleteRecentProject: (projectId: string) => void;
+  onRestoreRecovery: () => void;
+  onDiscardRecovery: () => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
@@ -105,6 +120,22 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     function handleKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select")) return;
+      if (props.projectHomeOpen) return;
+      if (event.key === "1") {
+        event.preventDefault();
+        setWorkspaceView("plan");
+        return;
+      }
+      if (event.key === "2") {
+        event.preventDefault();
+        setWorkspaceView("model");
+        return;
+      }
+      if (event.key === "3") {
+        event.preventDefault();
+        setWorkspaceView("render");
+        return;
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
         event.preventDefault();
         props.onDuplicate();
@@ -137,12 +168,19 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   if (!props.project || !room) {
     return (
       <section className="lr-empty-workspace">
-        <div>
-          <span>INTERIOR PLAN</span>
-          <h1>Living Room Starter</h1>
-          <p>Create the deterministic LR-02 room and begin accurate plan-first layout.</p>
-          <button type="button" onClick={props.onCreateStarter}>Create Living Room Plan</button>
-        </div>
+        <LivingRoomProjectHome
+          open
+          hasCurrentProject={false}
+          isDirty={props.isDirty}
+          recentProjects={props.recentProjects}
+          recovery={props.recovery}
+          onClose={props.onCloseProjectHome}
+          onCreate={(options) => props.onCreateStarter(options)}
+          onOpenRecent={props.onOpenRecentProject}
+          onDeleteRecent={props.onDeleteRecentProject}
+          onRestoreRecovery={props.onRestoreRecovery}
+          onDiscardRecovery={props.onDiscardRecovery}
+        />
       </section>
     );
   }
@@ -159,6 +197,22 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   return (
     <section className="lr-plan-shell">
+      <LivingRoomProjectHome
+        open={props.projectHomeOpen}
+        hasCurrentProject
+        isDirty={props.isDirty}
+        recentProjects={props.recentProjects}
+        recovery={props.recovery}
+        onClose={props.onCloseProjectHome}
+        onCreate={(options) => props.onCreateStarter(options)}
+        onOpenRecent={(projectId) => {
+          props.onOpenRecentProject(projectId);
+          props.onCloseProjectHome();
+        }}
+        onDeleteRecent={props.onDeleteRecentProject}
+        onRestoreRecovery={props.onRestoreRecovery}
+        onDiscardRecovery={props.onDiscardRecovery}
+      />
       {props.toolRailVisible && workspaceView !== "render" ? (
         <aside className="lr-catalog" style={{ width: props.toolRailWidthPx }}>
           <div className="context-panel-heading">
@@ -192,6 +246,13 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
       <div className="lr-plan-center">
         <header className="lr-plan-toolbar">
+          <div className="lr-toolbar-group lr-toolbar-project">
+            <span>Project</span>
+            <button type="button" onClick={props.onOpenProjectHome}>Home</button>
+            <small className={props.isDirty ? "is-dirty" : ""}>
+              {props.isDirty ? "● Unsaved" : "✓ Saved"}
+            </small>
+          </div>
           {workspaceView !== "render" ? (
             <>
               <div className="lr-toolbar-group">
@@ -223,21 +284,21 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
                 className={workspaceView === "plan" ? "is-active" : ""}
                 onClick={() => setWorkspaceView("plan")}
               >
-                Plan
+                Plan <kbd>1</kbd>
               </button>
               <button
                 type="button"
                 className={workspaceView === "model" ? "is-active" : ""}
                 onClick={() => setWorkspaceView("model")}
               >
-                Model
+                Model <kbd>2</kbd>
               </button>
               <button
                 type="button"
                 className={workspaceView === "render" ? "is-active" : ""}
                 onClick={() => setWorkspaceView("render")}
               >
-                Render
+                Render <kbd>3</kbd>
               </button>
             </div>
             {workspaceView !== "render" ? (
@@ -260,7 +321,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         </header>
         <div className="lr-plan-titlebar">
           <strong>{workspaceView.toUpperCase()} · LIVING ROOM</strong>
-          <span>{props.project.objects.length} objects · {props.selectedIds.length} selected</span>
+          <span>{props.project.name} · {props.project.objects.length} objects · {props.selectedIds.length} selected</span>
           <small>{workspaceView === "plan" ? "Scale: Fit" : workspaceView === "model" ? "Perspective" : "Presentation Output"} · Units: mm</small>
         </div>
         <div className="lr-plan-canvas">
@@ -305,6 +366,15 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           <span>{workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `GRID ${showGrid ? "ON" : "OFF"}`}</span>
           <span className={props.issues.length ? "has-warning" : ""}>
             {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
+          </span>
+          <span className={`lr-autosave-state is-${props.autosaveState}`}>
+            {props.autosaveState === "saving"
+              ? "AUTOSAVING…"
+              : props.autosaveState === "error"
+                ? "AUTOSAVE FAILED"
+                : props.lastAutosavedAt
+                  ? `AUTOSAVED ${new Date(props.lastAutosavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                  : "AUTOSAVE READY"}
           </span>
         </footer>
       </div>

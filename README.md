@@ -259,6 +259,8 @@ scene visible in the editor.
 
 ### LR-07 - Production Desktop Experience
 
+**Status:** Complete (August 12, 2026)
+
 Add a new-project wizard, preset previews, Plan/Model/Render workspaces,
 autosave, recovery, recent projects, dirty-state feedback, thumbnails,
 shortcuts, and useful empty/error states.

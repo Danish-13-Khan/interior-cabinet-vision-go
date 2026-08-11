@@ -67,7 +67,7 @@ function App() {
       patch.workspaceTab = "plan";
       patch.sceneBrowserVisible = false;
       patch.sheetBrowserVisible = false;
-      if (!c.livingRoomDocument) c.createLivingRoomStarter();
+      if (!c.livingRoomDocument) c.openLivingRoomProjectHome();
     }
     c.setLayout(patch);
     c.setDraftingTool("select");
@@ -100,7 +100,8 @@ function App() {
         toolRailVisible={c.layout.toolRailVisible}
         inspectorVisible={c.layout.inspectorVisible}
         recentFiles={c.recentFiles}
-        onNew={c.handleReset}
+        isDirty={c.isProjectDirty}
+        onNew={workbenchMode === "interiors" ? c.openLivingRoomProjectHome : c.handleReset}
         onOpen={c.handleLoadProject}
         onSave={c.handleSaveProject}
         onOpenRecent={(path) => { void c.handleOpenRecentFile(path); }}
@@ -200,7 +201,29 @@ function App() {
             inspectorVisible={c.layout.inspectorVisible}
             toolRailWidthPx={c.layout.toolRailWidthPx}
             inspectorWidthPx={c.layout.inspectorWidthPx}
-            onCreateStarter={c.createLivingRoomStarter}
+            projectHomeOpen={c.livingRoomProjectHomeOpen}
+            isDirty={c.isProjectDirty}
+            autosaveState={c.autosaveState}
+            lastAutosavedAt={c.lastAutosavedAt}
+            recovery={c.recovery}
+            recentProjects={c.sortedSavedProjects}
+            onCreateStarter={(options) => {
+              c.setProjectFilePath(null);
+              c.createLivingRoomStarter(options);
+            }}
+            onOpenProjectHome={c.openLivingRoomProjectHome}
+            onCloseProjectHome={c.closeLivingRoomProjectHome}
+            onOpenRecentProject={(projectId) => {
+              c.setProjectFilePath(null);
+              c.handleLoadSavedProject(projectId);
+              c.closeLivingRoomProjectHome();
+            }}
+            onDeleteRecentProject={c.handleDeleteSavedProject}
+            onRestoreRecovery={() => {
+              c.setProjectFilePath(null);
+              c.restoreRecovery();
+            }}
+            onDiscardRecovery={c.discardRecovery}
             onSelect={c.selectInteriorObject}
             onMove={c.moveInteriorObject}
             onResize={c.resizeInteriorObject}

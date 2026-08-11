@@ -21,6 +21,7 @@ import { useSceneTreeOps } from "./useSceneTreeOps";
 import { useSheetDocumentOps } from "./useSheetDocumentOps";
 import type { DrawingSheetId } from "../domain/drawingSheets";
 import { useLivingRoomPlanEditor } from "./useLivingRoomPlanEditor";
+import { useLivingRoomRecovery } from "./useLivingRoomRecovery";
 
 export function useAppController() {
   const s = useAppControllerSession();
@@ -121,6 +122,13 @@ export function useAppController() {
     room: s.room,
     commitProjectChange: s.commitProjectChange,
     commitSnapshot: s.commitSnapshot,
+  });
+
+  const livingRoomRecovery = useLivingRoomRecovery({
+    project: livingRoom.livingRoomDocument,
+    isDirty: fileIo.isProjectDirty,
+    onRestore: livingRoom.restoreLivingRoomDocument,
+    onStatus: s.setProjectStatus,
   });
 
   const menus = useAppContextMenus({
@@ -249,6 +257,7 @@ export function useAppController() {
     ...review,
     ...preferences,
     ...livingRoom,
+    ...livingRoomRecovery,
     ...menus,
     closeCommandSurfaces,
     commandItems,

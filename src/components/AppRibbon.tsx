@@ -19,6 +19,7 @@ type AppRibbonProps = {
   toolRailVisible: boolean;
   inspectorVisible: boolean;
   recentFiles: RecentFileEntry[];
+  isDirty: boolean;
   onNew: () => void;
   onOpen: () => void;
   onSave: () => void;
@@ -54,6 +55,7 @@ export function AppRibbon({
   toolRailVisible,
   inspectorVisible,
   recentFiles,
+  isDirty,
   onNew,
   onOpen,
   onSave,
@@ -82,7 +84,7 @@ export function AppRibbon({
     <header className="app-ribbon" aria-label="Command ribbon">
       <div className="ribbon-brand">
         <strong>Cabinet Designer</strong>
-        <span>{WORKBENCH_LABELS[workbenchMode]} · {workspaceLabel}</span>
+        <span>{WORKBENCH_LABELS[workbenchMode]} · {workspaceLabel}{isDirty ? " · Unsaved" : ""}</span>
       </div>
 
       <nav className="ribbon-workbenches" aria-label="Application workspaces">
@@ -154,8 +156,8 @@ export function AppRibbon({
               </div>
             ) : null}
           </div>
-          <button type="button" className="tb-btn" onClick={onSave} title="Save JSON file">
-            Save
+          <button type="button" className={`tb-btn ${isDirty ? "tb-accent" : ""}`} onClick={onSave} title="Save JSON file">
+            {isDirty ? "Save *" : "Save"}
           </button>
         </div>
       </div>
