@@ -3,17 +3,21 @@ import type {
   InteriorObjectEntity,
   InteriorProject,
   Point3Mm,
+  RenderSettings,
   Size3Mm,
 } from "../domain/interiorProject";
 import {
   LIVING_ROOM_CATALOG,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
+  type LivingRoomLightingRecipeId,
   type LivingRoomPlanIssue,
+  type LivingRoomRenderResult,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { LivingRoomModelView } from "./LivingRoomModelView";
 import { LivingRoomPlanView } from "./LivingRoomPlanView";
+import { LivingRoomRenderStudio } from "./LivingRoomRenderStudio";
 
 type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -39,6 +43,8 @@ type LivingRoomPlanWorkspaceProps = {
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
+  onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
+  onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onUndo: () => void;
   onRedo: () => void;
 };
@@ -85,7 +91,11 @@ function NumberField({
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
-  const [workspaceView, setWorkspaceView] = useState<"plan" | "model">("plan");
+  const [workspaceView, setWorkspaceView] = useState<"plan" | "model" | "render">("plan");
+  const [renderResults, setRenderResults] = useState<{
+    latest: LivingRoomRenderResult | null;
+    previous: LivingRoomRenderResult | null;
+  }>({ latest: null, previous: null });
   const activeObject = props.selectedObjects[0] ?? null;
   const room = props.project?.rooms.find(
     (item) => item.id === props.project?.activeRoomId,
@@ -120,6 +130,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [props, snapSizeMm]);
 
+  useEffect(() => {
+    setRenderResults({ latest: null, previous: null });
+  }, [props.project?.id]);
+
   if (!props.project || !room) {
     return (
       <section className="lr-empty-workspace">
@@ -145,7 +159,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   return (
     <section className="lr-plan-shell">
-      {props.toolRailVisible ? (
+      {props.toolRailVisible && workspaceView !== "render" ? (
         <aside className="lr-catalog" style={{ width: props.toolRailWidthPx }}>
           <div className="context-panel-heading">
             <strong>Living Room Catalog</strong>
@@ -178,33 +192,29 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
       <div className="lr-plan-center">
         <header className="lr-plan-toolbar">
-          <div className="lr-toolbar-group">
-            <span>Edit</span>
-            <button type="button" onClick={props.onUndo} disabled={!props.canUndo}>Undo</button>
-            <button type="button" onClick={props.onRedo} disabled={!props.canRedo}>Redo</button>
-            <button type="button" onClick={props.onDuplicate} disabled={!activeObject}>Duplicate</button>
-            <button type="button" onClick={props.onDelete} disabled={!activeObject}>Delete</button>
-          </div>
-          <div className="lr-toolbar-group">
-            <span>Transform</span>
-            <button type="button" onClick={() => props.onRotateSelection(-90)} disabled={!activeObject}>↶ 90°</button>
-            <button type="button" onClick={() => props.onRotateSelection(90)} disabled={!activeObject}>↷ 90°</button>
-          </div>
-          <div className="lr-toolbar-group">
-            <span>Align</span>
-            <button type="button" onClick={() => props.onAlign("left")} disabled={props.selectedIds.length < 2}>
-              Left
-            </button>
-            <button type="button" onClick={() => props.onAlign("center-x")} disabled={props.selectedIds.length < 2}>
-              Center
-            </button>
-            <button type="button" onClick={() => props.onAlign("center-z")} disabled={props.selectedIds.length < 2}>
-              Middle
-            </button>
-            <button type="button" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>
-              Distribute
-            </button>
-          </div>
+          {workspaceView !== "render" ? (
+            <>
+              <div className="lr-toolbar-group">
+                <span>Edit</span>
+                <button type="button" onClick={props.onUndo} disabled={!props.canUndo}>Undo</button>
+                <button type="button" onClick={props.onRedo} disabled={!props.canRedo}>Redo</button>
+                <button type="button" onClick={props.onDuplicate} disabled={!activeObject}>Duplicate</button>
+                <button type="button" onClick={props.onDelete} disabled={!activeObject}>Delete</button>
+              </div>
+              <div className="lr-toolbar-group">
+                <span>Transform</span>
+                <button type="button" onClick={() => props.onRotateSelection(-90)} disabled={!activeObject}>↶ 90°</button>
+                <button type="button" onClick={() => props.onRotateSelection(90)} disabled={!activeObject}>↷ 90°</button>
+              </div>
+              <div className="lr-toolbar-group">
+                <span>Align</span>
+                <button type="button" onClick={() => props.onAlign("left")} disabled={props.selectedIds.length < 2}>Left</button>
+                <button type="button" onClick={() => props.onAlign("center-x")} disabled={props.selectedIds.length < 2}>Center</button>
+                <button type="button" onClick={() => props.onAlign("center-z")} disabled={props.selectedIds.length < 2}>Middle</button>
+                <button type="button" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>Distribute</button>
+              </div>
+            </>
+          ) : null}
           <div className="lr-toolbar-group lr-toolbar-view">
             <span>View</span>
             <div className="lr-view-switch" role="group" aria-label="Interior workspace view">
@@ -222,25 +232,36 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               >
                 Model
               </button>
+              <button
+                type="button"
+                className={workspaceView === "render" ? "is-active" : ""}
+                onClick={() => setWorkspaceView("render")}
+              >
+                Render
+              </button>
             </div>
-            <label>
-              <input
-                type="checkbox"
-                checked={showGrid}
-                onChange={(event) => setShowGrid(event.target.checked)}
-              /> Grid
-            </label>
-            <select value={snapSizeMm} onChange={(event) => setSnapSizeMm(Number(event.target.value))}>
-              <option value="25">25 mm</option>
-              <option value="50">50 mm</option>
-              <option value="100">100 mm</option>
-            </select>
+            {workspaceView !== "render" ? (
+              <>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showGrid}
+                    onChange={(event) => setShowGrid(event.target.checked)}
+                  /> Grid
+                </label>
+                <select value={snapSizeMm} onChange={(event) => setSnapSizeMm(Number(event.target.value))}>
+                  <option value="25">25 mm</option>
+                  <option value="50">50 mm</option>
+                  <option value="100">100 mm</option>
+                </select>
+              </>
+            ) : null}
           </div>
         </header>
         <div className="lr-plan-titlebar">
-          <strong>{workspaceView === "plan" ? "PLAN" : "MODEL"} · LIVING ROOM</strong>
+          <strong>{workspaceView.toUpperCase()} · LIVING ROOM</strong>
           <span>{props.project.objects.length} objects · {props.selectedIds.length} selected</span>
-          <small>{workspaceView === "plan" ? "Scale: Fit" : "Perspective"} · Units: mm</small>
+          <small>{workspaceView === "plan" ? "Scale: Fit" : workspaceView === "model" ? "Perspective" : "Presentation Output"} · Units: mm</small>
         </div>
         <div className="lr-plan-canvas">
           {workspaceView === "plan" ? (
@@ -254,7 +275,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               onMove={props.onMove}
               onResize={props.onResize}
             />
-          ) : (
+          ) : workspaceView === "model" ? (
             <LivingRoomModelView
               project={props.project}
               selectedIds={props.selectedIds}
@@ -264,19 +285,31 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               onMove={props.onMove}
               onApplyStyle={props.onApplyStyle}
             />
+          ) : (
+            <LivingRoomRenderStudio
+              project={props.project}
+              latestResult={renderResults.latest}
+              previousResult={renderResults.previous}
+              onRendered={(result) => setRenderResults((current) => ({
+                latest: result,
+                previous: current.latest,
+              }))}
+              onSettingsChange={props.onRenderSettingsChange}
+              onLightingChange={props.onLightingChange}
+            />
           )}
         </div>
         <footer className="lr-plan-status">
-          <span>SNAP {snapSizeMm}</span>
-          <span>{workspaceView === "plan" ? "ORTHO ON" : "ORBIT READY"}</span>
-          <span>GRID {showGrid ? "ON" : "OFF"}</span>
+          <span>{workspaceView === "render" ? "OUTPUT PNG" : `SNAP ${snapSizeMm}`}</span>
+          <span>{workspaceView === "plan" ? "ORTHO ON" : workspaceView === "model" ? "ORBIT READY" : "ACES / SRGB"}</span>
+          <span>{workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `GRID ${showGrid ? "ON" : "OFF"}`}</span>
           <span className={props.issues.length ? "has-warning" : ""}>
             {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
           </span>
         </footer>
       </div>
 
-      {props.inspectorVisible ? (
+      {props.inspectorVisible && workspaceView !== "render" ? (
         <aside className="lr-inspector" style={{ width: props.inspectorWidthPx }}>
           <div className="inspector-header">
             <strong>Plan Properties</strong>

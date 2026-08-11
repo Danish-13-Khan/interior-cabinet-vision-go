@@ -248,6 +248,8 @@ viewport without relying on external textures or models.
 
 ### LR-06 - Render Studio
 
+**Status:** Complete (August 12, 2026)
+
 Create a dedicated render workspace with camera thumbnails, quality presets,
 lighting selection, exposure, output size, progress, cancellation, retry, image
 comparison, and PNG export.

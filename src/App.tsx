@@ -213,6 +213,8 @@ function App() {
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onApplyStyle={c.setLivingRoomStyle}
+            onRenderSettingsChange={c.setLivingRoomRenderSettings}
+            onLightingChange={c.setLivingRoomLightingRecipe}
             onUndo={c.handleUndo}
             onRedo={c.handleRedo}
           />

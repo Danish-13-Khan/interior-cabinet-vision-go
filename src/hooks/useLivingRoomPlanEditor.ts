@@ -4,11 +4,13 @@ import {
   cabinetProjectFromInteriorProject,
   type InteriorProject,
   type Point3Mm,
+  type RenderSettings,
   type Size3Mm,
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
   alignLivingRoomObjects,
+  applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
   createLivingRoomObject,
   createLivingRoomStarterProject,
@@ -23,6 +25,7 @@ import {
   rotateLivingRoomObject,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
+  type LivingRoomLightingRecipeId,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
@@ -237,6 +240,29 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function setRenderSettings(patch: Partial<RenderSettings>) {
+    if (!document) return;
+    const changed = Object.entries(patch).some(
+      ([key, value]) => document.renderSettings[key as keyof RenderSettings] !== value,
+    );
+    if (!changed) return;
+    commitDocument(
+      (current) => ({
+        ...current,
+        renderSettings: { ...current.renderSettings, ...patch },
+      }),
+      "Updated Render Studio settings.",
+    );
+  }
+
+  function setLightingRecipe(recipeId: LivingRoomLightingRecipeId) {
+    if (!document || document.renderSettings.lightingRecipeId === recipeId) return;
+    commitDocument(
+      (current) => applyLivingRoomLightingRecipe(current, recipeId),
+      `Applied ${recipeId.split("-").join(" ")} lighting.`,
+    );
+  }
+
   return {
     livingRoomDocument: document,
     selectedInteriorObjectIds: selectedObjectIds,
@@ -255,6 +281,8 @@ export function useLivingRoomPlanEditor({
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
     setLivingRoomStyle: setStyle,
+    setLivingRoomRenderSettings: setRenderSettings,
+    setLivingRoomLightingRecipe: setLightingRecipe,
     currentCompatibilityRoom: room,
   };
 }
