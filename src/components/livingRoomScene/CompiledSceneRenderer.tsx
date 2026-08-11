@@ -1,9 +1,12 @@
-import { Edges, Html, OrbitControls } from "@react-three/drei";
+import { ContactShadows, Edges, Html, OrbitControls } from "@react-three/drei";
 import { type ThreeEvent, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import {
   MOUSE,
+  ACESFilmicToneMapping,
+  PCFSoftShadowMap,
   Plane,
+  SRGBColorSpace,
   Vector3,
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -271,6 +274,17 @@ function CompiledLights({ scene }: { scene: CompiledLivingRoomScene }) {
   );
 }
 
+function RendererColorPipeline({ scene }: { scene: CompiledLivingRoomScene }) {
+  const { gl } = useThree();
+  useEffect(() => {
+    gl.outputColorSpace = SRGBColorSpace;
+    gl.toneMapping = ACESFilmicToneMapping;
+    gl.toneMappingExposure = scene.style.colorManagement.exposure;
+    gl.shadowMap.type = PCFSoftShadowMap;
+  }, [gl, scene.style.colorManagement]);
+  return null;
+}
+
 export function CompiledSceneRenderer({
   scene,
   selectedIds,
@@ -291,14 +305,21 @@ export function CompiledSceneRenderer({
       ].includes(String(node.metadata.role)) || !["front", "right"].includes(String(node.metadata.wallSide)))
     : scene.nodes;
   const roomSpan = Math.max(scene.bounds.size.widthMm, scene.bounds.size.depthMm) / 1000;
+  const environment = scene.style.environment;
 
   return (
     <>
+      <RendererColorPipeline scene={scene} />
       <CameraRig scene={scene} activeCameraId={activeCameraId} controlsRef={controlsRef} />
-      <color attach="background" args={["#dfe5e9"]} />
-      <fog attach="fog" args={["#dfe5e9", 10, 22]} />
+      <color attach="background" args={[environment.backgroundColor]} />
+      <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
+      <hemisphereLight
+        color={environment.hemisphereSkyColor}
+        groundColor={environment.hemisphereGroundColor}
+        intensity={environment.hemisphereIntensity}
+      />
       <CompiledLights scene={scene} />
-      {showGrid ? <gridHelper args={[Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)), "#8394a2", "#bdc7cf"]} position={[0, 0.002, 0]} /> : null}
+      {showGrid ? <gridHelper args={[Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)), environment.gridPrimaryColor, environment.gridSecondaryColor]} position={[0, 0.002, 0]} /> : null}
       {nodes.map((node) => (
         <CompiledNodeView
           key={node.id}
@@ -311,6 +332,16 @@ export function CompiledSceneRenderer({
           onDragStateChange={setDragging}
         />
       ))}
+      <ContactShadows
+        key={scene.fingerprint}
+        position={[0, 0.004, 0]}
+        scale={Math.max(8, roomSpan + 1)}
+        opacity={environment.contactShadowOpacity}
+        blur={environment.contactShadowBlur}
+        far={4}
+        resolution={512}
+        frames={1}
+      />
       <OrbitControls
         ref={controlsRef}
         enabled={!dragging}

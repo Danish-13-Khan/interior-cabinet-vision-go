@@ -5,6 +5,11 @@ import type {
   MaterialKind,
   Point3Mm,
 } from "../interiorProject";
+import type {
+  LivingRoomColorManagement,
+  LivingRoomEnvironment,
+  LivingRoomStyleId,
+} from "./stylePresets";
 
 export type CompiledMaterial = {
   id: string;
@@ -75,8 +80,13 @@ export type CompiledLivingRoomScene = {
   materials: CompiledMaterial[];
   lights: LightEntity[];
   cameras: CameraEntity[];
+  style: {
+    id: LivingRoomStyleId;
+    name: string;
+    environment: LivingRoomEnvironment;
+    colorManagement: LivingRoomColorManagement;
+  };
   bounds: CompiledSceneBounds;
   fingerprint: string;
   warnings: string[];
 };
-

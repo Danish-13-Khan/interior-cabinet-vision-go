@@ -19,6 +19,7 @@ import {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";
+import { applyLivingRoomStyle } from "./stylePresets";
 
 export const LIVING_ROOM_PRESET_ID = "living-room-starter";
 export const LIVING_ROOM_PRESET_VERSION = 1;
@@ -205,5 +206,20 @@ export function createLivingRoomStarterProject(
       presetVersion: LIVING_ROOM_PRESET_VERSION,
     },
   };
-  return validateInteriorProject(document).project;
+  const styled = applyLivingRoomStyle(
+    validateInteriorProject(document).project,
+    "warm-contemporary",
+  );
+  if (activeLighting === "neutral-studio") return styled;
+  return {
+    ...styled,
+    lights: styled.lights.map((light) => ({
+      ...light,
+      enabled: light.parameters.recipeId === activeLighting,
+    })),
+    renderSettings: {
+      ...styled.renderSettings,
+      lightingRecipeId: activeLighting,
+    },
+  };
 }

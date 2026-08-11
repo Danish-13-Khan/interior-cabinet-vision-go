@@ -9,10 +9,13 @@ import {
 import {
   addLivingRoomObject,
   alignLivingRoomObjects,
+  applyLivingRoomStyle,
   createLivingRoomObject,
   createLivingRoomStarterProject,
   deleteLivingRoomObjects,
   duplicateLivingRoomObject,
+  getActiveLivingRoomStyleId,
+  getLivingRoomStylePreset,
   inspectLivingRoomPlan,
   moveLivingRoomObject,
   resizeLivingRoom,
@@ -20,6 +23,7 @@ import {
   rotateLivingRoomObject,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
+  type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
@@ -225,6 +229,14 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function setStyle(styleId: LivingRoomStyleId) {
+    if (!document || getActiveLivingRoomStyleId(document) === styleId) return;
+    commitDocument(
+      (current) => applyLivingRoomStyle(current, styleId),
+      `Applied ${getLivingRoomStylePreset(styleId).name} interior style.`,
+    );
+  }
+
   return {
     livingRoomDocument: document,
     selectedInteriorObjectIds: selectedObjectIds,
@@ -242,7 +254,7 @@ export function useLivingRoomPlanEditor({
     alignInteriorSelection: alignSelection,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
+    setLivingRoomStyle: setStyle,
     currentCompatibilityRoom: room,
   };
 }
-

@@ -7,6 +7,11 @@ import type {
 import { compileLivingRoomObjectNode } from "./sceneAdapters";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { boxPrimitive } from "./scenePrimitives";
+import {
+  resolveLivingRoomColorManagement,
+  resolveLivingRoomEnvironment,
+  resolveLivingRoomStyle,
+} from "./stylePresets";
 import type {
   CompiledLivingRoomScene,
   CompiledMaterial,
@@ -294,7 +299,14 @@ export function compileLivingRoomScene(
   const materials = compileMaterials(project);
   const lights = project.lights.filter((light) => light.roomId === null || light.roomId === roomId);
   const cameras = project.cameras.filter((camera) => camera.roomId === roomId);
-  const fingerprintSource = { roomId, nodes, materials, lights, cameras };
+  const stylePreset = resolveLivingRoomStyle(project);
+  const style = {
+    id: stylePreset.id,
+    name: stylePreset.name,
+    environment: resolveLivingRoomEnvironment(project),
+    colorManagement: resolveLivingRoomColorManagement(project),
+  };
+  const fingerprintSource = { roomId, nodes, materials, lights, cameras, style };
   return {
     compilerVersion: 1,
     projectId: project.id,
@@ -304,6 +316,7 @@ export function compileLivingRoomScene(
     materials,
     lights,
     cameras,
+    style,
     bounds: computeBounds(nodes),
     fingerprint: `lr-scene-v1-${hashString(stableStringify(fingerprintSource))}`,
     warnings: objectNodes

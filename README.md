@@ -238,6 +238,8 @@ projects compile to the same scene after reopening.
 
 ### LR-05 - Interior Style System
 
+**Status:** Complete (August 11, 2026)
+
 Build reusable material recipes, style presets, environment settings, light
 rigs, exposure defaults, and render-safe colour management.
 
