@@ -15,6 +15,7 @@ export {
   type InteriorValidationResult,
   type LightEntity,
   type LightKind,
+  type MaterialKind,
   type MaterialEntity,
   type OpeningEntity,
   type ParameterValue,

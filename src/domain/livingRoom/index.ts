@@ -55,3 +55,20 @@ export {
   rotateLivingRoomObject,
   type LivingRoomAlignMode,
 } from "./planCommands";
+export {
+  compileLivingRoomScene,
+} from "./sceneCompiler";
+export {
+  compileLivingRoomObjectNode,
+  getLivingRoomObjectAdapter,
+  type LivingRoomObjectAdapter,
+} from "./sceneAdapters";
+export type {
+  CompiledBoxPrimitive,
+  CompiledCylinderPrimitive,
+  CompiledLivingRoomScene,
+  CompiledMaterial,
+  CompiledPrimitive,
+  CompiledSceneBounds,
+  CompiledSceneNode,
+} from "./sceneTypes";
