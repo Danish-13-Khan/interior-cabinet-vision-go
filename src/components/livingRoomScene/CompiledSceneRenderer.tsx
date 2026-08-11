@@ -10,13 +10,14 @@ import {
   Vector3,
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import type { Point3Mm } from "../../domain/interiorProject";
+import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
 import type {
   CompiledLivingRoomScene,
   CompiledMaterial,
   CompiledPrimitive,
   CompiledSceneNode,
 } from "../../domain/livingRoom";
+import { getRenderQualityPreset } from "../../domain/livingRoom";
 import { getCompiledGeometry } from "./geometryCache";
 
 const FLOOR_DRAG_PLANE = new Plane(new Vector3(0, 1, 0), 0);
@@ -28,6 +29,8 @@ type SceneRendererProps = {
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
+  interactive?: boolean;
+  renderQuality?: RenderQuality;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
 };
@@ -96,6 +99,7 @@ function CompiledNodeView({
   onSelect,
   onMove,
   onDragStateChange,
+  interactive,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -104,6 +108,7 @@ function CompiledNodeView({
   onSelect: (objectId: string, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onDragStateChange: (dragging: boolean) => void;
+  interactive: boolean;
 }) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [preview, setPreview] = useState<Point3Mm | null>(null);
@@ -116,7 +121,7 @@ function CompiledNodeView({
   }
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
-    if (!sourceObjectId || event.button !== 0) return;
+    if (!interactive || !sourceObjectId || event.button !== 0) return;
     event.stopPropagation();
     onSelect(sourceObjectId, event.shiftKey || event.metaKey || event.ctrlKey);
     const point = groundPoint(event);
@@ -237,7 +242,13 @@ function CameraRig({
   return null;
 }
 
-function CompiledLights({ scene }: { scene: CompiledLivingRoomScene }) {
+function CompiledLights({
+  scene,
+  shadowMapSize,
+}: {
+  scene: CompiledLivingRoomScene;
+  shadowMapSize: number;
+}) {
   return (
     <>
       {scene.lights.filter((light) => light.enabled).map((light) => {
@@ -250,7 +261,7 @@ function CompiledLights({ scene }: { scene: CompiledLivingRoomScene }) {
           return <ambientLight key={light.id} color={light.color} intensity={light.intensity} />;
         }
         if (light.kind === "directional") {
-          return <directionalLight key={light.id} position={position} color={light.color} intensity={light.intensity} castShadow={light.parameters.castShadow === true} shadow-mapSize={[1024, 1024]} />;
+          return <directionalLight key={light.id} position={position} color={light.color} intensity={light.intensity} castShadow={light.parameters.castShadow === true} shadow-mapSize={[shadowMapSize, shadowMapSize]} />;
         }
         if (light.kind === "point") {
           return <pointLight key={light.id} position={position} color={light.color} intensity={light.intensity} distance={Number(light.parameters.rangeMm ?? 5000) / 1000} castShadow />;
@@ -292,6 +303,8 @@ export function CompiledSceneRenderer({
   snapSizeMm,
   showGrid,
   cutawayWalls,
+  interactive = true,
+  renderQuality = "standard",
   onSelect,
   onMove,
 }: SceneRendererProps) {
@@ -306,6 +319,7 @@ export function CompiledSceneRenderer({
     : scene.nodes;
   const roomSpan = Math.max(scene.bounds.size.widthMm, scene.bounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
+  const quality = getRenderQualityPreset(renderQuality);
 
   return (
     <>
@@ -318,7 +332,7 @@ export function CompiledSceneRenderer({
         groundColor={environment.hemisphereGroundColor}
         intensity={environment.hemisphereIntensity}
       />
-      <CompiledLights scene={scene} />
+      <CompiledLights scene={scene} shadowMapSize={quality.shadowMapSize} />
       {showGrid ? <gridHelper args={[Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)), environment.gridPrimaryColor, environment.gridSecondaryColor]} position={[0, 0.002, 0]} /> : null}
       {nodes.map((node) => (
         <CompiledNodeView
@@ -330,6 +344,7 @@ export function CompiledSceneRenderer({
           onSelect={onSelect}
           onMove={onMove}
           onDragStateChange={setDragging}
+          interactive={interactive}
         />
       ))}
       <ContactShadows
@@ -339,19 +354,21 @@ export function CompiledSceneRenderer({
         opacity={environment.contactShadowOpacity}
         blur={environment.contactShadowBlur}
         far={4}
-        resolution={512}
+        resolution={quality.contactShadowResolution}
         frames={1}
       />
-      <OrbitControls
-        ref={controlsRef}
-        enabled={!dragging}
-        enableDamping
-        dampingFactor={0.08}
-        minDistance={1.4}
-        maxDistance={20}
-        maxPolarAngle={Math.PI / 2 - 0.02}
-        mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
-      />
+      {interactive ? (
+        <OrbitControls
+          ref={controlsRef}
+          enabled={!dragging}
+          enableDamping
+          dampingFactor={0.08}
+          minDistance={1.4}
+          maxDistance={20}
+          maxPolarAngle={Math.PI / 2 - 0.02}
+          mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
+        />
+      ) : null}
     </>
   );
 }

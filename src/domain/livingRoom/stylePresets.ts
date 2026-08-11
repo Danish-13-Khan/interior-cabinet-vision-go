@@ -2,7 +2,10 @@ import type {
   InteriorProject,
   MaterialEntity,
 } from "../interiorProject";
-import { createLivingRoomLights, type LivingRoomLightingRecipeId } from "./lighting";
+import {
+  applyLivingRoomLightingRecipe,
+  type LivingRoomLightingRecipeId,
+} from "./lighting";
 import {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
@@ -279,43 +282,19 @@ function applyMaterialRecipes(
   ];
 }
 
-function applyLightingRig(
-  project: InteriorProject,
-  preset: LivingRoomStylePreset,
-) {
-  const generated = createLivingRoomLights(
-    project.activeRoomId,
-    preset.lightingRecipeId,
-    (scope, key) => `lr-style-${scope}-${key}`,
-  );
-  const recipeKey = (light: (typeof project.lights)[number]) =>
-    `${String(light.parameters.recipeId ?? "")}:${light.name}`;
-  const generatedKeys = new Set(generated.map(recipeKey));
-  const existingByKey = new Map(project.lights.map((light) => [recipeKey(light), light]));
-  const rig = generated.map((light) => {
-    const existing = existingByKey.get(recipeKey(light));
-    return existing ? { ...light, id: existing.id } : light;
-  });
-  return [
-    ...project.lights.filter((light) => !generatedKeys.has(recipeKey(light))),
-    ...rig,
-  ];
-}
-
 /** Apply one complete visual language while retaining custom project entities. */
 export function applyLivingRoomStyle(
   project: InteriorProject,
   styleId: LivingRoomStyleId,
 ): InteriorProject {
   const preset = getLivingRoomStylePreset(styleId);
+  const litProject = applyLivingRoomLightingRecipe(project, preset.lightingRecipeId);
   return {
-    ...project,
+    ...litProject,
     materials: applyMaterialRecipes(project, preset),
-    lights: applyLightingRig(project, preset),
     renderSettings: {
-      ...project.renderSettings,
+      ...litProject.renderSettings,
       exposure: preset.colorManagement.exposure,
-      lightingRecipeId: preset.lightingRecipeId,
     },
     extensions: {
       ...project.extensions,

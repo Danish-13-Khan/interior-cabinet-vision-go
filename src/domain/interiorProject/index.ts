@@ -22,6 +22,7 @@ export {
   type Point2Mm,
   type Point3Mm,
   type RenderSettings,
+  type RenderQuality,
   type RoomType,
   type Size3Mm,
   type WallEntity,

@@ -1,4 +1,10 @@
-import type { LightEntity, LightKind, ParameterValue, Point3Mm } from "../interiorProject";
+import type {
+  InteriorProject,
+  LightEntity,
+  LightKind,
+  ParameterValue,
+  Point3Mm,
+} from "../interiorProject";
 import type { LivingRoomIdFactory } from "./ids";
 
 export type LivingRoomLightingRecipeId =
@@ -136,4 +142,35 @@ export function createLivingRoomLights(
       parameters: { ...light.parameters, recipeId: recipe.id },
     })),
   );
+}
+
+/** Activate a complete standard rig while retaining user-authored custom lights. */
+export function applyLivingRoomLightingRecipe(
+  project: InteriorProject,
+  recipeId: LivingRoomLightingRecipeId,
+): InteriorProject {
+  const generated = createLivingRoomLights(
+    project.activeRoomId,
+    recipeId,
+    (scope, key) => `lr-render-${scope}-${key}`,
+  );
+  const recipeKey = (light: LightEntity) =>
+    `${String(light.parameters.recipeId ?? "")}:${light.name}`;
+  const generatedKeys = new Set(generated.map(recipeKey));
+  const existingByKey = new Map(project.lights.map((light) => [recipeKey(light), light]));
+  const rig = generated.map((light) => {
+    const existing = existingByKey.get(recipeKey(light));
+    return existing ? { ...light, id: existing.id } : light;
+  });
+  return {
+    ...project,
+    lights: [
+      ...project.lights.filter((light) => !generatedKeys.has(recipeKey(light))),
+      ...rig,
+    ],
+    renderSettings: {
+      ...project.renderSettings,
+      lightingRecipeId: recipeId,
+    },
+  };
 }

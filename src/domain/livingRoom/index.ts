@@ -13,10 +13,22 @@ export {
 } from "./ids";
 export {
   createLivingRoomLights,
+  applyLivingRoomLightingRecipe,
   LIVING_ROOM_LIGHTING_RECIPES,
   type LivingRoomLightingRecipe,
   type LivingRoomLightingRecipeId,
 } from "./lighting";
+export {
+  createLivingRoomRenderResult,
+  getRenderQualityPreset,
+  livingRoomRenderFileName,
+  matchRenderOutputPreset,
+  RENDER_OUTPUT_PRESETS,
+  RENDER_QUALITY_PRESETS,
+  type LivingRoomRenderResult,
+  type RenderOutputPreset,
+  type RenderQualityPreset,
+} from "./renderStudio";
 export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
