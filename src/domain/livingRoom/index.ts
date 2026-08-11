@@ -72,3 +72,16 @@ export type {
   CompiledSceneBounds,
   CompiledSceneNode,
 } from "./sceneTypes";
+export {
+  applyLivingRoomStyle,
+  getActiveLivingRoomStyleId,
+  getLivingRoomStylePreset,
+  LIVING_ROOM_STYLE_PRESETS,
+  resolveLivingRoomColorManagement,
+  resolveLivingRoomEnvironment,
+  resolveLivingRoomStyle,
+  type LivingRoomColorManagement,
+  type LivingRoomEnvironment,
+  type LivingRoomStyleId,
+  type LivingRoomStylePreset,
+} from "./stylePresets";

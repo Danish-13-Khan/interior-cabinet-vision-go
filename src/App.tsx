@@ -212,6 +212,7 @@ function App() {
             onAlign={c.alignInteriorSelection}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onApplyStyle={c.setLivingRoomStyle}
             onUndo={c.handleUndo}
             onRedo={c.handleRedo}
           />

@@ -10,6 +10,7 @@ import {
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
   type LivingRoomPlanIssue,
+  type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { LivingRoomModelView } from "./LivingRoomModelView";
 import { LivingRoomPlanView } from "./LivingRoomPlanView";
@@ -37,6 +38,7 @@ type LivingRoomPlanWorkspaceProps = {
   onAlign: (mode: LivingRoomAlignMode) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onUndo: () => void;
   onRedo: () => void;
 };
@@ -260,6 +262,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               showGrid={showGrid}
               onSelect={props.onSelect}
               onMove={props.onMove}
+              onApplyStyle={props.onApplyStyle}
             />
           )}
         </div>
