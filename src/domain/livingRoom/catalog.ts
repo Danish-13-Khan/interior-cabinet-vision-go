@@ -1,0 +1,159 @@
+import type {
+  InteriorObjectEntity,
+  InteriorObjectKind,
+  ParameterValue,
+  Point3Mm,
+  Size3Mm,
+} from "../interiorProject";
+import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
+
+export type LivingRoomCatalogItem = {
+  id: string;
+  name: string;
+  kind: InteriorObjectKind;
+  category: string;
+  dimensions: Size3Mm;
+  materialSlots: Record<string, string>;
+  parameters: Record<string, ParameterValue>;
+  placement: "floor" | "wall";
+};
+
+export type LivingRoomObjectPlacement = {
+  id: string;
+  roomId: string;
+  position: Point3Mm;
+  rotationY?: number;
+};
+
+export const LIVING_ROOM_CATALOG = [
+  {
+    id: "living:sofa-3-seat",
+    name: "Three Seat Sofa",
+    kind: "furniture",
+    category: "sofa",
+    dimensions: { widthMm: 2200, heightMm: 820, depthMm: 920 },
+    materialSlots: {
+      upholstery: LIVING_ROOM_MATERIAL_IDS.oatmealFabric,
+      legs: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+    },
+    parameters: { seats: 3, cushionStyle: "loose" },
+    placement: "floor",
+  },
+  {
+    id: "living:lounge-chair",
+    name: "Lounge Chair",
+    kind: "furniture",
+    category: "chair",
+    dimensions: { widthMm: 820, heightMm: 880, depthMm: 860 },
+    materialSlots: {
+      upholstery: LIVING_ROOM_MATERIAL_IDS.oliveFabric,
+      frame: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    },
+    parameters: { seats: 1 },
+    placement: "floor",
+  },
+  {
+    id: "living:coffee-table",
+    name: "Coffee Table",
+    kind: "furniture",
+    category: "table",
+    dimensions: { widthMm: 1200, heightMm: 380, depthMm: 650 },
+    materialSlots: {
+      top: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+      frame: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+    },
+    parameters: { topShape: "rounded-rectangle" },
+    placement: "floor",
+  },
+  {
+    id: "living:side-table",
+    name: "Side Table",
+    kind: "furniture",
+    category: "table",
+    dimensions: { widthMm: 480, heightMm: 520, depthMm: 480 },
+    materialSlots: {
+      top: LIVING_ROOM_MATERIAL_IDS.clearGlass,
+      frame: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+    },
+    parameters: { topShape: "round" },
+    placement: "floor",
+  },
+  {
+    id: "living:tv-unit",
+    name: "Low TV Unit",
+    kind: "furniture",
+    category: "media-unit",
+    dimensions: { widthMm: 2000, heightMm: 520, depthMm: 440 },
+    materialSlots: {
+      carcass: LIVING_ROOM_MATERIAL_IDS.walnut,
+      fronts: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    },
+    parameters: { doorCount: 3, cableOpening: true },
+    placement: "floor",
+  },
+  {
+    id: "living:area-rug",
+    name: "Area Rug",
+    kind: "decor",
+    category: "rug",
+    dimensions: { widthMm: 3000, heightMm: 18, depthMm: 2200 },
+    materialSlots: { surface: LIVING_ROOM_MATERIAL_IDS.woolRug },
+    parameters: { pile: "low" },
+    placement: "floor",
+  },
+  {
+    id: "living:wall-mirror",
+    name: "Wall Mirror",
+    kind: "decor",
+    category: "mirror",
+    dimensions: { widthMm: 900, heightMm: 1400, depthMm: 35 },
+    materialSlots: {
+      mirror: LIVING_ROOM_MATERIAL_IDS.clearGlass,
+      frame: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+    },
+    parameters: { mountHeightMm: 850 },
+    placement: "wall",
+  },
+  {
+    id: "living:floor-lamp",
+    name: "Floor Lamp",
+    kind: "lighting",
+    category: "floor-lamp",
+    dimensions: { widthMm: 420, heightMm: 1650, depthMm: 420 },
+    materialSlots: {
+      frame: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+      shade: LIVING_ROOM_MATERIAL_IDS.oatmealFabric,
+    },
+    parameters: { bulbTemperatureK: 2700, lumens: 800 },
+    placement: "floor",
+  },
+] as const satisfies readonly LivingRoomCatalogItem[];
+
+export type LivingRoomCatalogId = (typeof LIVING_ROOM_CATALOG)[number]["id"];
+
+export function getLivingRoomCatalogItem(id: LivingRoomCatalogId) {
+  const item = LIVING_ROOM_CATALOG.find((candidate) => candidate.id === id);
+  if (!item) throw new Error(`Unknown living-room catalog item: ${id}`);
+  return item;
+}
+
+export function createLivingRoomObject(
+  catalogItemId: LivingRoomCatalogId,
+  placement: LivingRoomObjectPlacement,
+): InteriorObjectEntity {
+  const item = getLivingRoomCatalogItem(catalogItemId);
+  return {
+    id: placement.id,
+    roomId: placement.roomId,
+    kind: item.kind,
+    category: item.category,
+    catalogItemId: item.id,
+    name: item.name,
+    position: { ...placement.position },
+    rotation: { x: 0, y: placement.rotationY ?? 0, z: 0 },
+    dimensions: { ...item.dimensions },
+    materialSlots: { ...item.materialSlots },
+    parameters: { ...item.parameters },
+    extensions: { placement: item.placement },
+  };
+}
