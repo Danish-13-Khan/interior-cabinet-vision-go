@@ -207,6 +207,8 @@ new generic room objects use the same document.
 
 ### LR-02 - Living Room Starter Contract
 
+**Status:** Complete (August 11, 2026)
+
 Create the living-room preset, generic object catalog entries, material slots,
 openings, lights, and camera presets as deterministic project data.
 
