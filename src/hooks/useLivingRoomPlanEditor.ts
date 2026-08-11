@@ -13,6 +13,7 @@ import {
   applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
   createLivingRoomObject,
+  createLivingRoomReleaseDemoProject,
   createLivingRoomStarterProject,
   deleteLivingRoomObjects,
   duplicateLivingRoomObject,
@@ -299,6 +300,9 @@ export function useLivingRoomPlanEditor({
     livingRoomIssues: issues,
     livingRoomProjectHomeOpen: projectHomeOpen,
     createLivingRoomStarter: createStarter,
+    openLivingRoomReleaseDemo: () => restoreDocument(
+      createLivingRoomReleaseDemoProject(),
+    ),
     restoreLivingRoomDocument: restoreDocument,
     openLivingRoomProjectHome: () => setProjectHomeOpen(true),
     closeLivingRoomProjectHome: () => setProjectHomeOpen(false),

@@ -270,12 +270,17 @@ assistance or knowledge of internal project structure.
 
 ### LR-08 - Release Candidate
 
+**Status:** Complete (August 12, 2026)
+
 Complete schema, migration, domain, interaction, rendering, recovery, and
 performance tests. Verify macOS `.app` and `.dmg` packaging and provide a stable
 demo project.
 
 **Exit gate:** Preset -> 2D edit -> synchronized 3D -> render -> save -> reopen
 passes end to end with no data or visual-state divergence.
+
+Release commands, artifact paths, CI packaging, and signing limitations are
+documented in [`docs/RELEASE_CANDIDATE.md`](docs/RELEASE_CANDIDATE.md).
 
 ## Production Quality Gates
 

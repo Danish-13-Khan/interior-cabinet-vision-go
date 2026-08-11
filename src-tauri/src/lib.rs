@@ -1,11 +1,5 @@
-use std::fs;
 use base64::Engine;
-
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use std::fs;
 
 #[tauri::command]
 fn save_project_file(path: String, contents: String) -> Result<(), String> {
@@ -32,11 +26,60 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            greet,
             save_project_file,
             load_project_file,
             save_binary_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn test_path(extension: &str) -> String {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock")
+            .as_nanos();
+        std::env::temp_dir()
+            .join(format!("interior-cabinet-designer-{nonce}.{extension}"))
+            .to_string_lossy()
+            .into_owned()
+    }
+
+    #[test]
+    fn project_text_round_trips_through_native_commands() {
+        let path = test_path("json");
+        let contents = r#"{"format":"interior-project","schemaVersion":1}"#;
+
+        save_project_file(path.clone(), contents.to_string()).expect("save project");
+        let loaded = load_project_file(path.clone()).expect("load project");
+
+        assert_eq!(loaded, contents);
+        fs::remove_file(path).expect("remove test project");
+    }
+
+    #[test]
+    fn binary_export_decodes_base64_before_writing() {
+        let path = test_path("png");
+        let encoded = base64::engine::general_purpose::STANDARD.encode(b"release-image");
+
+        save_binary_file(path.clone(), encoded).expect("save binary");
+        let loaded = fs::read(path.clone()).expect("read binary");
+
+        assert_eq!(loaded, b"release-image");
+        fs::remove_file(path).expect("remove test image");
+    }
+
+    #[test]
+    fn invalid_binary_data_returns_an_actionable_error() {
+        let path = test_path("png");
+        let error = save_binary_file(path, "not-base64***".to_string())
+            .expect_err("invalid base64 must fail");
+
+        assert!(!error.trim().is_empty());
+    }
 }

@@ -40,6 +40,7 @@ type LivingRoomPlanWorkspaceProps = {
   recovery: LivingRoomRecoverySnapshot | null;
   recentProjects: SavedProjectBrowserEntry[];
   onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId }) => void;
+  onOpenDemo: () => void;
   onOpenProjectHome: () => void;
   onCloseProjectHome: () => void;
   onOpenRecentProject: (projectId: string) => void;
@@ -176,6 +177,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           recovery={props.recovery}
           onClose={props.onCloseProjectHome}
           onCreate={(options) => props.onCreateStarter(options)}
+          onOpenDemo={props.onOpenDemo}
           onOpenRecent={props.onOpenRecentProject}
           onDeleteRecent={props.onDeleteRecentProject}
           onRestoreRecovery={props.onRestoreRecovery}
@@ -205,6 +207,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         recovery={props.recovery}
         onClose={props.onCloseProjectHome}
         onCreate={(options) => props.onCreateStarter(options)}
+        onOpenDemo={props.onOpenDemo}
         onOpenRecent={(projectId) => {
           props.onOpenRecentProject(projectId);
           props.onCloseProjectHome();

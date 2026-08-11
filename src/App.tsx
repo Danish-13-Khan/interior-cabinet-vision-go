@@ -211,6 +211,11 @@ function App() {
               c.setProjectFilePath(null);
               c.createLivingRoomStarter(options);
             }}
+            onOpenDemo={() => {
+              c.setProjectFilePath(null);
+              c.discardRecovery();
+              c.openLivingRoomReleaseDemo();
+            }}
             onOpenProjectHome={c.openLivingRoomProjectHome}
             onCloseProjectHome={c.closeLivingRoomProjectHome}
             onOpenRecentProject={(projectId) => {

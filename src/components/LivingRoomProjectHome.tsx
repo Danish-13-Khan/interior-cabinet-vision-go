@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
 import {
   createLivingRoomPlanThumbnail,
+  createLivingRoomReleaseDemoProject,
   LIVING_ROOM_STYLE_PRESETS,
   type LivingRoomRecoverySnapshot,
   type LivingRoomStyleId,
@@ -15,6 +16,7 @@ type LivingRoomProjectHomeProps = {
   recovery: LivingRoomRecoverySnapshot | null;
   onClose: () => void;
   onCreate: (options: { projectName: string; styleId: LivingRoomStyleId }) => void;
+  onOpenDemo: () => void;
   onOpenRecent: (projectId: string) => void;
   onDeleteRecent: (projectId: string) => void;
   onRestoreRecovery: () => void;
@@ -34,6 +36,7 @@ export function LivingRoomProjectHome({
   recovery,
   onClose,
   onCreate,
+  onOpenDemo,
   onOpenRecent,
   onDeleteRecent,
   onRestoreRecovery,
@@ -47,6 +50,7 @@ export function LivingRoomProjectHome({
     ).slice(0, 6),
     [recentProjects],
   );
+  const releaseDemo = useMemo(() => createLivingRoomReleaseDemoProject(), []);
 
   useEffect(() => {
     if (!open) return;
@@ -125,6 +129,22 @@ export function LivingRoomProjectHome({
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            className="lr-demo-launch"
+            onClick={() => {
+              onDiscardRecovery();
+              onOpenDemo();
+            }}
+          >
+            <img src={createLivingRoomPlanThumbnail(releaseDemo)} alt="" />
+            <span>
+              <b>OPEN RELEASE DEMO</b>
+              <strong>Living Room Release Demo</strong>
+              <small>Verified layout · Nordic Light · presentation render ready</small>
+            </span>
+            <i>Open →</i>
+          </button>
           {hasCurrentProject && isDirty ? (
             <p className="lr-replace-warning">The current project has changes that have not been saved to disk.</p>
           ) : null}
