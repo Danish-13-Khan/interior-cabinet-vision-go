@@ -40,6 +40,11 @@ export {
   type LivingRoomRecoverySnapshot,
 } from "./desktopExperience";
 export {
+  createLivingRoomReleaseDemoProject,
+  LIVING_ROOM_RELEASE_DEMO_DATE,
+  LIVING_ROOM_RELEASE_DEMO_ID,
+} from "./releaseDemo";
+export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";

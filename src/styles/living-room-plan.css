@@ -1452,6 +1452,63 @@
 .lr-style-starters strong { margin: 0 2px 3px; font-size: 0.63rem; }
 .lr-style-starters small { margin: 0 2px; color: #697780; font-size: 0.52rem; line-height: 1.25; }
 
+.lr-demo-launch {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 9px;
+  padding: 5px;
+  border: 1px solid #7c909c;
+  border-left: 4px solid #3d7c5c;
+  background: #e7eeea;
+  color: #2d414b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lr-demo-launch:hover {
+  border-color: #236844;
+  background: #f7faf8;
+}
+
+.lr-demo-launch img {
+  display: block;
+  width: 84px;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #71838d;
+  object-fit: cover;
+}
+
+.lr-demo-launch > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.lr-demo-launch b {
+  color: #397358;
+  font: 700 0.48rem var(--font-mono);
+  letter-spacing: 0.07em;
+}
+
+.lr-demo-launch strong {
+  margin: 1px 0;
+  font-size: 0.62rem;
+}
+
+.lr-demo-launch small {
+  color: #62737b;
+  font-size: 0.5rem;
+}
+
+.lr-demo-launch i {
+  padding-right: 5px;
+  color: #236844;
+  font: normal 700 0.54rem var(--font-mono);
+}
+
 .lr-replace-warning {
   margin: 8px 0 0;
   padding: 5px 7px;
