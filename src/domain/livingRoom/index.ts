@@ -89,6 +89,31 @@ export {
   type LivingRoomAlignMode,
 } from "./planCommands";
 export {
+  attachObjectRenderBinding,
+  createObjectRenderBinding,
+  createProceduralRenderBinding,
+  expectedStrategyForCatalogItem,
+  getRenderModeQuality,
+  GLB_INTENT_CATALOG_IDS,
+  materialAssetIdForEntity,
+  resolveEffectiveRenderStrategy,
+  withRenderBinding,
+  type GlbIntentCatalogId,
+} from "./renderAssetBindings";
+export type {
+  EnvironmentAssetDefinition,
+  MaterialAssetDefinition,
+  MaterialAssetId,
+  ModelAssetDefinition,
+  ModelAssetId,
+  RenderAssetStrategy,
+  RenderBinding,
+  RenderMode,
+  RenderModeQuality,
+  TextureAssetDefinition,
+  TextureAssetId,
+} from "./renderAssetContracts";
+export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
 export {

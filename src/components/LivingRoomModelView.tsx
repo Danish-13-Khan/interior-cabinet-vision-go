@@ -115,6 +115,7 @@ export function LivingRoomModelView({
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
           renderQuality={viewportQuality}
+          renderMode="preview"
           onSelect={onSelect}
           onMove={onMove}
         />

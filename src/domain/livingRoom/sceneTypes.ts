@@ -5,6 +5,7 @@ import type {
   MaterialKind,
   Point3Mm,
 } from "../interiorProject";
+import type { RenderBinding } from "./renderAssetContracts";
 import type {
   LivingRoomColorManagement,
   LivingRoomEnvironment,
@@ -19,6 +20,9 @@ export type CompiledMaterial = {
   roughness: number;
   metalness: number;
   opacity: number;
+  /** Stable material-asset id for the PBR registry (not a file path). */
+  materialAssetId: string;
+  uvScaleMm: number;
 };
 
 export type CompiledBoxPrimitive = {
@@ -77,6 +81,7 @@ export type CompiledSceneNode = {
   primitives: CompiledPrimitive[];
   placeholder: boolean;
   metadata: Record<string, string | number | boolean>;
+  renderBinding: RenderBinding;
 };
 
 export type CompiledSceneBounds = {
