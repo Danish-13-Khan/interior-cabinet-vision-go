@@ -70,12 +70,12 @@ export function LivingRoomProjectHome({
   }
 
   return (
-    <div className="lr-project-home" role="dialog" aria-modal="true" aria-labelledby="lr-project-home-title">
+    <div className="lr-project-home" role="dialog" aria-modal="true" aria-label="Start a living room project">
       <header className="lr-project-home-header">
         <div>
-          <span>INTERIOR DESIGN WORKSPACE</span>
-          <h1 id="lr-project-home-title">Start a living room project</h1>
-          <p>Choose a visual direction, refine it in Plan, review it in Model, then produce a presentation render.</p>
+          <span>INTERIORS / LIVING ROOM</span>
+          <h1 id="lr-project-home-title">Start with a room worth presenting.</h1>
+          <p>Plan the layout, inspect the spatial model, and create a client-ready image in one focused workflow.</p>
         </div>
         {hasCurrentProject ? (
           <button type="button" className="lr-home-close" onClick={onClose}>Return to project</button>
@@ -94,11 +94,31 @@ export function LivingRoomProjectHome({
         </section>
       ) : null}
 
-      <div className="lr-project-home-grid">
-        <section className="lr-new-project-panel">
+      <div className="lr-project-home-grid lr-home-reset-grid">
+        <section className="lr-home-showcase">
+          <img src={createLivingRoomPlanThumbnail(releaseDemo)} alt="Living Room Release Demo plan preview" />
+          <div className="lr-showcase-overlay">
+            <span>VERIFIED STARTER PROJECT</span>
+            <h2>Living Room Release Demo</h2>
+            <p>A complete Nordic-light room with furniture, lighting, cameras, validation, and render settings already prepared.</p>
+            <div className="lr-showcase-facts"><b>12 objects</b><b>3 cameras</b><b>Render ready</b></div>
+            <button
+              type="button"
+              className="lr-demo-primary"
+              onClick={() => {
+                onDiscardRecovery();
+                onOpenDemo();
+              }}
+            >
+              OPEN RELEASE DEMO <i>→</i>
+            </button>
+          </div>
+        </section>
+
+        <section className="lr-new-project-panel lr-new-project-compact">
           <div className="lr-home-section-title">
-            <div><span>01</span><strong>New project</strong></div>
-            <small>6200 × 4600 × 2800 mm starter</small>
+            <div><span>+</span><strong>New blank concept</strong></div>
+            <small>6200 × 4600 × 2800 mm</small>
           </div>
           <label className="lr-project-name-field">
             <span>Project name</span>
@@ -129,38 +149,17 @@ export function LivingRoomProjectHome({
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            className="lr-demo-launch"
-            onClick={() => {
-              onDiscardRecovery();
-              onOpenDemo();
-            }}
-          >
-            <img src={createLivingRoomPlanThumbnail(releaseDemo)} alt="" />
-            <span>
-              <b>OPEN RELEASE DEMO</b>
-              <strong>Living Room Release Demo</strong>
-              <small>Verified layout · Nordic Light · presentation render ready</small>
-            </span>
-            <i>Open →</i>
-          </button>
           {hasCurrentProject && isDirty ? (
             <p className="lr-replace-warning">The current project has changes that have not been saved to disk.</p>
           ) : null}
-          <button
-            type="button"
-            className="lr-create-project"
-            disabled={!projectName.trim()}
-            onClick={createProject}
-          >
-            Create and open Plan <kbd>↵</kbd>
+          <button type="button" className="lr-create-project" disabled={!projectName.trim()} onClick={createProject}>
+            Create blank project <kbd>↵</kbd>
           </button>
         </section>
 
-        <section className="lr-recent-projects">
+        <section className="lr-recent-projects lr-home-recents">
           <div className="lr-home-section-title">
-            <div><span>02</span><strong>Recent projects</strong></div>
+            <div><span>↗</span><strong>Recent projects</strong></div>
             <small>{livingRoomRecents.length} available</small>
           </div>
           {livingRoomRecents.length ? (
@@ -192,12 +191,9 @@ export function LivingRoomProjectHome({
           ) : (
             <div className="lr-recent-empty">
               <strong>No saved living rooms yet</strong>
-              <p>Use Save in the ribbon after creating a project. Its plan thumbnail will appear here automatically.</p>
+              <p>Save a living-room project and its plan preview will appear here.</p>
             </div>
           )}
-          <div className="lr-journey-strip">
-            <span><b>1</b> Plan</span><i>→</i><span><b>2</b> Model</span><i>→</i><span><b>3</b> Render</span>
-          </div>
         </section>
       </div>
     </div>

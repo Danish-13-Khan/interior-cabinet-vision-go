@@ -21,6 +21,9 @@ import { LivingRoomModelView } from "./LivingRoomModelView";
 import { LivingRoomPlanView } from "./LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "./LivingRoomRenderStudio";
 import { LivingRoomProjectHome } from "./LivingRoomProjectHome";
+import type { WorkbenchMode } from "../domain/desktopUx";
+
+type LivingRoomWorkspaceView = "plan" | "model" | "render";
 
 type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -63,7 +66,95 @@ type LivingRoomPlanWorkspaceProps = {
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onUndo: () => void;
   onRedo: () => void;
+  onOpenProject: () => void;
+  onSaveProject: () => void;
+  onExportProject: () => void;
+  onWorkbenchModeChange: (mode: WorkbenchMode) => void;
 };
+
+function ProductIcon({ name }: { name: "home" | "folder" | "undo" | "redo" | "save" }) {
+  const paths = {
+    home: <><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-7h6v7"/></>,
+    folder: <path d="M3 6.5h7l2-2h9v15H3z"/>,
+    undo: <><path d="m9 7-5 5 5 5"/><path d="M5 12h8.5a6 6 0 0 1 6 6"/></>,
+    redo: <><path d="m15 7 5 5-5 5"/><path d="M19 12h-8.5a6 6 0 0 0-6 6"/></>,
+    save: <><path d="M4 3h13l3 3v15H4z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></>,
+  };
+  return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
+}
+
+function InteriorsProductHeader({
+  projectName,
+  workspaceView,
+  isDirty,
+  canUndo,
+  canRedo,
+  onProject,
+  onView,
+  onOpen,
+  onSave,
+  onExport,
+  onUndo,
+  onRedo,
+  onWorkbenchModeChange,
+}: {
+  projectName: string | null;
+  workspaceView: LivingRoomWorkspaceView;
+  isDirty: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  onProject: () => void;
+  onView: (view: LivingRoomWorkspaceView) => void;
+  onOpen: () => void;
+  onSave: () => void;
+  onExport: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onWorkbenchModeChange: (mode: WorkbenchMode) => void;
+}) {
+  return (
+    <header className="lr-product-header">
+      <button type="button" className="lr-product-brand" onClick={onProject}>
+        <span className="lr-product-mark"><i /><i /><i /></span>
+        <span><strong>Interiors</strong><small>{projectName ?? "Living room studio"}</small></span>
+      </button>
+      <nav className="lr-product-nav" aria-label="Interiors workflow">
+        <button type="button" aria-label="Home" onClick={onProject}><ProductIcon name="home" />Project</button>
+        {(["plan", "model", "render"] as const).map((view) => (
+          <button
+            type="button"
+            key={view}
+            className={workspaceView === view ? "is-active" : ""}
+            onClick={() => onView(view)}
+            disabled={!projectName}
+          >
+            <span className="lr-nav-index">{view === "plan" ? "2D" : view === "model" ? "3D" : "FX"}</span>
+            {view[0].toUpperCase() + view.slice(1)}
+          </button>
+        ))}
+        <button type="button" onClick={onExport} disabled={!projectName}><span className="lr-nav-index">OUT</span>Export</button>
+      </nav>
+      <div className="lr-product-actions">
+        <button type="button" className="lr-icon-button" aria-label="Open project" title="Open project" onClick={onOpen}><ProductIcon name="folder" /></button>
+        <button type="button" className="lr-icon-button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}><ProductIcon name="undo" /></button>
+        <button type="button" className="lr-icon-button" aria-label="Redo" title="Redo" onClick={onRedo} disabled={!canRedo}><ProductIcon name="redo" /></button>
+        <button type="button" className="lr-save-button" onClick={onSave} disabled={!projectName}><ProductIcon name="save" />{isDirty ? "Save *" : "Save"}</button>
+        <label className="lr-workspace-picker">
+          <span>Workspace</span>
+          <select value="interiors" onChange={(event) => onWorkbenchModeChange(event.target.value as WorkbenchMode)}>
+            <option value="interiors">Interiors</option>
+            <option value="job">Job</option>
+            <option value="room">Room</option>
+            <option value="cabinets">Cabinets</option>
+            <option value="drawings">Drawings</option>
+            <option value="production">Production</option>
+            <option value="reports">Reports</option>
+          </select>
+        </label>
+      </div>
+    </header>
+  );
+}
 
 function NumberField({
   label,
@@ -107,7 +198,7 @@ function NumberField({
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
-  const [workspaceView, setWorkspaceView] = useState<"plan" | "model" | "render">("plan");
+  const [workspaceView, setWorkspaceView] = useState<LivingRoomWorkspaceView>("plan");
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
     previous: LivingRoomRenderResult | null;
@@ -168,21 +259,38 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   if (!props.project || !room) {
     return (
-      <section className="lr-empty-workspace">
-        <LivingRoomProjectHome
-          open
-          hasCurrentProject={false}
+      <section className="lr-plan-shell lr-product-shell">
+        <InteriorsProductHeader
+          projectName={null}
+          workspaceView={workspaceView}
           isDirty={props.isDirty}
-          recentProjects={props.recentProjects}
-          recovery={props.recovery}
-          onClose={props.onCloseProjectHome}
-          onCreate={(options) => props.onCreateStarter(options)}
-          onOpenDemo={props.onOpenDemo}
-          onOpenRecent={props.onOpenRecentProject}
-          onDeleteRecent={props.onDeleteRecentProject}
-          onRestoreRecovery={props.onRestoreRecovery}
-          onDiscardRecovery={props.onDiscardRecovery}
+          canUndo={props.canUndo}
+          canRedo={props.canRedo}
+          onProject={props.onOpenProjectHome}
+          onView={setWorkspaceView}
+          onOpen={props.onOpenProject}
+          onSave={props.onSaveProject}
+          onExport={props.onExportProject}
+          onUndo={props.onUndo}
+          onRedo={props.onRedo}
+          onWorkbenchModeChange={props.onWorkbenchModeChange}
         />
+        <div className="lr-empty-workspace">
+          <LivingRoomProjectHome
+            open
+            hasCurrentProject={false}
+            isDirty={props.isDirty}
+            recentProjects={props.recentProjects}
+            recovery={props.recovery}
+            onClose={props.onCloseProjectHome}
+            onCreate={(options) => props.onCreateStarter(options)}
+            onOpenDemo={props.onOpenDemo}
+            onOpenRecent={props.onOpenRecentProject}
+            onDeleteRecent={props.onDeleteRecentProject}
+            onRestoreRecovery={props.onRestoreRecovery}
+            onDiscardRecovery={props.onDiscardRecovery}
+          />
+        </div>
       </section>
     );
   }
@@ -198,8 +306,24 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }
 
   return (
-    <section className="lr-plan-shell">
-      <LivingRoomProjectHome
+    <section className="lr-plan-shell lr-product-shell">
+      <InteriorsProductHeader
+        projectName={props.project.name}
+        workspaceView={workspaceView}
+        isDirty={props.isDirty}
+        canUndo={props.canUndo}
+        canRedo={props.canRedo}
+        onProject={props.onOpenProjectHome}
+        onView={setWorkspaceView}
+        onOpen={props.onOpenProject}
+        onSave={props.onSaveProject}
+        onExport={props.onExportProject}
+        onUndo={props.onUndo}
+        onRedo={props.onRedo}
+        onWorkbenchModeChange={props.onWorkbenchModeChange}
+      />
+      <div className={`lr-workspace-body is-${workspaceView}`}>
+        <LivingRoomProjectHome
         open={props.projectHomeOpen}
         hasCurrentProject
         isDirty={props.isDirty}
@@ -216,7 +340,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRestoreRecovery={props.onRestoreRecovery}
         onDiscardRecovery={props.onDiscardRecovery}
       />
-      {props.toolRailVisible && workspaceView !== "render" ? (
+      {props.toolRailVisible && workspaceView === "plan" ? (
         <aside className="lr-catalog" style={{ width: props.toolRailWidthPx }}>
           <div className="context-panel-heading">
             <strong>Living Room Catalog</strong>
@@ -248,15 +372,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       ) : null}
 
       <div className="lr-plan-center">
-        <header className="lr-plan-toolbar">
-          <div className="lr-toolbar-group lr-toolbar-project">
-            <span>Project</span>
-            <button type="button" onClick={props.onOpenProjectHome}>Home</button>
-            <small className={props.isDirty ? "is-dirty" : ""}>
-              {props.isDirty ? "● Unsaved" : "✓ Saved"}
-            </small>
-          </div>
-          {workspaceView !== "render" ? (
+        {workspaceView === "plan" ? <header className="lr-plan-toolbar">
             <>
               <div className="lr-toolbar-group">
                 <span>Edit</span>
@@ -278,34 +394,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
                 <button type="button" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>Distribute</button>
               </div>
             </>
-          ) : null}
           <div className="lr-toolbar-group lr-toolbar-view">
-            <span>View</span>
-            <div className="lr-view-switch" role="group" aria-label="Interior workspace view">
-              <button
-                type="button"
-                className={workspaceView === "plan" ? "is-active" : ""}
-                onClick={() => setWorkspaceView("plan")}
-              >
-                Plan <kbd>1</kbd>
-              </button>
-              <button
-                type="button"
-                className={workspaceView === "model" ? "is-active" : ""}
-                onClick={() => setWorkspaceView("model")}
-              >
-                Model <kbd>2</kbd>
-              </button>
-              <button
-                type="button"
-                className={workspaceView === "render" ? "is-active" : ""}
-                onClick={() => setWorkspaceView("render")}
-              >
-                Render <kbd>3</kbd>
-              </button>
-            </div>
-            {workspaceView !== "render" ? (
-              <>
+            <span>Drawing</span>
                 <label>
                   <input
                     type="checkbox"
@@ -318,10 +408,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
                   <option value="50">50 mm</option>
                   <option value="100">100 mm</option>
                 </select>
-              </>
-            ) : null}
           </div>
-        </header>
+        </header> : null}
         <div className="lr-plan-titlebar">
           <strong>{workspaceView.toUpperCase()} · LIVING ROOM</strong>
           <span>{props.project.name} · {props.project.objects.length} objects · {props.selectedIds.length} selected</span>
@@ -382,7 +470,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         </footer>
       </div>
 
-      {props.inspectorVisible && workspaceView !== "render" ? (
+      {props.inspectorVisible && workspaceView === "plan" ? (
         <aside className="lr-inspector" style={{ width: props.inspectorWidthPx }}>
           <div className="inspector-header">
             <strong>Plan Properties</strong>
@@ -492,6 +580,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           </div>
         </aside>
       ) : null}
+      </div>
     </section>
   );
 }
