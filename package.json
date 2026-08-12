@@ -9,6 +9,7 @@
     "test:e2e": "playwright test",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "assets:curated": "node scripts/curated-assets/generate-pack.mjs",
     "tauri": "tauri",
     "release:check": "npm test && npm run build && npm run test:e2e && cargo test --manifest-path src-tauri/Cargo.toml",
     "release:mac": "npm run tauri build -- --bundles app,dmg"

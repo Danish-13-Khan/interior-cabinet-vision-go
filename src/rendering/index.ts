@@ -35,6 +35,11 @@ export {
   textureRepeatFromUvScaleMm,
 } from "./materials/materialScale";
 export { createProceduralSurfaceMaps } from "./materials/proceduralSurfaceMaps";
+export {
+  hasCuratedTextureUrls,
+  resolveMaterialTextureUrls,
+  type MaterialTextureUrls,
+} from "./materials/resolveMaterialTextureUrls";
 export { drawHeroVignette } from "./export/heroExportPolish";
 export { measureObjectSizeMeters } from "./loaders/measureObjectBounds";
 export { useModelAsset, type ModelAssetState } from "./loaders/useModelAsset";
