@@ -114,6 +114,8 @@ export {
   PHASE1_LATENCY_ENVIRONMENT,
   PHASE1_SCORECARD_CHECK_IDS,
   resolvePhase1BenchmarkCameraId,
+  evaluatePhase1Scorecard,
+  formatPhase1ProofMarkdown,
   type Phase1BenchmarkCameraLock,
   type Phase1BenchmarkDefinition,
   type Phase1BenchmarkFrameId,
@@ -122,6 +124,10 @@ export {
   type Phase1LatencyEnvironment,
   type Phase1LatencySample,
   type Phase1ScorecardCheckId,
+  type Phase1CheckResult,
+  type Phase1CheckStatus,
+  type Phase1FrameLadderReport,
+  type Phase1ProofPack,
 } from "./phase1Benchmarks";
 export {
   createLivingRoomMaterials,

@@ -18,6 +18,14 @@ export {
   listPhase1ScorecardChecks,
   type Phase1LatencySample,
 } from "./scorecard";
+export {
+  evaluatePhase1Scorecard,
+  type Phase1CheckResult,
+  type Phase1CheckStatus,
+  type Phase1FrameLadderReport,
+  type Phase1ProofPack,
+} from "./evaluateScorecard";
+export { formatPhase1ProofMarkdown } from "./formatProofMarkdown";
 export type {
   Phase1BenchmarkCameraLock,
   Phase1BenchmarkDefinition,

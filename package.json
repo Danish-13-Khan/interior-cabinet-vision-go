@@ -17,6 +17,7 @@
     "presentation:check": "node scripts/client-presentation/check.mjs",
     "presets:list": "node scripts/render-presets/list-presets.mjs",
     "presets:check": "node scripts/render-presets/check.mjs",
+    "phase1:proof": "node scripts/phase1-proof/run-scorecard.mjs",
     "tauri": "tauri",
     "release:check": "npm test && npm run build && npm run test:e2e && cargo test --manifest-path src-tauri/Cargo.toml",
     "release:mac": "npm run tauri build -- --bundles app,dmg"

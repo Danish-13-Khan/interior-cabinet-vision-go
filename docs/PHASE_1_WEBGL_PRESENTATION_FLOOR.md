@@ -300,11 +300,14 @@ Client Preview wood reads glossier; fabric sheenier; walls flatter.
 
 Eye-level defaults in cameras + hero focals; framing QA adds `ceiling-heavy`, `cut-feet`, `eye-off-standing`.
 
-### Chapter 7 — Proof pack (1–2 days)
+### Chapter 7 — Proof pack (landing)
 
-Re-export baselines, run `qa:*` + smoke, update this doc’s checklist, open PR from `phase-1/webgl-presentation-floor` → `main`.
+- Domain `evaluatePhase1Scorecard()` gates ladder / grounding / window-key / framing / honesty / data-safety
+- `npm run phase1:proof` runs assets + presets + Phase 1 unit gates
+- Committed fixtures + `PROOF.md` under `fixtures/phase-1-benchmarks/`
+- Latency + side-by-side PNGs remain manual PR attachments (`tmp/phase-1-baselines/`)
 
-**Rough calendar:** ~2–6 weeks depending on depth of material/HDRI retunes — matches the roadmap’s Phase 1 band.
+### Chapter 8 — StillJob spike (optional later)
 
 ---
 
