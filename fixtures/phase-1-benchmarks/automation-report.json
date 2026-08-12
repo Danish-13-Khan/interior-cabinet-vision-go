@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-08-12T19:28:10.195Z",
+  "gates": [
+    {
+      "id": "qa:assets",
+      "pass": true
+    },
+    {
+      "id": "qa:render",
+      "pass": true
+    },
+    {
+      "id": "presets:check",
+      "pass": true
+    },
+    {
+      "id": "phase1-domain",
+      "pass": true
+    },
+    {
+      "id": "qa:smoke",
+      "pass": true
+    }
+  ]
+}

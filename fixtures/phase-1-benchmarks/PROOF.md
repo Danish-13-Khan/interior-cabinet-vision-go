@@ -1,6 +1,6 @@
 # Phase 1 proof pack
 
-Generated: 2026-08-12T18:00:00.000Z
+Generated: 2026-08-12T19:28:11.205Z
 Overall: **PENDING**
 
 ## Latency environment
@@ -21,9 +21,9 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 | grounding | pass | Client Preview contact opacity 0.94 / res 768 / far 4m |
 | window-key | pass | Windowed benchmarks emit a stronger shadowed Client Preview key. |
 | framing | pass | All 6 hero frames pass eye-level framing QA (no ceiling-heavy / cut-feet). |
-| latency | pending | Manual capture required under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run |
-| honesty | pass | Preset honesty copy avoids photoreal / Synaps / AI claims. |
-| automation | pending | Run `npm run phase1:proof` (assets/presets/phase1 unit gates). Mark pass in PR when green. |
+| latency | pending | Fill fixtures/phase-1-benchmarks/latency-samples.json under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run |
+| honesty | pass | Preset honesty + README/UI corpus avoid affirmative photoreal / Synaps / AI claims. |
+| automation | pass | All 5 automation gates green (2026-08-12T19:28:10.195Z). |
 | data-safety | pass | Benchmark projects serialize/load without Three/path payloads. |
 
 ## Draft vs Client Preview ladder
@@ -36,7 +36,7 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 | bench-evening-lamp/camera-a | key-light-contrast, contact-grounding, material-punch, exposure-framing | yes |
 | bench-evening-lamp/camera-b | key-light-contrast, contact-grounding, material-punch, exposure-framing | yes |
 
-## Latency table (fill in PR)
+## Latency table (fill `latency-samples.json`)
 | Frame | Draft ms | Client Preview ms |
 |---|---:|---:|
 | bench-daylight-sofa/camera-a |  |  |
@@ -48,5 +48,5 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 
 ## Manual PR attachments
 - Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`
-- Machine string (chip / OS / RAM) for latency rows
-- Confirm honesty: no photoreal / Synaps claims in UI copy
+- Fill `fixtures/phase-1-benchmarks/latency-samples.json` then re-run `npm run phase1:proof`
+- Machine string lives in that JSON (`machine` field)

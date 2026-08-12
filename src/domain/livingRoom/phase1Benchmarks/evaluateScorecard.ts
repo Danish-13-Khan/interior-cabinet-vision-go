@@ -1,7 +1,7 @@
 import { listPhase1BenchmarkFrames } from "./buildBenchmarks";
 import { PHASE1_BENCHMARK_NOW } from "./definitions";
 import {
-  evaluateAutomationPlaceholder,
+  evaluateAutomation,
   evaluateDataSafety,
   evaluateFraming,
   evaluateGrounding,
@@ -9,6 +9,7 @@ import {
   evaluateLatency,
   evaluateWindowKey,
 } from "./evaluateChecks";
+import type { Phase1AutomationReport } from "./evaluateAutomation";
 import { evaluateLadder, ladderDifferences } from "./evaluateLadder";
 import {
   describePhase1LatencyEnvironment,
@@ -35,9 +36,11 @@ function buildLatencyTable(samples: Phase1LatencySample[] | undefined) {
   });
 }
 
-/** Evaluate Phase 1 scorecard. Latency/automation may stay pending until filled. */
+/** Evaluate Phase 1 scorecard. Pass latency samples + automation report to leave pending. */
 export function evaluatePhase1Scorecard(options?: {
   latencySamples?: Phase1LatencySample[];
+  automationReport?: Phase1AutomationReport;
+  honestyCorpus?: readonly string[];
   generatedAt?: string;
 }): Phase1ProofPack {
   const frames = listPhase1BenchmarkFrames();
@@ -48,8 +51,8 @@ export function evaluatePhase1Scorecard(options?: {
     evaluateWindowKey(),
     evaluateFraming(),
     evaluateLatency(options?.latencySamples),
-    evaluateHonesty(),
-    evaluateAutomationPlaceholder(),
+    evaluateHonesty(options?.honestyCorpus ?? []),
+    evaluateAutomation(options?.automationReport),
     evaluateDataSafety(),
   ];
   const hasFail = checks.some((check) => check.status === "fail");
