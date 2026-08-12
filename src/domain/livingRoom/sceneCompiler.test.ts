@@ -22,6 +22,7 @@ describe("living-room scene compiler", () => {
     expect(objectNodes.every((node) => !node.placeholder)).toBe(true);
     expect(objectNodes.every((node) => node.primitives.length > 0)).toBe(true);
     expect(scene.warnings).toEqual([]);
+    expect(scene.windowOpenings.length).toBeGreaterThan(0);
     expect(scene.materials.some((material) => material.kind === "glass")).toBe(true);
     expect(
       objectNodes
