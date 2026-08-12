@@ -2,7 +2,21 @@
 
 **Branch:** `phase-1/webgl-presentation-floor` (from `main`)  
 **Product spine:** Plan → Model → Render (unchanged)  
-**Goal:** Make Draft vs Client Preview feel like two different products — still honest realtime WebGL, not Synaps.
+**Goal:** Raise WebGL presentation quality with a **hard scorecard** — still honest realtime WebGL, not Synaps.
+
+**Related docs:** [StillJob trust contract](./STILLJOB_TRUST_CONTRACT.md) (Phase 2 foreshadow) · [Product decisions](./PRODUCT_DECISIONS.md)
+
+---
+
+## 0. First ICP (locks execution)
+
+Phase 1 is **not** “any interior designer.” First buyer / job-to-be-done:
+
+> **Custom cabinet shop salesperson or designer** who needs to turn a **manufacturable living-room layout** (room + millwork/soft goods) into a **client-facing concept preview** they can revise in-tool, without claiming photoreal marketing stills yet.
+
+Out of scope for this ICP (for now): full home staging marketplace, pure consumer DIY decorate app, fabrication MES, Synaps-class marketing stills.
+
+Workshop bridge stays real but **staged**: living-room preview now; BOM / pricing / fab-ready outputs remain on the workshop side of the product and must show up in a near-term roadmap item (see Product decisions) — otherwise “cabinet-aware” is slogan-only.
 
 ---
 
@@ -39,7 +53,8 @@ Phase 2 (later) splits a second stills pipeline. Phase 1 deliberately stops befo
 
 **Hard constraints (carry forward):**
 
-- No Three types or file paths in InteriorProject JSON
+- No Three types or absolute/local file paths in InteriorProject JSON
+- **Schema durability:** `schemaVersion`, migrations on load, stable entity/asset IDs, explicit units (`mm`), backward-compatible saves (see Product decisions)
 - Prefer modules under ~200–300 lines; soft ceiling ~400
 - No `@react-three/postprocessing`, no BVH, no AI unless product explicitly opens Phase 2
 - Workshop / production PDFs stay separate from living-room client presentation
@@ -47,17 +62,39 @@ Phase 2 (later) splits a second stills pipeline. Phase 1 deliberately stops befo
 
 ---
 
-## 3. Success story (exit criteria)
+## 3. Brutal Phase 1 scorecard (definition of done)
 
-Phase 1 is done when a side-by-side check of the **same room / same camera** shows:
+Subjective “feels better” is **not** enough. Phase 1 exits only when the scorecard below passes.
 
-1. **Draft** — fast, readable, slightly flat; good for layout
-2. **Client Preview** — clearly richer: grounded furniture, believable window key light, stronger wood/fabric/floor contrast, better eye-level framing
-3. Export PNG from Client Preview is still WebGL, but no longer “empty grey room with floating sofa”
-4. Diagnostics + existing QA scripts still pass (`qa:assets`, `qa:render`, `presets:check`, smoke)
-5. Unit tests cover new pure lighting / material / framing helpers
+### 3.1 Benchmark kit (locked fixtures)
 
-**Non-goals for exit:** matching Synaps, film grain stacks, path tracing, cloud workers.
+Create and freeze **3 canonical rooms** × **2 locked cameras** each (= **6 frames**):
+
+| ID | Room intent | Camera A | Camera B |
+|---|---|---|---|
+| `bench-daylight-sofa` | Window wall + sofa + coffee table | Eye-level toward sofa/window | Corner wide establishing |
+| `bench-millwork-media` | Media wall / millwork + lounge chair | Eye-level to millwork | 3/4 seating cluster |
+| `bench-evening-lamp` | Warmer recipe + floor lamp + side table | Eye-level seating | Detail toward lamp/table |
+
+Store project JSON + camera ids under something like `fixtures/phase-1-benchmarks/` (committed).  
+Store PNG baselines under `tmp/phase-1-baselines/` (**gitignored**) for before/after PR attachments.
+
+### 3.2 Pass / fail checks (all required)
+
+| # | Check | Pass rule |
+|---|---|---|
+| 1 | Ladder | For each of 6 frames, Draft vs Client Preview differ on **≥3** of: key-light contrast, contact grounding, material punch, exposure/framing. Reviewed in PR with side-by-side exports. |
+| 2 | Grounding | Soft goods / millwork feet meet floor; no obvious hover. Contact shadow visible in Client Preview on all 6 frames. |
+| 3 | Window key | On rooms with openings, Client Preview shows a clear key from window direction (Draft may be flatter). |
+| 4 | Framing | Locked hero cameras stay eye-level; framing QA helpers do not flag “ceiling-heavy / cut-feet” on the 6 Client Preview exports. |
+| 5 | Latency | Client Preview PNG capture for a benchmark frame completes in **≤ 8s** on a mid laptop (document machine in PR). Draft capture **≤ 3s**. |
+| 6 | Honesty | UI copy / README do **not** claim photoreal, AI, or Synaps parity. |
+| 7 | Automation | `qa:assets`, `qa:render`, `presets:check`, unit tests for new domain helpers, and `qa:smoke` are green. |
+| 8 | Data safety | Saving/loading a benchmark project does not introduce Three types or file paths; `schemaVersion` remains valid via migrations. |
+
+**Phase 1 fails** if we keep polishing past this scorecard, or if we start StillJob/AI work before these 8 pass.
+
+**Non-goals:** matching Synaps, film grain stacks, path tracing, cloud workers.
 
 ---
 
@@ -282,18 +319,15 @@ Re-export baselines, run `qa:*` + smoke, update this doc’s checklist, open PR 
 
 ## 8. Acceptance checklist
 
-- [ ] Draft Model View remains fast and clearly “working” quality
-- [ ] Client Preview / Presentation show stronger key light when windows exist
-- [ ] Contact shadows visibly ground soft goods and millwork
-- [ ] Wood / fabric / floor contrast improved under hero lighting
-- [ ] Default hero framing is eye-level and QA-validated
-- [ ] Preset labels in UI match actual render behavior
-- [ ] No Three / file paths written into saved project JSON
-- [ ] `npm test` (or project unit suite) green for new domain tests
-- [ ] `npm run qa:assets && npm run qa:render && npm run presets:check` green
-- [ ] `npm run qa:smoke` green
+Use the **§3 brutal scorecard** as the real gate. Quick mirror:
+
+- [ ] ICP text unchanged unless product explicitly revises `PRODUCT_DECISIONS.md`
+- [ ] 3 benchmark rooms × 2 cameras frozen and exported Draft + Client Preview
+- [ ] Scorecard checks 1–8 all pass (ladder, grounding, key light, framing, latency, honesty, automation, data safety)
+- [ ] No Three / file paths written into saved project JSON; schemaVersion/migrations intact
+- [ ] StillJob/AI work not started beyond optional week-4 handoff spike
 - [ ] Before/after exports attached to PR description
-- [ ] This document’s out-of-scope items were not “accidentally” started
+- [ ] Out-of-scope items in §9 were not started
 
 ---
 
