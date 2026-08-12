@@ -11,6 +11,8 @@ export type RenderBinding = {
   modelAssetId?: string;
   materialBindings: Record<string, string>;
   uvScaleMm?: number;
+  /** Object dimensions used to scale GLB assets; never persisted on project JSON. */
+  targetSizeMm?: ModelNativeSizeMm;
 };
 
 export type TextureAssetId = string;
@@ -35,14 +37,27 @@ export type MaterialAssetDefinition = {
   proceduralFallback: boolean;
 };
 
+export type ModelNativeSizeMm = {
+  widthMm: number;
+  heightMm: number;
+  depthMm: number;
+};
+
 export type ModelAssetDefinition = {
   id: ModelAssetId;
   name: string;
   catalogItemId: string;
-  /** Relative key for a future local GLB; never written into project JSON. */
+  /** Relative public key for a local GLB; never written into project JSON. */
   assetKey: string;
   available: boolean;
   defaultUvScaleMm: number;
+  /** Authoring AABB of the packaged GLB before runtime scale. */
+  nativeSizeMm: ModelNativeSizeMm;
+  /**
+   * Maps project materialSlots keys to mesh-name tokens inside the GLB.
+   * Example: { upholstery: "upholstery", legs: "legs" }
+   */
+  materialGroups: Record<string, string>;
 };
 
 export type TextureAssetDefinition = {

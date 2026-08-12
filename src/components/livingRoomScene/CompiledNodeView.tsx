@@ -6,7 +6,8 @@ import type { Point3Mm } from "../../domain/interiorProject";
 import type { CompiledMaterial, CompiledSceneNode } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
-import { CompiledPrimitiveView } from "./CompiledPrimitiveView";
+import { AssetBackedObject } from "./AssetBackedObject";
+import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
 
 const FLOOR_DRAG_PLANE = new Plane(new Vector3(0, 1, 0), 0);
 
@@ -46,8 +47,9 @@ export function CompiledNodeView({
   const sourceObjectId = node.sourceObjectId;
   const position = preview ?? node.positionMm;
   const modelAsset = useModelAsset(node.renderBinding);
-  // GLB draw path lands later; unavailable models keep procedural primitives.
-  const drawProcedural = modelAsset.strategy === "procedural";
+  const useGlb = modelAsset.strategy === "glb"
+    && modelAsset.url
+    && modelAsset.definition;
 
   function groundPoint(event: ThreeEvent<PointerEvent>) {
     const result = new Vector3();
@@ -103,17 +105,24 @@ export function CompiledNodeView({
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
     >
-      {drawProcedural
-        ? node.primitives.map((primitive) => (
-          <CompiledPrimitiveView
-            key={primitive.id}
-            primitive={primitive}
-            material={materials.get(primitive.materialId) ?? materials.get("compiled:fallback")!}
-            selected={selected}
-            renderMode={renderMode}
-          />
-        ))
-        : null}
+      {useGlb ? (
+        <AssetBackedObject
+          url={modelAsset.url!}
+          definition={modelAsset.definition!}
+          binding={node.renderBinding}
+          materials={materials}
+          primitives={node.primitives}
+          selected={selected}
+          renderMode={renderMode}
+        />
+      ) : (
+        <ProceduralFallbackObject
+          primitives={node.primitives}
+          materials={materials}
+          selected={selected}
+          renderMode={renderMode}
+        />
+      )}
       {selected || node.placeholder ? (
         <Html
           position={[0, Math.max(0.3, ...node.primitives.map((primitive) => primitive.positionMm.y / 1000)) + 0.35, 0]}
