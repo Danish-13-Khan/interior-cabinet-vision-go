@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-12T19:28:11.205Z",
+  "generatedAt": "2026-08-12T19:37:05.498Z",
   "latencyEnvironment": "tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run",
   "frameCount": 6,
   "frames": [

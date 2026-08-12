@@ -1,3 +1,4 @@
+import type { Phase1LatencyEvidence } from "./scorecard";
 import type { Phase1BenchmarkFrameId, Phase1ScorecardCheckId } from "./types";
 
 export type Phase1CheckStatus = "pass" | "fail" | "pending";
@@ -18,6 +19,7 @@ export type Phase1ProofPack = {
   version: 1;
   generatedAt: string;
   latencyEnvironment: string;
+  latencyEvidence?: Phase1LatencyEvidence;
   frameCount: number;
   frames: Array<{
     frameId: Phase1BenchmarkFrameId;

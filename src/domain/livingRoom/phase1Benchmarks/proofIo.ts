@@ -1,11 +1,15 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import type { Phase1LatencySample } from "./scorecard";
+import type {
+  Phase1LatencyAppSurface,
+  Phase1LatencySample,
+} from "./scorecard";
 import type { Phase1AutomationReport } from "./evaluateAutomation";
-import { buildLatencySamplesTemplate } from "./latencySlots";
 
 export type Phase1LatencySamplesFile = {
   machine: string;
+  appSurface?: Phase1LatencyAppSurface;
+  substituteReason?: string;
   samples: Array<{
     frameId: string;
     quality: "draft" | "client-preview";
@@ -26,6 +30,8 @@ export function loadPhase1LatencySamples(cwd = process.cwd()): Phase1LatencySamp
   if (!existsSync(path)) return [];
   const raw = JSON.parse(readFileSync(path, "utf8")) as Phase1LatencySamplesFile;
   const machine = raw.machine?.trim() || "unspecified-machine";
+  const appSurface = raw.appSurface ?? "tauri-desktop";
+  const substituteReason = raw.substituteReason?.trim() || undefined;
   return (raw.samples ?? [])
     .filter((sample) => typeof sample.elapsedMs === "number" && Number.isFinite(sample.elapsedMs))
     .map((sample) => ({
@@ -33,6 +39,8 @@ export function loadPhase1LatencySamples(cwd = process.cwd()): Phase1LatencySamp
       quality: sample.quality,
       elapsedMs: sample.elapsedMs as number,
       machine,
+      appSurface,
+      substituteReason,
     }));
 }
 

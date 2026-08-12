@@ -14,6 +14,7 @@ import { evaluateLadder, ladderDifferences } from "./evaluateLadder";
 import {
   describePhase1LatencyEnvironment,
   isPhase1LatencyWithinBudget,
+  summarizePhase1LatencyEvidence,
   type Phase1LatencySample,
 } from "./scorecard";
 import type { Phase1ProofPack } from "./proofTypes";
@@ -61,6 +62,7 @@ export function evaluatePhase1Scorecard(options?: {
     version: 1,
     generatedAt: options?.generatedAt ?? PHASE1_BENCHMARK_NOW,
     latencyEnvironment: describePhase1LatencyEnvironment(),
+    latencyEvidence: summarizePhase1LatencyEvidence(options?.latencySamples),
     frameCount: frames.length,
     frames: frames.map((frame) => ({
       frameId: frame.frameId,

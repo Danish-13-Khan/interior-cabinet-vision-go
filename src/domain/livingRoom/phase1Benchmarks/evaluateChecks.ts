@@ -19,6 +19,7 @@ import {
 import {
   describePhase1LatencyEnvironment,
   isPhase1LatencyWithinBudget,
+  summarizePhase1LatencyEvidence,
   type Phase1LatencySample,
 } from "./scorecard";
 import { expectedPhase1LatencySlots } from "./latencySlots";
@@ -109,6 +110,34 @@ export function evaluateLatency(samples: Phase1LatencySample[] | undefined): Pha
     };
   }
 
+  const evidence = summarizePhase1LatencyEvidence(samples);
+  if (!evidence) {
+    return {
+      id: "latency",
+      status: "pending",
+      detail: `Fill fixtures/phase-1-benchmarks/latency-samples.json under ${describePhase1LatencyEnvironment()}`,
+    };
+  }
+  const mismatchedEvidence = samples.find((sample) =>
+    sample.machine !== evidence.machine
+      || (sample.appSurface ?? "tauri-desktop") !== evidence.appSurface
+      || (sample.substituteReason?.trim() || undefined) !== evidence.substituteReason
+  );
+  if (mismatchedEvidence) {
+    return {
+      id: "latency",
+      status: "fail",
+      detail: "Latency evidence must use one machine/surface/reason across all 12 slots.",
+    };
+  }
+  if (evidence.appSurface !== "tauri-desktop" && !evidence.substituteReason) {
+    return {
+      id: "latency",
+      status: "fail",
+      detail: "Substitute latency evidence requires a non-empty substituteReason in latency-samples.json.",
+    };
+  }
+
   const missing = slots.filter(
     (slot) => !samples.some(
       (sample) => sample.frameId === slot.frameId && sample.quality === slot.quality,
@@ -123,12 +152,15 @@ export function evaluateLatency(samples: Phase1LatencySample[] | undefined): Pha
   }
 
   const failed = samples.filter((sample) => !isPhase1LatencyWithinBudget(sample));
+  const evidenceLabel = evidence.appSurface === "tauri-desktop"
+    ? `Measured on ${evidence.machine}.`
+    : `Measured on ${evidence.machine} via ${evidence.appSurface} (${evidence.substituteReason}).`;
   return {
     id: "latency",
     status: failed.length === 0 ? "pass" : "fail",
     detail: failed.length === 0
-      ? `All ${slots.length} latency samples within Draft ≤${PHASE1_LATENCY_ENVIRONMENT.draftCaptureMaxMs}ms / Client ≤${PHASE1_LATENCY_ENVIRONMENT.clientPreviewCaptureMaxMs}ms.`
-      : `Over budget: ${failed.map((sample) => `${sample.frameId}/${sample.quality}=${sample.elapsedMs}ms`).join(", ")}`,
+      ? `All ${slots.length} latency samples within Draft ≤${PHASE1_LATENCY_ENVIRONMENT.draftCaptureMaxMs}ms / Client ≤${PHASE1_LATENCY_ENVIRONMENT.clientPreviewCaptureMaxMs}ms. ${evidenceLabel}`
+      : `Over budget: ${failed.map((sample) => `${sample.frameId}/${sample.quality}=${sample.elapsedMs}ms`).join(", ")}. ${evidenceLabel}`,
   };
 }
 

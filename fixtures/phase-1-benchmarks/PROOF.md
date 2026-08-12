@@ -1,10 +1,11 @@
 # Phase 1 proof pack
 
-Generated: 2026-08-12T19:28:11.205Z
+Generated: 2026-08-12T19:37:05.498Z
 Overall: **PENDING**
 
 ## Latency environment
 tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run
+
 
 ## Frames
 - `bench-daylight-sofa/camera-a` · camera `lr-camera-bench-daylight-sofa-camera-a`
@@ -48,5 +49,5 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 
 ## Manual PR attachments
 - Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`
-- Fill `fixtures/phase-1-benchmarks/latency-samples.json` then re-run `npm run phase1:proof`
-- Machine string lives in that JSON (`machine` field)
+- Fill `fixtures/phase-1-benchmarks/latency-samples.json` or run `npm run phase1:latency`, then re-run `npm run phase1:proof`
+- Machine string and optional substitute reason live in that JSON
