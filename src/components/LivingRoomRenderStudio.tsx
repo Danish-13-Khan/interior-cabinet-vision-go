@@ -18,8 +18,10 @@ import {
   promptSavePath,
   writeBinaryBlob,
 } from "../platform/desktopFiles";
+import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
+import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 
 type RenderJobState = {
   status: "idle" | "rendering" | "complete" | "cancelled" | "error";
@@ -78,6 +80,7 @@ export function LivingRoomRenderStudio({
     ?? scene.cameras[0];
   const outputPreset = matchRenderOutputPreset(settings);
   const isRendering = job.status === "rendering";
+  const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const resultIsCurrent = Boolean(
     latestResult
     && latestResult.projectId === project.id
@@ -320,7 +323,10 @@ export function LivingRoomRenderStudio({
         </aside>
 
         <div className="lr-render-stage">
-          <div className={`lr-render-live ${view === "preview" ? "is-visible" : ""}`}>
+          <div
+            className={`lr-render-live ${view === "preview" ? "is-visible" : ""}`}
+            data-testid="lr-render-live"
+          >
             {activeCamera ? (
               <LivingRoomRenderCanvas
                 ref={setCaptureHandle}
@@ -330,6 +336,9 @@ export function LivingRoomRenderStudio({
                 composition={settings.composition}
               />
             ) : <div className="lr-render-empty">No project camera is available.</div>}
+            {diagnostics && view === "preview" ? (
+              <RenderDiagnosticsPanel report={diagnostics} />
+            ) : null}
           </div>
           {view === "result" && latestResult ? (
             <figure className="lr-render-result">

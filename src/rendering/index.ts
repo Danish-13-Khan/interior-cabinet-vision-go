@@ -47,3 +47,8 @@ export { usePbrMaterial } from "./loaders/usePbrMaterial";
 export { EnvironmentLighting } from "./lighting/EnvironmentLighting";
 export { RenderLightingRig } from "./lighting/RenderLightingRig";
 export { SceneProjectLights } from "./lighting/SceneProjectLights";
+export {
+  collectRenderDiagnostics,
+  type RenderDiagnosticWarning,
+  type RenderDiagnosticsReport,
+} from "./qa";
