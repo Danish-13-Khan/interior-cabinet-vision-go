@@ -31,10 +31,16 @@ import { useRecentFiles } from "./useRecentFiles";
 import { loadInitialSessionState, useSessionPersist } from "./useSessionPersist";
 import { useProjectCommit } from "./useProjectCommit";
 import { useAppDerivedState } from "./useAppDerivedState";
+import {
+  createLivingRoomPlanThumbnail,
+  createLivingRoomRenderThumbnail,
+  preferLivingRoomBrowserThumbnail,
+} from "../domain/livingRoom";
 
 export function useAppControllerSession() {
   const sceneRef = useRef<CabinetSceneHandle | null>(null);
   const clipboardRef = useRef<CabinetInstance[]>([]);
+  const livingRoomBrowserThumbnailRef = useRef<string | null>(null);
   const initialSession = useRef(loadInitialSessionState()).current;
   const [project, setProject] = useState<CabinetProject>(() =>
     clampCabinetProject(defaultCabinetProject),
@@ -150,10 +156,22 @@ export function useAppControllerSession() {
   } = useSavedProjectBrowser({
     project,
     room,
-    captureThumbnail: () => sceneRef.current?.captureThumbnail() ?? "",
+    captureThumbnail: () => {
+      const plan = project.interiorDocument
+        ? createLivingRoomPlanThumbnail(project.interiorDocument)
+        : sceneRef.current?.captureThumbnail() ?? "";
+      return preferLivingRoomBrowserThumbnail(
+        livingRoomBrowserThumbnailRef.current,
+        plan,
+      );
+    },
     applySnapshot,
     onStatus: setProjectStatus,
   });
+
+  async function setLivingRoomBrowserThumbnail(dataUrl: string) {
+    livingRoomBrowserThumbnailRef.current = await createLivingRoomRenderThumbnail(dataUrl);
+  }
 
   useSessionPersist({
     projectFilePath,
@@ -295,6 +313,7 @@ export function useAppControllerSession() {
     handleDeleteSavedProject,
     handleRenameSavedProject,
     handleDuplicateSavedProject,
+    setLivingRoomBrowserThumbnail,
     replaceSelection,
     toggleCabinetSelection,
     isCabinetLocked,

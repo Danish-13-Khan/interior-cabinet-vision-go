@@ -14,6 +14,10 @@ export async function optimizeSceneImage(dataUrl: string | null): Promise<string
     return null;
   }
 
+  if (typeof Image === "undefined" || typeof document === "undefined") {
+    return dataUrl;
+  }
+
   return new Promise((resolve) => {
     const image = new Image();
 

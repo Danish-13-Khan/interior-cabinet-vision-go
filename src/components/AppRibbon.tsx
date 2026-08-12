@@ -19,6 +19,7 @@ type AppRibbonProps = {
   toolRailVisible: boolean;
   inspectorVisible: boolean;
   recentFiles: RecentFileEntry[];
+  isDirty: boolean;
   onNew: () => void;
   onOpen: () => void;
   onSave: () => void;
@@ -54,6 +55,7 @@ export function AppRibbon({
   toolRailVisible,
   inspectorVisible,
   recentFiles,
+  isDirty,
   onNew,
   onOpen,
   onSave,
@@ -82,7 +84,7 @@ export function AppRibbon({
     <header className="app-ribbon" aria-label="Command ribbon">
       <div className="ribbon-brand">
         <strong>Cabinet Designer</strong>
-        <span>{WORKBENCH_LABELS[workbenchMode]} · {workspaceLabel}</span>
+        <span>{WORKBENCH_LABELS[workbenchMode]} · {workspaceLabel}{isDirty ? " · Unsaved" : ""}</span>
       </div>
 
       <nav className="ribbon-workbenches" aria-label="Application workspaces">
@@ -154,13 +156,13 @@ export function AppRibbon({
               </div>
             ) : null}
           </div>
-          <button type="button" className="tb-btn" onClick={onSave} title="Save JSON file">
-            Save
+          <button type="button" className={`tb-btn ${isDirty ? "tb-accent" : ""}`} onClick={onSave} title="Save JSON file">
+            {isDirty ? "Save *" : "Save"}
           </button>
         </div>
       </div>
 
-      {workbenchMode === "cabinets" || workbenchMode === "room" ? <div className="ribbon-group">
+      {workbenchMode === "cabinets" || workbenchMode === "room" || workbenchMode === "interiors" ? <div className="ribbon-group">
         <span className="ribbon-group-label">Edit</span>
         <div className="ribbon-group-actions">
           <button type="button" className="tb-btn" onClick={onUndo} disabled={!canUndo} title="Undo">
@@ -169,33 +171,13 @@ export function AppRibbon({
           <button type="button" className="tb-btn" onClick={onRedo} disabled={!canRedo} title="Redo">
             Redo
           </button>
-          <button
-            type="button"
-            className="tb-btn"
-            onClick={onCopy}
-            disabled={!hasSelection}
-            title="Copy"
-          >
-            Copy
-          </button>
-          <button
-            type="button"
-            className="tb-btn"
-            onClick={onPaste}
-            disabled={!hasClipboard}
-            title="Paste"
-          >
-            Paste
-          </button>
-          <button
-            type="button"
-            className="tb-btn"
-            onClick={onDuplicate}
-            disabled={!hasSelection}
-            title="Duplicate"
-          >
-            Duplicate
-          </button>
+          {workbenchMode !== "interiors" ? (
+            <>
+              <button type="button" className="tb-btn" onClick={onCopy} disabled={!hasSelection} title="Copy">Copy</button>
+              <button type="button" className="tb-btn" onClick={onPaste} disabled={!hasClipboard} title="Paste">Paste</button>
+              <button type="button" className="tb-btn" onClick={onDuplicate} disabled={!hasSelection} title="Duplicate">Duplicate</button>
+            </>
+          ) : null}
         </div>
       </div> : null}
 

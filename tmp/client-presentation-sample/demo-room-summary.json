@@ -1,0 +1,15 @@
+{
+  "projectId": "living-room-release-demo",
+  "projectName": "Living Room Release Demo",
+  "roomId": "room-1",
+  "roomName": "Living Room",
+  "widthMm": 5000,
+  "depthMm": 4000,
+  "heightMm": 2700,
+  "objectCount": 8,
+  "materialCount": 9,
+  "cameraCount": 3,
+  "styleId": "nordic-light",
+  "styleName": "Nordic Light",
+  "lightingRecipeId": "daylight"
+}
