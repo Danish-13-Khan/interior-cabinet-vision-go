@@ -6,7 +6,11 @@ import type {
 import { getMaterialAsset } from "../assets/assetRegistry";
 import {
   bumpScaleForRenderMode,
+  clearcoatForRenderMode,
   envIntensityForRenderMode,
+  roughnessForRenderMode,
+  sheenForRenderMode,
+  specularForRenderMode,
 } from "./materialScale";
 import {
   createProceduralSurfaceMaps,
@@ -67,10 +71,14 @@ export function createPbrMaterialDescriptor(
     mode,
   );
   const baseEnv = isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.82 : isFabric ? 0.38 : 0.48;
+  const baseClearcoat = isWood ? 0.22 : kind === "paint" ? 0.05 : 0;
+  const baseSheen = isFabric ? 0.72 : 0;
+  const baseSpecular = isFabric ? 0.28 : isWood ? 0.5 : 1;
+  const tunedRoughness = isMirror ? 0.08 : roughnessForRenderMode(mode, roughness);
   return {
     asset,
     color,
-    roughness: isMirror ? 0.08 : roughness,
+    roughness: tunedRoughness,
     metalness: isMirror ? 0.82 : metalness,
     opacity: isMirror ? 1 : isGlass ? Math.max(0.42, opacity) : opacity,
     transparent: isMirror ? false : opacity < 1 || isGlass,
@@ -78,13 +86,13 @@ export function createPbrMaterialDescriptor(
     transmission: isMirror ? 0 : isGlass ? 0.72 : 0,
     thickness: isGlass ? 0.018 : 0,
     ior: isGlass ? 1.5 : 1.45,
-    clearcoat: isWood ? 0.22 : kind === "paint" ? 0.05 : 0,
-    clearcoatRoughness: isWood ? 0.52 : 0.78,
-    sheen: isFabric ? 0.72 : 0,
+    clearcoat: clearcoatForRenderMode(mode, baseClearcoat),
+    clearcoatRoughness: isWood ? (mode === "hero" ? 0.42 : 0.52) : 0.78,
+    sheen: sheenForRenderMode(mode, baseSheen),
     sheenColor: isFabric ? color : "#000000",
-    sheenRoughness: isFabric ? 0.82 : 1,
+    sheenRoughness: isFabric ? (mode === "hero" ? 0.74 : 0.82) : 1,
     envMapIntensity: envIntensityForRenderMode(mode, baseEnv),
-    specularIntensity: isFabric ? 0.28 : isWood ? 0.5 : 1,
+    specularIntensity: specularForRenderMode(mode, baseSpecular),
     maps,
     bumpScale: bumpScaleForRenderMode(mode, maps.bumpScale ?? 0.008),
   };

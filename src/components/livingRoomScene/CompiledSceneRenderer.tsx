@@ -84,7 +84,13 @@ export function CompiledSceneRenderer({
   return (
     <>
       <RendererColorPipeline scene={scene} />
-      <CameraRig scene={scene} activeCameraId={activeCameraId} controlsRef={controlsRef} composition={renderComposition} />
+      <CameraRig
+        scene={scene}
+        activeCameraId={activeCameraId}
+        controlsRef={controlsRef}
+        composition={renderComposition}
+        renderMode={renderMode}
+      />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
       <hemisphereLight
@@ -128,8 +134,8 @@ export function CompiledSceneRenderer({
         key={scene.fingerprint}
         position={[0, 0.004, 0]}
         scale={Math.max(8, roomSpan + 1)}
-        opacity={environment.contactShadowOpacity}
-        blur={environment.contactShadowBlur}
+        opacity={environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale}
+        blur={environment.contactShadowBlur * lightingQuality.contactShadowBlurScale}
         far={4}
         resolution={lightingQuality.contactShadowResolution}
         frames={1}

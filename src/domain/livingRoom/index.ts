@@ -33,15 +33,28 @@ export {
 export {
   createLivingRoomRenderResult,
   getRenderQualityPreset,
-  resolveRenderCameraPose,
   livingRoomRenderFileName,
   matchRenderOutputPreset,
   RENDER_OUTPUT_PRESETS,
   RENDER_QUALITY_PRESETS,
+  resolveRenderCameraPose,
   type LivingRoomRenderResult,
   type RenderOutputPreset,
   type RenderQualityPreset,
 } from "./renderStudio";
+export {
+  getRenderModeQuality,
+  resolveHeroCaptureTuning,
+  resolveHeroContactShadowTuning,
+  resolveHeroRenderScale,
+  type HeroCaptureTuning,
+  type HeroContactShadowTuning,
+} from "./heroRenderQuality";
+export {
+  HERO_FOCAL_PRESETS,
+  type HeroFocalPreset,
+  type HeroFocalPresetId,
+} from "./renderCameraPose";
 export {
   clearLivingRoomRecovery,
   createLivingRoomPlanThumbnail,
@@ -105,7 +118,6 @@ export {
   createObjectRenderBinding,
   createProceduralRenderBinding,
   expectedStrategyForCatalogItem,
-  getRenderModeQuality,
   GLB_INTENT_CATALOG_IDS,
   materialAssetIdForEntity,
   resolveEffectiveRenderStrategy,

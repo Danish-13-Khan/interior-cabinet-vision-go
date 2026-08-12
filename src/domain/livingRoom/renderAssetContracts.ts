@@ -87,4 +87,9 @@ export type RenderModeQuality = {
   textureDetail: "low" | "high";
   envMapIntensityScale: number;
   bumpScale: number;
+  clearcoatScale: number;
+  sheenScale: number;
+  specularScale: number;
+  /** Added to base roughness in hero mode (negative = glossier). */
+  roughnessLift: number;
 };

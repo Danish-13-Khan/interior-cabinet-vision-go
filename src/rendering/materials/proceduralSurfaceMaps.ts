@@ -6,7 +6,7 @@ import {
 } from "three";
 import type { CompiledMaterial } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import { getRenderModeQuality } from "../../domain/livingRoom/renderAssetBindings";
+import { getRenderModeQuality } from "../../domain/livingRoom/heroRenderQuality";
 import {
   anisotropyForRenderMode,
   textureRepeatFromUvScaleMm,

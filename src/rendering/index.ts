@@ -27,10 +27,15 @@ export { applyGlbSlotMaterials } from "./materials/applyGlbSlotMaterials";
 export {
   anisotropyForRenderMode,
   bumpScaleForRenderMode,
+  clearcoatForRenderMode,
   envIntensityForRenderMode,
+  roughnessForRenderMode,
+  sheenForRenderMode,
+  specularForRenderMode,
   textureRepeatFromUvScaleMm,
 } from "./materials/materialScale";
 export { createProceduralSurfaceMaps } from "./materials/proceduralSurfaceMaps";
+export { drawHeroVignette } from "./export/heroExportPolish";
 export { measureObjectSizeMeters } from "./loaders/measureObjectBounds";
 export { useModelAsset, type ModelAssetState } from "./loaders/useModelAsset";
 export { usePbrMaterial } from "./loaders/usePbrMaterial";
