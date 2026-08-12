@@ -75,14 +75,14 @@ function App() {
 
   return (
     <main
-      className="app-shell"
+      className={`app-shell${workbenchMode === "interiors" ? " app-shell-interiors" : ""}`}
       style={{
         ["--tool-rail-width" as string]: `${c.layout.toolRailWidthPx}px`,
         ["--inspector-width" as string]: `${c.layout.inspectorWidthPx}px`,
         ["--status-dock-height" as string]: `${c.layout.statusDockHeightPx}px`,
       }}
     >
-      <AppRibbon
+      {workbenchMode !== "interiors" ? <AppRibbon
         workbenchMode={workbenchMode}
         workspaceLabel={
           workbenchMode === "room" ||
@@ -101,7 +101,7 @@ function App() {
         inspectorVisible={c.layout.inspectorVisible}
         recentFiles={c.recentFiles}
         isDirty={c.isProjectDirty}
-        onNew={workbenchMode === "interiors" ? c.openLivingRoomProjectHome : c.handleReset}
+        onNew={c.handleReset}
         onOpen={c.handleLoadProject}
         onSave={c.handleSaveProject}
         onOpenRecent={(path) => { void c.handleOpenRecentFile(path); }}
@@ -128,7 +128,7 @@ function App() {
           c.setIsCommandBarOpen(false);
         }}
         onWorkbenchModeChange={handleWorkbenchModeChange}
-      />
+      /> : null}
 
       <AppMainBody
         workbenchMode={workbenchMode}
@@ -245,6 +245,10 @@ function App() {
             onLightingChange={c.setLivingRoomLightingRecipe}
             onUndo={c.handleUndo}
             onRedo={c.handleRedo}
+            onOpenProject={c.handleLoadProject}
+            onSaveProject={c.handleSaveProject}
+            onExportProject={c.handleExportProjectJson}
+            onWorkbenchModeChange={handleWorkbenchModeChange}
           />
         )}
         toolRailVisible={c.layout.toolRailVisible}
@@ -541,22 +545,14 @@ function App() {
         onCloseContextMenu={() => c.setContextMenu(null)}
       />
 
-      <AppStatusDock
+      {workbenchMode !== "interiors" ? <AppStatusDock
         workbenchMode={workbenchMode}
         project={c.project}
         projectStatus={c.projectStatus}
         workspaceLabel={WORKBENCH_LABELS[workbenchMode]}
         selectedCabinet={c.selectedCabinet}
-        selectedCabinetIds={
-          workbenchMode === "interiors"
-            ? c.selectedInteriorObjectIds
-            : c.selectedCabinetIds
-        }
-        validationMessages={
-          workbenchMode === "interiors"
-            ? c.livingRoomIssues.map((issue) => issue.message)
-            : c.validationMessages
-        }
+        selectedCabinetIds={c.selectedCabinetIds}
+        validationMessages={c.validationMessages}
         statusDockOpen={false}
         dockHeightPx={c.layout.statusDockHeightPx}
         onToggleStatusDock={() => handleWorkbenchModeChange("reports")}
@@ -610,7 +606,7 @@ function App() {
             showGrid: !c.projectPreferences.showGrid,
           })
         }
-      />
+      /> : null}
     </main>
   );
 }

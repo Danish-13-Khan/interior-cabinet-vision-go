@@ -62,7 +62,7 @@ export function LivingRoomRenderStudio({
   onLightingChange,
 }: LivingRoomRenderStudioProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
-  const captureRef = useRef<RenderCaptureHandle | null>(null);
+  const [captureHandle, setCaptureHandle] = useState<RenderCaptureHandle | null>(null);
   const jobTokenRef = useRef(0);
   const [job, setJob] = useState<RenderJobState>(INITIAL_JOB);
   const [view, setView] = useState<"preview" | "result" | "compare">(
@@ -96,7 +96,7 @@ export function LivingRoomRenderStudio({
     let disposed = false;
     void (async () => {
       await delay(350);
-      const capture = captureRef.current;
+      const capture = captureHandle;
       if (!capture || disposed) return;
       const next: Record<string, string> = {};
       for (const camera of scene.cameras) {
@@ -116,10 +116,10 @@ export function LivingRoomRenderStudio({
       disposed = true;
       jobTokenRef.current += 1;
     };
-  }, [scene.fingerprint]);
+  }, [captureHandle, scene.cameras, scene.fingerprint]);
 
   async function renderImage() {
-    const capture = captureRef.current;
+    const capture = captureHandle;
     if (!capture || !activeCamera || isRendering) return;
     const token = ++jobTokenRef.current;
     const continueJob = () => token === jobTokenRef.current;
@@ -201,7 +201,7 @@ export function LivingRoomRenderStudio({
         </nav>
         <div className="lr-render-actions">
           {(job.status === "error" || job.status === "cancelled") ? <button type="button" onClick={() => void renderImage()}>Retry</button> : null}
-          <button type="button" className="is-primary" onClick={() => void renderImage()} disabled={isRendering || !activeCamera}>
+          <button type="button" className="is-primary" onClick={() => void renderImage()} disabled={isRendering || !activeCamera || !captureHandle}>
             {isRendering ? "Rendering…" : "Render Image"}
           </button>
           <button type="button" onClick={() => void exportPng()} disabled={!latestResult || isRendering}>Export PNG</button>
@@ -292,7 +292,7 @@ export function LivingRoomRenderStudio({
           <div className={`lr-render-live ${view === "preview" ? "is-visible" : ""}`}>
             {activeCamera ? (
               <LivingRoomRenderCanvas
-                ref={captureRef}
+                ref={setCaptureHandle}
                 scene={scene}
                 activeCameraId={activeCamera.id}
                 quality={settings.quality}
