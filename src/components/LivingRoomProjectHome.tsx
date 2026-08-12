@@ -191,7 +191,7 @@ export function LivingRoomProjectHome({
           ) : (
             <div className="lr-recent-empty">
               <strong>No saved living rooms yet</strong>
-              <p>Save a living-room project and its plan preview will appear here.</p>
+              <p>Save a living-room project after rendering to pin a client preview thumbnail here.</p>
             </div>
           )}
         </section>

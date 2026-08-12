@@ -68,6 +68,7 @@ type LivingRoomPlanWorkspaceProps = {
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
+  onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onUndo: () => void;
   onRedo: () => void;
   onOpenProject: () => void;
@@ -560,6 +561,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               }))}
               onSettingsChange={props.onRenderSettingsChange}
               onLightingChange={props.onLightingChange}
+              onBrowserThumbnail={props.onRenderBrowserThumbnail}
             />
           )}
         </div>

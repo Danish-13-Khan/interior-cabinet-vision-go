@@ -19,9 +19,11 @@ import {
   writeBinaryBlob,
 } from "../platform/desktopFiles";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
+import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
+import { LivingRoomRenderCamerasPanel } from "./livingRoomScene/LivingRoomRenderCamerasPanel";
 
 type RenderJobState = {
   status: "idle" | "rendering" | "complete" | "cancelled" | "error";
@@ -37,6 +39,7 @@ type LivingRoomRenderStudioProps = {
   onRendered: (result: LivingRoomRenderResult) => void;
   onSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
+  onBrowserThumbnail?: (dataUrl: string) => void;
 };
 
 const INITIAL_JOB: RenderJobState = {
@@ -62,6 +65,7 @@ export function LivingRoomRenderStudio({
   onRendered,
   onSettingsChange,
   onLightingChange,
+  onBrowserThumbnail,
 }: LivingRoomRenderStudioProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const [captureHandle, setCaptureHandle] = useState<RenderCaptureHandle | null>(null);
@@ -74,6 +78,7 @@ export function LivingRoomRenderStudio({
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const [exposureDraft, setExposureDraft] = useState(project.renderSettings.exposure);
   const [exportStatus, setExportStatus] = useState("");
+  const clientExport = useClientPresentationExport();
   const settings = project.renderSettings;
   const activeCamera = scene.cameras.find((camera) => camera.id === settings.activeCameraId)
     ?? scene.cameras.find((camera) => camera.isDefault)
@@ -155,6 +160,7 @@ export function LivingRoomRenderStudio({
         camera: activeCamera,
       });
       onRendered(result);
+      onBrowserThumbnail?.(dataUrl);
       setView("result");
       setJob({ status: "complete", progress: 100, stage: "Render complete", error: null });
     } catch (error) {
@@ -211,6 +217,13 @@ export function LivingRoomRenderStudio({
             {isRendering ? "Rendering…" : "Render Image"}
           </button>
           <button type="button" onClick={() => void exportPng()} disabled={!latestResult || isRendering}>Export PNG</button>
+          <button
+            type="button"
+            onClick={() => void clientExport.exportClientPreview(project, latestResult)}
+            disabled={isRendering || clientExport.busy}
+          >
+            {clientExport.busy ? "Packaging…" : "Export Client Preview"}
+          </button>
         </div>
       </header>
 
@@ -381,29 +394,15 @@ export function LivingRoomRenderStudio({
           {job.status === "error" ? <div className="lr-render-error">{job.error}</div> : null}
         </div>
 
-        <aside className="lr-render-cameras" aria-label="Render cameras">
-          <header><strong>Cameras</strong><span>{scene.cameras.length}</span></header>
-          {scene.cameras.map((camera, index) => (
-            <button
-              type="button"
-              key={camera.id}
-              className={camera.id === activeCamera?.id ? "is-active" : ""}
-              onClick={() => onSettingsChange({ activeCameraId: camera.id })}
-            >
-              <span className="lr-camera-thumbnail">
-                {thumbnails[camera.id] ? <img src={thumbnails[camera.id]} alt="" /> : <i>CAM {String(index + 1).padStart(2, "0")}</i>}
-              </span>
-              <strong>{camera.name}</strong>
-              <small>{camera.fieldOfViewDegrees}° lens</small>
-            </button>
-          ))}
-          <div className="lr-render-history">
-            <strong>Render History</strong>
-            <span>{latestResult ? "Latest frame ready" : "No renders yet"}</span>
-            <span>{previousResult ? "Comparison frame ready" : "Render twice to compare"}</span>
-          </div>
-          {exportStatus ? <p>{exportStatus}</p> : null}
-        </aside>
+        <LivingRoomRenderCamerasPanel
+          cameras={scene.cameras}
+          activeCameraId={activeCamera?.id}
+          thumbnails={thumbnails}
+          latestResult={latestResult}
+          previousResult={previousResult}
+          statusMessage={clientExport.status || exportStatus}
+          onSelectCamera={(cameraId) => onSettingsChange({ activeCameraId: cameraId })}
+        />
       </div>
     </section>
   );
