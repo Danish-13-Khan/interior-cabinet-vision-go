@@ -50,6 +50,7 @@ export const LivingRoomRenderCanvas = forwardRef<
         interactive={false}
         renderQuality={quality}
         renderComposition={composition}
+        renderMode="hero"
         onSelect={ignoreSelection}
         onMove={ignoreMove}
       />
