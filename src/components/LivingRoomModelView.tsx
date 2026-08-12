@@ -17,6 +17,7 @@ type LivingRoomModelViewProps = {
   showGrid: boolean;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
 };
 
@@ -27,6 +28,7 @@ export function LivingRoomModelView({
   showGrid,
   onSelect,
   onMove,
+  onSetRotation,
   onApplyStyle,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
@@ -39,6 +41,10 @@ export function LivingRoomModelView({
   const quality = getRenderQualityPreset(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
+  const activeObject = selectedIds.length === 1
+    ? project.objects.find((object) => object.id === selectedIds[0])
+    : null;
+  const activeRotation = activeObject ? Math.round(activeObject.rotation.y) : 0;
 
   return (
     <div className="lr-model-viewport">
@@ -61,6 +67,28 @@ export function LivingRoomModelView({
         </label>
         <button type="button" className={cutawayWalls ? "is-active" : ""} onClick={() => setCutawayWalls((current) => !current)}>
           Cutaway walls
+        </button>
+        <label>
+          Rotate
+          <input
+            aria-label="Selected object rotation"
+            type="range"
+            min="0"
+            max="345"
+            step="15"
+            value={activeRotation}
+            disabled={!activeObject}
+            onChange={(event) => {
+              if (activeObject) onSetRotation(activeObject.id, Number(event.target.value));
+            }}
+          />
+          <b>{activeObject ? `${activeRotation}°` : "None"}</b>
+        </label>
+        <button type="button" onClick={() => activeObject && onSetRotation(activeObject.id, activeRotation - 90)} disabled={!activeObject}>
+          -90°
+        </button>
+        <button type="button" onClick={() => activeObject && onSetRotation(activeObject.id, activeRotation + 90)} disabled={!activeObject}>
+          +90°
         </button>
         <label>
           Quality

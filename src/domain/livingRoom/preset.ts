@@ -107,7 +107,7 @@ const OBJECT_LAYOUT: readonly {
     key: "sofa",
     catalogItemId: "living:sofa-3-seat",
     position: { x: 0, y: 0, z: 1150 },
-    rotationY: 180,
+    rotationY: 0,
   },
   {
     key: "lounge-chair",

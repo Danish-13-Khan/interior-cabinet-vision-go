@@ -5,6 +5,7 @@ import {
   MOUSE,
   ACESFilmicToneMapping,
   PCFShadowMap,
+  PCFSoftShadowMap,
   Plane,
   SRGBColorSpace,
   Vector3,
@@ -69,12 +70,12 @@ function CompiledMaterialView({
       transmission={isMirror ? 0 : isGlass ? 0.72 : 0}
       thickness={isGlass ? 0.018 : 0}
       ior={isGlass ? 1.5 : 1.45}
-      clearcoat={isWood ? 0.16 : material.kind === "paint" ? 0.08 : 0}
-      clearcoatRoughness={isWood ? 0.48 : 0.65}
+      clearcoat={isWood ? 0.22 : material.kind === "paint" ? 0.05 : 0}
+      clearcoatRoughness={isWood ? 0.52 : 0.78}
       sheen={isFabric ? 0.72 : 0}
       sheenColor={isFabric ? material.color : "#000000"}
       sheenRoughness={isFabric ? 0.82 : 1}
-      envMapIntensity={isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.7 : 0.55}
+      envMapIntensity={isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.82 : isFabric ? 0.38 : 0.48}
       specularIntensity={isFabric ? 0.28 : isWood ? 0.5 : 1}
     />
   );
@@ -296,7 +297,7 @@ function CompiledLights({
           return <ambientLight key={light.id} color={light.color} intensity={light.intensity * 0.58} />;
         }
         if (light.kind === "directional") {
-          return <directionalLight key={light.id} position={position} color={light.color} intensity={light.intensity} castShadow={light.parameters.castShadow === true} shadow-mapSize={[shadowMapSize, shadowMapSize]} shadow-bias={-0.00035} shadow-normalBias={0.025} shadow-radius={shadowRadius} shadow-camera-near={0.1} shadow-camera-far={30} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} />;
+          return <directionalLight key={light.id} position={position} color={light.color} intensity={light.intensity * 0.86} castShadow={light.parameters.castShadow === true} shadow-mapSize={[shadowMapSize, shadowMapSize]} shadow-bias={-0.00028} shadow-normalBias={0.04} shadow-radius={shadowRadius + 2} shadow-camera-near={0.1} shadow-camera-far={30} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} />;
         }
         if (light.kind === "point") {
           return <pointLight key={light.id} position={position} color={light.color} intensity={light.intensity} distance={Number(light.parameters.rangeMm ?? 5000) / 1000} castShadow shadow-radius={shadowRadius} />;
@@ -326,7 +327,7 @@ function RendererColorPipeline({ scene }: { scene: CompiledLivingRoomScene }) {
     gl.outputColorSpace = SRGBColorSpace;
     gl.toneMapping = ACESFilmicToneMapping;
     gl.toneMappingExposure = scene.style.colorManagement.exposure;
-    gl.shadowMap.type = PCFShadowMap;
+    gl.shadowMap.type = scene.style.colorManagement.exposure > 1 ? PCFSoftShadowMap : PCFShadowMap;
   }, [gl, scene.style.colorManagement]);
   return null;
 }
