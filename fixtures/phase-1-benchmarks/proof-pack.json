@@ -1,0 +1,199 @@
+{
+  "version": 1,
+  "generatedAt": "2026-08-12T18:00:00.000Z",
+  "latencyEnvironment": "tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run",
+  "frameCount": 6,
+  "frames": [
+    {
+      "frameId": "bench-daylight-sofa/camera-a",
+      "benchmarkId": "bench-daylight-sofa",
+      "cameraKey": "camera-a",
+      "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
+      "projectId": "phase1-bench-daylight-sofa"
+    },
+    {
+      "frameId": "bench-daylight-sofa/camera-b",
+      "benchmarkId": "bench-daylight-sofa",
+      "cameraKey": "camera-b",
+      "cameraId": "lr-camera-bench-daylight-sofa-camera-b",
+      "projectId": "phase1-bench-daylight-sofa"
+    },
+    {
+      "frameId": "bench-millwork-media/camera-a",
+      "benchmarkId": "bench-millwork-media",
+      "cameraKey": "camera-a",
+      "cameraId": "lr-camera-bench-millwork-media-camera-a",
+      "projectId": "phase1-bench-millwork-media"
+    },
+    {
+      "frameId": "bench-millwork-media/camera-b",
+      "benchmarkId": "bench-millwork-media",
+      "cameraKey": "camera-b",
+      "cameraId": "lr-camera-bench-millwork-media-camera-b",
+      "projectId": "phase1-bench-millwork-media"
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-a",
+      "benchmarkId": "bench-evening-lamp",
+      "cameraKey": "camera-a",
+      "cameraId": "lr-camera-bench-evening-lamp-camera-a",
+      "projectId": "phase1-bench-evening-lamp"
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-b",
+      "benchmarkId": "bench-evening-lamp",
+      "cameraKey": "camera-b",
+      "cameraId": "lr-camera-bench-evening-lamp-camera-b",
+      "projectId": "phase1-bench-evening-lamp"
+    }
+  ],
+  "checks": [
+    {
+      "id": "ladder",
+      "status": "pass",
+      "detail": "All 6 frames differ on ≥3 Draft vs Client Preview axes."
+    },
+    {
+      "id": "grounding",
+      "status": "pass",
+      "detail": "Client Preview contact opacity 0.94 / res 768 / far 4m"
+    },
+    {
+      "id": "window-key",
+      "status": "pass",
+      "detail": "Windowed benchmarks emit a stronger shadowed Client Preview key."
+    },
+    {
+      "id": "framing",
+      "status": "pass",
+      "detail": "All 6 hero frames pass eye-level framing QA (no ceiling-heavy / cut-feet)."
+    },
+    {
+      "id": "latency",
+      "status": "pending",
+      "detail": "Manual capture required under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run"
+    },
+    {
+      "id": "honesty",
+      "status": "pass",
+      "detail": "Preset honesty copy avoids photoreal / Synaps / AI claims."
+    },
+    {
+      "id": "automation",
+      "status": "pending",
+      "detail": "Run `npm run phase1:proof` (assets/presets/phase1 unit gates). Mark pass in PR when green."
+    },
+    {
+      "id": "data-safety",
+      "status": "pass",
+      "detail": "Benchmark projects serialize/load without Three/path payloads."
+    }
+  ],
+  "frameLadders": [
+    {
+      "frameId": "bench-daylight-sofa/camera-a",
+      "differences": [
+        "key-light-contrast",
+        "contact-grounding",
+        "material-punch",
+        "exposure-framing"
+      ],
+      "pass": true
+    },
+    {
+      "frameId": "bench-daylight-sofa/camera-b",
+      "differences": [
+        "key-light-contrast",
+        "contact-grounding",
+        "material-punch",
+        "exposure-framing"
+      ],
+      "pass": true
+    },
+    {
+      "frameId": "bench-millwork-media/camera-a",
+      "differences": [
+        "key-light-contrast",
+        "contact-grounding",
+        "material-punch",
+        "exposure-framing"
+      ],
+      "pass": true
+    },
+    {
+      "frameId": "bench-millwork-media/camera-b",
+      "differences": [
+        "key-light-contrast",
+        "contact-grounding",
+        "material-punch",
+        "exposure-framing"
+      ],
+      "pass": true
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-a",
+      "differences": [
+        "key-light-contrast",
+        "contact-grounding",
+        "material-punch",
+        "exposure-framing"
+      ],
+      "pass": true
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-b",
+      "differences": [
+        "key-light-contrast",
+        "contact-grounding",
+        "material-punch",
+        "exposure-framing"
+      ],
+      "pass": true
+    }
+  ],
+  "latencyTable": [
+    {
+      "frameId": "bench-daylight-sofa/camera-a",
+      "draftMs": null,
+      "clientPreviewMs": null,
+      "draftPass": null,
+      "clientPreviewPass": null
+    },
+    {
+      "frameId": "bench-daylight-sofa/camera-b",
+      "draftMs": null,
+      "clientPreviewMs": null,
+      "draftPass": null,
+      "clientPreviewPass": null
+    },
+    {
+      "frameId": "bench-millwork-media/camera-a",
+      "draftMs": null,
+      "clientPreviewMs": null,
+      "draftPass": null,
+      "clientPreviewPass": null
+    },
+    {
+      "frameId": "bench-millwork-media/camera-b",
+      "draftMs": null,
+      "clientPreviewMs": null,
+      "draftPass": null,
+      "clientPreviewPass": null
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-a",
+      "draftMs": null,
+      "clientPreviewMs": null,
+      "draftPass": null,
+      "clientPreviewPass": null
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-b",
+      "draftMs": null,
+      "clientPreviewMs": null,
+      "draftPass": null,
+      "clientPreviewPass": null
+    }
+  ],
+  "overall": "pending"
+}
