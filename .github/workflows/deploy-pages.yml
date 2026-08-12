@@ -9,7 +9,9 @@ name: Deploy GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - codex/living-room-visualizer-mvp
   workflow_dispatch:
 
 permissions:

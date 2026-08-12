@@ -5,10 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run",
+    "test": "vitest run src",
+    "test:e2e": "playwright test",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "assets:curated": "node scripts/curated-assets/generate-pack.mjs",
+    "qa:assets": "node scripts/render-qa/check-assets.mjs",
+    "qa:render": "node scripts/render-qa/run-unit.mjs",
+    "qa:smoke": "playwright test tests/e2e/render-qa-smoke.spec.ts",
+    "presentation:sample": "node scripts/client-presentation/build-sample.mjs",
+    "presentation:check": "node scripts/client-presentation/check.mjs",
+    "presets:list": "node scripts/render-presets/list-presets.mjs",
+    "presets:check": "node scripts/render-presets/check.mjs",
+    "tauri": "tauri",
+    "release:check": "npm test && npm run build && npm run test:e2e && cargo test --manifest-path src-tauri/Cargo.toml",
+    "release:mac": "npm run tauri build -- --bundles app,dmg"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -23,6 +34,7 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tauri-apps/cli": "^2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

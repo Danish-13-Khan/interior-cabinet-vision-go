@@ -398,5 +398,8 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
       project.sheetSet,
       project.sheetSet?.activeSheetId ?? "plan",
     ),
+    rooms: project.rooms,
+    activeRoomId: project.activeRoomId,
+    interiorDocument: project.interiorDocument,
   };
 }

@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  clampCabinetProject,
-  type CabinetConfig,
   type CabinetProject,
 } from "../domain/cabinetDimensions";
 import {
-  getActiveProjectRoom,
   normalizeMultiRoomProject,
   writeActiveRoomState,
 } from "../domain/projectRooms";
@@ -27,47 +24,42 @@ import {
   writeTextFile,
 } from "../platform/desktopFiles";
 import type { ApplySnapshot } from "./projectCommit";
+import {
+  interiorProjectFromCabinetProject,
+  loadInteriorProjectFile,
+  serializeInteriorProjectFile,
+  type InteriorProject,
+} from "../domain/interiorProject";
 
 type CutlistItem = ReturnType<typeof createProjectProductionCutlist>[number];
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
 
-type ParsedProjectFile = {
-  project?: CabinetProject;
-  config?: CabinetConfig;
-  room?: RoomConfig;
-};
-
 function snapshotFromParsedFile(
-  parsed: ParsedProjectFile,
+  parsed: unknown,
   fallbackRoom: RoomConfig,
-): { project: CabinetProject; room: RoomConfig } {
-  if (parsed.project) {
-    const safeProject = normalizeMultiRoomProject(
-      clampCabinetProject(parsed.project),
-      parsed.room ?? DEFAULT_ROOM,
-    );
-    const activeRoom = getActiveProjectRoom(safeProject);
-    return { project: safeProject, room: activeRoom.config };
-  }
+): { document: InteriorProject; project: CabinetProject; room: RoomConfig } {
+  const loaded = loadInteriorProjectFile(parsed, fallbackRoom);
+  return { document: loaded.document, project: loaded.project, room: loaded.room };
+}
 
-  if (parsed.config) {
-    const migratedProject = clampCabinetProject({
-      version: 1,
-      cabinets: [
-        {
-          id: "cabinet-1",
-          name: "Cabinet 1",
-          placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" },
-          config: parsed.config,
-          layerId: "layer-default",
-          groupId: null,
-        },
-      ],
-    });
-    return { project: migratedProject, room: fallbackRoom };
-  }
+function currentInteriorDocument(project: CabinetProject, room: RoomConfig) {
+  return project.interiorDocument ?? interiorProjectFromCabinetProject({
+    project,
+    activeRoom: room,
+  });
+}
 
-  throw new Error("Invalid project file format.");
+function persistenceFingerprint(document: InteriorProject) {
+  return JSON.stringify({ ...document, updatedAt: "" });
+}
+
+function projectFileName(projectName: string) {
+  const stem = projectName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "interior-project";
+  return `${stem}.json`;
 }
 
 type UseProjectFileIoArgs = {
@@ -102,6 +94,15 @@ export function useProjectFileIo({
   initialSession,
 }: UseProjectFileIoArgs) {
   const sessionRestoreAttempted = useRef(false);
+  const currentDocument = useMemo(
+    () => currentInteriorDocument(project, room),
+    [project, room],
+  );
+  const currentFingerprint = useMemo(
+    () => persistenceFingerprint(currentDocument),
+    [currentDocument],
+  );
+  const [savedFingerprint, setSavedFingerprint] = useState(currentFingerprint);
 
   useEffect(() => {
     if (sessionRestoreAttempted.current) return;
@@ -112,12 +113,12 @@ export function useProjectFileIo({
     void (async () => {
       try {
         const raw = await readTextFile(session.projectFilePath!);
-        const parsed = JSON.parse(raw) as ParsedProjectFile;
-        if (!parsed.project) return;
-        const { project: safeProject, room: activeRoom } = snapshotFromParsedFile(
+        const parsed = JSON.parse(raw) as unknown;
+        const loaded = snapshotFromParsedFile(
           parsed,
           DEFAULT_ROOM,
         );
+        const { project: safeProject, room: activeRoom } = loaded;
         const preferredIds = session.selectedCabinetIds.filter((id) =>
           safeProject.cabinets.some((cabinet) => cabinet.id === id),
         );
@@ -134,6 +135,7 @@ export function useProjectFileIo({
           selectedPanelName: null,
         });
         setProjectFilePath(session.projectFilePath);
+        setSavedFingerprint(persistenceFingerprint(loaded.document));
         rememberFile(session.projectFilePath!);
         onStatus("Restored previous session file.");
       } catch {
@@ -147,7 +149,7 @@ export function useProjectFileIo({
   }, []);
 
   const applyLoadedFile = useCallback(
-    (parsed: ParsedProjectFile, path: string, status: string) => {
+    (parsed: unknown, path: string, status: string) => {
       const loaded = snapshotFromParsedFile(parsed, room);
       applySnapshot({
         project: loaded.project,
@@ -159,6 +161,7 @@ export function useProjectFileIo({
         selectedPanelName: null,
       });
       setProjectFilePath(path);
+      setSavedFingerprint(persistenceFingerprint(loaded.document));
       rememberFile(path);
       onStatus(status);
     },
@@ -167,11 +170,18 @@ export function useProjectFileIo({
 
   const handleSaveProject = useCallback(async () => {
     try {
+      const document = project.interiorDocument ?? interiorProjectFromCabinetProject({
+        project: normalizeMultiRoomProject(
+          writeActiveRoomState(project, project.cabinets, room),
+          room,
+        ),
+        activeRoom: room,
+      });
       const targetPath =
         projectFilePath ??
         (await promptSavePath({
-          title: "Save Cabinet Project",
-          defaultPath: "cabinet-project.json",
+          title: "Save Interior Project",
+          defaultPath: projectFileName(document.name),
           extensions: ["json"],
         }));
 
@@ -180,28 +190,12 @@ export function useProjectFileIo({
         return;
       }
 
-      await writeFile(
-        targetPath,
-        JSON.stringify(
-          {
-            version: 3,
-            savedAt: new Date().toISOString(),
-            project: normalizeMultiRoomProject(
-              writeActiveRoomState(project, project.cabinets, room),
-              room,
-            ),
-            room,
-          },
-          null,
-          2,
-        ),
-      );
+      await writeFile(targetPath, serializeInteriorProjectFile(document));
 
       setProjectFilePath(targetPath);
+      setSavedFingerprint(persistenceFingerprint(document));
       rememberFile(targetPath);
-      saveCurrentProjectToBrowser(
-        targetPath.split(/[/\\]/).pop()?.replace(/\.json$/i, ""),
-      );
+      saveCurrentProjectToBrowser(document.name);
       onStatus(
         isTauriRuntime()
           ? "Project saved to JSON file."
@@ -232,7 +226,7 @@ export function useProjectFileIo({
         return;
       }
       applyLoadedFile(
-        JSON.parse(opened.contents) as ParsedProjectFile,
+        JSON.parse(opened.contents) as unknown,
         opened.path,
         isTauriRuntime()
           ? "Project loaded from JSON file."
@@ -252,7 +246,7 @@ export function useProjectFileIo({
         }
         const raw = await readTextFile(path);
         applyLoadedFile(
-          JSON.parse(raw) as ParsedProjectFile,
+          JSON.parse(raw) as unknown,
           path,
           `Opened recent file “${path.split(/[/\\]/).pop()}”.`,
         );
@@ -330,7 +324,7 @@ export function useProjectFileIo({
     try {
       const targetPath = await promptSavePath({
         title: "Export Project JSON",
-        defaultPath: "cabinet-project-export.json",
+        defaultPath: "interior-project-export.json",
         extensions: ["json"],
       });
 
@@ -341,21 +335,13 @@ export function useProjectFileIo({
 
       await writeFile(
         targetPath,
-        JSON.stringify(
-          {
-            version: 1,
-            exportedAt: new Date().toISOString(),
-            project,
-          },
-          null,
-          2,
-        ),
+        serializeInteriorProjectFile(currentDocument),
       );
       onStatus("Project exported to JSON.");
     } catch (error) {
       onStatus(`Project export failed: ${getErrorMessage(error)}`);
     }
-  }, [onStatus, project, writeFile]);
+  }, [currentDocument, onStatus, writeFile]);
 
   const handleExportPdf = useCallback(async () => {
     try {
@@ -387,6 +373,7 @@ export function useProjectFileIo({
 
   return {
     writeFile,
+    isProjectDirty: currentFingerprint !== savedFingerprint,
     handleSaveProject,
     handleLoadProject,
     handleOpenRecentFile,

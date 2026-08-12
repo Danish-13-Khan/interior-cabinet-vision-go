@@ -1,0 +1,54 @@
+{
+  "kind": "living-room-client-preview",
+  "version": 1,
+  "exportedAt": "2026-08-12T21:00:00.000Z",
+  "brand": "Interiors",
+  "deliverable": "client-presentation",
+  "files": [
+    "demo-hero-render.png",
+    "demo-client-preview.pdf",
+    "demo-project.json",
+    "demo-room-summary.json",
+    "demo-objects.json",
+    "demo-materials.json",
+    "demo-cameras.json",
+    "demo-manifest.json"
+  ],
+  "roomSummary": {
+    "projectId": "living-room-release-demo",
+    "projectName": "Living Room Release Demo",
+    "roomId": "room-1",
+    "roomName": "Living Room",
+    "widthMm": 5000,
+    "depthMm": 4000,
+    "heightMm": 2700,
+    "objectCount": 8,
+    "materialCount": 9,
+    "cameraCount": 3,
+    "styleId": "nordic-light",
+    "styleName": "Nordic Light",
+    "lightingRecipeId": "daylight"
+  },
+  "objects": [
+    {
+      "id": "sofa",
+      "name": "Sofa",
+      "category": "sofa"
+    }
+  ],
+  "materials": [
+    {
+      "id": "oak",
+      "name": "Natural Oak",
+      "kind": "wood",
+      "color": "#b98a58"
+    }
+  ],
+  "cameras": [
+    {
+      "id": "cam-1",
+      "name": "Wide",
+      "active": true
+    }
+  ]
+}

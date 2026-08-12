@@ -120,9 +120,9 @@ export function StatusStrip({
       </div>
       {validationMessages.length > 0 ? (
         <div className="output-warnings">
-          {validationMessages.map((message) => (
+          {validationMessages.map((message, index) => (
             <span
-              key={message}
+              key={`${index}-${message}`}
               className={`output-warn ${message.startsWith("Error:") ? "output-warn-error" : ""}`}
             >
               {message}

@@ -5,6 +5,7 @@ import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
 import { ReportCenter } from "./components/ReportCenter";
 import { JobWorkspace } from "./components/JobWorkspace";
+import { LivingRoomPlanWorkspace } from "./components/LivingRoomPlanWorkspace";
 import { createWallLayoutSummary, type WallLayoutSide } from "./domain/wallLayout";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
@@ -62,6 +63,11 @@ function App() {
     } else if (mode === "drawings") {
       patch.sheetBrowserVisible = true;
       patch.sceneBrowserVisible = false;
+    } else if (mode === "interiors") {
+      patch.workspaceTab = "plan";
+      patch.sceneBrowserVisible = false;
+      patch.sheetBrowserVisible = false;
+      if (!c.livingRoomDocument) c.openLivingRoomProjectHome();
     }
     c.setLayout(patch);
     c.setDraftingTool("select");
@@ -69,14 +75,14 @@ function App() {
 
   return (
     <main
-      className="app-shell"
+      className={`app-shell${workbenchMode === "interiors" ? " app-shell-interiors" : ""}`}
       style={{
         ["--tool-rail-width" as string]: `${c.layout.toolRailWidthPx}px`,
         ["--inspector-width" as string]: `${c.layout.inspectorWidthPx}px`,
         ["--status-dock-height" as string]: `${c.layout.statusDockHeightPx}px`,
       }}
     >
-      <AppRibbon
+      {workbenchMode !== "interiors" ? <AppRibbon
         workbenchMode={workbenchMode}
         workspaceLabel={
           workbenchMode === "room" ||
@@ -94,6 +100,7 @@ function App() {
         toolRailVisible={c.layout.toolRailVisible}
         inspectorVisible={c.layout.inspectorVisible}
         recentFiles={c.recentFiles}
+        isDirty={c.isProjectDirty}
         onNew={c.handleReset}
         onOpen={c.handleLoadProject}
         onSave={c.handleSaveProject}
@@ -121,7 +128,7 @@ function App() {
           c.setIsCommandBarOpen(false);
         }}
         onWorkbenchModeChange={handleWorkbenchModeChange}
-      />
+      /> : null}
 
       <AppMainBody
         workbenchMode={workbenchMode}
@@ -180,6 +187,73 @@ function App() {
             onOpen={c.handleLoadProject}
             onSave={c.handleSaveProject}
             onNavigate={handleWorkbenchModeChange}
+          />
+        )}
+        interiorWorkspace={(
+          <LivingRoomPlanWorkspace
+            project={c.livingRoomDocument}
+            selectedIds={c.selectedInteriorObjectIds}
+            selectedObjects={c.selectedInteriorObjects}
+            issues={c.livingRoomIssues}
+            canUndo={c.canUndo}
+            canRedo={c.canRedo}
+            toolRailVisible={c.layout.toolRailVisible}
+            inspectorVisible={c.layout.inspectorVisible}
+            toolRailWidthPx={c.layout.toolRailWidthPx}
+            inspectorWidthPx={c.layout.inspectorWidthPx}
+            projectHomeOpen={c.livingRoomProjectHomeOpen}
+            isDirty={c.isProjectDirty}
+            autosaveState={c.autosaveState}
+            lastAutosavedAt={c.lastAutosavedAt}
+            recovery={c.recovery}
+            recentProjects={c.sortedSavedProjects}
+            onCreateStarter={(options) => {
+              c.setProjectFilePath(null);
+              c.createLivingRoomStarter(options);
+            }}
+            onOpenDemo={() => {
+              c.setProjectFilePath(null);
+              c.discardRecovery();
+              c.openLivingRoomReleaseDemo();
+            }}
+            onOpenProjectHome={c.openLivingRoomProjectHome}
+            onCloseProjectHome={c.closeLivingRoomProjectHome}
+            onOpenRecentProject={(projectId) => {
+              c.setProjectFilePath(null);
+              c.handleLoadSavedProject(projectId);
+              c.closeLivingRoomProjectHome();
+            }}
+            onDeleteRecentProject={c.handleDeleteSavedProject}
+            onRestoreRecovery={() => {
+              c.setProjectFilePath(null);
+              c.restoreRecovery();
+            }}
+            onDiscardRecovery={c.discardRecovery}
+            onSelect={c.selectInteriorObject}
+            onMove={c.moveInteriorObject}
+            onResize={c.resizeInteriorObject}
+            onSetRotation={c.setInteriorObjectRotation}
+            onSetMaterial={c.setInteriorObjectMaterial}
+            onRotateSelection={c.rotateInteriorSelection}
+            onAddCatalogObject={c.addLivingRoomCatalogObject}
+            onDuplicate={c.duplicateInteriorSelection}
+            onDelete={c.deleteInteriorSelection}
+            onAlign={c.alignInteriorSelection}
+            onNudge={c.nudgeInteriorSelection}
+            onRoomDimensions={c.setLivingRoomDimensions}
+            onSetPlanUnderlay={c.setLivingRoomPlanUnderlay}
+            onApplyStyle={c.setLivingRoomStyle}
+            onRenderSettingsChange={c.setLivingRoomRenderSettings}
+            onLightingChange={c.setLivingRoomLightingRecipe}
+            onRenderBrowserThumbnail={(dataUrl) => {
+              void c.setLivingRoomBrowserThumbnail(dataUrl);
+            }}
+            onUndo={c.handleUndo}
+            onRedo={c.handleRedo}
+            onOpenProject={c.handleLoadProject}
+            onSaveProject={c.handleSaveProject}
+            onExportProject={c.handleExportProjectJson}
+            onWorkbenchModeChange={handleWorkbenchModeChange}
           />
         )}
         toolRailVisible={c.layout.toolRailVisible}
@@ -476,7 +550,7 @@ function App() {
         onCloseContextMenu={() => c.setContextMenu(null)}
       />
 
-      <AppStatusDock
+      {workbenchMode !== "interiors" ? <AppStatusDock
         workbenchMode={workbenchMode}
         project={c.project}
         projectStatus={c.projectStatus}
@@ -537,7 +611,7 @@ function App() {
             showGrid: !c.projectPreferences.showGrid,
           })
         }
-      />
+      /> : null}
     </main>
   );
 }

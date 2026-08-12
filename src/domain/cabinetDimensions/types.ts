@@ -10,6 +10,7 @@ import type { QuoteSettings, QuoteSnapshot } from "../quoteSettings";
 import type { ReviewNote, RevisionSnapshot } from "../projectReview/types";
 import type { SheetOptimizerSettings } from "../sheetStock";
 import type { CabinetHardwareSpec } from "../hardwareSystem";
+import type { InteriorProject } from "../interiorProject/types";
 
 export type { CabinetComposition } from "../cabinetComposition";
 export type { CabinetConstructionSpec } from "../cabinetConstructionSpec";
@@ -112,4 +113,6 @@ export type CabinetProject = {
   activeRoomId?: string;
   /** Named drawing sheets with viewports, notes, and revision rows. */
   sheetSet?: import("../sheetDocuments/types").ProjectSheetSet;
+  /** Canonical document carried through the legacy editor during LR-01 migration. */
+  interiorDocument?: InteriorProject;
 };

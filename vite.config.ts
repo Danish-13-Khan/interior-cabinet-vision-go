@@ -11,6 +11,9 @@ const pagesBase = "/interior-cabinet-vision-go/";
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react()],
+  resolve: {
+    dedupe: ["three"],
+  },
   base: githubPages ? pagesBase : "/",
   build: {
     chunkSizeWarningLimit: 800,
