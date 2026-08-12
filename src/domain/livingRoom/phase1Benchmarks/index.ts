@@ -25,6 +25,22 @@ export {
   type Phase1FrameLadderReport,
   type Phase1ProofPack,
 } from "./evaluateScorecard";
+export {
+  PHASE1_AUTOMATION_GATE_IDS,
+  evaluateAutomation,
+  type Phase1AutomationGateId,
+  type Phase1AutomationGateResult,
+  type Phase1AutomationReport,
+} from "./evaluateAutomation";
+export {
+  evaluateHonesty,
+  lineAffirmsForbiddenClaim,
+  collectPresetHonestyCorpus,
+} from "./evaluateHonesty";
+export {
+  buildLatencySamplesTemplate,
+  expectedPhase1LatencySlots,
+} from "./latencySlots";
 export { formatPhase1ProofMarkdown } from "./formatProofMarkdown";
 export type {
   Phase1BenchmarkCameraLock,

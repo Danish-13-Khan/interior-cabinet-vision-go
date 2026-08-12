@@ -28,7 +28,7 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
       `| ${row.frameId} | ${row.differences.join(", ") || "—"} | ${row.pass ? "yes" : "no"} |`
     ),
     "",
-    "## Latency table (fill in PR)",
+    "## Latency table (fill `latency-samples.json`)",
     "| Frame | Draft ms | Client Preview ms |",
     "|---|---:|---:|",
     ...pack.latencyTable.map((row) =>
@@ -37,8 +37,8 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
     "",
     "## Manual PR attachments",
     "- Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`",
-    "- Machine string (chip / OS / RAM) for latency rows",
-    "- Confirm honesty: no photoreal / Synaps claims in UI copy",
+    "- Fill `fixtures/phase-1-benchmarks/latency-samples.json` then re-run `npm run phase1:proof`",
+    "- Machine string lives in that JSON (`machine` field)",
     "",
   ];
   return lines.join("\n");

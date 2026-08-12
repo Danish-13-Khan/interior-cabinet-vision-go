@@ -88,9 +88,11 @@ Store PNG baselines under `tmp/phase-1-baselines/` (**gitignored**) for before/a
 | 3 | Window key | On rooms with openings, Client Preview shows a clear key from window direction (Draft may be flatter). |
 | 4 | Framing | Locked hero cameras stay eye-level; framing QA helpers do not flag “ceiling-heavy / cut-feet” on the 6 Client Preview exports. |
 | 5 | Latency | See **§3.3 benchmark environment**. Client Preview ≤ **8.0s**, Draft ≤ **3.0s** per locked frame under that environment. |
-| 6 | Honesty | UI copy / README do **not** claim photoreal, AI, or Synaps parity. |
-| 7 | Automation | `qa:assets`, `qa:render`, `presets:check`, unit tests for new domain helpers, and `qa:smoke` are green. |
+| 6 | Honesty | UI copy / README do **not** claim photoreal, AI, or Synaps parity. Automated scan covers preset honesty strings + README / product docs / Render Studio honesty surfaces (negated “do not claim Synaps” language allowed). |
+| 7 | Automation | `npm run phase1:proof` must run and pass: `qa:assets`, `qa:render`, `presets:check`, Phase 1 domain tests, and `qa:smoke`. Writes `automation-report.json`. |
 | 8 | Data safety | Saving/loading a benchmark project does not introduce Three types or file paths; `schemaVersion` remains valid via migrations. |
+
+**Latency evidence:** fill `fixtures/phase-1-benchmarks/latency-samples.json` (all 12 slots), then re-run `npm run phase1:proof`. Overall stays **pending** until latency is complete; automation can already be **pass**.
 
 **Phase 1 fails** if we keep polishing past this scorecard, or if we start StillJob/AI work before these 8 pass.
 
@@ -302,10 +304,11 @@ Eye-level defaults in cameras + hero focals; framing QA adds `ceiling-heavy`, `c
 
 ### Chapter 7 — Proof pack (landing)
 
-- Domain `evaluatePhase1Scorecard()` gates ladder / grounding / window-key / framing / honesty / data-safety
-- `npm run phase1:proof` runs assets + presets + Phase 1 unit gates
-- Committed fixtures + `PROOF.md` under `fixtures/phase-1-benchmarks/`
-- Latency + side-by-side PNGs remain manual PR attachments (`tmp/phase-1-baselines/`)
+- Domain `evaluatePhase1Scorecard()` gates all 8 checks (latency/automation evidence-driven)
+- `npm run phase1:proof` runs **qa:assets + qa:render + presets:check + phase1-domain + qa:smoke**, writes `automation-report.json`, regenerates `PROOF.md`
+- Latency: fill `fixtures/phase-1-benchmarks/latency-samples.json` then re-run proof
+- Side-by-side PNGs remain manual under `tmp/phase-1-baselines/`
+- Honesty scans preset copy + README / product docs / Render Studio surfaces
 
 ### Chapter 8 — StillJob spike (handoff only)
 
@@ -397,6 +400,7 @@ When Phase 1 exits, the honest product line remains:
 | `npm run qa:assets` / `qa:render` / `qa:smoke` | Quality gates |
 | `npm run presets:list` / `presets:check` | Preset ladder |
 | `npm run presentation:sample` / `presentation:check` | Client package sample |
+| `npm run phase1:proof` | Full Phase 1 gate (assets, render QA, presets, domain, smoke) + proof pack |
 | `npm run stilljob:spike` | StillJob handoff JSON + gaps (no AI) |
 | `docs/STILLJOB_TRUST_CONTRACT.md` | Still fidelity law |
 

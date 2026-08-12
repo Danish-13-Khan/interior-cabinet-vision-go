@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-12T18:00:00.000Z",
+  "generatedAt": "2026-08-12T19:28:11.205Z",
   "latencyEnvironment": "tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run",
   "frameCount": 6,
   "frames": [
@@ -71,17 +71,17 @@
     {
       "id": "latency",
       "status": "pending",
-      "detail": "Manual capture required under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run"
+      "detail": "Fill fixtures/phase-1-benchmarks/latency-samples.json under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run"
     },
     {
       "id": "honesty",
       "status": "pass",
-      "detail": "Preset honesty copy avoids photoreal / Synaps / AI claims."
+      "detail": "Preset honesty + README/UI corpus avoid affirmative photoreal / Synaps / AI claims."
     },
     {
       "id": "automation",
-      "status": "pending",
-      "detail": "Run `npm run phase1:proof` (assets/presets/phase1 unit gates). Mark pass in PR when green."
+      "status": "pass",
+      "detail": "All 5 automation gates green (2026-08-12T19:28:10.195Z)."
     },
     {
       "id": "data-safety",

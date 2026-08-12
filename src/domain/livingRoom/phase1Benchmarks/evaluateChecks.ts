@@ -3,7 +3,6 @@ import {
   serializeInteriorProjectFile,
 } from "../../interiorProject";
 import { resolveGroundingQuality } from "../groundingQuality";
-import { describePresetHonesty } from "../presetHonesty";
 import { compileLivingRoomScene } from "../sceneCompiler";
 import { resolveRenderCameraPose } from "../renderCameraPose";
 import { validateCameraFraming } from "../renderQa";
@@ -22,9 +21,11 @@ import {
   isPhase1LatencyWithinBudget,
   type Phase1LatencySample,
 } from "./scorecard";
+import { expectedPhase1LatencySlots } from "./latencySlots";
 import type { Phase1CheckResult } from "./proofTypes";
 
-const FORBIDDEN_CLAIM = /photoreal|synaps|midjourney|path\s*trac|\bAI-enhanced\b|\bAI still\b/i;
+export { evaluateAutomation } from "./evaluateAutomation";
+export { evaluateHonesty } from "./evaluateHonesty";
 
 export function evaluateGrounding(): Phase1CheckResult {
   const draft = resolveGroundingQuality("preview", "draft");
@@ -99,37 +100,35 @@ export function evaluateFraming(): Phase1CheckResult {
 }
 
 export function evaluateLatency(samples: Phase1LatencySample[] | undefined): Phase1CheckResult {
+  const slots = expectedPhase1LatencySlots();
   if (!samples || samples.length === 0) {
     return {
       id: "latency",
       status: "pending",
-      detail: `Manual capture required under ${describePhase1LatencyEnvironment()}`,
+      detail: `Fill fixtures/phase-1-benchmarks/latency-samples.json under ${describePhase1LatencyEnvironment()}`,
     };
   }
+
+  const missing = slots.filter(
+    (slot) => !samples.some(
+      (sample) => sample.frameId === slot.frameId && sample.quality === slot.quality,
+    ),
+  );
+  if (missing.length > 0) {
+    return {
+      id: "latency",
+      status: "pending",
+      detail: `Latency samples incomplete (${samples.length}/${slots.length}). Missing e.g. ${missing[0]?.frameId}/${missing[0]?.quality}`,
+    };
+  }
+
   const failed = samples.filter((sample) => !isPhase1LatencyWithinBudget(sample));
   return {
     id: "latency",
     status: failed.length === 0 ? "pass" : "fail",
     detail: failed.length === 0
-      ? `All ${samples.length} latency samples within Draft ≤${PHASE1_LATENCY_ENVIRONMENT.draftCaptureMaxMs}ms / Client ≤${PHASE1_LATENCY_ENVIRONMENT.clientPreviewCaptureMaxMs}ms.`
+      ? `All ${slots.length} latency samples within Draft ≤${PHASE1_LATENCY_ENVIRONMENT.draftCaptureMaxMs}ms / Client ≤${PHASE1_LATENCY_ENVIRONMENT.clientPreviewCaptureMaxMs}ms.`
       : `Over budget: ${failed.map((sample) => `${sample.frameId}/${sample.quality}=${sample.elapsedMs}ms`).join(", ")}`,
-  };
-}
-
-export function evaluateHonesty(): Phase1CheckResult {
-  const texts = [
-    describePresetHonesty("draft", "preview").headline,
-    describePresetHonesty("draft", "preview").subline,
-    describePresetHonesty("client-preview", "hero").headline,
-    describePresetHonesty("client-preview", "hero").subline,
-  ];
-  const hit = texts.find((text) => FORBIDDEN_CLAIM.test(text));
-  return {
-    id: "honesty",
-    status: hit ? "fail" : "pass",
-    detail: hit
-      ? `Forbidden claim language found in honesty copy: ${hit}`
-      : "Preset honesty copy avoids photoreal / Synaps / AI claims.",
   };
 }
 
@@ -154,13 +153,5 @@ export function evaluateDataSafety(): Phase1CheckResult {
     detail: failures.length === 0
       ? "Benchmark projects serialize/load without Three/path payloads."
       : `Data safety failures: ${failures.join(", ")}`,
-  };
-}
-
-export function evaluateAutomationPlaceholder(): Phase1CheckResult {
-  return {
-    id: "automation",
-    status: "pending",
-    detail: "Run `npm run phase1:proof` (assets/presets/phase1 unit gates). Mark pass in PR when green.",
   };
 }
