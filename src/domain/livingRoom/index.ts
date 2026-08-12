@@ -72,6 +72,11 @@ export {
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {
+  getLivingRoomPlanUnderlay,
+  setLivingRoomPlanUnderlay,
+  type LivingRoomPlanUnderlay,
+} from "./planUnderlay";
+export {
   addLivingRoomObject,
   alignLivingRoomObjects,
   deleteLivingRoomObjects,

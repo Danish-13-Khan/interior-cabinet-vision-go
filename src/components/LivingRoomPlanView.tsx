@@ -6,6 +6,7 @@ import type {
   Size3Mm,
 } from "../domain/interiorProject";
 import {
+  getLivingRoomPlanUnderlay,
   snapLivingRoomObject,
   type LivingRoomPlanIssue,
   type PlanSnapGuide,
@@ -35,6 +36,39 @@ type PreviewState = {
   position: Point3Mm;
   dimensions: Size3Mm;
 };
+
+function PlanObjectSymbol({ object, dimensions }: { object: InteriorObjectEntity; dimensions: Size3Mm }) {
+  const w = dimensions.widthMm;
+  const d = dimensions.depthMm;
+  if (object.category === "sofa") {
+    const seats = Math.max(2, Number(object.parameters.seats) || 3);
+    return (
+      <g className="lr-plan-symbol">
+        <rect x={-w * 0.43} y={-d * 0.34} width={w * 0.86} height={d * 0.58} rx="35" />
+        <rect x={-w * 0.48} y={-d * 0.42} width={w * 0.08} height={d * 0.76} rx="25" />
+        <rect x={w * 0.4} y={-d * 0.42} width={w * 0.08} height={d * 0.76} rx="25" />
+        <line x1={-w * 0.4} y1={d * 0.24} x2={w * 0.4} y2={d * 0.24} />
+        {Array.from({ length: seats - 1 }, (_, index) => (
+          <line key={index} x1={-w * 0.4 + w * 0.8 * (index + 1) / seats} y1={-d * 0.3} x2={-w * 0.4 + w * 0.8 * (index + 1) / seats} y2={d * 0.22} />
+        ))}
+      </g>
+    );
+  }
+  if (object.category === "chair" || object.category === "seat") {
+    return <g className="lr-plan-symbol"><rect x={-w * 0.34} y={-d * 0.32} width={w * 0.68} height={d * 0.56} rx="55" /><path d={`M ${-w * 0.42} ${d * 0.28} Q 0 ${d * 0.43} ${w * 0.42} ${d * 0.28}`} /></g>;
+  }
+  if (object.category === "table") {
+    return object.parameters.topShape === "round"
+      ? <g className="lr-plan-symbol"><ellipse cx="0" cy="0" rx={w * 0.43} ry={d * 0.43} /><circle cx="0" cy="0" r={Math.min(w, d) * 0.08} /></g>
+      : <g className="lr-plan-symbol"><rect x={-w * 0.43} y={-d * 0.4} width={w * 0.86} height={d * 0.8} rx="24" /><line x1={-w * 0.35} y1={-d * 0.3} x2={w * 0.35} y2={d * 0.3} /></g>;
+  }
+  if (object.category === "rug") return <rect className="lr-plan-symbol lr-rug-symbol" x={-w * 0.46} y={-d * 0.44} width={w * 0.92} height={d * 0.88} rx="55" />;
+  if (object.category === "floor-lamp") return <g className="lr-plan-symbol"><circle cx="0" cy="0" r={Math.min(w, d) * 0.34} /><circle cx="0" cy="0" r={Math.min(w, d) * 0.12} /><line x1="0" y1="0" x2={w * 0.28} y2={-d * 0.28} /></g>;
+  if (object.category === "plant") return <g className="lr-plan-symbol lr-plant-symbol"><circle cx="0" cy="0" r={Math.min(w, d) * 0.2} /><ellipse cx={-w * 0.18} cy={-d * 0.1} rx={w * 0.24} ry={d * 0.12} /><ellipse cx={w * 0.18} cy={d * 0.08} rx={w * 0.24} ry={d * 0.12} transform="rotate(55)" /></g>;
+  if (object.category === "storage" || object.category === "media-unit") return <g className="lr-plan-symbol"><rect x={-w * 0.46} y={-d * 0.38} width={w * 0.92} height={d * 0.76} /><line x1={-w * 0.15} y1={-d * 0.38} x2={-w * 0.15} y2={d * 0.38} /><line x1={w * 0.15} y1={-d * 0.38} x2={w * 0.15} y2={d * 0.38} /></g>;
+  if (object.category === "mirror") return <g className="lr-plan-symbol"><line x1={-w * 0.45} y1="0" x2={w * 0.45} y2="0" /><line x1={-w * 0.35} y1={-d * 0.35} x2={-w * 0.25} y2={d * 0.35} /><line x1="0" y1={-d * 0.35} x2={w * 0.1} y2={d * 0.35} /></g>;
+  return null;
+}
 
 function openingPoints(project: InteriorProject, openingId: string) {
   const opening = project.openings.find((item) => item.id === openingId)!;
@@ -70,6 +104,7 @@ export function LivingRoomPlanView({
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [guides, setGuides] = useState<PlanSnapGuide[]>([]);
   const room = project.rooms.find((item) => item.id === project.activeRoomId)!;
+  const underlay = getLivingRoomPlanUnderlay(project);
   const margin = 700;
   const viewBox = [
     -room.dimensions.widthMm / 2 - margin,
@@ -215,6 +250,18 @@ export function LivingRoomPlanView({
         className="lr-plan-paper"
         onPointerDown={() => onSelect(null)}
       />
+      {underlay ? (
+        <image
+          href={underlay.dataUrl}
+          x={-underlay.widthMm / 2}
+          y={-underlay.heightMm / 2}
+          width={underlay.widthMm}
+          height={underlay.heightMm}
+          opacity={underlay.opacity}
+          preserveAspectRatio="none"
+          className="lr-plan-underlay-image"
+        />
+      ) : null}
       {showGrid ? (
         <rect
           x={-room.dimensions.widthMm / 2}
@@ -266,6 +313,7 @@ export function LivingRoomPlanView({
         const position = activePreview?.position ?? object.position;
         const dimensions = activePreview?.dimensions ?? object.dimensions;
         const selected = selectedIds.includes(object.id);
+        const compactLabel = dimensions.widthMm < 700 || dimensions.depthMm < 200;
         return (
           <g
             key={object.id}
@@ -281,13 +329,18 @@ export function LivingRoomPlanView({
               height={dimensions.depthMm}
               rx={object.category === "rug" ? 45 : 12}
             />
+            <PlanObjectSymbol object={object} dimensions={dimensions} />
             <line x1="0" y1="0" x2="0" y2={-dimensions.depthMm / 2 + 70} className="lr-object-axis" />
-            <text transform={`rotate(${-object.rotation.y})`} className="lr-object-label">
-              <tspan x="0" y="-8">{object.name}</tspan>
-              <tspan x="0" y="68" className="lr-object-size">
-                {dimensions.widthMm} × {dimensions.depthMm}
-              </tspan>
-            </text>
+            {object.category !== "rug" ? (
+              <text transform={`rotate(${-object.rotation.y})`} className={`lr-object-label ${compactLabel ? "is-compact" : ""}`}>
+                <tspan x="0" y={compactLabel ? -dimensions.depthMm / 2 - 55 : -8}>{object.name}</tspan>
+                {!compactLabel ? (
+                  <tspan x="0" y="68" className="lr-object-size">
+                    {dimensions.widthMm} × {dimensions.depthMm}
+                  </tspan>
+                ) : null}
+              </text>
+            ) : null}
             {selected && selectedIds.length === 1 ? (
               <rect
                 x={dimensions.widthMm / 2 - 55}
