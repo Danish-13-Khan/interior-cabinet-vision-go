@@ -1,0 +1,10 @@
+/* Client presentation export affordances in Render Studio */
+.lr-render-actions button {
+  white-space: nowrap;
+}
+
+.lr-product-shell .lr-render-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}

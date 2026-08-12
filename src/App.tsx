@@ -245,6 +245,9 @@ function App() {
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onLightingChange={c.setLivingRoomLightingRecipe}
+            onRenderBrowserThumbnail={(dataUrl) => {
+              void c.setLivingRoomBrowserThumbnail(dataUrl);
+            }}
             onUndo={c.handleUndo}
             onRedo={c.handleRedo}
             onOpenProject={c.handleLoadProject}

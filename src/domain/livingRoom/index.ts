@@ -159,6 +159,16 @@ export {
   type CanvasSampleOptions,
 } from "./renderQa";
 export {
+  assembleClientPresentationFiles,
+  buildClientPresentationPackage,
+  createLivingRoomRenderThumbnail,
+  exportClientPresentationPdf,
+  preferLivingRoomBrowserThumbnail,
+  siblingPackagePath,
+  type ClientPresentationFile,
+  type ClientPresentationPackage,
+} from "./clientPresentation";
+export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
 export {
