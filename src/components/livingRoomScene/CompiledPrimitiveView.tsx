@@ -1,5 +1,6 @@
 import { Edges } from "@react-three/drei";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
+import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { CompiledMaterialView } from "./CompiledMaterialView";
 import { getCompiledGeometry } from "./geometryCache";
@@ -13,11 +14,13 @@ export function CompiledPrimitiveView({
   material,
   selected,
   renderMode,
+  renderQuality,
 }: {
   primitive: CompiledPrimitive;
   material: CompiledMaterial;
   selected: boolean;
   renderMode: RenderMode;
+  renderQuality?: RenderQuality;
 }) {
   return (
     <mesh
@@ -40,6 +43,7 @@ export function CompiledPrimitiveView({
         material={material}
         primitiveId={primitive.id}
         renderMode={renderMode}
+        renderQuality={renderQuality}
       />
       {selected ? <Edges color="#0878bd" threshold={12} lineWidth={1.35} /> : null}
     </mesh>

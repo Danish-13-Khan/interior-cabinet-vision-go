@@ -21,11 +21,9 @@ type RenderLightingRigProps = {
 export function RenderLightingRig({
   scene,
   recipeId,
-  renderQuality,
   lightingQuality,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
-  const envEnabled = renderQuality !== "draft";
 
   return (
     <>
@@ -34,7 +32,7 @@ export function RenderLightingRig({
         quality={lightingQuality}
         definition={environment.definition}
         url={environment.url}
-        enabled={envEnabled}
+        enabled={lightingQuality.preferHdri}
       />
       <SceneProjectLights
         scene={scene}

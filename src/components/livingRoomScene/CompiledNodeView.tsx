@@ -2,7 +2,7 @@ import { Html } from "@react-three/drei";
 import { type ThreeEvent } from "@react-three/fiber";
 import { useState } from "react";
 import { Plane, Vector3 } from "three";
-import type { Point3Mm } from "../../domain/interiorProject";
+import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledMaterial, CompiledSceneNode } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
@@ -27,6 +27,7 @@ export function CompiledNodeView({
   selected,
   snapSizeMm,
   renderMode,
+  renderQuality,
   onSelect,
   onMove,
   onDragStateChange,
@@ -37,6 +38,7 @@ export function CompiledNodeView({
   selected: boolean;
   snapSizeMm: number;
   renderMode: RenderMode;
+  renderQuality?: RenderQuality;
   onSelect: (objectId: string, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onDragStateChange: (dragging: boolean) => void;
@@ -114,6 +116,7 @@ export function CompiledNodeView({
           primitives={node.primitives}
           selected={selected}
           renderMode={renderMode}
+          renderQuality={renderQuality}
         />
       ) : (
         <ProceduralFallbackObject
@@ -121,6 +124,7 @@ export function CompiledNodeView({
           materials={materials}
           selected={selected}
           renderMode={renderMode}
+          renderQuality={renderQuality}
         />
       )}
       {selected || node.placeholder ? (
