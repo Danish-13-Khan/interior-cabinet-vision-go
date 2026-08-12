@@ -4,8 +4,10 @@ import type { InteriorProject, Point3Mm, RenderQuality } from "../domain/interio
 import {
   compileLivingRoomScene,
   getActiveLivingRoomStyleId,
-  LIVING_ROOM_STYLE_PRESETS,
+  getModelViewDefaultPresetId,
   getRenderQualityPreset,
+  LIVING_ROOM_STYLE_PRESETS,
+  listModelViewRenderPresets,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
@@ -39,7 +41,10 @@ export function LivingRoomModelView({
     ?? null;
   const [activeCameraId, setActiveCameraId] = useState<string | null>(defaultCameraId);
   const [cutawayWalls, setCutawayWalls] = useState(true);
-  const [viewportQuality, setViewportQuality] = useState<RenderQuality>("presentation");
+  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
+    getModelViewDefaultPresetId(),
+  );
+  const modelPresets = listModelViewRenderPresets();
   const quality = getRenderQualityPreset(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
@@ -98,10 +103,16 @@ export function LivingRoomModelView({
         </button>
         <label>
           Quality
-          <select aria-label="Viewport quality" value={viewportQuality} onChange={(event) => setViewportQuality(event.target.value as RenderQuality)}>
-            <option value="draft">Draft</option>
-            <option value="standard">Balanced</option>
-            <option value="presentation">High</option>
+          <select
+            aria-label="Viewport quality"
+            value={viewportQuality}
+            onChange={(event) => setViewportQuality(event.target.value as RenderQuality)}
+          >
+            {modelPresets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.name}{preset.id === "draft" ? " · Fast" : ""}
+              </option>
+            ))}
           </select>
         </label>
         <span>{scene.nodes.filter((node) => node.sourceObjectId).length} compiled objects</span>
@@ -152,7 +163,11 @@ export function LivingRoomModelView({
       </aside>
       <div className="lr-model-readout">
         <span>SCENE {scene.fingerprint.slice(-8).toUpperCase()}</span>
-        <span>{scene.warnings.length ? `${scene.warnings.length} adapter warning` : `${scene.style.name.toUpperCase()} · ACES · ${scene.style.colorManagement.exposure.toFixed(2)} EV`}</span>
+        <span>
+          {scene.warnings.length
+            ? `${scene.warnings.length} adapter warning`
+            : `${quality.name.toUpperCase()} · PREVIEW · ${scene.style.colorManagement.exposure.toFixed(2)} EV`}
+        </span>
         <span>Drag objects · Left orbit · Right pan · Wheel zoom</span>
       </div>
     </div>

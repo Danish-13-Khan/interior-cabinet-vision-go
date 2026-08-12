@@ -8,3 +8,15 @@
   justify-content: flex-end;
   gap: 6px;
 }
+
+.lr-render-preset-meta {
+  margin: 8px 0 0;
+  color: #6f7f76;
+  font-size: 0.55rem;
+  letter-spacing: 0.02em;
+}
+
+.lr-render-check small {
+  color: #8a9a91;
+  font-weight: 500;
+}

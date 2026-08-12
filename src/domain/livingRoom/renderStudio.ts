@@ -5,6 +5,11 @@ import type {
   RenderQuality,
   RenderSettings,
 } from "../interiorProject";
+import {
+  getRenderPresetBehavior,
+  listRenderPresetBehaviors,
+  toLegacyQualityPreset,
+} from "./renderPresets";
 
 export type RenderOutputPreset = {
   id: "hd" | "full-hd" | "qhd" | "uhd";
@@ -13,18 +18,8 @@ export type RenderOutputPreset = {
   heightPx: number;
 };
 
-export type RenderQualityPreset = {
-  id: RenderQuality;
-  name: string;
-  description: string;
-  shadowMapSize: number;
-  contactShadowResolution: number;
-  pixelRatio: number;
-  environmentResolution: number;
-  shadowRadius: number;
-  renderScale: number;
-  maximumRenderPixels: number;
-};
+/** Backward-compatible quality preset row used by lighting / capture. */
+export type RenderQualityPreset = ReturnType<typeof toLegacyQualityPreset>;
 
 export const RENDER_OUTPUT_PRESETS = [
   { id: "hd", name: "HD", widthPx: 1280, heightPx: 720 },
@@ -33,44 +28,10 @@ export const RENDER_OUTPUT_PRESETS = [
   { id: "uhd", name: "4K UHD", widthPx: 3840, heightPx: 2160 },
 ] as const satisfies readonly RenderOutputPreset[];
 
-export const RENDER_QUALITY_PRESETS = [
-  {
-    id: "draft",
-    name: "Draft",
-    description: "Fast camera and composition check.",
-    shadowMapSize: 512,
-    contactShadowResolution: 256,
-    pixelRatio: 1,
-    environmentResolution: 64,
-    shadowRadius: 1,
-    renderScale: 1,
-    maximumRenderPixels: 4_000_000,
-  },
-  {
-    id: "standard",
-    name: "Standard",
-    description: "Balanced interactive presentation output.",
-    shadowMapSize: 1024,
-    contactShadowResolution: 512,
-    pixelRatio: 1.5,
-    environmentResolution: 128,
-    shadowRadius: 4,
-    renderScale: 1.25,
-    maximumRenderPixels: 8_000_000,
-  },
-  {
-    id: "presentation",
-    name: "Presentation",
-    description: "High-detail final image with refined shadows.",
-    shadowMapSize: 2048,
-    contactShadowResolution: 1024,
-    pixelRatio: 2,
-    environmentResolution: 256,
-    shadowRadius: 7,
-    renderScale: 1.5,
-    maximumRenderPixels: 12_000_000,
-  },
-] as const satisfies readonly RenderQualityPreset[];
+/** Derived from the render preset system — includes Client Preview. */
+export const RENDER_QUALITY_PRESETS = listRenderPresetBehaviors().map(
+  toLegacyQualityPreset,
+) as readonly RenderQualityPreset[];
 
 export type LivingRoomRenderResult = {
   id: string;
@@ -90,7 +51,7 @@ export type LivingRoomRenderResult = {
 };
 
 export function getRenderQualityPreset(quality: RenderQuality) {
-  return RENDER_QUALITY_PRESETS.find((preset) => preset.id === quality)!;
+  return toLegacyQualityPreset(getRenderPresetBehavior(quality));
 }
 
 export function matchRenderOutputPreset(settings: RenderSettings) {
@@ -153,3 +114,15 @@ export {
   type HeroCaptureTuning,
   type HeroContactShadowTuning,
 } from "./heroRenderQuality";
+export {
+  applyRenderPresetToSettings,
+  getModelViewDefaultPresetId,
+  getRenderPresetBehavior,
+  listModelViewRenderPresets,
+  listRenderPresetBehaviors,
+  MODEL_VIEW_DEFAULT_PRESET_ID,
+  RENDER_PRESET_DEFINITIONS,
+  RENDER_PRESET_IDS,
+  resolveStudioRenderMode,
+  type RenderPresetBehavior,
+} from "./renderPresets";

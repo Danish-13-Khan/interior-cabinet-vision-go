@@ -1,0 +1,83 @@
+import type { RenderPresetBehavior } from "./types";
+
+/**
+ * Canonical living-room render presets.
+ * Project JSON stores only `quality` id — never paths or Three types.
+ */
+export const RENDER_PRESET_DEFINITIONS = [
+  {
+    id: "draft",
+    name: "Draft",
+    description: "Fast camera and composition check.",
+    renderMode: "preview",
+    widthPx: 1280,
+    heightPx: 720,
+    pixelRatio: 1,
+    shadowMapSize: 512,
+    contactShadowResolution: 256,
+    environmentResolution: 64,
+    shadowRadius: 1,
+    renderScale: 1,
+    maximumRenderPixels: 4_000_000,
+    textureDetail: "low",
+    allowTransparentBackground: false,
+    modelViewSafe: true,
+  },
+  {
+    id: "standard",
+    name: "Standard",
+    description: "Balanced interactive presentation output.",
+    renderMode: "hero",
+    widthPx: 1920,
+    heightPx: 1080,
+    pixelRatio: 1.5,
+    shadowMapSize: 1024,
+    contactShadowResolution: 512,
+    environmentResolution: 128,
+    shadowRadius: 4,
+    renderScale: 1.25,
+    maximumRenderPixels: 8_000_000,
+    textureDetail: "high",
+    allowTransparentBackground: true,
+    modelViewSafe: true,
+  },
+  {
+    id: "presentation",
+    name: "Presentation",
+    description: "High-detail final image with refined shadows.",
+    renderMode: "hero",
+    widthPx: 2560,
+    heightPx: 1440,
+    pixelRatio: 2,
+    shadowMapSize: 2048,
+    contactShadowResolution: 1024,
+    environmentResolution: 256,
+    shadowRadius: 7,
+    renderScale: 1.5,
+    maximumRenderPixels: 12_000_000,
+    textureDetail: "high",
+    allowTransparentBackground: true,
+    modelViewSafe: false,
+  },
+  {
+    id: "client-preview",
+    name: "Client Preview",
+    description: "Client-ready frame tuned for review packages.",
+    renderMode: "hero",
+    widthPx: 1920,
+    heightPx: 1080,
+    pixelRatio: 1.75,
+    shadowMapSize: 1536,
+    contactShadowResolution: 768,
+    environmentResolution: 256,
+    shadowRadius: 5,
+    renderScale: 1.35,
+    maximumRenderPixels: 10_000_000,
+    textureDetail: "high",
+    allowTransparentBackground: true,
+    modelViewSafe: false,
+  },
+] as const satisfies readonly RenderPresetBehavior[];
+
+/** Fast Model View default — never presentation/client-preview. */
+export const MODEL_VIEW_DEFAULT_PRESET_ID = "draft" as const;

@@ -25,6 +25,7 @@ describe("living-room Render Studio", () => {
       "draft",
       "standard",
       "presentation",
+      "client-preview",
     ]);
     expect(RENDER_OUTPUT_PRESETS.map((preset) => `${preset.widthPx}x${preset.heightPx}`)).toEqual([
       "1280x720",
@@ -45,6 +46,7 @@ describe("living-room Render Studio", () => {
     expect(getRenderQualityPreset("presentation").maximumRenderPixels).toBeGreaterThan(
       getRenderQualityPreset("draft").maximumRenderPixels,
     );
+    expect(getRenderQualityPreset("client-preview").name).toBe("Client Preview");
   });
 
   it("matches canonical output settings and creates safe filenames", () => {
