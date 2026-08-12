@@ -21,6 +21,7 @@ export {
 export {
   createLivingRoomRenderResult,
   getRenderQualityPreset,
+  resolveRenderCameraPose,
   livingRoomRenderFileName,
   matchRenderOutputPreset,
   RENDER_OUTPUT_PRESETS,
@@ -97,6 +98,7 @@ export {
 } from "./sceneAdapters";
 export type {
   CompiledBoxPrimitive,
+  CompiledRoundedBoxPrimitive,
   CompiledCylinderPrimitive,
   CompiledLivingRoomScene,
   CompiledMaterial,

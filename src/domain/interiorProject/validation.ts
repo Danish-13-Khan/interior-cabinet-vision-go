@@ -137,6 +137,9 @@ function renderSettings(value: unknown): RenderSettings {
         ? source.activeCameraId.trim()
         : null,
     lightingRecipeId: text(source.lightingRecipeId, "neutral-studio", 80),
+    composition: source.composition === "project-camera"
+      ? "project-camera"
+      : "architectural",
   };
 }
 

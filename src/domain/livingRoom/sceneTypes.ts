@@ -33,6 +33,20 @@ export type CompiledBoxPrimitive = {
   receiveShadow: boolean;
 };
 
+export type CompiledRoundedBoxPrimitive = {
+  kind: "rounded-box";
+  id: string;
+  sizeMm: { width: number; height: number; depth: number };
+  radiusMm: number;
+  smoothness: number;
+  positionMm: Point3Mm;
+  rotationDegrees: EulerDegrees;
+  materialId: string;
+  geometryKey: string;
+  castShadow: boolean;
+  receiveShadow: boolean;
+};
+
 export type CompiledCylinderPrimitive = {
   kind: "cylinder";
   id: string;
@@ -50,6 +64,7 @@ export type CompiledCylinderPrimitive = {
 
 export type CompiledPrimitive =
   | CompiledBoxPrimitive
+  | CompiledRoundedBoxPrimitive
   | CompiledCylinderPrimitive;
 
 export type CompiledSceneNode = {

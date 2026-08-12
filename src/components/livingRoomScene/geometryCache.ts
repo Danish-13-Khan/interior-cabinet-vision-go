@@ -1,4 +1,5 @@
 import { BoxGeometry, CylinderGeometry, type BufferGeometry } from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { CompiledPrimitive } from "../../domain/livingRoom";
 
 const geometryCache = new Map<string, BufferGeometry>();
@@ -13,7 +14,15 @@ export function getCompiledGeometry(primitive: CompiledPrimitive) {
         primitive.sizeMm.height / 1000,
         primitive.sizeMm.depth / 1000,
       )
-    : new CylinderGeometry(
+    : primitive.kind === "rounded-box"
+      ? new RoundedBoxGeometry(
+          primitive.sizeMm.width / 1000,
+          primitive.sizeMm.height / 1000,
+          primitive.sizeMm.depth / 1000,
+          primitive.smoothness,
+          primitive.radiusMm / 1000,
+        )
+      : new CylinderGeometry(
         primitive.radiusTopMm / 1000,
         primitive.radiusBottomMm / 1000,
         primitive.heightMm / 1000,
@@ -26,4 +35,3 @@ export function getCompiledGeometry(primitive: CompiledPrimitive) {
 export function compiledGeometryCacheSize() {
   return geometryCache.size;
 }
-

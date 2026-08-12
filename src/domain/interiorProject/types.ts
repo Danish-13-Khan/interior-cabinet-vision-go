@@ -123,6 +123,7 @@ export type CameraEntity = {
 };
 
 export type RenderQuality = "draft" | "standard" | "presentation";
+export type RenderComposition = "architectural" | "project-camera";
 
 export type RenderSettings = {
   widthPx: number;
@@ -132,6 +133,7 @@ export type RenderSettings = {
   transparentBackground: boolean;
   activeCameraId: EntityId | null;
   lightingRecipeId: string;
+  composition: RenderComposition;
 };
 
 export type InteriorProject = {

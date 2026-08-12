@@ -72,7 +72,7 @@ export const LIVING_ROOM_CATALOG = [
     category: "table",
     dimensions: { widthMm: 480, heightMm: 520, depthMm: 480 },
     materialSlots: {
-      top: LIVING_ROOM_MATERIAL_IDS.clearGlass,
+      top: LIVING_ROOM_MATERIAL_IDS.naturalOak,
       frame: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
     },
     parameters: { topShape: "round" },

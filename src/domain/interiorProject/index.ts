@@ -23,6 +23,7 @@ export {
   type Point3Mm,
   type RenderSettings,
   type RenderQuality,
+  type RenderComposition,
   type RoomType,
   type Size3Mm,
   type WallEntity,

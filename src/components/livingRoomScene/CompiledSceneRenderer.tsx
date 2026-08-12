@@ -1,24 +1,25 @@
-import { ContactShadows, Edges, Html, OrbitControls } from "@react-three/drei";
+import { ContactShadows, Edges, Environment, Html, Lightformer, OrbitControls } from "@react-three/drei";
 import { type ThreeEvent, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import {
   MOUSE,
   ACESFilmicToneMapping,
-  PCFSoftShadowMap,
+  PCFShadowMap,
   Plane,
   SRGBColorSpace,
   Vector3,
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
+import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type {
   CompiledLivingRoomScene,
   CompiledMaterial,
   CompiledPrimitive,
   CompiledSceneNode,
 } from "../../domain/livingRoom";
-import { getRenderQualityPreset } from "../../domain/livingRoom";
+import { getRenderQualityPreset, resolveRenderCameraPose } from "../../domain/livingRoom";
 import { getCompiledGeometry } from "./geometryCache";
+import { getProceduralMaterialMaps } from "./proceduralMaterialMaps";
 
 const FLOOR_DRAG_PLANE = new Plane(new Vector3(0, 1, 0), 0);
 
@@ -31,6 +32,7 @@ type SceneRendererProps = {
   cutawayWalls: boolean;
   interactive?: boolean;
   renderQuality?: RenderQuality;
+  renderComposition?: RenderComposition;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
 };
@@ -39,16 +41,41 @@ function degrees(value: number) {
   return value * Math.PI / 180;
 }
 
-function CompiledMaterialView({ material }: { material: CompiledMaterial }) {
-  const transparent = material.opacity < 1;
+function CompiledMaterialView({
+  material,
+  primitiveId,
+}: {
+  material: CompiledMaterial;
+  primitiveId: string;
+}) {
+  const isGlass = material.kind === "glass";
+  const isFabric = material.kind === "fabric";
+  const isWood = material.kind === "wood" || material.kind === "laminate";
+  const isMetal = material.kind === "metal";
+  const isMirror = primitiveId === "mirror";
+  const transparent = material.opacity < 1 || isGlass;
+  const maps = getProceduralMaterialMaps(material);
   return (
-    <meshStandardMaterial
+    <meshPhysicalMaterial
       color={material.color}
-      roughness={material.roughness}
-      metalness={material.metalness}
-      opacity={material.opacity}
-      transparent={transparent}
-      depthWrite={!transparent}
+      map={maps.map}
+      bumpMap={maps.bumpMap}
+      bumpScale={maps.bumpScale}
+      roughness={isMirror ? 0.08 : material.roughness}
+      metalness={isMirror ? 0.82 : material.metalness}
+      opacity={isMirror ? 1 : isGlass ? Math.max(0.42, material.opacity) : material.opacity}
+      transparent={isMirror ? false : transparent}
+      depthWrite={isMirror || !transparent}
+      transmission={isMirror ? 0 : isGlass ? 0.72 : 0}
+      thickness={isGlass ? 0.018 : 0}
+      ior={isGlass ? 1.5 : 1.45}
+      clearcoat={isWood ? 0.16 : material.kind === "paint" ? 0.08 : 0}
+      clearcoatRoughness={isWood ? 0.48 : 0.65}
+      sheen={isFabric ? 0.72 : 0}
+      sheenColor={isFabric ? material.color : "#000000"}
+      sheenRoughness={isFabric ? 0.82 : 1}
+      envMapIntensity={isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.7 : 0.55}
+      specularIntensity={isFabric ? 0.28 : isWood ? 0.5 : 1}
     />
   );
 }
@@ -79,7 +106,7 @@ function CompiledPrimitiveView({
       castShadow={primitive.castShadow}
       receiveShadow={primitive.receiveShadow}
     >
-      <CompiledMaterialView material={material} />
+      <CompiledMaterialView material={material} primitiveId={primitive.id} />
       {selected ? <Edges color="#0878bd" threshold={12} lineWidth={1.35} /> : null}
     </mesh>
   );
@@ -195,15 +222,20 @@ function CameraRig({
   scene,
   activeCameraId,
   controlsRef,
+  composition,
 }: {
   scene: CompiledLivingRoomScene;
   activeCameraId: string | null;
   controlsRef: React.RefObject<OrbitControlsImpl | null>;
+  composition: RenderComposition;
 }) {
   const { camera } = useThree();
-  const preset = scene.cameras.find((candidate) => candidate.id === activeCameraId)
+  const projectCamera = scene.cameras.find((candidate) => candidate.id === activeCameraId)
     ?? scene.cameras.find((candidate) => candidate.isDefault)
     ?? scene.cameras[0];
+  const preset = projectCamera
+    ? resolveRenderCameraPose(projectCamera, scene.bounds, composition)
+    : null;
   useEffect(() => {
     if (preset) {
       camera.position.set(
@@ -230,6 +262,7 @@ function CameraRig({
   }, [
     activeCameraId,
     camera,
+    composition,
     controlsRef,
     preset,
     scene.bounds.center.x,
@@ -245,9 +278,11 @@ function CameraRig({
 function CompiledLights({
   scene,
   shadowMapSize,
+  shadowRadius,
 }: {
   scene: CompiledLivingRoomScene;
   shadowMapSize: number;
+  shadowRadius: number;
 }) {
   return (
     <>
@@ -258,16 +293,16 @@ function CompiledLights({
           light.position.z / 1000,
         ];
         if (light.kind === "ambient") {
-          return <ambientLight key={light.id} color={light.color} intensity={light.intensity} />;
+          return <ambientLight key={light.id} color={light.color} intensity={light.intensity * 0.58} />;
         }
         if (light.kind === "directional") {
-          return <directionalLight key={light.id} position={position} color={light.color} intensity={light.intensity} castShadow={light.parameters.castShadow === true} shadow-mapSize={[shadowMapSize, shadowMapSize]} />;
+          return <directionalLight key={light.id} position={position} color={light.color} intensity={light.intensity} castShadow={light.parameters.castShadow === true} shadow-mapSize={[shadowMapSize, shadowMapSize]} shadow-bias={-0.00035} shadow-normalBias={0.025} shadow-radius={shadowRadius} shadow-camera-near={0.1} shadow-camera-far={30} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} />;
         }
         if (light.kind === "point") {
-          return <pointLight key={light.id} position={position} color={light.color} intensity={light.intensity} distance={Number(light.parameters.rangeMm ?? 5000) / 1000} castShadow />;
+          return <pointLight key={light.id} position={position} color={light.color} intensity={light.intensity} distance={Number(light.parameters.rangeMm ?? 5000) / 1000} castShadow shadow-radius={shadowRadius} />;
         }
         if (light.kind === "spot") {
-          return <spotLight key={light.id} position={position} color={light.color} intensity={light.intensity} angle={Math.PI / 4} penumbra={0.5} castShadow />;
+          return <spotLight key={light.id} position={position} color={light.color} intensity={light.intensity} angle={Math.PI / 4} penumbra={0.5} castShadow shadow-radius={shadowRadius} />;
         }
         return (
           <rectAreaLight
@@ -291,7 +326,7 @@ function RendererColorPipeline({ scene }: { scene: CompiledLivingRoomScene }) {
     gl.outputColorSpace = SRGBColorSpace;
     gl.toneMapping = ACESFilmicToneMapping;
     gl.toneMappingExposure = scene.style.colorManagement.exposure;
-    gl.shadowMap.type = PCFSoftShadowMap;
+    gl.shadowMap.type = PCFShadowMap;
   }, [gl, scene.style.colorManagement]);
   return null;
 }
@@ -305,17 +340,28 @@ export function CompiledSceneRenderer({
   cutawayWalls,
   interactive = true,
   renderQuality = "standard",
+  renderComposition = "project-camera",
   onSelect,
   onMove,
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
   const materialMap = new Map(scene.materials.map((material) => [material.id, material]));
+  const projectCamera = scene.cameras.find((camera) => camera.id === activeCameraId)
+    ?? scene.cameras.find((camera) => camera.isDefault)
+    ?? scene.cameras[0];
+  const renderCamera = projectCamera
+    ? resolveRenderCameraPose(projectCamera, scene.bounds, renderComposition)
+    : null;
+  const cutawaySides = new Set([
+    renderCamera && renderCamera.position.x < scene.bounds.center.x ? "left" : "right",
+    renderCamera && renderCamera.position.z < scene.bounds.center.z ? "back" : "front",
+  ]);
   const nodes = cutawayWalls
     ? scene.nodes.filter((node) => ![
         "wall",
         "opening",
-      ].includes(String(node.metadata.role)) || !["front", "right"].includes(String(node.metadata.wallSide)))
+      ].includes(String(node.metadata.role)) || !cutawaySides.has(String(node.metadata.wallSide)))
     : scene.nodes;
   const roomSpan = Math.max(scene.bounds.size.widthMm, scene.bounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
@@ -324,15 +370,22 @@ export function CompiledSceneRenderer({
   return (
     <>
       <RendererColorPipeline scene={scene} />
-      <CameraRig scene={scene} activeCameraId={activeCameraId} controlsRef={controlsRef} />
+      <CameraRig scene={scene} activeCameraId={activeCameraId} controlsRef={controlsRef} composition={renderComposition} />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
       <hemisphereLight
         color={environment.hemisphereSkyColor}
         groundColor={environment.hemisphereGroundColor}
-        intensity={environment.hemisphereIntensity}
+        intensity={environment.hemisphereIntensity * 0.64}
       />
-      <CompiledLights scene={scene} shadowMapSize={quality.shadowMapSize} />
+      {renderQuality !== "draft" ? (
+        <Environment resolution={quality.environmentResolution} frames={1}>
+          <Lightformer form="rect" intensity={1.15} color="#fff8ef" position={[0, 5.5, 1]} rotation={[-Math.PI / 2, 0, 0]} scale={[7, 7, 1]} />
+          <Lightformer form="rect" intensity={0.75} color="#dfeaff" position={[-5, 2.5, 0]} rotation={[0, Math.PI / 2, 0]} scale={[3.5, 5, 1]} />
+          <Lightformer form="rect" intensity={0.5} color="#ffe3c4" position={[4, 2, -3]} rotation={[0, -Math.PI / 3, 0]} scale={[2.5, 3.5, 1]} />
+        </Environment>
+      ) : null}
+      <CompiledLights scene={scene} shadowMapSize={quality.shadowMapSize} shadowRadius={quality.shadowRadius} />
       {showGrid ? <gridHelper args={[Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)), environment.gridPrimaryColor, environment.gridSecondaryColor]} position={[0, 0.002, 0]} /> : null}
       {nodes.map((node) => (
         <CompiledNodeView

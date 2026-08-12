@@ -282,6 +282,26 @@ passes end to end with no data or visual-state divergence.
 Release commands, artifact paths, CI packaging, and signing limitations are
 documented in [`docs/RELEASE_CANDIDATE.md`](docs/RELEASE_CANDIDATE.md).
 
+### LR-RQ1 - Presentation Rendering Upgrade
+
+**Status:** Complete (August 12, 2026)
+
+Merge the model-quality roadmap into the working Three.js renderer with smooth
+parametric furniture, physical materials, deterministic procedural wood and
+fabric surface maps, generated environment reflections, shadow-producing light
+rigs, refined camera compositions, architectural room details, adaptive
+supersampling, and restrained image finishing for exported PNG files.
+
+**Exit gate:** The presentation render is generated from the canonical compiled
+scene at the selected output size, remains stable within WebGL texture and pixel
+limits, contains no render-path shader errors, and visibly improves on the live
+editing viewport without external models, textures, or cloud services.
+
+The next quality ceiling is asset fidelity, not additional image filters. A
+future milestone can introduce curated local GLB furniture and versioned PBR
+texture packs through the existing catalog adapter while preserving project IDs,
+material slots, and the universal JSON contract.
+
 ## Production Quality Gates
 
 - TypeScript compiles with no errors.

@@ -12,6 +12,7 @@ import {
   getRenderQualityPreset,
   livingRoomRenderFileName,
   matchRenderOutputPreset,
+  resolveRenderCameraPose,
   RENDER_OUTPUT_PRESETS,
   RENDER_QUALITY_PRESETS,
 } from ".";
@@ -33,6 +34,16 @@ describe("living-room Render Studio", () => {
     ]);
     expect(getRenderQualityPreset("presentation").shadowMapSize).toBeGreaterThan(
       getRenderQualityPreset("draft").shadowMapSize,
+    );
+    expect(getRenderQualityPreset("presentation").pixelRatio).toBeGreaterThan(
+      getRenderQualityPreset("draft").pixelRatio,
+    );
+    expect(getRenderQualityPreset("presentation").shadowRadius).toBeGreaterThan(
+      getRenderQualityPreset("draft").shadowRadius,
+    );
+    expect(getRenderQualityPreset("presentation").renderScale).toBeGreaterThan(1);
+    expect(getRenderQualityPreset("presentation").maximumRenderPixels).toBeGreaterThan(
+      getRenderQualityPreset("draft").maximumRenderPixels,
     );
   });
 
@@ -92,7 +103,21 @@ describe("living-room Render Studio", () => {
       heightPx: 1080,
       lightingRecipeId: "neutral-studio",
       transparentBackground: false,
+      composition: "architectural",
     });
+  });
+
+  it("derives an architectural camera without mutating the saved camera", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const scene = compileLivingRoomScene(project);
+    const camera = project.cameras.find((candidate) => candidate.isDefault)!;
+    const original = structuredClone(camera);
+    const resolved = resolveRenderCameraPose(camera, scene.bounds, "architectural");
+
+    expect(resolved.position.z).toBeGreaterThan(scene.bounds.max.z);
+    expect(resolved.fieldOfViewDegrees).toBe(45);
+    expect(camera).toEqual(original);
+    expect(resolveRenderCameraPose(camera, scene.bounds, "project-camera")).toBe(camera);
   });
 
   it("persists Render Studio settings through canonical save and reopen", () => {

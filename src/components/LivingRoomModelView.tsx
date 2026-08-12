@@ -1,10 +1,11 @@
 import { Canvas } from "@react-three/fiber";
 import { useMemo, useState } from "react";
-import type { InteriorProject, Point3Mm } from "../domain/interiorProject";
+import type { InteriorProject, Point3Mm, RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
   getActiveLivingRoomStyleId,
   LIVING_ROOM_STYLE_PRESETS,
+  getRenderQualityPreset,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
@@ -34,6 +35,8 @@ export function LivingRoomModelView({
     ?? null;
   const [activeCameraId, setActiveCameraId] = useState<string | null>(defaultCameraId);
   const [cutawayWalls, setCutawayWalls] = useState(true);
+  const [viewportQuality, setViewportQuality] = useState<RenderQuality>("presentation");
+  const quality = getRenderQualityPreset(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
 
@@ -59,11 +62,19 @@ export function LivingRoomModelView({
         <button type="button" className={cutawayWalls ? "is-active" : ""} onClick={() => setCutawayWalls((current) => !current)}>
           Cutaway walls
         </button>
+        <label>
+          Quality
+          <select aria-label="Viewport quality" value={viewportQuality} onChange={(event) => setViewportQuality(event.target.value as RenderQuality)}>
+            <option value="draft">Draft</option>
+            <option value="standard">Balanced</option>
+            <option value="presentation">High</option>
+          </select>
+        </label>
         <span>{scene.nodes.filter((node) => node.sourceObjectId).length} compiled objects</span>
       </div>
       <Canvas
-        shadows
-        dpr={[1, 1.75]}
+        shadows="percentage"
+        dpr={[1, quality.pixelRatio]}
         gl={{ antialias: true, preserveDrawingBuffer: true }}
         camera={{ position: [4.3, 2.2, 3.9], fov: 48, near: 0.05, far: 100 }}
         onPointerMissed={() => onSelect(null)}
@@ -75,6 +86,7 @@ export function LivingRoomModelView({
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
+          renderQuality={viewportQuality}
           onSelect={onSelect}
           onMove={onMove}
         />

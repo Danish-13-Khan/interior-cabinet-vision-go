@@ -1,9 +1,11 @@
 import type {
   CameraEntity,
   InteriorProject,
+  RenderComposition,
   RenderQuality,
   RenderSettings,
 } from "../interiorProject";
+import type { CompiledSceneBounds } from "./sceneTypes";
 
 export type RenderOutputPreset = {
   id: "hd" | "full-hd" | "qhd" | "uhd";
@@ -18,6 +20,11 @@ export type RenderQualityPreset = {
   description: string;
   shadowMapSize: number;
   contactShadowResolution: number;
+  pixelRatio: number;
+  environmentResolution: number;
+  shadowRadius: number;
+  renderScale: number;
+  maximumRenderPixels: number;
 };
 
 export const RENDER_OUTPUT_PRESETS = [
@@ -34,6 +41,11 @@ export const RENDER_QUALITY_PRESETS = [
     description: "Fast camera and composition check.",
     shadowMapSize: 512,
     contactShadowResolution: 256,
+    pixelRatio: 1,
+    environmentResolution: 64,
+    shadowRadius: 1,
+    renderScale: 1,
+    maximumRenderPixels: 4_000_000,
   },
   {
     id: "standard",
@@ -41,6 +53,11 @@ export const RENDER_QUALITY_PRESETS = [
     description: "Balanced interactive presentation output.",
     shadowMapSize: 1024,
     contactShadowResolution: 512,
+    pixelRatio: 1.5,
+    environmentResolution: 128,
+    shadowRadius: 4,
+    renderScale: 1.25,
+    maximumRenderPixels: 8_000_000,
   },
   {
     id: "presentation",
@@ -48,6 +65,11 @@ export const RENDER_QUALITY_PRESETS = [
     description: "High-detail final image with refined shadows.",
     shadowMapSize: 2048,
     contactShadowResolution: 1024,
+    pixelRatio: 2,
+    environmentResolution: 256,
+    shadowRadius: 7,
+    renderScale: 1.5,
+    maximumRenderPixels: 12_000_000,
   },
 ] as const satisfies readonly RenderQualityPreset[];
 
@@ -65,7 +87,43 @@ export type LivingRoomRenderResult = {
   lightingRecipeId: string;
   exposure: number;
   transparentBackground: boolean;
+  composition: RenderComposition;
 };
+
+export function resolveRenderCameraPose(
+  camera: CameraEntity,
+  bounds: CompiledSceneBounds,
+  composition: RenderComposition,
+): CameraEntity {
+  if (composition === "project-camera") return camera;
+  const isWide = camera.name.toLowerCase().includes("wide");
+  const isTelevision = camera.name.toLowerCase().includes("tv");
+  const width = bounds.size.widthMm;
+  const depth = bounds.size.depthMm;
+  const center = bounds.center;
+  if (isTelevision) {
+    return {
+      ...camera,
+      position: { x: center.x, y: 1450, z: center.z + depth * 0.42 },
+      target: { x: center.x, y: 980, z: center.z - depth * 0.42 },
+      fieldOfViewDegrees: 44,
+    };
+  }
+  return {
+    ...camera,
+    position: {
+      x: center.x + width * (isWide ? 0.2 : 0.17),
+      y: Math.min(1650, Math.max(1350, bounds.size.heightMm * (isWide ? 0.55 : 0.5))),
+      z: center.z + depth * (isWide ? 0.78 : 0.68),
+    },
+    target: {
+      x: center.x - width * 0.05,
+      y: isWide ? 620 : 600,
+      z: center.z - depth * (isWide ? 0.05 : 0.01),
+    },
+    fieldOfViewDegrees: isWide ? 45 : 41,
+  };
+}
 
 export function getRenderQualityPreset(quality: RenderQuality) {
   return RENDER_QUALITY_PRESETS.find((preset) => preset.id === quality)!;
@@ -99,6 +157,7 @@ export function createLivingRoomRenderResult(args: {
     lightingRecipeId: args.project.renderSettings.lightingRecipeId,
     exposure: args.project.renderSettings.exposure,
     transparentBackground: args.project.renderSettings.transparentBackground,
+    composition: args.project.renderSettings.composition,
   };
 }
 
