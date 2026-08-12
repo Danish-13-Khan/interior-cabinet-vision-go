@@ -4,24 +4,27 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
 import { resolveRenderCameraPose } from "../../domain/livingRoom";
+import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 
 export function CameraRig({
   scene,
   activeCameraId,
   controlsRef,
   composition,
+  renderMode = "preview",
 }: {
   scene: CompiledLivingRoomScene;
   activeCameraId: string | null;
   controlsRef: RefObject<OrbitControlsImpl | null>;
   composition: RenderComposition;
+  renderMode?: RenderMode;
 }) {
   const { camera } = useThree();
   const projectCamera = scene.cameras.find((candidate) => candidate.id === activeCameraId)
     ?? scene.cameras.find((candidate) => candidate.isDefault)
     ?? scene.cameras[0];
   const preset = projectCamera
-    ? resolveRenderCameraPose(projectCamera, scene.bounds, composition)
+    ? resolveRenderCameraPose(projectCamera, scene.bounds, composition, renderMode)
     : null;
 
   useEffect(() => {
@@ -57,6 +60,7 @@ export function CameraRig({
     composition,
     controlsRef,
     preset,
+    renderMode,
     scene.bounds.center.x,
     scene.bounds.center.y,
     scene.bounds.center.z,

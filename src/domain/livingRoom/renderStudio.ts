@@ -5,7 +5,6 @@ import type {
   RenderQuality,
   RenderSettings,
 } from "../interiorProject";
-import type { CompiledSceneBounds } from "./sceneTypes";
 
 export type RenderOutputPreset = {
   id: "hd" | "full-hd" | "qhd" | "uhd";
@@ -90,41 +89,6 @@ export type LivingRoomRenderResult = {
   composition: RenderComposition;
 };
 
-export function resolveRenderCameraPose(
-  camera: CameraEntity,
-  bounds: CompiledSceneBounds,
-  composition: RenderComposition,
-): CameraEntity {
-  if (composition === "project-camera") return camera;
-  const isWide = camera.name.toLowerCase().includes("wide");
-  const isTelevision = camera.name.toLowerCase().includes("tv");
-  const width = bounds.size.widthMm;
-  const depth = bounds.size.depthMm;
-  const center = bounds.center;
-  if (isTelevision) {
-    return {
-      ...camera,
-      position: { x: center.x, y: 1450, z: center.z + depth * 0.42 },
-      target: { x: center.x, y: 980, z: center.z - depth * 0.42 },
-      fieldOfViewDegrees: 44,
-    };
-  }
-  return {
-    ...camera,
-    position: {
-      x: center.x + width * (isWide ? 0.2 : 0.17),
-      y: Math.min(1650, Math.max(1350, bounds.size.heightMm * (isWide ? 0.55 : 0.5))),
-      z: center.z + depth * (isWide ? 0.78 : 0.68),
-    },
-    target: {
-      x: center.x - width * 0.05,
-      y: isWide ? 620 : 600,
-      z: center.z - depth * (isWide ? 0.05 : 0.01),
-    },
-    fieldOfViewDegrees: isWide ? 45 : 41,
-  };
-}
-
 export function getRenderQualityPreset(quality: RenderQuality) {
   return RENDER_QUALITY_PRESETS.find((preset) => preset.id === quality)!;
 }
@@ -176,7 +140,16 @@ export function livingRoomRenderFileName(
   return `${fileSlug(projectName)}-${fileSlug(cameraName)}.png`;
 }
 
+export { resolveRenderCameraPose } from "./renderCameraPose";
 export {
   resolveEnvironmentLightingQuality,
   type EnvironmentLightingQuality,
 } from "./environmentLightingQuality";
+export {
+  getRenderModeQuality,
+  resolveHeroCaptureTuning,
+  resolveHeroContactShadowTuning,
+  resolveHeroRenderScale,
+  type HeroCaptureTuning,
+  type HeroContactShadowTuning,
+} from "./heroRenderQuality";

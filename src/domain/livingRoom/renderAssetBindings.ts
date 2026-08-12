@@ -3,8 +3,6 @@ import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import type {
   RenderAssetStrategy,
   RenderBinding,
-  RenderMode,
-  RenderModeQuality,
 } from "./renderAssetContracts";
 import type { CompiledSceneNode } from "./sceneTypes";
 
@@ -134,21 +132,5 @@ export function attachObjectRenderBinding(
   return withRenderBinding(node, createObjectRenderBinding(object));
 }
 
-export function getRenderModeQuality(mode: RenderMode): RenderModeQuality {
-  if (mode === "hero") {
-    return {
-      mode,
-      anisotropy: 16,
-      textureDetail: "high",
-      envMapIntensityScale: 1.15,
-      bumpScale: 1,
-    };
-  }
-  return {
-    mode,
-    anisotropy: 4,
-    textureDetail: "low",
-    envMapIntensityScale: 0.85,
-    bumpScale: 0.65,
-  };
-}
+/** @deprecated Prefer getRenderModeQuality from heroRenderQuality / renderStudio. */
+export { getRenderModeQuality } from "./heroRenderQuality";

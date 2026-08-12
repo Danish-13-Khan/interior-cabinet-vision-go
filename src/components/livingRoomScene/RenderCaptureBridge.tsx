@@ -4,9 +4,12 @@ import { PerspectiveCamera, Vector2 } from "three";
 import type { RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import {
   getRenderQualityPreset,
+  resolveHeroCaptureTuning,
+  resolveHeroRenderScale,
   resolveRenderCameraPose,
   type CompiledLivingRoomScene,
 } from "../../domain/livingRoom";
+import { drawHeroVignette } from "../../rendering/export/heroExportPolish";
 
 export type RenderCaptureRequest = {
   cameraId: string;
@@ -46,6 +49,7 @@ export const RenderCaptureBridge = forwardRef<
         projectCamera,
         compiledScene.bounds,
         request.composition,
+        "hero",
       );
       if (!(camera instanceof PerspectiveCamera)) {
         throw new Error("Render Studio requires a perspective camera.");
@@ -61,10 +65,11 @@ export const RenderCaptureBridge = forwardRef<
       const oldFog = scene.fog;
       const oldClearAlpha = gl.getClearAlpha();
       const qualityPreset = getRenderQualityPreset(quality);
+      const heroTuning = resolveHeroCaptureTuning("hero", quality);
       const textureLimit = gl.capabilities.maxTextureSize;
       const requestedPixels = request.widthPx * request.heightPx;
       const safeScale = Math.min(
-        qualityPreset.renderScale,
+        resolveHeroRenderScale("hero", quality),
         textureLimit / request.widthPx,
         textureLimit / request.heightPx,
         Math.sqrt(qualityPreset.maximumRenderPixels / requestedPixels),
@@ -104,27 +109,11 @@ export const RenderCaptureBridge = forwardRef<
         if (!context) throw new Error("The browser could not prepare the render output canvas.");
         context.imageSmoothingEnabled = true;
         context.imageSmoothingQuality = "high";
-        if (quality === "presentation") {
-          context.filter = "contrast(1.045) saturate(1.035)";
-        } else if (quality === "standard") {
-          context.filter = "contrast(1.025) saturate(1.02)";
-        }
+        context.filter = `contrast(${heroTuning.exportContrast}) saturate(${heroTuning.exportSaturation})`;
         context.drawImage(gl.domElement, 0, 0, request.widthPx, request.heightPx);
         context.filter = "none";
-        if (quality === "presentation" && !request.transparentBackground) {
-          const vignette = context.createRadialGradient(
-            request.widthPx / 2,
-            request.heightPx * 0.48,
-            Math.min(request.widthPx, request.heightPx) * 0.22,
-            request.widthPx / 2,
-            request.heightPx / 2,
-            Math.max(request.widthPx, request.heightPx) * 0.72,
-          );
-          vignette.addColorStop(0, "rgba(12,18,16,0)");
-          vignette.addColorStop(0.68, "rgba(12,18,16,0.01)");
-          vignette.addColorStop(1, "rgba(12,18,16,0.12)");
-          context.fillStyle = vignette;
-          context.fillRect(0, 0, request.widthPx, request.heightPx);
+        if (!request.transparentBackground) {
+          drawHeroVignette(context, request.widthPx, request.heightPx, heroTuning.vignetteStrength);
         }
         return output.toDataURL("image/png", 1);
       } finally {
@@ -136,6 +125,7 @@ export const RenderCaptureBridge = forwardRef<
               previewProjectCamera,
               compiledScene.bounds,
               previewComposition,
+              "hero",
             )
           : null;
         if (previewCamera) {
