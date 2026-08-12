@@ -40,6 +40,11 @@ export {
   type PresetHonestyRole,
 } from "./presetHonesty";
 export {
+  resolveMaterialContrast,
+  applyMaterialContrastRoughness,
+  type MaterialContrastTuning,
+} from "./materialContrast";
+export {
   resolveWindowKeyLights,
   sampleWindowOpenings,
   type WindowKeyLightDescriptor,

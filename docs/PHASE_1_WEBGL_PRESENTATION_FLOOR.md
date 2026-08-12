@@ -291,13 +291,14 @@ Tune ContactShadows via `groundingQuality` so Client Preview visibly pins furnit
 Domain `windowKeyLight` samples openings → inward normals → quality-scaled directional keys.  
 `WindowKeyLight` + `RenderLightingRig` consume descriptors only (no JSON mutation).
 
-### Chapter 5 — Materials (3–5 days)
+### Chapter 5 — Materials (landing)
 
-Retune manifests + PBR path for contrast under the new light. Soft-goods slot materials should separate cushion vs frame.
+Kind-aware `materialContrast` + richer oak/walnut/fabric/paint separation in manifests.  
+Client Preview wood reads glossier; fabric sheenier; walls flatter.
 
-### Chapter 6 — Framing (2–3 days)
+### Chapter 6 — Framing (landing)
 
-Default eye-level hero pose + framing QA. Soften capture polish only if it still looks natural.
+Eye-level defaults in cameras + hero focals; framing QA adds `ceiling-heavy`, `cut-feet`, `eye-off-standing`.
 
 ### Chapter 7 — Proof pack (1–2 days)
 
