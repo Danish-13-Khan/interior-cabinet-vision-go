@@ -8,7 +8,9 @@ import {
   getRenderQualityPreset,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
+import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
+import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -45,9 +47,13 @@ export function LivingRoomModelView({
     ? project.objects.find((object) => object.id === selectedIds[0])
     : null;
   const activeRotation = activeObject ? Math.round(activeObject.rotation.y) : 0;
+  const activeCamera = scene.cameras.find((camera) => camera.id === activeCameraId)
+    ?? scene.cameras[0]
+    ?? null;
+  const diagnostics = useRenderDiagnostics(scene, activeCamera);
 
   return (
-    <div className="lr-model-viewport">
+    <div className="lr-model-viewport" data-testid="lr-model-viewport">
       <div className="lr-model-controls">
         <label>
           Camera
@@ -120,6 +126,7 @@ export function LivingRoomModelView({
           onMove={onMove}
         />
       </Canvas>
+      {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
       <aside className="lr-style-palette" aria-label="Interior style presets">
         <header>
           <span>INTERIOR STYLE</span>

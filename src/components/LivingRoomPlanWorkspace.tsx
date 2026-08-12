@@ -526,7 +526,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           <span>{props.project.name} · {props.project.objects.length} objects · {props.selectedIds.length} selected</span>
           <small>{workspaceView === "plan" ? "Scale: Fit" : workspaceView === "model" ? "Perspective" : "Presentation Output"} · Units: mm</small>
         </div>
-        <div className="lr-plan-canvas">
+        <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
           {workspaceView === "plan" ? (
             <LivingRoomPlanView
               project={props.project}

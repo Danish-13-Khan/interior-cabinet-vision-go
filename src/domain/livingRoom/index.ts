@@ -150,6 +150,15 @@ export type {
   TextureAssetId,
 } from "./renderAssetContracts";
 export {
+  analyzeRgbaBuffer,
+  isRgbaBufferNonblank,
+  validateCameraFraming,
+  type CameraFramingIssue,
+  type CameraFramingReport,
+  type CanvasNonblankResult,
+  type CanvasSampleOptions,
+} from "./renderQa";
+export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
 export {

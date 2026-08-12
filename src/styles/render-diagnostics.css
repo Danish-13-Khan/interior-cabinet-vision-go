@@ -1,0 +1,98 @@
+/* Dev-only render QA diagnostics overlay */
+.lr-render-diagnostics {
+  position: absolute;
+  z-index: 8;
+  right: 10px;
+  bottom: 42px;
+  width: min(320px, calc(100% - 20px));
+  max-height: 42%;
+  overflow: auto;
+  padding: 8px 10px;
+  border: 1px solid #5d6f66;
+  border-radius: 6px;
+  background: rgba(22, 28, 26, 0.92);
+  color: #d7e0db;
+  font-size: 0.58rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.lr-render-diagnostics.is-compact {
+  width: min(260px, calc(100% - 20px));
+  bottom: 12px;
+  max-height: 36%;
+}
+
+.lr-render-diagnostics header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.lr-render-diagnostics header strong {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+}
+
+.lr-render-diagnostics header span {
+  color: #9eb0a7;
+}
+
+.lr-render-diagnostics dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  margin: 0 0 8px;
+}
+
+.lr-render-diagnostics dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lr-render-diagnostics dt {
+  color: #8fa097;
+}
+
+.lr-render-diagnostics dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.lr-render-diagnostics ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lr-render-diagnostics li {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.lr-render-diagnostics b[data-severity="error"] {
+  color: #ff8f7a;
+}
+
+.lr-render-diagnostics b[data-severity="warning"] {
+  color: #e2c07a;
+}
+
+.lr-render-diagnostics p {
+  margin: 0;
+  color: #9eb0a7;
+}
+
+.lr-model-viewport .lr-render-diagnostics {
+  bottom: 36px;
+}
+
+.lr-render-live {
+  position: relative;
+}
