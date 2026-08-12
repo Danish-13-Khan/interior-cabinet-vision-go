@@ -1,5 +1,6 @@
 import type { RenderQuality } from "../interiorProject";
 import type { RenderMode, RenderModeQuality } from "./renderAssetContracts";
+import { getRenderPresetBehavior } from "./renderPresets";
 
 export type HeroCaptureTuning = {
   renderScaleBoost: number;
@@ -13,19 +14,19 @@ export type HeroContactShadowTuning = {
   blurScale: number;
 };
 
-const BASE_RENDER_SCALE: Record<RenderQuality, number> = {
-  draft: 1,
-  standard: 1.25,
-  presentation: 1.5,
-};
-
 /** Preview stays light; hero boosts texture/material response for exports only. */
-export function getRenderModeQuality(mode: RenderMode): RenderModeQuality {
+export function getRenderModeQuality(
+  mode: RenderMode,
+  quality?: RenderQuality,
+): RenderModeQuality {
   if (mode === "hero") {
+    const textureDetail = quality
+      ? getRenderPresetBehavior(quality).textureDetail
+      : "high";
     return {
       mode,
       anisotropy: 16,
-      textureDetail: "high",
+      textureDetail,
       envMapIntensityScale: 1.22,
       bumpScale: 1.05,
       clearcoatScale: 1.18,
@@ -75,6 +76,14 @@ export function resolveHeroCaptureTuning(
       vignetteStrength: 0.11,
     };
   }
+  if (quality === "client-preview") {
+    return {
+      renderScaleBoost: 1.08,
+      exportContrast: 1.04,
+      exportSaturation: 1.03,
+      vignetteStrength: 0.09,
+    };
+  }
   if (quality === "standard") {
     return {
       renderScaleBoost: 1.06,
@@ -95,5 +104,6 @@ export function resolveHeroRenderScale(
   mode: RenderMode,
   quality: RenderQuality,
 ) {
-  return BASE_RENDER_SCALE[quality] * resolveHeroCaptureTuning(mode, quality).renderScaleBoost;
+  const base = getRenderPresetBehavior(quality).renderScale;
+  return base * resolveHeroCaptureTuning(mode, quality).renderScaleBoost;
 }

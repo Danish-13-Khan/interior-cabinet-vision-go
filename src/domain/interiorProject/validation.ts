@@ -123,7 +123,7 @@ function uniqueId(
 
 function renderSettings(value: unknown): RenderSettings {
   const source = isRecord(value) ? value : {};
-  const quality = ["draft", "standard", "presentation"].includes(String(source.quality))
+  const quality = ["draft", "standard", "presentation", "client-preview"].includes(String(source.quality))
     ? (source.quality as RenderSettings["quality"])
     : DEFAULT_RENDER_SETTINGS.quality;
   return {

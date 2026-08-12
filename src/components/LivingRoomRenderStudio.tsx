@@ -11,6 +11,9 @@ import {
   matchRenderOutputPreset,
   RENDER_OUTPUT_PRESETS,
   RENDER_QUALITY_PRESETS,
+  applyRenderPresetToSettings,
+  getRenderPresetBehavior,
+  resolveStudioRenderMode,
   type LivingRoomLightingRecipeId,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
@@ -86,6 +89,8 @@ export function LivingRoomRenderStudio({
   const outputPreset = matchRenderOutputPreset(settings);
   const isRendering = job.status === "rendering";
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
+  const qualityBehavior = getRenderPresetBehavior(settings.quality);
+  const studioRenderMode = resolveStudioRenderMode(settings.quality);
   const resultIsCurrent = Boolean(
     latestResult
     && latestResult.projectId === project.id
@@ -235,16 +240,14 @@ export function LivingRoomRenderStudio({
               type="button"
               className="lr-render-recommended"
               onClick={() => onSettingsChange({
-                quality: "presentation",
-                widthPx: 2560,
-                heightPx: 1440,
+                ...applyRenderPresetToSettings(settings, "client-preview"),
                 exposure: scene.style.colorManagement.exposure,
-                transparentBackground: false,
                 composition: "architectural",
+                transparentBackground: false,
               })}
             >
               <strong>Use recommended settings</strong>
-              <span>Architectural framing · QHD · presentation quality</span>
+              <span>Architectural framing · Client Preview package quality</span>
             </button>
             <div className="lr-render-quality-grid">
               {RENDER_QUALITY_PRESETS.map((preset) => (
@@ -252,13 +255,16 @@ export function LivingRoomRenderStudio({
                   type="button"
                   key={preset.id}
                   className={settings.quality === preset.id ? "is-active" : ""}
-                  onClick={() => onSettingsChange({ quality: preset.id })}
+                  onClick={() => onSettingsChange(applyRenderPresetToSettings(settings, preset.id))}
                 >
                   <strong>{preset.name}</strong>
                   <span>{preset.description}</span>
                 </button>
               ))}
             </div>
+            <p className="lr-render-preset-meta">
+              Mode {studioRenderMode.toUpperCase()} · {qualityBehavior.textureDetail} textures · shadows {qualityBehavior.shadowMapSize}
+            </p>
           </section>
           <section>
             <h3>Output</h3>
@@ -293,9 +299,11 @@ export function LivingRoomRenderStudio({
               <input
                 type="checkbox"
                 checked={settings.transparentBackground}
+                disabled={!qualityBehavior.allowTransparentBackground}
                 onChange={(event) => onSettingsChange({ transparentBackground: event.target.checked })}
               />
               Transparent background
+              {!qualityBehavior.allowTransparentBackground ? <small> · not available in Draft</small> : null}
             </label>
           </section>
           <section>
@@ -347,6 +355,7 @@ export function LivingRoomRenderStudio({
                 activeCameraId={activeCamera.id}
                 quality={settings.quality}
                 composition={settings.composition}
+                renderMode={studioRenderMode}
               />
             ) : <div className="lr-render-empty">No project camera is available.</div>}
             {diagnostics && view === "preview" ? (

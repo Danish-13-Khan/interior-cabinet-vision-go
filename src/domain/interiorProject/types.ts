@@ -122,7 +122,7 @@ export type CameraEntity = {
   isDefault: boolean;
 };
 
-export type RenderQuality = "draft" | "standard" | "presentation";
+export type RenderQuality = "draft" | "standard" | "presentation" | "client-preview";
 export type RenderComposition = "architectural" | "project-camera";
 
 export type RenderSettings = {
