@@ -2,7 +2,8 @@ import { useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import {
   assembleClientPresentationFiles,
-  siblingPackagePath,
+  clientPresentationPackageDirectory,
+  packageFilePath,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
 import {
@@ -35,14 +36,12 @@ export function useClientPresentationExport() {
         setStatus("Client preview export cancelled.");
         return;
       }
+      const packageDirectory = clientPresentationPackageDirectory(pdfPath);
 
       for (const file of files) {
         const target = file.fileName.endsWith(".pdf")
-          ? pdfPath
-          : siblingPackagePath(
-              pdfPath.replace(/\.pdf$/i, ""),
-              file.fileName,
-            );
+          ? packageFilePath(packageDirectory, file.fileName)
+          : packageFilePath(packageDirectory, file.fileName);
         if (typeof file.contents === "string") {
           await writeTextFile(target, file.contents);
         } else {
@@ -51,8 +50,8 @@ export function useClientPresentationExport() {
       }
       setStatus(
         render
-          ? "Client preview package exported (PDF, PNG, JSON)."
-          : "Client preview package exported (PDF + JSON; render a hero image for PNG).",
+          ? "Client preview package exported to a folder (PDF, PNG, JSON)."
+          : "Client preview package exported to a folder (PDF + JSON; render a hero image for PNG).",
       );
     } catch (error) {
       setStatus(
