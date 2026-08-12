@@ -664,6 +664,55 @@
 .lr-demo-primary:hover { background: #ce6841; transform: translateY(-1px); }
 .lr-demo-primary i { font: normal 1rem sans-serif; }
 
+.lr-phase1-qa {
+  width: min(1260px, calc(100% - clamp(40px, 7vw, 104px)));
+  margin: 0 auto 28px;
+  padding: 14px 16px 16px;
+  border: 1px solid #8e9da8;
+  border-top: 3px solid #1877aa;
+  background: rgba(248, 250, 251, 0.97);
+}
+.lr-phase1-qa-copy {
+  margin: 0 0 12px;
+  color: #4a5752;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+.lr-phase1-qa-copy code {
+  font-size: 0.68rem;
+}
+.lr-phase1-qa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.lr-phase1-qa-grid > button {
+  display: grid;
+  gap: 6px;
+  min-height: 88px;
+  padding: 12px;
+  border: 1px solid #b9c0bb;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.lr-phase1-qa-grid > button:hover {
+  border-color: var(--lr-green);
+}
+.lr-phase1-qa-grid strong {
+  font-size: 0.78rem;
+  color: #24312c;
+}
+.lr-phase1-qa-grid span {
+  color: #5a6862;
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+@media (max-width: 900px) {
+  .lr-phase1-qa-grid { grid-template-columns: 1fr; }
+}
+
 .lr-new-project-compact,
 .lr-home-recents {
   padding: 16px;
