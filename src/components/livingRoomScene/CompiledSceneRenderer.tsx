@@ -135,14 +135,14 @@ export function CompiledSceneRenderer({
         />
       ))}
       <ContactShadows
-        key={scene.fingerprint}
-        position={[0, 0.004, 0]}
+        key={`${scene.fingerprint}-${renderQuality}-${renderMode}`}
+        position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
         scale={Math.max(8, roomSpan + 1)}
         opacity={environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale}
         blur={environment.contactShadowBlur * lightingQuality.contactShadowBlurScale}
-        far={4}
+        far={lightingQuality.contactShadowFarMeters}
         resolution={lightingQuality.contactShadowResolution}
-        frames={1}
+        frames={lightingQuality.contactShadowFrames}
       />
       {interactive ? (
         <OrbitControls

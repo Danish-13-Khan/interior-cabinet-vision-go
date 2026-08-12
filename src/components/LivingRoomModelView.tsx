@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type { InteriorProject, Point3Mm, RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
+  describePresetHonesty,
   getActiveLivingRoomStyleId,
   getModelViewDefaultPresetId,
   getRenderQualityPreset,
@@ -13,6 +14,7 @@ import {
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
+import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -46,6 +48,7 @@ export function LivingRoomModelView({
   );
   const modelPresets = listModelViewRenderPresets();
   const quality = getRenderQualityPreset(viewportQuality);
+  const honesty = describePresetHonesty(viewportQuality, "preview");
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
   const activeObject = selectedIds.length === 1
@@ -115,6 +118,7 @@ export function LivingRoomModelView({
             ))}
           </select>
         </label>
+        <RenderPresetHonestyBadge honesty={honesty} compact />
         <span>{scene.nodes.filter((node) => node.sourceObjectId).length} compiled objects</span>
       </div>
       <Canvas
@@ -166,7 +170,7 @@ export function LivingRoomModelView({
         <span>
           {scene.warnings.length
             ? `${scene.warnings.length} adapter warning`
-            : `${quality.name.toUpperCase()} · PREVIEW · ${scene.style.colorManagement.exposure.toFixed(2)} EV`}
+            : `${honesty.shortBadge} · ${scene.style.colorManagement.exposure.toFixed(2)} EV`}
         </span>
         <span>Drag objects · Left orbit · Right pan · Wheel zoom</span>
       </div>

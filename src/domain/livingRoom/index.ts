@@ -31,6 +31,15 @@ export {
   type EnvironmentLightingQuality,
 } from "./environmentLightingQuality";
 export {
+  resolveGroundingQuality,
+  type GroundingQuality,
+} from "./groundingQuality";
+export {
+  describePresetHonesty,
+  type PresetHonestyDescription,
+  type PresetHonestyRole,
+} from "./presetHonesty";
+export {
   createLivingRoomRenderResult,
   getRenderQualityPreset,
   livingRoomRenderFileName,
