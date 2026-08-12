@@ -19,6 +19,18 @@ export {
   type LivingRoomLightingRecipeId,
 } from "./lighting";
 export {
+  environmentAssetIdForRecipe,
+  isLivingRoomLightingRecipeId,
+  lightformerFallbackForRecipe,
+  LIGHTFORMER_FALLBACK_BY_RECIPE,
+  LIGHTING_RECIPE_ENVIRONMENT_IDS,
+  type LightformerFallbackTone,
+} from "./lightingEnvironment";
+export {
+  resolveEnvironmentLightingQuality,
+  type EnvironmentLightingQuality,
+} from "./environmentLightingQuality";
+export {
   createLivingRoomRenderResult,
   getRenderQualityPreset,
   resolveRenderCameraPose,

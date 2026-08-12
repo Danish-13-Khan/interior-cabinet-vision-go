@@ -100,6 +100,8 @@ export type CompiledLivingRoomScene = {
   materials: CompiledMaterial[];
   lights: LightEntity[];
   cameras: CameraEntity[];
+  /** Active lighting recipe from render settings (compiled only, not project JSON). */
+  lightingRecipeId: string;
   style: {
     id: LivingRoomStyleId;
     name: string;

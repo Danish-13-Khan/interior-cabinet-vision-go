@@ -1,4 +1,4 @@
-import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
+import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -11,11 +11,11 @@ import {
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
-import { getRenderQualityPreset, resolveRenderCameraPose } from "../../domain/livingRoom";
+import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
+import { resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import { getRenderModeQuality } from "../../domain/livingRoom/renderAssetBindings";
+import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CameraRig } from "./CameraRig";
-import { CompiledLights } from "./CompiledLights";
 import { CompiledNodeView } from "./CompiledNodeView";
 
 type SceneRendererProps = {
@@ -79,11 +79,7 @@ export function CompiledSceneRenderer({
     : scene.nodes;
   const roomSpan = Math.max(scene.bounds.size.widthMm, scene.bounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
-  const quality = getRenderQualityPreset(renderQuality);
-  const modeQuality = getRenderModeQuality(renderMode);
-  const envResolution = renderMode === "hero"
-    ? quality.environmentResolution
-    : Math.min(quality.environmentResolution, 128);
+  const lightingQuality = resolveEnvironmentLightingQuality(renderMode, renderQuality);
 
   return (
     <>
@@ -94,17 +90,26 @@ export function CompiledSceneRenderer({
       <hemisphereLight
         color={environment.hemisphereSkyColor}
         groundColor={environment.hemisphereGroundColor}
-        intensity={environment.hemisphereIntensity * 0.64 * modeQuality.envMapIntensityScale}
+        intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale}
       />
-      {renderQuality !== "draft" ? (
-        <Environment resolution={envResolution} frames={1}>
-          <Lightformer form="rect" intensity={1.15 * modeQuality.envMapIntensityScale} color="#fff8ef" position={[0, 5.5, 1]} rotation={[-Math.PI / 2, 0, 0]} scale={[7, 7, 1]} />
-          <Lightformer form="rect" intensity={0.75 * modeQuality.envMapIntensityScale} color="#dfeaff" position={[-5, 2.5, 0]} rotation={[0, Math.PI / 2, 0]} scale={[3.5, 5, 1]} />
-          <Lightformer form="rect" intensity={0.5 * modeQuality.envMapIntensityScale} color="#ffe3c4" position={[4, 2, -3]} rotation={[0, -Math.PI / 3, 0]} scale={[2.5, 3.5, 1]} />
-        </Environment>
+      <RenderLightingRig
+        scene={scene}
+        recipeId={scene.lightingRecipeId}
+        renderMode={renderMode}
+        renderQuality={renderQuality}
+        lightingQuality={lightingQuality}
+      />
+      {showGrid ? (
+        <gridHelper
+          args={[
+            Math.max(8, roomSpan + 2),
+            Math.max(16, Math.round((roomSpan + 2) * 2)),
+            environment.gridPrimaryColor,
+            environment.gridSecondaryColor,
+          ]}
+          position={[0, 0.002, 0]}
+        />
       ) : null}
-      <CompiledLights scene={scene} shadowMapSize={quality.shadowMapSize} shadowRadius={quality.shadowRadius} />
-      {showGrid ? <gridHelper args={[Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)), environment.gridPrimaryColor, environment.gridSecondaryColor]} position={[0, 0.002, 0]} /> : null}
       {nodes.map((node) => (
         <CompiledNodeView
           key={node.id}
@@ -126,7 +131,7 @@ export function CompiledSceneRenderer({
         opacity={environment.contactShadowOpacity}
         blur={environment.contactShadowBlur}
         far={4}
-        resolution={quality.contactShadowResolution}
+        resolution={lightingQuality.contactShadowResolution}
         frames={1}
       />
       {interactive ? (

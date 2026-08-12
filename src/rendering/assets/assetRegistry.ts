@@ -1,4 +1,5 @@
 import type { RenderBinding } from "../../domain/livingRoom/renderAssetContracts";
+import { environmentAssetIdForRecipe } from "../../domain/livingRoom/lightingEnvironment";
 import { resolveEffectiveRenderStrategy } from "../../domain/livingRoom/renderAssetBindings";
 import type {
   EnvironmentAssetDefinition,
@@ -24,6 +25,10 @@ const environments = new Map<string, EnvironmentAssetDefinition>(
   ENVIRONMENT_ASSET_MANIFEST.map((asset) => [asset.id, asset]),
 );
 
+function publicAssetUrl(assetKey: string) {
+  return `/${assetKey.replace(/^\/+/, "")}`;
+}
+
 export function getModelAsset(id: string) {
   return models.get(id) ?? null;
 }
@@ -41,7 +46,32 @@ export function getEnvironmentAsset(id: string) {
 }
 
 export function getEnvironmentForLightingRecipe(recipeId: string) {
+  const expectedId = environmentAssetIdForRecipe(recipeId);
+  if (expectedId) {
+    const byId = getEnvironmentAsset(expectedId);
+    if (byId) return byId;
+  }
   return ENVIRONMENT_ASSET_MANIFEST.find((asset) => asset.lightingRecipeId === recipeId) ?? null;
+}
+
+export function isEnvironmentAssetAvailable(id: string | undefined) {
+  if (!id) return false;
+  return getEnvironmentAsset(id)?.available === true;
+}
+
+export function resolveEnvironmentAssetUrl(assetKey: string) {
+  return publicAssetUrl(assetKey);
+}
+
+export function resolveEnvironmentDrawState(recipeId: string) {
+  const definition = getEnvironmentForLightingRecipe(recipeId);
+  const available = definition?.available === true;
+  return {
+    definition,
+    available,
+    url: available && definition ? resolveEnvironmentAssetUrl(definition.assetKey) : null,
+    fallbackRequired: !available,
+  };
 }
 
 export function isModelAssetAvailable(id: string | undefined) {
@@ -49,10 +79,8 @@ export function isModelAssetAvailable(id: string | undefined) {
   return getModelAsset(id)?.available === true;
 }
 
-/** Public URL for a registry assetKey (Vite/Tauri static files under /public). */
 export function resolveModelAssetUrl(assetKey: string) {
-  const normalized = assetKey.replace(/^\/+/, "");
-  return `/${normalized}`;
+  return publicAssetUrl(assetKey);
 }
 
 export function resolveNodeDrawStrategy(binding: RenderBinding) {
@@ -72,4 +100,8 @@ export function listModelAssets() {
 
 export function listAvailableModelAssets() {
   return MODEL_ASSET_MANIFEST.filter((asset) => asset.available);
+}
+
+export function listEnvironmentAssets() {
+  return [...ENVIRONMENT_ASSET_MANIFEST];
 }

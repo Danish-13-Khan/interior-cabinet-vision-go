@@ -184,3 +184,8 @@ export function applyLivingRoomLightingRecipe(
     },
   };
 }
+
+export {
+  environmentAssetIdForRecipe,
+  LIGHTING_RECIPE_ENVIRONMENT_IDS,
+} from "./lightingEnvironment";
