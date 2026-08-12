@@ -534,6 +534,28 @@
   gap: 3px;
 }
 
+.lr-render-recommended {
+  display: grid;
+  width: 100%;
+  gap: 2px;
+  margin: 0 0 7px;
+  padding: 7px;
+  border: 1px solid #4e7464;
+  background: #e4eee8;
+  color: #244c3b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lr-render-recommended strong {
+  font-size: 0.58rem;
+}
+
+.lr-render-recommended span {
+  color: #587064;
+  font-size: 0.49rem;
+}
+
 .lr-render-quality-grid button {
   display: grid;
   grid-template-columns: 52px 1fr;

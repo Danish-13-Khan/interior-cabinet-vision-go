@@ -123,7 +123,7 @@ const OBJECT_LAYOUT: readonly {
   {
     key: "side-table",
     catalogItemId: "living:side-table",
-    position: { x: 1700, y: 0, z: 930 },
+    position: { x: -2100, y: 0, z: -1050 },
   },
   {
     key: "tv-unit",
@@ -144,7 +144,7 @@ const OBJECT_LAYOUT: readonly {
   {
     key: "floor-lamp",
     catalogItemId: "living:floor-lamp",
-    position: { x: 2500, y: 0, z: 700 },
+    position: { x: 2350, y: 0, z: -1150 },
   },
 ];
 

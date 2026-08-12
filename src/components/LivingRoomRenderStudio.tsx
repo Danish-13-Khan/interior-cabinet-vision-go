@@ -86,7 +86,8 @@ export function LivingRoomRenderStudio({
     && latestResult.widthPx === settings.widthPx
     && latestResult.heightPx === settings.heightPx
     && latestResult.quality === settings.quality
-    && latestResult.transparentBackground === settings.transparentBackground,
+    && latestResult.transparentBackground === settings.transparentBackground
+    && latestResult.composition === settings.composition,
   );
 
   useEffect(() => setExposureDraft(settings.exposure), [settings.exposure]);
@@ -106,6 +107,7 @@ export function LivingRoomRenderStudio({
           widthPx: 320,
           heightPx: 180,
           transparentBackground: false,
+          composition: settings.composition,
         });
       }
       if (!disposed) setThumbnails(next);
@@ -116,7 +118,7 @@ export function LivingRoomRenderStudio({
       disposed = true;
       jobTokenRef.current += 1;
     };
-  }, [captureHandle, scene.cameras, scene.fingerprint]);
+  }, [captureHandle, scene.cameras, scene.fingerprint, settings.composition]);
 
   async function renderImage() {
     const capture = captureHandle;
@@ -137,6 +139,7 @@ export function LivingRoomRenderStudio({
         widthPx: settings.widthPx,
         heightPx: settings.heightPx,
         transparentBackground: settings.transparentBackground,
+        composition: settings.composition,
       });
       if (!continueJob()) return;
       setJob({ status: "rendering", progress: 90, stage: "Encoding PNG", error: null });
@@ -212,6 +215,21 @@ export function LivingRoomRenderStudio({
         <aside className="lr-render-settings" aria-label="Render settings">
           <section>
             <h3>Quality</h3>
+            <button
+              type="button"
+              className="lr-render-recommended"
+              onClick={() => onSettingsChange({
+                quality: "presentation",
+                widthPx: 2560,
+                heightPx: 1440,
+                exposure: scene.style.colorManagement.exposure,
+                transparentBackground: false,
+                composition: "architectural",
+              })}
+            >
+              <strong>Use recommended settings</strong>
+              <span>Architectural framing · QHD · presentation quality</span>
+            </button>
             <div className="lr-render-quality-grid">
               {RENDER_QUALITY_PRESETS.map((preset) => (
                 <button
@@ -228,6 +246,18 @@ export function LivingRoomRenderStudio({
           </section>
           <section>
             <h3>Output</h3>
+            <label className="lr-render-field">
+              <span>Composition</span>
+              <select
+                value={settings.composition}
+                onChange={(event) => onSettingsChange({
+                  composition: event.target.value as RenderSettings["composition"],
+                })}
+              >
+                <option value="architectural">Architectural · recommended</option>
+                <option value="project-camera">Project camera · exact</option>
+              </select>
+            </label>
             <label className="lr-render-field">
               <span>Resolution</span>
               <select
@@ -281,6 +311,7 @@ export function LivingRoomRenderStudio({
             <h3>Frame Summary</h3>
             <dl>
               <dt>Camera</dt><dd>{activeCamera?.name ?? "None"}</dd>
+              <dt>Framing</dt><dd>{settings.composition === "architectural" ? "Architectural" : "Exact"}</dd>
               <dt>Output</dt><dd>{settings.widthPx} × {settings.heightPx}</dd>
               <dt>Pixels</dt><dd>{(settings.widthPx * settings.heightPx / 1_000_000).toFixed(1)} MP</dd>
               <dt>Pipeline</dt><dd>ACES / sRGB</dd>
@@ -296,6 +327,7 @@ export function LivingRoomRenderStudio({
                 scene={scene}
                 activeCameraId={activeCamera.id}
                 quality={settings.quality}
+                composition={settings.composition}
               />
             ) : <div className="lr-render-empty">No project camera is available.</div>}
           </div>

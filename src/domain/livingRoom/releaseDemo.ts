@@ -31,12 +31,12 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
   const arrangedLamp = moveLivingRoomObject(
     arrangedChair,
     lampId,
-    { x: 2475, y: 0, z: 925 },
+    { x: 2450, y: 0, z: -1150 },
   );
   const arranged = moveLivingRoomObject(
     arrangedLamp,
     sideTableId,
-    { x: 1725, y: 0, z: 1075 },
+    { x: -2100, y: 0, z: -1050 },
   );
 
   return {

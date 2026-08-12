@@ -23,6 +23,11 @@ describe("living-room scene compiler", () => {
     expect(objectNodes.every((node) => node.primitives.length > 0)).toBe(true);
     expect(scene.warnings).toEqual([]);
     expect(scene.materials.some((material) => material.kind === "glass")).toBe(true);
+    expect(
+      objectNodes
+        .filter((node) => node.metadata.category === "sofa" || node.metadata.category === "chair")
+        .every((node) => node.primitives.some((primitive) => primitive.kind === "rounded-box")),
+    ).toBe(true);
   });
 
   it("cuts wall geometry around doors and windows", () => {

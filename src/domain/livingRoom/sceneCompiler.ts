@@ -79,6 +79,7 @@ function wallSegment(
       { width, height, depth: wall.thicknessMm },
       { x: 0, y: bottomMm + height / 2, z: 0 },
       materialId,
+      { castShadow: false },
     )],
     placeholder: false,
     metadata: {
@@ -131,6 +132,33 @@ function compileOpening(
   const materialId = opening.kind === "window"
     ? LIVING_ROOM_MATERIAL_IDS.clearGlass
     : LIVING_ROOM_MATERIAL_IDS.naturalOak;
+  const insetDepth = opening.kind === "window" ? 34 : 42;
+  const border = opening.kind === "window" ? 46 : 58;
+  const primitives = [boxPrimitive(
+    opening.kind,
+    {
+      width: opening.widthMm - border * 2,
+      height: opening.heightMm - border * 2,
+      depth: opening.kind === "window" ? 12 : 42,
+    },
+    {
+      x: 0,
+      y: opening.sillHeightMm + opening.heightMm / 2,
+      z: 0,
+    },
+    materialId,
+    { castShadow: opening.kind === "door" },
+  )];
+  if (opening.kind === "window") {
+    const frameMaterial = LIVING_ROOM_MATERIAL_IDS.ceilingPaint;
+    primitives.push(
+      boxPrimitive("frame-top", { width: opening.widthMm, height: border, depth: insetDepth }, { x: 0, y: opening.sillHeightMm + opening.heightMm - border / 2, z: 0 }, frameMaterial),
+      boxPrimitive("frame-bottom", { width: opening.widthMm, height: border, depth: insetDepth }, { x: 0, y: opening.sillHeightMm + border / 2, z: 0 }, frameMaterial),
+      boxPrimitive("frame-left", { width: border, height: opening.heightMm - border * 2, depth: insetDepth }, { x: -opening.widthMm / 2 + border / 2, y: opening.sillHeightMm + opening.heightMm / 2, z: 0 }, frameMaterial),
+      boxPrimitive("frame-right", { width: border, height: opening.heightMm - border * 2, depth: insetDepth }, { x: opening.widthMm / 2 - border / 2, y: opening.sillHeightMm + opening.heightMm / 2, z: 0 }, frameMaterial),
+      boxPrimitive("mullion", { width: 28, height: opening.heightMm - border * 2, depth: insetDepth + 4 }, { x: 0, y: opening.sillHeightMm + opening.heightMm / 2, z: 0 }, frameMaterial),
+    );
+  }
   return {
     id: `opening-node:${opening.id}`,
     name: opening.kind === "window" ? "Window" : "Door",
@@ -138,21 +166,7 @@ function compileOpening(
     adapterId: `room-${opening.kind}-v1`,
     positionMm: { x: midpoint.x, y: 0, z: midpoint.z },
     rotationDegrees: { x: 0, y: rotationY, z: 0 },
-    primitives: [boxPrimitive(
-      opening.kind,
-      {
-        width: opening.widthMm - 24,
-        height: opening.heightMm - 24,
-        depth: opening.kind === "window" ? 12 : 42,
-      },
-      {
-        x: 0,
-        y: opening.sillHeightMm + opening.heightMm / 2,
-        z: 0,
-      },
-      materialId,
-      { castShadow: opening.kind === "door" },
-    )],
+    primitives,
     placeholder: false,
     metadata: {
       role: "opening",
@@ -190,8 +204,25 @@ function compileRoomNodes(project: InteriorProject) {
     placeholder: false,
     metadata: { role: "floor" },
   };
+  const architecture: CompiledSceneNode = {
+    id: `room-architecture:${room.id}`,
+    name: `${room.name} Architecture`,
+    sourceObjectId: null,
+    adapterId: "room-architecture-v1",
+    positionMm: { x: 0, y: 0, z: 0 },
+    rotationDegrees: { x: 0, y: 0, z: 0 },
+    primitives: [
+      boxPrimitive("ceiling", { width: room.dimensions.widthMm, height: 24, depth: room.dimensions.depthMm }, { x: 0, y: room.dimensions.heightMm + 12, z: 0 }, LIVING_ROOM_MATERIAL_IDS.ceilingPaint, { castShadow: false }),
+      boxPrimitive("skirting-back", { width: room.dimensions.widthMm - 220, height: 90, depth: 18 }, { x: 0, y: 45, z: -room.dimensions.depthMm / 2 + room.wallThicknessMm / 2 + 10 }, LIVING_ROOM_MATERIAL_IDS.ceilingPaint),
+      boxPrimitive("skirting-left", { width: 18, height: 90, depth: room.dimensions.depthMm - 220 }, { x: -room.dimensions.widthMm / 2 + room.wallThicknessMm / 2 + 10, y: 45, z: 0 }, LIVING_ROOM_MATERIAL_IDS.ceilingPaint),
+      boxPrimitive("skirting-right", { width: 18, height: 90, depth: room.dimensions.depthMm - 220 }, { x: room.dimensions.widthMm / 2 - room.wallThicknessMm / 2 - 10, y: 45, z: 0 }, LIVING_ROOM_MATERIAL_IDS.ceilingPaint),
+    ],
+    placeholder: false,
+    metadata: { role: "architecture" },
+  };
   return [
     floor,
+    architecture,
     ...project.walls
       .filter((wall) => wall.roomId === room.id && wall.visible)
       .flatMap((wall) => compileWall(wall, project.openings)),
@@ -250,13 +281,13 @@ function computeBounds(nodes: CompiledSceneNode[]): CompiledSceneBounds {
   const max: Point3Mm = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const node of nodes) {
     for (const primitive of node.primitives) {
-      const width = primitive.kind === "box"
+      const width = primitive.kind !== "cylinder"
         ? primitive.sizeMm.width
         : primitive.radiusBottomMm * 2;
-      const depth = primitive.kind === "box"
+      const depth = primitive.kind !== "cylinder"
         ? primitive.sizeMm.depth
         : primitive.radiusBottomMm * 2;
-      const height = primitive.kind === "box" ? primitive.sizeMm.height : primitive.heightMm;
+      const height = primitive.kind !== "cylinder" ? primitive.sizeMm.height : primitive.heightMm;
       const rotation = node.rotationDegrees.y + primitive.rotationDegrees.y;
       const radians = rotation * Math.PI / 180;
       const halfX = Math.abs(Math.cos(radians)) * width / 2 + Math.abs(Math.sin(radians)) * depth / 2;
