@@ -1,6 +1,6 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MOUSE,
   ACESFilmicToneMapping,
@@ -60,7 +60,10 @@ export function CompiledSceneRenderer({
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
-  const materialMap = new Map(scene.materials.map((material) => [material.id, material]));
+  const materialMap = useMemo(
+    () => new Map(scene.materials.map((material) => [material.id, material])),
+    [scene.materials],
+  );
   const projectCamera = scene.cameras.find((camera) => camera.id === activeCameraId)
     ?? scene.cameras.find((camera) => camera.isDefault)
     ?? scene.cameras[0];

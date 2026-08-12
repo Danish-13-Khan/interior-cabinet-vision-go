@@ -83,6 +83,10 @@ export function resolveModelAssetUrl(assetKey: string) {
   return publicAssetUrl(assetKey);
 }
 
+export function resolveTextureAssetUrl(assetKey: string) {
+  return publicAssetUrl(assetKey);
+}
+
 export function resolveNodeDrawStrategy(binding: RenderBinding) {
   return resolveEffectiveRenderStrategy(
     binding,

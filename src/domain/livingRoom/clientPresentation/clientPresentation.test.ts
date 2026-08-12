@@ -8,6 +8,8 @@ import {
   assembleClientPresentationFiles,
   buildClientPresentationPackage,
   clientPresentationBasePath,
+  clientPresentationPackageDirectory,
+  packageFilePath,
   preferLivingRoomBrowserThumbnail,
   siblingPackagePath,
 } from ".";
@@ -88,6 +90,17 @@ describe("client presentation package", () => {
     );
     expect(siblingPackagePath("/tmp/demo-client-preview", "demo-objects.json")).toBe(
       "/tmp/demo-objects.json",
+    );
+  });
+
+  it("derives package folder paths for desktop client preview exports", () => {
+    const directory = clientPresentationPackageDirectory("/tmp/demo-client-preview.pdf");
+    expect(directory).toBe("/tmp/demo-client-preview");
+    expect(packageFilePath(directory, "demo-client-preview.pdf")).toBe(
+      "/tmp/demo-client-preview/demo-client-preview.pdf",
+    );
+    expect(packageFilePath("C:\\Temp\\demo-client-preview", "demo-objects.json")).toBe(
+      "C:\\Temp\\demo-client-preview\\demo-objects.json",
     );
   });
 });

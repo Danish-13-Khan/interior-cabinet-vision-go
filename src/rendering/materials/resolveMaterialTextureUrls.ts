@@ -2,7 +2,7 @@ import type { CompiledMaterial } from "../../domain/livingRoom";
 import {
   getMaterialAsset,
   getTextureAsset,
-  resolveModelAssetUrl,
+  resolveTextureAssetUrl,
 } from "../assets/assetRegistry";
 
 export type MaterialTextureUrls = {
@@ -16,7 +16,7 @@ function urlIfAvailable(textureId: string | undefined) {
   if (!textureId) return undefined;
   const texture = getTextureAsset(textureId);
   if (!texture?.available) return undefined;
-  return resolveModelAssetUrl(texture.assetKey);
+  return resolveTextureAssetUrl(texture.assetKey);
 }
 
 /** Resolve curated file texture URLs for a compiled material; empty when unavailable. */

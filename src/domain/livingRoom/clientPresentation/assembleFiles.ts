@@ -87,3 +87,12 @@ export function siblingPackagePath(basePath: string, fileName: string) {
   const directory = slash >= 0 ? basePath.slice(0, slash + 1) : "";
   return `${directory}${fileName}`;
 }
+
+export function clientPresentationPackageDirectory(pdfPath: string) {
+  return clientPresentationBasePath(pdfPath);
+}
+
+export function packageFilePath(packageDirectory: string, fileName: string) {
+  const separator = packageDirectory.includes("\\") ? "\\" : "/";
+  return `${packageDirectory.replace(/[\\/]+$/g, "")}${separator}${fileName}`;
+}

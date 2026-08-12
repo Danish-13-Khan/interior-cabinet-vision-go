@@ -10,6 +10,8 @@ export {
 export {
   assembleClientPresentationFiles,
   clientPresentationBasePath,
+  clientPresentationPackageDirectory,
+  packageFilePath,
   siblingPackagePath,
   type ClientPresentationFile,
 } from "./assembleFiles";

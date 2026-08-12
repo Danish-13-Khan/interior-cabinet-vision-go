@@ -1,8 +1,19 @@
 use base64::Engine;
 use std::fs;
+use std::path::Path;
+
+fn ensure_parent_dir(path: &str) -> Result<(), String> {
+    if let Some(parent) = Path::new(path).parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+        }
+    }
+    Ok(())
+}
 
 #[tauri::command]
 fn save_project_file(path: String, contents: String) -> Result<(), String> {
+    ensure_parent_dir(&path)?;
     fs::write(path, contents).map_err(|error| error.to_string())
 }
 
@@ -16,6 +27,7 @@ fn save_binary_file(path: String, base64_data: String) -> Result<(), String> {
     let bytes = base64::engine::general_purpose::STANDARD
         .decode(base64_data.as_bytes())
         .map_err(|e| e.to_string())?;
+    ensure_parent_dir(&path)?;
     fs::write(path, bytes).map_err(|error| error.to_string())
 }
 
@@ -72,6 +84,34 @@ mod tests {
 
         assert_eq!(loaded, b"release-image");
         fs::remove_file(path).expect("remove test image");
+    }
+
+    #[test]
+    fn save_commands_create_parent_directories() {
+        let base = std::env::temp_dir().join(format!(
+            "interior-cabinet-designer-dir-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("system clock")
+                .as_nanos()
+        ));
+        let text_path = base.join("client-preview").join("project.json");
+        let binary_path = base.join("client-preview").join("hero.png");
+
+        save_project_file(
+            text_path.to_string_lossy().into_owned(),
+            "{\"ok\":true}".to_string(),
+        )
+        .expect("save text in nested folder");
+        save_binary_file(
+            binary_path.to_string_lossy().into_owned(),
+            base64::engine::general_purpose::STANDARD.encode(b"png"),
+        )
+        .expect("save binary in nested folder");
+
+        assert_eq!(fs::read_to_string(text_path).expect("read nested text"), "{\"ok\":true}");
+        assert_eq!(fs::read(binary_path).expect("read nested binary"), b"png");
+        fs::remove_dir_all(base).expect("remove nested export folder");
     }
 
     #[test]
