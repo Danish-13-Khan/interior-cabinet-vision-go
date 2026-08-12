@@ -24,9 +24,11 @@ import {
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
+  setLivingRoomPlanUnderlay,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
   type LivingRoomLightingRecipeId,
+  type LivingRoomPlanUnderlay,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
@@ -192,6 +194,23 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function setObjectMaterial(objectId: string, slotName: string, materialId: string) {
+    if (!document?.materials.some((material) => material.id === materialId)) return;
+    commitDocument((current) => ({
+      ...current,
+      objects: current.objects.map((object) => object.id === objectId
+        ? { ...object, materialSlots: { ...object.materialSlots, [slotName]: materialId } }
+        : object),
+    }), "Changed object material.");
+  }
+
+  function setPlanUnderlay(underlay: LivingRoomPlanUnderlay | null) {
+    commitDocument(
+      (current) => setLivingRoomPlanUnderlay(current, underlay),
+      underlay ? "Imported plan underlay." : "Removed plan underlay.",
+    );
+  }
+
   function addCatalogObject(catalogItemId: LivingRoomCatalogId) {
     if (!document) return;
     const item = createLivingRoomObject(catalogItemId, {
@@ -311,6 +330,8 @@ export function useLivingRoomPlanEditor({
     resizeInteriorObject: resizeObject,
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: setObjectRotation,
+    setInteriorObjectMaterial: setObjectMaterial,
+    setLivingRoomPlanUnderlay: setPlanUnderlay,
     addLivingRoomCatalogObject: addCatalogObject,
     duplicateInteriorSelection: duplicateSelection,
     deleteInteriorSelection: deleteSelection,

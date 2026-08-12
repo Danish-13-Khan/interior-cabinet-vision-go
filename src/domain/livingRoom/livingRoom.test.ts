@@ -12,24 +12,22 @@ import {
   LIVING_ROOM_MATERIAL_IDS,
   LIVING_ROOM_PRESET_ID,
   inspectLivingRoomPlan,
+  getLivingRoomPlanUnderlay,
+  getLivingRoomObjectAdapter,
+  setLivingRoomPlanUnderlay,
 } from ".";
 
 const NOW = "2026-08-11T18:30:00.000Z";
 
 describe("Living Room Starter Contract", () => {
-  it("provides every object promised by the MVP catalog", () => {
-    expect(LIVING_ROOM_CATALOG.map((item) => item.category)).toEqual([
-      "sofa",
-      "chair",
-      "table",
-      "table",
-      "media-unit",
-      "rug",
-      "mirror",
-      "floor-lamp",
-    ]);
-    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(8);
+  it("provides a varied furniture and decor catalog", () => {
+    expect(LIVING_ROOM_CATALOG.filter((item) => item.category === "sofa")).toHaveLength(3);
+    expect(LIVING_ROOM_CATALOG.filter((item) => item.category === "chair")).toHaveLength(2);
+    expect(LIVING_ROOM_CATALOG.some((item) => item.category === "storage")).toBe(true);
+    expect(LIVING_ROOM_CATALOG.some((item) => item.category === "plant")).toBe(true);
+    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(16);
     expect(LIVING_ROOM_CATALOG.every((item) => item.dimensions.widthMm > 0)).toBe(true);
+    expect(LIVING_ROOM_CATALOG.every((item) => getLivingRoomObjectAdapter(item.id))).toBe(true);
   });
 
   it("creates a complete, valid starter room with resolved references", () => {
@@ -117,5 +115,23 @@ describe("Living Room Starter Contract", () => {
       project.objects.map((object) => object.catalogItemId),
     );
     expect(loaded.project.interiorDocument).toEqual(project);
+  });
+
+  it("stores a portable calibrated plan underlay in project extensions", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const underlay = {
+      fileName: "living-room-plan.png",
+      dataUrl: "data:image/png;base64,cGxhbg==",
+      widthMm: 6200,
+      heightMm: 4600,
+      opacity: 0.4,
+    };
+    const withUnderlay = setLivingRoomPlanUnderlay(project, underlay);
+    const reopened = loadInteriorProjectFile(
+      serializeInteriorProjectFile(withUnderlay, NOW),
+    ).document;
+
+    expect(getLivingRoomPlanUnderlay(reopened)).toEqual(underlay);
+    expect(getLivingRoomPlanUnderlay(setLivingRoomPlanUnderlay(reopened, null))).toBeNull();
   });
 });

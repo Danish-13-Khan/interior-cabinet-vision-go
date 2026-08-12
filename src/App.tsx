@@ -233,6 +233,7 @@ function App() {
             onMove={c.moveInteriorObject}
             onResize={c.resizeInteriorObject}
             onSetRotation={c.setInteriorObjectRotation}
+            onSetMaterial={c.setInteriorObjectMaterial}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}
             onDuplicate={c.duplicateInteriorSelection}
@@ -240,6 +241,7 @@ function App() {
             onAlign={c.alignInteriorSelection}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onSetPlanUnderlay={c.setLivingRoomPlanUnderlay}
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onLightingChange={c.setLivingRoomLightingRecipe}

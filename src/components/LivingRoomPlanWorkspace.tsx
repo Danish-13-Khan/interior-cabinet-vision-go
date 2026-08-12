@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   InteriorObjectEntity,
   InteriorProject,
@@ -9,10 +9,12 @@ import type {
 import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
 import {
   LIVING_ROOM_CATALOG,
+  getLivingRoomPlanUnderlay,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
   type LivingRoomLightingRecipeId,
   type LivingRoomPlanIssue,
+  type LivingRoomPlanUnderlay,
   type LivingRoomRenderResult,
   type LivingRoomRecoverySnapshot,
   type LivingRoomStyleId,
@@ -54,6 +56,7 @@ type LivingRoomPlanWorkspaceProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
+  onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId) => void;
   onDuplicate: () => void;
@@ -61,6 +64,7 @@ type LivingRoomPlanWorkspaceProps = {
   onAlign: (mode: LivingRoomAlignMode) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
@@ -71,6 +75,32 @@ type LivingRoomPlanWorkspaceProps = {
   onExportProject: () => void;
   onWorkbenchModeChange: (mode: WorkbenchMode) => void;
 };
+
+type StudioPanel = "assets" | "layers" | "underlay";
+
+function imageFileToUnderlay(
+  file: File,
+  roomWidthMm: number,
+): Promise<LivingRoomPlanUnderlay> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("The selected image could not be read."));
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? "");
+      const image = new Image();
+      image.onerror = () => reject(new Error("The selected file is not a supported plan image."));
+      image.onload = () => resolve({
+        fileName: file.name,
+        dataUrl,
+        widthMm: roomWidthMm,
+        heightMm: roomWidthMm * image.naturalHeight / Math.max(1, image.naturalWidth),
+        opacity: 0.42,
+      });
+      image.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 function ProductIcon({ name }: { name: "home" | "folder" | "undo" | "redo" | "save" }) {
   const paths = {
@@ -199,6 +229,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [workspaceView, setWorkspaceView] = useState<LivingRoomWorkspaceView>("plan");
+  const [studioPanel, setStudioPanel] = useState<StudioPanel>("assets");
+  const [assetQuery, setAssetQuery] = useState("");
+  const [assetCategory, setAssetCategory] = useState("all");
+  const [importError, setImportError] = useState("");
+  const underlayInputRef = useRef<HTMLInputElement | null>(null);
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
     previous: LivingRoomRenderResult | null;
@@ -207,6 +242,18 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const room = props.project?.rooms.find(
     (item) => item.id === props.project?.activeRoomId,
   );
+  const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
+  const assetCategories = useMemo(
+    () => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))],
+    [],
+  );
+  const visibleAssets = useMemo(() => {
+    const query = assetQuery.trim().toLowerCase();
+    return LIVING_ROOM_CATALOG.filter((item) =>
+      (assetCategory === "all" || item.category === assetCategory) &&
+      (!query || `${item.name} ${item.category}`.toLowerCase().includes(query)),
+    );
+  }, [assetCategory, assetQuery]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -305,6 +352,19 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     props.onResize(activeObject.id, { ...activeObject.dimensions, [axis]: value });
   }
 
+  async function importUnderlay(file: File | null) {
+    if (!file || !room) return;
+    setImportError("");
+    try {
+      props.onSetPlanUnderlay(await imageFileToUnderlay(file, room.dimensions.widthMm));
+      setStudioPanel("underlay");
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : "Plan import failed.");
+    } finally {
+      if (underlayInputRef.current) underlayInputRef.current.value = "";
+    }
+  }
+
   return (
     <section className="lr-plan-shell lr-product-shell">
       <InteriorsProductHeader
@@ -340,34 +400,85 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRestoreRecovery={props.onRestoreRecovery}
         onDiscardRecovery={props.onDiscardRecovery}
       />
+      {workspaceView === "plan" ? (
+        <nav className="lr-studio-rail" aria-label="Plan tools">
+          <button type="button" className={studioPanel === "assets" ? "is-active" : ""} onClick={() => setStudioPanel("assets")} title="Assets"><span>◇</span>Assets</button>
+          <button type="button" className={studioPanel === "layers" ? "is-active" : ""} onClick={() => setStudioPanel("layers")} title="Layers"><span>▱</span>Layers</button>
+          <button type="button" className={studioPanel === "underlay" ? "is-active" : ""} onClick={() => setStudioPanel("underlay")} title="Plan underlay"><span>⌁</span>Import</button>
+        </nav>
+      ) : null}
       {props.toolRailVisible && workspaceView === "plan" ? (
-        <aside className="lr-catalog" style={{ width: props.toolRailWidthPx }}>
-          <div className="context-panel-heading">
-            <strong>Living Room Catalog</strong>
-            <span>Place objects</span>
-          </div>
-          <div className="lr-catalog-list">
-            {LIVING_ROOM_CATALOG.map((item, index) => (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => props.onAddCatalogObject(item.id)}
-              >
-                <span className="lr-catalog-code">{String(index + 1).padStart(2, "0")}</span>
-                <span>
-                  <strong>{item.name}</strong>
-                  <small>{item.dimensions.widthMm} × {item.dimensions.depthMm}</small>
-                </span>
-                <b>+</b>
-              </button>
-            ))}
-          </div>
-          <div className="lr-catalog-help">
-            <strong>Selection</strong>
-            <span>Shift-click adds objects</span>
-            <span>Arrow keys nudge by grid</span>
-            <span>R rotates 90°</span>
-          </div>
+        <aside className="lr-catalog lr-studio-panel" style={{ width: props.toolRailWidthPx }}>
+          {studioPanel === "assets" ? (
+            <>
+              <div className="context-panel-heading">
+                <strong>Asset Library</strong>
+                <span>{LIVING_ROOM_CATALOG.length} parametric models</span>
+              </div>
+              <div className="lr-asset-controls">
+                <input aria-label="Search assets" placeholder="Search furniture…" value={assetQuery} onChange={(event) => setAssetQuery(event.target.value)} />
+                <div className="lr-asset-categories">
+                  {assetCategories.map((category) => (
+                    <button type="button" key={category} className={assetCategory === category ? "is-active" : ""} onClick={() => setAssetCategory(category)}>{category === "all" ? "All" : category.replace("-", " ")}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="lr-asset-grid">
+                {visibleAssets.map((item) => (
+                  <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id)}>
+                    <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
+                    <strong>{item.name}</strong>
+                    <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm</small>
+                    <b>Place</b>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : studioPanel === "layers" ? (
+            <>
+              <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>
+              <div className="lr-layer-tree">
+                <div><b>⌄</b><strong>{room.name}</strong><small>Room</small></div>
+                <div><b>⌄</b><strong>Architecture</strong><small>{props.project.walls.length + props.project.openings.length}</small></div>
+                <span>Walls <small>{props.project.walls.length}</small></span>
+                <span>Doors &amp; windows <small>{props.project.openings.length}</small></span>
+                <div><b>⌄</b><strong>Furniture</strong><small>{props.project.objects.length}</small></div>
+                {props.project.objects.map((object) => (
+                  <button type="button" key={object.id} className={props.selectedIds.includes(object.id) ? "is-selected" : ""} onClick={() => props.onSelect(object.id)}><i>◇</i><span>{object.name}</span><small>{object.category}</small></button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="context-panel-heading"><strong>Plan Underlay</strong><span>Trace from a drawing</span></div>
+              <div className="lr-underlay-panel">
+                <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void importUnderlay(event.target.files?.[0] ?? null)} />
+                {underlay ? (
+                  <>
+                    <div className="lr-underlay-thumb"><img src={underlay.dataUrl} alt="Imported floor plan" /></div>
+                    <strong>{underlay.fileName}</strong>
+                    <small>{Math.round(underlay.widthMm)} × {Math.round(underlay.heightMm)} mm</small>
+                    <label><span>Opacity</span><input type="range" min="0.05" max="1" step="0.05" value={underlay.opacity} onChange={(event) => props.onSetPlanUnderlay({ ...underlay, opacity: Number(event.target.value) })} /></label>
+                    <label><span>Calibrated width</span><input type="number" min="100" step="10" value={Math.round(underlay.widthMm)} onChange={(event) => {
+                      const widthMm = Math.max(100, Number(event.target.value) || underlay.widthMm);
+                      props.onSetPlanUnderlay({ ...underlay, widthMm, heightMm: underlay.heightMm * widthMm / underlay.widthMm });
+                    }} /></label>
+                    <p>Use the room dimensions to align the drawing, then place editable walls and assets over it.</p>
+                    <button type="button" className="is-secondary" onClick={() => underlayInputRef.current?.click()}>Replace image</button>
+                    <button type="button" className="is-danger" onClick={() => props.onSetPlanUnderlay(null)}>Remove underlay</button>
+                  </>
+                ) : (
+                  <div className="lr-underlay-empty">
+                    <span>⌁</span>
+                    <strong>Import a floor plan</strong>
+                    <p>Use PNG, JPG, or WebP as a calibrated tracing underlay. The image stays portable inside the project file.</p>
+                    <button type="button" onClick={() => underlayInputRef.current?.click()}>Choose plan image</button>
+                  </div>
+                )}
+                {importError ? <p className="lr-import-error">{importError}</p> : null}
+              </div>
+            </>
+          )}
         </aside>
       ) : null}
 
@@ -376,22 +487,22 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             <>
               <div className="lr-toolbar-group">
                 <span>Edit</span>
-                <button type="button" onClick={props.onUndo} disabled={!props.canUndo}>Undo</button>
-                <button type="button" onClick={props.onRedo} disabled={!props.canRedo}>Redo</button>
-                <button type="button" onClick={props.onDuplicate} disabled={!activeObject}>Duplicate</button>
-                <button type="button" onClick={props.onDelete} disabled={!activeObject}>Delete</button>
+                <button type="button" aria-label="Undo" title="Undo" onClick={props.onUndo} disabled={!props.canUndo}>↶</button>
+                <button type="button" aria-label="Redo" title="Redo" onClick={props.onRedo} disabled={!props.canRedo}>↷</button>
+                <button type="button" aria-label="Duplicate" title="Duplicate" onClick={props.onDuplicate} disabled={!activeObject}>⧉</button>
+                <button type="button" aria-label="Delete" title="Delete" onClick={props.onDelete} disabled={!activeObject}>⌫</button>
               </div>
               <div className="lr-toolbar-group">
                 <span>Transform</span>
-                <button type="button" onClick={() => props.onRotateSelection(-90)} disabled={!activeObject}>↶ 90°</button>
-                <button type="button" onClick={() => props.onRotateSelection(90)} disabled={!activeObject}>↷ 90°</button>
+                <button type="button" title="Rotate left 90°" onClick={() => props.onRotateSelection(-90)} disabled={!activeObject}>−90°</button>
+                <button type="button" title="Rotate right 90°" onClick={() => props.onRotateSelection(90)} disabled={!activeObject}>+90°</button>
               </div>
               <div className="lr-toolbar-group">
                 <span>Align</span>
-                <button type="button" onClick={() => props.onAlign("left")} disabled={props.selectedIds.length < 2}>Left</button>
-                <button type="button" onClick={() => props.onAlign("center-x")} disabled={props.selectedIds.length < 2}>Center</button>
-                <button type="button" onClick={() => props.onAlign("center-z")} disabled={props.selectedIds.length < 2}>Middle</button>
-                <button type="button" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>Distribute</button>
+                <button type="button" title="Align left" onClick={() => props.onAlign("left")} disabled={props.selectedIds.length < 2}>L</button>
+                <button type="button" title="Align centers" onClick={() => props.onAlign("center-x")} disabled={props.selectedIds.length < 2}>C</button>
+                <button type="button" title="Align middles" onClick={() => props.onAlign("center-z")} disabled={props.selectedIds.length < 2}>M</button>
+                <button type="button" title="Distribute" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>↔</button>
               </div>
             </>
           <div className="lr-toolbar-group lr-toolbar-view">
@@ -553,6 +664,20 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
                     <option value="315">315°</option>
                   </select>
                 </label>
+                <h4>Materials</h4>
+                <div className="lr-material-slots">
+                  {Object.entries(activeObject.materialSlots).map(([slotName, materialId]) => {
+                    const material = props.project!.materials.find((item) => item.id === materialId);
+                    return (
+                      <label key={slotName}>
+                        <span><i style={{ background: material?.color ?? "#ccc" }} />{slotName}</span>
+                        <select value={materialId} onChange={(event) => props.onSetMaterial(activeObject.id, slotName, event.target.value)}>
+                          {props.project!.materials.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+                        </select>
+                      </label>
+                    );
+                  })}
+                </div>
               </section>
             ) : (
               <section className="lr-inspector-empty">

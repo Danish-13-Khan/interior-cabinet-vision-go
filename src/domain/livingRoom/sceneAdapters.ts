@@ -134,6 +134,68 @@ function floorLamp(object: InteriorObjectEntity) {
   ];
 }
 
+function sectionalSofa(object: InteriorObjectEntity) {
+  const { widthMm: w, heightMm: h, depthMm: d } = object.dimensions;
+  const upholstery = slot(object, "upholstery", LIVING_ROOM_MATERIAL_IDS.oatmealFabric);
+  const baseDepth = Math.min(d * 0.55, 900);
+  const parts = sofa({
+    ...object,
+    dimensions: { ...object.dimensions, depthMm: baseDepth },
+  });
+  parts.push(
+    boxPrimitive("chaise-base", { width: w * 0.34, height: h * 0.22, depth: d * 0.92 }, { x: w * 0.28, y: h * 0.31, z: -d * 0.16 }, upholstery),
+    boxPrimitive("chaise-cushion", { width: w * 0.3, height: h * 0.15, depth: d * 0.78 }, { x: w * 0.28, y: h * 0.47, z: -d * 0.2 }, upholstery),
+  );
+  return parts;
+}
+
+function roundCoffeeTable(object: InteriorObjectEntity) {
+  const { widthMm: w, heightMm: h } = object.dimensions;
+  const top = slot(object, "top", LIVING_ROOM_MATERIAL_IDS.walnut);
+  const frame = slot(object, "frame", LIVING_ROOM_MATERIAL_IDS.charcoalMetal);
+  return [
+    cylinderPrimitive("top", { radiusTopMm: w / 2, heightMm: 48, radialSegments: 48 }, { x: 0, y: h - 24, z: 0 }, top),
+    cylinderPrimitive("base", { radiusTopMm: w * 0.27, radiusBottomMm: w * 0.38, heightMm: h - 48, radialSegments: 40 }, { x: 0, y: (h - 48) / 2, z: 0 }, frame),
+  ];
+}
+
+function bookcase(object: InteriorObjectEntity) {
+  const { widthMm: w, heightMm: h, depthMm: d } = object.dimensions;
+  const carcass = slot(object, "carcass");
+  const panel = Math.max(24, Math.min(55, w * 0.035));
+  const shelfCount = Math.max(2, Number(object.parameters.shelfCount) || 5);
+  const parts: CompiledPrimitive[] = [
+    boxPrimitive("side-left", { width: panel, height: h, depth: d }, { x: -w / 2 + panel / 2, y: h / 2, z: 0 }, carcass),
+    boxPrimitive("side-right", { width: panel, height: h, depth: d }, { x: w / 2 - panel / 2, y: h / 2, z: 0 }, carcass),
+    boxPrimitive("back", { width: w - panel * 2, height: h, depth: 18 }, { x: 0, y: h / 2, z: d / 2 - 9 }, carcass, { castShadow: false }),
+  ];
+  for (let index = 0; index <= shelfCount; index += 1) {
+    parts.push(boxPrimitive(`shelf-${index}`, { width: w - panel * 2, height: panel, depth: d }, { x: 0, y: panel / 2 + (h - panel) * index / shelfCount, z: 0 }, carcass));
+  }
+  return parts;
+}
+
+function ottoman(object: InteriorObjectEntity) {
+  const { widthMm: w, heightMm: h, depthMm: d } = object.dimensions;
+  return [
+    boxPrimitive("base", { width: w * 0.9, height: h * 0.25, depth: d * 0.9 }, { x: 0, y: h * 0.125, z: 0 }, slot(object, "base", LIVING_ROOM_MATERIAL_IDS.walnut)),
+    boxPrimitive("cushion", { width: w, height: h * 0.75, depth: d }, { x: 0, y: h * 0.625, z: 0 }, slot(object, "upholstery", LIVING_ROOM_MATERIAL_IDS.oliveFabric)),
+  ];
+}
+
+function indoorPlant(object: InteriorObjectEntity) {
+  const { widthMm: w, heightMm: h } = object.dimensions;
+  const foliage = slot(object, "foliage", LIVING_ROOM_MATERIAL_IDS.oliveFabric);
+  const planter = slot(object, "planter", LIVING_ROOM_MATERIAL_IDS.woolRug);
+  return [
+    cylinderPrimitive("planter", { radiusTopMm: w * 0.27, radiusBottomMm: w * 0.2, heightMm: h * 0.28, radialSegments: 32 }, { x: 0, y: h * 0.14, z: 0 }, planter),
+    cylinderPrimitive("stem", { radiusTopMm: 24, heightMm: h * 0.55, radialSegments: 12 }, { x: 0, y: h * 0.47, z: 0 }, LIVING_ROOM_MATERIAL_IDS.walnut),
+    cylinderPrimitive("leaf-a", { radiusTopMm: w * 0.25, radiusBottomMm: 35, heightMm: h * 0.34, radialSegments: 20 }, { x: -w * 0.14, y: h * 0.74, z: 0 }, foliage, { rotationDegrees: { x: 0, y: 0, z: 28 } }),
+    cylinderPrimitive("leaf-b", { radiusTopMm: w * 0.22, radiusBottomMm: 35, heightMm: h * 0.31, radialSegments: 20 }, { x: w * 0.16, y: h * 0.77, z: 0 }, foliage, { rotationDegrees: { x: 0, y: 0, z: -32 } }),
+    cylinderPrimitive("leaf-c", { radiusTopMm: w * 0.23, radiusBottomMm: 30, heightMm: h * 0.32, radialSegments: 20 }, { x: 0, y: h * 0.84, z: 0 }, foliage),
+  ];
+}
+
 const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "sofa-v1", catalogItemId: "living:sofa-3-seat", compile: sofa },
   { id: "chair-v1", catalogItemId: "living:lounge-chair", compile: chair },
@@ -143,6 +205,14 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "rug-v1", catalogItemId: "living:area-rug", compile: rug },
   { id: "mirror-v1", catalogItemId: "living:wall-mirror", compile: mirror },
   { id: "floor-lamp-v1", catalogItemId: "living:floor-lamp", compile: floorLamp },
+  { id: "sectional-sofa-v1", catalogItemId: "living:sofa-sectional", compile: sectionalSofa },
+  { id: "loveseat-v1", catalogItemId: "living:sofa-loveseat", compile: sofa },
+  { id: "accent-chair-v1", catalogItemId: "living:accent-chair", compile: chair },
+  { id: "round-coffee-table-v1", catalogItemId: "living:coffee-table-round", compile: roundCoffeeTable },
+  { id: "console-table-v1", catalogItemId: "living:console-table", compile: coffeeTable },
+  { id: "bookcase-v1", catalogItemId: "living:bookcase", compile: bookcase },
+  { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: ottoman },
+  { id: "indoor-plant-v1", catalogItemId: "living:indoor-plant", compile: indoorPlant },
 ];
 
 const ADAPTER_BY_CATALOG_ID = new Map(
