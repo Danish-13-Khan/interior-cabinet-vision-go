@@ -278,13 +278,13 @@ RenderCaptureBridge + client package (consume better frames)
 2. Note failures: floating, flat light, chalk materials, bad crop
 3. Capture screenshots into `tmp/phase-1-baselines/` for before/after
 
-### Chapter 2 — Preset honesty first (1–2 days)
+### Chapter 2 — Preset honesty first (landing)
 
-Make quality knobs actually diverge (shadows, env resolution, contact, texture detail) end-to-end so later lighting work has somewhere to land. Add a small UI label in Render Studio: active preset + “preview vs client.”
+Make quality knobs actually diverge (shadows, env resolution, contact, texture detail) end-to-end so later lighting work has somewhere to land. Add honesty badge in Model View + Render Studio: Working Draft vs Client Delivery.
 
-### Chapter 3 — Grounding (2–3 days)
+### Chapter 3 — Grounding (landing)
 
-Tune ContactShadows + groundingQuality. Furniture should kiss the floor in Client Preview without black mud puddles.
+Tune ContactShadows via `groundingQuality` so Client Preview visibly pins furniture without black mud. Draft stays lighter/faster.
 
 ### Chapter 4 — Window key light (3–5 days)
 

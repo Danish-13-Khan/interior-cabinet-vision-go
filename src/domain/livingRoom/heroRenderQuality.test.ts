@@ -46,16 +46,25 @@ describe("hero render quality", () => {
       .toBeGreaterThan(Math.hypot(previewPose.position.x - previewPose.target.x, previewPose.position.z - previewPose.target.z));
   });
 
-  it("softens hero contact shadows and boosts capture scale", () => {
-    const preview = resolveEnvironmentLightingQuality("preview", "standard");
+  it("grounds Client Preview harder than Draft and boosts capture scale", () => {
+    const draft = resolveEnvironmentLightingQuality("preview", "draft");
     const hero = resolveEnvironmentLightingQuality("hero", "presentation");
-    expect(hero.shadowRadius).toBeGreaterThan(preview.shadowRadius);
-    expect(hero.contactShadowBlurScale).toBeGreaterThan(preview.contactShadowBlurScale);
-    expect(hero.contactShadowOpacityScale).toBeLessThan(preview.contactShadowOpacityScale);
+    const client = resolveEnvironmentLightingQuality("hero", "client-preview");
+    expect(hero.shadowRadius).toBeGreaterThan(draft.shadowRadius);
+    expect(client.contactShadowOpacityScale).toBeGreaterThan(draft.contactShadowOpacityScale);
+    expect(client.contactShadowResolution).toBeGreaterThan(draft.contactShadowResolution);
+    expect(client.contactShadowFarMeters).toBeGreaterThan(draft.contactShadowFarMeters);
     expect(resolveHeroRenderScale("hero", "presentation")).toBeGreaterThan(
       resolveHeroRenderScale("preview", "presentation"),
     );
     expect(resolveHeroCaptureTuning("hero", "presentation").vignetteStrength).toBeGreaterThan(0);
+  });
+
+  it("keeps Draft material response weaker than Client Preview in hero mode", () => {
+    const draft = getRenderModeQuality("hero", "draft");
+    const client = getRenderModeQuality("hero", "client-preview");
+    expect(client.anisotropy).toBeGreaterThan(draft.anisotropy);
+    expect(client.envMapIntensityScale).toBeGreaterThan(draft.envMapIntensityScale);
   });
 
   it("tunes hero materials without mutating project JSON", () => {
