@@ -79,7 +79,12 @@ export function createObjectRenderBinding(
   );
 
   if (object.kind === "cabinet" || !isGlbIntentCatalogId(object.catalogItemId)) {
-    return { strategy: "procedural", materialBindings, uvScaleMm };
+    return {
+      strategy: "procedural",
+      materialBindings,
+      uvScaleMm,
+      targetSizeMm: { ...object.dimensions },
+    };
   }
 
   return {
@@ -87,6 +92,7 @@ export function createObjectRenderBinding(
     modelAssetId: GLB_MODEL_BY_CATALOG[object.catalogItemId],
     materialBindings,
     uvScaleMm,
+    targetSizeMm: { ...object.dimensions },
   };
 }
 

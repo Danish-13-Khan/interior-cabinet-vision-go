@@ -25,12 +25,24 @@ describe("render asset registry and PBR spine", () => {
     expect(listMaterialAssets()).toHaveLength(ids.length);
   });
 
-  it("uses procedural draw strategy while GLB placeholders are unavailable", () => {
+  it("uses GLB draw strategy when soft-goods assets are available", () => {
     const project = createLivingRoomStarterProject({ now: NOW });
     const sofa = project.objects.find((object) => object.catalogItemId === "living:sofa-3-seat")!;
     const binding = createObjectRenderBinding(sofa);
-    expect(isModelAssetAvailable(binding.modelAssetId)).toBe(false);
-    expect(resolveNodeDrawStrategy(binding)).toBe("procedural");
+    expect(isModelAssetAvailable(binding.modelAssetId)).toBe(true);
+    expect(resolveNodeDrawStrategy(binding)).toBe("glb");
+  });
+
+  it("keeps unavailable soft-goods on procedural fallback", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const sofa = project.objects.find((object) => object.catalogItemId === "living:sofa-3-seat")!;
+    const sectionalBinding = createObjectRenderBinding({
+      ...sofa,
+      id: "sectional-temp",
+      catalogItemId: "living:sofa-sectional",
+    });
+    expect(isModelAssetAvailable(sectionalBinding.modelAssetId)).toBe(false);
+    expect(resolveNodeDrawStrategy(sectionalBinding)).toBe("procedural");
   });
 
   it("builds PBR descriptors for preview and hero without mutating project JSON", () => {

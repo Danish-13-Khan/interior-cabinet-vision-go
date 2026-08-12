@@ -100,12 +100,24 @@ export {
   withRenderBinding,
   type GlbIntentCatalogId,
 } from "./renderAssetBindings";
+export {
+  computeGlbScaleFactors,
+  computeGlbScaleFromNativeSize,
+  nativeSizeMmToMeters,
+  type GlbScaleFactors,
+  type Size3Meters,
+} from "./glbScale";
+export {
+  matchMaterialSlotForName,
+  resolveMaterialIdForMeshName,
+} from "./glbMaterialGroups";
 export type {
   EnvironmentAssetDefinition,
   MaterialAssetDefinition,
   MaterialAssetId,
   ModelAssetDefinition,
   ModelAssetId,
+  ModelNativeSizeMm,
   RenderAssetStrategy,
   RenderBinding,
   RenderMode,

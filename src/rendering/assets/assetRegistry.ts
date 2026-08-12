@@ -1,11 +1,11 @@
+import type { RenderBinding } from "../../domain/livingRoom/renderAssetContracts";
+import { resolveEffectiveRenderStrategy } from "../../domain/livingRoom/renderAssetBindings";
 import type {
   EnvironmentAssetDefinition,
   MaterialAssetDefinition,
   ModelAssetDefinition,
   TextureAssetDefinition,
 } from "../../domain/livingRoom/renderAssetContracts";
-import { resolveEffectiveRenderStrategy } from "../../domain/livingRoom/renderAssetBindings";
-import type { RenderBinding } from "../../domain/livingRoom/renderAssetContracts";
 import { ENVIRONMENT_ASSET_MANIFEST } from "./environmentManifest";
 import { MATERIAL_ASSET_MANIFEST } from "./materialManifest";
 import { MODEL_ASSET_MANIFEST } from "./modelManifest";
@@ -49,6 +49,12 @@ export function isModelAssetAvailable(id: string | undefined) {
   return getModelAsset(id)?.available === true;
 }
 
+/** Public URL for a registry assetKey (Vite/Tauri static files under /public). */
+export function resolveModelAssetUrl(assetKey: string) {
+  const normalized = assetKey.replace(/^\/+/, "");
+  return `/${normalized}`;
+}
+
 export function resolveNodeDrawStrategy(binding: RenderBinding) {
   return resolveEffectiveRenderStrategy(
     binding,
@@ -62,4 +68,8 @@ export function listMaterialAssets() {
 
 export function listModelAssets() {
   return [...MODEL_ASSET_MANIFEST];
+}
+
+export function listAvailableModelAssets() {
+  return MODEL_ASSET_MANIFEST.filter((asset) => asset.available);
 }
