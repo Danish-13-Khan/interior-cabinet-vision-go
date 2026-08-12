@@ -130,6 +130,26 @@ export {
   type Phase1ProofPack,
 } from "./phase1Benchmarks";
 export {
+  STILL_JOB_CONTRACT_NOTE,
+  STILL_JOB_SCHEMA_VERSION,
+  STILL_JOB_TOLERANCES,
+  buildStillJob,
+  stillJobProjectContentHash,
+  validateStillJobAgainstProject,
+  type BuildStillJobInput,
+  type StillJob,
+  type StillJobAllowedEnhancement,
+  type StillJobAttachmentRefs,
+  type StillJobCameraPose,
+  type StillJobEngine,
+  type StillJobGateId,
+  type StillJobGateResult,
+  type StillJobMaterialSlot,
+  type StillJobMode,
+  type StillJobObjectRef,
+  type StillJobValidation,
+} from "./stillJob";
+export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";

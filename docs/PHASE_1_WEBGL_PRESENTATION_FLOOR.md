@@ -307,7 +307,18 @@ Eye-level defaults in cameras + hero focals; framing QA adds `ceiling-heavy`, `c
 - Committed fixtures + `PROOF.md` under `fixtures/phase-1-benchmarks/`
 - Latency + side-by-side PNGs remain manual PR attachments (`tmp/phase-1-baselines/`)
 
-### Chapter 8 — StillJob spike (optional later)
+### Chapter 8 — StillJob spike (handoff only)
+
+**Goal:** Prove StillJob JSON handoff + pose round-trip without AI.
+
+**Done when:**
+- [x] `StillJob` types + §3.1 tolerances in `src/domain/livingRoom/stillJob/`
+- [x] Export for one benchmark camera (`npm run stilljob:spike` → `fixtures/still-job-spike/`)
+- [x] Round-trip camera pose gates (eye ≤25 mm, target ≤40 mm, FOV ≤0.5°)
+- [~] Hero PNG path attached; real Client Preview plate still manual
+- [x] Gaps documented — **no AI API**
+
+**Out of scope:** offline renderer, AI enhancer, Accept/Reject UI.
 
 ---
 
@@ -361,7 +372,7 @@ Use the **§3 brutal scorecard** as the real gate. Quick mirror:
 
 ## 9. Explicitly out of scope (Phase 2+)
 
-- Presentation StillJob contracts / workers
+- Presentation StillJob **engine** / workers (handoff JSON spike is allowed)
 - AI image generation or cloud render services
 - `@react-three/postprocessing` stacks, SSR, BVH
 - Offline Blender / path tracer
@@ -386,6 +397,8 @@ When Phase 1 exits, the honest product line remains:
 | `npm run qa:assets` / `qa:render` / `qa:smoke` | Quality gates |
 | `npm run presets:list` / `presets:check` | Preset ladder |
 | `npm run presentation:sample` / `presentation:check` | Client package sample |
+| `npm run stilljob:spike` | StillJob handoff JSON + gaps (no AI) |
+| `docs/STILLJOB_TRUST_CONTRACT.md` | Still fidelity law |
 
 ---
 

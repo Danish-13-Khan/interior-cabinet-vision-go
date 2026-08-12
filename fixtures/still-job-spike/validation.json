@@ -1,0 +1,74 @@
+{
+  "ok": true,
+  "gates": [
+    {
+      "id": "schema",
+      "pass": true,
+      "detail": "schemaVersion=1"
+    },
+    {
+      "id": "project_hash",
+      "pass": true,
+      "detail": "project hash matches"
+    },
+    {
+      "id": "camera_id",
+      "pass": true,
+      "detail": "camera lr-camera-bench-daylight-sofa-camera-a"
+    },
+    {
+      "id": "camera_eye",
+      "pass": true,
+      "detail": "eye Δ=0.00 mm",
+      "measured": 0,
+      "limit": 25
+    },
+    {
+      "id": "camera_target",
+      "pass": true,
+      "detail": "target Δ=0.00 mm",
+      "measured": 0,
+      "limit": 40
+    },
+    {
+      "id": "camera_fov",
+      "pass": true,
+      "detail": "fov Δ=0.000°",
+      "measured": 0,
+      "limit": 0.5
+    },
+    {
+      "id": "object_set",
+      "pass": true,
+      "detail": "object count=8"
+    },
+    {
+      "id": "object_placement",
+      "pass": true,
+      "detail": "worst plan Δ=0.00 mm",
+      "measured": 0,
+      "limit": 50
+    },
+    {
+      "id": "object_height",
+      "pass": true,
+      "detail": "worst height Δ=0.00 mm",
+      "measured": 0,
+      "limit": 20
+    },
+    {
+      "id": "material_ids",
+      "pass": true,
+      "detail": "materials=9"
+    }
+  ],
+  "tolerances": {
+    "cameraEyeMm": 25,
+    "cameraTargetMm": 40,
+    "cameraFovDeg": 0.5,
+    "objectPlanCentroidMm": 50,
+    "objectHeightMm": 20,
+    "millworkSizeMm": 2,
+    "openingWallPlanMm": 15
+  }
+}
