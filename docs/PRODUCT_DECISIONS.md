@@ -18,15 +18,26 @@ Decisions locked after independent review of the MVP strategy brief. Keep this s
 
 ## Cabinet-aware credibility
 
-“Bridge workshop truth ↔ living-room preview” is only defensible if workshop-side value stays visible:
+“Bridge workshop truth ↔ living-room preview” is only defensible if workshop-side value stays visible.
+
+### Named near-term workshop deliverable (product truth, not slogan)
+
+**`Living-room Millwork Schedule v1`**
+
+- **What:** PDF or CSV export listing millwork/cabinet objects from the active living-room in `InteriorProject`
+- **Fields (minimum):** object id, name/category, width×height×depth **mm**, material id(s), room id, quantity
+- **Rule:** dimensions must match the same entities shown in Plan/Model (no separate “pretty” sizes)
+- **When:** land as a parallel ticket **within one release of Phase 1 exit** (does not block the WebGL scorecard, but blocks calling the product “cabinet-aware” in marketing until it ships)
+- **Not this deliverable:** full BOM pricing, CNC toolpaths, or MES
 
 | Horizon | Must show progress |
 |---|---|
 | Now (Phase 1) | Procedural millwork stays dimensional truth in the living-room scene |
-| Near-term (parallel / next) | Explicit roadmap item for BOM / dimensional constraints / pricing or fab-ready hooks from InteriorProject — even if thin |
+| Near-term (named) | **Millwork Schedule v1** above |
+| Later | Pricing hooks / fab-ready exports built on that schedule |
 | Do not claim | Full manufacturing MES before the client preview loop is trusted |
 
-If workshop outputs stall for multiple releases, rewrite positioning to “living-room viz with millwork placeholders” until the bridge is real.
+If Millwork Schedule v1 slips more than one release after Phase 1, rewrite positioning to “living-room viz with millwork placeholders” until the bridge is real.
 
 ## Data architecture rules (beyond “no Three / no paths”)
 
@@ -48,9 +59,9 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 
 | Week | Focus |
 |---|---|
-| 1 | Lock ICP (this doc), freeze 3 benchmark rooms × 2 cameras, write Phase 1 scorecard tests/fixtures, confirm schema/migration rules in code/docs |
+| 1 | Lock ICP (this doc), freeze 3 benchmark rooms × 2 cameras, write Phase 1 scorecard tests/fixtures, confirm schema/migration rules; open ticket for **Millwork Schedule v1** |
 | 2 | Highest-ROI visuals only: window key light, contact shadows, eye-level framing defaults, calibrated top materials |
-| 3 | Export QA on benchmarks; prove Draft ≠ Client Preview without photoreal claims |
-| 4 | StillJob **design spike only** (no AI magic): prove camera/material/scene handoff stays truthful per trust contract |
+| 3 | Export QA on benchmarks under **locked latency environment**; prove Draft ≠ Client Preview without photoreal claims |
+| 4 | StillJob **design spike only** (no AI magic): prove camera/material/scene handoff within **numeric tolerances** in the trust contract |
 
 Stop Phase 1 polish when the scorecard passes — then either ship or start the StillJob spike, not both endlessly.
