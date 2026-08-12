@@ -40,6 +40,12 @@ export {
   type PresetHonestyRole,
 } from "./presetHonesty";
 export {
+  resolveWindowKeyLights,
+  sampleWindowOpenings,
+  type WindowKeyLightDescriptor,
+  type WindowOpeningSample,
+} from "./windowKeyLight";
+export {
   createLivingRoomRenderResult,
   getRenderQualityPreset,
   livingRoomRenderFileName,

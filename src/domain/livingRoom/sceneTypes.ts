@@ -11,6 +11,7 @@ import type {
   LivingRoomEnvironment,
   LivingRoomStyleId,
 } from "./stylePresets";
+import type { WindowOpeningSample } from "./windowKeyLight";
 
 export type CompiledMaterial = {
   id: string;
@@ -102,6 +103,8 @@ export type CompiledLivingRoomScene = {
   cameras: CameraEntity[];
   /** Active lighting recipe from render settings (compiled only, not project JSON). */
   lightingRecipeId: string;
+  /** Window openings sampled for key-light aim — compiled only. */
+  windowOpenings: WindowOpeningSample[];
   style: {
     id: LivingRoomStyleId;
     name: string;

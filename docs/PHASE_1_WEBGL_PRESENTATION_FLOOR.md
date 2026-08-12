@@ -286,9 +286,10 @@ Make quality knobs actually diverge (shadows, env resolution, contact, texture d
 
 Tune ContactShadows via `groundingQuality` so Client Preview visibly pins furniture without black mud. Draft stays lighter/faster.
 
-### Chapter 4 — Window key light (3–5 days)
+### Chapter 4 — Window key light (landing)
 
-Introduce `windowKeyLight` domain + `WindowKeyLight` renderer. Drive from openings. Scale by preset. Keep JSON free of Three types.
+Domain `windowKeyLight` samples openings → inward normals → quality-scaled directional keys.  
+`WindowKeyLight` + `RenderLightingRig` consume descriptors only (no JSON mutation).
 
 ### Chapter 5 — Materials (3–5 days)
 

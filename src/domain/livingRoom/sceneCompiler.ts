@@ -20,6 +20,7 @@ import {
   resolveLivingRoomStyle,
 } from "./stylePresets";
 import type { CompiledLivingRoomScene, CompiledMaterial } from "./sceneTypes";
+import { sampleWindowOpenings } from "./windowKeyLight";
 
 function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
@@ -87,6 +88,12 @@ export function compileLivingRoomScene(
     style,
     lightingRecipeId: project.renderSettings.lightingRecipeId,
   };
+  const bounds = computeCompiledSceneBounds(nodes);
+  const windowOpenings = sampleWindowOpenings({
+    walls: project.walls.filter((wall) => wall.roomId === roomId),
+    openings: project.openings.filter((opening) => opening.roomId === roomId),
+    roomCenterMm: bounds.center,
+  });
   return {
     compilerVersion: 1,
     projectId: project.id,
@@ -97,8 +104,9 @@ export function compileLivingRoomScene(
     lights,
     cameras,
     lightingRecipeId: project.renderSettings.lightingRecipeId,
+    windowOpenings,
     style,
-    bounds: computeCompiledSceneBounds(nodes),
+    bounds,
     fingerprint: `lr-scene-v1-${hashString(stableStringify(fingerprintSource))}`,
     warnings: objectNodes
       .filter((node) => node.placeholder)
