@@ -214,7 +214,7 @@ export function useLivingRoomPlanEditor({
   function addCatalogObject(catalogItemId: LivingRoomCatalogId) {
     if (!document) return;
     const item = createLivingRoomObject(catalogItemId, {
-      id: uniqueObjectId(catalogItemId.split(":").at(-1) ?? "item"),
+      id: uniqueObjectId(catalogItemId.split(":").pop() ?? "item"),
       roomId: document.activeRoomId,
       position: {
         x: (document.objects.length % 4) * 150 - 225,
