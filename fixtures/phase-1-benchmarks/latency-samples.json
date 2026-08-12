@@ -1,17 +1,12 @@
 {
-  "machine": "Apple Silicon · macOS · ≥16 GB · plugged in (fill chip e.g. M2)",
+  "appSurface": "browser-dev-substitute",
+  "substituteReason": "Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.",
+  "machine": "arm64 · darwin 25.5.0 · 16 GB RAM",
   "samples": [
-    { "frameId": "bench-daylight-sofa/camera-a", "quality": "draft", "elapsedMs": null },
-    { "frameId": "bench-daylight-sofa/camera-a", "quality": "client-preview", "elapsedMs": null },
-    { "frameId": "bench-daylight-sofa/camera-b", "quality": "draft", "elapsedMs": null },
-    { "frameId": "bench-daylight-sofa/camera-b", "quality": "client-preview", "elapsedMs": null },
-    { "frameId": "bench-millwork-media/camera-a", "quality": "draft", "elapsedMs": null },
-    { "frameId": "bench-millwork-media/camera-a", "quality": "client-preview", "elapsedMs": null },
-    { "frameId": "bench-millwork-media/camera-b", "quality": "draft", "elapsedMs": null },
-    { "frameId": "bench-millwork-media/camera-b", "quality": "client-preview", "elapsedMs": null },
-    { "frameId": "bench-evening-lamp/camera-a", "quality": "draft", "elapsedMs": null },
-    { "frameId": "bench-evening-lamp/camera-a", "quality": "client-preview", "elapsedMs": null },
-    { "frameId": "bench-evening-lamp/camera-b", "quality": "draft", "elapsedMs": null },
-    { "frameId": "bench-evening-lamp/camera-b", "quality": "client-preview", "elapsedMs": null }
+    {
+      "frameId": "bench-daylight-sofa/camera-a",
+      "quality": "draft",
+      "elapsedMs": 6462
+    }
   ]
 }

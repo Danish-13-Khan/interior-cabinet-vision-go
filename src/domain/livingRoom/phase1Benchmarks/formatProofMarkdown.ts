@@ -11,6 +11,18 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
     "## Latency environment",
     pack.latencyEnvironment,
     "",
+    ...(pack.latencyEvidence
+      ? [
+          "## Latency evidence",
+          `- Surface: \`${pack.latencyEvidence.appSurface}\``,
+          `- Machine: ${pack.latencyEvidence.machine}`,
+          ...(pack.latencyEvidence.substituteReason
+            ? [`- Substitute reason: ${pack.latencyEvidence.substituteReason}`]
+            : []),
+          "",
+        ]
+      : []),
+    "",
     "## Frames",
     ...pack.frames.map((frame) => `- \`${frame.frameId}\` · camera \`${frame.cameraId}\``),
     "",
@@ -37,8 +49,8 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
     "",
     "## Manual PR attachments",
     "- Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`",
-    "- Fill `fixtures/phase-1-benchmarks/latency-samples.json` then re-run `npm run phase1:proof`",
-    "- Machine string lives in that JSON (`machine` field)",
+    "- Fill `fixtures/phase-1-benchmarks/latency-samples.json` or run `npm run phase1:latency`, then re-run `npm run phase1:proof`",
+    "- Machine string and optional substitute reason live in that JSON",
     "",
   ];
   return lines.join("\n");
