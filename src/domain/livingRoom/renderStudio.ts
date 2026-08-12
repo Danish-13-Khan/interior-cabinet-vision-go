@@ -175,3 +175,8 @@ export function livingRoomRenderFileName(
 ) {
   return `${fileSlug(projectName)}-${fileSlug(cameraName)}.png`;
 }
+
+export {
+  resolveEnvironmentLightingQuality,
+  type EnvironmentLightingQuality,
+} from "./environmentLightingQuality";

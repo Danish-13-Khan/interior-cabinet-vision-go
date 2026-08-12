@@ -4,10 +4,14 @@ export {
   getMaterialAsset,
   getModelAsset,
   getTextureAsset,
+  isEnvironmentAssetAvailable,
   isModelAssetAvailable,
   listAvailableModelAssets,
+  listEnvironmentAssets,
   listMaterialAssets,
   listModelAssets,
+  resolveEnvironmentAssetUrl,
+  resolveEnvironmentDrawState,
   resolveModelAssetUrl,
   resolveNodeDrawStrategy,
 } from "./assets/assetRegistry";
@@ -30,3 +34,6 @@ export { createProceduralSurfaceMaps } from "./materials/proceduralSurfaceMaps";
 export { measureObjectSizeMeters } from "./loaders/measureObjectBounds";
 export { useModelAsset, type ModelAssetState } from "./loaders/useModelAsset";
 export { usePbrMaterial } from "./loaders/usePbrMaterial";
+export { EnvironmentLighting } from "./lighting/EnvironmentLighting";
+export { RenderLightingRig } from "./lighting/RenderLightingRig";
+export { SceneProjectLights } from "./lighting/SceneProjectLights";

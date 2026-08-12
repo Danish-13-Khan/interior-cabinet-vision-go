@@ -72,8 +72,13 @@ export type EnvironmentAssetDefinition = {
   id: EnvironmentAssetId;
   name: string;
   lightingRecipeId: string;
+  /** Relative public key for a local HDR; never written into project JSON. */
   assetKey: string;
   available: boolean;
+  /** Base environment intensity before preview/hero scaling. */
+  intensity: number;
+  /** Drei background blur when the HDR is shown as backdrop. */
+  backgroundBlur: number;
 };
 
 export type RenderModeQuality = {

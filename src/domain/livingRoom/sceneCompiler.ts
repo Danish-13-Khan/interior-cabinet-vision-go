@@ -78,7 +78,15 @@ export function compileLivingRoomScene(
     environment: resolveLivingRoomEnvironment(project),
     colorManagement: resolveLivingRoomColorManagement(project),
   };
-  const fingerprintSource = { roomId, nodes, materials, lights, cameras, style };
+  const fingerprintSource = {
+    roomId,
+    nodes,
+    materials,
+    lights,
+    cameras,
+    style,
+    lightingRecipeId: project.renderSettings.lightingRecipeId,
+  };
   return {
     compilerVersion: 1,
     projectId: project.id,
@@ -88,6 +96,7 @@ export function compileLivingRoomScene(
     materials,
     lights,
     cameras,
+    lightingRecipeId: project.renderSettings.lightingRecipeId,
     style,
     bounds: computeCompiledSceneBounds(nodes),
     fingerprint: `lr-scene-v1-${hashString(stableStringify(fingerprintSource))}`,
