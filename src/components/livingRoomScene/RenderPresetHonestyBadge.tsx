@@ -1,4 +1,4 @@
-import type { PresetHonestyDescription } from "../domain/livingRoom/presetHonesty";
+import type { PresetHonestyDescription } from "../../domain/livingRoom/presetHonesty";
 
 type RenderPresetHonestyBadgeProps = {
   honesty: PresetHonestyDescription;

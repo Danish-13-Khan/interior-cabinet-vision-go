@@ -14,7 +14,9 @@ import {
   applyLivingRoomStyle,
   createLivingRoomObject,
   createLivingRoomReleaseDemoProject,
+  createPhase1BenchmarkProject,
   createLivingRoomStarterProject,
+  type Phase1BenchmarkId,
   deleteLivingRoomObjects,
   duplicateLivingRoomObject,
   getActiveLivingRoomStyleId,
@@ -321,6 +323,9 @@ export function useLivingRoomPlanEditor({
     createLivingRoomStarter: createStarter,
     openLivingRoomReleaseDemo: () => restoreDocument(
       createLivingRoomReleaseDemoProject(),
+    ),
+    openPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => restoreDocument(
+      createPhase1BenchmarkProject(benchmarkId),
     ),
     restoreLivingRoomDocument: restoreDocument,
     openLivingRoomProjectHome: () => setProjectHomeOpen(true),

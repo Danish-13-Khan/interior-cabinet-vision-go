@@ -216,6 +216,11 @@ function App() {
               c.discardRecovery();
               c.openLivingRoomReleaseDemo();
             }}
+            onOpenPhase1Benchmark={(benchmarkId) => {
+              c.setProjectFilePath(null);
+              c.discardRecovery();
+              c.openPhase1Benchmark(benchmarkId);
+            }}
             onOpenProjectHome={c.openLivingRoomProjectHome}
             onCloseProjectHome={c.closeLivingRoomProjectHome}
             onOpenRecentProject={(projectId) => {
