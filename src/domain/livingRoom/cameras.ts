@@ -7,6 +7,7 @@ export const LIVING_ROOM_CAMERA_KEYS = [
   "tv-wall",
 ] as const;
 
+/** Default living-room cameras — standing eye-level, furniture-first targets. */
 export function createLivingRoomCameras(
   roomId: string,
   idFactory: LivingRoomIdFactory,
@@ -16,27 +17,27 @@ export function createLivingRoomCameras(
       id: idFactory("camera", "wide-room"),
       roomId,
       name: "Wide Room",
-      position: { x: 1260, y: 1550, z: 3680 },
-      target: { x: -310, y: 620, z: -240 },
-      fieldOfViewDegrees: 45,
+      position: { x: 1260, y: 1560, z: 3680 },
+      target: { x: -280, y: 700, z: -180 },
+      fieldOfViewDegrees: 44,
       isDefault: true,
     },
     {
       id: idFactory("camera", "seating-area"),
       roomId,
       name: "Seating Area",
-      position: { x: 1070, y: 1420, z: 3200 },
-      target: { x: -310, y: 600, z: -40 },
-      fieldOfViewDegrees: 41,
+      position: { x: 1070, y: 1520, z: 3180 },
+      target: { x: -280, y: 680, z: -20 },
+      fieldOfViewDegrees: 40,
       isDefault: false,
     },
     {
       id: idFactory("camera", "tv-wall"),
       roomId,
       name: "TV Wall",
-      position: { x: 0, y: 1450, z: 1980 },
-      target: { x: 0, y: 900, z: -2050 },
-      fieldOfViewDegrees: 44,
+      position: { x: 0, y: 1500, z: 1980 },
+      target: { x: 0, y: 920, z: -2050 },
+      fieldOfViewDegrees: 42,
       isDefault: false,
     },
   ];

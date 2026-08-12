@@ -79,6 +79,24 @@ describe("render QA camera framing", () => {
     expect(report.issues.some((issue) => issue.code === "invalid-fov")).toBe(true);
     expect(report.issues.some((issue) => issue.code === "degenerate-look")).toBe(true);
   });
+
+  it("flags ceiling-heavy and cut-feet living-room framing", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const scene = compileLivingRoomScene(project);
+    const ceilingHeavy = {
+      ...scene.cameras[0],
+      position: { x: 1200, y: 1500, z: 3200 },
+      target: { x: 0, y: 2400, z: 0 },
+    };
+    const cutFeet = {
+      ...scene.cameras[0],
+      name: "Seating Area",
+      position: { x: 1200, y: 1520, z: 3200 },
+      target: { x: 0, y: 1200, z: 200 },
+    };
+    expect(validateCameraFraming(ceilingHeavy, scene.bounds).issues.some((issue) => issue.code === "ceiling-heavy")).toBe(true);
+    expect(validateCameraFraming(cutFeet, scene.bounds).issues.some((issue) => issue.code === "cut-feet")).toBe(true);
+  });
 });
 
 describe("render QA asset fallbacks", () => {

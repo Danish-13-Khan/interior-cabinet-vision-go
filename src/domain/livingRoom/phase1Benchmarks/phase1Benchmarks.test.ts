@@ -1,7 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { serializeInteriorProjectFile } from "../../interiorProject";
-import { compileLivingRoomScene } from "../sceneCompiler";
-import { validateCameraFraming } from "../renderQa";
 import {
   createPhase1BenchmarkProject,
   describePhase1LatencyEnvironment,
@@ -13,6 +10,10 @@ import {
   PHASE1_LATENCY_ENVIRONMENT,
   resolvePhase1BenchmarkCameraId,
 } from "./index";
+import { compileLivingRoomScene } from "../sceneCompiler";
+import { resolveRenderCameraPose } from "../renderCameraPose";
+import { validateCameraFraming } from "../renderQa";
+import { serializeInteriorProjectFile } from "../../interiorProject";
 
 describe("phase1Benchmarks", () => {
   it("freezes three rooms with two locked cameras each (six frames)", () => {
@@ -40,11 +41,14 @@ describe("phase1Benchmarks", () => {
       const project = createPhase1BenchmarkProject(id);
       const cameraId = resolvePhase1BenchmarkCameraId(project, "camera-a");
       const camera = project.cameras.find((item) => item.id === cameraId)!;
-      expect(camera.position.y).toBeGreaterThanOrEqual(1300);
-      expect(camera.position.y).toBeLessThanOrEqual(1600);
+      expect(camera.position.y).toBeGreaterThanOrEqual(1400);
+      expect(camera.position.y).toBeLessThanOrEqual(1700);
       const scene = compileLivingRoomScene(project);
-      const report = validateCameraFraming(camera, scene.bounds);
+      const heroPose = resolveRenderCameraPose(camera, scene.bounds, "architectural", "hero");
+      const report = validateCameraFraming(heroPose, scene.bounds);
       expect(report.ok).toBe(true);
+      expect(report.issues.some((issue) => issue.code === "ceiling-heavy")).toBe(false);
+      expect(report.issues.some((issue) => issue.code === "cut-feet")).toBe(false);
     }
   });
 
