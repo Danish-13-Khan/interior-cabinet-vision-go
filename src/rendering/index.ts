@@ -33,6 +33,7 @@ export {
   sheenForRenderMode,
   specularForRenderMode,
   textureRepeatFromUvScaleMm,
+  textureDetailForRenderMode,
 } from "./materials/materialScale";
 export { createProceduralSurfaceMaps } from "./materials/proceduralSurfaceMaps";
 export {

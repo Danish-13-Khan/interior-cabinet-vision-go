@@ -1,4 +1,5 @@
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
+import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { CompiledPrimitiveView } from "./CompiledPrimitiveView";
 
@@ -7,6 +8,7 @@ type ProceduralFallbackObjectProps = {
   materials: Map<string, CompiledMaterial>;
   selected: boolean;
   renderMode: RenderMode;
+  renderQuality?: RenderQuality;
 };
 
 /** Existing compiled primitives path used when GLB is missing or fails. */
@@ -15,6 +17,7 @@ export function ProceduralFallbackObject({
   materials,
   selected,
   renderMode,
+  renderQuality,
 }: ProceduralFallbackObjectProps) {
   return (
     <>
@@ -25,6 +28,7 @@ export function ProceduralFallbackObject({
           material={materials.get(primitive.materialId) ?? materials.get("compiled:fallback")!}
           selected={selected}
           renderMode={renderMode}
+          renderQuality={renderQuality}
         />
       ))}
     </>

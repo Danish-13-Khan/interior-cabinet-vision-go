@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
+import type { RenderQuality } from "../../domain/interiorProject";
 import {
   computeGlbScaleFactors,
   nativeSizeMmToMeters,
@@ -23,6 +24,7 @@ type AssetBackedObjectProps = {
   primitives: CompiledPrimitive[];
   selected: boolean;
   renderMode: RenderMode;
+  renderQuality?: RenderQuality;
 };
 
 function GlbSceneContent({
@@ -31,6 +33,7 @@ function GlbSceneContent({
   binding,
   materials,
   renderMode,
+  renderQuality,
 }: Omit<AssetBackedObjectProps, "primitives" | "selected">) {
   const gltf = useGLTF(url);
   const castShadow = renderMode === "hero";
@@ -50,6 +53,7 @@ function GlbSceneContent({
       materialBindings: binding.materialBindings,
       materials,
       renderMode,
+      renderQuality,
       castShadow,
       receiveShadow: true,
     });
@@ -63,6 +67,7 @@ function GlbSceneContent({
     definition.materialGroups,
     materials,
     renderMode,
+    renderQuality,
     scene,
   ]);
 
@@ -78,6 +83,7 @@ export function AssetBackedObject({
   primitives,
   selected,
   renderMode,
+  renderQuality,
 }: AssetBackedObjectProps) {
   const fallback = (
     <ProceduralFallbackObject
@@ -85,6 +91,7 @@ export function AssetBackedObject({
       materials={materials}
       selected={selected}
       renderMode={renderMode}
+      renderQuality={renderQuality}
     />
   );
 
@@ -97,6 +104,7 @@ export function AssetBackedObject({
           binding={binding}
           materials={materials}
           renderMode={renderMode}
+          renderQuality={renderQuality}
         />
       </Suspense>
     </GlbLoadErrorBoundary>

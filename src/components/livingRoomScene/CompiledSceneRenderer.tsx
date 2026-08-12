@@ -68,7 +68,7 @@ export function CompiledSceneRenderer({
     ?? scene.cameras.find((camera) => camera.isDefault)
     ?? scene.cameras[0];
   const renderCamera = projectCamera
-    ? resolveRenderCameraPose(projectCamera, scene.bounds, renderComposition)
+    ? resolveRenderCameraPose(projectCamera, scene.bounds, renderComposition, renderMode)
     : null;
   const cutawaySides = new Set([
     renderCamera && renderCamera.position.x < scene.bounds.center.x ? "left" : "right",
@@ -127,6 +127,7 @@ export function CompiledSceneRenderer({
           selected={Boolean(node.sourceObjectId && selectedIds.includes(node.sourceObjectId))}
           snapSizeMm={snapSizeMm}
           renderMode={renderMode}
+          renderQuality={renderQuality}
           onSelect={onSelect}
           onMove={onMove}
           onDragStateChange={setDragging}

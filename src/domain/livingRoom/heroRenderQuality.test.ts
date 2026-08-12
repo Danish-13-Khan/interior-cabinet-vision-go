@@ -23,8 +23,12 @@ describe("hero render quality", () => {
   it("uses higher anisotropy and material response in hero mode only", () => {
     const preview = getRenderModeQuality("preview");
     const hero = getRenderModeQuality("hero");
+    const draftHero = getRenderModeQuality("hero", "draft");
+    const clientHero = getRenderModeQuality("hero", "client-preview");
     expect(hero.anisotropy).toBeGreaterThan(preview.anisotropy);
     expect(hero.textureDetail).toBe("high");
+    expect(draftHero.textureDetail).toBe("low");
+    expect(clientHero.textureDetail).toBe("high");
     expect(hero.envMapIntensityScale).toBeGreaterThan(preview.envMapIntensityScale);
     expect(hero.clearcoatScale).toBeGreaterThan(preview.clearcoatScale);
     expect(hero.roughnessLift).toBeLessThan(0);

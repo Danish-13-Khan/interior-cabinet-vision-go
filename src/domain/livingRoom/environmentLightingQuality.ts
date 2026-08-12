@@ -16,7 +16,10 @@ export type EnvironmentLightingQuality = {
   hemisphereScale: number;
 };
 
-/** Preview stays light; hero prefers HDRI + softer/higher-res shadows. */
+/**
+ * Map renderMode + quality preset into lighting knobs.
+ * Preset shadow/env values are honored (no longer flattened to presentation max).
+ */
 export function resolveEnvironmentLightingQuality(
   mode: RenderMode,
   quality: RenderQuality,
@@ -26,14 +29,14 @@ export function resolveEnvironmentLightingQuality(
   if (mode === "hero") {
     return {
       mode,
-      resolution: Math.max(preset.environmentResolution, 256),
-      intensityScale: 1.25,
-      shadowMapSize: Math.max(preset.shadowMapSize, 2048),
-      shadowRadius: preset.shadowRadius + 3,
-      contactShadowResolution: Math.max(preset.contactShadowResolution, 1024),
+      resolution: preset.environmentResolution,
+      intensityScale: quality === "draft" ? 1.05 : 1.25,
+      shadowMapSize: preset.shadowMapSize,
+      shadowRadius: preset.shadowRadius + (quality === "draft" ? 1 : 2),
+      contactShadowResolution: preset.contactShadowResolution,
       contactShadowOpacityScale: contact.opacityScale,
       contactShadowBlurScale: contact.blurScale,
-      preferHdri: true,
+      preferHdri: quality !== "draft",
       hemisphereScale: 0.5,
     };
   }

@@ -1,4 +1,5 @@
 import type { CompiledMaterial } from "../../domain/livingRoom";
+import type { RenderQuality } from "../../domain/interiorProject";
 import type {
   MaterialAssetDefinition,
   RenderMode,
@@ -50,8 +51,9 @@ function resolveAsset(
 export function createPbrMaterialDescriptor(
   material: CompiledMaterial,
   mode: RenderMode,
-  options?: { primitiveId?: string },
+  options?: { primitiveId?: string; quality?: RenderQuality },
 ): PbrMaterialDescriptor {
+  const quality = options?.quality;
   const asset = resolveAsset(material);
   const color = material.color || asset?.baseColor || "#cccccc";
   const roughness = material.roughness ?? asset?.roughness ?? 0.7;
@@ -69,12 +71,13 @@ export function createPbrMaterialDescriptor(
       uvScaleMm: material.uvScaleMm || asset?.uvScaleMm || 1000,
     },
     mode,
+    quality,
   );
   const baseEnv = isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.82 : isFabric ? 0.38 : 0.48;
   const baseClearcoat = isWood ? 0.22 : kind === "paint" ? 0.05 : 0;
   const baseSheen = isFabric ? 0.72 : 0;
   const baseSpecular = isFabric ? 0.28 : isWood ? 0.5 : 1;
-  const tunedRoughness = isMirror ? 0.08 : roughnessForRenderMode(mode, roughness);
+  const tunedRoughness = isMirror ? 0.08 : roughnessForRenderMode(mode, roughness, quality);
   return {
     asset,
     color,
@@ -86,14 +89,14 @@ export function createPbrMaterialDescriptor(
     transmission: isMirror ? 0 : isGlass ? 0.72 : 0,
     thickness: isGlass ? 0.018 : 0,
     ior: isGlass ? 1.5 : 1.45,
-    clearcoat: clearcoatForRenderMode(mode, baseClearcoat),
+    clearcoat: clearcoatForRenderMode(mode, baseClearcoat, quality),
     clearcoatRoughness: isWood ? (mode === "hero" ? 0.42 : 0.52) : 0.78,
-    sheen: sheenForRenderMode(mode, baseSheen),
+    sheen: sheenForRenderMode(mode, baseSheen, quality),
     sheenColor: isFabric ? color : "#000000",
     sheenRoughness: isFabric ? (mode === "hero" ? 0.74 : 0.82) : 1,
-    envMapIntensity: envIntensityForRenderMode(mode, baseEnv),
-    specularIntensity: specularForRenderMode(mode, baseSpecular),
+    envMapIntensity: envIntensityForRenderMode(mode, baseEnv, quality),
+    specularIntensity: specularForRenderMode(mode, baseSpecular, quality),
     maps,
-    bumpScale: bumpScaleForRenderMode(mode, maps.bumpScale ?? 0.008),
+    bumpScale: bumpScaleForRenderMode(mode, maps.bumpScale ?? 0.008, quality),
   };
 }

@@ -5,10 +5,11 @@ import {
   type Texture,
 } from "three";
 import type { CompiledMaterial } from "../../domain/livingRoom";
+import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import { getRenderModeQuality } from "../../domain/livingRoom/heroRenderQuality";
 import {
   anisotropyForRenderMode,
+  textureDetailForRenderMode,
   textureRepeatFromUvScaleMm,
 } from "./materialScale";
 
@@ -40,13 +41,14 @@ function finishTexture(
   uvScaleMm: number,
   mode: RenderMode,
   colorSpace: boolean,
+  quality?: RenderQuality,
 ) {
   const texture = new CanvasTexture(canvas);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
   const repeat = textureRepeatFromUvScaleMm(uvScaleMm);
   texture.repeat.set(repeat.x, repeat.y);
-  texture.anisotropy = anisotropyForRenderMode(mode);
+  texture.anisotropy = anisotropyForRenderMode(mode, quality);
   if (colorSpace) texture.colorSpace = SRGBColorSpace;
   return texture;
 }
@@ -56,8 +58,9 @@ function noiseMaps(
   seed: string,
   uvScaleMm: number,
   mode: RenderMode,
+  quality?: RenderQuality,
 ): ProceduralSurfaceMaps {
-  const detail = getRenderModeQuality(mode).textureDetail;
+  const detail = textureDetailForRenderMode(mode, quality);
   const size = detail === "high" ? (kind === "paint" ? 192 : 160) : (kind === "paint" ? 96 : 80);
   const random = seededRandom(`${kind}:${seed}:${detail}`);
   const colorCanvas = document.createElement("canvas");
@@ -80,14 +83,18 @@ function noiseMaps(
     bump.fillRect(x, y, 1, 1);
   }
   return {
-    map: finishTexture(colorCanvas, uvScaleMm, mode, true),
-    bumpMap: finishTexture(bumpCanvas, uvScaleMm, mode, false),
+    map: finishTexture(colorCanvas, uvScaleMm, mode, true, quality),
+    bumpMap: finishTexture(bumpCanvas, uvScaleMm, mode, false, quality),
     bumpScale: kind === "paint" ? 0.003 : 0.014,
   };
 }
 
-function woodMaps(uvScaleMm: number, mode: RenderMode): ProceduralSurfaceMaps {
-  const size = getRenderModeQuality(mode).textureDetail === "high" ? 256 : 128;
+function woodMaps(
+  uvScaleMm: number,
+  mode: RenderMode,
+  quality?: RenderQuality,
+): ProceduralSurfaceMaps {
+  const size = textureDetailForRenderMode(mode, quality) === "high" ? 256 : 128;
   const colorCanvas = document.createElement("canvas");
   const bumpCanvas = document.createElement("canvas");
   colorCanvas.width = bumpCanvas.width = size;
@@ -119,14 +126,19 @@ function woodMaps(uvScaleMm: number, mode: RenderMode): ProceduralSurfaceMaps {
     bump.stroke();
   }
   return {
-    map: finishTexture(colorCanvas, uvScaleMm, mode, true),
-    bumpMap: finishTexture(bumpCanvas, uvScaleMm, mode, false),
+    map: finishTexture(colorCanvas, uvScaleMm, mode, true, quality),
+    bumpMap: finishTexture(bumpCanvas, uvScaleMm, mode, false, quality),
     bumpScale: 0.008,
   };
 }
 
-function fabricMaps(uvScaleMm: number, mode: RenderMode, dense: boolean): ProceduralSurfaceMaps {
-  const size = getRenderModeQuality(mode).textureDetail === "high" ? 128 : 64;
+function fabricMaps(
+  uvScaleMm: number,
+  mode: RenderMode,
+  dense: boolean,
+  quality?: RenderQuality,
+): ProceduralSurfaceMaps {
+  const size = textureDetailForRenderMode(mode, quality) === "high" ? 128 : 64;
   const colorCanvas = document.createElement("canvas");
   const bumpCanvas = document.createElement("canvas");
   colorCanvas.width = bumpCanvas.width = size;
@@ -147,8 +159,8 @@ function fabricMaps(uvScaleMm: number, mode: RenderMode, dense: boolean): Proced
     bump.fillRect(0, offset, size, 1);
   }
   return {
-    map: finishTexture(colorCanvas, uvScaleMm, mode, true),
-    bumpMap: finishTexture(bumpCanvas, uvScaleMm, mode, false),
+    map: finishTexture(colorCanvas, uvScaleMm, mode, true, quality),
+    bumpMap: finishTexture(bumpCanvas, uvScaleMm, mode, false, quality),
     bumpScale: dense ? 0.012 : 0.02,
   };
 }
@@ -157,19 +169,21 @@ function fabricMaps(uvScaleMm: number, mode: RenderMode, dense: boolean): Proced
 export function createProceduralSurfaceMaps(
   material: CompiledMaterial,
   mode: RenderMode,
+  quality?: RenderQuality,
 ): ProceduralSurfaceMaps {
   if (typeof document === "undefined") return {};
-  const key = `${material.materialAssetId}:${mode}:${material.uvScaleMm}`;
+  const detail = textureDetailForRenderMode(mode, quality);
+  const key = `${material.materialAssetId}:${mode}:${detail}:${material.uvScaleMm}`;
   const cached = cache.get(key);
   if (cached) return cached;
   const maps = material.kind === "wood" || material.kind === "laminate"
-    ? woodMaps(material.uvScaleMm, mode)
+    ? woodMaps(material.uvScaleMm, mode, quality)
     : material.kind === "fabric"
       ? material.name.toLowerCase().includes("rug")
-        ? noiseMaps("rug", material.id, material.uvScaleMm, mode)
-        : fabricMaps(material.uvScaleMm, mode, false)
+        ? noiseMaps("rug", material.id, material.uvScaleMm, mode, quality)
+        : fabricMaps(material.uvScaleMm, mode, false, quality)
       : material.kind === "paint"
-        ? noiseMaps("paint", material.id, material.uvScaleMm, mode)
+        ? noiseMaps("paint", material.id, material.uvScaleMm, mode, quality)
         : {};
   cache.set(key, maps);
   return maps;

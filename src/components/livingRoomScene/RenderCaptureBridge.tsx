@@ -3,10 +3,12 @@ import { useThree } from "@react-three/fiber";
 import { PerspectiveCamera, Vector2 } from "three";
 import type { RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import {
+  getRenderPresetBehavior,
   getRenderQualityPreset,
   resolveHeroCaptureTuning,
   resolveHeroRenderScale,
   resolveRenderCameraPose,
+  resolveStudioRenderMode,
   type CompiledLivingRoomScene,
 } from "../../domain/livingRoom";
 import { drawHeroVignette } from "../../rendering/export/heroExportPolish";
@@ -45,11 +47,12 @@ export const RenderCaptureBridge = forwardRef<
         (candidate) => candidate.id === request.cameraId,
       );
       if (!projectCamera) throw new Error("The selected render camera is unavailable.");
+      const captureMode = resolveStudioRenderMode(quality);
       const preset = resolveRenderCameraPose(
         projectCamera,
         compiledScene.bounds,
         request.composition,
-        "hero",
+        captureMode,
       );
       if (!(camera instanceof PerspectiveCamera)) {
         throw new Error("Render Studio requires a perspective camera.");
@@ -65,11 +68,14 @@ export const RenderCaptureBridge = forwardRef<
       const oldFog = scene.fog;
       const oldClearAlpha = gl.getClearAlpha();
       const qualityPreset = getRenderQualityPreset(quality);
-      const heroTuning = resolveHeroCaptureTuning("hero", quality);
+      const behavior = getRenderPresetBehavior(quality);
+      const captureTuning = resolveHeroCaptureTuning(captureMode, quality);
+      const allowTransparent = behavior.allowTransparentBackground
+        && request.transparentBackground;
       const textureLimit = gl.capabilities.maxTextureSize;
       const requestedPixels = request.widthPx * request.heightPx;
       const safeScale = Math.min(
-        resolveHeroRenderScale("hero", quality),
+        resolveHeroRenderScale(captureMode, quality),
         textureLimit / request.widthPx,
         textureLimit / request.heightPx,
         Math.sqrt(qualityPreset.maximumRenderPixels / requestedPixels),
@@ -92,7 +98,7 @@ export const RenderCaptureBridge = forwardRef<
         );
         camera.updateProjectionMatrix();
 
-        if (request.transparentBackground) {
+        if (allowTransparent) {
           scene.background = null;
           scene.fog = null;
           gl.setClearAlpha(0);
@@ -109,11 +115,16 @@ export const RenderCaptureBridge = forwardRef<
         if (!context) throw new Error("The browser could not prepare the render output canvas.");
         context.imageSmoothingEnabled = true;
         context.imageSmoothingQuality = "high";
-        context.filter = `contrast(${heroTuning.exportContrast}) saturate(${heroTuning.exportSaturation})`;
+        context.filter = `contrast(${captureTuning.exportContrast}) saturate(${captureTuning.exportSaturation})`;
         context.drawImage(gl.domElement, 0, 0, request.widthPx, request.heightPx);
         context.filter = "none";
-        if (!request.transparentBackground) {
-          drawHeroVignette(context, request.widthPx, request.heightPx, heroTuning.vignetteStrength);
+        if (!allowTransparent) {
+          drawHeroVignette(
+            context,
+            request.widthPx,
+            request.heightPx,
+            captureTuning.vignetteStrength,
+          );
         }
         return output.toDataURL("image/png", 1);
       } finally {
@@ -125,7 +136,7 @@ export const RenderCaptureBridge = forwardRef<
               previewProjectCamera,
               compiledScene.bounds,
               previewComposition,
-              "hero",
+              captureMode,
             )
           : null;
         if (previewCamera) {

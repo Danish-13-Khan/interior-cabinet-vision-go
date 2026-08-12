@@ -46,11 +46,16 @@ describe("HDRI lighting pipeline", () => {
   it("uses lighter preview and richer hero environment settings", () => {
     const preview = resolveEnvironmentLightingQuality("preview", "standard");
     const hero = resolveEnvironmentLightingQuality("hero", "presentation");
+    const client = resolveEnvironmentLightingQuality("hero", "client-preview");
+    const draftHero = resolveEnvironmentLightingQuality("hero", "draft");
     expect(preview.resolution).toBeLessThanOrEqual(128);
     expect(hero.resolution).toBeGreaterThanOrEqual(256);
     expect(hero.intensityScale).toBeGreaterThan(preview.intensityScale);
     expect(hero.shadowRadius).toBeGreaterThan(preview.shadowRadius);
     expect(hero.preferHdri).toBe(true);
+    expect(client.shadowMapSize).toBeLessThan(hero.shadowMapSize);
+    expect(client.shadowMapSize).toBeGreaterThan(draftHero.shadowMapSize);
+    expect(draftHero.preferHdri).toBe(false);
   });
 
   it("keeps render settings backward compatible and compiles lightingRecipeId", () => {
