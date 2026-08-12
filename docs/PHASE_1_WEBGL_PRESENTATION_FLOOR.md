@@ -16,7 +16,7 @@ Phase 1 is **not** “any interior designer.” First buyer / job-to-be-done:
 
 Out of scope for this ICP (for now): full home staging marketplace, pure consumer DIY decorate app, fabrication MES, Synaps-class marketing stills.
 
-Workshop bridge stays real but **staged**: living-room preview now; BOM / pricing / fab-ready outputs remain on the workshop side of the product and must show up in a near-term roadmap item (see Product decisions) — otherwise “cabinet-aware” is slogan-only.
+Workshop bridge stays real but **staged**: living-room preview now; named workshop deliverable is **Living-room Millwork Schedule v1** (see Product decisions) — otherwise “cabinet-aware” is slogan-only.
 
 ---
 
@@ -87,12 +87,29 @@ Store PNG baselines under `tmp/phase-1-baselines/` (**gitignored**) for before/a
 | 2 | Grounding | Soft goods / millwork feet meet floor; no obvious hover. Contact shadow visible in Client Preview on all 6 frames. |
 | 3 | Window key | On rooms with openings, Client Preview shows a clear key from window direction (Draft may be flatter). |
 | 4 | Framing | Locked hero cameras stay eye-level; framing QA helpers do not flag “ceiling-heavy / cut-feet” on the 6 Client Preview exports. |
-| 5 | Latency | Client Preview PNG capture for a benchmark frame completes in **≤ 8s** on a mid laptop (document machine in PR). Draft capture **≤ 3s**. |
+| 5 | Latency | See **§3.3 benchmark environment**. Client Preview ≤ **8.0s**, Draft ≤ **3.0s** per locked frame under that environment. |
 | 6 | Honesty | UI copy / README do **not** claim photoreal, AI, or Synaps parity. |
 | 7 | Automation | `qa:assets`, `qa:render`, `presets:check`, unit tests for new domain helpers, and `qa:smoke` are green. |
 | 8 | Data safety | Saving/loading a benchmark project does not introduce Three types or file paths; `schemaVersion` remains valid via migrations. |
 
 **Phase 1 fails** if we keep polishing past this scorecard, or if we start StillJob/AI work before these 8 pass.
+
+### 3.3 Latency benchmark environment (locked)
+
+Do not measure latency on an undefined “mid laptop.” Use this profile (or document an approved substitute in the PR):
+
+| Knob | Locked value |
+|---|---|
+| App surface | **Tauri desktop build** (not random browser tab), release/`npm run build` assets |
+| Preset / size | Client Preview **1920×1080**; Draft **1280×720** (per preset defs) |
+| Scene | Each of the 6 locked benchmark frames; **warm** run (one discarded cold run first) |
+| Timing | Start: capture requested → End: PNG bytes ready for package/download |
+| Machine class | Apple Silicon laptop, **≥16 GB RAM**, power plugged in; note chip (e.g. M1/M2/M3) + OS in PR |
+| GPU | Default integrated GPU; no external eGPU |
+| Concurrency | No other heavy apps; single capture at a time |
+| Report | PR must include table: frame id, Draft ms, Client Preview ms, machine string |
+
+**Substitute allowed only if** the PR states why (e.g. Windows workstation) and uses the same resolution/warm-run rules. Thresholds stay ≤3s Draft / ≤8s Client Preview unless product revises this doc.
 
 **Non-goals:** matching Synaps, film grain stacks, path tracing, cloud workers.
 
