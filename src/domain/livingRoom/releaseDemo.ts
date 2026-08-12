@@ -21,6 +21,7 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
   });
   const styled = applyLivingRoomStyle(starter, "nordic-light");
   const chairId = objectId(styled, "living:lounge-chair");
+  const sofaId = objectId(styled, "living:sofa-3-seat");
   const lampId = objectId(styled, "living:floor-lamp");
   const sideTableId = objectId(styled, "living:side-table");
   const arrangedChair = rotateLivingRoomObject(
@@ -28,8 +29,9 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
     chairId,
     30,
   );
+  const arrangedSofa = rotateLivingRoomObject(arrangedChair, sofaId, 0);
   const arrangedLamp = moveLivingRoomObject(
-    arrangedChair,
+    arrangedSofa,
     lampId,
     { x: 2450, y: 0, z: -1150 },
   );

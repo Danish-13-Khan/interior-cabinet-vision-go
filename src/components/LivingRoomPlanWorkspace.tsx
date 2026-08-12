@@ -546,6 +546,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               showGrid={showGrid}
               onSelect={props.onSelect}
               onMove={props.onMove}
+              onSetRotation={props.onSetRotation}
               onApplyStyle={props.onApplyStyle}
             />
           ) : (

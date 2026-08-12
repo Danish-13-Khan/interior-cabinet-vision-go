@@ -269,6 +269,17 @@
   color: #3d4d59;
 }
 
+.lr-model-controls input[type="range"] {
+  width: 96px;
+  accent-color: #176b9c;
+}
+
+.lr-model-controls b {
+  min-width: 34px;
+  color: #102f43;
+  font-weight: 700;
+}
+
 .lr-model-controls select,
 .lr-model-controls button {
   min-height: 23px;
