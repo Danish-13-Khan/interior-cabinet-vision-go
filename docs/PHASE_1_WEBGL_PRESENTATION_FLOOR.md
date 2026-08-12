@@ -266,11 +266,17 @@ RenderCaptureBridge + client package (consume better frames)
 
 ## 6. Suggested implementation order (full narrative)
 
+### Chapter 0 — Freeze the benchmark kit (in progress / landing)
+
+1. Domain factories under `src/domain/livingRoom/phase1Benchmarks/` create the 3×2 locked frames
+2. Scorecard + latency environment constants live beside them
+3. PNG baselines stay in gitignored `tmp/phase-1-baselines/` for PR before/after
+
 ### Chapter 1 — Measure the gap (½–1 day)
 
 1. Export the same demo room as **Draft** and **Client Preview**
 2. Note failures: floating, flat light, chalk materials, bad crop
-3. Capture screenshots into a local `tmp/phase-1-baselines/` (gitignored) for before/after
+3. Capture screenshots into `tmp/phase-1-baselines/` for before/after
 
 ### Chapter 2 — Preset honesty first (1–2 days)
 
