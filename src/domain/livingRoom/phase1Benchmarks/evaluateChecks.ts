@@ -155,6 +155,15 @@ export function evaluateLatency(samples: Phase1LatencySample[] | undefined): Pha
   const evidenceLabel = evidence.appSurface === "tauri-desktop"
     ? `Measured on ${evidence.machine}.`
     : `Measured on ${evidence.machine} via ${evidence.appSurface} (${evidence.substituteReason}).`;
+  if (evidence.appSurface !== "tauri-desktop") {
+    return {
+      id: "latency",
+      status: "pending",
+      detail: failed.length === 0
+        ? `Substitute latency evidence collected for all ${slots.length} slots. Official pass/fail still requires locked tauri-desktop evidence. ${evidenceLabel}`
+        : `Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: ${failed.map((sample) => `${sample.frameId}/${sample.quality}=${sample.elapsedMs}ms`).join(", ")}. ${evidenceLabel}`,
+    };
+  }
   return {
     id: "latency",
     status: failed.length === 0 ? "pass" : "fail",

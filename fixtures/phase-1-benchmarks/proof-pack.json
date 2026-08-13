@@ -1,7 +1,12 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-12T19:37:05.498Z",
+  "generatedAt": "2026-08-13T01:58:06.625Z",
   "latencyEnvironment": "tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run",
+  "latencyEvidence": {
+    "machine": "arm64 · darwin 25.5.0 · 16 GB RAM",
+    "appSurface": "browser-dev-substitute",
+    "substituteReason": "Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment."
+  },
   "frameCount": 6,
   "frames": [
     {
@@ -71,7 +76,7 @@
     {
       "id": "latency",
       "status": "pending",
-      "detail": "Fill fixtures/phase-1-benchmarks/latency-samples.json under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run"
+      "detail": "Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: bench-daylight-sofa/camera-a/draft=5458ms, bench-daylight-sofa/camera-a/client-preview=29086ms, bench-daylight-sofa/camera-b/draft=11487ms, bench-daylight-sofa/camera-b/client-preview=23768ms, bench-millwork-media/camera-a/draft=3809ms, bench-millwork-media/camera-a/client-preview=18078ms, bench-millwork-media/camera-b/draft=13135ms, bench-millwork-media/camera-b/client-preview=28153ms, bench-evening-lamp/camera-a/draft=5527ms, bench-evening-lamp/camera-a/client-preview=29209ms, bench-evening-lamp/camera-b/draft=6512ms, bench-evening-lamp/camera-b/client-preview=13068ms. Measured on arm64 · darwin 25.5.0 · 16 GB RAM via browser-dev-substitute (Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.)."
     },
     {
       "id": "honesty",
@@ -154,45 +159,45 @@
   "latencyTable": [
     {
       "frameId": "bench-daylight-sofa/camera-a",
-      "draftMs": null,
-      "clientPreviewMs": null,
-      "draftPass": null,
-      "clientPreviewPass": null
+      "draftMs": 5458,
+      "clientPreviewMs": 29086,
+      "draftPass": false,
+      "clientPreviewPass": false
     },
     {
       "frameId": "bench-daylight-sofa/camera-b",
-      "draftMs": null,
-      "clientPreviewMs": null,
-      "draftPass": null,
-      "clientPreviewPass": null
+      "draftMs": 11487,
+      "clientPreviewMs": 23768,
+      "draftPass": false,
+      "clientPreviewPass": false
     },
     {
       "frameId": "bench-millwork-media/camera-a",
-      "draftMs": null,
-      "clientPreviewMs": null,
-      "draftPass": null,
-      "clientPreviewPass": null
+      "draftMs": 3809,
+      "clientPreviewMs": 18078,
+      "draftPass": false,
+      "clientPreviewPass": false
     },
     {
       "frameId": "bench-millwork-media/camera-b",
-      "draftMs": null,
-      "clientPreviewMs": null,
-      "draftPass": null,
-      "clientPreviewPass": null
+      "draftMs": 13135,
+      "clientPreviewMs": 28153,
+      "draftPass": false,
+      "clientPreviewPass": false
     },
     {
       "frameId": "bench-evening-lamp/camera-a",
-      "draftMs": null,
-      "clientPreviewMs": null,
-      "draftPass": null,
-      "clientPreviewPass": null
+      "draftMs": 5527,
+      "clientPreviewMs": 29209,
+      "draftPass": false,
+      "clientPreviewPass": false
     },
     {
       "frameId": "bench-evening-lamp/camera-b",
-      "draftMs": null,
-      "clientPreviewMs": null,
-      "draftPass": null,
-      "clientPreviewPass": null
+      "draftMs": 6512,
+      "clientPreviewMs": 13068,
+      "draftPass": false,
+      "clientPreviewPass": false
     }
   ],
   "overall": "pending"
