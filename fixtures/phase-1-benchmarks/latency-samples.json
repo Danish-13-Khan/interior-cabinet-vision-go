@@ -6,62 +6,62 @@
     {
       "frameId": "bench-daylight-sofa/camera-a",
       "quality": "draft",
-      "elapsedMs": 5458
+      "elapsedMs": 5291
     },
     {
       "frameId": "bench-daylight-sofa/camera-a",
       "quality": "client-preview",
-      "elapsedMs": 29086
+      "elapsedMs": 28287
     },
     {
       "frameId": "bench-daylight-sofa/camera-b",
       "quality": "draft",
-      "elapsedMs": 11487
+      "elapsedMs": 11509
     },
     {
       "frameId": "bench-daylight-sofa/camera-b",
       "quality": "client-preview",
-      "elapsedMs": 23768
+      "elapsedMs": 23926
     },
     {
       "frameId": "bench-millwork-media/camera-a",
       "quality": "draft",
-      "elapsedMs": 3809
+      "elapsedMs": 3708
     },
     {
       "frameId": "bench-millwork-media/camera-a",
       "quality": "client-preview",
-      "elapsedMs": 18078
+      "elapsedMs": 17871
     },
     {
       "frameId": "bench-millwork-media/camera-b",
       "quality": "draft",
-      "elapsedMs": 13135
+      "elapsedMs": 13214
     },
     {
       "frameId": "bench-millwork-media/camera-b",
       "quality": "client-preview",
-      "elapsedMs": 28153
+      "elapsedMs": 27620
     },
     {
       "frameId": "bench-evening-lamp/camera-a",
       "quality": "draft",
-      "elapsedMs": 5527
+      "elapsedMs": 5268
     },
     {
       "frameId": "bench-evening-lamp/camera-a",
       "quality": "client-preview",
-      "elapsedMs": 29209
+      "elapsedMs": 29233
     },
     {
       "frameId": "bench-evening-lamp/camera-b",
       "quality": "draft",
-      "elapsedMs": 6512
+      "elapsedMs": 6528
     },
     {
       "frameId": "bench-evening-lamp/camera-b",
       "quality": "client-preview",
-      "elapsedMs": 13068
+      "elapsedMs": 13983
     }
   ]
 }
