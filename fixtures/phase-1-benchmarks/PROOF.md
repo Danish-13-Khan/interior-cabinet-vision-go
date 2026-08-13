@@ -1,10 +1,15 @@
 # Phase 1 proof pack
 
-Generated: 2026-08-12T19:37:05.498Z
+Generated: 2026-08-13T01:58:06.625Z
 Overall: **PENDING**
 
 ## Latency environment
 tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run
+
+## Latency evidence
+- Surface: `browser-dev-substitute`
+- Machine: arm64 · darwin 25.5.0 · 16 GB RAM
+- Substitute reason: Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.
 
 
 ## Frames
@@ -22,7 +27,7 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 | grounding | pass | Client Preview contact opacity 0.94 / res 768 / far 4m |
 | window-key | pass | Windowed benchmarks emit a stronger shadowed Client Preview key. |
 | framing | pass | All 6 hero frames pass eye-level framing QA (no ceiling-heavy / cut-feet). |
-| latency | pending | Fill fixtures/phase-1-benchmarks/latency-samples.json under tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run |
+| latency | pending | Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: bench-daylight-sofa/camera-a/draft=5458ms, bench-daylight-sofa/camera-a/client-preview=29086ms, bench-daylight-sofa/camera-b/draft=11487ms, bench-daylight-sofa/camera-b/client-preview=23768ms, bench-millwork-media/camera-a/draft=3809ms, bench-millwork-media/camera-a/client-preview=18078ms, bench-millwork-media/camera-b/draft=13135ms, bench-millwork-media/camera-b/client-preview=28153ms, bench-evening-lamp/camera-a/draft=5527ms, bench-evening-lamp/camera-a/client-preview=29209ms, bench-evening-lamp/camera-b/draft=6512ms, bench-evening-lamp/camera-b/client-preview=13068ms. Measured on arm64 · darwin 25.5.0 · 16 GB RAM via browser-dev-substitute (Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.). |
 | honesty | pass | Preset honesty + README/UI corpus avoid affirmative photoreal / Synaps / AI claims. |
 | automation | pass | All 5 automation gates green (2026-08-12T19:28:10.195Z). |
 | data-safety | pass | Benchmark projects serialize/load without Three/path payloads. |
@@ -40,12 +45,12 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 ## Latency table (fill `latency-samples.json`)
 | Frame | Draft ms | Client Preview ms |
 |---|---:|---:|
-| bench-daylight-sofa/camera-a |  |  |
-| bench-daylight-sofa/camera-b |  |  |
-| bench-millwork-media/camera-a |  |  |
-| bench-millwork-media/camera-b |  |  |
-| bench-evening-lamp/camera-a |  |  |
-| bench-evening-lamp/camera-b |  |  |
+| bench-daylight-sofa/camera-a | 5458 | 29086 |
+| bench-daylight-sofa/camera-b | 11487 | 23768 |
+| bench-millwork-media/camera-a | 3809 | 18078 |
+| bench-millwork-media/camera-b | 13135 | 28153 |
+| bench-evening-lamp/camera-a | 5527 | 29209 |
+| bench-evening-lamp/camera-b | 6512 | 13068 |
 
 ## Manual PR attachments
 - Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`
