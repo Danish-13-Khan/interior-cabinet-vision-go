@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-13T01:58:06.625Z",
+  "generatedAt": "2026-08-13T05:49:22.671Z",
   "latencyEnvironment": "tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms · Apple Silicon laptop, >=16 GB RAM, power plugged in · warm run after discarded cold run",
   "latencyEvidence": {
     "machine": "arm64 · darwin 25.5.0 · 16 GB RAM",
@@ -76,7 +76,7 @@
     {
       "id": "latency",
       "status": "pending",
-      "detail": "Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: bench-daylight-sofa/camera-a/draft=5458ms, bench-daylight-sofa/camera-a/client-preview=29086ms, bench-daylight-sofa/camera-b/draft=11487ms, bench-daylight-sofa/camera-b/client-preview=23768ms, bench-millwork-media/camera-a/draft=3809ms, bench-millwork-media/camera-a/client-preview=18078ms, bench-millwork-media/camera-b/draft=13135ms, bench-millwork-media/camera-b/client-preview=28153ms, bench-evening-lamp/camera-a/draft=5527ms, bench-evening-lamp/camera-a/client-preview=29209ms, bench-evening-lamp/camera-b/draft=6512ms, bench-evening-lamp/camera-b/client-preview=13068ms. Measured on arm64 · darwin 25.5.0 · 16 GB RAM via browser-dev-substitute (Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.)."
+      "detail": "Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: bench-daylight-sofa/camera-a/draft=5291ms, bench-daylight-sofa/camera-a/client-preview=28287ms, bench-daylight-sofa/camera-b/draft=11509ms, bench-daylight-sofa/camera-b/client-preview=23926ms, bench-millwork-media/camera-a/draft=3708ms, bench-millwork-media/camera-a/client-preview=17871ms, bench-millwork-media/camera-b/draft=13214ms, bench-millwork-media/camera-b/client-preview=27620ms, bench-evening-lamp/camera-a/draft=5268ms, bench-evening-lamp/camera-a/client-preview=29233ms, bench-evening-lamp/camera-b/draft=6528ms, bench-evening-lamp/camera-b/client-preview=13983ms. Measured on arm64 · darwin 25.5.0 · 16 GB RAM via browser-dev-substitute (Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.)."
     },
     {
       "id": "honesty",
@@ -86,7 +86,7 @@
     {
       "id": "automation",
       "status": "pass",
-      "detail": "All 5 automation gates green (2026-08-12T19:28:10.195Z)."
+      "detail": "All 5 automation gates green (2026-08-13T05:49:21.788Z)."
     },
     {
       "id": "data-safety",
@@ -159,43 +159,43 @@
   "latencyTable": [
     {
       "frameId": "bench-daylight-sofa/camera-a",
-      "draftMs": 5458,
-      "clientPreviewMs": 29086,
+      "draftMs": 5291,
+      "clientPreviewMs": 28287,
       "draftPass": false,
       "clientPreviewPass": false
     },
     {
       "frameId": "bench-daylight-sofa/camera-b",
-      "draftMs": 11487,
-      "clientPreviewMs": 23768,
+      "draftMs": 11509,
+      "clientPreviewMs": 23926,
       "draftPass": false,
       "clientPreviewPass": false
     },
     {
       "frameId": "bench-millwork-media/camera-a",
-      "draftMs": 3809,
-      "clientPreviewMs": 18078,
+      "draftMs": 3708,
+      "clientPreviewMs": 17871,
       "draftPass": false,
       "clientPreviewPass": false
     },
     {
       "frameId": "bench-millwork-media/camera-b",
-      "draftMs": 13135,
-      "clientPreviewMs": 28153,
+      "draftMs": 13214,
+      "clientPreviewMs": 27620,
       "draftPass": false,
       "clientPreviewPass": false
     },
     {
       "frameId": "bench-evening-lamp/camera-a",
-      "draftMs": 5527,
-      "clientPreviewMs": 29209,
+      "draftMs": 5268,
+      "clientPreviewMs": 29233,
       "draftPass": false,
       "clientPreviewPass": false
     },
     {
       "frameId": "bench-evening-lamp/camera-b",
-      "draftMs": 6512,
-      "clientPreviewMs": 13068,
+      "draftMs": 6528,
+      "clientPreviewMs": 13983,
       "draftPass": false,
       "clientPreviewPass": false
     }
