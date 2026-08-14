@@ -18,6 +18,7 @@ import {
   type LivingRoomRenderResult,
   type LivingRoomRecoverySnapshot,
   type LivingRoomStyleId,
+  type Phase1BenchmarkId,
 } from "../domain/livingRoom";
 import { LivingRoomModelView } from "./LivingRoomModelView";
 import { LivingRoomPlanView } from "./LivingRoomPlanView";
@@ -46,6 +47,7 @@ type LivingRoomPlanWorkspaceProps = {
   recentProjects: SavedProjectBrowserEntry[];
   onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId }) => void;
   onOpenDemo: () => void;
+  onOpenPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => void;
   onOpenProjectHome: () => void;
   onCloseProjectHome: () => void;
   onOpenRecentProject: (projectId: string) => void;
@@ -333,6 +335,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onClose={props.onCloseProjectHome}
             onCreate={(options) => props.onCreateStarter(options)}
             onOpenDemo={props.onOpenDemo}
+            onOpenPhase1Benchmark={props.onOpenPhase1Benchmark}
             onOpenRecent={props.onOpenRecentProject}
             onDeleteRecent={props.onDeleteRecentProject}
             onRestoreRecovery={props.onRestoreRecovery}
@@ -393,6 +396,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onClose={props.onCloseProjectHome}
         onCreate={(options) => props.onCreateStarter(options)}
         onOpenDemo={props.onOpenDemo}
+        onOpenPhase1Benchmark={props.onOpenPhase1Benchmark}
         onOpenRecent={(projectId) => {
           props.onOpenRecentProject(projectId);
           props.onCloseProjectHome();

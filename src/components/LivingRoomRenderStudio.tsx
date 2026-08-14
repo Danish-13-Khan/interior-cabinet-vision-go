@@ -12,6 +12,7 @@ import {
   RENDER_OUTPUT_PRESETS,
   RENDER_QUALITY_PRESETS,
   applyRenderPresetToSettings,
+  describePresetHonesty,
   getRenderPresetBehavior,
   resolveStudioRenderMode,
   type LivingRoomLightingRecipeId,
@@ -27,6 +28,7 @@ import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 import { LivingRoomRenderCamerasPanel } from "./livingRoomScene/LivingRoomRenderCamerasPanel";
+import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
 
 type RenderJobState = {
   status: "idle" | "rendering" | "complete" | "cancelled" | "error";
@@ -91,6 +93,7 @@ export function LivingRoomRenderStudio({
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const qualityBehavior = getRenderPresetBehavior(settings.quality);
   const studioRenderMode = resolveStudioRenderMode(settings.quality);
+  const honesty = describePresetHonesty(settings.quality, studioRenderMode);
   const resultIsCurrent = Boolean(
     latestResult
     && latestResult.projectId === project.id
@@ -210,6 +213,7 @@ export function LivingRoomRenderStudio({
           <span>RENDER STUDIO</span>
           <strong>{scene.style.name}</strong>
           <small>{scene.fingerprint.slice(-8).toUpperCase()}</small>
+          <RenderPresetHonestyBadge honesty={honesty} compact />
         </div>
         <nav aria-label="Render result view">
           <button type="button" className={view === "preview" ? "is-active" : ""} onClick={() => setView("preview")}>Live Preview</button>
@@ -263,8 +267,10 @@ export function LivingRoomRenderStudio({
               ))}
             </div>
             <p className="lr-render-preset-meta">
-              Mode {studioRenderMode.toUpperCase()} · {qualityBehavior.textureDetail} textures · shadows {qualityBehavior.shadowMapSize}
+              {honesty.headline} · Mode {studioRenderMode.toUpperCase()} · {qualityBehavior.textureDetail} textures ·
+              shadows {qualityBehavior.shadowMapSize} · contact {qualityBehavior.contactShadowResolution}
             </p>
+            <p className="lr-render-preset-hint">{honesty.subline}</p>
           </section>
           <section>
             <h3>Output</h3>

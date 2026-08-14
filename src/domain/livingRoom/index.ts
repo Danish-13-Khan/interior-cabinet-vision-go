@@ -31,6 +31,26 @@ export {
   type EnvironmentLightingQuality,
 } from "./environmentLightingQuality";
 export {
+  resolveGroundingQuality,
+  type GroundingQuality,
+} from "./groundingQuality";
+export {
+  describePresetHonesty,
+  type PresetHonestyDescription,
+  type PresetHonestyRole,
+} from "./presetHonesty";
+export {
+  resolveMaterialContrast,
+  applyMaterialContrastRoughness,
+  type MaterialContrastTuning,
+} from "./materialContrast";
+export {
+  resolveWindowKeyLights,
+  sampleWindowOpenings,
+  type WindowKeyLightDescriptor,
+  type WindowOpeningSample,
+} from "./windowKeyLight";
+export {
   createLivingRoomRenderResult,
   getRenderQualityPreset,
   livingRoomRenderFileName,
@@ -80,6 +100,55 @@ export {
   LIVING_ROOM_RELEASE_DEMO_DATE,
   LIVING_ROOM_RELEASE_DEMO_ID,
 } from "./releaseDemo";
+export {
+  createPhase1BenchmarkProject,
+  describePhase1LatencyEnvironment,
+  getPhase1BenchmarkDefinition,
+  isPhase1LatencyWithinBudget,
+  listPhase1BenchmarkFrames,
+  listPhase1BenchmarkProjects,
+  listPhase1ScorecardChecks,
+  PHASE1_BENCHMARK_DEFINITIONS,
+  PHASE1_BENCHMARK_IDS,
+  PHASE1_BENCHMARK_NOW,
+  PHASE1_LATENCY_ENVIRONMENT,
+  PHASE1_SCORECARD_CHECK_IDS,
+  resolvePhase1BenchmarkCameraId,
+  evaluatePhase1Scorecard,
+  formatPhase1ProofMarkdown,
+  type Phase1BenchmarkCameraLock,
+  type Phase1BenchmarkDefinition,
+  type Phase1BenchmarkFrameId,
+  type Phase1BenchmarkId,
+  type Phase1CameraKey,
+  type Phase1LatencyEnvironment,
+  type Phase1LatencySample,
+  type Phase1ScorecardCheckId,
+  type Phase1CheckResult,
+  type Phase1CheckStatus,
+  type Phase1FrameLadderReport,
+  type Phase1ProofPack,
+} from "./phase1Benchmarks";
+export {
+  STILL_JOB_CONTRACT_NOTE,
+  STILL_JOB_SCHEMA_VERSION,
+  STILL_JOB_TOLERANCES,
+  buildStillJob,
+  stillJobProjectContentHash,
+  validateStillJobAgainstProject,
+  type BuildStillJobInput,
+  type StillJob,
+  type StillJobAllowedEnhancement,
+  type StillJobAttachmentRefs,
+  type StillJobCameraPose,
+  type StillJobEngine,
+  type StillJobGateId,
+  type StillJobGateResult,
+  type StillJobMaterialSlot,
+  type StillJobMode,
+  type StillJobObjectRef,
+  type StillJobValidation,
+} from "./stillJob";
 export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,

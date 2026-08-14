@@ -1,5 +1,6 @@
 import type { RenderQuality } from "../interiorProject";
 import type { RenderMode, RenderModeQuality } from "./renderAssetContracts";
+import { resolveGroundingQuality } from "./groundingQuality";
 import { getRenderPresetBehavior } from "./renderPresets";
 
 export type HeroCaptureTuning = {
@@ -14,7 +15,7 @@ export type HeroContactShadowTuning = {
   blurScale: number;
 };
 
-/** Preview stays light; hero boosts texture/material response for exports only. */
+/** Preview stays light; hero + richer presets boost texture/material response. */
 export function getRenderModeQuality(
   mode: RenderMode,
   quality?: RenderQuality,
@@ -23,36 +24,43 @@ export function getRenderModeQuality(
     const textureDetail = quality
       ? getRenderPresetBehavior(quality).textureDetail
       : "high";
+    const isDraft = quality === "draft";
     return {
       mode,
-      anisotropy: 16,
+      anisotropy: isDraft ? 8 : 16,
       textureDetail,
-      envMapIntensityScale: 1.22,
-      bumpScale: 1.05,
-      clearcoatScale: 1.18,
-      sheenScale: 1.1,
-      specularScale: 1.06,
-      roughnessLift: -0.03,
+      envMapIntensityScale: isDraft ? 1.05 : 1.22,
+      bumpScale: isDraft ? 0.85 : 1.05,
+      clearcoatScale: isDraft ? 1.06 : 1.18,
+      sheenScale: isDraft ? 1.04 : 1.1,
+      specularScale: isDraft ? 1.02 : 1.06,
+      roughnessLift: isDraft ? -0.01 : -0.03,
     };
   }
+  const isDraft = !quality || quality === "draft";
   return {
     mode,
-    anisotropy: 4,
+    anisotropy: isDraft ? 4 : 8,
     textureDetail: "low",
-    envMapIntensityScale: 0.85,
-    bumpScale: 0.65,
+    envMapIntensityScale: isDraft ? 0.78 : 0.9,
+    bumpScale: isDraft ? 0.55 : 0.72,
     clearcoatScale: 1,
     sheenScale: 1,
     specularScale: 1,
-    roughnessLift: 0,
+    roughnessLift: isDraft ? 0.02 : 0,
   };
 }
 
-export function resolveHeroContactShadowTuning(mode: RenderMode): HeroContactShadowTuning {
-  if (mode === "hero") {
-    return { opacityScale: 0.9, blurScale: 1.2 };
-  }
-  return { opacityScale: 1, blurScale: 1 };
+/** @deprecated Prefer resolveGroundingQuality — kept for call-site compatibility. */
+export function resolveHeroContactShadowTuning(
+  mode: RenderMode,
+  quality: RenderQuality = "standard",
+): HeroContactShadowTuning {
+  const grounding = resolveGroundingQuality(mode, quality);
+  return {
+    opacityScale: grounding.opacityScale,
+    blurScale: grounding.blurScale,
+  };
 }
 
 /** Hero-only PNG capture polish — never written into InteriorProject JSON. */

@@ -1,0 +1,21 @@
+---
+description: Git/GitHub identity for this interior-cabinet project
+alwaysApply: true
+---
+
+# Git identity (this repo only)
+
+When committing, pushing, opening PRs, or using `gh` for **this** project (`interior-cabinet-vision-go` / `cabinet-designer-mvp`):
+
+- **GitHub account / remote owner:** `Danish-13-Khan`
+- **Git author name:** `Danish-13-Khan`
+- **Git author email:** `dan.my1313@gmail.com`
+
+## Rules
+- Prefer the existing `origin` remote under `Danish-13-Khan/*`. Do not push to a different GitHub user or org unless the user explicitly asks.
+- Before committing, if local `user.name` / `user.email` are wrong, set **repo-local** config only (never global):
+  - `git config --local user.name "Danish-13-Khan"`
+  - `git config --local user.email "dan.my1313@gmail.com"`
+- Or pass author env for a single commit:
+  - `GIT_AUTHOR_NAME="Danish-13-Khan" GIT_AUTHOR_EMAIL="dan.my1313@gmail.com" GIT_COMMITTER_NAME="Danish-13-Khan" GIT_COMMITTER_EMAIL="dan.my1313@gmail.com"`
+- Never use `danish.khan@a5labs.co` (or any other work identity) for commits on this project.
