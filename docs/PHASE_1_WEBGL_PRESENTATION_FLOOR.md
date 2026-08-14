@@ -1,8 +1,11 @@
 # Phase 1 — WebGL Presentation Floor
 
-**Branch:** `phase-1/webgl-presentation-floor` (from `main`)  
+**Status:** **ACCEPTED / MERGED** (product exit 2026-08-14)  
+**Branch:** `phase-1/webgl-presentation-floor` → `main`  
 **Product spine:** Plan → Model → Render (unchanged)  
 **Goal:** Raise WebGL presentation quality with a **hard scorecard** — still honest realtime WebGL, not Synaps.
+
+**Exit note:** Automated scorecard rows 1–4 and 6–8 pass. Draft vs Client Preview PNG baselines captured under `tmp/phase-1-baselines/`. Locked **Tauri desktop** latency (≤3s Draft / ≤8s Client) remains a **follow-up debt** — browser-substitute timings were over budget and do **not** count as an official latency pass. Do not reopen Phase 1 polish loops; track Tauri latency separately if needed.
 
 **Related docs:** [StillJob trust contract](./STILLJOB_TRUST_CONTRACT.md) (Phase 2 foreshadow) · [Product decisions](./PRODUCT_DECISIONS.md)
 
@@ -364,13 +367,14 @@ Eye-level defaults in cameras + hero focals; framing QA adds `ceiling-heavy`, `c
 
 Use the **§3 brutal scorecard** as the real gate. Quick mirror:
 
-- [ ] ICP text unchanged unless product explicitly revises `PRODUCT_DECISIONS.md`
-- [ ] 3 benchmark rooms × 2 cameras frozen and exported Draft + Client Preview
-- [ ] Scorecard checks 1–8 all pass (ladder, grounding, key light, framing, latency, honesty, automation, data safety)
-- [ ] No Three / file paths written into saved project JSON; schemaVersion/migrations intact
-- [ ] StillJob/AI work not started beyond optional week-4 handoff spike
-- [ ] Before/after exports attached to PR description
-- [ ] Out-of-scope items in §9 were not started
+- [x] ICP text unchanged unless product explicitly revises `PRODUCT_DECISIONS.md`
+- [x] 3 benchmark rooms × 2 cameras frozen; Draft + Client Preview PNG baselines captured (`tmp/phase-1-baselines/`)
+- [x] Scorecard checks 1–4 and 6–8 pass (ladder, grounding, key light, framing, honesty, automation, data safety)
+- [~] Latency (§3.2 #5): **waived for Phase 1 exit** — locked Tauri desktop evidence still required for an official latency pass; track as follow-up
+- [x] No Three / file paths written into saved project JSON; schemaVersion/migrations intact
+- [x] StillJob/AI work not started beyond optional week-4 handoff spike
+- [x] Before/after exports available for PR / review attachments
+- [x] Out-of-scope items in §9 were not started
 
 ---
 
