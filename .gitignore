@@ -14,6 +14,7 @@ playwright-report
 test-results
 blob-report
 *.local
+tmp/phase-1-baselines/
 
 # Editor directories and files
 .vscode/*

@@ -9,7 +9,10 @@ export type CameraFramingIssue = {
     | "target-outside-room"
     | "degenerate-look"
     | "eye-too-low"
-    | "eye-too-high";
+    | "eye-too-high"
+    | "eye-off-standing"
+    | "ceiling-heavy"
+    | "cut-feet";
   severity: "error" | "warning";
   message: string;
 };
@@ -57,6 +60,10 @@ export function validateCameraFraming(
   }
 
   const issues: CameraFramingIssue[] = [];
+  const name = camera.name.toLowerCase();
+  const isDetail = name.includes("detail") || name.includes("lamp");
+  const isTelevision = name.includes("tv") || name.includes("millwork");
+
   if (
     !Number.isFinite(camera.fieldOfViewDegrees)
     || camera.fieldOfViewDegrees < 18
@@ -90,6 +97,38 @@ export function validateCameraFraming(
       code: "eye-too-high",
       severity: "warning",
       message: `Camera eye height ${Math.round(camera.position.y)}mm is far above the room.`,
+    });
+  }
+
+  const standingMin = isDetail ? 1200 : 1400;
+  const standingMax = isDetail ? 1550 : 1700;
+  if (camera.position.y < standingMin || camera.position.y > standingMax) {
+    issues.push({
+      code: "eye-off-standing",
+      severity: "warning",
+      message: `Eye height ${Math.round(camera.position.y)}mm is outside living-room standing range (${standingMin}–${standingMax}mm).`,
+    });
+  }
+
+  const horizontal = Math.hypot(
+    camera.target.x - camera.position.x,
+    camera.target.z - camera.position.z,
+  );
+  const pitch = (camera.target.y - camera.position.y) / Math.max(1, horizontal);
+  if (pitch > 0.16) {
+    issues.push({
+      code: "ceiling-heavy",
+      severity: "warning",
+      message: "Look direction pitches up too far — framing may overweight the ceiling.",
+    });
+  }
+
+  const cutFeetLimit = isTelevision ? 1180 : isDetail ? 1050 : 980;
+  if (camera.target.y > cutFeetLimit) {
+    issues.push({
+      code: "cut-feet",
+      severity: "warning",
+      message: `Target height ${Math.round(camera.target.y)}mm is high enough to crop furniture feet.`,
     });
   }
 

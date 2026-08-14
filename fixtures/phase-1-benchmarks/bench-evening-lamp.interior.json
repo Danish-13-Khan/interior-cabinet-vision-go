@@ -1,0 +1,816 @@
+{
+  "format": "interior-project",
+  "schemaVersion": 1,
+  "savedAt": "2026-08-12T18:00:00.000Z",
+  "project": {
+    "schemaVersion": 1,
+    "id": "phase1-bench-evening-lamp",
+    "name": "Phase 1 · Evening Lamp",
+    "units": "mm",
+    "createdAt": "2026-08-12T18:00:00.000Z",
+    "updatedAt": "2026-08-12T18:00:00.000Z",
+    "activeRoomId": "lr-room-main",
+    "rooms": [
+      {
+        "id": "lr-room-main",
+        "name": "Living Room",
+        "roomType": "living-room",
+        "dimensions": {
+          "widthMm": 6200,
+          "heightMm": 2800,
+          "depthMm": 4600
+        },
+        "wallThicknessMm": 120,
+        "extensions": {
+          "floorMaterialId": "lr-material-natural-oak",
+          "ceilingMaterialId": "lr-material-ceiling-soft-white"
+        }
+      }
+    ],
+    "walls": [
+      {
+        "id": "lr-wall-back",
+        "roomId": "lr-room-main",
+        "start": {
+          "x": -3100,
+          "z": -2300
+        },
+        "end": {
+          "x": 3100,
+          "z": -2300
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "extensions": {
+          "wallSide": "back"
+        }
+      },
+      {
+        "id": "lr-wall-right",
+        "roomId": "lr-room-main",
+        "start": {
+          "x": 3100,
+          "z": -2300
+        },
+        "end": {
+          "x": 3100,
+          "z": 2300
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "extensions": {
+          "wallSide": "right"
+        }
+      },
+      {
+        "id": "lr-wall-front",
+        "roomId": "lr-room-main",
+        "start": {
+          "x": 3100,
+          "z": 2300
+        },
+        "end": {
+          "x": -3100,
+          "z": 2300
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "extensions": {
+          "wallSide": "front"
+        }
+      },
+      {
+        "id": "lr-wall-left",
+        "roomId": "lr-room-main",
+        "start": {
+          "x": -3100,
+          "z": 2300
+        },
+        "end": {
+          "x": -3100,
+          "z": -2300
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "extensions": {
+          "wallSide": "left"
+        }
+      }
+    ],
+    "openings": [
+      {
+        "id": "lr-opening-entry-door",
+        "roomId": "lr-room-main",
+        "wallId": "lr-wall-front",
+        "kind": "door",
+        "offsetMm": 650,
+        "widthMm": 900,
+        "heightMm": 2100,
+        "sillHeightMm": 0,
+        "swingDirection": "in",
+        "extensions": {
+          "hinge": "left"
+        }
+      },
+      {
+        "id": "lr-opening-picture-window",
+        "roomId": "lr-room-main",
+        "wallId": "lr-wall-left",
+        "kind": "window",
+        "offsetMm": 1350,
+        "widthMm": 1800,
+        "heightMm": 1300,
+        "sillHeightMm": 750
+      }
+    ],
+    "objects": [
+      {
+        "id": "lr-object-sofa",
+        "roomId": "lr-room-main",
+        "kind": "furniture",
+        "category": "sofa",
+        "catalogItemId": "living:sofa-3-seat",
+        "name": "Three Seat Sofa",
+        "position": {
+          "x": -80,
+          "y": 0,
+          "z": 1080
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 2200,
+          "heightMm": 820,
+          "depthMm": 920
+        },
+        "materialSlots": {
+          "upholstery": "lr-material-fabric-oatmeal",
+          "legs": "lr-material-metal-charcoal"
+        },
+        "parameters": {
+          "seats": 3,
+          "cushionStyle": "loose"
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-lounge-chair",
+        "roomId": "lr-room-main",
+        "kind": "furniture",
+        "category": "chair",
+        "catalogItemId": "living:lounge-chair",
+        "name": "Lounge Chair",
+        "position": {
+          "x": -2100,
+          "y": 0,
+          "z": 300
+        },
+        "rotation": {
+          "x": 0,
+          "y": 45,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 820,
+          "heightMm": 880,
+          "depthMm": 860
+        },
+        "materialSlots": {
+          "upholstery": "lr-material-fabric-olive",
+          "frame": "lr-material-natural-oak"
+        },
+        "parameters": {
+          "seats": 1
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-coffee-table",
+        "roomId": "lr-room-main",
+        "kind": "furniture",
+        "category": "table",
+        "catalogItemId": "living:coffee-table",
+        "name": "Coffee Table",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -50
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 1200,
+          "heightMm": 380,
+          "depthMm": 650
+        },
+        "materialSlots": {
+          "top": "lr-material-natural-oak",
+          "frame": "lr-material-metal-charcoal"
+        },
+        "parameters": {
+          "topShape": "rounded-rectangle"
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-side-table",
+        "roomId": "lr-room-main",
+        "kind": "furniture",
+        "category": "table",
+        "catalogItemId": "living:side-table",
+        "name": "Side Table",
+        "position": {
+          "x": -2050,
+          "y": 0,
+          "z": -980
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 480,
+          "heightMm": 520,
+          "depthMm": 480
+        },
+        "materialSlots": {
+          "top": "lr-material-natural-oak",
+          "frame": "lr-material-metal-charcoal"
+        },
+        "parameters": {
+          "topShape": "round"
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-tv-unit",
+        "roomId": "lr-room-main",
+        "kind": "furniture",
+        "category": "media-unit",
+        "catalogItemId": "living:tv-unit",
+        "name": "Low TV Unit",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -1950
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 2000,
+          "heightMm": 520,
+          "depthMm": 440
+        },
+        "materialSlots": {
+          "carcass": "lr-material-walnut",
+          "fronts": "lr-material-natural-oak"
+        },
+        "parameters": {
+          "doorCount": 3,
+          "cableOpening": true
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-area-rug",
+        "roomId": "lr-room-main",
+        "kind": "decor",
+        "category": "rug",
+        "catalogItemId": "living:area-rug",
+        "name": "Area Rug",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 300
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 3000,
+          "heightMm": 18,
+          "depthMm": 2200
+        },
+        "materialSlots": {
+          "surface": "lr-material-rug-wool-sand"
+        },
+        "parameters": {
+          "pile": "low"
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-wall-mirror",
+        "roomId": "lr-room-main",
+        "kind": "decor",
+        "category": "mirror",
+        "catalogItemId": "living:wall-mirror",
+        "name": "Wall Mirror",
+        "position": {
+          "x": 3020,
+          "y": 850,
+          "z": -650
+        },
+        "rotation": {
+          "x": 0,
+          "y": 270,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 1400,
+          "depthMm": 35
+        },
+        "materialSlots": {
+          "mirror": "lr-material-glass-clear",
+          "frame": "lr-material-metal-charcoal"
+        },
+        "parameters": {
+          "mountHeightMm": 850
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
+        "id": "lr-object-floor-lamp",
+        "roomId": "lr-room-main",
+        "kind": "lighting",
+        "category": "floor-lamp",
+        "catalogItemId": "living:floor-lamp",
+        "name": "Floor Lamp",
+        "position": {
+          "x": 2350,
+          "y": 0,
+          "z": -1100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 420,
+          "heightMm": 1650,
+          "depthMm": 420
+        },
+        "materialSlots": {
+          "frame": "lr-material-metal-charcoal",
+          "shade": "lr-material-fabric-oatmeal"
+        },
+        "parameters": {
+          "bulbTemperatureK": 2700,
+          "lumens": 800
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "lr-material-wall-warm-white",
+        "name": "Warm White Wall Paint",
+        "kind": "paint",
+        "color": "#817d73",
+        "roughness": 0.88,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-ceiling-soft-white",
+        "name": "Soft White Ceiling Paint",
+        "kind": "paint",
+        "color": "#d9d2c7",
+        "roughness": 0.92,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-natural-oak",
+        "name": "Natural Oak",
+        "kind": "wood",
+        "color": "#96734e",
+        "roughness": 0.6,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "grainDirection": "length",
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-walnut",
+        "name": "Smoked Walnut",
+        "kind": "wood",
+        "color": "#43291e",
+        "roughness": 0.5,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "grainDirection": "length",
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-fabric-oatmeal",
+        "name": "Oatmeal Weave",
+        "kind": "fabric",
+        "color": "#a99884",
+        "roughness": 0.97,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-fabric-olive",
+        "name": "Olive Weave",
+        "kind": "fabric",
+        "color": "#555d48",
+        "roughness": 0.98,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-metal-charcoal",
+        "name": "Charcoal Powder Coat",
+        "kind": "metal",
+        "color": "#1d2020",
+        "roughness": 0.28,
+        "metalness": 0.78,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-glass-clear",
+        "name": "Clear Glass",
+        "kind": "glass",
+        "color": "#aebfc1",
+        "roughness": 0.1,
+        "metalness": 0,
+        "opacity": 0.28,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-rug-wool-sand",
+        "name": "Sand Wool Rug",
+        "kind": "fabric",
+        "color": "#756d62",
+        "roughness": 1,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      }
+    ],
+    "lights": [
+      {
+        "id": "lr-light-daylight-ambient",
+        "roomId": "lr-room-main",
+        "name": "Daylight Fill",
+        "kind": "ambient",
+        "position": {
+          "x": 0,
+          "y": 2400,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#eaf3ff",
+        "intensity": 0.54,
+        "enabled": false,
+        "parameters": {
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "lr-light-daylight-window",
+        "roomId": "lr-room-main",
+        "name": "Window Daylight",
+        "kind": "area",
+        "position": {
+          "x": -2850,
+          "y": 1850,
+          "z": -250
+        },
+        "rotation": {
+          "x": 0,
+          "y": 90,
+          "z": 0
+        },
+        "color": "#dcecff",
+        "intensity": 2.2,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 1800,
+          "heightMm": 1200,
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "lr-light-daylight-sun-fill",
+        "roomId": "lr-room-main",
+        "name": "Soft Window Shadow",
+        "kind": "directional",
+        "position": {
+          "x": -3600,
+          "y": 4200,
+          "z": 2600
+        },
+        "rotation": {
+          "x": -42,
+          "y": 38,
+          "z": 0
+        },
+        "color": "#f4f8ff",
+        "intensity": 0.58,
+        "enabled": false,
+        "parameters": {
+          "castShadow": true,
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "lr-light-warm-evening-ambient",
+        "roomId": "lr-room-main",
+        "name": "Evening Fill",
+        "kind": "ambient",
+        "position": {
+          "x": 0,
+          "y": 2200,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffd9b0",
+        "intensity": 0.34,
+        "enabled": true,
+        "parameters": {
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "lr-light-warm-evening-floor-lamp",
+        "roomId": "lr-room-main",
+        "name": "Floor Lamp Glow",
+        "kind": "point",
+        "position": {
+          "x": 2500,
+          "y": 1420,
+          "z": 700
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffc17a",
+        "intensity": 7.5,
+        "enabled": true,
+        "parameters": {
+          "rangeMm": 3200,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "lr-light-warm-evening-ceiling",
+        "roomId": "lr-room-main",
+        "name": "Warm Ceiling Wash",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2650,
+          "z": 0
+        },
+        "rotation": {
+          "x": -90,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffe0bd",
+        "intensity": 2.1,
+        "enabled": true,
+        "parameters": {
+          "widthMm": 3600,
+          "heightMm": 2400,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "lr-light-neutral-studio-ambient",
+        "roomId": "lr-room-main",
+        "name": "Studio Fill",
+        "kind": "ambient",
+        "position": {
+          "x": 0,
+          "y": 2300,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffffff",
+        "intensity": 0.58,
+        "enabled": false,
+        "parameters": {
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "lr-light-neutral-studio-key",
+        "roomId": "lr-room-main",
+        "name": "Studio Key",
+        "kind": "directional",
+        "position": {
+          "x": 2600,
+          "y": 2500,
+          "z": 2200
+        },
+        "rotation": {
+          "x": -38,
+          "y": -42,
+          "z": 0
+        },
+        "color": "#fff5e8",
+        "intensity": 2.8,
+        "enabled": false,
+        "parameters": {
+          "castShadow": true,
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "lr-light-neutral-studio-window-fill",
+        "roomId": "lr-room-main",
+        "name": "Studio Window Fill",
+        "kind": "area",
+        "position": {
+          "x": -2800,
+          "y": 1750,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 90,
+          "z": 0
+        },
+        "color": "#dbe8ff",
+        "intensity": 2.2,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 1600,
+          "heightMm": 1100,
+          "recipeId": "neutral-studio"
+        }
+      }
+    ],
+    "cameras": [
+      {
+        "id": "lr-camera-bench-evening-lamp-camera-a",
+        "roomId": "lr-room-main",
+        "name": "Eye-level seating",
+        "position": {
+          "x": 980,
+          "y": 1520,
+          "z": 3020
+        },
+        "target": {
+          "x": -120,
+          "y": 680,
+          "z": 40
+        },
+        "fieldOfViewDegrees": 42,
+        "isDefault": true
+      },
+      {
+        "id": "lr-camera-bench-evening-lamp-camera-b",
+        "roomId": "lr-room-main",
+        "name": "Lamp / side table detail",
+        "position": {
+          "x": 1480,
+          "y": 1360,
+          "z": 420
+        },
+        "target": {
+          "x": 2200,
+          "y": 880,
+          "z": -1100
+        },
+        "fieldOfViewDegrees": 40,
+        "isDefault": false
+      }
+    ],
+    "renderSettings": {
+      "widthPx": 1920,
+      "heightPx": 1080,
+      "quality": "client-preview",
+      "exposure": 0.92,
+      "transparentBackground": false,
+      "activeCameraId": "lr-camera-bench-evening-lamp-camera-a",
+      "lightingRecipeId": "warm-evening",
+      "composition": "architectural"
+    },
+    "extensions": {
+      "presetId": "living-room-starter",
+      "presetVersion": 1,
+      "livingRoomStyleId": "moody-walnut",
+      "livingRoomStyle": {
+        "id": "moody-walnut",
+        "version": 1,
+        "environment": {
+          "backgroundColor": "#54575a",
+          "fogColor": "#54575a",
+          "fogNearMm": 9000,
+          "fogFarMm": 19000,
+          "hemisphereSkyColor": "#9aa6b0",
+          "hemisphereGroundColor": "#3f3128",
+          "hemisphereIntensity": 0.2,
+          "gridPrimaryColor": "#747c80",
+          "gridSecondaryColor": "#596165",
+          "contactShadowOpacity": 0.42,
+          "contactShadowBlur": 2.3
+        },
+        "colorManagement": {
+          "toneMapping": "aces-filmic",
+          "outputColorSpace": "srgb",
+          "exposure": 0.92,
+          "shadowMap": "pcf-soft"
+        }
+      },
+      "phase1Benchmark": {
+        "id": "bench-evening-lamp",
+        "version": 1,
+        "styleId": "moody-walnut",
+        "cameraIds": {
+          "camera-a": "lr-camera-bench-evening-lamp-camera-a",
+          "camera-b": "lr-camera-bench-evening-lamp-camera-b"
+        }
+      }
+    }
+  }
+}

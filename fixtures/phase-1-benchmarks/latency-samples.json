@@ -1,0 +1,67 @@
+{
+  "appSurface": "browser-dev-substitute",
+  "substituteReason": "Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.",
+  "machine": "arm64 · darwin 25.5.0 · 16 GB RAM",
+  "samples": [
+    {
+      "frameId": "bench-daylight-sofa/camera-a",
+      "quality": "draft",
+      "elapsedMs": 5291
+    },
+    {
+      "frameId": "bench-daylight-sofa/camera-a",
+      "quality": "client-preview",
+      "elapsedMs": 28287
+    },
+    {
+      "frameId": "bench-daylight-sofa/camera-b",
+      "quality": "draft",
+      "elapsedMs": 11509
+    },
+    {
+      "frameId": "bench-daylight-sofa/camera-b",
+      "quality": "client-preview",
+      "elapsedMs": 23926
+    },
+    {
+      "frameId": "bench-millwork-media/camera-a",
+      "quality": "draft",
+      "elapsedMs": 3708
+    },
+    {
+      "frameId": "bench-millwork-media/camera-a",
+      "quality": "client-preview",
+      "elapsedMs": 17871
+    },
+    {
+      "frameId": "bench-millwork-media/camera-b",
+      "quality": "draft",
+      "elapsedMs": 13214
+    },
+    {
+      "frameId": "bench-millwork-media/camera-b",
+      "quality": "client-preview",
+      "elapsedMs": 27620
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-a",
+      "quality": "draft",
+      "elapsedMs": 5268
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-a",
+      "quality": "client-preview",
+      "elapsedMs": 29233
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-b",
+      "quality": "draft",
+      "elapsedMs": 6528
+    },
+    {
+      "frameId": "bench-evening-lamp/camera-b",
+      "quality": "client-preview",
+      "elapsedMs": 13983
+    }
+  ]
+}

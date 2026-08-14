@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "jobId": "sj-spike-daylight-sofa-camera-a",
+  "createdAt": "2026-08-13T00:00:00.000Z",
+  "projectId": "phase1-bench-daylight-sofa",
+  "projectContentHash": "sj-proj-25973ca2",
+  "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
+  "cameraPose": {
+    "eye": {
+      "x": 1180,
+      "y": 1540,
+      "z": 3180
+    },
+    "target": {
+      "x": -200,
+      "y": 700,
+      "z": 200
+    },
+    "fovDeg": 42
+  },
+  "qualityPresetId": "client-preview",
+  "lightingRecipeId": "daylight",
+  "styleIds": [
+    "nordic-light"
+  ],
+  "seed": 7,
+  "engine": {
+    "id": "stilljob-spike",
+    "version": "0.1.0"
+  },
+  "allowedEnhancements": [
+    "soft_shadows",
+    "material_micro_detail",
+    "exposure_grade"
+  ],
+  "mode": "faithful_enhance",
+  "forbiddenChangesNote": "The still may look prettier; it may not lie about what was authored.",
+  "materials": [
+    {
+      "materialId": "lr-material-wall-warm-white",
+      "name": "Warm White Wall Paint",
+      "type": "paint"
+    },
+    {
+      "materialId": "lr-material-ceiling-soft-white",
+      "name": "Soft White Ceiling Paint",
+      "type": "paint"
+    },
+    {
+      "materialId": "lr-material-natural-oak",
+      "name": "Natural Oak",
+      "type": "wood"
+    },
+    {
+      "materialId": "lr-material-walnut",
+      "name": "Smoked Walnut",
+      "type": "wood"
+    },
+    {
+      "materialId": "lr-material-fabric-oatmeal",
+      "name": "Oatmeal Weave",
+      "type": "fabric"
+    },
+    {
+      "materialId": "lr-material-fabric-olive",
+      "name": "Olive Weave",
+      "type": "fabric"
+    },
+    {
+      "materialId": "lr-material-metal-charcoal",
+      "name": "Charcoal Powder Coat",
+      "type": "metal"
+    },
+    {
+      "materialId": "lr-material-glass-clear",
+      "name": "Clear Glass",
+      "type": "glass"
+    },
+    {
+      "materialId": "lr-material-rug-wool-sand",
+      "name": "Sand Wool Rug",
+      "type": "fabric"
+    }
+  ],
+  "objects": [
+    {
+      "id": "lr-object-sofa",
+      "catalogItemId": "living:sofa-3-seat",
+      "category": "sofa",
+      "position": {
+        "x": -200,
+        "y": 0,
+        "z": 1100
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 2200,
+        "d": 920,
+        "h": 820
+      }
+    },
+    {
+      "id": "lr-object-lounge-chair",
+      "catalogItemId": "living:lounge-chair",
+      "category": "chair",
+      "position": {
+        "x": -2100,
+        "y": 0,
+        "z": 180
+      },
+      "rotationYDeg": 30,
+      "size": {
+        "w": 820,
+        "d": 860,
+        "h": 880
+      }
+    },
+    {
+      "id": "lr-object-coffee-table",
+      "catalogItemId": "living:coffee-table",
+      "category": "table",
+      "position": {
+        "x": -180,
+        "y": 0,
+        "z": -40
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 1200,
+        "d": 650,
+        "h": 380
+      }
+    },
+    {
+      "id": "lr-object-side-table",
+      "catalogItemId": "living:side-table",
+      "category": "table",
+      "position": {
+        "x": -2100,
+        "y": 0,
+        "z": -1050
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 480,
+        "d": 480,
+        "h": 520
+      }
+    },
+    {
+      "id": "lr-object-tv-unit",
+      "catalogItemId": "living:tv-unit",
+      "category": "media-unit",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": -1950
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 2000,
+        "d": 440,
+        "h": 520
+      }
+    },
+    {
+      "id": "lr-object-area-rug",
+      "catalogItemId": "living:area-rug",
+      "category": "rug",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 300
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 3000,
+        "d": 2200,
+        "h": 18
+      }
+    },
+    {
+      "id": "lr-object-wall-mirror",
+      "catalogItemId": "living:wall-mirror",
+      "category": "mirror",
+      "position": {
+        "x": 3020,
+        "y": 850,
+        "z": -650
+      },
+      "rotationYDeg": 270,
+      "size": {
+        "w": 900,
+        "d": 35,
+        "h": 1400
+      }
+    },
+    {
+      "id": "lr-object-floor-lamp",
+      "catalogItemId": "living:floor-lamp",
+      "category": "floor-lamp",
+      "position": {
+        "x": 2350,
+        "y": 0,
+        "z": -1150
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 420,
+        "d": 420,
+        "h": 1650
+      }
+    }
+  ],
+  "attachments": {
+    "heroPngPath": "hero-plate.png"
+  }
+}

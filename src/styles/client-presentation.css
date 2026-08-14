@@ -16,6 +16,70 @@
   letter-spacing: 0.02em;
 }
 
+.lr-render-preset-hint {
+  margin: 4px 0 0;
+  color: #8a9a91;
+  font-size: 0.52rem;
+}
+
+.lr-preset-honesty {
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  padding: 6px 8px;
+  border: 1px solid #c5d0c8;
+  border-radius: 6px;
+  background: #eef2ee;
+  color: #2f3b35;
+}
+
+.lr-preset-honesty.is-compact {
+  min-width: 0;
+  padding: 4px 7px;
+}
+
+.lr-preset-honesty strong {
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lr-preset-honesty span {
+  font-size: 0.52rem;
+  color: #5f6f66;
+}
+
+.lr-preset-honesty small {
+  font-size: 0.48rem;
+  color: #7a8a81;
+}
+
+.lr-preset-honesty[data-role="working"] {
+  border-color: #c9c2a8;
+  background: #f4f0e2;
+}
+
+.lr-preset-honesty[data-role="client"] {
+  border-color: #9eb7aa;
+  background: #e5f0ea;
+}
+
+.lr-model-controls .lr-preset-honesty {
+  align-self: center;
+}
+
+.lr-render-commandbar .lr-preset-honesty {
+  margin-top: 4px;
+  background: #2a3330;
+  border-color: #4b5852;
+  color: #d7e0db;
+}
+
+.lr-render-commandbar .lr-preset-honesty span,
+.lr-render-commandbar .lr-preset-honesty small {
+  color: #9aada3;
+}
+
 .lr-render-check small {
   color: #8a9a91;
   font-weight: 500;

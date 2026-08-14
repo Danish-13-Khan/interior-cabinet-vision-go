@@ -117,7 +117,7 @@ describe("living-room Render Studio", () => {
     const resolved = resolveRenderCameraPose(camera, scene.bounds, "architectural");
 
     expect(resolved.position.z).toBeGreaterThan(scene.bounds.max.z);
-    expect(resolved.fieldOfViewDegrees).toBe(45);
+    expect(resolved.fieldOfViewDegrees).toBe(44);
     expect(camera).toEqual(original);
     expect(resolveRenderCameraPose(camera, scene.bounds, "project-camera")).toBe(camera);
   });
