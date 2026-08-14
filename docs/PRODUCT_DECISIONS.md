@@ -64,4 +64,4 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 | 3 | Export QA on benchmarks under **locked latency environment**; prove Draft ≠ Client Preview without photoreal claims |
 | 4 | StillJob **design spike only** (no AI magic): prove camera/material/scene handoff within **numeric tolerances** in the trust contract |
 
-Stop Phase 1 polish when the scorecard passes — then either ship or start the StillJob spike, not both endlessly.
+**Phase 1 exit (2026-08-14):** Accepted on `main`. Presentation-floor work + proof automation + PNG baselines shipped. Locked Tauri latency budgets remain follow-up debt (browser substitute over budget — not an official latency pass). Stop Phase 1 polish loops; do not reopen endless WebGL tuning.
