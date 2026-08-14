@@ -21,6 +21,9 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/domain/livingRoom/phase1Benchmarks/proofIo.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
