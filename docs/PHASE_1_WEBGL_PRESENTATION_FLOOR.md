@@ -7,7 +7,7 @@
 
 **Exit note:** Automated scorecard rows 1–4 and 6–8 pass. Draft vs Client Preview PNG baselines captured under `tmp/phase-1-baselines/`. Locked **Tauri desktop** latency (≤3s Draft / ≤8s Client) remains a **follow-up debt** — browser-substitute timings were over budget and do **not** count as an official latency pass. Do not reopen Phase 1 polish loops; track Tauri latency separately if needed.
 
-**Related docs:** [StillJob trust contract](./STILLJOB_TRUST_CONTRACT.md) (Phase 2 foreshadow) · [Product decisions](./PRODUCT_DECISIONS.md)
+**Related docs:** [Phase 2 — Hybrid Stills Pipeline](./PHASE_2_HYBRID_STILLS_PIPELINE.md) · [StillJob trust contract](./STILLJOB_TRUST_CONTRACT.md) (Phase 2 fidelity law) · [Product decisions](./PRODUCT_DECISIONS.md)
 
 ---
 
