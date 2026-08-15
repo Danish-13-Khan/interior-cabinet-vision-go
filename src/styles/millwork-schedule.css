@@ -1,0 +1,36 @@
+.lr-plan-titlebar small {
+  margin-left: 14px;
+}
+
+.lr-millwork-export {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.lr-millwork-export button {
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid #778a98;
+  background: #eef3f6;
+  color: #243038;
+  font-size: 11px;
+}
+
+.lr-millwork-export button:disabled {
+  opacity: 0.55;
+}
+
+.lr-millwork-export small,
+.lr-millwork-status {
+  color: #5c6c76;
+  font-size: 11px;
+}
+
+.lr-inspector-hint {
+  margin: 0 10px 8px;
+  color: #5c6c76;
+  font-size: 12px;
+  line-height: 1.35;
+}

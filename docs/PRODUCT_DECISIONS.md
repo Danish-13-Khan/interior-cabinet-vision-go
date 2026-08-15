@@ -65,3 +65,5 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 | 4 | StillJob **design spike only** (no AI magic): prove camera/material/scene handoff within **numeric tolerances** in the trust contract |
 
 **Phase 1 exit (2026-08-14):** Accepted on `main`. Presentation-floor work + proof automation + PNG baselines shipped. Locked Tauri latency budgets remain follow-up debt (browser substitute over budget — not an official latency pass). Stop Phase 1 polish loops; do not reopen endless WebGL tuning.
+
+**Current named ticket:** [Living-room Millwork Schedule v1 + Model inspector](./MILLWORK_SCHEDULE_V1.md) — workshop CSV/PDF from live Plan/Model millimetres, plus W×H×D and material slots in 3D Model. This is the cabinet-aware credibility deliverable; it is not another render-quality loop.

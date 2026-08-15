@@ -304,6 +304,8 @@ Phase 2 should run alongside the named workshop-side credibility deliverable:
 
 > **Living-room Millwork Schedule v1**
 
+See [MILLWORK_SCHEDULE_V1.md](./MILLWORK_SCHEDULE_V1.md) for the slice now in development (schedule export + Model W×H×D / materials inspector).
+
 Why:
 
 - still quality improves presentation
