@@ -1,4 +1,5 @@
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
+import { shadowMapSizePair } from "./shadowMapSizePair";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
@@ -33,7 +34,7 @@ export function SceneProjectLights({
               color={light.color}
               intensity={light.intensity * 0.86}
               castShadow={light.parameters.castShadow === true}
-              shadow-mapSize={[shadowMapSize, shadowMapSize]}
+              shadow-mapSize={shadowMapSizePair(shadowMapSize)}
               shadow-bias={-0.00028}
               shadow-normalBias={0.04}
               shadow-radius={shadowRadius + 2}

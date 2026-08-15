@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import type { DirectionalLight } from "three";
 import type { WindowKeyLightDescriptor } from "../../domain/livingRoom/windowKeyLight";
+import { shadowMapSizePair } from "./shadowMapSizePair";
 
 type WindowKeyLightProps = {
   lights: readonly WindowKeyLightDescriptor[];
@@ -40,7 +41,7 @@ function WindowKeyDirectional({
       color={light.color}
       intensity={light.intensity}
       castShadow={light.castShadow}
-      shadow-mapSize={light.castShadow ? [shadowMapSize, shadowMapSize] : undefined}
+      shadow-mapSize={light.castShadow ? shadowMapSizePair(shadowMapSize) : undefined}
       shadow-bias={-0.0003}
       shadow-normalBias={0.035}
       shadow-radius={shadowRadius + 1}

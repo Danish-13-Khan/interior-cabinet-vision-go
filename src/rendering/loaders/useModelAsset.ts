@@ -36,5 +36,5 @@ export function useModelAsset(binding: RenderBinding): ModelAssetState {
       strategy,
       definition,
     };
-  }, [binding]);
+  }, [binding.modelAssetId, binding.strategy]);
 }

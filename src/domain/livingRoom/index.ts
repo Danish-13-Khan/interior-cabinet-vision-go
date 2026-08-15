@@ -283,6 +283,7 @@ export {
 export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
+export { computeArchitectureBounds } from "./sceneCompilerBounds";
 export {
   compileLivingRoomObjectNode,
   getLivingRoomObjectAdapter,
