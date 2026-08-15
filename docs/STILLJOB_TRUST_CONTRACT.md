@@ -5,6 +5,8 @@
 
 Week-4 of the near-term plan spikes handoff shapes only — **no AI vendor lock-in**. Full still engine remains later.
 
+**Related doc:** [Phase 2 — Hybrid Stills Pipeline](./PHASE_2_HYBRID_STILLS_PIPELINE.md)
+
 ---
 
 ## 1. Roles
