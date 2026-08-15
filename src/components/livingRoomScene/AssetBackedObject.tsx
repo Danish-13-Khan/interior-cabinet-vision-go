@@ -45,6 +45,9 @@ function GlbSceneContent({
       : { x: 1, y: 1, z: 1 },
   );
 
+  const slotKey = JSON.stringify(binding.materialBindings);
+  const groupsKey = JSON.stringify(definition.materialGroups);
+
   useLayoutEffect(() => {
     applyGlbSlotMaterials(scene, {
       materialGroups: definition.materialGroups,
@@ -56,13 +59,13 @@ function GlbSceneContent({
       receiveShadow: true,
     });
   }, [
-    binding.materialBindings,
     castShadow,
-    definition.materialGroups,
+    groupsKey,
     materials,
     renderMode,
     renderQuality,
     scene,
+    slotKey,
   ]);
 
   useLayoutEffect(() => {
