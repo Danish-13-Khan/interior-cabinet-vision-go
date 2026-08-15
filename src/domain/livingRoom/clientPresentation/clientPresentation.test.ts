@@ -12,6 +12,7 @@ import {
   packageFilePath,
   preferLivingRoomBrowserThumbnail,
   siblingPackagePath,
+  withAcceptedStillProvenance,
 } from ".";
 
 const NOW = "2026-08-12T21:00:00.000Z";
@@ -39,6 +40,8 @@ describe("client presentation package", () => {
     expect(pack.cameras.some((camera) => camera.active)).toBe(true);
     expect(pack.heroRenderDataUrl).toBe(TINY_PNG);
     expect(pack.fileNames.presentationPdf).toContain("client-preview.pdf");
+    expect(pack.fileNames.stillsProvenance).toContain("stills-provenance.json");
+    expect(pack.manifest.acceptedStills).toEqual([]);
     expect(JSON.parse(pack.projectJson).id).toBe(project.id);
   });
 
@@ -102,5 +105,41 @@ describe("client presentation package", () => {
     expect(packageFilePath("C:\\Temp\\demo-client-preview", "demo-objects.json")).toBe(
       "C:\\Temp\\demo-client-preview\\demo-objects.json",
     );
+  });
+
+  it("records only accepted still provenance on the package manifest", () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const pack = buildClientPresentationPackage(project, null, NOW);
+    const accepted = withAcceptedStillProvenance(pack.manifest, [
+      {
+        schemaVersion: 2,
+        jobId: "sj-1",
+        projectId: project.id,
+        projectContentHash: "sj-proj-x",
+        snapshotId: "snap",
+        cameraId: "cam-a",
+        engine: { id: "stilljob-handoff", version: "0.2.0" },
+        seed: 0,
+        allowedEnhancements: ["soft_shadows"],
+        mode: "faithful_enhance",
+        acceptanceStatus: "accepted",
+        acceptedAt: NOW,
+      },
+      {
+        schemaVersion: 2,
+        jobId: "sj-2",
+        projectId: project.id,
+        projectContentHash: "sj-proj-x",
+        snapshotId: "snap",
+        cameraId: "cam-a",
+        engine: { id: "stilljob-handoff", version: "0.2.0" },
+        seed: 0,
+        allowedEnhancements: [],
+        mode: "faithful_enhance",
+        acceptanceStatus: "rejected",
+      },
+    ]);
+    expect(accepted.acceptedStills).toHaveLength(1);
+    expect(accepted.acceptedStills[0]?.jobId).toBe("sj-1");
   });
 });

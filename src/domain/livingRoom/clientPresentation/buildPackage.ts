@@ -1,4 +1,5 @@
 import type { InteriorProject } from "../../interiorProject";
+import type { StillProvenance } from "../stillJob/provenance";
 import type { LivingRoomRenderResult } from "../renderStudio";
 import { compileLivingRoomScene } from "../sceneCompiler";
 
@@ -68,6 +69,8 @@ export type ClientPresentationManifest = {
     composition: string;
     createdAt: string;
   } | null;
+  /** Accepted stills only. Rejected / pending stills must not appear here. */
+  acceptedStills: StillProvenance[];
 };
 
 export type ClientPresentationPackage = {
@@ -87,6 +90,7 @@ export type ClientPresentationPackage = {
     cameras: string;
     presentationPdf: string;
     manifest: string;
+    stillsProvenance: string;
   };
 };
 
@@ -170,6 +174,7 @@ export function buildClientPresentationPackage(
     cameras: `${base}-cameras.json`,
     presentationPdf: `${base}-client-preview.pdf`,
     manifest: `${base}-manifest.json`,
+    stillsProvenance: `${base}-stills-provenance.json`,
   };
 
   const manifest: ClientPresentationManifest = {
@@ -178,7 +183,7 @@ export function buildClientPresentationPackage(
     exportedAt: now,
     brand: "Interiors",
     deliverable: "client-presentation",
-    files: Object.values(fileNames),
+    files: Object.values(fileNames).filter((name) => name !== fileNames.stillsProvenance),
     roomSummary,
     render: render
       ? {
@@ -193,6 +198,7 @@ export function buildClientPresentationPackage(
           createdAt: render.createdAt,
         }
       : null,
+    acceptedStills: [],
   };
 
   return {

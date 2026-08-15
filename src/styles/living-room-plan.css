@@ -677,7 +677,8 @@
 
 .lr-render-live,
 .lr-render-result,
-.lr-render-compare {
+.lr-render-compare,
+.lr-still-review {
   position: absolute;
   inset: 12px;
   margin: 0;

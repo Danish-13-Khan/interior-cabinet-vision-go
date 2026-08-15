@@ -1,0 +1,87 @@
+/* StillJob review in Render Studio */
+.lr-still-review {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+  gap: 8px;
+  padding: 12px;
+  color: #d7e0db;
+}
+
+.lr-still-review header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.lr-still-review header strong {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lr-still-review header span,
+.lr-still-review header small {
+  color: #93a59c;
+  font-size: 0.55rem;
+}
+
+.lr-still-review nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lr-still-review nav button,
+.lr-still-review-actions button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #46524c;
+  border-radius: 6px;
+  background: #303a35;
+  color: #d9dfdb;
+  font-size: 0.6rem;
+}
+
+.lr-still-review nav button.is-active,
+.lr-still-review-actions button.is-primary {
+  border-color: var(--lr-accent, #8fb9a8);
+  background: #425048;
+  color: #fff;
+}
+
+.lr-still-review-stage {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0f1312;
+}
+
+.lr-still-review-stage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.lr-still-review-stage img.is-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  mix-blend-mode: difference;
+}
+
+.lr-still-review-note,
+.lr-still-review p {
+  margin: 0;
+  font-size: 0.55rem;
+  color: #9aada3;
+}
+
+.lr-still-review .is-ok { color: #9dceb4; }
+.lr-still-review .is-fail { color: #e2a39a; }
+
+.lr-still-review-actions {
+  display: flex;
+  gap: 8px;
+}

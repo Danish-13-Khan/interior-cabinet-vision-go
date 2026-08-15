@@ -1,0 +1,10 @@
+{
+  "jobId": "sj-p2a-daylight-sofa-camera-a",
+  "attachments": {
+    "heroPngPath": "sj-p2a-daylight-sofa-camera-a-hero-plate.png",
+    "depthPath": "sj-p2a-daylight-sofa-camera-a-depth.png",
+    "normalPath": "sj-p2a-daylight-sofa-camera-a-normal.png",
+    "materialIdMapPath": "sj-p2a-daylight-sofa-camera-a-material-ids.json"
+  },
+  "notes": "PNG bytes are not committed; paths are the capture contract."
+}

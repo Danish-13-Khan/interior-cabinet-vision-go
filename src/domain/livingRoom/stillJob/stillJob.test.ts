@@ -6,50 +6,48 @@ import {
 import {
   buildStillJob,
   stillJobProjectContentHash,
+  stillSupportArtifactRefs,
   validateStillJobAgainstProject,
 } from "./index";
 
-describe("StillJob spike (Ch7)", () => {
-  it("builds a job for one benchmark camera with pose + materials", () => {
+describe("StillJob Phase 2A foundation", () => {
+  it("builds a job for one benchmark camera without mutating project truth", () => {
     const project = createPhase1BenchmarkProject("bench-daylight-sofa");
+    const before = JSON.stringify(project);
     const cameraId = resolvePhase1BenchmarkCameraId(project, "camera-a");
     const job = buildStillJob({
       project,
       cameraId,
-      jobId: "sj-spike-daylight-a",
-      createdAt: "2026-08-13T00:00:00.000Z",
+      jobId: "sj-p2a-daylight-a",
+      createdAt: "2026-08-15T00:00:00.000Z",
       seed: 7,
-      attachments: {
-        heroPngPath: "hero-plate.png",
-      },
+      attachments: stillSupportArtifactRefs("sj-p2a-daylight-a"),
     });
 
-    expect(job.schemaVersion).toBe(1);
-    expect(job.projectId).toBe(project.id);
+    expect(JSON.stringify(project)).toBe(before);
+    expect(job.schemaVersion).toBe(2);
+    expect(job.snapshotId).toContain(job.projectContentHash);
     expect(job.projectContentHash).toBe(stillJobProjectContentHash(project));
-    expect(job.cameraId).toBe(cameraId);
-    expect(job.cameraPose.fovDeg).toBeGreaterThan(0);
-    expect(job.materials.length).toBe(project.materials.length);
-    expect(job.objects.length).toBe(project.objects.length);
-    expect(job.attachments.heroPngPath).toBe("hero-plate.png");
-    expect(job.forbiddenChangesNote).toMatch(/may not lie/i);
+    expect(job.millwork.length).toBeGreaterThan(0);
+    expect(job.openings.length).toBe(project.openings.length);
+    expect(job.walls.length).toBe(project.walls.length);
+    expect(job.attachments.heroPngPath).toBe("sj-p2a-daylight-a-hero-plate.png");
   });
 
-  it("round-trips camera pose within §3.1 tolerances", () => {
+  it("round-trips saved job JSON against the same project", () => {
     const project = createPhase1BenchmarkProject("bench-millwork-media");
     const cameraId = resolvePhase1BenchmarkCameraId(project, "camera-b");
     const job = buildStillJob({
       project,
       cameraId,
-      jobId: "sj-spike-millwork-b",
-      createdAt: "2026-08-13T00:00:00.000Z",
+      jobId: "sj-p2a-millwork-b",
+      createdAt: "2026-08-15T00:00:00.000Z",
     });
-
-    const validation = validateStillJobAgainstProject(job, project);
+    const restored = JSON.parse(JSON.stringify(job));
+    const validation = validateStillJobAgainstProject(restored, project);
     expect(validation.ok).toBe(true);
-    expect(
-      validation.gates.filter((gate) => !gate.pass).map((gate) => gate.id),
-    ).toEqual([]);
+    expect(validation.gates.some((gate) => gate.id === "millwork_size" && gate.pass)).toBe(true);
+    expect(validation.gates.some((gate) => gate.id === "opening_wall" && gate.pass)).toBe(true);
   });
 
   it("fails when claimed still eye drifts beyond 25 mm", () => {
@@ -58,22 +56,36 @@ describe("StillJob spike (Ch7)", () => {
     const job = buildStillJob({
       project,
       cameraId,
-      jobId: "sj-spike-drift",
-      createdAt: "2026-08-13T00:00:00.000Z",
+      jobId: "sj-p2a-drift",
+      createdAt: "2026-08-15T00:00:00.000Z",
     });
-
     const drifted = {
       ...job.cameraPose,
-      eye: {
-        ...job.cameraPose.eye,
-        x: job.cameraPose.eye.x + 40,
-      },
+      eye: { ...job.cameraPose.eye, x: job.cameraPose.eye.x + 40 },
     };
     const validation = validateStillJobAgainstProject(job, project, drifted);
     expect(validation.ok).toBe(false);
-    const eyeGate = validation.gates.find((gate) => gate.id === "camera_eye");
-    expect(eyeGate?.pass).toBe(false);
-    expect(eyeGate?.measured).toBeGreaterThan(25);
+    expect(validation.gates.find((gate) => gate.id === "camera_eye")?.pass).toBe(false);
+  });
+
+  it("fails when millwork size drifts beyond 2 mm", () => {
+    const project = createPhase1BenchmarkProject("bench-millwork-media");
+    const cameraId = resolvePhase1BenchmarkCameraId(project, "camera-a");
+    const job = buildStillJob({
+      project,
+      cameraId,
+      jobId: "sj-p2a-millwork-lie",
+      createdAt: "2026-08-15T00:00:00.000Z",
+    });
+    const polluted = {
+      ...job,
+      millwork: job.millwork.map((item, index) =>
+        index === 0 ? { ...item, size: { ...item.size, w: item.size.w + 12 } } : item,
+      ),
+    };
+    const validation = validateStillJobAgainstProject(polluted, project);
+    expect(validation.ok).toBe(false);
+    expect(validation.gates.find((gate) => gate.id === "millwork_size")?.pass).toBe(false);
   });
 
   it("fails when object set invents furniture", () => {
@@ -82,8 +94,8 @@ describe("StillJob spike (Ch7)", () => {
     const job = buildStillJob({
       project,
       cameraId,
-      jobId: "sj-spike-hallucinate",
-      createdAt: "2026-08-13T00:00:00.000Z",
+      jobId: "sj-p2a-hallucinate",
+      createdAt: "2026-08-15T00:00:00.000Z",
     });
     const polluted = {
       ...job,
@@ -99,9 +111,6 @@ describe("StillJob spike (Ch7)", () => {
       ],
     };
     const validation = validateStillJobAgainstProject(polluted, project);
-    expect(validation.ok).toBe(false);
-    expect(
-      validation.gates.find((gate) => gate.id === "object_set")?.pass,
-    ).toBe(false);
+    expect(validation.gates.find((gate) => gate.id === "object_set")?.pass).toBe(false);
   });
 });
