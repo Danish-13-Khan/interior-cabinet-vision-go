@@ -7,6 +7,7 @@ import type {
   ModelAssetDefinition,
   TextureAssetDefinition,
 } from "../../domain/livingRoom/renderAssetContracts";
+import { publicAssetUrl } from "../../utils/publicAssetUrl";
 import { ENVIRONMENT_ASSET_MANIFEST } from "./environmentManifest";
 import { MATERIAL_ASSET_MANIFEST } from "./materialManifest";
 import { MODEL_ASSET_MANIFEST } from "./modelManifest";
@@ -24,10 +25,6 @@ const materials = new Map<string, MaterialAssetDefinition>(
 const environments = new Map<string, EnvironmentAssetDefinition>(
   ENVIRONMENT_ASSET_MANIFEST.map((asset) => [asset.id, asset]),
 );
-
-function publicAssetUrl(assetKey: string) {
-  return `/${assetKey.replace(/^\/+/, "")}`;
-}
 
 export function getModelAsset(id: string) {
   return models.get(id) ?? null;
