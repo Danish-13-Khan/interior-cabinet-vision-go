@@ -16,6 +16,7 @@ import {
   type MaterialTextureUrls,
 } from "../../rendering/materials/resolveMaterialTextureUrls";
 import { textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
+import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 
 function prepareTexture(
   texture: Texture,
@@ -141,34 +142,28 @@ export function CompiledMaterialView({
   renderQuality?: RenderQuality;
 }) {
   const urls = resolveMaterialTextureUrls(material);
+  const procedural = (
+    <ProceduralPbrMaterial
+      material={material}
+      primitiveId={primitiveId}
+      renderMode={renderMode}
+      renderQuality={renderQuality}
+    />
+  );
   if (!hasCuratedTextureUrls(urls)) {
-    return (
-      <ProceduralPbrMaterial
-        material={material}
-        primitiveId={primitiveId}
-        renderMode={renderMode}
-        renderQuality={renderQuality}
-      />
-    );
+    return procedural;
   }
   return (
-    <Suspense
-      fallback={(
-        <ProceduralPbrMaterial
+    <GlbLoadErrorBoundary fallback={procedural}>
+      <Suspense fallback={procedural}>
+        <CuratedPbrMaterial
           material={material}
           primitiveId={primitiveId}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          urls={urls}
         />
-      )}
-    >
-      <CuratedPbrMaterial
-        material={material}
-        primitiveId={primitiveId}
-        renderMode={renderMode}
-        renderQuality={renderQuality}
-        urls={urls}
-      />
-    </Suspense>
+      </Suspense>
+    </GlbLoadErrorBoundary>
   );
 }
