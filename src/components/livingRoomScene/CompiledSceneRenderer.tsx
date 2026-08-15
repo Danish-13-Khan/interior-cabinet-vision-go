@@ -87,13 +87,6 @@ export function CompiledSceneRenderer({
   return (
     <>
       <RendererColorPipeline scene={scene} />
-      <CameraRig
-        scene={scene}
-        activeCameraId={activeCameraId}
-        controlsRef={controlsRef}
-        composition={renderComposition}
-        renderMode={renderMode}
-      />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
       <hemisphereLight
@@ -147,15 +140,23 @@ export function CompiledSceneRenderer({
       {interactive ? (
         <OrbitControls
           ref={controlsRef}
+          makeDefault
           enabled={!dragging}
           enableDamping
           dampingFactor={0.08}
           minDistance={1.4}
-          maxDistance={20}
+          maxDistance={12}
           maxPolarAngle={Math.PI / 2 - 0.02}
           mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
         />
       ) : null}
+      <CameraRig
+        scene={scene}
+        activeCameraId={activeCameraId}
+        controlsRef={controlsRef}
+        composition={renderComposition}
+        renderMode={renderMode}
+      />
     </>
   );
 }
