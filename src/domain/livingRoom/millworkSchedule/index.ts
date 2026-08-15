@@ -3,11 +3,19 @@ export {
   MILLWORK_SCHEDULE_VERSION,
   type MillworkSchedule,
   type MillworkScheduleLine,
+  type MillworkWorkflowSnapshot,
+  type MillworkWorkflowStep,
+  type MillworkWorkflowStepId,
 } from "./types";
+export { buildLivingRoomMillworkSchedule } from "./buildSchedule";
+export { millworkScheduleFileBase } from "./fileBase";
 export {
-  buildLivingRoomMillworkSchedule,
   formatMaterialIds,
-  millworkScheduleFileBase,
-} from "./buildSchedule";
+  formatMaterialLabels,
+  resolveMaterialLabels,
+  slotRecord,
+} from "./formatMaterials";
+export { formatWhdMm } from "./formatSize";
 export { millworkScheduleToCsv } from "./scheduleCsv";
 export { exportMillworkSchedulePdf } from "./schedulePdf";
+export { summarizeMillworkWorkflow } from "./workflow";

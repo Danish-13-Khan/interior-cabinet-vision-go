@@ -12,7 +12,10 @@ export type MillworkScheduleLine = {
   widthMm: number;
   heightMm: number;
   depthMm: number;
+  /** Slot → material entity id (authoring truth). */
   materialSlots: Record<string, string>;
+  /** Slot → human material name for shop-facing export/preview. */
+  materialLabels: Record<string, string>;
   quantity: 1;
 };
 
@@ -25,4 +28,21 @@ export type MillworkSchedule = {
   roomName: string;
   honestyNote: string;
   lines: MillworkScheduleLine[];
+};
+
+export type MillworkWorkflowStepId = "place" | "size-finish" | "export";
+
+export type MillworkWorkflowStep = {
+  id: MillworkWorkflowStepId;
+  label: string;
+  detail: string;
+  done: boolean;
+};
+
+/** Live Plan → Model → Schedule readiness for the salesperson loop. */
+export type MillworkWorkflowSnapshot = {
+  millworkCount: number;
+  softGoodsCount: number;
+  readyToExport: boolean;
+  steps: readonly MillworkWorkflowStep[];
 };

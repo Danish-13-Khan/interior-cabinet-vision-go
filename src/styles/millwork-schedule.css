@@ -34,3 +34,129 @@
   font-size: 12px;
   line-height: 1.35;
 }
+
+.lr-millwork-badge {
+  align-self: flex-start;
+  margin: 0;
+  padding: 2px 7px;
+  border: 1px solid #6f8f7c;
+  background: #e7f2ea;
+  color: #2c4a38;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+.lr-millwork-badge.is-soft {
+  border-color: #9aa7b0;
+  background: #f1f4f6;
+  color: #5c6c76;
+}
+
+.lr-millwork-preview {
+  margin: 12px 10px 8px;
+  padding: 10px 10px 8px;
+  border-top: 1px solid #d5dde2;
+}
+
+.lr-millwork-preview h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #314048;
+}
+
+.lr-millwork-preview h3 span {
+  min-width: 18px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #243038;
+  color: #f4f7f8;
+  font-size: 10px;
+  text-align: center;
+}
+
+.lr-millwork-steps {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.lr-millwork-steps li {
+  display: grid;
+  gap: 1px;
+  padding: 6px 8px;
+  border-left: 2px solid #c3ced6;
+  background: #f7f9fa;
+}
+
+.lr-millwork-steps li.is-done {
+  border-left-color: #5f8a6e;
+  background: #eef6f0;
+}
+
+.lr-millwork-steps b {
+  font-size: 11px;
+  color: #243038;
+}
+
+.lr-millwork-steps span,
+.lr-millwork-empty,
+.lr-millwork-honesty {
+  font-size: 11px;
+  color: #5c6c76;
+  line-height: 1.35;
+}
+
+.lr-millwork-lines {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.lr-millwork-lines button {
+  width: 100%;
+  display: grid;
+  gap: 2px;
+  padding: 7px 8px;
+  border: 1px solid #d5dde2;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lr-millwork-lines button:hover {
+  border-color: #778a98;
+  background: #f4f7f8;
+}
+
+.lr-millwork-lines strong {
+  font-size: 12px;
+  color: #1f2a30;
+}
+
+.lr-millwork-lines span {
+  font-size: 11px;
+  color: #314048;
+  font-variant-numeric: tabular-nums;
+}
+
+.lr-millwork-lines small {
+  font-size: 10px;
+  color: #5c6c76;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lr-millwork-honesty {
+  margin: 0;
+}

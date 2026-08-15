@@ -3,6 +3,7 @@ export function MillworkScheduleActions({
   status,
   disabled,
   millworkCount,
+  readyToExport,
   onExportCsv,
   onExportPdf,
 }: {
@@ -10,24 +11,30 @@ export function MillworkScheduleActions({
   status: string;
   disabled: boolean;
   millworkCount: number;
+  readyToExport: boolean;
   onExportCsv: () => void;
   onExportPdf: () => void;
 }) {
+  const blocked = disabled || busy || !readyToExport;
   return (
     <div className="lr-millwork-export">
       <button
         type="button"
-        disabled={disabled || busy}
+        disabled={blocked}
         onClick={onExportCsv}
-        title="Workshop CSV — millwork sizes from Plan/Model"
+        title={readyToExport
+          ? "Workshop CSV — millwork sizes from Plan/Model"
+          : "Add millwork in Plan before exporting the schedule"}
       >
         Schedule CSV
       </button>
       <button
         type="button"
-        disabled={disabled || busy}
+        disabled={blocked}
         onClick={onExportPdf}
-        title="Workshop PDF — millwork sizes from Plan/Model"
+        title={readyToExport
+          ? "Workshop PDF — millwork sizes from Plan/Model"
+          : "Add millwork in Plan before exporting the schedule"}
       >
         Schedule PDF
       </button>
