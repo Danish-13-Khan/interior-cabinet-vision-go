@@ -174,12 +174,17 @@ export {
   buildLivingRoomMillworkSchedule,
   exportMillworkSchedulePdf,
   formatMaterialIds,
+  formatMaterialLabels,
+  formatWhdMm,
   millworkScheduleFileBase,
   millworkScheduleToCsv,
+  summarizeMillworkWorkflow,
   MILLWORK_SCHEDULE_HONESTY_NOTE,
   MILLWORK_SCHEDULE_VERSION,
   type MillworkSchedule,
   type MillworkScheduleLine,
+  type MillworkWorkflowSnapshot,
+  type MillworkWorkflowStep,
 } from "./millworkSchedule";
 export { isMillworkObject } from "./stillJob";
 export {

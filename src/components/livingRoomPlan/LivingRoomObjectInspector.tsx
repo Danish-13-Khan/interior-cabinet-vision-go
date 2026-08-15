@@ -1,4 +1,5 @@
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
+import { isMillworkObject } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 
 type LivingRoomObjectInspectorProps = {
@@ -19,12 +20,19 @@ export function LivingRoomObjectInspector({
     onResize(object.id, { ...object.dimensions, [axis]: value });
   }
 
+  const onSchedule = isMillworkObject(object);
+
   return (
     <section>
       <h3>Selected Object</h3>
       <div className="lr-object-identity">
         <strong>{object.name}</strong>
         <span>{object.catalogItemId}</span>
+        {onSchedule ? (
+          <em className="lr-millwork-badge">On Millwork Schedule</em>
+        ) : (
+          <em className="lr-millwork-badge is-soft">Soft good — not on schedule</em>
+        )}
       </div>
       <h4>Size</h4>
       <NumberField
