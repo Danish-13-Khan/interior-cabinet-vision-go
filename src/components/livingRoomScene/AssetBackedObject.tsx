@@ -11,7 +11,7 @@ import type {
   RenderBinding,
   RenderMode,
 } from "../../domain/livingRoom/renderAssetContracts";
-import { measureObjectSizeMeters } from "../../rendering/loaders/measureObjectBounds";
+import { measureUnscaledObjectSizeMeters } from "../../rendering/loaders/measureObjectBounds";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
@@ -38,12 +38,10 @@ function GlbSceneContent({
   const gltf = useGLTF(url);
   const castShadow = renderMode === "hero";
   const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  const target = binding.targetSizeMm;
   const [scale, setScale] = useState(() =>
-    binding.targetSizeMm
-      ? computeGlbScaleFactors(
-          binding.targetSizeMm,
-          nativeSizeMmToMeters(definition.nativeSizeMm),
-        )
+    target
+      ? computeGlbScaleFactors(target, nativeSizeMmToMeters(definition.nativeSizeMm))
       : { x: 1, y: 1, z: 1 },
   );
 
@@ -57,12 +55,8 @@ function GlbSceneContent({
       castShadow,
       receiveShadow: true,
     });
-    if (!binding.targetSizeMm) return;
-    const measured = measureObjectSizeMeters(scene);
-    setScale(computeGlbScaleFactors(binding.targetSizeMm, measured));
   }, [
     binding.materialBindings,
-    binding.targetSizeMm,
     castShadow,
     definition.materialGroups,
     materials,
@@ -70,6 +64,12 @@ function GlbSceneContent({
     renderQuality,
     scene,
   ]);
+
+  useLayoutEffect(() => {
+    if (!target) return;
+    const native = measureUnscaledObjectSizeMeters(scene);
+    setScale(computeGlbScaleFactors(target, native));
+  }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
 
   return <primitive object={scene} scale={[scale.x, scale.y, scale.z]} />;
 }
