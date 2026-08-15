@@ -3,6 +3,7 @@ import { serializeInteriorProjectFile } from "../../interiorProject";
 import type { LivingRoomRenderResult } from "../renderStudio";
 import type { StillProvenance } from "../stillJob/provenance";
 import { withAcceptedStillProvenance } from "./acceptedStills";
+import { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 import {
   buildClientPresentationPackage,
   type ClientPresentationPackage,
@@ -26,16 +27,22 @@ export async function assembleClientPresentationFiles(
   render: LivingRoomRenderResult | null,
   now = new Date().toISOString(),
   acceptedStills: StillProvenance[] = [],
+  acceptedStillPngs: AcceptedStillPng[] = [],
 ): Promise<{
   packageData: ClientPresentationPackage;
   files: ClientPresentationFile[];
 }> {
   const built = buildClientPresentationPackage(project, render, now);
+  const stillPngs = await acceptedStillPngFiles(acceptedStills, acceptedStillPngs);
   let manifest = withAcceptedStillProvenance(built.manifest, acceptedStills);
   if (manifest.acceptedStills.length) {
     manifest = {
       ...manifest,
-      files: [...manifest.files, built.fileNames.stillsProvenance],
+      files: [
+        ...manifest.files,
+        built.fileNames.stillsProvenance,
+        ...stillPngs.map((file) => file.fileName),
+      ],
     };
   }
   const packageData = { ...built, manifest };
@@ -84,6 +91,7 @@ export async function assembleClientPresentationFiles(
       kind: "json",
       contents: JSON.stringify(packageData.manifest.acceptedStills, null, 2),
     });
+    files.push(...stillPngs);
   }
 
   if (packageData.heroRenderDataUrl) {

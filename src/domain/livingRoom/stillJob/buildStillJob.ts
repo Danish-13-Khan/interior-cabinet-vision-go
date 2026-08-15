@@ -1,4 +1,5 @@
 import type { CameraEntity, InteriorProject } from "../../interiorProject";
+import { HERO_STILL_ENGINE, HERO_STILL_ENHANCEMENTS } from "../stillEngine";
 import { stillJobProjectContentHash } from "./projectHash";
 import {
   millworkRefsFromProject,
@@ -26,19 +27,16 @@ export type BuildStillJobInput = {
   allowedEnhancements?: StillJobAllowedEnhancement[];
   mode?: StillJobMode;
   styleIds?: string[];
+  qualityPresetId?: string;
   attachments?: StillJobAttachmentRefs;
 };
 
 const DEFAULT_ENGINE: StillJobEngine = {
-  id: "stilljob-handoff",
-  version: "0.2.0",
+  id: HERO_STILL_ENGINE.id,
+  version: HERO_STILL_ENGINE.version,
 };
 
-const DEFAULT_ENHANCEMENTS: StillJobAllowedEnhancement[] = [
-  "soft_shadows",
-  "material_micro_detail",
-  "exposure_grade",
-];
+const DEFAULT_ENHANCEMENTS: StillJobAllowedEnhancement[] = [...HERO_STILL_ENHANCEMENTS];
 
 function requireCamera(project: InteriorProject, cameraId: string): CameraEntity {
   const camera = project.cameras.find((item) => item.id === cameraId);
@@ -65,7 +63,7 @@ export function buildStillJob(input: BuildStillJobInput): StillJob {
       target: { ...camera.target },
       fovDeg: camera.fieldOfViewDegrees,
     },
-    qualityPresetId: input.project.renderSettings.quality,
+    qualityPresetId: input.qualityPresetId ?? input.project.renderSettings.quality,
     lightingRecipeId: input.project.renderSettings.lightingRecipeId,
     styleIds: input.styleIds ?? [],
     seed: input.seed ?? 0,

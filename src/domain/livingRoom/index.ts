@@ -167,6 +167,10 @@ export {
   type StillReviewStatus,
 } from "./stillReview";
 export {
+  HERO_STILL_ENGINE,
+  HERO_STILL_ENHANCEMENTS,
+} from "./stillEngine";
+export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";
@@ -264,6 +268,7 @@ export {
   packageFilePath,
   preferLivingRoomBrowserThumbnail,
   siblingPackagePath,
+  type AcceptedStillPng,
   type ClientPresentationFile,
   type ClientPresentationPackage,
 } from "./clientPresentation";

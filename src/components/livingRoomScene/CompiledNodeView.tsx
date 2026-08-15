@@ -96,6 +96,7 @@ export function CompiledNodeView({
 
   return (
     <group
+      userData={{ materialId: node.primitives[0]?.materialId, objectId: node.id }}
       position={[position.x / 1000, position.y / 1000, position.z / 1000]}
       rotation={[
         degrees(node.rotationDegrees.x),

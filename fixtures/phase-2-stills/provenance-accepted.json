@@ -6,8 +6,8 @@
   "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-25973ca2",
   "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
   "engine": {
-    "id": "stilljob-handoff",
-    "version": "0.2.0"
+    "id": "stilljob-hero",
+    "version": "1.0.0"
   },
   "seed": 7,
   "allowedEnhancements": [

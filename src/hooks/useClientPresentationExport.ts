@@ -6,6 +6,7 @@ import {
   packageFilePath,
   type LivingRoomRenderResult,
   type StillProvenance,
+  type AcceptedStillPng,
 } from "../domain/livingRoom";
 import {
   promptSavePath,
@@ -21,6 +22,7 @@ export function useClientPresentationExport() {
     project: InteriorProject,
     render: LivingRoomRenderResult | null,
     acceptedStills: StillProvenance[] = [],
+    acceptedStillPngs: AcceptedStillPng[] = [],
   ) {
     setBusy(true);
     setStatus("");
@@ -30,6 +32,7 @@ export function useClientPresentationExport() {
         render,
         new Date().toISOString(),
         acceptedStills,
+        acceptedStillPngs,
       );
       const pdfPath = await promptSavePath({
         title: "Export Client Preview Package",
@@ -55,7 +58,7 @@ export function useClientPresentationExport() {
       setStatus(
         render
           ? acceptedStills.length
-            ? "Client preview package exported (PDF, PNG, JSON, accepted still provenance)."
+            ? "Client preview package exported (PDF, PNG, JSON, accepted stills)."
             : "Client preview package exported to a folder (PDF, PNG, JSON)."
           : "Client preview package exported to a folder (PDF + JSON; render a hero image for PNG).",
       );
