@@ -171,9 +171,17 @@ export {
   HERO_STILL_ENHANCEMENTS,
 } from "./stillEngine";
 export {
-  createLivingRoomMaterials,
-  LIVING_ROOM_MATERIAL_IDS,
-} from "./materials";
+  buildLivingRoomMillworkSchedule,
+  exportMillworkSchedulePdf,
+  formatMaterialIds,
+  millworkScheduleFileBase,
+  millworkScheduleToCsv,
+  MILLWORK_SCHEDULE_HONESTY_NOTE,
+  MILLWORK_SCHEDULE_VERSION,
+  type MillworkSchedule,
+  type MillworkScheduleLine,
+} from "./millworkSchedule";
+export { isMillworkObject } from "./stillJob";
 export {
   createLivingRoomStarterProject,
   LIVING_ROOM_DIMENSIONS,
@@ -275,6 +283,7 @@ export {
 export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
+export { computeArchitectureBounds } from "./sceneCompilerBounds";
 export {
   compileLivingRoomObjectNode,
   getLivingRoomObjectAdapter,

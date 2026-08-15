@@ -1,8 +1,8 @@
 import { useThree } from "@react-three/fiber";
-import { useLayoutEffect, type RefObject } from "react";
+import { useLayoutEffect, useRef, type RefObject } from "react";
 import type { PerspectiveCamera } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import type { CameraEntity, RenderComposition } from "../../domain/interiorProject";
+import type { RenderComposition } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
 import { resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
@@ -69,15 +69,21 @@ export function CameraRig({
   renderMode?: RenderMode;
 }) {
   const { camera } = useThree();
+  const sceneRef = useRef(scene);
+  sceneRef.current = scene;
   const projectCamera = scene.cameras.find((candidate) => candidate.id === activeCameraId)
     ?? scene.cameras.find((candidate) => candidate.isDefault)
     ?? scene.cameras[0];
-  const pose: Pick<CameraEntity, "position" | "target" | "fieldOfViewDegrees"> | null = projectCamera
-    ? resolveRenderCameraPose(projectCamera, scene.bounds, composition, renderMode)
-    : null;
-  const framing = pose ?? fallbackFraming(scene);
 
   useLayoutEffect(() => {
+    const current = sceneRef.current;
+    const named = current.cameras.find((candidate) => candidate.id === activeCameraId)
+      ?? current.cameras.find((candidate) => candidate.isDefault)
+      ?? current.cameras[0];
+    const pose = named
+      ? resolveRenderCameraPose(named, current.bounds, composition, renderMode)
+      : null;
+    const framing = pose ?? fallbackFraming(current);
     const apply = () => {
       applyCameraPose(
         camera as PerspectiveCamera,
@@ -95,13 +101,14 @@ export function CameraRig({
     camera,
     composition,
     controlsRef,
-    framing.fieldOfViewDegrees,
-    framing.position.x,
-    framing.position.y,
-    framing.position.z,
-    framing.target.x,
-    framing.target.y,
-    framing.target.z,
+    projectCamera?.fieldOfViewDegrees,
+    projectCamera?.id,
+    projectCamera?.position.x,
+    projectCamera?.position.y,
+    projectCamera?.position.z,
+    projectCamera?.target.x,
+    projectCamera?.target.y,
+    projectCamera?.target.z,
     renderMode,
   ]);
 
