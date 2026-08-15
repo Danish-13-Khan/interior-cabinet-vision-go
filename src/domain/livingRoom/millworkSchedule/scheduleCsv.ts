@@ -1,4 +1,4 @@
-import { formatMaterialIds } from "./buildSchedule";
+import { formatMaterialIds, formatMaterialLabels } from "./formatMaterials";
 import type { MillworkSchedule } from "./types";
 
 function csvCell(value: string | number) {
@@ -17,6 +17,7 @@ const HEADER = [
   "heightMm",
   "depthMm",
   "materialIds",
+  "materialNames",
   "quantity",
 ] as const;
 
@@ -32,6 +33,7 @@ export function millworkScheduleToCsv(schedule: MillworkSchedule) {
     line.heightMm,
     line.depthMm,
     formatMaterialIds(line.materialSlots),
+    formatMaterialLabels(line.materialLabels),
     line.quantity,
   ].map(csvCell).join(","));
   return [HEADER.join(","), ...rows].join("\n");

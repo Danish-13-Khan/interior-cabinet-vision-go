@@ -1,7 +1,8 @@
 import { jsPDF } from "jspdf";
 import { A4_PRINT_METRICS } from "../../printLayout";
 import { ensurePageSpace } from "../../pdfExport/helpers";
-import { formatMaterialIds } from "./buildSchedule";
+import { formatMaterialLabels } from "./formatMaterials";
+import { formatWhdMm } from "./formatSize";
 import type { MillworkSchedule } from "./types";
 
 function drawHeader(doc: jsPDF, schedule: MillworkSchedule, margin: number, pageWidth: number) {
@@ -62,8 +63,8 @@ export function exportMillworkSchedulePdf(schedule: MillworkSchedule): Blob {
     doc.setFontSize(8);
     doc.setTextColor(45, 58, 68);
     doc.text(line.category, margin + 72, y);
-    doc.text(`${line.widthMm} × ${line.heightMm} × ${line.depthMm}`, margin + 108, y);
-    doc.text(formatMaterialIds(line.materialSlots).slice(0, 48), margin + 152, y);
+    doc.text(formatWhdMm(line.widthMm, line.heightMm, line.depthMm), margin + 108, y);
+    doc.text(formatMaterialLabels(line.materialLabels).slice(0, 48), margin + 152, y);
     doc.text(String(line.quantity), margin + 252, y);
     y += 11;
   }
