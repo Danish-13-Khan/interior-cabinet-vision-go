@@ -15,6 +15,7 @@ export {
   siblingPackagePath,
   type ClientPresentationFile,
 } from "./assembleFiles";
+export { withAcceptedStillProvenance } from "./acceptedStills";
 export { exportClientPresentationPdf } from "./exportPdf";
 export {
   createLivingRoomRenderThumbnail,

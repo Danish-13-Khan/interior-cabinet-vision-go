@@ -3,6 +3,22 @@ export { stillJobProjectContentHash } from "./projectHash";
 export { buildStillJob, type BuildStillJobInput } from "./buildStillJob";
 export { validateStillJobAgainstProject } from "./validateStillJob";
 export {
+  millworkRefsFromProject,
+  openingRefsFromProject,
+  wallRefsFromProject,
+  isMillworkObject,
+  type StillJobMillworkRef,
+  type StillJobOpeningRef,
+  type StillJobWallRef,
+} from "./sceneRefs";
+export { stillJobSnapshotId, stillSupportArtifactRefs } from "./supportArtifacts";
+export {
+  acceptedStillProvenance,
+  buildStillProvenance,
+  type StillAcceptanceStatus,
+  type StillProvenance,
+} from "./provenance";
+export {
   STILL_JOB_CONTRACT_NOTE,
   STILL_JOB_SCHEMA_VERSION,
   type StillJob,

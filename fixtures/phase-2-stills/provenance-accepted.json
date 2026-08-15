@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "jobId": "sj-p2a-daylight-sofa-camera-a",
+  "projectId": "phase1-bench-daylight-sofa",
+  "projectContentHash": "sj-proj-25973ca2",
+  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-25973ca2",
+  "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
+  "engine": {
+    "id": "stilljob-handoff",
+    "version": "0.2.0"
+  },
+  "seed": 7,
+  "allowedEnhancements": [
+    "soft_shadows",
+    "material_micro_detail",
+    "exposure_grade"
+  ],
+  "mode": "faithful_enhance",
+  "acceptanceStatus": "accepted",
+  "acceptedAt": "2026-08-15T00:00:00.000Z",
+  "stillOutputPath": "sj-p2a-daylight-sofa-camera-a-still.png",
+  "heroPlatePath": "sj-p2a-daylight-sofa-camera-a-hero-plate.png"
+}
