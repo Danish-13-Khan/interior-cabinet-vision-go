@@ -5,9 +5,12 @@ import {
 } from "../interiorProject";
 import {
   compileLivingRoomScene,
+  computeArchitectureBounds,
   createLivingRoomStarterProject,
   moveLivingRoomObject,
   resizeLivingRoomObject,
+  rotateLivingRoomObject,
+  resolveWindowKeyLights,
 } from ".";
 
 const NOW = "2026-08-11T20:00:00.000Z";
@@ -101,5 +104,34 @@ describe("living-room scene compiler", () => {
     expect(after.fingerprint).toBe(before.fingerprint);
     expect(after.nodes).toEqual(before.nodes);
     expect(after.bounds).toEqual(before.bounds);
+  });
+
+  it("keeps architecture bounds and window lights stable when millwork rotates", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const tv = project.objects.find((object) => object.catalogItemId === "living:tv-unit")!;
+    const before = compileLivingRoomScene(project);
+    const after = compileLivingRoomScene(rotateLivingRoomObject(project, tv.id, tv.rotation.y + 90));
+    expect(computeArchitectureBounds(after.nodes).center).toEqual(
+      computeArchitectureBounds(before.nodes).center,
+    );
+    expect(after.windowOpenings.map((opening) => opening.centerMm)).toEqual(
+      before.windowOpenings.map((opening) => opening.centerMm),
+    );
+    const recipeId = project.renderSettings.lightingRecipeId;
+    const beforeKey = resolveWindowKeyLights({
+      openings: before.windowOpenings,
+      roomCenterMm: computeArchitectureBounds(before.nodes).center,
+      recipeId,
+      mode: "preview",
+      quality: "draft",
+    })[0];
+    const afterKey = resolveWindowKeyLights({
+      openings: after.windowOpenings,
+      roomCenterMm: computeArchitectureBounds(after.nodes).center,
+      recipeId,
+      mode: "preview",
+      quality: "draft",
+    })[0];
+    expect(afterKey?.targetMm).toEqual(beforeKey?.targetMm);
   });
 });

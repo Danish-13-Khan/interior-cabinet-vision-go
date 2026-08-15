@@ -70,3 +70,14 @@ export function computeCompiledSceneBounds(
     size: { widthMm: max.x - min.x, heightMm: max.y - min.y, depthMm: max.z - min.z },
   };
 }
+
+const ARCHITECTURE_ROLES = new Set(["wall", "floor", "architecture", "opening"]);
+
+/** Room shell AABB — ignores furniture so orbit framing does not spin with object edits. */
+export function computeArchitectureBounds(
+  nodes: CompiledSceneNode[],
+): CompiledSceneBounds {
+  return computeCompiledSceneBounds(
+    nodes.filter((node) => ARCHITECTURE_ROLES.has(String(node.metadata.role))),
+  );
+}

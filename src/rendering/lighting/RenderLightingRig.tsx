@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import type { RenderQuality } from "../../domain/interiorProject";
-import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
+import {
+  computeArchitectureBounds,
+  type CompiledLivingRoomScene,
+} from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { resolveWindowKeyLights } from "../../domain/livingRoom/windowKeyLight";
@@ -29,15 +32,24 @@ export function RenderLightingRig({
   lightingQuality,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
+  const roomCenter = computeArchitectureBounds(scene.nodes).center;
   const windowKeys = useMemo(
     () => resolveWindowKeyLights({
       openings: scene.windowOpenings,
-      roomCenterMm: scene.bounds.center,
+      roomCenterMm: roomCenter,
       recipeId,
       mode: renderMode,
       quality: renderQuality,
     }),
-    [scene.windowOpenings, scene.bounds.center, recipeId, renderMode, renderQuality],
+    [
+      recipeId,
+      renderMode,
+      renderQuality,
+      roomCenter.x,
+      roomCenter.y,
+      roomCenter.z,
+      scene.windowOpenings,
+    ],
   );
 
   return (

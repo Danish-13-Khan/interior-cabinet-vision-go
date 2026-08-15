@@ -12,7 +12,7 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
-import { resolveRenderCameraPose } from "../../domain/livingRoom";
+import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CameraRig } from "./CameraRig";
@@ -33,14 +33,15 @@ type SceneRendererProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
 };
 
-function RendererColorPipeline({ scene }: { scene: CompiledLivingRoomScene }) {
+function RendererColorPipeline({ exposure }: { exposure: number }) {
   const { gl } = useThree();
   useEffect(() => {
     gl.outputColorSpace = SRGBColorSpace;
     gl.toneMapping = ACESFilmicToneMapping;
-    gl.toneMappingExposure = scene.style.colorManagement.exposure;
-    gl.shadowMap.type = scene.style.colorManagement.exposure > 1 ? PCFSoftShadowMap : PCFShadowMap;
-  }, [gl, scene.style.colorManagement]);
+    gl.toneMappingExposure = exposure;
+    const shadowType = exposure > 1 ? PCFSoftShadowMap : PCFShadowMap;
+    if (gl.shadowMap.type !== shadowType) gl.shadowMap.type = shadowType;
+  }, [exposure, gl]);
   return null;
 }
 
@@ -60,19 +61,23 @@ export function CompiledSceneRenderer({
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
+  const architectureBounds = computeArchitectureBounds(scene.nodes);
+  const materialKey = scene.materials
+    .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}`)
+    .join("|");
   const materialMap = useMemo(
     () => new Map(scene.materials.map((material) => [material.id, material])),
-    [scene.materials],
+    [materialKey],
   );
   const projectCamera = scene.cameras.find((camera) => camera.id === activeCameraId)
     ?? scene.cameras.find((camera) => camera.isDefault)
     ?? scene.cameras[0];
   const renderCamera = projectCamera
-    ? resolveRenderCameraPose(projectCamera, scene.bounds, renderComposition, renderMode)
+    ? resolveRenderCameraPose(projectCamera, architectureBounds, renderComposition, renderMode)
     : null;
   const cutawaySides = new Set([
-    renderCamera && renderCamera.position.x < scene.bounds.center.x ? "left" : "right",
-    renderCamera && renderCamera.position.z < scene.bounds.center.z ? "back" : "front",
+    renderCamera && renderCamera.position.x < architectureBounds.center.x ? "left" : "right",
+    renderCamera && renderCamera.position.z < architectureBounds.center.z ? "back" : "front",
   ]);
   const nodes = cutawayWalls
     ? scene.nodes.filter((node) => ![
@@ -80,13 +85,13 @@ export function CompiledSceneRenderer({
         "opening",
       ].includes(String(node.metadata.role)) || !cutawaySides.has(String(node.metadata.wallSide)))
     : scene.nodes;
-  const roomSpan = Math.max(scene.bounds.size.widthMm, scene.bounds.size.depthMm) / 1000;
+  const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
   const lightingQuality = resolveEnvironmentLightingQuality(renderMode, renderQuality);
 
   return (
     <>
-      <RendererColorPipeline scene={scene} />
+      <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
       <hemisphereLight
@@ -128,7 +133,7 @@ export function CompiledSceneRenderer({
         />
       ))}
       <ContactShadows
-        key={`${scene.fingerprint}-${renderQuality}-${renderMode}`}
+        key={`${renderQuality}-${renderMode}`}
         position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
         scale={Math.max(8, roomSpan + 1)}
         opacity={environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale}

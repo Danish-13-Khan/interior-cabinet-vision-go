@@ -5,6 +5,7 @@ import {
 } from "./renderAssetBindings";
 import { compileLivingRoomObjectNode } from "./sceneAdapters";
 import {
+  computeArchitectureBounds,
   computeCompiledSceneBounds,
   hashString,
   stableStringify,
@@ -89,10 +90,11 @@ export function compileLivingRoomScene(
     lightingRecipeId: project.renderSettings.lightingRecipeId,
   };
   const bounds = computeCompiledSceneBounds(nodes);
+  const architectureBounds = computeArchitectureBounds(nodes);
   const windowOpenings = sampleWindowOpenings({
     walls: project.walls.filter((wall) => wall.roomId === roomId),
     openings: project.openings.filter((opening) => opening.roomId === roomId),
-    roomCenterMm: bounds.center,
+    roomCenterMm: architectureBounds.center,
   });
   return {
     compilerVersion: 1,

@@ -42,7 +42,7 @@ export {
   type MaterialTextureUrls,
 } from "./materials/resolveMaterialTextureUrls";
 export { drawHeroVignette } from "./export/heroExportPolish";
-export { measureObjectSizeMeters } from "./loaders/measureObjectBounds";
+export { measureObjectSizeMeters, measureUnscaledObjectSizeMeters } from "./loaders/measureObjectBounds";
 export { useModelAsset, type ModelAssetState } from "./loaders/useModelAsset";
 export { usePbrMaterial } from "./loaders/usePbrMaterial";
 export { EnvironmentLighting } from "./lighting/EnvironmentLighting";
