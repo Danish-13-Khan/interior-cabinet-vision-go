@@ -1,5 +1,12 @@
 import type { CameraEntity, InteriorProject } from "../../interiorProject";
+import { HERO_STILL_ENGINE, HERO_STILL_ENHANCEMENTS } from "../stillEngine";
 import { stillJobProjectContentHash } from "./projectHash";
+import {
+  millworkRefsFromProject,
+  openingRefsFromProject,
+  wallRefsFromProject,
+} from "./sceneRefs";
+import { stillJobSnapshotId } from "./supportArtifacts";
 import {
   STILL_JOB_CONTRACT_NOTE,
   STILL_JOB_SCHEMA_VERSION,
@@ -20,19 +27,16 @@ export type BuildStillJobInput = {
   allowedEnhancements?: StillJobAllowedEnhancement[];
   mode?: StillJobMode;
   styleIds?: string[];
+  qualityPresetId?: string;
   attachments?: StillJobAttachmentRefs;
 };
 
 const DEFAULT_ENGINE: StillJobEngine = {
-  id: "stilljob-spike",
-  version: "0.1.0",
+  id: HERO_STILL_ENGINE.id,
+  version: HERO_STILL_ENGINE.version,
 };
 
-const DEFAULT_ENHANCEMENTS: StillJobAllowedEnhancement[] = [
-  "soft_shadows",
-  "material_micro_detail",
-  "exposure_grade",
-];
+const DEFAULT_ENHANCEMENTS: StillJobAllowedEnhancement[] = [...HERO_STILL_ENHANCEMENTS];
 
 function requireCamera(project: InteriorProject, cameraId: string): CameraEntity {
   const camera = project.cameras.find((item) => item.id === cameraId);
@@ -42,22 +46,24 @@ function requireCamera(project: InteriorProject, cameraId: string): CameraEntity
   return camera;
 }
 
-/** Build a StillJob request from authored project + locked camera. No AI / no PNG bytes. */
+/** Build a StillJob from authored project + locked camera. Does not mutate the project. */
 export function buildStillJob(input: BuildStillJobInput): StillJob {
   const camera = requireCamera(input.project, input.cameraId);
+  const projectContentHash = stillJobProjectContentHash(input.project);
   return {
     schemaVersion: STILL_JOB_SCHEMA_VERSION,
     jobId: input.jobId,
     createdAt: input.createdAt ?? new Date().toISOString(),
     projectId: input.project.id,
-    projectContentHash: stillJobProjectContentHash(input.project),
+    projectContentHash,
+    snapshotId: stillJobSnapshotId(input.project.id, projectContentHash, camera.id),
     cameraId: camera.id,
     cameraPose: {
       eye: { ...camera.position },
       target: { ...camera.target },
       fovDeg: camera.fieldOfViewDegrees,
     },
-    qualityPresetId: input.project.renderSettings.quality,
+    qualityPresetId: input.qualityPresetId ?? input.project.renderSettings.quality,
     lightingRecipeId: input.project.renderSettings.lightingRecipeId,
     styleIds: input.styleIds ?? [],
     seed: input.seed ?? 0,
@@ -82,6 +88,9 @@ export function buildStillJob(input: BuildStillJobInput): StillJob {
         h: object.dimensions.heightMm,
       },
     })),
+    millwork: millworkRefsFromProject(input.project),
+    openings: openingRefsFromProject(input.project),
+    walls: wallRefsFromProject(input.project),
     attachments: input.attachments ?? {},
   };
 }

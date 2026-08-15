@@ -1,0 +1,47 @@
+[
+  {
+    "materialId": "lr-material-wall-warm-white",
+    "name": "Warm White Wall Paint",
+    "type": "paint"
+  },
+  {
+    "materialId": "lr-material-ceiling-soft-white",
+    "name": "Soft White Ceiling Paint",
+    "type": "paint"
+  },
+  {
+    "materialId": "lr-material-natural-oak",
+    "name": "Natural Oak",
+    "type": "wood"
+  },
+  {
+    "materialId": "lr-material-walnut",
+    "name": "Smoked Walnut",
+    "type": "wood"
+  },
+  {
+    "materialId": "lr-material-fabric-oatmeal",
+    "name": "Oatmeal Weave",
+    "type": "fabric"
+  },
+  {
+    "materialId": "lr-material-fabric-olive",
+    "name": "Olive Weave",
+    "type": "fabric"
+  },
+  {
+    "materialId": "lr-material-metal-charcoal",
+    "name": "Charcoal Powder Coat",
+    "type": "metal"
+  },
+  {
+    "materialId": "lr-material-glass-clear",
+    "name": "Clear Glass",
+    "type": "glass"
+  },
+  {
+    "materialId": "lr-material-rug-wool-sand",
+    "name": "Sand Wool Rug",
+    "type": "fabric"
+  }
+]

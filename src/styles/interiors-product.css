@@ -766,7 +766,8 @@
 .lr-product-shell .lr-render-cameras { grid-column: 2; grid-row: 2; border: 0; background: #e9ece7; }
 .lr-product-shell .lr-render-live,
 .lr-product-shell .lr-render-result,
-.lr-product-shell .lr-render-compare { inset: 20px; border: 0; border-radius: 5px; box-shadow: 0 18px 50px rgba(0,0,0,0.38); }
+.lr-product-shell .lr-render-compare,
+.lr-product-shell .lr-still-review { inset: 20px; border: 0; border-radius: 5px; box-shadow: 0 18px 50px rgba(0,0,0,0.38); }
 .lr-product-shell .lr-render-settings section { padding: 12px; border-color: #d7ddd8; }
 .lr-product-shell .lr-render-settings h3,
 .lr-product-shell .lr-render-cameras header { font-size: 0.59rem; }

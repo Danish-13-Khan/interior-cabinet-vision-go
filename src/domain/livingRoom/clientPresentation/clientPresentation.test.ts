@@ -12,6 +12,7 @@ import {
   packageFilePath,
   preferLivingRoomBrowserThumbnail,
   siblingPackagePath,
+  withAcceptedStillProvenance,
 } from ".";
 
 const NOW = "2026-08-12T21:00:00.000Z";
@@ -39,6 +40,8 @@ describe("client presentation package", () => {
     expect(pack.cameras.some((camera) => camera.active)).toBe(true);
     expect(pack.heroRenderDataUrl).toBe(TINY_PNG);
     expect(pack.fileNames.presentationPdf).toContain("client-preview.pdf");
+    expect(pack.fileNames.stillsProvenance).toContain("stills-provenance.json");
+    expect(pack.manifest.acceptedStills).toEqual([]);
     expect(JSON.parse(pack.projectJson).id).toBe(project.id);
   });
 
@@ -102,5 +105,69 @@ describe("client presentation package", () => {
     expect(packageFilePath("C:\\Temp\\demo-client-preview", "demo-objects.json")).toBe(
       "C:\\Temp\\demo-client-preview\\demo-objects.json",
     );
+  });
+
+  it("records only accepted still provenance on the package manifest", () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const pack = buildClientPresentationPackage(project, null, NOW);
+    const accepted = withAcceptedStillProvenance(pack.manifest, [
+      {
+        schemaVersion: 2,
+        jobId: "sj-1",
+        projectId: project.id,
+        projectContentHash: "sj-proj-x",
+        snapshotId: "snap",
+        cameraId: "cam-a",
+        engine: { id: "stilljob-handoff", version: "0.2.0" },
+        seed: 0,
+        allowedEnhancements: ["soft_shadows"],
+        mode: "faithful_enhance",
+        acceptanceStatus: "accepted",
+        acceptedAt: NOW,
+      },
+      {
+        schemaVersion: 2,
+        jobId: "sj-2",
+        projectId: project.id,
+        projectContentHash: "sj-proj-x",
+        snapshotId: "snap",
+        cameraId: "cam-a",
+        engine: { id: "stilljob-handoff", version: "0.2.0" },
+        seed: 0,
+        allowedEnhancements: [],
+        mode: "faithful_enhance",
+        acceptanceStatus: "rejected",
+      },
+    ]);
+    expect(accepted.acceptedStills).toHaveLength(1);
+    expect(accepted.acceptedStills[0]?.jobId).toBe("sj-1");
+  });
+
+  it("adds accepted still PNGs to the package and skips rejected ones", async () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const accepted = {
+      schemaVersion: 2,
+      jobId: "sj-pack",
+      projectId: project.id,
+      projectContentHash: "sj-proj-x",
+      snapshotId: "snap",
+      cameraId: "cam-a",
+      engine: { id: "stilljob-hero", version: "1.0.0" },
+      seed: 0,
+      allowedEnhancements: ["exposure_grade"] as const,
+      mode: "faithful_enhance" as const,
+      acceptanceStatus: "accepted" as const,
+      stillOutputPath: "sj-pack-still.png",
+    };
+    const { files, packageData } = await assembleClientPresentationFiles(
+      project,
+      null,
+      NOW,
+      [accepted],
+      [{ fileName: "sj-pack-still.png", dataUrl: TINY_PNG }],
+    );
+    expect(files.some((file) => file.fileName === "sj-pack-still.png")).toBe(true);
+    expect(packageData.manifest.files).toContain("sj-pack-still.png");
+    expect(packageData.manifest.acceptedStills).toHaveLength(1);
   });
 });
