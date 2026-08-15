@@ -10,7 +10,7 @@ import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
-import { MillworkScheduleActions } from "./MillworkScheduleActions";
+import { MillworkScheduleActions } from "./millworkSchedule";
 
 type LivingRoomPlanStageProps = {
   project: InteriorProject;
@@ -23,6 +23,7 @@ type LivingRoomPlanStageProps = {
   canRedo: boolean;
   hasSelection: boolean;
   millworkCount: number;
+  millworkReady: boolean;
   exportBusy: boolean;
   exportStatus: string;
   autosaveState: "idle" | "saving" | "saved" | "error";
@@ -91,14 +92,17 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         <strong>{props.workspaceView.toUpperCase()} · LIVING ROOM</strong>
         <span>{props.project.name} · {props.project.objects.length} objects · {props.selectedIds.length} selected</span>
         <small>{props.workspaceView === "plan" ? "Scale: Fit" : props.workspaceView === "model" ? "Perspective" : "Presentation Output"} · Units: mm</small>
-        <MillworkScheduleActions
-          busy={props.exportBusy}
-          status={props.exportStatus}
-          disabled={false}
-          millworkCount={props.millworkCount}
-          onExportCsv={props.onExportCsv}
-          onExportPdf={props.onExportPdf}
-        />
+        {props.workspaceView !== "render" ? (
+          <MillworkScheduleActions
+            busy={props.exportBusy}
+            status={props.exportStatus}
+            disabled={false}
+            millworkCount={props.millworkCount}
+            readyToExport={props.millworkReady}
+            onExportCsv={props.onExportCsv}
+            onExportPdf={props.onExportPdf}
+          />
+        ) : null}
       </div>
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (

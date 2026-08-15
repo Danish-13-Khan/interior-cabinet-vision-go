@@ -4,8 +4,13 @@ import type {
   Point3Mm,
   Size3Mm,
 } from "../../domain/interiorProject";
-import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
+import type {
+  LivingRoomPlanIssue,
+  MillworkSchedule,
+  MillworkWorkflowSnapshot,
+} from "../../domain/livingRoom";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
+import { MillworkSchedulePreview } from "./millworkSchedule";
 import { NumberField } from "./NumberField";
 
 type LivingRoomInspectorPanelProps = {
@@ -16,6 +21,9 @@ type LivingRoomInspectorPanelProps = {
   activeObject: InteriorObjectEntity | null;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
+  millworkSchedule: MillworkSchedule | null;
+  millworkWorkflow: MillworkWorkflowSnapshot | null;
+  millworkExportedAt: string | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
@@ -32,6 +40,9 @@ export function LivingRoomInspectorPanel({
   activeObject,
   selectedCount,
   issues,
+  millworkSchedule,
+  millworkWorkflow,
+  millworkExportedAt,
   onRoomDimensions,
   onMove,
   onResize,
@@ -118,6 +129,14 @@ export function LivingRoomInspectorPanel({
             </p>
           </section>
         )}
+        {millworkSchedule && millworkWorkflow ? (
+          <MillworkSchedulePreview
+            schedule={millworkSchedule}
+            workflow={millworkWorkflow}
+            exportedAt={millworkExportedAt}
+            onSelect={onSelect}
+          />
+        ) : null}
         {mode === "plan" ? (
           <section className="lr-issues-panel">
             <h3>Layout Checks <span>{issues.length}</span></h3>

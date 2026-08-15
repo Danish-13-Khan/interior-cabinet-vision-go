@@ -1,31 +1,12 @@
 import type { InteriorProject } from "../../interiorProject";
 import { isMillworkObject } from "../stillJob/sceneRefs";
+import { resolveMaterialLabels, slotRecord } from "./formatMaterials";
 import {
   MILLWORK_SCHEDULE_HONESTY_NOTE,
   MILLWORK_SCHEDULE_VERSION,
   type MillworkSchedule,
   type MillworkScheduleLine,
 } from "./types";
-
-function slotRecord(slots: Record<string, string>): Record<string, string> {
-  return Object.fromEntries(
-    Object.entries(slots).map(([slot, materialId]) => [slot, materialId]),
-  );
-}
-
-export function formatMaterialIds(slots: Record<string, string>) {
-  return Object.entries(slots)
-    .map(([slot, materialId]) => `${slot}=${materialId}`)
-    .join("; ");
-}
-
-export function millworkScheduleFileBase(projectName: string) {
-  const slug = projectName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "living-room";
-  return `${slug}-millwork-schedule`;
-}
 
 /** One row per millwork instance from live InteriorProject entities. */
 export function buildLivingRoomMillworkSchedule(
@@ -36,18 +17,22 @@ export function buildLivingRoomMillworkSchedule(
     ?? project.rooms[0];
   const lines: MillworkScheduleLine[] = project.objects
     .filter(isMillworkObject)
-    .map((object) => ({
-      objectId: object.id,
-      name: object.name,
-      category: object.category,
-      kind: object.kind,
-      roomId: object.roomId,
-      widthMm: object.dimensions.widthMm,
-      heightMm: object.dimensions.heightMm,
-      depthMm: object.dimensions.depthMm,
-      materialSlots: slotRecord(object.materialSlots),
-      quantity: 1,
-    }));
+    .map((object) => {
+      const materialSlots = slotRecord(object.materialSlots);
+      return {
+        objectId: object.id,
+        name: object.name,
+        category: object.category,
+        kind: object.kind,
+        roomId: object.roomId,
+        widthMm: object.dimensions.widthMm,
+        heightMm: object.dimensions.heightMm,
+        depthMm: object.dimensions.depthMm,
+        materialSlots,
+        materialLabels: resolveMaterialLabels(materialSlots, project.materials),
+        quantity: 1 as const,
+      };
+    });
   return {
     version: MILLWORK_SCHEDULE_VERSION,
     projectId: project.id,

@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   LIVING_ROOM_CATALOG,
   getLivingRoomPlanUnderlay,
-  isMillworkObject,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
-import { useMillworkScheduleExport } from "../hooks/useMillworkScheduleExport";
+import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
 import { imageFileToUnderlay, LivingRoomPlanCatalogRail } from "./livingRoomPlan/LivingRoomPlanCatalogRail";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
@@ -30,7 +29,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     latest: LivingRoomRenderResult | null;
     previous: LivingRoomRenderResult | null;
   }>({ latest: null, previous: null });
-  const scheduleExport = useMillworkScheduleExport();
+  const millwork = useMillworkSchedule(props.project);
   const activeObject = props.selectedObjects[0] ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
   const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
@@ -82,8 +81,6 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     );
   }
 
-  const millworkCount = props.project.objects.filter(isMillworkObject).length;
-
   return (
     <section className="lr-plan-shell lr-product-shell">
       {header}
@@ -134,9 +131,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           canUndo={props.canUndo}
           canRedo={props.canRedo}
           hasSelection={Boolean(activeObject)}
-          millworkCount={millworkCount}
-          exportBusy={scheduleExport.busy}
-          exportStatus={scheduleExport.status}
+          millworkCount={millwork.workflow?.millworkCount ?? 0}
+          millworkReady={millwork.workflow?.readyToExport ?? false}
+          exportBusy={millwork.busy}
+          exportStatus={millwork.status}
           autosaveState={props.autosaveState}
           lastAutosavedAt={props.lastAutosavedAt}
           latestRender={renderResults.latest}
@@ -161,8 +159,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             latest: result,
             previous: current.latest,
           }))}
-          onExportCsv={() => void scheduleExport.exportSchedule(props.project!, "csv")}
-          onExportPdf={() => void scheduleExport.exportSchedule(props.project!, "pdf")}
+          onExportCsv={() => void millwork.exportSchedule("csv")}
+          onExportPdf={() => void millwork.exportSchedule("pdf")}
         />
         {props.inspectorVisible && workspaceView !== "render" ? (
           <LivingRoomInspectorPanel
@@ -173,6 +171,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             activeObject={activeObject}
             selectedCount={props.selectedIds.length}
             issues={props.issues}
+            millworkSchedule={millwork.schedule}
+            millworkWorkflow={millwork.workflow}
+            millworkExportedAt={millwork.exportedAt}
             onRoomDimensions={props.onRoomDimensions}
             onMove={props.onMove}
             onResize={props.onResize}
