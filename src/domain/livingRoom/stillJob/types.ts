@@ -1,7 +1,12 @@
 import type { Point3Mm } from "../../interiorProject";
 import { STILL_JOB_TOLERANCES } from "./tolerances";
+import type {
+  StillJobMillworkRef,
+  StillJobOpeningRef,
+  StillJobWallRef,
+} from "./sceneRefs";
 
-export const STILL_JOB_SCHEMA_VERSION = 1 as const;
+export const STILL_JOB_SCHEMA_VERSION = 2 as const;
 export const STILL_JOB_CONTRACT_NOTE =
   "The still may look prettier; it may not lie about what was authored.";
 
@@ -52,8 +57,8 @@ export type StillJob = {
   jobId: string;
   createdAt: string;
   projectId: string;
-  /** Hash of authored project content (updatedAt stripped). */
   projectContentHash: string;
+  snapshotId: string;
   cameraId: string;
   cameraPose: StillJobCameraPose;
   qualityPresetId: string;
@@ -66,6 +71,9 @@ export type StillJob = {
   forbiddenChangesNote: string;
   materials: StillJobMaterialSlot[];
   objects: StillJobObjectRef[];
+  millwork: StillJobMillworkRef[];
+  openings: StillJobOpeningRef[];
+  walls: StillJobWallRef[];
   attachments: StillJobAttachmentRefs;
 };
 
@@ -79,7 +87,9 @@ export type StillJobGateId =
   | "object_set"
   | "object_placement"
   | "object_height"
-  | "material_ids";
+  | "material_ids"
+  | "millwork_size"
+  | "opening_wall";
 
 export type StillJobGateResult = {
   id: StillJobGateId;

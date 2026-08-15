@@ -7,13 +7,7 @@ import {
   compileLivingRoomScene,
   createLivingRoomRenderResult,
   livingRoomRenderFileName,
-  LIVING_ROOM_LIGHTING_RECIPES,
-  matchRenderOutputPreset,
-  RENDER_OUTPUT_PRESETS,
-  RENDER_QUALITY_PRESETS,
-  applyRenderPresetToSettings,
   describePresetHonesty,
-  getRenderPresetBehavior,
   resolveStudioRenderMode,
   type LivingRoomLightingRecipeId,
   type LivingRoomRenderResult,
@@ -24,11 +18,15 @@ import {
 } from "../platform/desktopFiles";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
+import { useStillReviewFlow } from "../hooks/useStillReviewFlow";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 import { LivingRoomRenderCamerasPanel } from "./livingRoomScene/LivingRoomRenderCamerasPanel";
+import { LivingRoomRenderSettingsPanel } from "./livingRoomScene/LivingRoomRenderSettingsPanel";
 import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
+import { StillReviewPanel } from "./livingRoomScene/StillReviewPanel";
+import { StillTrustPanel } from "./livingRoomScene/StillTrustPanel";
 
 type RenderJobState = {
   status: "idle" | "rendering" | "complete" | "cancelled" | "error";
@@ -76,7 +74,7 @@ export function LivingRoomRenderStudio({
   const [captureHandle, setCaptureHandle] = useState<RenderCaptureHandle | null>(null);
   const jobTokenRef = useRef(0);
   const [job, setJob] = useState<RenderJobState>(INITIAL_JOB);
-  const [view, setView] = useState<"preview" | "result" | "compare">(
+  const [view, setView] = useState<"preview" | "result" | "compare" | "still">(
     latestResult ? "result" : "preview",
   );
   const [comparePosition, setComparePosition] = useState(50);
@@ -88,12 +86,25 @@ export function LivingRoomRenderStudio({
   const activeCamera = scene.cameras.find((camera) => camera.id === settings.activeCameraId)
     ?? scene.cameras.find((camera) => camera.isDefault)
     ?? scene.cameras[0];
-  const outputPreset = matchRenderOutputPreset(settings);
   const isRendering = job.status === "rendering";
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
-  const qualityBehavior = getRenderPresetBehavior(settings.quality);
   const studioRenderMode = resolveStudioRenderMode(settings.quality);
   const honesty = describePresetHonesty(settings.quality, studioRenderMode);
+  const [heroStillLock, setHeroStillLock] = useState(false);
+  const stills = useStillReviewFlow({
+    project,
+    cameraId: activeCamera?.id,
+    capture: captureHandle,
+    widthPx: settings.widthPx,
+    heightPx: settings.heightPx,
+    composition: settings.composition,
+    transparentBackground: settings.transparentBackground,
+    beforeCapture: async () => {
+      setHeroStillLock(true);
+      await delay(400);
+    },
+    afterCapture: () => setHeroStillLock(false),
+  });
   const resultIsCurrent = Boolean(
     latestResult
     && latestResult.projectId === project.id
@@ -206,6 +217,11 @@ export function LivingRoomRenderStudio({
     }
   }
 
+  async function generateStill() {
+    await stills.generateStill();
+    setView("still");
+  }
+
   return (
     <section className="lr-render-studio">
       <header className="lr-render-commandbar">
@@ -219,16 +235,29 @@ export function LivingRoomRenderStudio({
           <button type="button" className={view === "preview" ? "is-active" : ""} onClick={() => setView("preview")}>Live Preview</button>
           <button type="button" className={view === "result" ? "is-active" : ""} onClick={() => setView("result")} disabled={!latestResult}>Result</button>
           <button type="button" className={view === "compare" ? "is-active" : ""} onClick={() => setView("compare")} disabled={!latestResult || !previousResult}>Compare</button>
+          <button type="button" className={view === "still" ? "is-active" : ""} onClick={() => setView("still")}>Still review</button>
         </nav>
         <div className="lr-render-actions">
           {(job.status === "error" || job.status === "cancelled") ? <button type="button" onClick={() => void renderImage()}>Retry</button> : null}
           <button type="button" className="is-primary" onClick={() => void renderImage()} disabled={isRendering || !activeCamera || !captureHandle}>
             {isRendering ? "Rendering…" : "Render Image"}
           </button>
+          <button type="button" onClick={() => void generateStill()} disabled={stills.busy || isRendering || !activeCamera || !captureHandle}>
+            {stills.busy ? "Generating still…" : "Generate Still"}
+          </button>
           <button type="button" onClick={() => void exportPng()} disabled={!latestResult || isRendering}>Export PNG</button>
           <button
             type="button"
-            onClick={() => void clientExport.exportClientPreview(project, latestResult)}
+            onClick={() => void clientExport.exportClientPreview(
+              project,
+              latestResult,
+              stills.acceptedStills.map((item) => item.provenance),
+              stills.acceptedStills.flatMap((item) => (
+                item.provenance.stillOutputPath
+                  ? [{ fileName: item.provenance.stillOutputPath, dataUrl: item.stillDataUrl }]
+                  : []
+              )),
+            )}
             disabled={isRendering || clientExport.busy}
           >
             {clientExport.busy ? "Packaging…" : "Export Client Preview"}
@@ -237,117 +266,17 @@ export function LivingRoomRenderStudio({
       </header>
 
       <div className="lr-render-body">
-        <aside className="lr-render-settings" aria-label="Render settings">
-          <section>
-            <h3>Quality</h3>
-            <button
-              type="button"
-              className="lr-render-recommended"
-              onClick={() => onSettingsChange({
-                ...applyRenderPresetToSettings(settings, "client-preview"),
-                exposure: scene.style.colorManagement.exposure,
-                composition: "architectural",
-                transparentBackground: false,
-              })}
-            >
-              <strong>Use recommended settings</strong>
-              <span>Architectural framing · Client Preview package quality</span>
-            </button>
-            <div className="lr-render-quality-grid">
-              {RENDER_QUALITY_PRESETS.map((preset) => (
-                <button
-                  type="button"
-                  key={preset.id}
-                  className={settings.quality === preset.id ? "is-active" : ""}
-                  onClick={() => onSettingsChange(applyRenderPresetToSettings(settings, preset.id))}
-                >
-                  <strong>{preset.name}</strong>
-                  <span>{preset.description}</span>
-                </button>
-              ))}
-            </div>
-            <p className="lr-render-preset-meta">
-              {honesty.headline} · Mode {studioRenderMode.toUpperCase()} · {qualityBehavior.textureDetail} textures ·
-              shadows {qualityBehavior.shadowMapSize} · contact {qualityBehavior.contactShadowResolution}
-            </p>
-            <p className="lr-render-preset-hint">{honesty.subline}</p>
-          </section>
-          <section>
-            <h3>Output</h3>
-            <label className="lr-render-field">
-              <span>Composition</span>
-              <select
-                value={settings.composition}
-                onChange={(event) => onSettingsChange({
-                  composition: event.target.value as RenderSettings["composition"],
-                })}
-              >
-                <option value="architectural">Architectural · recommended</option>
-                <option value="project-camera">Project camera · exact</option>
-              </select>
-            </label>
-            <label className="lr-render-field">
-              <span>Resolution</span>
-              <select
-                value={outputPreset?.id ?? "custom"}
-                onChange={(event) => {
-                  const preset = RENDER_OUTPUT_PRESETS.find((item) => item.id === event.target.value)!;
-                  onSettingsChange({ widthPx: preset.widthPx, heightPx: preset.heightPx });
-                }}
-              >
-                {!outputPreset ? <option value="custom" disabled>Custom · {settings.widthPx}×{settings.heightPx}</option> : null}
-                {RENDER_OUTPUT_PRESETS.map((preset) => (
-                  <option key={preset.id} value={preset.id}>{preset.name} · {preset.widthPx}×{preset.heightPx}</option>
-                ))}
-              </select>
-            </label>
-            <label className="lr-render-check">
-              <input
-                type="checkbox"
-                checked={settings.transparentBackground}
-                disabled={!qualityBehavior.allowTransparentBackground}
-                onChange={(event) => onSettingsChange({ transparentBackground: event.target.checked })}
-              />
-              Transparent background
-              {!qualityBehavior.allowTransparentBackground ? <small> · not available in Draft</small> : null}
-            </label>
-          </section>
-          <section>
-            <h3>Lighting</h3>
-            <label className="lr-render-field">
-              <span>Light rig</span>
-              <select
-                value={settings.lightingRecipeId}
-                onChange={(event) => onLightingChange(event.target.value as LivingRoomLightingRecipeId)}
-              >
-                {LIVING_ROOM_LIGHTING_RECIPES.map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.name}</option>)}
-              </select>
-            </label>
-            <label className="lr-render-exposure">
-              <span>Exposure <b>{exposureDraft.toFixed(2)}</b></span>
-              <input
-                type="range"
-                min="0.5"
-                max="1.6"
-                step="0.05"
-                value={exposureDraft}
-                onChange={(event) => setExposureDraft(Number(event.target.value))}
-                onPointerUp={() => onSettingsChange({ exposure: exposureDraft })}
-                onKeyUp={() => onSettingsChange({ exposure: exposureDraft })}
-              />
-            </label>
-          </section>
-          <section className="lr-render-summary">
-            <h3>Frame Summary</h3>
-            <dl>
-              <dt>Camera</dt><dd>{activeCamera?.name ?? "None"}</dd>
-              <dt>Framing</dt><dd>{settings.composition === "architectural" ? "Architectural" : "Exact"}</dd>
-              <dt>Output</dt><dd>{settings.widthPx} × {settings.heightPx}</dd>
-              <dt>Pixels</dt><dd>{(settings.widthPx * settings.heightPx / 1_000_000).toFixed(1)} MP</dd>
-              <dt>Pipeline</dt><dd>ACES / sRGB</dd>
-            </dl>
-          </section>
-        </aside>
+        <LivingRoomRenderSettingsPanel
+          settings={settings}
+          exposureDraft={exposureDraft}
+          styleExposure={scene.style.colorManagement.exposure}
+          honesty={honesty}
+          studioRenderMode={studioRenderMode}
+          cameraName={activeCamera?.name}
+          onExposureDraft={setExposureDraft}
+          onSettingsChange={onSettingsChange}
+          onLightingChange={onLightingChange}
+        />
 
         <div className="lr-render-stage">
           <div
@@ -359,13 +288,20 @@ export function LivingRoomRenderStudio({
                 ref={setCaptureHandle}
                 scene={scene}
                 activeCameraId={activeCamera.id}
-                quality={settings.quality}
+                quality={heroStillLock ? "client-preview" : settings.quality}
                 composition={settings.composition}
-                renderMode={studioRenderMode}
+                renderMode={heroStillLock ? "hero" : studioRenderMode}
               />
             ) : <div className="lr-render-empty">No project camera is available.</div>}
             {diagnostics && view === "preview" ? (
               <RenderDiagnosticsPanel report={diagnostics} />
+            ) : null}
+            {stills.session.job && view === "preview" ? (
+              <StillTrustPanel
+                overlay
+                validation={stills.validation}
+                provenance={stills.session.provenance}
+              />
             ) : null}
           </div>
           {view === "result" && latestResult ? (
@@ -397,6 +333,23 @@ export function LivingRoomRenderStudio({
               <span className="is-after">Latest</span>
             </div>
           ) : null}
+          {view === "still" ? (
+            <StillReviewPanel
+              session={stills.session}
+              plateDataUrl={stills.plateDataUrl}
+              stillDataUrl={stills.stillDataUrl}
+              diffDataUrl={stills.diffDataUrl}
+              validation={stills.validation}
+              compareMode={stills.compareMode}
+              acceptedCount={stills.acceptedStills.length}
+              busy={stills.busy}
+              error={stills.error}
+              onCompareMode={stills.setCompareMode}
+              onAccept={stills.accept}
+              onReject={stills.reject}
+              onRetry={() => void stills.retry()}
+            />
+          ) : null}
           {isRendering ? (
             <div className="lr-render-progress" role="status">
               <span>RENDERING</span>
@@ -415,7 +368,13 @@ export function LivingRoomRenderStudio({
           thumbnails={thumbnails}
           latestResult={latestResult}
           previousResult={previousResult}
-          statusMessage={clientExport.status || exportStatus}
+          statusMessage={
+            stills.session.status === "accepted"
+              ? "Still accepted · will record provenance on client preview export."
+              : stills.session.status === "rejected"
+                ? "Still rejected · authored project unchanged."
+                : clientExport.status || exportStatus
+          }
           onSelectCamera={(cameraId) => onSettingsChange({ activeCameraId: cameraId })}
         />
       </div>

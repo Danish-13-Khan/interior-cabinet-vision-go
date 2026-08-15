@@ -135,8 +135,11 @@ export {
   STILL_JOB_TOLERANCES,
   buildStillJob,
   stillJobProjectContentHash,
+  stillJobSnapshotId,
+  stillSupportArtifactRefs,
   validateStillJobAgainstProject,
   type BuildStillJobInput,
+  type StillAcceptanceStatus,
   type StillJob,
   type StillJobAllowedEnhancement,
   type StillJobAttachmentRefs,
@@ -145,10 +148,28 @@ export {
   type StillJobGateId,
   type StillJobGateResult,
   type StillJobMaterialSlot,
+  type StillJobMillworkRef,
   type StillJobMode,
   type StillJobObjectRef,
+  type StillJobOpeningRef,
   type StillJobValidation,
+  type StillJobWallRef,
+  type StillProvenance,
 } from "./stillJob";
+export {
+  acceptStillReview,
+  createIdleStillReview,
+  openStillReview,
+  rejectStillReview,
+  retryStillReview,
+  stillEligibleForPackage,
+  type StillReviewSession,
+  type StillReviewStatus,
+} from "./stillReview";
+export {
+  HERO_STILL_ENGINE,
+  HERO_STILL_ENHANCEMENTS,
+} from "./stillEngine";
 export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
@@ -240,12 +261,14 @@ export {
 export {
   assembleClientPresentationFiles,
   buildClientPresentationPackage,
+  withAcceptedStillProvenance,
   createLivingRoomRenderThumbnail,
   clientPresentationPackageDirectory,
   exportClientPresentationPdf,
   packageFilePath,
   preferLivingRoomBrowserThumbnail,
   siblingPackagePath,
+  type AcceptedStillPng,
   type ClientPresentationFile,
   type ClientPresentationPackage,
 } from "./clientPresentation";

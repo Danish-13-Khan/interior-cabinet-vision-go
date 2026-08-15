@@ -20,6 +20,7 @@
     "phase1:proof": "node scripts/phase1-proof/run-scorecard.mjs",
     "phase1:latency": "node scripts/phase1-proof/collect-latency.mjs",
     "stilljob:spike": "node scripts/still-job/export-spike.mjs",
+    "stilljob:phase2a": "node scripts/still-job/export-phase2a.mjs",
     "tauri": "tauri",
     "release:check": "npm test && npm run build && npm run test:e2e && cargo test --manifest-path src-tauri/Cargo.toml",
     "release:mac": "npm run tauri build -- --bundles app,dmg"

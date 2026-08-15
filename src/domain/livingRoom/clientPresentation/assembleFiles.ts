@@ -1,6 +1,9 @@
 import type { InteriorProject } from "../../interiorProject";
 import { serializeInteriorProjectFile } from "../../interiorProject";
 import type { LivingRoomRenderResult } from "../renderStudio";
+import type { StillProvenance } from "../stillJob/provenance";
+import { withAcceptedStillProvenance } from "./acceptedStills";
+import { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 import {
   buildClientPresentationPackage,
   type ClientPresentationPackage,
@@ -23,11 +26,26 @@ export async function assembleClientPresentationFiles(
   project: InteriorProject,
   render: LivingRoomRenderResult | null,
   now = new Date().toISOString(),
+  acceptedStills: StillProvenance[] = [],
+  acceptedStillPngs: AcceptedStillPng[] = [],
 ): Promise<{
   packageData: ClientPresentationPackage;
   files: ClientPresentationFile[];
 }> {
-  const packageData = buildClientPresentationPackage(project, render, now);
+  const built = buildClientPresentationPackage(project, render, now);
+  const stillPngs = await acceptedStillPngFiles(acceptedStills, acceptedStillPngs);
+  let manifest = withAcceptedStillProvenance(built.manifest, acceptedStills);
+  if (manifest.acceptedStills.length) {
+    manifest = {
+      ...manifest,
+      files: [
+        ...manifest.files,
+        built.fileNames.stillsProvenance,
+        ...stillPngs.map((file) => file.fileName),
+      ],
+    };
+  }
+  const packageData = { ...built, manifest };
   const pdf = await exportClientPresentationPdf(project, render, packageData);
   const files: ClientPresentationFile[] = [
     {
@@ -66,6 +84,15 @@ export async function assembleClientPresentationFiles(
       contents: JSON.stringify(packageData.manifest, null, 2),
     },
   ];
+
+  if (packageData.manifest.acceptedStills.length) {
+    files.push({
+      fileName: packageData.fileNames.stillsProvenance,
+      kind: "json",
+      contents: JSON.stringify(packageData.manifest.acceptedStills, null, 2),
+    });
+    files.push(...stillPngs);
+  }
 
   if (packageData.heroRenderDataUrl) {
     files.unshift({

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "jobId": "sj-spike-daylight-sofa-camera-a",
-  "createdAt": "2026-08-13T00:00:00.000Z",
+  "jobId": "sj-p2a-daylight-sofa-camera-a",
+  "createdAt": "2026-08-15T00:00:00.000Z",
   "projectId": "phase1-bench-daylight-sofa",
   "projectContentHash": "sj-proj-25973ca2",
   "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-25973ca2",
@@ -292,6 +292,9 @@
     }
   ],
   "attachments": {
-    "heroPngPath": "hero-plate.png"
+    "heroPngPath": "sj-p2a-daylight-sofa-camera-a-hero-plate.png",
+    "depthPath": "sj-p2a-daylight-sofa-camera-a-depth.png",
+    "normalPath": "sj-p2a-daylight-sofa-camera-a-normal.png",
+    "materialIdMapPath": "sj-p2a-daylight-sofa-camera-a-material-ids.json"
   }
 }
