@@ -32,6 +32,7 @@ describe("StillJob Phase 2A foundation", () => {
     expect(job.openings.length).toBe(project.openings.length);
     expect(job.walls.length).toBe(project.walls.length);
     expect(job.attachments.heroPngPath).toBe("sj-p2a-daylight-a-hero-plate.png");
+    expect(job.engine.id).toBe("stilljob-hero");
   });
 
   it("round-trips saved job JSON against the same project", () => {

@@ -142,4 +142,32 @@ describe("client presentation package", () => {
     expect(accepted.acceptedStills).toHaveLength(1);
     expect(accepted.acceptedStills[0]?.jobId).toBe("sj-1");
   });
+
+  it("adds accepted still PNGs to the package and skips rejected ones", async () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const accepted = {
+      schemaVersion: 2,
+      jobId: "sj-pack",
+      projectId: project.id,
+      projectContentHash: "sj-proj-x",
+      snapshotId: "snap",
+      cameraId: "cam-a",
+      engine: { id: "stilljob-hero", version: "1.0.0" },
+      seed: 0,
+      allowedEnhancements: ["exposure_grade"] as const,
+      mode: "faithful_enhance" as const,
+      acceptanceStatus: "accepted" as const,
+      stillOutputPath: "sj-pack-still.png",
+    };
+    const { files, packageData } = await assembleClientPresentationFiles(
+      project,
+      null,
+      NOW,
+      [accepted],
+      [{ fileName: "sj-pack-still.png", dataUrl: TINY_PNG }],
+    );
+    expect(files.some((file) => file.fileName === "sj-pack-still.png")).toBe(true);
+    expect(packageData.manifest.files).toContain("sj-pack-still.png");
+    expect(packageData.manifest.acceptedStills).toHaveLength(1);
+  });
 });

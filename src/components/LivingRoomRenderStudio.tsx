@@ -26,6 +26,7 @@ import { LivingRoomRenderCamerasPanel } from "./livingRoomScene/LivingRoomRender
 import { LivingRoomRenderSettingsPanel } from "./livingRoomScene/LivingRoomRenderSettingsPanel";
 import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
 import { StillReviewPanel } from "./livingRoomScene/StillReviewPanel";
+import { StillTrustPanel } from "./livingRoomScene/StillTrustPanel";
 
 type RenderJobState = {
   status: "idle" | "rendering" | "complete" | "cancelled" | "error";
@@ -89,6 +90,7 @@ export function LivingRoomRenderStudio({
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const studioRenderMode = resolveStudioRenderMode(settings.quality);
   const honesty = describePresetHonesty(settings.quality, studioRenderMode);
+  const [heroStillLock, setHeroStillLock] = useState(false);
   const stills = useStillReviewFlow({
     project,
     cameraId: activeCamera?.id,
@@ -97,6 +99,11 @@ export function LivingRoomRenderStudio({
     heightPx: settings.heightPx,
     composition: settings.composition,
     transparentBackground: settings.transparentBackground,
+    beforeCapture: async () => {
+      setHeroStillLock(true);
+      await delay(400);
+    },
+    afterCapture: () => setHeroStillLock(false),
   });
   const resultIsCurrent = Boolean(
     latestResult
@@ -241,7 +248,16 @@ export function LivingRoomRenderStudio({
           <button type="button" onClick={() => void exportPng()} disabled={!latestResult || isRendering}>Export PNG</button>
           <button
             type="button"
-            onClick={() => void clientExport.exportClientPreview(project, latestResult, stills.acceptedStills)}
+            onClick={() => void clientExport.exportClientPreview(
+              project,
+              latestResult,
+              stills.acceptedStills.map((item) => item.provenance),
+              stills.acceptedStills.flatMap((item) => (
+                item.provenance.stillOutputPath
+                  ? [{ fileName: item.provenance.stillOutputPath, dataUrl: item.stillDataUrl }]
+                  : []
+              )),
+            )}
             disabled={isRendering || clientExport.busy}
           >
             {clientExport.busy ? "Packaging…" : "Export Client Preview"}
@@ -272,13 +288,20 @@ export function LivingRoomRenderStudio({
                 ref={setCaptureHandle}
                 scene={scene}
                 activeCameraId={activeCamera.id}
-                quality={settings.quality}
+                quality={heroStillLock ? "client-preview" : settings.quality}
                 composition={settings.composition}
-                renderMode={studioRenderMode}
+                renderMode={heroStillLock ? "hero" : studioRenderMode}
               />
             ) : <div className="lr-render-empty">No project camera is available.</div>}
             {diagnostics && view === "preview" ? (
               <RenderDiagnosticsPanel report={diagnostics} />
+            ) : null}
+            {stills.session.job && view === "preview" ? (
+              <StillTrustPanel
+                overlay
+                validation={stills.validation}
+                provenance={stills.session.provenance}
+              />
             ) : null}
           </div>
           {view === "result" && latestResult ? (

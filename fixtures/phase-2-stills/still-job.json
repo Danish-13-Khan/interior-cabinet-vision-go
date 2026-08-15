@@ -26,8 +26,8 @@
   ],
   "seed": 7,
   "engine": {
-    "id": "stilljob-handoff",
-    "version": "0.2.0"
+    "id": "stilljob-hero",
+    "version": "1.0.0"
   },
   "allowedEnhancements": [
     "soft_shadows",
