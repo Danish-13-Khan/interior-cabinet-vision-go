@@ -47,15 +47,17 @@ export function getFamilyDimensionLimits(type: CabinetType): FamilyDimensionLimi
   switch (type) {
     case "base":
       return {
-        width: { min: 500, max: 1200, preferredMin: 600, preferredMax: 1000 },
+        // BPO pull-out carcasses use the same base construction at 250–300 mm.
+        width: { min: 250, max: 1200, preferredMin: 600, preferredMax: 900 },
         height: { min: 700, max: 900, preferredMin: 720, preferredMax: 860 },
         depth: { min: 500, max: 650, preferredMin: 540, preferredMax: 600 },
       };
     case "wall":
       return {
-        width: { min: 500, max: 1200, preferredMin: 600, preferredMax: 1000 },
-        height: { min: 400, max: 900, preferredMin: 600, preferredMax: 800 },
-        depth: { min: 280, max: 400, preferredMin: 300, preferredMax: 350 },
+        width: { min: 500, max: 1200, preferredMin: 600, preferredMax: 600 },
+        // 600 mm is the standard shutter height; taller shutters remain configurable.
+        height: { min: 400, max: 2100, preferredMin: 600, preferredMax: 600 },
+        depth: { min: 280, max: 400, preferredMin: 350, preferredMax: 350 },
       };
     case "tall":
     case "almirah":

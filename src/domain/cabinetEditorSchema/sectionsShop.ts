@@ -145,6 +145,40 @@ export function appendConstructionHardwareSections(
         hint: "Sink / cooktop / dishwasher compatibility",
       },
     ];
+    if (hardware.insertKind !== "none") {
+      hardwareFields.push(
+        {
+          id: "applianceWidthMm",
+          label: "Appliance width",
+          type: "number",
+          unit: "mm",
+          min: 0,
+          max: 2400,
+          step: 1,
+          hint: "Enter the appliance's actual outer width",
+        },
+        {
+          id: "applianceHeightMm",
+          label: "Appliance height",
+          type: "number",
+          unit: "mm",
+          min: 0,
+          max: 2400,
+          step: 1,
+          hint: "Enter the appliance's actual outer height",
+        },
+        {
+          id: "applianceDepthMm",
+          label: "Appliance depth",
+          type: "number",
+          unit: "mm",
+          min: 0,
+          max: 2400,
+          step: 1,
+          hint: "Enter the appliance's actual outer depth",
+        },
+      );
+    }
     if (caps.doors) {
       hardwareFields.push({
         id: "hingeId",

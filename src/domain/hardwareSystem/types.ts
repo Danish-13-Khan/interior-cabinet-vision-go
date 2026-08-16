@@ -40,6 +40,10 @@ export type CabinetHardwareSpec = {
   includeShelfPins: boolean;
   accessories: CabinetAccessoryLine[];
   insertKind: ApplianceInsertKind;
+  /** Appliance envelope used to size a compatible custom carcass. */
+  applianceWidthMm: number;
+  applianceHeightMm: number;
+  applianceDepthMm: number;
 };
 
 export type HardwareLine = {

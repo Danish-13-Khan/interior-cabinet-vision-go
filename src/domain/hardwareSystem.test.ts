@@ -66,6 +66,19 @@ describe("hardware + accessory system", () => {
     expect(isAccessoryCompatible("basket-pullout", "base", "none")).toBe(true);
   });
 
+  it("retains custom appliance envelope dimensions", () => {
+    expect(normalizeCabinetHardware("base", {
+      insertKind: "dishwasher-gap",
+      applianceWidthMm: 598,
+      applianceHeightMm: 820,
+      applianceDepthMm: 560,
+    })).toMatchObject({
+      applianceWidthMm: 598,
+      applianceHeightMm: 820,
+      applianceDepthMm: 560,
+    });
+  });
+
   it("builds hinge, slide, leg, and accessory lines with costing", () => {
     const cabinet = makeCabinet("base-1", "base", {
       hardware: normalizeCabinetHardware("base", {

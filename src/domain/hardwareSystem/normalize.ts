@@ -12,6 +12,11 @@ import type {
   HardwareKind,
 } from "./types";
 
+function applianceDimension(value: unknown): number {
+  const dimension = Math.round(Number(value));
+  return Number.isFinite(dimension) ? Math.min(2400, Math.max(0, dimension)) : 0;
+}
+
 export function getHardwareItem(id: string): HardwareItem | undefined {
   return HARDWARE_CATALOG.find((item) => item.id === id);
 }
@@ -110,6 +115,9 @@ export function normalizeCabinetHardware(
     accessories,
     insertKind:
       type === "sink" && insertKind === "none" ? "sink-bowl" : insertKind,
+    applianceWidthMm: applianceDimension(seed.applianceWidthMm),
+    applianceHeightMm: applianceDimension(seed.applianceHeightMm),
+    applianceDepthMm: applianceDimension(seed.applianceDepthMm),
   };
 }
 
@@ -121,5 +129,9 @@ export function describeHardwareSpec(spec: CabinetHardwareSpec): string {
   const insert =
     APPLIANCE_INSERT_OPTIONS.find((item) => item.value === spec.insertKind)?.label ??
     "None";
-  return `${hinge} · ${slide} · ${handle}${accessoryCount ? ` · ${accessoryCount} acc.` : ""} · ${insert}`;
+  const applianceSize = [spec.applianceWidthMm, spec.applianceHeightMm, spec.applianceDepthMm]
+    .every((dimension) => dimension > 0)
+    ? ` · ${spec.applianceWidthMm}×${spec.applianceHeightMm}×${spec.applianceDepthMm} mm`
+    : "";
+  return `${hinge} · ${slide} · ${handle}${accessoryCount ? ` · ${accessoryCount} acc.` : ""} · ${insert}${applianceSize}`;
 }

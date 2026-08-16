@@ -81,9 +81,9 @@ export const cabinetTypePresets: Record<CabinetType, CabinetConfig> = {
   wall: {
     type: "wall",
     dimensions: {
-      width: 900,
-      height: 720,
-      depth: 320,
+      width: 600,
+      height: 600,
+      depth: 350,
       boardThickness: 18,
       backPanelThickness: 6,
     },

@@ -21,6 +21,7 @@ import {
   getMinDividersForShelfSpan,
   applyWallMountPlacementFix,
 } from "../manufacturingRules";
+import { getFamilyDimensionLimits } from "../manufacturingRules/limits";
 import {
   clampDraftingDisplay,
   clampProjectDrafting,
@@ -189,7 +190,31 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
       merged.buildRules?.backPanelThicknessMm ?? merged.dimensions.backPanelThickness,
   };
   const resolvedMaterialSpec = resolveCabinetMaterialSpec(merged.buildRules);
-  const safeDimensions = clampCabinetDimensions(merged.dimensions);
+  const familyLimits = getFamilyDimensionLimits(merged.type);
+  const globallySafeDimensions = clampCabinetDimensions(merged.dimensions);
+  // Family ranges are stricter than the global safety limits, except for the
+  // 250/300 mm BPO pull-out base carcasses.
+  const safeDimensions = {
+    ...globallySafeDimensions,
+    width: clampWithinRange(
+      merged.dimensions.width,
+      familyLimits.width.min,
+      familyLimits.width.max,
+      preset.dimensions.width,
+    ),
+    height: clampWithinRange(
+      merged.dimensions.height,
+      familyLimits.height.min,
+      familyLimits.height.max,
+      preset.dimensions.height,
+    ),
+    depth: clampWithinRange(
+      merged.dimensions.depth,
+      familyLimits.depth.min,
+      familyLimits.depth.max,
+      preset.dimensions.depth,
+    ),
+  };
   const hasToeKick = supportsToeKick(merged.type);
   const hasShelves = supportsShelves(merged.type);
   const hasDoors = supportsDoors(merged.type);

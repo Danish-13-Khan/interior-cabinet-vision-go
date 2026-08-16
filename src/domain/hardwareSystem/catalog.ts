@@ -168,4 +168,7 @@ export const DEFAULT_HARDWARE_SPEC: CabinetHardwareSpec = {
   includeShelfPins: true,
   accessories: [],
   insertKind: "none",
+  applianceWidthMm: 0,
+  applianceHeightMm: 0,
+  applianceDepthMm: 0,
 };

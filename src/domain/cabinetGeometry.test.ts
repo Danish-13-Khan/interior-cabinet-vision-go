@@ -91,7 +91,9 @@ describe("createCabinetGeometry", () => {
       (panel) => panel.name === "top-panel",
     );
 
-    expect(topPanel?.size[0]).toBeCloseTo(0.464);
+    // Base units include 250 mm BPO pull-out carcasses, so invalid widths
+    // safely clamp to that family minimum.
+    expect(topPanel?.size[0]).toBeCloseTo(0.214);
   });
 
   it("builds guide labels from dimensions", () => {
