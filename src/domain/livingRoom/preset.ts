@@ -89,7 +89,7 @@ export function createLivingRoomStarterProject(
         },
         wallThicknessMm: LIVING_ROOM_DIMENSIONS.wallThicknessMm,
         extensions: {
-          floorMaterialId: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+          floorMaterialId: LIVING_ROOM_MATERIAL_IDS.warmStone,
           ceilingMaterialId: LIVING_ROOM_MATERIAL_IDS.ceilingPaint,
         },
       },

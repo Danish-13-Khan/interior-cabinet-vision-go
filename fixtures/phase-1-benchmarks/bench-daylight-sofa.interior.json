@@ -22,7 +22,7 @@
         },
         "wallThicknessMm": 120,
         "extensions": {
-          "floorMaterialId": "lr-material-natural-oak",
+          "floorMaterialId": "lr-material-stone-warm",
           "ceilingMaterialId": "lr-material-ceiling-soft-white"
         }
       }
@@ -150,9 +150,9 @@
           "z": 0
         },
         "dimensions": {
-          "widthMm": 3400,
-          "heightMm": 2300,
-          "depthMm": 58
+          "widthMm": 3600,
+          "heightMm": 2200,
+          "depthMm": 62
         },
         "materialSlots": {
           "backing": "lr-material-walnut",
@@ -160,9 +160,9 @@
           "trim": "lr-material-walnut"
         },
         "parameters": {
-          "slatWidthMm": 38,
-          "slatGapMm": 14,
-          "edgeRailMm": 48
+          "slatWidthMm": 46,
+          "slatGapMm": 18,
+          "edgeRailMm": 56
         },
         "extensions": {
           "placement": "wall"
@@ -667,7 +667,7 @@
         "id": "lr-material-natural-oak",
         "name": "Natural Oak",
         "kind": "wood",
-        "color": "#cba979",
+        "color": "#b99a7c",
         "roughness": 0.7,
         "metalness": 0,
         "opacity": 1,
@@ -681,8 +681,8 @@
         "id": "lr-material-walnut",
         "name": "Smoked Walnut",
         "kind": "wood",
-        "color": "#89634a",
-        "roughness": 0.64,
+        "color": "#60463a",
+        "roughness": 0.65,
         "metalness": 0,
         "opacity": 1,
         "extensions": {
@@ -749,6 +749,19 @@
         "kind": "fabric",
         "color": "#c9c1b5",
         "roughness": 1,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "nordic-light",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-stone-warm",
+        "name": "Warm Honed Stone",
+        "kind": "stone",
+        "color": "#d8d1c5",
+        "roughness": 0.48,
         "metalness": 0,
         "opacity": 1,
         "extensions": {

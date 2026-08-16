@@ -17,7 +17,7 @@ export type HeroFocalPreset = {
 export const HERO_FOCAL_PRESETS: Record<HeroFocalPresetId, HeroFocalPreset> = {
   wide: { id: "wide", fieldOfViewDegrees: 42, pullBack: 1.05, eyeHeightMm: 1560, targetHeightMm: 700 },
   seating: { id: "seating", fieldOfViewDegrees: 38, pullBack: 1.04, eyeHeightMm: 1520, targetHeightMm: 680 },
-  television: { id: "television", fieldOfViewDegrees: 40, pullBack: 1.03, eyeHeightMm: 1500, targetHeightMm: 920 },
+  television: { id: "television", fieldOfViewDegrees: 42, pullBack: 1.04, eyeHeightMm: 1500, targetHeightMm: 920 },
   detail: { id: "detail", fieldOfViewDegrees: 36, pullBack: 1.02, eyeHeightMm: 1380, targetHeightMm: 860 },
   default: { id: "default", fieldOfViewDegrees: 39, pullBack: 1.04, eyeHeightMm: 1540, targetHeightMm: 690 },
 };
@@ -73,9 +73,10 @@ function architecturalPose(
   if (isTelevision) {
     return {
       ...camera,
-      position: { x: center.x, y: 1500, z: center.z + depth * 0.42 },
-      target: { x: center.x, y: 920, z: center.z - depth * 0.42 },
-      fieldOfViewDegrees: 42,
+      // Show the entire millwork composition, rather than a product-detail crop.
+      position: { x: center.x, y: 1540, z: center.z + depth * 0.42 },
+      target: { x: center.x, y: 1080, z: center.z - depth * 0.4 },
+      fieldOfViewDegrees: 44,
     };
   }
   if (isDetail) {

@@ -58,7 +58,7 @@ describe("Living Room Starter Contract", () => {
     ).toBe(true);
     expect(project.walls.every((wall) => materialIds.has(wall.materialId!))).toBe(true);
     expect(project.rooms[0]!.extensions?.floorMaterialId).toBe(
-      LIVING_ROOM_MATERIAL_IDS.naturalOak,
+      LIVING_ROOM_MATERIAL_IDS.warmStone,
     );
     expect(inspectLivingRoomPlan(project)).toEqual([]);
   });
