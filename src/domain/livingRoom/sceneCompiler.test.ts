@@ -21,12 +21,17 @@ describe("living-room scene compiler", () => {
     const scene = compileLivingRoomScene(project);
     const objectNodes = scene.nodes.filter((node) => node.sourceObjectId);
 
-    expect(objectNodes).toHaveLength(8);
+    expect(objectNodes).toHaveLength(9);
     expect(objectNodes.every((node) => !node.placeholder)).toBe(true);
     expect(objectNodes.every((node) => node.primitives.length > 0)).toBe(true);
     expect(scene.warnings).toEqual([]);
     expect(scene.windowOpenings.length).toBeGreaterThan(0);
     expect(scene.materials.some((material) => material.kind === "glass")).toBe(true);
+    const featureWall = objectNodes.find(
+      (node) => node.metadata.catalogItemId === "living:feature-wall-fluted",
+    )!;
+    expect(featureWall.primitives.filter((primitive) => primitive.id.startsWith("slat-")).length)
+      .toBeGreaterThan(20);
     expect(
       objectNodes
         .filter((node) => node.metadata.category === "sofa" || node.metadata.category === "chair")

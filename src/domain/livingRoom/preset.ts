@@ -59,6 +59,11 @@ const OBJECT_LAYOUT: readonly {
   rotationY?: number;
 }[] = [
   {
+    key: "tv-feature-wall",
+    catalogItemId: "living:feature-wall-fluted",
+    position: { x: 0, y: 0, z: -2140 },
+  },
+  {
     key: "sofa",
     catalogItemId: "living:sofa-3-seat",
     position: { x: 0, y: 0, z: 1150 },
@@ -83,7 +88,7 @@ const OBJECT_LAYOUT: readonly {
   {
     key: "tv-unit",
     catalogItemId: "living:tv-unit",
-    position: { x: 0, y: 0, z: -1950 },
+    position: { x: 0, y: 0, z: -1700 },
   },
   {
     key: "area-rug",

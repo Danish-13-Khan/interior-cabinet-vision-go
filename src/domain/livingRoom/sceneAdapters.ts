@@ -14,6 +14,7 @@ import {
   compileRug,
   compileTvUnit,
 } from "./sceneAdaptersMillwork";
+import { compileFlutedFeatureWall } from "./sceneAdaptersFeatureWalls";
 import {
   compileCoffeeTable,
   compileFloorLamp,
@@ -32,6 +33,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "coffee-table-v1", catalogItemId: "living:coffee-table", compile: compileCoffeeTable },
   { id: "side-table-v1", catalogItemId: "living:side-table", compile: compileSideTable },
   { id: "tv-unit-v1", catalogItemId: "living:tv-unit", compile: compileTvUnit },
+  { id: "fluted-feature-wall-v1", catalogItemId: "living:feature-wall-fluted", compile: compileFlutedFeatureWall },
   { id: "rug-v1", catalogItemId: "living:area-rug", compile: compileRug },
   { id: "mirror-v1", catalogItemId: "living:wall-mirror", compile: compileMirror },
   { id: "floor-lamp-v1", catalogItemId: "living:floor-lamp", compile: compileFloorLamp },

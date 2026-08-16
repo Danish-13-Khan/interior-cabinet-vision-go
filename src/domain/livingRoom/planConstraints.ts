@@ -14,7 +14,8 @@ export type LivingRoomPlanIssue = {
   message: string;
 };
 
-const NON_BLOCKING_CATEGORIES = new Set(["rug", "mirror"]);
+// Surface-mounted treatment is part of the wall, not a circulation obstacle.
+const NON_BLOCKING_CATEGORIES = new Set(["rug", "mirror", "feature-wall"]);
 
 function openingZone(opening: OpeningEntity, wall: WallEntity): PlanBounds {
   const dx = wall.end.x - wall.start.x;
@@ -109,4 +110,3 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
   }
   return issues;
 }
-
