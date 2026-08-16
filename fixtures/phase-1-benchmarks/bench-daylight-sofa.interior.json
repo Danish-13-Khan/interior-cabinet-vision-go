@@ -169,6 +169,105 @@
         }
       },
       {
+        "id": "lr-object-tv-display-niche",
+        "roomId": "lr-room-main",
+        "kind": "cabinet",
+        "category": "display-niche",
+        "catalogItemId": "living:display-niche",
+        "name": "Lit Display Niche",
+        "position": {
+          "x": 1350,
+          "y": 280,
+          "z": -2020
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 560,
+          "heightMm": 1900,
+          "depthMm": 280
+        },
+        "materialSlots": {
+          "carcass": "lr-material-walnut",
+          "back": "lr-material-metal-charcoal",
+          "shelves": "lr-material-natural-oak"
+        },
+        "parameters": {
+          "shelfCount": 4,
+          "integratedLight": true
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
+        "id": "lr-object-display-vase",
+        "roomId": "lr-room-main",
+        "kind": "decor",
+        "category": "accessory",
+        "catalogItemId": "living:decor-vase",
+        "name": "Ceramic Display Vase",
+        "position": {
+          "x": 1350,
+          "y": 730,
+          "z": -1845
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 180,
+          "heightMm": 320,
+          "depthMm": 180
+        },
+        "materialSlots": {
+          "surface": "lr-material-walnut"
+        },
+        "parameters": {
+          "style": "tapered"
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
+        "id": "lr-object-display-sculpture",
+        "roomId": "lr-room-main",
+        "kind": "decor",
+        "category": "accessory",
+        "catalogItemId": "living:decor-sculpture",
+        "name": "Display Sculpture",
+        "position": {
+          "x": 1350,
+          "y": 1270,
+          "z": -1845
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 220,
+          "heightMm": 260,
+          "depthMm": 150
+        },
+        "materialSlots": {
+          "surface": "lr-material-natural-oak"
+        },
+        "parameters": {
+          "style": "rounded"
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
         "id": "lr-object-sofa",
         "roomId": "lr-room-main",
         "kind": "furniture",
@@ -585,6 +684,30 @@
         }
       },
       {
+        "id": "lr-light-daylight-display-niche",
+        "roomId": "lr-room-main",
+        "name": "Display Niche Light",
+        "kind": "point",
+        "position": {
+          "x": 1350,
+          "y": 1880,
+          "z": -1850
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffe9cb",
+        "intensity": 0.45,
+        "enabled": true,
+        "parameters": {
+          "rangeMm": 1700,
+          "integrated": true,
+          "recipeId": "daylight"
+        }
+      },
+      {
         "id": "lr-light-daylight-ambient",
         "roomId": "lr-room-main",
         "name": "Daylight Fill",
@@ -679,6 +802,30 @@
         }
       },
       {
+        "id": "lr-light-warm-evening-display-niche",
+        "roomId": "lr-room-main",
+        "name": "Display Niche Light",
+        "kind": "point",
+        "position": {
+          "x": 1350,
+          "y": 1880,
+          "z": -1850
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffc47c",
+        "intensity": 1.05,
+        "enabled": false,
+        "parameters": {
+          "rangeMm": 1700,
+          "integrated": true,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
         "id": "lr-light-warm-evening-ambient",
         "roomId": "lr-room-main",
         "name": "Evening Fill",
@@ -769,6 +916,30 @@
           "widthMm": 2800,
           "heightMm": 80,
           "rangeMm": 2200,
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "lr-light-neutral-studio-display-niche",
+        "roomId": "lr-room-main",
+        "name": "Display Niche Light",
+        "kind": "point",
+        "position": {
+          "x": 1350,
+          "y": 1880,
+          "z": -1850
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffd6a1",
+        "intensity": 0.7,
+        "enabled": false,
+        "parameters": {
+          "rangeMm": 1700,
+          "integrated": true,
           "recipeId": "neutral-studio"
         }
       },

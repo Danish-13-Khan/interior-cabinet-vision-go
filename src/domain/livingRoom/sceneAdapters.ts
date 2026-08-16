@@ -16,6 +16,11 @@ import {
 } from "./sceneAdaptersMillwork";
 import { compileFlutedFeatureWall } from "./sceneAdaptersFeatureWalls";
 import {
+  compileDecorSculpture,
+  compileDecorVase,
+  compileDisplayNiche,
+} from "./sceneAdaptersDisplay";
+import {
   compileCoffeeTable,
   compileFloorLamp,
   compileIndoorPlant,
@@ -34,6 +39,9 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "side-table-v1", catalogItemId: "living:side-table", compile: compileSideTable },
   { id: "tv-unit-v1", catalogItemId: "living:tv-unit", compile: compileTvUnit },
   { id: "fluted-feature-wall-v1", catalogItemId: "living:feature-wall-fluted", compile: compileFlutedFeatureWall },
+  { id: "display-niche-v1", catalogItemId: "living:display-niche", compile: compileDisplayNiche },
+  { id: "decor-vase-v1", catalogItemId: "living:decor-vase", compile: compileDecorVase },
+  { id: "decor-sculpture-v1", catalogItemId: "living:decor-sculpture", compile: compileDecorSculpture },
   { id: "rug-v1", catalogItemId: "living:area-rug", compile: compileRug },
   { id: "mirror-v1", catalogItemId: "living:wall-mirror", compile: compileMirror },
   { id: "floor-lamp-v1", catalogItemId: "living:floor-lamp", compile: compileFloorLamp },

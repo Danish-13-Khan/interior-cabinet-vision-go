@@ -21,7 +21,7 @@ describe("living-room scene compiler", () => {
     const scene = compileLivingRoomScene(project);
     const objectNodes = scene.nodes.filter((node) => node.sourceObjectId);
 
-    expect(objectNodes).toHaveLength(9);
+    expect(objectNodes).toHaveLength(12);
     expect(objectNodes.every((node) => !node.placeholder)).toBe(true);
     expect(objectNodes.every((node) => node.primitives.length > 0)).toBe(true);
     expect(scene.warnings).toEqual([]);
@@ -32,6 +32,10 @@ describe("living-room scene compiler", () => {
     )!;
     expect(featureWall.primitives.filter((primitive) => primitive.id.startsWith("slat-")).length)
       .toBeGreaterThan(20);
+    const displayNiche = objectNodes.find(
+      (node) => node.metadata.catalogItemId === "living:display-niche",
+    )!;
+    expect(displayNiche.primitives.some((primitive) => primitive.id === "back")).toBe(true);
     expect(
       objectNodes
         .filter((node) => node.metadata.category === "sofa" || node.metadata.category === "chair")

@@ -29,12 +29,23 @@ const featureWallCoveLight = (color: string, intensity: number): LightSeed => ({
   parameters: { widthMm: 2800, heightMm: 80, rangeMm: 2200 },
 });
 
+const displayNicheLight = (color: string, intensity: number): LightSeed => ({
+  key: "display-niche",
+  name: "Display Niche Light",
+  kind: "point",
+  position: { x: 1350, y: 1880, z: -1850 },
+  color,
+  intensity,
+  parameters: { rangeMm: 1700, integrated: true },
+});
+
 export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] = [
   {
     id: "daylight",
     name: "Soft Daylight",
     lights: [
       featureWallCoveLight("#fff0dc", 0.6),
+      displayNicheLight("#ffe9cb", 0.45),
       {
         key: "ambient",
         name: "Daylight Fill",
@@ -70,6 +81,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     name: "Warm Evening",
     lights: [
       featureWallCoveLight("#ffc788", 1.35),
+      displayNicheLight("#ffc47c", 1.05),
       {
         key: "ambient",
         name: "Evening Fill",
@@ -104,6 +116,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     name: "Neutral Studio",
     lights: [
       featureWallCoveLight("#ffe5c4", 0.85),
+      displayNicheLight("#ffd6a1", 0.7),
       {
         key: "ambient",
         name: "Studio Fill",
