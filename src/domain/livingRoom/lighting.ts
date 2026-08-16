@@ -18,11 +18,23 @@ export type LivingRoomLightingRecipe = {
   lights: readonly LightSeed[];
 };
 
+const featureWallCoveLight = (color: string, intensity: number): LightSeed => ({
+  key: "tv-wall-cove",
+  name: "TV Feature Wall Cove",
+  kind: "area",
+  position: { x: 0, y: 2250, z: -2100 },
+  rotation: { x: -70, y: 0, z: 0 },
+  color,
+  intensity,
+  parameters: { widthMm: 2800, heightMm: 80, rangeMm: 2200 },
+});
+
 export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] = [
   {
     id: "daylight",
     name: "Soft Daylight",
     lights: [
+      featureWallCoveLight("#fff0dc", 0.6),
       {
         key: "ambient",
         name: "Daylight Fill",
@@ -57,6 +69,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "warm-evening",
     name: "Warm Evening",
     lights: [
+      featureWallCoveLight("#ffc788", 1.35),
       {
         key: "ambient",
         name: "Evening Fill",
@@ -90,6 +103,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "neutral-studio",
     name: "Neutral Studio",
     lights: [
+      featureWallCoveLight("#ffe5c4", 0.85),
       {
         key: "ambient",
         name: "Studio Fill",

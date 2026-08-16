@@ -133,6 +133,42 @@
     ],
     "objects": [
       {
+        "id": "lr-object-tv-feature-wall",
+        "roomId": "lr-room-main",
+        "kind": "cabinet",
+        "category": "feature-wall",
+        "catalogItemId": "living:feature-wall-fluted",
+        "name": "Fluted Timber TV Feature Wall",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -2140
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 3400,
+          "heightMm": 2300,
+          "depthMm": 58
+        },
+        "materialSlots": {
+          "backing": "lr-material-walnut",
+          "slats": "lr-material-natural-oak",
+          "trim": "lr-material-walnut"
+        },
+        "parameters": {
+          "slatWidthMm": 38,
+          "slatGapMm": 14,
+          "edgeRailMm": 48
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
         "id": "lr-object-sofa",
         "roomId": "lr-room-main",
         "kind": "furniture",
@@ -271,11 +307,11 @@
         "kind": "furniture",
         "category": "media-unit",
         "catalogItemId": "living:tv-unit",
-        "name": "Low TV Unit",
+        "name": "Floating TV Console",
         "position": {
           "x": 0,
           "y": 0,
-          "z": -1950
+          "z": -1700
         },
         "rotation": {
           "x": 0,
@@ -293,7 +329,9 @@
         },
         "parameters": {
           "doorCount": 3,
-          "cableOpening": true
+          "cableOpening": true,
+          "floating": true,
+          "mountHeightMm": 360
         },
         "extensions": {
           "placement": "floor"
@@ -522,6 +560,31 @@
     ],
     "lights": [
       {
+        "id": "lr-light-daylight-tv-wall-cove",
+        "roomId": "lr-room-main",
+        "name": "TV Feature Wall Cove",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2250,
+          "z": -2100
+        },
+        "rotation": {
+          "x": -70,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#fff0dc",
+        "intensity": 0.6,
+        "enabled": true,
+        "parameters": {
+          "widthMm": 2800,
+          "heightMm": 80,
+          "rangeMm": 2200,
+          "recipeId": "daylight"
+        }
+      },
+      {
         "id": "lr-light-daylight-ambient",
         "roomId": "lr-room-main",
         "name": "Daylight Fill",
@@ -591,6 +654,31 @@
         }
       },
       {
+        "id": "lr-light-warm-evening-tv-wall-cove",
+        "roomId": "lr-room-main",
+        "name": "TV Feature Wall Cove",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2250,
+          "z": -2100
+        },
+        "rotation": {
+          "x": -70,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffc788",
+        "intensity": 1.35,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 2800,
+          "heightMm": 80,
+          "rangeMm": 2200,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
         "id": "lr-light-warm-evening-ambient",
         "roomId": "lr-room-main",
         "name": "Evening Fill",
@@ -657,6 +745,31 @@
           "widthMm": 3600,
           "heightMm": 2400,
           "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "lr-light-neutral-studio-tv-wall-cove",
+        "roomId": "lr-room-main",
+        "name": "TV Feature Wall Cove",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2250,
+          "z": -2100
+        },
+        "rotation": {
+          "x": -70,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffe5c4",
+        "intensity": 0.85,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 2800,
+          "heightMm": 80,
+          "rangeMm": 2200,
+          "recipeId": "neutral-studio"
         }
       },
       {

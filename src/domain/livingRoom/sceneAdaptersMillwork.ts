@@ -11,21 +11,23 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
   const fronts = materialSlot(object, "fronts", LIVING_ROOM_MATERIAL_IDS.naturalOak);
   const metal = LIVING_ROOM_MATERIAL_IDS.charcoalMetal;
   const doorCount = Math.max(1, Number(object.parameters.doorCount) || 3);
-  const plinthH = Math.max(60, h * 0.12);
+  const floating = object.parameters.floating === true;
+  const mountH = floating ? Math.max(120, Number(object.parameters.mountHeightMm) || 320) : 0;
+  const plinthH = floating ? 0 : Math.max(60, h * 0.12);
   const topH = Math.max(28, h * 0.055);
   const bodyH = Math.max(120, h - plinthH - topH);
-  const bodyY = plinthH + bodyH / 2;
-  const topY = plinthH + bodyH + topH / 2;
+  const bodyY = mountH + plinthH + bodyH / 2;
+  const topY = mountH + plinthH + bodyH + topH / 2;
   const panelT = 22;
   const frontInset = 10;
   const gap = 6;
   const parts: CompiledPrimitive[] = [
-    boxPrimitive(
+    ...(floating ? [] : [boxPrimitive(
       "plinth",
       { width: w * 0.94, height: plinthH, depth: d * 0.88 },
       { x: 0, y: plinthH / 2, z: 8 },
       metal,
-    ),
+    )]),
     boxPrimitive(
       "carcass",
       { width: w, height: bodyH, depth: d },
@@ -68,7 +70,7 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
 
   const tvW = w * 0.72;
   const tvH = h * 1.35;
-  const tvY = h + tvH * 0.42;
+  const tvY = mountH + h + tvH * 0.42;
   parts.push(
     roundedBoxPrimitive(
       "television",

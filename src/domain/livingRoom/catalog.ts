@@ -80,7 +80,7 @@ export const LIVING_ROOM_CATALOG = [
   },
   {
     id: "living:tv-unit",
-    name: "Low TV Unit",
+    name: "Floating TV Console",
     kind: "furniture",
     category: "media-unit",
     dimensions: { widthMm: 2000, heightMm: 520, depthMm: 440 },
@@ -88,8 +88,22 @@ export const LIVING_ROOM_CATALOG = [
       carcass: LIVING_ROOM_MATERIAL_IDS.walnut,
       fronts: LIVING_ROOM_MATERIAL_IDS.naturalOak,
     },
-    parameters: { doorCount: 3, cableOpening: true },
+    parameters: { doorCount: 3, cableOpening: true, floating: true, mountHeightMm: 360 },
     placement: "floor",
+  },
+  {
+    id: "living:feature-wall-fluted",
+    name: "Fluted Timber TV Feature Wall",
+    kind: "cabinet",
+    category: "feature-wall",
+    dimensions: { widthMm: 3400, heightMm: 2300, depthMm: 58 },
+    materialSlots: {
+      backing: LIVING_ROOM_MATERIAL_IDS.walnut,
+      slats: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+      trim: LIVING_ROOM_MATERIAL_IDS.walnut,
+    },
+    parameters: { slatWidthMm: 38, slatGapMm: 14, edgeRailMm: 48 },
+    placement: "wall",
   },
   {
     id: "living:area-rug",
