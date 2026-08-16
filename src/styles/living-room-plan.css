@@ -239,11 +239,37 @@
   background: #dfe5e9;
 }
 
+.lr-model-viewport.is-presence {
+  background:
+    radial-gradient(ellipse at 50% 18%, #c8d2d8 0%, transparent 55%),
+    #c5ced4;
+}
+
 .lr-model-viewport canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
   touch-action: none;
+}
+
+.lr-model-viewport.is-presence .lr-model-controls {
+  border-color: rgba(60, 78, 90, 0.35);
+  background: rgba(236, 241, 244, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+.lr-model-viewport.is-presence .lr-style-palette {
+  width: min(176px, 28vw);
+  background: rgba(236, 241, 244, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.lr-model-viewport.is-presence .lr-style-palette p {
+  display: none;
+}
+
+.lr-plan-titlebar.is-model-presence strong {
+  letter-spacing: 0.08em;
 }
 
 .lr-model-controls {
