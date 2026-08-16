@@ -46,6 +46,16 @@ describe("hero render quality", () => {
       .toBeGreaterThan(Math.hypot(previewPose.position.x - previewPose.target.x, previewPose.position.z - previewPose.target.z));
   });
 
+  it("frames the TV wall ahead of seating for a millwork hero", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const scene = compileLivingRoomScene(project);
+    const television = project.cameras.find((camera) => camera.name === "TV Wall")!;
+    const pose = resolveRenderCameraPose(television, scene.bounds, "architectural", "hero");
+    expect(pose.position.z).toBeGreaterThan(2000);
+    expect(pose.target.z).toBeLessThan(-1500);
+    expect(pose.target.y).toBe(HERO_FOCAL_PRESETS.television.targetHeightMm);
+  });
+
   it("grounds Client Preview harder than Draft and boosts capture scale", () => {
     const draft = resolveEnvironmentLightingQuality("preview", "draft");
     const hero = resolveEnvironmentLightingQuality("hero", "presentation");

@@ -43,7 +43,7 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
     boxPrimitive(
       "back-rail",
       { width: w - 16, height: bodyH * 0.92, depth: 12 },
-      { x: 0, y: bodyY, z: d / 2 - 10 },
+      { x: 0, y: bodyY, z: -d / 2 + 10 },
       carcass,
       { castShadow: false },
     ),
@@ -57,13 +57,13 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
     parts.push(boxPrimitive(
       `front-${index + 1}`,
       { width: doorW, height: doorH, depth: panelT },
-      { x, y: bodyY, z: -d / 2 - frontInset },
+      { x, y: bodyY, z: d / 2 + frontInset },
       fronts,
     ));
     parts.push(cylinderPrimitive(
       `handle-${index + 1}`,
       { radiusTopMm: 5, radiusBottomMm: 5, heightMm: Math.min(72, doorH * 0.22), radialSegments: 10 },
-      { x: x + doorW * 0.28, y: bodyY, z: -d / 2 - frontInset - panelT / 2 - 6 },
+      { x: x + doorW * 0.28, y: bodyY, z: d / 2 + frontInset + panelT / 2 + 6 },
       metal,
     ));
   }

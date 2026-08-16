@@ -147,4 +147,14 @@ describe("living-room scene compiler", () => {
     })[0];
     expect(afterKey?.targetMm).toEqual(beforeKey?.targetMm);
   });
+
+  it("orients TV console fronts toward the presentation camera", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const tv = project.objects.find((object) => object.catalogItemId === "living:tv-unit")!;
+    const node = compileLivingRoomScene(project).nodes.find((item) => item.sourceObjectId === tv.id)!;
+    const front = node.primitives.find((primitive) => primitive.id === "front-1")!;
+    const back = node.primitives.find((primitive) => primitive.id === "back-rail")!;
+    expect(front.positionMm.z).toBeGreaterThan(0);
+    expect(back.positionMm.z).toBeLessThan(0);
+  });
 });

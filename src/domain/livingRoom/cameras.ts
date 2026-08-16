@@ -18,8 +18,8 @@ const CAMERA_SEEDS: readonly CameraSeed[] = [
     target: { x: -280, y: 680, z: -20 }, fieldOfViewDegrees: 40,
   },
   {
-    key: "tv-wall", name: "TV Wall", position: { x: 180, y: 1480, z: 2100 },
-    target: { x: 40, y: 880, z: -1980 }, fieldOfViewDegrees: 40,
+    key: "tv-wall", name: "TV Wall", position: { x: 0, y: 1540, z: 1930 },
+    target: { x: 0, y: 1080, z: -1840 }, fieldOfViewDegrees: 44,
   },
 ];
 

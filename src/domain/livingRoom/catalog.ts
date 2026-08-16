@@ -96,13 +96,13 @@ export const LIVING_ROOM_CATALOG = [
     name: "Fluted Timber TV Feature Wall",
     kind: "cabinet",
     category: "feature-wall",
-    dimensions: { widthMm: 3400, heightMm: 2300, depthMm: 58 },
+    dimensions: { widthMm: 3600, heightMm: 2200, depthMm: 62 },
     materialSlots: {
       backing: LIVING_ROOM_MATERIAL_IDS.walnut,
       slats: LIVING_ROOM_MATERIAL_IDS.naturalOak,
       trim: LIVING_ROOM_MATERIAL_IDS.walnut,
     },
-    parameters: { slatWidthMm: 38, slatGapMm: 14, edgeRailMm: 48 },
+    parameters: { slatWidthMm: 46, slatGapMm: 18, edgeRailMm: 56 },
     placement: "wall",
   },
   {
