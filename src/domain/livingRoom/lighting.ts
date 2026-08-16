@@ -1,10 +1,8 @@
 import type {
   InteriorProject,
   LightEntity,
-  LightKind,
-  ParameterValue,
-  Point3Mm,
 } from "../interiorProject";
+import { createLightingRigs, type LightingSeed } from "../interiorFoundation";
 import type { LivingRoomIdFactory } from "./ids";
 
 export type LivingRoomLightingRecipeId =
@@ -12,16 +10,7 @@ export type LivingRoomLightingRecipeId =
   | "warm-evening"
   | "neutral-studio";
 
-type LightSeed = {
-  key: string;
-  name: string;
-  kind: LightKind;
-  position: Point3Mm;
-  rotation?: Point3Mm;
-  color: string;
-  intensity: number;
-  parameters?: Record<string, ParameterValue>;
-};
+type LightSeed = LightingSeed;
 
 export type LivingRoomLightingRecipe = {
   id: LivingRoomLightingRecipeId;
@@ -138,20 +127,12 @@ export function createLivingRoomLights(
   activeRecipeId: LivingRoomLightingRecipeId,
   idFactory: LivingRoomIdFactory,
 ): LightEntity[] {
-  return LIVING_ROOM_LIGHTING_RECIPES.flatMap((recipe) =>
-    recipe.lights.map((light) => ({
-      id: idFactory("light", `${recipe.id}-${light.key}`),
-      roomId,
-      name: light.name,
-      kind: light.kind,
-      position: { ...light.position },
-      rotation: { ...(light.rotation ?? { x: 0, y: 0, z: 0 }) },
-      color: light.color,
-      intensity: light.intensity,
-      enabled: recipe.id === activeRecipeId,
-      parameters: { ...light.parameters, recipeId: recipe.id },
-    })),
-  );
+  return createLightingRigs({
+    roomId,
+    activeRecipeId,
+    recipes: LIVING_ROOM_LIGHTING_RECIPES,
+    idFactory,
+  });
 }
 
 /** Activate a complete standard rig while retaining user-authored custom lights. */
