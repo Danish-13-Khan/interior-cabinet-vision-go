@@ -20,6 +20,7 @@ import {
   compileDecorVase,
   compileDisplayNiche,
 } from "./sceneAdaptersDisplay";
+import { compileCeilingFan, compileCurtainSet } from "./sceneAdaptersAtmosphere";
 import {
   compileCoffeeTable,
   compileFloorLamp,
@@ -42,6 +43,8 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "display-niche-v1", catalogItemId: "living:display-niche", compile: compileDisplayNiche },
   { id: "decor-vase-v1", catalogItemId: "living:decor-vase", compile: compileDecorVase },
   { id: "decor-sculpture-v1", catalogItemId: "living:decor-sculpture", compile: compileDecorSculpture },
+  { id: "ceiling-fan-v1", catalogItemId: "living:ceiling-fan", compile: compileCeilingFan },
+  { id: "curtain-set-v1", catalogItemId: "living:curtain-set", compile: compileCurtainSet },
   { id: "rug-v1", catalogItemId: "living:area-rug", compile: compileRug },
   { id: "mirror-v1", catalogItemId: "living:wall-mirror", compile: compileMirror },
   { id: "floor-lamp-v1", catalogItemId: "living:floor-lamp", compile: compileFloorLamp },
