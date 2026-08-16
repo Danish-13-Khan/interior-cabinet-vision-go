@@ -112,4 +112,15 @@ export const MATERIAL_ASSET_MANIFEST = [
     colorMapId: "tex:rug-wool-color",
     proceduralFallback: true,
   },
+  {
+    id: LIVING_ROOM_MATERIAL_IDS.warmStone,
+    name: "Warm Honed Stone",
+    kind: "stone",
+    baseColor: "#d8d1c5",
+    roughness: 0.48,
+    metalness: 0,
+    opacity: 1,
+    uvScaleMm: 1800,
+    proceduralFallback: true,
+  },
 ] as const satisfies readonly MaterialAssetDefinition[];

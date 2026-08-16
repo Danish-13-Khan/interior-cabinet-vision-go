@@ -19,7 +19,7 @@ async function goView(page: Page, view: "plan" | "model" | "render") {
   const title = view === "plan"
     ? "PLAN · LIVING ROOM"
     : view === "model"
-      ? "MODEL · LIVING ROOM"
+      ? "MODEL"
       : "RENDER · LIVING ROOM";
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText(title);
 }

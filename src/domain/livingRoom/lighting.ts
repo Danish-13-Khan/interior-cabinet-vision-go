@@ -1,10 +1,8 @@
 import type {
   InteriorProject,
   LightEntity,
-  LightKind,
-  ParameterValue,
-  Point3Mm,
 } from "../interiorProject";
+import { createLightingRigs, type LightingSeed } from "../interiorFoundation";
 import type { LivingRoomIdFactory } from "./ids";
 
 export type LivingRoomLightingRecipeId =
@@ -12,16 +10,7 @@ export type LivingRoomLightingRecipeId =
   | "warm-evening"
   | "neutral-studio";
 
-type LightSeed = {
-  key: string;
-  name: string;
-  kind: LightKind;
-  position: Point3Mm;
-  rotation?: Point3Mm;
-  color: string;
-  intensity: number;
-  parameters?: Record<string, ParameterValue>;
-};
+type LightSeed = LightingSeed;
 
 export type LivingRoomLightingRecipe = {
   id: LivingRoomLightingRecipeId;
@@ -29,11 +18,34 @@ export type LivingRoomLightingRecipe = {
   lights: readonly LightSeed[];
 };
 
+const featureWallCoveLight = (color: string, intensity: number): LightSeed => ({
+  key: "tv-wall-cove",
+  name: "TV Feature Wall Cove",
+  kind: "area",
+  position: { x: 0, y: 2250, z: -2100 },
+  rotation: { x: -70, y: 0, z: 0 },
+  color,
+  intensity,
+  parameters: { widthMm: 2800, heightMm: 80, rangeMm: 2200 },
+});
+
+const displayNicheLight = (color: string, intensity: number): LightSeed => ({
+  key: "display-niche",
+  name: "Display Niche Light",
+  kind: "point",
+  position: { x: 1350, y: 1880, z: -1850 },
+  color,
+  intensity,
+  parameters: { rangeMm: 1700, integrated: true },
+});
+
 export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] = [
   {
     id: "daylight",
     name: "Soft Daylight",
     lights: [
+      featureWallCoveLight("#fff0dc", 0.6),
+      displayNicheLight("#ffe9cb", 0.45),
       {
         key: "ambient",
         name: "Daylight Fill",
@@ -68,6 +80,8 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "warm-evening",
     name: "Warm Evening",
     lights: [
+      featureWallCoveLight("#ffc788", 1.35),
+      displayNicheLight("#ffc47c", 1.05),
       {
         key: "ambient",
         name: "Evening Fill",
@@ -101,6 +115,8 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "neutral-studio",
     name: "Neutral Studio",
     lights: [
+      featureWallCoveLight("#ffe5c4", 0.85),
+      displayNicheLight("#ffd6a1", 0.7),
       {
         key: "ambient",
         name: "Studio Fill",
@@ -138,20 +154,12 @@ export function createLivingRoomLights(
   activeRecipeId: LivingRoomLightingRecipeId,
   idFactory: LivingRoomIdFactory,
 ): LightEntity[] {
-  return LIVING_ROOM_LIGHTING_RECIPES.flatMap((recipe) =>
-    recipe.lights.map((light) => ({
-      id: idFactory("light", `${recipe.id}-${light.key}`),
-      roomId,
-      name: light.name,
-      kind: light.kind,
-      position: { ...light.position },
-      rotation: { ...(light.rotation ?? { x: 0, y: 0, z: 0 }) },
-      color: light.color,
-      intensity: light.intensity,
-      enabled: recipe.id === activeRecipeId,
-      parameters: { ...light.parameters, recipeId: recipe.id },
-    })),
-  );
+  return createLightingRigs({
+    roomId,
+    activeRecipeId,
+    recipes: LIVING_ROOM_LIGHTING_RECIPES,
+    idFactory,
+  });
 }
 
 /** Activate a complete standard rig while retaining user-authored custom lights. */

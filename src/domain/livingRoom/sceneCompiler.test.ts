@@ -21,12 +21,25 @@ describe("living-room scene compiler", () => {
     const scene = compileLivingRoomScene(project);
     const objectNodes = scene.nodes.filter((node) => node.sourceObjectId);
 
-    expect(objectNodes).toHaveLength(8);
+    expect(objectNodes).toHaveLength(15);
     expect(objectNodes.every((node) => !node.placeholder)).toBe(true);
     expect(objectNodes.every((node) => node.primitives.length > 0)).toBe(true);
     expect(scene.warnings).toEqual([]);
     expect(scene.windowOpenings.length).toBeGreaterThan(0);
     expect(scene.materials.some((material) => material.kind === "glass")).toBe(true);
+    const featureWall = objectNodes.find(
+      (node) => node.metadata.catalogItemId === "living:feature-wall-fluted",
+    )!;
+    expect(featureWall.primitives.filter((primitive) => primitive.id.startsWith("slat-")).length)
+      .toBeGreaterThan(20);
+    const displayNiche = objectNodes.find(
+      (node) => node.metadata.catalogItemId === "living:display-niche",
+    )!;
+    expect(displayNiche.primitives.some((primitive) => primitive.id === "back")).toBe(true);
+    const fan = objectNodes.find(
+      (node) => node.metadata.catalogItemId === "living:ceiling-fan",
+    )!;
+    expect(fan.primitives.filter((primitive) => primitive.id.startsWith("blade-")).length).toBe(4);
     expect(
       objectNodes
         .filter((node) => node.metadata.category === "sofa" || node.metadata.category === "chair")
@@ -133,5 +146,15 @@ describe("living-room scene compiler", () => {
       quality: "draft",
     })[0];
     expect(afterKey?.targetMm).toEqual(beforeKey?.targetMm);
+  });
+
+  it("orients TV console fronts toward the presentation camera", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const tv = project.objects.find((object) => object.catalogItemId === "living:tv-unit")!;
+    const node = compileLivingRoomScene(project).nodes.find((item) => item.sourceObjectId === tv.id)!;
+    const front = node.primitives.find((primitive) => primitive.id === "front-1")!;
+    const back = node.primitives.find((primitive) => primitive.id === "back-rail")!;
+    expect(front.positionMm.z).toBeGreaterThan(0);
+    expect(back.positionMm.z).toBeLessThan(0);
   });
 });

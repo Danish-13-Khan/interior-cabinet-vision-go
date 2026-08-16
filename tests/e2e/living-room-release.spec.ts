@@ -11,16 +11,18 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("PLAN · LIVING ROOM");
 
   await page.keyboard.press("2");
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("MODEL · LIVING ROOM");
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("MODEL");
   await page.keyboard.press("3");
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("RENDER · LIVING ROOM");
 
   await page.getByRole("button", { name: /Draft Fast camera/ }).click();
   await page.getByLabel("Resolution").selectOption("hd");
   const renderButton = page.getByRole("button", { name: "Render Image" });
-  await expect(renderButton).toBeEnabled();
+  // The WebGL capture bridge is enabled after the presentation scene settles.
+  await expect(renderButton).toBeEnabled({ timeout: 25_000 });
   await renderButton.click();
   await expect(page.getByAltText(/Render from/)).toBeVisible({ timeout: 30_000 });
+  await page.screenshot({ path: "test-results/release-hero.png", fullPage: false });
 
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Save *" }).click();

@@ -51,6 +51,7 @@ const MATERIAL_UV_SCALE_MM: Record<string, number> = {
   [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: 600,
   [LIVING_ROOM_MATERIAL_IDS.clearGlass]: 1200,
   [LIVING_ROOM_MATERIAL_IDS.woolRug]: 1600,
+  [LIVING_ROOM_MATERIAL_IDS.warmStone]: 1800,
 };
 
 function isGlbIntentCatalogId(id: string): id is GlbIntentCatalogId {

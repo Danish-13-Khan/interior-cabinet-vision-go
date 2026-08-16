@@ -72,8 +72,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     materialRecipes: {
       [LIVING_ROOM_MATERIAL_IDS.wallPaint]: materialRecipe("#e9e3d8", 0.86),
       [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: materialRecipe("#f5f2eb", 0.9),
-      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#b98a58", 0.62),
-      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#5a3928", 0.56),
+      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#aa8467", 0.66),
+      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#503a2e", 0.6),
       [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: materialRecipe("#c8baa6", 0.96),
       [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: materialRecipe("#73765a", 0.95),
       [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: materialRecipe("#2d302f", 0.36, 0.72),
@@ -110,8 +110,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     materialRecipes: {
       [LIVING_ROOM_MATERIAL_IDS.wallPaint]: materialRecipe("#ecece6", 0.9),
       [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: materialRecipe("#fbfaf5", 0.94),
-      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#cba979", 0.7),
-      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#89634a", 0.64),
+      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#b99a7c", 0.7),
+      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#60463a", 0.65),
       [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: materialRecipe("#d7cec0", 0.98),
       [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: materialRecipe("#87937a", 0.98),
       [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: materialRecipe("#3d4442", 0.42, 0.58),
@@ -148,8 +148,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     materialRecipes: {
       [LIVING_ROOM_MATERIAL_IDS.wallPaint]: materialRecipe("#817d73", 0.88),
       [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: materialRecipe("#d9d2c7", 0.92),
-      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#96734e", 0.6),
-      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#43291e", 0.5),
+      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#866a53", 0.64),
+      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#3d2d26", 0.56),
       [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: materialRecipe("#a99884", 0.97),
       [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: materialRecipe("#555d48", 0.98),
       [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: materialRecipe("#1d2020", 0.28, 0.78),

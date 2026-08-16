@@ -31,13 +31,15 @@ describe("LR-08 release candidate", () => {
 
     expect(first).toEqual(second);
     expect(first.id).toBe("living-room-release-demo");
-    expect(first.objects).toHaveLength(10);
+    expect(first.objects).toHaveLength(17);
     expect(first.objects.some((object) => object.catalogItemId === "living:indoor-plant")).toBe(true);
     expect(first.objects.some((object) => object.catalogItemId === "living:bookcase")).toBe(true);
     expect(first.cameras.find((camera) => camera.isDefault)?.name).toBe("Wide Room");
+    expect(first.cameras.find((camera) => camera.id === first.renderSettings.activeCameraId)?.name)
+      .toBe("TV Wall");
     expect(first.renderSettings).toMatchObject({
-      widthPx: 2560,
-      heightPx: 1440,
+      widthPx: 3840,
+      heightPx: 2160,
       quality: "presentation",
       lightingRecipeId: "daylight",
     });
@@ -78,7 +80,7 @@ describe("LR-08 release candidate", () => {
 
     expect(edited).toEqual(immutableSnapshot);
     expect(render.sceneFingerprint).toBe(before.fingerprint);
-    expect(render.widthPx).toBe(2560);
+    expect(render.widthPx).toBe(3840);
     expect(interiorProjectFingerprint(reopened)).toBe(
       interiorProjectFingerprint(edited),
     );
