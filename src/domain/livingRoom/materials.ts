@@ -1,4 +1,5 @@
 import type { MaterialEntity } from "../interiorProject";
+import { createMaterialLibrary } from "../interiorFoundation";
 
 export const LIVING_ROOM_MATERIAL_IDS = {
   wallPaint: "lr-material-wall-warm-white",
@@ -99,8 +100,5 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
 ];
 
 export function createLivingRoomMaterials(): MaterialEntity[] {
-  return LIVING_ROOM_MATERIAL_PRESETS.map((material) => ({
-    ...material,
-    extensions: material.extensions ? { ...material.extensions } : undefined,
-  }));
+  return createMaterialLibrary(LIVING_ROOM_MATERIAL_PRESETS);
 }
