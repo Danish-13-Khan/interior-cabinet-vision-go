@@ -1,4 +1,5 @@
 import type { MaterialEntity } from "../interiorProject";
+import { createMaterialLibrary } from "../interiorFoundation";
 
 export const LIVING_ROOM_MATERIAL_IDS = {
   wallPaint: "lr-material-wall-warm-white",
@@ -10,6 +11,7 @@ export const LIVING_ROOM_MATERIAL_IDS = {
   charcoalMetal: "lr-material-metal-charcoal",
   clearGlass: "lr-material-glass-clear",
   woolRug: "lr-material-rug-wool-sand",
+  warmStone: "lr-material-stone-warm",
 } as const;
 
 const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
@@ -35,8 +37,8 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     id: LIVING_ROOM_MATERIAL_IDS.naturalOak,
     name: "Natural Oak",
     kind: "wood",
-    color: "#c4925c",
-    roughness: 0.56,
+    color: "#a98262",
+    roughness: 0.64,
     metalness: 0,
     opacity: 1,
     extensions: { grainDirection: "length" },
@@ -45,8 +47,8 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     id: LIVING_ROOM_MATERIAL_IDS.walnut,
     name: "Smoked Walnut",
     kind: "wood",
-    color: "#4a2e20",
-    roughness: 0.5,
+    color: "#4b3328",
+    roughness: 0.58,
     metalness: 0,
     opacity: 1,
     extensions: { grainDirection: "length" },
@@ -96,11 +98,17 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     metalness: 0,
     opacity: 1,
   },
+  {
+    id: LIVING_ROOM_MATERIAL_IDS.warmStone,
+    name: "Warm Honed Stone",
+    kind: "stone",
+    color: "#d8d1c5",
+    roughness: 0.48,
+    metalness: 0,
+    opacity: 1,
+  },
 ];
 
 export function createLivingRoomMaterials(): MaterialEntity[] {
-  return LIVING_ROOM_MATERIAL_PRESETS.map((material) => ({
-    ...material,
-    extensions: material.extensions ? { ...material.extensions } : undefined,
-  }));
+  return createMaterialLibrary(LIVING_ROOM_MATERIAL_PRESETS);
 }

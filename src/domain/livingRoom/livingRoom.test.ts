@@ -25,7 +25,7 @@ describe("Living Room Starter Contract", () => {
     expect(LIVING_ROOM_CATALOG.filter((item) => item.category === "chair")).toHaveLength(2);
     expect(LIVING_ROOM_CATALOG.some((item) => item.category === "storage")).toBe(true);
     expect(LIVING_ROOM_CATALOG.some((item) => item.category === "plant")).toBe(true);
-    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(16);
+    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(22);
     expect(LIVING_ROOM_CATALOG.every((item) => item.dimensions.widthMm > 0)).toBe(true);
     expect(LIVING_ROOM_CATALOG.every((item) => getLivingRoomObjectAdapter(item.id))).toBe(true);
   });
@@ -46,7 +46,9 @@ describe("Living Room Starter Contract", () => {
       "door",
       "window",
     ]);
-    expect(project.objects).toHaveLength(8);
+    expect(project.objects).toHaveLength(15);
+    expect(project.objects.some((object) => object.catalogItemId === "living:ceiling-fan")).toBe(true);
+    expect(project.objects.some((object) => object.catalogItemId === "living:curtain-set")).toBe(true);
     expect(project.objects.every((object) => object.roomId === roomId)).toBe(true);
     expect(project.openings.every((opening) => wallIds.has(opening.wallId))).toBe(true);
     expect(
@@ -56,7 +58,7 @@ describe("Living Room Starter Contract", () => {
     ).toBe(true);
     expect(project.walls.every((wall) => materialIds.has(wall.materialId!))).toBe(true);
     expect(project.rooms[0]!.extensions?.floorMaterialId).toBe(
-      LIVING_ROOM_MATERIAL_IDS.naturalOak,
+      LIVING_ROOM_MATERIAL_IDS.warmStone,
     );
     expect(inspectLivingRoomPlan(project)).toEqual([]);
   });
@@ -74,10 +76,13 @@ describe("Living Room Starter Contract", () => {
     expect(recipeIds).toEqual(
       new Set(LIVING_ROOM_LIGHTING_RECIPES.map((recipe) => recipe.id)),
     );
-    expect(enabledLights).toHaveLength(3);
+    expect(enabledLights).toHaveLength(
+      LIVING_ROOM_LIGHTING_RECIPES.find((recipe) => recipe.id === "warm-evening")!.lights.length,
+    );
     expect(
       enabledLights.every((light) => light.parameters.recipeId === "warm-evening"),
     ).toBe(true);
+    expect(enabledLights.some((light) => light.name === "Display Niche Light")).toBe(true);
     expect(project.renderSettings.lightingRecipeId).toBe("warm-evening");
     expect(project.cameras).toHaveLength(LIVING_ROOM_CAMERA_KEYS.length);
     expect(project.cameras.filter((camera) => camera.isDefault)).toHaveLength(1);

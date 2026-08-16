@@ -63,18 +63,18 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
       rotationY: 270,
     }),
   );
-  const wideRoom = arranged.cameras.find((camera) => /wide\s*room/i.test(camera.name));
+  const tvWall = arranged.cameras.find((camera) => /tv\s*wall/i.test(camera.name));
 
   return {
     ...arranged,
     updatedAt: LIVING_ROOM_RELEASE_DEMO_DATE,
     renderSettings: {
       ...arranged.renderSettings,
-      widthPx: 2560,
-      heightPx: 1440,
+      widthPx: 3840,
+      heightPx: 2160,
       quality: "presentation",
       exposure: 1.18,
-      activeCameraId: wideRoom?.id ?? arranged.renderSettings.activeCameraId,
+      activeCameraId: tvWall?.id ?? arranged.renderSettings.activeCameraId,
     },
     extensions: {
       ...arranged.extensions,

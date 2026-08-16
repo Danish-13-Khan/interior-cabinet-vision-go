@@ -11,21 +11,23 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
   const fronts = materialSlot(object, "fronts", LIVING_ROOM_MATERIAL_IDS.naturalOak);
   const metal = LIVING_ROOM_MATERIAL_IDS.charcoalMetal;
   const doorCount = Math.max(1, Number(object.parameters.doorCount) || 3);
-  const plinthH = Math.max(60, h * 0.12);
+  const floating = object.parameters.floating === true;
+  const mountH = floating ? Math.max(120, Number(object.parameters.mountHeightMm) || 320) : 0;
+  const plinthH = floating ? 0 : Math.max(60, h * 0.12);
   const topH = Math.max(28, h * 0.055);
   const bodyH = Math.max(120, h - plinthH - topH);
-  const bodyY = plinthH + bodyH / 2;
-  const topY = plinthH + bodyH + topH / 2;
+  const bodyY = mountH + plinthH + bodyH / 2;
+  const topY = mountH + plinthH + bodyH + topH / 2;
   const panelT = 22;
   const frontInset = 10;
   const gap = 6;
   const parts: CompiledPrimitive[] = [
-    boxPrimitive(
+    ...(floating ? [] : [boxPrimitive(
       "plinth",
       { width: w * 0.94, height: plinthH, depth: d * 0.88 },
       { x: 0, y: plinthH / 2, z: 8 },
       metal,
-    ),
+    )]),
     boxPrimitive(
       "carcass",
       { width: w, height: bodyH, depth: d },
@@ -41,7 +43,7 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
     boxPrimitive(
       "back-rail",
       { width: w - 16, height: bodyH * 0.92, depth: 12 },
-      { x: 0, y: bodyY, z: d / 2 - 10 },
+      { x: 0, y: bodyY, z: -d / 2 + 10 },
       carcass,
       { castShadow: false },
     ),
@@ -55,20 +57,20 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
     parts.push(boxPrimitive(
       `front-${index + 1}`,
       { width: doorW, height: doorH, depth: panelT },
-      { x, y: bodyY, z: -d / 2 - frontInset },
+      { x, y: bodyY, z: d / 2 + frontInset },
       fronts,
     ));
     parts.push(cylinderPrimitive(
       `handle-${index + 1}`,
       { radiusTopMm: 5, radiusBottomMm: 5, heightMm: Math.min(72, doorH * 0.22), radialSegments: 10 },
-      { x: x + doorW * 0.28, y: bodyY, z: -d / 2 - frontInset - panelT / 2 - 6 },
+      { x: x + doorW * 0.28, y: bodyY, z: d / 2 + frontInset + panelT / 2 + 6 },
       metal,
     ));
   }
 
   const tvW = w * 0.72;
   const tvH = h * 1.35;
-  const tvY = h + tvH * 0.42;
+  const tvY = mountH + h + tvH * 0.42;
   parts.push(
     roundedBoxPrimitive(
       "television",

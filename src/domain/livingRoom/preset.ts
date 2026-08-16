@@ -2,11 +2,13 @@ import {
   createEmptyInteriorProject,
   validateInteriorProject,
   type InteriorProject,
-  type OpeningEntity,
-  type WallEntity,
 } from "../interiorProject";
+import {
+  createRectangularRoomShell,
+  type RoomOpeningSeed,
+} from "../interiorFoundation";
 import { createLivingRoomCameras } from "./cameras";
-import { createLivingRoomObject, type LivingRoomCatalogId } from "./catalog";
+import { createLivingRoomObject } from "./catalog";
 import {
   defaultLivingRoomIdFactory,
   type LivingRoomIdFactory,
@@ -20,6 +22,7 @@ import {
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";
 import { applyLivingRoomStyle } from "./stylePresets";
+import { LIVING_ROOM_STARTER_LAYOUT } from "./starterLayout";
 
 export const LIVING_ROOM_PRESET_ID = "living-room-starter";
 export const LIVING_ROOM_PRESET_VERSION = 1;
@@ -38,113 +41,15 @@ export type LivingRoomStarterOptions = {
   lightingRecipeId?: LivingRoomLightingRecipeId;
 };
 
-function createWalls(roomId: string, idFactory: LivingRoomIdFactory): WallEntity[] {
-  const halfWidth = LIVING_ROOM_DIMENSIONS.widthMm / 2;
-  const halfDepth = LIVING_ROOM_DIMENSIONS.depthMm / 2;
-  const wall = (
-    key: string,
-    start: { x: number; z: number },
-    end: { x: number; z: number },
-  ): WallEntity => ({
-    id: idFactory("wall", key),
-    roomId,
-    start,
-    end,
-    heightMm: LIVING_ROOM_DIMENSIONS.heightMm,
-    thicknessMm: LIVING_ROOM_DIMENSIONS.wallThicknessMm,
-    visible: true,
-    materialId: LIVING_ROOM_MATERIAL_IDS.wallPaint,
-    extensions: { wallSide: key },
-  });
-  return [
-    wall("back", { x: -halfWidth, z: -halfDepth }, { x: halfWidth, z: -halfDepth }),
-    wall("right", { x: halfWidth, z: -halfDepth }, { x: halfWidth, z: halfDepth }),
-    wall("front", { x: halfWidth, z: halfDepth }, { x: -halfWidth, z: halfDepth }),
-    wall("left", { x: -halfWidth, z: halfDepth }, { x: -halfWidth, z: -halfDepth }),
-  ];
-}
-
-function createOpenings(
-  roomId: string,
-  walls: WallEntity[],
-  idFactory: LivingRoomIdFactory,
-): OpeningEntity[] {
-  const wallId = (side: string) =>
-    walls.find((wall) => wall.extensions?.wallSide === side)!.id;
-  return [
-    {
-      id: idFactory("opening", "entry-door"),
-      roomId,
-      wallId: wallId("front"),
-      kind: "door",
-      offsetMm: 650,
-      widthMm: 900,
-      heightMm: 2100,
-      sillHeightMm: 0,
-      swingDirection: "in",
-      extensions: { hinge: "left" },
-    },
-    {
-      id: idFactory("opening", "picture-window"),
-      roomId,
-      wallId: wallId("left"),
-      kind: "window",
-      offsetMm: 1350,
-      widthMm: 1800,
-      heightMm: 1300,
-      sillHeightMm: 750,
-    },
-  ];
-}
-
-const OBJECT_LAYOUT: readonly {
-  key: string;
-  catalogItemId: LivingRoomCatalogId;
-  position: { x: number; y: number; z: number };
-  rotationY?: number;
-}[] = [
+const OPENING_SEEDS: readonly RoomOpeningSeed[] = [
   {
-    key: "sofa",
-    catalogItemId: "living:sofa-3-seat",
-    position: { x: 0, y: 0, z: 1150 },
-    rotationY: 0,
+    key: "entry-door", wallSide: "front", kind: "door", offsetMm: 650,
+    widthMm: 900, heightMm: 2100, sillHeightMm: 0, swingDirection: "in",
+    extensions: { hinge: "left" },
   },
   {
-    key: "lounge-chair",
-    catalogItemId: "living:lounge-chair",
-    position: { x: -2100, y: 0, z: 300 },
-    rotationY: 45,
-  },
-  {
-    key: "coffee-table",
-    catalogItemId: "living:coffee-table",
-    position: { x: 0, y: 0, z: -50 },
-  },
-  {
-    key: "side-table",
-    catalogItemId: "living:side-table",
-    position: { x: -2100, y: 0, z: -1050 },
-  },
-  {
-    key: "tv-unit",
-    catalogItemId: "living:tv-unit",
-    position: { x: 0, y: 0, z: -1950 },
-  },
-  {
-    key: "area-rug",
-    catalogItemId: "living:area-rug",
-    position: { x: 0, y: 0, z: 300 },
-  },
-  {
-    key: "wall-mirror",
-    catalogItemId: "living:wall-mirror",
-    position: { x: 3020, y: 850, z: -650 },
-    rotationY: 270,
-  },
-  {
-    key: "floor-lamp",
-    catalogItemId: "living:floor-lamp",
-    position: { x: 2350, y: 0, z: -1150 },
+    key: "picture-window", wallSide: "left", kind: "window", offsetMm: 1350,
+    widthMm: 1800, heightMm: 1300, sillHeightMm: 750,
   },
 ];
 
@@ -156,7 +61,13 @@ export function createLivingRoomStarterProject(
   const idFactory = options.idFactory ?? defaultLivingRoomIdFactory;
   const roomId = idFactory("room", "main");
   const activeLighting = options.lightingRecipeId ?? "neutral-studio";
-  const walls = createWalls(roomId, idFactory);
+  const shell = createRectangularRoomShell({
+    roomId,
+    dimensions: LIVING_ROOM_DIMENSIONS,
+    wallMaterialId: LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    openings: OPENING_SEEDS,
+    idFactory,
+  });
   const cameras = createLivingRoomCameras(roomId, idFactory);
   const base = createEmptyInteriorProject({
     id: options.projectId ?? LIVING_ROOM_PRESET_ID,
@@ -178,14 +89,14 @@ export function createLivingRoomStarterProject(
         },
         wallThicknessMm: LIVING_ROOM_DIMENSIONS.wallThicknessMm,
         extensions: {
-          floorMaterialId: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+          floorMaterialId: LIVING_ROOM_MATERIAL_IDS.warmStone,
           ceilingMaterialId: LIVING_ROOM_MATERIAL_IDS.ceilingPaint,
         },
       },
     ],
-    walls,
-    openings: createOpenings(roomId, walls, idFactory),
-    objects: OBJECT_LAYOUT.map((item) =>
+    walls: shell.walls,
+    openings: shell.openings,
+    objects: LIVING_ROOM_STARTER_LAYOUT.map((item) =>
       createLivingRoomObject(item.catalogItemId, {
         id: idFactory("object", item.key),
         roomId,
