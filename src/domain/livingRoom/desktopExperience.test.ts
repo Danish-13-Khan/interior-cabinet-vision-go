@@ -32,7 +32,7 @@ describe("living-room desktop experience", () => {
     const recovered = readLivingRoomRecovery(storage);
     expect(recovered.error).toBeNull();
     expect(recovered.snapshot?.project.id).toBe(project.id);
-    expect(recovered.snapshot?.project.objects).toHaveLength(9);
+    expect(recovered.snapshot?.project.objects).toHaveLength(12);
   });
 
   it("removes corrupt recovery data safely", () => {

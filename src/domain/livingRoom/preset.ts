@@ -8,7 +8,7 @@ import {
   type RoomOpeningSeed,
 } from "../interiorFoundation";
 import { createLivingRoomCameras } from "./cameras";
-import { createLivingRoomObject, type LivingRoomCatalogId } from "./catalog";
+import { createLivingRoomObject } from "./catalog";
 import {
   defaultLivingRoomIdFactory,
   type LivingRoomIdFactory,
@@ -22,6 +22,7 @@ import {
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";
 import { applyLivingRoomStyle } from "./stylePresets";
+import { LIVING_ROOM_STARTER_LAYOUT } from "./starterLayout";
 
 export const LIVING_ROOM_PRESET_ID = "living-room-starter";
 export const LIVING_ROOM_PRESET_VERSION = 1;
@@ -49,62 +50,6 @@ const OPENING_SEEDS: readonly RoomOpeningSeed[] = [
   {
     key: "picture-window", wallSide: "left", kind: "window", offsetMm: 1350,
     widthMm: 1800, heightMm: 1300, sillHeightMm: 750,
-  },
-];
-
-const OBJECT_LAYOUT: readonly {
-  key: string;
-  catalogItemId: LivingRoomCatalogId;
-  position: { x: number; y: number; z: number };
-  rotationY?: number;
-}[] = [
-  {
-    key: "tv-feature-wall",
-    catalogItemId: "living:feature-wall-fluted",
-    position: { x: 0, y: 0, z: -2140 },
-  },
-  {
-    key: "sofa",
-    catalogItemId: "living:sofa-3-seat",
-    position: { x: 0, y: 0, z: 1150 },
-    rotationY: 0,
-  },
-  {
-    key: "lounge-chair",
-    catalogItemId: "living:lounge-chair",
-    position: { x: -2100, y: 0, z: 300 },
-    rotationY: 45,
-  },
-  {
-    key: "coffee-table",
-    catalogItemId: "living:coffee-table",
-    position: { x: 0, y: 0, z: -50 },
-  },
-  {
-    key: "side-table",
-    catalogItemId: "living:side-table",
-    position: { x: -2100, y: 0, z: -1050 },
-  },
-  {
-    key: "tv-unit",
-    catalogItemId: "living:tv-unit",
-    position: { x: 0, y: 0, z: -1700 },
-  },
-  {
-    key: "area-rug",
-    catalogItemId: "living:area-rug",
-    position: { x: 0, y: 0, z: 300 },
-  },
-  {
-    key: "wall-mirror",
-    catalogItemId: "living:wall-mirror",
-    position: { x: 3020, y: 850, z: -650 },
-    rotationY: 270,
-  },
-  {
-    key: "floor-lamp",
-    catalogItemId: "living:floor-lamp",
-    position: { x: 2350, y: 0, z: -1150 },
   },
 ];
 
@@ -151,7 +96,7 @@ export function createLivingRoomStarterProject(
     ],
     walls: shell.walls,
     openings: shell.openings,
-    objects: OBJECT_LAYOUT.map((item) =>
+    objects: LIVING_ROOM_STARTER_LAYOUT.map((item) =>
       createLivingRoomObject(item.catalogItemId, {
         id: idFactory("object", item.key),
         roomId,
