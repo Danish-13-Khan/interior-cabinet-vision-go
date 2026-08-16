@@ -16,7 +16,7 @@ export type LivingRoomPlanIssue = {
 
 // Surface-mounted treatment is part of the wall, not a circulation obstacle.
 const NON_BLOCKING_CATEGORIES = new Set([
-  "rug", "mirror", "feature-wall", "display-niche", "accessory",
+  "rug", "mirror", "feature-wall", "display-niche", "accessory", "ceiling-fixture", "window-treatment",
 ]);
 
 function openingZone(opening: OpeningEntity, wall: WallEntity): PlanBounds {

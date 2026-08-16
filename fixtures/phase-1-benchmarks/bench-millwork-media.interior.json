@@ -268,6 +268,73 @@
         }
       },
       {
+        "id": "lr-object-ceiling-fan",
+        "roomId": "lr-room-main",
+        "kind": "furniture",
+        "category": "ceiling-fixture",
+        "catalogItemId": "living:ceiling-fan",
+        "name": "Contemporary Ceiling Fan",
+        "position": {
+          "x": 0,
+          "y": 2480,
+          "z": 250
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 1450,
+          "heightMm": 260,
+          "depthMm": 1450
+        },
+        "materialSlots": {
+          "metal": "lr-material-metal-charcoal",
+          "blades": "lr-material-walnut"
+        },
+        "parameters": {
+          "bladeCount": 4
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
+        "id": "lr-object-window-curtains",
+        "roomId": "lr-room-main",
+        "kind": "decor",
+        "category": "window-treatment",
+        "catalogItemId": "living:curtain-set",
+        "name": "Full Height Curtain Set",
+        "position": {
+          "x": -2950,
+          "y": 0,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 90,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 2200,
+          "heightMm": 2100,
+          "depthMm": 70
+        },
+        "materialSlots": {
+          "fabric": "lr-material-fabric-oatmeal",
+          "rail": "lr-material-metal-charcoal"
+        },
+        "parameters": {
+          "panelCount": 2,
+          "fullness": "soft"
+        },
+        "extensions": {
+          "placement": "wall"
+        }
+      },
+      {
         "id": "lr-object-sofa",
         "roomId": "lr-room-main",
         "kind": "furniture",
@@ -530,6 +597,39 @@
         "parameters": {
           "bulbTemperatureK": 2700,
           "lumens": 800
+        },
+        "extensions": {
+          "placement": "floor"
+        }
+      },
+      {
+        "id": "lr-object-corner-plant",
+        "roomId": "lr-room-main",
+        "kind": "decor",
+        "category": "plant",
+        "catalogItemId": "living:indoor-plant",
+        "name": "Indoor Plant",
+        "position": {
+          "x": 2600,
+          "y": 0,
+          "z": 500
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 720,
+          "heightMm": 1450,
+          "depthMm": 720
+        },
+        "materialSlots": {
+          "foliage": "lr-material-fabric-olive",
+          "planter": "lr-material-rug-wool-sand"
+        },
+        "parameters": {
+          "foliageStyle": "broad-leaf"
         },
         "extensions": {
           "placement": "floor"

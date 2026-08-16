@@ -25,7 +25,7 @@ describe("Living Room Starter Contract", () => {
     expect(LIVING_ROOM_CATALOG.filter((item) => item.category === "chair")).toHaveLength(2);
     expect(LIVING_ROOM_CATALOG.some((item) => item.category === "storage")).toBe(true);
     expect(LIVING_ROOM_CATALOG.some((item) => item.category === "plant")).toBe(true);
-    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(20);
+    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(22);
     expect(LIVING_ROOM_CATALOG.every((item) => item.dimensions.widthMm > 0)).toBe(true);
     expect(LIVING_ROOM_CATALOG.every((item) => getLivingRoomObjectAdapter(item.id))).toBe(true);
   });
@@ -46,7 +46,9 @@ describe("Living Room Starter Contract", () => {
       "door",
       "window",
     ]);
-    expect(project.objects).toHaveLength(12);
+    expect(project.objects).toHaveLength(15);
+    expect(project.objects.some((object) => object.catalogItemId === "living:ceiling-fan")).toBe(true);
+    expect(project.objects.some((object) => object.catalogItemId === "living:curtain-set")).toBe(true);
     expect(project.objects.every((object) => object.roomId === roomId)).toBe(true);
     expect(project.openings.every((opening) => wallIds.has(opening.wallId))).toBe(true);
     expect(

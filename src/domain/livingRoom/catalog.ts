@@ -140,6 +140,32 @@ export const LIVING_ROOM_CATALOG = [
     placement: "wall",
   },
   {
+    id: "living:ceiling-fan",
+    name: "Contemporary Ceiling Fan",
+    kind: "furniture",
+    category: "ceiling-fixture",
+    dimensions: { widthMm: 1450, heightMm: 260, depthMm: 1450 },
+    materialSlots: {
+      metal: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+      blades: LIVING_ROOM_MATERIAL_IDS.walnut,
+    },
+    parameters: { bladeCount: 4 },
+    placement: "wall",
+  },
+  {
+    id: "living:curtain-set",
+    name: "Full Height Curtain Set",
+    kind: "decor",
+    category: "window-treatment",
+    dimensions: { widthMm: 2200, heightMm: 2100, depthMm: 70 },
+    materialSlots: {
+      fabric: LIVING_ROOM_MATERIAL_IDS.oatmealFabric,
+      rail: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+    },
+    parameters: { panelCount: 2, fullness: "soft" },
+    placement: "wall",
+  },
+  {
     id: "living:area-rug",
     name: "Area Rug",
     kind: "decor",
