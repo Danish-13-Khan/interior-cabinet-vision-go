@@ -35,9 +35,9 @@ export function createLivingRoomCameras(
       id: idFactory("camera", "tv-wall"),
       roomId,
       name: "TV Wall",
-      position: { x: 0, y: 1500, z: 1980 },
-      target: { x: 0, y: 920, z: -2050 },
-      fieldOfViewDegrees: 42,
+      position: { x: 180, y: 1480, z: 2100 },
+      target: { x: 40, y: 880, z: -1980 },
+      fieldOfViewDegrees: 40,
       isDefault: false,
     },
   ];
