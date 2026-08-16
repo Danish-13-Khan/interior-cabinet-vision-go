@@ -77,7 +77,10 @@ export function getCabinetEditorSections(config: CabinetConfig): PropertySection
           min: limits.width.min,
           max: limits.width.max,
           step: CABINET_WIDTH_STEP_MM,
-          hint: `Preferred ${limits.width.preferredMin}–${limits.width.preferredMax}`,
+          hint:
+            config.type === "base"
+              ? "Standard 600 / 750 / 900; BPO pull-out 250 / 300"
+              : `Preferred ${limits.width.preferredMin}–${limits.width.preferredMax}`,
         },
         {
           id: "height",
@@ -87,7 +90,10 @@ export function getCabinetEditorSections(config: CabinetConfig): PropertySection
           min: limits.height.min,
           max: limits.height.max,
           step: CABINET_HEIGHT_STEP_MM,
-          hint: `Preferred ${limits.height.preferredMin}–${limits.height.preferredMax}`,
+          hint:
+            config.type === "wall"
+              ? "Standard shutter 600; increase for a custom shutter height"
+              : `Preferred ${limits.height.preferredMin}–${limits.height.preferredMax}`,
         },
         {
           id: "depth",

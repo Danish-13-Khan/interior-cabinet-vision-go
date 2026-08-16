@@ -153,6 +153,10 @@ export function applyCabinetEditorChange(
           isAccessoryCompatible(line.id, config.type, String(value) as ApplianceInsertKind),
         ),
       });
+    case "applianceWidthMm":
+    case "applianceHeightMm":
+    case "applianceDepthMm":
+      return patchHardware(config, { [fieldId]: Number(value) });
     case "accessoryPrimary": {
       const id = String(value);
       const qty = Math.max(1, hardwareOf(config).accessories[0]?.quantity ?? 1);

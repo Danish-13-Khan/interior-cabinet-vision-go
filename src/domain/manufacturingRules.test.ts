@@ -21,6 +21,26 @@ describe("manufacturing rules engine", () => {
     const tall = getFamilyDimensionLimits("tall");
     expect(wall.depth.max).toBeLessThanOrEqual(400);
     expect(tall.height.min).toBeGreaterThanOrEqual(1800);
+    expect(getFamilyDimensionLimits("base").width.min).toBe(250);
+  });
+
+  it("uses the requested kitchen family standards by default", () => {
+    expect(getDefaultCabinetConfig("wall").dimensions).toMatchObject({
+      width: 600,
+      height: 600,
+      depth: 350,
+    });
+    expect(getDefaultCabinetConfig("sink").dimensions.width).toBe(900);
+    expect(getDefaultCabinetConfig("tall").dimensions.height).toBe(2100);
+    expect(
+      clampCabinetConfig({
+        ...getDefaultCabinetConfig("base"),
+        dimensions: {
+          ...getDefaultCabinetConfig("base").dimensions,
+          width: 250,
+        },
+      }).dimensions.width,
+    ).toBe(250);
   });
 
   it("flags and auto-corrects wall cabinets with toe kick and floor attachment", () => {

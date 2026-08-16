@@ -67,6 +67,12 @@ export function getCabinetEditorValue(
       return hardwareOf(config).includeShelfPins;
     case "insertKind":
       return hardwareOf(config).insertKind;
+    case "applianceWidthMm":
+      return hardwareOf(config).applianceWidthMm;
+    case "applianceHeightMm":
+      return hardwareOf(config).applianceHeightMm;
+    case "applianceDepthMm":
+      return hardwareOf(config).applianceDepthMm;
     case "accessoryPrimary":
       return hardwareOf(config).accessories[0]?.id ?? "";
     case "accessoryPrimaryQty":

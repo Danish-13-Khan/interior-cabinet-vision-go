@@ -132,6 +132,48 @@ export const ENGINEERED_CABINET_PRESETS: EngineeredCabinetPreset[] = [
     }),
   },
   {
+    id: "base-750-double-door",
+    label: "750 Base · 2 Door",
+    family: "base",
+    description: "Standard 750 mm base cabinet with double doors",
+    config: withComposition("base", {
+      dimensions: { width: 750, height: 720, depth: 560, boardThickness: 18, backPanelThickness: 6 },
+      composition: {
+        doors: { enabled: true, style: "double", hinge: "both", count: 2 },
+        shelves: { count: 1, adjustable: true },
+        drawers: { count: 0, equalHeights: true },
+      },
+    }),
+  },
+  {
+    id: "bpo-250-pullout",
+    label: "250 BPO Pull-out",
+    family: "base",
+    description: "250 mm BPO pull-out carcass",
+    config: withComposition("base", {
+      dimensions: { width: 250, height: 720, depth: 560, boardThickness: 18, backPanelThickness: 6 },
+      composition: {
+        doors: { enabled: true, style: "single", hinge: "left", count: 1 },
+        shelves: { count: 0, adjustable: false },
+        drawers: { count: 0, equalHeights: true },
+      },
+    }),
+  },
+  {
+    id: "bpo-300-pullout",
+    label: "300 BPO Pull-out",
+    family: "base",
+    description: "300 mm BPO pull-out carcass",
+    config: withComposition("base", {
+      dimensions: { width: 300, height: 720, depth: 560, boardThickness: 18, backPanelThickness: 6 },
+      composition: {
+        doors: { enabled: true, style: "single", hinge: "left", count: 1 },
+        shelves: { count: 0, adjustable: false },
+        drawers: { count: 0, equalHeights: true },
+      },
+    }),
+  },
+  {
     id: "base-900-drawer-over-doors",
     label: "900 Base · Drawer over Doors",
     family: "base",
@@ -152,7 +194,7 @@ export const ENGINEERED_CABINET_PRESETS: EngineeredCabinetPreset[] = [
     family: "wall",
     description: "Wall cabinet with double doors and one shelf",
     config: withComposition("wall", {
-      dimensions: { width: 900, height: 720, depth: 320, boardThickness: 18, backPanelThickness: 6 },
+      dimensions: { width: 900, height: 720, depth: 350, boardThickness: 18, backPanelThickness: 6 },
       composition: {
         doors: { enabled: true, style: "double", hinge: "both", count: 2 },
         shelves: { count: 1, adjustable: true },
@@ -166,7 +208,7 @@ export const ENGINEERED_CABINET_PRESETS: EngineeredCabinetPreset[] = [
     family: "wall",
     description: "Open wall bay with two adjustable shelves",
     config: withComposition("wall", {
-      dimensions: { width: 600, height: 720, depth: 320, boardThickness: 18, backPanelThickness: 6 },
+      dimensions: { width: 600, height: 600, depth: 350, boardThickness: 18, backPanelThickness: 6 },
       composition: {
         doors: { enabled: false, style: "none", hinge: "both", count: 0 },
         shelves: { count: 2, adjustable: true },
