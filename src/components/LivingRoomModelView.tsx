@@ -9,6 +9,8 @@ import {
   getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
   listModelViewRenderPresets,
+  preferModelViewCameraId,
+  resolveStudioRenderMode,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
@@ -38,17 +40,16 @@ export function LivingRoomModelView({
   onApplyStyle,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
-  const defaultCameraId = scene.cameras.find((camera) => camera.isDefault)?.id
-    ?? scene.cameras[0]?.id
-    ?? null;
-  const [activeCameraId, setActiveCameraId] = useState<string | null>(defaultCameraId);
+  const entryCameraId = preferModelViewCameraId(scene.cameras);
+  const [activeCameraId, setActiveCameraId] = useState<string | null>(entryCameraId);
   const [cutawayWalls, setCutawayWalls] = useState(true);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
     getModelViewDefaultPresetId(),
   );
   const modelPresets = listModelViewRenderPresets();
   const quality = getRenderQualityPreset(viewportQuality);
-  const honesty = describePresetHonesty(viewportQuality, "preview");
+  const renderMode = resolveStudioRenderMode(viewportQuality);
+  const honesty = describePresetHonesty(viewportQuality, renderMode);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
   const activeObject = selectedIds.length === 1
@@ -61,7 +62,7 @@ export function LivingRoomModelView({
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
 
   return (
-    <div className="lr-model-viewport" data-testid="lr-model-viewport">
+    <div className="lr-model-viewport is-presence" data-testid="lr-model-viewport">
       <div className="lr-model-controls">
         <label>
           Camera
@@ -80,7 +81,7 @@ export function LivingRoomModelView({
           </select>
         </label>
         <button type="button" className={cutawayWalls ? "is-active" : ""} onClick={() => setCutawayWalls((current) => !current)}>
-          Cutaway walls
+          Cutaway
         </button>
         <label>
           Rotate
@@ -96,7 +97,7 @@ export function LivingRoomModelView({
               if (activeObject) onSetRotation(activeObject.id, Number(event.target.value));
             }}
           />
-          <b>{activeObject ? `${activeRotation}°` : "None"}</b>
+          <b>{activeObject ? `${activeRotation}°` : "—"}</b>
         </label>
         <button type="button" onClick={() => activeObject && onSetRotation(activeObject.id, activeRotation - 90)} disabled={!activeObject}>
           -90°
@@ -119,13 +120,12 @@ export function LivingRoomModelView({
           </select>
         </label>
         <RenderPresetHonestyBadge honesty={honesty} compact />
-        <span>{scene.nodes.filter((node) => node.sourceObjectId).length} compiled objects</span>
       </div>
       <Canvas
         shadows="percentage"
         dpr={[1, quality.pixelRatio]}
         gl={{ antialias: true, preserveDrawingBuffer: true }}
-        camera={{ position: [4.3, 2.2, 3.9], fov: 48, near: 0.05, far: 100 }}
+        camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: 100 }}
         onPointerMissed={() => onSelect(null)}
       >
         <CompiledSceneRenderer
@@ -137,7 +137,7 @@ export function LivingRoomModelView({
           cutawayWalls={cutawayWalls}
           renderQuality={viewportQuality}
           renderComposition="architectural"
-          renderMode="preview"
+          renderMode={renderMode}
           onSelect={onSelect}
           onMove={onMove}
         />
@@ -145,7 +145,7 @@ export function LivingRoomModelView({
       {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
       <aside className="lr-style-palette" aria-label="Interior style presets">
         <header>
-          <span>INTERIOR STYLE</span>
+          <span>STYLE</span>
           <strong>{activeStyle.name}</strong>
         </header>
         <div>
@@ -164,16 +164,10 @@ export function LivingRoomModelView({
             </button>
           ))}
         </div>
-        <p>{activeStyle.description}</p>
       </aside>
       <div className="lr-model-readout">
-        <span>SCENE {scene.fingerprint.slice(-8).toUpperCase()}</span>
-        <span>
-          {scene.warnings.length
-            ? `${scene.warnings.length} adapter warning`
-            : `${honesty.shortBadge} · ${scene.style.colorManagement.exposure.toFixed(2)} EV`}
-        </span>
-        <span>Drag objects · Left orbit · Right pan · Wheel zoom</span>
+        <span>{honesty.shortBadge} · {scene.style.colorManagement.exposure.toFixed(2)} EV</span>
+        <span>Orbit · Pan · Zoom · Drag to place</span>
       </div>
     </div>
   );

@@ -88,10 +88,26 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
           </div>
         </header>
       ) : null}
-      <div className="lr-plan-titlebar">
-        <strong>{props.workspaceView.toUpperCase()} · LIVING ROOM</strong>
-        <span>{props.project.name} · {props.project.objects.length} objects · {props.selectedIds.length} selected</span>
-        <small>{props.workspaceView === "plan" ? "Scale: Fit" : props.workspaceView === "model" ? "Perspective" : "Presentation Output"} · Units: mm</small>
+      <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}`}>
+        <strong>
+          {props.workspaceView === "model"
+            ? "MODEL"
+            : props.workspaceView === "render"
+              ? "RENDER · LIVING ROOM"
+              : "PLAN · LIVING ROOM"}
+        </strong>
+        <span>
+          {props.workspaceView === "model"
+            ? `${props.project.name} · staged concept`
+            : `${props.project.name} · ${props.project.objects.length} objects · ${props.selectedIds.length} selected`}
+        </span>
+        {props.workspaceView !== "model" ? (
+          <small>
+            {props.workspaceView === "plan" ? "Scale: Fit" : "Presentation Output"} · Units: mm
+          </small>
+        ) : (
+          <small>Eye-level · Units: mm</small>
+        )}
         {props.workspaceView !== "render" ? (
           <MillworkScheduleActions
             busy={props.exportBusy}
