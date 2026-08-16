@@ -31,7 +31,10 @@ describe("LR-08 release candidate", () => {
 
     expect(first).toEqual(second);
     expect(first.id).toBe("living-room-release-demo");
-    expect(first.objects).toHaveLength(8);
+    expect(first.objects).toHaveLength(10);
+    expect(first.objects.some((object) => object.catalogItemId === "living:indoor-plant")).toBe(true);
+    expect(first.objects.some((object) => object.catalogItemId === "living:bookcase")).toBe(true);
+    expect(first.cameras.find((camera) => camera.isDefault)?.name).toBe("Wide Room");
     expect(first.renderSettings).toMatchObject({
       widthPx: 2560,
       heightPx: 1440,

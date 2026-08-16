@@ -19,6 +19,10 @@ export {
   type LivingRoomLightingRecipeId,
 } from "./lighting";
 export {
+  createLivingRoomMaterials,
+  LIVING_ROOM_MATERIAL_IDS,
+} from "./materials";
+export {
   environmentAssetIdForRecipe,
   isLivingRoomLightingRecipeId,
   lightformerFallbackForRecipe,
@@ -95,6 +99,7 @@ export {
   readLivingRoomRecovery,
   type LivingRoomRecoverySnapshot,
 } from "./desktopExperience";
+export { preferModelViewCameraId } from "./modelViewDefaults";
 export {
   createLivingRoomReleaseDemoProject,
   LIVING_ROOM_RELEASE_DEMO_DATE,

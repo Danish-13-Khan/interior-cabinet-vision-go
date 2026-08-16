@@ -1,5 +1,10 @@
 import type { InteriorProject } from "../interiorProject";
-import { moveLivingRoomObject, rotateLivingRoomObject } from "./planCommands";
+import { createLivingRoomObject } from "./catalog";
+import {
+  addLivingRoomObject,
+  moveLivingRoomObject,
+  rotateLivingRoomObject,
+} from "./planCommands";
 import { createLivingRoomStarterProject } from "./preset";
 import { applyLivingRoomStyle } from "./stylePresets";
 
@@ -20,6 +25,7 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
     now: LIVING_ROOM_RELEASE_DEMO_DATE,
   });
   const styled = applyLivingRoomStyle(starter, "nordic-light");
+  const roomId = styled.activeRoomId ?? styled.rooms[0]!.id;
   const chairId = objectId(styled, "living:lounge-chair");
   const sofaId = objectId(styled, "living:sofa-3-seat");
   const lampId = objectId(styled, "living:floor-lamp");
@@ -35,11 +41,29 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
     lampId,
     { x: 2450, y: 0, z: -1150 },
   );
-  const arranged = moveLivingRoomObject(
+  const arrangedBase = moveLivingRoomObject(
     arrangedLamp,
     sideTableId,
     { x: -2100, y: 0, z: -1050 },
   );
+  const withPlant = addLivingRoomObject(
+    arrangedBase,
+    createLivingRoomObject("living:indoor-plant", {
+      id: "lr-object-indoor-plant-release",
+      roomId,
+      position: { x: 2680, y: 0, z: 780 },
+    }),
+  );
+  const arranged = addLivingRoomObject(
+    withPlant,
+    createLivingRoomObject("living:bookcase", {
+      id: "lr-object-bookcase-release",
+      roomId,
+      position: { x: 2680, y: 0, z: -1880 },
+      rotationY: 270,
+    }),
+  );
+  const wideRoom = arranged.cameras.find((camera) => /wide\s*room/i.test(camera.name));
 
   return {
     ...arranged,
@@ -50,12 +74,13 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
       heightPx: 1440,
       quality: "presentation",
       exposure: 1.18,
+      activeCameraId: wideRoom?.id ?? arranged.renderSettings.activeCameraId,
     },
     extensions: {
       ...arranged.extensions,
       releaseDemo: {
         id: LIVING_ROOM_RELEASE_DEMO_ID,
-        version: 1,
+        version: 2,
       },
     },
   };
