@@ -19,6 +19,8 @@ import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
+import { CabinetMechanismPanel } from "./livingRoomScene/CabinetMechanismPanel";
+import { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch } from "../domain/livingRoom";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -29,6 +31,7 @@ type LivingRoomModelViewProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
 };
 
 export function LivingRoomModelView({
@@ -40,6 +43,7 @@ export function LivingRoomModelView({
   onMove,
   onSetRotation,
   onApplyStyle,
+  onSetParameters,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const entryCameraId = preferModelViewCameraId(scene.cameras);
@@ -156,9 +160,21 @@ export function LivingRoomModelView({
           renderMode={renderMode}
           onSelect={onSelect}
           onMove={onMove}
+          onMechanismClick={(objectId, primitiveId) => {
+            const object = project.objects.find((item) => item.id === objectId);
+            const state = object ? getCabinetMechanismState(object) : null;
+            const index = mechanismFrontIndex(primitiveId);
+            if (state && index !== null && index < state.count) onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
+          }}
         />
       </Canvas>
       {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
+      <CabinetMechanismPanel object={activeObject ?? null} onChange={onSetParameters} onSoftClose={(object) => {
+        const state = getCabinetMechanismState(object);
+        if (!state) return;
+        onSetParameters(object.id, mechanismAllPatch(state, true));
+        window.setTimeout(() => onSetParameters(object.id, mechanismAllPatch(state, false)), 650);
+      }} />
       <aside className="lr-style-palette" aria-label="Interior style presets">
         <header>
           <span>STYLE</span>

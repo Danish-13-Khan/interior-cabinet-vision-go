@@ -26,7 +26,7 @@ export function CompiledPrimitiveView({
     <mesh
       geometry={getCompiledGeometry(primitive)}
       dispose={null}
-      userData={{ materialId: material.id }}
+      userData={{ materialId: material.id, primitiveId: primitive.id }}
       position={[
         primitive.positionMm.x / 1000,
         primitive.positionMm.y / 1000,

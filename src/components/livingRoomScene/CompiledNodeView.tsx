@@ -32,6 +32,7 @@ export function CompiledNodeView({
   onMove,
   onDragStateChange,
   interactive,
+  onMechanismClick,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -43,6 +44,7 @@ export function CompiledNodeView({
   onMove: (objectId: string, position: Point3Mm) => void;
   onDragStateChange: (dragging: boolean) => void;
   interactive: boolean;
+  onMechanismClick?: (objectId: string, primitiveId: string) => void;
 }) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [preview, setPreview] = useState<Point3Mm | null>(null);
@@ -61,6 +63,12 @@ export function CompiledNodeView({
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
     if (!interactive || !sourceObjectId || event.button !== 0) return;
     event.stopPropagation();
+    const primitiveId = String(event.object.userData.primitiveId ?? "");
+    if (primitiveId.startsWith("front-") && onMechanismClick) {
+      onSelect(sourceObjectId, event.shiftKey || event.metaKey || event.ctrlKey);
+      onMechanismClick(sourceObjectId, primitiveId);
+      return;
+    }
     onSelect(sourceObjectId, event.shiftKey || event.metaKey || event.ctrlKey);
     const point = groundPoint(event);
     if (!point || event.shiftKey || event.metaKey || event.ctrlKey) return;

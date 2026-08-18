@@ -10,7 +10,9 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
   const carcass = materialSlot(object, "carcass", LIVING_ROOM_MATERIAL_IDS.walnut);
   const fronts = materialSlot(object, "fronts", LIVING_ROOM_MATERIAL_IDS.naturalOak);
   const metal = LIVING_ROOM_MATERIAL_IDS.charcoalMetal;
-  const doorCount = Math.max(1, Number(object.parameters.doorCount) || 3);
+  const doorCount = Math.max(1, Number(object.parameters.drawerCount ?? object.parameters.doorCount) || 3);
+  const frontMode = object.parameters.frontMode === "door" ? "door" : "drawer";
+  const pullDepth = Math.max(80, Math.min(d * 0.9, Number(object.parameters.pullDepthMm) || 280));
   const floating = object.parameters.floating === true;
   const mountH = floating ? Math.max(120, Number(object.parameters.mountHeightMm) || 320) : 0;
   const plinthH = floating ? 0 : Math.max(60, h * 0.12);
@@ -54,16 +56,20 @@ export function compileTvUnit(object: InteriorObjectEntity): CompiledPrimitive[]
   const doorH = bodyH - 28;
   for (let index = 0; index < doorCount; index += 1) {
     const x = -w / 2 + bayW * (index + 0.5);
+    const open = object.parameters[`mechanismOpen${index + 1}`] === true;
+    const pull = open && frontMode === "drawer" ? pullDepth : 0;
+    const swing = open && frontMode === "door" ? (index % 2 ? -42 : 42) : 0;
     parts.push(boxPrimitive(
       `front-${index + 1}`,
       { width: doorW, height: doorH, depth: panelT },
-      { x, y: bodyY, z: d / 2 + frontInset },
+      { x, y: bodyY, z: d / 2 + frontInset + pull },
       fronts,
+      { rotationDegrees: { x: 0, y: swing, z: 0 } },
     ));
     parts.push(cylinderPrimitive(
       `handle-${index + 1}`,
       { radiusTopMm: 5, radiusBottomMm: 5, heightMm: Math.min(72, doorH * 0.22), radialSegments: 10 },
-      { x: x + doorW * 0.28, y: bodyY, z: d / 2 + frontInset + panelT / 2 + 6 },
+      { x: x + doorW * 0.28, y: bodyY, z: d / 2 + frontInset + pull + panelT / 2 + 6 },
       metal,
     ));
   }

@@ -32,6 +32,7 @@ type SceneRendererProps = {
   renderMode?: RenderMode;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onMechanismClick?: (objectId: string, primitiveId: string) => void;
 };
 
 function RendererColorPipeline({ exposure }: { exposure: number }) {
@@ -60,6 +61,7 @@ export function CompiledSceneRenderer({
   renderMode = "preview",
   onSelect,
   onMove,
+  onMechanismClick,
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -132,6 +134,7 @@ export function CompiledSceneRenderer({
           onMove={onMove}
           onDragStateChange={setDragging}
           interactive={interactive}
+          onMechanismClick={onMechanismClick}
         />
       ))}
       <ContactShadows

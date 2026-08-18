@@ -40,6 +40,7 @@ type LivingRoomPlanStageProps = {
   onSelectWall: (wallId: string) => void;
   onSelectOpening: (openingId: string) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -154,6 +155,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onMove={props.onMove}
             onSetRotation={props.onSetRotation}
             onApplyStyle={props.onApplyStyle}
+            onSetParameters={props.onSetParameters}
           />
         ) : (
           <LivingRoomRenderStudio
