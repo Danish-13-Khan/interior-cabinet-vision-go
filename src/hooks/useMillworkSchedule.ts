@@ -1,17 +1,22 @@
 import { useMemo, useState } from "react";
-import type { InteriorProject } from "../domain/interiorProject";
+import {
+  cabinetProjectFromInteriorProject,
+  type InteriorProject,
+} from "../domain/interiorProject";
 import {
   buildLivingRoomMillworkSchedule,
-  exportMillworkSchedulePdf,
   millworkScheduleFileBase,
   millworkScheduleToCsv,
   summarizeMillworkWorkflow,
   type MillworkSchedule,
   type MillworkWorkflowSnapshot,
 } from "../domain/livingRoom/millworkSchedule";
+import { createProjectReport, type ProjectReport } from "../domain/projectReport";
+import { csvFromProductionCutlist } from "../domain/productionCutlist";
+import { exportProjectPdf } from "../domain/pdfExport";
 import { promptSavePath, writeBinaryBlob, writeTextFile } from "../platform/desktopFiles";
 
-export type MillworkScheduleExportFormat = "csv" | "pdf";
+export type MillworkScheduleExportFormat = "schedule-csv" | "cutlist-csv" | "pdf";
 
 /**
  * Live schedule + workflow summary + CSV/PDF export.
@@ -32,6 +37,12 @@ export function useMillworkSchedule(project: InteriorProject | null) {
     [project],
   );
 
+  const productionReport: ProjectReport | null = useMemo(() => {
+    if (!project) return null;
+    const compatible = cabinetProjectFromInteriorProject(project);
+    return createProjectReport(compatible.project, compatible.room);
+  }, [project]);
+
   async function exportSchedule(format: MillworkScheduleExportFormat) {
     if (!project) return;
     setBusy(true);
@@ -39,7 +50,7 @@ export function useMillworkSchedule(project: InteriorProject | null) {
     try {
       const snapshot = buildLivingRoomMillworkSchedule(project);
       const base = millworkScheduleFileBase(project.name);
-      if (format === "csv") {
+      if (format === "schedule-csv") {
         const path = await promptSavePath({
           title: "Export Millwork Schedule CSV",
           defaultPath: `${base}.csv`,
@@ -54,18 +65,38 @@ export function useMillworkSchedule(project: InteriorProject | null) {
         setStatus(`Millwork schedule CSV exported (${snapshot.lines.length} pieces).`);
         return;
       }
+      const compatible = cabinetProjectFromInteriorProject(project);
+      const report = createProjectReport(compatible.project, compatible.room);
+      if (format === "cutlist-csv") {
+        const path = await promptSavePath({
+          title: "Export Production Cutlist CSV",
+          defaultPath: `${base}-cutlist.csv`,
+          extensions: ["csv"],
+        });
+        if (!path) {
+          setStatus("Production cutlist export cancelled.");
+          return;
+        }
+        await writeTextFile(path, csvFromProductionCutlist(report.productionCutlist));
+        setExportedAt(snapshot.exportedAt);
+        setStatus(`Production cutlist exported (${report.productionCutlist.length} parts).`);
+        return;
+      }
       const path = await promptSavePath({
-        title: "Export Millwork Schedule PDF",
-        defaultPath: `${base}.pdf`,
+        title: "Export Production Packet PDF",
+        defaultPath: `${base}-production-packet.pdf`,
         extensions: ["pdf"],
       });
       if (!path) {
-        setStatus("Millwork schedule export cancelled.");
+        setStatus("Production packet export cancelled.");
         return;
       }
-      await writeBinaryBlob(path, exportMillworkSchedulePdf(snapshot));
+      await writeBinaryBlob(
+        path,
+        await exportProjectPdf(compatible.project, null, project.name, compatible.room),
+      );
       setExportedAt(snapshot.exportedAt);
-      setStatus(`Millwork schedule PDF exported (${snapshot.lines.length} pieces).`);
+      setStatus(`Production packet exported (${report.productionCutlist.length} cut parts).`);
     } catch (error) {
       setStatus(
         error instanceof Error
@@ -80,6 +111,7 @@ export function useMillworkSchedule(project: InteriorProject | null) {
   return {
     schedule,
     workflow,
+    productionReport,
     status,
     busy,
     exportedAt,

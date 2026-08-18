@@ -2,11 +2,13 @@ import type {
   MillworkSchedule,
   MillworkWorkflowSnapshot,
 } from "../../../domain/livingRoom/millworkSchedule";
+import type { ProjectReport } from "../../../domain/projectReport";
 import { formatMaterialLabels, formatWhdMm } from "../../../domain/livingRoom/millworkSchedule";
 
 type MillworkSchedulePreviewProps = {
   schedule: MillworkSchedule;
   workflow: MillworkWorkflowSnapshot;
+  productionReport: ProjectReport | null;
   exportedAt: string | null;
   onSelect: (objectId: string | null) => void;
 };
@@ -15,6 +17,7 @@ type MillworkSchedulePreviewProps = {
 export function MillworkSchedulePreview({
   schedule,
   workflow,
+  productionReport,
   exportedAt,
   onSelect,
 }: MillworkSchedulePreviewProps) {
@@ -32,6 +35,17 @@ export function MillworkSchedulePreview({
           </li>
         ))}
       </ol>
+      {productionReport ? (
+        <div className="lr-production-summary" aria-label="Production output summary">
+          <strong>Production Packet</strong>
+          <span>
+            {productionReport.cabinetSchedule.length} cabinet marks · {productionReport.productionCutlist.length} cut parts
+          </span>
+          <span>
+            Workshop estimate ₹{productionReport.projectCost.grandTotal.toLocaleString()} · {productionReport.summary.runCount} technical run{productionReport.summary.runCount === 1 ? "" : "s"}
+          </span>
+        </div>
+      ) : null}
       {schedule.lines.length === 0 ? (
         <p className="lr-millwork-empty">No millwork yet. Soft goods stay off the schedule.</p>
       ) : (

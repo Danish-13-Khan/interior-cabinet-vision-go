@@ -212,7 +212,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             latest: result,
             previous: current.latest,
           }))}
-          onExportCsv={() => void millwork.exportSchedule("csv")}
+          onExportScheduleCsv={() => void millwork.exportSchedule("schedule-csv")}
+          onExportCutlistCsv={() => void millwork.exportSchedule("cutlist-csv")}
           onExportPdf={() => void millwork.exportSchedule("pdf")}
         />
         {props.inspectorVisible && workspaceView !== "render" ? (
@@ -226,6 +227,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             issues={props.issues}
             millworkSchedule={millwork.schedule}
             millworkWorkflow={millwork.workflow}
+            productionReport={millwork.productionReport}
             millworkExportedAt={millwork.exportedAt}
             onRoomDimensions={props.onRoomDimensions}
             onMove={props.onMove}

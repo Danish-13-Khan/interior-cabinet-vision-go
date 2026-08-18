@@ -106,6 +106,27 @@
   color: #243038;
 }
 
+.lr-production-summary {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 10px;
+  padding: 8px;
+  border: 1px solid #c7d9ce;
+  background: #f1f8f3;
+  color: #314048;
+}
+
+.lr-production-summary strong {
+  font-size: 11px;
+  color: #234b34;
+  text-transform: uppercase;
+}
+
+.lr-production-summary span {
+  font-size: 10px;
+  line-height: 1.35;
+}
+
 .lr-millwork-steps span,
 .lr-millwork-empty,
 .lr-millwork-honesty {
