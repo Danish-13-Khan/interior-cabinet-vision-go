@@ -100,6 +100,7 @@ export {
   type LivingRoomRecoverySnapshot,
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
+export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
 export {
   clientShareBrief,
   estimateVendorPricing,

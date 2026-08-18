@@ -206,6 +206,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             if (opening) setActiveWallId(opening.wallId);
           }}
           onSetRotation={props.onSetRotation}
+          onSetParameters={props.onSetParameters}
           onApplyStyle={props.onApplyStyle}
           onUndo={props.onUndo}
           onRedo={props.onRedo}
