@@ -240,6 +240,9 @@ function App() {
             onSetRotation={c.setInteriorObjectRotation}
             onSetMaterial={c.setInteriorObjectMaterial}
             onSetParameters={c.setInteriorObjectParameters}
+            onSetFloorMaterial={c.setLivingRoomFloorMaterial}
+            onSetWallMaterial={c.setLivingRoomWallMaterial}
+            onSetLayerVisibility={c.setLivingRoomLayerVisibility}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}
             onDuplicate={c.duplicateInteriorSelection}

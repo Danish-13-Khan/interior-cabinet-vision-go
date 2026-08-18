@@ -2,6 +2,7 @@ import { useRef } from "react";
 import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
 import {
   LIVING_ROOM_CATALOG,
+  isLivingRoomLayerVisible,
   type LivingRoomCatalogId,
   type LivingRoomPlanUnderlay,
 } from "../../domain/livingRoom";
@@ -47,6 +48,9 @@ type LivingRoomPlanCatalogRailProps = {
   onAssetQuery: (value: string) => void;
   onAssetCategory: (value: string) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onSetFloorMaterial: (materialId: string) => void;
+  onSetWallMaterial: (wallId: string, materialId: string) => void;
+  onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
@@ -111,7 +115,12 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           </>
         ) : props.studioPanel === "materials" ? (
           <>
-            <div className="context-panel-heading"><strong>Materials</strong><span>Apply through the inspector</span></div>
+            <div className="context-panel-heading"><strong>Materials</strong><span>Floor, wall & cabinet finishes</span></div>
+            <div className="lr-material-targets">
+              <label>Floor<select value={String(room.extensions?.floorMaterialId ?? "")} onChange={(event) => props.onSetFloorMaterial(event.target.value)}>{props.project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}</select></label>
+              <label>Active wall<select value={activeWall.materialId ?? ""} onChange={(event) => props.onSetWallMaterial(activeWall.id, event.target.value)}>{props.project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}</select></label>
+              <small>Select a cabinet to edit its carcass and door materials in the right inspector.</small>
+            </div>
             <div className="lr-material-library">
               {props.project.materials.map((material) => (
                 <div key={material.id}>
@@ -127,9 +136,10 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             <div className="lr-layer-tree">
               <div><b>⌄</b><strong>{props.roomName}</strong><small>Room</small></div>
               <div><b>⌄</b><strong>Architecture</strong><small>{props.project.walls.length + props.project.openings.length}</small></div>
-              <span>Walls <small>{props.project.walls.length}</small></span>
-              <span>Doors &amp; windows <small>{props.project.openings.length}</small></span>
-              <div><b>⌄</b><strong>Furniture</strong><small>{props.project.objects.length}</small></div>
+              <label>Walls <input type="checkbox" checked={isLivingRoomLayerVisible(props.project, "walls")} onChange={(event) => props.onSetLayerVisibility("walls", event.target.checked)} /></label>
+              <label>Doors &amp; windows <input type="checkbox" checked={isLivingRoomLayerVisible(props.project, "openings")} onChange={(event) => props.onSetLayerVisibility("openings", event.target.checked)} /></label>
+              <div><b>⌄</b><strong>Furniture &amp; decor</strong><small>{props.project.objects.length}</small></div>
+              <label>Visible objects <input type="checkbox" checked={isLivingRoomLayerVisible(props.project, "furniture")} onChange={(event) => props.onSetLayerVisibility("furniture", event.target.checked)} /></label>
               {props.project.objects.map((object) => (
                 <button type="button" key={object.id} className={props.selectedIds.includes(object.id) ? "is-selected" : ""} onClick={() => props.onSelect(object.id)}><i>◇</i><span>{object.name}</span><small>{object.category}</small></button>
               ))}

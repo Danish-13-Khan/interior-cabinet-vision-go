@@ -12,6 +12,7 @@ import type {
   LivingRoomAlignMode,
   LivingRoomCatalogId,
   LivingRoomLightingRecipeId,
+  LivingRoomLayerId,
   LivingRoomPlanIssue,
   LivingRoomPlanUnderlay,
   LivingRoomRecoverySnapshot,
@@ -55,6 +56,9 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetFloorMaterial: (materialId: string) => void;
+  onSetWallMaterial: (wallId: string, materialId: string) => void;
+  onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
   onDuplicate: () => void;
