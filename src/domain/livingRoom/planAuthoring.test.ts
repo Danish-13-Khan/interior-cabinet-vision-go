@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   alignLivingRoomObjects,
+  addLivingRoomOpening,
   createLivingRoomStarterProject,
   deleteLivingRoomObjects,
   duplicateLivingRoomObject,
@@ -11,6 +12,7 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   snapLivingRoomObject,
+  updateLivingRoomOpening,
 } from ".";
 
 const NOW = "2026-08-11T19:00:00.000Z";
@@ -102,5 +104,26 @@ describe("living-room plan authoring", () => {
     expect(resized.walls.map((wall) => wall.id)).toEqual(wallIds);
     expect(Math.max(...resized.walls.flatMap((wall) => [wall.start.x, wall.end.x]))).toBe(3500);
     expect(getObjectPlanBounds(resized.objects[0]!).maxX).toBeGreaterThan(0);
+  });
+
+  it("adds and constrains editable door and window openings to their wall", () => {
+    const source = createLivingRoomStarterProject({ now: NOW });
+    const backWall = source.walls.find((wall) => wall.extensions?.wallSide === "back")!;
+    const added = addLivingRoomOpening(source, {
+      id: "test-window",
+      roomId: source.activeRoomId,
+      wallId: backWall.id,
+      kind: "window",
+      offsetMm: 99999,
+      widthMm: 99999,
+      heightMm: 1200,
+      sillHeightMm: 900,
+    });
+    const updated = updateLivingRoomOpening(added, "test-window", { widthMm: 1200, offsetMm: 600 });
+    const opening = updated.openings.find((item) => item.id === "test-window")!;
+
+    expect(opening.widthMm).toBe(1200);
+    expect(opening.offsetMm).toBe(600);
+    expect(added.openings.find((item) => item.id === "test-window")!.widthMm).toBeLessThan(99999);
   });
 });

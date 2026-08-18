@@ -1,6 +1,7 @@
 import type {
   InteriorObjectEntity,
   InteriorProject,
+  OpeningEntity,
   Point3Mm,
   RenderSettings,
   Size3Mm,
@@ -60,6 +61,9 @@ export type LivingRoomPlanWorkspaceProps = {
   onAlign: (mode: LivingRoomAlignMode) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onAddOpening: (wallId: string, kind: "door" | "window") => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>) => void;
+  onDeleteOpening: (openingId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;

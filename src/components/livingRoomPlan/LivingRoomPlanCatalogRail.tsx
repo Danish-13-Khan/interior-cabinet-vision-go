@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { InteriorProject } from "../../domain/interiorProject";
+import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
 import {
   LIVING_ROOM_CATALOG,
   type LivingRoomCatalogId,
@@ -50,6 +50,14 @@ type LivingRoomPlanCatalogRailProps = {
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
+  onRoomDimensions: (dimensions: Size3Mm) => void;
+  activeWallId: string | null;
+  activeOpeningId: string | null;
+  onActiveWall: (wallId: string) => void;
+  onActiveOpening: (openingId: string) => void;
+  onAddOpening: (wallId: string, kind: "door" | "window") => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
+  onDeleteOpening: (openingId: string) => void;
 };
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
@@ -61,6 +69,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     (!props.assetQuery.trim()
       || `${item.name} ${item.category}`.toLowerCase().includes(props.assetQuery.trim().toLowerCase())),
   );
+  const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
+  const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
+  const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
 
   return (
     <>
@@ -126,8 +137,32 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           </>
         ) : (
           <>
-            <div className="context-panel-heading"><strong>Build Room</strong><span>Trace from a floor plan</span></div>
+            <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
             <div className="lr-underlay-panel">
+              <section className="lr-room-authoring">
+                <strong>Room dimensions</strong>
+                <div className="lr-room-dimension-grid">
+                  {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
+                    <label key={key}><span>{key === "widthMm" ? "Width" : key === "depthMm" ? "Depth" : "Height"}</span><input type="number" min="2200" step="50" value={room.dimensions[key]} onChange={(event) => props.onRoomDimensions({ ...room.dimensions, [key]: Number(event.target.value) || room.dimensions[key] })} /></label>
+                  ))}
+                </div>
+              </section>
+              <section className="lr-room-authoring">
+                <strong>Wall openings</strong>
+                <div className="lr-wall-tabs">
+                  {props.project.walls.map((wall) => <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>{String(wall.extensions?.wallSide ?? "wall")}</button>)}
+                </div>
+                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Window</button></div>
+                {props.project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
+                  <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}><span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small></button>
+                ))}
+                {!props.project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on this wall.</p> : null}
+                {activeOpening?.wallId === activeWall.id ? <div className="lr-opening-fields">
+                  {(["offsetMm", "widthMm", "heightMm", "sillHeightMm"] as const).map((key) => <label key={key}><span>{key === "offsetMm" ? "Offset" : key === "widthMm" ? "Width" : key === "heightMm" ? "Height" : "Sill"}</span><input type="number" min="0" step="50" value={activeOpening[key]} onChange={(event) => props.onUpdateOpening(activeOpening.id, { [key]: Number(event.target.value) || activeOpening[key] })} /></label>)}
+                  <button type="button" className="is-danger" onClick={() => props.onDeleteOpening(activeOpening.id)}>Remove opening</button>
+                </div> : null}
+              </section>
+              <section className="lr-room-authoring"><strong>Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
               {props.underlay ? (
                 <>
