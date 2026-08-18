@@ -31,11 +31,15 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
+  setLivingRoomFloorMaterial,
+  setLivingRoomLayerVisibility,
+  setLivingRoomWallMaterial,
   snapCabinetToWall,
   updateLivingRoomOpening,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
   type LivingRoomLightingRecipeId,
+  type LivingRoomLayerId,
   type LivingRoomPlanUnderlay,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
@@ -221,6 +225,20 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => ({ ...current, objects: current.objects.map((object) => object.id === objectId ? { ...object, parameters: { ...object.parameters, ...patch } } : object) }), "Updated cabinet configuration.");
   }
 
+  function setFloorMaterial(materialId: string) {
+    if (!document?.materials.some((material) => material.id === materialId)) return;
+    commitDocument((current) => setLivingRoomFloorMaterial(current, materialId), "Changed floor material.");
+  }
+
+  function setWallMaterial(wallId: string, materialId: string) {
+    if (!document?.materials.some((material) => material.id === materialId)) return;
+    commitDocument((current) => setLivingRoomWallMaterial(current, wallId, materialId), "Changed wall material.");
+  }
+
+  function setLayerVisibility(layer: LivingRoomLayerId, visible: boolean) {
+    commitDocument((current) => setLivingRoomLayerVisibility(current, layer, visible), `${visible ? "Showed" : "Hid"} ${layer} layer.`);
+  }
+
   function setPlanUnderlay(underlay: LivingRoomPlanUnderlay | null) {
     commitDocument(
       (current) => setLivingRoomPlanUnderlay(current, underlay),
@@ -385,6 +403,9 @@ export function useLivingRoomPlanEditor({
     setInteriorObjectRotation: setObjectRotation,
     setInteriorObjectMaterial: setObjectMaterial,
     setInteriorObjectParameters: setObjectParameters,
+    setLivingRoomFloorMaterial: setFloorMaterial,
+    setLivingRoomWallMaterial: setWallMaterial,
+    setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
     addLivingRoomCatalogObject: addCatalogObject,
     duplicateInteriorSelection: duplicateSelection,

@@ -125,7 +125,7 @@ export function LivingRoomPlanView({
     [issues],
   );
   const renderObjects = useMemo(
-    () => [...project.objects].sort((a, b) =>
+    () => project.objects.filter((object) => object.extensions?.layerVisible !== false).sort((a, b) =>
       Number(b.category === "rug") - Number(a.category === "rug"),
     ),
     [project.objects],
@@ -294,7 +294,7 @@ export function LivingRoomPlanView({
         className="lr-center-line"
       />
 
-      {project.walls.map((wall) => (
+      {project.walls.filter((wall) => wall.visible).map((wall) => (
         <line
           key={wall.id}
           x1={wall.start.x}
@@ -305,7 +305,7 @@ export function LivingRoomPlanView({
           onPointerDown={(event) => { event.stopPropagation(); onSelectWall(wall.id); }}
         />
       ))}
-      {project.openings.map((opening) => {
+      {project.openings.filter((opening) => opening.extensions?.layerVisible !== false).map((opening) => {
         const points = openingPoints(project, opening.id);
         return (
           <g key={opening.id} className={`lr-opening lr-opening-${opening.kind} ${opening.id === activeOpeningId ? "is-active" : ""}`} onPointerDown={(event) => { event.stopPropagation(); onSelectOpening(opening.id); }}>

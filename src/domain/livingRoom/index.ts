@@ -101,6 +101,13 @@ export {
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
 export {
+  isLivingRoomLayerVisible,
+  setLivingRoomFloorMaterial,
+  setLivingRoomLayerVisibility,
+  setLivingRoomWallMaterial,
+  type LivingRoomLayerId,
+} from "./materialLayerCommands";
+export {
   MODEL_VIEW_PRESETS,
   resolveModelViewPose,
   type ModelViewPose,

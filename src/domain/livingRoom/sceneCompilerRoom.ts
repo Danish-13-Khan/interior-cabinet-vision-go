@@ -127,9 +127,9 @@ export function compileLivingRoomArchitecture(
     architecture,
     ...project.walls
       .filter((wall) => wall.roomId === room.id && wall.visible)
-      .flatMap((wall) => compileWall(wall, project.openings)),
+      .flatMap((wall) => compileWall(wall, project.openings.filter((opening) => opening.extensions?.layerVisible !== false))),
     ...project.openings
-      .filter((opening) => opening.roomId === room.id)
+      .filter((opening) => opening.roomId === room.id && opening.extensions?.layerVisible !== false)
       .map((opening) => {
         const wall = project.walls.find((candidate) => candidate.id === opening.wallId);
         return wall ? compileOpeningNode(opening, wall) : null;
