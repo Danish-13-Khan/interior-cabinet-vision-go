@@ -101,6 +101,12 @@ export {
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
 export {
+  MODEL_VIEW_PRESETS,
+  resolveModelViewPose,
+  type ModelViewPose,
+  type ModelViewPresetId,
+} from "./modelViewPresets";
+export {
   createLivingRoomReleaseDemoProject,
   LIVING_ROOM_RELEASE_DEMO_DATE,
   LIVING_ROOM_RELEASE_DEMO_ID,

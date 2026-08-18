@@ -9,9 +9,11 @@ import {
   getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
   listModelViewRenderPresets,
+  MODEL_VIEW_PRESETS,
   preferModelViewCameraId,
   resolveStudioRenderMode,
   type LivingRoomStyleId,
+  type ModelViewPresetId,
 } from "../domain/livingRoom";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
@@ -42,6 +44,7 @@ export function LivingRoomModelView({
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const entryCameraId = preferModelViewCameraId(scene.cameras);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(entryCameraId);
+  const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("orbit");
   const [cutawayWalls, setCutawayWalls] = useState(true);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
     getModelViewDefaultPresetId(),
@@ -64,6 +67,18 @@ export function LivingRoomModelView({
   return (
     <div className="lr-model-viewport is-presence" data-testid="lr-model-viewport">
       <div className="lr-model-controls">
+        <div className="lr-view-presets" aria-label="3D camera views">
+          {MODEL_VIEW_PRESETS.map((preset) => (
+            <button
+              type="button"
+              key={preset.id}
+              className={viewPreset === preset.id ? "is-active" : ""}
+              onClick={() => setViewPreset(preset.id)}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
         <label>
           Camera
           <select value={activeCameraId ?? ""} onChange={(event) => setActiveCameraId(event.target.value || null)}>
@@ -132,6 +147,7 @@ export function LivingRoomModelView({
           scene={scene}
           selectedIds={selectedIds}
           activeCameraId={activeCameraId}
+          viewPreset={viewPreset}
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
