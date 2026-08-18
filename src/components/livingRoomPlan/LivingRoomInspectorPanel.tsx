@@ -9,6 +9,7 @@ import type {
   MillworkSchedule,
   MillworkWorkflowSnapshot,
 } from "../../domain/livingRoom";
+import type { ProjectReport } from "../../domain/projectReport";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { MillworkSchedulePreview } from "./millworkSchedule";
 import { NumberField } from "./NumberField";
@@ -23,6 +24,7 @@ type LivingRoomInspectorPanelProps = {
   issues: LivingRoomPlanIssue[];
   millworkSchedule: MillworkSchedule | null;
   millworkWorkflow: MillworkWorkflowSnapshot | null;
+  productionReport: ProjectReport | null;
   millworkExportedAt: string | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
@@ -43,6 +45,7 @@ export function LivingRoomInspectorPanel({
   issues,
   millworkSchedule,
   millworkWorkflow,
+  productionReport,
   millworkExportedAt,
   onRoomDimensions,
   onMove,
@@ -136,6 +139,7 @@ export function LivingRoomInspectorPanel({
           <MillworkSchedulePreview
             schedule={millworkSchedule}
             workflow={millworkWorkflow}
+            productionReport={productionReport}
             exportedAt={millworkExportedAt}
             onSelect={onSelect}
           />

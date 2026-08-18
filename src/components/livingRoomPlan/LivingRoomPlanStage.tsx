@@ -52,7 +52,8 @@ type LivingRoomPlanStageProps = {
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onRendered: (result: LivingRoomRenderResult) => void;
-  onExportCsv: () => void;
+  onExportScheduleCsv: () => void;
+  onExportCutlistCsv: () => void;
   onExportPdf: () => void;
 };
 
@@ -121,7 +122,8 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             disabled={false}
             millworkCount={props.millworkCount}
             readyToExport={props.millworkReady}
-            onExportCsv={props.onExportCsv}
+            onExportScheduleCsv={props.onExportScheduleCsv}
+            onExportCutlistCsv={props.onExportCutlistCsv}
             onExportPdf={props.onExportPdf}
           />
         ) : null}
