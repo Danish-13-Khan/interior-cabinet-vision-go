@@ -7,6 +7,7 @@ type LivingRoomObjectInspectorProps = {
   materials: InteriorProject["materials"];
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
 };
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
@@ -15,6 +16,7 @@ export function LivingRoomObjectInspector({
   materials,
   onResize,
   onSetMaterial,
+  onSetParameters,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
@@ -69,6 +71,14 @@ export function LivingRoomObjectInspector({
           );
         })}
       </div>
+      {object.kind === "cabinet" ? (
+        <>
+          <h4>Cabinet configuration</h4>
+          <label className="lr-select-field"><span>Door style</span><select value={String(object.parameters.doorStyle ?? "slab")} onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}><option value="slab">Slab</option><option value="shaker">Shaker</option><option value="glass">Glass</option></select></label>
+          <NumberField label="Door count" value={Number(object.parameters.doorCount) || 2} onChange={(doorCount) => onSetParameters(object.id, { doorCount: Math.max(1, Math.round(doorCount)) })} />
+          <p className="lr-inspector-hint">{object.extensions?.wallAttachment ? "Wall snapped — drag near another wall to reattach." : "Drag near a wall to snap this cabinet."}</p>
+        </>
+      ) : null}
     </section>
   );
 }

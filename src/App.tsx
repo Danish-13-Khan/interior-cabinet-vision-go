@@ -239,11 +239,13 @@ function App() {
             onResize={c.resizeInteriorObject}
             onSetRotation={c.setInteriorObjectRotation}
             onSetMaterial={c.setInteriorObjectMaterial}
+            onSetParameters={c.setInteriorObjectParameters}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}
             onDuplicate={c.duplicateInteriorSelection}
             onDelete={c.deleteInteriorSelection}
             onAlign={c.alignInteriorSelection}
+            onCreateCabinetRun={c.createLivingRoomCabinetRun}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onAddOpening={c.addLivingRoomOpening}
