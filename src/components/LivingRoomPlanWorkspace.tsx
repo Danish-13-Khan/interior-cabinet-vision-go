@@ -27,6 +27,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [assetQuery, setAssetQuery] = useState("");
   const [assetCategory, setAssetCategory] = useState("all");
   const [importError, setImportError] = useState("");
+  const [activeWallId, setActiveWallId] = useState<string | null>(null);
+  const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
     previous: LivingRoomRenderResult | null;
@@ -35,6 +37,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const activeObject = props.selectedObjects[0] ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
   const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
+  useEffect(() => {
+    if (!props.project) return;
+    setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : props.project!.walls[0]?.id ?? null);
+    setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
+  }, [props.project]);
   const assetCategories = useMemo(
     () => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))],
     [],
@@ -125,6 +132,24 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onAddCatalogObject={props.onAddCatalogObject}
             onSelect={(objectId) => props.onSelect(objectId)}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
+            onRoomDimensions={props.onRoomDimensions}
+            activeWallId={activeWallId}
+            activeOpeningId={activeOpeningId}
+            onActiveWall={setActiveWallId}
+            onActiveOpening={(openingId) => {
+              setActiveOpeningId(openingId);
+              const opening = props.project!.openings.find((item) => item.id === openingId);
+              if (opening) setActiveWallId(opening.wallId);
+            }}
+            onAddOpening={(wallId, kind) => {
+              props.onAddOpening(wallId, kind);
+              setActiveWallId(wallId);
+            }}
+            onUpdateOpening={props.onUpdateOpening}
+            onDeleteOpening={(openingId) => {
+              props.onDeleteOpening(openingId);
+              setActiveOpeningId(null);
+            }}
             onImportUnderlay={async (file) => {
               if (!file) return;
               setImportError("");
@@ -160,6 +185,14 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           onSelect={props.onSelect}
           onMove={props.onMove}
           onResize={props.onResize}
+          activeWallId={activeWallId}
+          activeOpeningId={activeOpeningId}
+          onSelectWall={setActiveWallId}
+          onSelectOpening={(openingId) => {
+            setActiveOpeningId(openingId);
+            const opening = props.project!.openings.find((item) => item.id === openingId);
+            if (opening) setActiveWallId(opening.wallId);
+          }}
           onSetRotation={props.onSetRotation}
           onApplyStyle={props.onApplyStyle}
           onUndo={props.onUndo}

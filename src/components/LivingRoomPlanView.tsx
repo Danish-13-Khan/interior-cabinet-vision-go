@@ -21,6 +21,10 @@ type LivingRoomPlanViewProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
+  activeWallId: string | null;
+  activeOpeningId: string | null;
+  onSelectWall: (wallId: string) => void;
+  onSelectOpening: (openingId: string) => void;
 };
 
 type DragState = {
@@ -98,6 +102,10 @@ export function LivingRoomPlanView({
   onSelect,
   onMove,
   onResize,
+  activeWallId,
+  activeOpeningId,
+  onSelectWall,
+  onSelectOpening,
 }: LivingRoomPlanViewProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -293,13 +301,14 @@ export function LivingRoomPlanView({
           y1={wall.start.z}
           x2={wall.end.x}
           y2={wall.end.z}
-          className="lr-wall-line"
+          className={`lr-wall-line ${wall.id === activeWallId ? "is-active" : ""}`}
+          onPointerDown={(event) => { event.stopPropagation(); onSelectWall(wall.id); }}
         />
       ))}
       {project.openings.map((opening) => {
         const points = openingPoints(project, opening.id);
         return (
-          <g key={opening.id} className={`lr-opening lr-opening-${opening.kind}`}>
+          <g key={opening.id} className={`lr-opening lr-opening-${opening.kind} ${opening.id === activeOpeningId ? "is-active" : ""}`} onPointerDown={(event) => { event.stopPropagation(); onSelectOpening(opening.id); }}>
             <line x1={points.start.x} y1={points.start.z} x2={points.end.x} y2={points.end.z} />
             <text x={(points.start.x + points.end.x) / 2} y={(points.start.z + points.end.z) / 2 - 85}>
               {opening.kind.toUpperCase()} {opening.widthMm}

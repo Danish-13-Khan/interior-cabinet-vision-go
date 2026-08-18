@@ -222,13 +222,16 @@ export {
 } from "./planUnderlay";
 export {
   addLivingRoomObject,
+  addLivingRoomOpening,
   alignLivingRoomObjects,
   deleteLivingRoomObjects,
+  deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   moveLivingRoomObject,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
+  updateLivingRoomOpening,
   type LivingRoomAlignMode,
 } from "./planCommands";
 export {

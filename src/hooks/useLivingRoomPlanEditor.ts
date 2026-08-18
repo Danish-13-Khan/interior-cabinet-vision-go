@@ -9,6 +9,7 @@ import {
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
+  addLivingRoomOpening,
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
@@ -18,6 +19,7 @@ import {
   createLivingRoomStarterProject,
   type Phase1BenchmarkId,
   deleteLivingRoomObjects,
+  deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   getActiveLivingRoomStyleId,
   getLivingRoomStylePreset,
@@ -27,6 +29,7 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
+  updateLivingRoomOpening,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
   type LivingRoomLightingRecipeId,
@@ -283,6 +286,33 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function addOpening(wallId: string, kind: "door" | "window") {
+    if (!document) return;
+    const wall = document.walls.find((item) => item.id === wallId);
+    if (!wall) return;
+    const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
+    const id = `living-opening-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
+    commitDocument((current) => addLivingRoomOpening(current, {
+      id,
+      roomId: current.activeRoomId,
+      wallId,
+      kind,
+      offsetMm: Math.max(0, Math.round((length - (kind === "door" ? 900 : 1200)) / 2)),
+      widthMm: kind === "door" ? 900 : 1200,
+      heightMm: kind === "door" ? 2100 : 1200,
+      sillHeightMm: kind === "door" ? 0 : 900,
+      swingDirection: kind === "door" ? "in" : undefined,
+    }), `Added ${kind}.`);
+  }
+
+  function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
+    commitDocument((current) => updateLivingRoomOpening(current, openingId, patch), "Updated opening.");
+  }
+
+  function deleteOpening(openingId: string) {
+    commitDocument((current) => deleteLivingRoomOpening(current, openingId), "Removed opening.");
+  }
+
   function setStyle(styleId: LivingRoomStyleId) {
     if (!document || getActiveLivingRoomStyleId(document) === styleId) return;
     commitDocument(
@@ -343,6 +373,9 @@ export function useLivingRoomPlanEditor({
     alignInteriorSelection: alignSelection,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
+    addLivingRoomOpening: addOpening,
+    updateLivingRoomOpening: updateOpening,
+    deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
     setLivingRoomRenderSettings: setRenderSettings,
     setLivingRoomLightingRecipe: setLightingRecipe,

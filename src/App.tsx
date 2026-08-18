@@ -246,6 +246,9 @@ function App() {
             onAlign={c.alignInteriorSelection}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onAddOpening={c.addLivingRoomOpening}
+            onUpdateOpening={c.updateLivingRoomOpening}
+            onDeleteOpening={c.deleteLivingRoomOpening}
             onSetPlanUnderlay={c.setLivingRoomPlanUnderlay}
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}

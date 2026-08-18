@@ -35,6 +35,10 @@ type LivingRoomPlanStageProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
+  activeWallId: string | null;
+  activeOpeningId: string | null;
+  onSelectWall: (wallId: string) => void;
+  onSelectOpening: (openingId: string) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onUndo: () => void;
@@ -131,6 +135,10 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSelect={props.onSelect}
             onMove={props.onMove}
             onResize={props.onResize}
+            activeWallId={props.activeWallId}
+            activeOpeningId={props.activeOpeningId}
+            onSelectWall={props.onSelectWall}
+            onSelectOpening={props.onSelectOpening}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
