@@ -9,6 +9,7 @@ import {
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
+  attachToWall,
   addLivingRoomOpening,
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
@@ -216,7 +217,7 @@ export function useLivingRoomPlanEditor({
     );
   }
 
-  function addCatalogObject(catalogItemId: LivingRoomCatalogId) {
+  function addCatalogObject(catalogItemId: LivingRoomCatalogId, wallId?: string) {
     if (!document) return;
     const item = createLivingRoomObject(catalogItemId, {
       id: uniqueObjectId(catalogItemId.split(":").pop() ?? "item"),
@@ -227,11 +228,12 @@ export function useLivingRoomPlanEditor({
         z: (document.objects.length % 3) * 150 - 150,
       },
     });
+    const placed = wallId ? attachToWall(document, item, wallId) : item;
     commitDocument(
-      (current) => addLivingRoomObject(current, item),
+      (current) => addLivingRoomObject(current, placed),
       `Added ${item.name}.`,
     );
-    setSelectedObjectIds([item.id]);
+    setSelectedObjectIds([placed.id]);
   }
 
   function duplicateSelection() {

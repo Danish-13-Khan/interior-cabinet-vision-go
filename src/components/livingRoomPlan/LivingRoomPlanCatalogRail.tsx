@@ -46,7 +46,7 @@ type LivingRoomPlanCatalogRailProps = {
   importError: string;
   onAssetQuery: (value: string) => void;
   onAssetCategory: (value: string) => void;
-  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId) => void;
+  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
@@ -88,7 +88,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           <>
             <div className="context-panel-heading">
               <strong>{props.studioPanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
-              <span>{visibleAssets.length} parametric models</span>
+              <span>{props.studioPanel === "cabinets" ? `Attach to ${String(activeWall.extensions?.wallSide ?? "wall")}` : `${visibleAssets.length} parametric models`}</span>
             </div>
             <div className="lr-asset-controls">
               <input aria-label="Search assets" placeholder="Search furniture…" value={props.assetQuery} onChange={(event) => props.onAssetQuery(event.target.value)} />
@@ -100,7 +100,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             </div>
             <div className="lr-asset-grid">
               {visibleAssets.map((item) => (
-                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id)}>
+                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id, props.studioPanel === "cabinets" ? activeWall.id : undefined)}>
                   <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
                   <strong>{item.name}</strong>
                   <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm</small>

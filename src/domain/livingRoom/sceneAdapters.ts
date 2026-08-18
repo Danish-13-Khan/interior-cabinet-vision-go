@@ -54,6 +54,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "round-coffee-table-v1", catalogItemId: "living:coffee-table-round", compile: compileRoundCoffeeTable },
   { id: "console-table-v1", catalogItemId: "living:console-table", compile: compileCoffeeTable },
   { id: "bookcase-v1", catalogItemId: "living:bookcase", compile: compileBookcase },
+  { id: "wardrobe-wall-v1", catalogItemId: "living:wardrobe-wall", compile: compileBookcase },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },
   { id: "indoor-plant-v1", catalogItemId: "living:indoor-plant", compile: compileIndoorPlant },
 ];
