@@ -55,6 +55,8 @@ type LivingRoomPlanCatalogRailProps = {
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
   const visibleAssets = LIVING_ROOM_CATALOG.filter((item) =>
+    (props.studioPanel !== "cabinets" || item.kind === "cabinet") &&
+    (props.studioPanel !== "furniture" || item.kind !== "cabinet") &&
     (props.assetCategory === "all" || item.category === props.assetCategory) &&
     (!props.assetQuery.trim()
       || `${item.name} ${item.category}`.toLowerCase().includes(props.assetQuery.trim().toLowerCase())),
@@ -63,17 +65,19 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   return (
     <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
-        <button type="button" className={props.studioPanel === "assets" ? "is-active" : ""} onClick={() => props.onStudioPanel("assets")} title="Assets"><span>◇</span>Assets</button>
+        <button type="button" className={props.studioPanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button>
+        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets</button>
+        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture</button>
+        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials</button>
         <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers</button>
-        <button type="button" className={props.studioPanel === "underlay" ? "is-active" : ""} onClick={() => props.onStudioPanel("underlay")} title="Plan underlay"><span>⌁</span>Import</button>
       </nav>
       {props.toolRailVisible ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
-        {props.studioPanel === "assets" ? (
+        {props.studioPanel === "cabinets" || props.studioPanel === "furniture" ? (
           <>
             <div className="context-panel-heading">
-              <strong>Asset Library</strong>
-              <span>{LIVING_ROOM_CATALOG.length} parametric models</span>
+              <strong>{props.studioPanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
+              <span>{visibleAssets.length} parametric models</span>
             </div>
             <div className="lr-asset-controls">
               <input aria-label="Search assets" placeholder="Search furniture…" value={props.assetQuery} onChange={(event) => props.onAssetQuery(event.target.value)} />
@@ -94,6 +98,18 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               ))}
             </div>
           </>
+        ) : props.studioPanel === "materials" ? (
+          <>
+            <div className="context-panel-heading"><strong>Materials</strong><span>Apply through the inspector</span></div>
+            <div className="lr-material-library">
+              {props.project.materials.map((material) => (
+                <div key={material.id}>
+                  <i style={{ background: material.color }} />
+                  <span><strong>{material.name}</strong><small>{material.id}</small></span>
+                </div>
+              ))}
+            </div>
+          </>
         ) : props.studioPanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>
@@ -110,7 +126,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           </>
         ) : (
           <>
-            <div className="context-panel-heading"><strong>Plan Underlay</strong><span>Trace from a drawing</span></div>
+            <div className="context-panel-heading"><strong>Build Room</strong><span>Trace from a floor plan</span></div>
             <div className="lr-underlay-panel">
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
               {props.underlay ? (

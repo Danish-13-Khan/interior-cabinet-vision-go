@@ -19,7 +19,8 @@ import type {
 } from "../../domain/livingRoom";
 
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
-export type StudioPanel = "assets" | "layers" | "underlay";
+export type PlannerMode = "project" | "build" | "design" | "render";
+export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers";
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;

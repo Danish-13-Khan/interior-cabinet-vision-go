@@ -134,10 +134,9 @@ Phase 0 is complete when the following decisions are accepted as the build contr
 
 ## 9. Open decisions before Phase 1
 
-These choices affect detailed UI and implementation, so they need owner approval before coding starts:
+The first template decision is now locked. The remaining choices can be made during Phase 2 planning:
 
-1. Is the first cabinet-led template a **wardrobe wall**, **TV wall**, or **small kitchen run**?
+1. **First cabinet-led template: wardrobe wall.**
 2. Is imported-plan tracing essential in the first public planner release or a Phase 2 addition?
 3. Should the first release display only millimetres, or offer feet/inches immediately?
 4. Should “Furniture” be available in the first left rail, or should the first workflow focus only on cabinets and openings?
-

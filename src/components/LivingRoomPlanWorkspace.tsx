@@ -14,6 +14,7 @@ import { LivingRoomPlanStage } from "./livingRoomPlan/LivingRoomPlanStage";
 import type {
   LivingRoomPlanWorkspaceProps,
   LivingRoomWorkspaceView,
+  PlannerMode,
   StudioPanel,
 } from "./livingRoomPlan/workspaceProps";
 
@@ -21,7 +22,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [workspaceView, setWorkspaceView] = useState<LivingRoomWorkspaceView>("plan");
-  const [studioPanel, setStudioPanel] = useState<StudioPanel>("assets");
+  const [plannerMode, setPlannerMode] = useState<PlannerMode>("design");
+  const [studioPanel, setStudioPanel] = useState<StudioPanel>("cabinets");
   const [assetQuery, setAssetQuery] = useState("");
   const [assetCategory, setAssetCategory] = useState("all");
   const [importError, setImportError] = useState("");
@@ -56,11 +58,25 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     <InteriorsProductHeader
       projectName={props.project?.name ?? null}
       workspaceView={workspaceView}
+      plannerMode={plannerMode}
       isDirty={props.isDirty}
       canUndo={props.canUndo}
       canRedo={props.canRedo}
       onProject={props.onOpenProjectHome}
       onView={setWorkspaceView}
+      onPlannerMode={(mode) => {
+        setPlannerMode(mode);
+        if (mode === "project") {
+          props.onOpenProjectHome();
+          return;
+        }
+        if (mode === "render") {
+          setWorkspaceView("render");
+          return;
+        }
+        setWorkspaceView("plan");
+        setStudioPanel(mode === "build" ? "build" : "cabinets");
+      }}
       onOpen={props.onOpenProject}
       onSave={props.onSaveProject}
       onExport={props.onExportProject}
@@ -114,7 +130,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               setImportError("");
               try {
                 props.onSetPlanUnderlay(await imageFileToUnderlay(file, room.dimensions.widthMm));
-                setStudioPanel("underlay");
+                setStudioPanel("build");
               } catch (error) {
                 setImportError(error instanceof Error ? error.message : "Plan import failed.");
               }

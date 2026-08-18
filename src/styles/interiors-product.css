@@ -215,6 +215,42 @@
 
 .lr-product-actions .lr-save-button:hover:not(:disabled) { border-color: #30343a; background: #30343a; }
 
+.lr-view-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  overflow: hidden;
+  border: 1px solid #cbd1cc;
+  border-radius: 7px;
+  background: #f3f5f2;
+}
+
+.lr-product-actions .lr-view-switch button {
+  min-width: 37px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #657069;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.lr-product-actions .lr-view-switch button.is-active {
+  background: var(--lr-accent);
+  color: #fff;
+}
+
+.lr-product-actions .lr-export-button {
+  min-width: 54px;
+  padding: 0 10px;
+  border-color: #cdd2cc;
+  background: #fff;
+  color: #35413c;
+  font-size: 0.6rem;
+  font-weight: 750;
+}
+
 .lr-workspace-picker {
   display: flex;
   margin-left: 4px;
@@ -264,7 +300,7 @@
 .lr-studio-rail button {
   display: flex;
   width: 48px;
-  min-height: 50px;
+  min-height: 46px;
   padding: 5px 2px;
   align-items: center;
   justify-content: center;
@@ -421,6 +457,36 @@
 .lr-asset-preview.is-floor-lamp i:nth-child(1) { left: 48%; right: auto; bottom: 15px; width: 4px; height: 47px; background: #4d555d; }
 .lr-asset-preview.is-floor-lamp i:nth-child(2) { left: 36%; right: 36%; bottom: 49px; height: 22px; border-radius: 50% 50% 4px 4px; background: #c5b9a5; }
 .lr-asset-preview.is-floor-lamp i:nth-child(3) { display: none; }
+
+.lr-material-library {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.lr-material-library > div {
+  display: flex;
+  min-height: 45px;
+  padding: 7px;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #e0e4e7;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.lr-material-library i {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 7px;
+}
+
+.lr-material-library span { display: grid; min-width: 0; gap: 2px; }
+.lr-material-library strong { overflow: hidden; font-size: 0.61rem; text-overflow: ellipsis; white-space: nowrap; }
+.lr-material-library small { overflow: hidden; color: #7c858d; font: 0.47rem "SFMono-Regular", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
 
 .lr-layer-tree { padding: 8px; overflow-y: auto; }
 .lr-layer-tree > div,
