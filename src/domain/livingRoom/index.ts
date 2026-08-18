@@ -101,6 +101,15 @@ export {
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
 export {
+  clientShareBrief,
+  estimateVendorPricing,
+  getAdvancedStudioState,
+  listLayoutSuggestions,
+  recognizePlanUnderlay,
+  setAdvancedStudioState,
+  type AdvancedStudioState,
+} from "./advancedStudio";
+export {
   isLivingRoomLayerVisible,
   setLivingRoomFloorMaterial,
   setLivingRoomLayerVisibility,

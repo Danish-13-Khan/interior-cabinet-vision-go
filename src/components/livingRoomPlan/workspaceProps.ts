@@ -15,6 +15,7 @@ import type {
   LivingRoomLayerId,
   LivingRoomPlanIssue,
   LivingRoomPlanUnderlay,
+  AdvancedStudioState,
   LivingRoomRecoverySnapshot,
   LivingRoomStyleId,
   Phase1BenchmarkId,
@@ -22,7 +23,7 @@ import type {
 
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
 export type PlannerMode = "project" | "build" | "design" | "render";
-export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers";
+export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers" | "advanced";
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -71,6 +72,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>) => void;
   onDeleteOpening: (openingId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
+  onUpdateAdvancedStudio: (state: AdvancedStudioState) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;

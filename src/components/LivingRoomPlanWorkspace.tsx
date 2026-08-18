@@ -8,6 +8,7 @@ import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
 import { imageFileToUnderlay, LivingRoomPlanCatalogRail } from "./livingRoomPlan/LivingRoomPlanCatalogRail";
+import { LivingRoomAdvancedPanel } from "./livingRoomPlan/LivingRoomAdvancedPanel";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./livingRoomPlan/LivingRoomInspectorPanel";
 import { LivingRoomPlanStage } from "./livingRoomPlan/LivingRoomPlanStage";
@@ -113,7 +114,15 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           open={props.projectHomeOpen}
           hasCurrentProject
         />
-        {workspaceView === "plan" ? (
+        {workspaceView === "plan" && studioPanel === "advanced" ? (
+          <LivingRoomAdvancedPanel
+            project={props.project}
+            underlay={underlay}
+            onRoomDimensions={props.onRoomDimensions}
+            onAddCatalogObject={props.onAddCatalogObject}
+            onUpdateState={props.onUpdateAdvancedStudio}
+          />
+        ) : workspaceView === "plan" ? (
           <LivingRoomPlanCatalogRail
             widthPx={props.toolRailWidthPx}
             toolRailVisible={props.toolRailVisible}
