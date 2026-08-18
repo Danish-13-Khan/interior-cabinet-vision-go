@@ -3,8 +3,8 @@ import { useLayoutEffect, useRef, type RefObject } from "react";
 import type { PerspectiveCamera } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition } from "../../domain/interiorProject";
-import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
-import { resolveRenderCameraPose } from "../../domain/livingRoom";
+import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
+import { resolveModelViewPose, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 
 function toMeters(valueMm: number) {
@@ -61,12 +61,14 @@ export function CameraRig({
   controlsRef,
   composition,
   renderMode = "preview",
+  viewPreset = "perspective",
 }: {
   scene: CompiledLivingRoomScene;
   activeCameraId: string | null;
   controlsRef: RefObject<OrbitControlsImpl | null>;
   composition: RenderComposition;
   renderMode?: RenderMode;
+  viewPreset?: ModelViewPresetId;
 }) {
   const { camera } = useThree();
   const sceneRef = useRef(scene);
@@ -80,9 +82,9 @@ export function CameraRig({
     const named = current.cameras.find((candidate) => candidate.id === activeCameraId)
       ?? current.cameras.find((candidate) => candidate.isDefault)
       ?? current.cameras[0];
-    const pose = named
-      ? resolveRenderCameraPose(named, current.bounds, composition, renderMode)
-      : null;
+    const pose = viewPreset === "perspective"
+      ? (named ? resolveRenderCameraPose(named, current.bounds, composition, renderMode) : null)
+      : resolveModelViewPose(current, viewPreset);
     const framing = pose ?? fallbackFraming(current);
     const apply = () => {
       applyCameraPose(
@@ -110,6 +112,7 @@ export function CameraRig({
     projectCamera?.target.y,
     projectCamera?.target.z,
     renderMode,
+    viewPreset,
   ]);
 
   return null;

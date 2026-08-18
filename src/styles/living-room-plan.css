@@ -295,6 +295,13 @@
   color: #3d4d59;
 }
 
+.lr-view-presets {
+  display: flex;
+  gap: 2px;
+  padding-right: 4px;
+  border-right: 1px solid #a8b4bc;
+}
+
 .lr-model-controls input[type="range"] {
   width: 96px;
   accent-color: #176b9c;

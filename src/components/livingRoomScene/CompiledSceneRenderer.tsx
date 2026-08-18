@@ -10,7 +10,7 @@ import {
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
-import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
+import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
@@ -22,6 +22,7 @@ type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
   selectedIds: string[];
   activeCameraId: string | null;
+  viewPreset?: ModelViewPresetId;
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
@@ -49,6 +50,7 @@ export function CompiledSceneRenderer({
   scene,
   selectedIds,
   activeCameraId,
+  viewPreset,
   snapSizeMm,
   showGrid,
   cutawayWalls,
@@ -161,6 +163,7 @@ export function CompiledSceneRenderer({
         controlsRef={controlsRef}
         composition={renderComposition}
         renderMode={renderMode}
+        viewPreset={viewPreset}
       />
     </>
   );
