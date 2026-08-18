@@ -2,8 +2,12 @@ import type { ManufacturingIssue } from "../../domain/manufacturingRules";
 
 export function ManufacturingRulesSection({
   manufacturingIssues,
+  autoFixCount = 0,
+  onApplyAutoFixes,
 }: {
   manufacturingIssues: ManufacturingIssue[];
+  autoFixCount?: number;
+  onApplyAutoFixes?: () => void;
 }) {
   const visible = manufacturingIssues.filter(
     (issue) => issue.severity === "error" || issue.severity === "warning",
@@ -36,6 +40,15 @@ export function ManufacturingRulesSection({
           </li>
         ))}
       </ul>
+      {autoFixCount > 0 && onApplyAutoFixes ? (
+        <button
+          type="button"
+          className="property-grid-action"
+          onClick={onApplyAutoFixes}
+        >
+          Apply {autoFixCount} safe fix{autoFixCount === 1 ? "" : "es"}
+        </button>
+      ) : null}
     </div>
   );
 }
