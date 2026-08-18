@@ -8,6 +8,7 @@ import {
   getObjectPlanBounds,
   inspectLivingRoomPlan,
   moveLivingRoomObject,
+  attachToWall,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
@@ -125,5 +126,16 @@ describe("living-room plan authoring", () => {
     expect(opening.widthMm).toBe(1200);
     expect(opening.offsetMm).toBe(600);
     expect(added.openings.find((item) => item.id === "test-window")!.widthMm).toBeLessThan(99999);
+  });
+
+  it("attaches a wardrobe template to the room-facing side of a wall", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const wardrobe = { ...project.objects[0]!, dimensions: { widthMm: 2400, heightMm: 2400, depthMm: 600 } };
+    const backWall = project.walls.find((wall) => wall.extensions?.wallSide === "back")!;
+    const attached = attachToWall(project, wardrobe, backWall.id);
+
+    expect(attached.position.z).toBeGreaterThan(backWall.start.z);
+    expect(attached.rotation.y).toBe(0);
+    expect(attached.extensions?.wallAttachment).toEqual({ wallId: backWall.id });
   });
 });
