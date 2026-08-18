@@ -6,6 +6,7 @@ import type {
 import {
   compileLivingRoomScene,
   createLivingRoomRenderResult,
+  applyRenderPresetToSettings,
   livingRoomRenderFileName,
   describePresetHonesty,
   resolveStudioRenderMode,
@@ -239,6 +240,12 @@ export function LivingRoomRenderStudio({
         </nav>
         <div className="lr-render-actions">
           {(job.status === "error" || job.status === "cancelled") ? <button type="button" onClick={() => void renderImage()}>Retry</button> : null}
+          <button type="button" onClick={() => onSettingsChange(applyRenderPresetToSettings(settings, "draft"))}>
+            Draft Preview
+          </button>
+          <button type="button" onClick={() => onSettingsChange(applyRenderPresetToSettings(settings, "presentation"))}>
+            High Quality
+          </button>
           <button type="button" className="is-primary" onClick={() => void renderImage()} disabled={isRendering || !activeCamera || !captureHandle}>
             {isRendering ? "Rendering…" : "Render Image"}
           </button>
@@ -246,6 +253,13 @@ export function LivingRoomRenderStudio({
             {stills.busy ? "Generating still…" : "Generate Still"}
           </button>
           <button type="button" onClick={() => void exportPng()} disabled={!latestResult || isRendering}>Export PNG</button>
+          <button
+            type="button"
+            onClick={() => latestResult && void clientExport.exportPresentationPdf(project, latestResult)}
+            disabled={!latestResult || isRendering || clientExport.busy}
+          >
+            {clientExport.busy ? "Exporting…" : "Presentation PDF"}
+          </button>
           <button
             type="button"
             onClick={() => void clientExport.exportClientPreview(
@@ -260,7 +274,7 @@ export function LivingRoomRenderStudio({
             )}
             disabled={isRendering || clientExport.busy}
           >
-            {clientExport.busy ? "Packaging…" : "Export Client Preview"}
+            {clientExport.busy ? "Packaging…" : "Client Package"}
           </button>
         </div>
       </header>
