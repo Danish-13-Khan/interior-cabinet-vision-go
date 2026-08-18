@@ -4,6 +4,7 @@ import type {
 } from "../../domain/cabinetDimensions";
 import type { SnapGuide } from "../../domain/placementSnap";
 import { snapElevationHeight, snapPlanPlacement } from "../../domain/placementSnap";
+import { placementConflict } from "../../domain/placementSafety";
 import {
   elevationFrontSvgToWorldMm,
   elevationSideSvgToWorldMm,
@@ -173,12 +174,14 @@ export function proposePlacement(
       gridSizeMm: snapSizeMm,
       sillHeightsMm: sillHeights,
     });
+    const placement = {
+      ...snapped.placement,
+      y: origin.attachment === "floor" ? 0 : heightSnap.y,
+      z: origin.z,
+    };
+    if (placementConflict({ cabinet, others, placement, room })) return null;
     return {
-      placement: {
-        ...snapped.placement,
-        y: origin.attachment === "floor" ? 0 : heightSnap.y,
-        z: origin.z,
-      },
+      placement,
       guides: [
         ...snapped.guides.filter((guide) => guide.axis === "x"),
         ...(origin.attachment === "floor" ? [] : heightSnap.guides),
@@ -203,12 +206,14 @@ export function proposePlacement(
       gridSizeMm: snapSizeMm,
       sillHeightsMm: sillHeights,
     });
+    const placement = {
+      ...snapped.placement,
+      x: origin.x,
+      y: origin.attachment === "floor" ? 0 : heightSnap.y,
+    };
+    if (placementConflict({ cabinet, others, placement, room })) return null;
     return {
-      placement: {
-        ...snapped.placement,
-        x: origin.x,
-        y: origin.attachment === "floor" ? 0 : heightSnap.y,
-      },
+      placement,
       guides: [
         ...snapped.guides.filter((guide) => guide.axis === "z"),
         ...(origin.attachment === "floor" ? [] : heightSnap.guides),
@@ -216,5 +221,7 @@ export function proposePlacement(
     };
   }
 
-  return snapped;
+  return placementConflict({ cabinet, others, placement: snapped.placement, room })
+    ? null
+    : snapped;
 }

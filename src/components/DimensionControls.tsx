@@ -20,6 +20,7 @@ import { PartsSection } from "./dimensionControls/PartsSection";
 import { useNumericInputs } from "./dimensionControls/useNumericInputs";
 import type { DimensionControlsProps } from "./dimensionControls/types";
 import { CabinetAssemblyEditor } from "./CabinetAssemblyEditor";
+import { applyManufacturingFixes } from "../domain/manufacturingRules";
 
 export type { DimensionControlsProps } from "./dimensionControls/types";
 
@@ -77,6 +78,7 @@ export function DimensionControls({
   const showWallTools = supportsWallPlacement(config.type);
   const attachment = selectedPlacement?.attachment ?? "floor";
   const rotation = normalizeRotationAngle(selectedPlacement?.rotation ?? 0);
+  const autoFix = useMemo(() => applyManufacturingFixes(config), [config]);
 
   if (!activeCabinetId) {
     return (
@@ -98,7 +100,11 @@ export function DimensionControls({
         </p>
       </div>
 
-      <ManufacturingRulesSection manufacturingIssues={manufacturingIssues} />
+      <ManufacturingRulesSection
+        manufacturingIssues={manufacturingIssues}
+        autoFixCount={autoFix.fixes.length}
+        onApplyAutoFixes={() => onConfigChange(autoFix.config)}
+      />
 
       <div className="engineering-group-nav" role="tablist" aria-label="Engineering groups">
         {schemaGroups.map((group) => (
