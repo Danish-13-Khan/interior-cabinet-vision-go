@@ -29,6 +29,7 @@ type LivingRoomInspectorPanelProps = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onSelect: (objectId: string | null) => void;
 };
 
@@ -48,6 +49,7 @@ export function LivingRoomInspectorPanel({
   onResize,
   onSetRotation,
   onSetMaterial,
+  onSetParameters,
   onSelect,
 }: LivingRoomInspectorPanelProps) {
   return (
@@ -117,6 +119,7 @@ export function LivingRoomInspectorPanel({
               materials={project.materials}
               onResize={onResize}
               onSetMaterial={onSetMaterial}
+              onSetParameters={onSetParameters}
             />
           </>
         ) : (

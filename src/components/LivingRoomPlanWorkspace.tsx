@@ -201,6 +201,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           onDelete={props.onDelete}
           onRotateSelection={props.onRotateSelection}
           onAlign={props.onAlign}
+          onCreateCabinetRun={() => activeWallId && props.onCreateCabinetRun(activeWallId)}
           onRenderSettingsChange={props.onRenderSettingsChange}
           onLightingChange={props.onLightingChange}
           onRenderBrowserThumbnail={props.onRenderBrowserThumbnail}
@@ -228,6 +229,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onResize={props.onResize}
             onSetRotation={props.onSetRotation}
             onSetMaterial={props.onSetMaterial}
+            onSetParameters={props.onSetParameters}
             onSelect={(objectId) => props.onSelect(objectId)}
           />
         ) : null}

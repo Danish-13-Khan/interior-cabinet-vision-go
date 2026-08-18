@@ -234,7 +234,7 @@ export {
   updateLivingRoomOpening,
   type LivingRoomAlignMode,
 } from "./planCommands";
-export { attachToWall, placeOnWall, type WallPlacement } from "./wardrobePlacement";
+export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
 export {
   attachObjectRenderBinding,
   createObjectRenderBinding,

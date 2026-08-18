@@ -10,6 +10,7 @@ import {
 import {
   addLivingRoomObject,
   attachToWall,
+  arrangeCabinetRun,
   addLivingRoomOpening,
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
@@ -30,6 +31,7 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
+  snapCabinetToWall,
   updateLivingRoomOpening,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
@@ -169,7 +171,12 @@ export function useLivingRoomPlanEditor({
 
   function moveObject(objectId: string, position: Point3Mm) {
     commitDocument(
-      (current) => moveLivingRoomObject(current, objectId, position),
+      (current) => {
+        const object = current.objects.find((item) => item.id === objectId);
+        return object?.kind === "cabinet"
+          ? { ...current, objects: current.objects.map((item) => item.id === objectId ? snapCabinetToWall(current, item, position) : item) }
+          : moveLivingRoomObject(current, objectId, position);
+      },
       "Moved living-room object.",
     );
   }
@@ -208,6 +215,10 @@ export function useLivingRoomPlanEditor({
         ? { ...object, materialSlots: { ...object.materialSlots, [slotName]: materialId } }
         : object),
     }), "Changed object material.");
+  }
+
+  function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
+    commitDocument((current) => ({ ...current, objects: current.objects.map((object) => object.id === objectId ? { ...object, parameters: { ...object.parameters, ...patch } } : object) }), "Updated cabinet configuration.");
   }
 
   function setPlanUnderlay(underlay: LivingRoomPlanUnderlay | null) {
@@ -263,6 +274,11 @@ export function useLivingRoomPlanEditor({
       (current) => alignLivingRoomObjects(current, selectedObjectIds, mode),
       "Aligned living-room selection.",
     );
+  }
+
+  function createCabinetRun(wallId: string) {
+    if (selectedObjectIds.length < 2) return;
+    commitDocument((current) => arrangeCabinetRun(current, selectedObjectIds, wallId), "Created cabinet run.");
   }
 
   function nudgeSelection(dx: number, dz: number) {
@@ -368,11 +384,13 @@ export function useLivingRoomPlanEditor({
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: setObjectRotation,
     setInteriorObjectMaterial: setObjectMaterial,
+    setInteriorObjectParameters: setObjectParameters,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
     addLivingRoomCatalogObject: addCatalogObject,
     duplicateInteriorSelection: duplicateSelection,
     deleteInteriorSelection: deleteSelection,
     alignInteriorSelection: alignSelection,
+    createLivingRoomCabinetRun: createCabinetRun,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
     addLivingRoomOpening: addOpening,
