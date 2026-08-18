@@ -31,6 +31,7 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
+  setAdvancedStudioState,
   setLivingRoomFloorMaterial,
   setLivingRoomLayerVisibility,
   setLivingRoomWallMaterial,
@@ -41,6 +42,7 @@ import {
   type LivingRoomLightingRecipeId,
   type LivingRoomLayerId,
   type LivingRoomPlanUnderlay,
+  type AdvancedStudioState,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
@@ -246,6 +248,13 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function updateAdvancedStudio(state: AdvancedStudioState) {
+    commitDocument(
+      (current) => setAdvancedStudioState(current, state),
+      "Updated Advanced Studio workspace.",
+    );
+  }
+
   function addCatalogObject(catalogItemId: LivingRoomCatalogId, wallId?: string) {
     if (!document) return;
     const item = createLivingRoomObject(catalogItemId, {
@@ -407,6 +416,7 @@ export function useLivingRoomPlanEditor({
     setLivingRoomWallMaterial: setWallMaterial,
     setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
+    updateLivingRoomAdvancedStudio: updateAdvancedStudio,
     addLivingRoomCatalogObject: addCatalogObject,
     duplicateInteriorSelection: duplicateSelection,
     deleteInteriorSelection: deleteSelection,
