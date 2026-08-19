@@ -1,5 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
+import { Box3, Vector3 } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import {
@@ -47,6 +48,12 @@ function GlbSceneContent({
 
   const slotKey = JSON.stringify(binding.materialBindings);
   const groupsKey = JSON.stringify(definition.materialGroups);
+
+  useLayoutEffect(() => {
+    const bounds = new Box3().setFromObject(scene);
+    const center = bounds.getCenter(new Vector3());
+    scene.position.set(-center.x, -bounds.min.y, -center.z);
+  }, [scene]);
 
   useLayoutEffect(() => {
     applyGlbSlotMaterials(scene, {
