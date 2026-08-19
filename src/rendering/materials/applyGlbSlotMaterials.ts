@@ -73,13 +73,17 @@ function buildPhysicalMaterial(
   const curatedNormal = loadTexture(textureUrls.normalMap, compiled.uvScaleMm, mode, false, quality);
   const curatedRoughness = loadTexture(textureUrls.roughnessMap, compiled.uvScaleMm, mode, false, quality);
   const curatedAo = loadTexture(textureUrls.aoMap, compiled.uvScaleMm, mode, false, quality);
+  const map = curatedMap ?? pbr.maps.map;
+  const maps = {
+    ...(map ? { map } : {}),
+    ...(curatedNormal ? { normalMap: curatedNormal } : {}),
+    ...(curatedRoughness ? { roughnessMap: curatedRoughness } : {}),
+    ...(curatedAo ? { aoMap: curatedAo } : {}),
+    ...(!curatedMap && pbr.maps.bumpMap ? { bumpMap: pbr.maps.bumpMap } : {}),
+  };
   return new MeshPhysicalMaterial({
     color: new Color(pbr.color),
-    map: curatedMap ?? pbr.maps.map,
-    normalMap: curatedNormal,
-    roughnessMap: curatedRoughness,
-    aoMap: curatedAo,
-    bumpMap: curatedMap ? undefined : pbr.maps.bumpMap,
+    ...maps,
     bumpScale: pbr.bumpScale,
     roughness: pbr.roughness,
     metalness: pbr.metalness,
