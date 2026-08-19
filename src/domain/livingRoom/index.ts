@@ -112,10 +112,12 @@ export {
 } from "./advancedStudio";
 export {
   isLivingRoomLayerVisible,
+  paintLivingRoomSurface,
   setLivingRoomFloorMaterial,
   setLivingRoomLayerVisibility,
   setLivingRoomWallMaterial,
   type LivingRoomLayerId,
+  type LivingRoomPaintTarget,
 } from "./materialLayerCommands";
 export {
   MODEL_VIEW_PRESETS,

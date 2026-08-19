@@ -112,6 +112,9 @@ export function LivingRoomPlanView({
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [guides, setGuides] = useState<PlanSnapGuide[]>([]);
   const room = project.rooms.find((item) => item.id === project.activeRoomId)!;
+  const materials = useMemo(() => new Map(project.materials.map((material) => [material.id, material])), [project.materials]);
+  const floorMaterialId = typeof room.extensions?.floorMaterialId === "string" ? room.extensions.floorMaterialId : "";
+  const floorColor = materials.get(floorMaterialId)?.color ?? "#e8dfd0";
   const underlay = getLivingRoomPlanUnderlay(project);
   const margin = 700;
   const viewBox = [
@@ -270,6 +273,15 @@ export function LivingRoomPlanView({
           className="lr-plan-underlay-image"
         />
       ) : null}
+      <rect
+        x={-room.dimensions.widthMm / 2}
+        y={-room.dimensions.depthMm / 2}
+        width={room.dimensions.widthMm}
+        height={room.dimensions.depthMm}
+        fill={floorColor}
+        opacity="0.55"
+        pointerEvents="none"
+      />
       {showGrid ? (
         <rect
           x={-room.dimensions.widthMm / 2}
@@ -302,6 +314,7 @@ export function LivingRoomPlanView({
           x2={wall.end.x}
           y2={wall.end.z}
           className={`lr-wall-line ${wall.id === activeWallId ? "is-active" : ""}`}
+          style={{ stroke: wall.id === activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
           onPointerDown={(event) => { event.stopPropagation(); onSelectWall(wall.id); }}
         />
       ))}
