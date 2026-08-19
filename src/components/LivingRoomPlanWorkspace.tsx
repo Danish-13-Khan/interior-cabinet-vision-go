@@ -4,10 +4,11 @@ import {
   getLivingRoomPlanUnderlay,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
+import { imageFileToUnderlay } from "../domain/livingRoom/planUnderlayImport";
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
-import { imageFileToUnderlay, LivingRoomPlanCatalogRail } from "./livingRoomPlan/LivingRoomPlanCatalogRail";
+import { LivingRoomPlanCatalogRail } from "./livingRoomPlan/LivingRoomPlanCatalogRail";
 import { LivingRoomAdvancedPanel } from "./livingRoomPlan/LivingRoomAdvancedPanel";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./livingRoomPlan/LivingRoomInspectorPanel";
