@@ -32,9 +32,8 @@ import {
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
   setAdvancedStudioState,
-  setLivingRoomFloorMaterial,
+  paintLivingRoomSurface,
   setLivingRoomLayerVisibility,
-  setLivingRoomWallMaterial,
   snapCabinetToWall,
   updateLivingRoomOpening,
   type LivingRoomAlignMode,
@@ -215,12 +214,7 @@ export function useLivingRoomPlanEditor({
 
   function setObjectMaterial(objectId: string, slotName: string, materialId: string) {
     if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => ({
-      ...current,
-      objects: current.objects.map((object) => object.id === objectId
-        ? { ...object, materialSlots: { ...object.materialSlots, [slotName]: materialId } }
-        : object),
-    }), "Changed object material.");
+    commitDocument((current) => paintLivingRoomSurface(current, { kind: "object", objectId, slotName }, materialId), "Painted object surface.");
   }
 
   function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
@@ -229,12 +223,12 @@ export function useLivingRoomPlanEditor({
 
   function setFloorMaterial(materialId: string) {
     if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => setLivingRoomFloorMaterial(current, materialId), "Changed floor material.");
+    commitDocument((current) => paintLivingRoomSurface(current, { kind: "floor" }, materialId), "Painted floor surface.");
   }
 
   function setWallMaterial(wallId: string, materialId: string) {
     if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => setLivingRoomWallMaterial(current, wallId, materialId), "Changed wall material.");
+    commitDocument((current) => paintLivingRoomSurface(current, { kind: "wall", wallId }, materialId), "Painted wall surface.");
   }
 
   function setLayerVisibility(layer: LivingRoomLayerId, visible: boolean) {

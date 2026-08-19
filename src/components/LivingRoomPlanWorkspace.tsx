@@ -141,6 +141,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onAddCatalogObject={props.onAddCatalogObject}
             onSetFloorMaterial={props.onSetFloorMaterial}
             onSetWallMaterial={props.onSetWallMaterial}
+            onSetObjectMaterial={props.onSetMaterial}
             onSetLayerVisibility={props.onSetLayerVisibility}
             onSelect={(objectId) => props.onSelect(objectId)}
             onSetPlanUnderlay={props.onSetPlanUnderlay}

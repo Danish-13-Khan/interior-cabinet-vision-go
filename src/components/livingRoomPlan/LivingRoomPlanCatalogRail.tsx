@@ -7,11 +7,8 @@ import {
   type LivingRoomPlanUnderlay,
 } from "../../domain/livingRoom";
 import type { StudioPanel } from "./workspaceProps";
-
-export function imageFileToUnderlay(
-  file: File,
-  roomWidthMm: number,
-): Promise<LivingRoomPlanUnderlay> {
+import { SurfacePaintPanel } from "./SurfacePaintPanel";
+export function imageFileToUnderlay(file: File, roomWidthMm: number): Promise<LivingRoomPlanUnderlay> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("The selected image could not be read."));
@@ -31,7 +28,6 @@ export function imageFileToUnderlay(
     reader.readAsDataURL(file);
   });
 }
-
 type LivingRoomPlanCatalogRailProps = {
   widthPx: number;
   toolRailVisible: boolean;
@@ -50,6 +46,7 @@ type LivingRoomPlanCatalogRailProps = {
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
   onSetFloorMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string) => void;
+  onSetObjectMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
@@ -63,7 +60,6 @@ type LivingRoomPlanCatalogRailProps = {
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
   onDeleteOpening: (openingId: string) => void;
 };
-
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
   const visibleAssets = LIVING_ROOM_CATALOG.filter((item) =>
@@ -76,6 +72,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
+  const selectedObject = props.selectedIds.length === 1
+    ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null
+    : null;
 
   return (
     <>
@@ -114,24 +113,17 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               ))}
             </div>
           </>
-        ) : props.studioPanel === "materials" ? (
-          <>
-            <div className="context-panel-heading"><strong>Materials</strong><span>Floor, wall & cabinet finishes</span></div>
-            <div className="lr-material-targets">
-              <label>Floor<select value={String(room.extensions?.floorMaterialId ?? "")} onChange={(event) => props.onSetFloorMaterial(event.target.value)}>{props.project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}</select></label>
-              <label>Active wall<select value={activeWall.materialId ?? ""} onChange={(event) => props.onSetWallMaterial(activeWall.id, event.target.value)}>{props.project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}</select></label>
-              <small>Select a cabinet to edit its carcass and door materials in the right inspector.</small>
-            </div>
-            <div className="lr-material-library">
-              {props.project.materials.map((material) => (
-                <div key={material.id}>
-                  <i style={{ background: material.color }} />
-                  <span><strong>{material.name}</strong><small>{material.id}</small></span>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : props.studioPanel === "layers" ? (
+        ) : props.studioPanel === "materials" ? <>
+            <div className="context-panel-heading"><strong>Surface Paint</strong><span>2D paint · synced 3D</span></div>
+            <SurfacePaintPanel
+              project={props.project}
+              activeWallId={activeWall.id}
+              selectedObject={selectedObject}
+              onFloor={props.onSetFloorMaterial}
+              onWall={props.onSetWallMaterial}
+              onObject={props.onSetObjectMaterial}
+            />
+          </> : props.studioPanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>
             <div className="lr-layer-tree">
