@@ -5,9 +5,11 @@ import {
   isLivingRoomLayerVisible,
   type LivingRoomCatalogId,
   type LivingRoomPlanUnderlay,
+  type ImportedAsset,
 } from "../../domain/livingRoom";
 import type { StudioPanel } from "./workspaceProps";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
+import { AssetImportPanel } from "./AssetImportPanel";
 export function imageFileToUnderlay(file: File, roomWidthMm: number): Promise<LivingRoomPlanUnderlay> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -44,6 +46,7 @@ type LivingRoomPlanCatalogRailProps = {
   onAssetQuery: (value: string) => void;
   onAssetCategory: (value: string) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAddImportedAsset: (asset: ImportedAsset) => void;
   onSetFloorMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string) => void;
   onSetObjectMaterial: (objectId: string, slotName: string, materialId: string) => void;
@@ -72,12 +75,8 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
-  const selectedObject = props.selectedIds.length === 1
-    ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null
-    : null;
-
-  return (
-    <>
+  const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
+  return <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
         <button type="button" className={props.studioPanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button>
         <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets</button>
@@ -94,6 +93,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               <strong>{props.studioPanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
               <span>{props.studioPanel === "cabinets" ? `Attach to ${String(activeWall.extensions?.wallSide ?? "wall")}` : `${visibleAssets.length} parametric models`}</span>
             </div>
+            <AssetImportPanel cabinetMode={props.studioPanel === "cabinets"} onAdd={props.onAddImportedAsset} />
             <div className="lr-asset-controls">
               <input aria-label="Search assets" placeholder="Search furniture…" value={props.assetQuery} onChange={(event) => props.onAssetQuery(event.target.value)} />
               <div className="lr-asset-categories">
@@ -194,6 +194,5 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         )}
       </aside>
       ) : null}
-    </>
-  );
+    </>;
 }

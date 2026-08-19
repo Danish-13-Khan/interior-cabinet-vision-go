@@ -139,6 +139,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onAssetQuery={setAssetQuery}
             onAssetCategory={setAssetCategory}
             onAddCatalogObject={props.onAddCatalogObject}
+            onAddImportedAsset={props.onAddImportedAsset}
             onSetFloorMaterial={props.onSetFloorMaterial}
             onSetWallMaterial={props.onSetWallMaterial}
             onSetObjectMaterial={props.onSetMaterial}

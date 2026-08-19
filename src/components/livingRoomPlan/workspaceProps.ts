@@ -18,6 +18,7 @@ import type {
   AdvancedStudioState,
   LivingRoomRecoverySnapshot,
   LivingRoomStyleId,
+  ImportedAsset,
   Phase1BenchmarkId,
 } from "../../domain/livingRoom";
 
@@ -62,6 +63,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAddImportedAsset: (asset: ImportedAsset) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onAlign: (mode: LivingRoomAlignMode) => void;
