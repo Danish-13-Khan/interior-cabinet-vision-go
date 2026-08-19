@@ -19,6 +19,7 @@ describe("asset import pipeline", () => {
     expect(imported.extensions?.assetImport).toEqual({ id: asset.id });
     expect(node.renderBinding.strategy).toBe("glb");
     expect(node.renderBinding.modelUrl).toContain("wardrobe1");
+    expect(node.placeholder).toBe(false);
   });
 
   it("keeps a user-imported GLB URL in the object binding", () => {

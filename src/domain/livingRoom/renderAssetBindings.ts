@@ -132,6 +132,7 @@ export function resolveEffectiveRenderStrategy(
   binding: RenderBinding,
   modelAvailable: boolean,
 ): RenderAssetStrategy {
+  if (binding.strategy === "glb" && binding.modelUrl) return "glb";
   if (binding.strategy === "glb" && binding.modelAssetId && modelAvailable) {
     return "glb";
   }
