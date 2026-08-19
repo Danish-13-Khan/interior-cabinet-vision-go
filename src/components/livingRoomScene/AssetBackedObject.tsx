@@ -1,4 +1,4 @@
-import { useGLTF } from "@react-three/drei";
+import { Edges, useGLTF } from "@react-three/drei";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
 import { Box3, Vector3 } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
@@ -33,9 +33,10 @@ function GlbSceneContent({
   definition,
   binding,
   materials,
+  selected,
   renderMode,
   renderQuality,
-}: Omit<AssetBackedObjectProps, "primitives" | "selected">) {
+}: Omit<AssetBackedObjectProps, "primitives">) {
   const gltf = useGLTF(url);
   const castShadow = renderMode === "hero";
   const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
@@ -81,7 +82,26 @@ function GlbSceneContent({
     setScale(computeGlbScaleFactors(target, native));
   }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
 
-  return <primitive object={scene} scale={[scale.x, scale.y, scale.z]} />;
+  const outlineSize = target ?? definition.nativeSizeMm;
+  return (
+    <>
+      {/* Scaling the parent preserves the floor-centre pivot after normalizing GLB geometry. */}
+      <group scale={[scale.x, scale.y, scale.z]}>
+        <primitive object={scene} />
+      </group>
+      {selected ? (
+        <mesh position={[0, outlineSize.heightMm / 2000, 0]} renderOrder={10}>
+          <boxGeometry args={[
+            outlineSize.widthMm / 1000,
+            outlineSize.heightMm / 1000,
+            outlineSize.depthMm / 1000,
+          ]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          <Edges color="#0878bd" threshold={12} lineWidth={1.5} />
+        </mesh>
+      ) : null}
+    </>
+  );
 }
 
 /** Load and scale a registry GLB; fall back to procedural primitives on failure. */
@@ -113,6 +133,7 @@ export function AssetBackedObject({
           definition={definition}
           binding={binding}
           materials={materials}
+          selected={selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
         />
