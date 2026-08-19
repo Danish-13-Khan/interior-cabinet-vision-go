@@ -84,7 +84,7 @@ export function compileLivingRoomObjectNode(
       materialId,
     ),
   ];
-  return attachObjectRenderBinding({
+  const node = attachObjectRenderBinding({
     id: `object-node:${object.id}`,
     name: object.name,
     sourceObjectId: object.id,
@@ -99,4 +99,7 @@ export function compileLivingRoomObjectNode(
     },
     renderBinding: { strategy: "procedural", materialBindings: {} },
   }, object);
+  return node.renderBinding.modelUrl
+    ? { ...node, adapterId: "imported-glb-v1", placeholder: false }
+    : node;
 }
