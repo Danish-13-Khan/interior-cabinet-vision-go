@@ -15,6 +15,7 @@ import {
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
+  createImportedAssetObject,
   createLivingRoomObject,
   createLivingRoomReleaseDemoProject,
   createPhase1BenchmarkProject,
@@ -43,6 +44,7 @@ import {
   type LivingRoomPlanUnderlay,
   type AdvancedStudioState,
   type LivingRoomStyleId,
+  type ImportedAsset,
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
@@ -268,6 +270,18 @@ export function useLivingRoomPlanEditor({
     setSelectedObjectIds([placed.id]);
   }
 
+  function addImportedAsset(asset: ImportedAsset) {
+    if (!document) return;
+    const placed = createImportedAssetObject(
+      asset,
+      uniqueObjectId(asset.category || "import"),
+      document.activeRoomId,
+      { x: (document.objects.length % 4) * 180 - 270, y: 0, z: (document.objects.length % 3) * 180 - 180 },
+    );
+    commitDocument((current) => addLivingRoomObject(current, placed), `Imported ${asset.name}.`);
+    setSelectedObjectIds([placed.id]);
+  }
+
   function duplicateSelection() {
     const sourceId = selectedObjectIds[0];
     if (!sourceId) return;
@@ -412,6 +426,7 @@ export function useLivingRoomPlanEditor({
     setLivingRoomPlanUnderlay: setPlanUnderlay,
     updateLivingRoomAdvancedStudio: updateAdvancedStudio,
     addLivingRoomCatalogObject: addCatalogObject,
+    addImportedLivingRoomAsset: addImportedAsset,
     duplicateInteriorSelection: duplicateSelection,
     deleteInteriorSelection: deleteSelection,
     alignInteriorSelection: alignSelection,

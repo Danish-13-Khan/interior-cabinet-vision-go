@@ -245,6 +245,7 @@ function App() {
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}
+            onAddImportedAsset={c.addImportedLivingRoomAsset}
             onDuplicate={c.duplicateInteriorSelection}
             onDelete={c.deleteInteriorSelection}
             onAlign={c.alignInteriorSelection}

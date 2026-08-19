@@ -120,6 +120,13 @@ export {
   type LivingRoomPaintTarget,
 } from "./materialLayerCommands";
 export {
+  ASSET_IMPORT_STARTER_PACK,
+  createImportedAssetObject,
+  getPackagedImportedAsset,
+  readImportedGlb,
+  type ImportedAsset,
+} from "./assetImportPipeline";
+export {
   MODEL_VIEW_PRESETS,
   resolveModelViewPose,
   type ModelViewPose,

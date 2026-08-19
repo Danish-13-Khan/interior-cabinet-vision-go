@@ -22,6 +22,18 @@ export type ModelAssetState = {
  */
 export function useModelAsset(binding: RenderBinding): ModelAssetState {
   return useMemo(() => {
+    if (binding.strategy === "glb" && binding.modelUrl) {
+      return {
+        modelAssetId: binding.modelAssetId ?? "imported", available: true,
+        assetKey: binding.modelUrl, url: binding.modelUrl, strategy: "glb",
+        definition: {
+          id: binding.modelAssetId ?? "imported", name: "Imported model", catalogItemId: "imported",
+          assetKey: binding.modelUrl, available: true, defaultUvScaleMm: binding.uvScaleMm ?? 1000,
+          nativeSizeMm: binding.targetSizeMm ?? { widthMm: 1000, heightMm: 1000, depthMm: 1000 },
+          materialGroups: binding.modelMaterialGroups ?? {},
+        },
+      };
+    }
     const strategy = resolveNodeDrawStrategy(binding);
     const definition = binding.modelAssetId
       ? getModelAsset(binding.modelAssetId)
@@ -36,5 +48,5 @@ export function useModelAsset(binding: RenderBinding): ModelAssetState {
       strategy,
       definition,
     };
-  }, [binding.modelAssetId, binding.strategy]);
+  }, [binding.modelAssetId, binding.modelUrl, binding.strategy, binding.uvScaleMm, binding.targetSizeMm, binding.modelMaterialGroups]);
 }
