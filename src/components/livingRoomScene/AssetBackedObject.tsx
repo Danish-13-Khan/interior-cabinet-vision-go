@@ -12,7 +12,6 @@ import type {
   RenderBinding,
   RenderMode,
 } from "../../domain/livingRoom/renderAssetContracts";
-import { measureUnscaledObjectSizeMeters } from "../../rendering/loaders/measureObjectBounds";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
@@ -46,6 +45,9 @@ function GlbSceneContent({
       ? computeGlbScaleFactors(target, nativeSizeMmToMeters(definition.nativeSizeMm))
       : { x: 1, y: 1, z: 1 },
   );
+  const [nativeSize, setNativeSize] = useState(() =>
+    nativeSizeMmToMeters(definition.nativeSizeMm),
+  );
 
   const slotKey = JSON.stringify(binding.materialBindings);
   const groupsKey = JSON.stringify(definition.materialGroups);
@@ -54,7 +56,10 @@ function GlbSceneContent({
     const bounds = new Box3().setFromObject(scene);
     const center = bounds.getCenter(new Vector3());
     scene.position.set(-center.x, -bounds.min.y, -center.z);
-  }, [scene]);
+    const size = bounds.getSize(new Vector3());
+    setNativeSize(size);
+    if (target) setScale(computeGlbScaleFactors(target, size));
+  }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
 
   useLayoutEffect(() => {
     applyGlbSlotMaterials(scene, {
@@ -78,31 +83,22 @@ function GlbSceneContent({
     binding.modelTextureUrls,
   ]);
 
-  useLayoutEffect(() => {
-    if (!target) return;
-    const native = measureUnscaledObjectSizeMeters(scene);
-    setScale(computeGlbScaleFactors(target, native));
-  }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
-
-  const outlineSize = target ?? definition.nativeSizeMm;
   return (
-    <>
-      {/* Scaling the parent preserves the floor-centre pivot after normalizing GLB geometry. */}
-      <group scale={[scale.x, scale.y, scale.z]}>
+    /* The selection frame lives in the same normalized, scaled group as the GLB. */
+    <group scale={[scale.x, scale.y, scale.z]}>
         <primitive object={scene} />
-      </group>
-      {selected ? (
-        <mesh position={[0, outlineSize.heightMm / 2000, 0]} renderOrder={10}>
+        {selected ? (
+          <mesh position={[0, nativeSize.y / 2, 0]} renderOrder={10}>
           <boxGeometry args={[
-            outlineSize.widthMm / 1000,
-            outlineSize.heightMm / 1000,
-            outlineSize.depthMm / 1000,
+            nativeSize.x,
+            nativeSize.y,
+            nativeSize.z,
           ]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
           <Edges color="#0878bd" threshold={12} lineWidth={1.5} />
         </mesh>
-      ) : null}
-    </>
+        ) : null}
+    </group>
   );
 }
 
