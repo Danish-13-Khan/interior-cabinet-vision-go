@@ -13,6 +13,7 @@ import type { CompiledMaterial } from "../../domain/livingRoom";
 import { resolveMaterialIdForMeshName } from "../../domain/livingRoom/glbMaterialGroups";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { ModelTextureUrls } from "../../domain/livingRoom/renderAssetContracts";
 import { getRenderModeQuality } from "../../domain/livingRoom/heroRenderQuality";
 import { createPbrMaterialDescriptor } from "../materials/createPbrMaterial";
 import { textureRepeatFromUvScaleMm } from "./materialScale";
@@ -103,6 +104,20 @@ function buildPhysicalMaterial(
   });
 }
 
+function buildImportedMaterial(textures: ModelTextureUrls, mode: RenderMode, quality?: RenderQuality) {
+  const map = loadTexture(textures.map, 1000, mode, true, quality);
+  const normalMap = loadTexture(textures.normalMap, 1000, mode, false, quality);
+  const roughnessMap = loadTexture(textures.roughnessMap, 1000, mode, false, quality);
+  const metalnessMap = loadTexture(textures.metalnessMap, 1000, mode, false, quality);
+  const maps = {
+    ...(map ? { map } : {}),
+    ...(normalMap ? { normalMap } : {}),
+    ...(roughnessMap ? { roughnessMap } : {}),
+    ...(metalnessMap ? { metalnessMap } : {}),
+  };
+  return new MeshPhysicalMaterial({ color: "white", roughness: 0.62, metalness: 0, ...maps });
+}
+
 /** Tint GLB meshes from project materialSlots via named mesh groups. */
 export function applyGlbSlotMaterials(
   root: Object3D,
@@ -114,6 +129,7 @@ export function applyGlbSlotMaterials(
     renderQuality?: RenderQuality;
     castShadow: boolean;
     receiveShadow: boolean;
+    importedTextures?: ModelTextureUrls;
   },
 ) {
   root.traverse((child) => {
@@ -125,15 +141,11 @@ export function applyGlbSlotMaterials(
       args.materialGroups,
       args.materialBindings,
     );
-    if (!materialId) return;
-    const compiled = args.materials.get(materialId);
-    if (!compiled) return;
-    const next = buildPhysicalMaterial(
-      compiled,
-      args.renderMode,
-      child.name,
-      args.renderQuality,
-    );
+    if (!materialId && !args.importedTextures?.map) return;
+    const compiled = materialId ? args.materials.get(materialId) : undefined;
+    if (!compiled && !args.importedTextures?.map) return;
+    const next = compiled ? buildPhysicalMaterial(compiled, args.renderMode, child.name, args.renderQuality)
+      : buildImportedMaterial(args.importedTextures!, args.renderMode, args.renderQuality);
     for (const previous of asMeshMaterials(child.material)) {
       disposeMaterialTextures(previous);
       previous.dispose();

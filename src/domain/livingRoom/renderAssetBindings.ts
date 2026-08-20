@@ -91,7 +91,7 @@ export function createObjectRenderBinding(
   if (imported) {
     return {
       strategy: "glb", modelAssetId: `import:${imported.id}`, modelUrl: imported.sourceUrl,
-      modelMaterialGroups: imported.materialGroups, materialBindings, uvScaleMm,
+      modelMaterialGroups: imported.materialGroups, modelTextureUrls: imported.textureUrls, materialBindings, uvScaleMm,
       targetSizeMm: { ...object.dimensions },
     };
   }

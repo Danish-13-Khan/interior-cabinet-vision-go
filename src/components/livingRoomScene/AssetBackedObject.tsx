@@ -65,6 +65,7 @@ function GlbSceneContent({
       renderQuality,
       castShadow,
       receiveShadow: true,
+      importedTextures: binding.modelTextureUrls,
     });
   }, [
     castShadow,
@@ -74,6 +75,7 @@ function GlbSceneContent({
     renderQuality,
     scene,
     slotKey,
+    binding.modelTextureUrls,
   ]);
 
   useLayoutEffect(() => {
