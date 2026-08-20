@@ -17,16 +17,16 @@ export function AssetImportPanel({
   const assets = ASSET_IMPORT_STARTER_PACK.filter((asset) => cabinetMode ? asset.kind === "cabinet" : asset.kind !== "cabinet");
   return <>
     <section className="lr-model-import">
-      <input ref={input} type="file" accept=".glb,model/gltf-binary,.fbx" hidden onChange={(event) => {
-        const file = event.target.files?.[0];
+      <input ref={input} type="file" accept=".glb,model/gltf-binary,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
+        const files = Array.from(event.target.files ?? []);
         event.target.value = "";
-        if (!file) return;
+        if (!files.length) return;
         setError("");
-        void readImportedGlb(file).then(onAdd).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
+        void readImportedGlb(files).then(onAdd).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
       }} />
       <strong>Asset Import</strong>
-      <small>GLB is stored in this project. Convert FBX to GLB first so textures stay attached.</small>
-      <button type="button" onClick={() => input.current?.click()}>Import GLB</button>
+      <small>Select a GLB and its BaseColor/normal/roughness images together. Everything is stored in this project.</small>
+      <button type="button" onClick={() => input.current?.click()}>Import GLB + textures</button>
       {error ? <p className="lr-import-error">{error}</p> : null}
     </section>
     <div className="lr-import-pack">

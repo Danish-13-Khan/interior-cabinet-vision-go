@@ -1,5 +1,6 @@
 import type { InteriorObjectEntity, Point3Mm, Size3Mm } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
+import type { ModelTextureUrls } from "./renderAssetContracts";
 
 const wardrobeUrl = new URL("../../fbx_with_texture/wardrobes/wardrobe1/wardrobe1.glb", import.meta.url).href;
 const dresserUrl = new URL("../../fbx_with_texture/dressers and cabinets/dresser/dresser.glb", import.meta.url).href;
@@ -14,6 +15,7 @@ export type ImportedAsset = {
   dimensions: Size3Mm;
   sourceUrl: string;
   materialGroups?: Record<string, string>;
+  textureUrls?: ModelTextureUrls;
 };
 
 export const ASSET_IMPORT_STARTER_PACK: readonly ImportedAsset[] = [
@@ -39,18 +41,41 @@ export function createImportedAssetObject(asset: ImportedAsset, id: string, room
   };
 }
 
-export function readImportedGlb(file: File): Promise<ImportedAsset> {
-  if (!file.name.toLowerCase().endsWith(".glb")) {
-    return Promise.reject(new Error("Import GLB files only. Convert FBX to GLB first so textures travel with the model."));
-  }
-  if (file.size > MAX_MODEL_BYTES) return Promise.reject(new Error("Model is larger than 25 MB. Optimize it before importing."));
+function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error("The selected GLB could not be read."));
-    reader.onload = () => resolve({
-      id: `file:${file.name}-${file.size}`, name: file.name.replace(/\.glb$/i, ""), category: "imported",
-      kind: "custom", dimensions: { widthMm: 1000, heightMm: 1000, depthMm: 1000 }, sourceUrl: String(reader.result ?? ""),
-    });
+    reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+    reader.onload = () => resolve(String(reader.result ?? ""));
     reader.readAsDataURL(file);
   });
+}
+
+function textureSlot(name: string): keyof ModelTextureUrls | null {
+  const normalized = name.toLowerCase();
+  if (/(base.?color|albedo|diffuse|color)/.test(normalized)) return "map";
+  if (/normal/.test(normalized)) return "normalMap";
+  if (/roughness/.test(normalized)) return "roughnessMap";
+  if (/(metallic|metalness)/.test(normalized)) return "metalnessMap";
+  return null;
+}
+
+/** Persist a GLB and any selected sidecar texture images in the project document. */
+export async function readImportedGlb(files: File | File[]): Promise<ImportedAsset> {
+  const all = Array.isArray(files) ? files : [files];
+  const file = all.find((item) => item.name.toLowerCase().endsWith(".glb"));
+  if (!file) throw new Error("Select one GLB file together with any texture images.");
+  if (!file.name.toLowerCase().endsWith(".glb")) {
+    throw new Error("Import GLB files only. Convert FBX to GLB first so textures travel with the model.");
+  }
+  if (file.size > MAX_MODEL_BYTES) throw new Error("Model is larger than 25 MB. Optimize it before importing.");
+  const textureUrls: ModelTextureUrls = {};
+  await Promise.all(all.filter((item) => item !== file && item.type.startsWith("image/")).map(async (image) => {
+    const slot = textureSlot(image.name);
+    if (slot && !textureUrls[slot]) textureUrls[slot] = await readFileAsDataUrl(image);
+  }));
+  return {
+    id: `file:${file.name}-${file.size}`, name: file.name.replace(/\.glb$/i, ""), category: "imported",
+    kind: "custom", dimensions: { widthMm: 1000, heightMm: 1000, depthMm: 1000 }, sourceUrl: await readFileAsDataUrl(file),
+    ...(Object.keys(textureUrls).length ? { textureUrls } : {}),
+  };
 }
