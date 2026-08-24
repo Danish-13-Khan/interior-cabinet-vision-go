@@ -35,6 +35,7 @@ type LivingRoomPlanCatalogRailProps = {
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onAddPartitionWall: () => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
   onActiveWall: (wallId: string) => void;
@@ -61,12 +62,12 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
   return <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
-        {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button> : null}
+        {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build<small>Room, walls, openings</small></button> : null}
         {!props.v2BuildMode ? <>
-        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets</button>
-        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture</button>
-        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials</button>
-        <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers</button>
+        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets<small>Place modules</small></button>
+        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture<small>Room objects</small></button>
+        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials<small>Finishes</small></button>
+        <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers<small>Visibility</small></button>
         {!props.v2DesignMode ? <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button> : null}
         </> : null}
       </nav>
@@ -137,6 +138,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               </section>
               <section className="lr-room-authoring">
                 <strong>Wall openings</strong>
+                <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
                 <div className="lr-wall-tabs">
                   {props.project.walls.map((wall) => <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>{String(wall.extensions?.wallSide ?? "wall")}</button>)}
                 </div>

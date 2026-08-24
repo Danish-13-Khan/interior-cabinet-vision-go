@@ -37,6 +37,7 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
           <button type="button" onClick={workspace.onOpenProject}>Open project</button>
           {hasCurrentProject ? <button type="button" onClick={workspace.onCloseProjectHome}>Return to project</button> : null}
         </div>
+        <small className="planner-v2-home-start-note">Enter a name, then create a room to begin in 2D Build.</small>
       </div>
 
       <div className="planner-v2-home-content">

@@ -26,7 +26,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [workspaceView, setWorkspaceView] = useState<LivingRoomWorkspaceView>("plan");
-  const [plannerMode, setPlannerMode] = useState<PlannerMode>("design");
+  const [plannerMode, setPlannerMode] = useState<PlannerMode>("project");
   const [studioPanel, setStudioPanel] = useState<StudioPanel>("cabinets");
   const [assetQuery, setAssetQuery] = useState("");
   const [assetCategory, setAssetCategory] = useState("all");
@@ -65,6 +65,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setRenderResults({ latest: null, previous: null });
   }, [props.project?.id]);
 
+  useEffect(() => {
+    if (props.project && !props.projectHomeOpen && plannerMode === "project") {
+      setPlannerMode("build");
+    }
+  }, [plannerMode, props.project, props.projectHomeOpen]);
+
   const header = (
     <InteriorsProductHeader
       projectName={props.project?.name ?? null}
@@ -100,7 +106,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   if (!props.project || !room) {
     return (
       <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
-        <PlannerV2WorkflowSteps mode={plannerMode} onChange={setPlannerMode} />
+        <PlannerV2WorkflowSteps mode={plannerMode} onChange={setPlannerMode} hasProject={false} />
         {header}
         <div className="lr-empty-workspace">
           <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} />
@@ -111,13 +117,13 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   return (
     <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
-      <PlannerV2WorkflowSteps mode={plannerMode} onChange={(mode) => {
+      <PlannerV2WorkflowSteps mode={plannerMode} hasProject onChange={(mode) => {
         setPlannerMode(mode);
         if (mode === "render") setWorkspaceView("render");
         else if (mode !== "project") setWorkspaceView("plan");
       }} />
       {header}
-      <div className={`lr-workspace-body is-${workspaceView}`}>
+      <div className={`lr-workspace-body is-${workspaceView} is-planner-${plannerMode}`}>
         <LivingRoomHomeFromWorkspace
           workspace={props}
           open={props.projectHomeOpen}
@@ -156,6 +162,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onSelect={(objectId) => props.onSelect(objectId)}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onRoomDimensions={props.onRoomDimensions}
+            onAddPartitionWall={props.onAddPartitionWall}
             activeWallId={activeWallId}
             activeOpeningId={activeOpeningId}
             onActiveWall={setActiveWallId}
