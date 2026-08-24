@@ -10,10 +10,14 @@ export function NumberField({
   label,
   value,
   onChange,
+  className,
+  unit = "mm",
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
+  className?: string;
+  unit?: string;
 }) {
   const [draft, setDraft] = useState(String(Math.round(value)));
   const focusedRef = useRef(false);
@@ -38,7 +42,7 @@ export function NumberField({
   }
 
   return (
-    <label className="lr-number-field">
+    <label className={`lr-number-field${className ? ` ${className}` : ""}`}>
       <span>{label}</span>
       <input
         type="number"
@@ -59,7 +63,7 @@ export function NumberField({
           }
         }}
       />
-      <small>mm</small>
+      <small>{unit}</small>
     </label>
   );
 }

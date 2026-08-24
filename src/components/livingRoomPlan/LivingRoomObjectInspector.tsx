@@ -37,22 +37,27 @@ export function LivingRoomObjectInspector({
           <em className="lr-millwork-badge is-soft">Soft good — not on schedule</em>
         )}
       </div>
-      <h4>Size</h4>
-      <NumberField
-        label="Width"
-        value={object.dimensions.widthMm}
-        onChange={(value) => patchDimension("widthMm", value)}
-      />
-      <NumberField
-        label="Depth"
-        value={object.dimensions.depthMm}
-        onChange={(value) => patchDimension("depthMm", value)}
-      />
-      <NumberField
-        label="Height"
-        value={object.dimensions.heightMm}
-        onChange={(value) => patchDimension("heightMm", value)}
-      />
+      <h4 className="lr-dimensions-heading">Dimensions <small>millimetres</small></h4>
+      <div className="lr-dimension-cards" aria-label="Object dimensions in millimetres">
+        <NumberField
+          className="lr-dimension-card"
+          label="W"
+          value={object.dimensions.widthMm}
+          onChange={(value) => patchDimension("widthMm", value)}
+        />
+        <NumberField
+          className="lr-dimension-card"
+          label="H"
+          value={object.dimensions.heightMm}
+          onChange={(value) => patchDimension("heightMm", value)}
+        />
+        <NumberField
+          className="lr-dimension-card"
+          label="D"
+          value={object.dimensions.depthMm}
+          onChange={(value) => patchDimension("depthMm", value)}
+        />
+      </div>
       {object.kind === "cabinet" ? <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} /> : null}
       <h4>Materials</h4>
       <div className="lr-material-slots">
