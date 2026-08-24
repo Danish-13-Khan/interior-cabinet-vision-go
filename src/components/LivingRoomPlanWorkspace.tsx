@@ -13,6 +13,7 @@ import { LivingRoomAdvancedPanel } from "./livingRoomPlan/LivingRoomAdvancedPane
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./livingRoomPlan/LivingRoomInspectorPanel";
 import { LivingRoomPlanStage } from "./livingRoomPlan/LivingRoomPlanStage";
+import { PlannerV2ReviewPanel } from "./livingRoomPlan/PlannerV2ReviewPanel";
 import type {
   LivingRoomPlanWorkspaceProps,
   LivingRoomWorkspaceView,
@@ -102,7 +103,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       <section className={`lr-plan-shell lr-product-shell${props.uiVersion === "v2" ? " lr-product-shell-v2" : ""}`}>
         {header}
         <div className="lr-empty-workspace">
-          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} />
+          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} uiVersion={props.uiVersion} />
         </div>
       </section>
     );
@@ -116,6 +117,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           workspace={props}
           open={props.projectHomeOpen}
           hasCurrentProject
+          uiVersion={props.uiVersion}
         />
         {workspaceView === "plan" && studioPanel === "advanced" ? (
           <LivingRoomAdvancedPanel
@@ -177,6 +179,16 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
                 setImportError(error instanceof Error ? error.message : "Plan import failed.");
               }
             }}
+          />
+        ) : null}
+        {props.uiVersion === "v2" && plannerMode === "render" ? (
+          <PlannerV2ReviewPanel
+            schedule={millwork.schedule}
+            issues={props.issues.length}
+            busy={millwork.busy}
+            status={millwork.status}
+            onCsv={() => void millwork.exportSchedule("schedule-csv")}
+            onPdf={() => void millwork.exportSchedule("pdf")}
           />
         ) : null}
         <LivingRoomPlanStage
