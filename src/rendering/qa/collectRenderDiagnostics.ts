@@ -7,7 +7,6 @@ import {
 import {
   getMaterialAsset,
   getTextureAsset,
-  isModelAssetAvailable,
   resolveEnvironmentDrawState,
   resolveNodeDrawStrategy,
 } from "../assets/assetRegistry";
@@ -103,7 +102,7 @@ export function collectRenderDiagnostics(
   for (const node of scene.nodes) {
     const binding = node.renderBinding;
     if (binding.strategy !== "glb") continue;
-    if (resolveNodeDrawStrategy(binding) === "glb" && isModelAssetAvailable(binding.modelAssetId)) {
+    if (resolveNodeDrawStrategy(binding) === "glb") {
       glbNodeCount += 1;
       continue;
     }

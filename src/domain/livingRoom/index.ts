@@ -100,6 +100,38 @@ export {
   type LivingRoomRecoverySnapshot,
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
+export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
+export {
+  clientShareBrief,
+  estimateVendorPricing,
+  getAdvancedStudioState,
+  listLayoutSuggestions,
+  recognizePlanUnderlay,
+  setAdvancedStudioState,
+  type AdvancedStudioState,
+} from "./advancedStudio";
+export {
+  isLivingRoomLayerVisible,
+  paintLivingRoomSurface,
+  setLivingRoomFloorMaterial,
+  setLivingRoomLayerVisibility,
+  setLivingRoomWallMaterial,
+  type LivingRoomLayerId,
+  type LivingRoomPaintTarget,
+} from "./materialLayerCommands";
+export {
+  ASSET_IMPORT_STARTER_PACK,
+  createImportedAssetObject,
+  getPackagedImportedAsset,
+  readImportedGlb,
+  type ImportedAsset,
+} from "./assetImportPipeline";
+export {
+  MODEL_VIEW_PRESETS,
+  resolveModelViewPose,
+  type ModelViewPose,
+  type ModelViewPresetId,
+} from "./modelViewPresets";
 export {
   createLivingRoomReleaseDemoProject,
   LIVING_ROOM_RELEASE_DEMO_DATE,
@@ -222,15 +254,19 @@ export {
 } from "./planUnderlay";
 export {
   addLivingRoomObject,
+  addLivingRoomOpening,
   alignLivingRoomObjects,
   deleteLivingRoomObjects,
+  deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   moveLivingRoomObject,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
+  updateLivingRoomOpening,
   type LivingRoomAlignMode,
 } from "./planCommands";
+export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
 export {
   attachObjectRenderBinding,
   createObjectRenderBinding,

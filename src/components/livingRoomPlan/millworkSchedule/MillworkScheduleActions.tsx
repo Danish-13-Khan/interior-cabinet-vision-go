@@ -4,7 +4,8 @@ export function MillworkScheduleActions({
   disabled,
   millworkCount,
   readyToExport,
-  onExportCsv,
+  onExportScheduleCsv,
+  onExportCutlistCsv,
   onExportPdf,
 }: {
   busy: boolean;
@@ -12,7 +13,8 @@ export function MillworkScheduleActions({
   disabled: boolean;
   millworkCount: number;
   readyToExport: boolean;
-  onExportCsv: () => void;
+  onExportScheduleCsv: () => void;
+  onExportCutlistCsv: () => void;
   onExportPdf: () => void;
 }) {
   const blocked = disabled || busy || !readyToExport;
@@ -21,7 +23,7 @@ export function MillworkScheduleActions({
       <button
         type="button"
         disabled={blocked}
-        onClick={onExportCsv}
+        onClick={onExportScheduleCsv}
         title={readyToExport
           ? "Workshop CSV — millwork sizes from Plan/Model"
           : "Add millwork in Plan before exporting the schedule"}
@@ -31,12 +33,22 @@ export function MillworkScheduleActions({
       <button
         type="button"
         disabled={blocked}
+        onClick={onExportCutlistCsv}
+        title={readyToExport
+          ? "Production cutlist CSV — construction parts and board details"
+          : "Add cabinets in Plan before exporting the production cutlist"}
+      >
+        Cutlist CSV
+      </button>
+      <button
+        type="button"
+        disabled={blocked}
         onClick={onExportPdf}
         title={readyToExport
-          ? "Workshop PDF — millwork sizes from Plan/Model"
+          ? "Production packet PDF — schedule, technical sheets, cutlist, and costing"
           : "Add millwork in Plan before exporting the schedule"}
       >
-        Schedule PDF
+        Production PDF
       </button>
       <small>{millworkCount} millwork</small>
       {status ? <span className="lr-millwork-status">{status}</span> : null}

@@ -9,14 +9,18 @@ import {
   getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
   listModelViewRenderPresets,
+  MODEL_VIEW_PRESETS,
   preferModelViewCameraId,
   resolveStudioRenderMode,
   type LivingRoomStyleId,
+  type ModelViewPresetId,
 } from "../domain/livingRoom";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
+import { CabinetMechanismPanel } from "./livingRoomScene/CabinetMechanismPanel";
+import { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch } from "../domain/livingRoom";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -27,6 +31,7 @@ type LivingRoomModelViewProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
 };
 
 export function LivingRoomModelView({
@@ -38,10 +43,12 @@ export function LivingRoomModelView({
   onMove,
   onSetRotation,
   onApplyStyle,
+  onSetParameters,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const entryCameraId = preferModelViewCameraId(scene.cameras);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(entryCameraId);
+  const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("orbit");
   const [cutawayWalls, setCutawayWalls] = useState(true);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
     getModelViewDefaultPresetId(),
@@ -64,6 +71,18 @@ export function LivingRoomModelView({
   return (
     <div className="lr-model-viewport is-presence" data-testid="lr-model-viewport">
       <div className="lr-model-controls">
+        <div className="lr-view-presets" aria-label="3D camera views">
+          {MODEL_VIEW_PRESETS.map((preset) => (
+            <button
+              type="button"
+              key={preset.id}
+              className={viewPreset === preset.id ? "is-active" : ""}
+              onClick={() => setViewPreset(preset.id)}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
         <label>
           Camera
           <select value={activeCameraId ?? ""} onChange={(event) => setActiveCameraId(event.target.value || null)}>
@@ -132,6 +151,7 @@ export function LivingRoomModelView({
           scene={scene}
           selectedIds={selectedIds}
           activeCameraId={activeCameraId}
+          viewPreset={viewPreset}
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
@@ -140,9 +160,21 @@ export function LivingRoomModelView({
           renderMode={renderMode}
           onSelect={onSelect}
           onMove={onMove}
+          onMechanismClick={(objectId, primitiveId) => {
+            const object = project.objects.find((item) => item.id === objectId);
+            const state = object ? getCabinetMechanismState(object) : null;
+            const index = mechanismFrontIndex(primitiveId);
+            if (state && index !== null && index < state.count) onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
+          }}
         />
       </Canvas>
       {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
+      <CabinetMechanismPanel object={activeObject ?? null} onChange={onSetParameters} onSoftClose={(object) => {
+        const state = getCabinetMechanismState(object);
+        if (!state) return;
+        onSetParameters(object.id, mechanismAllPatch(state, true));
+        window.setTimeout(() => onSetParameters(object.id, mechanismAllPatch(state, false)), 650);
+      }} />
       <aside className="lr-style-palette" aria-label="Interior style presets">
         <header>
           <span>STYLE</span>

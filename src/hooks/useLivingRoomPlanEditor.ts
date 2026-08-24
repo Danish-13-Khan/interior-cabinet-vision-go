@@ -9,15 +9,20 @@ import {
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
+  attachToWall,
+  arrangeCabinetRun,
+  addLivingRoomOpening,
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
+  createImportedAssetObject,
   createLivingRoomObject,
   createLivingRoomReleaseDemoProject,
   createPhase1BenchmarkProject,
   createLivingRoomStarterProject,
   type Phase1BenchmarkId,
   deleteLivingRoomObjects,
+  deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   getActiveLivingRoomStyleId,
   getLivingRoomStylePreset,
@@ -27,11 +32,19 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
+  setAdvancedStudioState,
+  paintLivingRoomSurface,
+  setLivingRoomLayerVisibility,
+  snapCabinetToWall,
+  updateLivingRoomOpening,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
   type LivingRoomLightingRecipeId,
+  type LivingRoomLayerId,
   type LivingRoomPlanUnderlay,
+  type AdvancedStudioState,
   type LivingRoomStyleId,
+  type ImportedAsset,
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
@@ -165,7 +178,12 @@ export function useLivingRoomPlanEditor({
 
   function moveObject(objectId: string, position: Point3Mm) {
     commitDocument(
-      (current) => moveLivingRoomObject(current, objectId, position),
+      (current) => {
+        const object = current.objects.find((item) => item.id === objectId);
+        return object?.kind === "cabinet"
+          ? { ...current, objects: current.objects.map((item) => item.id === objectId ? snapCabinetToWall(current, item, position) : item) }
+          : moveLivingRoomObject(current, objectId, position);
+      },
       "Moved living-room object.",
     );
   }
@@ -198,12 +216,25 @@ export function useLivingRoomPlanEditor({
 
   function setObjectMaterial(objectId: string, slotName: string, materialId: string) {
     if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => ({
-      ...current,
-      objects: current.objects.map((object) => object.id === objectId
-        ? { ...object, materialSlots: { ...object.materialSlots, [slotName]: materialId } }
-        : object),
-    }), "Changed object material.");
+    commitDocument((current) => paintLivingRoomSurface(current, { kind: "object", objectId, slotName }, materialId), "Painted object surface.");
+  }
+
+  function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
+    commitDocument((current) => ({ ...current, objects: current.objects.map((object) => object.id === objectId ? { ...object, parameters: { ...object.parameters, ...patch } } : object) }), "Updated cabinet configuration.");
+  }
+
+  function setFloorMaterial(materialId: string) {
+    if (!document?.materials.some((material) => material.id === materialId)) return;
+    commitDocument((current) => paintLivingRoomSurface(current, { kind: "floor" }, materialId), "Painted floor surface.");
+  }
+
+  function setWallMaterial(wallId: string, materialId: string) {
+    if (!document?.materials.some((material) => material.id === materialId)) return;
+    commitDocument((current) => paintLivingRoomSurface(current, { kind: "wall", wallId }, materialId), "Painted wall surface.");
+  }
+
+  function setLayerVisibility(layer: LivingRoomLayerId, visible: boolean) {
+    commitDocument((current) => setLivingRoomLayerVisibility(current, layer, visible), `${visible ? "Showed" : "Hid"} ${layer} layer.`);
   }
 
   function setPlanUnderlay(underlay: LivingRoomPlanUnderlay | null) {
@@ -213,7 +244,14 @@ export function useLivingRoomPlanEditor({
     );
   }
 
-  function addCatalogObject(catalogItemId: LivingRoomCatalogId) {
+  function updateAdvancedStudio(state: AdvancedStudioState) {
+    commitDocument(
+      (current) => setAdvancedStudioState(current, state),
+      "Updated Advanced Studio workspace.",
+    );
+  }
+
+  function addCatalogObject(catalogItemId: LivingRoomCatalogId, wallId?: string) {
     if (!document) return;
     const item = createLivingRoomObject(catalogItemId, {
       id: uniqueObjectId(catalogItemId.split(":").pop() ?? "item"),
@@ -224,11 +262,24 @@ export function useLivingRoomPlanEditor({
         z: (document.objects.length % 3) * 150 - 150,
       },
     });
+    const placed = wallId ? attachToWall(document, item, wallId) : item;
     commitDocument(
-      (current) => addLivingRoomObject(current, item),
+      (current) => addLivingRoomObject(current, placed),
       `Added ${item.name}.`,
     );
-    setSelectedObjectIds([item.id]);
+    setSelectedObjectIds([placed.id]);
+  }
+
+  function addImportedAsset(asset: ImportedAsset) {
+    if (!document) return;
+    const placed = createImportedAssetObject(
+      asset,
+      uniqueObjectId(asset.category || "import"),
+      document.activeRoomId,
+      { x: (document.objects.length % 4) * 180 - 270, y: 0, z: (document.objects.length % 3) * 180 - 180 },
+    );
+    commitDocument((current) => addLivingRoomObject(current, placed), `Imported ${asset.name}.`);
+    setSelectedObjectIds([placed.id]);
   }
 
   function duplicateSelection() {
@@ -260,6 +311,11 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function createCabinetRun(wallId: string) {
+    if (selectedObjectIds.length < 2) return;
+    commitDocument((current) => arrangeCabinetRun(current, selectedObjectIds, wallId), "Created cabinet run.");
+  }
+
   function nudgeSelection(dx: number, dz: number) {
     if (selectedObjectIds.length === 0) return;
     commitDocument((current) =>
@@ -281,6 +337,33 @@ export function useLivingRoomPlanEditor({
       (current) => resizeLivingRoom(current, current.activeRoomId, dimensions),
       "Updated living-room dimensions.",
     );
+  }
+
+  function addOpening(wallId: string, kind: "door" | "window") {
+    if (!document) return;
+    const wall = document.walls.find((item) => item.id === wallId);
+    if (!wall) return;
+    const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
+    const id = `living-opening-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
+    commitDocument((current) => addLivingRoomOpening(current, {
+      id,
+      roomId: current.activeRoomId,
+      wallId,
+      kind,
+      offsetMm: Math.max(0, Math.round((length - (kind === "door" ? 900 : 1200)) / 2)),
+      widthMm: kind === "door" ? 900 : 1200,
+      heightMm: kind === "door" ? 2100 : 1200,
+      sillHeightMm: kind === "door" ? 0 : 900,
+      swingDirection: kind === "door" ? "in" : undefined,
+    }), `Added ${kind}.`);
+  }
+
+  function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
+    commitDocument((current) => updateLivingRoomOpening(current, openingId, patch), "Updated opening.");
+  }
+
+  function deleteOpening(openingId: string) {
+    commitDocument((current) => deleteLivingRoomOpening(current, openingId), "Removed opening.");
   }
 
   function setStyle(styleId: LivingRoomStyleId) {
@@ -336,13 +419,23 @@ export function useLivingRoomPlanEditor({
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: setObjectRotation,
     setInteriorObjectMaterial: setObjectMaterial,
+    setInteriorObjectParameters: setObjectParameters,
+    setLivingRoomFloorMaterial: setFloorMaterial,
+    setLivingRoomWallMaterial: setWallMaterial,
+    setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
+    updateLivingRoomAdvancedStudio: updateAdvancedStudio,
     addLivingRoomCatalogObject: addCatalogObject,
+    addImportedLivingRoomAsset: addImportedAsset,
     duplicateInteriorSelection: duplicateSelection,
     deleteInteriorSelection: deleteSelection,
     alignInteriorSelection: alignSelection,
+    createLivingRoomCabinetRun: createCabinetRun,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
+    addLivingRoomOpening: addOpening,
+    updateLivingRoomOpening: updateOpening,
+    deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
     setLivingRoomRenderSettings: setRenderSettings,
     setLivingRoomLightingRecipe: setLightingRecipe,

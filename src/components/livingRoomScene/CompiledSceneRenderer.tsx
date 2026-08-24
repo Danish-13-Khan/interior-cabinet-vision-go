@@ -5,12 +5,11 @@ import {
   MOUSE,
   ACESFilmicToneMapping,
   PCFShadowMap,
-  PCFSoftShadowMap,
   SRGBColorSpace,
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
-import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
+import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
@@ -22,6 +21,7 @@ type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
   selectedIds: string[];
   activeCameraId: string | null;
+  viewPreset?: ModelViewPresetId;
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
@@ -31,6 +31,7 @@ type SceneRendererProps = {
   renderMode?: RenderMode;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onMechanismClick?: (objectId: string, primitiveId: string) => void;
 };
 
 function RendererColorPipeline({ exposure }: { exposure: number }) {
@@ -39,8 +40,7 @@ function RendererColorPipeline({ exposure }: { exposure: number }) {
     gl.outputColorSpace = SRGBColorSpace;
     gl.toneMapping = ACESFilmicToneMapping;
     gl.toneMappingExposure = exposure;
-    const shadowType = exposure > 1 ? PCFSoftShadowMap : PCFShadowMap;
-    if (gl.shadowMap.type !== shadowType) gl.shadowMap.type = shadowType;
+    if (gl.shadowMap.type !== PCFShadowMap) gl.shadowMap.type = PCFShadowMap;
   }, [exposure, gl]);
   return null;
 }
@@ -49,6 +49,7 @@ export function CompiledSceneRenderer({
   scene,
   selectedIds,
   activeCameraId,
+  viewPreset,
   snapSizeMm,
   showGrid,
   cutawayWalls,
@@ -58,9 +59,11 @@ export function CompiledSceneRenderer({
   renderMode = "preview",
   onSelect,
   onMove,
+  onMechanismClick,
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [assetRevision, setAssetRevision] = useState(0);
   const architectureBounds = computeArchitectureBounds(scene.nodes);
   const materialKey = scene.materials
     .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}`)
@@ -130,6 +133,8 @@ export function CompiledSceneRenderer({
           onMove={onMove}
           onDragStateChange={setDragging}
           interactive={interactive}
+          onMechanismClick={onMechanismClick}
+          onAssetReady={() => setAssetRevision((revision) => revision + 1)}
         />
       ))}
       <ContactShadows
@@ -161,6 +166,8 @@ export function CompiledSceneRenderer({
         controlsRef={controlsRef}
         composition={renderComposition}
         renderMode={renderMode}
+        viewPreset={viewPreset}
+        assetRevision={assetRevision}
       />
     </>
   );

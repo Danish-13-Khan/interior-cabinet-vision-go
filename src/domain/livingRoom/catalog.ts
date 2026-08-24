@@ -92,6 +92,19 @@ export const LIVING_ROOM_CATALOG = [
     placement: "floor",
   },
   {
+    id: "living:wardrobe-wall",
+    name: "Wardrobe Wall",
+    kind: "cabinet",
+    category: "wardrobe",
+    dimensions: { widthMm: 2400, heightMm: 2400, depthMm: 600 },
+    materialSlots: {
+      carcass: LIVING_ROOM_MATERIAL_IDS.walnut,
+      fronts: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    },
+    parameters: { doorCount: 4, shelfCount: 5, wardrobe: true },
+    placement: "wall",
+  },
+  {
     id: "living:feature-wall-fluted",
     name: "Fluted Timber TV Feature Wall",
     kind: "cabinet",

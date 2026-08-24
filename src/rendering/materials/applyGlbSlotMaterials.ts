@@ -13,6 +13,7 @@ import type { CompiledMaterial } from "../../domain/livingRoom";
 import { resolveMaterialIdForMeshName } from "../../domain/livingRoom/glbMaterialGroups";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { ModelTextureUrls } from "../../domain/livingRoom/renderAssetContracts";
 import { getRenderModeQuality } from "../../domain/livingRoom/heroRenderQuality";
 import { createPbrMaterialDescriptor } from "../materials/createPbrMaterial";
 import { textureRepeatFromUvScaleMm } from "./materialScale";
@@ -35,7 +36,8 @@ function loadTexture(
   texture.repeat.set(repeat.x, repeat.y);
   texture.anisotropy = getRenderModeQuality(mode, quality).anisotropy;
   if (colorSpace) texture.colorSpace = SRGBColorSpace;
-  texture.needsUpdate = true;
+  // TextureLoader marks the texture ready after its image has loaded. Forcing an
+  // update before then emits "no image data" and can leave the first frame blank.
   return texture;
 }
 
@@ -73,13 +75,17 @@ function buildPhysicalMaterial(
   const curatedNormal = loadTexture(textureUrls.normalMap, compiled.uvScaleMm, mode, false, quality);
   const curatedRoughness = loadTexture(textureUrls.roughnessMap, compiled.uvScaleMm, mode, false, quality);
   const curatedAo = loadTexture(textureUrls.aoMap, compiled.uvScaleMm, mode, false, quality);
+  const map = curatedMap ?? pbr.maps.map;
+  const maps = {
+    ...(map ? { map } : {}),
+    ...(curatedNormal ? { normalMap: curatedNormal } : {}),
+    ...(curatedRoughness ? { roughnessMap: curatedRoughness } : {}),
+    ...(curatedAo ? { aoMap: curatedAo } : {}),
+    ...(!curatedMap && pbr.maps.bumpMap ? { bumpMap: pbr.maps.bumpMap } : {}),
+  };
   return new MeshPhysicalMaterial({
     color: new Color(pbr.color),
-    map: curatedMap ?? pbr.maps.map,
-    normalMap: curatedNormal,
-    roughnessMap: curatedRoughness,
-    aoMap: curatedAo,
-    bumpMap: curatedMap ? undefined : pbr.maps.bumpMap,
+    ...maps,
     bumpScale: pbr.bumpScale,
     roughness: pbr.roughness,
     metalness: pbr.metalness,
@@ -99,6 +105,20 @@ function buildPhysicalMaterial(
   });
 }
 
+function buildImportedMaterial(textures: ModelTextureUrls, mode: RenderMode, quality?: RenderQuality) {
+  const map = loadTexture(textures.map, 1000, mode, true, quality);
+  const normalMap = loadTexture(textures.normalMap, 1000, mode, false, quality);
+  const roughnessMap = loadTexture(textures.roughnessMap, 1000, mode, false, quality);
+  const metalnessMap = loadTexture(textures.metalnessMap, 1000, mode, false, quality);
+  const maps = {
+    ...(map ? { map } : {}),
+    ...(normalMap ? { normalMap } : {}),
+    ...(roughnessMap ? { roughnessMap } : {}),
+    ...(metalnessMap ? { metalnessMap } : {}),
+  };
+  return new MeshPhysicalMaterial({ color: "white", roughness: 0.62, metalness: 0, ...maps });
+}
+
 /** Tint GLB meshes from project materialSlots via named mesh groups. */
 export function applyGlbSlotMaterials(
   root: Object3D,
@@ -110,6 +130,7 @@ export function applyGlbSlotMaterials(
     renderQuality?: RenderQuality;
     castShadow: boolean;
     receiveShadow: boolean;
+    importedTextures?: ModelTextureUrls;
   },
 ) {
   root.traverse((child) => {
@@ -121,15 +142,11 @@ export function applyGlbSlotMaterials(
       args.materialGroups,
       args.materialBindings,
     );
-    if (!materialId) return;
-    const compiled = args.materials.get(materialId);
-    if (!compiled) return;
-    const next = buildPhysicalMaterial(
-      compiled,
-      args.renderMode,
-      child.name,
-      args.renderQuality,
-    );
+    if (!materialId && !args.importedTextures?.map) return;
+    const compiled = materialId ? args.materials.get(materialId) : undefined;
+    if (!compiled && !args.importedTextures?.map) return;
+    const next = compiled ? buildPhysicalMaterial(compiled, args.renderMode, child.name, args.renderQuality)
+      : buildImportedMaterial(args.importedTextures!, args.renderMode, args.renderQuality);
     for (const previous of asMeshMaterials(child.material)) {
       disposeMaterialTextures(previous);
       previous.dispose();
