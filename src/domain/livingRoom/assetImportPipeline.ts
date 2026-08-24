@@ -7,6 +7,16 @@ const dresserUrl = new URL("../../fbx_with_texture/dressers and cabinets/dresser
 const kitchenCabinetUrl = new URL("../../fbx_with_texture/Kitchen/Cabinet1/KitchenCabinet1.glb", import.meta.url).href;
 const sofaUrl = new URL("../../fbx_with_texture/sofas/sofa/sofa.glb", import.meta.url).href;
 
+function textureSet(folder: string, stem: string): ModelTextureUrls {
+  const texture = (suffix: string) => new URL(`../../fbx_with_texture/${folder}/1024px Textures/${stem}_${suffix}.png`, import.meta.url).href;
+  return { map: texture("BaseColor"), normalMap: texture("Normal"), roughnessMap: texture("Roughness"), metalnessMap: texture("Metallic") };
+}
+
+const wardrobeTextures = textureSet("wardrobes/wardrobe1", "wardrobe1_Material");
+const dresserTextures = textureSet("dressers and cabinets/dresser", "dresser1_DefaultMaterial");
+const kitchenCabinetTextures = textureSet("Kitchen/Cabinet1", "drawer_Material");
+const sofaTextures = textureSet("sofas/sofa", "sofa_Material");
+
 export type ImportedAsset = {
   id: string;
   name: string;
@@ -19,10 +29,10 @@ export type ImportedAsset = {
 };
 
 export const ASSET_IMPORT_STARTER_PACK: readonly ImportedAsset[] = [
-  { id: "pack:wardrobe-1", name: "Imported Wardrobe", category: "wardrobe", kind: "cabinet", dimensions: { widthMm: 1800, heightMm: 2200, depthMm: 600 }, sourceUrl: wardrobeUrl, materialGroups: { carcass: "cabinet", fronts: "door" } },
-  { id: "pack:dresser-1", name: "Imported Dresser", category: "dresser", kind: "cabinet", dimensions: { widthMm: 1400, heightMm: 820, depthMm: 480 }, sourceUrl: dresserUrl, materialGroups: { carcass: "body", fronts: "drawer" } },
-  { id: "pack:kitchen-cabinet-1", name: "Imported Kitchen Cabinet", category: "kitchen", kind: "cabinet", dimensions: { widthMm: 900, heightMm: 900, depthMm: 600 }, sourceUrl: kitchenCabinetUrl, materialGroups: { carcass: "cabinet", fronts: "drawer" } },
-  { id: "pack:sofa-1", name: "Imported Sofa", category: "sofa", kind: "furniture", dimensions: { widthMm: 2200, heightMm: 850, depthMm: 920 }, sourceUrl: sofaUrl, materialGroups: { upholstery: "sofa", legs: "leg" } },
+  { id: "pack:wardrobe-1", name: "Imported Wardrobe", category: "wardrobe", kind: "cabinet", dimensions: { widthMm: 1800, heightMm: 2200, depthMm: 600 }, sourceUrl: wardrobeUrl, materialGroups: { carcass: "cabinet", fronts: "door" }, textureUrls: wardrobeTextures },
+  { id: "pack:dresser-1", name: "Imported Dresser", category: "dresser", kind: "cabinet", dimensions: { widthMm: 1400, heightMm: 820, depthMm: 480 }, sourceUrl: dresserUrl, materialGroups: { carcass: "body", fronts: "drawer" }, textureUrls: dresserTextures },
+  { id: "pack:kitchen-cabinet-1", name: "Imported Kitchen Cabinet", category: "kitchen", kind: "cabinet", dimensions: { widthMm: 900, heightMm: 900, depthMm: 600 }, sourceUrl: kitchenCabinetUrl, materialGroups: { carcass: "cabinet", fronts: "drawer" }, textureUrls: kitchenCabinetTextures },
+  { id: "pack:sofa-1", name: "Imported Sofa", category: "sofa", kind: "furniture", dimensions: { widthMm: 2200, heightMm: 850, depthMm: 920 }, sourceUrl: sofaUrl, materialGroups: { upholstery: "sofa", legs: "leg" }, textureUrls: sofaTextures },
 ] as const;
 
 const MAX_MODEL_BYTES = 25 * 1024 * 1024;

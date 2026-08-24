@@ -33,6 +33,7 @@ export function CompiledNodeView({
   onDragStateChange,
   interactive,
   onMechanismClick,
+  onAssetReady,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -45,6 +46,7 @@ export function CompiledNodeView({
   onDragStateChange: (dragging: boolean) => void;
   interactive: boolean;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
+  onAssetReady?: () => void;
 }) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [preview, setPreview] = useState<Point3Mm | null>(null);
@@ -126,6 +128,7 @@ export function CompiledNodeView({
           selected={selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          onReady={onAssetReady}
         />
       ) : (
         <ProceduralFallbackObject
