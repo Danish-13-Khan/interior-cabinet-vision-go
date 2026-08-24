@@ -28,7 +28,6 @@
 .lr-product-shell-v2 .lr-studio-rail button { color:#66766a; }
 .lr-product-shell-v2 .lr-studio-rail button:hover,.lr-product-shell-v2 .lr-studio-rail button.is-active { background:#e9f3eb; color:#276b46; }
 .lr-product-shell-v2 .lr-studio-rail button.is-active { box-shadow:inset 3px 0 #276b46; }
-.lr-product-shell-v2 .lr-studio-rail button:last-child { display:none; }
 .lr-product-shell-v2 .lr-studio-rail:has(button:only-child) { width:58px; background:#f8fbf8; }
 .lr-product-shell-v2 .lr-studio-rail:has(button:only-child) + .lr-catalog { border-left:0; }
 .lr-product-shell-v2 .lr-inspector-scroll section { border-color:#e5ece6; }
