@@ -101,14 +101,14 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
       <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}`}>
         <strong>
           {props.workspaceView === "model"
-            ? props.v2ReviewMode ? "3D MODEL · SYNCHRONIZED" : "MODEL"
+            ? "MODEL"
             : props.workspaceView === "render"
               ? "RENDER · LIVING ROOM"
               : "PLAN · LIVING ROOM"}
         </strong>
         <span>
           {props.workspaceView === "model"
-            ? props.v2ReviewMode ? `${props.project.name} · same project as 2D plan` : `${props.project.name} · staged concept`
+            ? `${props.project.name} · staged concept`
             : `${props.project.name} · ${props.project.objects.length} objects · ${props.selectedIds.length} selected`}
         </span>
         {props.workspaceView !== "model" ? (

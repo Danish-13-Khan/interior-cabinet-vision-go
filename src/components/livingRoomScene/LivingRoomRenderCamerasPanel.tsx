@@ -29,6 +29,7 @@ export function LivingRoomRenderCamerasPanel({
           key={camera.id}
           className={camera.id === activeCameraId ? "is-active" : ""}
           onClick={() => onSelectCamera(camera.id)}
+          aria-label={`${camera.name} camera, ${camera.fieldOfViewDegrees} degree lens`}
         >
           <span className="lr-camera-thumbnail">
             {thumbnails[camera.id]
