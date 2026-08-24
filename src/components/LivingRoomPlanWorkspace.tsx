@@ -169,6 +169,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               props.onDeleteOpening(openingId);
               setActiveOpeningId(null);
             }}
+            v2BuildMode={props.uiVersion === "v2" && plannerMode === "build"}
             onImportUnderlay={async (file) => {
               if (!file) return;
               setImportError("");
@@ -242,6 +243,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           onExportScheduleCsv={() => void millwork.exportSchedule("schedule-csv")}
           onExportCutlistCsv={() => void millwork.exportSchedule("cutlist-csv")}
           onExportPdf={() => void millwork.exportSchedule("pdf")}
+          v2BuildMode={props.uiVersion === "v2" && plannerMode === "build"}
         />
         {props.inspectorVisible && workspaceView !== "render" ? (
           <LivingRoomInspectorPanel

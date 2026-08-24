@@ -56,6 +56,7 @@ type LivingRoomPlanStageProps = {
   onExportScheduleCsv: () => void;
   onExportCutlistCsv: () => void;
   onExportPdf: () => void;
+  v2BuildMode?: boolean;
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
@@ -170,9 +171,10 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         )}
       </div>
       <footer className="lr-plan-status">
-        <span>{props.workspaceView === "render" ? "OUTPUT PNG" : `SNAP ${props.snapSizeMm}`}</span>
+        <span>{props.workspaceView === "render" ? "OUTPUT PNG" : `SNAP ${props.snapSizeMm} mm`}</span>
         <span>{props.workspaceView === "plan" ? "ORTHO ON" : props.workspaceView === "model" ? "ORBIT READY" : "ACES / SRGB"}</span>
         <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `GRID ${props.showGrid ? "ON" : "OFF"}`}</span>
+        {props.v2BuildMode ? <span>UNITS mm · ZOOM FIT</span> : null}
         <span className={props.issues.length ? "has-warning" : ""}>
           {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
         </span>
