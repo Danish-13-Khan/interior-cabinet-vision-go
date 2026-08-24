@@ -186,7 +186,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         {props.uiVersion === "v2" && plannerMode === "render" ? (
           <PlannerV2ReviewPanel
             schedule={millwork.schedule}
-            issues={props.issues.length}
+            issues={props.issues}
             busy={millwork.busy}
             status={millwork.status}
             onCsv={() => void millwork.exportSchedule("schedule-csv")}
