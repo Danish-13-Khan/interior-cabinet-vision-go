@@ -57,6 +57,7 @@ type LivingRoomPlanStageProps = {
   onExportCutlistCsv: () => void;
   onExportPdf: () => void;
   v2BuildMode?: boolean;
+  v2ReviewMode?: boolean;
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
@@ -100,14 +101,14 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
       <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}`}>
         <strong>
           {props.workspaceView === "model"
-            ? "MODEL"
+            ? props.v2ReviewMode ? "3D MODEL · SYNCHRONIZED" : "MODEL"
             : props.workspaceView === "render"
               ? "RENDER · LIVING ROOM"
               : "PLAN · LIVING ROOM"}
         </strong>
         <span>
           {props.workspaceView === "model"
-            ? `${props.project.name} · staged concept`
+            ? props.v2ReviewMode ? `${props.project.name} · same project as 2D plan` : `${props.project.name} · staged concept`
             : `${props.project.name} · ${props.project.objects.length} objects · ${props.selectedIds.length} selected`}
         </span>
         {props.workspaceView !== "model" ? (
@@ -175,6 +176,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         <span>{props.workspaceView === "plan" ? "ORTHO ON" : props.workspaceView === "model" ? "ORBIT READY" : "ACES / SRGB"}</span>
         <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `GRID ${props.showGrid ? "ON" : "OFF"}`}</span>
         {props.v2BuildMode ? <span>UNITS mm · ZOOM FIT</span> : null}
+        {props.v2ReviewMode ? <span>2D / 3D SHARED DOCUMENT</span> : null}
         <span className={props.issues.length ? "has-warning" : ""}>
           {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
         </span>
