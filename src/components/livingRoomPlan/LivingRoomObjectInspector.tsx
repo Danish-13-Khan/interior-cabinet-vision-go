@@ -1,6 +1,7 @@
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
 import { isMillworkObject } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
+import { DimensionPresetMenu } from "./DimensionPresetMenu";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
@@ -52,6 +53,7 @@ export function LivingRoomObjectInspector({
         value={object.dimensions.heightMm}
         onChange={(value) => patchDimension("heightMm", value)}
       />
+      {object.kind === "cabinet" ? <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} /> : null}
       <h4>Materials</h4>
       <div className="lr-material-slots">
         {Object.entries(object.materialSlots).map(([slotName, materialId]) => {

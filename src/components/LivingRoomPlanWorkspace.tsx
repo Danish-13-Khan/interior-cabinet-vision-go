@@ -92,12 +92,14 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onUndo={props.onUndo}
       onRedo={props.onRedo}
       onWorkbenchModeChange={props.onWorkbenchModeChange}
+      uiVersion={props.uiVersion}
+      onUiVersionChange={props.onUiVersionChange}
     />
   );
 
   if (!props.project || !room) {
     return (
-      <section className="lr-plan-shell lr-product-shell">
+      <section className={`lr-plan-shell lr-product-shell${props.uiVersion === "v2" ? " lr-product-shell-v2" : ""}`}>
         {header}
         <div className="lr-empty-workspace">
           <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} />
@@ -107,7 +109,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }
 
   return (
-    <section className="lr-plan-shell lr-product-shell">
+    <section className={`lr-plan-shell lr-product-shell${props.uiVersion === "v2" ? " lr-product-shell-v2" : ""}`}>
       {header}
       <div className={`lr-workspace-body is-${workspaceView}`}>
         <LivingRoomHomeFromWorkspace
