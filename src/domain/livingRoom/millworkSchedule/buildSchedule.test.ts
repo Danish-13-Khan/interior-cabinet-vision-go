@@ -10,6 +10,9 @@ import { formatWhdMm } from "./formatSize";
 import { millworkScheduleToCsv } from "./scheduleCsv";
 import { MILLWORK_SCHEDULE_HONESTY_NOTE } from "./types";
 import { summarizeMillworkWorkflow } from "./workflow";
+import { cabinetProjectFromInteriorProject } from "../../interiorProject";
+import { csvFromProductionCutlist } from "../../productionCutlist";
+import { createProjectReport } from "../../projectReport";
 
 const NOW = "2026-08-15T10:30:00.000Z";
 
@@ -80,5 +83,16 @@ describe("Living-room Millwork Schedule workflow", () => {
     const empty = summarizeMillworkWorkflow(stripped);
     expect(empty.readyToExport).toBe(false);
     expect(empty.steps.find((step) => step.id === "place")?.done).toBe(false);
+  });
+
+  it("converts cabinet entities into production marks, cut parts, costing, and CSV", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const compatible = cabinetProjectFromInteriorProject(project);
+    const report = createProjectReport(compatible.project, compatible.room);
+
+    expect(report.cabinetSchedule.length).toBeGreaterThan(0);
+    expect(report.productionCutlist.length).toBeGreaterThan(0);
+    expect(report.projectCost.grandTotal).toBeGreaterThan(0);
+    expect(csvFromProductionCutlist(report.productionCutlist)).toContain("Shop Ref");
   });
 });

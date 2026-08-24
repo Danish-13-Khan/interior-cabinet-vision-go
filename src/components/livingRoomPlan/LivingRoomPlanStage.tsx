@@ -35,7 +35,12 @@ type LivingRoomPlanStageProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
+  activeWallId: string | null;
+  activeOpeningId: string | null;
+  onSelectWall: (wallId: string) => void;
+  onSelectOpening: (openingId: string) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -43,11 +48,13 @@ type LivingRoomPlanStageProps = {
   onDelete: () => void;
   onRotateSelection: (delta: number) => void;
   onAlign: (mode: LivingRoomAlignMode) => void;
+  onCreateCabinetRun: () => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onRendered: (result: LivingRoomRenderResult) => void;
-  onExportCsv: () => void;
+  onExportScheduleCsv: () => void;
+  onExportCutlistCsv: () => void;
   onExportPdf: () => void;
 };
 
@@ -74,6 +81,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             <button type="button" title="Align centers" onClick={() => props.onAlign("center-x")} disabled={props.selectedIds.length < 2}>C</button>
             <button type="button" title="Align middles" onClick={() => props.onAlign("center-z")} disabled={props.selectedIds.length < 2}>M</button>
             <button type="button" title="Distribute" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>↔</button>
+            <button type="button" title="Create cabinet run on selected wall" onClick={props.onCreateCabinetRun} disabled={props.selectedIds.length < 2}>Run</button>
           </div>
           <div className="lr-toolbar-group lr-toolbar-view">
             <span>Drawing</span>
@@ -115,7 +123,8 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             disabled={false}
             millworkCount={props.millworkCount}
             readyToExport={props.millworkReady}
-            onExportCsv={props.onExportCsv}
+            onExportScheduleCsv={props.onExportScheduleCsv}
+            onExportCutlistCsv={props.onExportCutlistCsv}
             onExportPdf={props.onExportPdf}
           />
         ) : null}
@@ -131,6 +140,10 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSelect={props.onSelect}
             onMove={props.onMove}
             onResize={props.onResize}
+            activeWallId={props.activeWallId}
+            activeOpeningId={props.activeOpeningId}
+            onSelectWall={props.onSelectWall}
+            onSelectOpening={props.onSelectOpening}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
@@ -142,6 +155,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onMove={props.onMove}
             onSetRotation={props.onSetRotation}
             onApplyStyle={props.onApplyStyle}
+            onSetParameters={props.onSetParameters}
           />
         ) : (
           <LivingRoomRenderStudio

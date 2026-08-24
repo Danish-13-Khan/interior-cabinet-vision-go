@@ -5,6 +5,7 @@ import type {
   RenderBinding,
 } from "./renderAssetContracts";
 import type { CompiledSceneNode } from "./sceneTypes";
+import { getPackagedImportedAsset, type ImportedAsset } from "./assetImportPipeline";
 
 /** Soft-goods catalog items intended for future GLB-backed presentation. */
 export const GLB_INTENT_CATALOG_IDS = [
@@ -58,6 +59,15 @@ function isGlbIntentCatalogId(id: string): id is GlbIntentCatalogId {
   return id in GLB_MODEL_BY_CATALOG;
 }
 
+function importedAssetForObject(object: InteriorObjectEntity): ImportedAsset | null {
+  const candidate = object.extensions?.assetImport;
+  if (!candidate || typeof candidate !== "object") return null;
+  const asset = candidate as Partial<ImportedAsset>;
+  if (typeof asset.sourceUrl === "string" && typeof asset.id === "string") return asset as ImportedAsset;
+  const packId = typeof (candidate as { id?: unknown }).id === "string" ? (candidate as { id: string }).id : "";
+  return getPackagedImportedAsset(packId);
+}
+
 export function materialAssetIdForEntity(materialId: string) {
   return materialId;
 }
@@ -76,6 +86,15 @@ export function createObjectRenderBinding(
   const uvScaleMm = defaultUvScaleMmForMaterial(
     Object.values(object.materialSlots)[0] ?? LIVING_ROOM_MATERIAL_IDS.naturalOak,
   );
+
+  const imported = importedAssetForObject(object);
+  if (imported) {
+    return {
+      strategy: "glb", modelAssetId: `import:${imported.id}`, modelUrl: imported.sourceUrl,
+      modelMaterialGroups: imported.materialGroups, modelTextureUrls: imported.textureUrls, materialBindings, uvScaleMm,
+      targetSizeMm: { ...object.dimensions },
+    };
+  }
 
   if (object.kind === "cabinet" || !isGlbIntentCatalogId(object.catalogItemId)) {
     return {
@@ -113,6 +132,7 @@ export function resolveEffectiveRenderStrategy(
   binding: RenderBinding,
   modelAvailable: boolean,
 ): RenderAssetStrategy {
+  if (binding.strategy === "glb" && binding.modelUrl) return "glb";
   if (binding.strategy === "glb" && binding.modelAssetId && modelAvailable) {
     return "glb";
   }

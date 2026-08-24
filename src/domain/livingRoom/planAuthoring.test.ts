@@ -1,16 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
   alignLivingRoomObjects,
+  addLivingRoomOpening,
   createLivingRoomStarterProject,
   deleteLivingRoomObjects,
   duplicateLivingRoomObject,
   getObjectPlanBounds,
   inspectLivingRoomPlan,
   moveLivingRoomObject,
+  attachToWall,
+  arrangeCabinetRun,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
+  snapCabinetToWall,
   snapLivingRoomObject,
+  updateLivingRoomOpening,
 } from ".";
 
 const NOW = "2026-08-11T19:00:00.000Z";
@@ -102,5 +107,55 @@ describe("living-room plan authoring", () => {
     expect(resized.walls.map((wall) => wall.id)).toEqual(wallIds);
     expect(Math.max(...resized.walls.flatMap((wall) => [wall.start.x, wall.end.x]))).toBe(3500);
     expect(getObjectPlanBounds(resized.objects[0]!).maxX).toBeGreaterThan(0);
+  });
+
+  it("adds and constrains editable door and window openings to their wall", () => {
+    const source = createLivingRoomStarterProject({ now: NOW });
+    const backWall = source.walls.find((wall) => wall.extensions?.wallSide === "back")!;
+    const added = addLivingRoomOpening(source, {
+      id: "test-window",
+      roomId: source.activeRoomId,
+      wallId: backWall.id,
+      kind: "window",
+      offsetMm: 99999,
+      widthMm: 99999,
+      heightMm: 1200,
+      sillHeightMm: 900,
+    });
+    const updated = updateLivingRoomOpening(added, "test-window", { widthMm: 1200, offsetMm: 600 });
+    const opening = updated.openings.find((item) => item.id === "test-window")!;
+
+    expect(opening.widthMm).toBe(1200);
+    expect(opening.offsetMm).toBe(600);
+    expect(added.openings.find((item) => item.id === "test-window")!.widthMm).toBeLessThan(99999);
+  });
+
+  it("attaches a wardrobe template to the room-facing side of a wall", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const wardrobe = { ...project.objects[0]!, dimensions: { widthMm: 2400, heightMm: 2400, depthMm: 600 } };
+    const backWall = project.walls.find((wall) => wall.extensions?.wallSide === "back")!;
+    const attached = attachToWall(project, wardrobe, backWall.id);
+
+    expect(attached.position.z).toBeGreaterThan(backWall.start.z);
+    expect(attached.rotation.y).toBe(0);
+    expect(attached.extensions?.wallAttachment).toEqual({ wallId: backWall.id });
+  });
+
+  it("snaps cabinets to a nearby wall and arranges a centered cabinet run", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const backWall = project.walls.find((wall) => wall.extensions?.wallSide === "back")!;
+    const cabinets = project.objects.slice(0, 2).map((object, index) => ({
+      ...object,
+      id: `cabinet-${index}`,
+      kind: "cabinet" as const,
+      dimensions: { widthMm: 900, heightMm: 2200, depthMm: 600 },
+    }));
+    const source = { ...project, objects: cabinets };
+    const snapped = snapCabinetToWall(source, cabinets[0]!, { x: 0, y: 0, z: backWall.start.z + 200 });
+    const run = arrangeCabinetRun(source, cabinets.map((cabinet) => cabinet.id), backWall.id);
+
+    expect(snapped.extensions?.wallAttachment).toEqual({ wallId: backWall.id });
+    expect(run.objects[0]!.rotation.y).toBe(0);
+    expect(run.objects[0]!.position.x).toBeLessThan(run.objects[1]!.position.x);
   });
 });

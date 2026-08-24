@@ -54,6 +54,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "round-coffee-table-v1", catalogItemId: "living:coffee-table-round", compile: compileRoundCoffeeTable },
   { id: "console-table-v1", catalogItemId: "living:console-table", compile: compileCoffeeTable },
   { id: "bookcase-v1", catalogItemId: "living:bookcase", compile: compileBookcase },
+  { id: "wardrobe-wall-v1", catalogItemId: "living:wardrobe-wall", compile: compileBookcase },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },
   { id: "indoor-plant-v1", catalogItemId: "living:indoor-plant", compile: compileIndoorPlant },
 ];
@@ -83,7 +84,7 @@ export function compileLivingRoomObjectNode(
       materialId,
     ),
   ];
-  return attachObjectRenderBinding({
+  const node = attachObjectRenderBinding({
     id: `object-node:${object.id}`,
     name: object.name,
     sourceObjectId: object.id,
@@ -98,4 +99,7 @@ export function compileLivingRoomObjectNode(
     },
     renderBinding: { strategy: "procedural", materialBindings: {} },
   }, object);
+  return node.renderBinding.modelUrl
+    ? { ...node, adapterId: "imported-glb-v1", placeholder: false }
+    : node;
 }

@@ -2,7 +2,9 @@ import { useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import {
   assembleClientPresentationFiles,
+  buildClientPresentationPackage,
   clientPresentationPackageDirectory,
+  exportClientPresentationPdf,
   packageFilePath,
   type LivingRoomRenderResult,
   type StillProvenance,
@@ -73,5 +75,35 @@ export function useClientPresentationExport() {
     }
   }
 
-  return { status, busy, exportClientPreview, setStatus };
+  async function exportPresentationPdf(
+    project: InteriorProject,
+    render: LivingRoomRenderResult,
+  ) {
+    setBusy(true);
+    setStatus("");
+    try {
+      const pack = buildClientPresentationPackage(project, render);
+      const path = await promptSavePath({
+        title: "Export Presentation PDF",
+        defaultPath: pack.fileNames.presentationPdf,
+        extensions: ["pdf"],
+      });
+      if (!path) {
+        setStatus("Presentation PDF export cancelled.");
+        return;
+      }
+      await writeBinaryBlob(path, await exportClientPresentationPdf(project, render, pack));
+      setStatus("Presentation PDF saved successfully.");
+    } catch (error) {
+      setStatus(
+        error instanceof Error
+          ? `Presentation PDF failed: ${error.message}`
+          : "Presentation PDF export failed.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return { status, busy, exportClientPreview, exportPresentationPdf, setStatus };
 }

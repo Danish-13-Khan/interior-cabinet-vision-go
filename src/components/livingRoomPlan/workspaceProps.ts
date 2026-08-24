@@ -1,6 +1,7 @@
 import type {
   InteriorObjectEntity,
   InteriorProject,
+  OpeningEntity,
   Point3Mm,
   RenderSettings,
   Size3Mm,
@@ -11,15 +12,19 @@ import type {
   LivingRoomAlignMode,
   LivingRoomCatalogId,
   LivingRoomLightingRecipeId,
+  LivingRoomLayerId,
   LivingRoomPlanIssue,
   LivingRoomPlanUnderlay,
+  AdvancedStudioState,
   LivingRoomRecoverySnapshot,
   LivingRoomStyleId,
+  ImportedAsset,
   Phase1BenchmarkId,
 } from "../../domain/livingRoom";
 
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
-export type StudioPanel = "assets" | "layers" | "underlay";
+export type PlannerMode = "project" | "build" | "design" | "render";
+export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers" | "advanced";
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -52,14 +57,24 @@ export type LivingRoomPlanWorkspaceProps = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
+  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetFloorMaterial: (materialId: string) => void;
+  onSetWallMaterial: (wallId: string, materialId: string) => void;
+  onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
-  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId) => void;
+  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAddImportedAsset: (asset: ImportedAsset) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onAlign: (mode: LivingRoomAlignMode) => void;
+  onCreateCabinetRun: (wallId: string) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onAddOpening: (wallId: string, kind: "door" | "window") => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>) => void;
+  onDeleteOpening: (openingId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
+  onUpdateAdvancedStudio: (state: AdvancedStudioState) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;

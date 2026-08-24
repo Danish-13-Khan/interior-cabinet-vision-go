@@ -21,8 +21,8 @@ export function LivingRoomRenderCamerasPanel({
   onSelectCamera,
 }: LivingRoomRenderCamerasPanelProps) {
   return (
-    <aside className="lr-render-cameras" aria-label="Render cameras">
-      <header><strong>Cameras</strong><span>{cameras.length}</span></header>
+    <aside className="lr-render-cameras" aria-label="Saved project cameras">
+      <header><strong>Saved cameras</strong><span>{cameras.length}</span></header>
       {cameras.map((camera, index) => (
         <button
           type="button"
@@ -36,7 +36,7 @@ export function LivingRoomRenderCamerasPanel({
               : <i>CAM {String(index + 1).padStart(2, "0")}</i>}
           </span>
           <strong>{camera.name}</strong>
-          <small>{camera.fieldOfViewDegrees}° lens</small>
+          <small>{camera.isDefault ? "Default · " : "Saved · "}{camera.fieldOfViewDegrees}° lens</small>
         </button>
       ))}
       <div className="lr-render-history">

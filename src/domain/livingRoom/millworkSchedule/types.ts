@@ -1,7 +1,7 @@
 export const MILLWORK_SCHEDULE_VERSION = 1 as const;
 
 export const MILLWORK_SCHEDULE_HONESTY_NOTE =
-  "Sizes match Plan/Model millimetres. Not a cutlist, price, or CNC program.";
+  "Sizes match Plan/Model millimetres. Use the Production Packet for cut parts, costing, and technical sheets.";
 
 export type MillworkScheduleLine = {
   objectId: string;

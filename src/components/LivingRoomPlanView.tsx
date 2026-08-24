@@ -21,6 +21,10 @@ type LivingRoomPlanViewProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
+  activeWallId: string | null;
+  activeOpeningId: string | null;
+  onSelectWall: (wallId: string) => void;
+  onSelectOpening: (openingId: string) => void;
 };
 
 type DragState = {
@@ -98,12 +102,19 @@ export function LivingRoomPlanView({
   onSelect,
   onMove,
   onResize,
+  activeWallId,
+  activeOpeningId,
+  onSelectWall,
+  onSelectOpening,
 }: LivingRoomPlanViewProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [guides, setGuides] = useState<PlanSnapGuide[]>([]);
   const room = project.rooms.find((item) => item.id === project.activeRoomId)!;
+  const materials = useMemo(() => new Map(project.materials.map((material) => [material.id, material])), [project.materials]);
+  const floorMaterialId = typeof room.extensions?.floorMaterialId === "string" ? room.extensions.floorMaterialId : "";
+  const floorColor = materials.get(floorMaterialId)?.color ?? "#e8dfd0";
   const underlay = getLivingRoomPlanUnderlay(project);
   const margin = 700;
   const viewBox = [
@@ -117,7 +128,7 @@ export function LivingRoomPlanView({
     [issues],
   );
   const renderObjects = useMemo(
-    () => [...project.objects].sort((a, b) =>
+    () => project.objects.filter((object) => object.extensions?.layerVisible !== false).sort((a, b) =>
       Number(b.category === "rug") - Number(a.category === "rug"),
     ),
     [project.objects],
@@ -262,6 +273,15 @@ export function LivingRoomPlanView({
           className="lr-plan-underlay-image"
         />
       ) : null}
+      <rect
+        x={-room.dimensions.widthMm / 2}
+        y={-room.dimensions.depthMm / 2}
+        width={room.dimensions.widthMm}
+        height={room.dimensions.depthMm}
+        fill={floorColor}
+        opacity="0.55"
+        pointerEvents="none"
+      />
       {showGrid ? (
         <rect
           x={-room.dimensions.widthMm / 2}
@@ -286,20 +306,22 @@ export function LivingRoomPlanView({
         className="lr-center-line"
       />
 
-      {project.walls.map((wall) => (
+      {project.walls.filter((wall) => wall.visible).map((wall) => (
         <line
           key={wall.id}
           x1={wall.start.x}
           y1={wall.start.z}
           x2={wall.end.x}
           y2={wall.end.z}
-          className="lr-wall-line"
+          className={`lr-wall-line ${wall.id === activeWallId ? "is-active" : ""}`}
+          style={{ stroke: wall.id === activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
+          onPointerDown={(event) => { event.stopPropagation(); onSelectWall(wall.id); }}
         />
       ))}
-      {project.openings.map((opening) => {
+      {project.openings.filter((opening) => opening.extensions?.layerVisible !== false).map((opening) => {
         const points = openingPoints(project, opening.id);
         return (
-          <g key={opening.id} className={`lr-opening lr-opening-${opening.kind}`}>
+          <g key={opening.id} className={`lr-opening lr-opening-${opening.kind} ${opening.id === activeOpeningId ? "is-active" : ""}`} onPointerDown={(event) => { event.stopPropagation(); onSelectOpening(opening.id); }}>
             <line x1={points.start.x} y1={points.start.z} x2={points.end.x} y2={points.end.z} />
             <text x={(points.start.x + points.end.x) / 2} y={(points.start.z + points.end.z) / 2 - 85}>
               {opening.kind.toUpperCase()} {opening.widthMm}

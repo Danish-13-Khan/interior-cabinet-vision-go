@@ -1,5 +1,5 @@
 import type { WorkbenchMode } from "../../domain/desktopUx";
-import type { LivingRoomWorkspaceView } from "./workspaceProps";
+import type { LivingRoomWorkspaceView, PlannerMode } from "./workspaceProps";
 
 function ProductIcon({ name }: { name: "home" | "folder" | "undo" | "redo" | "save" }) {
   const paths = {
@@ -15,11 +15,13 @@ function ProductIcon({ name }: { name: "home" | "folder" | "undo" | "redo" | "sa
 export function InteriorsProductHeader({
   projectName,
   workspaceView,
+  plannerMode,
   isDirty,
   canUndo,
   canRedo,
   onProject,
   onView,
+  onPlannerMode,
   onOpen,
   onSave,
   onExport,
@@ -29,11 +31,13 @@ export function InteriorsProductHeader({
 }: {
   projectName: string | null;
   workspaceView: LivingRoomWorkspaceView;
+  plannerMode: PlannerMode;
   isDirty: boolean;
   canUndo: boolean;
   canRedo: boolean;
   onProject: () => void;
   onView: (view: LivingRoomWorkspaceView) => void;
+  onPlannerMode: (mode: PlannerMode) => void;
   onOpen: () => void;
   onSave: () => void;
   onExport: () => void;
@@ -47,27 +51,30 @@ export function InteriorsProductHeader({
         <span className="lr-product-mark"><i /><i /><i /></span>
         <span><strong>Interiors</strong><small>{projectName ?? "Living room studio"}</small></span>
       </button>
-      <nav className="lr-product-nav" aria-label="Interiors workflow">
-        <button type="button" aria-label="Home" onClick={onProject}><ProductIcon name="home" />Project</button>
-        {(["plan", "model", "render"] as const).map((view) => (
+      <nav className="lr-product-nav" aria-label="Planner workflow">
+        {(["project", "build", "design", "render"] as const).map((mode) => (
           <button
             type="button"
-            key={view}
-            className={workspaceView === view ? "is-active" : ""}
-            onClick={() => onView(view)}
-            disabled={!projectName}
+            key={mode}
+            className={plannerMode === mode ? "is-active" : ""}
+            onClick={() => onPlannerMode(mode)}
+            disabled={mode !== "project" && !projectName}
           >
-            <span className="lr-nav-index">{view === "plan" ? "2D" : view === "model" ? "3D" : "FX"}</span>
-            {view[0].toUpperCase() + view.slice(1)}
+            <span className="lr-nav-index">{mode === "project" ? "01" : mode === "build" ? "02" : mode === "design" ? "03" : "04"}</span>
+            {mode[0].toUpperCase() + mode.slice(1)}
           </button>
         ))}
-        <button type="button" onClick={onExport} disabled={!projectName}><span className="lr-nav-index">OUT</span>Export</button>
       </nav>
       <div className="lr-product-actions">
         <button type="button" className="lr-icon-button" aria-label="Open project" title="Open project" onClick={onOpen}><ProductIcon name="folder" /></button>
         <button type="button" className="lr-icon-button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}><ProductIcon name="undo" /></button>
         <button type="button" className="lr-icon-button" aria-label="Redo" title="Redo" onClick={onRedo} disabled={!canRedo}><ProductIcon name="redo" /></button>
         <button type="button" className="lr-save-button" onClick={onSave} disabled={!projectName}><ProductIcon name="save" />{isDirty ? "Save *" : "Save"}</button>
+        <div className="lr-view-switch" role="group" aria-label="Canvas view">
+          <button type="button" className={workspaceView === "plan" ? "is-active" : ""} onClick={() => onView("plan")} disabled={!projectName}>2D</button>
+          <button type="button" className={workspaceView === "model" ? "is-active" : ""} onClick={() => onView("model")} disabled={!projectName}>3D</button>
+        </div>
+        <button type="button" className="lr-export-button" onClick={onExport} disabled={!projectName}>Export</button>
         <label className="lr-workspace-picker">
           <span>Workspace</span>
           <select value="interiors" onChange={(event) => onWorkbenchModeChange(event.target.value as WorkbenchMode)}>

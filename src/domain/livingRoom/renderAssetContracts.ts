@@ -5,10 +5,23 @@ export type RenderMode = "preview" | "hero";
 
 export type RenderAssetStrategy = "glb" | "procedural";
 
+export type ModelTextureUrls = Partial<{
+  map: string;
+  normalMap: string;
+  roughnessMap: string;
+  metalnessMap: string;
+}>;
+
 /** Stable, JSON-safe binding emitted by the scene compiler. */
 export type RenderBinding = {
   strategy: RenderAssetStrategy;
   modelAssetId?: string;
+  /** A project-owned GLB data URL or a packaged import resolved at runtime. */
+  modelUrl?: string;
+  /** Optional named mesh groups supplied by the import manifest. */
+  modelMaterialGroups?: Record<string, string>;
+  /** Project-owned sidecar texture data URLs supplied alongside an imported GLB. */
+  modelTextureUrls?: ModelTextureUrls;
   materialBindings: Record<string, string>;
   uvScaleMm?: number;
   /** Object dimensions used to scale GLB assets; never persisted on project JSON. */

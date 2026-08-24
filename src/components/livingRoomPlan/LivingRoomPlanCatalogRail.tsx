@@ -1,36 +1,15 @@
 import { useRef } from "react";
-import type { InteriorProject } from "../../domain/interiorProject";
+import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
+import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import {
   LIVING_ROOM_CATALOG,
+  isLivingRoomLayerVisible,
   type LivingRoomCatalogId,
-  type LivingRoomPlanUnderlay,
+  type ImportedAsset,
 } from "../../domain/livingRoom";
 import type { StudioPanel } from "./workspaceProps";
-
-export function imageFileToUnderlay(
-  file: File,
-  roomWidthMm: number,
-): Promise<LivingRoomPlanUnderlay> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("The selected image could not be read."));
-    reader.onload = () => {
-      const dataUrl = String(reader.result ?? "");
-      const image = new Image();
-      image.onerror = () => reject(new Error("The selected file is not a supported plan image."));
-      image.onload = () => resolve({
-        fileName: file.name,
-        dataUrl,
-        widthMm: roomWidthMm,
-        heightMm: roomWidthMm * image.naturalHeight / Math.max(1, image.naturalWidth),
-        opacity: 0.42,
-      });
-      image.src = dataUrl;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
+import { SurfacePaintPanel } from "./SurfacePaintPanel";
+import { AssetImportPanel } from "./AssetImportPanel";
 type LivingRoomPlanCatalogRailProps = {
   widthPx: number;
   toolRailVisible: boolean;
@@ -46,35 +25,55 @@ type LivingRoomPlanCatalogRailProps = {
   importError: string;
   onAssetQuery: (value: string) => void;
   onAssetCategory: (value: string) => void;
-  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId) => void;
+  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAddImportedAsset: (asset: ImportedAsset) => void;
+  onSetFloorMaterial: (materialId: string) => void;
+  onSetWallMaterial: (wallId: string, materialId: string) => void;
+  onSetObjectMaterial: (objectId: string, slotName: string, materialId: string) => void;
+  onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
+  onRoomDimensions: (dimensions: Size3Mm) => void;
+  activeWallId: string | null;
+  activeOpeningId: string | null;
+  onActiveWall: (wallId: string) => void;
+  onActiveOpening: (openingId: string) => void;
+  onAddOpening: (wallId: string, kind: "door" | "window") => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
+  onDeleteOpening: (openingId: string) => void;
 };
-
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
   const visibleAssets = LIVING_ROOM_CATALOG.filter((item) =>
+    (props.studioPanel !== "cabinets" || item.kind === "cabinet") &&
+    (props.studioPanel !== "furniture" || item.kind !== "cabinet") &&
     (props.assetCategory === "all" || item.category === props.assetCategory) &&
     (!props.assetQuery.trim()
       || `${item.name} ${item.category}`.toLowerCase().includes(props.assetQuery.trim().toLowerCase())),
   );
-
-  return (
-    <>
+  const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
+  const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
+  const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
+  const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
+  return <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
-        <button type="button" className={props.studioPanel === "assets" ? "is-active" : ""} onClick={() => props.onStudioPanel("assets")} title="Assets"><span>◇</span>Assets</button>
+        <button type="button" className={props.studioPanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button>
+        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets</button>
+        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture</button>
+        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials</button>
         <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers</button>
-        <button type="button" className={props.studioPanel === "underlay" ? "is-active" : ""} onClick={() => props.onStudioPanel("underlay")} title="Plan underlay"><span>⌁</span>Import</button>
+        <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button>
       </nav>
       {props.toolRailVisible ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
-        {props.studioPanel === "assets" ? (
+        {props.studioPanel === "cabinets" || props.studioPanel === "furniture" ? (
           <>
             <div className="context-panel-heading">
-              <strong>Asset Library</strong>
-              <span>{LIVING_ROOM_CATALOG.length} parametric models</span>
+              <strong>{props.studioPanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
+              <span>{props.studioPanel === "cabinets" ? `Attach to ${String(activeWall.extensions?.wallSide ?? "wall")}` : `${visibleAssets.length} parametric models`}</span>
             </div>
+            <AssetImportPanel cabinetMode={props.studioPanel === "cabinets"} onAdd={props.onAddImportedAsset} />
             <div className="lr-asset-controls">
               <input aria-label="Search assets" placeholder="Search furniture…" value={props.assetQuery} onChange={(event) => props.onAssetQuery(event.target.value)} />
               <div className="lr-asset-categories">
@@ -85,7 +84,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             </div>
             <div className="lr-asset-grid">
               {visibleAssets.map((item) => (
-                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id)}>
+                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id, props.studioPanel === "cabinets" ? activeWall.id : undefined)}>
                   <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
                   <strong>{item.name}</strong>
                   <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm</small>
@@ -94,15 +93,26 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               ))}
             </div>
           </>
-        ) : props.studioPanel === "layers" ? (
+        ) : props.studioPanel === "materials" ? <>
+            <div className="context-panel-heading"><strong>Surface Paint</strong><span>2D paint · synced 3D</span></div>
+            <SurfacePaintPanel
+              project={props.project}
+              activeWallId={activeWall.id}
+              selectedObject={selectedObject}
+              onFloor={props.onSetFloorMaterial}
+              onWall={props.onSetWallMaterial}
+              onObject={props.onSetObjectMaterial}
+            />
+          </> : props.studioPanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>
             <div className="lr-layer-tree">
               <div><b>⌄</b><strong>{props.roomName}</strong><small>Room</small></div>
               <div><b>⌄</b><strong>Architecture</strong><small>{props.project.walls.length + props.project.openings.length}</small></div>
-              <span>Walls <small>{props.project.walls.length}</small></span>
-              <span>Doors &amp; windows <small>{props.project.openings.length}</small></span>
-              <div><b>⌄</b><strong>Furniture</strong><small>{props.project.objects.length}</small></div>
+              <label>Walls <input type="checkbox" checked={isLivingRoomLayerVisible(props.project, "walls")} onChange={(event) => props.onSetLayerVisibility("walls", event.target.checked)} /></label>
+              <label>Doors &amp; windows <input type="checkbox" checked={isLivingRoomLayerVisible(props.project, "openings")} onChange={(event) => props.onSetLayerVisibility("openings", event.target.checked)} /></label>
+              <div><b>⌄</b><strong>Furniture &amp; decor</strong><small>{props.project.objects.length}</small></div>
+              <label>Visible objects <input type="checkbox" checked={isLivingRoomLayerVisible(props.project, "furniture")} onChange={(event) => props.onSetLayerVisibility("furniture", event.target.checked)} /></label>
               {props.project.objects.map((object) => (
                 <button type="button" key={object.id} className={props.selectedIds.includes(object.id) ? "is-selected" : ""} onClick={() => props.onSelect(object.id)}><i>◇</i><span>{object.name}</span><small>{object.category}</small></button>
               ))}
@@ -110,8 +120,32 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           </>
         ) : (
           <>
-            <div className="context-panel-heading"><strong>Plan Underlay</strong><span>Trace from a drawing</span></div>
+            <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
             <div className="lr-underlay-panel">
+              <section className="lr-room-authoring">
+                <strong>Room dimensions</strong>
+                <div className="lr-room-dimension-grid">
+                  {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
+                    <label key={key}><span>{key === "widthMm" ? "Width" : key === "depthMm" ? "Depth" : "Height"}</span><input type="number" min="2200" step="50" value={room.dimensions[key]} onChange={(event) => props.onRoomDimensions({ ...room.dimensions, [key]: Number(event.target.value) || room.dimensions[key] })} /></label>
+                  ))}
+                </div>
+              </section>
+              <section className="lr-room-authoring">
+                <strong>Wall openings</strong>
+                <div className="lr-wall-tabs">
+                  {props.project.walls.map((wall) => <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>{String(wall.extensions?.wallSide ?? "wall")}</button>)}
+                </div>
+                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Window</button></div>
+                {props.project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
+                  <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}><span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small></button>
+                ))}
+                {!props.project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on this wall.</p> : null}
+                {activeOpening?.wallId === activeWall.id ? <div className="lr-opening-fields">
+                  {(["offsetMm", "widthMm", "heightMm", "sillHeightMm"] as const).map((key) => <label key={key}><span>{key === "offsetMm" ? "Offset" : key === "widthMm" ? "Width" : key === "heightMm" ? "Height" : "Sill"}</span><input type="number" min="0" step="50" value={activeOpening[key]} onChange={(event) => props.onUpdateOpening(activeOpening.id, { [key]: Number(event.target.value) || activeOpening[key] })} /></label>)}
+                  <button type="button" className="is-danger" onClick={() => props.onDeleteOpening(activeOpening.id)}>Remove opening</button>
+                </div> : null}
+              </section>
+              <section className="lr-room-authoring"><strong>Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
               {props.underlay ? (
                 <>
@@ -140,6 +174,5 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         )}
       </aside>
       ) : null}
-    </>
-  );
+    </>;
 }
