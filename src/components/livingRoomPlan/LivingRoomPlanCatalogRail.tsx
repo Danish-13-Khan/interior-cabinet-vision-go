@@ -43,6 +43,7 @@ type LivingRoomPlanCatalogRailProps = {
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
   onDeleteOpening: (openingId: string) => void;
   v2BuildMode?: boolean;
+  v2DesignMode?: boolean;
 };
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
@@ -60,13 +61,13 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
   return <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
-        <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button>
+        {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button> : null}
         {!props.v2BuildMode ? <>
         <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets</button>
         <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture</button>
         <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials</button>
         <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers</button>
-        <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button>
+        {!props.v2DesignMode ? <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button> : null}
         </> : null}
       </nav>
       {props.toolRailVisible ? (

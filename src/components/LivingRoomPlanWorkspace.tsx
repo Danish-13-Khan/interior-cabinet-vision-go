@@ -170,6 +170,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               setActiveOpeningId(null);
             }}
             v2BuildMode={props.uiVersion === "v2" && plannerMode === "build"}
+            v2DesignMode={props.uiVersion === "v2" && plannerMode === "design"}
             onImportUnderlay={async (file) => {
               if (!file) return;
               setImportError("");
