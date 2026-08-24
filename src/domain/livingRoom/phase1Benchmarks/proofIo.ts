@@ -60,7 +60,7 @@ export function loadPhase1HonestyCorpus(cwd = process.cwd()): string[] {
     "src/domain/livingRoom/presetHonesty.ts",
     "src/components/livingRoomScene/RenderPresetHonestyBadge.tsx",
     "src/components/LivingRoomRenderStudio.tsx",
-    "src/components/LivingRoomProjectHome.tsx",
+    "src/components/livingRoomPlan/PlannerV2ProjectHome.tsx",
   ];
   const texts: string[] = [];
   for (const relative of paths) {

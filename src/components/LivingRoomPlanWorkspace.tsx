@@ -93,31 +93,28 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onUndo={props.onUndo}
       onRedo={props.onRedo}
       onWorkbenchModeChange={props.onWorkbenchModeChange}
-      uiVersion={props.uiVersion}
-      onUiVersionChange={props.onUiVersionChange}
     />
   );
 
   if (!props.project || !room) {
     return (
-      <section className={`lr-plan-shell lr-product-shell${props.uiVersion === "v2" ? " lr-product-shell-v2" : ""}`}>
+      <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
         {header}
         <div className="lr-empty-workspace">
-          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} uiVersion={props.uiVersion} />
+          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} />
         </div>
       </section>
     );
   }
 
   return (
-    <section className={`lr-plan-shell lr-product-shell${props.uiVersion === "v2" ? " lr-product-shell-v2" : ""}`}>
+    <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
       {header}
       <div className={`lr-workspace-body is-${workspaceView}`}>
         <LivingRoomHomeFromWorkspace
           workspace={props}
           open={props.projectHomeOpen}
           hasCurrentProject
-          uiVersion={props.uiVersion}
         />
         {workspaceView === "plan" && studioPanel === "advanced" ? (
           <LivingRoomAdvancedPanel
@@ -169,8 +166,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               props.onDeleteOpening(openingId);
               setActiveOpeningId(null);
             }}
-            v2BuildMode={props.uiVersion === "v2" && plannerMode === "build"}
-            v2DesignMode={props.uiVersion === "v2" && plannerMode === "design"}
+            v2BuildMode={plannerMode === "build"}
+            v2DesignMode={plannerMode === "design"}
             onImportUnderlay={async (file) => {
               if (!file) return;
               setImportError("");
@@ -183,7 +180,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             }}
           />
         ) : null}
-        {props.uiVersion === "v2" && plannerMode === "render" ? (
+        {plannerMode === "render" ? (
           <PlannerV2ReviewPanel
             schedule={millwork.schedule}
             issues={props.issues}
@@ -244,8 +241,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           onExportScheduleCsv={() => void millwork.exportSchedule("schedule-csv")}
           onExportCutlistCsv={() => void millwork.exportSchedule("cutlist-csv")}
           onExportPdf={() => void millwork.exportSchedule("pdf")}
-          v2BuildMode={props.uiVersion === "v2" && plannerMode === "build"}
-          v2ReviewMode={props.uiVersion === "v2" && workspaceView === "model"}
+          v2BuildMode={plannerMode === "build"}
+          v2ReviewMode={workspaceView === "model"}
         />
         {props.inspectorVisible && workspaceView !== "render" ? (
           <LivingRoomInspectorPanel

@@ -21,7 +21,7 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
   }
 
   return (
-    <section className="planner-v2-home" aria-label="Project home">
+    <section className="planner-v2-home" role="dialog" aria-modal="true" aria-label="Start a living room project">
       <div className="planner-v2-home-intro">
         <span>Simple room planner</span>
         <h1>Design the room.<br />Build with confidence.</h1>
@@ -57,6 +57,10 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
         </section>
         <section className="planner-v2-recents">
           <header><span>Open recent</span><small>{recentProjects.length ? "Continue where you left off" : "Your saved projects will appear here"}</small></header>
+          <button type="button" className="planner-v2-demo" onClick={() => {
+            workspace.onDiscardRecovery();
+            workspace.onOpenDemo();
+          }}>OPEN RELEASE DEMO</button>
           {recentProjects.length ? <div>{recentProjects.map((entry) => {
             const document = entry.project.interiorDocument!;
             const preview = entry.thumbnail || createLivingRoomPlanThumbnail(document);
