@@ -245,6 +245,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           onExportCutlistCsv={() => void millwork.exportSchedule("cutlist-csv")}
           onExportPdf={() => void millwork.exportSchedule("pdf")}
           v2BuildMode={props.uiVersion === "v2" && plannerMode === "build"}
+          v2ReviewMode={props.uiVersion === "v2" && workspaceView === "model"}
         />
         {props.inspectorVisible && workspaceView !== "render" ? (
           <LivingRoomInspectorPanel
