@@ -1,0 +1,19 @@
+.lr-product-shell-v2 {
+  --planner-v2-ink: #243029;
+  --planner-v2-muted: #68766c;
+  --planner-v2-line: #dce5de;
+  --planner-v2-paper: #fbfdfb;
+  --planner-v2-panel: #ffffff;
+  --planner-v2-canvas: #f1f5f2;
+  --planner-v2-accent: #276b46;
+  --planner-v2-accent-strong: #1f5839;
+  --planner-v2-accent-soft: #e9f3eb;
+  --planner-v2-danger: #b42318;
+  --planner-v2-radius-sm: 6px;
+  --planner-v2-radius-md: 9px;
+  --planner-v2-space-1: 4px;
+  --planner-v2-space-2: 8px;
+  --planner-v2-space-3: 12px;
+  --planner-v2-space-4: 16px;
+  --planner-v2-font-ui: "Avenir Next", "Segoe UI", sans-serif;
+}
