@@ -1,6 +1,7 @@
-import { Edges, useGLTF } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
+import { createPortal, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
-import { Box3, Vector3 } from "three";
+import { Box3, BoxHelper, Group, Vector3 } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import {
@@ -25,7 +26,26 @@ type AssetBackedObjectProps = {
   selected: boolean;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
+  onReady?: () => void;
 };
+
+/** Draw in canvas-world space so the outline follows any imported GLB pivot. */
+function WorldBoundsOutline({ target }: { target: Group }) {
+  const canvasScene = useThree((state) => state.scene);
+  const helper = useMemo(() => new BoxHelper(target, "#0878bd"), [target]);
+
+  useLayoutEffect(() => {
+    helper.renderOrder = 10;
+    helper.material.depthTest = false;
+    return () => {
+      helper.geometry.dispose();
+      helper.material.dispose();
+    };
+  }, [helper]);
+  useFrame(() => helper.update());
+
+  return createPortal(<primitive object={helper} />, canvasScene);
+}
 
 function GlbSceneContent({
   url,
@@ -35,8 +55,10 @@ function GlbSceneContent({
   selected,
   renderMode,
   renderQuality,
+  onReady,
 }: Omit<AssetBackedObjectProps, "primitives">) {
   const gltf = useGLTF(url);
+  const invalidate = useThree((state) => state.invalidate);
   const castShadow = renderMode === "hero";
   const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
   const target = binding.targetSizeMm;
@@ -45,9 +67,7 @@ function GlbSceneContent({
       ? computeGlbScaleFactors(target, nativeSizeMmToMeters(definition.nativeSizeMm))
       : { x: 1, y: 1, z: 1 },
   );
-  const [nativeSize, setNativeSize] = useState(() =>
-    nativeSizeMmToMeters(definition.nativeSizeMm),
-  );
+  const [modelRoot, setModelRoot] = useState<Group | null>(null);
 
   const slotKey = JSON.stringify(binding.materialBindings);
   const groupsKey = JSON.stringify(definition.materialGroups);
@@ -56,10 +76,32 @@ function GlbSceneContent({
     const bounds = new Box3().setFromObject(scene);
     const center = bounds.getCenter(new Vector3());
     scene.position.set(-center.x, -bounds.min.y, -center.z);
+    scene.traverse((child) => {
+      if (child instanceof Group) return;
+      child.frustumCulled = false;
+    });
+    scene.updateMatrixWorld(true);
     const size = bounds.getSize(new Vector3());
-    setNativeSize(size);
     if (target) setScale(computeGlbScaleFactors(target, size));
   }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
+
+  useLayoutEffect(() => {
+    if (!modelRoot) return;
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      modelRoot.updateMatrixWorld(true);
+      invalidate();
+      secondFrame = requestAnimationFrame(() => {
+        modelRoot.updateMatrixWorld(true);
+        invalidate();
+        onReady?.();
+      });
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+    };
+  }, [invalidate, modelRoot, scale.x, scale.y, scale.z]);
 
   useLayoutEffect(() => {
     applyGlbSlotMaterials(scene, {
@@ -84,21 +126,12 @@ function GlbSceneContent({
   ]);
 
   return (
-    /* The selection frame lives in the same normalized, scaled group as the GLB. */
-    <group scale={[scale.x, scale.y, scale.z]}>
+    <>
+      <group ref={setModelRoot} scale={[scale.x, scale.y, scale.z]}>
         <primitive object={scene} />
-        {selected ? (
-          <mesh position={[0, nativeSize.y / 2, 0]} renderOrder={10}>
-          <boxGeometry args={[
-            nativeSize.x,
-            nativeSize.y,
-            nativeSize.z,
-          ]} />
-          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          <Edges color="#0878bd" threshold={12} lineWidth={1.5} />
-        </mesh>
-        ) : null}
-    </group>
+      </group>
+      {selected && modelRoot ? <WorldBoundsOutline target={modelRoot} /> : null}
+    </>
   );
 }
 
@@ -112,6 +145,7 @@ export function AssetBackedObject({
   selected,
   renderMode,
   renderQuality,
+  onReady,
 }: AssetBackedObjectProps) {
   const fallback = (
     <ProceduralFallbackObject
@@ -134,6 +168,7 @@ export function AssetBackedObject({
           selected={selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          onReady={onReady}
         />
       </Suspense>
     </GlbLoadErrorBoundary>

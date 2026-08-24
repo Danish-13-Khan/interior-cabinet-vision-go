@@ -5,7 +5,6 @@ import {
   MOUSE,
   ACESFilmicToneMapping,
   PCFShadowMap,
-  PCFSoftShadowMap,
   SRGBColorSpace,
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -41,8 +40,7 @@ function RendererColorPipeline({ exposure }: { exposure: number }) {
     gl.outputColorSpace = SRGBColorSpace;
     gl.toneMapping = ACESFilmicToneMapping;
     gl.toneMappingExposure = exposure;
-    const shadowType = exposure > 1 ? PCFSoftShadowMap : PCFShadowMap;
-    if (gl.shadowMap.type !== shadowType) gl.shadowMap.type = shadowType;
+    if (gl.shadowMap.type !== PCFShadowMap) gl.shadowMap.type = PCFShadowMap;
   }, [exposure, gl]);
   return null;
 }
@@ -65,6 +63,7 @@ export function CompiledSceneRenderer({
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [assetRevision, setAssetRevision] = useState(0);
   const architectureBounds = computeArchitectureBounds(scene.nodes);
   const materialKey = scene.materials
     .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}`)
@@ -135,6 +134,7 @@ export function CompiledSceneRenderer({
           onDragStateChange={setDragging}
           interactive={interactive}
           onMechanismClick={onMechanismClick}
+          onAssetReady={() => setAssetRevision((revision) => revision + 1)}
         />
       ))}
       <ContactShadows
@@ -167,6 +167,7 @@ export function CompiledSceneRenderer({
         composition={renderComposition}
         renderMode={renderMode}
         viewPreset={viewPreset}
+        assetRevision={assetRevision}
       />
     </>
   );

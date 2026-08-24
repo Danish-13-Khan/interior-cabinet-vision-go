@@ -62,6 +62,7 @@ export function CameraRig({
   composition,
   renderMode = "preview",
   viewPreset = "perspective",
+  assetRevision = 0,
 }: {
   scene: CompiledLivingRoomScene;
   activeCameraId: string | null;
@@ -69,6 +70,7 @@ export function CameraRig({
   composition: RenderComposition;
   renderMode?: RenderMode;
   viewPreset?: ModelViewPresetId;
+  assetRevision?: number;
 }) {
   const { camera } = useThree();
   const sceneRef = useRef(scene);
@@ -100,6 +102,7 @@ export function CameraRig({
     return () => cancelAnimationFrame(frame);
   }, [
     activeCameraId,
+    assetRevision,
     camera,
     composition,
     controlsRef,
@@ -112,6 +115,7 @@ export function CameraRig({
     projectCamera?.target.y,
     projectCamera?.target.z,
     renderMode,
+    scene.fingerprint,
     viewPreset,
   ]);
 

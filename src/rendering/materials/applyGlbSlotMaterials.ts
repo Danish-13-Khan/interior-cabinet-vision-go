@@ -36,7 +36,8 @@ function loadTexture(
   texture.repeat.set(repeat.x, repeat.y);
   texture.anisotropy = getRenderModeQuality(mode, quality).anisotropy;
   if (colorSpace) texture.colorSpace = SRGBColorSpace;
-  texture.needsUpdate = true;
+  // TextureLoader marks the texture ready after its image has loaded. Forcing an
+  // update before then emits "no image data" and can leave the first frame blank.
   return texture;
 }
 
