@@ -71,6 +71,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onCreateCabinetRun: (wallId: string) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onAddPartitionWall: () => void;
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>) => void;
   onDeleteOpening: (openingId: string) => void;

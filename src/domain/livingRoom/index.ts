@@ -1,4 +1,7 @@
 export {
+  addLivingRoomPartition,
+} from "./planCommands";
+export {
   createLivingRoomObject,
   getLivingRoomCatalogItem,
   LIVING_ROOM_CATALOG,

@@ -9,6 +9,7 @@ import {
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
+  addLivingRoomPartition,
   attachToWall,
   arrangeCabinetRun,
   addLivingRoomOpening,
@@ -364,6 +365,24 @@ export function useLivingRoomPlanEditor({
     }), `Added ${kind}.`);
   }
 
+  function addPartitionWall() {
+    if (!document) return;
+    const room = document.rooms.find((item) => item.id === document.activeRoomId);
+    if (!room) return;
+    const id = `living-wall-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
+    commitDocument((current) => addLivingRoomPartition(current, {
+      id,
+      roomId: current.activeRoomId,
+      start: { x: 0, z: -room.dimensions.depthMm / 4 },
+      end: { x: 0, z: room.dimensions.depthMm / 4 },
+      heightMm: room.dimensions.heightMm,
+      thicknessMm: room.wallThicknessMm,
+      visible: true,
+      materialId: current.walls[0]?.materialId ?? null,
+      extensions: { wallSide: `partition-${current.walls.length + 1}`, isPartition: true },
+    }), "Added partition wall.");
+  }
+
   function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
     commitDocument((current) => updateLivingRoomOpening(current, openingId, patch), "Updated opening.");
   }
@@ -440,6 +459,7 @@ export function useLivingRoomPlanEditor({
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
     addLivingRoomOpening: addOpening,
+    addLivingRoomPartition: addPartitionWall,
     updateLivingRoomOpening: updateOpening,
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
