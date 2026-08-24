@@ -1,4 +1,4 @@
-.lr-product-shell-v2 { --lr-ink:#243029; --lr-muted:#68766c; --lr-line:#dce5de; --lr-paper:#fbfdfb; --lr-panel:#fff; --lr-canvas:#f1f5f2; --lr-accent:#276b46; --lr-accent-dark:#1f5839; --lr-green:#276b46; }
+.lr-product-shell-v2 { --lr-ink:var(--planner-v2-ink); --lr-muted:var(--planner-v2-muted); --lr-line:var(--planner-v2-line); --lr-paper:var(--planner-v2-paper); --lr-panel:var(--planner-v2-panel); --lr-canvas:var(--planner-v2-canvas); --lr-accent:var(--planner-v2-accent); --lr-accent-dark:var(--planner-v2-accent-strong); --lr-green:var(--planner-v2-accent); }
 .lr-product-shell-v2 .lr-product-header { min-height:54px; grid-template-columns:minmax(180px,.7fr) auto minmax(400px,1fr); border-color:#dce5de; background:#fff; box-shadow:none; }
 .lr-product-shell-v2 .lr-product-brand { padding:7px 15px; }
 .lr-product-shell-v2 .lr-product-brand strong { font-size:.86rem; }
