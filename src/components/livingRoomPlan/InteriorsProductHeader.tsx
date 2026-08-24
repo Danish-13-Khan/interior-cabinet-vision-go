@@ -1,5 +1,5 @@
 import type { WorkbenchMode } from "../../domain/desktopUx";
-import type { LivingRoomWorkspaceView, PlannerMode } from "./workspaceProps";
+import type { LivingRoomWorkspaceView, PlannerMode, PlannerUiVersion } from "./workspaceProps";
 
 function ProductIcon({ name }: { name: "home" | "folder" | "undo" | "redo" | "save" }) {
   const paths = {
@@ -28,6 +28,8 @@ export function InteriorsProductHeader({
   onUndo,
   onRedo,
   onWorkbenchModeChange,
+  uiVersion = "classic",
+  onUiVersionChange,
 }: {
   projectName: string | null;
   workspaceView: LivingRoomWorkspaceView;
@@ -44,6 +46,8 @@ export function InteriorsProductHeader({
   onUndo: () => void;
   onRedo: () => void;
   onWorkbenchModeChange: (mode: WorkbenchMode) => void;
+  uiVersion?: PlannerUiVersion;
+  onUiVersionChange?: (version: PlannerUiVersion) => void;
 }) {
   return (
     <header className="lr-product-header">
@@ -75,6 +79,7 @@ export function InteriorsProductHeader({
           <button type="button" className={workspaceView === "model" ? "is-active" : ""} onClick={() => onView("model")} disabled={!projectName}>3D</button>
         </div>
         <button type="button" className="lr-export-button" onClick={onExport} disabled={!projectName}>Export</button>
+        {onUiVersionChange ? <button type="button" className="lr-ui-version-button" onClick={() => onUiVersionChange(uiVersion === "v2" ? "classic" : "v2")}>{uiVersion === "v2" ? "Classic UI" : "New UI"}</button> : null}
         <label className="lr-workspace-picker">
           <span>Workspace</span>
           <select value="interiors" onChange={(event) => onWorkbenchModeChange(event.target.value as WorkbenchMode)}>

@@ -1,4 +1,5 @@
 import "./App.css";
+import { useState } from "react";
 import { AppRibbon } from "./components/AppRibbon";
 import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
 import { AppStatusDock } from "./components/AppStatusDock";
@@ -18,6 +19,7 @@ import {
 
 function App() {
   const c = useAppController();
+  const [plannerUiVersion, setPlannerUiVersion] = useState<"classic" | "v2">("classic");
   const workbenchMode = c.layout.workbenchMode;
   const activeRoom = c.projectRooms.find(
     (room) => room.id === (c.project.activeRoomId ?? c.projectRooms[0]?.id),
@@ -269,6 +271,8 @@ function App() {
             onSaveProject={c.handleSaveProject}
             onExportProject={c.handleExportProjectJson}
             onWorkbenchModeChange={handleWorkbenchModeChange}
+            uiVersion={plannerUiVersion}
+            onUiVersionChange={setPlannerUiVersion}
           />
         )}
         toolRailVisible={c.layout.toolRailVisible}

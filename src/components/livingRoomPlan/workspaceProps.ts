@@ -25,6 +25,7 @@ import type {
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
 export type PlannerMode = "project" | "build" | "design" | "render";
 export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers" | "advanced";
+export type PlannerUiVersion = "classic" | "v2";
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -85,4 +86,6 @@ export type LivingRoomPlanWorkspaceProps = {
   onSaveProject: () => void;
   onExportProject: () => void;
   onWorkbenchModeChange: (mode: WorkbenchMode) => void;
+  uiVersion?: PlannerUiVersion;
+  onUiVersionChange?: (version: PlannerUiVersion) => void;
 };
