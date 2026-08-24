@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
-import type { LivingRoomPlanWorkspaceProps } from "./workspaceProps";
+import type { LivingRoomPlanWorkspaceProps, PlannerStarterTemplate } from "./workspaceProps";
 
 type PlannerV2ProjectHomeProps = {
   workspace: LivingRoomPlanWorkspaceProps;
@@ -13,11 +13,11 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
   const recentProjects = useMemo(() => workspace.recentProjects.filter((entry) => entry.project.interiorDocument).slice(0, 3), [workspace.recentProjects]);
   if (!open) return null;
 
-  function createProject(styleId: LivingRoomStyleId = "warm-contemporary") {
+  function createProject(template: PlannerStarterTemplate = "blank-room", styleId: LivingRoomStyleId = "warm-contemporary") {
     const name = projectName.trim();
     if (!name) return;
     workspace.onDiscardRecovery();
-    workspace.onCreateStarter({ projectName: name, styleId });
+    workspace.onCreateStarter({ projectName: name, styleId, template });
   }
 
   return (
@@ -50,9 +50,9 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
         <section className="planner-v2-starts">
           <header><span>Start from</span><small>Choose the simplest way in</small></header>
           <div>
-            <button type="button" onClick={() => createProject()}><strong>Blank room</strong><small>Set exact room dimensions in Build.</small></button>
-            <button type="button" onClick={() => createProject("warm-contemporary")}><strong>Wardrobe wall</strong><small>Start a cabinet-led room concept.</small></button>
-            <button type="button" onClick={() => createProject("nordic-light")}><strong>Import a plan</strong><small>Use a PNG, JPG, or WebP tracing underlay.</small></button>
+            <button type="button" onClick={() => createProject("blank-room")}><strong>Blank room</strong><small>Set exact room dimensions in Build.</small></button>
+            <button type="button" onClick={() => createProject("wardrobe-wall")}><strong>Wardrobe wall</strong><small>Start a cabinet-led room concept.</small></button>
+            <button type="button" onClick={() => createProject("import-plan", "nordic-light")}><strong>Import a plan</strong><small>Use a PNG, JPG, or WebP tracing underlay.</small></button>
           </div>
         </section>
         <section className="planner-v2-recents">

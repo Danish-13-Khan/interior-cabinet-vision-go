@@ -26,6 +26,7 @@ export type LivingRoomWorkspaceView = "plan" | "model" | "render";
 export type PlannerMode = "project" | "build" | "design" | "render";
 export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers" | "advanced";
 export type PlannerUiVersion = "classic" | "v2";
+export type PlannerStarterTemplate = "blank-room" | "wardrobe-wall" | "import-plan";
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -44,7 +45,7 @@ export type LivingRoomPlanWorkspaceProps = {
   lastAutosavedAt: string | null;
   recovery: LivingRoomRecoverySnapshot | null;
   recentProjects: SavedProjectBrowserEntry[];
-  onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId }) => void;
+  onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId; template?: PlannerStarterTemplate }) => void;
   onOpenDemo: () => void;
   onOpenPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => void;
   onOpenProjectHome: () => void;

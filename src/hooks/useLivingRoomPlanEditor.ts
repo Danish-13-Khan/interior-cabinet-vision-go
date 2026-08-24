@@ -101,15 +101,21 @@ export function useLivingRoomPlanEditor({
   function createStarter(options: {
     projectName?: string;
     styleId?: LivingRoomStyleId;
+    template?: "blank-room" | "wardrobe-wall" | "import-plan";
   } = {}) {
     const base = createLivingRoomStarterProject({
       projectId: `living-room-${Date.now()}`,
       projectName: options.projectName,
       now: new Date().toISOString(),
     });
-    const starter = options.styleId && options.styleId !== "warm-contemporary"
+    const styled = options.styleId && options.styleId !== "warm-contemporary"
       ? applyLivingRoomStyle(base, options.styleId)
       : base;
+    const starter = options.template === "blank-room" || options.template === "import-plan"
+      ? { ...styled, objects: [] }
+      : options.template === "wardrobe-wall"
+        ? { ...styled, objects: styled.objects.filter((object) => object.kind === "cabinet") }
+        : styled;
     const compatible = cabinetProjectFromInteriorProject(starter);
     commitSnapshot(
       {
@@ -121,7 +127,7 @@ export function useLivingRoomPlanEditor({
       },
       "Created the Living Room Starter plan.",
     );
-    setSelectedObjectIds([starter.objects[0]!.id]);
+    setSelectedObjectIds(starter.objects[0] ? [starter.objects[0].id] : []);
     setProjectHomeOpen(false);
   }
 
