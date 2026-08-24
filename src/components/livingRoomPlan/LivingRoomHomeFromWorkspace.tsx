@@ -1,15 +1,19 @@
 import { LivingRoomProjectHome } from "../LivingRoomProjectHome";
+import { PlannerV2ProjectHome } from "./PlannerV2ProjectHome";
 import type { LivingRoomPlanWorkspaceProps } from "./workspaceProps";
 
 export function LivingRoomHomeFromWorkspace({
   workspace,
   open,
   hasCurrentProject,
+  uiVersion = "classic",
 }: {
   workspace: LivingRoomPlanWorkspaceProps;
   open: boolean;
   hasCurrentProject: boolean;
+  uiVersion?: "classic" | "v2";
 }) {
+  if (uiVersion === "v2") return <PlannerV2ProjectHome workspace={workspace} open={open} hasCurrentProject={hasCurrentProject} />;
   return (
     <LivingRoomProjectHome
       open={open}
