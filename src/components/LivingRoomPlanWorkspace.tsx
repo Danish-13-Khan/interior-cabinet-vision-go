@@ -14,6 +14,7 @@ import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFrom
 import { LivingRoomInspectorPanel } from "./livingRoomPlan/LivingRoomInspectorPanel";
 import { LivingRoomPlanStage } from "./livingRoomPlan/LivingRoomPlanStage";
 import { PlannerV2ReviewPanel } from "./livingRoomPlan/PlannerV2ReviewPanel";
+import { PlannerV2WorkflowSteps } from "./livingRoomPlan/PlannerV2WorkflowSteps";
 import type {
   LivingRoomPlanWorkspaceProps,
   LivingRoomWorkspaceView,
@@ -99,6 +100,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   if (!props.project || !room) {
     return (
       <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
+        <PlannerV2WorkflowSteps mode={plannerMode} onChange={setPlannerMode} />
         {header}
         <div className="lr-empty-workspace">
           <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} />
@@ -109,6 +111,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   return (
     <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
+      <PlannerV2WorkflowSteps mode={plannerMode} onChange={(mode) => {
+        setPlannerMode(mode);
+        if (mode === "render") setWorkspaceView("render");
+        else if (mode !== "project") setWorkspaceView("plan");
+      }} />
       {header}
       <div className={`lr-workspace-body is-${workspaceView}`}>
         <LivingRoomHomeFromWorkspace
