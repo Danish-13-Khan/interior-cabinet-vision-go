@@ -29,13 +29,13 @@ export function PlanDimensionsLayer({ room, walls, activeWallId, settings }: {
   const widthEdge = room.dimensions.depthMm / 2;
   const depthEdge = -room.dimensions.widthMm / 2;
   return <>
-    <g className="lr-plan-dimension-pairs" aria-label="Room dimension pairs">
+    <g className="lr-plan-dimension-pairs" aria-label="Room dimension pairs" pointerEvents="none">
       <HorizontalDimension y={widthEdge + 250} width={pair.innerWidthMm} label={`Clear ${format(pair.innerWidthMm)}`} />
       <HorizontalDimension y={widthEdge + 500} width={pair.outerWidthMm} label={`Overall ${format(pair.outerWidthMm)}`} />
       <VerticalDimension x={depthEdge - 250} depth={pair.innerDepthMm} label={`Clear ${format(pair.innerDepthMm)}`} />
       <VerticalDimension x={depthEdge - 500} depth={pair.outerDepthMm} label={`Overall ${format(pair.outerDepthMm)}`} />
     </g>
-    <g className="lr-wall-length-labels">
+    <g className="lr-wall-length-labels" pointerEvents="none">
       {walls.filter((wall) => wall.visible && (settings.alwaysShowWallLengths || wall.id === activeWallId)).map((wall) => {
         const pose = wallLabelPose(wall);
         return <text key={wall.id} data-wall-length-id={wall.id} transform={`translate(${pose.x} ${pose.z}) rotate(${pose.angle})`}>

@@ -1,4 +1,4 @@
-import type { OpeningEntity, Size3Mm } from "../interiorProject";
+import type { OpeningEntity, RoomDrawingRequest, Size3Mm } from "../interiorProject";
 
 export type OpeningCommandPatch = Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>;
 
@@ -28,6 +28,7 @@ export type BuildCommand =
   | { type: "commitDraft" }
   | { type: "resizeRoom"; dimensions: Size3Mm }
   | { type: "createWall" }
+  | { type: "createRoom"; drawing: RoomDrawingRequest }
   | { type: "placeOpening"; wallId: string; kind: "door" | "window"; offsetMm?: number; catalogItemId?: string }
   | { type: "moveOpening"; openingId: string; offsetMm: number }
   | { type: "resizeOpening"; openingId: string; widthMm: number; offsetMm?: number }
@@ -39,6 +40,7 @@ export type BuildCommand =
 export type BuildCommandHandlers = {
   resizeRoom: (dimensions: Size3Mm) => void;
   createWall: () => void;
+  createRoom: (drawing: RoomDrawingRequest) => void;
   placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
   updateOpening: (openingId: string, patch: OpeningCommandPatch) => void;
   deleteOpening: (openingId: string) => void;
@@ -105,6 +107,9 @@ export function applyBuildCommand(
       return next;
     case "createWall":
       handlers.createWall();
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "createRoom":
+      handlers.createRoom(command.drawing);
       return reduceBuildCommand(next, { type: "commitDraft" });
     case "placeOpening":
       handlers.placeOpening(command.wallId, command.kind, command.offsetMm, command.catalogItemId);

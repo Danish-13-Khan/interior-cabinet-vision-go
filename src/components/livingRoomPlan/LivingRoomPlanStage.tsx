@@ -1,4 +1,4 @@
-import type { InteriorProject, Point3Mm, RenderSettings, Size3Mm } from "../../domain/interiorProject";
+import type { InteriorProject, Point3Mm, RenderSettings, RoomDrawingRequest, Size3Mm } from "../../domain/interiorProject";
 import type {
   BuildTool,
   LivingRoomAlignMode,
@@ -48,6 +48,9 @@ type LivingRoomPlanStageProps = {
   activeBuildTool?: BuildTool;
   openingCatalogItemId?: string;
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
+  onCreateRoom: (drawing: RoomDrawingRequest) => void;
+  roomPolygonCloseRequest: number;
+  onRoomPolygonPointCount: (count: number) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
@@ -137,6 +140,9 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             activeBuildTool={props.activeBuildTool}
             openingCatalogItemId={props.openingCatalogItemId}
             onPlaceOpening={props.onPlaceOpening}
+            onCreateRoom={props.onCreateRoom}
+            roomPolygonCloseRequest={props.roomPolygonCloseRequest}
+            onRoomPolygonPointCount={props.onRoomPolygonPointCount}
             readability={readability.settings}
           />
         ) : props.workspaceView === "model" ? (

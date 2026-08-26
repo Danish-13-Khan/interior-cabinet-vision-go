@@ -1,18 +1,14 @@
 import { useEffect, useRef } from "react";
 import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
-import {
-  LIVING_ROOM_CATALOG,
-  isLivingRoomLayerVisible,
-  type LivingRoomCatalogId,
-  type ImportedAsset,
-} from "../../domain/livingRoom";
+import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildToolList } from "./BuildToolList";
 import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
 import { PlanAssetLibraryPanel } from "./PlanAssetLibraryPanel";
+import { RoomDrawingPanel } from "./RoomDrawingPanel";
 type LivingRoomPlanCatalogRailProps = {
   widthPx: number;
   toolRailVisible: boolean;
@@ -57,6 +53,8 @@ type LivingRoomPlanCatalogRailProps = {
   onRedo?: () => void;
   openingCatalogItemId?: string;
   onOpeningCatalogItem?: (catalogItemId: string) => void;
+  roomPolygonPointCount?: number;
+  onCloseRoomPolygon?: () => void;
 };
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
@@ -73,7 +71,6 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
   const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
   const tool = props.activeBuildTool ?? "select";
-
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
   }, [props.onRegisterUnderlayPicker]);
@@ -154,6 +151,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               ) : null}
               <section className="lr-room-authoring">
                 <strong>{tool === "draw-room" ? "Draw Room · dimensions" : "1. Room dimensions"}</strong>
+                {tool === "draw-room" ? <RoomDrawingPanel pointCount={props.roomPolygonPointCount ?? 0} onClosePolygon={props.onCloseRoomPolygon} /> : null}
                 <div className="lr-room-dimension-grid">
                   {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
                     <label key={key}><span>{key === "widthMm" ? "Width" : key === "depthMm" ? "Depth" : "Height"}</span><input type="number" min="2200" step="50" value={room.dimensions[key]} onChange={(event) => props.onRoomDimensions({ ...room.dimensions, [key]: Number(event.target.value) || room.dimensions[key] })} /></label>

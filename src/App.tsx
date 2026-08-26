@@ -253,6 +253,7 @@ function App() {
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onAddPartitionWall={c.addLivingRoomPartition}
+            onCreateRoom={c.drawLivingRoomRoom}
             onAddOpening={c.addLivingRoomOpening}
             onUpdateOpening={c.updateLivingRoomOpening}
             onDeleteOpening={c.deleteLivingRoomOpening}

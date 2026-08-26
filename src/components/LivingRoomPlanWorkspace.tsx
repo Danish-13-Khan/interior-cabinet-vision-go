@@ -43,6 +43,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [buildCommandState, setBuildCommandState] = useState(createBuildCommandState);
   const buildCommandStateRef = useRef(buildCommandState);
   const [openingCatalogItemId, setOpeningCatalogItemId] = useState("opening:door-single");
+  const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
+  const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
@@ -62,6 +64,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       setPendingPartition(true);
       props.onAddPartitionWall();
     },
+    createRoom: props.onCreateRoom,
     placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => {
       setPendingOpeningWallId(wallId);
       props.onAddOpening(wallId, kind, offsetMm, catalogItemId);
@@ -77,6 +80,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       setPendingPartition(true);
       props.onAddPartitionWall();
     },
+    createRoom: props.onCreateRoom,
     placeOpening: (wallId, kind, offsetMm, catalogItemId) => {
       setPendingOpeningWallId(wallId);
       props.onAddOpening(wallId, kind, offsetMm, catalogItemId);
@@ -282,6 +286,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onRedo={props.onRedo}
             openingCatalogItemId={openingCatalogItemId}
             onOpeningCatalogItem={setOpeningCatalogItemId}
+            roomPolygonPointCount={roomPolygonPointCount}
+            onCloseRoomPolygon={() => setRoomPolygonCloseRequest((count) => count + 1)}
             onRegisterUnderlayPicker={(openPicker) => {
               underlayPickerRef.current = openPicker;
             }}
@@ -344,6 +350,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           activeBuildTool={activeBuildTool}
           openingCatalogItemId={openingCatalogItemId}
           onPlaceOpening={(wallId, kind, offsetMm) => dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: openingCatalogItemId })}
+          onCreateRoom={(drawing) => dispatchBuildCommand({ type: "createRoom", drawing })}
+          roomPolygonCloseRequest={roomPolygonCloseRequest}
+          onRoomPolygonPointCount={setRoomPolygonPointCount}
           onSetRotation={props.onSetRotation}
           onSetParameters={props.onSetParameters}
           onApplyStyle={props.onApplyStyle}
