@@ -254,7 +254,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Underlay: opacity + simple pan/rotate handles
 - Visual style toggles (line / fill) if cheap
 
-**Exit:** Single-room plans look measured; export of plan images remains on the Export path.
+**Exit:** Single-room plans look measured; export of plan images remains on the Export path.  
+**Status:** Implemented — inner/outer dimension pairs, wall-length labels with toggle, display-unit toolbar (mm/cm/m/ft-in), underlay opacity + pan/rotate controls, and fill/line plan style.
 
 ---
 
@@ -352,7 +353,8 @@ Generated 3D already works for box rooms. The large investment is topology, sche
 - [x] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5  
 - [x] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
 - [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)
-- [ ] Approve Phase B exit: openings direct manipulation + catalog + 3D compile parity  
+- [ ] Approve Phase B exit: openings direct manipulation + catalog + 3D compile parity
+- [ ] Approve Phase C exit: measured 2D plan readability (dims, units, underlay, style)
 - [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model (v2)  
 - [ ] Confirm units stay **mm in project**; toggle is display preference only  
 - [ ] Confirm openings use a real **catalog** (`catalogItemId`, preview, 3D, parameters, material slots)  
