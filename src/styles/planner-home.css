@@ -250,6 +250,21 @@
 .lr-product-shell-v2 .lr-room-authoring > small,
 .lr-product-shell-v2 .lr-room-authoring > p { color: #aeb8b0; font-size: 13px; }
 
+/* C3: override legacy rem/light labels so Build dimensions stay readable. */
+.lr-product-shell-v2 .lr-room-dimension-grid label,
+.lr-product-shell-v2 .lr-opening-fields label {
+  color: #aeb8b0;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-room-dimension-grid label span,
+.lr-product-shell-v2 .lr-opening-fields label span {
+  color: #aeb8b0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .lr-product-shell-v2 .lr-asset-controls > input,
 .lr-product-shell-v2 .lr-room-dimension-grid input,
 .lr-product-shell-v2 .lr-opening-fields input,
@@ -266,6 +281,12 @@
 .lr-product-shell-v2 .lr-opening-actions button,
 .lr-product-shell-v2 .lr-underlay-empty button,
 .lr-product-shell-v2 .lr-add-partition { color: #eef3ed; background: #202a21; border-color: #465448; }
+
+.lr-product-shell-v2 .lr-wall-tabs button {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
 
 .lr-product-shell-v2 .lr-add-partition {
   width: fit-content;
@@ -332,34 +353,121 @@
 
 .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: 520px; }
 
-@media (max-width: 1320px) {
-  .lr-product-shell-v2 .lr-studio-rail { width:170px; flex-basis:170px; padding:18px 10px; }
-  .lr-product-shell-v2 .lr-studio-rail button { min-height:70px; padding:10px 12px; font-size:17px; }
-  .lr-product-shell-v2 .lr-studio-rail button small { font-size:12px; }
-  .lr-product-shell-v2 .lr-catalog { width:260px !important; min-width:260px; max-width:260px; }
-  .lr-product-shell-v2 .lr-inspector { width:310px !important; min-width:310px; }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width:170px; flex-basis:170px; }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width:260px !important; min-width:260px; max-width:260px; }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width:310px !important; min-width:310px; }
+/* C5: readable selection subtitle — no 30px ellipsis clip. */
+.lr-product-shell-v2 .inspector-header {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 20px 22px 12px;
+  border: 0;
+  border-bottom: 1px solid #364238;
+  background: #151b16;
+  color: #eef3ed;
 }
 
-@media (max-width: 1050px) {
-  .lr-product-shell-v2 .lr-inspector { display:none; }
-  .lr-product-shell-v2 .lr-plan-canvas,
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width:0; }
+.lr-product-shell-v2 .inspector-header strong {
+  font-size: 0;
 }
 
-@media (max-width: 820px) {
-  .lr-product-shell-v2 { padding: 12px; gap: 12px; }
-  .lr-product-shell-v2 .planner-v2-steps { overflow-x: auto; padding-bottom: 2px; }
-  .lr-product-shell-v2 .planner-v2-steps button { flex: 0 0 auto; padding: 10px 16px; font-size: 14px; }
-  .lr-product-shell-v2 .planner-v2-steps-hint { display: none; }
-  .lr-product-shell-v2 .lr-product-header { min-height: 62px; }
-  .lr-product-shell-v2 .lr-product-brand small { display: none; }
-  .lr-product-shell-v2 .lr-dimension-cards { gap: 8px; }
-  .lr-product-shell-v2 .lr-number-field.lr-dimension-card { min-height: 88px; padding: 10px 6px; }
-  .lr-product-shell-v2 .lr-dimension-card input { font-size: 19px; }
-  .lr-product-shell-v2 .planner-v2-home { grid-template-columns: 1fr; overflow: auto; }
-  .lr-product-shell-v2 .planner-v2-home-intro { padding: 36px 24px; }
-  .lr-product-shell-v2 .planner-v2-home-content { padding: 24px; overflow: visible; }
+.lr-product-shell-v2 .inspector-header strong::after {
+  content: "SELECTED CABINET";
+  color: #adb7ae;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
+
+.lr-product-shell-v2 .inspector-header span {
+  margin-top: 0;
+  min-width: 0;
+  max-width: 100%;
+  color: #f4f8f3;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+}
+
+/* C6: keep V2 catalog/inspector on dark type — quarantine light rem leaks. */
+.lr-product-shell-v2 .lr-catalog-tabs,
+.lr-product-shell-v2 .lr-catalog-tabs + *,
+.lr-product-shell-v2 .context-panel-heading {
+  background: #151b16;
+  border-color: #364238;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .lr-studio-rail button:hover,
+.lr-product-shell-v2 .lr-studio-rail button.is-active {
+  background: #25432f;
+  color: #8ed6a4;
+  box-shadow: none;
+}
+
+.lr-product-shell-v2 .lr-asset-categories button,
+.lr-product-shell-v2 .lr-layer-tree,
+.lr-product-shell-v2 .lr-layer-tree label,
+.lr-product-shell-v2 .lr-layer-tree button,
+.lr-product-shell-v2 .lr-asset-grid > button strong,
+.lr-product-shell-v2 .lr-asset-grid > button small,
+.lr-product-shell-v2 .lr-underlay-panel > strong,
+.lr-product-shell-v2 .lr-underlay-panel > small,
+.lr-product-shell-v2 .lr-underlay-panel > label,
+.lr-product-shell-v2 .lr-underlay-empty strong,
+.lr-product-shell-v2 .lr-underlay-empty p,
+.lr-product-shell-v2 .lr-inspector-scroll,
+.lr-product-shell-v2 .lr-inspector-scroll h3,
+.lr-product-shell-v2 .lr-inspector-scroll h4,
+.lr-product-shell-v2 .lr-inspector-scroll p,
+.lr-product-shell-v2 .lr-select-field {
+  color: #aeb8b0;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-asset-categories button {
+  min-height: 28px;
+  border-color: #465448;
+  background: #202a21;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .lr-asset-categories button.is-active {
+  border-color: #278050;
+  background: #1b2c20;
+  color: #8ed6a4;
+}
+
+.lr-product-shell-v2 .lr-wall-tabs button.is-active {
+  border-color: #278050;
+  background: #1b2c20;
+  color: #8ed6a4;
+}
+
+.lr-product-shell-v2 .lr-opening-row.is-active {
+  border-color: #278050;
+  background: #1b2c20;
+}
+
+.lr-product-shell-v2 .lr-inspector-scroll h3,
+.lr-product-shell-v2 .lr-asset-grid > button strong,
+.lr-product-shell-v2 .context-panel-heading strong {
+  color: #eef3ed;
+  font-size: 15px;
+}
+
+.lr-product-shell-v2 .lr-inspector-scroll section {
+  border-color: #364238;
+  background: #151b16;
+}
+
+/* C7: render quality selection uses V2 green, not CAD blue. */
+.lr-product-shell-v2 .lr-render-quality-grid button.is-active {
+  border-color: #278050;
+  background: #dcefe3;
+  box-shadow: inset 3px 0 #278050;
+}
+
+/* Width / inspector / home stacking breakpoints live in planner-responsive.css. */

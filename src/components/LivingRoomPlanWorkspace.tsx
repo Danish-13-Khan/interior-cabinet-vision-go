@@ -73,7 +73,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   useLivingRoomPlanHotkeys({
     projectHomeOpen: props.projectHomeOpen,
     snapSizeMm,
-    onView: setWorkspaceView,
+    onView: changeWorkspaceView,
     onDuplicate: props.onDuplicate,
     onDelete: props.onDelete,
     onRotateSelection: props.onRotateSelection,
@@ -105,6 +105,15 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setStudioPanel(mode === "build" ? "build" : "cabinets");
   }
 
+  function changeWorkspaceView(view: LivingRoomWorkspaceView) {
+    if (plannerMode === "render" && view !== "render") {
+      setPlannerMode("design");
+      props.onCloseProjectHome();
+      setStudioPanel("cabinets");
+    }
+    setWorkspaceView(view);
+  }
+
   const header = (
     <InteriorsProductHeader
       projectName={props.project?.name ?? null}
@@ -113,8 +122,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       isDirty={props.isDirty}
       canUndo={props.canUndo}
       canRedo={props.canRedo}
-      onProject={props.onOpenProjectHome}
-      onView={setWorkspaceView}
+      onProject={() => changePlannerMode("project")}
+      onView={changeWorkspaceView}
       onPlannerMode={changePlannerMode}
       onOpen={props.onOpenProject}
       onSave={props.onSaveProject}
