@@ -129,7 +129,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
             <div className="lr-underlay-panel">
               <section className="lr-room-authoring">
-                <strong>Room dimensions</strong>
+                <strong>1. Room dimensions</strong>
                 <div className="lr-room-dimension-grid">
                   {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
                     <label key={key}><span>{key === "widthMm" ? "Width" : key === "depthMm" ? "Depth" : "Height"}</span><input type="number" min="2200" step="50" value={room.dimensions[key]} onChange={(event) => props.onRoomDimensions({ ...room.dimensions, [key]: Number(event.target.value) || room.dimensions[key] })} /></label>
@@ -137,12 +137,14 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                 </div>
               </section>
               <section className="lr-room-authoring">
-                <strong>Wall openings</strong>
+                <strong>2. Select or add a wall</strong>
                 <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
                 <div className="lr-wall-tabs">
                   {props.project.walls.map((wall) => <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>{String(wall.extensions?.wallSide ?? "wall")}</button>)}
                 </div>
-                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Window</button></div>
+                <small className="lr-build-selection">Selected wall: {String(activeWall.extensions?.wallSide ?? activeWall.id)}</small>
+                <strong className="lr-openings-heading">3. Add an opening</strong>
+                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Add door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Add window</button></div>
                 {props.project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
                   <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}><span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small></button>
                 ))}
@@ -152,7 +154,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                   <button type="button" className="is-danger" onClick={() => props.onDeleteOpening(activeOpening.id)}>Remove opening</button>
                 </div> : null}
               </section>
-              <section className="lr-room-authoring"><strong>Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
+              <section className="lr-room-authoring"><strong>4. Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
               {props.underlay ? (
                 <>

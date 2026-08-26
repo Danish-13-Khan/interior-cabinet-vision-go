@@ -224,15 +224,16 @@
 /* The contextual panel is required to actually build and furnish a room. */
 .lr-product-shell-v2 .lr-catalog {
   display: flex;
-  width: 300px !important;
-  min-width: 300px;
-  max-width: 300px;
+  width: 280px !important;
+  min-width: 280px;
+  max-width: 280px;
   background: #151b16;
   color: #eef3ed;
   border-color: #364238;
 }
 
-.lr-product-shell-v2 .lr-studio-rail { background: #151b16; }
+.lr-product-shell-v2 .lr-studio-rail { width:220px; flex-basis:220px; padding:28px 14px; background: #151b16; }
+.lr-product-shell-v2 .lr-inspector { width:360px !important; min-width:360px; }
 
 .lr-product-shell-v2 .context-panel-heading,
 .lr-product-shell-v2 .lr-asset-controls,
@@ -276,6 +277,28 @@
   cursor: pointer;
 }
 
+.lr-product-shell-v2 .lr-build-selection {
+  display: block;
+  color: #8ed6a4;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-openings-heading {
+  display: block;
+  margin-top: 12px;
+  color: #eef3ed;
+  font-size: 15px;
+}
+
+.lr-product-shell-v2 .lr-opening-actions button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid #465448;
+  border-radius: 7px;
+  color: #eef3ed;
+  font-size: 14px;
+}
+
 /* Build has one clear reading order: mode, controls, canvas, selection. */
 .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail {
   width: 190px;
@@ -308,6 +331,23 @@
 }
 
 .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: 520px; }
+
+@media (max-width: 1320px) {
+  .lr-product-shell-v2 .lr-studio-rail { width:170px; flex-basis:170px; padding:18px 10px; }
+  .lr-product-shell-v2 .lr-studio-rail button { min-height:70px; padding:10px 12px; font-size:17px; }
+  .lr-product-shell-v2 .lr-studio-rail button small { font-size:12px; }
+  .lr-product-shell-v2 .lr-catalog { width:260px !important; min-width:260px; max-width:260px; }
+  .lr-product-shell-v2 .lr-inspector { width:310px !important; min-width:310px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width:170px; flex-basis:170px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width:260px !important; min-width:260px; max-width:260px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width:310px !important; min-width:310px; }
+}
+
+@media (max-width: 1050px) {
+  .lr-product-shell-v2 .lr-inspector { display:none; }
+  .lr-product-shell-v2 .lr-plan-canvas,
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width:0; }
+}
 
 @media (max-width: 820px) {
   .lr-product-shell-v2 { padding: 12px; gap: 12px; }

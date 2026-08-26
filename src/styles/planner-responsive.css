@@ -1,0 +1,84 @@
+/* Responsive V2 workspace: each breakpoint protects the primary work surface. */
+.lr-product-shell-v2,
+.lr-product-shell-v2 *,
+.lr-product-shell-v2 *::before,
+.lr-product-shell-v2 *::after { box-sizing: border-box; }
+
+.lr-product-shell-v2 .lr-workspace-body { min-width: 0; overflow: hidden; }
+.lr-product-shell-v2 .lr-plan-center { min-width: 0; flex: 1 1 auto; }
+.lr-product-shell-v2 .lr-plan-titlebar { min-width: 0; overflow: hidden; }
+.lr-product-shell-v2 .lr-plan-titlebar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lr-product-shell-v2 .lr-plan-status { min-width: 0; overflow-x: auto; white-space: nowrap; }
+
+/* Wide desktop: four distinct areas, with canvas as the largest. */
+@media (min-width: 1500px) {
+  .lr-product-shell-v2 .lr-studio-rail { width: 180px; flex-basis: 180px; padding: 24px 12px; }
+  .lr-product-shell-v2 .lr-studio-rail button { min-height: 76px; padding: 12px 14px; font-size: 18px; }
+  .lr-product-shell-v2 .lr-catalog { width: 285px !important; min-width: 285px; max-width: 285px; }
+  .lr-product-shell-v2 .lr-inspector { width: 340px !important; min-width: 340px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 160px; flex-basis: 160px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 285px !important; min-width: 285px; max-width: 285px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 340px !important; min-width: 340px; }
+}
+
+/* Standard desktop and tablet landscape: tighten controls before the canvas. */
+@media (max-width: 1499px) {
+  .lr-product-shell-v2 { padding: 14px 18px 18px; }
+  .lr-product-shell-v2 .lr-studio-rail { width: 140px; flex-basis: 140px; padding: 16px 8px; }
+  .lr-product-shell-v2 .lr-studio-rail button { min-height: 62px; padding: 9px 11px; font-size: 16px; }
+  .lr-product-shell-v2 .lr-studio-rail button small { font-size: 11px; }
+  .lr-product-shell-v2 .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
+  .lr-product-shell-v2 .lr-inspector { width: 300px !important; min-width: 300px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 140px; flex-basis: 140px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 300px !important; min-width: 300px; }
+  .lr-product-shell-v2 .lr-plan-titlebar { min-height: 44px; padding: 0 14px; }
+  .lr-product-shell-v2 .lr-plan-titlebar span { font-size: 14px; }
+}
+
+/* Compact desktop: inspection becomes secondary, canvas remains functional. */
+@media (max-width: 1180px) {
+  .lr-product-shell-v2 .lr-inspector { display: none; }
+  .lr-product-shell-v2 .lr-studio-rail { width: 84px; flex-basis: 84px; padding: 12px 7px; }
+  .lr-product-shell-v2 .lr-studio-rail button { min-height: 56px; padding: 8px; font-size: 0; text-align: center; }
+  .lr-product-shell-v2 .lr-studio-rail button span { display: block; font-size: 20px; }
+  .lr-product-shell-v2 .lr-studio-rail button small { display: none; }
+  .lr-product-shell-v2 .lr-catalog { width: 260px !important; min-width: 260px; max-width: 260px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 84px; flex-basis: 84px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 260px !important; min-width: 260px; max-width: 260px; }
+}
+
+/* Narrow web: Home, build, and review stack instead of clipping. */
+@media (max-width: 860px) {
+  .lr-product-shell-v2 .lr-product-header { border-radius: 14px 14px 0 0; }
+  .lr-product-shell-v2 .lr-product-actions { gap: 8px; padding-right: 12px; }
+  .lr-product-shell-v2 .lr-save-button { min-width: 78px; min-height: 44px; font-size: 15px; }
+  .lr-product-shell-v2 .lr-workspace-body { overflow: auto; }
+  .lr-product-shell-v2 .lr-studio-rail { display: none; }
+  .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px) !important; min-width: min(100%, 340px); }
+  .lr-product-shell-v2 .lr-plan-center { min-width: 520px; }
+  .lr-product-shell-v2 .planner-v2-review { display: none; }
+}
+
+/* Review + render uses one sidebar and a flexible studio at desktop widths. */
+.lr-product-shell-v2 .planner-v2-review { width: 240px; min-width: 240px; background: #151b16; color: #eef3ed; border-color: #364238; }
+.lr-product-shell-v2 .lr-render-body { grid-template-columns: minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr) 190px; }
+.lr-product-shell-v2 .lr-render-settings { min-width: 0; }
+.lr-product-shell-v2 .lr-render-commandbar { overflow-x: auto; }
+
+@media (max-width: 1320px) {
+  .lr-product-shell-v2 .planner-v2-review { width: 200px; min-width: 200px; }
+  .lr-product-shell-v2 .lr-render-body { grid-template-columns: minmax(0, 1fr) 250px; grid-template-rows: minmax(0, 1fr) 160px; }
+}
+
+@media (max-width: 1040px) {
+  .lr-product-shell-v2 .planner-v2-review { display: none; }
+  .lr-product-shell-v2 .lr-render-body { grid-template-columns: minmax(0, 1fr) 230px; }
+}
+
+@media (max-width: 720px) {
+  .lr-product-shell-v2 .lr-render-body { grid-template-columns: 1fr; grid-template-rows: minmax(340px, 1fr) auto auto; overflow-y: auto; }
+  .lr-product-shell-v2 .lr-render-stage { grid-column: 1; grid-row: 1; }
+  .lr-product-shell-v2 .lr-render-settings { grid-column: 1; grid-row: 2; }
+  .lr-product-shell-v2 .lr-render-cameras { grid-column: 1; grid-row: 3; }
+}
