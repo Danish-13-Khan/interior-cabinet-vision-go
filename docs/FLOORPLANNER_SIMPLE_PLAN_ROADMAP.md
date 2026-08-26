@@ -292,6 +292,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Structurals MVP: column; optional simple stair stub  
 - Partition walls as first-class tools on the graph  
 
+**E status:** Implemented — Build → Draw Surface authors in-room polygon floor zones with undoable material assignment; Draw Partition and Place Column use the same command layer as D3 walls. Surface zones render on the 2D plan and compile as thin polygon-prism overlays in 3D; partitions are tagged on the graph and columns use the structural catalog adapter.
+
 **Exit:** Build tool list items enabled for MVP structural set.
 
 ---

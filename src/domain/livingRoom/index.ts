@@ -314,6 +314,10 @@ export {
 } from "./openingCommands";
 export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
 export {
+  placeStructuralColumn,
+  STRUCTURAL_COLUMN_CATALOG_ID,
+} from "./structuralCommands";
+export {
   attachObjectRenderBinding,
   createObjectRenderBinding,
   createProceduralRenderBinding,

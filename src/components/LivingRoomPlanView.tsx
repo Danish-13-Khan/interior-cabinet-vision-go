@@ -12,6 +12,7 @@ import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
 import { PlanObjectsLayer } from "./livingRoomPlan/PlanObjectsLayer";
 import { PlanOpeningsLayer, usePlanOpeningInteraction } from "./livingRoomPlan/PlanOpeningsLayer";
+import { PlanSurfaceZonesLayer } from "./livingRoomPlan/PlanSurfaceZonesLayer";
 import { RoomDrawingOverlay } from "./livingRoomPlan/RoomDrawingOverlay";
 import { WallDrawingOverlay } from "./livingRoomPlan/WallDrawingOverlay";
 import { usePlanObjectInteraction } from "./livingRoomPlan/usePlanObjectInteraction";
@@ -21,16 +22,20 @@ import { useWallDrawing } from "./livingRoomPlan/useWallDrawing";
 type Props = {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
   snapSizeMm: number; showGrid: boolean; activeWallId: string | null; activeOpeningId: string | null;
+  activeSurfaceId: string | null; surfaceMaterialId: string;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSelectWall: (wallId: string) => void; onSelectOpening: (openingId: string) => void;
+  onSelectSurface: (surfaceId: string | null) => void;
   onMoveOpening: (openingId: string, offsetMm: number) => void;
   onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
   activeBuildTool?: BuildTool; openingCatalogItemId?: string;
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
   onCreateRoom: (drawing: RoomDrawingRequest) => void;
-  onDrawWallSegment: (start: Point2Mm, end: Point2Mm) => void;
+  onDrawSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  onDrawWallSegment: (start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") => void;
+  onPlaceColumn: (position: Point2Mm) => void;
   roomPolygonCloseRequest: number;
   onRoomPolygonPointCount: (count: number) => void;
   readability: PlanReadabilitySettings;
@@ -42,8 +47,12 @@ export function LivingRoomPlanView(props: Props) {
   const margin = 850;
   const bounds = roomPlanViewBounds(props.project, room.id);
   const viewBox = `${bounds.minX - margin} ${bounds.minZ - margin} ${bounds.widthMm + margin * 2} ${bounds.depthMm + margin * 2}`;
-  const drawRoom = props.activeBuildTool === "draw-room";
-  const drawWall = props.activeBuildTool === "draw-wall";
+  const tool = props.activeBuildTool ?? "select";
+  const drawRoom = tool === "draw-room";
+  const drawSurface = tool === "draw-surface";
+  const drawWall = tool === "draw-wall";
+  const drawPartition = tool === "draw-partition";
+  const placeColumn = tool === "place-column";
 
   function worldPoint(event: ReactPointerEvent<SVGSVGElement>) {
     const svg = svgRef.current;
@@ -65,18 +74,21 @@ export function LivingRoomPlanView(props: Props) {
     onSelect: props.onSelect, onMove: props.onMove, onResize: props.onResize,
   });
   const roomDrawing = useRoomDrawing({
-    active: drawRoom, snapSizeMm: props.snapSizeMm,
-    closeRequest: props.roomPolygonCloseRequest, worldPoint, onCommit: props.onCreateRoom,
+    active: drawRoom || drawSurface, snapSizeMm: props.snapSizeMm,
+    closeRequest: props.roomPolygonCloseRequest, worldPoint,
+    onCommit: (drawing) => {
+      if (drawSurface) props.onDrawSurface(drawing, props.surfaceMaterialId);
+      else props.onCreateRoom(drawing);
+    },
     onPointCount: props.onRoomPolygonPointCount,
   });
   const wallDrawing = useWallDrawing({
-    active: drawWall, snapSizeMm: props.snapSizeMm, nodes: props.project.nodes, worldPoint,
-    onCommit: props.onDrawWallSegment,
+    active: drawWall || drawPartition, snapSizeMm: props.snapSizeMm, nodes: props.project.nodes, worldPoint,
+    onCommit: (start, end) => props.onDrawWallSegment(start, end, drawPartition ? "partition" : "wall"),
   });
 
   function handleWall(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
     event.stopPropagation();
-    const tool = props.activeBuildTool ?? "select";
     if (tool !== "place-door" && tool !== "place-window") {
       props.onSelectWall(wallId); return;
     }
@@ -100,21 +112,42 @@ export function LivingRoomPlanView(props: Props) {
     if (wallDrawing.finish(event)) return;
     objects.finish(); openings.finishOpeningDrag();
   }
+  function snapPoint(point: Point2Mm): Point2Mm {
+    const grid = props.snapSizeMm;
+    return { x: Math.round(point.x / grid) * grid, z: Math.round(point.z / grid) * grid };
+  }
+
+  function placeColumnAt(event: ReactPointerEvent<SVGElement>) {
+    const target = event.target as Element;
+    if (target.closest("[data-object-id]")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    props.onPlaceColumn(snapPoint(worldPoint(event as ReactPointerEvent<SVGSVGElement>)));
+  }
+
   function paperDown(event: ReactPointerEvent<SVGRectElement>) {
+    if (placeColumn) {
+      placeColumnAt(event);
+      return;
+    }
     if (roomDrawing.start(event)) return;
     if (wallDrawing.begin(event)) return;
     props.onSelect(null);
+    props.onSelectSurface(null);
   }
 
   return <svg ref={svgRef} className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging ? "is-dragging" : ""}`}
     viewBox={viewBox} role="application" aria-label="Living room plan editor"
-    onPointerDown={(event) => { if (event.target === event.currentTarget) props.onSelect(null); }}
+    onPointerDownCapture={(event) => { if (placeColumn) placeColumnAt(event); }}
+    onPointerDown={(event) => { if (event.target === event.currentTarget) { props.onSelect(null); props.onSelectSurface(null); } }}
     onPointerMove={pointerMove} onPointerUp={finish} onPointerCancel={finish}>
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
       onPaper={paperDown} onWall={handleWall} />
-    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} active={drawRoom} />
-    <WallDrawingOverlay preview={wallDrawing.preview} active={drawWall} />
+    <PlanSurfaceZonesLayer project={props.project} roomId={room.id} selectable={tool === "select"}
+      activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
+    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} active={drawRoom || drawSurface} />
+    <WallDrawingOverlay preview={wallDrawing.preview} active={drawWall || drawPartition} />
     <PlanOpeningsLayer project={props.project} activeOpeningId={props.activeOpeningId}
       openingPreview={openings.openingPreview} onSelectOpening={props.onSelectOpening}
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit} />

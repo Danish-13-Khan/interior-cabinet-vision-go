@@ -58,6 +58,12 @@ type LivingRoomPlanCatalogRailProps = {
   onDeleteWall?: (wallId: string) => void;
   onUpdateWallThickness?: (wallId: string, thicknessMm: number) => void;
   onJoinCoincidentNodes?: () => void;
+  activeSurfaceId?: string | null;
+  surfaceMaterialId?: string;
+  onSurfaceMaterialId?: (materialId: string) => void;
+  onCloseSurfacePolygon?: () => void;
+  onUpdateSurface?: (surfaceId: string, materialId: string) => void;
+  onDeleteSurface?: (surfaceId: string) => void;
 };
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
@@ -124,12 +130,15 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                 onUndo={props.onUndo ?? (() => {})} onRedo={props.onRedo ?? (() => {})} />
             ) : null}
             <BuildRoomCatalogPanel tool={tool} project={props.project} roomDimensions={room.dimensions} activeWall={activeWall}
-              activeOpening={activeOpening} underlay={props.underlay} importError={props.importError}
+              activeOpening={activeOpening} activeSurfaceId={props.activeSurfaceId ?? null} underlay={props.underlay} importError={props.importError}
               openingCatalogItemId={props.openingCatalogItemId} roomPolygonPointCount={props.roomPolygonPointCount}
+              surfaceMaterialId={props.surfaceMaterialId}
               onRoomDimensions={props.onRoomDimensions} onAddPartitionWall={props.onAddPartitionWall}
               onActiveWall={props.onActiveWall} onActiveOpening={props.onActiveOpening} onAddOpening={props.onAddOpening}
               onUpdateOpening={props.onUpdateOpening} onDeleteOpening={props.onDeleteOpening}
               onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}
+              onCloseSurfacePolygon={props.onCloseSurfacePolygon} onSurfaceMaterialId={props.onSurfaceMaterialId}
+              onUpdateSurface={props.onUpdateSurface} onDeleteSurface={props.onDeleteSurface}
               onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall}
               onUpdateWallThickness={props.onUpdateWallThickness} onJoinCoincidentNodes={props.onJoinCoincidentNodes}
               onSetPlanUnderlay={props.onSetPlanUnderlay} onImportUnderlay={props.onImportUnderlay} underlayInputRef={underlayInputRef} />

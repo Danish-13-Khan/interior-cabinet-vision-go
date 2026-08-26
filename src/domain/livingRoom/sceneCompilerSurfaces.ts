@@ -1,4 +1,4 @@
-import { roomPlanPolygon, roomPolygonIsValid, selectRoomWalls, type InteriorProject, type InteriorRoomEntity } from "../interiorProject";
+import { isGeneratedRoomSurface, roomPlanPolygon, roomPolygonIsValid, selectRoomWalls, type InteriorProject, type InteriorRoomEntity } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { boxPrimitive, polygonPrismPrimitive } from "./scenePrimitives";
@@ -7,7 +7,8 @@ import type { CompiledSceneNode } from "./sceneTypes";
 const FLOOR_FALLBACK = "compiled:floor-fallback";
 
 function roomMaterial(project: InteriorProject, room: InteriorRoomEntity, kind: "floor" | "ceiling") {
-  const surface = project.surfaces.find((item) => item.roomId === room.id && item.kind === kind);
+  const surface = project.surfaces.find((item) => item.roomId === room.id && item.kind === kind
+    && (item.loopId === room.outerLoopId || isGeneratedRoomSurface(item)));
   const extension = room.extensions?.[kind === "floor" ? "floorMaterialId" : "ceilingMaterialId"];
   return surface?.materialId ?? (typeof extension === "string" ? extension : null)
     ?? (kind === "floor" ? FLOOR_FALLBACK : LIVING_ROOM_MATERIAL_IDS.ceilingPaint);
@@ -37,7 +38,26 @@ export function compileRoomLoopSurfaces(
     placeholder: false, metadata: { role: "architecture", surface: "ceiling", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: ceilingMaterial }),
   };
-  return [floor, ceiling, compileLoopSkirting(project, room, ceilingMaterial)];
+  return [floor, ceiling, compileLoopSkirting(project, room, ceilingMaterial),
+    ...compileSurfaceZoneNodes(project, room)];
+}
+
+function compileSurfaceZoneNodes(project: InteriorProject, room: InteriorRoomEntity) {
+  return project.surfaces.flatMap((surface): CompiledSceneNode[] => {
+    if (surface.roomId !== room.id || isGeneratedRoomSurface(surface)) return [];
+    if (!surface.polygon || surface.polygon.length < 3 || !surface.materialId) return [];
+    return [{
+      id: `surface-zone:${surface.id}`, name: `Surface zone ${surface.id}`,
+      sourceObjectId: null, adapterId: "surface-zone-v1",
+      positionMm: { x: 0, y: 0, z: 0 }, rotationDegrees: { x: 0, y: 0, z: 0 },
+      primitives: [polygonPrismPrimitive(
+        `surface:${surface.id}`, surface.polygon, [], 6, 3, surface.materialId,
+      )],
+      placeholder: false,
+      metadata: { role: "surface", surfaceId: surface.id, surfaceKind: surface.kind },
+      renderBinding: createProceduralRenderBinding({ surface: surface.materialId }),
+    }];
+  });
 }
 
 function compileLoopSkirting(

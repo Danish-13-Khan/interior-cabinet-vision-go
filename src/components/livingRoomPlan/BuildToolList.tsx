@@ -5,10 +5,11 @@ const tools: Array<{ id: BuildTool; label: string; note: string }> = [
   { id: "upload-underlay", label: "Upload floor plan", note: "Calibrated tracing image" },
   { id: "draw-room", label: "Draw Room", note: "Drag a rectangle or close a polygon" },
   { id: "draw-wall", label: "Draw Wall", note: "Drag segments · split · join nodes" },
-  { id: "draw-surface", label: "Draw Surface", note: "Coming with topology surfaces" },
+  { id: "draw-partition", label: "Draw Partition", note: "Interior walls · split · delete" },
+  { id: "draw-surface", label: "Draw Surface", note: "Polygon zones · material finish" },
   { id: "place-door", label: "Place Doors", note: "Arm tool, then place on a wall" },
   { id: "place-window", label: "Place Windows", note: "Arm tool, then place on a wall" },
-  { id: "place-structural", label: "Place Structurals", note: "Arm tool, then add a partition" },
+  { id: "place-column", label: "Place Column", note: "Click the plan to drop a column" },
 ];
 
 type BuildToolListProps = {

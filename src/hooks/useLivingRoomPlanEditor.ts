@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import {
   cabinetProjectFromInteriorProject,
+  createSurfaceZone,
   createWallSegmentResult,
+  deleteSurfaceZone,
   deletePlanWall,
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
   setPlanWallThickness,
+  setSurfaceZoneMaterial,
   splitPlanWallResult,
   type InteriorProject,
   type Point2Mm,
@@ -17,7 +20,6 @@ import {
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
-  addLivingRoomPartition,
   attachToWall,
   arrangeCabinetRun,
   addLivingRoomOpening,
@@ -45,6 +47,7 @@ import {
   setLivingRoomPlanUnderlay,
   setAdvancedStudioState,
   paintLivingRoomSurface,
+  placeStructuralColumn,
   setLivingRoomLayerVisibility,
   snapCabinetToWall,
   updateLivingRoomOpening,
@@ -374,26 +377,41 @@ export function useLivingRoomPlanEditor({
     if (!document) return;
     const room = document.rooms.find((item) => item.id === document.activeRoomId);
     if (!room) return;
-    const id = `living-wall-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
-    commitDocument((current) => addLivingRoomPartition(current, {
-      id,
-      roomId: current.activeRoomId,
+    commitDocument((current) => createWallSegmentResult(current, {
       start: { x: 0, z: -room.dimensions.depthMm / 4 },
       end: { x: 0, z: room.dimensions.depthMm / 4 },
-      heightMm: room.dimensions.heightMm,
-      thicknessMm: room.wallThicknessMm,
-      visible: true,
-      materialId: current.walls[0]?.materialId ?? null,
-      extensions: { wallSide: `partition-${current.walls.length + 1}`, isPartition: true },
-    }), "Added partition wall.");
+      kind: "partition",
+    }).project, "Added partition wall.");
   }
 
   function drawRoom(drawing: RoomDrawingRequest) {
     commitDocument((current) => drawRoomFromPoints(current, drawing), `Created ${drawing.kind} room.`);
   }
 
-  function drawWallSegment(start: Point2Mm, end: Point2Mm) {
-    commitDocument((current) => createWallSegmentResult(current, { start, end }).project, "Drew wall segment.");
+  function drawWallSegment(start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") {
+    commitDocument((current) => createWallSegmentResult(current, {
+      start, end, kind: wallKind,
+    }).project, wallKind === "partition" ? "Drew partition wall." : "Drew wall segment.");
+  }
+
+  function drawSurface(drawing: RoomDrawingRequest, materialId: string) {
+    commitDocument((current) => createSurfaceZone(current, {
+      points: drawing.points, materialId,
+    }), "Created surface zone.");
+  }
+
+  function updateSurface(surfaceId: string, materialId: string) {
+    commitDocument((current) => setSurfaceZoneMaterial(current, surfaceId, materialId), "Updated surface material.");
+  }
+
+  function removeSurface(surfaceId: string) {
+    commitDocument((current) => deleteSurfaceZone(current, surfaceId), "Deleted surface zone.");
+  }
+
+  function placeColumn(position: Point2Mm) {
+    const id = uniqueObjectId("structural-column");
+    commitDocument((current) => placeStructuralColumn(current, id, position), "Placed structural column.");
+    setSelectedObjectIds([id]);
   }
 
   function splitWall(wallId: string, offsetMm?: number): string | null {
@@ -498,6 +516,10 @@ export function useLivingRoomPlanEditor({
     addLivingRoomPartition: addPartitionWall,
     drawLivingRoomRoom: drawRoom,
     drawLivingRoomWallSegment: drawWallSegment,
+    drawLivingRoomSurface: drawSurface,
+    updateLivingRoomSurface: updateSurface,
+    deleteLivingRoomSurface: removeSurface,
+    placeLivingRoomColumn: placeColumn,
     splitLivingRoomWall: splitWall,
     deleteLivingRoomWall: deleteWall,
     updateLivingRoomWall: updateWall,

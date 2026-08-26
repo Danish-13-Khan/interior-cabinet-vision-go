@@ -6,6 +6,7 @@ import {
   roomPlanPolygon,
 } from "./roomGeometry";
 import type { InteriorProject, InteriorValidationIssue } from "./types";
+import { validateSurfaceZones } from "./surfaceZoneValidation";
 
 function issue(
   issues: InteriorValidationIssue[],
@@ -83,4 +84,5 @@ export function validateTopologyGeometry(
       });
     }
   }
+  validateSurfaceZones(project, issues);
 }

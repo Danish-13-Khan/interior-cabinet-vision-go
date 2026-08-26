@@ -35,7 +35,7 @@ export function PlanArchitectureLayer(props: {
     <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />
     {props.project.walls.filter((wall) => wall.visible).map((wall) => <line key={wall.id} data-wall-id={wall.id}
       x1={wall.start.x} y1={wall.start.z} x2={wall.end.x} y2={wall.end.z}
-      className={`lr-wall-line ${wall.id === props.activeWallId ? "is-active" : ""}`}
+      className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
       style={{ stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
       onPointerDown={(event) => props.onWall(event, wall.id)} />)}
   </>;

@@ -12,6 +12,10 @@ function mockHandlers(overrides: Partial<BuildCommandHandlers> = {}): BuildComma
     createWall: vi.fn(),
     createWallSegment: vi.fn(),
     createRoom: vi.fn(),
+    createSurface: vi.fn(),
+    updateSurface: vi.fn(),
+    deleteSurface: vi.fn(),
+    placeColumn: vi.fn(),
     splitWall: vi.fn(),
     deleteWall: vi.fn(),
     updateWall: vi.fn(),
@@ -68,5 +72,18 @@ describe("buildToolCommands", () => {
     const result = applyBuildCommand(createBuildCommandState("draw-room"), { type: "createRoom", drawing }, handlers);
     expect(handlers.createRoom).toHaveBeenCalledWith(drawing);
     expect(result.draft).toBeNull();
+  });
+
+  it("routes Phase E surface and structural commands", () => {
+    const handlers = mockHandlers();
+    const drawing = { kind: "polygon" as const, points: [{ x: 0, z: 0 }, { x: 1000, z: 0 }, { x: 0, z: 1000 }] };
+    applyBuildCommand(createBuildCommandState("draw-surface"), { type: "createSurface", drawing, materialId: "mat-1" }, handlers);
+    applyBuildCommand(createBuildCommandState("draw-partition"), {
+      type: "createWallSegment", start: { x: 0, z: 0 }, end: { x: 0, z: 1000 }, wallKind: "partition",
+    }, handlers);
+    applyBuildCommand(createBuildCommandState("place-column"), { type: "placeColumn", position: { x: 500, z: 500 } }, handlers);
+    expect(handlers.createSurface).toHaveBeenCalledWith(drawing, "mat-1");
+    expect(handlers.createWallSegment).toHaveBeenCalledWith({ x: 0, z: 0 }, { x: 0, z: 1000 }, "partition");
+    expect(handlers.placeColumn).toHaveBeenCalledWith({ x: 500, z: 500 });
   });
 });

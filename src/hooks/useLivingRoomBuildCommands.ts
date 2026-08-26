@@ -17,6 +17,10 @@ type BuildBridgeInput = Pick<
   | "onAddPartitionWall"
   | "onCreateRoom"
   | "onDrawWallSegment"
+  | "onDrawSurface"
+  | "onUpdateSurface"
+  | "onDeleteSurface"
+  | "onPlaceColumn"
   | "onSplitWall"
   | "onDeleteWall"
   | "onUpdateWall"
@@ -29,6 +33,7 @@ type BuildBridgeInput = Pick<
   underlayPickerRef: React.RefObject<(() => void) | null>;
   setActiveWallId: React.Dispatch<React.SetStateAction<string | null>>;
   setActiveOpeningId: React.Dispatch<React.SetStateAction<string | null>>;
+  setActiveSurfaceId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
@@ -37,14 +42,20 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
   const [pendingOpeningWallId, setPendingOpeningWallId] = useState<string | null>(null);
   const [pendingPartition, setPendingPartition] = useState(false);
   const [pendingWallDraw, setPendingWallDraw] = useState(false);
+  const [pendingSurfaceDraw, setPendingSurfaceDraw] = useState(false);
   const [openingCatalogItemId, setOpeningCatalogItemId] = useState("opening:door-single");
+  const [surfaceMaterialId, setSurfaceMaterialId] = useState(input.project?.materials[0]?.id ?? "");
   buildCommandStateRef.current = buildCommandState;
 
   const buildHandlersRef = useRef<BuildCommandHandlers>({
     resizeRoom: input.onRoomDimensions,
     createWall: () => { setPendingPartition(true); input.onAddPartitionWall(); },
-    createWallSegment: (start: Point2Mm, end: Point2Mm) => { setPendingWallDraw(true); input.onDrawWallSegment(start, end); },
+    createWallSegment: (start: Point2Mm, end: Point2Mm, kind) => { setPendingWallDraw(true); input.onDrawWallSegment(start, end, kind); },
     createRoom: input.onCreateRoom,
+    createSurface: (drawing, materialId) => { setPendingSurfaceDraw(true); input.onDrawSurface(drawing, materialId); },
+    updateSurface: input.onUpdateSurface,
+    deleteSurface: input.onDeleteSurface,
+    placeColumn: input.onPlaceColumn,
     splitWall: (wallId, offsetMm) => {
       const firstWallId = input.onSplitWall(wallId, offsetMm);
       if (firstWallId) input.setActiveWallId(firstWallId);
@@ -64,8 +75,12 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
   buildHandlersRef.current = {
     resizeRoom: input.onRoomDimensions,
     createWall: () => { setPendingPartition(true); input.onAddPartitionWall(); },
-    createWallSegment: (start, end) => { setPendingWallDraw(true); input.onDrawWallSegment(start, end); },
+    createWallSegment: (start, end, kind) => { setPendingWallDraw(true); input.onDrawWallSegment(start, end, kind); },
     createRoom: input.onCreateRoom,
+    createSurface: (drawing, materialId) => { setPendingSurfaceDraw(true); input.onDrawSurface(drawing, materialId); },
+    updateSurface: input.onUpdateSurface,
+    deleteSurface: input.onDeleteSurface,
+    placeColumn: input.onPlaceColumn,
     splitWall: (wallId, offsetMm) => {
       const firstWallId = input.onSplitWall(wallId, offsetMm);
       if (firstWallId) input.setActiveWallId(firstWallId);
@@ -97,6 +112,11 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
   }
 
   useEffect(() => {
+    if (!input.project || input.project.materials.some((material) => material.id === surfaceMaterialId)) return;
+    setSurfaceMaterialId(input.project.materials[0]?.id ?? "");
+  }, [input.project, surfaceMaterialId]);
+
+  useEffect(() => {
     const cancelTool = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       setBuildCommandState((current) => applyBuildCommand(current, { type: "cancelDraft" }, buildHandlersRef.current));
@@ -124,11 +144,20 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
 
   useEffect(() => {
     if (!input.project || !pendingWallDraw) return;
-    const wall = [...input.project.walls].reverse().find((item) => item.extensions?.createdBy === "draw-wall");
+    const wall = [...input.project.walls].reverse().find((item) =>
+      item.extensions?.createdBy === "draw-wall" || item.extensions?.createdBy === "draw-partition");
     if (!wall) return;
     input.setActiveWallId(wall.id);
     setPendingWallDraw(false);
   }, [pendingWallDraw, input.project]);
+
+  useEffect(() => {
+    if (!input.project || !pendingSurfaceDraw) return;
+    const surface = [...input.project.surfaces].reverse().find((item) => item.extensions?.createdBy === "draw-surface");
+    if (!surface) return;
+    input.setActiveSurfaceId(surface.id);
+    setPendingSurfaceDraw(false);
+  }, [pendingSurfaceDraw, input.project]);
 
   return {
     buildCommandState,
@@ -136,5 +165,7 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
     selectBuildTool,
     openingCatalogItemId,
     setOpeningCatalogItemId,
+    surfaceMaterialId,
+    setSurfaceMaterialId,
   };
 }

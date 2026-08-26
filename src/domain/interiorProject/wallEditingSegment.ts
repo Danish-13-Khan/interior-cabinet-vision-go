@@ -43,6 +43,7 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
   const endNodeId = ensureNode(request.end, nodes, nodeByPoint, usedNodeIds);
   if (startNodeId === endNodeId) return project;
 
+  const partition = request.kind === "partition";
   const candidate: WallEntity = {
     id: "candidate",
     roomId,
@@ -56,10 +57,13 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
     materialId: project.walls.find((wall) => wall.roomId === roomId)?.materialId
       ?? project.walls[0]?.materialId
       ?? null,
-    extensions: { createdBy: "draw-wall" },
+    extensions: partition
+      ? { createdBy: "draw-partition", isPartition: true, structuralKind: "partition" }
+      : { createdBy: "draw-wall" },
   };
 
-  const sharedWall = project.walls.find((wall) => compatibleSharedEdge(wall, candidate));
+  const sharedWall = partition ? null
+    : project.walls.find((wall) => compatibleSharedEdge(wall, candidate));
   if (sharedWall) {
     const synced = synchronizeWallCaches({ ...project, nodes });
     return attachSharedWallToRoom(synced, sharedWall, roomId, { start: request.start, end: request.end });
