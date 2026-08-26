@@ -27,6 +27,8 @@ import {
   duplicateLivingRoomObject,
   getActiveLivingRoomStyleId,
   getLivingRoomStylePreset,
+  getOpeningCatalogItem,
+  createOpeningCatalogInstance,
   inspectLivingRoomPlan,
   moveLivingRoomObject,
   resizeLivingRoom,
@@ -346,23 +348,18 @@ export function useLivingRoomPlanEditor({
     );
   }
 
-  function addOpening(wallId: string, kind: "door" | "window") {
+  function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
     if (!document) return;
     const wall = document.walls.find((item) => item.id === wallId);
     if (!wall) return;
     const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
     const id = `living-opening-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
-    commitDocument((current) => addLivingRoomOpening(current, {
-      id,
-      roomId: current.activeRoomId,
-      wallId,
-      kind,
-      offsetMm: Math.max(0, Math.round((length - (kind === "door" ? 900 : 1200)) / 2)),
-      widthMm: kind === "door" ? 900 : 1200,
-      heightMm: kind === "door" ? 2100 : 1200,
-      sillHeightMm: kind === "door" ? 0 : 900,
-      swingDirection: kind === "door" ? "in" : undefined,
-    }), `Added ${kind}.`);
+    const catalog = getOpeningCatalogItem(catalogItemId);
+    const item = catalog.kind === kind ? catalog : getOpeningCatalogItem(kind === "door" ? "opening:door-single" : "opening:window-fixed");
+    commitDocument((current) => addLivingRoomOpening(current, createOpeningCatalogInstance({
+      id, roomId: current.activeRoomId, wallId, catalogItemId: item.catalogItemId,
+      offsetMm: requestedOffsetMm ?? Math.max(0, Math.round((length - item.defaults.widthMm) / 2)),
+    })), `Added ${kind}.`);
   }
 
   function addPartitionWall() {

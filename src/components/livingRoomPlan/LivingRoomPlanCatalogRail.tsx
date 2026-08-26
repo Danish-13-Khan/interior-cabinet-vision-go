@@ -9,6 +9,7 @@ import {
 } from "../../domain/livingRoom";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildToolList } from "./BuildToolList";
+import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
 import { AssetImportPanel } from "./AssetImportPanel";
 type LivingRoomPlanCatalogRailProps = {
@@ -43,7 +44,7 @@ type LivingRoomPlanCatalogRailProps = {
   onActiveWall: (wallId: string) => void;
   onActiveOpening: (openingId: string) => void;
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
-  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
   onDeleteOpening: (openingId: string) => void;
   v2BuildMode?: boolean;
   v2DesignMode?: boolean;
@@ -53,6 +54,8 @@ type LivingRoomPlanCatalogRailProps = {
   canRedo?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
+  openingCatalogItemId?: string;
+  onOpeningCatalogItem?: (catalogItemId: string) => void;
 };
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
@@ -161,6 +164,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                 <section className="lr-room-authoring lr-build-commit">
                   <strong>{tool === "place-door" ? "Place Doors · armed" : "Place Windows · armed"}</strong>
                   <p>Select a wall, then commit placement. Escape cancels the tool.</p>
+                  {props.openingCatalogItemId && props.onOpeningCatalogItem ? <OpeningCatalogPanel kind={tool === "place-door" ? "door" : "window"} selectedId={props.openingCatalogItemId} onSelect={props.onOpeningCatalogItem} /> : null}
                   <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, tool === "place-door" ? "door" : "window")}>
                     {tool === "place-door" ? "+ Place door on selected wall" : "+ Place window on selected wall"}
                   </button>

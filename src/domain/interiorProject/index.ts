@@ -18,6 +18,7 @@ export {
   type MaterialKind,
   type MaterialEntity,
   type OpeningEntity,
+  type OpeningKind,
   type PlanNodeEntity,
   type PlanLoop,
   type DirectedWallUse,

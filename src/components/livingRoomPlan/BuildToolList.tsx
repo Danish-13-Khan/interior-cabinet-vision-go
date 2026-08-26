@@ -38,6 +38,7 @@ export function BuildToolList({
         <button
           type="button"
           key={tool.id}
+          data-build-tool={tool.id}
           className={activeTool === tool.id ? "is-active" : ""}
           onClick={() => onTool(tool.id)}
         >

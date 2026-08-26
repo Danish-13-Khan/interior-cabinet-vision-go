@@ -4,6 +4,7 @@ import {
   applyBuildCommand,
   createBuildCommandState,
   getLivingRoomPlanUnderlay,
+  getOpeningCatalogItem,
   type BuildCommand,
   type BuildTool,
   type LivingRoomRenderResult,
@@ -40,6 +41,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [pendingOpeningWallId, setPendingOpeningWallId] = useState<string | null>(null);
   const [pendingPartition, setPendingPartition] = useState(false);
   const [buildCommandState, setBuildCommandState] = useState(createBuildCommandState);
+  const buildCommandStateRef = useRef(buildCommandState);
+  const [openingCatalogItemId, setOpeningCatalogItemId] = useState("opening:door-single");
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
@@ -47,9 +50,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }>({ latest: null, previous: null });
   const millwork = useMillworkSchedule(props.project);
   const activeObject = props.selectedObjects[0] ?? null;
+  const activeOpening = props.project?.openings.find((opening) => opening.id === activeOpeningId) ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
   const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
   const activeBuildTool = buildCommandState.activeTool;
+  buildCommandStateRef.current = buildCommandState;
 
   const buildHandlersRef = useRef({
     resizeRoom: props.onRoomDimensions,
@@ -57,12 +62,14 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       setPendingPartition(true);
       props.onAddPartitionWall();
     },
-    placeOpening: (wallId: string, kind: "door" | "window") => {
+    placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => {
       setPendingOpeningWallId(wallId);
-      props.onAddOpening(wallId, kind);
+      props.onAddOpening(wallId, kind, offsetMm, catalogItemId);
       setActiveWallId(wallId);
     },
     requestUnderlayUpload: () => underlayPickerRef.current?.(),
+    updateOpening: props.onUpdateOpening,
+    deleteOpening: props.onDeleteOpening,
   });
   buildHandlersRef.current = {
     resizeRoom: props.onRoomDimensions,
@@ -70,16 +77,20 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       setPendingPartition(true);
       props.onAddPartitionWall();
     },
-    placeOpening: (wallId, kind) => {
+    placeOpening: (wallId, kind, offsetMm, catalogItemId) => {
       setPendingOpeningWallId(wallId);
-      props.onAddOpening(wallId, kind);
+      props.onAddOpening(wallId, kind, offsetMm, catalogItemId);
       setActiveWallId(wallId);
     },
     requestUnderlayUpload: () => underlayPickerRef.current?.(),
+    updateOpening: props.onUpdateOpening,
+    deleteOpening: props.onDeleteOpening,
   };
 
   function dispatchBuildCommand(command: BuildCommand) {
-    setBuildCommandState((current) => applyBuildCommand(current, command, buildHandlersRef.current));
+    const next = applyBuildCommand(buildCommandStateRef.current, command, buildHandlersRef.current);
+    buildCommandStateRef.current = next;
+    setBuildCommandState(next);
   }
 
   useEffect(() => {
@@ -157,6 +168,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }
 
   function selectBuildTool(tool: BuildTool) {
+    if (tool === "place-door" && getOpeningCatalogItem(openingCatalogItemId).kind !== "door") setOpeningCatalogItemId("opening:door-single");
+    if (tool === "place-window" && getOpeningCatalogItem(openingCatalogItemId).kind !== "window") setOpeningCatalogItemId("opening:window-fixed");
     dispatchBuildCommand({ type: "beginDraft", tool });
   }
 
@@ -241,7 +254,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onSetWallMaterial={props.onSetWallMaterial}
             onSetObjectMaterial={props.onSetMaterial}
             onSetLayerVisibility={props.onSetLayerVisibility}
-            onSelect={(objectId) => props.onSelect(objectId)}
+            onSelect={(objectId) => { setActiveOpeningId(null); props.onSelect(objectId); }}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onRoomDimensions={(dimensions) => dispatchBuildCommand({ type: "resizeRoom", dimensions })}
             onAddPartitionWall={() => dispatchBuildCommand({ type: "createWall" })}
@@ -253,10 +266,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               const opening = props.project!.openings.find((item) => item.id === openingId);
               if (opening) setActiveWallId(opening.wallId);
             }}
-            onAddOpening={(wallId, kind) => dispatchBuildCommand({ type: "placeOpening", wallId, kind })}
-            onUpdateOpening={props.onUpdateOpening}
+            onAddOpening={(wallId, kind) => dispatchBuildCommand({ type: "placeOpening", wallId, kind, catalogItemId: openingCatalogItemId })}
+            onUpdateOpening={(openingId, patch) => dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
             onDeleteOpening={(openingId) => {
-              props.onDeleteOpening(openingId);
+              dispatchBuildCommand({ type: "deleteOpening", openingId });
               setActiveOpeningId(null);
             }}
             v2BuildMode={plannerMode === "build"}
@@ -267,6 +280,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             canRedo={props.canRedo}
             onUndo={props.onUndo}
             onRedo={props.onRedo}
+            openingCatalogItemId={openingCatalogItemId}
+            onOpeningCatalogItem={setOpeningCatalogItemId}
             onRegisterUnderlayPicker={(openPicker) => {
               underlayPickerRef.current = openPicker;
             }}
@@ -313,17 +328,22 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
           previousRender={renderResults.previous}
           onShowGrid={setShowGrid}
           onSnapSize={setSnapSizeMm}
-          onSelect={props.onSelect}
+          onSelect={(objectId, additive) => { setActiveOpeningId(null); props.onSelect(objectId, additive); }}
           onMove={props.onMove}
           onResize={props.onResize}
           activeWallId={activeWallId}
           activeOpeningId={activeOpeningId}
-          onSelectWall={setActiveWallId}
+          onSelectWall={(wallId) => { setActiveOpeningId(null); setActiveWallId(wallId); }}
           onSelectOpening={(openingId) => {
             setActiveOpeningId(openingId);
             const opening = props.project!.openings.find((item) => item.id === openingId);
             if (opening) setActiveWallId(opening.wallId);
           }}
+          onMoveOpening={(openingId, offsetMm) => dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
+          onResizeOpening={(openingId, widthMm, offsetMm) => dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
+          activeBuildTool={activeBuildTool}
+          openingCatalogItemId={openingCatalogItemId}
+          onPlaceOpening={(wallId, kind, offsetMm) => dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: openingCatalogItemId })}
           onSetRotation={props.onSetRotation}
           onSetParameters={props.onSetParameters}
           onApplyStyle={props.onApplyStyle}
@@ -354,6 +374,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             project={props.project}
             room={room}
             activeObject={activeObject}
+            activeOpening={activeOpening}
             selectedCount={props.selectedIds.length}
             issues={props.issues}
             millworkSchedule={millwork.schedule}
@@ -366,7 +387,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onSetRotation={props.onSetRotation}
             onSetMaterial={props.onSetMaterial}
             onSetParameters={props.onSetParameters}
-            onSelect={(objectId) => props.onSelect(objectId)}
+            onSelect={(objectId) => { setActiveOpeningId(null); props.onSelect(objectId); }}
+            onUpdateOpening={(openingId, patch) => dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
           />
         ) : null}
       </div>

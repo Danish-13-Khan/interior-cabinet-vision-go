@@ -7,10 +7,18 @@ import type {
 } from "../domain/interiorProject";
 import {
   getLivingRoomPlanUnderlay,
+  openingOffsetAtPoint,
+  getOpeningCatalogItem,
   snapLivingRoomObject,
+  type BuildTool,
   type LivingRoomPlanIssue,
   type PlanSnapGuide,
 } from "../domain/livingRoom";
+import {
+  PlanOpeningsLayer,
+  usePlanOpeningInteraction,
+} from "./livingRoomPlan/PlanOpeningsLayer";
+import { PlanObjectSymbol } from "./livingRoomPlan/PlanObjectSymbol";
 
 type LivingRoomPlanViewProps = {
   project: InteriorProject;
@@ -25,6 +33,11 @@ type LivingRoomPlanViewProps = {
   activeOpeningId: string | null;
   onSelectWall: (wallId: string) => void;
   onSelectOpening: (openingId: string) => void;
+  onMoveOpening: (openingId: string, offsetMm: number) => void;
+  onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
+  activeBuildTool?: BuildTool;
+  openingCatalogItemId?: string;
+  onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
 };
 
 type DragState = {
@@ -41,58 +54,6 @@ type PreviewState = {
   dimensions: Size3Mm;
 };
 
-function PlanObjectSymbol({ object, dimensions }: { object: InteriorObjectEntity; dimensions: Size3Mm }) {
-  const w = dimensions.widthMm;
-  const d = dimensions.depthMm;
-  if (object.category === "sofa") {
-    const seats = Math.max(2, Number(object.parameters.seats) || 3);
-    return (
-      <g className="lr-plan-symbol">
-        <rect x={-w * 0.43} y={-d * 0.34} width={w * 0.86} height={d * 0.58} rx="35" />
-        <rect x={-w * 0.48} y={-d * 0.42} width={w * 0.08} height={d * 0.76} rx="25" />
-        <rect x={w * 0.4} y={-d * 0.42} width={w * 0.08} height={d * 0.76} rx="25" />
-        <line x1={-w * 0.4} y1={d * 0.24} x2={w * 0.4} y2={d * 0.24} />
-        {Array.from({ length: seats - 1 }, (_, index) => (
-          <line key={index} x1={-w * 0.4 + w * 0.8 * (index + 1) / seats} y1={-d * 0.3} x2={-w * 0.4 + w * 0.8 * (index + 1) / seats} y2={d * 0.22} />
-        ))}
-      </g>
-    );
-  }
-  if (object.category === "chair" || object.category === "seat") {
-    return <g className="lr-plan-symbol"><rect x={-w * 0.34} y={-d * 0.32} width={w * 0.68} height={d * 0.56} rx="55" /><path d={`M ${-w * 0.42} ${d * 0.28} Q 0 ${d * 0.43} ${w * 0.42} ${d * 0.28}`} /></g>;
-  }
-  if (object.category === "table") {
-    return object.parameters.topShape === "round"
-      ? <g className="lr-plan-symbol"><ellipse cx="0" cy="0" rx={w * 0.43} ry={d * 0.43} /><circle cx="0" cy="0" r={Math.min(w, d) * 0.08} /></g>
-      : <g className="lr-plan-symbol"><rect x={-w * 0.43} y={-d * 0.4} width={w * 0.86} height={d * 0.8} rx="24" /><line x1={-w * 0.35} y1={-d * 0.3} x2={w * 0.35} y2={d * 0.3} /></g>;
-  }
-  if (object.category === "rug") return <rect className="lr-plan-symbol lr-rug-symbol" x={-w * 0.46} y={-d * 0.44} width={w * 0.92} height={d * 0.88} rx="55" />;
-  if (object.category === "floor-lamp") return <g className="lr-plan-symbol"><circle cx="0" cy="0" r={Math.min(w, d) * 0.34} /><circle cx="0" cy="0" r={Math.min(w, d) * 0.12} /><line x1="0" y1="0" x2={w * 0.28} y2={-d * 0.28} /></g>;
-  if (object.category === "plant") return <g className="lr-plan-symbol lr-plant-symbol"><circle cx="0" cy="0" r={Math.min(w, d) * 0.2} /><ellipse cx={-w * 0.18} cy={-d * 0.1} rx={w * 0.24} ry={d * 0.12} /><ellipse cx={w * 0.18} cy={d * 0.08} rx={w * 0.24} ry={d * 0.12} transform="rotate(55)" /></g>;
-  if (object.category === "storage" || object.category === "media-unit") return <g className="lr-plan-symbol"><rect x={-w * 0.46} y={-d * 0.38} width={w * 0.92} height={d * 0.76} /><line x1={-w * 0.15} y1={-d * 0.38} x2={-w * 0.15} y2={d * 0.38} /><line x1={w * 0.15} y1={-d * 0.38} x2={w * 0.15} y2={d * 0.38} /></g>;
-  if (object.category === "mirror") return <g className="lr-plan-symbol"><line x1={-w * 0.45} y1="0" x2={w * 0.45} y2="0" /><line x1={-w * 0.35} y1={-d * 0.35} x2={-w * 0.25} y2={d * 0.35} /><line x1="0" y1={-d * 0.35} x2={w * 0.1} y2={d * 0.35} /></g>;
-  return null;
-}
-
-function openingPoints(project: InteriorProject, openingId: string) {
-  const opening = project.openings.find((item) => item.id === openingId)!;
-  const wall = project.walls.find((item) => item.id === opening.wallId)!;
-  const dx = wall.end.x - wall.start.x;
-  const dz = wall.end.z - wall.start.z;
-  const length = Math.max(1, Math.hypot(dx, dz));
-  const ux = dx / length;
-  const uz = dz / length;
-  const start = {
-    x: wall.start.x + ux * opening.offsetMm,
-    z: wall.start.z + uz * opening.offsetMm,
-  };
-  return {
-    opening,
-    start,
-    end: { x: start.x + ux * opening.widthMm, z: start.z + uz * opening.widthMm },
-  };
-}
-
 export function LivingRoomPlanView({
   project,
   selectedIds,
@@ -106,6 +67,11 @@ export function LivingRoomPlanView({
   activeOpeningId,
   onSelectWall,
   onSelectOpening,
+  onMoveOpening,
+  onResizeOpening,
+  activeBuildTool = "select",
+  openingCatalogItemId,
+  onPlaceOpening,
 }: LivingRoomPlanViewProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -145,6 +111,20 @@ export function LivingRoomPlanView({
     return { x: transformed.x, z: transformed.y };
   }
 
+  const {
+    openingPreview,
+    startOpeningDrag,
+    openingDragMove,
+    finishOpeningDrag,
+  } = usePlanOpeningInteraction({
+    project,
+    snapSizeMm,
+    worldPoint,
+    onSelectOpening,
+    onMoveOpening,
+    onResizeOpening,
+  });
+
   function startDrag(
     event: ReactPointerEvent<SVGGElement | SVGRectElement>,
     object: InteriorObjectEntity,
@@ -170,6 +150,7 @@ export function LivingRoomPlanView({
   }
 
   function handlePointerMove(event: ReactPointerEvent<SVGSVGElement>) {
+    if (openingDragMove(event)) return;
     if (!drag) return;
     const point = worldPoint(event);
     const dx = point.x - drag.startPointer.x;
@@ -216,6 +197,23 @@ export function LivingRoomPlanView({
     setGuides([]);
   }
 
+  function handleWallPointer(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
+    event.stopPropagation();
+    if (activeBuildTool !== "place-door" && activeBuildTool !== "place-window") {
+      onSelectWall(wallId);
+      return;
+    }
+    const wall = project.walls.find((item) => item.id === wallId);
+    if (!wall) return;
+    const point = worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
+    const kind = activeBuildTool === "place-door" ? "door" : "window";
+    const catalog = getOpeningCatalogItem(openingCatalogItemId);
+    const widthMm = catalog.kind === kind ? catalog.defaults.widthMm : kind === "door" ? 900 : 1200;
+    const offsetMm = openingOffsetAtPoint(wall, point, widthMm, snapSizeMm);
+    onSelectWall(wallId);
+    onPlaceOpening(wallId, kind, offsetMm);
+  }
+
   return (
     <svg
       ref={svgRef}
@@ -227,8 +225,8 @@ export function LivingRoomPlanView({
         if (event.target === event.currentTarget) onSelect(null);
       }}
       onPointerMove={handlePointerMove}
-      onPointerUp={finishDrag}
-      onPointerCancel={finishDrag}
+      onPointerUp={() => { finishDrag(); finishOpeningDrag(); }}
+      onPointerCancel={() => { finishDrag(); finishOpeningDrag(); }}
     >
       <defs>
         <pattern
@@ -307,28 +305,25 @@ export function LivingRoomPlanView({
       />
 
       {project.walls.filter((wall) => wall.visible).map((wall) => (
-        <line
+          <line
           key={wall.id}
+          data-wall-id={wall.id}
           x1={wall.start.x}
           y1={wall.start.z}
           x2={wall.end.x}
           y2={wall.end.z}
           className={`lr-wall-line ${wall.id === activeWallId ? "is-active" : ""}`}
           style={{ stroke: wall.id === activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
-          onPointerDown={(event) => { event.stopPropagation(); onSelectWall(wall.id); }}
+          onPointerDown={(event) => handleWallPointer(event, wall.id)}
         />
       ))}
-      {project.openings.filter((opening) => opening.extensions?.layerVisible !== false).map((opening) => {
-        const points = openingPoints(project, opening.id);
-        return (
-          <g key={opening.id} className={`lr-opening lr-opening-${opening.kind} ${opening.id === activeOpeningId ? "is-active" : ""}`} onPointerDown={(event) => { event.stopPropagation(); onSelectOpening(opening.id); }}>
-            <line x1={points.start.x} y1={points.start.z} x2={points.end.x} y2={points.end.z} />
-            <text x={(points.start.x + points.end.x) / 2} y={(points.start.z + points.end.z) / 2 - 85}>
-              {opening.kind.toUpperCase()} {opening.widthMm}
-            </text>
-          </g>
-        );
-      })}
+      <PlanOpeningsLayer
+        project={project}
+        activeOpeningId={activeOpeningId}
+        openingPreview={openingPreview}
+        onSelectOpening={onSelectOpening}
+        onStartDrag={startOpeningDrag}
+      />
 
       {renderObjects.map((object) => {
         const activePreview = preview?.objectId === object.id ? preview : null;

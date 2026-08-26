@@ -1,6 +1,7 @@
 import type {
   InteriorObjectEntity,
   InteriorProject,
+  OpeningEntity,
   Point3Mm,
   Size3Mm,
 } from "../../domain/interiorProject";
@@ -13,6 +14,7 @@ import type { ProjectReport } from "../../domain/projectReport";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { MillworkSchedulePreview } from "./millworkSchedule";
 import { NumberField } from "./NumberField";
+import { OpeningInspector } from "./OpeningInspector";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -20,6 +22,7 @@ type LivingRoomInspectorPanelProps = {
   project: InteriorProject;
   room: InteriorProject["rooms"][number];
   activeObject: InteriorObjectEntity | null;
+  activeOpening: OpeningEntity | null;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
   millworkSchedule: MillworkSchedule | null;
@@ -33,6 +36,7 @@ type LivingRoomInspectorPanelProps = {
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onSelect: (objectId: string | null) => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
 };
 
 export function LivingRoomInspectorPanel({
@@ -41,6 +45,7 @@ export function LivingRoomInspectorPanel({
   project,
   room,
   activeObject,
+  activeOpening,
   selectedCount,
   issues,
   millworkSchedule,
@@ -54,12 +59,13 @@ export function LivingRoomInspectorPanel({
   onSetMaterial,
   onSetParameters,
   onSelect,
+  onUpdateOpening,
 }: LivingRoomInspectorPanelProps) {
   return (
     <aside className="lr-inspector" style={{ width: widthPx }}>
       <div className="inspector-header">
         <strong>{mode === "plan" ? "Plan Properties" : "Model Properties"}</strong>
-        <span>{activeObject?.name ?? `${selectedCount} selected`}</span>
+        <span>{activeOpening ? "Opening selected" : activeObject?.name ?? `${selectedCount} selected`}</span>
       </div>
       <div className="lr-inspector-scroll">
         {mode === "plan" ? (
@@ -82,7 +88,7 @@ export function LivingRoomInspectorPanel({
             />
           </section>
         ) : null}
-        {activeObject ? (
+        {activeOpening ? <OpeningInspector opening={activeOpening} materials={project.materials} onUpdate={onUpdateOpening} /> : activeObject ? (
           <>
             {mode === "plan" ? (
               <section>
