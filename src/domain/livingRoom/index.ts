@@ -2,12 +2,27 @@ export {
   addLivingRoomPartition,
 } from "./planCommands";
 export {
+  openingOffsetAtPoint,
+  moveOpeningOffset,
+  resizeOpeningWidth,
+  resizeOpeningFromStart,
+} from "./openingPlacement";
+export {
+  OPENING_CATALOG,
+  getOpeningCatalogItem,
+  openingCatalogForKind,
+  createOpeningCatalogInstance,
+  type OpeningCatalogItem,
+  type OpeningCatalogSymbol,
+} from "./openingCatalog";
+export {
   applyBuildCommand,
   createBuildCommandState,
   isArmedPlacementTool,
   reduceBuildCommand,
   type BuildCommand,
   type BuildCommandHandlers,
+  type OpeningCommandPatch,
   type BuildCommandState,
   type BuildDraft,
   type BuildTool,

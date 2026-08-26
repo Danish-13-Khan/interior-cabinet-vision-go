@@ -239,7 +239,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Auto opening dimension label on plan
 - All place/move/delete ops go through undoable commands from A
 
-**Exit:** Place Doors / Place Windows match reference interaction quality on rectangular rooms; 3D still compiles from the same project.
+**Exit:** Place Doors / Place Windows match reference interaction quality on rectangular rooms; 3D still compiles from the same project.  
+**Status:** Implemented — click-wall place with snap, drag along wall, dual width handles, opening catalog (2 doors + 2 windows), inspector W×H/sill/material slots wired into 3D compile, auto plan labels, and undoable place/move/resize/delete via Phase A commands.
 
 ---
 
@@ -350,7 +351,8 @@ Generated 3D already works for box rooms. The large investment is topology, sche
 - [ ] Confirm product agenda stays **Menu → 2D creation → 3D → Render → Export**  
 - [x] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5  
 - [x] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
-- [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)  
+- [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)
+- [ ] Approve Phase B exit: openings direct manipulation + catalog + 3D compile parity  
 - [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model (v2)  
 - [ ] Confirm units stay **mm in project**; toggle is display preference only  
 - [ ] Confirm openings use a real **catalog** (`catalogItemId`, preview, 3D, parameters, material slots)  

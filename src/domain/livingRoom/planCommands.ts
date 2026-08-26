@@ -221,7 +221,7 @@ export function addLivingRoomOpening(project: InteriorProject, opening: OpeningE
 export function updateLivingRoomOpening(
   project: InteriorProject,
   openingId: string,
-  patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>,
+  patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>,
 ) {
   return safe({
     ...project,

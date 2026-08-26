@@ -1,4 +1,6 @@
-import type { Size3Mm } from "../interiorProject";
+import type { OpeningEntity, Size3Mm } from "../interiorProject";
+
+export type OpeningCommandPatch = Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>;
 
 export type BuildTool =
   | "select"
@@ -26,14 +28,20 @@ export type BuildCommand =
   | { type: "commitDraft" }
   | { type: "resizeRoom"; dimensions: Size3Mm }
   | { type: "createWall" }
-  | { type: "placeOpening"; wallId: string; kind: "door" | "window" }
+  | { type: "placeOpening"; wallId: string; kind: "door" | "window"; offsetMm?: number; catalogItemId?: string }
+  | { type: "moveOpening"; openingId: string; offsetMm: number }
+  | { type: "resizeOpening"; openingId: string; widthMm: number; offsetMm?: number }
+  | { type: "updateOpening"; openingId: string; patch: OpeningCommandPatch }
+  | { type: "deleteOpening"; openingId: string }
   | { type: "updateSelection"; wallId?: string | null; openingId?: string | null }
   | { type: "requestUnderlayUpload" };
 
 export type BuildCommandHandlers = {
   resizeRoom: (dimensions: Size3Mm) => void;
   createWall: () => void;
-  placeOpening: (wallId: string, kind: "door" | "window") => void;
+  placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
+  updateOpening: (openingId: string, patch: OpeningCommandPatch) => void;
+  deleteOpening: (openingId: string) => void;
   requestUnderlayUpload: () => void;
 };
 
@@ -99,7 +107,22 @@ export function applyBuildCommand(
       handlers.createWall();
       return reduceBuildCommand(next, { type: "commitDraft" });
     case "placeOpening":
-      handlers.placeOpening(command.wallId, command.kind);
+      handlers.placeOpening(command.wallId, command.kind, command.offsetMm, command.catalogItemId);
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "moveOpening":
+      handlers.updateOpening(command.openingId, { offsetMm: command.offsetMm });
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "resizeOpening":
+      handlers.updateOpening(command.openingId, {
+        widthMm: command.widthMm,
+        ...(command.offsetMm !== undefined ? { offsetMm: command.offsetMm } : {}),
+      });
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "updateOpening":
+      handlers.updateOpening(command.openingId, command.patch);
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "deleteOpening":
+      handlers.deleteOpening(command.openingId);
       return reduceBuildCommand(next, { type: "commitDraft" });
     case "requestUnderlayUpload":
       handlers.requestUnderlayUpload();

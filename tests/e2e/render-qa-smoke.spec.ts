@@ -14,13 +14,16 @@ async function openReleaseDemo(page: Page) {
 }
 
 async function goView(page: Page, view: "plan" | "model" | "render") {
-  const label = view === "plan" ? /2D Plan/ : view === "model" ? /3D Model/ : /FX Render/;
-  await page.getByRole("button", { name: label }).click();
+  if (view === "render") {
+    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+  } else {
+    await page.getByRole("button", { name: view === "plan" ? "2D" : "3D", exact: true }).click();
+  }
   const title = view === "plan"
-    ? "PLAN · LIVING ROOM"
+    ? "2D plan"
     : view === "model"
-      ? "MODEL"
-      : "RENDER · LIVING ROOM";
+      ? "3D model"
+      : "Render studio";
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText(title);
 }
 
