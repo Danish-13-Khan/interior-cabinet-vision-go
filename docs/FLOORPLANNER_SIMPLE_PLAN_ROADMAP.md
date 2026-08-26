@@ -192,12 +192,25 @@ D0 is done only when all of the following exist and are reviewed:
 7. **Opening catalog + surface polygon type sketches** visible in the v2 proposal (so they do not drift from design locks).  
 8. **Blast-radius checklist:** bounds, resize, validation, snap, cabinet constraints, technical plans, scene compiler, file migrations.
 
-**Exit:** The above artifacts are approved; Phase A may begin only against this contract.  
+**Exit:** The above artifacts are approved; Phase D0.5 may begin only against this contract.
 **Does not include:** shipping freeform draw tools (that is D1–D4).
 
 ---
 
-### Phase A — Build shell + tool/command state · S–M · after D0
+### Phase D0.5 — Schema v2 foundation · M · after D0, before A / B
+
+**Goal:** Land the approved schema-v2 contract without shipping freeform drawing, so early UI and opening work use the real document model rather than temporary v1 fields.
+
+- Add approved v2 types, migration, validation, fixtures, and migration tests
+- Preserve the rectangular room adapter, renderer, and existing v1-equivalent workflow during the transition
+- Add catalog-ready opening instance fields (`catalogItemId`, slot overrides) to the v2 document model
+- Do **not** ship freeform room/wall authoring yet; that remains D1–D4
+
+**Exit:** Existing v1 projects migrate with no user-visible geometry loss; rectangular projects still work on v2; Phase A commands and Phase B catalogized openings target v2 directly.
+
+---
+
+### Phase A — Build shell + tool/command state · S–M · after D0.5
 
 **Goal:** Floorplanner-like **2D Build** tool chrome **and** the command/undo foundation — still rectangular geometry underneath. Still inside Menu → 2D → 3D → Render → Export.
 
@@ -300,6 +313,7 @@ Product agenda (fixed):
 
 Implementation order:
   D0  topology + schema v2 + migration + fixtures/tests + tool/command contract
+  D0.5  schema v2 foundation (migration + validation + catalog-ready openings)
   A   2D Build shell + tool state + undoable commands
   B   2D openings direct manipulation (+ catalog)
   C   2D dimensions / underlay / unit display preference
@@ -309,7 +323,7 @@ Implementation order:
   (Render + Export remain existing modes — not re-homed)
 ```
 
-**Early win (not parity):** D0 → A → B → C on a box room, with commands already matching freeform.  
+**Early win (not parity):** D0 → D0.5 → A → B → C on a box room, with commands already matching freeform.
 **Real product threshold:** multi-room footprint + openings + cabinets snap/validate + same plan in 3D + export (after D + Design + existing Render/Export).
 
 ---
@@ -332,7 +346,8 @@ Generated 3D already works for box rooms. The large investment is topology, sche
 ## 8. Decision checklist (approve before coding)
 
 - [ ] Confirm product agenda stays **Menu → 2D creation → 3D → Render → Export**  
-- [ ] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase A  
+- [ ] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5
+- [ ] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
 - [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)  
 - [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model (v2)  
 - [ ] Confirm units stay **mm in project**; toggle is display preference only  
