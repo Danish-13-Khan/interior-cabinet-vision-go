@@ -18,6 +18,10 @@ export {
   type MaterialKind,
   type MaterialEntity,
   type OpeningEntity,
+  type PlanNodeEntity,
+  type PlanLoop,
+  type DirectedWallUse,
+  type SurfaceZoneEntity,
   type ParameterValue,
   type Point2Mm,
   type Point3Mm,
@@ -52,3 +56,10 @@ export {
   selectRoomOpenings,
   selectRoomWalls,
 } from "./selectors";
+export {
+  buildContiguousWallUses,
+  selectOpeningsForRoom,
+  selectWallsForRoom,
+  wallLengthMm,
+} from "./planTopology";
+export { validatePlanTopology, ensureCompatPlanTopology } from "./planTopologyValidation";

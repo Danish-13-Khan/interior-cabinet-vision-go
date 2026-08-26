@@ -1,4 +1,5 @@
 import type { InteriorObjectEntity, InteriorProject, WallEntity } from "../interiorProject";
+import { selectRoomWalls } from "../interiorProject";
 
 export type WallPlacement = {
   wallId: string;
@@ -16,8 +17,8 @@ export function placeOnWall(
   object: InteriorObjectEntity,
   wallId: string,
 ): WallPlacement | null {
-  const wall = project.walls.find((item) => item.id === wallId);
-  if (!wall || wall.roomId !== object.roomId) return null;
+  const wall = selectRoomWalls(project, object.roomId).find((item) => item.id === wallId);
+  if (!wall) return null;
   const length = wallLength(wall);
   if (length < 1) return null;
   const ux = (wall.end.x - wall.start.x) / length;
@@ -74,8 +75,7 @@ function attached(object: InteriorObjectEntity, placement: WallPlacement) {
 
 export function snapCabinetToWall(project: InteriorProject, object: InteriorObjectEntity, desired: { x: number; y: number; z: number }) {
   if (object.kind !== "cabinet") return { ...object, position: desired };
-  const nearest = project.walls
-    .filter((wall) => wall.roomId === object.roomId)
+  const nearest = selectRoomWalls(project, object.roomId)
     .map((wall) => {
       const length = wallLength(wall);
       const ux = (wall.end.x - wall.start.x) / length;

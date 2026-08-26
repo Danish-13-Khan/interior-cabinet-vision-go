@@ -206,7 +206,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Add catalog-ready opening instance fields (`catalogItemId`, slot overrides) to the v2 document model
 - Do **not** ship freeform room/wall authoring yet; that remains D1–D4
 
-**Exit:** Existing v1 projects migrate with no user-visible geometry loss; rectangular projects still work on v2; Phase A commands and Phase B catalogized openings target v2 directly.
+**Exit:** Existing v1 projects migrate with no user-visible geometry loss; rectangular projects still work on v2; Phase A commands and Phase B catalogized openings target v2 directly.  
+**Status:** Implemented on `floorplanner-schema-v2-foundation` (schema v2 types, migration, topology validation, loadable goldens, loop-aware selectors).
 
 ---
 
@@ -346,8 +347,8 @@ Generated 3D already works for box rooms. The large investment is topology, sche
 ## 8. Decision checklist (approve before coding)
 
 - [ ] Confirm product agenda stays **Menu → 2D creation → 3D → Render → Export**  
-- [ ] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5
-- [ ] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
+- [x] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5  
+- [x] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
 - [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)  
 - [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model (v2)  
 - [ ] Confirm units stay **mm in project**; toggle is display preference only  

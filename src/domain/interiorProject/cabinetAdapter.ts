@@ -21,6 +21,7 @@ import {
   type OpeningStructure,
 } from "../cabinetOpeningStructure";
 import { createEmptyInteriorProject } from "./defaults";
+import { buildContiguousWallUses, selectOpeningsForRoom, selectWallsForRoom } from "./planTopology";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
   type EntityExtensions,
@@ -136,6 +137,9 @@ function openingsForRoom(room: ProjectRoom): OpeningEntity[] {
     widthMm: door.widthMm,
     heightMm: door.heightMm,
     sillHeightMm: 0,
+    catalogItemId: "opening:door-single",
+    materialSlots: {},
+    parameters: {},
     swingDirection: door.swingDirection,
     extensions: { managedBy: MANAGED_BY, sourceId: door.id },
   }));
@@ -148,9 +152,35 @@ function openingsForRoom(room: ProjectRoom): OpeningEntity[] {
     widthMm: window.widthMm,
     heightMm: window.heightMm,
     sillHeightMm: window.sillHeightMm,
+    catalogItemId: "opening:window-fixed",
+    materialSlots: {},
+    parameters: {},
     extensions: { managedBy: MANAGED_BY, sourceId: window.id },
   }));
   return [...doors, ...windows];
+}
+
+/** Transitional rectangular adapter projection onto the v2 wall graph. */
+function topologyForRectangularAdapter(walls: WallEntity[], rooms: InteriorRoomEntity[]) {
+  const nodeByPoint = new Map<string, string>();
+  const nodes: InteriorProject["nodes"] = [];
+  const nodeId = (point: WallEntity["start"]) => {
+    const key = `${point.x}:${point.z}`;
+    const existing = nodeByPoint.get(key);
+    if (existing) return existing;
+    const id = `adapter-node-${nodeByPoint.size + 1}`;
+    nodeByPoint.set(key, id);
+    nodes.push({ id, position: { ...point }, extensions: { managedBy: MANAGED_BY } });
+    return id;
+  };
+  const graphWalls = walls.map((wall) => ({ ...wall, startNodeId: nodeId(wall.start), endNodeId: nodeId(wall.end) }));
+  const loops = rooms.map((room) => ({
+    id: `${room.id}:outer-loop`,
+    wallUses: buildContiguousWallUses(graphWalls.filter((wall) => wall.roomId === room.id)),
+    extensions: { managedBy: MANAGED_BY },
+  }));
+  const loopByRoom = new Map(loops.map((loop) => [loop.id.slice(0, -":outer-loop".length), loop.id]));
+  return { nodes, loops, walls: graphWalls, rooms: rooms.map((room) => ({ ...room, outerLoopId: loopByRoom.get(room.id), holeLoopIds: [] })) };
 }
 
 function cabinetObject(roomId: string, cabinet: CabinetInstance): InteriorObjectEntity {
@@ -226,10 +256,10 @@ export function interiorProjectFromCabinetProject(options: {
     (object) => object.kind !== "cabinet" && roomIds.has(object.roomId),
   );
   const preservedWalls = base.walls.filter(
-    (wall) => record(wall.extensions)?.managedBy !== MANAGED_BY && roomIds.has(wall.roomId),
+    (wall) => record(wall.extensions)?.managedBy !== MANAGED_BY && (!wall.roomId || roomIds.has(wall.roomId)),
   );
   const preservedOpenings = base.openings.filter(
-    (opening) => record(opening.extensions)?.managedBy !== MANAGED_BY && roomIds.has(opening.roomId),
+    (opening) => record(opening.extensions)?.managedBy !== MANAGED_BY && (!opening.roomId || roomIds.has(opening.roomId)),
   );
   const roomEntities: InteriorRoomEntity[] = rooms.map((room) => ({
     id: room.id,
@@ -243,6 +273,8 @@ export function interiorProjectFromCabinetProject(options: {
     wallThicknessMm: room.config.dimensions.wallThicknessMm,
     extensions: { managedBy: MANAGED_BY },
   }));
+  const adapterWalls = [...preservedWalls, ...rooms.flatMap((room) => WALL_SIDES.map((side) => wallGeometry(room, side)))];
+  const topology = topologyForRectangularAdapter(adapterWalls, roomEntities);
   const document: InteriorProject = {
     ...base,
     schemaVersion: INTERIOR_PROJECT_SCHEMA_VERSION,
@@ -250,8 +282,10 @@ export function interiorProjectFromCabinetProject(options: {
     name: projectName(normalized),
     updatedAt: now,
     activeRoomId: normalized.activeRoomId ?? rooms[0]?.id ?? "",
-    rooms: roomEntities,
-    walls: [...preservedWalls, ...rooms.flatMap((room) => WALL_SIDES.map((side) => wallGeometry(room, side)))],
+    rooms: topology.rooms,
+    nodes: topology.nodes,
+    loops: topology.loops,
+    walls: topology.walls,
     openings: [...preservedOpenings, ...rooms.flatMap(openingsForRoom)],
     objects: [
       ...preservedObjects,
@@ -278,10 +312,10 @@ function sourceId(extensions: EntityExtensions | undefined, fallback: string) {
 }
 
 function roomConfigFromDocument(document: InteriorProject, room: InteriorRoomEntity): RoomConfig {
-  const roomWalls = document.walls.filter((wall) => wall.roomId === room.id);
+  const roomWalls = selectWallsForRoom(document, room.id);
   const sideVisibility = (side: DoorSide) =>
     roomWalls.find((wall) => wallSide(wall) === side)?.visible ?? true;
-  const openings = document.openings.filter((opening) => opening.roomId === room.id);
+  const openings = selectOpeningsForRoom(document, room.id);
   return {
     dimensions: {
       widthMm: room.dimensions.widthMm,

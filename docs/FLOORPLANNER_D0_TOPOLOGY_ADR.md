@@ -106,9 +106,12 @@ Commands are atomic and serializable: `beginDraft`, `commitDraft`, `cancelDraft`
 
 ## Fixtures and proof
 
-The canonical fixtures are in `fixtures/plan-topology/`. `v1-rectangle.interior.json` is the preservation input. The three `*.v2.golden.json` files are **D0 design specifications**, not yet loadable `InteriorProjectV2` documents. D0.5 must replace/expand them with complete golden projects and exact migration-output assertions.
+The canonical fixtures are in `fixtures/plan-topology/`.
 
-The existing interior-project test suite includes a D0 regression that loads the v1 fixture and asserts its room, wall coordinates, opening geometry, and object count are unchanged on the current v1 path. It does **not** prove v1-to-v2 migration. D0.5 owns the migration test that proves no user-visible geometry loss.
+- `v1-rectangle.interior.json` — preservation / migration input  
+- `rectangle.v2.golden.json`, `l-room.v2.golden.json`, `two-rooms-shared-wall.v2.golden.json` — **loadable schema v2 projects** used by D0.5 tests  
+
+D0.5 owns migration and topology validation tests that prove v1 geometry is preserved and shared-wall documents validate without single-`roomId` ownership.
 
 ## Consequences
 

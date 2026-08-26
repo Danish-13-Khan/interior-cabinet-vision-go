@@ -1,4 +1,5 @@
 import { createEmptyInteriorProject, DEFAULT_RENDER_SETTINGS } from "./defaults";
+import { validatePlanTopology, ensureCompatPlanTopology } from "./planTopologyValidation";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
   type CameraEntity,
@@ -11,8 +12,11 @@ import {
   type LightEntity,
   type MaterialEntity,
   type OpeningEntity,
+  type PlanLoop,
+  type PlanNodeEntity,
   type ParameterValue,
   type RenderSettings,
+  type SurfaceZoneEntity,
   type WallEntity,
 } from "./types";
 
@@ -174,6 +178,8 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
       roomType,
       dimensions: size3(room.dimensions, { widthMm: 6000, heightMm: 2800, depthMm: 4000 }),
       wallThicknessMm: numberIn(room.wallThicknessMm, 120, 1, 2000),
+      outerLoopId: typeof room.outerLoopId === "string" ? room.outerLoopId : undefined,
+      holeLoopIds: Array.isArray(room.holeLoopIds) ? room.holeLoopIds.filter((id): id is string => typeof id === "string") : [],
       extensions: extensions(room.extensions),
     };
   });
@@ -181,10 +187,10 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
 
   const walls: WallEntity[] = records(source.walls)
     .map((wall, index): WallEntity | null => {
-      const roomId = text(wall.roomId, "", 120);
-      if (!validRoomIds.has(roomId)) {
-        issues.push({ severity: "warning", code: "orphan-wall", path: `walls[${index}].roomId`, message: "Removed a wall with an unknown room reference.", repaired: true });
-        return null;
+      const legacyRoomId = typeof wall.roomId === "string" ? wall.roomId.trim() : "";
+      const roomId = legacyRoomId && validRoomIds.has(legacyRoomId) ? legacyRoomId : null;
+      if (legacyRoomId && !roomId) {
+        issues.push({ severity: "warning", code: "orphan-wall-room", path: `walls[${index}].roomId`, message: "Cleared an unknown legacy wall room reference.", repaired: true });
       }
       return {
         id: uniqueId(wall.id, `wall-${index + 1}`, `walls[${index}].id`, wallIds, issues),
@@ -195,6 +201,8 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
         thicknessMm: numberIn(wall.thicknessMm, 120, 1, 2000),
         visible: booleanValue(wall.visible, true),
         materialId: typeof wall.materialId === "string" && wall.materialId.trim() ? wall.materialId.trim() : null,
+        startNodeId: typeof wall.startNodeId === "string" ? wall.startNodeId : undefined,
+        endNodeId: typeof wall.endNodeId === "string" ? wall.endNodeId : undefined,
         extensions: extensions(wall.extensions),
       };
     })
@@ -203,12 +211,16 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
 
   const openings: OpeningEntity[] = records(source.openings)
     .map((opening, index): OpeningEntity | null => {
-      const roomId = text(opening.roomId, "", 120);
       const wallId = text(opening.wallId, "", 120);
       const wall = walls.find((item) => item.id === wallId);
-      if (!validRoomIds.has(roomId) || !validWallIds.has(wallId) || wall?.roomId !== roomId) {
-        issues.push({ severity: "warning", code: "orphan-opening", path: `openings[${index}]`, message: "Removed an opening with an invalid room or wall reference.", repaired: true });
+      if (!validWallIds.has(wallId) || !wall) {
+        issues.push({ severity: "warning", code: "orphan-opening", path: `openings[${index}]`, message: "Removed an opening with an invalid wall reference.", repaired: true });
         return null;
+      }
+      const legacyRoomId = typeof opening.roomId === "string" ? opening.roomId.trim() : "";
+      const roomId = legacyRoomId && validRoomIds.has(legacyRoomId) ? legacyRoomId : null;
+      if (legacyRoomId && !roomId) {
+        issues.push({ severity: "warning", code: "orphan-opening-room", path: `openings[${index}].roomId`, message: "Cleared an unknown legacy opening room reference.", repaired: true });
       }
       const kind = ["door", "window", "opening"].includes(String(opening.kind))
         ? (opening.kind as OpeningEntity["kind"])
@@ -222,6 +234,9 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
         widthMm: numberIn(opening.widthMm, 900, 1, 100_000),
         heightMm: numberIn(opening.heightMm, 2100, 1, 100_000),
         sillHeightMm: numberIn(opening.sillHeightMm, 0, 0, 100_000),
+        catalogItemId: text(opening.catalogItemId, kind === "door" ? "opening:door-single" : kind === "window" ? "opening:window-fixed" : "opening:pass-through", 120),
+        materialSlots: stringMap(opening.materialSlots),
+        parameters: parameterMap(opening.parameters),
         swingDirection: opening.swingDirection === "out" ? "out" : kind === "door" ? "in" : undefined,
         extensions: extensions(opening.extensions),
       };
@@ -330,6 +345,40 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
     })
     .filter((camera): camera is CameraEntity => Boolean(camera));
 
+  const nodeIds = new Set<string>();
+  const nodes: PlanNodeEntity[] = records(source.nodes).map((node, index) => ({
+    id: uniqueId(node.id, `node-${index + 1}`, `nodes[${index}].id`, nodeIds, issues),
+    position: point2(node.position),
+    extensions: extensions(node.extensions),
+  }));
+  const validNodeIds = new Set(nodes.map((node) => node.id));
+  for (const wall of walls) {
+    if (wall.startNodeId && !validNodeIds.has(wall.startNodeId)) wall.startNodeId = undefined;
+    if (wall.endNodeId && !validNodeIds.has(wall.endNodeId)) wall.endNodeId = undefined;
+  }
+  const loopIds = new Set<string>();
+  const loops: PlanLoop[] = records(source.loops).map((loop, index) => ({
+    id: uniqueId(loop.id, `loop-${index + 1}`, `loops[${index}].id`, loopIds, issues),
+    wallUses: records(loop.wallUses)
+      .filter((use) => validWallIds.has(String(use.wallId)))
+      .map((use) => ({ wallId: String(use.wallId), direction: use.direction === "reverse" ? "reverse" : "forward" })),
+    extensions: extensions(loop.extensions),
+  }));
+  const validLoopIds = new Set(loops.map((loop) => loop.id));
+  for (const room of rooms) {
+    if (room.outerLoopId && !validLoopIds.has(room.outerLoopId)) room.outerLoopId = undefined;
+    room.holeLoopIds = (room.holeLoopIds ?? []).filter((id) => validLoopIds.has(id));
+  }
+  const surfaceIds = new Set<string>();
+  const surfaces: SurfaceZoneEntity[] = records(source.surfaces).map((surface, index) => ({
+    id: uniqueId(surface.id, `surface-${index + 1}`, `surfaces[${index}].id`, surfaceIds, issues),
+    kind: ["floor", "ceiling", "wall"].includes(String(surface.kind)) ? surface.kind as SurfaceZoneEntity["kind"] : "floor",
+    polygon: Array.isArray(surface.polygon) ? surface.polygon.map(point2) : null,
+    roomId: validRoomIds.has(String(surface.roomId)) ? String(surface.roomId) : null,
+    loopId: validLoopIds.has(String(surface.loopId)) ? String(surface.loopId) : null,
+    materialId: typeof surface.materialId === "string" ? surface.materialId : null,
+    extensions: extensions(surface.extensions),
+  }));
   const activeRoomId = validRoomIds.has(String(source.activeRoomId))
     ? String(source.activeRoomId)
     : rooms[0]?.id ?? "";
@@ -347,9 +396,12 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
     createdAt: text(source.createdAt, fallback.createdAt, 40),
     updatedAt: text(source.updatedAt, fallback.updatedAt, 40),
     activeRoomId,
+    nodes,
+    loops,
     rooms,
     walls,
     openings,
+    surfaces,
     objects,
     materials,
     lights,
@@ -358,5 +410,8 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
     extensions: extensions(source.extensions),
   };
 
-  return { project, issues };
+  const withTopology = ensureCompatPlanTopology(project, issues);
+  validatePlanTopology(withTopology, issues);
+
+  return { project: withTopology, issues };
 }

@@ -26,7 +26,7 @@ type LegacyProjectFile = {
 };
 
 export type InteriorProjectMigrationSource =
-  | "interior-project-v1"
+  | "interior-project-v2"
   | "cabinet-project-wrapper"
   | "single-cabinet-config";
 
@@ -126,7 +126,7 @@ export function loadInteriorProjectFile(
       document: validation.project,
       project: compatible.project,
       room: compatible.room,
-      source: "interior-project-v1",
+      source: "interior-project-v2",
       issues: validation.issues,
       migrationSteps: migration.steps,
     };
