@@ -1,6 +1,72 @@
 {
   "schemaVersion": 2,
-  "fixture": "v1-rectangle.interior.json",
-  "expected": { "nodeCount": 4, "wallCount": 4, "roomCount": 1, "loopCount": 1, "openingCatalogItemId": "opening:door-single", "geometryPreserved": true },
-  "notes": "The four v1 walls retain their ids and coordinates; room-main has one clockwise outer loop."
+  "id": "fixture-rectangle-v2",
+  "name": "Rectangle v2 golden",
+  "units": "mm",
+  "createdAt": "2026-08-26T00:00:00.000Z",
+  "updatedAt": "2026-08-26T00:00:00.000Z",
+  "activeRoomId": "room-main",
+  "nodes": [
+    { "id": "node-1", "position": { "x": -3000, "z": -2000 } },
+    { "id": "node-2", "position": { "x": 3000, "z": -2000 } },
+    { "id": "node-3", "position": { "x": 3000, "z": 2000 } },
+    { "id": "node-4", "position": { "x": -3000, "z": 2000 } }
+  ],
+  "loops": [
+    {
+      "id": "room-main:outer-loop",
+      "wallUses": [
+        { "wallId": "wall-back", "direction": "forward" },
+        { "wallId": "wall-right", "direction": "forward" },
+        { "wallId": "wall-front", "direction": "forward" },
+        { "wallId": "wall-left", "direction": "forward" }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room-main",
+      "name": "Main",
+      "roomType": "living-room",
+      "dimensions": { "widthMm": 6000, "heightMm": 2800, "depthMm": 4000 },
+      "wallThicknessMm": 120,
+      "outerLoopId": "room-main:outer-loop",
+      "holeLoopIds": []
+    }
+  ],
+  "walls": [
+    { "id": "wall-back", "roomId": "room-main", "start": { "x": -3000, "z": -2000 }, "end": { "x": 3000, "z": -2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-1", "endNodeId": "node-2" },
+    { "id": "wall-right", "roomId": "room-main", "start": { "x": 3000, "z": -2000 }, "end": { "x": 3000, "z": 2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-2", "endNodeId": "node-3" },
+    { "id": "wall-front", "roomId": "room-main", "start": { "x": 3000, "z": 2000 }, "end": { "x": -3000, "z": 2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-3", "endNodeId": "node-4" },
+    { "id": "wall-left", "roomId": "room-main", "start": { "x": -3000, "z": 2000 }, "end": { "x": -3000, "z": -2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-4", "endNodeId": "node-1" }
+  ],
+  "openings": [
+    {
+      "id": "door-main",
+      "wallId": "wall-front",
+      "kind": "door",
+      "offsetMm": 1800,
+      "widthMm": 900,
+      "heightMm": 2100,
+      "sillHeightMm": 0,
+      "catalogItemId": "opening:door-single",
+      "materialSlots": {},
+      "parameters": {}
+    }
+  ],
+  "surfaces": [],
+  "objects": [],
+  "materials": [],
+  "lights": [],
+  "cameras": [],
+  "renderSettings": {
+    "widthPx": 1920,
+    "heightPx": 1080,
+    "quality": "standard",
+    "exposure": 1,
+    "transparentBackground": false,
+    "activeCameraId": null,
+    "lightingRecipeId": "neutral-studio",
+    "composition": "architectural"
+  }
 }

@@ -1,7 +1,65 @@
 {
   "schemaVersion": 2,
-  "fixture": "single L-shaped room",
-  "nodes": [[0,0],[6000,0],[6000,2000],[3000,2000],[3000,4000],[0,4000]],
-  "outerLoop": ["wall-1:forward","wall-2:forward","wall-3:forward","wall-4:forward","wall-5:forward","wall-6:forward"],
-  "expected": { "roomCount": 1, "wallCount": 6, "closed": true, "holes": 0 }
+  "id": "fixture-l-room-v2",
+  "name": "L-room v2 golden",
+  "units": "mm",
+  "createdAt": "2026-08-26T00:00:00.000Z",
+  "updatedAt": "2026-08-26T00:00:00.000Z",
+  "activeRoomId": "room-l",
+  "nodes": [
+    { "id": "n1", "position": { "x": 0, "z": 0 } },
+    { "id": "n2", "position": { "x": 6000, "z": 0 } },
+    { "id": "n3", "position": { "x": 6000, "z": 2000 } },
+    { "id": "n4", "position": { "x": 3000, "z": 2000 } },
+    { "id": "n5", "position": { "x": 3000, "z": 4000 } },
+    { "id": "n6", "position": { "x": 0, "z": 4000 } }
+  ],
+  "loops": [
+    {
+      "id": "room-l:outer-loop",
+      "wallUses": [
+        { "wallId": "wall-1", "direction": "forward" },
+        { "wallId": "wall-2", "direction": "forward" },
+        { "wallId": "wall-3", "direction": "forward" },
+        { "wallId": "wall-4", "direction": "forward" },
+        { "wallId": "wall-5", "direction": "forward" },
+        { "wallId": "wall-6", "direction": "forward" }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room-l",
+      "name": "L Room",
+      "roomType": "living-room",
+      "dimensions": { "widthMm": 6000, "heightMm": 2800, "depthMm": 4000 },
+      "wallThicknessMm": 120,
+      "outerLoopId": "room-l:outer-loop",
+      "holeLoopIds": []
+    }
+  ],
+  "walls": [
+    { "id": "wall-1", "start": { "x": 0, "z": 0 }, "end": { "x": 6000, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "n1", "endNodeId": "n2" },
+    { "id": "wall-2", "start": { "x": 6000, "z": 0 }, "end": { "x": 6000, "z": 2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "n2", "endNodeId": "n3" },
+    { "id": "wall-3", "start": { "x": 6000, "z": 2000 }, "end": { "x": 3000, "z": 2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "n3", "endNodeId": "n4" },
+    { "id": "wall-4", "start": { "x": 3000, "z": 2000 }, "end": { "x": 3000, "z": 4000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "n4", "endNodeId": "n5" },
+    { "id": "wall-5", "start": { "x": 3000, "z": 4000 }, "end": { "x": 0, "z": 4000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "n5", "endNodeId": "n6" },
+    { "id": "wall-6", "start": { "x": 0, "z": 4000 }, "end": { "x": 0, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "n6", "endNodeId": "n1" }
+  ],
+  "openings": [],
+  "surfaces": [],
+  "objects": [],
+  "materials": [],
+  "lights": [],
+  "cameras": [],
+  "renderSettings": {
+    "widthPx": 1920,
+    "heightPx": 1080,
+    "quality": "standard",
+    "exposure": 1,
+    "transparentBackground": false,
+    "activeCameraId": null,
+    "lightingRecipeId": "neutral-studio",
+    "composition": "architectural"
+  }
 }

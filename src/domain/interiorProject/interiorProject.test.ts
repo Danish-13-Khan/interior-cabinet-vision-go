@@ -39,10 +39,13 @@ describe("InteriorProject universal spine", () => {
     const document = canonicalDefault();
     const restored = cabinetProjectFromInteriorProject(document);
 
-    expect(document.schemaVersion).toBe(1);
+    expect(document.schemaVersion).toBe(2);
     expect(document.units).toBe("mm");
     expect(document.rooms).toHaveLength(1);
     expect(document.walls).toHaveLength(4);
+    expect(document.nodes).toHaveLength(4);
+    expect(document.loops[0]?.wallUses).toHaveLength(4);
+    expect(document.rooms[0]?.outerLoopId).toBe(`${document.rooms[0]?.id}:outer-loop`);
     expect(document.openings).toHaveLength(
       DEFAULT_ROOM.doors.length + DEFAULT_ROOM.windows.length,
     );
@@ -181,8 +184,8 @@ describe("InteriorProject universal spine", () => {
     const loaded = loadInteriorProjectFile(serialized);
 
     expect(raw.format).toBe("interior-project");
-    expect(raw.schemaVersion).toBe(1);
-    expect(loaded.source).toBe("interior-project-v1");
+    expect(raw.schemaVersion).toBe(2);
+    expect(loaded.source).toBe("interior-project-v2");
     expect(loaded.document.id).toBe(document.id);
     expect(loaded.project.cabinets).toHaveLength(1);
   });
@@ -225,17 +228,18 @@ describe("InteriorProject universal spine", () => {
 
     const loaded = loadInteriorProjectFile(document);
 
-    expect(loaded.migrationSteps).toEqual(["v0-to-v1"]);
-    expect(loaded.document.schemaVersion).toBe(1);
+    expect(loaded.migrationSteps).toEqual(["v0-to-v1", "v1-to-v2"]);
+    expect(loaded.document.schemaVersion).toBe(2);
     expect(loaded.document.renderSettings.widthPx).toBe(1920);
     expect(loaded.document.materials).toEqual([]);
   });
 
-  it("keeps the D0 rectangle fixture geometry intact when a v1 project opens", () => {
+  it("migrates the D0 rectangle fixture to v2 without geometry loss", () => {
     const loaded = loadInteriorProjectFile(rectangleFixture);
 
-    expect(loaded.source).toBe("interior-project-v1");
-    expect(loaded.migrationSteps).toEqual([]);
+    expect(loaded.source).toBe("interior-project-v2");
+    expect(loaded.migrationSteps).toEqual(["v1-to-v2"]);
+    expect(loaded.document.schemaVersion).toBe(2);
     expect(loaded.document.rooms).toHaveLength(1);
     expect(loaded.document.walls.map(({ id, start, end }) => ({ id, start, end }))).toEqual([
       { id: "wall-back", start: { x: -3000, z: -2000 }, end: { x: 3000, z: -2000 } },
@@ -247,6 +251,13 @@ describe("InteriorProject universal spine", () => {
       { id: "door-main", wallId: "wall-front", offsetMm: 1800, widthMm: 900 },
     ]);
     expect(loaded.document.objects).toHaveLength(0);
+    expect(loaded.document.nodes).toHaveLength(4);
+    expect(loaded.document.loops).toMatchObject([
+      { id: "room-main:outer-loop", wallUses: [{ wallId: "wall-back" }, { wallId: "wall-right" }, { wallId: "wall-front" }, { wallId: "wall-left" }] },
+    ]);
+    expect(loaded.document.rooms[0]).toMatchObject({ outerLoopId: "room-main:outer-loop", holeLoopIds: [] });
+    expect(loaded.document.openings[0]).toMatchObject({ catalogItemId: "opening:door-single", materialSlots: {}, parameters: {} });
+    expect(loaded.document.openings[0]?.roomId == null).toBe(true);
   });
 
   it("repairs dangling material and active-camera references", () => {

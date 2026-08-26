@@ -1,4 +1,4 @@
-export const INTERIOR_PROJECT_SCHEMA_VERSION = 1;
+export const INTERIOR_PROJECT_SCHEMA_VERSION = 2;
 export const INTERIOR_PROJECT_FILE_FORMAT = "interior-project";
 
 export type EntityId = string;
@@ -24,18 +24,28 @@ export type InteriorRoomEntity = {
   roomType: RoomType;
   dimensions: Size3Mm;
   wallThicknessMm: number;
+  /** v2 face boundary. Dimensions remain a temporary rectangular-adapter cache. */
+  outerLoopId?: EntityId;
+  holeLoopIds?: EntityId[];
   extensions?: EntityExtensions;
 };
 
 export type WallEntity = {
   id: EntityId;
-  roomId: EntityId;
+  /**
+   * Optional legacy/compat room hint for rectangular adapters.
+   * Authoritative room membership is via room outer/hole loops (shared walls allowed).
+   */
+  roomId?: EntityId | null;
   start: Point2Mm;
   end: Point2Mm;
   heightMm: number;
   thicknessMm: number;
   visible: boolean;
   materialId: EntityId | null;
+  /** v2 graph endpoints. start/end remain a derived compatibility cache until D1. */
+  startNodeId?: EntityId;
+  endNodeId?: EntityId;
   extensions?: EntityExtensions;
 };
 
@@ -43,14 +53,41 @@ export type OpeningKind = "door" | "window" | "opening";
 
 export type OpeningEntity = {
   id: EntityId;
-  roomId: EntityId;
+  /** Optional legacy hint; openings attach to walls only in schema v2. */
+  roomId?: EntityId | null;
   wallId: EntityId;
   kind: OpeningKind;
   offsetMm: number;
   widthMm: number;
   heightMm: number;
   sillHeightMm: number;
+  catalogItemId?: string;
+  materialSlots?: Record<string, EntityId>;
+  parameters?: Record<string, ParameterValue>;
   swingDirection?: "in" | "out";
+  extensions?: EntityExtensions;
+};
+
+export type PlanNodeEntity = {
+  id: EntityId;
+  position: Point2Mm;
+  extensions?: EntityExtensions;
+};
+
+export type DirectedWallUse = { wallId: EntityId; direction: "forward" | "reverse" };
+export type PlanLoop = {
+  id: EntityId;
+  wallUses: DirectedWallUse[];
+  extensions?: EntityExtensions;
+};
+
+export type SurfaceZoneEntity = {
+  id: EntityId;
+  kind: "floor" | "ceiling" | "wall";
+  polygon: Point2Mm[] | null;
+  roomId: EntityId | null;
+  loopId: EntityId | null;
+  materialId: EntityId | null;
   extensions?: EntityExtensions;
 };
 
@@ -144,9 +181,12 @@ export type InteriorProject = {
   createdAt: string;
   updatedAt: string;
   activeRoomId: EntityId;
+  nodes: PlanNodeEntity[];
+  loops: PlanLoop[];
   rooms: InteriorRoomEntity[];
   walls: WallEntity[];
   openings: OpeningEntity[];
+  surfaces: SurfaceZoneEntity[];
   objects: InteriorObjectEntity[];
   materials: MaterialEntity[];
   lights: LightEntity[];

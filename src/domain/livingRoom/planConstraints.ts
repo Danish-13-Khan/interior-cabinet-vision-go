@@ -1,4 +1,5 @@
 import type { InteriorProject, OpeningEntity, WallEntity } from "../interiorProject";
+import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import {
   boundsDistance,
   boundsOverlap,
@@ -91,8 +92,8 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
       }
     }
 
-    const walls = project.walls.filter((wall) => wall.roomId === room.id);
-    for (const opening of project.openings.filter((item) => item.roomId === room.id)) {
+    const walls = selectRoomWalls(project, room.id);
+    for (const opening of selectRoomOpenings(project, room.id)) {
       const wall = walls.find((item) => item.id === opening.wallId);
       if (!wall) continue;
       const zone = openingZone(opening, wall);

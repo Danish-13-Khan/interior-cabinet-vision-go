@@ -1,15 +1,71 @@
 {
   "format": "interior-project",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "savedAt": "2026-08-12T18:00:00.000Z",
   "project": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "id": "phase1-bench-daylight-sofa",
     "name": "Phase 1 · Daylight Sofa",
     "units": "mm",
     "createdAt": "2026-08-12T18:00:00.000Z",
     "updatedAt": "2026-08-12T18:00:00.000Z",
     "activeRoomId": "lr-room-main",
+    "nodes": [
+      {
+        "id": "compat-node-1",
+        "position": {
+          "x": -3100,
+          "z": -2300
+        }
+      },
+      {
+        "id": "compat-node-2",
+        "position": {
+          "x": 3100,
+          "z": -2300
+        }
+      },
+      {
+        "id": "compat-node-3",
+        "position": {
+          "x": 3100,
+          "z": 2300
+        }
+      },
+      {
+        "id": "compat-node-4",
+        "position": {
+          "x": -3100,
+          "z": 2300
+        }
+      }
+    ],
+    "loops": [
+      {
+        "id": "lr-room-main:outer-loop",
+        "wallUses": [
+          {
+            "wallId": "lr-wall-back",
+            "direction": "forward"
+          },
+          {
+            "wallId": "lr-wall-right",
+            "direction": "forward"
+          },
+          {
+            "wallId": "lr-wall-front",
+            "direction": "forward"
+          },
+          {
+            "wallId": "lr-wall-left",
+            "direction": "forward"
+          }
+        ],
+        "extensions": {
+          "synthesizedBy": "compat-topology"
+        }
+      }
+    ],
     "rooms": [
       {
         "id": "lr-room-main",
@@ -21,6 +77,8 @@
           "depthMm": 4600
         },
         "wallThicknessMm": 120,
+        "outerLoopId": "lr-room-main:outer-loop",
+        "holeLoopIds": [],
         "extensions": {
           "floorMaterialId": "lr-material-stone-warm",
           "ceilingMaterialId": "lr-material-ceiling-soft-white"
@@ -43,6 +101,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "compat-node-1",
+        "endNodeId": "compat-node-2",
         "extensions": {
           "wallSide": "back"
         }
@@ -62,6 +122,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "compat-node-2",
+        "endNodeId": "compat-node-3",
         "extensions": {
           "wallSide": "right"
         }
@@ -81,6 +143,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "compat-node-3",
+        "endNodeId": "compat-node-4",
         "extensions": {
           "wallSide": "front"
         }
@@ -100,6 +164,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "compat-node-4",
+        "endNodeId": "compat-node-1",
         "extensions": {
           "wallSide": "left"
         }
@@ -115,6 +181,9 @@
         "widthMm": 900,
         "heightMm": 2100,
         "sillHeightMm": 0,
+        "catalogItemId": "opening:door-single",
+        "materialSlots": {},
+        "parameters": {},
         "swingDirection": "in",
         "extensions": {
           "hinge": "left"
@@ -128,9 +197,13 @@
         "offsetMm": 1350,
         "widthMm": 1800,
         "heightMm": 1300,
-        "sillHeightMm": 750
+        "sillHeightMm": 750,
+        "catalogItemId": "opening:window-fixed",
+        "materialSlots": {},
+        "parameters": {}
       }
     ],
+    "surfaces": [],
     "objects": [
       {
         "id": "lr-object-tv-feature-wall",

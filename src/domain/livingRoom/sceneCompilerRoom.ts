@@ -3,6 +3,7 @@ import type {
   OpeningEntity,
   WallEntity,
 } from "../interiorProject";
+import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { compileOpeningNode, wallPoint } from "./sceneCompilerOpenings";
@@ -125,11 +126,11 @@ export function compileLivingRoomArchitecture(
   return [
     floor,
     architecture,
-    ...project.walls
-      .filter((wall) => wall.roomId === room.id && wall.visible)
+    ...selectRoomWalls(project, room.id)
+      .filter((wall) => wall.visible)
       .flatMap((wall) => compileWall(wall, project.openings.filter((opening) => opening.extensions?.layerVisible !== false))),
-    ...project.openings
-      .filter((opening) => opening.roomId === room.id && opening.extensions?.layerVisible !== false)
+    ...selectRoomOpenings(project, room.id)
+      .filter((opening) => opening.extensions?.layerVisible !== false)
       .map((opening) => {
         const wall = project.walls.find((candidate) => candidate.id === opening.wallId);
         return wall ? compileOpeningNode(opening, wall) : null;
