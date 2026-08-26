@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LIVING_ROOM_CATALOG,
+  applyBuildCommand,
+  createBuildCommandState,
   getLivingRoomPlanUnderlay,
+  type BuildCommand,
+  type BuildTool,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
 import { imageFileToUnderlay } from "../domain/livingRoom/planUnderlayImport";
@@ -35,6 +39,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
   const [pendingOpeningWallId, setPendingOpeningWallId] = useState<string | null>(null);
   const [pendingPartition, setPendingPartition] = useState(false);
+  const [buildCommandState, setBuildCommandState] = useState(createBuildCommandState);
+  const underlayPickerRef = useRef<(() => void) | null>(null);
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
     previous: LivingRoomRenderResult | null;
@@ -43,11 +49,55 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const activeObject = props.selectedObjects[0] ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
   const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
+  const activeBuildTool = buildCommandState.activeTool;
+
+  const buildHandlersRef = useRef({
+    resizeRoom: props.onRoomDimensions,
+    createWall: () => {
+      setPendingPartition(true);
+      props.onAddPartitionWall();
+    },
+    placeOpening: (wallId: string, kind: "door" | "window") => {
+      setPendingOpeningWallId(wallId);
+      props.onAddOpening(wallId, kind);
+      setActiveWallId(wallId);
+    },
+    requestUnderlayUpload: () => underlayPickerRef.current?.(),
+  });
+  buildHandlersRef.current = {
+    resizeRoom: props.onRoomDimensions,
+    createWall: () => {
+      setPendingPartition(true);
+      props.onAddPartitionWall();
+    },
+    placeOpening: (wallId, kind) => {
+      setPendingOpeningWallId(wallId);
+      props.onAddOpening(wallId, kind);
+      setActiveWallId(wallId);
+    },
+    requestUnderlayUpload: () => underlayPickerRef.current?.(),
+  };
+
+  function dispatchBuildCommand(command: BuildCommand) {
+    setBuildCommandState((current) => applyBuildCommand(current, command, buildHandlersRef.current));
+  }
+
   useEffect(() => {
     if (!props.project) return;
     setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : props.project!.walls[0]?.id ?? null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
   }, [props.project]);
+
+  useEffect(() => {
+    const cancelTool = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setBuildCommandState((current) =>
+        applyBuildCommand(current, { type: "cancelDraft" }, buildHandlersRef.current),
+      );
+    };
+    window.addEventListener("keydown", cancelTool);
+    return () => window.removeEventListener("keydown", cancelTool);
+  }, []);
 
   useEffect(() => {
     if (!props.project || !pendingOpeningWallId) return;
@@ -103,6 +153,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     }
     setWorkspaceView("plan");
     setStudioPanel(mode === "build" ? "build" : "cabinets");
+    if (mode === "build") dispatchBuildCommand({ type: "beginDraft", tool: "select" });
+  }
+
+  function selectBuildTool(tool: BuildTool) {
+    dispatchBuildCommand({ type: "beginDraft", tool });
   }
 
   function changeWorkspaceView(view: LivingRoomWorkspaceView) {
@@ -188,11 +243,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onSetLayerVisibility={props.onSetLayerVisibility}
             onSelect={(objectId) => props.onSelect(objectId)}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
-            onRoomDimensions={props.onRoomDimensions}
-            onAddPartitionWall={() => {
-              setPendingPartition(true);
-              props.onAddPartitionWall();
-            }}
+            onRoomDimensions={(dimensions) => dispatchBuildCommand({ type: "resizeRoom", dimensions })}
+            onAddPartitionWall={() => dispatchBuildCommand({ type: "createWall" })}
             activeWallId={activeWallId}
             activeOpeningId={activeOpeningId}
             onActiveWall={setActiveWallId}
@@ -201,11 +253,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               const opening = props.project!.openings.find((item) => item.id === openingId);
               if (opening) setActiveWallId(opening.wallId);
             }}
-            onAddOpening={(wallId, kind) => {
-              setPendingOpeningWallId(wallId);
-              props.onAddOpening(wallId, kind);
-              setActiveWallId(wallId);
-            }}
+            onAddOpening={(wallId, kind) => dispatchBuildCommand({ type: "placeOpening", wallId, kind })}
             onUpdateOpening={props.onUpdateOpening}
             onDeleteOpening={(openingId) => {
               props.onDeleteOpening(openingId);
@@ -213,12 +261,22 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             }}
             v2BuildMode={plannerMode === "build"}
             v2DesignMode={plannerMode === "design"}
+            activeBuildTool={activeBuildTool}
+            onBuildTool={selectBuildTool}
+            canUndo={props.canUndo}
+            canRedo={props.canRedo}
+            onUndo={props.onUndo}
+            onRedo={props.onRedo}
+            onRegisterUnderlayPicker={(openPicker) => {
+              underlayPickerRef.current = openPicker;
+            }}
             onImportUnderlay={async (file) => {
               if (!file) return;
               setImportError("");
               try {
                 props.onSetPlanUnderlay(await imageFileToUnderlay(file, room.dimensions.widthMm));
                 setStudioPanel("build");
+                dispatchBuildCommand({ type: "commitDraft" });
               } catch (error) {
                 setImportError(error instanceof Error ? error.message : "Plan import failed.");
               }
