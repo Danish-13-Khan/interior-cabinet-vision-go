@@ -136,7 +136,28 @@ describe("Living Room Starter Contract", () => {
       serializeInteriorProjectFile(withUnderlay, NOW),
     ).document;
 
-    expect(getLivingRoomPlanUnderlay(reopened)).toEqual(underlay);
+    expect(getLivingRoomPlanUnderlay(reopened)).toEqual({
+      ...underlay,
+      xMm: 0,
+      zMm: 0,
+      rotationDeg: 0,
+    });
     expect(getLivingRoomPlanUnderlay(setLivingRoomPlanUnderlay(reopened, null))).toBeNull();
+  });
+
+  it("persists underlay pan and rotation transforms", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const underlay = {
+      fileName: "living-room-plan.png",
+      dataUrl: "data:image/png;base64,cGxhbg==",
+      widthMm: 6200,
+      heightMm: 4600,
+      opacity: 0.55,
+      xMm: 150,
+      zMm: -80,
+      rotationDeg: 12,
+    };
+    const withUnderlay = setLivingRoomPlanUnderlay(project, underlay);
+    expect(getLivingRoomPlanUnderlay(withUnderlay)).toEqual(underlay);
   });
 });

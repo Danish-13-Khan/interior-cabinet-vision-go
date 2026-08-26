@@ -6,6 +6,9 @@ export type LivingRoomPlanUnderlay = {
   widthMm: number;
   heightMm: number;
   opacity: number;
+  xMm?: number;
+  zMm?: number;
+  rotationDeg?: number;
 };
 
 export function getLivingRoomPlanUnderlay(
@@ -28,6 +31,9 @@ export function getLivingRoomPlanUnderlay(
     widthMm: Math.max(100, Number(candidate.widthMm)),
     heightMm: Math.max(100, Number(candidate.heightMm)),
     opacity: Math.min(1, Math.max(0.05, Number(candidate.opacity))),
+    xMm: Number.isFinite(candidate.xMm) ? Number(candidate.xMm) : 0,
+    zMm: Number.isFinite(candidate.zMm) ? Number(candidate.zMm) : 0,
+    rotationDeg: Number.isFinite(candidate.rotationDeg) ? Number(candidate.rotationDeg) : 0,
   };
 }
 

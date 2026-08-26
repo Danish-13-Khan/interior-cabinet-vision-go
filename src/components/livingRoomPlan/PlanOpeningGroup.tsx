@@ -2,6 +2,8 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import type { OpeningEntity, WallEntity } from "../../domain/interiorProject";
 import {
   getOpeningCatalogItem,
+  formatPlanDimension,
+  type PlanDisplayUnit,
   type OpeningCatalogSymbol,
 } from "../../domain/livingRoom";
 
@@ -94,6 +96,7 @@ export function PlanOpeningGroup({
   active,
   onSelect,
   onStartDrag,
+  unit,
 }: {
   opening: OpeningEntity;
   wall: WallEntity;
@@ -105,6 +108,7 @@ export function PlanOpeningGroup({
     openingId: string,
     mode: "move" | "resize-start" | "resize-end",
   ) => void;
+  unit: PlanDisplayUnit;
 }) {
   const displayed = preview?.id === opening.id
     ? { ...opening, offsetMm: preview.offsetMm, widthMm: preview.widthMm }
@@ -145,7 +149,7 @@ export function PlanOpeningGroup({
         widthMm={displayed.widthMm}
       />
       <text x={midpoint.x} y={midpoint.z - 85}>
-        {catalog.name.toUpperCase()} {displayed.widthMm}
+        {catalog.name.toUpperCase()} {formatPlanDimension(displayed.widthMm, unit)}
       </text>
       {active ? (
         <>

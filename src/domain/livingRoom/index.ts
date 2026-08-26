@@ -8,6 +8,17 @@ export {
   resizeOpeningFromStart,
 } from "./openingPlacement";
 export {
+  DEFAULT_PLAN_READABILITY,
+  formatPlanDimension,
+  planDimensionPair,
+  wallLabelPose,
+  wallLengthMm,
+  type PlanDimensionPair,
+  type PlanDisplayUnit,
+  type PlanReadabilitySettings,
+  type PlanVisualStyle,
+} from "./planReadability";
+export {
   OPENING_CATALOG,
   getOpeningCatalogItem,
   openingCatalogForKind,

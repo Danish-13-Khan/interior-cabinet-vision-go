@@ -4,6 +4,7 @@ import {
   moveOpeningOffset,
   resizeOpeningFromStart,
   resizeOpeningWidth,
+  type PlanDisplayUnit,
 } from "../../domain/livingRoom";
 import { PlanOpeningGroup } from "./PlanOpeningGroup";
 
@@ -130,6 +131,7 @@ export function PlanOpeningsLayer({
   openingPreview,
   onSelectOpening,
   onStartDrag,
+  unit,
 }: {
   project: InteriorProject;
   activeOpeningId: string | null;
@@ -140,6 +142,7 @@ export function PlanOpeningsLayer({
     openingId: string,
     mode: "move" | "resize-start" | "resize-end",
   ) => void;
+  unit: PlanDisplayUnit;
 }) {
   return (
     <>
@@ -157,6 +160,7 @@ export function PlanOpeningsLayer({
               active={opening.id === activeOpeningId}
               onSelect={onSelectOpening}
               onStartDrag={onStartDrag}
+              unit={unit}
             />
           );
         })}

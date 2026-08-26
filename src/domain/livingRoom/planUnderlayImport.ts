@@ -18,6 +18,9 @@ export function imageFileToUnderlay(
         widthMm: roomWidthMm,
         heightMm: roomWidthMm * image.naturalHeight / Math.max(1, image.naturalWidth),
         opacity: 0.42,
+        xMm: 0,
+        zMm: 0,
+        rotationDeg: 0,
       });
       image.src = dataUrl;
     };

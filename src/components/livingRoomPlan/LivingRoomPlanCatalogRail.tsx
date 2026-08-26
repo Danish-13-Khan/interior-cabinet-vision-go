@@ -10,8 +10,9 @@ import {
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildToolList } from "./BuildToolList";
 import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
+import { PlanUnderlayControls } from "./PlanUnderlayControls";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
-import { AssetImportPanel } from "./AssetImportPanel";
+import { PlanAssetLibraryPanel } from "./PlanAssetLibraryPanel";
 type LivingRoomPlanCatalogRailProps = {
   widthPx: number;
   toolRailVisible: boolean;
@@ -90,36 +91,10 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
       {props.toolRailVisible ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {activePanel === "cabinets" || activePanel === "furniture" ? (
-          <>
-            <div className="context-panel-heading">
-              <strong>{activePanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
-              <span>{activePanel === "cabinets" ? `Attach to ${String(activeWall.extensions?.wallSide ?? "wall")}` : `${visibleAssets.length} parametric models`}</span>
-            </div>
-            <AssetImportPanel cabinetMode={activePanel === "cabinets"} onAdd={props.onAddImportedAsset} />
-            <div className="lr-asset-controls">
-              <input
-                aria-label={activePanel === "cabinets" ? "Search cabinets" : "Search furniture"}
-                placeholder={activePanel === "cabinets" ? "Search cabinets…" : "Search furniture…"}
-                value={props.assetQuery}
-                onChange={(event) => props.onAssetQuery(event.target.value)}
-              />
-              <div className="lr-asset-categories">
-                {props.assetCategories.map((category) => (
-                  <button type="button" key={category} className={props.assetCategory === category ? "is-active" : ""} onClick={() => props.onAssetCategory(category)}>{category === "all" ? "All" : category.replace("-", " ")}</button>
-                ))}
-              </div>
-            </div>
-            <div className="lr-asset-grid">
-              {visibleAssets.map((item) => (
-                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id, activePanel === "cabinets" ? activeWall.id : undefined)}>
-                  <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
-                  <strong>{item.name}</strong>
-                  <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm</small>
-                  <b>Place</b>
-                </button>
-              ))}
-            </div>
-          </>
+          <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall.extensions?.wallSide ?? "wall")}
+            wallId={activeWall.id} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
+            categories={props.assetCategories} onQuery={props.onAssetQuery} onCategory={props.onAssetCategory}
+            onAdd={props.onAddCatalogObject} onImport={props.onAddImportedAsset} />
         ) : activePanel === "materials" ? <>
             <div className="context-panel-heading"><strong>Surface Paint</strong><span>2D paint · synced 3D</span></div>
             <SurfacePaintPanel
@@ -214,27 +189,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                 <small>{tool === "upload-underlay" ? "Upload tool armed — choose or replace a plan image." : "Optional: align a supplied floor plan before drawing."}</small>
               </section>
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
-              {props.underlay ? (
-                <>
-                  <div className="lr-underlay-thumb"><img src={props.underlay.dataUrl} alt="Imported floor plan" /></div>
-                  <strong>{props.underlay.fileName}</strong>
-                  <small>{Math.round(props.underlay.widthMm)} × {Math.round(props.underlay.heightMm)} mm</small>
-                  <label><span>Opacity</span><input type="range" min="0.05" max="1" step="0.05" value={props.underlay.opacity} onChange={(event) => props.onSetPlanUnderlay({ ...props.underlay!, opacity: Number(event.target.value) })} /></label>
-                  <label><span>Calibrated width</span><input type="number" min="100" step="10" value={Math.round(props.underlay.widthMm)} onChange={(event) => {
-                    const widthMm = Math.max(100, Number(event.target.value) || props.underlay!.widthMm);
-                    props.onSetPlanUnderlay({ ...props.underlay!, widthMm, heightMm: props.underlay!.heightMm * widthMm / props.underlay!.widthMm });
-                  }} /></label>
-                  <button type="button" className="is-secondary" onClick={() => underlayInputRef.current?.click()}>Replace image</button>
-                  <button type="button" className="is-danger" onClick={() => props.onSetPlanUnderlay(null)}>Remove underlay</button>
-                </>
-              ) : (
-                <div className="lr-underlay-empty">
-                  <span>⌁</span>
-                  <strong>Import a floor plan</strong>
-                  <p>Use PNG, JPG, or WebP as a calibrated tracing underlay.</p>
-                  <button type="button" onClick={() => underlayInputRef.current?.click()}>Choose plan image</button>
-                </div>
-              )}
+              <PlanUnderlayControls underlay={props.underlay} onChange={props.onSetPlanUnderlay} onReplace={() => underlayInputRef.current?.click()} />
               {props.importError ? <p className="lr-import-error">{props.importError}</p> : null}
             </div>
           </>
