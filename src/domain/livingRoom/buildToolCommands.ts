@@ -8,10 +8,11 @@ export type BuildTool =
   | "upload-underlay"
   | "draw-room"
   | "draw-wall"
+  | "draw-partition"
   | "draw-surface"
   | "place-door"
   | "place-window"
-  | "place-structural";
+  | "place-column";
 
 export type BuildDraft = {
   tool: BuildTool;
@@ -29,8 +30,12 @@ export type BuildCommand =
   | { type: "commitDraft" }
   | { type: "resizeRoom"; dimensions: Size3Mm }
   | { type: "createWall" }
-  | { type: "createWallSegment"; start: Point2Mm; end: Point2Mm }
+  | { type: "createWallSegment"; start: Point2Mm; end: Point2Mm; wallKind?: "wall" | "partition" }
   | { type: "createRoom"; drawing: RoomDrawingRequest }
+  | { type: "createSurface"; drawing: RoomDrawingRequest; materialId: string }
+  | { type: "updateSurface"; surfaceId: string; materialId: string }
+  | { type: "deleteSurface"; surfaceId: string }
+  | { type: "placeColumn"; position: Point2Mm }
   | { type: "splitWall"; wallId: string; offsetMm?: number }
   | { type: "deleteWall"; wallId: string }
   | { type: "updateWall"; wallId: string; patch: WallCommandPatch }
@@ -46,8 +51,12 @@ export type BuildCommand =
 export type BuildCommandHandlers = {
   resizeRoom: (dimensions: Size3Mm) => void;
   createWall: () => void;
-  createWallSegment: (start: Point2Mm, end: Point2Mm) => void;
+  createWallSegment: (start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") => void;
   createRoom: (drawing: RoomDrawingRequest) => void;
+  createSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  updateSurface: (surfaceId: string, materialId: string) => void;
+  deleteSurface: (surfaceId: string) => void;
+  placeColumn: (position: Point2Mm) => void;
   splitWall: (wallId: string, offsetMm?: number) => void;
   deleteWall: (wallId: string) => void;
   updateWall: (wallId: string, patch: WallCommandPatch) => void;
@@ -62,10 +71,11 @@ const DRAFT_TOOLS: ReadonlySet<BuildTool> = new Set([
   "upload-underlay",
   "draw-room",
   "draw-wall",
+  "draw-partition",
   "draw-surface",
   "place-door",
   "place-window",
-  "place-structural",
+  "place-column",
 ]);
 
 export function createBuildCommandState(tool: BuildTool = "select"): BuildCommandState {
@@ -99,70 +109,8 @@ export function reduceBuildCommand(
   }
 }
 
-/**
- * Apply a Build command: update tool/draft state, then run rectangular adapters.
- * Draft updates never call handlers; only explicit commits/mutations do.
- */
-export function applyBuildCommand(
-  state: BuildCommandState,
-  command: BuildCommand,
-  handlers: BuildCommandHandlers,
-): BuildCommandState {
-  const next = reduceBuildCommand(state, command);
-  switch (command.type) {
-    case "beginDraft":
-      if (command.tool === "upload-underlay") handlers.requestUnderlayUpload();
-      return next;
-    case "resizeRoom":
-      handlers.resizeRoom(command.dimensions);
-      return next;
-    case "createWall":
-      handlers.createWall();
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "createWallSegment":
-      handlers.createWallSegment(command.start, command.end);
-      return next;
-    case "createRoom":
-      handlers.createRoom(command.drawing);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "splitWall":
-      handlers.splitWall(command.wallId, command.offsetMm);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "deleteWall":
-      handlers.deleteWall(command.wallId);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "updateWall":
-      handlers.updateWall(command.wallId, command.patch);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "joinCoincidentNodes":
-      handlers.joinCoincidentNodes();
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "placeOpening":
-      handlers.placeOpening(command.wallId, command.kind, command.offsetMm, command.catalogItemId);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "moveOpening":
-      handlers.updateOpening(command.openingId, { offsetMm: command.offsetMm });
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "resizeOpening":
-      handlers.updateOpening(command.openingId, {
-        widthMm: command.widthMm,
-        ...(command.offsetMm !== undefined ? { offsetMm: command.offsetMm } : {}),
-      });
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "updateOpening":
-      handlers.updateOpening(command.openingId, command.patch);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "deleteOpening":
-      handlers.deleteOpening(command.openingId);
-      return reduceBuildCommand(next, { type: "commitDraft" });
-    case "requestUnderlayUpload":
-      handlers.requestUnderlayUpload();
-      return next;
-    default:
-      return next;
-  }
+export function isArmedPlacementTool(tool: BuildTool): boolean {
+  return tool === "place-door" || tool === "place-window" || tool === "place-column";
 }
 
-export function isArmedPlacementTool(tool: BuildTool): boolean {
-  return tool === "place-door" || tool === "place-window" || tool === "place-structural";
-}
+export { applyBuildCommand } from "./buildCommandDispatcher";

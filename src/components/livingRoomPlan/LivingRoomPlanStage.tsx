@@ -41,15 +41,20 @@ type LivingRoomPlanStageProps = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
+  activeSurfaceId: string | null;
+  surfaceMaterialId: string;
   onSelectWall: (wallId: string) => void;
   onSelectOpening: (openingId: string) => void;
+  onSelectSurface: (surfaceId: string | null) => void;
   onMoveOpening: (openingId: string, offsetMm: number) => void;
   onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
   activeBuildTool?: BuildTool;
   openingCatalogItemId?: string;
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
   onCreateRoom: (drawing: RoomDrawingRequest) => void;
-  onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm) => void;
+  onDrawSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm, wallKind?: "wall" | "partition") => void;
+  onPlaceColumn: (position: import("../../domain/interiorProject").Point2Mm) => void;
   roomPolygonCloseRequest: number;
   onRoomPolygonPointCount: (count: number) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
@@ -134,15 +139,20 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onResize={props.onResize}
             activeWallId={props.activeWallId}
             activeOpeningId={props.activeOpeningId}
+            activeSurfaceId={props.activeSurfaceId}
+            surfaceMaterialId={props.surfaceMaterialId}
             onSelectWall={props.onSelectWall}
             onSelectOpening={props.onSelectOpening}
+            onSelectSurface={props.onSelectSurface}
             onMoveOpening={props.onMoveOpening}
             onResizeOpening={props.onResizeOpening}
             activeBuildTool={props.activeBuildTool}
             openingCatalogItemId={props.openingCatalogItemId}
             onPlaceOpening={props.onPlaceOpening}
             onCreateRoom={props.onCreateRoom}
+            onDrawSurface={props.onDrawSurface}
             onDrawWallSegment={props.onDrawWallSegment}
+            onPlaceColumn={props.onPlaceColumn}
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
             onRoomPolygonPointCount={props.onRoomPolygonPointCount}
             readability={readability.settings}

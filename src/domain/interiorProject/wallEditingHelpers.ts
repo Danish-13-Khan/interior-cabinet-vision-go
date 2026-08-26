@@ -6,6 +6,7 @@ export type WallSegmentRequest = {
   start: Point2Mm;
   end: Point2Mm;
   roomId?: string;
+  kind?: "wall" | "partition";
 };
 
 export const MIN_SEGMENT_MM = 150;

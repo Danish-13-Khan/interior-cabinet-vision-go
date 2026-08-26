@@ -255,6 +255,10 @@ function App() {
             onAddPartitionWall={c.addLivingRoomPartition}
             onCreateRoom={c.drawLivingRoomRoom}
             onDrawWallSegment={c.drawLivingRoomWallSegment}
+            onDrawSurface={c.drawLivingRoomSurface}
+            onUpdateSurface={c.updateLivingRoomSurface}
+            onDeleteSurface={c.deleteLivingRoomSurface}
+            onPlaceColumn={c.placeLivingRoomColumn}
             onSplitWall={c.splitLivingRoomWall}
             onDeleteWall={c.deleteLivingRoomWall}
             onUpdateWall={c.updateLivingRoomWall}

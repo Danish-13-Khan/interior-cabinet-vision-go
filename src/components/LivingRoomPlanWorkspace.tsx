@@ -20,6 +20,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [importError, setImportError] = useState("");
   const [activeWallId, setActiveWallId] = useState<string | null>(null);
   const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
+  const [activeSurfaceId, setActiveSurfaceId] = useState<string | null>(null);
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
@@ -29,9 +30,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
   const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
   const build = useLivingRoomBuildCommands({
-    project: props.project, underlayPickerRef, setActiveWallId, setActiveOpeningId,
+    project: props.project, underlayPickerRef, setActiveWallId, setActiveOpeningId, setActiveSurfaceId,
     onRoomDimensions: props.onRoomDimensions, onAddPartitionWall: props.onAddPartitionWall,
     onCreateRoom: props.onCreateRoom, onDrawWallSegment: props.onDrawWallSegment,
+    onDrawSurface: props.onDrawSurface, onUpdateSurface: props.onUpdateSurface,
+    onDeleteSurface: props.onDeleteSurface, onPlaceColumn: props.onPlaceColumn,
     onSplitWall: props.onSplitWall, onDeleteWall: props.onDeleteWall, onUpdateWall: props.onUpdateWall,
     onJoinCoincidentNodes: props.onJoinCoincidentNodes, onAddOpening: props.onAddOpening,
     onUpdateOpening: props.onUpdateOpening, onDeleteOpening: props.onDeleteOpening,
@@ -107,6 +110,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onAssetCategory={setAssetCategory} onImportError={setImportError}
         snapSizeMm={snapSizeMm} showGrid={showGrid} onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm}
         activeWallId={activeWallId} activeOpeningId={activeOpeningId} activeOpening={activeOpening}
+        activeSurfaceId={activeSurfaceId} setActiveSurfaceId={setActiveSurfaceId}
         setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
         roomPolygonPointCount={roomPolygonPointCount} roomPolygonCloseRequest={roomPolygonCloseRequest}
         onRoomPolygonPointCount={setRoomPolygonPointCount}

@@ -5,6 +5,8 @@ import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { RoomDrawingPanel } from "./RoomDrawingPanel";
+import { StructuralBuildPanel } from "./StructuralBuildPanel";
+import { SurfaceDrawingPanel } from "./SurfaceDrawingPanel";
 import { WallDrawingPanel } from "./WallDrawingPanel";
 
 type BuildRoomCatalogPanelProps = {
@@ -13,10 +15,12 @@ type BuildRoomCatalogPanelProps = {
   roomDimensions: Size3Mm;
   activeWall: WallEntity;
   activeOpening: OpeningEntity | null;
+  activeSurfaceId: string | null;
   underlay: LivingRoomPlanUnderlay | null;
   importError: string;
   openingCatalogItemId?: string;
   roomPolygonPointCount?: number;
+  surfaceMaterialId?: string;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onAddPartitionWall: () => void;
   onActiveWall: (wallId: string) => void;
@@ -26,6 +30,10 @@ type BuildRoomCatalogPanelProps = {
   onDeleteOpening: (openingId: string) => void;
   onOpeningCatalogItem?: (catalogItemId: string) => void;
   onCloseRoomPolygon?: () => void;
+  onCloseSurfacePolygon?: () => void;
+  onSurfaceMaterialId?: (materialId: string) => void;
+  onUpdateSurface?: (surfaceId: string, materialId: string) => void;
+  onDeleteSurface?: (surfaceId: string) => void;
   onSplitWall?: (wallId: string) => void;
   onDeleteWall?: (wallId: string) => void;
   onUpdateWallThickness?: (wallId: string, thicknessMm: number) => void;
@@ -37,9 +45,34 @@ type BuildRoomCatalogPanelProps = {
 
 export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
   const { tool, project, activeWall, activeOpening } = props;
+  const activeSurface = project.surfaces.find((surface) => surface.id === props.activeSurfaceId) ?? null;
+  const polygonCount = props.roomPolygonPointCount ?? 0;
   return (
     <div className="lr-underlay-panel">
-      {tool === "draw-surface" ? <p className="lr-build-tool-hint">Surface zones will be enabled after freeform topology authoring.</p> : null}
+      {tool === "draw-surface" ? (
+        <section className="lr-room-authoring lr-build-commit">
+          <strong>Draw Surface · armed</strong>
+          <SurfaceDrawingPanel
+            pointCount={polygonCount}
+            materialId={props.surfaceMaterialId ?? project.materials[0]?.id ?? ""}
+            materials={project.materials}
+            onMaterialId={props.onSurfaceMaterialId ?? (() => {})}
+            onClosePolygon={props.onCloseSurfacePolygon}
+          />
+        </section>
+      ) : null}
+      {tool === "draw-partition" || tool === "place-column" ? (
+        <StructuralBuildPanel
+          tool={tool}
+          thicknessMm={activeWall.thicknessMm}
+          canEditWall={Boolean(activeWall)}
+          onAddPartitionWall={props.onAddPartitionWall}
+          onThickness={(thicknessMm) => props.onUpdateWallThickness?.(activeWall.id, thicknessMm)}
+          onSplit={() => props.onSplitWall?.(activeWall.id)}
+          onDelete={() => props.onDeleteWall?.(activeWall.id)}
+          onJoinNodes={() => props.onJoinCoincidentNodes?.()}
+        />
+      ) : null}
       {tool === "place-door" || tool === "place-window" ? (
         <section className="lr-room-authoring lr-build-commit">
           <strong>{tool === "place-door" ? "Place Doors · armed" : "Place Windows · armed"}</strong>
@@ -50,13 +83,6 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
           <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, tool === "place-door" ? "door" : "window")}>
             {tool === "place-door" ? "+ Place door on selected wall" : "+ Place window on selected wall"}
           </button>
-        </section>
-      ) : null}
-      {tool === "place-structural" ? (
-        <section className="lr-room-authoring lr-build-commit">
-          <strong>Place Structurals · armed</strong>
-          <p>Commit to add a partition wall. Escape cancels.</p>
-          <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
         </section>
       ) : null}
       {tool === "draw-wall" ? (
@@ -72,9 +98,26 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
           />
         </section>
       ) : null}
+      {activeSurface && tool === "select" ? (
+        <section className="lr-room-authoring lr-build-commit">
+          <strong>Surface zone · {activeSurface.id}</strong>
+          <label>
+            <span>Material</span>
+            <select
+              value={activeSurface.materialId ?? ""}
+              onChange={(event) => props.onUpdateSurface?.(activeSurface.id, event.target.value)}
+            >
+              {project.materials.map((material) => (
+                <option key={material.id} value={material.id}>{material.name}</option>
+              ))}
+            </select>
+          </label>
+          <button type="button" className="is-danger" onClick={() => props.onDeleteSurface?.(activeSurface.id)}>Delete surface zone</button>
+        </section>
+      ) : null}
       <section className="lr-room-authoring">
         <strong>{tool === "draw-room" ? "Draw Room · dimensions" : "1. Room dimensions"}</strong>
-        {tool === "draw-room" ? <RoomDrawingPanel pointCount={props.roomPolygonPointCount ?? 0} onClosePolygon={props.onCloseRoomPolygon} /> : null}
+        {tool === "draw-room" ? <RoomDrawingPanel pointCount={polygonCount} onClosePolygon={props.onCloseRoomPolygon} /> : null}
         <div className="lr-room-dimension-grid">
           {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
             <label key={key}>
@@ -87,13 +130,13 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
       </section>
       <section className="lr-room-authoring">
         <strong>2. Select or add a wall</strong>
-        {tool !== "place-structural" && tool !== "draw-wall" ? (
+        {tool !== "draw-partition" && tool !== "draw-wall" ? (
           <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
         ) : null}
         <div className="lr-wall-tabs">
           {project.walls.map((wall) => (
             <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>
-              {String(wall.extensions?.wallSide ?? "wall")}
+              {wall.extensions?.isPartition ? "partition" : String(wall.extensions?.wallSide ?? "wall")}
             </button>
           ))}
         </div>

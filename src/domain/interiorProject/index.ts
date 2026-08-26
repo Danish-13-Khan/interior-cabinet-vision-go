@@ -109,6 +109,14 @@ export {
 export { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 export { resizeRoomPlanGeometry } from "./roomResize";
 export {
+  createSurfaceZone,
+  deleteSurfaceZone,
+  isGeneratedRoomSurface,
+  setSurfaceZoneMaterial,
+  surfaceZoneFitsRoom,
+  type SurfaceZoneRequest,
+} from "./surfaceEditing";
+export {
   createWallSegment,
   createWallSegmentResult,
   deletePlanWall,

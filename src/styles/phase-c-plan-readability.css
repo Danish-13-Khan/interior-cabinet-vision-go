@@ -150,4 +150,20 @@
 
 .lr-wall-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
 
-.lr-wall-edit-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.lr-wall-line.is-partition {
+  stroke-dasharray: 70 40;
+  stroke-width: 24px;
+}
+
+.lr-surface-zones path {
+  pointer-events: visiblePainted;
+}
+
+.lr-surface-zones path.is-active {
+  filter: drop-shadow(0 0 6px rgba(38, 57, 64, 0.35));
+}
+
+.lr-build-commit select {
+  width: 100%;
+  margin-top: 4px;
+}

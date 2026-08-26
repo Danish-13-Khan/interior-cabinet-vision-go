@@ -37,6 +37,8 @@ type Props = {
   onSnapSize: (value: number) => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
+  activeSurfaceId: string | null;
+  setActiveSurfaceId: React.Dispatch<React.SetStateAction<string | null>>;
   activeOpening: OpeningEntity | null;
   setActiveWallId: React.Dispatch<React.SetStateAction<string | null>>;
   setActiveOpeningId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -74,7 +76,7 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
           onSetWallMaterial={w.onSetWallMaterial} onSetObjectMaterial={w.onSetMaterial}
           onSetLayerVisibility={w.onSetLayerVisibility}
-          onSelect={(objectId) => { props.setActiveOpeningId(null); w.onSelect(objectId); }}
+          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
           onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
@@ -100,6 +102,15 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           }}
           onUpdateWallThickness={(wallId, thicknessMm) => build.dispatchBuildCommand({ type: "updateWall", wallId, patch: { thicknessMm } })}
           onJoinCoincidentNodes={() => build.dispatchBuildCommand({ type: "joinCoincidentNodes" })}
+          surfaceMaterialId={build.surfaceMaterialId}
+          onSurfaceMaterialId={build.setSurfaceMaterialId}
+          activeSurfaceId={props.activeSurfaceId}
+          onCloseSurfacePolygon={props.onRoomPolygonCloseRequest}
+          onUpdateSurface={(surfaceId, materialId) => build.dispatchBuildCommand({ type: "updateSurface", surfaceId, materialId })}
+          onDeleteSurface={(surfaceId) => {
+            build.dispatchBuildCommand({ type: "deleteSurface", surfaceId });
+            props.setActiveSurfaceId((current) => (current === surfaceId ? null : current));
+          }}
           onRegisterUnderlayPicker={(openPicker) => { props.underlayPickerRef.current = openPicker; }}
           onImportUnderlay={async (file) => {
             if (!file) return;
@@ -127,20 +138,29 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
         exportStatus={props.millwork.status} autosaveState={w.autosaveState} lastAutosavedAt={w.lastAutosavedAt}
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-        onSelect={(objectId, additive) => { props.setActiveOpeningId(null); w.onSelect(objectId, additive); }}
-        onMove={w.onMove} onResize={w.onResize} activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-        onSelectWall={(wallId) => { props.setActiveOpeningId(null); props.setActiveWallId(wallId); }}
+        onSelect={(objectId, additive) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
+        onMove={w.onMove} onResize={w.onResize}         activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
+        activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
+        onSelectWall={(wallId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); props.setActiveWallId(wallId); }}
         onSelectOpening={(openingId) => {
           props.setActiveOpeningId(openingId);
+          props.setActiveSurfaceId(null);
           const opening = project.openings.find((item) => item.id === openingId);
           if (opening) props.setActiveWallId(opening.wallId);
+        }}
+        onSelectSurface={(surfaceId) => {
+          props.setActiveSurfaceId(surfaceId);
+          props.setActiveOpeningId(null);
+          w.onSelect(null);
         }}
         onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
         onResizeOpening={(openingId, widthMm, offsetMm) => build.dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
         activeBuildTool={props.activeBuildTool} openingCatalogItemId={build.openingCatalogItemId}
         onPlaceOpening={(wallId, kind, offsetMm) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: build.openingCatalogItemId })}
         onCreateRoom={(drawing) => build.dispatchBuildCommand({ type: "createRoom", drawing })}
-        onDrawWallSegment={(start, end) => build.dispatchBuildCommand({ type: "createWallSegment", start, end })}
+        onDrawSurface={(drawing, materialId) => build.dispatchBuildCommand({ type: "createSurface", drawing, materialId })}
+        onDrawWallSegment={(start, end, wallKind) => build.dispatchBuildCommand({ type: "createWallSegment", start, end, wallKind })}
+        onPlaceColumn={(position) => build.dispatchBuildCommand({ type: "placeColumn", position })}
         roomPolygonCloseRequest={props.roomPolygonCloseRequest} onRoomPolygonPointCount={props.onRoomPolygonPointCount}
         onSetRotation={w.onSetRotation} onSetParameters={w.onSetParameters} onApplyStyle={w.onApplyStyle}
         onUndo={w.onUndo} onRedo={w.onRedo} onDuplicate={w.onDuplicate} onDelete={w.onDelete}
@@ -161,7 +181,7 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           productionReport={props.millwork.productionReport} millworkExportedAt={props.millwork.exportedAt}
           onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
           onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
-          onSelect={(objectId) => { props.setActiveOpeningId(null); w.onSelect(objectId); }}
+          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
         />
       ) : null}
