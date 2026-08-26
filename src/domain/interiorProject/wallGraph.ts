@@ -1,4 +1,5 @@
 import type { InteriorProject, PlanLoop, PlanNodeEntity, Point2Mm, WallEntity } from "./types";
+import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 
 export type WallGraphIndex = {
   nodesById: Map<string, PlanNodeEntity>;
@@ -40,10 +41,10 @@ export function synchronizeWallCaches(project: InteriorProject): InteriorProject
 
 export function movePlanNode(project: InteriorProject, nodeId: string, position: Point2Mm): InteriorProject {
   if (!project.nodes.some((node) => node.id === nodeId)) return project;
-  return synchronizeWallCaches({
+  return synchronizeRoomSurfaceZones(synchronizeWallCaches({
     ...project,
     nodes: project.nodes.map((node) => node.id === nodeId ? { ...node, position: { ...position } } : node),
-  });
+  }));
 }
 
 export function wallDegree(index: WallGraphIndex, nodeId: string) {

@@ -1,4 +1,4 @@
-import type { Size3Mm, WallEntity } from "../interiorProject";
+import { roomPlanViewBounds, selectRoomWalls, type InteriorProject, type Size3Mm, type WallEntity } from "../interiorProject";
 
 export type PlanDisplayUnit = "mm" | "cm" | "m" | "ft-in";
 export type PlanVisualStyle = "fill" | "line";
@@ -57,6 +57,22 @@ export function planDimensionPair(dimensions: Size3Mm, walls: WallEntity[]): Pla
     innerDepthMm: Math.max(0, dimensions.depthMm - back - front),
     outerWidthMm: dimensions.widthMm + left + right,
     outerDepthMm: dimensions.depthMm + back + front,
+  };
+}
+
+/** Dimension envelope for arbitrary room loops; cached room dimensions are ignored. */
+export function topologyPlanDimensionPair(
+  project: InteriorProject,
+  roomId: string,
+): PlanDimensionPair {
+  const bounds = roomPlanViewBounds(project, roomId);
+  const walls = selectRoomWalls(project, roomId);
+  const halfThickness = Math.max(0, ...walls.map((wall) => wall.thicknessMm / 2));
+  return {
+    innerWidthMm: Math.max(0, bounds.widthMm - halfThickness * 2),
+    innerDepthMm: Math.max(0, bounds.depthMm - halfThickness * 2),
+    outerWidthMm: bounds.widthMm + halfThickness * 2,
+    outerDepthMm: bounds.depthMm + halfThickness * 2,
   };
 }
 

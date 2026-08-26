@@ -1,5 +1,6 @@
 import { wallLengthMm } from "./planTopology";
 import { synchronizeWallCaches } from "./wallGraph";
+import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type { InteriorProject, OpeningEntity, WallEntity } from "./types";
 import {
   MIN_SEGMENT_MM,
@@ -100,7 +101,7 @@ export function splitPlanWallResult(
   });
 
   const walls = project.walls.flatMap((item) => item.id === wallId ? [first, second] : [item]);
-  const next = pruneOrphanNodes(synchronizeWallCaches({ ...project, nodes, walls, loops, openings }));
+  const next = synchronizeRoomSurfaceZones(pruneOrphanNodes(synchronizeWallCaches({ ...project, nodes, walls, loops, openings })));
   return { project: next, firstWallId: firstId, secondWallId: secondId };
 }
 
@@ -117,7 +118,7 @@ export function deletePlanWall(project: InteriorProject, wallId: string): Interi
   }));
   const openings = project.openings.filter((opening) => opening.wallId !== wallId);
   const walls = project.walls.filter((wall) => wall.id !== wallId);
-  return pruneOrphanNodes(synchronizeWallCaches({ ...project, walls, loops, openings }));
+  return synchronizeRoomSurfaceZones(pruneOrphanNodes(synchronizeWallCaches({ ...project, walls, loops, openings })));
 }
 
 export function setPlanWallThickness(

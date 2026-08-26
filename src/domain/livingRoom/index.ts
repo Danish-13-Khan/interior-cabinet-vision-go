@@ -11,6 +11,7 @@ export {
   DEFAULT_PLAN_READABILITY,
   formatPlanDimension,
   planDimensionPair,
+  topologyPlanDimensionPair,
   wallLabelPose,
   wallLengthMm,
   type PlanDimensionPair,
@@ -275,7 +276,10 @@ export {
   boundsDistance,
   boundsOverlap,
   getObjectPlanBounds,
+  getObjectPlanCorners,
   getRoomPlanBounds,
+  getTopologyRoomPlanBounds,
+  objectFitsRoom,
   type PlanBounds,
 } from "./planGeometry";
 export {
@@ -294,18 +298,20 @@ export {
 } from "./planUnderlay";
 export {
   addLivingRoomObject,
-  addLivingRoomOpening,
   alignLivingRoomObjects,
   deleteLivingRoomObjects,
-  deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   moveLivingRoomObject,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
-  updateLivingRoomOpening,
   type LivingRoomAlignMode,
 } from "./planCommands";
+export {
+  addLivingRoomOpening,
+  deleteLivingRoomOpening,
+  updateLivingRoomOpening,
+} from "./openingCommands";
 export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
 export {
   attachObjectRenderBinding,
@@ -379,6 +385,7 @@ export type {
   CompiledBoxPrimitive,
   CompiledRoundedBoxPrimitive,
   CompiledCylinderPrimitive,
+  CompiledPolygonPrismPrimitive,
   CompiledLivingRoomScene,
   CompiledMaterial,
   CompiledPrimitive,

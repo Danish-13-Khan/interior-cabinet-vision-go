@@ -1,8 +1,8 @@
 import {
   validateInteriorProject,
+  resizeRoomPlanGeometry,
   type InteriorObjectEntity,
   type InteriorProject,
-  type OpeningEntity,
   type Point3Mm,
   type Size3Mm,
   type WallEntity,
@@ -163,74 +163,10 @@ export function resizeLivingRoom(
   roomId: string,
   dimensions: Size3Mm,
 ) {
-  const widthMm = Math.max(2500, dimensions.widthMm);
-  const depthMm = Math.max(2500, dimensions.depthMm);
-  const heightMm = Math.max(2200, dimensions.heightMm);
-  const halfWidth = widthMm / 2;
-  const halfDepth = depthMm / 2;
-  const endpoints: Record<string, [{ x: number; z: number }, { x: number; z: number }]> = {
-    back: [{ x: -halfWidth, z: -halfDepth }, { x: halfWidth, z: -halfDepth }],
-    right: [{ x: halfWidth, z: -halfDepth }, { x: halfWidth, z: halfDepth }],
-    front: [{ x: halfWidth, z: halfDepth }, { x: -halfWidth, z: halfDepth }],
-    left: [{ x: -halfWidth, z: halfDepth }, { x: -halfWidth, z: -halfDepth }],
-  };
-  return safe({
-    ...project,
-    rooms: project.rooms.map((room) =>
-      room.id === roomId
-        ? { ...room, dimensions: { widthMm, heightMm, depthMm } }
-        : room,
-    ),
-    walls: project.walls.map((wall) => {
-      if (wall.roomId !== roomId) return wall;
-      const side = String(wall.extensions?.wallSide ?? "");
-      const points = endpoints[side];
-      return points
-        ? { ...wall, start: points[0], end: points[1], heightMm }
-        : { ...wall, heightMm };
-    }),
-  });
+  return safe(resizeRoomPlanGeometry(project, roomId, dimensions));
 }
 
 /** Adds an editable interior partition; perimeter walls remain owned by the room shell. */
 export function addLivingRoomPartition(project: InteriorProject, wall: WallEntity) {
   return safe({ ...project, walls: [...project.walls, wall] });
-}
-
-function wallLength(project: InteriorProject, wallId: string) {
-  const wall = project.walls.find((item) => item.id === wallId);
-  return wall ? Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z) : 0;
-}
-
-function normaliseOpening(project: InteriorProject, opening: OpeningEntity): OpeningEntity {
-  const length = wallLength(project, opening.wallId);
-  const widthMm = Math.min(Math.max(300, opening.widthMm), Math.max(300, length - 200));
-  return {
-    ...opening,
-    offsetMm: Math.min(Math.max(0, opening.offsetMm), Math.max(0, length - widthMm)),
-    widthMm,
-    heightMm: Math.max(300, opening.heightMm),
-    sillHeightMm: Math.max(0, opening.sillHeightMm),
-  };
-}
-
-export function addLivingRoomOpening(project: InteriorProject, opening: OpeningEntity) {
-  return safe({ ...project, openings: [...project.openings, normaliseOpening(project, opening)] });
-}
-
-export function updateLivingRoomOpening(
-  project: InteriorProject,
-  openingId: string,
-  patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>,
-) {
-  return safe({
-    ...project,
-    openings: project.openings.map((opening) => opening.id === openingId
-      ? normaliseOpening(project, { ...opening, ...patch })
-      : opening),
-  });
-}
-
-export function deleteLivingRoomOpening(project: InteriorProject, openingId: string) {
-  return safe({ ...project, openings: project.openings.filter((opening) => opening.id !== openingId) });
 }

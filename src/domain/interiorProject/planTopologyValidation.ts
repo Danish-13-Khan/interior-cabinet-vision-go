@@ -6,6 +6,8 @@ import {
 import { migrateBoxRoomsToWallGraph, WALL_GRAPH_DOMAIN_VERSION } from "./boxRoomGraphMigration";
 import { synchronizeWallCaches } from "./wallGraph";
 import { validateTopologyOpenings } from "./topologyOpeningValidation";
+import { validateTopologyGeometry } from "./topologyGeometryValidation";
+import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type {
   InteriorProject,
   InteriorValidationIssue,
@@ -30,18 +32,18 @@ export function ensureCompatPlanTopology(
   void issues;
   if (!needsNodes && !needsLoops && project.nodes.length > 0) {
     if (project.extensions?.wallGraphDomainVersion === WALL_GRAPH_DOMAIN_VERSION) {
-      return synchronizeWallCaches(project);
+      return synchronizeRoomSurfaceZones(synchronizeWallCaches(project));
     }
     const graphNative = project.walls.some((wall) => wall.roomId == null)
       || project.walls.some((wall) => roomIdsUsingWall(project, wall.id).length > 1);
     if (graphNative) {
-      return synchronizeWallCaches({
+      return synchronizeRoomSurfaceZones(synchronizeWallCaches({
         ...project,
         extensions: { ...project.extensions, wallGraphDomainVersion: WALL_GRAPH_DOMAIN_VERSION },
-      });
+      }));
     }
   }
-  return migrateBoxRoomsToWallGraph(project);
+  return synchronizeRoomSurfaceZones(migrateBoxRoomsToWallGraph(project));
 }
 
 /** ADR graph/loop/opening checks for schema v2 documents. */
@@ -150,6 +152,7 @@ export function validatePlanTopology(
   }
 
   validateTopologyOpenings(project.openings, wallsById, issues);
+  validateTopologyGeometry(project, issues);
 }
 
 function validateLoop(

@@ -3,6 +3,7 @@ import type {
   EulerDegrees,
   LightEntity,
   MaterialKind,
+  Point2Mm,
   Point3Mm,
 } from "../interiorProject";
 import type { RenderBinding } from "./renderAssetContracts";
@@ -67,10 +68,26 @@ export type CompiledCylinderPrimitive = {
   receiveShadow: boolean;
 };
 
+export type CompiledPolygonPrismPrimitive = {
+  kind: "polygon-prism";
+  id: string;
+  outlineMm: Point2Mm[];
+  holesMm: Point2Mm[][];
+  heightMm: number;
+  boundsMm: { width: number; depth: number };
+  positionMm: Point3Mm;
+  rotationDegrees: EulerDegrees;
+  materialId: string;
+  geometryKey: string;
+  castShadow: boolean;
+  receiveShadow: boolean;
+};
+
 export type CompiledPrimitive =
   | CompiledBoxPrimitive
   | CompiledRoundedBoxPrimitive
-  | CompiledCylinderPrimitive;
+  | CompiledCylinderPrimitive
+  | CompiledPolygonPrismPrimitive;
 
 export type CompiledSceneNode = {
   id: string;

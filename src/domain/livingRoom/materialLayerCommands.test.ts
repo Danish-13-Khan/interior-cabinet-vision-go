@@ -13,6 +13,8 @@ describe("material and layer commands", () => {
     const wall = project.walls[0]!;
     const changed = setLivingRoomWallMaterial(setLivingRoomFloorMaterial(project, project.materials[2]!.id), wall.id, project.materials[3]!.id);
     expect(changed.rooms[0]!.extensions?.floorMaterialId).toBe(project.materials[2]!.id);
+    expect(changed.surfaces.find((surface) => surface.kind === "floor")?.materialId)
+      .toBe(project.materials[2]!.id);
     expect(changed.walls[0]!.materialId).toBe(project.materials[3]!.id);
   });
 

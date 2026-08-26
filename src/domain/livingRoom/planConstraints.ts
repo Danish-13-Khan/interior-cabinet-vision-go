@@ -4,7 +4,7 @@ import {
   boundsDistance,
   boundsOverlap,
   getObjectPlanBounds,
-  getRoomPlanBounds,
+  objectFitsRoom,
   type PlanBounds,
 } from "./planGeometry";
 
@@ -42,20 +42,13 @@ function openingZone(opening: OpeningEntity, wall: WallEntity): PlanBounds {
 export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanIssue[] {
   const issues: LivingRoomPlanIssue[] = [];
   for (const room of project.rooms) {
-    const roomBounds = getRoomPlanBounds(room);
     const objects = project.objects.filter((object) => object.roomId === room.id);
     const blocking = objects.filter(
       (object) => !NON_BLOCKING_CATEGORIES.has(object.category),
     );
 
     for (const object of blocking) {
-      const bounds = getObjectPlanBounds(object);
-      if (
-        bounds.minX < roomBounds.minX ||
-        bounds.maxX > roomBounds.maxX ||
-        bounds.minZ < roomBounds.minZ ||
-        bounds.maxZ > roomBounds.maxZ
-      ) {
+      if (!objectFitsRoom(project, object)) {
         issues.push({
           code: "outside-room",
           severity: "error",

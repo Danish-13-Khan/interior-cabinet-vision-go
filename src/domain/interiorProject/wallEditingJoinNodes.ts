@@ -1,4 +1,5 @@
 import { synchronizeWallCaches } from "./wallGraph";
+import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type { InteriorProject, WallEntity } from "./types";
 import { compatibleSharedEdge, pruneOrphanNodes } from "./wallEditingHelpers";
 
@@ -57,11 +58,11 @@ export function joinPlanNodes(
   }));
   const nodes = project.nodes.filter((node) => node.id !== removeNodeId);
 
-  return pruneOrphanNodes(synchronizeWallCaches({
+  return synchronizeRoomSurfaceZones(pruneOrphanNodes(synchronizeWallCaches({
     ...project,
     nodes,
     walls: merged,
     loops,
     openings,
-  }));
+  })));
 }
