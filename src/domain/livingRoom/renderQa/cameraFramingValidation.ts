@@ -20,6 +20,7 @@ export type CameraFramingIssue = {
 export type CameraFramingReport = {
   ok: boolean;
   cameraId: string | null;
+  cameraName: string | null;
   issues: CameraFramingIssue[];
 };
 
@@ -51,6 +52,7 @@ export function validateCameraFraming(
     return {
       ok: false,
       cameraId: null,
+      cameraName: null,
       issues: [{
         code: "missing-camera",
         severity: "error",
@@ -153,6 +155,7 @@ export function validateCameraFraming(
   return {
     ok: !issues.some((issue) => issue.severity === "error"),
     cameraId: camera.id,
+    cameraName: camera.name,
     issues,
   };
 }

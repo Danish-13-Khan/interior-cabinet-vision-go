@@ -79,7 +79,16 @@
 
 /* Narrow web: Home, build, and review stack instead of clipping. */
 @media (max-width: 860px) {
-  .lr-product-shell-v2 { padding: 12px; gap: 12px; }
+  .app-shell-interiors .app-body {
+    min-height: 0;
+    overflow: auto;
+  }
+  .lr-product-shell-v2 {
+    padding: 12px;
+    gap: 12px;
+    min-height: 0;
+    overflow: auto;
+  }
   .lr-product-shell-v2 .planner-v2-steps { overflow-x: auto; padding-bottom: 2px; }
   .lr-product-shell-v2 .planner-v2-steps button { flex: 0 0 auto; padding: 10px 16px; font-size: 14px; }
   .lr-product-shell-v2 .planner-v2-steps-hint { display: none; }
@@ -93,11 +102,44 @@
   .lr-product-shell-v2 .planner-v2-home { grid-template-columns: 1fr; overflow: auto; }
   .lr-product-shell-v2 .planner-v2-home-intro { padding: 36px 24px; }
   .lr-product-shell-v2 .planner-v2-home-content { padding: 24px; overflow: visible; }
-  .lr-product-shell-v2 .lr-workspace-body { overflow: auto; }
+  .lr-product-shell-v2 .lr-workspace-body {
+    min-width: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .lr-product-shell-v2 .lr-studio-rail { display: none; }
-  .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px) !important; min-width: min(100%, 340px); }
-  .lr-product-shell-v2 .lr-plan-center { min-width: 520px; }
+  .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px) !important; min-width: min(100%, 340px); max-width: 340px; }
+  .lr-product-shell-v2 .lr-plan-center,
+  .lr-product-shell-v2 .lr-plan-canvas { min-width: 0; }
   .lr-product-shell-v2 .planner-v2-review { display: none; }
+}
+
+/* Phone: stack catalog above canvas so Design/Review stay usable without a 520px lock. */
+@media (max-width: 520px) {
+  .lr-product-shell-v2 { padding: 8px; gap: 8px; }
+  .lr-product-shell-v2 .lr-workspace-body {
+    flex-direction: column;
+    overflow: auto;
+  }
+  .lr-product-shell-v2 .lr-catalog {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none;
+    max-height: min(42vh, 320px);
+    flex: 0 0 auto;
+  }
+  .lr-product-shell-v2 .lr-plan-center {
+    width: 100%;
+    min-width: 0;
+    min-height: min(52vh, 420px);
+    flex: 1 1 auto;
+  }
+  .lr-product-shell-v2 .lr-plan-canvas { min-width: 0; }
+  .lr-product-shell-v2 .lr-render-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(280px, 1fr) auto auto;
+    overflow-y: auto;
+  }
 }
 
 /* Review + render uses one sidebar and a flexible studio at desktop widths. */
