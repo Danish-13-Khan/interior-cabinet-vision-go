@@ -1,4 +1,4 @@
-/* Responsive V2 workspace: each breakpoint protects the primary work surface. */
+/* Responsive V2 workspace: single breakpoint ladder for rails, catalog, inspector. */
 .lr-product-shell-v2,
 .lr-product-shell-v2 *,
 .lr-product-shell-v2 *::before,
@@ -17,6 +17,11 @@
   .lr-product-shell-v2 .lr-catalog { width: 285px !important; min-width: 285px; max-width: 285px; }
   .lr-product-shell-v2 .lr-inspector { width: 340px !important; min-width: 340px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 160px; flex-basis: 160px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
+    min-height: 76px;
+    padding: 12px 14px;
+    font-size: 18px;
+  }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 285px !important; min-width: 285px; max-width: 285px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 340px !important; min-width: 340px; }
 }
@@ -30,6 +35,12 @@
   .lr-product-shell-v2 .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
   .lr-product-shell-v2 .lr-inspector { width: 300px !important; min-width: 300px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 140px; flex-basis: 140px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
+    min-height: 62px;
+    padding: 9px 11px;
+    font-size: 16px;
+  }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button small { font-size: 11px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 300px !important; min-width: 300px; }
   .lr-product-shell-v2 .lr-plan-titlebar { min-height: 44px; padding: 0 14px; }
@@ -40,19 +51,48 @@
 @media (max-width: 1180px) {
   .lr-product-shell-v2 .lr-inspector { display: none; }
   .lr-product-shell-v2 .lr-studio-rail { width: 84px; flex-basis: 84px; padding: 12px 7px; }
-  .lr-product-shell-v2 .lr-studio-rail button { min-height: 56px; padding: 8px; font-size: 0; text-align: center; }
+  .lr-product-shell-v2 .lr-studio-rail button {
+    min-height: 56px;
+    padding: 8px;
+    font-size: 0;
+    text-align: center;
+  }
   .lr-product-shell-v2 .lr-studio-rail button span { display: block; font-size: 20px; }
   .lr-product-shell-v2 .lr-studio-rail button small { display: none; }
   .lr-product-shell-v2 .lr-catalog { width: 260px !important; min-width: 260px; max-width: 260px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 84px; flex-basis: 84px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
+    min-height: 56px;
+    padding: 8px;
+    font-size: 0;
+    text-align: center;
+  }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button span {
+    display: block;
+    font-size: 20px;
+  }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button small { display: none; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 260px !important; min-width: 260px; max-width: 260px; }
+  .lr-product-shell-v2 .lr-plan-canvas,
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: 0; }
 }
 
 /* Narrow web: Home, build, and review stack instead of clipping. */
 @media (max-width: 860px) {
-  .lr-product-shell-v2 .lr-product-header { border-radius: 14px 14px 0 0; }
+  .lr-product-shell-v2 { padding: 12px; gap: 12px; }
+  .lr-product-shell-v2 .planner-v2-steps { overflow-x: auto; padding-bottom: 2px; }
+  .lr-product-shell-v2 .planner-v2-steps button { flex: 0 0 auto; padding: 10px 16px; font-size: 14px; }
+  .lr-product-shell-v2 .planner-v2-steps-hint { display: none; }
+  .lr-product-shell-v2 .lr-product-header { min-height: 62px; border-radius: 14px 14px 0 0; }
+  .lr-product-shell-v2 .lr-product-brand small { display: none; }
   .lr-product-shell-v2 .lr-product-actions { gap: 8px; padding-right: 12px; }
   .lr-product-shell-v2 .lr-save-button { min-width: 78px; min-height: 44px; font-size: 15px; }
+  .lr-product-shell-v2 .lr-dimension-cards { gap: 8px; }
+  .lr-product-shell-v2 .lr-number-field.lr-dimension-card { min-height: 88px; padding: 10px 6px; }
+  .lr-product-shell-v2 .lr-dimension-card input { font-size: 19px; }
+  .lr-product-shell-v2 .planner-v2-home { grid-template-columns: 1fr; overflow: auto; }
+  .lr-product-shell-v2 .planner-v2-home-intro { padding: 36px 24px; }
+  .lr-product-shell-v2 .planner-v2-home-content { padding: 24px; overflow: visible; }
   .lr-product-shell-v2 .lr-workspace-body { overflow: auto; }
   .lr-product-shell-v2 .lr-studio-rail { display: none; }
   .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px) !important; min-width: min(100%, 340px); }

@@ -81,7 +81,12 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             </div>
             <AssetImportPanel cabinetMode={activePanel === "cabinets"} onAdd={props.onAddImportedAsset} />
             <div className="lr-asset-controls">
-              <input aria-label="Search assets" placeholder="Search furniture…" value={props.assetQuery} onChange={(event) => props.onAssetQuery(event.target.value)} />
+              <input
+                aria-label={activePanel === "cabinets" ? "Search cabinets" : "Search furniture"}
+                placeholder={activePanel === "cabinets" ? "Search cabinets…" : "Search furniture…"}
+                value={props.assetQuery}
+                onChange={(event) => props.onAssetQuery(event.target.value)}
+              />
               <div className="lr-asset-categories">
                 {props.assetCategories.map((category) => (
                   <button type="button" key={category} className={props.assetCategory === category ? "is-active" : ""} onClick={() => props.onAssetCategory(category)}>{category === "all" ? "All" : category.replace("-", " ")}</button>
@@ -148,7 +153,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                 {props.project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
                   <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}><span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small></button>
                 ))}
-                {!props.project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on this wall.</p> : null}
+                {!props.project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on selected wall.</p> : null}
                 {activeOpening?.wallId === activeWall.id ? <div className="lr-opening-fields">
                   {(["offsetMm", "widthMm", "heightMm", "sillHeightMm"] as const).map((key) => <label key={key}><span>{key === "offsetMm" ? "Offset" : key === "widthMm" ? "Width" : key === "heightMm" ? "Height" : "Sill"}</span><input type="number" min="0" step="50" value={activeOpening[key]} onChange={(event) => props.onUpdateOpening(activeOpening.id, { [key]: Number(event.target.value) || activeOpening[key] })} /></label>)}
                   <button type="button" className="is-danger" onClick={() => props.onDeleteOpening(activeOpening.id)}>Remove opening</button>

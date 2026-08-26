@@ -79,7 +79,12 @@ export function InteriorsProductHeader({
         <button type="button" className="lr-save-button" onClick={onSave} disabled={!projectName}><ProductIcon name="save" />{isDirty ? "Save *" : "Save"}</button>
         <div className="lr-view-switch" role="group" aria-label="Canvas view">
           <button type="button" className={workspaceView === "plan" ? "is-active" : ""} onClick={() => onView("plan")} disabled={!projectName}>2D</button>
-          <button type="button" className={workspaceView === "model" ? "is-active" : ""} onClick={() => onView("model")} disabled={!projectName}>3D</button>
+          <button
+            type="button"
+            className={workspaceView === "model" || workspaceView === "render" ? "is-active" : ""}
+            onClick={() => onView(workspaceView === "render" ? "render" : "model")}
+            disabled={!projectName}
+          >3D</button>
         </div>
         <button type="button" className="lr-export-button" onClick={onExport} disabled={!projectName}>Export</button>
         <label className="lr-workspace-picker">

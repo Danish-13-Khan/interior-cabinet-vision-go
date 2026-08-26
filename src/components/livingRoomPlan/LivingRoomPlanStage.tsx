@@ -109,7 +109,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         <span>
           {props.workspaceView === "model"
             ? `${props.project.name} · staged concept`
-            : `${props.project.name} · ${props.project.objects.length} objects · ${props.selectedIds.length} selected`}
+            : `${props.project.name} · ${props.project.objects.length} furniture objects · ${props.project.openings.length} openings · ${props.selectedIds.length} selected`}
         </span>
         {props.workspaceView !== "model" ? (
           <small>
