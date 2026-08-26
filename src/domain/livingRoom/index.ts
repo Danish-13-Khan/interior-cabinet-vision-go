@@ -2,6 +2,17 @@ export {
   addLivingRoomPartition,
 } from "./planCommands";
 export {
+  applyBuildCommand,
+  createBuildCommandState,
+  isArmedPlacementTool,
+  reduceBuildCommand,
+  type BuildCommand,
+  type BuildCommandHandlers,
+  type BuildCommandState,
+  type BuildDraft,
+  type BuildTool,
+} from "./buildToolCommands";
+export {
   createLivingRoomObject,
   getLivingRoomCatalogItem,
   LIVING_ROOM_CATALOG,

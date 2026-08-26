@@ -223,7 +223,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Map tools to existing box-room actions (Draw Room → dimension/box edit; Draw Wall → select / partition)
 
 **Exit:** Chrome matches reference; tool/command state ready for B and D; room still rectangular.  
-**Not parity.** Exit is “chrome + command foundation,” not Floorplanner-like.
+**Not parity.** Exit is “chrome + command foundation,” not Floorplanner-like.  
+**Status:** Implemented — `BuildToolList`, `buildToolCommands` (draft/commit/cancel + rectangular adapters), armed place tools, Escape cancel, upload picker wiring.
 
 ---
 

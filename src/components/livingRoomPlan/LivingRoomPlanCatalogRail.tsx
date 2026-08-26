@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import {
@@ -7,7 +7,8 @@ import {
   type LivingRoomCatalogId,
   type ImportedAsset,
 } from "../../domain/livingRoom";
-import type { StudioPanel } from "./workspaceProps";
+import type { BuildTool, StudioPanel } from "./workspaceProps";
+import { BuildToolList } from "./BuildToolList";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
 import { AssetImportPanel } from "./AssetImportPanel";
 type LivingRoomPlanCatalogRailProps = {
@@ -34,6 +35,7 @@ type LivingRoomPlanCatalogRailProps = {
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
+  onRegisterUnderlayPicker?: (openPicker: () => void) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onAddPartitionWall: () => void;
   activeWallId: string | null;
@@ -45,6 +47,12 @@ type LivingRoomPlanCatalogRailProps = {
   onDeleteOpening: (openingId: string) => void;
   v2BuildMode?: boolean;
   v2DesignMode?: boolean;
+  activeBuildTool?: BuildTool;
+  onBuildTool?: (tool: BuildTool) => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 };
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
@@ -60,6 +68,11 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
   const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
   const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
+  const tool = props.activeBuildTool ?? "select";
+
+  useEffect(() => {
+    props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
+  }, [props.onRegisterUnderlayPicker]);
   return <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
         {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build<small>Room, walls, openings</small></button> : null}
@@ -133,8 +146,35 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           <>
             <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
             <div className="lr-underlay-panel">
+              {props.v2BuildMode && props.onBuildTool ? (
+                <BuildToolList
+                  activeTool={tool}
+                  onTool={props.onBuildTool}
+                  canUndo={Boolean(props.canUndo)}
+                  canRedo={Boolean(props.canRedo)}
+                  onUndo={props.onUndo ?? (() => {})}
+                  onRedo={props.onRedo ?? (() => {})}
+                />
+              ) : null}
+              {tool === "draw-surface" ? <p className="lr-build-tool-hint">Surface zones will be enabled after freeform topology authoring.</p> : null}
+              {tool === "place-door" || tool === "place-window" ? (
+                <section className="lr-room-authoring lr-build-commit">
+                  <strong>{tool === "place-door" ? "Place Doors · armed" : "Place Windows · armed"}</strong>
+                  <p>Select a wall, then commit placement. Escape cancels the tool.</p>
+                  <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, tool === "place-door" ? "door" : "window")}>
+                    {tool === "place-door" ? "+ Place door on selected wall" : "+ Place window on selected wall"}
+                  </button>
+                </section>
+              ) : null}
+              {tool === "place-structural" || tool === "draw-wall" ? (
+                <section className="lr-room-authoring lr-build-commit">
+                  <strong>{tool === "place-structural" ? "Place Structurals · armed" : "Draw Wall"}</strong>
+                  <p>{tool === "place-structural" ? "Commit to add a partition wall. Escape cancels." : "Select a wall below, or add a partition."}</p>
+                  <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
+                </section>
+              ) : null}
               <section className="lr-room-authoring">
-                <strong>1. Room dimensions</strong>
+                <strong>{tool === "draw-room" ? "Draw Room · dimensions" : "1. Room dimensions"}</strong>
                 <div className="lr-room-dimension-grid">
                   {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
                     <label key={key}><span>{key === "widthMm" ? "Width" : key === "depthMm" ? "Depth" : "Height"}</span><input type="number" min="2200" step="50" value={room.dimensions[key]} onChange={(event) => props.onRoomDimensions({ ...room.dimensions, [key]: Number(event.target.value) || room.dimensions[key] })} /></label>
@@ -143,13 +183,19 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               </section>
               <section className="lr-room-authoring">
                 <strong>2. Select or add a wall</strong>
-                <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
+                {tool !== "place-structural" && tool !== "draw-wall" ? (
+                  <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
+                ) : null}
                 <div className="lr-wall-tabs">
                   {props.project.walls.map((wall) => <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>{String(wall.extensions?.wallSide ?? "wall")}</button>)}
                 </div>
                 <small className="lr-build-selection">Selected wall: {String(activeWall.extensions?.wallSide ?? activeWall.id)}</small>
-                <strong className="lr-openings-heading">3. Add an opening</strong>
-                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Add door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Add window</button></div>
+                {tool !== "place-door" && tool !== "place-window" ? (
+                  <>
+                    <strong className="lr-openings-heading">3. Add an opening</strong>
+                    <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Add door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Add window</button></div>
+                  </>
+                ) : null}
                 {props.project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
                   <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}><span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small></button>
                 ))}
@@ -159,7 +205,10 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                   <button type="button" className="is-danger" onClick={() => props.onDeleteOpening(activeOpening.id)}>Remove opening</button>
                 </div> : null}
               </section>
-              <section className="lr-room-authoring"><strong>4. Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
+              <section className={`lr-room-authoring${tool === "upload-underlay" ? " is-tool-focus" : ""}`}>
+                <strong>4. Plan underlay</strong>
+                <small>{tool === "upload-underlay" ? "Upload tool armed — choose or replace a plan image." : "Optional: align a supplied floor plan before drawing."}</small>
+              </section>
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
               {props.underlay ? (
                 <>

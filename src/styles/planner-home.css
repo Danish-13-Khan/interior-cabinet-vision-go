@@ -243,6 +243,18 @@
   background: #151b16;
   color: #eef3ed;
 }
+.lr-build-tool-list { display:grid; gap:5px; margin:0 0 12px; padding-bottom:12px; border-bottom:1px solid #dce5de; }
+.lr-build-history { display:flex; gap:6px; }
+.lr-build-history>button { flex:1; min-height:30px; border:1px solid #dce5de; border-radius:6px; background:#fff; color:#405246; font-size:.62rem; cursor:pointer; }
+.lr-build-history>button:disabled { opacity:.45; cursor:default; }
+.lr-build-tool-list>button { display:grid; gap:2px; padding:8px 9px; border:1px solid #dce5de; border-radius:6px; background:#fff; color:#405246; text-align:left; cursor:pointer; }
+.lr-build-tool-list>button strong { font-size:.67rem; }
+.lr-build-tool-list>button small { color:#748076; font-size:.56rem; }
+.lr-build-tool-list>button.is-active { border-color:#276b46; background:#edf7ef; color:#276b46; }
+.lr-build-tool-hint, .lr-build-commit p { margin:0 0 8px; color:#68766c; font-size:.62rem; line-height:1.35; }
+.lr-build-commit { padding-top:2px; }
+.lr-room-authoring.is-tool-focus { outline:1px solid #276b46; outline-offset:2px; border-radius:6px; padding:8px; }
+.lr-build-history { display:flex; gap:5px; }.lr-build-history button { flex:1; min-height:27px; border:1px solid #dce5de; border-radius:5px; background:#f8fbf8; color:#405246; font:inherit; font-size:.58rem; cursor:pointer; }.lr-build-history button:disabled { opacity:.45; cursor:not-allowed; }
 
 .lr-product-shell-v2 .context-panel-heading strong,
 .lr-product-shell-v2 .lr-room-authoring > strong { color: #eef3ed; font-size: 16px; }
