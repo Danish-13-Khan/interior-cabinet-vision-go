@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 2,
+  "id": "fixture-adjacent-box-migration",
+  "name": "Two rooms from box migration",
+  "units": "mm",
+  "createdAt": "2026-08-27T00:00:00.000Z",
+  "updatedAt": "2026-08-27T00:00:00.000Z",
+  "activeRoomId": "room-left",
+  "extensions": {
+    "wallGraphDomainVersion": 1
+  },
+  "nodes": [
+    {
+      "id": "node-1",
+      "position": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "node-2",
+      "position": {
+        "x": 3000,
+        "z": 0
+      }
+    },
+    {
+      "id": "node-3",
+      "position": {
+        "x": 3000,
+        "z": 3000
+      }
+    },
+    {
+      "id": "node-4",
+      "position": {
+        "x": 0,
+        "z": 3000
+      }
+    },
+    {
+      "id": "node-5",
+      "position": {
+        "x": 6000,
+        "z": 0
+      }
+    },
+    {
+      "id": "node-6",
+      "position": {
+        "x": 6000,
+        "z": 3000
+      }
+    }
+  ],
+  "loops": [
+    {
+      "id": "room-left:outer-loop",
+      "wallUses": [
+        {
+          "wallId": "left-top",
+          "direction": "forward"
+        },
+        {
+          "wallId": "left-shared",
+          "direction": "forward"
+        },
+        {
+          "wallId": "left-bottom",
+          "direction": "forward"
+        },
+        {
+          "wallId": "left-outer",
+          "direction": "forward"
+        }
+      ],
+      "extensions": {
+        "graphDomainVersion": 1,
+        "roomId": "room-left"
+      }
+    },
+    {
+      "id": "room-right:outer-loop",
+      "wallUses": [
+        {
+          "wallId": "right-top",
+          "direction": "forward"
+        },
+        {
+          "wallId": "right-outer",
+          "direction": "forward"
+        },
+        {
+          "wallId": "right-bottom",
+          "direction": "forward"
+        },
+        {
+          "wallId": "left-shared",
+          "direction": "reverse"
+        }
+      ],
+      "extensions": {
+        "graphDomainVersion": 1,
+        "roomId": "room-right"
+      }
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room-left",
+      "name": "Left",
+      "roomType": "custom",
+      "dimensions": {
+        "widthMm": 3000,
+        "heightMm": 2800,
+        "depthMm": 3000
+      },
+      "wallThicknessMm": 120,
+      "outerLoopId": "room-left:outer-loop",
+      "holeLoopIds": []
+    },
+    {
+      "id": "room-right",
+      "name": "Right",
+      "roomType": "custom",
+      "dimensions": {
+        "widthMm": 3000,
+        "heightMm": 2800,
+        "depthMm": 3000
+      },
+      "wallThicknessMm": 120,
+      "outerLoopId": "room-right:outer-loop",
+      "holeLoopIds": []
+    }
+  ],
+  "walls": [
+    {
+      "id": "left-top",
+      "roomId": "room-left",
+      "start": {
+        "x": 0,
+        "z": 0
+      },
+      "end": {
+        "x": 3000,
+        "z": 0
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-1",
+      "endNodeId": "node-2"
+    },
+    {
+      "id": "left-shared",
+      "roomId": null,
+      "start": {
+        "x": 3000,
+        "z": 0
+      },
+      "end": {
+        "x": 3000,
+        "z": 3000
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-2",
+      "endNodeId": "node-3"
+    },
+    {
+      "id": "left-bottom",
+      "roomId": "room-left",
+      "start": {
+        "x": 3000,
+        "z": 3000
+      },
+      "end": {
+        "x": 0,
+        "z": 3000
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-3",
+      "endNodeId": "node-4"
+    },
+    {
+      "id": "left-outer",
+      "roomId": "room-left",
+      "start": {
+        "x": 0,
+        "z": 3000
+      },
+      "end": {
+        "x": 0,
+        "z": 0
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-4",
+      "endNodeId": "node-1"
+    },
+    {
+      "id": "right-top",
+      "roomId": "room-right",
+      "start": {
+        "x": 3000,
+        "z": 0
+      },
+      "end": {
+        "x": 6000,
+        "z": 0
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-2",
+      "endNodeId": "node-5"
+    },
+    {
+      "id": "right-outer",
+      "roomId": "room-right",
+      "start": {
+        "x": 6000,
+        "z": 0
+      },
+      "end": {
+        "x": 6000,
+        "z": 3000
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-5",
+      "endNodeId": "node-6"
+    },
+    {
+      "id": "right-bottom",
+      "roomId": "room-right",
+      "start": {
+        "x": 6000,
+        "z": 3000
+      },
+      "end": {
+        "x": 3000,
+        "z": 3000
+      },
+      "heightMm": 2800,
+      "thicknessMm": 120,
+      "visible": true,
+      "materialId": null,
+      "startNodeId": "node-6",
+      "endNodeId": "node-3"
+    }
+  ],
+  "openings": [
+    {
+      "id": "shared-door",
+      "wallId": "left-shared",
+      "kind": "door",
+      "offsetMm": 800,
+      "widthMm": 900,
+      "heightMm": 2100,
+      "sillHeightMm": 0,
+      "catalogItemId": "opening:door-single",
+      "materialSlots": {},
+      "parameters": {}
+    }
+  ],
+  "surfaces": [],
+  "objects": [],
+  "materials": [],
+  "lights": [],
+  "cameras": [],
+  "renderSettings": {
+    "widthPx": 1920,
+    "heightPx": 1080,
+    "quality": "standard",
+    "exposure": 1,
+    "transparentBackground": false,
+    "activeCameraId": null,
+    "lightingRecipeId": "neutral-studio",
+    "composition": "architectural"
+  }
+}

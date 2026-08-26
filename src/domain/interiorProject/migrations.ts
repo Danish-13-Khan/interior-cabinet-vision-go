@@ -1,3 +1,4 @@
+import { WALL_GRAPH_DOMAIN_VERSION } from "./boxRoomGraphMigration";
 import { DEFAULT_RENDER_SETTINGS } from "./defaults";
 import { buildContiguousWallUses, pointKey } from "./planTopology";
 import { INTERIOR_PROJECT_SCHEMA_VERSION } from "./types";
@@ -111,7 +112,22 @@ function migrateV1ToV2(input: UnknownRecord): UnknownRecord {
       parameters: optionalRecord(opening.parameters),
     };
   });
-  return { ...input, schemaVersion: 2, nodes, loops, rooms: upgradedRooms, walls: upgradedWalls, openings, surfaces: [] };
+  const extensions = optionalRecord(input.extensions);
+  const singleRoomGraphReady = rooms.length === 1
+    && upgradedWalls.every((wall) => typeof wall.startNodeId === "string" && typeof wall.endNodeId === "string");
+  return {
+    ...input,
+    schemaVersion: 2,
+    nodes,
+    loops,
+    rooms: upgradedRooms,
+    walls: upgradedWalls,
+    openings,
+    surfaces: [],
+    extensions: singleRoomGraphReady
+      ? { ...extensions, wallGraphDomainVersion: WALL_GRAPH_DOMAIN_VERSION }
+      : extensions,
+  };
 }
 
 /** Apply each schema migration exactly once and reject unsupported future files. */

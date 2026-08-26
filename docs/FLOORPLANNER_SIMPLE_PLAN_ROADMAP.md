@@ -270,6 +270,8 @@ D0 is done only when all of the following exist and are reviewed:
 | D3 | Draw Wall (segment, join, split, delete, thickness; shared-edge ops) | L |
 | D4 | Floor / ceiling from closed loops; rewrite bounds / snap / compiler / validation / cabinet constraints / technical plans | L |
 
+**D1 status:** Implemented — graph nodes are authoritative, wall coordinate caches synchronize from nodes, box shells migrate into deterministic loops, compatible coincident boundaries merge into one shared wall, hosted openings remap without geometry loss, and graph indexes expose node incidence for D2/D3. Freeform authoring remains intentionally deferred.
+
 **Multi-room editing:** D1 can make the data model adjacency-capable; multi-room editing **begins after D1** and **ships once D2/D3 support shared-edge/face operations** (plus loop/face resolution). First UX may still focus one room until those flows land.
 
 **Exit:** Irregular footprints authorable in 2D and compile to 3D; multi-room editing available when D2/D3 shared-edge/face work is done.
@@ -352,6 +354,7 @@ Generated 3D already works for box rooms. The large investment is topology, sche
 - [ ] Confirm product agenda stays **Menu → 2D creation → 3D → Render → Export**  
 - [x] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5  
 - [x] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
+- [x] Approve **D1**: wall-graph domain + box-room migration (adjacency-capable model); freeform Draw Room/Wall UI deferred to D2–D4
 - [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)
 - [ ] Approve Phase B exit: openings direct manipulation + catalog + 3D compile parity
 - [ ] Approve Phase C exit: measured 2D plan readability (dims, units, underlay, style)

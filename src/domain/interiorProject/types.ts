@@ -43,7 +43,7 @@ export type WallEntity = {
   thicknessMm: number;
   visible: boolean;
   materialId: EntityId | null;
-  /** v2 graph endpoints. start/end remain a derived compatibility cache until D1. */
+  /** Authoritative v2 graph endpoints. start/end are synchronized compatibility caches. */
   startNodeId?: EntityId;
   endNodeId?: EntityId;
   extensions?: EntityExtensions;

@@ -1,17 +1,15 @@
 import {
-  buildContiguousWallUses,
   isLoopContiguous,
   loopSignedArea,
-  pointKey,
   roomIdsUsingWall,
-  wallLengthMm,
 } from "./planTopology";
+import { migrateBoxRoomsToWallGraph, WALL_GRAPH_DOMAIN_VERSION } from "./boxRoomGraphMigration";
+import { synchronizeWallCaches } from "./wallGraph";
+import { validateTopologyOpenings } from "./topologyOpeningValidation";
 import type {
   InteriorProject,
   InteriorValidationIssue,
-  OpeningEntity,
   PlanLoop,
-  PlanNodeEntity,
   WallEntity,
 } from "./types";
 
@@ -29,43 +27,21 @@ export function ensureCompatPlanTopology(
 ): InteriorProject {
   const needsNodes = project.walls.some((wall) => !wall.startNodeId || !wall.endNodeId);
   const needsLoops = project.rooms.some((room) => !room.outerLoopId);
-  if (!needsNodes && !needsLoops && project.nodes.length > 0) return project;
-
-  const nodeByPoint = new Map<string, string>();
-  const nodes: PlanNodeEntity[] = [...project.nodes];
-  for (const node of nodes) nodeByPoint.set(pointKey(node.position), node.id);
-  const nodeIdFor = (point: { x: number; z: number }) => {
-    const key = pointKey(point);
-    const found = nodeByPoint.get(key);
-    if (found) return found;
-    const id = `compat-node-${nodeByPoint.size + 1}`;
-    nodeByPoint.set(key, id);
-    nodes.push({ id, position: { ...point } });
-    return id;
-  };
-
-  const walls = project.walls.map((wall) => ({
-    ...wall,
-    startNodeId: wall.startNodeId ?? nodeIdFor(wall.start),
-    endNodeId: wall.endNodeId ?? nodeIdFor(wall.end),
-  }));
-
-  const loops: PlanLoop[] = [...project.loops];
-  const rooms = project.rooms.map((room) => {
-    if (room.outerLoopId && loops.some((loop) => loop.id === room.outerLoopId)) return room;
-    const loopId = `${room.id}:outer-loop`;
-    const roomWalls = walls.filter((wall) => wall.roomId === room.id);
-    loops.push({
-      id: loopId,
-      wallUses: buildContiguousWallUses(roomWalls),
-      extensions: { synthesizedBy: "compat-topology" },
-    });
-    return { ...room, outerLoopId: loopId, holeLoopIds: room.holeLoopIds ?? [] };
-  });
-
-  // Silent repair: rectangular presets stay issue-free while gaining graph fields.
   void issues;
-  return { ...project, nodes, walls, loops, rooms };
+  if (!needsNodes && !needsLoops && project.nodes.length > 0) {
+    if (project.extensions?.wallGraphDomainVersion === WALL_GRAPH_DOMAIN_VERSION) {
+      return synchronizeWallCaches(project);
+    }
+    const graphNative = project.walls.some((wall) => wall.roomId == null)
+      || project.walls.some((wall) => roomIdsUsingWall(project, wall.id).length > 1);
+    if (graphNative) {
+      return synchronizeWallCaches({
+        ...project,
+        extensions: { ...project.extensions, wallGraphDomainVersion: WALL_GRAPH_DOMAIN_VERSION },
+      });
+    }
+  }
+  return migrateBoxRoomsToWallGraph(project);
 }
 
 /** ADR graph/loop/opening checks for schema v2 documents. */
@@ -173,7 +149,7 @@ export function validatePlanTopology(
     }
   }
 
-  validateOpenings(project.openings, wallsById, issues);
+  validateTopologyOpenings(project.openings, wallsById, issues);
 }
 
 function validateLoop(
@@ -197,52 +173,5 @@ function validateLoop(
       path: `loops.${loop.id}`,
       message: "Loop wall uses must be contiguous, closed, and unique.",
     });
-  }
-}
-
-function validateOpenings(
-  openings: OpeningEntity[],
-  wallsById: Map<string, WallEntity>,
-  issues: InteriorValidationIssue[],
-) {
-  const byWall = new Map<string, OpeningEntity[]>();
-  for (const opening of openings) {
-    const wall = wallsById.get(opening.wallId);
-    if (!wall) {
-      pushIssue(issues, {
-        severity: "error",
-        code: "opening-unknown-wall",
-        path: `openings.${opening.id}`,
-        message: "Opening references an unknown wall.",
-      });
-      continue;
-    }
-    const length = wallLengthMm(wall);
-    if (opening.offsetMm < 0 || opening.offsetMm + opening.widthMm > length + 0.5) {
-      pushIssue(issues, {
-        severity: "warning",
-        code: "opening-out-of-range",
-        path: `openings.${opening.id}`,
-        message: "Opening extent should lie within the host wall length.",
-      });
-    }
-    const list = byWall.get(opening.wallId) ?? [];
-    list.push(opening);
-    byWall.set(opening.wallId, list);
-  }
-  for (const [wallId, list] of byWall) {
-    const sorted = [...list].sort((a, b) => a.offsetMm - b.offsetMm);
-    for (let index = 1; index < sorted.length; index += 1) {
-      const prev = sorted[index - 1]!;
-      const next = sorted[index]!;
-      if (prev.offsetMm + prev.widthMm > next.offsetMm + 0.5) {
-        pushIssue(issues, {
-          severity: "warning",
-          code: "opening-overlap",
-          path: `openings.${next.id}`,
-          message: `Opening overlaps another opening on wall ${wallId}.`,
-        });
-      }
-    }
   }
 }

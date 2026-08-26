@@ -64,3 +64,15 @@ export {
   wallLengthMm,
 } from "./planTopology";
 export { validatePlanTopology, ensureCompatPlanTopology } from "./planTopologyValidation";
+export {
+  WALL_GRAPH_DOMAIN_VERSION,
+  migrateBoxRoomsToWallGraph,
+} from "./boxRoomGraphMigration";
+export {
+  createWallGraphIndex,
+  graphWallPoints,
+  movePlanNode,
+  synchronizeWallCaches,
+  wallDegree,
+  type WallGraphIndex,
+} from "./wallGraph";

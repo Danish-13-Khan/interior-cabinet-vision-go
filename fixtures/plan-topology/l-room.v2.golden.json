@@ -6,6 +6,9 @@
   "createdAt": "2026-08-26T00:00:00.000Z",
   "updatedAt": "2026-08-26T00:00:00.000Z",
   "activeRoomId": "room-l",
+  "extensions": {
+    "wallGraphDomainVersion": 1
+  },
   "nodes": [
     { "id": "n1", "position": { "x": 0, "z": 0 } },
     { "id": "n2", "position": { "x": 6000, "z": 0 } },
