@@ -22,6 +22,7 @@ import {
   serializeInteriorProjectFile,
 } from "./fileFormat";
 import { validateInteriorProject } from "./validation";
+import rectangleFixture from "../../../fixtures/plan-topology/v1-rectangle.interior.json";
 
 const NOW = "2026-08-11T16:12:01.000Z";
 
@@ -228,6 +229,24 @@ describe("InteriorProject universal spine", () => {
     expect(loaded.document.schemaVersion).toBe(1);
     expect(loaded.document.renderSettings.widthPx).toBe(1920);
     expect(loaded.document.materials).toEqual([]);
+  });
+
+  it("keeps the D0 rectangle fixture geometry intact when a v1 project opens", () => {
+    const loaded = loadInteriorProjectFile(rectangleFixture);
+
+    expect(loaded.source).toBe("interior-project-v1");
+    expect(loaded.migrationSteps).toEqual([]);
+    expect(loaded.document.rooms).toHaveLength(1);
+    expect(loaded.document.walls.map(({ id, start, end }) => ({ id, start, end }))).toEqual([
+      { id: "wall-back", start: { x: -3000, z: -2000 }, end: { x: 3000, z: -2000 } },
+      { id: "wall-right", start: { x: 3000, z: -2000 }, end: { x: 3000, z: 2000 } },
+      { id: "wall-front", start: { x: 3000, z: 2000 }, end: { x: -3000, z: 2000 } },
+      { id: "wall-left", start: { x: -3000, z: 2000 }, end: { x: -3000, z: -2000 } },
+    ]);
+    expect(loaded.document.openings).toMatchObject([
+      { id: "door-main", wallId: "wall-front", offsetMm: 1800, widthMm: 900 },
+    ]);
+    expect(loaded.document.objects).toHaveLength(0);
   });
 
   it("repairs dangling material and active-camera references", () => {

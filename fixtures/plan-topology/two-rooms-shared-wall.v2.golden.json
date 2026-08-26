@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 2,
+  "fixture": "two adjacent rectangular rooms",
+  "sharedWall": { "id": "wall-shared", "startNodeId": "node-mid-back", "endNodeId": "node-mid-front", "roomUses": ["room-left:forward", "room-right:reverse"] },
+  "expected": { "roomCount": 2, "wallCount": 7, "sharedWalls": 1, "maxRoomsPerWall": 2, "openingHasNoRoomId": true }
+}

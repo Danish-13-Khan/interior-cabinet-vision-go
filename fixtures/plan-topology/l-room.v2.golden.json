@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 2,
+  "fixture": "single L-shaped room",
+  "nodes": [[0,0],[6000,0],[6000,2000],[3000,2000],[3000,4000],[0,4000]],
+  "outerLoop": ["wall-1:forward","wall-2:forward","wall-3:forward","wall-4:forward","wall-5:forward","wall-6:forward"],
+  "expected": { "roomCount": 1, "wallCount": 6, "closed": true, "holes": 0 }
+}

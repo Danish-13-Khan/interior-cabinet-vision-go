@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 2,
+  "fixture": "v1-rectangle.interior.json",
+  "expected": { "nodeCount": 4, "wallCount": 4, "roomCount": 1, "loopCount": 1, "openingCatalogItemId": "opening:door-single", "geometryPreserved": true },
+  "notes": "The four v1 walls retain their ids and coordinates; room-main has one clockwise outer loop."
+}
