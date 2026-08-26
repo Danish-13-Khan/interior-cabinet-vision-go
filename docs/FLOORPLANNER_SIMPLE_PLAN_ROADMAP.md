@@ -4,37 +4,43 @@
 **Reference:** Floorplanner Build UI screenshots (Aug 2026) — Draw Room / Draw Wall / Draw Surface / Place Doors / Place Windows / Place Structurals; selection inspector; 2D↔3D dollhouse.  
 **Product rule:** Stay millwork-first. Copy Floorplanner’s *simple plan chrome*, not its full home-design catalog sprawl.
 
-**Product threshold (real parity):** draw a multi-room footprint, place openings, place cabinets that snap and validate, then view the same plan in 3D.  
+**Product agenda (unchanged — every phase serves this flow):**
+
+```text
+Menu / Project home
+  → 2D creation (Build + Design on plan)
+  → 3D review (same project, live compile)
+  → Render
+  → Export
+```
+
+Do not invent a parallel workflow. Floorplanner-like tools deepen **2D creation**; dollhouse deepens **3D**; presentation stays in **Render → Export**.
+
+**Product threshold (real parity):** draw a multi-room footprint, place openings, place cabinets that snap and validate, then view the same plan in 3D and export.  
 Phase A chrome is an early win — **not** Floorplanner parity.
 
 ---
 
 ## 1. What “like Floorplanner” means for us
 
-Target Build experience from the reference:
+Target **2D creation** experience inside the existing agenda:
 
 ```text
-Icon rail → Build panel
-  · Upload 2D floorplan
-  · Draw Room
-  · Draw Wall
-  · Draw Surface
-  · Place Doors  → opening catalog + dims
-  · Place Windows → opening catalog + dims
-  · Place Structurals → columns / partitions (MVP subset)
-
-Canvas
-  · Grid + auto inner/outer dimensions
-  · Click-to-draw / place with snap
-  · Floating zoom
-
-Top / view
-  · 2D | 3D toggle
-  · Undo / redo / save / export
-
-3D
-  · Same project, live compile
-  · Dollhouse (and later walkthrough)
+Menu / Project
+  → Build (2D)
+      Icon rail → Build panel
+        · Upload 2D floorplan
+        · Draw Room
+        · Draw Wall
+        · Draw Surface
+        · Place Doors  → opening catalog + dims
+        · Place Windows → opening catalog + dims
+        · Place Structurals → columns / partitions (MVP subset)
+      Canvas: grid, auto dims, snap, floating zoom
+  → Design (2D): cabinets / furniture on the same plan
+  → 3D: same project, live compile, dollhouse (later walkthrough)
+  → Render: cameras / stills / schedule presentation
+  → Export: images, schedule, project file
 ```
 
 Out of scope for this roadmap (explicitly later / never as shell work):
@@ -43,6 +49,7 @@ Out of scope for this roadmap (explicitly later / never as shell work):
 - 260k furniture marketplace
 - Multi-building / whole-house RE export packages
 - Photoreal credit-based marketing renders as the Build goal (Render mode already owns presentation)
+- Any flow that skips or replaces Menu → 2D → 3D → Render → Export
 
 ---
 
@@ -50,18 +57,19 @@ Out of scope for this roadmap (explicitly later / never as shell work):
 
 | Capability | Today |
 | --- | --- |
-| V2 shell | Project / Build / Design / Render rail, canvas, inspector, status bar |
+| Product agenda | V2: Project → Build → Design → Render (+ 2D/3D toggle, export) |
+| V2 shell | Mode rail, canvas, inspector, status bar |
 | Room | Single **rectangle** `Size3Mm` box; 4 perimeter walls |
-| Walls | `WallEntity` with `roomId` + `start`/`end`; select wall; add **partition** |
-| Openings | Parametric on `wallId` + offset/W/H/sill (no `catalogItemId`) |
+| Walls | `WallEntity` with single `roomId` + `start`/`end`; select wall; add **partition** |
+| Openings | Parametric on `wallId` + offset/W/H/sill (no `catalogItemId`); validation ties `opening.roomId` to `wall.roomId` |
 | Underlay | Import image + calibrate width |
 | 2D↔3D | Live compile from one `InteriorProject`; orbit presets |
 | Design | Cabinets / furniture libraries (separate from Build) |
-| Units | Project geometry stored as **mm** (`InteriorUnits = "mm"`) |
+| Schema | `INTERIOR_PROJECT_SCHEMA_VERSION = 1`; geometry stored as **mm** |
 
-**Gap summary:** We have a *form-based rectangular shell editor*. Floorplanner is a *tool-mode canvas author*. Closing that gap is primarily a **geometry + interaction-model** change, not a visual reskin.
+**Gap summary:** We have a *form-based rectangular shell editor* inside the right product agenda. Floorplanner-like work deepens **2D creation** (and then 3D viewing). Closing the gap is primarily a **geometry + interaction-model** change, not a visual reskin or a new end-to-end flow.
 
-Code anchors: `docs/FLOORPLANNER_SIMPLE_PLAN_ROADMAP.md`, `src/domain/interiorProject/types.ts` (room box, walls, openings).
+Code anchors: `src/domain/interiorProject/types.ts`, `src/domain/interiorProject/validation.ts` (schema v1, single `roomId` on walls/openings).
 
 ---
 
@@ -72,7 +80,7 @@ Code anchors: `docs/FLOORPLANNER_SIMPLE_PLAN_ROADMAP.md`, `src/domain/interiorPr
 | Build tool list (Draw Room / Wall / Surface / Place…) | Build form (dimensions + wall tabs + openings) | **UI medium** | Needs shared tool/command state (D0 → A) |
 | Draw Room on canvas | Numeric W×D only | **Large** | Room = box in schema |
 | Draw Wall freeform / edit endpoints | Partition add only | **Large** | Shell-owned perimeter walls |
-| Shared walls / multi-room adjacency | `WallEntity.roomId` singular | **Large** | Topology (D0 / D1) |
+| Shared walls / multi-room adjacency | Single `roomId` per wall/opening (v1 validation) | **Large** | Topology + **schema v2** (D0 / D1) |
 | Draw Surface (floor zones) | Single painted floor rect | **Large** | Surface = polygon + material (not pixels) |
 | Place Doors catalog + preview | Parametric opening, no catalog | **Medium** | Opening catalog contract |
 | Place Windows catalog | Same as doors | **Medium** | Same |
@@ -84,6 +92,7 @@ Code anchors: `docs/FLOORPLANNER_SIMPLE_PLAN_ROADMAP.md`, `src/domain/interiorPr
 | 3D dollhouse + joystick | Orbit / presets | **Medium** | Camera UX, not geometry |
 | Walkthrough | Missing | **Large** | Collision / FPS controls |
 | Live 3D from plan | **Have** | — | Keep |
+| Render → Export | **Have** (keep) | — | Do not relocate into Build |
 
 Hard domain blockers (must be designed in D0 before Draw Wall defines the room):
 
@@ -91,19 +100,31 @@ Hard domain blockers (must be designed in D0 before Draw Wall defines the room):
 2. `resizeLivingRoom` rebuilds only `back|right|front|left` walls.  
 3. Floor / ceiling / bounds / snap assume a centered rectangle.  
 4. Rectangular assumptions also touch **validation, snapping, cabinet constraints, technical plan output, scene compiler, and project-file migrations**.  
-5. Openings already attach to arbitrary wall segments — keep that; closed-shell validity and shared walls do not exist yet.
+5. Openings already attach to arbitrary wall segments — keep that; closed-shell validity and shared walls conflict with **schema v1** single-`roomId` validation.
 
 ---
 
 ## 4. Design contracts (locked before / during early phases)
 
-### 4.1 Units
+### 4.1 Product agenda
+
+Phases A–G plug into the existing shell:
+
+| Step | Mode / surface | This roadmap deepens |
+| --- | --- | --- |
+| Menu | Project home | Starters / open / import only |
+| 2D creation | Build + Design | Tools, openings, freeform, cabinets |
+| 3D | 2D↔3D toggle / model view | Dollhouse / nav (Phase F) |
+| Render | Render mode | Unchanged ownership |
+| Export | Save / schedule / image export | Unchanged ownership |
+
+### 4.2 Units
 
 - **Store and compute geometry in mm only.**  
 - Unit toggle (mm · cm · m · ft-in) is a **user/display preference**, not an `InteriorUnits` schema expansion.  
 - Never persist mixed unit systems in the project file.
 
-### 4.2 Opening catalog (not loose style fields)
+### 4.3 Opening catalog (not loose style fields)
 
 Openings follow the same catalog pattern as objects. Do **not** grow unstructured “style” strings on `OpeningEntity`.
 
@@ -121,18 +142,18 @@ Minimum catalog item shape:
 
 Ship 2–3 procedural catalog items in Phase B; do not block on a marketplace asset pipeline.
 
-### 4.3 Surfaces
+### 4.4 Surfaces
 
 Surface zones reference a **polygon/loop + materialId** (and optional room/loop association).  
 Not painted pixels on the canvas. Full authoring waits for Phase E after topology exists.
 
-### 4.4 Multi-room adjacency
+### 4.5 Multi-room adjacency
 
-- **Data model:** adjacency / shared walls are **non-optional** in the target topology (wall↔rooms or edge↔faces).  
+- **Data model:** adjacency / shared walls are **non-optional** in the target topology (wall↔rooms or edge↔faces). Schema v1’s single `roomId` cannot express this — **v2 required**.  
 - **Editor UX:** first freeform editor may still expose **one** room.  
 - Do not ship a single-room-only wall ownership model that cannot later share walls.
 
-### 4.5 Tool + command + undo model
+### 4.6 Tool + command + undo model
 
 Phase A introduces the interaction foundation used through D:
 
@@ -146,29 +167,39 @@ Undo/redo is a **Phase A foundation**, not a Phase G retrofit.
 
 ## 5. Phased roadmap (approve before coding)
 
-Effort is rough relative size (S / M / L / XL), not calendar promises. Ship each phase behind V2; keep classic UI until acceptance.
+Effort is rough relative size (S / M / L / XL), not calendar promises. Ship each phase behind V2; keep classic UI until acceptance.  
+All phases stay on: **Menu → 2D creation → 3D → Render → Export**.
 
 ### Phase D0 — Topology + migration design spike · M · before A implementation
 
-**Goal:** Decide the target wall graph before any Build chrome lands.
+**Goal:** Decide the target wall graph and **versioned schema contract** before any Build chrome lands.
 
-Deliverables (design / types / spike — not full freeform editor):
+**Why versioned:** current project is **schema v1**. Validation requires every wall and opening to have one `roomId` (and opening `roomId` must match its wall). That **conflicts with shared walls**. D0 must propose how v2 replaces that rule and how v1 files keep working.
 
-- Target topology: nodes, wall edges, closed loops, holes  
-- Shared walls / multi-room adjacency in the **model** (required)  
-- Migration strategy from box rooms + four named sides → graph  
-- Tool/command list contract used by A–D  
-- Opening catalog type sketch + surface polygon sketch  
-- Impact list: bounds, resize, validation, snap, cabinet constraints, technical plans, scene compiler, file migrations  
+#### D0 exit criteria (concrete — all required)
 
-**Exit:** Written contract approved; A implements against it.  
+D0 is done only when all of the following exist and are reviewed:
+
+1. **ADR + diagram** for graph ownership and room-face relationships (nodes, edges, closed loops, holes, shared walls).  
+2. **Proposed schema v2** (types + validation rules), including how shared walls/openings relate to rooms without a single mandatory `roomId` ownership model that blocks adjacency.  
+3. **v1 → v2 migration design** — how old box-room projects convert; `schemaVersion` bump rules.  
+4. **Fixture projects** checked in (or specified with golden JSON):  
+   - rectangle room (v1-equivalent)  
+   - L-room (single freeform loop)  
+   - two rooms sharing a wall  
+5. **Migration / validation tests** proving **v1 projects open unchanged** (round-trip or load-with-repair with no user-visible geometry loss).  
+6. **Tool/command list contract** used by A–D (so A implements against D0, not a slide deck).  
+7. **Opening catalog + surface polygon type sketches** visible in the v2 proposal (so they do not drift from design locks).  
+8. **Blast-radius checklist:** bounds, resize, validation, snap, cabinet constraints, technical plans, scene compiler, file migrations.
+
+**Exit:** The above artifacts are approved; Phase A may begin only against this contract.  
 **Does not include:** shipping freeform draw tools (that is D1–D4).
 
 ---
 
 ### Phase A — Build shell + tool/command state · S–M · after D0
 
-**Goal:** Floorplanner-like tool chrome **and** the command/undo foundation — still rectangular geometry underneath.
+**Goal:** Floorplanner-like **2D Build** tool chrome **and** the command/undo foundation — still rectangular geometry underneath. Still inside Menu → 2D → 3D → Render → Export.
 
 - Replace Build form with tool list (Upload, Draw Room, Draw Wall, Draw Surface stub, Place Doors/Windows, Place Structurals stub)
 - `activeTool` + undoable draft/commit/cancel wired for current rectangular ops
@@ -184,7 +215,7 @@ Deliverables (design / types / spike — not full freeform editor):
 
 ### Phase B — Openings direct manipulation · M · ~2–3 weeks
 
-**Goal:** Doors/windows feel placed; catalog is first-class.
+**Goal:** Doors/windows feel placed on the **2D plan**; catalog is first-class.
 
 - Click wall to place at cursor offset (snap to wall)
 - Drag opening along wall; live width handle
@@ -193,13 +224,13 @@ Deliverables (design / types / spike — not full freeform editor):
 - Auto opening dimension label on plan
 - All place/move/delete ops go through undoable commands from A
 
-**Exit:** Place Doors / Place Windows match reference interaction quality on rectangular rooms.
+**Exit:** Place Doors / Place Windows match reference interaction quality on rectangular rooms; 3D still compiles from the same project.
 
 ---
 
 ### Phase C — Plan readability · M · ~1–2 weeks
 
-**Goal:** Plan reads like the reference dimensioning.
+**Goal:** 2D plan reads like the reference dimensioning.
 
 - Inner clear + outer footprint dimension pairs
 - Per-wall length labels (selected and/or always-on toggle)
@@ -207,24 +238,24 @@ Deliverables (design / types / spike — not full freeform editor):
 - Underlay: opacity + simple pan/rotate handles
 - Visual style toggles (line / fill) if cheap
 
-**Exit:** Single-room plans look measured and exportable as plan images.
+**Exit:** Single-room plans look measured; export of plan images remains on the Export path.
 
 ---
 
 ### Phase D — Freeform geometry · XL · multi-sprint
 
-**Goal:** Real Draw Room / Draw Wall on the D0 topology.
+**Goal:** Real Draw Room / Draw Wall on the D0 / schema v2 topology — still authoring in **2D**, compiling to **3D**.
 
 | Slice | Work | Size |
 | --- | --- | --- |
-| D1 | Wall-graph domain + migration from box rooms (adjacency-capable) | L |
+| D1 | Wall-graph domain + migration from box rooms (adjacency-capable data model) | L |
 | D2 | Draw Room (click-drag rectangle + polygon close) | L |
-| D3 | Draw Wall (segment, join, split, delete, thickness) | L |
+| D3 | Draw Wall (segment, join, split, delete, thickness; shared-edge ops) | L |
 | D4 | Floor / ceiling from closed loops; rewrite bounds / snap / compiler / validation / cabinet constraints / technical plans | L |
 
-Multi-room **editing** ships when D1 adjacency is real; first UX may still focus one room.
+**Multi-room editing:** D1 can make the data model adjacency-capable; multi-room editing **begins after D1** and **ships once D2/D3 support shared-edge/face operations** (plus loop/face resolution). First UX may still focus one room until those flows land.
 
-**Exit:** Irregular (and multi-room-capable) footprints authorable in 2D and compile to 3D.
+**Exit:** Irregular footprints authorable in 2D and compile to 3D; multi-room editing available when D2/D3 shared-edge/face work is done.
 
 **Blast radius reminder:** rectangular assumptions are not limited to resize — plan for validation, snapping, millwork constraints, technical output, scene compile, and migrations in D4.
 
@@ -232,7 +263,7 @@ Multi-room **editing** ships when D1 adjacency is real; first UX may still focus
 
 ### Phase E — Surfaces & structurals · L · after D1+
 
-- Draw Surface: zones as polygon/loop + material  
+- Draw Surface: zones as polygon/loop + material (still 2D creation)  
 - Structurals MVP: column; optional simple stair stub  
 - Partition walls as first-class tools on the graph  
 
@@ -242,19 +273,21 @@ Multi-room **editing** ships when D1 adjacency is real; first UX may still focus
 
 ### Phase F — 3D viewing parity · M–L · after B (can overlap C)
 
+Deepens the **3D** step of the agenda (not a new product flow):
+
 - Dollhouse camera preset + height / FOV panel  
 - Clearer 3D nav affordances  
 - Walkthrough (first-person) optional after dollhouse  
-- Keep photoreal / schedule in **Render** mode  
+- Keep photoreal / schedule in **Render**; keep downloads on **Export**  
 
-**Exit:** 2D author → instant 3D dollhouse feels continuous.
+**Exit:** 2D author → instant 3D dollhouse feels continuous; Render → Export unchanged.
 
 ---
 
 ### Phase G — Polish & cut scope · ongoing
 
 - Cut from v1 parity: Styleboards, Autostyler, huge object marketplace, AI floor-plan CV  
-- Keep millwork Design mode as the cabinet surface (differentiator)  
+- Keep millwork Design mode as the cabinet surface (differentiator) on the 2D plan  
 - Performance, open-graph validation, migration hardening  
 
 ---
@@ -262,17 +295,22 @@ Multi-room **editing** ships when D1 adjacency is real; first UX may still focus
 ## 6. Critical path
 
 ```text
-D0  topology + migration + tool/command contract   ← design spike first
-A   shell + tool state + undoable commands
-B   openings direct manipulation (+ catalog)
-C   dimensions / underlay / unit display preference
-D1–D4  freeform single/multi-room geometry
-E   surfaces + structurals
-F   dollhouse, then optional walkthrough
+Product agenda (fixed):
+  Menu → 2D creation → 3D → Render → Export
+
+Implementation order:
+  D0  topology + schema v2 + migration + fixtures/tests + tool/command contract
+  A   2D Build shell + tool state + undoable commands
+  B   2D openings direct manipulation (+ catalog)
+  C   2D dimensions / underlay / unit display preference
+  D1–D4  freeform geometry (2D author → 3D compile)
+  E   surfaces + structurals (2D)
+  F   3D dollhouse, then optional walkthrough
+  (Render + Export remain existing modes — not re-homed)
 ```
 
 **Early win (not parity):** D0 → A → B → C on a box room, with commands already matching freeform.  
-**Real product threshold:** multi-room footprint + openings + cabinets snap/validate + same plan in 3D (after D + Design mode).
+**Real product threshold:** multi-room footprint + openings + cabinets snap/validate + same plan in 3D + export (after D + Design + existing Render/Export).
 
 ---
 
@@ -280,28 +318,30 @@ F   dollhouse, then optional walkthrough
 
 | Bundle | Relative effort | User value |
 | --- | --- | --- |
-| D0 design spike | Medium | Prevents rewrite of A/B |
+| D0 design spike (ADR, v2, fixtures, tests) | Medium | Makes “A implements against D0” enforceable |
 | A+B+C (chrome + openings + dims on box) | Medium | High early UX; **not** parity |
-| F dollhouse | Medium | High perceived polish |
+| F dollhouse | Medium | High perceived polish on 3D step |
 | D freeform + adjacency + blast-radius rewrites | Very high | Required for real plan product |
 | E surfaces/structurals | High | After topology |
 | Full Floorplanner clone | Out of product scope | Wrong goal |
 
-Generated 3D already works for box rooms. The large investment is topology, freeform authoring, catalogized openings, and constraint/compiler rewrites — not inventing 3D from scratch.
+Generated 3D already works for box rooms. The large investment is topology, schema v2 migration, freeform authoring, catalogized openings, and constraint/compiler rewrites — not inventing 3D from scratch or changing the product agenda.
 
 ---
 
 ## 8. Decision checklist (approve before coding)
 
-- [ ] Approve **D0** spike before any Phase A implementation  
+- [ ] Confirm product agenda stays **Menu → 2D creation → 3D → Render → Export**  
+- [ ] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase A  
 - [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)  
-- [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model  
+- [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model (v2)  
 - [ ] Confirm units stay **mm in project**; toggle is display preference only  
 - [ ] Confirm openings use a real **catalog** (`catalogItemId`, preview, 3D, parameters, material slots)  
 - [ ] Confirm surfaces = polygon/loop + material (not paint pixels)  
+- [ ] Confirm multi-room **editing** ships only after D2/D3 shared-edge/face support (not at D1 alone)  
 - [ ] Confirm Structurals MVP = partition + column only  
 - [ ] Confirm walkthrough is optional after dollhouse  
-- [ ] Keep Design mode for cabinets (do not merge into Floorplanner Objects)  
+- [ ] Keep Design mode for cabinets; keep Render/Export ownership unchanged  
 - [ ] Confirm freeform (D1–D4) is in-scope for this product year, or defer explicitly  
 
 ---
