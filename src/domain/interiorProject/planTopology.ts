@@ -94,6 +94,30 @@ export function selectWallsForRoom(project: InteriorProject, roomId: string): Wa
   );
 }
 
+/** Returns a boundary wall oriented with this room's interior on its left. */
+export function orientWallForRoom(
+  project: InteriorProject,
+  roomId: string,
+  wall: WallEntity,
+): WallEntity {
+  const room = project.rooms.find((item) => item.id === roomId);
+  const loopIds = [room?.outerLoopId, ...(room?.holeLoopIds ?? [])].filter(
+    (id): id is string => Boolean(id),
+  );
+  const use = project.loops
+    .filter((loop) => loopIds.includes(loop.id))
+    .flatMap((loop) => loop.wallUses)
+    .find((item) => item.wallId === wall.id);
+  if (use?.direction !== "reverse") return wall;
+  return {
+    ...wall,
+    start: wall.end,
+    end: wall.start,
+    startNodeId: wall.endNodeId,
+    endNodeId: wall.startNodeId,
+  };
+}
+
 export function selectOpeningsForRoom(project: InteriorProject, roomId: string): OpeningEntity[] {
   const roomWallIds = new Set(selectWallsForRoom(project, roomId).map((wall) => wall.id));
   return project.openings.filter(

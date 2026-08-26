@@ -1,5 +1,6 @@
 import { centerPolygonAtOrigin } from "./roomPlanBounds";
 import { synchronizeWallCaches } from "./wallGraph";
+import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type { InteriorProject, Point2Mm, WallEntity } from "./types";
 
 export type RoomDrawingKind = "rectangle" | "polygon";
@@ -75,8 +76,8 @@ export function drawRoomFromPoints(project: InteriorProject, request: RoomDrawin
     id: roomId, name: `Room ${project.rooms.length + 1}`, roomType: "custom" as const, dimensions, wallThicknessMm: thicknessMm,
     outerLoopId: loopId, holeLoopIds: [], extensions: { createdBy: "draw-room", drawingKind: request.kind },
   };
-  return synchronizeWallCaches({
+  return synchronizeRoomSurfaceZones(synchronizeWallCaches({
     ...project, activeRoomId: roomId, nodes, walls: [...project.walls, ...walls], rooms: [...project.rooms, room],
     loops: [...project.loops, { id: loopId, wallUses: walls.map((wall) => ({ wallId: wall.id, direction: "forward" as const })) }],
-  });
+  }));
 }

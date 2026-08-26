@@ -59,10 +59,15 @@ export {
 } from "./selectors";
 export {
   buildContiguousWallUses,
+  orientWallForRoom,
   selectOpeningsForRoom,
   selectWallsForRoom,
   wallLengthMm,
 } from "./planTopology";
+export {
+  createInteriorTechnicalPlanSvg,
+  type InteriorTechnicalPlanOptions,
+} from "./interiorTechnicalPlan";
 export { validatePlanTopology, ensureCompatPlanTopology } from "./planTopologyValidation";
 export {
   WALL_GRAPH_DOMAIN_VERSION,
@@ -88,6 +93,21 @@ export {
   roomPlanViewBounds,
   type RoomPlanViewBounds,
 } from "./roomPlanBounds";
+export {
+  orderedLoopPoints,
+  pointInPolygon,
+  pointInRoomPolygon,
+  polygonBounds,
+  polygonCentroid,
+  polygonSelfIntersects,
+  polygonSignedArea,
+  polygonsIntersect,
+  roomPlanPolygon,
+  roomPolygonIsValid,
+  type RoomPlanPolygon,
+} from "./roomGeometry";
+export { synchronizeRoomSurfaceZones } from "./roomSurfaces";
+export { resizeRoomPlanGeometry } from "./roomResize";
 export {
   createWallSegment,
   createWallSegmentResult,

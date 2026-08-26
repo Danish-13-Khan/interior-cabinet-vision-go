@@ -1,4 +1,4 @@
-import { selectWallsForRoom } from "./planTopology";
+import { polygonBounds, roomPlanPolygon } from "./roomGeometry";
 import type { InteriorProject, Point2Mm } from "./types";
 
 export type RoomPlanViewBounds = {
@@ -15,8 +15,8 @@ export type RoomPlanViewBounds = {
 /** Plan-space bounds from a room's wall graph (falls back to centered dimensions). */
 export function roomPlanViewBounds(project: InteriorProject, roomId: string): RoomPlanViewBounds {
   const room = project.rooms.find((item) => item.id === roomId);
-  const walls = selectWallsForRoom(project, roomId);
-  if (walls.length === 0) {
+  const polygon = roomPlanPolygon(project, roomId);
+  if (!polygon) {
     const widthMm = room?.dimensions.widthMm ?? 1000;
     const depthMm = room?.dimensions.depthMm ?? 1000;
     return {
@@ -30,12 +30,7 @@ export function roomPlanViewBounds(project: InteriorProject, roomId: string): Ro
       depthMm,
     };
   }
-  const xs = walls.flatMap((wall) => [wall.start.x, wall.end.x]);
-  const zs = walls.flatMap((wall) => [wall.start.z, wall.end.z]);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minZ = Math.min(...zs);
-  const maxZ = Math.max(...zs);
+  const { minX, maxX, minZ, maxZ, widthMm, depthMm } = polygonBounds(polygon.outer);
   return {
     minX,
     maxX,
@@ -43,8 +38,8 @@ export function roomPlanViewBounds(project: InteriorProject, roomId: string): Ro
     maxZ,
     centerX: (minX + maxX) / 2,
     centerZ: (minZ + maxZ) / 2,
-    widthMm: maxX - minX,
-    depthMm: maxZ - minZ,
+    widthMm,
+    depthMm,
   };
 }
 

@@ -1,4 +1,5 @@
 import {
+  createInteriorTechnicalPlanSvg,
   loadInteriorProjectFile,
   type InteriorProject,
 } from "../interiorProject";
@@ -93,34 +94,11 @@ export function clearLivingRoomRecovery(
   storageOrDefault(storage)?.removeItem(LIVING_ROOM_RECOVERY_STORAGE_KEY);
 }
 
-function escapeXml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&apos;",
-  })[character]!);
-}
-
 /** Creates a deterministic plan preview without needing an active WebGL canvas. */
 export function createLivingRoomPlanThumbnail(project: InteriorProject) {
-  const room = project.rooms.find((item) => item.id === project.activeRoomId);
-  if (!room) return "";
-  const width = room.dimensions.widthMm;
-  const depth = room.dimensions.depthMm;
-  const scaleX = 280 / width;
-  const scaleZ = 164 / depth;
-  const objectMarkup = project.objects
-    .filter((object) => object.roomId === room.id)
-    .map((object) => {
-      const objectWidth = Math.max(4, object.dimensions.widthMm * scaleX);
-      const objectDepth = Math.max(4, object.dimensions.depthMm * scaleZ);
-      const x = 150 + object.position.x * scaleX;
-      const y = 92 + object.position.z * scaleZ;
-      return `<g transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${object.rotation.y.toFixed(2)})"><rect x="${(-objectWidth / 2).toFixed(2)}" y="${(-objectDepth / 2).toFixed(2)}" width="${objectWidth.toFixed(2)}" height="${objectDepth.toFixed(2)}" rx="2"/><title>${escapeXml(object.name)}</title></g>`;
-    })
-    .join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="184" viewBox="0 0 300 184"><rect width="300" height="184" fill="#dfe6ea"/><rect x="10" y="10" width="280" height="164" fill="#f8f9f7" stroke="#344751" stroke-width="4"/><g fill="#bfa77d" stroke="#40515a" stroke-width="1.5">${objectMarkup}</g><text x="18" y="28" fill="#32444e" font-family="sans-serif" font-size="10" font-weight="700">${escapeXml(project.name)}</text></svg>`;
+  const svg = createInteriorTechnicalPlanSvg(project, {
+    width: 300, height: 184, title: project.name, showDimensions: false,
+  });
+  if (!svg) return "";
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }

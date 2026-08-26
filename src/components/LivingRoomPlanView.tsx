@@ -120,6 +120,6 @@ export function LivingRoomPlanView(props: Props) {
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit} />
     <PlanObjectsLayer project={props.project} selectedIds={props.selectedIds} issues={props.issues}
       preview={objects.preview} guides={objects.guides} unit={props.readability.unit} onStart={objects.start} />
-    <PlanDimensionsLayer room={room} walls={props.project.walls} activeWallId={props.activeWallId} settings={props.readability} />
+    <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId} settings={props.readability} />
   </svg>;
 }

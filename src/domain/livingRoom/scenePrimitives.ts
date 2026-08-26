@@ -1,8 +1,9 @@
-import type { EulerDegrees, Point3Mm } from "../interiorProject";
+import { polygonBounds, type EulerDegrees, type Point2Mm, type Point3Mm } from "../interiorProject";
 import type {
   CompiledBoxPrimitive,
   CompiledCylinderPrimitive,
   CompiledRoundedBoxPrimitive,
+  CompiledPolygonPrismPrimitive,
 } from "./sceneTypes";
 
 const ZERO_ROTATION: EulerDegrees = { x: 0, y: 0, z: 0 };
@@ -111,6 +112,45 @@ export function roundedBoxPrimitive(
     materialId,
     geometryKey: `rounded-box:${size.width}:${size.height}:${size.depth}:${radiusMm}:${smoothness}`,
     castShadow: options.castShadow ?? true,
+    receiveShadow: options.receiveShadow ?? true,
+  };
+}
+
+function polygonKey(points: Point2Mm[]) {
+  return points.map((point) => `${rounded(point.x)},${rounded(point.z)}`).join(";");
+}
+
+export function polygonPrismPrimitive(
+  id: string,
+  outlineMm: Point2Mm[],
+  holesMm: Point2Mm[][],
+  heightMm: number,
+  elevationMm: number,
+  materialId: string,
+  options: { castShadow?: boolean; receiveShadow?: boolean } = {},
+): CompiledPolygonPrismPrimitive {
+  const bounds = polygonBounds(outlineMm);
+  const centerX = (bounds.minX + bounds.maxX) / 2;
+  const centerZ = (bounds.minZ + bounds.maxZ) / 2;
+  const local = (points: Point2Mm[]) => points.map((point) => ({
+    x: rounded(point.x - centerX),
+    z: rounded(point.z - centerZ),
+  }));
+  const outline = local(outlineMm);
+  const holes = holesMm.map(local);
+  const height = Math.max(1, rounded(heightMm));
+  return {
+    kind: "polygon-prism",
+    id,
+    outlineMm: outline,
+    holesMm: holes,
+    heightMm: height,
+    boundsMm: { width: bounds.widthMm, depth: bounds.depthMm },
+    positionMm: { x: centerX, y: elevationMm, z: centerZ },
+    rotationDegrees: { x: 90, y: 0, z: 0 },
+    materialId,
+    geometryKey: `polygon:${height}:${polygonKey(outline)}:${holes.map(polygonKey).join("|")}`,
+    castShadow: options.castShadow ?? false,
     receiveShadow: options.receiveShadow ?? true,
   };
 }

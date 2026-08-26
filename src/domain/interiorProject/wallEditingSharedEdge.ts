@@ -1,5 +1,6 @@
 import { directedWallEnd, roomIdsUsingWall } from "./planTopology";
 import { synchronizeWallCaches } from "./wallGraph";
+import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type { DirectedWallUse, InteriorProject, PlanLoop, Point2Mm, WallEntity } from "./types";
 import { segmentKey, wallSegmentKey } from "./wallEditingHelpers";
 
@@ -99,5 +100,5 @@ export function attachSharedWallToRoom(
 
   const withLoops = { ...project, loops };
   const walls = markSharedWallRoomId(withLoops, sharedWall.id);
-  return synchronizeWallCaches({ ...withLoops, walls });
+  return synchronizeRoomSurfaceZones(synchronizeWallCaches({ ...withLoops, walls }));
 }
