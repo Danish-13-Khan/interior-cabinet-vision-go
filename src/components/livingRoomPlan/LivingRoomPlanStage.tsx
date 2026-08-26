@@ -56,6 +56,8 @@ type LivingRoomPlanStageProps = {
   onExportScheduleCsv: () => void;
   onExportCutlistCsv: () => void;
   onExportPdf: () => void;
+  v2BuildMode?: boolean;
+  v2ReviewMode?: boolean;
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
@@ -99,15 +101,15 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
       <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}`}>
         <strong>
           {props.workspaceView === "model"
-            ? "MODEL"
+            ? "3D model"
             : props.workspaceView === "render"
-              ? "RENDER · LIVING ROOM"
-              : "PLAN · LIVING ROOM"}
+              ? "Render studio"
+              : "2D plan"}
         </strong>
         <span>
           {props.workspaceView === "model"
             ? `${props.project.name} · staged concept`
-            : `${props.project.name} · ${props.project.objects.length} objects · ${props.selectedIds.length} selected`}
+            : `${props.project.name} · ${props.project.objects.length} furniture objects · ${props.project.openings.length} openings · ${props.selectedIds.length} selected`}
         </span>
         {props.workspaceView !== "model" ? (
           <small>
@@ -170,20 +172,22 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         )}
       </div>
       <footer className="lr-plan-status">
-        <span>{props.workspaceView === "render" ? "OUTPUT PNG" : `SNAP ${props.snapSizeMm}`}</span>
-        <span>{props.workspaceView === "plan" ? "ORTHO ON" : props.workspaceView === "model" ? "ORBIT READY" : "ACES / SRGB"}</span>
-        <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `GRID ${props.showGrid ? "ON" : "OFF"}`}</span>
+        <span>{props.workspaceView === "render" ? "PNG output" : `Snap ${props.snapSizeMm} mm`}</span>
+        <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Orbit ready" : "ACES / sRGB"}</span>
+        <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `Grid ${props.showGrid ? "on" : "off"}`}</span>
+        {props.v2BuildMode ? <span>mm · Zoom fit</span> : null}
+        {props.v2ReviewMode ? <span>Shared 2D / 3D document</span> : null}
         <span className={props.issues.length ? "has-warning" : ""}>
           {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
         </span>
         <span className={`lr-autosave-state is-${props.autosaveState}`}>
           {props.autosaveState === "saving"
-            ? "AUTOSAVING…"
+            ? "Autosaving…"
             : props.autosaveState === "error"
-              ? "AUTOSAVE FAILED"
+              ? "Autosave failed"
               : props.lastAutosavedAt
-                ? `AUTOSAVED ${new Date(props.lastAutosavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                : "AUTOSAVE READY"}
+                ? `Autosaved ${new Date(props.lastAutosavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                : "Autosave ready"}
         </span>
       </footer>
     </div>

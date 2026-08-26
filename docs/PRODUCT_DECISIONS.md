@@ -67,3 +67,19 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 **Phase 1 exit (2026-08-14):** Accepted on `main`. Presentation-floor work + proof automation + PNG baselines shipped. Locked Tauri latency budgets remain follow-up debt (browser substitute over budget — not an official latency pass). Stop Phase 1 polish loops; do not reopen endless WebGL tuning.
 
 **Current named ticket:** [Living-room Millwork Schedule v1 + Model inspector](./MILLWORK_SCHEDULE_V1.md) — workshop CSV/PDF from live Plan/Model millimetres, plus W×H×D and material slots in 3D Model. This is the cabinet-aware credibility deliverable; it is not another render-quality loop.
+
+## Interiors V2 vs Cabinets CAD shell (UI chrome)
+
+**Decision:** Keep an **intentional product split**. Do not unify header density, save controls, or view chrome between the Interiors V2 planner and the classic Cabinets/Job CAD shell in this release.
+
+| Surface | Role | Chrome policy |
+|---|---|---|
+| **Interiors V2** (`lr-product-shell-v2`) | Living-room concept workflow: Project → Build → Design → Review | Dark green product shell, step rail, compact Save / 2D·3D |
+| **Cabinets / Job / Drawings** | Engineering CAD: wall runs, elevation, assembly, reports | Light dense ribbon, tool rail, engineering inspector |
+
+**Share:** `InteriorProject` / room–cabinet data truth, millimetres, undo, open/save file formats, and workbench mode switching.  
+**Do not share yet:** visual tokens, header layout, or inspector typography — forcing one chrome would dilute both jobs.
+
+**Revisit when:** a single salesperson workflow regularly hops Interiors ↔ Cabinets in one session *and* user testing shows chrome mismatch as a top friction. Until then, treat dual chrome as acceptable product framing, not debt.
+
+Related: [UI_DISCREPANCY_ROADMAP.md](./UI_DISCREPANCY_ROADMAP.md) Phase 2 (C9).

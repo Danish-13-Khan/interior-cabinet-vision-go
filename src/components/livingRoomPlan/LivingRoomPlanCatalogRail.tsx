@@ -35,6 +35,7 @@ type LivingRoomPlanCatalogRailProps = {
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onAddPartitionWall: () => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
   onActiveWall: (wallId: string) => void;
@@ -42,6 +43,8 @@ type LivingRoomPlanCatalogRailProps = {
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
   onDeleteOpening: (openingId: string) => void;
+  v2BuildMode?: boolean;
+  v2DesignMode?: boolean;
 };
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
@@ -56,26 +59,34 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
   const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
+  const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
   return <>
       <nav className="lr-studio-rail" aria-label="Plan tools">
-        <button type="button" className={props.studioPanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build</button>
-        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets</button>
-        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture</button>
-        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials</button>
-        <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers</button>
-        <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button>
+        {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build<small>Room, walls, openings</small></button> : null}
+        {!props.v2BuildMode ? <>
+        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets<small>Place modules</small></button>
+        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture<small>Room objects</small></button>
+        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials<small>Finishes</small></button>
+        <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers<small>Visibility</small></button>
+        {!props.v2DesignMode ? <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button> : null}
+        </> : null}
       </nav>
       {props.toolRailVisible ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
-        {props.studioPanel === "cabinets" || props.studioPanel === "furniture" ? (
+        {activePanel === "cabinets" || activePanel === "furniture" ? (
           <>
             <div className="context-panel-heading">
-              <strong>{props.studioPanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
-              <span>{props.studioPanel === "cabinets" ? `Attach to ${String(activeWall.extensions?.wallSide ?? "wall")}` : `${visibleAssets.length} parametric models`}</span>
+              <strong>{activePanel === "cabinets" ? "Cabinet Library" : "Furniture Library"}</strong>
+              <span>{activePanel === "cabinets" ? `Attach to ${String(activeWall.extensions?.wallSide ?? "wall")}` : `${visibleAssets.length} parametric models`}</span>
             </div>
-            <AssetImportPanel cabinetMode={props.studioPanel === "cabinets"} onAdd={props.onAddImportedAsset} />
+            <AssetImportPanel cabinetMode={activePanel === "cabinets"} onAdd={props.onAddImportedAsset} />
             <div className="lr-asset-controls">
-              <input aria-label="Search assets" placeholder="Search furniture…" value={props.assetQuery} onChange={(event) => props.onAssetQuery(event.target.value)} />
+              <input
+                aria-label={activePanel === "cabinets" ? "Search cabinets" : "Search furniture"}
+                placeholder={activePanel === "cabinets" ? "Search cabinets…" : "Search furniture…"}
+                value={props.assetQuery}
+                onChange={(event) => props.onAssetQuery(event.target.value)}
+              />
               <div className="lr-asset-categories">
                 {props.assetCategories.map((category) => (
                   <button type="button" key={category} className={props.assetCategory === category ? "is-active" : ""} onClick={() => props.onAssetCategory(category)}>{category === "all" ? "All" : category.replace("-", " ")}</button>
@@ -84,7 +95,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             </div>
             <div className="lr-asset-grid">
               {visibleAssets.map((item) => (
-                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id, props.studioPanel === "cabinets" ? activeWall.id : undefined)}>
+                <button type="button" key={item.id} onClick={() => props.onAddCatalogObject(item.id, activePanel === "cabinets" ? activeWall.id : undefined)}>
                   <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
                   <strong>{item.name}</strong>
                   <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm</small>
@@ -93,7 +104,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               ))}
             </div>
           </>
-        ) : props.studioPanel === "materials" ? <>
+        ) : activePanel === "materials" ? <>
             <div className="context-panel-heading"><strong>Surface Paint</strong><span>2D paint · synced 3D</span></div>
             <SurfacePaintPanel
               project={props.project}
@@ -103,7 +114,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               onWall={props.onSetWallMaterial}
               onObject={props.onSetObjectMaterial}
             />
-          </> : props.studioPanel === "layers" ? (
+          </> : activePanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>
             <div className="lr-layer-tree">
@@ -123,7 +134,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
             <div className="lr-underlay-panel">
               <section className="lr-room-authoring">
-                <strong>Room dimensions</strong>
+                <strong>1. Room dimensions</strong>
                 <div className="lr-room-dimension-grid">
                   {(["widthMm", "depthMm", "heightMm"] as const).map((key) => (
                     <label key={key}><span>{key === "widthMm" ? "Width" : key === "depthMm" ? "Depth" : "Height"}</span><input type="number" min="2200" step="50" value={room.dimensions[key]} onChange={(event) => props.onRoomDimensions({ ...room.dimensions, [key]: Number(event.target.value) || room.dimensions[key] })} /></label>
@@ -131,21 +142,24 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
                 </div>
               </section>
               <section className="lr-room-authoring">
-                <strong>Wall openings</strong>
+                <strong>2. Select or add a wall</strong>
+                <button type="button" className="lr-add-partition" onClick={props.onAddPartitionWall}>+ Add partition wall</button>
                 <div className="lr-wall-tabs">
                   {props.project.walls.map((wall) => <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>{String(wall.extensions?.wallSide ?? "wall")}</button>)}
                 </div>
-                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Window</button></div>
+                <small className="lr-build-selection">Selected wall: {String(activeWall.extensions?.wallSide ?? activeWall.id)}</small>
+                <strong className="lr-openings-heading">3. Add an opening</strong>
+                <div className="lr-opening-actions"><button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Add door</button><button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Add window</button></div>
                 {props.project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
                   <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}><span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small></button>
                 ))}
-                {!props.project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on this wall.</p> : null}
+                {!props.project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on selected wall.</p> : null}
                 {activeOpening?.wallId === activeWall.id ? <div className="lr-opening-fields">
                   {(["offsetMm", "widthMm", "heightMm", "sillHeightMm"] as const).map((key) => <label key={key}><span>{key === "offsetMm" ? "Offset" : key === "widthMm" ? "Width" : key === "heightMm" ? "Height" : "Sill"}</span><input type="number" min="0" step="50" value={activeOpening[key]} onChange={(event) => props.onUpdateOpening(activeOpening.id, { [key]: Number(event.target.value) || activeOpening[key] })} /></label>)}
                   <button type="button" className="is-danger" onClick={() => props.onDeleteOpening(activeOpening.id)}>Remove opening</button>
                 </div> : null}
               </section>
-              <section className="lr-room-authoring"><strong>Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
+              <section className="lr-room-authoring"><strong>4. Plan underlay</strong><small>Optional: align a supplied floor plan before drawing.</small></section>
               <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
               {props.underlay ? (
                 <>

@@ -252,6 +252,7 @@ function App() {
             onCreateCabinetRun={c.createLivingRoomCabinetRun}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onAddPartitionWall={c.addLivingRoomPartition}
             onAddOpening={c.addLivingRoomOpening}
             onUpdateOpening={c.updateLivingRoomOpening}
             onDeleteOpening={c.deleteLivingRoomOpening}
