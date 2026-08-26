@@ -27,7 +27,7 @@ export function RenderDiagnosticsPanel({
         <div><dt>GLB fallbacks</dt><dd>{report.proceduralFallbackCount}</dd></div>
         <div><dt>Material fallbacks</dt><dd>{report.materialFallbackCount}</dd></div>
         <div><dt>HDRI</dt><dd>{report.hdriFallback ? "fallback" : "ok"}</dd></div>
-        <div><dt>Camera</dt><dd>{report.camera.cameraId?.slice(-8) ?? "none"}</dd></div>
+        <div><dt>Camera</dt><dd>{report.camera.cameraName ?? report.camera.cameraId ?? "none"}</dd></div>
       </dl>
       {errors.length || warnings.length ? (
         <ul>

@@ -1,0 +1,473 @@
+/* V2 Project Home: a full workspace, not a page inside the drawing canvas. */
+.lr-product-shell-v2 {
+  padding: 18px 34px 24px;
+  gap: 16px;
+}
+
+.lr-product-shell-v2 .planner-v2-steps {
+  gap: 12px;
+  margin: 0;
+}
+
+.lr-product-shell-v2 .planner-v2-steps button {
+  padding: 12px 22px;
+  font-size: 16px;
+}
+
+.lr-product-shell-v2 .planner-v2-steps button:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+.lr-product-shell-v2 .planner-v2-steps-hint {
+  align-self: center;
+  color: #9eaaa0;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-product-header {
+  min-height: 72px;
+  border-radius: 18px 18px 0 0;
+}
+
+.lr-product-shell-v2 .lr-product-brand { padding: 0 26px; }
+.lr-product-shell-v2 .lr-product-brand strong { font-size: 20px; }
+.lr-product-shell-v2 .lr-product-brand small { margin-left: 20px; padding-left: 20px; font-size: 16px; }
+.lr-product-shell-v2 .lr-product-actions { gap: 18px; padding-right:26px; }
+.lr-product-shell-v2 .lr-save-button { min-width: 96px; min-height: 54px; border-radius: 13px; font-size: 18px; }
+.lr-product-shell-v2 .lr-view-switch button { font-size: 18px; }
+
+.lr-product-shell-v2 .lr-empty-workspace {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #364238;
+  border-top: 0;
+  border-radius: 0 0 18px 18px;
+  background: #151b16;
+}
+
+.lr-product-shell-v2 .planner-v2-home {
+  display: grid;
+  grid-template-columns: minmax(360px, .8fr) minmax(520px, 1.2fr);
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background: #151b16;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .planner-v2-home-intro {
+  padding: clamp(42px, 6vw, 86px);
+  background: #182019;
+}
+
+.lr-product-shell-v2 .planner-v2-home-intro > span,
+.lr-product-shell-v2 .planner-v2-home-content header > span,
+.lr-product-shell-v2 .planner-v2-recovery span { color: #6ec28a; font-size: 12px; }
+
+.lr-product-shell-v2 .planner-v2-home h1 { color: #f4f8f3; font-size: clamp(38px, 4.2vw, 62px); }
+.lr-product-shell-v2 .planner-v2-home-intro p { color: #b2bcb3; font-size: 16px; line-height: 1.55; }
+.lr-product-shell-v2 .planner-v2-home-intro label { color: #c6d0c7; font-size: 13px; }
+.lr-product-shell-v2 .planner-v2-home-start-note { display: block; margin-top: 14px; color: #9eaaa0; font-size: 13px; }
+
+.lr-product-shell-v2 .planner-v2-home-intro input,
+.lr-product-shell-v2 .planner-v2-home button {
+  border-color: #445246;
+  background: #202a21;
+  color: #eef3ed;
+  font-size: 14px;
+}
+
+.lr-product-shell-v2 .planner-v2-home-intro input { min-height: 46px; }
+.lr-product-shell-v2 .planner-v2-home button { min-height: 40px; }
+.lr-product-shell-v2 .planner-v2-home button.is-primary { border-color: #278050; background: #278050; }
+
+.lr-product-shell-v2 .planner-v2-home-content {
+  padding: clamp(32px, 4.5vw, 68px);
+  background: #151b16;
+}
+
+.lr-product-shell-v2 .planner-v2-recovery {
+  border-color: #4b7658;
+  background: #1b2c20;
+}
+
+.lr-product-shell-v2 .planner-v2-recovery strong,
+.lr-product-shell-v2 .planner-v2-starts strong,
+.lr-product-shell-v2 .planner-v2-recents strong { color: #eef3ed; }
+
+.lr-product-shell-v2 .planner-v2-starts,
+.lr-product-shell-v2 .planner-v2-recents {
+  border-color: #3d4b3f;
+  background: #1b241c;
+}
+
+.lr-product-shell-v2 .planner-v2-home-content header small,
+.lr-product-shell-v2 .planner-v2-starts small,
+.lr-product-shell-v2 .planner-v2-recents small,
+.lr-product-shell-v2 .planner-v2-recents p { color: #aeb8b0; font-size: 13px; }
+
+.lr-product-shell-v2 .planner-v2-starts button:hover { border-color: #6ec28a; background: #253127; }
+.lr-product-shell-v2 .planner-v2-recents img { border-color: #3d4b3f; }
+.lr-product-shell-v2 .planner-v2-recents .planner-v2-demo { border-color: #6ec28a; background: #1b2c20; color: #8ed6a4; }
+
+.lr-product-shell-v2 .lr-dimensions-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.lr-product-shell-v2 .lr-dimensions-heading small {
+  color: #9eaaa0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lr-product-shell-v2 .lr-dimension-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.lr-product-shell-v2 .lr-number-field.lr-dimension-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  min-height: 102px;
+  padding: 14px 12px;
+  border: 1px solid #465448;
+  border-radius: 12px;
+  background: #1d251e;
+}
+
+.lr-product-shell-v2 .lr-dimension-card > span {
+  color: #aeb8b0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-align: center;
+}
+
+.lr-product-shell-v2 .lr-dimension-card input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f4f8f3;
+  font: 600 24px/1.1 Inter, "Avenir Next", sans-serif;
+  text-align: center;
+}
+
+.lr-product-shell-v2 .lr-dimension-card small {
+  padding: 0;
+  color: #b8c4ba;
+  font-size: 13px;
+  text-align: center;
+}
+
+.lr-product-shell-v2 .lr-dimension-card:focus-within {
+  border-color: #8fc1ff;
+  box-shadow: 0 0 0 2px #8fc1ff33;
+}
+
+.lr-product-shell-v2 .lr-workspace-body,
+.lr-product-shell-v2 .lr-plan-center,
+.lr-product-shell-v2 .lr-plan-canvas {
+  min-height: 0;
+}
+
+.lr-product-shell-v2 .lr-plan-center { flex: 1 1 auto; }
+.lr-product-shell-v2 .lr-plan-canvas { flex: 1 1 auto; }
+
+.lr-product-shell-v2 .lr-plan-titlebar {
+  min-height: 54px;
+  padding: 0 28px;
+  font-family: Inter, "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar span,
+.lr-product-shell-v2 .lr-plan-titlebar small,
+.lr-product-shell-v2 .lr-plan-status {
+  font-family: Inter, "Avenir Next", "Segoe UI", sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar span { font-size: 17px; }
+.lr-product-shell-v2 .lr-plan-titlebar small { font-size: 14px; }
+
+.lr-product-shell-v2 .lr-studio-rail button {
+  display: grid;
+  min-height: 88px;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  padding: 14px 20px;
+  color: #d4ddd5;
+  font-size: 20px;
+  text-align: left;
+}
+
+.lr-product-shell-v2 .lr-studio-rail button small {
+  color: #99a69b;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.lr-product-shell-v2 .lr-studio-rail button.is-active small { color: #b8cfbd; }
+
+/* The contextual panel is required to actually build and furnish a room. */
+.lr-product-shell-v2 .lr-catalog {
+  display: flex;
+  width: 280px !important;
+  min-width: 280px;
+  max-width: 280px;
+  background: #151b16;
+  color: #eef3ed;
+  border-color: #364238;
+}
+
+.lr-product-shell-v2 .lr-studio-rail { width:220px; flex-basis:220px; padding:28px 14px; background: #151b16; }
+.lr-product-shell-v2 .lr-inspector { width:360px !important; min-width:360px; }
+
+.lr-product-shell-v2 .context-panel-heading,
+.lr-product-shell-v2 .lr-asset-controls,
+.lr-product-shell-v2 .lr-room-authoring,
+.lr-product-shell-v2 .lr-underlay-panel {
+  border-color: #364238;
+  background: #151b16;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .context-panel-heading strong,
+.lr-product-shell-v2 .lr-room-authoring > strong { color: #eef3ed; font-size: 16px; }
+.lr-product-shell-v2 .context-panel-heading span,
+.lr-product-shell-v2 .lr-room-authoring > small,
+.lr-product-shell-v2 .lr-room-authoring > p { color: #aeb8b0; font-size: 13px; }
+
+/* C3: override legacy rem/light labels so Build dimensions stay readable. */
+.lr-product-shell-v2 .lr-room-dimension-grid label,
+.lr-product-shell-v2 .lr-opening-fields label {
+  color: #aeb8b0;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-room-dimension-grid label span,
+.lr-product-shell-v2 .lr-opening-fields label span {
+  color: #aeb8b0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.lr-product-shell-v2 .lr-asset-controls > input,
+.lr-product-shell-v2 .lr-room-dimension-grid input,
+.lr-product-shell-v2 .lr-opening-fields input,
+.lr-product-shell-v2 .lr-underlay-panel > label input[type="number"] {
+  border-color: #465448;
+  background: #1d251e;
+  color: #eef3ed;
+  font-size: 14px;
+}
+
+.lr-product-shell-v2 .lr-underlay-panel,
+.lr-product-shell-v2 .lr-asset-grid { background: #151b16; }
+.lr-product-shell-v2 .lr-wall-tabs button,
+.lr-product-shell-v2 .lr-opening-actions button,
+.lr-product-shell-v2 .lr-underlay-empty button,
+.lr-product-shell-v2 .lr-add-partition { color: #eef3ed; background: #202a21; border-color: #465448; }
+
+.lr-product-shell-v2 .lr-wall-tabs button {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-add-partition {
+  width: fit-content;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #6ec28a;
+  border-radius: 7px;
+  color: #8ed6a4;
+  cursor: pointer;
+}
+
+.lr-product-shell-v2 .lr-build-selection {
+  display: block;
+  color: #8ed6a4;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-openings-heading {
+  display: block;
+  margin-top: 12px;
+  color: #eef3ed;
+  font-size: 15px;
+}
+
+.lr-product-shell-v2 .lr-opening-actions button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid #465448;
+  border-radius: 7px;
+  color: #eef3ed;
+  font-size: 14px;
+}
+
+/* Build has one clear reading order: mode, controls, canvas, selection. */
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail {
+  width: 190px;
+  flex-basis: 190px;
+  padding: 28px 14px;
+}
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
+  min-height: 106px;
+  padding: 18px;
+  font-size: 20px;
+}
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
+  width: 310px !important;
+  min-width: 310px;
+  max-width: 310px;
+}
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
+  width: 350px !important;
+  min-width: 350px;
+}
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-millwork-preview { display: none; }
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-titlebar {
+  min-height: 48px;
+  padding: 0 22px;
+}
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: 520px; }
+
+/* C5: readable selection subtitle — no 30px ellipsis clip. */
+.lr-product-shell-v2 .inspector-header {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 20px 22px 12px;
+  border: 0;
+  border-bottom: 1px solid #364238;
+  background: #151b16;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .inspector-header strong {
+  font-size: 0;
+}
+
+.lr-product-shell-v2 .inspector-header strong::after {
+  content: "SELECTED CABINET";
+  color: #adb7ae;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.lr-product-shell-v2 .inspector-header span {
+  margin-top: 0;
+  min-width: 0;
+  max-width: 100%;
+  color: #f4f8f3;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+}
+
+/* C6: keep V2 catalog/inspector on dark type — quarantine light rem leaks. */
+.lr-product-shell-v2 .lr-catalog-tabs,
+.lr-product-shell-v2 .lr-catalog-tabs + *,
+.lr-product-shell-v2 .context-panel-heading {
+  background: #151b16;
+  border-color: #364238;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .lr-studio-rail button:hover,
+.lr-product-shell-v2 .lr-studio-rail button.is-active {
+  background: #25432f;
+  color: #8ed6a4;
+  box-shadow: none;
+}
+
+.lr-product-shell-v2 .lr-asset-categories button,
+.lr-product-shell-v2 .lr-layer-tree,
+.lr-product-shell-v2 .lr-layer-tree label,
+.lr-product-shell-v2 .lr-layer-tree button,
+.lr-product-shell-v2 .lr-asset-grid > button strong,
+.lr-product-shell-v2 .lr-asset-grid > button small,
+.lr-product-shell-v2 .lr-underlay-panel > strong,
+.lr-product-shell-v2 .lr-underlay-panel > small,
+.lr-product-shell-v2 .lr-underlay-panel > label,
+.lr-product-shell-v2 .lr-underlay-empty strong,
+.lr-product-shell-v2 .lr-underlay-empty p,
+.lr-product-shell-v2 .lr-inspector-scroll,
+.lr-product-shell-v2 .lr-inspector-scroll h3,
+.lr-product-shell-v2 .lr-inspector-scroll h4,
+.lr-product-shell-v2 .lr-inspector-scroll p,
+.lr-product-shell-v2 .lr-select-field {
+  color: #aeb8b0;
+  font-size: 13px;
+}
+
+.lr-product-shell-v2 .lr-asset-categories button {
+  min-height: 28px;
+  border-color: #465448;
+  background: #202a21;
+  color: #eef3ed;
+}
+
+.lr-product-shell-v2 .lr-asset-categories button.is-active {
+  border-color: #278050;
+  background: #1b2c20;
+  color: #8ed6a4;
+}
+
+.lr-product-shell-v2 .lr-wall-tabs button.is-active {
+  border-color: #278050;
+  background: #1b2c20;
+  color: #8ed6a4;
+}
+
+.lr-product-shell-v2 .lr-opening-row.is-active {
+  border-color: #278050;
+  background: #1b2c20;
+}
+
+.lr-product-shell-v2 .lr-inspector-scroll h3,
+.lr-product-shell-v2 .lr-asset-grid > button strong,
+.lr-product-shell-v2 .context-panel-heading strong {
+  color: #eef3ed;
+  font-size: 15px;
+}
+
+.lr-product-shell-v2 .lr-inspector-scroll section {
+  border-color: #364238;
+  background: #151b16;
+}
+
+/* C7: render quality selection uses V2 green, not CAD blue. */
+.lr-product-shell-v2 .lr-render-quality-grid button.is-active {
+  border-color: #278050;
+  background: #dcefe3;
+  box-shadow: inset 3px 0 #278050;
+}
+
+/* Width / inspector / home stacking breakpoints live in planner-responsive.css. */

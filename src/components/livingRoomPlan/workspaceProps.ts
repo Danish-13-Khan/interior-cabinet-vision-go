@@ -25,6 +25,7 @@ import type {
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
 export type PlannerMode = "project" | "build" | "design" | "render";
 export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers" | "advanced";
+export type PlannerStarterTemplate = "blank-room" | "wardrobe-wall" | "import-plan";
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;
@@ -43,7 +44,7 @@ export type LivingRoomPlanWorkspaceProps = {
   lastAutosavedAt: string | null;
   recovery: LivingRoomRecoverySnapshot | null;
   recentProjects: SavedProjectBrowserEntry[];
-  onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId }) => void;
+  onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId; template?: PlannerStarterTemplate }) => void;
   onOpenDemo: () => void;
   onOpenPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => void;
   onOpenProjectHome: () => void;
@@ -70,6 +71,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onCreateCabinetRun: (wallId: string) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onAddPartitionWall: () => void;
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>) => void;
   onDeleteOpening: (openingId: string) => void;

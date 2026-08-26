@@ -5,6 +5,7 @@ import {
   type OpeningEntity,
   type Point3Mm,
   type Size3Mm,
+  type WallEntity,
 } from "../interiorProject";
 import { getObjectPlanBounds } from "./planGeometry";
 
@@ -189,6 +190,11 @@ export function resizeLivingRoom(
         : { ...wall, heightMm };
     }),
   });
+}
+
+/** Adds an editable interior partition; perimeter walls remain owned by the room shell. */
+export function addLivingRoomPartition(project: InteriorProject, wall: WallEntity) {
+  return safe({ ...project, walls: [...project.walls, wall] });
 }
 
 function wallLength(project: InteriorProject, wallId: string) {

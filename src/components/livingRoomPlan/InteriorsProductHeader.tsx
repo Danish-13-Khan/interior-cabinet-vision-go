@@ -65,14 +65,26 @@ export function InteriorsProductHeader({
           </button>
         ))}
       </nav>
+      <label className="lr-mobile-mode-picker">
+        <span>Mode</span>
+        <select value={plannerMode} onChange={(event) => onPlannerMode(event.target.value as PlannerMode)}>
+          <option value="project">Project</option><option value="build" disabled={!projectName}>Build</option><option value="design" disabled={!projectName}>Design</option><option value="render" disabled={!projectName}>Render</option>
+        </select>
+      </label>
       <div className="lr-product-actions">
+        <button type="button" className="lr-icon-button" aria-label="Home" title="Project home" onClick={onProject}><ProductIcon name="home" /></button>
         <button type="button" className="lr-icon-button" aria-label="Open project" title="Open project" onClick={onOpen}><ProductIcon name="folder" /></button>
         <button type="button" className="lr-icon-button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}><ProductIcon name="undo" /></button>
         <button type="button" className="lr-icon-button" aria-label="Redo" title="Redo" onClick={onRedo} disabled={!canRedo}><ProductIcon name="redo" /></button>
         <button type="button" className="lr-save-button" onClick={onSave} disabled={!projectName}><ProductIcon name="save" />{isDirty ? "Save *" : "Save"}</button>
         <div className="lr-view-switch" role="group" aria-label="Canvas view">
           <button type="button" className={workspaceView === "plan" ? "is-active" : ""} onClick={() => onView("plan")} disabled={!projectName}>2D</button>
-          <button type="button" className={workspaceView === "model" ? "is-active" : ""} onClick={() => onView("model")} disabled={!projectName}>3D</button>
+          <button
+            type="button"
+            className={workspaceView === "model" || workspaceView === "render" ? "is-active" : ""}
+            onClick={() => onView(workspaceView === "render" ? "render" : "model")}
+            disabled={!projectName}
+          >3D</button>
         </div>
         <button type="button" className="lr-export-button" onClick={onExport} disabled={!projectName}>Export</button>
         <label className="lr-workspace-picker">
