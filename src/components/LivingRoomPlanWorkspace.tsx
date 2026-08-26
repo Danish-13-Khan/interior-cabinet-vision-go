@@ -33,6 +33,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [importError, setImportError] = useState("");
   const [activeWallId, setActiveWallId] = useState<string | null>(null);
   const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
+  const [pendingOpeningWallId, setPendingOpeningWallId] = useState<string | null>(null);
+  const [pendingPartition, setPendingPartition] = useState(false);
   const [renderResults, setRenderResults] = useState<{
     latest: LivingRoomRenderResult | null;
     previous: LivingRoomRenderResult | null;
@@ -46,6 +48,23 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : props.project!.walls[0]?.id ?? null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
   }, [props.project]);
+
+  useEffect(() => {
+    if (!props.project || !pendingOpeningWallId) return;
+    const opening = [...props.project.openings].reverse().find((item) => item.wallId === pendingOpeningWallId);
+    if (!opening) return;
+    setActiveWallId(opening.wallId);
+    setActiveOpeningId(opening.id);
+    setPendingOpeningWallId(null);
+  }, [pendingOpeningWallId, props.project]);
+
+  useEffect(() => {
+    if (!props.project || !pendingPartition) return;
+    const wall = [...props.project.walls].reverse().find((item) => item.extensions?.isPartition === true);
+    if (!wall) return;
+    setActiveWallId(wall.id);
+    setPendingPartition(false);
+  }, [pendingPartition, props.project]);
   const assetCategories = useMemo(
     () => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))],
     [],
@@ -71,6 +90,21 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     }
   }, [plannerMode, props.project, props.projectHomeOpen]);
 
+  function changePlannerMode(mode: PlannerMode) {
+    setPlannerMode(mode);
+    if (mode === "project") {
+      props.onOpenProjectHome();
+      return;
+    }
+    props.onCloseProjectHome();
+    if (mode === "render") {
+      setWorkspaceView("render");
+      return;
+    }
+    setWorkspaceView("plan");
+    setStudioPanel(mode === "build" ? "build" : "cabinets");
+  }
+
   const header = (
     <InteriorsProductHeader
       projectName={props.project?.name ?? null}
@@ -81,19 +115,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       canRedo={props.canRedo}
       onProject={props.onOpenProjectHome}
       onView={setWorkspaceView}
-      onPlannerMode={(mode) => {
-        setPlannerMode(mode);
-        if (mode === "project") {
-          props.onOpenProjectHome();
-          return;
-        }
-        if (mode === "render") {
-          setWorkspaceView("render");
-          return;
-        }
-        setWorkspaceView("plan");
-        setStudioPanel(mode === "build" ? "build" : "cabinets");
-      }}
+      onPlannerMode={changePlannerMode}
       onOpen={props.onOpenProject}
       onSave={props.onSaveProject}
       onExport={props.onExportProject}
@@ -117,11 +139,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   return (
     <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
-      <PlannerV2WorkflowSteps mode={plannerMode} hasProject onChange={(mode) => {
-        setPlannerMode(mode);
-        if (mode === "render") setWorkspaceView("render");
-        else if (mode !== "project") setWorkspaceView("plan");
-      }} />
+      <PlannerV2WorkflowSteps mode={plannerMode} hasProject onChange={changePlannerMode} />
       {header}
       <div className={`lr-workspace-body is-${workspaceView} is-planner-${plannerMode}`}>
         <LivingRoomHomeFromWorkspace
@@ -162,7 +180,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
             onSelect={(objectId) => props.onSelect(objectId)}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onRoomDimensions={props.onRoomDimensions}
-            onAddPartitionWall={props.onAddPartitionWall}
+            onAddPartitionWall={() => {
+              setPendingPartition(true);
+              props.onAddPartitionWall();
+            }}
             activeWallId={activeWallId}
             activeOpeningId={activeOpeningId}
             onActiveWall={setActiveWallId}
@@ -172,6 +193,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
               if (opening) setActiveWallId(opening.wallId);
             }}
             onAddOpening={(wallId, kind) => {
+              setPendingOpeningWallId(wallId);
               props.onAddOpening(wallId, kind);
               setActiveWallId(wallId);
             }}
