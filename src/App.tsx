@@ -254,6 +254,11 @@ function App() {
             onRoomDimensions={c.setLivingRoomDimensions}
             onAddPartitionWall={c.addLivingRoomPartition}
             onCreateRoom={c.drawLivingRoomRoom}
+            onDrawWallSegment={c.drawLivingRoomWallSegment}
+            onSplitWall={c.splitLivingRoomWall}
+            onDeleteWall={c.deleteLivingRoomWall}
+            onUpdateWall={c.updateLivingRoomWall}
+            onJoinCoincidentNodes={c.joinLivingRoomCoincidentNodes}
             onAddOpening={c.addLivingRoomOpening}
             onUpdateOpening={c.updateLivingRoomOpening}
             onDeleteOpening={c.deleteLivingRoomOpening}

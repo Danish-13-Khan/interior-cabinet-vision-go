@@ -1,0 +1,24 @@
+---
+description: Hard 200-line limit per script/source file
+alwaysApply: true
+---
+
+# Script line limit (200 lines)
+
+Every **script or source file** in this repo must stay at or under **200 lines** (including imports and exports).
+
+## Rules
+- **Hard ceiling: 200 lines.** If a file would exceed 200 lines, split before landing the change.
+- Split into focused companion modules with a clear single concern each.
+- Re-export from a barrel (`index.ts` or thin facade) when the public API should stay stable.
+- Tests (`*.test.ts`) follow the same limit; split fixtures or helpers into colocated `*.testHelpers.ts` if needed.
+- Styles: prefer feature CSS files under `src/styles/`; keep each file ≤200 lines.
+
+## When to split
+1. Pure helpers / domain functions first
+2. Presentational subcomponents
+3. Hooks and command reducers
+4. Keep orchestration thin in the parent
+
+## Relation to modular-code.mdc
+`modular-code.mdc` sets broader structure (domain vs components, App.tsx role). This rule is the **non-negotiable line budget** for every file.

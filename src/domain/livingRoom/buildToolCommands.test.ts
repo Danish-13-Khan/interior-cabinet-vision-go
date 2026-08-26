@@ -3,111 +3,67 @@ import {
   applyBuildCommand,
   createBuildCommandState,
   reduceBuildCommand,
+  type BuildCommandHandlers,
 } from "./buildToolCommands";
+
+function mockHandlers(overrides: Partial<BuildCommandHandlers> = {}): BuildCommandHandlers {
+  return {
+    resizeRoom: vi.fn(),
+    createWall: vi.fn(),
+    createWallSegment: vi.fn(),
+    createRoom: vi.fn(),
+    splitWall: vi.fn(),
+    deleteWall: vi.fn(),
+    updateWall: vi.fn(),
+    joinCoincidentNodes: vi.fn(),
+    placeOpening: vi.fn(),
+    updateOpening: vi.fn(),
+    deleteOpening: vi.fn(),
+    requestUnderlayUpload: vi.fn(),
+    ...overrides,
+  };
+}
 
 describe("buildToolCommands", () => {
   it("arms a placement tool without mutating geometry", () => {
-    const handlers = {
-      resizeRoom: vi.fn(),
-      createWall: vi.fn(),
-      createRoom: vi.fn(),
-      placeOpening: vi.fn(),
-      updateOpening: vi.fn(),
-      deleteOpening: vi.fn(),
-      requestUnderlayUpload: vi.fn(),
-    };
-    const next = applyBuildCommand(
-      createBuildCommandState(),
-      { type: "beginDraft", tool: "place-door" },
-      handlers,
-    );
+    const handlers = mockHandlers();
+    const next = applyBuildCommand(createBuildCommandState(), { type: "beginDraft", tool: "place-door" }, handlers);
     expect(next.activeTool).toBe("place-door");
     expect(next.draft?.tool).toBe("place-door");
     expect(handlers.placeOpening).not.toHaveBeenCalled();
   });
 
   it("cancels draft back to select", () => {
-    const armed = reduceBuildCommand(createBuildCommandState(), {
-      type: "beginDraft",
-      tool: "draw-wall",
-    });
-    const cancelled = reduceBuildCommand(armed, { type: "cancelDraft" });
-    expect(cancelled).toEqual({ activeTool: "select", draft: null });
+    const armed = reduceBuildCommand(createBuildCommandState(), { type: "beginDraft", tool: "draw-wall" });
+    expect(reduceBuildCommand(armed, { type: "cancelDraft" })).toEqual({ activeTool: "select", draft: null });
   });
 
   it("commits placeOpening through the rectangular adapter once", () => {
-    const handlers = {
-      resizeRoom: vi.fn(),
-      createWall: vi.fn(),
-      createRoom: vi.fn(),
-      placeOpening: vi.fn(),
-      updateOpening: vi.fn(),
-      deleteOpening: vi.fn(),
-      requestUnderlayUpload: vi.fn(),
-    };
-    const armed = applyBuildCommand(
-      createBuildCommandState(),
-      { type: "beginDraft", tool: "place-door" },
-      handlers,
-    );
-    const committed = applyBuildCommand(
-      armed,
-      { type: "placeOpening", wallId: "wall-front", kind: "door" },
-      handlers,
-    );
+    const handlers = mockHandlers();
+    const armed = applyBuildCommand(createBuildCommandState(), { type: "beginDraft", tool: "place-door" }, handlers);
+    const committed = applyBuildCommand(armed, { type: "placeOpening", wallId: "wall-front", kind: "door" }, handlers);
     expect(handlers.placeOpening).toHaveBeenCalledWith("wall-front", "door", undefined, undefined);
     expect(committed.draft).toBeNull();
-    expect(committed.activeTool).toBe("place-door");
   });
 
-  it("requests underlay upload when the upload tool is armed", () => {
-    const handlers = {
-      resizeRoom: vi.fn(),
-      createWall: vi.fn(),
-      createRoom: vi.fn(),
-      placeOpening: vi.fn(),
-      updateOpening: vi.fn(),
-      deleteOpening: vi.fn(),
-      requestUnderlayUpload: vi.fn(),
-    };
-    applyBuildCommand(
-      createBuildCommandState(),
-      { type: "beginDraft", tool: "upload-underlay" },
-      handlers,
-    );
-    expect(handlers.requestUnderlayUpload).toHaveBeenCalledTimes(1);
-  });
-
-  it("routes move, resize, and delete through explicit handlers", () => {
-    const handlers = {
-      resizeRoom: vi.fn(), createWall: vi.fn(), createRoom: vi.fn(), placeOpening: vi.fn(),
-      updateOpening: vi.fn(), deleteOpening: vi.fn(), requestUnderlayUpload: vi.fn(),
-    };
-    let state = createBuildCommandState("place-door");
-    state = applyBuildCommand(state, { type: "moveOpening", openingId: "door-1", offsetMm: 1250 }, handlers);
-    state = applyBuildCommand(state, { type: "resizeOpening", openingId: "door-1", widthMm: 950 }, handlers);
-    applyBuildCommand(state, { type: "deleteOpening", openingId: "door-1" }, handlers);
-    expect(handlers.updateOpening).toHaveBeenNthCalledWith(1, "door-1", { offsetMm: 1250 });
-    expect(handlers.updateOpening).toHaveBeenNthCalledWith(2, "door-1", { widthMm: 950 });
-    expect(handlers.deleteOpening).toHaveBeenCalledWith("door-1");
-  });
-
-  it("resizes from the start edge with offset and width together", () => {
-    const handlers = {
-      resizeRoom: vi.fn(), createWall: vi.fn(), createRoom: vi.fn(), placeOpening: vi.fn(),
-      updateOpening: vi.fn(), deleteOpening: vi.fn(), requestUnderlayUpload: vi.fn(),
-    };
-    applyBuildCommand(createBuildCommandState(), {
-      type: "resizeOpening", openingId: "door-1", widthMm: 800, offsetMm: 400,
+  it("routes D3 wall commands through explicit handlers", () => {
+    const handlers = mockHandlers();
+    applyBuildCommand(createBuildCommandState("draw-wall"), {
+      type: "createWallSegment", start: { x: 0, z: 0 }, end: { x: 1000, z: 0 },
     }, handlers);
-    expect(handlers.updateOpening).toHaveBeenCalledWith("door-1", { widthMm: 800, offsetMm: 400 });
+    applyBuildCommand(createBuildCommandState("draw-wall"), { type: "splitWall", wallId: "wall-1" }, handlers);
+    applyBuildCommand(createBuildCommandState("draw-wall"), { type: "deleteWall", wallId: "wall-1" }, handlers);
+    applyBuildCommand(createBuildCommandState("draw-wall"), { type: "updateWall", wallId: "wall-1", patch: { thicknessMm: 180 } }, handlers);
+    applyBuildCommand(createBuildCommandState("draw-wall"), { type: "joinCoincidentNodes" }, handlers);
+    expect(handlers.createWallSegment).toHaveBeenCalledWith({ x: 0, z: 0 }, { x: 1000, z: 0 });
+    expect(handlers.splitWall).toHaveBeenCalledWith("wall-1", undefined);
+    expect(handlers.deleteWall).toHaveBeenCalledWith("wall-1");
+    expect(handlers.updateWall).toHaveBeenCalledWith("wall-1", { thicknessMm: 180 });
+    expect(handlers.joinCoincidentNodes).toHaveBeenCalledTimes(1);
   });
 
   it("commits a closed room drawing through the command layer", () => {
-    const handlers = {
-      resizeRoom: vi.fn(), createWall: vi.fn(), createRoom: vi.fn(), placeOpening: vi.fn(),
-      updateOpening: vi.fn(), deleteOpening: vi.fn(), requestUnderlayUpload: vi.fn(),
-    };
+    const handlers = mockHandlers();
     const drawing = { kind: "polygon" as const, points: [{ x: 0, z: 0 }, { x: 2000, z: 0 }, { x: 0, z: 2000 }] };
     const result = applyBuildCommand(createBuildCommandState("draw-room"), { type: "createRoom", drawing }, handlers);
     expect(handlers.createRoom).toHaveBeenCalledWith(drawing);

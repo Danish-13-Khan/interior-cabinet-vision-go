@@ -1,6 +1,7 @@
-import type { OpeningEntity, RoomDrawingRequest, Size3Mm } from "../interiorProject";
+import type { OpeningEntity, Point2Mm, RoomDrawingRequest, Size3Mm } from "../interiorProject";
 
 export type OpeningCommandPatch = Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>;
+export type WallCommandPatch = { thicknessMm?: number };
 
 export type BuildTool =
   | "select"
@@ -28,7 +29,12 @@ export type BuildCommand =
   | { type: "commitDraft" }
   | { type: "resizeRoom"; dimensions: Size3Mm }
   | { type: "createWall" }
+  | { type: "createWallSegment"; start: Point2Mm; end: Point2Mm }
   | { type: "createRoom"; drawing: RoomDrawingRequest }
+  | { type: "splitWall"; wallId: string; offsetMm?: number }
+  | { type: "deleteWall"; wallId: string }
+  | { type: "updateWall"; wallId: string; patch: WallCommandPatch }
+  | { type: "joinCoincidentNodes" }
   | { type: "placeOpening"; wallId: string; kind: "door" | "window"; offsetMm?: number; catalogItemId?: string }
   | { type: "moveOpening"; openingId: string; offsetMm: number }
   | { type: "resizeOpening"; openingId: string; widthMm: number; offsetMm?: number }
@@ -40,7 +46,12 @@ export type BuildCommand =
 export type BuildCommandHandlers = {
   resizeRoom: (dimensions: Size3Mm) => void;
   createWall: () => void;
+  createWallSegment: (start: Point2Mm, end: Point2Mm) => void;
   createRoom: (drawing: RoomDrawingRequest) => void;
+  splitWall: (wallId: string, offsetMm?: number) => void;
+  deleteWall: (wallId: string) => void;
+  updateWall: (wallId: string, patch: WallCommandPatch) => void;
+  joinCoincidentNodes: () => void;
   placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
   updateOpening: (openingId: string, patch: OpeningCommandPatch) => void;
   deleteOpening: (openingId: string) => void;
@@ -108,8 +119,23 @@ export function applyBuildCommand(
     case "createWall":
       handlers.createWall();
       return reduceBuildCommand(next, { type: "commitDraft" });
+    case "createWallSegment":
+      handlers.createWallSegment(command.start, command.end);
+      return next;
     case "createRoom":
       handlers.createRoom(command.drawing);
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "splitWall":
+      handlers.splitWall(command.wallId, command.offsetMm);
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "deleteWall":
+      handlers.deleteWall(command.wallId);
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "updateWall":
+      handlers.updateWall(command.wallId, command.patch);
+      return reduceBuildCommand(next, { type: "commitDraft" });
+    case "joinCoincidentNodes":
+      handlers.joinCoincidentNodes();
       return reduceBuildCommand(next, { type: "commitDraft" });
     case "placeOpening":
       handlers.placeOpening(command.wallId, command.kind, command.offsetMm, command.catalogItemId);

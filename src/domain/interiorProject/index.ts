@@ -88,3 +88,15 @@ export {
   roomPlanViewBounds,
   type RoomPlanViewBounds,
 } from "./roomPlanBounds";
+export {
+  createWallSegment,
+  createWallSegmentResult,
+  deletePlanWall,
+  joinPlanNodes,
+  mergeCoincidentPlanNodes,
+  setPlanWallThickness,
+  snapPlanPoint,
+  splitPlanWall,
+  splitPlanWallResult,
+  type WallSegmentRequest,
+} from "./wallEditing";

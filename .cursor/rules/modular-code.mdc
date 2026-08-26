@@ -8,8 +8,8 @@ alwaysApply: true
 Prefer focused modules over growing god-files (`App.tsx`, large panels, fat CSS).
 
 ## Hard limits
-- Prefer files under **~300 lines**; soft ceiling **~400 lines**. Split before adding large chunks.
-- Never grow a file already over ~400 lines without extracting first.
+- **Every script/source file: max 200 lines** (see `script-line-limit.mdc`). Split before exceeding.
+- Prefer files under **~200 lines**; never grow a file past 200 without extracting first.
 - New pure logic belongs in `src/domain/` with colocated `*.test.ts`.
 - Shared non-domain helpers go in `src/utils/`.
 - Reusable React state machines go in `src/hooks/`.

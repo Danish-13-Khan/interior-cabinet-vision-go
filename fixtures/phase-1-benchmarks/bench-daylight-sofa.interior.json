@@ -12,28 +12,28 @@
     "activeRoomId": "lr-room-main",
     "nodes": [
       {
-        "id": "compat-node-1",
+        "id": "node-1",
         "position": {
           "x": -3100,
           "z": -2300
         }
       },
       {
-        "id": "compat-node-2",
+        "id": "node-2",
         "position": {
           "x": 3100,
           "z": -2300
         }
       },
       {
-        "id": "compat-node-3",
+        "id": "node-3",
         "position": {
           "x": 3100,
           "z": 2300
         }
       },
       {
-        "id": "compat-node-4",
+        "id": "node-4",
         "position": {
           "x": -3100,
           "z": 2300
@@ -62,7 +62,8 @@
           }
         ],
         "extensions": {
-          "synthesizedBy": "compat-topology"
+          "graphDomainVersion": 1,
+          "roomId": "lr-room-main"
         }
       }
     ],
@@ -101,8 +102,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
-        "startNodeId": "compat-node-1",
-        "endNodeId": "compat-node-2",
+        "startNodeId": "node-1",
+        "endNodeId": "node-2",
         "extensions": {
           "wallSide": "back"
         }
@@ -122,8 +123,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
-        "startNodeId": "compat-node-2",
-        "endNodeId": "compat-node-3",
+        "startNodeId": "node-2",
+        "endNodeId": "node-3",
         "extensions": {
           "wallSide": "right"
         }
@@ -143,8 +144,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
-        "startNodeId": "compat-node-3",
-        "endNodeId": "compat-node-4",
+        "startNodeId": "node-3",
+        "endNodeId": "node-4",
         "extensions": {
           "wallSide": "front"
         }
@@ -164,8 +165,8 @@
         "thicknessMm": 120,
         "visible": true,
         "materialId": "lr-material-wall-warm-white",
-        "startNodeId": "compat-node-4",
-        "endNodeId": "compat-node-1",
+        "startNodeId": "node-4",
+        "endNodeId": "node-1",
         "extensions": {
           "wallSide": "left"
         }
@@ -174,7 +175,7 @@
     "openings": [
       {
         "id": "lr-opening-entry-door",
-        "roomId": "lr-room-main",
+        "roomId": null,
         "wallId": "lr-wall-front",
         "kind": "door",
         "offsetMm": 650,
@@ -191,7 +192,7 @@
       },
       {
         "id": "lr-opening-picture-window",
-        "roomId": "lr-room-main",
+        "roomId": null,
         "wallId": "lr-wall-left",
         "kind": "window",
         "offsetMm": 1350,
@@ -1248,6 +1249,7 @@
     "extensions": {
       "presetId": "living-room-starter",
       "presetVersion": 1,
+      "wallGraphDomainVersion": 1,
       "livingRoomStyleId": "nordic-light",
       "livingRoomStyle": {
         "id": "nordic-light",
