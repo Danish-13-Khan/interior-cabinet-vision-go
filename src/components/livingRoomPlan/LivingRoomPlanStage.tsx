@@ -49,6 +49,7 @@ type LivingRoomPlanStageProps = {
   openingCatalogItemId?: string;
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
   onCreateRoom: (drawing: RoomDrawingRequest) => void;
+  onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm) => void;
   roomPolygonCloseRequest: number;
   onRoomPolygonPointCount: (count: number) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
@@ -141,6 +142,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             openingCatalogItemId={props.openingCatalogItemId}
             onPlaceOpening={props.onPlaceOpening}
             onCreateRoom={props.onCreateRoom}
+            onDrawWallSegment={props.onDrawWallSegment}
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
             onRoomPolygonPointCount={props.onRoomPolygonPointCount}
             readability={readability.settings}

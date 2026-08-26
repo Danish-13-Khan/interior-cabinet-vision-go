@@ -141,3 +141,13 @@
   fill: var(--lr-accent); font-size: 130px; font-weight: 700; text-anchor: middle;
   paint-order: stroke; stroke: #fff; stroke-width: 28px;
 }
+
+.lr-wall-drawing-overlay line {
+  stroke: var(--lr-accent);
+  stroke-width: 28px;
+  stroke-dasharray: 50 30;
+}
+
+.lr-wall-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
+
+.lr-wall-edit-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }

@@ -4,7 +4,7 @@ const tools: Array<{ id: BuildTool; label: string; note: string }> = [
   { id: "select", label: "Select", note: "Cancel tool · Escape" },
   { id: "upload-underlay", label: "Upload floor plan", note: "Calibrated tracing image" },
   { id: "draw-room", label: "Draw Room", note: "Drag a rectangle or close a polygon" },
-  { id: "draw-wall", label: "Draw Wall", note: "Select walls or add a partition" },
+  { id: "draw-wall", label: "Draw Wall", note: "Drag segments · split · join nodes" },
   { id: "draw-surface", label: "Draw Surface", note: "Coming with topology surfaces" },
   { id: "place-door", label: "Place Doors", note: "Arm tool, then place on a wall" },
   { id: "place-window", label: "Place Windows", note: "Arm tool, then place on a wall" },

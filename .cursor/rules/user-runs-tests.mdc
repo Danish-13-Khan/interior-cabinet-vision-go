@@ -1,0 +1,36 @@
+---
+description: User runs tests locally; agent shares commands only (saves tokens)
+alwaysApply: true
+---
+
+# User runs tests (token contract)
+
+The user runs test commands locally. The agent **does not** run test suites via Shell unless the user explicitly asks (e.g. "run the tests for me").
+
+## Agent behavior
+
+- After code changes, **share commands** for the user to run — do not execute them by default.
+- Prefer **targeted** commands (single file / single suite) over full `npm test`.
+- Ask for a short result: pass/fail counts, or paste **only failures** / error snippets.
+- Do not paste or repeat full test logs unless debugging a specific failure the user shared.
+
+## When the agent may run tests
+
+Only if the user explicitly requests it, or a single minimal check is required mid-fix and the user has not opted out in that turn.
+
+## Command templates (this repo)
+
+```bash
+# TypeScript
+npx tsc --noEmit
+
+# Unit test (single file)
+npx vitest run path/to/file.test.ts
+
+# E2E (single spec)
+npx playwright test tests/e2e/your-spec.spec.ts
+```
+
+## User reply format (preferred)
+
+One line is enough when green, e.g. `wallEditing 10/10, tsc clean, e2e 2/2`.

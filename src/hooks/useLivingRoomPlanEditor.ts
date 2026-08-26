@@ -2,10 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import {
   cabinetProjectFromInteriorProject,
+  createWallSegmentResult,
+  deletePlanWall,
   drawRoomFromPoints,
+  mergeCoincidentPlanNodes,
+  setPlanWallThickness,
+  splitPlanWallResult,
   type InteriorProject,
+  type Point2Mm,
   type Point3Mm,
   type RenderSettings,
+  type RoomDrawingRequest,
   type Size3Mm,
 } from "../domain/interiorProject";
 import {
@@ -50,7 +57,6 @@ import {
   type LivingRoomStyleId,
   type ImportedAsset,
 } from "../domain/livingRoom";
-import type { RoomDrawingRequest } from "../domain/interiorProject";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
 
@@ -386,6 +392,33 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => drawRoomFromPoints(current, drawing), `Created ${drawing.kind} room.`);
   }
 
+  function drawWallSegment(start: Point2Mm, end: Point2Mm) {
+    commitDocument((current) => createWallSegmentResult(current, { start, end }).project, "Drew wall segment.");
+  }
+
+  function splitWall(wallId: string, offsetMm?: number): string | null {
+    let firstWallId: string | null = null;
+    commitDocument((current) => {
+      const result = splitPlanWallResult(current, wallId, offsetMm);
+      firstWallId = result.firstWallId;
+      return result.project;
+    }, "Split wall.");
+    return firstWallId;
+  }
+
+  function deleteWall(wallId: string) {
+    commitDocument((current) => deletePlanWall(current, wallId), "Deleted wall.");
+  }
+
+  function updateWall(wallId: string, patch: { thicknessMm?: number }) {
+    if (patch.thicknessMm === undefined) return;
+    commitDocument((current) => setPlanWallThickness(current, wallId, patch.thicknessMm!), "Updated wall thickness.");
+  }
+
+  function joinCoincidentNodes() {
+    commitDocument((current) => mergeCoincidentPlanNodes(current), "Joined coincident nodes.");
+  }
+
   function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
     commitDocument((current) => updateLivingRoomOpening(current, openingId, patch), "Updated opening.");
   }
@@ -464,6 +497,11 @@ export function useLivingRoomPlanEditor({
     addLivingRoomOpening: addOpening,
     addLivingRoomPartition: addPartitionWall,
     drawLivingRoomRoom: drawRoom,
+    drawLivingRoomWallSegment: drawWallSegment,
+    splitLivingRoomWall: splitWall,
+    deleteLivingRoomWall: deleteWall,
+    updateLivingRoomWall: updateWall,
+    joinLivingRoomCoincidentNodes: joinCoincidentNodes,
     updateLivingRoomOpening: updateOpening,
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
