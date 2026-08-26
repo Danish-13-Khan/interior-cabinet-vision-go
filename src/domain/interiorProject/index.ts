@@ -76,3 +76,15 @@ export {
   wallDegree,
   type WallGraphIndex,
 } from "./wallGraph";
+export {
+  drawRoomFromPoints,
+  normalizeRoomPolygon,
+  rectanglePoints,
+  type RoomDrawingKind,
+  type RoomDrawingRequest,
+} from "./roomDrawing";
+export {
+  centerPolygonAtOrigin,
+  roomPlanViewBounds,
+  type RoomPlanViewBounds,
+} from "./roomPlanBounds";

@@ -10,6 +10,7 @@ describe("buildToolCommands", () => {
     const handlers = {
       resizeRoom: vi.fn(),
       createWall: vi.fn(),
+      createRoom: vi.fn(),
       placeOpening: vi.fn(),
       updateOpening: vi.fn(),
       deleteOpening: vi.fn(),
@@ -38,6 +39,7 @@ describe("buildToolCommands", () => {
     const handlers = {
       resizeRoom: vi.fn(),
       createWall: vi.fn(),
+      createRoom: vi.fn(),
       placeOpening: vi.fn(),
       updateOpening: vi.fn(),
       deleteOpening: vi.fn(),
@@ -62,6 +64,7 @@ describe("buildToolCommands", () => {
     const handlers = {
       resizeRoom: vi.fn(),
       createWall: vi.fn(),
+      createRoom: vi.fn(),
       placeOpening: vi.fn(),
       updateOpening: vi.fn(),
       deleteOpening: vi.fn(),
@@ -77,7 +80,7 @@ describe("buildToolCommands", () => {
 
   it("routes move, resize, and delete through explicit handlers", () => {
     const handlers = {
-      resizeRoom: vi.fn(), createWall: vi.fn(), placeOpening: vi.fn(),
+      resizeRoom: vi.fn(), createWall: vi.fn(), createRoom: vi.fn(), placeOpening: vi.fn(),
       updateOpening: vi.fn(), deleteOpening: vi.fn(), requestUnderlayUpload: vi.fn(),
     };
     let state = createBuildCommandState("place-door");
@@ -91,12 +94,23 @@ describe("buildToolCommands", () => {
 
   it("resizes from the start edge with offset and width together", () => {
     const handlers = {
-      resizeRoom: vi.fn(), createWall: vi.fn(), placeOpening: vi.fn(),
+      resizeRoom: vi.fn(), createWall: vi.fn(), createRoom: vi.fn(), placeOpening: vi.fn(),
       updateOpening: vi.fn(), deleteOpening: vi.fn(), requestUnderlayUpload: vi.fn(),
     };
     applyBuildCommand(createBuildCommandState(), {
       type: "resizeOpening", openingId: "door-1", widthMm: 800, offsetMm: 400,
     }, handlers);
     expect(handlers.updateOpening).toHaveBeenCalledWith("door-1", { widthMm: 800, offsetMm: 400 });
+  });
+
+  it("commits a closed room drawing through the command layer", () => {
+    const handlers = {
+      resizeRoom: vi.fn(), createWall: vi.fn(), createRoom: vi.fn(), placeOpening: vi.fn(),
+      updateOpening: vi.fn(), deleteOpening: vi.fn(), requestUnderlayUpload: vi.fn(),
+    };
+    const drawing = { kind: "polygon" as const, points: [{ x: 0, z: 0 }, { x: 2000, z: 0 }, { x: 0, z: 2000 }] };
+    const result = applyBuildCommand(createBuildCommandState("draw-room"), { type: "createRoom", drawing }, handlers);
+    expect(handlers.createRoom).toHaveBeenCalledWith(drawing);
+    expect(result.draft).toBeNull();
   });
 });

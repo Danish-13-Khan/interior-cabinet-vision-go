@@ -123,3 +123,21 @@
   border-radius: 5px;
   padding: 0 6px;
 }
+
+.lr-room-drawing-overlay path {
+  fill: color-mix(in srgb, var(--lr-accent) 18%, transparent);
+  stroke: var(--lr-accent);
+  stroke-width: 22px;
+  stroke-dasharray: 50 30;
+}
+
+.lr-room-drawing-overlay .is-rectangle {
+  fill: color-mix(in srgb, var(--lr-accent) 10%, transparent);
+}
+
+.lr-room-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
+
+.lr-room-drawing-overlay text {
+  fill: var(--lr-accent); font-size: 130px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke; stroke: #fff; stroke-width: 28px;
+}

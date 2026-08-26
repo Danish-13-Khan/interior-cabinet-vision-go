@@ -3,7 +3,7 @@ import type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
 const tools: Array<{ id: BuildTool; label: string; note: string }> = [
   { id: "select", label: "Select", note: "Cancel tool · Escape" },
   { id: "upload-underlay", label: "Upload floor plan", note: "Calibrated tracing image" },
-  { id: "draw-room", label: "Draw Room", note: "Edit the rectangular room" },
+  { id: "draw-room", label: "Draw Room", note: "Drag a rectangle or close a polygon" },
   { id: "draw-wall", label: "Draw Wall", note: "Select walls or add a partition" },
   { id: "draw-surface", label: "Draw Surface", note: "Coming with topology surfaces" },
   { id: "place-door", label: "Place Doors", note: "Arm tool, then place on a wall" },

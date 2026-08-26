@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import {
   cabinetProjectFromInteriorProject,
+  drawRoomFromPoints,
   type InteriorProject,
   type Point3Mm,
   type RenderSettings,
@@ -49,6 +50,7 @@ import {
   type LivingRoomStyleId,
   type ImportedAsset,
 } from "../domain/livingRoom";
+import type { RoomDrawingRequest } from "../domain/interiorProject";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
 
@@ -380,6 +382,10 @@ export function useLivingRoomPlanEditor({
     }), "Added partition wall.");
   }
 
+  function drawRoom(drawing: RoomDrawingRequest) {
+    commitDocument((current) => drawRoomFromPoints(current, drawing), `Created ${drawing.kind} room.`);
+  }
+
   function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
     commitDocument((current) => updateLivingRoomOpening(current, openingId, patch), "Updated opening.");
   }
@@ -457,6 +463,7 @@ export function useLivingRoomPlanEditor({
     setLivingRoomDimensions: setRoomDimensions,
     addLivingRoomOpening: addOpening,
     addLivingRoomPartition: addPartitionWall,
+    drawLivingRoomRoom: drawRoom,
     updateLivingRoomOpening: updateOpening,
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
