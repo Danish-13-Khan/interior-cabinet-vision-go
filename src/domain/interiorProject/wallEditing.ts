@@ -9,3 +9,8 @@ export {
   type SplitPlanWallResult,
 } from "./wallEditingSplitDelete";
 export { joinPlanNodes, mergeCoincidentPlanNodes } from "./wallEditingJoin";
+export {
+  clampOpeningsToWallLengths,
+  movePlanNodeWithOpenings,
+  translatePlanWall,
+} from "./wallEditingMove";

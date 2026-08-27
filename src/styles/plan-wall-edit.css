@@ -1,0 +1,24 @@
+.lr-product-shell-v2 .lr-wall-node-handle {
+  fill: #edf7ef;
+  stroke: #276b46;
+  stroke-width: 18;
+  cursor: grab;
+}
+
+.lr-product-shell-v2 .lr-wall-node-handle:active {
+  cursor: grabbing;
+}
+
+.lr-product-shell-v2 .lr-wall-translate-preview {
+  fill: none;
+  stroke: #276b46;
+  stroke-width: 90;
+  stroke-linecap: square;
+  stroke-dasharray: 80 40;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.lr-plan-svg.is-dragging .lr-wall-node-handle {
+  pointer-events: none;
+}

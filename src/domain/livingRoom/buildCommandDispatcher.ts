@@ -37,6 +37,8 @@ export function applyBuildCommand(
     case "deleteWall": handlers.deleteWall(command.wallId); return committed(next);
     case "updateWall": handlers.updateWall(command.wallId, command.patch); return committed(next);
     case "joinCoincidentNodes": handlers.joinCoincidentNodes(); return committed(next);
+    case "moveNode": handlers.moveNode(command.nodeId, command.position); return committed(next);
+    case "moveWall": handlers.moveWall(command.wallId, command.delta); return committed(next);
     case "placeOpening":
       handlers.placeOpening(command.wallId, command.kind, command.offsetMm, command.catalogItemId);
       return committed(next);

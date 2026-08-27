@@ -26,7 +26,7 @@ export function useWallDrawing(input: {
   function begin(event: ReactPointerEvent<Element>) {
     if (!input.active || event.button !== 0) return false;
     event.stopPropagation();
-    const svg = (event.currentTarget.ownerSVGElement ?? event.currentTarget) as Element;
+    const svg = ((event.currentTarget as SVGElement).ownerSVGElement ?? event.currentTarget) as Element;
     svg.setPointerCapture?.(event.pointerId);
     const point = snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>));
     startRef.current = point;

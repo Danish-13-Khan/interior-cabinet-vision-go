@@ -120,6 +120,9 @@ Export    ██████░░░░
 
 **H1 status:** Implemented — Draw Wall bisects a closed face into two rooms with a shared wall, regenerates floor/ceiling zones, remaps objects/lights/cameras by containment, and keeps partitions non-splitting. Minimal room switcher + rename landed so both faces are reachable in 2D/3D.
 | H2 | **Drag nodes / move walls** — endpoint + wall translate with snap | Plan editing feels like CAD, not commit-only |
+
+**H2 status:** Implemented — Select-tool node handles + wall-body drag, snap, opening clamp, coincident join, undoable commands, E2E.
+
 | H3 | **Multi-room chrome** — room list, active switch, rename, delete, merge | Topology useless without navigation |
 
 **H3 status (partial):** Room list + active switch + rename shipped with H1 so split faces are reachable. Delete/merge remain.
@@ -183,6 +186,9 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 | --- | --- | --- |
 | H1 | Face-split: Draw Wall across closed room → two rooms, shared wall, floors regen, undoable | L |
 | H2 | Move node / drag wall endpoint; wall translate with topology repair | L |
+
+**H2 status:** Implemented — Select tool exposes node handles and wall-body drag with grid/node snap, opening clamp after length change, coincident join on drop, undoable `moveNode` / `moveWall` commands, and live wall preview while dragging.
+
 | H3 | Room switcher + rename + delete (+ merge MVP) | M |
 | H4 | Live draft dimensions + snap guides while drawing | M |
 | H5 | Selection inspector for room / wall (thickness, height, material) | S–M |

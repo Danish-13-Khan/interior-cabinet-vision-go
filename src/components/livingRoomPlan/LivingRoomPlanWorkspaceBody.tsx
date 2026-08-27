@@ -158,6 +158,8 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
         }}
         onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
         onResizeOpening={(openingId, widthMm, offsetMm) => build.dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
+        onMoveNode={(nodeId, position) => build.dispatchBuildCommand({ type: "moveNode", nodeId, position })}
+        onTranslateWall={(wallId, delta) => build.dispatchBuildCommand({ type: "moveWall", wallId, delta })}
         activeBuildTool={props.activeBuildTool} openingCatalogItemId={build.openingCatalogItemId}
         onPlaceOpening={(wallId, kind, offsetMm) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: build.openingCatalogItemId })}
         onCreateRoom={(drawing) => build.dispatchBuildCommand({ type: "createRoom", drawing })}

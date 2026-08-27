@@ -40,6 +40,8 @@ export type BuildCommand =
   | { type: "deleteWall"; wallId: string }
   | { type: "updateWall"; wallId: string; patch: WallCommandPatch }
   | { type: "joinCoincidentNodes" }
+  | { type: "moveNode"; nodeId: string; position: Point2Mm }
+  | { type: "moveWall"; wallId: string; delta: Point2Mm }
   | { type: "placeOpening"; wallId: string; kind: "door" | "window"; offsetMm?: number; catalogItemId?: string }
   | { type: "moveOpening"; openingId: string; offsetMm: number }
   | { type: "resizeOpening"; openingId: string; widthMm: number; offsetMm?: number }
@@ -61,6 +63,8 @@ export type BuildCommandHandlers = {
   deleteWall: (wallId: string) => void;
   updateWall: (wallId: string, patch: WallCommandPatch) => void;
   joinCoincidentNodes: () => void;
+  moveNode: (nodeId: string, position: Point2Mm) => void;
+  moveWall: (wallId: string, delta: Point2Mm) => void;
   placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
   updateOpening: (openingId: string, patch: OpeningCommandPatch) => void;
   deleteOpening: (openingId: string) => void;

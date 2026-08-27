@@ -5,6 +5,7 @@ import { getLivingRoomPlanUnderlay, type PlanVisualStyle } from "../../domain/li
 export function PlanArchitectureLayer(props: {
   project: InteriorProject; room: InteriorRoomEntity; snapSizeMm: number; showGrid: boolean;
   activeWallId: string | null; visualStyle: PlanVisualStyle;
+  previewNodes?: Map<string, Point2Mm>;
   onPaper: (event: ReactPointerEvent<SVGRectElement>) => void; onWall: (event: ReactPointerEvent<SVGLineElement>, wallId: string) => void;
 }) {
   const underlay = getLivingRoomPlanUnderlay(props.project);
@@ -33,10 +34,14 @@ export function PlanArchitectureLayer(props: {
     {props.showGrid ? <rect x={bounds.minX} y={bounds.minZ} width={bounds.widthMm} height={bounds.depthMm} fill="url(#lr-grid-major)" clipPath={`url(#${clipId})`} pointerEvents="none" /> : null}
     <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" pointerEvents="none" />
     <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />
-    {props.project.walls.filter((wall) => wall.visible).map((wall) => <line key={wall.id} data-wall-id={wall.id}
-      x1={wall.start.x} y1={wall.start.z} x2={wall.end.x} y2={wall.end.z}
-      className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
-      style={{ stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
-      onPointerDown={(event) => props.onWall(event, wall.id)} />)}
+    {props.project.walls.filter((wall) => wall.visible).map((wall) => {
+      const start = (wall.startNodeId && props.previewNodes?.get(wall.startNodeId)) || wall.start;
+      const end = (wall.endNodeId && props.previewNodes?.get(wall.endNodeId)) || wall.end;
+      return <line key={wall.id} data-wall-id={wall.id}
+        x1={start.x} y1={start.z} x2={end.x} y2={end.z}
+        className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
+        style={{ stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
+        onPointerDown={(event) => props.onWall(event, wall.id)} />;
+    })}
   </>;
 }

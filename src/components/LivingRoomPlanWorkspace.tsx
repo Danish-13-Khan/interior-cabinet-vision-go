@@ -36,7 +36,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onDrawSurface: props.onDrawSurface, onUpdateSurface: props.onUpdateSurface,
     onDeleteSurface: props.onDeleteSurface, onPlaceColumn: props.onPlaceColumn,
     onSplitWall: props.onSplitWall, onDeleteWall: props.onDeleteWall, onUpdateWall: props.onUpdateWall,
-    onJoinCoincidentNodes: props.onJoinCoincidentNodes, onAddOpening: props.onAddOpening,
+    onJoinCoincidentNodes: props.onJoinCoincidentNodes, onMoveNode: props.onMoveNode,
+    onTranslateWall: props.onTranslateWall, onAddOpening: props.onAddOpening,
     onUpdateOpening: props.onUpdateOpening, onDeleteOpening: props.onDeleteOpening,
   });
   const activeBuildTool = build.buildCommandState.activeTool;
