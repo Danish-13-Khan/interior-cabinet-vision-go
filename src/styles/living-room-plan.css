@@ -302,6 +302,19 @@
   border-right: 1px solid #a8b4bc;
 }
 
+.lr-camera-panel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-right: 5px;
+  border-right: 1px solid #a8b4bc;
+}
+
+.lr-camera-panel > span { color: #64727c; font-weight: 700; }
+
+.lr-camera-panel input[type="range"] { width: 58px; accent-color: #176b9c; }
+.lr-camera-panel b { min-width: 27px; font-size: 0.54rem; }
+
 .lr-model-controls input[type="range"] {
   width: 96px;
   accent-color: #176b9c;

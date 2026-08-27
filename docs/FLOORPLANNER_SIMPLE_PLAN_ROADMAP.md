@@ -307,7 +307,8 @@ Deepens the **3D** step of the agenda (not a new product flow):
 - Walkthrough (first-person) optional after dollhouse  
 - Keep photoreal / schedule in **Render**; keep downloads on **Export**  
 
-**Exit:** 2D author → instant 3D dollhouse feels continuous; Render → Export unchanged.
+**Exit:** 2D author → instant 3D dollhouse feels continuous; Render → Export unchanged.  
+**Status:** Implemented — dollhouse default entry view with height/FOV panel scoped to dollhouse, preset rail and nav readout, optional walkthrough (WASD + drag look), and Render/Export ownership unchanged.
 
 ---
 

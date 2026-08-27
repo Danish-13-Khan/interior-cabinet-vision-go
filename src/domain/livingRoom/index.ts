@@ -174,6 +174,12 @@ export {
   type ModelViewPresetId,
 } from "./modelViewPresets";
 export {
+  modelViewNavHint,
+  resolveModelViewCameraOverrides,
+  WALKTHROUGH_EYE_HEIGHT_MM,
+  type ModelViewCameraOverrides,
+} from "./modelViewCameraOverrides";
+export {
   createLivingRoomReleaseDemoProject,
   LIVING_ROOM_RELEASE_DEMO_DATE,
   LIVING_ROOM_RELEASE_DEMO_ID,

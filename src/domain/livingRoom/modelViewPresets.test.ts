@@ -3,9 +3,9 @@ import { compileLivingRoomScene, createLivingRoomStarterProject } from ".";
 import { MODEL_VIEW_PRESETS, resolveModelViewPose } from "./modelViewPresets";
 
 describe("model view presets", () => {
-  it("provides orbit, front, top, and perspective controls", () => {
+  it("provides a dollhouse entry view and optional walkthrough controls", () => {
     expect(MODEL_VIEW_PRESETS.map((preset) => preset.id)).toEqual([
-      "orbit", "front", "top", "perspective",
+      "dollhouse", "orbit", "front", "top", "perspective", "walkthrough",
     ]);
   });
 
@@ -14,9 +14,11 @@ describe("model view presets", () => {
     const front = resolveModelViewPose(scene, "front");
     const top = resolveModelViewPose(scene, "top");
     const orbit = resolveModelViewPose(scene, "orbit");
+    const dollhouse = resolveModelViewPose(scene, "dollhouse");
 
     expect(front.position.z).toBeGreaterThan(front.target.z);
     expect(top.position.y).toBeGreaterThan(top.target.y);
     expect(orbit.position.x).toBeGreaterThan(orbit.target.x);
+    expect(dollhouse.position.y).toBeGreaterThan(dollhouse.target.y);
   });
 });
