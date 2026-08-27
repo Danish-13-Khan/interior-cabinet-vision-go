@@ -47,7 +47,7 @@ export function useRoomDrawing(input: {
   }
 
   function move(event: ReactPointerEvent<SVGSVGElement>) {
-    if (!input.active || !startRef.current) return false;
+    if (!input.active || (!startRef.current && polygon.length === 0)) return false;
     setCursor(snap(input.worldPoint(event), input.snapSizeMm));
     return true;
   }
@@ -71,5 +71,5 @@ export function useRoomDrawing(input: {
   }
 
   const rectangle = rectangleStart && cursor ? rectanglePoints(rectangleStart, cursor) : null;
-  return { polygon, rectangle, start, move, finish, cancel };
+  return { polygon, rectangle, cursor, start, move, finish, cancel };
 }

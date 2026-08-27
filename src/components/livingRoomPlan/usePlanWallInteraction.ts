@@ -8,6 +8,8 @@ export type WallTranslatePreview = {
   nodeIds: [string, string];
 };
 
+export type WallEditFeedback = { start: Point2Mm; end: Point2Mm; snapTarget: Point2Mm | null; snapLabel?: string };
+
 type NodeDrag = {
   kind: "node";
   nodeId: string;
@@ -146,10 +148,30 @@ export function usePlanWallInteraction(input: {
       nodeIds: [drag.startNodeId, drag.endNodeId],
     }
     : null;
+  const feedback: WallEditFeedback | null = drag?.kind === "node"
+    ? {
+      start: drag.origin,
+      end: drag.position,
+      snapTarget: input.project.nodes.find((node) => node.id !== drag.nodeId
+        && Math.hypot(node.position.x - drag.position.x, node.position.z - drag.position.z) < 0.1)?.position ?? null,
+    }
+    : drag?.kind === "wall"
+      ? (() => {
+        const movedStart = { x: drag.originStart.x + drag.delta.x, z: drag.originStart.z + drag.delta.z };
+        const movedEnd = { x: drag.originEnd.x + drag.delta.x, z: drag.originEnd.z + drag.delta.z };
+        const others = input.project.nodes.filter((node) => node.id !== drag.startNodeId && node.id !== drag.endNodeId);
+        const startTarget = others.find((node) => Math.hypot(node.position.x - movedStart.x, node.position.z - movedStart.z) < 0.1);
+        const endTarget = others.find((node) => Math.hypot(node.position.x - movedEnd.x, node.position.z - movedEnd.z) < 0.1);
+        return { start: drag.originStart, end: movedStart,
+          snapTarget: startTarget && endTarget ? startTarget.position : null,
+          snapLabel: startTarget && endTarget ? "Wall snap" : undefined };
+      })()
+      : null;
 
   return {
     dragging: Boolean(drag),
     translatePreview,
+    feedback,
     previewNodes,
     beginNode,
     beginWall,

@@ -9,6 +9,17 @@
   cursor: grabbing;
 }
 
+.lr-product-shell-v2 .lr-wall-node-handle:hover {
+  fill: #d8f3df;
+  stroke-width: 26;
+  r: 86;
+}
+
+.lr-product-shell-v2 .lr-wall-line:hover {
+  stroke: #4b9b67;
+  stroke-width: 145;
+}
+
 .lr-product-shell-v2 .lr-wall-translate-preview {
   fill: none;
   stroke: #276b46;
@@ -22,3 +33,31 @@
 .lr-plan-svg.is-dragging .lr-wall-node-handle {
   pointer-events: none;
 }
+
+.lr-product-shell-v2 .lr-draft-guide {
+  stroke: #51a870;
+  stroke-width: 8;
+  stroke-dasharray: 42 32;
+  opacity: .7;
+}
+
+.lr-product-shell-v2 .lr-draft-axis {
+  stroke: #8ed1a4;
+  stroke-width: 10;
+  stroke-dasharray: 24 24;
+}
+
+.lr-product-shell-v2 .lr-draft-feedback text {
+  fill: #f4fff6;
+  font-size: 112px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #17311f;
+  stroke-width: 28px;
+  text-anchor: middle;
+}
+
+.lr-product-shell-v2 .lr-draft-axis-label { font-size: 86px !important; fill: #c4e8cf !important; }
+.lr-product-shell-v2 .lr-draft-snap-target { fill: none; stroke: #f0c75e; stroke-width: 22; }
+.lr-product-shell-v2 .lr-draft-snap-label { font-size: 76px !important; fill: #f9dd87 !important; }
+.lr-product-shell-v2 .lr-room-draft-tail { stroke: #51a870; stroke-width: 22; stroke-dasharray: 48 28; }
