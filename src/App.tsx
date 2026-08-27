@@ -252,6 +252,10 @@ function App() {
             onCreateCabinetRun={c.createLivingRoomCabinetRun}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onActiveRoom={c.setActiveLivingRoom}
+            onRenameRoom={c.renameLivingRoom}
+            onDeleteRoom={c.deleteLivingRoom}
+            onMergeRooms={c.mergeLivingRooms}
             onAddPartitionWall={c.addLivingRoomPartition}
             onCreateRoom={c.drawLivingRoomRoom}
             onDrawWallSegment={c.drawLivingRoomWallSegment}
@@ -263,6 +267,8 @@ function App() {
             onDeleteWall={c.deleteLivingRoomWall}
             onUpdateWall={c.updateLivingRoomWall}
             onJoinCoincidentNodes={c.joinLivingRoomCoincidentNodes}
+            onMoveNode={c.moveLivingRoomNode}
+            onTranslateWall={c.translateLivingRoomWall}
             onAddOpening={c.addLivingRoomOpening}
             onUpdateOpening={c.updateLivingRoomOpening}
             onDeleteOpening={c.deleteLivingRoomOpening}

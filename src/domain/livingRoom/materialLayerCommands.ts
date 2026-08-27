@@ -22,7 +22,7 @@ export function setLivingRoomFloorMaterial(project: InteriorProject, materialId:
   };
 }
 
-export function setLivingRoomWallMaterial(project: InteriorProject, wallId: string, materialId: string) {
+export function setLivingRoomWallMaterial(project: InteriorProject, wallId: string, materialId: string | null) {
   return { ...project, walls: project.walls.map((wall) => wall.id === wallId ? { ...wall, materialId } : wall) };
 }
 

@@ -13,6 +13,7 @@ import {
   joinPlanNodes,
   mergeCoincidentPlanNodes,
   setPlanWallThickness,
+  setPlanWallHeight,
   splitPlanWall,
   splitPlanWallResult,
 } from "./wallEditing";
@@ -122,6 +123,15 @@ describe("D3 wall editing domain", () => {
     expect(edited.walls.find((wall) => wall.id === wallId)?.thicknessMm).toBe(180);
     const scene = compileLivingRoomScene(edited);
     expect(scene.nodes.some((node) => node.metadata?.wallId === wallId)).toBe(true);
+  });
+
+  it("updates a wall height without changing its plan endpoints", () => {
+    const base = createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" });
+    const wall = base.walls[0]!;
+    const next = setPlanWallHeight(base, wall.id, 3200);
+    expect(next.walls.find((item) => item.id === wall.id)).toMatchObject({
+      heightMm: 3200, start: wall.start, end: wall.end,
+    });
   });
 
   it("joins coincident nodes after multi-room authoring", () => {

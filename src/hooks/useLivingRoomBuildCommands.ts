@@ -25,6 +25,8 @@ type BuildBridgeInput = Pick<
   | "onDeleteWall"
   | "onUpdateWall"
   | "onJoinCoincidentNodes"
+  | "onMoveNode"
+  | "onTranslateWall"
   | "onAddOpening"
   | "onUpdateOpening"
   | "onDeleteOpening"
@@ -63,6 +65,8 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
     deleteWall: input.onDeleteWall,
     updateWall: input.onUpdateWall,
     joinCoincidentNodes: input.onJoinCoincidentNodes,
+    moveNode: input.onMoveNode,
+    moveWall: input.onTranslateWall,
     placeOpening: (wallId, kind, offsetMm, catalogItemId) => {
       setPendingOpeningWallId(wallId);
       input.onAddOpening(wallId, kind, offsetMm, catalogItemId);
@@ -88,6 +92,8 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
     deleteWall: input.onDeleteWall,
     updateWall: input.onUpdateWall,
     joinCoincidentNodes: input.onJoinCoincidentNodes,
+    moveNode: input.onMoveNode,
+    moveWall: input.onTranslateWall,
     placeOpening: (wallId, kind, offsetMm, catalogItemId) => {
       setPendingOpeningWallId(wallId);
       input.onAddOpening(wallId, kind, offsetMm, catalogItemId);

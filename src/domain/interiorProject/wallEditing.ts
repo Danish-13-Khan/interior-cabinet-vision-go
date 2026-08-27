@@ -5,7 +5,13 @@ export {
   splitPlanWall,
   splitPlanWallResult,
   deletePlanWall,
+  setPlanWallHeight,
   setPlanWallThickness,
   type SplitPlanWallResult,
 } from "./wallEditingSplitDelete";
 export { joinPlanNodes, mergeCoincidentPlanNodes } from "./wallEditingJoin";
+export {
+  clampOpeningsToWallLengths,
+  movePlanNodeWithOpenings,
+  translatePlanWall,
+} from "./wallEditingMove";
