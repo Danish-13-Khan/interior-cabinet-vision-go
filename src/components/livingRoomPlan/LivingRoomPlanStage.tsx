@@ -6,6 +6,7 @@ import type {
   LivingRoomPlanIssue,
   LivingRoomRenderResult,
   LivingRoomStyleId,
+  PlanReadabilitySettings,
 } from "../../domain/livingRoom";
 import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
@@ -13,7 +14,6 @@ import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { PlanStageTitlebar } from "./PlanStageTitlebar";
 import { PlanStageToolbar } from "./PlanStageToolbar";
-import { usePlanReadabilitySettings } from "./usePlanReadabilitySettings";
 
 type LivingRoomPlanStageProps = {
   project: InteriorProject;
@@ -77,23 +77,24 @@ type LivingRoomPlanStageProps = {
   onExportPdf: () => void;
   v2BuildMode?: boolean;
   v2ReviewMode?: boolean;
+  readability: PlanReadabilitySettings;
+  onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
-  const readability = usePlanReadabilitySettings();
   return (
     <div className="lr-plan-center">
       {props.workspaceView === "plan" ? (
         <PlanStageToolbar canUndo={props.canUndo} canRedo={props.canRedo} hasSelection={props.hasSelection}
           selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
-          readability={readability.settings} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
+          readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
           onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
           onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-          onReadability={readability.update} />
+          onReadability={props.onReadability} />
       ) : null}
       <PlanStageTitlebar
         project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
-        v2BuildMode={props.v2BuildMode} readability={readability.settings} onReadability={readability.update}
+        v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
         exportBusy={props.exportBusy} exportStatus={props.exportStatus}
         millworkCount={props.millworkCount} millworkReady={props.millworkReady}
         onExportScheduleCsv={props.onExportScheduleCsv} onExportCutlistCsv={props.onExportCutlistCsv}
@@ -115,7 +116,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onCreateRoom={props.onCreateRoom} onDrawSurface={props.onDrawSurface}
             onDrawWallSegment={props.onDrawWallSegment} onPlaceColumn={props.onPlaceColumn}
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
-            onRoomPolygonPointCount={props.onRoomPolygonPointCount} readability={readability.settings}
+            onRoomPolygonPointCount={props.onRoomPolygonPointCount} readability={props.readability}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView

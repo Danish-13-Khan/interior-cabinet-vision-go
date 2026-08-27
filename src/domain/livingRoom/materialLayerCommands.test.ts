@@ -18,6 +18,13 @@ describe("material and layer commands", () => {
     expect(changed.walls[0]!.materialId).toBe(project.materials[3]!.id);
   });
 
+  it("clears a wall material when the inspector selects No material", () => {
+    const project = createLivingRoomStarterProject({ now: "2026-08-18T00:00:00.000Z" });
+    const wall = project.walls[0]!;
+    const cleared = setLivingRoomWallMaterial(project, wall.id, null);
+    expect(cleared.walls.find((item) => item.id === wall.id)?.materialId).toBeNull();
+  });
+
   it("removes hidden object and opening layers from the compiled scene", () => {
     const project = createLivingRoomStarterProject({ now: "2026-08-18T00:00:00.000Z" });
     const hidden = setLivingRoomLayerVisibility(setLivingRoomLayerVisibility(project, "furniture", false), "openings", false);
