@@ -37,6 +37,8 @@ type LivingRoomPlanCatalogRailProps = {
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;
+  onDeleteRoom?: (roomId: string) => void;
+  onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
   onAddPartitionWall: () => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
@@ -140,6 +142,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               surfaceMaterialId={props.surfaceMaterialId}
               onRoomDimensions={props.onRoomDimensions} onAddPartitionWall={props.onAddPartitionWall}
               onActiveRoom={props.onActiveRoom} onRenameRoom={props.onRenameRoom}
+              onDeleteRoom={props.onDeleteRoom} onMergeRooms={props.onMergeRooms}
               onActiveWall={props.onActiveWall} onActiveOpening={props.onActiveOpening} onAddOpening={props.onAddOpening}
               onUpdateOpening={props.onUpdateOpening} onDeleteOpening={props.onDeleteOpening}
               onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}

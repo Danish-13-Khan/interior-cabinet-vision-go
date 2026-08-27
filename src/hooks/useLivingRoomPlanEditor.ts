@@ -4,10 +4,12 @@ import {
   cabinetProjectFromInteriorProject,
   createSurfaceZone,
   createWallSegmentResult,
+  deleteInteriorRoom,
   deleteSurfaceZone,
   deletePlanWall,
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
+  mergeInteriorRooms,
   movePlanNodeWithOpenings,
   renameInteriorRoom,
   setActiveInteriorRoom,
@@ -362,6 +364,14 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => renameInteriorRoom(current, roomId, name), "Renamed room.");
   }
 
+  function deleteRoom(roomId: string) {
+    commitDocument((current) => deleteInteriorRoom(current, roomId), "Deleted room.");
+  }
+
+  function mergeRooms(targetRoomId: string, absorbedRoomId: string) {
+    commitDocument((current) => mergeInteriorRooms(current, targetRoomId, absorbedRoomId), "Merged rooms.");
+  }
+
   function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
     if (!document) return;
     const wall = document.walls.find((item) => item.id === wallId);
@@ -530,6 +540,8 @@ export function useLivingRoomPlanEditor({
     setLivingRoomDimensions: setRoomDimensions,
     setActiveLivingRoom: setActiveRoom,
     renameLivingRoom: renameRoom,
+    deleteLivingRoom: deleteRoom,
+    mergeLivingRooms: mergeRooms,
     addLivingRoomOpening: addOpening,
     addLivingRoomPartition: addPartitionWall,
     drawLivingRoomRoom: drawRoom,

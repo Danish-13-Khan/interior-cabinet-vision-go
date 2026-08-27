@@ -5,6 +5,9 @@ type BuildRoomSwitcherProps = {
   activeRoomId: string;
   onActiveRoom: (roomId: string) => void;
   onRenameRoom: (roomId: string, name: string) => void;
+  onDeleteRoom?: (roomId: string) => void;
+  onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  mergeableRoomIds?: string[];
 };
 
 /** Minimal multi-room chrome: switch active face and rename. */
@@ -15,6 +18,8 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
     setDraftName(active?.name ?? "");
   }, [active?.id, active?.name]);
   if (!active) return null;
+  const mergeCandidates = props.rooms.filter((room) =>
+    room.id !== active.id && (props.mergeableRoomIds ?? []).includes(room.id));
 
   function commitName() {
     const trimmed = draftName.trim();
@@ -23,6 +28,19 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
       return;
     }
     props.onRenameRoom(active!.id, trimmed);
+  }
+
+  function deleteActiveRoom() {
+    if (props.rooms.length > 1 && window.confirm(`Delete ${active!.name} and its contents?`)) {
+      props.onDeleteRoom?.(active!.id);
+    }
+  }
+
+  function mergeIntoActive(absorbedRoomId: string) {
+    const absorbed = props.rooms.find((room) => room.id === absorbedRoomId);
+    if (absorbed && window.confirm(`Merge ${absorbed.name} into ${active!.name}? The shared wall will be removed.`)) {
+      props.onMergeRooms?.(active!.id, absorbedRoomId);
+    }
   }
 
   return (
@@ -57,6 +75,23 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
           }}
         />
       </label>
+      <div className="lr-room-switcher-actions">
+        <button type="button" onClick={deleteActiveRoom} disabled={props.rooms.length <= 1}>Delete room</button>
+        {mergeCandidates.length > 0 ? (
+          <label>
+            <span>Merge into this room</span>
+            <select defaultValue="" onChange={(event) => {
+              if (event.target.value) mergeIntoActive(event.target.value);
+              event.currentTarget.value = "";
+            }}>
+              <option value="" disabled>Choose adjacent room…</option>
+              {mergeCandidates.map((room) => (
+                <option key={room.id} value={room.id}>{room.name}</option>
+              ))}
+            </select>
+          </label>
+        ) : props.rooms.length > 1 ? <small>No adjacent room available to merge.</small> : null}
+      </div>
     </section>
   );
 }

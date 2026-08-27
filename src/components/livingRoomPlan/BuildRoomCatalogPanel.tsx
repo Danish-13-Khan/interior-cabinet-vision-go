@@ -7,7 +7,7 @@ import {
   type WallEntity,
 } from "../../domain/interiorProject";
 import type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
-import { BuildRoomSwitcher } from "./BuildRoomSwitcher";
+import { BuildRoomManager } from "./BuildRoomManager";
 import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
@@ -32,6 +32,8 @@ type BuildRoomCatalogPanelProps = {
   onAddPartitionWall: () => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;
+  onDeleteRoom?: (roomId: string) => void;
+  onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
   onActiveWall: (wallId: string) => void;
   onActiveOpening: (openingId: string) => void;
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
@@ -54,17 +56,16 @@ type BuildRoomCatalogPanelProps = {
 
 export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
   const { tool, project, activeWall, activeOpening } = props;
-  const activeSurface = project.surfaces.find((surface) => surface.id === props.activeSurfaceId) ?? null;
-  const polygonCount = props.roomPolygonPointCount ?? 0;
+  const activeSurface = project.surfaces.find((surface) => surface.id === props.activeSurfaceId) ?? null; const polygonCount = props.roomPolygonPointCount ?? 0;
   const roomWalls = selectWallsForRoom(project, project.activeRoomId);
   return (
     <div className="lr-underlay-panel">
       {props.onActiveRoom && props.onRenameRoom ? (
-        <BuildRoomSwitcher
-          rooms={project.rooms.map((room) => ({ id: room.id, name: room.name }))}
-          activeRoomId={project.activeRoomId}
+        <BuildRoomManager project={project}
           onActiveRoom={props.onActiveRoom}
           onRenameRoom={props.onRenameRoom}
+          onDeleteRoom={props.onDeleteRoom}
+          onMergeRooms={props.onMergeRooms}
         />
       ) : null}
       {tool === "draw-surface" ? (

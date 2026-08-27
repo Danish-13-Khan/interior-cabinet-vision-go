@@ -82,6 +82,8 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
             props.setActiveWallId(null);
           }}
           onRenameRoom={w.onRenameRoom}
+          onDeleteRoom={w.onDeleteRoom}
+          onMergeRooms={w.onMergeRooms}
           onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
           activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
           onActiveWall={(wallId) => props.setActiveWallId(wallId)}

@@ -55,3 +55,35 @@
   font: inherit;
   font-size: 13px;
 }
+
+.lr-product-shell-v2 .lr-room-switcher-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: end;
+  gap: 8px;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-actions button,
+.lr-product-shell-v2 .lr-room-switcher-actions select {
+  min-height: 32px;
+  border: 1px solid #3d4a41;
+  border-radius: 6px;
+  background: #1d2620;
+  color: #e7f4eb;
+  font: inherit;
+  font-size: 12px;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-actions button {
+  cursor: pointer;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-actions small {
+  color: #aeb8b0;
+  font-size: 12px;
+}
