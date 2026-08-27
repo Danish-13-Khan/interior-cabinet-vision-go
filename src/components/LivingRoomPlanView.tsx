@@ -14,6 +14,7 @@ import { PlanObjectsLayer } from "./livingRoomPlan/PlanObjectsLayer";
 import { PlanOpeningsLayer, usePlanOpeningInteraction } from "./livingRoomPlan/PlanOpeningsLayer";
 import { PlanSurfaceZonesLayer } from "./livingRoomPlan/PlanSurfaceZonesLayer";
 import { PlanWallNodesLayer } from "./livingRoomPlan/PlanWallNodesLayer";
+import { DraftFeedbackOverlay } from "./livingRoomPlan/DraftFeedbackOverlay";
 import { RoomDrawingOverlay } from "./livingRoomPlan/RoomDrawingOverlay";
 import { WallDrawingOverlay } from "./livingRoomPlan/WallDrawingOverlay";
 import { usePlanObjectInteraction } from "./livingRoomPlan/usePlanObjectInteraction";
@@ -157,11 +158,13 @@ export function LivingRoomPlanView(props: Props) {
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room.id} selectable={tool === "select"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
-    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} active={drawRoom || drawSurface} />
-    <WallDrawingOverlay preview={wallDrawing.preview} active={drawWall || drawPartition} />
+    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
+    <WallDrawingOverlay preview={wallDrawing.preview} snapTarget={wallDrawing.snapTarget} active={drawWall || drawPartition} unit={props.readability.unit} />
     <PlanWallNodesLayer project={props.project} activeWallId={props.activeWallId} editable={editWalls}
       previewNodes={walls.previewNodes} translatePreview={walls.translatePreview}
       onNodePointerDown={(event, nodeId) => walls.beginNode(event, nodeId)} />
+    {walls.feedback ? <DraftFeedbackOverlay start={walls.feedback.start} end={walls.feedback.end}
+      snapTarget={walls.feedback.snapTarget} snapLabel={walls.feedback.snapLabel} unit={props.readability.unit} /> : null}
     <PlanOpeningsLayer project={props.project} activeOpeningId={props.activeOpeningId}
       openingPreview={openings.openingPreview} onSelectOpening={props.onSelectOpening}
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit} />

@@ -127,6 +127,8 @@ Export    ██████░░░░
 
 **H3 status:** Implemented — Build room list supports active switching, rename, safe delete, and adjacent room merge. Merge removes the shared boundary and transfers room-owned content into the kept face. Intentional MVP limits: hole-bearing room merges deferred; delete/merge use `window.confirm` (no custom dialog yet).
 | H4 | **Draw / edit feedback** — live draft dims, snap guides, hover handles | Perceived quality of every Build tool |
+
+**H4 status:** Implemented — Draw Room/Wall and Select-tool node/wall edits show live mm dimensions, axis/snap guides, node snap targets, and hover affordances before committing changes.
 | H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
 
 ### I — Design / millwork depth (differentiator)
@@ -193,6 +195,8 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 
 **H3 status:** Implemented — active switch, rename, delete, and shared-wall merge MVP are all undoable through the Build panel. Hole-bearing merges deferred; delete/merge still use browser `confirm` dialogs.
 | H4 | Live draft dimensions + snap guides while drawing | M |
+
+**H4 status:** Implemented — live unit-aware draft dimensions, snap guides/targets, and wall/node hover feedback cover Draw and Select edits.
 | H5 | Selection inspector for room / wall (thickness, height, material) | S–M |
 
 **Exit:** Designer draws a 2-room flat by splitting one room with a wall, renames rooms, drags a corner, places doors, sees floors update in 2D and 3D.
