@@ -14,6 +14,7 @@ export function useWallDrawing(input: {
 }) {
   const [start, setStart] = useState<Point2Mm | null>(null);
   const [cursor, setCursor] = useState<Point2Mm | null>(null);
+  const [snapTarget, setSnapTarget] = useState<Point2Mm | null>(null);
   const startRef = useRef<Point2Mm | null>(null);
   const onCommitRef = useRef(input.onCommit);
   onCommitRef.current = input.onCommit;
@@ -22,10 +23,12 @@ export function useWallDrawing(input: {
     return snapPlanPoint(point, input.snapSizeMm, input.nodes);
   }
 
-  function begin(event: ReactPointerEvent<SVGRectElement>) {
+  /** Begin from paper or wall geometry — capture on the SVG root so drag keeps streaming. */
+  function begin(event: ReactPointerEvent<Element>) {
     if (!input.active || event.button !== 0) return false;
     event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
+    const svg = ((event.currentTarget as SVGElement).ownerSVGElement ?? event.currentTarget) as Element;
+    svg.setPointerCapture?.(event.pointerId);
     const point = snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>));
     startRef.current = point;
     setStart(point);
@@ -35,7 +38,9 @@ export function useWallDrawing(input: {
 
   function move(event: ReactPointerEvent<SVGSVGElement>) {
     if (!input.active || !startRef.current) return false;
-    setCursor(snap(input.worldPoint(event)));
+    const point = snap(input.worldPoint(event));
+    setCursor(point);
+    setSnapTarget(input.nodes.find((node) => distance(node.position, point) < 0.1)?.position ?? null);
     return true;
   }
 
@@ -49,9 +54,10 @@ export function useWallDrawing(input: {
     startRef.current = null;
     setStart(null);
     setCursor(null);
+    setSnapTarget(null);
     return true;
   }
 
   const preview = start && cursor ? [start, cursor] as const : null;
-  return { preview, begin, move, finish };
+  return { preview, snapTarget, begin, move, finish };
 }

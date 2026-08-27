@@ -4,13 +4,20 @@ import {
   cabinetProjectFromInteriorProject,
   createSurfaceZone,
   createWallSegmentResult,
+  deleteInteriorRoom,
   deleteSurfaceZone,
   deletePlanWall,
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
+  mergeInteriorRooms,
+  movePlanNodeWithOpenings,
+  renameInteriorRoom,
+  setActiveInteriorRoom,
+  setPlanWallHeight,
   setPlanWallThickness,
   setSurfaceZoneMaterial,
   splitPlanWallResult,
+  translatePlanWall,
   type InteriorProject,
   type Point2Mm,
   type Point3Mm,
@@ -46,6 +53,7 @@ import {
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
   paintLivingRoomSurface,
+  setLivingRoomWallMaterial,
   placeStructuralColumn,
   setLivingRoomLayerVisibility,
   snapCabinetToWall,
@@ -246,9 +254,9 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => paintLivingRoomSurface(current, { kind: "floor" }, materialId), "Painted floor surface.");
   }
 
-  function setWallMaterial(wallId: string, materialId: string) {
-    if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => paintLivingRoomSurface(current, { kind: "wall", wallId }, materialId), "Painted wall surface.");
+  function setWallMaterial(wallId: string, materialId: string | null) {
+    if (!document || (materialId !== null && !document.materials.some((material) => material.id === materialId))) return;
+    commitDocument((current) => setLivingRoomWallMaterial(current, wallId, materialId), "Painted wall surface.");
   }
 
   function setLayerVisibility(layer: LivingRoomLayerId, visible: boolean) {
@@ -350,6 +358,22 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function setActiveRoom(roomId: string) {
+    commitDocument((current) => setActiveInteriorRoom(current, roomId), "Switched active room.");
+  }
+
+  function renameRoom(roomId: string, name: string) {
+    commitDocument((current) => renameInteriorRoom(current, roomId, name), "Renamed room.");
+  }
+
+  function deleteRoom(roomId: string) {
+    commitDocument((current) => deleteInteriorRoom(current, roomId), "Deleted room.");
+  }
+
+  function mergeRooms(targetRoomId: string, absorbedRoomId: string) {
+    commitDocument((current) => mergeInteriorRooms(current, targetRoomId, absorbedRoomId), "Merged rooms.");
+  }
+
   function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
     if (!document) return;
     const wall = document.walls.find((item) => item.id === wallId);
@@ -419,13 +443,32 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => deletePlanWall(current, wallId), "Deleted wall.");
   }
 
-  function updateWall(wallId: string, patch: { thicknessMm?: number }) {
-    if (patch.thicknessMm === undefined) return;
-    commitDocument((current) => setPlanWallThickness(current, wallId, patch.thicknessMm!), "Updated wall thickness.");
+  function updateWall(wallId: string, patch: { thicknessMm?: number; heightMm?: number }) {
+    if (patch.thicknessMm === undefined && patch.heightMm === undefined) return;
+    commitDocument((current) => {
+      let next = current;
+      if (patch.thicknessMm !== undefined) next = setPlanWallThickness(next, wallId, patch.thicknessMm);
+      if (patch.heightMm !== undefined) next = setPlanWallHeight(next, wallId, patch.heightMm);
+      return next;
+    }, "Updated wall properties.");
   }
 
   function joinCoincidentNodes() {
     commitDocument((current) => mergeCoincidentPlanNodes(current), "Joined coincident nodes.");
+  }
+
+  function moveNode(nodeId: string, position: Point2Mm) {
+    commitDocument(
+      (current) => movePlanNodeWithOpenings(current, nodeId, position),
+      "Moved wall node.",
+    );
+  }
+
+  function translateWall(wallId: string, delta: Point2Mm) {
+    commitDocument(
+      (current) => translatePlanWall(current, wallId, delta),
+      "Moved wall.",
+    );
   }
 
   function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
@@ -502,6 +545,10 @@ export function useLivingRoomPlanEditor({
     createLivingRoomCabinetRun: createCabinetRun,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
+    setActiveLivingRoom: setActiveRoom,
+    renameLivingRoom: renameRoom,
+    deleteLivingRoom: deleteRoom,
+    mergeLivingRooms: mergeRooms,
     addLivingRoomOpening: addOpening,
     addLivingRoomPartition: addPartitionWall,
     drawLivingRoomRoom: drawRoom,
@@ -514,6 +561,8 @@ export function useLivingRoomPlanEditor({
     deleteLivingRoomWall: deleteWall,
     updateLivingRoomWall: updateWall,
     joinLivingRoomCoincidentNodes: joinCoincidentNodes,
+    moveLivingRoomNode: moveNode,
+    translateLivingRoomWall: translateWall,
     updateLivingRoomOpening: updateOpening,
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,

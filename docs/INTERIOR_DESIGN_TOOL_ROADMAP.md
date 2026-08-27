@@ -117,10 +117,21 @@ Export    ██████░░░░
 | ID | Missing feature | Why it matters |
 | --- | --- | --- |
 | H1 | **Room-split Draw Wall** — wall across closed room → two rooms + regen floors/ceilings | Core “draw wall under floor” magic |
+
+**H1 status:** Implemented — Draw Wall bisects a closed face into two rooms with a shared wall, regenerates floor/ceiling zones, remaps objects/lights/cameras by containment, and keeps partitions non-splitting. Minimal room switcher + rename landed so both faces are reachable in 2D/3D.
 | H2 | **Drag nodes / move walls** — endpoint + wall translate with snap | Plan editing feels like CAD, not commit-only |
+
+**H2 status:** Implemented — Select-tool node handles + wall-body drag, snap, opening clamp, coincident join, undoable commands, E2E.
+
 | H3 | **Multi-room chrome** — room list, active switch, rename, delete, merge | Topology useless without navigation |
+
+**H3 status:** Implemented — Build room list supports active switching, rename, safe delete, and adjacent room merge. Merge removes the shared boundary and transfers room-owned content into the kept face. Intentional MVP limits: hole-bearing room merges deferred; delete/merge use `window.confirm` (no custom dialog yet).
 | H4 | **Draw / edit feedback** — live draft dims, snap guides, hover handles | Perceived quality of every Build tool |
+
+**H4 status:** Implemented — Draw Room/Wall and Select-tool node/wall edits show live mm dimensions, axis/snap guides, node snap targets, and hover affordances before committing changes.
 | H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
+
+**H5 status:** Implemented — the right inspector now previews the active room and selected wall, with undoable room sizing plus wall thickness, height, and material editing. Intentional MVP limit: E2E covers material clear + undo; thickness/height edit round-trips remain light.
 
 ### I — Design / millwork depth (differentiator)
 
@@ -179,9 +190,18 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 | --- | --- | --- |
 | H1 | Face-split: Draw Wall across closed room → two rooms, shared wall, floors regen, undoable | L |
 | H2 | Move node / drag wall endpoint; wall translate with topology repair | L |
+
+**H2 status:** Implemented — Select tool exposes node handles and wall-body drag with grid/node snap, opening clamp after length change, coincident join on drop, undoable `moveNode` / `moveWall` commands, and live wall preview while dragging.
+
 | H3 | Room switcher + rename + delete (+ merge MVP) | M |
+
+**H3 status:** Implemented — active switch, rename, delete, and shared-wall merge MVP are all undoable through the Build panel. Hole-bearing merges deferred; delete/merge still use browser `confirm` dialogs.
 | H4 | Live draft dimensions + snap guides while drawing | M |
+
+**H4 status:** Implemented — live unit-aware draft dimensions, snap guides/targets, and wall/node hover feedback cover Draw and Select edits.
 | H5 | Selection inspector for room / wall (thickness, height, material) | S–M |
+
+**H5 status:** Implemented — Build inspector provides room/wall previews and construction/finish editing for the active selection. E2E covers material clear + undo; thickness/height round-trips still light (non-blocking).
 
 **Exit:** Designer draws a 2-room flat by splitting one room with a wall, renames rooms, drags a corner, places doors, sees floors update in 2D and 3D.
 

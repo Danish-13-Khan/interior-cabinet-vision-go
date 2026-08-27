@@ -15,6 +15,7 @@ import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { MillworkSchedulePreview } from "./millworkSchedule";
 import { NumberField } from "./NumberField";
 import { OpeningInspector } from "./OpeningInspector";
+import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -23,6 +24,7 @@ type LivingRoomInspectorPanelProps = {
   room: InteriorProject["rooms"][number];
   activeObject: InteriorObjectEntity | null;
   activeOpening: OpeningEntity | null;
+  activeWallId: string | null;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
   millworkSchedule: MillworkSchedule | null;
@@ -37,6 +39,9 @@ type LivingRoomInspectorPanelProps = {
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onSelect: (objectId: string | null) => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
+  onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
+  onSetWallMaterial: (wallId: string, materialId: string | null) => void;
+  unit: import("../../domain/livingRoom").PlanDisplayUnit;
 };
 
 export function LivingRoomInspectorPanel({
@@ -46,6 +51,7 @@ export function LivingRoomInspectorPanel({
   room,
   activeObject,
   activeOpening,
+  activeWallId,
   selectedCount,
   issues,
   millworkSchedule,
@@ -60,33 +66,21 @@ export function LivingRoomInspectorPanel({
   onSetParameters,
   onSelect,
   onUpdateOpening,
+  onUpdateWall,
+  onSetWallMaterial,
+  unit,
 }: LivingRoomInspectorPanelProps) {
+  const activeWall = project.walls.find((wall) => wall.id === activeWallId) ?? null;
   return (
     <aside className="lr-inspector" style={{ width: widthPx }}>
       <div className="inspector-header">
         <strong>{mode === "plan" ? "Plan Properties" : "Model Properties"}</strong>
-        <span>{activeOpening ? "Opening selected" : activeObject?.name ?? `${selectedCount} selected`}</span>
+        <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${selectedCount} selected`)}</span>
       </div>
       <div className="lr-inspector-scroll">
         {mode === "plan" ? (
-          <section>
-            <h3>Room</h3>
-            <NumberField
-              label="Width"
-              value={room.dimensions.widthMm}
-              onChange={(widthMm) => onRoomDimensions({ ...room.dimensions, widthMm })}
-            />
-            <NumberField
-              label="Depth"
-              value={room.dimensions.depthMm}
-              onChange={(depthMm) => onRoomDimensions({ ...room.dimensions, depthMm })}
-            />
-            <NumberField
-              label="Height"
-              value={room.dimensions.heightMm}
-              onChange={(heightMm) => onRoomDimensions({ ...room.dimensions, heightMm })}
-            />
-          </section>
+          <PlanArchitectureInspector project={project} room={room} wall={activeWall}
+            onRoomDimensions={onRoomDimensions} onUpdateWall={onUpdateWall} onSetWallMaterial={onSetWallMaterial} unit={unit} />
         ) : null}
         {activeOpening ? <OpeningInspector opening={activeOpening} materials={project.materials} onUpdate={onUpdateOpening} /> : activeObject ? (
           <>

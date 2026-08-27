@@ -6,15 +6,14 @@ import type {
   LivingRoomPlanIssue,
   LivingRoomRenderResult,
   LivingRoomStyleId,
+  PlanReadabilitySettings,
 } from "../../domain/livingRoom";
 import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
-import { MillworkScheduleActions } from "./millworkSchedule";
-import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
+import { PlanStageTitlebar } from "./PlanStageTitlebar";
 import { PlanStageToolbar } from "./PlanStageToolbar";
-import { usePlanReadabilitySettings } from "./usePlanReadabilitySettings";
 
 type LivingRoomPlanStageProps = {
   project: InteriorProject;
@@ -48,6 +47,8 @@ type LivingRoomPlanStageProps = {
   onSelectSurface: (surfaceId: string | null) => void;
   onMoveOpening: (openingId: string, offsetMm: number) => void;
   onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
+  onMoveNode: (nodeId: string, position: import("../../domain/interiorProject").Point2Mm) => void;
+  onTranslateWall: (wallId: string, delta: import("../../domain/interiorProject").Point2Mm) => void;
   activeBuildTool?: BuildTool;
   openingCatalogItemId?: string;
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
@@ -76,108 +77,59 @@ type LivingRoomPlanStageProps = {
   onExportPdf: () => void;
   v2BuildMode?: boolean;
   v2ReviewMode?: boolean;
+  readability: PlanReadabilitySettings;
+  onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
-  const readability = usePlanReadabilitySettings();
   return (
     <div className="lr-plan-center">
       {props.workspaceView === "plan" ? (
         <PlanStageToolbar canUndo={props.canUndo} canRedo={props.canRedo} hasSelection={props.hasSelection}
           selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
-          readability={readability.settings} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
+          readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
           onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
           onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-          onReadability={readability.update} />
+          onReadability={props.onReadability} />
       ) : null}
-      <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}${props.v2BuildMode && props.workspaceView === "plan" ? " has-readability" : ""}`}>
-        <strong>
-          {props.workspaceView === "model"
-            ? "3D model"
-            : props.workspaceView === "render"
-              ? "Render studio"
-              : "2D plan"}
-        </strong>
-        <span>
-          {props.workspaceView === "model"
-            ? `${props.project.name} · staged concept`
-            : `${props.project.name} · ${props.project.objects.length} furniture objects · ${props.project.openings.length} openings · ${props.selectedIds.length} selected`}
-        </span>
-        {props.v2BuildMode && props.workspaceView === "plan" ? (
-          <PlanReadabilityToolbar settings={readability.settings} onChange={readability.update} />
-        ) : null}
-        {props.workspaceView !== "model" ? (
-          <small>
-            {props.workspaceView === "plan" ? "Scale: Fit" : "Presentation Output"} · Units: {readability.settings.unit}
-          </small>
-        ) : (
-          <small>Dollhouse · Units: mm</small>
-        )}
-        {props.workspaceView !== "render" ? (
-          <MillworkScheduleActions
-            busy={props.exportBusy}
-            status={props.exportStatus}
-            disabled={false}
-            millworkCount={props.millworkCount}
-            readyToExport={props.millworkReady}
-            onExportScheduleCsv={props.onExportScheduleCsv}
-            onExportCutlistCsv={props.onExportCutlistCsv}
-            onExportPdf={props.onExportPdf}
-          />
-        ) : null}
-      </div>
+      <PlanStageTitlebar
+        project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
+        v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
+        exportBusy={props.exportBusy} exportStatus={props.exportStatus}
+        millworkCount={props.millworkCount} millworkReady={props.millworkReady}
+        onExportScheduleCsv={props.onExportScheduleCsv} onExportCutlistCsv={props.onExportCutlistCsv}
+        onExportPdf={props.onExportPdf}
+      />
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (
           <LivingRoomPlanView
-            project={props.project}
-            selectedIds={props.selectedIds}
-            issues={props.issues}
-            snapSizeMm={props.snapSizeMm}
-            showGrid={props.showGrid}
-            onSelect={props.onSelect}
-            onMove={props.onMove}
-            onResize={props.onResize}
-            activeWallId={props.activeWallId}
-            activeOpeningId={props.activeOpeningId}
-            activeSurfaceId={props.activeSurfaceId}
-            surfaceMaterialId={props.surfaceMaterialId}
-            onSelectWall={props.onSelectWall}
-            onSelectOpening={props.onSelectOpening}
-            onSelectSurface={props.onSelectSurface}
-            onMoveOpening={props.onMoveOpening}
-            onResizeOpening={props.onResizeOpening}
-            activeBuildTool={props.activeBuildTool}
-            openingCatalogItemId={props.openingCatalogItemId}
-            onPlaceOpening={props.onPlaceOpening}
-            onCreateRoom={props.onCreateRoom}
-            onDrawSurface={props.onDrawSurface}
-            onDrawWallSegment={props.onDrawWallSegment}
-            onPlaceColumn={props.onPlaceColumn}
+            project={props.project} selectedIds={props.selectedIds} issues={props.issues}
+            snapSizeMm={props.snapSizeMm} showGrid={props.showGrid}
+            onSelect={props.onSelect} onMove={props.onMove} onResize={props.onResize}
+            activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
+            activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={props.surfaceMaterialId}
+            onSelectWall={props.onSelectWall} onSelectOpening={props.onSelectOpening}
+            onSelectSurface={props.onSelectSurface} onMoveOpening={props.onMoveOpening}
+            onResizeOpening={props.onResizeOpening} onMoveNode={props.onMoveNode}
+            onTranslateWall={props.onTranslateWall} activeBuildTool={props.activeBuildTool}
+            openingCatalogItemId={props.openingCatalogItemId} onPlaceOpening={props.onPlaceOpening}
+            onCreateRoom={props.onCreateRoom} onDrawSurface={props.onDrawSurface}
+            onDrawWallSegment={props.onDrawWallSegment} onPlaceColumn={props.onPlaceColumn}
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
-            onRoomPolygonPointCount={props.onRoomPolygonPointCount}
-            readability={readability.settings}
+            onRoomPolygonPointCount={props.onRoomPolygonPointCount} readability={props.readability}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
-            project={props.project}
-            selectedIds={props.selectedIds}
-            snapSizeMm={props.snapSizeMm}
-            showGrid={props.showGrid}
-            onSelect={props.onSelect}
-            onMove={props.onMove}
-            onSetRotation={props.onSetRotation}
-            onApplyStyle={props.onApplyStyle}
+            project={props.project} selectedIds={props.selectedIds} snapSizeMm={props.snapSizeMm}
+            showGrid={props.showGrid} onSelect={props.onSelect} onMove={props.onMove}
+            onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
           />
         ) : (
           <LivingRoomRenderStudio
-            project={props.project}
-            latestResult={props.latestRender}
-            previousResult={props.previousRender}
-            onRendered={props.onRendered}
-            onSettingsChange={props.onRenderSettingsChange}
-            onLightingChange={props.onLightingChange}
-            onBrowserThumbnail={props.onRenderBrowserThumbnail}
+            project={props.project} latestResult={props.latestRender} previousResult={props.previousRender}
+            onRendered={props.onRendered} onSettingsChange={props.onRenderSettingsChange}
+            onLightingChange={props.onLightingChange} onBrowserThumbnail={props.onRenderBrowserThumbnail}
           />
         )}
       </div>

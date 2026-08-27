@@ -1,6 +1,6 @@
 import type { InteriorProject, InteriorRoomEntity, OpeningEntity } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
-import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult } from "../../domain/livingRoom";
+import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult, PlanReadabilitySettings } from "../../domain/livingRoom";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -53,6 +53,8 @@ type Props = {
   underlayPickerRef: React.RefObject<(() => void) | null>;
   millwork: Millwork;
   issues: LivingRoomPlanIssue[];
+  readability: PlanReadabilitySettings;
+  onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
 };
 
 export function LivingRoomPlanWorkspaceBody(props: Props) {
@@ -75,6 +77,15 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
+          onActiveRoom={(roomId) => {
+            w.onActiveRoom(roomId);
+            props.setActiveOpeningId(null);
+            props.setActiveSurfaceId(null);
+            props.setActiveWallId(null);
+          }}
+          onRenameRoom={w.onRenameRoom}
+          onDeleteRoom={w.onDeleteRoom}
+          onMergeRooms={w.onMergeRooms}
           onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
           activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
           onActiveWall={(wallId) => props.setActiveWallId(wallId)}
@@ -151,6 +162,8 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
         }}
         onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
         onResizeOpening={(openingId, widthMm, offsetMm) => build.dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
+        onMoveNode={(nodeId, position) => build.dispatchBuildCommand({ type: "moveNode", nodeId, position })}
+        onTranslateWall={(wallId, delta) => build.dispatchBuildCommand({ type: "moveWall", wallId, delta })}
         activeBuildTool={props.activeBuildTool} openingCatalogItemId={build.openingCatalogItemId}
         onPlaceOpening={(wallId, kind, offsetMm) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: build.openingCatalogItemId })}
         onCreateRoom={(drawing) => build.dispatchBuildCommand({ type: "createRoom", drawing })}
@@ -169,6 +182,7 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
         onExportCutlistCsv={() => void props.millwork.exportSchedule("cutlist-csv")}
         onExportPdf={() => void props.millwork.exportSchedule("pdf")}
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
+        readability={props.readability} onReadability={props.onReadability}
       />
       {w.inspectorVisible && props.workspaceView !== "render" ? (
         <LivingRoomInspectorPanel mode={props.workspaceView} widthPx={w.inspectorWidthPx} project={project} room={room}
@@ -179,6 +193,10 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
           onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
+          activeWallId={props.activeWallId}
+          onUpdateWall={(wallId, patch) => build.dispatchBuildCommand({ type: "updateWall", wallId, patch })}
+          onSetWallMaterial={w.onSetWallMaterial}
+          unit={props.readability.unit}
         />
       ) : null}
     </div>
