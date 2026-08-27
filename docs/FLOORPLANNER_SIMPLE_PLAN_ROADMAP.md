@@ -318,6 +318,9 @@ Deepens the **3D** step of the agenda (not a new product flow):
 - Keep millwork Design mode as the cabinet surface (differentiator) on the 2D plan  
 - Performance, open-graph validation, migration hardening  
 
+**Exit:** V1 chrome excludes deferred parity features; Design stays millwork-first; open graphs fail validation; migrations reject invalid/future schemas; catalog and load paths keep curated/local safety rails.  
+**Status:** Implemented — removed Advanced Studio (AI-ish recognition / suggestions / vendor pricing), locked `V1_PRODUCT_SCOPE` with runtime catalog ceiling, Millwork Design labeling, open-graph boundary errors, migration/envelope hardening, 25 MB file and 10k-entity collection caps, and validation split under the 200-line module budget.
+
 ---
 
 ## 6. Critical path

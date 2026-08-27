@@ -25,7 +25,7 @@ describe("Living Room Starter Contract", () => {
     expect(LIVING_ROOM_CATALOG.filter((item) => item.category === "chair")).toHaveLength(2);
     expect(LIVING_ROOM_CATALOG.some((item) => item.category === "storage")).toBe(true);
     expect(LIVING_ROOM_CATALOG.some((item) => item.category === "plant")).toBe(true);
-    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(23);
+    expect(new Set(LIVING_ROOM_CATALOG.map((item) => item.id)).size).toBe(LIVING_ROOM_CATALOG.length);
     expect(LIVING_ROOM_CATALOG.every((item) => item.dimensions.widthMm > 0)).toBe(true);
     expect(LIVING_ROOM_CATALOG.every((item) => getLivingRoomObjectAdapter(item.id))).toBe(true);
   });

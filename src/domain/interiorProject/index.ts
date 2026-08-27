@@ -34,7 +34,7 @@ export {
   type WallEntity,
 } from "./types";
 export { createEmptyInteriorProject, DEFAULT_RENDER_SETTINGS } from "./defaults";
-export { validateInteriorProject } from "./validation";
+export { MAX_PROJECT_ENTITIES_PER_COLLECTION, validateInteriorProject } from "./validation";
 export {
   migrateInteriorProjectDocument,
   type InteriorMigrationResult,
@@ -46,6 +46,8 @@ export {
 export {
   createInteriorProjectFile,
   loadInteriorProjectFile,
+  MAX_INTERIOR_PROJECT_FILE_BYTES,
+  assertInteriorProjectFileByteLimit,
   serializeInteriorProjectFile,
   type InteriorProjectMigrationSource,
   type LoadedInteriorProject,

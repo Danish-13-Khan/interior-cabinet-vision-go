@@ -18,6 +18,12 @@ import {
 } from "./types";
 import { validateInteriorProject } from "./validation";
 import { migrateInteriorProjectDocument } from "./migrations";
+import {
+  assertInteriorProjectFileByteLimit,
+  MAX_INTERIOR_PROJECT_FILE_BYTES,
+} from "./fileFormatLimits";
+
+export { assertInteriorProjectFileByteLimit, MAX_INTERIOR_PROJECT_FILE_BYTES };
 
 type LegacyProjectFile = {
   project?: CabinetProject;
@@ -47,6 +53,7 @@ function record(value: unknown): Record<string, unknown> | null {
 
 function parseInput(input: string | unknown): unknown {
   if (typeof input !== "string") return input;
+  assertInteriorProjectFileByteLimit(new Blob([input]).size);
   try {
     return JSON.parse(input) as unknown;
   } catch {
@@ -111,6 +118,20 @@ export function loadInteriorProjectFile(
   if (!root) throw new Error("Project file root must be an object.");
 
   const wrappedProject = root.project;
+  if (root.format === INTERIOR_PROJECT_FILE_FORMAT) {
+    const envelopeVersion = Number(root.schemaVersion);
+    if (!Number.isInteger(envelopeVersion) || envelopeVersion < 0) {
+      throw new Error("Project file envelope has an invalid schema version.");
+    }
+    if (envelopeVersion > INTERIOR_PROJECT_SCHEMA_VERSION) {
+      throw new Error(
+        `Project schema v${envelopeVersion} is newer than supported v${INTERIOR_PROJECT_SCHEMA_VERSION}.`,
+      );
+    }
+    if (!isInteriorDocument(wrappedProject)) {
+      throw new Error("Project file envelope does not contain a valid interior project.");
+    }
+  }
   const canonical =
     root.format === INTERIOR_PROJECT_FILE_FORMAT && isInteriorDocument(wrappedProject)
       ? wrappedProject

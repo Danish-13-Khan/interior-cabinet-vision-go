@@ -9,6 +9,12 @@ function optionalRecord(value: unknown): UnknownRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? value as UnknownRecord : {};
 }
 
+function recordArray(value: unknown): UnknownRecord[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is UnknownRecord => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+    : [];
+}
+
 export type InteriorMigrationResult = {
   document: unknown;
   fromVersion: number;
@@ -39,7 +45,7 @@ function migrateV0ToV1(input: UnknownRecord): UnknownRecord {
 }
 
 function migrateV1ToV2(input: UnknownRecord): UnknownRecord {
-  const walls = Array.isArray(input.walls) ? input.walls : [];
+  const walls = recordArray(input.walls);
   const nodes: UnknownRecord[] = [];
   const nodeByPoint = new Map<string, string>();
   const nodeIdFor = (point: unknown) => {
@@ -54,23 +60,22 @@ function migrateV1ToV2(input: UnknownRecord): UnknownRecord {
     nodes.push({ id, position: { x, z } });
     return id;
   };
-  const upgradedWalls: UnknownRecord[] = walls.map((raw) => {
-    const wall = record(raw);
+  const upgradedWalls: UnknownRecord[] = walls.map((wall, index) => {
+    const wallId = typeof wall.id === "string" && wall.id.trim() ? wall.id.trim() : `wall-${index + 1}`;
     return {
       ...wall,
+      id: wallId,
       startNodeId: nodeIdFor(wall.start),
       endNodeId: nodeIdFor(wall.end),
     };
   });
-  const rooms = Array.isArray(input.rooms) ? input.rooms : [];
+  const rooms = recordArray(input.rooms);
   const loops: UnknownRecord[] = [];
-  const upgradedRooms = rooms.map((raw, index) => {
-    const room = record(raw);
+  const upgradedRooms = rooms.map((room, index) => {
     const roomId = typeof room.id === "string" ? room.id : `room-${index + 1}`;
     const loopId = `${roomId}:outer-loop`;
     const roomWalls = upgradedWalls.filter((wall) => wall.roomId === roomId);
-    const wallEntities = roomWalls.map((wall) => {
-      const item = record(wall);
+    const wallEntities = roomWalls.map((item) => {
       return {
         id: String(item.id),
         roomId,
@@ -91,8 +96,7 @@ function migrateV1ToV2(input: UnknownRecord): UnknownRecord {
     });
     return { ...room, outerLoopId: loopId, holeLoopIds: [] };
   });
-  const openings = (Array.isArray(input.openings) ? input.openings : []).map((raw) => {
-    const opening = record(raw);
+  const openings = recordArray(input.openings).map((opening) => {
     const kind = opening.kind;
     const wallId = typeof opening.wallId === "string" ? opening.wallId : "";
     const host = upgradedWalls.find((wall) => wall.id === wallId);
@@ -133,8 +137,12 @@ function migrateV1ToV2(input: UnknownRecord): UnknownRecord {
 /** Apply each schema migration exactly once and reject unsupported future files. */
 export function migrateInteriorProjectDocument(input: unknown): InteriorMigrationResult {
   let document = record(input);
-  const rawVersion = Number(document.schemaVersion);
-  const fromVersion = Number.isInteger(rawVersion) && rawVersion >= 0 ? rawVersion : 0;
+  const suppliedVersion = document.schemaVersion;
+  const rawVersion = suppliedVersion == null ? 0 : Number(suppliedVersion);
+  if (!Number.isInteger(rawVersion) || rawVersion < 0) {
+    throw new Error("Project schema version must be a non-negative integer.");
+  }
+  const fromVersion = rawVersion;
   if (fromVersion > INTERIOR_PROJECT_SCHEMA_VERSION) {
     throw new Error(
       `Project schema v${fromVersion} is newer than supported v${INTERIOR_PROJECT_SCHEMA_VERSION}.`,

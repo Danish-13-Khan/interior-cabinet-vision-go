@@ -1,7 +1,6 @@
 import type { InteriorProject, InteriorRoomEntity, OpeningEntity } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult } from "../../domain/livingRoom";
-import { LivingRoomAdvancedPanel } from "./LivingRoomAdvancedPanel";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -63,10 +62,7 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       <LivingRoomHomeFromWorkspace workspace={w} open={w.projectHomeOpen} hasCurrentProject />
-      {props.workspaceView === "plan" && props.studioPanel === "advanced" ? (
-        <LivingRoomAdvancedPanel project={project} underlay={props.underlay} onRoomDimensions={w.onRoomDimensions}
-          onAddCatalogObject={w.onAddCatalogObject} onUpdateState={w.onUpdateAdvancedStudio} />
-      ) : props.workspaceView === "plan" ? (
+      {props.workspaceView === "plan" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
           onStudioPanel={props.onStudioPanel} project={project} roomName={room.name} selectedIds={w.selectedIds}

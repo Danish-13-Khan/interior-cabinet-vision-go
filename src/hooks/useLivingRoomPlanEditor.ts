@@ -45,7 +45,6 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
-  setAdvancedStudioState,
   paintLivingRoomSurface,
   placeStructuralColumn,
   setLivingRoomLayerVisibility,
@@ -56,7 +55,6 @@ import {
   type LivingRoomLightingRecipeId,
   type LivingRoomLayerId,
   type LivingRoomPlanUnderlay,
-  type AdvancedStudioState,
   type LivingRoomStyleId,
   type ImportedAsset,
 } from "../domain/livingRoom";
@@ -261,13 +259,6 @@ export function useLivingRoomPlanEditor({
     commitDocument(
       (current) => setLivingRoomPlanUnderlay(current, underlay),
       underlay ? "Imported plan underlay." : "Removed plan underlay.",
-    );
-  }
-
-  function updateAdvancedStudio(state: AdvancedStudioState) {
-    commitDocument(
-      (current) => setAdvancedStudioState(current, state),
-      "Updated Advanced Studio workspace.",
     );
   }
 
@@ -503,7 +494,6 @@ export function useLivingRoomPlanEditor({
     setLivingRoomWallMaterial: setWallMaterial,
     setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
-    updateLivingRoomAdvancedStudio: updateAdvancedStudio,
     addLivingRoomCatalogObject: addCatalogObject,
     addImportedLivingRoomAsset: addImportedAsset,
     duplicateInteriorSelection: duplicateSelection,

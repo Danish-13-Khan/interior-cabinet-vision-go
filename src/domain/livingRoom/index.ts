@@ -142,15 +142,7 @@ export {
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
 export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
-export {
-  clientShareBrief,
-  estimateVendorPricing,
-  getAdvancedStudioState,
-  listLayoutSuggestions,
-  recognizePlanUnderlay,
-  setAdvancedStudioState,
-  type AdvancedStudioState,
-} from "./advancedStudio";
+export { assertV1CatalogScope, V1_PRODUCT_SCOPE } from "./v1Scope";
 export {
   isLivingRoomLayerVisible,
   paintLivingRoomSurface,

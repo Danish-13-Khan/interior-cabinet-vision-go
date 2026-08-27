@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
@@ -68,13 +68,15 @@ type LivingRoomPlanCatalogRailProps = {
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
-  const visibleAssets = LIVING_ROOM_CATALOG.filter((item) =>
-    (props.studioPanel !== "cabinets" || item.kind === "cabinet") &&
-    (props.studioPanel !== "furniture" || item.kind !== "cabinet") &&
-    (props.assetCategory === "all" || item.category === props.assetCategory) &&
-    (!props.assetQuery.trim()
-      || `${item.name} ${item.category}`.toLowerCase().includes(props.assetQuery.trim().toLowerCase())),
-  );
+  const visibleAssets = useMemo(() => {
+    const query = props.assetQuery.trim().toLowerCase();
+    return LIVING_ROOM_CATALOG.filter((item) =>
+      (props.studioPanel !== "cabinets" || item.kind === "cabinet") &&
+      (props.studioPanel !== "furniture" || item.kind !== "cabinet") &&
+      (props.assetCategory === "all" || item.category === props.assetCategory) &&
+      (!query || `${item.name} ${item.category}`.toLowerCase().includes(query)),
+    );
+  }, [props.assetCategory, props.assetQuery, props.studioPanel]);
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
@@ -89,11 +91,10 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     <nav className="lr-studio-rail" aria-label="Plan tools">
       {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build<small>Room, walls, openings</small></button> : null}
       {!props.v2BuildMode ? <>
-        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Cabinets"><span>▤</span>Cabinets<small>Place modules</small></button>
+        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Millwork design"><span>▤</span>Millwork<small>Design on plan</small></button>
         <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture<small>Room objects</small></button>
         <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials<small>Finishes</small></button>
         <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers<small>Visibility</small></button>
-        {!props.v2DesignMode ? <button type="button" className={props.studioPanel === "advanced" ? "is-active" : ""} onClick={() => props.onStudioPanel("advanced")} title="Advanced Studio"><span>✦</span>Advanced</button> : null}
       </> : null}
     </nav>
     {props.toolRailVisible ? (
