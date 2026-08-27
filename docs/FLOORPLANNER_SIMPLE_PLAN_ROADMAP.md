@@ -395,3 +395,5 @@ Screenshots captured locally (Aug 26, 2026):
 - 3D dollhouse + Camera panel (height, FOV, perspective)
 
 Related canvases (workspace `canvases/`): `floorplanner-simple-plan-roadmap.canvas.tsx`, `planner-ui-tool-comparison.canvas.tsx`.
+
+**Successor (post A–G):** felt interiors-tool gap map — [INTERIOR_DESIGN_TOOL_ROADMAP.md](./INTERIOR_DESIGN_TOOL_ROADMAP.md) (Phase H+).

@@ -1,0 +1,287 @@
+# Interior Design Tool — Full Gap Roadmap (2D → 3D → Render → Export)
+
+**Status:** Planning only — do not implement until this roadmap is approved.  
+**Audience:** After `FLOORPLANNER_SIMPLE_PLAN_ROADMAP` A–G (chrome + topology + tools).  
+**Product rule:** Stay millwork-first. Look and feel like a **professional interior design tool**, not a Floorplanner clone or a stills marketplace.
+
+**Fixed product agenda (unchanged):**
+
+```text
+Menu / Project
+  → 2D Build (rooms, walls, openings, surfaces)
+  → 2D Design (cabinets, furniture, materials)
+  → 3D Review (same project, live compile)
+  → Render (cameras / client stills)
+  → Export (schedule, images, presentation package)
+```
+
+Related: [FLOORPLANNER_SIMPLE_PLAN_ROADMAP.md](./FLOORPLANNER_SIMPLE_PLAN_ROADMAP.md) · [PRODUCT_DECISIONS.md](./PRODUCT_DECISIONS.md) · [PHASE_0_MVP_DEFINITION.md](./PHASE_0_MVP_DEFINITION.md)
+
+---
+
+## 1. What “looks like an interior design tool” means
+
+A designer opens the app and can complete this story without fighting the UI:
+
+```text
+1. Start or import a plan
+2. Draw / edit the room shell until it matches the site
+3. Place doors and windows on walls
+4. Zone floors and finishes
+5. Place millwork that snaps, runs, and validates
+6. Switch to 3D and walk the concept with the client
+7. Capture honest client stills
+8. Export schedule + presentation package
+```
+
+**Parity target is the job above — not feature-count vs Floorplanner.**
+
+| Surface | Must feel like | Must not become |
+| --- | --- | --- |
+| **2D Build** | Floorplanner-like plan authoring | Form-only room editor |
+| **2D Design** | Millwork / interiors layout CAD | Furniture marketplace |
+| **3D** | Instant review of the same plan | Separate modeling app |
+| **Render** | Client presentation stills | Synaps / photoreal chase as core |
+| **Export** | Workshop + client deliverables | Full MES / RE export suite |
+
+---
+
+## 2. Ideal journey (target experience)
+
+### 2.1 Project
+- New blank, starter templates (wardrobe wall, L-room, 2-room flat), recent files, underlay import.
+- One `InteriorProject` file; save / open / autosave obvious.
+
+### 2.2 Build (2D) — structure
+- Draw Room (rectangle + polygon).
+- Draw Wall **across a room** → room splits, floors update.
+- Drag wall endpoints / nodes; move walls; join / split / delete.
+- Multi-room: switch active room, rename, merge, delete without orphan graph.
+- Place doors / windows from a small real catalog; drag along wall; live dims.
+- Draw floor zones + materials; partitions / columns.
+- Underlay calibrate; inner/outer dims; display units.
+
+### 2.3 Design (2D) — interiors
+- Curated cabinets + furniture + materials.
+- Snap to freeform walls; place / move / rotate / resize / duplicate.
+- Cabinet **runs**, fillers, corner units on real walls.
+- Inspector: size, materials, door style; validation warnings visible.
+- Layers / selection clarity so the plan reads as design, not debug.
+
+### 2.4 3D Review
+- One click 2D↔3D; dollhouse default; optional walkthrough.
+- Materials and openings look intentional; nav is obvious.
+- Selection in 3D updates the same inspector (optional later polish).
+
+### 2.5 Render
+- Camera framing + lighting recipes.
+- Draft vs Client Preview clearly different.
+- Trusted still path for package (StillJob) without rewriting project truth.
+
+### 2.6 Export
+- Millwork schedule CSV/PDF from live mm.
+- Client package: stills + PDF summary + project provenance.
+- Layout warnings before export.
+
+---
+
+## 3. Scorecard — where we are after Floorplanner A–G
+
+| Mode | Strength today | Why it still feels behind |
+| --- | --- | --- |
+| **Project** | Strong V2 home, save/open, schema v2 | Templates / multi-room starters thin |
+| **Build** | Freeform room/wall, openings, dims, surfaces, topology | No room-split-by-wall; no node drag; weak multi-room chrome |
+| **Design** | Catalog place/snap/run, millwork inspector | Thin runs/fillers/corners on freeform; small catalogs |
+| **3D** | Live compile, dollhouse, walkthrough | Nav / selection / material richness polish |
+| **Render** | Honest WebGL Client Preview | Hybrid stills pipeline incomplete vs client “wow” |
+| **Export** | JSON + millwork CSV/PDF + client package | Not a polished deliverable suite yet |
+
+```text
+Project   ████████░░
+Build     ███████░░░   ← largest “interiors tool” feel gap
+Design    ██████░░░░   ← millwork differentiator still thin
+3D        ███████░░░
+Render    █████░░░░░
+Export    ██████░░░░
+```
+
+**Floorplanner A–G closed the capability checklist.**  
+**This roadmap closes the “feels like an interiors product” gap.**
+
+---
+
+## 4. Missing features (full inventory)
+
+### H — Build authoring feel (do first)
+
+| ID | Missing feature | Why it matters |
+| --- | --- | --- |
+| H1 | **Room-split Draw Wall** — wall across closed room → two rooms + regen floors/ceilings | Core “draw wall under floor” magic |
+| H2 | **Drag nodes / move walls** — endpoint + wall translate with snap | Plan editing feels like CAD, not commit-only |
+| H3 | **Multi-room chrome** — room list, active switch, rename, delete, merge | Topology useless without navigation |
+| H4 | **Draw / edit feedback** — live draft dims, snap guides, hover handles | Perceived quality of every Build tool |
+| H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
+
+### I — Design / millwork depth (differentiator)
+
+| ID | Missing feature | Why it matters |
+| --- | --- | --- |
+| I1 | Freeform-aware cabinet runs (extend, gap, align) | Shop salesperson credibility |
+| I2 | Fillers + corner units on irregular walls | Real layouts, not single boxes |
+| I3 | Collision / overlap validation with clear UI | Trust before export |
+| I4 | Richer curated openings (6–12) + millwork SKUs | Catalog feels intentional, not stub |
+| I5 | Material browser polish (swatches, slots, apply-to-selection) | Interiors look finished in 2D/3D |
+
+### J — 3D review polish
+
+| ID | Missing feature | Why it matters |
+| --- | --- | --- |
+| J1 | Clearer dollhouse / orbit / walkthrough onboarding | Clients understand 3D instantly |
+| J2 | 3D selection ↔ inspector parity for openings/objects | Continuous review, not screenshot-only |
+| J3 | Soft lighting / material preview defaults | “Looks designed” without photoreal |
+
+### K — Render & stills
+
+| ID | Missing feature | Why it matters |
+| --- | --- | --- |
+| K1 | Complete **Phase 2 Hybrid Stills** under trust contract | Client delivery ceiling |
+| K2 | Camera bookmarks + named views for package | Repeatable client decks |
+| K3 | Keep honesty: Draft ≠ Client Preview ≠ Still | Product trust |
+
+### L — Export & presentation
+
+| ID | Missing feature | Why it matters |
+| --- | --- | --- |
+| L1 | Harden Millwork Schedule v1 as default workshop output | Cabinet-aware claim |
+| L2 | One-click client package (PDF + stills + schedule) | End of the agenda |
+| L3 | Pre-export validation checklist in Review | No silent broken layouts |
+
+### Explicitly out of scope (keep deferred)
+
+- Styleboards / Autostyler / AI moodboards  
+- Huge furniture marketplace  
+- AI floor-plan CV  
+- Multi-building / whole-house RE packages  
+- Synaps photoreal as the Build/Design goal  
+- Full CNC / MES / pricing engine  
+
+---
+
+## 5. Phased roadmap (approve before coding)
+
+Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D → Render → Export.
+
+### Phase H — Build feel (room-split + edit + multi-room) · XL · **NEXT**
+
+**Goal:** Drawing and editing the plan feels like an interiors floor planner.
+
+| Slice | Work | Size |
+| --- | --- | --- |
+| H1 | Face-split: Draw Wall across closed room → two rooms, shared wall, floors regen, undoable | L |
+| H2 | Move node / drag wall endpoint; wall translate with topology repair | L |
+| H3 | Room switcher + rename + delete (+ merge MVP) | M |
+| H4 | Live draft dimensions + snap guides while drawing | M |
+| H5 | Selection inspector for room / wall (thickness, height, material) | S–M |
+
+**Exit:** Designer draws a 2-room flat by splitting one room with a wall, renames rooms, drags a corner, places doors, sees floors update in 2D and 3D.
+
+**Blocked by:** Existing D0–D4 topology (already landed). No schema rewrite expected unless split needs new loop ops (prefer pure domain ops on v2 graph).
+
+---
+
+### Phase I — Design feel (millwork on freeform) · L · after H1 at least
+
+**Goal:** Design mode feels like an interior / millwork layout tool on real plans.
+
+- I1–I3: runs, fillers/corners, collision UI on freeform walls  
+- I4–I5: curated catalog + material browser depth (stay under v1 catalog ceiling)
+
+**Exit:** Wardrobe run + fillers on an L-room wall; validation visible; schedule matches placed units.
+
+**Reuse:** Prefer bridging proven Cabinets CAD run/filler logic into Interiors V2 rather than reinventing.
+
+---
+
+### Phase J — 3D review polish · M · can overlap late H / I
+
+- J1–J3 only (onboarding, selection parity, preview defaults)  
+- Do **not** reopen endless WebGL tuning (see PRODUCT_DECISIONS)
+
+**Exit:** Client can understand the room in dollhouse/walkthrough without training.
+
+---
+
+### Phase K — Render stills ceiling · L · after trust contract
+
+- Complete Hybrid Stills Pipeline (existing `PHASE_2_HYBRID_STILLS_PIPELINE.md`)  
+- Camera bookmarks for package  
+- Honesty gates unchanged
+
+**Exit:** Accepted stills land in client package; project remains editable truth.
+
+---
+
+### Phase L — Export / presentation finish · M · parallel with I/K
+
+- Millwork Schedule v1 hardened as default  
+- One-click client package  
+- Pre-export validation checklist
+
+**Exit:** Salesperson exports schedule + package from a real multi-room project in one session.
+
+---
+
+## 6. Critical path
+
+```text
+NOW → Phase H (Build feel)
+        H1 room-split  ─┬─→ H2 node/wall drag
+                        ├─→ H3 multi-room chrome
+                        └─→ H4/H5 feedback + inspector
+     → Phase I (Design millwork feel)   // start after H1 stable
+     → Phase J (3D polish)              // overlap OK
+     → Phase L (Export harden)          // parallel OK
+     → Phase K (Hybrid stills)          // when authoring trust is high
+```
+
+**Do not start K (stills chase) before H1–H3.**  
+Pretty pictures will not hide a plan editor that cannot split a room.
+
+---
+
+## 7. Product threshold (real “interiors tool” exit)
+
+All must be true in one session:
+
+1. Import or draw a footprint  
+2. Split into ≥2 rooms with Draw Wall  
+3. Place doors/windows; rename rooms  
+4. Place a cabinet run that snaps on a freeform wall  
+5. Review in dollhouse / walkthrough  
+6. Export millwork schedule + client package  
+
+Until then: do **not** market as full Floorplanner / Synaps parity — market as **cabinet-aware interior planner** approaching the threshold above.
+
+---
+
+## 8. Decision checklist (approve before coding)
+
+- [ ] Confirm agenda stays **Project → Build → Design → 3D → Render → Export**  
+- [ ] Approve **Phase H** as next work (H1 room-split first)  
+- [ ] Confirm H2 node/wall drag is in H, not deferred  
+- [ ] Confirm Phase I reuses Cabinets CAD run/filler concepts where safe  
+- [ ] Confirm catalogs stay curated (no marketplace)  
+- [ ] Confirm Phase K follows StillJob trust contract; no stills-first pivot  
+- [ ] Confirm deferred list (AI, styleboards, marketplace, Synaps chase) stays cut  
+- [ ] Approve this doc as the successor gap map after Floorplanner A–G  
+
+---
+
+## 9. Suggested first sprint after approval
+
+1. **H1 spike:** domain face-split on fixtures (two-room golden after split) + undo  
+2. Wire Draw Wall commit path to call split when segment bisects active room  
+3. Regen floors/ceilings (reuse D4 loop surfaces)  
+4. E2E: split room → rename → door on shared wall → 3D compile  
+
+Then H3 room switcher (cheap UX win) before or with H2 drag.
