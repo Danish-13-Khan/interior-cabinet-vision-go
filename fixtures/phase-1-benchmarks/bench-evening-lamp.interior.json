@@ -175,7 +175,6 @@
     "openings": [
       {
         "id": "lr-opening-entry-door",
-        "roomId": null,
         "wallId": "lr-wall-front",
         "kind": "door",
         "offsetMm": 650,
@@ -192,7 +191,6 @@
       },
       {
         "id": "lr-opening-picture-window",
-        "roomId": null,
         "wallId": "lr-wall-left",
         "kind": "window",
         "offsetMm": 1350,
@@ -204,7 +202,64 @@
         "parameters": {}
       }
     ],
-    "surfaces": [],
+    "surfaces": [
+      {
+        "id": "lr-room-main:floor",
+        "kind": "floor",
+        "roomId": "lr-room-main",
+        "loopId": "lr-room-main:outer-loop",
+        "polygon": [
+          {
+            "x": -3100,
+            "z": -2300
+          },
+          {
+            "x": 3100,
+            "z": -2300
+          },
+          {
+            "x": 3100,
+            "z": 2300
+          },
+          {
+            "x": -3100,
+            "z": 2300
+          }
+        ],
+        "materialId": "lr-material-stone-warm",
+        "extensions": {
+          "generatedBy": "closed-room-loop"
+        }
+      },
+      {
+        "id": "lr-room-main:ceiling",
+        "kind": "ceiling",
+        "roomId": "lr-room-main",
+        "loopId": "lr-room-main:outer-loop",
+        "polygon": [
+          {
+            "x": -3100,
+            "z": -2300
+          },
+          {
+            "x": 3100,
+            "z": -2300
+          },
+          {
+            "x": 3100,
+            "z": 2300
+          },
+          {
+            "x": -3100,
+            "z": 2300
+          }
+        ],
+        "materialId": "lr-material-ceiling-soft-white",
+        "extensions": {
+          "generatedBy": "closed-room-loop"
+        }
+      }
+    ],
     "objects": [
       {
         "id": "lr-object-tv-feature-wall",
