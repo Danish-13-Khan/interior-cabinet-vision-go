@@ -125,7 +125,7 @@ Export    ██████░░░░
 
 | H3 | **Multi-room chrome** — room list, active switch, rename, delete, merge | Topology useless without navigation |
 
-**H3 status (partial):** Room list + active switch + rename shipped with H1 so split faces are reachable. Delete/merge remain.
+**H3 status:** Implemented — Build room list supports active switching, rename, safe delete, and adjacent room merge. Merge removes the shared boundary and transfers room-owned content into the kept face. Intentional MVP limits: hole-bearing room merges deferred; delete/merge use `window.confirm` (no custom dialog yet).
 | H4 | **Draw / edit feedback** — live draft dims, snap guides, hover handles | Perceived quality of every Build tool |
 | H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
 
@@ -190,6 +190,8 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 **H2 status:** Implemented — Select tool exposes node handles and wall-body drag with grid/node snap, opening clamp after length change, coincident join on drop, undoable `moveNode` / `moveWall` commands, and live wall preview while dragging.
 
 | H3 | Room switcher + rename + delete (+ merge MVP) | M |
+
+**H3 status:** Implemented — active switch, rename, delete, and shared-wall merge MVP are all undoable through the Build panel. Hole-bearing merges deferred; delete/merge still use browser `confirm` dialogs.
 | H4 | Live draft dimensions + snap guides while drawing | M |
 | H5 | Selection inspector for room / wall (thickness, height, material) | S–M |
 
