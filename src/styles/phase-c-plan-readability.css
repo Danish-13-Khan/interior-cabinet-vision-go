@@ -1,0 +1,169 @@
+.lr-plan-dimension-pairs {
+  fill: none;
+  stroke: #526258;
+  stroke-width: 12px;
+}
+
+.lr-plan-dimension-pairs text,
+.lr-wall-length-labels text {
+  paint-order: stroke;
+  stroke: #f8faf8;
+  stroke-width: 34px;
+  stroke-linejoin: round;
+  fill: #35433a;
+  font-size: 145px;
+  font-weight: 650;
+  text-anchor: middle;
+}
+
+.lr-wall-length-labels text {
+  dominant-baseline: central;
+  font-size: 125px;
+  pointer-events: none;
+}
+
+.lr-plan-svg.is-line-style .lr-plan-object > rect {
+  fill: #fff;
+  fill-opacity: .08;
+}
+
+.lr-plan-svg.is-line-style .lr-wall-line {
+  stroke-width: 28px;
+}
+
+.lr-plan-svg.is-line-style .lr-plan-underlay-image {
+  opacity: .65;
+}
+
+.lr-plan-svg.is-line-style .lr-grid-line,
+.lr-plan-svg.is-line-style .lr-grid-major-line {
+  opacity: .45;
+}
+
+.lr-readability-toolbar button.is-active {
+  border-color: var(--lr-accent);
+  background: #eaf4ee;
+  color: var(--lr-accent);
+}
+
+.lr-readability-toolbar select {
+  min-width: 62px;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar.has-readability {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 6px 10px;
+  border: 1px solid #465448;
+  border-radius: 8px;
+  background: #1d251e;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar > span {
+  color: #aeb8b0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar select,
+.lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar button {
+  min-height: 28px;
+  border: 1px solid #465448;
+  border-radius: 6px;
+  background: #202a21;
+  color: #eef3ed;
+  font-size: 12px;
+}
+
+.lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #c6d0c7;
+  font-size: 12px;
+}
+
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-titlebar.has-readability small {
+  display: inline;
+  color: #9eaaa0;
+}
+
+.lr-underlay-controls {
+  display: grid;
+  gap: 7px;
+}
+
+.lr-underlay-transform-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lr-underlay-transform-grid label {
+  display: grid;
+  gap: 3px;
+}
+
+.lr-underlay-transform-grid input {
+  min-width: 0;
+  height: 28px;
+  border: 1px solid #cbd1d7;
+  border-radius: 5px;
+  padding: 0 6px;
+}
+
+.lr-room-drawing-overlay path {
+  fill: color-mix(in srgb, var(--lr-accent) 18%, transparent);
+  stroke: var(--lr-accent);
+  stroke-width: 22px;
+  stroke-dasharray: 50 30;
+}
+
+.lr-room-drawing-overlay .is-rectangle {
+  fill: color-mix(in srgb, var(--lr-accent) 10%, transparent);
+}
+
+.lr-room-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
+
+.lr-room-drawing-overlay text {
+  fill: var(--lr-accent); font-size: 130px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke; stroke: #fff; stroke-width: 28px;
+}
+
+.lr-wall-drawing-overlay line {
+  stroke: var(--lr-accent);
+  stroke-width: 28px;
+  stroke-dasharray: 50 30;
+}
+
+.lr-wall-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
+
+.lr-wall-line.is-partition {
+  stroke-dasharray: 70 40;
+  stroke-width: 24px;
+}
+
+.lr-surface-zones path {
+  pointer-events: visiblePainted;
+}
+
+.lr-surface-zones path.is-active {
+  filter: drop-shadow(0 0 6px rgba(38, 57, 64, 0.35));
+}
+
+.lr-build-commit select {
+  width: 100%;
+  margin-top: 4px;
+}

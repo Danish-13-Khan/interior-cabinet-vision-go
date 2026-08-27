@@ -15,7 +15,6 @@ import type {
   LivingRoomLayerId,
   LivingRoomPlanIssue,
   LivingRoomPlanUnderlay,
-  AdvancedStudioState,
   LivingRoomRecoverySnapshot,
   LivingRoomStyleId,
   ImportedAsset,
@@ -24,7 +23,9 @@ import type {
 
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
 export type PlannerMode = "project" | "build" | "design" | "render";
-export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers" | "advanced";
+/** V1 plan surfaces only. AI styling, styleboards, and marketplaces are deliberately out of scope. */
+export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers";
+export type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
 export type PlannerStarterTemplate = "blank-room" | "wardrobe-wall" | "import-plan";
 
 export type LivingRoomPlanWorkspaceProps = {
@@ -72,11 +73,20 @@ export type LivingRoomPlanWorkspaceProps = {
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onAddPartitionWall: () => void;
-  onAddOpening: (wallId: string, kind: "door" | "window") => void;
-  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection">>) => void;
+  onCreateRoom: (drawing: import("../../domain/interiorProject").RoomDrawingRequest) => void;
+  onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm, wallKind?: "wall" | "partition") => void;
+  onDrawSurface: (drawing: import("../../domain/interiorProject").RoomDrawingRequest, materialId: string) => void;
+  onUpdateSurface: (surfaceId: string, materialId: string) => void;
+  onDeleteSurface: (surfaceId: string) => void;
+  onPlaceColumn: (position: import("../../domain/interiorProject").Point2Mm) => void;
+  onSplitWall: (wallId: string, offsetMm?: number) => string | null;
+  onDeleteWall: (wallId: string) => void;
+  onUpdateWall: (wallId: string, patch: { thicknessMm?: number }) => void;
+  onJoinCoincidentNodes: () => void;
+  onAddOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>) => void;
   onDeleteOpening: (openingId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
-  onUpdateAdvancedStudio: (state: AdvancedStudioState) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;

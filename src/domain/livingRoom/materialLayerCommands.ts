@@ -15,6 +15,10 @@ export function setLivingRoomFloorMaterial(project: InteriorProject, materialId:
     ...project,
     rooms: project.rooms.map((room) => room.id === project.activeRoomId
       ? withExtensions(room, { floorMaterialId: materialId }) : room),
+    surfaces: project.surfaces.map((surface) =>
+      surface.roomId === project.activeRoomId && surface.kind === "floor"
+        ? { ...surface, materialId }
+        : surface),
   };
 }
 

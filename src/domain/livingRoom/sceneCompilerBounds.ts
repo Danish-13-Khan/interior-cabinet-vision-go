@@ -34,13 +34,12 @@ export function computeCompiledSceneBounds(
   const max: Point3Mm = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const node of nodes) {
     for (const primitive of node.primitives) {
-      const width = primitive.kind !== "cylinder"
-        ? primitive.sizeMm.width
-        : primitive.radiusBottomMm * 2;
-      const depth = primitive.kind !== "cylinder"
-        ? primitive.sizeMm.depth
-        : primitive.radiusBottomMm * 2;
-      const height = primitive.kind !== "cylinder" ? primitive.sizeMm.height : primitive.heightMm;
+      const width = primitive.kind === "cylinder" ? primitive.radiusBottomMm * 2
+        : primitive.kind === "polygon-prism" ? primitive.boundsMm.width : primitive.sizeMm.width;
+      const depth = primitive.kind === "cylinder" ? primitive.radiusBottomMm * 2
+        : primitive.kind === "polygon-prism" ? primitive.boundsMm.depth : primitive.sizeMm.depth;
+      const height = primitive.kind === "cylinder" || primitive.kind === "polygon-prism"
+        ? primitive.heightMm : primitive.sizeMm.height;
       const rotation = node.rotationDegrees.y + primitive.rotationDegrees.y;
       const radians = rotation * Math.PI / 180;
       const halfX = Math.abs(Math.cos(radians)) * width / 2 + Math.abs(Math.sin(radians)) * depth / 2;

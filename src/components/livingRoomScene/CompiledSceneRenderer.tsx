@@ -16,12 +16,15 @@ import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CameraRig } from "./CameraRig";
 import { CompiledNodeView } from "./CompiledNodeView";
+import { WalkthroughNavigation } from "./WalkthroughNavigation";
 
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
   selectedIds: string[];
   activeCameraId: string | null;
   viewPreset?: ModelViewPresetId;
+  cameraHeightMm?: number;
+  fieldOfViewDegrees?: number;
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
@@ -50,6 +53,8 @@ export function CompiledSceneRenderer({
   selectedIds,
   activeCameraId,
   viewPreset,
+  cameraHeightMm,
+  fieldOfViewDegrees,
   snapSizeMm,
   showGrid,
   cutawayWalls,
@@ -154,10 +159,16 @@ export function CompiledSceneRenderer({
           enabled={!dragging}
           enableDamping
           dampingFactor={0.08}
+          enablePan={viewPreset !== "walkthrough"}
+          enableZoom={viewPreset !== "walkthrough"}
           minDistance={1.4}
           maxDistance={12}
           maxPolarAngle={Math.PI / 2 - 0.02}
-          mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
+          mouseButtons={{
+            LEFT: MOUSE.ROTATE,
+            MIDDLE: viewPreset === "walkthrough" ? MOUSE.ROTATE : MOUSE.PAN,
+            RIGHT: viewPreset === "walkthrough" ? MOUSE.ROTATE : MOUSE.PAN,
+          }}
         />
       ) : null}
       <CameraRig
@@ -167,8 +178,11 @@ export function CompiledSceneRenderer({
         composition={renderComposition}
         renderMode={renderMode}
         viewPreset={viewPreset}
+        cameraHeightMm={cameraHeightMm}
+        fieldOfViewDegrees={fieldOfViewDegrees}
         assetRevision={assetRevision}
       />
+      <WalkthroughNavigation enabled={interactive && viewPreset === "walkthrough"} />
     </>
   );
 }

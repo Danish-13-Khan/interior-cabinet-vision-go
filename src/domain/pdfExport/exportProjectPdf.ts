@@ -16,6 +16,7 @@ import { drawTechnicalPages } from "./technicalPages";
 import { drawMaterialsSection } from "./materialsSection";
 import { drawCostingSection } from "./costingSection";
 import { drawCutlistSection } from "./cutlistSection";
+import { drawInteriorPlanPage } from "./interiorPlanPage";
 
 export async function exportProjectPdf(
   project: CabinetProject,
@@ -24,6 +25,7 @@ export async function exportProjectPdf(
   room: RoomConfig,
   countertops: CountertopSegment[] = [],
   runs: CabinetRun[] = [],
+  interiorPlanSvg: string | null = null,
 ): Promise<Blob> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = A4_PRINT_METRICS.pageWidthMm;
@@ -55,6 +57,8 @@ export async function exportProjectPdf(
     report,
     optimizedImage,
   });
+
+  await drawInteriorPlanPage(layout, title, interiorPlanSvg);
 
   await drawTechnicalPages(layout, {
     title,

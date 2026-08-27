@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 2,
+  "id": "fixture-shared-wall-v2",
+  "name": "Two rooms shared wall v2 golden",
+  "units": "mm",
+  "createdAt": "2026-08-26T00:00:00.000Z",
+  "updatedAt": "2026-08-26T00:00:00.000Z",
+  "activeRoomId": "room-left",
+  "extensions": {
+    "wallGraphDomainVersion": 1
+  },
+  "nodes": [
+    { "id": "node-lb", "position": { "x": 0, "z": 0 } },
+    { "id": "node-mb", "position": { "x": 4000, "z": 0 } },
+    { "id": "node-rb", "position": { "x": 8000, "z": 0 } },
+    { "id": "node-rf", "position": { "x": 8000, "z": 4000 } },
+    { "id": "node-mf", "position": { "x": 4000, "z": 4000 } },
+    { "id": "node-lf", "position": { "x": 0, "z": 4000 } }
+  ],
+  "loops": [
+    {
+      "id": "room-left:outer-loop",
+      "wallUses": [
+        { "wallId": "wall-left-back", "direction": "forward" },
+        { "wallId": "wall-shared", "direction": "forward" },
+        { "wallId": "wall-left-front", "direction": "forward" },
+        { "wallId": "wall-left-side", "direction": "forward" }
+      ]
+    },
+    {
+      "id": "room-right:outer-loop",
+      "wallUses": [
+        { "wallId": "wall-right-back", "direction": "forward" },
+        { "wallId": "wall-right-side", "direction": "forward" },
+        { "wallId": "wall-right-front", "direction": "forward" },
+        { "wallId": "wall-shared", "direction": "reverse" }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room-left",
+      "name": "Left",
+      "roomType": "living-room",
+      "dimensions": { "widthMm": 4000, "heightMm": 2800, "depthMm": 4000 },
+      "wallThicknessMm": 120,
+      "outerLoopId": "room-left:outer-loop",
+      "holeLoopIds": []
+    },
+    {
+      "id": "room-right",
+      "name": "Right",
+      "roomType": "bedroom",
+      "dimensions": { "widthMm": 4000, "heightMm": 2800, "depthMm": 4000 },
+      "wallThicknessMm": 120,
+      "outerLoopId": "room-right:outer-loop",
+      "holeLoopIds": []
+    }
+  ],
+  "walls": [
+    { "id": "wall-left-back", "start": { "x": 0, "z": 0 }, "end": { "x": 4000, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-lb", "endNodeId": "node-mb" },
+    { "id": "wall-shared", "start": { "x": 4000, "z": 0 }, "end": { "x": 4000, "z": 4000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-mb", "endNodeId": "node-mf" },
+    { "id": "wall-left-front", "start": { "x": 4000, "z": 4000 }, "end": { "x": 0, "z": 4000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-mf", "endNodeId": "node-lf" },
+    { "id": "wall-left-side", "start": { "x": 0, "z": 4000 }, "end": { "x": 0, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-lf", "endNodeId": "node-lb" },
+    { "id": "wall-right-back", "start": { "x": 4000, "z": 0 }, "end": { "x": 8000, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-mb", "endNodeId": "node-rb" },
+    { "id": "wall-right-side", "start": { "x": 8000, "z": 0 }, "end": { "x": 8000, "z": 4000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-rb", "endNodeId": "node-rf" },
+    { "id": "wall-right-front", "start": { "x": 8000, "z": 4000 }, "end": { "x": 4000, "z": 4000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null, "startNodeId": "node-rf", "endNodeId": "node-mf" }
+  ],
+  "openings": [
+    {
+      "id": "door-shared",
+      "wallId": "wall-shared",
+      "kind": "door",
+      "offsetMm": 1200,
+      "widthMm": 900,
+      "heightMm": 2100,
+      "sillHeightMm": 0,
+      "catalogItemId": "opening:door-single",
+      "materialSlots": {},
+      "parameters": {}
+    }
+  ],
+  "surfaces": [],
+  "objects": [],
+  "materials": [],
+  "lights": [],
+  "cameras": [],
+  "renderSettings": {
+    "widthPx": 1920,
+    "heightPx": 1080,
+    "quality": "standard",
+    "exposure": 1,
+    "transparentBackground": false,
+    "activeCameraId": null,
+    "lightingRecipeId": "neutral-studio",
+    "composition": "architectural"
+  }
+}

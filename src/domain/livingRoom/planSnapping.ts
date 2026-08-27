@@ -1,5 +1,7 @@
 import type { InteriorProject, Point3Mm } from "../interiorProject";
-import { getObjectPlanBounds, getRoomPlanBounds } from "./planGeometry";
+import { polygonCentroid, roomPlanPolygon } from "../interiorProject";
+import { getObjectPlanBounds, getTopologyRoomPlanBounds } from "./planGeometry";
+import { snapObjectToTopologyWall } from "./topologySnapping";
 
 export type PlanSnapGuide = {
   axis: "x" | "z";
@@ -43,9 +45,11 @@ export function snapLivingRoomObject(
     z: Math.round(desired.z / grid) * grid,
   };
   const desiredBounds = getObjectPlanBounds(object, desired);
-  const roomBounds = getRoomPlanBounds(room);
+  const roomBounds = getTopologyRoomPlanBounds(project, room.id);
+  const center = roomPlanPolygon(project, room.id);
+  const centerPoint = center ? polygonCentroid(center.outer) : { x: 0, z: 0 };
   const xTargets: SnapTarget[] = [
-    { axis: "x", valueMm: 0, positionMm: 0, kind: "center" },
+    { axis: "x", valueMm: centerPoint.x, positionMm: centerPoint.x, kind: "center" },
     {
       axis: "x",
       valueMm: roomBounds.minX,
@@ -60,7 +64,7 @@ export function snapLivingRoomObject(
     },
   ];
   const zTargets: SnapTarget[] = [
-    { axis: "z", valueMm: 0, positionMm: 0, kind: "center" },
+    { axis: "z", valueMm: centerPoint.z, positionMm: centerPoint.z, kind: "center" },
     {
       axis: "z",
       valueMm: roomBounds.minZ,
@@ -127,6 +131,6 @@ export function snapLivingRoomObject(
   } else if (snapped.z !== desired.z) {
     guides.push({ axis: "z", valueMm: snapped.z, kind: "grid" });
   }
-  return { position: snapped, guides };
+  return snapObjectToTopologyWall(project, object, snapped, Math.max(80, threshold * 2))
+    ?? { position: snapped, guides };
 }
-

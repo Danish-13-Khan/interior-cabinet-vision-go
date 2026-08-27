@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-rectangle",
+  "name": "Rectangle migration fixture",
+  "units": "mm",
+  "createdAt": "2026-08-26T00:00:00.000Z",
+  "updatedAt": "2026-08-26T00:00:00.000Z",
+  "activeRoomId": "room-main",
+  "rooms": [{ "id": "room-main", "name": "Main", "roomType": "living-room", "dimensions": { "widthMm": 6000, "heightMm": 2800, "depthMm": 4000 }, "wallThicknessMm": 120 }],
+  "walls": [
+    { "id": "wall-back", "roomId": "room-main", "start": { "x": -3000, "z": -2000 }, "end": { "x": 3000, "z": -2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "wall-right", "roomId": "room-main", "start": { "x": 3000, "z": -2000 }, "end": { "x": 3000, "z": 2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "wall-front", "roomId": "room-main", "start": { "x": 3000, "z": 2000 }, "end": { "x": -3000, "z": 2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "wall-left", "roomId": "room-main", "start": { "x": -3000, "z": 2000 }, "end": { "x": -3000, "z": -2000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null }
+  ],
+  "openings": [{ "id": "door-main", "roomId": "room-main", "wallId": "wall-front", "kind": "door", "offsetMm": 1800, "widthMm": 900, "heightMm": 2100, "sillHeightMm": 0 }],
+  "objects": [], "materials": [], "lights": [], "cameras": [],
+  "renderSettings": { "widthPx": 1920, "heightPx": 1080, "quality": "standard", "exposure": 1, "transparentBackground": false, "activeCameraId": null, "lightingRecipeId": "neutral-studio", "composition": "architectural" }
+}
