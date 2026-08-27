@@ -75,6 +75,13 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
+          onActiveRoom={(roomId) => {
+            w.onActiveRoom(roomId);
+            props.setActiveOpeningId(null);
+            props.setActiveSurfaceId(null);
+            props.setActiveWallId(null);
+          }}
+          onRenameRoom={w.onRenameRoom}
           onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
           activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
           onActiveWall={(wallId) => props.setActiveWallId(wallId)}

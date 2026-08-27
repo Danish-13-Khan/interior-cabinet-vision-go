@@ -1,6 +1,7 @@
 import { synchronizeWallCaches } from "./wallGraph";
 import type { InteriorProject, PlanNodeEntity, Point2Mm, WallEntity } from "./types";
 import { attachSharedWallToRoom } from "./wallEditingSharedEdge";
+import { splitRoomByWall } from "./roomSplit";
 import {
   MIN_SEGMENT_MM,
   cloneNodes,
@@ -36,6 +37,11 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
   if (!room) return project;
   if (Math.hypot(request.end.x - request.start.x, request.end.z - request.start.z) < MIN_SEGMENT_MM) {
     return project;
+  }
+
+  if (request.kind !== "partition") {
+    const split = splitRoomByWall(project, roomId, request.start, request.end);
+    if (split) return split;
   }
 
   const { nodes, nodeByPoint, usedNodeIds } = cloneNodes(project);

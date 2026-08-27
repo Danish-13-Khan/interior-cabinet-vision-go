@@ -252,6 +252,8 @@ function App() {
             onCreateCabinetRun={c.createLivingRoomCabinetRun}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onActiveRoom={c.setActiveLivingRoom}
+            onRenameRoom={c.renameLivingRoom}
             onAddPartitionWall={c.addLivingRoomPartition}
             onCreateRoom={c.drawLivingRoomRoom}
             onDrawWallSegment={c.drawLivingRoomWallSegment}

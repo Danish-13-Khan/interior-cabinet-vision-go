@@ -88,6 +88,11 @@ export function LivingRoomPlanView(props: Props) {
   });
 
   function handleWall(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
+    // Room-split needs endpoints on boundaries; walls must not swallow Draw Wall drags.
+    if (drawWall || drawPartition) {
+      wallDrawing.begin(event);
+      return;
+    }
     event.stopPropagation();
     if (tool !== "place-door" && tool !== "place-window") {
       props.onSelectWall(wallId); return;

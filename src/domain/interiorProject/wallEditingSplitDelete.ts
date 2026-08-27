@@ -84,10 +84,10 @@ export function splitPlanWallResult(
   const loops = project.loops.map((loop) => {
     const use = loop.wallUses.find((item) => item.wallId === wallId);
     if (!use) return loop;
-    return replaceWallUse(loop, wallId, [
-      { wallId: firstId, direction: use.direction },
-      { wallId: secondId, direction: use.direction },
-    ]);
+    const replacements = use.direction === "forward"
+      ? [{ wallId: firstId, direction: "forward" as const }, { wallId: secondId, direction: "forward" as const }]
+      : [{ wallId: secondId, direction: "reverse" as const }, { wallId: firstId, direction: "reverse" as const }];
+    return replaceWallUse(loop, wallId, replacements);
   });
 
   const usedOpeningIds = new Set(project.openings.map((opening) => opening.id));

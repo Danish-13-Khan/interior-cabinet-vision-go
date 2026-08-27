@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
+import { selectWallsForRoom } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
@@ -34,6 +35,8 @@ type LivingRoomPlanCatalogRailProps = {
   onImportUnderlay: (file: File | null) => void;
   onRegisterUnderlayPicker?: (openPicker: () => void) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onActiveRoom?: (roomId: string) => void;
+  onRenameRoom?: (roomId: string, name: string) => void;
   onAddPartitionWall: () => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
@@ -78,7 +81,8 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     );
   }, [props.assetCategory, props.assetQuery, props.studioPanel]);
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
-  const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? props.project.walls[0]!;
+  const roomWalls = selectWallsForRoom(props.project, props.project.activeRoomId);
+  const activeWall = roomWalls.find((wall) => wall.id === props.activeWallId) ?? roomWalls[0] ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
   const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
   const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
@@ -135,6 +139,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               openingCatalogItemId={props.openingCatalogItemId} roomPolygonPointCount={props.roomPolygonPointCount}
               surfaceMaterialId={props.surfaceMaterialId}
               onRoomDimensions={props.onRoomDimensions} onAddPartitionWall={props.onAddPartitionWall}
+              onActiveRoom={props.onActiveRoom} onRenameRoom={props.onRenameRoom}
               onActiveWall={props.onActiveWall} onActiveOpening={props.onActiveOpening} onAddOpening={props.onAddOpening}
               onUpdateOpening={props.onUpdateOpening} onDeleteOpening={props.onDeleteOpening}
               onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}

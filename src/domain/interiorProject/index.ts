@@ -109,6 +109,8 @@ export {
   type RoomPlanPolygon,
 } from "./roomGeometry";
 export { synchronizeRoomSurfaceZones } from "./roomSurfaces";
+export { splitRoomByWall } from "./roomSplit";
+export { renameInteriorRoom, setActiveInteriorRoom } from "./roomActivation";
 export { resizeRoomPlanGeometry } from "./roomResize";
 export {
   createSurfaceZone,

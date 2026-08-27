@@ -22,10 +22,12 @@ export function useWallDrawing(input: {
     return snapPlanPoint(point, input.snapSizeMm, input.nodes);
   }
 
-  function begin(event: ReactPointerEvent<SVGRectElement>) {
+  /** Begin from paper or wall geometry — capture on the SVG root so drag keeps streaming. */
+  function begin(event: ReactPointerEvent<Element>) {
     if (!input.active || event.button !== 0) return false;
     event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
+    const svg = (event.currentTarget.ownerSVGElement ?? event.currentTarget) as Element;
+    svg.setPointerCapture?.(event.pointerId);
     const point = snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>));
     startRef.current = point;
     setStart(point);
