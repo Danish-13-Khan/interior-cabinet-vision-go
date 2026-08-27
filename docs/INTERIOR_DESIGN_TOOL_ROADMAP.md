@@ -117,8 +117,12 @@ Export    ██████░░░░
 | ID | Missing feature | Why it matters |
 | --- | --- | --- |
 | H1 | **Room-split Draw Wall** — wall across closed room → two rooms + regen floors/ceilings | Core “draw wall under floor” magic |
+
+**H1 status:** Implemented — Draw Wall bisects a closed face into two rooms with a shared wall, regenerates floor/ceiling zones, remaps objects/lights/cameras by containment, and keeps partitions non-splitting. Minimal room switcher + rename landed so both faces are reachable in 2D/3D.
 | H2 | **Drag nodes / move walls** — endpoint + wall translate with snap | Plan editing feels like CAD, not commit-only |
 | H3 | **Multi-room chrome** — room list, active switch, rename, delete, merge | Topology useless without navigation |
+
+**H3 status (partial):** Room list + active switch + rename shipped with H1 so split faces are reachable. Delete/merge remain.
 | H4 | **Draw / edit feedback** — live draft dims, snap guides, hover handles | Perceived quality of every Build tool |
 | H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
 

@@ -8,6 +8,8 @@ import {
   deletePlanWall,
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
+  renameInteriorRoom,
+  setActiveInteriorRoom,
   setPlanWallThickness,
   setSurfaceZoneMaterial,
   splitPlanWallResult,
@@ -350,6 +352,14 @@ export function useLivingRoomPlanEditor({
     );
   }
 
+  function setActiveRoom(roomId: string) {
+    commitDocument((current) => setActiveInteriorRoom(current, roomId), "Switched active room.");
+  }
+
+  function renameRoom(roomId: string, name: string) {
+    commitDocument((current) => renameInteriorRoom(current, roomId, name), "Renamed room.");
+  }
+
   function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
     if (!document) return;
     const wall = document.walls.find((item) => item.id === wallId);
@@ -502,6 +512,8 @@ export function useLivingRoomPlanEditor({
     createLivingRoomCabinetRun: createCabinetRun,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
+    setActiveLivingRoom: setActiveRoom,
+    renameLivingRoom: renameRoom,
     addLivingRoomOpening: addOpening,
     addLivingRoomPartition: addPartitionWall,
     drawLivingRoomRoom: drawRoom,

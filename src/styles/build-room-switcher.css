@@ -1,0 +1,57 @@
+.lr-product-shell-v2 .lr-room-switcher {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(220, 229, 222, 0.18);
+}
+
+.lr-product-shell-v2 .lr-room-switcher > strong {
+  color: #eef3ed;
+  font-size: 16px;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-tabs > button {
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid #3d4a41;
+  border-radius: 6px;
+  background: #1d2620;
+  color: #c5cec7;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lr-product-shell-v2 .lr-room-switcher-tabs > button.is-active {
+  border-color: #276b46;
+  background: #24352b;
+  color: #e7f4eb;
+}
+
+.lr-product-shell-v2 .lr-room-switcher label {
+  display: grid;
+  gap: 4px;
+}
+
+.lr-product-shell-v2 .lr-room-switcher label > span {
+  color: #aeb8b0;
+  font-size: 12px;
+}
+
+.lr-product-shell-v2 .lr-room-switcher input {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid #3d4a41;
+  border-radius: 6px;
+  background: #141a16;
+  color: #eef3ed;
+  font: inherit;
+  font-size: 13px;
+}
