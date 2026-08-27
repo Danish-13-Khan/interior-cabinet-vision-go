@@ -265,6 +265,8 @@ function App() {
             onDeleteWall={c.deleteLivingRoomWall}
             onUpdateWall={c.updateLivingRoomWall}
             onJoinCoincidentNodes={c.joinLivingRoomCoincidentNodes}
+            onMoveNode={c.moveLivingRoomNode}
+            onTranslateWall={c.translateLivingRoomWall}
             onAddOpening={c.addLivingRoomOpening}
             onUpdateOpening={c.updateLivingRoomOpening}
             onDeleteOpening={c.deleteLivingRoomOpening}

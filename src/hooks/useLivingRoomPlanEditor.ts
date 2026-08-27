@@ -8,11 +8,13 @@ import {
   deletePlanWall,
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
+  movePlanNodeWithOpenings,
   renameInteriorRoom,
   setActiveInteriorRoom,
   setPlanWallThickness,
   setSurfaceZoneMaterial,
   splitPlanWallResult,
+  translatePlanWall,
   type InteriorProject,
   type Point2Mm,
   type Point3Mm,
@@ -438,6 +440,20 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => mergeCoincidentPlanNodes(current), "Joined coincident nodes.");
   }
 
+  function moveNode(nodeId: string, position: Point2Mm) {
+    commitDocument(
+      (current) => movePlanNodeWithOpenings(current, nodeId, position),
+      "Moved wall node.",
+    );
+  }
+
+  function translateWall(wallId: string, delta: Point2Mm) {
+    commitDocument(
+      (current) => translatePlanWall(current, wallId, delta),
+      "Moved wall.",
+    );
+  }
+
   function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
     commitDocument((current) => updateLivingRoomOpening(current, openingId, patch), "Updated opening.");
   }
@@ -526,6 +542,8 @@ export function useLivingRoomPlanEditor({
     deleteLivingRoomWall: deleteWall,
     updateLivingRoomWall: updateWall,
     joinLivingRoomCoincidentNodes: joinCoincidentNodes,
+    moveLivingRoomNode: moveNode,
+    translateLivingRoomWall: translateWall,
     updateLivingRoomOpening: updateOpening,
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,

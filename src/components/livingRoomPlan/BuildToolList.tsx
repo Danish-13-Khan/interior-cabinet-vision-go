@@ -1,7 +1,7 @@
 import type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
 
 const tools: Array<{ id: BuildTool; label: string; note: string }> = [
-  { id: "select", label: "Select", note: "Cancel tool · Escape" },
+  { id: "select", label: "Select", note: "Drag nodes · move walls · Escape" },
   { id: "upload-underlay", label: "Upload floor plan", note: "Calibrated tracing image" },
   { id: "draw-room", label: "Draw Room", note: "Drag a rectangle or close a polygon" },
   { id: "draw-wall", label: "Draw Wall", note: "Drag segments · split · join nodes" },

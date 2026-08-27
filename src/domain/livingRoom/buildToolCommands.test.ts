@@ -20,6 +20,8 @@ function mockHandlers(overrides: Partial<BuildCommandHandlers> = {}): BuildComma
     deleteWall: vi.fn(),
     updateWall: vi.fn(),
     joinCoincidentNodes: vi.fn(),
+    moveNode: vi.fn(),
+    moveWall: vi.fn(),
     placeOpening: vi.fn(),
     updateOpening: vi.fn(),
     deleteOpening: vi.fn(),
@@ -59,11 +61,19 @@ describe("buildToolCommands", () => {
     applyBuildCommand(createBuildCommandState("draw-wall"), { type: "deleteWall", wallId: "wall-1" }, handlers);
     applyBuildCommand(createBuildCommandState("draw-wall"), { type: "updateWall", wallId: "wall-1", patch: { thicknessMm: 180 } }, handlers);
     applyBuildCommand(createBuildCommandState("draw-wall"), { type: "joinCoincidentNodes" }, handlers);
+    applyBuildCommand(createBuildCommandState("select"), {
+      type: "moveNode", nodeId: "node-1", position: { x: 100, z: 200 },
+    }, handlers);
+    applyBuildCommand(createBuildCommandState("select"), {
+      type: "moveWall", wallId: "wall-1", delta: { x: 0, z: 50 },
+    }, handlers);
     expect(handlers.createWallSegment).toHaveBeenCalledWith({ x: 0, z: 0 }, { x: 1000, z: 0 });
     expect(handlers.splitWall).toHaveBeenCalledWith("wall-1", undefined);
     expect(handlers.deleteWall).toHaveBeenCalledWith("wall-1");
     expect(handlers.updateWall).toHaveBeenCalledWith("wall-1", { thicknessMm: 180 });
     expect(handlers.joinCoincidentNodes).toHaveBeenCalledTimes(1);
+    expect(handlers.moveNode).toHaveBeenCalledWith("node-1", { x: 100, z: 200 });
+    expect(handlers.moveWall).toHaveBeenCalledWith("wall-1", { x: 0, z: 50 });
   });
 
   it("commits a closed room drawing through the command layer", () => {

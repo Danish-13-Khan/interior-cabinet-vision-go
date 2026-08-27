@@ -126,9 +126,11 @@ export {
   deletePlanWall,
   joinPlanNodes,
   mergeCoincidentPlanNodes,
+  movePlanNodeWithOpenings,
   setPlanWallThickness,
   snapPlanPoint,
   splitPlanWall,
   splitPlanWallResult,
+  translatePlanWall,
   type WallSegmentRequest,
 } from "./wallEditing";
