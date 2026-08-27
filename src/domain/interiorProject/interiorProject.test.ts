@@ -22,6 +22,7 @@ import {
   serializeInteriorProjectFile,
 } from "./fileFormat";
 import { validateInteriorProject } from "./validation";
+import rectangleFixture from "../../../fixtures/plan-topology/v1-rectangle.interior.json";
 
 const NOW = "2026-08-11T16:12:01.000Z";
 
@@ -38,10 +39,13 @@ describe("InteriorProject universal spine", () => {
     const document = canonicalDefault();
     const restored = cabinetProjectFromInteriorProject(document);
 
-    expect(document.schemaVersion).toBe(1);
+    expect(document.schemaVersion).toBe(2);
     expect(document.units).toBe("mm");
     expect(document.rooms).toHaveLength(1);
     expect(document.walls).toHaveLength(4);
+    expect(document.nodes).toHaveLength(4);
+    expect(document.loops[0]?.wallUses).toHaveLength(4);
+    expect(document.rooms[0]?.outerLoopId).toBe(`${document.rooms[0]?.id}:outer-loop`);
     expect(document.openings).toHaveLength(
       DEFAULT_ROOM.doors.length + DEFAULT_ROOM.windows.length,
     );
@@ -167,7 +171,8 @@ describe("InteriorProject universal spine", () => {
 
     const result = validateInteriorProject(document);
 
-    expect(result.project.rooms[0]!.dimensions.widthMm).toBe(1);
+    // Schema v2 graph geometry is authoritative and repairs stale room dimension caches.
+    expect(result.project.rooms[0]!.dimensions.widthMm).toBe(6000);
     expect(result.project.rooms[0]!.dimensions.heightMm).toBe(2800);
     expect(result.project.objects.some((object) => object.id === "orphan")).toBe(false);
     expect(result.issues.some((issue) => issue.code === "orphan-object")).toBe(true);
@@ -180,8 +185,8 @@ describe("InteriorProject universal spine", () => {
     const loaded = loadInteriorProjectFile(serialized);
 
     expect(raw.format).toBe("interior-project");
-    expect(raw.schemaVersion).toBe(1);
-    expect(loaded.source).toBe("interior-project-v1");
+    expect(raw.schemaVersion).toBe(2);
+    expect(loaded.source).toBe("interior-project-v2");
     expect(loaded.document.id).toBe(document.id);
     expect(loaded.project.cabinets).toHaveLength(1);
   });
@@ -216,6 +221,30 @@ describe("InteriorProject universal spine", () => {
     expect(() => loadInteriorProjectFile(file)).toThrow("newer than supported");
   });
 
+  it("rejects invalid schema markers instead of guessing a migration path", () => {
+    const document = canonicalDefault() as unknown as Record<string, unknown>;
+    document.schemaVersion = "not-a-version";
+    expect(() => loadInteriorProjectFile(document)).toThrow("non-negative integer");
+  });
+
+  it("validates the file envelope before reading its project", () => {
+    const file = createInteriorProjectFile(canonicalDefault(), NOW) as unknown as Record<string, unknown>;
+    file.schemaVersion = 99;
+    expect(() => loadInteriorProjectFile(file)).toThrow("newer than supported");
+
+    const missing = { format: "interior-project", schemaVersion: 2, savedAt: NOW };
+    expect(() => loadInteriorProjectFile(missing)).toThrow("does not contain a valid interior project");
+  });
+
+  it("skips malformed legacy collection entries during migration", () => {
+    const legacy = structuredClone(rectangleFixture) as unknown as Record<string, unknown>;
+    (legacy.walls as unknown[]).push(null, "bad-wall");
+    (legacy.openings as unknown[]).push(null);
+    const loaded = loadInteriorProjectFile(legacy);
+    expect(loaded.document.walls).toHaveLength(4);
+    expect(loaded.document.openings).toHaveLength(1);
+  });
+
   it("runs explicit migrations for pre-versioned interior documents", () => {
     const document = canonicalDefault() as unknown as Record<string, unknown>;
     delete document.schemaVersion;
@@ -224,10 +253,36 @@ describe("InteriorProject universal spine", () => {
 
     const loaded = loadInteriorProjectFile(document);
 
-    expect(loaded.migrationSteps).toEqual(["v0-to-v1"]);
-    expect(loaded.document.schemaVersion).toBe(1);
+    expect(loaded.migrationSteps).toEqual(["v0-to-v1", "v1-to-v2"]);
+    expect(loaded.document.schemaVersion).toBe(2);
     expect(loaded.document.renderSettings.widthPx).toBe(1920);
     expect(loaded.document.materials).toEqual([]);
+  });
+
+  it("migrates the D0 rectangle fixture to v2 without geometry loss", () => {
+    const loaded = loadInteriorProjectFile(rectangleFixture);
+
+    expect(loaded.source).toBe("interior-project-v2");
+    expect(loaded.migrationSteps).toEqual(["v1-to-v2"]);
+    expect(loaded.document.schemaVersion).toBe(2);
+    expect(loaded.document.rooms).toHaveLength(1);
+    expect(loaded.document.walls.map(({ id, start, end }) => ({ id, start, end }))).toEqual([
+      { id: "wall-back", start: { x: -3000, z: -2000 }, end: { x: 3000, z: -2000 } },
+      { id: "wall-right", start: { x: 3000, z: -2000 }, end: { x: 3000, z: 2000 } },
+      { id: "wall-front", start: { x: 3000, z: 2000 }, end: { x: -3000, z: 2000 } },
+      { id: "wall-left", start: { x: -3000, z: 2000 }, end: { x: -3000, z: -2000 } },
+    ]);
+    expect(loaded.document.openings).toMatchObject([
+      { id: "door-main", wallId: "wall-front", offsetMm: 1800, widthMm: 900 },
+    ]);
+    expect(loaded.document.objects).toHaveLength(0);
+    expect(loaded.document.nodes).toHaveLength(4);
+    expect(loaded.document.loops).toMatchObject([
+      { id: "room-main:outer-loop", wallUses: [{ wallId: "wall-back" }, { wallId: "wall-right" }, { wallId: "wall-front" }, { wallId: "wall-left" }] },
+    ]);
+    expect(loaded.document.rooms[0]).toMatchObject({ outerLoopId: "room-main:outer-loop", holeLoopIds: [] });
+    expect(loaded.document.openings[0]).toMatchObject({ catalogItemId: "opening:door-single", materialSlots: {}, parameters: {} });
+    expect(loaded.document.openings[0]?.roomId == null).toBe(true);
   });
 
   it("repairs dangling material and active-camera references", () => {

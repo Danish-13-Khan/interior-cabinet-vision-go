@@ -206,7 +206,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Add catalog-ready opening instance fields (`catalogItemId`, slot overrides) to the v2 document model
 - Do **not** ship freeform room/wall authoring yet; that remains D1–D4
 
-**Exit:** Existing v1 projects migrate with no user-visible geometry loss; rectangular projects still work on v2; Phase A commands and Phase B catalogized openings target v2 directly.
+**Exit:** Existing v1 projects migrate with no user-visible geometry loss; rectangular projects still work on v2; Phase A commands and Phase B catalogized openings target v2 directly.  
+**Status:** Implemented on `floorplanner-schema-v2-foundation` (schema v2 types, migration, topology validation, loadable goldens, loop-aware selectors).
 
 ---
 
@@ -222,7 +223,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Map tools to existing box-room actions (Draw Room → dimension/box edit; Draw Wall → select / partition)
 
 **Exit:** Chrome matches reference; tool/command state ready for B and D; room still rectangular.  
-**Not parity.** Exit is “chrome + command foundation,” not Floorplanner-like.
+**Not parity.** Exit is “chrome + command foundation,” not Floorplanner-like.  
+**Status:** Implemented — `BuildToolList`, `buildToolCommands` (draft/commit/cancel + rectangular adapters), armed place tools, Escape cancel, upload picker wiring.
 
 ---
 
@@ -237,7 +239,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Auto opening dimension label on plan
 - All place/move/delete ops go through undoable commands from A
 
-**Exit:** Place Doors / Place Windows match reference interaction quality on rectangular rooms; 3D still compiles from the same project.
+**Exit:** Place Doors / Place Windows match reference interaction quality on rectangular rooms; 3D still compiles from the same project.  
+**Status:** Implemented — click-wall place with snap, drag along wall, dual width handles, opening catalog (2 doors + 2 windows), inspector W×H/sill/material slots wired into 3D compile, auto plan labels, and undoable place/move/resize/delete via Phase A commands.
 
 ---
 
@@ -251,7 +254,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Underlay: opacity + simple pan/rotate handles
 - Visual style toggles (line / fill) if cheap
 
-**Exit:** Single-room plans look measured; export of plan images remains on the Export path.
+**Exit:** Single-room plans look measured; export of plan images remains on the Export path.  
+**Status:** Implemented — inner/outer dimension pairs, wall-length labels with toggle, display-unit toolbar (mm/cm/m/ft-in), underlay opacity + pan/rotate controls, and fill/line plan style.
 
 ---
 
@@ -265,6 +269,14 @@ D0 is done only when all of the following exist and are reviewed:
 | D2 | Draw Room (click-drag rectangle + polygon close) | L |
 | D3 | Draw Wall (segment, join, split, delete, thickness; shared-edge ops) | L |
 | D4 | Floor / ceiling from closed loops; rewrite bounds / snap / compiler / validation / cabinet constraints / technical plans | L |
+
+**D1 status:** Implemented — graph nodes are authoritative, wall coordinate caches synchronize from nodes, box shells migrate into deterministic loops, compatible coincident boundaries merge into one shared wall, hosted openings remap without geometry loss, and graph indexes expose node incidence for D2/D3. Freeform authoring remains intentionally deferred.
+
+**D2 status:** Implemented — Build → Draw Room creates an undoable topology room face directly on the 2D plan: drag for a snapped rectangle or click points and close a polygon. Each result receives a closed loop and graph walls, becomes the active room, and continues through the same 3D compiler. Shared-edge editing remains D3.
+
+**D3 status:** Implemented — Build → Draw Wall authors graph wall segments on the 2D plan with snapped endpoints, shared-edge reuse, split at midpoint, delete, thickness edit, and coincident-node join. Commands are undoable through the Build command layer.
+
+**D4 status:** Implemented — valid closed room loops now generate synchronized floor/ceiling surface zones and polygon-prism 3D geometry. Room bounds, arbitrary-wall snapping, freeform containment and cabinet wall placement use topology; validation rejects crossing boundaries; thumbnails and technical-plan SVGs follow the actual outline. Focused verification tests are present and intentionally left unexecuted for the requested manual run.
 
 **Multi-room editing:** D1 can make the data model adjacency-capable; multi-room editing **begins after D1** and **ships once D2/D3 support shared-edge/face operations** (plus loop/face resolution). First UX may still focus one room until those flows land.
 
@@ -280,6 +292,8 @@ D0 is done only when all of the following exist and are reviewed:
 - Structurals MVP: column; optional simple stair stub  
 - Partition walls as first-class tools on the graph  
 
+**E status:** Implemented — Build → Draw Surface authors in-room polygon floor zones with undoable material assignment; Draw Partition and Place Column use the same command layer as D3 walls. Surface zones render on the 2D plan and compile as thin polygon-prism overlays in 3D; partitions are tagged on the graph and columns use the structural catalog adapter.
+
 **Exit:** Build tool list items enabled for MVP structural set.
 
 ---
@@ -293,7 +307,8 @@ Deepens the **3D** step of the agenda (not a new product flow):
 - Walkthrough (first-person) optional after dollhouse  
 - Keep photoreal / schedule in **Render**; keep downloads on **Export**  
 
-**Exit:** 2D author → instant 3D dollhouse feels continuous; Render → Export unchanged.
+**Exit:** 2D author → instant 3D dollhouse feels continuous; Render → Export unchanged.  
+**Status:** Implemented — dollhouse default entry view with height/FOV panel scoped to dollhouse, preset rail and nav readout, optional walkthrough (WASD + drag look), and Render/Export ownership unchanged.
 
 ---
 
@@ -302,6 +317,9 @@ Deepens the **3D** step of the agenda (not a new product flow):
 - Cut from v1 parity: Styleboards, Autostyler, huge object marketplace, AI floor-plan CV  
 - Keep millwork Design mode as the cabinet surface (differentiator) on the 2D plan  
 - Performance, open-graph validation, migration hardening  
+
+**Exit:** V1 chrome excludes deferred parity features; Design stays millwork-first; open graphs fail validation; migrations reject invalid/future schemas; catalog and load paths keep curated/local safety rails.  
+**Status:** Implemented — removed Advanced Studio (AI-ish recognition / suggestions / vendor pricing), locked `V1_PRODUCT_SCOPE` with runtime catalog ceiling, Millwork Design labeling, open-graph boundary errors, migration/envelope hardening, 25 MB file and 10k-entity collection caps, and validation split under the 200-line module budget.
 
 ---
 
@@ -346,9 +364,15 @@ Generated 3D already works for box rooms. The large investment is topology, sche
 ## 8. Decision checklist (approve before coding)
 
 - [ ] Confirm product agenda stays **Menu → 2D creation → 3D → Render → Export**  
-- [ ] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5
-- [ ] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
-- [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)  
+- [x] Approve **D0** with the concrete exit criteria (ADR, schema v2, fixtures, v1-open-unchanged tests) before Phase D0.5  
+- [x] Approve **D0.5**: land schema v2, migration/validation, and catalog-ready opening fields before Phase A/B
+- [x] Approve **D1**: wall-graph domain + box-room migration (adjacency-capable model); freeform Draw Room/Wall UI deferred to D2–D4
+- [x] Approve **D2**: Draw Room on plan (rectangle drag + polygon close), undoable graph rooms; shared-edge Draw Wall deferred to D3
+- [x] Approve **D3**: Draw Wall on plan (segment drag, split, delete, thickness, join coincident nodes), undoable graph walls
+- [x] Approve **D4**: derive floor/ceiling and move bounds, snapping, compiler, validation, cabinet constraints, and technical plans onto closed-loop topology
+- [ ] Approve Phase A exit as chrome + tool/command/undo foundation (not parity)
+- [ ] Approve Phase B exit: openings direct manipulation + catalog + 3D compile parity
+- [ ] Approve Phase C exit: measured 2D plan readability (dims, units, underlay, style)
 - [ ] Confirm target topology includes **shared walls / multi-room adjacency** in the model (v2)  
 - [ ] Confirm units stay **mm in project**; toggle is display preference only  
 - [ ] Confirm openings use a real **catalog** (`catalogItemId`, preview, 3D, parameters, material slots)  

@@ -62,6 +62,8 @@ export function CameraRig({
   composition,
   renderMode = "preview",
   viewPreset = "perspective",
+  cameraHeightMm,
+  fieldOfViewDegrees,
   assetRevision = 0,
 }: {
   scene: CompiledLivingRoomScene;
@@ -70,6 +72,8 @@ export function CameraRig({
   composition: RenderComposition;
   renderMode?: RenderMode;
   viewPreset?: ModelViewPresetId;
+  cameraHeightMm?: number;
+  fieldOfViewDegrees?: number;
   assetRevision?: number;
 }) {
   const { camera } = useThree();
@@ -86,15 +90,18 @@ export function CameraRig({
       ?? current.cameras[0];
     const pose = viewPreset === "perspective"
       ? (named ? resolveRenderCameraPose(named, current.bounds, composition, renderMode) : null)
-      : resolveModelViewPose(current, viewPreset);
+      : resolveModelViewPose(current, viewPreset === "walkthrough" ? "dollhouse" : viewPreset);
     const framing = pose ?? fallbackFraming(current);
+    const overriddenPosition = typeof cameraHeightMm === "number"
+      ? { ...framing.position, y: cameraHeightMm }
+      : framing.position;
     const apply = () => {
       applyCameraPose(
         camera as PerspectiveCamera,
         controlsRef.current,
-        framing.position,
+        overriddenPosition,
         framing.target,
-        framing.fieldOfViewDegrees,
+        fieldOfViewDegrees ?? framing.fieldOfViewDegrees,
       );
     };
     apply();
@@ -105,6 +112,7 @@ export function CameraRig({
     assetRevision,
     camera,
     composition,
+    cameraHeightMm,
     controlsRef,
     projectCamera?.fieldOfViewDegrees,
     projectCamera?.id,
@@ -117,6 +125,7 @@ export function CameraRig({
     renderMode,
     scene.fingerprint,
     viewPreset,
+    fieldOfViewDegrees,
   ]);
 
   return null;

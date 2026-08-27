@@ -18,6 +18,11 @@ export {
   type MaterialKind,
   type MaterialEntity,
   type OpeningEntity,
+  type OpeningKind,
+  type PlanNodeEntity,
+  type PlanLoop,
+  type DirectedWallUse,
+  type SurfaceZoneEntity,
   type ParameterValue,
   type Point2Mm,
   type Point3Mm,
@@ -29,7 +34,7 @@ export {
   type WallEntity,
 } from "./types";
 export { createEmptyInteriorProject, DEFAULT_RENDER_SETTINGS } from "./defaults";
-export { validateInteriorProject } from "./validation";
+export { MAX_PROJECT_ENTITIES_PER_COLLECTION, validateInteriorProject } from "./validation";
 export {
   migrateInteriorProjectDocument,
   type InteriorMigrationResult,
@@ -41,6 +46,8 @@ export {
 export {
   createInteriorProjectFile,
   loadInteriorProjectFile,
+  MAX_INTERIOR_PROJECT_FILE_BYTES,
+  assertInteriorProjectFileByteLimit,
   serializeInteriorProjectFile,
   type InteriorProjectMigrationSource,
   type LoadedInteriorProject,
@@ -52,3 +59,74 @@ export {
   selectRoomOpenings,
   selectRoomWalls,
 } from "./selectors";
+export {
+  buildContiguousWallUses,
+  orientWallForRoom,
+  selectOpeningsForRoom,
+  selectWallsForRoom,
+  wallLengthMm,
+} from "./planTopology";
+export {
+  createInteriorTechnicalPlanSvg,
+  type InteriorTechnicalPlanOptions,
+} from "./interiorTechnicalPlan";
+export { validatePlanTopology, ensureCompatPlanTopology } from "./planTopologyValidation";
+export {
+  WALL_GRAPH_DOMAIN_VERSION,
+  migrateBoxRoomsToWallGraph,
+} from "./boxRoomGraphMigration";
+export {
+  createWallGraphIndex,
+  graphWallPoints,
+  movePlanNode,
+  synchronizeWallCaches,
+  wallDegree,
+  type WallGraphIndex,
+} from "./wallGraph";
+export {
+  drawRoomFromPoints,
+  normalizeRoomPolygon,
+  rectanglePoints,
+  type RoomDrawingKind,
+  type RoomDrawingRequest,
+} from "./roomDrawing";
+export {
+  centerPolygonAtOrigin,
+  roomPlanViewBounds,
+  type RoomPlanViewBounds,
+} from "./roomPlanBounds";
+export {
+  orderedLoopPoints,
+  pointInPolygon,
+  pointInRoomPolygon,
+  polygonBounds,
+  polygonCentroid,
+  polygonSelfIntersects,
+  polygonSignedArea,
+  polygonsIntersect,
+  roomPlanPolygon,
+  roomPolygonIsValid,
+  type RoomPlanPolygon,
+} from "./roomGeometry";
+export { synchronizeRoomSurfaceZones } from "./roomSurfaces";
+export { resizeRoomPlanGeometry } from "./roomResize";
+export {
+  createSurfaceZone,
+  deleteSurfaceZone,
+  isGeneratedRoomSurface,
+  setSurfaceZoneMaterial,
+  surfaceZoneFitsRoom,
+  type SurfaceZoneRequest,
+} from "./surfaceEditing";
+export {
+  createWallSegment,
+  createWallSegmentResult,
+  deletePlanWall,
+  joinPlanNodes,
+  mergeCoincidentPlanNodes,
+  setPlanWallThickness,
+  snapPlanPoint,
+  splitPlanWall,
+  splitPlanWallResult,
+  type WallSegmentRequest,
+} from "./wallEditing";

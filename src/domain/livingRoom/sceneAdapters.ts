@@ -30,6 +30,7 @@ import {
 } from "./sceneAdaptersTables";
 import { boxPrimitive } from "./scenePrimitives";
 import type { CompiledSceneNode } from "./sceneTypes";
+import { compileStructuralColumn } from "./sceneAdaptersStructural";
 
 export type { LivingRoomObjectAdapter } from "./sceneAdapterTypes";
 
@@ -57,6 +58,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "wardrobe-wall-v1", catalogItemId: "living:wardrobe-wall", compile: compileBookcase },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },
   { id: "indoor-plant-v1", catalogItemId: "living:indoor-plant", compile: compileIndoorPlant },
+  { id: "structural-column-v1", catalogItemId: "living:structural-column", compile: compileStructuralColumn },
 ];
 
 const ADAPTER_BY_CATALOG_ID = new Map(
@@ -96,6 +98,7 @@ export function compileLivingRoomObjectNode(
     metadata: {
       category: object.category,
       catalogItemId: object.catalogItemId,
+      ...(object.category === "structural-column" ? { role: "structural" } : {}),
     },
     renderBinding: { strategy: "procedural", materialBindings: {} },
   }, object);

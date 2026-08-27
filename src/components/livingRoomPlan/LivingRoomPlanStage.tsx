@@ -1,5 +1,6 @@
-import type { InteriorProject, Point3Mm, RenderSettings, Size3Mm } from "../../domain/interiorProject";
+import type { InteriorProject, Point3Mm, RenderSettings, RoomDrawingRequest, Size3Mm } from "../../domain/interiorProject";
 import type {
+  BuildTool,
   LivingRoomAlignMode,
   LivingRoomLightingRecipeId,
   LivingRoomPlanIssue,
@@ -11,6 +12,9 @@ import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { MillworkScheduleActions } from "./millworkSchedule";
+import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
+import { PlanStageToolbar } from "./PlanStageToolbar";
+import { usePlanReadabilitySettings } from "./usePlanReadabilitySettings";
 
 type LivingRoomPlanStageProps = {
   project: InteriorProject;
@@ -37,8 +41,22 @@ type LivingRoomPlanStageProps = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
+  activeSurfaceId: string | null;
+  surfaceMaterialId: string;
   onSelectWall: (wallId: string) => void;
   onSelectOpening: (openingId: string) => void;
+  onSelectSurface: (surfaceId: string | null) => void;
+  onMoveOpening: (openingId: string, offsetMm: number) => void;
+  onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
+  activeBuildTool?: BuildTool;
+  openingCatalogItemId?: string;
+  onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
+  onCreateRoom: (drawing: RoomDrawingRequest) => void;
+  onDrawSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm, wallKind?: "wall" | "partition") => void;
+  onPlaceColumn: (position: import("../../domain/interiorProject").Point2Mm) => void;
+  roomPolygonCloseRequest: number;
+  onRoomPolygonPointCount: (count: number) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
@@ -61,44 +79,18 @@ type LivingRoomPlanStageProps = {
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
+  const readability = usePlanReadabilitySettings();
   return (
     <div className="lr-plan-center">
       {props.workspaceView === "plan" ? (
-        <header className="lr-plan-toolbar">
-          <div className="lr-toolbar-group">
-            <span>Edit</span>
-            <button type="button" aria-label="Undo" title="Undo" onClick={props.onUndo} disabled={!props.canUndo}>↶</button>
-            <button type="button" aria-label="Redo" title="Redo" onClick={props.onRedo} disabled={!props.canRedo}>↷</button>
-            <button type="button" aria-label="Duplicate" title="Duplicate" onClick={props.onDuplicate} disabled={!props.hasSelection}>⧉</button>
-            <button type="button" aria-label="Delete" title="Delete" onClick={props.onDelete} disabled={!props.hasSelection}>⌫</button>
-          </div>
-          <div className="lr-toolbar-group">
-            <span>Transform</span>
-            <button type="button" title="Rotate left 90°" onClick={() => props.onRotateSelection(-90)} disabled={!props.hasSelection}>−90°</button>
-            <button type="button" title="Rotate right 90°" onClick={() => props.onRotateSelection(90)} disabled={!props.hasSelection}>+90°</button>
-          </div>
-          <div className="lr-toolbar-group">
-            <span>Align</span>
-            <button type="button" title="Align left" onClick={() => props.onAlign("left")} disabled={props.selectedIds.length < 2}>L</button>
-            <button type="button" title="Align centers" onClick={() => props.onAlign("center-x")} disabled={props.selectedIds.length < 2}>C</button>
-            <button type="button" title="Align middles" onClick={() => props.onAlign("center-z")} disabled={props.selectedIds.length < 2}>M</button>
-            <button type="button" title="Distribute" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedIds.length < 3}>↔</button>
-            <button type="button" title="Create cabinet run on selected wall" onClick={props.onCreateCabinetRun} disabled={props.selectedIds.length < 2}>Run</button>
-          </div>
-          <div className="lr-toolbar-group lr-toolbar-view">
-            <span>Drawing</span>
-            <label>
-              <input type="checkbox" checked={props.showGrid} onChange={(event) => props.onShowGrid(event.target.checked)} /> Grid
-            </label>
-            <select value={props.snapSizeMm} onChange={(event) => props.onSnapSize(Number(event.target.value))}>
-              <option value="25">25 mm</option>
-              <option value="50">50 mm</option>
-              <option value="100">100 mm</option>
-            </select>
-          </div>
-        </header>
+        <PlanStageToolbar canUndo={props.canUndo} canRedo={props.canRedo} hasSelection={props.hasSelection}
+          selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
+          readability={readability.settings} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
+          onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
+          onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
+          onReadability={readability.update} />
       ) : null}
-      <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}`}>
+      <div className={`lr-plan-titlebar${props.workspaceView === "model" ? " is-model-presence" : ""}${props.v2BuildMode && props.workspaceView === "plan" ? " has-readability" : ""}`}>
         <strong>
           {props.workspaceView === "model"
             ? "3D model"
@@ -111,12 +103,15 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             ? `${props.project.name} · staged concept`
             : `${props.project.name} · ${props.project.objects.length} furniture objects · ${props.project.openings.length} openings · ${props.selectedIds.length} selected`}
         </span>
+        {props.v2BuildMode && props.workspaceView === "plan" ? (
+          <PlanReadabilityToolbar settings={readability.settings} onChange={readability.update} />
+        ) : null}
         {props.workspaceView !== "model" ? (
           <small>
-            {props.workspaceView === "plan" ? "Scale: Fit" : "Presentation Output"} · Units: mm
+            {props.workspaceView === "plan" ? "Scale: Fit" : "Presentation Output"} · Units: {readability.settings.unit}
           </small>
         ) : (
-          <small>Eye-level · Units: mm</small>
+          <small>Dollhouse · Units: mm</small>
         )}
         {props.workspaceView !== "render" ? (
           <MillworkScheduleActions
@@ -144,8 +139,23 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onResize={props.onResize}
             activeWallId={props.activeWallId}
             activeOpeningId={props.activeOpeningId}
+            activeSurfaceId={props.activeSurfaceId}
+            surfaceMaterialId={props.surfaceMaterialId}
             onSelectWall={props.onSelectWall}
             onSelectOpening={props.onSelectOpening}
+            onSelectSurface={props.onSelectSurface}
+            onMoveOpening={props.onMoveOpening}
+            onResizeOpening={props.onResizeOpening}
+            activeBuildTool={props.activeBuildTool}
+            openingCatalogItemId={props.openingCatalogItemId}
+            onPlaceOpening={props.onPlaceOpening}
+            onCreateRoom={props.onCreateRoom}
+            onDrawSurface={props.onDrawSurface}
+            onDrawWallSegment={props.onDrawWallSegment}
+            onPlaceColumn={props.onPlaceColumn}
+            roomPolygonCloseRequest={props.roomPolygonCloseRequest}
+            onRoomPolygonPointCount={props.onRoomPolygonPointCount}
+            readability={readability.settings}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
@@ -173,7 +183,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
       </div>
       <footer className="lr-plan-status">
         <span>{props.workspaceView === "render" ? "PNG output" : `Snap ${props.snapSizeMm} mm`}</span>
-        <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Orbit ready" : "ACES / sRGB"}</span>
+        <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Dollhouse ready" : "ACES / sRGB"}</span>
         <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `Grid ${props.showGrid ? "on" : "off"}`}</span>
         {props.v2BuildMode ? <span>mm · Zoom fit</span> : null}
         {props.v2ReviewMode ? <span>Shared 2D / 3D document</span> : null}

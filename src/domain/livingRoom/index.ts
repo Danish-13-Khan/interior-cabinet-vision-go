@@ -2,6 +2,44 @@ export {
   addLivingRoomPartition,
 } from "./planCommands";
 export {
+  openingOffsetAtPoint,
+  moveOpeningOffset,
+  resizeOpeningWidth,
+  resizeOpeningFromStart,
+} from "./openingPlacement";
+export {
+  DEFAULT_PLAN_READABILITY,
+  formatPlanDimension,
+  planDimensionPair,
+  topologyPlanDimensionPair,
+  wallLabelPose,
+  wallLengthMm,
+  type PlanDimensionPair,
+  type PlanDisplayUnit,
+  type PlanReadabilitySettings,
+  type PlanVisualStyle,
+} from "./planReadability";
+export {
+  OPENING_CATALOG,
+  getOpeningCatalogItem,
+  openingCatalogForKind,
+  createOpeningCatalogInstance,
+  type OpeningCatalogItem,
+  type OpeningCatalogSymbol,
+} from "./openingCatalog";
+export {
+  applyBuildCommand,
+  createBuildCommandState,
+  isArmedPlacementTool,
+  reduceBuildCommand,
+  type BuildCommand,
+  type BuildCommandHandlers,
+  type OpeningCommandPatch,
+  type BuildCommandState,
+  type BuildDraft,
+  type BuildTool,
+} from "./buildToolCommands";
+export {
   createLivingRoomObject,
   getLivingRoomCatalogItem,
   LIVING_ROOM_CATALOG,
@@ -104,15 +142,7 @@ export {
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
 export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
-export {
-  clientShareBrief,
-  estimateVendorPricing,
-  getAdvancedStudioState,
-  listLayoutSuggestions,
-  recognizePlanUnderlay,
-  setAdvancedStudioState,
-  type AdvancedStudioState,
-} from "./advancedStudio";
+export { assertV1CatalogScope, V1_PRODUCT_SCOPE } from "./v1Scope";
 export {
   isLivingRoomLayerVisible,
   paintLivingRoomSurface,
@@ -135,6 +165,12 @@ export {
   type ModelViewPose,
   type ModelViewPresetId,
 } from "./modelViewPresets";
+export {
+  modelViewNavHint,
+  resolveModelViewCameraOverrides,
+  WALKTHROUGH_EYE_HEIGHT_MM,
+  type ModelViewCameraOverrides,
+} from "./modelViewCameraOverrides";
 export {
   createLivingRoomReleaseDemoProject,
   LIVING_ROOM_RELEASE_DEMO_DATE,
@@ -238,7 +274,10 @@ export {
   boundsDistance,
   boundsOverlap,
   getObjectPlanBounds,
+  getObjectPlanCorners,
   getRoomPlanBounds,
+  getTopologyRoomPlanBounds,
+  objectFitsRoom,
   type PlanBounds,
 } from "./planGeometry";
 export {
@@ -257,19 +296,25 @@ export {
 } from "./planUnderlay";
 export {
   addLivingRoomObject,
-  addLivingRoomOpening,
   alignLivingRoomObjects,
   deleteLivingRoomObjects,
-  deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   moveLivingRoomObject,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
-  updateLivingRoomOpening,
   type LivingRoomAlignMode,
 } from "./planCommands";
+export {
+  addLivingRoomOpening,
+  deleteLivingRoomOpening,
+  updateLivingRoomOpening,
+} from "./openingCommands";
 export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
+export {
+  placeStructuralColumn,
+  STRUCTURAL_COLUMN_CATALOG_ID,
+} from "./structuralCommands";
 export {
   attachObjectRenderBinding,
   createObjectRenderBinding,
@@ -342,6 +387,7 @@ export type {
   CompiledBoxPrimitive,
   CompiledRoundedBoxPrimitive,
   CompiledCylinderPrimitive,
+  CompiledPolygonPrismPrimitive,
   CompiledLivingRoomScene,
   CompiledMaterial,
   CompiledPrimitive,

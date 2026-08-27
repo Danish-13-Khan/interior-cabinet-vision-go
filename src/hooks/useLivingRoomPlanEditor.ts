@@ -2,14 +2,24 @@ import { useEffect, useMemo, useState } from "react";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import {
   cabinetProjectFromInteriorProject,
+  createSurfaceZone,
+  createWallSegmentResult,
+  deleteSurfaceZone,
+  deletePlanWall,
+  drawRoomFromPoints,
+  mergeCoincidentPlanNodes,
+  setPlanWallThickness,
+  setSurfaceZoneMaterial,
+  splitPlanWallResult,
   type InteriorProject,
+  type Point2Mm,
   type Point3Mm,
   type RenderSettings,
+  type RoomDrawingRequest,
   type Size3Mm,
 } from "../domain/interiorProject";
 import {
   addLivingRoomObject,
-  addLivingRoomPartition,
   attachToWall,
   arrangeCabinetRun,
   addLivingRoomOpening,
@@ -27,14 +37,16 @@ import {
   duplicateLivingRoomObject,
   getActiveLivingRoomStyleId,
   getLivingRoomStylePreset,
+  getOpeningCatalogItem,
+  createOpeningCatalogInstance,
   inspectLivingRoomPlan,
   moveLivingRoomObject,
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
-  setAdvancedStudioState,
   paintLivingRoomSurface,
+  placeStructuralColumn,
   setLivingRoomLayerVisibility,
   snapCabinetToWall,
   updateLivingRoomOpening,
@@ -43,7 +55,6 @@ import {
   type LivingRoomLightingRecipeId,
   type LivingRoomLayerId,
   type LivingRoomPlanUnderlay,
-  type AdvancedStudioState,
   type LivingRoomStyleId,
   type ImportedAsset,
 } from "../domain/livingRoom";
@@ -251,13 +262,6 @@ export function useLivingRoomPlanEditor({
     );
   }
 
-  function updateAdvancedStudio(state: AdvancedStudioState) {
-    commitDocument(
-      (current) => setAdvancedStudioState(current, state),
-      "Updated Advanced Studio workspace.",
-    );
-  }
-
   function addCatalogObject(catalogItemId: LivingRoomCatalogId, wallId?: string) {
     if (!document) return;
     const item = createLivingRoomObject(catalogItemId, {
@@ -346,41 +350,82 @@ export function useLivingRoomPlanEditor({
     );
   }
 
-  function addOpening(wallId: string, kind: "door" | "window") {
+  function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
     if (!document) return;
     const wall = document.walls.find((item) => item.id === wallId);
     if (!wall) return;
     const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
     const id = `living-opening-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
-    commitDocument((current) => addLivingRoomOpening(current, {
-      id,
-      roomId: current.activeRoomId,
-      wallId,
-      kind,
-      offsetMm: Math.max(0, Math.round((length - (kind === "door" ? 900 : 1200)) / 2)),
-      widthMm: kind === "door" ? 900 : 1200,
-      heightMm: kind === "door" ? 2100 : 1200,
-      sillHeightMm: kind === "door" ? 0 : 900,
-      swingDirection: kind === "door" ? "in" : undefined,
-    }), `Added ${kind}.`);
+    const catalog = getOpeningCatalogItem(catalogItemId);
+    const item = catalog.kind === kind ? catalog : getOpeningCatalogItem(kind === "door" ? "opening:door-single" : "opening:window-fixed");
+    commitDocument((current) => addLivingRoomOpening(current, createOpeningCatalogInstance({
+      id, roomId: current.activeRoomId, wallId, catalogItemId: item.catalogItemId,
+      offsetMm: requestedOffsetMm ?? Math.max(0, Math.round((length - item.defaults.widthMm) / 2)),
+    })), `Added ${kind}.`);
   }
 
   function addPartitionWall() {
     if (!document) return;
     const room = document.rooms.find((item) => item.id === document.activeRoomId);
     if (!room) return;
-    const id = `living-wall-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
-    commitDocument((current) => addLivingRoomPartition(current, {
-      id,
-      roomId: current.activeRoomId,
+    commitDocument((current) => createWallSegmentResult(current, {
       start: { x: 0, z: -room.dimensions.depthMm / 4 },
       end: { x: 0, z: room.dimensions.depthMm / 4 },
-      heightMm: room.dimensions.heightMm,
-      thicknessMm: room.wallThicknessMm,
-      visible: true,
-      materialId: current.walls[0]?.materialId ?? null,
-      extensions: { wallSide: `partition-${current.walls.length + 1}`, isPartition: true },
-    }), "Added partition wall.");
+      kind: "partition",
+    }).project, "Added partition wall.");
+  }
+
+  function drawRoom(drawing: RoomDrawingRequest) {
+    commitDocument((current) => drawRoomFromPoints(current, drawing), `Created ${drawing.kind} room.`);
+  }
+
+  function drawWallSegment(start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") {
+    commitDocument((current) => createWallSegmentResult(current, {
+      start, end, kind: wallKind,
+    }).project, wallKind === "partition" ? "Drew partition wall." : "Drew wall segment.");
+  }
+
+  function drawSurface(drawing: RoomDrawingRequest, materialId: string) {
+    commitDocument((current) => createSurfaceZone(current, {
+      points: drawing.points, materialId,
+    }), "Created surface zone.");
+  }
+
+  function updateSurface(surfaceId: string, materialId: string) {
+    commitDocument((current) => setSurfaceZoneMaterial(current, surfaceId, materialId), "Updated surface material.");
+  }
+
+  function removeSurface(surfaceId: string) {
+    commitDocument((current) => deleteSurfaceZone(current, surfaceId), "Deleted surface zone.");
+  }
+
+  function placeColumn(position: Point2Mm) {
+    const id = uniqueObjectId("structural-column");
+    commitDocument((current) => placeStructuralColumn(current, id, position), "Placed structural column.");
+    setSelectedObjectIds([id]);
+  }
+
+  function splitWall(wallId: string, offsetMm?: number): string | null {
+    let firstWallId: string | null = null;
+    commitDocument((current) => {
+      const result = splitPlanWallResult(current, wallId, offsetMm);
+      firstWallId = result.firstWallId;
+      return result.project;
+    }, "Split wall.");
+    return firstWallId;
+  }
+
+  function deleteWall(wallId: string) {
+    commitDocument((current) => deletePlanWall(current, wallId), "Deleted wall.");
+  }
+
+  function updateWall(wallId: string, patch: { thicknessMm?: number }) {
+    if (patch.thicknessMm === undefined) return;
+    commitDocument((current) => setPlanWallThickness(current, wallId, patch.thicknessMm!), "Updated wall thickness.");
+  }
+
+  function joinCoincidentNodes() {
+    commitDocument((current) => mergeCoincidentPlanNodes(current), "Joined coincident nodes.");
   }
 
   function updateOpening(openingId: string, patch: Parameters<typeof updateLivingRoomOpening>[2]) {
@@ -449,7 +494,6 @@ export function useLivingRoomPlanEditor({
     setLivingRoomWallMaterial: setWallMaterial,
     setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
-    updateLivingRoomAdvancedStudio: updateAdvancedStudio,
     addLivingRoomCatalogObject: addCatalogObject,
     addImportedLivingRoomAsset: addImportedAsset,
     duplicateInteriorSelection: duplicateSelection,
@@ -460,6 +504,16 @@ export function useLivingRoomPlanEditor({
     setLivingRoomDimensions: setRoomDimensions,
     addLivingRoomOpening: addOpening,
     addLivingRoomPartition: addPartitionWall,
+    drawLivingRoomRoom: drawRoom,
+    drawLivingRoomWallSegment: drawWallSegment,
+    drawLivingRoomSurface: drawSurface,
+    updateLivingRoomSurface: updateSurface,
+    deleteLivingRoomSurface: removeSurface,
+    placeLivingRoomColumn: placeColumn,
+    splitLivingRoomWall: splitWall,
+    deleteLivingRoomWall: deleteWall,
+    updateLivingRoomWall: updateWall,
+    joinLivingRoomCoincidentNodes: joinCoincidentNodes,
     updateLivingRoomOpening: updateOpening,
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,

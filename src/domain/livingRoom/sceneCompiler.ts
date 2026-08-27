@@ -1,4 +1,5 @@
 import type { InteriorProject } from "../interiorProject";
+import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import {
   defaultUvScaleMmForMaterial,
   materialAssetIdForEntity,
@@ -92,8 +93,8 @@ export function compileLivingRoomScene(
   const bounds = computeCompiledSceneBounds(nodes);
   const architectureBounds = computeArchitectureBounds(nodes);
   const windowOpenings = sampleWindowOpenings({
-    walls: project.walls.filter((wall) => wall.roomId === roomId),
-    openings: project.openings.filter((opening) => opening.roomId === roomId),
+    walls: selectRoomWalls(project, roomId),
+    openings: selectRoomOpenings(project, roomId),
     roomCenterMm: architectureBounds.center,
   });
   return {

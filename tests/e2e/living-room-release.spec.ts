@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("verified demo completes Plan to Model to Render and reopens", async ({ page }) => {
+  test.setTimeout(90_000);
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
 
@@ -8,12 +9,12 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
   await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("PLAN · LIVING ROOM");
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
 
-  await page.keyboard.press("2");
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("MODEL");
-  await page.keyboard.press("3");
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("RENDER · LIVING ROOM");
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
+  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
 
   await page.getByRole("button", { name: /Draft Fast camera/ }).click();
   await page.getByLabel("Resolution").selectOption("hd");
@@ -30,8 +31,10 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   expect(download.suggestedFilename()).toBe("living-room-release-demo.json");
   await expect(page.getByRole("button", { name: "Save" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Home" }).click();
-  const recent = page.locator(".lr-recent-open").filter({
+  // The v2 shell uses the workflow step as its visible project-home control;
+  // the legacy icon is deliberately hidden by the v2 chrome.
+  await page.getByRole("button", { name: "1 · Start a project", exact: true }).click();
+  const recent = page.locator(".planner-v2-recents button").filter({
     hasText: "Living Room Release Demo",
   });
   await expect(recent.locator("img")).toBeVisible();

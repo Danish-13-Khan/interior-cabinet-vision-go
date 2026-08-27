@@ -122,3 +122,10 @@ Initial module families:
 ## Guiding product principle
 
 Build 2D and parametric cabinetry first. Rendering must be generated from the design model, not become a separate manual 3D modelling workflow.
+
+### V1 scope boundary (Phase G)
+
+- Millwork Design remains the cabinet-authoring surface on the synchronized 2D plan.
+- The object library is curated and local; marketplace-scale browsing is deferred.
+- Styleboards, Autostyler, and AI floor-plan recognition are not exposed in v1.
+- Project load validates closed room graphs, bounds file input, and migrates legacy schemas before editing.

@@ -5,17 +5,18 @@ import type {
   OpeningEntity,
   WallEntity,
 } from "./types";
+import { selectOpeningsForRoom, selectWallsForRoom } from "./planTopology";
 
 export function selectActiveInteriorRoom(project: InteriorProject): InteriorRoomEntity | null {
   return project.rooms.find((room) => room.id === project.activeRoomId) ?? project.rooms[0] ?? null;
 }
 
 export function selectRoomWalls(project: InteriorProject, roomId: string): WallEntity[] {
-  return project.walls.filter((wall) => wall.roomId === roomId);
+  return selectWallsForRoom(project, roomId);
 }
 
 export function selectRoomOpenings(project: InteriorProject, roomId: string): OpeningEntity[] {
-  return project.openings.filter((opening) => opening.roomId === roomId);
+  return selectOpeningsForRoom(project, roomId);
 }
 
 export function selectRoomObjects(project: InteriorProject, roomId: string): InteriorObjectEntity[] {

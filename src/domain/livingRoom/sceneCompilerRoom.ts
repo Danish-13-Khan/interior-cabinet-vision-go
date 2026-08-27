@@ -3,10 +3,11 @@ import type {
   OpeningEntity,
   WallEntity,
 } from "../interiorProject";
-import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
+import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { compileOpeningNode, wallPoint } from "./sceneCompilerOpenings";
 import { boxPrimitive } from "./scenePrimitives";
+import { compileRoomLoopSurfaces } from "./sceneCompilerSurfaces";
 import type { CompiledSceneNode } from "./sceneTypes";
 
 export const FALLBACK_MATERIAL_ID = "compiled:fallback";
@@ -83,53 +84,13 @@ export function compileLivingRoomArchitecture(
 ): CompiledSceneNode[] {
   const room = project.rooms.find((candidate) => candidate.id === project.activeRoomId);
   if (!room) return [];
-  const floorMaterialId = typeof room.extensions?.floorMaterialId === "string"
-    ? room.extensions.floorMaterialId
-    : FLOOR_MATERIAL_ID;
-  const floor: CompiledSceneNode = {
-    id: `room-floor:${room.id}`,
-    name: `${room.name} Floor`,
-    sourceObjectId: null,
-    adapterId: "room-floor-v1",
-    positionMm: { x: 0, y: 0, z: 0 },
-    rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [boxPrimitive(
-      "floor",
-      { width: room.dimensions.widthMm, height: 40, depth: room.dimensions.depthMm },
-      { x: 0, y: -20, z: 0 },
-      floorMaterialId,
-      { castShadow: false },
-    )],
-    placeholder: false,
-    metadata: { role: "floor" },
-    renderBinding: createProceduralRenderBinding({ surface: floorMaterialId }),
-  };
-  const paint = LIVING_ROOM_MATERIAL_IDS.ceilingPaint;
-  const architecture: CompiledSceneNode = {
-    id: `room-architecture:${room.id}`,
-    name: `${room.name} Architecture`,
-    sourceObjectId: null,
-    adapterId: "room-architecture-v1",
-    positionMm: { x: 0, y: 0, z: 0 },
-    rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [
-      boxPrimitive("ceiling", { width: room.dimensions.widthMm, height: 24, depth: room.dimensions.depthMm }, { x: 0, y: room.dimensions.heightMm + 12, z: 0 }, paint, { castShadow: false }),
-      boxPrimitive("skirting-back", { width: room.dimensions.widthMm - 220, height: 90, depth: 18 }, { x: 0, y: 45, z: -room.dimensions.depthMm / 2 + room.wallThicknessMm / 2 + 10 }, paint),
-      boxPrimitive("skirting-left", { width: 18, height: 90, depth: room.dimensions.depthMm - 220 }, { x: -room.dimensions.widthMm / 2 + room.wallThicknessMm / 2 + 10, y: 45, z: 0 }, paint),
-      boxPrimitive("skirting-right", { width: 18, height: 90, depth: room.dimensions.depthMm - 220 }, { x: room.dimensions.widthMm / 2 - room.wallThicknessMm / 2 - 10, y: 45, z: 0 }, paint),
-    ],
-    placeholder: false,
-    metadata: { role: "architecture" },
-    renderBinding: createProceduralRenderBinding({ surface: paint }),
-  };
   return [
-    floor,
-    architecture,
-    ...project.walls
-      .filter((wall) => wall.roomId === room.id && wall.visible)
+    ...compileRoomLoopSurfaces(project, room),
+    ...selectRoomWalls(project, room.id)
+      .filter((wall) => wall.visible)
       .flatMap((wall) => compileWall(wall, project.openings.filter((opening) => opening.extensions?.layerVisible !== false))),
-    ...project.openings
-      .filter((opening) => opening.roomId === room.id && opening.extensions?.layerVisible !== false)
+    ...selectRoomOpenings(project, room.id)
+      .filter((opening) => opening.extensions?.layerVisible !== false)
       .map((opening) => {
         const wall = project.walls.find((candidate) => candidate.id === opening.wallId);
         return wall ? compileOpeningNode(opening, wall) : null;

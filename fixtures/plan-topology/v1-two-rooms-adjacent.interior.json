@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-adjacent-boxes-v1",
+  "name": "Adjacent boxes v1 migration fixture",
+  "units": "mm",
+  "createdAt": "2026-08-27T00:00:00.000Z",
+  "updatedAt": "2026-08-27T00:00:00.000Z",
+  "activeRoomId": "room-left",
+  "rooms": [
+    { "id": "room-left", "name": "Left", "roomType": "custom", "dimensions": { "widthMm": 3000, "heightMm": 2800, "depthMm": 3000 }, "wallThicknessMm": 120 },
+    { "id": "room-right", "name": "Right", "roomType": "custom", "dimensions": { "widthMm": 3000, "heightMm": 2800, "depthMm": 3000 }, "wallThicknessMm": 120 }
+  ],
+  "walls": [
+    { "id": "left-top", "roomId": "room-left", "start": { "x": 0, "z": 0 }, "end": { "x": 3000, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "left-shared", "roomId": "room-left", "start": { "x": 3000, "z": 0 }, "end": { "x": 3000, "z": 3000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "left-bottom", "roomId": "room-left", "start": { "x": 3000, "z": 3000 }, "end": { "x": 0, "z": 3000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "left-outer", "roomId": "room-left", "start": { "x": 0, "z": 3000 }, "end": { "x": 0, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "right-top", "roomId": "room-right", "start": { "x": 3000, "z": 0 }, "end": { "x": 6000, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "right-outer", "roomId": "room-right", "start": { "x": 6000, "z": 0 }, "end": { "x": 6000, "z": 3000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "right-bottom", "roomId": "room-right", "start": { "x": 6000, "z": 3000 }, "end": { "x": 3000, "z": 3000 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null },
+    { "id": "right-shared", "roomId": "room-right", "start": { "x": 3000, "z": 3000 }, "end": { "x": 3000, "z": 0 }, "heightMm": 2800, "thicknessMm": 120, "visible": true, "materialId": null }
+  ],
+  "openings": [
+    { "id": "shared-door", "roomId": "room-right", "wallId": "right-shared", "kind": "door", "offsetMm": 800, "widthMm": 900, "heightMm": 2100, "sillHeightMm": 0 }
+  ],
+  "objects": [],
+  "materials": [],
+  "lights": [],
+  "cameras": [],
+  "renderSettings": {
+    "widthPx": 1920,
+    "heightPx": 1080,
+    "quality": "standard",
+    "exposure": 1,
+    "transparentBackground": false,
+    "activeCameraId": null,
+    "lightingRecipeId": "neutral-studio",
+    "composition": "architectural"
+  }
+}

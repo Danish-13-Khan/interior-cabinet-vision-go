@@ -6,6 +6,7 @@ import type {
   Size3Mm,
 } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
+import { assertV1CatalogScope } from "./v1Scope";
 
 export type LivingRoomCatalogItem = {
   id: string;
@@ -315,7 +316,19 @@ export const LIVING_ROOM_CATALOG = [
     parameters: { foliageStyle: "broad-leaf" },
     placement: "floor",
   },
+  {
+    id: "living:structural-column",
+    name: "Structural Column",
+    kind: "custom",
+    category: "structural-column",
+    dimensions: { widthMm: 300, heightMm: 2800, depthMm: 300 },
+    materialSlots: { finish: LIVING_ROOM_MATERIAL_IDS.wallPaint },
+    parameters: { profile: "square", structural: true },
+    placement: "floor",
+  },
 ] as const satisfies readonly LivingRoomCatalogItem[];
+
+assertV1CatalogScope(LIVING_ROOM_CATALOG.length);
 
 export type LivingRoomCatalogId = (typeof LIVING_ROOM_CATALOG)[number]["id"];
 

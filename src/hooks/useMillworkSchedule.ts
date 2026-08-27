@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   cabinetProjectFromInteriorProject,
+  createInteriorTechnicalPlanSvg,
   type InteriorProject,
 } from "../domain/interiorProject";
 import {
@@ -93,7 +94,15 @@ export function useMillworkSchedule(project: InteriorProject | null) {
       }
       await writeBinaryBlob(
         path,
-        await exportProjectPdf(compatible.project, null, project.name, compatible.room),
+        await exportProjectPdf(
+          compatible.project,
+          null,
+          project.name,
+          compatible.room,
+          [],
+          [],
+          createInteriorTechnicalPlanSvg(project),
+        ),
       );
       setExportedAt(snapshot.exportedAt);
       setStatus(`Production packet exported (${report.productionCutlist.length} cut parts).`);

@@ -527,6 +527,8 @@
 .lr-layer-tree i { color: #7b838c; font-style: normal; }
 
 .lr-underlay-panel { padding: 12px; overflow-y: auto; }
+.lr-opening-width-handle { fill:#fff; stroke:var(--lr-accent); stroke-width:24px; cursor:ew-resize; }
+.lr-opening-symbol-detail { stroke-width:28px!important; opacity:.8; pointer-events:none; }
 .lr-underlay-thumb { aspect-ratio: 4 / 3; margin-bottom: 9px; overflow: hidden; border: 1px solid #d4d9de; border-radius: 8px; background: #eef0f2; }
 .lr-underlay-thumb img { width: 100%; height: 100%; object-fit: contain; }
 .lr-underlay-panel > strong { display: block; font-size: 0.67rem; }

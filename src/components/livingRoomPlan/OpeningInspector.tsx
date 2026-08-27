@@ -1,0 +1,49 @@
+import type { InteriorProject, OpeningEntity } from "../../domain/interiorProject";
+import { getOpeningCatalogItem } from "../../domain/livingRoom";
+import { NumberField } from "./NumberField";
+
+type OpeningPatch = Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>;
+
+function OpeningPreview({ opening }: { opening: OpeningEntity }) {
+  const item = getOpeningCatalogItem(opening.catalogItemId);
+  return <div className="lr-opening-inspector-preview">
+    <svg viewBox="0 0 160 100" aria-label={`${item.name} preview`}>
+      <path d="M18 82H142" className="wall" />
+      {item.symbol === "single-swing" ? <><path d="M38 82V25H98" /><path d="M38 82A60 60 0 0 1 98 22" className="swing" /></> : null}
+      {item.symbol === "double-swing" ? <><path d="M24 82V34H80M136 82V34H80" /><path d="M24 82A56 56 0 0 1 80 26M136 82A56 56 0 0 0 80 26" className="swing" /></> : null}
+      {item.symbol === "fixed-glass" ? <><rect x="35" y="20" width="90" height="62" /><path d="M80 20V82M35 51H125" className="glass" /></> : null}
+      {item.symbol === "casement" ? <><rect x="40" y="18" width="80" height="64" /><path d="M40 18L98 10V82L40 82" className="swing" /><path d="M40 50H120" className="glass" /></> : null}
+    </svg>
+    <strong>{item.name}</strong><small>{item.catalogItemId}</small>
+  </div>;
+}
+
+export function OpeningInspector({ opening, materials, onUpdate }: {
+  opening: OpeningEntity;
+  materials: InteriorProject["materials"];
+  onUpdate: (openingId: string, patch: OpeningPatch) => void;
+}) {
+  const item = getOpeningCatalogItem(opening.catalogItemId);
+  const slots = opening.materialSlots ?? {};
+  return <section className="lr-opening-inspector">
+    <h3>Selected Opening</h3>
+    <OpeningPreview opening={opening} />
+    <h4>Dimensions <small>millimetres</small></h4>
+    <div className="lr-dimension-cards">
+      <NumberField className="lr-dimension-card" label="W" value={opening.widthMm} onChange={(widthMm) => onUpdate(opening.id, { widthMm })} />
+      <NumberField className="lr-dimension-card" label="H" value={opening.heightMm} onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
+      <NumberField className="lr-dimension-card" label="Sill" value={opening.sillHeightMm} onChange={(sillHeightMm) => onUpdate(opening.id, { sillHeightMm })} />
+    </div>
+    <h4>Materials</h4>
+    <div className="lr-material-slots">
+      {item.materialSlots.map((slot) => {
+        const materialId = slots[slot] ?? "";
+        const material = materials.find((candidate) => candidate.id === materialId);
+        return <label key={slot}><span><i style={{ background: material?.color ?? "#d7ddd8" }} />{slot}</span><select value={materialId} onChange={(event) => onUpdate(opening.id, { materialSlots: { ...slots, [slot]: event.target.value } })}>
+          <option value="">Default</option>
+          {materials.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+        </select></label>;
+      })}
+    </div>
+  </section>;
+}
