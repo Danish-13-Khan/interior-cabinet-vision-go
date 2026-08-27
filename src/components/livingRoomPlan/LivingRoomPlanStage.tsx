@@ -111,7 +111,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             {props.workspaceView === "plan" ? "Scale: Fit" : "Presentation Output"} · Units: {readability.settings.unit}
           </small>
         ) : (
-          <small>Eye-level · Units: mm</small>
+          <small>Dollhouse · Units: mm</small>
         )}
         {props.workspaceView !== "render" ? (
           <MillworkScheduleActions
@@ -183,7 +183,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
       </div>
       <footer className="lr-plan-status">
         <span>{props.workspaceView === "render" ? "PNG output" : `Snap ${props.snapSizeMm} mm`}</span>
-        <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Orbit ready" : "ACES / sRGB"}</span>
+        <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Dollhouse ready" : "ACES / sRGB"}</span>
         <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `Grid ${props.showGrid ? "on" : "off"}`}</span>
         {props.v2BuildMode ? <span>mm · Zoom fit</span> : null}
         {props.v2ReviewMode ? <span>Shared 2D / 3D document</span> : null}

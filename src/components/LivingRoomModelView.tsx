@@ -5,22 +5,27 @@ import {
   compileLivingRoomScene,
   describePresetHonesty,
   getActiveLivingRoomStyleId,
+  getCabinetMechanismState,
   getModelViewDefaultPresetId,
   getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
   listModelViewRenderPresets,
-  MODEL_VIEW_PRESETS,
+  mechanismAllPatch,
+  mechanismFrontIndex,
+  mechanismPanelPatch,
+  modelViewNavHint,
   preferModelViewCameraId,
+  resolveModelViewCameraOverrides,
   resolveStudioRenderMode,
   type LivingRoomStyleId,
   type ModelViewPresetId,
 } from "../domain/livingRoom";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
-import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
-import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
-import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
 import { CabinetMechanismPanel } from "./livingRoomScene/CabinetMechanismPanel";
-import { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch } from "../domain/livingRoom";
+import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
+import { ModelViewStylePalette } from "./livingRoomScene/ModelViewStylePalette";
+import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
+import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -48,11 +53,11 @@ export function LivingRoomModelView({
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const entryCameraId = preferModelViewCameraId(scene.cameras);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(entryCameraId);
-  const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("orbit");
+  const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("dollhouse");
+  const [cameraHeightMm, setCameraHeightMm] = useState(3300);
+  const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
   const [cutawayWalls, setCutawayWalls] = useState(true);
-  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
-    getModelViewDefaultPresetId(),
-  );
+  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(getModelViewDefaultPresetId());
   const modelPresets = listModelViewRenderPresets();
   const quality = getRenderQualityPreset(viewportQuality);
   const renderMode = resolveStudioRenderMode(viewportQuality);
@@ -67,79 +72,34 @@ export function LivingRoomModelView({
     ?? scene.cameras[0]
     ?? null;
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
+  const cameraOverrides = resolveModelViewCameraOverrides(viewPreset, cameraHeightMm, fieldOfViewDegrees);
 
   return (
     <div className="lr-model-viewport is-presence" data-testid="lr-model-viewport">
-      <div className="lr-model-controls">
-        <div className="lr-view-presets" aria-label="3D camera views">
-          {MODEL_VIEW_PRESETS.map((preset) => (
-            <button
-              type="button"
-              key={preset.id}
-              className={viewPreset === preset.id ? "is-active" : ""}
-              onClick={() => setViewPreset(preset.id)}
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
-        <label>
-          Camera
-          <select value={activeCameraId ?? ""} onChange={(event) => setActiveCameraId(event.target.value || null)}>
-            {scene.cameras.map((camera) => <option key={camera.id} value={camera.id}>{camera.name}</option>)}
-          </select>
-        </label>
-        <label>
-          Style
-          <select
-            aria-label="Interior style"
-            value={activeStyleId}
-            onChange={(event) => onApplyStyle(event.target.value as LivingRoomStyleId)}
-          >
-            {LIVING_ROOM_STYLE_PRESETS.map((style) => <option key={style.id} value={style.id}>{style.name}</option>)}
-          </select>
-        </label>
-        <button type="button" className={cutawayWalls ? "is-active" : ""} onClick={() => setCutawayWalls((current) => !current)}>
-          Cutaway
-        </button>
-        <label>
-          Rotate
-          <input
-            aria-label="Selected object rotation"
-            type="range"
-            min="0"
-            max="345"
-            step="15"
-            value={activeRotation}
-            disabled={!activeObject}
-            onChange={(event) => {
-              if (activeObject) onSetRotation(activeObject.id, Number(event.target.value));
-            }}
-          />
-          <b>{activeObject ? `${activeRotation}°` : "—"}</b>
-        </label>
-        <button type="button" onClick={() => activeObject && onSetRotation(activeObject.id, activeRotation - 90)} disabled={!activeObject}>
-          -90°
-        </button>
-        <button type="button" onClick={() => activeObject && onSetRotation(activeObject.id, activeRotation + 90)} disabled={!activeObject}>
-          +90°
-        </button>
-        <label>
-          Quality
-          <select
-            aria-label="Viewport quality"
-            value={viewportQuality}
-            onChange={(event) => setViewportQuality(event.target.value as RenderQuality)}
-          >
-            {modelPresets.map((preset) => (
-              <option key={preset.id} value={preset.id}>
-                {preset.name}{preset.id === "draft" ? " · Fast" : ""}
-              </option>
-            ))}
-          </select>
-        </label>
-        <RenderPresetHonestyBadge honesty={honesty} compact />
-      </div>
+      <ModelViewToolbar
+        viewPreset={viewPreset}
+        cameraHeightMm={cameraHeightMm}
+        fieldOfViewDegrees={fieldOfViewDegrees}
+        activeCameraId={activeCameraId}
+        cameras={scene.cameras}
+        activeStyleId={activeStyleId}
+        cutawayWalls={cutawayWalls}
+        activeRotation={activeRotation}
+        hasActiveObject={Boolean(activeObject)}
+        viewportQuality={viewportQuality}
+        modelPresets={modelPresets}
+        honesty={honesty}
+        onViewPreset={setViewPreset}
+        onCameraHeightMm={setCameraHeightMm}
+        onFieldOfViewDegrees={setFieldOfViewDegrees}
+        onActiveCameraId={setActiveCameraId}
+        onApplyStyle={onApplyStyle}
+        onCutawayWalls={setCutawayWalls}
+        onSetRotation={(rotationY) => {
+          if (activeObject) onSetRotation(activeObject.id, rotationY);
+        }}
+        onViewportQuality={setViewportQuality}
+      />
       <Canvas
         shadows="percentage"
         dpr={[1, quality.pixelRatio]}
@@ -152,6 +112,8 @@ export function LivingRoomModelView({
           selectedIds={selectedIds}
           activeCameraId={activeCameraId}
           viewPreset={viewPreset}
+          cameraHeightMm={cameraOverrides.cameraHeightMm}
+          fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
@@ -164,42 +126,31 @@ export function LivingRoomModelView({
             const object = project.objects.find((item) => item.id === objectId);
             const state = object ? getCabinetMechanismState(object) : null;
             const index = mechanismFrontIndex(primitiveId);
-            if (state && index !== null && index < state.count) onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
+            if (state && index !== null && index < state.count) {
+              onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
+            }
           }}
         />
       </Canvas>
       {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
-      <CabinetMechanismPanel object={activeObject ?? null} onChange={onSetParameters} onSoftClose={(object) => {
-        const state = getCabinetMechanismState(object);
-        if (!state) return;
-        onSetParameters(object.id, mechanismAllPatch(state, true));
-        window.setTimeout(() => onSetParameters(object.id, mechanismAllPatch(state, false)), 650);
-      }} />
-      <aside className="lr-style-palette" aria-label="Interior style presets">
-        <header>
-          <span>STYLE</span>
-          <strong>{activeStyle.name}</strong>
-        </header>
-        <div>
-          {LIVING_ROOM_STYLE_PRESETS.map((style) => (
-            <button
-              type="button"
-              key={style.id}
-              className={style.id === activeStyleId ? "is-active" : ""}
-              onClick={() => onApplyStyle(style.id)}
-              aria-label={`Apply ${style.name}`}
-            >
-              <span className="lr-style-swatches">
-                {style.swatches.map((color) => <i key={color} style={{ backgroundColor: color }} />)}
-              </span>
-              <span>{style.name}</span>
-            </button>
-          ))}
-        </div>
-      </aside>
+      <CabinetMechanismPanel
+        object={activeObject ?? null}
+        onChange={onSetParameters}
+        onSoftClose={(object) => {
+          const state = getCabinetMechanismState(object);
+          if (!state) return;
+          onSetParameters(object.id, mechanismAllPatch(state, true));
+          window.setTimeout(() => onSetParameters(object.id, mechanismAllPatch(state, false)), 650);
+        }}
+      />
+      <ModelViewStylePalette
+        activeStyleId={activeStyleId}
+        activeStyleName={activeStyle.name}
+        onApplyStyle={onApplyStyle}
+      />
       <div className="lr-model-readout">
         <span>{honesty.shortBadge} · {scene.style.colorManagement.exposure.toFixed(2)} EV</span>
-        <span>Orbit · Pan · Zoom · Drag to place</span>
+        <span>{modelViewNavHint(viewPreset)}</span>
       </div>
     </div>
   );
