@@ -13,6 +13,7 @@ import {
   movePlanNodeWithOpenings,
   renameInteriorRoom,
   setActiveInteriorRoom,
+  setPlanWallHeight,
   setPlanWallThickness,
   setSurfaceZoneMaterial,
   splitPlanWallResult,
@@ -52,6 +53,7 @@ import {
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
   paintLivingRoomSurface,
+  setLivingRoomWallMaterial,
   placeStructuralColumn,
   setLivingRoomLayerVisibility,
   snapCabinetToWall,
@@ -252,9 +254,9 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => paintLivingRoomSurface(current, { kind: "floor" }, materialId), "Painted floor surface.");
   }
 
-  function setWallMaterial(wallId: string, materialId: string) {
-    if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => paintLivingRoomSurface(current, { kind: "wall", wallId }, materialId), "Painted wall surface.");
+  function setWallMaterial(wallId: string, materialId: string | null) {
+    if (!document || (materialId !== null && !document.materials.some((material) => material.id === materialId))) return;
+    commitDocument((current) => setLivingRoomWallMaterial(current, wallId, materialId), "Painted wall surface.");
   }
 
   function setLayerVisibility(layer: LivingRoomLayerId, visible: boolean) {
@@ -441,9 +443,14 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => deletePlanWall(current, wallId), "Deleted wall.");
   }
 
-  function updateWall(wallId: string, patch: { thicknessMm?: number }) {
-    if (patch.thicknessMm === undefined) return;
-    commitDocument((current) => setPlanWallThickness(current, wallId, patch.thicknessMm!), "Updated wall thickness.");
+  function updateWall(wallId: string, patch: { thicknessMm?: number; heightMm?: number }) {
+    if (patch.thicknessMm === undefined && patch.heightMm === undefined) return;
+    commitDocument((current) => {
+      let next = current;
+      if (patch.thicknessMm !== undefined) next = setPlanWallThickness(next, wallId, patch.thicknessMm);
+      if (patch.heightMm !== undefined) next = setPlanWallHeight(next, wallId, patch.heightMm);
+      return next;
+    }, "Updated wall properties.");
   }
 
   function joinCoincidentNodes() {

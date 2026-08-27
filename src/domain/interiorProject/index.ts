@@ -128,6 +128,7 @@ export {
   joinPlanNodes,
   mergeCoincidentPlanNodes,
   movePlanNodeWithOpenings,
+  setPlanWallHeight,
   setPlanWallThickness,
   snapPlanPoint,
   splitPlanWall,

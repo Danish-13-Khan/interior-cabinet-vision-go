@@ -1,7 +1,7 @@
 import type { OpeningEntity, Point2Mm, RoomDrawingRequest, Size3Mm } from "../interiorProject";
 
 export type OpeningCommandPatch = Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>;
-export type WallCommandPatch = { thicknessMm?: number };
+export type WallCommandPatch = { thicknessMm?: number; heightMm?: number };
 
 export type BuildTool =
   | "select"

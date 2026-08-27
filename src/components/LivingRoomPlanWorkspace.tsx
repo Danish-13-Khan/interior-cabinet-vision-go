@@ -3,6 +3,7 @@ import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderRe
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
+import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
@@ -26,6 +27,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
   const millwork = useMillworkSchedule(props.project);
+  const readability = usePlanReadabilitySettings();
   const activeOpening = props.project?.openings.find((opening) => opening.id === activeOpeningId) ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
   const underlay = props.project ? getLivingRoomPlanUnderlay(props.project) : null;
@@ -120,6 +122,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
         build={build} activeBuildTool={activeBuildTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} issues={props.issues}
+        readability={readability.settings} onReadability={readability.update}
       />
     </section>
   );

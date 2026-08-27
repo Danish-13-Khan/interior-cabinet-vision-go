@@ -131,6 +131,8 @@ Export    ██████░░░░
 **H4 status:** Implemented — Draw Room/Wall and Select-tool node/wall edits show live mm dimensions, axis/snap guides, node snap targets, and hover affordances before committing changes.
 | H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
 
+**H5 status:** Implemented — the right inspector now previews the active room and selected wall, with undoable room sizing plus wall thickness, height, and material editing. Intentional MVP limit: E2E covers material clear + undo; thickness/height edit round-trips remain light.
+
 ### I — Design / millwork depth (differentiator)
 
 | ID | Missing feature | Why it matters |
@@ -198,6 +200,8 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 
 **H4 status:** Implemented — live unit-aware draft dimensions, snap guides/targets, and wall/node hover feedback cover Draw and Select edits.
 | H5 | Selection inspector for room / wall (thickness, height, material) | S–M |
+
+**H5 status:** Implemented — Build inspector provides room/wall previews and construction/finish editing for the active selection. E2E covers material clear + undo; thickness/height round-trips still light (non-blocking).
 
 **Exit:** Designer draws a 2-room flat by splitting one room with a wall, renames rooms, drags a corner, places doors, sees floors update in 2D and 3D.
 

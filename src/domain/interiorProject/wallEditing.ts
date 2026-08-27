@@ -5,6 +5,7 @@ export {
   splitPlanWall,
   splitPlanWallResult,
   deletePlanWall,
+  setPlanWallHeight,
   setPlanWallThickness,
   type SplitPlanWallResult,
 } from "./wallEditingSplitDelete";

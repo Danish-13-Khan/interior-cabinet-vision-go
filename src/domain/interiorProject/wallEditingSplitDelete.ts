@@ -132,3 +132,16 @@ export function setPlanWallThickness(
     walls: project.walls.map((wall) => wall.id === wallId ? { ...wall, thicknessMm: thickness } : wall),
   });
 }
+
+/** Update the physical wall height without changing its plan topology. */
+export function setPlanWallHeight(
+  project: InteriorProject,
+  wallId: string,
+  heightMm: number,
+): InteriorProject {
+  const height = Math.max(1800, Math.min(6000, Math.round(heightMm)));
+  return {
+    ...project,
+    walls: project.walls.map((wall) => wall.id === wallId ? { ...wall, heightMm: height } : wall),
+  };
+}
