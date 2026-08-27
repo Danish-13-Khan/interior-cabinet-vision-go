@@ -10,8 +10,8 @@ export function PlanAssetLibraryPanel(props: {
 }) {
   const cabinets = props.mode === "cabinets";
   return <>
-    <div className="context-panel-heading"><strong>{cabinets ? "Cabinet Library" : "Furniture Library"}</strong>
-      <span>{cabinets ? `Attach to ${props.wallName}` : `${props.assets.length} parametric models`}</span></div>
+    <div className="context-panel-heading"><strong>{cabinets ? "Millwork Design" : "Furniture Library"}</strong>
+      <span>{cabinets ? `Parametric cabinet surface · attach to ${props.wallName}` : `${props.assets.length} curated v1 models`}</span></div>
     <AssetImportPanel cabinetMode={cabinets} onAdd={props.onImport} />
     <div className="lr-asset-controls">
       <input aria-label={cabinets ? "Search cabinets" : "Search furniture"} placeholder={cabinets ? "Search cabinets…" : "Search furniture…"}

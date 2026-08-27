@@ -1,8 +1,4 @@
-import {
-  isLoopContiguous,
-  loopSignedArea,
-  roomIdsUsingWall,
-} from "./planTopology";
+import { isLoopContiguous, loopSignedArea, roomIdsUsingWall } from "./planTopology";
 import { migrateBoxRoomsToWallGraph, WALL_GRAPH_DOMAIN_VERSION } from "./boxRoomGraphMigration";
 import { synchronizeWallCaches } from "./wallGraph";
 import { validateTopologyOpenings } from "./topologyOpeningValidation";
@@ -54,6 +50,18 @@ export function validatePlanTopology(
   const nodesById = new Map(project.nodes.map((node) => [node.id, node]));
   const wallsById = new Map(project.walls.map((wall) => [wall.id, wall]));
   const loopsById = new Map(project.loops.map((loop) => [loop.id, loop]));
+  const roomsById = new Map(project.rooms.map((room) => [room.id, room]));
+  const roomIdsByWall = new Map<string, string[]>();
+  for (const room of project.rooms) {
+    for (const loopId of [room.outerLoopId, ...(room.holeLoopIds ?? [])]) {
+      if (!loopId) continue;
+      for (const use of loopsById.get(loopId)?.wallUses ?? []) {
+        const rooms = roomIdsByWall.get(use.wallId) ?? [];
+        if (!rooms.includes(room.id)) rooms.push(room.id);
+        roomIdsByWall.set(use.wallId, rooms);
+      }
+    }
+  }
 
   for (const wall of project.walls) {
     if (!wall.startNodeId || !wall.endNodeId) {
@@ -81,7 +89,7 @@ export function validatePlanTopology(
         message: "Wall references an unknown graph node.",
       });
     }
-    const rooms = roomIdsUsingWall(project, wall.id);
+    const rooms = roomIdsByWall.get(wall.id) ?? [];
     if (rooms.length > 2) {
       pushIssue(issues, {
         severity: "error",
@@ -93,7 +101,7 @@ export function validatePlanTopology(
     if (rooms.length === 2) {
       const directions = new Set<string>();
       for (const roomId of rooms) {
-        const room = project.rooms.find((item) => item.id === roomId);
+        const room = roomsById.get(roomId);
         const loopIds = [room?.outerLoopId, ...(room?.holeLoopIds ?? [])].filter(Boolean);
         for (const loopId of loopIds) {
           const loop = loopsById.get(String(loopId));
@@ -127,6 +135,15 @@ export function validatePlanTopology(
       continue;
     }
     const outer = loopsById.get(room.outerLoopId)!;
+    if (!isLoopContiguous(outer, wallsById)) {
+      pushIssue(issues, {
+        severity: "error",
+        code: "open-graph-boundary",
+        path: `rooms.${room.id}.outerLoopId`,
+        message: "Room boundary is open; join its wall endpoints before using the room for 3D or production.",
+      });
+      continue;
+    }
     const outerArea = loopSignedArea(outer, wallsById, nodesById);
     if (outerArea < 0) {
       pushIssue(issues, {

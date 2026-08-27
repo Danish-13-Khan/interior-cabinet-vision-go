@@ -6,6 +6,7 @@ import type {
   Size3Mm,
 } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
+import { assertV1CatalogScope } from "./v1Scope";
 
 export type LivingRoomCatalogItem = {
   id: string;
@@ -326,6 +327,8 @@ export const LIVING_ROOM_CATALOG = [
     placement: "floor",
   },
 ] as const satisfies readonly LivingRoomCatalogItem[];
+
+assertV1CatalogScope(LIVING_ROOM_CATALOG.length);
 
 export type LivingRoomCatalogId = (typeof LIVING_ROOM_CATALOG)[number]["id"];
 

@@ -33,6 +33,17 @@ describe("schema v2 plan topology foundation", () => {
     expect(selectWallsForRoom(result.project, "room-l")).toHaveLength(6);
   });
 
+  it("blocks an open room graph from 3D and production use", () => {
+    const open = structuredClone(rectangleV2);
+    open.loops[0]!.wallUses.pop();
+    const result = validateInteriorProject(open);
+
+    expect(result.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "loop-not-closed", severity: "error" }),
+      expect.objectContaining({ code: "open-graph-boundary", severity: "error" }),
+    ]));
+  });
+
   it("accepts a shared wall owned by two room loops without roomId", () => {
     const result = validateInteriorProject(sharedWallV2);
     expect(result.project.rooms).toHaveLength(2);

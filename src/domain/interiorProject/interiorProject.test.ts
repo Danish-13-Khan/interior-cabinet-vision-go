@@ -171,7 +171,8 @@ describe("InteriorProject universal spine", () => {
 
     const result = validateInteriorProject(document);
 
-    expect(result.project.rooms[0]!.dimensions.widthMm).toBe(1);
+    // Schema v2 graph geometry is authoritative and repairs stale room dimension caches.
+    expect(result.project.rooms[0]!.dimensions.widthMm).toBe(6000);
     expect(result.project.rooms[0]!.dimensions.heightMm).toBe(2800);
     expect(result.project.objects.some((object) => object.id === "orphan")).toBe(false);
     expect(result.issues.some((issue) => issue.code === "orphan-object")).toBe(true);
@@ -218,6 +219,30 @@ describe("InteriorProject universal spine", () => {
     file.project.schemaVersion = 99;
 
     expect(() => loadInteriorProjectFile(file)).toThrow("newer than supported");
+  });
+
+  it("rejects invalid schema markers instead of guessing a migration path", () => {
+    const document = canonicalDefault() as unknown as Record<string, unknown>;
+    document.schemaVersion = "not-a-version";
+    expect(() => loadInteriorProjectFile(document)).toThrow("non-negative integer");
+  });
+
+  it("validates the file envelope before reading its project", () => {
+    const file = createInteriorProjectFile(canonicalDefault(), NOW) as unknown as Record<string, unknown>;
+    file.schemaVersion = 99;
+    expect(() => loadInteriorProjectFile(file)).toThrow("newer than supported");
+
+    const missing = { format: "interior-project", schemaVersion: 2, savedAt: NOW };
+    expect(() => loadInteriorProjectFile(missing)).toThrow("does not contain a valid interior project");
+  });
+
+  it("skips malformed legacy collection entries during migration", () => {
+    const legacy = structuredClone(rectangleFixture) as unknown as Record<string, unknown>;
+    (legacy.walls as unknown[]).push(null, "bad-wall");
+    (legacy.openings as unknown[]).push(null);
+    const loaded = loadInteriorProjectFile(legacy);
+    expect(loaded.document.walls).toHaveLength(4);
+    expect(loaded.document.openings).toHaveLength(1);
   });
 
   it("runs explicit migrations for pre-versioned interior documents", () => {

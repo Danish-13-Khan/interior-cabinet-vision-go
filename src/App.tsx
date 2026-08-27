@@ -267,7 +267,6 @@ function App() {
             onUpdateOpening={c.updateLivingRoomOpening}
             onDeleteOpening={c.deleteLivingRoomOpening}
             onSetPlanUnderlay={c.setLivingRoomPlanUnderlay}
-            onUpdateAdvancedStudio={c.updateLivingRoomAdvancedStudio}
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onLightingChange={c.setLivingRoomLightingRecipe}
