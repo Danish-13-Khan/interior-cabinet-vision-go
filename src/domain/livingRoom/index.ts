@@ -165,6 +165,7 @@ export {
   type ImportedAsset,
 } from "./assetImportPipeline";
 export {
+  getModelViewPreset,
   MODEL_VIEW_PRESETS,
   resolveModelViewPose,
   type ModelViewPose,

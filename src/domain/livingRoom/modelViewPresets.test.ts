@@ -7,6 +7,12 @@ describe("model view presets", () => {
     expect(MODEL_VIEW_PRESETS.map((preset) => preset.id)).toEqual([
       "dollhouse", "orbit", "front", "top", "perspective", "walkthrough",
     ]);
+    expect(MODEL_VIEW_PRESETS.filter((preset) => preset.clientMode).map((preset) => preset.id)).toEqual([
+      "dollhouse", "orbit", "walkthrough",
+    ]);
+    expect(MODEL_VIEW_PRESETS.find((preset) => preset.id === "dollhouse")?.purpose).toBe(
+      "See the whole room at a glance",
+    );
   });
 
   it("frames the shared compiled room from each fixed view", () => {

@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { InteriorProject, Point3Mm, RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
@@ -13,18 +13,23 @@ import {
   mechanismAllPatch,
   mechanismFrontIndex,
   mechanismPanelPatch,
-  modelViewNavHint,
   preferModelViewCameraId,
   resolveModelViewCameraOverrides,
   resolveStudioRenderMode,
   type LivingRoomStyleId,
   type ModelViewPresetId,
 } from "../domain/livingRoom";
+import {
+  persistModelGuideDismissal,
+  shouldShowModelGuide,
+} from "../domain/livingRoom/modelViewGuidePreference";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CabinetMechanismPanel } from "./livingRoomScene/CabinetMechanismPanel";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
 import { ModelViewStylePalette } from "./livingRoomScene/ModelViewStylePalette";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
+import { ModelViewOnboarding } from "./livingRoomScene/ModelViewOnboarding";
+import { ModelViewReadout } from "./livingRoomScene/ModelViewReadout";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 
 type LivingRoomModelViewProps = {
@@ -54,6 +59,7 @@ export function LivingRoomModelView({
   const entryCameraId = preferModelViewCameraId(scene.cameras);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(entryCameraId);
   const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("dollhouse");
+  const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
   const [cutawayWalls, setCutawayWalls] = useState(true);
@@ -73,9 +79,14 @@ export function LivingRoomModelView({
     ?? null;
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const cameraOverrides = resolveModelViewCameraOverrides(viewPreset, cameraHeightMm, fieldOfViewDegrees);
+  const exitWalkthrough = useCallback(() => setViewPreset("dollhouse"), []);
+  const dismissGuide = () => {
+    setShowGuide(false);
+    persistModelGuideDismissal();
+  };
 
   return (
-    <div className="lr-model-viewport is-presence" data-testid="lr-model-viewport">
+    <div className="lr-model-viewport is-presence has-3d-onboarding" data-testid="lr-model-viewport">
       <ModelViewToolbar
         viewPreset={viewPreset}
         cameraHeightMm={cameraHeightMm}
@@ -99,6 +110,7 @@ export function LivingRoomModelView({
           if (activeObject) onSetRotation(activeObject.id, rotationY);
         }}
         onViewportQuality={setViewportQuality}
+        onOpenGuide={() => setShowGuide(true)}
       />
       <Canvas
         shadows="percentage"
@@ -122,6 +134,7 @@ export function LivingRoomModelView({
           renderMode={renderMode}
           onSelect={onSelect}
           onMove={onMove}
+          onExitWalkthrough={exitWalkthrough}
           onMechanismClick={(objectId, primitiveId) => {
             const object = project.objects.find((item) => item.id === objectId);
             const state = object ? getCabinetMechanismState(object) : null;
@@ -132,6 +145,13 @@ export function LivingRoomModelView({
           }}
         />
       </Canvas>
+      {showGuide ? (
+        <ModelViewOnboarding
+          activePreset={viewPreset}
+          onChoosePreset={setViewPreset}
+          onDismiss={dismissGuide}
+        />
+      ) : null}
       {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
       <CabinetMechanismPanel
         object={activeObject ?? null}
@@ -148,10 +168,11 @@ export function LivingRoomModelView({
         activeStyleName={activeStyle.name}
         onApplyStyle={onApplyStyle}
       />
-      <div className="lr-model-readout">
-        <span>{honesty.shortBadge} · {scene.style.colorManagement.exposure.toFixed(2)} EV</span>
-        <span>{modelViewNavHint(viewPreset)}</span>
-      </div>
+      <ModelViewReadout
+        viewPreset={viewPreset}
+        honestyBadge={honesty.shortBadge}
+        exposure={scene.style.colorManagement.exposure}
+      />
     </div>
   );
 }
