@@ -287,6 +287,7 @@ export {
 } from "./planSnapping";
 export {
   inspectLivingRoomPlan,
+  isBlockingLivingRoomPlanIssue,
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {

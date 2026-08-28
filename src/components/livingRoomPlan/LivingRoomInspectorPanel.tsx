@@ -10,6 +10,7 @@ import type {
   MillworkSchedule,
   MillworkWorkflowSnapshot,
 } from "../../domain/livingRoom";
+import { isBlockingLivingRoomPlanIssue } from "../../domain/livingRoom";
 import type { ProjectReport } from "../../domain/projectReport";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { MillworkSchedulePreview } from "./millworkSchedule";
@@ -153,8 +154,7 @@ export function LivingRoomInspectorPanel({
             onSelect={onSelect}
           />
         ) : null}
-        {mode === "plan" ? (
-          <section className="lr-issues-panel">
+        <section className="lr-issues-panel">
             <h3>Layout Checks <span>{issues.length}</span></h3>
             {issues.length === 0 ? (
               <p className="is-clear">No conflicts detected.</p>
@@ -163,6 +163,9 @@ export function LivingRoomInspectorPanel({
                 <button
                   type="button"
                   key={`${issue.code}-${index}`}
+                  data-layout-issue={issue.code}
+                  className={isBlockingLivingRoomPlanIssue(issue) ? "is-error" : "is-warning"}
+                  aria-label={`${issue.severity}: ${issue.message}`}
                   onClick={() => onSelect(issue.objectIds[0] ?? null)}
                 >
                   <b>{issue.severity === "error" ? "!" : "△"}</b>
@@ -170,8 +173,7 @@ export function LivingRoomInspectorPanel({
                 </button>
               ))
             )}
-          </section>
-        ) : null}
+        </section>
       </div>
     </aside>
   );

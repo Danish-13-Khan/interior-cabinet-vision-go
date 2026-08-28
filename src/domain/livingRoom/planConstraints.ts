@@ -1,11 +1,10 @@
-import type { InteriorProject, OpeningEntity, WallEntity } from "../interiorProject";
-import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
+import type { InteriorProject, OpeningEntity, Point2Mm, WallEntity } from "../interiorProject";
+import { pointInPolygon, polygonsIntersect, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import {
-  boundsDistance,
   boundsOverlap,
+  getObjectPlanCorners,
   getObjectPlanBounds,
   objectFitsRoom,
-  type PlanBounds,
 } from "./planGeometry";
 
 export type LivingRoomPlanIssue = {
@@ -15,12 +14,16 @@ export type LivingRoomPlanIssue = {
   message: string;
 };
 
+export function isBlockingLivingRoomPlanIssue(issue: LivingRoomPlanIssue) {
+  return issue.severity === "error";
+}
+
 // Surface-mounted treatment is part of the wall, not a circulation obstacle.
 const NON_BLOCKING_CATEGORIES = new Set([
   "rug", "mirror", "feature-wall", "display-niche", "accessory", "ceiling-fixture", "window-treatment", "filler",
 ]);
 
-function openingZone(opening: OpeningEntity, wall: WallEntity): PlanBounds {
+function openingZone(opening: OpeningEntity, wall: WallEntity): Point2Mm[] {
   const dx = wall.end.x - wall.start.x;
   const dz = wall.end.z - wall.start.z;
   const length = Math.max(1, Math.hypot(dx, dz));
@@ -31,12 +34,38 @@ function openingZone(opening: OpeningEntity, wall: WallEntity): PlanBounds {
   const endX = startX + ux * opening.widthMm;
   const endZ = startZ + uz * opening.widthMm;
   const clearance = opening.kind === "door" ? opening.widthMm : 250;
-  return {
-    minX: Math.min(startX, endX) - (Math.abs(uz) * clearance + 80),
-    maxX: Math.max(startX, endX) + (Math.abs(uz) * clearance + 80),
-    minZ: Math.min(startZ, endZ) - (Math.abs(ux) * clearance + 80),
-    maxZ: Math.max(startZ, endZ) + (Math.abs(ux) * clearance + 80),
-  };
+  const nx = -uz;
+  const nz = ux;
+  const depth = clearance + 80;
+  return [
+    { x: startX + nx * depth, z: startZ + nz * depth },
+    { x: endX + nx * depth, z: endZ + nz * depth },
+    { x: endX - nx * depth, z: endZ - nz * depth },
+    { x: startX - nx * depth, z: startZ - nz * depth },
+  ];
+}
+
+function footprintsOverlap(first: ReturnType<typeof getObjectPlanCorners>, second: ReturnType<typeof getObjectPlanCorners>) {
+  return polygonsIntersect(first, second)
+    || first.some((point) => pointInPolygon(point, second))
+    || second.some((point) => pointInPolygon(point, first));
+}
+
+function pointToSegmentDistance(point: Point2Mm, start: Point2Mm, end: Point2Mm) {
+  const dx = end.x - start.x;
+  const dz = end.z - start.z;
+  const lengthSq = dx * dx + dz * dz;
+  if (!lengthSq) return Math.hypot(point.x - start.x, point.z - start.z);
+  const ratio = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.z - start.z) * dz) / lengthSq));
+  return Math.hypot(point.x - (start.x + dx * ratio), point.z - (start.z + dz * ratio));
+}
+
+function footprintDistance(first: ReturnType<typeof getObjectPlanCorners>, second: ReturnType<typeof getObjectPlanCorners>) {
+  if (footprintsOverlap(first, second)) return 0;
+  const distanceToEdges = (points: Point2Mm[], polygon: Point2Mm[]) => points.flatMap((point) => polygon.map((edgeStart, index) =>
+    pointToSegmentDistance(point, edgeStart, polygon[(index + 1) % polygon.length]!),
+  ));
+  return Math.min(...distanceToEdges(first, second), ...distanceToEdges(second, first));
 }
 
 export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanIssue[] {
@@ -64,7 +93,10 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
         const second = blocking[next]!;
         const firstBounds = getObjectPlanBounds(first);
         const secondBounds = getObjectPlanBounds(second);
-        if (boundsOverlap(firstBounds, secondBounds)) {
+        // AABBs are a cheap rejection test; the final check uses the actual
+        // rotated cabinet/furniture footprints so angled freeform plans do not
+        // receive false collision errors.
+        if (boundsOverlap(firstBounds, secondBounds) && footprintsOverlap(getObjectPlanCorners(first), getObjectPlanCorners(second))) {
           issues.push({
             code: "overlap",
             severity: "error",
@@ -72,7 +104,7 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
             message: `${first.name} overlaps ${second.name}.`,
           });
         } else {
-          const clearance = boundsDistance(firstBounds, secondBounds);
+          const clearance = footprintDistance(getObjectPlanCorners(first), getObjectPlanCorners(second));
           if (clearance > 0 && clearance < 350) {
             issues.push({
               code: "circulation",
@@ -91,7 +123,12 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
       if (!wall) continue;
       const zone = openingZone(opening, wall);
       for (const object of blocking) {
-        if (!boundsOverlap(getObjectPlanBounds(object), zone)) continue;
+        const objectBounds = getObjectPlanBounds(object);
+        const zoneBounds = {
+          minX: Math.min(...zone.map((point) => point.x)), maxX: Math.max(...zone.map((point) => point.x)),
+          minZ: Math.min(...zone.map((point) => point.z)), maxZ: Math.max(...zone.map((point) => point.z)),
+        };
+        if (!boundsOverlap(objectBounds, zoneBounds) || !footprintsOverlap(getObjectPlanCorners(object), zone)) continue;
         if (opening.kind === "window" && object.dimensions.heightMm < opening.sillHeightMm) {
           continue;
         }

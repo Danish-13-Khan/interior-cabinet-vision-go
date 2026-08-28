@@ -1,6 +1,6 @@
 import type { InteriorProject, InteriorRoomEntity, OpeningEntity } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
-import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult, PlanReadabilitySettings } from "../../domain/livingRoom";
+import { isBlockingLivingRoomPlanIssue, type BuildTool, type LivingRoomPlanIssue, type LivingRoomRenderResult, type PlanReadabilitySettings } from "../../domain/livingRoom";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -136,13 +136,15 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
       {props.plannerMode === "render" ? (
         <PlannerV2ReviewPanel schedule={props.millwork.schedule} issues={props.issues} busy={props.millwork.busy}
           status={props.millwork.status} onCsv={() => void props.millwork.exportSchedule("schedule-csv")}
-          onPdf={() => void props.millwork.exportSchedule("pdf")} />
+          onPdf={() => void props.millwork.exportSchedule("pdf")}
+          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }} />
       ) : null}
       <LivingRoomPlanStage
         project={project} workspaceView={props.workspaceView} selectedIds={w.selectedIds} issues={props.issues}
         snapSizeMm={props.snapSizeMm} showGrid={props.showGrid} canUndo={w.canUndo} canRedo={w.canRedo}
         hasSelection={Boolean(activeObject)} millworkCount={props.millwork.workflow?.millworkCount ?? 0}
         millworkReady={props.millwork.workflow?.readyToExport ?? false} exportBusy={props.millwork.busy}
+        exportBlocked={props.issues.some(isBlockingLivingRoomPlanIssue)}
         exportStatus={props.millwork.status} autosaveState={w.autosaveState} lastAutosavedAt={w.lastAutosavedAt}
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}

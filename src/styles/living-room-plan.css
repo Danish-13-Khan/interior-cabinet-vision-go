@@ -1286,6 +1286,9 @@
   color: #ae4a2f;
 }
 
+.lr-issues-panel button.is-warning b { color: #9a751e; }
+.lr-issues-panel button.is-warning { color: #594a28; }
+
 .lr-issues-panel button span {
   font-size: 0.57rem;
   line-height: 1.3;

@@ -90,6 +90,27 @@ describe("living-room plan authoring", () => {
     expect(issues.some((issue) => issue.code === "opening-clearance")).toBe(true);
   });
 
+  it("does not report a collision for separated rotated footprints with overlapping AABBs", () => {
+    const source = createLivingRoomStarterProject({ now: NOW });
+    const [firstSource, secondSource] = source.objects.slice(0, 2);
+    const first = {
+      ...firstSource!, id: "rotated-a", kind: "cabinet" as const,
+      position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 45, z: 0 },
+      dimensions: { widthMm: 1600, heightMm: 2200, depthMm: 200 },
+    };
+    const second = {
+      ...secondSource!, id: "rotated-b", kind: "cabinet" as const,
+      position: { x: 500, y: 0, z: 500 }, rotation: { x: 0, y: 45, z: 0 },
+      dimensions: { widthMm: 1600, heightMm: 2200, depthMm: 200 },
+    };
+    const project = { ...source, objects: [first, second] };
+    const firstBounds = getObjectPlanBounds(first);
+    const secondBounds = getObjectPlanBounds(second);
+    expect(firstBounds.maxX).toBeGreaterThan(secondBounds.minX);
+    expect(firstBounds.maxZ).toBeGreaterThan(secondBounds.minZ);
+    expect(inspectLivingRoomPlan(project).some((issue) => issue.code === "overlap")).toBe(false);
+  });
+
   it("resizes rectangular room geometry while retaining stable wall IDs", () => {
     const source = createLivingRoomStarterProject({ now: NOW });
     const wallIds = source.walls.map((wall) => wall.id);

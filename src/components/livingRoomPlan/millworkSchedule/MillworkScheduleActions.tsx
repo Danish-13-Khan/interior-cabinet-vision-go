@@ -24,7 +24,9 @@ export function MillworkScheduleActions({
         type="button"
         disabled={blocked}
         onClick={onExportScheduleCsv}
-        title={readyToExport
+        title={disabled
+          ? "Resolve blocking layout conflicts before exporting"
+          : readyToExport
           ? "Workshop CSV — millwork sizes from Plan/Model"
           : "Add millwork in Plan before exporting the schedule"}
       >
@@ -34,7 +36,9 @@ export function MillworkScheduleActions({
         type="button"
         disabled={blocked}
         onClick={onExportCutlistCsv}
-        title={readyToExport
+        title={disabled
+          ? "Resolve blocking layout conflicts before exporting"
+          : readyToExport
           ? "Production cutlist CSV — construction parts and board details"
           : "Add cabinets in Plan before exporting the production cutlist"}
       >
@@ -44,7 +48,9 @@ export function MillworkScheduleActions({
         type="button"
         disabled={blocked}
         onClick={onExportPdf}
-        title={readyToExport
+        title={disabled
+          ? "Resolve blocking layout conflicts before exporting"
+          : readyToExport
           ? "Production packet PDF — schedule, technical sheets, cutlist, and costing"
           : "Add millwork in Plan before exporting the schedule"}
       >
