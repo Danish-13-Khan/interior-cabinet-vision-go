@@ -22,6 +22,7 @@ describe("client package camera bookmarks", () => {
     const { files, packageData } = await assembleClientPresentationFiles(project, null, NOW);
     expect(packageData.manifest.packageViews.length).toBe(views.length);
     expect(packageData.manifest.files).toContain(packageData.fileNames.packageViews);
+    expect(packageData.manifest.presentationHonesty?.disclaimer).toContain("not interchangeable");
     const deckFile = files.find((file) => file.fileName.endsWith("-package-views.json"));
     expect(deckFile).toBeTruthy();
     expect(String(deckFile?.contents)).toContain(views[0]?.viewName ?? "");

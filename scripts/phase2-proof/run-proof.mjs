@@ -51,11 +51,24 @@ mustPass("phase2-proof", run(["src/domain/livingRoom/phase2Benchmarks/phase2Proo
 console.log("[phase2-proof] Phase 2A fixtures…");
 mustPass("phase2a-fixtures", run(["scripts/still-job/write-phase2a-fixture.test.ts"]));
 
+console.log("[phase2-proof] render tier honesty (K3)…");
+mustPass("render-tier-honesty", run(["src/domain/livingRoom/renderTierHonesty/renderTierHonesty.test.ts"]));
+
 if (process.env.PHASE2_SKIP_E2E !== "1") {
   console.log("[phase2-proof] hybrid stills e2e…");
   mustPass(
     "e2e-stills",
     spawnSync("npx", ["playwright", "test", "tests/e2e/phase-k1-hybrid-stills.spec.ts"], {
+      cwd: root,
+      stdio: "inherit",
+      shell: process.platform === "win32",
+      env: { ...process.env, PW_REUSE_SERVER: "0" },
+    }).status ?? 1,
+  );
+  console.log("[phase2-proof] render honesty e2e (K3)…");
+  mustPass(
+    "e2e-k3-honesty",
+    spawnSync("npx", ["playwright", "test", "tests/e2e/phase-k3-render-honesty.spec.ts"], {
       cwd: root,
       stdio: "inherit",
       shell: process.platform === "win32",

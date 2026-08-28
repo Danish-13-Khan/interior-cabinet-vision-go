@@ -19,3 +19,4 @@ Generated: 2026-08-28T12:00:00.000Z
 - Hero still engine (deterministic grade/contact/sharpen)
 - Review: plate | still | diff · Accept / Reject / Retry
 - Accepted stills only in client package manifest
+- K3 tier honesty: Draft ≠ Client Preview hero ≠ Hybrid Still

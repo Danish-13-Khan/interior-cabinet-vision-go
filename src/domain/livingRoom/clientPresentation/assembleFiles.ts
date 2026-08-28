@@ -4,6 +4,7 @@ import type { LivingRoomRenderResult } from "../renderStudio";
 import type { StillProvenance } from "../stillJob/provenance";
 import { withAcceptedStillProvenance } from "./acceptedStills";
 import { attachPackageViewsToManifest } from "./attachPackageViews";
+import { buildClientPresentationHonesty, isPackageDeliverableRenderQuality } from "../renderTierHonesty";
 import { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 import {
   buildClientPresentationPackage,
@@ -42,6 +43,9 @@ export async function assembleClientPresentationFiles(
     built.fileNames.packageViews,
   );
   const stillPngs = await acceptedStillPngFiles(manifest.acceptedStills, acceptedStillPngs);
+  const heroEligible = Boolean(
+    render && isPackageDeliverableRenderQuality(render.quality),
+  );
   if (manifest.acceptedStills.length) {
     manifest = {
       ...manifest,
@@ -52,7 +56,25 @@ export async function assembleClientPresentationFiles(
       ],
     };
   }
-  const packageData = { ...built, manifest };
+  manifest = {
+    ...manifest,
+    presentationHonesty: buildClientPresentationHonesty(
+      manifest,
+      heroEligible ? built.fileNames.heroPng : null,
+    ),
+  };
+  if (!heroEligible) {
+    manifest = {
+      ...manifest,
+      render: null,
+      files: manifest.files.filter((name) => name !== built.fileNames.heroPng),
+    };
+  }
+  const packageData = {
+    ...built,
+    manifest,
+    heroRenderDataUrl: heroEligible ? built.heroRenderDataUrl : null,
+  };
   const pdf = await exportClientPresentationPdf(project, render, packageData);
   const files: ClientPresentationFile[] = [
     {

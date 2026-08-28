@@ -22,6 +22,7 @@ import {
 } from "../stillReview";
 import { describeStillHonesty } from "../stillHonesty";
 import { evaluateHonesty } from "../phase1Benchmarks/evaluateHonesty";
+import { resolveRenderStudioHonesty } from "../renderTierHonesty";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const outDir = join(root, "fixtures/phase-2-stills");
@@ -52,7 +53,13 @@ describe("Phase 2 hybrid stills proof", () => {
 
     const honesty = describeStillHonesty();
     expect(honesty.headline).toMatch(/Hybrid Still/i);
+    expect(honesty.role).toBe("still");
     expect(evaluateHonesty([honesty.headline, honesty.subline]).status).toBe("pass");
+
+    const draft = resolveRenderStudioHonesty({ view: "preview", quality: "draft" });
+    const client = resolveRenderStudioHonesty({ view: "preview", quality: "client-preview" });
+    const still = resolveRenderStudioHonesty({ view: "still", quality: "client-preview" });
+    expect(new Set([draft.tierId, client.tierId, still.tierId]).size).toBe(3);
 
     mkdirSync(outDir, { recursive: true });
     writeFileSync(
@@ -74,6 +81,7 @@ describe("Phase 2 hybrid stills proof", () => {
         "- Hero still engine (deterministic grade/contact/sharpen)",
         "- Review: plate | still | diff · Accept / Reject / Retry",
         "- Accepted stills only in client package manifest",
+        "- K3 tier honesty: Draft ≠ Client Preview hero ≠ Hybrid Still",
         "",
       ].join("\n"),
     );
