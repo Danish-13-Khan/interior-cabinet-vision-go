@@ -17,6 +17,14 @@
 
 .lr-model-mode-readout b { color: #fff; }
 
+.lr-product-shell-v2 .lr-inspector-scroll .lr-opening-inspector:first-child {
+  display: block;
+}
+
+.lr-product-shell-v2 .lr-inspector.has-opening-selection .inspector-header strong:after {
+  content: "SELECTED OPENING";
+}
+
 .lr-model-onboarding {
   position: absolute;
   z-index: 10;

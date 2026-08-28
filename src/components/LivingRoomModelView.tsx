@@ -35,9 +35,11 @@ import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel
 type LivingRoomModelViewProps = {
   project: InteriorProject;
   selectedIds: string[];
+  activeOpeningId: string | null;
   snapSizeMm: number;
   showGrid: boolean;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectOpening: (openingId: string) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
@@ -47,9 +49,11 @@ type LivingRoomModelViewProps = {
 export function LivingRoomModelView({
   project,
   selectedIds,
+  activeOpeningId,
   snapSizeMm,
   showGrid,
   onSelect,
+  onSelectOpening,
   onMove,
   onSetRotation,
   onApplyStyle,
@@ -122,6 +126,7 @@ export function LivingRoomModelView({
         <CompiledSceneRenderer
           scene={scene}
           selectedIds={selectedIds}
+          selectedOpeningId={activeOpeningId}
           activeCameraId={activeCameraId}
           viewPreset={viewPreset}
           cameraHeightMm={cameraOverrides.cameraHeightMm}
@@ -133,6 +138,7 @@ export function LivingRoomModelView({
           renderComposition="architectural"
           renderMode={renderMode}
           onSelect={onSelect}
+          onSelectOpening={onSelectOpening}
           onMove={onMove}
           onExitWalkthrough={exitWalkthrough}
           onMechanismClick={(objectId, primitiveId) => {

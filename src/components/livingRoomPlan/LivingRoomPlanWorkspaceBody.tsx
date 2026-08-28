@@ -42,7 +42,9 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
           onActiveWall={(wallId) => props.setActiveWallId(wallId)}
           onActiveOpening={(openingId) => {
+            w.onSelect(null);
             props.setActiveOpeningId(openingId);
+            props.setActiveSurfaceId(null);
             const opening = project.openings.find((item) => item.id === openingId);
             if (opening) props.setActiveWallId(opening.wallId);
           }}
@@ -104,6 +106,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
         onSelectWall={(wallId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); props.setActiveWallId(wallId); }}
         onSelectOpening={(openingId) => {
+          w.onSelect(null);
           props.setActiveOpeningId(openingId);
           props.setActiveSurfaceId(null);
           const opening = project.openings.find((item) => item.id === openingId);

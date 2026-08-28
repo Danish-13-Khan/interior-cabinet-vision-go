@@ -80,7 +80,7 @@ export function LivingRoomInspectorPanel({
 }: LivingRoomInspectorPanelProps) {
   const activeWall = project.walls.find((wall) => wall.id === activeWallId) ?? null;
   return (
-    <aside className="lr-inspector" style={{ width: widthPx }}>
+    <aside className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`} style={{ width: widthPx }}>
       <div className="inspector-header">
         <strong>{mode === "plan" ? "Plan Properties" : "Model Properties"}</strong>
         <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${selectedCount} selected`)}</span>

@@ -122,7 +122,8 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
             project={props.project} selectedIds={props.selectedIds} snapSizeMm={props.snapSizeMm}
-            showGrid={props.showGrid} onSelect={props.onSelect} onMove={props.onMove}
+            activeOpeningId={props.activeOpeningId} showGrid={props.showGrid}
+            onSelect={props.onSelect} onSelectOpening={props.onSelectOpening} onMove={props.onMove}
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
           />
