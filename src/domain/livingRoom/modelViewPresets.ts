@@ -1,15 +1,19 @@
 import type { CompiledLivingRoomScene } from "./sceneTypes";
 
 export const MODEL_VIEW_PRESETS = [
-  { id: "dollhouse", label: "Dollhouse" },
-  { id: "orbit", label: "Orbit" },
-  { id: "front", label: "Front" },
-  { id: "top", label: "Top" },
-  { id: "perspective", label: "Perspective" },
-  { id: "walkthrough", label: "Walkthrough" },
+  { id: "dollhouse", label: "Dollhouse", symbol: "⌂", purpose: "See the whole room at a glance", clientMode: true },
+  { id: "orbit", label: "Orbit", symbol: "↻", purpose: "Circle the room to inspect every side", clientMode: true },
+  { id: "front", label: "Front", symbol: "▤", purpose: "Review a straight-on elevation", clientMode: false },
+  { id: "top", label: "Top", symbol: "↓", purpose: "Check the layout from above", clientMode: false },
+  { id: "perspective", label: "Perspective", symbol: "◇", purpose: "Use the saved presentation camera", clientMode: false },
+  { id: "walkthrough", label: "Walkthrough", symbol: "→", purpose: "Move through the room at eye level", clientMode: true },
 ] as const;
 
 export type ModelViewPresetId = (typeof MODEL_VIEW_PRESETS)[number]["id"];
+
+export function getModelViewPreset(presetId: ModelViewPresetId) {
+  return MODEL_VIEW_PRESETS.find((preset) => preset.id === presetId)!;
+}
 
 export type ModelViewPose = {
   position: { x: number; y: number; z: number };

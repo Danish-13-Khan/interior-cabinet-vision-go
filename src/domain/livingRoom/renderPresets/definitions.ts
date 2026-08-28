@@ -79,5 +79,5 @@ export const RENDER_PRESET_DEFINITIONS = [
   },
 ] as const satisfies readonly RenderPresetBehavior[];
 
-/** Model View default — balanced presence, still interactive-safe. */
-export const MODEL_VIEW_DEFAULT_PRESET_ID = "standard" as const;
+/** Model View default — soft designed preview, still interactive-safe. */
+export const MODEL_VIEW_DEFAULT_PRESET_ID = "draft" as const;

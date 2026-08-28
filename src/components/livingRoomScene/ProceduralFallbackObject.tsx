@@ -1,6 +1,7 @@
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { ThreeEvent } from "@react-three/fiber";
 import { CompiledPrimitiveView } from "./CompiledPrimitiveView";
 
 type ProceduralFallbackObjectProps = {
@@ -9,6 +10,7 @@ type ProceduralFallbackObjectProps = {
   selected: boolean;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
+  onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
 };
 
 /** Existing compiled primitives path used when GLB is missing or fails. */
@@ -18,6 +20,7 @@ export function ProceduralFallbackObject({
   selected,
   renderMode,
   renderQuality,
+  onPointerDown,
 }: ProceduralFallbackObjectProps) {
   return (
     <>
@@ -29,6 +32,7 @@ export function ProceduralFallbackObject({
           selected={selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          onPointerDown={onPointerDown}
         />
       ))}
     </>

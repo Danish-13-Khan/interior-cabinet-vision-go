@@ -18,6 +18,8 @@ type RenderLightingRigProps = {
   renderMode: RenderMode;
   renderQuality: RenderQuality;
   lightingQuality: EnvironmentLightingQuality;
+  projectLightScale?: number;
+  windowKeyScale?: number;
 };
 
 /**
@@ -30,6 +32,8 @@ export function RenderLightingRig({
   renderMode,
   renderQuality,
   lightingQuality,
+  projectLightScale = 1,
+  windowKeyScale = 1,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
   const roomCenter = computeArchitectureBounds(scene.nodes).center;
@@ -65,11 +69,13 @@ export function RenderLightingRig({
         scene={scene}
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
+        intensityScale={projectLightScale}
       />
       <WindowKeyLight
         lights={windowKeys}
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
+        intensityScale={windowKeyScale}
       />
     </>
   );

@@ -1,26 +1,24 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  MOUSE,
-  ACESFilmicToneMapping,
-  PCFShadowMap,
-  SRGBColorSpace,
-} from "three";
+import { useMemo, useRef, useState } from "react";
+import { MOUSE } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
+import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
+import { filterModelReviewNodes } from "../../domain/livingRoom/modelReviewNodes";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CameraRig } from "./CameraRig";
 import { CompiledNodeView } from "./CompiledNodeView";
+import { RendererColorPipeline } from "./RendererColorPipeline";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
   selectedIds: string[];
+  selectedOpeningId?: string | null;
   activeCameraId: string | null;
   viewPreset?: ModelViewPresetId;
   cameraHeightMm?: number;
@@ -32,25 +30,21 @@ type SceneRendererProps = {
   renderQuality?: RenderQuality;
   renderComposition?: RenderComposition;
   renderMode?: RenderMode;
+  lightingQuality?: EnvironmentLightingQuality;
+  projectLightScale?: number;
+  windowKeyScale?: number;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectOpening?: (openingId: string) => void;
+  onClearSelection?: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
+  onExitWalkthrough?: () => void;
 };
-
-function RendererColorPipeline({ exposure }: { exposure: number }) {
-  const { gl } = useThree();
-  useEffect(() => {
-    gl.outputColorSpace = SRGBColorSpace;
-    gl.toneMapping = ACESFilmicToneMapping;
-    gl.toneMappingExposure = exposure;
-    if (gl.shadowMap.type !== PCFShadowMap) gl.shadowMap.type = PCFShadowMap;
-  }, [exposure, gl]);
-  return null;
-}
 
 export function CompiledSceneRenderer({
   scene,
   selectedIds,
+  selectedOpeningId = null,
   activeCameraId,
   viewPreset,
   cameraHeightMm,
@@ -62,9 +56,15 @@ export function CompiledSceneRenderer({
   renderQuality = "standard",
   renderComposition = "project-camera",
   renderMode = "preview",
+  lightingQuality: lightingQualityOverride,
+  projectLightScale = 1,
+  windowKeyScale = 1,
   onSelect,
+  onSelectOpening = () => {},
+  onClearSelection = () => onSelect(null),
   onMove,
   onMechanismClick,
+  onExitWalkthrough,
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -87,15 +87,13 @@ export function CompiledSceneRenderer({
     renderCamera && renderCamera.position.x < architectureBounds.center.x ? "left" : "right",
     renderCamera && renderCamera.position.z < architectureBounds.center.z ? "back" : "front",
   ]);
-  const nodes = cutawayWalls
-    ? scene.nodes.filter((node) => ![
-        "wall",
-        "opening",
-      ].includes(String(node.metadata.role)) || !cutawaySides.has(String(node.metadata.wallSide)))
-    : scene.nodes;
+  const nodes = filterModelReviewNodes(
+    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId,
+  );
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
-  const lightingQuality = resolveEnvironmentLightingQuality(renderMode, renderQuality);
+  const lightingQuality = lightingQualityOverride
+    ?? resolveEnvironmentLightingQuality(renderMode, renderQuality);
 
   return (
     <>
@@ -113,6 +111,8 @@ export function CompiledSceneRenderer({
         renderMode={renderMode}
         renderQuality={renderQuality}
         lightingQuality={lightingQuality}
+        projectLightScale={projectLightScale}
+        windowKeyScale={windowKeyScale}
       />
       {showGrid ? (
         <gridHelper
@@ -130,11 +130,14 @@ export function CompiledSceneRenderer({
           key={node.id}
           node={node}
           materials={materialMap}
-          selected={Boolean(node.sourceObjectId && selectedIds.includes(node.sourceObjectId))}
+          selected={Boolean((node.sourceObjectId && selectedIds.includes(node.sourceObjectId))
+            || node.metadata.openingId === selectedOpeningId)}
           snapSizeMm={snapSizeMm}
           renderMode={renderMode}
           renderQuality={renderQuality}
           onSelect={onSelect}
+          onSelectOpening={onSelectOpening}
+          onClearSelection={onClearSelection}
           onMove={onMove}
           onDragStateChange={setDragging}
           interactive={interactive}
@@ -182,7 +185,10 @@ export function CompiledSceneRenderer({
         fieldOfViewDegrees={fieldOfViewDegrees}
         assetRevision={assetRevision}
       />
-      <WalkthroughNavigation enabled={interactive && viewPreset === "walkthrough"} />
+      <WalkthroughNavigation
+        enabled={interactive && viewPreset === "walkthrough"}
+        onExit={onExitWalkthrough}
+      />
     </>
   );
 }
