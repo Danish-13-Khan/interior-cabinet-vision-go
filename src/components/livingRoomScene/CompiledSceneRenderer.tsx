@@ -35,6 +35,7 @@ type SceneRendererProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
+  onExitWalkthrough?: () => void;
 };
 
 function RendererColorPipeline({ exposure }: { exposure: number }) {
@@ -65,6 +66,7 @@ export function CompiledSceneRenderer({
   onSelect,
   onMove,
   onMechanismClick,
+  onExitWalkthrough,
 }: SceneRendererProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -182,7 +184,10 @@ export function CompiledSceneRenderer({
         fieldOfViewDegrees={fieldOfViewDegrees}
         assetRevision={assetRevision}
       />
-      <WalkthroughNavigation enabled={interactive && viewPreset === "walkthrough"} />
+      <WalkthroughNavigation
+        enabled={interactive && viewPreset === "walkthrough"}
+        onExit={onExitWalkthrough}
+      />
     </>
   );
 }

@@ -162,6 +162,8 @@ Export    ██████░░░░
 | J2 | 3D selection ↔ inspector parity for openings/objects | Continuous review, not screenshot-only |
 | J3 | Soft lighting / material preview defaults | “Looks designed” without photoreal |
 
+**J1 status:** Implemented — first-entry 3D guide explains the three client-facing navigation modes in plain language, previews each mode in-place, keeps a persistent mode/purpose readout, and can be reopened from the camera toolbar. Escape reliably returns walkthrough users to Dollhouse.
+
 ### K — Render & stills
 
 | ID | Missing feature | Why it matters |
