@@ -102,6 +102,11 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
         onSelect={(objectId, additive) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
+        onClearSelection={() => {
+          props.setActiveOpeningId(null);
+          props.setActiveSurfaceId(null);
+          w.onSelect(null);
+        }}
         onMove={w.onMove} onResize={w.onResize}         activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
         activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
         onSelectWall={(wallId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); props.setActiveWallId(wallId); }}

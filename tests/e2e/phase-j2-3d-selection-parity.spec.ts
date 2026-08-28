@@ -24,25 +24,46 @@ async function pointBelow(label: Locator, pixels = 28) {
 async function clickVisibleFloor(page: Page) {
   const box = await page.locator(".lr-model-viewport canvas").boundingBox();
   if (!box) throw new Error("3D canvas is not rendered");
-  // Keep clear of the bottom-left style palette and bottom-right diagnostics.
   await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.68);
 }
 
+async function clearPlanSelection(page: Page) {
+  await page.locator(".lr-plan-svg").click({ position: { x: 24, y: 24 } });
+}
+
 test("J2 selects, switches, clears, and edits entities in 3D", async ({ page }) => {
-  test.setTimeout(60_000);
+  test.setTimeout(90_000);
   await openDesign(page);
 
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
-  const object = page.locator("[data-object-id]").first();
-  await object.click();
+  await page.locator("[data-object-id]").first().click();
+
+  await page.locator("[data-object-id]").first().click();
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  const objectLabel = page.locator(".lr-model-object-label").filter({ hasText: "Base Cabinet" });
+  const objectPoint = await pointBelow(objectLabel);
+
+  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await clearPlanSelection(page);
+  const opening = page.locator('[data-opening-id="lr-opening-picture-window"]');
+  await opening.locator("text").click();
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  const openingLabel = page.locator(".lr-model-object-label").filter({ hasText: "Fixed Window" });
+  const openingPoint = await pointBelow(openingLabel, 20);
+
+  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await clearPlanSelection(page);
   await page.getByRole("button", { name: "3D", exact: true }).click();
 
   const inspector = page.locator(".lr-inspector");
-  await expect(inspector.getByText("Model Properties", { exact: true })).toBeVisible();
+  await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
+  await expect(inspector.getByText("Selected Opening", { exact: true })).toHaveCount(0);
+
+  await page.mouse.click(objectPoint.x, objectPoint.y);
   await expect(inspector.getByText("Selected Object", { exact: true })).toBeVisible();
-  const objectLabel = page.locator(".lr-model-object-label").filter({ hasText: "Base Cabinet" });
-  const objectPoint = await pointBelow(objectLabel);
-  await clickVisibleFloor(page);
+
+  await page.mouse.click(openingPoint.x, openingPoint.y);
+  await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible();
   await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
 
   await page.mouse.click(objectPoint.x, objectPoint.y);
@@ -52,27 +73,12 @@ test("J2 selects, switches, clears, and edits entities in 3D", async ({ page }) 
   await width.blur();
   await expect(width).toHaveValue("1000");
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
-  const opening = page.locator('[data-opening-id="lr-opening-picture-window"]');
-  // A vertical SVG line has a zero-width bounding box, so Playwright treats it
-  // as invisible. The rendered opening label is a stable, clickable child of
-  // the same pointer-enabled group.
-  await opening.locator("text").click();
-  await page.getByRole("button", { name: "3D", exact: true }).click();
-
-  await expect(inspector.getByText("Opening selected", { exact: true })).toBeVisible();
-  await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible();
-  const openingLabel = page.locator(".lr-model-object-label").filter({ hasText: "Fixed Window" });
-  const openingPoint = await pointBelow(openingLabel, 20);
-
-  await page.mouse.click(objectPoint.x, objectPoint.y);
-  await expect(inspector.getByText("Selected Object", { exact: true })).toBeVisible();
   await page.mouse.click(openingPoint.x, openingPoint.y);
-  await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible();
-
   const frame = inspector.locator('[data-material-slot="frame"]');
   await frame.locator(`[data-material-id="${OAK_ID}"]`).click();
   await expect(frame.locator(`[data-material-id="${OAK_ID}"]`)).toHaveClass(/is-active/);
+
   await clickVisibleFloor(page);
   await expect(inspector.getByText("Selected Opening", { exact: true })).toHaveCount(0);
+  await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
 });

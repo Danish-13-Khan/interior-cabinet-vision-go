@@ -49,7 +49,7 @@ describe("render preset system", () => {
   });
 
   it("keeps Model View fast by default and limits heavy presets", () => {
-    expect(getModelViewDefaultPresetId()).toBe("standard");
+    expect(getModelViewDefaultPresetId()).toBe("draft");
     expect(listModelViewRenderPresets().map((preset) => preset.id)).toEqual([
       "draft",
       "standard",

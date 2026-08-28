@@ -7,16 +7,19 @@ type WindowKeyLightProps = {
   lights: readonly WindowKeyLightDescriptor[];
   shadowMapSize: number;
   shadowRadius: number;
+  intensityScale?: number;
 };
 
 function WindowKeyDirectional({
   light,
   shadowMapSize,
   shadowRadius,
+  intensityScale = 1,
 }: {
   light: WindowKeyLightDescriptor;
   shadowMapSize: number;
   shadowRadius: number;
+  intensityScale?: number;
 }) {
   const lightRef = useRef<DirectionalLight>(null);
   useLayoutEffect(() => {
@@ -39,7 +42,7 @@ function WindowKeyDirectional({
         light.positionMm.z / 1000,
       ]}
       color={light.color}
-      intensity={light.intensity}
+      intensity={light.intensity * intensityScale}
       castShadow={light.castShadow}
       shadow-mapSize={light.castShadow ? shadowMapSizePair(shadowMapSize) : undefined}
       shadow-bias={-0.0003}
@@ -60,6 +63,7 @@ export function WindowKeyLight({
   lights,
   shadowMapSize,
   shadowRadius,
+  intensityScale = 1,
 }: WindowKeyLightProps) {
   return (
     <>
@@ -69,6 +73,7 @@ export function WindowKeyLight({
           light={light}
           shadowMapSize={shadowMapSize}
           shadowRadius={shadowRadius}
+          intensityScale={intensityScale}
         />
       ))}
     </>

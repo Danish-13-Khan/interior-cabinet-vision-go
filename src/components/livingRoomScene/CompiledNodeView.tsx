@@ -31,6 +31,7 @@ export function CompiledNodeView({
   renderQuality,
   onSelect,
   onSelectOpening,
+  onClearSelection,
   onMove,
   onDragStateChange,
   interactive,
@@ -45,6 +46,7 @@ export function CompiledNodeView({
   renderQuality?: RenderQuality;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
+  onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onDragStateChange: (dragging: boolean) => void;
   interactive: boolean;
@@ -70,7 +72,7 @@ export function CompiledNodeView({
     if (!interactive || event.button !== 0) return;
     event.stopPropagation();
     if (!selectionTarget) {
-      onSelect(null);
+      onClearSelection();
       return;
     }
     if (selectionTarget.kind === "opening") {
@@ -126,7 +128,6 @@ export function CompiledNodeView({
         degrees(node.rotationDegrees.y),
         degrees(node.rotationDegrees.z),
       ]}
-      onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
@@ -142,6 +143,7 @@ export function CompiledNodeView({
           renderMode={renderMode}
           renderQuality={renderQuality}
           onReady={onAssetReady}
+          onPointerDown={handlePointerDown}
         />
       ) : (
         <ProceduralFallbackObject
@@ -150,6 +152,7 @@ export function CompiledNodeView({
           selected={selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          onPointerDown={handlePointerDown}
         />
       )}
       {selected || node.placeholder ? (
