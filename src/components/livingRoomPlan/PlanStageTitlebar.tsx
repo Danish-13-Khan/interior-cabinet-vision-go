@@ -17,8 +17,9 @@ type PlanStageTitlebarProps = {
   millworkReady: boolean;
   exportBlocked: boolean;
   onExportScheduleCsv: () => void;
+  onExportSchedulePdf: () => void;
   onExportCutlistCsv: () => void;
-  onExportPdf: () => void;
+  onExportProductionPdf: () => void;
 };
 
 export function PlanStageTitlebar(props: PlanStageTitlebarProps) {
@@ -54,8 +55,9 @@ export function PlanStageTitlebar(props: PlanStageTitlebarProps) {
           millworkCount={props.millworkCount}
           readyToExport={props.millworkReady}
           onExportScheduleCsv={props.onExportScheduleCsv}
+          onExportSchedulePdf={props.onExportSchedulePdf}
           onExportCutlistCsv={props.onExportCutlistCsv}
-          onExportPdf={props.onExportPdf}
+          onExportProductionPdf={props.onExportProductionPdf}
         />
       ) : null}
     </div>

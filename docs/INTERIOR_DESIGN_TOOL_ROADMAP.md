@@ -187,6 +187,8 @@ Export    ██████░░░░
 | ID | Missing feature | Why it matters |
 | --- | --- | --- |
 | L1 | Harden Millwork Schedule v1 as default workshop output | Cabinet-aware claim |
+
+**L1 status:** Implemented — Schedule CSV/PDF is the primary workshop output on the plan titlebar and Review panel; `exportMillworkSchedulePdf` is wired; cutlist and production packet moved under a **Production** disclosure.
 | L2 | One-click client package (PDF + stills + schedule) | End of the agenda |
 | L3 | Pre-export validation checklist in Review | No silent broken layouts |
 
@@ -276,7 +278,7 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 
 ### Phase L — Export / presentation finish · M · parallel with I/K
 
-- Millwork Schedule v1 hardened as default  
+- Millwork Schedule v1 hardened as default — **done (L1)**
 - One-click client package  
 - Pre-export validation checklist
 
