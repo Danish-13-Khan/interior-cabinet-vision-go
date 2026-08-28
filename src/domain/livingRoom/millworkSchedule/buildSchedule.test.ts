@@ -41,6 +41,12 @@ describe("Living-room Millwork Schedule workflow", () => {
     expect(formatMaterialLabels(tv.materialLabels)).toMatch(/carcass=/);
     expect(formatMaterialLabels(tv.materialLabels)).not.toMatch(/lr-material-/);
     expect(millworkScheduleToCsv(schedule)).toContain("materialNames");
+    const withSku = addLivingRoomObject(withBookcase, createLivingRoomObject("living:base-cabinet-900", {
+      id: "sku-base", roomId, position: { x: 1000, y: 0, z: -1800 },
+    }));
+    const skuSchedule = buildLivingRoomMillworkSchedule(withSku, NOW);
+    expect(skuSchedule.lines.find((line) => line.objectId === "sku-base")?.sku).toBe("MW-BASE-900");
+    expect(millworkScheduleToCsv(skuSchedule)).toContain("MW-BASE-900");
   });
 
   it("updates width when the same millwork entity is resized", () => {
@@ -65,7 +71,7 @@ describe("Living-room Millwork Schedule workflow", () => {
     const schedule = buildLivingRoomMillworkSchedule(stripped, NOW);
     expect(schedule.lines).toEqual([]);
     expect(millworkScheduleToCsv(schedule)).toBe(
-      "objectId,name,category,kind,roomId,widthMm,heightMm,depthMm,materialIds,materialNames,quantity",
+      "objectId,name,category,kind,roomId,widthMm,heightMm,depthMm,sku,materialIds,materialNames,quantity",
     );
     expect(millworkScheduleFileBase("Client / Living Room")).toBe("client-living-room-millwork-schedule");
   });

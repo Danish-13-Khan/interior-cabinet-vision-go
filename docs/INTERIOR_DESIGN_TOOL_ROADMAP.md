@@ -148,6 +148,8 @@ Export    ██████░░░░
 **I3 status:** Implemented — freeform-aware overlap and clearance validation is actionable in Plan, Model, and Review, and blocks workshop exports until errors are resolved.
 
 | I4 | Richer curated openings (6–12) + millwork SKUs | Catalog feels intentional, not stub |
+
+**I4 status:** Implemented — eight curated opening families (four doors, four windows) carry distinct defaults and plan symbols; three SKU-labelled tall/base/wall modules are visible in Design, survive into schedules, and intentionally reuse the procedural bookcase mesh as an MVP height-band stand-in.
 | I5 | Material browser polish (swatches, slots, apply-to-selection) | Interiors look finished in 2D/3D |
 
 ### J — 3D review polish
@@ -228,6 +230,8 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 **I2 status:** Implemented — auto fillers use the shared CAD sizing rule, stay synchronized through run edits/deletes/wall reflow, and corner wardrobes stay attached to their irregular-plan junctions.
 
 **I3 status:** Implemented — validation is live across Design/Build/Review, distinguishes blocking collisions from advisory clearance checks, highlights/selects involved plan objects, and blocks workshop exports. The header’s **Export JSON** is intentionally a project backup download and remains ungated.
+
+**I4 status:** Implemented — eight curated opening families (four doors, four windows) carry distinct defaults and plan symbols; three SKU-labelled tall/base/wall modules are visible in Design, survive into schedules, and intentionally reuse the procedural bookcase mesh as an MVP height-band stand-in.
 
 **Exit:** Wardrobe run + fillers on an L-room wall; validation visible; schedule matches placed units.
 

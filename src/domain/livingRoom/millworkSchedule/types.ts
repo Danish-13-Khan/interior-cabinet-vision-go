@@ -12,6 +12,8 @@ export type MillworkScheduleLine = {
   widthMm: number;
   heightMm: number;
   depthMm: number;
+  /** Curated SKU when the placed millwork item has one. */
+  sku: string | null;
   /** Slot → material entity id (authoring truth). */
   materialSlots: Record<string, string>;
   /** Slot → human material name for shop-facing export/preview. */

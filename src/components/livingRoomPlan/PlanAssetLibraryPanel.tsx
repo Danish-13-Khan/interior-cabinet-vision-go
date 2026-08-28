@@ -27,6 +27,6 @@ export function PlanAssetLibraryPanel(props: {
     <div className="lr-asset-grid">{props.assets.map((item) => <button type="button" key={item.id}
       onClick={() => props.onAdd(item.id as LivingRoomCatalogId, cabinets ? props.wallId : undefined)}>
       <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span><strong>{item.name}</strong>
-      <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm</small><b>Place</b></button>)}</div>
+      <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm{"sku" in item.parameters && typeof item.parameters.sku === "string" ? ` · ${item.parameters.sku}` : ""}</small><b>Place</b></button>)}</div>
   </>;
 }
