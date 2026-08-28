@@ -166,6 +166,8 @@ Export    ██████░░░░
 
 **J2 status:** Implemented — compiled objects and openings resolve to shared project selections in 3D; selection highlights follow between plan/model views, blank-canvas/architecture and cross-entity picks clear stale state, and the same object/opening inspector remains editable throughout review.
 
+**J3 status:** Implemented — Model View defaults to Draft preview (not hero/photoreal), applies soft studio lighting and designed material tuning via dedicated preview resolvers, and keeps honesty badges on the PREVIEW tier even when Standard quality is selected for richer textures.
+
 ### K — Render & stills
 
 | ID | Missing feature | Why it matters |

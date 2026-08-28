@@ -141,6 +141,18 @@ export {
   type LivingRoomRecoverySnapshot,
 } from "./desktopExperience";
 export { preferModelViewCameraId } from "./modelViewDefaults";
+export {
+  describeModelViewHonesty,
+  describeModelViewRuntimeProfile,
+  modelViewProjectLightScale,
+  modelViewWindowKeyScale,
+  resolveModelViewLightingQuality,
+  resolveModelViewMaterialQuality,
+  resolveModelViewRenderMode,
+  resolveModelViewMaterialBuildContext,
+  type ModelViewMaterialBuildContext,
+  type ModelViewRuntimeProfile,
+} from "./modelViewPreviewDefaults";
 export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
 export { assertV1CatalogScope, V1_PRODUCT_SCOPE } from "./v1Scope";
 export {

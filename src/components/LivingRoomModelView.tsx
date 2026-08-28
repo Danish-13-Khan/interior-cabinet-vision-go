@@ -1,9 +1,9 @@
-import { Canvas } from "@react-three/fiber";
 import { useCallback, useMemo, useState } from "react";
 import type { InteriorProject, Point3Mm, RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
-  describePresetHonesty,
+  describeModelViewHonesty,
+  describeModelViewRuntimeProfile,
   getActiveLivingRoomStyleId,
   getCabinetMechanismState,
   getModelViewDefaultPresetId,
@@ -13,9 +13,12 @@ import {
   mechanismAllPatch,
   mechanismFrontIndex,
   mechanismPanelPatch,
+  modelViewProjectLightScale,
+  modelViewWindowKeyScale,
   preferModelViewCameraId,
   resolveModelViewCameraOverrides,
-  resolveStudioRenderMode,
+  resolveModelViewLightingQuality,
+  resolveModelViewRenderMode,
   type LivingRoomStyleId,
   type ModelViewPresetId,
 } from "../domain/livingRoom";
@@ -25,13 +28,12 @@ import {
 } from "../domain/livingRoom/modelViewGuidePreference";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CabinetMechanismPanel } from "./livingRoomScene/CabinetMechanismPanel";
-import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
+import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewStylePalette } from "./livingRoomScene/ModelViewStylePalette";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
 import { ModelViewOnboarding } from "./livingRoomScene/ModelViewOnboarding";
 import { ModelViewReadout } from "./livingRoomScene/ModelViewReadout";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
-
 type LivingRoomModelViewProps = {
   project: InteriorProject;
   selectedIds: string[];
@@ -40,6 +42,7 @@ type LivingRoomModelViewProps = {
   showGrid: boolean;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
+  onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
@@ -54,6 +57,7 @@ export function LivingRoomModelView({
   showGrid,
   onSelect,
   onSelectOpening,
+  onClearSelection,
   onMove,
   onSetRotation,
   onApplyStyle,
@@ -70,8 +74,10 @@ export function LivingRoomModelView({
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(getModelViewDefaultPresetId());
   const modelPresets = listModelViewRenderPresets();
   const quality = getRenderQualityPreset(viewportQuality);
-  const renderMode = resolveStudioRenderMode(viewportQuality);
-  const honesty = describePresetHonesty(viewportQuality, renderMode);
+  const renderMode = resolveModelViewRenderMode();
+  const honesty = describeModelViewHonesty(viewportQuality);
+  const modelViewLighting = resolveModelViewLightingQuality(viewportQuality);
+  const runtimeProfile = describeModelViewRuntimeProfile(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
   const activeObject = selectedIds.length === 1
@@ -90,7 +96,11 @@ export function LivingRoomModelView({
   };
 
   return (
-    <div className="lr-model-viewport is-presence has-3d-onboarding" data-testid="lr-model-viewport">
+    <div
+      className="lr-model-viewport is-presence has-3d-onboarding"
+      data-testid="lr-model-viewport"
+      data-model-view-profile={JSON.stringify(runtimeProfile)}
+    >
       <ModelViewToolbar
         viewPreset={viewPreset}
         cameraHeightMm={cameraHeightMm}
@@ -116,41 +126,37 @@ export function LivingRoomModelView({
         onViewportQuality={setViewportQuality}
         onOpenGuide={() => setShowGuide(true)}
       />
-      <Canvas
-        shadows="percentage"
-        dpr={[1, quality.pixelRatio]}
-        gl={{ antialias: true, preserveDrawingBuffer: true }}
-        camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: 100 }}
-        onPointerMissed={() => onSelect(null)}
-      >
-        <CompiledSceneRenderer
-          scene={scene}
-          selectedIds={selectedIds}
-          selectedOpeningId={activeOpeningId}
-          activeCameraId={activeCameraId}
-          viewPreset={viewPreset}
-          cameraHeightMm={cameraOverrides.cameraHeightMm}
-          fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
-          snapSizeMm={snapSizeMm}
-          showGrid={showGrid}
-          cutawayWalls={cutawayWalls}
-          renderQuality={viewportQuality}
-          renderComposition="architectural"
-          renderMode={renderMode}
-          onSelect={onSelect}
-          onSelectOpening={onSelectOpening}
-          onMove={onMove}
-          onExitWalkthrough={exitWalkthrough}
-          onMechanismClick={(objectId, primitiveId) => {
-            const object = project.objects.find((item) => item.id === objectId);
-            const state = object ? getCabinetMechanismState(object) : null;
-            const index = mechanismFrontIndex(primitiveId);
-            if (state && index !== null && index < state.count) {
-              onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
-            }
-          }}
-        />
-      </Canvas>
+      <ModelViewScene
+        scene={scene}
+        quality={quality}
+        viewportQuality={viewportQuality}
+        renderMode={renderMode}
+        lightingQuality={modelViewLighting}
+        projectLightScale={modelViewProjectLightScale(viewportQuality)}
+        windowKeyScale={modelViewWindowKeyScale(viewportQuality)}
+        selectedIds={selectedIds}
+        activeOpeningId={activeOpeningId}
+        activeCameraId={activeCameraId}
+        viewPreset={viewPreset}
+        cameraHeightMm={cameraOverrides.cameraHeightMm}
+        fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
+        snapSizeMm={snapSizeMm}
+        showGrid={showGrid}
+        cutawayWalls={cutawayWalls}
+        onClearSelection={onClearSelection}
+        onSelect={onSelect}
+        onSelectOpening={onSelectOpening}
+        onMove={onMove}
+        onExitWalkthrough={exitWalkthrough}
+        onMechanismClick={(objectId, primitiveId) => {
+          const object = project.objects.find((item) => item.id === objectId);
+          const state = object ? getCabinetMechanismState(object) : null;
+          const index = mechanismFrontIndex(primitiveId);
+          if (state && index !== null && index < state.count) {
+            onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
+          }
+        }}
+      />
       {showGuide ? (
         <ModelViewOnboarding
           activePreset={viewPreset}

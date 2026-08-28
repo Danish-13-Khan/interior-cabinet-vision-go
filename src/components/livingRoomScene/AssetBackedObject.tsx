@@ -1,5 +1,5 @@
 import { useGLTF } from "@react-three/drei";
-import { createPortal, useFrame, useThree } from "@react-three/fiber";
+import { createPortal, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
 import { Box3, BoxHelper, Group, Vector3 } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
@@ -14,6 +14,7 @@ import type {
   RenderMode,
 } from "../../domain/livingRoom/renderAssetContracts";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
+import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
 
@@ -27,6 +28,7 @@ type AssetBackedObjectProps = {
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
   onReady?: () => void;
+  onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
 };
 
 /** Draw in canvas-world space so the outline follows any imported GLB pivot. */
@@ -56,7 +58,9 @@ function GlbSceneContent({
   renderMode,
   renderQuality,
   onReady,
+  onPointerDown,
 }: Omit<AssetBackedObjectProps, "primitives">) {
+  const modelViewQuality = useModelViewPreviewQuality();
   const gltf = useGLTF(url);
   const invalidate = useThree((state) => state.invalidate);
   const castShadow = renderMode === "hero";
@@ -110,6 +114,7 @@ function GlbSceneContent({
       materials,
       renderMode,
       renderQuality,
+      modelViewQuality,
       castShadow,
       receiveShadow: true,
       importedTextures: binding.modelTextureUrls,
@@ -118,6 +123,7 @@ function GlbSceneContent({
     castShadow,
     groupsKey,
     materials,
+    modelViewQuality,
     renderMode,
     renderQuality,
     scene,
@@ -127,7 +133,11 @@ function GlbSceneContent({
 
   return (
     <>
-      <group ref={setModelRoot} scale={[scale.x, scale.y, scale.z]}>
+      <group
+        ref={setModelRoot}
+        scale={[scale.x, scale.y, scale.z]}
+        onPointerDown={onPointerDown}
+      >
         <primitive object={scene} />
       </group>
       {selected && modelRoot ? <WorldBoundsOutline target={modelRoot} /> : null}
@@ -146,6 +156,7 @@ export function AssetBackedObject({
   renderMode,
   renderQuality,
   onReady,
+  onPointerDown,
 }: AssetBackedObjectProps) {
   const fallback = (
     <ProceduralFallbackObject
@@ -154,6 +165,7 @@ export function AssetBackedObject({
       selected={selected}
       renderMode={renderMode}
       renderQuality={renderQuality}
+      onPointerDown={onPointerDown}
     />
   );
 
@@ -169,6 +181,7 @@ export function AssetBackedObject({
           renderMode={renderMode}
           renderQuality={renderQuality}
           onReady={onReady}
+          onPointerDown={onPointerDown}
         />
       </Suspense>
     </GlbLoadErrorBoundary>

@@ -1,4 +1,5 @@
 import { Edges } from "@react-three/drei";
+import { type ThreeEvent } from "@react-three/fiber";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
@@ -15,12 +16,14 @@ export function CompiledPrimitiveView({
   selected,
   renderMode,
   renderQuality,
+  onPointerDown,
 }: {
   primitive: CompiledPrimitive;
   material: CompiledMaterial;
   selected: boolean;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
+  onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
 }) {
   return (
     <mesh
@@ -39,6 +42,7 @@ export function CompiledPrimitiveView({
       ]}
       castShadow={primitive.castShadow}
       receiveShadow={primitive.receiveShadow}
+      onPointerDown={onPointerDown}
     >
       <CompiledMaterialView
         material={material}
