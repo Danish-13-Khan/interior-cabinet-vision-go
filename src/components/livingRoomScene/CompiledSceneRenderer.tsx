@@ -11,6 +11,7 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
+import { filterModelReviewNodes } from "../../domain/livingRoom/modelReviewNodes";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
@@ -21,6 +22,7 @@ import { WalkthroughNavigation } from "./WalkthroughNavigation";
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
   selectedIds: string[];
+  selectedOpeningId?: string | null;
   activeCameraId: string | null;
   viewPreset?: ModelViewPresetId;
   cameraHeightMm?: number;
@@ -33,6 +35,7 @@ type SceneRendererProps = {
   renderComposition?: RenderComposition;
   renderMode?: RenderMode;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectOpening?: (openingId: string) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onExitWalkthrough?: () => void;
@@ -52,6 +55,7 @@ function RendererColorPipeline({ exposure }: { exposure: number }) {
 export function CompiledSceneRenderer({
   scene,
   selectedIds,
+  selectedOpeningId = null,
   activeCameraId,
   viewPreset,
   cameraHeightMm,
@@ -64,6 +68,7 @@ export function CompiledSceneRenderer({
   renderComposition = "project-camera",
   renderMode = "preview",
   onSelect,
+  onSelectOpening = () => {},
   onMove,
   onMechanismClick,
   onExitWalkthrough,
@@ -89,12 +94,9 @@ export function CompiledSceneRenderer({
     renderCamera && renderCamera.position.x < architectureBounds.center.x ? "left" : "right",
     renderCamera && renderCamera.position.z < architectureBounds.center.z ? "back" : "front",
   ]);
-  const nodes = cutawayWalls
-    ? scene.nodes.filter((node) => ![
-        "wall",
-        "opening",
-      ].includes(String(node.metadata.role)) || !cutawaySides.has(String(node.metadata.wallSide)))
-    : scene.nodes;
+  const nodes = filterModelReviewNodes(
+    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId,
+  );
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
   const lightingQuality = resolveEnvironmentLightingQuality(renderMode, renderQuality);
@@ -132,11 +134,13 @@ export function CompiledSceneRenderer({
           key={node.id}
           node={node}
           materials={materialMap}
-          selected={Boolean(node.sourceObjectId && selectedIds.includes(node.sourceObjectId))}
+          selected={Boolean((node.sourceObjectId && selectedIds.includes(node.sourceObjectId))
+            || node.metadata.openingId === selectedOpeningId)}
           snapSizeMm={snapSizeMm}
           renderMode={renderMode}
           renderQuality={renderQuality}
           onSelect={onSelect}
+          onSelectOpening={onSelectOpening}
           onMove={onMove}
           onDragStateChange={setDragging}
           interactive={interactive}

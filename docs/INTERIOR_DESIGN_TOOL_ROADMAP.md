@@ -164,6 +164,8 @@ Export    ██████░░░░
 
 **J1 status:** Implemented — first-entry 3D guide explains the three client-facing navigation modes in plain language, previews each mode in-place, keeps a persistent mode/purpose readout, and can be reopened from the camera toolbar. Escape reliably returns walkthrough users to Dollhouse.
 
+**J2 status:** Implemented — compiled objects and openings resolve to shared project selections in 3D; selection highlights follow between plan/model views, blank-canvas/architecture and cross-entity picks clear stale state, and the same object/opening inspector remains editable throughout review.
+
 ### K — Render & stills
 
 | ID | Missing feature | Why it matters |
