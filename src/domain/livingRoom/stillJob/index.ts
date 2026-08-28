@@ -2,6 +2,12 @@ export { STILL_JOB_TOLERANCES } from "./tolerances";
 export { stillJobProjectContentHash } from "./projectHash";
 export { buildStillJob, type BuildStillJobInput } from "./buildStillJob";
 export { validateStillJobAgainstProject } from "./validateStillJob";
+export { mergeStillValidations } from "./mergeValidation";
+export {
+  meanAbsoluteChannelDiff,
+  STILL_DETERMINISTIC_RERUN_MAD_LIMIT,
+  validateDeterministicRerun,
+} from "./validateStillOutput";
 export {
   millworkRefsFromProject,
   openingRefsFromProject,

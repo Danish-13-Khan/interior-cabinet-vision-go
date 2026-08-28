@@ -6,8 +6,11 @@ Proven:
 - revalidation from saved still-job.json
 - review accept provenance (rejected stills are not written here)
 - support artifact path contract (hero/depth/normal/material ids)
+- Render Studio review UI (plate | still | diff, Accept/Reject/Retry)
+- Hero still engine v1 (deterministic grade/contact/sharpen)
+- Deterministic rerun gate (§3.1 MAD ≤ 2%)
+- Accepted stills in client package manifest only
 
-Not in this slice:
-- WebGL PNG capture bytes
-- Render Studio review UI
-- offline / AI still engine
+Not in fixtures (by design):
+- WebGL PNG capture bytes (too large for git)
+- Stochastic / AI still engine

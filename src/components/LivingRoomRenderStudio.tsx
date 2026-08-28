@@ -10,6 +10,7 @@ import {
   livingRoomRenderFileName,
   describePresetHonesty,
   resolveStudioRenderMode,
+  stillReviewExportStatusMessage,
   type LivingRoomLightingRecipeId,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
@@ -382,13 +383,12 @@ export function LivingRoomRenderStudio({
           thumbnails={thumbnails}
           latestResult={latestResult}
           previousResult={previousResult}
-          statusMessage={
-            stills.session.status === "accepted"
-              ? "Still accepted · will record provenance on client preview export."
-              : stills.session.status === "rejected"
-                ? "Still rejected · authored project unchanged."
-                : clientExport.status || exportStatus
-          }
+          statusMessage={stillReviewExportStatusMessage({
+            sessionStatus: stills.session.status,
+            packageEligibleCount: stills.acceptedStills.length,
+            exportStatus,
+            clientExportStatus: clientExport.status,
+          })}
           onSelectCamera={(cameraId) => onSettingsChange({ activeCameraId: cameraId })}
         />
       </div>

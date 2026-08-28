@@ -4,6 +4,7 @@ import {
   assembleClientPresentationFiles,
   buildClientPresentationPackage,
   clientPresentationPackageDirectory,
+  clientPreviewExportStatusMessage,
   exportClientPresentationPdf,
   packageFilePath,
   type LivingRoomRenderResult,
@@ -57,13 +58,7 @@ export function useClientPresentationExport() {
           await writeBinaryBlob(target, file.contents);
         }
       }
-      setStatus(
-        render
-          ? acceptedStills.length
-            ? "Client preview package exported (PDF, PNG, JSON, accepted stills)."
-            : "Client preview package exported to a folder (PDF, PNG, JSON)."
-          : "Client preview package exported to a folder (PDF + JSON; render a hero image for PNG).",
-      );
+      setStatus(clientPreviewExportStatusMessage(render, acceptedStills.length));
     } catch (error) {
       setStatus(
         error instanceof Error

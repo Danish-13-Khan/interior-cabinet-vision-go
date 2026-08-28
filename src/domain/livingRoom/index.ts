@@ -228,9 +228,12 @@ export {
   STILL_JOB_SCHEMA_VERSION,
   STILL_JOB_TOLERANCES,
   buildStillJob,
+  mergeStillValidations,
   stillJobProjectContentHash,
   stillJobSnapshotId,
   stillSupportArtifactRefs,
+  STILL_DETERMINISTIC_RERUN_MAD_LIMIT,
+  validateDeterministicRerun,
   validateStillJobAgainstProject,
   type BuildStillJobInput,
   type StillAcceptanceStatus,
@@ -253,13 +256,17 @@ export {
 export {
   acceptStillReview,
   createIdleStillReview,
+  isStaleStillAcceptance,
   openStillReview,
   rejectStillReview,
   retryStillReview,
   stillEligibleForPackage,
+  stillReviewExportStatusMessage,
+  stillReviewPanelStatusLabel,
   type StillReviewSession,
   type StillReviewStatus,
 } from "./stillReview";
+export { describeStillHonesty } from "./stillHonesty";
 export {
   HERO_STILL_ENGINE,
   HERO_STILL_ENHANCEMENTS,
@@ -407,9 +414,12 @@ export {
 export {
   assembleClientPresentationFiles,
   buildClientPresentationPackage,
+  filterPackageEligibleStills,
+  isPackageEligibleStill,
   withAcceptedStillProvenance,
   createLivingRoomRenderThumbnail,
   clientPresentationPackageDirectory,
+  clientPreviewExportStatusMessage,
   exportClientPresentationPdf,
   packageFilePath,
   preferLivingRoomBrowserThumbnail,

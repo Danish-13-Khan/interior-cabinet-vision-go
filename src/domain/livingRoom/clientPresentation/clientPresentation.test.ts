@@ -14,6 +14,7 @@ import {
   siblingPackagePath,
   withAcceptedStillProvenance,
 } from ".";
+import { stillJobProjectContentHash } from "../stillJob/projectHash";
 
 const NOW = "2026-08-12T21:00:00.000Z";
 const TINY_PNG =
@@ -110,12 +111,12 @@ describe("client presentation package", () => {
   it("records only accepted still provenance on the package manifest", () => {
     const project = createLivingRoomReleaseDemoProject();
     const pack = buildClientPresentationPackage(project, null, NOW);
-    const accepted = withAcceptedStillProvenance(pack.manifest, [
+    const accepted = withAcceptedStillProvenance(pack.manifest, project, [
       {
         schemaVersion: 2,
         jobId: "sj-1",
         projectId: project.id,
-        projectContentHash: "sj-proj-x",
+        projectContentHash: stillJobProjectContentHash(project),
         snapshotId: "snap",
         cameraId: "cam-a",
         engine: { id: "stilljob-handoff", version: "0.2.0" },
@@ -129,7 +130,7 @@ describe("client presentation package", () => {
         schemaVersion: 2,
         jobId: "sj-2",
         projectId: project.id,
-        projectContentHash: "sj-proj-x",
+        projectContentHash: stillJobProjectContentHash(project),
         snapshotId: "snap",
         cameraId: "cam-a",
         engine: { id: "stilljob-handoff", version: "0.2.0" },
@@ -149,7 +150,7 @@ describe("client presentation package", () => {
       schemaVersion: 2,
       jobId: "sj-pack",
       projectId: project.id,
-      projectContentHash: "sj-proj-x",
+      projectContentHash: stillJobProjectContentHash(project),
       snapshotId: "snap",
       cameraId: "cam-a",
       engine: { id: "stilljob-hero", version: "1.0.0" },

@@ -2,30 +2,20 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { InteriorProject, RenderComposition } from "../domain/interiorProject";
 import {
   acceptStillReview,
-  buildStillJob,
   createIdleStillReview,
-  HERO_STILL_ENGINE,
-  HERO_STILL_ENHANCEMENTS,
-  openStillReview,
   rejectStillReview,
   retryStillReview,
-  stillEligibleForPackage,
-  stillSupportArtifactRefs,
-  validateStillJobAgainstProject,
   type StillJobValidation,
-  type StillProvenance,
   type StillReviewSession,
 } from "../domain/livingRoom";
 import type { RenderCaptureHandle } from "../components/livingRoomScene/RenderCaptureBridge";
-import { stillDiffOverlayDataUrl } from "../rendering/export/stillDiffOverlay";
-import { runHeroStillEngine } from "../rendering/stillEngine/runHeroStillEngine";
+import { runStillGeneration } from "./runStillGeneration";
+import {
+  selectPackageAcceptedStillAssets,
+  type AcceptedStillAsset,
+} from "./selectPackageAcceptedStillAssets";
 
 export type StillReviewCompareMode = "split" | "plate" | "still" | "overlay" | "diff";
-
-export type AcceptedStillAsset = {
-  provenance: StillProvenance;
-  stillDataUrl: string;
-};
 
 export function useStillReviewFlow(args: {
   project: InteriorProject;
@@ -73,41 +63,22 @@ export function useStillReviewFlow(args: {
       await beforeCapture?.();
       const liveCapture = captureRef.current;
       if (!liveCapture) throw new Error("Render capture is not ready.");
-      const request = {
-        cameraId,
-        widthPx,
-        heightPx,
-        transparentBackground,
-        composition,
-      };
-      const bundle = liveCapture.captureStillBundle
-        ? await liveCapture.captureStillBundle(request)
-        : { heroPng: await liveCapture.capturePng(request), depthPng: undefined };
-      const still = await runHeroStillEngine({
-        plateDataUrl: bundle.heroPng,
-        depthDataUrl: bundle.depthPng,
-      });
-      const jobId = `sj-${cameraId.slice(-8)}-${Date.now().toString(36)}`;
-      const attachments = stillSupportArtifactRefs(jobId);
-      const job = buildStillJob({
+      const result = await runStillGeneration({
         project,
         cameraId,
-        jobId,
-        seed: 0,
-        qualityPresetId: "client-preview",
-        engine: { id: HERO_STILL_ENGINE.id, version: HERO_STILL_ENGINE.version },
-        allowedEnhancements: [...HERO_STILL_ENHANCEMENTS],
-        attachments,
+        capture: liveCapture,
+        widthPx,
+        heightPx,
+        composition,
+        transparentBackground,
       });
-      const nextValidation = validateStillJobAgainstProject(job, project);
-      const diff = await stillDiffOverlayDataUrl(bundle.heroPng, still);
-      stillDataUrlRef.current = still;
-      setPlateDataUrl(bundle.heroPng);
-      setStillDataUrl(still);
-      setDiffDataUrl(diff);
-      setDepthDataUrl(bundle.depthPng ?? null);
-      setValidation(nextValidation);
-      setSession(openStillReview(job, attachments.heroPngPath ?? null, `${jobId}-still.png`));
+      stillDataUrlRef.current = result.still;
+      setPlateDataUrl(result.plateDataUrl);
+      setStillDataUrl(result.still);
+      setDiffDataUrl(result.diffDataUrl);
+      setDepthDataUrl(result.depthDataUrl);
+      setValidation(result.validation);
+      setSession(result.session);
       setCompareMode("split");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Still generation failed.");
@@ -160,10 +131,12 @@ export function useStillReviewFlow(args: {
     await generateStill();
   }, [generateStill]);
 
-  const packageReady = useMemo(
-    () => stillEligibleForPackage(session) || acceptedStills.length > 0,
-    [acceptedStills.length, session],
+  const packageAcceptedStills = useMemo(
+    () => selectPackageAcceptedStillAssets(project, acceptedStills),
+    [acceptedStills, project],
   );
+
+  const packageReady = packageAcceptedStills.length > 0;
 
   return {
     session,
@@ -172,7 +145,7 @@ export function useStillReviewFlow(args: {
     diffDataUrl,
     depthDataUrl,
     validation,
-    acceptedStills,
+    acceptedStills: packageAcceptedStills,
     compareMode,
     setCompareMode,
     busy,

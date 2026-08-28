@@ -15,7 +15,8 @@ export {
   siblingPackagePath,
   type ClientPresentationFile,
 } from "./assembleFiles";
-export { withAcceptedStillProvenance } from "./acceptedStills";
+export { clientPreviewExportStatusMessage } from "./exportStatusMessage";
+export { withAcceptedStillProvenance, filterPackageEligibleStills, isPackageEligibleStill } from "./acceptedStills";
 export { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 export { exportClientPresentationPdf } from "./exportPdf";
 export {
