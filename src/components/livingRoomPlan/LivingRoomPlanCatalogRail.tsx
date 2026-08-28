@@ -29,7 +29,7 @@ type LivingRoomPlanCatalogRailProps = {
   onAddImportedAsset: (asset: ImportedAsset) => void;
   onSetFloorMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
-  onSetObjectMaterial: (objectId: string, slotName: string, materialId: string) => void;
+  onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
   onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
@@ -87,7 +87,6 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const roomWalls = selectWallsForRoom(props.project, props.project.activeRoomId);
   const activeWall = roomWalls.find((wall) => wall.id === props.activeWallId) ?? roomWalls[0] ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
-  const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
   const selectedCabinetCount = props.project.objects.filter((object) =>
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
   ).length;
@@ -116,9 +115,11 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             selectedCabinetCount={selectedCabinetCount} onCreateRun={props.onCreateCabinetRun}
             onAdd={props.onAddCatalogObject} onImport={props.onAddImportedAsset} />
         ) : activePanel === "materials" ? <>
-          <div className="context-panel-heading"><strong>Surface Paint</strong><span>2D paint · synced 3D</span></div>
-          <SurfacePaintPanel project={props.project} activeWallId={activeWall.id} selectedObject={selectedObject}
-            onFloor={props.onSetFloorMaterial} onWall={props.onSetWallMaterial} onObject={props.onSetObjectMaterial} />
+          <div className="context-panel-heading"><strong>Material Browser</strong><span>Swatches · slots · selection</span></div>
+          <SurfacePaintPanel project={props.project} activeWallId={activeWall.id}
+            selectedObjects={props.project.objects.filter((object) => props.selectedIds.includes(object.id))}
+            onFloor={props.onSetFloorMaterial} onWall={props.onSetWallMaterial}
+            onApplyToSelection={props.onApplyMaterialToSelection} />
         </> : activePanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>

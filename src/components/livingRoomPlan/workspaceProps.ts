@@ -62,6 +62,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onSetFloorMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
+  onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
   onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
