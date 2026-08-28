@@ -38,7 +38,7 @@ test("Phase B opening workflow places, manipulates, inspects, undoes, and recomp
   await expect(inspector.getByRole("spinbutton", { name: "W mm", exact: true })).toHaveValue("1600");
   await expect(inspector.getByRole("spinbutton", { name: "H mm", exact: true })).toHaveValue("2200");
   await expect(inspector.getByRole("spinbutton", { name: "Sill mm", exact: true })).toHaveValue("0");
-  await expect(inspector.locator(".lr-material-slots select")).toHaveCount(3);
+  await expect(inspector.locator("[data-material-slot]")).toHaveCount(3);
 
   const initialOffset = await numericAttribute(opening, "data-offset-mm");
   await dragAlongWall(page, opening.locator("line").first(), wall, 55);
@@ -58,7 +58,9 @@ test("Phase B opening workflow places, manipulates, inspects, undoes, and recomp
   await redo.click();
   await expect(opening).toHaveAttribute("data-width-mm", String(resizedWidth));
 
-  await inspector.getByRole("combobox", { name: "leaf", exact: true }).selectOption({ label: "Natural Oak" });
+  const leafSlot = inspector.locator('[data-material-slot="leaf"]');
+  await leafSlot.locator('[data-material-id="lr-material-natural-oak"]').click();
+  await expect(leafSlot.locator('[data-material-id="lr-material-natural-oak"]')).toHaveClass(/is-active/);
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
   await expect(page.locator(".lr-model-viewport canvas")).toBeVisible();

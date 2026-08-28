@@ -153,6 +153,11 @@ export {
   type LivingRoomPaintTarget,
 } from "./materialLayerCommands";
 export {
+  applyMaterialToSelection,
+  commonMaterialSlots,
+  primaryMaterialId,
+} from "./paintSelection";
+export {
   ASSET_IMPORT_STARTER_PACK,
   createImportedAssetObject,
   getPackagedImportedAsset,

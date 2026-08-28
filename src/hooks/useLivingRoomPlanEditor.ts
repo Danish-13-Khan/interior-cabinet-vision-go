@@ -56,6 +56,7 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
+  applyMaterialToSelection,
   paintLivingRoomSurface,
   setLivingRoomWallMaterial,
   placeStructuralColumn,
@@ -247,6 +248,14 @@ export function useLivingRoomPlanEditor({
   function setObjectMaterial(objectId: string, slotName: string, materialId: string) {
     if (!document?.materials.some((material) => material.id === materialId)) return;
     commitDocument((current) => paintLivingRoomSurface(current, { kind: "object", objectId, slotName }, materialId), "Painted object surface.");
+  }
+
+  function applySelectionMaterial(materialId: string, slotName?: string) {
+    if (selectedObjectIds.length === 0) return;
+    commitDocument(
+      (current) => applyMaterialToSelection(current, selectedObjectIds, materialId, slotName),
+      selectedObjectIds.length === 1 ? "Painted object surface." : `Painted ${selectedObjectIds.length} selected objects.`,
+    );
   }
 
   function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
@@ -558,6 +567,7 @@ export function useLivingRoomPlanEditor({
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: setObjectRotation,
     setInteriorObjectMaterial: setObjectMaterial,
+    applyMaterialToSelection: applySelectionMaterial,
     setInteriorObjectParameters: setObjectParameters,
     setLivingRoomFloorMaterial: setFloorMaterial,
     setLivingRoomWallMaterial: setWallMaterial,

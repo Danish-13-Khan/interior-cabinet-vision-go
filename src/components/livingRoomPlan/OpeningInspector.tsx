@@ -1,6 +1,7 @@
 import type { InteriorProject, OpeningEntity } from "../../domain/interiorProject";
 import { getOpeningCatalogItem } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
+import { MaterialSlotList } from "./MaterialSlotList";
 
 type OpeningPatch = Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>;
 
@@ -29,6 +30,7 @@ export function OpeningInspector({ opening, materials, onUpdate }: {
 }) {
   const item = getOpeningCatalogItem(opening.catalogItemId);
   const slots = opening.materialSlots ?? {};
+  const slotMap = Object.fromEntries(item.materialSlots.map((slot) => [slot, slots[slot] ?? ""]));
   return <section className="lr-opening-inspector">
     <h3>Selected Opening</h3>
     <OpeningPreview opening={opening} />
@@ -39,15 +41,7 @@ export function OpeningInspector({ opening, materials, onUpdate }: {
       <NumberField className="lr-dimension-card" label="Sill" value={opening.sillHeightMm} onChange={(sillHeightMm) => onUpdate(opening.id, { sillHeightMm })} />
     </div>
     <h4>Materials</h4>
-    <div className="lr-material-slots">
-      {item.materialSlots.map((slot) => {
-        const materialId = slots[slot] ?? "";
-        const material = materials.find((candidate) => candidate.id === materialId);
-        return <label key={slot}><span><i style={{ background: material?.color ?? "#d7ddd8" }} />{slot}</span><select value={materialId} onChange={(event) => onUpdate(opening.id, { materialSlots: { ...slots, [slot]: event.target.value } })}>
-          <option value="">Default</option>
-          {materials.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-        </select></label>;
-      })}
-    </div>
+    <MaterialSlotList slots={slotMap} materials={materials} allowEmpty
+      onSet={(slotName, materialId) => onUpdate(opening.id, { materialSlots: { ...slots, [slotName]: materialId } })} />
   </section>;
 }

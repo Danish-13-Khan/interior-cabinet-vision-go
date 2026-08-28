@@ -242,6 +242,7 @@ function App() {
             onSetParameters={c.setInteriorObjectParameters}
             onSetFloorMaterial={c.setLivingRoomFloorMaterial}
             onSetWallMaterial={c.setLivingRoomWallMaterial}
+            onApplyMaterialToSelection={c.applyMaterialToSelection}
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}

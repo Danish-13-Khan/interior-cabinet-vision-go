@@ -152,6 +152,8 @@ Export    ██████░░░░
 **I4 status:** Implemented — eight curated opening families (four doors, four windows) carry distinct defaults and plan symbols; three SKU-labelled tall/base/wall modules are visible in Design, survive into schedules, and intentionally reuse the procedural bookcase mesh as an MVP height-band stand-in.
 | I5 | Material browser polish (swatches, slots, apply-to-selection) | Interiors look finished in 2D/3D |
 
+**I5 status:** Implemented — Materials rail uses kind-filtered swatches with active highlighting; object/opening inspectors share slot swatch rows; apply-to-selection paints shared slots across multi-select in one undo (skips objects missing the chosen slot); plan objects tint from face-first slots (e.g. fronts) so painted finishes read on-plan.
+
 ### J — 3D review polish
 
 | ID | Missing feature | Why it matters |
@@ -232,6 +234,8 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 **I3 status:** Implemented — validation is live across Design/Build/Review, distinguishes blocking collisions from advisory clearance checks, highlights/selects involved plan objects, and blocks workshop exports. The header’s **Export JSON** is intentionally a project backup download and remains ungated.
 
 **I4 status:** Implemented — eight curated opening families (four doors, four windows) carry distinct defaults and plan symbols; three SKU-labelled tall/base/wall modules are visible in Design, survive into schedules, and intentionally reuse the procedural bookcase mesh as an MVP height-band stand-in.
+
+**I5 status:** Implemented — curated material browser with kind filters and swatches, slot-level finish editing, multi-select apply (skip missing slots), face-first 2D plan tint, and opening inspector material coverage.
 
 **Exit:** Wardrobe run + fillers on an L-room wall; validation visible; schedule matches placed units.
 

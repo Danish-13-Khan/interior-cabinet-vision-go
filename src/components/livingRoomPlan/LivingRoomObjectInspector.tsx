@@ -3,6 +3,7 @@ import { isMillworkObject } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 import { DimensionPresetMenu } from "./DimensionPresetMenu";
 import { CabinetRunInspector } from "./CabinetRunInspector";
+import { MaterialSlotList } from "./MaterialSlotList";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
@@ -21,18 +22,11 @@ type LivingRoomObjectInspectorProps = {
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
 export function LivingRoomObjectInspector({
-  object,
-  project,
-  materials,
-  onResize,
-  onSetMaterial,
-  onSetParameters,
-  onUpdateRun,
+  object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
   }
-
   const onSchedule = isMillworkObject(object);
 
   return (
@@ -41,53 +35,20 @@ export function LivingRoomObjectInspector({
       <div className="lr-object-identity">
         <strong>{object.name}</strong>
         <span>{object.catalogItemId}</span>
-        {onSchedule ? (
-          <em className="lr-millwork-badge">On Millwork Schedule</em>
-        ) : (
-          <em className="lr-millwork-badge is-soft">Soft good — not on schedule</em>
-        )}
+        {onSchedule
+          ? <em className="lr-millwork-badge">On Millwork Schedule</em>
+          : <em className="lr-millwork-badge is-soft">Soft good — not on schedule</em>}
       </div>
       <h4 className="lr-dimensions-heading">Dimensions <small>millimetres</small></h4>
       <div className="lr-dimension-cards" aria-label="Object dimensions in millimetres">
-        <NumberField
-          className="lr-dimension-card"
-          label="W"
-          value={object.dimensions.widthMm}
-          onChange={(value) => patchDimension("widthMm", value)}
-        />
-        <NumberField
-          className="lr-dimension-card"
-          label="H"
-          value={object.dimensions.heightMm}
-          onChange={(value) => patchDimension("heightMm", value)}
-        />
-        <NumberField
-          className="lr-dimension-card"
-          label="D"
-          value={object.dimensions.depthMm}
-          onChange={(value) => patchDimension("depthMm", value)}
-        />
+        <NumberField className="lr-dimension-card" label="W" value={object.dimensions.widthMm} onChange={(value) => patchDimension("widthMm", value)} />
+        <NumberField className="lr-dimension-card" label="H" value={object.dimensions.heightMm} onChange={(value) => patchDimension("heightMm", value)} />
+        <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
       </div>
       {object.kind === "cabinet" ? <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} /> : null}
       <h4>Materials</h4>
-      <div className="lr-material-slots">
-        {Object.entries(object.materialSlots).map(([slotName, materialId]) => {
-          const material = materials.find((item) => item.id === materialId);
-          return (
-            <label key={slotName}>
-              <span><i style={{ background: material?.color ?? "#ccc" }} />{slotName}</span>
-              <select
-                value={materialId}
-                onChange={(event) => onSetMaterial(object.id, slotName, event.target.value)}
-              >
-                {materials.map((option) => (
-                  <option key={option.id} value={option.id}>{option.name}</option>
-                ))}
-              </select>
-            </label>
-          );
-        })}
-      </div>
+      <MaterialSlotList slots={object.materialSlots} materials={materials}
+        onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)} />
       {object.kind === "cabinet" && object.category !== "filler" ? (
         <>
           <h4>Cabinet configuration</h4>
