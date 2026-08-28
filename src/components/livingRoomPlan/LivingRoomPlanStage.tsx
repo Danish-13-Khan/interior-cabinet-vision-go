@@ -27,6 +27,7 @@ type LivingRoomPlanStageProps = {
   hasSelection: boolean;
   millworkCount: number;
   millworkReady: boolean;
+  exportBlocked: boolean;
   exportBusy: boolean;
   exportStatus: string;
   autosaveState: "idle" | "saving" | "saved" | "error";
@@ -96,7 +97,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
         v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
         exportBusy={props.exportBusy} exportStatus={props.exportStatus}
-        millworkCount={props.millworkCount} millworkReady={props.millworkReady}
+        millworkCount={props.millworkCount} millworkReady={props.millworkReady} exportBlocked={props.exportBlocked}
         onExportScheduleCsv={props.onExportScheduleCsv} onExportCutlistCsv={props.onExportCutlistCsv}
         onExportPdf={props.onExportPdf}
       />

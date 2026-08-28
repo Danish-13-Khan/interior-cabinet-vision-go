@@ -35,5 +35,7 @@ export {
   getRunPrimaryValue,
   inferRunAxis,
   inferRunSide,
+  orderRunMembers,
   orderedRunCabinets,
 } from "./geometry";
+export { fillerWidthForGap } from "./fillers";

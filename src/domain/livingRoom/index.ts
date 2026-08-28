@@ -153,6 +153,11 @@ export {
   type LivingRoomPaintTarget,
 } from "./materialLayerCommands";
 export {
+  applyMaterialToSelection,
+  commonMaterialSlots,
+  primaryMaterialId,
+} from "./paintSelection";
+export {
   ASSET_IMPORT_STARTER_PACK,
   createImportedAssetObject,
   getPackagedImportedAsset,
@@ -287,6 +292,7 @@ export {
 } from "./planSnapping";
 export {
   inspectLivingRoomPlan,
+  isBlockingLivingRoomPlanIssue,
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {
@@ -310,7 +316,32 @@ export {
   deleteLivingRoomOpening,
   updateLivingRoomOpening,
 } from "./openingCommands";
-export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
+export {
+  arrangeCabinetRun,
+  attachToWall,
+  cabinetRunFillerForObject,
+  cabinetRunForObject,
+  countCabinetRunFillers,
+  isCabinetRunFiller,
+  listRoomWallCorners,
+  placeCornerCabinet,
+  placeOnWall,
+  preferredRoomWallCorner,
+  reconcileCabinetRunsAfterObjectRemoval,
+  reflowCabinetRunsForWalls,
+  reflowCornerCabinetsForWalls,
+  snapCabinetToWall,
+  syncCabinetRunFillers,
+  updateCabinetRun,
+  updateCabinetRunLayout,
+  type CabinetRunAlignment,
+  type CabinetRunFillerMetadata,
+  type CabinetRunLayoutOptions,
+  type CabinetRunMetadata,
+  type CabinetRunOptions,
+  type RoomWallCorner,
+  type WallPlacement,
+} from "./wardrobePlacement";
 export {
   placeStructuralColumn,
   STRUCTURAL_COLUMN_CATALOG_ID,

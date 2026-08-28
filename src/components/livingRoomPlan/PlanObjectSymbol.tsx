@@ -33,5 +33,8 @@ export function PlanObjectSymbol({ object, dimensions }: { object: InteriorObjec
     : <g className="lr-plan-symbol lr-column-symbol"><rect x={-w * 0.4} y={-d * 0.4} width={w * 0.8} height={d * 0.8} /><line x1={-w * 0.3} y1={-d * 0.3} x2={w * 0.3} y2={d * 0.3} /><line x1={w * 0.3} y1={-d * 0.3} x2={-w * 0.3} y2={d * 0.3} /></g>;
   if (object.category === "storage" || object.category === "media-unit") return <g className="lr-plan-symbol"><rect x={-w * 0.46} y={-d * 0.38} width={w * 0.92} height={d * 0.76} /><line x1={-w * 0.15} y1={-d * 0.38} x2={-w * 0.15} y2={d * 0.38} /><line x1={w * 0.15} y1={-d * 0.38} x2={w * 0.15} y2={d * 0.38} /></g>;
   if (object.category === "mirror") return <g className="lr-plan-symbol"><line x1={-w * 0.45} y1="0" x2={w * 0.45} y2="0" /><line x1={-w * 0.35} y1={-d * 0.35} x2={-w * 0.25} y2={d * 0.35} /><line x1="0" y1={-d * 0.35} x2={w * 0.1} y2={d * 0.35} /></g>;
+  if (object.category === "wardrobe") return <g className="lr-plan-symbol"><rect x={-w * 0.46} y={-d * 0.38} width={w * 0.92} height={d * 0.76} /><line x1={-w * 0.3} y1={-d * 0.38} x2={-w * 0.3} y2={d * 0.38} /><line x1="0" y1={-d * 0.38} x2="0" y2={d * 0.38} /><line x1={w * 0.3} y1={-d * 0.38} x2={w * 0.3} y2={d * 0.38} /></g>;
+  if (object.category === "corner-wardrobe") return <g className="lr-plan-symbol lr-corner-symbol"><path d={`M ${-w * 0.05} ${-d * 0.05} L ${w * 0.45} ${-d * 0.05} L ${w * 0.45} ${d * 0.45} L ${-d * 0.05} ${d * 0.45} Z`} /><line x1={-w * 0.05} y1={-d * 0.05} x2={w * 0.45} y2={d * 0.45} /></g>;
+  if (object.category === "filler") return <g className="lr-plan-symbol lr-filler-symbol"><rect x={-w / 2} y={-d * 0.35} width={w} height={d * 0.7} /><line x1={-w / 2} y1={-d * 0.2} x2={w / 2} y2={d * 0.2} /></g>;
   return null;
 }
