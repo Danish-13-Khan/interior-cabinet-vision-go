@@ -81,6 +81,36 @@ describe("client presentation package", () => {
     expect(JSON.stringify(packageData)).not.toMatch(/cutlist|workshop|machine/i);
   });
 
+  it("excludes Draft hero renders from client package files and honesty", async () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const scene = compileLivingRoomScene(project);
+    const draftRender = createLivingRoomRenderResult({
+      dataUrl: TINY_PNG,
+      project: {
+        ...project,
+        renderSettings: {
+          ...project.renderSettings,
+          quality: "draft",
+        },
+      },
+      sceneFingerprint: scene.fingerprint,
+      camera: scene.cameras[0],
+      now: NOW,
+    });
+    expect(draftRender.quality).toBe("draft");
+
+    const { files, packageData } = await assembleClientPresentationFiles(
+      project,
+      draftRender,
+      NOW,
+    );
+    expect(files.some((file) => file.fileName.endsWith("-hero-render.png"))).toBe(false);
+    expect(packageData.heroRenderDataUrl).toBeNull();
+    expect(packageData.manifest.render).toBeNull();
+    expect(packageData.manifest.files).not.toContain(packageData.fileNames.heroPng);
+    expect(packageData.manifest.presentationHonesty?.tiers ?? []).toEqual([]);
+  });
+
   it("prefers render thumbnails for the project browser", () => {
     const plan = "data:image/svg+xml;charset=utf-8,plan";
     const render = "data:image/jpeg;base64,abc";

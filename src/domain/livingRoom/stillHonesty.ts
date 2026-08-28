@@ -6,7 +6,7 @@ export function describeStillHonesty(): PresetHonestyDescription {
     qualityId: "client-preview",
     qualityName: "Hybrid Still",
     mode: "hero",
-    role: "client",
+    role: "still",
     headline: "Hybrid Still",
     subline: "Faithful enhance · reviewed before package · not the live viewport",
     shortBadge: "STILL · FAITHFUL ENHANCE",

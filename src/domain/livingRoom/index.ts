@@ -268,6 +268,21 @@ export {
 } from "./stillReview";
 export { describeStillHonesty } from "./stillHonesty";
 export {
+  buildClientPresentationHonesty,
+  CLIENT_PRESENTATION_HONESTY_DISCLAIMER,
+  RENDER_TIER_CATALOG,
+  RENDER_TIER_LEGEND,
+  resolveRenderStudioHonesty,
+  tierIdForRenderQuality,
+  isPackageDeliverableRenderQuality,
+  formatPackageHeroCaption,
+  type ClientPresentationHonesty,
+  type RenderHonestyDescription,
+  type RenderStudioView,
+  type RenderTierCatalogEntry,
+  type RenderTierId,
+} from "./renderTierHonesty";
+export {
   commitPackageCameraViewName,
   createDefaultPackageCameraBookmarks,
   isPackageCameraBookmarked,

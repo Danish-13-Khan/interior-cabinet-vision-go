@@ -2,7 +2,7 @@ import type { RenderQuality } from "../interiorProject";
 import type { RenderMode } from "./renderAssetContracts";
 import { getRenderPresetBehavior } from "./renderPresets";
 
-export type PresetHonestyRole = "working" | "balanced" | "client";
+export type PresetHonestyRole = "working" | "balanced" | "client" | "still";
 
 export type PresetHonestyDescription = {
   qualityId: RenderQuality;

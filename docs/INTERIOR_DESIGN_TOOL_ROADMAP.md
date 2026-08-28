@@ -93,7 +93,7 @@ A designer opens the app and can complete this story without fighting the UI:
 | **Build** | Freeform room/wall, openings, dims, surfaces, topology | No room-split-by-wall; no node drag; weak multi-room chrome |
 | **Design** | Catalog place/snap/run, millwork inspector | Thin runs/fillers/corners on freeform; small catalogs |
 | **3D** | Live compile, dollhouse, walkthrough | Nav / selection / material richness polish |
-| **Render** | Hybrid stills + package camera decks | K3 honesty gates across tiers |
+| **Render** | Hybrid stills + package camera decks + tier honesty gates | Polish deliverable suite |
 | **Export** | JSON + millwork CSV/PDF + client package | Not a polished deliverable suite yet |
 
 ```text
@@ -179,6 +179,8 @@ Export    ██████░░░░
 
 **K2 status:** Implemented — ordered package camera bookmarks with named views in Render Studio, persisted on `renderSettings.packageCameraBookmarks`, exported via `package-views.json` + manifest/PDF deck section.
 | K3 | Keep honesty: Draft ≠ Client Preview ≠ Still | Product trust |
+
+**K3 status:** Implemented — three-tier honesty catalog, context-aware Render Studio badge + settings legend, client package `presentationHonesty` manifest block, PDF tier notes. Proof: `npm run phase2:proof` (includes K3 unit + e2e).
 
 ### L — Export & presentation
 
@@ -266,7 +268,7 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 
 - Complete Hybrid Stills Pipeline (existing `PHASE_2_HYBRID_STILLS_PIPELINE.md`) — **done (K1)**
 - Camera bookmarks for package (K2) — **done**
-- Honesty gates unchanged (K3 partial: still tier labeled in review UI)
+- Honesty gates across Draft / Client Preview / Hybrid Still tiers — **done (K3)**
 
 **Exit:** Accepted stills land in client package; project remains editable truth. **Met via K1.**
 

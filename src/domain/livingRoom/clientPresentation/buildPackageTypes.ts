@@ -1,4 +1,5 @@
 import type { StillProvenance } from "../stillJob/provenance";
+import type { ClientPresentationHonesty } from "../renderTierHonesty";
 
 export type ClientRoomSummary = {
   projectId: string;
@@ -82,6 +83,7 @@ export type ClientPresentationManifest = {
   } | null;
   acceptedStills: StillProvenance[];
   packageViews: ClientPackageView[];
+  presentationHonesty?: ClientPresentationHonesty;
 };
 
 export type ClientPresentationPackage = {

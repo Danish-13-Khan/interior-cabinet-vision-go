@@ -58,7 +58,10 @@ export function useClientPresentationExport() {
           await writeBinaryBlob(target, file.contents);
         }
       }
-      setStatus(clientPreviewExportStatusMessage(render, acceptedStills.length));
+      setStatus(clientPreviewExportStatusMessage(
+        Boolean(packageData.heroRenderDataUrl),
+        acceptedStills.length,
+      ));
     } catch (error) {
       setStatus(
         error instanceof Error

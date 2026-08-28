@@ -57,7 +57,7 @@ export function StillReviewPanel({
     <div className="lr-still-review" data-testid="still-review-panel">
       <header>
         <strong>Still review</strong>
-        <RenderPresetHonestyBadge honesty={stillHonesty} compact />
+        <RenderPresetHonestyBadge honesty={stillHonesty} tierId="hybrid-still" compact />
         <span>{stillReviewPanelStatusLabel(session, acceptedCount)}</span>
         <small>{acceptedCount} accepted for package</small>
       </header>
