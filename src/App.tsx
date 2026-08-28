@@ -250,6 +250,7 @@ function App() {
             onDelete={c.deleteInteriorSelection}
             onAlign={c.alignInteriorSelection}
             onCreateCabinetRun={c.createLivingRoomCabinetRun}
+            onUpdateCabinetRun={c.updateLivingRoomCabinetRun}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onActiveRoom={c.setActiveLivingRoom}

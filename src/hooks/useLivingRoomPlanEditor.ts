@@ -29,6 +29,8 @@ import {
   addLivingRoomObject,
   attachToWall,
   arrangeCabinetRun,
+  reflowCabinetRunsForWalls,
+  updateCabinetRun,
   addLivingRoomOpening,
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
@@ -335,6 +337,10 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => arrangeCabinetRun(current, selectedObjectIds, wallId), "Created cabinet run.");
   }
 
+  function updateRun(runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) {
+    commitDocument((current) => updateCabinetRun(current, runId, options), "Updated cabinet run.");
+  }
+
   function nudgeSelection(dx: number, dz: number) {
     if (selectedObjectIds.length === 0) return;
     commitDocument((current) =>
@@ -459,14 +465,28 @@ export function useLivingRoomPlanEditor({
 
   function moveNode(nodeId: string, position: Point2Mm) {
     commitDocument(
-      (current) => movePlanNodeWithOpenings(current, nodeId, position),
+      (current) => {
+        const affectedWallIds = current.walls
+          .filter((wall) => wall.startNodeId === nodeId || wall.endNodeId === nodeId)
+          .map((wall) => wall.id);
+        return reflowCabinetRunsForWalls(movePlanNodeWithOpenings(current, nodeId, position), affectedWallIds);
+      },
       "Moved wall node.",
     );
   }
 
   function translateWall(wallId: string, delta: Point2Mm) {
     commitDocument(
-      (current) => translatePlanWall(current, wallId, delta),
+      (current) => {
+        const wall = current.walls.find((item) => item.id === wallId);
+        const affectedWallIds = wall
+          ? current.walls
+            .filter((item) => item.startNodeId === wall.startNodeId || item.endNodeId === wall.startNodeId
+              || item.startNodeId === wall.endNodeId || item.endNodeId === wall.endNodeId)
+            .map((item) => item.id)
+          : [wallId];
+        return reflowCabinetRunsForWalls(translatePlanWall(current, wallId, delta), affectedWallIds);
+      },
       "Moved wall.",
     );
   }
@@ -543,6 +563,7 @@ export function useLivingRoomPlanEditor({
     deleteInteriorSelection: deleteSelection,
     alignInteriorSelection: alignSelection,
     createLivingRoomCabinetRun: createCabinetRun,
+    updateLivingRoomCabinetRun: updateRun,
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
     setActiveLivingRoom: setActiveRoom,

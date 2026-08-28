@@ -25,6 +25,7 @@ type LivingRoomPlanCatalogRailProps = {
   onAssetQuery: (value: string) => void;
   onAssetCategory: (value: string) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onCreateCabinetRun: (wallId: string) => void;
   onAddImportedAsset: (asset: ImportedAsset) => void;
   onSetFloorMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
@@ -87,6 +88,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const activeWall = roomWalls.find((wall) => wall.id === props.activeWallId) ?? roomWalls[0] ?? props.project.walls[0]!;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
   const selectedObject = props.selectedIds.length === 1 ? props.project.objects.find((object) => object.id === props.selectedIds[0]) ?? null : null;
+  const selectedCabinetCount = props.project.objects.filter((object) =>
+    props.selectedIds.includes(object.id) && object.kind === "cabinet",
+  ).length;
   const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
   const tool = props.activeBuildTool ?? "select";
   useEffect(() => {
@@ -109,6 +113,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall.extensions?.wallSide ?? "wall")}
             wallId={activeWall.id} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
             categories={props.assetCategories} onQuery={props.onAssetQuery} onCategory={props.onAssetCategory}
+            selectedCabinetCount={selectedCabinetCount} onCreateRun={props.onCreateCabinetRun}
             onAdd={props.onAddCatalogObject} onImport={props.onAddImportedAsset} />
         ) : activePanel === "materials" ? <>
           <div className="context-panel-heading"><strong>Surface Paint</strong><span>2D paint · synced 3D</span></div>
