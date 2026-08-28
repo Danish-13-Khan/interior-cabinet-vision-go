@@ -268,6 +268,17 @@ export {
 } from "./stillReview";
 export { describeStillHonesty } from "./stillHonesty";
 export {
+  commitPackageCameraViewName,
+  createDefaultPackageCameraBookmarks,
+  isPackageCameraBookmarked,
+  movePackageCameraBookmark,
+  resolvePackageCameraViews,
+  sanitizePackageCameraBookmarks,
+  setPackageCameraViewName,
+  togglePackageCameraBookmark,
+  type ResolvedPackageCameraView,
+} from "./packageCameraBookmarks";
+export {
   HERO_STILL_ENGINE,
   HERO_STILL_ENHANCEMENTS,
 } from "./stillEngine";
@@ -414,6 +425,7 @@ export {
 export {
   assembleClientPresentationFiles,
   buildClientPresentationPackage,
+  buildClientPackageViews,
   filterPackageEligibleStills,
   isPackageEligibleStill,
   withAcceptedStillProvenance,
@@ -427,6 +439,7 @@ export {
   type AcceptedStillPng,
   type ClientPresentationFile,
   type ClientPresentationPackage,
+  type ClientPackageView,
 } from "./clientPresentation";
 export {
   compileLivingRoomScene,

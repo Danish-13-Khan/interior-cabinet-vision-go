@@ -20,6 +20,7 @@ import {
 } from "../platform/desktopFiles";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
+import { usePackageCameraBookmarkSettings } from "../hooks/usePackageCameraBookmarkSettings";
 import { useStillReviewFlow } from "../hooks/useStillReviewFlow";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
@@ -84,6 +85,7 @@ export function LivingRoomRenderStudio({
   const [exposureDraft, setExposureDraft] = useState(project.renderSettings.exposure);
   const [exportStatus, setExportStatus] = useState("");
   const clientExport = useClientPresentationExport();
+  const packageDeck = usePackageCameraBookmarkSettings(project, onSettingsChange);
   const settings = project.renderSettings;
   const activeCamera = scene.cameras.find((camera) => camera.id === settings.activeCameraId)
     ?? scene.cameras.find((camera) => camera.isDefault)
@@ -389,7 +391,13 @@ export function LivingRoomRenderStudio({
             exportStatus,
             clientExportStatus: clientExport.status,
           })}
+          packageViews={packageDeck.packageViews}
+          bookmarkedCameraIds={packageDeck.bookmarkedCameraIds}
           onSelectCamera={(cameraId) => onSettingsChange({ activeCameraId: cameraId })}
+          onToggleBookmark={packageDeck.onToggleBookmark}
+          onCommitViewName={packageDeck.onCommitViewName}
+          onMoveView={packageDeck.onMoveView}
+          onRemoveView={packageDeck.onRemoveView}
         />
       </div>
     </section>

@@ -11,6 +11,7 @@ import {
   buildClientPresentationPackage,
   type ClientPresentationPackage,
 } from "./buildPackage";
+import { drawPackageViewsSection } from "./exportPdfPackageViews";
 
 function drawRow(
   layout: PdfLayout,
@@ -105,6 +106,7 @@ export async function exportClientPresentationPdf(
   }
 
   y += 4;
+  y = drawPackageViewsSection(layout, y, packageData.manifest.packageViews);
   doc.setFontSize(11);
   doc.setTextColor(28, 38, 34);
   doc.text("Featured objects", margin, y);

@@ -913,25 +913,28 @@
   background: #c8d2d8;
 }
 
-.lr-render-cameras > button {
+.lr-camera-card {
+  border-bottom: 1px solid #9ba7af;
+}
+
+.lr-camera-card.is-active {
+  box-shadow: inset 3px 0 #0b6da6;
+}
+
+.lr-camera-select {
   display: grid;
   width: 100%;
   padding: 5px;
   border: 0;
-  border-bottom: 1px solid #9ba7af;
   background: transparent;
   color: #34454f;
   text-align: left;
   cursor: pointer;
 }
 
-.lr-render-cameras > button:hover,
-.lr-render-cameras > button.is-active {
+.lr-camera-card:hover .lr-camera-select,
+.lr-camera-card.is-active .lr-camera-select {
   background: #e4edf2;
-}
-
-.lr-render-cameras > button.is-active {
-  box-shadow: inset 3px 0 #0b6da6;
 }
 
 .lr-camera-thumbnail {
@@ -955,11 +958,11 @@
   font: normal 0.52rem var(--font-mono);
 }
 
-.lr-render-cameras > button strong {
+.lr-camera-select strong {
   font-size: 0.56rem;
 }
 
-.lr-render-cameras > button small {
+.lr-camera-select small {
   color: #697781;
   font: 0.48rem var(--font-mono);
 }
@@ -979,6 +982,99 @@
 .lr-render-cameras > p {
   color: #63727c;
   font-size: 0.5rem;
+}
+
+.lr-package-deck {
+  padding: 8px;
+  border-bottom: 1px solid #9ba7af;
+}
+
+.lr-package-deck > header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #30434f;
+}
+
+.lr-package-deck-empty {
+  margin: 0;
+  color: #63727c;
+  font-size: 0.52rem;
+  line-height: 1.35;
+}
+
+.lr-package-deck-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.lr-package-deck-list li {
+  display: grid;
+  gap: 3px;
+  padding: 5px;
+  background: #e2e9ee;
+  border: 1px solid #9ba7af;
+}
+
+.lr-package-deck-list label {
+  display: grid;
+  gap: 2px;
+  font-size: 0.5rem;
+  color: #536371;
+}
+
+.lr-package-deck-list input {
+  width: 100%;
+  padding: 3px 4px;
+  border: 1px solid #9ba7af;
+  background: #f6f8fa;
+  font-size: 0.58rem;
+}
+
+.lr-package-deck-list small {
+  color: #63727c;
+  font-size: 0.48rem;
+}
+
+.lr-package-deck-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.lr-package-deck-actions button {
+  padding: 2px 5px;
+  font-size: 0.48rem;
+  border: 1px solid #9ba7af;
+  background: #f3f6f8;
+  cursor: pointer;
+}
+
+.lr-camera-bookmark {
+  display: block;
+  width: calc(100% - 10px);
+  margin: 0 5px 5px;
+  padding: 2px 5px;
+  border: 1px solid #8aa0ad;
+  border-radius: 2px;
+  background: #eef3f6;
+  color: #3f5563;
+  font-size: 0.48rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lr-camera-bookmark.is-active {
+  border-color: #3c7d59;
+  background: #dce9df;
+  color: #244c3b;
 }
 
 .lr-render-cameras > p {
