@@ -14,6 +14,7 @@ import {
   siblingPackagePath,
   withAcceptedStillProvenance,
 } from ".";
+import { stillJobProjectContentHash } from "../stillJob/projectHash";
 
 const NOW = "2026-08-12T21:00:00.000Z";
 const TINY_PNG =
@@ -80,6 +81,36 @@ describe("client presentation package", () => {
     expect(JSON.stringify(packageData)).not.toMatch(/cutlist|workshop|machine/i);
   });
 
+  it("excludes Draft hero renders from client package files and honesty", async () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const scene = compileLivingRoomScene(project);
+    const draftRender = createLivingRoomRenderResult({
+      dataUrl: TINY_PNG,
+      project: {
+        ...project,
+        renderSettings: {
+          ...project.renderSettings,
+          quality: "draft",
+        },
+      },
+      sceneFingerprint: scene.fingerprint,
+      camera: scene.cameras[0],
+      now: NOW,
+    });
+    expect(draftRender.quality).toBe("draft");
+
+    const { files, packageData } = await assembleClientPresentationFiles(
+      project,
+      draftRender,
+      NOW,
+    );
+    expect(files.some((file) => file.fileName.endsWith("-hero-render.png"))).toBe(false);
+    expect(packageData.heroRenderDataUrl).toBeNull();
+    expect(packageData.manifest.render).toBeNull();
+    expect(packageData.manifest.files).not.toContain(packageData.fileNames.heroPng);
+    expect(packageData.manifest.presentationHonesty?.tiers ?? []).toEqual([]);
+  });
+
   it("prefers render thumbnails for the project browser", () => {
     const plan = "data:image/svg+xml;charset=utf-8,plan";
     const render = "data:image/jpeg;base64,abc";
@@ -110,12 +141,12 @@ describe("client presentation package", () => {
   it("records only accepted still provenance on the package manifest", () => {
     const project = createLivingRoomReleaseDemoProject();
     const pack = buildClientPresentationPackage(project, null, NOW);
-    const accepted = withAcceptedStillProvenance(pack.manifest, [
+    const accepted = withAcceptedStillProvenance(pack.manifest, project, [
       {
         schemaVersion: 2,
         jobId: "sj-1",
         projectId: project.id,
-        projectContentHash: "sj-proj-x",
+        projectContentHash: stillJobProjectContentHash(project),
         snapshotId: "snap",
         cameraId: "cam-a",
         engine: { id: "stilljob-handoff", version: "0.2.0" },
@@ -129,7 +160,7 @@ describe("client presentation package", () => {
         schemaVersion: 2,
         jobId: "sj-2",
         projectId: project.id,
-        projectContentHash: "sj-proj-x",
+        projectContentHash: stillJobProjectContentHash(project),
         snapshotId: "snap",
         cameraId: "cam-a",
         engine: { id: "stilljob-handoff", version: "0.2.0" },
@@ -149,7 +180,7 @@ describe("client presentation package", () => {
       schemaVersion: 2,
       jobId: "sj-pack",
       projectId: project.id,
-      projectContentHash: "sj-proj-x",
+      projectContentHash: stillJobProjectContentHash(project),
       snapshotId: "snap",
       cameraId: "cam-a",
       engine: { id: "stilljob-hero", version: "1.0.0" },

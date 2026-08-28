@@ -162,6 +162,11 @@ export type CameraEntity = {
 export type RenderQuality = "draft" | "standard" | "presentation" | "client-preview";
 export type RenderComposition = "architectural" | "project-camera";
 
+export type PackageCameraBookmark = {
+  cameraId: EntityId;
+  viewName: string;
+};
+
 export type RenderSettings = {
   widthPx: number;
   heightPx: number;
@@ -171,6 +176,8 @@ export type RenderSettings = {
   activeCameraId: EntityId | null;
   lightingRecipeId: string;
   composition: RenderComposition;
+  /** Ordered named views included in client package decks (K2). */
+  packageCameraBookmarks: PackageCameraBookmark[];
 };
 
 export type InteriorProject = {

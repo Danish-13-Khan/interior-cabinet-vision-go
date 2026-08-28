@@ -43,5 +43,10 @@
     "materialId": "lr-material-rug-wool-sand",
     "name": "Sand Wool Rug",
     "type": "fabric"
+  },
+  {
+    "materialId": "lr-material-stone-warm",
+    "name": "Warm Honed Stone",
+    "type": "stone"
   }
 ]

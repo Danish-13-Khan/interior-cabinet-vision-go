@@ -93,7 +93,7 @@ A designer opens the app and can complete this story without fighting the UI:
 | **Build** | Freeform room/wall, openings, dims, surfaces, topology | No room-split-by-wall; no node drag; weak multi-room chrome |
 | **Design** | Catalog place/snap/run, millwork inspector | Thin runs/fillers/corners on freeform; small catalogs |
 | **3D** | Live compile, dollhouse, walkthrough | Nav / selection / material richness polish |
-| **Render** | Honest WebGL Client Preview | Hybrid stills pipeline incomplete vs client “wow” |
+| **Render** | Hybrid stills + package camera decks + tier honesty gates | Polish deliverable suite |
 | **Export** | JSON + millwork CSV/PDF + client package | Not a polished deliverable suite yet |
 
 ```text
@@ -173,8 +173,14 @@ Export    ██████░░░░
 | ID | Missing feature | Why it matters |
 | --- | --- | --- |
 | K1 | Complete **Phase 2 Hybrid Stills** under trust contract | Client delivery ceiling |
+
+**K1 status:** Implemented — StillJob v2 handoff, hero still engine, Render Studio review (plate | still | diff), deterministic rerun gate, and accepted-still client package provenance. Proof: `npm run phase2:proof`.
 | K2 | Camera bookmarks + named views for package | Repeatable client decks |
+
+**K2 status:** Implemented — ordered package camera bookmarks with named views in Render Studio, persisted on `renderSettings.packageCameraBookmarks`, exported via `package-views.json` + manifest/PDF deck section.
 | K3 | Keep honesty: Draft ≠ Client Preview ≠ Still | Product trust |
+
+**K3 status:** Implemented — three-tier honesty catalog, context-aware Render Studio badge + settings legend, client package `presentationHonesty` manifest block, PDF tier notes. Proof: `npm run phase2:proof` (includes K3 unit + e2e).
 
 ### L — Export & presentation
 
@@ -260,11 +266,11 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 
 ### Phase K — Render stills ceiling · L · after trust contract
 
-- Complete Hybrid Stills Pipeline (existing `PHASE_2_HYBRID_STILLS_PIPELINE.md`)  
-- Camera bookmarks for package  
-- Honesty gates unchanged
+- Complete Hybrid Stills Pipeline (existing `PHASE_2_HYBRID_STILLS_PIPELINE.md`) — **done (K1)**
+- Camera bookmarks for package (K2) — **done**
+- Honesty gates across Draft / Client Preview / Hybrid Still tiers — **done (K3)**
 
-**Exit:** Accepted stills land in client package; project remains editable truth.
+**Exit:** Accepted stills land in client package; project remains editable truth. **Met via K1.**
 
 ---
 
@@ -318,7 +324,7 @@ Until then: do **not** market as full Floorplanner / Synaps parity — market as
 - [ ] Confirm H2 node/wall drag is in H, not deferred  
 - [ ] Confirm Phase I reuses Cabinets CAD run/filler concepts where safe  
 - [ ] Confirm catalogs stay curated (no marketplace)  
-- [ ] Confirm Phase K follows StillJob trust contract; no stills-first pivot  
+- [x] Confirm Phase K follows StillJob trust contract; no stills-first pivot  
 - [ ] Confirm deferred list (AI, styleboards, marketplace, Synaps chase) stays cut  
 - [ ] Approve this doc as the successor gap map after Floorplanner A–G  
 

@@ -98,6 +98,9 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
     });
     safeRenderSettings.activeCameraId = null;
   }
+  safeRenderSettings.packageCameraBookmarks = safeRenderSettings.packageCameraBookmarks.filter(
+    (bookmark) => validCameraIds.has(bookmark.cameraId),
+  );
   const project: InteriorProject = {
     schemaVersion: INTERIOR_PROJECT_SCHEMA_VERSION,
     id: text(source.id, fallback.id, 120),

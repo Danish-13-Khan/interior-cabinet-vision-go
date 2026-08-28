@@ -11,6 +11,12 @@ import {
   buildClientPresentationPackage,
   type ClientPresentationPackage,
 } from "./buildPackage";
+import { drawPackageViewsSection } from "./exportPdfPackageViews";
+import { drawPresentationHonestySection } from "./exportPdfHonesty";
+import {
+  formatPackageHeroCaption,
+  isPackageDeliverableRenderQuality,
+} from "../renderTierHonesty";
 
 function drawRow(
   layout: PdfLayout,
@@ -45,7 +51,10 @@ export async function exportClientPresentationPdf(
   };
   const { margin, contentWidth, pageWidth, pageHeight } = layout;
   const summary = packageData.roomSummary;
-  const hero = await optimizeSceneImage(packageData.heroRenderDataUrl);
+  const hero = packageData.manifest.render
+    && isPackageDeliverableRenderQuality(packageData.manifest.render.quality)
+    ? await optimizeSceneImage(packageData.heroRenderDataUrl)
+    : null;
 
   doc.setFillColor(244, 241, 235);
   doc.rect(0, 0, pageWidth, pageHeight, "F");
@@ -90,11 +99,14 @@ export async function exportClientPresentationPdf(
     doc.setFontSize(8);
     doc.setTextColor(110, 122, 116);
     const caption = packageData.manifest.render
-      ? `Hero render · ${packageData.manifest.render.cameraName} · ${packageData.manifest.render.widthPx}×${packageData.manifest.render.heightPx}`
-      : "Plan preview — render an image in Render Studio for the final hero frame.";
+      && isPackageDeliverableRenderQuality(packageData.manifest.render.quality)
+      ? formatPackageHeroCaption(packageData.manifest.render)
+      : "Plan preview — render a Client Preview or Balanced hero in Render Studio for a package frame.";
     doc.text(caption, margin, y);
     y += 8;
   }
+
+  y = drawPresentationHonestySection(layout, y, packageData.manifest.presentationHonesty);
 
   doc.setFontSize(11);
   doc.setTextColor(28, 38, 34);
@@ -105,6 +117,7 @@ export async function exportClientPresentationPdf(
   }
 
   y += 4;
+  y = drawPackageViewsSection(layout, y, packageData.manifest.packageViews);
   doc.setFontSize(11);
   doc.setTextColor(28, 38, 34);
   doc.text("Featured objects", margin, y);

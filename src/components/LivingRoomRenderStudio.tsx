@@ -8,8 +8,8 @@ import {
   createLivingRoomRenderResult,
   applyRenderPresetToSettings,
   livingRoomRenderFileName,
-  describePresetHonesty,
   resolveStudioRenderMode,
+  stillReviewExportStatusMessage,
   type LivingRoomLightingRecipeId,
   type LivingRoomRenderResult,
 } from "../domain/livingRoom";
@@ -19,6 +19,8 @@ import {
 } from "../platform/desktopFiles";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
+import { usePackageCameraBookmarkSettings } from "../hooks/usePackageCameraBookmarkSettings";
+import { useRenderStudioHonesty } from "../hooks/useRenderStudioHonesty";
 import { useStillReviewFlow } from "../hooks/useStillReviewFlow";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
@@ -83,6 +85,7 @@ export function LivingRoomRenderStudio({
   const [exposureDraft, setExposureDraft] = useState(project.renderSettings.exposure);
   const [exportStatus, setExportStatus] = useState("");
   const clientExport = useClientPresentationExport();
+  const packageDeck = usePackageCameraBookmarkSettings(project, onSettingsChange);
   const settings = project.renderSettings;
   const activeCamera = scene.cameras.find((camera) => camera.id === settings.activeCameraId)
     ?? scene.cameras.find((camera) => camera.isDefault)
@@ -90,7 +93,7 @@ export function LivingRoomRenderStudio({
   const isRendering = job.status === "rendering";
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const studioRenderMode = resolveStudioRenderMode(settings.quality);
-  const honesty = describePresetHonesty(settings.quality, studioRenderMode);
+  const honesty = useRenderStudioHonesty(view, settings.quality, latestResult);
   const [heroStillLock, setHeroStillLock] = useState(false);
   const stills = useStillReviewFlow({
     project,
@@ -230,7 +233,7 @@ export function LivingRoomRenderStudio({
           <span>RENDER STUDIO</span>
           <strong>{scene.style.name}</strong>
           <small>{scene.fingerprint.slice(-8).toUpperCase()}</small>
-          <RenderPresetHonestyBadge honesty={honesty} compact />
+          <RenderPresetHonestyBadge honesty={honesty} tierId={honesty.tierId} compact />
         </div>
         <nav aria-label="Render result view">
           <button type="button" className={view === "preview" ? "is-active" : ""} onClick={() => setView("preview")}>Live Preview</button>
@@ -323,7 +326,7 @@ export function LivingRoomRenderStudio({
               <img src={latestResult.dataUrl} alt={`Render from ${latestResult.cameraName}`} />
               <figcaption>
                 <strong>{latestResult.cameraName}</strong>
-                <span>{latestResult.widthPx}×{latestResult.heightPx} · {latestResult.quality} · {latestResult.exposure.toFixed(2)} EV</span>
+                <span>{latestResult.widthPx}×{latestResult.heightPx} · {latestResult.quality} · {latestResult.exposure.toFixed(2)} EV · {honesty.headline}</span>
                 {!resultIsCurrent ? <b>Settings changed · render again</b> : <b className="is-current">Current</b>}
               </figcaption>
             </figure>
@@ -382,14 +385,19 @@ export function LivingRoomRenderStudio({
           thumbnails={thumbnails}
           latestResult={latestResult}
           previousResult={previousResult}
-          statusMessage={
-            stills.session.status === "accepted"
-              ? "Still accepted · will record provenance on client preview export."
-              : stills.session.status === "rejected"
-                ? "Still rejected · authored project unchanged."
-                : clientExport.status || exportStatus
-          }
+          statusMessage={stillReviewExportStatusMessage({
+            sessionStatus: stills.session.status,
+            packageEligibleCount: stills.acceptedStills.length,
+            exportStatus,
+            clientExportStatus: clientExport.status,
+          })}
+          packageViews={packageDeck.packageViews}
+          bookmarkedCameraIds={packageDeck.bookmarkedCameraIds}
           onSelectCamera={(cameraId) => onSettingsChange({ activeCameraId: cameraId })}
+          onToggleBookmark={packageDeck.onToggleBookmark}
+          onCommitViewName={packageDeck.onCommitViewName}
+          onMoveView={packageDeck.onMoveView}
+          onRemoveView={packageDeck.onRemoveView}
         />
       </div>
     </section>
