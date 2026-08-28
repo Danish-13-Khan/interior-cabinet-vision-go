@@ -40,7 +40,7 @@
     {
       "id": "object_set",
       "pass": true,
-      "detail": "object count=8"
+      "detail": "object count=15"
     },
     {
       "id": "object_placement",
@@ -73,7 +73,7 @@
     {
       "id": "material_ids",
       "pass": true,
-      "detail": "materials=9"
+      "detail": "materials=10"
     }
   ],
   "tolerances": {

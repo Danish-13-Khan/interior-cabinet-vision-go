@@ -33,8 +33,8 @@ export async function assembleClientPresentationFiles(
   files: ClientPresentationFile[];
 }> {
   const built = buildClientPresentationPackage(project, render, now);
-  const stillPngs = await acceptedStillPngFiles(acceptedStills, acceptedStillPngs);
-  let manifest = withAcceptedStillProvenance(built.manifest, acceptedStills);
+  let manifest = withAcceptedStillProvenance(built.manifest, project, acceptedStills);
+  const stillPngs = await acceptedStillPngFiles(manifest.acceptedStills, acceptedStillPngs);
   if (manifest.acceptedStills.length) {
     manifest = {
       ...manifest,

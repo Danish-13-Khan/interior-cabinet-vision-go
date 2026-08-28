@@ -89,7 +89,8 @@ export type StillJobGateId =
   | "object_height"
   | "material_ids"
   | "millwork_size"
-  | "opening_wall";
+  | "opening_wall"
+  | "deterministic_rerun";
 
 export type StillJobGateResult = {
   id: StillJobGateId;

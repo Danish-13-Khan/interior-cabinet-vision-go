@@ -1,6 +1,6 @@
 # Phase 2 — Hybrid Stills Pipeline
 
-**Status:** Planned / not started  
+**Status:** Implemented (Phase 2A–C) · proof gate: `npm run phase2:proof`  
 **Product spine:** Plan → Model → Render (unchanged)  
 **Goal:** Add a **trusted stills presentation pipeline** on top of the authored scene, without turning the product into a stills-first renderer.
 
