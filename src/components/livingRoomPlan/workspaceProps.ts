@@ -62,6 +62,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
   onSetFloorMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
+  onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
   onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
@@ -70,6 +71,12 @@ export type LivingRoomPlanWorkspaceProps = {
   onDelete: () => void;
   onAlign: (mode: LivingRoomAlignMode) => void;
   onCreateCabinetRun: (wallId: string) => void;
+  onUpdateCabinetRun: (runId: string, options: {
+    gapMm?: number;
+    alignment?: "start" | "center" | "end";
+    extendToWall?: boolean;
+    fillersEnabled?: boolean;
+  }) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onActiveRoom: (roomId: string) => void;

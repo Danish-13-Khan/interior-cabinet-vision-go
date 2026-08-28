@@ -11,6 +11,11 @@ import {
   type RunFiller,
 } from "./types";
 
+/** Shared CAD/Interiors rule: only manufacture a standard 40–150 mm filler. */
+export function fillerWidthForGap(gapMm: number): number | null {
+  return gapMm >= FILLER_MIN_MM ? Math.min(gapMm, FILLER_MAX_MM) : null;
+}
+
 function makeFiller(options: {
   id: string;
   run: CabinetRun;
@@ -77,9 +82,8 @@ export function createRunFillers(
     const currentEnd = getRunExtent(current, run.axis).end;
     const nextStart = getRunExtent(next, run.axis).start;
     const gap = nextStart - currentEnd;
-    if (gap < FILLER_MIN_MM) continue;
-
-    const fillerWidth = Math.min(gap, FILLER_MAX_MM);
+    const fillerWidth = fillerWidthForGap(gap);
+    if (fillerWidth === null) continue;
     fillers.push(
       makeFiller({
         id: `filler-${run.id}-between-${index + 1}`,

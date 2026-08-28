@@ -1,6 +1,7 @@
 import { polygonBounds, roomPlanPolygon, type InteriorProject, type InteriorRoomEntity, type Size3Mm, type WallEntity } from "../../domain/interiorProject";
 import { formatPlanDimension, wallLengthMm, type PlanDisplayUnit } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
+import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
 
 type Props = {
   project: InteriorProject;
@@ -45,12 +46,10 @@ export function PlanArchitectureInspector(props: Props) {
         onChange={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })} />
       <NumberField label="Height" value={wall.heightMm}
         onChange={(heightMm) => props.onUpdateWall(wall.id, { heightMm })} />
-      <label className="lr-select-field"><span>Wall material</span>
-        <select value={wall.materialId ?? ""} onChange={(event) => props.onSetWallMaterial(wall.id, event.target.value || null)}>
-          <option value="">No material</option>
-          {props.project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}
-        </select>
-      </label>
+      <h4>Wall material</h4>
+      <MaterialSwatchGrid materials={props.project.materials} activeMaterialId={wall.materialId ?? null} compact
+        onPick={(materialId) => props.onSetWallMaterial(wall.id, materialId)} />
+      <button type="button" className="lr-clear-material" onClick={() => props.onSetWallMaterial(wall.id, null)}>Clear wall material</button>
     </section> : <section className="lr-inspector-empty"><h3>Wall</h3><p>Select a wall in the plan to edit its construction and finish.</p></section>}
   </>;
 }

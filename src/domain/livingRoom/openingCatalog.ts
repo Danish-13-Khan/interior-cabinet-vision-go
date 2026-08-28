@@ -3,8 +3,12 @@ import type { OpeningEntity, OpeningKind, ParameterValue } from "../interiorProj
 export type OpeningCatalogSymbol =
   | "single-swing"
   | "double-swing"
+  | "sliding"
+  | "pocket"
   | "fixed-glass"
-  | "casement";
+  | "casement"
+  | "awning"
+  | "picture-window";
 
 export type OpeningCatalogItem = {
   catalogItemId: string;
@@ -39,6 +43,26 @@ export const OPENING_CATALOG: readonly OpeningCatalogItem[] = [
     generator: "procedural-door",
   },
   {
+    catalogItemId: "opening:door-sliding",
+    name: "Two Panel Sliding Door",
+    kind: "door",
+    symbol: "sliding",
+    defaults: { widthMm: 1800, heightMm: 2200, sillHeightMm: 0 },
+    parameters: { leafCount: 2, operation: "sliding", frameDepthMm: 110 },
+    materialSlots: ["frame", "leaf", "hardware"],
+    generator: "procedural-door",
+  },
+  {
+    catalogItemId: "opening:door-pocket",
+    name: "Pocket Door",
+    kind: "door",
+    symbol: "pocket",
+    defaults: { widthMm: 900, heightMm: 2100, sillHeightMm: 0 },
+    parameters: { leafCount: 1, operation: "pocket", frameDepthMm: 100 },
+    materialSlots: ["frame", "leaf", "hardware"],
+    generator: "procedural-door",
+  },
+  {
     catalogItemId: "opening:window-fixed",
     name: "Fixed Window",
     kind: "window",
@@ -56,6 +80,26 @@ export const OPENING_CATALOG: readonly OpeningCatalogItem[] = [
     defaults: { widthMm: 900, heightMm: 1400, sillHeightMm: 900 },
     parameters: { panelCount: 1, operable: true, swing: "out", frameDepthMm: 90 },
     materialSlots: ["frame", "glass", "hardware"],
+    generator: "procedural-window",
+  },
+  {
+    catalogItemId: "opening:window-awning",
+    name: "Awning Window",
+    kind: "window",
+    symbol: "awning",
+    defaults: { widthMm: 1200, heightMm: 600, sillHeightMm: 1500 },
+    parameters: { panelCount: 2, operable: true, swing: "out", frameDepthMm: 90 },
+    materialSlots: ["frame", "glass", "hardware"],
+    generator: "procedural-window",
+  },
+  {
+    catalogItemId: "opening:window-picture",
+    name: "Picture Window",
+    kind: "window",
+    symbol: "picture-window",
+    defaults: { widthMm: 1800, heightMm: 1400, sillHeightMm: 750 },
+    parameters: { panelCount: 1, operable: false, frameDepthMm: 100 },
+    materialSlots: ["frame", "glass"],
     generator: "procedural-window",
   },
 ] as const;

@@ -10,6 +10,7 @@ import type {
   MillworkSchedule,
   MillworkWorkflowSnapshot,
 } from "../../domain/livingRoom";
+import { isBlockingLivingRoomPlanIssue } from "../../domain/livingRoom";
 import type { ProjectReport } from "../../domain/projectReport";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { MillworkSchedulePreview } from "./millworkSchedule";
@@ -37,6 +38,12 @@ type LivingRoomInspectorPanelProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onUpdateCabinetRun: (runId: string, options: {
+    gapMm?: number;
+    alignment?: "start" | "center" | "end";
+    extendToWall?: boolean;
+    fillersEnabled?: boolean;
+  }) => void;
   onSelect: (objectId: string | null) => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
@@ -64,6 +71,7 @@ export function LivingRoomInspectorPanel({
   onSetRotation,
   onSetMaterial,
   onSetParameters,
+  onUpdateCabinetRun,
   onSelect,
   onUpdateOpening,
   onUpdateWall,
@@ -119,10 +127,12 @@ export function LivingRoomInspectorPanel({
             )}
             <LivingRoomObjectInspector
               object={activeObject}
+              project={project}
               materials={project.materials}
               onResize={onResize}
               onSetMaterial={onSetMaterial}
               onSetParameters={onSetParameters}
+              onUpdateRun={onUpdateCabinetRun}
             />
           </>
         ) : (
@@ -144,8 +154,7 @@ export function LivingRoomInspectorPanel({
             onSelect={onSelect}
           />
         ) : null}
-        {mode === "plan" ? (
-          <section className="lr-issues-panel">
+        <section className="lr-issues-panel">
             <h3>Layout Checks <span>{issues.length}</span></h3>
             {issues.length === 0 ? (
               <p className="is-clear">No conflicts detected.</p>
@@ -154,6 +163,9 @@ export function LivingRoomInspectorPanel({
                 <button
                   type="button"
                   key={`${issue.code}-${index}`}
+                  data-layout-issue={issue.code}
+                  className={isBlockingLivingRoomPlanIssue(issue) ? "is-error" : "is-warning"}
+                  aria-label={`${issue.severity}: ${issue.message}`}
                   onClick={() => onSelect(issue.objectIds[0] ?? null)}
                 >
                   <b>{issue.severity === "error" ? "!" : "△"}</b>
@@ -161,8 +173,7 @@ export function LivingRoomInspectorPanel({
                 </button>
               ))
             )}
-          </section>
-        ) : null}
+        </section>
       </div>
     </aside>
   );

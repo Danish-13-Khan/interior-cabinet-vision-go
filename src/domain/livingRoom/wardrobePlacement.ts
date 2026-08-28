@@ -1,15 +1,34 @@
-import type { InteriorObjectEntity, InteriorProject, WallEntity } from "../interiorProject";
+import type { InteriorObjectEntity, InteriorProject } from "../interiorProject";
 import { orientWallForRoom, selectRoomWalls } from "../interiorProject";
+import { attached, placementAt, wallLength, type WallPlacement } from "./wallSegmentPlacement";
 
-export type WallPlacement = {
-  wallId: string;
-  position: { x: number; y: number; z: number };
-  rotationY: number;
-};
-
-function wallLength(wall: WallEntity) {
-  return Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
-}
+export type { WallPlacement } from "./wallSegmentPlacement";
+export {
+  arrangeCabinetRun,
+  cabinetRunForObject,
+  updateCabinetRun,
+  type CabinetRunAlignment,
+  type CabinetRunMetadata,
+  type CabinetRunOptions,
+} from "./cabinetRunLayout";
+export {
+  cabinetRunFillerForObject,
+  countCabinetRunFillers,
+  isCabinetRunFiller,
+  reconcileCabinetRunsAfterObjectRemoval,
+  reflowCabinetRunsForWalls,
+  syncCabinetRunFillers,
+  updateCabinetRunLayout,
+  type CabinetRunFillerMetadata,
+  type CabinetRunLayoutOptions,
+} from "./cabinetRunFillers";
+export {
+  listRoomWallCorners,
+  placeCornerCabinet,
+  preferredRoomWallCorner,
+  reflowCornerCabinetsForWalls,
+  type RoomWallCorner,
+} from "./cornerPlacement";
 
 /** Resolves a cabinet against the room-facing side of a rectangular wall. */
 export function placeOnWall(
@@ -24,7 +43,6 @@ export function placeOnWall(
   if (length < object.dimensions.widthMm) return null;
   const ux = (wall.end.x - wall.start.x) / length;
   const uz = (wall.end.z - wall.start.z) / length;
-  // Room loop direction guarantees the left normal faces this room's interior.
   const nx = -uz;
   const nz = ux;
   const usableOffset = Math.max(object.dimensions.widthMm / 2, Math.min(length - object.dimensions.widthMm / 2, length / 2));
@@ -56,24 +74,6 @@ export function attachToWall(
   };
 }
 
-function placementAt(wall: WallEntity, object: InteriorObjectEntity, offsetMm: number): WallPlacement {
-  const length = wallLength(wall);
-  const ux = (wall.end.x - wall.start.x) / length;
-  const uz = (wall.end.z - wall.start.z) / length;
-  const nx = -uz;
-  const nz = ux;
-  const clamped = Math.max(object.dimensions.widthMm / 2, Math.min(length - object.dimensions.widthMm / 2, offsetMm));
-  return {
-    wallId: wall.id,
-    position: { x: wall.start.x + ux * clamped + nx * (wall.thicknessMm / 2 + object.dimensions.depthMm / 2), y: 0, z: wall.start.z + uz * clamped + nz * (wall.thicknessMm / 2 + object.dimensions.depthMm / 2) },
-    rotationY: Math.round((Math.atan2(nx, nz) * 180) / Math.PI) || 0,
-  };
-}
-
-function attached(object: InteriorObjectEntity, placement: WallPlacement) {
-  return { ...object, position: placement.position, rotation: { ...object.rotation, y: placement.rotationY }, extensions: { ...object.extensions, wallAttachment: { wallId: placement.wallId } } };
-}
-
 export function snapCabinetToWall(project: InteriorProject, object: InteriorObjectEntity, desired: { x: number; y: number; z: number }) {
   if (object.kind !== "cabinet") return { ...object, position: desired };
   const nearest = selectRoomWalls(project, object.roomId)
@@ -91,22 +91,4 @@ export function snapCabinetToWall(project: InteriorProject, object: InteriorObje
     .sort((a, b) => a.distance - b.distance)[0];
   if (!nearest || nearest.distance > object.dimensions.depthMm + 350) return { ...object, position: desired };
   return attached(object, placementAt(nearest.wall, object, nearest.offset));
-}
-
-export function arrangeCabinetRun(project: InteriorProject, objectIds: string[], wallId: string) {
-  const cabinets = project.objects.filter((object) => objectIds.includes(object.id) && object.kind === "cabinet");
-  const storedWall = project.walls.find((item) => item.id === wallId);
-  if (!storedWall || cabinets.length < 2) return project;
-  const roomId = cabinets[0]!.roomId;
-  const wall = orientWallForRoom(project, roomId, storedWall);
-  const total = cabinets.reduce((sum, object) => sum + object.dimensions.widthMm, 0);
-  if (total > wallLength(wall)) return project;
-  let cursor = Math.max(0, (wallLength(wall) - total) / 2);
-  const arranged = new Map(cabinets.map((object) => {
-    cursor += object.dimensions.widthMm / 2;
-    const value = attached(object, placementAt(wall, object, cursor));
-    cursor += object.dimensions.widthMm / 2;
-    return [object.id, value];
-  }));
-  return { ...project, objects: project.objects.map((object) => arranged.get(object.id) ?? object) };
 }

@@ -1,6 +1,6 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
-import { formatPlanDimension, type LivingRoomPlanIssue, type PlanDisplayUnit, type PlanSnapGuide } from "../../domain/livingRoom";
+import { formatPlanDimension, primaryMaterialId, type LivingRoomPlanIssue, type PlanDisplayUnit, type PlanSnapGuide } from "../../domain/livingRoom";
 import { PlanObjectSymbol } from "./PlanObjectSymbol";
 import type { ObjectPreview } from "./usePlanObjectInteraction";
 
@@ -10,6 +10,7 @@ export function PlanObjectsLayer(props: {
   onStart: (event: ReactPointerEvent<SVGGElement | SVGRectElement>, object: InteriorObjectEntity, mode: "move" | "resize") => void;
 }) {
   const issueIds = new Set(props.issues.flatMap((issue) => issue.objectIds));
+  const materialsById = new Map(props.project.materials.map((material) => [material.id, material]));
   const objects = props.project.objects.filter((object) => object.extensions?.layerVisible !== false)
     .sort((a, b) => Number(b.category === "rug") - Number(a.category === "rug"));
   return <>
@@ -19,9 +20,13 @@ export function PlanObjectsLayer(props: {
       const dimensions = active?.dimensions ?? object.dimensions;
       const selected = props.selectedIds.includes(object.id);
       const compact = dimensions.widthMm < 700 || dimensions.depthMm < 200;
+      const finish = materialsById.get(primaryMaterialId(object) ?? "");
+      const fill = finish?.color ? `${finish.color}99` : undefined;
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${object.rotation.y})`}
         className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""}`}
-        data-object-id={object.id} onPointerDown={(event) => props.onStart(event, object, "move")}>
+        data-object-id={object.id} data-material-id={finish?.id} data-material-color={finish?.color}
+        style={fill ? { ["--lr-object-fill" as string]: fill } : undefined}
+        onPointerDown={(event) => props.onStart(event, object, "move")}>
         <rect x={-dimensions.widthMm / 2} y={-dimensions.depthMm / 2} width={dimensions.widthMm} height={dimensions.depthMm} rx={object.category === "rug" ? 45 : 12} />
         <PlanObjectSymbol object={object} dimensions={dimensions} />
         <line x1="0" y1="0" x2="0" y2={-dimensions.depthMm / 2 + 70} className="lr-object-axis" />

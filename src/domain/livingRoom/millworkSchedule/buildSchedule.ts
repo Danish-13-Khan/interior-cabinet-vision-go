@@ -28,6 +28,7 @@ export function buildLivingRoomMillworkSchedule(
         widthMm: object.dimensions.widthMm,
         heightMm: object.dimensions.heightMm,
         depthMm: object.dimensions.depthMm,
+        sku: typeof object.parameters.sku === "string" ? object.parameters.sku : null,
         materialSlots,
         materialLabels: resolveMaterialLabels(materialSlots, project.materials),
         quantity: 1 as const,

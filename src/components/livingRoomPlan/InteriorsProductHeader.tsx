@@ -86,7 +86,7 @@ export function InteriorsProductHeader({
             disabled={!projectName}
           >3D</button>
         </div>
-        <button type="button" className="lr-export-button" onClick={onExport} disabled={!projectName}>Export</button>
+        <button type="button" className="lr-export-button" title="Download project JSON (not a millwork schedule)" onClick={onExport} disabled={!projectName}>Export JSON</button>
         <label className="lr-workspace-picker">
           <span>Workspace</span>
           <select value="interiors" onChange={(event) => onWorkbenchModeChange(event.target.value as WorkbenchMode)}>

@@ -14,6 +14,7 @@ import {
   compileRug,
   compileTvUnit,
 } from "./sceneAdaptersMillwork";
+import { compileCornerWardrobe, compileRunFiller } from "./sceneAdaptersCorner";
 import { compileFlutedFeatureWall } from "./sceneAdaptersFeatureWalls";
 import {
   compileDecorSculpture,
@@ -56,6 +57,11 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "console-table-v1", catalogItemId: "living:console-table", compile: compileCoffeeTable },
   { id: "bookcase-v1", catalogItemId: "living:bookcase", compile: compileBookcase },
   { id: "wardrobe-wall-v1", catalogItemId: "living:wardrobe-wall", compile: compileBookcase },
+  { id: "tall-pantry-v1", catalogItemId: "living:tall-pantry-600", compile: compileBookcase },
+  { id: "base-cabinet-v1", catalogItemId: "living:base-cabinet-900", compile: compileBookcase },
+  { id: "wall-cabinet-v1", catalogItemId: "living:wall-cabinet-900", compile: compileBookcase },
+  { id: "corner-wardrobe-v1", catalogItemId: "living:corner-wardrobe", compile: compileCornerWardrobe },
+  { id: "run-filler-v1", catalogItemId: "living:run-filler", compile: compileRunFiller },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },
   { id: "indoor-plant-v1", catalogItemId: "living:indoor-plant", compile: compileIndoorPlant },
   { id: "structural-column-v1", catalogItemId: "living:structural-column", compile: compileStructuralColumn },

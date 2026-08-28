@@ -118,10 +118,20 @@ export function orderedRunCabinets(
   cabinets: CabinetInstance[],
   axis: CabinetRunAxis,
 ) {
-  return runCabinetIds
+  return orderRunMembers(
+    runCabinetIds
     .map((id) => cabinets.find((cabinet) => cabinet.id === id))
-    .filter((cabinet): cabinet is CabinetInstance => Boolean(cabinet))
-    .sort((a, b) => getRunPrimaryValue(a, axis) - getRunPrimaryValue(b, axis));
+    .filter((cabinet): cabinet is CabinetInstance => Boolean(cabinet)),
+    (cabinet) => getRunPrimaryValue(cabinet, axis),
+  );
+}
+
+/**
+ * Shared run-ordering primitive.  CAD uses an x/z axis while Interiors supplies
+ * a projection along a freeform wall; both must retain physical run order.
+ */
+export function orderRunMembers<T>(members: readonly T[], primaryValue: (member: T) => number) {
+  return [...members].sort((left, right) => primaryValue(left) - primaryValue(right));
 }
 
 export function cabinetRunBand(cabinet: CabinetInstance) {

@@ -242,6 +242,7 @@ function App() {
             onSetParameters={c.setInteriorObjectParameters}
             onSetFloorMaterial={c.setLivingRoomFloorMaterial}
             onSetWallMaterial={c.setLivingRoomWallMaterial}
+            onApplyMaterialToSelection={c.applyMaterialToSelection}
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}
@@ -250,6 +251,7 @@ function App() {
             onDelete={c.deleteInteriorSelection}
             onAlign={c.alignInteriorSelection}
             onCreateCabinetRun={c.createLivingRoomCabinetRun}
+            onUpdateCabinetRun={c.updateLivingRoomCabinetRun}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onActiveRoom={c.setActiveLivingRoom}
