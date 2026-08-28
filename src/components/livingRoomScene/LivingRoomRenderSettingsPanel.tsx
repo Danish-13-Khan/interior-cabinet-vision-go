@@ -10,6 +10,7 @@ import {
   type PresetHonestyDescription,
 } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import { RenderTierHonestyLegend } from "./RenderTierHonestyLegend";
 
 type LivingRoomRenderSettingsPanelProps = {
   settings: RenderSettings;
@@ -72,6 +73,7 @@ export function LivingRoomRenderSettingsPanel({
           shadows {qualityBehavior.shadowMapSize} · contact {qualityBehavior.contactShadowResolution}
         </p>
         <p className="lr-render-preset-hint">{honesty.subline}</p>
+        <RenderTierHonestyLegend />
       </section>
       <section>
         <h3>Output</h3>

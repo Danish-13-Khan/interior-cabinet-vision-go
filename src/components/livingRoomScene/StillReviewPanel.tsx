@@ -1,6 +1,8 @@
 import type { StillJobValidation, StillReviewSession } from "../../domain/livingRoom";
+import { describeStillHonesty, stillReviewPanelStatusLabel } from "../../domain/livingRoom";
 import type { StillReviewCompareMode } from "../../hooks/useStillReviewFlow";
 import { StillTrustPanel } from "./StillTrustPanel";
+import { RenderPresetHonestyBadge } from "./RenderPresetHonestyBadge";
 
 type StillReviewPanelProps = {
   session: StillReviewSession;
@@ -42,6 +44,7 @@ export function StillReviewPanel({
   onRetry,
 }: StillReviewPanelProps) {
   const pending = session.status === "pending_review";
+  const stillHonesty = describeStillHonesty();
   const solo = compareMode === "plate"
     ? plateDataUrl
     : compareMode === "still"
@@ -54,7 +57,8 @@ export function StillReviewPanel({
     <div className="lr-still-review" data-testid="still-review-panel">
       <header>
         <strong>Still review</strong>
-        <span>{String(session.status).replace(/_/g, " ")}</span>
+        <RenderPresetHonestyBadge honesty={stillHonesty} tierId="hybrid-still" compact />
+        <span>{stillReviewPanelStatusLabel(session, acceptedCount)}</span>
         <small>{acceptedCount} accepted for package</small>
       </header>
       <nav aria-label="Still comparison">

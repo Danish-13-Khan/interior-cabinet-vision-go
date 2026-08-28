@@ -228,9 +228,12 @@ export {
   STILL_JOB_SCHEMA_VERSION,
   STILL_JOB_TOLERANCES,
   buildStillJob,
+  mergeStillValidations,
   stillJobProjectContentHash,
   stillJobSnapshotId,
   stillSupportArtifactRefs,
+  STILL_DETERMINISTIC_RERUN_MAD_LIMIT,
+  validateDeterministicRerun,
   validateStillJobAgainstProject,
   type BuildStillJobInput,
   type StillAcceptanceStatus,
@@ -253,13 +256,43 @@ export {
 export {
   acceptStillReview,
   createIdleStillReview,
+  isStaleStillAcceptance,
   openStillReview,
   rejectStillReview,
   retryStillReview,
   stillEligibleForPackage,
+  stillReviewExportStatusMessage,
+  stillReviewPanelStatusLabel,
   type StillReviewSession,
   type StillReviewStatus,
 } from "./stillReview";
+export { describeStillHonesty } from "./stillHonesty";
+export {
+  buildClientPresentationHonesty,
+  CLIENT_PRESENTATION_HONESTY_DISCLAIMER,
+  RENDER_TIER_CATALOG,
+  RENDER_TIER_LEGEND,
+  resolveRenderStudioHonesty,
+  tierIdForRenderQuality,
+  isPackageDeliverableRenderQuality,
+  formatPackageHeroCaption,
+  type ClientPresentationHonesty,
+  type RenderHonestyDescription,
+  type RenderStudioView,
+  type RenderTierCatalogEntry,
+  type RenderTierId,
+} from "./renderTierHonesty";
+export {
+  commitPackageCameraViewName,
+  createDefaultPackageCameraBookmarks,
+  isPackageCameraBookmarked,
+  movePackageCameraBookmark,
+  resolvePackageCameraViews,
+  sanitizePackageCameraBookmarks,
+  setPackageCameraViewName,
+  togglePackageCameraBookmark,
+  type ResolvedPackageCameraView,
+} from "./packageCameraBookmarks";
 export {
   HERO_STILL_ENGINE,
   HERO_STILL_ENHANCEMENTS,
@@ -407,9 +440,13 @@ export {
 export {
   assembleClientPresentationFiles,
   buildClientPresentationPackage,
+  buildClientPackageViews,
+  filterPackageEligibleStills,
+  isPackageEligibleStill,
   withAcceptedStillProvenance,
   createLivingRoomRenderThumbnail,
   clientPresentationPackageDirectory,
+  clientPreviewExportStatusMessage,
   exportClientPresentationPdf,
   packageFilePath,
   preferLivingRoomBrowserThumbnail,
@@ -417,6 +454,7 @@ export {
   type AcceptedStillPng,
   type ClientPresentationFile,
   type ClientPresentationPackage,
+  type ClientPackageView,
 } from "./clientPresentation";
 export {
   compileLivingRoomScene,

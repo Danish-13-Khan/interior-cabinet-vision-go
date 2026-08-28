@@ -1,14 +1,35 @@
+import type { InteriorProject } from "../../interiorProject";
+import { stillJobProjectContentHash } from "../stillJob/projectHash";
 import type { StillProvenance } from "../stillJob/provenance";
 import type { ClientPresentationManifest } from "./buildPackage";
 
-/** Only accepted stills may be recorded on the client package manifest. */
+/** Accepted still bound to the current editable project snapshot. */
+export function isPackageEligibleStill(
+  project: InteriorProject,
+  provenance: StillProvenance,
+): boolean {
+  return (
+    provenance.acceptanceStatus === "accepted"
+    && provenance.projectId === project.id
+    && provenance.projectContentHash === stillJobProjectContentHash(project)
+  );
+}
+
+export function filterPackageEligibleStills(
+  project: InteriorProject,
+  stills: StillProvenance[],
+): StillProvenance[] {
+  return stills.filter((item) => isPackageEligibleStill(project, item));
+}
+
+/** Only accepted stills for the current project snapshot may enter the package manifest. */
 export function withAcceptedStillProvenance(
   manifest: ClientPresentationManifest,
+  project: InteriorProject,
   stills: StillProvenance[],
 ): ClientPresentationManifest {
-  const acceptedStills = stills.filter((item) => item.acceptanceStatus === "accepted");
   return {
     ...manifest,
-    acceptedStills,
+    acceptedStills: filterPackageEligibleStills(project, stills),
   };
 }

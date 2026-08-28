@@ -132,6 +132,17 @@ export function renderSettings(value: unknown): RenderSettings {
         : null,
     lightingRecipeId: text(source.lightingRecipeId, "neutral-studio", 80),
     composition: source.composition === "project-camera" ? "project-camera" : "architectural",
+    packageCameraBookmarks: Array.isArray(source.packageCameraBookmarks)
+      ? source.packageCameraBookmarks
+          .map((item) => {
+            if (!isRecord(item)) return null;
+            const cameraId = typeof item.cameraId === "string" ? item.cameraId.trim() : "";
+            const viewName = typeof item.viewName === "string" ? item.viewName.trim() : "";
+            if (!cameraId || !viewName) return null;
+            return { cameraId, viewName: viewName.slice(0, 80) };
+          })
+          .filter((item): item is { cameraId: string; viewName: string } => Boolean(item))
+      : [],
   };
 }
 

@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-08-28T12:00:00.000Z",
+  "rows": [
+    {
+      "benchmark": "bench-daylight-sofa",
+      "camera": "camera-a",
+      "ok": true
+    },
+    {
+      "benchmark": "bench-daylight-sofa",
+      "camera": "camera-b",
+      "ok": true
+    },
+    {
+      "benchmark": "bench-millwork-media",
+      "camera": "camera-a",
+      "ok": true
+    },
+    {
+      "benchmark": "bench-millwork-media",
+      "camera": "camera-b",
+      "ok": true
+    },
+    {
+      "benchmark": "bench-evening-lamp",
+      "camera": "camera-a",
+      "ok": true
+    },
+    {
+      "benchmark": "bench-evening-lamp",
+      "camera": "camera-b",
+      "ok": true
+    }
+  ]
+}

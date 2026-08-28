@@ -1,6 +1,6 @@
 # StillJob trust contract (Phase 2 foreshadow)
 
-**Status:** Design locked / **Ch 7 handoff spike in progress** (`src/domain/livingRoom/stillJob/`, `npm run stilljob:spike`).  
+**Status:** Implemented · proof: `npm run phase2:proof` · spike: `npm run stilljob:spike`  
 **Purpose:** Prevent Phase 2 from becoming a trust-destroying fork where the still no longer represents the authored scene.
 
 Week-4 of the near-term plan spikes handoff shapes only — **no AI vendor lock-in**. Full still engine remains later.
@@ -140,9 +140,11 @@ No “paint out the sofa in the still and pretend the project updated.”
 Prove handoff only:
 
 - [x] Export StillJob JSON for one benchmark camera (`fixtures/still-job-spike/still-job.json`)
-- [~] Attach WebGL PNG path + camera pose + material id list (PNG bytes still manual / placeholder)
+- [x] Attach WebGL PNG path + camera pose + material id list (capture bridge + support maps)
 - [x] Round-trip validate: job camera pose matches project camera within **§3.1** tolerances (eye ≤25 mm, target ≤40 mm, FOV ≤0.5°)
 - [x] Document gaps (`fixtures/still-job-spike/GAPS.md`) — **do not** call an AI API yet unless product explicitly expands scope
+- [x] Deterministic rerun gate (hero engine, same job → same pixels within MAD ≤ 2%)
+- [x] Review workflow + client package provenance (`npm run phase2:proof`)
 
 Run: `npm run stilljob:spike`
 
