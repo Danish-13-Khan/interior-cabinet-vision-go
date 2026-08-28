@@ -144,6 +144,9 @@ Export    ██████░░░░
 
 **I2 status:** Implemented — cabinet runs can auto-generate 40–150 mm fillers on freeform wall segments, and a corner wardrobe catalog item snaps to room wall junctions on irregular plans.
 | I3 | Collision / overlap validation with clear UI | Trust before export |
+
+**I3 status:** Implemented — freeform-aware overlap and clearance validation is actionable in Plan, Model, and Review, and blocks workshop exports until errors are resolved.
+
 | I4 | Richer curated openings (6–12) + millwork SKUs | Catalog feels intentional, not stub |
 | I5 | Material browser polish (swatches, slots, apply-to-selection) | Interiors look finished in 2D/3D |
 
@@ -223,6 +226,8 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 **I1 status:** Implemented — wall-bound cabinet runs preserve their physical order along any wall segment, support gap/alignment/extend controls, and automatically reflow after wall or endpoint edits. The ordering primitive is shared with the established Cabinets CAD run path.
 
 **I2 status:** Implemented — auto fillers use the shared CAD sizing rule, stay synchronized through run edits/deletes/wall reflow, and corner wardrobes stay attached to their irregular-plan junctions.
+
+**I3 status:** Implemented — validation is live across Design/Build/Review, distinguishes blocking collisions from advisory clearance checks, highlights/selects involved plan objects, and blocks workshop exports. The header’s **Export JSON** is intentionally a project backup download and remains ungated.
 
 **Exit:** Wardrobe run + fillers on an L-room wall; validation visible; schedule matches placed units.
 
