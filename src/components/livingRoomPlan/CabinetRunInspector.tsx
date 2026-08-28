@@ -1,15 +1,22 @@
-import type { InteriorObjectEntity } from "../../domain/interiorProject";
-import { cabinetRunForObject } from "../../domain/livingRoom";
+import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
+import { cabinetRunForObject, countCabinetRunFillers } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 
 type Props = {
   object: InteriorObjectEntity;
-  onUpdate: (runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) => void;
+  project: InteriorProject;
+  onUpdate: (runId: string, options: {
+    gapMm?: number;
+    alignment?: "start" | "center" | "end";
+    extendToWall?: boolean;
+    fillersEnabled?: boolean;
+  }) => void;
 };
 
-export function CabinetRunInspector({ object, onUpdate }: Props) {
+export function CabinetRunInspector({ object, project, onUpdate }: Props) {
   const run = cabinetRunForObject(object);
   if (!run) return null;
+  const fillerCount = countCabinetRunFillers(project, run.runId);
   return <section className="lr-cabinet-run-inspector">
     <h4>Cabinet run</h4>
     <p className="lr-inspector-hint">Attached to wall {run.wallId}. Layout follows its real plan segment.</p>
@@ -21,5 +28,8 @@ export function CabinetRunInspector({ object, onUpdate }: Props) {
     </label>
     <label className="lr-run-extend"><input type="checkbox" checked={run.extendToWall}
       onChange={(event) => onUpdate(run.runId, { extendToWall: event.target.checked })} /> Extend run across wall</label>
+    <label className="lr-run-extend"><input type="checkbox" checked={run.fillersEnabled}
+      onChange={(event) => onUpdate(run.runId, { fillersEnabled: event.target.checked })} /> Auto fillers (40–150 mm)</label>
+    {run.fillersEnabled ? <p className="lr-inspector-hint"><strong>{fillerCount}</strong> filler{fillerCount === 1 ? "" : "s"} on this run.</p> : null}
   </section>;
 }

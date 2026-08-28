@@ -38,3 +38,4 @@ export {
   orderRunMembers,
   orderedRunCabinets,
 } from "./geometry";
+export { fillerWidthForGap } from "./fillers";

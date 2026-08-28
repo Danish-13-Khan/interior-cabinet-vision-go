@@ -106,6 +106,19 @@ export const LIVING_ROOM_CATALOG = [
     placement: "wall",
   },
   {
+    id: "living:corner-wardrobe",
+    name: "Corner Wardrobe",
+    kind: "cabinet",
+    category: "corner-wardrobe",
+    dimensions: { widthMm: 900, heightMm: 2200, depthMm: 600 },
+    materialSlots: {
+      carcass: LIVING_ROOM_MATERIAL_IDS.walnut,
+      fronts: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    },
+    parameters: { doorCount: 1, shelfCount: 4, corner: true, legWidthMm: 900 },
+    placement: "wall",
+  },
+  {
     id: "living:feature-wall-fluted",
     name: "Fluted Timber TV Feature Wall",
     kind: "cabinet",

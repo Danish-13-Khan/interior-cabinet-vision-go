@@ -6,12 +6,29 @@ export type { WallPlacement } from "./wallSegmentPlacement";
 export {
   arrangeCabinetRun,
   cabinetRunForObject,
-  reflowCabinetRunsForWalls,
   updateCabinetRun,
   type CabinetRunAlignment,
   type CabinetRunMetadata,
   type CabinetRunOptions,
 } from "./cabinetRunLayout";
+export {
+  cabinetRunFillerForObject,
+  countCabinetRunFillers,
+  isCabinetRunFiller,
+  reconcileCabinetRunsAfterObjectRemoval,
+  reflowCabinetRunsForWalls,
+  syncCabinetRunFillers,
+  updateCabinetRunLayout,
+  type CabinetRunFillerMetadata,
+  type CabinetRunLayoutOptions,
+} from "./cabinetRunFillers";
+export {
+  listRoomWallCorners,
+  placeCornerCabinet,
+  preferredRoomWallCorner,
+  reflowCornerCabinetsForWalls,
+  type RoomWallCorner,
+} from "./cornerPlacement";
 
 /** Resolves a cabinet against the room-facing side of a rectangular wall. */
 export function placeOnWall(

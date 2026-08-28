@@ -6,16 +6,23 @@ import { CabinetRunInspector } from "./CabinetRunInspector";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
+  project: InteriorProject;
   materials: InteriorProject["materials"];
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
-  onUpdateRun: (runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) => void;
+  onUpdateRun: (runId: string, options: {
+    gapMm?: number;
+    alignment?: "start" | "center" | "end";
+    extendToWall?: boolean;
+    fillersEnabled?: boolean;
+  }) => void;
 };
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
 export function LivingRoomObjectInspector({
   object,
+  project,
   materials,
   onResize,
   onSetMaterial,
@@ -81,7 +88,7 @@ export function LivingRoomObjectInspector({
           );
         })}
       </div>
-      {object.kind === "cabinet" ? (
+      {object.kind === "cabinet" && object.category !== "filler" ? (
         <>
           <h4>Cabinet configuration</h4>
           <label className="lr-select-field"><span>Door style</span><select value={String(object.parameters.doorStyle ?? "slab")} onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}><option value="slab">Slab</option><option value="shaker">Shaker</option><option value="glass">Glass</option></select></label>
@@ -89,7 +96,9 @@ export function LivingRoomObjectInspector({
           <p className="lr-inspector-hint">{object.extensions?.wallAttachment ? "Wall snapped — drag near another wall to reattach." : "Drag near a wall to snap this cabinet."}</p>
         </>
       ) : null}
-      {object.kind === "cabinet" ? <CabinetRunInspector object={object} onUpdate={onUpdateRun} /> : null}
+      {object.kind === "cabinet" && object.category !== "filler"
+        ? <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} />
+        : null}
     </section>
   );
 }
