@@ -93,7 +93,7 @@ A designer opens the app and can complete this story without fighting the UI:
 | **Build** | Freeform room/wall, openings, dims, surfaces, topology | No room-split-by-wall; no node drag; weak multi-room chrome |
 | **Design** | Catalog place/snap/run, millwork inspector | Thin runs/fillers/corners on freeform; small catalogs |
 | **3D** | Live compile, dollhouse, walkthrough | Nav / selection / material richness polish |
-| **Render** | Hybrid stills + honest WebGL Client Preview | Camera bookmarks for repeatable decks (K2) |
+| **Render** | Hybrid stills + package camera decks | K3 honesty gates across tiers |
 | **Export** | JSON + millwork CSV/PDF + client package | Not a polished deliverable suite yet |
 
 ```text
@@ -176,6 +176,8 @@ Export    ██████░░░░
 
 **K1 status:** Implemented — StillJob v2 handoff, hero still engine, Render Studio review (plate | still | diff), deterministic rerun gate, and accepted-still client package provenance. Proof: `npm run phase2:proof`.
 | K2 | Camera bookmarks + named views for package | Repeatable client decks |
+
+**K2 status:** Implemented — ordered package camera bookmarks with named views in Render Studio, persisted on `renderSettings.packageCameraBookmarks`, exported via `package-views.json` + manifest/PDF deck section.
 | K3 | Keep honesty: Draft ≠ Client Preview ≠ Still | Product trust |
 
 ### L — Export & presentation
@@ -263,7 +265,7 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 ### Phase K — Render stills ceiling · L · after trust contract
 
 - Complete Hybrid Stills Pipeline (existing `PHASE_2_HYBRID_STILLS_PIPELINE.md`) — **done (K1)**
-- Camera bookmarks for package (K2)
+- Camera bookmarks for package (K2) — **done**
 - Honesty gates unchanged (K3 partial: still tier labeled in review UI)
 
 **Exit:** Accepted stills land in client package; project remains editable truth. **Met via K1.**

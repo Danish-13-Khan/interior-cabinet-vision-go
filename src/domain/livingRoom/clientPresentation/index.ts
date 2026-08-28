@@ -1,6 +1,7 @@
 export {
   buildClientPresentationPackage,
   type ClientCameraMetadata,
+  type ClientPackageView,
   type ClientMaterialPaletteItem,
   type ClientObjectListItem,
   type ClientPresentationManifest,
@@ -15,6 +16,8 @@ export {
   siblingPackagePath,
   type ClientPresentationFile,
 } from "./assembleFiles";
+export { buildClientPackageViews } from "./buildPackageViews";
+export { attachPackageViewsToManifest } from "./attachPackageViews";
 export { clientPreviewExportStatusMessage } from "./exportStatusMessage";
 export { withAcceptedStillProvenance, filterPackageEligibleStills, isPackageEligibleStill } from "./acceptedStills";
 export { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";

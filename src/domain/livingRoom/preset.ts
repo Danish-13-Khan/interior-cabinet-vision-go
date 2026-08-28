@@ -8,6 +8,7 @@ import {
   type RoomOpeningSeed,
 } from "../interiorFoundation";
 import { createLivingRoomCameras } from "./cameras";
+import { createDefaultPackageCameraBookmarks } from "./packageCameraBookmarks";
 import { createLivingRoomObject } from "./catalog";
 import {
   defaultLivingRoomIdFactory,
@@ -111,6 +112,7 @@ export function createLivingRoomStarterProject(
       ...base.renderSettings,
       activeCameraId: cameras.find((camera) => camera.isDefault)?.id ?? null,
       lightingRecipeId: activeLighting,
+      packageCameraBookmarks: createDefaultPackageCameraBookmarks(cameras),
     },
     extensions: {
       presetId: LIVING_ROOM_PRESET_ID,

@@ -13,6 +13,7 @@ export const DEFAULT_RENDER_SETTINGS: RenderSettings = {
   activeCameraId: null,
   lightingRecipeId: "neutral-studio",
   composition: "architectural",
+  packageCameraBookmarks: [],
 };
 
 export function createEmptyInteriorProject(options: {

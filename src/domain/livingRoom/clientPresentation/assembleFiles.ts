@@ -3,6 +3,7 @@ import { serializeInteriorProjectFile } from "../../interiorProject";
 import type { LivingRoomRenderResult } from "../renderStudio";
 import type { StillProvenance } from "../stillJob/provenance";
 import { withAcceptedStillProvenance } from "./acceptedStills";
+import { attachPackageViewsToManifest } from "./attachPackageViews";
 import { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 import {
   buildClientPresentationPackage,
@@ -34,6 +35,12 @@ export async function assembleClientPresentationFiles(
 }> {
   const built = buildClientPresentationPackage(project, render, now);
   let manifest = withAcceptedStillProvenance(built.manifest, project, acceptedStills);
+  manifest = attachPackageViewsToManifest(
+    manifest,
+    project,
+    manifest.acceptedStills,
+    built.fileNames.packageViews,
+  );
   const stillPngs = await acceptedStillPngFiles(manifest.acceptedStills, acceptedStillPngs);
   if (manifest.acceptedStills.length) {
     manifest = {
@@ -92,6 +99,14 @@ export async function assembleClientPresentationFiles(
       contents: JSON.stringify(packageData.manifest.acceptedStills, null, 2),
     });
     files.push(...stillPngs);
+  }
+
+  if (packageData.manifest.packageViews.length) {
+    files.push({
+      fileName: packageData.fileNames.packageViews,
+      kind: "json",
+      contents: JSON.stringify(packageData.manifest.packageViews, null, 2),
+    });
   }
 
   if (packageData.heroRenderDataUrl) {
