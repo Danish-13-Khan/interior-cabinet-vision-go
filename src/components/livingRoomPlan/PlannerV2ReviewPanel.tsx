@@ -29,7 +29,7 @@ export function PlannerV2ReviewPanel({
         onClick={() => onSelect(issue.objectIds[0] ?? null)}>{issue.message}</button>) : <small>Plan dimensions and placed cabinet data are ready for review.</small>}
     </section>
     <section><strong>Millwork schedule</strong><small>{schedule?.lines.length ?? 0} cabinet items</small>
-      {schedule?.lines.slice(0, 4).map((line) => <div key={line.objectId}><span>{line.name}</span><small>{line.widthMm} × {line.heightMm} × {line.depthMm}</small></div>)}
+      {schedule?.lines.slice(0, 4).map((line) => <div key={line.objectId}><span>{line.name}</span><small>{line.widthMm} × {line.heightMm} × {line.depthMm}{line.sku ? ` · ${line.sku}` : ""}</small></div>)}
       {!schedule?.lines.length ? <p>No cabinet items placed yet.</p> : null}
     </section>
     <section><strong>Workshop files</strong><small>{blockingIssueCount ? "Resolve blocking layout conflicts before export." : "Generated from the current project dimensions."}</small>

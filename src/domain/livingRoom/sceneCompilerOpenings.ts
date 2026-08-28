@@ -75,6 +75,12 @@ export function compileOpeningNode(
       boxPrimitive("frame-top", { width: opening.widthMm, height: border, depth: insetDepth }, { x: 0, y: opening.sillHeightMm + opening.heightMm - border / 2, z: 0 }, frame),
       boxPrimitive("hardware", { width: 28, height: 120, depth: 18 }, { x: opening.widthMm / 2 - border - 40, y: yMid, z: insetDepth / 2 + 10 }, hardware),
     );
+    if (catalog.symbol === "sliding") {
+      primitives.push(boxPrimitive("meeting-stile", { width: 26, height: opening.heightMm - border * 2, depth: insetDepth + 4 }, { x: 0, y: yMid, z: 0 }, frame));
+    }
+    if (catalog.symbol === "pocket") {
+      primitives.push(boxPrimitive("pocket-jamb", { width: 30, height: opening.heightMm - border * 2, depth: insetDepth + 4 }, { x: opening.widthMm / 2 - border - 10, y: yMid, z: 0 }, frame));
+    }
   }
   if (opening.kind === "window") {
     const yMid = opening.sillHeightMm + opening.heightMm / 2;
@@ -94,6 +100,9 @@ export function compileOpeningNode(
         boxPrimitive("sash", { width: 22, height: opening.heightMm - border * 2, depth: insetDepth + 6 }, { x: -opening.widthMm / 2 + border + 30, y: yMid, z: 0 }, frame),
         boxPrimitive("hardware", { width: 18, height: 80, depth: 16 }, { x: opening.widthMm / 2 - border - 36, y: yMid, z: insetDepth / 2 + 8 }, hardware),
       );
+    }
+    if (catalog.symbol === "awning") {
+      primitives.push(boxPrimitive("awning-sash", { width: opening.widthMm - border * 2, height: 22, depth: insetDepth + 8 }, { x: 0, y: opening.sillHeightMm + opening.heightMm - border - 45, z: insetDepth / 2 }, frame));
     }
   }
   const materialSlotMeta = Object.fromEntries(

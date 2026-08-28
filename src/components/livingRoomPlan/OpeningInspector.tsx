@@ -11,8 +11,12 @@ function OpeningPreview({ opening }: { opening: OpeningEntity }) {
       <path d="M18 82H142" className="wall" />
       {item.symbol === "single-swing" ? <><path d="M38 82V25H98" /><path d="M38 82A60 60 0 0 1 98 22" className="swing" /></> : null}
       {item.symbol === "double-swing" ? <><path d="M24 82V34H80M136 82V34H80" /><path d="M24 82A56 56 0 0 1 80 26M136 82A56 56 0 0 0 80 26" className="swing" /></> : null}
+      {item.symbol === "sliding" ? <><rect x="30" y="22" width="100" height="60" /><path d="M80 22V82M45 52H115M104 42L115 52L104 62" className="glass" /></> : null}
+      {item.symbol === "pocket" ? <><path d="M38 82V22H98" /><path d="M38 82H130" className="swing" /><path d="M118 32V72" className="glass" /></> : null}
       {item.symbol === "fixed-glass" ? <><rect x="35" y="20" width="90" height="62" /><path d="M80 20V82M35 51H125" className="glass" /></> : null}
       {item.symbol === "casement" ? <><rect x="40" y="18" width="80" height="64" /><path d="M40 18L98 10V82L40 82" className="swing" /><path d="M40 50H120" className="glass" /></> : null}
+      {item.symbol === "awning" ? <><rect x="32" y="38" width="96" height="44" /><path d="M32 38H128L116 20H44Z" className="swing" /><path d="M32 60H128" className="glass" /></> : null}
+      {item.symbol === "picture-window" ? <><rect x="25" y="18" width="110" height="64" /><path d="M25 50H135" className="glass" /></> : null}
     </svg>
     <strong>{item.name}</strong><small>{item.catalogItemId}</small>
   </div>;
