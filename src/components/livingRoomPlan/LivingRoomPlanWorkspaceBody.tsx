@@ -71,6 +71,7 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
           underlay={props.underlay} importError={props.importError} onAssetQuery={props.onAssetQuery}
           onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
+          onCreateCabinetRun={w.onCreateCabinetRun}
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
           onSetWallMaterial={w.onSetWallMaterial} onSetObjectMaterial={w.onSetMaterial}
           onSetLayerVisibility={w.onSetLayerVisibility}
@@ -191,6 +192,7 @@ export function LivingRoomPlanWorkspaceBody(props: Props) {
           productionReport={props.millwork.productionReport} millworkExportedAt={props.millwork.exportedAt}
           onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
           onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
+          onUpdateCabinetRun={w.onUpdateCabinetRun}
           onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
           activeWallId={props.activeWallId}

@@ -310,7 +310,19 @@ export {
   deleteLivingRoomOpening,
   updateLivingRoomOpening,
 } from "./openingCommands";
-export { arrangeCabinetRun, attachToWall, placeOnWall, snapCabinetToWall, type WallPlacement } from "./wardrobePlacement";
+export {
+  arrangeCabinetRun,
+  reflowCabinetRunsForWalls,
+  attachToWall,
+  cabinetRunForObject,
+  placeOnWall,
+  snapCabinetToWall,
+  updateCabinetRun,
+  type CabinetRunAlignment,
+  type CabinetRunMetadata,
+  type CabinetRunOptions,
+  type WallPlacement,
+} from "./wardrobePlacement";
 export {
   placeStructuralColumn,
   STRUCTURAL_COLUMN_CATALOG_ID,

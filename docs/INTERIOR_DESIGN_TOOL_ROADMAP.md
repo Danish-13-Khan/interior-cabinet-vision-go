@@ -138,6 +138,8 @@ Export    ██████░░░░
 | ID | Missing feature | Why it matters |
 | --- | --- | --- |
 | I1 | Freeform-aware cabinet runs (extend, gap, align) | Shop salesperson credibility |
+
+**I1 status:** Implemented — cabinet runs persist wall-bound metadata and reflow on arbitrary wall vectors with start/center/end alignment, explicit gaps, and an extend-to-wall option.
 | I2 | Fillers + corner units on irregular walls | Real layouts, not single boxes |
 | I3 | Collision / overlap validation with clear UI | Trust before export |
 | I4 | Richer curated openings (6–12) + millwork SKUs | Catalog feels intentional, not stub |
@@ -216,9 +218,11 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 - I1–I3: runs, fillers/corners, collision UI on freeform walls  
 - I4–I5: curated catalog + material browser depth (stay under v1 catalog ceiling)
 
+**I1 status:** Implemented — wall-bound cabinet runs preserve their physical order along any wall segment, support gap/alignment/extend controls, and automatically reflow after wall or endpoint edits. The ordering primitive is shared with the established Cabinets CAD run path.
+
 **Exit:** Wardrobe run + fillers on an L-room wall; validation visible; schedule matches placed units.
 
-**Reuse:** Prefer bridging proven Cabinets CAD run/filler logic into Interiors V2 rather than reinventing.
+**Reuse:** I1 shares the proven Cabinets CAD ordering primitive; I2–I3 should continue bridging its filler/corner and validation logic into Interiors V2 rather than reinventing it.
 
 ---
 

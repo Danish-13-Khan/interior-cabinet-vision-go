@@ -35,5 +35,6 @@ export {
   getRunPrimaryValue,
   inferRunAxis,
   inferRunSide,
+  orderRunMembers,
   orderedRunCabinets,
 } from "./geometry";

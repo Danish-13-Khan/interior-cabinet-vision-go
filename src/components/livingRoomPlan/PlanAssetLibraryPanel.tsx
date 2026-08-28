@@ -3,6 +3,7 @@ import { AssetImportPanel } from "./AssetImportPanel";
 
 export function PlanAssetLibraryPanel(props: {
   mode: "cabinets" | "furniture"; wallName: string; wallId: string;
+  selectedCabinetCount: number; onCreateRun: (wallId: string) => void;
   assets: LivingRoomCatalogItem[]; query: string; category: string; categories: string[];
   onQuery: (value: string) => void; onCategory: (value: string) => void;
   onAdd: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
@@ -12,6 +13,9 @@ export function PlanAssetLibraryPanel(props: {
   return <>
     <div className="context-panel-heading"><strong>{cabinets ? "Millwork Design" : "Furniture Library"}</strong>
       <span>{cabinets ? `Parametric cabinet surface · attach to ${props.wallName}` : `${props.assets.length} curated v1 models`}</span></div>
+    {cabinets ? <button type="button" className="lr-create-cabinet-run" onClick={() => props.onCreateRun(props.wallId)} disabled={props.selectedCabinetCount < 2}>
+      Create cabinet run
+    </button> : null}
     <AssetImportPanel cabinetMode={cabinets} onAdd={props.onImport} />
     <div className="lr-asset-controls">
       <input aria-label={cabinets ? "Search cabinets" : "Search furniture"} placeholder={cabinets ? "Search cabinets…" : "Search furniture…"}

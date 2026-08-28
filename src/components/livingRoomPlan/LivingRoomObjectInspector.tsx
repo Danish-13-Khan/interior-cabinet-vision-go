@@ -2,6 +2,7 @@ import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domai
 import { isMillworkObject } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 import { DimensionPresetMenu } from "./DimensionPresetMenu";
+import { CabinetRunInspector } from "./CabinetRunInspector";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
@@ -9,6 +10,7 @@ type LivingRoomObjectInspectorProps = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onUpdateRun: (runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) => void;
 };
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
@@ -18,6 +20,7 @@ export function LivingRoomObjectInspector({
   onResize,
   onSetMaterial,
   onSetParameters,
+  onUpdateRun,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
@@ -86,6 +89,7 @@ export function LivingRoomObjectInspector({
           <p className="lr-inspector-hint">{object.extensions?.wallAttachment ? "Wall snapped — drag near another wall to reattach." : "Drag near a wall to snap this cabinet."}</p>
         </>
       ) : null}
+      {object.kind === "cabinet" ? <CabinetRunInspector object={object} onUpdate={onUpdateRun} /> : null}
     </section>
   );
 }
