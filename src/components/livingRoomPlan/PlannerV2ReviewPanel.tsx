@@ -32,9 +32,9 @@ export function PlannerV2ReviewPanel({
       {schedule?.lines.slice(0, 4).map((line) => <div key={line.objectId}><span>{line.name}</span><small>{line.widthMm} × {line.heightMm} × {line.depthMm}{line.sku ? ` · ${line.sku}` : ""}</small></div>)}
       {!schedule?.lines.length ? <p>No cabinet items placed yet.</p> : null}
     </section>
-    <section><strong>Workshop files</strong><small>{blockingIssueCount ? "Resolve blocking layout conflicts before export." : "Generated from the current project dimensions."}</small>
-      <button type="button" onClick={onCsv} disabled={busy || blockingIssueCount > 0}>Export CSV</button>
-      <button type="button" className="is-primary" onClick={onPdf} disabled={busy || blockingIssueCount > 0}>Export PDF</button>
+    <section><strong>Workshop output</strong><small>{blockingIssueCount ? "Resolve blocking layout conflicts before export." : "Millwork Schedule v1 — same millimetres as Plan/Model."}</small>
+      <button type="button" onClick={onCsv} disabled={busy || blockingIssueCount > 0}>Schedule CSV</button>
+      <button type="button" className="is-primary" onClick={onPdf} disabled={busy || blockingIssueCount > 0}>Schedule PDF</button>
     </section>
     <section><strong>Client preview</strong><small>Choose a camera and capture a Draft or Client Preview image in the Render Studio beside this review panel.</small></section>
     {status ? <p className="planner-v2-review-status">{status}</p> : null}

@@ -75,8 +75,9 @@ type LivingRoomPlanStageProps = {
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onRendered: (result: LivingRoomRenderResult) => void;
   onExportScheduleCsv: () => void;
+  onExportSchedulePdf: () => void;
   onExportCutlistCsv: () => void;
-  onExportPdf: () => void;
+  onExportProductionPdf: () => void;
   v2BuildMode?: boolean;
   v2ReviewMode?: boolean;
   readability: PlanReadabilitySettings;
@@ -99,8 +100,8 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
         exportBusy={props.exportBusy} exportStatus={props.exportStatus}
         millworkCount={props.millworkCount} millworkReady={props.millworkReady} exportBlocked={props.exportBlocked}
-        onExportScheduleCsv={props.onExportScheduleCsv} onExportCutlistCsv={props.onExportCutlistCsv}
-        onExportPdf={props.onExportPdf}
+        onExportScheduleCsv={props.onExportScheduleCsv} onExportSchedulePdf={props.onExportSchedulePdf}
+        onExportCutlistCsv={props.onExportCutlistCsv} onExportProductionPdf={props.onExportProductionPdf}
       />
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (

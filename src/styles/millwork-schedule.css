@@ -22,6 +22,37 @@
   opacity: 0.55;
 }
 
+.lr-millwork-export button.is-primary {
+  background: #243038;
+  color: #f4f7f8;
+  border-color: #243038;
+}
+
+.lr-millwork-advanced-trigger {
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid #9aa7b0;
+  background: #f1f4f6;
+  color: #314048;
+  font-size: 11px;
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.lr-millwork-advanced-menu {
+  display: grid;
+  gap: 4px;
+  min-width: 148px;
+  padding: 6px;
+  border: 1px solid #c3ced6;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(36, 48, 56, 0.12);
+}
+
+.lr-millwork-advanced-menu button {
+  width: 100%;
+}
+
 .lr-millwork-export small,
 .lr-millwork-status {
   color: #5c6c76;

@@ -1,6 +1,6 @@
 # Living-room Millwork Schedule v1 + Model inspector
 
-**Status:** In development on this release (`milwork-schedule-v1`).  
+**Status:** L1 landed on `phase-l/export-presentation` — schedule CSV/PDF is the default workshop output in Interiors V2.  
 **Why:** Phase 1 WebGL is closed. Phase 2 stills already exist. The named workshop deliverable in [PRODUCT_DECISIONS.md](./PRODUCT_DECISIONS.md) is still what makes the product cabinet-aware.
 
 ## What we are building
@@ -34,7 +34,8 @@ One row per instance. Quantity is always 1. No SKU collapsing.
 
 ## Export
 
-- **Schedule CSV** / **Schedule PDF** in the living-room title bar.
+- **Schedule CSV** / **Schedule PDF** in the living-room title bar (primary workshop output).
+- **Production** disclosure in the title bar for cutlist CSV and production packet PDF (secondary / advanced).
 - Domain: `src/domain/livingRoom/millworkSchedule/` (`buildLivingRoomMillworkSchedule`, CSV, PDF).
 - Honesty line on the PDF: sizes match Plan/Model; not a cutlist, price, or CNC program.
 - Separate from the client preview package.

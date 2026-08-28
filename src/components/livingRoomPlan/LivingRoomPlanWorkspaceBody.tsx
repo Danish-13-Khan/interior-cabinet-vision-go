@@ -89,7 +89,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       {props.plannerMode === "render" ? (
         <PlannerV2ReviewPanel schedule={props.millwork.schedule} issues={props.issues} busy={props.millwork.busy}
           status={props.millwork.status} onCsv={() => void props.millwork.exportSchedule("schedule-csv")}
-          onPdf={() => void props.millwork.exportSchedule("pdf")}
+          onPdf={() => void props.millwork.exportSchedule("schedule-pdf")}
           onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }} />
       ) : null}
       <LivingRoomPlanStage
@@ -141,8 +141,9 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onRenderBrowserThumbnail={w.onRenderBrowserThumbnail}
         onRendered={props.onRenderResults}
         onExportScheduleCsv={() => void props.millwork.exportSchedule("schedule-csv")}
+        onExportSchedulePdf={() => void props.millwork.exportSchedule("schedule-pdf")}
         onExportCutlistCsv={() => void props.millwork.exportSchedule("cutlist-csv")}
-        onExportPdf={() => void props.millwork.exportSchedule("pdf")}
+        onExportProductionPdf={() => void props.millwork.exportSchedule("production-pdf")}
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
         readability={props.readability} onReadability={props.onReadability}
       />
