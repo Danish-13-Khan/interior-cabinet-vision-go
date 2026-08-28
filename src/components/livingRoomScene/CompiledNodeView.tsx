@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plane, Vector3 } from "three";
 import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledMaterial, CompiledSceneNode } from "../../domain/livingRoom";
+import { modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
 import { AssetBackedObject } from "./AssetBackedObject";
@@ -29,6 +30,8 @@ export function CompiledNodeView({
   renderMode,
   renderQuality,
   onSelect,
+  onSelectOpening,
+  onClearSelection,
   onMove,
   onDragStateChange,
   interactive,
@@ -41,7 +44,9 @@ export function CompiledNodeView({
   snapSizeMm: number;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
-  onSelect: (objectId: string, additive?: boolean) => void;
+  onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectOpening: (openingId: string) => void;
+  onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onDragStateChange: (dragging: boolean) => void;
   interactive: boolean;
@@ -50,7 +55,8 @@ export function CompiledNodeView({
 }) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [preview, setPreview] = useState<Point3Mm | null>(null);
-  const sourceObjectId = node.sourceObjectId;
+  const selectionTarget = modelSelectionTarget(node);
+  const sourceObjectId = selectionTarget?.kind === "object" ? selectionTarget.id : null;
   const position = preview ?? node.positionMm;
   const modelAsset = useModelAsset(node.renderBinding);
   const useGlb = modelAsset.strategy === "glb"
@@ -63,15 +69,24 @@ export function CompiledNodeView({
   }
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
-    if (!interactive || !sourceObjectId || event.button !== 0) return;
+    if (!interactive || event.button !== 0) return;
     event.stopPropagation();
-    const primitiveId = String(event.object.userData.primitiveId ?? "");
-    if (primitiveId.startsWith("front-") && onMechanismClick) {
-      onSelect(sourceObjectId, event.shiftKey || event.metaKey || event.ctrlKey);
-      onMechanismClick(sourceObjectId, primitiveId);
+    if (!selectionTarget) {
+      onClearSelection();
       return;
     }
-    onSelect(sourceObjectId, event.shiftKey || event.metaKey || event.ctrlKey);
+    if (selectionTarget.kind === "opening") {
+      onSelectOpening(selectionTarget.id);
+      return;
+    }
+    const objectId = selectionTarget.id;
+    const primitiveId = String(event.object.userData.primitiveId ?? "");
+    if (primitiveId.startsWith("front-") && onMechanismClick) {
+      onSelect(objectId, event.shiftKey || event.metaKey || event.ctrlKey);
+      onMechanismClick(objectId, primitiveId);
+      return;
+    }
+    onSelect(objectId, event.shiftKey || event.metaKey || event.ctrlKey);
     const point = groundPoint(event);
     if (!point || event.shiftKey || event.metaKey || event.ctrlKey) return;
     (event.nativeEvent.target as Element | null)?.setPointerCapture(event.pointerId);
@@ -113,7 +128,6 @@ export function CompiledNodeView({
         degrees(node.rotationDegrees.y),
         degrees(node.rotationDegrees.z),
       ]}
-      onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
@@ -129,6 +143,7 @@ export function CompiledNodeView({
           renderMode={renderMode}
           renderQuality={renderQuality}
           onReady={onAssetReady}
+          onPointerDown={handlePointerDown}
         />
       ) : (
         <ProceduralFallbackObject
@@ -137,6 +152,7 @@ export function CompiledNodeView({
           selected={selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          onPointerDown={handlePointerDown}
         />
       )}
       {selected || node.placeholder ? (

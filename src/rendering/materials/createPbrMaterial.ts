@@ -7,6 +7,7 @@ import {
 import type {
   MaterialAssetDefinition,
   RenderMode,
+  RenderModeQuality,
 } from "../../domain/livingRoom/renderAssetContracts";
 import { getMaterialAsset } from "../assets/assetRegistry";
 import {
@@ -55,7 +56,12 @@ function resolveAsset(
 export function createPbrMaterialDescriptor(
   material: CompiledMaterial,
   mode: RenderMode,
-  options?: { primitiveId?: string; quality?: RenderQuality },
+  options?: {
+    primitiveId?: string;
+    quality?: RenderQuality;
+    modeQuality?: RenderModeQuality;
+    modelViewPreview?: boolean;
+  },
 ): PbrMaterialDescriptor {
   const quality = options?.quality;
   const asset = resolveAsset(material);
@@ -64,7 +70,8 @@ export function createPbrMaterialDescriptor(
   const metalness = material.metalness ?? asset?.metalness ?? 0;
   const opacity = material.opacity ?? asset?.opacity ?? 1;
   const kind = material.kind ?? asset?.kind ?? "custom";
-  const contrast = resolveMaterialContrast(kind, mode, quality);
+  const contrast = resolveMaterialContrast(kind, mode, quality, options?.modelViewPreview);
+  const modeQuality = options?.modeQuality;
   const isGlass = kind === "glass";
   const isFabric = kind === "fabric";
   const isWood = kind === "wood" || kind === "laminate";
@@ -77,12 +84,13 @@ export function createPbrMaterialDescriptor(
     },
     mode,
     quality,
+    options?.modeQuality,
   );
   const baseEnv = isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.86 : isFabric ? 0.4 : 0.46;
   const baseClearcoat = isWood ? 0.26 : kind === "paint" ? 0.04 : 0;
   const baseSheen = isFabric ? 0.78 : 0;
   const baseSpecular = isFabric ? 0.3 : isWood ? 0.54 : 1;
-  const modeRoughness = isMirror ? 0.08 : roughnessForRenderMode(mode, roughness, quality);
+  const modeRoughness = isMirror ? 0.08 : roughnessForRenderMode(mode, roughness, quality, modeQuality);
   const tunedRoughness = isMirror
     ? 0.08
     : applyMaterialContrastRoughness(modeRoughness, contrast);
@@ -97,14 +105,14 @@ export function createPbrMaterialDescriptor(
     transmission: isMirror ? 0 : isGlass ? 0.72 : 0,
     thickness: isGlass ? 0.018 : 0,
     ior: isGlass ? 1.5 : 1.45,
-    clearcoat: clearcoatForRenderMode(mode, baseClearcoat, quality) * contrast.clearcoatBoost,
+    clearcoat: clearcoatForRenderMode(mode, baseClearcoat, quality, modeQuality) * contrast.clearcoatBoost,
     clearcoatRoughness: isWood ? (mode === "hero" ? 0.38 : 0.5) : 0.78,
-    sheen: sheenForRenderMode(mode, baseSheen, quality) * contrast.sheenBoost,
+    sheen: sheenForRenderMode(mode, baseSheen, quality, modeQuality) * contrast.sheenBoost,
     sheenColor: isFabric ? color : "#000000",
     sheenRoughness: isFabric ? (mode === "hero" ? 0.7 : 0.82) : 1,
-    envMapIntensity: envIntensityForRenderMode(mode, baseEnv, quality) * contrast.envBoost,
-    specularIntensity: specularForRenderMode(mode, baseSpecular, quality) * contrast.specularBoost,
+    envMapIntensity: envIntensityForRenderMode(mode, baseEnv, quality, modeQuality) * contrast.envBoost,
+    specularIntensity: specularForRenderMode(mode, baseSpecular, quality, modeQuality) * contrast.specularBoost,
     maps,
-    bumpScale: bumpScaleForRenderMode(mode, maps.bumpScale ?? 0.008, quality) * contrast.bumpBoost,
+    bumpScale: bumpScaleForRenderMode(mode, maps.bumpScale ?? 0.008, quality, modeQuality) * contrast.bumpBoost,
   };
 }

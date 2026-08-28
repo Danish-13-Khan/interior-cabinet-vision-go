@@ -37,6 +37,7 @@ type LivingRoomPlanStageProps = {
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   activeWallId: string | null;
@@ -122,7 +123,9 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
             project={props.project} selectedIds={props.selectedIds} snapSizeMm={props.snapSizeMm}
-            showGrid={props.showGrid} onSelect={props.onSelect} onMove={props.onMove}
+            activeOpeningId={props.activeOpeningId} showGrid={props.showGrid}
+            onSelect={props.onSelect} onSelectOpening={props.onSelectOpening}
+            onClearSelection={props.onClearSelection} onMove={props.onMove}
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
           />

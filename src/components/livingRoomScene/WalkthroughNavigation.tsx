@@ -2,26 +2,41 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
 
+type WalkthroughNavigationProps = {
+  enabled: boolean;
+  onExit?: () => void;
+};
+
 /** Lightweight first-person navigation for the editable 3D viewport. */
-export function WalkthroughNavigation({ enabled }: { enabled: boolean }) {
+export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigationProps) {
   const { camera, gl } = useThree();
   const pressed = useRef(new Set<string>());
 
   useEffect(() => {
     if (!enabled) return;
-    const down = (event: KeyboardEvent) => pressed.current.add(event.key.toLowerCase());
+    const down = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        pressed.current.clear();
+        gl.domElement.blur();
+        onExit?.();
+        return;
+      }
+      pressed.current.add(event.key.toLowerCase());
+    };
     const up = (event: KeyboardEvent) => pressed.current.delete(event.key.toLowerCase());
     const focus = () => gl.domElement.focus();
-    window.addEventListener("keydown", down);
+    window.addEventListener("keydown", down, true);
     window.addEventListener("keyup", up);
     gl.domElement.addEventListener("pointerdown", focus);
     return () => {
-      window.removeEventListener("keydown", down);
+      window.removeEventListener("keydown", down, true);
       window.removeEventListener("keyup", up);
       gl.domElement.removeEventListener("pointerdown", focus);
       pressed.current.clear();
     };
-  }, [enabled, gl]);
+  }, [enabled, gl, onExit]);
 
   useFrame((_, delta) => {
     if (!enabled || pressed.current.size === 0) return;

@@ -32,6 +32,7 @@ type ModelViewToolbarProps = {
   onCutawayWalls: (value: boolean) => void;
   onSetRotation: (rotationY: number) => void;
   onViewportQuality: (quality: RenderQuality) => void;
+  onOpenGuide: () => void;
 };
 
 export function ModelViewToolbar(props: ModelViewToolbarProps) {
@@ -43,12 +44,18 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
             type="button"
             key={preset.id}
             className={props.viewPreset === preset.id ? "is-active" : ""}
+            aria-label={preset.label}
+            aria-pressed={props.viewPreset === preset.id}
+            title={preset.purpose}
             onClick={() => props.onViewPreset(preset.id)}
           >
-            {preset.label}
+            <span aria-hidden="true">{preset.symbol}</span>{preset.label}
           </button>
         ))}
       </div>
+      <button type="button" className="lr-model-guide-button" onClick={props.onOpenGuide}>
+        ? 3D guide
+      </button>
       {props.viewPreset === "dollhouse" ? (
         <ModelViewDollhousePanel
           cameraHeightMm={props.cameraHeightMm}

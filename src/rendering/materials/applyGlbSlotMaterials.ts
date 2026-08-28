@@ -12,21 +12,40 @@ import {
 import type { CompiledMaterial } from "../../domain/livingRoom";
 import { resolveMaterialIdForMeshName } from "../../domain/livingRoom/glbMaterialGroups";
 import type { RenderQuality } from "../../domain/interiorProject";
-import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { RenderMode, RenderModeQuality } from "../../domain/livingRoom/renderAssetContracts";
 import type { ModelTextureUrls } from "../../domain/livingRoom/renderAssetContracts";
-import { getRenderModeQuality } from "../../domain/livingRoom/heroRenderQuality";
+import { resolveModelViewMaterialBuildContext } from "../../domain/livingRoom/modelViewPreviewDefaults";
 import { createPbrMaterialDescriptor } from "../materials/createPbrMaterial";
-import { textureRepeatFromUvScaleMm } from "./materialScale";
+import { resolveImportedGlbMaterialResponse } from "./importedGlbMaterialTuning";
+import { anisotropyForRenderMode, textureRepeatFromUvScaleMm } from "./materialScale";
 import { resolveMaterialTextureUrls } from "./resolveMaterialTextureUrls";
+
+export type GlbMaterialBuildContext = {
+  quality?: RenderQuality;
+  modeQuality?: RenderModeQuality;
+  modelViewPreview: boolean;
+  anisotropy: number;
+};
+
+export function resolveGlbMaterialBuildContext(args: {
+  renderQuality?: RenderQuality;
+  modelViewQuality?: RenderQuality | null;
+  mode: RenderMode;
+}): GlbMaterialBuildContext {
+  const build = resolveModelViewMaterialBuildContext(args.modelViewQuality, args.renderQuality);
+  return {
+    ...build,
+    anisotropy: anisotropyForRenderMode(args.mode, build.quality, build.modeQuality),
+  };
+}
 
 const textureLoader = new TextureLoader();
 
 function loadTexture(
   url: string | undefined,
   uvScaleMm: number,
-  mode: RenderMode,
+  build: GlbMaterialBuildContext,
   colorSpace: boolean,
-  quality?: RenderQuality,
 ) {
   if (!url) return undefined;
   const texture = textureLoader.load(url);
@@ -34,10 +53,8 @@ function loadTexture(
   texture.wrapT = RepeatWrapping;
   const repeat = textureRepeatFromUvScaleMm(uvScaleMm);
   texture.repeat.set(repeat.x, repeat.y);
-  texture.anisotropy = getRenderModeQuality(mode, quality).anisotropy;
+  texture.anisotropy = build.anisotropy;
   if (colorSpace) texture.colorSpace = SRGBColorSpace;
-  // TextureLoader marks the texture ready after its image has loaded. Forcing an
-  // update before then emits "no image data" and can leave the first frame blank.
   return texture;
 }
 
@@ -64,17 +81,19 @@ function buildPhysicalMaterial(
   compiled: CompiledMaterial,
   mode: RenderMode,
   primitiveHint: string,
-  quality?: RenderQuality,
+  build: GlbMaterialBuildContext,
 ) {
   const pbr = createPbrMaterialDescriptor(compiled, mode, {
     primitiveId: primitiveHint,
-    quality,
+    quality: build.quality,
+    modeQuality: build.modeQuality,
+    modelViewPreview: build.modelViewPreview,
   });
   const textureUrls = resolveMaterialTextureUrls(compiled);
-  const curatedMap = loadTexture(textureUrls.map, compiled.uvScaleMm, mode, true, quality);
-  const curatedNormal = loadTexture(textureUrls.normalMap, compiled.uvScaleMm, mode, false, quality);
-  const curatedRoughness = loadTexture(textureUrls.roughnessMap, compiled.uvScaleMm, mode, false, quality);
-  const curatedAo = loadTexture(textureUrls.aoMap, compiled.uvScaleMm, mode, false, quality);
+  const curatedMap = loadTexture(textureUrls.map, compiled.uvScaleMm, build, true);
+  const curatedNormal = loadTexture(textureUrls.normalMap, compiled.uvScaleMm, build, false);
+  const curatedRoughness = loadTexture(textureUrls.roughnessMap, compiled.uvScaleMm, build, false);
+  const curatedAo = loadTexture(textureUrls.aoMap, compiled.uvScaleMm, build, false);
   const map = curatedMap ?? pbr.maps.map;
   const maps = {
     ...(map ? { map } : {}),
@@ -105,18 +124,28 @@ function buildPhysicalMaterial(
   });
 }
 
-function buildImportedMaterial(textures: ModelTextureUrls, mode: RenderMode, quality?: RenderQuality) {
-  const map = loadTexture(textures.map, 1000, mode, true, quality);
-  const normalMap = loadTexture(textures.normalMap, 1000, mode, false, quality);
-  const roughnessMap = loadTexture(textures.roughnessMap, 1000, mode, false, quality);
-  const metalnessMap = loadTexture(textures.metalnessMap, 1000, mode, false, quality);
+function buildImportedMaterial(
+  textures: ModelTextureUrls,
+  mode: RenderMode,
+  build: GlbMaterialBuildContext,
+) {
+  const response = resolveImportedGlbMaterialResponse(mode, build);
+  const map = loadTexture(textures.map, 1000, build, true);
+  const normalMap = loadTexture(textures.normalMap, 1000, build, false);
+  const roughnessMap = loadTexture(textures.roughnessMap, 1000, build, false);
+  const metalnessMap = loadTexture(textures.metalnessMap, 1000, build, false);
   const maps = {
     ...(map ? { map } : {}),
     ...(normalMap ? { normalMap } : {}),
     ...(roughnessMap ? { roughnessMap } : {}),
     ...(metalnessMap ? { metalnessMap } : {}),
   };
-  return new MeshPhysicalMaterial({ color: "white", roughness: 0.62, metalness: 0, ...maps });
+  return new MeshPhysicalMaterial({
+    color: new Color("white"),
+    metalness: 0,
+    ...response,
+    ...maps,
+  });
 }
 
 /** Tint GLB meshes from project materialSlots via named mesh groups. */
@@ -128,11 +157,17 @@ export function applyGlbSlotMaterials(
     materials: Map<string, CompiledMaterial>;
     renderMode: RenderMode;
     renderQuality?: RenderQuality;
+    modelViewQuality?: RenderQuality | null;
     castShadow: boolean;
     receiveShadow: boolean;
     importedTextures?: ModelTextureUrls;
   },
 ) {
+  const build = resolveGlbMaterialBuildContext({
+    renderQuality: args.renderQuality,
+    modelViewQuality: args.modelViewQuality,
+    mode: args.renderMode,
+  });
   root.traverse((child) => {
     if (!(child instanceof Mesh)) return;
     child.castShadow = args.castShadow;
@@ -145,8 +180,8 @@ export function applyGlbSlotMaterials(
     if (!materialId && !args.importedTextures?.map) return;
     const compiled = materialId ? args.materials.get(materialId) : undefined;
     if (!compiled && !args.importedTextures?.map) return;
-    const next = compiled ? buildPhysicalMaterial(compiled, args.renderMode, child.name, args.renderQuality)
-      : buildImportedMaterial(args.importedTextures!, args.renderMode, args.renderQuality);
+    const next = compiled ? buildPhysicalMaterial(compiled, args.renderMode, child.name, build)
+      : buildImportedMaterial(args.importedTextures!, args.renderMode, build);
     for (const previous of asMeshMaterials(child.material)) {
       disposeMaterialTextures(previous);
       previous.dispose();
