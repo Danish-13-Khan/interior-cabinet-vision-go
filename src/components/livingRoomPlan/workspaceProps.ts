@@ -70,7 +70,12 @@ export type LivingRoomPlanWorkspaceProps = {
   onDelete: () => void;
   onAlign: (mode: LivingRoomAlignMode) => void;
   onCreateCabinetRun: (wallId: string) => void;
-  onUpdateCabinetRun: (runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) => void;
+  onUpdateCabinetRun: (runId: string, options: {
+    gapMm?: number;
+    alignment?: "start" | "center" | "end";
+    extendToWall?: boolean;
+    fillersEnabled?: boolean;
+  }) => void;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onActiveRoom: (roomId: string) => void;

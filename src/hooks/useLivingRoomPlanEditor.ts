@@ -29,8 +29,11 @@ import {
   addLivingRoomObject,
   attachToWall,
   arrangeCabinetRun,
+  placeCornerCabinet,
+  preferredRoomWallCorner,
+  reconcileCabinetRunsAfterObjectRemoval,
   reflowCabinetRunsForWalls,
-  updateCabinetRun,
+  updateCabinetRunLayout,
   addLivingRoomOpening,
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
@@ -41,7 +44,6 @@ import {
   createPhase1BenchmarkProject,
   createLivingRoomStarterProject,
   type Phase1BenchmarkId,
-  deleteLivingRoomObjects,
   deleteLivingRoomOpening,
   duplicateLivingRoomObject,
   getActiveLivingRoomStyleId,
@@ -283,7 +285,11 @@ export function useLivingRoomPlanEditor({
         z: (document.objects.length % 3) * 150 - 150,
       },
     });
-    const placed = wallId ? attachToWall(document, item, wallId) : item;
+    let placed = wallId ? attachToWall(document, item, wallId) : item;
+    if (catalogItemId === "living:corner-wardrobe") {
+      const corner = preferredRoomWallCorner(document, document.activeRoomId);
+      if (corner) placed = placeCornerCabinet(document, item, corner);
+    }
     commitDocument(
       (current) => addLivingRoomObject(current, placed),
       `Added ${item.name}.`,
@@ -318,7 +324,7 @@ export function useLivingRoomPlanEditor({
     if (selectedObjectIds.length === 0) return;
     const count = selectedObjectIds.length;
     commitDocument(
-      (current) => deleteLivingRoomObjects(current, selectedObjectIds),
+      (current) => reconcileCabinetRunsAfterObjectRemoval(current, selectedObjectIds),
       `Deleted ${count} object${count === 1 ? "" : "s"}.`,
     );
     setSelectedObjectIds([]);
@@ -337,8 +343,8 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => arrangeCabinetRun(current, selectedObjectIds, wallId), "Created cabinet run.");
   }
 
-  function updateRun(runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) {
-    commitDocument((current) => updateCabinetRun(current, runId, options), "Updated cabinet run.");
+  function updateRun(runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean; fillersEnabled?: boolean }) {
+    commitDocument((current) => updateCabinetRunLayout(current, runId, options), "Updated cabinet run.");
   }
 
   function nudgeSelection(dx: number, dz: number) {

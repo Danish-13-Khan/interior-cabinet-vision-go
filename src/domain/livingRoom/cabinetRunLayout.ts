@@ -8,6 +8,7 @@ export type CabinetRunOptions = {
   gapMm?: number;
   alignment?: CabinetRunAlignment;
   extendToWall?: boolean;
+  fillersEnabled?: boolean;
 };
 
 export type CabinetRunMetadata = {
@@ -16,6 +17,7 @@ export type CabinetRunMetadata = {
   gapMm: number;
   alignment: CabinetRunAlignment;
   extendToWall: boolean;
+  fillersEnabled: boolean;
 };
 
 function runMetadata(object: InteriorObjectEntity): CabinetRunMetadata | null {
@@ -29,6 +31,7 @@ function runMetadata(object: InteriorObjectEntity): CabinetRunMetadata | null {
     gapMm: typeof source.gapMm === "number" ? source.gapMm : 0,
     alignment: source.alignment === "start" || source.alignment === "end" ? source.alignment : "center",
     extendToWall: Boolean(source.extendToWall),
+    fillersEnabled: Boolean(source.fillersEnabled),
   };
 }
 
@@ -39,6 +42,7 @@ function resolveRunOptions(options: CabinetRunOptions | undefined, wallId: strin
     gapMm: Math.max(0, Math.round(options?.gapMm ?? 0)),
     alignment: options?.alignment ?? "center",
     extendToWall: Boolean(options?.extendToWall),
+    fillersEnabled: Boolean(options?.fillersEnabled),
   };
 }
 
@@ -88,6 +92,7 @@ export function updateCabinetRun(project: InteriorProject, runId: string, option
     gapMm: options.gapMm ?? metadata.gapMm,
     alignment: options.alignment ?? metadata.alignment,
     extendToWall: options.extendToWall ?? metadata.extendToWall,
+    fillersEnabled: options.fillersEnabled ?? metadata.fillersEnabled,
   });
 }
 

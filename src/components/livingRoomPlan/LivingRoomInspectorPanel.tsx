@@ -37,7 +37,12 @@ type LivingRoomInspectorPanelProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
-  onUpdateCabinetRun: (runId: string, options: { gapMm?: number; alignment?: "start" | "center" | "end"; extendToWall?: boolean }) => void;
+  onUpdateCabinetRun: (runId: string, options: {
+    gapMm?: number;
+    alignment?: "start" | "center" | "end";
+    extendToWall?: boolean;
+    fillersEnabled?: boolean;
+  }) => void;
   onSelect: (objectId: string | null) => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
@@ -121,6 +126,7 @@ export function LivingRoomInspectorPanel({
             )}
             <LivingRoomObjectInspector
               object={activeObject}
+              project={project}
               materials={project.materials}
               onResize={onResize}
               onSetMaterial={onSetMaterial}
