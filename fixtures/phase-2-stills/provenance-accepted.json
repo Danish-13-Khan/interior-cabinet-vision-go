@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "jobId": "sj-p2a-daylight-sofa-camera-a",
+  "jobId": "sj-p2-proof-sample",
   "projectId": "phase1-bench-daylight-sofa",
   "projectContentHash": "sj-proj-b40643fe",
   "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-b40643fe",
@@ -9,7 +9,7 @@
     "id": "stilljob-hero",
     "version": "1.0.0"
   },
-  "seed": 7,
+  "seed": 0,
   "allowedEnhancements": [
     "soft_shadows",
     "material_micro_detail",
@@ -17,7 +17,7 @@
   ],
   "mode": "faithful_enhance",
   "acceptanceStatus": "accepted",
-  "acceptedAt": "2026-08-15T00:00:00.000Z",
-  "stillOutputPath": "sj-p2a-daylight-sofa-camera-a-still.png",
-  "heroPlatePath": "sj-p2a-daylight-sofa-camera-a-hero-plate.png"
+  "acceptedAt": "2026-08-28T12:00:00.000Z",
+  "stillOutputPath": "sj-p2-proof-sample-still.png",
+  "heroPlatePath": "sj-p2-proof-sample-hero-plate.png"
 }

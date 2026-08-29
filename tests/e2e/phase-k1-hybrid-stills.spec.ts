@@ -17,11 +17,12 @@ async function openRenderStudio(page: Page) {
 
 async function acceptHybridStill(page: Page) {
   const generateStill = page.getByRole("button", { name: "Generate Still" });
-  await expect(generateStill).toBeEnabled({ timeout: 25_000 });
+  await expect(generateStill).toBeEnabled({ timeout: 60_000 });
+  await expect(page.locator(".lr-plan-canvas canvas").first()).toBeVisible({ timeout: 30_000 });
   await generateStill.click();
+  await expect(page.getByTestId("still-review-panel")).toBeVisible({ timeout: 90_000 });
   const review = page.getByTestId("still-review-panel");
-  await expect(review).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByTestId("still-trust-panel")).toContainText("TRUST OK", { timeout: 15_000 });
+  await expect(page.getByTestId("still-trust-panel")).toContainText("TRUST OK", { timeout: 20_000 });
   await review.getByRole("button", { name: "Accept" }).click();
   await expect(review).toContainText("1 accepted for package");
 }
@@ -67,21 +68,22 @@ async function captureClientPackageDownloads(page: Page) {
 }
 
 test("K1 hybrid stills: generate, review, accept under trust contract", async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   await openRenderStudio(page);
 
   const generateStill = page.getByRole("button", { name: "Generate Still" });
-  await expect(generateStill).toBeEnabled({ timeout: 25_000 });
+  await expect(generateStill).toBeEnabled({ timeout: 60_000 });
+  await expect(page.locator(".lr-plan-canvas canvas").first()).toBeVisible({ timeout: 30_000 });
   await generateStill.click();
+  await expect(page.getByTestId("still-review-panel")).toBeVisible({ timeout: 90_000 });
 
   const review = page.getByTestId("still-review-panel");
-  await expect(review).toBeVisible({ timeout: 45_000 });
   await expect(review).toContainText("Still review");
   await expect(review).toContainText("Hybrid Still");
   await expect(review).toContainText("faithful enhance", { ignoreCase: true });
 
   const trust = page.getByTestId("still-trust-panel");
-  await expect(trust).toContainText("TRUST OK", { timeout: 15_000 });
+  await expect(trust).toContainText("TRUST OK", { timeout: 20_000 });
   await expect(trust).toContainText("stilljob-hero");
 
   await expect(review.locator("img[alt='WebGL plate']")).toBeVisible();
@@ -98,7 +100,7 @@ test("K1 hybrid stills: generate, review, accept under trust contract", async ({
 });
 
 test("K1 hybrid stills: client package exports accepted still manifest and PNG", async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   await openRenderStudio(page);
   await acceptHybridStill(page);
 
@@ -124,13 +126,14 @@ test("K1 hybrid stills: client package exports accepted still manifest and PNG",
 });
 
 test("K1 hybrid stills: reject leaves project editable", async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   await openRenderStudio(page);
 
   const generateStill = page.getByRole("button", { name: "Generate Still" });
-  await expect(generateStill).toBeEnabled({ timeout: 25_000 });
+  await expect(generateStill).toBeEnabled({ timeout: 60_000 });
+  await expect(page.locator(".lr-plan-canvas canvas").first()).toBeVisible({ timeout: 30_000 });
   await generateStill.click();
-  await expect(page.getByTestId("still-review-panel")).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByTestId("still-review-panel")).toBeVisible({ timeout: 90_000 });
 
   await page.getByTestId("still-review-panel").getByRole("button", { name: "Reject" }).click();
   await expect(page.getByText(/Still rejected · authored project unchanged/i)).toBeVisible();

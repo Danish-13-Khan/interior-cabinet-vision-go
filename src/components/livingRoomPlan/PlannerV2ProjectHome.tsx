@@ -53,6 +53,8 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
           <div>
             <button type="button" onClick={() => createProject("blank-room")}><strong>Blank room</strong><small>Set exact room dimensions in Build.</small></button>
             <button type="button" onClick={() => createProject("wardrobe-wall")}><strong>Wardrobe wall</strong><small>Start a cabinet-led room concept.</small></button>
+            <button type="button" onClick={() => createProject("l-room")}><strong>L-room</strong><small>Freeform L footprint ready for millwork.</small></button>
+            <button type="button" onClick={() => createProject("2-room-flat")}><strong>2-room flat</strong><small>Living and bedroom split by a shared wall.</small></button>
             <button type="button" onClick={() => createProject("import-plan", "nordic-light")}><strong>Import a plan</strong><small>Use a PNG, JPG, or WebP tracing underlay.</small></button>
           </div>
         </section>

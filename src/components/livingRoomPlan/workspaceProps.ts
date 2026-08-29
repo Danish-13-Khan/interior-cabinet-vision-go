@@ -19,6 +19,7 @@ import type {
   LivingRoomStyleId,
   ImportedAsset,
   Phase1BenchmarkId,
+  PlannerStarterTemplate,
 } from "../../domain/livingRoom";
 
 export type LivingRoomWorkspaceView = "plan" | "model" | "render";
@@ -26,7 +27,7 @@ export type PlannerMode = "project" | "build" | "design" | "render";
 /** V1 plan surfaces only. AI styling, styleboards, and marketplaces are deliberately out of scope. */
 export type StudioPanel = "build" | "cabinets" | "furniture" | "materials" | "layers";
 export type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
-export type PlannerStarterTemplate = "blank-room" | "wardrobe-wall" | "import-plan";
+export type { PlannerStarterTemplate };
 
 export type LivingRoomPlanWorkspaceProps = {
   project: InteriorProject | null;

@@ -126,6 +126,7 @@ export function compileOpeningNode(
       openingKind: opening.kind,
       catalogItemId: catalog.catalogItemId,
       wallSide: String(wall.extensions?.wallSide ?? "custom"),
+      wallId: wall.id,
       ...materialSlotMeta,
     },
     renderBinding: createProceduralRenderBinding({ surface: leafOrGlass }),

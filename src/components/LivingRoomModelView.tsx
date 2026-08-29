@@ -125,6 +125,8 @@ export function LivingRoomModelView({
         }}
         onViewportQuality={setViewportQuality}
         onOpenGuide={() => setShowGuide(true)}
+        hasSelection={selectedIds.length > 0 || Boolean(activeOpeningId)}
+        onClearSelection={onClearSelection}
       />
       <ModelViewScene
         scene={scene}

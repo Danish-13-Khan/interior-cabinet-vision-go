@@ -56,9 +56,19 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }, [props.project]);
 
   useLivingRoomPlanHotkeys({
-    projectHomeOpen: props.projectHomeOpen, snapSizeMm, onView: changeWorkspaceView,
-    onDuplicate: props.onDuplicate, onDelete: props.onDelete,
-    onRotateSelection: props.onRotateSelection, onNudge: props.onNudge,
+    projectHomeOpen: props.projectHomeOpen,
+    snapSizeMm,
+    workspaceView,
+    onView: changeWorkspaceView,
+    onDuplicate: props.onDuplicate,
+    onDelete: props.onDelete,
+    onRotateSelection: props.onRotateSelection,
+    onNudge: props.onNudge,
+    onClearSelection: () => {
+      setActiveOpeningId(null);
+      setActiveSurfaceId(null);
+      props.onSelect(null);
+    },
   });
 
   useEffect(() => { setRenderResults({ latest: null, previous: null }); }, [props.project?.id]);

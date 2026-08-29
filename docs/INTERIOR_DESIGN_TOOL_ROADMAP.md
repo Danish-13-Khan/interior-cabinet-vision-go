@@ -1,7 +1,7 @@
 # Interior Design Tool — Full Gap Roadmap (2D → 3D → Render → Export)
 
-**Status:** Planning only — do not implement until this roadmap is approved.  
-**Audience:** After `FLOORPLANNER_SIMPLE_PLAN_ROADMAP` A–G (chrome + topology + tools).  
+**Status:** Phases H–L feature work is implemented in the product. Treat release as **feature-complete with verification debt**, not “everything merged and green on `main`,” until the working tree is committed and the full browser suite is reliably green.
+**Audience:** After `FLOORPLANNER_SIMPLE_PLAN_ROADMAP` A–G (chrome + topology + tools).
 **Product rule:** Stay millwork-first. Look and feel like a **professional interior design tool**, not a Floorplanner clone or a stills marketplace.
 
 **Fixed product agenda (unchanged):**
@@ -71,7 +71,7 @@ A designer opens the app and can complete this story without fighting the UI:
 ### 2.4 3D Review
 - One click 2D↔3D; dollhouse default; optional walkthrough.
 - Materials and openings look intentional; nav is obvious.
-- Selection in 3D updates the same inspector (optional later polish).
+- Selection in 3D updates the same inspector.
 
 ### 2.5 Render
 - Camera framing + lighting recipes.
@@ -85,226 +85,110 @@ A designer opens the app and can complete this story without fighting the UI:
 
 ---
 
-## 3. Scorecard — where we are after Floorplanner A–G
+## 3. Scorecard — after H–L
 
-| Mode | Strength today | Why it still feels behind |
+Honest read: **feature code landed; release-green only after suite + commit.**
+
+| Mode | Strength today | Remaining gap |
 | --- | --- | --- |
-| **Project** | Strong V2 home, save/open, schema v2 | Templates / multi-room starters thin |
-| **Build** | Freeform room/wall, openings, dims, surfaces, topology | No room-split-by-wall; no node drag; weak multi-room chrome |
-| **Design** | Catalog place/snap/run, millwork inspector | Thin runs/fillers/corners on freeform; small catalogs |
-| **3D** | Live compile, dollhouse, walkthrough | Nav / selection / material richness polish |
-| **Render** | Hybrid stills + package camera decks + tier honesty gates | Polish deliverable suite |
-| **Export** | JSON + millwork CSV/PDF + client package | Not a polished deliverable suite yet |
+| **Project** | V2 home, save/open, schema v2, blank / wardrobe / L-room / 2-room-flat starters | Import-plan underlay polish only |
+| **Build** | Room-split, node/wall drag, multi-room chrome, draft feedback, room/wall inspector | Hole-bearing merges deferred; delete/merge use `window.confirm` |
+| **Design** | Freeform runs, fillers/corners, validation, curated catalog, material swatches | I4 SKU meshes still use bookcase stand-in |
+| **3D** | Onboarding, mesh+label selection, soft draft preview | Keep full browser suite green (K1 flakiness under load) |
+| **Render** | Hybrid stills + package cameras + honesty gates (`phase2:proof`) | Suite-level Generate Still timing |
+| **Export** | Schedule PDF/CSV, one-click client package, pre-export checklist | Keep exit-journey + K1 green on `main` |
 
 ```text
-Project   ████████░░
-Build     ███████░░░   ← largest “interiors tool” feel gap
-Design    ██████░░░░   ← millwork differentiator still thin
-3D        ███████░░░
-Render    █████░░░░░
-Export    ██████░░░░
+Project   █████████░
+Build     █████████░
+Design    ████████░░
+3D        ████████░░
+Render    █████████░
+Export    ████████░░
 ```
 
-**Floorplanner A–G closed the capability checklist.**  
-**This roadmap closes the “feels like an interiors product” gap.**
+**Floorplanner A–G closed the capability checklist.**
+**H–L closed most of the “feels like an interiors product” gap.**
+**§7 authoring→schedule→client-package path is covered by `tests/e2e/roadmap-exit-journey.spec.ts`.**
 
 ---
 
-## 4. Missing features (full inventory)
+## 4. Phase inventory (H–L)
 
-### H — Build authoring feel (do first)
+### H — Build authoring feel · **DONE (MVP limits noted)**
 
-| ID | Missing feature | Why it matters |
+| ID | Feature | Status |
 | --- | --- | --- |
-| H1 | **Room-split Draw Wall** — wall across closed room → two rooms + regen floors/ceilings | Core “draw wall under floor” magic |
+| H1 | Room-split Draw Wall | Done |
+| H2 | Drag nodes / move walls | Done |
+| H3 | Multi-room chrome (switch, rename, delete, merge) | Done — hole merges deferred; confirm dialogs |
+| H4 | Draw / edit feedback | Done |
+| H5 | Room / wall selection inspector | Done — swatch materials; thickness/height E2E light |
 
-**H1 status:** Implemented — Draw Wall bisects a closed face into two rooms with a shared wall, regenerates floor/ceiling zones, remaps objects/lights/cameras by containment, and keeps partitions non-splitting. Minimal room switcher + rename landed so both faces are reachable in 2D/3D.
-| H2 | **Drag nodes / move walls** — endpoint + wall translate with snap | Plan editing feels like CAD, not commit-only |
+### I — Design / millwork depth · **DONE (MVP limits noted)**
 
-**H2 status:** Implemented — Select-tool node handles + wall-body drag, snap, opening clamp, coincident join, undoable commands, E2E.
-
-| H3 | **Multi-room chrome** — room list, active switch, rename, delete, merge | Topology useless without navigation |
-
-**H3 status:** Implemented — Build room list supports active switching, rename, safe delete, and adjacent room merge. Merge removes the shared boundary and transfers room-owned content into the kept face. Intentional MVP limits: hole-bearing room merges deferred; delete/merge use `window.confirm` (no custom dialog yet).
-| H4 | **Draw / edit feedback** — live draft dims, snap guides, hover handles | Perceived quality of every Build tool |
-
-**H4 status:** Implemented — Draw Room/Wall and Select-tool node/wall edits show live mm dimensions, axis/snap guides, node snap targets, and hover affordances before committing changes.
-| H5 | **Room / wall selection inspector** — preview, thickness, height, materials | Right panel reads as design tool |
-
-**H5 status:** Implemented — the right inspector now previews the active room and selected wall, with undoable room sizing plus wall thickness, height, and material editing. Intentional MVP limit: E2E covers material clear + undo; thickness/height edit round-trips remain light.
-
-### I — Design / millwork depth (differentiator)
-
-| ID | Missing feature | Why it matters |
+| ID | Feature | Status |
 | --- | --- | --- |
-| I1 | Freeform-aware cabinet runs (extend, gap, align) | Shop salesperson credibility |
+| I1 | Freeform cabinet runs | Done |
+| I2 | Fillers + corner units | Done |
+| I3 | Collision / overlap validation UI | Done |
+| I4 | Richer openings + millwork SKUs | Done — three SKUs reuse bookcase mesh stand-in |
+| I5 | Material browser polish | Done |
 
-**I1 status:** Implemented — cabinet runs persist wall-bound metadata and reflow on arbitrary wall vectors with start/center/end alignment, explicit gaps, and an extend-to-wall option.
-| I2 | Fillers + corner units on irregular walls | Real layouts, not single boxes |
+### J — 3D review polish · **DONE (keep pick path verified)**
 
-**I2 status:** Implemented — cabinet runs can auto-generate 40–150 mm fillers on freeform wall segments, and a corner wardrobe catalog item snaps to room wall junctions on irregular plans.
-| I3 | Collision / overlap validation with clear UI | Trust before export |
-
-**I3 status:** Implemented — freeform-aware overlap and clearance validation is actionable in Plan, Model, and Review, and blocks workshop exports until errors are resolved.
-
-| I4 | Richer curated openings (6–12) + millwork SKUs | Catalog feels intentional, not stub |
-
-**I4 status:** Implemented — eight curated opening families (four doors, four windows) carry distinct defaults and plan symbols; three SKU-labelled tall/base/wall modules are visible in Design, survive into schedules, and intentionally reuse the procedural bookcase mesh as an MVP height-band stand-in.
-| I5 | Material browser polish (swatches, slots, apply-to-selection) | Interiors look finished in 2D/3D |
-
-**I5 status:** Implemented — Materials rail uses kind-filtered swatches with active highlighting; object/opening inspectors share slot swatch rows; apply-to-selection paints shared slots across multi-select in one undo (skips objects missing the chosen slot); plan objects tint from face-first slots (e.g. fronts) so painted finishes read on-plan.
-
-### J — 3D review polish
-
-| ID | Missing feature | Why it matters |
+| ID | Feature | Status |
 | --- | --- | --- |
-| J1 | Clearer dollhouse / orbit / walkthrough onboarding | Clients understand 3D instantly |
-| J2 | 3D selection ↔ inspector parity for openings/objects | Continuous review, not screenshot-only |
-| J3 | Soft lighting / material preview defaults | “Looks designed” without photoreal |
+| J1 | Dollhouse / orbit / walkthrough onboarding | Done |
+| J2 | 3D selection ↔ inspector parity | Done — mesh pick + selected/hover labels; cutaway keeps selected opening + host wall |
+| J3 | Soft lighting / material preview defaults | Done |
 
-**J1 status:** Implemented — first-entry 3D guide explains the three client-facing navigation modes in plain language, previews each mode in-place, keeps a persistent mode/purpose readout, and can be reopened from the camera toolbar. Escape reliably returns walkthrough users to Dollhouse.
+### K — Render & stills · **DONE**
 
-**J2 status:** Implemented — compiled objects and openings resolve to shared project selections in 3D; selection highlights follow between plan/model views, blank-canvas/architecture and cross-entity picks clear stale state, and the same object/opening inspector remains editable throughout review.
-
-**J3 status:** Implemented — Model View defaults to Draft preview (not hero/photoreal), applies soft studio lighting and designed material tuning via dedicated preview resolvers, and keeps honesty badges on the PREVIEW tier even when Standard quality is selected for richer textures.
-
-### K — Render & stills
-
-| ID | Missing feature | Why it matters |
+| ID | Feature | Status |
 | --- | --- | --- |
-| K1 | Complete **Phase 2 Hybrid Stills** under trust contract | Client delivery ceiling |
+| K1 | Phase 2 Hybrid Stills under trust contract | Done — `npm run phase2:proof`; watch suite flakiness |
+| K2 | Camera bookmarks + named views for package | Done |
+| K3 | Draft ≠ Client Preview ≠ Still honesty | Done |
 
-**K1 status:** Implemented — StillJob v2 handoff, hero still engine, Render Studio review (plate | still | diff), deterministic rerun gate, and accepted-still client package provenance. Proof: `npm run phase2:proof`.
-| K2 | Camera bookmarks + named views for package | Repeatable client decks |
+### L — Export & presentation · **DONE**
 
-**K2 status:** Implemented — ordered package camera bookmarks with named views in Render Studio, persisted on `renderSettings.packageCameraBookmarks`, exported via `package-views.json` + manifest/PDF deck section.
-| K3 | Keep honesty: Draft ≠ Client Preview ≠ Still | Product trust |
-
-**K3 status:** Implemented — three-tier honesty catalog, context-aware Render Studio badge + settings legend, client package `presentationHonesty` manifest block, PDF tier notes. Proof: `npm run phase2:proof` (includes K3 unit + e2e).
-
-### L — Export & presentation
-
-| ID | Missing feature | Why it matters |
+| ID | Feature | Status |
 | --- | --- | --- |
-| L1 | Harden Millwork Schedule v1 as default workshop output | Cabinet-aware claim |
-
-**L1 status:** Implemented — Schedule CSV/PDF is the primary workshop output on the plan titlebar and Review panel; `exportMillworkSchedulePdf` is wired; cutlist and production packet moved under a **Production** disclosure.
-| L2 | One-click client package (PDF + stills + schedule) | End of the agenda |
-
-**L2 status:** Implemented — `assembleClientPresentationFiles` bundles millwork schedule PDF/CSV; Review panel **Export client package** writes one folder via a single save dialog; accepted stills lift to workspace state so Review and Render Studio share the same package.
-| L3 | Pre-export validation checklist in Review | No silent broken layouts |
-
-**L3 status:** Implemented — Review shows an explicit Pass/Fail/Review checklist (layout clear, millwork placed, package deck, accepted stills, advisories). Blocking fails gate both Review and Render Studio package exports; issue rows remain selectable.
+| L1 | Millwork Schedule v1 as default workshop output | Done |
+| L2 | One-click client package | Done |
+| L3 | Pre-export validation checklist | Done |
 
 ### Explicitly out of scope (keep deferred)
 
-- Styleboards / Autostyler / AI moodboards  
-- Huge furniture marketplace  
-- AI floor-plan CV  
-- Multi-building / whole-house RE packages  
-- Synaps photoreal as the Build/Design goal  
-- Full CNC / MES / pricing engine  
+- Styleboards / Autostyler / AI moodboards
+- Huge furniture marketplace
+- AI floor-plan CV
+- Multi-building / whole-house RE packages
+- Synaps photoreal as the Build/Design goal
+- Full CNC / MES / pricing engine
 
 ---
 
-## 5. Phased roadmap (approve before coding)
+## 5. Remaining work (post H–L)
 
-Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D → Render → Export.
-
-### Phase H — Build feel (room-split + edit + multi-room) · XL · **NEXT**
-
-**Goal:** Drawing and editing the plan feels like an interiors floor planner.
-
-| Slice | Work | Size |
-| --- | --- | --- |
-| H1 | Face-split: Draw Wall across closed room → two rooms, shared wall, floors regen, undoable | L |
-| H2 | Move node / drag wall endpoint; wall translate with topology repair | L |
-
-**H2 status:** Implemented — Select tool exposes node handles and wall-body drag with grid/node snap, opening clamp after length change, coincident join on drop, undoable `moveNode` / `moveWall` commands, and live wall preview while dragging.
-
-| H3 | Room switcher + rename + delete (+ merge MVP) | M |
-
-**H3 status:** Implemented — active switch, rename, delete, and shared-wall merge MVP are all undoable through the Build panel. Hole-bearing merges deferred; delete/merge still use browser `confirm` dialogs.
-| H4 | Live draft dimensions + snap guides while drawing | M |
-
-**H4 status:** Implemented — live unit-aware draft dimensions, snap guides/targets, and wall/node hover feedback cover Draw and Select edits.
-| H5 | Selection inspector for room / wall (thickness, height, material) | S–M |
-
-**H5 status:** Implemented — Build inspector provides room/wall previews and construction/finish editing for the active selection. E2E covers material clear + undo; thickness/height round-trips still light (non-blocking).
-
-**Exit:** Designer draws a 2-room flat by splitting one room with a wall, renames rooms, drags a corner, places doors, sees floors update in 2D and 3D.
-
-**Blocked by:** Existing D0–D4 topology (already landed). No schema rewrite expected unless split needs new loop ops (prefer pure domain ops on v2 graph).
+1. **Commit + land on `main`** when the local verification pass is accepted.
+2. **Keep the full browser suite green** — especially K1 Generate Still and the §7 exit journey under sequential suite load.
+3. **MVP polish (non-blocking)** — custom delete/merge dialogs; hole-bearing merges; I4 dedicated SKU meshes; thickness/height E2E depth.
 
 ---
 
-### Phase I — Design feel (millwork on freeform) · L · after H1 at least
-
-**Goal:** Design mode feels like an interior / millwork layout tool on real plans.
-
-- I1–I3: runs, fillers/corners, collision UI on freeform walls  
-- I4–I5: curated catalog + material browser depth (stay under v1 catalog ceiling)
-
-**I1 status:** Implemented — wall-bound cabinet runs preserve their physical order along any wall segment, support gap/alignment/extend controls, and automatically reflow after wall or endpoint edits. The ordering primitive is shared with the established Cabinets CAD run path.
-
-**I2 status:** Implemented — auto fillers use the shared CAD sizing rule, stay synchronized through run edits/deletes/wall reflow, and corner wardrobes stay attached to their irregular-plan junctions.
-
-**I3 status:** Implemented — validation is live across Design/Build/Review, distinguishes blocking collisions from advisory clearance checks, highlights/selects involved plan objects, and blocks workshop exports. The header’s **Export JSON** is intentionally a project backup download and remains ungated.
-
-**I4 status:** Implemented — eight curated opening families (four doors, four windows) carry distinct defaults and plan symbols; three SKU-labelled tall/base/wall modules are visible in Design, survive into schedules, and intentionally reuse the procedural bookcase mesh as an MVP height-band stand-in.
-
-**I5 status:** Implemented — curated material browser with kind filters and swatches, slot-level finish editing, multi-select apply (skip missing slots), face-first 2D plan tint, and opening inspector material coverage.
-
-**Exit:** Wardrobe run + fillers on an L-room wall; validation visible; schedule matches placed units.
-
-**Reuse:** I1 shares the proven Cabinets CAD ordering primitive; I2–I3 should continue bridging its filler/corner and validation logic into Interiors V2 rather than reinventing it.
-
----
-
-### Phase J — 3D review polish · M · can overlap late H / I
-
-- J1–J3 only (onboarding, selection parity, preview defaults)  
-- Do **not** reopen endless WebGL tuning (see PRODUCT_DECISIONS)
-
-**Exit:** Client can understand the room in dollhouse/walkthrough without training.
-
----
-
-### Phase K — Render stills ceiling · L · after trust contract
-
-- Complete Hybrid Stills Pipeline (existing `PHASE_2_HYBRID_STILLS_PIPELINE.md`) — **done (K1)**
-- Camera bookmarks for package (K2) — **done**
-- Honesty gates across Draft / Client Preview / Hybrid Still tiers — **done (K3)**
-
-**Exit:** Accepted stills land in client package; project remains editable truth. **Met via K1.**
-
----
-
-### Phase L — Export / presentation finish · M · parallel with I/K
-
-- Millwork Schedule v1 hardened as default — **done (L1)**
-- One-click client package — **done (L2)**
-- Pre-export validation checklist — **done (L3)**
-
-**Exit:** Salesperson exports schedule + package from a real multi-room project in one session.
-
----
-
-## 6. Critical path
+## 6. Critical path (historical)
 
 ```text
-NOW → Phase H (Build feel)
-        H1 room-split  ─┬─→ H2 node/wall drag
-                        ├─→ H3 multi-room chrome
-                        └─→ H4/H5 feedback + inspector
-     → Phase I (Design millwork feel)   // start after H1 stable
-     → Phase J (3D polish)              // overlap OK
-     → Phase L (Export harden)          // parallel OK
-     → Phase K (Hybrid stills)          // when authoring trust is high
+DONE → Phase H (Build feel)
+DONE → Phase I (Design millwork feel)
+DONE → Phase J (3D polish)
+DONE → Phase L (Export harden)
+DONE → Phase K (Hybrid stills)
+DONE → L-room + 2-room-flat starters
+NOW  → Verify suite green, commit, optional MVP polish (§5)
 ```
-
-**Do not start K (stills chase) before H1–H3.**  
-Pretty pictures will not hide a plan editor that cannot split a room.
 
 ---
 
@@ -312,35 +196,32 @@ Pretty pictures will not hide a plan editor that cannot split a room.
 
 All must be true in one session:
 
-1. Import or draw a footprint  
-2. Split into ≥2 rooms with Draw Wall  
-3. Place doors/windows; rename rooms  
-4. Place a cabinet run that snaps on a freeform wall  
-5. Review in dollhouse / walkthrough  
-6. Export millwork schedule + client package  
+1. Import or draw a footprint
+2. Split into ≥2 rooms with Draw Wall
+3. Place doors/windows; rename rooms
+4. Place a cabinet run that snaps on a freeform wall
+5. Review in dollhouse / walkthrough
+6. Export millwork schedule + client package
 
-Until then: do **not** market as full Floorplanner / Synaps parity — market as **cabinet-aware interior planner** approaching the threshold above.
-
----
-
-## 8. Decision checklist (approve before coding)
-
-- [ ] Confirm agenda stays **Project → Build → Design → 3D → Render → Export**  
-- [ ] Approve **Phase H** as next work (H1 room-split first)  
-- [ ] Confirm H2 node/wall drag is in H, not deferred  
-- [ ] Confirm Phase I reuses Cabinets CAD run/filler concepts where safe  
-- [ ] Confirm catalogs stay curated (no marketplace)  
-- [x] Confirm Phase K follows StillJob trust contract; no stills-first pivot  
-- [ ] Confirm deferred list (AI, styleboards, marketplace, Synaps chase) stays cut  
-- [ ] Approve this doc as the successor gap map after Floorplanner A–G  
+Authoring→3D→schedule→client package is automated via `roadmap-exit-journey.spec.ts`. Dedicated stills trust coverage remains in K1 / `phase2:proof`. Until both stay green on `main`: market as **cabinet-aware interior planner**, not Floorplanner / Synaps parity.
 
 ---
 
-## 9. Suggested first sprint after approval
+## 8. Decision checklist (approved; H–L shipped)
 
-1. **H1 spike:** domain face-split on fixtures (two-room golden after split) + undo  
-2. Wire Draw Wall commit path to call split when segment bisects active room  
-3. Regen floors/ceilings (reuse D4 loop surfaces)  
-4. E2E: split room → rename → door on shared wall → 3D compile  
+- [x] Confirm agenda stays **Project → Build → Design → 3D → Render → Export**
+- [x] Approve **Phase H** as next work (H1 room-split first) — **shipped**
+- [x] Confirm H2 node/wall drag is in H, not deferred — **shipped**
+- [x] Confirm Phase I reuses Cabinets CAD run/filler concepts where safe — **shipped**
+- [x] Confirm catalogs stay curated (no marketplace)
+- [x] Confirm Phase K follows StillJob trust contract; no stills-first pivot
+- [x] Confirm deferred list (AI, styleboards, marketplace, Synaps chase) stays cut
+- [x] Approve this doc as the successor gap map after Floorplanner A–G
 
-Then H3 room switcher (cheap UX win) before or with H2 drag.
+---
+
+## 9. Suggested next sprint (re-review)
+
+1. Run full Playwright suite + exit-journey spec; confirm K1 under suite load.
+2. Commit the verification fixes to `main` when green.
+3. Then optional MVP polish (dialogs, hole merges, SKU meshes).

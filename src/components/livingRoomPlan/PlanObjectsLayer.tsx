@@ -4,6 +4,13 @@ import { formatPlanDimension, primaryMaterialId, type LivingRoomPlanIssue, type 
 import { PlanObjectSymbol } from "./PlanObjectSymbol";
 import type { ObjectPreview } from "./usePlanObjectInteraction";
 
+function attachedWallId(object: InteriorObjectEntity) {
+  const value = object.extensions?.wallAttachment;
+  if (!value || typeof value !== "object") return undefined;
+  const wallId = (value as { wallId?: unknown }).wallId;
+  return typeof wallId === "string" ? wallId : undefined;
+}
+
 export function PlanObjectsLayer(props: {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
   preview: ObjectPreview | null; guides: PlanSnapGuide[]; unit: PlanDisplayUnit;
@@ -25,6 +32,8 @@ export function PlanObjectsLayer(props: {
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${object.rotation.y})`}
         className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""}`}
         data-object-id={object.id} data-material-id={finish?.id} data-material-color={finish?.color}
+        data-wall-id={attachedWallId(object)}
+        data-rotation-y={object.rotation.y}
         style={fill ? { ["--lr-object-fill" as string]: fill } : undefined}
         onPointerDown={(event) => props.onStart(event, object, "move")}>
         <rect x={-dimensions.widthMm / 2} y={-dimensions.depthMm / 2} width={dimensions.widthMm} height={dimensions.depthMm} rx={object.category === "rug" ? 45 : 12} />

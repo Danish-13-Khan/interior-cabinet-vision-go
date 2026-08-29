@@ -54,7 +54,7 @@ export function LivingRoomObjectInspector({
           <h4>Cabinet configuration</h4>
           <label className="lr-select-field"><span>Door style</span><select value={String(object.parameters.doorStyle ?? "slab")} onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}><option value="slab">Slab</option><option value="shaker">Shaker</option><option value="glass">Glass</option></select></label>
           <NumberField label="Door count" value={Number(object.parameters.doorCount) || 2} onChange={(doorCount) => onSetParameters(object.id, { doorCount: Math.max(1, Math.round(doorCount)) })} />
-          <p className="lr-inspector-hint">{object.extensions?.wallAttachment ? "Wall snapped — drag near another wall to reattach." : "Drag near a wall to snap this cabinet."}</p>
+          <p className="lr-inspector-hint" data-wall-snapped={object.extensions?.wallAttachment ? "true" : "false"}>{object.extensions?.wallAttachment ? "Wall snapped — drag near another wall to reattach." : "Drag near a wall to snap this cabinet."}</p>
         </>
       ) : null}
       {object.kind === "cabinet" && object.category !== "filler"

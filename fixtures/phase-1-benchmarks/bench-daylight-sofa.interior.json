@@ -1299,7 +1299,8 @@
       "transparentBackground": false,
       "activeCameraId": "lr-camera-bench-daylight-sofa-camera-a",
       "lightingRecipeId": "daylight",
-      "composition": "architectural"
+      "composition": "architectural",
+      "packageCameraBookmarks": []
     },
     "extensions": {
       "presetId": "living-room-starter",

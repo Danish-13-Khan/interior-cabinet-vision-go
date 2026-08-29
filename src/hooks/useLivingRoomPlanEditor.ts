@@ -38,6 +38,8 @@ import {
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
+  applyPlannerStarterTemplate,
+  type PlannerStarterTemplate,
   createImportedAssetObject,
   createLivingRoomObject,
   createLivingRoomReleaseDemoProject,
@@ -126,7 +128,7 @@ export function useLivingRoomPlanEditor({
   function createStarter(options: {
     projectName?: string;
     styleId?: LivingRoomStyleId;
-    template?: "blank-room" | "wardrobe-wall" | "import-plan";
+    template?: PlannerStarterTemplate;
   } = {}) {
     const base = createLivingRoomStarterProject({
       projectId: `living-room-${Date.now()}`,
@@ -136,11 +138,7 @@ export function useLivingRoomPlanEditor({
     const styled = options.styleId && options.styleId !== "warm-contemporary"
       ? applyLivingRoomStyle(base, options.styleId)
       : base;
-    const starter = options.template === "blank-room" || options.template === "import-plan"
-      ? { ...styled, objects: [] }
-      : options.template === "wardrobe-wall"
-        ? { ...styled, objects: styled.objects.filter((object) => object.kind === "cabinet") }
-        : styled;
+    const starter = applyPlannerStarterTemplate(styled, options.template ?? "blank-room");
     const compatible = cabinetProjectFromInteriorProject(starter);
     commitSnapshot(
       {

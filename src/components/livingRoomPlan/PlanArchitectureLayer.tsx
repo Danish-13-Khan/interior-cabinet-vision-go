@@ -1,5 +1,5 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { roomPlanPolygon, roomPlanViewBounds, type InteriorProject, type InteriorRoomEntity, type Point2Mm } from "../../domain/interiorProject";
+import { roomPlanPolygon, roomPlanViewBounds, selectWallsForRoom, type InteriorProject, type InteriorRoomEntity, type Point2Mm } from "../../domain/interiorProject";
 import { getLivingRoomPlanUnderlay, type PlanVisualStyle } from "../../domain/livingRoom";
 
 export function PlanArchitectureLayer(props: {
@@ -20,6 +20,7 @@ export function PlanArchitectureLayer(props: {
     ? [polygon.outer, ...polygon.holes].map(loopPath).join(" ")
     : `M${bounds.minX} ${bounds.minZ} H${bounds.maxX} V${bounds.maxZ} H${bounds.minX} Z`;
   const clipId = "lr-active-room-floor-clip";
+  const roomWallIds = new Set(selectWallsForRoom(props.project, props.room.id).map((wall) => wall.id));
   return <>
     <defs>
       <pattern id="lr-grid-small" width={props.snapSizeMm} height={props.snapSizeMm} patternUnits="userSpaceOnUse"><path d={`M ${props.snapSizeMm} 0 L 0 0 0 ${props.snapSizeMm}`} className="lr-grid-line" /></pattern>
@@ -37,7 +38,7 @@ export function PlanArchitectureLayer(props: {
     {props.project.walls.filter((wall) => wall.visible).map((wall) => {
       const start = (wall.startNodeId && props.previewNodes?.get(wall.startNodeId)) || wall.start;
       const end = (wall.endNodeId && props.previewNodes?.get(wall.endNodeId)) || wall.end;
-      return <line key={wall.id} data-wall-id={wall.id}
+      return <line key={wall.id} data-wall-id={wall.id} data-room-id={roomWallIds.has(wall.id) ? props.room.id : undefined}
         x1={start.x} y1={start.z} x2={end.x} y2={end.z}
         className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
         style={{ stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
