@@ -1,13 +1,17 @@
 export function clientPreviewExportStatusMessage(
   hasHeroPng: boolean,
   acceptedStillsCount: number,
+  scheduleLineCount: number,
 ): string {
+  const scheduleNote = scheduleLineCount > 0
+    ? `millwork schedule (${scheduleLineCount} piece${scheduleLineCount === 1 ? "" : "s"})`
+    : "millwork schedule";
   if (acceptedStillsCount > 0) {
     return hasHeroPng
-      ? "Client preview package exported (PDF, PNG, JSON, accepted stills)."
-      : "Client preview package exported (PDF, JSON, accepted stills).";
+      ? `Client package exported (PDF, PNG, JSON, accepted stills, ${scheduleNote}).`
+      : `Client package exported (PDF, JSON, accepted stills, ${scheduleNote}).`;
   }
   return hasHeroPng
-    ? "Client preview package exported to a folder (PDF, PNG, JSON)."
-    : "Client preview package exported to a folder (PDF + JSON; render a package hero for an image).";
+    ? `Client package exported (PDF, PNG, JSON, ${scheduleNote}).`
+    : `Client package exported (PDF, JSON, ${scheduleNote}; render a package hero for an image).`;
 }

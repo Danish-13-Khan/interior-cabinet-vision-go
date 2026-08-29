@@ -18,3 +18,14 @@ export function selectPackageAcceptedStillAssets(
   );
   return acceptedStills.filter((item) => eligible.has(item.provenance.jobId));
 }
+
+export function acceptedStillExportPayload(assets: AcceptedStillAsset[]) {
+  return {
+    provenance: assets.map((item) => item.provenance),
+    pngs: assets.flatMap((item) => (
+      item.provenance.stillOutputPath
+        ? [{ fileName: item.provenance.stillOutputPath, dataUrl: item.stillDataUrl }]
+        : []
+    )),
+  };
+}

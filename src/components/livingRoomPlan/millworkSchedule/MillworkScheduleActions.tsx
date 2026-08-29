@@ -1,3 +1,5 @@
+import { MillworkProductionExports } from "./MillworkProductionExports";
+
 export function MillworkScheduleActions({
   busy,
   status,
@@ -5,8 +7,9 @@ export function MillworkScheduleActions({
   millworkCount,
   readyToExport,
   onExportScheduleCsv,
+  onExportSchedulePdf,
   onExportCutlistCsv,
-  onExportPdf,
+  onExportProductionPdf,
 }: {
   busy: boolean;
   status: string;
@@ -14,15 +17,17 @@ export function MillworkScheduleActions({
   millworkCount: number;
   readyToExport: boolean;
   onExportScheduleCsv: () => void;
+  onExportSchedulePdf: () => void;
   onExportCutlistCsv: () => void;
-  onExportPdf: () => void;
+  onExportProductionPdf: () => void;
 }) {
-  const blocked = disabled || busy || !readyToExport;
+  const scheduleBlocked = disabled || busy || !readyToExport;
+  const productionTriggerDisabled = disabled || busy;
   return (
     <div className="lr-millwork-export">
       <button
         type="button"
-        disabled={blocked}
+        disabled={scheduleBlocked}
         onClick={onExportScheduleCsv}
         title={disabled
           ? "Resolve blocking layout conflicts before exporting"
@@ -34,28 +39,23 @@ export function MillworkScheduleActions({
       </button>
       <button
         type="button"
-        disabled={blocked}
-        onClick={onExportCutlistCsv}
+        className="is-primary"
+        disabled={scheduleBlocked}
+        onClick={onExportSchedulePdf}
         title={disabled
           ? "Resolve blocking layout conflicts before exporting"
           : readyToExport
-          ? "Production cutlist CSV — construction parts and board details"
-          : "Add cabinets in Plan before exporting the production cutlist"}
-      >
-        Cutlist CSV
-      </button>
-      <button
-        type="button"
-        disabled={blocked}
-        onClick={onExportPdf}
-        title={disabled
-          ? "Resolve blocking layout conflicts before exporting"
-          : readyToExport
-          ? "Production packet PDF — schedule, technical sheets, cutlist, and costing"
+          ? "Workshop PDF — millimetre takeoff from Plan/Model"
           : "Add millwork in Plan before exporting the schedule"}
       >
-        Production PDF
+        Schedule PDF
       </button>
+      <MillworkProductionExports
+        triggerDisabled={productionTriggerDisabled}
+        menuBlocked={scheduleBlocked}
+        onCutlist={onExportCutlistCsv}
+        onProductionPdf={onExportProductionPdf}
+      />
       <small>{millworkCount} millwork</small>
       {status ? <span className="lr-millwork-status">{status}</span> : null}
     </div>

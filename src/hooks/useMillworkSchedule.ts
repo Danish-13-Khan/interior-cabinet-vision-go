@@ -6,6 +6,7 @@ import {
 } from "../domain/interiorProject";
 import {
   buildLivingRoomMillworkSchedule,
+  exportMillworkSchedulePdf,
   millworkScheduleFileBase,
   millworkScheduleToCsv,
   summarizeMillworkWorkflow,
@@ -17,11 +18,15 @@ import { csvFromProductionCutlist } from "../domain/productionCutlist";
 import { exportProjectPdf } from "../domain/pdfExport";
 import { promptSavePath, writeBinaryBlob, writeTextFile } from "../platform/desktopFiles";
 
-export type MillworkScheduleExportFormat = "schedule-csv" | "cutlist-csv" | "pdf";
+export type MillworkScheduleExportFormat =
+  | "schedule-csv"
+  | "schedule-pdf"
+  | "cutlist-csv"
+  | "production-pdf";
 
 /**
- * Live schedule + workflow summary + CSV/PDF export.
- * Preview is pure domain derivation; export rebuilds at save time.
+ * Live schedule + workflow summary + workshop export.
+ * Schedule CSV/PDF is the default workshop output; production exports are secondary.
  */
 export function useMillworkSchedule(project: InteriorProject | null) {
   const [status, setStatus] = useState("");
@@ -66,6 +71,21 @@ export function useMillworkSchedule(project: InteriorProject | null) {
         setStatus(`Millwork schedule CSV exported (${snapshot.lines.length} pieces).`);
         return;
       }
+      if (format === "schedule-pdf") {
+        const path = await promptSavePath({
+          title: "Export Millwork Schedule PDF",
+          defaultPath: `${base}.pdf`,
+          extensions: ["pdf"],
+        });
+        if (!path) {
+          setStatus("Millwork schedule export cancelled.");
+          return;
+        }
+        await writeBinaryBlob(path, exportMillworkSchedulePdf(snapshot));
+        setExportedAt(snapshot.exportedAt);
+        setStatus(`Millwork schedule PDF exported (${snapshot.lines.length} pieces).`);
+        return;
+      }
       const compatible = cabinetProjectFromInteriorProject(project);
       const report = createProjectReport(compatible.project, compatible.room);
       if (format === "cutlist-csv") {
@@ -79,7 +99,6 @@ export function useMillworkSchedule(project: InteriorProject | null) {
           return;
         }
         await writeTextFile(path, csvFromProductionCutlist(report.productionCutlist));
-        setExportedAt(snapshot.exportedAt);
         setStatus(`Production cutlist exported (${report.productionCutlist.length} parts).`);
         return;
       }
@@ -104,7 +123,6 @@ export function useMillworkSchedule(project: InteriorProject | null) {
           createInteriorTechnicalPlanSvg(project),
         ),
       );
-      setExportedAt(snapshot.exportedAt);
       setStatus(`Production packet exported (${report.productionCutlist.length} cut parts).`);
     } catch (error) {
       setStatus(

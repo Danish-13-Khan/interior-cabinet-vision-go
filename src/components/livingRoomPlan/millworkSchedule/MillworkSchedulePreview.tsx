@@ -36,8 +36,8 @@ export function MillworkSchedulePreview({
         ))}
       </ol>
       {productionReport ? (
-        <div className="lr-production-summary" aria-label="Production output summary">
-          <strong>Production Packet</strong>
+        <div className="lr-production-summary" aria-label="Advanced production output summary">
+          <strong>Advanced · Production packet</strong>
           <span>
             {productionReport.cabinetSchedule.length} cabinet marks · {productionReport.productionCutlist.length} cut parts
           </span>
