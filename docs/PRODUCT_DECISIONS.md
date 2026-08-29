@@ -82,4 +82,4 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 
 **Revisit when:** a single salesperson workflow regularly hops Interiors ↔ Cabinets in one session *and* user testing shows chrome mismatch as a top friction. Until then, treat dual chrome as acceptable product framing, not debt.
 
-Related: [UI_DISCREPANCY_ROADMAP.md](./UI_DISCREPANCY_ROADMAP.md) Phase 2 (C9).
+Related: [UI_DISCREPANCY_ROADMAP.md](../archive/UI_DISCREPANCY_ROADMAP.md) Phase 2 (C9).

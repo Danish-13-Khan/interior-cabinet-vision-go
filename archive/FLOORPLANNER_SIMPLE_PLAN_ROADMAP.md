@@ -396,4 +396,4 @@ Screenshots captured locally (Aug 26, 2026):
 
 Related canvases (workspace `canvases/`): `floorplanner-simple-plan-roadmap.canvas.tsx`, `planner-ui-tool-comparison.canvas.tsx`.
 
-**Successor (post A–G):** felt interiors-tool gap map — [INTERIOR_DESIGN_TOOL_ROADMAP.md](./INTERIOR_DESIGN_TOOL_ROADMAP.md) (Phase H+).
+**Successor (post A–G):** felt interiors-tool gap map — [INTERIOR_DESIGN_TOOL_ROADMAP.md](../docs/INTERIOR_DESIGN_TOOL_ROADMAP.md) (Phase H+).
