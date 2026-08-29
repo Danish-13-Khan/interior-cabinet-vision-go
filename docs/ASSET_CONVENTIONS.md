@@ -1,5 +1,10 @@
 # Living-room curated asset conventions
 
+> **Canonical import requirements:** Product Book
+> [Section 36A — 3D Asset Import and Personal Catalog](./CABINET_STUDIO_PRODUCT_BOOK.md#36a-3d-asset-import-and-personal-catalog).
+> Cloud storage, processing, and organization ownership are defined in the
+> [Backend, SaaS and Commercial Platform Book](./BACKEND_SAAS_COMMERCIAL_PLATFORM_BOOK.md#9-cloud-3d-asset-and-texture-service).
+
 This pack powers soft-goods presentation in Render Studio / Model View.
 Cabinets and millwork stay procedural for shop accuracy.
 

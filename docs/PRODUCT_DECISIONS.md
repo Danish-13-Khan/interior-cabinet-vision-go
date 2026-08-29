@@ -1,43 +1,60 @@
-# Product decisions (post cross-check)
+# Product decisions — cabinet proposal-to-production
 
-Decisions locked after independent review of the MVP strategy brief. Keep this short and enforceable.
+Concise decisions supporting the canonical Product Book. Keep this file short and enforceable.
+
+> **Canonical current direction:** [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md).
+> This file remains a concise historical decision record. Where product scope,
+> priority, status language, or release gates differ, the Product Book governs.
+> Backend, account, subscription, licensing, sync, and hosted asset decisions are
+> governed by the [Backend, SaaS and Commercial Platform Book](./BACKEND_SAAS_COMMERCIAL_PLATFORM_BOOK.md).
 
 ## Direction we keep
 
-- **Plan → Model → Render** is the product shape. Do not rebuild as stills-first.
+- **Job → Room → Design → Review → Proposal → Engineering → Production** is the product workflow.
+- The first pilot is one **straight kitchen-style cabinet run authored inside the Interiors room workflow**.
+- Plan, 3D, quote, engineering, and production must preserve the same cabinet identity and configuration.
+- Keep rendering as a client-confidence surface; do not rebuild the product as stills-first.
 - Do **not** chase Synaps quality by endless `gl.render` polish.
-- Do **not** ship premium stills UI before output quality exists.
-- Phase 1 raises WebGL floor with a **hard scorecard**; Phase 2 is a **separate still pipeline** with a trust contract.
+- Do **not** prioritize AI decoration, general furniture breadth, 360 tours, or unverified CNC.
+- The cabinet-sales wedge remains provisional until the Golden Cabinet Run passes timed user and engineering validation.
 
 ## First ICP (narrow wedge)
 
-**Primary user:** custom cabinet shop salesperson / designer.  
-**Primary job:** produce a revisable, client-facing living-room concept from a manufacturable layout (room + millwork + soft goods).  
-**Primary output now:** honest WebGL Client Preview + package (PDF/PNG).  
+**Primary user:** custom cabinet shop salesperson / designer.
+
+**Primary job:** turn a measured room and cabinet brief into an approved, priced, and technically reusable cabinet proposal.
+
+**First pilot:** straight kitchen-style run with base, drawer, wall, and tall cabinets, fillers, and countertop.
+
+**Primary output:** branded priced proposal plus same-project transition into the Cabinets engineering workbench.
+
 **Not first:** consumer DIY marketplace, full-home staging SaaS, Synaps marketing stills.
 
 ## Cabinet-aware credibility
 
 “Bridge workshop truth ↔ living-room preview” is only defensible if workshop-side value stays visible.
 
-### Named near-term workshop deliverable (product truth, not slogan)
+### Current named development program
 
-**`Living-room Millwork Schedule v1`**
+**`Golden Cabinet Run v1`**
 
-- **What:** PDF or CSV export listing millwork/cabinet objects from the active living-room in `InteriorProject`
-- **Fields (minimum):** object id, name/category, width×height×depth **mm**, material id(s), room id, quantity
-- **Rule:** dimensions must match the same entities shown in Plan/Model (no separate “pretty” sizes)
-- **When:** land as a parallel ticket **within one release of Phase 1 exit** (does not block the WebGL scorecard, but blocks calling the product “cabinet-aware” in marketing until it ships)
-- **Not this deliverable:** full BOM pricing, CNC toolpaths, or MES
+- **What:** one market-hardened straight cabinet run from measured room through proposal and engineering handoff.
+- **Cabinets:** base, drawer, wall, and tall families plus fillers and countertop.
+- **Truth rule:** the same normalized cabinet configuration drives plan, 3D, quote, cutlist, and production report.
+- **Handoff rule:** “Send to Engineering” runs diagnostics and switches workbench mode on the same project; it does not export/import or recreate cabinets.
+- **Validation rule:** no 8.0 claim until five sales users complete the timed run and two engineers accept the handoff.
+- **Not this program:** whole-kitchen breadth, wardrobe internals, AI decoration, furniture marketplace, 360 tours, or verified CNC.
 
 | Horizon | Must show progress |
 |---|---|
-| Now (Phase 1) | Procedural millwork stays dimensional truth in the living-room scene |
-| Near-term (named) | **Millwork Schedule v1** above |
-| Later | Pricing hooks / fab-ready exports built on that schedule |
-| Do not claim | Full manufacturing MES before the client preview loop is trusted |
+| P0-A | Explicit cabinet type/family, complete configuration, lossless adapter diagnostics |
+| P0-B | Cabinet-specific shared geometry; no Golden Run bookcase stand-ins |
+| P0-C | Live total, quote freeze, stale detection, branded proposal |
+| P0-D | Same-project transition from Interiors to Cabinets engineering |
+| P0-E | Save/reopen golden journey plus quote, proposal, and cutlist assertions |
+| Gate F | Timed salesperson pilot and engineer handoff review |
 
-If Millwork Schedule v1 slips more than one release after Phase 1, rewrite positioning to “living-room viz with millwork placeholders” until the bridge is real.
+`Living-room Millwork Schedule v1` is a shipped supporting capability, not the current named ticket and not sufficient proof of the wedge by itself.
 
 ## Data architecture rules (beyond “no Three / no paths”)
 
@@ -55,31 +72,39 @@ Already partially implemented via `schemaVersion`, migrations, and validators �
 See [STILLJOB_TRUST_CONTRACT.md](./STILLJOB_TRUST_CONTRACT.md).  
 Still pipeline may enhance presentation **only** within that contract. Authoring scene remains editable truth.
 
-## Next 2–4 weeks (execution)
+## Current execution sequence
 
-| Week | Focus |
+| Order | Focus |
 |---|---|
-| 1 | Lock ICP (this doc), freeze 3 benchmark rooms × 2 cameras, write Phase 1 scorecard tests/fixtures, confirm schema/migration rules; open ticket for **Millwork Schedule v1** |
-| 2 | Highest-ROI visuals only: window key light, contact shadows, eye-level framing defaults, calibrated top materials |
-| 3 | Export QA on benchmarks under **locked latency environment**; prove Draft ≠ Client Preview without photoreal claims |
-| 4 | StillJob **design spike only** (no AI magic): prove camera/material/scene handoff within **numeric tolerances** in the trust contract |
+| 1 | P0-A — cabinet identity, family, normalized config, adapter diagnostics |
+| 2 | P0-B — shared cabinet geometry and semantic material roles |
+| 3 | P0-C — live quotation and branded proposal |
+| 4 | P0-D — diagnosed same-project workbench transition to engineering |
+| 5 | P0-E — golden end-to-end verification, save/reopen, full-suite reliability |
+| 6 | Gate F — real salesperson timing and engineer acceptance |
+
+## Historical presentation-phase record
 
 **Phase 1 exit (2026-08-14):** Accepted on `main`. Presentation-floor work + proof automation + PNG baselines shipped. Locked Tauri latency budgets remain follow-up debt (browser substitute over budget — not an official latency pass). Stop Phase 1 polish loops; do not reopen endless WebGL tuning.
 
-**Current named ticket:** [Living-room Millwork Schedule v1 + Model inspector](./MILLWORK_SCHEDULE_V1.md) — workshop CSV/PDF from live Plan/Model millimetres, plus W×H×D and material slots in 3D Model. This is the cabinet-aware credibility deliverable; it is not another render-quality loop.
+**Historical named ticket:** [Living-room Millwork Schedule v1 + Model inspector](./MILLWORK_SCHEDULE_V1.md) — shipped supporting work retained for context.
+
+**Current named program:** [Golden Cabinet Run v1](./CABINET_STUDIO_PRODUCT_BOOK.md#9-golden-cabinet-run-v1).
 
 ## Interiors V2 vs Cabinets CAD shell (UI chrome)
 
-**Decision:** Keep an **intentional product split**. Do not unify header density, save controls, or view chrome between the Interiors V2 planner and the classic Cabinets/Job CAD shell in this release.
+**Decision:** Keep an **intentional visual product split**, but connect the workflows. Do not unify header density, save controls, or view chrome in P0. Add an explicit diagnosed mode transition from Interiors Review to the existing Cabinets engineering workbench using the same project state.
 
 | Surface | Role | Chrome policy |
 |---|---|---|
 | **Interiors V2** (`lr-product-shell-v2`) | Living-room concept workflow: Project → Build → Design → Review | Dark green product shell, step rail, compact Save / 2D·3D |
 | **Cabinets / Job / Drawings** | Engineering CAD: wall runs, elevation, assembly, reports | Light dense ribbon, tool rail, engineering inspector |
 
-**Share:** `InteriorProject` / room–cabinet data truth, millimetres, undo, open/save file formats, and workbench mode switching.  
+**Share:** `InteriorProject` / room–cabinet data truth, stable cabinet identities, normalized cabinet configuration, millimetres, undo, open/save file formats, and workbench mode switching.
 **Do not share yet:** visual tokens, header layout, or inspector typography — forcing one chrome would dilute both jobs.
 
-**Revisit when:** a single salesperson workflow regularly hops Interiors ↔ Cabinets in one session *and* user testing shows chrome mismatch as a top friction. Until then, treat dual chrome as acceptable product framing, not debt.
+**P0 transition:** run handoff diagnostics, show the summary, block lossy Golden Run mappings, then switch workbench mode to Cabinets without creating a second project or requiring export/import.
+
+**Revisit visual unification when:** pilot testing shows the chrome change is a top workflow failure. Until then, dual chrome is acceptable; disconnected data is not.
 
 Related: [UI_DISCREPANCY_ROADMAP.md](../archive/UI_DISCREPANCY_ROADMAP.md) Phase 2 (C9).

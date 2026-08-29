@@ -1,5 +1,9 @@
 # Interior Design Tool — Full Gap Roadmap (2D → 3D → Render → Export)
 
+> **Successor source of truth:** [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md).
+> This roadmap records the completed broad-interiors phase. New development is
+> governed by the Product Book's cabinet proposal-to-production program.
+
 **Status:** Phases H–L feature work is implemented in the product. Treat release as **feature-complete with verification debt**, not “everything merged and green on `main`,” until the working tree is committed and the full browser suite is reliably green.
 **Audience:** After `FLOORPLANNER_SIMPLE_PLAN_ROADMAP` A–G (chrome + topology + tools).
 **Product rule:** Stay millwork-first. Look and feel like a **professional interior design tool**, not a Floorplanner clone or a stills marketplace.
