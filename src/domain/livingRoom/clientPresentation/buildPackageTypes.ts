@@ -62,6 +62,14 @@ export type ClientPackageView = {
   acceptedStillJobId: string | null;
 };
 
+export type ClientWorkshopScheduleManifest = {
+  version: 1;
+  lineCount: number;
+  exportedAt: string;
+  pdfFile: string;
+  csvFile: string;
+};
+
 export type ClientPresentationManifest = {
   kind: "living-room-client-preview";
   version: 1;
@@ -84,6 +92,7 @@ export type ClientPresentationManifest = {
   acceptedStills: StillProvenance[];
   packageViews: ClientPackageView[];
   presentationHonesty?: ClientPresentationHonesty;
+  workshopSchedule?: ClientWorkshopScheduleManifest;
 };
 
 export type ClientPresentationPackage = {
@@ -105,6 +114,8 @@ export type ClientPresentationPackage = {
     manifest: string;
     stillsProvenance: string;
     packageViews: string;
+    millworkSchedulePdf: string;
+    millworkScheduleCsv: string;
   };
 };
 

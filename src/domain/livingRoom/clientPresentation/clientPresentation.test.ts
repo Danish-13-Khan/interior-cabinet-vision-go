@@ -70,15 +70,28 @@ describe("client presentation package", () => {
     expect(names).toContain(packageData.fileNames.materials);
     expect(names).toContain(packageData.fileNames.cameras);
     expect(names).toContain(packageData.fileNames.manifest);
+    expect(names).toContain(packageData.fileNames.millworkSchedulePdf);
+    expect(names).toContain(packageData.fileNames.millworkScheduleCsv);
+    expect(packageData.manifest.workshopSchedule?.lineCount).toBeGreaterThan(0);
 
-    const pdf = files.find((file) => file.kind === "pdf")!;
+    const pdf = files.find((file) => file.kind === "pdf" && file.fileName.endsWith("-client-preview.pdf"))!;
     expect(pdf.contents).toBeInstanceOf(Blob);
     expect((pdf.contents as Blob).type).toContain("pdf");
 
     const projectFile = files.find((file) => file.fileName.endsWith("-project.json"))!;
     expect(String(projectFile.contents)).toContain('"format"');
     expect(String(projectFile.contents)).toContain(project.id);
-    expect(JSON.stringify(packageData)).not.toMatch(/cutlist|workshop|machine/i);
+    expect(JSON.stringify(packageData)).not.toMatch(/cutlist|machine/i);
+    expect(packageData.manifest.workshopSchedule?.pdfFile).toBe(packageData.fileNames.millworkSchedulePdf);
+
+    const manifestFile = files.find((file) => file.fileName.endsWith("-manifest.json"))!;
+    const manifestJson = JSON.parse(String(manifestFile.contents)) as {
+      files: string[];
+      workshopSchedule?: { lineCount: number; pdfFile: string };
+    };
+    expect(manifestJson.files).toContain(packageData.fileNames.millworkSchedulePdf);
+    expect(manifestJson.files).toContain(packageData.fileNames.millworkScheduleCsv);
+    expect(manifestJson.workshopSchedule?.lineCount).toBeGreaterThan(0);
   });
 
   it("excludes Draft hero renders from client package files and honesty", async () => {

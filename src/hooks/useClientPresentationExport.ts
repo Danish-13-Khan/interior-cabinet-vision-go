@@ -38,7 +38,7 @@ export function useClientPresentationExport() {
         acceptedStillPngs,
       );
       const pdfPath = await promptSavePath({
-        title: "Export Client Preview Package",
+        title: "Export Client Package",
         defaultPath: packageData.fileNames.presentationPdf,
         extensions: ["pdf"],
       });
@@ -61,6 +61,7 @@ export function useClientPresentationExport() {
       setStatus(clientPreviewExportStatusMessage(
         Boolean(packageData.heroRenderDataUrl),
         acceptedStills.length,
+        packageData.manifest.workshopSchedule?.lineCount ?? 0,
       ));
     } catch (error) {
       setStatus(

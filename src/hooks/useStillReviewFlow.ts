@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { InteriorProject, RenderComposition } from "../domain/interiorProject";
 import {
@@ -27,6 +28,8 @@ export function useStillReviewFlow(args: {
   transparentBackground: boolean;
   beforeCapture?: () => Promise<void>;
   afterCapture?: () => void;
+  acceptedStillAssets?: AcceptedStillAsset[];
+  onAcceptedStillAssetsChange?: Dispatch<SetStateAction<AcceptedStillAsset[]>>;
 }) {
   const {
     project,
@@ -39,6 +42,9 @@ export function useStillReviewFlow(args: {
     beforeCapture,
     afterCapture,
   } = args;
+  const [localAcceptedStills, setLocalAcceptedStills] = useState<AcceptedStillAsset[]>([]);
+  const acceptedStillAssets = args.acceptedStillAssets ?? localAcceptedStills;
+  const setAcceptedStillAssets = args.onAcceptedStillAssetsChange ?? setLocalAcceptedStills;
   const busyRef = useRef(false);
   const captureRef = useRef(capture);
   captureRef.current = capture;
@@ -49,7 +55,6 @@ export function useStillReviewFlow(args: {
   const [diffDataUrl, setDiffDataUrl] = useState<string | null>(null);
   const [depthDataUrl, setDepthDataUrl] = useState<string | null>(null);
   const [validation, setValidation] = useState<StillJobValidation | null>(null);
-  const [acceptedStills, setAcceptedStills] = useState<AcceptedStillAsset[]>([]);
   const [compareMode, setCompareMode] = useState<StillReviewCompareMode>("split");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +110,7 @@ export function useStillReviewFlow(args: {
       const provenance = next.provenance;
       const png = stillDataUrlRef.current;
       if (provenance && png) {
-        setAcceptedStills((items) => [
+        setAcceptedStillAssets((items) => [
           ...items.filter((item) => item.provenance.cameraId !== provenance.cameraId),
           { provenance, stillDataUrl: png },
         ]);
@@ -120,7 +125,7 @@ export function useStillReviewFlow(args: {
       const next = rejectStillReview(current);
       if (next.job) {
         const camera = next.job.cameraId;
-        setAcceptedStills((items) => items.filter((item) => item.provenance.cameraId !== camera));
+        setAcceptedStillAssets((items) => items.filter((item) => item.provenance.cameraId !== camera));
       }
       return next;
     });
@@ -132,8 +137,8 @@ export function useStillReviewFlow(args: {
   }, [generateStill]);
 
   const packageAcceptedStills = useMemo(
-    () => selectPackageAcceptedStillAssets(project, acceptedStills),
-    [acceptedStills, project],
+    () => selectPackageAcceptedStillAssets(project, acceptedStillAssets),
+    [acceptedStillAssets, project],
   );
 
   const packageReady = packageAcceptedStills.length > 0;

@@ -447,6 +447,10 @@ export {
   createLivingRoomRenderThumbnail,
   clientPresentationPackageDirectory,
   clientPreviewExportStatusMessage,
+  isClientPackageExportBlocked,
+  buildPreExportChecklist,
+  countResolvedPackageDeckViews,
+  isPreExportBlocked,
   exportClientPresentationPdf,
   packageFilePath,
   preferLivingRoomBrowserThumbnail,
@@ -455,6 +459,8 @@ export {
   type ClientPresentationFile,
   type ClientPresentationPackage,
   type ClientPackageView,
+  type PreExportCheckItem,
+  type PreExportChecklist,
 } from "./clientPresentation";
 export {
   compileLivingRoomScene,

@@ -1,0 +1,94 @@
+.pre-export-checklist {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pre-export-check {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 2px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid #dce5de;
+  border-radius: 6px;
+  background: #f7faf7;
+  color: #31513b;
+  text-align: left;
+  font: inherit;
+}
+
+.pre-export-check > span {
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: #276b46;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pre-export-check > strong {
+  color: #304236;
+  font-size: 0.67rem;
+}
+
+.pre-export-check > small {
+  color: #748076;
+  font-size: 0.6rem;
+  line-height: 1.35;
+}
+
+.pre-export-check.is-fail {
+  border-color: #f0c7a7;
+  background: #fff7ed;
+}
+
+.pre-export-check.is-fail > span,
+.pre-export-check.is-fail > strong {
+  color: #9a3412;
+}
+
+.pre-export-check.is-warn {
+  border-color: #e7d7a4;
+  background: #fffbeb;
+}
+
+.pre-export-check.is-warn > span {
+  color: #92400e;
+}
+
+button.pre-export-check {
+  cursor: pointer;
+}
+
+button.pre-export-check:hover {
+  background: #fff;
+}
+
+.pre-export-issue-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pre-export-issue-list button {
+  padding: 7px 8px;
+  border-color: #f0c7a7;
+  color: #9a3412;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.pre-export-issue-list button:hover {
+  background: #fff;
+}
+
+.planner-v2-review .pre-export-checklist + .pre-export-issue-list,
+.planner-v2-review [data-testid="pre-export-checklist"] > .pre-export-checklist {
+  margin-top: 2px;
+}

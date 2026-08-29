@@ -187,8 +187,14 @@ Export    ██████░░░░
 | ID | Missing feature | Why it matters |
 | --- | --- | --- |
 | L1 | Harden Millwork Schedule v1 as default workshop output | Cabinet-aware claim |
+
+**L1 status:** Implemented — Schedule CSV/PDF is the primary workshop output on the plan titlebar and Review panel; `exportMillworkSchedulePdf` is wired; cutlist and production packet moved under a **Production** disclosure.
 | L2 | One-click client package (PDF + stills + schedule) | End of the agenda |
+
+**L2 status:** Implemented — `assembleClientPresentationFiles` bundles millwork schedule PDF/CSV; Review panel **Export client package** writes one folder via a single save dialog; accepted stills lift to workspace state so Review and Render Studio share the same package.
 | L3 | Pre-export validation checklist in Review | No silent broken layouts |
+
+**L3 status:** Implemented — Review shows an explicit Pass/Fail/Review checklist (layout clear, millwork placed, package deck, accepted stills, advisories). Blocking fails gate both Review and Render Studio package exports; issue rows remain selectable.
 
 ### Explicitly out of scope (keep deferred)
 
@@ -276,9 +282,9 @@ Effort is relative (S / M / L / XL). Ship behind V2. Keep Menu → 2D → 3D →
 
 ### Phase L — Export / presentation finish · M · parallel with I/K
 
-- Millwork Schedule v1 hardened as default  
-- One-click client package  
-- Pre-export validation checklist
+- Millwork Schedule v1 hardened as default — **done (L1)**
+- One-click client package — **done (L2)**
+- Pre-export validation checklist — **done (L3)**
 
 **Exit:** Salesperson exports schedule + package from a real multi-room project in one session.
 
