@@ -37,6 +37,7 @@ One row per instance. Quantity is always 1. No SKU collapsing.
 - **Schedule CSV** / **Schedule PDF** in the living-room title bar (primary workshop output).
 - **Production** disclosure in the title bar for cutlist CSV and production packet PDF (secondary / advanced).
 - **Client package** in Review + Render Studio bundles presentation PDF, JSON, stills, and millwork schedule CSV/PDF in one export folder (L2).
+- **Pre-export checklist** (L3) in Review lists layout / millwork / deck / stills readiness and blocks package + schedule export until blocking items pass.
 - Domain: `src/domain/livingRoom/millworkSchedule/` (`buildLivingRoomMillworkSchedule`, CSV, PDF).
 - Honesty line on the PDF: sizes match Plan/Model; not a cutlist, price, or CNC program.
 - Separate from the client preview package.

@@ -20,6 +20,13 @@ export { buildClientPackageViews } from "./buildPackageViews";
 export { attachPackageViewsToManifest } from "./attachPackageViews";
 export { clientPreviewExportStatusMessage } from "./exportStatusMessage";
 export { isClientPackageExportBlocked } from "./clientPackageExportGate";
+export {
+  buildPreExportChecklist,
+  countResolvedPackageDeckViews,
+  isPreExportBlocked,
+  type PreExportCheckItem,
+  type PreExportChecklist,
+} from "./preExportChecklist";
 export { withAcceptedStillProvenance, filterPackageEligibleStills, isPackageEligibleStill } from "./acceptedStills";
 export { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 export { exportClientPresentationPdf } from "./exportPdf";
