@@ -1,25 +1,39 @@
 import type { MillworkSchedule } from "../../domain/livingRoom/millworkSchedule";
 import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
-import { isBlockingLivingRoomPlanIssue } from "../../domain/livingRoom";
+import {
+  isBlockingLivingRoomPlanIssue,
+  isClientPackageExportBlocked,
+} from "../../domain/livingRoom";
 
 export function PlannerV2ReviewPanel({
   schedule,
   issues,
-  busy,
-  status,
+  millworkBusy,
+  millworkStatus,
+  clientPackageBusy,
+  clientPackageStatus,
+  readyToExport,
+  acceptedStillCount,
   onSelect,
   onCsv,
   onPdf,
+  onClientPackage,
 }: {
   schedule: MillworkSchedule | null;
   issues: LivingRoomPlanIssue[];
-  busy: boolean;
-  status: string;
+  millworkBusy: boolean;
+  millworkStatus: string;
+  clientPackageBusy: boolean;
+  clientPackageStatus: string;
+  readyToExport: boolean;
+  acceptedStillCount: number;
   onCsv: () => void;
   onPdf: () => void;
+  onClientPackage: () => void;
   onSelect: (objectId: string | null) => void;
 }) {
   const blockingIssueCount = issues.filter(isBlockingLivingRoomPlanIssue).length;
+  const exportBlocked = isClientPackageExportBlocked(issues, readyToExport);
   return <aside className="planner-v2-review" aria-label="Review and export">
     <header><span>Review + export</span><small>{issues.length ? `${blockingIssueCount} blocking · ${issues.length - blockingIssueCount} advisory` : "Layout checks clear"}</small></header>
     <section className={issues.length ? "has-warning" : "is-clear"}>
@@ -32,11 +46,17 @@ export function PlannerV2ReviewPanel({
       {schedule?.lines.slice(0, 4).map((line) => <div key={line.objectId}><span>{line.name}</span><small>{line.widthMm} × {line.heightMm} × {line.depthMm}{line.sku ? ` · ${line.sku}` : ""}</small></div>)}
       {!schedule?.lines.length ? <p>No cabinet items placed yet.</p> : null}
     </section>
-    <section><strong>Workshop output</strong><small>{blockingIssueCount ? "Resolve blocking layout conflicts before export." : "Millwork Schedule v1 — same millimetres as Plan/Model."}</small>
-      <button type="button" onClick={onCsv} disabled={busy || blockingIssueCount > 0}>Schedule CSV</button>
-      <button type="button" className="is-primary" onClick={onPdf} disabled={busy || blockingIssueCount > 0}>Schedule PDF</button>
+    <section><strong>Client package</strong>
+      <small>{exportBlocked ? "Resolve layout conflicts and place millwork before export." : `Presentation PDF, JSON, ${acceptedStillCount} accepted still${acceptedStillCount === 1 ? "" : "s"}, and millwork schedule.`}</small>
+      <button type="button" className="is-primary" onClick={onClientPackage} disabled={exportBlocked || clientPackageBusy || millworkBusy}>
+        Export client package
+      </button>
     </section>
-    <section><strong>Client preview</strong><small>Choose a camera and capture a Draft or Client Preview image in the Render Studio beside this review panel.</small></section>
-    {status ? <p className="planner-v2-review-status">{status}</p> : null}
+    <section><strong>Workshop output</strong><small>{blockingIssueCount ? "Resolve blocking layout conflicts before export." : "Individual millwork schedule files."}</small>
+      <button type="button" onClick={onCsv} disabled={millworkBusy || exportBlocked}>Schedule CSV</button>
+      <button type="button" onClick={onPdf} disabled={millworkBusy || exportBlocked}>Schedule PDF</button>
+    </section>
+    {clientPackageStatus ? <p className="planner-v2-review-status">{clientPackageStatus}</p> : null}
+    {millworkStatus ? <p className="planner-v2-review-status">{millworkStatus}</p> : null}
   </aside>;
 }

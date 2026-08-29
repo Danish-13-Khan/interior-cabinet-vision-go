@@ -1,3 +1,5 @@
+import { enqueueBrowserDownload } from "./browserDownloadQueue";
+
 /** Detect Tauri desktop runtime vs plain browser (GitHub Pages). */
 export function isTauriRuntime(): boolean {
   if (typeof window === "undefined") return false;
@@ -5,18 +7,6 @@ export function isTauriRuntime(): boolean {
     (window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__ ||
       (window as Window & { __TAURI__?: unknown }).__TAURI__,
   );
-}
-
-function triggerBrowserDownload(blob: Blob, fileName: string) {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.rel = "noopener";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
 }
 
 function pickBrowserFile(accept: string): Promise<File | null> {
@@ -79,7 +69,7 @@ export async function promptOpenPath(args: {
 export async function writeTextFile(path: string, contents: string) {
   if (!isTauriRuntime()) {
     const name = path.split(/[/\\]/).pop() || "download.txt";
-    triggerBrowserDownload(
+    await enqueueBrowserDownload(
       new Blob([contents], { type: "application/octet-stream" }),
       name,
     );
@@ -92,7 +82,7 @@ export async function writeTextFile(path: string, contents: string) {
 export async function writeBinaryBlob(path: string, blob: Blob) {
   if (!isTauriRuntime()) {
     const name = path.split(/[/\\]/).pop() || "download.bin";
-    triggerBrowserDownload(blob, name);
+    await enqueueBrowserDownload(blob, name);
     return;
   }
   const { invoke } = await import("@tauri-apps/api/core");

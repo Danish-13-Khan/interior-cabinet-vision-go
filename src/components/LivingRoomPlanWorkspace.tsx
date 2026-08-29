@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderResult } from "../domain/livingRoom";
+import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
+import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
@@ -26,7 +28,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
+  const [acceptedStillAssets, setAcceptedStillAssets] = useState<AcceptedStillAsset[]>([]);
   const millwork = useMillworkSchedule(props.project);
+  const clientExport = useClientPresentationExport();
   const readability = usePlanReadabilitySettings();
   const activeOpening = props.project?.openings.find((opening) => opening.id === activeOpeningId) ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
@@ -58,6 +62,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   });
 
   useEffect(() => { setRenderResults({ latest: null, previous: null }); }, [props.project?.id]);
+  useEffect(() => { setAcceptedStillAssets([]); }, [props.project?.id]);
   useEffect(() => {
     if (props.project && !props.projectHomeOpen && plannerMode === "project") setPlannerMode("build");
   }, [plannerMode, props.project, props.projectHomeOpen]);
@@ -121,7 +126,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         renderResults={renderResults}
         onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
         build={build} activeBuildTool={activeBuildTool} onBuildTool={build.selectBuildTool}
-        underlayPickerRef={underlayPickerRef} millwork={millwork} issues={props.issues}
+        underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
+        acceptedStillAssets={acceptedStillAssets} onAcceptedStillAssetsChange={setAcceptedStillAssets}
+        issues={props.issues}
         readability={readability.settings} onReadability={readability.update}
       />
     </section>
