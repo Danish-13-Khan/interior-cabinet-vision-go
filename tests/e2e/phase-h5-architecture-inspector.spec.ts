@@ -11,16 +11,25 @@ test("H5 exposes active room and wall construction in the inspector", async ({ p
   await openPlan(page);
   await page.locator('[data-build-tool="select"]').click();
   const inspector = page.locator(".lr-inspector");
-  const roomHeading = inspector.getByText("Room", { exact: true });
-  await expect(roomHeading).toBeVisible();
+  await expect(inspector.getByText("Room", { exact: true })).toBeVisible();
   await inspector.locator(".lr-wall-inspector").evaluate((element) => element.scrollIntoView({ block: "center" }));
   await expect(inspector.getByLabel("Thickness")).toBeVisible();
   await expect(inspector.getByLabel("Height")).toHaveCount(2);
-  const material = inspector.getByLabel("Wall material");
-  await expect(material).toBeVisible();
-  const originalMaterial = await material.inputValue();
-  await material.selectOption("");
-  await expect(material).toHaveValue("");
+
+  const wallSection = inspector.locator(".lr-wall-inspector");
+  const swatches = wallSection.locator('[aria-label="Material browser"] [data-material-id]');
+  await expect(swatches.first()).toBeVisible();
+  const active = wallSection.locator('[aria-label="Material browser"] [data-material-id].is-active');
+  const originalId = await active.getAttribute("data-material-id");
+  expect(originalId).toBeTruthy();
+
+  await wallSection.getByRole("button", { name: "Clear wall material", exact: true }).click();
+  await expect(wallSection.locator('[aria-label="Material browser"] [data-material-id].is-active')).toHaveCount(0);
+
   await page.getByRole("button", { name: "Undo", exact: true }).click();
-  await expect(material).toHaveValue(originalMaterial);
+  await expect(wallSection.locator(`[data-material-id="${originalId}"].is-active`)).toBeVisible();
+
+  const oak = wallSection.locator('[data-material-id="lr-material-natural-oak"]');
+  await oak.click();
+  await expect(oak).toHaveClass(/is-active/);
 });

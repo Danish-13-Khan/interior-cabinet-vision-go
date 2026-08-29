@@ -322,6 +322,11 @@ export {
   type LivingRoomStarterOptions,
 } from "./preset";
 export {
+  applyPlannerStarterTemplate,
+  L_ROOM_STARTER_POINTS,
+  type PlannerStarterTemplate,
+} from "./plannerStarters";
+export {
   boundsDistance,
   boundsOverlap,
   getObjectPlanBounds,

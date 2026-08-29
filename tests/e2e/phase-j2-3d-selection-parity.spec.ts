@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 const OAK_ID = "lr-material-natural-oak";
@@ -14,71 +14,86 @@ async function openDesign(page: Page) {
   await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
 }
 
-async function pointBelow(label: Locator, pixels = 28) {
-  await expect(label).toBeVisible({ timeout: 15_000 });
-  const box = await label.boundingBox();
-  if (!box) throw new Error("Selected 3D label is not rendered");
-  return { x: box.x + box.width / 2, y: box.y + box.height + pixels };
+async function clearModelSelection(page: Page) {
+  const clear = page.getByTestId("model-clear-selection");
+  await expect(clear).toBeVisible();
+  await clear.click();
+  await expect(clear).toHaveCount(0);
 }
 
-async function clickVisibleFloor(page: Page) {
-  const box = await page.locator(".lr-model-viewport canvas").boundingBox();
-  if (!box) throw new Error("3D canvas is not rendered");
-  await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.68);
+async function setCutaway(page: Page, enabled: boolean) {
+  const cutaway = page.getByRole("button", { name: "Cutaway", exact: true });
+  const isOn = await cutaway.evaluate((button) => button.classList.contains("is-active"));
+  if (isOn !== enabled) await cutaway.click();
+  if (enabled) await expect(cutaway).toHaveClass(/is-active/);
+  else await expect(cutaway).not.toHaveClass(/is-active/);
 }
 
-async function clearPlanSelection(page: Page) {
-  await page.locator(".lr-plan-svg").click({ position: { x: 24, y: 24 } });
+/** Real canvas click at the harness-projected mesh point (goes through R3F handlers). */
+async function pickMesh(page: Page, pickId: string) {
+  await expect.poll(
+    () => page.evaluate((id) => Boolean(window.__lrModelPickApi?.screenPointForPickId(id)), pickId),
+    { timeout: 15_000 },
+  ).toBe(true);
+  const point = await page.evaluate((id) => window.__lrModelPickApi!.screenPointForPickId(id), pickId);
+  expect(point).toBeTruthy();
+  await page.mouse.click(point!.x, point!.y);
 }
 
-test("J2 selects, switches, clears, and edits entities in 3D", async ({ page }) => {
+async function pickLabel(page: Page, name: string) {
+  const pick = page.locator(".lr-model-viewport").getByRole("button", { name: `Select ${name}`, exact: true });
+  await expect(pick).toBeVisible({ timeout: 15_000 });
+  await pick.click();
+}
+
+test("J2 selects via mesh and label, clears, and edits entities in 3D", async ({ page }) => {
   test.setTimeout(90_000);
   await openDesign(page);
 
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
+  const objectId = await page.locator("[data-object-id]").first().getAttribute("data-object-id");
+  expect(objectId).toBeTruthy();
   await page.locator("[data-object-id]").first().click();
+  const openingId = await page.locator('[data-opening-id="lr-opening-picture-window"]').getAttribute("data-opening-id");
+  expect(openingId).toBeTruthy();
 
-  await page.locator("[data-object-id]").first().click();
   await page.getByRole("button", { name: "3D", exact: true }).click();
-  const objectLabel = page.locator(".lr-model-object-label").filter({ hasText: "Base Cabinet" });
-  const objectPoint = await pointBelow(objectLabel);
-
-  await page.getByRole("button", { name: "2D", exact: true }).click();
-  await clearPlanSelection(page);
-  const opening = page.locator('[data-opening-id="lr-opening-picture-window"]');
-  await opening.locator("text").click();
-  await page.getByRole("button", { name: "3D", exact: true }).click();
-  const openingLabel = page.locator(".lr-model-object-label").filter({ hasText: "Fixed Window" });
-  const openingPoint = await pointBelow(openingLabel, 20);
-
-  await page.getByRole("button", { name: "2D", exact: true }).click();
-  await clearPlanSelection(page);
-  await page.getByRole("button", { name: "3D", exact: true }).click();
-
   const inspector = page.locator(".lr-inspector");
-  await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
-  await expect(inspector.getByText("Selected Opening", { exact: true })).toHaveCount(0);
-
-  await page.mouse.click(objectPoint.x, objectPoint.y);
   await expect(inspector.getByText("Selected Object", { exact: true })).toBeVisible();
+  await setCutaway(page, true);
 
-  await page.mouse.click(openingPoint.x, openingPoint.y);
+  await clearModelSelection(page);
+  await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
+
+  await pickMesh(page, objectId!);
+  await expect(inspector.getByText("Selected Object", { exact: true })).toBeVisible({ timeout: 10_000 });
+
+  await setCutaway(page, false);
+  await pickMesh(page, openingId!);
+  await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible({ timeout: 10_000 });
+  await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
+
+  await pickLabel(page, "Fixed Window");
   await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible();
-  await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
 
-  await page.mouse.click(objectPoint.x, objectPoint.y);
+  await setCutaway(page, true);
+  await pickMesh(page, objectId!);
+  await expect(inspector.getByText("Selected Object", { exact: true })).toBeVisible({ timeout: 10_000 });
+  await pickLabel(page, "Base Cabinet · 900");
   await expect(inspector.getByText("Selected Object", { exact: true })).toBeVisible();
+
   const width = inspector.getByRole("spinbutton", { name: "W mm", exact: true });
   await width.fill("1000");
   await width.blur();
   await expect(width).toHaveValue("1000");
 
-  await page.mouse.click(openingPoint.x, openingPoint.y);
+  await setCutaway(page, false);
+  await pickMesh(page, openingId!);
   const frame = inspector.locator('[data-material-slot="frame"]');
   await frame.locator(`[data-material-id="${OAK_ID}"]`).click();
   await expect(frame.locator(`[data-material-id="${OAK_ID}"]`)).toHaveClass(/is-active/);
 
-  await clickVisibleFloor(page);
+  await clearModelSelection(page);
   await expect(inspector.getByText("Selected Opening", { exact: true })).toHaveCount(0);
   await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
 });

@@ -8,6 +8,7 @@ import { modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
 import { AssetBackedObject } from "./AssetBackedObject";
+import { OpeningPickVolume } from "./OpeningPickVolume";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
 
 const FLOOR_DRAG_PLANE = new Plane(new Vector3(0, 1, 0), 0);
@@ -55,6 +56,7 @@ export function CompiledNodeView({
 }) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [preview, setPreview] = useState<Point3Mm | null>(null);
+  const [hovered, setHovered] = useState(false);
   const selectionTarget = modelSelectionTarget(node);
   const sourceObjectId = selectionTarget?.kind === "object" ? selectionTarget.id : null;
   const position = preview ?? node.positionMm;
@@ -62,6 +64,7 @@ export function CompiledNodeView({
   const useGlb = modelAsset.strategy === "glb"
     && modelAsset.url
     && modelAsset.definition;
+  const showLabel = Boolean(selectionTarget) && (selected || hovered || node.placeholder);
 
   function groundPoint(event: ThreeEvent<PointerEvent>) {
     const result = new Vector3();
@@ -76,7 +79,6 @@ export function CompiledNodeView({
       return;
     }
     if (selectionTarget.kind === "opening") {
-      onSelectOpening(selectionTarget.id);
       return;
     }
     const objectId = selectionTarget.id;
@@ -93,6 +95,12 @@ export function CompiledNodeView({
     setDrag({ pointerId: event.pointerId, startPoint: point, startPosition: node.positionMm });
     setPreview({ ...node.positionMm });
     onDragStateChange(true);
+  }
+
+  function handleClick(event: ThreeEvent<MouseEvent>) {
+    if (!interactive || selectionTarget?.kind !== "opening") return;
+    event.stopPropagation();
+    onSelectOpening(selectionTarget.id);
   }
 
   function handlePointerMove(event: ThreeEvent<PointerEvent>) {
@@ -121,13 +129,25 @@ export function CompiledNodeView({
 
   return (
     <group
-      userData={{ materialId: node.primitives[0]?.materialId, objectId: node.id }}
+      userData={{
+        materialId: node.primitives[0]?.materialId,
+        objectId: node.id,
+        modelPickId: selectionTarget?.id ?? null,
+        modelPickKind: selectionTarget?.kind ?? null,
+        modelPickOccluder: !selectionTarget,
+      }}
       position={[position.x / 1000, position.y / 1000, position.z / 1000]}
       rotation={[
         degrees(node.rotationDegrees.x),
         degrees(node.rotationDegrees.y),
         degrees(node.rotationDegrees.z),
       ]}
+      onPointerOver={selectionTarget ? (event) => {
+        event.stopPropagation();
+        setHovered(true);
+      } : undefined}
+      onPointerOut={selectionTarget ? () => setHovered(false) : undefined}
+      onClick={selectionTarget?.kind === "opening" ? handleClick : undefined}
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
@@ -155,14 +175,30 @@ export function CompiledNodeView({
           onPointerDown={handlePointerDown}
         />
       )}
-      {selected || node.placeholder ? (
+      {selectionTarget?.kind === "opening" ? (
+        <OpeningPickVolume primitives={node.primitives} onPointerDown={handlePointerDown} />
+      ) : null}
+      {showLabel ? (
         <Html
           position={[0, Math.max(0.3, ...node.primitives.map((primitive) => primitive.positionMm.y / 1000)) + 0.35, 0]}
           center
           distanceFactor={7}
-          className={`lr-model-object-label ${node.placeholder ? "is-placeholder" : ""}`}
         >
-          {node.placeholder ? `Missing adapter · ${node.name}` : node.name}
+          <button
+            type="button"
+            className={`lr-model-object-label is-pickable ${selected ? "is-selected" : ""} ${node.placeholder ? "is-placeholder" : ""}`}
+            data-model-select={selectionTarget?.kind ?? "object"}
+            data-model-id={selectionTarget?.id ?? node.id}
+            aria-label={`Select ${node.name}`}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              if (!selectionTarget) return;
+              if (selectionTarget.kind === "opening") onSelectOpening(selectionTarget.id);
+              else onSelect(selectionTarget.id, event.shiftKey || event.metaKey || event.ctrlKey);
+            }}
+          >
+            {node.placeholder ? `Missing adapter · ${node.name}` : node.name}
+          </button>
         </Html>
       ) : null}
     </group>

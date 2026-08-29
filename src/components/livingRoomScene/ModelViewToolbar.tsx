@@ -33,6 +33,8 @@ type ModelViewToolbarProps = {
   onSetRotation: (rotationY: number) => void;
   onViewportQuality: (quality: RenderQuality) => void;
   onOpenGuide: () => void;
+  hasSelection: boolean;
+  onClearSelection: () => void;
 };
 
 export function ModelViewToolbar(props: ModelViewToolbarProps) {
@@ -56,6 +58,15 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
       <button type="button" className="lr-model-guide-button" onClick={props.onOpenGuide}>
         ? 3D guide
       </button>
+      {props.hasSelection ? (
+        <button
+          type="button"
+          data-testid="model-clear-selection"
+          onClick={props.onClearSelection}
+        >
+          Clear selection
+        </button>
+      ) : null}
       {props.viewPreset === "dollhouse" ? (
         <ModelViewDollhousePanel
           cameraHeightMm={props.cameraHeightMm}

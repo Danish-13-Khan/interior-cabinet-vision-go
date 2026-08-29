@@ -14,6 +14,7 @@ import { CameraRig } from "./CameraRig";
 import { CompiledNodeView } from "./CompiledNodeView";
 import { RendererColorPipeline } from "./RendererColorPipeline";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
+import { ModelPickHarness } from "./ModelPickHarness";
 
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
@@ -189,6 +190,7 @@ export function CompiledSceneRenderer({
         enabled={interactive && viewPreset === "walkthrough"}
         onExit={onExitWalkthrough}
       />
+      {interactive && import.meta.env.DEV ? <ModelPickHarness /> : null}
     </>
   );
 }

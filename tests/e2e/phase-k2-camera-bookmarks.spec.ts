@@ -42,7 +42,7 @@ test("K2 camera bookmarks: rename deck view and export package views", async ({ 
     captured.push({ name, text });
   });
 
-  await page.getByRole("button", { name: "Client Package" }).click();
+  await page.locator(".lr-render-actions").getByRole("button", { name: "Client Package", exact: true }).click();
   await expect.poll(
     () => captured.some((item) => item.name.includes("package-views")),
     { timeout: 20_000 },

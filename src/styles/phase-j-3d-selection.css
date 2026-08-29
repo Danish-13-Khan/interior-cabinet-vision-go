@@ -1,0 +1,33 @@
+/* J2 — pickable 3D entity labels (overrides plan label pointer-events: none). */
+.lr-model-object-label.is-pickable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 3px 6px;
+  border: 1px solid #075b92;
+  border-radius: 2px;
+  background: rgba(245, 250, 253, 0.94);
+  color: #123a54;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.lr-model-object-label.is-pickable:not(.is-selected):not(.is-placeholder) {
+  padding: 2px 5px;
+  border-color: rgba(7, 91, 146, 0.45);
+  background: rgba(245, 250, 253, 0.72);
+  color: #3a5a70;
+  font-weight: 600;
+  opacity: 0.88;
+}
+
+.lr-model-object-label.is-pickable.is-placeholder {
+  border-color: #a96a12;
+  background: #fff2d5;
+  color: #754505;
+}

@@ -4,25 +4,36 @@ import type { LivingRoomWorkspaceView } from "../components/livingRoomPlan/works
 export function useLivingRoomPlanHotkeys({
   projectHomeOpen,
   snapSizeMm,
+  workspaceView,
   onView,
   onDuplicate,
   onDelete,
   onRotateSelection,
   onNudge,
+  onClearSelection,
 }: {
   projectHomeOpen: boolean;
   snapSizeMm: number;
+  workspaceView: LivingRoomWorkspaceView;
   onView: (view: LivingRoomWorkspaceView) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onRotateSelection: (delta: number) => void;
   onNudge: (dx: number, dz: number) => void;
+  onClearSelection: () => void;
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select")) return;
       if (projectHomeOpen) return;
+      if (event.key === "Escape") {
+        if (workspaceView === "model") {
+          event.preventDefault();
+          onClearSelection();
+        }
+        return;
+      }
       if (event.key === "1") {
         event.preventDefault();
         onView("plan");
@@ -61,5 +72,8 @@ export function useLivingRoomPlanHotkeys({
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onDelete, onDuplicate, onNudge, onRotateSelection, onView, projectHomeOpen, snapSizeMm]);
+  }, [
+    onClearSelection, onDelete, onDuplicate, onNudge, onRotateSelection, onView,
+    projectHomeOpen, snapSizeMm, workspaceView,
+  ]);
 }

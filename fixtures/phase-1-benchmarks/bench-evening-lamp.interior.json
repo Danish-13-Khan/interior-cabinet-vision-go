@@ -1299,7 +1299,8 @@
       "transparentBackground": false,
       "activeCameraId": "lr-camera-bench-evening-lamp-camera-a",
       "lightingRecipeId": "warm-evening",
-      "composition": "architectural"
+      "composition": "architectural",
+      "packageCameraBookmarks": []
     },
     "extensions": {
       "presetId": "living-room-starter",
