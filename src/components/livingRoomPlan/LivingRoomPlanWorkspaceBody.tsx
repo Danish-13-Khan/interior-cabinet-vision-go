@@ -1,4 +1,4 @@
-import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked } from "../../domain/livingRoom";
+import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -11,7 +11,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   const { workspace: w, project, room, build } = props;
   const activeObject = w.selectedObjects[0] ?? null;
   const readyToExport = props.millwork.workflow?.readyToExport ?? false;
-  const clientPackageBlocked = isClientPackageExportBlocked(props.issues, readyToExport);
+  const acceptedStillCount = props.acceptedStillAssets.length;
+  const clientPackageBlocked = isClientPackageExportBlocked(props.issues, readyToExport, {
+    millworkCount: props.millwork.workflow?.millworkCount ?? 0,
+    packageDeckCount: countResolvedPackageDeckViews(project),
+    acceptedStillCount,
+  });
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
@@ -94,7 +99,6 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           issues={props.issues}
           millwork={props.millwork}
           clientExport={props.clientExport}
-          readyToExport={readyToExport}
           acceptedStillAssets={props.acceptedStillAssets}
           latestRender={props.renderResults.latest}
           onSelect={(objectId) => {

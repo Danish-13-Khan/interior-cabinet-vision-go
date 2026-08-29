@@ -34,6 +34,11 @@ test("I3 flags overlapping cabinets and lets the designer select the conflict", 
 
   const initiallySelectedId = await page.locator(".lr-plan-object.is-selected").getAttribute("data-object-id");
   await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+  const checklist = page.getByTestId("pre-export-checklist");
+  await expect(checklist).toBeVisible();
+  await expect(checklist).toContainText("Pre-export checklist");
+  await expect(checklist.locator('[data-check-id="layout-clear"]')).toHaveAttribute("data-check-status", "fail");
+  await expect(checklist.locator('[data-check-id="millwork-placed"]')).toHaveAttribute("data-check-status", "pass");
   const reviewOverlap = page.locator('.planner-v2-review [data-layout-issue="overlap"]').first();
   await expect(reviewOverlap).toBeVisible();
   await expect(reviewOverlap).toHaveAttribute("aria-label", /error: .*overlaps/);

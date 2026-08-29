@@ -3,7 +3,12 @@ import {
   selectPackageAcceptedStillAssets,
 } from "../../hooks/selectPackageAcceptedStillAssets";
 import type { InteriorProject } from "../../domain/interiorProject";
-import type { LivingRoomPlanIssue, LivingRoomRenderResult } from "../../domain/livingRoom";
+import {
+  buildPreExportChecklist,
+  countResolvedPackageDeckViews,
+  type LivingRoomPlanIssue,
+  type LivingRoomRenderResult,
+} from "../../domain/livingRoom";
 import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
 import type { useMillworkSchedule } from "../../hooks/useMillworkSchedule";
 import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
@@ -18,7 +23,6 @@ export function WorkspaceReviewExportPanel({
   issues,
   millwork,
   clientExport,
-  readyToExport,
   acceptedStillAssets,
   latestRender,
   onSelect,
@@ -27,21 +31,27 @@ export function WorkspaceReviewExportPanel({
   issues: LivingRoomPlanIssue[];
   millwork: Millwork;
   clientExport: ClientExport;
-  readyToExport: boolean;
   acceptedStillAssets: AcceptedStillAsset[];
   latestRender: LivingRoomRenderResult | null;
   onSelect: (objectId: string | null) => void;
 }) {
+  const acceptedStillCount = selectPackageAcceptedStillAssets(project, acceptedStillAssets).length;
+  const checklist = buildPreExportChecklist({
+    issues,
+    millworkCount: millwork.workflow?.millworkCount ?? 0,
+    packageDeckCount: countResolvedPackageDeckViews(project),
+    acceptedStillCount,
+  });
   return (
     <PlannerV2ReviewPanel
       schedule={millwork.schedule}
       issues={issues}
+      checklist={checklist}
       millworkBusy={millwork.busy}
       millworkStatus={millwork.status}
       clientPackageBusy={clientExport.busy}
       clientPackageStatus={clientExport.status}
-      readyToExport={readyToExport}
-      acceptedStillCount={selectPackageAcceptedStillAssets(project, acceptedStillAssets).length}
+      acceptedStillCount={acceptedStillCount}
       onCsv={() => void millwork.exportSchedule("schedule-csv")}
       onPdf={() => void millwork.exportSchedule("schedule-pdf")}
       onClientPackage={() => {
