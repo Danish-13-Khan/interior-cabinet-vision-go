@@ -1,17 +1,23 @@
-# Interior Cabinet Vision Go
+# Cabinet Studio
 
-Production-oriented desktop interior planning software built with Tauri, React,
-TypeScript, and Three.js.
+Cabinet proposal-to-production desktop software built with Tauri, React,
+TypeScript, and Three.js. The product is designed for a cabinet salesperson to
+measure a room, build a credible cabinet run, present and price it, and hand the
+same design to engineering without re-entering cabinet data.
 
-This branch defines and develops the **Living Room Visualizer MVP**: select a
-2D living-room preset, author the layout in plan view, see the same project in
-3D immediately, and export a polished presentation render.
+> **Current product source of truth:**
+> [`docs/CABINET_STUDIO_PRODUCT_BOOK.md`](docs/CABINET_STUDIO_PRODUCT_BOOK.md)
+> defines the accepted cabinet proposal-to-production strategy, requirements,
+> release gates, Golden Cabinet Run, and development sequence as of 2026-08-30.
+> [`docs/BACKEND_SAAS_COMMERCIAL_PLATFORM_BOOK.md`](docs/BACKEND_SAAS_COMMERCIAL_PLATFORM_BOOK.md)
+> separately defines accounts, organizations, subscriptions, licensing, APIs,
+> cloud sync, hosted assets, security, and platform operations.
+> Phase documents below remain implementation history and supporting detail.
 
-> Planning document generated: **2026-08-11 21:42:01 IST**
->
-> Working branch: **`codex/living-room-visualizer-mvp`**
->
-> Baseline commit: **`733b3c6`** (`feat(runs): deepen wall-run authoring`)
+The current development program is **Golden Cabinet Run v1**: a straight
+kitchen-style run authored in the Interiors room workflow, reviewed in credible
+cabinet-specific 3D, priced as a proposal, and transitioned into the Cabinets
+engineering workbench using the same project and cabinet identities.
 
 ## Product Statement
 
@@ -19,23 +25,24 @@ Build a professional desktop design application where a single, reusable
 interior-project document drives 2D planning, synchronized 3D visualization,
 cabinet engineering, presentation rendering, and production outputs.
 
-The first focused experience is a living room. The underlying project format is
-not living-room-specific; the same schema must support future bedrooms,
-kitchens, offices, wardrobes, and custom spaces.
+The first pilot is deliberately narrow: one straight kitchen-style cabinet run
+inside an authored room. The underlying project format remains room-independent
+and can support later kitchens, wardrobes, living rooms, offices, and custom
+spaces after the golden workflow passes its release and user-validation gates.
 
-## MVP User Journey
+## Golden Cabinet Run v1
 
 ```mermaid
 flowchart LR
-    A["New Project"] --> B["Choose Living Room Preset"]
-    B --> C["Edit Room and Openings in 2D"]
-    C --> D["Place and Arrange Furniture"]
-    D --> E["Inspect Synchronized 3D"]
-    E --> F["Choose Materials and Lighting"]
-    F --> G["Choose Camera"]
-    G --> H["Render Presentation Image"]
-    H --> I["Export PNG and Save Project"]
-    I --> J["Reopen with Identical Results"]
+    A["Create Job"] --> B["Measure or Draw Room"]
+    B --> C["Build Cabinet Run"]
+    C --> D["Validate Fit"]
+    D --> E["Review Cabinet-Specific 3D"]
+    E --> F["Review Price and Freeze Quote"]
+    F --> G["Create Branded Proposal"]
+    G --> H["Record Approval"]
+    H --> I["Send Same Project to Engineering"]
+    I --> J["Review Cutlist and Production Packet"]
 ```
 
 ## Principal Architecture
@@ -148,7 +155,11 @@ type InteriorObjectEntity = {
 - Unknown catalog objects load as safe placeholders instead of crashing.
 - Invalid numeric data is clamped and reported during document validation.
 
-## Living Room MVP Scope
+## Historical Living Room MVP Scope
+
+> This section records the completed visualizer phase. It is not the current
+> roadmap or release gate. Current work is governed by Golden Cabinet Run v1 in
+> the [Product Book](docs/CABINET_STUDIO_PRODUCT_BOOK.md#9-golden-cabinet-run-v1).
 
 ### Included
 
@@ -337,10 +348,10 @@ APIs. Platform and rendering adapters consume domain output, not the reverse.
 
 ## Tooling and Stack Contract
 
-This stack is the committed foundation for the Living Room Visualizer MVP. It
-should continue after the MVP unless a measured product requirement proves that
-one layer must be extended. New tools must fit behind the boundaries below
-rather than replacing the project document or duplicating geometry state.
+This stack is the committed foundation for Cabinet Studio. It should continue
+unless a measured product requirement proves that one layer must be extended.
+New tools must fit behind the boundaries below rather than replacing the
+project document or duplicating geometry state.
 
 | Area | Tool | Responsibility |
 | --- | --- | --- |
@@ -431,7 +442,11 @@ Blender and asset converters are build-time tools, not application runtime
 dependencies. Catalog IDs and material-slot IDs remain stable whether an object
 uses procedural geometry or a future GLB asset.
 
-### Post-MVP Extension Points
+### Historical Post-MVP Extension Points
+
+> Several items in this historical table, including manufacturing domains, now
+> exist in the repository. Appendix G of the Product Book is the current status
+> register.
 
 | Future requirement | Extension approach |
 | --- | --- |
@@ -469,8 +484,8 @@ Vitest + Playwright for quality assurance
 Local-first filesystem persistence
 ```
 
-This combination is sufficient for a production-quality living-room MVP and
-keeps clear upgrade paths for future rooms, cabinet engineering, richer assets,
+This combination remains sufficient for the Golden Cabinet Run program and
+keeps clear upgrade paths for future rooms, cabinet families, richer assets,
 renderers, exchange formats, and manufacturing workflows.
 
 ## Development
@@ -514,7 +529,11 @@ npm run tauri build
 Tauri output is generated under `src-tauri/target/release/bundle/`, including
 the `.app` and `.dmg` artifacts when macOS bundling succeeds.
 
-## Definition of MVP Complete
+## Historical Definition of Living Room MVP Complete
+
+> This is the completed phase's historical gate. It does not govern the current
+> release. Sections 42 and Appendix A of the Product Book define the active
+> Golden Cabinet Run gates.
 
 The Living Room Visualizer MVP is complete only when a new tester can:
 
