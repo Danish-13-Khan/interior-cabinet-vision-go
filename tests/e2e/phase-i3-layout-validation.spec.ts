@@ -39,6 +39,8 @@ test("I3 flags overlapping cabinets and lets the designer select the conflict", 
   await expect(reviewOverlap).toHaveAttribute("aria-label", /error: .*overlaps/);
   await expect(page.getByRole("button", { name: "Schedule CSV", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Schedule PDF", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Export client package", exact: true })).toBeDisabled();
+  await expect(page.locator(".lr-render-actions").getByRole("button", { name: "Client Package", exact: true })).toBeDisabled();
   await reviewOverlap.click();
   await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
   await expect(page.locator(".lr-plan-object.is-selected")).not.toHaveAttribute("data-object-id", initiallySelectedId ?? "");

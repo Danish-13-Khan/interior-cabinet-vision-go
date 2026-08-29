@@ -18,10 +18,12 @@ import {
   writeBinaryBlob,
 } from "../platform/desktopFiles";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
-import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
+import type { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { usePackageCameraBookmarkSettings } from "../hooks/usePackageCameraBookmarkSettings";
 import { useRenderStudioHonesty } from "../hooks/useRenderStudioHonesty";
 import { useStillReviewFlow } from "../hooks/useStillReviewFlow";
+import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
+import { acceptedStillExportPayload } from "../hooks/selectPackageAcceptedStillAssets";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
@@ -38,6 +40,8 @@ type RenderJobState = {
   error: string | null;
 };
 
+type ClientExport = ReturnType<typeof useClientPresentationExport>;
+
 type LivingRoomRenderStudioProps = {
   project: InteriorProject;
   latestResult: LivingRoomRenderResult | null;
@@ -46,6 +50,10 @@ type LivingRoomRenderStudioProps = {
   onSettingsChange: (patch: Partial<RenderSettings>) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onBrowserThumbnail?: (dataUrl: string) => void;
+  acceptedStillAssets?: AcceptedStillAsset[];
+  onAcceptedStillAssetsChange?: React.Dispatch<React.SetStateAction<AcceptedStillAsset[]>>;
+  clientExport: ClientExport;
+  clientPackageBlocked: boolean;
 };
 
 const INITIAL_JOB: RenderJobState = {
@@ -72,6 +80,10 @@ export function LivingRoomRenderStudio({
   onSettingsChange,
   onLightingChange,
   onBrowserThumbnail,
+  acceptedStillAssets,
+  onAcceptedStillAssetsChange,
+  clientExport,
+  clientPackageBlocked,
 }: LivingRoomRenderStudioProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const [captureHandle, setCaptureHandle] = useState<RenderCaptureHandle | null>(null);
@@ -84,7 +96,6 @@ export function LivingRoomRenderStudio({
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const [exposureDraft, setExposureDraft] = useState(project.renderSettings.exposure);
   const [exportStatus, setExportStatus] = useState("");
-  const clientExport = useClientPresentationExport();
   const packageDeck = usePackageCameraBookmarkSettings(project, onSettingsChange);
   const settings = project.renderSettings;
   const activeCamera = scene.cameras.find((camera) => camera.id === settings.activeCameraId)
@@ -98,6 +109,8 @@ export function LivingRoomRenderStudio({
   const stills = useStillReviewFlow({
     project,
     cameraId: activeCamera?.id,
+    acceptedStillAssets,
+    onAcceptedStillAssetsChange,
     capture: captureHandle,
     widthPx: settings.widthPx,
     heightPx: settings.heightPx,
@@ -265,17 +278,20 @@ export function LivingRoomRenderStudio({
           </button>
           <button
             type="button"
-            onClick={() => void clientExport.exportClientPreview(
-              project,
-              latestResult,
-              stills.acceptedStills.map((item) => item.provenance),
-              stills.acceptedStills.flatMap((item) => (
-                item.provenance.stillOutputPath
-                  ? [{ fileName: item.provenance.stillOutputPath, dataUrl: item.stillDataUrl }]
-                  : []
-              )),
-            )}
-            disabled={isRendering || clientExport.busy}
+            title={clientPackageBlocked
+              ? "Resolve layout conflicts and place millwork before export."
+              : undefined}
+            onClick={() => {
+              if (clientPackageBlocked) return;
+              const payload = acceptedStillExportPayload(stills.acceptedStills);
+              void clientExport.exportClientPreview(
+                project,
+                latestResult,
+                payload.provenance,
+                payload.pngs,
+              );
+            }}
+            disabled={isRendering || clientExport.busy || clientPackageBlocked}
           >
             {clientExport.busy ? "Packaging…" : "Client Package"}
           </button>

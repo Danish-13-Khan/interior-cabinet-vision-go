@@ -45,7 +45,7 @@ async function captureClientPackageDownloads(page: Page) {
     }
     captured.push({ name, text });
   });
-  await page.getByRole("button", { name: "Client Package" }).click();
+  await page.locator(".lr-render-actions").getByRole("button", { name: "Client Package", exact: true }).click();
   await expect.poll(
     () => captured.some((item) => item.name.includes("stills-provenance")),
     { timeout: 20_000 },
@@ -54,6 +54,15 @@ async function captureClientPackageDownloads(page: Page) {
     () => captured.some((item) => item.name.endsWith("-still.png")),
     { timeout: 20_000 },
   ).toBe(true);
+  // Schedule PDF is written after still assets; wait for full package export.
+  await expect.poll(
+    () => captured.some((item) => item.name.endsWith("-millwork-schedule.pdf")),
+    { timeout: 20_000 },
+  ).toBe(true);
+  // Shared controller mirrors status in Review + Render Studio — scope to studio.
+  await expect(
+    page.getByTestId("lr-plan-canvas").getByText(/Client package exported.*accepted stills/i),
+  ).toBeVisible({ timeout: 20_000 });
   return captured;
 }
 
@@ -106,11 +115,12 @@ test("K1 hybrid stills: client package exports accepted still manifest and PNG",
   const manifest = JSON.parse(manifestFile!.text!) as { acceptedStills: Array<Record<string, unknown>> };
   expect(manifest.acceptedStills).toHaveLength(1);
   expect(manifest.acceptedStills[0]?.jobId).toBe(provenance[0]?.jobId);
+  expect(manifest.files.some((name: string) => name.endsWith("-millwork-schedule.pdf"))).toBe(true);
+  expect(manifest.files.some((name: string) => name.endsWith("-millwork-schedule.csv"))).toBe(true);
+  expect((manifest as { workshopSchedule?: { lineCount: number } }).workshopSchedule?.lineCount).toBeGreaterThan(0);
 
   expect(downloads.some((item) => item.name.endsWith("-still.png"))).toBe(true);
-  await expect(page.getByText(/Client preview package exported.*accepted stills/i)).toBeVisible({
-    timeout: 10_000,
-  });
+  expect(downloads.some((item) => item.name.endsWith("-millwork-schedule.pdf"))).toBe(true);
 });
 
 test("K1 hybrid stills: reject leaves project editable", async ({ page }) => {

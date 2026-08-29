@@ -19,6 +19,7 @@ export {
 export { buildClientPackageViews } from "./buildPackageViews";
 export { attachPackageViewsToManifest } from "./attachPackageViews";
 export { clientPreviewExportStatusMessage } from "./exportStatusMessage";
+export { isClientPackageExportBlocked } from "./clientPackageExportGate";
 export { withAcceptedStillProvenance, filterPackageEligibleStills, isPackageEligibleStill } from "./acceptedStills";
 export { acceptedStillPngFiles, type AcceptedStillPng } from "./acceptedStillFiles";
 export { exportClientPresentationPdf } from "./exportPdf";

@@ -39,7 +39,7 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
   const arrangedLamp = moveLivingRoomObject(
     arrangedSofa,
     lampId,
-    { x: 2450, y: 0, z: -1150 },
+    { x: 1600, y: 0, z: -900 },
   );
   const arrangedBase = moveLivingRoomObject(
     arrangedLamp,
@@ -51,7 +51,7 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
     createLivingRoomObject("living:indoor-plant", {
       id: "lr-object-indoor-plant-release",
       roomId,
-      position: { x: 2680, y: 0, z: 780 },
+      position: { x: 1800, y: 0, z: 1600 },
     }),
   );
   const arranged = addLivingRoomObject(
@@ -59,7 +59,7 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
     createLivingRoomObject("living:bookcase", {
       id: "lr-object-bookcase-release",
       roomId,
-      position: { x: 2680, y: 0, z: -1880 },
+      position: { x: 2750, y: 0, z: -1500 },
       rotationY: 270,
     }),
   );

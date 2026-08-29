@@ -4,9 +4,12 @@ import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult, PlanReadab
 import type { LivingRoomPlanWorkspaceProps, LivingRoomWorkspaceView, PlannerMode, StudioPanel } from "./workspaceProps";
 import type { useLivingRoomBuildCommands } from "../../hooks/useLivingRoomBuildCommands";
 import type { useMillworkSchedule } from "../../hooks/useMillworkSchedule";
+import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
+import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
 
 type BuildBridge = ReturnType<typeof useLivingRoomBuildCommands>;
 type Millwork = ReturnType<typeof useMillworkSchedule>;
+type ClientExport = ReturnType<typeof useClientPresentationExport>;
 
 export type LivingRoomPlanWorkspaceBodyProps = {
   workspace: LivingRoomPlanWorkspaceProps;
@@ -46,6 +49,9 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   onBuildTool: (tool: BuildTool) => void;
   underlayPickerRef: React.RefObject<(() => void) | null>;
   millwork: Millwork;
+  clientExport: ClientExport;
+  acceptedStillAssets: AcceptedStillAsset[];
+  onAcceptedStillAssetsChange: React.Dispatch<React.SetStateAction<AcceptedStillAsset[]>>;
   issues: LivingRoomPlanIssue[];
   readability: PlanReadabilitySettings;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;

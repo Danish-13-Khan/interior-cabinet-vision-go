@@ -2,6 +2,7 @@ import type { InteriorProject } from "../../interiorProject";
 import { serializeInteriorProjectFile } from "../../interiorProject";
 import type { LivingRoomRenderResult } from "../renderStudio";
 import type { StillProvenance } from "../stillJob/provenance";
+import { buildMillworkSchedulePackageFiles } from "./attachMillworkSchedule";
 import { withAcceptedStillProvenance } from "./acceptedStills";
 import { attachPackageViewsToManifest } from "./attachPackageViews";
 import { buildClientPresentationHonesty, isPackageDeliverableRenderQuality } from "../renderTierHonesty";
@@ -76,12 +77,19 @@ export async function assembleClientPresentationFiles(
     heroRenderDataUrl: heroEligible ? built.heroRenderDataUrl : null,
   };
   const pdf = await exportClientPresentationPdf(project, render, packageData);
+  const scheduleBundle = buildMillworkSchedulePackageFiles(project, now);
+  const finalManifest = {
+    ...manifest,
+    files: [...manifest.files, scheduleBundle.workshopSchedule.pdfFile, scheduleBundle.workshopSchedule.csvFile],
+    workshopSchedule: scheduleBundle.workshopSchedule,
+  };
   const files: ClientPresentationFile[] = [
     {
       fileName: packageData.fileNames.presentationPdf,
       kind: "pdf",
       contents: pdf,
     },
+    ...scheduleBundle.files,
     {
       fileName: packageData.fileNames.projectJson,
       kind: "json",
@@ -110,24 +118,24 @@ export async function assembleClientPresentationFiles(
     {
       fileName: packageData.fileNames.manifest,
       kind: "json",
-      contents: JSON.stringify(packageData.manifest, null, 2),
+      contents: JSON.stringify(finalManifest, null, 2),
     },
   ];
 
-  if (packageData.manifest.acceptedStills.length) {
+  if (finalManifest.acceptedStills.length) {
     files.push({
       fileName: packageData.fileNames.stillsProvenance,
       kind: "json",
-      contents: JSON.stringify(packageData.manifest.acceptedStills, null, 2),
+      contents: JSON.stringify(finalManifest.acceptedStills, null, 2),
     });
     files.push(...stillPngs);
   }
 
-  if (packageData.manifest.packageViews.length) {
+  if (finalManifest.packageViews.length) {
     files.push({
       fileName: packageData.fileNames.packageViews,
       kind: "json",
-      contents: JSON.stringify(packageData.manifest.packageViews, null, 2),
+      contents: JSON.stringify(finalManifest.packageViews, null, 2),
     });
   }
 
@@ -139,7 +147,13 @@ export async function assembleClientPresentationFiles(
     });
   }
 
-  return { packageData, files };
+  return {
+    packageData: {
+      ...packageData,
+      manifest: finalManifest,
+    },
+    files,
+  };
 }
 
 export function clientPresentationBasePath(pdfPath: string) {

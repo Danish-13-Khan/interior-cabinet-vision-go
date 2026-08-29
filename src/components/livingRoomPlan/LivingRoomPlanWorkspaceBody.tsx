@@ -1,15 +1,17 @@
-import { isBlockingLivingRoomPlanIssue } from "../../domain/livingRoom";
+import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked } from "../../domain/livingRoom";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
-import { PlannerV2ReviewPanel } from "./PlannerV2ReviewPanel";
+import { WorkspaceReviewExportPanel } from "./WorkspaceReviewExportPanel";
 import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
   const activeObject = w.selectedObjects[0] ?? null;
+  const readyToExport = props.millwork.workflow?.readyToExport ?? false;
+  const clientPackageBlocked = isClientPackageExportBlocked(props.issues, readyToExport);
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
@@ -87,16 +89,26 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         />
       ) : null}
       {props.plannerMode === "render" ? (
-        <PlannerV2ReviewPanel schedule={props.millwork.schedule} issues={props.issues} busy={props.millwork.busy}
-          status={props.millwork.status} onCsv={() => void props.millwork.exportSchedule("schedule-csv")}
-          onPdf={() => void props.millwork.exportSchedule("schedule-pdf")}
-          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }} />
+        <WorkspaceReviewExportPanel
+          project={project}
+          issues={props.issues}
+          millwork={props.millwork}
+          clientExport={props.clientExport}
+          readyToExport={readyToExport}
+          acceptedStillAssets={props.acceptedStillAssets}
+          latestRender={props.renderResults.latest}
+          onSelect={(objectId) => {
+            props.setActiveOpeningId(null);
+            props.setActiveSurfaceId(null);
+            w.onSelect(objectId);
+          }}
+        />
       ) : null}
       <LivingRoomPlanStage
         project={project} workspaceView={props.workspaceView} selectedIds={w.selectedIds} issues={props.issues}
         snapSizeMm={props.snapSizeMm} showGrid={props.showGrid} canUndo={w.canUndo} canRedo={w.canRedo}
         hasSelection={Boolean(activeObject)} millworkCount={props.millwork.workflow?.millworkCount ?? 0}
-        millworkReady={props.millwork.workflow?.readyToExport ?? false} exportBusy={props.millwork.busy}
+        millworkReady={readyToExport} exportBusy={props.millwork.busy}
         exportBlocked={props.issues.some(isBlockingLivingRoomPlanIssue)}
         exportStatus={props.millwork.status} autosaveState={w.autosaveState} lastAutosavedAt={w.lastAutosavedAt}
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
@@ -144,6 +156,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onExportSchedulePdf={() => void props.millwork.exportSchedule("schedule-pdf")}
         onExportCutlistCsv={() => void props.millwork.exportSchedule("cutlist-csv")}
         onExportProductionPdf={() => void props.millwork.exportSchedule("production-pdf")}
+        acceptedStillAssets={props.acceptedStillAssets}
+        onAcceptedStillAssetsChange={props.onAcceptedStillAssetsChange}
+        clientExport={props.clientExport}
+        clientPackageBlocked={clientPackageBlocked}
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
         readability={props.readability} onReadability={props.onReadability}
       />

@@ -447,6 +447,7 @@ export {
   createLivingRoomRenderThumbnail,
   clientPresentationPackageDirectory,
   clientPreviewExportStatusMessage,
+  isClientPackageExportBlocked,
   exportClientPresentationPdf,
   packageFilePath,
   preferLivingRoomBrowserThumbnail,

@@ -91,6 +91,8 @@ export function buildClientPresentationPackage(
     manifest: `${base}-manifest.json`,
     stillsProvenance: `${base}-stills-provenance.json`,
     packageViews: `${base}-package-views.json`,
+    millworkSchedulePdf: `${base}-millwork-schedule.pdf`,
+    millworkScheduleCsv: `${base}-millwork-schedule.csv`,
   };
 
   const manifest: ClientPresentationManifest = {
@@ -100,7 +102,10 @@ export function buildClientPresentationPackage(
     brand: "Interiors",
     deliverable: "client-presentation",
     files: Object.values(fileNames).filter(
-      (name) => name !== fileNames.stillsProvenance && name !== fileNames.packageViews,
+      (name) => name !== fileNames.stillsProvenance
+        && name !== fileNames.packageViews
+        && name !== fileNames.millworkSchedulePdf
+        && name !== fileNames.millworkScheduleCsv,
     ),
     roomSummary,
     render: render

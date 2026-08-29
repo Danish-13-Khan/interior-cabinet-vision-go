@@ -8,6 +8,8 @@ import type {
   LivingRoomStyleId,
   PlanReadabilitySettings,
 } from "../../domain/livingRoom";
+import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
+import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
 import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
@@ -78,6 +80,10 @@ type LivingRoomPlanStageProps = {
   onExportSchedulePdf: () => void;
   onExportCutlistCsv: () => void;
   onExportProductionPdf: () => void;
+  acceptedStillAssets: AcceptedStillAsset[];
+  onAcceptedStillAssetsChange: React.Dispatch<React.SetStateAction<AcceptedStillAsset[]>>;
+  clientExport: ReturnType<typeof useClientPresentationExport>;
+  clientPackageBlocked: boolean;
   v2BuildMode?: boolean;
   v2ReviewMode?: boolean;
   readability: PlanReadabilitySettings;
@@ -135,6 +141,10 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             project={props.project} latestResult={props.latestRender} previousResult={props.previousRender}
             onRendered={props.onRendered} onSettingsChange={props.onRenderSettingsChange}
             onLightingChange={props.onLightingChange} onBrowserThumbnail={props.onRenderBrowserThumbnail}
+            acceptedStillAssets={props.acceptedStillAssets}
+            onAcceptedStillAssetsChange={props.onAcceptedStillAssetsChange}
+            clientExport={props.clientExport}
+            clientPackageBlocked={props.clientPackageBlocked}
           />
         )}
       </div>
