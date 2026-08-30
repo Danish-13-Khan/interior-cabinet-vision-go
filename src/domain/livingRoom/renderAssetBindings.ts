@@ -1,3 +1,4 @@
+import { catalogBindingFor, readCabinetIdentity } from "../cabinetIdentity";
 import type { InteriorObjectEntity } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import type {
@@ -87,16 +88,35 @@ export function createObjectRenderBinding(
     Object.values(object.materialSlots)[0] ?? LIVING_ROOM_MATERIAL_IDS.naturalOak,
   );
 
-  const imported = importedAssetForObject(object);
-  if (imported) {
+  const identity = readCabinetIdentity(object);
+  const productionCabinet = Boolean(
+    identity && catalogBindingFor(object.catalogItemId)?.production,
+  );
+  // Production cabinets keep procedural geometry as dimensional truth (VIS-011).
+  if (productionCabinet) {
     return {
-      strategy: "glb", modelAssetId: `import:${imported.id}`, modelUrl: imported.sourceUrl,
-      modelMaterialGroups: imported.materialGroups, modelTextureUrls: imported.textureUrls, materialBindings, uvScaleMm,
+      strategy: "procedural",
+      materialBindings,
+      uvScaleMm,
       targetSizeMm: { ...object.dimensions },
     };
   }
 
-  if (object.kind === "cabinet" || !isGlbIntentCatalogId(object.catalogItemId)) {
+  const imported = importedAssetForObject(object);
+  if (imported) {
+    return {
+      strategy: "glb",
+      modelAssetId: `import:${imported.id}`,
+      modelUrl: imported.sourceUrl,
+      modelMaterialGroups: imported.materialGroups,
+      modelTextureUrls: imported.textureUrls,
+      materialBindings,
+      uvScaleMm,
+      targetSizeMm: { ...object.dimensions },
+    };
+  }
+
+  if (!isGlbIntentCatalogId(object.catalogItemId)) {
     return {
       strategy: "procedural",
       materialBindings,

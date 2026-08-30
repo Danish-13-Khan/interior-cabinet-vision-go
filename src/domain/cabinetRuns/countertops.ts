@@ -18,6 +18,12 @@ import {
   type CountertopSegment,
 } from "./types";
 
+/** Shift the extra front depth into the room, not into the wall. */
+function frontOverhangCenterMm(run: CabinetRun, lineValue: number) {
+  const shift = DEFAULT_COUNTERTOP_OVERHANG_FRONT_MM / 2;
+  return run.side === "right-wall" ? lineValue - shift : lineValue + shift;
+}
+
 function splitCountertopGroups(
   cabinets: CabinetInstance[],
   axis: CabinetRun["axis"],
@@ -76,22 +82,22 @@ function buildSegment(
     isLastGroup &&
     (run.cornerTransition ||
       sorted.some((cabinet) => cabinet.config.type === "corner"));
+  const runCenter = start + widthMm / 2;
+  const crossCenter = frontOverhangCenterMm(run, lineValue);
 
   return {
     id: `countertop-${run.id}-${segmentIndex + 1}`,
     runId: run.id,
     cabinetIds: sorted.map((cabinet) => cabinet.id),
+    axis: run.axis,
     widthMm,
     depthMm: maxDepth + DEFAULT_COUNTERTOP_OVERHANG_FRONT_MM,
     thicknessMm: DEFAULT_COUNTERTOP_THICKNESS_MM,
-    positionX: run.axis === "x" ? start + widthMm / 2 : first.placement.x,
+    positionX: run.axis === "x" ? runCenter : crossCenter,
     positionY: Math.max(
       ...sorted.map((cabinet) => cabinet.config.dimensions.height),
     ),
-    positionZ:
-      run.axis === "z"
-        ? start + widthMm / 2
-        : lineValue + DEFAULT_COUNTERTOP_OVERHANG_FRONT_MM / 2,
+    positionZ: run.axis === "z" ? runCenter : crossCenter,
     endConditionStart: startsAtWall ? "wall" : "finished",
     endConditionEnd: endsAtCorner ? "corner" : "finished",
   };

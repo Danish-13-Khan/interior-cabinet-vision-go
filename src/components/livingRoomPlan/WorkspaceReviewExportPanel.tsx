@@ -3,6 +3,7 @@ import {
   selectPackageAcceptedStillAssets,
 } from "../../hooks/selectPackageAcceptedStillAssets";
 import type { InteriorProject } from "../../domain/interiorProject";
+import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import {
   buildPreExportChecklist,
   countResolvedPackageDeckViews,
@@ -41,6 +42,7 @@ export function WorkspaceReviewExportPanel({
     millworkCount: millwork.workflow?.millworkCount ?? 0,
     packageDeckCount: countResolvedPackageDeckViews(project),
     acceptedStillCount,
+    geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
   return (
     <PlannerV2ReviewPanel
