@@ -68,6 +68,7 @@ export function persistCabinetIdentityOnObject(
   const planning = readPlanningExtension(object.extensions);
   const existing = planning?.config as CabinetConfig | undefined;
   const config = configFromIdentity(record, object, existing);
+  const runFiller = object.extensions?.cabinetRunFiller ?? planning?.runFiller;
   return {
     ...object,
     extensions: {
@@ -80,6 +81,7 @@ export function persistCabinetIdentityOnObject(
         config,
         attachment: planning?.attachment ?? (config.type === "wall" ? "back-wall" : "floor"),
         displayCategory: object.category,
+        ...(runFiller ? { runFiller } : {}),
       },
     },
   };

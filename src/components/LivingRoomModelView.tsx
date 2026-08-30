@@ -32,6 +32,7 @@ import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewStylePalette } from "./livingRoomScene/ModelViewStylePalette";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
 import { ModelViewOnboarding } from "./livingRoomScene/ModelViewOnboarding";
+import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
 import { ModelViewReadout } from "./livingRoomScene/ModelViewReadout";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 type LivingRoomModelViewProps = {
@@ -182,6 +183,7 @@ export function LivingRoomModelView({
         activeStyleName={activeStyle.name}
         onApplyStyle={onApplyStyle}
       />
+      <CabinetSceneSemantics project={project} />
       <ModelViewReadout
         viewPreset={viewPreset}
         honestyBadge={honesty.shortBadge}

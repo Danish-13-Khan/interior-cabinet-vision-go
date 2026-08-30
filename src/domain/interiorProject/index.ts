@@ -44,6 +44,7 @@ export {
   cabinetProjectFromInteriorProject,
   interiorProjectFromCabinetProject,
 } from "./cabinetAdapter";
+export { interiorProjectFileName, isDefaultCabinetJob } from "./cabinetAdapterIds";
 export {
   diagnoseDocumentIdentity,
   diagnoseInteriorCabinets,

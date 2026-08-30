@@ -48,6 +48,7 @@ export type LivingRoomPlanWorkspaceProps = {
   recentProjects: SavedProjectBrowserEntry[];
   onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId; template?: PlannerStarterTemplate }) => void;
   onOpenDemo: () => void;
+  onOpenGoldenRun: () => void;
   onOpenPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => void;
   onOpenProjectHome: () => void;
   onCloseProjectHome: () => void;

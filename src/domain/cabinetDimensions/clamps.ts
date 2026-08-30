@@ -42,6 +42,7 @@ import {
 import { clampSheetOptimizerSettings } from "../sheetStock";
 import { normalizeCabinetHardware } from "../hardwareSystem";
 import { resolveFamilyId } from "../cabinetIdentity/families";
+import { isRunFillerCatalogId } from "../cabinetIdentity/catalogBindings";
 import type {
   CabinetConfig,
   CabinetDimensions,
@@ -169,6 +170,27 @@ export function clampCabinetDimensions(
 }
 
 export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
+  if (isRunFillerCatalogId(config.catalogItemId)) {
+    return {
+      ...config,
+      type: config.type || "base",
+      familyId: config.familyId || "frameless-standard-base",
+      catalogItemId: config.catalogItemId,
+      hasDoors: false,
+      shelfCount: 0,
+      drawerCount: 0,
+      toeKickHeight: 0,
+      toeKickInset: 0,
+      dimensions: {
+        ...config.dimensions,
+        width: Math.max(1, config.dimensions.width),
+        height: Math.max(1, config.dimensions.height),
+        depth: Math.max(1, config.dimensions.depth),
+        boardThickness: Math.max(1, config.dimensions.boardThickness || 18),
+        backPanelThickness: Math.max(1, config.dimensions.backPanelThickness || 6),
+      },
+    };
+  }
   const preset = cabinetTypePresets[config.type] ?? defaultCabinetConfig;
   const manufacturing = applyManufacturingFixes({
     ...preset,

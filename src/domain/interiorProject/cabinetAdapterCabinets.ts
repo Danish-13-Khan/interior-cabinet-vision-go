@@ -28,7 +28,28 @@ export type CabinetObjectExtension = {
   groupId?: string | null;
   attachment: CabinetPlacement["attachment"];
   displayCategory?: string;
+  runFiller?: {
+    runId: string;
+    side: "start" | "end" | "between";
+    index?: number;
+  };
 };
+
+function readRunFiller(
+  object: InteriorObjectEntity,
+  planning: ReturnType<typeof readPlanningExtension>,
+): CabinetObjectExtension["runFiller"] {
+  const raw = (planning?.runFiller as CabinetObjectExtension["runFiller"] | undefined)
+    ?? (object.extensions?.cabinetRunFiller as CabinetObjectExtension["runFiller"] | undefined);
+  if (!raw || typeof raw !== "object") return undefined;
+  if (typeof raw.runId !== "string") return undefined;
+  if (raw.side !== "start" && raw.side !== "end" && raw.side !== "between") return undefined;
+  return {
+    runId: raw.runId,
+    side: raw.side,
+    ...(typeof raw.index === "number" ? { index: raw.index } : {}),
+  };
+}
 
 function numericParameter(
   parameters: InteriorObjectEntity["parameters"],
@@ -62,6 +83,7 @@ function syncDoorStructure(
 export function cabinetObject(roomId: string, cabinet: CabinetInstance): InteriorObjectEntity {
   const catalogItemId = cabinet.config.catalogItemId ?? `cabinet:${cabinet.config.type}`;
   const familyId = resolveFamilyId(cabinet.config.familyId, cabinet.config.type);
+  const runFiller = cabinet.runFiller;
   const extension: CabinetObjectExtension = {
     sourceId: cabinet.id,
     entityId: cabinet.interiorObjectId,
@@ -70,6 +92,7 @@ export function cabinetObject(roomId: string, cabinet: CabinetInstance): Interio
     groupId: cabinet.groupId,
     attachment: cabinet.placement.attachment,
     displayCategory: cabinet.displayCategory,
+    ...(runFiller ? { runFiller } : {}),
   };
   const object: InteriorObjectEntity = {
     id: cabinet.interiorObjectId || objectId(roomId, cabinet.id),
@@ -91,6 +114,7 @@ export function cabinetObject(roomId: string, cabinet: CabinetInstance): Interio
       drawerCount: cabinet.config.drawerCount ?? 0,
       hasDoors: cabinet.config.hasDoors,
       ...(cabinet.config.sku ? { sku: cabinet.config.sku } : {}),
+      ...(runFiller ? { filler: true } : {}),
     },
     extensions: {
       [CABINET_EXTENSION]: extension,
@@ -106,6 +130,7 @@ export function cabinetObject(roomId: string, cabinet: CabinetInstance): Interio
             roomId,
           }
         : undefined,
+      ...(runFiller ? { cabinetRunFiller: runFiller } : {}),
     },
   };
   return persistCabinetIdentityOnObject(object);
@@ -164,11 +189,13 @@ export function cabinetFromObject(object: InteriorObjectEntity): CabinetInstance
   };
   const rotation = Math.round(object.rotation.y / 90) * 90;
   const attachment = planning?.attachment;
+  const runFiller = readRunFiller(object, planning);
   return {
     id: typeof planning?.sourceId === "string" && planning.sourceId ? planning.sourceId : object.id,
     name: object.name,
     displayCategory: object.category,
     interiorObjectId: typeof planning?.entityId === "string" ? planning.entityId : object.id,
+    ...(runFiller ? { runFiller } : {}),
     config,
     placement: {
       x: object.position.x,

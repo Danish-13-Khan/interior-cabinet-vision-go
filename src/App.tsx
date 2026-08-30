@@ -143,7 +143,11 @@ function App() {
                 <strong>{WORKBENCH_LABELS[workbenchMode]}</strong>
                 <span>{breadcrumb}</span>
               </div>
-              <small>{workbenchMode === "production" ? "Workshop preparation and costing" : "Project documents and approvals"}</small>
+              <small data-testid={workbenchMode === "production" ? "production-revision" : undefined}>
+                {workbenchMode === "production"
+                  ? `Workshop preparation and costing · ${c.project.job?.projectNumber ?? "—"} · Rev ${c.project.job?.revision ?? "—"}`
+                  : "Project documents and approvals"}
+              </small>
             </header>
             <ReportCenter
               key={workbenchMode}
@@ -220,6 +224,11 @@ function App() {
               c.discardRecovery();
               c.openLivingRoomReleaseDemo();
             }}
+            onOpenGoldenRun={() => {
+              c.setProjectFilePath(null);
+              c.discardRecovery();
+              c.openLivingRoomGoldenRun();
+            }}
             onOpenPhase1Benchmark={(benchmarkId) => {
               c.setProjectFilePath(null);
               c.discardRecovery();
@@ -292,7 +301,9 @@ function App() {
             }}
             onUndo={c.handleUndo}
             onRedo={c.handleRedo}
-            onOpenProject={c.handleLoadProject}
+            onOpenProject={async () => {
+              if (await c.handleLoadProject()) c.closeLivingRoomProjectHome();
+            }}
             onSaveProject={c.handleSaveProject}
             onExportProject={c.handleExportProjectJson}
             onWorkbenchModeChange={handleWorkbenchModeChange}
@@ -537,7 +548,9 @@ function App() {
           onExportProjectJson: c.handleExportProjectJson,
           onExportPdf: c.handleExportPdf,
           onLayerChange: c.handleLayerChange,
-          onLoadProject: c.handleLoadProject,
+          onLoadProject: async () => {
+            await c.handleLoadProject();
+          },
           onLoadSavedProject: c.handleLoadSavedProject,
           onPasteSelection: c.handlePasteSelection,
           onPlacementChange: c.handlePlacementChange,

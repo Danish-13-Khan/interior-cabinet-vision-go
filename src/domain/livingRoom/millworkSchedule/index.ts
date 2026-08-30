@@ -15,7 +15,7 @@ export {
   resolveMaterialLabels,
   slotRecord,
 } from "./formatMaterials";
-export { formatWhdMm } from "./formatSize";
+export { cutlistWidthSumMm, formatCutlistPartCount, formatWhdMm } from "./formatSize";
 export { millworkScheduleToCsv } from "./scheduleCsv";
 export { exportMillworkSchedulePdf } from "./schedulePdf";
 export { summarizeMillworkWorkflow } from "./workflow";

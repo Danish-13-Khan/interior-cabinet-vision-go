@@ -7,6 +7,7 @@
     "dev": "vite",
     "test": "vitest run src",
     "test:e2e": "playwright test",
+    "test:golden": "playwright test tests/e2e/golden-cabinet-run.spec.ts tests/e2e/living-room-release.spec.ts --project=chromium",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "assets:curated": "node scripts/curated-assets/generate-pack.mjs",
