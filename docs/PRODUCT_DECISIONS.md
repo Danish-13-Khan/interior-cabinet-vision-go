@@ -49,7 +49,7 @@ Concise decisions supporting the canonical Product Book. Keep this file short an
 |---|---|
 | P0-A | HARDEN — explicit cabinet type/family, complete configuration, lossless adapter diagnostics |
 | P0-B | HARDEN — cabinet-specific shared geometry; no Golden Run bookcase stand-ins |
-| P0-C | Live total, quote freeze, stale detection, branded proposal |
+| P0-C | HARDEN — live total, quote freeze, stale detection, branded proposal |
 | P0-D | Same-project transition from Interiors to Cabinets engineering |
 | P0-E | Save/reopen golden journey plus quote, proposal, and cutlist assertions |
 | Gate F | Timed salesperson pilot and engineer handoff review |
@@ -78,7 +78,7 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 |---|---|
 | 1 | P0-A — cabinet identity, family, normalized config, adapter diagnostics |
 | 2 | P0-B — shared cabinet geometry and semantic material roles |
-| 3 | P0-C — live quotation and branded proposal |
+| 3 | P0-C — HARDEN live quotation and branded proposal |
 | 4 | P0-D — diagnosed same-project workbench transition to engineering |
 | 5 | P0-E — golden end-to-end verification, save/reopen, full-suite reliability |
 | 6 | Gate F — real salesperson timing and engineer acceptance |

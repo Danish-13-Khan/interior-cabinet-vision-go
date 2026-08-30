@@ -101,6 +101,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           issues={props.issues}
           millwork={props.millwork}
           clientExport={props.clientExport}
+          proposal={props.proposal}
           acceptedStillAssets={props.acceptedStillAssets}
           latestRender={props.renderResults.latest}
           onSelect={(objectId) => {
