@@ -173,6 +173,7 @@ export function useLivingRoomPlanEditor({
   function commitDocument(
     update: (current: InteriorProject) => InteriorProject,
     status: string,
+    cabinetIds?: string[],
   ) {
     commitProjectChange((currentProject) => {
       const current = currentLivingRoomDocument(currentProject);
@@ -182,11 +183,12 @@ export function useLivingRoomPlanEditor({
         updatedAt: new Date().toISOString(),
       };
       const compatible = cabinetProjectFromInteriorProject(next);
+      const selected = cabinetIds ?? [];
       return {
         project: compatible.project,
         room: compatible.room,
-        selectedCabinetIds: [],
-        activeCabinetId: null,
+        selectedCabinetIds: selected,
+        activeCabinetId: selected[0] ?? null,
         selectedPanelName: null,
       };
     }, status);

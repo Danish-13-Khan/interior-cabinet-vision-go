@@ -2868,7 +2868,7 @@ Exit criteria:
 
 ### 38.5 Epic P0-D — Engineering handoff experience
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Work items:
 
@@ -2880,6 +2880,14 @@ Work items:
 6. Preserve selection where possible.
 7. Preserve revision identity.
 8. Show post-approval drift.
+
+Harden (review):
+
+- Send requires an approved or production job plus a matching frozen revision.
+- Re-handoff is rejected until a newly approved revision exists; snapshots are immutable per revision.
+- Returning to Interiors rebuilds the canonical document from live cabinets.
+- Post-approval drift uses a design-content fingerprint (placement, IDs, and full configuration).
+- Golden lossless diagnostics compare raw planning/object fields vs adapted configuration, including material slots the adapter drops.
 
 Exit criteria:
 
@@ -4295,16 +4303,16 @@ A narrow customer job where the product can be meaningfully better than broad co
 
 ### A.4 Engineering handoff
 
-- [ ] Send-to-Engineering action.
-- [ ] Handoff diagnostics.
-- [ ] Same IDs.
-- [ ] Same types.
-- [ ] Same dimensions.
-- [ ] Same composition.
-- [ ] Same construction.
-- [ ] Same hardware.
-- [ ] Same material roles.
-- [ ] Same revision identity.
+- [x] Send-to-Engineering action.
+- [x] Handoff diagnostics.
+- [x] Same IDs.
+- [x] Same types.
+- [x] Same dimensions.
+- [x] Same composition.
+- [x] Same construction.
+- [x] Same hardware.
+- [x] Same material roles.
+- [x] Same revision identity.
 
 ### A.5 Release
 
@@ -4656,8 +4664,8 @@ The detailed sections above govern behavior.
 | Appliance inserts | `SHIPPED` | Hardware spec. |
 | Engineering validation | `SHIPPED` | Manufacturing rules. |
 | Sales preset to full configuration | `NEXT` | `CAB-030`–`CAB-031` |
-| Send to Engineering | `NEXT` | P0-D. |
-| Lossless Interiors handoff | `NEXT` | `ENG-001`–`ENG-012` |
+| Send to Engineering | `HARDEN` | P0-D. |
+| Lossless Interiors handoff | `HARDEN` | `ENG-001`–`ENG-012` |
 | Post-approval drift indication | `HARDEN` | `ENG-022` |
 
 ### G.6 2D and 3D review

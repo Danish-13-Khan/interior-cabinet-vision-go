@@ -5,6 +5,7 @@ import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { useProposalWorkflow } from "../hooks/useProposalWorkflow";
+import { useEngineeringHandoff } from "../hooks/useEngineeringHandoff";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
@@ -38,6 +39,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onPatchDocument: props.onPatchDocument,
     latestRender: renderResults.latest,
     acceptedStills: acceptedStillAssets,
+  });
+  const handoff = useEngineeringHandoff({
+    project: props.project,
+    selectedInteriorObjectIds: props.selectedIds,
+    onPatchDocument: props.onPatchDocument,
+    onEnterEngineering: props.onEnterEngineering,
   });
   const readability = usePlanReadabilitySettings();
   const activeOpening = props.project?.openings.find((opening) => opening.id === activeOpeningId) ?? null;
@@ -146,6 +153,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         build={build} activeBuildTool={activeBuildTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
         proposal={proposal}
+        handoff={handoff}
         acceptedStillAssets={acceptedStillAssets} onAcceptedStillAssetsChange={setAcceptedStillAssets}
         issues={props.issues}
         readability={readability.settings} onReadability={readability.update}
