@@ -42,6 +42,7 @@ export function CutlistTable({
                 <button
                   type="button"
                   className="shop-source-btn"
+                  data-cabinet-id={line.cabinetId}
                   onClick={() => onSelectCabinet?.(line.cabinetId)}
                   title="Select cabinet"
                 >

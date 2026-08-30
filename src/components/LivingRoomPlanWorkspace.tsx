@@ -89,7 +89,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   useEffect(() => { setRenderResults({ latest: null, previous: null }); }, [props.project?.id]);
   useEffect(() => { setAcceptedStillAssets([]); }, [props.project?.id]);
   useEffect(() => {
-    if (props.project && !props.projectHomeOpen && plannerMode === "project") setPlannerMode("build");
+    if (!props.project || props.projectHomeOpen || plannerMode !== "project") return;
+    setPlannerMode("build");
+    setWorkspaceView("plan");
+    setStudioPanel("build");
   }, [plannerMode, props.project, props.projectHomeOpen]);
 
   function changePlannerMode(mode: PlannerMode) {

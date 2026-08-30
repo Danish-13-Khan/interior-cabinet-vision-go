@@ -71,6 +71,12 @@ export type CabinetInstance = {
   displayCategory?: string;
   /** Interior object entity id when this cabinet was authored in Interiors. */
   interiorObjectId?: string;
+  /** Interiors run-filler stamp so Engineering keeps the same filler identity/role. */
+  runFiller?: {
+    runId: string;
+    side: "start" | "end" | "between";
+    index?: number;
+  };
 };
 
 export type CabinetLayer = {

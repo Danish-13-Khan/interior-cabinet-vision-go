@@ -3,6 +3,7 @@ import {
   readCabinetIdentity,
 } from "../../cabinetIdentity";
 import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
+import { isCabinetRunFiller } from "../wardrobePlacement";
 import {
   adaptHandoffProject,
   cabinetForInteriorObject,
@@ -77,12 +78,14 @@ export function diagnoseHandoffLoss(document: InteriorProject): HandoffWarning[]
     const rotation = rotationLoss(object);
     if (rotation) notes.push(rotation);
     if (!cabinet) {
-      if (golden) {
+      if (isCabinetRunFiller(object) || golden) {
         notes.push(warning({
           code: "recreated-cabinet",
           severity: "error",
           path: `objects.${object.id}`,
-          message: "Golden cabinet was not mapped and would be recreated.",
+          message: isCabinetRunFiller(object)
+            ? "Run filler was not mapped and would be dropped."
+            : "Golden cabinet was not mapped and would be recreated.",
           objectId: object.id,
         }));
       }

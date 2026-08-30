@@ -21,7 +21,22 @@ function fieldNote(objectId: string, field: string, message: string): HandoffWar
 }
 
 function sameValue(left: unknown, right: unknown) {
-  return stableStringify(left) === stableStringify(right);
+  return stableStringify(withoutUndefined(left)) === stableStringify(withoutUndefined(right));
+}
+
+/** JSON persistence drops undefined object fields; they are not authored handoff data. */
+function withoutUndefined(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => item === undefined ? null : withoutUndefined(item));
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, item]) => item !== undefined)
+        .map(([key, item]) => [key, withoutUndefined(item)]),
+    );
+  }
+  return value;
 }
 
 function compareAuthored(

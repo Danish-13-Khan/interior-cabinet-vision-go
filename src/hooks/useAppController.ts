@@ -218,7 +218,9 @@ export function useAppController() {
       s.setLayout({
         sheetBrowserVisible: !s.layout.sheetBrowserVisible,
       }),
-    onLoadProject: fileIo.handleLoadProject,
+    onLoadProject: async () => {
+      await fileIo.handleLoadProject();
+    },
     onSaveProject: fileIo.handleSaveProject,
     onExportProjectJson: fileIo.handleExportProjectJson,
     onExportCutlistCsv: fileIo.handleExportCutlistCsv,

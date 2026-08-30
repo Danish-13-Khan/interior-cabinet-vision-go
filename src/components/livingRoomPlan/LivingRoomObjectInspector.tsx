@@ -1,5 +1,5 @@
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
-import { isMillworkObject } from "../../domain/livingRoom";
+import { cabinetFinishId, isMillworkObject } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 import { DimensionPresetMenu } from "./DimensionPresetMenu";
 import { CabinetRunInspector } from "./CabinetRunInspector";
@@ -52,7 +52,8 @@ export function LivingRoomObjectInspector({
       {object.kind === "cabinet" && object.category !== "filler" ? (
         <>
           <h4>Cabinet configuration</h4>
-          <label className="lr-select-field"><span>Door style</span><select value={String(object.parameters.doorStyle ?? "slab")} onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}><option value="slab">Slab</option><option value="shaker">Shaker</option><option value="glass">Glass</option></select></label>
+          <label className="lr-select-field"><span>Finish</span><select data-testid="cabinet-finish" value={cabinetFinishId(object)} onChange={(event) => onSetParameters(object.id, { finishId: event.target.value })}><option value="wood-oak">Oak Woodgrain</option><option value="wood-walnut">Walnut</option><option value="white-matte">White Matte</option><option value="grey">Grey Matte</option></select></label>
+          <label className="lr-select-field"><span>Door style</span><select data-testid="cabinet-door-style" value={String(object.parameters.doorStyle ?? "slab")} onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}><option value="slab">Slab</option><option value="shaker">Shaker</option><option value="glass">Glass</option></select></label>
           <NumberField label="Door count" value={Number(object.parameters.doorCount) || 2} onChange={(doorCount) => onSetParameters(object.id, { doorCount: Math.max(1, Math.round(doorCount)) })} />
           <p className="lr-inspector-hint" data-wall-snapped={object.extensions?.wallAttachment ? "true" : "false"}>{object.extensions?.wallAttachment ? "Wall snapped — drag near another wall to reattach." : "Drag near a wall to snap this cabinet."}</p>
         </>

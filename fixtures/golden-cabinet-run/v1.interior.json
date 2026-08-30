@@ -1,0 +1,2140 @@
+{
+  "format": "interior-project",
+  "schemaVersion": 2,
+  "savedAt": "2026-08-31T00:00:00.000Z",
+  "project": {
+    "schemaVersion": 2,
+    "id": "golden-cabinet-run",
+    "name": "Golden Cabinet Run",
+    "units": "mm",
+    "createdAt": "2026-08-31T00:00:00.000Z",
+    "updatedAt": "2026-08-31T00:00:00.000Z",
+    "activeRoomId": "golden-run-room-main",
+    "nodes": [
+      {
+        "id": "node-1",
+        "position": {
+          "x": -3000,
+          "z": -2000
+        }
+      },
+      {
+        "id": "node-2",
+        "position": {
+          "x": 3000,
+          "z": -2000
+        }
+      },
+      {
+        "id": "node-3",
+        "position": {
+          "x": 3000,
+          "z": 2000
+        }
+      },
+      {
+        "id": "node-4",
+        "position": {
+          "x": -3000,
+          "z": 2000
+        }
+      }
+    ],
+    "loops": [
+      {
+        "id": "golden-run-room-main:outer-loop",
+        "wallUses": [
+          {
+            "wallId": "golden-run-wall-back",
+            "direction": "forward"
+          },
+          {
+            "wallId": "golden-run-wall-right",
+            "direction": "forward"
+          },
+          {
+            "wallId": "golden-run-wall-front",
+            "direction": "forward"
+          },
+          {
+            "wallId": "golden-run-wall-left",
+            "direction": "forward"
+          }
+        ],
+        "extensions": {
+          "graphDomainVersion": 1,
+          "roomId": "golden-run-room-main"
+        }
+      }
+    ],
+    "rooms": [
+      {
+        "id": "golden-run-room-main",
+        "name": "Kitchen run",
+        "roomType": "living-room",
+        "dimensions": {
+          "widthMm": 6000,
+          "heightMm": 2800,
+          "depthMm": 4000
+        },
+        "wallThicknessMm": 120,
+        "outerLoopId": "golden-run-room-main:outer-loop",
+        "holeLoopIds": [],
+        "extensions": {
+          "floorMaterialId": "lr-material-stone-warm",
+          "ceilingMaterialId": "lr-material-ceiling-soft-white"
+        }
+      }
+    ],
+    "walls": [
+      {
+        "id": "golden-run-wall-back",
+        "roomId": "golden-run-room-main",
+        "start": {
+          "x": -3000,
+          "z": -2000
+        },
+        "end": {
+          "x": 3000,
+          "z": -2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "node-1",
+        "endNodeId": "node-2",
+        "extensions": {
+          "wallSide": "back"
+        }
+      },
+      {
+        "id": "golden-run-wall-right",
+        "roomId": "golden-run-room-main",
+        "start": {
+          "x": 3000,
+          "z": -2000
+        },
+        "end": {
+          "x": 3000,
+          "z": 2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "node-2",
+        "endNodeId": "node-3",
+        "extensions": {
+          "wallSide": "right"
+        }
+      },
+      {
+        "id": "golden-run-wall-front",
+        "roomId": "golden-run-room-main",
+        "start": {
+          "x": 3000,
+          "z": 2000
+        },
+        "end": {
+          "x": -3000,
+          "z": 2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "node-3",
+        "endNodeId": "node-4",
+        "extensions": {
+          "wallSide": "front"
+        }
+      },
+      {
+        "id": "golden-run-wall-left",
+        "roomId": "golden-run-room-main",
+        "start": {
+          "x": -3000,
+          "z": 2000
+        },
+        "end": {
+          "x": -3000,
+          "z": -2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": "lr-material-wall-warm-white",
+        "startNodeId": "node-4",
+        "endNodeId": "node-1",
+        "extensions": {
+          "wallSide": "left"
+        }
+      }
+    ],
+    "openings": [
+      {
+        "id": "golden-run-opening-entry-door",
+        "wallId": "golden-run-wall-front",
+        "kind": "door",
+        "offsetMm": 400,
+        "widthMm": 900,
+        "heightMm": 2100,
+        "sillHeightMm": 0,
+        "catalogItemId": "opening:door-single",
+        "materialSlots": {},
+        "parameters": {},
+        "swingDirection": "in",
+        "extensions": {
+          "hinge": "left"
+        }
+      },
+      {
+        "id": "golden-run-opening-picture-window",
+        "wallId": "golden-run-wall-left",
+        "kind": "window",
+        "offsetMm": 600,
+        "widthMm": 1200,
+        "heightMm": 1300,
+        "sillHeightMm": 750,
+        "catalogItemId": "opening:window-fixed",
+        "materialSlots": {},
+        "parameters": {}
+      }
+    ],
+    "surfaces": [
+      {
+        "id": "golden-run-room-main:floor",
+        "kind": "floor",
+        "roomId": "golden-run-room-main",
+        "loopId": "golden-run-room-main:outer-loop",
+        "polygon": [
+          {
+            "x": -3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": 2000
+          },
+          {
+            "x": -3000,
+            "z": 2000
+          }
+        ],
+        "materialId": "lr-material-stone-warm",
+        "extensions": {
+          "generatedBy": "closed-room-loop"
+        }
+      },
+      {
+        "id": "golden-run-room-main:ceiling",
+        "kind": "ceiling",
+        "roomId": "golden-run-room-main",
+        "loopId": "golden-run-room-main:outer-loop",
+        "polygon": [
+          {
+            "x": -3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": 2000
+          },
+          {
+            "x": -3000,
+            "z": 2000
+          }
+        ],
+        "materialId": "lr-material-ceiling-soft-white",
+        "extensions": {
+          "generatedBy": "closed-room-loop"
+        }
+      }
+    ],
+    "objects": [
+      {
+        "id": "golden-run-tall",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:tall-pantry-600",
+        "name": "tall 600",
+        "position": {
+          "x": -1350,
+          "y": 0,
+          "z": -1650
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 600,
+          "heightMm": 2100,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 4,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-TALL-600"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-run-tall",
+            "entityId": "golden-run-tall",
+            "config": {
+              "type": "tall",
+              "dimensions": {
+                "width": 600,
+                "height": 2100,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 4,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": true,
+              "rightEndPanel": true,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-walnut",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Pantry Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 4,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 4,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 0
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": true,
+                  "right": true
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-tall",
+              "catalogItemId": "living:tall-pantry-600",
+              "sku": "MW-TALL-600"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-tall",
+            "catalogItemId": "living:tall-pantry-600",
+            "sku": "MW-TALL-600",
+            "cabinetType": "tall",
+            "familyId": "frameless-standard-tall",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "tall 600",
+            "roomId": "golden-run-room-main"
+          },
+          "wallAttachment": {
+            "wallId": "golden-run-wall-back"
+          },
+          "cabinetRun": {
+            "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+            "wallId": "golden-run-wall-back",
+            "gapMm": 0,
+            "alignment": "center",
+            "extendToWall": false,
+            "fillersEnabled": true
+          }
+        }
+      },
+      {
+        "id": "golden-run-base-a",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:base-cabinet-900",
+        "name": "base 900",
+        "position": {
+          "x": -600,
+          "y": 0,
+          "z": -1650
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 1,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-BASE-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-run-base-a",
+            "entityId": "golden-run-base-a",
+            "config": {
+              "type": "base",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 1,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-oak",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 1,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-base",
+              "catalogItemId": "living:base-cabinet-900",
+              "sku": "MW-BASE-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-base-a",
+            "catalogItemId": "living:base-cabinet-900",
+            "sku": "MW-BASE-900",
+            "cabinetType": "base",
+            "familyId": "frameless-standard-base",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "base 900",
+            "roomId": "golden-run-room-main"
+          },
+          "wallAttachment": {
+            "wallId": "golden-run-wall-back"
+          },
+          "cabinetRun": {
+            "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+            "wallId": "golden-run-wall-back",
+            "gapMm": 0,
+            "alignment": "center",
+            "extendToWall": false,
+            "fillersEnabled": true
+          }
+        }
+      },
+      {
+        "id": "golden-run-drawer",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:drawer-cabinet-900",
+        "name": "drawer 900",
+        "position": {
+          "x": 300,
+          "y": 0,
+          "z": -1650
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 0,
+          "drawerCount": 3,
+          "hasDoors": false,
+          "sku": "MW-DRAWER-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-run-drawer",
+            "entityId": "golden-run-drawer",
+            "config": {
+              "type": "drawer",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 0,
+              "hasDoors": false,
+              "drawerCount": 3,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "grey",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "drawer"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Drawer Stack",
+                    "contentType": "drawer-stack",
+                    "ratio": 0.95,
+                    "doorStyle": "none",
+                    "doorHinge": "both",
+                    "drawerCount": 3,
+                    "shelfCount": 0,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 0,
+                  "adjustable": false
+                },
+                "dividers": {
+                  "count": 0
+                },
+                "doors": {
+                  "enabled": false,
+                  "style": "none",
+                  "hinge": "both",
+                  "count": 0
+                },
+                "drawers": {
+                  "count": 3,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "fixed-screw",
+                "drawerBoxStyle": "dado-bottom",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-drawer",
+              "catalogItemId": "living:drawer-cabinet-900",
+              "sku": "MW-DRAWER-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-drawer",
+            "catalogItemId": "living:drawer-cabinet-900",
+            "sku": "MW-DRAWER-900",
+            "cabinetType": "drawer",
+            "familyId": "frameless-standard-drawer",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "drawer 900",
+            "roomId": "golden-run-room-main"
+          },
+          "wallAttachment": {
+            "wallId": "golden-run-wall-back"
+          },
+          "cabinetRun": {
+            "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+            "wallId": "golden-run-wall-back",
+            "gapMm": 0,
+            "alignment": "center",
+            "extendToWall": false,
+            "fillersEnabled": true
+          }
+        }
+      },
+      {
+        "id": "golden-run-base-b",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:base-cabinet-900",
+        "name": "base 900",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "z": -1650
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 1,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-BASE-900",
+          "doorStyle": "shaker"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-run-base-b",
+            "entityId": "golden-run-base-b",
+            "config": {
+              "type": "base",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 1,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-oak",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 1,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-base",
+              "catalogItemId": "living:base-cabinet-900",
+              "sku": "MW-BASE-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-base-b",
+            "catalogItemId": "living:base-cabinet-900",
+            "sku": "MW-BASE-900",
+            "cabinetType": "base",
+            "familyId": "frameless-standard-base",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "base 900",
+            "roomId": "golden-run-room-main"
+          },
+          "wallAttachment": {
+            "wallId": "golden-run-wall-back"
+          },
+          "cabinetRun": {
+            "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+            "wallId": "golden-run-wall-back",
+            "gapMm": 0,
+            "alignment": "center",
+            "extendToWall": false,
+            "fillersEnabled": true
+          }
+        }
+      },
+      {
+        "id": "golden-run-wall-a",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:wall-cabinet-900",
+        "name": "wall 900",
+        "position": {
+          "x": 2550,
+          "y": 1400,
+          "z": -500
+        },
+        "rotation": {
+          "x": 0,
+          "y": 270,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 350
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 1,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-WALL-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-run-wall-a",
+            "entityId": "golden-run-wall-a",
+            "config": {
+              "type": "wall",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 350,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 1,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 0,
+              "toeKickInset": 0,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "white-matte",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 1,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": false,
+                  "heightMm": 0,
+                  "insetMm": 0
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "dado",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-wall",
+              "catalogItemId": "living:wall-cabinet-900",
+              "sku": "MW-WALL-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "right-wall",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-wall-a",
+            "catalogItemId": "living:wall-cabinet-900",
+            "sku": "MW-WALL-900",
+            "cabinetType": "wall",
+            "familyId": "frameless-standard-wall",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "wall 900",
+            "roomId": "golden-run-room-main"
+          },
+          "wallAttachment": {
+            "wallId": "golden-run-wall-right"
+          }
+        }
+      },
+      {
+        "id": "golden-run-wall-b",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:wall-cabinet-900",
+        "name": "wall 900",
+        "position": {
+          "x": 2550,
+          "y": 1400,
+          "z": 500
+        },
+        "rotation": {
+          "x": 0,
+          "y": 270,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 350
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 1,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-WALL-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-run-wall-b",
+            "entityId": "golden-run-wall-b",
+            "config": {
+              "type": "wall",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 350,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 1,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 0,
+              "toeKickInset": 0,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "white-matte",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 1,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": false,
+                  "heightMm": 0,
+                  "insetMm": 0
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "dado",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-wall",
+              "catalogItemId": "living:wall-cabinet-900",
+              "sku": "MW-WALL-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "right-wall",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-wall-b",
+            "catalogItemId": "living:wall-cabinet-900",
+            "sku": "MW-WALL-900",
+            "cabinetType": "wall",
+            "familyId": "frameless-standard-wall",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "wall 900",
+            "roomId": "golden-run-room-main"
+          },
+          "wallAttachment": {
+            "wallId": "golden-run-wall-right"
+          }
+        }
+      },
+      {
+        "id": "golden-run-filler-start",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "filler",
+        "catalogItemId": "living:run-filler",
+        "name": "Run filler",
+        "position": {
+          "x": -1700,
+          "y": 0,
+          "z": -1950
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 100,
+          "heightMm": 2100,
+          "depthMm": 18
+        },
+        "materialSlots": {},
+        "parameters": {
+          "filler": true
+        },
+        "extensions": {
+          "placement": "wall",
+          "wallAttachment": {
+            "wallId": "golden-run-wall-back"
+          },
+          "cabinetRunFiller": {
+            "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+            "side": "start"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-filler-start",
+            "catalogItemId": "living:run-filler",
+            "sku": null,
+            "cabinetType": "base",
+            "familyId": "frameless-standard-base",
+            "familyResolvedFromType": false,
+            "category": "filler",
+            "name": "Run filler",
+            "roomId": "golden-run-room-main"
+          },
+          "cabinetPlanning": {
+            "sourceId": "golden-run-filler-start",
+            "entityId": "golden-run-filler-start",
+            "config": {
+              "type": "base",
+              "dimensions": {
+                "width": 100,
+                "height": 2100,
+                "depth": 18,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 0,
+              "hasDoors": false,
+              "drawerCount": 0,
+              "toeKickHeight": 0,
+              "toeKickInset": 0,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-oak",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Primary Opening",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "open-shelf",
+                    "ratio": 0.95,
+                    "doorStyle": "none",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 0,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": false,
+                  "style": "none",
+                  "hinge": "left",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-base",
+              "catalogItemId": "living:run-filler"
+            },
+            "attachment": "floor",
+            "displayCategory": "filler",
+            "runFiller": {
+              "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+              "side": "start"
+            }
+          }
+        }
+      },
+      {
+        "id": "golden-run-filler-end",
+        "roomId": "golden-run-room-main",
+        "kind": "cabinet",
+        "category": "filler",
+        "catalogItemId": "living:run-filler",
+        "name": "Run filler",
+        "position": {
+          "x": 1700,
+          "y": 0,
+          "z": -1950
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 100,
+          "heightMm": 720,
+          "depthMm": 18
+        },
+        "materialSlots": {},
+        "parameters": {
+          "filler": true
+        },
+        "extensions": {
+          "placement": "wall",
+          "wallAttachment": {
+            "wallId": "golden-run-wall-back"
+          },
+          "cabinetRunFiller": {
+            "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+            "side": "end"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-run-filler-end",
+            "catalogItemId": "living:run-filler",
+            "sku": null,
+            "cabinetType": "base",
+            "familyId": "frameless-standard-base",
+            "familyResolvedFromType": false,
+            "category": "filler",
+            "name": "Run filler",
+            "roomId": "golden-run-room-main"
+          },
+          "cabinetPlanning": {
+            "sourceId": "golden-run-filler-end",
+            "entityId": "golden-run-filler-end",
+            "config": {
+              "type": "base",
+              "dimensions": {
+                "width": 100,
+                "height": 720,
+                "depth": 18,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 0,
+              "hasDoors": false,
+              "drawerCount": 0,
+              "toeKickHeight": 0,
+              "toeKickInset": 0,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-oak",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Primary Opening",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "open-shelf",
+                    "ratio": 0.95,
+                    "doorStyle": "none",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 0,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": false,
+                  "style": "none",
+                  "hinge": "left",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-base",
+              "catalogItemId": "living:run-filler"
+            },
+            "attachment": "floor",
+            "displayCategory": "filler",
+            "runFiller": {
+              "runId": "run:golden-run-wall-back:golden-run-base-a|golden-run-base-b|golden-run-drawer|golden-run-tall",
+              "side": "end"
+            }
+          }
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "lr-material-wall-warm-white",
+        "name": "Warm White Wall Paint",
+        "kind": "paint",
+        "color": "#ebe6dc",
+        "roughness": 0.9,
+        "metalness": 0,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-ceiling-soft-white",
+        "name": "Soft White Ceiling Paint",
+        "kind": "paint",
+        "color": "#f5f2eb",
+        "roughness": 0.9,
+        "metalness": 0,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-natural-oak",
+        "name": "Natural Oak",
+        "kind": "wood",
+        "color": "#a98262",
+        "roughness": 0.64,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "grainDirection": "length"
+        }
+      },
+      {
+        "id": "lr-material-walnut",
+        "name": "Smoked Walnut",
+        "kind": "wood",
+        "color": "#4b3328",
+        "roughness": 0.58,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "grainDirection": "length"
+        }
+      },
+      {
+        "id": "lr-material-fabric-oatmeal",
+        "name": "Oatmeal Weave",
+        "kind": "fabric",
+        "color": "#d2c3ae",
+        "roughness": 0.97,
+        "metalness": 0,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-fabric-olive",
+        "name": "Olive Weave",
+        "kind": "fabric",
+        "color": "#6a6e52",
+        "roughness": 0.97,
+        "metalness": 0,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-metal-charcoal",
+        "name": "Charcoal Powder Coat",
+        "kind": "metal",
+        "color": "#2d302f",
+        "roughness": 0.36,
+        "metalness": 0.72,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-glass-clear",
+        "name": "Clear Glass",
+        "kind": "glass",
+        "color": "#d8e4e2",
+        "roughness": 0.08,
+        "metalness": 0,
+        "opacity": 0.32
+      },
+      {
+        "id": "lr-material-rug-wool-sand",
+        "name": "Sand Wool Rug",
+        "kind": "fabric",
+        "color": "#a89478",
+        "roughness": 1,
+        "metalness": 0,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-stone-warm",
+        "name": "Warm Honed Stone",
+        "kind": "stone",
+        "color": "#d8d1c5",
+        "roughness": 0.48,
+        "metalness": 0,
+        "opacity": 1
+      }
+    ],
+    "lights": [
+      {
+        "id": "golden-run-light-daylight-tv-wall-cove",
+        "roomId": "golden-run-room-main",
+        "name": "TV Feature Wall Cove",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2250,
+          "z": -2100
+        },
+        "rotation": {
+          "x": -70,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#fff0dc",
+        "intensity": 0.6,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 2800,
+          "heightMm": 80,
+          "rangeMm": 2200,
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "golden-run-light-daylight-display-niche",
+        "roomId": "golden-run-room-main",
+        "name": "Display Niche Light",
+        "kind": "point",
+        "position": {
+          "x": 1350,
+          "y": 1880,
+          "z": -1850
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffe9cb",
+        "intensity": 0.45,
+        "enabled": false,
+        "parameters": {
+          "rangeMm": 1700,
+          "integrated": true,
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "golden-run-light-daylight-ambient",
+        "roomId": "golden-run-room-main",
+        "name": "Daylight Fill",
+        "kind": "ambient",
+        "position": {
+          "x": 0,
+          "y": 2400,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#eaf3ff",
+        "intensity": 0.54,
+        "enabled": false,
+        "parameters": {
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "golden-run-light-daylight-window",
+        "roomId": "golden-run-room-main",
+        "name": "Window Daylight",
+        "kind": "area",
+        "position": {
+          "x": -2850,
+          "y": 1850,
+          "z": -250
+        },
+        "rotation": {
+          "x": 0,
+          "y": 90,
+          "z": 0
+        },
+        "color": "#dcecff",
+        "intensity": 2.2,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 1800,
+          "heightMm": 1200,
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "golden-run-light-daylight-sun-fill",
+        "roomId": "golden-run-room-main",
+        "name": "Soft Window Shadow",
+        "kind": "directional",
+        "position": {
+          "x": -3600,
+          "y": 4200,
+          "z": 2600
+        },
+        "rotation": {
+          "x": -42,
+          "y": 38,
+          "z": 0
+        },
+        "color": "#f4f8ff",
+        "intensity": 0.58,
+        "enabled": false,
+        "parameters": {
+          "castShadow": true,
+          "recipeId": "daylight"
+        }
+      },
+      {
+        "id": "golden-run-light-warm-evening-tv-wall-cove",
+        "roomId": "golden-run-room-main",
+        "name": "TV Feature Wall Cove",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2250,
+          "z": -2100
+        },
+        "rotation": {
+          "x": -70,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffc788",
+        "intensity": 1.35,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 2800,
+          "heightMm": 80,
+          "rangeMm": 2200,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "golden-run-light-warm-evening-display-niche",
+        "roomId": "golden-run-room-main",
+        "name": "Display Niche Light",
+        "kind": "point",
+        "position": {
+          "x": 1350,
+          "y": 1880,
+          "z": -1850
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffc47c",
+        "intensity": 1.05,
+        "enabled": false,
+        "parameters": {
+          "rangeMm": 1700,
+          "integrated": true,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "golden-run-light-warm-evening-ambient",
+        "roomId": "golden-run-room-main",
+        "name": "Evening Fill",
+        "kind": "ambient",
+        "position": {
+          "x": 0,
+          "y": 2200,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffd9b0",
+        "intensity": 0.34,
+        "enabled": false,
+        "parameters": {
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "golden-run-light-warm-evening-floor-lamp",
+        "roomId": "golden-run-room-main",
+        "name": "Floor Lamp Glow",
+        "kind": "point",
+        "position": {
+          "x": 2500,
+          "y": 1420,
+          "z": 700
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffc17a",
+        "intensity": 7.5,
+        "enabled": false,
+        "parameters": {
+          "rangeMm": 3200,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "golden-run-light-warm-evening-ceiling",
+        "roomId": "golden-run-room-main",
+        "name": "Warm Ceiling Wash",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2650,
+          "z": 0
+        },
+        "rotation": {
+          "x": -90,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffe0bd",
+        "intensity": 2.1,
+        "enabled": false,
+        "parameters": {
+          "widthMm": 3600,
+          "heightMm": 2400,
+          "recipeId": "warm-evening"
+        }
+      },
+      {
+        "id": "golden-run-light-neutral-studio-tv-wall-cove",
+        "roomId": "golden-run-room-main",
+        "name": "TV Feature Wall Cove",
+        "kind": "area",
+        "position": {
+          "x": 0,
+          "y": 2250,
+          "z": -2100
+        },
+        "rotation": {
+          "x": -70,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffe5c4",
+        "intensity": 0.85,
+        "enabled": true,
+        "parameters": {
+          "widthMm": 2800,
+          "heightMm": 80,
+          "rangeMm": 2200,
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "golden-run-light-neutral-studio-display-niche",
+        "roomId": "golden-run-room-main",
+        "name": "Display Niche Light",
+        "kind": "point",
+        "position": {
+          "x": 1350,
+          "y": 1880,
+          "z": -1850
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffd6a1",
+        "intensity": 0.7,
+        "enabled": true,
+        "parameters": {
+          "rangeMm": 1700,
+          "integrated": true,
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "golden-run-light-neutral-studio-ambient",
+        "roomId": "golden-run-room-main",
+        "name": "Studio Fill",
+        "kind": "ambient",
+        "position": {
+          "x": 0,
+          "y": 2300,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "color": "#ffffff",
+        "intensity": 0.58,
+        "enabled": true,
+        "parameters": {
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "golden-run-light-neutral-studio-key",
+        "roomId": "golden-run-room-main",
+        "name": "Studio Key",
+        "kind": "directional",
+        "position": {
+          "x": 2600,
+          "y": 2500,
+          "z": 2200
+        },
+        "rotation": {
+          "x": -38,
+          "y": -42,
+          "z": 0
+        },
+        "color": "#fff5e8",
+        "intensity": 2.8,
+        "enabled": true,
+        "parameters": {
+          "castShadow": true,
+          "recipeId": "neutral-studio"
+        }
+      },
+      {
+        "id": "golden-run-light-neutral-studio-window-fill",
+        "roomId": "golden-run-room-main",
+        "name": "Studio Window Fill",
+        "kind": "area",
+        "position": {
+          "x": -2800,
+          "y": 1750,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 90,
+          "z": 0
+        },
+        "color": "#dbe8ff",
+        "intensity": 2.2,
+        "enabled": true,
+        "parameters": {
+          "widthMm": 1600,
+          "heightMm": 1100,
+          "recipeId": "neutral-studio"
+        }
+      }
+    ],
+    "cameras": [
+      {
+        "id": "golden-run-camera-hero",
+        "roomId": "golden-run-room-main",
+        "name": "Run elevation",
+        "position": {
+          "x": 0,
+          "y": 1600,
+          "z": 1400
+        },
+        "target": {
+          "x": 0,
+          "y": 900,
+          "z": -1800
+        },
+        "fieldOfViewDegrees": 40,
+        "isDefault": true
+      }
+    ],
+    "renderSettings": {
+      "widthPx": 1920,
+      "heightPx": 1080,
+      "quality": "standard",
+      "exposure": 1,
+      "transparentBackground": false,
+      "activeCameraId": "golden-run-camera-hero",
+      "lightingRecipeId": "neutral-studio",
+      "composition": "architectural",
+      "packageCameraBookmarks": [
+        {
+          "cameraId": "golden-run-camera-hero",
+          "viewName": "Run elevation"
+        }
+      ]
+    },
+    "extensions": {
+      "goldenCabinetRun": {
+        "id": "golden-cabinet-run",
+        "fixtureVersion": 1
+      },
+      "cabinetPlanning": {
+        "projectShell": {
+          "version": 1,
+          "preferences": {
+            "quote": {
+              "markupPercent": 18,
+              "taxPercent": 18,
+              "discountPercent": 0,
+              "validityDays": 30,
+              "labourAllowance": 0,
+              "finishPremiumPercent": 10,
+              "inclusions": "Cabinets, hardware, and specified finishes as shown.",
+              "exclusions": "Site installation, appliances, plumbing, and electrical not included.",
+              "currencyLabel": "INR",
+              "taxLabel": "GST",
+              "priceDetail": "summary"
+            }
+          },
+          "job": {
+            "customerName": "Golden Cabinet Run",
+            "projectNumber": "GCR-001",
+            "revision": "A",
+            "status": "draft",
+            "notes": "P0-E golden workflow fixture",
+            "createdAt": "2026-08-31T00:00:00.000Z",
+            "updatedAt": "2026-08-31T00:00:00.000Z"
+          },
+          "quoteHistory": []
+        }
+      },
+      "proposalSurface": {
+        "selectedViewCameraIds": [],
+        "staleOverride": null,
+        "frozenClient": null
+      },
+      "wallGraphDomainVersion": 1
+    }
+  }
+}

@@ -64,6 +64,10 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
             workspace.onDiscardRecovery();
             workspace.onOpenDemo();
           }}>OPEN RELEASE DEMO</button>
+          <button type="button" className="planner-v2-demo" data-testid="open-golden-cabinet-run" onClick={() => {
+            workspace.onDiscardRecovery();
+            workspace.onOpenGoldenRun();
+          }}>OPEN GOLDEN CABINET RUN</button>
           {recentProjects.length ? <div>{recentProjects.map((entry) => {
             const document = entry.project.interiorDocument!;
             const preview = entry.thumbnail || createLivingRoomPlanThumbnail(document);
