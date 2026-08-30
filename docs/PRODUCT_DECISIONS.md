@@ -48,7 +48,7 @@ Concise decisions supporting the canonical Product Book. Keep this file short an
 | Horizon | Must show progress |
 |---|---|
 | P0-A | HARDEN — explicit cabinet type/family, complete configuration, lossless adapter diagnostics |
-| P0-B | Cabinet-specific shared geometry; no Golden Run bookcase stand-ins |
+| P0-B | HARDEN — cabinet-specific shared geometry; no Golden Run bookcase stand-ins |
 | P0-C | Live total, quote freeze, stale detection, branded proposal |
 | P0-D | Same-project transition from Interiors to Cabinets engineering |
 | P0-E | Save/reopen golden journey plus quote, proposal, and cutlist assertions |
