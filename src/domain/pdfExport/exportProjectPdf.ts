@@ -17,6 +17,7 @@ import { drawMaterialsSection } from "./materialsSection";
 import { drawCostingSection } from "./costingSection";
 import { drawCutlistSection } from "./cutlistSection";
 import { drawInteriorPlanPage } from "./interiorPlanPage";
+import { assertProductionExportAllowed } from "../productionOutputs";
 
 export async function exportProjectPdf(
   project: CabinetProject,
@@ -27,6 +28,7 @@ export async function exportProjectPdf(
   runs: CabinetRun[] = [],
   interiorPlanSvg: string | null = null,
 ): Promise<Blob> {
+  assertProductionExportAllowed(project);
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = A4_PRINT_METRICS.pageWidthMm;
   const pageHeight = A4_PRINT_METRICS.pageHeightMm;

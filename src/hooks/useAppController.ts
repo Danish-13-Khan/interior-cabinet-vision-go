@@ -31,7 +31,6 @@ export function useAppController() {
     room: s.room,
     projectFilePath: s.projectFilePath,
     setProjectFilePath: s.setProjectFilePath,
-    cutlistItems: s.cutlistItems,
     planningWorkflow: s.planningWorkflow,
     applySnapshot: s.applySnapshot,
     onStatus: s.setProjectStatus,

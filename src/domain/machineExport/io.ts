@@ -1,4 +1,5 @@
 import type { CabinetProject } from "../cabinetDimensions";
+import { assertProductionExportAllowed } from "../productionOutputs";
 import { createMachineJobDocument } from "./derive";
 import {
   getMachineExportAdapter,
@@ -31,6 +32,7 @@ export function exportProjectMachineFile(
   project: CabinetProject,
   adapterId: MachineExportAdapterId = "json-preview",
 ) {
+  assertProductionExportAllowed(project);
   const doc = createMachineJobDocument(project);
   return {
     document: doc,

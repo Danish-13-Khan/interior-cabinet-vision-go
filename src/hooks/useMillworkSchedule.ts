@@ -14,7 +14,8 @@ import {
   type MillworkWorkflowSnapshot,
 } from "../domain/livingRoom/millworkSchedule";
 import { createProjectReport, type ProjectReport } from "../domain/projectReport";
-import { csvFromProductionCutlist } from "../domain/productionCutlist";
+import { prepareCutlistCsvExport } from "../domain/productionFileExport";
+import { runInteriorsProductionPdfExport } from "../domain/productionPdfExport";
 import { exportProjectPdf } from "../domain/pdfExport";
 import { promptSavePath, writeBinaryBlob, writeTextFile } from "../platform/desktopFiles";
 
@@ -89,6 +90,11 @@ export function useMillworkSchedule(project: InteriorProject | null) {
       const compatible = cabinetProjectFromInteriorProject(project);
       const report = createProjectReport(compatible.project, compatible.room);
       if (format === "cutlist-csv") {
+        const prepared = prepareCutlistCsvExport(compatible.project);
+        if (!prepared.ok) {
+          setStatus(prepared.status);
+          return;
+        }
         const path = await promptSavePath({
           title: "Export Production Cutlist CSV",
           defaultPath: `${base}-cutlist.csv`,
@@ -98,32 +104,32 @@ export function useMillworkSchedule(project: InteriorProject | null) {
           setStatus("Production cutlist export cancelled.");
           return;
         }
-        await writeTextFile(path, csvFromProductionCutlist(report.productionCutlist));
+        await writeTextFile(path, prepared.contents);
         setStatus(`Production cutlist exported (${report.productionCutlist.length} parts).`);
         return;
       }
-      const path = await promptSavePath({
-        title: "Export Production Packet PDF",
-        defaultPath: `${base}-production-packet.pdf`,
-        extensions: ["pdf"],
-      });
-      if (!path) {
-        setStatus("Production packet export cancelled.");
-        return;
-      }
-      await writeBinaryBlob(
-        path,
-        await exportProjectPdf(
-          compatible.project,
-          null,
-          project.name,
-          compatible.room,
-          [],
-          [],
-          createInteriorTechnicalPlanSvg(project),
-        ),
+      const result = await runInteriorsProductionPdfExport(
+        compatible.project,
+        {
+          promptPath: () => promptSavePath({
+            title: "Export Production Packet PDF",
+            defaultPath: `${base}-production-packet.pdf`,
+            extensions: ["pdf"],
+          }),
+          writePdf: writeBinaryBlob,
+          generatePdf: () => exportProjectPdf(
+            compatible.project,
+            null,
+            project.name,
+            compatible.room,
+            [],
+            [],
+            createInteriorTechnicalPlanSvg(project),
+          ),
+        },
+        `Production packet exported (${report.productionCutlist.length} cut parts).`,
       );
-      setStatus(`Production packet exported (${report.productionCutlist.length} cut parts).`);
+      setStatus(result.status);
     } catch (error) {
       setStatus(
         error instanceof Error

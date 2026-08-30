@@ -60,6 +60,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "tall-pantry-v1", catalogItemId: "living:tall-pantry-600", compile: compileBookcase },
   { id: "base-cabinet-v1", catalogItemId: "living:base-cabinet-900", compile: compileBookcase },
   { id: "wall-cabinet-v1", catalogItemId: "living:wall-cabinet-900", compile: compileBookcase },
+  { id: "drawer-cabinet-v1", catalogItemId: "living:drawer-cabinet-900", compile: compileBookcase },
   { id: "corner-wardrobe-v1", catalogItemId: "living:corner-wardrobe", compile: compileCornerWardrobe },
   { id: "run-filler-v1", catalogItemId: "living:run-filler", compile: compileRunFiller },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },
