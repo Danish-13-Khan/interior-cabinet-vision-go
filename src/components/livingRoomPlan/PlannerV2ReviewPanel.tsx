@@ -1,8 +1,10 @@
 import type { MillworkSchedule } from "../../domain/livingRoom/millworkSchedule";
 import type { LivingRoomPlanIssue, PreExportChecklist } from "../../domain/livingRoom";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
+import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import { PreExportChecklistSection } from "./PreExportChecklistSection";
 import { ProposalReviewSection } from "./ProposalReviewSection";
+import { EngineeringHandoffSection } from "./EngineeringHandoffSection";
 
 export function PlannerV2ReviewPanel({
   schedule,
@@ -14,6 +16,7 @@ export function PlannerV2ReviewPanel({
   clientPackageStatus,
   acceptedStillCount,
   proposal,
+  handoff,
   onSelect,
   onCsv,
   onPdf,
@@ -28,6 +31,7 @@ export function PlannerV2ReviewPanel({
   clientPackageStatus: string;
   acceptedStillCount: number;
   proposal: ReturnType<typeof useProposalWorkflow>;
+  handoff: ReturnType<typeof useEngineeringHandoff>;
   onCsv: () => void;
   onPdf: () => void;
   onClientPackage: () => void;
@@ -47,6 +51,7 @@ export function PlannerV2ReviewPanel({
         </small>
       </header>
       <ProposalReviewSection proposal={proposal} />
+      <EngineeringHandoffSection handoff={handoff} />
       <PreExportChecklistSection checklist={checklist} issues={issues} onSelect={onSelect} />
       <section>
         <strong>Millwork schedule</strong>

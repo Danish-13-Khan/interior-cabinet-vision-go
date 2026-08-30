@@ -9,6 +9,8 @@ import type { ViewportHudState } from "../domain/desktopUx";
 import { ReportCenter } from "./ReportCenter";
 import { PaneResizeHandle } from "./PaneResizeHandle";
 import { StatusHudSegments } from "./StatusHudSegments";
+import { EngineeringDriftChip } from "./EngineeringDriftChip";
+import type { PostApprovalDrift } from "../domain/livingRoom/handoff";
 
 type StatusStripProps = {
   workbenchMode?: import("../domain/desktopUx").WorkbenchMode;
@@ -19,6 +21,7 @@ type StatusStripProps = {
   cabinetCount: number;
   selectionSummary: string;
   validationMessages: string[];
+  drift?: PostApprovalDrift | null;
   hud: ViewportHudState;
   onCycleSnap?: () => void;
   onToggleGrid?: () => void;
@@ -65,6 +68,7 @@ export function StatusStrip({
   cabinetCount,
   selectionSummary,
   validationMessages,
+  drift = null,
   hud,
   onCycleSnap,
   onToggleGrid,
@@ -111,6 +115,7 @@ export function StatusStrip({
           {selectionSummary}
         </span>
         <span className="output-bar-actions">
+          {drift ? <EngineeringDriftChip drift={drift} /> : null}
           <span className={validationMessages.length > 0 ? "status-warning-count" : "status-ready"}>
             {validationMessages.length > 0
               ? `${validationMessages.length} warning${validationMessages.length === 1 ? "" : "s"}`
