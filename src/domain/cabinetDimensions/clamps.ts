@@ -41,6 +41,7 @@ import {
 } from "../projectReview/clamp";
 import { clampSheetOptimizerSettings } from "../sheetStock";
 import { normalizeCabinetHardware } from "../hardwareSystem";
+import { resolveFamilyId } from "../cabinetIdentity/families";
 import type {
   CabinetConfig,
   CabinetDimensions,
@@ -310,6 +311,8 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
 
   return {
     ...merged,
+    familyId: resolveFamilyId(merged.familyId, merged.type),
+    catalogItemId: merged.catalogItemId ?? `cabinet:${merged.type}`,
     dimensions: safeDimensions,
     ...flat,
     composition: syncedComposition,

@@ -10,9 +10,9 @@ import {
 import { DEFAULT_COSTING_SETTINGS, clampCostingSettings } from "../costingSettings";
 import { createCabinetPlanningWorkflow } from "../cabinetLibrary";
 import {
-  createCabinetProductionCutlist,
-  createProjectProductionCutlist,
-} from "../productionCutlist";
+  createExportableCabinetCutlistMap,
+  createExportableProjectCutlist,
+} from "../productionOutputs";
 import { DEFAULT_QUOTE_SETTINGS, clampQuoteSettings } from "../quoteSettings";
 import { buildProjectQuote } from "../projectQuote";
 import { createDefaultJobMeta, clampJobMeta } from "../jobMeta";
@@ -56,18 +56,13 @@ export function summarizeProjectRoom(
   const settings = clampCostingSettings(
     slice.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
   );
-  const productionCutlist = createProjectProductionCutlist(slice);
+  const productionCutlist = createExportableProjectCutlist(slice);
   const constructionMap = new Map(
     slice.cabinets.map(
       (cabinet) => [cabinet.id, createCabinetConstruction(cabinet.config)] as const,
     ),
   );
-  const cutlistMap = new Map(
-    slice.cabinets.map(
-      (cabinet, index) =>
-        [cabinet.id, createCabinetProductionCutlist(cabinet, index + 1)] as const,
-    ),
-  );
+  const cutlistMap = createExportableCabinetCutlistMap(slice);
   const projectCost = calculateProjectCost(
     slice.cabinets,
     constructionMap,
@@ -117,18 +112,13 @@ export function createWholeProjectReport(project: CabinetProject): WholeProjectR
       slice.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
     );
     const job = clampJobMeta(slice.job ?? createDefaultJobMeta());
-    const productionCutlist = createProjectProductionCutlist(slice);
+    const productionCutlist = createExportableProjectCutlist(slice);
     const constructionMap = new Map(
       slice.cabinets.map(
         (cabinet) => [cabinet.id, createCabinetConstruction(cabinet.config)] as const,
       ),
     );
-    const cutlistMap = new Map(
-      slice.cabinets.map(
-        (cabinet, index) =>
-          [cabinet.id, createCabinetProductionCutlist(cabinet, index + 1)] as const,
-      ),
-    );
+    const cutlistMap = createExportableCabinetCutlistMap(slice);
     const projectCost: ProjectCost = calculateProjectCost(
       slice.cabinets,
       constructionMap,

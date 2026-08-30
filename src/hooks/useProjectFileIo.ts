@@ -2,17 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type CabinetProject,
 } from "../domain/cabinetDimensions";
-import {
-  normalizeMultiRoomProject,
-  writeActiveRoomState,
-} from "../domain/projectRooms";
 import { DEFAULT_ROOM, type RoomConfig } from "../domain/roomModel";
 import { exportProjectPdf } from "../domain/pdfExport";
-import { exportProjectMachineFile } from "../domain/machineExport";
-import { csvFromProductionCutlist } from "../domain/productionCutlist";
+import { runCabinetsPdfExport } from "../domain/productionPdfExport";
 import { getProjectDisplayName } from "../domain/projectBrowserStorage";
+import { useProductionFileExport } from "./useProductionFileExport";
 import type { createCabinetPlanningWorkflow } from "../domain/cabinetLibrary";
-import type { createProjectProductionCutlist } from "../domain/productionCutlist";
 import type { DesktopSessionState } from "../domain/desktopUx";
 import { getErrorMessage } from "../utils/errors";
 import {
@@ -31,7 +26,6 @@ import {
   type InteriorProject,
 } from "../domain/interiorProject";
 
-type CutlistItem = ReturnType<typeof createProjectProductionCutlist>[number];
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
 
 function snapshotFromParsedFile(
@@ -43,7 +37,7 @@ function snapshotFromParsedFile(
 }
 
 function currentInteriorDocument(project: CabinetProject, room: RoomConfig) {
-  return project.interiorDocument ?? interiorProjectFromCabinetProject({
+  return interiorProjectFromCabinetProject({
     project,
     activeRoom: room,
   });
@@ -67,7 +61,6 @@ type UseProjectFileIoArgs = {
   room: RoomConfig;
   projectFilePath: string | null;
   setProjectFilePath: (path: string | null) => void;
-  cutlistItems: CutlistItem[];
   planningWorkflow: PlanningWorkflow;
   applySnapshot: ApplySnapshot;
   onStatus: (status: string) => void;
@@ -83,7 +76,6 @@ export function useProjectFileIo({
   room,
   projectFilePath,
   setProjectFilePath,
-  cutlistItems,
   planningWorkflow,
   applySnapshot,
   onStatus,
@@ -170,13 +162,7 @@ export function useProjectFileIo({
 
   const handleSaveProject = useCallback(async () => {
     try {
-      const document = project.interiorDocument ?? interiorProjectFromCabinetProject({
-        project: normalizeMultiRoomProject(
-          writeActiveRoomState(project, project.cabinets, room),
-          room,
-        ),
-        activeRoom: room,
-      });
+      const document = currentInteriorDocument(project, room);
       const targetPath =
         projectFilePath ??
         (await promptSavePath({
@@ -258,67 +244,11 @@ export function useProjectFileIo({
     [applyLoadedFile, forgetFile, onStatus],
   );
 
-  const handleExportMachineJson = useCallback(async () => {
-    try {
-      const exported = exportProjectMachineFile(project, "json-preview");
-      const targetPath = await promptSavePath({
-        title: "Export Machine Intent JSON (preview)",
-        defaultPath: "cabinet-machine-preview.json",
-        extensions: ["json"],
-      });
-      if (!targetPath) {
-        onStatus("Machine JSON export cancelled.");
-        return;
-      }
-      await writeFile(targetPath, exported.contents);
-      onStatus(
-        "Exported machining intent JSON (preview only — not a CNC program).",
-      );
-    } catch (error) {
-      onStatus(`Machine JSON export failed: ${getErrorMessage(error)}`);
-    }
-  }, [onStatus, project, writeFile]);
-
-  const handleExportMachineCsv = useCallback(async () => {
-    try {
-      const exported = exportProjectMachineFile(project, "csv-ops-preview");
-      const targetPath = await promptSavePath({
-        title: "Export Machine Operations CSV (preview)",
-        defaultPath: "cabinet-machine-ops-preview.csv",
-        extensions: ["csv"],
-      });
-      if (!targetPath) {
-        onStatus("Machine CSV export cancelled.");
-        return;
-      }
-      await writeFile(targetPath, exported.contents);
-      onStatus(
-        "Exported machining operations CSV (preview only — not a CNC program).",
-      );
-    } catch (error) {
-      onStatus(`Machine CSV export failed: ${getErrorMessage(error)}`);
-    }
-  }, [onStatus, project, writeFile]);
-
-  const handleExportCutlistCsv = useCallback(async () => {
-    try {
-      const targetPath = await promptSavePath({
-        title: "Export Cutlist CSV",
-        defaultPath: "cabinet-cutlist.csv",
-        extensions: ["csv"],
-      });
-
-      if (!targetPath) {
-        onStatus("CSV export cancelled.");
-        return;
-      }
-
-      await writeFile(targetPath, csvFromProductionCutlist(cutlistItems));
-      onStatus("Production cutlist exported to CSV.");
-    } catch (error) {
-      onStatus(`CSV export failed: ${getErrorMessage(error)}`);
-    }
-  }, [cutlistItems, onStatus, writeFile]);
+  const {
+    handleExportMachineJson,
+    handleExportMachineCsv,
+    handleExportCutlistCsv,
+  } = useProductionFileExport(project, writeFile, onStatus);
 
   const handleExportProjectJson = useCallback(async () => {
     try {
@@ -345,27 +275,26 @@ export function useProjectFileIo({
 
   const handleExportPdf = useCallback(async () => {
     try {
-      const targetPath = await promptSavePath({
-        title: "Export PDF Report",
-        defaultPath: "cabinet-project.pdf",
-        extensions: ["pdf"],
+      const result = await runCabinetsPdfExport(project, {
+        promptPath: () => promptSavePath({
+          title: "Export PDF Report",
+          defaultPath: "cabinet-project.pdf",
+          extensions: ["pdf"],
+        }),
+        writePdf: writeBinaryBlob,
+        generatePdf: async () => {
+          onStatus("Generating PDF...");
+          return exportProjectPdf(
+            project,
+            captureThumbnail(),
+            getProjectDisplayName(project, 1),
+            room,
+            planningWorkflow.countertops,
+            planningWorkflow.runs,
+          );
+        },
       });
-      if (!targetPath) {
-        onStatus("PDF export cancelled.");
-        return;
-      }
-      onStatus("Generating PDF...");
-      const screenshot = captureThumbnail();
-      const blob = await exportProjectPdf(
-        project,
-        screenshot,
-        getProjectDisplayName(project, 1),
-        room,
-        planningWorkflow.countertops,
-        planningWorkflow.runs,
-      );
-      await writeBinaryBlob(targetPath, blob);
-      onStatus("PDF report saved.");
+      onStatus(result.status);
     } catch (error) {
       onStatus("PDF export failed: " + getErrorMessage(error));
     }

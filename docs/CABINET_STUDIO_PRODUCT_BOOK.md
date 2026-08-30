@@ -1967,13 +1967,11 @@ The handoff must report:
 
 ### 24.4 Current adapter risk
 
-The current compatibility adapter derives cabinet type from object category when a cabinet-specific extension is missing.
+The compatibility adapter no longer derives cabinet type from display category.
 
-Several native interior catalog cabinets use the generic category `storage`.
+Native catalog cabinets keep `category` as a merchandising label (including `storage`) and carry an explicit `cabinetType` / `familyId`. Unidentified cabinet-looking objects are skipped and reported; they do not fall back to `base`.
 
-This creates a risk of silent fallback to `base` configuration.
-
-This is `NEXT` and P0.
+This is `HARDEN` for P0-A. Silent fallback remains prohibited.
 
 ### 24.5 Handoff requirements
 
@@ -2779,7 +2777,7 @@ Deliver the first trustworthy cabinet proposal-to-production loop.
 
 ### 38.2 Epic P0-A — Cabinet identity and adapter fidelity
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Requirements:
 
@@ -4254,29 +4252,29 @@ A narrow customer job where the product can be meaningfully better than broad co
 
 ### A.1 Data truth
 
-- [ ] `DAT-001` Explicit cabinet type.
-- [ ] `DAT-002` Stable cabinet ID.
-- [ ] `DAT-003` Complete normalized configuration.
-- [ ] `DAT-004` Category is not type.
-- [ ] `DAT-005` Catalog ID, SKU, type, and category separated.
-- [ ] `DAT-006` JSON-safe configuration.
-- [ ] `DAT-007` Schema version.
-- [ ] `DAT-008` Migration coverage.
-- [ ] `DAT-009` Old-project compatibility.
-- [ ] `DAT-010` Derived output does not mutate source.
-- [ ] `DAT-014` Adapter loss reporting.
-- [ ] `DAT-015` No silent family fallback.
+- [x] `DAT-001` Explicit cabinet type.
+- [x] `DAT-002` Stable cabinet ID.
+- [x] `DAT-003` Complete normalized configuration.
+- [x] `DAT-004` Category is not type.
+- [x] `DAT-005` Catalog ID, SKU, type, and category separated.
+- [x] `DAT-006` JSON-safe configuration.
+- [x] `DAT-007` Schema version.
+- [x] `DAT-008` Migration coverage.
+- [x] `DAT-009` Old-project compatibility.
+- [x] `DAT-010` Derived output does not mutate source.
+- [x] `DAT-014` Adapter loss reporting.
+- [x] `DAT-015` No silent family fallback.
 
 ### A.2 Golden cabinets
 
-- [ ] Base cabinet fixture.
-- [ ] Drawer cabinet fixture.
-- [ ] Wall cabinet fixture.
-- [ ] Tall cabinet fixture.
+- [x] Base cabinet fixture.
+- [x] Drawer cabinet fixture.
+- [x] Wall cabinet fixture.
+- [x] Tall cabinet fixture.
 - [ ] Filler fixture.
 - [ ] Countertop fixture.
-- [ ] Save/reopen coverage.
-- [ ] Adapter coverage.
+- [x] Save/reopen coverage.
+- [x] Adapter coverage.
 - [ ] 3D semantic coverage.
 - [ ] Cutlist coverage.
 - [ ] Quote coverage.
@@ -4542,7 +4540,7 @@ The detailed sections above govern behavior.
 | Schema version | `SHIPPED` | `DAT-007` |
 | Project migrations | `SHIPPED` | `DAT-008`–`DAT-009` |
 | Migration diagnostics | `HARDEN` | `DAT-023` |
-| Adapter-loss diagnostics | `NEXT` | `DAT-014`, `ENG-002` |
+| Adapter-loss diagnostics | `HARDEN` | `DAT-014`, `ENG-002` |
 
 ### G.2 Room authoring
 
@@ -4592,12 +4590,12 @@ The detailed sections above govern behavior.
 | Corner wardrobe catalog item | `HARDEN` | Corner representation exists; production semantics need review. |
 | Feature-wall millwork | `SHIPPED` | Not part of Golden Cabinet Run. |
 | Display niche | `SHIPPED` | Not part of Golden Cabinet Run. |
-| Explicit cabinet type on native catalog item | `NEXT` | `DAT-001`, `CAB-020` |
-| Explicit cabinet family | `NEXT` | `DAT-003`, `CAB-009` |
-| Separate category and technical type | `NEXT` | `DAT-004`–`DAT-005` |
-| Persist normalized cabinet config | `NEXT` | `DAT-003` |
+| Explicit cabinet type on native catalog item | `HARDEN` | `DAT-001`, `CAB-020` |
+| Explicit cabinet family | `HARDEN` | `DAT-003`, `CAB-009` |
+| Separate category and technical type | `HARDEN` | `DAT-004`–`DAT-005` |
+| Persist normalized cabinet config | `HARDEN` | `DAT-003` |
 | SKU field | `SHIPPED` | Present on selected items; governance is `HARDEN`. |
-| Catalog type round-trip test | `NEXT` | `CAB-022` |
+| Catalog type round-trip test | `HARDEN` | `CAB-022` |
 | Catalog cutlist smoke test | `HARDEN` | Current coverage checks output existence. |
 | Catalog quote smoke test | `NEXT` | `CAB-024` |
 | Shop-specific cabinet templates | `LATER` | P1/P2 after Golden Run. |

@@ -45,6 +45,12 @@ export {
   interiorProjectFromCabinetProject,
 } from "./cabinetAdapter";
 export {
+  diagnoseDocumentIdentity,
+  diagnoseInteriorCabinets,
+  type AdapterDiagnostic,
+  type AdapterDiagnosticReport,
+} from "../cabinetIdentity";
+export {
   createInteriorProjectFile,
   loadInteriorProjectFile,
   MAX_INTERIOR_PROJECT_FILE_BYTES,
