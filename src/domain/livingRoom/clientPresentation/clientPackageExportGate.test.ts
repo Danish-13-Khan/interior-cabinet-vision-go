@@ -23,4 +23,9 @@ describe("isClientPackageExportBlocked", () => {
     expect(isClientPackageExportBlocked([advisory], true)).toBe(false);
     expect(isClientPackageExportBlocked([], true)).toBe(false);
   });
+
+  it("blocks client package export when fallback cabinet geometry is present", () => {
+    expect(isClientPackageExportBlocked([], true, { geometryFallbackIds: ["golden-base"] })).toBe(true);
+    expect(isClientPackageExportBlocked([], true, { geometryFallbackIds: [] })).toBe(false);
+  });
 });

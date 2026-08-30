@@ -29,7 +29,7 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     cabinetType: B["living:tall-pantry-600"].cabinetType,
     familyId: B["living:tall-pantry-600"].familyId,
     dimensions: { widthMm: 600, heightMm: 2400, depthMm: 600 },
-    materialSlots: { carcass: M.walnut, fronts: M.naturalOak },
+    materialSlots: { carcass: M.walnut, fronts: M.naturalOak, back: M.walnut, shelves: M.naturalOak },
     parameters: { sku: "MW-TALL-600", doorCount: 2, shelfCount: 5, pantry: true },
   },
   {
@@ -38,7 +38,7 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     cabinetType: B["living:base-cabinet-900"].cabinetType,
     familyId: B["living:base-cabinet-900"].familyId,
     dimensions: { widthMm: 900, heightMm: 900, depthMm: 600 },
-    materialSlots: { carcass: M.walnut, fronts: M.naturalOak },
+    materialSlots: { carcass: M.walnut, fronts: M.naturalOak, back: M.walnut, shelves: M.naturalOak, countertop: M.warmStone },
     parameters: { sku: "MW-BASE-900", doorCount: 2, drawerCount: 1, baseCabinet: true },
   },
   {
@@ -47,8 +47,8 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     cabinetType: B["living:wall-cabinet-900"].cabinetType,
     familyId: B["living:wall-cabinet-900"].familyId,
     dimensions: { widthMm: 900, heightMm: 720, depthMm: 350 },
-    materialSlots: { carcass: M.walnut, fronts: M.naturalOak },
-    parameters: { sku: "MW-WALL-900", doorCount: 2, wallCabinet: true },
+    materialSlots: { carcass: M.walnut, fronts: M.naturalOak, back: M.walnut, shelves: M.naturalOak },
+    parameters: { sku: "MW-WALL-900", doorCount: 2, wallCabinet: true, mountHeightMm: 1400 },
   },
   {
     id: "living:drawer-cabinet-900", name: "Drawer Bank · 900",
@@ -56,7 +56,7 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     cabinetType: B["living:drawer-cabinet-900"].cabinetType,
     familyId: B["living:drawer-cabinet-900"].familyId,
     dimensions: { widthMm: 900, heightMm: 900, depthMm: 600 },
-    materialSlots: { carcass: M.walnut, fronts: M.naturalOak },
+    materialSlots: { carcass: M.walnut, fronts: M.naturalOak, back: M.walnut, shelves: M.naturalOak, countertop: M.warmStone },
     parameters: { sku: "MW-DRAWER-900", doorCount: 0, drawerCount: 3, drawerBank: true },
   },
   {

@@ -120,6 +120,7 @@ describe("cabinet run assembly", () => {
       true,
     );
     expect(workflow.countertops.length).toBeGreaterThanOrEqual(1);
+    expect(workflow.countertops.every((ct) => ct.axis === "x")).toBe(true);
   });
 
   it("splits a generated countertop at an authored break", () => {

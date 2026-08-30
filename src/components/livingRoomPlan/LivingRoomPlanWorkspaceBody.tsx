@@ -1,4 +1,5 @@
 import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
+import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -16,6 +17,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     millworkCount: props.millwork.workflow?.millworkCount ?? 0,
     packageDeckCount: countResolvedPackageDeckViews(project),
     acceptedStillCount,
+    geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
 
   return (
