@@ -602,6 +602,7 @@ export function useLivingRoomPlanEditor({
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
     setLivingRoomRenderSettings: setRenderSettings,
+    patchLivingRoomDocument: commitDocument,
     setLivingRoomLightingRecipe: setLightingRecipe,
     currentCompatibilityRoom: room,
   };

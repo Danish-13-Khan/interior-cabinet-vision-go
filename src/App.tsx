@@ -277,6 +277,7 @@ function App() {
             onSetPlanUnderlay={c.setLivingRoomPlanUnderlay}
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
+            onPatchDocument={c.patchLivingRoomDocument}
             onLightingChange={c.setLivingRoomLightingRecipe}
             onRenderBrowserThumbnail={(dataUrl) => {
               void c.setLivingRoomBrowserThumbnail(dataUrl);

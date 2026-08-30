@@ -468,6 +468,28 @@ export {
   type PreExportChecklist,
 } from "./clientPresentation";
 export {
+  appendFrozenQuote,
+  buildLiveInteriorQuote,
+  buildProposalDocument,
+  buildProposalGate,
+  exportInteriorProposalPdf,
+  freezeLiveQuote,
+  isProposalExportBlocked,
+  listProposalNamedViews,
+  patchProposalJob,
+  patchProposalQuoteSettings,
+  proposalFileName,
+  readProposalCommercial,
+  setProposalSelectedViews,
+  setProposalStaleOverride,
+  toggleProposalView,
+  verifyProposalPdf,
+  type LiveInteriorQuote,
+  type ProposalDocument,
+  type ProposalGate,
+  type ProposalNamedView,
+} from "./proposal";
+export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
 export { computeArchitectureBounds } from "./sceneCompilerBounds";

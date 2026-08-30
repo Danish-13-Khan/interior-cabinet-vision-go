@@ -1,6 +1,8 @@
 import type { MillworkSchedule } from "../../domain/livingRoom/millworkSchedule";
 import type { LivingRoomPlanIssue, PreExportChecklist } from "../../domain/livingRoom";
+import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { PreExportChecklistSection } from "./PreExportChecklistSection";
+import { ProposalReviewSection } from "./ProposalReviewSection";
 
 export function PlannerV2ReviewPanel({
   schedule,
@@ -11,6 +13,7 @@ export function PlannerV2ReviewPanel({
   clientPackageBusy,
   clientPackageStatus,
   acceptedStillCount,
+  proposal,
   onSelect,
   onCsv,
   onPdf,
@@ -24,6 +27,7 @@ export function PlannerV2ReviewPanel({
   clientPackageBusy: boolean;
   clientPackageStatus: string;
   acceptedStillCount: number;
+  proposal: ReturnType<typeof useProposalWorkflow>;
   onCsv: () => void;
   onPdf: () => void;
   onClientPackage: () => void;
@@ -42,6 +46,7 @@ export function PlannerV2ReviewPanel({
             : `${checklist.blockingFailCount} blocking`}
         </small>
       </header>
+      <ProposalReviewSection proposal={proposal} />
       <PreExportChecklistSection checklist={checklist} issues={issues} onSelect={onSelect} />
       <section>
         <strong>Millwork schedule</strong>
@@ -66,7 +71,6 @@ export function PlannerV2ReviewPanel({
         </small>
         <button
           type="button"
-          className="is-primary"
           onClick={onClientPackage}
           disabled={exportBlocked || clientPackageBusy || millworkBusy}
         >

@@ -4,6 +4,7 @@ import { useClientPresentationExport } from "../hooks/useClientPresentationExpor
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
+import { useProposalWorkflow } from "../hooks/useProposalWorkflow";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
@@ -31,6 +32,13 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [acceptedStillAssets, setAcceptedStillAssets] = useState<AcceptedStillAsset[]>([]);
   const millwork = useMillworkSchedule(props.project);
   const clientExport = useClientPresentationExport();
+  const proposal = useProposalWorkflow({
+    project: props.project,
+    issues: props.issues,
+    onPatchDocument: props.onPatchDocument,
+    latestRender: renderResults.latest,
+    acceptedStills: acceptedStillAssets,
+  });
   const readability = usePlanReadabilitySettings();
   const activeOpening = props.project?.openings.find((opening) => opening.id === activeOpeningId) ?? null;
   const room = props.project?.rooms.find((item) => item.id === props.project?.activeRoomId);
@@ -137,6 +145,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
         build={build} activeBuildTool={activeBuildTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
+        proposal={proposal}
         acceptedStillAssets={acceptedStillAssets} onAcceptedStillAssetsChange={setAcceptedStillAssets}
         issues={props.issues}
         readability={readability.settings} onReadability={readability.update}
