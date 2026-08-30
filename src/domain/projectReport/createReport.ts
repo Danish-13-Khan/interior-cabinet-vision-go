@@ -1,5 +1,5 @@
 import type { CabinetProject } from "../cabinetDimensions";
-import { cabinetTypeLabels } from "../cabinetDimensions";
+import { diagnoseProjectIdentity } from "../cabinetIdentity";
 import { createCabinetConstruction } from "../cabinetConstruction";
 import {
   calculateCabinetCost,
@@ -9,12 +9,14 @@ import {
 } from "../costing";
 import {
   computeProductionMaterialSummary,
-  createCabinetProductionCutlist,
-  createProjectProductionCutlist,
   groupCutlistByCabinet,
   groupCutlistByMaterial,
   groupCutlistByThickness,
 } from "../productionCutlist";
+import {
+  createExportableCabinetCutlistMap,
+  createExportableProjectCutlist,
+} from "../productionOutputs";
 import type { RoomConfig } from "../roomModel";
 import {
   clampJobMeta,
@@ -43,12 +45,14 @@ import {
   createRevisionFingerprint,
   getProjectReviewState,
 } from "../projectReview";
+import { roomBoundsFromConfig } from "./helpers";
+import { PROJECT_REPORT_PACKET_SECTIONS } from "./packetSections";
 import {
-  estimateRunLengthMm,
-  formatRunLabel,
-  roomBoundsFromConfig,
-} from "./helpers";
-import type { CabinetScheduleRow, ProjectReport, RunSummaryRow } from "./types";
+  buildCabinetSchedule,
+  buildReportItemList,
+  buildRunSummaries,
+} from "./scheduleRows";
+import type { ProjectReport } from "./types";
 
 export function createProjectReport(
   project: CabinetProject,
@@ -62,18 +66,14 @@ export function createProjectReport(
     project.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
   );
   const job = clampJobMeta(project.job ?? createDefaultJobMeta());
-  const productionCutlist = createProjectProductionCutlist(project);
+  const identity = diagnoseProjectIdentity(project);
+  const productionCutlist = createExportableProjectCutlist(project);
   const constructionMap = new Map(
     project.cabinets.map(
       (cabinet) => [cabinet.id, createCabinetConstruction(cabinet.config)] as const,
     ),
   );
-  const cutlistMap = new Map(
-    project.cabinets.map(
-      (cabinet, index) =>
-        [cabinet.id, createCabinetProductionCutlist(cabinet, index + 1)] as const,
-    ),
-  );
+  const cutlistMap = createExportableCabinetCutlistMap(project);
   const projectCost = calculateProjectCost(
     project.cabinets,
     constructionMap,
@@ -87,26 +87,7 @@ export function createProjectReport(
 
   const workflow =
     planning ?? createCabinetPlanningWorkflow(project, roomBoundsFromConfig(room));
-  const runByCabinetId = new Map<string, { runId: string; label: string }>();
-  workflow.runs.forEach((run, index) => {
-    const label = formatRunLabel(run, index);
-    for (const cabinetId of run.cabinetIds) {
-      runByCabinetId.set(cabinetId, { runId: run.id, label });
-    }
-  });
-
-  const itemList = project.cabinets.map((cabinet) => ({
-    id: cabinet.id,
-    name: cabinet.name,
-    typeLabel: cabinetTypeLabels[cabinet.config.type],
-    widthMm: cabinet.config.dimensions.width,
-    heightMm: cabinet.config.dimensions.height,
-    depthMm: cabinet.config.dimensions.depth,
-    x: Math.round(cabinet.placement.x),
-    z: Math.round(cabinet.placement.z),
-    rotation: cabinet.placement.rotation,
-  }));
-
+  const itemList = buildReportItemList(project);
   const perItemCutlists = project.cabinets.map((cabinet) => {
     const lines = cutlistMap.get(cabinet.id) ?? [];
     const construction = constructionMap.get(cabinet.id)!;
@@ -119,28 +100,12 @@ export function createProjectReport(
         calculateCabinetCost(cabinet, construction, lines, undefined, settings),
     };
   });
-
-  const cabinetSchedule: CabinetScheduleRow[] = project.cabinets.map((cabinet, index) => {
-    const runInfo = runByCabinetId.get(cabinet.id) ?? null;
-    const lines = cutlistMap.get(cabinet.id) ?? [];
-    const cost = cabinetCosts.get(cabinet.id);
-    return {
-      mark: `C${String(index + 1).padStart(2, "0")}`,
-      cabinetId: cabinet.id,
-      cabinetName: cabinet.name,
-      typeLabel: cabinetTypeLabels[cabinet.config.type],
-      widthMm: cabinet.config.dimensions.width,
-      heightMm: cabinet.config.dimensions.height,
-      depthMm: cabinet.config.dimensions.depth,
-      x: Math.round(cabinet.placement.x),
-      z: Math.round(cabinet.placement.z),
-      rotation: cabinet.placement.rotation,
-      partCount: lines.length,
-      totalCost: cost?.totalCost ?? 0,
-      runId: runInfo?.runId ?? null,
-      runLabel: runInfo?.label ?? null,
-    };
-  });
+  const cabinetSchedule = buildCabinetSchedule(
+    project,
+    workflow,
+    cutlistMap,
+    cabinetCosts,
+  );
 
   const cabinetMarks = new Map(
     cabinetSchedule.map((row) => [row.cabinetId, row.mark] as const),
@@ -153,23 +118,7 @@ export function createProjectReport(
   const review = getProjectReviewState(project);
   const currentFingerprint = createRevisionFingerprint(project, review.notes);
 
-  const runSummaries: RunSummaryRow[] = workflow.runs.map((run, index) => {
-    const names = run.cabinetIds
-      .map((id) => project.cabinets.find((cabinet) => cabinet.id === id)?.name)
-      .filter((name): name is string => Boolean(name));
-    return {
-      runId: run.id,
-      label: formatRunLabel(run, index),
-      side: run.side,
-      axis: run.axis,
-      cabinetCount: run.cabinetIds.length,
-      cabinetNames: names,
-      lengthMm: Math.round(estimateRunLengthMm(run, project)),
-      fillerCount: workflow.fillers.filter((filler) => filler.runId === run.id).length,
-      countertopCount: workflow.countertops.filter((top) => top.runId === run.id).length,
-      hasCorner: run.cornerTransition,
-    };
-  });
+  const runSummaries = buildRunSummaries(project, workflow);
 
   const sheetOptimizer = clampSheetOptimizerSettings(
     project.preferences?.sheetOptimizer ?? DEFAULT_SHEET_OPTIMIZER,
@@ -236,57 +185,8 @@ export function createProjectReport(
     quoteHistory,
     review,
     currentFingerprint,
-    packetSections: [
-      {
-        id: "cover",
-        title: "Job Cover",
-        description: "Customer, project number, revision, and status",
-      },
-      {
-        id: "review",
-        title: "Review / Revisions",
-        description: "Snapshots, change log, approval, and release gates",
-      },
-      {
-        id: "schedule",
-        title: "Cabinet Schedule",
-        description: "Marks, sizes, runs, and unit costs",
-      },
-      {
-        id: "runs",
-        title: "Room / Run Summary",
-        description: "Detected runs, fillers, and countertops",
-      },
-      {
-        id: "materials",
-        title: "Material Takeoff",
-        description: "Board estimates by material and thickness",
-      },
-      {
-        id: "optimize",
-        title: "Sheet Yield",
-        description: "Sheet definitions, cut grouping, waste, and offcuts",
-      },
-      {
-        id: "hardware",
-        title: "Hardware Schedule",
-        description: "Hinges, slides, handles, legs, accessories, and costs",
-      },
-      {
-        id: "cutlist",
-        title: "Workshop Cutlist",
-        description: "Shop refs, part sizes, and grouping",
-      },
-      {
-        id: "costing",
-        title: "Costing Summary",
-        description: "Material, hardware, labour, and totals",
-      },
-      {
-        id: "quote",
-        title: "Quote / Estimate",
-        description: "Itemized sell prices, markup, tax, and revision snapshots",
-      },
-    ],
+    packetSections: PROJECT_REPORT_PACKET_SECTIONS,
+    identityDiagnostics: identity.diagnostics,
+    productionBlocked: identity.blocking,
   };
 }

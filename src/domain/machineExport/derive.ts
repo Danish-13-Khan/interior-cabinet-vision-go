@@ -4,9 +4,9 @@ import type { CabinetConstructionSpec } from "../cabinetConstructionSpec";
 import { BACK_PANEL_RULES } from "../materialSystem";
 import {
   createCabinetProductionCutlist,
-  createProjectProductionCutlist,
   type ProductionCutlistLine,
 } from "../productionCutlist";
+import { createExportableProjectCutlist } from "../productionOutputs";
 import {
   MACHINE_EXPORT_DISCLAIMER,
   MACHINE_EXPORT_SCHEMA_VERSION,
@@ -244,7 +244,7 @@ function specForCabinet(cabinet: CabinetInstance): CabinetConstructionSpec {
 
 export function createMachineJobDocument(
   project: CabinetProject,
-  lines: ProductionCutlistLine[] = createProjectProductionCutlist(project),
+  lines: ProductionCutlistLine[] = createExportableProjectCutlist(project),
 ): MachineJobDocument {
   const job = clampJobMeta(project.job ?? createDefaultJobMeta());
   const specByCabinet = new Map(

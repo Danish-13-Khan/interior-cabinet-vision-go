@@ -7,7 +7,7 @@ describe("I4 curated millwork SKUs", () => {
       "sku" in item.parameters && typeof item.parameters.sku === "string" ? [item.parameters.sku] : [],
     );
     expect(skus).toEqual([
-      "MW-TALL-600", "MW-BASE-900", "MW-WALL-900",
+      "MW-TALL-600", "MW-BASE-900", "MW-WALL-900", "MW-DRAWER-900",
     ]);
   });
 
@@ -16,5 +16,10 @@ describe("I4 curated millwork SKUs", () => {
       id: "base-1", roomId: "room-1", position: { x: 0, y: 0, z: 0 },
     });
     expect(cabinet.parameters.sku).toBe("MW-BASE-900");
+    expect(cabinet.category).toBe("storage");
+    expect(cabinet.extensions?.cabinetIdentity).toMatchObject({
+      cabinetType: "base",
+      familyId: "frameless-standard-base",
+    });
   });
 });

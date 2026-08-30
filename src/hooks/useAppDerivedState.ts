@@ -24,9 +24,9 @@ import {
   type ManufacturingIssue,
 } from "../domain/manufacturingRules";
 import {
-  createCabinetProductionCutlist,
-  createProjectProductionCutlist,
-} from "../domain/productionCutlist";
+  createExportableCabinetCutlist,
+  createExportableProjectCutlist,
+} from "../domain/productionOutputs";
 import {
   clampCostingSettings,
   DEFAULT_COSTING_SETTINGS,
@@ -116,10 +116,10 @@ export function useAppDerivedState({
       placement: selectedCabinet.placement,
       roomHeightMm: room.dimensions.heightMm,
     }).filter((issue) => issue.severity === "error" || issue.severity === "warning");
-  }, [room.dimensions.heightMm, selectedCabinet]);  const cutlistItems = useMemo(() => createProjectProductionCutlist(project), [project]);
+  }, [room.dimensions.heightMm, selectedCabinet]);  const cutlistItems = useMemo(() => createExportableProjectCutlist(project), [project]);
   const cabinetCutlistItems = useMemo(
-    () => (selectedCabinet ? createCabinetProductionCutlist(selectedCabinet) : []),
-    [selectedCabinet],
+    () => (selectedCabinet ? createExportableCabinetCutlist(project, selectedCabinet) : []),
+    [project, selectedCabinet],
   );
   const derivedMetrics = useMemo(
     () =>

@@ -1,4 +1,5 @@
 import type { CabinetInstance, CabinetProject, CabinetType } from "./cabinetDimensions";
+import { withNewCabinetIdentity } from "./cabinetIdentity/copyInstance";
 import { DEFAULT_ROOM, type RoomConfig } from "./roomModel";
 
 export type RoomPresetId = "small-bedroom" | "living-room" | "office";
@@ -219,9 +220,11 @@ export const objectCategories: ObjectCategory[] = [
 export function createRoomPresetProject(preset: RoomPreset): CabinetProject {
   return {
     version: 1,
-    cabinets: preset.cabinets.map((cabinet, index) => ({
-      ...cabinet,
-      id: `${preset.id}-${cabinet.id.split("-").slice(-1)[0]}-${Date.now()}-${index}`,
-    })),
+    cabinets: preset.cabinets.map((cabinet, index) =>
+      withNewCabinetIdentity(
+        cabinet,
+        `${preset.id}-${cabinet.id.split("-").slice(-1)[0]}-${Date.now()}-${index}`,
+      ),
+    ),
   };
 }
