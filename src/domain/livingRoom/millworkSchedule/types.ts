@@ -8,6 +8,8 @@ export type MillworkScheduleLine = {
   name: string;
   category: string;
   kind: string;
+  cabinetType: string | null;
+  familyId: string | null;
   roomId: string;
   widthMm: number;
   heightMm: number;

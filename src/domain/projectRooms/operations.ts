@@ -1,3 +1,4 @@
+import { withNewCabinetIdentity } from "../cabinetIdentity/copyInstance";
 import type { CabinetProject } from "../cabinetDimensions";
 import { DEFAULT_ROOM, type RoomConfig } from "../roomModel";
 import {
@@ -21,10 +22,12 @@ function cloneRoom(room: ProjectRoom, name: string, id = newRoomId()): ProjectRo
     ...raw,
     id,
     name,
-    cabinets: raw.cabinets.map((cabinet, index) => ({
-      ...cabinet,
-      id: `${id}-cab-${index + 1}-${Math.floor(Math.random() * 1000)}`,
-    })),
+    cabinets: raw.cabinets.map((cabinet, index) =>
+      withNewCabinetIdentity(
+        cabinet,
+        `${id}-cab-${index + 1}-${Math.floor(Math.random() * 1000)}`,
+      ),
+    ),
   };
 }
 

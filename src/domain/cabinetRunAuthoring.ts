@@ -5,6 +5,7 @@ import {
   type CabinetProject,
   type CabinetType,
 } from "./cabinetDimensions";
+import { withNewCabinetIdentity } from "./cabinetIdentity/copyInstance";
 import {
   getRunExtent,
   orderedRunCabinets,
@@ -166,8 +167,7 @@ export function splitCabinetInRun(options: {
 
   return [
     {
-      ...cabinet,
-      id: firstId,
+      ...withNewCabinetIdentity(cabinet, firstId),
       name: `${cabinet.name} A`,
       placement: {
         ...cabinet.placement,
@@ -176,8 +176,7 @@ export function splitCabinetInRun(options: {
       config: firstConfig,
     },
     {
-      ...cabinet,
-      id: secondId,
+      ...withNewCabinetIdentity(cabinet, secondId),
       name: `${cabinet.name} B`,
       placement: {
         ...cabinet.placement,

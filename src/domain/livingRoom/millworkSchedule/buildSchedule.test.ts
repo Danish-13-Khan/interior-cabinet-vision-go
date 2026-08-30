@@ -71,7 +71,7 @@ describe("Living-room Millwork Schedule workflow", () => {
     const schedule = buildLivingRoomMillworkSchedule(stripped, NOW);
     expect(schedule.lines).toEqual([]);
     expect(millworkScheduleToCsv(schedule)).toBe(
-      "objectId,name,category,kind,roomId,widthMm,heightMm,depthMm,sku,materialIds,materialNames,quantity",
+      "objectId,name,category,kind,cabinetType,familyId,roomId,widthMm,heightMm,depthMm,sku,materialIds,materialNames,quantity",
     );
     expect(millworkScheduleFileBase("Client / Living Room")).toBe("client-living-room-millwork-schedule");
   });
@@ -93,9 +93,17 @@ describe("Living-room Millwork Schedule workflow", () => {
 
   it("converts cabinet entities into production marks, cut parts, costing, and CSV", () => {
     const project = createLivingRoomStarterProject({ now: NOW });
-    const compatible = cabinetProjectFromInteriorProject(project);
+    const roomId = project.activeRoomId ?? project.rooms[0]!.id;
+    const withCabinet = addLivingRoomObject(project, createLivingRoomObject("living:base-cabinet-900", {
+      id: "golden-base", roomId, position: { x: 1000, y: 0, z: -1800 },
+    }));
+    const compatible = cabinetProjectFromInteriorProject(withCabinet);
     const report = createProjectReport(compatible.project, compatible.room);
 
+    expect(compatible.project.cabinets[0]?.config.type).toBe("base");
+    expect(compatible.project.cabinets[0]?.config.familyId).toBe("frameless-standard-base");
+    expect(report.cabinetSchedule[0]?.familyId).toBe("frameless-standard-base");
+    expect(report.productionBlocked).toBe(false);
     expect(report.cabinetSchedule.length).toBeGreaterThan(0);
     expect(report.productionCutlist.length).toBeGreaterThan(0);
     expect(report.projectCost.grandTotal).toBeGreaterThan(0);

@@ -7,6 +7,7 @@ import {
 } from "./cabinetDimensions";
 import { createCabinetId } from "./cabinetIds";
 import { cabinetBlocksOpening, type RoomConfig } from "./roomModel";
+import { withNewCabinetIdentity } from "./cabinetIdentity/copyInstance";
 import { deepClone } from "../utils/clone";
 
 /** Create a collision-aware offset duplicate of a cabinet within the room. */
@@ -35,8 +36,7 @@ export function createOffsetDuplicate(
     roomBounds,
   );
   const duplicate: CabinetInstance = {
-    ...deepClone(cabinet),
-    id: createCabinetId(),
+    ...withNewCabinetIdentity(deepClone(cabinet), createCabinetId()),
     name: `${cabinet.name} Copy`,
     placement,
   };

@@ -1,4 +1,5 @@
 import type { CabinetInstance } from "../cabinetDimensions";
+import { withNewCabinetIdentity } from "../cabinetIdentity/copyInstance";
 import { DEFAULT_ROOM, type RoomConfig } from "../roomModel";
 import { createRoomPresetProject, roomPresets } from "../roomPresets";
 import { createDefaultProjectRoom } from "./normalize";
@@ -19,10 +20,9 @@ export type RoomTemplate = {
 };
 
 function withFreshIds(cabinets: CabinetInstance[], prefix: string): CabinetInstance[] {
-  return cabinets.map((cabinet, index) => ({
-    ...cabinet,
-    id: `${prefix}-${index + 1}`,
-  }));
+  return cabinets.map((cabinet, index) =>
+    withNewCabinetIdentity(cabinet, `${prefix}-${index + 1}`),
+  );
 }
 
 function kitchenGalleyCabinets(): CabinetInstance[] {

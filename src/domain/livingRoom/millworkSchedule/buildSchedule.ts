@@ -1,3 +1,4 @@
+import { readCabinetIdentity } from "../../cabinetIdentity";
 import type { InteriorProject } from "../../interiorProject";
 import { isMillworkObject } from "../stillJob/sceneRefs";
 import { resolveMaterialLabels, slotRecord } from "./formatMaterials";
@@ -24,6 +25,8 @@ export function buildLivingRoomMillworkSchedule(
         name: object.name,
         category: object.category,
         kind: object.kind,
+        cabinetType: readCabinetIdentity(object)?.cabinetType ?? null,
+        familyId: readCabinetIdentity(object)?.familyId ?? null,
         roomId: object.roomId,
         widthMm: object.dimensions.widthMm,
         heightMm: object.dimensions.heightMm,
