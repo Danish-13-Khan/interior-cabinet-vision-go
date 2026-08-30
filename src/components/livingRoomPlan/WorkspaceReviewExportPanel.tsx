@@ -13,12 +13,14 @@ import {
 import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
 import type { useMillworkSchedule } from "../../hooks/useMillworkSchedule";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
+import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
 import { PlannerV2ReviewPanel } from "./PlannerV2ReviewPanel";
 
 type Millwork = ReturnType<typeof useMillworkSchedule>;
 type ClientExport = ReturnType<typeof useClientPresentationExport>;
 type Proposal = ReturnType<typeof useProposalWorkflow>;
+type Handoff = ReturnType<typeof useEngineeringHandoff>;
 
 /** Review-step export panel wired to shared millwork + client package controllers. */
 export function WorkspaceReviewExportPanel({
@@ -27,6 +29,7 @@ export function WorkspaceReviewExportPanel({
   millwork,
   clientExport,
   proposal,
+  handoff,
   acceptedStillAssets,
   latestRender,
   onSelect,
@@ -36,6 +39,7 @@ export function WorkspaceReviewExportPanel({
   millwork: Millwork;
   clientExport: ClientExport;
   proposal: Proposal;
+  handoff: Handoff;
   acceptedStillAssets: AcceptedStillAsset[];
   latestRender: LivingRoomRenderResult | null;
   onSelect: (objectId: string | null) => void;
@@ -59,6 +63,7 @@ export function WorkspaceReviewExportPanel({
       clientPackageStatus={clientExport.status}
       acceptedStillCount={acceptedStillCount}
       proposal={proposal}
+      handoff={handoff}
       onCsv={() => void millwork.exportSchedule("schedule-csv")}
       onPdf={() => void millwork.exportSchedule("schedule-pdf")}
       onClientPackage={() => {

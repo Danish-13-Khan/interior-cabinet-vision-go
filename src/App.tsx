@@ -15,6 +15,7 @@ import {
   WORKBENCH_LABELS,
   type WorkbenchMode,
 } from "./domain/desktopUx";
+import { syncInteriorDocumentFromCabinets } from "./domain/livingRoom/handoff";
 
 function App() {
   const c = useAppController();
@@ -67,6 +68,9 @@ function App() {
       patch.workspaceTab = "plan";
       patch.sceneBrowserVisible = false;
       patch.sheetBrowserVisible = false;
+      c.commitProjectChange((project, room) => ({
+        project: syncInteriorDocumentFromCabinets(project, room),
+      }), "Synced Engineering changes into Interiors.");
       if (!c.livingRoomDocument) c.openLivingRoomProjectHome();
     }
     c.setLayout(patch);
@@ -278,6 +282,10 @@ function App() {
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onPatchDocument={c.patchLivingRoomDocument}
+            onEnterEngineering={(cabinetIds) => {
+              handleWorkbenchModeChange("cabinets");
+              c.replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
+            }}
             onLightingChange={c.setLivingRoomLightingRecipe}
             onRenderBrowserThumbnail={(dataUrl) => {
               void c.setLivingRoomBrowserThumbnail(dataUrl);

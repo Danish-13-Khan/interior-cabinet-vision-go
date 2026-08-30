@@ -25,6 +25,7 @@ import { promptSavePath, writeBinaryBlob } from "../platform/desktopFiles";
 type PatchDocument = (
   update: (current: InteriorProject) => InteriorProject,
   status: string,
+  cabinetIds?: string[],
 ) => void;
 
 export function useProposalWorkflow(args: {

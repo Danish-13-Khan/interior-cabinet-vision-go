@@ -1,0 +1,18 @@
+.engineering-handoff { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid #e6ece7; }
+.engineering-handoff > strong { color: #304236; font-size: .75rem; }
+.engineering-handoff small { color: #748076; font-size: .61rem; line-height: 1.35; }
+.engineering-handoff small.is-warning { color: #9a3412; }
+.engineering-handoff-cabinets,
+.engineering-handoff-warnings { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.engineering-handoff-cabinets li,
+.engineering-handoff-warnings li { display: grid; gap: 2px; }
+.engineering-handoff-cabinets li[data-lossy="true"] small,
+.engineering-handoff-warnings li.is-blocking { color: #9a3412; }
+.engineering-handoff-send { min-height: 36px !important; font-weight: 700 !important; }
+.status-hud-chip.is-warning { color: #9a3412; border-color: #f0c7a7; }
+.lr-product-shell-v2 .engineering-handoff { border-color: #364238; }
+.lr-product-shell-v2 .engineering-handoff > strong { color: #d7e4d8; }
+.lr-product-shell-v2 .engineering-handoff small { color: #9aab9d; }
+.lr-product-shell-v2 .engineering-handoff small.is-warning,
+.lr-product-shell-v2 .engineering-handoff-cabinets li[data-lossy="true"] small,
+.lr-product-shell-v2 .engineering-handoff-warnings li.is-blocking { color: #f0c7a7; }
