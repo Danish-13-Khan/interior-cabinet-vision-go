@@ -6,7 +6,7 @@ import { millworkRefsFromProject } from "../stillJob/sceneRefs";
 import { buildLivingRoomMillworkSchedule } from "./buildSchedule";
 import { millworkScheduleFileBase } from "./fileBase";
 import { formatMaterialIds, formatMaterialLabels } from "./formatMaterials";
-import { formatWhdMm } from "./formatSize";
+import { cutlistWidthSumMm, formatCutlistPartCount, formatWhdMm } from "./formatSize";
 import { millworkScheduleToCsv } from "./scheduleCsv";
 import { MILLWORK_SCHEDULE_HONESTY_NOTE } from "./types";
 import { summarizeMillworkWorkflow } from "./workflow";
@@ -108,5 +108,37 @@ describe("Living-room Millwork Schedule workflow", () => {
     expect(report.productionCutlist.length).toBeGreaterThan(0);
     expect(report.projectCost.grandTotal).toBeGreaterThan(0);
     expect(csvFromProductionCutlist(report.productionCutlist)).toContain("Shop Ref");
+  });
+
+  it("changes the cutlist preview line when a cabinet width is revised", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const roomId = project.activeRoomId ?? project.rooms[0]!.id;
+    const placed = addLivingRoomObject(project, createLivingRoomObject("living:base-cabinet-900", {
+      id: "golden-base", roomId, position: { x: 1000, y: 0, z: -1800 },
+    }));
+    const before = createProjectReport(
+      cabinetProjectFromInteriorProject(placed).project,
+      cabinetProjectFromInteriorProject(placed).room,
+    );
+    const resized = resizeLivingRoomObject(placed, "golden-base", {
+      ...placed.objects.find((item) => item.id === "golden-base")!.dimensions,
+      widthMm: 800,
+    });
+    const after = createProjectReport(
+      cabinetProjectFromInteriorProject(resized).project,
+      cabinetProjectFromInteriorProject(resized).room,
+    );
+    const beforeLine = formatCutlistPartCount(
+      before.cabinetSchedule.length,
+      before.productionCutlist.length,
+      cutlistWidthSumMm(before.productionCutlist),
+    );
+    const afterLine = formatCutlistPartCount(
+      after.cabinetSchedule.length,
+      after.productionCutlist.length,
+      cutlistWidthSumMm(after.productionCutlist),
+    );
+    expect(beforeLine).toMatch(/cut parts/);
+    expect(afterLine).not.toBe(beforeLine);
   });
 });

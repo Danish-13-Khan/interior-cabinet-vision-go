@@ -2898,7 +2898,7 @@ Exit criteria:
 
 ### 38.6 Epic P0-E — Golden workflow verification
 
-Status: `NEXT`
+Status: `SHIPPED`
 
 Work items:
 
@@ -2906,19 +2906,25 @@ Work items:
 2. Create browser journey.
 3. Add save and reopen segment.
 4. Add cabinet width revision.
-5. Assert 3D geometry semantics.
-6. Assert quote delta.
+5. Assert 3D geometry semantics, including the derived run countertop.
+6. Assert a numeric quote delta after the width revision.
 7. Assert cutlist delta.
 8. Assert proposal metadata.
-9. Assert engineering IDs.
+9. Assert engineering IDs, including both run fillers.
 10. Run sequentially with the full suite.
+11. Change one cabinet finish on `planning.config.buildRules.finishId` (not door style, not blocking `object.materialSlots`).
+12. Reopen from the downloaded JSON file, not in-memory recents.
 
 Exit criteria:
 
-- Journey passes locally and in CI.
+- Journey passes locally (`npm run test:golden`).
+- Pull-request CI runs unit tests, production build, the Golden journey, and the release-demo save/reopen path.
+- The Release Candidate workflow remains the full sequential 40-test suite (`npm run test:e2e`).
 - Journey has no arbitrary long waits.
 - Failures identify the broken product stage.
 - Fixture is versioned.
+- Golden fixture includes fillers and a compiled countertop over eligible floor cabinets.
+- Gate F (five sales users, two engineers, median ≤ 15 minutes) stays the market-validation gate and is not required to mark this epic `SHIPPED`.
 
 ---
 
@@ -3873,7 +3879,7 @@ The roadmap expands into generic interiors features.
 
 Impact:
 
-Golden workflow remains unvalidated.
+Golden workflow has automated sequential coverage; salesperson timing remains Gate F.
 
 Mitigation:
 
@@ -4279,13 +4285,13 @@ A narrow customer job where the product can be meaningfully better than broad co
 - [x] Drawer cabinet fixture.
 - [x] Wall cabinet fixture.
 - [x] Tall cabinet fixture.
-- [ ] Filler fixture.
+- [x] Filler fixture.
 - [ ] Countertop fixture.
 - [x] Save/reopen coverage.
 - [x] Adapter coverage.
-- [ ] 3D semantic coverage.
-- [ ] Cutlist coverage.
-- [ ] Quote coverage.
+- [x] 3D semantic coverage.
+- [x] Cutlist coverage.
+- [x] Quote coverage.
 
 ### A.3 Proposal
 
@@ -4316,10 +4322,10 @@ A narrow customer job where the product can be meaningfully better than broad co
 
 ### A.5 Release
 
-- [ ] Domain suite green.
-- [ ] Build green.
-- [ ] Golden journey green.
-- [ ] Full sequential browser suite green.
+- [x] Domain suite green.
+- [x] Build green.
+- [x] Golden journey green.
+- [x] Full sequential browser suite green.
 - [ ] Proposal visual verification complete.
 - [ ] Production packet verification complete.
 - [ ] Five-user pilot complete.
@@ -4458,7 +4464,7 @@ Evidence required:
 - [ ] Reset application state.
 - [ ] Load benchmark brief.
 - [ ] Start screen recording where consented.
-- [ ] Start timer.
+- [ ] Start timer. Target median: under 15 minutes (`OBS-001`). A passing P0-E automation run is not a Gate F pass.
 
 ### E.2 Task sequence
 
@@ -4692,7 +4698,7 @@ The detailed sections above govern behavior.
 | Tall cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-008` |
 | Semantic material groups | `HARDEN` | `VIS-005` |
 | Filler visual fidelity | `HARDEN` | Golden visual system. |
-| Countertop visual fidelity | `HARDEN` | Golden visual system. |
+| Countertop visual fidelity | `HARDEN` | Golden run compiles a countertop over eligible floor cabinets; visual finish remains `HARDEN`. |
 | Client navigation validation | `RESEARCH` | `VIS-025` |
 
 ### G.7 Render and client presentation
@@ -4800,9 +4806,9 @@ The detailed sections above govern behavior.
 | Roadmap exit journey | `SHIPPED` | Broad workflow, not Golden Run. |
 | Phase 2 still proof | `SHIPPED` | Trust proof. |
 | Release build | `SHIPPED` | Build pipeline. |
-| Golden Cabinet Run fixture | `NEXT` | P0-E. |
-| Golden Cabinet Run E2E | `NEXT` | P0-E. |
-| Save/reopen Golden Run | `NEXT` | `TST-007` |
+| Golden Cabinet Run fixture | `SHIPPED` | Versioned `fixtures/golden-cabinet-run/v1.interior.json` includes the run, end fillers, and a derived countertop. |
+| Golden Cabinet Run E2E | `SHIPPED` | Sequential journey with width, finish, quote, cutlist, and filler-ID stages. |
+| Save/reopen Golden Run | `SHIPPED` | `TST-007` — file open after a cold reload, not recents. |
 | Proposal visual verification | `NEXT` | PDF QA. |
 | Production packet visual verification | `NEXT` | PDF QA. |
 | Declared latency benchmark | `HARDEN` | `REL-008`–`REL-009` |

@@ -22,7 +22,7 @@ export function ProposalReviewSection({
   return (
     <section className="proposal-review" aria-label="Proposal">
       <strong>Proposal</strong>
-      <p className="proposal-review-total" data-testid="proposal-live-total">{total}</p>
+      <p className="proposal-review-total" data-testid="proposal-live-total" data-sell-total={quote.sellTotal}>{total}</p>
       <small data-testid="proposal-quote-status">{frozenLabel}</small>
       {live.missingRate ? <small className="is-warning">Missing rate — total is zero.</small> : null}
       {quote.validUntil ? (

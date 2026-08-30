@@ -1,7 +1,15 @@
 import type { CatalogCabinetBinding } from "./types";
 
+export const RUN_FILLER_CATALOG_ID = "living:run-filler";
+
 /** Explicit catalog-id → type/family map. Category is never consulted. */
 export const CABINET_CATALOG_BINDINGS: Record<string, CatalogCabinetBinding> = {
+  [RUN_FILLER_CATALOG_ID]: {
+    cabinetType: "base",
+    familyId: "frameless-standard-base",
+    sku: null,
+    production: true,
+  },
   "living:base-cabinet-900": {
     cabinetType: "base",
     familyId: "frameless-standard-base",
@@ -90,4 +98,8 @@ export const CABINET_CATALOG_BINDINGS: Record<string, CatalogCabinetBinding> = {
 
 export function catalogBindingFor(catalogItemId: string): CatalogCabinetBinding | null {
   return CABINET_CATALOG_BINDINGS[catalogItemId] ?? null;
+}
+
+export function isRunFillerCatalogId(catalogItemId: string | undefined) {
+  return catalogItemId === RUN_FILLER_CATALOG_ID;
 }

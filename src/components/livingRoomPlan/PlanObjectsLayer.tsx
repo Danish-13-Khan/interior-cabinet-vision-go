@@ -1,5 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
+import { readCabinetIdentity } from "../../domain/cabinetIdentity";
+import { isCabinetRunFiller } from "../../domain/livingRoom/wardrobePlacement";
 import { formatPlanDimension, primaryMaterialId, type LivingRoomPlanIssue, type PlanDisplayUnit, type PlanSnapGuide } from "../../domain/livingRoom";
 import { PlanObjectSymbol } from "./PlanObjectSymbol";
 import type { ObjectPreview } from "./usePlanObjectInteraction";
@@ -29,11 +31,15 @@ export function PlanObjectsLayer(props: {
       const compact = dimensions.widthMm < 700 || dimensions.depthMm < 200;
       const finish = materialsById.get(primaryMaterialId(object) ?? "");
       const fill = finish?.color ? `${finish.color}99` : undefined;
+      const identity = readCabinetIdentity(object);
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${object.rotation.y})`}
         className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""}`}
         data-object-id={object.id} data-material-id={finish?.id} data-material-color={finish?.color}
         data-wall-id={attachedWallId(object)}
         data-rotation-y={object.rotation.y}
+        data-family-id={identity?.familyId}
+        data-cabinet-type={isCabinetRunFiller(object) ? "filler" : identity?.cabinetType}
+        data-width-mm={dimensions.widthMm}
         style={fill ? { ["--lr-object-fill" as string]: fill } : undefined}
         onPointerDown={(event) => props.onStart(event, object, "move")}>
         <rect x={-dimensions.widthMm / 2} y={-dimensions.depthMm / 2} width={dimensions.widthMm} height={dimensions.depthMm} rx={object.category === "rug" ? 45 : 12} />

@@ -1,7 +1,21 @@
 import { cabinetProjectFromInteriorProject } from "../../interiorProject";
 import type { InteriorProject } from "../../interiorProject";
-import { hashString, stableStringify } from "../sceneCompilerBounds";
+import { hashString } from "../sceneCompilerBounds";
 import { readProposalCommercial } from "./commercialState";
+
+/** JSON-stable: omitted keys match file reload, so a freeze survives save/open. */
+function fingerprintStringify(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(fingerprintStringify).join(",")}]`;
+  if (value && typeof value === "object") {
+    const object = value as Record<string, unknown>;
+    return `{${Object.keys(object)
+      .sort()
+      .filter((key) => object[key] !== undefined)
+      .map((key) => `${JSON.stringify(key)}:${fingerprintStringify(object[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
 
 function selectedCameraIds(document: InteriorProject) {
   const { surface } = readProposalCommercial(document);
@@ -13,7 +27,7 @@ export function createQuoteDesignFingerprint(document: InteriorProject): string 
   const commercial = readProposalCommercial(document);
   const { project } = cabinetProjectFromInteriorProject(document);
   const cameras = selectedCameraIds(document);
-  return hashString(stableStringify({
+  return hashString(fingerprintStringify({
     cabinets: project.cabinets
       .map((cabinet) => ({
         id: cabinet.id,
