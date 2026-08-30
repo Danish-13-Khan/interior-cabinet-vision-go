@@ -20,11 +20,14 @@ import {
 } from "../platform/desktopFiles";
 import type { ApplySnapshot } from "./projectCommit";
 import {
+  interiorProjectFileName,
   interiorProjectFromCabinetProject,
   loadInteriorProjectFile,
   serializeInteriorProjectFile,
+  validateInteriorProject,
   type InteriorProject,
 } from "../domain/interiorProject";
+import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
 
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
 
@@ -37,6 +40,9 @@ function snapshotFromParsedFile(
 }
 
 function currentInteriorDocument(project: CabinetProject, room: RoomConfig) {
+  if (project.interiorDocument) {
+    return validateInteriorProject(project.interiorDocument).project;
+  }
   return interiorProjectFromCabinetProject({
     project,
     activeRoom: room,
@@ -47,14 +53,6 @@ function persistenceFingerprint(document: InteriorProject) {
   return JSON.stringify({ ...document, updatedAt: "" });
 }
 
-function projectFileName(projectName: string) {
-  const stem = projectName
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "interior-project";
-  return `${stem}.json`;
-}
 
 type UseProjectFileIoArgs = {
   project: CabinetProject;
@@ -167,7 +165,10 @@ export function useProjectFileIo({
         projectFilePath ??
         (await promptSavePath({
           title: "Save Interior Project",
-          defaultPath: projectFileName(document.name),
+          defaultPath: interiorProjectFileName(
+            document.name,
+            readProposalCommercial(document).job,
+          ),
           extensions: ["json"],
         }));
 
@@ -209,7 +210,7 @@ export function useProjectFileIo({
       });
       if (!opened) {
         onStatus("Load cancelled.");
-        return;
+        return false;
       }
       applyLoadedFile(
         JSON.parse(opened.contents) as unknown,
@@ -218,8 +219,10 @@ export function useProjectFileIo({
           ? "Project loaded from JSON file."
           : "Project loaded from browser file.",
       );
+      return true;
     } catch (error) {
       onStatus(`Load failed: ${getErrorMessage(error)}`);
+      return false;
     }
   }, [applyLoadedFile, onStatus]);
 

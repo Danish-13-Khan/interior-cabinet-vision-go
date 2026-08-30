@@ -42,6 +42,7 @@ import {
   type PlannerStarterTemplate,
   createImportedAssetObject,
   createLivingRoomObject,
+  createGoldenCabinetRunProject,
   createLivingRoomReleaseDemoProject,
   createPhase1BenchmarkProject,
   createLivingRoomStarterProject,
@@ -60,6 +61,7 @@ import {
   setLivingRoomPlanUnderlay,
   applyMaterialToSelection,
   paintLivingRoomSurface,
+  setLivingRoomObjectParameters,
   setLivingRoomWallMaterial,
   placeStructuralColumn,
   setLivingRoomLayerVisibility,
@@ -259,7 +261,10 @@ export function useLivingRoomPlanEditor({
   }
 
   function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
-    commitDocument((current) => ({ ...current, objects: current.objects.map((object) => object.id === objectId ? { ...object, parameters: { ...object.parameters, ...patch } } : object) }), "Updated cabinet configuration.");
+    commitDocument(
+      (current) => setLivingRoomObjectParameters(current, objectId, patch),
+      "Updated cabinet configuration.",
+    );
   }
 
   function setFloorMaterial(materialId: string) {
@@ -554,6 +559,9 @@ export function useLivingRoomPlanEditor({
     createLivingRoomStarter: createStarter,
     openLivingRoomReleaseDemo: () => restoreDocument(
       createLivingRoomReleaseDemoProject(),
+    ),
+    openLivingRoomGoldenRun: () => restoreDocument(
+      createGoldenCabinetRunProject(),
     ),
     openPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => restoreDocument(
       createPhase1BenchmarkProject(benchmarkId),

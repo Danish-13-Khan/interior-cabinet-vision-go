@@ -26,7 +26,7 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   await page.screenshot({ path: "test-results/release-hero.png", fullPage: false });
 
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Save *" }).click();
+  await page.getByRole("button", { name: /^Save/ }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("living-room-release-demo.json");
   await expect(page.getByRole("button", { name: "Save" })).toBeVisible();

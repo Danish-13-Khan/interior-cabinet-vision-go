@@ -15,7 +15,7 @@ export function EngineeringHandoffSection({ handoff }: { handoff: Handoff }) {
       </small>
       <ul className="engineering-handoff-cabinets" data-testid="handoff-summary">
         {summary.cabinets.map((line) => (
-          <li key={line.objectId} data-lossy={line.lossy ? "true" : "false"}>
+          <li key={line.objectId} data-object-id={line.objectId} data-cabinet-id={line.cabinetId} data-lossy={line.lossy ? "true" : "false"}>
             <span>{line.name}</span>
             <small>
               {line.cabinetId} · {line.cabinetType} · {line.familyId || "no family"} · {line.widthMm}×{line.heightMm}×{line.depthMm}

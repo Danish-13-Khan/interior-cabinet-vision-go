@@ -26,7 +26,7 @@ export {
   resolveFamilyId,
 } from "./families";
 export { parseCabinetType } from "./parseType";
-export { CABINET_CATALOG_BINDINGS, catalogBindingFor } from "./catalogBindings";
+export { CABINET_CATALOG_BINDINGS, RUN_FILLER_CATALOG_ID, catalogBindingFor, isRunFillerCatalogId } from "./catalogBindings";
 export {
   extensionRecord,
   identityFromConfig,

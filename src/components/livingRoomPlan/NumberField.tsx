@@ -46,6 +46,7 @@ export function NumberField({
       <span>{label}</span>
       <input
         type="number"
+        aria-label={`${label} ${unit}`}
         value={draft}
         onFocus={() => {
           focusedRef.current = true;

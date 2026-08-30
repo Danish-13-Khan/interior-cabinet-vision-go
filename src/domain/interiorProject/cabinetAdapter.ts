@@ -87,10 +87,13 @@ export function interiorProjectFromCabinetProject(options: {
     ...base,
     schemaVersion: INTERIOR_PROJECT_SCHEMA_VERSION,
     id: base.id || projectSlug(normalized),
-    name: projectName(normalized),
+    name: base.name.trim() || projectName(normalized),
     updatedAt: now,
     activeRoomId: normalized.activeRoomId ?? rooms[0]?.id ?? "",
-    rooms: topology.rooms,
+    rooms: topology.rooms.map((room) => {
+      const previous = base.rooms.find((item) => item.id === room.id);
+      return previous?.roomType ? { ...room, roomType: previous.roomType, name: previous.name || room.name } : room;
+    }),
     nodes: topology.nodes,
     loops: topology.loops,
     walls: topology.walls,

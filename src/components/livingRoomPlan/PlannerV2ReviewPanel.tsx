@@ -57,7 +57,7 @@ export function PlannerV2ReviewPanel({
         <strong>Millwork schedule</strong>
         <small>{schedule?.lines.length ?? 0} cabinet items</small>
         {schedule?.lines.slice(0, 4).map((line) => (
-          <div key={line.objectId}>
+          <div key={line.objectId} data-testid="review-millwork-line" data-object-id={line.objectId} data-width-mm={line.widthMm}>
             <span>{line.name}</span>
             <small>
               {line.widthMm} × {line.heightMm} × {line.depthMm}
