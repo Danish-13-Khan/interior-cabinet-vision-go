@@ -2837,7 +2837,7 @@ Exit criteria:
 
 ### 38.4 Epic P0-C — Proposal surface
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Requirements:
 
@@ -4281,17 +4281,17 @@ A narrow customer job where the product can be meaningfully better than broad co
 
 ### A.3 Proposal
 
-- [ ] Live total.
-- [ ] Commercial review.
-- [ ] Quote freeze.
-- [ ] Stale quote.
-- [ ] Named proposal views.
-- [ ] Branded PDF.
-- [ ] Price-detail policy.
-- [ ] Inclusions.
-- [ ] Exclusions.
-- [ ] Approval area.
-- [ ] PDF render verification.
+- [x] Live total.
+- [x] Commercial review.
+- [x] Quote freeze.
+- [x] Stale quote.
+- [x] Named proposal views.
+- [x] Branded PDF.
+- [x] Price-detail policy.
+- [x] Inclusions.
+- [x] Exclusions.
+- [x] Approval area.
+- [x] PDF render verification.
 
 ### A.4 Engineering handoff
 
@@ -4702,8 +4702,8 @@ The detailed sections above govern behavior.
 | Client package JSON | `SHIPPED` | Technical support artifact. |
 | Render provenance | `SHIPPED` | Internal trust value. |
 | Generate-still suite reliability | `HARDEN` | Known timing debt. |
-| Golden client view | `NEXT` | P0-C. |
-| Branded priced proposal | `NEXT` | `EXP-001`–`EXP-010` |
+| Golden client view | `HARDEN` | P0-C named views on the proposal. |
+| Branded priced proposal | `HARDEN` | `EXP-001`–`EXP-010` |
 | 360-degree tour | `EXCLUDED` | Not current critical path. |
 | AI decoration | `EXCLUDED` | `STR-009` |
 
@@ -4731,10 +4731,10 @@ The detailed sections above govern behavior.
 | Quote validity | `SHIPPED` | Quote settings. |
 | Inclusions and exclusions | `SHIPPED` | Quote settings. |
 | Quote history | `SHIPPED` | Snapshot domain. |
-| Live total in Interiors Review | `NEXT` | `QTE-020` |
-| Quote freeze in sales flow | `NEXT` | `QTE-022` |
-| Stale quote indicator | `NEXT` | `QTE-023` |
-| Configurable proposal detail | `NEXT` | `QTE-030` |
+| Live total in Interiors Review | `HARDEN` | `QTE-020` |
+| Quote freeze in sales flow | `HARDEN` | `QTE-022` |
+| Stale quote indicator | `HARDEN` | `QTE-023` |
+| Configurable proposal detail | `HARDEN` | `QTE-030` |
 | Missing-rate warning | `NEXT` | `QTE-006` |
 
 ### G.9 Production and reports
