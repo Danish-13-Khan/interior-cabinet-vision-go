@@ -4,6 +4,7 @@ import {
   defaultUvScaleMmForMaterial,
   materialAssetIdForEntity,
 } from "./renderAssetBindings";
+import { compileCabinetRunExtras } from "./cabinetSceneRunExtras";
 import { compileLivingRoomObjectNode } from "./sceneAdapters";
 import {
   computeArchitectureBounds,
@@ -70,7 +71,11 @@ export function compileLivingRoomScene(
   const objectNodes = project.objects
     .filter((object) => object.roomId === roomId && object.extensions?.layerVisible !== false)
     .map(compileLivingRoomObjectNode);
-  const nodes = [...compileLivingRoomArchitecture(project), ...objectNodes];
+  const nodes = [
+    ...compileLivingRoomArchitecture(project),
+    ...objectNodes,
+    ...compileCabinetRunExtras(project),
+  ];
   const materials = compileMaterials(project);
   const lights = project.lights.filter((light) => light.roomId === null || light.roomId === roomId);
   const cameras = project.cameras.filter((camera) => camera.roomId === roomId);

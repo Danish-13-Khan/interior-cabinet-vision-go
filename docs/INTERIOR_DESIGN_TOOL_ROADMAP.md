@@ -97,7 +97,7 @@ Honest read: **feature code landed; release-green only after suite + commit.**
 | --- | --- | --- |
 | **Project** | V2 home, save/open, schema v2, blank / wardrobe / L-room / 2-room-flat starters | Import-plan underlay polish only |
 | **Build** | Room-split, node/wall drag, multi-room chrome, draft feedback, room/wall inspector | Hole-bearing merges deferred; delete/merge use `window.confirm` |
-| **Design** | Freeform runs, fillers/corners, validation, curated catalog, material swatches | I4 SKU meshes still use bookcase stand-in |
+| **Design** | Freeform runs, fillers/corners, validation, curated catalog, material swatches | Golden SKUs use shared cabinet geometry |
 | **3D** | Onboarding, mesh+label selection, soft draft preview | Keep full browser suite green (K1 flakiness under load) |
 | **Render** | Hybrid stills + package cameras + honesty gates (`phase2:proof`) | Suite-level Generate Still timing |
 | **Export** | Schedule PDF/CSV, one-click client package, pre-export checklist | Keep exit-journey + K1 green on `main` |
@@ -136,7 +136,7 @@ Export    ████████░░
 | I1 | Freeform cabinet runs | Done |
 | I2 | Fillers + corner units | Done |
 | I3 | Collision / overlap validation UI | Done |
-| I4 | Richer openings + millwork SKUs | Done — three SKUs reuse bookcase mesh stand-in |
+| I4 | Richer openings + millwork SKUs | Done — golden SKUs use shared cabinet geometry |
 | I5 | Material browser polish | Done |
 
 ### J — 3D review polish · **DONE (keep pick path verified)**

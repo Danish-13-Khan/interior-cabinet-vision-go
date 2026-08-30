@@ -1484,9 +1484,9 @@ The 3D model is a client-confidence surface and a configuration verification sur
 
 ### 16.2 Current critical gap
 
-Current base, wall, and tall catalog entries use a bookcase compiler as a stand-in.
+Golden base, wall, drawer, and tall families compile through shared cabinet geometry.
 
-This is not acceptable for the Golden Cabinet Run release.
+Decorative bookcases may still use the bookcase silhouette. Production families must not.
 
 ### 16.3 Target geometry rule
 
@@ -2807,7 +2807,7 @@ Exit criteria:
 
 ### 38.3 Epic P0-B — Shared cabinet geometry
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Requirements:
 
@@ -4583,9 +4583,9 @@ The detailed sections above govern behavior.
 | Feature | Status | Governing requirement or note |
 | --- | --- | --- |
 | Curated cabinet catalog | `SHIPPED` | Technical fidelity varies by item. |
-| Base cabinet catalog item | `HARDEN` | Uses generic category and stand-in visual. |
-| Wall cabinet catalog item | `HARDEN` | Uses generic category and stand-in visual. |
-| Tall cabinet catalog item | `HARDEN` | Uses generic category and stand-in visual. |
+| Base cabinet catalog item | `HARDEN` | Shared geometry; category remains merchandising. |
+| Wall cabinet catalog item | `HARDEN` | Shared geometry at configured mount height. |
+| Tall cabinet catalog item | `HARDEN` | Shared geometry; countertops do not pass through. |
 | Wardrobe catalog item | `HARDEN` | Type mapping requires explicit contract. |
 | Corner wardrobe catalog item | `HARDEN` | Corner representation exists; production semantics need review. |
 | Feature-wall millwork | `SHIPPED` | Not part of Golden Cabinet Run. |
@@ -4678,11 +4678,11 @@ The detailed sections above govern behavior.
 | 3D selection | `SHIPPED` | Model pick path. |
 | 3D inspector parity | `SHIPPED` | J2. |
 | Camera bookmarks | `SHIPPED` | Package views. |
-| Base cabinet-specific geometry | `NEXT` | `VIS-001`–`VIS-004` |
-| Wall cabinet-specific geometry | `NEXT` | `VIS-001`, `VIS-006` |
-| Drawer cabinet-specific geometry | `NEXT` | `VIS-001`, `VIS-004` |
-| Tall cabinet-specific geometry | `NEXT` | `VIS-001`, `VIS-008` |
-| Semantic material groups | `NEXT` | `VIS-005` |
+| Base cabinet-specific geometry | `HARDEN` | `VIS-001`–`VIS-004` |
+| Wall cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-006` |
+| Drawer cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-004` |
+| Tall cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-008` |
+| Semantic material groups | `HARDEN` | `VIS-005` |
 | Filler visual fidelity | `HARDEN` | Golden visual system. |
 | Countertop visual fidelity | `HARDEN` | Golden visual system. |
 | Client navigation validation | `RESEARCH` | `VIS-025` |
