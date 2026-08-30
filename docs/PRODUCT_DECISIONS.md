@@ -41,7 +41,7 @@ Concise decisions supporting the canonical Product Book. Keep this file short an
 - **What:** one market-hardened straight cabinet run from measured room through proposal and engineering handoff.
 - **Cabinets:** base, drawer, wall, and tall families plus fillers and countertop.
 - **Truth rule:** the same normalized cabinet configuration drives plan, 3D, quote, cutlist, and production report.
-- **Handoff rule:** “Send to Engineering” runs diagnostics and switches workbench mode on the same project; it does not export/import or recreate cabinets.
+- **Handoff rule:** “Send to Engineering” requires an approved revision with a matching freeze, writes an immutable snapshot, and switches workbench mode on the same project; it does not export/import or recreate cabinets. Returning to Interiors rebuilds the canonical document from live cabinets.
 - **Validation rule:** no 8.0 claim until five sales users complete the timed run and two engineers accept the handoff.
 - **Not this program:** whole-kitchen breadth, wardrobe internals, AI decoration, furniture marketplace, 360 tours, or verified CNC.
 
@@ -50,7 +50,7 @@ Concise decisions supporting the canonical Product Book. Keep this file short an
 | P0-A | HARDEN — explicit cabinet type/family, complete configuration, lossless adapter diagnostics |
 | P0-B | HARDEN — cabinet-specific shared geometry; no Golden Run bookcase stand-ins |
 | P0-C | HARDEN — live total, quote freeze, stale detection, branded proposal |
-| P0-D | Same-project transition from Interiors to Cabinets engineering |
+| P0-D | HARDEN — approved-revision send, immutable snapshots, interiors sync, design-content drift |
 | P0-E | Save/reopen golden journey plus quote, proposal, and cutlist assertions |
 | Gate F | Timed salesperson pilot and engineer handoff review |
 
@@ -79,7 +79,7 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 | 1 | P0-A — cabinet identity, family, normalized config, adapter diagnostics |
 | 2 | P0-B — shared cabinet geometry and semantic material roles |
 | 3 | P0-C — HARDEN live quotation and branded proposal |
-| 4 | P0-D — diagnosed same-project workbench transition to engineering |
+| 4 | P0-D — approved same-project handoff with immutable snapshots and design-content drift (HARDEN) |
 | 5 | P0-E — golden end-to-end verification, save/reopen, full-suite reliability |
 | 6 | Gate F — real salesperson timing and engineer acceptance |
 

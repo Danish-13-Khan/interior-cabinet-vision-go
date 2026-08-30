@@ -106,7 +106,9 @@ export type LivingRoomPlanWorkspaceProps = {
   onPatchDocument: (
     update: (current: InteriorProject) => InteriorProject,
     status: string,
+    cabinetIds?: string[],
   ) => void;
+  onEnterEngineering: (cabinetIds: string[]) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onUndo: () => void;

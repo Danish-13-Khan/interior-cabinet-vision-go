@@ -6,12 +6,14 @@ import type { useLivingRoomBuildCommands } from "../../hooks/useLivingRoomBuildC
 import type { useMillworkSchedule } from "../../hooks/useMillworkSchedule";
 import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
+import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
 
 type BuildBridge = ReturnType<typeof useLivingRoomBuildCommands>;
 type Millwork = ReturnType<typeof useMillworkSchedule>;
 type ClientExport = ReturnType<typeof useClientPresentationExport>;
 type Proposal = ReturnType<typeof useProposalWorkflow>;
+type Handoff = ReturnType<typeof useEngineeringHandoff>;
 
 export type LivingRoomPlanWorkspaceBodyProps = {
   workspace: LivingRoomPlanWorkspaceProps;
@@ -53,6 +55,7 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   millwork: Millwork;
   clientExport: ClientExport;
   proposal: Proposal;
+  handoff: Handoff;
   acceptedStillAssets: AcceptedStillAsset[];
   onAcceptedStillAssetsChange: React.Dispatch<React.SetStateAction<AcceptedStillAsset[]>>;
   issues: LivingRoomPlanIssue[];

@@ -12,6 +12,7 @@ import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
 import type { ReviewNoteSeverity } from "../domain/projectReview";
 import { getProjectSheetSet } from "../domain/sheetDocuments";
+import { evaluatePostApprovalDrift } from "../domain/livingRoom/handoff";
 
 type AppStatusDockProps = {
   workbenchMode: import("../domain/desktopUx").WorkbenchMode;
@@ -100,6 +101,7 @@ export function AppStatusDock({
   onCycleSnap,
   onToggleGrid,
 }: AppStatusDockProps) {
+  const drift = evaluatePostApprovalDrift(project);
   const job = clampJobMeta(project.job);
   const sheets = getProjectSheetSet(project).sheets;
   const interiorObjectCount = project.interiorDocument?.objects.length ?? 0;
@@ -124,6 +126,7 @@ export function AppStatusDock({
         cabinetCount={workbenchMode === "interiors" ? interiorObjectCount : project.cabinets.length}
         selectionSummary={selectionSummary}
         validationMessages={validationMessages}
+        drift={drift}
         hud={hud}
         onCycleSnap={onCycleSnap}
         onToggleGrid={onToggleGrid}

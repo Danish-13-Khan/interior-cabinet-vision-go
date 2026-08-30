@@ -102,6 +102,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           millwork={props.millwork}
           clientExport={props.clientExport}
           proposal={props.proposal}
+          handoff={props.handoff}
           acceptedStillAssets={props.acceptedStillAssets}
           latestRender={props.renderResults.latest}
           onSelect={(objectId) => {
