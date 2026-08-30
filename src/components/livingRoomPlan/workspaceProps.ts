@@ -103,6 +103,10 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
+  onPatchDocument: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onUndo: () => void;
