@@ -9,6 +9,17 @@ export {
   setPlanWallThickness,
   type SplitPlanWallResult,
 } from "./wallEditingSplitDelete";
+export { setPlanWallsRaised } from "./wallRaise";
+export { offsetPlanWall } from "./wallOffset";
+export { offsetPlanLoop } from "./wallOffsetLoop";
+export {
+  applyWallPlanPatch,
+  setPlanWallAngle,
+  setPlanWallLength,
+  wallPlanAngleDeg,
+  wallPlanMidpoint,
+  type WallPlanPatch,
+} from "./wallTransform";
 export { joinPlanNodes, mergeCoincidentPlanNodes } from "./wallEditingJoin";
 export {
   clampOpeningsToWallLengths,

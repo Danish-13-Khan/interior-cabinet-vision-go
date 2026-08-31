@@ -158,6 +158,7 @@ export { assertV1CatalogScope, V1_PRODUCT_SCOPE } from "./v1Scope";
 export {
   isLivingRoomLayerVisible,
   paintLivingRoomSurface,
+  setLivingRoomCeilingMaterial,
   setLivingRoomFloorMaterial,
   setLivingRoomLayerVisibility,
   setLivingRoomWallMaterial,
@@ -169,6 +170,14 @@ export {
   commonMaterialSlots,
   primaryMaterialId,
 } from "./paintSelection";
+export {
+  addImportedFinish,
+  finishMapUrl,
+  mapPayloadExceedsProjectLimit,
+  MAX_FINISH_BYTES,
+  readImageAsDataUrl,
+  setFinishUv,
+} from "./importedFinish";
 export {
   ASSET_IMPORT_STARTER_PACK,
   createImportedAssetObject,
@@ -185,6 +194,7 @@ export {
 } from "./modelViewPresets";
 export {
   modelViewNavHint,
+  modelViewShowsHeightSlider,
   resolveModelViewCameraOverrides,
   WALKTHROUGH_EYE_HEIGHT_MM,
   type ModelViewCameraOverrides,
@@ -326,6 +336,7 @@ export {
   L_ROOM_STARTER_POINTS,
   type PlannerStarterTemplate,
 } from "./plannerStarters";
+export { ensureDrawnRoomReviewRig } from "./drawnRoomRig";
 export {
   boundsDistance,
   boundsOverlap,

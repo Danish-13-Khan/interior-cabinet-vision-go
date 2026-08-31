@@ -12,13 +12,26 @@ export type RoomPlanViewBounds = {
   depthMm: number;
 };
 
+/** Site size shown when the plan has no room yet (empty Build canvas). */
+export const EMPTY_PLAN_SITE_BOUNDS: RoomPlanViewBounds = {
+  minX: -4000,
+  maxX: 4000,
+  minZ: -4000,
+  maxZ: 4000,
+  centerX: 0,
+  centerZ: 0,
+  widthMm: 8000,
+  depthMm: 8000,
+};
+
 /** Plan-space bounds from a room's wall graph (falls back to centered dimensions). */
 export function roomPlanViewBounds(project: InteriorProject, roomId: string): RoomPlanViewBounds {
   const room = project.rooms.find((item) => item.id === roomId);
   const polygon = roomPlanPolygon(project, roomId);
   if (!polygon) {
-    const widthMm = room?.dimensions.widthMm ?? 1000;
-    const depthMm = room?.dimensions.depthMm ?? 1000;
+    if (!room) return EMPTY_PLAN_SITE_BOUNDS;
+    const widthMm = room.dimensions.widthMm;
+    const depthMm = room.dimensions.depthMm;
     return {
       minX: -widthMm / 2,
       maxX: widthMm / 2,

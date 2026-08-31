@@ -3,6 +3,7 @@ import type { InteriorProject } from "../interiorProject";
 export type LivingRoomLayerId = "walls" | "openings" | "furniture";
 export type LivingRoomPaintTarget =
   | { kind: "floor" }
+  | { kind: "ceiling" }
   | { kind: "wall"; wallId: string }
   | { kind: "object"; objectId: string; slotName: string };
 
@@ -22,6 +23,18 @@ export function setLivingRoomFloorMaterial(project: InteriorProject, materialId:
   };
 }
 
+export function setLivingRoomCeilingMaterial(project: InteriorProject, materialId: string) {
+  return {
+    ...project,
+    rooms: project.rooms.map((room) => room.id === project.activeRoomId
+      ? withExtensions(room, { ceilingMaterialId: materialId }) : room),
+    surfaces: project.surfaces.map((surface) =>
+      surface.roomId === project.activeRoomId && surface.kind === "ceiling"
+        ? { ...surface, materialId }
+        : surface),
+  };
+}
+
 export function setLivingRoomWallMaterial(project: InteriorProject, wallId: string, materialId: string | null) {
   return { ...project, walls: project.walls.map((wall) => wall.id === wallId ? { ...wall, materialId } : wall) };
 }
@@ -29,6 +42,7 @@ export function setLivingRoomWallMaterial(project: InteriorProject, wallId: stri
 /** Applies the same persisted material ID used by the 2D plan and 3D compiler. */
 export function paintLivingRoomSurface(project: InteriorProject, target: LivingRoomPaintTarget, materialId: string) {
   if (target.kind === "floor") return setLivingRoomFloorMaterial(project, materialId);
+  if (target.kind === "ceiling") return setLivingRoomCeilingMaterial(project, materialId);
   if (target.kind === "wall") return setLivingRoomWallMaterial(project, target.wallId, materialId);
   return {
     ...project,

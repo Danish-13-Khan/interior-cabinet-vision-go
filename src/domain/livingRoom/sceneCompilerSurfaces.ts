@@ -1,4 +1,5 @@
 import { isGeneratedRoomSurface, roomPlanPolygon, roomPolygonIsValid, selectRoomWalls, type InteriorProject, type InteriorRoomEntity } from "../interiorProject";
+import { isWallRaised, outerLoopWallsRaised } from "../interiorProject/wallRaise";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { boxPrimitive, polygonPrismPrimitive } from "./scenePrimitives";
@@ -26,10 +27,12 @@ export function compileRoomLoopSurfaces(
     id: `room-floor:${room.id}`, name: `${room.name} Floor`, sourceObjectId: null,
     adapterId: "room-loop-floor-v2", positionMm: { x: 0, y: 0, z: 0 },
     rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [polygonPrismPrimitive("floor", polygon.outer, polygon.holes, 40, -20, floorMaterial)],
+    primitives: [polygonPrismPrimitive("floor", polygon.outer, polygon.holes, 12, -6, floorMaterial)],
     placeholder: false, metadata: { role: "floor", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: floorMaterial }),
   };
+  const zones = compileSurfaceZoneNodes(project, room);
+  if (!outerLoopWallsRaised(project, room)) return [floor, ...zones];
   const ceiling: CompiledSceneNode = {
     id: `room-ceiling:${room.id}`, name: `${room.name} Ceiling`, sourceObjectId: null,
     adapterId: "room-loop-ceiling-v2", positionMm: { x: 0, y: 0, z: 0 },
@@ -38,8 +41,7 @@ export function compileRoomLoopSurfaces(
     placeholder: false, metadata: { role: "architecture", surface: "ceiling", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: ceilingMaterial }),
   };
-  return [floor, ceiling, compileLoopSkirting(project, room, ceilingMaterial),
-    ...compileSurfaceZoneNodes(project, room)];
+  return [floor, ceiling, compileLoopSkirting(project, room, ceilingMaterial), ...zones];
 }
 
 function compileSurfaceZoneNodes(project: InteriorProject, room: InteriorRoomEntity) {
@@ -67,7 +69,7 @@ function compileLoopSkirting(
 ): CompiledSceneNode {
   const walls = selectRoomWalls(project, room.id).filter((wall) => {
     const loop = project.loops.find((item) => item.id === room.outerLoopId);
-    return loop?.wallUses.some((use) => use.wallId === wall.id);
+    return isWallRaised(wall) && loop?.wallUses.some((use) => use.wallId === wall.id);
   });
   return {
     id: `room-skirting:${room.id}`, name: `${room.name} Skirting`, sourceObjectId: null,

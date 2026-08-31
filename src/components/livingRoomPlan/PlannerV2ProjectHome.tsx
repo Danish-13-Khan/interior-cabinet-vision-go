@@ -25,7 +25,7 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
       <div className="planner-v2-home-intro">
         <span>Simple room planner</span>
         <h1>Design the room.<br />Build with confidence.</h1>
-        <p>Start with a blank room or continue a project. The same layout powers plan, model, renders, and workshop outputs.</p>
+        <p>Start with an empty plan or continue a project. Draw the room in 2D, then review the same layout in 3D.</p>
         <label>
           <span>Project name</span>
           <input value={projectName} maxLength={80} onChange={(event) => setProjectName(event.target.value)} onKeyDown={(event) => {
@@ -37,7 +37,7 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
           <button type="button" onClick={workspace.onOpenProject}>Open project</button>
           {hasCurrentProject ? <button type="button" onClick={workspace.onCloseProjectHome}>Return to project</button> : null}
         </div>
-        <small className="planner-v2-home-start-note">Enter a name, then create a room to begin in 2D Build.</small>
+        <small className="planner-v2-home-start-note">Enter a name, then start with an empty plan and draw in 2D Build.</small>
       </div>
 
       <div className="planner-v2-home-content">
@@ -51,7 +51,7 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
         <section className="planner-v2-starts">
           <header><span>Start from</span><small>Choose the simplest way in</small></header>
           <div>
-            <button type="button" onClick={() => createProject("blank-room")}><strong>Blank room</strong><small>Set exact room dimensions in Build.</small></button>
+            <button type="button" onClick={() => createProject("blank-room")}><strong>Blank room</strong><small>Empty canvas — draw the floor and walls in Build.</small></button>
             <button type="button" onClick={() => createProject("wardrobe-wall")}><strong>Wardrobe wall</strong><small>Start a cabinet-led room concept.</small></button>
             <button type="button" onClick={() => createProject("l-room")}><strong>L-room</strong><small>Freeform L footprint ready for millwork.</small></button>
             <button type="button" onClick={() => createProject("2-room-flat")}><strong>2-room flat</strong><small>Living and bedroom split by a shared wall.</small></button>

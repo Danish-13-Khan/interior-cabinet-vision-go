@@ -21,6 +21,7 @@ import {
   type OpeningStructure,
 } from "../cabinetOpeningStructure";
 import { createEmptyInteriorProject } from "./defaults";
+import { emptyCabinetProjectFromInterior } from "./emptyCabinetCompat";
 import { buildContiguousWallUses, selectOpeningsForRoom, selectWallsForRoom } from "./planTopology";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
@@ -481,7 +482,8 @@ export function cabinetProjectFromInteriorProject(input: unknown): {
 } {
   const document = validateInteriorProject(input).project;
   if (document.rooms.length === 0) {
-    throw new Error("Interior project does not contain a room.");
+    const extension = extensionValue<CabinetProjectExtension>(document.extensions);
+    return emptyCabinetProjectFromInterior(document, extension?.projectShell ?? {});
   }
   const extension = extensionValue<CabinetProjectExtension>(document.extensions);
   const shell = extension?.projectShell ?? { version: 1, cabinets: [] };

@@ -241,6 +241,7 @@ function App() {
             onSetMaterial={c.setInteriorObjectMaterial}
             onSetParameters={c.setInteriorObjectParameters}
             onSetFloorMaterial={c.setLivingRoomFloorMaterial}
+            onSetCeilingMaterial={c.setLivingRoomCeilingMaterial}
             onSetWallMaterial={c.setLivingRoomWallMaterial}
             onApplyMaterialToSelection={c.applyMaterialToSelection}
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}
@@ -268,6 +269,12 @@ function App() {
             onSplitWall={c.splitLivingRoomWall}
             onDeleteWall={c.deleteLivingRoomWall}
             onUpdateWall={c.updateLivingRoomWall}
+            onRaiseWalls={c.raiseLivingRoomWalls}
+            onOffsetWall={c.offsetLivingRoomWall}
+            onOffsetLoop={c.offsetLivingRoomLoop}
+            onSetWallPlan={c.setLivingRoomWallPlan}
+            onImportFinish={c.importLivingRoomFinish}
+            onSetFinishUv={c.setLivingRoomFinishUv}
             onJoinCoincidentNodes={c.joinLivingRoomCoincidentNodes}
             onMoveNode={c.moveLivingRoomNode}
             onTranslateWall={c.translateLivingRoomWall}

@@ -78,10 +78,11 @@ export function InteriorsProductHeader({
         <button type="button" className="lr-icon-button" aria-label="Redo" title="Redo" onClick={onRedo} disabled={!canRedo}><ProductIcon name="redo" /></button>
         <button type="button" className="lr-save-button" onClick={onSave} disabled={!projectName}><ProductIcon name="save" />{isDirty ? "Save *" : "Save"}</button>
         <div className="lr-view-switch" role="group" aria-label="Canvas view">
-          <button type="button" className={workspaceView === "plan" ? "is-active" : ""} onClick={() => onView("plan")} disabled={!projectName}>2D</button>
+          <button type="button" className={workspaceView === "plan" ? "is-active" : ""} title="2D plan" onClick={() => onView("plan")} disabled={!projectName}>2D</button>
           <button
             type="button"
             className={workspaceView === "model" || workspaceView === "render" ? "is-active" : ""}
+            title="3D model — raised walls only"
             onClick={() => onView(workspaceView === "render" ? "render" : "model")}
             disabled={!projectName}
           >3D</button>

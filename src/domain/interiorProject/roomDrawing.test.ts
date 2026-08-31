@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { applyPlannerStarterTemplate } from "../livingRoom/plannerStarters";
 import { createLivingRoomStarterProject } from "../livingRoom/preset";
 import { compileLivingRoomScene } from "../livingRoom/sceneCompiler";
 import { roomIdsUsingWall, selectWallsForRoom } from "./planTopology";
@@ -35,26 +36,26 @@ describe("D2 room drawing domain", () => {
     ]);
   });
 
-  it("adds a click-drag rectangle as a centered graph room with a closed loop", () => {
+  it("adds a click-drag rectangle beside an existing room without moving it to the origin", () => {
     const base = createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" });
     const project = drawRoomFromPoints(base, { kind: "rectangle", points: rectanglePoints({ x: 7000, z: 0 }, { x: 10000, z: 2400 }) });
     const room = project.rooms.at(-1)!;
     const walls = selectWallsForRoom(project, room.id);
     const extents = wallExtents(walls);
     expect(room.dimensions).toMatchObject({ widthMm: 3000, depthMm: 2400 });
-    expect(extents.minX).toBe(-1500);
-    expect(extents.maxX).toBe(1500);
-    expect(extents.minZ).toBe(-1200);
-    expect(extents.maxZ).toBe(1200);
+    expect(extents.minX).toBe(7000);
+    expect(extents.maxX).toBe(10000);
+    expect(extents.minZ).toBe(0);
+    expect(extents.maxZ).toBe(2400);
     expect(project.loops.find((loop) => loop.id === room.outerLoopId)?.wallUses).toHaveLength(4);
     expect(validateInteriorProject(project).issues.filter((issue) => issue.severity === "error")).toEqual([]);
     expect(roomPlanViewBounds(project, room.id)).toMatchObject({
-      minX: -1500,
-      maxX: 1500,
-      minZ: -1200,
-      maxZ: 1200,
-      centerX: 0,
-      centerZ: 0,
+      minX: 7000,
+      maxX: 10000,
+      minZ: 0,
+      maxZ: 2400,
+      centerX: 8500,
+      centerZ: 1200,
     });
   });
 
@@ -79,6 +80,49 @@ describe("D2 room drawing domain", () => {
     const scene = compileLivingRoomScene(project);
     const wallNodes = scene.nodes.filter((node) => node.metadata?.role === "wall");
     expect(wallNodes.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("draws a hollow rectangular room on a blank site with named wall sides", () => {
+    const blank = applyPlannerStarterTemplate(
+      createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" }),
+      "blank-room",
+    );
+    const project = drawRoomFromPoints(blank, {
+      kind: "rectangle",
+      points: rectanglePoints({ x: 0, z: 0 }, { x: 4000, z: 3000 }),
+    });
+    expect(project.rooms).toHaveLength(1);
+    expect(project.rooms[0]?.name).toBe("Room 1");
+    expect(project.walls.every((wall) => wall.raised === false)).toBe(true);
+    const scene = compileLivingRoomScene(project);
+    const sides = new Set(
+      scene.nodes.filter((node) => node.metadata?.role === "wall").map((node) => String(node.metadata.wallSide)),
+    );
+    expect([...sides].sort()).toEqual(["back", "front", "left", "right"]);
+    const floor = scene.nodes.find((node) => node.metadata?.role === "floor");
+    expect(floor?.primitives[0]?.kind === "polygon-prism" ? floor.primitives[0].heightMm : 0).toBe(12);
+  });
+
+  it("keeps a second drawn room at its click-drag location", () => {
+    const blank = applyPlannerStarterTemplate(
+      createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" }),
+      "blank-room",
+    );
+    const first = drawRoomFromPoints(blank, {
+      kind: "rectangle",
+      points: rectanglePoints({ x: 0, z: 0 }, { x: 4000, z: 3000 }),
+    });
+    const firstExtents = wallExtents(selectWallsForRoom(first, first.activeRoomId));
+    expect(firstExtents.minX).toBe(-2000);
+    expect(firstExtents.maxX).toBe(2000);
+    const second = drawRoomFromPoints(first, {
+      kind: "rectangle",
+      points: rectanglePoints({ x: 5000, z: 0 }, { x: 8000, z: 2400 }),
+    });
+    const secondExtents = wallExtents(selectWallsForRoom(second, second.activeRoomId));
+    expect(secondExtents.minX).toBe(5000);
+    expect(secondExtents.maxX).toBe(8000);
+    expect(secondExtents.minX).toBeGreaterThan(firstExtents.maxX);
   });
 
   it("leaves the source project untouched for undo restore", () => {

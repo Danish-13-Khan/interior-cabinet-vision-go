@@ -40,6 +40,7 @@ import {
   applyLivingRoomStyle,
   applyPlannerStarterTemplate,
   type PlannerStarterTemplate,
+  ensureDrawnRoomReviewRig,
   createImportedAssetObject,
   createLivingRoomObject,
   createLivingRoomReleaseDemoProject,
@@ -75,12 +76,22 @@ import {
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
+import {
+  importLivingRoomFinish as commitImportedFinish,
+  offsetLivingRoomLoop as commitOffsetLoop,
+  offsetLivingRoomWall as commitOffsetWall,
+  paintLivingRoomCeiling as commitCeilingPaint,
+  raiseLivingRoomWalls as commitRaisedWalls,
+  setLivingRoomFinishUv as commitFinishUv,
+  setLivingRoomWallPlan as commitWallPlan,
+} from "./livingRoomSketchCommands";
 
 type UseLivingRoomPlanEditorArgs = {
   project: CabinetProject;
   room: RoomConfig;
   commitProjectChange: CommitProjectChange;
   commitSnapshot: CommitSnapshot;
+  onStatus?: (status: string) => void;
 };
 
 function uniqueObjectId(category: string) {
@@ -90,10 +101,7 @@ function uniqueObjectId(category: string) {
 }
 
 function currentLivingRoomDocument(project: CabinetProject) {
-  const document = project.interiorDocument;
-  return document?.rooms.some((room) => room.roomType === "living-room")
-    ? document
-    : null;
+  return project.interiorDocument ?? null;
 }
 
 export function useLivingRoomPlanEditor({
@@ -101,6 +109,7 @@ export function useLivingRoomPlanEditor({
   room,
   commitProjectChange,
   commitSnapshot,
+  onStatus,
 }: UseLivingRoomPlanEditorArgs) {
   const document = currentLivingRoomDocument(project);
   const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
@@ -140,6 +149,10 @@ export function useLivingRoomPlanEditor({
       : base;
     const starter = applyPlannerStarterTemplate(styled, options.template ?? "blank-room");
     const compatible = cabinetProjectFromInteriorProject(starter);
+    const label = options.template === "wardrobe-wall" ? "wardrobe wall plan"
+      : options.template === "l-room" ? "L-room plan"
+      : options.template === "2-room-flat" ? "2-room flat plan"
+      : "blank plan";
     commitSnapshot(
       {
         project: compatible.project,
@@ -148,7 +161,7 @@ export function useLivingRoomPlanEditor({
         activeCabinetId: null,
         selectedPanelName: null,
       },
-      "Created the Living Room Starter plan.",
+      `Created a ${label}.`,
     );
     setSelectedObjectIds(starter.objects[0] ? [starter.objects[0].id] : []);
     setProjectHomeOpen(false);
@@ -419,7 +432,7 @@ export function useLivingRoomPlanEditor({
   }
 
   function drawRoom(drawing: RoomDrawingRequest) {
-    commitDocument((current) => drawRoomFromPoints(current, drawing), `Created ${drawing.kind} room.`);
+    commitDocument((current) => ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, drawing)), `Created ${drawing.kind} room.`);
   }
 
   function drawWallSegment(start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") {
@@ -568,6 +581,7 @@ export function useLivingRoomPlanEditor({
     applyMaterialToSelection: applySelectionMaterial,
     setInteriorObjectParameters: setObjectParameters,
     setLivingRoomFloorMaterial: setFloorMaterial,
+    setLivingRoomCeilingMaterial: (materialId: string) => commitCeilingPaint(commitDocument, materialId),
     setLivingRoomWallMaterial: setWallMaterial,
     setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
@@ -595,6 +609,17 @@ export function useLivingRoomPlanEditor({
     splitLivingRoomWall: splitWall,
     deleteLivingRoomWall: deleteWall,
     updateLivingRoomWall: updateWall,
+    raiseLivingRoomWalls: (wallIds: string[], raised: boolean, heightMm?: number) =>
+      commitRaisedWalls(commitDocument, wallIds, raised, heightMm),
+    offsetLivingRoomWall: (wallId: string, offsetMm: number) =>
+      commitOffsetWall(commitDocument, wallId, offsetMm),
+    offsetLivingRoomLoop: (offsetMm: number) => commitOffsetLoop(commitDocument, offsetMm),
+    setLivingRoomWallPlan: (wallId: string, patch: import("../domain/interiorProject").WallPlanPatch) =>
+      commitWallPlan(commitDocument, wallId, patch),
+    importLivingRoomFinish: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) =>
+      commitImportedFinish(commitDocument, file, apply, onStatus),
+    setLivingRoomFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) =>
+      commitFinishUv(commitDocument, materialId, patch),
     joinLivingRoomCoincidentNodes: joinCoincidentNodes,
     moveLivingRoomNode: moveNode,
     translateLivingRoomWall: translateWall,

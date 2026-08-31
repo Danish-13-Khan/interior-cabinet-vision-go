@@ -41,6 +41,11 @@ export type WallEntity = {
   end: Point2Mm;
   heightMm: number;
   thicknessMm: number;
+  /**
+   * False keeps the wall as a 2D plan trace until Raise to 3D.
+   * Missing/true means the wall is already extruded (templates and older files).
+   */
+  raised?: boolean;
   visible: boolean;
   materialId: EntityId | null;
   /** Authoritative v2 graph endpoints. start/end are synchronized compatibility caches. */

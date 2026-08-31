@@ -122,6 +122,7 @@ export function useAppController() {
     room: s.room,
     commitProjectChange: s.commitProjectChange,
     commitSnapshot: s.commitSnapshot,
+    onStatus: s.setProjectStatus,
   });
 
   const livingRoomRecovery = useLivingRoomRecovery({

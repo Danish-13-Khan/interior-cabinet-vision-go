@@ -24,14 +24,16 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       {props.workspaceView === "plan" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
-          onStudioPanel={props.onStudioPanel} project={project} roomName={room.name} selectedIds={w.selectedIds}
+          onStudioPanel={props.onStudioPanel} project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
           assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
           underlay={props.underlay} importError={props.importError} onAssetQuery={props.onAssetQuery}
           onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
           onCreateCabinetRun={w.onCreateCabinetRun}
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
+          onSetCeilingMaterial={w.onSetCeilingMaterial}
           onSetWallMaterial={w.onSetWallMaterial}
           onApplyMaterialToSelection={w.onApplyMaterialToSelection}
+          onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
           onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
@@ -84,7 +86,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             if (!file) return;
             props.onImportError("");
             try {
-              w.onSetPlanUnderlay(await imageFileToUnderlay(file, room.dimensions.widthMm));
+              w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
             } catch (error) {
@@ -179,7 +181,17 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
           activeWallId={props.activeWallId}
           onUpdateWall={(wallId, patch) => build.dispatchBuildCommand({ type: "updateWall", wallId, patch })}
+          onRaiseWalls={w.onRaiseWalls}
+          onOffsetWall={w.onOffsetWall}
+          onOffsetLoop={w.onOffsetLoop}
+          onSetWallPlan={w.onSetWallPlan}
+          onImportFinish={w.onImportFinish}
+          onSetFinishUv={w.onSetFinishUv}
           onSetWallMaterial={w.onSetWallMaterial}
+          onSetFloorMaterial={w.onSetFloorMaterial}
+          onSetCeilingMaterial={w.onSetCeilingMaterial}
+          onDuplicate={w.onDuplicate}
+          onDelete={w.onDelete}
           unit={props.readability.unit}
         />
       ) : null}

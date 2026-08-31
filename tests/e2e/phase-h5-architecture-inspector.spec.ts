@@ -4,7 +4,7 @@ async function openPlan(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 }
 
 test("H5 exposes active room and wall construction in the inspector", async ({ page }) => {
