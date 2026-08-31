@@ -1,7 +1,11 @@
+import { officialDesktopUserLatencyDisclaimer } from "./latencyDeclaration";
 import type { Phase1ProofPack } from "./proofTypes";
 
 /** Markdown skeleton for PR attachments + scorecard readout. */
 export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
+  const disclaimer = pack.latencyEvidence
+    ? officialDesktopUserLatencyDisclaimer(pack.latencyEvidence)
+    : "Not desktop user latency (REL-009).";
   const lines = [
     "# Phase 1 proof pack",
     "",
@@ -15,10 +19,12 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
       ? [
           "## Latency evidence",
           `- Surface: \`${pack.latencyEvidence.appSurface}\``,
+          `- Build mode: \`${pack.latencyEvidence.buildMode}\``,
           `- Machine: ${pack.latencyEvidence.machine}`,
           ...(pack.latencyEvidence.substituteReason
             ? [`- Substitute reason: ${pack.latencyEvidence.substituteReason}`]
             : []),
+          ...(disclaimer ? [`- ${disclaimer}`] : []),
           "",
         ]
       : []),
@@ -40,7 +46,7 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
       `| ${row.frameId} | ${row.differences.join(", ") || "—"} | ${row.pass ? "yes" : "no"} |`
     ),
     "",
-    "## Latency table (fill `latency-samples.json`)",
+    "## Latency table (not desktop user latency unless Tauri release evidence)",
     "| Frame | Draft ms | Client Preview ms |",
     "|---|---:|---:|",
     ...pack.latencyTable.map((row) =>
@@ -50,7 +56,7 @@ export function formatPhase1ProofMarkdown(pack: Phase1ProofPack): string {
     "## Manual PR attachments",
     "- Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`",
     "- Fill `fixtures/phase-1-benchmarks/latency-samples.json` or run `npm run phase1:latency`, then re-run `npm run phase1:proof`",
-    "- Machine string and optional substitute reason live in that JSON",
+    "- Machine, build mode, and optional substitute reason live in that JSON (REL-008). CI/browser timings are not desktop user latency (REL-009).",
     "",
   ];
   return lines.join("\n");

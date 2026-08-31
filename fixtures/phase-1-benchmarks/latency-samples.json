@@ -1,5 +1,6 @@
 {
   "appSurface": "browser-dev-substitute",
+  "buildMode": "browser-dev",
   "substituteReason": "Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.",
   "machine": "arm64 · darwin 25.5.0 · 16 GB RAM",
   "samples": [

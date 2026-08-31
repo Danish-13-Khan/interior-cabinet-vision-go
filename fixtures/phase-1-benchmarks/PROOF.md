@@ -1,6 +1,6 @@
 # Phase 1 proof pack
 
-Generated: 2026-08-31T10:44:51.965Z
+Generated: 2026-08-31T12:44:28.554Z
 Overall: **PENDING**
 
 ## Latency environment
@@ -8,8 +8,10 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 
 ## Latency evidence
 - Surface: `browser-dev-substitute`
+- Build mode: `browser-dev`
 - Machine: arm64 · darwin 25.5.0 · 16 GB RAM
 - Substitute reason: Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.
+- Not desktop user latency (REL-009).
 
 
 ## Frames
@@ -27,7 +29,7 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 | grounding | pass | Client Preview contact opacity 0.94 / res 768 / far 4m |
 | window-key | pass | Windowed benchmarks emit a stronger shadowed Client Preview key. |
 | framing | pass | All 6 hero frames pass eye-level framing QA (no ceiling-heavy / cut-feet). |
-| latency | pending | Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: bench-daylight-sofa/camera-a/draft=5291ms, bench-daylight-sofa/camera-a/client-preview=28287ms, bench-daylight-sofa/camera-b/draft=11509ms, bench-daylight-sofa/camera-b/client-preview=23926ms, bench-millwork-media/camera-a/draft=3708ms, bench-millwork-media/camera-a/client-preview=17871ms, bench-millwork-media/camera-b/draft=13214ms, bench-millwork-media/camera-b/client-preview=27620ms, bench-evening-lamp/camera-a/draft=5268ms, bench-evening-lamp/camera-a/client-preview=29233ms, bench-evening-lamp/camera-b/draft=6528ms, bench-evening-lamp/camera-b/client-preview=13983ms. Measured on arm64 · darwin 25.5.0 · 16 GB RAM via browser-dev-substitute (Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment.). |
+| latency | pending | Declared substitute/CI evidence collected, but over-budget rows: bench-daylight-sofa/camera-a/draft=5291ms, bench-daylight-sofa/camera-a/client-preview=28287ms, bench-daylight-sofa/camera-b/draft=11509ms, bench-daylight-sofa/camera-b/client-preview=23926ms, bench-millwork-media/camera-a/draft=3708ms, bench-millwork-media/camera-a/client-preview=17871ms, bench-millwork-media/camera-b/draft=13214ms, bench-millwork-media/camera-b/client-preview=27620ms, bench-evening-lamp/camera-a/draft=5268ms, bench-evening-lamp/camera-a/client-preview=29233ms, bench-evening-lamp/camera-b/draft=6528ms, bench-evening-lamp/camera-b/client-preview=13983ms. hardware arm64 · darwin 25.5.0 · 16 GB RAM · build browser-dev · surface browser-dev-substitute · substitute: Browser preview harness substitute on Wednesday, August 12, 2026 because Tauri desktop automation is not available in this environment. · Not desktop user latency (REL-009). |
 | honesty | pass | Preset honesty + README/UI corpus avoid affirmative photoreal / Synaps / AI claims. |
 | automation | pass | All 5 automation gates green (2026-08-13T05:49:21.788Z). |
 | data-safety | pass | Benchmark projects serialize/load without Three/path payloads. |
@@ -42,7 +44,7 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 | bench-evening-lamp/camera-a | key-light-contrast, contact-grounding, material-punch, exposure-framing | yes |
 | bench-evening-lamp/camera-b | key-light-contrast, contact-grounding, material-punch, exposure-framing | yes |
 
-## Latency table (fill `latency-samples.json`)
+## Latency table (not desktop user latency unless Tauri release evidence)
 | Frame | Draft ms | Client Preview ms |
 |---|---:|---:|
 | bench-daylight-sofa/camera-a | 5291 | 28287 |
@@ -55,4 +57,4 @@ tauri-desktop · draft 1280x720 <= 3000ms · client-preview 1920x1080 <= 8000ms 
 ## Manual PR attachments
 - Side-by-side Draft vs Client Preview PNGs under `tmp/phase-1-baselines/`
 - Fill `fixtures/phase-1-benchmarks/latency-samples.json` or run `npm run phase1:latency`, then re-run `npm run phase1:proof`
-- Machine string and optional substitute reason live in that JSON
+- Machine, build mode, and optional substitute reason live in that JSON (REL-008). CI/browser timings are not desktop user latency (REL-009).

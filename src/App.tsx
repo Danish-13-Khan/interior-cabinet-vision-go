@@ -177,6 +177,7 @@ function App() {
               onExportRevisionSummary={() => { void c.handleExportRevisionSummary(); }}
               approvalBlockedReasons={c.approvalGate.reasons}
               releaseBlockedReasons={c.releaseGate.reasons}
+              canOverrideRelease={c.releaseGate.canOverride}
               sheets={getProjectSheetSet(c.project).sheets}
               onOpenSheet={(sheetId) => {
                 c.handleSelectSheetDocument(sheetId);
@@ -641,6 +642,7 @@ function App() {
         onExportRevisionSummary={() => { void c.handleExportRevisionSummary(); }}
         approvalBlockedReasons={c.approvalGate.reasons}
         releaseBlockedReasons={c.releaseGate.reasons}
+        canOverrideRelease={c.releaseGate.canOverride}
         onOpenSheet={(sheetId) => {
           c.handleSelectSheetDocument(sheetId);
           c.setLayout({ sheetBrowserVisible: true, statusDockOpen: false });

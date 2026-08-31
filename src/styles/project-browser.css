@@ -226,10 +226,15 @@
   min-width: 0;
 }
 
-.rename-inline input:focus {
+.rename-inline input:focus:not(:focus-visible) {
   outline: none;
   border-color: #7b93ac;
   box-shadow: 0 0 0 2px rgba(123, 147, 172, 0.18);
+}
+
+.rename-inline input:focus-visible {
+  outline: 2px solid var(--accent, #1e4d72);
+  outline-offset: 2px;
 }
 
 .rename-inline button {

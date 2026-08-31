@@ -4,6 +4,10 @@ import {
   PHASE1_SCORECARD_CHECK_IDS,
 } from "./definitions";
 import type { Phase1ScorecardCheckId } from "./types";
+import {
+  parseLatencyBuildMode,
+  type LatencyBuildMode,
+} from "./latencyDeclaration";
 
 export type Phase1LatencyAppSurface =
   | "tauri-desktop"
@@ -11,6 +15,7 @@ export type Phase1LatencyAppSurface =
 
 export type Phase1LatencyEvidence = {
   machine: string;
+  buildMode: LatencyBuildMode | "unspecified";
   appSurface: Phase1LatencyAppSurface;
   substituteReason?: string;
 };
@@ -20,6 +25,7 @@ export type Phase1LatencySample = {
   quality: RenderQuality;
   elapsedMs: number;
   machine: string;
+  buildMode?: LatencyBuildMode | "unspecified";
   appSurface?: Phase1LatencyAppSurface;
   substituteReason?: string;
 };
@@ -45,6 +51,7 @@ export function summarizePhase1LatencyEvidence(
   if (!first) return undefined;
   return {
     machine: first.machine,
+    buildMode: parseLatencyBuildMode(first.buildMode),
     appSurface: first.appSurface ?? PHASE1_LATENCY_ENVIRONMENT.appSurface,
     substituteReason: first.substituteReason?.trim() || undefined,
   };

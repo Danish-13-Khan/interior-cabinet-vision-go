@@ -9,6 +9,7 @@ import {
   approveProjectReview,
   createRevisionSnapshot,
   exportRevisionSummaryPdf,
+  gateOverrideFromReason,
   getProjectReviewState,
   releaseForProduction,
   setReviewNoteResolved,
@@ -134,8 +135,8 @@ export function useReviewWorkflow({
     );
   }
 
-  function handleReleaseForProduction() {
-    const result = releaseForProduction(project);
+  function handleReleaseForProduction(overrideReason = "") {
+    const result = releaseForProduction(project, gateOverrideFromReason(overrideReason));
     if ("error" in result) {
       onStatus(`Release blocked: ${result.error}`);
       return;
