@@ -3,4 +3,8 @@ export * from "./clamp";
 export * from "./fingerprint";
 export * from "./compare";
 export * from "./operations";
+export * from "./gateOverride";
+export * from "./approval";
+export * from "./productionFingerprint";
+export * from "./productionReadiness";
 export * from "./revisionSummaryPdf";

@@ -32,6 +32,16 @@ export function HistorySection({ history }: HistorySectionProps) {
                 {snap.approvedBy ? ` · Approved by ${snap.approvedBy}` : ""}
               </p>
               {snap.note ? <p className="review-history-note">{snap.note}</p> : null}
+              {snap.productionFingerprint ? (
+                <p className="helper-note" data-testid="production-fingerprint">
+                  Production fingerprint {snap.productionFingerprint}
+                </p>
+              ) : null}
+              {snap.releaseOverride ? (
+                <p className="helper-note">
+                  Override{snap.releaseOverride.user ? ` by ${snap.releaseOverride.user}` : ""}: {snap.releaseOverride.reason}
+                </p>
+              ) : null}
               <FingerprintCards fingerprint={snap.fingerprint} />
               <ul className="review-changelog">
                 {snap.changeLog.map((entry, index) => (

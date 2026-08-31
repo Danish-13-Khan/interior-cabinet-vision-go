@@ -35,7 +35,7 @@ export function buildRevisionSummaryLines(
   ];
   for (const snap of snapshots.slice(0, 12)) {
     lines.push(
-      `Rev ${snap.revision} · ${new Date(snap.createdAt).toLocaleString()} · ${JOB_STATUS_LABELS[snap.status]} · cabinets ${snap.fingerprint.cabinetCount} · sell ₹${snap.fingerprint.sellTotal.toLocaleString()}${snap.releasedForProduction ? " · RELEASED" : ""}`,
+      `Rev ${snap.revision} · ${new Date(snap.createdAt).toLocaleString()} · ${JOB_STATUS_LABELS[snap.status]} · cabinets ${snap.fingerprint.cabinetCount} · sell ₹${snap.fingerprint.sellTotal.toLocaleString()}${snap.releasedForProduction ? " · RELEASED" : ""}${snap.productionFingerprint ? ` · ${snap.productionFingerprint}` : ""}`,
     );
     for (const change of snap.changeLog.slice(0, 4)) {
       lines.push(`  • ${change.summary}`);
@@ -102,7 +102,7 @@ export async function exportRevisionSummaryPdf(
       y = ensurePageSpace(doc, y, 18, pageHeight, margin);
       doc.setFont("helvetica", "bold");
       doc.text(
-        `Rev ${snap.revision} · ${JOB_STATUS_LABELS[snap.status]} · ${new Date(snap.createdAt).toLocaleString()}${snap.releasedForProduction ? " · RELEASED" : ""}`,
+        `Rev ${snap.revision} · ${JOB_STATUS_LABELS[snap.status]} · ${new Date(snap.createdAt).toLocaleString()}${snap.releasedForProduction ? " · RELEASED" : ""}${snap.productionFingerprint ? ` · ${snap.productionFingerprint}` : ""}`,
         margin,
         y,
       );
@@ -114,6 +114,10 @@ export async function exportRevisionSummaryPdf(
       }
       if (snap.approvedBy) {
         doc.text(`Approved by: ${snap.approvedBy}`, margin + 2, y);
+        y += 4;
+      }
+      if (snap.releaseOverride) {
+        doc.text(`Override: ${snap.releaseOverride.reason}`, margin + 2, y);
         y += 4;
       }
       for (const change of snap.changeLog.slice(0, 5)) {

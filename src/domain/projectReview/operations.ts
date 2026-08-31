@@ -8,7 +8,6 @@ import {
 import {
   MAX_REVISION_HISTORY,
   type ProjectReviewState,
-  type ReleaseGateResult,
   type ReviewNote,
   type ReviewNoteSeverity,
   type RevisionSnapshot,
@@ -156,100 +155,6 @@ export function setReviewNoteResolved(
         : note,
     ),
   });
-}
-
-export function canApproveForRelease(
-  project: CabinetProject,
-): ReleaseGateResult {
-  const review = getProjectReviewState(project);
-  const reasons: string[] = [];
-  const open = review.notes.filter((note) => !note.resolved);
-  const blockers = open.filter((note) => note.severity === "blocker");
-  const errors = open.filter((note) => note.severity === "error");
-  if (blockers.length > 0) {
-    reasons.push(`${blockers.length} unresolved blocker${blockers.length === 1 ? "" : "s"}`);
-  }
-  if (errors.length > 0) {
-    reasons.push(`${errors.length} unresolved error${errors.length === 1 ? "" : "s"}`);
-  }
-  if (review.history.length === 0) {
-    reasons.push("Freeze at least one revision snapshot before approval");
-  }
-  return { ok: reasons.length === 0, reasons };
-}
-
-export function approveProjectReview(
-  project: CabinetProject,
-  approvedBy = "",
-): { job: ProjectJobMeta; review: ProjectReviewState } | { error: string } {
-  const gate = canApproveForRelease(project);
-  if (!gate.ok) {
-    return { error: gate.reasons.join("; ") };
-  }
-  const review = getProjectReviewState(project);
-  const history = review.history.map((snapshot, index) =>
-    index === 0
-      ? {
-          ...snapshot,
-          status: "approved" as const,
-          approvedBy: approvedBy.trim() || snapshot.approvedBy || "Reviewer",
-        }
-      : snapshot,
-  );
-  return {
-    job: patchJobMeta(project.job, { status: "approved" }),
-    review: { ...review, history },
-  };
-}
-
-export function canReleaseForProduction(
-  project: CabinetProject,
-): ReleaseGateResult {
-  const job = clampJobMeta(project.job);
-  const review = getProjectReviewState(project);
-  const reasons: string[] = [];
-  if (job.status !== "approved" && job.status !== "production") {
-    reasons.push("Project must be approved before release for production");
-  }
-  const approveGate = canApproveForRelease(project);
-  if (!approveGate.ok) {
-    reasons.push(...approveGate.reasons);
-  }
-  const manufacturingErrors = evaluateProjectRules(project).filter(
-    (issue) => issue.severity === "error" && !issue.autoFixed,
-  );
-  if (manufacturingErrors.length > 0) {
-    reasons.push(
-      `${manufacturingErrors.length} manufacturing error${manufacturingErrors.length === 1 ? "" : "s"} still open`,
-    );
-  }
-  if (!review.history[0]) {
-    reasons.push("No revision snapshot available to release");
-  }
-  return { ok: reasons.length === 0, reasons: Array.from(new Set(reasons)) };
-}
-
-export function releaseForProduction(
-  project: CabinetProject,
-): { job: ProjectJobMeta; review: ProjectReviewState } | { error: string } {
-  const gate = canReleaseForProduction(project);
-  if (!gate.ok) {
-    return { error: gate.reasons.join("; ") };
-  }
-  const review = getProjectReviewState(project);
-  const history = review.history.map((snapshot, index) =>
-    index === 0
-      ? {
-          ...snapshot,
-          status: "production" as const,
-          releasedForProduction: true,
-        }
-      : snapshot,
-  );
-  return {
-    job: patchJobMeta(project.job, { status: "production" }),
-    review: { ...review, history },
-  };
 }
 
 export function applyReviewStateToProject(

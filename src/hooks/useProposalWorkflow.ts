@@ -38,6 +38,7 @@ export function useProposalWorkflow(args: {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [staleOverride, setStaleOverride] = useState(false);
+  const [overrideReason, setOverrideReason] = useState("");
 
   const live = useMemo(
     () => (args.project ? buildLiveInteriorQuote(args.project) : null),
@@ -62,10 +63,12 @@ export function useProposalWorkflow(args: {
           document: args.project,
           issues: args.issues,
           staleOverride,
+          overrideReason,
           viewFrames,
+          acceptedStillCount: args.acceptedStills?.length ?? 0,
         })
       : null),
-    [args.project, args.issues, staleOverride, viewFrames],
+    [args.project, args.issues, staleOverride, overrideReason, viewFrames, args.acceptedStills],
   );
 
   function patchQuote(patch: Partial<QuoteSettings>) {
@@ -85,6 +88,7 @@ export function useProposalWorkflow(args: {
   function freezeQuote() {
     args.onPatchDocument((current) => freezeProposal(current), "Froze quote snapshot.");
     setStaleOverride(false);
+    setOverrideReason("");
     setStatus("Quote frozen for this revision.");
   }
 
@@ -123,6 +127,7 @@ export function useProposalWorkflow(args: {
         saved: true,
         staleOverride,
         frozen: live?.frozen ?? null,
+        reason: overrideReason,
       });
       if (commit.persistOverride && commit.override) {
         args.onPatchDocument(
@@ -146,6 +151,8 @@ export function useProposalWorkflow(args: {
     busy,
     staleOverride,
     setStaleOverride,
+    overrideReason,
+    setOverrideReason,
     patchQuote,
     patchJob,
     freezeQuote,

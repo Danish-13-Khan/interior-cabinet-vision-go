@@ -30,6 +30,8 @@
 .proposal-review-views label,
 .proposal-review-override { grid-template-columns: auto 1fr; align-items: center; }
 .proposal-review-create { min-height: 36px !important; font-weight: 700 !important; }
+.proposal-review-override-block { display: grid; gap: 6px; }
+.proposal-review [data-testid="proposal-gate"] { margin: 0; }
 .lr-product-shell-v2 .planner-v2-review { width: 280px; min-width: 280px; }
 .lr-product-shell-v2 .proposal-review { border-color: #364238; }
 .lr-product-shell-v2 .proposal-review > strong { color: #d7e4d8; }
