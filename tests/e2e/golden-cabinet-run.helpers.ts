@@ -17,7 +17,12 @@ export async function openGoldenCabinetRun(page: Page) {
 }
 
 export async function selectGoldenCabinet(page: Page, objectId: string) {
-  await page.locator(`[data-object-id="${objectId}"]`).first().click();
+  const fromInspector = page.getByTestId(`inspector-object-${objectId}`);
+  if (await fromInspector.count()) {
+    await fromInspector.click();
+  } else {
+    await page.locator(`[data-object-id="${objectId}"]`).first().click();
+  }
   await expect(page.locator(`[data-object-id="${objectId}"].is-selected`)).toBeVisible();
 }
 

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import { join } from "node:path";
-import { fixturesDir, outputPath, substituteReason } from "./config.mjs";
+import { fixturesDir, outputPath, substituteReason, useDevServer } from "./config.mjs";
 
 const benchmarkIds = ["bench-daylight-sofa", "bench-millwork-media", "bench-evening-lamp"];
 
@@ -26,6 +26,12 @@ function machineLabel() {
 }
 
 export function writeLatencySamples(samples) {
-  const payload = { appSurface: "browser-dev-substitute", substituteReason, machine: machineLabel(), samples };
+  const payload = {
+    appSurface: "browser-dev-substitute",
+    buildMode: useDevServer ? "browser-dev" : "ci-dev",
+    substituteReason,
+    machine: machineLabel(),
+    samples,
+  };
   writeFileSync(outputPath, `${JSON.stringify(payload, null, 2)}\n`);
 }

@@ -59,6 +59,8 @@ export type RevisionSnapshot = {
   note: string;
   approvedBy?: string;
   releasedForProduction: boolean;
+  /** Packet hash captured at freeze; compared on release to catch design drift. */
+  packetFingerprint?: string;
   productionFingerprint?: string;
   releaseOverride?: GateOverride;
   fingerprint: RevisionFingerprint;
