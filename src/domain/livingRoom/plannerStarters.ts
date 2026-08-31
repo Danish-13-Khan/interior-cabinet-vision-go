@@ -57,7 +57,7 @@ function createLRoomStarter(project: InteriorProject): InteriorProject {
   const withL = drawRoomFromPoints(cleared, {
     kind: "polygon",
     points: [...L_ROOM_STARTER_POINTS],
-  });
+  }, { raised: true });
   const lRoomId = withL.activeRoomId;
   const remapped = remappedOwnedContent(withL, originalId, lRoomId);
   const finished = synchronizeRoomSurfaceZones({

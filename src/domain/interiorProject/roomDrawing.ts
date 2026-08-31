@@ -51,7 +51,11 @@ function nextId(prefix: string, existing: Set<string>) {
 }
 
 /** Adds a D2 room face as an independent closed wall graph; shared-edge operations remain D3. */
-export function drawRoomFromPoints(project: InteriorProject, request: RoomDrawingRequest): InteriorProject {
+export function drawRoomFromPoints(
+  project: InteriorProject,
+  request: RoomDrawingRequest,
+  options?: { raised?: boolean },
+): InteriorProject {
   const normalized = normalizeRoomPolygon(request.points);
   if (!normalized) return project;
   const points = centerPolygonAtOrigin(normalized);
@@ -84,7 +88,7 @@ export function drawRoomFromPoints(project: InteriorProject, request: RoomDrawin
     const id = nextId("wall", usedWallIds); usedWallIds.add(id);
     return {
       id, roomId, start: { ...point }, end: { ...end }, startNodeId: nodeIdFor(point), endNodeId: nodeIdFor(end),
-      heightMm, thicknessMm, visible: true, materialId,
+      heightMm, thicknessMm, raised: options?.raised ?? false, visible: true, materialId,
       extensions: {
         createdBy: "draw-room", drawingKind: request.kind, wallSide: wallSideForCenteredEdge(point, end),
       },

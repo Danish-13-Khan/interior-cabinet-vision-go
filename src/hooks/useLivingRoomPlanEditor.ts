@@ -76,6 +76,15 @@ import {
 } from "../domain/livingRoom";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
+import {
+  importLivingRoomFinish as commitImportedFinish,
+  offsetLivingRoomLoop as commitOffsetLoop,
+  offsetLivingRoomWall as commitOffsetWall,
+  paintLivingRoomCeiling as commitCeilingPaint,
+  raiseLivingRoomWalls as commitRaisedWalls,
+  setLivingRoomFinishUv as commitFinishUv,
+  setLivingRoomWallPlan as commitWallPlan,
+} from "./livingRoomSketchCommands";
 
 type UseLivingRoomPlanEditorArgs = {
   project: CabinetProject;
@@ -570,6 +579,7 @@ export function useLivingRoomPlanEditor({
     applyMaterialToSelection: applySelectionMaterial,
     setInteriorObjectParameters: setObjectParameters,
     setLivingRoomFloorMaterial: setFloorMaterial,
+    setLivingRoomCeilingMaterial: (materialId: string) => commitCeilingPaint(commitDocument, materialId),
     setLivingRoomWallMaterial: setWallMaterial,
     setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
@@ -597,6 +607,17 @@ export function useLivingRoomPlanEditor({
     splitLivingRoomWall: splitWall,
     deleteLivingRoomWall: deleteWall,
     updateLivingRoomWall: updateWall,
+    raiseLivingRoomWalls: (wallIds: string[], raised: boolean, heightMm?: number) =>
+      commitRaisedWalls(commitDocument, wallIds, raised, heightMm),
+    offsetLivingRoomWall: (wallId: string, offsetMm: number) =>
+      commitOffsetWall(commitDocument, wallId, offsetMm),
+    offsetLivingRoomLoop: (offsetMm: number) => commitOffsetLoop(commitDocument, offsetMm),
+    setLivingRoomWallPlan: (wallId: string, patch: import("../domain/interiorProject").WallPlanPatch) =>
+      commitWallPlan(commitDocument, wallId, patch),
+    importLivingRoomFinish: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) =>
+      commitImportedFinish(commitDocument, file, apply),
+    setLivingRoomFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) =>
+      commitFinishUv(commitDocument, materialId, patch),
     joinLivingRoomCoincidentNodes: joinCoincidentNodes,
     moveLivingRoomNode: moveNode,
     translateLivingRoomWall: translateWall,

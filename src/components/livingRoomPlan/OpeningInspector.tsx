@@ -1,5 +1,12 @@
-import type { InteriorProject, OpeningEntity } from "../../domain/interiorProject";
+import {
+  STANDARD_DOOR_HEIGHTS_MM,
+  STANDARD_SILL_HEIGHTS_MM,
+  STANDARD_WINDOW_HEIGHTS_MM,
+  type InteriorProject,
+  type OpeningEntity,
+} from "../../domain/interiorProject";
 import { getOpeningCatalogItem } from "../../domain/livingRoom";
+import { HeightPresetRow } from "./HeightPresetRow";
 import { NumberField } from "./NumberField";
 import { MaterialSlotList } from "./MaterialSlotList";
 
@@ -40,6 +47,15 @@ export function OpeningInspector({ opening, materials, onUpdate }: {
       <NumberField className="lr-dimension-card" label="H" value={opening.heightMm} onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
       <NumberField className="lr-dimension-card" label="Sill" value={opening.sillHeightMm} onChange={(sillHeightMm) => onUpdate(opening.id, { sillHeightMm })} />
     </div>
+    {opening.kind === "door"
+      ? <HeightPresetRow label="Door height" values={STANDARD_DOOR_HEIGHTS_MM} value={opening.heightMm}
+        onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
+      : <>
+        <HeightPresetRow label="Window height" values={STANDARD_WINDOW_HEIGHTS_MM} value={opening.heightMm}
+          onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
+        <HeightPresetRow label="Sill height" values={STANDARD_SILL_HEIGHTS_MM} value={opening.sillHeightMm}
+          onChange={(sillHeightMm) => onUpdate(opening.id, { sillHeightMm })} />
+      </>}
     <h4>Materials</h4>
     <MaterialSlotList slots={slotMap} materials={materials} allowEmpty
       onSet={(slotName, materialId) => onUpdate(opening.id, { materialSlots: { ...slots, [slotName]: materialId } })} />

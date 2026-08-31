@@ -24,11 +24,13 @@ function prepareTexture(
   mode: RenderMode,
   colorSpace: boolean,
   quality?: RenderQuality,
+  uvRotationDeg = 0,
 ) {
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
   const repeat = textureRepeatFromUvScaleMm(uvScaleMm);
   texture.repeat.set(repeat.x, repeat.y);
+  texture.rotation = (uvRotationDeg * Math.PI) / 180;
   texture.anisotropy = getRenderModeQuality(mode, quality).anisotropy;
   if (colorSpace) texture.colorSpace = SRGBColorSpace;
   return texture;
@@ -94,11 +96,11 @@ function CuratedPbrMaterial({
   ) as Partial<Record<keyof MaterialTextureUrls, Texture>>;
 
   useEffect(() => {
-    if (textures.map) prepareTexture(textures.map, material.uvScaleMm, renderMode, true, renderQuality);
-    if (textures.normalMap) prepareTexture(textures.normalMap, material.uvScaleMm, renderMode, false, renderQuality);
-    if (textures.roughnessMap) prepareTexture(textures.roughnessMap, material.uvScaleMm, renderMode, false, renderQuality);
-    if (textures.aoMap) prepareTexture(textures.aoMap, material.uvScaleMm, renderMode, false, renderQuality);
-  }, [material.uvScaleMm, renderMode, renderQuality, textures.aoMap, textures.map, textures.normalMap, textures.roughnessMap]);
+    if (textures.map) prepareTexture(textures.map, material.uvScaleMm, renderMode, true, renderQuality, material.uvRotationDeg);
+    if (textures.normalMap) prepareTexture(textures.normalMap, material.uvScaleMm, renderMode, false, renderQuality, material.uvRotationDeg);
+    if (textures.roughnessMap) prepareTexture(textures.roughnessMap, material.uvScaleMm, renderMode, false, renderQuality, material.uvRotationDeg);
+    if (textures.aoMap) prepareTexture(textures.aoMap, material.uvScaleMm, renderMode, false, renderQuality, material.uvRotationDeg);
+  }, [material.uvRotationDeg, material.uvScaleMm, renderMode, renderQuality, textures.aoMap, textures.map, textures.normalMap, textures.roughnessMap]);
 
   return (
     <meshPhysicalMaterial

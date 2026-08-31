@@ -40,6 +40,7 @@ describe("planner starter templates", () => {
     const next = applyPlannerStarterTemplate(source, "l-room");
     expect(next.rooms).toHaveLength(1);
     expect(next.rooms[0]?.name).toBe("L Room");
+    expect(next.walls.every((wall) => wall.raised !== false)).toBe(true);
     expect(next.rooms[0]?.extensions?.floorMaterialId).toBe(sourceFloor);
     expect(next.rooms[0]?.extensions?.ceilingMaterialId).toBe(sourceCeiling);
     expect(roomPlanPolygon(next, next.activeRoomId)?.outer).toHaveLength(L_ROOM_STARTER_POINTS.length);

@@ -26,17 +26,28 @@ import { sampleWindowOpenings } from "./windowKeyLight";
 
 function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
-    ...project.materials.map((material) => ({
-      id: material.id,
-      name: material.name,
-      kind: material.kind,
-      color: material.color,
-      roughness: material.roughness,
-      metalness: material.metalness,
-      opacity: material.opacity,
-      materialAssetId: materialAssetIdForEntity(material.id),
-      uvScaleMm: defaultUvScaleMmForMaterial(material.id),
-    })),
+    ...project.materials.map((material) => {
+      const mapUrl = typeof material.extensions?.mapUrl === "string" ? material.extensions.mapUrl : undefined;
+      const uvScale = typeof material.extensions?.uvScaleMm === "number"
+        ? material.extensions.uvScaleMm
+        : defaultUvScaleMmForMaterial(material.id);
+      const uvRotation = typeof material.extensions?.uvRotationDeg === "number"
+        ? material.extensions.uvRotationDeg
+        : undefined;
+      return {
+        id: material.id,
+        name: material.name,
+        kind: material.kind,
+        color: material.color,
+        roughness: material.roughness,
+        metalness: material.metalness,
+        opacity: material.opacity,
+        materialAssetId: materialAssetIdForEntity(material.id),
+        uvScaleMm: uvScale,
+        ...(mapUrl ? { textureMapUrl: mapUrl } : {}),
+        ...(uvRotation ? { uvRotationDeg: uvRotation } : {}),
+      };
+    }),
     {
       id: FALLBACK_MATERIAL_ID,
       name: "Safe Placeholder",

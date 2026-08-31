@@ -4,8 +4,9 @@ export const MODEL_VIEW_PRESETS = [
   { id: "dollhouse", label: "Dollhouse", symbol: "⌂", purpose: "See the whole room at a glance", clientMode: true },
   { id: "orbit", label: "Orbit", symbol: "↻", purpose: "Circle the room to inspect every side", clientMode: true },
   { id: "front", label: "Front", symbol: "▤", purpose: "Review a straight-on elevation", clientMode: false },
+  { id: "side", label: "Side", symbol: "▥", purpose: "Review the left elevation", clientMode: false },
   { id: "top", label: "Top", symbol: "↓", purpose: "Check the layout from above", clientMode: false },
-  { id: "perspective", label: "Perspective", symbol: "◇", purpose: "Use the saved presentation camera", clientMode: false },
+  { id: "perspective", label: "Perspective", symbol: "◇", purpose: "Inspect from the presentation camera — drag to look around", clientMode: false },
   { id: "walkthrough", label: "Walkthrough", symbol: "→", purpose: "Move through the room at eye level", clientMode: true },
 ] as const;
 
@@ -40,6 +41,13 @@ export function resolveModelViewPose(
   if (preset === "front") {
     return {
       position: { x: center.x, y: target.y + distance * 0.12, z: center.z + distance },
+      target,
+      fieldOfViewDegrees: 42,
+    };
+  }
+  if (preset === "side") {
+    return {
+      position: { x: center.x - distance, y: target.y + distance * 0.12, z: center.z },
       target,
       fieldOfViewDegrees: 42,
     };
