@@ -72,7 +72,7 @@ export function CompiledSceneRenderer({
   const [assetRevision, setAssetRevision] = useState(0);
   const architectureBounds = computeArchitectureBounds(scene.nodes);
   const materialKey = scene.materials
-    .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}`)
+    .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}:${material.uvRotationDeg}:${material.textureMapUrl ?? ""}`)
     .join("|");
   const materialMap = useMemo(
     () => new Map(scene.materials.map((material) => [material.id, material])),

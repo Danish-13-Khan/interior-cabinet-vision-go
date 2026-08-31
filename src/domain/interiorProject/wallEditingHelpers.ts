@@ -7,6 +7,10 @@ export type WallSegmentRequest = {
   end: Point2Mm;
   roomId?: string;
   kind?: "wall" | "partition";
+  heightMm?: number;
+  thicknessMm?: number;
+  materialId?: string | null;
+  raised?: boolean;
 };
 
 export const MIN_SEGMENT_MM = 150;
@@ -29,11 +33,11 @@ export function wallSegmentKey(wall: Pick<WallEntity, "start" | "end">) {
   return segmentKey(wall.start, wall.end);
 }
 
+/** Geometry match only — keep the existing wall’s raised/material state when reusing. */
 export function compatibleSharedEdge(a: WallEntity, b: WallEntity) {
   return wallSegmentKey(a) === wallSegmentKey(b)
     && a.heightMm === b.heightMm
-    && a.thicknessMm === b.thicknessMm
-    && (a.raised !== false) === (b.raised !== false);
+    && a.thicknessMm === b.thicknessMm;
 }
 
 export function cloneNodes(project: InteriorProject) {

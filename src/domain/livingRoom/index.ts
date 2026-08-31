@@ -173,6 +173,8 @@ export {
 export {
   addImportedFinish,
   finishMapUrl,
+  mapPayloadExceedsProjectLimit,
+  MAX_FINISH_BYTES,
   readImageAsDataUrl,
   setFinishUv,
 } from "./importedFinish";

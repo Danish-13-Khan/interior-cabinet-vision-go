@@ -1,13 +1,25 @@
-import type { InteriorProject, MaterialEntity } from "../interiorProject";
+import {
+  assertInteriorProjectFileByteLimit,
+  MAX_INTERIOR_PROJECT_FILE_BYTES,
+  serializeInteriorProjectFile,
+  type InteriorProject,
+  type MaterialEntity,
+} from "../interiorProject";
 
-const MAX_FINISH_BYTES = 5 * 1024 * 1024;
+/** Binary image cap so a few imports cannot overflow the 25 MB project file. */
+export const MAX_FINISH_BYTES = 2 * 1024 * 1024;
+const PROJECT_JSON_HEADROOM_BYTES = 1024 * 1024;
+
+export function mapPayloadExceedsProjectLimit(existingMapChars: number, nextDataUrlLength: number) {
+  return existingMapChars + nextDataUrlLength + PROJECT_JSON_HEADROOM_BYTES > MAX_INTERIOR_PROJECT_FILE_BYTES;
+}
 
 export function readImageAsDataUrl(file: File): Promise<string> {
   if (!file.type.startsWith("image/")) {
     return Promise.reject(new Error("Import an image file (PNG, JPEG, or WebP)."));
   }
   if (file.size > MAX_FINISH_BYTES) {
-    return Promise.reject(new Error("Finish image is larger than 5 MB."));
+    return Promise.reject(new Error("Finish image is larger than 2 MB."));
   }
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -28,6 +40,13 @@ export function addImportedFinish(
   project: InteriorProject,
   input: { name: string; dataUrl: string; uvScaleMm?: number; uvRotationDeg?: number },
 ): { project: InteriorProject; materialId: string } {
+  const existingMapChars = project.materials.reduce((sum, material) => {
+    const url = typeof material.extensions?.mapUrl === "string" ? material.extensions.mapUrl : "";
+    return sum + url.length;
+  }, 0);
+  if (mapPayloadExceedsProjectLimit(existingMapChars, input.dataUrl.length)) {
+    throw new Error("This finish would make the project larger than 25 MB, so it cannot be saved and reopened.");
+  }
   const materialId = nextMaterialId(project);
   const material: MaterialEntity = {
     id: materialId,
@@ -44,7 +63,9 @@ export function addImportedFinish(
       createdBy: "import-finish",
     },
   };
-  return { project: { ...project, materials: [...project.materials, material] }, materialId };
+  const next = { ...project, materials: [...project.materials, material] };
+  assertInteriorProjectFileByteLimit(new TextEncoder().encode(serializeInteriorProjectFile(next)).byteLength);
+  return { project: next, materialId };
 }
 
 export function setFinishUv(

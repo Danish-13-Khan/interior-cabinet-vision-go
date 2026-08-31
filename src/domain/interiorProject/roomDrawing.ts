@@ -7,9 +7,9 @@ function pickMaterialId(project: InteriorProject, match: (id: string, kind: stri
   return project.materials.find((material) => match(material.id, material.kind))?.id ?? null;
 }
 
-function wallSideForCenteredEdge(start: Point2Mm, end: Point2Mm) {
-  const midX = (start.x + end.x) / 2;
-  const midZ = (start.z + end.z) / 2;
+function wallSideForEdge(start: Point2Mm, end: Point2Mm, origin: Point2Mm) {
+  const midX = (start.x + end.x) / 2 - origin.x;
+  const midZ = (start.z + end.z) / 2 - origin.z;
   return Math.abs(end.x - start.x) >= Math.abs(end.z - start.z)
     ? (midZ < 0 ? "back" : "front")
     : (midX < 0 ? "left" : "right");
@@ -58,7 +58,12 @@ export function drawRoomFromPoints(
 ): InteriorProject {
   const normalized = normalizeRoomPolygon(request.points);
   if (!normalized) return project;
-  const points = centerPolygonAtOrigin(normalized);
+  const firstRoom = project.rooms.length === 0;
+  const points = firstRoom ? centerPolygonAtOrigin(normalized) : normalized;
+  const origin = {
+    x: (Math.min(...points.map((point) => point.x)) + Math.max(...points.map((point) => point.x))) / 2,
+    z: (Math.min(...points.map((point) => point.z)) + Math.max(...points.map((point) => point.z))) / 2,
+  };
   const active = project.rooms.find((room) => room.id === project.activeRoomId) ?? project.rooms[0];
   const roomId = nextId("room", new Set(project.rooms.map((room) => room.id)));
   const loopId = `${roomId}:outer-loop`;
@@ -90,14 +95,13 @@ export function drawRoomFromPoints(
       id, roomId, start: { ...point }, end: { ...end }, startNodeId: nodeIdFor(point), endNodeId: nodeIdFor(end),
       heightMm, thicknessMm, raised: options?.raised ?? false, visible: true, materialId,
       extensions: {
-        createdBy: "draw-room", drawingKind: request.kind, wallSide: wallSideForCenteredEdge(point, end),
+        createdBy: "draw-room", drawingKind: request.kind, wallSide: wallSideForEdge(point, end, origin),
       },
     };
   });
   const xs = points.map((point) => point.x);
   const zs = points.map((point) => point.z);
   const dimensions = { widthMm: Math.max(...xs) - Math.min(...xs), heightMm, depthMm: Math.max(...zs) - Math.min(...zs) };
-  const firstRoom = project.rooms.length === 0;
   const room = {
     id: roomId,
     name: firstRoom ? "Room 1" : `Room ${project.rooms.length + 1}`,
