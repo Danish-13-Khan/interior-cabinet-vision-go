@@ -17,10 +17,17 @@ describe("projectReview", () => {
   it("clamps review state and bumps revision labels", () => {
     const state = clampProjectReviewState({
       notes: [{ message: "Check sink clearances", severity: "warning" }],
-      history: [{ revision: "A", fingerprint: { cabinetCount: 2 } }],
+      history: [{
+        revision: "A",
+        fingerprint: { cabinetCount: 2 },
+        productionFingerprint: "prd-pkt-v1-abc",
+        releaseOverride: { reason: "Pilot shop release", overriddenAt: "2026-08-31T12:00:00.000Z" },
+      }],
     });
     expect(state.notes[0]?.message).toContain("sink");
     expect(state.history[0]?.revision).toBe("A");
+    expect(state.history[0]?.productionFingerprint).toBe("prd-pkt-v1-abc");
+    expect(state.history[0]?.releaseOverride?.reason).toBe("Pilot shop release");
     expect(bumpRevisionLabel("A")).toBe("B");
     expect(bumpRevisionLabel("Z")).toBe("Z2");
   });
@@ -68,12 +75,17 @@ describe("projectReview", () => {
 
     const released = releaseForProduction(project);
     if ("error" in released) {
-      // Default sample may still carry manufacturing errors; approval path is the required gate.
-      expect(released.error).toMatch(/manufacturing error|approved|snapshot/i);
+      expect(released.error).toMatch(/manufacturing error|identity|blocker|drift|snapshot/i);
+      const overridden = releaseForProduction(project, {
+        reason: "Shop accepted remaining manufacturing notes.",
+        overriddenAt: "2026-08-31T12:00:00.000Z",
+      });
+      expect("error" in overridden).toBe(true);
       return;
     }
     expect(released.job.status).toBe("production");
     expect(released.review.history[0]?.releasedForProduction).toBe(true);
+    expect(released.review.history[0]?.productionFingerprint).toMatch(/^prd-pkt-v2-/);
   });
 
   it("syncs live manufacturing issues into review notes without duplicating them", () => {

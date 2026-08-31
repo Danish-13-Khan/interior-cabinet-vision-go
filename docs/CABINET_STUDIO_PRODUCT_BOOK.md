@@ -2303,6 +2303,7 @@ A snapshot includes:
 - Note.
 - Approver.
 - Production-release state.
+- Packet fingerprint at freeze.
 - Fingerprint.
 - Change log.
 - Open issues.
@@ -4772,7 +4773,7 @@ The detailed sections above govern behavior.
 | Cabinet costing report | `SHIPPED` | Report center. |
 | Quote report | `SHIPPED` | Report center. |
 | Revision report | `SHIPPED` | Review domain. |
-| Production readiness gate | `HARDEN` | `REV-025`, `PRD-042` |
+| Production readiness gate | `SHIPPED` | `REV-025`, `PRD-042` |
 | Golden cutlist fixture review | `NEXT` | `PRD-010` |
 | Machine JSON preview | `SHIPPED` | Intent only. |
 | Machine CSV operations preview | `SHIPPED` | Intent only. |
@@ -4791,11 +4792,13 @@ The detailed sections above govern behavior.
 | Revision compare | `SHIPPED` | Compare domain. |
 | Quote snapshot | `SHIPPED` | Commercial freeze. |
 | Approval record | `SHIPPED` | UX and permissions are `HARDEN`. |
-| Release-for-production state | `SHIPPED` | Gate behavior is `HARDEN`. |
-| Proposal gate | `HARDEN` | Existing pre-export checklist is narrower. |
-| Separate production gate | `NEXT` | `REV-003` |
-| Override reason | `NEXT` | `REV-008`, `REV-026` |
-| Frozen production fingerprint | `NEXT` | `PRD-047` |
+| Release-for-production state | `SHIPPED` | Separate production gate, override reason, and frozen packet fingerprint. |
+| Snapshot-drift gate | `SHIPPED` | `REV-022` — live fingerprint must match the frozen revision. |
+| Manufacturing production blockers | `SHIPPED` | 19.5 errors are non-overridable. |
+| Proposal gate | `SHIPPED` | Full layout, geometry, commercial, and view checklist. |
+| Separate production gate | `SHIPPED` | `REV-003` |
+| Override reason | `SHIPPED` | `REV-008`, `REV-026` — unapproved revision only. |
+| Frozen production fingerprint | `SHIPPED` | `PRD-047` — canonical packet/report payload. |
 
 ### G.11 Reliability, accessibility, and operations
 
@@ -4811,9 +4814,9 @@ The detailed sections above govern behavior.
 | Save/reopen Golden Run | `SHIPPED` | `TST-007` — file open after a cold reload, not recents. |
 | Proposal visual verification | `SHIPPED` | Golden Run PDF raster checks branding, views, total, revision, materials, inclusions/exclusions, and approval. |
 | Production packet visual verification | `SHIPPED` | Golden Run packet raster reuses proposal A4, clipping, font, and image checks plus IDs, construction, hardware, cutlist, fillers/countertop, and zero fallback warnings. |
-| Declared latency benchmark | `HARDEN` | `REL-008`–`REL-009` |
-| Keyboard focus visibility | `HARDEN` | `ACC-002` |
-| Canvas action alternatives | `HARDEN` | `ACC-007` |
+| Declared latency benchmark | `SHIPPED` | `REL-008`–`REL-009` |
+| Keyboard focus visibility | `SHIPPED` | `ACC-002` |
+| Canvas action alternatives | `SHIPPED` | `ACC-007` |
 | Five-salesperson pilot | `RESEARCH` | Gate F. |
 | Two-engineer handoff review | `RESEARCH` | Gate F. |
 

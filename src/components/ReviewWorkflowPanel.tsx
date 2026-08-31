@@ -18,10 +18,11 @@ type ReviewWorkflowPanelProps = {
   onAddNote: (message: string, severity: ReviewNoteSeverity) => void;
   onResolveNote: (noteId: string, resolved: boolean) => void;
   onApprove: (approvedBy: string) => void;
-  onRelease: () => void;
+  onRelease: (overrideReason?: string) => void;
   onExportRevisionSummary: () => void;
   approvalBlockedReasons: string[];
   releaseBlockedReasons: string[];
+  canOverrideRelease: boolean;
 };
 
 export function ReviewWorkflowPanel({
@@ -35,6 +36,7 @@ export function ReviewWorkflowPanel({
   onExportRevisionSummary,
   approvalBlockedReasons,
   releaseBlockedReasons,
+  canOverrideRelease,
 }: ReviewWorkflowPanelProps) {
   const [freezeNote, setFreezeNote] = useState("");
   const [bumpRevision, setBumpRevision] = useState(true);
@@ -82,6 +84,7 @@ export function ReviewWorkflowPanel({
         onRelease={onRelease}
         approvalBlockedReasons={approvalBlockedReasons}
         releaseBlockedReasons={releaseBlockedReasons}
+        canOverrideRelease={canOverrideRelease}
       />
 
       <NotesSection

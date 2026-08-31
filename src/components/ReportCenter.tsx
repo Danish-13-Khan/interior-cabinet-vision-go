@@ -53,10 +53,11 @@ export type ReportCenterProps = {
   onAddReviewNote?: (message: string, severity: ReviewNoteSeverity) => void;
   onResolveReviewNote?: (noteId: string, resolved: boolean) => void;
   onApproveReview?: (approvedBy: string) => void;
-  onReleaseForProduction?: () => void;
+  onReleaseForProduction?: (overrideReason?: string) => void;
   onExportRevisionSummary?: () => void;
   approvalBlockedReasons?: string[];
   releaseBlockedReasons?: string[];
+  canOverrideRelease?: boolean;
   sheets?: import("../domain/sheetDocuments").SheetDocument[];
   onOpenSheet?: (sheetId: string) => void;
 };
@@ -100,6 +101,7 @@ export function ReportCenter({
   onExportRevisionSummary,
   approvalBlockedReasons = [],
   releaseBlockedReasons = [],
+  canOverrideRelease = false,
   sheets = [],
   onOpenSheet,
 }: ReportCenterProps) {
@@ -150,10 +152,11 @@ export function ReportCenter({
               onResolveReviewNote?.(noteId, resolved)
             }
             onApprove={(name) => onApproveReview?.(name)}
-            onRelease={() => onReleaseForProduction?.()}
+            onRelease={(reason) => onReleaseForProduction?.(reason)}
             onExportRevisionSummary={() => onExportRevisionSummary?.()}
             approvalBlockedReasons={approvalBlockedReasons}
             releaseBlockedReasons={releaseBlockedReasons}
+            canOverrideRelease={canOverrideRelease}
           />
         ) : null}
 

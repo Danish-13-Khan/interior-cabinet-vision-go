@@ -33,7 +33,7 @@ describe("proposal view binding", () => {
       issues: [],
       now: BIND_NOW,
       viewFrames: [staleFrame],
-    }).items.some((item) => item.id === "view-frames")).toBe(true);
+    }).items.find((item) => item.id === "view-frames")?.status).toBe("fail");
     expect(buildProposalGate({
       document: refrozen,
       issues: [],
@@ -72,7 +72,7 @@ describe("proposal view binding", () => {
       issues: [],
       now: BIND_NOW,
       viewFrames: frames.slice(0, 1),
-    }).items.some((item) => item.id === "view-frames")).toBe(true);
+    }).items.find((item) => item.id === "view-frames")?.status).toBe("fail");
     expect(buildProposalGate({
       document: frozen,
       issues: [],
@@ -101,6 +101,7 @@ describe("proposal view binding", () => {
       issues: [],
       now: BIND_NOW,
       staleOverride: true,
+      overrideReason: "Client accepted the previous freeze.",
       viewFrames: liveOnly,
     }).ready).toBe(false);
     expect(buildProposalGate({
@@ -108,6 +109,7 @@ describe("proposal view binding", () => {
       issues: [],
       now: BIND_NOW,
       staleOverride: true,
+      overrideReason: "Client accepted the previous freeze.",
       viewFrames: goldenProposalViewFrames(switched),
     }).ready).toBe(true);
   });
