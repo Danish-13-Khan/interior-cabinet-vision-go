@@ -9,8 +9,9 @@ export function filterModelReviewNodes(
   cutawayWalls: boolean,
   cutawaySides: ReadonlySet<string>,
   selectedOpeningId: string | null,
+  hideCeiling = false,
 ): CompiledSceneNode[] {
-  if (!cutawayWalls) return [...nodes];
+  if (!cutawayWalls && !hideCeiling) return [...nodes];
   const selectedOpening = selectedOpeningId
     ? nodes.find((node) => node.metadata.openingId === selectedOpeningId)
     : undefined;
@@ -18,6 +19,8 @@ export function filterModelReviewNodes(
     ? selectedOpening.metadata.wallId
     : null;
   return nodes.filter((node) => {
+    if (hideCeiling && node.metadata.surface === "ceiling") return false;
+    if (!cutawayWalls) return true;
     if (node.metadata.openingId === selectedOpeningId) return true;
     const role = String(node.metadata.role);
     const wallSide = String(node.metadata.wallSide);

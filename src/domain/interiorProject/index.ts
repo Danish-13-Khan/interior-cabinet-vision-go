@@ -44,6 +44,7 @@ export {
   cabinetProjectFromInteriorProject,
   interiorProjectFromCabinetProject,
 } from "./cabinetAdapter";
+export { emptyCabinetProjectFromInterior } from "./emptyCabinetCompat";
 export {
   createInteriorProjectFile,
   loadInteriorProjectFile,
@@ -93,6 +94,7 @@ export {
 } from "./roomDrawing";
 export {
   centerPolygonAtOrigin,
+  EMPTY_PLAN_SITE_BOUNDS,
   roomPlanViewBounds,
   type RoomPlanViewBounds,
 } from "./roomPlanBounds";

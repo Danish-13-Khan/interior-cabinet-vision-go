@@ -326,6 +326,7 @@ export {
   L_ROOM_STARTER_POINTS,
   type PlannerStarterTemplate,
 } from "./plannerStarters";
+export { ensureDrawnRoomReviewRig } from "./drawnRoomRig";
 export {
   boundsDistance,
   boundsOverlap,

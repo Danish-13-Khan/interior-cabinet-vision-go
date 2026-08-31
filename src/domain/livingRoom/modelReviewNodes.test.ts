@@ -50,4 +50,10 @@ describe("model review node filtering", () => {
     expect(filterModelReviewNodes(nodes, true, new Set(["front"]), null).map((item) => item.id))
       .toEqual(["back-wall", "sofa"]);
   });
+
+  it("hides the ceiling in dollhouse review so the room reads as a hollow shell", () => {
+    const nodes = [node("ceiling", "architecture", "front", { surface: "ceiling" }), node("sofa", "object")];
+    expect(filterModelReviewNodes(nodes, false, new Set(), null, true).map((item) => item.id))
+      .toEqual(["sofa"]);
+  });
 });

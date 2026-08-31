@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { applyPlannerStarterTemplate } from "../livingRoom/plannerStarters";
 import { createLivingRoomStarterProject } from "../livingRoom/preset";
 import { compileLivingRoomScene } from "../livingRoom/sceneCompiler";
 import { roomIdsUsingWall, selectWallsForRoom } from "./planTopology";
@@ -79,6 +80,26 @@ describe("D2 room drawing domain", () => {
     const scene = compileLivingRoomScene(project);
     const wallNodes = scene.nodes.filter((node) => node.metadata?.role === "wall");
     expect(wallNodes.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("draws a hollow rectangular room on a blank site with named wall sides", () => {
+    const blank = applyPlannerStarterTemplate(
+      createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" }),
+      "blank-room",
+    );
+    const project = drawRoomFromPoints(blank, {
+      kind: "rectangle",
+      points: rectanglePoints({ x: 0, z: 0 }, { x: 4000, z: 3000 }),
+    });
+    expect(project.rooms).toHaveLength(1);
+    expect(project.rooms[0]?.name).toBe("Room 1");
+    const scene = compileLivingRoomScene(project);
+    const sides = new Set(
+      scene.nodes.filter((node) => node.metadata?.role === "wall").map((node) => String(node.metadata.wallSide)),
+    );
+    expect([...sides].sort()).toEqual(["back", "front", "left", "right"]);
+    const floor = scene.nodes.find((node) => node.metadata?.role === "floor");
+    expect(floor?.primitives[0]?.kind === "polygon-prism" ? floor.primitives[0].heightMm : 0).toBe(12);
   });
 
   it("leaves the source project untouched for undo restore", () => {

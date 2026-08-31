@@ -4,7 +4,7 @@ async function openStarterRoom(page: import("@playwright/test").Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 }
 
 test("Phase G keeps millwork Design and hides Advanced Studio parity chrome", async ({ page }) => {

@@ -22,7 +22,7 @@ type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
   widthPx: number;
   project: InteriorProject;
-  room: InteriorProject["rooms"][number];
+  room: InteriorProject["rooms"][number] | null;
   activeObject: InteriorObjectEntity | null;
   activeOpening: OpeningEntity | null;
   activeWallId: string | null;
@@ -86,9 +86,14 @@ export function LivingRoomInspectorPanel({
         <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${selectedCount} selected`)}</span>
       </div>
       <div className="lr-inspector-scroll">
-        {mode === "plan" ? (
+        {mode === "plan" && room ? (
           <PlanArchitectureInspector project={project} room={room} wall={activeWall}
             onRoomDimensions={onRoomDimensions} onUpdateWall={onUpdateWall} onSetWallMaterial={onSetWallMaterial} unit={unit} />
+        ) : mode === "plan" ? (
+          <section className="lr-inspector-empty">
+            <h3>Room</h3>
+            <p>Draw a room on the plan to create a floor and walls, then drag Draw Wall across it to split or add walls.</p>
+          </section>
         ) : null}
         {activeOpening ? <OpeningInspector opening={activeOpening} materials={project.materials} onUpdate={onUpdateOpening} /> : activeObject ? (
           <>

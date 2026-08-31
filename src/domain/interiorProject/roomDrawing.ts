@@ -3,6 +3,18 @@ import { synchronizeWallCaches } from "./wallGraph";
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type { InteriorProject, Point2Mm, WallEntity } from "./types";
 
+function pickMaterialId(project: InteriorProject, match: (id: string, kind: string) => boolean) {
+  return project.materials.find((material) => match(material.id, material.kind))?.id ?? null;
+}
+
+function wallSideForCenteredEdge(start: Point2Mm, end: Point2Mm) {
+  const midX = (start.x + end.x) / 2;
+  const midZ = (start.z + end.z) / 2;
+  return Math.abs(end.x - start.x) >= Math.abs(end.z - start.z)
+    ? (midZ < 0 ? "back" : "front")
+    : (midX < 0 ? "left" : "right");
+}
+
 export type RoomDrawingKind = "rectangle" | "polygon";
 export type RoomDrawingRequest = { kind: RoomDrawingKind; points: Point2Mm[] };
 
@@ -58,7 +70,13 @@ export function drawRoomFromPoints(project: InteriorProject, request: RoomDrawin
     return id;
   };
   const usedWallIds = new Set(project.walls.map((wall) => wall.id));
-  const materialId = active ? project.walls.find((wall) => wall.roomId === active.id)?.materialId ?? null : null;
+  const materialId = active
+    ? project.walls.find((wall) => wall.roomId === active.id)?.materialId ?? null
+    : pickMaterialId(project, (id) => id.includes("wall"));
+  const floorMaterialId = active?.extensions?.floorMaterialId
+    ?? pickMaterialId(project, (id, kind) => id.includes("stone") || kind === "wood");
+  const ceilingMaterialId = active?.extensions?.ceilingMaterialId
+    ?? pickMaterialId(project, (id) => id.includes("ceiling"));
   const heightMm = active?.dimensions.heightMm ?? 2800;
   const thicknessMm = active?.wallThicknessMm ?? 120;
   const walls: WallEntity[] = points.map((point, index) => {
@@ -66,15 +84,28 @@ export function drawRoomFromPoints(project: InteriorProject, request: RoomDrawin
     const id = nextId("wall", usedWallIds); usedWallIds.add(id);
     return {
       id, roomId, start: { ...point }, end: { ...end }, startNodeId: nodeIdFor(point), endNodeId: nodeIdFor(end),
-      heightMm, thicknessMm, visible: true, materialId, extensions: { createdBy: "draw-room", drawingKind: request.kind },
+      heightMm, thicknessMm, visible: true, materialId,
+      extensions: {
+        createdBy: "draw-room", drawingKind: request.kind, wallSide: wallSideForCenteredEdge(point, end),
+      },
     };
   });
   const xs = points.map((point) => point.x);
   const zs = points.map((point) => point.z);
   const dimensions = { widthMm: Math.max(...xs) - Math.min(...xs), heightMm, depthMm: Math.max(...zs) - Math.min(...zs) };
+  const firstRoom = project.rooms.length === 0;
   const room = {
-    id: roomId, name: `Room ${project.rooms.length + 1}`, roomType: "custom" as const, dimensions, wallThicknessMm: thicknessMm,
-    outerLoopId: loopId, holeLoopIds: [], extensions: { createdBy: "draw-room", drawingKind: request.kind },
+    id: roomId,
+    name: firstRoom ? "Room 1" : `Room ${project.rooms.length + 1}`,
+    roomType: firstRoom ? "living-room" as const : "custom" as const,
+    dimensions, wallThicknessMm: thicknessMm,
+    outerLoopId: loopId, holeLoopIds: [],
+    extensions: {
+      createdBy: "draw-room",
+      drawingKind: request.kind,
+      ...(typeof floorMaterialId === "string" ? { floorMaterialId } : {}),
+      ...(typeof ceilingMaterialId === "string" ? { ceilingMaterialId } : {}),
+    },
   };
   return synchronizeRoomSurfaceZones(synchronizeWallCaches({
     ...project, activeRoomId: roomId, nodes, walls: [...project.walls, ...walls], rooms: [...project.rooms, room],
