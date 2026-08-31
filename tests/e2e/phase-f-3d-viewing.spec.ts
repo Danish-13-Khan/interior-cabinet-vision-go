@@ -4,7 +4,7 @@ async function openStarterRoom(page: import("@playwright/test").Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 }
 
 async function enterModelView(page: import("@playwright/test").Page) {

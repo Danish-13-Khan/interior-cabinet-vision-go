@@ -46,7 +46,7 @@ export function LivingRoomObjectInspector({
         <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
       </div>
       {object.kind === "cabinet" ? <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} /> : null}
-      <h4>Materials</h4>
+      <p className="lr-inspector-hint">Drag to move. Duplicate, Copy, and Delete are in the inspector; plan shortcuts still work.</p>
       <MaterialSlotList slots={object.materialSlots} materials={materials}
         onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)} />
       {object.kind === "cabinet" && object.category !== "filler" ? (

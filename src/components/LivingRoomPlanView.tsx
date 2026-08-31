@@ -1,6 +1,6 @@
 import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject, Point2Mm, Point3Mm, RoomDrawingRequest, Size3Mm } from "../domain/interiorProject";
-import { roomPlanViewBounds } from "../domain/interiorProject";
+import { EMPTY_PLAN_SITE_BOUNDS, roomPlanViewBounds } from "../domain/interiorProject";
 import {
   getOpeningCatalogItem,
   openingOffsetAtPoint,
@@ -48,9 +48,9 @@ type Props = {
 
 export function LivingRoomPlanView(props: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
+  const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId) ?? null;
   const margin = 850;
-  const bounds = roomPlanViewBounds(props.project, room.id);
+  const bounds = room ? roomPlanViewBounds(props.project, room.id) : EMPTY_PLAN_SITE_BOUNDS;
   const viewBox = `${bounds.minX - margin} ${bounds.minZ - margin} ${bounds.widthMm + margin * 2} ${bounds.depthMm + margin * 2}`;
   const tool = props.activeBuildTool ?? "select";
   const drawRoom = tool === "draw-room";
@@ -156,7 +156,7 @@ export function LivingRoomPlanView(props: Props) {
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall} />
-    <PlanSurfaceZonesLayer project={props.project} roomId={room.id} selectable={tool === "select"}
+    <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
     <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
     <WallDrawingOverlay preview={wallDrawing.preview} snapTarget={wallDrawing.snapTarget} active={drawWall || drawPartition} unit={props.readability.unit} />
@@ -170,6 +170,11 @@ export function LivingRoomPlanView(props: Props) {
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit} />
     <PlanObjectsLayer project={props.project} selectedIds={props.selectedIds} issues={props.issues}
       preview={objects.preview} guides={objects.guides} unit={props.readability.unit} onStart={objects.start} />
-    <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId} settings={props.readability} />
+    {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId} settings={props.readability} /> : null}
+    {!room ? (
+      <text className="lr-empty-plan-hint" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
+        Drag a rectangle to draw the room, then use Draw Wall to add or split walls.
+      </text>
+    ) : null}
   </svg>;
 }

@@ -58,8 +58,8 @@ export function readLivingRoomRecovery(
       throw new Error("Recovery data is incomplete.");
     }
     const loaded = loadInteriorProjectFile(parsed.project);
-    if (!loaded.document.rooms.some((room) => room.roomType === "living-room")) {
-      throw new Error("Recovery data does not contain a living room.");
+    if (!loaded.document) {
+      throw new Error("Recovery data is incomplete.");
     }
     return {
       snapshot: {

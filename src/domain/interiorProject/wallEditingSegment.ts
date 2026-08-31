@@ -57,12 +57,15 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
     end: { ...request.end },
     startNodeId,
     endNodeId,
-    heightMm: room.dimensions.heightMm,
-    thicknessMm: room.wallThicknessMm,
+    heightMm: request.heightMm ?? room.dimensions.heightMm,
+    thicknessMm: request.thicknessMm ?? room.wallThicknessMm,
+    raised: request.raised ?? false,
     visible: true,
-    materialId: project.walls.find((wall) => wall.roomId === roomId)?.materialId
-      ?? project.walls[0]?.materialId
-      ?? null,
+    materialId: request.materialId !== undefined
+      ? request.materialId
+      : project.walls.find((wall) => wall.roomId === roomId)?.materialId
+        ?? project.walls[0]?.materialId
+        ?? null,
     extensions: partition
       ? { createdBy: "draw-partition", isPartition: true, structuralKind: "partition" }
       : { createdBy: "draw-wall" },

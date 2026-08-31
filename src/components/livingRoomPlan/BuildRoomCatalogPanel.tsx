@@ -20,7 +20,7 @@ type BuildRoomCatalogPanelProps = {
   tool: BuildTool;
   project: InteriorProject;
   roomDimensions: Size3Mm;
-  activeWall: WallEntity;
+  activeWall: WallEntity | null;
   activeOpening: OpeningEntity | null;
   activeSurfaceId: string | null;
   underlay: LivingRoomPlanUnderlay | null;
@@ -83,12 +83,12 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
       {tool === "draw-partition" || tool === "place-column" ? (
         <StructuralBuildPanel
           tool={tool}
-          thicknessMm={activeWall.thicknessMm}
+          thicknessMm={activeWall?.thicknessMm ?? 120}
           canEditWall={Boolean(activeWall)}
           onAddPartitionWall={props.onAddPartitionWall}
-          onThickness={(thicknessMm) => props.onUpdateWallThickness?.(activeWall.id, thicknessMm)}
-          onSplit={() => props.onSplitWall?.(activeWall.id)}
-          onDelete={() => props.onDeleteWall?.(activeWall.id)}
+          onThickness={(thicknessMm) => activeWall && props.onUpdateWallThickness?.(activeWall.id, thicknessMm)}
+          onSplit={() => activeWall && props.onSplitWall?.(activeWall.id)}
+          onDelete={() => activeWall && props.onDeleteWall?.(activeWall.id)}
           onJoinNodes={() => props.onJoinCoincidentNodes?.()}
         />
       ) : null}
@@ -108,11 +108,11 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
         <section className="lr-room-authoring lr-build-commit">
           <strong>Draw Wall · armed</strong>
           <WallDrawingPanel
-            thicknessMm={activeWall.thicknessMm}
+            thicknessMm={activeWall?.thicknessMm ?? 120}
             canEdit={Boolean(activeWall)}
-            onThickness={(thicknessMm) => props.onUpdateWallThickness?.(activeWall.id, thicknessMm)}
-            onSplit={() => props.onSplitWall?.(activeWall.id)}
-            onDelete={() => props.onDeleteWall?.(activeWall.id)}
+            onThickness={(thicknessMm) => activeWall && props.onUpdateWallThickness?.(activeWall.id, thicknessMm)}
+            onSplit={() => activeWall && props.onSplitWall?.(activeWall.id)}
+            onDelete={() => activeWall && props.onDeleteWall?.(activeWall.id)}
             onJoinNodes={() => props.onJoinCoincidentNodes?.()}
           />
         </section>
@@ -154,28 +154,28 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
         ) : null}
         <div className="lr-wall-tabs">
           {roomWalls.map((wall) => (
-            <button key={wall.id} type="button" className={wall.id === activeWall.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>
+            <button key={wall.id} type="button" className={wall.id === activeWall?.id ? "is-active" : ""} onClick={() => props.onActiveWall(wall.id)}>
               {wall.extensions?.isPartition ? "partition" : String(wall.extensions?.wallSide ?? "wall")}
             </button>
           ))}
         </div>
-        <small className="lr-build-selection">Selected wall: {String(activeWall.extensions?.wallSide ?? activeWall.id)}</small>
+        <small className="lr-build-selection">Selected wall: {activeWall ? String(activeWall.extensions?.wallSide ?? activeWall.id) : "None — draw a room first"}</small>
         {tool !== "place-door" && tool !== "place-window" ? (
           <>
             <strong className="lr-openings-heading">3. Add an opening</strong>
             <div className="lr-opening-actions">
-              <button type="button" onClick={() => props.onAddOpening(activeWall.id, "door")}>+ Add door</button>
-              <button type="button" onClick={() => props.onAddOpening(activeWall.id, "window")}>+ Add window</button>
+              <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, "door")}>+ Add door</button>
+              <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, "window")}>+ Add window</button>
             </div>
           </>
         ) : null}
-        {project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
+        {activeWall ? project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
           <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}>
             <span>{opening.kind}</span><small>{opening.widthMm} mm · {opening.offsetMm} mm</small>
           </button>
-        ))}
-        {!project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on selected wall.</p> : null}
-        {activeOpening?.wallId === activeWall.id ? (
+        )) : null}
+        {activeWall && !project.openings.some((opening) => opening.wallId === activeWall.id) ? <p>No doors or windows on selected wall.</p> : null}
+        {activeWall && activeOpening?.wallId === activeWall.id ? (
           <div className="lr-opening-fields">
             {(["offsetMm", "widthMm", "heightMm", "sillHeightMm"] as const).map((key) => (
               <label key={key}>

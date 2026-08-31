@@ -20,7 +20,7 @@ test("Phase B opening workflow places, manipulates, inspects, undoes, and recomp
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 
   await page.locator('[data-build-tool="place-door"]').click();
   await page.locator('[data-catalog-item="opening:door-double"]').click();

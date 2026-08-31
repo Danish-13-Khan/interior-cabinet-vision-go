@@ -14,7 +14,7 @@ type ClientExport = ReturnType<typeof useClientPresentationExport>;
 export type LivingRoomPlanWorkspaceBodyProps = {
   workspace: LivingRoomPlanWorkspaceProps;
   project: InteriorProject;
-  room: InteriorRoomEntity;
+  room: InteriorRoomEntity | null;
   underlay: LivingRoomPlanUnderlay | null;
   workspaceView: LivingRoomWorkspaceView;
   plannerMode: PlannerMode;

@@ -25,6 +25,9 @@ export type CompiledMaterial = {
   /** Stable material-asset id for the PBR registry (not a file path). */
   materialAssetId: string;
   uvScaleMm: number;
+  /** Optional project-owned image map for imported finishes. */
+  textureMapUrl?: string;
+  uvRotationDeg?: number;
 };
 
 export type CompiledBoxPrimitive = {

@@ -4,7 +4,7 @@ async function openDesignPlan(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
   await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
   await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();

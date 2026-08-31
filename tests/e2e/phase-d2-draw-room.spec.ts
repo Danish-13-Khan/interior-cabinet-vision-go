@@ -1,16 +1,8 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { createBlankPlan, pointOnPaper } from "./plannerStart";
 
-async function openPlan(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
-}
-
-async function pointOnPaper(paper: Locator, x: number, y: number) {
-  const box = await paper.boundingBox();
-  if (!box) throw new Error("Plan paper is not rendered");
-  return { x: box.x + box.width * x, y: box.y + box.height * y };
+async function openPlan(page: import("@playwright/test").Page) {
+  await createBlankPlan(page);
 }
 
 test("D2 draws rectangle and closed polygon rooms through Build commands", async ({ page }) => {
@@ -24,23 +16,18 @@ test("D2 draws rectangle and closed polygon rooms through Build commands", async
   await page.mouse.down();
   await page.mouse.move(end.x, end.y, { steps: 5 });
   await page.mouse.up();
-  await expect(page.locator("[data-wall-id]")).toHaveCount(8);
-  // SVG axis-aligned lines have a zero-height/width geometry box, so
-  // Playwright does not classify them as visible even when their stroke is
-  // painted. The active room floor is an area-bearing render assertion.
+  await expect(page.locator("[data-wall-id]")).toHaveCount(4);
   await expect(page.locator("[data-room-floor]")).toBeVisible();
 
-  // Keep polygon clicks inside the active room paper and away from its stroked
-  // perimeter walls, which correctly intercept pointer input for selection.
   for (const [x, y] of [[0.4, 0.4], [0.65, 0.42], [0.52, 0.65]]) {
     const point = await pointOnPaper(paper, x, y);
     await page.mouse.click(point.x, point.y);
   }
   await expect(page.getByRole("button", { name: "Close polygon (3)", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Close polygon (3)", exact: true }).click();
-  await expect(page.locator("[data-wall-id]")).toHaveCount(11);
+  await expect(page.locator("[data-wall-id]")).toHaveCount(7);
   await expect(page.locator("[data-room-floor]")).toBeVisible();
 
   await page.getByRole("button", { name: "Undo", exact: true }).click();
-  await expect(page.locator("[data-wall-id]")).toHaveCount(8);
+  await expect(page.locator("[data-wall-id]")).toHaveCount(4);
 });

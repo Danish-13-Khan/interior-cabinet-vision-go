@@ -20,7 +20,7 @@ test("Exit journey: footprint → split → run → 3D → schedule + client pac
   }, GUIDE_KEY);
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 
   // 1–2. Footprint exists; split into ≥2 rooms with Draw Wall.
   await page.locator('[data-build-tool="draw-wall"]').click();

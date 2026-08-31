@@ -35,6 +35,22 @@ export {
   type WallEntity,
 } from "./types";
 export { createEmptyInteriorProject, DEFAULT_RENDER_SETTINGS } from "./defaults";
+export {
+  DEFAULT_DOOR_HEIGHT_MM,
+  DEFAULT_WALL_HEIGHT_MM,
+  DEFAULT_WALL_THICKNESS_MM,
+  DEFAULT_WINDOW_HEIGHT_MM,
+  DEFAULT_WINDOW_SILL_MM,
+  PLAN_TRACE_HEIGHT_MM,
+  PROJECT_UNITS_LABEL,
+  STANDARD_DOOR_HEIGHTS_MM,
+  STANDARD_SILL_HEIGHTS_MM,
+  STANDARD_WALL_HEIGHTS_MM,
+  STANDARD_WALL_THICKNESSES_MM,
+  STANDARD_WINDOW_HEIGHTS_MM,
+  clampWallHeightMm,
+  clampWallThicknessMm,
+} from "./authoringStandards";
 export { MAX_PROJECT_ENTITIES_PER_COLLECTION, validateInteriorProject } from "./validation";
 export {
   migrateInteriorProjectDocument,
@@ -44,6 +60,7 @@ export {
   cabinetProjectFromInteriorProject,
   interiorProjectFromCabinetProject,
 } from "./cabinetAdapter";
+export { emptyCabinetProjectFromInterior } from "./emptyCabinetCompat";
 export {
   createInteriorProjectFile,
   loadInteriorProjectFile,
@@ -93,6 +110,7 @@ export {
 } from "./roomDrawing";
 export {
   centerPolygonAtOrigin,
+  EMPTY_PLAN_SITE_BOUNDS,
   roomPlanViewBounds,
   type RoomPlanViewBounds,
 } from "./roomPlanBounds";
@@ -129,11 +147,25 @@ export {
   joinPlanNodes,
   mergeCoincidentPlanNodes,
   movePlanNodeWithOpenings,
+  offsetPlanLoop,
+  offsetPlanWall,
+  applyWallPlanPatch,
+  setPlanWallAngle,
+  setPlanWallLength,
+  wallPlanAngleDeg,
+  wallPlanMidpoint,
+  type WallPlanPatch,
   setPlanWallHeight,
   setPlanWallThickness,
+  setPlanWallsRaised,
   snapPlanPoint,
   splitPlanWall,
   splitPlanWallResult,
   translatePlanWall,
   type WallSegmentRequest,
 } from "./wallEditing";
+export {
+  compileWallHeightMm,
+  isWallRaised,
+  outerLoopWallsRaised,
+} from "./wallRaise";

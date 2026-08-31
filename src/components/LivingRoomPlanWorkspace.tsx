@@ -76,6 +76,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   useEffect(() => {
     if (props.project && !props.projectHomeOpen && plannerMode === "project") setPlannerMode("build");
   }, [plannerMode, props.project, props.projectHomeOpen]);
+  useEffect(() => {
+    if (plannerMode !== "build" || !props.project || props.project.rooms.length > 0) return;
+    build.dispatchBuildCommand({ type: "beginDraft", tool: "draw-room" });
+  }, [plannerMode, props.project]);
 
   function changePlannerMode(mode: PlannerMode) {
     setPlannerMode(mode);
@@ -84,7 +88,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     if (mode === "render") { setWorkspaceView("render"); return; }
     setWorkspaceView("plan");
     setStudioPanel(mode === "build" ? "build" : "cabinets");
-    if (mode === "build") build.dispatchBuildCommand({ type: "beginDraft", tool: "select" });
+    if (mode === "build") {
+      const tool = props.project?.rooms.length ? "select" : "draw-room";
+      build.dispatchBuildCommand({ type: "beginDraft", tool });
+    }
   }
 
   function changeWorkspaceView(view: LivingRoomWorkspaceView) {
@@ -104,7 +111,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onUndo={props.onUndo} onRedo={props.onRedo} onWorkbenchModeChange={props.onWorkbenchModeChange} />
   );
 
-  if (!props.project || !room) {
+  if (!props.project) {
     return (
       <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
         <PlannerV2WorkflowSteps mode={plannerMode} onChange={setPlannerMode} hasProject={false} />
@@ -121,7 +128,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       <PlannerV2WorkflowSteps mode={plannerMode} hasProject onChange={changePlannerMode} />
       {header}
       <LivingRoomPlanWorkspaceBody
-        workspace={props} project={props.project} room={room} underlay={underlay}
+        workspace={props} project={props.project} room={room ?? null} underlay={underlay}
         workspaceView={workspaceView} plannerMode={plannerMode} studioPanel={studioPanel}
         onStudioPanel={setStudioPanel} assetQuery={assetQuery} assetCategory={assetCategory}
         assetCategories={assetCategories} importError={importError} onAssetQuery={setAssetQuery}

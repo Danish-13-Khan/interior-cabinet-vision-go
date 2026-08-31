@@ -28,8 +28,10 @@ type LivingRoomPlanCatalogRailProps = {
   onCreateCabinetRun: (wallId: string) => void;
   onAddImportedAsset: (asset: ImportedAsset) => void;
   onSetFloorMaterial: (materialId: string) => void;
+  onSetCeilingMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
   onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
+  onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
   onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
@@ -83,9 +85,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
       (!query || `${item.name} ${item.category}`.toLowerCase().includes(query)),
     );
   }, [props.assetCategory, props.assetQuery, props.studioPanel]);
-  const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId)!;
+  const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId) ?? null;
   const roomWalls = selectWallsForRoom(props.project, props.project.activeRoomId);
-  const activeWall = roomWalls.find((wall) => wall.id === props.activeWallId) ?? roomWalls[0] ?? props.project.walls[0]!;
+  const activeWall = roomWalls.find((wall) => wall.id === props.activeWallId) ?? roomWalls[0] ?? props.project.walls[0] ?? null;
   const activeOpening = props.project.openings.find((opening) => opening.id === props.activeOpeningId) ?? null;
   const selectedCabinetCount = props.project.objects.filter((object) =>
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
@@ -109,17 +111,17 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     {props.toolRailVisible ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {activePanel === "cabinets" || activePanel === "furniture" ? (
-          <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall.extensions?.wallSide ?? "wall")}
-            wallId={activeWall.id} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
+          <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall?.extensions?.wallSide ?? "wall")}
+            wallId={activeWall?.id ?? ""} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
             categories={props.assetCategories} onQuery={props.onAssetQuery} onCategory={props.onAssetCategory}
             selectedCabinetCount={selectedCabinetCount} onCreateRun={props.onCreateCabinetRun}
             onAdd={props.onAddCatalogObject} onImport={props.onAddImportedAsset} />
         ) : activePanel === "materials" ? <>
           <div className="context-panel-heading"><strong>Material Browser</strong><span>Swatches · slots · selection</span></div>
-          <SurfacePaintPanel project={props.project} activeWallId={activeWall.id}
+          <SurfacePaintPanel project={props.project} activeWallId={activeWall?.id ?? null}
             selectedObjects={props.project.objects.filter((object) => props.selectedIds.includes(object.id))}
-            onFloor={props.onSetFloorMaterial} onWall={props.onSetWallMaterial}
-            onApplyToSelection={props.onApplyMaterialToSelection} />
+            onFloor={props.onSetFloorMaterial} onCeiling={props.onSetCeilingMaterial} onWall={props.onSetWallMaterial}
+            onApplyToSelection={props.onApplyMaterialToSelection} onImportFinish={props.onImportFinish} />
         </> : activePanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>
@@ -142,7 +144,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               <BuildToolList activeTool={tool} onTool={props.onBuildTool} canUndo={Boolean(props.canUndo)} canRedo={Boolean(props.canRedo)}
                 onUndo={props.onUndo ?? (() => {})} onRedo={props.onRedo ?? (() => {})} />
             ) : null}
-            <BuildRoomCatalogPanel tool={tool} project={props.project} roomDimensions={room.dimensions} activeWall={activeWall}
+            <BuildRoomCatalogPanel tool={tool} project={props.project} roomDimensions={room?.dimensions ?? { widthMm: 6200, depthMm: 4600, heightMm: 2800 }} activeWall={activeWall}
               activeOpening={activeOpening} activeSurfaceId={props.activeSurfaceId ?? null} underlay={props.underlay} importError={props.importError}
               openingCatalogItemId={props.openingCatalogItemId} roomPolygonPointCount={props.roomPolygonPointCount}
               surfaceMaterialId={props.surfaceMaterialId}

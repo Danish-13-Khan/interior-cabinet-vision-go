@@ -10,7 +10,7 @@
   border-color: var(--lr-accent, #2f6feb); background: #edf4ff; color: var(--lr-accent, #2f6feb); font-weight: 700;
 }
 
-.lr-paint-targets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.lr-paint-targets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
 .lr-paint-targets button {
   min-height: 30px; border: 1px solid #d9dfe4; border-radius: 6px; background: #fff;
   color: #59636d; font-size: 0.57rem; cursor: pointer;

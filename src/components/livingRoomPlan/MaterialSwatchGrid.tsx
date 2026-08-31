@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { InteriorProject, MaterialKind } from "../../domain/interiorProject";
 
 type Props = {
@@ -6,14 +6,16 @@ type Props = {
   activeMaterialId?: string | null;
   onPick: (materialId: string) => void;
   compact?: boolean;
+  onImport?: (file: File) => void;
 };
 
-export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compact }: Props) {
+export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compact, onImport }: Props) {
   const kinds = useMemo(() => {
     const unique = [...new Set(materials.map((material) => material.kind))];
     return unique.sort();
   }, [materials]);
   const [kind, setKind] = useState<"all" | MaterialKind>("all");
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const visible = kind === "all" ? materials : materials.filter((material) => material.kind === kind);
 
   return (
@@ -42,6 +44,21 @@ export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compac
           </button>
         ))}
       </div>
+      {onImport ? (
+        <label className="lr-import-finish">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) onImport(file);
+              event.target.value = "";
+            }}
+          />
+          <button type="button" onClick={() => fileRef.current?.click()}>Import texture</button>
+        </label>
+      ) : null}
     </div>
   );
 }
