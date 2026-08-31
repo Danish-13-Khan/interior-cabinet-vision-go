@@ -28,7 +28,7 @@ function seedCabinet(
   position: Point3Mm,
 ): InteriorObjectEntity {
   const instance = createGoldenCabinetInstance(familyId, id);
-  return cabinetObject(GOLDEN_RUN_ROOM_ID, {
+  return persistGolden(cabinetObject(GOLDEN_RUN_ROOM_ID, {
     ...instance,
     placement: {
       ...instance.placement,
@@ -36,7 +36,7 @@ function seedCabinet(
       y: position.y,
       z: position.z,
     },
-  });
+  }));
 }
 
 function persistGolden(object: InteriorObjectEntity) {

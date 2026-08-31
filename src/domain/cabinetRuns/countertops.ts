@@ -55,7 +55,6 @@ function splitCountertopGroups(
 function buildSegment(
   run: CabinetRun,
   group: CabinetInstance[],
-  segmentIndex: number,
   isFirstGroup: boolean,
   isLastGroup: boolean,
 ): CountertopSegment {
@@ -85,10 +84,11 @@ function buildSegment(
   const runCenter = start + widthMm / 2;
   const crossCenter = frontOverhangCenterMm(run, lineValue);
 
+  const cabinetIds = sorted.map((cabinet) => cabinet.id);
   return {
-    id: `countertop-${run.id}-${segmentIndex + 1}`,
+    id: countertopSegmentId(cabinetIds),
     runId: run.id,
-    cabinetIds: sorted.map((cabinet) => cabinet.id),
+    cabinetIds,
     axis: run.axis,
     widthMm,
     depthMm: maxDepth + DEFAULT_COUNTERTOP_OVERHANG_FRONT_MM,
@@ -101,6 +101,15 @@ function buildSegment(
     endConditionStart: startsAtWall ? "wall" : "finished",
     endConditionEnd: endsAtCorner ? "corner" : "finished",
   };
+}
+
+/** Stable id from host cabinet ids so run-detection order cannot rename a top. */
+export function countertopSegmentId(cabinetIds: readonly string[]) {
+  return `countertop:${cabinetIds.join("+")}`;
+}
+
+function isCountertopHost(cabinet: CabinetInstance) {
+  return supportsCountertop(cabinet.config.type) && !cabinet.runFiller;
 }
 
 /** Countertops follow base-band runs only, split where CT-eligible cabinets break. */
@@ -117,7 +126,7 @@ export function createCountertopsForRuns(
       run.cabinetIds,
       project.cabinets,
       run.axis,
-    ).filter((cabinet) => supportsCountertop(cabinet.config.type));
+    ).filter(isCountertopHost);
 
     const groups = splitCountertopGroups(cabinets, run.axis);
     groups.forEach((group, index) => {
@@ -125,7 +134,6 @@ export function createCountertopsForRuns(
         buildSegment(
           run,
           group,
-          index,
           index === 0,
           index === groups.length - 1,
         ),

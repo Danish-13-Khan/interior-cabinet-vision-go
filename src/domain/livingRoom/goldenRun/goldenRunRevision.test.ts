@@ -28,6 +28,8 @@ describe("golden cabinet run width revision", () => {
     expect(after.sellTotal).not.toBe(before.sellTotal);
     expect(after.fingerprint).not.toBe(before.fingerprint);
     expect(after.cutlistWidthSum).not.toBe(before.cutlistWidthSum);
+    expect(after.countertopId).toBe(before.countertopId);
+    expect(after.countertopWidthMm).not.toBe(before.countertopWidthMm);
     expect(after.cabinetIds).toEqual(before.cabinetIds);
     expect(after.engineeringIds).toEqual(before.engineeringIds);
     expect(after.revision).toBe(before.revision);

@@ -17,10 +17,12 @@ export function latestFrozenQuote(history: QuoteSnapshot[]): QuoteSnapshot | nul
 export function freezeLiveQuote(
   document: InteriorProject,
   now = new Date().toISOString(),
+  snapshotId?: string,
 ): QuoteSnapshot {
   const live = buildLiveInteriorQuote(document, now);
   const snapshot = clampQuoteSnapshot({
     ...createQuoteSnapshotFromQuote(live.quote),
+    ...(snapshotId ? { id: snapshotId } : {}),
     quotedAt: now,
     designFingerprint: live.fingerprint,
     currencyLabel: live.quote.settings.currencyLabel,

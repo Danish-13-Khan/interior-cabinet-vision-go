@@ -1,16 +1,21 @@
 import { expect, test } from "@playwright/test";
 import {
+  GOLDEN_RUN_COUNTERTOP_DEPTH_MM,
+  GOLDEN_RUN_COUNTERTOP_ID,
+  GOLDEN_RUN_COUNTERTOP_THICKNESS_MM,
   GOLDEN_RUN_FILLER_IDS,
   GOLDEN_RUN_JOB,
   GOLDEN_RUN_OBJECT_IDS,
   GOLDEN_RUN_REVISED_FINISH_ID,
   GOLDEN_RUN_REVISED_WIDTH_MM,
+  goldenRunCountertopWidthMm,
 } from "../../src/domain/livingRoom/goldenRun";
 import {
   captureProposalView,
   changeGoldenFinish,
   expandEngineeringTree,
   openGoldenCabinetRun,
+  openGoldenRunModelView,
   readSellTotal,
   reviseBaseWidth,
   saveAndReopenGoldenRun,
@@ -72,9 +77,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("review-3d", async () => {
-    await page.getByRole("button", { name: "3D", exact: true }).click();
-    await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
-    await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
+    await openGoldenRunModelView(page);
   });
 
   await test.step("assert-3d", async () => {
@@ -90,9 +93,19 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
     await expect(semantics.locator('[data-cabinet-type="base"]').first()).toHaveAttribute("data-roles", /fronts/);
     await expect(semantics.locator('[data-cabinet-type="base"]').first()).toHaveAttribute("data-roles", /toe-kick/);
     await expect(walls.first()).not.toHaveAttribute("data-roles", /toe-kick/);
-    await expect(semantics.locator('[data-role="countertop"]')).not.toHaveCount(0);
-    await expect(semantics.locator(`[data-role="countertop"][data-cabinet-ids*="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
-      .toHaveCount(1);
+    await expect(semantics.locator('[data-role="countertop"]')).toHaveCount(1);
+    const top = semantics.locator('[data-role="countertop"]');
+    await expect(top).toHaveAttribute("data-countertop-id", GOLDEN_RUN_COUNTERTOP_ID);
+    await expect(top).toHaveAttribute(
+      "data-cabinet-ids",
+      `${GOLDEN_RUN_OBJECT_IDS.baseA},${GOLDEN_RUN_OBJECT_IDS.drawer},${GOLDEN_RUN_OBJECT_IDS.baseB}`,
+    );
+    await expect(top).toHaveAttribute("data-thickness-mm", String(GOLDEN_RUN_COUNTERTOP_THICKNESS_MM));
+    await expect(top).toHaveAttribute("data-depth-mm", String(GOLDEN_RUN_COUNTERTOP_DEPTH_MM));
+    await expect(top).toHaveAttribute(
+      "data-width-mm",
+      String(goldenRunCountertopWidthMm(GOLDEN_RUN_REVISED_WIDTH_MM)),
+    );
   });
 
   await test.step("assert-quote", async () => {
@@ -135,6 +148,14 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
     await expect(page.getByTestId("handoff-revision")).toContainText(`Rev ${GOLDEN_RUN_JOB.revision}`);
     await expect(page.getByTestId("handoff-summary").locator(`[data-cabinet-id="${GOLDEN_RUN_FILLER_IDS.start}"]`)).toHaveCount(1);
     await expect(page.getByTestId("handoff-summary").locator(`[data-cabinet-id="${GOLDEN_RUN_FILLER_IDS.end}"]`)).toHaveCount(1);
+    await openGoldenRunModelView(page);
+    const reopenedTop = page.getByTestId("lr-scene-semantics").locator('[data-role="countertop"]');
+    await expect(reopenedTop).toHaveAttribute("data-countertop-id", GOLDEN_RUN_COUNTERTOP_ID);
+    await expect(reopenedTop).toHaveAttribute(
+      "data-width-mm",
+      String(goldenRunCountertopWidthMm(GOLDEN_RUN_REVISED_WIDTH_MM)),
+    );
+    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
   });
 
   await test.step("send-engineering", async () => {

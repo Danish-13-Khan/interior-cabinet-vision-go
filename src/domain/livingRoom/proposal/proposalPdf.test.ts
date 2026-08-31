@@ -10,6 +10,10 @@ import {
   GOLDEN_PROPOSAL_PAGE_COUNT,
   verifyProposalPdfPages,
 } from "./proposalVerifyPages";
+import { verifyProposalVisualContent } from "./proposalVerifyVisual";
+import { createGoldenCabinetRunProject } from "../goldenRun";
+import { freezeProposal } from "./freezeProposal";
+import { GOLDEN_CABINET_RUN_NOW } from "../goldenRun/types";
 
 const NOW = "2026-08-30T10:00:00.000Z";
 
@@ -38,9 +42,29 @@ describe("proposal PDF", () => {
     expect(approvalPage).toBe(signaturePage);
     expect(pages.pages[0]?.minFontPt).toBeGreaterThanOrEqual(7);
     expect(proposal.sellTotal).toBeGreaterThan(0);
-    expect(proposal.cabinets.length).toBe(proposal.summaryLines.length > 0
-      ? proposal.cabinets.length
-      : 0);
+    const visual = verifyProposalVisualContent(pages.pages, proposal);
+    expect(visual.missing).toEqual([]);
+    expect(visual.ok).toBe(true);
+  });
+
+  it("renders the Golden Run proposal with branding, views, total, and approval", async () => {
+    const project = freezeProposal(createGoldenCabinetRunProject(), GOLDEN_CABINET_RUN_NOW);
+    const proposal = buildProposalDocument(project, { now: GOLDEN_CABINET_RUN_NOW });
+    const frames = goldenProposalViewFrames(project);
+    const blob = await exportProposalPdf(proposal, frames);
+    expect(proposal.materials.length).toBeGreaterThan(0);
+    expect(proposal.views.some((view) => view.viewName === "Run elevation")).toBe(true);
+    const pages = await verifyProposalPdfPages(blob, proposal, {
+      expectedPageCount: GOLDEN_PROPOSAL_PAGE_COUNT,
+      expectedViewImages: frames.length,
+    });
+    expect(pages.ok).toBe(true);
+    expect(pages.pages.every((page) => page.nonblank && page.a4 && !page.clipped)).toBe(true);
+    expect(pages.pages.some((page) => page.hasViewInk && page.imagePaintCount > 0)).toBe(true);
+    const visual = verifyProposalVisualContent(pages.pages, proposal);
+    expect(visual.missing).toEqual([]);
+    expect(pages.pages[0]?.text).toContain("CABINET STUDIO");
+    expect(pages.pages.some((page) => page.text.includes("Approval"))).toBe(true);
   });
 
   it("fails raster verification when golden view images are omitted", async () => {

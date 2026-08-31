@@ -1,4 +1,5 @@
 import { cabinetTypeLabels, type CabinetProject } from "../cabinetDimensions";
+import { getConstructionSummary, type CabinetConstruction } from "../cabinetConstruction";
 import { familyLabel } from "../cabinetIdentity";
 import type { CabinetPlanningWorkflow } from "../cabinetLibrary";
 import type { CabinetCost } from "../costing";
@@ -25,6 +26,7 @@ export function buildCabinetSchedule(
   workflow: CabinetPlanningWorkflow,
   cutlistMap: Map<string, ProductionCutlistLine[]>,
   cabinetCosts: Map<string, CabinetCost>,
+  constructions: Map<string, CabinetConstruction>,
 ): CabinetScheduleRow[] {
   const runByCabinetId = new Map<string, { runId: string; label: string }>();
   workflow.runs.forEach((run, index) => {
@@ -54,6 +56,9 @@ export function buildCabinetSchedule(
       totalCost: cost?.totalCost ?? 0,
       runId: runInfo?.runId ?? null,
       runLabel: runInfo?.label ?? null,
+      constructionLabel: constructions.has(cabinet.id)
+        ? getConstructionSummary(constructions.get(cabinet.id)!)
+        : "—",
     };
   });
 }
@@ -76,6 +81,9 @@ export function buildRunSummaries(
       lengthMm: Math.round(estimateRunLengthMm(run, project)),
       fillerCount: workflow.fillers.filter((filler) => filler.runId === run.id).length,
       countertopCount: workflow.countertops.filter((top) => top.runId === run.id).length,
+      countertopIds: workflow.countertops
+        .filter((top) => top.runId === run.id)
+        .map((top) => top.id),
       hasCorner: run.cornerTransition,
     };
   });

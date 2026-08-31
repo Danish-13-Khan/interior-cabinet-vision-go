@@ -28,9 +28,13 @@ function rolesOf(node: CompiledSceneNode) {
 }
 
 export type GoldenSceneCountertop = {
+  id: string;
   nodeId: string;
   geometry: string;
   cabinetIds: string[];
+  widthMm: number;
+  depthMm: number;
+  thicknessMm: number;
   role: "countertop";
 };
 
@@ -60,9 +64,13 @@ export function listGoldenSceneCountertops(project: InteriorProject): GoldenScen
   return compileLivingRoomScene(project).nodes.flatMap((node) => {
     if (node.metadata.role !== "countertop") return [];
     return [{
+      id: String(node.metadata.countertopId ?? node.id.replace(/^countertop-node:/, "")),
       nodeId: node.id,
       geometry: node.adapterId,
       cabinetIds: String(node.metadata.cabinetIds ?? "").split(",").filter(Boolean),
+      widthMm: Number(node.metadata.widthMm) || 0,
+      depthMm: Number(node.metadata.depthMm) || 0,
+      thicknessMm: Number(node.metadata.thicknessMm) || 0,
       role: "countertop" as const,
     }];
   });

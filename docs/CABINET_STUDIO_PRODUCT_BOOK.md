@@ -6,7 +6,7 @@
 **Book version:** 1.0.0  
 **Owner:** Product and engineering  
 **Status:** Accepted strategic baseline; implementation status is recorded per requirement  
-**Last implementation cross-check:** 2026-08-30  
+**Last implementation cross-check:** 2026-08-31
 
 ---
 
@@ -4286,7 +4286,7 @@ A narrow customer job where the product can be meaningfully better than broad co
 - [x] Wall cabinet fixture.
 - [x] Tall cabinet fixture.
 - [x] Filler fixture.
-- [ ] Countertop fixture.
+- [x] Countertop fixture.
 - [x] Save/reopen coverage.
 - [x] Adapter coverage.
 - [x] 3D semantic coverage.
@@ -4326,8 +4326,8 @@ A narrow customer job where the product can be meaningfully better than broad co
 - [x] Build green.
 - [x] Golden journey green.
 - [x] Full sequential browser suite green.
-- [ ] Proposal visual verification complete.
-- [ ] Production packet verification complete.
+- [x] Proposal visual verification complete.
+- [x] Production packet verification complete.
 - [ ] Five-user pilot complete.
 - [ ] Two-engineer handoff review complete.
 
@@ -4806,11 +4806,11 @@ The detailed sections above govern behavior.
 | Roadmap exit journey | `SHIPPED` | Broad workflow, not Golden Run. |
 | Phase 2 still proof | `SHIPPED` | Trust proof. |
 | Release build | `SHIPPED` | Build pipeline. |
-| Golden Cabinet Run fixture | `SHIPPED` | Versioned `fixtures/golden-cabinet-run/v1.interior.json` includes the run, end fillers, and a derived countertop. |
-| Golden Cabinet Run E2E | `SHIPPED` | Sequential journey with width, finish, quote, cutlist, and filler-ID stages. |
+| Golden Cabinet Run fixture | `SHIPPED` | Versioned `fixtures/golden-cabinet-run/v1.interior.json` includes the run, end fillers, and an explicit derived countertop (`countertop:golden-run-base-a+golden-run-drawer+golden-run-base-b`). |
+| Golden Cabinet Run E2E | `SHIPPED` | Sequential journey with width, finish, quote, cutlist, filler-ID, and countertop-ID stages. |
 | Save/reopen Golden Run | `SHIPPED` | `TST-007` — file open after a cold reload, not recents. |
-| Proposal visual verification | `NEXT` | PDF QA. |
-| Production packet visual verification | `NEXT` | PDF QA. |
+| Proposal visual verification | `SHIPPED` | Golden Run PDF raster checks branding, views, total, revision, materials, inclusions/exclusions, and approval. |
+| Production packet visual verification | `SHIPPED` | Golden Run packet raster reuses proposal A4, clipping, font, and image checks plus IDs, construction, hardware, cutlist, fillers/countertop, and zero fallback warnings. |
 | Declared latency benchmark | `HARDEN` | `REL-008`–`REL-009` |
 | Keyboard focus visibility | `HARDEN` | `ACC-002` |
 | Canvas action alternatives | `HARDEN` | `ACC-007` |

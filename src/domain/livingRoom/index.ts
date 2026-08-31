@@ -201,6 +201,7 @@ export {
   GOLDEN_CABINET_RUN_NOW,
   GOLDEN_RUN_OBJECT_IDS,
   GOLDEN_RUN_STAGES,
+  GOLDEN_RUN_COUNTERTOP_ID,
   listGoldenSceneCabinets,
   listGoldenSceneCountertops,
 } from "./goldenRun";

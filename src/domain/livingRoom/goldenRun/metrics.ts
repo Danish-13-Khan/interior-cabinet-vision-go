@@ -6,6 +6,7 @@ import { buildHandoffSummary } from "../handoff";
 import { buildLiveInteriorQuote } from "../proposal/liveQuote";
 import { readProposalCommercial } from "../proposal/commercialState";
 import { GOLDEN_RUN_OBJECT_IDS } from "./types";
+import { readGoldenRunCountertop } from "./countertops";
 
 export type GoldenRunMetrics = {
   revision: string;
@@ -15,6 +16,9 @@ export type GoldenRunMetrics = {
   fingerprint: string;
   cutlistPartCount: number;
   cutlistWidthSum: number;
+  countertopId: string;
+  countertopWidthMm: number;
+  countertopCabinetIds: string[];
   revisedCabinetWidthMm: number;
   cabinetIds: string[];
   engineeringIds: string[];
@@ -35,6 +39,7 @@ export function measureGoldenRun(document: InteriorProject): GoldenRunMetrics {
   const commercial = readProposalCommercial(document);
   const live = buildLiveInteriorQuote(document);
   const cutlist = cutlistWidthSum(document);
+  const top = readGoldenRunCountertop(document);
   const handoff = buildHandoffSummary(document);
   const revised = document.objects.find((item) => item.id === GOLDEN_RUN_OBJECT_IDS.baseA);
   const cabinets = document.objects.filter((item) => readCabinetIdentity(item));
@@ -46,6 +51,9 @@ export function measureGoldenRun(document: InteriorProject): GoldenRunMetrics {
     fingerprint: live.fingerprint,
     cutlistPartCount: cutlist.partCount,
     cutlistWidthSum: cutlist.widthSum,
+    countertopId: top.id,
+    countertopWidthMm: top.widthMm,
+    countertopCabinetIds: [...top.cabinetIds],
     revisedCabinetWidthMm: revised?.dimensions.widthMm ?? 0,
     cabinetIds: cabinets.map((item) => item.id).sort(),
     engineeringIds: handoff.cabinets

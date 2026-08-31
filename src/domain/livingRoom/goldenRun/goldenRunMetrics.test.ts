@@ -64,6 +64,8 @@ describe("golden cabinet run commercial and persistence metrics", () => {
     expect(afterOpen.cabinetIds).toEqual(live.cabinetIds);
     expect(afterOpen.revision).toBe(live.revision);
     expect(afterOpen.sellTotal).toBe(live.sellTotal);
+    expect(afterOpen.countertopId).toBe(live.countertopId);
+    expect(afterOpen.countertopWidthMm).toBe(live.countertopWidthMm);
     expect(buildHandoffGate(reopened).ready).toBe(true);
   });
 
