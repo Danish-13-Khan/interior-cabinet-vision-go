@@ -138,6 +138,10 @@ export function clampRevisionSnapshot(
         ? value.approvedBy.trim()
         : undefined,
     releasedForProduction: Boolean(value.releasedForProduction),
+    packetFingerprint:
+      typeof value.packetFingerprint === "string" && value.packetFingerprint.trim()
+        ? value.packetFingerprint.trim().slice(0, 80)
+        : undefined,
     productionFingerprint:
       typeof value.productionFingerprint === "string" && value.productionFingerprint.trim()
         ? value.productionFingerprint.trim().slice(0, 80)

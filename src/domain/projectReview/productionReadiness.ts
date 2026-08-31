@@ -5,6 +5,7 @@ import { evaluateProjectRules } from "../manufacturingRules";
 import { clampGateOverride, overrideReasonOk } from "./gateOverride";
 import { getProjectReviewState } from "./operations";
 import { createProductionPacketFingerprint } from "./productionFingerprint";
+import { snapshotHasDesignDrift } from "./snapshotDrift";
 import type {
   GateOverride,
   ProductionGateItem,
@@ -46,12 +47,14 @@ export function buildProductionReadinessGate(
   const approved = job.status === "approved" || job.status === "production";
   const identityBlocked = productionIdentityBlocked(project);
   const snapshotMissing = !review.history[0];
+  const drifted = snapshotHasDesignDrift(project);
   const items = [
     item("snapshot", "Revision snapshot", snapshotMissing, "Freeze a revision before production release.", "Revision snapshot on file", false),
+    item("drift", "Frozen revision", drifted, "Design drifted from the frozen revision. Re-freeze and re-approve.", "Live design matches the frozen revision", false),
     item("approval", "Approved revision", !approved, "Approve the revision, or record an override reason.", "Revision is approved", true),
     item("blockers", "Unresolved blockers", blockers.length > 0, `${blockers.length} unresolved blocker${blockers.length === 1 ? "" : "s"}`, "No unresolved blockers", false),
     item("identity", "Cabinet identity", identityBlocked, "Adapter loss or unknown family blocks production.", "Cabinet identity is complete", false),
-    item("manufacturing", "Manufacturing", manufacturing.length > 0, `${manufacturing.length} manufacturing error${manufacturing.length === 1 ? "" : "s"} still open`, "No open manufacturing errors", true),
+    item("manufacturing", "Manufacturing", manufacturing.length > 0, `${manufacturing.length} manufacturing error${manufacturing.length === 1 ? "" : "s"} still open`, "No open manufacturing errors", false),
   ];
   const hardFails = items.filter((row) => row.status === "fail" && !row.overridable);
   const softFails = items.filter((row) => row.status === "fail" && row.overridable);

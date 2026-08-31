@@ -6,5 +6,7 @@ export * from "./operations";
 export * from "./gateOverride";
 export * from "./approval";
 export * from "./productionFingerprint";
+export * from "./packetFingerprintPayload";
+export * from "./snapshotDrift";
 export * from "./productionReadiness";
 export * from "./revisionSummaryPdf";

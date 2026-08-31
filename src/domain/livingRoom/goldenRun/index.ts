@@ -33,6 +33,9 @@ export {
 export { reviseGoldenRunCabinetFinish, reviseGoldenRunCabinetWidth } from "./revision";
 export { measureGoldenRun, type GoldenRunMetrics } from "./metrics";
 export {
+  GOLDEN_WORKFLOW_CANVAS_ALTERNATIVES,
+} from "./canvasAlternatives";
+export {
   listGoldenSceneCabinets,
   listGoldenSceneCountertops,
   type GoldenSceneCabinet,

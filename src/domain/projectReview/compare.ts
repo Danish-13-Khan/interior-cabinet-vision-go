@@ -127,3 +127,21 @@ export function compareRevisionSnapshots(
     `Rev ${right.revision}`,
   );
 }
+
+export function revisionFingerprintsEqual(
+  left: RevisionFingerprint,
+  right: RevisionFingerprint,
+): boolean {
+  return (
+    left.cabinetCount === right.cabinetCount
+    && left.roomCount === right.roomCount
+    && left.partLineCount === right.partLineCount
+    && left.workshopTotal === right.workshopTotal
+    && left.sellTotal === right.sellTotal
+    && left.errorCount === right.errorCount
+    && left.warningCount === right.warningCount
+    && left.blockerCount === right.blockerCount
+    && left.cabinetNames.join("\0") === right.cabinetNames.join("\0")
+    && left.materialKeys.join("\0") === right.materialKeys.join("\0")
+  );
+}

@@ -14,6 +14,7 @@ import {
 } from "./types";
 import { buildChangeLogFromFingerprints } from "./compare";
 import { createRevisionFingerprint } from "./fingerprint";
+import { createProductionPacketFingerprint } from "./productionFingerprint";
 import type { CabinetProject } from "../cabinetDimensions";
 import { clampJobMeta, patchJobMeta, type ProjectJobMeta } from "../jobMeta";
 import { evaluateProjectRules } from "../manufacturingRules";
@@ -77,25 +78,9 @@ export function createRevisionSnapshot(
   const review = getProjectReviewState(project);
   const job = clampJobMeta(project.job);
   const openIssues = collectLiveReviewIssues(project, review.notes);
-  const fingerprint = createRevisionFingerprint(project, openIssues);
-  const previous = review.history[0] ?? null;
-  const changeLog = buildChangeLogFromFingerprints(previous?.fingerprint, fingerprint);
   const nextRevision = options.bumpRevision
     ? bumpRevisionLabel(job.revision)
     : job.revision;
-  const snapshot: RevisionSnapshot = {
-    id: createRevisionSnapshotId(),
-    revision: nextRevision,
-    createdAt: new Date().toISOString(),
-    status: job.status,
-    note: String(options.note ?? "").trim(),
-    approvedBy: options.approvedBy?.trim() || undefined,
-    releasedForProduction: false,
-    fingerprint,
-    changeLog,
-    openIssues,
-  };
-  const nextHistory = [snapshot, ...review.history].slice(0, MAX_REVISION_HISTORY);
   const nextJob = patchJobMeta(job, {
     revision: nextRevision,
     status:
@@ -103,6 +88,24 @@ export function createRevisionSnapshot(
         ? "quoted"
         : job.status,
   });
+  const frozenProject = { ...project, job: nextJob };
+  const fingerprint = createRevisionFingerprint(frozenProject, openIssues);
+  const previous = review.history[0] ?? null;
+  const changeLog = buildChangeLogFromFingerprints(previous?.fingerprint, fingerprint);
+  const snapshot: RevisionSnapshot = {
+    id: createRevisionSnapshotId(),
+    revision: nextRevision,
+    createdAt: new Date().toISOString(),
+    status: nextJob.status,
+    note: String(options.note ?? "").trim(),
+    approvedBy: options.approvedBy?.trim() || undefined,
+    releasedForProduction: false,
+    packetFingerprint: createProductionPacketFingerprint(frozenProject),
+    fingerprint,
+    changeLog,
+    openIssues,
+  };
+  const nextHistory = [snapshot, ...review.history].slice(0, MAX_REVISION_HISTORY);
   return {
     snapshot,
     nextJob,

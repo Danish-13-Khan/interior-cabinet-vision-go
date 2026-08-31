@@ -14,9 +14,10 @@ import { isBlockingLivingRoomPlanIssue } from "../../domain/livingRoom";
 import type { ProjectReport } from "../../domain/projectReport";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { MillworkSchedulePreview } from "./millworkSchedule";
-import { NumberField } from "./NumberField";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
+import { InspectorObjectList } from "./InspectorObjectList";
+import { InspectorPositionFields } from "./InspectorPositionFields";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -86,44 +87,41 @@ export function LivingRoomInspectorPanel({
         <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${selectedCount} selected`)}</span>
       </div>
       <div className="lr-inspector-scroll">
+        <InspectorObjectList
+          objects={project.objects}
+          roomId={room.id}
+          selectedId={activeObject?.id ?? null}
+          onSelect={onSelect}
+        />
         {mode === "plan" ? (
           <PlanArchitectureInspector project={project} room={room} wall={activeWall}
             onRoomDimensions={onRoomDimensions} onUpdateWall={onUpdateWall} onSetWallMaterial={onSetWallMaterial} unit={unit} />
         ) : null}
         {activeOpening ? <OpeningInspector opening={activeOpening} materials={project.materials} onUpdate={onUpdateOpening} /> : activeObject ? (
           <>
+            <InspectorPositionFields
+              position={activeObject.position}
+              onMove={(position) => onMove(activeObject.id, position)}
+            />
             {mode === "plan" ? (
-              <section>
-                <h4>Position</h4>
-                <NumberField
-                  label="X"
-                  value={activeObject.position.x}
-                  onChange={(value) => onMove(activeObject.id, { ...activeObject.position, x: value })}
-                />
-                <NumberField
-                  label="Z"
-                  value={activeObject.position.z}
-                  onChange={(value) => onMove(activeObject.id, { ...activeObject.position, z: value })}
-                />
-                <label className="lr-select-field">
-                  <span>Rotation</span>
-                  <select
-                    value={activeObject.rotation.y}
-                    onChange={(event) => onSetRotation(activeObject.id, Number(event.target.value))}
-                  >
-                    <option value="0">0°</option>
-                    <option value="45">45°</option>
-                    <option value="90">90°</option>
-                    <option value="135">135°</option>
-                    <option value="180">180°</option>
-                    <option value="225">225°</option>
-                    <option value="270">270°</option>
-                    <option value="315">315°</option>
-                  </select>
-                </label>
-              </section>
+              <label className="lr-select-field">
+                <span>Rotation</span>
+                <select
+                  value={activeObject.rotation.y}
+                  onChange={(event) => onSetRotation(activeObject.id, Number(event.target.value))}
+                >
+                  <option value="0">0°</option>
+                  <option value="45">45°</option>
+                  <option value="90">90°</option>
+                  <option value="135">135°</option>
+                  <option value="180">180°</option>
+                  <option value="225">225°</option>
+                  <option value="270">270°</option>
+                  <option value="315">315°</option>
+                </select>
+              </label>
             ) : (
-              <p className="lr-inspector-hint">Drag in the room to place. Size and finish below match Plan.</p>
+              <p className="lr-inspector-hint">Arrow keys nudge. Size and finish match Plan.</p>
             )}
             <LivingRoomObjectInspector
               object={activeObject}
@@ -138,11 +136,7 @@ export function LivingRoomInspectorPanel({
         ) : (
           <section className="lr-inspector-empty">
             <h3>Selection</h3>
-            <p>
-              {mode === "plan"
-                ? "Select an object in plan to edit exact dimensions and placement."
-                : "Select a piece in the room to set size and finish."}
-            </p>
+            <p>Pick an object from the list above, or use [ / ] keys.</p>
           </section>
         )}
         {millworkSchedule && millworkWorkflow ? (

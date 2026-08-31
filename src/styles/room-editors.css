@@ -70,10 +70,16 @@
   width: 60px;
 }
 
-.dw-item select:focus,
-.dw-item input:focus {
+.dw-item select:focus:not(:focus-visible),
+.dw-item input:focus:not(:focus-visible) {
   outline: none;
   border-color: #3b82f6;
+}
+
+.dw-item select:focus-visible,
+.dw-item input:focus-visible {
+  outline: 2px solid var(--accent, #1e4d72);
+  outline-offset: 2px;
 }
 
 .dw-remove {
@@ -150,8 +156,13 @@
   box-sizing: border-box;
 }
 
-.room-input:focus {
+.room-input:focus:not(:focus-visible) {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.12);
+}
+
+.room-input:focus-visible {
+  outline: 2px solid var(--accent, #1e4d72);
+  outline-offset: 2px;
 }
