@@ -29,6 +29,7 @@ export type CabinetScheduleRow = {
   totalCost: number;
   runId: string | null;
   runLabel: string | null;
+  constructionLabel: string;
 };
 
 export type RunSummaryRow = {
@@ -41,6 +42,7 @@ export type RunSummaryRow = {
   lengthMm: number;
   fillerCount: number;
   countertopCount: number;
+  countertopIds: string[];
   hasCorner: boolean;
 };
 

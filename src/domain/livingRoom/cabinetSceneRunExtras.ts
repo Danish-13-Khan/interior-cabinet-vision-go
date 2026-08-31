@@ -73,6 +73,10 @@ export function compileCabinetRunExtras(project: InteriorProject): CompiledScene
         role: "countertop",
         runId: segment.runId,
         axis: segment.axis,
+        countertopId: segment.id,
+        widthMm: segment.widthMm,
+        depthMm: segment.depthMm,
+        thicknessMm: segment.thicknessMm,
         cabinetIds: segment.cabinetIds.join(","),
       },
     );

@@ -29,6 +29,7 @@ export {
   detectCabinetRuns,
   snapPlacementIntoRuns,
 } from "./workflow";
+export { countertopSegmentId } from "./countertops";
 export {
   getRunExtent,
   getRunLineValue,

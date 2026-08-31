@@ -47,12 +47,21 @@ export function allocateClientCabinetPrices(
   });
 }
 
+const CLIENT_MATERIAL_ROLES: Record<string, string> = {
+  carcass: "Cabinet body",
+  fronts: "Fronts",
+  countertop: "Countertop",
+  back: "Back",
+  shelves: "Shelves",
+};
+
 export function proposalMaterialLines(document: InteriorProject): ProposalMaterialLine[] {
   const seen = new Map<string, ProposalMaterialLine>();
   for (const line of buildLivingRoomMillworkSchedule(document).lines) {
     for (const [slot, name] of Object.entries(line.materialLabels)) {
-      const key = `${slot}:${name}`;
-      if (!seen.has(key)) seen.set(key, { name, kind: slot, role: slot });
+      const role = CLIENT_MATERIAL_ROLES[slot] ?? slot;
+      const key = `${role}:${name}`;
+      if (!seen.has(key)) seen.set(key, { name, kind: slot, role });
     }
   }
   return [...seen.values()].slice(0, 12);

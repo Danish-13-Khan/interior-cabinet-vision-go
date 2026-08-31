@@ -22,6 +22,15 @@ export const GOLDEN_RUN_FILLER_IDS = {
   end: "golden-run-filler-end",
 } as const;
 
+export const GOLDEN_RUN_COUNTERTOP_CABINET_IDS = [
+  GOLDEN_RUN_OBJECT_IDS.baseA,
+  GOLDEN_RUN_OBJECT_IDS.drawer,
+  GOLDEN_RUN_OBJECT_IDS.baseB,
+] as const;
+
+export const GOLDEN_RUN_COUNTERTOP_DEPTH_MM = 585;
+export const GOLDEN_RUN_COUNTERTOP_THICKNESS_MM = 28;
+
 export const GOLDEN_RUN_FLOOR_IDS = [
   GOLDEN_RUN_OBJECT_IDS.tall,
   GOLDEN_RUN_OBJECT_IDS.baseA,

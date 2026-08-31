@@ -62,8 +62,12 @@ describe("golden cabinet run fixture", () => {
     expect(lossyGoldenObjectIds(project)).toEqual([]);
     expect(inspectLivingRoomPlan(project).filter(isBlockingLivingRoomPlanIssue)).toEqual([]);
     const tops = listGoldenSceneCountertops(project);
-    expect(tops.length).toBeGreaterThan(0);
-    expect(tops.some((top) => top.cabinetIds.includes(GOLDEN_RUN_OBJECT_IDS.baseA))).toBe(true);
+    expect(tops).toHaveLength(1);
+    expect(tops[0]?.cabinetIds).toEqual([
+      GOLDEN_RUN_OBJECT_IDS.baseA,
+      GOLDEN_RUN_OBJECT_IDS.drawer,
+      GOLDEN_RUN_OBJECT_IDS.baseB,
+    ]);
     expect(countertopTouchesCabinet(compileLivingRoomScene(project).nodes, GOLDEN_RUN_OBJECT_IDS.baseA)).toBe(true);
     expect(countertopTouchesCabinet(compileLivingRoomScene(project).nodes, GOLDEN_RUN_OBJECT_IDS.tall)).toBe(false);
   });

@@ -123,6 +123,28 @@ describe("cabinet run assembly", () => {
     expect(workflow.countertops.every((ct) => ct.axis === "x")).toBe(true);
   });
 
+  it("does not author a countertop on a run filler", () => {
+    const filler = makeCabinet("filler-1", "base", 2100, -1720);
+    filler.runFiller = { runId: "run-1", side: "end" };
+    filler.config = {
+      ...filler.config,
+      dimensions: { ...filler.config.dimensions, width: 100, depth: 18 },
+    };
+    const workflow = createCabinetPlanningWorkflow(
+      {
+        version: 1,
+        cabinets: [
+          makeCabinet("base-1", "base", -900, -1720),
+          makeCabinet("drawer-1", "drawer", 50, -1720),
+          filler,
+        ],
+      },
+      roomBounds,
+    );
+    expect(workflow.countertops.every((top) => !top.cabinetIds.includes("filler-1"))).toBe(true);
+    expect(workflow.countertops.some((top) => top.cabinetIds.includes("base-1"))).toBe(true);
+  });
+
   it("splits a generated countertop at an authored break", () => {
     const first = makeCabinet("base-1", "base", -450, -1720);
     first.config = { ...first.config, countertopBreakAfter: true };

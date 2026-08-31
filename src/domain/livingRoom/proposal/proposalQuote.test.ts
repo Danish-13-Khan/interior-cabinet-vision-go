@@ -74,4 +74,18 @@ describe("proposal live quote and freeze", () => {
     const live = buildLiveInteriorQuote(project, NOW);
     expect(live.quote.settings.discountPercent).toBe(40);
   });
+
+  it("keeps unique snapshot ids when two freezes share a clock", () => {
+    const project = createGoldenProposalProject(NOW);
+    const first = freezeLiveQuote(project, NOW);
+    const second = freezeLiveQuote(project, NOW);
+    expect(first.id).not.toBe(second.id);
+    expect(first.id).toMatch(/^quote-\d+-\d+$/);
+  });
+
+  it("accepts an injected snapshot id for fixtures", () => {
+    const snapshot = freezeLiveQuote(createGoldenProposalProject(NOW), NOW, "quote-fixture-1");
+    expect(snapshot.id).toBe("quote-fixture-1");
+    expect(snapshot.quotedAt).toBe(NOW);
+  });
 });

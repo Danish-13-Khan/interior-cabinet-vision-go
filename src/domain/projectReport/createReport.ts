@@ -105,6 +105,7 @@ export function createProjectReport(
     workflow,
     cutlistMap,
     cabinetCosts,
+    constructionMap,
   );
 
   const cabinetMarks = new Map(

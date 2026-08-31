@@ -6,7 +6,8 @@ import { buildProposalClientPayload } from "./proposalClientPayload";
 export function freezeProposal(
   document: InteriorProject,
   now = new Date().toISOString(),
+  snapshotId?: string,
 ): InteriorProject {
-  const snapshot = freezeLiveQuote(document, now);
+  const snapshot = freezeLiveQuote(document, now, snapshotId);
   return appendFrozenQuote(document, snapshot, buildProposalClientPayload(document, snapshot.id));
 }

@@ -31,8 +31,12 @@ export function CabinetSceneSemantics({ project }: { project: InteriorProject })
         <li
           key={top.nodeId}
           data-role={top.role}
+          data-countertop-id={top.id}
           data-geometry={top.geometry}
           data-cabinet-ids={top.cabinetIds.join(",")}
+          data-width-mm={top.widthMm}
+          data-depth-mm={top.depthMm}
+          data-thickness-mm={top.thicknessMm}
         />
       ))}
     </ul>

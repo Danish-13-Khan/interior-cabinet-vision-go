@@ -44,8 +44,12 @@ export function createGoldenProposalProject(now = NOW): InteriorProject {
   return withIdentity;
 }
 
+export function goldenProposalQuoteId(now = NOW) {
+  return `quote-golden-${Date.parse(now)}`;
+}
+
 export function createFrozenGoldenProposalProject(now = NOW): InteriorProject {
-  return freezeProposal(createGoldenProposalProject(now), now);
+  return freezeProposal(createGoldenProposalProject(now), now, goldenProposalQuoteId(now));
 }
 
 export function goldenProposalViewFrame(document: InteriorProject): ProposalViewFrame {

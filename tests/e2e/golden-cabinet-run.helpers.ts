@@ -46,6 +46,14 @@ export async function readSellTotal(page: Page) {
   return value;
 }
 
+export async function openGoldenRunModelView(page: Page) {
+  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
+  await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
+  await expect(page.getByTestId("lr-scene-semantics")).toBeAttached();
+}
+
 export async function captureProposalView(page: Page) {
   const renderButton = page.getByRole("button", { name: "Render Image" });
   await expect(renderButton).toBeEnabled({ timeout: 25_000 });

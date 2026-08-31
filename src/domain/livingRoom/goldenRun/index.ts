@@ -6,6 +6,9 @@ export {
   GOLDEN_RUN_CAMERA_ID,
   GOLDEN_RUN_JOB,
   GOLDEN_RUN_FILLER_IDS,
+  GOLDEN_RUN_COUNTERTOP_CABINET_IDS,
+  GOLDEN_RUN_COUNTERTOP_DEPTH_MM,
+  GOLDEN_RUN_COUNTERTOP_THICKNESS_MM,
   GOLDEN_RUN_OBJECT_IDS,
   GOLDEN_RUN_ORIGINAL_WIDTH_MM,
   GOLDEN_RUN_REVISED_DOOR_STYLE,
@@ -21,6 +24,12 @@ export {
   type GoldenRunStage,
 } from "./types";
 export { createGoldenCabinetRunProject } from "./createProject";
+export {
+  GOLDEN_RUN_COUNTERTOP_ID,
+  GOLDEN_RUN_COUNTERTOP_WIDTH_MM,
+  goldenRunCountertopWidthMm,
+  readGoldenRunCountertop,
+} from "./countertops";
 export { reviseGoldenRunCabinetFinish, reviseGoldenRunCabinetWidth } from "./revision";
 export { measureGoldenRun, type GoldenRunMetrics } from "./metrics";
 export {

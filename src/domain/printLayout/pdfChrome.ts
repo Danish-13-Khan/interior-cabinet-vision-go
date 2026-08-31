@@ -44,7 +44,7 @@ export function drawPdfTitleBlock(
   doc.setFontSize(7);
   doc.setTextColor(71, 85, 105);
   doc.text(data.sheetTitle.slice(0, 48), margin + 2, y + 10);
-  doc.setFontSize(6);
+  doc.setFontSize(7);
   doc.text(
     `${data.projectNumber} · ${data.customerName}`.slice(0, 54),
     margin + 2,
@@ -57,13 +57,13 @@ export function drawPdfTitleBlock(
   doc.setFontSize(7);
   doc.setTextColor(71, 85, 105);
   doc.text(`SCALE ${data.scaleText}`, mid + 2, y + 11);
-  doc.setFontSize(6);
+  doc.setFontSize(7);
   doc.text(data.statusLabel, mid + 2, y + 15.5);
 
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
   doc.text(data.sheetCode, right + 2, y + 5.5);
-  doc.setFontSize(6);
+  doc.setFontSize(7);
   doc.setTextColor(71, 85, 105);
   doc.text("SHEET", right + 2, y + 10.5);
   doc.setFontSize(7);
@@ -72,7 +72,7 @@ export function drawPdfTitleBlock(
   doc.setFontSize(7);
   doc.setTextColor(15, 23, 42);
   doc.text(`REV ${data.revision}`, info + 1.5, y + 4.5);
-  doc.setFontSize(6);
+  doc.setFontSize(7);
   doc.setTextColor(71, 85, 105);
   doc.text(`DRN ${data.drawnBy.slice(0, 10)}`, info + 1.5, y + 10);
   doc.text(`CHK ${data.checkedBy.slice(0, 10)}`, info + 1.5, y + 15.5);
