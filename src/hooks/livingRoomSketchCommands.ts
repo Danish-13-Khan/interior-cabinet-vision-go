@@ -56,17 +56,24 @@ export function importLivingRoomFinish(
   commitDocument: CommitDocument,
   file: File,
   apply?: ImportFinishApply,
+  onStatus?: (status: string) => void,
 ) {
   void readImageAsDataUrl(file).then((dataUrl) => {
-    commitDocument((current) => {
-      const added = addImportedFinish(current, { name: file.name, dataUrl });
-      let next = added.project;
-      if (apply?.wallId) next = setLivingRoomWallMaterial(next, apply.wallId, added.materialId);
-      if (apply?.floor) next = paintLivingRoomSurface(next, { kind: "floor" }, added.materialId);
-      if (apply?.ceiling) next = paintLivingRoomSurface(next, { kind: "ceiling" }, added.materialId);
-      return next;
-    }, "Imported finish.");
-  }).catch(() => undefined);
+    try {
+      commitDocument((current) => {
+        const added = addImportedFinish(current, { name: file.name, dataUrl });
+        let next = added.project;
+        if (apply?.wallId) next = setLivingRoomWallMaterial(next, apply.wallId, added.materialId);
+        if (apply?.floor) next = paintLivingRoomSurface(next, { kind: "floor" }, added.materialId);
+        if (apply?.ceiling) next = paintLivingRoomSurface(next, { kind: "ceiling" }, added.materialId);
+        return next;
+      }, "Imported finish.");
+    } catch (error: unknown) {
+      onStatus?.(error instanceof Error ? error.message : "Could not import finish.");
+    }
+  }).catch((error: unknown) => {
+    onStatus?.(error instanceof Error ? error.message : "Could not import finish.");
+  });
 }
 
 export function setLivingRoomFinishUv(

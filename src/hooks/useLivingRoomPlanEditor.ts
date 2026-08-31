@@ -91,6 +91,7 @@ type UseLivingRoomPlanEditorArgs = {
   room: RoomConfig;
   commitProjectChange: CommitProjectChange;
   commitSnapshot: CommitSnapshot;
+  onStatus?: (status: string) => void;
 };
 
 function uniqueObjectId(category: string) {
@@ -108,6 +109,7 @@ export function useLivingRoomPlanEditor({
   room,
   commitProjectChange,
   commitSnapshot,
+  onStatus,
 }: UseLivingRoomPlanEditorArgs) {
   const document = currentLivingRoomDocument(project);
   const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
@@ -615,7 +617,7 @@ export function useLivingRoomPlanEditor({
     setLivingRoomWallPlan: (wallId: string, patch: import("../domain/interiorProject").WallPlanPatch) =>
       commitWallPlan(commitDocument, wallId, patch),
     importLivingRoomFinish: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) =>
-      commitImportedFinish(commitDocument, file, apply),
+      commitImportedFinish(commitDocument, file, apply, onStatus),
     setLivingRoomFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) =>
       commitFinishUv(commitDocument, materialId, patch),
     joinLivingRoomCoincidentNodes: joinCoincidentNodes,

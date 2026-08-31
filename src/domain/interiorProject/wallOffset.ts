@@ -26,5 +26,9 @@ export function offsetPlanWall(
     end: { x: wall.end.x + nx * distance, z: wall.end.z + nz * distance },
     roomId: wall.roomId ?? project.activeRoomId,
     kind: "partition",
+    heightMm: wall.heightMm,
+    thicknessMm: wall.thicknessMm,
+    materialId: wall.materialId,
+    raised: wall.raised !== false,
   });
 }

@@ -27,5 +27,9 @@ describe("wall offset", () => {
     const sourceMid = { x: (source.start.x + source.end.x) / 2, z: (source.start.z + source.end.z) / 2 };
     const addedMid = { x: (added.start.x + added.end.x) / 2, z: (added.start.z + added.end.z) / 2 };
     expect(Math.hypot(addedMid.x - sourceMid.x, addedMid.z - sourceMid.z)).toBeCloseTo(400, 5);
+    expect(added.thicknessMm).toBe(source.thicknessMm);
+    expect(added.heightMm).toBe(source.heightMm);
+    expect(added.materialId).toBe(source.materialId);
+    expect(added.raised).toBe(true);
   });
 });
