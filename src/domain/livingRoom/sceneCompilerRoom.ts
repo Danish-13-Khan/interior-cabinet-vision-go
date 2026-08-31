@@ -5,6 +5,7 @@ import type {
   WallEntity,
 } from "../interiorProject";
 import { polygonBounds, roomPlanPolygon, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
+import { compileWallHeightMm, isWallRaised } from "../interiorProject/wallRaise";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { compileOpeningNode, wallPoint } from "./sceneCompilerOpenings";
 import { boxPrimitive } from "./scenePrimitives";
@@ -67,6 +68,7 @@ function wallSegment(
       role: "wall",
       wallId: wall.id,
       wallSide,
+      planTrace: !isWallRaised(wall),
     },
     renderBinding: createProceduralRenderBinding({ surface: materialId }),
   };
@@ -76,6 +78,11 @@ function compileWall(project: InteriorProject, room: InteriorRoomEntity, wall: W
   const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
   const materialId = wall.materialId ?? FALLBACK_MATERIAL_ID;
   const wallSide = outerWallSide(project, room, wall);
+  const topMm = compileWallHeightMm(wall);
+  if (!isWallRaised(wall)) {
+    const trace = wallSegment(wall, `${wall.id}:trace`, 0, length, 0, topMm, materialId, wallSide);
+    return trace ? [trace] : [];
+  }
   const nodes: CompiledSceneNode[] = [];
   let cursor = 0;
   const sorted = [...openings]
@@ -84,16 +91,16 @@ function compileWall(project: InteriorProject, room: InteriorRoomEntity, wall: W
   for (const opening of sorted) {
     const start = Math.max(cursor, Math.min(length, opening.offsetMm));
     const end = Math.max(start, Math.min(length, opening.offsetMm + opening.widthMm));
-    const before = wallSegment(wall, `${wall.id}:before:${opening.id}`, cursor, start, 0, wall.heightMm, materialId, wallSide);
+    const before = wallSegment(wall, `${wall.id}:before:${opening.id}`, cursor, start, 0, topMm, materialId, wallSide);
     if (before) nodes.push(before);
     const below = wallSegment(wall, `${wall.id}:below:${opening.id}`, start, end, 0, opening.sillHeightMm, materialId, wallSide);
     if (below) nodes.push(below);
-    const openingTop = Math.min(wall.heightMm, opening.sillHeightMm + opening.heightMm);
-    const above = wallSegment(wall, `${wall.id}:above:${opening.id}`, start, end, openingTop, wall.heightMm, materialId, wallSide);
+    const openingTop = Math.min(topMm, opening.sillHeightMm + opening.heightMm);
+    const above = wallSegment(wall, `${wall.id}:above:${opening.id}`, start, end, openingTop, topMm, materialId, wallSide);
     if (above) nodes.push(above);
     cursor = Math.max(cursor, end);
   }
-  const remainder = wallSegment(wall, `${wall.id}:remainder`, cursor, length, 0, wall.heightMm, materialId, wallSide);
+  const remainder = wallSegment(wall, `${wall.id}:remainder`, cursor, length, 0, topMm, materialId, wallSide);
   if (remainder) nodes.push(remainder);
   return nodes;
 }
@@ -112,7 +119,7 @@ export function compileLivingRoomArchitecture(
       .filter((opening) => opening.extensions?.layerVisible !== false)
       .map((opening) => {
         const wall = project.walls.find((candidate) => candidate.id === opening.wallId);
-        return wall ? compileOpeningNode(opening, wall) : null;
+        return wall && isWallRaised(wall) ? compileOpeningNode(opening, wall) : null;
       })
       .filter((node): node is CompiledSceneNode => node !== null),
   ];

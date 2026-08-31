@@ -22,6 +22,7 @@ import {
   type LivingRoomStyleId,
   type ModelViewPresetId,
 } from "../domain/livingRoom";
+import { isWallRaised } from "../domain/interiorProject";
 import {
   persistModelGuideDismissal,
   shouldShowModelGuide,
@@ -90,6 +91,7 @@ export function LivingRoomModelView({
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const cameraOverrides = resolveModelViewCameraOverrides(viewPreset, cameraHeightMm, fieldOfViewDegrees);
   const exitWalkthrough = useCallback(() => setViewPreset("dollhouse"), []);
+  const planTraceHint = project.walls.some((wall) => wall.visible && !isWallRaised(wall));
   const dismissGuide = () => {
     setShowGuide(false);
     persistModelGuideDismissal();
@@ -186,6 +188,7 @@ export function LivingRoomModelView({
         viewPreset={viewPreset}
         honestyBadge={honesty.shortBadge}
         exposure={scene.style.colorManagement.exposure}
+        planTraceHint={planTraceHint}
       />
     </div>
   );

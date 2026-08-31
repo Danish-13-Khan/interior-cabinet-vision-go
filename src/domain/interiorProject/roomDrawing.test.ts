@@ -93,6 +93,7 @@ describe("D2 room drawing domain", () => {
     });
     expect(project.rooms).toHaveLength(1);
     expect(project.rooms[0]?.name).toBe("Room 1");
+    expect(project.walls.every((wall) => wall.raised === false)).toBe(true);
     const scene = compileLivingRoomScene(project);
     const sides = new Set(
       scene.nodes.filter((node) => node.metadata?.role === "wall").map((node) => String(node.metadata.wallSide)),

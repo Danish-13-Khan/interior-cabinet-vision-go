@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { compileLivingRoomScene, createLivingRoomStarterProject } from ".";
 import {
   paintLivingRoomSurface,
+  setLivingRoomCeilingMaterial,
   setLivingRoomFloorMaterial,
   setLivingRoomLayerVisibility,
   setLivingRoomWallMaterial,
@@ -47,5 +48,15 @@ describe("material and layer commands", () => {
     expect(changed.walls[0]!.materialId).toBe(material);
     expect(scene.nodes.some((node) => node.metadata.wallId === wall.id && node.primitives[0]?.materialId === material)).toBe(true);
     expect(changed.objects[0]!.materialSlots[Object.keys(object.materialSlots)[0]!]).toBe(material);
+  });
+
+  it("persists ceiling material on the room and generated surface", () => {
+    const project = createLivingRoomStarterProject({ now: "2026-08-18T00:00:00.000Z" });
+    const material = project.materials[2]!.id;
+    const changed = setLivingRoomCeilingMaterial(project, material);
+    expect(changed.rooms[0]!.extensions?.ceilingMaterialId).toBe(material);
+    expect(changed.surfaces.find((surface) => surface.kind === "ceiling")?.materialId).toBe(material);
+    expect(paintLivingRoomSurface(project, { kind: "ceiling" }, material).rooms[0]!.extensions?.ceilingMaterialId)
+      .toBe(material);
   });
 });

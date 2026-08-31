@@ -59,6 +59,7 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
     endNodeId,
     heightMm: room.dimensions.heightMm,
     thicknessMm: room.wallThicknessMm,
+    raised: false,
     visible: true,
     materialId: project.walls.find((wall) => wall.roomId === roomId)?.materialId
       ?? project.walls[0]?.materialId

@@ -8,14 +8,16 @@ type Props = {
   activeWallId: string | null;
   selectedObjects: InteriorObjectEntity[];
   onFloor: (materialId: string) => void;
+  onCeiling: (materialId: string) => void;
   onWall: (wallId: string, materialId: string) => void;
   onApplyToSelection: (materialId: string, slotName?: string) => void;
+  onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
 };
 
-type PaintTarget = "floor" | "wall" | "selection";
+type PaintTarget = "floor" | "ceiling" | "wall" | "selection";
 
 export function SurfacePaintPanel({
-  project, activeWallId, selectedObjects, onFloor, onWall, onApplyToSelection,
+  project, activeWallId, selectedObjects, onFloor, onCeiling, onWall, onApplyToSelection, onImportFinish,
 }: Props) {
   const wall = project.walls.find((item) => item.id === activeWallId) ?? project.walls[0] ?? null;
   const [target, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
@@ -27,12 +29,16 @@ export function SurfacePaintPanel({
   const activeMaterialId = target === "floor"
     ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "floor")?.materialId
       ?? (project.rooms.find((room) => room.id === project.activeRoomId)?.extensions?.floorMaterialId as string | undefined)
+    : target === "ceiling"
+      ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "ceiling")?.materialId
+        ?? (project.rooms.find((room) => room.id === project.activeRoomId)?.extensions?.ceilingMaterialId as string | undefined)
     : target === "wall" ? wall?.materialId
       : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
         : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
 
   function apply(materialId: string) {
     if (target === "floor") onFloor(materialId);
+    if (target === "ceiling") onCeiling(materialId);
     if (target === "wall" && wall) onWall(wall.id, materialId);
     if (target === "selection" && canPaintSelection) onApplyToSelection(materialId, activeSlot || undefined);
   }
@@ -41,6 +47,7 @@ export function SurfacePaintPanel({
     <section className="lr-surface-painter" aria-label="Surface paint">
       <div className="lr-paint-targets" role="tablist" aria-label="Paint target">
         <button type="button" role="tab" className={target === "floor" ? "is-active" : ""} onClick={() => setTarget("floor")}>Floor</button>
+        <button type="button" role="tab" className={target === "ceiling" ? "is-active" : ""} onClick={() => setTarget("ceiling")}>Ceiling</button>
         <button type="button" role="tab" disabled={!wall} className={target === "wall" ? "is-active" : ""} onClick={() => setTarget("wall")}>Wall</button>
         <button type="button" role="tab" disabled={!canPaintSelection} className={target === "selection" ? "is-active" : ""}
           onClick={() => setTarget("selection")}>Selection{selectedObjects.length > 1 ? ` (${selectedObjects.length})` : ""}</button>
@@ -54,7 +61,15 @@ export function SurfacePaintPanel({
         </label>
       ) : null}
       {target === "selection" && !canPaintSelection ? <p>Select one or more objects that share a material slot.</p> : null}
-      <MaterialSwatchGrid materials={project.materials} activeMaterialId={activeMaterialId ?? null} onPick={apply} />
+      <MaterialSwatchGrid
+        materials={project.materials}
+        activeMaterialId={activeMaterialId ?? null}
+        onPick={apply}
+        onImport={onImportFinish ? (file) => onImportFinish(file, target === "floor"
+          ? { floor: true }
+          : target === "ceiling" ? { ceiling: true }
+          : target === "wall" && wall ? { wallId: wall.id } : undefined) : undefined}
+      />
       <p>Swatches save the project material ID. Plan tint follows fronts (or another face slot) when present; carcass-only edits still persist for 3D.</p>
     </section>
   );

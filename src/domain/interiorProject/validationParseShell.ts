@@ -68,6 +68,7 @@ export function parseWalls(
       end: point2(wall.end),
       heightMm: numberIn(wall.heightMm, 2800, 1, 20_000),
       thicknessMm: numberIn(wall.thicknessMm, 120, 1, 2000),
+      ...(wall.raised === false ? { raised: false } : wall.raised === true ? { raised: true } : {}),
       visible: booleanValue(wall.visible, true),
       materialId: typeof wall.materialId === "string" && wall.materialId.trim()
         ? wall.materialId.trim()

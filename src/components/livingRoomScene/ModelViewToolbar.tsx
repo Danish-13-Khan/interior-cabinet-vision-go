@@ -3,6 +3,7 @@ import type { CameraEntity } from "../../domain/interiorProject";
 import {
   LIVING_ROOM_STYLE_PRESETS,
   MODEL_VIEW_PRESETS,
+  modelViewShowsHeightSlider,
   type LivingRoomStyleId,
   type ModelViewPresetId,
   type RenderPresetBehavior,
@@ -67,14 +68,13 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
           Clear selection
         </button>
       ) : null}
-      {props.viewPreset === "dollhouse" ? (
-        <ModelViewDollhousePanel
-          cameraHeightMm={props.cameraHeightMm}
-          fieldOfViewDegrees={props.fieldOfViewDegrees}
-          onCameraHeightMm={props.onCameraHeightMm}
-          onFieldOfViewDegrees={props.onFieldOfViewDegrees}
-        />
-      ) : null}
+      <ModelViewDollhousePanel
+        cameraHeightMm={props.cameraHeightMm}
+        fieldOfViewDegrees={props.fieldOfViewDegrees}
+        showHeight={modelViewShowsHeightSlider(props.viewPreset)}
+        onCameraHeightMm={props.onCameraHeightMm}
+        onFieldOfViewDegrees={props.onFieldOfViewDegrees}
+      />
       <label>
         Camera
         <select

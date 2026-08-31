@@ -7,7 +7,11 @@ export type ModelViewCameraOverrides = {
   fieldOfViewDegrees?: number;
 };
 
-/** Dollhouse sliders apply only in dollhouse; walkthrough uses a fixed eye height. */
+export function modelViewShowsHeightSlider(viewPreset: ModelViewPresetId): boolean {
+  return viewPreset === "dollhouse";
+}
+
+/** Height slider is dollhouse-only; FOV applies to every preset including perspective. */
 export function resolveModelViewCameraOverrides(
   viewPreset: ModelViewPresetId,
   dollhouseHeightMm: number,
@@ -17,9 +21,9 @@ export function resolveModelViewCameraOverrides(
     return { cameraHeightMm: dollhouseHeightMm, fieldOfViewDegrees: dollhouseFovDegrees };
   }
   if (viewPreset === "walkthrough") {
-    return { cameraHeightMm: WALKTHROUGH_EYE_HEIGHT_MM };
+    return { cameraHeightMm: WALKTHROUGH_EYE_HEIGHT_MM, fieldOfViewDegrees: dollhouseFovDegrees };
   }
-  return {};
+  return { fieldOfViewDegrees: dollhouseFovDegrees };
 }
 
 export function modelViewNavHint(viewPreset: ModelViewPresetId): string {

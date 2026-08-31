@@ -32,7 +32,8 @@ export function wallSegmentKey(wall: Pick<WallEntity, "start" | "end">) {
 export function compatibleSharedEdge(a: WallEntity, b: WallEntity) {
   return wallSegmentKey(a) === wallSegmentKey(b)
     && a.heightMm === b.heightMm
-    && a.thicknessMm === b.thicknessMm;
+    && a.thicknessMm === b.thicknessMm
+    && (a.raised !== false) === (b.raised !== false);
 }
 
 export function cloneNodes(project: InteriorProject) {

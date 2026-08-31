@@ -43,7 +43,8 @@ export function PlanArchitectureLayer(props: {
       const end = (wall.endNodeId && props.previewNodes?.get(wall.endNodeId)) || wall.end;
       return <line key={wall.id} data-wall-id={wall.id} data-room-id={props.room && roomWallIds.has(wall.id) ? props.room.id : undefined}
         x1={start.x} y1={start.z} x2={end.x} y2={end.z}
-        className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
+        className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.raised === false ? "is-plan-only" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
+        data-raised={wall.raised === false ? "false" : "true"}
         style={{ stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
         onPointerDown={(event) => props.onWall(event, wall.id)} />;
     })}
