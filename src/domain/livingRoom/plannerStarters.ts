@@ -98,13 +98,35 @@ function createTwoRoomFlatStarter(project: InteriorProject): InteriorProject {
   return assertValid(named);
 }
 
+/** Empty plan site: materials and style only — the designer draws the first room. */
+function createBlankSite(project: InteriorProject): InteriorProject {
+  return assertValid({
+    ...project,
+    activeRoomId: "",
+    rooms: [],
+    walls: [],
+    openings: [],
+    nodes: [],
+    loops: [],
+    surfaces: [],
+    objects: [],
+    lights: [],
+    cameras: [],
+    renderSettings: {
+      ...project.renderSettings,
+      activeCameraId: null,
+      packageCameraBookmarks: [],
+    },
+  });
+}
+
 /** Apply a project-home template onto a full living-room starter document. */
 export function applyPlannerStarterTemplate(
   project: InteriorProject,
   template: PlannerStarterTemplate = "blank-room",
 ): InteriorProject {
   if (template === "blank-room" || template === "import-plan") {
-    return { ...project, objects: [] };
+    return createBlankSite(project);
   }
   if (template === "wardrobe-wall") {
     return {

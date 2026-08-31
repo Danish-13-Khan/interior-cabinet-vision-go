@@ -22,7 +22,7 @@ async function openModelView(page: Page) {
   }, GUIDE_KEY);
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
 }

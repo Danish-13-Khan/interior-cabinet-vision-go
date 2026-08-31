@@ -10,7 +10,7 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.getByTestId("lr-plan-canvas")).toBeVisible();
 
   const readability = page.locator(".lr-plan-titlebar .lr-readability-toolbar");

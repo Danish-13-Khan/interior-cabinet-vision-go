@@ -40,6 +40,7 @@ import {
   applyLivingRoomStyle,
   applyPlannerStarterTemplate,
   type PlannerStarterTemplate,
+  ensureDrawnRoomReviewRig,
   createImportedAssetObject,
   createLivingRoomObject,
   createLivingRoomReleaseDemoProject,
@@ -90,10 +91,7 @@ function uniqueObjectId(category: string) {
 }
 
 function currentLivingRoomDocument(project: CabinetProject) {
-  const document = project.interiorDocument;
-  return document?.rooms.some((room) => room.roomType === "living-room")
-    ? document
-    : null;
+  return project.interiorDocument ?? null;
 }
 
 export function useLivingRoomPlanEditor({
@@ -140,6 +138,10 @@ export function useLivingRoomPlanEditor({
       : base;
     const starter = applyPlannerStarterTemplate(styled, options.template ?? "blank-room");
     const compatible = cabinetProjectFromInteriorProject(starter);
+    const label = options.template === "wardrobe-wall" ? "wardrobe wall plan"
+      : options.template === "l-room" ? "L-room plan"
+      : options.template === "2-room-flat" ? "2-room flat plan"
+      : "blank plan";
     commitSnapshot(
       {
         project: compatible.project,
@@ -148,7 +150,7 @@ export function useLivingRoomPlanEditor({
         activeCabinetId: null,
         selectedPanelName: null,
       },
-      "Created the Living Room Starter plan.",
+      `Created a ${label}.`,
     );
     setSelectedObjectIds(starter.objects[0] ? [starter.objects[0].id] : []);
     setProjectHomeOpen(false);
@@ -419,7 +421,7 @@ export function useLivingRoomPlanEditor({
   }
 
   function drawRoom(drawing: RoomDrawingRequest) {
-    commitDocument((current) => drawRoomFromPoints(current, drawing), `Created ${drawing.kind} room.`);
+    commitDocument((current) => ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, drawing)), `Created ${drawing.kind} room.`);
   }
 
   function drawWallSegment(start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") {

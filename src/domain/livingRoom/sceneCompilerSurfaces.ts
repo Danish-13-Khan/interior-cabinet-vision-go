@@ -26,7 +26,7 @@ export function compileRoomLoopSurfaces(
     id: `room-floor:${room.id}`, name: `${room.name} Floor`, sourceObjectId: null,
     adapterId: "room-loop-floor-v2", positionMm: { x: 0, y: 0, z: 0 },
     rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [polygonPrismPrimitive("floor", polygon.outer, polygon.holes, 40, -20, floorMaterial)],
+    primitives: [polygonPrismPrimitive("floor", polygon.outer, polygon.holes, 12, -6, floorMaterial)],
     placeholder: false, metadata: { role: "floor", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: floorMaterial }),
   };

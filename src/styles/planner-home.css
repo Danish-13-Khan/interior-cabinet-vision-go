@@ -384,7 +384,7 @@
 }
 
 .lr-product-shell-v2 .inspector-header strong::after {
-  content: "SELECTED CABINET";
+  content: "SELECTION";
   color: #adb7ae;
   font-size: 12px;
   font-weight: 700;

@@ -17,7 +17,7 @@ export function WallDrawingPanel({
 }: WallDrawingPanelProps) {
   return (
     <div className="lr-build-commit">
-      <p>Drag the plan to draw a wall segment. Endpoints snap to the grid and existing nodes.</p>
+      <p>Drag across the empty plan to draw the first room as a rectangle. After a room exists, drag Draw Wall from one wall to the opposite wall to split it.</p>
       <label>
         <span>Wall thickness (mm)</span>
         <input

@@ -88,8 +88,9 @@ export function CompiledSceneRenderer({
     renderCamera && renderCamera.position.x < architectureBounds.center.x ? "left" : "right",
     renderCamera && renderCamera.position.z < architectureBounds.center.z ? "back" : "front",
   ]);
+  const hideCeiling = viewPreset === "dollhouse" || viewPreset === "orbit" || viewPreset === "top";
   const nodes = filterModelReviewNodes(
-    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId,
+    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling,
   );
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const environment = scene.style.environment;

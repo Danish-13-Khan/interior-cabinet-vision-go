@@ -4,7 +4,7 @@ async function openBuildPlan(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 }
 
 test("I4 offers curated opening families and SKU millwork", async ({ page }) => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { roomPlanPolygon } from "../interiorProject";
+import { cabinetProjectFromInteriorProject, roomPlanPolygon } from "../interiorProject";
 import { compileLivingRoomScene } from "./sceneCompiler";
 import { createLivingRoomStarterProject } from "./preset";
 import {
@@ -10,10 +10,15 @@ import {
 const NOW = "2026-08-29T00:00:00.000Z";
 
 describe("planner starter templates", () => {
-  it("clears furniture for blank and import starters", () => {
+  it("starts blank and import templates with no rooms or furniture", () => {
     const base = createLivingRoomStarterProject({ now: NOW });
-    expect(applyPlannerStarterTemplate(base, "blank-room").objects).toEqual([]);
-    expect(applyPlannerStarterTemplate(base, "import-plan").objects).toEqual([]);
+    const blank = applyPlannerStarterTemplate(base, "blank-room");
+    expect(blank.objects).toEqual([]);
+    expect(blank.rooms).toEqual([]);
+    expect(blank.walls).toEqual([]);
+    expect(blank.openings).toEqual([]);
+    expect(applyPlannerStarterTemplate(base, "import-plan").rooms).toEqual([]);
+    expect(cabinetProjectFromInteriorProject(blank).project.interiorDocument?.rooms).toEqual([]);
   });
 
   it("keeps cabinets only for wardrobe-wall", () => {

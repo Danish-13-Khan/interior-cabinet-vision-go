@@ -4,7 +4,7 @@ test("D4 closes a freeform room into a measured 2D floor that remains available 
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await page.getByRole("button", { name: /Draw Room/ }).click();
 
   const plan = page.locator(".lr-plan-svg");

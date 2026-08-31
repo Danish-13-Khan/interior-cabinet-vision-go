@@ -24,7 +24,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       {props.workspaceView === "plan" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
-          onStudioPanel={props.onStudioPanel} project={project} roomName={room.name} selectedIds={w.selectedIds}
+          onStudioPanel={props.onStudioPanel} project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
           assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
           underlay={props.underlay} importError={props.importError} onAssetQuery={props.onAssetQuery}
           onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
@@ -84,7 +84,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             if (!file) return;
             props.onImportError("");
             try {
-              w.onSetPlanUnderlay(await imageFileToUnderlay(file, room.dimensions.widthMm));
+              w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
             } catch (error) {
