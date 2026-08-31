@@ -1,6 +1,7 @@
 import { formatQuoteMoney } from "../../domain/quoteSettings";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { ProposalCommercialFields } from "./ProposalCommercialFields";
+import { ProposalGateList } from "./ProposalGateList";
 
 type Proposal = ReturnType<typeof useProposalWorkflow>;
 
@@ -43,14 +44,28 @@ export function ProposalReviewSection({
         <small className="is-warning" data-testid="proposal-stale">{live.staleReason}</small>
       ) : null}
       {proposal.gate.canOverrideStale ? (
-        <label className="proposal-review-override">
-          <input
-            type="checkbox"
-            checked={proposal.staleOverride}
-            onChange={(event) => proposal.setStaleOverride(event.currentTarget.checked)}
-          />
-          Disclose stale quote on the proposal
-        </label>
+        <div className="proposal-review-override-block">
+          <label className="proposal-review-override">
+            <input
+              type="checkbox"
+              checked={proposal.staleOverride}
+              onChange={(event) => proposal.setStaleOverride(event.currentTarget.checked)}
+            />
+            Disclose stale quote on the proposal
+          </label>
+          {proposal.staleOverride ? (
+            <label className="proposal-review-fields">
+              Override reason
+              <textarea
+                data-testid="proposal-override-reason"
+                value={proposal.overrideReason}
+                rows={2}
+                placeholder="Why this frozen quote is still valid to send"
+                onChange={(event) => proposal.setOverrideReason(event.currentTarget.value)}
+              />
+            </label>
+          ) : null}
+        </div>
       ) : null}
       <div className="proposal-review-views">
         <small>Named views</small>
@@ -66,9 +81,7 @@ export function ProposalReviewSection({
           </label>
         ))}
       </div>
-      {!proposal.gate.ready ? (
-        <small>{proposal.gate.items.map((item) => item.detail).join(" ")}</small>
-      ) : null}
+      <ProposalGateList gate={proposal.gate} />
       <button
         type="button"
         className="is-primary proposal-review-create"

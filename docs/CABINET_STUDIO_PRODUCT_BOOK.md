@@ -4772,7 +4772,7 @@ The detailed sections above govern behavior.
 | Cabinet costing report | `SHIPPED` | Report center. |
 | Quote report | `SHIPPED` | Report center. |
 | Revision report | `SHIPPED` | Review domain. |
-| Production readiness gate | `HARDEN` | `REV-025`, `PRD-042` |
+| Production readiness gate | `SHIPPED` | `REV-025`, `PRD-042` |
 | Golden cutlist fixture review | `NEXT` | `PRD-010` |
 | Machine JSON preview | `SHIPPED` | Intent only. |
 | Machine CSV operations preview | `SHIPPED` | Intent only. |
@@ -4791,11 +4791,11 @@ The detailed sections above govern behavior.
 | Revision compare | `SHIPPED` | Compare domain. |
 | Quote snapshot | `SHIPPED` | Commercial freeze. |
 | Approval record | `SHIPPED` | UX and permissions are `HARDEN`. |
-| Release-for-production state | `SHIPPED` | Gate behavior is `HARDEN`. |
-| Proposal gate | `HARDEN` | Existing pre-export checklist is narrower. |
-| Separate production gate | `NEXT` | `REV-003` |
-| Override reason | `NEXT` | `REV-008`, `REV-026` |
-| Frozen production fingerprint | `NEXT` | `PRD-047` |
+| Release-for-production state | `SHIPPED` | Separate production gate, override reason, and frozen packet fingerprint. |
+| Proposal gate | `SHIPPED` | Full layout, geometry, commercial, and view checklist. |
+| Separate production gate | `SHIPPED` | `REV-003` |
+| Override reason | `SHIPPED` | `REV-008`, `REV-026` |
+| Frozen production fingerprint | `SHIPPED` | `PRD-047` |
 
 ### G.11 Reliability, accessibility, and operations
 

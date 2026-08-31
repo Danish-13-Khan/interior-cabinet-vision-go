@@ -183,7 +183,7 @@ export function drawCostingSection(
     for (const snap of report.review.history.slice(0, 8)) {
       y = ensurePageSpace(doc, y, 8, pageHeight, margin);
       doc.text(
-        `Rev ${snap.revision}  ·  ${JOB_STATUS_LABELS[snap.status]}  ·  ${new Date(snap.createdAt).toLocaleDateString()}  ·  cabinets ${snap.fingerprint.cabinetCount}  ·  sell Rs ${snap.fingerprint.sellTotal.toLocaleString()}${snap.releasedForProduction ? "  ·  RELEASED" : ""}`,
+        `Rev ${snap.revision}  ·  ${JOB_STATUS_LABELS[snap.status]}  ·  ${new Date(snap.createdAt).toLocaleDateString()}  ·  cabinets ${snap.fingerprint.cabinetCount}  ·  sell Rs ${snap.fingerprint.sellTotal.toLocaleString()}${snap.releasedForProduction ? "  ·  RELEASED" : ""}${snap.productionFingerprint ? `  ·  ${snap.productionFingerprint}` : ""}`,
         margin,
         y,
       );
