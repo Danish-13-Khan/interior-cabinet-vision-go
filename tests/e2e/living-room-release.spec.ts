@@ -34,7 +34,7 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   // The v2 shell uses the workflow step as its visible project-home control;
   // the legacy icon is deliberately hidden by the v2 chrome.
   await page.getByRole("button", { name: "1 · Start a project", exact: true }).click();
-  const recent = page.locator(".planner-v2-recents button").filter({
+  const recent = page.getByTestId("open-recent-project").filter({
     hasText: "Living Room Release Demo",
   });
   await expect(recent.locator("img")).toBeVisible();

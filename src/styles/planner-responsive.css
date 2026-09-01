@@ -111,7 +111,7 @@
   .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px) !important; min-width: min(100%, 340px); max-width: 340px; }
   .lr-product-shell-v2 .lr-plan-center,
   .lr-product-shell-v2 .lr-plan-canvas { min-width: 0; }
-  .lr-product-shell-v2 .planner-v2-review { display: none; }
+  .lr-product-shell-v2 .planner-v2-review { width: min(280px, 100%); min-width: 0; }
 }
 
 /* Phone: stack catalog above canvas so Design/Review stay usable without a 520px lock. */
@@ -154,7 +154,6 @@
 }
 
 @media (max-width: 1040px) {
-  .lr-product-shell-v2 .planner-v2-review { display: none; }
   .lr-product-shell-v2 .lr-render-body { grid-template-columns: minmax(0, 1fr) 230px; }
 }
 

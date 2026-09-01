@@ -71,7 +71,7 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
           {recentProjects.length ? <div>{recentProjects.map((entry) => {
             const document = entry.project.interiorDocument!;
             const preview = entry.thumbnail || createLivingRoomPlanThumbnail(document);
-            return <button type="button" key={entry.id} onClick={() => workspace.onOpenRecentProject(entry.id)}>
+            return <button type="button" key={entry.id} data-testid="open-recent-project" onClick={() => workspace.onOpenRecentProject(entry.id)}>
               <img src={preview} alt="" /><strong>{entry.name}</strong><small>{document.objects.length} furniture objects · {document.rooms.length} room</small>
             </button>;
           })}</div> : <p>Save a project to keep it here for quick access.</p>}

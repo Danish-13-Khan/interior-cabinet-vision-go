@@ -90,6 +90,20 @@ export async function saveAndReopenGoldenRun(page: Page) {
   return target;
 }
 
+export async function approveAndSendToEngineering(page: Page) {
+  const handoff = page.locator(".engineering-handoff");
+  await expect(handoff).toBeVisible();
+  const approve = page.getByTestId("approve-engineering-revision");
+  await expect(approve).toBeEnabled();
+  await approve.scrollIntoViewIfNeeded();
+  await approve.click();
+  await expect(page.getByTestId("handoff-approved")).toBeVisible();
+  const send = page.getByTestId("send-to-engineering");
+  await expect(send).toBeEnabled();
+  await send.scrollIntoViewIfNeeded();
+  await send.click();
+}
+
 export async function expandEngineeringTree(page: Page) {
   const expand = page.locator(".cabinet-tree-twist:not(.is-leaf):not([disabled])[aria-label='Expand']");
   for (let step = 0; step < 24 && (await expand.count()) > 0; step += 1) {
