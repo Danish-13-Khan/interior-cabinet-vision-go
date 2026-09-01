@@ -15,11 +15,13 @@ import { CompiledNodeView } from "./CompiledNodeView";
 import { RendererColorPipeline } from "./RendererColorPipeline";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
+import { modelNodeIsSelected, modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
   selectedIds: string[];
   selectedOpeningId?: string | null;
+  selectedWallId?: string | null;
   activeCameraId: string | null;
   viewPreset?: ModelViewPresetId;
   cameraHeightMm?: number;
@@ -36,16 +38,25 @@ type SceneRendererProps = {
   windowKeyScale?: number;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening?: (openingId: string) => void;
+  onSelectWall?: (wallId: string) => void;
   onClearSelection?: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onExitWalkthrough?: () => void;
 };
 
+function wallFragmentArea(node: CompiledLivingRoomScene["nodes"][number]) {
+  return node.primitives.reduce((area, primitive) => {
+    if (primitive.kind !== "box" && primitive.kind !== "rounded-box") return area;
+    return area + primitive.sizeMm.width * primitive.sizeMm.height;
+  }, 0);
+}
+
 export function CompiledSceneRenderer({
   scene,
   selectedIds,
   selectedOpeningId = null,
+  selectedWallId = null,
   activeCameraId,
   viewPreset,
   cameraHeightMm,
@@ -62,6 +73,7 @@ export function CompiledSceneRenderer({
   windowKeyScale = 1,
   onSelect,
   onSelectOpening = () => {},
+  onSelectWall = () => {},
   onClearSelection = () => onSelect(null),
   onMove,
   onMechanismClick,
@@ -92,6 +104,12 @@ export function CompiledSceneRenderer({
   const nodes = filterModelReviewNodes(
     scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling,
   );
+  const selectedWallLabelNodeId = selectedWallId
+    ? nodes
+      .filter((node) => modelSelectionTarget(node)?.kind === "wall"
+        && node.metadata.wallId === selectedWallId)
+      .sort((left, right) => wallFragmentArea(right) - wallFragmentArea(left))[0]?.id ?? null
+    : null;
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
   const lightingQuality = lightingQualityOverride
@@ -132,13 +150,19 @@ export function CompiledSceneRenderer({
           key={node.id}
           node={node}
           materials={materialMap}
-          selected={Boolean((node.sourceObjectId && selectedIds.includes(node.sourceObjectId))
-            || node.metadata.openingId === selectedOpeningId)}
+          selected={modelNodeIsSelected(node, {
+            objectIds: selectedIds,
+            openingId: selectedOpeningId,
+            wallId: selectedWallId,
+          })}
           snapSizeMm={snapSizeMm}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          showSelectedLabel={modelSelectionTarget(node)?.kind !== "wall"
+            || node.id === selectedWallLabelNodeId}
           onSelect={onSelect}
           onSelectOpening={onSelectOpening}
+          onSelectWall={onSelectWall}
           onClearSelection={onClearSelection}
           onMove={onMove}
           onDragStateChange={setDragging}

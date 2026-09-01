@@ -51,7 +51,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   useEffect(() => {
     if (!props.project) return;
-    setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : props.project!.walls[0]?.id ?? null);
+    setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
   }, [props.project]);
 
@@ -65,6 +65,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onRotateSelection: props.onRotateSelection,
     onNudge: props.onNudge,
     onClearSelection: () => {
+      setActiveWallId(null);
       setActiveOpeningId(null);
       setActiveSurfaceId(null);
       props.onSelect(null);

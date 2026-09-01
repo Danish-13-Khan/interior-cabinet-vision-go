@@ -35,7 +35,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onApplyMaterialToSelection={w.onApplyMaterialToSelection}
           onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
-          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
+          onSelect={(objectId) => {
+            props.setActiveOpeningId(null);
+            props.setActiveSurfaceId(null);
+            props.setActiveWallId(null);
+            w.onSelect(objectId);
+          }}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
           onActiveRoom={(roomId) => {
@@ -49,13 +54,17 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onMergeRooms={w.onMergeRooms}
           onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
           activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-          onActiveWall={(wallId) => props.setActiveWallId(wallId)}
+          onActiveWall={(wallId) => {
+            w.onSelect(null);
+            props.setActiveOpeningId(null);
+            props.setActiveSurfaceId(null);
+            props.setActiveWallId(wallId);
+          }}
           onActiveOpening={(openingId) => {
             w.onSelect(null);
             props.setActiveOpeningId(openingId);
             props.setActiveSurfaceId(null);
-            const opening = project.openings.find((item) => item.id === openingId);
-            if (opening) props.setActiveWallId(opening.wallId);
+            props.setActiveWallId(null);
           }}
           onAddOpening={(wallId, kind) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, catalogItemId: build.openingCatalogItemId })}
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
@@ -119,25 +128,36 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         exportStatus={props.millwork.status} autosaveState={w.autosaveState} lastAutosavedAt={w.lastAutosavedAt}
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-        onSelect={(objectId, additive) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
+        onSelect={(objectId, additive) => {
+          props.setActiveOpeningId(null);
+          props.setActiveSurfaceId(null);
+          props.setActiveWallId(null);
+          w.onSelect(objectId, additive);
+        }}
         onClearSelection={() => {
           props.setActiveOpeningId(null);
           props.setActiveSurfaceId(null);
+          props.setActiveWallId(null);
           w.onSelect(null);
         }}
         onMove={w.onMove} onResize={w.onResize}         activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
         activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
-        onSelectWall={(wallId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); props.setActiveWallId(wallId); }}
+        onSelectWall={(wallId) => {
+          w.onSelect(null);
+          props.setActiveOpeningId(null);
+          props.setActiveSurfaceId(null);
+          props.setActiveWallId(wallId);
+        }}
         onSelectOpening={(openingId) => {
           w.onSelect(null);
           props.setActiveOpeningId(openingId);
           props.setActiveSurfaceId(null);
-          const opening = project.openings.find((item) => item.id === openingId);
-          if (opening) props.setActiveWallId(opening.wallId);
+          props.setActiveWallId(null);
         }}
         onSelectSurface={(surfaceId) => {
           props.setActiveSurfaceId(surfaceId);
           props.setActiveOpeningId(null);
+          props.setActiveWallId(null);
           w.onSelect(null);
         }}
         onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
