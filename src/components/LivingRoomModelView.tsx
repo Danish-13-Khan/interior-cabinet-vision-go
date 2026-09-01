@@ -39,10 +39,12 @@ type LivingRoomModelViewProps = {
   project: InteriorProject;
   selectedIds: string[];
   activeOpeningId: string | null;
+  activeWallId: string | null;
   snapSizeMm: number;
   showGrid: boolean;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
+  onSelectWall: (wallId: string) => void;
   onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
@@ -54,10 +56,12 @@ export function LivingRoomModelView({
   project,
   selectedIds,
   activeOpeningId,
+  activeWallId,
   snapSizeMm,
   showGrid,
   onSelect,
   onSelectOpening,
+  onSelectWall,
   onClearSelection,
   onMove,
   onSetRotation,
@@ -127,7 +131,7 @@ export function LivingRoomModelView({
         }}
         onViewportQuality={setViewportQuality}
         onOpenGuide={() => setShowGuide(true)}
-        hasSelection={selectedIds.length > 0 || Boolean(activeOpeningId)}
+        hasSelection={selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId)}
         onClearSelection={onClearSelection}
       />
       <ModelViewScene
@@ -140,6 +144,7 @@ export function LivingRoomModelView({
         windowKeyScale={modelViewWindowKeyScale(viewportQuality)}
         selectedIds={selectedIds}
         activeOpeningId={activeOpeningId}
+        activeWallId={activeWallId}
         activeCameraId={activeCameraId}
         viewPreset={viewPreset}
         cameraHeightMm={cameraOverrides.cameraHeightMm}
@@ -150,6 +155,7 @@ export function LivingRoomModelView({
         onClearSelection={onClearSelection}
         onSelect={onSelect}
         onSelectOpening={onSelectOpening}
+        onSelectWall={onSelectWall}
         onMove={onMove}
         onExitWalkthrough={exitWalkthrough}
         onMechanismClick={(objectId, primitiveId) => {

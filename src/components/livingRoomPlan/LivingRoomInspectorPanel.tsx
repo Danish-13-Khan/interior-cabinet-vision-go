@@ -78,7 +78,8 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSetCeilingMaterial={props.onSetCeilingMaterial} onRaiseWalls={props.onRaiseWalls}
             onOffsetWall={props.onOffsetWall} onOffsetLoop={props.onOffsetLoop}
             onSetWallPlan={props.onSetWallPlan} onImportFinish={props.onImportFinish}
-            onSetFinishUv={props.onSetFinishUv} unit={props.unit} />
+            onSetFinishUv={props.onSetFinishUv} unit={props.unit}
+            suppressEmptyWall={Boolean(activeOpening)} />
         ) : (
           <section className="lr-inspector-empty">
             <h3>Room</h3>

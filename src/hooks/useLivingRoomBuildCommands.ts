@@ -135,7 +135,7 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
     if (!input.project || !pendingOpeningWallId) return;
     const opening = [...input.project.openings].reverse().find((item) => item.wallId === pendingOpeningWallId);
     if (!opening) return;
-    input.setActiveWallId(opening.wallId);
+    input.setActiveWallId(null);
     input.setActiveOpeningId(opening.id);
     setPendingOpeningWallId(null);
   }, [pendingOpeningWallId, input.project]);

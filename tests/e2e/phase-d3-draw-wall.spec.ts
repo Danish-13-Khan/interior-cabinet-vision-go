@@ -1,7 +1,10 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 async function openPlan(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
+  });
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
@@ -15,6 +18,16 @@ async function pointOnPaper(paper: Locator, x: number, y: number) {
 
 async function armDrawWall(page: Page) {
   await page.locator('[data-build-tool="draw-wall"]').click();
+}
+
+async function pickModelEntity(page: Page, id: string) {
+  await expect.poll(
+    () => page.evaluate((pickId) => Boolean(window.__lrModelPickApi?.raycastHitsPickId(pickId)), id),
+    { timeout: 15_000 },
+  ).toBe(true);
+  const point = await page.evaluate((pickId) => window.__lrModelPickApi!.screenPointForPickId(pickId), id);
+  expect(point).toBeTruthy();
+  await page.mouse.click(point!.x, point!.y);
 }
 
 test("D3 draws a wall segment and supports undo", async ({ page }) => {
@@ -31,9 +44,17 @@ test("D3 draws a wall segment and supports undo", async ({ page }) => {
   await page.mouse.up();
 
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialCount + 1);
-  await expect(page.locator("[data-wall-id]").last()).toHaveAttribute("data-raised", "true");
+  const drawnWall = page.locator("[data-wall-id]").last();
+  await expect(drawnWall).toHaveAttribute("data-raised", "true");
+  const wallId = await drawnWall.getAttribute("data-wall-id");
+  expect(wallId).toBeTruthy();
   await expect(page.locator(".lr-wall-drawing-overlay line")).toHaveCount(0);
 
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  await pickModelEntity(page, wallId!);
+  await expect(page.locator(".inspector-header")).toContainText("Wall selected");
+
+  await page.getByRole("button", { name: "2D", exact: true }).click();
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialCount);
 });
