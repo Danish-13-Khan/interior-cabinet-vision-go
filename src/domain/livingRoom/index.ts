@@ -205,6 +205,17 @@ export {
   LIVING_ROOM_RELEASE_DEMO_ID,
 } from "./releaseDemo";
 export {
+  createGoldenCabinetRunProject,
+  GOLDEN_CABINET_RUN_ID,
+  GOLDEN_CABINET_RUN_NAME,
+  GOLDEN_CABINET_RUN_NOW,
+  GOLDEN_RUN_OBJECT_IDS,
+  GOLDEN_RUN_STAGES,
+  GOLDEN_RUN_COUNTERTOP_ID,
+  listGoldenSceneCabinets,
+  listGoldenSceneCountertops,
+} from "./goldenRun";
+export {
   createPhase1BenchmarkProject,
   describePhase1LatencyEnvironment,
   getPhase1BenchmarkDefinition,
@@ -312,6 +323,8 @@ export {
   exportMillworkSchedulePdf,
   formatMaterialIds,
   formatMaterialLabels,
+  cutlistWidthSumMm,
+  formatCutlistPartCount,
   formatWhdMm,
   millworkScheduleFileBase,
   millworkScheduleToCsv,
@@ -373,6 +386,11 @@ export {
   rotateLivingRoomObject,
   type LivingRoomAlignMode,
 } from "./planCommands";
+export {
+  cabinetFinishId,
+  persistCabinetFinishOnObject,
+  setLivingRoomObjectParameters,
+} from "./cabinetFinish";
 export {
   addLivingRoomOpening,
   deleteLivingRoomOpening,
@@ -478,6 +496,28 @@ export {
   type PreExportCheckItem,
   type PreExportChecklist,
 } from "./clientPresentation";
+export {
+  appendFrozenQuote,
+  buildLiveInteriorQuote,
+  buildProposalDocument,
+  buildProposalGate,
+  exportInteriorProposalPdf,
+  freezeLiveQuote,
+  isProposalExportBlocked,
+  listProposalNamedViews,
+  patchProposalJob,
+  patchProposalQuoteSettings,
+  proposalFileName,
+  readProposalCommercial,
+  setProposalSelectedViews,
+  setProposalStaleOverride,
+  toggleProposalView,
+  verifyProposalPdf,
+  type LiveInteriorQuote,
+  type ProposalDocument,
+  type ProposalGate,
+  type ProposalNamedView,
+} from "./proposal";
 export {
   compileLivingRoomScene,
 } from "./sceneCompiler";

@@ -61,6 +61,13 @@ export {
   interiorProjectFromCabinetProject,
 } from "./cabinetAdapter";
 export { emptyCabinetProjectFromInterior } from "./emptyCabinetCompat";
+export { interiorProjectFileName, isDefaultCabinetJob } from "./cabinetAdapterIds";
+export {
+  diagnoseDocumentIdentity,
+  diagnoseInteriorCabinets,
+  type AdapterDiagnostic,
+  type AdapterDiagnosticReport,
+} from "../cabinetIdentity";
 export {
   createInteriorProjectFile,
   loadInteriorProjectFile,

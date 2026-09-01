@@ -31,7 +31,6 @@ export function useAppController() {
     room: s.room,
     projectFilePath: s.projectFilePath,
     setProjectFilePath: s.setProjectFilePath,
-    cutlistItems: s.cutlistItems,
     planningWorkflow: s.planningWorkflow,
     applySnapshot: s.applySnapshot,
     onStatus: s.setProjectStatus,
@@ -220,7 +219,9 @@ export function useAppController() {
       s.setLayout({
         sheetBrowserVisible: !s.layout.sheetBrowserVisible,
       }),
-    onLoadProject: fileIo.handleLoadProject,
+    onLoadProject: async () => {
+      await fileIo.handleLoadProject();
+    },
     onSaveProject: fileIo.handleSaveProject,
     onExportProjectJson: fileIo.handleExportProjectJson,
     onExportCutlistCsv: fileIo.handleExportCutlistCsv,

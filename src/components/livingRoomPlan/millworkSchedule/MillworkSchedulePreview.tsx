@@ -3,7 +3,12 @@ import type {
   MillworkWorkflowSnapshot,
 } from "../../../domain/livingRoom/millworkSchedule";
 import type { ProjectReport } from "../../../domain/projectReport";
-import { formatMaterialLabels, formatWhdMm } from "../../../domain/livingRoom/millworkSchedule";
+import {
+  cutlistWidthSumMm,
+  formatCutlistPartCount,
+  formatMaterialLabels,
+  formatWhdMm,
+} from "../../../domain/livingRoom/millworkSchedule";
 
 type MillworkSchedulePreviewProps = {
   schedule: MillworkSchedule;
@@ -38,8 +43,12 @@ export function MillworkSchedulePreview({
       {productionReport ? (
         <div className="lr-production-summary" aria-label="Advanced production output summary">
           <strong>Advanced · Production packet</strong>
-          <span>
-            {productionReport.cabinetSchedule.length} cabinet marks · {productionReport.productionCutlist.length} cut parts
+          <span data-testid="cutlist-part-count">
+            {formatCutlistPartCount(
+              productionReport.cabinetSchedule.length,
+              productionReport.productionCutlist.length,
+              cutlistWidthSumMm(productionReport.productionCutlist),
+            )}
           </span>
           <span>
             Workshop estimate ₹{productionReport.projectCost.grandTotal.toLocaleString()} · {productionReport.summary.runCount} technical run{productionReport.summary.runCount === 1 ? "" : "s"}

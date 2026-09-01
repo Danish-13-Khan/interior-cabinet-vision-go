@@ -6,7 +6,7 @@ import { resolvePackageCameraViews } from "../packageCameraBookmarks";
 export type PreExportCheckStatus = "pass" | "fail" | "warn";
 
 export type PreExportCheckItem = {
-  id: "layout-clear" | "millwork-placed" | "package-deck" | "accepted-stills" | "layout-advisories";
+  id: "layout-clear" | "millwork-placed" | "package-deck" | "accepted-stills" | "layout-advisories" | "cabinet-geometry";
   label: string;
   detail: string;
   status: PreExportCheckStatus;
@@ -26,6 +26,7 @@ export type PreExportChecklistInput = {
   millworkCount: number;
   packageDeckCount: number;
   acceptedStillCount: number;
+  geometryFallbackIds?: string[];
 };
 
 function uniqueIds(ids: string[]) {
@@ -45,6 +46,7 @@ export function buildPreExportChecklist(input: PreExportChecklistInput): PreExpo
   const blocking = input.issues.filter(isBlockingLivingRoomPlanIssue);
   const advisories = input.issues.filter((issue) => !isBlockingLivingRoomPlanIssue(issue));
   const millworkReady = input.millworkCount > 0;
+  const fallbackIds = uniqueIds(input.geometryFallbackIds ?? []);
 
   const items: PreExportCheckItem[] = [
     {
@@ -86,6 +88,16 @@ export function buildPreExportChecklist(input: PreExportChecklistInput): PreExpo
       status: input.acceptedStillCount ? "pass" : "warn",
       blocking: false,
       objectIds: [],
+    },
+    {
+      id: "cabinet-geometry",
+      label: "Cabinet geometry",
+      detail: fallbackIds.length
+        ? `${fallbackIds.length} cabinet${fallbackIds.length === 1 ? "" : "s"} using a labeled fallback`
+        : "Shared cabinet geometry compiled",
+      status: fallbackIds.length ? "fail" : "pass",
+      blocking: true,
+      objectIds: fallbackIds,
     },
     {
       id: "layout-advisories",

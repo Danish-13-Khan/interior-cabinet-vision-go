@@ -7,6 +7,7 @@
     "dev": "vite",
     "test": "vitest run src",
     "test:e2e": "playwright test",
+    "test:golden": "playwright test tests/e2e/golden-cabinet-run.spec.ts tests/e2e/living-room-release.spec.ts --project=chromium",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "assets:curated": "node scripts/curated-assets/generate-pack.mjs",
@@ -39,12 +40,14 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^0.1.80",
     "@playwright/test": "^1.62.1",
     "@tauri-apps/cli": "^2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/three": "^0.185.1",
     "@vitejs/plugin-react": "^4.6.0",
+    "pdfjs-dist": "^4.10.38",
     "typescript": "~5.8.3",
     "vite": "^6.4.1",
     "vitest": "^1.6.1"

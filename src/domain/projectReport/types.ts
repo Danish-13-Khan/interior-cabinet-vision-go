@@ -9,6 +9,7 @@ import type { ProjectQuote } from "../projectQuote";
 import type { QuoteSnapshot } from "../quoteSettings";
 import type { ProjectSheetYield } from "../sheetYield";
 import type { CabinetHardwareSummary, HardwareScheduleRow } from "../hardwareSystem";
+import type { AdapterDiagnostic } from "../cabinetIdentity";
 import type { ProjectReviewState, RevisionFingerprint } from "../projectReview";
 
 export type CabinetScheduleRow = {
@@ -16,6 +17,8 @@ export type CabinetScheduleRow = {
   cabinetId: string;
   cabinetName: string;
   typeLabel: string;
+  familyId: string | null;
+  familyLabel: string | null;
   widthMm: number;
   heightMm: number;
   depthMm: number;
@@ -26,6 +29,7 @@ export type CabinetScheduleRow = {
   totalCost: number;
   runId: string | null;
   runLabel: string | null;
+  constructionLabel: string;
 };
 
 export type RunSummaryRow = {
@@ -38,6 +42,7 @@ export type RunSummaryRow = {
   lengthMm: number;
   fillerCount: number;
   countertopCount: number;
+  countertopIds: string[];
   hasCorner: boolean;
 };
 
@@ -89,4 +94,6 @@ export type ProjectReport = {
   review: ProjectReviewState;
   currentFingerprint: RevisionFingerprint;
   packetSections: Array<{ id: string; title: string; description: string }>;
+  identityDiagnostics: AdapterDiagnostic[];
+  productionBlocked: boolean;
 };

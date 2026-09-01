@@ -48,6 +48,7 @@ export type LivingRoomPlanWorkspaceProps = {
   recentProjects: SavedProjectBrowserEntry[];
   onCreateStarter: (options?: { projectName?: string; styleId?: LivingRoomStyleId; template?: PlannerStarterTemplate }) => void;
   onOpenDemo: () => void;
+  onOpenGoldenRun: () => void;
   onOpenPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => void;
   onOpenProjectHome: () => void;
   onCloseProjectHome: () => void;
@@ -110,6 +111,12 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
+  onPatchDocument: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+    cabinetIds?: string[],
+  ) => void;
+  onEnterEngineering: (cabinetIds: string[]) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onUndo: () => void;

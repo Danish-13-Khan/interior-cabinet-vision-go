@@ -1,4 +1,5 @@
 import type { InteriorObjectEntity, WallEntity } from "../interiorProject";
+import { resolveWallMountHeightMm } from "./cabinetSceneMount";
 
 export type WallPlacement = {
   wallId: string;
@@ -21,7 +22,7 @@ export function placementAt(wall: WallEntity, object: InteriorObjectEntity, offs
     wallId: wall.id,
     position: {
       x: wall.start.x + ux * clamped + nx * (wall.thicknessMm / 2 + object.dimensions.depthMm / 2),
-      y: 0,
+      y: resolveWallMountHeightMm(object),
       z: wall.start.z + uz * clamped + nz * (wall.thicknessMm / 2 + object.dimensions.depthMm / 2),
     },
     rotationY: Math.round((Math.atan2(nx, nz) * 180) / Math.PI) || 0,

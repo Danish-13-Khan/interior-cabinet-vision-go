@@ -12,7 +12,7 @@ describe("I5 paint selection", () => {
     const b = createLivingRoomObject("living:wall-cabinet-900", {
       id: "b", roomId: project.activeRoomId, position: { x: 900, y: 0, z: 0 },
     });
-    expect(commonMaterialSlots([a, b]).sort()).toEqual(["carcass", "fronts"]);
+    expect(commonMaterialSlots([a, b]).sort()).toEqual(["back", "carcass", "fronts", "shelves"]);
   });
 
   it("applies one material to the shared slot on every selected object", () => {

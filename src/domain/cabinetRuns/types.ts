@@ -28,6 +28,7 @@ export type CountertopSegment = {
   id: string;
   runId: string;
   cabinetIds: string[];
+  axis: CabinetRunAxis;
   widthMm: number;
   depthMm: number;
   thicknessMm: number;

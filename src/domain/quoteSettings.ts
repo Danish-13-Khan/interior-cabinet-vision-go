@@ -1,3 +1,5 @@
+export type QuotePriceDetail = "summary" | "itemized";
+
 export type QuoteSettings = {
   markupPercent: number;
   taxPercent: number;
@@ -8,6 +10,8 @@ export type QuoteSettings = {
   inclusions: string;
   exclusions: string;
   currencyLabel: string;
+  taxLabel: string;
+  priceDetail: QuotePriceDetail;
 };
 
 export const DEFAULT_QUOTE_SETTINGS: QuoteSettings = {
@@ -17,9 +21,11 @@ export const DEFAULT_QUOTE_SETTINGS: QuoteSettings = {
   validityDays: 30,
   labourAllowance: 0,
   finishPremiumPercent: 10,
-  inclusions: "Cabinets, hardware, and workshop labour as itemized.",
+  inclusions: "Cabinets, hardware, and specified finishes as shown.",
   exclusions: "Site installation, appliances, plumbing, and electrical not included.",
   currencyLabel: "INR",
+  taxLabel: "GST",
+  priceDetail: "summary",
 };
 
 export function clampQuoteSettings(
@@ -43,6 +49,8 @@ export function clampQuoteSettings(
     inclusions: String(seed.inclusions ?? DEFAULT_QUOTE_SETTINGS.inclusions).trim().slice(0, 400),
     exclusions: String(seed.exclusions ?? DEFAULT_QUOTE_SETTINGS.exclusions).trim().slice(0, 400),
     currencyLabel: String(seed.currencyLabel ?? "INR").trim().slice(0, 12) || "INR",
+    taxLabel: String(seed.taxLabel ?? DEFAULT_QUOTE_SETTINGS.taxLabel).trim().slice(0, 16) || "GST",
+    priceDetail: seed.priceDetail === "itemized" ? "itemized" : "summary",
   };
 }
 
@@ -67,6 +75,13 @@ export type QuoteSnapshot = {
   labourAllowance: number;
   hardwareAllowance: number;
   summaryLines: QuoteSnapshotSummaryLine[];
+  designFingerprint?: string;
+  currencyLabel?: string;
+  taxLabel?: string;
+  priceDetail?: QuotePriceDetail;
+  inclusions?: string;
+  exclusions?: string;
+  validUntil?: string | null;
 };
 
 export const MAX_QUOTE_HISTORY = 12;
@@ -111,6 +126,27 @@ export function clampQuoteSnapshot(
     labourAllowance: Math.max(0, Math.round(Number(snapshot.labourAllowance) || 0)),
     hardwareAllowance: Math.max(0, Math.round(Number(snapshot.hardwareAllowance) || 0)),
     summaryLines,
+    designFingerprint: snapshot.designFingerprint
+      ? String(snapshot.designFingerprint).trim().slice(0, 64)
+      : undefined,
+    currencyLabel: snapshot.currencyLabel
+      ? String(snapshot.currencyLabel).trim().slice(0, 12)
+      : undefined,
+    taxLabel: snapshot.taxLabel
+      ? String(snapshot.taxLabel).trim().slice(0, 16)
+      : undefined,
+    priceDetail: snapshot.priceDetail === "itemized" ? "itemized" : snapshot.priceDetail === "summary"
+      ? "summary"
+      : undefined,
+    inclusions: snapshot.inclusions
+      ? String(snapshot.inclusions).trim().slice(0, 400)
+      : undefined,
+    exclusions: snapshot.exclusions
+      ? String(snapshot.exclusions).trim().slice(0, 400)
+      : undefined,
+    validUntil: snapshot.validUntil ? String(snapshot.validUntil) : snapshot.validUntil === null
+      ? null
+      : undefined,
   };
 }
 

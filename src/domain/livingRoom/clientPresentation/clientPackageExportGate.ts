@@ -12,6 +12,7 @@ export function isClientPackageExportBlocked(
     millworkCount?: number;
     packageDeckCount?: number;
     acceptedStillCount?: number;
+    geometryFallbackIds?: string[];
   } = {},
 ): boolean {
   return isPreExportBlocked(
@@ -20,6 +21,7 @@ export function isClientPackageExportBlocked(
       millworkCount: extras.millworkCount ?? (readyToExport ? 1 : 0),
       packageDeckCount: extras.packageDeckCount ?? 0,
       acceptedStillCount: extras.acceptedStillCount ?? 0,
+      geometryFallbackIds: extras.geometryFallbackIds,
     }),
   );
 }
