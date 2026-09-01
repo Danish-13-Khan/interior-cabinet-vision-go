@@ -42,10 +42,16 @@ jobs:
         env:
           GITHUB_PAGES: "true"
 
+      - name: Add standalone UI mockups
+        run: |
+          mkdir -p dist/mockups
+          cp docs/mockups/interiors-chrome-mockups.html dist/mockups/
+
       - name: Verify build output
         run: |
           test -f dist/index.html
           test -d dist/assets
+          test -f dist/mockups/interiors-chrome-mockups.html
           touch dist/.nojekyll
           echo "Build OK — publishing to gh-pages"
 
