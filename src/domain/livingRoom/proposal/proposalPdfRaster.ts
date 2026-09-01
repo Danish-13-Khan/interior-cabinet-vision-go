@@ -27,11 +27,12 @@ export type RasterizedPdfPage = {
 
 const RENDER_SCALE = 2;
 
+type NodeCreateRequire = (url: string) => { resolve: (id: string) => string };
+
 async function ensurePdfWorker() {
   if (GlobalWorkerOptions.workerSrc) return;
-  const { createRequire } = await import("node:module") as unknown as {
-    createRequire: (url: string) => { resolve: (id: string) => string };
-  };
+  const nodeModule = "node:module";
+  const { createRequire } = (await import(nodeModule)) as { createRequire: NodeCreateRequire };
   GlobalWorkerOptions.workerSrc = createRequire(import.meta.url).resolve(
     "pdfjs-dist/legacy/build/pdf.worker.mjs",
   );
