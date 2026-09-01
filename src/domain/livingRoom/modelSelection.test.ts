@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CompiledSceneNode } from "./sceneTypes";
-import { modelSelectionTarget } from "./modelSelection";
+import { modelNodeIsSelected, modelSelectionTarget } from "./modelSelection";
 
 function node(patch: Partial<CompiledSceneNode>): CompiledSceneNode {
   return {
@@ -28,7 +28,19 @@ describe("model selection target", () => {
     });
   });
 
-  it("ignores architecture nodes without an editable entity", () => {
-    expect(modelSelectionTarget(node({ metadata: { role: "wall" } }))).toBeNull();
+  it("maps wall nodes and ignores architecture without an editable entity", () => {
+    expect(modelSelectionTarget(node({ metadata: { role: "wall", wallId: "wall-1" } }))).toEqual({
+      kind: "wall", id: "wall-1",
+    });
+    expect(modelSelectionTarget(node({ metadata: { role: "floor" } }))).toBeNull();
+  });
+
+  it("does not select a hosted opening when its wall is selected", () => {
+    const wall = node({ metadata: { role: "wall", wallId: "wall-1" } });
+    const opening = node({ metadata: { role: "opening", openingId: "door-1", wallId: "wall-1" } });
+    const wallSelection = { objectIds: [], openingId: null, wallId: "wall-1" };
+    expect(modelNodeIsSelected(wall, wallSelection)).toBe(true);
+    expect(modelNodeIsSelected(opening, wallSelection)).toBe(false);
+    expect(modelNodeIsSelected(opening, { ...wallSelection, openingId: "door-1", wallId: null })).toBe(true);
   });
 });

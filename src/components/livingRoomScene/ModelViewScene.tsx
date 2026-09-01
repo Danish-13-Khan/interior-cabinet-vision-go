@@ -20,6 +20,7 @@ type ModelViewSceneProps = {
   windowKeyScale: number;
   selectedIds: string[];
   activeOpeningId: string | null;
+  activeWallId: string | null;
   activeCameraId: string | null;
   viewPreset: ModelViewPresetId;
   cameraHeightMm?: number;
@@ -30,6 +31,7 @@ type ModelViewSceneProps = {
   onClearSelection: () => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
+  onSelectWall: (wallId: string) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
@@ -45,6 +47,7 @@ export function ModelViewScene({
   windowKeyScale,
   selectedIds,
   activeOpeningId,
+  activeWallId,
   activeCameraId,
   viewPreset,
   cameraHeightMm,
@@ -55,6 +58,7 @@ export function ModelViewScene({
   onClearSelection,
   onSelect,
   onSelectOpening,
+  onSelectWall,
   onMove,
   onExitWalkthrough,
   onMechanismClick,
@@ -72,6 +76,7 @@ export function ModelViewScene({
           scene={scene}
           selectedIds={selectedIds}
           selectedOpeningId={activeOpeningId}
+          selectedWallId={activeWallId}
           activeCameraId={activeCameraId}
           viewPreset={viewPreset}
           cameraHeightMm={cameraHeightMm}
@@ -87,6 +92,7 @@ export function ModelViewScene({
           windowKeyScale={windowKeyScale}
           onSelect={onSelect}
           onSelectOpening={onSelectOpening}
+          onSelectWall={onSelectWall}
           onClearSelection={onClearSelection}
           onMove={onMove}
           onExitWalkthrough={onExitWalkthrough}

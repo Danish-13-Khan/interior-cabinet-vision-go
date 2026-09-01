@@ -46,14 +46,25 @@ async function pickLabel(page: Page, name: string) {
   await pick.click();
 }
 
+test("J2 keeps an opening selection isolated from its host wall", async ({ page }) => {
+  await openDesign(page);
+  await page.locator('[data-opening-id="lr-opening-picture-window"]').click();
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+
+  const inspector = page.locator(".lr-inspector");
+  await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('[data-model-select="wall"].is-selected')).toHaveCount(0);
+  await expect(inspector.locator(".lr-wall-inspector")).toHaveCount(0);
+});
+
 test("J2 selects via mesh and label, clears, and edits entities in 3D", async ({ page }) => {
   test.setTimeout(90_000);
   await openDesign(page);
 
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
-  const objectId = await page.locator("[data-object-id]").first().getAttribute("data-object-id");
+  const selectedPlanObject = page.locator("[data-object-id].is-selected").first();
+  const objectId = await selectedPlanObject.getAttribute("data-object-id");
   expect(objectId).toBeTruthy();
-  await page.locator("[data-object-id]").first().click();
   const openingId = await page.locator('[data-opening-id="lr-opening-picture-window"]').getAttribute("data-opening-id");
   expect(openingId).toBeTruthy();
 
@@ -72,9 +83,19 @@ test("J2 selects via mesh and label, clears, and edits entities in 3D", async ({
   await pickMesh(page, openingId!);
   await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible({ timeout: 10_000 });
   await expect(inspector.getByText("Selected Object", { exact: true })).toHaveCount(0);
+  await expect(page.locator('[data-model-select="wall"].is-selected')).toHaveCount(0);
+  await expect(inspector.locator(".lr-wall-inspector")).toHaveCount(0);
 
   await pickLabel(page, "Fixed Window");
   await expect(inspector.getByText("Selected Opening", { exact: true })).toBeVisible();
+  await expect(page.locator('[data-model-select="wall"].is-selected')).toHaveCount(0);
+
+  await pickMesh(page, "lr-wall-left");
+  await page.mouse.move(50, 50);
+  await expect(page.locator(".inspector-header")).toContainText("Wall selected");
+  await expect(inspector.getByText("Selected Opening", { exact: true })).toHaveCount(0);
+  await expect(page.locator('[data-model-select="opening"].is-selected')).toHaveCount(0);
+  await expect(page.locator('[data-model-select="wall"].is-selected')).toHaveCount(1);
 
   await setCutaway(page, true);
   await pickMesh(page, objectId!);

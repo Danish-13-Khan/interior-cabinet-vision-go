@@ -17,6 +17,7 @@ test("D2 draws rectangle and closed polygon rooms through Build commands", async
   await page.mouse.move(end.x, end.y, { steps: 5 });
   await page.mouse.up();
   await expect(page.locator("[data-wall-id]")).toHaveCount(4);
+  await expect(page.locator('[data-wall-id][data-raised="true"]')).toHaveCount(4);
   await expect(page.locator("[data-room-floor]")).toBeVisible();
 
   for (const [x, y] of [[0.4, 0.4], [0.65, 0.42], [0.52, 0.65]]) {
@@ -26,6 +27,7 @@ test("D2 draws rectangle and closed polygon rooms through Build commands", async
   await expect(page.getByRole("button", { name: "Close polygon (3)", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Close polygon (3)", exact: true }).click();
   await expect(page.locator("[data-wall-id]")).toHaveCount(7);
+  await expect(page.locator('[data-wall-id][data-raised="true"]')).toHaveCount(7);
   await expect(page.locator("[data-room-floor]")).toBeVisible();
 
   await page.getByRole("button", { name: "Undo", exact: true }).click();

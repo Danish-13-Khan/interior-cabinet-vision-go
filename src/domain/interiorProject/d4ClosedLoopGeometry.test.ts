@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyPlannerStarterTemplate,
   compileLivingRoomScene,
   createLivingRoomStarterProject,
   inspectLivingRoomPlan,
@@ -19,7 +20,11 @@ const L_SHAPE = [
 ];
 
 function lRoomProject() {
-  return drawRoomFromPoints(createLivingRoomStarterProject({ now: NOW }), {
+  const blank = applyPlannerStarterTemplate(
+    createLivingRoomStarterProject({ now: NOW }),
+    "blank-room",
+  );
+  return drawRoomFromPoints(blank, {
     kind: "polygon",
     points: L_SHAPE,
   });
@@ -70,7 +75,7 @@ describe("D4 closed-loop room geometry", () => {
 
   it("flags furniture placed in an L-room cutout", () => {
     const project = lRoomProject();
-    const source = project.objects[0]!;
+    const source = createLivingRoomStarterProject({ now: NOW }).objects[0]!;
     const object = {
       ...source,
       id: "cutout-object",
@@ -89,17 +94,25 @@ describe("D4 closed-loop room geometry", () => {
   });
 
   it("snaps against arbitrary loop walls and reports wall guides", () => {
-    const project = drawRoomFromPoints(createLivingRoomStarterProject({ now: NOW }), {
+    const starter = createLivingRoomStarterProject({ now: NOW });
+    const blank = applyPlannerStarterTemplate(starter, "blank-room");
+    const project = drawRoomFromPoints(blank, {
       kind: "polygon",
       points: [{ x: 0, z: 0 }, { x: 3600, z: 600 }, { x: 3000, z: 2800 }, { x: 0, z: 2400 }],
     });
-    const source = project.objects[0]!;
-    const object = { ...source, id: "snap-object", roomId: project.activeRoomId };
+    const source = starter.objects[0]!;
+    const object = {
+      ...source,
+      id: "snap-object",
+      roomId: project.activeRoomId,
+      dimensions: { widthMm: 400, heightMm: 700, depthMm: 400 },
+    };
     const withObject = { ...project, objects: [...project.objects, object] };
-    const result = snapLivingRoomObject(withObject, object.id, { x: 0, y: 0, z: -1050 }, 50);
+    const desired = { x: 0, y: 0, z: -800 };
+    const result = snapLivingRoomObject(withObject, object.id, desired, 50);
 
     expect(result.guides.some((guide) => guide.kind === "wall")).toBe(true);
-    expect(result.position).not.toEqual({ x: 0, y: 0, z: -1050 });
+    expect(result.position).not.toEqual(desired);
   });
 
   it("rejects a self-crossing room boundary", () => {
