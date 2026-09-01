@@ -428,16 +428,20 @@ export function useLivingRoomPlanEditor({
       start: { x: 0, z: -room.dimensions.depthMm / 4 },
       end: { x: 0, z: room.dimensions.depthMm / 4 },
       kind: "partition",
+      raised: true,
     }).project, "Added partition wall.");
   }
 
   function drawRoom(drawing: RoomDrawingRequest) {
-    commitDocument((current) => ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, drawing)), `Created ${drawing.kind} room.`);
+    commitDocument(
+      (current) => ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, drawing, { raised: true })),
+      `Created ${drawing.kind} room.`,
+    );
   }
 
   function drawWallSegment(start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") {
     commitDocument((current) => createWallSegmentResult(current, {
-      start, end, kind: wallKind,
+      start, end, kind: wallKind, raised: true,
     }).project, wallKind === "partition" ? "Drew partition wall." : "Drew wall segment.");
   }
 
