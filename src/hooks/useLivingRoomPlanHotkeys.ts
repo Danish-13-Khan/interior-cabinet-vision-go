@@ -11,6 +11,7 @@ export function useLivingRoomPlanHotkeys({
   onRotateSelection,
   onNudge,
   onClearSelection,
+  onCycleSelection,
 }: {
   projectHomeOpen: boolean;
   snapSizeMm: number;
@@ -21,6 +22,7 @@ export function useLivingRoomPlanHotkeys({
   onRotateSelection: (delta: number) => void;
   onNudge: (dx: number, dz: number) => void;
   onClearSelection: () => void;
+  onCycleSelection?: (delta: 1 | -1) => void;
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -64,6 +66,11 @@ export function useLivingRoomPlanHotkeys({
         onRotateSelection(event.shiftKey ? -90 : 90);
         return;
       }
+      if ((event.key === "[" || event.key === "]") && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        onCycleSelection?.(event.key === "]" ? 1 : -1);
+        return;
+      }
       const amount = event.shiftKey ? snapSizeMm * 5 : snapSizeMm;
       if (event.key === "ArrowLeft") onNudge(-amount, 0);
       if (event.key === "ArrowRight") onNudge(amount, 0);
@@ -73,7 +80,7 @@ export function useLivingRoomPlanHotkeys({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
-    onClearSelection, onDelete, onDuplicate, onNudge, onRotateSelection, onView,
+    onClearSelection, onCycleSelection, onDelete, onDuplicate, onNudge, onRotateSelection, onView,
     projectHomeOpen, snapSizeMm, workspaceView,
   ]);
 }

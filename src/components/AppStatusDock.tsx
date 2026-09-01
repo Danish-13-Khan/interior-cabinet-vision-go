@@ -50,10 +50,11 @@ type AppStatusDockProps = {
   onAddReviewNote: (message: string, severity: ReviewNoteSeverity) => void;
   onResolveReviewNote: (noteId: string, resolved: boolean) => void;
   onApproveReview: (approvedBy: string) => void;
-  onReleaseForProduction: () => void;
+  onReleaseForProduction: (overrideReason?: string) => void;
   onExportRevisionSummary: () => void;
   approvalBlockedReasons: string[];
   releaseBlockedReasons: string[];
+  canOverrideRelease?: boolean;
   onOpenSheet?: (sheetId: string) => void;
   hud: import("../domain/desktopUx").ViewportHudState;
   onCycleSnap?: () => void;
@@ -96,6 +97,7 @@ export function AppStatusDock({
   onExportRevisionSummary,
   approvalBlockedReasons,
   releaseBlockedReasons,
+  canOverrideRelease = false,
   onOpenSheet,
   hud,
   onCycleSnap,
@@ -168,6 +170,7 @@ export function AppStatusDock({
         onExportRevisionSummary={onExportRevisionSummary}
         approvalBlockedReasons={approvalBlockedReasons}
         releaseBlockedReasons={releaseBlockedReasons}
+        canOverrideRelease={canOverrideRelease}
         sheets={sheets}
         onOpenSheet={onOpenSheet}
       />

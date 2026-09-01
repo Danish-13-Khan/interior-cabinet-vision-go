@@ -1,5 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import type { LatencyBuildMode } from "./latencyDeclaration";
+import { parseLatencyBuildMode } from "./latencyDeclaration";
 import type {
   Phase1LatencyAppSurface,
   Phase1LatencySample,
@@ -8,6 +10,7 @@ import type { Phase1AutomationReport } from "./evaluateAutomation";
 
 export type Phase1LatencySamplesFile = {
   machine: string;
+  buildMode?: LatencyBuildMode | "unspecified";
   appSurface?: Phase1LatencyAppSurface;
   substituteReason?: string;
   samples: Array<{
@@ -30,6 +33,7 @@ export function loadPhase1LatencySamples(cwd = process.cwd()): Phase1LatencySamp
   if (!existsSync(path)) return [];
   const raw = JSON.parse(readFileSync(path, "utf8")) as Phase1LatencySamplesFile;
   const machine = raw.machine?.trim() || "unspecified-machine";
+  const buildMode = parseLatencyBuildMode(raw.buildMode);
   const appSurface = raw.appSurface ?? "tauri-desktop";
   const substituteReason = raw.substituteReason?.trim() || undefined;
   return (raw.samples ?? [])
@@ -39,6 +43,7 @@ export function loadPhase1LatencySamples(cwd = process.cwd()): Phase1LatencySamp
       quality: sample.quality,
       elapsedMs: sample.elapsedMs as number,
       machine,
+      buildMode,
       appSurface,
       substituteReason,
     }));

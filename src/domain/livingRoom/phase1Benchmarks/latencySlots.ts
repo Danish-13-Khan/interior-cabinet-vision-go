@@ -11,6 +11,7 @@ export function expectedPhase1LatencySlots() {
 export function buildLatencySamplesTemplate(machine = "") {
   return {
     appSurface: "tauri-desktop" as const,
+    buildMode: "release" as const,
     substituteReason: "",
     machine: machine || "Apple Silicon · macOS · ≥16 GB · plugged in (fill chip)",
     samples: expectedPhase1LatencySlots().map((slot) => ({

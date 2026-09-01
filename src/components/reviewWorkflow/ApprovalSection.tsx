@@ -1,10 +1,13 @@
+import { useState } from "react";
+
 type ApprovalSectionProps = {
   approvedBy: string;
   onApprovedByChange: (value: string) => void;
   onApprove: () => void;
-  onRelease: () => void;
+  onRelease: (overrideReason?: string) => void;
   approvalBlockedReasons: string[];
   releaseBlockedReasons: string[];
+  canOverrideRelease: boolean;
 };
 
 export function ApprovalSection({
@@ -14,7 +17,12 @@ export function ApprovalSection({
   onRelease,
   approvalBlockedReasons,
   releaseBlockedReasons,
+  canOverrideRelease,
 }: ApprovalSectionProps) {
+  const [overrideReason, setOverrideReason] = useState("");
+  const releaseHardBlocked = releaseBlockedReasons.length > 0 && !canOverrideRelease;
+  const releaseNeedsReason = canOverrideRelease && !overrideReason.trim();
+
   return (
     <section className="review-section">
       <h3>Approval & release</h3>
@@ -37,9 +45,9 @@ export function ApprovalSection({
         <button
           type="button"
           className="tb-btn tb-accent"
-          disabled={releaseBlockedReasons.length > 0}
+          disabled={releaseHardBlocked || releaseNeedsReason}
           title={releaseBlockedReasons.join("; ") || "Release for production"}
-          onClick={onRelease}
+          onClick={() => onRelease(canOverrideRelease ? overrideReason : undefined)}
         >
           Release for Production
         </button>
@@ -48,7 +56,22 @@ export function ApprovalSection({
         <p className="helper-note">Approval blocked: {approvalBlockedReasons.join("; ")}</p>
       ) : null}
       {releaseBlockedReasons.length > 0 ? (
-        <p className="helper-note">Release blocked: {releaseBlockedReasons.join("; ")}</p>
+        <p className="helper-note">
+          {canOverrideRelease ? "Production gate needs an override reason: " : "Release blocked: "}
+          {releaseBlockedReasons.join("; ")}
+        </p>
+      ) : null}
+      {canOverrideRelease ? (
+        <label className="review-override-reason">
+          Production override reason
+          <textarea
+            data-testid="production-override-reason"
+            value={overrideReason}
+            rows={2}
+            placeholder="Why this revision can be released"
+            onChange={(event) => setOverrideReason(event.currentTarget.value)}
+          />
+        </label>
       ) : null}
     </section>
   );

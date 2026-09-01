@@ -55,6 +55,8 @@ describe("phase1 proof pack", () => {
       ...slot,
       elapsedMs: slot.quality === "draft" ? 1800 : 5200,
       machine: "test-m-series",
+      buildMode: "release" as const,
+      appSurface: "tauri-desktop" as const,
     }));
     const pack = evaluatePhase1Scorecard({
       latencySamples: samples,
@@ -65,6 +67,36 @@ describe("phase1 proof pack", () => {
     expect(pack.checks.find((check) => check.id === "latency")?.status).toBe("pass");
     expect(pack.checks.find((check) => check.id === "automation")?.status).toBe("pass");
     expect(pack.overall).toBe("pass");
+  });
+
+  it("keeps CI timings pending and unnamed measurements failing REL-008", () => {
+    const ciSamples = expectedPhase1LatencySlots().map((slot) => ({
+      ...slot,
+      elapsedMs: slot.quality === "draft" ? 1800 : 5200,
+      machine: "GitHub Actions",
+      buildMode: "ci-dev" as const,
+      appSurface: "browser-dev-substitute" as const,
+      substituteReason: "CI preview harness",
+    }));
+    const ciPack = evaluatePhase1Scorecard({
+      latencySamples: ciSamples,
+      honestyCorpus: loadPhase1HonestyCorpus(),
+      generatedAt: PHASE1_BENCHMARK_NOW,
+    });
+    expect(ciPack.checks.find((check) => check.id === "latency")?.status).toBe("pending");
+    expect(ciPack.checks.find((check) => check.id === "latency")?.detail).toContain("REL-009");
+    expect(formatPhase1ProofMarkdown(ciPack)).toContain("Not desktop user latency");
+
+    const unnamed = expectedPhase1LatencySlots().map((slot) => ({
+      ...slot,
+      elapsedMs: 1200,
+      machine: "unspecified-machine",
+      appSurface: "tauri-desktop" as const,
+    }));
+    expect(evaluatePhase1Scorecard({
+      latencySamples: unnamed,
+      honestyCorpus: loadPhase1HonestyCorpus(),
+    }).checks.find((check) => check.id === "latency")?.status).toBe("fail");
   });
 
   it("fails automation when a required gate is missing or red", () => {

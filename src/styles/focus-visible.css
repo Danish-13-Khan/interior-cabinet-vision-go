@@ -1,0 +1,18 @@
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent, #1e4d72);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[href]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #1e4d72);
+  outline-offset: 2px;
+}

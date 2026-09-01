@@ -40,7 +40,7 @@ describe("proposal document and gate", () => {
   it("blocks final proposal without freeze, views, or when stale", () => {
     const bare = createGoldenProposalProject(NOW);
     expect(isProposalExportBlocked({ document: bare, issues: [], now: NOW })).toBe(true);
-    expect(buildProposalGate({ document: bare, issues: [], now: NOW }).items.some((item) => item.id === "freeze")).toBe(true);
+    expect(buildProposalGate({ document: bare, issues: [], now: NOW }).items.find((item) => item.id === "freeze")?.status).toBe("fail");
 
     const frozen = createFrozenGoldenProposalProject(NOW);
     expect(buildProposalGate({
@@ -51,7 +51,7 @@ describe("proposal document and gate", () => {
     }).ready).toBe(true);
 
     const noViews = setProposalSelectedViews(createGoldenProposalProject(NOW), ["missing-camera"]);
-    expect(buildProposalGate({ document: noViews, issues: [], now: NOW }).items.some((item) => item.id === "views")).toBe(true);
+    expect(buildProposalGate({ document: noViews, issues: [], now: NOW }).items.find((item) => item.id === "views")?.status).toBe("fail");
   });
 
   it("uses deterministic filesystem-safe names", () => {
@@ -85,8 +85,16 @@ describe("proposal document and gate", () => {
       issues: [],
       now: NOW,
       staleOverride: true,
+      overrideReason: "Client accepted the previous freeze.",
       viewFrames: [goldenProposalViewFrame(staleProject)],
     }).ready).toBe(true);
+    expect(buildProposalGate({
+      document: staleProject,
+      issues: [],
+      now: NOW,
+      staleOverride: true,
+      viewFrames: [goldenProposalViewFrame(staleProject)],
+    }).ready).toBe(false);
     const disclosed = buildProposalDocument(staleProject, { now: NOW, staleOverride: true });
     expect(disclosed.staleDisclosed).toBe(true);
   });

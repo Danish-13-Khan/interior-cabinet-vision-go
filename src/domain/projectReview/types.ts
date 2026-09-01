@@ -45,6 +45,12 @@ export type RevisionFingerprint = {
   materialKeys: string[];
 };
 
+export type GateOverride = {
+  reason: string;
+  overriddenAt: string;
+  user?: string;
+};
+
 export type RevisionSnapshot = {
   id: string;
   revision: string;
@@ -53,6 +59,10 @@ export type RevisionSnapshot = {
   note: string;
   approvedBy?: string;
   releasedForProduction: boolean;
+  /** Packet hash captured at freeze; compared on release to catch design drift. */
+  packetFingerprint?: string;
+  productionFingerprint?: string;
+  releaseOverride?: GateOverride;
   fingerprint: RevisionFingerprint;
   changeLog: RevisionChangeEntry[];
   openIssues: ReviewNote[];
@@ -73,5 +83,23 @@ export type RevisionCompareResult = {
 
 export type ReleaseGateResult = {
   ok: boolean;
+  reasons: string[];
+  canOverride: boolean;
+};
+
+export type ProductionGateItem = {
+  id: string;
+  label: string;
+  detail: string;
+  blocking: boolean;
+  overridable: boolean;
+  status: "pass" | "fail";
+};
+
+export type ProductionReadinessGate = {
+  items: ProductionGateItem[];
+  blockingCount: number;
+  ready: boolean;
+  canOverride: boolean;
   reasons: string[];
 };
