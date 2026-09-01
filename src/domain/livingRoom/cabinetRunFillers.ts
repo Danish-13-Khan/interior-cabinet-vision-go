@@ -1,3 +1,4 @@
+import { persistCabinetIdentityOnObject, RUN_FILLER_CATALOG_ID } from "../cabinetIdentity";
 import type { InteriorObjectEntity, InteriorProject } from "../interiorProject";
 import { orientWallForRoom } from "../interiorProject";
 import { FILLER_MAX_MM, FILLER_MIN_MM, fillerWidthForGap, orderRunMembers } from "../cabinetRuns";
@@ -87,7 +88,7 @@ function makeFillerDraft(options: {
     roomId: options.roomId,
     kind: "cabinet",
     category: "filler",
-    catalogItemId: "living:run-filler",
+    catalogItemId: RUN_FILLER_CATALOG_ID,
     name: "Run filler",
     position: { ...options.reference.position },
     rotation: { ...options.reference.rotation },
@@ -156,7 +157,7 @@ export function syncCabinetRunFillers(project: InteriorProject, runId: string): 
       heightMm: reference.dimensions.heightMm,
       reference: spec.ref,
     });
-    return attached(draft, placementAt(wall, draft, spec.center));
+    return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, spec.center)));
   });
   return { ...cleared, objects: [...cleared.objects, ...fillers] };
 }

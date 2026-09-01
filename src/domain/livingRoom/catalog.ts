@@ -1,3 +1,6 @@
+import type { CabinetType } from "../cabinetCapabilities";
+import { persistCabinetIdentityOnObject } from "../cabinetIdentity";
+import type { CabinetFamilyId } from "../cabinetIdentity/types";
 import type {
   InteriorObjectEntity,
   InteriorObjectKind,
@@ -13,6 +16,8 @@ export type LivingRoomCatalogItem = {
   name: string;
   kind: InteriorObjectKind;
   category: string;
+  cabinetType?: CabinetType;
+  familyId?: CabinetFamilyId;
   dimensions: Size3Mm;
   materialSlots: Record<string, string>;
   parameters: Record<string, ParameterValue>;
@@ -43,7 +48,7 @@ export function createLivingRoomObject(
   placement: LivingRoomObjectPlacement,
 ): InteriorObjectEntity {
   const item = getLivingRoomCatalogItem(catalogItemId);
-  return {
+  return persistCabinetIdentityOnObject({
     id: placement.id,
     roomId: placement.roomId,
     kind: item.kind,
@@ -56,5 +61,5 @@ export function createLivingRoomObject(
     materialSlots: { ...item.materialSlots },
     parameters: { ...item.parameters },
     extensions: { placement: item.placement },
-  };
+  });
 }

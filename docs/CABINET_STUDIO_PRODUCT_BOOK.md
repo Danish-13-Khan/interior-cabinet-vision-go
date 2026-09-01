@@ -6,7 +6,7 @@
 **Book version:** 1.0.0  
 **Owner:** Product and engineering  
 **Status:** Accepted strategic baseline; implementation status is recorded per requirement  
-**Last implementation cross-check:** 2026-08-30  
+**Last implementation cross-check:** 2026-08-31
 
 ---
 
@@ -1484,9 +1484,9 @@ The 3D model is a client-confidence surface and a configuration verification sur
 
 ### 16.2 Current critical gap
 
-Current base, wall, and tall catalog entries use a bookcase compiler as a stand-in.
+Golden base, wall, drawer, and tall families compile through shared cabinet geometry.
 
-This is not acceptable for the Golden Cabinet Run release.
+Decorative bookcases may still use the bookcase silhouette. Production families must not.
 
 ### 16.3 Target geometry rule
 
@@ -1967,13 +1967,11 @@ The handoff must report:
 
 ### 24.4 Current adapter risk
 
-The current compatibility adapter derives cabinet type from object category when a cabinet-specific extension is missing.
+The compatibility adapter no longer derives cabinet type from display category.
 
-Several native interior catalog cabinets use the generic category `storage`.
+Native catalog cabinets keep `category` as a merchandising label (including `storage`) and carry an explicit `cabinetType` / `familyId`. Unidentified cabinet-looking objects are skipped and reported; they do not fall back to `base`.
 
-This creates a risk of silent fallback to `base` configuration.
-
-This is `NEXT` and P0.
+This is `HARDEN` for P0-A. Silent fallback remains prohibited.
 
 ### 24.5 Handoff requirements
 
@@ -2779,7 +2777,7 @@ Deliver the first trustworthy cabinet proposal-to-production loop.
 
 ### 38.2 Epic P0-A — Cabinet identity and adapter fidelity
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Requirements:
 
@@ -2809,7 +2807,7 @@ Exit criteria:
 
 ### 38.3 Epic P0-B — Shared cabinet geometry
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Requirements:
 
@@ -2839,7 +2837,7 @@ Exit criteria:
 
 ### 38.4 Epic P0-C — Proposal surface
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Requirements:
 
@@ -2870,7 +2868,7 @@ Exit criteria:
 
 ### 38.5 Epic P0-D — Engineering handoff experience
 
-Status: `NEXT`
+Status: `HARDEN`
 
 Work items:
 
@@ -2883,6 +2881,14 @@ Work items:
 7. Preserve revision identity.
 8. Show post-approval drift.
 
+Harden (review):
+
+- Send requires an approved or production job plus a matching frozen revision.
+- Re-handoff is rejected until a newly approved revision exists; snapshots are immutable per revision.
+- Returning to Interiors rebuilds the canonical document from live cabinets.
+- Post-approval drift uses a design-content fingerprint (placement, IDs, and full configuration).
+- Golden lossless diagnostics compare raw planning/object fields vs adapted configuration, including material slots the adapter drops.
+
 Exit criteria:
 
 - Engineering opens the same cabinet IDs.
@@ -2892,7 +2898,7 @@ Exit criteria:
 
 ### 38.6 Epic P0-E — Golden workflow verification
 
-Status: `NEXT`
+Status: `SHIPPED`
 
 Work items:
 
@@ -2900,19 +2906,25 @@ Work items:
 2. Create browser journey.
 3. Add save and reopen segment.
 4. Add cabinet width revision.
-5. Assert 3D geometry semantics.
-6. Assert quote delta.
+5. Assert 3D geometry semantics, including the derived run countertop.
+6. Assert a numeric quote delta after the width revision.
 7. Assert cutlist delta.
 8. Assert proposal metadata.
-9. Assert engineering IDs.
+9. Assert engineering IDs, including both run fillers.
 10. Run sequentially with the full suite.
+11. Change one cabinet finish on `planning.config.buildRules.finishId` (not door style, not blocking `object.materialSlots`).
+12. Reopen from the downloaded JSON file, not in-memory recents.
 
 Exit criteria:
 
-- Journey passes locally and in CI.
+- Journey passes locally (`npm run test:golden`).
+- Pull-request CI runs unit tests, production build, the Golden journey, and the release-demo save/reopen path.
+- The Release Candidate workflow remains the full sequential 40-test suite (`npm run test:e2e`).
 - Journey has no arbitrary long waits.
 - Failures identify the broken product stage.
 - Fixture is versioned.
+- Golden fixture includes fillers and a compiled countertop over eligible floor cabinets.
+- Gate F (five sales users, two engineers, median ≤ 15 minutes) stays the market-validation gate and is not required to mark this epic `SHIPPED`.
 
 ---
 
@@ -3867,7 +3879,7 @@ The roadmap expands into generic interiors features.
 
 Impact:
 
-Golden workflow remains unvalidated.
+Golden workflow has automated sequential coverage; salesperson timing remains Gate F.
 
 Mitigation:
 
@@ -4254,68 +4266,68 @@ A narrow customer job where the product can be meaningfully better than broad co
 
 ### A.1 Data truth
 
-- [ ] `DAT-001` Explicit cabinet type.
-- [ ] `DAT-002` Stable cabinet ID.
-- [ ] `DAT-003` Complete normalized configuration.
-- [ ] `DAT-004` Category is not type.
-- [ ] `DAT-005` Catalog ID, SKU, type, and category separated.
-- [ ] `DAT-006` JSON-safe configuration.
-- [ ] `DAT-007` Schema version.
-- [ ] `DAT-008` Migration coverage.
-- [ ] `DAT-009` Old-project compatibility.
-- [ ] `DAT-010` Derived output does not mutate source.
-- [ ] `DAT-014` Adapter loss reporting.
-- [ ] `DAT-015` No silent family fallback.
+- [x] `DAT-001` Explicit cabinet type.
+- [x] `DAT-002` Stable cabinet ID.
+- [x] `DAT-003` Complete normalized configuration.
+- [x] `DAT-004` Category is not type.
+- [x] `DAT-005` Catalog ID, SKU, type, and category separated.
+- [x] `DAT-006` JSON-safe configuration.
+- [x] `DAT-007` Schema version.
+- [x] `DAT-008` Migration coverage.
+- [x] `DAT-009` Old-project compatibility.
+- [x] `DAT-010` Derived output does not mutate source.
+- [x] `DAT-014` Adapter loss reporting.
+- [x] `DAT-015` No silent family fallback.
 
 ### A.2 Golden cabinets
 
-- [ ] Base cabinet fixture.
-- [ ] Drawer cabinet fixture.
-- [ ] Wall cabinet fixture.
-- [ ] Tall cabinet fixture.
-- [ ] Filler fixture.
-- [ ] Countertop fixture.
-- [ ] Save/reopen coverage.
-- [ ] Adapter coverage.
-- [ ] 3D semantic coverage.
-- [ ] Cutlist coverage.
-- [ ] Quote coverage.
+- [x] Base cabinet fixture.
+- [x] Drawer cabinet fixture.
+- [x] Wall cabinet fixture.
+- [x] Tall cabinet fixture.
+- [x] Filler fixture.
+- [x] Countertop fixture.
+- [x] Save/reopen coverage.
+- [x] Adapter coverage.
+- [x] 3D semantic coverage.
+- [x] Cutlist coverage.
+- [x] Quote coverage.
 
 ### A.3 Proposal
 
-- [ ] Live total.
-- [ ] Commercial review.
-- [ ] Quote freeze.
-- [ ] Stale quote.
-- [ ] Named proposal views.
-- [ ] Branded PDF.
-- [ ] Price-detail policy.
-- [ ] Inclusions.
-- [ ] Exclusions.
-- [ ] Approval area.
-- [ ] PDF render verification.
+- [x] Live total.
+- [x] Commercial review.
+- [x] Quote freeze.
+- [x] Stale quote.
+- [x] Named proposal views.
+- [x] Branded PDF.
+- [x] Price-detail policy.
+- [x] Inclusions.
+- [x] Exclusions.
+- [x] Approval area.
+- [x] PDF render verification.
 
 ### A.4 Engineering handoff
 
-- [ ] Send-to-Engineering action.
-- [ ] Handoff diagnostics.
-- [ ] Same IDs.
-- [ ] Same types.
-- [ ] Same dimensions.
-- [ ] Same composition.
-- [ ] Same construction.
-- [ ] Same hardware.
-- [ ] Same material roles.
-- [ ] Same revision identity.
+- [x] Send-to-Engineering action.
+- [x] Handoff diagnostics.
+- [x] Same IDs.
+- [x] Same types.
+- [x] Same dimensions.
+- [x] Same composition.
+- [x] Same construction.
+- [x] Same hardware.
+- [x] Same material roles.
+- [x] Same revision identity.
 
 ### A.5 Release
 
-- [ ] Domain suite green.
-- [ ] Build green.
-- [ ] Golden journey green.
-- [ ] Full sequential browser suite green.
-- [ ] Proposal visual verification complete.
-- [ ] Production packet verification complete.
+- [x] Domain suite green.
+- [x] Build green.
+- [x] Golden journey green.
+- [x] Full sequential browser suite green.
+- [x] Proposal visual verification complete.
+- [x] Production packet verification complete.
 - [ ] Five-user pilot complete.
 - [ ] Two-engineer handoff review complete.
 
@@ -4452,7 +4464,7 @@ Evidence required:
 - [ ] Reset application state.
 - [ ] Load benchmark brief.
 - [ ] Start screen recording where consented.
-- [ ] Start timer.
+- [ ] Start timer. Target median: under 15 minutes (`OBS-001`). A passing P0-E automation run is not a Gate F pass.
 
 ### E.2 Task sequence
 
@@ -4542,7 +4554,7 @@ The detailed sections above govern behavior.
 | Schema version | `SHIPPED` | `DAT-007` |
 | Project migrations | `SHIPPED` | `DAT-008`–`DAT-009` |
 | Migration diagnostics | `HARDEN` | `DAT-023` |
-| Adapter-loss diagnostics | `NEXT` | `DAT-014`, `ENG-002` |
+| Adapter-loss diagnostics | `HARDEN` | `DAT-014`, `ENG-002` |
 
 ### G.2 Room authoring
 
@@ -4585,19 +4597,19 @@ The detailed sections above govern behavior.
 | Feature | Status | Governing requirement or note |
 | --- | --- | --- |
 | Curated cabinet catalog | `SHIPPED` | Technical fidelity varies by item. |
-| Base cabinet catalog item | `HARDEN` | Uses generic category and stand-in visual. |
-| Wall cabinet catalog item | `HARDEN` | Uses generic category and stand-in visual. |
-| Tall cabinet catalog item | `HARDEN` | Uses generic category and stand-in visual. |
+| Base cabinet catalog item | `HARDEN` | Shared geometry; category remains merchandising. |
+| Wall cabinet catalog item | `HARDEN` | Shared geometry at configured mount height. |
+| Tall cabinet catalog item | `HARDEN` | Shared geometry; countertops do not pass through. |
 | Wardrobe catalog item | `HARDEN` | Type mapping requires explicit contract. |
 | Corner wardrobe catalog item | `HARDEN` | Corner representation exists; production semantics need review. |
 | Feature-wall millwork | `SHIPPED` | Not part of Golden Cabinet Run. |
 | Display niche | `SHIPPED` | Not part of Golden Cabinet Run. |
-| Explicit cabinet type on native catalog item | `NEXT` | `DAT-001`, `CAB-020` |
-| Explicit cabinet family | `NEXT` | `DAT-003`, `CAB-009` |
-| Separate category and technical type | `NEXT` | `DAT-004`–`DAT-005` |
-| Persist normalized cabinet config | `NEXT` | `DAT-003` |
+| Explicit cabinet type on native catalog item | `HARDEN` | `DAT-001`, `CAB-020` |
+| Explicit cabinet family | `HARDEN` | `DAT-003`, `CAB-009` |
+| Separate category and technical type | `HARDEN` | `DAT-004`–`DAT-005` |
+| Persist normalized cabinet config | `HARDEN` | `DAT-003` |
 | SKU field | `SHIPPED` | Present on selected items; governance is `HARDEN`. |
-| Catalog type round-trip test | `NEXT` | `CAB-022` |
+| Catalog type round-trip test | `HARDEN` | `CAB-022` |
 | Catalog cutlist smoke test | `HARDEN` | Current coverage checks output existence. |
 | Catalog quote smoke test | `NEXT` | `CAB-024` |
 | Shop-specific cabinet templates | `LATER` | P1/P2 after Golden Run. |
@@ -4658,8 +4670,8 @@ The detailed sections above govern behavior.
 | Appliance inserts | `SHIPPED` | Hardware spec. |
 | Engineering validation | `SHIPPED` | Manufacturing rules. |
 | Sales preset to full configuration | `NEXT` | `CAB-030`–`CAB-031` |
-| Send to Engineering | `NEXT` | P0-D. |
-| Lossless Interiors handoff | `NEXT` | `ENG-001`–`ENG-012` |
+| Send to Engineering | `HARDEN` | P0-D. |
+| Lossless Interiors handoff | `HARDEN` | `ENG-001`–`ENG-012` |
 | Post-approval drift indication | `HARDEN` | `ENG-022` |
 
 ### G.6 2D and 3D review
@@ -4680,13 +4692,13 @@ The detailed sections above govern behavior.
 | 3D selection | `SHIPPED` | Model pick path. |
 | 3D inspector parity | `SHIPPED` | J2. |
 | Camera bookmarks | `SHIPPED` | Package views. |
-| Base cabinet-specific geometry | `NEXT` | `VIS-001`–`VIS-004` |
-| Wall cabinet-specific geometry | `NEXT` | `VIS-001`, `VIS-006` |
-| Drawer cabinet-specific geometry | `NEXT` | `VIS-001`, `VIS-004` |
-| Tall cabinet-specific geometry | `NEXT` | `VIS-001`, `VIS-008` |
-| Semantic material groups | `NEXT` | `VIS-005` |
+| Base cabinet-specific geometry | `HARDEN` | `VIS-001`–`VIS-004` |
+| Wall cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-006` |
+| Drawer cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-004` |
+| Tall cabinet-specific geometry | `HARDEN` | `VIS-001`, `VIS-008` |
+| Semantic material groups | `HARDEN` | `VIS-005` |
 | Filler visual fidelity | `HARDEN` | Golden visual system. |
-| Countertop visual fidelity | `HARDEN` | Golden visual system. |
+| Countertop visual fidelity | `HARDEN` | Golden run compiles a countertop over eligible floor cabinets; visual finish remains `HARDEN`. |
 | Client navigation validation | `RESEARCH` | `VIS-025` |
 
 ### G.7 Render and client presentation
@@ -4704,8 +4716,8 @@ The detailed sections above govern behavior.
 | Client package JSON | `SHIPPED` | Technical support artifact. |
 | Render provenance | `SHIPPED` | Internal trust value. |
 | Generate-still suite reliability | `HARDEN` | Known timing debt. |
-| Golden client view | `NEXT` | P0-C. |
-| Branded priced proposal | `NEXT` | `EXP-001`–`EXP-010` |
+| Golden client view | `HARDEN` | P0-C named views on the proposal. |
+| Branded priced proposal | `HARDEN` | `EXP-001`–`EXP-010` |
 | 360-degree tour | `EXCLUDED` | Not current critical path. |
 | AI decoration | `EXCLUDED` | `STR-009` |
 
@@ -4733,10 +4745,10 @@ The detailed sections above govern behavior.
 | Quote validity | `SHIPPED` | Quote settings. |
 | Inclusions and exclusions | `SHIPPED` | Quote settings. |
 | Quote history | `SHIPPED` | Snapshot domain. |
-| Live total in Interiors Review | `NEXT` | `QTE-020` |
-| Quote freeze in sales flow | `NEXT` | `QTE-022` |
-| Stale quote indicator | `NEXT` | `QTE-023` |
-| Configurable proposal detail | `NEXT` | `QTE-030` |
+| Live total in Interiors Review | `HARDEN` | `QTE-020` |
+| Quote freeze in sales flow | `HARDEN` | `QTE-022` |
+| Stale quote indicator | `HARDEN` | `QTE-023` |
+| Configurable proposal detail | `HARDEN` | `QTE-030` |
 | Missing-rate warning | `NEXT` | `QTE-006` |
 
 ### G.9 Production and reports
@@ -4794,11 +4806,11 @@ The detailed sections above govern behavior.
 | Roadmap exit journey | `SHIPPED` | Broad workflow, not Golden Run. |
 | Phase 2 still proof | `SHIPPED` | Trust proof. |
 | Release build | `SHIPPED` | Build pipeline. |
-| Golden Cabinet Run fixture | `NEXT` | P0-E. |
-| Golden Cabinet Run E2E | `NEXT` | P0-E. |
-| Save/reopen Golden Run | `NEXT` | `TST-007` |
-| Proposal visual verification | `NEXT` | PDF QA. |
-| Production packet visual verification | `NEXT` | PDF QA. |
+| Golden Cabinet Run fixture | `SHIPPED` | Versioned `fixtures/golden-cabinet-run/v1.interior.json` includes the run, end fillers, and an explicit derived countertop (`countertop:golden-run-base-a+golden-run-drawer+golden-run-base-b`). |
+| Golden Cabinet Run E2E | `SHIPPED` | Sequential journey with width, finish, quote, cutlist, filler-ID, and countertop-ID stages. |
+| Save/reopen Golden Run | `SHIPPED` | `TST-007` — file open after a cold reload, not recents. |
+| Proposal visual verification | `SHIPPED` | Golden Run PDF raster checks branding, views, total, revision, materials, inclusions/exclusions, and approval. |
+| Production packet visual verification | `SHIPPED` | Golden Run packet raster reuses proposal A4, clipping, font, and image checks plus IDs, construction, hardware, cutlist, fillers/countertop, and zero fallback warnings. |
 | Declared latency benchmark | `HARDEN` | `REL-008`–`REL-009` |
 | Keyboard focus visibility | `HARDEN` | `ACC-002` |
 | Canvas action alternatives | `HARDEN` | `ACC-007` |

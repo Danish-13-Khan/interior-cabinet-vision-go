@@ -51,9 +51,14 @@ Exact DMG architecture naming follows the machine used for the build.
 
 ## CI Packaging
 
+Pull requests and pushes to `main` run the **CI** workflow: unit tests, the
+production build, the Golden Cabinet Run journey, and the release-demo
+save/reopen path (`npm run test:golden`).
+
 Run the **Release Candidate** GitHub Actions workflow manually, or push a tag
-matching `v*`. The workflow executes the complete web quality gate on Linux,
-then builds and uploads the macOS `.app` and `.dmg` from a macOS runner.
+matching `v*`. That workflow executes the complete sequential browser suite on
+Linux (`npm run test:e2e`), then builds and uploads the macOS `.app` and `.dmg`
+from a macOS runner.
 
 ## Distribution Note
 

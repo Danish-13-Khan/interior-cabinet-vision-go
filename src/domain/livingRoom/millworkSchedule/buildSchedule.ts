@@ -1,5 +1,7 @@
-import type { InteriorProject } from "../../interiorProject";
+import { readCabinetIdentity } from "../../cabinetIdentity";
+import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
 import { isMillworkObject } from "../stillJob/sceneRefs";
+import { LIVING_ROOM_CATALOG } from "../catalog";
 import { resolveMaterialLabels, slotRecord } from "./formatMaterials";
 import {
   MILLWORK_SCHEDULE_HONESTY_NOTE,
@@ -7,6 +9,13 @@ import {
   type MillworkSchedule,
   type MillworkScheduleLine,
 } from "./types";
+
+function materialSlotsFor(object: InteriorObjectEntity) {
+  const own = slotRecord(object.materialSlots);
+  if (Object.keys(own).length > 0) return own;
+  const catalog = LIVING_ROOM_CATALOG.find((item) => item.id === object.catalogItemId);
+  return catalog ? slotRecord(catalog.materialSlots) : own;
+}
 
 /** One row per millwork instance from live InteriorProject entities. */
 export function buildLivingRoomMillworkSchedule(
@@ -18,12 +27,14 @@ export function buildLivingRoomMillworkSchedule(
   const lines: MillworkScheduleLine[] = project.objects
     .filter(isMillworkObject)
     .map((object) => {
-      const materialSlots = slotRecord(object.materialSlots);
+      const materialSlots = materialSlotsFor(object);
       return {
         objectId: object.id,
         name: object.name,
         category: object.category,
         kind: object.kind,
+        cabinetType: readCabinetIdentity(object)?.cabinetType ?? null,
+        familyId: readCabinetIdentity(object)?.familyId ?? null,
         roomId: object.roomId,
         widthMm: object.dimensions.widthMm,
         heightMm: object.dimensions.heightMm,

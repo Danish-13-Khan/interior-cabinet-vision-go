@@ -1,0 +1,47 @@
+.proposal-review { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid #e6ece7; }
+.proposal-review > strong { color: #304236; font-size: .75rem; }
+.proposal-review-total { margin: 0; color: #276b46; font-size: 1.15rem; font-weight: 700; }
+.proposal-review small { color: #748076; font-size: .61rem; line-height: 1.35; }
+.proposal-review small.is-warning { color: #9a3412; }
+.proposal-review-fields { display: grid; gap: 7px; }
+.proposal-review-fields label,
+.proposal-review-views label,
+.proposal-review-override { display: grid; gap: 3px; color: #4a5a4e; font-size: .62rem; }
+.proposal-review-fields input,
+.proposal-review-fields textarea {
+  width: 100%;
+  min-height: 28px;
+  padding: 4px 6px;
+  border: 1px solid #cfe0d2;
+  border-radius: 5px;
+  background: #fff;
+  color: #243029;
+  font: inherit;
+}
+.proposal-review-fields fieldset {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 6px 0 0;
+  border: 0;
+}
+.proposal-review-fields fieldset label { grid-template-columns: auto 1fr; align-items: center; }
+.proposal-review-views { display: grid; gap: 5px; }
+.proposal-review-views label,
+.proposal-review-override { grid-template-columns: auto 1fr; align-items: center; }
+.proposal-review-create { min-height: 36px !important; font-weight: 700 !important; }
+.lr-product-shell-v2 .planner-v2-review { width: 280px; min-width: 280px; }
+.lr-product-shell-v2 .proposal-review { border-color: #364238; }
+.lr-product-shell-v2 .proposal-review > strong { color: #d7e4d8; }
+.lr-product-shell-v2 .proposal-review-total { color: #8dce9f; }
+.lr-product-shell-v2 .proposal-review small { color: #9aab9d; }
+.lr-product-shell-v2 .proposal-review small.is-warning { color: #f0c7a7; }
+.lr-product-shell-v2 .proposal-review-fields label,
+.lr-product-shell-v2 .proposal-review-views label,
+.lr-product-shell-v2 .proposal-review-override { color: #c5d2c6; }
+.lr-product-shell-v2 .proposal-review-fields input,
+.lr-product-shell-v2 .proposal-review-fields textarea {
+  border-color: #3d4d40;
+  background: #101610;
+  color: #eef3ed;
+}

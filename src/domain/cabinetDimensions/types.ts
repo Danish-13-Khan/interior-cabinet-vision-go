@@ -30,6 +30,9 @@ export type CabinetDimensions = {
 
 export type CabinetConfig = {
   type: CabinetType;
+  familyId?: string;
+  catalogItemId?: string;
+  sku?: string;
   dimensions: CabinetDimensions;
   shelfCount: number;
   hasDoors: boolean;
@@ -64,6 +67,16 @@ export type CabinetInstance = {
   config: CabinetConfig;
   layerId?: string;
   groupId?: string | null;
+  /** Display/merchandising category; never a substitute for config.type. */
+  displayCategory?: string;
+  /** Interior object entity id when this cabinet was authored in Interiors. */
+  interiorObjectId?: string;
+  /** Interiors run-filler stamp so Engineering keeps the same filler identity/role. */
+  runFiller?: {
+    runId: string;
+    side: "start" | "end" | "between";
+    index?: number;
+  };
 };
 
 export type CabinetLayer = {

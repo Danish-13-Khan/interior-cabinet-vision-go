@@ -1,3 +1,4 @@
+import { persistCabinetIdentityOnObject } from "../cabinetIdentity";
 import {
   validateInteriorProject,
   resizeRoomPlanGeometry,
@@ -49,14 +50,17 @@ export function resizeLivingRoomObject(
   objectId: string,
   dimensions: Size3Mm,
 ) {
-  return mapObject(project, objectId, (object) => ({
-    ...object,
-    dimensions: {
-      widthMm: Math.max(100, dimensions.widthMm),
-      heightMm: Math.max(10, dimensions.heightMm),
-      depthMm: Math.max(100, dimensions.depthMm),
-    },
-  }));
+  return mapObject(project, objectId, (object) => {
+    const next = {
+      ...object,
+      dimensions: {
+        widthMm: Math.max(100, dimensions.widthMm),
+        heightMm: Math.max(10, dimensions.heightMm),
+        depthMm: Math.max(100, dimensions.depthMm),
+      },
+    };
+    return object.kind === "cabinet" ? persistCabinetIdentityOnObject(next) : next;
+  });
 }
 
 export function rotateLivingRoomObject(

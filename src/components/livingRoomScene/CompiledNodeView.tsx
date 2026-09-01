@@ -1,4 +1,3 @@
-import { Html } from "@react-three/drei";
 import { type ThreeEvent } from "@react-three/fiber";
 import { useState } from "react";
 import { Plane, Vector3 } from "three";
@@ -8,6 +7,7 @@ import { modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
 import { AssetBackedObject } from "./AssetBackedObject";
+import { CompiledNodeLabel } from "./CompiledNodeLabel";
 import { OpeningPickVolume } from "./OpeningPickVolume";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
 
@@ -68,8 +68,6 @@ export function CompiledNodeView({
   const useGlb = modelAsset.strategy === "glb"
     && modelAsset.url
     && modelAsset.definition;
-  const showLabel = Boolean(selectionTarget)
-    && (node.placeholder || (hovered && !selected) || (selected && showSelectedLabel));
 
   function groundPoint(event: ThreeEvent<PointerEvent>) {
     const result = new Vector3();
@@ -187,30 +185,18 @@ export function CompiledNodeView({
       {selectionTarget?.kind === "opening" ? (
         <OpeningPickVolume primitives={node.primitives} onPointerDown={handlePointerDown} />
       ) : null}
-      {showLabel ? (
-        <Html
-          position={[0, Math.max(0.3, ...node.primitives.map((primitive) => primitive.positionMm.y / 1000)) + 0.35, 0]}
-          center
-          distanceFactor={7}
-        >
-          <button
-            type="button"
-            className={`lr-model-object-label is-pickable ${selected ? "is-selected" : ""} ${node.placeholder ? "is-placeholder" : ""}`}
-            data-model-select={selectionTarget?.kind ?? "object"}
-            data-model-id={selectionTarget?.id ?? node.id}
-            aria-label={`Select ${node.name}`}
-            onPointerDown={(event) => {
-              event.stopPropagation();
-              if (!selectionTarget) return;
-              if (selectionTarget.kind === "opening") onSelectOpening(selectionTarget.id);
-              else if (selectionTarget.kind === "wall") onSelectWall(selectionTarget.id);
-              else onSelect(selectionTarget.id, event.shiftKey || event.metaKey || event.ctrlKey);
-            }}
-          >
-            {node.placeholder ? `Missing adapter · ${node.name}` : node.name}
-          </button>
-        </Html>
-      ) : null}
+      <CompiledNodeLabel
+        node={node}
+        selectionTarget={selectionTarget}
+        selected={selected}
+        hovered={hovered}
+        interactive={interactive}
+        renderMode={renderMode}
+        showSelectedLabel={showSelectedLabel}
+        onSelect={onSelect}
+        onSelectOpening={onSelectOpening}
+        onSelectWall={onSelectWall}
+      />
     </group>
   );
 }

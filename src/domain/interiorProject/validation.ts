@@ -1,3 +1,4 @@
+import { hydrateCabinetIdentities } from "../cabinetIdentity";
 import { createEmptyInteriorProject } from "./defaults";
 import { validatePlanTopology, ensureCompatPlanTopology } from "./planTopologyValidation";
 import {
@@ -46,7 +47,10 @@ export function validateInteriorProject(input: unknown): InteriorValidationResul
   const { rooms, validRoomIds } = parseRooms(source, issues);
   const { walls, validWallIds, wallsById } = parseWalls(source, validRoomIds, issues);
   const openings = parseOpenings(source, validRoomIds, validWallIds, wallsById, issues);
-  const objects = parseObjects(source, validRoomIds, issues);
+  const objects = hydrateCabinetIdentities(
+    parseObjects(source, validRoomIds, issues),
+    issues,
+  );
   const materials = parseMaterials(source, issues);
   const validMaterialIds = new Set(materials.map((material) => material.id));
   for (const wall of walls) {

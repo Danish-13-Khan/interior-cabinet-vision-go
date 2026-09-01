@@ -15,9 +15,13 @@ export default defineConfig(async () => ({
     dedupe: ["three"],
   },
   base: githubPages ? pagesBase : "/",
+  optimizeDeps: {
+    exclude: ["@napi-rs/canvas", "pdfjs-dist"],
+  },
   build: {
     chunkSizeWarningLimit: 800,
     rollupOptions: {
+      external: ["@napi-rs/canvas"],
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) {

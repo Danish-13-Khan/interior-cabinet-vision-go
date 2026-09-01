@@ -52,8 +52,22 @@ export function usePlanObjectInteraction(input: {
 
   function finish() {
     if (drag && preview) {
-      if (drag.mode === "move") input.onMove(drag.objectId, preview.position);
-      else input.onResize(drag.objectId, preview.dimensions);
+      if (
+        drag.mode === "move"
+        && (preview.position.x !== drag.position.x
+          || preview.position.y !== drag.position.y
+          || preview.position.z !== drag.position.z)
+      ) {
+        input.onMove(drag.objectId, preview.position);
+      }
+      if (
+        drag.mode === "resize"
+        && (preview.dimensions.widthMm !== drag.dimensions.widthMm
+          || preview.dimensions.heightMm !== drag.dimensions.heightMm
+          || preview.dimensions.depthMm !== drag.dimensions.depthMm)
+      ) {
+        input.onResize(drag.objectId, preview.dimensions);
+      }
     }
     setDrag(null); setPreview(null); setGuides([]);
   }

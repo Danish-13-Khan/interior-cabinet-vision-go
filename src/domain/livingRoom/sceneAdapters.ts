@@ -14,6 +14,9 @@ import {
   compileRug,
   compileTvUnit,
 } from "./sceneAdaptersMillwork";
+import { compileCabinet } from "./sceneAdaptersCabinet";
+import { cabinetSceneMetadata } from "./cabinetSceneMeta";
+import { cabinetScenePosition } from "./cabinetSceneMount";
 import { compileCornerWardrobe, compileRunFiller } from "./sceneAdaptersCorner";
 import { compileFlutedFeatureWall } from "./sceneAdaptersFeatureWalls";
 import {
@@ -57,9 +60,10 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "console-table-v1", catalogItemId: "living:console-table", compile: compileCoffeeTable },
   { id: "bookcase-v1", catalogItemId: "living:bookcase", compile: compileBookcase },
   { id: "wardrobe-wall-v1", catalogItemId: "living:wardrobe-wall", compile: compileBookcase },
-  { id: "tall-pantry-v1", catalogItemId: "living:tall-pantry-600", compile: compileBookcase },
-  { id: "base-cabinet-v1", catalogItemId: "living:base-cabinet-900", compile: compileBookcase },
-  { id: "wall-cabinet-v1", catalogItemId: "living:wall-cabinet-900", compile: compileBookcase },
+  { id: "tall-pantry-v1", catalogItemId: "living:tall-pantry-600", compile: compileCabinet },
+  { id: "base-cabinet-v1", catalogItemId: "living:base-cabinet-900", compile: compileCabinet },
+  { id: "wall-cabinet-v1", catalogItemId: "living:wall-cabinet-900", compile: compileCabinet },
+  { id: "drawer-cabinet-v1", catalogItemId: "living:drawer-cabinet-900", compile: compileCabinet },
   { id: "corner-wardrobe-v1", catalogItemId: "living:corner-wardrobe", compile: compileCornerWardrobe },
   { id: "run-filler-v1", catalogItemId: "living:run-filler", compile: compileRunFiller },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },
@@ -92,23 +96,26 @@ export function compileLivingRoomObjectNode(
       materialId,
     ),
   ];
+  const sharedMeta = adapter?.compile === compileCabinet
+    ? cabinetSceneMetadata(object, primitives)
+    : {};
   const node = attachObjectRenderBinding({
     id: `object-node:${object.id}`,
     name: object.name,
     sourceObjectId: object.id,
     adapterId: adapter?.id ?? "safe-placeholder-v1",
-    positionMm: { ...object.position },
+    positionMm: cabinetScenePosition(object),
     rotationDegrees: { ...object.rotation },
     primitives,
-    placeholder: !adapter,
+    placeholder: !adapter || sharedMeta.geometryFallback === true,
     metadata: {
       category: object.category,
       catalogItemId: object.catalogItemId,
       ...(object.category === "structural-column" ? { role: "structural" } : {}),
+      ...sharedMeta,
     },
     renderBinding: { strategy: "procedural", materialBindings: {} },
   }, object);
-  return node.renderBinding.modelUrl
-    ? { ...node, adapterId: "imported-glb-v1", placeholder: false }
-    : node;
+  if (adapter?.compile === compileCabinet || !node.renderBinding.modelUrl) return node;
+  return { ...node, adapterId: "imported-glb-v1", placeholder: false };
 }

@@ -23,5 +23,5 @@ export {
 } from "./align";
 export { detectCabinetRuns } from "./detect";
 export { createRunFillers } from "./fillers";
-export { createCountertopsForRuns } from "./countertops";
+export { countertopSegmentId, createCountertopsForRuns } from "./countertops";
 export { snapPlacementIntoRuns } from "./snapToRun";

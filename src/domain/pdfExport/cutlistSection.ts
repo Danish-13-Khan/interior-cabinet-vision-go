@@ -43,7 +43,7 @@ export function drawCutlistSection(
 
     const row = [
       item.shopRef,
-      item.cabinetName.length > 12 ? `${item.cabinetName.slice(0, 11)}…` : item.cabinetName,
+      item.cabinetId.length > 12 ? `${item.cabinetId.slice(0, 11)}…` : item.cabinetId,
       item.label.length > 15 ? `${item.label.slice(0, 14)}…` : item.label,
       item.material.length > 11 ? `${item.material.slice(0, 10)}…` : item.material,
       String(item.thicknessMm),

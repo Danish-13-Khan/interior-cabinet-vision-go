@@ -140,6 +140,7 @@ export function CabinetTreeRow({
         data-kind={node.kind}
         data-node-id={node.id}
         data-cabinet-id={node.cabinetId ?? undefined}
+        data-cabinet-type={node.cabinetType}
         style={{ ["--tree-depth" as string]: depth }}
         onClick={handleRowClick}
         onDoubleClick={(event) => {

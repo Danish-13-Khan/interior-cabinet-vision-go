@@ -43,6 +43,7 @@ import {
   ensureDrawnRoomReviewRig,
   createImportedAssetObject,
   createLivingRoomObject,
+  createGoldenCabinetRunProject,
   createLivingRoomReleaseDemoProject,
   createPhase1BenchmarkProject,
   createLivingRoomStarterProject,
@@ -61,6 +62,7 @@ import {
   setLivingRoomPlanUnderlay,
   applyMaterialToSelection,
   paintLivingRoomSurface,
+  setLivingRoomObjectParameters,
   setLivingRoomWallMaterial,
   placeStructuralColumn,
   setLivingRoomLayerVisibility,
@@ -186,6 +188,7 @@ export function useLivingRoomPlanEditor({
   function commitDocument(
     update: (current: InteriorProject) => InteriorProject,
     status: string,
+    cabinetIds?: string[],
   ) {
     commitProjectChange((currentProject) => {
       const current = currentLivingRoomDocument(currentProject);
@@ -195,11 +198,12 @@ export function useLivingRoomPlanEditor({
         updatedAt: new Date().toISOString(),
       };
       const compatible = cabinetProjectFromInteriorProject(next);
+      const selected = cabinetIds ?? [];
       return {
         project: compatible.project,
         room: compatible.room,
-        selectedCabinetIds: [],
-        activeCabinetId: null,
+        selectedCabinetIds: selected,
+        activeCabinetId: selected[0] ?? null,
         selectedPanelName: null,
       };
     }, status);
@@ -270,7 +274,10 @@ export function useLivingRoomPlanEditor({
   }
 
   function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
-    commitDocument((current) => ({ ...current, objects: current.objects.map((object) => object.id === objectId ? { ...object, parameters: { ...object.parameters, ...patch } } : object) }), "Updated cabinet configuration.");
+    commitDocument(
+      (current) => setLivingRoomObjectParameters(current, objectId, patch),
+      "Updated cabinet configuration.",
+    );
   }
 
   function setFloorMaterial(materialId: string) {
@@ -570,6 +577,9 @@ export function useLivingRoomPlanEditor({
     openLivingRoomReleaseDemo: () => restoreDocument(
       createLivingRoomReleaseDemoProject(),
     ),
+    openLivingRoomGoldenRun: () => restoreDocument(
+      createGoldenCabinetRunProject(),
+    ),
     openPhase1Benchmark: (benchmarkId: Phase1BenchmarkId) => restoreDocument(
       createPhase1BenchmarkProject(benchmarkId),
     ),
@@ -631,6 +641,7 @@ export function useLivingRoomPlanEditor({
     deleteLivingRoomOpening: deleteOpening,
     setLivingRoomStyle: setStyle,
     setLivingRoomRenderSettings: setRenderSettings,
+    patchLivingRoomDocument: commitDocument,
     setLivingRoomLightingRecipe: setLightingRecipe,
     currentCompatibilityRoom: room,
   };
