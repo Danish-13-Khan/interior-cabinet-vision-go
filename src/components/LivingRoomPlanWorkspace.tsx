@@ -146,13 +146,21 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onUndo={props.onUndo} onRedo={props.onRedo} onWorkbenchModeChange={props.onWorkbenchModeChange} />
   );
 
-  if (!props.project) {
+  if (!props.project || props.projectHomeOpen) {
     return (
       <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
-        <PlannerV2WorkflowSteps mode={plannerMode} onChange={setPlannerMode} hasProject={false} />
+        <PlannerV2WorkflowSteps
+          mode={plannerMode}
+          onChange={props.project ? changePlannerMode : setPlannerMode}
+          hasProject={Boolean(props.project)}
+        />
         {header}
         <div className="lr-empty-workspace">
-          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={false} />
+          <LivingRoomHomeFromWorkspace
+            workspace={props}
+            open
+            hasCurrentProject={Boolean(props.project)}
+          />
         </div>
       </section>
     );

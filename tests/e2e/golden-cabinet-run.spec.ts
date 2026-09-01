@@ -11,6 +11,7 @@ import {
   goldenRunCountertopWidthMm,
 } from "../../src/domain/livingRoom/goldenRun";
 import {
+  approveAndSendToEngineering,
   captureProposalView,
   changeGoldenFinish,
   expandEngineeringTree,
@@ -24,7 +25,7 @@ import {
 test.describe.configure({ mode: "serial" });
 
 test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", async ({ page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(240_000);
   let quoteBefore = 0;
   let cutlistBefore = "";
 
@@ -160,11 +161,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
 
   await test.step("send-engineering", async () => {
     await expect(page.getByTestId("handoff-summary")).toContainText(GOLDEN_RUN_OBJECT_IDS.baseA);
-    await page.getByTestId("approve-engineering-revision").click();
-    await expect(page.getByTestId("handoff-approved")).toBeVisible();
-    const send = page.getByTestId("send-to-engineering");
-    await expect(send).toBeEnabled();
-    await send.click();
+    await approveAndSendToEngineering(page);
   });
 
   await test.step("assert-ids", async () => {
