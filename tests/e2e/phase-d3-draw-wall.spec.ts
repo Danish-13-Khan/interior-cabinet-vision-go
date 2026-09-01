@@ -31,6 +31,7 @@ test("D3 draws a wall segment and supports undo", async ({ page }) => {
   await page.mouse.up();
 
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialCount + 1);
+  await expect(page.locator("[data-wall-id]").last()).toHaveAttribute("data-raised", "true");
   await expect(page.locator(".lr-wall-drawing-overlay line")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Undo", exact: true }).click();

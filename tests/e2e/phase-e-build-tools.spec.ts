@@ -26,6 +26,7 @@ test("Phase E draws a surface zone, partition wall, and column", async ({ page }
   await page.mouse.up();
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialWalls + 1);
   await expect(page.locator("[data-wall-id].is-partition")).toHaveCount(1);
+  await expect(page.locator("[data-wall-id].is-partition")).toHaveAttribute("data-raised", "true");
 
   await page.locator('[data-build-tool="draw-surface"]').click();
   const zonePoints: Array<[number, number]> = [[0.35, 0.45], [0.65, 0.45], [0.65, 0.55], [0.35, 0.55]];
