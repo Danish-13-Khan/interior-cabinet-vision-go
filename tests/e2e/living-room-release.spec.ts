@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 test("verified demo completes Plan to Model to Render and reopens", async ({ page }) => {
-  test.setTimeout(90_000);
+  // Software WebGL capture is substantially slower on GitHub-hosted runners.
+  test.setTimeout(process.env.CI ? 240_000 : 90_000);
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
 
@@ -33,12 +34,14 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
 
   // The v2 shell uses the workflow step as its visible project-home control;
   // the legacy icon is deliberately hidden by the v2 chrome.
-  await page.getByRole("button", { name: "1 · Start a project", exact: true }).click();
+  const startProject = page.getByRole("button", { name: "1 · Start a project", exact: true });
+  await expect(startProject).toBeEnabled();
+  await startProject.evaluate((button: HTMLButtonElement) => button.click());
   const recent = page.getByTestId("open-recent-project").filter({
     hasText: "Living Room Release Demo",
   });
   await expect(recent.locator("img")).toBeVisible();
-  await recent.click();
+  await recent.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeHidden();
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
 });

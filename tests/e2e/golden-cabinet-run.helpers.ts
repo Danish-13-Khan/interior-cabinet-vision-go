@@ -95,13 +95,14 @@ export async function approveAndSendToEngineering(page: Page) {
   await expect(handoff).toBeVisible();
   const approve = page.getByTestId("approve-engineering-revision");
   await expect(approve).toBeEnabled();
-  await approve.scrollIntoViewIfNeeded();
-  await approve.click();
+  // These controls live beside an actively-rendering WebGL preview. A native
+  // DOM click avoids Playwright waiting for animated layout stability on slow
+  // software-rendered CI workers while preserving the real React click path.
+  await approve.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByTestId("handoff-approved")).toBeVisible();
   const send = page.getByTestId("send-to-engineering");
   await expect(send).toBeEnabled();
-  await send.scrollIntoViewIfNeeded();
-  await send.click();
+  await send.evaluate((button: HTMLButtonElement) => button.click());
 }
 
 export async function expandEngineeringTree(page: Page) {

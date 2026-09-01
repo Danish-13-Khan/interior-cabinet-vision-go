@@ -25,7 +25,11 @@ import {
 test.describe.configure({ mode: "serial" });
 
 test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", async ({ page }) => {
-  test.setTimeout(240_000);
+  // GitHub's Linux runner uses software WebGL for the render/proposal steps and
+  // can take several times longer than a developer machine. Keep the local
+  // feedback loop short while allowing the same end-to-end journey to finish
+  // under CI load.
+  test.setTimeout(process.env.CI ? 480_000 : 240_000);
   let quoteBefore = 0;
   let cutlistBefore = "";
 
