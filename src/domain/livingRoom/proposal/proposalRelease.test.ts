@@ -31,7 +31,7 @@ describe("proposal release reviews", () => {
       viewFrames: [frame],
     });
     expect(gate.ready).toBe(false);
-    expect(gate.items.some((item) => item.id === "identity")).toBe(true);
+    expect(gate.items.find((item) => item.id === "identity")?.status).toBe("fail");
   });
 
   it("blocks export until a selected named view has a matching capture", () => {
@@ -47,7 +47,7 @@ describe("proposal release reviews", () => {
         dataUrl: PROPOSAL_TEST_PNG,
         projectId: frozen.id,
       }],
-    }).items.some((item) => item.id === "view-frames")).toBe(true);
+    }).items.find((item) => item.id === "view-frames")?.status).toBe("fail");
     expect(buildProposalGate({
       document: frozen,
       issues: [],
@@ -114,6 +114,32 @@ describe("proposal release reviews", () => {
     expect(disclosed.sellTotal).toBe(snapshot.sellTotal);
   });
 
+  it("emits a full proposal checklist including layout advisories", () => {
+    const frozen = createFrozenGoldenProposalProject(NOW);
+    const gate = buildProposalGate({
+      document: frozen,
+      issues: [],
+      now: NOW,
+      viewFrames: [goldenProposalViewFrame(frozen)],
+    });
+    expect(gate.ready).toBe(true);
+    expect(gate.items.map((item) => item.id)).toEqual([
+      "identity",
+      "layout",
+      "millwork",
+      "geometry",
+      "views",
+      "view-frames",
+      "freeze",
+      "stale",
+      "price",
+      "layout-advisories",
+      "accepted-stills",
+    ]);
+    expect(gate.items.find((item) => item.id === "layout-advisories")?.status).toBe("pass");
+    expect(gate.items.find((item) => item.id === "accepted-stills")?.status).toBe("warn");
+  });
+
   it("records a stale override only after a successful save", () => {
     const frozen = freezeProposal(createGoldenProposalProject(NOW), NOW);
     const snapshot = buildLiveInteriorQuote(frozen, NOW).frozen;
@@ -126,6 +152,13 @@ describe("proposal release reviews", () => {
       saved: true,
       staleOverride: true,
       frozen: snapshot,
+      now: NOW,
+    }).persistOverride).toBe(false);
+    expect(proposalExportCommit({
+      saved: true,
+      staleOverride: true,
+      frozen: snapshot,
+      reason: "Salesperson disclosed stale quote on proposal.",
       now: NOW,
     })).toEqual({
       persistOverride: true,

@@ -362,7 +362,6 @@
   background: #f8f9fa;
   color: var(--lr-ink);
   font-size: 0.65rem;
-  outline: none;
 }
 
 .lr-asset-controls > input:focus { border-color: var(--lr-accent); box-shadow: 0 0 0 2px rgba(47,111,235,0.12); }

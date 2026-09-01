@@ -64,6 +64,7 @@
 
 .lr-product-shell-v2 .lr-inspector-section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .lr-product-shell-v2 .lr-inspector-scroll .lr-architecture-inspector:first-child { display: block; }
+.lr-product-shell-v2 .lr-inspector-scroll .lr-inspector-object-list:first-child { display: block; }
 .lr-product-shell-v2 .lr-inspector-section-heading span { color: #91a095; font-size: 11px; }
 .lr-product-shell-v2 .lr-room-preview, .lr-product-shell-v2 .lr-wall-preview { margin: 8px 0 12px; border: 1px solid #34453a; border-radius: 7px; background: #151d18; }
 .lr-product-shell-v2 .lr-room-preview svg { display: block; width: 100%; height: 94px; }

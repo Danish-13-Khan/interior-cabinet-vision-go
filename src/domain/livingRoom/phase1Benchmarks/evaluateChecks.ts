@@ -14,19 +14,12 @@ import {
 import {
   PHASE1_BENCHMARK_IDS,
   PHASE1_BENCHMARK_NOW,
-  PHASE1_LATENCY_ENVIRONMENT,
 } from "./definitions";
-import {
-  describePhase1LatencyEnvironment,
-  isPhase1LatencyWithinBudget,
-  summarizePhase1LatencyEvidence,
-  type Phase1LatencySample,
-} from "./scorecard";
-import { expectedPhase1LatencySlots } from "./latencySlots";
 import type { Phase1CheckResult } from "./proofTypes";
 
 export { evaluateAutomation } from "./evaluateAutomation";
 export { evaluateHonesty } from "./evaluateHonesty";
+export { evaluateLatency } from "./evaluateLatency";
 
 export function evaluateGrounding(): Phase1CheckResult {
   const draft = resolveGroundingQuality("preview", "draft");
@@ -97,79 +90,6 @@ export function evaluateFraming(): Phase1CheckResult {
     detail: failures.length === 0
       ? "All 6 hero frames pass eye-level framing QA (no ceiling-heavy / cut-feet)."
       : `Framing failures: ${failures.join(", ")}`,
-  };
-}
-
-export function evaluateLatency(samples: Phase1LatencySample[] | undefined): Phase1CheckResult {
-  const slots = expectedPhase1LatencySlots();
-  if (!samples || samples.length === 0) {
-    return {
-      id: "latency",
-      status: "pending",
-      detail: `Fill fixtures/phase-1-benchmarks/latency-samples.json under ${describePhase1LatencyEnvironment()}`,
-    };
-  }
-
-  const evidence = summarizePhase1LatencyEvidence(samples);
-  if (!evidence) {
-    return {
-      id: "latency",
-      status: "pending",
-      detail: `Fill fixtures/phase-1-benchmarks/latency-samples.json under ${describePhase1LatencyEnvironment()}`,
-    };
-  }
-  const mismatchedEvidence = samples.find((sample) =>
-    sample.machine !== evidence.machine
-      || (sample.appSurface ?? "tauri-desktop") !== evidence.appSurface
-      || (sample.substituteReason?.trim() || undefined) !== evidence.substituteReason
-  );
-  if (mismatchedEvidence) {
-    return {
-      id: "latency",
-      status: "fail",
-      detail: "Latency evidence must use one machine/surface/reason across all 12 slots.",
-    };
-  }
-  if (evidence.appSurface !== "tauri-desktop" && !evidence.substituteReason) {
-    return {
-      id: "latency",
-      status: "fail",
-      detail: "Substitute latency evidence requires a non-empty substituteReason in latency-samples.json.",
-    };
-  }
-
-  const missing = slots.filter(
-    (slot) => !samples.some(
-      (sample) => sample.frameId === slot.frameId && sample.quality === slot.quality,
-    ),
-  );
-  if (missing.length > 0) {
-    return {
-      id: "latency",
-      status: "pending",
-      detail: `Latency samples incomplete (${samples.length}/${slots.length}). Missing e.g. ${missing[0]?.frameId}/${missing[0]?.quality}`,
-    };
-  }
-
-  const failed = samples.filter((sample) => !isPhase1LatencyWithinBudget(sample));
-  const evidenceLabel = evidence.appSurface === "tauri-desktop"
-    ? `Measured on ${evidence.machine}.`
-    : `Measured on ${evidence.machine} via ${evidence.appSurface} (${evidence.substituteReason}).`;
-  if (evidence.appSurface !== "tauri-desktop") {
-    return {
-      id: "latency",
-      status: "pending",
-      detail: failed.length === 0
-        ? `Substitute latency evidence collected for all ${slots.length} slots. Official pass/fail still requires locked tauri-desktop evidence. ${evidenceLabel}`
-        : `Substitute latency evidence collected, but official pass/fail still requires locked tauri-desktop evidence. Substitute over-budget rows: ${failed.map((sample) => `${sample.frameId}/${sample.quality}=${sample.elapsedMs}ms`).join(", ")}. ${evidenceLabel}`,
-    };
-  }
-  return {
-    id: "latency",
-    status: failed.length === 0 ? "pass" : "fail",
-    detail: failed.length === 0
-      ? `All ${slots.length} latency samples within Draft ≤${PHASE1_LATENCY_ENVIRONMENT.draftCaptureMaxMs}ms / Client ≤${PHASE1_LATENCY_ENVIRONMENT.clientPreviewCaptureMaxMs}ms. ${evidenceLabel}`
-      : `Over budget: ${failed.map((sample) => `${sample.frameId}/${sample.quality}=${sample.elapsedMs}ms`).join(", ")}. ${evidenceLabel}`,
   };
 }
 

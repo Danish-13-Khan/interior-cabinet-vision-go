@@ -100,6 +100,7 @@ export type ProposalGateItem = {
   label: string;
   detail: string;
   blocking: boolean;
+  status: "pass" | "fail" | "warn";
 };
 
 export type ProposalGate = {

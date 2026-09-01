@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderResult } from "../domain/livingRoom";
+import { nextSelectableObjectId } from "../domain/livingRoom/objectSelection";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
@@ -84,6 +85,21 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       setActiveOpeningId(null);
       setActiveSurfaceId(null);
       props.onSelect(null);
+    },
+    onCycleSelection: (delta) => {
+      if (!props.project) return;
+      const current = props.selectedIds[0] ?? null;
+      const next = nextSelectableObjectId(
+        props.project.objects,
+        current,
+        delta,
+        props.project.activeRoomId,
+      );
+      if (next) {
+        setActiveOpeningId(null);
+        setActiveSurfaceId(null);
+        props.onSelect(next);
+      }
     },
   });
 

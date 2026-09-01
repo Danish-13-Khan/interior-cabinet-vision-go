@@ -17,6 +17,7 @@ import { InspectorObjectSection } from "./InspectorObjectSection";
 import { MillworkSchedulePreview } from "./millworkSchedule";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
+import { InspectorObjectList } from "./InspectorObjectList";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -71,6 +72,14 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${props.selectedCount} selected`)}</span>
       </div>
       <div className="lr-inspector-scroll">
+        {room ? (
+          <InspectorObjectList
+            objects={props.project.objects}
+            roomId={room.id}
+            selectedId={activeObject?.id ?? null}
+            onSelect={props.onSelect}
+          />
+        ) : null}
         {room ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
             onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
