@@ -1,9 +1,17 @@
+function binaryToBase64(binary: string) {
+  if (typeof btoa === "function") return btoa(binary);
+  const nodeBuffer = (globalThis as {
+    Buffer?: { from(data: string, encoding: string): { toString(enc: string): string } };
+  }).Buffer;
+  if (!nodeBuffer) throw new Error("Unable to encode SVG as base64.");
+  return nodeBuffer.from(binary, "binary").toString("base64");
+}
+
 function svgToBase64(svg: string) {
   const binary = encodeURIComponent(svg).replace(/%([0-9A-F]{2})/g, (_, hex: string) =>
     String.fromCharCode(Number.parseInt(hex, 16)),
   );
-  if (typeof btoa === "function") return btoa(binary);
-  return Buffer.from(binary, "binary").toString("base64");
+  return binaryToBase64(binary);
 }
 
 async function browserSvgToPng(svg: string): Promise<string> {

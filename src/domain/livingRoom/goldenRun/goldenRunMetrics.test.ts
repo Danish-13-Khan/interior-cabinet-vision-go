@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
@@ -15,16 +17,20 @@ import { createGoldenCabinetRunProject } from "./createProject";
 import { measureGoldenRun } from "./metrics";
 import { reviseGoldenRunCabinetWidth } from "./revision";
 import {
+  GOLDEN_RUN_FIXTURE_RELATIVE_PATH,
   loadGoldenRunFixture,
   readGoldenRunFixtureVersion,
   serializeGoldenRunFixture,
-  goldenRunFixturePath,
 } from "./serialize";
 import {
   GOLDEN_CABINET_RUN_FIXTURE_VERSION,
   GOLDEN_RUN_JOB,
   GOLDEN_RUN_REVISED_WIDTH_MM,
 } from "./types";
+
+function goldenRunFixturePath() {
+  return join(dirname(fileURLToPath(import.meta.url)), "../../../../", GOLDEN_RUN_FIXTURE_RELATIVE_PATH);
+}
 
 describe("golden cabinet run commercial and persistence metrics", () => {
   it("carries proposal metadata and stable engineering IDs after save/reopen", () => {

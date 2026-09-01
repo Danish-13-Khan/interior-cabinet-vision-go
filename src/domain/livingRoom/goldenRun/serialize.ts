@@ -1,5 +1,3 @@
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   loadInteriorProjectFile,
   serializeInteriorProjectFile,
@@ -10,14 +8,6 @@ import { GOLDEN_CABINET_RUN_NOW } from "./types";
 
 export const GOLDEN_RUN_FIXTURE_RELATIVE_PATH =
   "fixtures/golden-cabinet-run/v1.interior.json";
-
-export function goldenRunFixtureDir() {
-  return join(dirname(fileURLToPath(import.meta.url)), "../../../../fixtures/golden-cabinet-run");
-}
-
-export function goldenRunFixturePath() {
-  return join(goldenRunFixtureDir(), "v1.interior.json");
-}
 
 export function serializeGoldenRunFixture(
   project: InteriorProject = createGoldenCabinetRunProject(),
