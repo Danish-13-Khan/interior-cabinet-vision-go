@@ -30,8 +30,10 @@ export function CompiledNodeView({
   snapSizeMm,
   renderMode,
   renderQuality,
+  showSelectedLabel,
   onSelect,
   onSelectOpening,
+  onSelectWall,
   onClearSelection,
   onMove,
   onDragStateChange,
@@ -45,8 +47,10 @@ export function CompiledNodeView({
   snapSizeMm: number;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
+  showSelectedLabel: boolean;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
+  onSelectWall: (wallId: string) => void;
   onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onDragStateChange: (dragging: boolean) => void;
@@ -64,7 +68,8 @@ export function CompiledNodeView({
   const useGlb = modelAsset.strategy === "glb"
     && modelAsset.url
     && modelAsset.definition;
-  const showLabel = Boolean(selectionTarget) && (selected || hovered || node.placeholder);
+  const showLabel = Boolean(selectionTarget)
+    && (node.placeholder || (hovered && !selected) || (selected && showSelectedLabel));
 
   function groundPoint(event: ThreeEvent<PointerEvent>) {
     const result = new Vector3();
@@ -79,6 +84,10 @@ export function CompiledNodeView({
       return;
     }
     if (selectionTarget.kind === "opening") {
+      return;
+    }
+    if (selectionTarget.kind === "wall") {
+      onSelectWall(selectionTarget.id);
       return;
     }
     const objectId = selectionTarget.id;
@@ -194,6 +203,7 @@ export function CompiledNodeView({
               event.stopPropagation();
               if (!selectionTarget) return;
               if (selectionTarget.kind === "opening") onSelectOpening(selectionTarget.id);
+              else if (selectionTarget.kind === "wall") onSelectWall(selectionTarget.id);
               else onSelect(selectionTarget.id, event.shiftKey || event.metaKey || event.ctrlKey);
             }}
           >

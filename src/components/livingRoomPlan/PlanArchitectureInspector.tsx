@@ -41,6 +41,7 @@ type Props = {
   onSetWallPlan: (wallId: string, patch: WallPlanPatch) => void;
   onImportFinish: (file: File, apply?: ImportApply) => void;
   onSetFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) => void;
+  suppressEmptyWall?: boolean;
 };
 
 export function PlanArchitectureInspector(props: Props) {
@@ -106,6 +107,6 @@ export function PlanArchitectureInspector(props: Props) {
           onChange={(uvRotationDeg) => props.onSetFinishUv(finish.id, { uvRotationDeg })} />
       </> : null}
       <button type="button" className="lr-clear-material" onClick={() => props.onSetWallMaterial(wall.id, null)}>Clear wall material</button>
-    </section> : <section className="lr-inspector-empty"><h3>Wall</h3><p>Select a wall to edit length, angle, thickness, height, and raise it into 3D.</p></section>}
+    </section> : props.suppressEmptyWall ? null : <section className="lr-inspector-empty"><h3>Wall</h3><p>Select a wall to edit length, angle, thickness, height, and raise it into 3D.</p></section>}
   </>;
 }
