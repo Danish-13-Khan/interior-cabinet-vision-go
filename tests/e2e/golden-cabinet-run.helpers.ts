@@ -3,6 +3,7 @@ import {
   GOLDEN_RUN_OBJECT_IDS,
   GOLDEN_RUN_REVISED_FINISH_ID,
 } from "../../src/domain/livingRoom/goldenRun";
+import { loadGoldenCabinetRun } from "./plannerStart";
 
 export async function openGoldenCabinetRun(page: Page) {
   await page.addInitScript(() => {
@@ -12,7 +13,7 @@ export async function openGoldenCabinetRun(page: Page) {
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
-  await page.getByTestId("open-golden-cabinet-run").click();
+  await loadGoldenCabinetRun(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Golden Cabinet Run");
 }
 

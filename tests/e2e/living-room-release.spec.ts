@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loadReleaseDemo } from "./plannerStart";
 
 test("verified demo completes Plan to Model to Render and reopens", async ({ page }) => {
   // Software WebGL capture is substantially slower on GitHub-hosted runners.
@@ -8,7 +9,7 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
 
   await page.getByRole("button", { name: "Interiors" }).click();
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
-  await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
+  await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
 

@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
+import { interiorsRecentProjectCard } from "../../domain/desktopUx";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
+import { useInteriorsProjectsFixtures } from "./InteriorsProjectsFixtures";
+import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
+import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
+import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
 import type { LivingRoomPlanWorkspaceProps, PlannerStarterTemplate } from "./workspaceProps";
 
 type PlannerV2ProjectHomeProps = {
@@ -9,8 +14,18 @@ type PlannerV2ProjectHomeProps = {
 };
 
 export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: PlannerV2ProjectHomeProps) {
-  const [projectName, setProjectName] = useState("Living room concept");
-  const recentProjects = useMemo(() => workspace.recentProjects.filter((entry) => entry.project.interiorDocument).slice(0, 3), [workspace.recentProjects]);
+  const [projectName, setProjectName] = useState("New cabinet job");
+  useInteriorsProjectsFixtures({
+    enabled: open,
+    onOpenDemo: () => { workspace.onDiscardRecovery(); workspace.onOpenDemo(); },
+    onOpenGoldenRun: () => { workspace.onDiscardRecovery(); workspace.onOpenGoldenRun(); },
+  });
+  const recentRows = useMemo(() => workspace.recentProjects.flatMap((entry) => {
+    const card = interiorsRecentProjectCard(entry);
+    const document = entry.project.interiorDocument;
+    if (!card || !document) return [];
+    return [{ ...card, thumbnail: entry.thumbnail || createLivingRoomPlanThumbnail(document) }];
+  }).slice(0, 8), [workspace.recentProjects]);
   if (!open) return null;
 
   function createProject(template: PlannerStarterTemplate = "blank-room", styleId: LivingRoomStyleId = "warm-contemporary") {
@@ -21,25 +36,21 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
   }
 
   return (
-    <section className="planner-v2-home" role="dialog" aria-modal="true" aria-label="Start a living room project">
-      <div className="planner-v2-home-intro">
-        <span>Simple room planner</span>
-        <h1>Design the room.<br />Build with confidence.</h1>
-        <p>Start with an empty plan or continue a project. Draw the room in 2D, then review the same layout in 3D.</p>
-        <label>
-          <span>Project name</span>
-          <input value={projectName} maxLength={80} onChange={(event) => setProjectName(event.target.value)} onKeyDown={(event) => {
-            if (event.key === "Enter") createProject();
-          }} />
-        </label>
-        <div className="planner-v2-home-actions">
-          <button type="button" className="is-primary" disabled={!projectName.trim()} onClick={() => createProject()}>Create a room</button>
-          <button type="button" onClick={workspace.onOpenProject}>Open project</button>
-          {hasCurrentProject ? <button type="button" onClick={workspace.onCloseProjectHome}>Return to project</button> : null}
-        </div>
-        <small className="planner-v2-home-start-note">Enter a name, then start with an empty plan and draw in 2D Build.</small>
-      </div>
-
+    <section
+      className="planner-v2-home interiors-projects-home"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Start a living room project"
+      data-testid="interiors-projects-home"
+    >
+      <InteriorsProjectsIntro
+        projectName={projectName}
+        hasCurrentProject={hasCurrentProject}
+        onProjectName={setProjectName}
+        onCreate={() => createProject()}
+        onOpen={workspace.onOpenProject}
+        onReturn={workspace.onCloseProjectHome}
+      />
       <div className="planner-v2-home-content">
         {workspace.recovery ? (
           <section className="planner-v2-recovery">
@@ -48,34 +59,8 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
             <button type="button" onClick={workspace.onDiscardRecovery}>Discard</button>
           </section>
         ) : null}
-        <section className="planner-v2-starts">
-          <header><span>Start from</span><small>Choose the simplest way in</small></header>
-          <div>
-            <button type="button" onClick={() => createProject("blank-room")}><strong>Blank room</strong><small>Empty canvas — draw the floor and walls in Build.</small></button>
-            <button type="button" onClick={() => createProject("wardrobe-wall")}><strong>Wardrobe wall</strong><small>Start a cabinet-led room concept.</small></button>
-            <button type="button" onClick={() => createProject("l-room")}><strong>L-room</strong><small>Freeform L footprint ready for millwork.</small></button>
-            <button type="button" onClick={() => createProject("2-room-flat")}><strong>2-room flat</strong><small>Living and bedroom split by a shared wall.</small></button>
-            <button type="button" onClick={() => createProject("import-plan", "nordic-light")}><strong>Import a plan</strong><small>Use a PNG, JPG, or WebP tracing underlay.</small></button>
-          </div>
-        </section>
-        <section className="planner-v2-recents">
-          <header><span>Open recent</span><small>{recentProjects.length ? "Continue where you left off" : "Your saved projects will appear here"}</small></header>
-          <button type="button" className="planner-v2-demo" onClick={() => {
-            workspace.onDiscardRecovery();
-            workspace.onOpenDemo();
-          }}>OPEN RELEASE DEMO</button>
-          <button type="button" className="planner-v2-demo" data-testid="open-golden-cabinet-run" onClick={() => {
-            workspace.onDiscardRecovery();
-            workspace.onOpenGoldenRun();
-          }}>OPEN GOLDEN CABINET RUN</button>
-          {recentProjects.length ? <div>{recentProjects.map((entry) => {
-            const document = entry.project.interiorDocument!;
-            const preview = entry.thumbnail || createLivingRoomPlanThumbnail(document);
-            return <button type="button" key={entry.id} data-testid="open-recent-project" onClick={() => workspace.onOpenRecentProject(entry.id)}>
-              <img src={preview} alt="" /><strong>{entry.name}</strong><small>{document.objects.length} furniture objects · {document.rooms.length} room</small>
-            </button>;
-          })}</div> : <p>Save a project to keep it here for quick access.</p>}
-        </section>
+        <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />
+        <InteriorsProjectsStarters onCreate={createProject} />
       </div>
     </section>
   );
