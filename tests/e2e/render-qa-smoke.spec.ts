@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { loadReleaseDemo } from "./plannerStart";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -9,7 +10,7 @@ async function openReleaseDemo(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
-  await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
+  await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
 }
 

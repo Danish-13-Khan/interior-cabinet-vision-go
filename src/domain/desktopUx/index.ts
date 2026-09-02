@@ -9,3 +9,4 @@ export * from "./snapCycle";
 export * from "./viewportHud";
 export * from "./workbench";
 export * from "./interiorsChrome";
+export * from "./interiorsProjects";

@@ -60,7 +60,7 @@ export function InteriorsWorkspaceHeader({
       >
         <strong>{projectName ?? "Projects"}</strong>
         <span>
-          {roomName} · Rev {revision} · {statusLabel}
+          {projectName ? `${roomName} · Rev ${revision} · ${statusLabel}` : "Cabinet jobs"}
         </span>
       </button>
       <div className="lr-chrome-history">

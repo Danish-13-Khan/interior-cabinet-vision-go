@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { loadReleaseDemo } from "./plannerStart";
 
 type CapturedDownload = {
   name: string;
@@ -9,7 +10,7 @@ async function openRenderStudio(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
-  await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
+  await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
   await page.getByTestId("interiors-present").click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");

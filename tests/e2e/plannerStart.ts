@@ -6,10 +6,27 @@ export async function openInteriorsHome(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
 }
 
+async function loadInteriorsFixture(page: Page, key: "openReleaseDemo" | "openGoldenRun") {
+  const projects = page.getByRole("dialog", { name: "Start a living room project" });
+  await projects.waitFor();
+  await page.evaluate((method) => {
+    window.dispatchEvent(new CustomEvent("interiors-qa-fixture", { detail: method }));
+  }, key);
+  await projects.waitFor({ state: "hidden" });
+}
+
+export async function loadReleaseDemo(page: Page) {
+  await loadInteriorsFixture(page, "openReleaseDemo");
+}
+
+export async function loadGoldenCabinetRun(page: Page) {
+  await loadInteriorsFixture(page, "openGoldenRun");
+}
+
 /** Empty canvas — designer draws the first room. */
 export async function createBlankPlan(page: Page) {
   await openInteriorsHome(page);
-  await page.getByRole("button", { name: "Create a room", exact: true }).click();
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
 }
 
 /** Rectangular living-room shell with openings (wardrobe starter, no furniture besides cabinets). */
