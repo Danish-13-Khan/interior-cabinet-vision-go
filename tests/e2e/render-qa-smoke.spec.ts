@@ -15,7 +15,7 @@ async function openReleaseDemo(page: Page) {
 
 async function goView(page: Page, view: "plan" | "model" | "render") {
   if (view === "render") {
-    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+    await page.getByTestId("interiors-present").click();
   } else {
     await page.getByRole("button", { name: view === "plan" ? "2D" : "3D", exact: true }).click();
   }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderResult } from "../domain/livingRoom";
+import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
+import { interiorsJobStatusLabel } from "../domain/desktopUx";
 import { nextSelectableObjectId } from "../domain/livingRoom/objectSelection";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
@@ -7,20 +8,17 @@ import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands"
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { useProposalWorkflow } from "../hooks/useProposalWorkflow";
 import { useEngineeringHandoff } from "../hooks/useEngineeringHandoff";
+import { useInteriorsWorkspaceChrome } from "../hooks/useInteriorsWorkspaceChrome";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
-import { InteriorsProductHeader } from "./livingRoomPlan/InteriorsProductHeader";
+import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
-import { PlannerV2WorkflowSteps } from "./livingRoomPlan/PlannerV2WorkflowSteps";
-import type { LivingRoomPlanWorkspaceProps, LivingRoomWorkspaceView, PlannerMode, StudioPanel } from "./livingRoomPlan/workspaceProps";
+import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
-  const [workspaceView, setWorkspaceView] = useState<LivingRoomWorkspaceView>("plan");
-  const [plannerMode, setPlannerMode] = useState<PlannerMode>("project");
-  const [studioPanel, setStudioPanel] = useState<StudioPanel>("cabinets");
   const [assetQuery, setAssetQuery] = useState("");
   const [assetCategory, setAssetCategory] = useState("all");
   const [importError, setImportError] = useState("");
@@ -35,17 +33,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const millwork = useMillworkSchedule(props.project);
   const clientExport = useClientPresentationExport();
   const proposal = useProposalWorkflow({
-    project: props.project,
-    issues: props.issues,
-    onPatchDocument: props.onPatchDocument,
-    latestRender: renderResults.latest,
-    acceptedStills: acceptedStillAssets,
+    project: props.project, issues: props.issues, onPatchDocument: props.onPatchDocument,
+    latestRender: renderResults.latest, acceptedStills: acceptedStillAssets,
   });
   const handoff = useEngineeringHandoff({
-    project: props.project,
-    selectedInteriorObjectIds: props.selectedIds,
-    onPatchDocument: props.onPatchDocument,
-    onEnterEngineering: props.onEnterEngineering,
+    project: props.project, selectedInteriorObjectIds: props.selectedIds,
+    onPatchDocument: props.onPatchDocument, onEnterEngineering: props.onEnterEngineering,
   });
   const readability = usePlanReadabilitySettings();
   const activeOpening = props.project?.openings.find((opening) => opening.id === activeOpeningId) ?? null;
@@ -62,7 +55,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onTranslateWall: props.onTranslateWall, onAddOpening: props.onAddOpening,
     onUpdateOpening: props.onUpdateOpening, onDeleteOpening: props.onDeleteOpening,
   });
-  const activeBuildTool = build.buildCommandState.activeTool;
+  const chrome = useInteriorsWorkspaceChrome({
+    project: props.project, projectHomeOpen: props.projectHomeOpen,
+    onOpenProjectHome: props.onOpenProjectHome, onCloseProjectHome: props.onCloseProjectHome,
+    selectBuildTool: build.selectBuildTool,
+  });
+  const job = props.project ? readProposalCommercial(props.project).job : null;
   const assetCategories = useMemo(() => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))], []);
 
   useEffect(() => {
@@ -70,97 +68,38 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
   }, [props.project]);
-
   useLivingRoomPlanHotkeys({
-    projectHomeOpen: props.projectHomeOpen,
-    snapSizeMm,
-    workspaceView,
-    onView: changeWorkspaceView,
-    onDuplicate: props.onDuplicate,
-    onDelete: props.onDelete,
-    onRotateSelection: props.onRotateSelection,
-    onNudge: props.onNudge,
-    onClearSelection: () => {
-      setActiveWallId(null);
-      setActiveOpeningId(null);
-      setActiveSurfaceId(null);
-      props.onSelect(null);
-    },
+    projectHomeOpen: props.projectHomeOpen, snapSizeMm, workspaceView: chrome.workspaceView,
+    onView: chrome.changeWorkspaceView, onDuplicate: props.onDuplicate, onDelete: props.onDelete,
+    onRotateSelection: props.onRotateSelection, onNudge: props.onNudge,
+    onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(null); },
     onCycleSelection: (delta) => {
       if (!props.project) return;
-      const current = props.selectedIds[0] ?? null;
-      const next = nextSelectableObjectId(
-        props.project.objects,
-        current,
-        delta,
-        props.project.activeRoomId,
-      );
-      if (next) {
-        setActiveOpeningId(null);
-        setActiveSurfaceId(null);
-        props.onSelect(next);
-      }
+      const next = nextSelectableObjectId(props.project.objects, props.selectedIds[0] ?? null, delta, props.project.activeRoomId);
+      if (next) { setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(next); }
     },
   });
-
   useEffect(() => { setRenderResults({ latest: null, previous: null }); }, [props.project?.id]);
   useEffect(() => { setAcceptedStillAssets([]); }, [props.project?.id]);
-  useEffect(() => {
-    if (!props.project || props.projectHomeOpen || plannerMode !== "project") return;
-    setPlannerMode("build");
-    setWorkspaceView("plan");
-    setStudioPanel("build");
-  }, [plannerMode, props.project, props.projectHomeOpen]);
-  useEffect(() => {
-    if (plannerMode !== "build" || !props.project || props.project.rooms.length > 0) return;
-    build.dispatchBuildCommand({ type: "beginDraft", tool: "draw-room" });
-  }, [plannerMode, props.project]);
-
-  function changePlannerMode(mode: PlannerMode) {
-    setPlannerMode(mode);
-    if (mode === "project") { props.onOpenProjectHome(); return; }
-    props.onCloseProjectHome();
-    if (mode === "render") { setWorkspaceView("render"); return; }
-    setWorkspaceView("plan");
-    setStudioPanel(mode === "build" ? "build" : "cabinets");
-    if (mode === "build") {
-      const tool = props.project?.rooms.length ? "select" : "draw-room";
-      build.dispatchBuildCommand({ type: "beginDraft", tool });
-    }
-  }
-
-  function changeWorkspaceView(view: LivingRoomWorkspaceView) {
-    if (plannerMode === "render" && view !== "render") {
-      setPlannerMode("design");
-      props.onCloseProjectHome();
-      setStudioPanel("cabinets");
-    }
-    setWorkspaceView(view);
-  }
 
   const header = (
-    <InteriorsProductHeader projectName={props.project?.name ?? null} workspaceView={workspaceView} plannerMode={plannerMode}
-      isDirty={props.isDirty} canUndo={props.canUndo} canRedo={props.canRedo}
-      onProject={() => changePlannerMode("project")} onView={changeWorkspaceView} onPlannerMode={changePlannerMode}
-      onOpen={props.onOpenProject} onSave={props.onSaveProject} onExport={props.onExportProject}
-      onUndo={props.onUndo} onRedo={props.onRedo} onWorkbenchModeChange={props.onWorkbenchModeChange} />
+    <InteriorsWorkspaceHeader
+      projectName={props.project?.name ?? null} roomName={room?.name ?? "Room"}
+      revision={job?.revision ?? "A"}
+      statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
+      workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
+      canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"}
+      onProject={() => chrome.changePlannerMode("project")} onView={chrome.changeWorkspaceView}
+      onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
+    />
   );
 
   if (!props.project || props.projectHomeOpen) {
     return (
       <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
-        <PlannerV2WorkflowSteps
-          mode={plannerMode}
-          onChange={props.project ? changePlannerMode : setPlannerMode}
-          hasProject={Boolean(props.project)}
-        />
         {header}
         <div className="lr-empty-workspace">
-          <LivingRoomHomeFromWorkspace
-            workspace={props}
-            open
-            hasCurrentProject={Boolean(props.project)}
-          />
+          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={Boolean(props.project)} />
         </div>
       </section>
     );
@@ -168,15 +107,15 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   return (
     <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
-      <PlannerV2WorkflowSteps mode={plannerMode} hasProject onChange={changePlannerMode} />
       {header}
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
-        workspaceView={workspaceView} plannerMode={plannerMode} studioPanel={studioPanel}
-        onStudioPanel={setStudioPanel} assetQuery={assetQuery} assetCategory={assetCategory}
-        assetCategories={assetCategories} importError={importError} onAssetQuery={setAssetQuery}
-        onAssetCategory={setAssetCategory} onImportError={setImportError}
-        snapSizeMm={snapSizeMm} showGrid={showGrid} onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm}
+        workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode} studioPanel={chrome.studioPanel}
+        onStudioPanel={chrome.setStudioPanel} chromeTool={chrome.chromeTool} onChromeTool={chrome.applyChromeTool}
+        assetQuery={assetQuery} assetCategory={assetCategory} assetCategories={assetCategories}
+        importError={importError} onAssetQuery={setAssetQuery} onAssetCategory={setAssetCategory}
+        onImportError={setImportError} snapSizeMm={snapSizeMm} showGrid={showGrid}
+        onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm}
         activeWallId={activeWallId} activeOpeningId={activeOpeningId} activeOpening={activeOpening}
         activeSurfaceId={activeSurfaceId} setActiveSurfaceId={setActiveSurfaceId}
         setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
@@ -185,13 +124,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRoomPolygonCloseRequest={() => setRoomPolygonCloseRequest((count) => count + 1)}
         renderResults={renderResults}
         onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
-        build={build} activeBuildTool={activeBuildTool} onBuildTool={build.selectBuildTool}
+        build={build} activeBuildTool={build.buildCommandState.activeTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
-        proposal={proposal}
-        handoff={handoff}
+        proposal={proposal} handoff={handoff}
         acceptedStillAssets={acceptedStillAssets} onAcceptedStillAssetsChange={setAcceptedStillAssets}
-        issues={props.issues}
-        readability={readability.settings} onReadability={readability.update}
+        issues={props.issues} readability={readability.settings} onReadability={readability.update}
       />
     </section>
   );

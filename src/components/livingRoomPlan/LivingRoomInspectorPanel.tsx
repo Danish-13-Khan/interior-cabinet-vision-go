@@ -12,6 +12,7 @@ import type {
   MillworkWorkflowSnapshot,
 } from "../../domain/livingRoom";
 import type { ProjectReport } from "../../domain/projectReport";
+import { interiorsSelectionTitle } from "../../domain/desktopUx";
 import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
 import { InspectorObjectSection } from "./InspectorObjectSection";
 import { MillworkSchedulePreview } from "./millworkSchedule";
@@ -65,11 +66,17 @@ type LivingRoomInspectorPanelProps = {
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? null;
   const { room, activeOpening, activeObject } = props;
+  const selectionTitle = interiorsSelectionTitle({
+    openingName: activeOpening ? `${activeOpening.kind} opening` : null,
+    objectName: activeObject?.name ?? null,
+    wallLabel: activeWall ? String(activeWall.extensions?.wallSide ?? "Wall") : null,
+    selectedCount: props.selectedCount,
+  });
   return (
     <aside className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`} style={{ width: props.widthPx }}>
       <div className="inspector-header">
-        <strong>{props.mode === "plan" ? "Plan Properties" : "Model Properties"}</strong>
-        <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${props.selectedCount} selected`)}</span>
+        <span className="lr-chrome-eyebrow">Selected</span>
+        <strong>{selectionTitle}</strong>
       </div>
       <div className="lr-inspector-scroll">
         {room ? (

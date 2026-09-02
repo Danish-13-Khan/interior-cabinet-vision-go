@@ -10,6 +10,7 @@ async function openPlan(page: Page) {
 test("H5 exposes active room and wall construction in the inspector", async ({ page }) => {
   await openPlan(page);
   await page.locator('[data-build-tool="select"]').click();
+  await page.locator(".lr-wall-tabs").getByRole("button").first().click();
   const inspector = page.locator(".lr-inspector");
   await expect(inspector.getByText("Room", { exact: true })).toBeVisible();
   await inspector.locator(".lr-wall-inspector").evaluate((element) => element.scrollIntoView({ block: "center" }));

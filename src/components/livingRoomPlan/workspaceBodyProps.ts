@@ -1,3 +1,4 @@
+import type { InteriorsChromeTool } from "../../domain/desktopUx";
 import type { InteriorProject, InteriorRoomEntity, OpeningEntity } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult, PlanReadabilitySettings } from "../../domain/livingRoom";
@@ -24,6 +25,8 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   plannerMode: PlannerMode;
   studioPanel: StudioPanel;
   onStudioPanel: (panel: StudioPanel) => void;
+  chromeTool: InteriorsChromeTool;
+  onChromeTool: (tool: InteriorsChromeTool) => void;
   assetQuery: string;
   assetCategory: string;
   assetCategories: string[];

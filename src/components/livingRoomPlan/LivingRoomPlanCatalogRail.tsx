@@ -3,9 +3,10 @@ import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/inter
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
+import type { InteriorsChromeTool } from "../../domain/desktopUx";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildRoomCatalogPanel } from "./BuildRoomCatalogPanel";
-import { BuildToolList } from "./BuildToolList";
+import { InteriorsToolRail } from "./InteriorsToolRail";
 import { PlanAssetLibraryPanel } from "./PlanAssetLibraryPanel";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
 
@@ -14,6 +15,8 @@ type LivingRoomPlanCatalogRailProps = {
   toolRailVisible: boolean;
   studioPanel: StudioPanel;
   onStudioPanel: (panel: StudioPanel) => void;
+  chromeTool: InteriorsChromeTool;
+  onChromeTool: (tool: InteriorsChromeTool) => void;
   project: InteriorProject;
   roomName: string;
   selectedIds: string[];
@@ -92,22 +95,14 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const selectedCabinetCount = props.project.objects.filter((object) =>
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
   ).length;
-  const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
+  const activePanel = props.studioPanel;
   const tool = props.activeBuildTool ?? "select";
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
   }, [props.onRegisterUnderlayPicker]);
 
   return <>
-    <nav className="lr-studio-rail" aria-label="Plan tools">
-      {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build<small>Room, walls, openings</small></button> : null}
-      {!props.v2BuildMode ? <>
-        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Millwork design"><span>▤</span>Millwork<small>Design on plan</small></button>
-        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture<small>Room objects</small></button>
-        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials<small>Finishes</small></button>
-        <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers<small>Visibility</small></button>
-      </> : null}
-    </nav>
+    <InteriorsToolRail activeTool={props.chromeTool} onTool={props.onChromeTool} />
     {props.toolRailVisible ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {activePanel === "cabinets" || activePanel === "furniture" ? (
@@ -140,10 +135,6 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         ) : (
           <>
             <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
-            {props.v2BuildMode && props.onBuildTool ? (
-              <BuildToolList activeTool={tool} onTool={props.onBuildTool} canUndo={Boolean(props.canUndo)} canRedo={Boolean(props.canRedo)}
-                onUndo={props.onUndo ?? (() => {})} onRedo={props.onRedo ?? (() => {})} />
-            ) : null}
             <BuildRoomCatalogPanel tool={tool} project={props.project} roomDimensions={room?.dimensions ?? { widthMm: 6200, depthMm: 4600, heightMm: 2800 }} activeWall={activeWall}
               activeOpening={activeOpening} activeSurfaceId={props.activeSurfaceId ?? null} underlay={props.underlay} importError={props.importError}
               openingCatalogItemId={props.openingCatalogItemId} roomPolygonPointCount={props.roomPolygonPointCount}

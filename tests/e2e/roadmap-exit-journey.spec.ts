@@ -57,7 +57,7 @@ test("Exit journey: footprint → split → run → 3D → schedule + client pac
   expect(hostWallId).toBeTruthy();
   await clickWallMidpoint(page, hostWallId!);
 
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
   await expect(page.locator("[data-object-id]")).toHaveCount(1);
   await expect(page.locator("[data-object-id]").first()).toHaveAttribute("data-wall-id", hostWallId!);
@@ -93,7 +93,7 @@ test("Exit journey: footprint → split → run → 3D → schedule + client pac
   await scheduleCsv.click();
   expect((await scheduleDownload).suggestedFilename()).toMatch(/schedule.*\.csv$/i);
 
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+  await page.getByTestId("interiors-present").click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
 
   const captured: string[] = [];

@@ -6,7 +6,7 @@ async function openDesignPlan(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();
 }
 
@@ -61,9 +61,9 @@ test("I2 enables auto fillers on a cabinet run", async ({ page }) => {
   await runInspector.getByLabel("Auto fillers (40–150 mm)").uncheck();
   await expect(page.locator(".lr-filler-symbol")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator(".lr-build-history").getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-select").click();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.locator(".lr-filler-symbol")).toHaveCount(1);
 });
 
@@ -75,8 +75,8 @@ test("I2 places a corner wardrobe and supports undo", async ({ page }) => {
   await expect(page.locator(".lr-corner-symbol")).toHaveCount(1);
   await expect(page.locator(".lr-inspector .lr-object-identity strong")).toHaveText("Corner Wardrobe");
 
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator(".lr-build-history").getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-select").click();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.locator(".lr-corner-symbol")).toHaveCount(0);
 });
