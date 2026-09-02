@@ -36,6 +36,8 @@ describe("interiorsChrome", () => {
     expect(hasInteriorsInspectorSelection({ wallSelected: true })).toBe(true);
     expect(hasInteriorsInspectorSelection({ objectSelected: true })).toBe(true);
     expect(hasInteriorsInspectorSelection({ openingSelected: true })).toBe(true);
+    expect(hasInteriorsInspectorSelection({ surfaceSelected: true })).toBe(true);
+    expect(hasInteriorsInspectorSelection({ roomSelected: true })).toBe(true);
   });
 
   it("labels job status from the existing commercial job without new engines", () => {
@@ -53,5 +55,7 @@ describe("interiorsChrome", () => {
     expect(interiorsSelectionTitle({ selectedCount: 0 })).toBe("Nothing selected");
     expect(interiorsSelectionTitle({ wallLabel: "North wall", selectedCount: 0 })).toBe("North wall");
     expect(interiorsSelectionTitle({ objectName: "Base A", selectedCount: 1 })).toBe("Base A");
+    expect(interiorsSelectionTitle({ roomName: "Living", selectedCount: 0 })).toBe("Living");
+    expect(interiorsSelectionTitle({ surfaceName: "Surface zone", selectedCount: 0 })).toBe("Surface zone");
   });
 });

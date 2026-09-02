@@ -74,11 +74,15 @@ export function interiorsSelectionTitle(input: {
   openingName?: string | null;
   objectName?: string | null;
   wallLabel?: string | null;
+  surfaceName?: string | null;
+  roomName?: string | null;
   selectedCount: number;
 }): string {
   if (input.openingName) return input.openingName;
   if (input.objectName) return input.objectName;
   if (input.wallLabel) return input.wallLabel;
+  if (input.surfaceName) return input.surfaceName;
+  if (input.roomName) return input.roomName;
   if (input.selectedCount > 1) return `${input.selectedCount} selected`;
   return "Nothing selected";
 }
@@ -87,6 +91,11 @@ export function hasInteriorsInspectorSelection(input: {
   objectSelected?: boolean;
   openingSelected?: boolean;
   wallSelected?: boolean;
+  surfaceSelected?: boolean;
+  roomSelected?: boolean;
 }): boolean {
-  return Boolean(input.objectSelected || input.openingSelected || input.wallSelected);
+  return Boolean(
+    input.objectSelected || input.openingSelected || input.wallSelected
+    || input.surfaceSelected || input.roomSelected,
+  );
 }

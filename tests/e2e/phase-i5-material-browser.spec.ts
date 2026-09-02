@@ -24,13 +24,30 @@ async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
  * Offset each cabinet before selecting so plan clicks are not intercepted.
  */
 async function placeTwoSeparatedCabinets(page: Page) {
+  const objects = page.locator("[data-object-id]");
+  const initialIds = (await objects.evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute("data-object-id")),
+  )).filter((id): id is string => Boolean(id));
+
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
-  await expect(page.locator("[data-object-id]")).toHaveCount(1);
+  await expect(objects).toHaveCount(initialIds.length + 1);
   await setObjectPosition(page, "X", "-1400");
+  const baseIds = (await objects.evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute("data-object-id")),
+  )).filter((id): id is string => Boolean(id));
+  const baseId = baseIds.find((id) => !initialIds.includes(id));
+  if (!baseId) throw new Error("Placed base cabinet was not found");
 
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Wall Cabinet.*Place/ }).click();
-  await expect(page.locator("[data-object-id]")).toHaveCount(2);
+  await expect(objects).toHaveCount(initialIds.length + 2);
   await setObjectPosition(page, "X", "1400");
+  const finalIds = (await objects.evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute("data-object-id")),
+  )).filter((id): id is string => Boolean(id));
+  const wallId = finalIds.find((id) => !baseIds.includes(id));
+  if (!wallId) throw new Error("Placed wall cabinet was not found");
+
+  return { baseId, wallId };
 }
 
 test("I5 paints shared finishes, undoes paint, and edits opening materials", async ({ page }) => {
@@ -44,15 +61,16 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await expect(oak).toHaveClass(/is-active/);
 
   await page.getByTestId("interiors-tool-cabinet").click();
-  await placeTwoSeparatedCabinets(page);
+  const { baseId, wallId } = await placeTwoSeparatedCabinets(page);
 
-  const objects = page.locator("[data-object-id]");
+  const base = page.locator(`[data-object-id="${baseId}"]`);
+  const wall = page.locator(`[data-object-id="${wallId}"]`);
   // Defaults tint from fronts (oak); paint fronts → walnut so the plan attribute changes.
-  await expect(objects.nth(0)).toHaveAttribute("data-material-id", OAK_ID);
-  const originalFront = await objects.nth(0).getAttribute("data-material-id");
+  await expect(base).toHaveAttribute("data-material-id", OAK_ID);
+  const originalFront = await base.getAttribute("data-material-id");
 
-  await objects.nth(0).click();
-  await objects.nth(1).click({ modifiers: ["Shift"] });
+  await base.click();
+  await wall.click({ modifiers: ["Shift"] });
   await expect(page.locator(".lr-plan-object.is-selected")).toHaveCount(2);
 
   await page.getByTestId("interiors-tool-material").click();
@@ -60,17 +78,18 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await page.getByLabel("Selection material slot").selectOption("fronts");
   await page.locator(`.lr-surface-painter [data-material-id="${WALNUT_ID}"]`).click();
 
-  await expect(objects.nth(0)).toHaveAttribute("data-material-id", WALNUT_ID);
-  await expect(objects.nth(1)).toHaveAttribute("data-material-id", WALNUT_ID);
+  await expect(base).toHaveAttribute("data-material-id", WALNUT_ID);
+  await expect(wall).toHaveAttribute("data-material-id", WALNUT_ID);
 
   await page.getByRole("button", { name: "Undo", exact: true }).click();
-  await expect(objects.nth(0)).toHaveAttribute("data-material-id", originalFront!);
-  await expect(objects.nth(1)).toHaveAttribute("data-material-id", originalFront!);
+  await expect(base).toHaveAttribute("data-material-id", originalFront!);
+  await expect(wall).toHaveAttribute("data-material-id", originalFront!);
 
-  // Select stays in Material context; open Build Room before using wall tabs.
-  await page.getByTestId("interiors-tool-wall").click();
-  await page.locator(".lr-wall-tabs").getByRole("button", { name: "front", exact: true }).click();
-  await page.locator(".lr-opening-row").filter({ hasText: "door" }).click();
+  await page.getByTestId("interiors-tool-select").click();
+  const openingLine = page.locator("g[data-opening-id]").first().locator("line").first();
+  const openingBox = await openingLine.boundingBox();
+  if (!openingBox) throw new Error("Opening is not rendered");
+  await page.mouse.click(openingBox.x + openingBox.width / 2, openingBox.y + openingBox.height / 2);
   const leafSlot = page.locator('.lr-opening-inspector [data-material-slot="leaf"]');
   await expect(leafSlot).toBeVisible();
   await leafSlot.locator(`[data-material-id="${OAK_ID}"]`).click();

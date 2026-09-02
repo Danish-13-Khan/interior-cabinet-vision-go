@@ -1,19 +1,23 @@
 import type { InteriorProject, Point3Mm, RenderSettings, RoomDrawingRequest, Size3Mm } from "../../domain/interiorProject";
-import type {
-  BuildTool,
-  LivingRoomAlignMode,
-  LivingRoomLightingRecipeId,
-  LivingRoomPlanIssue,
-  LivingRoomRenderResult,
-  LivingRoomStyleId,
-  PlanReadabilitySettings,
+import {
+  type BuildTool,
+  type LivingRoomAlignMode,
+  type LivingRoomLightingRecipeId,
+  type LivingRoomPlanIssue,
+  type LivingRoomRenderResult,
+  type LivingRoomStyleId,
+  type PlanReadabilitySettings,
 } from "../../domain/livingRoom";
 import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
 import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
+import { isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
 import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
+import { InteriorsDrawRoomChrome } from "./InteriorsDrawRoomChrome";
+import { InteriorsDrawRoomStatus } from "./InteriorsDrawRoomStatus";
+import type { InteriorsDrawRoomCommands } from "./interiorsDrawRoomCommands";
 import { PlanStageTitlebar } from "./PlanStageTitlebar";
 import { PlanStageToolbar } from "./PlanStageToolbar";
 
@@ -88,27 +92,49 @@ type LivingRoomPlanStageProps = {
   v2ReviewMode?: boolean;
   readability: PlanReadabilitySettings;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
+  chromeTool?: InteriorsChromeTool;
+  roomPolygonPointCount?: number;
+  onOpeningCatalogItem?: (catalogItemId: string) => void;
+  onCloseRoomPolygon?: () => void;
+  onCommitOpening?: (wallId: string, kind: "door" | "window") => void;
+  drawCommands?: InteriorsDrawRoomCommands;
+  onSelectRoom?: () => void;
 };
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
+  const drawRoom = Boolean(props.chromeTool && isInteriorsDrawRoomTool(props.chromeTool) && props.workspaceView === "plan");
   return (
     <div className="lr-plan-center">
-      {props.workspaceView === "plan" ? (
-        <PlanStageToolbar canUndo={props.canUndo} canRedo={props.canRedo} hasSelection={props.hasSelection}
-          selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
-          readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
-          onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
-          onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-          onReadability={props.onReadability} />
-      ) : null}
-      <PlanStageTitlebar
-        project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
-        v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
-        exportBusy={props.exportBusy} exportStatus={props.exportStatus}
-        millworkCount={props.millworkCount} millworkReady={props.millworkReady} exportBlocked={props.exportBlocked}
-        onExportScheduleCsv={props.onExportScheduleCsv} onExportSchedulePdf={props.onExportSchedulePdf}
-        onExportCutlistCsv={props.onExportCutlistCsv} onExportProductionPdf={props.onExportProductionPdf}
-      />
+      {drawRoom && props.chromeTool && props.drawCommands ? (
+        <InteriorsDrawRoomChrome
+          tool={props.chromeTool} project={props.project} activeBuildTool={props.activeBuildTool}
+          activeWallId={props.activeWallId} openingCatalogItemId={props.openingCatalogItemId}
+          roomPolygonPointCount={props.roomPolygonPointCount ?? 0} showGrid={props.showGrid}
+          snapSizeMm={props.snapSizeMm} readability={props.readability} commands={props.drawCommands}
+          onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} onReadability={props.onReadability}
+          onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}
+          onCommitOpening={props.onCommitOpening}
+        />
+      ) : (
+        <>
+          {props.workspaceView === "plan" ? (
+            <PlanStageToolbar canUndo={props.canUndo} canRedo={props.canRedo} hasSelection={props.hasSelection}
+              selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
+              readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
+              onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
+              onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
+              onReadability={props.onReadability} />
+          ) : null}
+          <PlanStageTitlebar
+            project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
+            v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
+            exportBusy={props.exportBusy} exportStatus={props.exportStatus}
+            millworkCount={props.millworkCount} millworkReady={props.millworkReady} exportBlocked={props.exportBlocked}
+            onExportScheduleCsv={props.onExportScheduleCsv} onExportSchedulePdf={props.onExportSchedulePdf}
+            onExportCutlistCsv={props.onExportCutlistCsv} onExportProductionPdf={props.onExportProductionPdf}
+          />
+        </>
+      )}
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (
           <LivingRoomPlanView
@@ -126,6 +152,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onDrawWallSegment={props.onDrawWallSegment} onPlaceColumn={props.onPlaceColumn}
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
             onRoomPolygonPointCount={props.onRoomPolygonPointCount} readability={props.readability}
+            onSelectRoom={props.onSelectRoom}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
@@ -148,25 +175,22 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
           />
         )}
       </div>
-      <footer className="lr-plan-status">
-        <span>{props.workspaceView === "render" ? "PNG output" : `Snap ${props.snapSizeMm} mm`}</span>
-        <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Dollhouse ready" : "ACES / sRGB"}</span>
-        <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `Grid ${props.showGrid ? "on" : "off"}`}</span>
-        {props.v2BuildMode ? <span>mm · Zoom fit</span> : null}
-        {props.v2ReviewMode ? <span>Shared 2D / 3D document</span> : null}
-        <span className={props.issues.length ? "has-warning" : ""}>
-          {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
-        </span>
-        <span className={`lr-autosave-state is-${props.autosaveState}`}>
-          {props.autosaveState === "saving"
-            ? "Autosaving…"
-            : props.autosaveState === "error"
-              ? "Autosave failed"
-              : props.lastAutosavedAt
-                ? `Autosaved ${new Date(props.lastAutosavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                : "Autosave ready"}
-        </span>
-      </footer>
+      {drawRoom ? (
+        <InteriorsDrawRoomStatus
+          project={props.project} issues={props.issues} unit={props.readability.unit} onSelect={props.onSelect}
+        />
+      ) : (
+        <footer className="lr-plan-status">
+          <span>{props.workspaceView === "render" ? "PNG output" : `Snap ${props.snapSizeMm} mm`}</span>
+          <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Dollhouse ready" : "ACES / sRGB"}</span>
+          <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `Grid ${props.showGrid ? "on" : "off"}`}</span>
+          {props.v2BuildMode ? <span>mm · Zoom fit</span> : null}
+          {props.v2ReviewMode ? <span>Shared 2D / 3D document</span> : null}
+          <span className={props.issues.length ? "has-warning" : ""}>
+            {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
+          </span>
+        </footer>
+      )}
     </div>
   );
 }
