@@ -1,4 +1,4 @@
-import { hasInteriorsInspectorSelection, isInteriorsDrawRoomTool } from "../../domain/desktopUx";
+import { hasInteriorsInspectorSelection, isInteriorsCabinetRunTool, isInteriorsDrawRoomTool } from "../../domain/desktopUx";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
@@ -25,6 +25,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   }
   return (
     <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={w.inspectorWidthPx} project={p.project} room={p.room} drawRoom={isInteriorsDrawRoomTool(p.chromeTool)}
+      cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
       inspectRoom={p.inspectRoom} activeObject={activeObject} activeOpening={p.activeOpening} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues} millworkSchedule={p.millwork.schedule} millworkWorkflow={p.millwork.workflow}
@@ -32,7 +33,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
-      onSelect={(objectId) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); w.onSelect(objectId); }}
+      onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
       onUpdateOpening={(openingId, patch) => p.build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
       onDeleteOpening={(openingId) => { p.build.dispatchBuildCommand({ type: "deleteOpening", openingId }); p.setActiveOpeningId(null); }}
       onUpdateSurface={(surfaceId, materialId) => p.build.dispatchBuildCommand({ type: "updateSurface", surfaceId, materialId })}

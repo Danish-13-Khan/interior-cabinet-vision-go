@@ -11,3 +11,4 @@ export * from "./workbench";
 export * from "./interiorsChrome";
 export * from "./interiorsProjects";
 export * from "./interiorsDrawRoom";
+export * from "./interiorsCabinetRun";

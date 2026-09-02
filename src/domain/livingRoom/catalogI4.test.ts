@@ -7,7 +7,7 @@ describe("I4 curated millwork SKUs", () => {
       "sku" in item.parameters && typeof item.parameters.sku === "string" ? [item.parameters.sku] : [],
     );
     expect(skus).toEqual([
-      "MW-TALL-600", "MW-BASE-900", "MW-WALL-900", "MW-DRAWER-900",
+      "MW-TALL-600", "MW-BASE-900", "MW-WALL-900", "MW-DRAWER-900", "MW-SHELF-900",
     ]);
   });
 

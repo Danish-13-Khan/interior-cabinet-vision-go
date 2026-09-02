@@ -6,6 +6,7 @@ export type { WallPlacement } from "./wallSegmentPlacement";
 export {
   arrangeCabinetRun,
   cabinetRunForObject,
+  cabinetRunLengthMm,
   updateCabinetRun,
   type CabinetRunAlignment,
   type CabinetRunMetadata,

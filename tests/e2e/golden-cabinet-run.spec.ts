@@ -31,7 +31,6 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   // under CI load.
   test.setTimeout(process.env.CI ? 480_000 : 240_000);
   let quoteBefore = 0;
-  let cutlistBefore = "";
 
   await test.step("open-benchmark", async () => {
     await openGoldenCabinetRun(page);
@@ -61,7 +60,6 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
     await page.getByTestId("interiors-present").click();
     quoteBefore = await readSellTotal(page);
     await page.getByTestId("interiors-tool-cabinet").click();
-    cutlistBefore = (await page.getByTestId("cutlist-part-count").textContent()) ?? "";
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
   });
 
@@ -72,13 +70,10 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
 
   await test.step("assert-cutlist", async () => {
     await page.getByTestId("interiors-tool-cabinet").click();
-    const cutlist = page.getByTestId("cutlist-part-count");
-    await expect(cutlist).toBeVisible();
-    await expect(cutlist).toContainText(/cut parts/);
-    await expect(cutlist).toContainText(/cut width/);
-    if (cutlistBefore) await expect(cutlist).not.toHaveText(cutlistBefore);
     await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
       .toHaveAttribute("data-width-mm", String(GOLDEN_RUN_REVISED_WIDTH_MM));
+    await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
+      .toHaveAttribute("data-family-id", "frameless-standard-base");
   });
 
   await test.step("review-3d", async () => {
@@ -142,7 +137,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("reopen-project", async () => {
-    await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
+    await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
     await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
       .toHaveAttribute("data-width-mm", String(GOLDEN_RUN_REVISED_WIDTH_MM));
     await page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`).click();

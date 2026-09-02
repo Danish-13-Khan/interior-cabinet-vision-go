@@ -3,7 +3,8 @@ import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/inter
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
-import { isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
+import { isInteriorsCabinetRunTool, isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
+import { InteriorsCabinetRunCatalog } from "./InteriorsCabinetRunCatalog";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildRoomCatalogPanel } from "./BuildRoomCatalogPanel";
 import { InteriorsToolRail } from "./InteriorsToolRail";
@@ -98,6 +99,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const activePanel = props.studioPanel;
   const tool = props.activeBuildTool ?? "select";
   const drawRoom = isInteriorsDrawRoomTool(props.chromeTool);
+  const cabinetRun = isInteriorsCabinetRunTool(props.chromeTool);
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
   }, [props.onRegisterUnderlayPicker]);
@@ -107,7 +109,15 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
     {props.toolRailVisible && !drawRoom ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
-        {activePanel === "cabinets" || activePanel === "furniture" ? (
+        {cabinetRun && (activePanel === "materials" || props.chromeTool === "material") ? <>
+          <div className="context-panel-heading"><strong>Material Browser</strong><span>Swatches · slots · selection</span></div>
+          <SurfacePaintPanel project={props.project} activeWallId={activeWall?.id ?? null}
+            selectedObjects={props.project.objects.filter((object) => props.selectedIds.includes(object.id))}
+            onFloor={props.onSetFloorMaterial} onCeiling={props.onSetCeilingMaterial} onWall={props.onSetWallMaterial}
+            onApplyToSelection={props.onApplyMaterialToSelection} onImportFinish={props.onImportFinish} />
+        </> : cabinetRun ? (
+          <InteriorsCabinetRunCatalog tool={props.chromeTool} wallId={activeWall?.id ?? ""} onAdd={props.onAddCatalogObject} />
+        ) : activePanel === "cabinets" || activePanel === "furniture" ? (
           <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall?.extensions?.wallSide ?? "wall")}
             wallId={activeWall?.id ?? ""} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
             categories={props.assetCategories} onQuery={props.onAssetQuery} onCategory={props.onAssetCategory}
