@@ -83,6 +83,12 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     changePlannerMode("render");
   }
 
+  function showRenderStudio() {
+    input.onCloseProjectHome();
+    setPlannerMode("design");
+    setWorkspaceView("render");
+  }
+
   return {
     workspaceView,
     plannerMode,
@@ -93,5 +99,6 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     changeWorkspaceView,
     applyChromeTool,
     present,
+    showRenderStudio,
   };
 }

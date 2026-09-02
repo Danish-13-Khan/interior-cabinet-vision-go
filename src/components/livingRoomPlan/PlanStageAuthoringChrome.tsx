@@ -62,10 +62,6 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
       <PlanStageTitlebar
         project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
         v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
-        exportBusy={props.exportBusy} exportStatus={props.exportStatus}
-        millworkCount={props.millworkCount} millworkReady={props.millworkReady} exportBlocked={props.exportBlocked}
-        onExportScheduleCsv={props.onExportScheduleCsv} onExportSchedulePdf={props.onExportSchedulePdf}
-        onExportCutlistCsv={props.onExportCutlistCsv} onExportProductionPdf={props.onExportProductionPdf}
       />
     </>
   );

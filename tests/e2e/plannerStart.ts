@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 export async function openInteriorsHome(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
@@ -6,13 +6,15 @@ export async function openInteriorsHome(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
 }
 
-async function loadInteriorsFixture(page: Page, key: "openReleaseDemo" | "openGoldenRun") {
+async function loadInteriorsFixture(page: Page, key: "openReleaseDemo" | "openGoldenRun" | "openRenderStudio") {
   const projects = page.getByRole("dialog", { name: "Start a living room project" });
   await projects.waitFor();
   await page.evaluate((method) => {
     window.dispatchEvent(new CustomEvent("interiors-qa-fixture", { detail: method }));
   }, key);
-  await projects.waitFor({ state: "hidden" });
+  if (key !== "openRenderStudio") {
+    await projects.waitFor({ state: "hidden" });
+  }
 }
 
 export async function loadReleaseDemo(page: Page) {
@@ -21,6 +23,13 @@ export async function loadReleaseDemo(page: Page) {
 
 export async function loadGoldenCabinetRun(page: Page) {
   await loadInteriorsFixture(page, "openGoldenRun");
+}
+
+export async function openQaRenderStudio(page: Page) {
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent("interiors-qa-fixture", { detail: "openRenderStudio" }));
+  });
+  await expect(page.getByTestId("lr-render-live")).toBeVisible();
 }
 
 /** Empty canvas — designer draws the first room. */

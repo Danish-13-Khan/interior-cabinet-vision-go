@@ -23,13 +23,13 @@ import { usePackageCameraBookmarkSettings } from "../hooks/usePackageCameraBookm
 import { useRenderStudioHonesty } from "../hooks/useRenderStudioHonesty";
 import { useStillReviewFlow } from "../hooks/useStillReviewFlow";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
-import { acceptedStillExportPayload } from "../hooks/selectPackageAcceptedStillAssets";
 import { LivingRoomRenderCanvas } from "./LivingRoomRenderCanvas";
 import type { RenderCaptureHandle } from "./livingRoomScene/RenderCaptureBridge";
 import { RenderDiagnosticsPanel } from "./livingRoomScene/RenderDiagnosticsPanel";
 import { LivingRoomRenderCamerasPanel } from "./livingRoomScene/LivingRoomRenderCamerasPanel";
 import { LivingRoomRenderSettingsPanel } from "./livingRoomScene/LivingRoomRenderSettingsPanel";
 import { RenderPresetHonestyBadge } from "./livingRoomScene/RenderPresetHonestyBadge";
+import { RenderStudioExportActions } from "./livingRoomScene/RenderStudioExportActions";
 import { StillReviewPanel } from "./livingRoomScene/StillReviewPanel";
 import { StillTrustPanel } from "./livingRoomScene/StillTrustPanel";
 
@@ -265,36 +265,18 @@ export function LivingRoomRenderStudio({
           <button type="button" className="is-primary" onClick={() => void renderImage()} disabled={isRendering || !activeCamera || !captureHandle}>
             {isRendering ? "Rendering…" : "Render Image"}
           </button>
-          <button type="button" onClick={() => void generateStill()} disabled={stills.busy || isRendering || !activeCamera || !captureHandle}>
-            {stills.busy ? "Generating still…" : "Generate Still"}
-          </button>
-          <button type="button" onClick={() => void exportPng()} disabled={!latestResult || isRendering}>Export PNG</button>
-          <button
-            type="button"
-            onClick={() => latestResult && void clientExport.exportPresentationPdf(project, latestResult)}
-            disabled={!latestResult || isRendering || clientExport.busy}
-          >
-            {clientExport.busy ? "Exporting…" : "Presentation PDF"}
-          </button>
-          <button
-            type="button"
-            title={clientPackageBlocked
-              ? "Resolve layout conflicts and place millwork before export."
-              : undefined}
-            onClick={() => {
-              if (clientPackageBlocked) return;
-              const payload = acceptedStillExportPayload(stills.acceptedStills);
-              void clientExport.exportClientPreview(
-                project,
-                latestResult,
-                payload.provenance,
-                payload.pngs,
-              );
-            }}
-            disabled={isRendering || clientExport.busy || clientPackageBlocked}
-          >
-            {clientExport.busy ? "Packaging…" : "Client Package"}
-          </button>
+          <RenderStudioExportActions
+            isRendering={isRendering}
+            latestResult={latestResult}
+            project={project}
+            clientExport={clientExport}
+            clientPackageBlocked={clientPackageBlocked}
+            stillsBusy={stills.busy}
+            activeCameraReady={Boolean(activeCamera && captureHandle)}
+            acceptedStills={stills.acceptedStills}
+            onGenerateStill={() => void generateStill()}
+            onSaveImage={() => void exportPng()}
+          />
         </div>
       </header>
 

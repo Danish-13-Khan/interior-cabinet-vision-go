@@ -46,11 +46,6 @@ export function useLivingRoomPlanHotkeys({
         onView("model");
         return;
       }
-      if (event.key === "3") {
-        event.preventDefault();
-        onView("render");
-        return;
-      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
         event.preventDefault();
         onDuplicate();

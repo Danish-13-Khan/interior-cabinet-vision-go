@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { loadReleaseDemo } from "./plannerStart";
+import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
 
 test("verified demo completes Plan to Model to Render and reopens", async ({ page }) => {
   // Software WebGL capture is substantially slower on GitHub-hosted runners.
@@ -11,12 +11,14 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
   await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
 
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
   await page.getByTestId("interiors-present").click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
+  await expect(page.getByTestId("interiors-present-titlebar")).toContainText("Present and Send");
+  await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
+  await openQaRenderStudio(page);
 
   await page.getByRole("button", { name: /Draft Fast camera/ }).click();
   await page.getByLabel("Resolution").selectOption("hd");

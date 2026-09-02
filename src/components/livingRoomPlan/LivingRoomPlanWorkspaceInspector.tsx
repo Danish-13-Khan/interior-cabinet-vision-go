@@ -29,8 +29,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
       inspectRoom={p.inspectRoom} activeObject={activeObject} activeOpening={p.activeOpening} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
-      issues={p.issues} millworkSchedule={p.millwork.schedule} millworkWorkflow={p.millwork.workflow}
-      productionReport={p.millwork.productionReport} millworkExportedAt={p.millwork.exportedAt}
+      issues={p.issues}
       onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}

@@ -26,13 +26,6 @@ export type LivingRoomPlanStageProps = {
   canUndo: boolean;
   canRedo: boolean;
   hasSelection: boolean;
-  millworkCount: number;
-  millworkReady: boolean;
-  exportBlocked: boolean;
-  exportBusy: boolean;
-  exportStatus: string;
-  autosaveState: "idle" | "saving" | "saved" | "error";
-  lastAutosavedAt: string | null;
   latestRender: LivingRoomRenderResult | null;
   previousRender: LivingRoomRenderResult | null;
   onShowGrid: (value: boolean) => void;
@@ -75,10 +68,6 @@ export type LivingRoomPlanStageProps = {
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;
   onRendered: (result: LivingRoomRenderResult) => void;
-  onExportScheduleCsv: () => void;
-  onExportSchedulePdf: () => void;
-  onExportCutlistCsv: () => void;
-  onExportProductionPdf: () => void;
   acceptedStillAssets: AcceptedStillAsset[];
   onAcceptedStillAssetsChange: React.Dispatch<React.SetStateAction<AcceptedStillAsset[]>>;
   clientExport: ReturnType<typeof useClientPresentationExport>;
