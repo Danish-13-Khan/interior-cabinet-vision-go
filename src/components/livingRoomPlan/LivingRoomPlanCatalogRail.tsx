@@ -76,6 +76,7 @@ type LivingRoomPlanCatalogRailProps = {
   onCloseSurfacePolygon?: () => void;
   onUpdateSurface?: (surfaceId: string, materialId: string) => void;
   onDeleteSurface?: (surfaceId: string) => void;
+  presenting?: boolean;
 };
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
@@ -107,7 +108,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   return <>
     <InteriorsToolRail activeTool={props.chromeTool} onTool={props.onChromeTool} />
     <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
-    {props.toolRailVisible && !drawRoom ? (
+    {props.toolRailVisible && !drawRoom && !props.presenting ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {cabinetRun && (activePanel === "materials" || props.chromeTool === "material") ? <>
           <div className="context-panel-heading"><strong>Material Browser</strong><span>Swatches · slots · selection</span></div>

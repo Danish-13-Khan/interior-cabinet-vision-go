@@ -15,6 +15,7 @@ import {
   captureProposalView,
   changeGoldenFinish,
   expandEngineeringTree,
+  expandHandoffIdentities,
   openGoldenCabinetRun,
   openGoldenRunModelView,
   readSellTotal,
@@ -110,11 +111,13 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
 
   await test.step("assert-quote", async () => {
     await page.getByTestId("interiors-present").click();
-    await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
+    await expect(page.getByTestId("interiors-present-titlebar")).toContainText("Present and Send");
+    await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
     const quoteAfter = await readSellTotal(page);
     expect(quoteAfter).not.toBe(quoteBefore);
     quoteBefore = quoteAfter;
-    await expect(page.getByTestId("review-millwork-line").first()).toBeVisible();
+    await expect(page.getByTestId("interiors-present-panel")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Schedule CSV" })).toHaveCount(0);
   });
 
   await test.step("freeze-quote", async () => {
@@ -146,6 +149,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
     await expect(page.getByTestId("proposal-quote-status")).toContainText(/Frozen Rev A/i);
     await expect(page.getByTestId("proposal-live-total")).toHaveAttribute("data-sell-total", String(quoteBefore));
     await expect(page.getByTestId("handoff-revision")).toContainText(`Rev ${GOLDEN_RUN_JOB.revision}`);
+    await expandHandoffIdentities(page);
     await expect(page.getByTestId("handoff-summary").locator(`[data-cabinet-id="${GOLDEN_RUN_FILLER_IDS.start}"]`)).toHaveCount(1);
     await expect(page.getByTestId("handoff-summary").locator(`[data-cabinet-id="${GOLDEN_RUN_FILLER_IDS.end}"]`)).toHaveCount(1);
     await openGoldenRunModelView(page);
@@ -159,6 +163,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("send-engineering", async () => {
+    await expandHandoffIdentities(page);
     await expect(page.getByTestId("handoff-summary")).toContainText(GOLDEN_RUN_OBJECT_IDS.baseA);
     await approveAndSendToEngineering(page);
   });

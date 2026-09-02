@@ -91,6 +91,7 @@ export function writeProposalCommercial(
         selectedViewCameraIds: nextSurface.selectedViewCameraIds,
         staleOverride: nextSurface.staleOverride,
         frozenClient: nextSurface.frozenClient,
+        proposalRelease: nextSurface.proposalRelease,
       },
     },
   };
@@ -116,18 +117,28 @@ export function patchProposalJob(
   });
 }
 
+function jobAfterNewFreeze(job: ProjectJobMeta, previousSnapshotId: string | undefined, snapshotId: string) {
+  if (previousSnapshotId === snapshotId) return job;
+  if (job.status === "approved" || job.status === "production") {
+    return patchJobMeta(job, {
+      status: "quoted",
+      approvedAt: undefined,
+      productionAt: undefined,
+    });
+  }
+  if (job.status === "draft") return patchJobMeta(job, { status: "quoted" });
+  return job;
+}
+
 export function appendFrozenQuote(
   document: InteriorProject,
   snapshot: QuoteSnapshot,
   frozenClient?: ProposalClientPayload | null,
 ): InteriorProject {
   const current = readProposalCommercial(document);
-  const shouldMarkQuoted = current.job.status === "draft";
   return writeProposalCommercial(document, {
     quoteHistory: [snapshot, ...current.quoteHistory].slice(0, MAX_QUOTE_HISTORY),
-    job: shouldMarkQuoted
-      ? patchJobMeta(current.job, { status: "quoted" })
-      : current.job,
+    job: jobAfterNewFreeze(current.job, current.quoteHistory[0]?.id, snapshot.id),
     surface: {
       ...current.surface,
       staleOverride: null,

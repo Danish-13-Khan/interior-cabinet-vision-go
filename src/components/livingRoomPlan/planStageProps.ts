@@ -14,6 +14,7 @@ import type { InteriorsChromeTool } from "../../domain/desktopUx";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import type { InteriorsDrawRoomCommands } from "./interiorsDrawRoomCommands";
 import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
+import type { InteriorsPresentCommands } from "./interiorsPresentCommands";
 
 export type LivingRoomPlanStageProps = {
   project: InteriorProject;
@@ -93,5 +94,7 @@ export type LivingRoomPlanStageProps = {
   onCommitOpening?: (wallId: string, kind: "door" | "window") => void;
   drawCommands?: InteriorsDrawRoomCommands;
   cabinetRunCommands?: InteriorsCabinetRunCommands;
+  presentCommands?: InteriorsPresentCommands;
+  presenting?: boolean;
   onSelectRoom?: () => void;
 };

@@ -57,10 +57,17 @@ export type ProposalClientPayload = {
   projectContentHash: string;
 };
 
+export type ProposalReleaseRecord = {
+  releasedAt: string;
+  revision: string;
+  snapshotId: string;
+};
+
 export type ProposalSurfaceState = {
   selectedViewCameraIds: string[];
   staleOverride: ProposalStaleOverride | null;
   frozenClient: ProposalClientPayload | null;
+  proposalRelease: ProposalReleaseRecord | null;
 };
 
 export type ProposalCommercialState = {
