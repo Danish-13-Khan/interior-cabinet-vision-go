@@ -4,10 +4,11 @@ import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
-import { WorkspaceReviewExportPanel } from "./WorkspaceReviewExportPanel";
+import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
+import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
+import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
-import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -24,7 +25,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       <LivingRoomHomeFromWorkspace workspace={w} open={w.projectHomeOpen} hasCurrentProject />
-      {props.workspaceView !== "render" ? (
+      {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
           onStudioPanel={props.onStudioPanel} chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}
@@ -40,6 +41,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onSetLayerVisibility={w.onSetLayerVisibility}
           onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
+          presenting={props.plannerMode === "render"}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
           onActiveRoom={(roomId) => { w.onActiveRoom(roomId); inspectPlanTarget(props, { inspectRoom: true }); }}
           onRenameRoom={w.onRenameRoom}
@@ -88,16 +90,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         />
       ) : null}
       {props.plannerMode === "render" ? (
-        <WorkspaceReviewExportPanel
-          project={project}
-          issues={props.issues}
-          millwork={props.millwork}
-          clientExport={props.clientExport}
+        <InteriorsPresentPanel
           proposal={props.proposal}
           handoff={props.handoff}
-          acceptedStillAssets={props.acceptedStillAssets}
-          latestRender={props.renderResults.latest}
-          onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
+          onCapture={() => props.onWorkspaceView("render")}
         />
       ) : null}
       <LivingRoomPlanStage
@@ -150,6 +146,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         readability={props.readability} onReadability={props.onReadability}
         drawCommands={interiorsDrawRoomStageCommands(props)}
         cabinetRunCommands={interiorsCabinetRunStageCommands(props)}
+        presentCommands={interiorsPresentStageCommands(props)}
+        presenting={props.plannerMode === "render"}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>

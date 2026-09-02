@@ -11,9 +11,11 @@ import {
   exportInteriorProposalPdf,
   freezeProposal,
   listProposalNamedViews,
+  matchingProposalRelease,
   patchProposalJob,
   patchProposalQuoteSettings,
   proposalExportCommit,
+  recordProposalRelease,
   setProposalSelectedViews,
   setProposalStaleOverride,
   toggleProposalView,
@@ -129,12 +131,13 @@ export function useProposalWorkflow(args: {
         frozen: live?.frozen ?? null,
         reason: overrideReason,
       });
-      if (commit.persistOverride && commit.override) {
-        args.onPatchDocument(
-          (current) => setProposalStaleOverride(current, commit.override),
-          "Recorded stale-quote disclosure.",
-        );
-      }
+      args.onPatchDocument((current) => {
+        let next = recordProposalRelease(current);
+        if (commit.persistOverride && commit.override) {
+          next = setProposalStaleOverride(next, commit.override);
+        }
+        return next;
+      }, "Proposal PDF saved.");
       setStatus("Proposal PDF saved.");
     } catch (error) {
       setStatus(`Proposal failed: ${getErrorMessage(error)}. The project was preserved.`);
@@ -143,10 +146,13 @@ export function useProposalWorkflow(args: {
     }
   }
 
+  const released = Boolean(args.project && matchingProposalRelease(args.project).ok);
+
   return {
     live,
     views,
     gate,
+    released,
     status,
     busy,
     staleOverride,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  interiorsPresentAuthoringView,
   isInteriorsChromeToolReady,
   mapInteriorsChromeTool,
   type InteriorsChromeTool,
@@ -48,7 +49,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     }
     input.onCloseProjectHome();
     if (mode === "render") {
-      setWorkspaceView("render");
+      setWorkspaceView("model");
       return;
     }
     setWorkspaceView("plan");
@@ -58,7 +59,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
   }
 
   function changeWorkspaceView(view: LivingRoomWorkspaceView) {
-    if (plannerMode === "render" && view !== "render") {
+    if (plannerMode === "render" && view === "plan") {
       setPlannerMode("design");
       input.onCloseProjectHome();
       setStudioPanel(studioPanel === "build" ? "cabinets" : studioPanel);
@@ -73,7 +74,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     if (target.plannerMode) setPlannerMode(target.plannerMode);
     else setPlannerMode((mode) => (mode === "project" ? "build" : mode === "render" ? "design" : mode));
     if (target.studioPanel) setStudioPanel(target.studioPanel);
-    setWorkspaceView((current) => (current === "render" ? "plan" : current));
+    setWorkspaceView((current) => interiorsPresentAuthoringView(plannerMode, current));
     input.onCloseProjectHome();
     input.selectBuildTool(target.buildTool);
   }

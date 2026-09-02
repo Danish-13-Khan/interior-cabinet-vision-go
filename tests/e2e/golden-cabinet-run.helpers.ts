@@ -61,6 +61,10 @@ export async function openGoldenRunModelView(page: Page) {
 }
 
 export async function captureProposalView(page: Page) {
+  const capture = page.getByTestId("interiors-present-capture");
+  if (await capture.count()) {
+    await capture.click();
+  }
   const renderButton = page.getByRole("button", { name: "Render Image" });
   await expect(renderButton).toBeEnabled({ timeout: 25_000 });
   await renderButton.click();
@@ -78,8 +82,10 @@ export async function saveAndReopenGoldenRun(page: Page) {
   await page.getByRole("button", { name: "Interiors" }).click();
   const home = page.getByRole("dialog", { name: "Start a living room project" });
   await expect(home).toBeVisible();
-  await expect(home.getByText("Save a project to keep it here for quick access.")).toBeVisible();
-  await expect(home.locator(".planner-v2-recents > div button")).toHaveCount(0);
+  const recentProjects = home.getByRole("region", { name: "Recent projects" });
+  await expect(recentProjects).toBeVisible();
+  await expect(recentProjects.getByText("Save a job to keep it here for quick access.")).toBeVisible();
+  await expect(recentProjects.getByTestId("open-recent-project")).toHaveCount(0);
   const chooserPromise = page.waitForEvent("filechooser");
   await home.getByRole("button", { name: "Open project", exact: true }).click();
   await (await chooserPromise).setFiles(target);
@@ -89,6 +95,15 @@ export async function saveAndReopenGoldenRun(page: Page) {
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
   await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`)).toBeVisible();
   return target;
+}
+
+export async function expandHandoffIdentities(page: Page) {
+  const details = page.getByTestId("handoff-identities");
+  if (await details.count()) {
+    await details.evaluate((el: HTMLDetailsElement) => {
+      el.open = true;
+    });
+  }
 }
 
 export async function approveAndSendToEngineering(page: Page) {

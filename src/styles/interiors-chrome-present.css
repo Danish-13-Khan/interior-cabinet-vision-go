@@ -1,0 +1,80 @@
+/* Present and Send: close panel over the 3D client view. */
+.lr-present-tray {
+  color: #68766c;
+  font-size: 0.72rem;
+}
+
+.lr-present-status .has-warning {
+  color: #b55338;
+}
+
+.lr-present-status .is-clear {
+  color: #276b46;
+}
+
+.interiors-present-blocking {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.interiors-present-blocking li {
+  color: #b55338;
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel {
+  flex: 0 0 280px;
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+  background: #fff;
+  color: #243029;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header span {
+  color: #276b46;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff small {
+  color: #748076;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff {
+  border-color: #e6ece7;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review > strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff > strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel section > strong {
+  color: #304236;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-total {
+  color: #276b46;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields label {
+  color: #4a5a4e;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields input {
+  border-color: #cfe0d2;
+  background: #fff;
+  color: #243029;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel [data-testid="interiors-present-capture"] {
+  font-weight: 700;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff-identities summary {
+  color: #4a5a4e;
+}

@@ -13,6 +13,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   if (
     !w.inspectorVisible ||
     p.workspaceView === "render" ||
+    p.plannerMode === "render" ||
     !hasInteriorsInspectorSelection({
       objectSelected: Boolean(activeObject),
       openingSelected: Boolean(p.activeOpening),

@@ -135,6 +135,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         acceptedStillAssets={acceptedStillAssets} onAcceptedStillAssetsChange={setAcceptedStillAssets}
         issues={props.issues} readability={readability.settings} onReadability={readability.update}
         inspectRoom={inspectRoom} setInspectRoom={setInspectRoom}
+        onWorkspaceView={chrome.changeWorkspaceView}
       />
     </section>
   );

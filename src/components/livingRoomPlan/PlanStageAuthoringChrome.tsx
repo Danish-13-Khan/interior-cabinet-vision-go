@@ -1,6 +1,7 @@
 import { isInteriorsCabinetRunTool, isInteriorsDrawRoomTool } from "../../domain/desktopUx";
 import { InteriorsCabinetRunChrome } from "./InteriorsCabinetRunChrome";
 import { InteriorsDrawRoomChrome } from "./InteriorsDrawRoomChrome";
+import { InteriorsPresentChrome } from "./InteriorsPresentChrome";
 import type { LivingRoomPlanStageProps } from "./planStageProps";
 import { PlanStageTitlebar } from "./PlanStageTitlebar";
 import { PlanStageToolbar } from "./PlanStageToolbar";
@@ -13,7 +14,19 @@ export function planStageCabinetRun(props: LivingRoomPlanStageProps) {
   return Boolean(props.chromeTool && isInteriorsCabinetRunTool(props.chromeTool) && props.workspaceView === "plan");
 }
 
+export function planStagePresent(props: LivingRoomPlanStageProps) {
+  return Boolean(props.presenting);
+}
+
 export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
+  if (props.presenting && props.presentCommands) {
+    return (
+      <InteriorsPresentChrome
+        readability={props.readability} commands={props.presentCommands}
+        onReadability={props.onReadability}
+      />
+    );
+  }
   if (planStageDrawRoom(props) && props.chromeTool && props.drawCommands) {
     return (
       <InteriorsDrawRoomChrome

@@ -1,5 +1,6 @@
 import type { InteriorProject } from "../../interiorProject";
 import { patchProposalJob, readProposalCommercial } from "../proposal/commercialState";
+import { matchingProposalRelease } from "../proposal/proposalRelease";
 import { buildLiveInteriorQuote } from "../proposal/liveQuote";
 
 export function handoffRevisionApproved(document: InteriorProject): boolean {
@@ -42,7 +43,9 @@ export function handoffApprovalReady(document: InteriorProject): {
 }
 
 export function canApproveEngineeringRevision(document: InteriorProject): boolean {
-  return !handoffRevisionApproved(document) && matchingFrozenRevision(document).ok;
+  return !handoffRevisionApproved(document)
+    && matchingFrozenRevision(document).ok
+    && matchingProposalRelease(document).ok;
 }
 
 export function approveEngineeringRevision(
@@ -51,5 +54,6 @@ export function approveEngineeringRevision(
 ): InteriorProject {
   if (handoffRevisionApproved(document)) return document;
   if (!matchingFrozenRevision(document).ok) return document;
+  if (!matchingProposalRelease(document).ok) return document;
   return patchProposalJob(document, { status: "approved" });
 }

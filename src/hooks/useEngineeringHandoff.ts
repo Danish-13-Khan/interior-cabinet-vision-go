@@ -8,8 +8,10 @@ import {
   canApproveEngineeringRevision,
   commitEngineeringHandoff,
   handoffRevisionApproved,
+  hasHandoffSnapshotForRevision,
   mapHandoffSelection,
 } from "../domain/livingRoom/handoff";
+import { readProposalCommercial } from "../domain/livingRoom/proposal";
 
 type PatchDocument = (
   update: (current: InteriorProject) => InteriorProject,
@@ -35,6 +37,10 @@ export function useEngineeringHandoff(args: {
   );
   const canApprove = Boolean(args.project && canApproveEngineeringRevision(args.project));
   const revisionApproved = Boolean(args.project && handoffRevisionApproved(args.project));
+  const sent = Boolean(
+    args.project
+    && hasHandoffSnapshotForRevision(args.project, readProposalCommercial(args.project).job.revision),
+  );
 
   function approveRevision() {
     if (!args.project || !canApprove) return;
@@ -54,5 +60,5 @@ export function useEngineeringHandoff(args: {
     args.onEnterEngineering(cabinetIds);
   }
 
-  return { summary, gate, canApprove, revisionApproved, approveRevision, sendToEngineering };
+  return { summary, gate, canApprove, revisionApproved, sent, approveRevision, sendToEngineering };
 }

@@ -1,9 +1,19 @@
 import { InteriorsCabinetRunStatus } from "./InteriorsCabinetRunStatus";
 import { InteriorsDrawRoomStatus } from "./InteriorsDrawRoomStatus";
-import { planStageCabinetRun, planStageDrawRoom } from "./PlanStageAuthoringChrome";
+import { InteriorsPresentStatus } from "./InteriorsPresentStatus";
+import { planStageCabinetRun, planStageDrawRoom, planStagePresent } from "./PlanStageAuthoringChrome";
 import type { LivingRoomPlanStageProps } from "./planStageProps";
 
 export function PlanStageStatus(props: LivingRoomPlanStageProps) {
+  if (planStagePresent(props) && props.presentCommands) {
+    const commands = props.presentCommands;
+    return (
+      <InteriorsPresentStatus
+        sellTotalLabel={commands.sellTotalLabel} revision={commands.revision} frozen={commands.frozen}
+        step={commands.step} blockingCount={commands.blockingCount}
+      />
+    );
+  }
   if (planStageDrawRoom(props)) {
     return (
       <InteriorsDrawRoomStatus

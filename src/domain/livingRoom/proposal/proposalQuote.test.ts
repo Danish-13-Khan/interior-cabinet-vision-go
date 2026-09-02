@@ -5,8 +5,16 @@ import {
   buildLiveInteriorQuote,
   createGoldenProposalProject,
   freezeLiveQuote,
+  freezeProposal,
   patchProposalQuoteSettings,
+  readProposalCommercial,
+  recordProposalRelease,
 } from ".";
+import {
+  approveEngineeringRevision,
+  canApproveEngineeringRevision,
+  handoffRevisionApproved,
+} from "../handoff";
 
 const NOW = "2026-08-30T10:00:00.000Z";
 
@@ -87,5 +95,21 @@ describe("proposal live quote and freeze", () => {
     const snapshot = freezeLiveQuote(createGoldenProposalProject(NOW), NOW, "quote-fixture-1");
     expect(snapshot.id).toBe("quote-fixture-1");
     expect(snapshot.quotedAt).toBe(NOW);
+  });
+
+  it("resets approval when a new freeze replaces an approved snapshot", () => {
+    const frozen = freezeProposal(createGoldenProposalProject(NOW), NOW);
+    const approved = approveEngineeringRevision(recordProposalRelease(frozen, NOW), NOW);
+    expect(readProposalCommercial(approved).job.status).toBe("approved");
+    expect(handoffRevisionApproved(approved)).toBe(true);
+    const stale = patchProposalQuoteSettings(approved, { markupPercent: 32 });
+    const refrozen = freezeProposal(stale, "2026-08-31T10:00:00.000Z");
+    const job = readProposalCommercial(refrozen).job;
+    expect(job.status).toBe("quoted");
+    expect(job.approvedAt).toBeUndefined();
+    expect(handoffRevisionApproved(refrozen)).toBe(false);
+    const rereleased = recordProposalRelease(refrozen, "2026-08-31T10:00:00.000Z");
+    expect(canApproveEngineeringRevision(rereleased)).toBe(true);
+    expect(handoffRevisionApproved(rereleased)).toBe(false);
   });
 });
