@@ -1,140 +1,14 @@
-import type { InteriorProject, Point3Mm, RenderSettings, RoomDrawingRequest, Size3Mm } from "../../domain/interiorProject";
-import {
-  type BuildTool,
-  type LivingRoomAlignMode,
-  type LivingRoomLightingRecipeId,
-  type LivingRoomPlanIssue,
-  type LivingRoomRenderResult,
-  type LivingRoomStyleId,
-  type PlanReadabilitySettings,
-} from "../../domain/livingRoom";
-import type { AcceptedStillAsset } from "../../hooks/selectPackageAcceptedStillAssets";
-import type { useClientPresentationExport } from "../../hooks/useClientPresentationExport";
-import { isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
 import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
-import type { LivingRoomWorkspaceView } from "./workspaceProps";
-import { InteriorsDrawRoomChrome } from "./InteriorsDrawRoomChrome";
-import { InteriorsDrawRoomStatus } from "./InteriorsDrawRoomStatus";
-import type { InteriorsDrawRoomCommands } from "./interiorsDrawRoomCommands";
-import { PlanStageTitlebar } from "./PlanStageTitlebar";
-import { PlanStageToolbar } from "./PlanStageToolbar";
-
-type LivingRoomPlanStageProps = {
-  project: InteriorProject;
-  workspaceView: LivingRoomWorkspaceView;
-  selectedIds: string[];
-  issues: LivingRoomPlanIssue[];
-  snapSizeMm: number;
-  showGrid: boolean;
-  canUndo: boolean;
-  canRedo: boolean;
-  hasSelection: boolean;
-  millworkCount: number;
-  millworkReady: boolean;
-  exportBlocked: boolean;
-  exportBusy: boolean;
-  exportStatus: string;
-  autosaveState: "idle" | "saving" | "saved" | "error";
-  lastAutosavedAt: string | null;
-  latestRender: LivingRoomRenderResult | null;
-  previousRender: LivingRoomRenderResult | null;
-  onShowGrid: (value: boolean) => void;
-  onSnapSize: (value: number) => void;
-  onSelect: (objectId: string | null, additive?: boolean) => void;
-  onClearSelection: () => void;
-  onMove: (objectId: string, position: Point3Mm) => void;
-  onResize: (objectId: string, dimensions: Size3Mm) => void;
-  activeWallId: string | null;
-  activeOpeningId: string | null;
-  activeSurfaceId: string | null;
-  surfaceMaterialId: string;
-  onSelectWall: (wallId: string) => void;
-  onSelectOpening: (openingId: string) => void;
-  onSelectSurface: (surfaceId: string | null) => void;
-  onMoveOpening: (openingId: string, offsetMm: number) => void;
-  onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
-  onMoveNode: (nodeId: string, position: import("../../domain/interiorProject").Point2Mm) => void;
-  onTranslateWall: (wallId: string, delta: import("../../domain/interiorProject").Point2Mm) => void;
-  activeBuildTool?: BuildTool;
-  openingCatalogItemId?: string;
-  onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
-  onCreateRoom: (drawing: RoomDrawingRequest) => void;
-  onDrawSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
-  onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm, wallKind?: "wall" | "partition") => void;
-  onPlaceColumn: (position: import("../../domain/interiorProject").Point2Mm) => void;
-  roomPolygonCloseRequest: number;
-  onRoomPolygonPointCount: (count: number) => void;
-  onSetRotation: (objectId: string, rotationY: number) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
-  onApplyStyle: (styleId: LivingRoomStyleId) => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  onDuplicate: () => void;
-  onDelete: () => void;
-  onRotateSelection: (delta: number) => void;
-  onAlign: (mode: LivingRoomAlignMode) => void;
-  onCreateCabinetRun: () => void;
-  onRenderSettingsChange: (patch: Partial<RenderSettings>) => void;
-  onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
-  onRenderBrowserThumbnail?: (dataUrl: string) => void;
-  onRendered: (result: LivingRoomRenderResult) => void;
-  onExportScheduleCsv: () => void;
-  onExportSchedulePdf: () => void;
-  onExportCutlistCsv: () => void;
-  onExportProductionPdf: () => void;
-  acceptedStillAssets: AcceptedStillAsset[];
-  onAcceptedStillAssetsChange: React.Dispatch<React.SetStateAction<AcceptedStillAsset[]>>;
-  clientExport: ReturnType<typeof useClientPresentationExport>;
-  clientPackageBlocked: boolean;
-  v2BuildMode?: boolean;
-  v2ReviewMode?: boolean;
-  readability: PlanReadabilitySettings;
-  onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
-  chromeTool?: InteriorsChromeTool;
-  roomPolygonPointCount?: number;
-  onOpeningCatalogItem?: (catalogItemId: string) => void;
-  onCloseRoomPolygon?: () => void;
-  onCommitOpening?: (wallId: string, kind: "door" | "window") => void;
-  drawCommands?: InteriorsDrawRoomCommands;
-  onSelectRoom?: () => void;
-};
+import { PlanStageAuthoringChrome } from "./PlanStageAuthoringChrome";
+import { PlanStageStatus } from "./PlanStageStatus";
+import type { LivingRoomPlanStageProps } from "./planStageProps";
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
-  const drawRoom = Boolean(props.chromeTool && isInteriorsDrawRoomTool(props.chromeTool) && props.workspaceView === "plan");
   return (
     <div className="lr-plan-center">
-      {drawRoom && props.chromeTool && props.drawCommands ? (
-        <InteriorsDrawRoomChrome
-          tool={props.chromeTool} project={props.project} activeBuildTool={props.activeBuildTool}
-          activeWallId={props.activeWallId} openingCatalogItemId={props.openingCatalogItemId}
-          roomPolygonPointCount={props.roomPolygonPointCount ?? 0} showGrid={props.showGrid}
-          snapSizeMm={props.snapSizeMm} readability={props.readability} commands={props.drawCommands}
-          onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} onReadability={props.onReadability}
-          onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}
-          onCommitOpening={props.onCommitOpening}
-        />
-      ) : (
-        <>
-          {props.workspaceView === "plan" ? (
-            <PlanStageToolbar canUndo={props.canUndo} canRedo={props.canRedo} hasSelection={props.hasSelection}
-              selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
-              readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
-              onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
-              onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-              onReadability={props.onReadability} />
-          ) : null}
-          <PlanStageTitlebar
-            project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
-            v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
-            exportBusy={props.exportBusy} exportStatus={props.exportStatus}
-            millworkCount={props.millworkCount} millworkReady={props.millworkReady} exportBlocked={props.exportBlocked}
-            onExportScheduleCsv={props.onExportScheduleCsv} onExportSchedulePdf={props.onExportSchedulePdf}
-            onExportCutlistCsv={props.onExportCutlistCsv} onExportProductionPdf={props.onExportProductionPdf}
-          />
-        </>
-      )}
+      <PlanStageAuthoringChrome {...props} />
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (
           <LivingRoomPlanView
@@ -175,22 +49,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
           />
         )}
       </div>
-      {drawRoom ? (
-        <InteriorsDrawRoomStatus
-          project={props.project} issues={props.issues} unit={props.readability.unit} onSelect={props.onSelect}
-        />
-      ) : (
-        <footer className="lr-plan-status">
-          <span>{props.workspaceView === "render" ? "PNG output" : `Snap ${props.snapSizeMm} mm`}</span>
-          <span>{props.workspaceView === "plan" ? "Ortho on" : props.workspaceView === "model" ? "Dollhouse ready" : "ACES / sRGB"}</span>
-          <span>{props.workspaceView === "render" ? `${props.project.renderSettings.widthPx}×${props.project.renderSettings.heightPx}` : `Grid ${props.showGrid ? "on" : "off"}`}</span>
-          {props.v2BuildMode ? <span>mm · Zoom fit</span> : null}
-          {props.v2ReviewMode ? <span>Shared 2D / 3D document</span> : null}
-          <span className={props.issues.length ? "has-warning" : ""}>
-            {props.issues.length ? `${props.issues.length} planning issues` : "Layout checks clear"}
-          </span>
-        </footer>
-      )}
+      <PlanStageStatus {...props} />
     </div>
   );
 }

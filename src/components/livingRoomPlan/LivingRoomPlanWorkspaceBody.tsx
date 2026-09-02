@@ -7,7 +7,7 @@ import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import { WorkspaceReviewExportPanel } from "./WorkspaceReviewExportPanel";
 import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
-import { inspectPlanTarget, interiorsDrawRoomStageCommands } from "./planInspectTarget";
+import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -149,6 +149,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
         readability={props.readability} onReadability={props.onReadability}
         drawCommands={interiorsDrawRoomStageCommands(props)}
+        cabinetRunCommands={interiorsCabinetRunStageCommands(props)}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>

@@ -25,9 +25,9 @@ describe("interiorsChrome", () => {
     expect(mapInteriorsChromeTool("import").buildTool).toBe("upload-underlay");
   });
 
-  it("keeps Run and Open shelf unavailable until Cabinet Run", () => {
-    expect(isInteriorsChromeToolReady("run")).toBe(false);
-    expect(isInteriorsChromeToolReady("shelf")).toBe(false);
+  it("enables Run and Open shelf for Cabinet Run", () => {
+    expect(isInteriorsChromeToolReady("run")).toBe(true);
+    expect(isInteriorsChromeToolReady("shelf")).toBe(true);
     expect(isInteriorsChromeToolReady("cabinet")).toBe(true);
   });
 

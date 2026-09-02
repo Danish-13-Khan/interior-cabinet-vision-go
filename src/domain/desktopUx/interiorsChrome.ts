@@ -9,8 +9,8 @@ export const INTERIORS_CHROME_TOOLS = [
   { id: "window", label: "Window", group: "room" },
   { id: "import", label: "Import plan", group: "room" },
   { id: "cabinet", label: "Cabinet", group: "design" },
-  { id: "run", label: "Run", group: "design", ready: false },
-  { id: "shelf", label: "Open shelf", group: "design", ready: false },
+  { id: "run", label: "Run", group: "design" },
+  { id: "shelf", label: "Open shelf", group: "design" },
   { id: "material", label: "Material", group: "design" },
 ] as const;
 

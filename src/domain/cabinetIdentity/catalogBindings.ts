@@ -34,6 +34,12 @@ export const CABINET_CATALOG_BINDINGS: Record<string, CatalogCabinetBinding> = {
     sku: "MW-DRAWER-900",
     production: true,
   },
+  "living:open-shelf-900": {
+    cabinetType: "open-shelf",
+    familyId: "frameless-standard-open-shelf",
+    sku: "MW-SHELF-900",
+    production: true,
+  },
   "living:wardrobe-wall": {
     cabinetType: "almirah",
     familyId: "frameless-standard-almirah",

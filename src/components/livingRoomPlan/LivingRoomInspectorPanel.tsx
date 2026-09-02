@@ -47,7 +47,7 @@ type LivingRoomInspectorPanelProps = {
     extendToWall?: boolean;
     fillersEnabled?: boolean;
   }) => void;
-  onSelect: (objectId: string | null) => void;
+  onSelect: (objectId: string | null, additive?: boolean) => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
@@ -63,6 +63,7 @@ type LivingRoomInspectorPanelProps = {
   onDelete: () => void;
   unit: import("../../domain/livingRoom").PlanDisplayUnit;
   drawRoom?: boolean;
+  cabinetRun?: boolean;
   inspectRoom?: boolean;
   activeSurface?: InteriorProject["surfaces"][number] | null;
   onDeleteOpening?: (openingId: string) => void;
@@ -102,7 +103,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         {activeSurface ? (
           <SurfaceInspector surface={activeSurface} materials={props.project.materials}
             onUpdate={props.onUpdateSurface} onDelete={props.onDeleteSurface} />
-        ) : room && !(props.drawRoom && activeOpening) ? (
+        ) : room && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
             onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
             onSetWallMaterial={props.onSetWallMaterial} onSetFloorMaterial={props.onSetFloorMaterial}
@@ -137,7 +138,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             </p>
           </section>
         )}
-        {props.millworkSchedule && props.millworkWorkflow && !props.drawRoom ? (
+        {props.millworkSchedule && props.millworkWorkflow && !props.drawRoom && !props.cabinetRun ? (
           <MillworkSchedulePreview
             schedule={props.millworkSchedule}
             workflow={props.millworkWorkflow}
@@ -146,7 +147,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSelect={props.onSelect}
           />
         ) : null}
-        {props.drawRoom ? null : <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />}
+        {props.drawRoom || props.cabinetRun ? null : <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />}
       </div>
     </aside>
   );

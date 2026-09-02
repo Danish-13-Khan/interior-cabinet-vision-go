@@ -401,6 +401,7 @@ export {
   attachToWall,
   cabinetRunFillerForObject,
   cabinetRunForObject,
+  cabinetRunLengthMm,
   countCabinetRunFillers,
   isCabinetRunFiller,
   listRoomWallCorners,

@@ -14,7 +14,7 @@ export async function openGoldenCabinetRun(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
   await loadGoldenCabinetRun(page);
-  await expect(page.locator(".lr-plan-titlebar")).toContainText("Golden Cabinet Run");
+  await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
 }
 
 export async function selectGoldenCabinet(page: Page, objectId: string) {
@@ -85,8 +85,8 @@ export async function saveAndReopenGoldenRun(page: Page) {
   await (await chooserPromise).setFiles(target);
   await expect(home).toBeHidden({ timeout: 15_000 });
   await page.getByTestId("interiors-tool-select").click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
-  await expect(page.locator(".lr-plan-titlebar")).toContainText("Golden Cabinet Run");
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
+  await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
   await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`)).toBeVisible();
   return target;
 }

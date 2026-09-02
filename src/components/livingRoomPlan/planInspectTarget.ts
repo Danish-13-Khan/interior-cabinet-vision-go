@@ -1,4 +1,12 @@
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import {
+  cabinetRunForObject,
+  cabinetRunLengthMm,
+  countCabinetRunFillers,
+  isCabinetRunFiller,
+} from "../../domain/livingRoom";
+import { interiorsCabinetRunSnapTarget } from "../../domain/desktopUx";
+import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
 
 export function inspectPlanTarget(
   props: LivingRoomPlanWorkspaceBodyProps,
@@ -19,7 +27,7 @@ export function inspectPlanTarget(
 }
 
 export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBodyProps) {
-  const { workspace: w, project, build } = props;
+  const { workspace: w } = props;
   return {
     onBuildTool: props.onBuildTool,
     underlay: props.underlay,
@@ -33,5 +41,26 @@ export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBod
     onRenameRoom: w.onRenameRoom,
     onDeleteRoom: w.onDeleteRoom,
     onMergeRooms: w.onMergeRooms,
+  };
+}
+
+export function interiorsCabinetRunStageCommands(props: LivingRoomPlanWorkspaceBodyProps): InteriorsCabinetRunCommands {
+  const selected = props.workspace.selectedObjects.filter((object) => (
+    object.kind === "cabinet" && !isCabinetRunFiller(object)
+  ));
+  const run = selected.map(cabinetRunForObject).find((item) => item) ?? null;
+  const snap = interiorsCabinetRunSnapTarget(selected);
+  return {
+    wallId: snap.wallId,
+    snapWarning: snap.warning,
+    selectedCount: selected.length,
+    selectedRunId: run?.runId ?? null,
+    fillerCount: run ? countCabinetRunFillers(props.project, run.runId) : 0,
+    fillersEnabled: Boolean(run?.fillersEnabled),
+    runLengthMm: run ? cabinetRunLengthMm(props.project, run.runId) : null,
+    onCreateRun: () => {
+      if (snap.wallId) props.workspace.onCreateCabinetRun(snap.wallId);
+    },
+    onUpdateRun: props.workspace.onUpdateCabinetRun,
   };
 }

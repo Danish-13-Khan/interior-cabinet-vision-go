@@ -24,7 +24,7 @@ export function InteriorsToolRail({ activeTool, onTool }: InteriorsToolRailProps
             data-testid={`interiors-tool-${tool.id}`}
             data-build-tool={tool.group === "room" ? interiorsChromeBuildTool(tool.id) : undefined}
             className={activeTool === tool.id ? "is-active" : ""}
-            title={ready ? tool.label : `${tool.label} — coming in Cabinet Run`}
+            title={ready ? tool.label : `${tool.label} — coming later`}
             disabled={!ready}
             onClick={() => onTool(tool.id)}
           >
