@@ -36,7 +36,7 @@ export async function reviseBaseWidth(page: Page, widthMm: number) {
 }
 
 export async function changeGoldenFinish(page: Page, objectId = GOLDEN_RUN_OBJECT_IDS.baseA) {
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
+  await page.getByTestId("interiors-tool-select").click();
   await selectGoldenCabinet(page, objectId);
   const finish = page.getByTestId("cabinet-finish");
   await finish.selectOption(GOLDEN_RUN_REVISED_FINISH_ID);
@@ -52,7 +52,7 @@ export async function readSellTotal(page: Page) {
 }
 
 export async function openGoldenRunModelView(page: Page) {
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
@@ -68,7 +68,7 @@ export async function captureProposalView(page: Page) {
 
 export async function saveAndReopenGoldenRun(page: Page) {
   const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: /^Save/ }).click();
+  await page.getByTestId("interiors-save-state").click();
   const file = await download;
   expect(file.suggestedFilename()).toBe("gcr-001-golden-cabinet-run.json");
   const target = testOutputPath(file.suggestedFilename());
@@ -83,7 +83,7 @@ export async function saveAndReopenGoldenRun(page: Page) {
   await home.getByRole("button", { name: "Open project", exact: true }).click();
   await (await chooserPromise).setFiles(target);
   await expect(home).toBeHidden({ timeout: 15_000 });
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
+  await page.getByTestId("interiors-tool-select").click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Golden Cabinet Run");
   await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`)).toBeVisible();

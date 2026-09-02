@@ -6,7 +6,7 @@ async function openExportReadyDesignPlan(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
   await page.getByRole("button", { name: /Wardrobe wall/i }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Schedule CSV", exact: true })).toBeEnabled();
 }
@@ -16,7 +16,7 @@ async function openDesignPlan(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();
 }
 
@@ -33,7 +33,7 @@ test("I3 flags overlapping cabinets and lets the designer select the conflict", 
   await expect(titlebarExports.nth(2)).toBeDisabled();
 
   const initiallySelectedId = await page.locator(".lr-plan-object.is-selected").getAttribute("data-object-id");
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+  await page.getByTestId("interiors-present").click();
   const checklist = page.getByTestId("pre-export-checklist");
   await expect(checklist).toBeVisible();
   await expect(checklist).toContainText("Pre-export checklist");
@@ -47,7 +47,7 @@ test("I3 flags overlapping cabinets and lets the designer select the conflict", 
   await expect(page.getByRole("button", { name: "Export client package", exact: true })).toBeDisabled();
   await expect(page.locator(".lr-render-actions").getByRole("button", { name: "Client Package", exact: true })).toBeDisabled();
   await reviewOverlap.click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.locator(".lr-plan-object.is-selected")).not.toHaveAttribute("data-object-id", initiallySelectedId ?? "");
 
   const overlap = page.locator('[data-layout-issue="overlap"]').first();

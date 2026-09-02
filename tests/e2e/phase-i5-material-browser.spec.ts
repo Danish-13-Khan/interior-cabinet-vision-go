@@ -9,7 +9,7 @@ async function openDesignPlan(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
 }
 
 async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
@@ -35,7 +35,7 @@ async function placeTwoSeparatedCabinets(page: Page) {
 
 test("I5 paints shared finishes, undoes paint, and edits opening materials", async ({ page }) => {
   await openDesignPlan(page);
-  await page.locator(".lr-studio-rail").getByRole("button", { name: /Materials/ }).click();
+  await page.getByTestId("interiors-tool-material").click();
   await expect(page.getByText("Material Browser", { exact: true })).toBeVisible();
 
   const oak = page.locator(`[aria-label="Material browser"] [data-material-id="${OAK_ID}"]`).first();
@@ -43,7 +43,7 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await oak.click();
   await expect(oak).toHaveClass(/is-active/);
 
-  await page.locator(".lr-studio-rail").getByRole("button", { name: /Millwork/ }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await placeTwoSeparatedCabinets(page);
 
   const objects = page.locator("[data-object-id]");
@@ -55,7 +55,7 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await objects.nth(1).click({ modifiers: ["Shift"] });
   await expect(page.locator(".lr-plan-object.is-selected")).toHaveCount(2);
 
-  await page.locator(".lr-studio-rail").getByRole("button", { name: /Materials/ }).click();
+  await page.getByTestId("interiors-tool-material").click();
   await page.getByRole("tab", { name: /Selection/ }).click();
   await page.getByLabel("Selection material slot").selectOption("fronts");
   await page.locator(`.lr-surface-painter [data-material-id="${WALNUT_ID}"]`).click();
@@ -63,14 +63,12 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await expect(objects.nth(0)).toHaveAttribute("data-material-id", WALNUT_ID);
   await expect(objects.nth(1)).toHaveAttribute("data-material-id", WALNUT_ID);
 
-  // V2 hides the product-header undo icon; history lives on the Build rail.
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator(".lr-build-history").getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(objects.nth(0)).toHaveAttribute("data-material-id", originalFront!);
   await expect(objects.nth(1)).toHaveAttribute("data-material-id", originalFront!);
 
-  // Select the starter door through the Build rail; SVG opening lines can have a
-  // valid geometry while still being non-actionable under Playwright visibility.
+  // Select stays in Material context; open Build Room before using wall tabs.
+  await page.getByTestId("interiors-tool-wall").click();
   await page.locator(".lr-wall-tabs").getByRole("button", { name: "front", exact: true }).click();
   await page.locator(".lr-opening-row").filter({ hasText: "door" }).click();
   const leafSlot = page.locator('.lr-opening-inspector [data-material-slot="leaf"]');

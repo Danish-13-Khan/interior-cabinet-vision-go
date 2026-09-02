@@ -1,8 +1,8 @@
 import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
-import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
+import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import { WorkspaceReviewExportPanel } from "./WorkspaceReviewExportPanel";
 import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
@@ -23,17 +23,17 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       <LivingRoomHomeFromWorkspace workspace={w} open={w.projectHomeOpen} hasCurrentProject />
-      {props.workspaceView === "plan" ? (
+      {props.workspaceView !== "render" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
-          onStudioPanel={props.onStudioPanel} project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
+          onStudioPanel={props.onStudioPanel} chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}
+          project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
           assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
           underlay={props.underlay} importError={props.importError} onAssetQuery={props.onAssetQuery}
           onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
           onCreateCabinetRun={w.onCreateCabinetRun}
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
-          onSetCeilingMaterial={w.onSetCeilingMaterial}
-          onSetWallMaterial={w.onSetWallMaterial}
+          onSetCeilingMaterial={w.onSetCeilingMaterial} onSetWallMaterial={w.onSetWallMaterial}
           onApplyMaterialToSelection={w.onApplyMaterialToSelection}
           onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
@@ -193,32 +193,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
         readability={props.readability} onReadability={props.onReadability}
       />
-      {w.inspectorVisible && props.workspaceView !== "render" ? (
-        <LivingRoomInspectorPanel mode={props.workspaceView} widthPx={w.inspectorWidthPx} project={project} room={room}
-          activeObject={activeObject} activeOpening={props.activeOpening} selectedCount={w.selectedIds.length}
-          issues={props.issues} millworkSchedule={props.millwork.schedule} millworkWorkflow={props.millwork.workflow}
-          productionReport={props.millwork.productionReport} millworkExportedAt={props.millwork.exportedAt}
-          onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
-          onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
-          onUpdateCabinetRun={w.onUpdateCabinetRun}
-          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
-          onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
-          activeWallId={props.activeWallId}
-          onUpdateWall={(wallId, patch) => build.dispatchBuildCommand({ type: "updateWall", wallId, patch })}
-          onRaiseWalls={w.onRaiseWalls}
-          onOffsetWall={w.onOffsetWall}
-          onOffsetLoop={w.onOffsetLoop}
-          onSetWallPlan={w.onSetWallPlan}
-          onImportFinish={w.onImportFinish}
-          onSetFinishUv={w.onSetFinishUv}
-          onSetWallMaterial={w.onSetWallMaterial}
-          onSetFloorMaterial={w.onSetFloorMaterial}
-          onSetCeilingMaterial={w.onSetCeilingMaterial}
-          onDuplicate={w.onDuplicate}
-          onDelete={w.onDelete}
-          unit={props.readability.unit}
-        />
-      ) : null}
+      <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>
   );
 }

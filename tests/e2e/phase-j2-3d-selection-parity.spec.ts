@@ -11,7 +11,7 @@ async function openDesign(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
 }
 
 async function clearModelSelection(page: Page) {

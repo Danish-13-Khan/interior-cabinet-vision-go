@@ -6,7 +6,7 @@ async function openDesignPlan(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();
 }
 
@@ -79,9 +79,9 @@ test("I1 creates and edits a wall-bound cabinet run with undo", async ({ page })
   await expect(runInspector.getByLabel("Extend run across wall")).toBeChecked();
 
   // V2 intentionally hides the legacy stage toolbar; history remains available in Build.
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator(".lr-build-history").getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-select").click();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(runInspector.getByLabel("Extend run across wall")).not.toBeChecked();
 });
 
@@ -94,8 +94,7 @@ test("I1 reflows a cabinet run after a bound wall endpoint moves", async ({ page
   const before = await first.getAttribute("transform");
   expect(before).toBeTruthy();
 
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator('[data-build-tool="select"]').click();
+  await page.getByTestId("interiors-tool-select").click();
   // Wall geometry lines can extend beyond their stroke hit-area at browser zoom,
   // while the select-mode node handles are the supported wall-edit interaction.
   const node = page.locator("[data-node-id]").first();

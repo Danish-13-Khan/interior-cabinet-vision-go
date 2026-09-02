@@ -58,9 +58,9 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("revise-width", async () => {
-    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+    await page.getByTestId("interiors-present").click();
     quoteBefore = await readSellTotal(page);
-    await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+    await page.getByTestId("interiors-tool-cabinet").click();
     cutlistBefore = (await page.getByTestId("cutlist-part-count").textContent()) ?? "";
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
   });
@@ -71,7 +71,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("assert-cutlist", async () => {
-    await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+    await page.getByTestId("interiors-tool-cabinet").click();
     const cutlist = page.getByTestId("cutlist-part-count");
     await expect(cutlist).toBeVisible();
     await expect(cutlist).toContainText(/cut parts/);
@@ -114,7 +114,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("assert-quote", async () => {
-    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+    await page.getByTestId("interiors-present").click();
     await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
     const quoteAfter = await readSellTotal(page);
     expect(quoteAfter).not.toBe(quoteBefore);
@@ -147,7 +147,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
       .toHaveAttribute("data-width-mm", String(GOLDEN_RUN_REVISED_WIDTH_MM));
     await page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`).click();
     await expect(page.getByTestId("cabinet-finish")).toHaveValue(GOLDEN_RUN_REVISED_FINISH_ID);
-    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+    await page.getByTestId("interiors-present").click();
     await expect(page.getByTestId("proposal-quote-status")).toContainText(/Frozen Rev A/i);
     await expect(page.getByTestId("proposal-live-total")).toHaveAttribute("data-sell-total", String(quoteBefore));
     await expect(page.getByTestId("handoff-revision")).toContainText(`Rev ${GOLDEN_RUN_JOB.revision}`);
@@ -160,7 +160,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
       "data-width-mm",
       String(goldenRunCountertopWidthMm(GOLDEN_RUN_REVISED_WIDTH_MM)),
     );
-    await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+    await page.getByTestId("interiors-present").click();
   });
 
   await test.step("send-engineering", async () => {

@@ -5,7 +5,7 @@ async function openRenderStudio(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
   await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
+  await page.getByTestId("interiors-present").click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
 }
 
