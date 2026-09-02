@@ -76,7 +76,12 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
     selectedCount: props.selectedCount,
   });
   return (
-    <aside className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`} style={{ width: props.widthPx }}>
+    <aside
+      className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`}
+      style={{ width: props.widthPx }}
+      data-testid="interiors-inspector"
+      aria-label="Selection properties"
+    >
       <div className="inspector-header">
         <span className="lr-chrome-eyebrow">Selected</span>
         <strong>{selectionTitle}</strong>

@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { interiorsRecentProjectCard } from "../../domain/desktopUx";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
+import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
 import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
 import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
 import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
@@ -13,6 +14,7 @@ type PlannerV2ProjectHomeProps = {
 };
 
 export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: PlannerV2ProjectHomeProps) {
+  const dialogRef = useRef<HTMLElement>(null);
   const [projectName, setProjectName] = useState("New cabinet job");
   const recentRows = useMemo(() => workspace.recentProjects.flatMap((entry) => {
     const card = interiorsRecentProjectCard(entry);
@@ -20,6 +22,13 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
     if (!card || !document) return [];
     return [{ ...card, thumbnail: entry.thumbnail || createLivingRoomPlanThumbnail(document) }];
   }).slice(0, 8), [workspace.recentProjects]);
+
+  useDialogFocusTrap(
+    open,
+    dialogRef,
+    hasCurrentProject ? workspace.onCloseProjectHome : undefined,
+  );
+
   if (!open) return null;
 
   function createProject(template: PlannerStarterTemplate = "blank-room", styleId: LivingRoomStyleId = "warm-contemporary") {
@@ -31,11 +40,13 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
 
   return (
     <section
+      ref={dialogRef}
       className="planner-v2-home interiors-projects-home"
       role="dialog"
       aria-modal="true"
       aria-label="Start a living room project"
       data-testid="interiors-projects-home"
+      tabIndex={-1}
     >
       <InteriorsProjectsIntro
         projectName={projectName}
@@ -47,10 +58,10 @@ export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: Pla
       />
       <div className="planner-v2-home-content">
         {workspace.recovery ? (
-          <section className="planner-v2-recovery">
+          <section className="planner-v2-recovery" data-testid="interiors-recovery">
             <div><span>Autosave available</span><strong>{workspace.recovery.project.name}</strong></div>
-            <button type="button" className="is-primary" onClick={workspace.onRestoreRecovery}>Restore</button>
-            <button type="button" onClick={workspace.onDiscardRecovery}>Discard</button>
+            <button type="button" className="is-primary" data-testid="interiors-recovery-restore" onClick={workspace.onRestoreRecovery}>Restore</button>
+            <button type="button" data-testid="interiors-recovery-discard" onClick={workspace.onDiscardRecovery}>Discard</button>
           </section>
         ) : null}
         <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />

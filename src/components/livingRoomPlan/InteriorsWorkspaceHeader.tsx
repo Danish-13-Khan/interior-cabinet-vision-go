@@ -15,6 +15,7 @@ type InteriorsWorkspaceHeaderProps = {
   canUndo: boolean;
   canRedo: boolean;
   presenting: boolean;
+  chromeLocked?: boolean;
   onProject: () => void;
   onView: (view: LivingRoomWorkspaceView) => void;
   onSave: () => void;
@@ -34,6 +35,7 @@ export function InteriorsWorkspaceHeader({
   canUndo,
   canRedo,
   presenting,
+  chromeLocked = false,
   onProject,
   onView,
   onSave,
@@ -46,7 +48,13 @@ export function InteriorsWorkspaceHeader({
   const modelActive = workspaceView === "model" || workspaceView === "render";
 
   return (
-    <header className="lr-chrome-header" data-testid="interiors-workspace-header" aria-label="Workspace">
+    <header
+      className="lr-chrome-header"
+      data-testid="interiors-workspace-header"
+      aria-label="Workspace"
+      aria-hidden={chromeLocked || undefined}
+      inert={chromeLocked || undefined}
+    >
       <button type="button" className="lr-chrome-brand" onClick={onProject} aria-label="Cabinet Studio home">
         <span className="lr-product-mark"><i /><i /><i /></span>
         <strong>Cabinet Studio</strong>
