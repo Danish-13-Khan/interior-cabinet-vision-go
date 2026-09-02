@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { CommandItem } from "../components/CommandPalette";
 import type { DraftingTool } from "../components/twoDView/types";
-import { formatShortcutBinding, type ShortcutMap } from "../domain/desktopUx";
+import { formatShortcutBinding, INTERIORS_CUSTOMER_EXPORTS, type ShortcutMap } from "../domain/desktopUx";
 import type { AlignmentMode } from "../domain/cabinetAlignment";
 import type { CabinetType } from "../domain/cabinetDimensions";
 import { buildDraftingCabinetCommands } from "./commandItems/draftingCabinetCommands";
@@ -123,13 +123,13 @@ export function useAppCommandItems({
         action: onToggleGrid,
       },
       { id: "library-manager", label: "Library Manager", hint: "Manage door, material, hardware, and cabinet libraries", shortcut: "Rail", category: "Tools", action: onOpenLibraryManager },
-      { id: "export-json", label: "Export Project JSON", hint: "Download project JSON", shortcut: "Export", category: "Export", action: () => { void onExportProjectJson(); } },
-      { id: "export-csv", label: "Export Cutlist CSV", hint: "Download production cutlist CSV", shortcut: "Export", category: "Export", action: () => { void onExportCutlistCsv(); } },
-      { id: "export-pdf", label: "Export PDF", hint: "Download project PDF report", shortcut: "Export", category: "Export", action: () => { void onExportPdf(); } },
-      { id: "export-machine-json", label: "Export Machine JSON (preview)", hint: "Machining intent metadata — not a CNC program", shortcut: "Export", category: "Export", action: () => { void onExportMachineJson(); } },
-      { id: "freeze-revision", label: "Freeze Revision", hint: "Snapshot revision fingerprint and change log", shortcut: "Review", category: "Review", action: onFreezeRevision },
-      { id: "release-production", label: "Release for Production", hint: "Mark approved revision released for shop", shortcut: "Review", category: "Review", action: onReleaseForProduction },
-      { id: "export-revision-summary", label: "Export Revision Summary PDF", hint: "Printable approval and change log", shortcut: "Review", category: "Review", action: () => { void onExportRevisionSummary(); } },
+      { id: "export-json", label: INTERIORS_CUSTOMER_EXPORTS.jobFile.label, hint: INTERIORS_CUSTOMER_EXPORTS.jobFile.hint, shortcut: "Export", category: "Export", action: () => { void onExportProjectJson(); } },
+      { id: "export-csv", label: INTERIORS_CUSTOMER_EXPORTS.cutlist.label, hint: INTERIORS_CUSTOMER_EXPORTS.cutlist.hint, shortcut: "Export", category: "Export", action: () => { void onExportCutlistCsv(); } },
+      { id: "export-pdf", label: INTERIORS_CUSTOMER_EXPORTS.shopPacket.label, hint: INTERIORS_CUSTOMER_EXPORTS.shopPacket.hint, shortcut: "Export", category: "Export", action: () => { void onExportPdf(); } },
+      { id: "export-machine-json", label: INTERIORS_CUSTOMER_EXPORTS.machinePreview.label, hint: INTERIORS_CUSTOMER_EXPORTS.machinePreview.hint, shortcut: "Export", category: "Export", action: () => { void onExportMachineJson(); } },
+      { id: "freeze-revision", label: INTERIORS_CUSTOMER_EXPORTS.snapshotRevision.label, hint: INTERIORS_CUSTOMER_EXPORTS.snapshotRevision.hint, shortcut: "Review", category: "Review", action: onFreezeRevision },
+      { id: "release-production", label: INTERIORS_CUSTOMER_EXPORTS.releaseToShop.label, hint: INTERIORS_CUSTOMER_EXPORTS.releaseToShop.hint, shortcut: "Review", category: "Review", action: onReleaseForProduction },
+      { id: "export-revision-summary", label: INTERIORS_CUSTOMER_EXPORTS.revisionSummary.label, hint: INTERIORS_CUSTOMER_EXPORTS.revisionSummary.hint, shortcut: "Review", category: "Review", action: () => { void onExportRevisionSummary(); } },
       { id: "shortcuts", label: "Configure Shortcuts", hint: "Open keyboard shortcut editor", shortcut: formatShortcutBinding(shortcutMap.shortcutHelp), category: "Tools", action: onOpenShortcuts },
     ],
     [showGrid, snapSizeMm, shortcutMap],

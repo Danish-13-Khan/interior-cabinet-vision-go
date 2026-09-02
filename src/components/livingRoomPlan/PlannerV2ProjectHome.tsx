@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { interiorsRecentProjectCard } from "../../domain/desktopUx";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
-import { useInteriorsProjectsFixtures } from "./InteriorsProjectsFixtures";
 import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
 import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
 import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
@@ -15,11 +14,6 @@ type PlannerV2ProjectHomeProps = {
 
 export function PlannerV2ProjectHome({ workspace, open, hasCurrentProject }: PlannerV2ProjectHomeProps) {
   const [projectName, setProjectName] = useState("New cabinet job");
-  useInteriorsProjectsFixtures({
-    enabled: open,
-    onOpenDemo: () => { workspace.onDiscardRecovery(); workspace.onOpenDemo(); },
-    onOpenGoldenRun: () => { workspace.onDiscardRecovery(); workspace.onOpenGoldenRun(); },
-  });
   const recentRows = useMemo(() => workspace.recentProjects.flatMap((entry) => {
     const card = interiorsRecentProjectCard(entry);
     const document = entry.project.interiorDocument;

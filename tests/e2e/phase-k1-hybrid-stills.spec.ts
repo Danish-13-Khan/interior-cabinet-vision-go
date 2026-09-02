@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { loadReleaseDemo } from "./plannerStart";
+import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
 
 type CapturedDownload = {
   name: string;
@@ -12,8 +12,7 @@ async function openRenderStudio(page: Page) {
   await page.getByRole("button", { name: "Interiors" }).click();
   await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
-  await page.getByTestId("interiors-present").click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
+  await openQaRenderStudio(page);
 }
 
 async function acceptHybridStill(page: Page) {
@@ -47,7 +46,7 @@ async function captureClientPackageDownloads(page: Page) {
     }
     captured.push({ name, text });
   });
-  await page.locator(".lr-render-actions").getByRole("button", { name: "Client Package", exact: true }).click();
+  await page.locator(".lr-render-actions").getByRole("button", { name: "Download client pack", exact: true }).click();
   await expect.poll(
     () => captured.some((item) => item.name.includes("stills-provenance")),
     { timeout: 20_000 },

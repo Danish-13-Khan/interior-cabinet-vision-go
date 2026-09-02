@@ -1,4 +1,4 @@
-import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
+import { isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -99,10 +99,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       <LivingRoomPlanStage
         project={project} workspaceView={props.workspaceView} chromeTool={props.chromeTool} selectedIds={w.selectedIds} issues={props.issues}
         snapSizeMm={props.snapSizeMm} showGrid={props.showGrid} canUndo={w.canUndo} canRedo={w.canRedo}
-        hasSelection={Boolean(activeObject)} millworkCount={props.millwork.workflow?.millworkCount ?? 0}
-        millworkReady={readyToExport} exportBusy={props.millwork.busy}
-        exportBlocked={props.issues.some(isBlockingLivingRoomPlanIssue)}
-        exportStatus={props.millwork.status} autosaveState={w.autosaveState} lastAutosavedAt={w.lastAutosavedAt}
+        hasSelection={Boolean(activeObject)}
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
         onSelect={(objectId, additive) => inspectPlanTarget(props, { objectId, additive })}
@@ -134,10 +131,6 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onRenderSettingsChange={w.onRenderSettingsChange} onLightingChange={w.onLightingChange}
         onRenderBrowserThumbnail={w.onRenderBrowserThumbnail}
         onRendered={props.onRenderResults}
-        onExportScheduleCsv={() => void props.millwork.exportSchedule("schedule-csv")}
-        onExportSchedulePdf={() => void props.millwork.exportSchedule("schedule-pdf")}
-        onExportCutlistCsv={() => void props.millwork.exportSchedule("cutlist-csv")}
-        onExportProductionPdf={() => void props.millwork.exportSchedule("production-pdf")}
         acceptedStillAssets={props.acceptedStillAssets}
         onAcceptedStillAssetsChange={props.onAcceptedStillAssetsChange}
         clientExport={props.clientExport}

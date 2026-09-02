@@ -1,6 +1,7 @@
 import { LivingRoomModelView } from "../LivingRoomModelView";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
+import { InteriorsClientCaptureView } from "./InteriorsClientCaptureView";
 import { PlanStageAuthoringChrome } from "./PlanStageAuthoringChrome";
 import { PlanStageStatus } from "./PlanStageStatus";
 import type { LivingRoomPlanStageProps } from "./planStageProps";
@@ -36,6 +37,13 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onClearSelection={props.onClearSelection} onMove={props.onMove}
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
+          />
+        ) : props.presenting ? (
+          <InteriorsClientCaptureView
+            project={props.project}
+            latestResult={props.latestRender}
+            onRendered={props.onRendered}
+            onBrowserThumbnail={props.onRenderBrowserThumbnail}
           />
         ) : (
           <LivingRoomRenderStudio

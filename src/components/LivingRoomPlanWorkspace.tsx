@@ -14,6 +14,7 @@ import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilityS
 import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
+import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjectsFixtures";
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
@@ -60,6 +61,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     project: props.project, projectHomeOpen: props.projectHomeOpen,
     onOpenProjectHome: props.onOpenProjectHome, onCloseProjectHome: props.onCloseProjectHome,
     selectBuildTool: build.selectBuildTool,
+  });
+  useInteriorsProjectsFixtures({
+    enabled: true,
+    onOpenDemo: () => { props.onDiscardRecovery(); props.onOpenDemo(); },
+    onOpenGoldenRun: () => { props.onDiscardRecovery(); props.onOpenGoldenRun(); },
+    onOpenRenderStudio: chrome.showRenderStudio,
   });
   const job = props.project ? readProposalCommercial(props.project).job : null;
   const assetCategories = useMemo(() => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))], []);

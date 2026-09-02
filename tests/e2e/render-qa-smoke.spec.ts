@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { loadReleaseDemo } from "./plannerStart";
+import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -16,15 +16,11 @@ async function openReleaseDemo(page: Page) {
 
 async function goView(page: Page, view: "plan" | "model" | "render") {
   if (view === "render") {
-    await page.getByTestId("interiors-present").click();
-  } else {
-    await page.getByRole("button", { name: view === "plan" ? "2D" : "3D", exact: true }).click();
+    await openQaRenderStudio(page);
+    return;
   }
-  const title = view === "plan"
-    ? "2D plan"
-    : view === "model"
-      ? "3D model"
-      : "Render studio";
+  await page.getByRole("button", { name: view === "plan" ? "2D" : "3D", exact: true }).click();
+  const title = view === "plan" ? "Room plan" : "3D model";
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText(title);
 }
 

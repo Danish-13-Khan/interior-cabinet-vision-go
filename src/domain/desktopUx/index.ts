@@ -13,3 +13,4 @@ export * from "./interiorsProjects";
 export * from "./interiorsDrawRoom";
 export * from "./interiorsCabinetRun";
 export * from "./interiorsPresentAndSend";
+export * from "./interiorsCustomerChrome";

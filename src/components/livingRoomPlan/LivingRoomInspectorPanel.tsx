@@ -6,16 +6,10 @@ import type {
   Size3Mm,
   WallPlanPatch,
 } from "../../domain/interiorProject";
-import type {
-  LivingRoomPlanIssue,
-  MillworkSchedule,
-  MillworkWorkflowSnapshot,
-} from "../../domain/livingRoom";
-import type { ProjectReport } from "../../domain/projectReport";
+import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
 import { interiorsSelectionTitle } from "../../domain/desktopUx";
 import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
 import { InspectorObjectSection } from "./InspectorObjectSection";
-import { MillworkSchedulePreview } from "./millworkSchedule";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 import { InspectorObjectList } from "./InspectorObjectList";
@@ -31,10 +25,6 @@ type LivingRoomInspectorPanelProps = {
   activeWallId: string | null;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
-  millworkSchedule: MillworkSchedule | null;
-  millworkWorkflow: MillworkWorkflowSnapshot | null;
-  productionReport: ProjectReport | null;
-  millworkExportedAt: string | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
@@ -111,14 +101,9 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onOffsetWall={props.onOffsetWall} onOffsetLoop={props.onOffsetLoop}
             onSetWallPlan={props.onSetWallPlan} onImportFinish={props.onImportFinish}
             onSetFinishUv={props.onSetFinishUv} unit={props.unit}
-            suppressEmptyWall={Boolean(activeOpening || (props.drawRoom && !activeWall))} compact={props.drawRoom}
+            suppressEmptyWall={!activeWall} compact={props.drawRoom}
             hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
             onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes} />
-        ) : !room ? (
-          <section className="lr-inspector-empty">
-            <h3>Room</h3>
-            <p>Draw a rectangle or polygon on the plan. Raise walls when you want 3D. 2D and 3D stay separate until you raise.</p>
-          </section>
         ) : null}
         {activeOpening ? <OpeningInspector opening={activeOpening} materials={props.project.materials} onUpdate={props.onUpdateOpening} onDelete={props.onDeleteOpening} /> : activeObject ? (
           <InspectorObjectSection
@@ -128,26 +113,10 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdateCabinetRun={props.onUpdateCabinetRun}
             onDuplicate={props.onDuplicate} onDelete={props.onDelete}
           />
-        ) : props.drawRoom ? null : (
-          <section className="lr-inspector-empty">
-            <h3>Selection</h3>
-            <p>
-              {props.mode === "plan"
-                ? "Select an object to move, rotate, resize, duplicate, or delete."
-                : "Select a piece in the room to set size and finish."}
-            </p>
-          </section>
-        )}
-        {props.millworkSchedule && props.millworkWorkflow && !props.drawRoom && !props.cabinetRun ? (
-          <MillworkSchedulePreview
-            schedule={props.millworkSchedule}
-            workflow={props.millworkWorkflow}
-            productionReport={props.productionReport}
-            exportedAt={props.millworkExportedAt}
-            onSelect={props.onSelect}
-          />
         ) : null}
-        {props.drawRoom || props.cabinetRun ? null : <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />}
+        {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun ? (
+          <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />
+        ) : null}
       </div>
     </aside>
   );

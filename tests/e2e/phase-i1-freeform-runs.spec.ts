@@ -7,7 +7,7 @@ async function openDesignPlan(page: Page) {
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
   await page.getByTestId("interiors-tool-cabinet").click();
-  await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
 }
 
 async function dragHandle(page: Page, handle: Locator, dx: number, dy: number) {
@@ -22,7 +22,7 @@ async function dragHandle(page: Page, handle: Locator, dx: number, dy: number) {
 }
 
 async function placeCatalogCabinet(page: Page) {
-  await page.locator(".lr-asset-grid").getByRole("button", { name: /Wardrobe Wall.*Place/ }).click();
+  await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
 }
 
 async function setObjectDimension(page: Page, axis: "W" | "H" | "D", value: string) {
@@ -58,9 +58,7 @@ async function createCabinetRun(page: Page) {
   const objects = page.locator("[data-object-id]");
   await objects.nth(0).click();
   await objects.nth(1).click({ modifiers: ["Shift"] });
-  const createRun = page.getByRole("button", { name: "Create cabinet run", exact: true });
-  await expect(createRun).toBeEnabled();
-  await createRun.click();
+  await page.getByRole("button", { name: "Snap selection into run", exact: true }).click();
   await expect(page.locator(".lr-cabinet-run-inspector")).toBeVisible();
 }
 
