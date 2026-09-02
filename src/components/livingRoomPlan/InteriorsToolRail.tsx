@@ -1,8 +1,10 @@
 import {
   INTERIORS_CHROME_TOOLS,
+  interiorsChromeBuildTool,
   isInteriorsChromeToolReady,
   type InteriorsChromeTool,
 } from "../../domain/desktopUx";
+import { InteriorsChromeIcon } from "./InteriorsChromeIcons";
 
 type InteriorsToolRailProps = {
   activeTool: InteriorsChromeTool;
@@ -20,11 +22,13 @@ export function InteriorsToolRail({ activeTool, onTool }: InteriorsToolRailProps
             key={tool.id}
             type="button"
             data-testid={`interiors-tool-${tool.id}`}
+            data-build-tool={tool.group === "room" ? interiorsChromeBuildTool(tool.id) : undefined}
             className={activeTool === tool.id ? "is-active" : ""}
             title={ready ? tool.label : `${tool.label} — coming in Cabinet Run`}
             disabled={!ready}
             onClick={() => onTool(tool.id)}
           >
+            <InteriorsChromeIcon name={tool.id} />
             <span>{tool.label}</span>
           </button>
         );

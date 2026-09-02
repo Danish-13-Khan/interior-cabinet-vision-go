@@ -1,0 +1,214 @@
+/* Draw Room canvas chrome: slim titlebar, contextual tray, quiet status. */
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button {
+  flex-direction: column;
+  gap: 3px;
+  min-height: 52px;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lr-draw-titlebar,
+.lr-draw-tray {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #dce5de;
+  background: #fff;
+}
+
+.lr-draw-titlebar {
+  min-height: 45px;
+  padding: 0 14px;
+  font-size: 0.75rem;
+  color: #68766c;
+}
+
+.lr-draw-titlebar strong {
+  color: #243029;
+  font-size: 0.82rem;
+}
+
+.lr-draw-titlebar > div,
+.lr-draw-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lr-draw-titlebar button,
+.lr-draw-titlebar select,
+.lr-draw-tray button {
+  min-height: 29px;
+  padding: 0 8px;
+  border: 1px solid #dce5de;
+  border-radius: 6px;
+  background: #fff;
+  color: #3d4843;
+  font-size: 0.72rem;
+}
+
+.lr-draw-titlebar button.is-active {
+  border-color: #276b46;
+  background: #edf7ef;
+  color: #276b46;
+}
+
+.lr-draw-tray {
+  padding: 8px 14px;
+  align-items: stretch;
+}
+
+.lr-draw-tray .lr-opening-catalog {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  flex: 1 1 100%;
+}
+
+.lr-draw-tray .lr-opening-catalog > button {
+  grid-template-columns: 1fr;
+  padding: 6px;
+}
+
+.lr-draw-tray .lr-opening-catalog-preview {
+  grid-row: auto;
+  width: 100%;
+  height: 36px;
+}
+
+.lr-draw-tray .lr-build-commit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.lr-draw-tray .lr-build-commit p {
+  margin: 0;
+  color: #68766c;
+  font-size: 0.72rem;
+}
+
+.lr-draw-status span,
+.lr-draw-status button {
+  color: #68766c;
+  font-size: 0.68rem;
+}
+
+.lr-draw-status .is-clear { color: #276b46; }
+.lr-draw-status .has-warning { color: #8a6d12; }
+
+.lr-draw-manage {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) auto minmax(200px, 1fr);
+  align-items: start;
+  gap: 12px 16px;
+  max-height: 150px;
+  overflow: auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #243029;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher > strong,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher label > span,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-actions small {
+  color: #68766c;
+  font-size: 0.68rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-tabs > button,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher input,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-actions button,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-actions select {
+  border-color: #dce5de;
+  background: #fff;
+  color: #3d4843;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-tabs > button.is-active {
+  border-color: #276b46;
+  background: #edf7ef;
+  color: #276b46;
+}
+
+.lr-draw-arch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: start;
+}
+
+.lr-draw-arch button.is-active {
+  border-color: #276b46;
+  background: #edf7ef;
+  color: #276b46;
+}
+
+.lr-draw-manage .lr-underlay-empty,
+.lr-draw-manage .lr-underlay-controls {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.lr-draw-manage .lr-underlay-empty {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  text-align: left;
+}
+
+.lr-draw-manage .lr-underlay-empty > span {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  margin: 0;
+}
+
+.lr-draw-manage .lr-underlay-empty p { display: none; }
+.lr-draw-manage .lr-underlay-empty button { width: auto; margin: 0 0 0 auto; }
+
+.lr-draw-issues { position: relative; }
+
+.lr-draw-issues > button {
+  min-height: 24px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.lr-draw-issues-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  width: min(360px, 80vw);
+  border: 1px solid #dce5de;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgb(36 48 41 / 14%);
+}
+
+@media (max-width: 1100px) {
+  .lr-draw-manage { grid-template-columns: 1fr; }
+}

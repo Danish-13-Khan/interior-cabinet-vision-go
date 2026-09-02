@@ -25,7 +25,8 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
 
   const backWall = page.locator('[data-wall-id="lr-wall-back"]');
   await expect(backWall).toHaveCount(1);
-  await expect(page.locator('[data-wall-length-id="lr-wall-back"]')).toHaveText("6200 mm");
+  // The new selection-first chrome keeps wall dimensions quiet until selected.
+  await expect(page.locator("[data-wall-length-id]")).toHaveCount(0);
 
   const frontWall = page.locator('[data-wall-id="lr-wall-front"]');
   await clickWall(page, frontWall);
@@ -45,6 +46,7 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
   await readability.getByRole("button", { name: "Fill", exact: true }).click();
   await expect(page.locator(".lr-plan-svg")).toHaveClass(/is-fill-style/);
 
+  await page.getByTestId("interiors-tool-import").click();
   await expect(page.getByRole("slider", { name: "Underlay opacity", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Choose plan image", exact: true })).toBeVisible();
 });

@@ -25,6 +25,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [activeWallId, setActiveWallId] = useState<string | null>(null);
   const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
   const [activeSurfaceId, setActiveSurfaceId] = useState<string | null>(null);
+  const [inspectRoom, setInspectRoom] = useState(false);
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
@@ -67,12 +68,16 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     if (!props.project) return;
     setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
+    setActiveSurfaceId((current) => props.project!.surfaces.some((surface) => surface.id === current) ? current : null);
   }, [props.project]);
+  useEffect(() => {
+    if (activeWallId || activeOpeningId || activeSurfaceId) setInspectRoom(false);
+  }, [activeWallId, activeOpeningId, activeSurfaceId]);
   useLivingRoomPlanHotkeys({
     projectHomeOpen: props.projectHomeOpen, snapSizeMm, workspaceView: chrome.workspaceView,
     onView: chrome.changeWorkspaceView, onDuplicate: props.onDuplicate, onDelete: props.onDelete,
     onRotateSelection: props.onRotateSelection, onNudge: props.onNudge,
-    onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(null); },
+    onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null); },
     onCycleSelection: (delta) => {
       if (!props.project) return;
       const next = nextSelectableObjectId(props.project.objects, props.selectedIds[0] ?? null, delta, props.project.activeRoomId);
@@ -129,6 +134,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         proposal={proposal} handoff={handoff}
         acceptedStillAssets={acceptedStillAssets} onAcceptedStillAssetsChange={setAcceptedStillAssets}
         issues={props.issues} readability={readability.settings} onReadability={readability.update}
+        inspectRoom={inspectRoom} setInspectRoom={setInspectRoom}
       />
     </section>
   );

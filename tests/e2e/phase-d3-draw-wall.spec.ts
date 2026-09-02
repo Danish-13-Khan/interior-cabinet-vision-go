@@ -52,7 +52,9 @@ test("D3 draws a wall segment and supports undo", async ({ page }) => {
 
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await pickModelEntity(page, wallId!);
-  await expect(page.locator(".inspector-header")).toContainText("Wall selected");
+  const inspectorHeader = page.locator(".inspector-header");
+  await expect(inspectorHeader.locator(".lr-chrome-eyebrow")).toHaveText("Selected");
+  await expect(inspectorHeader.locator("strong")).toHaveText("Wall");
 
   await page.getByRole("button", { name: "2D", exact: true }).click();
   await page.getByRole("button", { name: "Undo", exact: true }).click();

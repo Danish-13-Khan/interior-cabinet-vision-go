@@ -5,6 +5,7 @@ type WallDrawingPanelProps = {
   onDelete: () => void;
   onJoinNodes: () => void;
   canEdit: boolean;
+  compact?: boolean;
 };
 
 export function WallDrawingPanel({
@@ -14,10 +15,11 @@ export function WallDrawingPanel({
   onDelete,
   onJoinNodes,
   canEdit,
+  compact,
 }: WallDrawingPanelProps) {
   return (
     <div className="lr-build-commit">
-      <p>Draw the floor in 2D first. Raise selected walls into 3D from the inspector — switching to 3D does not extrude the whole plan. After a room exists, drag Draw Wall across it to split.</p>
+      {compact ? null : <p>Draw the floor in 2D first. Raise selected walls into 3D from the inspector — switching to 3D does not extrude the whole plan. After a room exists, drag Draw Wall across it to split.</p>}
       <label>
         <span>Wall thickness (mm)</span>
         <input

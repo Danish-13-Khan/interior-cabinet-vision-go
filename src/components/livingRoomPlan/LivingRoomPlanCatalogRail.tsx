@@ -3,7 +3,7 @@ import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/inter
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
-import type { InteriorsChromeTool } from "../../domain/desktopUx";
+import { isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildRoomCatalogPanel } from "./BuildRoomCatalogPanel";
 import { InteriorsToolRail } from "./InteriorsToolRail";
@@ -97,13 +97,15 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   ).length;
   const activePanel = props.studioPanel;
   const tool = props.activeBuildTool ?? "select";
+  const drawRoom = isInteriorsDrawRoomTool(props.chromeTool);
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
   }, [props.onRegisterUnderlayPicker]);
 
   return <>
     <InteriorsToolRail activeTool={props.chromeTool} onTool={props.onChromeTool} />
-    {props.toolRailVisible ? (
+    <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
+    {props.toolRailVisible && !drawRoom ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {activePanel === "cabinets" || activePanel === "furniture" ? (
           <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall?.extensions?.wallSide ?? "wall")}

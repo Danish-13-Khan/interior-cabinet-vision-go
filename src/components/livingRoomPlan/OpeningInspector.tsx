@@ -30,10 +30,11 @@ function OpeningPreview({ opening }: { opening: OpeningEntity }) {
   </div>;
 }
 
-export function OpeningInspector({ opening, materials, onUpdate }: {
+export function OpeningInspector({ opening, materials, onUpdate, onDelete }: {
   opening: OpeningEntity;
   materials: InteriorProject["materials"];
   onUpdate: (openingId: string, patch: OpeningPatch) => void;
+  onDelete?: (openingId: string) => void;
 }) {
   const item = getOpeningCatalogItem(opening.catalogItemId);
   const slots = opening.materialSlots ?? {};
@@ -59,5 +60,8 @@ export function OpeningInspector({ opening, materials, onUpdate }: {
     <h4>Materials</h4>
     <MaterialSlotList slots={slotMap} materials={materials} allowEmpty
       onSet={(slotName, materialId) => onUpdate(opening.id, { materialSlots: { ...slots, [slotName]: materialId } })} />
+    {onDelete ? (
+      <button type="button" className="is-danger" onClick={() => onDelete(opening.id)}>Remove opening</button>
+    ) : null}
   </section>;
 }

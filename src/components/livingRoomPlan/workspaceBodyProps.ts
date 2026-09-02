@@ -64,4 +64,6 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   issues: LivingRoomPlanIssue[];
   readability: PlanReadabilitySettings;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
+  inspectRoom: boolean;
+  setInspectRoom: React.Dispatch<React.SetStateAction<boolean>>;
 };
