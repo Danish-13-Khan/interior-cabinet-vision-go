@@ -129,3 +129,46 @@
 .interiors-client-capture-bar .is-primary {
   font-weight: 700;
 }
+
+@media (max-width: 1180px) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-render {
+    flex-direction: column;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-render .lr-catalog {
+    width: min(100%, 340px) !important;
+    min-width: 0;
+    max-width: none;
+    max-height: min(36vh, 280px);
+    flex: 0 0 auto;
+    overflow: auto;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-render .interiors-present-panel {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: min(40vh, 360px);
+    overflow-y: auto;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-render .lr-plan-center {
+    width: 100%;
+    min-width: 0;
+    min-height: min(48vh, 460px);
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-render .lr-catalog {
+    max-height: min(32vh, 220px);
+  }
+
+  .lr-plan-shell.lr-product-shell-v2 .interiors-client-capture-bar {
+    flex-wrap: wrap;
+  }
+}

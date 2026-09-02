@@ -82,7 +82,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }, [activeWallId, activeOpeningId, activeSurfaceId]);
   useLivingRoomPlanHotkeys({
     projectHomeOpen: props.projectHomeOpen, snapSizeMm, workspaceView: chrome.workspaceView,
-    onView: chrome.changeWorkspaceView, onDuplicate: props.onDuplicate, onDelete: props.onDelete,
+    canUndo: props.canUndo, canRedo: props.canRedo,
+    onView: chrome.changeWorkspaceView, onUndo: props.onUndo, onRedo: props.onRedo,
+    onDuplicate: props.onDuplicate, onDelete: props.onDelete,
     onRotateSelection: props.onRotateSelection, onNudge: props.onNudge,
     onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null); },
     onCycleSelection: (delta) => {
@@ -101,6 +103,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
       workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
       canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"}
+      chromeLocked={props.projectHomeOpen || !props.project}
       onProject={() => chrome.changePlannerMode("project")} onView={chrome.changeWorkspaceView}
       onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
     />

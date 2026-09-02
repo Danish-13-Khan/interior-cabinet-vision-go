@@ -28,6 +28,7 @@ export function InteriorsProjectsIntro({
         <input
           value={projectName}
           maxLength={80}
+          data-testid="interiors-job-name"
           onChange={(event) => onProjectName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") onCreate();

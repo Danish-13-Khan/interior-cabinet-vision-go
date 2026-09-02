@@ -5,7 +5,11 @@ export function useLivingRoomPlanHotkeys({
   projectHomeOpen,
   snapSizeMm,
   workspaceView,
+  canUndo,
+  canRedo,
   onView,
+  onUndo,
+  onRedo,
   onDuplicate,
   onDelete,
   onRotateSelection,
@@ -16,7 +20,11 @@ export function useLivingRoomPlanHotkeys({
   projectHomeOpen: boolean;
   snapSizeMm: number;
   workspaceView: LivingRoomWorkspaceView;
+  canUndo: boolean;
+  canRedo: boolean;
   onView: (view: LivingRoomWorkspaceView) => void;
+  onUndo: () => void;
+  onRedo: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onRotateSelection: (delta: number) => void;
@@ -29,6 +37,15 @@ export function useLivingRoomPlanHotkeys({
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select")) return;
       if (projectHomeOpen) return;
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) {
+          if (canRedo) onRedo();
+        } else if (canUndo) {
+          onUndo();
+        }
+        return;
+      }
       if (event.key === "Escape") {
         if (workspaceView === "model") {
           event.preventDefault();
@@ -75,7 +92,7 @@ export function useLivingRoomPlanHotkeys({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
-    onClearSelection, onCycleSelection, onDelete, onDuplicate, onNudge, onRotateSelection, onView,
-    projectHomeOpen, snapSizeMm, workspaceView,
+    canRedo, canUndo, onClearSelection, onCycleSelection, onDelete, onDuplicate, onNudge, onRedo, onRotateSelection,
+    onUndo, onView, projectHomeOpen, snapSizeMm, workspaceView,
   ]);
 }
