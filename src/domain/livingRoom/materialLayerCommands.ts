@@ -1,4 +1,5 @@
 import type { InteriorProject } from "../interiorProject";
+import { paintObjectSlotWithPolicy } from "../catalog/finishCommands";
 
 export type LivingRoomLayerId = "walls" | "openings" | "furniture";
 export type LivingRoomPaintTarget =
@@ -44,12 +45,11 @@ export function paintLivingRoomSurface(project: InteriorProject, target: LivingR
   if (target.kind === "floor") return setLivingRoomFloorMaterial(project, materialId);
   if (target.kind === "ceiling") return setLivingRoomCeilingMaterial(project, materialId);
   if (target.kind === "wall") return setLivingRoomWallMaterial(project, target.wallId, materialId);
-  return {
-    ...project,
-    objects: project.objects.map((object) => object.id === target.objectId
-      ? { ...object, materialSlots: { ...object.materialSlots, [target.slotName]: materialId } }
-      : object),
-  };
+  return paintObjectSlotWithPolicy(project, {
+    objectId: target.objectId,
+    slotName: target.slotName,
+    materialId,
+  });
 }
 
 export function setLivingRoomLayerVisibility(project: InteriorProject, layer: LivingRoomLayerId, visible: boolean) {

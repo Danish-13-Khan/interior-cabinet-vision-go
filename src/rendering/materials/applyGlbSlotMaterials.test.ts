@@ -96,4 +96,91 @@ describe("GLB model-view material build context", () => {
       }),
     );
   });
+
+  it("keeps Kenney source material names across repeated finish applies", async () => {
+    descriptorSpy.mockClear();
+    const { applyGlbSlotMaterials } = await import("./applyGlbSlotMaterials");
+    const { Mesh, BoxGeometry, MeshBasicMaterial, Group } = await import("three");
+    const compiled = {
+      id: "proj-upholstery",
+      name: "Oatmeal",
+      kind: "fabric" as const,
+      color: "#d2c3ae",
+      roughness: 0.97,
+      metalness: 0,
+      opacity: 1,
+      materialAssetId: "proj-upholstery",
+      uvScaleMm: 450,
+    };
+    const root = new Group();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ name: "carpet" }));
+    mesh.name = "Mesh_0";
+    root.add(mesh);
+    const args = {
+      materialGroups: { upholstery: "upholstery" },
+      materialBindings: { upholstery: compiled.id },
+      materials: new Map([[compiled.id, compiled]]),
+      renderMode: "preview" as const,
+      renderQuality: "standard" as const,
+      modelViewQuality: "standard" as const,
+      castShadow: false,
+      receiveShadow: true,
+      slotPolicies: {
+        upholstery: {
+          sourceMaterialNames: ["carpet"],
+          allowedMaterialKinds: ["fabric" as const],
+          editable: true,
+        },
+      },
+    };
+    applyGlbSlotMaterials(root, args);
+    expect(mesh.material.name).toBe("carpet");
+    applyGlbSlotMaterials(root, args);
+    expect(mesh.material.name).toBe("carpet");
+    expect(descriptorSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("passes the semantic slot as primitiveId for PBR (mirror vs glass)", async () => {
+    descriptorSpy.mockClear();
+    const { applyGlbSlotMaterials } = await import("./applyGlbSlotMaterials");
+    const { Mesh, BoxGeometry, MeshBasicMaterial, Group } = await import("three");
+    const compiled = {
+      id: "proj-mirror",
+      name: "Mirror Glass",
+      kind: "glass" as const,
+      color: "#cfd8dc",
+      roughness: 0.02,
+      metalness: 0.9,
+      opacity: 1,
+      materialAssetId: "proj-mirror",
+      uvScaleMm: 1000,
+    };
+    const root = new Group();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ name: "glass" }));
+    mesh.name = "Mesh_0";
+    root.add(mesh);
+    applyGlbSlotMaterials(root, {
+      materialGroups: { mirror: "mirror" },
+      materialBindings: { mirror: compiled.id },
+      materials: new Map([[compiled.id, compiled]]),
+      renderMode: "preview",
+      renderQuality: "standard",
+      modelViewQuality: "standard",
+      castShadow: false,
+      receiveShadow: true,
+      slotPolicies: {
+        mirror: {
+          sourceMaterialNames: ["glass"],
+          allowedMaterialKinds: ["glass"],
+          editable: false,
+        },
+      },
+    });
+    expect(mesh.material.name).toBe("glass");
+    expect(descriptorSpy).toHaveBeenCalledWith(
+      compiled,
+      "preview",
+      expect.objectContaining({ primitiveId: "mirror" }),
+    );
+  });
 });

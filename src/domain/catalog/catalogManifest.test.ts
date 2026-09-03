@@ -24,7 +24,7 @@ describe("builtin catalog manifest", () => {
   it("contains all 140 Kenney items with unique ids", () => {
     expect(catalog.items).toHaveLength(140);
     expect(catalog.schemaVersion).toBe(1);
-    expect(catalog.catalogVersion).toBe("2026.09.1");
+    expect(catalog.catalogVersion).toBe("2026.09.2");
     expect(catalog.licenses.some((license) => license.id === "cc0-1.0")).toBe(true);
     const ids = catalog.items.map((item) => item.id);
     expect(new Set(ids).size).toBe(140);
@@ -59,8 +59,8 @@ describe("builtin catalog manifest", () => {
     }
   });
 
-  it("keeps materials and templates empty in phase 1", () => {
-    expect(catalog.materials).toEqual([]);
+  it("keeps materials seeded and templates empty in phase 2", () => {
+    expect(catalog.materials.length).toBeGreaterThan(0);
     expect(catalog.templates).toEqual([]);
   });
 

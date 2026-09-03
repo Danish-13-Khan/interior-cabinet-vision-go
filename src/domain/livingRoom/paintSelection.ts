@@ -1,4 +1,9 @@
-import type { InteriorObjectEntity, InteriorProject } from "../interiorProject";
+import {
+  catalogSlotPoliciesForObject,
+  isMaterialCompatibleWithSlot,
+  tagsFromMaterialExtensions,
+} from "../catalog";
+import type { InteriorObjectEntity, InteriorProject, MaterialEntity } from "../interiorProject";
 import { paintLivingRoomSurface } from "./materialLayerCommands";
 
 /** Prefer finishes that read as the object’s face on the 2D plan. */
@@ -11,6 +16,45 @@ export function commonMaterialSlots(objects: readonly InteriorObjectEntity[]): s
   return Object.keys(first!.materialSlots).filter((slot) =>
     rest.every((object) => Object.prototype.hasOwnProperty.call(object.materialSlots, slot)),
   );
+}
+
+/** True when every selected object allows editing this slot (missing policy = editable). */
+export function isSelectionSlotEditable(
+  objects: readonly InteriorObjectEntity[],
+  slotName: string,
+): boolean {
+  return objects.every((object) => {
+    const policy = catalogSlotPoliciesForObject(object)?.[slotName];
+    return !policy || policy.editable !== false;
+  });
+}
+
+/** Shared slots that are editable on every selected object. */
+export function editableCommonMaterialSlots(
+  objects: readonly InteriorObjectEntity[],
+): string[] {
+  return commonMaterialSlots(objects).filter((slot) => isSelectionSlotEditable(objects, slot));
+}
+
+/** Materials compatible with the given slot on every selected object. */
+export function materialsCompatibleWithSelectionSlot(
+  materials: readonly MaterialEntity[],
+  objects: readonly InteriorObjectEntity[],
+  slotName: string,
+): MaterialEntity[] {
+  if (!slotName || objects.length === 0) return [...materials];
+  return materials.filter((material) => {
+    const candidate = {
+      id: material.id,
+      kind: material.kind,
+      tags: tagsFromMaterialExtensions(material.extensions),
+    };
+    return objects.every((object) => {
+      const policy = catalogSlotPoliciesForObject(object)?.[slotName];
+      if (!policy) return true;
+      return isMaterialCompatibleWithSlot(candidate, policy);
+    });
+  });
 }
 
 /** Resolves a paint slot; returns null when a requested slot is missing (object is skipped). */

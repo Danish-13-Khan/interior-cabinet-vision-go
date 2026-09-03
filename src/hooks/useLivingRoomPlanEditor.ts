@@ -60,7 +60,6 @@ import {
   resizeLivingRoomObject,
   rotateLivingRoomObject,
   setLivingRoomPlanUnderlay,
-  applyMaterialToSelection,
   paintLivingRoomSurface,
   setLivingRoomObjectParameters,
   setLivingRoomWallMaterial,
@@ -83,6 +82,8 @@ import {
   offsetLivingRoomLoop as commitOffsetLoop,
   offsetLivingRoomWall as commitOffsetWall,
   paintLivingRoomCeiling as commitCeilingPaint,
+  paintLivingRoomObjectSlot as commitObjectPaint,
+  paintLivingRoomSelection as commitSelectionPaint,
   raiseLivingRoomWalls as commitRaisedWalls,
   setLivingRoomFinishUv as commitFinishUv,
   setLivingRoomWallPlan as commitWallPlan,
@@ -262,15 +263,12 @@ export function useLivingRoomPlanEditor({
 
   function setObjectMaterial(objectId: string, slotName: string, materialId: string) {
     if (!document?.materials.some((material) => material.id === materialId)) return;
-    commitDocument((current) => paintLivingRoomSurface(current, { kind: "object", objectId, slotName }, materialId), "Painted object surface.");
+    commitObjectPaint(commitDocument, objectId, slotName, materialId, onStatus);
   }
 
   function applySelectionMaterial(materialId: string, slotName?: string) {
     if (selectedObjectIds.length === 0) return;
-    commitDocument(
-      (current) => applyMaterialToSelection(current, selectedObjectIds, materialId, slotName),
-      selectedObjectIds.length === 1 ? "Painted object surface." : `Painted ${selectedObjectIds.length} selected objects.`,
-    );
+    commitSelectionPaint(commitDocument, selectedObjectIds, materialId, slotName, onStatus);
   }
 
   function setObjectParameters(objectId: string, patch: Record<string, string | number | boolean>) {
@@ -632,8 +630,12 @@ export function useLivingRoomPlanEditor({
       commitWallPlan(commitDocument, wallId, patch),
     importLivingRoomFinish: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) =>
       commitImportedFinish(commitDocument, file, apply, onStatus),
-    setLivingRoomFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) =>
-      commitFinishUv(commitDocument, materialId, patch),
+    setLivingRoomFinishUv: (
+      materialId: string,
+      patch: { uvScaleMm?: number; uvRotationDeg?: number },
+      rebind?: import("../domain/catalog/finishRebind").FinishUvRebind,
+    ) =>
+      commitFinishUv(commitDocument, materialId, patch, rebind),
     joinLivingRoomCoincidentNodes: joinCoincidentNodes,
     moveLivingRoomNode: moveNode,
     translateLivingRoomWall: translateWall,

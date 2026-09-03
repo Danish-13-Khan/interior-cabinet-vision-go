@@ -5,6 +5,8 @@ import {
   type InteriorProject,
   type MaterialEntity,
 } from "../interiorProject";
+import { mutateProjectMaterialCow } from "../catalog/finishCommands";
+import type { FinishUvRebind } from "../catalog/finishRebind";
 
 /** Binary image cap so a few imports cannot overflow the 25 MB project file. */
 export const MAX_FINISH_BYTES = 2 * 1024 * 1024;
@@ -72,23 +74,21 @@ export function setFinishUv(
   project: InteriorProject,
   materialId: string,
   patch: { uvScaleMm?: number; uvRotationDeg?: number },
+  rebind?: FinishUvRebind,
 ): InteriorProject {
-  return {
-    ...project,
-    materials: project.materials.map((material) => {
-      if (material.id !== materialId) return material;
-      const uvScaleMm = patch.uvScaleMm === undefined
-        ? material.extensions?.uvScaleMm
-        : Math.max(120, Math.min(8000, Math.round(patch.uvScaleMm)));
-      const uvRotationDeg = patch.uvRotationDeg === undefined
-        ? material.extensions?.uvRotationDeg
-        : ((Math.round(patch.uvRotationDeg) % 360) + 360) % 360;
-      return {
-        ...material,
-        extensions: { ...material.extensions, uvScaleMm, uvRotationDeg },
-      };
-    }),
-  };
+  const current = project.materials.find((material) => material.id === materialId);
+  if (!current) return project;
+  const uvScaleMm = patch.uvScaleMm === undefined
+    ? current.extensions?.uvScaleMm
+    : Math.max(120, Math.min(8000, Math.round(patch.uvScaleMm)));
+  const uvRotationDeg = patch.uvRotationDeg === undefined
+    ? current.extensions?.uvRotationDeg
+    : ((Math.round(patch.uvRotationDeg) % 360) + 360) % 360;
+  return mutateProjectMaterialCow(project, {
+    materialId,
+    patch: { extensions: { uvScaleMm, uvRotationDeg } },
+    rebind,
+  });
 }
 
 export function finishMapUrl(material: MaterialEntity) {

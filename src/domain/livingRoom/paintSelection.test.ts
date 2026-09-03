@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest";
+import {
+  kenneyItemId,
+  snapshotCatalogMaterial,
+  lookupBuiltInCatalogMaterial,
+} from "../catalog";
 import { createLivingRoomObject, createLivingRoomStarterProject } from ".";
-import { applyMaterialToSelection, commonMaterialSlots, primaryMaterialId } from "./paintSelection";
+import {
+  applyMaterialToSelection,
+  commonMaterialSlots,
+  editableCommonMaterialSlots,
+  isSelectionSlotEditable,
+  materialsCompatibleWithSelectionSlot,
+  primaryMaterialId,
+} from "./paintSelection";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
+import type { InteriorObjectEntity } from "../interiorProject";
 
 describe("I5 paint selection", () => {
   it("finds slots shared across the selection", () => {
@@ -46,5 +59,38 @@ describe("I5 paint selection", () => {
       id: "cab", roomId: project.activeRoomId, position: { x: 0, y: 0, z: 0 },
     });
     expect(primaryMaterialId(cabinet)).toBe(cabinet.materialSlots.fronts);
+  });
+
+  it("omits locked shared slots and intersects compatible finishes", () => {
+    const oatmeal = lookupBuiltInCatalogMaterial("material:core:fabric-oatmeal:v1")!;
+    const metal = lookupBuiltInCatalogMaterial("material:core:metal-charcoal:v1")!;
+    const materials = [
+      snapshotCatalogMaterial(oatmeal, "proj-oatmeal"),
+      snapshotCatalogMaterial(metal, "proj-metal"),
+    ];
+    const tv: InteriorObjectEntity = {
+      id: "tv",
+      roomId: "room-1",
+      kind: "furniture",
+      category: "media",
+      catalogItemId: kenneyItemId("televisionModern"),
+      name: "TV",
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      dimensions: { widthMm: 1200, heightMm: 700, depthMm: 80 },
+      materialSlots: { screen: "proj-metal", frame: "proj-oatmeal" },
+      parameters: {},
+    };
+    const sofa: InteriorObjectEntity = {
+      ...tv,
+      id: "sofa",
+      catalogItemId: kenneyItemId("loungeSofa"),
+      materialSlots: { upholstery: "proj-oatmeal", legs: "proj-metal" },
+    };
+    expect(isSelectionSlotEditable([tv], "screen")).toBe(false);
+    expect(editableCommonMaterialSlots([tv])).toEqual(["frame"]);
+    expect(commonMaterialSlots([tv]).includes("screen")).toBe(true);
+    const fabricOnly = materialsCompatibleWithSelectionSlot(materials, [sofa], "upholstery");
+    expect(fabricOnly.map((material) => material.id)).toEqual(["proj-oatmeal"]);
   });
 });

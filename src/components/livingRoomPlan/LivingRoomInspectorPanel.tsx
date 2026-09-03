@@ -48,7 +48,11 @@ type LivingRoomInspectorPanelProps = {
   onOffsetLoop: (offsetMm: number) => void;
   onSetWallPlan: (wallId: string, patch: WallPlanPatch) => void;
   onImportFinish: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
-  onSetFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) => void;
+  onSetFinishUv: (
+    materialId: string,
+    patch: { uvScaleMm?: number; uvRotationDeg?: number },
+    rebind?: import("../../domain/catalog/finishRebind").FinishUvRebind,
+  ) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   unit: import("../../domain/livingRoom").PlanDisplayUnit;

@@ -44,6 +44,7 @@
 .lr-material-slot-heading { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: 7px; align-items: center; }
 .lr-material-slot-heading i { width: 14px; height: 14px; border: 1px solid rgba(0, 0, 0, 0.16); border-radius: 50%; }
 .lr-material-slot-heading strong { font-size: 0.58rem; text-transform: capitalize; color: #3e4750; }
+.lr-material-slot-row.is-locked { opacity: 0.78; }
 .lr-material-slot-heading small { grid-column: 2; color: #77808a; font-size: 0.5rem; }
 
 .lr-plan-object[data-material-color] > rect:first-of-type { fill: var(--lr-object-fill, #b9c7b0); }

@@ -10,34 +10,22 @@ import {
   type Texture,
 } from "three";
 import type { CompiledMaterial } from "../../domain/livingRoom";
-import { resolveMaterialIdForMeshName } from "../../domain/livingRoom/glbMaterialGroups";
+import type { MaterialSlotPolicy } from "../../domain/catalog/types";
+import { resolveMaterialIdForPrimitive, matchSlotFromMaterialOrMeshName } from "../../domain/catalog/materialSlotMatch";
 import type { RenderQuality } from "../../domain/interiorProject";
-import type { RenderMode, RenderModeQuality } from "../../domain/livingRoom/renderAssetContracts";
-import type { ModelTextureUrls } from "../../domain/livingRoom/renderAssetContracts";
-import { resolveModelViewMaterialBuildContext } from "../../domain/livingRoom/modelViewPreviewDefaults";
+import type { RenderMode, ModelTextureUrls } from "../../domain/livingRoom/renderAssetContracts";
 import { createPbrMaterialDescriptor } from "../materials/createPbrMaterial";
 import { resolveImportedGlbMaterialResponse } from "./importedGlbMaterialTuning";
-import { anisotropyForRenderMode, textureRepeatFromUvScaleMm } from "./materialScale";
+import {
+  persistGlbSourceMaterialName,
+  readGlbSourceMaterialName,
+} from "./glbSourceMaterial";
+import { type GlbMaterialBuildContext, resolveGlbMaterialBuildContext } from "./glbMaterialBuildContext";
+import { textureRepeatFromUvScaleMm } from "./materialScale";
 import { resolveMaterialTextureUrls } from "./resolveMaterialTextureUrls";
 
-export type GlbMaterialBuildContext = {
-  quality?: RenderQuality;
-  modeQuality?: RenderModeQuality;
-  modelViewPreview: boolean;
-  anisotropy: number;
-};
-
-export function resolveGlbMaterialBuildContext(args: {
-  renderQuality?: RenderQuality;
-  modelViewQuality?: RenderQuality | null;
-  mode: RenderMode;
-}): GlbMaterialBuildContext {
-  const build = resolveModelViewMaterialBuildContext(args.modelViewQuality, args.renderQuality);
-  return {
-    ...build,
-    anisotropy: anisotropyForRenderMode(args.mode, build.quality, build.modeQuality),
-  };
-}
+export type { GlbMaterialBuildContext } from "./glbMaterialBuildContext";
+export { resolveGlbMaterialBuildContext } from "./glbMaterialBuildContext";
 
 const textureLoader = new TextureLoader();
 
@@ -80,11 +68,12 @@ function disposeMaterialTextures(material: Material) {
 function buildPhysicalMaterial(
   compiled: CompiledMaterial,
   mode: RenderMode,
-  primitiveHint: string,
+  sourceName: string,
+  primitiveId: string,
   build: GlbMaterialBuildContext,
 ) {
   const pbr = createPbrMaterialDescriptor(compiled, mode, {
-    primitiveId: primitiveHint,
+    primitiveId,
     quality: build.quality,
     modeQuality: build.modeQuality,
     modelViewPreview: build.modelViewPreview,
@@ -103,6 +92,7 @@ function buildPhysicalMaterial(
     ...(!curatedMap && pbr.maps.bumpMap ? { bumpMap: pbr.maps.bumpMap } : {}),
   };
   return new MeshPhysicalMaterial({
+    name: sourceName,
     color: new Color(pbr.color),
     ...maps,
     bumpScale: pbr.bumpScale,
@@ -148,21 +138,20 @@ function buildImportedMaterial(
   });
 }
 
-/** Tint GLB meshes from project materialSlots via named mesh groups. */
-export function applyGlbSlotMaterials(
-  root: Object3D,
-  args: {
-    materialGroups: Record<string, string>;
-    materialBindings: Record<string, string>;
-    materials: Map<string, CompiledMaterial>;
-    renderMode: RenderMode;
-    renderQuality?: RenderQuality;
-    modelViewQuality?: RenderQuality | null;
-    castShadow: boolean;
-    receiveShadow: boolean;
-    importedTextures?: ModelTextureUrls;
-  },
-) {
+type ApplyGlbSlotArgs = {
+  materialGroups: Record<string, string>;
+  materialBindings: Record<string, string>;
+  materials: Map<string, CompiledMaterial>;
+  renderMode: RenderMode;
+  renderQuality?: RenderQuality;
+  modelViewQuality?: RenderQuality | null;
+  castShadow: boolean;
+  receiveShadow: boolean;
+  importedTextures?: ModelTextureUrls;
+  slotPolicies?: Record<string, MaterialSlotPolicy>;
+};
+
+export function applyGlbSlotMaterials(root: Object3D, args: ApplyGlbSlotArgs) {
   const build = resolveGlbMaterialBuildContext({
     renderQuality: args.renderQuality,
     modelViewQuality: args.modelViewQuality,
@@ -172,17 +161,30 @@ export function applyGlbSlotMaterials(
     if (!(child instanceof Mesh)) return;
     child.castShadow = args.castShadow;
     child.receiveShadow = args.receiveShadow;
-    const materialId = resolveMaterialIdForMeshName(
-      child.name,
-      args.materialGroups,
-      args.materialBindings,
-    );
+    const matList = asMeshMaterials(child.material);
+    const materialName = matList.map((mat) => mat.name).find((name) => Boolean(name)) ?? "";
+    const sourceName = readGlbSourceMaterialName(child.userData, materialName);
+    persistGlbSourceMaterialName(child.userData, sourceName);
+    const matchArgs = {
+      materialName: sourceName,
+      meshName: child.name,
+      slotPolicies: args.slotPolicies,
+      materialGroups: args.materialGroups,
+    };
+    const slot = matchSlotFromMaterialOrMeshName(matchArgs);
+    const materialId = resolveMaterialIdForPrimitive({
+      ...matchArgs,
+      materialBindings: args.materialBindings,
+    });
     if (!materialId && !args.importedTextures?.map) return;
     const compiled = materialId ? args.materials.get(materialId) : undefined;
     if (!compiled && !args.importedTextures?.map) return;
-    const next = compiled ? buildPhysicalMaterial(compiled, args.renderMode, child.name, build)
+    const next = compiled
+      ? buildPhysicalMaterial(compiled, args.renderMode, sourceName, slot ?? sourceName, build)
       : buildImportedMaterial(args.importedTextures!, args.renderMode, build);
-    for (const previous of asMeshMaterials(child.material)) {
+    next.name = sourceName;
+    persistGlbSourceMaterialName(next.userData, sourceName);
+    for (const previous of matList) {
       disposeMaterialTextures(previous);
       previous.dispose();
     }
