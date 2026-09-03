@@ -109,6 +109,7 @@ export type InteriorObjectEntity = {
   kind: InteriorObjectKind;
   category: string;
   catalogItemId: string;
+  catalogItemVersion?: number;
   name: string;
   position: Point3Mm;
   rotation: EulerDegrees;

@@ -1,4 +1,8 @@
 import { catalogBindingFor, readCabinetIdentity } from "../cabinetIdentity";
+import {
+  catalogSlotPoliciesForObject,
+  catalogVersionPinFallbackWarning,
+} from "../catalog/catalogLookup";
 import type { InteriorObjectEntity } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import type {
@@ -7,6 +11,7 @@ import type {
 } from "./renderAssetContracts";
 import type { CompiledSceneNode } from "./sceneTypes";
 import { getPackagedImportedAsset, type ImportedAsset } from "./assetImportPipeline";
+import { createKenneyCatalogRenderBinding } from "./kenneyCatalogBinding";
 
 /** Soft-goods catalog items intended for future GLB-backed presentation. */
 export const GLB_INTENT_CATALOG_IDS = [
@@ -87,6 +92,7 @@ export function createObjectRenderBinding(
   const uvScaleMm = defaultUvScaleMmForMaterial(
     Object.values(object.materialSlots)[0] ?? LIVING_ROOM_MATERIAL_IDS.naturalOak,
   );
+  const slotPolicies = catalogSlotPoliciesForObject(object);
 
   const identity = readCabinetIdentity(object);
   const productionCabinet = Boolean(
@@ -99,6 +105,7 @@ export function createObjectRenderBinding(
       materialBindings,
       uvScaleMm,
       targetSizeMm: { ...object.dimensions },
+      slotPolicies,
     };
   }
 
@@ -113,15 +120,25 @@ export function createObjectRenderBinding(
       materialBindings,
       uvScaleMm,
       targetSizeMm: { ...object.dimensions },
+      slotPolicies,
     };
   }
 
   if (!isGlbIntentCatalogId(object.catalogItemId)) {
-    return {
+    const kenney = createKenneyCatalogRenderBinding(
+      object,
+      materialBindings,
+      uvScaleMm,
+      slotPolicies,
+    );
+    const pinWarning = catalogVersionPinFallbackWarning(object);
+    return kenney ?? {
       strategy: "procedural",
       materialBindings,
       uvScaleMm,
       targetSizeMm: { ...object.dimensions },
+      slotPolicies,
+      ...(pinWarning ? { warnings: [pinWarning] } : {}),
     };
   }
 
@@ -131,6 +148,7 @@ export function createObjectRenderBinding(
     materialBindings,
     uvScaleMm,
     targetSizeMm: { ...object.dimensions },
+    slotPolicies,
   };
 }
 

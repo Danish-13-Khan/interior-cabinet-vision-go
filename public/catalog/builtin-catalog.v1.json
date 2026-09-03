@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.1",
-  "generatedAt": "2026-09-03T00:00:00.000Z",
+  "catalogVersion": "2026.09.2",
+  "generatedAt": "2026-09-04T00:00:00.000Z",
   "licenses": [
     {
       "id": "cc0-1.0",
@@ -5387,7 +5387,204 @@
       "contentHash": "sha256:2680ee25ba86fb051ee6e4cf0a2f0b3238d0355dce7e3f4bacf536e05bbfca19"
     }
   ],
-  "materials": [],
+  "materials": [
+    {
+      "id": "material:core:fabric-oatmeal:v1",
+      "version": 1,
+      "name": "Oatmeal Weave",
+      "kind": "fabric",
+      "tags": [
+        "woven",
+        "neutral",
+        "upholstery"
+      ],
+      "swatchColor": "#d2c3ae",
+      "baseColor": "#d2c3ae",
+      "roughness": 0.97,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 450,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:fabric-bedding-white:v1",
+      "version": 1,
+      "name": "White Bedding",
+      "kind": "fabric",
+      "tags": [
+        "bedding",
+        "neutral"
+      ],
+      "swatchColor": "#f4f1ea",
+      "baseColor": "#f4f1ea",
+      "roughness": 0.92,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 600,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:wood-natural-oak:v1",
+      "version": 1,
+      "name": "Natural Oak",
+      "kind": "wood",
+      "tags": [
+        "natural",
+        "light",
+        "frame"
+      ],
+      "swatchColor": "#a98262",
+      "baseColor": "#a98262",
+      "roughness": 0.64,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 900,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:metal-charcoal:v1",
+      "version": 1,
+      "name": "Charcoal Metal",
+      "kind": "metal",
+      "tags": [
+        "hardware",
+        "appliance",
+        "enamel"
+      ],
+      "swatchColor": "#2d302f",
+      "baseColor": "#2d302f",
+      "roughness": 0.36,
+      "metalness": 0.72,
+      "opacity": 1,
+      "uvScaleMm": 400,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:glass-clear:v1",
+      "version": 1,
+      "name": "Clear Glass",
+      "kind": "glass",
+      "tags": [
+        "clear-glass"
+      ],
+      "swatchColor": "#d8e4e2",
+      "baseColor": "#d8e4e2",
+      "roughness": 0.08,
+      "metalness": 0,
+      "opacity": 0.32,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:glass-frosted:v1",
+      "version": 1,
+      "name": "Frosted Glass",
+      "kind": "glass",
+      "tags": [
+        "frosted-glass"
+      ],
+      "swatchColor": "#e8eeec",
+      "baseColor": "#e8eeec",
+      "roughness": 0.55,
+      "metalness": 0,
+      "opacity": 0.55,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:glass-dark:v1",
+      "version": 1,
+      "name": "Dark Screen Glass",
+      "kind": "glass",
+      "tags": [
+        "dark-glass",
+        "screen"
+      ],
+      "swatchColor": "#111318",
+      "baseColor": "#111318",
+      "roughness": 0.2,
+      "metalness": 0,
+      "opacity": 0.92,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": false
+    },
+    {
+      "id": "material:core:glass-mirror:v1",
+      "version": 1,
+      "name": "Mirror Glass",
+      "kind": "glass",
+      "tags": [
+        "mirror-glass"
+      ],
+      "swatchColor": "#cfd8dc",
+      "baseColor": "#cfd8dc",
+      "roughness": 0.05,
+      "metalness": 0.15,
+      "opacity": 1,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": false
+    },
+    {
+      "id": "material:core:ceramic-white:v1",
+      "version": 1,
+      "name": "White Ceramic",
+      "kind": "custom",
+      "tags": [
+        "ceramic"
+      ],
+      "swatchColor": "#f2f0ea",
+      "baseColor": "#f2f0ea",
+      "roughness": 0.45,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 500,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:foliage-green:v1",
+      "version": 1,
+      "name": "Foliage Green",
+      "kind": "custom",
+      "tags": [
+        "foliage"
+      ],
+      "swatchColor": "#3f6b3a",
+      "baseColor": "#3f6b3a",
+      "roughness": 0.85,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 300,
+      "lifecycle": "active",
+      "visibleInPicker": false
+    },
+    {
+      "id": "material:core:planter-terracotta:v1",
+      "version": 1,
+      "name": "Terracotta Planter",
+      "kind": "custom",
+      "tags": [
+        "planter",
+        "ceramic"
+      ],
+      "swatchColor": "#b56b45",
+      "baseColor": "#b56b45",
+      "roughness": 0.7,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 400,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    }
+  ],
   "items": [
     {
       "id": "kenney:bathroom-cabinet",
@@ -5477,7 +5674,34 @@
           "image:kenney:bathroom-mirror:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "mirror": {
+          "sourceMaterialNames": [
+            "glass"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "mirror-glass"
+          ],
+          "defaultMaterialId": "material:core:glass-mirror:v1",
+          "editable": false
+        },
+        "frame": {
+          "sourceMaterialNames": [
+            "wood",
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "metal",
+            "paint"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -5675,7 +5899,61 @@
           "image:kenney:bed-double:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "bedding": {
+          "sourceMaterialNames": [
+            "carpetWhite"
+          ],
+          "allowedMaterialKinds": [
+            "fabric"
+          ],
+          "allowedMaterialTags": [
+            "bedding"
+          ],
+          "defaultMaterialId": "material:core:fabric-bedding-white:v1",
+          "editable": true
+        },
+        "upholstery": {
+          "sourceMaterialNames": [
+            "carpet"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "upholstery",
+            "leather"
+          ],
+          "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+          "editable": true
+        },
+        "frame": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "metal",
+            "paint"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -7457,7 +7735,51 @@
           "image:kenney:kitchen-fridge:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalLight"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        },
+        "screen": {
+          "sourceMaterialNames": [
+            "glass"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "screen"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": false
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -8117,7 +8439,34 @@
           "image:kenney:lounge-sofa:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "upholstery": {
+          "sourceMaterialNames": [
+            "carpet"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "upholstery",
+            "leather"
+          ],
+          "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+          "editable": true
+        },
+        "legs": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "metal"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -8513,7 +8862,38 @@
           "image:kenney:potted-plant:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "foliage": {
+          "sourceMaterialNames": [
+            "plant"
+          ],
+          "allowedMaterialKinds": [
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "foliage"
+          ],
+          "defaultMaterialId": "material:core:foliage-green:v1",
+          "editable": false
+        },
+        "planter": {
+          "sourceMaterialNames": [
+            "wood",
+            "woodDark"
+          ],
+          "allowedMaterialKinds": [
+            "custom",
+            "stone",
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "ceramic",
+            "planter"
+          ],
+          "defaultMaterialId": "material:core:planter-terracotta:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -8744,7 +9124,49 @@
           "image:kenney:shower:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "ceramic": {
+          "sourceMaterialNames": [
+            "carpetWhite"
+          ],
+          "allowedMaterialKinds": [
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "ceramic"
+          ],
+          "defaultMaterialId": "material:core:ceramic-white:v1",
+          "editable": true
+        },
+        "showerGlass": {
+          "sourceMaterialNames": [
+            "glass"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "clear-glass",
+            "frosted-glass"
+          ],
+          "defaultMaterialId": "material:core:glass-clear:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -9239,7 +9661,33 @@
           "image:kenney:table-coffee-glass:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "top": {
+          "sourceMaterialNames": [
+            "glass"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "stone",
+            "laminate",
+            "glass"
+          ],
+          "defaultMaterialId": "material:core:glass-clear:v1",
+          "editable": true
+        },
+        "frame": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "metal",
+            "paint"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,
@@ -9503,7 +9951,37 @@
           "image:kenney:television-modern:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "screen": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "screen"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": false
+        },
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
         "objectBrowser": false,

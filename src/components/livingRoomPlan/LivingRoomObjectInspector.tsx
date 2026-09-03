@@ -1,4 +1,5 @@
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
+import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import { cabinetFinishId, isMillworkObject } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 import { DimensionPresetMenu } from "./DimensionPresetMenu";
@@ -48,6 +49,7 @@ export function LivingRoomObjectInspector({
       {object.kind === "cabinet" ? <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} /> : null}
       <p className="lr-inspector-hint">Drag to move. Duplicate, Copy, and Delete are in the inspector; plan shortcuts still work.</p>
       <MaterialSlotList slots={object.materialSlots} materials={materials}
+        slotPolicies={catalogSlotPoliciesForObject(object)}
         onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)} />
       {object.kind === "cabinet" && object.category !== "filler" ? (
         <>

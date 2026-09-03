@@ -1,0 +1,153 @@
+{
+  "loungeSofa": {
+    "upholstery": {
+      "sourceMaterialNames": ["carpet"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["upholstery", "leather"],
+      "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+      "editable": true
+    },
+    "legs": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "metal"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "bedDouble": {
+    "bedding": {
+      "sourceMaterialNames": ["carpetWhite"],
+      "allowedMaterialKinds": ["fabric"],
+      "allowedMaterialTags": ["bedding"],
+      "defaultMaterialId": "material:core:fabric-bedding-white:v1",
+      "editable": true
+    },
+    "upholstery": {
+      "sourceMaterialNames": ["carpet"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["upholstery", "leather"],
+      "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+      "editable": true
+    },
+    "frame": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "metal", "paint"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "tableCoffeeGlass": {
+    "top": {
+      "sourceMaterialNames": ["glass"],
+      "allowedMaterialKinds": ["wood", "stone", "laminate", "glass"],
+      "defaultMaterialId": "material:core:glass-clear:v1",
+      "editable": true
+    },
+    "frame": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["wood", "metal", "paint"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "bathroomMirror": {
+    "mirror": {
+      "sourceMaterialNames": ["glass"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["mirror-glass"],
+      "defaultMaterialId": "material:core:glass-mirror:v1",
+      "editable": false
+    },
+    "frame": {
+      "sourceMaterialNames": ["wood", "metal"],
+      "allowedMaterialKinds": ["wood", "metal", "paint"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "shower": {
+    "ceramic": {
+      "sourceMaterialNames": ["carpetWhite"],
+      "allowedMaterialKinds": ["custom"],
+      "allowedMaterialTags": ["ceramic"],
+      "defaultMaterialId": "material:core:ceramic-white:v1",
+      "editable": true
+    },
+    "showerGlass": {
+      "sourceMaterialNames": ["glass"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["clear-glass", "frosted-glass"],
+      "defaultMaterialId": "material:core:glass-clear:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metal", "metalDark"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "kitchenFridge": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metal", "metalLight"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    },
+    "screen": {
+      "sourceMaterialNames": ["glass"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["dark-glass", "screen"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": false
+    }
+  },
+  "televisionModern": {
+    "screen": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["dark-glass", "screen"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": false
+    },
+    "applianceBody": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "pottedPlant": {
+    "foliage": {
+      "sourceMaterialNames": ["plant"],
+      "allowedMaterialKinds": ["custom"],
+      "allowedMaterialTags": ["foliage"],
+      "defaultMaterialId": "material:core:foliage-green:v1",
+      "editable": false
+    },
+    "planter": {
+      "sourceMaterialNames": ["wood", "woodDark"],
+      "allowedMaterialKinds": ["custom", "stone", "metal"],
+      "allowedMaterialTags": ["ceramic", "planter"],
+      "defaultMaterialId": "material:core:planter-terracotta:v1",
+      "editable": true
+    }
+  }
+}

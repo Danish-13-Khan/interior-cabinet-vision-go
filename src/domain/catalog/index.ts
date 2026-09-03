@@ -38,6 +38,15 @@ export {
   setCatalogProvider,
 } from "./catalogService";
 export {
+  catalogSlotPoliciesForObject,
+  lookupBuiltInCatalogFile,
+  lookupBuiltInCatalogItem,
+  lookupBuiltInCatalogMaterial,
+  lookupBuiltInCatalogMaterials,
+  pinnedCatalogItemVersion,
+  catalogVersionPinFallbackWarning,
+} from "./catalogLookup";
+export {
   classifyKenneyStem,
   isArchitectureStem,
   KENNEY_ARCHITECTURE_STEMS,
@@ -47,3 +56,36 @@ export {
   KENNEY_OVERRIDES,
   type KenneyItemOverride,
 } from "./kenney/overrides";
+export {
+  getProofMaterialSlots,
+  KENNEY_PROOF_MATERIAL_SLOTS,
+  KENNEY_PROOF_STEMS,
+  type KenneyProofStem,
+} from "./kenney/materialMappings";
+export {
+  CATALOG_SEED_MATERIALS,
+  getCatalogSeedMaterial,
+} from "./materials/seedMaterials";
+export {
+  assertSlotEditable,
+  filterMaterialsForSlot,
+  isCatalogMaterialCompatible,
+  isMaterialCompatibleWithSlot,
+  tagsFromMaterialExtensions,
+} from "./materialCompatibility";
+export {
+  matchSlotFromMaterialOrMeshName,
+  resolveMaterialIdForPrimitive,
+} from "./materialSlotMatch";
+export {
+  countMaterialReferences,
+  ensureCatalogMaterialSnapshot,
+  snapshotCatalogMaterial,
+  isCanonicalCatalogSnapshot,
+} from "./materialSnapshots";
+export {
+  mutateProjectMaterialCow,
+  paintObjectSlotWithPolicy,
+  resetObjectFinishToCatalogDefaults,
+  type FinishUvRebind,
+} from "./finishCommands";

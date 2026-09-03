@@ -168,6 +168,9 @@ export {
 export {
   applyMaterialToSelection,
   commonMaterialSlots,
+  editableCommonMaterialSlots,
+  isSelectionSlotEditable,
+  materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
 } from "./paintSelection";
 export {
@@ -178,6 +181,7 @@ export {
   readImageAsDataUrl,
   setFinishUv,
 } from "./importedFinish";
+export type { FinishUvRebind } from "../catalog/finishRebind";
 export {
   ASSET_IMPORT_STARTER_PACK,
   createImportedAssetObject,

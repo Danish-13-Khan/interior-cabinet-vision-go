@@ -23,9 +23,11 @@ const sideDir = join(root, "public/models/kenney-furniture/renders_side");
 const outPath = join(root, "public/catalog/builtin-catalog.v1.json");
 const overridesPath = join(root, "src/domain/catalog/kenney/overrides.data.json");
 
-const CATALOG_VERSION = "2026.09.1";
-const GENERATED_AT = "2026-09-03T00:00:00.000Z";
+const CATALOG_VERSION = "2026.09.2";
+const GENERATED_AT = "2026-09-04T00:00:00.000Z";
 const PACK_PREFIX = "models/kenney-furniture";
+const proofSlotsPath = join(root, "src/domain/catalog/kenney/proofMaterialSlots.data.json");
+const seedMaterialsPath = join(root, "src/domain/catalog/materials/seedMaterials.data.json");
 
 function metersToMm(bounds) {
   return {
@@ -38,6 +40,14 @@ function metersToMm(bounds) {
 function loadOverrides() {
   const list = JSON.parse(readFileSync(overridesPath, "utf8"));
   return new Map(list.map((entry) => [entry.stem, entry]));
+}
+
+function loadProofSlots() {
+  return JSON.parse(readFileSync(proofSlotsPath, "utf8"));
+}
+
+function loadSeedMaterials() {
+  return JSON.parse(readFileSync(seedMaterialsPath, "utf8"));
 }
 
 function pushImageFile(files, absolutePath, objectKey, id, role) {
@@ -55,7 +65,7 @@ function pushImageFile(files, absolutePath, objectKey, id, role) {
   return id;
 }
 
-async function buildItem(stem, overrides) {
+async function buildItem(stem, overrides, proofSlots) {
   const glbObjectKey = `${PACK_PREFIX}/models_glb/${stem}.glb`;
   const glbAbs = join(root, "public", glbObjectKey);
   const inspection = await inspectGlb(glbAbs);
@@ -108,7 +118,7 @@ async function buildItem(stem, overrides) {
       ...(thumbId ? { thumbnailId: thumbId } : {}),
       ...(sideId ? { galleryIds: [sideId] } : {}),
     },
-    materialSlots: override.materialSlots ?? {},
+    materialSlots: override.materialSlots ?? proofSlots[stem] ?? {},
     lifecycle,
     visibility: override.visibility ?? { objectBrowser: false, templateEligible: false },
     source: { pack: "kenney-furniture", licenseId: "cc0-1.0" },
@@ -118,6 +128,8 @@ async function buildItem(stem, overrides) {
 
 export async function generateKenneyManifest() {
   const overrides = loadOverrides();
+  const proofSlots = loadProofSlots();
+  const materials = loadSeedMaterials();
   const stems = readdirSync(glbDir)
     .filter((name) => name.endsWith(".glb"))
     .map((name) => name.replace(/\.glb$/, ""))
@@ -125,7 +137,7 @@ export async function generateKenneyManifest() {
   const files = [];
   const items = [];
   for (const stem of stems) {
-    const built = await buildItem(stem, overrides);
+    const built = await buildItem(stem, overrides, proofSlots);
     files.push(...built.files);
     items.push(built.item);
   }
@@ -143,7 +155,7 @@ export async function generateKenneyManifest() {
       },
     ],
     files,
-    materials: [],
+    materials,
     items,
     templates: [],
   };

@@ -7,11 +7,13 @@ import {
 } from "../domain/interiorProject";
 import {
   addImportedFinish,
+  applyMaterialToSelection,
   paintLivingRoomSurface,
   readImageAsDataUrl,
   setFinishUv,
   setLivingRoomWallMaterial,
 } from "../domain/livingRoom";
+import type { FinishUvRebind } from "../domain/catalog/finishRebind";
 
 type CommitDocument = (update: (current: InteriorProject) => InteriorProject, status: string) => void;
 
@@ -76,10 +78,48 @@ export function importLivingRoomFinish(
   });
 }
 
+export function paintLivingRoomObjectSlot(
+  commitDocument: CommitDocument,
+  objectId: string,
+  slotName: string,
+  materialId: string,
+  onStatus?: (status: string) => void,
+) {
+  try {
+    commitDocument(
+      (current) => paintLivingRoomSurface(current, { kind: "object", objectId, slotName }, materialId),
+      "Painted object surface.",
+    );
+  } catch (error: unknown) {
+    onStatus?.(error instanceof Error ? error.message : "Could not paint object surface.");
+  }
+}
+
+export function paintLivingRoomSelection(
+  commitDocument: CommitDocument,
+  objectIds: readonly string[],
+  materialId: string,
+  slotName: string | undefined,
+  onStatus?: (status: string) => void,
+) {
+  try {
+    commitDocument(
+      (current) => applyMaterialToSelection(current, objectIds, materialId, slotName),
+      objectIds.length === 1 ? "Painted object surface." : `Painted ${objectIds.length} selected objects.`,
+    );
+  } catch (error: unknown) {
+    onStatus?.(error instanceof Error ? error.message : "Could not paint selected objects.");
+  }
+}
+
 export function setLivingRoomFinishUv(
   commitDocument: CommitDocument,
   materialId: string,
   patch: { uvScaleMm?: number; uvRotationDeg?: number },
+  rebind?: FinishUvRebind,
 ) {
-  commitDocument((current) => setFinishUv(current, materialId, patch), "Adjusted finish mapping.");
+  commitDocument(
+    (current) => setFinishUv(current, materialId, patch, rebind),
+    "Adjusted finish mapping.",
+  );
 }

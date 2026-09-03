@@ -1,6 +1,12 @@
 import { useMemo, useState } from "react";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
-import { commonMaterialSlots, primaryMaterialId } from "../../domain/livingRoom";
+import {
+  commonMaterialSlots,
+  editableCommonMaterialSlots,
+  isSelectionSlotEditable,
+  materialsCompatibleWithSelectionSlot,
+  primaryMaterialId,
+} from "../../domain/livingRoom";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
 
 type Props = {
@@ -23,8 +29,21 @@ export function SurfacePaintPanel({
   const [target, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
   const [slot, setSlot] = useState("");
   const sharedSlots = useMemo(() => commonMaterialSlots(selectedObjects), [selectedObjects]);
-  const activeSlot = sharedSlots.includes(slot) ? slot : sharedSlots[0] ?? "";
-  const canPaintSelection = selectedObjects.length > 0 && sharedSlots.length > 0;
+  const editableSlots = useMemo(() => editableCommonMaterialSlots(selectedObjects), [selectedObjects]);
+  const activeSlot = editableSlots.includes(slot) ? slot : editableSlots[0] ?? "";
+  const canPaintSelection = selectedObjects.length > 0 && editableSlots.length > 0;
+  const selectionMaterials = useMemo(() => {
+    if (target !== "selection" || !activeSlot) return project.materials;
+    const compatible = materialsCompatibleWithSelectionSlot(
+      project.materials,
+      selectedObjects,
+      activeSlot,
+    );
+    const activeId = selectedObjects[0]?.materialSlots[activeSlot];
+    if (!activeId || compatible.some((material) => material.id === activeId)) return compatible;
+    const current = project.materials.find((material) => material.id === activeId);
+    return current ? [...compatible, current] : compatible;
+  }, [target, activeSlot, project.materials, selectedObjects]);
 
   const activeMaterialId = target === "floor"
     ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "floor")?.materialId
@@ -53,24 +72,35 @@ export function SurfacePaintPanel({
           onClick={() => setTarget("selection")}>Selection{selectedObjects.length > 1 ? ` (${selectedObjects.length})` : ""}</button>
       </div>
       {target === "wall" && wall ? <small>Painting {String(wall.extensions?.wallSide ?? "active wall")}</small> : null}
-      {target === "selection" && canPaintSelection ? (
+      {target === "selection" && sharedSlots.length > 0 ? (
         <label className="lr-select-field"><span>Slot on {selectedObjects.length} selected</span>
-          <select value={activeSlot} onChange={(event) => setSlot(event.target.value)} aria-label="Selection material slot">
-            {sharedSlots.map((name) => <option key={name} value={name}>{name}</option>)}
+          <select value={activeSlot || sharedSlots[0] || ""} onChange={(event) => setSlot(event.target.value)}
+            aria-label="Selection material slot" disabled={editableSlots.length === 0}>
+            {sharedSlots.map((name) => {
+              const locked = !isSelectionSlotEditable(selectedObjects, name);
+              return <option key={name} value={name} disabled={locked}>{locked ? `${name} (locked)` : name}</option>;
+            })}
           </select>
         </label>
       ) : null}
-      {target === "selection" && !canPaintSelection ? <p>Select one or more objects that share a material slot.</p> : null}
-      <MaterialSwatchGrid
-        materials={project.materials}
-        activeMaterialId={activeMaterialId ?? null}
-        onPick={apply}
-        onImport={onImportFinish ? (file) => onImportFinish(file, target === "floor"
-          ? { floor: true }
-          : target === "ceiling" ? { ceiling: true }
-          : target === "wall" && wall ? { wallId: wall.id } : undefined) : undefined}
-      />
-      <p>Swatches save the project material ID. Plan tint follows fronts (or another face slot) when present; carcass-only edits still persist for 3D.</p>
+      {target === "selection" && selectedObjects.length > 0 && sharedSlots.length === 0
+        ? <p>Select one or more objects that share a material slot.</p> : null}
+      {target === "selection" && sharedSlots.length > 0 && editableSlots.length === 0
+        ? <p>Shared slots on this selection are locked by the catalog.</p> : null}
+      {target === "selection" && !canPaintSelection ? null : (
+        <>
+          <MaterialSwatchGrid
+            materials={target === "selection" ? selectionMaterials : project.materials}
+            activeMaterialId={activeMaterialId ?? null}
+            onPick={apply}
+            onImport={onImportFinish ? (file) => onImportFinish(file, target === "floor"
+              ? { floor: true }
+              : target === "ceiling" ? { ceiling: true }
+              : target === "wall" && wall ? { wallId: wall.id } : undefined) : undefined}
+          />
+          <p>Swatches save the project material ID. Plan tint follows fronts (or another face slot) when present; carcass-only edits still persist for 3D.</p>
+        </>
+      )}
     </section>
   );
 }

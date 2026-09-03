@@ -1,4 +1,5 @@
 import type { MaterialKind } from "../interiorProject";
+import type { MaterialSlotPolicy } from "../catalog/types";
 
 /** Viewport vs export quality. Never stored on InteriorProject JSON. */
 export type RenderMode = "preview" | "hero";
@@ -26,6 +27,10 @@ export type RenderBinding = {
   uvScaleMm?: number;
   /** Object dimensions used to scale GLB assets; never persisted on project JSON. */
   targetSizeMm?: ModelNativeSizeMm;
+  /** Catalog semantic-slot policies; runtime-only, never persisted. */
+  slotPolicies?: Record<string, MaterialSlotPolicy>;
+  /** Runtime-only notes such as a missed catalog version pin. */
+  warnings?: string[];
 };
 
 export type TextureAssetId = string;

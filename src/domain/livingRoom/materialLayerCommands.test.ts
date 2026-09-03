@@ -59,4 +59,21 @@ describe("material and layer commands", () => {
     expect(paintLivingRoomSurface(project, { kind: "ceiling" }, material).rooms[0]!.extensions?.ceilingMaterialId)
       .toBe(material);
   });
+
+  it("surfaces locked object paint failures instead of no-op success", () => {
+    const project = createLivingRoomStarterProject({ now: "2026-08-18T00:00:00.000Z" });
+    const object = {
+      ...project.objects[0]!,
+      catalogItemId: "kenney:television-modern",
+      materialSlots: { screen: project.materials[0]!.id, frame: project.materials[1]!.id },
+    };
+    const withTv = { ...project, objects: [object] };
+    expect(() =>
+      paintLivingRoomSurface(
+        withTv,
+        { kind: "object", objectId: object.id, slotName: "screen" },
+        project.materials[2]!.id,
+      ),
+    ).toThrow(/locked/);
+  });
 });

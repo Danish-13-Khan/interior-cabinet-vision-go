@@ -172,6 +172,9 @@ export function parseObjects(
         kind,
         category: text(object.category, "custom", 80),
         catalogItemId: text(object.catalogItemId, "custom", 120),
+        ...(typeof object.catalogItemVersion === "number" && Number.isFinite(object.catalogItemVersion)
+          ? { catalogItemVersion: object.catalogItemVersion }
+          : {}),
         name: text(object.name, `Object ${index + 1}`),
         position: point3(object.position),
         rotation: rotation(object.rotation),

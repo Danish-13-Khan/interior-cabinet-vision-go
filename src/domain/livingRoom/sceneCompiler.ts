@@ -127,8 +127,11 @@ export function compileLivingRoomScene(
     style,
     bounds,
     fingerprint: `lr-scene-v1-${hashString(stableStringify(fingerprintSource))}`,
-    warnings: objectNodes
-      .filter((node) => node.placeholder)
-      .map((node) => `${node.name} uses a safe placeholder because ${String(node.metadata.catalogItemId)} has no scene adapter.`),
+    warnings: [
+      ...objectNodes
+        .filter((node) => node.placeholder)
+        .map((node) => `${node.name} uses a safe placeholder because ${String(node.metadata.catalogItemId)} has no scene adapter.`),
+      ...objectNodes.flatMap((node) => node.renderBinding.warnings ?? []),
+    ],
   };
 }

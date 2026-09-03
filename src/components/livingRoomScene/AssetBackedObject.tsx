@@ -118,6 +118,7 @@ function GlbSceneContent({
       castShadow,
       receiveShadow: true,
       importedTextures: binding.modelTextureUrls,
+      slotPolicies: binding.slotPolicies,
     });
   }, [
     castShadow,
@@ -129,6 +130,7 @@ function GlbSceneContent({
     scene,
     slotKey,
     binding.modelTextureUrls,
+    binding.slotPolicies,
   ]);
 
   return (
