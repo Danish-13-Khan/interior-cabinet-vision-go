@@ -58,7 +58,7 @@ export function StillReviewPanel({
       <header>
         <strong>Still review</strong>
         <RenderPresetHonestyBadge honesty={stillHonesty} tierId="hybrid-still" compact />
-        <span>{stillReviewPanelStatusLabel(session, acceptedCount)}</span>
+        <span data-testid="still-review-status">{stillReviewPanelStatusLabel(session, acceptedCount)}</span>
         <small>{acceptedCount} accepted for package</small>
       </header>
       <nav aria-label="Still comparison">

@@ -51,6 +51,7 @@ type LivingRoomModelViewProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  presentation?: boolean;
 };
 
 export function LivingRoomModelView({
@@ -68,6 +69,7 @@ export function LivingRoomModelView({
   onSetRotation,
   onApplyStyle,
   onSetParameters,
+  presentation = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const entryCameraId = preferModelViewCameraId(scene.cameras);
@@ -104,11 +106,11 @@ export function LivingRoomModelView({
 
   return (
     <div
-      className="lr-model-viewport is-presence has-3d-onboarding"
+      className={`lr-model-viewport is-presence has-3d-onboarding${presentation ? " is-client-presentation" : ""}`}
       data-testid="lr-model-viewport"
       data-model-view-profile={JSON.stringify(runtimeProfile)}
     >
-      <ModelViewToolbar
+      {!presentation ? <ModelViewToolbar
         viewPreset={viewPreset}
         cameraHeightMm={cameraHeightMm}
         fieldOfViewDegrees={fieldOfViewDegrees}
@@ -134,7 +136,7 @@ export function LivingRoomModelView({
         onOpenGuide={() => setShowGuide(true)}
         hasSelection={selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId)}
         onClearSelection={onClearSelection}
-      />
+      /> : null}
       <ModelViewScene
         scene={scene}
         quality={quality}
@@ -168,15 +170,15 @@ export function LivingRoomModelView({
           }
         }}
       />
-      {showGuide ? (
+      {!presentation && showGuide ? (
         <ModelViewOnboarding
           activePreset={viewPreset}
           onChoosePreset={setViewPreset}
           onDismiss={dismissGuide}
         />
       ) : null}
-      {diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
-      <CabinetMechanismPanel
+      {!presentation && diagnostics ? <RenderDiagnosticsPanel report={diagnostics} compact /> : null}
+      {!presentation ? <CabinetMechanismPanel
         object={activeObject ?? null}
         onChange={onSetParameters}
         onSoftClose={(object) => {
@@ -185,19 +187,19 @@ export function LivingRoomModelView({
           onSetParameters(object.id, mechanismAllPatch(state, true));
           window.setTimeout(() => onSetParameters(object.id, mechanismAllPatch(state, false)), 650);
         }}
-      />
-      <ModelViewStylePalette
+      /> : null}
+      {!presentation ? <ModelViewStylePalette
         activeStyleId={activeStyleId}
         activeStyleName={activeStyle.name}
         onApplyStyle={onApplyStyle}
-      />
+      /> : null}
       <CabinetSceneSemantics project={project} />
-      <ModelViewReadout
+      {!presentation ? <ModelViewReadout
         viewPreset={viewPreset}
         honestyBadge={honesty.shortBadge}
         exposure={scene.style.colorManagement.exposure}
         planTraceHint={planTraceHint}
-      />
+      /> : null}
     </div>
   );
 }

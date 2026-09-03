@@ -37,6 +37,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onClearSelection={props.onClearSelection} onMove={props.onMove}
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
+            presentation={props.presenting}
           />
         ) : props.presenting ? (
           <InteriorsClientCaptureView

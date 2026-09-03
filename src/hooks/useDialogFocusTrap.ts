@@ -8,14 +8,25 @@ function focusableElements(root: HTMLElement) {
     .filter((node) => !node.hasAttribute("disabled") && node.offsetParent !== null);
 }
 
+function focusRestoreTarget(testId: string | null | undefined, previous: HTMLElement | null) {
+  if (testId) {
+    const node = document.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
+    if (node) return node;
+  }
+  return previous;
+}
+
 /** Move focus into a dialog, trap Tab, handle Escape, restore focus on close. */
 export function useDialogFocusTrap(
   active: boolean,
   containerRef: RefObject<HTMLElement | null>,
   onEscape?: () => void,
+  restoreFocusTestId?: string | null,
 ) {
   const onEscapeRef = useRef(onEscape);
   onEscapeRef.current = onEscape;
+  const restoreIdRef = useRef(restoreFocusTestId);
+  restoreIdRef.current = restoreFocusTestId;
 
   useEffect(() => {
     if (!active) return;
@@ -26,9 +37,12 @@ export function useDialogFocusTrap(
     const previous = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
+    const capturedTestId = restoreIdRef.current
+      ?? previous?.getAttribute("data-testid");
     const frame = window.requestAnimationFrame(() => {
       const items = focusableElements(dialog);
-      (items[0] ?? dialog).focus();
+      const preferred = dialog.querySelector<HTMLElement>("[data-dialog-initial-focus]");
+      (preferred ?? items[0] ?? dialog).focus();
     });
 
     function onKeyDown(event: KeyboardEvent) {
@@ -65,7 +79,10 @@ export function useDialogFocusTrap(
     return () => {
       window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKeyDown, true);
-      previous?.focus();
+      // Prefer stable test id: openers may remount when the dialog closes.
+      window.setTimeout(() => {
+        focusRestoreTarget(capturedTestId, previous)?.focus({ preventScroll: true });
+      }, 0);
     };
   }, [active, containerRef]);
 }

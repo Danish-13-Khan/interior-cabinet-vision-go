@@ -1,6 +1,5 @@
 import { isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
-import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
@@ -24,7 +23,6 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
-      <LivingRoomHomeFromWorkspace workspace={w} open={w.projectHomeOpen} hasCurrentProject />
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}

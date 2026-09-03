@@ -49,7 +49,7 @@ export function InteriorsDrawRoomChrome({
   return (
     <>
       <InteriorsDrawRoomTitlebar
-        tool={tool} buildTool={activeBuildTool} showGrid={showGrid} snapSizeMm={snapSizeMm}
+        projectName={project.name} tool={tool} buildTool={activeBuildTool} showGrid={showGrid} snapSizeMm={snapSizeMm}
         readability={readability} onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
       />
       <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands} />

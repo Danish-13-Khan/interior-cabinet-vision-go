@@ -3,8 +3,8 @@
   "jobId": "sj-spike-daylight-sofa-camera-a",
   "createdAt": "2026-08-13T00:00:00.000Z",
   "projectId": "phase1-bench-daylight-sofa",
-  "projectContentHash": "sj-proj-25973ca2",
-  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-25973ca2",
+  "projectContentHash": "sj-proj-b40643fe",
+  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-b40643fe",
   "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
   "cameraPose": {
     "eye": {
@@ -81,9 +81,110 @@
       "materialId": "lr-material-rug-wool-sand",
       "name": "Sand Wool Rug",
       "type": "fabric"
+    },
+    {
+      "materialId": "lr-material-stone-warm",
+      "name": "Warm Honed Stone",
+      "type": "stone"
     }
   ],
   "objects": [
+    {
+      "id": "lr-object-tv-feature-wall",
+      "catalogItemId": "living:feature-wall-fluted",
+      "category": "feature-wall",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": -2140
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 3600,
+        "d": 62,
+        "h": 2200
+      }
+    },
+    {
+      "id": "lr-object-tv-display-niche",
+      "catalogItemId": "living:display-niche",
+      "category": "display-niche",
+      "position": {
+        "x": 1350,
+        "y": 280,
+        "z": -2020
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 560,
+        "d": 280,
+        "h": 1900
+      }
+    },
+    {
+      "id": "lr-object-display-vase",
+      "catalogItemId": "living:decor-vase",
+      "category": "accessory",
+      "position": {
+        "x": 1350,
+        "y": 730,
+        "z": -1845
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 180,
+        "d": 180,
+        "h": 320
+      }
+    },
+    {
+      "id": "lr-object-display-sculpture",
+      "catalogItemId": "living:decor-sculpture",
+      "category": "accessory",
+      "position": {
+        "x": 1350,
+        "y": 1270,
+        "z": -1845
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 220,
+        "d": 150,
+        "h": 260
+      }
+    },
+    {
+      "id": "lr-object-ceiling-fan",
+      "catalogItemId": "living:ceiling-fan",
+      "category": "ceiling-fixture",
+      "position": {
+        "x": 0,
+        "y": 2480,
+        "z": 250
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 1450,
+        "d": 1450,
+        "h": 260
+      }
+    },
+    {
+      "id": "lr-object-window-curtains",
+      "catalogItemId": "living:curtain-set",
+      "category": "window-treatment",
+      "position": {
+        "x": -2950,
+        "y": 0,
+        "z": 100
+      },
+      "rotationYDeg": 90,
+      "size": {
+        "w": 2200,
+        "d": 70,
+        "h": 2100
+      }
+    },
     {
       "id": "lr-object-sofa",
       "catalogItemId": "living:sofa-3-seat",
@@ -155,7 +256,7 @@
       "position": {
         "x": 0,
         "y": 0,
-        "z": -1950
+        "z": -1700
       },
       "rotationYDeg": 0,
       "size": {
@@ -211,9 +312,45 @@
         "d": 420,
         "h": 1650
       }
+    },
+    {
+      "id": "lr-object-corner-plant",
+      "catalogItemId": "living:indoor-plant",
+      "category": "plant",
+      "position": {
+        "x": 2600,
+        "y": 0,
+        "z": 500
+      },
+      "rotationYDeg": 0,
+      "size": {
+        "w": 720,
+        "d": 720,
+        "h": 1450
+      }
     }
   ],
   "millwork": [
+    {
+      "id": "lr-object-tv-feature-wall",
+      "category": "feature-wall",
+      "kind": "cabinet",
+      "size": {
+        "w": 3600,
+        "d": 62,
+        "h": 2200
+      }
+    },
+    {
+      "id": "lr-object-tv-display-niche",
+      "category": "display-niche",
+      "kind": "cabinet",
+      "size": {
+        "w": 560,
+        "d": 280,
+        "h": 1900
+      }
+    },
     {
       "id": "lr-object-tv-unit",
       "category": "media-unit",

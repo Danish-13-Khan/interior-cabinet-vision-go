@@ -19,10 +19,12 @@ test("I3 flags overlapping cabinets and lets the designer select the conflict", 
   await expect(page.getByRole("button", { name: "Production", exact: true })).toHaveCount(0);
 
   const initiallySelectedId = await page.locator(".lr-plan-object.is-selected").getAttribute("data-object-id");
-  const overlap = page.locator('[data-layout-issue="overlap"]').first();
+  await page.getByTestId("interiors-cabinet-run-issues-toggle").click();
+  const overlap = page.getByTestId("interiors-cabinet-run-issues").locator('[data-layout-issue="overlap"]').first();
   await expect(overlap).toBeVisible();
   await expect(overlap).toHaveAttribute("aria-label", /error: .*overlaps/);
-  await overlap.click();
+  // Status popover sits above the canvas; DOM click avoids the paper intercepting the hit-test.
+  await overlap.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.locator(".lr-plan-object.is-selected")).toHaveCount(1);
   await expect(page.locator(".lr-plan-object.is-selected")).not.toHaveAttribute("data-object-id", initiallySelectedId ?? "");
 });

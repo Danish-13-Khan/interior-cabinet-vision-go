@@ -72,9 +72,13 @@ test("Exit journey: footprint → split → run → 3D → schedule + client pac
   await expect(page.locator(`[data-object-id][data-wall-id="${hostWallId}"]`)).toHaveCount(2);
   await expect(page.locator(`[data-object-id][data-rotation-y="${wallRotation}"]`)).toHaveCount(2);
   await expect(page.locator("[data-wall-snapped]")).toHaveAttribute("data-wall-snapped", "true");
-  const objects = page.locator("[data-object-id]");
-  await objects.nth(0).click({ modifiers: ["Shift"] });
-  await expect(page.locator("[data-object-id].is-selected")).toHaveCount(2);
+  const objectIds = await page.locator(".lr-plan-svg [data-object-id]").evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute("data-object-id")).filter((id): id is string => Boolean(id)),
+  );
+  expect(objectIds).toHaveLength(2);
+  await page.getByTestId(`inspector-object-${objectIds[0]}`).click();
+  await page.getByTestId(`inspector-object-${objectIds[1]}`).click({ modifiers: ["Shift"] });
+  await expect(page.locator(".lr-plan-svg [data-object-id].is-selected")).toHaveCount(2);
   await page.getByRole("button", { name: "Snap selection into run", exact: true }).click();
   await expect(page.locator(".lr-cabinet-run-inspector")).toBeVisible();
   await expect(page.locator("[data-run-wall-id]")).toHaveAttribute("data-run-wall-id", hostWallId!);

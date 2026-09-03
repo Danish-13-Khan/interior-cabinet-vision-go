@@ -38,7 +38,7 @@ export async function createBlankPlan(page: Page) {
   await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
 }
 
-/** Rectangular living-room shell with openings (wardrobe starter, no furniture besides cabinets). */
+/** Rectangular living-room shell with openings (wardrobe starter, empty of furniture). */
 export async function createShellPlan(page: Page) {
   await openInteriorsHome(page);
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
