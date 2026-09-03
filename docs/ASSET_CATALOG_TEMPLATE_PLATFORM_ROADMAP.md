@@ -164,17 +164,27 @@ The full pack is classified as follows:
 | Utility | 4 | Curate washer, dryer, and bin objects |
 | Architecture | 19 | Exclude in favor of parametric architecture |
 
-Every inventory record has a lifecycle state:
+Lifecycle and product visibility are separate:
 
-| State | Meaning |
+| Lifecycle | Meaning |
 | --- | --- |
-| `template` | Approved and used in at least one starter template |
-| `catalog` | Approved for the object browser |
-| `hidden` | Valid asset but not exposed yet |
+| `active` | Valid and supported |
 | `deprecated` | Resolves old projects but cannot be newly placed |
 | `blocked` | Fails validation or violates a product boundary |
 
-The first release should expose approximately 30–35 items. The other valid assets remain `hidden` until they receive category, dimension, placement, material, and visual QA.
+An active item also has independent visibility flags:
+
+```json
+{
+  "lifecycle": "active",
+  "visibility": {
+    "objectBrowser": true,
+    "templateEligible": true
+  }
+}
+```
+
+The first release should expose approximately 30–35 items. Other valid assets stay active with both visibility flags false until they receive category, dimension, placement, material, and visual QA.
 
 ---
 
@@ -234,12 +244,14 @@ src/domain/catalog/
     builtInCatalogProvider.ts
     remoteCatalogProvider.ts       # implemented later
   kenney/
-    generatedManifest.ts
     overrides.ts
     materialMappings.ts
   templates/
     templateManifest.ts
     builders.ts
+
+public/catalog/
+  builtin-catalog.v1.json
 
 scripts/catalog/
   inspect-glb.mjs
@@ -249,10 +261,22 @@ scripts/catalog/
 
 Generated metadata and human decisions remain separate:
 
-- `generatedManifest.ts` contains discovered files, bounds, primitives, original material names, and preview paths.
+- `builtin-catalog.v1.json` contains discovered files, bounds, primitives, original material names, previews, approved overrides, and stable relationships.
 - `overrides.ts` contains display names, categories, real-world dimensions, placement, semantic slots, tags, and visibility.
 
-Regenerating discovered metadata must never overwrite human curation.
+There is one write path:
+
+```text
+GLB and preview files
+        ↓ inspect
+discovered metadata in memory
+        +
+overrides.ts (human source of truth)
+        ↓ deterministic merge and validation
+builtin-catalog.v1.json (generated artifact)
+```
+
+Humans edit `overrides.ts`; they do not hand-edit `builtin-catalog.v1.json`. CI regenerates the manifest in a temporary location and fails when it differs from the committed artifact. Regenerating discovered metadata must never overwrite human curation.
 
 ---
 
@@ -277,9 +301,16 @@ type CatalogItem = {
     depth: number;
   };
   modelAssetId: string;
-  thumbnailAssetId: string;
+  images: {
+    thumbnailId: string;
+    galleryIds?: string[];
+  };
   materialSlots: Record<string, MaterialSlotPolicy>;
-  lifecycle: "template" | "catalog" | "hidden" | "deprecated" | "blocked";
+  lifecycle: "active" | "deprecated" | "blocked";
+  visibility: {
+    objectBrowser: boolean;
+    templateEligible: boolean;
+  };
   source: {
     pack: "kenney-furniture";
     licenseId: "cc0-1.0";
@@ -314,6 +345,7 @@ type ModelAsset = {
 type MaterialSlotPolicy = {
   sourceMaterialNames: string[];
   allowedMaterialKinds: MaterialKind[];
+  allowedMaterialTags?: string[];
   defaultMaterialId?: string;
   editable: boolean;
 };
@@ -323,25 +355,25 @@ type MaterialSlotPolicy = {
 
 ```ts
 type CatalogMaterial = {
-  id: string;                       // material:fabric:oatmeal:v1
+  id: string;                       // material:core:fabric-oatmeal:v1
   version: number;
   name: string;
   kind: MaterialKind;
+  tags: string[];
   swatchColor: string;
-  pbr: {
-    baseColor: string;
-    roughness: number;
-    metalness: number;
-    opacity: number;
-    uvScaleMm: number;
-  };
+  baseColor: string;
+  roughness: number;
+  metalness: number;
+  opacity: number;
+  uvScaleMm: number;
   textureAssetIds?: {
-    color?: string;
+    baseColor?: string;
     normal?: string;
     roughness?: string;
     ao?: string;
   };
-  lifecycle: "catalog" | "hidden" | "deprecated";
+  lifecycle: "active" | "deprecated" | "blocked";
+  visibleInPicker: boolean;
 };
 ```
 
@@ -354,7 +386,9 @@ type ProjectTemplate = {
   name: string;
   category: "kitchen" | "living-room" | "bedroom" | "bathroom" | "empty";
   description: string;
-  thumbnailAssetId: string;
+  images: {
+    thumbnailId: string;
+  };
   room: {
     widthMm: number;
     depthMm: number;
@@ -371,6 +405,340 @@ type ProjectTemplate = {
 ```
 
 When a user chooses a template, the application creates fresh project entity IDs. The project keeps catalog identity and asset version information for reproducibility.
+
+Catalog-backed objects add `catalogItemVersion` as a first-class optional field in the next project schema version. This is core identity, not arbitrary extension metadata.
+
+### 6.6 Stable ID convention
+
+Every independently addressable catalog resource receives a stable ID. A filename is not an ID.
+
+| Resource | Example ID |
+| --- | --- |
+| Catalog item | `kenney:lounge-sofa` |
+| Model binary | `model:kenney:lounge-sofa:v1` |
+| Thumbnail | `image:kenney:lounge-sofa:iso-ne:v1` |
+| Side preview | `image:kenney:lounge-sofa:side:v1` |
+| Reusable material | `material:core:fabric-oatmeal:v1` |
+| Texture map | `texture:core:fabric-oatmeal:base-color:v1` |
+| Template | `template:core:living-room:v1` |
+
+Rules:
+
+- IDs are lowercase, URL-safe, and never renamed after publication.
+- Display names may change without changing IDs.
+- Changing file location does not change an ID.
+- Replacing visual content creates a new immutable version.
+- Deprecated IDs remain resolvable for supported saved projects.
+- Content hashes verify bytes; they do not replace human-readable stable IDs.
+
+### 6.7 Provider-neutral JSON manifest
+
+The built-in provider and future remote provider expose the same validated JSON shape. Values such as hashes below are illustrative; generated catalog artifacts must contain the real SHA-256 and byte size for every file.
+
+```json
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026.09.1",
+  "generatedAt": "2026-09-03T00:00:00Z",
+  "licenses": [
+    {
+      "id": "cc0-1.0",
+      "name": "Creative Commons CC0 1.0",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "attributionRequired": false,
+      "licenseFileObjectKey": "models/kenney-furniture/License_Kenney.txt"
+    }
+  ],
+  "files": [
+    {
+      "id": "model:kenney:lounge-sofa:v1",
+      "kind": "model",
+      "objectKey": "models/kenney-furniture/models_glb/loungeSofa.glb",
+      "mimeType": "model/gltf-binary",
+      "byteSize": 9644,
+      "contentHash": "sha256:generated-during-build"
+    },
+    {
+      "id": "image:kenney:lounge-sofa:iso-ne:v1",
+      "kind": "image",
+      "role": "thumbnail",
+      "objectKey": "models/kenney-furniture/renders_isometric/loungeSofa_NE.png",
+      "mimeType": "image/png",
+      "byteSize": 12345,
+      "contentHash": "sha256:generated-during-build"
+    },
+    {
+      "id": "image:kenney:lounge-sofa:side:v1",
+      "kind": "image",
+      "role": "preview",
+      "objectKey": "models/kenney-furniture/renders_side/loungeSofa.png",
+      "mimeType": "image/png",
+      "byteSize": 6789,
+      "contentHash": "sha256:generated-during-build"
+    },
+    {
+      "id": "image:template:living-room:v1",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/living-room-v1.webp",
+      "mimeType": "image/webp",
+      "byteSize": 45678,
+      "contentHash": "sha256:generated-during-build"
+    },
+    {
+      "id": "texture:core:fabric-oatmeal:base-color:v1",
+      "kind": "texture",
+      "role": "baseColor",
+      "colorSpace": "srgb",
+      "objectKey": "textures/fabric/oatmeal-color.webp",
+      "mimeType": "image/webp",
+      "byteSize": 34567,
+      "contentHash": "sha256:generated-during-build"
+    }
+  ],
+  "materials": [
+    {
+      "id": "material:core:fabric-oatmeal:v1",
+      "version": 1,
+      "name": "Oatmeal Weave",
+      "kind": "fabric",
+      "tags": ["woven", "neutral", "upholstery"],
+      "swatchColor": "#d2c3ae",
+      "baseColor": "#d2c3ae",
+      "roughness": 0.97,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 450,
+      "textureAssetIds": {
+        "baseColor": "texture:core:fabric-oatmeal:base-color:v1"
+      },
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:wood-natural-oak:v1",
+      "version": 1,
+      "name": "Natural Oak",
+      "kind": "wood",
+      "tags": ["natural", "light", "frame"],
+      "swatchColor": "#a98262",
+      "baseColor": "#a98262",
+      "roughness": 0.64,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 900,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    }
+  ],
+  "items": [
+    {
+      "id": "kenney:lounge-sofa",
+      "version": 1,
+      "name": "Lounge Sofa",
+      "category": "seating",
+      "subcategory": "sofas",
+      "modelAssetId": "model:kenney:lounge-sofa:v1",
+      "images": {
+        "thumbnailId": "image:kenney:lounge-sofa:iso-ne:v1",
+        "galleryIds": ["image:kenney:lounge-sofa:side:v1"]
+      },
+      "placement": "floor",
+      "dimensionsMm": {
+        "width": 2100,
+        "height": 850,
+        "depth": 900
+      },
+      "materialSlots": {
+        "upholstery": {
+          "sourceMaterialNames": ["carpet"],
+          "allowedMaterialKinds": ["fabric", "leather"],
+          "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+          "editable": true
+        },
+        "frame": {
+          "sourceMaterialNames": ["wood"],
+          "allowedMaterialKinds": ["wood", "metal"],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
+      "lifecycle": "active",
+      "visibility": {
+        "objectBrowser": true,
+        "templateEligible": true
+      },
+      "source": {
+        "pack": "kenney-furniture",
+        "licenseId": "cc0-1.0"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "template:core:living-room:v1",
+      "version": 1,
+      "name": "Living Room",
+      "category": "living-room",
+      "description": "Furnished living room with an editable presentation layout.",
+      "images": {
+        "thumbnailId": "image:template:living-room:v1"
+      },
+      "room": {
+        "widthMm": 5200,
+        "depthMm": 4200,
+        "heightMm": 2700
+      },
+      "objects": [
+        {
+          "templateObjectId": "living-room-sofa",
+          "catalogItemId": "kenney:lounge-sofa",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 1200,
+            "y": 0,
+            "z": 900
+          },
+          "rotationY": 90,
+          "materialOverrides": {
+            "upholstery": "material:core:fabric-oatmeal:v1",
+            "frame": "material:core:wood-natural-oak:v1"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+`objectKey` is deliberately relative. The local provider prefixes the application public root; the remote provider resolves it through the configured CDN or authorized delivery service.
+
+### 6.8 Image identity and selection
+
+Images are inventory resources, not filenames embedded throughout UI code.
+
+- `thumbnailId` identifies the image used in the catalog grid.
+- `galleryIds` identifies optional side or alternate-angle images.
+- A template has its own `images.thumbnailId` representing the whole room, not one furniture item.
+- The file registry resolves an image ID to its current local path or CDN delivery URL.
+- The UI uses the image ID and never constructs filenames such as `_NE.png` itself.
+
+For the Kenney pack, the initial rule is:
+
+```text
+Default catalog thumbnail → *_NE.png
+Optional detail preview   → side render
+Other isometric angles    → hidden until a gallery needs them
+```
+
+An item may override `_NE` by explicitly choosing another image ID when another angle communicates the object better. The generator may discover candidate images by filename, but the generated manifest records the final relationship explicitly. Unlinked NW/SE/SW images may stay in the package without file records until a gallery uses them.
+
+Catalog or template-visible items must resolve a thumbnail. Hidden items do not need thumbnail records. Every declared gallery image must resolve. Renaming or relocating an image later changes only the file record, not templates or catalog items.
+
+Template room thumbnails use the same image-ID convention, live under `public/catalog/templates/`, and are generated by a deterministic application render/capture workflow. Optimizing a PNG to WebP creates the next immutable image version; the logical role remains the same.
+
+### 6.9 Exact object-to-texture relationship
+
+A texture should not point directly at a 3D object. The relationship is intentionally layered:
+
+```text
+Project object instance
+  → catalog item/version
+    → semantic material slot
+      → chosen material ID
+        → texture asset IDs
+          → local path or CDN URL at runtime
+```
+
+Example:
+
+```text
+object `project-object-42`
+  → `kenney:lounge-sofa` v1
+  → slot `upholstery`
+  → `material:core:fabric-oatmeal:v1`
+  → `texture:core:fabric-oatmeal:base-color:v1`
+  → resolved URL
+```
+
+This lets one texture be reused safely while each object controls its own slot assignment.
+
+When an object is created from a template or catalog item, the application snapshots every selected catalog material into the project's existing `materials` collection. Object slots continue pointing to project material entity IDs, preserving the current project architecture and offline durability.
+
+The saved project stores the first-class catalog version, object-level choices, and material snapshots:
+
+```json
+{
+  "objects": [
+    {
+      "id": "project-object-42",
+      "catalogItemId": "kenney:lounge-sofa",
+      "catalogItemVersion": 1,
+      "materialSlots": {
+        "upholstery": "project-material-upholstery-42",
+        "frame": "project-material-frame-42"
+      }
+    }
+  ],
+  "materials": [
+    {
+      "id": "project-material-upholstery-42",
+      "name": "Oatmeal Weave",
+      "kind": "fabric",
+      "color": "#d2c3ae",
+      "roughness": 0.97,
+      "metalness": 0,
+      "opacity": 1,
+      "extensions": {
+        "catalogMaterialId": "material:core:fabric-oatmeal:v1",
+        "catalogMaterialVersion": 1
+      }
+    },
+    {
+      "id": "project-material-frame-42",
+      "name": "Natural Oak",
+      "kind": "wood",
+      "color": "#a98262",
+      "roughness": 0.64,
+      "metalness": 0,
+      "opacity": 1,
+      "extensions": {
+        "catalogMaterialId": "material:core:wood-natural-oak:v1",
+        "catalogMaterialVersion": 1
+      }
+    }
+  ]
+}
+```
+
+Project `materialSlots` values are always project-local material entity IDs. Catalog identity appears only as lineage on the material snapshot. Changing `project-object-42.materialSlots.upholstery` changes only that sofa instance. It does not mutate the catalog material definition and does not change other sofas.
+
+Selecting a different catalog swatch resolves or creates its project-local snapshot and repoints only the selected object slots. Directly editing color, roughness, opacity, or texture properties uses clone-on-write: if the current project material entity is referenced by more than one slot, clone it to a fresh project material ID before editing; if it has one reference, it may be edited in place.
+
+Resolution precedence is:
+
+1. Project object material-slot assignment, including a template choice copied into the project.
+2. Pinned catalog-item-version slot default for a fresh placement or Reset Finish.
+3. Original embedded GLB material when the pinned item has no default.
+4. Neutral safe renderer fallback when neither catalog nor GLB material is usable.
+
+**Reset Finish** restores the pinned catalog-item-version default. Original Kenney appearance is a fallback, not the normal reset destination. A future explicit “Original model appearance” choice may be added with a typed assignment mode; it must not be represented by a magic material ID.
+
+An intrinsic asset-specific surface can be locked:
+
+```json
+{
+  "screen": {
+    "sourceMaterialNames": ["glass"],
+    "allowedMaterialKinds": ["glass"],
+    "allowedMaterialTags": ["dark-glass"],
+    "defaultMaterialId": "material:kenney:television-screen:v1",
+    "editable": false
+  }
+}
+```
+
+Locked slots are hidden from the picker but may appear read-only in the inspector. Templates cannot override them. A locked slot may specify a fixed catalog material; without one, it keeps the original GLB material. This is appropriate for television screens, plant foliage, printed artwork, control labels, or any surface that should not appear in the normal finish picker.
 
 ---
 
@@ -407,36 +775,42 @@ Therefore, a global replacement such as `carpetWhite → fabric` would be incorr
 
 ### 7.3 Default behavior
 
-- Keep the original Kenney material appearance when no override exists.
+- A fresh placement uses the pinned catalog-item-version default.
+- A template copies its concrete finish choices and material snapshots into the project.
+- **Reset Finish** restores the pinned catalog default.
+- Keep the original Kenney material appearance only when no catalog default exists.
 - Expose only useful semantic slots in the inspector.
-- Let the user reset a changed slot to the original appearance.
 - Lock intrinsic details that should not be edited.
 - Apply a safe fallback if an assigned catalog material is unavailable.
 
 The models should not be converted into all-white geometry.
 
+Initial locked slots are television screens, mirror surfaces, plant foliage, refrigerator control/glass details, artwork, and appliance labels. Mirror frames, shower glass, shower hardware, appliance bodies, upholstery, furniture frames, legs, and tops remain editable where the asset supports them. Shower glass offers compatible clear and frosted finishes.
+
 ### 7.4 Compatibility matrix
 
-| Semantic slot | Allowed material kinds |
-| --- | --- |
-| `upholstery` | fabric, leather |
-| `bedding` | fabric |
-| `frame` | wood, metal, paint |
-| `legs` | wood, metal |
-| `top` | wood, stone, laminate, glass |
-| `carcass` | wood, laminate, paint |
-| `fronts` | wood, laminate, paint |
-| `hardware` | metal |
-| `applianceBody` | metal, enamel |
-| `screen` | dark glass |
-| `mirror` | mirror glass |
-| `showerGlass` | clear glass, frosted glass |
-| `ceramic` | ceramic |
-| `rugSurface` | rug, fabric |
-| `foliage` | foliage material |
-| `planter` | ceramic, stone, metal |
+| Semantic slot | Allowed `MaterialKind` | Allowed tags when refinement is needed |
+| --- | --- | --- |
+| `upholstery` | fabric, custom | `upholstery`, `leather` |
+| `bedding` | fabric | `bedding` |
+| `frame` | wood, metal, paint | — |
+| `legs` | wood, metal | — |
+| `top` | wood, stone, laminate, glass | — |
+| `carcass` | wood, laminate, paint | — |
+| `fronts` | wood, laminate, paint | — |
+| `hardware` | metal | `hardware` |
+| `applianceBody` | metal, custom | `appliance`, `enamel` |
+| `screen` | glass | `dark-glass`, `screen` |
+| `mirror` | glass | `mirror-glass` |
+| `showerGlass` | glass | `clear-glass`, `frosted-glass` |
+| `ceramic` | custom | `ceramic` |
+| `rugSurface` | fabric, custom | `rug` |
+| `foliage` | custom | `foliage` |
+| `planter` | custom, stone, metal | `ceramic`, `planter` |
 
-The UI must filter materials by these allowed kinds. A user should not be offered fabric for a refrigerator or stone for a sofa cushion.
+The UI first filters by `allowedMaterialKinds`. When `allowedMaterialTags` is present, a candidate must also contain at least one allowed tag. A user should not be offered fabric for a refrigerator or stone for a sofa cushion.
+
+Material `kind` continues using only the repository's broad `MaterialKind` values: `wood`, `fabric`, `metal`, `glass`, `paint`, `stone`, `laminate`, and `custom`. More specific distinctions use kebab-case tags such as `dark-glass`, `mirror-glass`, `clear-glass`, `frosted-glass`, `ceramic`, `leather`, `rug`, and `foliage`. This avoids expanding the core type for every visual variant while still allowing precise picker filters.
 
 ### 7.5 Initial finish library
 
@@ -466,11 +840,13 @@ The UI and project domain use a provider-neutral service:
 ```ts
 interface CatalogProvider {
   getManifest(): Promise<CatalogManifest>;
+  listItems(query?: CatalogQuery): Promise<CatalogPage>;
   getItem(id: string, version?: number): Promise<CatalogItem | null>;
-  resolveModel(assetId: string, version?: number): Promise<ResolvedAsset>;
-  resolveThumbnail(assetId: string, version?: number): Promise<ResolvedAsset>;
+  resolveFile(fileId: string): Promise<ResolvedAsset>;
 }
 ```
+
+The built-in provider may load the complete small manifest internally. A remote provider may paginate `listItems` without changing UI consumers. Typed convenience helpers such as `resolveModel`, `resolveImage`, and `resolveTexture` may wrap `resolveFile`, but all file kinds share one integrity and delivery path.
 
 ### 8.2 Built-in provider now
 
@@ -499,31 +875,18 @@ runtime cache
 
 The project continues to store only the stable asset/version ID. Expiring CDN URLs, tokens, local filesystem paths, and provider credentials never enter project JSON.
 
-### 8.4 Example remote manifest response
+### 8.4 Remote manifest response
 
-```json
-{
-  "schemaVersion": 1,
-  "catalogVersion": "2026.09.1",
-  "generatedAt": "2026-09-03T00:00:00Z",
-  "items": [
-    {
-      "id": "kenney:lounge-sofa",
-      "version": 1,
-      "modelAssetId": "model:kenney:lounge-sofa:v1",
-      "thumbnailAssetId": "thumb:kenney:lounge-sofa:ne:v1"
-    }
-  ]
-}
-```
+The remote provider returns the exact manifest schema defined in §6.7; it does not use a smaller, incompatible item shape. Public catalogs may return a cached full manifest. Large or private catalogs may return validated pages from `listItems`, while individual item and file records preserve the same schemas.
 
-The API may return resolved URLs separately. The manifest itself should prefer immutable object keys and hashes.
+The API returns ephemeral public or signed delivery URLs only from `resolveFile`. These URLs are outside the persisted manifest. Immutable `objectKey` values may stay identical between local public storage and a public CDN with only the provider base changing; private organization storage may use opaque object keys.
 
 ### 8.5 CDN and cache rules
 
 - Versioned model files are immutable.
 - Replacing geometry creates a new asset version.
 - Every delivered file has a content hash and byte size.
+- SHA-256 is the required hash algorithm and values use the `sha256:` prefix.
 - Public built-ins may use long-lived cache headers.
 - Private organization assets use authorized, short-lived URLs.
 - Metadata uses ETag/version revalidation.
@@ -531,6 +894,7 @@ The API may return resolved URLs separately. The manifest itself should prefer i
 - GLBs load only when placed, previewed, or required by an opened template.
 - Network failure falls back to a cached asset or procedural placeholder.
 - Cached failures are retryable and visible; they do not damage project state.
+- Hashes verify integrity and may participate in cache identity; immutable asset versions remain the primary cache-busting contract.
 
 ### 8.6 Offline behavior
 
@@ -667,6 +1031,20 @@ Recent Projects
 - Template thumbnails are deterministic and versioned.
 - Template updates create a new version; existing projects do not mutate.
 
+### 10.4 Initial Kenney selections
+
+These are the starting visual assets, subject to final dimension and composition QA:
+
+| Use | Kenney filenames |
+| --- | --- |
+| Living Room | `loungeSofa`, `loungeChair`, `tableCoffee`, `televisionModern`, `cabinetTelevision`, `rugRectangle`, `lampRoundFloor`, `pottedPlant` |
+| Bedroom | `bedDouble`, `cabinetBedDrawerTable`, `lampRoundTable`, `rugRectangle`, optional `pillow` |
+| Straight/L Kitchen appliances | `kitchenFridge`, `kitchenStoveElectric`, `kitchenSink`, `hoodModern`, `kitchenMicrowave`, `kitchenCoffeeMachine` |
+| Bathroom | `toilet`, `bathroomSink`, `bathroomMirror`, `shower`, optional `bathtub` |
+| Office/browser expansion | `desk`, `chairDesk`, `computerScreen`, `computerKeyboard`, `computerMouse`, `laptop` |
+
+Existing `living:*` catalog items and the new `kenney:*` items run side by side initially. Do not alias or replace existing items until visual, placement, material, and save/reopen QA proves the replacement. Templates explicitly choose the preferred item by stable ID.
+
 ---
 
 ## 11. Catalog user experience
@@ -705,7 +1083,8 @@ After placement:
 - Rotation and placement.
 - Semantic finish slots only.
 - Compatible swatches only.
-- Reset to original material.
+- **Reset Finish**, restoring the pinned catalog-item-version default.
+- Read-only labels for locked intrinsic slots when useful.
 - Replace with another item in the same subcategory later.
 
 ### 11.3 Loading and failure states
@@ -766,11 +1145,18 @@ Fail verification when:
 
 - An ID is duplicated.
 - A referenced GLB or thumbnail is missing.
+- An image, model, material, or texture ID points to the wrong resource kind.
+- A file's content hash or byte size differs from its manifest record.
 - A GLB has no renderable primitive.
 - Dimensions are zero or invalid.
 - A source material mapping matches nothing.
-- A template references a hidden, blocked, or unknown item.
+- A material references a missing texture ID.
+- A base-color texture has the wrong color-space declaration.
+- A template references a blocked, unknown, or non-template-eligible item.
+- A template attempts to override a locked material slot.
 - A default material violates slot compatibility.
+- A browser-visible or template-eligible item has no resolvable thumbnail.
+- A declared gallery image does not resolve.
 - A required license record is missing.
 
 Warn when:
@@ -779,6 +1165,13 @@ Warn when:
 - A model has no editable material slots.
 - A thumbnail is oversized.
 - The triangle or file-size budget is exceeded.
+- A material, texture, or image record is unreferenced.
+
+Hidden/non-visible items require valid models but do not require thumbnails. Every declared reference is strict even when optional UI is not yet built.
+
+The manifest generator writes real SHA-256 hashes and byte sizes for every file. The standalone verifier recomputes them without rewriting. A mismatch fails generation, CI, and production build verification; a mismatch encountered unexpectedly at runtime produces a diagnostic and safe placeholder instead of corrupting project state.
+
+Breaking field or meaning changes increment `schemaVersion`. Optional additive fields may remain within the same schema version. Catalog content additions and immutable asset revisions increment `catalogVersion` without implying a schema change.
 
 ### 13.2 Remote validation later
 
@@ -806,9 +1199,17 @@ intent → upload → quarantine → scan → inspect
 
 - Manifest schema validation.
 - Unique IDs and valid paths.
+- Unique image IDs and correct thumbnail/gallery relationships.
+- Model, image, material, and texture reference integrity.
 - Category and lifecycle rules.
 - Raw material name → semantic slot mapping.
 - Slot → allowed material compatibility.
+- Per-object material overrides do not mutate other instances.
+- Template material choices are copied into project materials as durable snapshots.
+- Project object slots reference only project-local material entity IDs; catalog material IDs appear only as lineage.
+- Editing a shared project material performs clone-on-write and preserves every unselected object's finish.
+- Reset Finish resolves the pinned catalog-item-version default.
+- Locked-slot template overrides are rejected.
 - Stable alias resolution.
 - Template references and fresh-ID instantiation.
 - Local and remote provider contract parity.
@@ -821,16 +1222,18 @@ intent → upload → quarantine → scan → inspect
 - Record original material names.
 - Verify thumbnail availability.
 - Verify license metadata.
+- Recompute SHA-256 and byte size for every registered file.
 
 ### 14.3 Browser journeys
 
 1. Browse a category and place an object.
 2. Change one semantic material slot without affecting other slots.
-3. Save and reopen with the same catalog ID, version, and materials.
-4. Open each starter template in 2D and 3D.
-5. Open a project while one decorative asset is unavailable.
-6. Verify production cabinets never resolve to Kenney props.
-7. Verify deprecated starter IDs still open.
+3. Edit a finish shared by two objects and verify only the selected object receives a cloned project material.
+4. Save and reopen with the same catalog ID, version, and project-local materials.
+5. Open each starter template in 2D and 3D.
+6. Open a project while one decorative asset is unavailable.
+7. Verify production cabinets never resolve to Kenney props.
+8. Verify deprecated starter IDs still open.
 
 ### 14.4 Performance checks
 
@@ -868,7 +1271,7 @@ Work:
 1. Add catalog domain schemas.
 2. Add `BuiltInCatalogProvider`.
 3. Build GLB inspection and manifest-generation scripts.
-4. Generate file, bounds, primitive, material-name, and preview metadata.
+4. Generate provider-neutral JSON containing file, hash, bounds, primitive, material-name, and preview metadata.
 5. Add human override records.
 6. Add manifest validation tests.
 
@@ -876,82 +1279,92 @@ Exit:
 
 - All 140 assets exist in one validated manifest.
 - No hand-written import statement is required per GLB.
+- Every model, thumbnail, preview, material, and texture relationship uses a stable ID.
 - IDs and versions are stable.
-- All items default to `hidden` unless explicitly approved.
+- All discovered items default to `lifecycle: "active"` with both visibility flags false unless explicitly approved; invalid or excluded items are `blocked`.
 
 ### Phase 2 — Semantic material adapter
 
 Work:
 
 1. Resolve original GLB material names before mesh-name fallback.
-2. Preserve original materials when no override exists.
+2. Preserve original materials as fallback when no catalog default exists.
 3. Add per-asset material mappings.
 4. Add compatibility filtering.
-5. Add reset-to-original behavior.
+5. Add Reset Finish behavior against the pinned catalog-item-version default.
 6. Cover representative multi-material assets in tests.
 
 Representative proof set:
 
 - Sofa: carpet + wood.
 - Bed: bedding + wood + metal.
-- Glass table: glass + metal.
+- Glass table: glass + metal. `tableCoffeeGlass` is intentionally a material-mapping proof asset; the Living Room template uses the warmer opaque `tableCoffee` model.
 - Mirror: mirror/glass + frame.
 - Shower: glass + metal + ceramic/base.
 - Refrigerator: body + handles + glass/detail.
+- Television: locked screen + editable/fixed body behavior.
+- Plant: locked foliage + editable planter behavior.
 
 Exit:
 
 - Changing upholstery does not change sofa legs.
 - Changing a tabletop does not change its frame.
 - Incompatible material kinds are not offered.
-- Original Kenney appearance remains available.
+- Locked slots reject template and project-picker overrides.
+- Original Kenney appearance remains a safe fallback.
 
-### Phase 3 — First curated object catalog
+### Phase 3 — Template-ready asset and finish slice
 
 Work:
 
-- Approve approximately 30–35 items.
-- Assign friendly names, categories, tags, dimensions, and placement.
-- Use one NE isometric preview per item.
-- Build category navigation and object cards.
-- Lazy-load visible thumbnails and selected GLBs.
-- Add search over name, category, and tags.
+- Approve the approximately 30–35 objects needed by the first templates.
+- Assign friendly names, categories, tags, dimensions, placement, visibility, and semantic slots.
+- Use one reviewed isometric preview per item, defaulting to NE.
+- Convert the existing material presets into catalog-driven definitions.
+- Add ceramic, appliance metal, clear/frosted glass, and other finishes required by proof assets.
+- Snapshot chosen catalog materials into project materials during placement/template instantiation.
+- Keep the general object-browser expansion out of this phase.
 
 Exit:
 
-- Living room, bedroom, kitchen appliance, bathroom, office, lighting, and decor categories are usable.
-- Every visible card places the correct model at a realistic size.
-- No architectural or production-cabinet prop appears as a normal catalog choice.
+- Every object required by the six templates is catalog-valid and template-eligible.
+- Template assets place at realistic dimensions with intended default finishes.
+- Project material snapshots survive save/reopen.
+- No architectural or production-cabinet prop is template-eligible.
 
-### Phase 4 — Material library experience
+### Phase 4 — Living Room vertical slice
 
 Work:
 
-- Convert current presets into catalog-driven material definitions.
-- Add swatch previews.
-- Filter by semantic slot compatibility.
-- Add material defaults by template and category.
-- Add texture-backed finishes incrementally.
-- Cache and dispose texture resources safely.
+- Add the project-home template gallery foundation.
+- Build the Living Room template first.
+- Use `loungeSofa`, `loungeChair`, `tableCoffee`, `televisionModern`, `cabinetTelevision`, `rugRectangle`, `lampRoundFloor`, and `pottedPlant`.
+- Generate its deterministic room thumbnail.
+- Expose compatible swatches in the object inspector.
+- Lazy-load thumbnails and only the GLBs used by the opened template.
+- Cover create → 2D → 3D → change finish → save → reopen.
 
 Exit:
 
-- A user can recolor/retexture common objects without understanding raw GLB groups.
-- Materials survive save/reopen.
-- Missing texture maps have safe PBR fallbacks.
+- Living Room opens from the visible customer UI.
+- It remains editable in 2D and 3D.
+- Upholstery changes independently from frames/legs.
+- Locked TV and plant surfaces remain protected.
+- Save/reopen preserves catalog versions and material snapshots.
 
-### Phase 5 — Six starter templates
+### Phase 5 — Remaining templates and curated browser
 
 Work:
 
-1. Add the project-home template gallery.
-2. Build Empty Room.
-3. Build Straight Kitchen.
-4. Build L-Shaped Kitchen.
-5. Build Living Room.
-6. Build Bedroom.
-7. Build Bathroom.
-8. Generate and verify template thumbnails.
+1. Build Empty Room.
+2. Build Straight Kitchen.
+3. Build L-Shaped Kitchen.
+4. Build Bedroom.
+5. Build Bathroom.
+6. Generate and verify their template thumbnails.
+7. Expose the approved 30–35 items in the category browser.
+8. Add search over normalized name, category, and tags.
+9. Lazy-load visible thumbnails and selected GLBs.
 
 Exit:
 
@@ -960,6 +1373,8 @@ Exit:
 - Every referenced object and material is valid.
 - Kitchen templates retain smart cabinet truth.
 - Save/reopen preserves template-created projects.
+- Every visible catalog card places the correct model at realistic size.
+- Living room, bedroom, kitchen appliance, bathroom, office/electronics, lighting, and decor categories are usable.
 
 ### Phase 6 — Legacy asset migration and cleanup
 
@@ -1022,14 +1437,14 @@ The first implementation slice is:
 
 1. Add provider-neutral catalog types.
 2. Generate metadata for all 140 Kenney GLBs.
-3. Hand-curate six representative assets.
+3. Hand-curate eight representative assets.
 4. Adapt material resolution to original GLB material names.
-5. Prove independent material changes on those six assets.
+5. Prove independent material changes and locked-slot behavior across those eight assets.
 6. Preserve current curated assets and call sites through compatibility exports.
 
-Only after this slice is green should the team build the visible 30–35-item catalog and templates.
+After this slice is green, the first UI work is the Living Room template vertical slice. Do not begin with a general 140-item browser.
 
-### First six proof assets
+### First eight proof assets
 
 ```text
 loungeSofa.glb
@@ -1038,9 +1453,11 @@ tableCoffeeGlass.glb
 bathroomMirror.glb
 shower.glb
 kitchenFridge.glb
+televisionModern.glb
+pottedPlant.glb
 ```
 
-This set covers fabric, wood, metal, glass, ceramic-like surfaces, furniture, appliances, floor placement, and wall-oriented presentation.
+This set covers fabric, wood, metal, glass, ceramic-like surfaces, furniture, appliances, floor placement, wall-oriented presentation, and locked-slot behavior. `tableCoffeeGlass` proves independent glass/metal mapping; Phase 4 deliberately uses `tableCoffee` in the Living Room composition.
 
 ---
 
@@ -1058,6 +1475,20 @@ These rules prevent the codebase from becoming unmanageable:
 8. Do not delete referenced legacy assets before compatibility aliases exist.
 9. Do not add a CDN dependency to the initial offline template experience.
 10. Do not let remote catalog work block the local template release.
+11. Public item images always use `images.thumbnailId` and optional `images.galleryIds`.
+12. Human curation lives in `overrides.ts`; `builtin-catalog.v1.json` is generated and never hand-edited.
+13. Reset Finish restores the pinned catalog-item-version default; original GLB material is fallback.
+14. Templates cannot override locked material slots.
+15. Lifecycle and UI visibility remain separate fields.
+16. All models, images, and textures resolve through the generic `resolveFile` contract.
+17. Built-in and remote manifests use the same schema.
+18. SHA-256 and byte size are required for every registered file.
+19. Template material choices are copied into the project's material collection as durable snapshots.
+20. Template-first curation precedes the general object-browser expansion.
+21. Project `materialSlots` always reference project-local material entity IDs; catalog material IDs are lineage only.
+22. Direct finish-property edits use clone-on-write whenever the current project material is shared; catalog swatch selection repoints only the selected slots.
+23. `tableCoffeeGlass` is the glass/metal proof asset; the Living Room v1 template deliberately uses `tableCoffee`.
+24. The Phase 2 proof set includes `televisionModern` and `pottedPlant` so locked screen and foliage slots are tested before template composition.
 
 ---
 
