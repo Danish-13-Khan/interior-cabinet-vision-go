@@ -1,0 +1,127 @@
+[
+  {
+    "stem": "doorway",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "openings",
+    "name": "Doorway"
+  },
+  {
+    "stem": "doorwayFront",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "openings",
+    "name": "Doorway Front"
+  },
+  {
+    "stem": "doorwayOpen",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "openings",
+    "name": "Doorway Open"
+  },
+  {
+    "stem": "floorCorner",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "floors"
+  },
+  {
+    "stem": "floorCornerRound",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "floors"
+  },
+  {
+    "stem": "floorFull",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "floors"
+  },
+  {
+    "stem": "floorHalf",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "floors"
+  },
+  {
+    "stem": "paneling",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls",
+    "name": "Paneling"
+  },
+  {
+    "stem": "stairs",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "stairs"
+  },
+  {
+    "stem": "stairsCorner",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "stairs"
+  },
+  {
+    "stem": "stairsOpen",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "stairs"
+  },
+  {
+    "stem": "stairsOpenSingle",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "stairs"
+  },
+  {
+    "stem": "wall",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  },
+  {
+    "stem": "wallCorner",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  },
+  {
+    "stem": "wallCornerRond",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls",
+    "name": "Wall Corner Round"
+  },
+  {
+    "stem": "wallDoorway",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  },
+  {
+    "stem": "wallDoorwayWide",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  },
+  {
+    "stem": "wallHalf",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  },
+  {
+    "stem": "wallWindow",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  },
+  {
+    "stem": "wallWindowSlide",
+    "lifecycle": "blocked",
+    "category": "architecture",
+    "subcategory": "walls"
+  }
+]
