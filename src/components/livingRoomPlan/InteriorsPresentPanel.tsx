@@ -45,6 +45,11 @@ export function InteriorsPresentPanel({
   const state = interiorsPresentPanelState(proposal, handoff);
   return (
     <aside className="planner-v2-review interiors-present-panel" data-testid="interiors-present-panel" data-step={state.step} aria-label="Present and Send">
+      <div className="interiors-compact-close-heading">
+        <span>Close the cabinet sale</span>
+        <h1>Rev {live.quote.job.revision} is ready to present</h1>
+        <p>The price, proposal, approval, and engineering model stay on this cabinet revision.</p>
+      </div>
       <header>
         <span>Present and Send</span>
         <small>{state.blocking.length ? `${state.blocking.length} blocking` : "Ready for the next action"}</small>

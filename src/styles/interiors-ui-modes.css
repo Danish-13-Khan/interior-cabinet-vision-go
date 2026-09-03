@@ -1,0 +1,339 @@
+/* Selectable visual modes over the same Interiors project and workflow. */
+.lr-plan-shell.lr-product-shell-v2 {
+  color-scheme: light dark;
+  --iu-ink: light-dark(#1c2822, #ecf3ee);
+  --iu-muted: light-dark(#66736b, #9da9a1);
+  --iu-faint: light-dark(#f4f7f5, #111814);
+  --iu-panel: light-dark(#ffffff, #17201a);
+  --iu-panel-2: light-dark(#f8faf8, #1c2720);
+  --iu-canvas: light-dark(#f7faf8, #111713);
+  --iu-line: light-dark(#dfe6e1, #344139);
+  --iu-line-strong: light-dark(#c7d2ca, #4a5a50);
+  --iu-green: light-dark(#1f6f4a, #4fbd7b);
+  --iu-green-soft: light-dark(#e8f3ec, #183326);
+  --iu-blue-soft: light-dark(#ebf2fb, #18283b);
+  --iu-amber: light-dark(#9b611b, #e3aa5a);
+  --iu-red: light-dark(#a34040, #ef8585);
+  --iu-shadow: light-dark(0 18px 55px rgb(30 51 39 / 14%), 0 18px 55px rgb(0 0 0 / 34%));
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--iu-faint) !important;
+  color: var(--iu-ink) !important;
+}
+.lr-plan-shell.lr-product-shell-v2,
+.lr-plan-shell.lr-product-shell-v2 * { box-sizing: border-box; }
+.lr-plan-shell.lr-product-shell-v2 button,
+.lr-plan-shell.lr-product-shell-v2 input,
+.lr-plan-shell.lr-product-shell-v2 select,
+.lr-plan-shell.lr-product-shell-v2 textarea { font: inherit; color: inherit; }
+
+/* Shared workbar */
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-header {
+  min-height: 68px;
+  padding: 0 22px;
+  gap: 12px;
+  border-color: var(--iu-line);
+  background: var(--iu-panel);
+  color: var(--iu-ink);
+}
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-brand,
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-product-mark { position: relative; display: inline-flex; width: 30px; height: 30px; flex: 0 0 30px; border-radius: 9px; background: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .lr-product-mark i { position: absolute; top: 7px; bottom: 7px; width: 3px; border-radius: 2px; background: light-dark(#fff, #102018); }
+.lr-plan-shell.lr-product-shell-v2 .lr-product-mark i:nth-child(1) { left: 7px; }
+.lr-plan-shell.lr-product-shell-v2 .lr-product-mark i:nth-child(2) { left: 13px; }
+.lr-plan-shell.lr-product-shell-v2 .lr-product-mark i:nth-child(3) { left: 19px; opacity: 1; }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb { min-height: 42px; padding: 0 12px; border-left: 1px solid var(--iu-line); border-radius: 0; }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb:hover,
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-history button:hover { background: var(--iu-panel-2); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb span,
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-save,
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-history button,
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-save { border-color: var(--iu-line); background: var(--iu-panel); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-present { border-color: var(--iu-green); background: var(--iu-green); color: light-dark(#fff, #102018); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch { padding: 3px; border: 1px solid var(--iu-line); border-radius: 8px; background: var(--iu-panel-2); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button.is-active { background: var(--iu-panel); color: var(--iu-ink); box-shadow: 0 1px 5px light-dark(rgb(30 51 39 / 12%), rgb(0 0 0 / 30%)); }
+.lr-plan-shell.lr-product-shell-v2.is-project-home .lr-chrome-header { grid-template-columns: auto minmax(0, 1fr) auto; }
+.lr-projects-nav { display: flex; align-items: center; gap: 4px; }
+.lr-projects-nav span { min-height: 36px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: 8px; color: var(--iu-muted); font-size: .78rem; }
+.lr-projects-nav span.is-active { background: var(--iu-green-soft); color: var(--iu-green); }
+
+/* Projects and home-only A/B selector */
+.lr-plan-shell.lr-product-shell-v2 .lr-empty-workspace { min-height: 0; padding: 0; background: var(--iu-faint); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home.interiors-projects-home {
+  position: relative;
+  min-height: calc(100vh - 68px);
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--iu-faint);
+  color: var(--iu-ink);
+}
+.interiors-mode-menu { grid-column: 1 / -1; min-height: 72px; padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--iu-line); background: var(--iu-panel-2); }
+.interiors-mode-menu > span { display: grid; gap: 2px; }
+.interiors-mode-menu > span small { color: var(--iu-muted); font-size: .62rem; letter-spacing: .09em; text-transform: uppercase; }
+.interiors-mode-menu > span strong { font-size: .84rem; }
+.interiors-mode-menu > div { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 7px; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button { min-height: 48px; padding: 7px 12px; display: grid; gap: 2px; text-align: left; border: 1px solid var(--iu-line); border-radius: 9px; background: var(--iu-panel); color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button strong { color: var(--iu-ink); font-size: .76rem; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button small { color: var(--iu-muted); font-size: .62rem; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button.is-selected { border-color: var(--iu-green); background: var(--iu-green-soft); color: var(--iu-green); box-shadow: inset 3px 0 0 var(--iu-green); }
+
+/* Calm Guided Projects */
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-calm { grid-template-columns: minmax(300px, .85fr) minmax(480px, 1.15fr); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-calm .planner-v2-home-intro { min-width: 0; padding: clamp(40px, 6vw, 76px); justify-content: center; background: var(--iu-panel); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro > span,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header > span,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery span,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts header > span,
+.interiors-job-heading > div > span { color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home h1 { max-width: 590px; color: var(--iu-ink); font-size: clamp(35px, 4.3vw, 58px); font-weight: 500; letter-spacing: -.055em; line-height: 1.05; }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro p,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-start-note,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents p,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts small { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro label { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro input,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home button,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home input { border-color: var(--iu-line); background: var(--iu-panel-2); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home button.is-primary { border-color: var(--iu-green); background: var(--iu-green); color: light-dark(#fff, #102018); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-calm .planner-v2-home-content { padding: clamp(28px, 4vw, 52px); background: var(--iu-faint); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery { border-color: var(--iu-line); background: var(--iu-panel); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-row,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts button { border-color: var(--iu-line); background: var(--iu-panel-2); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-row:hover,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts button:hover { border-color: var(--iu-green); background: var(--iu-green-soft); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-row img { border-color: var(--iu-line); background: var(--iu-faint); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents header h2,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-status { color: var(--iu-muted); background: var(--iu-panel-2); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-design,
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-approved { color: var(--iu-green); background: var(--iu-green-soft); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-quoted { color: var(--iu-amber); background: light-dark(#fff4df, #382a16); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-sent { color: light-dark(#3b5d88, #8bb6ed); background: var(--iu-blue-soft); }
+.interiors-template-drawer { margin-top: 12px; border: 1px solid var(--iu-line); border-radius: 10px; background: var(--iu-panel); }
+.interiors-template-drawer > summary { padding: 12px 15px; color: var(--iu-muted); font-size: .72rem; font-weight: 700; cursor: pointer; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-template-drawer .interiors-projects-starts { margin: 0; border: 0; border-top: 1px solid var(--iu-line); border-radius: 0 0 10px 10px; }
+
+/* Compact Pro Projects */
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-compact { display: grid; grid-template-columns: 1fr; }
+.interiors-compact-projects { min-height: 0; display: grid; grid-template-columns: 205px minmax(0, 1fr); }
+.interiors-project-filters { padding: 24px 12px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid var(--iu-line); background: var(--iu-panel); }
+.interiors-project-filters > span { padding: 0 10px 10px; color: var(--iu-green); font-size: .64rem; letter-spacing: .09em; text-transform: uppercase; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-filters button { min-height: 42px; padding: 0 10px; display: flex; align-items: center; gap: 9px; border: 0; border-radius: 7px; background: transparent; color: var(--iu-ink); text-align: left; }
+.interiors-project-filters button small { margin-left: auto; color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-project-filters button.is-selected { background: var(--iu-green-soft); color: var(--iu-green); }
+.interiors-job-table-wrap { min-width: 0; padding: 28px; overflow: auto; }
+.interiors-job-heading { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(170px, .8fr) minmax(170px, .8fr) auto auto auto; align-items: end; gap: 8px; }
+.interiors-job-heading > div { display: grid; gap: 4px; }
+.interiors-job-heading h1 { margin: 0; font-size: 1.45rem !important; letter-spacing: -.03em !important; }
+.interiors-job-search,
+.interiors-compact-job-name { display: grid; gap: 4px; color: var(--iu-muted); font-size: .62rem; }
+.interiors-job-search input,
+.interiors-compact-job-name input { min-height: 36px; padding: 0 10px; border: 1px solid var(--iu-line); border-radius: 8px; }
+.interiors-job-heading > button { min-height: 36px !important; white-space: nowrap; }
+.interiors-job-table { margin-top: 16px; overflow: hidden; border: 1px solid var(--iu-line); border-radius: 10px; background: var(--iu-panel); }
+.interiors-job-table-head,
+.lr-plan-shell.lr-product-shell-v2 .interiors-job-table > button { min-height: 62px; padding: 0 16px; display: grid; grid-template-columns: minmax(180px, 1.5fr) 1fr .55fr .9fr .7fr; align-items: center; gap: 12px; border: 0; border-bottom: 1px solid var(--iu-line); border-radius: 0; background: transparent; text-align: left; }
+.interiors-job-table-head { min-height: 40px; color: var(--iu-muted); font-size: .63rem; letter-spacing: .06em; text-transform: uppercase; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-job-table > button:hover { background: var(--iu-green-soft); }
+.interiors-job-table > button:last-of-type { border-bottom: 0; }
+.interiors-job-table > button > strong { display: grid; gap: 3px; color: var(--iu-ink); font-weight: 600; }
+.interiors-job-table > button > strong small,
+.interiors-job-table > button > small { color: var(--iu-muted); }
+.interiors-job-table > p { padding: 22px; color: var(--iu-muted); }
+
+/* Shared authoring surfaces */
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body { position: relative; min-height: 0; border-color: var(--iu-line); background: var(--iu-faint); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail,
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog,
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { border-color: var(--iu-line); background: var(--iu-panel); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button:hover,
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button.is-active { background: var(--iu-green-soft); color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail-break { background: var(--iu-line); }
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-center,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas { border-color: var(--iu-line); background: var(--iu-canvas); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-status,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-titlebar,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-tray { border-color: var(--iu-line); background: var(--iu-panel); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-titlebar strong,
+.lr-plan-shell.lr-product-shell-v2 .context-panel-heading strong,
+.lr-plan-shell.lr-product-shell-v2 .inspector-header strong,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll h3,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll h4 { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-titlebar,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-status span,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-status button,
+.lr-plan-shell.lr-product-shell-v2 .lr-run-tray,
+.lr-plan-shell.lr-product-shell-v2 .lr-present-tray,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll p,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll label,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll small { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-titlebar button,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-titlebar select,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-tray button,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-tabs > button,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher input,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-actions button,
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-actions select,
+.lr-plan-shell.lr-product-shell-v2 .lr-number-field,
+.lr-plan-shell.lr-product-shell-v2 .lr-select-field,
+.lr-plan-shell.lr-product-shell-v2 .lr-dimension-preset,
+.lr-plan-shell.lr-product-shell-v2 .lr-number-field input,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector input,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector select { border-color: var(--iu-line); background: var(--iu-panel-2); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-manage .lr-room-switcher-tabs > button.is-active,
+.lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button.is-active,
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-targets button.is-active { border-color: var(--iu-green); background: var(--iu-green-soft); color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll section,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll section:first-child,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-object-list,
+.lr-plan-shell.lr-product-shell-v2 .lr-architecture-inspector,
+.lr-plan-shell.lr-product-shell-v2 .lr-millwork-preview,
+.lr-plan-shell.lr-product-shell-v2 .lr-issues-panel,
+.lr-plan-shell.lr-product-shell-v2 .inspector-header,
+.lr-plan-shell.lr-product-shell-v2 .context-panel-heading,
+.lr-plan-shell.lr-product-shell-v2 .lr-room-authoring,
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-controls,
+.lr-plan-shell.lr-product-shell-v2 .lr-underlay-panel,
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-grid { border-color: var(--iu-line); background: var(--iu-panel) !important; color: var(--iu-ink) !important; }
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-status .is-clear,
+.lr-plan-shell.lr-product-shell-v2 .lr-run-status .is-clear,
+.lr-plan-shell.lr-product-shell-v2 .lr-present-status .is-clear { color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .lr-draw-status .has-warning,
+.lr-plan-shell.lr-product-shell-v2 .lr-run-status .has-warning,
+.lr-plan-shell.lr-product-shell-v2 .lr-present-status .has-warning { color: var(--iu-amber); }
+.lr-plan-shell.lr-product-shell-v2 .lr-millwork-lines button,
+.lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button,
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-targets button,
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches button,
+.lr-plan-shell.lr-product-shell-v2 .lr-clear-material { border-color: var(--iu-line); background: var(--iu-panel-2); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-material-slot-row { border-color: var(--iu-line); }
+.lr-plan-shell.lr-product-shell-v2 .lr-material-slot-heading strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-material-slot-heading small { color: var(--iu-muted); }
+
+/* Calm Guided authoring */
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .lr-chrome-rail { width: 82px; flex: 0 0 82px; padding: 12px 8px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .lr-chrome-rail button { min-height: 50px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .lr-catalog,
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .lr-workspace-body.is-planner-build .lr-catalog { width: 225px !important; min-width: 225px; max-width: 225px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .lr-workspace-body.is-planner-build .lr-inspector { width: 280px !important; min-width: 280px; max-width: 280px; }
+
+/* Compact Pro authoring */
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-chrome-header { min-height: 58px; padding-inline: 16px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-chrome-brand strong { display: none; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-chrome-rail { width: 52px; flex: 0 0 52px; padding: 9px 7px; align-items: center; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-chrome-rail button { width: 38px; min-height: 38px; padding: 0; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-chrome-rail button span { display: none; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-chrome-rail-break { width: 24px; margin: 4px 0; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-catalog,
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-build .lr-catalog { width: 160px !important; min-width: 160px; max-width: 160px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-run-catalog > button,
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-asset-grid > button { padding: 7px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-build .lr-inspector { position: absolute; top: 62px; right: 14px; bottom: 48px; z-index: 24; width: 260px !important; min-width: 0; max-width: min(260px, calc(100% - 80px)); overflow: hidden; border: 1px solid var(--iu-line); border-radius: 11px; box-shadow: var(--iu-shadow); }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-draw-titlebar { min-height: 40px; padding: 0 10px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-draw-titlebar .lr-readability-toolbar,
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-draw-titlebar > small { display: none; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-draw-tray { padding: 6px 10px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-plan-status { min-height: 30px; }
+
+/* Present and Send */
+.interiors-compact-close-heading { display: none; }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel { border-color: var(--iu-line); background: var(--iu-panel); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header span,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-total { color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields label { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff { border-color: var(--iu-line); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review > strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff > strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel section > strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel input,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button { border-color: var(--iu-line); background: var(--iu-panel-2); color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button.is-primary { border-color: var(--iu-green); background: var(--iu-green); color: light-dark(#fff, #102018); }
+.lr-plan-shell.lr-product-shell-v2.is-ui-calm .interiors-present-panel { flex: 0 0 390px; width: 390px; min-width: 390px; max-width: 390px; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-render { display: grid; grid-template-columns: minmax(0, 1fr) 360px; grid-template-rows: minmax(0, 1fr); overflow: hidden; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-render .lr-chrome-rail { display: none; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-render .lr-plan-center { grid-column: 1; grid-row: 1; min-width: 0; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .interiors-present-panel { grid-column: 2; grid-row: 1; width: 360px; min-width: 360px; max-width: 360px; padding: 20px; overflow-y: auto; }
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .interiors-compact-close-heading { display: grid; gap: 8px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--iu-line); }
+.interiors-compact-close-heading > span { color: var(--iu-green); font-size: .65rem; letter-spacing: .09em; text-transform: uppercase; }
+.interiors-compact-close-heading h1 { margin: 0; color: var(--iu-ink); font-size: 1.7rem; line-height: 1.08; letter-spacing: -.04em; }
+.interiors-compact-close-heading p { margin: 0; color: var(--iu-muted); font-size: .76rem; line-height: 1.5; }
+
+@media (prefers-color-scheme: dark) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-paper { fill: #111713; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-grid-line { stroke: #28342c; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-grid-major-line { stroke: #3a493f; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-center-line { stroke: #66736b; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-wall-line { stroke: #c7d2ca; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-opening line { stroke: #111713; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-opening-door line { stroke: #e3aa5a; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-opening-window line { stroke: #7fb2df; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-opening text,
+  .lr-plan-shell.lr-product-shell-v2 .lr-object-label,
+  .lr-plan-shell.lr-product-shell-v2 .lr-object-size { fill: #dfe8e1; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-dimension-pairs,
+  .lr-plan-shell.lr-product-shell-v2 .lr-wall-length-labels { stroke: #9da9a1; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-dimension-pairs text,
+  .lr-plan-shell.lr-product-shell-v2 .lr-wall-length-labels text { stroke: #111713; fill: #d8e2da; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-object > rect:first-of-type,
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-object:nth-of-type(3n) > rect:first-of-type { fill: #1c2720; stroke: #738178; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-symbol,
+  .lr-plan-shell.lr-product-shell-v2 .lr-plan-symbol * { fill: rgb(79 189 123 / 10%); stroke: #9da9a1; }
+  .lr-plan-shell.lr-product-shell-v2 .lr-readability-toolbar button.is-active { background: var(--iu-green-soft); color: var(--iu-green); }
+}
+
+@media (max-width: 1050px) {
+  .interiors-job-heading { grid-template-columns: 1fr 1fr; }
+  .interiors-job-heading > div { grid-column: 1 / -1; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-calm .interiors-projects-home.is-calm { grid-template-columns: 1fr; overflow: auto; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-calm .interiors-projects-home.is-calm .planner-v2-home-intro { min-height: 460px; }
+}
+@media (max-width: 900px) {
+  .interiors-mode-menu { align-items: stretch; flex-direction: column; }
+  .interiors-mode-menu > div { width: 100%; }
+  .interiors-compact-projects { grid-template-columns: 1fr; }
+  .interiors-project-filters { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--iu-line); }
+  .interiors-project-filters > span { display: none; }
+  .interiors-project-filters button { min-width: 120px; }
+  .interiors-job-table-head,
+  .lr-plan-shell.lr-product-shell-v2 .interiors-job-table > button { grid-template-columns: minmax(150px, 1.4fr) 1fr .6fr .8fr; }
+  .interiors-job-table-head span:last-child,
+  .interiors-job-table > button > small:last-child { display: none; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-render { grid-template-columns: 1fr; overflow: auto; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-render .lr-plan-center,
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .interiors-present-panel { grid-column: 1; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-render .lr-plan-center { grid-row: 1; min-height: 55vh; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .interiors-present-panel { grid-row: 2; width: 100%; min-width: 0; max-width: none; }
+}
+@media (max-width: 620px) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header { min-height: 58px; padding: 0 10px; }
+  .lr-plan-shell.lr-product-shell-v2.is-project-home .lr-chrome-brand strong { display: none; }
+  .interiors-mode-menu > div { grid-template-columns: 1fr; }
+  .interiors-job-table-wrap { padding: 16px 12px; }
+  .interiors-job-heading { grid-template-columns: 1fr; }
+  .interiors-job-heading > div { grid-column: auto; }
+  .interiors-job-table-head { display: none; }
+  .lr-plan-shell.lr-product-shell-v2 .interiors-job-table > button { grid-template-columns: 1fr auto; gap: 6px 12px; padding: 12px; }
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-catalog,
+  .lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-build .lr-catalog { width: 132px !important; min-width: 132px; max-width: 132px; }
+}

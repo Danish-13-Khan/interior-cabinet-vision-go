@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { freezeProposal } from "../proposal/freezeProposal";
 import { patchProposalJob } from "../proposal/commercialState";
+import { recordProposalRelease } from "../proposal/proposalRelease";
 import {
   approveEngineeringRevision,
   buildHandoffGate,
@@ -36,7 +37,8 @@ describe("engineering handoff approval and snapshots", () => {
     const first = commitEngineeringHandoff(createApprovedHandoffProject(NOW), [], NOW);
     const original = readHandoffRecord(first);
     const quoted = patchProposalJob(first, { revision: "B", status: "quoted" });
-    const next = approveEngineeringRevision(freezeProposal(quoted, NOW), NOW);
+    const frozen = freezeProposal(quoted, NOW);
+    const next = approveEngineeringRevision(recordProposalRelease(frozen, NOW), NOW);
     const second = commitEngineeringHandoff(next, [], "2026-08-31T09:00:00.000Z");
     const snapshots = readHandoffSnapshots(second);
     expect(snapshots.map((item) => item.revision).sort()).toEqual(["A", "B"]);

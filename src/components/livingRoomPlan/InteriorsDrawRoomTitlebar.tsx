@@ -3,6 +3,7 @@ import type { BuildTool, PlanReadabilitySettings } from "../../domain/livingRoom
 import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
 
 export function InteriorsDrawRoomTitlebar({
+  projectName,
   tool,
   buildTool,
   showGrid,
@@ -12,6 +13,7 @@ export function InteriorsDrawRoomTitlebar({
   onSnapSize,
   onReadability,
 }: {
+  projectName: string;
   tool: InteriorsChromeTool;
   buildTool?: BuildTool;
   showGrid: boolean;
@@ -25,6 +27,8 @@ export function InteriorsDrawRoomTitlebar({
     <div className="lr-draw-titlebar lr-plan-titlebar has-readability" data-testid="interiors-draw-titlebar">
       <span>
         <strong>Room plan</strong>
+        {" · "}
+        <span className="lr-draw-project-name">{projectName}</span>
         {" · "}
         {interiorsDrawRoomHint(tool, buildTool)}
       </span>

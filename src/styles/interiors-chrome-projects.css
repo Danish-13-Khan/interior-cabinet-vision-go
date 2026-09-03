@@ -150,3 +150,10 @@
   }
   .interiors-project-row > small { display: none; }
 }
+
+/* Phase 1 QA benches inside Interiors projects home */
+.interiors-projects-home .lr-phase1-qa {
+  width: auto;
+  margin: 12px 0 0;
+  max-width: none;
+}

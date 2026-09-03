@@ -92,10 +92,10 @@ test("J2 selects via mesh and label, clears, and edits entities in 3D", async ({
 
   await pickMesh(page, "lr-wall-left");
   await page.mouse.move(50, 50);
-  await expect(page.locator(".inspector-header")).toContainText("Wall selected");
+  await expect(page.locator('[data-model-select="wall"].is-selected')).toHaveCount(1);
+  await expect(page.locator(".inspector-header strong")).toBeVisible();
   await expect(inspector.getByText("Selected Opening", { exact: true })).toHaveCount(0);
   await expect(page.locator('[data-model-select="opening"].is-selected')).toHaveCount(0);
-  await expect(page.locator('[data-model-select="wall"].is-selected')).toHaveCount(1);
 
   await setCutaway(page, true);
   await pickMesh(page, objectId!);

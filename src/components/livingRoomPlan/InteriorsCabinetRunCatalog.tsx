@@ -30,6 +30,9 @@ export function InteriorsCabinetRunCatalog({
               {item.cabinetType}
               {" · "}
               {item.dimensions.widthMm} × {item.dimensions.depthMm} mm
+              {"sku" in item.parameters && typeof item.parameters.sku === "string"
+                ? ` · ${item.parameters.sku}`
+                : ""}
             </small>
             <b>Place</b>
           </button>

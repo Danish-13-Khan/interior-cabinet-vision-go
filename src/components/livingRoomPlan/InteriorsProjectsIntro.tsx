@@ -29,6 +29,7 @@ export function InteriorsProjectsIntro({
           value={projectName}
           maxLength={80}
           data-testid="interiors-job-name"
+          data-dialog-initial-focus
           onChange={(event) => onProjectName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") onCreate();

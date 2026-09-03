@@ -13,6 +13,7 @@ import { PROPOSAL_TEST_PNG } from "../proposal/goldenProposal";
 import { proposalExportViews, proposalSceneBinding } from "../proposal/proposalRevision";
 import { inspectLivingRoomPlan } from "../planConstraints";
 import { approveEngineeringRevision, buildHandoffGate } from "../handoff";
+import { recordProposalRelease } from "../proposal/proposalRelease";
 import { createGoldenCabinetRunProject } from "./createProject";
 import { measureGoldenRun } from "./metrics";
 import { reviseGoldenRunCabinetWidth } from "./revision";
@@ -36,7 +37,8 @@ describe("golden cabinet run commercial and persistence metrics", () => {
   it("carries proposal metadata and stable engineering IDs after save/reopen", () => {
     const revised = reviseGoldenRunCabinetWidth(createGoldenCabinetRunProject());
     const frozen = freezeProposal(revised);
-    const approved = approveEngineeringRevision(frozen);
+    const released = recordProposalRelease(frozen);
+    const approved = approveEngineeringRevision(released);
     const live = measureGoldenRun(approved);
     const proposal = buildProposalDocument(approved);
     expect(proposal.customerName).toBe(GOLDEN_RUN_JOB.customerName);

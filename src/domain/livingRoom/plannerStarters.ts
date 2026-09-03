@@ -129,10 +129,8 @@ export function applyPlannerStarterTemplate(
     return createBlankSite(project);
   }
   if (template === "wardrobe-wall") {
-    return {
-      ...project,
-      objects: project.objects.filter((object) => object.kind === "cabinet"),
-    };
+    // Keep the living-room shell (walls / openings); clear furniture so cabinet runs start empty.
+    return { ...project, objects: [] };
   }
   if (template === "l-room") return createLRoomStarter(project);
   if (template === "2-room-flat") return createTwoRoomFlatStarter(project);

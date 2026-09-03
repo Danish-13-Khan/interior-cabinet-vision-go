@@ -2132,7 +2132,8 @@
       "proposalSurface": {
         "selectedViewCameraIds": [],
         "staleOverride": null,
-        "frozenClient": null
+        "frozenClient": null,
+        "proposalRelease": null
       },
       "wallGraphDomainVersion": 1
     }

@@ -9,6 +9,7 @@ import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { useProposalWorkflow } from "../hooks/useProposalWorkflow";
 import { useEngineeringHandoff } from "../hooks/useEngineeringHandoff";
 import { useInteriorsWorkspaceChrome } from "../hooks/useInteriorsWorkspaceChrome";
+import { useInteriorsUiMode } from "../hooks/useInteriorsUiMode";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
@@ -18,6 +19,7 @@ import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjects
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
+  const ui = useInteriorsUiMode();
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [assetQuery, setAssetQuery] = useState("");
@@ -104,6 +106,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
       canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"}
       chromeLocked={props.projectHomeOpen || !props.project}
+      projectHome={props.projectHomeOpen || !props.project}
       onProject={() => chrome.changePlannerMode("project")} onView={chrome.changeWorkspaceView}
       onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
     />
@@ -111,17 +114,20 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   if (!props.project || props.projectHomeOpen) {
     return (
-      <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
+      <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-project-home is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
         {header}
         <div className="lr-empty-workspace">
-          <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={Boolean(props.project)} />
+          <LivingRoomHomeFromWorkspace
+            workspace={props} open hasCurrentProject={Boolean(props.project)}
+            uiMode={ui.mode} onUiMode={ui.setMode}
+          />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="lr-plan-shell lr-product-shell lr-product-shell-v2">
+    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
       {header}
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}

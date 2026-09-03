@@ -21,13 +21,13 @@ describe("planner starter templates", () => {
     expect(cabinetProjectFromInteriorProject(blank).project.interiorDocument?.rooms).toEqual([]);
   });
 
-  it("keeps cabinets only for wardrobe-wall", () => {
-    const next = applyPlannerStarterTemplate(
-      createLivingRoomStarterProject({ now: NOW }),
-      "wardrobe-wall",
-    );
-    expect(next.objects.length).toBeGreaterThan(0);
-    expect(next.objects.every((object) => object.kind === "cabinet")).toBe(true);
+  it("clears furniture for wardrobe-wall while keeping the room shell", () => {
+    const source = createLivingRoomStarterProject({ now: NOW });
+    const next = applyPlannerStarterTemplate(source, "wardrobe-wall");
+    expect(next.objects).toEqual([]);
+    expect(next.rooms.length).toBeGreaterThan(0);
+    expect(next.walls.length).toBeGreaterThan(0);
+    expect(next.openings.length).toBe(source.openings.length);
   });
 
   it("builds a single L-room face with six boundary walls", () => {
