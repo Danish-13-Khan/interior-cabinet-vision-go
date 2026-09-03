@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify built-in catalog integrity
+        run: npm run catalog:verify
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
