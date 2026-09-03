@@ -44,7 +44,7 @@ test("H1 splits a room with Draw Wall, renames, switches, and shows both faces i
   await expect(page.getByRole("button", { name: "Dollhouse", exact: true })).toHaveClass(/is-active/);
 
   await page.getByRole("button", { name: "2D", exact: true }).click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
   // Switch + rename also push history, so undo until the split itself is gone.
   for (let step = 0; step < 8; step += 1) {
     if ((await switcher.getByRole("tab").count()) === 1) break;

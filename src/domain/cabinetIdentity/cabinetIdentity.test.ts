@@ -26,6 +26,7 @@ describe("cabinet identity", () => {
     expect(catalogBindingFor("living:base-cabinet-900")?.cabinetType).toBe("base");
     expect(catalogBindingFor("living:tall-pantry-600")?.cabinetType).toBe("tall");
     expect(catalogBindingFor("living:drawer-cabinet-900")?.cabinetType).toBe("drawer");
+    expect(catalogBindingFor("living:open-shelf-900")?.cabinetType).toBe("open-shelf");
     expect(catalogBindingFor("living:feature-wall-fluted")).toBeNull();
   });
 

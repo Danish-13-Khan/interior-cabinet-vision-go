@@ -60,6 +60,15 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     parameters: { sku: "MW-DRAWER-900", doorCount: 0, drawerCount: 3, drawerBank: true },
   },
   {
+    id: "living:open-shelf-900", name: "Open Shelf · 900",
+    kind: "cabinet", category: "storage", placement: "wall",
+    cabinetType: B["living:open-shelf-900"].cabinetType,
+    familyId: B["living:open-shelf-900"].familyId,
+    dimensions: { widthMm: 900, heightMm: 900, depthMm: 350 },
+    materialSlots: { carcass: M.walnut, shelves: M.naturalOak, back: M.walnut },
+    parameters: { sku: "MW-SHELF-900", doorCount: 0, shelfCount: 3, openShelf: true },
+  },
+  {
     id: "living:feature-wall-fluted", name: "Fluted Timber TV Feature Wall",
     kind: "cabinet", category: "feature-wall", placement: "wall",
     dimensions: { widthMm: 3600, heightMm: 2200, depthMm: 62 },

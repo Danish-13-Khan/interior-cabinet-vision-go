@@ -223,10 +223,18 @@ Shared Interiors shell
 - Proposal/approval/engineering revision integrity.
 - Golden workflow end-to-end coverage.
 
+### Phase 8 — Visual parity and selectable workspace style
+
+- Ship both Iteration A (`Calm guided`) and Iteration B (`Compact pro`).
+- Let the user choose the workspace style only from the Projects home screen.
+- Persist the preference locally and apply it to Draw Room, Cabinet Run, and
+  Present and Send without changing authored project data.
+- Use the mockup's system-aware light/dark visual tokens in both styles.
+- Keep Calm Guided as the first-use default.
+
 ## 9. Design decision
 
-Iteration A is the recommended default for all four screens. Iteration B is
-retained as a compact professional direction and may be adopted selectively
-after the default workflow is validated. Both directions share the same
-product model and must never create separate authored scenes or cabinet data.
-
+Iteration A is the first-use default and Iteration B is a user-selectable
+professional workspace style. The choice is made only on Projects home and is
+remembered for later sessions. Both directions share the same product model
+and must never create separate authored scenes or cabinet data.

@@ -31,6 +31,7 @@ type Props = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSelectWall: (wallId: string) => void; onSelectOpening: (openingId: string) => void;
   onSelectSurface: (surfaceId: string | null) => void;
+  onSelectRoom?: () => void;
   onMoveOpening: (openingId: string, offsetMm: number) => void;
   onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
   onMoveNode: (nodeId: string, position: Point2Mm) => void;
@@ -150,13 +151,19 @@ export function LivingRoomPlanView(props: Props) {
   return <svg ref={svgRef}
     className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging ? "is-dragging" : ""}`}
     viewBox={viewBox} role="application" aria-label="Living room plan editor"
-    onPointerDownCapture={(event) => { if (placeColumn) placeColumnAt(event); }}
+    onPointerDownCapture={(event) => {
+      // An armed architecture tool owns the canvas gesture. In particular,
+      // wall-mounted objects must not steal the start of a room-splitting wall.
+      if (drawWall || drawPartition) { wallDrawing.begin(event); return; }
+      if (placeColumn) placeColumnAt(event);
+    }}
     onPointerDown={(event) => { if (event.target === event.currentTarget) { props.onSelect(null); props.onSelectSurface(null); } }}
     onPointerMove={pointerMove} onPointerUp={finish} onPointerCancel={finish}>
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
-      previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall} />
-    <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select"}
+      previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall}
+      onSelectRoom={editWalls ? props.onSelectRoom : undefined} />
+    <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
     <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
     <WallDrawingOverlay preview={wallDrawing.preview} snapTarget={wallDrawing.snapTarget} active={drawWall || drawPartition} unit={props.readability.unit} />

@@ -1,26 +1,23 @@
 import { expect, test } from "@playwright/test";
+import { createBlankPlan, pointOnPaper } from "./plannerStart";
 
 test("D4 closes a freeform room into a measured 2D floor that remains available in 3D", async ({ page }) => {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
-  await page.getByRole("button", { name: /Draw Room/ }).click();
+  await createBlankPlan(page);
+  await page.getByTestId("interiors-tool-room").click();
 
-  const plan = page.locator(".lr-plan-svg");
-  const box = await plan.boundingBox();
-  if (!box) throw new Error("Plan canvas is not rendered");
+  const paper = page.getByRole("application", { name: "Living room plan editor" });
   const points: Array<[number, number]> = [
-    [0.15, 0.03], [0.65, 0.03], [0.65, 0.08],
-    [0.4, 0.08], [0.4, 0.13], [0.15, 0.13],
+    [0.15, 0.2], [0.55, 0.2], [0.55, 0.45],
+    [0.35, 0.45], [0.35, 0.55], [0.15, 0.55],
   ];
   for (const [x, z] of points) {
-    await page.mouse.click(box.x + box.width * x, box.y + box.height * z);
+    const point = await pointOnPaper(paper, x, z);
+    await page.mouse.click(point.x, point.y);
   }
   await expect(page.getByRole("button", { name: "Close polygon (6)" })).toBeEnabled();
   await page.getByRole("button", { name: "Close polygon (6)" }).click();
 
-  const floor = page.locator('[data-room-floor="room-1"]');
+  const floor = page.locator("[data-room-floor]").first();
   await expect(floor).toBeVisible();
   await expect(floor).toHaveAttribute("fill-rule", "evenodd");
   await expect(page.locator(".lr-plan-dimension-pairs")).toContainText("Overall");

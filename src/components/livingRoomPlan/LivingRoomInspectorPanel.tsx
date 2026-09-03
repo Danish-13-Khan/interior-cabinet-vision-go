@@ -6,18 +6,14 @@ import type {
   Size3Mm,
   WallPlanPatch,
 } from "../../domain/interiorProject";
-import type {
-  LivingRoomPlanIssue,
-  MillworkSchedule,
-  MillworkWorkflowSnapshot,
-} from "../../domain/livingRoom";
-import type { ProjectReport } from "../../domain/projectReport";
+import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
+import { interiorsSelectionTitle } from "../../domain/desktopUx";
 import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
 import { InspectorObjectSection } from "./InspectorObjectSection";
-import { MillworkSchedulePreview } from "./millworkSchedule";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 import { InspectorObjectList } from "./InspectorObjectList";
+import { SurfaceInspector } from "./SurfaceInspector";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -29,10 +25,6 @@ type LivingRoomInspectorPanelProps = {
   activeWallId: string | null;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
-  millworkSchedule: MillworkSchedule | null;
-  millworkWorkflow: MillworkWorkflowSnapshot | null;
-  productionReport: ProjectReport | null;
-  millworkExportedAt: string | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
@@ -45,7 +37,7 @@ type LivingRoomInspectorPanelProps = {
     extendToWall?: boolean;
     fillersEnabled?: boolean;
   }) => void;
-  onSelect: (objectId: string | null) => void;
+  onSelect: (objectId: string | null, additive?: boolean) => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
@@ -60,19 +52,42 @@ type LivingRoomInspectorPanelProps = {
   onDuplicate: () => void;
   onDelete: () => void;
   unit: import("../../domain/livingRoom").PlanDisplayUnit;
+  drawRoom?: boolean;
+  cabinetRun?: boolean;
+  inspectRoom?: boolean;
+  activeSurface?: InteriorProject["surfaces"][number] | null;
+  onDeleteOpening?: (openingId: string) => void;
+  onUpdateSurface?: (surfaceId: string, materialId: string) => void;
+  onDeleteSurface?: (surfaceId: string) => void;
+  onSplitWall?: (wallId: string) => void;
+  onDeleteWall?: (wallId: string) => void;
+  onJoinNodes?: () => void;
 };
 
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? null;
-  const { room, activeOpening, activeObject } = props;
+  const { room, activeOpening, activeObject, activeSurface } = props;
+  const selectionTitle = interiorsSelectionTitle({
+    openingName: activeOpening ? `${activeOpening.kind} opening` : null,
+    objectName: activeObject?.name ?? null,
+    wallLabel: activeWall ? String(activeWall.extensions?.wallSide ?? "Wall") : null,
+    surfaceName: activeSurface ? "Surface zone" : null,
+    roomName: props.inspectRoom ? room?.name ?? null : null,
+    selectedCount: props.selectedCount,
+  });
   return (
-    <aside className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`} style={{ width: props.widthPx }}>
+    <aside
+      className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`}
+      style={{ width: props.widthPx }}
+      data-testid="interiors-inspector"
+      aria-label="Selection properties"
+    >
       <div className="inspector-header">
-        <strong>{props.mode === "plan" ? "Plan Properties" : "Model Properties"}</strong>
-        <span>{activeOpening ? "Opening selected" : activeObject?.name ?? (activeWall ? "Wall selected" : `${props.selectedCount} selected`)}</span>
+        <span className="lr-chrome-eyebrow">Selected</span>
+        <strong>{selectionTitle}</strong>
       </div>
       <div className="lr-inspector-scroll">
-        {room ? (
+        {room && !props.drawRoom ? (
           <InspectorObjectList
             objects={props.project.objects}
             roomId={room.id}
@@ -80,7 +95,10 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSelect={props.onSelect}
           />
         ) : null}
-        {room ? (
+        {activeSurface ? (
+          <SurfaceInspector surface={activeSurface} materials={props.project.materials}
+            onUpdate={props.onUpdateSurface} onDelete={props.onDeleteSurface} />
+        ) : room && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
             onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
             onSetWallMaterial={props.onSetWallMaterial} onSetFloorMaterial={props.onSetFloorMaterial}
@@ -88,14 +106,11 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onOffsetWall={props.onOffsetWall} onOffsetLoop={props.onOffsetLoop}
             onSetWallPlan={props.onSetWallPlan} onImportFinish={props.onImportFinish}
             onSetFinishUv={props.onSetFinishUv} unit={props.unit}
-            suppressEmptyWall={Boolean(activeOpening)} />
-        ) : (
-          <section className="lr-inspector-empty">
-            <h3>Room</h3>
-            <p>Draw a rectangle or polygon on the plan. Raise walls when you want 3D. 2D and 3D stay separate until you raise.</p>
-          </section>
-        )}
-        {activeOpening ? <OpeningInspector opening={activeOpening} materials={props.project.materials} onUpdate={props.onUpdateOpening} /> : activeObject ? (
+            suppressEmptyWall={!activeWall} compact={props.drawRoom}
+            hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
+            onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes} />
+        ) : null}
+        {activeOpening ? <OpeningInspector opening={activeOpening} materials={props.project.materials} onUpdate={props.onUpdateOpening} onDelete={props.onDeleteOpening} /> : activeObject ? (
           <InspectorObjectSection
             mode={props.mode} object={activeObject} project={props.project}
             onMove={props.onMove} onResize={props.onResize} onSetRotation={props.onSetRotation}
@@ -103,26 +118,10 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdateCabinetRun={props.onUpdateCabinetRun}
             onDuplicate={props.onDuplicate} onDelete={props.onDelete}
           />
-        ) : (
-          <section className="lr-inspector-empty">
-            <h3>Selection</h3>
-            <p>
-              {props.mode === "plan"
-                ? "Select an object to move, rotate, resize, duplicate, or delete."
-                : "Select a piece in the room to set size and finish."}
-            </p>
-          </section>
-        )}
-        {props.millworkSchedule && props.millworkWorkflow ? (
-          <MillworkSchedulePreview
-            schedule={props.millworkSchedule}
-            workflow={props.millworkWorkflow}
-            productionReport={props.productionReport}
-            exportedAt={props.millworkExportedAt}
-            onSelect={props.onSelect}
-          />
         ) : null}
-        <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />
+        {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun ? (
+          <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />
+        ) : null}
       </div>
     </aside>
   );

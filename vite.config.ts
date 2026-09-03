@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 // @ts-expect-error process is a nodejs global
@@ -17,6 +17,10 @@ export default defineConfig(async () => ({
   base: githubPages ? pagesBase : "/",
   optimizeDeps: {
     exclude: ["@napi-rs/canvas", "pdfjs-dist"],
+  },
+  test: {
+    // Playwright owns browser specs; importing them in Vitest throws before collection.
+    exclude: [...configDefaults.exclude, "tests/e2e/**"],
   },
   build: {
     chunkSizeWarningLimit: 800,

@@ -10,13 +10,13 @@ async function openPlan(page: Page) {
 test("H5 exposes active room and wall construction in the inspector", async ({ page }) => {
   await openPlan(page);
   await page.locator('[data-build-tool="select"]').click();
+  await page.locator("[data-node-id]").first().click();
   const inspector = page.locator(".lr-inspector");
-  await expect(inspector.getByText("Room", { exact: true })).toBeVisible();
-  await inspector.locator(".lr-wall-inspector").evaluate((element) => element.scrollIntoView({ block: "center" }));
-  await expect(inspector.getByLabel("Thickness")).toBeVisible();
-  await expect(inspector.getByLabel("Height")).toHaveCount(2);
-
   const wallSection = inspector.locator(".lr-wall-inspector");
+  await wallSection.evaluate((element) => element.scrollIntoView({ block: "center" }));
+  await expect(wallSection.getByRole("spinbutton", { name: "Thickness mm", exact: true })).toBeVisible();
+  await expect(wallSection.getByRole("spinbutton", { name: "Height mm", exact: true })).toBeVisible();
+
   const swatches = wallSection.locator('[aria-label="Material browser"] [data-material-id]');
   await expect(swatches.first()).toBeVisible();
   const active = wallSection.locator('[aria-label="Material browser"] [data-material-id].is-active');

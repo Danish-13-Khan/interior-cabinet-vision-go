@@ -57,3 +57,12 @@
 @import "./styles/still-review.css";
 @import "./styles/responsive.css";
 @import "./styles/planner-responsive.css";
+@import "./styles/interiors-chrome.css";
+/* Shared Interiors shell is last so it overrides planner V2 / reference / home. */
+@import "./styles/interiors-chrome-workspace.css";
+@import "./styles/interiors-chrome-projects.css";
+@import "./styles/interiors-chrome-draw-room.css";
+@import "./styles/interiors-chrome-cabinet-run.css";
+@import "./styles/interiors-chrome-present.css";
+/* Visual contract for the selectable Calm Guided and Compact Pro modes. */
+@import "./styles/interiors-ui-modes.css";

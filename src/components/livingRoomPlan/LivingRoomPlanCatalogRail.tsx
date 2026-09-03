@@ -3,9 +3,11 @@ import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/inter
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
+import { isInteriorsCabinetRunTool, isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
+import { InteriorsCabinetRunCatalog } from "./InteriorsCabinetRunCatalog";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildRoomCatalogPanel } from "./BuildRoomCatalogPanel";
-import { BuildToolList } from "./BuildToolList";
+import { InteriorsToolRail } from "./InteriorsToolRail";
 import { PlanAssetLibraryPanel } from "./PlanAssetLibraryPanel";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
 
@@ -14,6 +16,8 @@ type LivingRoomPlanCatalogRailProps = {
   toolRailVisible: boolean;
   studioPanel: StudioPanel;
   onStudioPanel: (panel: StudioPanel) => void;
+  chromeTool: InteriorsChromeTool;
+  onChromeTool: (tool: InteriorsChromeTool) => void;
   project: InteriorProject;
   roomName: string;
   selectedIds: string[];
@@ -72,6 +76,7 @@ type LivingRoomPlanCatalogRailProps = {
   onCloseSurfacePolygon?: () => void;
   onUpdateSurface?: (surfaceId: string, materialId: string) => void;
   onDeleteSurface?: (surfaceId: string) => void;
+  presenting?: boolean;
 };
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
@@ -92,25 +97,28 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const selectedCabinetCount = props.project.objects.filter((object) =>
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
   ).length;
-  const activePanel = props.v2BuildMode ? "build" : props.studioPanel;
+  const activePanel = props.studioPanel;
   const tool = props.activeBuildTool ?? "select";
+  const drawRoom = isInteriorsDrawRoomTool(props.chromeTool);
+  const cabinetRun = isInteriorsCabinetRunTool(props.chromeTool);
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
   }, [props.onRegisterUnderlayPicker]);
 
   return <>
-    <nav className="lr-studio-rail" aria-label="Plan tools">
-      {!props.v2DesignMode ? <button type="button" className={activePanel === "build" ? "is-active" : ""} onClick={() => props.onStudioPanel("build")} title="Build room"><span>⌗</span>Build<small>Room, walls, openings</small></button> : null}
-      {!props.v2BuildMode ? <>
-        <button type="button" className={props.studioPanel === "cabinets" ? "is-active" : ""} onClick={() => props.onStudioPanel("cabinets")} title="Millwork design"><span>▤</span>Millwork<small>Design on plan</small></button>
-        <button type="button" className={props.studioPanel === "furniture" ? "is-active" : ""} onClick={() => props.onStudioPanel("furniture")} title="Furniture"><span>◇</span>Furniture<small>Room objects</small></button>
-        <button type="button" className={props.studioPanel === "materials" ? "is-active" : ""} onClick={() => props.onStudioPanel("materials")} title="Materials"><span>◐</span>Materials<small>Finishes</small></button>
-        <button type="button" className={props.studioPanel === "layers" ? "is-active" : ""} onClick={() => props.onStudioPanel("layers")} title="Layers"><span>▱</span>Layers<small>Visibility</small></button>
-      </> : null}
-    </nav>
-    {props.toolRailVisible ? (
+    <InteriorsToolRail activeTool={props.chromeTool} onTool={props.onChromeTool} />
+    <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
+    {props.toolRailVisible && !drawRoom && !props.presenting ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
-        {activePanel === "cabinets" || activePanel === "furniture" ? (
+        {cabinetRun && (activePanel === "materials" || props.chromeTool === "material") ? <>
+          <div className="context-panel-heading"><strong>Material Browser</strong><span>Swatches · slots · selection</span></div>
+          <SurfacePaintPanel project={props.project} activeWallId={activeWall?.id ?? null}
+            selectedObjects={props.project.objects.filter((object) => props.selectedIds.includes(object.id))}
+            onFloor={props.onSetFloorMaterial} onCeiling={props.onSetCeilingMaterial} onWall={props.onSetWallMaterial}
+            onApplyToSelection={props.onApplyMaterialToSelection} onImportFinish={props.onImportFinish} />
+        </> : cabinetRun ? (
+          <InteriorsCabinetRunCatalog tool={props.chromeTool} wallId={activeWall?.id ?? ""} onAdd={props.onAddCatalogObject} />
+        ) : activePanel === "cabinets" || activePanel === "furniture" ? (
           <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall?.extensions?.wallSide ?? "wall")}
             wallId={activeWall?.id ?? ""} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
             categories={props.assetCategories} onQuery={props.onAssetQuery} onCategory={props.onAssetCategory}
@@ -140,10 +148,6 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         ) : (
           <>
             <div className="context-panel-heading"><strong>Build Room</strong><span>2D room authoring</span></div>
-            {props.v2BuildMode && props.onBuildTool ? (
-              <BuildToolList activeTool={tool} onTool={props.onBuildTool} canUndo={Boolean(props.canUndo)} canRedo={Boolean(props.canRedo)}
-                onUndo={props.onUndo ?? (() => {})} onRedo={props.onRedo ?? (() => {})} />
-            ) : null}
             <BuildRoomCatalogPanel tool={tool} project={props.project} roomDimensions={room?.dimensions ?? { widthMm: 6200, depthMm: 4600, heightMm: 2800 }} activeWall={activeWall}
               activeOpening={activeOpening} activeSurfaceId={props.activeSurfaceId ?? null} underlay={props.underlay} importError={props.importError}
               openingCatalogItemId={props.openingCatalogItemId} roomPolygonPointCount={props.roomPolygonPointCount}

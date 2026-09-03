@@ -110,3 +110,12 @@ export function reflowCabinetRunsForWalls(project: InteriorProject, wallIds: rea
 export function cabinetRunForObject(object: InteriorObjectEntity) {
   return runMetadata(object);
 }
+
+/** Occupied millwork length: member widths plus the run gap between them. */
+export function cabinetRunLengthMm(project: InteriorProject, runId: string): number {
+  const members = project.objects.filter((object) => runMetadata(object)?.runId === runId);
+  if (members.length === 0) return 0;
+  const gapMm = runMetadata(members[0]!)?.gapMm ?? 0;
+  const totalWidth = members.reduce((sum, object) => sum + object.dimensions.widthMm, 0);
+  return Math.round(totalWidth + gapMm * Math.max(0, members.length - 1));
+}

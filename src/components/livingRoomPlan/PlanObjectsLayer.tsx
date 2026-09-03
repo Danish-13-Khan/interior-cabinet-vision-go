@@ -50,6 +50,12 @@ export function PlanObjectsLayer(props: {
           {!compact ? <tspan x="0" y="68" className="lr-object-size">{formatPlanDimension(dimensions.widthMm, props.unit)} × {formatPlanDimension(dimensions.depthMm, props.unit)}</tspan> : null}
         </text> : null}
         {selected && props.selectedIds.length === 1 ? <rect x={dimensions.widthMm / 2 - 55} y={dimensions.depthMm / 2 - 55} width="110" height="110" className="lr-resize-handle" onPointerDown={(event) => props.onStart(event, object, "resize")} /> : null}
+        {issueIds.has(object.id) ? (
+          <g className="lr-object-warning" data-testid={`cabinet-issue-${object.id}`} transform={`translate(${dimensions.widthMm / 2 - 28} ${-dimensions.depthMm / 2 - 48})`}>
+            <circle r="32" />
+            <text y="10">!</text>
+          </g>
+        ) : null}
       </g>;
     })}
     {props.guides.map((guide, index) => guide.axis === "x"

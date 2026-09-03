@@ -1,4 +1,9 @@
-import type { ProposalClientPayload, ProposalStaleOverride, ProposalSurfaceState } from "./types";
+import type {
+  ProposalClientPayload,
+  ProposalReleaseRecord,
+  ProposalStaleOverride,
+  ProposalSurfaceState,
+} from "./types";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -53,6 +58,15 @@ export function readFrozenClient(raw: Record<string, unknown> | null): ProposalC
   };
 }
 
+function readProposalRelease(raw: Record<string, unknown> | null): ProposalReleaseRecord | null {
+  if (!raw) return null;
+  const revision = text(raw.revision);
+  const snapshotId = text(raw.snapshotId);
+  const releasedAt = text(raw.releasedAt);
+  if (!revision || !snapshotId || !releasedAt) return null;
+  return { releasedAt, revision, snapshotId };
+}
+
 export function readProposalSurface(raw: Record<string, unknown> | null): ProposalSurfaceState {
   const override = asRecord(raw?.staleOverride);
   const selected = Array.isArray(raw?.selectedViewCameraIds)
@@ -68,5 +82,6 @@ export function readProposalSurface(raw: Record<string, unknown> | null): Propos
         } satisfies ProposalStaleOverride
       : null,
     frozenClient: readFrozenClient(asRecord(raw?.frozenClient)),
+    proposalRelease: readProposalRelease(asRecord(raw?.proposalRelease)),
   };
 }

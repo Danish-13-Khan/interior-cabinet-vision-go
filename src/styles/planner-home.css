@@ -4,27 +4,6 @@
   gap: 16px;
 }
 
-.lr-product-shell-v2 .planner-v2-steps {
-  gap: 12px;
-  margin: 0;
-}
-
-.lr-product-shell-v2 .planner-v2-steps button {
-  padding: 12px 22px;
-  font-size: 16px;
-}
-
-.lr-product-shell-v2 .planner-v2-steps button:disabled {
-  cursor: not-allowed;
-  opacity: .42;
-}
-
-.lr-product-shell-v2 .planner-v2-steps-hint {
-  align-self: center;
-  color: #9eaaa0;
-  font-size: 13px;
-}
-
 .lr-product-shell-v2 .lr-product-header {
   min-height: 72px;
   border-radius: 18px 18px 0 0;
