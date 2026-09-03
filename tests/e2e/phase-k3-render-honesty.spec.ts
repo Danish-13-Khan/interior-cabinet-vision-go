@@ -1,12 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
+import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
 
 async function openRenderStudio(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
-  await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
+  await loadReleaseDemo(page);
+  await openQaRenderStudio(page);
 }
 
 test("K3 render honesty: Draft, Client Preview, and Still tiers stay distinct", async ({ page }) => {

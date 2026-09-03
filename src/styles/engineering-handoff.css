@@ -9,6 +9,11 @@
 .engineering-handoff-cabinets li[data-lossy="true"] small,
 .engineering-handoff-warnings li.is-blocking { color: #9a3412; }
 .engineering-handoff-send { min-height: 36px !important; font-weight: 700 !important; }
+.engineering-handoff-identities summary {
+  cursor: pointer;
+  font-size: 0.64rem;
+  color: #4a5a4e;
+}
 .status-hud-chip.is-warning { color: #9a3412; border-color: #f0c7a7; }
 .lr-product-shell-v2 .engineering-handoff { border-color: #364238; }
 .lr-product-shell-v2 .engineering-handoff > strong { color: #d7e4d8; }

@@ -1,12 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
+import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
 
 async function openRenderStudio(page: Page) {
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/");
   await page.getByRole("button", { name: "Interiors" }).click();
-  await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
+  await loadReleaseDemo(page);
+  await openQaRenderStudio(page);
 }
 
 test("K2 camera bookmarks: rename deck view and export package views", async ({ page }) => {
@@ -42,7 +42,7 @@ test("K2 camera bookmarks: rename deck view and export package views", async ({ 
     captured.push({ name, text });
   });
 
-  await page.locator(".lr-render-actions").getByRole("button", { name: "Client Package", exact: true }).click();
+  await page.locator(".lr-render-actions").getByRole("button", { name: "Download client pack", exact: true }).click();
   await expect.poll(
     () => captured.some((item) => item.name.includes("package-views")),
     { timeout: 20_000 },

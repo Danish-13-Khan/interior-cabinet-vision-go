@@ -7,7 +7,7 @@ import {
   validateInteriorProject,
 } from "../../interiorProject";
 import { inspectLivingRoomPlan, isBlockingLivingRoomPlanIssue } from "../planConstraints";
-import { freezeProposal } from "../proposal";
+import { freezeProposal, recordProposalRelease } from "../proposal";
 import { countertopTouchesCabinet } from "../cabinetSceneRunExtras";
 import { compileLivingRoomScene } from "../sceneCompiler";
 import { countCabinetRunFillers, cabinetRunForObject, isCabinetRunFiller } from "../wardrobePlacement";
@@ -137,7 +137,8 @@ describe("golden cabinet run fixture", () => {
 
   it("keeps a frozen quote matching after interiors file save", () => {
     const frozen = freezeProposal(createGoldenCabinetRunProject(), GOLDEN_CABINET_RUN_NOW);
-    const adapted = cabinetProjectFromInteriorProject(frozen);
+    const released = recordProposalRelease(frozen, GOLDEN_CABINET_RUN_NOW);
+    const adapted = cabinetProjectFromInteriorProject(released);
     const saved = adapted.project.interiorDocument
       ? adapted.project.interiorDocument
       : interiorProjectFromCabinetProject({

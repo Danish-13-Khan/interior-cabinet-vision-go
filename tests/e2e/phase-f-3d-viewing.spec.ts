@@ -43,7 +43,7 @@ test("Phase F keeps Render mode separate from dollhouse review", async ({ page }
   await enterModelView(page);
   await expect(page.locator(".lr-model-viewport canvas")).toBeVisible();
 
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
-  await expect(page.getByTestId("lr-model-viewport")).toHaveCount(0);
+  await page.getByTestId("interiors-present").click();
+  await expect(page.getByTestId("interiors-present-titlebar")).toContainText("Present and Send");
+  await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
 });

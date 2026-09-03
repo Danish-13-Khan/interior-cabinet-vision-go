@@ -192,7 +192,6 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
         <strong>4. Plan underlay</strong>
         <small>{tool === "upload-underlay" ? "Upload tool armed — choose or replace a plan image." : "Optional: align a supplied floor plan before drawing."}</small>
       </section>
-      <input ref={props.underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
       <PlanUnderlayControls underlay={props.underlay} onChange={props.onSetPlanUnderlay} onReplace={() => props.underlayInputRef.current?.click()} />
       {props.importError ? <p className="lr-import-error">{props.importError}</p> : null}
     </div>

@@ -6,12 +6,12 @@ async function openDesignPlan(page: Page) {
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
-  await expect(page.getByText("Millwork Design", { exact: true })).toBeVisible();
+  await page.getByTestId("interiors-tool-cabinet").click();
+  await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
 }
 
 async function placeCatalogCabinet(page: Page) {
-  await page.locator(".lr-asset-grid").getByRole("button", { name: /Wardrobe Wall.*Place/ }).click();
+  await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
 }
 
 async function setObjectDimension(page: Page, axis: "W" | "H" | "D", value: string) {
@@ -42,7 +42,7 @@ async function createCabinetRun(page: Page) {
   const objects = page.locator("[data-object-id]");
   await objects.nth(0).click();
   await objects.nth(1).click({ modifiers: ["Shift"] });
-  await page.getByRole("button", { name: "Create cabinet run", exact: true }).click();
+  await page.getByRole("button", { name: "Snap selection into run", exact: true }).click();
   await expect(page.locator(".lr-cabinet-run-inspector")).toBeVisible();
 }
 
@@ -61,22 +61,22 @@ test("I2 enables auto fillers on a cabinet run", async ({ page }) => {
   await runInspector.getByLabel("Auto fillers (40–150 mm)").uncheck();
   await expect(page.locator(".lr-filler-symbol")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator(".lr-build-history").getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
+  await page.getByTestId("interiors-tool-select").click();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.locator(".lr-filler-symbol")).toHaveCount(1);
 });
 
-test("I2 places a corner wardrobe and supports undo", async ({ page }) => {
+test("I2 places an open shelf and supports undo", async ({ page }) => {
   await openDesignPlan(page);
-  const cornerWardrobe = page.locator(".lr-asset-grid").getByRole("button", { name: /Corner Wardrobe.*Place/ });
-  await expect(cornerWardrobe).toBeVisible();
-  await cornerWardrobe.click();
-  await expect(page.locator(".lr-corner-symbol")).toHaveCount(1);
-  await expect(page.locator(".lr-inspector .lr-object-identity strong")).toHaveText("Corner Wardrobe");
+  await page.getByTestId("interiors-tool-shelf").click();
+  const shelf = page.locator(".lr-asset-grid").getByRole("button", { name: /Open Shelf.*Place/ });
+  await expect(shelf).toBeVisible();
+  await shelf.click();
+  await expect(page.locator("[data-object-id][data-cabinet-type='open-shelf']")).toHaveCount(1);
 
-  await page.getByRole("button", { name: "2 · Build in 2D", exact: true }).click();
-  await page.locator(".lr-build-history").getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByRole("button", { name: "3 · Design + dimensions", exact: true }).click();
-  await expect(page.locator(".lr-corner-symbol")).toHaveCount(0);
+  await page.getByTestId("interiors-tool-select").click();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByTestId("interiors-tool-cabinet").click();
+  await expect(page.locator("[data-object-id][data-cabinet-type='open-shelf']")).toHaveCount(0);
 });

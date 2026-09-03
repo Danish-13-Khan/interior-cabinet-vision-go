@@ -1,0 +1,159 @@
+/* Projects home wins over planner-home dark chrome. */
+.lr-plan-shell.lr-product-shell-v2 .lr-empty-workspace {
+  border: 0;
+  border-radius: 0;
+  background: #f3f6f3;
+  padding: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home {
+  background: #f3f6f3;
+  color: #243029;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro {
+  background: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro > span,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header > span,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery span {
+  color: #276b46;
+  font-size: 0.64rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home h1 {
+  color: #243029;
+  font-size: clamp(28px, 3.4vw, 46px);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro p,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-start-note {
+  color: #68766c;
+  font-size: 0.88rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro label {
+  color: #5d6b61;
+  font-size: 0.68rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro input,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home button {
+  border-color: #d4ddd6;
+  background: #fff;
+  color: #3d4843;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home button.is-primary {
+  border-color: #276b46;
+  background: #276b46;
+  color: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content {
+  background: #f3f6f3;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery {
+  border-color: #c9e0d0;
+  background: #eff8f1;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery strong,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-starts strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents strong {
+  color: #243029;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-starts,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents {
+  border: 1px solid #dce5de;
+  background: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header small,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-starts small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents p {
+  color: #68766c;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-starts button:hover {
+  border-color: #73a182;
+  background: #f5faf5;
+}
+
+.interiors-projects-recents {
+  padding: 16px;
+  border-radius: 9px;
+}
+
+.interiors-projects-recents header h2 {
+  margin: 2px 0 14px;
+  color: #243029;
+  font-size: 1.05rem;
+}
+
+.interiors-project-list {
+  display: grid;
+  gap: 8px;
+}
+
+.interiors-project-row {
+  display: grid;
+  grid-template-columns: 82px minmax(130px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 86px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.interiors-project-row img {
+  width: 82px;
+  height: 64px;
+  object-fit: cover;
+  border: 1px solid #dce5de;
+  border-radius: 8px;
+  background: #f3f6f3;
+}
+
+.interiors-project-row > span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+}
+
+.interiors-project-status {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f3f6f3;
+  color: #5d6b61;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.interiors-project-status.is-design { color: #276b46; background: #e7f3eb; }
+.interiors-project-status.is-quoted { color: #8a6d12; background: #f8efd2; }
+.interiors-project-status.is-approved { color: #276b46; background: #dcefe3; }
+.interiors-project-status.is-sent { color: #3b5d88; background: #e4eef8; }
+
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts {
+  margin-top: 13px;
+}
+
+@media (max-width: 760px) {
+  .interiors-project-row {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+  }
+  .interiors-project-row > small { display: none; }
+}
+
+/* Phase 1 QA benches inside Interiors projects home */
+.interiors-projects-home .lr-phase1-qa {
+  width: auto;
+  margin: 12px 0 0;
+  max-width: none;
+}

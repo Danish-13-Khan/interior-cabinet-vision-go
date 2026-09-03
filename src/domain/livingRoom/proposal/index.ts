@@ -38,6 +38,7 @@ export {
   stillMatchesProposalRevision,
 } from "./proposalRevision";
 export { proposalExportCommit } from "./proposalExportCommit";
+export { matchingProposalRelease, recordProposalRelease } from "./proposalRelease";
 export {
   allocateClientCabinetPrices,
   clientProposalSummaryLines,
@@ -61,6 +62,7 @@ export type {
   ProposalGateItem,
   ProposalMaterialLine,
   ProposalNamedView,
+  ProposalReleaseRecord,
   ProposalStaleOverride,
   ProposalSurfaceState,
   ProposalViewFrame,

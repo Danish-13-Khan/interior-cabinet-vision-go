@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
 
 test("verified demo completes Plan to Model to Render and reopens", async ({ page }) => {
   // Software WebGL capture is substantially slower on GitHub-hosted runners.
@@ -8,14 +9,16 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
 
   await page.getByRole("button", { name: "Interiors" }).click();
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
-  await page.getByRole("button", { name: /OPEN RELEASE DEMO/ }).click();
+  await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("2D plan");
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
 
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
-  await page.getByRole("button", { name: "4 · Review + export", exact: true }).click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Render studio");
+  await page.getByTestId("interiors-present").click();
+  await expect(page.getByTestId("interiors-present-titlebar")).toContainText("Present and Send");
+  await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
+  await openQaRenderStudio(page);
 
   await page.getByRole("button", { name: /Draft Fast camera/ }).click();
   await page.getByLabel("Resolution").selectOption("hd");
@@ -27,14 +30,13 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   await page.screenshot({ path: "test-results/release-hero.png", fullPage: false });
 
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: /^Save/ }).click();
+  await page.getByTestId("interiors-save-state").click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("living-room-release-demo.json");
-  await expect(page.getByRole("button", { name: "Save" })).toBeVisible();
+  await expect(page.getByTestId("interiors-save-state")).toBeVisible();
 
-  // The v2 shell uses the workflow step as its visible project-home control;
-  // the legacy icon is deliberately hidden by the v2 chrome.
-  const startProject = page.getByRole("button", { name: "1 · Start a project", exact: true });
+  // Shared chrome opens project home from the project crumb.
+  const startProject = page.getByTestId("interiors-project-crumb");
   await expect(startProject).toBeEnabled();
   await startProject.evaluate((button: HTMLButtonElement) => button.click());
   const recent = page.getByTestId("open-recent-project").filter({

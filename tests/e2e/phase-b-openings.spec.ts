@@ -51,8 +51,8 @@ test("Phase B opening workflow places, manipulates, inspects, undoes, and recomp
   const widthField = inspector.getByRole("spinbutton", { name: "W mm", exact: true });
   await expect(widthField).toHaveValue(String(resizedWidth));
 
-  const undo = page.locator(".lr-build-history").getByRole("button", { name: "Undo" });
-  const redo = page.locator(".lr-build-history").getByRole("button", { name: "Redo" });
+  const undo = page.getByRole("button", { name: "Undo", exact: true });
+  const redo = page.getByRole("button", { name: "Redo", exact: true });
   await undo.click();
   await expect(opening).toHaveAttribute("data-width-mm", "1600");
   await redo.click();

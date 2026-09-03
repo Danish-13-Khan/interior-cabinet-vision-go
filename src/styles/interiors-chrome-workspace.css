@@ -1,0 +1,200 @@
+/* Shared Interiors shell wins over planner V2 / reference / home / responsive. */
+.lr-plan-shell.lr-product-shell-v2 {
+  --lr-ink: #243029;
+  --lr-muted: #68766c;
+  --lr-line: #dce5de;
+  --lr-paper: #f3f6f3;
+  --lr-panel: #fff;
+  --lr-canvas: #f7faf8;
+  --lr-accent: #276b46;
+  padding: 0;
+  gap: 0;
+  background: #f3f6f3;
+  color: #243029;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body {
+  display: flex;
+  grid-template-columns: none;
+  border: 0;
+  border-radius: 0;
+  background: #f7faf8;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail {
+  width: 84px;
+  flex: 0 0 84px;
+  background: #f8fbf8;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog,
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
+  display: flex;
+  width: 220px !important;
+  min-width: 220px;
+  max-width: 220px;
+  background: #fff;
+  color: #243029;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
+  width: 260px !important;
+  min-width: 260px;
+  max-width: 260px;
+  background: #fff;
+  color: #243029;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-center,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-status {
+  background: #f7faf8;
+  color: #243029;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar {
+  min-height: 48px;
+  padding: 0 18px;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar strong {
+  display: inline;
+  font-size: 0.82rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar span,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar small {
+  color: #68766c;
+  font-size: 0.72rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-center,
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .inspector-header,
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog-tabs,
+.lr-plan-shell.lr-product-shell-v2 .context-panel-heading,
+.lr-plan-shell.lr-product-shell-v2 .lr-room-authoring,
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-controls,
+.lr-plan-shell.lr-product-shell-v2 .lr-underlay-panel,
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-grid {
+  background: #fff;
+  color: #243029;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .context-panel-heading strong,
+.lr-plan-shell.lr-product-shell-v2 .lr-room-authoring > strong,
+.lr-plan-shell.lr-product-shell-v2 .inspector-header strong {
+  color: #243029;
+  font-size: 0.92rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .inspector-header strong::after { content: none; }
+
+.lr-plan-shell.lr-product-shell-v2 .context-panel-heading span,
+.lr-plan-shell.lr-product-shell-v2 .lr-room-authoring > small,
+.lr-plan-shell.lr-product-shell-v2 .lr-room-authoring > p,
+.lr-plan-shell.lr-product-shell-v2 .lr-room-dimension-grid label,
+.lr-plan-shell.lr-product-shell-v2 .lr-opening-fields label {
+  color: #68766c;
+  font-size: 0.68rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-room-dimension-grid input,
+.lr-plan-shell.lr-product-shell-v2 .lr-opening-fields input,
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-controls > input,
+.lr-plan-shell.lr-product-shell-v2 .lr-number-field,
+.lr-plan-shell.lr-product-shell-v2 .lr-select-field,
+.lr-plan-shell.lr-product-shell-v2 .lr-dimension-preset,
+.lr-plan-shell.lr-product-shell-v2 .lr-number-field input,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector input,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector select,
+.lr-plan-shell.lr-product-shell-v2 .lr-select-field select {
+  background: #fbfdfb;
+  color: #243029;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-wall-tabs button,
+.lr-plan-shell.lr-product-shell-v2 .lr-opening-actions button,
+.lr-plan-shell.lr-product-shell-v2 .lr-underlay-empty button,
+.lr-plan-shell.lr-product-shell-v2 .lr-add-partition {
+  color: #3d4843;
+  background: #f8fbf8;
+  border-color: #dce5de;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll p,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll label,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll small {
+  color: #68766c;
+  background: transparent;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll section,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll section:first-child,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-object-list,
+.lr-plan-shell.lr-product-shell-v2 .lr-architecture-inspector,
+.lr-plan-shell.lr-product-shell-v2 .lr-millwork-preview,
+.lr-plan-shell.lr-product-shell-v2 .lr-issues-panel {
+  display: block;
+  padding: 12px 14px;
+  border-bottom: 1px solid #dce5de;
+  background: #fff !important;
+  color: #243029 !important;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll h3,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll h4 {
+  color: #304236;
+  font-size: 0.78rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .inspector-header span {
+  margin-top: 0;
+  color: #6d7a70;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+@media (min-width: 1500px), (max-width: 1499px) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-catalog,
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
+    width: 220px !important;
+    min-width: 220px;
+    max-width: 220px;
+  }
+  .lr-plan-shell.lr-product-shell-v2 .lr-inspector,
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
+    width: 260px !important;
+    min-width: 260px;
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 960px) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-catalog,
+  .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
+    position: static;
+    width: 200px !important;
+    min-width: 200px;
+    max-width: 200px;
+    box-shadow: none;
+  }
+}

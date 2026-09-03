@@ -22,6 +22,7 @@ import { HeightPresetRow } from "./HeightPresetRow";
 import { WallRaiseControls } from "./WallRaiseControls";
 import { WallGeometryFields } from "./WallGeometryFields";
 import { RoomFinishFields } from "./RoomFinishFields";
+import { WallDrawingPanel } from "./WallDrawingPanel";
 
 type ImportApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
 
@@ -42,6 +43,11 @@ type Props = {
   onImportFinish: (file: File, apply?: ImportApply) => void;
   onSetFinishUv: (materialId: string, patch: { uvScaleMm?: number; uvRotationDeg?: number }) => void;
   suppressEmptyWall?: boolean;
+  compact?: boolean;
+  hideRoom?: boolean;
+  onSplitWall?: (wallId: string) => void;
+  onDeleteWall?: (wallId: string) => void;
+  onJoinNodes?: () => void;
 };
 
 export function PlanArchitectureInspector(props: Props) {
@@ -58,7 +64,7 @@ export function PlanArchitectureInspector(props: Props) {
     ? props.project.materials.find((material) => material.id === wall.materialId)
     : null;
   return <>
-    <section className="lr-architecture-inspector">
+    {props.hideRoom || (props.compact && wall) ? null : <section className="lr-architecture-inspector">
       <div className="lr-inspector-section-heading"><h3>Room</h3><span>{room.name}</span></div>
       <p className="lr-authoring-hint">2D plan stays independent. Raise walls to generate 3D. Units are millimetres.</p>
       <div className="lr-room-preview" aria-label={`${room.name} room preview`}>
@@ -78,13 +84,20 @@ export function PlanArchitectureInspector(props: Props) {
       {!wall ? <RoomFinishFields project={props.project} room={room}
         onSetFloorMaterial={props.onSetFloorMaterial} onSetCeilingMaterial={props.onSetCeilingMaterial}
         onImportFinish={props.onImportFinish} onSetFinishUv={props.onSetFinishUv} /> : null}
-    </section>
+    </section>}
     {wall ? <section className="lr-architecture-inspector lr-wall-inspector">
       <div className="lr-inspector-section-heading"><h3>Wall</h3><span>{wall.extensions?.isPartition ? "Partition" : "Architecture"}</span></div>
       <div className="lr-wall-preview" aria-label={`Wall ${wall.id} preview`}>
         <span className="lr-wall-preview-line" style={{ background: props.project.materials.find((material) => material.id === wall.materialId)?.color ?? "#7d8c80" }} />
         <strong>{formatPlanDimension(wallLengthMm(wall), props.unit)}</strong><small>Length</small>
       </div>
+      {props.onSplitWall ? (
+        <WallDrawingPanel compact canEdit thicknessMm={wall.thicknessMm}
+          onThickness={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })}
+          onSplit={() => props.onSplitWall?.(wall.id)}
+          onDelete={() => props.onDeleteWall?.(wall.id)}
+          onJoinNodes={() => props.onJoinNodes?.()} />
+      ) : null}
       <WallGeometryFields wall={wall} unit={props.unit} onChange={(patch) => props.onSetWallPlan(wall.id, patch)} />
       <NumberField label="Thickness" value={wall.thicknessMm}
         onChange={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })} />

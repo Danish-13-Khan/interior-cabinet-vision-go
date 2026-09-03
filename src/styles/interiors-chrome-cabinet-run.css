@@ -1,0 +1,43 @@
+/* Cabinet Run canvas chrome: family catalog, run tray, warnings on the object. */
+.lr-run-catalog > button b {
+  opacity: 1;
+}
+
+.lr-run-tray {
+  color: #68766c;
+  font-size: 0.72rem;
+}
+
+.lr-run-tray .lr-run-extend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 29px;
+  margin: 0;
+}
+
+.lr-object-warning {
+  pointer-events: none;
+}
+
+.lr-object-warning circle {
+  fill: #f4e6df;
+  stroke: #b55338;
+  stroke-width: 6;
+}
+
+.lr-object-warning text {
+  fill: #b55338;
+  font-size: 36px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.lr-run-tray .has-warning,
+.lr-run-status .has-warning {
+  color: #b55338;
+}
+
+.lr-run-status .is-clear {
+  color: #276b46;
+}

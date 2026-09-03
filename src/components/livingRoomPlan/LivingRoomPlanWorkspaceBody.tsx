@@ -1,10 +1,11 @@
-import { isBlockingLivingRoomPlanIssue, isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
+import { isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
-import { LivingRoomHomeFromWorkspace } from "./LivingRoomHomeFromWorkspace";
-import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
+import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
-import { WorkspaceReviewExportPanel } from "./WorkspaceReviewExportPanel";
+import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
+import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
+import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 
@@ -22,52 +23,32 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
-      <LivingRoomHomeFromWorkspace workspace={w} open={w.projectHomeOpen} hasCurrentProject />
-      {props.workspaceView === "plan" ? (
+      {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanCatalogRail
           widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
-          onStudioPanel={props.onStudioPanel} project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
+          onStudioPanel={props.onStudioPanel} chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}
+          project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
           assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
           underlay={props.underlay} importError={props.importError} onAssetQuery={props.onAssetQuery}
           onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
           onCreateCabinetRun={w.onCreateCabinetRun}
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
-          onSetCeilingMaterial={w.onSetCeilingMaterial}
-          onSetWallMaterial={w.onSetWallMaterial}
+          onSetCeilingMaterial={w.onSetCeilingMaterial} onSetWallMaterial={w.onSetWallMaterial}
           onApplyMaterialToSelection={w.onApplyMaterialToSelection}
           onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
-          onSelect={(objectId) => {
-            props.setActiveOpeningId(null);
-            props.setActiveSurfaceId(null);
-            props.setActiveWallId(null);
-            w.onSelect(objectId);
-          }}
+          onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
+          presenting={props.plannerMode === "render"}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
-          onActiveRoom={(roomId) => {
-            w.onActiveRoom(roomId);
-            props.setActiveOpeningId(null);
-            props.setActiveSurfaceId(null);
-            props.setActiveWallId(null);
-          }}
+          onActiveRoom={(roomId) => { w.onActiveRoom(roomId); inspectPlanTarget(props, { inspectRoom: true }); }}
           onRenameRoom={w.onRenameRoom}
           onDeleteRoom={w.onDeleteRoom}
           onMergeRooms={w.onMergeRooms}
           onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
           activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-          onActiveWall={(wallId) => {
-            w.onSelect(null);
-            props.setActiveOpeningId(null);
-            props.setActiveSurfaceId(null);
-            props.setActiveWallId(wallId);
-          }}
-          onActiveOpening={(openingId) => {
-            w.onSelect(null);
-            props.setActiveOpeningId(openingId);
-            props.setActiveSurfaceId(null);
-            props.setActiveWallId(null);
-          }}
+          onActiveWall={(wallId) => inspectPlanTarget(props, { wallId })}
+          onActiveOpening={(openingId) => inspectPlanTarget(props, { openingId })}
           onAddOpening={(wallId, kind) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, catalogItemId: build.openingCatalogItemId })}
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
           onDeleteOpening={(openingId) => { build.dispatchBuildCommand({ type: "deleteOpening", openingId }); props.setActiveOpeningId(null); }}
@@ -107,68 +88,34 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         />
       ) : null}
       {props.plannerMode === "render" ? (
-        <WorkspaceReviewExportPanel
-          project={project}
-          issues={props.issues}
-          millwork={props.millwork}
-          clientExport={props.clientExport}
+        <InteriorsPresentPanel
           proposal={props.proposal}
           handoff={props.handoff}
-          acceptedStillAssets={props.acceptedStillAssets}
-          latestRender={props.renderResults.latest}
-          onSelect={(objectId) => {
-            props.setActiveOpeningId(null);
-            props.setActiveSurfaceId(null);
-            w.onSelect(objectId);
-          }}
+          onCapture={() => props.onWorkspaceView("render")}
         />
       ) : null}
       <LivingRoomPlanStage
-        project={project} workspaceView={props.workspaceView} selectedIds={w.selectedIds} issues={props.issues}
+        project={project} workspaceView={props.workspaceView} chromeTool={props.chromeTool} selectedIds={w.selectedIds} issues={props.issues}
         snapSizeMm={props.snapSizeMm} showGrid={props.showGrid} canUndo={w.canUndo} canRedo={w.canRedo}
-        hasSelection={Boolean(activeObject)} millworkCount={props.millwork.workflow?.millworkCount ?? 0}
-        millworkReady={readyToExport} exportBusy={props.millwork.busy}
-        exportBlocked={props.issues.some(isBlockingLivingRoomPlanIssue)}
-        exportStatus={props.millwork.status} autosaveState={w.autosaveState} lastAutosavedAt={w.lastAutosavedAt}
+        hasSelection={Boolean(activeObject)}
         latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-        onSelect={(objectId, additive) => {
-          props.setActiveOpeningId(null);
-          props.setActiveSurfaceId(null);
-          props.setActiveWallId(null);
-          w.onSelect(objectId, additive);
-        }}
-        onClearSelection={() => {
-          props.setActiveOpeningId(null);
-          props.setActiveSurfaceId(null);
-          props.setActiveWallId(null);
-          w.onSelect(null);
-        }}
+        onSelect={(objectId, additive) => inspectPlanTarget(props, { objectId, additive })}
+        onClearSelection={() => inspectPlanTarget(props)}
+        onSelectRoom={() => inspectPlanTarget(props, { inspectRoom: true })}
         onMove={w.onMove} onResize={w.onResize}         activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
         activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
-        onSelectWall={(wallId) => {
-          w.onSelect(null);
-          props.setActiveOpeningId(null);
-          props.setActiveSurfaceId(null);
-          props.setActiveWallId(wallId);
-        }}
-        onSelectOpening={(openingId) => {
-          w.onSelect(null);
-          props.setActiveOpeningId(openingId);
-          props.setActiveSurfaceId(null);
-          props.setActiveWallId(null);
-        }}
-        onSelectSurface={(surfaceId) => {
-          props.setActiveSurfaceId(surfaceId);
-          props.setActiveOpeningId(null);
-          props.setActiveWallId(null);
-          w.onSelect(null);
-        }}
+        onSelectWall={(wallId) => inspectPlanTarget(props, { wallId })}
+        onSelectOpening={(openingId) => inspectPlanTarget(props, { openingId })}
+        onSelectSurface={(surfaceId) => inspectPlanTarget(props, { surfaceId })}
         onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
         onResizeOpening={(openingId, widthMm, offsetMm) => build.dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
         onMoveNode={(nodeId, position) => build.dispatchBuildCommand({ type: "moveNode", nodeId, position })}
         onTranslateWall={(wallId, delta) => build.dispatchBuildCommand({ type: "moveWall", wallId, delta })}
         activeBuildTool={props.activeBuildTool} openingCatalogItemId={build.openingCatalogItemId}
+        roomPolygonPointCount={props.roomPolygonPointCount} onOpeningCatalogItem={build.setOpeningCatalogItemId}
+        onCloseRoomPolygon={props.onRoomPolygonCloseRequest}
+        onCommitOpening={(wallId, kind) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, catalogItemId: build.openingCatalogItemId })}
         onPlaceOpening={(wallId, kind, offsetMm) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: build.openingCatalogItemId })}
         onCreateRoom={(drawing) => build.dispatchBuildCommand({ type: "createRoom", drawing })}
         onDrawSurface={(drawing, materialId) => build.dispatchBuildCommand({ type: "createSurface", drawing, materialId })}
@@ -182,43 +129,18 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onRenderSettingsChange={w.onRenderSettingsChange} onLightingChange={w.onLightingChange}
         onRenderBrowserThumbnail={w.onRenderBrowserThumbnail}
         onRendered={props.onRenderResults}
-        onExportScheduleCsv={() => void props.millwork.exportSchedule("schedule-csv")}
-        onExportSchedulePdf={() => void props.millwork.exportSchedule("schedule-pdf")}
-        onExportCutlistCsv={() => void props.millwork.exportSchedule("cutlist-csv")}
-        onExportProductionPdf={() => void props.millwork.exportSchedule("production-pdf")}
         acceptedStillAssets={props.acceptedStillAssets}
         onAcceptedStillAssetsChange={props.onAcceptedStillAssetsChange}
         clientExport={props.clientExport}
         clientPackageBlocked={clientPackageBlocked}
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
         readability={props.readability} onReadability={props.onReadability}
+        drawCommands={interiorsDrawRoomStageCommands(props)}
+        cabinetRunCommands={interiorsCabinetRunStageCommands(props)}
+        presentCommands={interiorsPresentStageCommands(props)}
+        presenting={props.plannerMode === "render"}
       />
-      {w.inspectorVisible && props.workspaceView !== "render" ? (
-        <LivingRoomInspectorPanel mode={props.workspaceView} widthPx={w.inspectorWidthPx} project={project} room={room}
-          activeObject={activeObject} activeOpening={props.activeOpening} selectedCount={w.selectedIds.length}
-          issues={props.issues} millworkSchedule={props.millwork.schedule} millworkWorkflow={props.millwork.workflow}
-          productionReport={props.millwork.productionReport} millworkExportedAt={props.millwork.exportedAt}
-          onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
-          onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
-          onUpdateCabinetRun={w.onUpdateCabinetRun}
-          onSelect={(objectId) => { props.setActiveOpeningId(null); props.setActiveSurfaceId(null); w.onSelect(objectId); }}
-          onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
-          activeWallId={props.activeWallId}
-          onUpdateWall={(wallId, patch) => build.dispatchBuildCommand({ type: "updateWall", wallId, patch })}
-          onRaiseWalls={w.onRaiseWalls}
-          onOffsetWall={w.onOffsetWall}
-          onOffsetLoop={w.onOffsetLoop}
-          onSetWallPlan={w.onSetWallPlan}
-          onImportFinish={w.onImportFinish}
-          onSetFinishUv={w.onSetFinishUv}
-          onSetWallMaterial={w.onSetWallMaterial}
-          onSetFloorMaterial={w.onSetFloorMaterial}
-          onSetCeilingMaterial={w.onSetCeilingMaterial}
-          onDuplicate={w.onDuplicate}
-          onDelete={w.onDelete}
-          unit={props.readability.unit}
-        />
-      ) : null}
+      <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>
   );
 }

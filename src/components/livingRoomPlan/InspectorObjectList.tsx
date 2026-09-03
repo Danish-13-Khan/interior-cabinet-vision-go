@@ -5,7 +5,7 @@ type InspectorObjectListProps = {
   objects: readonly InteriorObjectEntity[];
   roomId: string;
   selectedId: string | null;
-  onSelect: (objectId: string | null) => void;
+  onSelect: (objectId: string | null, additive?: boolean) => void;
 };
 
 /** Keyboard-accessible object picker so Golden Run never depends on canvas hits. */
@@ -28,7 +28,7 @@ export function InspectorObjectList({
               type="button"
               data-testid={`inspector-object-${object.id}`}
               aria-current={object.id === selectedId ? "true" : undefined}
-              onClick={() => onSelect(object.id)}
+              onClick={(event) => onSelect(object.id, event.shiftKey)}
             >
               <strong>{object.name}</strong>
               <span>{object.kind}</span>
