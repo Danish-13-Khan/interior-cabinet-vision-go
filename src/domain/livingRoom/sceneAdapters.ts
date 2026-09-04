@@ -1,4 +1,4 @@
-import type { InteriorObjectEntity } from "../interiorProject";
+import type { InteriorObjectEntity, MaterialEntity } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { attachObjectRenderBinding } from "./renderAssetBindings";
 import type { LivingRoomObjectAdapter } from "./sceneAdapterTypes";
@@ -82,6 +82,7 @@ export function getLivingRoomObjectAdapter(catalogItemId: string) {
 
 export function compileLivingRoomObjectNode(
   object: InteriorObjectEntity,
+  projectMaterials?: readonly MaterialEntity[],
 ): CompiledSceneNode {
   const adapter = getLivingRoomObjectAdapter(object.catalogItemId);
   const materialId = Object.values(object.materialSlots)[0] ?? LIVING_ROOM_MATERIAL_IDS.naturalOak;
@@ -116,7 +117,7 @@ export function compileLivingRoomObjectNode(
       ...sharedMeta,
     },
     renderBinding: { strategy: "procedural", materialBindings: {} },
-  }, object);
+  }, object, projectMaterials);
   if (adapter?.compile === compileCabinet || !node.renderBinding.modelUrl) return node;
   return { ...node, adapterId: "imported-glb-v1", placeholder: false };
 }

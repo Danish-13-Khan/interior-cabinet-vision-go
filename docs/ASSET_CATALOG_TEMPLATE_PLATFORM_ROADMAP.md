@@ -1135,6 +1135,10 @@ Delete `src/fbx_with_texture` only after:
 5. A production build passes.
 6. Git confirms removal is recoverable in history.
 
+Gate status: aliases live in `src/domain/catalog/aliases.ts`; pack resolution uses
+Kenney models under `public/models/kenney-furniture/`. The legacy folder is removed
+once verification on this branch is green.
+
 ---
 
 ## 13. Validation and security
@@ -1391,6 +1395,10 @@ Exit:
 - Old projects reopen.
 - Build and browser suites pass.
 - Repository loses the unused legacy asset weight.
+
+Status: **shipped** on `codex/catalog-phase-6-legacy-cleanup`. Pack IDs
+`pack:wardrobe-1`, `pack:dresser-1`, `pack:kitchen-cabinet-1`, and `pack:sofa-1`
+alias to Kenney catalog items; `src/fbx_with_texture` is removed.
 
 ### Phase 7 — Remote/CDN readiness
 

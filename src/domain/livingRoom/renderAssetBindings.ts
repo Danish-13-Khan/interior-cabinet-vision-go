@@ -3,14 +3,14 @@ import {
   catalogSlotPoliciesForObject,
   catalogVersionPinFallbackWarning,
 } from "../catalog/catalogLookup";
-import type { InteriorObjectEntity } from "../interiorProject";
+import type { InteriorObjectEntity, MaterialEntity } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import type {
   RenderAssetStrategy,
   RenderBinding,
 } from "./renderAssetContracts";
 import type { CompiledSceneNode } from "./sceneTypes";
-import { getPackagedImportedAsset, type ImportedAsset } from "./assetImportPipeline";
+import { createImportedObjectRenderBinding } from "./importedAssetBinding";
 import { createKenneyCatalogRenderBinding } from "./kenneyCatalogBinding";
 
 /** Soft-goods catalog items intended for future GLB-backed presentation. */
@@ -65,15 +65,6 @@ function isGlbIntentCatalogId(id: string): id is GlbIntentCatalogId {
   return id in GLB_MODEL_BY_CATALOG;
 }
 
-function importedAssetForObject(object: InteriorObjectEntity): ImportedAsset | null {
-  const candidate = object.extensions?.assetImport;
-  if (!candidate || typeof candidate !== "object") return null;
-  const asset = candidate as Partial<ImportedAsset>;
-  if (typeof asset.sourceUrl === "string" && typeof asset.id === "string") return asset as ImportedAsset;
-  const packId = typeof (candidate as { id?: unknown }).id === "string" ? (candidate as { id: string }).id : "";
-  return getPackagedImportedAsset(packId);
-}
-
 export function materialAssetIdForEntity(materialId: string) {
   return materialId;
 }
@@ -84,6 +75,7 @@ export function defaultUvScaleMmForMaterial(materialId: string) {
 
 export function createObjectRenderBinding(
   object: InteriorObjectEntity,
+  projectMaterials?: readonly MaterialEntity[],
 ): RenderBinding {
   const materialBindings: Record<string, string> = {};
   for (const [slot, materialId] of Object.entries(object.materialSlots)) {
@@ -109,20 +101,14 @@ export function createObjectRenderBinding(
     };
   }
 
-  const imported = importedAssetForObject(object);
-  if (imported) {
-    return {
-      strategy: "glb",
-      modelAssetId: `import:${imported.id}`,
-      modelUrl: imported.sourceUrl,
-      modelMaterialGroups: imported.materialGroups,
-      modelTextureUrls: imported.textureUrls,
-      materialBindings,
-      uvScaleMm,
-      targetSizeMm: { ...object.dimensions },
-      slotPolicies,
-    };
-  }
+  const imported = createImportedObjectRenderBinding(
+    object,
+    materialBindings,
+    uvScaleMm,
+    slotPolicies,
+    projectMaterials,
+  );
+  if (imported) return imported;
 
   if (!isGlbIntentCatalogId(object.catalogItemId)) {
     const kenney = createKenneyCatalogRenderBinding(
@@ -187,8 +173,9 @@ export function withRenderBinding(
 export function attachObjectRenderBinding(
   node: CompiledSceneNode,
   object: InteriorObjectEntity,
+  projectMaterials?: readonly MaterialEntity[],
 ): CompiledSceneNode {
-  return withRenderBinding(node, createObjectRenderBinding(object));
+  return withRenderBinding(node, createObjectRenderBinding(object, projectMaterials));
 }
 
 /** @deprecated Prefer getRenderModeQuality from heroRenderQuality / renderStudio. */

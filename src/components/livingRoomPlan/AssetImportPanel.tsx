@@ -35,10 +35,19 @@ export function AssetImportPanel({
     {pending ? <section className="lr-texture-window" aria-label="Texture setup">
       <strong>Texture setup</strong><small>{pending.name}</small>
       {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}><img src={url} alt="" /><span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
-      <footer><button type="button" onClick={() => setPending(null)}>Cancel</button><button type="button" onClick={addPending}>Add with textures</button></footer>
+      <footer>
+        <button type="button" onClick={() => setPending(null)}>Cancel</button>
+        <button type="button" onClick={addPending}>Add to room</button>
+      </footer>
     </section> : null}
     <div className="lr-import-pack">
-      {assets.map((asset) => <button type="button" key={asset.id} onClick={() => setPending(asset)}><span>⬡</span><strong>{asset.name}</strong><small>GLB · {asset.dimensions.widthMm} mm · PBR maps</small></button>)}
+      {assets.map((asset) => (
+        <button type="button" key={asset.id} onClick={() => setPending(asset)}>
+          <span>⬡</span>
+          <strong>{asset.name}</strong>
+          <small>GLB · {asset.dimensions.widthMm} mm · catalog alias</small>
+        </button>
+      ))}
     </div>
   </>;
 }

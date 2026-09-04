@@ -81,7 +81,7 @@ export function compileLivingRoomScene(
   const roomId = project.activeRoomId;
   const objectNodes = project.objects
     .filter((object) => object.roomId === roomId && object.extensions?.layerVisible !== false)
-    .map(compileLivingRoomObjectNode);
+    .map((object) => compileLivingRoomObjectNode(object, project.materials));
   const nodes = [
     ...compileLivingRoomArchitecture(project),
     ...objectNodes,

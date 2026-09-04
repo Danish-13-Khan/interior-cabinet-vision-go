@@ -1655,7 +1655,14 @@
         "color": "#d2c3ae",
         "roughness": 0.97,
         "metalness": 0,
-        "opacity": 1
+        "opacity": 1,
+        "extensions": {
+          "tags": [
+            "woven",
+            "neutral",
+            "upholstery"
+          ]
+        }
       },
       {
         "id": "lr-material-fabric-olive",
@@ -1664,7 +1671,13 @@
         "color": "#6a6e52",
         "roughness": 0.97,
         "metalness": 0,
-        "opacity": 1
+        "opacity": 1,
+        "extensions": {
+          "tags": [
+            "woven",
+            "upholstery"
+          ]
+        }
       },
       {
         "id": "lr-material-metal-charcoal",
@@ -1691,7 +1704,12 @@
         "color": "#a89478",
         "roughness": 1,
         "metalness": 0,
-        "opacity": 1
+        "opacity": 1,
+        "extensions": {
+          "tags": [
+            "rug"
+          ]
+        }
       },
       {
         "id": "lr-material-stone-warm",
