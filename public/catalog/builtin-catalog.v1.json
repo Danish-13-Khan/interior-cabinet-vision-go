@@ -11487,7 +11487,7 @@
       "version": 1,
       "name": "Empty Room",
       "category": "empty",
-      "description": "Parametric room shell with a door and window — start from a blank interior.",
+      "description": "Parametric room shell with a door and window \u2014 start from a blank interior.",
       "images": {
         "thumbnailId": "image:template:empty-room:v1"
       },
@@ -11503,7 +11503,7 @@
       "version": 1,
       "name": "Straight Kitchen",
       "category": "kitchen",
-      "description": "Smart cabinet run with fillers, countertop, and Kenney appliances — proposal-ready.",
+      "description": "Smart cabinet run with fillers, countertop, and Kenney appliances \u2014 proposal-ready.",
       "images": {
         "thumbnailId": "image:template:straight-kitchen:v1"
       },
@@ -11518,9 +11518,9 @@
           "catalogItemId": "kenney:kitchen-fridge",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": -2200,
+            "x": -2550,
             "y": 0,
-            "z": -1550
+            "z": -1590
           },
           "rotationY": 0
         },
@@ -11529,9 +11529,9 @@
           "catalogItemId": "kenney:kitchen-stove-electric",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2100,
+            "x": 1750,
             "y": 0,
-            "z": -1600
+            "z": -1640
           },
           "rotationY": 0
         },
@@ -11540,9 +11540,9 @@
           "catalogItemId": "kenney:kitchen-sink",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2750,
+            "x": 2550,
             "y": 0,
-            "z": -1600
+            "z": -1640
           },
           "rotationY": 0
         },
@@ -11551,9 +11551,9 @@
           "catalogItemId": "kenney:hood-modern",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2100,
-            "y": 1600,
-            "z": -1650
+            "x": 1750,
+            "y": 1400,
+            "z": -1690
           },
           "rotationY": 0
         }
@@ -11564,7 +11564,7 @@
       "version": 1,
       "name": "L Kitchen",
       "category": "kitchen",
-      "description": "L-shaped smart cabinet runs with corner, fillers, countertops, and Kenney appliances — proposal-ready.",
+      "description": "L-shaped smart cabinet runs with corner, fillers, countertops, and Kenney appliances \u2014 proposal-ready.",
       "images": {
         "thumbnailId": "image:template:l-kitchen:v1"
       },

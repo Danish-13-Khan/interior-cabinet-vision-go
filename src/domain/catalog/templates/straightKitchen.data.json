@@ -17,28 +17,28 @@
       "templateObjectId": "kitchen-fridge",
       "catalogItemId": "kenney:kitchen-fridge",
       "catalogItemVersion": 1,
-      "positionMm": { "x": -2200, "y": 0, "z": -1550 },
+      "positionMm": { "x": -1700, "y": 0, "z": -1370 },
       "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-stove",
       "catalogItemId": "kenney:kitchen-stove-electric",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2100, "y": 0, "z": -1600 },
+      "positionMm": { "x": 2050, "y": 0, "z": -1420 },
       "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-sink",
       "catalogItemId": "kenney:kitchen-sink",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2750, "y": 0, "z": -1600 },
+      "positionMm": { "x": -2400, "y": 0, "z": -1420 },
       "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-hood",
       "catalogItemId": "kenney:hood-modern",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2100, "y": 1600, "z": -1650 },
+      "positionMm": { "x": 2050, "y": 1400, "z": -1510 },
       "rotationY": 0
     }
   ]
