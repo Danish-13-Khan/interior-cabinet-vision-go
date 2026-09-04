@@ -1,7 +1,6 @@
 import {
   instantiateProjectTemplate,
   lookupBuiltInCatalogTemplate,
-  LIVING_ROOM_CATALOG_TEMPLATE_ID,
 } from "../catalog";
 import {
   applyLivingRoomStyle,
@@ -38,9 +37,7 @@ export function buildLivingRoomStarterDocument(
         projectName: options.projectName,
         now,
       }),
-      label: options.catalogTemplateId === LIVING_ROOM_CATALOG_TEMPLATE_ID
-        ? "Living Room template"
-        : "catalog template",
+      label: `${template.name} template`,
     };
   }
 

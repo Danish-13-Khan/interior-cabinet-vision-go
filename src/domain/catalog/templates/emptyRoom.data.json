@@ -1,0 +1,16 @@
+{
+  "id": "template:core:empty-room:v1",
+  "version": 1,
+  "name": "Empty Room",
+  "category": "empty",
+  "description": "Parametric room shell with a door and window — start from a blank interior.",
+  "images": {
+    "thumbnailId": "image:template:empty-room:v1"
+  },
+  "room": {
+    "widthMm": 5200,
+    "depthMm": 4200,
+    "heightMm": 2700
+  },
+  "objects": []
+}

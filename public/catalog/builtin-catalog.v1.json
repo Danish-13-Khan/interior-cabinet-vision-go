@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.4",
+  "catalogVersion": "2026.09.5",
   "generatedAt": "2026-09-04T12:00:00.000Z",
   "licenses": [
     {
@@ -5394,6 +5394,15 @@
       "mimeType": "image/png",
       "byteSize": 3500,
       "contentHash": "sha256:632d6f851e64c6a35361039b2c52682ddfdfca6506437e4b479dcb211f2e5376"
+    },
+    {
+      "id": "image:template:empty-room:v1",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/empty-room-v1.png",
+      "mimeType": "image/png",
+      "byteSize": 2506,
+      "contentHash": "sha256:297ad31f718e3a3a2dd55ac844f64ac9c43436a4edc851dd4b6f57ee55893344"
     }
   ],
   "materials": [
@@ -11415,6 +11424,22 @@
           "rotationY": 0
         }
       ]
+    },
+    {
+      "id": "template:core:empty-room:v1",
+      "version": 1,
+      "name": "Empty Room",
+      "category": "empty",
+      "description": "Parametric room shell with a door and window — start from a blank interior.",
+      "images": {
+        "thumbnailId": "image:template:empty-room:v1"
+      },
+      "room": {
+        "widthMm": 5200,
+        "depthMm": 4200,
+        "heightMm": 2700
+      },
+      "objects": []
     }
   ]
 }

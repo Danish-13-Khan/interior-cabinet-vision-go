@@ -22,7 +22,7 @@ const glbDir = join(root, "public/models/kenney-furniture/models_glb");
 const isoDir = join(root, "public/models/kenney-furniture/renders_isometric");
 const sideDir = join(root, "public/models/kenney-furniture/renders_side");
 const outPath = join(root, "public/catalog/builtin-catalog.v1.json");
-const CATALOG_VERSION = "2026.09.4";
+const CATALOG_VERSION = "2026.09.5";
 const GENERATED_AT = "2026-09-04T12:00:00.000Z";
 const PACK_PREFIX = "models/kenney-furniture";
 

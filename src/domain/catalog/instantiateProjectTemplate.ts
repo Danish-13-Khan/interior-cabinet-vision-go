@@ -21,6 +21,7 @@ import { placeCatalogItemWithDefaults } from "./placeCatalogItem";
 import type { ProjectTemplate } from "./types";
 
 export const LIVING_ROOM_CATALOG_TEMPLATE_ID = "template:core:living-room:v1";
+export const EMPTY_ROOM_CATALOG_TEMPLATE_ID = "template:core:empty-room:v1";
 
 export type InstantiateTemplateOptions = {
   projectId?: string;
@@ -147,12 +148,25 @@ export function instantiateProjectTemplate(
   return validateInteriorProject(document).project;
 }
 
+function instantiateNamedCatalogTemplate(
+  templateId: string,
+  options: InstantiateTemplateOptions,
+): InteriorProject {
+  const template = lookupBuiltInCatalogTemplate(templateId);
+  if (!template) {
+    throw new Error(`Missing catalog template ${templateId}`);
+  }
+  return instantiateProjectTemplate(template, options);
+}
+
 export function instantiateLivingRoomCatalogTemplate(
   options: InstantiateTemplateOptions = {},
 ): InteriorProject {
-  const template = lookupBuiltInCatalogTemplate(LIVING_ROOM_CATALOG_TEMPLATE_ID);
-  if (!template) {
-    throw new Error(`Missing catalog template ${LIVING_ROOM_CATALOG_TEMPLATE_ID}`);
-  }
-  return instantiateProjectTemplate(template, options);
+  return instantiateNamedCatalogTemplate(LIVING_ROOM_CATALOG_TEMPLATE_ID, options);
+}
+
+export function instantiateEmptyRoomCatalogTemplate(
+  options: InstantiateTemplateOptions = {},
+): InteriorProject {
+  return instantiateNamedCatalogTemplate(EMPTY_ROOM_CATALOG_TEMPLATE_ID, options);
 }

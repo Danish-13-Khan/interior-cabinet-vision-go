@@ -22,8 +22,8 @@ const NOW = "2026-09-04T12:00:00.000Z";
 
 describe("Phase 4 Living Room vertical slice", () => {
   it("registers the Living Room template with eight Kenney objects and a thumbnail", () => {
-    expect(catalog.catalogVersion).toBe("2026.09.4");
-    expect(catalog.templates).toHaveLength(1);
+    expect(catalog.catalogVersion).toBe("2026.09.5");
+    expect(catalog.templates.length).toBeGreaterThanOrEqual(1);
     const template = lookupBuiltInCatalogTemplate(LIVING_ROOM_CATALOG_TEMPLATE_ID)!;
     expect(template.name).toBe("Living Room");
     expect(template.objects).toHaveLength(8);
