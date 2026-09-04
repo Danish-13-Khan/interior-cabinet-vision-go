@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CompiledSceneNode } from "./sceneTypes";
-import { filterModelReviewNodes } from "./modelReviewNodes";
+import { filterModelReviewNodes, resolveModelCutawaySides } from "./modelReviewNodes";
 
 function node(
   id: string,
@@ -55,5 +55,29 @@ describe("model review node filtering", () => {
     const nodes = [node("ceiling", "architecture", "front", { surface: "ceiling" }), node("sofa", "object")];
     expect(filterModelReviewNodes(nodes, false, new Set(), null, true).map((item) => item.id))
       .toEqual(["sofa"]);
+  });
+
+  it("keeps a selected wall even when its side is cut away", () => {
+    const nodes = [
+      node("back-wall", "wall", "back", { wallId: "w-back" }),
+      node("front-wall", "wall", "front", { wallId: "w-front" }),
+      node("sofa", "object"),
+    ];
+    expect(
+      filterModelReviewNodes(nodes, true, new Set(["back"]), null, false, "w-back").map((item) => item.id),
+    ).toEqual(["back-wall", "front-wall", "sofa"]);
+  });
+});
+
+describe("resolveModelCutawaySides", () => {
+  const center = { x: 0, z: 0 };
+
+  it("opens only the near front/back face so side walls stay for kitchen runs", () => {
+    expect([...resolveModelCutawaySides({ x: 1000, z: 2000 }, center)].sort()).toEqual(["front"]);
+    expect([...resolveModelCutawaySides({ x: -1000, z: -2000 }, center)].sort()).toEqual(["back"]);
+  });
+
+  it("defaults to front when no camera is available", () => {
+    expect([...resolveModelCutawaySides(null, center)]).toEqual(["front"]);
   });
 });

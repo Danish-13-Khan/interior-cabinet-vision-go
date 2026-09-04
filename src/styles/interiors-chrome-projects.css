@@ -1,4 +1,4 @@
-/* Projects home wins over planner-home dark chrome. */
+/* Projects home surface tokens (layout lives in interiors-projects-home-layout.css). */
 .lr-plan-shell.lr-product-shell-v2 .lr-empty-workspace {
   border: 0;
   border-radius: 0;
@@ -66,7 +66,7 @@
   color: #243029;
 }
 
-.lr-plan-shell.lr-product-shell-v2 .planner-v2-starts,
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-starts:not(.interiors-popular-templates),
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents {
   border: 1px solid #dce5de;
   background: #fff;
@@ -149,11 +149,4 @@
     grid-template-columns: 72px minmax(0, 1fr) auto;
   }
   .interiors-project-row > small { display: none; }
-}
-
-/* Phase 1 QA benches inside Interiors projects home */
-.interiors-projects-home .lr-phase1-qa {
-  width: auto;
-  margin: 12px 0 0;
-  max-width: none;
 }

@@ -102,6 +102,13 @@ export function topologyForRectangularAdapter(walls: WallEntity[], rooms: Interi
   };
 }
 
+/** Prefer catalog/shell walls when a room already has a closed shell; never double-project. */
 export function adapterWallsForRooms(rooms: ProjectRoom[], preserved: WallEntity[]) {
-  return [...preserved, ...rooms.flatMap((room) => WALL_SIDES.map((side) => wallGeometry(room, side)))];
+  const shared = preserved.filter((wall) => !rooms.some((room) => room.id === wall.roomId));
+  const perRoom = rooms.flatMap((room) => {
+    const existing = preserved.filter((wall) => wall.roomId === room.id);
+    if (existing.length >= 3) return existing;
+    return [...existing, ...WALL_SIDES.map((side) => wallGeometry(room, side))];
+  });
+  return [...shared, ...perRoom];
 }

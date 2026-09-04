@@ -61,29 +61,13 @@
 .lr-projects-nav span { min-height: 36px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: 8px; color: var(--iu-muted); font-size: .78rem; }
 .lr-projects-nav span.is-active { background: var(--iu-green-soft); color: var(--iu-green); }
 
-/* Projects and home-only A/B selector */
+/* Projects home shell — layout overrides live in interiors-projects-home-layout.css */
 .lr-plan-shell.lr-product-shell-v2 .lr-empty-workspace { min-height: 0; padding: 0; background: var(--iu-faint); }
-.lr-plan-shell.lr-product-shell-v2 .planner-v2-home.interiors-projects-home {
-  position: relative;
-  min-height: calc(100vh - 68px);
-  grid-template-rows: auto minmax(0, 1fr);
-  overflow: hidden;
-  background: var(--iu-faint);
-  color: var(--iu-ink);
-}
-.interiors-mode-menu { grid-column: 1 / -1; min-height: 72px; padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--iu-line); background: var(--iu-panel-2); }
-.interiors-mode-menu > span { display: grid; gap: 2px; }
-.interiors-mode-menu > span small { color: var(--iu-muted); font-size: .62rem; letter-spacing: .09em; text-transform: uppercase; }
-.interiors-mode-menu > span strong { font-size: .84rem; }
-.interiors-mode-menu > div { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 7px; }
-.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button { min-height: 48px; padding: 7px 12px; display: grid; gap: 2px; text-align: left; border: 1px solid var(--iu-line); border-radius: 9px; background: var(--iu-panel); color: var(--iu-muted); }
-.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button strong { color: var(--iu-ink); font-size: .76rem; }
-.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button small { color: var(--iu-muted); font-size: .62rem; }
-.lr-plan-shell.lr-product-shell-v2 .interiors-mode-menu button.is-selected { border-color: var(--iu-green); background: var(--iu-green-soft); color: var(--iu-green); box-shadow: inset 3px 0 0 var(--iu-green); }
+.lr-projects-nav { display: flex; align-items: center; gap: 4px; }
+.lr-projects-nav span { min-height: 36px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: 8px; color: var(--iu-muted); font-size: .78rem; }
+.lr-projects-nav span.is-active { background: var(--iu-green-soft); color: var(--iu-green); }
 
 /* Calm Guided Projects */
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-calm { grid-template-columns: minmax(300px, .85fr) minmax(480px, 1.15fr); }
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-calm .planner-v2-home-intro { min-width: 0; padding: clamp(40px, 6vw, 76px); justify-content: center; background: var(--iu-panel); }
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery span,
@@ -101,7 +85,6 @@
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home button,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home input { border-color: var(--iu-line); background: var(--iu-panel-2); color: var(--iu-ink); }
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home button.is-primary { border-color: var(--iu-green); background: var(--iu-green); color: light-dark(#fff, #102018); }
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-calm .planner-v2-home-content { padding: clamp(28px, 4vw, 52px); background: var(--iu-faint); }
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents,
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery { border-color: var(--iu-line); background: var(--iu-panel); }
@@ -124,7 +107,6 @@
 .lr-plan-shell.lr-product-shell-v2 .interiors-template-drawer .interiors-projects-starts { margin: 0; border: 0; border-top: 1px solid var(--iu-line); border-radius: 0 0 10px 10px; }
 
 /* Compact Pro Projects */
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.is-compact { display: grid; grid-template-columns: 1fr; }
 .interiors-compact-projects { min-height: 0; display: grid; grid-template-columns: 205px minmax(0, 1fr); }
 .interiors-project-filters { padding: 24px 12px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid var(--iu-line); background: var(--iu-panel); }
 .interiors-project-filters > span { padding: 0 10px 10px; color: var(--iu-green); font-size: .64rem; letter-spacing: .09em; text-transform: uppercase; }
@@ -305,12 +287,8 @@
 @media (max-width: 1050px) {
   .interiors-job-heading { grid-template-columns: 1fr 1fr; }
   .interiors-job-heading > div { grid-column: 1 / -1; }
-  .lr-plan-shell.lr-product-shell-v2.is-ui-calm .interiors-projects-home.is-calm { grid-template-columns: 1fr; overflow: auto; }
-  .lr-plan-shell.lr-product-shell-v2.is-ui-calm .interiors-projects-home.is-calm .planner-v2-home-intro { min-height: 460px; }
 }
 @media (max-width: 900px) {
-  .interiors-mode-menu { align-items: stretch; flex-direction: column; }
-  .interiors-mode-menu > div { width: 100%; }
   .interiors-compact-projects { grid-template-columns: 1fr; }
   .interiors-project-filters { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--iu-line); }
   .interiors-project-filters > span { display: none; }
@@ -328,7 +306,6 @@
 @media (max-width: 620px) {
   .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header { min-height: 58px; padding: 0 10px; }
   .lr-plan-shell.lr-product-shell-v2.is-project-home .lr-chrome-brand strong { display: none; }
-  .interiors-mode-menu > div { grid-template-columns: 1fr; }
   .interiors-job-table-wrap { padding: 16px 12px; }
   .interiors-job-heading { grid-template-columns: 1fr; }
   .interiors-job-heading > div { grid-column: auto; }

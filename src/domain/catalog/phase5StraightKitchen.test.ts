@@ -71,6 +71,24 @@ describe("Phase 5 Straight Kitchen template", () => {
     expect(project.cameras.some((camera) => camera.isDefault && camera.name === "Run review")).toBe(true);
     expect(validateInteriorProject(project).issues.filter((issue) => issue.severity === "error")).toEqual([]);
 
+    const halfW = 6000 / 2;
+    const halfD = 4000 / 2;
+    for (const object of project.objects) {
+      const halfObjW = object.dimensions.widthMm / 2;
+      const halfObjD = object.dimensions.depthMm / 2;
+      expect(object.position.x).toBeGreaterThanOrEqual(-halfW + halfObjW - 1);
+      expect(object.position.x).toBeLessThanOrEqual(halfW - halfObjW + 1);
+      expect(object.position.z).toBeGreaterThanOrEqual(-halfD - 1);
+      expect(object.position.z).toBeLessThanOrEqual(halfD + 1);
+      expect(object.position.y).toBeGreaterThanOrEqual(0);
+    }
+    for (const id of APPLIANCE_IDS) {
+      const appliance = project.objects.find((object) => object.catalogItemId === id)!;
+      expect(appliance.extensions?.wallAttachment).toEqual(
+        expect.objectContaining({ wallId: expect.any(String) }),
+      );
+    }
+
     const second = instantiateStraightKitchenCatalogTemplate({
       projectId: "sk-phase5-b", projectName: "Second Kitchen", now: NOW,
     });

@@ -1,4 +1,39 @@
-/* Catalog object browser — isometric thumbs + finish indicator */
+/* Catalog object browser — scrollable grid + isometric thumbs */
+
+.catalog-object-browser {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.catalog-object-browser .context-panel-heading,
+.catalog-object-browser .lr-asset-controls {
+  flex: 0 0 auto;
+}
+
+.catalog-object-browser .lr-asset-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+
+.catalog-object-browser .lr-asset-grid > button {
+  color: #243029;
+}
+
+.catalog-object-browser .lr-asset-grid > button strong {
+  color: #243029;
+}
+
+.catalog-object-browser .lr-asset-grid > button small {
+  color: #5d6670;
+}
 
 .lr-asset-preview img {
   position: relative;
@@ -27,4 +62,10 @@
   flex-wrap: wrap;
   max-height: 88px;
   overflow-y: auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog.lr-studio-panel {
+  align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
 }

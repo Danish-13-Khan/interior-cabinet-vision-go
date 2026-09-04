@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { interiorsRecentProjectCard, interiorsUiModeLabel, type InteriorsUiMode } from "../../domain/desktopUx";
+import { interiorsRecentProjectCard, type InteriorsUiMode } from "../../domain/desktopUx";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
 import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
 import { InteriorsCompactProjectsHome, type ProjectFilter } from "./InteriorsCompactProjectsHome";
@@ -15,7 +15,6 @@ type PlannerV2ProjectHomeProps = {
   open: boolean;
   hasCurrentProject: boolean;
   uiMode: InteriorsUiMode;
-  onUiMode: (mode: InteriorsUiMode) => void;
 };
 
 export function PlannerV2ProjectHome({
@@ -23,7 +22,6 @@ export function PlannerV2ProjectHome({
   open,
   hasCurrentProject,
   uiMode,
-  onUiMode,
 }: PlannerV2ProjectHomeProps) {
   const dialogRef = useRef<HTMLElement>(null);
   const [projectName, setProjectName] = useState("New cabinet job");
@@ -88,26 +86,6 @@ export function PlannerV2ProjectHome({
       data-testid="interiors-projects-home"
       tabIndex={-1}
     >
-      <div className="interiors-mode-menu" data-testid="interiors-ui-mode-menu">
-        <span><small>Workspace style</small><strong>{interiorsUiModeLabel(uiMode)}</strong></span>
-        <div role="group" aria-label="Workspace style">
-          <button
-            type="button" className={uiMode === "calm" ? "is-selected" : ""}
-            aria-pressed={uiMode === "calm"} data-testid="interiors-mode-calm"
-            onClick={() => onUiMode("calm")}
-          >
-            <strong>Calm guided</strong><small>Labels and full properties</small>
-          </button>
-          <button
-            type="button" className={uiMode === "compact" ? "is-selected" : ""}
-            aria-pressed={uiMode === "compact"} data-testid="interiors-mode-compact"
-            onClick={() => onUiMode("compact")}
-          >
-            <strong>Compact pro</strong><small>More canvas, faster scanning</small>
-          </button>
-        </div>
-      </div>
-
       {uiMode === "calm" ? (
         <>
           <InteriorsProjectsIntro
@@ -128,9 +106,14 @@ export function PlannerV2ProjectHome({
             ) : null}
             <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />
             <InteriorsPopularTemplates onCreate={createFromCatalogTemplate} />
-            <InteriorsProjectsPhase1Qa onOpen={openPhase1} />
-            <details className="interiors-template-drawer" open>
-              <summary>Start from a template</summary>
+            {import.meta.env.DEV ? (
+              <details className="interiors-template-drawer interiors-dev-qa">
+                <summary>Developer · Phase 1 QA</summary>
+                <InteriorsProjectsPhase1Qa onOpen={openPhase1} />
+              </details>
+            ) : null}
+            <details className="interiors-template-drawer">
+              <summary>More room starters</summary>
               <InteriorsProjectsStarters onCreate={createProject} />
             </details>
           </div>
