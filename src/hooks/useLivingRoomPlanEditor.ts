@@ -74,6 +74,11 @@ import {
   type ImportedAsset,
 } from "../domain/livingRoom";
 import { buildLivingRoomStarterDocument } from "../domain/livingRoom/buildStarterDocument";
+import {
+  lookupBuiltInCatalogItem,
+  isObjectBrowserPlaceable,
+  placeObjectBrowserItem,
+} from "../domain/catalog";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
 import {
@@ -290,9 +295,22 @@ export function useLivingRoomPlanEditor({
     );
   }
 
-  function addCatalogObject(catalogItemId: LivingRoomCatalogId, wallId?: string) {
+  function addCatalogObject(catalogItemId: string, wallId?: string) {
     if (!document) return;
-    const item = createLivingRoomObject(catalogItemId, {
+    const browserItem = lookupBuiltInCatalogItem(catalogItemId);
+    if (isObjectBrowserPlaceable(browserItem)) {
+      const objectId = uniqueObjectId(catalogItemId.split(":").pop() ?? "item");
+      commitDocument(
+        (current) => placeObjectBrowserItem(current, catalogItemId, {
+          objectId,
+          roomId: current.activeRoomId,
+        }),
+        `Added ${browserItem.name}.`,
+      );
+      setSelectedObjectIds([objectId]);
+      return;
+    }
+    const item = createLivingRoomObject(catalogItemId as LivingRoomCatalogId, {
       id: uniqueObjectId(catalogItemId.split(":").pop() ?? "item"),
       roomId: document.activeRoomId,
       position: {

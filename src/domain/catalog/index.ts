@@ -78,6 +78,28 @@ export {
   type CatalogObjectPlacement,
 } from "./placeCatalogItem";
 export {
+  OBJECT_BROWSER_CATEGORIES,
+  catalogItemHasEditableFinish,
+  catalogItemThumbnailUrl,
+  browserPlacementYMmForItem,
+  defaultBrowserPlacementPosition,
+  defaultBrowserPlacementYMm,
+  findInteriorBrowserPlanPoint,
+  browserFootprintFitsRoom,
+  guaranteedInteriorPlanPoint,
+  oversizedBrowserFallbackPoint,
+  rectangleBoundsAsPolygon,
+  searchBrowserFootprintFit,
+  isObjectBrowserPlaceable,
+  listObjectBrowserCards,
+  listObjectBrowserItems,
+  placeObjectBrowserItem,
+  toObjectBrowserCard,
+  type ObjectBrowserCard,
+  type ObjectBrowserCategoryId,
+  type ObjectBrowserQuery,
+} from "./objectBrowser";
+export {
   BATHROOM_CATALOG_TEMPLATE_ID,
   BEDROOM_CATALOG_TEMPLATE_ID,
   EMPTY_ROOM_CATALOG_TEMPLATE_ID,

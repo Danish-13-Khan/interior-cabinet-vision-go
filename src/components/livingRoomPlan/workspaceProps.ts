@@ -10,7 +10,6 @@ import type { SavedProjectBrowserEntry } from "../../domain/projectBrowserStorag
 import type { WorkbenchMode } from "../../domain/desktopUx";
 import type {
   LivingRoomAlignMode,
-  LivingRoomCatalogId,
   LivingRoomLightingRecipeId,
   LivingRoomLayerId,
   LivingRoomPlanIssue,
@@ -73,7 +72,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
   onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
-  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAddCatalogObject: (catalogItemId: string, wallId?: string) => void;
   onAddImportedAsset: (asset: ImportedAsset) => void;
   onDuplicate: () => void;
   onDelete: () => void;

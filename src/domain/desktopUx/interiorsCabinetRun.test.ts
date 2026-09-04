@@ -18,6 +18,7 @@ describe("interiorsCabinetRun", () => {
     expect(isInteriorsCabinetRunTool("shelf")).toBe(true);
     expect(isInteriorsCabinetRunTool("material")).toBe(true);
     expect(isInteriorsCabinetRunTool("select")).toBe(false);
+    expect(isInteriorsCabinetRunTool("objects")).toBe(false);
     expect(interiorsCabinetRunHint("cabinet")).toContain("cabinet family");
     expect(interiorsCabinetRunHint("run")).toContain("snap");
   });

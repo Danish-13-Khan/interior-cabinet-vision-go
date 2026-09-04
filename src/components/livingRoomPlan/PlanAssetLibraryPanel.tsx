@@ -1,4 +1,4 @@
-import type { ImportedAsset, LivingRoomCatalogId, LivingRoomCatalogItem } from "../../domain/livingRoom";
+import type { ImportedAsset, LivingRoomCatalogItem } from "../../domain/livingRoom";
 import { AssetImportPanel } from "./AssetImportPanel";
 
 export function PlanAssetLibraryPanel(props: {
@@ -6,7 +6,7 @@ export function PlanAssetLibraryPanel(props: {
   selectedCabinetCount: number; onCreateRun: (wallId: string) => void;
   assets: LivingRoomCatalogItem[]; query: string; category: string; categories: string[];
   onQuery: (value: string) => void; onCategory: (value: string) => void;
-  onAdd: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAdd: (catalogItemId: string, wallId?: string) => void;
   onImport: (asset: ImportedAsset) => void;
 }) {
   const cabinets = props.mode === "cabinets";
@@ -25,7 +25,7 @@ export function PlanAssetLibraryPanel(props: {
         {category === "all" ? "All" : category.replace("-", " ")}</button>)}</div>
     </div>
     <div className="lr-asset-grid">{props.assets.map((item) => <button type="button" key={item.id}
-      onClick={() => props.onAdd(item.id as LivingRoomCatalogId, cabinets ? props.wallId : undefined)}>
+      onClick={() => props.onAdd(item.id, cabinets ? props.wallId : undefined)}>
       <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span><strong>{item.name}</strong>
       <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm{"sku" in item.parameters && typeof item.parameters.sku === "string" ? ` · ${item.parameters.sku}` : ""}</small><b>Place</b></button>)}</div>
   </>;

@@ -17,6 +17,7 @@ const PATHS: Record<IconName, ReactNode> = {
   run: <path d="M5 8h14M5 12h14M5 16h14" />,
   shelf: <path d="M6 7h12M6 12h12M6 17h12" />,
   material: <><path d="M4 8h7v7H4Z" /><path d="M13 8h7v7h-7" /></>,
+  objects: <><path d="M5 8h6v6H5Z" /><path d="M13 8h6v6h-6" /><path d="M5 16h14v3H5Z" /></>,
 };
 
 export function InteriorsChromeIcon({ name }: { name: IconName }) {
