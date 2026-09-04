@@ -16,7 +16,7 @@ const NOW = "2026-09-04T12:00:00.000Z";
 
 describe("Phase 5 Empty Room template", () => {
   it("registers an empty shell template with door/window-ready thumbnail and no furniture", () => {
-    expect(catalog.catalogVersion).toBe("2026.09.7");
+    expect(catalog.catalogVersion).toBe("2026.09.8");
     const template = lookupBuiltInCatalogTemplate(EMPTY_ROOM_CATALOG_TEMPLATE_ID)!;
     expect(template.name).toBe("Empty Room");
     expect(template.category).toBe("empty");
