@@ -29,6 +29,11 @@ export type RenderBinding = {
   targetSizeMm?: ModelNativeSizeMm;
   /** Catalog semantic-slot policies; runtime-only, never persisted. */
   slotPolicies?: Record<string, MaterialSlotPolicy>;
+  /**
+   * When true, keep the GLB’s built-in materials until the user paints a
+   * non-default catalog finish (Kenney browser items).
+   */
+  preserveSourceMaterials?: boolean;
   /** Runtime-only notes such as a missed catalog version pin. */
   warnings?: string[];
 };

@@ -105,8 +105,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
       workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
       canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"}
-      chromeLocked={props.projectHomeOpen || !props.project}
+      chromeLocked={false}
       projectHome={props.projectHomeOpen || !props.project}
+      uiMode={ui.mode} onUiMode={ui.setMode}
       onProject={() => chrome.changePlannerMode("project")} onView={chrome.changeWorkspaceView}
       onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
     />
@@ -119,7 +120,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         <div className="lr-empty-workspace">
           <LivingRoomHomeFromWorkspace
             workspace={props} open hasCurrentProject={Boolean(props.project)}
-            uiMode={ui.mode} onUiMode={ui.setMode}
+            uiMode={ui.mode}
           />
         </div>
       </section>

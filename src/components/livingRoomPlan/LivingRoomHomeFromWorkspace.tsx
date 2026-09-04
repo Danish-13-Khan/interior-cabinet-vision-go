@@ -7,18 +7,16 @@ export function LivingRoomHomeFromWorkspace({
   open,
   hasCurrentProject,
   uiMode,
-  onUiMode,
 }: {
   workspace: LivingRoomPlanWorkspaceProps;
   open: boolean;
   hasCurrentProject: boolean;
   uiMode: InteriorsUiMode;
-  onUiMode: (mode: InteriorsUiMode) => void;
 }) {
   return (
     <PlannerV2ProjectHome
       workspace={workspace} open={open} hasCurrentProject={hasCurrentProject}
-      uiMode={uiMode} onUiMode={onUiMode}
+      uiMode={uiMode}
     />
   );
 }

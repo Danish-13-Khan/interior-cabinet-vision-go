@@ -187,6 +187,7 @@ describe("Phase 2 Kenney material adapter", () => {
     expect(binding.strategy).toBe("glb");
     expect(binding.modelUrl).toContain("loungeSofa.glb");
     expect(binding.slotPolicies?.upholstery?.sourceMaterialNames).toEqual(["carpet"]);
+    expect(binding.preserveSourceMaterials).toBe(true);
     expect(resolveEffectiveRenderStrategy(binding, false)).toBe("glb");
   });
 });

@@ -116,6 +116,7 @@ export function createObjectRenderBinding(
       materialBindings,
       uvScaleMm,
       slotPolicies,
+      projectMaterials,
     );
     const pinWarning = catalogVersionPinFallbackWarning(object);
     return kenney ?? {
