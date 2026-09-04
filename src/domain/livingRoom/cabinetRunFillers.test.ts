@@ -54,6 +54,45 @@ describe("I2 cabinet run fillers", () => {
     expect(endFiller?.dimensions.widthMm).toBe(150);
   });
 
+  it("preserves startAlongMm when enabling fillers rearranges the run", () => {
+    const source = createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" });
+    const wall = source.walls[0]!;
+    const cabinets = makeCabinets(source, ["cab-a", "cab-b"], 900);
+    const arranged = arrangeCabinetRun(
+      { ...source, objects: cabinets },
+      cabinets.map((cabinet) => cabinet.id),
+      wall.id,
+      { gapMm: 0, startAlongMm: 1200 },
+    );
+    expect(cabinetRunForObject(arranged.objects[0]!)?.startAlongMm).toBe(1200);
+    const runId = cabinetRunForObject(arranged.objects[0]!)!.runId;
+    const withFillers = updateCabinetRunLayout(arranged, runId, { fillersEnabled: true });
+    expect(cabinetRunForObject(withFillers.objects.find((object) => object.id === "cab-a")!)?.startAlongMm)
+      .toBe(1200);
+    const along = (object: (typeof withFillers.objects)[number]) => object.position.x - wall.start.x;
+    const member = withFillers.objects.find((object) => object.id === "cab-a")!;
+    expect(along(member) - member.dimensions.widthMm / 2).toBeCloseTo(1200, 0);
+  });
+
+  it("clears stored startAlongMm when alignment is set explicitly", () => {
+    const source = createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" });
+    const wall = source.walls[0]!;
+    const cabinets = makeCabinets(source, ["cab-a", "cab-b"], 900);
+    const arranged = arrangeCabinetRun(
+      { ...source, objects: cabinets },
+      cabinets.map((cabinet) => cabinet.id),
+      wall.id,
+      { gapMm: 0, startAlongMm: 1200 },
+    );
+    const runId = cabinetRunForObject(arranged.objects[0]!)!.runId;
+    const before = arranged.objects.find((object) => object.id === "cab-a")!.position.x;
+    const centered = updateCabinetRunLayout(arranged, runId, { alignment: "center" });
+    const after = centered.objects.find((object) => object.id === "cab-a")!;
+    expect(cabinetRunForObject(after)?.startAlongMm).toBeUndefined();
+    expect(cabinetRunForObject(after)?.alignment).toBe("center");
+    expect(after.position.x).not.toBe(before);
+  });
+
   it("removes fillers when auto fillers are disabled", () => {
     const source = createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" });
     const wall = source.walls[0]!;

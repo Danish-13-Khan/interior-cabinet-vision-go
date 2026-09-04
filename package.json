@@ -23,9 +23,9 @@
     "stilljob:spike": "node scripts/still-job/export-spike.mjs",
     "stilljob:phase2a": "node scripts/still-job/export-phase2a.mjs",
     "phase2:proof": "node scripts/phase2-proof/run-proof.mjs",
-    "catalog:generate": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-kenney-manifest.mjs",
+    "catalog:generate": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-l-kitchen-thumbnail.mjs && node scripts/catalog/generate-kenney-manifest.mjs",
     "catalog:verify": "node scripts/catalog/verify-catalog.mjs",
-    "catalog:thumbnail": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs",
+    "catalog:thumbnail": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-l-kitchen-thumbnail.mjs",
     "tauri": "tauri",
     "release:check": "npm run catalog:verify && npm test && npm run build && npm run test:e2e && cargo test --manifest-path src-tauri/Cargo.toml",
     "release:mac": "npm run tauri build -- --bundles app,dmg"
