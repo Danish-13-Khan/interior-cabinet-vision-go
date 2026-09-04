@@ -1,0 +1,55 @@
+{
+  "id": "template:core:bathroom:v1",
+  "version": 1,
+  "name": "Bathroom",
+  "category": "bathroom",
+  "description": "Furnished bathroom with toilet, vanity, mirror, and shower.",
+  "images": {
+    "thumbnailId": "image:template:bathroom:v1"
+  },
+  "room": {
+    "widthMm": 4200,
+    "depthMm": 3600,
+    "heightMm": 2700
+  },
+  "objects": [
+    {
+      "templateObjectId": "bathroom-shower",
+      "catalogItemId": "kenney:shower",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 1530, "y": 0, "z": -1230 },
+      "rotationY": 0,
+      "materialOverrides": {
+        "ceramic": "material:core:ceramic-white:v1",
+        "showerGlass": "material:core:glass-clear:v1"
+      }
+    },
+    {
+      "templateObjectId": "bathroom-toilet",
+      "catalogItemId": "kenney:toilet",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 200, "y": 0, "z": -1355 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "bathroom-sink",
+      "catalogItemId": "kenney:bathroom-sink",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": -1400, "y": 0, "z": -1455 },
+      "rotationY": 0,
+      "materialOverrides": {
+        "ceramic": "material:core:ceramic-white:v1"
+      }
+    },
+    {
+      "templateObjectId": "bathroom-mirror",
+      "catalogItemId": "kenney:bathroom-mirror",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": -1400, "y": 1100, "z": -1655 },
+      "rotationY": 0,
+      "materialOverrides": {
+        "frame": "material:core:metal-charcoal:v1"
+      }
+    }
+  ]
+}

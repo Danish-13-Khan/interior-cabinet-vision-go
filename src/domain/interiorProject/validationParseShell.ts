@@ -24,7 +24,7 @@ import {
 export function parseRooms(source: UnknownRecord, issues: InteriorValidationIssue[]) {
   const roomIds = new Set<string>();
   const rooms: InteriorRoomEntity[] = records(source.rooms).map((room, index) => {
-    const roomType = ["living-room", "bedroom", "kitchen", "office", "utility", "custom"].includes(String(room.roomType))
+    const roomType = ["living-room", "bedroom", "bathroom", "kitchen", "office", "utility", "custom"].includes(String(room.roomType))
       ? (room.roomType as InteriorRoomEntity["roomType"])
       : "custom";
     return {

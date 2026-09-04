@@ -6,6 +6,7 @@ export type InteriorUnits = "mm";
 export type RoomType =
   | "living-room"
   | "bedroom"
+  | "bathroom"
   | "kitchen"
   | "office"
   | "utility"

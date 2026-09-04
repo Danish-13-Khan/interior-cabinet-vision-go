@@ -13,7 +13,7 @@ import type {
 export function roomType(room: ProjectRoom): RoomType {
   const saved = record(room.config)?.roomType;
   return typeof saved === "string" &&
-    ["living-room", "bedroom", "kitchen", "office", "utility", "custom"].includes(saved)
+    ["living-room", "bedroom", "bathroom", "kitchen", "office", "utility", "custom"].includes(saved)
     ? (saved as RoomType)
     : "custom";
 }

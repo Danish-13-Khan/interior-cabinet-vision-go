@@ -28,5 +28,20 @@
     "uvScaleMm": 900,
     "lifecycle": "active",
     "visibleInPicker": true
+  },
+  {
+    "id": "material:core:tile-ceramic-soft-gray:v1",
+    "version": 1,
+    "name": "Soft Gray Ceramic Tile",
+    "kind": "stone",
+    "tags": ["tile", "ceramic", "floor", "wall", "bathroom"],
+    "swatchColor": "#d5dbd8",
+    "baseColor": "#d5dbd8",
+    "roughness": 0.42,
+    "metalness": 0,
+    "opacity": 1,
+    "uvScaleMm": 300,
+    "lifecycle": "active",
+    "visibleInPicker": true
   }
 ]
