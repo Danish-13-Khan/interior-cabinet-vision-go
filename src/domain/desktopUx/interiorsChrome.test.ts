@@ -23,12 +23,18 @@ describe("interiorsChrome", () => {
     });
     expect(mapInteriorsChromeTool("material").studioPanel).toBe("materials");
     expect(mapInteriorsChromeTool("import").buildTool).toBe("upload-underlay");
+    expect(mapInteriorsChromeTool("objects")).toEqual({
+      plannerMode: "design",
+      studioPanel: "furniture",
+      buildTool: "select",
+    });
   });
 
   it("enables Run and Open shelf for Cabinet Run", () => {
     expect(isInteriorsChromeToolReady("run")).toBe(true);
     expect(isInteriorsChromeToolReady("shelf")).toBe(true);
     expect(isInteriorsChromeToolReady("cabinet")).toBe(true);
+    expect(isInteriorsChromeToolReady("objects")).toBe(true);
   });
 
   it("shows the inspector only for a real selection", () => {

@@ -48,7 +48,7 @@ function objectFromCatalogItem(
 
 /**
  * Place a catalog item and snapshot its default finishes into the project.
- * Rejects blocked, non-template-eligible, or duplicate object ids.
+ * Rejects non-active, non-template-eligible, or duplicate object ids.
  */
 export function placeCatalogItemWithDefaults(
   project: InteriorProject,
@@ -57,8 +57,12 @@ export function placeCatalogItemWithDefaults(
 ): InteriorProject {
   const item = lookupBuiltInCatalogItem(catalogItemId);
   if (!item) throw new Error(`Unknown catalog item ${catalogItemId}`);
-  if (item.lifecycle === "blocked") {
-    throw new Error(`Catalog item ${catalogItemId} is blocked`);
+  if (item.lifecycle !== "active") {
+    throw new Error(
+      item.lifecycle === "blocked"
+        ? `Catalog item ${catalogItemId} is blocked`
+        : `Catalog item ${catalogItemId} is not active`,
+    );
   }
   if (!item.visibility.templateEligible) {
     throw new Error(`Catalog item ${catalogItemId} is not template-eligible`);

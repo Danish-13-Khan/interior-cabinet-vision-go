@@ -12,6 +12,7 @@ export const INTERIORS_CHROME_TOOLS = [
   { id: "run", label: "Run", group: "design" },
   { id: "shelf", label: "Open shelf", group: "design" },
   { id: "material", label: "Material", group: "design" },
+  { id: "objects", label: "Objects", group: "objects" },
 ] as const;
 
 export type InteriorsChromeTool = (typeof INTERIORS_CHROME_TOOLS)[number]["id"];
@@ -40,6 +41,7 @@ const CHROME_TARGETS: Record<InteriorsChromeTool, InteriorsChromeTarget> = {
   run: { plannerMode: "design", studioPanel: "cabinets", buildTool: "select" },
   shelf: { plannerMode: "design", studioPanel: "cabinets", buildTool: "select" },
   material: { plannerMode: "design", studioPanel: "materials", buildTool: "select" },
+  objects: { plannerMode: "design", studioPanel: "furniture", buildTool: "select" },
 };
 
 export function mapInteriorsChromeTool(tool: InteriorsChromeTool): InteriorsChromeTarget {

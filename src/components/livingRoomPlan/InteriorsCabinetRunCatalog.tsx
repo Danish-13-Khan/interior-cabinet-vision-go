@@ -1,5 +1,5 @@
 import { interiorsCabinetRunFamilyItems, type InteriorsChromeTool } from "../../domain/desktopUx";
-import { LIVING_ROOM_CATALOG, type LivingRoomCatalogId } from "../../domain/livingRoom";
+import { LIVING_ROOM_CATALOG } from "../../domain/livingRoom";
 
 export function InteriorsCabinetRunCatalog({
   tool,
@@ -8,7 +8,7 @@ export function InteriorsCabinetRunCatalog({
 }: {
   tool: InteriorsChromeTool;
   wallId: string;
-  onAdd: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAdd: (catalogItemId: string, wallId?: string) => void;
 }) {
   const families = interiorsCabinetRunFamilyItems(tool, LIVING_ROOM_CATALOG);
   return (
@@ -22,7 +22,7 @@ export function InteriorsCabinetRunCatalog({
           <button
             type="button"
             key={item.id}
-            onClick={() => onAdd(item.id as LivingRoomCatalogId, wallId || undefined)}
+            onClick={() => onAdd(item.id, wallId || undefined)}
           >
             <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
             <strong>{item.name}</strong>

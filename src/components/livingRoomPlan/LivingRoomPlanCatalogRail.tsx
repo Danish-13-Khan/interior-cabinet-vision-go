@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef } from "react";
 import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
-import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type LivingRoomCatalogId, type ImportedAsset } from "../../domain/livingRoom";
+import { LIVING_ROOM_CATALOG, isLivingRoomLayerVisible, type ImportedAsset } from "../../domain/livingRoom";
 import { isInteriorsCabinetRunTool, isInteriorsDrawRoomTool, type InteriorsChromeTool } from "../../domain/desktopUx";
 import { InteriorsCabinetRunCatalog } from "./InteriorsCabinetRunCatalog";
 import type { BuildTool, StudioPanel } from "./workspaceProps";
 import { BuildRoomCatalogPanel } from "./BuildRoomCatalogPanel";
+import { CatalogObjectBrowser } from "./CatalogObjectBrowser";
 import { InteriorsToolRail } from "./InteriorsToolRail";
 import { PlanAssetLibraryPanel } from "./PlanAssetLibraryPanel";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
@@ -28,7 +29,7 @@ type LivingRoomPlanCatalogRailProps = {
   importError: string;
   onAssetQuery: (value: string) => void;
   onAssetCategory: (value: string) => void;
-  onAddCatalogObject: (catalogItemId: LivingRoomCatalogId, wallId?: string) => void;
+  onAddCatalogObject: (catalogItemId: string, wallId?: string) => void;
   onCreateCabinetRun: (wallId: string) => void;
   onAddImportedAsset: (asset: ImportedAsset) => void;
   onSetFloorMaterial: (materialId: string) => void;
@@ -118,8 +119,10 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
             onApplyToSelection={props.onApplyMaterialToSelection} onImportFinish={props.onImportFinish} />
         </> : cabinetRun ? (
           <InteriorsCabinetRunCatalog tool={props.chromeTool} wallId={activeWall?.id ?? ""} onAdd={props.onAddCatalogObject} />
-        ) : activePanel === "cabinets" || activePanel === "furniture" ? (
-          <PlanAssetLibraryPanel mode={activePanel} wallName={String(activeWall?.extensions?.wallSide ?? "wall")}
+        ) : activePanel === "furniture" ? (
+          <CatalogObjectBrowser onPlace={(catalogItemId) => props.onAddCatalogObject(catalogItemId)} />
+        ) : activePanel === "cabinets" ? (
+          <PlanAssetLibraryPanel mode="cabinets" wallName={String(activeWall?.extensions?.wallSide ?? "wall")}
             wallId={activeWall?.id ?? ""} assets={visibleAssets} query={props.assetQuery} category={props.assetCategory}
             categories={props.assetCategories} onQuery={props.onAssetQuery} onCategory={props.onAssetCategory}
             selectedCabinetCount={selectedCabinetCount} onCreateRun={props.onCreateCabinetRun}
