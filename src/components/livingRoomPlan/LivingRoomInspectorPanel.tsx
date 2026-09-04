@@ -99,10 +99,21 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSelect={props.onSelect}
           />
         ) : null}
+        {activeOpening ? (
+          <OpeningInspector opening={activeOpening} materials={props.project.materials} onUpdate={props.onUpdateOpening} onDelete={props.onDeleteOpening} />
+        ) : activeObject ? (
+          <InspectorObjectSection
+            mode={props.mode} object={activeObject} project={props.project}
+            onMove={props.onMove} onResize={props.onResize} onSetRotation={props.onSetRotation}
+            onSetMaterial={props.onSetMaterial} onSetParameters={props.onSetParameters}
+            onUpdateCabinetRun={props.onUpdateCabinetRun}
+            onDuplicate={props.onDuplicate} onDelete={props.onDelete}
+          />
+        ) : null}
         {activeSurface ? (
           <SurfaceInspector surface={activeSurface} materials={props.project.materials}
             onUpdate={props.onUpdateSurface} onDelete={props.onDeleteSurface} />
-        ) : room && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
+        ) : room && !activeObject && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
             onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
             onSetWallMaterial={props.onSetWallMaterial} onSetFloorMaterial={props.onSetFloorMaterial}
@@ -113,15 +124,6 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             suppressEmptyWall={!activeWall} compact={props.drawRoom}
             hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
             onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes} />
-        ) : null}
-        {activeOpening ? <OpeningInspector opening={activeOpening} materials={props.project.materials} onUpdate={props.onUpdateOpening} onDelete={props.onDeleteOpening} /> : activeObject ? (
-          <InspectorObjectSection
-            mode={props.mode} object={activeObject} project={props.project}
-            onMove={props.onMove} onResize={props.onResize} onSetRotation={props.onSetRotation}
-            onSetMaterial={props.onSetMaterial} onSetParameters={props.onSetParameters}
-            onUpdateCabinetRun={props.onUpdateCabinetRun}
-            onDuplicate={props.onDuplicate} onDelete={props.onDelete}
-          />
         ) : null}
         {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun ? (
           <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />

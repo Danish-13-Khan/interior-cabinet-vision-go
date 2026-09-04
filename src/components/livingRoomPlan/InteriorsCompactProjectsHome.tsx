@@ -117,7 +117,12 @@ export function InteriorsCompactProjectsHome({
           <InteriorsPopularTemplates onCreate={onCreateCatalogTemplate} />
           <InteriorsProjectsStarters onCreate={onCreateProject} />
         </details>
-        <InteriorsProjectsPhase1Qa onOpen={onOpenPhase1} />
+        {import.meta.env.DEV ? (
+          <details className="interiors-template-drawer interiors-dev-qa">
+            <summary>Developer · Phase 1 QA</summary>
+            <InteriorsProjectsPhase1Qa onOpen={onOpenPhase1} />
+          </details>
+        ) : null}
       </main>
     </div>
   );

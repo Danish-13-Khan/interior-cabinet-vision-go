@@ -149,6 +149,8 @@ type ApplyGlbSlotArgs = {
   receiveShadow: boolean;
   importedTextures?: ModelTextureUrls;
   slotPolicies?: Record<string, MaterialSlotPolicy>;
+  /** Keep Kenney/GLB baked materials until a non-default finish is painted. */
+  preserveSourceMaterials?: boolean;
 };
 
 export function applyGlbSlotMaterials(root: Object3D, args: ApplyGlbSlotArgs) {
@@ -165,6 +167,7 @@ export function applyGlbSlotMaterials(root: Object3D, args: ApplyGlbSlotArgs) {
     const materialName = matList.map((mat) => mat.name).find((name) => Boolean(name)) ?? "";
     const sourceName = readGlbSourceMaterialName(child.userData, materialName);
     persistGlbSourceMaterialName(child.userData, sourceName);
+    if (args.preserveSourceMaterials) return;
     const matchArgs = {
       materialName: sourceName,
       meshName: child.name,
