@@ -82,7 +82,9 @@ export {
   instantiateEmptyRoomCatalogTemplate,
   instantiateLivingRoomCatalogTemplate,
   instantiateProjectTemplate,
+  instantiateStraightKitchenCatalogTemplate,
   LIVING_ROOM_CATALOG_TEMPLATE_ID,
+  STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID,
   type InstantiateTemplateOptions,
 } from "./instantiateProjectTemplate";
 export {

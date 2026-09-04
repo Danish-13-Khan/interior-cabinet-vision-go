@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.5",
+  "catalogVersion": "2026.09.6",
   "generatedAt": "2026-09-04T12:00:00.000Z",
   "licenses": [
     {
@@ -5403,6 +5403,15 @@
       "mimeType": "image/png",
       "byteSize": 2506,
       "contentHash": "sha256:297ad31f718e3a3a2dd55ac844f64ac9c43436a4edc851dd4b6f57ee55893344"
+    },
+    {
+      "id": "image:template:straight-kitchen:v1",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/straight-kitchen-v1.png",
+      "mimeType": "image/png",
+      "byteSize": 2332,
+      "contentHash": "sha256:b8d1e0b1aea6859c8f5cc6aff30385f8f1032c399d4608a85d4bfafd6a1d7880"
     }
   ],
   "materials": [
@@ -11440,6 +11449,67 @@
         "heightMm": 2700
       },
       "objects": []
+    },
+    {
+      "id": "template:core:straight-kitchen:v1",
+      "version": 1,
+      "name": "Straight Kitchen",
+      "category": "kitchen",
+      "description": "Smart cabinet run with fillers, countertop, and Kenney appliances — proposal-ready.",
+      "images": {
+        "thumbnailId": "image:template:straight-kitchen:v1"
+      },
+      "room": {
+        "widthMm": 6000,
+        "depthMm": 4000,
+        "heightMm": 2800
+      },
+      "objects": [
+        {
+          "templateObjectId": "kitchen-fridge",
+          "catalogItemId": "kenney:kitchen-fridge",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": -2200,
+            "y": 0,
+            "z": -1550
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "kitchen-stove",
+          "catalogItemId": "kenney:kitchen-stove-electric",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 2100,
+            "y": 0,
+            "z": -1600
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "kitchen-sink",
+          "catalogItemId": "kenney:kitchen-sink",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 2750,
+            "y": 0,
+            "z": -1600
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "kitchen-hood",
+          "catalogItemId": "kenney:hood-modern",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 2100,
+            "y": 1600,
+            "z": -1650
+          },
+          "rotationY": 0
+        }
+      ]
     }
   ]
 }
