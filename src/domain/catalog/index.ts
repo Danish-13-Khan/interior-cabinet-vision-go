@@ -57,11 +57,23 @@ export {
   type KenneyItemOverride,
 } from "./kenney/overrides";
 export {
+  isKenneyCabinetPropStem,
+  isKenneyTemplateCuratedStem,
+  KENNEY_CABINET_PROP_STEMS,
+  KENNEY_TEMPLATE_CURATED_STEMS,
+  type KenneyTemplateCuratedStem,
+} from "./kenney/curatedStems";
+export {
   getProofMaterialSlots,
+  KENNEY_MATERIAL_SLOTS,
   KENNEY_PROOF_MATERIAL_SLOTS,
   KENNEY_PROOF_STEMS,
   type KenneyProofStem,
 } from "./kenney/materialMappings";
+export {
+  placeCatalogItemWithDefaults,
+  type CatalogObjectPlacement,
+} from "./placeCatalogItem";
 export {
   CATALOG_SEED_MATERIALS,
   getCatalogSeedMaterial,

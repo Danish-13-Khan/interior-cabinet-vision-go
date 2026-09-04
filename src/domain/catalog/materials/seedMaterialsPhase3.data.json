@@ -1,0 +1,47 @@
+[
+  {
+    "id": "material:core:metal-appliance-steel:v1",
+    "version": 1,
+    "name": "Appliance Steel",
+    "kind": "metal",
+    "tags": ["appliance", "enamel", "hardware"],
+    "swatchColor": "#c5c8c7",
+    "baseColor": "#c5c8c7",
+    "roughness": 0.28,
+    "metalness": 0.85,
+    "opacity": 1,
+    "uvScaleMm": 400,
+    "lifecycle": "active",
+    "visibleInPicker": true
+  },
+  {
+    "id": "material:core:fabric-rug-wool:v1",
+    "version": 1,
+    "name": "Wool Rug",
+    "kind": "fabric",
+    "tags": ["rug", "woven", "neutral"],
+    "swatchColor": "#8b7355",
+    "baseColor": "#8b7355",
+    "roughness": 0.98,
+    "metalness": 0,
+    "opacity": 1,
+    "uvScaleMm": 800,
+    "lifecycle": "active",
+    "visibleInPicker": true
+  },
+  {
+    "id": "material:core:fabric-shade-linen:v1",
+    "version": 1,
+    "name": "Linen Shade",
+    "kind": "fabric",
+    "tags": ["shade", "neutral"],
+    "swatchColor": "#e8e2d6",
+    "baseColor": "#e8e2d6",
+    "roughness": 0.9,
+    "metalness": 0,
+    "opacity": 1,
+    "uvScaleMm": 350,
+    "lifecycle": "active",
+    "visibleInPicker": true
+  }
+]

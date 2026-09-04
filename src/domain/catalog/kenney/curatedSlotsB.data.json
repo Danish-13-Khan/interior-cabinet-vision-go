@@ -1,0 +1,129 @@
+{
+  "kitchenStoveElectric": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metal", "metalMedium", "wood"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    },
+    "cooktop": {
+      "sourceMaterialNames": ["glass", "carpetWhite"],
+      "allowedMaterialKinds": ["glass", "custom"],
+      "allowedMaterialTags": ["dark-glass", "ceramic"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "kitchenSink": {
+    "basin": {
+      "sourceMaterialNames": ["metal", "metalLight"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "ceramic"],
+      "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+      "editable": true
+    },
+    "cabinet": {
+      "sourceMaterialNames": ["wood", "woodDark", "_defaultMat"],
+      "allowedMaterialKinds": ["wood", "paint", "laminate"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "hoodModern": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metalMedium", "_defaultMat"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+      "editable": true
+    }
+  },
+  "kitchenMicrowave": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metalMedium", "carpetWhite"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    },
+    "screen": {
+      "sourceMaterialNames": ["glass", "metalDark"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["dark-glass", "screen"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": false
+    }
+  },
+  "kitchenCoffeeMachine": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metal", "metalMedium", "carpetWhite"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "toilet": {
+    "ceramic": {
+      "sourceMaterialNames": ["carpetWhite", "_defaultMat"],
+      "allowedMaterialKinds": ["custom"],
+      "allowedMaterialTags": ["ceramic"],
+      "defaultMaterialId": "material:core:ceramic-white:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalDark", "metalLight"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "bathroomSink": {
+    "ceramic": {
+      "sourceMaterialNames": ["carpetWhite", "_defaultMat"],
+      "allowedMaterialKinds": ["custom"],
+      "allowedMaterialTags": ["ceramic"],
+      "defaultMaterialId": "material:core:ceramic-white:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalLight"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "bathtub": {
+    "ceramic": {
+      "sourceMaterialNames": ["carpetWhite"],
+      "allowedMaterialKinds": ["custom"],
+      "allowedMaterialTags": ["ceramic"],
+      "defaultMaterialId": "material:core:ceramic-white:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalDark", "metalLight"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  }
+}

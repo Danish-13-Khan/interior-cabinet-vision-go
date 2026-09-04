@@ -1,0 +1,82 @@
+[
+  {
+    "stem": "kitchenBar",
+    "name": "Kitchen Bar (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenBarEnd",
+    "name": "Kitchen Bar End (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinet",
+    "name": "Kitchen Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetCornerInner",
+    "name": "Kitchen Corner Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetCornerRound",
+    "name": "Kitchen Round Corner Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetDrawer",
+    "name": "Kitchen Drawer Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetUpper",
+    "name": "Upper Kitchen Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetUpperCorner",
+    "name": "Upper Corner Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetUpperDouble",
+    "name": "Upper Double Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  },
+  {
+    "stem": "kitchenCabinetUpperLow",
+    "name": "Low Upper Cabinet (Presentation Prop)",
+    "category": "kitchen-and-appliances",
+    "subcategory": "cabinet-props",
+    "tags": ["presentation-prop", "not-production"],
+    "visibility": { "objectBrowser": false, "templateEligible": false }
+  }
+]
