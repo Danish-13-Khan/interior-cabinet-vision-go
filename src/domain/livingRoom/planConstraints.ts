@@ -1,6 +1,10 @@
 import type { InteriorProject, OpeningEntity, Point2Mm, WallEntity } from "../interiorProject";
 import { pointInPolygon, polygonsIntersect, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import {
+  isPlanObstacle,
+  shouldIgnoreCollisionPair,
+} from "./planConstraintOccupancy";
+import {
   boundsOverlap,
   getObjectPlanCorners,
   getObjectPlanBounds,
@@ -17,11 +21,6 @@ export type LivingRoomPlanIssue = {
 export function isBlockingLivingRoomPlanIssue(issue: LivingRoomPlanIssue) {
   return issue.severity === "error";
 }
-
-// Surface-mounted treatment is part of the wall, not a circulation obstacle.
-const NON_BLOCKING_CATEGORIES = new Set([
-  "rug", "mirror", "feature-wall", "display-niche", "accessory", "ceiling-fixture", "window-treatment", "filler",
-]);
 
 function openingZone(opening: OpeningEntity, wall: WallEntity): Point2Mm[] {
   const dx = wall.end.x - wall.start.x;
@@ -72,9 +71,7 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
   const issues: LivingRoomPlanIssue[] = [];
   for (const room of project.rooms) {
     const objects = project.objects.filter((object) => object.roomId === room.id);
-    const blocking = objects.filter(
-      (object) => !NON_BLOCKING_CATEGORIES.has(object.category),
-    );
+    const blocking = objects.filter(isPlanObstacle);
 
     for (const object of blocking) {
       if (!objectFitsRoom(project, object)) {
@@ -91,6 +88,7 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
       for (let next = index + 1; next < blocking.length; next += 1) {
         const first = blocking[index]!;
         const second = blocking[next]!;
+        if (shouldIgnoreCollisionPair(first, second)) continue;
         const firstBounds = getObjectPlanBounds(first);
         const secondBounds = getObjectPlanBounds(second);
         // AABBs are a cheap rejection test; the final check uses the actual

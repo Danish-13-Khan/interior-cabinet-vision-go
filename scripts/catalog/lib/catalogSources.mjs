@@ -29,6 +29,7 @@ const TEMPLATE_FILES = [
   "emptyRoom.data.json",
   "straightKitchen.data.json",
   "lKitchen.data.json",
+  "bedroom.data.json",
 ];
 
 /** Thumbnail files registered into the catalog manifest (id → public objectKey). */
@@ -37,6 +38,7 @@ const TEMPLATE_THUMBNAILS = [
   { id: "image:template:empty-room:v1", objectKey: "catalog/templates/empty-room-v1.png" },
   { id: "image:template:straight-kitchen:v1", objectKey: "catalog/templates/straight-kitchen-v1.png" },
   { id: "image:template:l-kitchen:v1", objectKey: "catalog/templates/l-kitchen-v1.png" },
+  { id: "image:template:bedroom:v1", objectKey: "catalog/templates/bedroom-v1.png" },
 ];
 
 export function loadCatalogSources({ kenneyDataDir, materialsDir, templatesDir, root }) {

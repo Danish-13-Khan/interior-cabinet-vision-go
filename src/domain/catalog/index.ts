@@ -78,17 +78,21 @@ export {
   type CatalogObjectPlacement,
 } from "./placeCatalogItem";
 export {
+  BEDROOM_CATALOG_TEMPLATE_ID,
   EMPTY_ROOM_CATALOG_TEMPLATE_ID,
-  instantiateEmptyRoomCatalogTemplate,
-  instantiateLKitchenCatalogTemplate,
-  instantiateLivingRoomCatalogTemplate,
   instantiateProjectTemplate,
-  instantiateStraightKitchenCatalogTemplate,
   L_KITCHEN_CATALOG_TEMPLATE_ID,
   LIVING_ROOM_CATALOG_TEMPLATE_ID,
   STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID,
   type InstantiateTemplateOptions,
 } from "./instantiateProjectTemplate";
+export {
+  instantiateBedroomCatalogTemplate,
+  instantiateEmptyRoomCatalogTemplate,
+  instantiateLKitchenCatalogTemplate,
+  instantiateLivingRoomCatalogTemplate,
+  instantiateStraightKitchenCatalogTemplate,
+} from "./instantiateNamedCatalogTemplates";
 export {
   catalogSwatchEntitiesForSlot,
   catalogSwatchesForSlot,

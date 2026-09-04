@@ -15,7 +15,6 @@ import {
   LIVING_ROOM_MATERIAL_IDS,
 } from "../livingRoom/materials";
 import { createDefaultPackageCameraBookmarks } from "../livingRoom/packageCameraBookmarks";
-import { lookupBuiltInCatalogTemplate } from "./catalogLookup";
 import { paintObjectSlotFromCatalog } from "./paintCatalogFinish";
 import { placeCatalogItemWithDefaults } from "./placeCatalogItem";
 import { finalizeLKitchenTemplate } from "./lKitchenRun";
@@ -26,6 +25,7 @@ export const LIVING_ROOM_CATALOG_TEMPLATE_ID = "template:core:living-room:v1";
 export const EMPTY_ROOM_CATALOG_TEMPLATE_ID = "template:core:empty-room:v1";
 export const STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID = "template:core:straight-kitchen:v1";
 export const L_KITCHEN_CATALOG_TEMPLATE_ID = "template:core:l-kitchen:v1";
+export const BEDROOM_CATALOG_TEMPLATE_ID = "template:core:bedroom:v1";
 
 export type InstantiateTemplateOptions = {
   projectId?: string;
@@ -157,39 +157,4 @@ export function instantiateProjectTemplate(
   }
 
   return validateInteriorProject(document).project;
-}
-
-function instantiateNamedCatalogTemplate(
-  templateId: string,
-  options: InstantiateTemplateOptions,
-): InteriorProject {
-  const template = lookupBuiltInCatalogTemplate(templateId);
-  if (!template) {
-    throw new Error(`Missing catalog template ${templateId}`);
-  }
-  return instantiateProjectTemplate(template, options);
-}
-
-export function instantiateLivingRoomCatalogTemplate(
-  options: InstantiateTemplateOptions = {},
-): InteriorProject {
-  return instantiateNamedCatalogTemplate(LIVING_ROOM_CATALOG_TEMPLATE_ID, options);
-}
-
-export function instantiateEmptyRoomCatalogTemplate(
-  options: InstantiateTemplateOptions = {},
-): InteriorProject {
-  return instantiateNamedCatalogTemplate(EMPTY_ROOM_CATALOG_TEMPLATE_ID, options);
-}
-
-export function instantiateStraightKitchenCatalogTemplate(
-  options: InstantiateTemplateOptions = {},
-): InteriorProject {
-  return instantiateNamedCatalogTemplate(STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID, options);
-}
-
-export function instantiateLKitchenCatalogTemplate(
-  options: InstantiateTemplateOptions = {},
-): InteriorProject {
-  return instantiateNamedCatalogTemplate(L_KITCHEN_CATALOG_TEMPLATE_ID, options);
 }

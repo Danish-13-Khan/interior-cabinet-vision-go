@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.7",
-  "generatedAt": "2026-09-04T12:30:00.000Z",
+  "catalogVersion": "2026.09.8",
+  "generatedAt": "2026-09-04T13:45:00.000Z",
   "licenses": [
     {
       "id": "cc0-1.0",
@@ -5421,6 +5421,15 @@
       "mimeType": "image/png",
       "byteSize": 3110,
       "contentHash": "sha256:768a3b76926d88fd5ea52e73a79d8af4271fa78e6ca0431cb2b6b646540c721b"
+    },
+    {
+      "id": "image:template:bedroom:v1",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/bedroom-v1.png",
+      "mimeType": "image/png",
+      "byteSize": 3528,
+      "contentHash": "sha256:2f3160a7b2dcbe746b83cddbb2daa5913ca8009bfeeb8dbe6cb7b3197a1f363b"
     }
   ],
   "materials": [
@@ -11587,6 +11596,105 @@
             "x": -200,
             "y": 720,
             "z": -1550
+          },
+          "rotationY": 0
+        }
+      ]
+    },
+    {
+      "id": "template:core:bedroom:v1",
+      "version": 1,
+      "name": "Bedroom",
+      "category": "bedroom",
+      "description": "Furnished bedroom with bed, nightstands, storage, and soft finishes.",
+      "images": {
+        "thumbnailId": "image:template:bedroom:v1"
+      },
+      "room": {
+        "widthMm": 5200,
+        "depthMm": 4200,
+        "heightMm": 2700
+      },
+      "objects": [
+        {
+          "templateObjectId": "bedroom-rug",
+          "catalogItemId": "kenney:rug-rectangle",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 0,
+            "z": -200
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "bedroom-bed",
+          "catalogItemId": "kenney:bed-double",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 0,
+            "z": -900
+          },
+          "rotationY": 180,
+          "materialOverrides": {
+            "upholstery": "material:core:fabric-oatmeal:v1",
+            "bedding": "material:core:fabric-bedding-white:v1",
+            "frame": "material:core:wood-natural-oak:v1"
+          }
+        },
+        {
+          "templateObjectId": "bedroom-nightstand-left",
+          "catalogItemId": "kenney:cabinet-bed-drawer-table",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": -1400,
+            "y": 0,
+            "z": -1550
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "bedroom-nightstand-right",
+          "catalogItemId": "kenney:cabinet-bed-drawer-table",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 1400,
+            "y": 0,
+            "z": -1550
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "bedroom-lamp",
+          "catalogItemId": "kenney:lamp-round-table",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 1400,
+            "y": 550,
+            "z": -1550
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "bedroom-bookcase",
+          "catalogItemId": "kenney:bookcase-open",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 2100,
+            "y": 0,
+            "z": 400
+          },
+          "rotationY": -90
+        },
+        {
+          "templateObjectId": "bedroom-pillow",
+          "catalogItemId": "kenney:pillow",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 620,
+            "z": -1450
           },
           "rotationY": 0
         }

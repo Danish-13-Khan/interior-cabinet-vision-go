@@ -27,7 +27,7 @@ const APPLIANCE_IDS = [
 
 describe("Phase 5 L Kitchen template", () => {
   it("registers appliances, thumbnail, and kitchen category", () => {
-    expect(catalog.catalogVersion).toBe("2026.09.7");
+    expect(catalog.catalogVersion).toBe("2026.09.8");
     const template = lookupBuiltInCatalogTemplate(L_KITCHEN_CATALOG_TEMPLATE_ID)!;
     expect(template.name).toBe("L Kitchen");
     expect(template.category).toBe("kitchen");
