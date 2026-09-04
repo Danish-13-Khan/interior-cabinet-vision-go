@@ -5,6 +5,7 @@ import {
   offsetPlanWall,
   setPlanWallsRaised,
 } from "../domain/interiorProject";
+import { resolveFinishPickToProjectMaterial } from "../domain/catalog";
 import {
   addImportedFinish,
   applyMaterialToSelection,
@@ -86,10 +87,14 @@ export function paintLivingRoomObjectSlot(
   onStatus?: (status: string) => void,
 ) {
   try {
-    commitDocument(
-      (current) => paintLivingRoomSurface(current, { kind: "object", objectId, slotName }, materialId),
-      "Painted object surface.",
-    );
+    commitDocument((current) => {
+      const resolved = resolveFinishPickToProjectMaterial(current, materialId);
+      return paintLivingRoomSurface(
+        resolved.project,
+        { kind: "object", objectId, slotName },
+        resolved.materialId,
+      );
+    }, "Painted object surface.");
   } catch (error: unknown) {
     onStatus?.(error instanceof Error ? error.message : "Could not paint object surface.");
   }

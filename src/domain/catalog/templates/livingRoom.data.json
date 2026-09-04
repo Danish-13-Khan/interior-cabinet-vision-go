@@ -1,0 +1,77 @@
+{
+  "id": "template:core:living-room:v1",
+  "version": 1,
+  "name": "Living Room",
+  "category": "living-room",
+  "description": "Furnished living room with an editable presentation layout.",
+  "images": {
+    "thumbnailId": "image:template:living-room:v1"
+  },
+  "room": {
+    "widthMm": 5200,
+    "depthMm": 4200,
+    "heightMm": 2700
+  },
+  "objects": [
+    {
+      "templateObjectId": "living-room-rug",
+      "catalogItemId": "kenney:rug-rectangle",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 0, "y": 0, "z": 150 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "living-room-sofa",
+      "catalogItemId": "kenney:lounge-sofa",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 0, "y": 0, "z": 1100 },
+      "rotationY": 0,
+      "materialOverrides": {
+        "upholstery": "material:core:fabric-oatmeal:v1",
+        "legs": "material:core:wood-natural-oak:v1"
+      }
+    },
+    {
+      "templateObjectId": "living-room-chair",
+      "catalogItemId": "kenney:lounge-chair",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": -1700, "y": 0, "z": 200 },
+      "rotationY": 35
+    },
+    {
+      "templateObjectId": "living-room-coffee-table",
+      "catalogItemId": "kenney:table-coffee",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 0, "y": 0, "z": -50 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "living-room-tv-cabinet",
+      "catalogItemId": "kenney:cabinet-television",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 0, "y": 0, "z": -1650 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "living-room-tv",
+      "catalogItemId": "kenney:television-modern",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 0, "y": 450, "z": -1650 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "living-room-lamp",
+      "catalogItemId": "kenney:lamp-round-floor",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 1900, "y": 0, "z": -900 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "living-room-plant",
+      "catalogItemId": "kenney:potted-plant",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 2100, "y": 0, "z": 1300 },
+      "rotationY": 0
+    }
+  ]
+}

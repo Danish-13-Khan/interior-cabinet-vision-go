@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.3",
-  "generatedAt": "2026-09-04T00:00:00.000Z",
+  "catalogVersion": "2026.09.4",
+  "generatedAt": "2026-09-04T12:00:00.000Z",
   "licenses": [
     {
       "id": "cc0-1.0",
@@ -5385,6 +5385,15 @@
       "mimeType": "image/png",
       "byteSize": 4198,
       "contentHash": "sha256:2680ee25ba86fb051ee6e4cf0a2f0b3238d0355dce7e3f4bacf536e05bbfca19"
+    },
+    {
+      "id": "image:template:living-room:v1",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/living-room-v1.png",
+      "mimeType": "image/png",
+      "byteSize": 3500,
+      "contentHash": "sha256:632d6f851e64c6a35361039b2c52682ddfdfca6506437e4b479dcb211f2e5376"
     }
   ],
   "materials": [
@@ -5637,6 +5646,44 @@
       "metalness": 0,
       "opacity": 1,
       "uvScaleMm": 350,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:fabric-olive:v1",
+      "version": 1,
+      "name": "Olive Weave",
+      "kind": "fabric",
+      "tags": [
+        "woven",
+        "upholstery",
+        "accent"
+      ],
+      "swatchColor": "#6a6e52",
+      "baseColor": "#6a6e52",
+      "roughness": 0.97,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 450,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:wood-walnut:v1",
+      "version": 1,
+      "name": "Smoked Walnut",
+      "kind": "wood",
+      "tags": [
+        "natural",
+        "dark",
+        "frame"
+      ],
+      "swatchColor": "#4b3328",
+      "baseColor": "#4b3328",
+      "roughness": 0.58,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 900,
       "lifecycle": "active",
       "visibleInPicker": true
     }
@@ -11259,5 +11306,115 @@
       }
     }
   ],
-  "templates": []
+  "templates": [
+    {
+      "id": "template:core:living-room:v1",
+      "version": 1,
+      "name": "Living Room",
+      "category": "living-room",
+      "description": "Furnished living room with an editable presentation layout.",
+      "images": {
+        "thumbnailId": "image:template:living-room:v1"
+      },
+      "room": {
+        "widthMm": 5200,
+        "depthMm": 4200,
+        "heightMm": 2700
+      },
+      "objects": [
+        {
+          "templateObjectId": "living-room-rug",
+          "catalogItemId": "kenney:rug-rectangle",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 0,
+            "z": 150
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "living-room-sofa",
+          "catalogItemId": "kenney:lounge-sofa",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 0,
+            "z": 1100
+          },
+          "rotationY": 0,
+          "materialOverrides": {
+            "upholstery": "material:core:fabric-oatmeal:v1",
+            "legs": "material:core:wood-natural-oak:v1"
+          }
+        },
+        {
+          "templateObjectId": "living-room-chair",
+          "catalogItemId": "kenney:lounge-chair",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": -1700,
+            "y": 0,
+            "z": 200
+          },
+          "rotationY": 35
+        },
+        {
+          "templateObjectId": "living-room-coffee-table",
+          "catalogItemId": "kenney:table-coffee",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 0,
+            "z": -50
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "living-room-tv-cabinet",
+          "catalogItemId": "kenney:cabinet-television",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 0,
+            "z": -1650
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "living-room-tv",
+          "catalogItemId": "kenney:television-modern",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 0,
+            "y": 450,
+            "z": -1650
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "living-room-lamp",
+          "catalogItemId": "kenney:lamp-round-floor",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 1900,
+            "y": 0,
+            "z": -900
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "living-room-plant",
+          "catalogItemId": "kenney:potted-plant",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 2100,
+            "y": 0,
+            "z": 1300
+          },
+          "rotationY": 0
+        }
+      ]
+    }
+  ]
 }

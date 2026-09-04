@@ -38,7 +38,6 @@ import {
   alignLivingRoomObjects,
   applyLivingRoomLightingRecipe,
   applyLivingRoomStyle,
-  applyPlannerStarterTemplate,
   type PlannerStarterTemplate,
   ensureDrawnRoomReviewRig,
   createImportedAssetObject,
@@ -46,7 +45,6 @@ import {
   createGoldenCabinetRunProject,
   createLivingRoomReleaseDemoProject,
   createPhase1BenchmarkProject,
-  createLivingRoomStarterProject,
   type Phase1BenchmarkId,
   deleteLivingRoomOpening,
   duplicateLivingRoomObject,
@@ -75,6 +73,7 @@ import {
   type LivingRoomStyleId,
   type ImportedAsset,
 } from "../domain/livingRoom";
+import { buildLivingRoomStarterDocument } from "../domain/livingRoom/buildStarterDocument";
 import type { RoomConfig } from "../domain/roomModel";
 import type { CommitProjectChange, CommitSnapshot } from "./projectCommit";
 import {
@@ -141,21 +140,14 @@ export function useLivingRoomPlanEditor({
     projectName?: string;
     styleId?: LivingRoomStyleId;
     template?: PlannerStarterTemplate;
+    catalogTemplateId?: string;
   } = {}) {
-    const base = createLivingRoomStarterProject({
+    const { document: starter, label } = buildLivingRoomStarterDocument({
+      ...options,
       projectId: `living-room-${Date.now()}`,
-      projectName: options.projectName,
       now: new Date().toISOString(),
     });
-    const styled = options.styleId && options.styleId !== "warm-contemporary"
-      ? applyLivingRoomStyle(base, options.styleId)
-      : base;
-    const starter = applyPlannerStarterTemplate(styled, options.template ?? "blank-room");
     const compatible = cabinetProjectFromInteriorProject(starter);
-    const label = options.template === "wardrobe-wall" ? "wardrobe wall plan"
-      : options.template === "l-room" ? "L-room plan"
-      : options.template === "2-room-flat" ? "2-room flat plan"
-      : "blank plan";
     commitSnapshot(
       {
         project: compatible.project,
@@ -262,7 +254,6 @@ export function useLivingRoomPlanEditor({
   }
 
   function setObjectMaterial(objectId: string, slotName: string, materialId: string) {
-    if (!document?.materials.some((material) => material.id === materialId)) return;
     commitObjectPaint(commitDocument, objectId, slotName, materialId, onStatus);
   }
 

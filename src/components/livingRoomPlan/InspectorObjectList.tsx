@@ -27,6 +27,7 @@ export function InspectorObjectList({
             <button
               type="button"
               data-testid={`inspector-object-${object.id}`}
+              data-catalog-item-id={object.catalogItemId}
               aria-current={object.id === selectedId ? "true" : undefined}
               onClick={(event) => onSelect(object.id, event.shiftKey)}
             >

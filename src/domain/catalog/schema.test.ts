@@ -120,10 +120,11 @@ describe("catalog schema structural validation", () => {
         },
       ],
     });
+    const fixture = withTemplate.templates[withTemplate.templates.length - 1]!;
     const issues = validateCatalogManifest(withTemplate);
     expect(issues.some((issue) => issue.code === "template-item-version-mismatch")).toBe(true);
 
-    withTemplate.templates[0]!.objects[0]!.catalogItemVersion = sofa.version;
+    fixture.objects[0]!.catalogItemVersion = sofa.version;
     expect(
       validateCatalogManifest(withTemplate).some(
         (issue) => issue.code === "template-item-version-mismatch",
