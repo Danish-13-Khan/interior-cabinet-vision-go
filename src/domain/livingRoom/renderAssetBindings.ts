@@ -10,6 +10,7 @@ import type {
   RenderBinding,
 } from "./renderAssetContracts";
 import type { CompiledSceneNode } from "./sceneTypes";
+import { resolveMaterialAssetId } from "./catalogMaterialRegistry";
 import { createImportedObjectRenderBinding } from "./importedAssetBinding";
 import { createKenneyCatalogRenderBinding } from "./kenneyCatalogBinding";
 
@@ -65,8 +66,11 @@ function isGlbIntentCatalogId(id: string): id is GlbIntentCatalogId {
   return id in GLB_MODEL_BY_CATALOG;
 }
 
-export function materialAssetIdForEntity(materialId: string) {
-  return materialId;
+export function materialAssetIdForEntity(
+  materialId: string,
+  material?: Pick<MaterialEntity, "extensions"> | null,
+) {
+  return resolveMaterialAssetId(materialId, material);
 }
 
 export function defaultUvScaleMmForMaterial(materialId: string) {
@@ -116,6 +120,7 @@ export function createObjectRenderBinding(
       materialBindings,
       uvScaleMm,
       slotPolicies,
+      projectMaterials,
     );
     const pinWarning = catalogVersionPinFallbackWarning(object);
     return kenney ?? {

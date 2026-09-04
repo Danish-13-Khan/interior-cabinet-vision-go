@@ -78,7 +78,7 @@ export function LivingRoomModelView({
   const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
-  const [cutawayWalls, setCutawayWalls] = useState(true);
+  const [cutawayWalls, setCutawayWalls] = useState(false);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(getModelViewDefaultPresetId());
   const modelPresets = listModelViewRenderPresets();
   const quality = getRenderQualityPreset(viewportQuality);

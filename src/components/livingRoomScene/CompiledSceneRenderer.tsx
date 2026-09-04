@@ -6,7 +6,7 @@ import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/in
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
-import { filterModelReviewNodes } from "../../domain/livingRoom/modelReviewNodes";
+import { filterModelReviewNodes, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
@@ -96,13 +96,13 @@ export function CompiledSceneRenderer({
   const renderCamera = projectCamera
     ? resolveRenderCameraPose(projectCamera, architectureBounds, renderComposition, renderMode)
     : null;
-  const cutawaySides = new Set([
-    renderCamera && renderCamera.position.x < architectureBounds.center.x ? "left" : "right",
-    renderCamera && renderCamera.position.z < architectureBounds.center.z ? "back" : "front",
-  ]);
+  const cutawaySides = resolveModelCutawaySides(
+    renderCamera?.position ?? null,
+    architectureBounds.center,
+  );
   const hideCeiling = viewPreset === "dollhouse" || viewPreset === "orbit" || viewPreset === "top";
   const nodes = filterModelReviewNodes(
-    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling,
+    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
   );
   const selectedWallLabelNodeId = selectedWallId
     ? nodes

@@ -48,6 +48,7 @@ export function LivingRoomObjectInspector({
       </div>
       {object.kind === "cabinet" ? <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} /> : null}
       <p className="lr-inspector-hint">Drag to move. Duplicate, Copy, and Delete are in the inspector; plan shortcuts still work.</p>
+      <h4 className="lr-dimensions-heading">Finishes <small>model look until you pick a swatch</small></h4>
       <MaterialSlotList slots={object.materialSlots} materials={materials}
         slotPolicies={catalogSlotPoliciesForObject(object)}
         onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)} />
