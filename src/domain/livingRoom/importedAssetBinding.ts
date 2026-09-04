@@ -11,16 +11,9 @@ import {
 import type { MaterialSlotPolicy } from "../catalog/types";
 import type { InteriorObjectEntity, MaterialEntity } from "../interiorProject";
 import { getPackagedImportedAsset, type ImportedAsset } from "./assetImportPipeline";
-import { LIVING_ROOM_MATERIAL_IDS, livingRoomMaterialById } from "./materials";
+import { CATALOG_MATERIAL_TO_REGISTRY } from "./catalogMaterialRegistry";
+import { livingRoomMaterialById } from "./materials";
 import type { RenderBinding } from "./renderAssetContracts";
-
-/** Catalog slot defaults → living-room project materials present on pack projects. */
-const CATALOG_DEFAULT_TO_LIVING_ROOM: Record<string, string> = {
-  "material:core:fabric-oatmeal:v1": LIVING_ROOM_MATERIAL_IDS.oatmealFabric,
-  "material:core:wood-natural-oak:v1": LIVING_ROOM_MATERIAL_IDS.naturalOak,
-  "material:core:wood-walnut:v1": LIVING_ROOM_MATERIAL_IDS.walnut,
-  "material:core:metal-charcoal:v1": LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
-};
 
 function importedAssetForObject(object: InteriorObjectEntity): ImportedAsset | null {
   const candidate = object.extensions?.assetImport;
@@ -62,7 +55,7 @@ function localizePackDefaultBindings(
 ): Record<string, string> {
   const next: Record<string, string> = {};
   for (const [slot, materialId] of Object.entries(bindings)) {
-    next[slot] = CATALOG_DEFAULT_TO_LIVING_ROOM[materialId] ?? materialId;
+    next[slot] = CATALOG_MATERIAL_TO_REGISTRY[materialId] ?? materialId;
   }
   return next;
 }

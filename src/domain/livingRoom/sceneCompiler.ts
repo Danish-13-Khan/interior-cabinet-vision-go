@@ -29,9 +29,10 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
     ...project.materials.map((material) => {
       const mapUrl = typeof material.extensions?.mapUrl === "string" ? material.extensions.mapUrl : undefined;
+      const materialAssetId = materialAssetIdForEntity(material.id, material);
       const uvScale = typeof material.extensions?.uvScaleMm === "number"
         ? material.extensions.uvScaleMm
-        : defaultUvScaleMmForMaterial(material.id);
+        : defaultUvScaleMmForMaterial(materialAssetId);
       const uvRotation = typeof material.extensions?.uvRotationDeg === "number"
         ? material.extensions.uvRotationDeg
         : undefined;
@@ -43,7 +44,7 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
         roughness: material.roughness,
         metalness: material.metalness,
         opacity: material.opacity,
-        materialAssetId: materialAssetIdForEntity(material.id),
+        materialAssetId,
         uvScaleMm: uvScale,
         ...(mapUrl ? { textureMapUrl: mapUrl } : {}),
         ...(uvRotation ? { uvRotationDeg: uvRotation } : {}),
