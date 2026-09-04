@@ -61,6 +61,7 @@
 /* Shared Interiors shell is last so it overrides planner V2 / reference / home. */
 @import "./styles/interiors-chrome-workspace.css";
 @import "./styles/interiors-chrome-projects.css";
+@import "./styles/interiors-popular-templates.css";
 @import "./styles/interiors-chrome-draw-room.css";
 @import "./styles/interiors-chrome-cabinet-run.css";
 @import "./styles/interiors-chrome-present.css";

@@ -50,6 +50,8 @@ export {
 export { createLivingRoomCameras, LIVING_ROOM_CAMERA_KEYS } from "./cameras";
 export {
   defaultLivingRoomIdFactory,
+  createScopedLivingRoomIdFactory,
+  createUniqueLivingRoomIdFactory,
   type LivingRoomIdFactory,
 } from "./ids";
 export {

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "material:core:fabric-olive:v1",
+    "version": 1,
+    "name": "Olive Weave",
+    "kind": "fabric",
+    "tags": ["woven", "upholstery", "accent"],
+    "swatchColor": "#6a6e52",
+    "baseColor": "#6a6e52",
+    "roughness": 0.97,
+    "metalness": 0,
+    "opacity": 1,
+    "uvScaleMm": 450,
+    "lifecycle": "active",
+    "visibleInPicker": true
+  },
+  {
+    "id": "material:core:wood-walnut:v1",
+    "version": 1,
+    "name": "Smoked Walnut",
+    "kind": "wood",
+    "tags": ["natural", "dark", "frame"],
+    "swatchColor": "#4b3328",
+    "baseColor": "#4b3328",
+    "roughness": 0.58,
+    "metalness": 0,
+    "opacity": 1,
+    "uvScaleMm": 900,
+    "lifecycle": "active",
+    "visibleInPicker": true
+  }
+]

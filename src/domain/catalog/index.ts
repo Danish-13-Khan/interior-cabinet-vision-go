@@ -38,13 +38,16 @@ export {
   setCatalogProvider,
 } from "./catalogService";
 export {
-  catalogSlotPoliciesForObject,
   lookupBuiltInCatalogFile,
   lookupBuiltInCatalogItem,
   lookupBuiltInCatalogMaterial,
   lookupBuiltInCatalogMaterials,
+  lookupBuiltInCatalogTemplate,
+  lookupBuiltInCatalogTemplates,
   pinnedCatalogItemVersion,
   catalogVersionPinFallbackWarning,
+  catalogSlotPoliciesForObject,
+  templateModelAssetIds,
 } from "./catalogLookup";
 export {
   classifyKenneyStem,
@@ -74,6 +77,19 @@ export {
   placeCatalogItemWithDefaults,
   type CatalogObjectPlacement,
 } from "./placeCatalogItem";
+export {
+  instantiateLivingRoomCatalogTemplate,
+  instantiateProjectTemplate,
+  LIVING_ROOM_CATALOG_TEMPLATE_ID,
+  type InstantiateTemplateOptions,
+} from "./instantiateProjectTemplate";
+export {
+  catalogSwatchEntitiesForSlot,
+  catalogSwatchesForSlot,
+  isCatalogMaterialAllowedForSlot,
+  paintObjectSlotFromCatalog,
+  resolveFinishPickToProjectMaterial,
+} from "./paintCatalogFinish";
 export {
   CATALOG_SEED_MATERIALS,
   getCatalogSeedMaterial,

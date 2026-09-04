@@ -34,7 +34,8 @@ export function PlanObjectsLayer(props: {
       const identity = readCabinetIdentity(object);
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${object.rotation.y})`}
         className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""}`}
-        data-object-id={object.id} data-material-id={finish?.id} data-material-color={finish?.color}
+        data-object-id={object.id} data-catalog-item-id={object.catalogItemId}
+        data-material-id={finish?.id} data-material-color={finish?.color}
         data-wall-id={attachedWallId(object)}
         data-rotation-y={object.rotation.y}
         data-family-id={identity?.familyId}

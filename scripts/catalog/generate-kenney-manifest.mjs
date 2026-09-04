@@ -2,10 +2,11 @@
  * Merge Kenney GLB discovery + human overrides → public/catalog/builtin-catalog.v1.json
  * Run: node scripts/catalog/generate-kenney-manifest.mjs
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { classifyKenneyStem } from "./lib/classification.mjs";
+import { loadCatalogSources, pushTemplateThumbnail } from "./lib/catalogSources.mjs";
 import { hashFile } from "./lib/fileHash.mjs";
 import {
   displayNameFromStem,
@@ -21,29 +22,9 @@ const glbDir = join(root, "public/models/kenney-furniture/models_glb");
 const isoDir = join(root, "public/models/kenney-furniture/renders_isometric");
 const sideDir = join(root, "public/models/kenney-furniture/renders_side");
 const outPath = join(root, "public/catalog/builtin-catalog.v1.json");
-const CATALOG_VERSION = "2026.09.3";
-const GENERATED_AT = "2026-09-04T00:00:00.000Z";
+const CATALOG_VERSION = "2026.09.4";
+const GENERATED_AT = "2026-09-04T12:00:00.000Z";
 const PACK_PREFIX = "models/kenney-furniture";
-const kenneyDataDir = join(root, "src/domain/catalog/kenney");
-const materialsDir = join(root, "src/domain/catalog/materials");
-
-const OVERRIDE_FILES = [
-  "overrides.data.json",
-  "cabinetPropOverrides.data.json",
-  "curatedLiving.data.json",
-  "curatedBedroom.data.json",
-  "curatedKitchenBathroom.data.json",
-  "curatedOfficeUtility.data.json",
-];
-
-const SLOT_FILES = [
-  "curatedSlotsA.data.json",
-  "curatedSlotsB.data.json",
-  "curatedSlotsC.data.json",
-  "proofMaterialSlots.data.json",
-];
-
-const MATERIAL_FILES = ["seedMaterials.data.json", "seedMaterialsPhase3.data.json"];
 
 function metersToMm(bounds) {
   return {
@@ -53,36 +34,11 @@ function metersToMm(bounds) {
   };
 }
 
-function loadOverrides() {
-  const list = OVERRIDE_FILES.flatMap((name) =>
-    JSON.parse(readFileSync(join(kenneyDataDir, name), "utf8")),
-  );
-  return new Map(list.map((entry) => [entry.stem, entry]));
-}
-
-function loadProofSlots() {
-  return SLOT_FILES.reduce((acc, name) => {
-    return { ...acc, ...JSON.parse(readFileSync(join(kenneyDataDir, name), "utf8")) };
-  }, {});
-}
-
-function loadSeedMaterials() {
-  return MATERIAL_FILES.flatMap((name) =>
-    JSON.parse(readFileSync(join(materialsDir, name), "utf8")),
-  );
-}
-
 function pushImageFile(files, absolutePath, objectKey, id, role) {
   if (!existsSync(absolutePath)) return null;
   const { byteSize, contentHash } = hashFile(absolutePath);
   files.push({
-    id,
-    kind: "image",
-    role,
-    objectKey,
-    mimeType: "image/png",
-    byteSize,
-    contentHash,
+    id, kind: "image", role, objectKey, mimeType: "image/png", byteSize, contentHash,
   });
   return id;
 }
@@ -96,39 +52,25 @@ async function buildItem(stem, overrides, proofSlots) {
   const classified = classifyKenneyStem(stem);
   const override = overrides.get(stem) ?? {};
   const angle = override.thumbnailAngle ?? "NE";
-  const files = [
-    {
-      id: modelId,
-      kind: "model",
-      objectKey: glbObjectKey,
-      mimeType: "model/gltf-binary",
-      byteSize,
-      contentHash,
-      nativeBoundsM: inspection.nativeBoundsM,
-      primitiveCount: inspection.primitiveCount,
-      triangleCount: inspection.triangleCount,
-      originalMaterialNames: inspection.originalMaterialNames,
-      warnings: inspection.warnings,
-    },
-  ];
+  const files = [{
+    id: modelId, kind: "model", objectKey: glbObjectKey, mimeType: "model/gltf-binary",
+    byteSize, contentHash, nativeBoundsM: inspection.nativeBoundsM,
+    primitiveCount: inspection.primitiveCount, triangleCount: inspection.triangleCount,
+    originalMaterialNames: inspection.originalMaterialNames, warnings: inspection.warnings,
+  }];
   const thumbId = pushImageFile(
-    files,
-    join(isoDir, `${stem}_${angle}.png`),
+    files, join(isoDir, `${stem}_${angle}.png`),
     `${PACK_PREFIX}/renders_isometric/${stem}_${angle}.png`,
-    kenneyIsoImageId(stem, angle),
-    "thumbnail",
+    kenneyIsoImageId(stem, angle), "thumbnail",
   );
   const sideId = pushImageFile(
-    files,
-    join(sideDir, `${stem}.png`),
+    files, join(sideDir, `${stem}.png`),
     `${PACK_PREFIX}/renders_side/${stem}.png`,
-    kenneySideImageId(stem),
-    "preview",
+    kenneySideImageId(stem), "preview",
   );
   const lifecycle = override.lifecycle ?? "active";
   const item = {
-    id: kenneyItemId(stem),
-    version: 1,
+    id: kenneyItemId(stem), version: 1,
     name: override.name ?? displayNameFromStem(stem),
     category: override.category ?? classified.category,
     subcategory: override.subcategory ?? classified.subcategory,
@@ -149,9 +91,12 @@ async function buildItem(stem, overrides, proofSlots) {
 }
 
 export async function generateKenneyManifest() {
-  const overrides = loadOverrides();
-  const proofSlots = loadProofSlots();
-  const materials = loadSeedMaterials();
+  const sources = loadCatalogSources({
+    kenneyDataDir: join(root, "src/domain/catalog/kenney"),
+    materialsDir: join(root, "src/domain/catalog/materials"),
+    templatesDir: join(root, "src/domain/catalog/templates"),
+    root,
+  });
   const stems = readdirSync(glbDir)
     .filter((name) => name.endsWith(".glb"))
     .map((name) => name.replace(/\.glb$/, ""))
@@ -159,27 +104,26 @@ export async function generateKenneyManifest() {
   const files = [];
   const items = [];
   for (const stem of stems) {
-    const built = await buildItem(stem, overrides, proofSlots);
+    const built = await buildItem(stem, sources.overrides, sources.proofSlots);
     files.push(...built.files);
     items.push(built.item);
   }
+  pushTemplateThumbnail(files, root);
   return {
     schemaVersion: 1,
     catalogVersion: CATALOG_VERSION,
     generatedAt: GENERATED_AT,
-    licenses: [
-      {
-        id: "cc0-1.0",
-        name: "Creative Commons CC0 1.0",
-        sourceUrl: "https://kenney.nl/assets/furniture-kit",
-        attributionRequired: false,
-        licenseFileObjectKey: `${PACK_PREFIX}/License_Kenney.txt`,
-      },
-    ],
+    licenses: [{
+      id: "cc0-1.0",
+      name: "Creative Commons CC0 1.0",
+      sourceUrl: "https://kenney.nl/assets/furniture-kit",
+      attributionRequired: false,
+      licenseFileObjectKey: `${PACK_PREFIX}/License_Kenney.txt`,
+    }],
     files,
-    materials,
+    materials: sources.materials,
     items,
-    templates: [],
+    templates: sources.templates,
   };
 }
 
@@ -190,6 +134,6 @@ if (isMain) {
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(
-    `[catalog] wrote ${manifest.items.length} items, ${manifest.files.length} files → ${outPath}`,
+    `[catalog] wrote ${manifest.items.length} items, ${manifest.files.length} files, ${manifest.templates.length} templates → ${outPath}`,
   );
 }

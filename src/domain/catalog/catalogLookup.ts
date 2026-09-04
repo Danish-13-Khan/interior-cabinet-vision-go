@@ -5,6 +5,7 @@ import type {
   CatalogManifest,
   CatalogMaterial,
   MaterialSlotPolicy,
+  ProjectTemplate,
 } from "./types";
 
 const MANIFEST = builtinCatalogJson as unknown as CatalogManifest;
@@ -26,6 +27,29 @@ export function lookupBuiltInCatalogMaterials(): CatalogMaterial[] {
 
 export function lookupBuiltInCatalogMaterial(id: string): CatalogMaterial | undefined {
   return MANIFEST.materials.find((material) => material.id === id);
+}
+
+export function lookupBuiltInCatalogTemplates(): ProjectTemplate[] {
+  return MANIFEST.templates;
+}
+
+export function lookupBuiltInCatalogTemplate(id: string, version?: number): ProjectTemplate | null {
+  const template = MANIFEST.templates.find((candidate) => candidate.id === id) ?? null;
+  if (!template) return null;
+  if (version !== undefined && template.version !== version) return null;
+  return template;
+}
+
+/** Model file IDs referenced by a template — for lazy GLB loading scopes. */
+export function templateModelAssetIds(templateId: string): string[] {
+  const template = lookupBuiltInCatalogTemplate(templateId);
+  if (!template) return [];
+  const ids: string[] = [];
+  for (const object of template.objects) {
+    const item = lookupBuiltInCatalogItem(object.catalogItemId, object.catalogItemVersion);
+    if (item?.modelAssetId) ids.push(item.modelAssetId);
+  }
+  return [...new Set(ids)];
 }
 
 export function pinnedCatalogItemVersion(object: {

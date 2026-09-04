@@ -4,6 +4,7 @@ import type {
   CatalogMaterial,
   ProjectTemplate,
 } from "./types";
+import { isCatalogMaterialCompatible } from "./materialCompatibility";
 import { isRecord, pushError, type CatalogValidationIssue } from "./schemaHelpers";
 
 export function validateTemplateRefs(
@@ -75,11 +76,20 @@ export function validateTemplateRefs(
           `${template.id} overrides locked slot ${slotName} on ${item.id}`,
         );
       }
-      if (!materialsById.has(materialId)) {
+      const material = materialsById.get(materialId);
+      if (!material) {
         pushError(
           issues,
           "template-missing-material",
           `${template.id} material ${materialId} missing`,
+        );
+        continue;
+      }
+      if (!isCatalogMaterialCompatible(material, slot)) {
+        pushError(
+          issues,
+          "template-incompatible-material",
+          `${template.id} material ${materialId} is incompatible with slot ${slotName} on ${item.id}`,
         );
       }
     }
