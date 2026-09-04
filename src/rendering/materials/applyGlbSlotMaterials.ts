@@ -167,7 +167,10 @@ export function applyGlbSlotMaterials(root: Object3D, args: ApplyGlbSlotArgs) {
     const materialName = matList.map((mat) => mat.name).find((name) => Boolean(name)) ?? "";
     const sourceName = readGlbSourceMaterialName(child.userData, materialName);
     persistGlbSourceMaterialName(child.userData, sourceName);
-    if (args.preserveSourceMaterials) return;
+    // Keep source only when a color map is baked (Kenney solids still get catalog finishes).
+    if (args.preserveSourceMaterials && matList.some((m) => Boolean((m as Material & { map?: Texture | null }).map))) {
+      return;
+    }
     const matchArgs = {
       materialName: sourceName,
       meshName: child.name,

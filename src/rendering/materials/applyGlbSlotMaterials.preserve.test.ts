@@ -15,16 +15,46 @@ vi.mock("./resolveMaterialTextureUrls", () => ({
 }));
 
 describe("preserve Kenney source materials", () => {
-  it("skips catalog finish replace when preserveSourceMaterials is set", async () => {
+  it("applies catalog finishes when preserve is set but GLB has no baked map", async () => {
     const { applyGlbSlotMaterials } = await import("./applyGlbSlotMaterials");
     const { Mesh, BoxGeometry, MeshBasicMaterial, Group, Color } = await import("three");
     const compiled = {
       id: "proj-upholstery", name: "Oatmeal", kind: "fabric" as const,
       color: "#d2c3ae", roughness: 0.97, metalness: 0, opacity: 1,
-      materialAssetId: "proj-upholstery", uvScaleMm: 450,
+      materialAssetId: "lr-material-fabric-oatmeal", uvScaleMm: 450,
     };
     const root = new Group();
     const source = new MeshBasicMaterial({ name: "carpet", color: new Color("#c43c3c") });
+    const mesh = new Mesh(new BoxGeometry(), source);
+    mesh.name = "upholstery";
+    root.add(mesh);
+    applyGlbSlotMaterials(root, {
+      materialGroups: { upholstery: "upholstery" },
+      materialBindings: { upholstery: compiled.id },
+      materials: new Map([[compiled.id, compiled]]),
+      renderMode: "preview",
+      renderQuality: "standard",
+      castShadow: false,
+      receiveShadow: true,
+      preserveSourceMaterials: true,
+    });
+    expect(mesh.material).not.toBe(source);
+  });
+
+  it("keeps source materials when preserve is set and a color map is baked", async () => {
+    const { applyGlbSlotMaterials } = await import("./applyGlbSlotMaterials");
+    const { Mesh, BoxGeometry, MeshStandardMaterial, Group, Color, Texture } = await import("three");
+    const compiled = {
+      id: "proj-upholstery", name: "Oatmeal", kind: "fabric" as const,
+      color: "#d2c3ae", roughness: 0.97, metalness: 0, opacity: 1,
+      materialAssetId: "lr-material-fabric-oatmeal", uvScaleMm: 450,
+    };
+    const root = new Group();
+    const source = new MeshStandardMaterial({
+      name: "carpet",
+      color: new Color("#c43c3c"),
+      map: new Texture(),
+    });
     const mesh = new Mesh(new BoxGeometry(), source);
     root.add(mesh);
     applyGlbSlotMaterials(root, {
