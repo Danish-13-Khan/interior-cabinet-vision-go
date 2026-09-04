@@ -7,7 +7,7 @@ import { placeCatalogItemWithDefaults } from "./placeCatalogItem";
 import { defaultBrowserPlacementPosition } from "./objectBrowserPlacement";
 import type { CatalogItem, CatalogManifest, CatalogPlacement } from "./types";
 import type { InteriorProject, Point3Mm } from "../interiorProject";
-import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json";
+import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json" with { type: "json" };
 
 export {
   browserFootprintFitsRoom,

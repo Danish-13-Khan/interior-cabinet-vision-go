@@ -1,4 +1,4 @@
-import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json";
+import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json" with { type: "json" };
 import type {
   CatalogFileRecord,
   CatalogItem,

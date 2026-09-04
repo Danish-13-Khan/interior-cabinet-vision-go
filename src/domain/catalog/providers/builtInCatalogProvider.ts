@@ -1,4 +1,4 @@
-import builtinCatalogJson from "../../../../public/catalog/builtin-catalog.v1.json";
+import builtinCatalogJson from "../../../../public/catalog/builtin-catalog.v1.json" with { type: "json" };
 import { publicAssetUrl } from "../../../utils/publicAssetUrl";
 import { resolveCatalogAlias } from "../aliases";
 import { assertValidCatalogManifest } from "../schema";
@@ -28,7 +28,7 @@ export class BuiltInCatalogProvider implements CatalogProvider {
     const data = manifest ?? builtinCatalogJson;
     assertValidCatalogManifest(data);
     this.manifest = data as CatalogManifest;
-    this.baseUrl = options.baseUrl ?? import.meta.env.BASE_URL ?? "/";
+    this.baseUrl = options.baseUrl ?? import.meta.env?.BASE_URL ?? "/";
   }
 
   async getManifest(): Promise<CatalogManifest> {
