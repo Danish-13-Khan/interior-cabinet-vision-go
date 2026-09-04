@@ -24,7 +24,13 @@ const MATERIAL_FILES = [
   "seedMaterialsPhase4.data.json",
 ];
 
-const TEMPLATE_FILES = ["livingRoom.data.json"];
+const TEMPLATE_FILES = ["livingRoom.data.json", "emptyRoom.data.json"];
+
+/** Thumbnail files registered into the catalog manifest (id → public objectKey). */
+const TEMPLATE_THUMBNAILS = [
+  { id: "image:template:living-room:v1", objectKey: "catalog/templates/living-room-v1.png" },
+  { id: "image:template:empty-room:v1", objectKey: "catalog/templates/empty-room-v1.png" },
+];
 
 export function loadCatalogSources({ kenneyDataDir, materialsDir, templatesDir, root }) {
   const overrides = new Map(
@@ -46,17 +52,18 @@ export function loadCatalogSources({ kenneyDataDir, materialsDir, templatesDir, 
 }
 
 export function pushTemplateThumbnail(files, root) {
-  const objectKey = "catalog/templates/living-room-v1.png";
-  const abs = join(root, "public", objectKey);
-  if (!existsSync(abs)) throw new Error(`Missing template thumbnail at ${objectKey}`);
-  const { byteSize, contentHash } = hashFile(abs);
-  files.push({
-    id: "image:template:living-room:v1",
-    kind: "image",
-    role: "template-thumbnail",
-    objectKey,
-    mimeType: "image/png",
-    byteSize,
-    contentHash,
-  });
+  for (const thumb of TEMPLATE_THUMBNAILS) {
+    const abs = join(root, "public", thumb.objectKey);
+    if (!existsSync(abs)) throw new Error(`Missing template thumbnail at ${thumb.objectKey}`);
+    const { byteSize, contentHash } = hashFile(abs);
+    files.push({
+      id: thumb.id,
+      kind: "image",
+      role: "template-thumbnail",
+      objectKey: thumb.objectKey,
+      mimeType: "image/png",
+      byteSize,
+      contentHash,
+    });
+  }
 }

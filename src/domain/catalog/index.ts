@@ -78,6 +78,8 @@ export {
   type CatalogObjectPlacement,
 } from "./placeCatalogItem";
 export {
+  EMPTY_ROOM_CATALOG_TEMPLATE_ID,
+  instantiateEmptyRoomCatalogTemplate,
   instantiateLivingRoomCatalogTemplate,
   instantiateProjectTemplate,
   LIVING_ROOM_CATALOG_TEMPLATE_ID,
