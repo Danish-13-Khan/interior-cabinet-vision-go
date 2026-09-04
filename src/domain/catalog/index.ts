@@ -13,6 +13,8 @@ export type {
   MaterialSlotPolicy,
   ProjectTemplate,
   ResolvedAsset,
+  AssetDeliverySource,
+  AssetUnavailableReason,
 } from "./types";
 export {
   camelStemToKebab,
@@ -29,6 +31,35 @@ export {
 } from "./schema";
 export type { CatalogProvider } from "./providers/types";
 export { BuiltInCatalogProvider } from "./providers/builtInCatalogProvider";
+export {
+  CatalogDeliveryCache,
+  MemoryCatalogBlobStore,
+  MemoryCatalogMetadataStore,
+  RemoteCatalogProvider,
+  createCatalogBlobStore,
+  createCatalogProvider,
+  isRemoteDeliveryExpired,
+  isResolvedAssetAvailable,
+  notConfiguredRemoteTransport,
+  resolveCdnDeliveryUrl,
+  unavailableResolvedAsset,
+  type CatalogBlobStore,
+  type CatalogMetadataStore,
+  type CatalogProviderConfig,
+  type CatalogProviderMode,
+  type CdnDelivery,
+  type CdnResolutionConfig,
+  type RemoteCatalogProviderOptions,
+  type RemoteCatalogTransport,
+  type RemoteDeliveryResponse,
+  type RemoteManifestResponse,
+  type UnavailableReason,
+} from "./providers";
+export {
+  isSha256ContentHash,
+  verifyContentIntegrity,
+  type IntegrityCheckResult,
+} from "./contentIntegrity";
 export {
   lookupCatalogItemResolvingAliases,
   remapPackMaterialBindings,
