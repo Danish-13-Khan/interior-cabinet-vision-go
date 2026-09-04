@@ -23,7 +23,7 @@ describe("builtin catalog manifest", () => {
 
   it("contains all 140 Kenney items with unique ids", () => {
     expect(catalog.items).toHaveLength(140);
-    expect(catalog.catalogVersion).toBe("2026.09.6");
+    expect(catalog.catalogVersion).toBe("2026.09.7");
     expect(catalog.schemaVersion).toBe(1);
     expect(catalog.licenses.some((license) => license.id === "cc0-1.0")).toBe(true);
     const ids = catalog.items.map((item) => item.id);
@@ -65,11 +65,12 @@ describe("builtin catalog manifest", () => {
   });
 
   it("keeps materials seeded and ships Living Room, Empty Room, and Straight Kitchen", () => {
-    expect(catalog.catalogVersion).toBe("2026.09.6");
+    expect(catalog.catalogVersion).toBe("2026.09.7");
     expect(catalog.materials.length).toBeGreaterThanOrEqual(13);
-    expect(catalog.templates).toHaveLength(3);
+    expect(catalog.templates).toHaveLength(4);
     expect(catalog.templates.map((template) => template.id).sort()).toEqual([
       "template:core:empty-room:v1",
+      "template:core:l-kitchen:v1",
       "template:core:living-room:v1",
       "template:core:straight-kitchen:v1",
     ].sort());

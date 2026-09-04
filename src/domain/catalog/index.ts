@@ -80,9 +80,11 @@ export {
 export {
   EMPTY_ROOM_CATALOG_TEMPLATE_ID,
   instantiateEmptyRoomCatalogTemplate,
+  instantiateLKitchenCatalogTemplate,
   instantiateLivingRoomCatalogTemplate,
   instantiateProjectTemplate,
   instantiateStraightKitchenCatalogTemplate,
+  L_KITCHEN_CATALOG_TEMPLATE_ID,
   LIVING_ROOM_CATALOG_TEMPLATE_ID,
   STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID,
   type InstantiateTemplateOptions,

@@ -1,0 +1,52 @@
+{
+  "id": "template:core:l-kitchen:v1",
+  "version": 1,
+  "name": "L Kitchen",
+  "category": "kitchen",
+  "description": "L-shaped smart cabinet runs with corner, fillers, countertops, and Kenney appliances — proposal-ready.",
+  "images": {
+    "thumbnailId": "image:template:l-kitchen:v1"
+  },
+  "room": {
+    "widthMm": 6000,
+    "depthMm": 4500,
+    "heightMm": 2800
+  },
+  "objects": [
+    {
+      "templateObjectId": "kitchen-fridge",
+      "catalogItemId": "kenney:kitchen-fridge",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": -2400, "y": 0, "z": -1800 },
+      "rotationY": 0
+    },
+    {
+      "templateObjectId": "kitchen-stove",
+      "catalogItemId": "kenney:kitchen-stove-electric",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 2150, "y": 0, "z": 500 },
+      "rotationY": -90
+    },
+    {
+      "templateObjectId": "kitchen-sink",
+      "catalogItemId": "kenney:kitchen-sink",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 2150, "y": 0, "z": 1300 },
+      "rotationY": -90
+    },
+    {
+      "templateObjectId": "kitchen-hood",
+      "catalogItemId": "kenney:hood-modern",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": 2200, "y": 1600, "z": 500 },
+      "rotationY": -90
+    },
+    {
+      "templateObjectId": "kitchen-microwave",
+      "catalogItemId": "kenney:kitchen-microwave",
+      "catalogItemVersion": 1,
+      "positionMm": { "x": -200, "y": 720, "z": -1550 },
+      "rotationY": 0
+    }
+  ]
+}

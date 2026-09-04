@@ -18,12 +18,14 @@ import { createDefaultPackageCameraBookmarks } from "../livingRoom/packageCamera
 import { lookupBuiltInCatalogTemplate } from "./catalogLookup";
 import { paintObjectSlotFromCatalog } from "./paintCatalogFinish";
 import { placeCatalogItemWithDefaults } from "./placeCatalogItem";
+import { finalizeLKitchenTemplate } from "./lKitchenRun";
 import { finalizeStraightKitchenTemplate } from "./straightKitchenRun";
 import type { ProjectTemplate } from "./types";
 
 export const LIVING_ROOM_CATALOG_TEMPLATE_ID = "template:core:living-room:v1";
 export const EMPTY_ROOM_CATALOG_TEMPLATE_ID = "template:core:empty-room:v1";
 export const STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID = "template:core:straight-kitchen:v1";
+export const L_KITCHEN_CATALOG_TEMPLATE_ID = "template:core:l-kitchen:v1";
 
 export type InstantiateTemplateOptions = {
   projectId?: string;
@@ -150,6 +152,9 @@ export function instantiateProjectTemplate(
   if (template.id === STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID) {
     document = finalizeStraightKitchenTemplate(document, { roomId, idFactory });
   }
+  if (template.id === L_KITCHEN_CATALOG_TEMPLATE_ID) {
+    document = finalizeLKitchenTemplate(document, { roomId, idFactory });
+  }
 
   return validateInteriorProject(document).project;
 }
@@ -181,4 +186,10 @@ export function instantiateStraightKitchenCatalogTemplate(
   options: InstantiateTemplateOptions = {},
 ): InteriorProject {
   return instantiateNamedCatalogTemplate(STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID, options);
+}
+
+export function instantiateLKitchenCatalogTemplate(
+  options: InstantiateTemplateOptions = {},
+): InteriorProject {
+  return instantiateNamedCatalogTemplate(L_KITCHEN_CATALOG_TEMPLATE_ID, options);
 }
