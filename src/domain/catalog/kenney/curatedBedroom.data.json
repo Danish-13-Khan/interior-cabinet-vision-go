@@ -1,0 +1,57 @@
+[
+  {
+    "stem": "bedDouble",
+    "name": "Double Bed",
+    "category": "beds-and-bedroom",
+    "subcategory": "beds",
+    "tags": ["bedroom", "bed"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 1600, "height": 900, "depth": 2100 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "cabinetBedDrawerTable",
+    "name": "Bedside Drawer Table",
+    "category": "beds-and-bedroom",
+    "subcategory": "nightstands",
+    "tags": ["bedroom", "storage", "nightstand"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 450, "height": 550, "depth": 400 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "lampRoundTable",
+    "name": "Round Table Lamp",
+    "category": "lighting",
+    "subcategory": "lamps",
+    "tags": ["light", "bedroom", "table-lamp"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 300, "height": 450, "depth": 300 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "pillow",
+    "name": "Pillow",
+    "category": "beds-and-bedroom",
+    "subcategory": "bedding",
+    "tags": ["bedroom", "bedding", "decor"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 600, "height": 200, "depth": 400 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "bookcaseOpen",
+    "name": "Open Bookcase",
+    "category": "storage",
+    "subcategory": "bookcases",
+    "tags": ["storage", "bedroom", "living-room"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 800, "height": 1800, "depth": 350 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  }
+]

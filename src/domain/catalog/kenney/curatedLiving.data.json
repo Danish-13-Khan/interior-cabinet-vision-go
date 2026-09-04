@@ -1,0 +1,101 @@
+[
+  {
+    "stem": "loungeSofa",
+    "name": "Lounge Sofa",
+    "category": "seating",
+    "subcategory": "sofas",
+    "tags": ["seating", "living-room", "upholstery"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 2100, "height": 850, "depth": 900 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "loungeChair",
+    "name": "Lounge Chair",
+    "category": "seating",
+    "subcategory": "chairs",
+    "tags": ["seating", "living-room", "upholstery"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 820, "height": 880, "depth": 860 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "tableCoffee",
+    "name": "Coffee Table",
+    "category": "tables-and-desks",
+    "subcategory": "tables",
+    "tags": ["table", "living-room"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 1200, "height": 380, "depth": 650 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "televisionModern",
+    "name": "Modern Television",
+    "category": "electronics",
+    "subcategory": "devices",
+    "tags": ["electronics", "living-room", "tv"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 1200, "height": 700, "depth": 80 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "cabinetTelevision",
+    "name": "TV Cabinet",
+    "category": "storage",
+    "subcategory": "media",
+    "tags": ["storage", "living-room", "media"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 1600, "height": 450, "depth": 400 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "rugRectangle",
+    "name": "Rectangle Rug",
+    "category": "decor",
+    "subcategory": "rugs",
+    "tags": ["decor", "rug", "living-room"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 2000, "height": 10, "depth": 1400 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "lampRoundFloor",
+    "name": "Round Floor Lamp",
+    "category": "lighting",
+    "subcategory": "lamps",
+    "tags": ["light", "living-room", "floor-lamp"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 420, "height": 1650, "depth": 420 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "pottedPlant",
+    "name": "Potted Plant",
+    "category": "decor",
+    "subcategory": "plants",
+    "tags": ["decor", "plant", "living-room"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 720, "height": 1450, "depth": 720 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "sideTable",
+    "name": "Side Table",
+    "category": "tables-and-desks",
+    "subcategory": "tables",
+    "tags": ["table", "living-room", "bedroom"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 480, "height": 520, "depth": 480 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  }
+]

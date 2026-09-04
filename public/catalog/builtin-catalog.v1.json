@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.2",
+  "catalogVersion": "2026.09.3",
   "generatedAt": "2026-09-04T00:00:00.000Z",
   "licenses": [
     {
@@ -5583,6 +5583,62 @@
       "uvScaleMm": 400,
       "lifecycle": "active",
       "visibleInPicker": true
+    },
+    {
+      "id": "material:core:metal-appliance-steel:v1",
+      "version": 1,
+      "name": "Appliance Steel",
+      "kind": "metal",
+      "tags": [
+        "appliance",
+        "enamel",
+        "hardware"
+      ],
+      "swatchColor": "#c5c8c7",
+      "baseColor": "#c5c8c7",
+      "roughness": 0.28,
+      "metalness": 0.85,
+      "opacity": 1,
+      "uvScaleMm": 400,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:fabric-rug-wool:v1",
+      "version": 1,
+      "name": "Wool Rug",
+      "kind": "fabric",
+      "tags": [
+        "rug",
+        "woven",
+        "neutral"
+      ],
+      "swatchColor": "#8b7355",
+      "baseColor": "#8b7355",
+      "roughness": 0.98,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 800,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:fabric-shade-linen:v1",
+      "version": 1,
+      "name": "Linen Shade",
+      "kind": "fabric",
+      "tags": [
+        "shade",
+        "neutral"
+      ],
+      "swatchColor": "#e8e2d6",
+      "baseColor": "#e8e2d6",
+      "roughness": 0.9,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 350,
+      "lifecycle": "active",
+      "visibleInPicker": true
     }
   ],
   "items": [
@@ -5659,13 +5715,14 @@
       "category": "bathroom",
       "subcategory": "fixtures",
       "tags": [
-        "bathroom"
+        "bathroom",
+        "mirror"
       ],
-      "placement": "floor",
+      "placement": "wall",
       "dimensionsMm": {
-        "width": 301,
-        "height": 435,
-        "depth": 144
+        "width": 600,
+        "height": 800,
+        "depth": 50
       },
       "modelAssetId": "model:kenney:bathroom-mirror:v1",
       "images": {
@@ -5704,8 +5761,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -5719,13 +5776,15 @@
       "category": "bathroom",
       "subcategory": "fixtures",
       "tags": [
-        "bathroom"
+        "bathroom",
+        "fixture",
+        "sink"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 340,
-        "height": 560,
-        "depth": 290
+        "width": 600,
+        "height": 850,
+        "depth": 450
       },
       "modelAssetId": "model:kenney:bathroom-sink:v1",
       "images": {
@@ -5734,11 +5793,39 @@
           "image:kenney:bathroom-sink:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "ceramic": {
+          "sourceMaterialNames": [
+            "carpetWhite",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "ceramic"
+          ],
+          "defaultMaterialId": "material:core:ceramic-white:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalLight"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -5785,13 +5872,15 @@
       "category": "bathroom",
       "subcategory": "fixtures",
       "tags": [
-        "bathroom"
+        "bathroom",
+        "fixture",
+        "bath"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 1190,
-        "height": 420,
-        "depth": 560
+        "width": 1700,
+        "height": 600,
+        "depth": 750
       },
       "modelAssetId": "model:kenney:bathtub:v1",
       "images": {
@@ -5800,11 +5889,39 @@
           "image:kenney:bathtub:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "ceramic": {
+          "sourceMaterialNames": [
+            "carpetWhite"
+          ],
+          "allowedMaterialKinds": [
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "ceramic"
+          ],
+          "defaultMaterialId": "material:core:ceramic-white:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalDark",
+            "metalLight"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -5880,17 +5997,18 @@
     {
       "id": "kenney:bed-double",
       "version": 1,
-      "name": "Bed Double",
+      "name": "Double Bed",
       "category": "beds-and-bedroom",
-      "subcategory": "bedroom",
+      "subcategory": "beds",
       "tags": [
-        "bedroom"
+        "bedroom",
+        "bed"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 956,
-        "height": 375,
-        "depth": 1125
+        "width": 1600,
+        "height": 900,
+        "depth": 2100
       },
       "modelAssetId": "model:kenney:bed-double:v1",
       "images": {
@@ -5956,8 +6074,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6198,17 +6316,19 @@
     {
       "id": "kenney:bookcase-open",
       "version": 1,
-      "name": "Bookcase Open",
+      "name": "Open Bookcase",
       "category": "storage",
-      "subcategory": "storage",
+      "subcategory": "bookcases",
       "tags": [
-        "storage"
+        "storage",
+        "bedroom",
+        "living-room"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 400,
-        "height": 880,
-        "depth": 250
+        "width": 800,
+        "height": 1800,
+        "depth": 350
       },
       "modelAssetId": "model:kenney:bookcase-open:v1",
       "images": {
@@ -6217,11 +6337,23 @@
           "image:kenney:bookcase-open:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "body": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "paint"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6363,17 +6495,19 @@
     {
       "id": "kenney:cabinet-bed-drawer-table",
       "version": 1,
-      "name": "Cabinet Bed Drawer Table",
+      "name": "Bedside Drawer Table",
       "category": "beds-and-bedroom",
-      "subcategory": "bedroom",
+      "subcategory": "nightstands",
       "tags": [
-        "bedroom"
+        "bedroom",
+        "storage",
+        "nightstand"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 266,
-        "height": 263,
-        "depth": 217
+        "width": 450,
+        "height": 550,
+        "depth": 400
       },
       "modelAssetId": "model:kenney:cabinet-bed-drawer-table:v1",
       "images": {
@@ -6382,11 +6516,38 @@
           "image:kenney:cabinet-bed-drawer-table:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "body": {
+          "sourceMaterialNames": [
+            "wood",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "paint",
+            "laminate"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6396,17 +6557,19 @@
     {
       "id": "kenney:cabinet-television",
       "version": 1,
-      "name": "Cabinet Television",
+      "name": "TV Cabinet",
       "category": "storage",
-      "subcategory": "storage",
+      "subcategory": "media",
       "tags": [
-        "storage"
+        "storage",
+        "living-room",
+        "media"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 800,
-        "height": 310,
-        "depth": 250
+        "width": 1600,
+        "height": 450,
+        "depth": 400
       },
       "modelAssetId": "model:kenney:cabinet-television:v1",
       "images": {
@@ -6415,11 +6578,24 @@
           "image:kenney:cabinet-television:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "body": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "paint",
+            "laminate"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6627,17 +6803,19 @@
     {
       "id": "kenney:chair-desk",
       "version": 1,
-      "name": "Chair Desk",
+      "name": "Desk Chair",
       "category": "seating",
-      "subcategory": "seating",
+      "subcategory": "chairs",
       "tags": [
-        "seating"
+        "seating",
+        "office",
+        "chair"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 335,
-        "height": 608,
-        "depth": 314
+        "width": 600,
+        "height": 1000,
+        "depth": 600
       },
       "modelAssetId": "model:kenney:chair-desk:v1",
       "images": {
@@ -6646,11 +6824,39 @@
           "image:kenney:chair-desk:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "upholstery": {
+          "sourceMaterialNames": [
+            "carpet"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "upholstery"
+          ],
+          "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+          "editable": true
+        },
+        "frame": {
+          "sourceMaterialNames": [
+            "metalMedium"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6825,17 +7031,19 @@
     {
       "id": "kenney:computer-keyboard",
       "version": 1,
-      "name": "Computer Keyboard",
+      "name": "Keyboard",
       "category": "electronics",
       "subcategory": "devices",
       "tags": [
-        "electronics"
+        "electronics",
+        "office",
+        "keyboard"
       ],
       "placement": "surface",
       "dimensionsMm": {
-        "width": 282,
-        "height": 28,
-        "depth": 118
+        "width": 450,
+        "height": 30,
+        "depth": 150
       },
       "modelAssetId": "model:kenney:computer-keyboard:v1",
       "images": {
@@ -6844,11 +7052,27 @@
           "image:kenney:computer-keyboard:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metalDark",
+            "metalMedium"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6862,13 +7086,15 @@
       "category": "electronics",
       "subcategory": "devices",
       "tags": [
-        "electronics"
+        "electronics",
+        "office",
+        "mouse"
       ],
       "placement": "surface",
       "dimensionsMm": {
-        "width": 50,
-        "height": 24,
-        "depth": 85
+        "width": 70,
+        "height": 40,
+        "depth": 120
       },
       "modelAssetId": "model:kenney:computer-mouse:v1",
       "images": {
@@ -6877,11 +7103,26 @@
           "image:kenney:computer-mouse:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6895,13 +7136,15 @@
       "category": "electronics",
       "subcategory": "devices",
       "tags": [
-        "electronics"
+        "electronics",
+        "office",
+        "monitor"
       ],
       "placement": "surface",
       "dimensionsMm": {
-        "width": 393,
-        "height": 294,
-        "depth": 104
+        "width": 550,
+        "height": 400,
+        "depth": 200
       },
       "modelAssetId": "model:kenney:computer-screen:v1",
       "images": {
@@ -6910,11 +7153,40 @@
           "image:kenney:computer-screen:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "screen": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "screen"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": false
+        },
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -6926,15 +7198,16 @@
       "version": 1,
       "name": "Desk",
       "category": "tables-and-desks",
-      "subcategory": "tables",
+      "subcategory": "desks",
       "tags": [
-        "table"
+        "desk",
+        "office"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 734,
-        "height": 384,
-        "depth": 392
+        "width": 1400,
+        "height": 750,
+        "depth": 700
       },
       "modelAssetId": "model:kenney:desk:v1",
       "images": {
@@ -6943,11 +7216,35 @@
           "image:kenney:desk:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "top": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "laminate",
+            "paint"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        },
+        "frame": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "wood"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7091,15 +7388,17 @@
       "version": 1,
       "name": "Dryer",
       "category": "utility",
-      "subcategory": "utility",
+      "subcategory": "laundry",
       "tags": [
-        "utility"
+        "utility",
+        "laundry",
+        "appliance"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 390,
-        "height": 470,
-        "depth": 380
+        "width": 600,
+        "height": 850,
+        "depth": 650
       },
       "modelAssetId": "model:kenney:dryer:v1",
       "images": {
@@ -7108,11 +7407,41 @@
           "image:kenney:dryer:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metalLight",
+            "metalMedium"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7287,17 +7616,19 @@
     {
       "id": "kenney:hood-modern",
       "version": 1,
-      "name": "Hood Modern",
+      "name": "Modern Range Hood",
       "category": "kitchen-and-appliances",
       "subcategory": "appliances",
       "tags": [
-        "kitchen"
+        "kitchen",
+        "appliance",
+        "hood"
       ],
-      "placement": "floor",
+      "placement": "wall",
       "dimensionsMm": {
-        "width": 430,
+        "width": 600,
         "height": 400,
-        "depth": 285
+        "depth": 500
       },
       "modelAssetId": "model:kenney:hood-modern:v1",
       "images": {
@@ -7306,11 +7637,28 @@
           "image:kenney:hood-modern:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metalMedium",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7320,11 +7668,12 @@
     {
       "id": "kenney:kitchen-bar",
       "version": 1,
-      "name": "Kitchen Bar",
+      "name": "Kitchen Bar (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7353,11 +7702,12 @@
     {
       "id": "kenney:kitchen-bar-end",
       "version": 1,
-      "name": "Kitchen Bar End",
+      "name": "Kitchen Bar End (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7419,11 +7769,12 @@
     {
       "id": "kenney:kitchen-cabinet",
       "version": 1,
-      "name": "Kitchen Cabinet",
+      "name": "Kitchen Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7452,11 +7803,12 @@
     {
       "id": "kenney:kitchen-cabinet-corner-inner",
       "version": 1,
-      "name": "Kitchen Cabinet Corner Inner",
+      "name": "Kitchen Corner Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7485,11 +7837,12 @@
     {
       "id": "kenney:kitchen-cabinet-corner-round",
       "version": 1,
-      "name": "Kitchen Cabinet Corner Round",
+      "name": "Kitchen Round Corner Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7518,11 +7871,12 @@
     {
       "id": "kenney:kitchen-cabinet-drawer",
       "version": 1,
-      "name": "Kitchen Cabinet Drawer",
+      "name": "Kitchen Drawer Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7551,11 +7905,12 @@
     {
       "id": "kenney:kitchen-cabinet-upper",
       "version": 1,
-      "name": "Kitchen Cabinet Upper",
+      "name": "Upper Kitchen Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7584,11 +7939,12 @@
     {
       "id": "kenney:kitchen-cabinet-upper-corner",
       "version": 1,
-      "name": "Kitchen Cabinet Upper Corner",
+      "name": "Upper Corner Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7617,11 +7973,12 @@
     {
       "id": "kenney:kitchen-cabinet-upper-double",
       "version": 1,
-      "name": "Kitchen Cabinet Upper Double",
+      "name": "Upper Double Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7650,11 +8007,12 @@
     {
       "id": "kenney:kitchen-cabinet-upper-low",
       "version": 1,
-      "name": "Kitchen Cabinet Upper Low",
+      "name": "Low Upper Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "cabinet-props",
       "tags": [
-        "kitchen"
+        "presentation-prop",
+        "not-production"
       ],
       "placement": "floor",
       "dimensionsMm": {
@@ -7683,17 +8041,19 @@
     {
       "id": "kenney:kitchen-coffee-machine",
       "version": 1,
-      "name": "Kitchen Coffee Machine",
+      "name": "Coffee Machine",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "small-appliances",
       "tags": [
-        "kitchen"
+        "kitchen",
+        "appliance",
+        "coffee"
       ],
-      "placement": "floor",
+      "placement": "surface",
       "dimensionsMm": {
-        "width": 190,
-        "height": 177,
-        "depth": 240
+        "width": 250,
+        "height": 350,
+        "depth": 350
       },
       "modelAssetId": "model:kenney:kitchen-coffee-machine:v1",
       "images": {
@@ -7702,11 +8062,29 @@
           "image:kenney:kitchen-coffee-machine:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalMedium",
+            "carpetWhite"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7720,13 +8098,15 @@
       "category": "kitchen-and-appliances",
       "subcategory": "appliances",
       "tags": [
-        "kitchen"
+        "kitchen",
+        "appliance",
+        "fridge"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 430,
-        "height": 920,
-        "depth": 292
+        "width": 700,
+        "height": 1800,
+        "depth": 700
       },
       "modelAssetId": "model:kenney:kitchen-fridge:v1",
       "images": {
@@ -7782,8 +8162,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7892,17 +8272,19 @@
     {
       "id": "kenney:kitchen-microwave",
       "version": 1,
-      "name": "Kitchen Microwave",
+      "name": "Microwave",
       "category": "kitchen-and-appliances",
-      "subcategory": "appliances",
+      "subcategory": "small-appliances",
       "tags": [
-        "kitchen"
+        "kitchen",
+        "appliance",
+        "microwave"
       ],
-      "placement": "floor",
+      "placement": "surface",
       "dimensionsMm": {
-        "width": 290,
-        "height": 180,
-        "depth": 230
+        "width": 500,
+        "height": 300,
+        "depth": 400
       },
       "modelAssetId": "model:kenney:kitchen-microwave:v1",
       "images": {
@@ -7911,11 +8293,43 @@
           "image:kenney:kitchen-microwave:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metalMedium",
+            "carpetWhite"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        },
+        "screen": {
+          "sourceMaterialNames": [
+            "glass",
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "screen"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": false
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7929,13 +8343,15 @@
       "category": "kitchen-and-appliances",
       "subcategory": "appliances",
       "tags": [
-        "kitchen"
+        "kitchen",
+        "appliance",
+        "sink"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 430,
-        "height": 490,
-        "depth": 450
+        "width": 800,
+        "height": 900,
+        "depth": 600
       },
       "modelAssetId": "model:kenney:kitchen-sink:v1",
       "images": {
@@ -7944,11 +8360,55 @@
           "image:kenney:kitchen-sink:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "basin": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalLight"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "ceramic"
+          ],
+          "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+          "editable": true
+        },
+        "cabinet": {
+          "sourceMaterialNames": [
+            "wood",
+            "woodDark",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "paint",
+            "laminate"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -7991,17 +8451,19 @@
     {
       "id": "kenney:kitchen-stove-electric",
       "version": 1,
-      "name": "Kitchen Stove Electric",
+      "name": "Electric Stove",
       "category": "kitchen-and-appliances",
       "subcategory": "appliances",
       "tags": [
-        "kitchen"
+        "kitchen",
+        "appliance",
+        "stove"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 430,
-        "height": 450,
-        "depth": 450
+        "width": 600,
+        "height": 900,
+        "depth": 600
       },
       "modelAssetId": "model:kenney:kitchen-stove-electric:v1",
       "images": {
@@ -8010,11 +8472,58 @@
           "image:kenney:kitchen-stove-electric:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalMedium",
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        },
+        "cooktop": {
+          "sourceMaterialNames": [
+            "glass",
+            "carpetWhite"
+          ],
+          "allowedMaterialKinds": [
+            "glass",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "ceramic"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8024,17 +8533,19 @@
     {
       "id": "kenney:lamp-round-floor",
       "version": 1,
-      "name": "Lamp Round Floor",
+      "name": "Round Floor Lamp",
       "category": "lighting",
       "subcategory": "lamps",
       "tags": [
-        "light"
+        "light",
+        "living-room",
+        "floor-lamp"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 152,
-        "height": 860,
-        "depth": 176
+        "width": 420,
+        "height": 1650,
+        "depth": 420
       },
       "modelAssetId": "model:kenney:lamp-round-floor:v1",
       "images": {
@@ -8043,11 +8554,39 @@
           "image:kenney:lamp-round-floor:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "shade": {
+          "sourceMaterialNames": [
+            "lamp"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "shade"
+          ],
+          "defaultMaterialId": "material:core:fabric-shade-linen:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8057,17 +8596,19 @@
     {
       "id": "kenney:lamp-round-table",
       "version": 1,
-      "name": "Lamp Round Table",
+      "name": "Round Table Lamp",
       "category": "lighting",
       "subcategory": "lamps",
       "tags": [
-        "light"
+        "light",
+        "bedroom",
+        "table-lamp"
       ],
-      "placement": "floor",
+      "placement": "surface",
       "dimensionsMm": {
-        "width": 152,
-        "height": 314,
-        "depth": 176
+        "width": 300,
+        "height": 450,
+        "depth": 300
       },
       "modelAssetId": "model:kenney:lamp-round-table:v1",
       "images": {
@@ -8076,11 +8617,39 @@
           "image:kenney:lamp-round-table:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "shade": {
+          "sourceMaterialNames": [
+            "lamp"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "shade"
+          ],
+          "defaultMaterialId": "material:core:fabric-shade-linen:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metal"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8226,12 +8795,14 @@
       "category": "electronics",
       "subcategory": "devices",
       "tags": [
-        "electronics"
+        "electronics",
+        "office",
+        "laptop"
       ],
       "placement": "surface",
       "dimensionsMm": {
-        "width": 264,
-        "height": 162,
+        "width": 350,
+        "height": 250,
         "depth": 240
       },
       "modelAssetId": "model:kenney:laptop:v1",
@@ -8241,11 +8812,41 @@
           "image:kenney:laptop:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "screen": {
+          "sourceMaterialNames": [
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "screen"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": false
+        },
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalMedium"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8257,15 +8858,17 @@
       "version": 1,
       "name": "Lounge Chair",
       "category": "seating",
-      "subcategory": "seating",
+      "subcategory": "chairs",
       "tags": [
-        "seating"
+        "seating",
+        "living-room",
+        "upholstery"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 490,
-        "height": 460,
-        "depth": 410
+        "width": 820,
+        "height": 880,
+        "depth": 860
       },
       "modelAssetId": "model:kenney:lounge-chair:v1",
       "images": {
@@ -8274,11 +8877,38 @@
           "image:kenney:lounge-chair:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "upholstery": {
+          "sourceMaterialNames": [
+            "carpet"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "upholstery",
+            "leather"
+          ],
+          "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+          "editable": true
+        },
+        "legs": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "metal"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8422,15 +9052,17 @@
       "version": 1,
       "name": "Lounge Sofa",
       "category": "seating",
-      "subcategory": "seating",
+      "subcategory": "sofas",
       "tags": [
-        "seating"
+        "seating",
+        "living-room",
+        "upholstery"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 980,
-        "height": 460,
-        "depth": 410
+        "width": 2100,
+        "height": 850,
+        "depth": 900
       },
       "modelAssetId": "model:kenney:lounge-sofa:v1",
       "images": {
@@ -8469,8 +9101,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8614,15 +9246,17 @@
       "version": 1,
       "name": "Pillow",
       "category": "beds-and-bedroom",
-      "subcategory": "bedroom",
+      "subcategory": "bedding",
       "tags": [
-        "bedroom"
+        "bedroom",
+        "bedding",
+        "decor"
       ],
-      "placement": "floor",
+      "placement": "surface",
       "dimensionsMm": {
-        "width": 230,
-        "height": 222,
-        "depth": 88
+        "width": 600,
+        "height": 200,
+        "depth": 400
       },
       "modelAssetId": "model:kenney:pillow:v1",
       "images": {
@@ -8631,11 +9265,27 @@
           "image:kenney:pillow:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "upholstery": {
+          "sourceMaterialNames": [
+            "carpet"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "upholstery",
+            "bedding"
+          ],
+          "defaultMaterialId": "material:core:fabric-bedding-white:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8845,15 +9495,17 @@
       "version": 1,
       "name": "Potted Plant",
       "category": "decor",
-      "subcategory": "decor",
+      "subcategory": "plants",
       "tags": [
-        "decor"
+        "decor",
+        "plant",
+        "living-room"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 212,
-        "height": 654,
-        "depth": 241
+        "width": 720,
+        "height": 1450,
+        "depth": 720
       },
       "modelAssetId": "model:kenney:potted-plant:v1",
       "images": {
@@ -8896,8 +9548,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -8973,17 +9625,19 @@
     {
       "id": "kenney:rug-rectangle",
       "version": 1,
-      "name": "Rug Rectangle",
+      "name": "Rectangle Rug",
       "category": "decor",
-      "subcategory": "decor",
+      "subcategory": "rugs",
       "tags": [
-        "decor"
+        "decor",
+        "rug",
+        "living-room"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 1570,
+        "width": 2000,
         "height": 10,
-        "depth": 920
+        "depth": 1400
       },
       "modelAssetId": "model:kenney:rug-rectangle:v1",
       "images": {
@@ -8992,11 +9646,28 @@
           "image:kenney:rug-rectangle:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "pile": {
+          "sourceMaterialNames": [
+            "carpet",
+            "carpetDarker"
+          ],
+          "allowedMaterialKinds": [
+            "fabric",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "rug",
+            "upholstery"
+          ],
+          "defaultMaterialId": "material:core:fabric-rug-wool:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -9109,13 +9780,15 @@
       "category": "bathroom",
       "subcategory": "fixtures",
       "tags": [
-        "bathroom"
+        "bathroom",
+        "fixture",
+        "shower"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 562,
-        "height": 1094,
-        "depth": 582
+        "width": 900,
+        "height": 2100,
+        "depth": 900
       },
       "modelAssetId": "model:kenney:shower:v1",
       "images": {
@@ -9169,8 +9842,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -9217,13 +9890,15 @@
       "category": "tables-and-desks",
       "subcategory": "tables",
       "tags": [
-        "table"
+        "table",
+        "living-room",
+        "bedroom"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 534,
-        "height": 384,
-        "depth": 220
+        "width": 480,
+        "height": 520,
+        "depth": 480
       },
       "modelAssetId": "model:kenney:side-table:v1",
       "images": {
@@ -9232,11 +9907,25 @@
           "image:kenney:side-table:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "body": {
+          "sourceMaterialNames": [
+            "wood",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "paint",
+            "metal"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -9609,17 +10298,18 @@
     {
       "id": "kenney:table-coffee",
       "version": 1,
-      "name": "Table Coffee",
+      "name": "Coffee Table",
       "category": "tables-and-desks",
       "subcategory": "tables",
       "tags": [
-        "table"
+        "table",
+        "living-room"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 661,
-        "height": 230,
-        "depth": 400
+        "width": 1200,
+        "height": 380,
+        "depth": 650
       },
       "modelAssetId": "model:kenney:table-coffee:v1",
       "images": {
@@ -9628,11 +10318,24 @@
           "image:kenney:table-coffee:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "body": {
+          "sourceMaterialNames": [
+            "wood"
+          ],
+          "allowedMaterialKinds": [
+            "wood",
+            "paint",
+            "metal"
+          ],
+          "defaultMaterialId": "material:core:wood-natural-oak:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -9932,17 +10635,19 @@
     {
       "id": "kenney:television-modern",
       "version": 1,
-      "name": "Television Modern",
+      "name": "Modern Television",
       "category": "electronics",
       "subcategory": "devices",
       "tags": [
-        "electronics"
+        "electronics",
+        "living-room",
+        "tv"
       ],
       "placement": "surface",
       "dimensionsMm": {
-        "width": 685,
-        "height": 455,
-        "depth": 128
+        "width": 1200,
+        "height": 700,
+        "depth": 80
       },
       "modelAssetId": "model:kenney:television-modern:v1",
       "images": {
@@ -9984,8 +10689,8 @@
       },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -10065,13 +10770,14 @@
       "category": "bathroom",
       "subcategory": "fixtures",
       "tags": [
-        "bathroom"
+        "bathroom",
+        "fixture"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 313,
-        "height": 451,
-        "depth": 477
+        "width": 400,
+        "height": 800,
+        "depth": 650
       },
       "modelAssetId": "model:kenney:toilet:v1",
       "images": {
@@ -10080,11 +10786,40 @@
           "image:kenney:toilet:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "ceramic": {
+          "sourceMaterialNames": [
+            "carpetWhite",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "ceramic"
+          ],
+          "defaultMaterialId": "material:core:ceramic-white:v1",
+          "editable": true
+        },
+        "hardware": {
+          "sourceMaterialNames": [
+            "metalDark",
+            "metalLight"
+          ],
+          "allowedMaterialKinds": [
+            "metal"
+          ],
+          "allowedMaterialTags": [
+            "hardware"
+          ],
+          "defaultMaterialId": "material:core:metal-charcoal:v1",
+          "editable": true
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",
@@ -10426,15 +11161,17 @@
       "version": 1,
       "name": "Washer",
       "category": "utility",
-      "subcategory": "utility",
+      "subcategory": "laundry",
       "tags": [
-        "utility"
+        "utility",
+        "laundry",
+        "appliance"
       ],
       "placement": "floor",
       "dimensionsMm": {
-        "width": 390,
-        "height": 470,
-        "depth": 390
+        "width": 600,
+        "height": 850,
+        "depth": 650
       },
       "modelAssetId": "model:kenney:washer:v1",
       "images": {
@@ -10443,11 +11180,45 @@
           "image:kenney:washer:side:v1"
         ]
       },
-      "materialSlots": {},
+      "materialSlots": {
+        "applianceBody": {
+          "sourceMaterialNames": [
+            "metal",
+            "metalLight",
+            "metalMedium",
+            "_defaultMat"
+          ],
+          "allowedMaterialKinds": [
+            "metal",
+            "custom"
+          ],
+          "allowedMaterialTags": [
+            "appliance",
+            "enamel"
+          ],
+          "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+          "editable": true
+        },
+        "screen": {
+          "sourceMaterialNames": [
+            "glass",
+            "metalDark"
+          ],
+          "allowedMaterialKinds": [
+            "glass"
+          ],
+          "allowedMaterialTags": [
+            "dark-glass",
+            "screen"
+          ],
+          "defaultMaterialId": "material:core:glass-dark:v1",
+          "editable": false
+        }
+      },
       "lifecycle": "active",
       "visibility": {
-        "objectBrowser": false,
-        "templateEligible": false
+        "objectBrowser": true,
+        "templateEligible": true
       },
       "source": {
         "pack": "kenney-furniture",

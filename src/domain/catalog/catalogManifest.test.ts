@@ -24,13 +24,13 @@ describe("builtin catalog manifest", () => {
   it("contains all 140 Kenney items with unique ids", () => {
     expect(catalog.items).toHaveLength(140);
     expect(catalog.schemaVersion).toBe(1);
-    expect(catalog.catalogVersion).toBe("2026.09.2");
+    expect(catalog.catalogVersion).toBe("2026.09.3");
     expect(catalog.licenses.some((license) => license.id === "cc0-1.0")).toBe(true);
     const ids = catalog.items.map((item) => item.id);
     expect(new Set(ids).size).toBe(140);
   });
 
-  it("blocks architecture stems and hides everything by default", () => {
+  it("blocks architecture stems and keeps non-curated items hidden", () => {
     expect(KENNEY_ARCHITECTURE_STEMS).toHaveLength(20);
     for (const stem of KENNEY_ARCHITECTURE_STEMS) {
       expect(isArchitectureStem(stem)).toBe(true);
@@ -40,8 +40,13 @@ describe("builtin catalog manifest", () => {
     }
     const blocked = catalog.items.filter((item) => item.lifecycle === "blocked");
     expect(blocked).toHaveLength(20);
+    const eligible = catalog.items.filter((item) => item.visibility.templateEligible);
+    expect(eligible.length).toBeGreaterThanOrEqual(30);
+    expect(eligible.length).toBeLessThanOrEqual(35);
     for (const item of catalog.items) {
-      expect(item.visibility).toEqual({ objectBrowser: false, templateEligible: false });
+      if (!item.visibility.templateEligible && !item.visibility.objectBrowser) {
+        expect(item.visibility).toEqual({ objectBrowser: false, templateEligible: false });
+      }
     }
   });
 
@@ -59,16 +64,19 @@ describe("builtin catalog manifest", () => {
     }
   });
 
-  it("keeps materials seeded and templates empty in phase 2", () => {
-    expect(catalog.materials.length).toBeGreaterThan(0);
+  it("keeps materials seeded and templates empty until Phase 4", () => {
+    expect(catalog.catalogVersion).toBe("2026.09.3");
+    expect(catalog.materials.length).toBeGreaterThanOrEqual(11);
     expect(catalog.templates).toEqual([]);
   });
 
-  it("exposes lounge sofa with discovered Kenney materials", () => {
+  it("exposes lounge sofa with curated dimensions and Kenney materials", () => {
     const sofa = catalog.items.find((item) => item.id === "kenney:lounge-sofa");
     expect(sofa?.name).toBe("Lounge Sofa");
     expect(sofa?.category).toBe("seating");
     expect(sofa?.lifecycle).toBe("active");
+    expect(sofa?.visibility).toEqual({ objectBrowser: true, templateEligible: true });
+    expect(sofa?.dimensionsMm).toEqual({ width: 2100, height: 850, depth: 900 });
     const model = catalog.files.find((file) => file.id === sofa?.modelAssetId);
     expect(model?.kind).toBe("model");
     if (model?.kind === "model") {

@@ -1,0 +1,90 @@
+[
+  {
+    "stem": "desk",
+    "name": "Desk",
+    "category": "tables-and-desks",
+    "subcategory": "desks",
+    "tags": ["desk", "office"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 1400, "height": 750, "depth": 700 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "chairDesk",
+    "name": "Desk Chair",
+    "category": "seating",
+    "subcategory": "chairs",
+    "tags": ["seating", "office", "chair"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 600, "height": 1000, "depth": 600 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "computerScreen",
+    "name": "Computer Screen",
+    "category": "electronics",
+    "subcategory": "devices",
+    "tags": ["electronics", "office", "monitor"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 550, "height": 400, "depth": 200 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "computerKeyboard",
+    "name": "Keyboard",
+    "category": "electronics",
+    "subcategory": "devices",
+    "tags": ["electronics", "office", "keyboard"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 450, "height": 30, "depth": 150 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "computerMouse",
+    "name": "Computer Mouse",
+    "category": "electronics",
+    "subcategory": "devices",
+    "tags": ["electronics", "office", "mouse"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 70, "height": 40, "depth": 120 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "laptop",
+    "name": "Laptop",
+    "category": "electronics",
+    "subcategory": "devices",
+    "tags": ["electronics", "office", "laptop"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 350, "height": 250, "depth": 240 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "washer",
+    "name": "Washer",
+    "category": "utility",
+    "subcategory": "laundry",
+    "tags": ["utility", "laundry", "appliance"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 600, "height": 850, "depth": 650 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "dryer",
+    "name": "Dryer",
+    "category": "utility",
+    "subcategory": "laundry",
+    "tags": ["utility", "laundry", "appliance"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 600, "height": 850, "depth": 650 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  }
+]

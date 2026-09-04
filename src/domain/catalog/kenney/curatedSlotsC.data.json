@@ -1,0 +1,84 @@
+{
+  "computerScreen": {
+    "screen": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["dark-glass", "screen"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": false
+    },
+    "applianceBody": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "computerKeyboard": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metalDark", "metalMedium"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "computerMouse": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "laptop": {
+    "screen": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["dark-glass", "screen"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": false
+    },
+    "applianceBody": {
+      "sourceMaterialNames": ["metal", "metalMedium"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "washer": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metal", "metalLight", "metalMedium", "_defaultMat"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+      "editable": true
+    },
+    "screen": {
+      "sourceMaterialNames": ["glass", "metalDark"],
+      "allowedMaterialKinds": ["glass"],
+      "allowedMaterialTags": ["dark-glass", "screen"],
+      "defaultMaterialId": "material:core:glass-dark:v1",
+      "editable": false
+    }
+  },
+  "dryer": {
+    "applianceBody": {
+      "sourceMaterialNames": ["metalLight", "metalMedium"],
+      "allowedMaterialKinds": ["metal", "custom"],
+      "allowedMaterialTags": ["appliance", "enamel"],
+      "defaultMaterialId": "material:core:metal-appliance-steel:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metalDark"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  }
+}

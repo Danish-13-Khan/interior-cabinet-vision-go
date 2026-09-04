@@ -1,0 +1,144 @@
+{
+  "loungeChair": {
+    "upholstery": {
+      "sourceMaterialNames": ["carpet"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["upholstery", "leather"],
+      "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+      "editable": true
+    },
+    "legs": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "metal"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "tableCoffee": {
+    "body": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "paint", "metal"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "cabinetTelevision": {
+    "body": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "paint", "laminate"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "rugRectangle": {
+    "pile": {
+      "sourceMaterialNames": ["carpet", "carpetDarker"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["rug", "upholstery"],
+      "defaultMaterialId": "material:core:fabric-rug-wool:v1",
+      "editable": true
+    }
+  },
+  "lampRoundFloor": {
+    "shade": {
+      "sourceMaterialNames": ["lamp"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["shade"],
+      "defaultMaterialId": "material:core:fabric-shade-linen:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "lampRoundTable": {
+    "shade": {
+      "sourceMaterialNames": ["lamp"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["shade"],
+      "defaultMaterialId": "material:core:fabric-shade-linen:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "cabinetBedDrawerTable": {
+    "body": {
+      "sourceMaterialNames": ["wood", "_defaultMat"],
+      "allowedMaterialKinds": ["wood", "paint", "laminate"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    },
+    "hardware": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "pillow": {
+    "upholstery": {
+      "sourceMaterialNames": ["carpet"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["upholstery", "bedding"],
+      "defaultMaterialId": "material:core:fabric-bedding-white:v1",
+      "editable": true
+    }
+  },
+  "bookcaseOpen": {
+    "body": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "paint"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "sideTable": {
+    "body": {
+      "sourceMaterialNames": ["wood", "_defaultMat"],
+      "allowedMaterialKinds": ["wood", "paint", "metal"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    }
+  },
+  "desk": {
+    "top": {
+      "sourceMaterialNames": ["wood"],
+      "allowedMaterialKinds": ["wood", "laminate", "paint"],
+      "defaultMaterialId": "material:core:wood-natural-oak:v1",
+      "editable": true
+    },
+    "frame": {
+      "sourceMaterialNames": ["metal"],
+      "allowedMaterialKinds": ["metal", "wood"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  },
+  "chairDesk": {
+    "upholstery": {
+      "sourceMaterialNames": ["carpet"],
+      "allowedMaterialKinds": ["fabric", "custom"],
+      "allowedMaterialTags": ["upholstery"],
+      "defaultMaterialId": "material:core:fabric-oatmeal:v1",
+      "editable": true
+    },
+    "frame": {
+      "sourceMaterialNames": ["metalMedium"],
+      "allowedMaterialKinds": ["metal"],
+      "allowedMaterialTags": ["hardware"],
+      "defaultMaterialId": "material:core:metal-charcoal:v1",
+      "editable": true
+    }
+  }
+}

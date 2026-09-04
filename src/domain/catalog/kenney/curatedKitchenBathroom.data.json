@@ -1,0 +1,123 @@
+[
+  {
+    "stem": "kitchenFridge",
+    "name": "Kitchen Fridge",
+    "category": "kitchen-and-appliances",
+    "subcategory": "appliances",
+    "tags": ["kitchen", "appliance", "fridge"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 700, "height": 1800, "depth": 700 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "kitchenStoveElectric",
+    "name": "Electric Stove",
+    "category": "kitchen-and-appliances",
+    "subcategory": "appliances",
+    "tags": ["kitchen", "appliance", "stove"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 600, "height": 900, "depth": 600 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "kitchenSink",
+    "name": "Kitchen Sink",
+    "category": "kitchen-and-appliances",
+    "subcategory": "appliances",
+    "tags": ["kitchen", "appliance", "sink"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 800, "height": 900, "depth": 600 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "hoodModern",
+    "name": "Modern Range Hood",
+    "category": "kitchen-and-appliances",
+    "subcategory": "appliances",
+    "tags": ["kitchen", "appliance", "hood"],
+    "placement": "wall",
+    "dimensionsMm": { "width": 600, "height": 400, "depth": 500 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "kitchenMicrowave",
+    "name": "Microwave",
+    "category": "kitchen-and-appliances",
+    "subcategory": "small-appliances",
+    "tags": ["kitchen", "appliance", "microwave"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 500, "height": 300, "depth": 400 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "kitchenCoffeeMachine",
+    "name": "Coffee Machine",
+    "category": "kitchen-and-appliances",
+    "subcategory": "small-appliances",
+    "tags": ["kitchen", "appliance", "coffee"],
+    "placement": "surface",
+    "dimensionsMm": { "width": 250, "height": 350, "depth": 350 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "toilet",
+    "name": "Toilet",
+    "category": "bathroom",
+    "subcategory": "fixtures",
+    "tags": ["bathroom", "fixture"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 400, "height": 800, "depth": 650 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "bathroomSink",
+    "name": "Bathroom Sink",
+    "category": "bathroom",
+    "subcategory": "fixtures",
+    "tags": ["bathroom", "fixture", "sink"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 600, "height": 850, "depth": 450 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "bathroomMirror",
+    "name": "Bathroom Mirror",
+    "category": "bathroom",
+    "subcategory": "fixtures",
+    "tags": ["bathroom", "mirror"],
+    "placement": "wall",
+    "dimensionsMm": { "width": 600, "height": 800, "depth": 50 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "shower",
+    "name": "Shower",
+    "category": "bathroom",
+    "subcategory": "fixtures",
+    "tags": ["bathroom", "fixture", "shower"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 900, "height": 2100, "depth": 900 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  },
+  {
+    "stem": "bathtub",
+    "name": "Bathtub",
+    "category": "bathroom",
+    "subcategory": "fixtures",
+    "tags": ["bathroom", "fixture", "bath"],
+    "placement": "floor",
+    "dimensionsMm": { "width": 1700, "height": 600, "depth": 750 },
+    "visibility": { "objectBrowser": true, "templateEligible": true },
+    "thumbnailAngle": "NE"
+  }
+]

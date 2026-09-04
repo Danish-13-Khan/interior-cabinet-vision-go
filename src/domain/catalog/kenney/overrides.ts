@@ -1,5 +1,10 @@
 import type { CatalogLifecycle, CatalogPlacement, MaterialSlotPolicy } from "../types";
-import overridesData from "./overrides.data.json";
+import architectureOverrides from "./overrides.data.json";
+import cabinetPropOverrides from "./cabinetPropOverrides.data.json";
+import curatedBedroom from "./curatedBedroom.data.json";
+import curatedKitchenBathroom from "./curatedKitchenBathroom.data.json";
+import curatedLiving from "./curatedLiving.data.json";
+import curatedOfficeUtility from "./curatedOfficeUtility.data.json";
 
 export type KenneyItemOverride = {
   stem: string;
@@ -16,7 +21,14 @@ export type KenneyItemOverride = {
 };
 
 /** Human curation for Kenney stems. Generator merges this over discovered metadata. */
-export const KENNEY_OVERRIDES = overridesData as KenneyItemOverride[];
+export const KENNEY_OVERRIDES = [
+  ...architectureOverrides,
+  ...cabinetPropOverrides,
+  ...curatedLiving,
+  ...curatedBedroom,
+  ...curatedKitchenBathroom,
+  ...curatedOfficeUtility,
+] as KenneyItemOverride[];
 
 const byStem = new Map(KENNEY_OVERRIDES.map((entry) => [entry.stem, entry]));
 

@@ -21,13 +21,29 @@ const glbDir = join(root, "public/models/kenney-furniture/models_glb");
 const isoDir = join(root, "public/models/kenney-furniture/renders_isometric");
 const sideDir = join(root, "public/models/kenney-furniture/renders_side");
 const outPath = join(root, "public/catalog/builtin-catalog.v1.json");
-const overridesPath = join(root, "src/domain/catalog/kenney/overrides.data.json");
-
-const CATALOG_VERSION = "2026.09.2";
+const CATALOG_VERSION = "2026.09.3";
 const GENERATED_AT = "2026-09-04T00:00:00.000Z";
 const PACK_PREFIX = "models/kenney-furniture";
-const proofSlotsPath = join(root, "src/domain/catalog/kenney/proofMaterialSlots.data.json");
-const seedMaterialsPath = join(root, "src/domain/catalog/materials/seedMaterials.data.json");
+const kenneyDataDir = join(root, "src/domain/catalog/kenney");
+const materialsDir = join(root, "src/domain/catalog/materials");
+
+const OVERRIDE_FILES = [
+  "overrides.data.json",
+  "cabinetPropOverrides.data.json",
+  "curatedLiving.data.json",
+  "curatedBedroom.data.json",
+  "curatedKitchenBathroom.data.json",
+  "curatedOfficeUtility.data.json",
+];
+
+const SLOT_FILES = [
+  "curatedSlotsA.data.json",
+  "curatedSlotsB.data.json",
+  "curatedSlotsC.data.json",
+  "proofMaterialSlots.data.json",
+];
+
+const MATERIAL_FILES = ["seedMaterials.data.json", "seedMaterialsPhase3.data.json"];
 
 function metersToMm(bounds) {
   return {
@@ -38,16 +54,22 @@ function metersToMm(bounds) {
 }
 
 function loadOverrides() {
-  const list = JSON.parse(readFileSync(overridesPath, "utf8"));
+  const list = OVERRIDE_FILES.flatMap((name) =>
+    JSON.parse(readFileSync(join(kenneyDataDir, name), "utf8")),
+  );
   return new Map(list.map((entry) => [entry.stem, entry]));
 }
 
 function loadProofSlots() {
-  return JSON.parse(readFileSync(proofSlotsPath, "utf8"));
+  return SLOT_FILES.reduce((acc, name) => {
+    return { ...acc, ...JSON.parse(readFileSync(join(kenneyDataDir, name), "utf8")) };
+  }, {});
 }
 
 function loadSeedMaterials() {
-  return JSON.parse(readFileSync(seedMaterialsPath, "utf8"));
+  return MATERIAL_FILES.flatMap((name) =>
+    JSON.parse(readFileSync(join(materialsDir, name), "utf8")),
+  );
 }
 
 function pushImageFile(files, absolutePath, objectKey, id, role) {
