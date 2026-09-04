@@ -17,6 +17,7 @@ import {
 import { createDefaultPackageCameraBookmarks } from "../livingRoom/packageCameraBookmarks";
 import { paintObjectSlotFromCatalog } from "./paintCatalogFinish";
 import { placeCatalogItemWithDefaults } from "./placeCatalogItem";
+import { finalizeBathroomTemplate } from "./bathroomSurfaces";
 import { finalizeLKitchenTemplate } from "./lKitchenRun";
 import { finalizeStraightKitchenTemplate } from "./straightKitchenRun";
 import type { ProjectTemplate } from "./types";
@@ -26,6 +27,7 @@ export const EMPTY_ROOM_CATALOG_TEMPLATE_ID = "template:core:empty-room:v1";
 export const STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID = "template:core:straight-kitchen:v1";
 export const L_KITCHEN_CATALOG_TEMPLATE_ID = "template:core:l-kitchen:v1";
 export const BEDROOM_CATALOG_TEMPLATE_ID = "template:core:bedroom:v1";
+export const BATHROOM_CATALOG_TEMPLATE_ID = "template:core:bathroom:v1";
 
 export type InstantiateTemplateOptions = {
   projectId?: string;
@@ -105,6 +107,7 @@ export function instantiateProjectTemplate(
         name: template.name,
         roomType: template.category === "living-room"
           || template.category === "bedroom"
+          || template.category === "bathroom"
           || template.category === "kitchen"
           ? template.category
           : "custom",
@@ -154,6 +157,9 @@ export function instantiateProjectTemplate(
   }
   if (template.id === L_KITCHEN_CATALOG_TEMPLATE_ID) {
     document = finalizeLKitchenTemplate(document, { roomId, idFactory });
+  }
+  if (template.id === BATHROOM_CATALOG_TEMPLATE_ID) {
+    document = finalizeBathroomTemplate(document, { roomId });
   }
 
   return validateInteriorProject(document).project;

@@ -1,6 +1,7 @@
 import type { InteriorProject } from "../interiorProject";
 import { lookupBuiltInCatalogTemplate } from "./catalogLookup";
 import {
+  BATHROOM_CATALOG_TEMPLATE_ID,
   BEDROOM_CATALOG_TEMPLATE_ID,
   EMPTY_ROOM_CATALOG_TEMPLATE_ID,
   instantiateProjectTemplate,
@@ -49,4 +50,10 @@ export function instantiateBedroomCatalogTemplate(
   options: InstantiateTemplateOptions = {},
 ): InteriorProject {
   return instantiateNamedCatalogTemplate(BEDROOM_CATALOG_TEMPLATE_ID, options);
+}
+
+export function instantiateBathroomCatalogTemplate(
+  options: InstantiateTemplateOptions = {},
+): InteriorProject {
+  return instantiateNamedCatalogTemplate(BATHROOM_CATALOG_TEMPLATE_ID, options);
 }

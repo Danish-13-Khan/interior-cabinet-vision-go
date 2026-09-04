@@ -23,7 +23,7 @@ describe("builtin catalog manifest", () => {
 
   it("contains all 140 Kenney items with unique ids", () => {
     expect(catalog.items).toHaveLength(140);
-    expect(catalog.catalogVersion).toBe("2026.09.8");
+    expect(catalog.catalogVersion).toBe("2026.09.10");
     expect(catalog.schemaVersion).toBe(1);
     expect(catalog.licenses.some((license) => license.id === "cc0-1.0")).toBe(true);
     const ids = catalog.items.map((item) => item.id);
@@ -64,11 +64,12 @@ describe("builtin catalog manifest", () => {
     }
   });
 
-  it("keeps materials seeded and ships Living Room through Bedroom templates", () => {
-    expect(catalog.catalogVersion).toBe("2026.09.8");
+  it("keeps materials seeded and ships Living Room through Bathroom templates", () => {
+    expect(catalog.catalogVersion).toBe("2026.09.10");
     expect(catalog.materials.length).toBeGreaterThanOrEqual(13);
-    expect(catalog.templates).toHaveLength(5);
+    expect(catalog.templates).toHaveLength(6);
     expect(catalog.templates.map((template) => template.id).sort()).toEqual([
+      "template:core:bathroom:v1",
       "template:core:bedroom:v1",
       "template:core:empty-room:v1",
       "template:core:l-kitchen:v1",

@@ -78,6 +78,7 @@ export {
   type CatalogObjectPlacement,
 } from "./placeCatalogItem";
 export {
+  BATHROOM_CATALOG_TEMPLATE_ID,
   BEDROOM_CATALOG_TEMPLATE_ID,
   EMPTY_ROOM_CATALOG_TEMPLATE_ID,
   instantiateProjectTemplate,
@@ -87,6 +88,7 @@ export {
   type InstantiateTemplateOptions,
 } from "./instantiateProjectTemplate";
 export {
+  instantiateBathroomCatalogTemplate,
   instantiateBedroomCatalogTemplate,
   instantiateEmptyRoomCatalogTemplate,
   instantiateLKitchenCatalogTemplate,

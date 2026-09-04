@@ -31,6 +31,13 @@ export function isRugLikeObject(object: InteriorObjectEntity): boolean {
   return placementOf(object) === "floor" && object.dimensions.heightMm <= 30;
 }
 
+/** Wall mirrors / shallow wall fixtures — plan footprint should not block circulation. */
+export function isWallMirrorLikeObject(object: InteriorObjectEntity): boolean {
+  if (object.category === "mirror") return true;
+  if (object.catalogItemId.includes("mirror")) return true;
+  return placementOf(object) === "wall" && object.dimensions.depthMm <= 80;
+}
+
 /** Objects placed on another surface (lamp on nightstand, pillow on bed, TV on cabinet). */
 export function isSurfaceMountedObject(object: InteriorObjectEntity): boolean {
   return placementOf(object) === "surface";
@@ -95,13 +102,16 @@ export function shouldIgnoreCollisionPair(
   second: InteriorObjectEntity,
 ): boolean {
   if (isRugLikeObject(first) || isRugLikeObject(second)) return true;
+  if (isWallMirrorLikeObject(first) || isWallMirrorLikeObject(second)) return true;
   if (verticallySeparated(first, second)) return true;
   return isSurfaceRestingOnSupport(first, second) || isSurfaceRestingOnSupport(second, first);
 }
 
 /**
  * Objects that participate in outside-room and opening-clearance checks.
- * Rugs / wall treatments stay excluded; surface mounts stay included.
+ * Rugs stay excluded; wall mirrors stay included so dragged fixtures still
+ * warn when they leave the room or cover an opening. Collision/circulation
+ * for mirrors is suppressed via `shouldIgnoreCollisionPair`.
  */
 export function isPlanObstacle(object: InteriorObjectEntity): boolean {
   if (NON_BLOCKING_CATEGORIES.has(object.category)) return false;

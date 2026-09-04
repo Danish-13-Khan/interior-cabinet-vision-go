@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026.09.8",
-  "generatedAt": "2026-09-04T13:45:00.000Z",
+  "catalogVersion": "2026.09.10",
+  "generatedAt": "2026-09-04T16:00:00.000Z",
   "licenses": [
     {
       "id": "cc0-1.0",
@@ -5430,6 +5430,15 @@
       "mimeType": "image/png",
       "byteSize": 3528,
       "contentHash": "sha256:2f3160a7b2dcbe746b83cddbb2daa5913ca8009bfeeb8dbe6cb7b3197a1f363b"
+    },
+    {
+      "id": "image:template:bathroom:v1",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/bathroom-v1.png",
+      "mimeType": "image/png",
+      "byteSize": 3119,
+      "contentHash": "sha256:8efa5e89fd11281f8599cb0ca82a69d76409b2fde6e6cf00065cc0102295928d"
     }
   ],
   "materials": [
@@ -5720,6 +5729,27 @@
       "metalness": 0,
       "opacity": 1,
       "uvScaleMm": 900,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:tile-ceramic-soft-gray:v1",
+      "version": 1,
+      "name": "Soft Gray Ceramic Tile",
+      "kind": "stone",
+      "tags": [
+        "tile",
+        "ceramic",
+        "floor",
+        "wall",
+        "bathroom"
+      ],
+      "swatchColor": "#d5dbd8",
+      "baseColor": "#d5dbd8",
+      "roughness": 0.42,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 300,
       "lifecycle": "active",
       "visibleInPicker": true
     }
@@ -11697,6 +11727,77 @@
             "z": -1450
           },
           "rotationY": 0
+        }
+      ]
+    },
+    {
+      "id": "template:core:bathroom:v1",
+      "version": 1,
+      "name": "Bathroom",
+      "category": "bathroom",
+      "description": "Furnished bathroom with toilet, vanity, mirror, and shower.",
+      "images": {
+        "thumbnailId": "image:template:bathroom:v1"
+      },
+      "room": {
+        "widthMm": 4200,
+        "depthMm": 3600,
+        "heightMm": 2700
+      },
+      "objects": [
+        {
+          "templateObjectId": "bathroom-shower",
+          "catalogItemId": "kenney:shower",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 1530,
+            "y": 0,
+            "z": -1230
+          },
+          "rotationY": 0,
+          "materialOverrides": {
+            "ceramic": "material:core:ceramic-white:v1",
+            "showerGlass": "material:core:glass-clear:v1"
+          }
+        },
+        {
+          "templateObjectId": "bathroom-toilet",
+          "catalogItemId": "kenney:toilet",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": 200,
+            "y": 0,
+            "z": -1355
+          },
+          "rotationY": 0
+        },
+        {
+          "templateObjectId": "bathroom-sink",
+          "catalogItemId": "kenney:bathroom-sink",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": -1400,
+            "y": 0,
+            "z": -1455
+          },
+          "rotationY": 0,
+          "materialOverrides": {
+            "ceramic": "material:core:ceramic-white:v1"
+          }
+        },
+        {
+          "templateObjectId": "bathroom-mirror",
+          "catalogItemId": "kenney:bathroom-mirror",
+          "catalogItemVersion": 1,
+          "positionMm": {
+            "x": -1400,
+            "y": 1100,
+            "z": -1655
+          },
+          "rotationY": 0,
+          "materialOverrides": {
+            "frame": "material:core:metal-charcoal:v1"
+          }
         }
       ]
     }

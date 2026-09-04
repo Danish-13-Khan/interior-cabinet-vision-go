@@ -5,6 +5,7 @@ import {
   isRugLikeObject,
   isSurfaceMountedObject,
   isSurfaceRestingOnSupport,
+  isWallMirrorLikeObject,
   shouldIgnoreCollisionPair,
   verticallySeparated,
 } from "./planConstraintOccupancy";
@@ -32,7 +33,7 @@ function objectStub(
 }
 
 describe("plan constraint occupancy", () => {
-  it("keeps surface mounts as obstacles while rugs stay non-blocking", () => {
+  it("keeps mirrors as boundary obstacles while skipping collision with supports", () => {
     const rug = objectStub({
       id: "rug",
       catalogItemId: "kenney:rug-rectangle",
@@ -50,10 +51,30 @@ describe("plan constraint occupancy", () => {
       dimensions: { widthMm: 300, heightMm: 450, depthMm: 300 },
       extensions: { placement: "surface" },
     });
+    const mirror = objectStub({
+      id: "mirror",
+      catalogItemId: "kenney:bathroom-mirror",
+      category: "bathroom",
+      name: "Bathroom Mirror",
+      position: { x: 0, y: 1100, z: -400 },
+      dimensions: { widthMm: 600, heightMm: 800, depthMm: 50 },
+      extensions: { placement: "wall" },
+    });
+    const sink = objectStub({
+      id: "sink",
+      catalogItemId: "kenney:bathroom-sink",
+      category: "bathroom",
+      name: "Bathroom Sink",
+      position: { x: 0, y: 0, z: -400 },
+      dimensions: { widthMm: 600, heightMm: 850, depthMm: 450 },
+    });
     expect(isRugLikeObject(rug)).toBe(true);
     expect(isSurfaceMountedObject(lamp)).toBe(true);
+    expect(isWallMirrorLikeObject(mirror)).toBe(true);
     expect(isPlanObstacle(rug)).toBe(false);
     expect(isPlanObstacle(lamp)).toBe(true);
+    expect(isPlanObstacle(mirror)).toBe(true);
+    expect(shouldIgnoreCollisionPair(mirror, sink)).toBe(true);
   });
 
   it("skips support stacking but flags unsupported and surface-surface overlaps", () => {

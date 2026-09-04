@@ -36,7 +36,7 @@ const BEDROOM_ITEM_IDS = [
 
 describe("Phase 5 Bedroom template", () => {
   it("registers a furnished bedroom with Kenney pieces and a thumbnail", () => {
-    expect(catalog.catalogVersion).toBe("2026.09.8");
+    expect(catalog.catalogVersion).toBe("2026.09.10");
     const template = lookupBuiltInCatalogTemplate(BEDROOM_CATALOG_TEMPLATE_ID)!;
     expect(template.name).toBe("Bedroom");
     expect(template.category).toBe("bedroom");
