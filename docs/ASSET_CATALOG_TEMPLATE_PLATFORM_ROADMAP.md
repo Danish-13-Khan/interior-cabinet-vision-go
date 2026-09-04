@@ -1419,6 +1419,16 @@ Exit:
 
 This phase establishes delivery flexibility; it does not create user uploads or an organization catalog.
 
+Status: **scaffolded (integrity + durable metadata/blob cache)** on
+`codex/catalog-phase-7-cdn-provider`. Default remains `BuiltInCatalogProvider`.
+Remote path requires verified bytes before `available`, persists signed-URL
+`expiresAtMs` in-session, stores file bytes in a blob store (Cache API when
+present), and persists manifest + fileId→contentHash metadata alongside blobs so
+offline reload can rehydrate. `listItems`/`getItem` fall back to the cached
+manifest. Wire a real `RemoteCatalogTransport` / `VITE_CATALOG_CDN_BASE_URL`
+when the CDN exists (search `TODO(cdn)`). Not claimed fully shipped until a live
+CDN is exercised end-to-end.
+
 ### Phase 8 — Organization asset service (`LATER`)
 
 Work follows the Backend Book:

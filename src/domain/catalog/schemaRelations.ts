@@ -5,12 +5,9 @@ import type {
   CatalogMaterial,
   CatalogModelFile,
 } from "./types";
+import { isSha256ContentHash } from "./contentIntegrity";
 import { isRecord, pushError, type CatalogValidationIssue } from "./schemaHelpers";
 import { validateTemplateRefs } from "./schemaTemplateRefs";
-
-function isSha256(hash: string): boolean {
-  return /^sha256:[a-f0-9]{64}$/.test(hash);
-}
 
 function validateItemRefs(
   item: CatalogItem,
@@ -114,7 +111,7 @@ export function validateCatalogRelations(manifest: CatalogManifest): CatalogVali
   const itemsById = new Map(manifest.items.map((item) => [item.id, item]));
 
   for (const file of manifest.files) {
-    if (!isSha256(file.contentHash) || file.byteSize < 1) {
+    if (!isSha256ContentHash(file.contentHash) || file.byteSize < 1) {
       pushError(issues, "bad-file-integrity", `${file.id} has invalid hash or byteSize`);
     }
     if (file.kind === "model" && (file as CatalogModelFile).primitiveCount < 1) {

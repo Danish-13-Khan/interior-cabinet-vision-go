@@ -1,4 +1,4 @@
-import { BuiltInCatalogProvider } from "./providers/builtInCatalogProvider";
+import { createCatalogProvider } from "./providers/createCatalogProvider";
 import type { CatalogProvider } from "./providers/types";
 import type {
   CatalogItem,
@@ -11,7 +11,7 @@ import type {
 let defaultProvider: CatalogProvider | null = null;
 
 export function getCatalogProvider(): CatalogProvider {
-  if (!defaultProvider) defaultProvider = new BuiltInCatalogProvider();
+  if (!defaultProvider) defaultProvider = createCatalogProvider();
   return defaultProvider;
 }
 

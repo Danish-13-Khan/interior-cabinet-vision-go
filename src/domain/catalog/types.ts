@@ -143,11 +143,29 @@ export type CatalogPage = {
   total: number;
 };
 
+export type AssetDeliverySource = "builtin" | "cdn" | "cache" | "unavailable";
+
+export type AssetUnavailableReason =
+  | "not-configured"
+  | "offline-uncached"
+  | "network"
+  | "integrity";
+
 export type ResolvedAsset = {
   fileId: string;
+  /**
+   * Ephemeral delivery URL (local path or CDN). Empty when unavailable.
+   * Never persist this URL (or tokens) in project JSON — store stable file IDs only.
+   */
   url: string;
   objectKey: string;
   mimeType: string;
   byteSize: number;
   contentHash: string;
+  /** Defaults to true when omitted (built-in / legacy callers). */
+  available?: boolean;
+  unavailableReason?: AssetUnavailableReason;
+  deliverySource?: AssetDeliverySource;
+  etag?: string;
+  retryable?: boolean;
 };
