@@ -30,6 +30,21 @@ export {
 export type { CatalogProvider } from "./providers/types";
 export { BuiltInCatalogProvider } from "./providers/builtInCatalogProvider";
 export {
+  lookupCatalogItemResolvingAliases,
+  remapPackMaterialBindings,
+  resolvePackStarterAlias,
+  type RemapPackMaterialOptions,
+  type ResolvedPackAlias,
+} from "./compatibility";
+export {
+  canonicalCatalogItemId,
+  isPackStarterAliasId,
+  PACK_STARTER_ALIASES,
+  PACK_STARTER_SLOT_REMAP,
+  resolveCatalogAlias,
+  type CatalogAliasRecord,
+} from "./aliases";
+export {
   getCatalogItem,
   getCatalogManifest,
   getCatalogProvider,
@@ -133,6 +148,7 @@ export {
   filterMaterialsForSlot,
   isCatalogMaterialCompatible,
   isMaterialCompatibleWithSlot,
+  isPackLegacyMaterialCompatibleWithSlot,
   tagsFromMaterialExtensions,
 } from "./materialCompatibility";
 export {

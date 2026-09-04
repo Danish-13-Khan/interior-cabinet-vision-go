@@ -61,6 +61,7 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     roughness: 0.97,
     metalness: 0,
     opacity: 1,
+    extensions: { tags: ["woven", "neutral", "upholstery"] },
   },
   {
     id: LIVING_ROOM_MATERIAL_IDS.oliveFabric,
@@ -70,6 +71,7 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     roughness: 0.97,
     metalness: 0,
     opacity: 1,
+    extensions: { tags: ["woven", "upholstery"] },
   },
   {
     id: LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
@@ -97,6 +99,7 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     roughness: 1,
     metalness: 0,
     opacity: 1,
+    extensions: { tags: ["rug"] },
   },
   {
     id: LIVING_ROOM_MATERIAL_IDS.warmStone,
@@ -111,4 +114,12 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
 
 export function createLivingRoomMaterials(): MaterialEntity[] {
   return createMaterialLibrary(LIVING_ROOM_MATERIAL_PRESETS);
+}
+
+const LIVING_ROOM_MATERIAL_BY_ID = new Map(
+  LIVING_ROOM_MATERIAL_PRESETS.map((material) => [material.id, material] as const),
+);
+
+export function livingRoomMaterialById(id: string): MaterialEntity | undefined {
+  return LIVING_ROOM_MATERIAL_BY_ID.get(id);
 }

@@ -28,6 +28,20 @@ export function isMaterialCompatibleWithSlot(
   return required.some((tag) => tags.includes(tag));
 }
 
+/**
+ * Pack-alias migration only: untagged project `custom` finishes (finish-import-*)
+ * may move onto slots that already allow `custom`. Does not widen the picker.
+ */
+export function isPackLegacyMaterialCompatibleWithSlot(
+  material: CompatibleMaterialCandidate,
+  slot: MaterialSlotPolicy,
+): boolean {
+  if (isMaterialCompatibleWithSlot(material, slot)) return true;
+  if (material.kind !== "custom") return false;
+  if (!slot.allowedMaterialKinds.includes("custom")) return false;
+  return (material.tags?.length ?? 0) === 0;
+}
+
 export function filterMaterialsForSlot<T extends CompatibleMaterialCandidate>(
   materials: readonly T[],
   slot: MaterialSlotPolicy,

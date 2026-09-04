@@ -1,5 +1,6 @@
 import builtinCatalogJson from "../../../../public/catalog/builtin-catalog.v1.json";
 import { publicAssetUrl } from "../../../utils/publicAssetUrl";
+import { resolveCatalogAlias } from "../aliases";
 import { assertValidCatalogManifest } from "../schema";
 import type {
   CatalogItem,
@@ -63,7 +64,8 @@ export class BuiltInCatalogProvider implements CatalogProvider {
   }
 
   async getItem(id: string, version?: number): Promise<CatalogItem | null> {
-    const item = this.manifest.items.find((candidate) => candidate.id === id) ?? null;
+    const canonical = resolveCatalogAlias(id)?.targetItemId ?? id;
+    const item = this.manifest.items.find((candidate) => candidate.id === canonical) ?? null;
     if (!item) return null;
     if (version !== undefined && item.version !== version) return null;
     return item;
