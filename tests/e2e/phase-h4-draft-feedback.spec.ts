@@ -1,9 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
 
 async function openPlan(page: Page) {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page);
 }
 
 async function planPoint(page: Page, x: number, z: number) {

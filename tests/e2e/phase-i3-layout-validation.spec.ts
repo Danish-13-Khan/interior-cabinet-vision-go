@@ -1,9 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
 
 async function openDesignPlan(page: Page) {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page);
   await page.getByTestId("interiors-tool-cabinet").click();
   await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
 }

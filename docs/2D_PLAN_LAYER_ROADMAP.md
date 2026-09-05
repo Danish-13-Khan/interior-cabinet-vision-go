@@ -97,21 +97,21 @@ The geometry foundation is already substantial.
 ## 5. Phase 0 — Stabilize
 
 **Estimate:** 1–2 weeks  
-**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`) — **0.1 follow-up fixed** (H3 shell entry expands room starters; ConfirmDialog testIds; merge-block UX surfaces all adjacent reasons; CAB-046 label soften; golden path finer undo + serialize round-trip)
+**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`) — **0.1 follow-up fixed** (e2e shell entry standardized via `createShellPlan` across suites; ConfirmDialog testIds; merge-block UX; CAB-046; golden path + production editor-history delete/merge undo coverage; room rename uses in-app PromptDialog)
 
 Before adding major UX capabilities, remove reliability issues from the Golden Cabinet Run.
 
 | ID | Item | Notes |
 | --- | --- | --- |
-| 0.1 | Multi-room / hole-room handling | Clear actionable error instead of dead-end; `explainInteriorRoomMergeBlock` + merge blocked UI (**follow-up:** all adjacent block reasons; H3 e2e entry via expanded starters) |
-| 0.2 | Replace browser dialogs | `window.confirm` delete/merge → in-app `ConfirmDialog` (base `testId` no longer double-suffixed `-confirm-confirm`) |
+| 0.1 | Multi-room / hole-room handling | Clear actionable error instead of dead-end; `explainInteriorRoomMergeBlock` + merge blocked UI (**follow-up:** all adjacent block reasons; e2e shell entry via `createShellPlan` across suites) |
+| 0.2 | Replace browser dialogs | `window.confirm` delete/merge → in-app `ConfirmDialog`; cabinets room rename → `PromptDialog` (no `window.prompt` on that path) |
 | 0.3 | Golden Kitchen regression | Vitest path: draw → openings → cabinet run → fine-grained undo + serialize/reparse (`goldenKitchenPlanPath.test.ts`) |
 | 0.4 | Label overlap | Declutter plan object labels at dense layouts (`CAB-046`); dense non-selected cabinets prefer `name` over blank runs |
-| 0.5 | Undo/Redo reliability | Treat as foundational; geometry, cabinets, openings, move, delete must stay predictable — **harden continuously** (not “done forever”); extend coverage as Phases 1–3 land |
+| 0.5 | Undo/Redo reliability | Foundational; geometry, cabinets, openings, move, delete/merge stay predictable — **harden continuously** (not fully done); production `editorHistoryCore` / `useEditorHistory` covers delete/merge undo (plus domain-only granularity in `roomOperations.test.ts`); extend as Phases 1–3 land |
 
 ### Phase 0 exit
 
-The Golden Cabinet Run workflow should be **boringly reliable**. Continuous undo hardening remains in progress beyond the Phase 0.1 follow-up.
+The Golden Cabinet Run workflow should be **boringly reliable**. Continuous undo hardening remains in progress beyond the Phase 0.1 follow-up. Playwright suites enter the wardrobe shell through `createShellPlan` (`tests/e2e/plannerStart.ts`), which expands More room starters / Quick start templates before clicking Wardrobe wall.
 
 ---
 

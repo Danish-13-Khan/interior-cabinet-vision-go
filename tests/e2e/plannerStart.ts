@@ -17,12 +17,21 @@ export async function seedE2eSession(page: Page) {
   }, E2E_SESSION_JSON);
 }
 
+export type PlannerStartOptions = {
+  /** Extra localStorage entries set after clear + session seed (e.g. dismiss 3D guide). */
+  localStorage?: Record<string, string>;
+};
+
 /** Clear storage, seed auth, open the designer, enter Interiors workbench. */
-export async function openInteriorsHome(page: Page) {
-  await page.addInitScript((session) => {
+export async function openInteriorsHome(page: Page, options?: PlannerStartOptions) {
+  const extras = options?.localStorage ?? {};
+  await page.addInitScript(([session, extra]) => {
     window.localStorage.clear();
     window.localStorage.setItem("cabinetStudioSession", session);
-  }, E2E_SESSION_JSON);
+    for (const [key, value] of Object.entries(extra)) {
+      window.localStorage.setItem(key, value);
+    }
+  }, [E2E_SESSION_JSON, extras] as const);
   await page.goto("/app");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
 }
@@ -60,8 +69,8 @@ export async function createBlankPlan(page: Page) {
 }
 
 /** Rectangular living-room shell with openings (wardrobe starter, empty of furniture). */
-export async function createShellPlan(page: Page) {
-  await openInteriorsHome(page);
+export async function createShellPlan(page: Page, options?: PlannerStartOptions) {
+  await openInteriorsHome(page, options);
   const wardrobe = page.getByRole("button", { name: /Wardrobe wall/ });
   if (!(await wardrobe.isVisible().catch(() => false))) {
     // Calm: starters live under "More room starters"; Compact: "Quick start templates".

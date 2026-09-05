@@ -374,7 +374,7 @@ function App() {
           onReorderCabinet: c.handleTreeReorder,
           onAddRoom: c.handleAddProjectRoom,
           onDuplicateRoom: c.handleDuplicateProjectRoom,
-          onRenameRoom: c.handleRenameProjectRoom,
+          onRenameRoom: c.handleRenameProjectRoomTo,
           onRemoveRoom: c.handleRemoveProjectRoom,
           onAddFromTemplate: c.handleAddRoomFromTemplate,
           onLoadRoomPreset: c.handleLoadRoomPreset,

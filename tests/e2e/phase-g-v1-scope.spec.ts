@@ -1,9 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
 
 async function openStarterRoom(page: import("@playwright/test").Page) {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page);
 }
 
 test("Phase G keeps millwork Design and hides Advanced Studio parity chrome", async ({ page }) => {
