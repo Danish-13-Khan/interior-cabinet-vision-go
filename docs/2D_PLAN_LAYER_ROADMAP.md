@@ -148,7 +148,7 @@ Only after Phases 1–4. Do not start AI here first.
 | ID | Item | Risk |
 | --- | --- | --- |
 | 2D-5.1 | Better underlay (multi-page PDF page pick) | Low |
-| 2D-5.2 | AI / CV: image → editable walls | High cost; still needs manual fix |
+| 2D-5.2 | AI / CV: image → editable walls | High cost; still needs manual fix. Lab accelerator: [Gemini Floor-Plan Vision](./GEMINI_FLOORPLAN_VISION_ROADMAP.md) **Phase 6** (free hybrid CV, no paid APIs) |
 | 2D-5.3 | DWG import | Enterprise; heavy |
 
 **Rule:** Ship Phase 2 underlay polish before any AI floor-plan promise.

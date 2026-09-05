@@ -7,7 +7,8 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 5 — Hardening** (proxy, PDF pages, golden fixtures, privacy/EXIF).
+**Phase 6 — Free hybrid CV** (`NEXT` — start at **6A** ortho/merge).  
+Phases 0–5 done. See roadmap § Phase 6.
 
 ## Run
 
