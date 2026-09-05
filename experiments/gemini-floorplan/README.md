@@ -7,9 +7,8 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 6C — CubiCasa-class model spike** (done).  
-Modes: Raw · 6A · 6B classical CV · **6C model** (offline `*.model.json`).  
-License: [`CUBICASA_LICENSE.md`](./CUBICASA_LICENSE.md) (CC BY-NC — research only). Next: **6D** scorecard.
+**Phase 6D — Fixture scorecard** (done). Phase 6 lab complete (6A–6D).  
+See [`PORT_2D_5_2.md`](./PORT_2D_5_2.md) before any 2D plan port. CubiCasa NC: [`CUBICASA_LICENSE.md`](./CUBICASA_LICENSE.md).
 
 ## Run
 

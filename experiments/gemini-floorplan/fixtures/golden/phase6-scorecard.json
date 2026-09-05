@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "note": "Phase 6D golden scorecard — wall count, ortho, bounds IoU, accept/shell gates.",
+  "summary": {
+    "totalModes": 6,
+    "passed": 6,
+    "failed": 0,
+    "readyFor2d52Discussion": true
+  },
+  "fixtures": [
+    {
+      "id": "rect-kitchen",
+      "raw": {
+        "pass": true,
+        "wallCount": 4,
+        "orthoRatio": 1
+      },
+      "cleaned": {
+        "pass": true,
+        "wallCount": 4,
+        "orthoRatio": 1
+      },
+      "model": {
+        "pass": true,
+        "wallCount": 4,
+        "orthoRatio": 1
+      }
+    },
+    {
+      "id": "l-living",
+      "raw": {
+        "pass": true,
+        "wallCount": 6,
+        "orthoRatio": 1
+      },
+      "cleaned": {
+        "pass": true,
+        "wallCount": 6,
+        "orthoRatio": 1
+      },
+      "model": {
+        "pass": true,
+        "wallCount": 6,
+        "orthoRatio": 1
+      }
+    }
+  ]
+}
