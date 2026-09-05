@@ -7,8 +7,8 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 6 — Free hybrid CV** (`NEXT` — start at **6A** ortho/merge).  
-Phases 0–5 done. See roadmap § Phase 6.
+**Phase 6A — Ortho / merge post-process** (done).  
+Toggle **Raw Vision** vs **CV-cleaned** on the lab page. Next: **6B** classical CV.
 
 ## Run
 

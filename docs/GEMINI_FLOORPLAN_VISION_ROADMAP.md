@@ -225,7 +225,7 @@ Improve wall/opening quality **without paid CV vendors**. Gemini stays for seman
 | **6C** | Open pretrained floor-plan model (CubiCasa / floorplan-to-3d) | Free weights; optional local GPU |
 | **6D** | Quality gate vs fixtures → ready for 2D-5.2 port | Free |
 
-#### 6A — Ortho / merge post-process (`NEXT` — build first)
+#### 6A — Ortho / merge post-process (`CURRENT` — done)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
@@ -313,9 +313,9 @@ PHASE 4  Accept → interior project       [done]
     ↓
 PHASE 5  Proxy / PDF / hardening         [done]
     ↓
-PHASE 6A Ortho / merge post-process      [NEXT]  ← start here
+PHASE 6A Ortho / merge post-process      [done]
     ↓
-PHASE 6B Classical CV wall candidates    [NEXT]
+PHASE 6B Classical CV wall candidates    [NEXT]  ← start next
     ↓
 PHASE 6C Open CubiCasa-class model       [LATER if needed]
     ↓

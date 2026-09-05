@@ -5,6 +5,7 @@ import "../../styles/gemini-floorplan-lab-review.css";
 import "../../styles/gemini-floorplan-lab-accept.css";
 import { AcceptBridgePanel } from "./AcceptBridgePanel";
 import { ConfidenceNotesPanel } from "./ConfidenceNotesPanel";
+import { GeometryModeToggle } from "./GeometryModeToggle";
 import { LabStatusBar } from "./LabStatusBar";
 import { PlanReviewOverlay } from "./PlanReviewOverlay";
 import { PrivacyNotesPanel } from "./PrivacyNotesPanel";
@@ -23,7 +24,7 @@ export function GeminiFloorplanLabPage() {
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 5</p>
+          <p className="gfl-eyebrow">Lab · Phase 6A</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -56,6 +57,13 @@ export function GeminiFloorplanLabPage() {
           onLoadFixture={lab.onLoadFixture}
         />
         <RoomShellViewer proposal={lab.proposal} />
+      </div>
+      <div className="gfl-grid gfl-grid--geom">
+        <GeometryModeToggle
+          mode={lab.geometryMode}
+          disabled={!lab.hasSourceProposal}
+          onChange={lab.setGeometryMode}
+        />
       </div>
       <div className="gfl-grid gfl-grid--3 gfl-grid--review">
         <PlanReviewOverlay
