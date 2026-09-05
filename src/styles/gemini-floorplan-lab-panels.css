@@ -1,0 +1,132 @@
+.gfl-upload__drop {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  margin: 1rem;
+  border: 1px dashed var(--gfl-line);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gfl-muted);
+  overflow: hidden;
+}
+
+.gfl-upload__drop input {
+  display: none;
+}
+
+.gfl-upload__drop img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #121518;
+}
+
+.gfl-upload__name {
+  margin: 0 1rem 0.5rem;
+  font-size: 0.8rem;
+  color: var(--gfl-muted);
+}
+
+.gfl-upload__error {
+  margin: 0 1rem 0.5rem;
+  color: #e28b8b;
+  font-size: 0.85rem;
+}
+
+.gfl-upload__fixtures {
+  margin: 0 1rem 1rem;
+  font-size: 0.75rem;
+  color: var(--gfl-muted);
+}
+
+.gfl-upload__fixtures a {
+  color: var(--gfl-accent);
+}
+
+.gfl-json__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+}
+
+.gfl-json__actions button {
+  border: 1px solid var(--gfl-line);
+  border-radius: 6px;
+  background: #1c2228;
+  color: var(--gfl-text);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.gfl-json__actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gfl-json__actions button:not(:disabled):hover {
+  border-color: var(--gfl-accent);
+}
+
+.gfl-json__hint,
+.gfl-json__metrics {
+  margin: 0.5rem 1rem 0;
+  font-size: 0.8rem;
+  color: var(--gfl-muted);
+}
+
+.gfl-json__error {
+  margin: 0.5rem 1rem 0;
+  color: #e28b8b;
+  font-size: 0.85rem;
+}
+
+.gfl-json__errors {
+  margin: 0.35rem 1rem 0;
+  padding-left: 1.2rem;
+  color: #e28b8b;
+  font-size: 0.8rem;
+}
+
+.gfl-json__pre {
+  flex: 1;
+  margin: 0.75rem 1rem 1rem;
+  padding: 0.75rem;
+  overflow: auto;
+  border-radius: 8px;
+  background: #121518;
+  color: #d7dee5;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.gfl-3d__stage {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  margin: 1rem;
+  border-radius: 8px;
+  background: #121518;
+  color: var(--gfl-muted);
+  overflow: hidden;
+}
+
+.gfl-3d__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(to right, #2c333a 1px, transparent 1px),
+    linear-gradient(to bottom, #2c333a 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.gfl-3d__stage p {
+  position: relative;
+  margin: 0;
+  font-size: 0.9rem;
+}

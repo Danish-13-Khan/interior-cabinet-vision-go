@@ -1,38 +1,46 @@
 # Gemini Floor-Plan Vision Lab
 
-Isolated **Phase 0** scaffold for upload → Gemini Vision → 3D (see
-[`docs/GEMINI_FLOORPLAN_VISION_ROADMAP.md`](../../docs/GEMINI_FLOORPLAN_VISION_ROADMAP.md)).
+Isolated lab for **upload → Gemini Vision → reviewable JSON → (later) 3D**  
+(see [`docs/GEMINI_FLOORPLAN_VISION_ROADMAP.md`](../../docs/GEMINI_FLOORPLAN_VISION_ROADMAP.md)).
 
-This lab does **not** modify the Living Room / 2D precision-canvas WIP.
+Does **not** modify the Living Room / 2D precision-canvas WIP.
+
+## Current phase
+
+**Phase 1 — Vision extract** (offline fixtures work without a key).
 
 ## Run
 
-1. Copy env template from repo root:
+1. Copy env template:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Set `VITE_GEMINI_API_KEY` in `.env` (Phase 1+). Optional: `VITE_ENABLE_GEMINI_LAB=true`
-   to expose the route in production builds.
+2. Optional for now: set `VITE_GEMINI_API_KEY` when you want live Vision.  
+   Optional: `VITE_GEMINI_MODEL` (default `gemini-2.0-flash`).  
+   Optional: `VITE_ENABLE_GEMINI_LAB=true` for production builds.
 
-3. From repo root:
-
-   ```bash
+3. ```bash
    npm run dev
    ```
 
 4. Open [http://localhost:1420/lab/gemini-floorplan](http://localhost:1420/lab/gemini-floorplan)
 
-   In `npm run dev`, the lab route is enabled automatically. Production builds
-   require `VITE_ENABLE_GEMINI_LAB=true`.
+## Without an API key
+
+Use **Load offline kitchen / L-room** to see validated proposal JSON.  
+Sample PNGs live under `/experiments/gemini-floorplan/fixtures/`.
+
+## With an API key
+
+Upload a PNG/JPEG/WebP (or a fixture image) → **Run Gemini Vision** → JSON panel.
 
 ## Code
 
-UI lives in [`src/experiments/gemini-floorplan/`](../../src/experiments/gemini-floorplan/).
-Do not wire Vision calls or project-accept into `/app` until Phase 4+.
+`src/experiments/gemini-floorplan/` · regenerate PNGs with  
+`node scripts/gemini-floorplan/generate-fixtures.mjs`
 
 ## Branch
 
-Work only on `feat/gemini-floorplan-lab` (from `main`). Keep
-`feat/2d-plan-layer` untouched.
+Only `feat/gemini-floorplan-lab` (from `main`). Keep `feat/2d-plan-layer` untouched.
