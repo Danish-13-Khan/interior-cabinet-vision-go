@@ -31,7 +31,7 @@ type GeminiApiJson = {
 export function resolveGeminiModel(): string {
   const fromEnv = import.meta.env.VITE_GEMINI_MODEL;
   if (typeof fromEnv === "string" && fromEnv.trim()) return fromEnv.trim();
-  return "gemini-2.0-flash";
+  return "gemini-3.6-flash";
 }
 
 export function readGeminiApiKey(): string | null {

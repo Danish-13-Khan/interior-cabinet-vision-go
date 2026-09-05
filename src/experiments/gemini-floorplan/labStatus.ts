@@ -31,7 +31,7 @@ export function buildLabStatus(input: {
     return {
       phase: "done",
       headline: "Proposal ready",
-      detail: "Validated JSON normalized to mm. Review in the panel (3D is Phase 3).",
+      detail: "Validated JSON normalized to mm. Use the review overlay to correct scale and walls.",
     };
   }
   if (!input.hasKey) {
