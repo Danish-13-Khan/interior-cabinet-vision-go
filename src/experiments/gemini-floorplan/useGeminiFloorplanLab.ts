@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import type { GeometryViewMode } from "./cleanProposalGeometry";
 import { extractFloorPlanFromImage } from "./extractFloorPlan";
 import { guardFloorplanImage } from "./imageGuards";
+import { handleLabFilePick } from "./labFilePick";
+import { fixtureById } from "./labFixtures";
 import { hasGeminiVisionConfigured } from "./labFlags";
 import { buildLabStatus } from "./labStatus";
-import { resolveLabUpload } from "./labUpload";
 import { normalizeProposalToMm } from "./normalizeProposal";
 import { rasterizePdfPageToPng, type PdfInfo } from "./pdfPageRaster";
 import type { GeminiFloorProposal, VisionUsageMetrics } from "./proposalTypes";
-import { SAMPLE_L_ROOM_CM, SAMPLE_RECT_KITCHEN_MM } from "./sampleProposals";
 import { useLabGeometryMode } from "./useLabGeometryMode";
 
 export function useGeminiFloorplanLab() {
@@ -82,36 +82,6 @@ export function useGeminiFloorplanLab() {
     if (view) selectFrom(view);
   }
 
-  async function onFile(next: File | null) {
-    resetExtract();
-    setPdfInfo(null);
-    if (!next) {
-      setFile(null);
-      setFileName(null);
-      setUploadError(null);
-      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-      return;
-    }
-    const resolved = await resolveLabUpload(next);
-    if (resolved.kind === "error") {
-      setUploadError(resolved.error);
-      setFile(null);
-      setFileName(null);
-      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-      return;
-    }
-    if (resolved.kind === "pdf") {
-      setPdfInfo(resolved.info);
-      setPdfPage(1);
-      setFile(null);
-      setFileName(next.name);
-      setUploadError(null);
-      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-      return;
-    }
-    setImageFile(resolved.file);
-  }
-
   async function onSelectPdfPage(page: number) {
     if (!pdfInfo) return;
     setBusy(true);
@@ -169,12 +139,27 @@ export function useGeminiFloorplanLab() {
   }
 
   function onLoadFixture(id: string) {
-    void applyProposal(normalizeProposalToMm(id === "l-cm" ? SAMPLE_L_ROOM_CM : SAMPLE_RECT_KITCHEN_MM));
+    const next = normalizeProposalToMm(fixtureById(id));
     setRawText(null);
     setExtractError(null);
     setValidationErrors([]);
     setCalibrateError(null);
-    setMetrics({ latencyMs: 0, model: "offline-fixture", totalTokens: 0 });
+    setMetrics({
+      latencyMs: 0,
+      model: id === "messy-mm" ? "offline-messy-demo" : "offline-fixture",
+      totalTokens: 0,
+    });
+    if (id === "messy-mm") {
+      geom.commitSource(next, "raw");
+      void (async () => {
+        setCvBusy(true);
+        const view = await geom.setGeometryMode("raw", file, fileName);
+        setCvBusy(false);
+        if (view) selectFrom(view);
+      })();
+      return;
+    }
+    void applyProposal(next);
   }
 
   return {
@@ -185,6 +170,10 @@ export function useGeminiFloorplanLab() {
     rawText, extractError, validationErrors, metrics,
     selectedWallId, setSelectedWallId, selectedRoomId, setSelectedRoomId,
     calibrateError, setCalibrateError, pdfInfo, pdfPage,
-    onFile, onSelectPdfPage, onRunVision, onUseSampleImage, onLoadFixture,
+    onFile: (f: File | null) =>
+      handleLabFilePick(f, {
+        setFile, setFileName, setUploadError, setPreviewUrl, setPdfInfo, setPdfPage, setImageFile, resetExtract,
+      }),
+    onSelectPdfPage, onRunVision, onUseSampleImage, onLoadFixture,
   };
 }

@@ -58,7 +58,7 @@ export function GeminiFloorplanLabPage() {
           onUseSampleImage={lab.onUseSampleImage}
           onLoadFixture={lab.onLoadFixture}
         />
-        <RoomShellViewer proposal={lab.proposal} />
+        <RoomShellViewer proposal={lab.proposal} geometryMode={lab.geometryMode} />
       </div>
       <div className="gfl-grid gfl-grid--geom">
         <GeometryModeToggle

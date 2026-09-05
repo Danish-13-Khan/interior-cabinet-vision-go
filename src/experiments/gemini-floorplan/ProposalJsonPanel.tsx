@@ -52,17 +52,24 @@ export function ProposalJsonPanel({
         <button type="button" disabled={busy} onClick={() => onLoadFixture("rect-mm")}>
           Load offline kitchen
         </button>
+        <button type="button" disabled={busy} onClick={() => onLoadFixture("messy-mm")}>
+          Load messy Vision (see 6A)
+        </button>
         <button type="button" disabled={busy} onClick={() => onLoadFixture("l-cm")}>
           Load offline L-room
         </button>
       </div>
       <p className="gfl-json__hint">
-        {!hasKey
-          ? "Vision not ready — add GEMINI_API_KEY to .env and restart Vite (local proxy)."
-          : !hasImage
-            ? "Ready. Upload an image/PDF page or click “Use sample image”, then Run Gemini Vision."
-            : "Image ready — will downscale to ≤1600px, then Vision via proxy."}
+        Clean kitchen barely changes across modes. Use <strong>Load messy Vision</strong>, stay on{" "}
+        <strong>Raw</strong>, then switch to <strong>6A cleaned</strong> to see Phase 6.
       </p>
+      {hasKey && hasImage ? (
+        <p className="gfl-json__hint">Image ready — will downscale to ≤1600px, then Vision via proxy.</p>
+      ) : !hasKey ? (
+        <p className="gfl-json__hint">
+          Vision not ready — add GEMINI_API_KEY to .env and restart Vite (local proxy).
+        </p>
+      ) : null}
       {metrics ? <p className="gfl-json__metrics">{formatMetrics(metrics)}</p> : null}
       {error ? <p className="gfl-json__error">{error}</p> : null}
       {validationErrors.length ? (

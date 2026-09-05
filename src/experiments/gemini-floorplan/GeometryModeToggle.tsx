@@ -9,11 +9,11 @@ type Props = {
 };
 
 const HINTS: Record<GeometryViewMode, string> = {
-  raw: "Raw Vision extract. Switch modes to compare.",
-  cleaned: "Phase 6A ortho snap / merge / close loops on Vision geometry.",
-  cv: "Classical CV: threshold + axis segments from the image; Vision labels kept.",
+  raw: "Raw extract (skewed walls stay skewed). Load messy Vision to demo.",
+  cleaned: "Phase 6A: ortho snap / merge stubs / close loops.",
+  cv: "Classical CV from the plan image (needs upload/sample image).",
   model:
-    "CubiCasa-class model JSON → walls; Vision labels kept. Uses offline fixtures or local spike export (research / NC license).",
+    "CubiCasa-class model JSON walls; Vision labels kept. Offline fixtures only unless you export weights locally.",
 };
 
 export function GeometryModeToggle({ mode, disabled, busy, cvNote, onChange }: Props) {
