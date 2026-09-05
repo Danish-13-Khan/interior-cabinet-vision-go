@@ -432,10 +432,30 @@ export {
   type PlanObjectLabelInput,
 } from "./planObjectLabels";
 export {
+  isKitchenAppliancePlanObject,
+  planObjectFootprintClass,
+  planObjectFootprintKind,
+  type PlanFootprintKind,
+} from "./planObjectFootprint";
+export {
   getLivingRoomPlanUnderlay,
   setLivingRoomPlanUnderlay,
   type LivingRoomPlanUnderlay,
 } from "./planUnderlay";
+export {
+  calibrateUnderlayScale,
+  parseKnownLengthMm,
+} from "./planUnderlayCalibrate";
+export {
+  getSiteMeasureChecklist,
+  listSiteMeasureChecklistItems,
+  setSiteMeasureChecklist,
+  toggleSiteMeasureChecklistItem,
+  SITE_MEASURE_USER_KEYS,
+  type SiteMeasureChecklist,
+  type SiteMeasureChecklistItem,
+  type SiteMeasureUserKey,
+} from "./siteMeasureChecklist";
 export {
   addLivingRoomObject,
   alignLivingRoomObjects,

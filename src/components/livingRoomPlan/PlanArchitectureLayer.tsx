@@ -33,8 +33,8 @@ export function PlanArchitectureLayer(props: {
       <clipPath id={clipId}><path d={floorPath} fillRule="evenodd" /></clipPath>
     </defs>
     <rect data-plan-paper x={-20000} y={-20000} width={40000} height={40000} className="lr-plan-paper" onPointerDown={props.onPaper} />
-    {underlay ? <image href={underlay.dataUrl} x={-underlay.widthMm / 2} y={-underlay.heightMm / 2} width={underlay.widthMm} height={underlay.heightMm}
-      opacity={underlay.opacity} preserveAspectRatio="none" className="lr-plan-underlay-image" pointerEvents="none"
+    {underlay && !underlay.hidden ? <image href={underlay.dataUrl} x={-underlay.widthMm / 2} y={-underlay.heightMm / 2} width={underlay.widthMm} height={underlay.heightMm}
+      opacity={underlay.opacity} preserveAspectRatio="none" className="lr-plan-underlay-image" data-testid="lr-plan-underlay-image" pointerEvents="none"
       transform={`translate(${underlay.xMm ?? 0} ${underlay.zMm ?? 0}) rotate(${underlay.rotationDeg ?? 0})`} /> : null}
     {props.room ? <path data-room-floor={props.room.id} d={floorPath} fill={floorColor} fillRule="evenodd"
       opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onFloor ? "fill" : "none"}

@@ -101,3 +101,13 @@ body > .app-confirm-backdrop .app-confirm-actions button.is-danger,
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.app-prompt-error {
+  margin: 0;
+  color: #f0a8a8;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.app-prompt-field input[aria-invalid="true"] {
+  border-color: #c45c5c;
+}

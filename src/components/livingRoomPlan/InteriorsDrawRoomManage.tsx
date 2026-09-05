@@ -6,6 +6,7 @@ import {
 } from "../../domain/desktopUx";
 import { BuildRoomManager } from "./BuildRoomManager";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
+import { SiteMeasureChecklist } from "./SiteMeasureChecklist";
 import type { InteriorsDrawRoomManageProps } from "./interiorsDrawRoomCommands";
 
 export function InteriorsDrawRoomManage({
@@ -61,7 +62,11 @@ export function InteriorsDrawRoomManage({
             underlay={commands.underlay}
             onChange={commands.onSetPlanUnderlay}
             onReplace={commands.onReplaceUnderlay}
+            onCalibrate={() => commands.onBuildTool("calibrate-underlay")}
           />
+          {commands.onToggleSiteMeasure ? (
+            <SiteMeasureChecklist project={project} onToggle={commands.onToggleSiteMeasure} />
+          ) : null}
           {commands.importError ? <p className="lr-import-error">{commands.importError}</p> : null}
         </>
       ) : null}

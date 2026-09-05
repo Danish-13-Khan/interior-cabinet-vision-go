@@ -91,4 +91,6 @@ export type LivingRoomPlanStageProps = {
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
   onFitPlan?: () => void;
   onFitSelection?: () => void;
+  onSetPlanUnderlay?: (underlay: import("../../domain/livingRoom").LivingRoomPlanUnderlay | null) => void;
+  onCalibrateComplete?: () => void;
 };

@@ -172,13 +172,13 @@ A user who has used a floor-planning app before can operate the plan without tra
 ## 7. Phase 2 — Measured room workflow
 
 **Estimate:** 2–4 weeks  
-**Status:** `NEXT` after Phase 1
+**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`) — underlay lock/hide/calibrated flags; calibrate-underlay tool + known-distance PromptDialog; site measure checklist; clearer door swings / window rails + width/offset labels; base/wall/tall/appliance/filler plan footprints. PDF import remains Phase 5.1.
 
 Connect the app to actual site measurements.
 
 ### 7.1 Underlay import
 
-JPG / PNG / PDF:
+JPG / PNG / WebP (shipped). PDF import is deferred to Phase 5.1.
 
 ```text
 Import → Position → Rotate → Calibrate → Adjust Opacity → Lock → Trace
@@ -295,7 +295,7 @@ PHASE 0  Reliability                    [Implemented]
 PHASE 1 ★ Precision Canvas              [Implemented — polish open]
          Pan / Zoom / Measure / Dimensions / Snap / Keyboard / Undo
     ↓
-PHASE 2  Measured Room
+PHASE 2  Measured Room                    [Implemented]
          Underlay / Calibration / Openings polish
     ↓
 PHASE 3 ★ Cabinet Intelligence

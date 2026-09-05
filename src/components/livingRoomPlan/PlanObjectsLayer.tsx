@@ -4,6 +4,8 @@ import { readCabinetIdentity } from "../../domain/cabinetIdentity";
 import { isCabinetRunFiller } from "../../domain/livingRoom/wardrobePlacement";
 import {
   formatPlanDimension,
+  planObjectFootprintClass,
+  planObjectFootprintKind,
   primaryMaterialId,
   resolvePlanObjectLabelModes,
   type LivingRoomPlanIssue,
@@ -47,14 +49,17 @@ export function PlanObjectsLayer(props: {
       const labelY = selected || labelMode === "full"
         ? (compact ? -dimensions.depthMm / 2 - 70 : -8)
         : -dimensions.depthMm / 2 - 55;
+      const footprintKind = planObjectFootprintKind(object);
+      const footprintClass = planObjectFootprintClass(object);
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${object.rotation.y})`}
-        className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""}`}
+        className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""} ${footprintClass}`.trim()}
         data-object-id={object.id} data-catalog-item-id={object.catalogItemId}
         data-material-id={finish?.id} data-material-color={finish?.color}
         data-wall-id={attachedWallId(object)}
         data-rotation-y={object.rotation.y}
         data-family-id={identity?.familyId}
         data-cabinet-type={isCabinetRunFiller(object) ? "filler" : identity?.cabinetType}
+        data-footprint={footprintKind ?? undefined}
         data-width-mm={dimensions.widthMm}
         data-label-mode={labelMode}
         style={fill ? { ["--lr-object-fill" as string]: fill } : undefined}

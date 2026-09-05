@@ -12,6 +12,10 @@ export type PromptDialogProps = {
   cancelLabel?: string;
   /** Stable id for e2e; input/buttons use `${testId}-input` / `-confirm` / `-cancel`. */
   testId?: string;
+  /** Inline validation error shown under the input (dialog stays open). */
+  error?: string | null;
+  /** Called when the user edits the input while an error is showing. */
+  onClearError?: () => void;
   onConfirm: (value: string) => void;
   onCancel: () => void;
 };
@@ -26,6 +30,8 @@ export function PromptDialog({
   confirmLabel = "Rename",
   cancelLabel = "Cancel",
   testId = "prompt-dialog",
+  error = null,
+  onClearError,
   onConfirm,
   onCancel,
 }: PromptDialogProps) {
@@ -45,6 +51,11 @@ export function PromptDialog({
     onConfirm(trimmed);
   }
 
+  const messageId = message ? `${testId}-message` : undefined;
+  const errorId = error ? `${testId}-error` : undefined;
+  const describedBy = [messageId, errorId].filter(Boolean).join(" ") || undefined;
+  const inputDescribedBy = [messageId, errorId].filter(Boolean).join(" ") || undefined;
+
   return createPortal(
     <div
       className="app-confirm-backdrop"
@@ -59,7 +70,7 @@ export function PromptDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${testId}-title`}
-        aria-describedby={message ? `${testId}-message` : undefined}
+        aria-describedby={describedBy}
         data-testid={testId}
         tabIndex={-1}
       >
@@ -71,7 +82,12 @@ export function PromptDialog({
             data-testid={`${testId}-input`}
             data-dialog-initial-focus
             value={value}
-            onChange={(event) => setValue(event.target.value)}
+            aria-invalid={Boolean(error)}
+            aria-describedby={inputDescribedBy}
+            onChange={(event) => {
+              setValue(event.target.value);
+              if (error) onClearError?.();
+            }}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.preventDefault();
@@ -79,6 +95,9 @@ export function PromptDialog({
               }
             }}
           />
+          {error ? (
+            <p id={`${testId}-error`} className="app-prompt-error" role="alert" data-testid={`${testId}-error`}>{error}</p>
+          ) : null}
         </label>
         <div className="app-confirm-actions">
           <button

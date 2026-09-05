@@ -7,9 +7,12 @@ import {
   PLAN_WALL_MOVE_SCREEN_PX,
   appendMeasurePoint,
   boundsFromPoints,
+  calibrateUnderlayScale,
+  parseKnownLengthMm,
   collectMeasureSnapPoints,
   collectReferenceDimensions,
   expandBounds,
+  getLivingRoomPlanUnderlay,
   getObjectPlanBounds,
   getOpeningCatalogItem,
   openingOffsetAtPoint,
@@ -17,10 +20,12 @@ import {
   snapMeasurePoint,
   type BuildTool,
   type LivingRoomPlanIssue,
+  type LivingRoomPlanUnderlay,
   type MeasureSnapPoint,
   type PlanReadabilitySettings,
   type WallLengthAnchor,
 } from "../domain/livingRoom";
+import { PromptDialog } from "./PromptDialog";
 import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
@@ -63,6 +68,8 @@ type Props = {
   readability: PlanReadabilitySettings;
   onSetWallLength?: (wallId: string, lengthMm: number, anchor: WallLengthAnchor) => void;
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+  onSetPlanUnderlay?: (underlay: LivingRoomPlanUnderlay | null) => void;
+  onCalibrateComplete?: () => void;
 };
 
 type MarqueeState = {
@@ -92,17 +99,28 @@ export function LivingRoomPlanView(props: Props) {
   const drawPartition = tool === "draw-partition";
   const placeColumn = tool === "place-column";
   const measuring = tool === "measure";
+  const calibrating = tool === "calibrate-underlay";
+  const measureLike = measuring || calibrating;
   const editWalls = tool === "select";
+  const underlay = getLivingRoomPlanUnderlay(props.project);
+  const calibrateBlockedReason = !calibrating ? null
+    : !underlay ? "Import a floor plan underlay before calibrating."
+    : underlay.locked ? "Unlock the underlay before calibrating."
+    : null;
 
   const [marquee, setMarquee] = useState<MarqueeState | null>(null);
   const [measurePoints, setMeasurePoints] = useState<Point2Mm[]>([]);
   const [measureCursor, setMeasureCursor] = useState<Point2Mm | null>(null);
   const [measureSnap, setMeasureSnap] = useState<MeasureSnapPoint | null>(null);
+  const [calibratePrompt, setCalibratePrompt] = useState<{ a: Point2Mm; b: Point2Mm } | null>(null);
+  const [calibrateError, setCalibrateError] = useState<string | null>(null);
 
   useEffect(() => {
     setMeasurePoints([]);
     setMeasureCursor(null);
     setMeasureSnap(null);
+    setCalibratePrompt(null);
+    setCalibrateError(null);
   }, [tool, props.project.id, props.project.activeRoomId]);
 
   useEffect(() => {
@@ -159,8 +177,8 @@ export function LivingRoomPlanView(props: Props) {
   });
 
   const measureCandidates = useMemo(
-    () => (measuring ? collectMeasureSnapPoints(props.project, props.snapSizeMm) : []),
-    [measuring, props.project, props.snapSizeMm],
+    () => (measureLike ? collectMeasureSnapPoints(props.project, props.snapSizeMm) : []),
+    [measureLike, props.project, props.snapSizeMm],
   );
   const referenceDims = useMemo(
     () => collectReferenceDimensions(props.project),
@@ -168,7 +186,7 @@ export function LivingRoomPlanView(props: Props) {
   );
 
   function handleWall(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
-    if (measuring || nav.spaceDown) return;
+    if (measureLike || nav.spaceDown) return;
     if (drawWall || drawPartition) { wallDrawing.begin(event); return; }
     if (editWalls && walls.beginWall(event, wallId)) return;
     event.stopPropagation();
@@ -208,16 +226,47 @@ export function LivingRoomPlanView(props: Props) {
   function commitMeasureClick(event: ReactPointerEvent<SVGElement>) {
     event.preventDefault();
     event.stopPropagation();
+    if (calibrating && calibrateBlockedReason) return;
+    if (calibrating && calibratePrompt) return;
     const raw = worldPoint(event as ReactPointerEvent<SVGSVGElement>);
     const snapped = snapMeasurePoint(raw, measureCandidates, pointerSnapMm, props.snapSizeMm);
-    setMeasurePoints((current) => appendMeasurePoint(current, snapped));
     setMeasureSnap(snapped);
     setMeasureCursor(snapped);
+    setMeasurePoints((current) => {
+      const next = appendMeasurePoint(current, snapped);
+      if (calibrating && next.length >= 2) {
+        const a = next[0]!;
+        const b = next[1]!;
+        setCalibratePrompt({ a, b });
+        return [a, b];
+      }
+      return next;
+    });
+  }
+
+  function applyCalibrateKnownLength(rawValue: string) {
+    if (!calibratePrompt || !underlay || !props.onSetPlanUnderlay) {
+      setCalibratePrompt(null);
+      return;
+    }
+    try {
+      const known = parseKnownLengthMm(rawValue);
+      const next = calibrateUnderlayScale(underlay, calibratePrompt.a, calibratePrompt.b, known);
+      props.onSetPlanUnderlay(next);
+      setCalibrateError(null);
+      setCalibratePrompt(null);
+      setMeasurePoints([]);
+      setMeasureCursor(null);
+      setMeasureSnap(null);
+      props.onCalibrateComplete?.();
+    } catch (error) {
+      setCalibrateError(error instanceof Error ? error.message : "Calibration failed.");
+    }
   }
 
   function paperDown(event: ReactPointerEvent<SVGRectElement>) {
     if (nav.beginPan(event as unknown as ReactPointerEvent<SVGSVGElement>)) return;
-    if (measuring) { if (event.button === 0) commitMeasureClick(event); return; }
+    if (measureLike) { if (event.button === 0) commitMeasureClick(event); return; }
     if (placeColumn) { placeColumnAt(event); return; }
     if (roomDrawing.start(event)) return;
     if (wallDrawing.begin(event)) return;
@@ -233,7 +282,7 @@ export function LivingRoomPlanView(props: Props) {
 
   function floorDown(event: ReactPointerEvent<SVGPathElement>) {
     if (nav.beginPan(event as unknown as ReactPointerEvent<SVGSVGElement>)) return;
-    if (measuring) { if (event.button === 0) commitMeasureClick(event); return; }
+    if (measureLike) { if (event.button === 0) commitMeasureClick(event); return; }
     if (placeColumn) { placeColumnAt(event); return; }
     if (!editWalls || event.button !== 0) return;
     // Potential marquee from inside the room; click without drag selects the room.
@@ -251,7 +300,7 @@ export function LivingRoomPlanView(props: Props) {
 
   function pointerMove(event: ReactPointerEvent<SVGSVGElement>) {
     if (nav.movePan(event)) return;
-    if (measuring) { updateMeasureHover(event); return; }
+    if (measureLike) { updateMeasureHover(event); return; }
     if (marquee) {
       setMarquee({ ...marquee, current: worldPoint(event) });
       return;
@@ -313,14 +362,35 @@ export function LivingRoomPlanView(props: Props) {
     height: Math.abs(marquee.current.z - marquee.start.z),
   } : null;
 
-  return <svg ref={nav.svgRef}
-    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""}`}
+  return <>
+  <PromptDialog
+    open={Boolean(calibratePrompt)}
+    title="Calibrate underlay"
+    message="Enter the known real-world distance between the two points (millimetres)."
+    label="Known length (mm)"
+    initialValue=""
+    confirmLabel="Apply scale"
+    cancelLabel="Cancel"
+    testId="calibrate-known-length"
+    error={calibrateError}
+    onClearError={() => setCalibrateError(null)}
+    onConfirm={applyCalibrateKnownLength}
+    onCancel={() => {
+      setCalibratePrompt(null);
+      setMeasurePoints([]);
+      setMeasureCursor(null);
+      setMeasureSnap(null);
+      setCalibrateError(null);
+    }}
+  />
+  <svg ref={nav.svgRef}
+    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""} ${calibrating ? "is-calibrate" : ""}`}
     viewBox={nav.viewBox} role="application" aria-label="Living room plan editor"
     data-testid="lr-plan-svg"
     onWheel={nav.onWheel}
     onPointerDownCapture={(event) => {
       if (nav.beginPan(event)) return;
-      if (measuring) {
+      if (measureLike) {
         // Capture before cabinet/opening drag handlers steal the gesture.
         // Primary button only — right/middle must not add measure points.
         if (event.button === 0) commitMeasureClick(event);
@@ -331,7 +401,7 @@ export function LivingRoomPlanView(props: Props) {
     }}
     onPointerDown={(event) => {
       if (nav.spaceDown || event.button === 1) { nav.beginPan(event); return; }
-      if (measuring) { if (event.button === 0) commitMeasureClick(event); return; }
+      if (measureLike) { if (event.button === 0) commitMeasureClick(event); return; }
       if (event.target === event.currentTarget) { props.onSelect(null); props.onSelectSurface(null); }
     }}
     onPointerMove={pointerMove} onPointerUp={finish} onPointerCancel={finish}
@@ -339,7 +409,7 @@ export function LivingRoomPlanView(props: Props) {
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall}
-      onFloor={editWalls || measuring || placeColumn ? floorDown : undefined} />
+      onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
     <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
@@ -352,14 +422,24 @@ export function LivingRoomPlanView(props: Props) {
     <PlanOpeningsLayer project={props.project} activeOpeningId={props.activeOpeningId}
       openingPreview={openings.openingPreview} onSelectOpening={props.onSelectOpening}
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit}
-      interactive={!measuring} />
+      interactive={!measureLike} />
     <PlanObjectsLayer project={props.project} selectedIds={props.selectedIds} issues={props.issues}
       preview={objects.preview} guides={objects.guides} unit={props.readability.unit}
-      onStart={objects.start} interactive={!measuring} />
+      onStart={objects.start} interactive={!measureLike} />
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
       settings={props.readability} referenceDims={referenceDims}
       onSetWallLength={props.onSetWallLength} /> : null}
-    <PlanMeasureOverlay active={measuring} points={measurePoints} cursor={measureCursor} snap={measureSnap} />
+    <PlanMeasureOverlay active={measureLike} points={measurePoints} cursor={measureCursor} snap={measureSnap} mode={calibrating ? "calibrate" : "measure"} />
+    {calibrating && calibrateBlockedReason ? (
+      <text className="lr-empty-plan-hint" data-testid="lr-calibrate-blocked" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
+        {calibrateBlockedReason}
+      </text>
+    ) : null}
+    {!calibratePrompt && calibrateError ? (
+      <text className="lr-empty-plan-hint" data-testid="lr-calibrate-error" x={bounds.centerX} y={bounds.centerZ + 180} textAnchor="middle">
+        {calibrateError}
+      </text>
+    ) : null}
     {marqueeRect ? (
       <rect
         className="lr-plan-marquee"
@@ -372,5 +452,6 @@ export function LivingRoomPlanView(props: Props) {
         Drag a rectangle to draw the room, then use Draw Wall to add or split walls.
       </text>
     ) : null}
-  </svg>;
+  </svg>
+  </>;
 }

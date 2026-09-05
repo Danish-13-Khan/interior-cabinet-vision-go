@@ -6,6 +6,7 @@ export type WallCommandPatch = { thicknessMm?: number; heightMm?: number };
 export type BuildTool =
   | "select"
   | "measure"
+  | "calibrate-underlay"
   | "upload-underlay"
   | "draw-room"
   | "draw-wall"

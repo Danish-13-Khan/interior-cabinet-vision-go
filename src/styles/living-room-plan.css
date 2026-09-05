@@ -1129,21 +1129,58 @@
   stroke-width: 145;
 }
 
-.lr-opening-door line {
-  stroke: #e3b84d;
+.lr-opening-door line,
+.lr-opening-door .lr-opening-leaf {
+  stroke: #d4a017;
+  stroke-width: 28;
 }
 
-.lr-opening-window line {
-  stroke: #58a6c8;
-  stroke-width: 75;
+.lr-opening-door .lr-opening-clear {
+  stroke: #f7f8f9;
+  stroke-width: 155;
 }
 
-.lr-opening text {
-  fill: #38546a;
+.lr-opening-window line,
+.lr-opening-window .lr-opening-symbol-detail {
+  stroke: #2f86a8;
+  stroke-width: 28;
+}
+
+.lr-opening-window .lr-opening-clear {
+  stroke: #d7eef6;
+  stroke-width: 120;
+}
+
+.lr-opening-swing-arc {
+  stroke: #c7921f;
+  stroke-width: 18;
+  stroke-dasharray: 40 28;
+  fill: none;
+}
+
+.lr-opening-glass-hatch {
+  stroke: #2f86a8;
+  stroke-width: 16;
+  stroke-dasharray: 24 18;
+}
+
+.lr-opening text,
+.lr-opening-width-label,
+.lr-opening-offset-label {
+  fill: #2a4458;
   font-family: var(--font-mono);
   font-size: 105px;
   font-weight: 700;
   text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 14px;
+  pointer-events: none;
+}
+
+.lr-opening-offset-label {
+  font-size: 92px;
+  fill: #4a6578;
 }
 
 .lr-plan-object {
@@ -2015,4 +2052,135 @@
   stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 14px;
   pointer-events: none;
+}
+
+
+/* Phase 2 — Measured room */
+.lr-plan-svg.is-calibrate {
+  cursor: crosshair;
+}
+.lr-measure-overlay.is-calibrate .lr-measure-segment {
+  stroke: #1f6f8b;
+}
+.lr-measure-overlay.is-calibrate .lr-measure-point {
+  stroke: #1f6f8b;
+}
+.lr-plan-object.is-footprint-base > rect:first-of-type {
+  fill: #d7c2a0;
+  stroke: #3a4650;
+  stroke-width: 16;
+}
+.lr-plan-object.is-footprint-wall > rect:first-of-type {
+  fill: rgba(180, 198, 214, 0.55);
+  stroke: #4a6578;
+  stroke-dasharray: 36 22;
+  stroke-width: 16;
+}
+.lr-plan-object.is-footprint-tall > rect:first-of-type {
+  fill: #c9b7a0;
+  stroke: #2f3b45;
+  stroke-width: 22;
+}
+.lr-plan-object.is-footprint-appliance > rect:first-of-type {
+  fill: #dfe4e8;
+  stroke: #1f2a33;
+  stroke-width: 26;
+}
+.lr-plan-object.is-footprint-filler > rect:first-of-type,
+.lr-filler-symbol rect {
+  fill: rgba(120, 130, 140, 0.35);
+  stroke: #5a6570;
+  stroke-width: 14;
+  stroke-dasharray: 22 14;
+}
+/* selection / issue must win over footprint fills */
+.lr-plan-object.is-selected > rect:first-of-type {
+  fill: rgba(47, 130, 190, 0.28);
+  stroke: #0864a4;
+  stroke-width: 24;
+  stroke-dasharray: none; /* clear wall-cabinet dashes when selected */
+}
+.lr-plan-object.has-issue > rect:first-of-type {
+  stroke: #b55338;
+  stroke-dasharray: 35 18;
+}
+.lr-plan-object.is-selected.has-issue > rect:first-of-type {
+  stroke: #c44724;
+}
+.lr-cabinet-counter-edge {
+  stroke: #6b4f2c;
+  stroke-width: 22;
+}
+.lr-cabinet-mark {
+  fill: #38546a;
+  font-family: var(--font-mono);
+  font-size: 120px;
+  font-weight: 700;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.lr-filler-symbol line {
+  stroke: #5a6570;
+  stroke-width: 16;
+}
+.lr-underlay-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+.lr-underlay-status span {
+  border: 1px solid #c5d0db;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #4a5d6e;
+  background: #f4f7fa;
+}
+.lr-underlay-status span.is-on {
+  border-color: #2f6feb;
+  color: #0b3d5c;
+  background: #e8f1fc;
+}
+.lr-underlay-toggles {
+  display: flex;
+  gap: 8px;
+}
+.lr-underlay-controls.is-locked input:disabled,
+.lr-underlay-controls.is-locked button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.lr-underlay-lock-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #8a3a12;
+}
+.lr-site-measure-checklist {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #d5dee7;
+  border-radius: 8px;
+  background: #fbfcfd;
+}
+.lr-site-measure-checklist strong {
+  display: block;
+}
+.lr-site-measure-checklist small {
+  display: block;
+  color: #5a6d7e;
+  margin: 2px 0 8px;
+}
+.lr-site-measure-checklist ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.lr-site-measure-checklist label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
 }

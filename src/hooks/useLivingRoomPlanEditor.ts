@@ -58,6 +58,7 @@ import {
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
+  getLivingRoomPlanUnderlay,
   setLivingRoomPlanUnderlay,
   paintLivingRoomSurface,
   setLivingRoomObjectParameters,
@@ -294,9 +295,17 @@ export function useLivingRoomPlanEditor({
   }
 
   function setPlanUnderlay(underlay: LivingRoomPlanUnderlay | null) {
+    const previous = document ? getLivingRoomPlanUnderlay(document) : null;
+    const status = !underlay
+      ? "Removed plan underlay."
+      : !previous
+        ? "Imported plan underlay."
+        : Boolean(underlay.calibrated) && !previous.calibrated
+          ? "Calibrated plan underlay."
+          : "Updated plan underlay.";
     commitDocument(
       (current) => setLivingRoomPlanUnderlay(current, underlay),
-      underlay ? "Imported plan underlay." : "Removed plan underlay.",
+      status,
     );
   }
 

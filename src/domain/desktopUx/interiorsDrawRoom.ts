@@ -11,6 +11,7 @@ export const INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS = [
 
 export const INTERIORS_DRAW_ROOM_NAV_TOOLS = [
   { id: "measure" as const, label: "Measure" },
+  { id: "calibrate-underlay" as const, label: "Calibrate" },
 ];
 
 export function isInteriorsDrawRoomTool(tool: InteriorsChromeTool): boolean {
@@ -23,6 +24,7 @@ export function interiorsChromeBuildTool(tool: InteriorsChromeTool) {
 
 export function interiorsDrawRoomHint(tool: InteriorsChromeTool, buildTool?: BuildTool): string {
   if (buildTool === "measure") return "Click points to measure · Esc clears · snaps to walls/openings/cabinets";
+  if (buildTool === "calibrate-underlay") return "Click A → B on the underlay, then enter the known length in mm";
   if (buildTool === "draw-partition") return "Drag a partition segment on the plan";
   if (buildTool === "draw-surface") return "Click points, then close the surface polygon";
   if (buildTool === "place-column") return "Click the plan to place a column";
