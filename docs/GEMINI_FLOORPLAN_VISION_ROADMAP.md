@@ -163,7 +163,7 @@ Human can trust or distrust the draft before 3D.
 
 ---
 
-### Phase 3 — Deterministic 3D shell (`CURRENT` — implemented)
+### Phase 3 — Deterministic 3D shell (`CURRENT` — done)
 
 Build a presentable room shell from the **reviewed** proposal.
 
@@ -178,7 +178,7 @@ Build a presentable room shell from the **reviewed** proposal.
 
 ---
 
-### Phase 4 — Accept bridge (`LATER`)
+### Phase 4 — Accept bridge (`CURRENT` — implemented)
 
 Connect lab output to real interior-project geometry — still review-gated.
 

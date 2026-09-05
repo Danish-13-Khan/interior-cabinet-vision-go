@@ -1,0 +1,76 @@
+.gfl-grid--accept {
+  margin-top: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.gfl-grid--accept > .gfl-panel {
+  max-height: none;
+  min-height: auto;
+}
+
+.gfl-accept__body {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.gfl-accept__check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--gfl-text);
+}
+
+.gfl-accept__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gfl-accept__actions button {
+  border: 1px solid var(--gfl-line);
+  border-radius: 6px;
+  background: #1c2228;
+  color: var(--gfl-text);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.gfl-accept__primary {
+  border-color: var(--gfl-ok) !important;
+}
+
+.gfl-accept__error {
+  margin: 0;
+  color: #e28b8b;
+  font-size: 0.85rem;
+}
+
+.gfl-accept__summary {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--gfl-ok);
+  background: #1c2420;
+}
+
+.gfl-accept__summary p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.gfl-accept__meta {
+  margin: 0;
+  color: var(--gfl-muted);
+  font-size: 0.8rem;
+}
+
+.gfl-accept__warnings {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #e6d28a;
+  font-size: 0.8rem;
+}
