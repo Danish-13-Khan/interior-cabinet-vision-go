@@ -35,14 +35,16 @@ export function BuildRoomManager(props: Props) {
       mergeableRoomIds.push(roomId);
       continue;
     }
-    if (block.code === "hole-topology") {
+    // Surface every adjacent block reason (hole topology, invalid loops, etc.), not only holes.
+    if (!blockedMessages.includes(block.message)) {
       blockedMessages.push(block.message);
     }
   }
 
   const mergeBlockedHint = mergeableRoomIds.length === 0
-    ? (blockedMessages[0]
-      ?? (adjacentIds.length > 0
+    ? (blockedMessages.length
+      ? blockedMessages.join(" ")
+      : (adjacentIds.length > 0
         ? "Adjacent rooms cannot be merged with the current topology. Fix walls or remove holes, then try again."
         : null))
     : null;

@@ -130,7 +130,7 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
         message={`Delete ${active.name} and its contents? This cannot be undone from this dialog (use Undo after).`}
         confirmLabel="Delete room"
         danger
-        testId="build-room-delete-confirm"
+        testId="build-room-delete"
         onConfirm={confirmPending}
         onCancel={closeConfirm}
       />
@@ -143,7 +143,7 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
             : ""
         }
         confirmLabel="Merge rooms"
-        testId="build-room-merge-confirm"
+        testId="build-room-merge"
         onConfirm={confirmPending}
         onCancel={closeConfirm}
       />

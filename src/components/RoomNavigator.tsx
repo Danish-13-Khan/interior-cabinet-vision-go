@@ -115,7 +115,7 @@ export function RoomNavigator({
         message={`Delete ${pendingRoom?.name ?? "this room"} and its cabinets?`}
         confirmLabel="Delete room"
         danger
-        testId="room-nav-delete-confirm"
+        testId="room-nav-delete"
         onConfirm={() => {
           if (pendingDeleteId) onRemoveRoom(pendingDeleteId);
           setPendingDeleteId(null);

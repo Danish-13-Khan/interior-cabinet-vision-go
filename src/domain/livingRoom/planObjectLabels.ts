@@ -26,9 +26,17 @@ function centersClose(
   return dist < span;
 }
 
+/** True when footprints nearly stack (not merely adjacent in a run). */
+function centresNearlyStacked(a: PlanObjectLabelInput, b: PlanObjectLabelInput) {
+  const dist = Math.hypot(a.position.x - b.position.x, a.position.z - b.position.z);
+  const minHalf = Math.min(a.dimensions.widthMm, b.dimensions.widthMm) * 0.35;
+  return dist < Math.max(80, minHalf);
+}
+
 /**
  * CAB-046: pick label density at default/fit zoom so packed runs stay readable.
- * Selected objects keep name (+ size when roomy); dense neighbors hide non-selected labels.
+ * Selected objects keep name (+ size when roomy); dense non-selected cabinets prefer
+ * compact name labels; hide only fillers / rugs / nearly-stacked duplicates.
  */
 export function resolvePlanObjectLabelModes(
   objects: PlanObjectLabelInput[],
@@ -52,20 +60,30 @@ export function resolvePlanObjectLabelModes(
       continue;
     }
 
+    // Reduced pad (was 160 for non-selected) so adjacency prefers name over blank.
     const crowded = visible.some((other) =>
-      other.id !== object.id && centersClose(object, other, isSelected ? 80 : 160));
+      other.id !== object.id && centersClose(object, other, isSelected ? 80 : 48));
+    const veryCrowded = !isSelected && visible.some((other) =>
+      other.id !== object.id
+      && other.category !== "filler"
+      && centresNearlyStacked(object, other));
 
     if (isSelected) {
       modes.set(object.id, compact || crowded ? "name" : "full");
       continue;
     }
 
-    if (crowded) {
+    if (veryCrowded) {
       modes.set(object.id, "hidden");
       continue;
     }
 
-    modes.set(object.id, compact ? "name" : "full");
+    if (crowded || compact) {
+      modes.set(object.id, "name");
+      continue;
+    }
+
+    modes.set(object.id, "full");
   }
 
   return modes;
