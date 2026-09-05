@@ -31,16 +31,16 @@ test("H3 deletes and merges rooms with undo", async ({ page }) => {
   await openPlan(page);
   await splitRoom(page);
 
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Delete room", exact: true }).click();
+  await page.getByTestId("build-room-delete-confirm-confirm").click();
   await expect(page.locator('[data-testid="build-room-switcher"] [role="tab"]')).toHaveCount(1);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.locator('[data-testid="build-room-switcher"] [role="tab"]')).toHaveCount(2);
 
   const tabs = page.locator('[data-testid="build-room-switcher"] [role="tab"]');
   await tabs.nth(1).click();
-  page.once("dialog", (dialog) => dialog.accept());
-  await page.locator('[data-testid="build-room-switcher"] select').selectOption({ index: 1 });
+  await page.locator('[data-testid="build-room-merge-select"]').selectOption({ index: 1 });
+  await page.getByTestId("build-room-merge-confirm-confirm").click();
   await expect(tabs).toHaveCount(1);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.locator('[data-testid="build-room-switcher"] [role="tab"]')).toHaveCount(2);

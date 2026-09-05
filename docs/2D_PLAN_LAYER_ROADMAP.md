@@ -62,12 +62,12 @@ Core geometry is strong. This program improves **feel, measure-in, cabinet-plan 
 
 Stop leaks before new interaction work.
 
-| ID | Item | Exit criteria |
-| --- | --- | --- |
-| 2D-0.1 | Hole-bearing room merge: clear block or safe path (no dead-end) | Multi-room jobs don’t strand the user |
-| 2D-0.2 | Replace `window.confirm` delete/merge with in-app dialogs | No browser confirms on plan ops |
-| 2D-0.3 | Golden Kitchen plan regression (draw → openings → run → undo) | Automated or checklist gate stays green |
-| 2D-0.4 | Plan label overlap at default/benchmark zoom (`CAB-046`) | Labels remain readable |
+| ID | Item | Exit criteria | Status (branch) |
+| --- | --- | --- | --- |
+| 2D-0.1 | Hole-bearing room merge: clear block or safe path (no dead-end) | Multi-room jobs don’t strand the user | Implemented — `explainInteriorRoomMergeBlock` + switcher hint + status message |
+| 2D-0.2 | Replace `window.confirm` delete/merge with in-app dialogs | No browser confirms on plan ops | Implemented — `ConfirmDialog` on BuildRoomSwitcher + RoomNavigator |
+| 2D-0.3 | Golden Kitchen plan regression (draw → openings → run → undo) | Automated or checklist gate stays green | Implemented — Vitest `goldenKitchenPlanPath.test.ts` |
+| 2D-0.4 | Plan label overlap at default/benchmark zoom (`CAB-046`) | Labels remain readable | Implemented — `resolvePlanObjectLabelModes` declutter on plan |
 
 **Phase exit:** Golden Cabinet Run plan path is boringly reliable.
 

@@ -377,6 +377,11 @@ export {
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {
+  resolvePlanObjectLabelModes,
+  type PlanObjectLabelMode,
+  type PlanObjectLabelInput,
+} from "./planObjectLabels";
+export {
   getLivingRoomPlanUnderlay,
   setLivingRoomPlanUnderlay,
   type LivingRoomPlanUnderlay,

@@ -3,6 +3,7 @@ import { pointInPolygon, roomPlanPolygon, roomPolygonIsValid } from "./roomGeome
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import { isGeneratedRoomSurface } from "./surfaceEditing";
 import { synchronizeWallCaches } from "./wallGraph";
+import { explainInteriorRoomMergeBlock } from "./roomMergeExplain";
 import type { DirectedWallUse, InteriorProject, Point2Mm, SurfaceZoneEntity } from "./types";
 
 function activeFallback(rooms: InteriorProject["rooms"], removedId: string, activeRoomId: string) {
@@ -72,24 +73,22 @@ function reverseUses(uses: DirectedWallUse[]): DirectedWallUse[] {
   }));
 }
 
+
 /**
  * Merge two adjacent, hole-free rooms by removing their shared boundary. The target room
  * keeps its identity/name; content from the absorbed room moves into it.
+ * Returns the unchanged project when blocked (see explainInteriorRoomMergeBlock).
  */
 export function mergeInteriorRooms(
   project: InteriorProject,
   targetRoomId: string,
   absorbedRoomId: string,
 ): InteriorProject {
-  if (targetRoomId === absorbedRoomId) return project;
-  const target = project.rooms.find((room) => room.id === targetRoomId);
-  const absorbed = project.rooms.find((room) => room.id === absorbedRoomId);
-  if (!target?.outerLoopId || !absorbed?.outerLoopId || target.holeLoopIds?.length || absorbed.holeLoopIds?.length) {
-    return project;
-  }
-  const targetLoop = project.loops.find((loop) => loop.id === target.outerLoopId);
-  const absorbedLoop = project.loops.find((loop) => loop.id === absorbed.outerLoopId);
-  if (!targetLoop || !absorbedLoop) return project;
+  if (explainInteriorRoomMergeBlock(project, targetRoomId, absorbedRoomId)) return project;
+  const target = project.rooms.find((room) => room.id === targetRoomId)!;
+  const absorbed = project.rooms.find((room) => room.id === absorbedRoomId)!;
+  const targetLoop = project.loops.find((loop) => loop.id === target.outerLoopId)!;
+  const absorbedLoop = project.loops.find((loop) => loop.id === absorbed.outerLoopId)!;
   const targetWallIds = new Set(targetLoop.wallUses.map((use) => use.wallId));
   const sharedWallIds = new Set(
     absorbedLoop.wallUses.map((use) => use.wallId).filter((wallId) => targetWallIds.has(wallId)),

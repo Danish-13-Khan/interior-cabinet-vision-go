@@ -10,6 +10,7 @@ import {
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
   mergeInteriorRooms,
+  explainInteriorRoomMergeBlock,
   movePlanNodeWithOpenings,
   renameInteriorRoom,
   setActiveInteriorRoom,
@@ -417,7 +418,23 @@ export function useLivingRoomPlanEditor({
   }
 
   function mergeRooms(targetRoomId: string, absorbedRoomId: string) {
-    commitDocument((current) => mergeInteriorRooms(current, targetRoomId, absorbedRoomId), "Merged rooms.");
+    if (!document) return;
+    const block = explainInteriorRoomMergeBlock(document, targetRoomId, absorbedRoomId);
+    if (block) {
+      onStatus?.(block.message);
+      return;
+    }
+    const preview = mergeInteriorRooms(document, targetRoomId, absorbedRoomId);
+    if (preview.rooms.length >= document.rooms.length) {
+      onStatus?.(
+        "Merge could not rebuild a valid room outline from the shared wall. Check the walls and try again, or delete/redraw one room.",
+      );
+      return;
+    }
+    commitDocument(
+      (current) => mergeInteriorRooms(current, targetRoomId, absorbedRoomId),
+      "Merged rooms.",
+    );
   }
 
   function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {

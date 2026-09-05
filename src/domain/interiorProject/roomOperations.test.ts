@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createLivingRoomStarterProject } from "../livingRoom/preset";
 import { createWallSegment } from "./wallEditing";
+import { explainInteriorRoomMergeBlock } from "./roomMergeExplain";
 import { deleteInteriorRoom, mergeInteriorRooms } from "./roomOperations";
 import { validateInteriorProject } from "./validation";
 
@@ -70,5 +71,20 @@ describe("H3 interior room operations", () => {
     const source = createLivingRoomStarterProject({ now: "2026-08-27T00:00:00.000Z" });
     expect(deleteInteriorRoom(source, source.activeRoomId)).toBe(source);
     expect(mergeInteriorRooms(source, source.activeRoomId, "missing")).toBe(source);
+  });
+
+  it("blocks hole-bearing merges and explains the next step", () => {
+    const split = splitStarter();
+    const sourceRoomId = split.activeRoomId;
+    const absorbedRoomId = split.rooms.find((room) => room.id !== sourceRoomId)!.id;
+    const withHole = {
+      ...split,
+      rooms: split.rooms.map((room) =>
+        room.id === absorbedRoomId ? { ...room, holeLoopIds: ["synthetic-hole-loop"] } : room),
+    };
+    const block = explainInteriorRoomMergeBlock(withHole, sourceRoomId, absorbedRoomId);
+    expect(block?.code).toBe("hole-topology");
+    expect(block?.message).toMatch(/hole-free|cutout|Cannot merge/i);
+    expect(mergeInteriorRooms(withHole, sourceRoomId, absorbedRoomId)).toBe(withHole);
   });
 });
