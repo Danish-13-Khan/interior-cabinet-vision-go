@@ -12,6 +12,8 @@ same design to engineering without re-entering cabinet data.
 > [`docs/BACKEND_SAAS_COMMERCIAL_PLATFORM_BOOK.md`](docs/BACKEND_SAAS_COMMERCIAL_PLATFORM_BOOK.md)
 > separately defines accounts, organizations, subscriptions, licensing, APIs,
 > cloud sync, hosted assets, security, and platform operations.
+> [`docs/2D_PLAN_LAYER_ROADMAP.md`](docs/2D_PLAN_LAYER_ROADMAP.md) is the active
+> Interiors 2D plan improvement program (pan/zoom, measure, underlay, presentation).
 > Phase documents below remain implementation history and supporting detail.
 
 The current development program is **Golden Cabinet Run v1**: a straight

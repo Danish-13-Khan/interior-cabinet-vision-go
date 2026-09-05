@@ -3,6 +3,9 @@
 > **Successor source of truth:** [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md).
 > This roadmap records the completed broad-interiors phase. New development is
 > governed by the Product Book's cabinet proposal-to-production program.
+>
+> **Active 2D plan follow-on:** [2D Plan Layer Roadmap](./2D_PLAN_LAYER_ROADMAP.md)
+> (pan/zoom, measure, underlay polish, cabinet-plan excellence, plan presentation).
 
 **Status:** Phases H–L feature work is implemented in the product. Treat release as **feature-complete with verification debt**, not “everything merged and green on `main`,” until the working tree is committed and the full browser suite is reliably green.
 **Audience:** After `FLOORPLANNER_SIMPLE_PLAN_ROADMAP` A–G (chrome + topology + tools).
