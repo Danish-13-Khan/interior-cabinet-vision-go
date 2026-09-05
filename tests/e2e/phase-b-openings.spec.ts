@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openInteriorsHome } from "./plannerStart";
 
 async function numericAttribute(locator: Locator, name: string) {
   return Number(await locator.getAttribute(name));
@@ -17,9 +18,7 @@ async function dragAlongWall(page: Page, target: Locator, wall: Locator, pixels:
 }
 
 test("Phase B opening workflow places, manipulates, inspects, undoes, and recompiles", async ({ page }) => {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await openInteriorsHome(page);
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 
   await page.locator('[data-build-tool="place-door"]').click();

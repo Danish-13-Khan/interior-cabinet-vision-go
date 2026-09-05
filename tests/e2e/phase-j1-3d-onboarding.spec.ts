@@ -1,9 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { openInteriorsHome } from "./plannerStart";
 
 async function open3dGuide(page: import("@playwright/test").Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await openInteriorsHome(page);
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await page.getByRole("button", { name: "3D", exact: true }).click();
 }

@@ -1,14 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
-import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
+import { loadReleaseDemo, openQaRenderStudio, openInteriorsHome } from "./plannerStart";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const SHOT_DIR = join("test-results", "render-qa");
 
 async function openReleaseDemo(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors" }).click();
+  await openInteriorsHome(page);
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
   await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");

@@ -5,9 +5,9 @@ import {
 } from "./catalogLookup";
 import { placeCatalogItemWithDefaults } from "./placeCatalogItem";
 import { defaultBrowserPlacementPosition } from "./objectBrowserPlacement";
-import type { CatalogItem, CatalogManifest, CatalogPlacement } from "./types";
+import type { CatalogItem, CatalogPlacement } from "./types";
 import type { InteriorProject, Point3Mm } from "../interiorProject";
-import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json" with { type: "json" };
+import { BUILTIN_CATALOG_MANIFEST } from "./builtinCatalogManifest";
 
 export {
   browserFootprintFitsRoom,
@@ -21,7 +21,7 @@ export {
   searchBrowserFootprintFit,
 } from "./objectBrowserPlacement";
 
-const MANIFEST = builtinCatalogJson as unknown as CatalogManifest;
+const MANIFEST = BUILTIN_CATALOG_MANIFEST;
 
 /** Roadmap §11.1 navigation groups → catalog category ids. */
 export const OBJECT_BROWSER_CATEGORIES = [

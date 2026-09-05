@@ -3,15 +3,16 @@ import {
   GOLDEN_RUN_OBJECT_IDS,
   GOLDEN_RUN_REVISED_FINISH_ID,
 } from "../../src/domain/livingRoom/goldenRun";
-import { loadGoldenCabinetRun } from "./plannerStart";
+import { E2E_SESSION_JSON, loadGoldenCabinetRun } from "./plannerStart";
 
 export async function openGoldenCabinetRun(page: Page) {
-  await page.addInitScript(() => {
+  await page.addInitScript((session) => {
     window.localStorage.clear();
     window.sessionStorage.clear();
     window.sessionStorage.setItem("golden-scene-semantics", "1");
-  });
-  await page.goto("/");
+    window.localStorage.setItem("cabinetStudioSession", session);
+  }, E2E_SESSION_JSON);
+  await page.goto("/app");
   await page.getByRole("button", { name: "Interiors" }).click();
   await loadGoldenCabinetRun(page);
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
@@ -78,7 +79,7 @@ export async function saveAndReopenGoldenRun(page: Page) {
   expect(file.suggestedFilename()).toBe("gcr-001-golden-cabinet-run.json");
   const target = testOutputPath(file.suggestedFilename());
   await file.saveAs(target);
-  await page.goto("/");
+  await page.goto("/app");
   await page.getByRole("button", { name: "Interiors" }).click();
   const home = page.getByRole("dialog", { name: "Start a living room project" });
   await expect(home).toBeVisible();

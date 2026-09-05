@@ -1,9 +1,8 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openInteriorsHome } from "./plannerStart";
 
 async function openDesignPlan(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await openInteriorsHome(page);
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
   await page.getByTestId("interiors-tool-cabinet").click();

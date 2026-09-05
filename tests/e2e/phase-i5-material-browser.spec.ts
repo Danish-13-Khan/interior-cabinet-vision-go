@@ -1,12 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openInteriorsHome } from "./plannerStart";
 
 const OAK_ID = "lr-material-natural-oak";
 const WALNUT_ID = "lr-material-walnut";
 
 async function openDesignPlan(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await openInteriorsHome(page);
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
   await page.getByTestId("interiors-tool-cabinet").click();

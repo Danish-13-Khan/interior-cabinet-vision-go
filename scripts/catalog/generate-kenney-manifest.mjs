@@ -22,6 +22,8 @@ const glbDir = join(root, "public/models/kenney-furniture/models_glb");
 const isoDir = join(root, "public/models/kenney-furniture/renders_isometric");
 const sideDir = join(root, "public/models/kenney-furniture/renders_side");
 const outPath = join(root, "public/catalog/builtin-catalog.v1.json");
+/** Vite forbids importing JSON from public/; keep an identical copy under src/. */
+const srcOutPath = join(root, "src/domain/catalog/data/builtin-catalog.v1.json");
 const CATALOG_VERSION = "2026.09.10";
 const GENERATED_AT = "2026-09-04T16:00:00.000Z";
 const PACK_PREFIX = "models/kenney-furniture";
@@ -131,9 +133,13 @@ const isMain =
   Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const manifest = await generateKenneyManifest();
+  const body = `${JSON.stringify(manifest, null, 2)}\n`;
   mkdirSync(dirname(outPath), { recursive: true });
-  writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  mkdirSync(dirname(srcOutPath), { recursive: true });
+  writeFileSync(outPath, body);
+  writeFileSync(srcOutPath, body);
   console.log(
     `[catalog] wrote ${manifest.items.length} items, ${manifest.files.length} files, ${manifest.templates.length} templates → ${outPath}`,
   );
+  console.log(`[catalog] mirrored Vite-safe import copy → ${srcOutPath}`);
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json";
+import { BUILTIN_CATALOG_MANIFEST as builtinCatalogJson } from "./builtinCatalogManifest";
 import {
   CatalogDeliveryCache,
   MemoryCatalogBlobStore,

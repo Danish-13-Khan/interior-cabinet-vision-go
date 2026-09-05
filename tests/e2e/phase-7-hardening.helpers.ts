@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { LIVING_ROOM_RECOVERY_STORAGE_KEY } from "../../src/domain/livingRoom";
-import { loadGoldenCabinetRun } from "./plannerStart";
+import { E2E_SESSION_JSON, loadGoldenCabinetRun } from "./plannerStart";
 
 export const TABLET_VIEWPORT = { width: 1024, height: 768 };
 
@@ -49,12 +49,13 @@ export async function openGoldenCabinetRunForRecovery(page: Page) {
   await page.addInitScript(() => {
     window.sessionStorage.setItem("golden-scene-semantics", "1");
   });
-  await page.goto("/");
-  await page.evaluate(() => {
+  await page.goto("/app");
+  await page.evaluate((session) => {
     window.localStorage.clear();
     window.sessionStorage.clear();
     window.sessionStorage.setItem("golden-scene-semantics", "1");
-  });
+    window.localStorage.setItem("cabinetStudioSession", session);
+  }, E2E_SESSION_JSON);
   await page.reload();
   await page.getByRole("button", { name: "Interiors" }).click();
   await loadGoldenCabinetRun(page);

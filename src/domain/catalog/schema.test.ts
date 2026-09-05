@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import manifestJson from "../../../public/catalog/builtin-catalog.v1.json";
+import { BUILTIN_CATALOG_MANIFEST as manifestJson } from "./builtinCatalogManifest";
 import { validateCatalogManifest, type CatalogManifest } from ".";
 
 function cloneManifest(): CatalogManifest {

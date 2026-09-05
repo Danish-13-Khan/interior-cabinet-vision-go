@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openInteriorsHome } from "./plannerStart";
 
 test("Phase 1 Daylight Sofa opens a visible plan", async ({ page }) => {
   const errors: string[] = [];
@@ -6,9 +7,7 @@ test("Phase 1 Daylight Sofa opens a visible plan", async ({ page }) => {
   page.on("console", (msg) => {
     if (msg.type() === "error") errors.push(msg.text());
   });
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await openInteriorsHome(page);
   await page.getByTestId("interiors-phase1-bench-daylight-sofa").click();
   await expect(page.getByTestId("interiors-projects-home")).toHaveCount(0, { timeout: 10_000 });
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Daylight Sofa");

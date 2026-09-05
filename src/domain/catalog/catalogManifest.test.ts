@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import manifest from "../../../public/catalog/builtin-catalog.v1.json";
+import { BUILTIN_CATALOG_MANIFEST as manifest } from "./builtinCatalogManifest";
 import {
   assertValidCatalogManifest,
   isArchitectureStem,
