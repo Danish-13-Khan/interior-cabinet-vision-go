@@ -1,14 +1,17 @@
 import { interiorsDrawRoomHint, type InteriorsChromeTool } from "../../domain/desktopUx";
+import type { InteriorProject } from "../../domain/interiorProject";
 import type { BuildTool, PlanReadabilitySettings } from "../../domain/livingRoom";
 import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
+import { PlanPrintExportControls } from "./PlanPrintExportControls";
 
 export function InteriorsDrawRoomTitlebar({
-  projectName,
+  project,
   tool,
   buildTool,
   showGrid,
   snapSizeMm,
   readability,
+  onPatchDocument,
   onShowGrid,
   onSnapSize,
   onReadability,
@@ -16,12 +19,16 @@ export function InteriorsDrawRoomTitlebar({
   onFitSelection,
   hasSelection,
 }: {
-  projectName: string;
+  project: InteriorProject;
   tool: InteriorsChromeTool;
   buildTool?: BuildTool;
   showGrid: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
+  onPatchDocument: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
@@ -34,11 +41,12 @@ export function InteriorsDrawRoomTitlebar({
       <span>
         <strong>Room plan</strong>
         {" · "}
-        <span className="lr-draw-project-name">{projectName}</span>
+        <span className="lr-draw-project-name">{project.name}</span>
         {" · "}
         {interiorsDrawRoomHint(tool, buildTool)}
       </span>
       <PlanReadabilityToolbar settings={readability} onChange={onReadability} />
+      <PlanPrintExportControls project={project} onPatchDocument={onPatchDocument} />
       <small>Units: {readability.unit}</small>
       <div>
         <button type="button" data-testid="fit-plan" title="Fit plan" onClick={() => onFitPlan?.()}>Fit</button>

@@ -39,7 +39,7 @@ export function PlanArchitectureLayer(props: {
     {props.room ? <path data-room-floor={props.room.id} d={floorPath} fill={floorColor} fillRule="evenodd"
       opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onFloor ? "fill" : "none"}
       onPointerDown={(event) => { if (!props.onFloor) return; props.onFloor(event); }} /> : null}
-    {props.showGrid ? <rect x={bounds.minX} y={bounds.minZ} width={bounds.widthMm} height={bounds.depthMm} fill="url(#lr-grid-major)" clipPath={props.room ? `url(#${clipId})` : undefined} pointerEvents="none" /> : null}
+    {props.showGrid ? <rect className="lr-plan-grid" data-testid="lr-plan-grid" x={bounds.minX} y={bounds.minZ} width={bounds.widthMm} height={bounds.depthMm} fill="url(#lr-grid-major)" clipPath={props.room ? `url(#${clipId})` : undefined} pointerEvents="none" /> : null}
     <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" pointerEvents="none" />
     <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />
     {props.project.walls.filter((wall) => wall.visible).map((wall) => {

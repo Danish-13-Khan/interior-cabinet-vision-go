@@ -147,7 +147,7 @@ export function PlanObjectsLayer(props: {
       const editing = editingId === object.id;
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${rotationY})`}
         className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""} ${footprintClass} ${hierarchyClass}`.trim()}
-        data-object-id={object.id} data-catalog-item-id={object.catalogItemId}
+        data-object-id={object.id} data-object-kind={object.kind} data-print-role={object.kind === "cabinet" || object.category === "filler" ? "cabinet" : "furniture"} data-catalog-item-id={object.catalogItemId}
         data-material-id={finish?.id} data-material-color={finish?.color}
         data-wall-id={attachedWallId(object)}
         data-rotation-y={rotationY}

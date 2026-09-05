@@ -148,7 +148,7 @@ export function PlanOpeningsLayer({
 }) {
   const startDrag = interactive ? onStartDrag : (() => undefined);
   return (
-    <>
+    <g className="lr-plan-openings-layer" data-testid="lr-plan-openings-layer">
       {project.openings
         .filter((opening) => opening.extensions?.layerVisible !== false)
         .map((opening) => {
@@ -167,6 +167,6 @@ export function PlanOpeningsLayer({
             />
           );
         })}
-    </>
+    </g>
   );
 }

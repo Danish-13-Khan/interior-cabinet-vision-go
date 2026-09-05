@@ -30,6 +30,7 @@ export function InteriorsDrawRoomChrome({
   onFitPlan,
   onFitSelection,
   hasSelection,
+  onPatchDocument,
 }: {
   tool: InteriorsChromeTool;
   project: InteriorProject;
@@ -50,13 +51,18 @@ export function InteriorsDrawRoomChrome({
   onFitPlan?: () => void;
   onFitSelection?: () => void;
   hasSelection?: boolean;
+  onPatchDocument: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
 }) {
   const wallId = interiorsDrawRoomPlacementWallId(activeWallId, interiorsDrawRoomRoomWallIds(project));
   return (
     <>
       <InteriorsDrawRoomTitlebar
-        projectName={project.name} tool={tool} buildTool={activeBuildTool} showGrid={showGrid} snapSizeMm={snapSizeMm}
-        readability={readability} onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
+        project={project} tool={tool} buildTool={activeBuildTool} showGrid={showGrid} snapSizeMm={snapSizeMm}
+        readability={readability} onPatchDocument={onPatchDocument}
+        onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
         onFitPlan={onFitPlan} onFitSelection={onFitSelection} hasSelection={hasSelection}
       />
       <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands} />
