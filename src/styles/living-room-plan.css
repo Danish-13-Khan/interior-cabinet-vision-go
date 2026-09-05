@@ -1190,6 +1190,13 @@
   pointer-events: none;
 }
 
+.lr-object-label.is-selected-label {
+  fill: #0b3d5c;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 18px;
+}
+
 .lr-object-size {
   fill: #536271;
   font-size: 82px;

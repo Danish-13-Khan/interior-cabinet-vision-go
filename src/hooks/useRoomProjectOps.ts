@@ -148,7 +148,6 @@ export function useRoomProjectOps({
       onStatus("Keep at least one room in the project.");
       return;
     }
-    if (!window.confirm("Delete this room and its cabinets?")) return;
     commitRoomProject(
       removeProjectRoom(project, roomId, project.cabinets, room),
       "Removed room.",

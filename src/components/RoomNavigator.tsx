@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { ProjectRoom } from "../domain/projectRooms";
 import { ROOM_TEMPLATES, type RoomTemplateId } from "../domain/projectRooms";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type RoomNavigatorProps = {
   rooms: ProjectRoom[];
@@ -22,6 +24,9 @@ export function RoomNavigator({
   onRemoveRoom,
   onAddFromTemplate,
 }: RoomNavigatorProps) {
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const pendingRoom = rooms.find((room) => room.id === pendingDeleteId);
+
   return (
     <div className="rail-section room-navigator">
       <div className="rail-section-title">
@@ -70,8 +75,9 @@ export function RoomNavigator({
                   type="button"
                   className="room-nav-icon-btn"
                   title="Delete room"
+                  data-testid={`room-nav-delete-${room.id}`}
                   disabled={rooms.length <= 1}
-                  onClick={() => onRemoveRoom(room.id)}
+                  onClick={() => setPendingDeleteId(room.id)}
                 >
                   ×
                 </button>
@@ -102,6 +108,20 @@ export function RoomNavigator({
           </button>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingRoom)}
+        title="Delete room?"
+        message={`Delete ${pendingRoom?.name ?? "this room"} and its cabinets?`}
+        confirmLabel="Delete room"
+        danger
+        testId="room-nav-delete-confirm"
+        onConfirm={() => {
+          if (pendingDeleteId) onRemoveRoom(pendingDeleteId);
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

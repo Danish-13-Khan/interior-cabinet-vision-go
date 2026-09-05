@@ -2,7 +2,14 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import { readCabinetIdentity } from "../../domain/cabinetIdentity";
 import { isCabinetRunFiller } from "../../domain/livingRoom/wardrobePlacement";
-import { formatPlanDimension, primaryMaterialId, type LivingRoomPlanIssue, type PlanDisplayUnit, type PlanSnapGuide } from "../../domain/livingRoom";
+import {
+  formatPlanDimension,
+  primaryMaterialId,
+  resolvePlanObjectLabelModes,
+  type LivingRoomPlanIssue,
+  type PlanDisplayUnit,
+  type PlanSnapGuide,
+} from "../../domain/livingRoom";
 import { PlanObjectSymbol } from "./PlanObjectSymbol";
 import type { ObjectPreview } from "./usePlanObjectInteraction";
 
@@ -22,6 +29,7 @@ export function PlanObjectsLayer(props: {
   const materialsById = new Map(props.project.materials.map((material) => [material.id, material]));
   const objects = props.project.objects.filter((object) => object.extensions?.layerVisible !== false)
     .sort((a, b) => Number(b.category === "rug") - Number(a.category === "rug"));
+  const labelModes = resolvePlanObjectLabelModes(objects, props.selectedIds);
   return <>
     {objects.map((object) => {
       const active = props.preview?.objectId === object.id ? props.preview : null;
@@ -29,9 +37,13 @@ export function PlanObjectsLayer(props: {
       const dimensions = active?.dimensions ?? object.dimensions;
       const selected = props.selectedIds.includes(object.id);
       const compact = dimensions.widthMm < 700 || dimensions.depthMm < 200;
+      const labelMode = labelModes.get(object.id) ?? (object.category === "rug" ? "hidden" : compact ? "name" : "full");
       const finish = materialsById.get(primaryMaterialId(object) ?? "");
       const fill = finish?.color ? `${finish.color}99` : undefined;
       const identity = readCabinetIdentity(object);
+      const labelY = selected || labelMode === "full"
+        ? (compact ? -dimensions.depthMm / 2 - 70 : -8)
+        : -dimensions.depthMm / 2 - 55;
       return <g key={object.id} transform={`translate(${position.x} ${position.z}) rotate(${object.rotation.y})`}
         className={`lr-plan-object ${selected ? "is-selected" : ""} ${issueIds.has(object.id) ? "has-issue" : ""}`}
         data-object-id={object.id} data-catalog-item-id={object.catalogItemId}
@@ -41,14 +53,19 @@ export function PlanObjectsLayer(props: {
         data-family-id={identity?.familyId}
         data-cabinet-type={isCabinetRunFiller(object) ? "filler" : identity?.cabinetType}
         data-width-mm={dimensions.widthMm}
+        data-label-mode={labelMode}
         style={fill ? { ["--lr-object-fill" as string]: fill } : undefined}
         onPointerDown={(event) => props.onStart(event, object, "move")}>
         <rect x={-dimensions.widthMm / 2} y={-dimensions.depthMm / 2} width={dimensions.widthMm} height={dimensions.depthMm} rx={object.category === "rug" ? 45 : 12} />
         <PlanObjectSymbol object={object} dimensions={dimensions} />
         <line x1="0" y1="0" x2="0" y2={-dimensions.depthMm / 2 + 70} className="lr-object-axis" />
-        {object.category !== "rug" ? <text transform={`rotate(${-object.rotation.y})`} className={`lr-object-label ${compact ? "is-compact" : ""}`}>
-          <tspan x="0" y={compact ? -dimensions.depthMm / 2 - 55 : -8}>{object.name}</tspan>
-          {!compact ? <tspan x="0" y="68" className="lr-object-size">{formatPlanDimension(dimensions.widthMm, props.unit)} × {formatPlanDimension(dimensions.depthMm, props.unit)}</tspan> : null}
+        {labelMode !== "hidden" ? <text
+          transform={`rotate(${-object.rotation.y})`}
+          className={`lr-object-label ${compact || labelMode === "name" ? "is-compact" : ""} ${selected ? "is-selected-label" : ""}`}
+          data-testid={`plan-object-label-${object.id}`}
+        >
+          <tspan x="0" y={labelY}>{object.name}</tspan>
+          {labelMode === "full" ? <tspan x="0" y="68" className="lr-object-size">{formatPlanDimension(dimensions.widthMm, props.unit)} × {formatPlanDimension(dimensions.depthMm, props.unit)}</tspan> : null}
         </text> : null}
         {selected && props.selectedIds.length === 1 ? <rect x={dimensions.widthMm / 2 - 55} y={dimensions.depthMm / 2 - 55} width="110" height="110" className="lr-resize-handle" onPointerDown={(event) => props.onStart(event, object, "resize")} /> : null}
         {issueIds.has(object.id) ? (
