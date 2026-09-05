@@ -62,7 +62,13 @@ export async function createBlankPlan(page: Page) {
 /** Rectangular living-room shell with openings (wardrobe starter, empty of furniture). */
 export async function createShellPlan(page: Page) {
   await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  const wardrobe = page.getByRole("button", { name: /Wardrobe wall/ });
+  if (!(await wardrobe.isVisible().catch(() => false))) {
+    // Calm: starters live under "More room starters"; Compact: "Quick start templates".
+    const drawer = page.getByText(/More room starters|Quick start templates/).first();
+    await drawer.click();
+  }
+  await wardrobe.click();
 }
 
 export async function pointOnPaper(paper: Locator, x: number, y: number) {

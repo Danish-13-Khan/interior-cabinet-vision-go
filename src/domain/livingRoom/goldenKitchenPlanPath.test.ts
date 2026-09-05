@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   drawRoomFromPoints,
+  loadInteriorProjectFile,
   rectanglePoints,
+  serializeInteriorProjectFile,
   validateInteriorProject,
   type InteriorProject,
 } from "../interiorProject";
@@ -51,7 +53,7 @@ function wallBySide(project: InteriorProject, side: string) {
 }
 
 describe("2D-0.3 Golden Kitchen plan path (draw → openings → run → undo)", () => {
-  it("keeps a coherent kitchen authoring path under undo", () => {
+  it("keeps a coherent kitchen authoring path under fine-grained undo and file round-trip", () => {
     const blank = applyPlannerStarterTemplate(
       createLivingRoomStarterProject({ now: "2026-09-05T00:00:00.000Z" }),
       "blank-room",
@@ -68,7 +70,7 @@ describe("2D-0.3 Golden Kitchen plan path (draw → openings → run → undo)",
     expect(roomId).toBeTruthy();
     expect(validateInteriorProject(history.value).issues.filter((i) => i.severity === "error")).toEqual([]);
 
-    // 2) Openings (door + window)
+    // 2) Openings (door + window) — separate commits for independent undo
     const front = wallBySide(history.value, "front") ?? history.value.walls[0]!;
     const left = wallBySide(history.value, "left")
       ?? history.value.walls.find((wall) => wall.id !== front.id)!;
@@ -88,10 +90,9 @@ describe("2D-0.3 Golden Kitchen plan path (draw → openings → run → undo)",
     })));
     expect(history.value.openings.map((o) => o.id).sort()).toEqual(["gk-door", "gk-window"]);
 
-    // 3) Cabinet run on the back wall
+    // 3) Cabinet run on the back wall — each cabinet committed, then arrange
     const back = wallBySide(history.value, "back")
       ?? history.value.walls.find((wall) => wall.id !== front.id && wall.id !== left.id)!;
-    let furnished = history.value;
     const cabinetIds = ["gk-base-a", "gk-drawer", "gk-base-b"] as const;
     const catalogIds = [
       "living:base-cabinet-900",
@@ -104,10 +105,9 @@ describe("2D-0.3 Golden Kitchen plan path (draw → openings → run → undo)",
         roomId,
         position: { x: -900 + index * 700, y: 0, z: 0 },
       });
-      const attached = attachToWall(furnished, seed, back.id);
-      furnished = addLivingRoomObject(furnished, attached);
+      const attached = attachToWall(history.value, seed, back.id);
+      history.commit(addLivingRoomObject(history.value, attached));
     }
-    history.commit(furnished);
     history.commit(arrangeCabinetRun(history.value, [...cabinetIds], back.id, {
       alignment: "center",
       fillersEnabled: false,
@@ -117,21 +117,35 @@ describe("2D-0.3 Golden Kitchen plan path (draw → openings → run → undo)",
     expect(runCabinets.every((object) => object.extensions?.cabinetRun)).toBe(true);
     expect(validateInteriorProject(history.value).issues.filter((i) => i.severity === "error")).toEqual([]);
 
-    // 4) Undo is coherent: run → cabinets → window → door → room shell
+    // Save/reopen stand-in: serialize → reparse preserves run + openings
+    const serialized = serializeInteriorProjectFile(history.value, "2026-09-05T12:00:00.000Z");
+    const reloaded = loadInteriorProjectFile(serialized);
+    expect(reloaded.document.openings.map((o) => o.id).sort()).toEqual(["gk-door", "gk-window"]);
+    expect(
+      reloaded.document.objects.filter((o) => cabinetIds.includes(o.id as typeof cabinetIds[number])),
+    ).toHaveLength(3);
+    expect(validateInteriorProject(reloaded.document).issues.filter((i) => i.severity === "error")).toEqual([]);
+
+    // 4) Fine-grained undo: arrange → each cabinet → window → door → room shell
     const afterRun = history.value;
-    history.undo(); // undo arrange
+    history.undo(); // undo arrange (run membership) — cabinets remain
     expect(history.value.objects.filter((o) => cabinetIds.includes(o.id as typeof cabinetIds[number]))).toHaveLength(3);
     expect(
       history.value.objects
         .filter((o) => cabinetIds.includes(o.id as typeof cabinetIds[number]))
         .every((o) => !o.extensions?.cabinetRun),
     ).toBe(true);
+    expect(history.value.openings).toHaveLength(2);
 
-    history.undo(); // undo add cabinets
+    history.undo(); // gk-base-b
+    expect(history.value.objects.filter((o) => cabinetIds.includes(o.id as typeof cabinetIds[number]))).toHaveLength(2);
+    history.undo(); // gk-drawer
+    expect(history.value.objects.filter((o) => cabinetIds.includes(o.id as typeof cabinetIds[number]))).toHaveLength(1);
+    history.undo(); // gk-base-a — run gone, openings intact
     expect(history.value.objects.filter((o) => cabinetIds.includes(o.id as typeof cabinetIds[number]))).toHaveLength(0);
     expect(history.value.openings).toHaveLength(2);
 
-    history.undo(); // window
+    history.undo(); // window — openings undo separately from run
     expect(history.value.openings.map((o) => o.id)).toEqual(["gk-door"]);
     history.undo(); // door
     expect(history.value.openings).toHaveLength(0);
@@ -139,7 +153,6 @@ describe("2D-0.3 Golden Kitchen plan path (draw → openings → run → undo)",
 
     history.undo(); // drawn room
     expect(history.value.rooms.length).toBeLessThanOrEqual(1);
-    // blank starter may keep zero rooms after blank-room template
     expect(history.pastLength()).toBe(0);
 
     // Sanity: deleting opening / objects also stays valid on the forward path snapshot

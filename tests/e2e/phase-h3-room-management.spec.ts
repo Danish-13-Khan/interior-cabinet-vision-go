@@ -1,10 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
-
-async function openPlan(page: Page) {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
-}
+import { createShellPlan } from "./plannerStart";
 
 async function planPoint(page: Page, x: number, z: number) {
   return page.locator('svg[aria-label="Living room plan editor"]').evaluate((svg, point) => {
@@ -28,11 +23,12 @@ async function splitRoom(page: Page) {
 }
 
 test("H3 deletes and merges rooms with undo", async ({ page }) => {
-  await openPlan(page);
+  test.setTimeout(60_000);
+  await createShellPlan(page);
   await splitRoom(page);
 
   await page.getByRole("button", { name: "Delete room", exact: true }).click();
-  await page.getByTestId("build-room-delete-confirm-confirm").click();
+  await page.getByTestId("build-room-delete-confirm").click();
   await expect(page.locator('[data-testid="build-room-switcher"] [role="tab"]')).toHaveCount(1);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.locator('[data-testid="build-room-switcher"] [role="tab"]')).toHaveCount(2);
@@ -40,7 +36,7 @@ test("H3 deletes and merges rooms with undo", async ({ page }) => {
   const tabs = page.locator('[data-testid="build-room-switcher"] [role="tab"]');
   await tabs.nth(1).click();
   await page.locator('[data-testid="build-room-merge-select"]').selectOption({ index: 1 });
-  await page.getByTestId("build-room-merge-confirm-confirm").click();
+  await page.getByTestId("build-room-merge-confirm").click();
   await expect(tabs).toHaveCount(1);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.locator('[data-testid="build-room-switcher"] [role="tab"]')).toHaveCount(2);
