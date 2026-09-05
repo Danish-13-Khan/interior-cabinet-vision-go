@@ -1,198 +1,416 @@
-# 2D Plan Layer Roadmap
+# 2D Interior & Cabinet Planning — Consolidated Product Roadmap
 
-**Document role:** Active roadmap for Interiors 2D plan authoring improvements  
-**Product relationship:** Companion to [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md) §15 (2D plan experience) and buyer workflow (measure → room → run → proposal)  
+**Document role:** Active roadmap for Interiors 2D plan authoring  
+**Product relationship:** Companion to [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md) §15 and the measure → room → run → proposal buyer workflow  
 **Baseline date:** 2026-09-05  
-**Status:** Approved direction for the next 2D improvement program  
+**Revised:** 2026-09-05 (consolidated product review)  
+**Branch:** Prefer a single epic branch `feat/2d-plan-layer` for Phases 0–4  
 **Constraint:** `STR-004` — do not claim category parity with Floorplanner, Planner 5D, or RoomSketcher  
 
----
-
-## 0. How to use this doc
-
-1. **Product Book** still governs cabinet geometry, Golden Cabinet Run, and release gates.
-2. This roadmap governs **2D plan UX and authoring** only (Interiors V2 plan surface primarily).
-3. Historical interiors work remains in [INTERIOR_DESIGN_TOOL_ROADMAP.md](./INTERIOR_DESIGN_TOOL_ROADMAP.md) (H–L largely shipped).
-4. Status vocabulary matches the Product Book: `CURRENT` · `NEXT` · `LATER` · `EXCLUDED`.
+Status vocabulary: `CURRENT` · `NEXT` · `LATER` · `EXCLUDED` · `Implemented`
 
 ---
 
-## 1. North star
+## 1. Product purpose
 
-> A cabinet salesperson can enter a measured room fast, place a credible cabinet run, and trust the plan — without fighting zoom, dimensions, or underlays.
+The 2D editor should **not** become another general-purpose Floorplanner, RoomSketcher, Planner 5D, or CAD application.
 
-**Primary metric:** time from “new job” → “room + openings + first run on wall” under ~10 minutes for a straight kitchen-style golden path.
+Its primary job is to help a cabinet/interior salesperson move quickly and reliably through:
 
-**Positioning:** millwork-first measured plan — not a consumer furniture playground.
+```text
+Measure → Recreate Room → Validate → Place Openings → Design Cabinet Run → Validate Fit → 3D → Proposal
+```
+
+The larger product eventually becomes:
+
+```text
+Measure → Design → Visualize → Sell → Engineer → Manufacture
+```
+
+The 2D layer is therefore the **source of dimensional truth** for everything downstream.
 
 ---
 
-## 2. What is already CURRENT (do not rebuild)
+## 2. North star
+
+A salesperson can enter a measured room quickly, create a credible cabinet run, and trust the resulting plan without fighting navigation, dimensions, snapping, or underlays.
+
+### Primary success metric
+
+**New Job → Room + Door/Window + First Cabinet Run < 10 minutes** for a normal straight kitchen.
+
+### Secondary target
+
+Once the room exists: **Completed Room → Credible First Cabinet Run < 3 minutes**.
+
+### UX test
+
+A salesperson unfamiliar with the product should be able to create:
+
+**Room → Door → Window → Base Cabinet Run**
+
+without asking:
+
+- How do I zoom?
+- How do I pan?
+- How do I change this measurement?
+- Why won't this cabinet snap?
+- Which wall moved?
+- How do I undo this?
+- Does this cabinet actually fit?
+
+---
+
+## 3. Core product principle
+
+**2D is not just drawing.**
+
+Everything placed on the plan should represent meaningful project data.
+
+A cabinet is not simply “rectangle 600 × 560”. It represents base/wall/tall type, W/H/D, carcass, shutters, material, finish, hardware, toe kick, run membership, and more.
+
+The same `InteriorProject` data should ultimately drive:
+
+**2D + 3D + Pricing + Proposal + BOM + Cut List + Production**
+
+Do not maintain separate project representations for these workflows.
+
+---
+
+## 4. What already exists — don't rebuild (`CURRENT`)
 
 | Area | Notes |
 | --- | --- |
-| Room draw | Rectangle + polygon; topology walls; draw-wall split |
-| Wall edit | Node drag, translate, split/join/delete, thickness/height |
-| Multi-room | Switch / rename / delete / merge (hole-bearing merges blocked) |
-| Openings | Catalog place; drag along wall; width/height/sill |
-| Millwork on plan | Snap, runs, fillers, corners, validation |
-| Units / grid | mm-native; 25/50/100 mm grid; readability dims |
-| Starters | Blank, wardrobe wall, L-room, 2-room, import-plan underlay |
-| Export | Topology SVG + PDF plan page in project packet |
-| Dual UI | Interiors plan + Cabinets CAD elevations (intentional) |
+| Rooms | Rectangle + polygon |
+| Walls | Topology, split/join |
+| Openings | Doors/windows attached to walls |
+| Millwork | Placement, snap, runs, fillers, corners, validation |
+| Chrome | Units, grid, starters, basic underlay |
+| Export | SVG/PDF plan generation |
 
-Core geometry is strong. This program improves **feel, measure-in, cabinet-plan excellence, and presentation**.
+The geometry foundation is already substantial.
 
----
-
-## 3. Explicitly EXCLUDED
-
-- Huge furniture marketplace / catalog expansion as a primary program  
-- Multi-building real-estate planning  
-- Claiming Floorplanner / Planner5D / RoomSketcher parity (`STR-004`)  
-- Styleboards / decor social features  
-- Perfect hole-topology CAD before salesperson workflow is smooth  
-- AI floor-plan CV or DWG import **before** Phases 1–4  
+**Next investment:** Feel + Measure + Trust + Present — not rebuilding geometry.
 
 ---
 
-## 4. Delivery sequence
+## 5. Phase 0 — Stabilize
 
-### Phase 0 — Stabilize (`NEXT` / immediate)
+**Estimate:** 1–2 weeks  
+**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`)
 
-Stop leaks before new interaction work.
-
-| ID | Item | Exit criteria | Status (branch) |
-| --- | --- | --- | --- |
-| 2D-0.1 | Hole-bearing room merge: clear block or safe path (no dead-end) | Multi-room jobs don’t strand the user | Implemented — `explainInteriorRoomMergeBlock` + switcher hint + status message |
-| 2D-0.2 | Replace `window.confirm` delete/merge with in-app dialogs | No browser confirms on plan ops | Implemented — `ConfirmDialog` on BuildRoomSwitcher + RoomNavigator |
-| 2D-0.3 | Golden Kitchen plan regression (draw → openings → run → undo) | Automated or checklist gate stays green | Implemented — Vitest `goldenKitchenPlanPath.test.ts` |
-| 2D-0.4 | Plan label overlap at default/benchmark zoom (`CAB-046`) | Labels remain readable | Implemented — `resolvePlanObjectLabelModes` declutter on plan |
-
-**Phase exit:** Golden Cabinet Run plan path is boringly reliable.
-
----
-
-### Phase 1 — Plan feels like a tool (`NEXT` — start here after Phase 0)
-
-Navigation and measure — the largest gap vs consumer planners for first-time users.
-
-| ID | Item | Competitor gap closed |
-| --- | --- | --- |
-| 2D-1.1 | Pan + zoom on Interiors plan (scroll, pinch, space+drag) | Floorplanner / RoomSketcher / all |
-| 2D-1.2 | Zoom-to-fit + zoom-to-selection | Daily navigation |
-| 2D-1.3 | Measure tool (two-point length; optional running dim) | RoomSketcher tape |
-| 2D-1.4 | Click wall/room dimension → type exact length (clear which side moves) | Floorplanner edit-dim |
-| 2D-1.5 | Stronger snap guides (wall / center / neighbor cabinet) | Placement confidence |
-| 2D-1.6 | Keyboard: Delete, duplicate, 90° rotate, Esc cancel | Pro muscle memory |
-
-**Phase exit:** A user who has used Floorplanner once can navigate the plan without a tutorial.
-
-**Likely touchpoints:** `LivingRoomPlanView`, plan stage toolbar, plan interaction hooks under `src/` interiors/living-room plan modules.
-
----
-
-### Phase 2 — Measured room in (`NEXT` after Phase 1)
-
-Matches the Product Book buyer: site measurement → room shell.
+Before adding major UX capabilities, remove reliability issues from the Golden Cabinet Run.
 
 | ID | Item | Notes |
 | --- | --- | --- |
-| 2D-2.1 | Underlay polish — opacity, lock, scale calibrate, nudge | Import exists; make it trustworthy |
-| 2D-2.2 | Calibrate wizard: “this line = X mm / ft-in” | Non-designer friendly |
-| 2D-2.3 | Optional site-measure checklist (wall lengths, opening widths) | Sales call / site sheet |
-| 2D-2.4 | Clearer opening symbols on plan (readable swing) | Aligns with `CAB-040` spirit |
-| 2D-2.5 | Wall vs floor cabinet footprints clearly distinct (`CAB-041`) | Client + engineering read |
+| 0.1 | Multi-room / hole-room handling | Clear actionable error instead of dead-end; `explainInteriorRoomMergeBlock` + merge blocked UI |
+| 0.2 | Replace browser dialogs | `window.confirm` delete/merge → in-app `ConfirmDialog` |
+| 0.3 | Golden Kitchen regression | Vitest path: draw → openings → cabinet run → undo (`goldenKitchenPlanPath.test.ts`) |
+| 0.4 | Label overlap | Declutter plan object labels at dense layouts (`CAB-046`) |
+| 0.5 | Undo/Redo reliability | Treat as foundational; geometry, cabinets, openings, move, delete must stay predictable — **harden continuously**; extend coverage as Phases 1–3 land |
 
-**Phase exit:** Photo/PDF underlay → calibrated → walls traced → openings → ready for run.
+### Phase 0 exit
 
-**Not in this phase:** AI auto-convert image → walls (see Phase 5).
+The Golden Cabinet Run workflow should be **boringly reliable**.
 
 ---
 
-### Phase 3 — Cabinet plan excellence (`NEXT` after Phase 2, or parallel with Phase 4)
+## 6. Phase 1 — Precision Canvas ★
 
-Lean into the millwork moat (Product Book §15).
+**Estimate:** 3–5 weeks  
+**Status:** `NEXT` — **highest priority after Phase 0**
 
-| ID | Item | Requirement alignment |
+Make the 2D canvas feel like a professional planning tool.
+
+### 6.1 Navigation
+
+- Mouse-wheel zoom  
+- Trackpad pinch zoom  
+- Zoom toward cursor  
+- Space + drag pan  
+- Middle-mouse pan  
+- Zoom-to-fit  
+- Zoom-to-selection  
+
+Navigation should feel natural immediately.
+
+### 6.2 Selection
+
+- Click → select  
+- Shift-click → multi-select  
+- Drag → marquee select  
+- Esc → deselect/cancel  
+- Delete → remove  
+- Cmd/Ctrl + D → duplicate  
+
+Selection state must be visually obvious.
+
+### 6.3 Keyboard workflow
+
+At minimum: Delete, Escape, Duplicate, Undo, Redo, 90° rotate, Fit plan, Fit selection.
+
+### 6.4 Measurement system
+
+**Measure tool:** Point A → Point B → length (e.g. `2,735 mm`), with snaps to wall endpoints, corners, opening edges, cabinet edges/centres, grid.
+
+**Running measurement:** consecutive A—600—B—900—C for site-measure recreation.
+
+### 6.5 Typed dimensions
+
+Click a dimension (e.g. `4200`) and type `4275`. Geometry change must be predictable:
+
+- Keep left wall fixed → move right wall, **or**  
+- Keep right wall fixed → move left wall  
+
+Never unexpectedly scale the entire room. Behaviour should become consistent across walls, openings, and cabinet runs.
+
+### 6.6 Driving vs reference dimensions
+
+| Type | Meaning |
+| --- | --- |
+| **Driving** | Defines geometry (“this wall **is** 4275 mm”) |
+| **Reference** | Reports geometry (“cabinet edge is 650 mm from doorway”) |
+
+Especially valuable later for engineering drawings.
+
+### 6.7 Snapping & alignment
+
+Guides beyond grid: wall alignment/endpoints/centres, cabinet edges/centres, adjacent cabinets, opening edges, run alignment. Visual guides must show **what** the object is snapping to.
+
+### Phase 1 exit
+
+A user who has used a floor-planning app before can operate the plan without training.
+
+**Test:** Give them a measured kitchen to reproduce — Room → Exact dimensions → Door → Window → Cabinet without assistance.
+
+---
+
+## 7. Phase 2 — Measured room workflow
+
+**Estimate:** 2–4 weeks  
+**Status:** `NEXT` after Phase 1
+
+Connect the app to actual site measurements.
+
+### 7.1 Underlay import
+
+JPG / PNG / PDF:
+
+```text
+Import → Position → Rotate → Calibrate → Adjust Opacity → Lock → Trace
+```
+
+### 7.2 Calibration wizard
+
+User marks a known distance: Point A ——— Point B = `3200 mm`. App computes scale.
+
+### 7.3 Underlay controls
+
+Opacity, scale, rotation, X/Y nudge, lock/unlock, hide/show, reset. Locked underlay cannot be edited by accident.
+
+### 7.4 Site measure panel (optional)
+
+Checklist for walls, ceiling height, door/window sizes and offsets — helpful, not mandatory bureaucracy.
+
+### 7.5 Opening representation
+
+Clearer doors, swings, windows, width, offset — readable at normal zoom and on export.
+
+### 7.6 Cabinet footprints
+
+Visually distinct: base, wall, tall, appliances, fillers.
+
+### Phase 2 exit
+
+Salesperson can: **Import plan → Calibrate → Trace walls → Add openings → Start cabinet run** without another app.
+
+**AI is deliberately not required here.**
+
+---
+
+## 8. Phase 3 — Cabinet plan excellence ★
+
+**Estimate:** 3–5 weeks  
+**Status:** `NEXT` after Phase 2 (can partially parallel Phase 4)
+
+This is where the product should become meaningfully different from generic floor planners.
+
+Question is not “can we draw cabinets?” but “can we help a salesperson build a run that **actually fits**?”
+
+| Theme | Capability |
+| --- | --- |
+| Run-aware placement | Preview remaining wall width, fillers, gaps, openings, corners |
+| Complete wall run | Obvious “Complete Run” with suggested fillers / sizes; user accepts/edits |
+| Inline cabinet dims | Canvas `W 600 × D 560`; click to edit without inspector-only flow |
+| Pre-drop validation | Fits / opening conflict / overlap / filler / outside room **before** drop |
+| Active run hierarchy | Active run highlighted; other cabinetry quieter; room as context |
+| Plan marks | Optional labels (`B600`, `F50`, …); toggle by audience |
+
+### Phase 3 exit
+
+Straight kitchen feels **guided**, not CAD homework. Target: completed room → credible run **< 3 minutes**.
+
+---
+
+## 9. Phase 4 — Presentation & export
+
+**Estimate:** 2–3 weeks  
+**Status:** `LATER` / after Phase 3 start
+
+Same `InteriorProject` → different representations. Do not fork separate drawings.
+
+| View | Audience | Content |
 | --- | --- | --- |
-| 2D-3.1 | Run preview ghost while placing first unit | Faster “build the run” |
-| 2D-3.2 | Obvious one-click complete-wall run + fillers | Guided golden path |
-| 2D-3.3 | Inline canvas dim edit for selected cabinet W/D | §15.3 — fewer inspector trips |
-| 2D-3.4 | Overlap / fit warnings before drop | `CAB-044` |
-| 2D-3.5 | Plan marks / labels toggle for proposal | `CAB-045` |
-| 2D-3.6 | Active run highlighting in visual hierarchy | §15.2 |
+| **Sales** | Customer | Room, layout, key dims, openings, clean labels, job name, optional materials/branding |
+| **Technical** | Engineering | Wall/cabinet/opening IDs & dims, offsets, fillers, run dims, reference dims |
 
-**Phase exit:** Straight kitchen golden run feels guided, not CAD homework.
+### Export
 
----
+PDF / PNG / SVG where useful — project name, customer/job, scale + scale bar, date, company, optional logo.
 
-### Phase 4 — Present the plan (`LATER` / after Phase 3 start)
+### Print controls
 
-Steal RoomSketcher’s presentation wedge without their catalog.
+Show/hide dims, labels, furniture, openings, grid, marks, reference dims, underlay. Presets: **Sales** / **Technical**.
 
-| ID | Item | Notes |
-| --- | --- | --- |
-| 2D-4.1 | Export floor plan — clean PDF/PNG, scale bar, title, job name | Client leave-behind |
-| 2D-4.2 | Print layout toggles: furniture / dims / marks | Sales vs eng views |
-| 2D-4.3 | Optional company logo / letterhead on plan sheet | Pro feel |
+### Phase 4 exit
 
-**Phase exit:** One click → shareable measured plan suitable for a proposal attachment.
+One click → plan a salesperson is comfortable attaching to a proposal.
 
 ---
 
-### Phase 5 — Import accelerators (`LATER` / research)
+## 10. Phase 5 — Import accelerators
 
-Only after Phases 1–4. Do not start AI here first.
+**Status:** `LATER` / research — only after core 2D workflow is excellent
 
 | ID | Item | Risk |
 | --- | --- | --- |
-| 2D-5.1 | Better underlay (multi-page PDF page pick) | Low |
-| 2D-5.2 | AI / CV: image → editable walls | High cost; still needs manual fix |
-| 2D-5.3 | DWG import | Enterprise; heavy |
-
-**Rule:** Ship Phase 2 underlay polish before any AI floor-plan promise.
+| 5.1 | Better PDF import (multi-page, crop, calibrate) | Low |
+| 5.2 | AI floor-plan detection → review → correct → accept into normal geometry | High; no separate AI model of truth |
+| 5.3 | DWG/DXF when customers demand it | Expensive; don’t delay salesperson workflow |
 
 ---
 
-## 5. Suggested calendar
+## 11. Explicitly out of scope (`EXCLUDED`)
+
+- Huge furniture marketplace  
+- General architecture CAD  
+- Multi-building / real-estate floor planning  
+- Social interior-design features / styleboards / massive decor catalog  
+- Perfect CAD topology before salesperson workflow is smooth  
+- Floorplanner / RoomSketcher / Planner 5D parity claims  
+- AI-first room generation  
+- Complex DWG workflows as a near-term blocker  
+
+---
+
+## 12. Recommended execution order
 
 ```text
-Now     → Phase 0 stabilize
-Next    → Phase 1 pan/zoom + measure + typed dims   ★ biggest UX jump
-Then    → Phase 2 underlay + measure-in workflow
-Then    → Phase 3 cabinet plan excellence
-Then    → Phase 4 presentation export
-Later   → Phase 5 AI / DWG only if customers demand it
+PHASE 0  Reliability                    [Implemented]
+    ↓
+PHASE 1 ★ Precision Canvas
+         Pan / Zoom / Measure / Dimensions / Snap / Keyboard / Undo
+    ↓
+PHASE 2  Measured Room
+         Underlay / Calibration / Openings polish
+    ↓
+PHASE 3 ★ Cabinet Intelligence
+         Runs / Fit / Fillers / Inline Editing
+    ↓
+PHASE 4  Presentation
+         Sales Plan / Technical Plan / Export
+    ↓
+──────── 2D MATURITY GATE ────────
+    ↓
+Return investment to: 3D / Render / Pricing / Engineering
+    ↓
+PHASE 5  AI / DWG / Advanced Imports — only when justified
 ```
 
-Rough capacity: ~3–4 months focused 2D work for one strong owner; Phases 3 and 4 can partially parallelize with two owners.
+---
+
+## 13. When to stop expanding 2D
+
+Do **not** continuously add CAD features because competitors have them.
+
+2D is mature enough when users can reliably perform:
+
+```text
+Measured Room → Exact Walls → Doors + Windows → Cabinet Runs → Fit Validation → Professional Plan
+```
+
+Then shift investment **downstream**.
 
 ---
 
-## 6. Definition of done (program-level)
+## 14. Downstream product architecture
 
-- New user completes room + door + window + base run without asking “how do I zoom?”
-- Site photo / PDF underlay usable in real sales calls  
-- Plan PDF attachable to proposals without embarrassment  
-- Golden Cabinet Run plan path remains green every week  
-- No marketing claim of Floorplanner / Planner5D / RoomSketcher parity  
+```text
+                    MEASURE
+                       │
+                       ▼
+                ┌───────────────┐
+                │      2D       │
+                │ Room + Layout │
+                └───────┬───────┘
+                        │
+                 InteriorProject
+                        │
+      ┌─────────────────┼──────────────────┐
+      ▼                 ▼                  ▼
+     3D              PRICING          ENGINEERING
+      │                 │                  ├── BOM
+ MATERIALS          QUOTE                 ├── Cut list
+      │                 │                  ├── Hardware
+   RENDER           PROPOSAL              └── Drawings
+      │                 │
+      └────────┬────────┘
+               ▼
+        CLIENT APPROVAL → PRODUCTION
+```
+
+Same project drives every branch.
 
 ---
 
-## 7. Relationship to other docs
+## 15. Product moat
+
+Not: “better rectangles” or “more furniture than Floorplanner.”
+
+**Moat:** We understand cabinetry and the complete cabinet **sales-to-production** workflow.
+
+Generic tools help users draw a room. This product should answer:
+
+> What cabinetry fits this measured room, what will it look like, what will it cost, and how do we manufacture it?
+
+---
+
+## 16. Final product journey
+
+```text
+MEASURE → DESIGN → VALIDATE → VISUALIZE → PRICE → SELL → ENGINEER → MANUFACTURE
+```
+
+**Immediate priority:** Phase 1 — Precision Canvas  
+Get pan, zoom, fit, selection, measure, typed dimensions, snapping, keyboard, undo/redo exceptionally reliable — then measured-room workflow — then exceptional cabinet runs — then presentation-ready plans — then **stop chasing generic 2D** and move downstream.
+
+---
+
+## 17. Relationship to other docs
 
 | Doc | Relationship |
 | --- | --- |
-| [CABINET_STUDIO_PRODUCT_BOOK.md](./CABINET_STUDIO_PRODUCT_BOOK.md) | Source of truth for STR rules, §15 plan requirements, P0 cabinet program |
-| [INTERIOR_DESIGN_TOOL_ROADMAP.md](./INTERIOR_DESIGN_TOOL_ROADMAP.md) | Historical H–L interiors build; this doc is the **active** 2D follow-on |
+| [CABINET_STUDIO_PRODUCT_BOOK.md](./CABINET_STUDIO_PRODUCT_BOOK.md) | STR rules, §15 plan requirements, Golden Cabinet Run, P0 cabinet program |
+| [INTERIOR_DESIGN_TOOL_ROADMAP.md](./INTERIOR_DESIGN_TOOL_ROADMAP.md) | Historical H–L interiors; this doc is the **active** 2D follow-on |
 | [FLOORPLANNER_D0_TOPOLOGY_ADR.md](./FLOORPLANNER_D0_TOPOLOGY_ADR.md) | Topology rules remain binding |
 | [PRODUCT_DECISIONS.md](./PRODUCT_DECISIONS.md) | Interiors vs Cabinets chrome decisions stand |
 
 ---
 
-## 8. Change log
+## 18. Change log
 
 | Date | Change |
 | --- | --- |
-| 2026-09-05 | Initial roadmap from competitive 2D audit + Product Book §15 alignment |
+| 2026-09-05 | Initial roadmap from competitive 2D audit + Product Book §15 |
+| 2026-09-05 | Phase 0 implemented (merge UX, dialogs, golden path, labels) |
+| 2026-09-05 | Replaced with consolidated product roadmap (review): precision canvas, driving/reference dims, maturity gate, moat, downstream architecture |
