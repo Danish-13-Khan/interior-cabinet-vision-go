@@ -97,4 +97,8 @@ export type LivingRoomPlanStageProps = {
   onFitSelection?: () => void;
   onSetPlanUnderlay?: (underlay: import("../../domain/livingRoom").LivingRoomPlanUnderlay | null) => void;
   onCalibrateComplete?: () => void;
+  onPatchDocument?: (
+    update: (current: import("../../domain/interiorProject").InteriorProject) => import("../../domain/interiorProject").InteriorProject,
+    status: string,
+  ) => void;
 };

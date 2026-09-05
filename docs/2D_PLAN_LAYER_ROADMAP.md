@@ -239,7 +239,7 @@ Straight kitchen feels **guided**, not CAD homework. Target: completed room → 
 ## 9. Phase 4 — Presentation & export
 
 **Estimate:** 2–3 weeks  
-**Status:** `NEXT` after Phase 3
+**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`) — Sales/Technical print presets, layer toggles, scale bar + title strip sheet, optional logo, one-click PDF/PNG floor-plan export. Client presentation package remains separate.
 
 Same `InteriorProject` → different representations. Do not fork separate drawings.
 
@@ -250,7 +250,7 @@ Same `InteriorProject` → different representations. Do not fork separate drawi
 
 ### Export
 
-PDF / PNG / SVG where useful — project name, customer/job, scale + scale bar, date, company, optional logo.
+PDF / PNG — project name, customer/job, scale + scale bar, date, company, optional logo.
 
 ### Print controls
 
@@ -301,7 +301,7 @@ PHASE 2  Measured Room                    [Implemented]
 PHASE 3 ★ Cabinet Intelligence
          Runs / Fit / Fillers / Inline Editing
     ↓
-PHASE 4  Presentation
+PHASE 4  Presentation                    [Implemented]
          Sales Plan / Technical Plan / Export
     ↓
 ──────── 2D MATURITY GATE ────────
@@ -400,3 +400,4 @@ Get pan, zoom, fit, selection, measure, typed dimensions, snapping, keyboard, un
 | 2026-09-05 | Replaced with consolidated product roadmap (review): precision canvas, driving/reference dims, maturity gate, moat, downstream architecture |
 | 2026-09-05 | Phase 1 Precision Canvas implemented on `feat/2d-plan-layer` (pan/zoom/fit, marquee, measure, typed wall length, reference dims, labelled snaps) |
 | 2026-09-05 | Phase 1 review fixes: floor marquee, measure capture before drag, inverse-CTM / meet-aware mapping, on-demand measure grid, room-scoped opening snaps + reference dims |
+| 2026-09-05 | Phase 4 Presentation implemented on `feat/2d-plan-layer` (Sales/Technical presets, print layers, floor-plan PDF/PNG sheet export with scale bar + optional logo) |

@@ -156,6 +156,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onFitSelection={props.onFitSelection}
         onSetPlanUnderlay={w.onSetPlanUnderlay}
         onCalibrateComplete={() => props.onBuildTool("select")}
+        onPatchDocument={w.onPatchDocument}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>

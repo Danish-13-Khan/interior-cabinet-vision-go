@@ -541,6 +541,39 @@ export {
   type PlanMarksSettings,
 } from "./planMarks";
 export {
+  applyPlanPrintPreset,
+  applyPlanPrintPresetToProject,
+  readPlanPrintSettings,
+  setPlanPrintSettings,
+  DEFAULT_PLAN_PRINT_SETTINGS,
+  SALES_PLAN_PRINT_LAYERS,
+  TECHNICAL_PLAN_PRINT_LAYERS,
+  type PlanPrintAudience,
+  type PlanPrintLayers,
+  type PlanPrintSettings,
+} from "./planPrintSettings";
+export {
+  chooseScaleBarLengthMm,
+  formatScaleBarLabel,
+  renderPlanScaleBarSvg,
+  composePlanSheetSvg,
+  applyPrintLayersToPlanSvg,
+  embedPlanSvgAsSheetDrawing,
+  planSheetScaleMetrics,
+  defaultPlanSheetPdfDrawWidthMm,
+  exportPlanSheetPdf,
+  exportPlanSheetPng,
+  exportPlanSheetPngBlob,
+  exportPlanViewBoxForProject,
+  captureLivePlanSvg,
+  planSheetFileBase,
+  resolvePlanSheetMeta,
+} from "./planSheetExport";
+export {
+  PLAN_EXPORT_STYLESHEET,
+  injectExportStyles,
+} from "./planExportStyles";
+export {
   setCabinetInlineDimensions,
 } from "./cabinetRunInlineDims";
 export {
