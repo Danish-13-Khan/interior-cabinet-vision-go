@@ -7,9 +7,9 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 3 — Deterministic 3D shell** (reviewed JSON → orbitable room).
+**Phase 4 — Accept bridge** (reviewed proposal → InteriorProject draft, explicit confirm).
 
-Phases 1–2 remain: Vision extract, review overlay, scale calibration.
+Earlier phases remain: Vision extract, review overlay, 3D shell.
 
 ## Run
 
@@ -34,9 +34,12 @@ Phases 1–2 remain: Vision extract, review overlay, scale calibration.
 Use **Load offline kitchen / L-room** → review overlay + editors + calibration.  
 Sample PNGs live under `/experiments/gemini-floorplan/fixtures/`.
 
-## With an API key
+## Accept (Phase 4)
 
-Upload a PNG/JPEG/WebP (or a fixture image) → **Run Gemini Vision** → JSON panel.
+1. Review overlay + confidence  
+2. Check **I reviewed scale, walls, and confidence**  
+3. **Accept → interior draft** downloads `.interior.json` and stashes sessionStorage  
+4. Open that file in the designer when ready (see `MERGE_NOTES.md`)
 
 ## Code
 

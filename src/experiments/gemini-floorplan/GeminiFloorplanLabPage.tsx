@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import "../../styles/gemini-floorplan-lab.css";
 import "../../styles/gemini-floorplan-lab-panels.css";
 import "../../styles/gemini-floorplan-lab-review.css";
+import "../../styles/gemini-floorplan-lab-accept.css";
+import { AcceptBridgePanel } from "./AcceptBridgePanel";
 import { ConfidenceNotesPanel } from "./ConfidenceNotesPanel";
 import { LabStatusBar } from "./LabStatusBar";
 import { PlanReviewOverlay } from "./PlanReviewOverlay";
@@ -20,7 +22,7 @@ export function GeminiFloorplanLabPage() {
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 3</p>
+          <p className="gfl-eyebrow">Lab · Phase 4</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -79,6 +81,9 @@ export function GeminiFloorplanLabPage() {
           </section>
         )}
         <ConfidenceNotesPanel proposal={lab.proposal} />
+      </div>
+      <div className="gfl-grid gfl-grid--accept">
+        <AcceptBridgePanel proposal={lab.proposal} />
       </div>
     </div>
   );
