@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ProjectRoom } from "../domain/projectRooms";
 import { ROOM_TEMPLATES, type RoomTemplateId } from "../domain/projectRooms";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { PromptDialog } from "./PromptDialog";
 
 type RoomNavigatorProps = {
   rooms: ProjectRoom[];
@@ -9,7 +10,7 @@ type RoomNavigatorProps = {
   onSelectRoom: (roomId: string) => void;
   onAddRoom: () => void;
   onDuplicateRoom: (roomId: string) => void;
-  onRenameRoom: (roomId: string) => void;
+  onRenameRoom: (roomId: string, name: string) => void;
   onRemoveRoom: (roomId: string) => void;
   onAddFromTemplate: (templateId: RoomTemplateId) => void;
 };
@@ -25,7 +26,9 @@ export function RoomNavigator({
   onAddFromTemplate,
 }: RoomNavigatorProps) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingRenameId, setPendingRenameId] = useState<string | null>(null);
   const pendingRoom = rooms.find((room) => room.id === pendingDeleteId);
+  const renameRoom = rooms.find((room) => room.id === pendingRenameId);
 
   return (
     <div className="rail-section room-navigator">
@@ -59,7 +62,8 @@ export function RoomNavigator({
                   type="button"
                   className="room-nav-icon-btn"
                   title="Rename room"
-                  onClick={() => onRenameRoom(room.id)}
+                  data-testid={`room-nav-rename-${room.id}`}
+                  onClick={() => setPendingRenameId(room.id)}
                 >
                   ✎
                 </button>
@@ -121,6 +125,19 @@ export function RoomNavigator({
           setPendingDeleteId(null);
         }}
         onCancel={() => setPendingDeleteId(null)}
+      />
+      <PromptDialog
+        open={Boolean(renameRoom)}
+        title="Rename room"
+        label="Room name"
+        initialValue={renameRoom?.name ?? "Room"}
+        confirmLabel="Rename"
+        testId="room-nav-rename"
+        onConfirm={(name) => {
+          if (pendingRenameId) onRenameRoom(pendingRenameId, name);
+          setPendingRenameId(null);
+        }}
+        onCancel={() => setPendingRenameId(null)}
       />
     </div>
   );

@@ -1,9 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
 
 async function openBuildPlan(page: Page) {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page);
 }
 
 test("I4 offers curated opening families and SKU millwork", async ({ page }) => {

@@ -14,8 +14,14 @@ type BuildRoomSwitcherProps = {
 };
 
 type PendingConfirm =
-  | { kind: "delete" }
-  | { kind: "merge"; absorbedRoomId: string; absorbedName: string }
+  | { kind: "delete"; roomId: string; roomName: string }
+  | {
+    kind: "merge";
+    targetRoomId: string;
+    targetName: string;
+    absorbedRoomId: string;
+    absorbedName: string;
+  }
   | null;
 
 /** Minimal multi-room chrome: switch active face and rename. */
@@ -40,13 +46,21 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
   }
 
   function requestDeleteActiveRoom() {
-    if (props.rooms.length > 1) setPending({ kind: "delete" });
+    if (props.rooms.length > 1) {
+      setPending({ kind: "delete", roomId: active!.id, roomName: active!.name });
+    }
   }
 
   function requestMergeIntoActive(absorbedRoomId: string) {
     const absorbed = props.rooms.find((room) => room.id === absorbedRoomId);
     if (absorbed) {
-      setPending({ kind: "merge", absorbedRoomId, absorbedName: absorbed.name });
+      setPending({
+        kind: "merge",
+        targetRoomId: active!.id,
+        targetName: active!.name,
+        absorbedRoomId,
+        absorbedName: absorbed.name,
+      });
     }
   }
 
@@ -57,16 +71,17 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
   function confirmPending() {
     if (!pending) return;
     if (pending.kind === "delete") {
-      props.onDeleteRoom?.(active!.id);
+      props.onDeleteRoom?.(pending.roomId);
     } else {
-      props.onMergeRooms?.(active!.id, pending.absorbedRoomId);
+      props.onMergeRooms?.(pending.targetRoomId, pending.absorbedRoomId);
     }
     setPending(null);
   }
 
-  const mergeHint = mergeCandidates.length === 0 && props.rooms.length > 1
-    ? (props.mergeBlockedHint ?? "No adjacent room available to merge.")
-    : null;
+  const blockedHint = props.mergeBlockedHint
+    ?? (mergeCandidates.length === 0 && props.rooms.length > 1
+      ? "No adjacent room available to merge."
+      : null);
 
   return (
     <section className="lr-room-switcher" data-testid="build-room-switcher" aria-label="Rooms">
@@ -101,7 +116,7 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
         />
       </label>
       <div className="lr-room-switcher-actions">
-        <button type="button" data-testid="build-room-delete" onClick={requestDeleteActiveRoom} disabled={props.rooms.length <= 1}>Delete room</button>
+        <button type="button" data-testid="build-room-delete-open" onClick={requestDeleteActiveRoom} disabled={props.rooms.length <= 1}>Delete room</button>
         {mergeCandidates.length > 0 ? (
           <label>
             <span>Merge into this room</span>
@@ -119,15 +134,20 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
               ))}
             </select>
           </label>
-        ) : mergeHint ? (
-          <small data-testid="build-room-merge-blocked" role="status">{mergeHint}</small>
+        ) : null}
+        {blockedHint ? (
+          <small data-testid="build-room-merge-blocked" role="status">{blockedHint}</small>
         ) : null}
       </div>
 
       <ConfirmDialog
         open={pending?.kind === "delete"}
         title="Delete room?"
-        message={`Delete ${active.name} and its contents? This cannot be undone from this dialog (use Undo after).`}
+        message={
+          pending?.kind === "delete"
+            ? `Delete "${pending.roomName}" and its contents? You can Undo afterward if needed.`
+            : ""
+        }
         confirmLabel="Delete room"
         danger
         testId="build-room-delete"
@@ -139,7 +159,7 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
         title="Merge rooms?"
         message={
           pending?.kind === "merge"
-            ? `Merge ${pending.absorbedName} into ${active.name}? The shared wall will be removed.`
+            ? `Merge ${pending.absorbedName} into ${pending.targetName}? The shared wall will be removed.`
             : ""
         }
         confirmLabel="Merge rooms"

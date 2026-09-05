@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { createPortal } from "react-dom";
 import { useDialogFocusTrap } from "../hooks/useDialogFocusTrap";
 
 export type ConfirmDialogProps = {
@@ -32,8 +33,15 @@ export function ConfirmDialog({
 
   if (!open) return null;
 
-  return (
-    <div className="app-confirm-backdrop" data-testid={`${testId}-backdrop`}>
+  return createPortal(
+    <div
+      className="app-confirm-backdrop"
+      data-testid={`${testId}-backdrop`}
+      onKeyDown={(event) => {
+        // Capture React tree shortcuts before they bubble into the plan shell.
+        event.stopPropagation();
+      }}
+    >
       <div
         ref={dialogRef}
         className={`app-confirm-dialog ${danger ? "is-danger" : ""}`}
@@ -45,7 +53,7 @@ export function ConfirmDialog({
         tabIndex={-1}
       >
         <strong id={`${testId}-title`}>{title}</strong>
-        <p id={`${testId}-message`}>{message}</p>
+        <p id={`${testId}-message`} data-testid={`${testId}-message`}>{message}</p>
         <div className="app-confirm-actions">
           <button
             type="button"
@@ -65,6 +73,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

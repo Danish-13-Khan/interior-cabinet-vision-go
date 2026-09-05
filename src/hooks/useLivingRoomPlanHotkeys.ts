@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isAppModalOpen } from "./appModalGate";
 import type { LivingRoomWorkspaceView } from "../components/livingRoomPlan/workspaceProps";
 
 export function useLivingRoomPlanHotkeys({
@@ -34,6 +35,7 @@ export function useLivingRoomPlanHotkeys({
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      if (isAppModalOpen()) return;
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select")) return;
       if (projectHomeOpen) return;

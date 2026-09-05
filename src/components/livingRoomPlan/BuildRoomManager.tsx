@@ -30,24 +30,27 @@ export function BuildRoomManager(props: Props) {
   const blockedMessages: string[] = [];
   for (const roomId of adjacentIds) {
     if (!active) break;
+    const room = props.project.rooms.find((entry) => entry.id === roomId);
     const block = explainInteriorRoomMergeBlock(props.project, active.id, roomId);
     if (!block) {
       mergeableRoomIds.push(roomId);
       continue;
     }
-    // Surface every adjacent block reason (hole topology, invalid loops, etc.), not only holes.
-    if (!blockedMessages.includes(block.message)) {
-      blockedMessages.push(block.message);
+    const labeled = room
+      ? `"${room.name}": ${block.message}`
+      : block.message;
+    if (!blockedMessages.includes(labeled)) {
+      blockedMessages.push(labeled);
     }
   }
 
-  const mergeBlockedHint = mergeableRoomIds.length === 0
-    ? (blockedMessages.length
-      ? blockedMessages.join(" ")
-      : (adjacentIds.length > 0
+  const mergeBlockedHint = blockedMessages.length
+    ? blockedMessages.join(" ")
+    : (mergeableRoomIds.length === 0
+      ? (adjacentIds.length > 0
         ? "Adjacent rooms cannot be merged with the current topology. Fix walls or remove holes, then try again."
-        : null))
-    : null;
+        : null)
+      : null);
 
   return <BuildRoomSwitcher
     rooms={props.project.rooms.map((room) => ({ id: room.id, name: room.name }))}

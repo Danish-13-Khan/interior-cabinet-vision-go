@@ -1,9 +1,14 @@
 import { useCallback, useRef, useState } from "react";
 import {
   createEditorSnapshot,
-  HISTORY_LIMIT,
   type EditorSnapshot,
 } from "../domain/editorSnapshot";
+import {
+  commitEditorHistoryStacks,
+  redoEditorHistoryStacks,
+  undoEditorHistoryStacks,
+  type EditorHistoryStacks,
+} from "./editorHistoryCore";
 
 type UseEditorHistoryArgs = {
   captureCurrent: () => EditorSnapshot;
@@ -16,8 +21,7 @@ export function useEditorHistory({
   applySnapshot,
   onStatus,
 }: UseEditorHistoryArgs) {
-  const historyPastRef = useRef<EditorSnapshot[]>([]);
-  const historyFutureRef = useRef<EditorSnapshot[]>([]);
+  const historyStacksRef = useRef<EditorHistoryStacks>({ past: [], future: [] });
   const captureRef = useRef(captureCurrent);
   const applyRef = useRef(applySnapshot);
   const statusRef = useRef(onStatus);
@@ -31,17 +35,16 @@ export function useEditorHistory({
     setHistoryTick((value) => value + 1);
   }, []);
 
-  const canUndo = historyPastRef.current.length > 0;
-  const canRedo = historyFutureRef.current.length > 0;
+  const canUndo = historyStacksRef.current.past.length > 0;
+  const canRedo = historyStacksRef.current.future.length > 0;
   void historyTick;
 
   const commitSnapshot = useCallback(
     (snapshot: EditorSnapshot, status?: string) => {
-      historyPastRef.current = [
-        ...historyPastRef.current,
+      historyStacksRef.current = commitEditorHistoryStacks(
+        historyStacksRef.current,
         captureRef.current(),
-      ].slice(-HISTORY_LIMIT);
-      historyFutureRef.current = [];
+      );
       applyRef.current(snapshot);
       if (status) statusRef.current?.(status);
       refreshHistoryState();
@@ -50,30 +53,25 @@ export function useEditorHistory({
   );
 
   const handleUndo = useCallback(() => {
-    const past = historyPastRef.current;
-    const previous = past[past.length - 1];
-    if (!previous) return;
-
-    historyPastRef.current = past.slice(0, -1);
-    historyFutureRef.current = [
+    const result = undoEditorHistoryStacks(
+      historyStacksRef.current,
       captureRef.current(),
-      ...historyFutureRef.current,
-    ].slice(0, HISTORY_LIMIT);
-    applyRef.current(previous);
+    );
+    if (!result.restore) return;
+    historyStacksRef.current = result.stacks;
+    applyRef.current(result.restore);
     statusRef.current?.("Undid the last change.");
     refreshHistoryState();
   }, [refreshHistoryState]);
 
   const handleRedo = useCallback(() => {
-    const next = historyFutureRef.current[0];
-    if (!next) return;
-
-    historyFutureRef.current = historyFutureRef.current.slice(1);
-    historyPastRef.current = [
-      ...historyPastRef.current,
+    const result = redoEditorHistoryStacks(
+      historyStacksRef.current,
       captureRef.current(),
-    ].slice(-HISTORY_LIMIT);
-    applyRef.current(next);
+    );
+    if (!result.restore) return;
+    historyStacksRef.current = result.stacks;
+    applyRef.current(result.restore);
     statusRef.current?.("Redid the last change.");
     refreshHistoryState();
   }, [refreshHistoryState]);
@@ -103,3 +101,9 @@ export function captureEditorSnapshot(
     selectedPanelName,
   );
 }
+
+export {
+  commitEditorHistoryStacks,
+  redoEditorHistoryStacks,
+  undoEditorHistoryStacks,
+} from "./editorHistoryCore";
