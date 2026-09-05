@@ -1,0 +1,66 @@
+.gfl-grid--geom {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .gfl-grid--geom {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+.gfl-geom__toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.gfl-geom__toggle button {
+  border: 1px solid var(--gfl-line);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  background: transparent;
+  color: var(--gfl-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.gfl-geom__toggle button.is-active {
+  border-color: var(--gfl-accent);
+  color: var(--gfl-accent);
+}
+
+.gfl-geom__toggle button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gfl-geom__hint {
+  margin: 0.65rem 1rem 1rem;
+  font-size: 0.8rem;
+  color: var(--gfl-muted);
+}
+
+.gfl-score__list {
+  margin: 0 1rem 1rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--gfl-muted);
+}
+
+.gfl-score__list li {
+  margin: 0.25rem 0;
+}
+
+.gfl-score__list .is-pass {
+  color: var(--gfl-ok);
+}
+
+.gfl-score__list .is-fail {
+  color: var(--gfl-warn);
+}

@@ -32,6 +32,14 @@ function projectParam(origin: ProposalPoint, dir: ProposalPoint, p: ProposalPoin
   return ((p.x - origin.x) * dx + (p.y - origin.y) * dy) / len2;
 }
 
+function perpDistToSegmentLine(p: ProposalPoint, a: ProposalPoint, b: ProposalPoint): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-9) return distMm(p, a);
+  return Math.abs((p.x - a.x) * dy - (p.y - a.y) * dx) / len;
+}
+
 function pointOnAxis(origin: ProposalPoint, dir: ProposalPoint, t: number): ProposalPoint {
   return {
     x: origin.x + (dir.x - origin.x) * t,
@@ -48,6 +56,13 @@ function tryMergePair(
   if (wallLength(a) < 1 || wallLength(b) < 1) return null;
   if (angleDeltaDeg(wallAngleDeg(a.a, a.b), wallAngleDeg(b.a, b.b)) > collinearDeg) return null;
 
+  // Parallel but offset (opposite room sides) must not merge.
+  const offset = Math.max(
+    perpDistToSegmentLine(b.a, a.a, a.b),
+    perpDistToSegmentLine(b.b, a.a, a.b),
+  );
+  if (offset > junctionMm) return null;
+
   const origin = a.a;
   const dir = a.b;
   const params = [
@@ -63,7 +78,6 @@ function tryMergePair(
   const bMin = Math.min(params[2], params[3]);
   const bMax = Math.max(params[2], params[3]);
   const gap = Math.max(aMin, bMin) - Math.min(aMax, bMax);
-  // Overlap or abut within junctionMm (param space ≈ mm along unit if length~axis)
   const axisLen = wallLength(a);
   const gapMm = gap * axisLen;
   if (gapMm > junctionMm) return null;

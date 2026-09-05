@@ -261,12 +261,14 @@ Improve wall/opening quality **without paid CV vendors**. Gemini stays for seman
 
 **6C exit:** On hard fixtures, CV model walls beat Gemini-only; still no paid API.
 
-#### 6D — Quality gate before 2D plan port
+#### 6D — Quality gate before 2D plan port (`CURRENT` — done)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
 | G-6.14 | Fixture scorecard: overlay alignment + wall count sanity | Recorded pass/fail on golden set |
 | G-6.15 | Checklist for port into [2D Plan Layer](./2D_PLAN_LAYER_ROADMAP.md) **2D-5.2** | Accept + underlay path listed; WIP branch still untouched until intentional merge |
+
+**6D delivery:** `fixtureScorecard` + offline report (`phase6-scorecard.json`) + lab panel + [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md). Also fixed 6A merge so opposite parallel walls are not collapsed.
 
 **Phase 6 exit:** Hybrid path clearly better than Vision-only on fixtures; ready to discuss 2D-5.2 integration — still behind review + Accept.
 
@@ -321,8 +323,10 @@ PHASE 6B Classical CV wall candidates    [done]
     ↓
 PHASE 6C Open CubiCasa-class model       [done spike — fixtures + adapter]
     ↓
-PHASE 6D Fixture scorecard → 2D-5.2      [NEXT]
+PHASE 6D Fixture scorecard → 2D-5.2      [done]
 ```
+
+**Phase 6 complete (lab):** 6A–6D landed on `feat/gemini-floorplan-lab`. Product port waits on [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
 
 ---
 

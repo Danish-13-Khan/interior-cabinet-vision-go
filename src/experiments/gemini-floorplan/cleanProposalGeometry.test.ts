@@ -56,6 +56,16 @@ describe("mergeCollinearWalls", () => {
     expect(merged[0].a.x).toBeCloseTo(0, 0);
     expect(merged[0].b.x).toBeCloseTo(2500, 0);
   });
+
+  it("does not merge parallel opposite sides of a rectangle", () => {
+    const merged = mergeCollinearWalls([
+      { id: "top", a: { x: 0, y: 0 }, b: { x: 3600, y: 0 } },
+      { id: "bot", a: { x: 3600, y: 3000 }, b: { x: 0, y: 3000 } },
+      { id: "right", a: { x: 3600, y: 0 }, b: { x: 3600, y: 3000 } },
+      { id: "left", a: { x: 0, y: 3000 }, b: { x: 0, y: 0 } },
+    ]);
+    expect(merged).toHaveLength(4);
+  });
 });
 
 describe("closeOutlineLoop", () => {
