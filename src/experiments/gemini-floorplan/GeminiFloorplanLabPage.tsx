@@ -24,7 +24,7 @@ export function GeminiFloorplanLabPage() {
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 6A</p>
+          <p className="gfl-eyebrow">Lab · Phase 6B</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -62,6 +62,8 @@ export function GeminiFloorplanLabPage() {
         <GeometryModeToggle
           mode={lab.geometryMode}
           disabled={!lab.hasSourceProposal}
+          busy={lab.cvBusy}
+          cvNote={lab.cvNote}
           onChange={lab.setGeometryMode}
         />
       </div>

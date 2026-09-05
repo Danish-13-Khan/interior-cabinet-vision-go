@@ -1,7 +1,10 @@
 import { closeRoomLoops, type CloseLoopOptions } from "./closeRoomLoops";
+import type { GeometryViewMode } from "./geometryMode";
 import { mergeCollinearWalls, type MergeWallOptions } from "./mergeCollinearWalls";
 import { snapOrthoProposal, type SnapOrthoOptions } from "./snapOrthoGeometry";
 import type { GeminiFloorProposal } from "./proposalTypes";
+
+export type { GeometryViewMode } from "./geometryMode";
 
 export type CleanProposalOptions = SnapOrthoOptions &
   MergeWallOptions &
@@ -9,8 +12,6 @@ export type CleanProposalOptions = SnapOrthoOptions &
     /** Append a short note when geometry changes. Default true. */
     annotateNotes?: boolean;
   };
-
-export type GeometryViewMode = "raw" | "cleaned";
 
 function wallKey(p: GeminiFloorProposal): string {
   return p.walls
@@ -48,10 +49,12 @@ export function cleanProposalGeometry(
   return next;
 }
 
+/** Sync modes only — `cv` is resolved async via buildClassicalCvHybrid. */
 export function proposalForGeometryMode(
   source: GeminiFloorProposal,
   mode: GeometryViewMode,
   options?: CleanProposalOptions,
 ): GeminiFloorProposal {
-  return mode === "cleaned" ? cleanProposalGeometry(source, options) : source;
+  if (mode === "raw") return source;
+  return cleanProposalGeometry(source, options);
 }

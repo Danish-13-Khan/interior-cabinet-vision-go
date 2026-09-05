@@ -237,7 +237,7 @@ Improve wall/opening quality **without paid CV vendors**. Gemini stays for seman
 
 **6A exit:** Cleaned proposal looks tighter on fixtures than raw Gemini; 3D/Accept still work.
 
-#### 6B — Classical CV wall mask (`NEXT` after 6A)
+#### 6B — Classical CV wall mask (`CURRENT` — done)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
@@ -315,9 +315,9 @@ PHASE 5  Proxy / PDF / hardening         [done]
     ↓
 PHASE 6A Ortho / merge post-process      [done]
     ↓
-PHASE 6B Classical CV wall candidates    [NEXT]  ← start next
+PHASE 6B Classical CV wall candidates    [done]
     ↓
-PHASE 6C Open CubiCasa-class model       [LATER if needed]
+PHASE 6C Open CubiCasa-class model       [NEXT if needed]
     ↓
 PHASE 6D Fixture scorecard → 2D-5.2      [LATER]
 ```

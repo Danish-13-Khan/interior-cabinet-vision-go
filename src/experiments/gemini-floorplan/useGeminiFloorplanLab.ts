@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { proposalForGeometryMode, type GeometryViewMode } from "./cleanProposalGeometry";
+import type { GeometryViewMode } from "./cleanProposalGeometry";
 import { extractFloorPlanFromImage } from "./extractFloorPlan";
 import { guardFloorplanImage } from "./imageGuards";
 import { hasGeminiVisionConfigured } from "./labFlags";
@@ -17,6 +17,7 @@ export function useGeminiFloorplanLab() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [cvBusy, setCvBusy] = useState(false);
   const [rawText, setRawText] = useState<string | null>(null);
   const [extractError, setExtractError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -29,7 +30,8 @@ export function useGeminiFloorplanLab() {
   const geom = useLabGeometryMode("cleaned");
   const visionReady = hasGeminiVisionConfigured();
   const status = buildLabStatus({
-    hasKey: visionReady, fileName, busy, hasProposal: Boolean(geom.proposal), extractError,
+    hasKey: visionReady, fileName, busy: busy || cvBusy,
+    hasProposal: Boolean(geom.proposal), extractError,
   });
 
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
@@ -61,15 +63,23 @@ export function useGeminiFloorplanLab() {
     setSelectedRoomId(next.rooms[0]?.id ?? null);
   }
 
-  function applyProposal(next: GeminiFloorProposal) {
-    const view = proposalForGeometryMode(next, geom.geometryMode);
-    geom.commitSource(next);
-    selectFrom(view);
+  async function applyProposal(next: GeminiFloorProposal) {
+    if (geom.geometryMode === "cv") {
+      geom.commitSource(next, "cleaned");
+      setCvBusy(true);
+      const view = await geom.setGeometryMode("cv", file);
+      setCvBusy(false);
+      if (view) selectFrom(view);
+      return;
+    }
+    selectFrom(geom.commitSource(next));
   }
 
-  function setGeometryMode(mode: GeometryViewMode) {
-    geom.setGeometryMode(mode);
-    if (geom.sourceProposal) selectFrom(proposalForGeometryMode(geom.sourceProposal, mode));
+  async function setGeometryMode(mode: GeometryViewMode) {
+    if (mode === "cv") setCvBusy(true);
+    const view = await geom.setGeometryMode(mode, file);
+    setCvBusy(false);
+    if (view) selectFrom(view);
   }
 
   async function onFile(next: File | null) {
@@ -136,7 +146,7 @@ export function useGeminiFloorplanLab() {
     setMetrics(result.metrics ?? null);
     setRawText(result.rawText ?? null);
     if (result.ok) {
-      applyProposal(result.proposal);
+      await applyProposal(result.proposal);
       setExtractError(null);
       setValidationErrors([]);
     } else {
@@ -159,7 +169,7 @@ export function useGeminiFloorplanLab() {
   }
 
   function onLoadFixture(id: string) {
-    applyProposal(normalizeProposalToMm(id === "l-cm" ? SAMPLE_L_ROOM_CM : SAMPLE_RECT_KITCHEN_MM));
+    void applyProposal(normalizeProposalToMm(id === "l-cm" ? SAMPLE_L_ROOM_CM : SAMPLE_RECT_KITCHEN_MM));
     setRawText(null);
     setExtractError(null);
     setValidationErrors([]);
@@ -168,9 +178,9 @@ export function useGeminiFloorplanLab() {
   }
 
   return {
-    hasKey: visionReady, status, file, fileName, previewUrl, uploadError, busy,
-    proposal: geom.proposal, setProposal: geom.setProposal,
-    geometryMode: geom.geometryMode, setGeometryMode,
+    hasKey: visionReady, status, file, fileName, previewUrl, uploadError, busy: busy || cvBusy,
+    cvBusy, proposal: geom.proposal, setProposal: geom.setProposal,
+    geometryMode: geom.geometryMode, setGeometryMode, cvNote: geom.cvNote,
     hasSourceProposal: Boolean(geom.sourceProposal),
     rawText, extractError, validationErrors, metrics,
     selectedWallId, setSelectedWallId, selectedRoomId, setSelectedRoomId,
