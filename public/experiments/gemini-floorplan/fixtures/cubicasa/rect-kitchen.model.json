@@ -1,0 +1,17 @@
+{
+  "source": "fixture",
+  "imageWidthPx": 640,
+  "imageHeightPx": 480,
+  "notes": [
+    "Offline CubiCasa-class spike fixture (not real CubiCasa weights).",
+    "Matches public/experiments/gemini-floorplan/fixtures/rect-kitchen.png wall strokes."
+  ],
+  "polygons": [
+    { "class": "wall", "pointsPx": [{ "x": 80, "y": 80 }, { "x": 560, "y": 80 }] },
+    { "class": "wall", "pointsPx": [{ "x": 560, "y": 80 }, { "x": 560, "y": 400 }] },
+    { "class": "wall", "pointsPx": [{ "x": 560, "y": 400 }, { "x": 80, "y": 400 }] },
+    { "class": "wall", "pointsPx": [{ "x": 80, "y": 400 }, { "x": 80, "y": 80 }] },
+    { "class": "door", "pointsPx": [{ "x": 200, "y": 80 }, { "x": 280, "y": 80 }] },
+    { "class": "window", "pointsPx": [{ "x": 560, "y": 160 }, { "x": 560, "y": 260 }] }
+  ]
+}

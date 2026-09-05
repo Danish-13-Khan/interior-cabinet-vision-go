@@ -7,8 +7,9 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 6B — Classical CV wall candidates** (done).  
-Modes: **Raw Vision** · **6A cleaned** · **6B classical CV** (needs plan image). Next: **6C** only if fixtures still weak.
+**Phase 6C — CubiCasa-class model spike** (done).  
+Modes: Raw · 6A · 6B classical CV · **6C model** (offline `*.model.json`).  
+License: [`CUBICASA_LICENSE.md`](./CUBICASA_LICENSE.md) (CC BY-NC — research only). Next: **6D** scorecard.
 
 ## Run
 
@@ -27,7 +28,7 @@ Modes: **Raw Vision** · **6A cleaned** · **6B classical CV** (needs plan image
 - **Offline:** Load offline kitchen / L-room  
 - **Image Vision:** Use sample image or upload PNG/JPEG/WebP → Run Gemini Vision  
 - **PDF:** Upload PDF → pick page → raster PNG → Run Gemini Vision  
-- **Geometry modes:** Raw Vision · 6A cleaned (ortho/merge) · 6B classical CV (image → axis walls)  
+- **Geometry modes:** Raw · 6A cleaned · 6B classical CV · **6C model** (CubiCasa-class JSON)  
 - **Accept:** Review → checkbox → Accept → download `.interior.json`
 
 ### Phase 6B merge rules
@@ -36,6 +37,13 @@ Modes: **Raw Vision** · **6A cleaned** · **6B classical CV** (needs plan image
 2. Vision keeps **rooms, openings, scale, height, notes**.  
 3. Result always runs through **6A cleanup**.  
 4. Fail soft (no image, bad ink density, too few/many segments) → 6A cleaned Vision walls + note.
+
+### Phase 6C model path
+
+1. Lab fetches `/experiments/gemini-floorplan/fixtures/cubicasa/<image-stem>.model.json`.  
+2. Adapter maps polygons → walls (Vision keeps room names).  
+3. Missing model JSON → fail soft to 6B then 6A.  
+4. Real CubiCasa weights: see [`scripts/gemini-floorplan/cubicasa_spike/README.md`](../../scripts/gemini-floorplan/cubicasa_spike/README.md) — **not bundled** (NC license).
 
 ## Privacy
 

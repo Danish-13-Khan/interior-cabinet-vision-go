@@ -248,7 +248,7 @@ Improve wall/opening quality **without paid CV vendors**. Gemini stays for seman
 
 **6B exit:** At least one golden scan produces usable walls **without** trusting Vision endpoints alone.
 
-#### 6C — Open pretrained model (`LATER` in Phase 6 if 6B insufficient)
+#### 6C — Open pretrained model (`CURRENT` — done spike)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
@@ -256,6 +256,8 @@ Improve wall/opening quality **without paid CV vendors**. Gemini stays for seman
 | G-6.11 | Adapter: model output → `GeminiFloorProposal` (same schema) | Drop-in for review / 3D / accept |
 | G-6.12 | License check (research / non-commercial vs product) | Written note in lab README before any product promise |
 | G-6.13 | Optional: Gemini only for room labels after CV geometry | Hybrid path documented |
+
+**6C delivery:** Offline `*.model.json` fixtures + adapter + license doc + spike README. Real CubiCasa weights stay **local/research** (CC BY-NC) — not bundled. Fail soft → 6B → 6A.
 
 **6C exit:** On hard fixtures, CV model walls beat Gemini-only; still no paid API.
 
@@ -317,9 +319,9 @@ PHASE 6A Ortho / merge post-process      [done]
     ↓
 PHASE 6B Classical CV wall candidates    [done]
     ↓
-PHASE 6C Open CubiCasa-class model       [NEXT if needed]
+PHASE 6C Open CubiCasa-class model       [done spike — fixtures + adapter]
     ↓
-PHASE 6D Fixture scorecard → 2D-5.2      [LATER]
+PHASE 6D Fixture scorecard → 2D-5.2      [NEXT]
 ```
 
 ---

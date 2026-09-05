@@ -1,5 +1,5 @@
 /** Shared Phase 6 geometry view modes. */
-export type GeometryViewMode = "raw" | "cleaned" | "cv";
+export type GeometryViewMode = "raw" | "cleaned" | "cv" | "model";
 
 export type GrayBuffer = {
   width: number;
