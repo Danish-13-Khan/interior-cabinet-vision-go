@@ -172,13 +172,13 @@ A user who has used a floor-planning app before can operate the plan without tra
 ## 7. Phase 2 — Measured room workflow
 
 **Estimate:** 2–4 weeks  
-**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`) — underlay lock/hide/calibrated flags; calibrate-underlay tool + known-distance PromptDialog; site measure checklist; clearer door swings / window rails + width/offset labels; base/wall/tall/appliance/filler plan footprints. PDF import remains Phase 5.1.
+**Status:** `Implemented` (2026-09-05 on `feat/2d-plan-layer`) — underlay lock/hide/calibrated flags; calibrate-underlay tool + known-distance PromptDialog; site measure checklist; clearer door swings / window rails + width/offset labels; base/wall/tall/appliance/filler plan footprints. PDF import: see Phase 5.1 (implemented).
 
 Connect the app to actual site measurements.
 
 ### 7.1 Underlay import
 
-JPG / PNG / WebP (shipped). PDF import is deferred to Phase 5.1.
+JPG / PNG / WebP (shipped). PDF multi-page pick + crop shipped in Phase 5.1.
 
 ```text
 Import → Position → Rotate → Calibrate → Adjust Opacity → Lock → Trace
@@ -268,9 +268,11 @@ One click → plan a salesperson is comfortable attaching to a proposal.
 
 | ID | Item | Risk |
 | --- | --- | --- |
-| 5.1 | Better PDF import (multi-page, crop, calibrate) | Low |
+| 5.1 | Better PDF import (multi-page, crop, calibrate) — **Implemented** (2026-09-05 on `feat/2d-plan-layer`): page pick + optional crop → PNG underlay → existing calibrate flow. Images unchanged. | Low |
 | 5.2 | AI floor-plan detection → review → correct → accept into normal geometry | High; no separate AI model of truth |
 | 5.3 | DWG/DXF when customers demand it | Expensive; don’t delay salesperson workflow |
+
+> **5.1 note:** PDF page pick / crop / calibrate underlay is implemented; 5.2 AI and 5.3 DWG remain out of current scope.
 
 ---
 

@@ -11,8 +11,8 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
       <div className="lr-underlay-empty" data-testid="lr-underlay-empty">
         <span>⌁</span>
         <strong>Import a floor plan</strong>
-        <p>Use PNG, JPG, or WebP as a tracing underlay. Calibrate with a known distance after import.</p>
-        <button type="button" data-testid="lr-underlay-choose" onClick={onReplace}>Choose plan image</button>
+        <p>Use PNG, JPG, WebP, or PDF as a tracing underlay. Calibrate with a known distance after import.</p>
+        <button type="button" data-testid="lr-underlay-choose" onClick={onReplace}>Choose plan file</button>
       </div>
     );
   }
@@ -150,7 +150,7 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
       >
         Reset transform
       </button>
-      <button type="button" className="is-secondary" disabled={locked} onClick={onReplace}>Replace image</button>
+      <button type="button" className="is-secondary" disabled={locked} onClick={onReplace}>Replace file</button>
       <button type="button" className="is-danger" disabled={locked} onClick={() => onChange(null)}>Remove underlay</button>
       {locked ? <p className="lr-underlay-lock-hint" data-testid="lr-underlay-lock-hint">Underlay is locked — unlock to edit, calibrate, replace, or remove.</p> : null}
     </div>
