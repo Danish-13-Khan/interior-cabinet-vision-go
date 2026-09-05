@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
 
 async function clickWall(page: Page, wall: Locator) {
   const box = await wall.boundingBox();
@@ -8,8 +8,7 @@ async function clickWall(page: Page, wall: Locator) {
 }
 
 test("Phase C plan readability shows measured dims, units, wall labels, and style toggles", async ({ page }) => {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page);
   await expect(page.getByTestId("lr-plan-canvas")).toBeVisible();
 
   const readability = page.locator(".lr-plan-titlebar .lr-readability-toolbar");

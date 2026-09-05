@@ -8,6 +8,7 @@ export function PlanStageToolbar(props: {
   onRotate: (delta: number) => void; onAlign: (mode: LivingRoomAlignMode) => void;
   onCreateRun: () => void; onShowGrid: (value: boolean) => void; onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
+  onFitPlan?: () => void; onFitSelection?: () => void;
 }) {
   return <header className="lr-plan-toolbar">
     <div className="lr-toolbar-group"><span>Edit</span>
@@ -26,6 +27,10 @@ export function PlanStageToolbar(props: {
       <button type="button" title="Align middles" onClick={() => props.onAlign("center-z")} disabled={props.selectedCount < 2}>M</button>
       <button type="button" title="Distribute" onClick={() => props.onAlign("distribute-x")} disabled={props.selectedCount < 3}>↔</button>
       <button type="button" title="Create cabinet run on selected wall" onClick={props.onCreateRun} disabled={props.selectedCount < 2}>Run</button>
+    </div>
+    <div className="lr-toolbar-group lr-toolbar-view"><span>View</span>
+      <button type="button" data-testid="fit-plan" title="Fit plan (Shift+1)" onClick={() => props.onFitPlan?.()}>Fit</button>
+      <button type="button" data-testid="fit-selection" title="Fit selection (Shift+2)" onClick={() => props.onFitSelection?.()} disabled={!props.hasSelection}>Fit sel</button>
     </div>
     <div className="lr-toolbar-group lr-toolbar-view"><span>Drawing</span>
       <label><input type="checkbox" checked={props.showGrid} onChange={(event) => props.onShowGrid(event.target.checked)} /> Grid</label>

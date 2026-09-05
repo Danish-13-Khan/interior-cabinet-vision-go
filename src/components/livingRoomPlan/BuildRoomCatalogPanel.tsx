@@ -10,7 +10,9 @@ import type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
 import { BuildRoomManager } from "./BuildRoomManager";
 import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
+import { SiteMeasureChecklist } from "./SiteMeasureChecklist";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
+import type { SiteMeasureUserKey } from "../../domain/livingRoom";
 import { RoomDrawingPanel } from "./RoomDrawingPanel";
 import { StructuralBuildPanel } from "./StructuralBuildPanel";
 import { SurfaceDrawingPanel } from "./SurfaceDrawingPanel";
@@ -52,6 +54,8 @@ type BuildRoomCatalogPanelProps = {
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
   underlayInputRef: RefObject<HTMLInputElement | null>;
+  onCalibrateUnderlay?: () => void;
+  onToggleSiteMeasure?: (key: SiteMeasureUserKey, value: boolean) => void;
 };
 
 export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
@@ -192,7 +196,15 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
         <strong>4. Plan underlay</strong>
         <small>{tool === "upload-underlay" ? "Upload tool armed — choose or replace a plan image." : "Optional: align a supplied floor plan before drawing."}</small>
       </section>
-      <PlanUnderlayControls underlay={props.underlay} onChange={props.onSetPlanUnderlay} onReplace={() => props.underlayInputRef.current?.click()} />
+      <PlanUnderlayControls
+        underlay={props.underlay}
+        onChange={props.onSetPlanUnderlay}
+        onReplace={() => props.underlayInputRef.current?.click()}
+        onCalibrate={props.onCalibrateUnderlay}
+      />
+      {props.onToggleSiteMeasure ? (
+        <SiteMeasureChecklist project={project} onToggle={props.onToggleSiteMeasure} />
+      ) : null}
       {props.importError ? <p className="lr-import-error">{props.importError}</p> : null}
     </div>
   );

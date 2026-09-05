@@ -857,3 +857,36 @@
   .lr-product-shell .lr-render-settings { grid-column: 1; grid-row: 2; }
   .lr-product-shell .lr-render-cameras { grid-column: 1; grid-row: 3; }
 }
+
+/* Phase 4 — floor-plan print/export layer visibility (clone uses is-print-export) */
+.lr-plan-svg.is-print-export .lr-snap-guide-group,
+.lr-plan-svg.is-print-export .lr-free-wall-segments,
+.lr-plan-svg.is-print-export .lr-plan-marquee,
+.lr-plan-svg.is-print-export .lr-resize-handle,
+.lr-plan-svg.is-print-export .lr-opening-width-handle,
+.lr-plan-svg.is-print-export .lr-object-warning,
+.lr-plan-svg.is-print-export .lr-measure-overlay,
+.lr-plan-svg.is-print-export foreignObject,
+.lr-plan-svg.is-print-export .is-selected .lr-resize-handle {
+  display: none !important;
+}
+.lr-plan-svg.is-print-export[data-print-furniture="false"] .lr-plan-object[data-print-role="furniture"] { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-cabinets="false"] .lr-plan-object[data-print-role="cabinet"] { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-openings="false"] .lr-plan-openings-layer { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-dims="false"] .lr-plan-dimension-pairs,
+.lr-plan-svg.is-print-export[data-print-dims="false"] .lr-wall-length-labels { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-reference-dims="false"] .lr-reference-dimensions { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-marks="false"] .lr-plan-mark { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-labels="false"] .lr-object-label { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-grid="false"] .lr-plan-grid { display: none !important; }
+.lr-plan-svg.is-print-export[data-print-underlay="false"] .lr-plan-underlay-image { display: none !important; }
+.lr-plan-svg.is-print-export .lr-plan-object.is-selected > rect:first-of-type {
+  stroke: inherit;
+  stroke-width: inherit;
+}
+
+.lr-print-export-toolbar label { display: inline-flex; align-items: center; gap: 3px; font-size: 0.52rem; color: #5f6a65; }
+.lr-print-export-toolbar .lr-print-logo-picker { cursor: pointer; }
+.lr-print-export-toolbar .lr-print-logo-picker input[type="file"] { display: none; }
+.lr-print-logo-thumb { width: 22px; height: 16px; object-fit: contain; border: 1px solid #d0d5d1; border-radius: 2px; background: #fff; }
+.lr-print-export-status { font-size: 0.55rem; color: #3f6f4a; padding: 0 6px; align-self: center; }

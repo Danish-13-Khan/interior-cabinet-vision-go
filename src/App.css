@@ -1,6 +1,7 @@
 @import "./styles/tokens-shell.css";
 @import "./styles/focus-visible.css";
 @import "./styles/command-overlays.css";
+@import "./styles/confirm-dialog.css";
 @import "./styles/command-ribbon.css";
 @import "./styles/tool-rail.css";
 @import "./styles/scene-tree-nav.css";

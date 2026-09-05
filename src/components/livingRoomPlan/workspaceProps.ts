@@ -61,7 +61,11 @@ export type LivingRoomPlanWorkspaceProps = {
   onRestoreRecovery: () => void;
   onDiscardRecovery: () => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectMany?: (objectIds: string[]) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onMovePreview?: (objectId: string, position: Point3Mm) => import("./usePlanObjectInteraction").SnappedMovePose | null | void;
+  onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
+  onClearPreDropReason?: () => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
@@ -84,6 +88,9 @@ export type LivingRoomPlanWorkspaceProps = {
     extendToWall?: boolean;
     fillersEnabled?: boolean;
   }) => void;
+  onCompleteCabinetRun?: (runId: string) => void;
+  onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number; heightMm?: number }) => void;
+  preDropReason?: string | null;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onActiveRoom: (roomId: string) => void;

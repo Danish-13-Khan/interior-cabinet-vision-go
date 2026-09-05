@@ -16,6 +16,7 @@ type Props = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onCompleteCabinetRun?: (runId: string) => void;
   onUpdateCabinetRun: (runId: string, options: {
     gapMm?: number;
     alignment?: "start" | "center" | "end";
@@ -59,7 +60,7 @@ export function InspectorObjectSection(props: Props) {
       <LivingRoomObjectInspector
         object={object} project={props.project} materials={props.project.materials}
         onResize={props.onResize} onSetMaterial={props.onSetMaterial}
-        onSetParameters={props.onSetParameters} onUpdateRun={props.onUpdateCabinetRun}
+        onSetParameters={props.onSetParameters} onUpdateRun={props.onUpdateCabinetRun} onCompleteRun={props.onCompleteCabinetRun}
       />
     </>
   );

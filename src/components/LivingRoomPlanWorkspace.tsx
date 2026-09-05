@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { interiorsJobStatusLabel } from "../domain/desktopUx";
 import { nextSelectableObjectId } from "../domain/livingRoom/objectSelection";
@@ -32,6 +32,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
+  const viewControlsRef = useRef<{ fitPlan: () => void; fitSelection: () => void } | null>(null);
+  const registerViewControls = useCallback((controls: { fitPlan: () => void; fitSelection: () => void } | null) => {
+    viewControlsRef.current = controls;
+  }, []);
   const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
   const [acceptedStillAssets, setAcceptedStillAssets] = useState<AcceptedStillAsset[]>([]);
   const millwork = useMillworkSchedule(props.project);
@@ -74,6 +78,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const assetCategories = useMemo(() => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))], []);
 
   useEffect(() => {
+    props.onClearPreDropReason?.();
+    // Clear stale pre-drop copy when leaving the gesture context (tool / chrome changes).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional on tool identity only
+  }, [build.buildCommandState.activeTool, chrome.chromeTool, chrome.plannerMode]);
+
+  useEffect(() => {
     if (!props.project) return;
     setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
@@ -89,6 +99,10 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onDuplicate: props.onDuplicate, onDelete: props.onDelete,
     onRotateSelection: props.onRotateSelection, onNudge: props.onNudge,
     onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null); },
+    onCancelTool: () => build.selectBuildTool("select"),
+    onMeasureTool: () => build.selectBuildTool("measure"),
+    onFitPlan: () => viewControlsRef.current?.fitPlan(),
+    onFitSelection: () => viewControlsRef.current?.fitSelection(),
     onCycleSelection: (delta) => {
       if (!props.project) return;
       const next = nextSelectableObjectId(props.project.objects, props.selectedIds[0] ?? null, delta, props.project.activeRoomId);
@@ -153,6 +167,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         issues={props.issues} readability={readability.settings} onReadability={readability.update}
         inspectRoom={inspectRoom} setInspectRoom={setInspectRoom}
         onWorkspaceView={chrome.changeWorkspaceView}
+        onRegisterViewControls={registerViewControls}
+        onFitPlan={() => viewControlsRef.current?.fitPlan()}
+        onFitSelection={() => viewControlsRef.current?.fitSelection()}
       />
     </section>
   );

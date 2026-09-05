@@ -138,6 +138,7 @@ export { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 export { splitRoomByWall } from "./roomSplit";
 export { renameInteriorRoom, setActiveInteriorRoom } from "./roomActivation";
 export { deleteInteriorRoom, mergeInteriorRooms } from "./roomOperations";
+export { explainInteriorRoomMergeBlock, type InteriorRoomMergeBlock } from "./roomMergeExplain";
 export { resizeRoomPlanGeometry } from "./roomResize";
 export {
   createSurfaceZone,

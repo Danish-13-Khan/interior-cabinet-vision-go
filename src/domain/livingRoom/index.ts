@@ -371,16 +371,96 @@ export {
   type PlanSnapGuide,
   type PlanSnapResult,
 } from "./planSnapping";
+
+export {
+  PLAN_MARQUEE_CLICK_SCREEN_PX,
+  PLAN_POINTER_SNAP_SCREEN_PX,
+  PLAN_VIEW_DEFAULT_MARGIN_MM,
+  PLAN_VIEW_ZOOM_STEP,
+  PLAN_WALL_MOVE_SCREEN_PX,
+  boundsFromPoints,
+  clientToPlanPoint,
+  clientToPlanPointFromSvg,
+  expandBounds,
+  fitPlanViewToBounds,
+  panPlanView,
+  panPlanViewByScreen,
+  planPointerSnapThresholdMm,
+  planViewBoxString,
+  planViewWorldPerPx,
+  rectsIntersect,
+  screenPxToWorldMm,
+  zoomPlanViewToward,
+  type PlanViewBounds,
+  type PlanViewBox,
+} from "./planViewTransform";
+export {
+  appendMeasurePoint,
+  collectMeasureSnapPoints,
+  formatMeasureLengthMm,
+  measureLengthMm,
+  measureSegmentsFromPoints,
+  snapMeasurePoint,
+  type MeasureSegment,
+  type MeasureSnapKind,
+  type MeasureSnapPoint,
+} from "./planMeasure";
+export {
+  DEFAULT_WALL_LENGTH_ANCHOR,
+  describeTypedWallLengthChange,
+  setTypedWallLength,
+  wallLengthAnchorLabel,
+  type WallLengthAnchor,
+} from "./typedWallLength";
+export {
+  collectReferenceDimensions,
+  type PlanDimensionRole,
+  type ReferenceDimension,
+} from "./referenceDimensions";
+export {
+  pickNearestSnapGuide,
+  type PlanSnapGuideKind,
+} from "./planSnapping";
 export {
   inspectLivingRoomPlan,
   isBlockingLivingRoomPlanIssue,
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {
+  resolvePlanObjectLabelModes,
+  type PlanObjectLabelMode,
+  type PlanObjectLabelInput,
+} from "./planObjectLabels";
+export {
+  isKitchenAppliancePlanObject,
+  planObjectFootprintClass,
+  planObjectFootprintKind,
+  type PlanFootprintKind,
+} from "./planObjectFootprint";
+export {
   getLivingRoomPlanUnderlay,
   setLivingRoomPlanUnderlay,
   type LivingRoomPlanUnderlay,
 } from "./planUnderlay";
+export {
+  calibrateUnderlayScale,
+  parseKnownLengthMm,
+} from "./planUnderlayCalibrate";
+export {
+  dataUrlToUnderlay,
+  imageFileToUnderlay,
+  isPdfFile,
+} from "./planUnderlayImport";
+export {
+  getSiteMeasureChecklist,
+  listSiteMeasureChecklistItems,
+  setSiteMeasureChecklist,
+  toggleSiteMeasureChecklistItem,
+  SITE_MEASURE_USER_KEYS,
+  type SiteMeasureChecklist,
+  type SiteMeasureChecklistItem,
+  type SiteMeasureUserKey,
+} from "./siteMeasureChecklist";
 export {
   addLivingRoomObject,
   alignLivingRoomObjects,
@@ -429,6 +509,78 @@ export {
   type RoomWallCorner,
   type WallPlacement,
 } from "./wardrobePlacement";
+export {
+  previewCabinetRunPlacement,
+  formatRemainingWallLabel,
+  collectWallOccupancySpans,
+  freeSegmentsAlongWall,
+  freeLengthInInterval,
+  freeSegmentsInInterval,
+  openingSpanOnOrientedWall,
+  isOrientedWallReversed,
+  type AlongWallSpan,
+  type FreeWallSegment,
+  type CabinetRunPlacementPreview,
+} from "./cabinetRunPlacementPreview";
+export {
+  validateCabinetRunPreDrop,
+  preDropReasonLabel,
+  type CabinetRunPreDropCode,
+  type CabinetRunPreDropResult,
+  type CabinetRunPreDropProposal,
+} from "./cabinetRunPreDrop";
+export {
+  proposeCabinetRunComplete,
+  completeCabinetRun,
+  type SuggestedFiller,
+  type CabinetRunCompleteProposal,
+  type CabinetRunCompleteResult,
+} from "./cabinetRunComplete";
+export {
+  formatPlanMark,
+  readPlanMarksSettings,
+  setPlanMarksSettings,
+  formatCabinetInlineDims,
+  DEFAULT_PLAN_MARKS,
+  type PlanMarksAudience,
+  type PlanMarksSettings,
+} from "./planMarks";
+export {
+  applyPlanPrintPreset,
+  applyPlanPrintPresetToProject,
+  readPlanPrintSettings,
+  setPlanPrintSettings,
+  DEFAULT_PLAN_PRINT_SETTINGS,
+  SALES_PLAN_PRINT_LAYERS,
+  TECHNICAL_PLAN_PRINT_LAYERS,
+  type PlanPrintAudience,
+  type PlanPrintLayers,
+  type PlanPrintSettings,
+} from "./planPrintSettings";
+export {
+  chooseScaleBarLengthMm,
+  formatScaleBarLabel,
+  renderPlanScaleBarSvg,
+  composePlanSheetSvg,
+  applyPrintLayersToPlanSvg,
+  embedPlanSvgAsSheetDrawing,
+  planSheetScaleMetrics,
+  defaultPlanSheetPdfDrawWidthMm,
+  exportPlanSheetPdf,
+  exportPlanSheetPng,
+  exportPlanSheetPngBlob,
+  exportPlanViewBoxForProject,
+  captureLivePlanSvg,
+  planSheetFileBase,
+  resolvePlanSheetMeta,
+} from "./planSheetExport";
+export {
+  PLAN_EXPORT_STYLESHEET,
+  injectExportStyles,
+} from "./planExportStyles";
+export {
+  setCabinetInlineDimensions,
+} from "./cabinetRunInlineDims";
 export {
   placeStructuralColumn,
   STRUCTURAL_COLUMN_CATALOG_ID,

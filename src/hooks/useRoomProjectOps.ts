@@ -133,22 +133,11 @@ export function useRoomProjectOps({
     );
   }
 
-  function handleRenameProjectRoom(roomId: string) {
-    const current = listProjectRooms(project).find((entry) => entry.id === roomId);
-    const name = window.prompt("Room name", current?.name ?? "Room");
-    if (!name?.trim()) return;
-    commitRoomProject(
-      renameProjectRoom(project, roomId, name.trim(), project.cabinets, room),
-      `Renamed room to “${name.trim()}”.`,
-    );
-  }
-
   function handleRemoveProjectRoom(roomId: string) {
     if (listProjectRooms(project).length <= 1) {
       onStatus("Keep at least one room in the project.");
       return;
     }
-    if (!window.confirm("Delete this room and its cabinets?")) return;
     commitRoomProject(
       removeProjectRoom(project, roomId, project.cabinets, room),
       "Removed room.",
@@ -193,7 +182,6 @@ export function useRoomProjectOps({
     handleSelectCabinetsInRoom,
     handleAddProjectRoom,
     handleDuplicateProjectRoom,
-    handleRenameProjectRoom,
     handleRenameProjectRoomTo,
     handleRemoveProjectRoom,
     handleAddRoomFromTemplate,

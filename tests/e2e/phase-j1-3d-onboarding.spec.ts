@@ -1,9 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
 
 async function open3dGuide(page: import("@playwright/test").Page) {
-  await openInteriorsHome(page);
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page);
   await page.getByRole("button", { name: "3D", exact: true }).click();
 }
 

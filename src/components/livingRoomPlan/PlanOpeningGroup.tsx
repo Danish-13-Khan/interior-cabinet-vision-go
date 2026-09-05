@@ -19,15 +19,24 @@ export function PlanOpeningGroup({ opening, wall, preview, active, onSelect, onS
   const end = { x: start.x + ux * displayed.widthMm, z: start.z + uz * displayed.widthMm };
   const catalog = getOpeningCatalogItem(displayed.catalogItemId);
   const midpoint = { x: (start.x + end.x) / 2, z: (start.z + end.z) / 2 };
+  const labelPoint = { x: midpoint.x + nx * 95, z: midpoint.z + nz * 95 };
+  const offsetLabelPoint = { x: midpoint.x - nx * 110, z: midpoint.z - nz * 110 };
   const resizeHandle = (mode: "resize-start" | "resize-end", point: typeof start) => <circle
     className={`lr-opening-width-handle lr-opening-width-handle-${mode === "resize-start" ? "start" : "end"}`}
     cx={point.x} cy={point.z} r="70" onPointerDown={(event) => { event.stopPropagation(); onSelect(opening.id); onStartDrag(event, opening.id, mode); }} />;
   return <g data-opening-id={opening.id} data-offset-mm={displayed.offsetMm} data-width-mm={displayed.widthMm}
     data-catalog-item={catalog.catalogItemId} className={`lr-opening lr-opening-${opening.kind} ${active ? "is-active" : ""}`}
     onPointerDown={(event) => onStartDrag(event, opening.id, "move")}>
-    <line x1={start.x} y1={start.z} x2={end.x} y2={end.z} />
+    <line className="lr-opening-clear" x1={start.x} y1={start.z} x2={end.x} y2={end.z} />
     <OpeningSymbolDetail symbol={catalog.symbol} start={start} end={end} nx={nx} nz={nz} widthMm={displayed.widthMm} />
-    <text x={midpoint.x} y={midpoint.z - 85}>{catalog.name.toUpperCase()} {formatPlanDimension(displayed.widthMm, unit)}</text>
+    <text className="lr-opening-width-label" x={labelPoint.x} y={labelPoint.z}>
+      {catalog.name.toUpperCase()} {formatPlanDimension(displayed.widthMm, unit)}
+    </text>
+    {active ? (
+      <text className="lr-opening-offset-label" data-testid={`lr-opening-offset-${opening.id}`} x={offsetLabelPoint.x} y={offsetLabelPoint.z}>
+        Offset {formatPlanDimension(displayed.offsetMm, unit)}
+      </text>
+    ) : null}
     {active ? <>{resizeHandle("resize-start", start)}{resizeHandle("resize-end", end)}</> : null}
   </g>;
 }

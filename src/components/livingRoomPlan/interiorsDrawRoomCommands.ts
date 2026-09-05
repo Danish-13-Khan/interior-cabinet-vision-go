@@ -1,6 +1,6 @@
 import type { InteriorProject } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
-import type { BuildTool } from "../../domain/livingRoom";
+import type { BuildTool, SiteMeasureUserKey } from "../../domain/livingRoom";
 import type { InteriorsChromeTool } from "../../domain/desktopUx";
 
 export type InteriorsDrawRoomCommands = {
@@ -9,6 +9,7 @@ export type InteriorsDrawRoomCommands = {
   importError: string;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onReplaceUnderlay: () => void;
+  onToggleSiteMeasure?: (key: SiteMeasureUserKey, value: boolean) => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;

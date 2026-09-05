@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { isAppModalOpen } from "./appModalGate";
 import {
   eventMatchesBinding,
   type ShortcutActionId,
@@ -95,6 +96,8 @@ export function useEditorShortcuts(
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      if (isAppModalOpen()) return;
+
       const target = event.target as HTMLElement | null;
       const isTypingTarget =
         target instanceof HTMLInputElement ||
