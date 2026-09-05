@@ -117,7 +117,7 @@ type GeminiFloorProposal = {
 
 ## 5. Delivery sequence
 
-### Phase 0 — Lab scaffold (`NEXT`)
+### Phase 0 — Lab scaffold (`CURRENT` — implemented)
 
 Stand up an isolated surface with zero product risk.
 
