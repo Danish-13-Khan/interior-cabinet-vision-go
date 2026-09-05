@@ -1,0 +1,11 @@
+{
+  "roomCount": 1,
+  "wallCount": 4,
+  "roomName": "Kitchen",
+  "wallHeightMm": 2700,
+  "shellBoxKinds": {
+    "floor": 1,
+    "wall": 4,
+    "opening": 2
+  }
+}

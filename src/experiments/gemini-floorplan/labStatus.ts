@@ -37,8 +37,8 @@ export function buildLabStatus(input: {
   if (!input.hasKey) {
     return {
       phase: "blocked",
-      headline: "API key optional for now",
-      detail: "Load offline fixtures anytime. Add VITE_GEMINI_API_KEY later to run Vision.",
+      headline: "Vision needs a server key",
+      detail: "Add GEMINI_API_KEY (or VITE_GEMINI_API_KEY) to .env and restart Vite. Offline fixtures still work.",
     };
   }
   if (input.fileName) {

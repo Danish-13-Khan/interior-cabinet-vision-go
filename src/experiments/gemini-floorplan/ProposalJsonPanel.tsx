@@ -58,10 +58,10 @@ export function ProposalJsonPanel({
       </div>
       <p className="gfl-json__hint">
         {!hasKey
-          ? "Key not loaded in Vite yet — restart npm run dev after editing .env."
+          ? "Vision not ready — add GEMINI_API_KEY to .env and restart Vite (local proxy)."
           : !hasImage
-            ? "Key OK. Upload an image or click “Use sample image”, then Run Gemini Vision."
-            : "Image ready — click Run Gemini Vision."}
+            ? "Ready. Upload an image/PDF page or click “Use sample image”, then Run Gemini Vision."
+            : "Image ready — EXIF will be stripped, then Vision runs via the local proxy."}
       </p>
       {metrics ? <p className="gfl-json__metrics">{formatMetrics(metrics)}</p> : null}
       {error ? <p className="gfl-json__error">{error}</p> : null}

@@ -1,50 +1,36 @@
 # Gemini Floor-Plan Vision Lab
 
-Isolated lab for **upload → Gemini Vision → reviewable JSON → (later) 3D**  
+Isolated lab for **upload → Gemini Vision → review → 3D → accept**  
 (see [`docs/GEMINI_FLOORPLAN_VISION_ROADMAP.md`](../../docs/GEMINI_FLOORPLAN_VISION_ROADMAP.md)).
 
 Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 4 — Accept bridge** (reviewed proposal → InteriorProject draft, explicit confirm).
-
-Earlier phases remain: Vision extract, review overlay, 3D shell.
+**Phase 5 — Hardening** (proxy, PDF pages, golden fixtures, privacy/EXIF).
 
 ## Run
 
-1. Copy env template:
-
-   ```bash
+1. ```bash
    cp .env.example .env
    ```
-
-2. Optional for now: set `VITE_GEMINI_API_KEY` when you want live Vision.  
-   Optional: `VITE_GEMINI_MODEL` (default `gemini-3.6-flash`).  
-   Optional: `VITE_ENABLE_GEMINI_LAB=true` for production builds.
-
+2. Set **`GEMINI_API_KEY=`** in `.env` (preferred — stays on the Vite proxy).  
+   Optional: `VITE_GEMINI_MODEL`, `VITE_GEMINI_USE_PROXY`, `VITE_ENABLE_GEMINI_LAB`.
 3. ```bash
    npm run dev
    ```
-
 4. Open [http://localhost:1420/lab/gemini-floorplan](http://localhost:1420/lab/gemini-floorplan)
 
-## Without an API key
+## Flows
 
-Use **Load offline kitchen / L-room** → review overlay + editors + calibration.  
-Sample PNGs live under `/experiments/gemini-floorplan/fixtures/`.
+- **Offline:** Load offline kitchen / L-room  
+- **Image Vision:** Use sample image or upload PNG/JPEG/WebP → Run Gemini Vision  
+- **PDF:** Upload PDF → pick page → raster PNG → Run Gemini Vision  
+- **Accept:** Review → checkbox → Accept → download `.interior.json`
 
-## Accept (Phase 4)
+## Privacy
 
-1. Review overlay + confidence  
-2. Check **I reviewed scale, walls, and confidence**  
-3. **Accept → interior draft** downloads `.interior.json` and stashes sessionStorage  
-4. Open that file in the designer when ready (see `MERGE_NOTES.md`)
-
-## Code
-
-`src/experiments/gemini-floorplan/` · regenerate PNGs with  
-`node scripts/gemini-floorplan/generate-fixtures.mjs`
+See [`PRIVACY.md`](./PRIVACY.md). Images are EXIF-stripped; Vision uses `/api/lab/gemini-vision` in DEV.
 
 ## Branch
 

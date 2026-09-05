@@ -1,3 +1,8 @@
 export { GeminiFloorplanLabPage } from "./GeminiFloorplanLabPage";
-export { isGeminiFloorplanLabEnabled, hasGeminiApiKeyConfigured } from "./labFlags";
+export {
+  isGeminiFloorplanLabEnabled,
+  hasGeminiApiKeyConfigured,
+  hasGeminiVisionConfigured,
+  shouldUseGeminiProxy,
+} from "./labFlags";
 export type { GeminiFloorProposal, VisionExtractResult } from "./proposalTypes";

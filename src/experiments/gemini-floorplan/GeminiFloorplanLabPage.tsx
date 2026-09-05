@@ -7,6 +7,7 @@ import { AcceptBridgePanel } from "./AcceptBridgePanel";
 import { ConfidenceNotesPanel } from "./ConfidenceNotesPanel";
 import { LabStatusBar } from "./LabStatusBar";
 import { PlanReviewOverlay } from "./PlanReviewOverlay";
+import { PrivacyNotesPanel } from "./PrivacyNotesPanel";
 import { ProposalJsonPanel } from "./ProposalJsonPanel";
 import { ReviewEditorPanel } from "./ReviewEditorPanel";
 import { RoomShellViewer } from "./RoomShellViewer";
@@ -22,7 +23,7 @@ export function GeminiFloorplanLabPage() {
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 4</p>
+          <p className="gfl-eyebrow">Lab · Phase 5</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -35,7 +36,11 @@ export function GeminiFloorplanLabPage() {
           fileName={lab.fileName}
           previewUrl={lab.previewUrl}
           uploadError={lab.uploadError}
+          busy={lab.busy}
+          pdfInfo={lab.pdfInfo}
+          pdfPage={lab.pdfPage}
           onFile={lab.onFile}
+          onSelectPdfPage={lab.onSelectPdfPage}
         />
         <ProposalJsonPanel
           proposal={lab.proposal}
@@ -84,6 +89,7 @@ export function GeminiFloorplanLabPage() {
       </div>
       <div className="gfl-grid gfl-grid--accept">
         <AcceptBridgePanel proposal={lab.proposal} />
+        <PrivacyNotesPanel />
       </div>
     </div>
   );

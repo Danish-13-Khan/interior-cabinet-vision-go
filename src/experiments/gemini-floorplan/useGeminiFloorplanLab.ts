@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { extractFloorPlanFromImage } from "./extractFloorPlan";
 import { guardFloorplanImage } from "./imageGuards";
-import { hasGeminiApiKeyConfigured } from "./labFlags";
+import { hasGeminiVisionConfigured } from "./labFlags";
 import { buildLabStatus } from "./labStatus";
+import { resolveLabUpload } from "./labUpload";
 import { normalizeProposalToMm } from "./normalizeProposal";
+import { rasterizePdfPageToPng, type PdfInfo } from "./pdfPageRaster";
 import type { GeminiFloorProposal, VisionUsageMetrics } from "./proposalTypes";
 import { SAMPLE_L_ROOM_CM, SAMPLE_RECT_KITCHEN_MM } from "./sampleProposals";
 
@@ -21,23 +23,27 @@ export function useGeminiFloorplanLab() {
   const [selectedWallId, setSelectedWallId] = useState<string | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [calibrateError, setCalibrateError] = useState<string | null>(null);
-
-  const hasKey = hasGeminiApiKeyConfigured();
+  const [pdfInfo, setPdfInfo] = useState<PdfInfo | null>(null);
+  const [pdfPage, setPdfPage] = useState(1);
+  const visionReady = hasGeminiVisionConfigured();
   const status = buildLabStatus({
-    hasKey,
-    fileName,
-    busy,
-    hasProposal: Boolean(proposal),
-    extractError,
+    hasKey: visionReady, fileName, busy, hasProposal: Boolean(proposal), extractError,
   });
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
 
-  function clearExtract() {
+  function setImageFile(next: File) {
+    setPdfInfo(null);
+    setUploadError(null);
+    setFile(next);
+    setFileName(next.name);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(next);
+    });
+  }
+
+  function resetExtract() {
     setExtractError(null);
     setValidationErrors([]);
     setMetrics(null);
@@ -48,52 +54,61 @@ export function useGeminiFloorplanLab() {
     setCalibrateError(null);
   }
 
-  function onFile(next: File | null) {
-    clearExtract();
+  async function onFile(next: File | null) {
+    resetExtract();
+    setPdfInfo(null);
     if (!next) {
       setFile(null);
       setFileName(null);
       setUploadError(null);
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
+      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
       return;
     }
-    const guard = guardFloorplanImage(next);
-    if (!guard.ok) {
-      setUploadError(guard.error);
+    const resolved = await resolveLabUpload(next);
+    if (resolved.kind === "error") {
+      setUploadError(resolved.error);
       setFile(null);
       setFileName(null);
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
+      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
       return;
     }
+    if (resolved.kind === "pdf") {
+      setPdfInfo(resolved.info);
+      setPdfPage(1);
+      setFile(null);
+      setFileName(next.name);
+      setUploadError(null);
+      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
+      return;
+    }
+    setImageFile(resolved.file);
+  }
+
+  async function onSelectPdfPage(page: number) {
+    if (!pdfInfo) return;
+    setBusy(true);
     setUploadError(null);
-    setFile(next);
-    setFileName(next.name);
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(next);
-    });
+    try {
+      setPdfPage(page);
+      setImageFile(await rasterizePdfPageToPng(pdfInfo.bytes, page, pdfInfo.fileName));
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : "PDF page raster failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function onRunVision() {
-    if (!hasKey) {
-      setExtractError("API key not loaded. Put VITE_GEMINI_API_KEY in .env and restart npm run dev.");
+    if (!visionReady) {
+      setExtractError("Vision unavailable. Add GEMINI_API_KEY to .env and restart Vite (proxy).");
       return;
     }
     if (!file) {
-      setExtractError("Upload a floor-plan image first (or click “Use sample image”). Offline JSON alone is not enough.");
+      setExtractError("Upload an image or rasterize a PDF page first.");
       return;
     }
     const guard = guardFloorplanImage(file);
-    if (!guard.ok) {
-      setUploadError(guard.error);
-      return;
-    }
+    if (!guard.ok) { setUploadError(guard.error); return; }
     setBusy(true);
     setExtractError(null);
     setValidationErrors([]);
@@ -121,9 +136,7 @@ export function useGeminiFloorplanLab() {
     try {
       const res = await fetch("/experiments/gemini-floorplan/fixtures/rect-kitchen.png");
       if (!res.ok) throw new Error(`Could not load sample image (${res.status})`);
-      const blob = await res.blob();
-      const sample = new File([blob], "rect-kitchen.png", { type: "image/png" });
-      onFile(sample);
+      setImageFile(new File([await res.blob()], "rect-kitchen.png", { type: "image/png" }));
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Could not load sample image");
     }
@@ -143,28 +156,9 @@ export function useGeminiFloorplanLab() {
   }
 
   return {
-    hasKey,
-    status,
-    file,
-    fileName,
-    previewUrl,
-    uploadError,
-    busy,
-    proposal,
-    setProposal,
-    rawText,
-    extractError,
-    validationErrors,
-    metrics,
-    selectedWallId,
-    setSelectedWallId,
-    selectedRoomId,
-    setSelectedRoomId,
-    calibrateError,
-    setCalibrateError,
-    onFile,
-    onRunVision,
-    onUseSampleImage,
-    onLoadFixture,
+    hasKey: visionReady, status, file, fileName, previewUrl, uploadError, busy, proposal,
+    setProposal, rawText, extractError, validationErrors, metrics, selectedWallId,
+    setSelectedWallId, selectedRoomId, setSelectedRoomId, calibrateError, setCalibrateError,
+    pdfInfo, pdfPage, onFile, onSelectPdfPage, onRunVision, onUseSampleImage, onLoadFixture,
   };
 }

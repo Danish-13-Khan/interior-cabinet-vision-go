@@ -178,7 +178,7 @@ Build a presentable room shell from the **reviewed** proposal.
 
 ---
 
-### Phase 4 — Accept bridge (`CURRENT` — implemented)
+### Phase 4 — Accept bridge (`CURRENT` — done)
 
 Connect lab output to real interior-project geometry — still review-gated.
 
@@ -193,7 +193,7 @@ Connect lab output to real interior-project geometry — still review-gated.
 
 ---
 
-### Phase 5 — Hardening (`LATER`)
+### Phase 5 — Hardening (`CURRENT` — implemented)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
