@@ -1,4 +1,4 @@
-export type LabPhase = "idle" | "ready" | "blocked";
+export type LabPhase = "idle" | "ready" | "blocked" | "busy" | "done" | "error";
 
 export type LabStatusModel = {
   phase: LabPhase;
@@ -9,24 +9,48 @@ export type LabStatusModel = {
 export function buildLabStatus(input: {
   hasKey: boolean;
   fileName: string | null;
+  busy?: boolean;
+  hasProposal?: boolean;
+  extractError?: string | null;
 }): LabStatusModel {
+  if (input.busy) {
+    return {
+      phase: "busy",
+      headline: "Running Gemini Vision",
+      detail: "Extracting walls and rooms from the floor-plan image…",
+    };
+  }
+  if (input.extractError) {
+    return {
+      phase: "error",
+      headline: "Extract failed",
+      detail: input.extractError,
+    };
+  }
+  if (input.hasProposal) {
+    return {
+      phase: "done",
+      headline: "Proposal ready",
+      detail: "Validated JSON normalized to mm. Review in the panel (3D is Phase 3).",
+    };
+  }
   if (!input.hasKey) {
     return {
       phase: "blocked",
-      headline: "API key missing",
-      detail: "Add VITE_GEMINI_API_KEY to .env (see .env.example). Vision calls start in Phase 1.",
+      headline: "API key optional for now",
+      detail: "Load offline fixtures anytime. Add VITE_GEMINI_API_KEY later to run Vision.",
     };
   }
   if (input.fileName) {
     return {
       phase: "ready",
       headline: "Image selected",
-      detail: `${input.fileName} — Vision extract lands in Phase 1.`,
+      detail: `${input.fileName} — click Run Gemini Vision.`,
     };
   }
   return {
     phase: "idle",
-    headline: "Phase 0 scaffold",
-    detail: "Upload a floor-plan image to preview. Gemini Vision is not called yet.",
+    headline: "Phase 1 · Vision extract",
+    detail: "Upload a floor-plan image, or load an offline fixture JSON.",
   };
 }

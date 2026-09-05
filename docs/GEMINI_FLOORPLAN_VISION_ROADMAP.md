@@ -117,7 +117,7 @@ type GeminiFloorProposal = {
 
 ## 5. Delivery sequence
 
-### Phase 0 — Lab scaffold (`CURRENT` — implemented)
+### Phase 0 — Lab scaffold (`CURRENT` — done)
 
 Stand up an isolated surface with zero product risk.
 
@@ -132,7 +132,7 @@ Stand up an isolated surface with zero product risk.
 
 ---
 
-### Phase 1 — Vision extract (`NEXT` after Phase 0)
+### Phase 1 — Vision extract (`CURRENT` — implemented)
 
 Upload → Gemini Vision → validated proposal JSON.
 
