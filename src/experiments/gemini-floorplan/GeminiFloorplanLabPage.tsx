@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
-import { useMemo } from "react";
 import "../../styles/gemini-floorplan-lab.css";
 import "../../styles/gemini-floorplan-lab-panels.css";
 import "../../styles/gemini-floorplan-lab-phase6.css";
 import "../../styles/gemini-floorplan-lab-review.css";
 import "../../styles/gemini-floorplan-lab-accept.css";
 import { AcceptBridgePanel } from "./AcceptBridgePanel";
-import { proposalToArchScene, ReconstructionGatePanel, TopologyPanel } from "./archScene";
+import { ArchLabPanels, ArchShellViewer, useArchSceneEditing } from "./archScene";
 import { ConfidenceNotesPanel } from "./ConfidenceNotesPanel";
 import { FixtureScorecardPanel } from "./FixtureScorecardPanel";
 import { GeometryModeToggle } from "./GeometryModeToggle";
@@ -15,7 +14,6 @@ import { PlanReviewOverlay } from "./PlanReviewOverlay";
 import { PrivacyNotesPanel } from "./PrivacyNotesPanel";
 import { ProposalJsonPanel } from "./ProposalJsonPanel";
 import { ReviewEditorPanel } from "./ReviewEditorPanel";
-import { RoomShellViewer } from "./RoomShellViewer";
 import { UploadZone } from "./UploadZone";
 import { useGeminiFloorplanLab } from "./useGeminiFloorplanLab";
 import { useLabDocumentScroll } from "./useLabDocumentScroll";
@@ -23,16 +21,18 @@ import { useLabDocumentScroll } from "./useLabDocumentScroll";
 export function GeminiFloorplanLabPage() {
   useLabDocumentScroll();
   const lab = useGeminiFloorplanLab();
-  const archScene = useMemo(
-    () => (lab.proposal ? proposalToArchScene(lab.proposal) : null),
-    [lab.proposal],
-  );
+  const arch = useArchSceneEditing(lab.proposal);
+
+  const selectBoth = (id: string) => {
+    arch.select(id);
+    if (lab.proposal?.walls.some((w) => w.id === id)) lab.setSelectedWallId(id);
+  };
 
   return (
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 14</p>
+          <p className="gfl-eyebrow">Lab · Phase 14 complete</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -64,7 +64,11 @@ export function GeminiFloorplanLabPage() {
           onUseSampleImage={lab.onUseSampleImage}
           onLoadFixture={lab.onLoadFixture}
         />
-        <RoomShellViewer proposal={lab.proposal} geometryMode={lab.geometryMode} />
+        <ArchShellViewer
+          scene={arch.scene}
+          selectedId={arch.selectedId}
+          onSelect={selectBoth}
+        />
       </div>
       <div className="gfl-grid gfl-grid--geom">
         <GeometryModeToggle
@@ -79,16 +83,23 @@ export function GeminiFloorplanLabPage() {
           mode={lab.geometryMode}
           fixtureHint={lab.fileName}
         />
-        <TopologyPanel scene={archScene} />
-        <ReconstructionGatePanel scene={archScene} />
       </div>
+      <ArchLabPanels
+        scene={arch.scene}
+        selectedId={arch.selectedId}
+        acceptedIds={arch.acceptedIds}
+        actions={arch}
+      />
       <div className="gfl-grid gfl-grid--3 gfl-grid--review">
         <PlanReviewOverlay
           proposal={lab.proposal}
           previewUrl={lab.previewUrl}
           selectedWallId={lab.selectedWallId}
           selectedRoomId={lab.selectedRoomId}
-          onSelectWall={(id) => lab.setSelectedWallId(id || null)}
+          onSelectWall={(id) => {
+            lab.setSelectedWallId(id || null);
+            if (id) arch.select(id);
+          }}
           onSelectRoom={(id) => lab.setSelectedRoomId(id || null)}
         />
         {lab.proposal ? (
@@ -97,7 +108,10 @@ export function GeminiFloorplanLabPage() {
             selectedWallId={lab.selectedWallId}
             selectedRoomId={lab.selectedRoomId}
             onChange={lab.setProposal}
-            onSelectWall={(id) => lab.setSelectedWallId(id || null)}
+            onSelectWall={(id) => {
+              lab.setSelectedWallId(id || null);
+              if (id) arch.select(id);
+            }}
             onSelectRoom={(id) => lab.setSelectedRoomId(id || null)}
             calibrateError={lab.calibrateError}
             onCalibrateError={lab.setCalibrateError}

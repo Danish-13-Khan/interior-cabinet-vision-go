@@ -49,7 +49,7 @@ export function bindOpeningsToWalls(
     const widthMm = op.widthMm && op.widthMm > 0 ? op.widthMm : 900;
     const heightMm =
       op.heightMm && op.heightMm > 0 ? op.heightMm : op.kind === "window" ? 1200 : 2100;
-    const opening: ArchitecturalOpening = {
+    let opening: ArchitecturalOpening = {
       id: op.id,
       kind: op.kind,
       wallId: host.id,
@@ -59,6 +59,9 @@ export function bindOpeningsToWalls(
       sillMm: op.kind === "window" ? 900 : 0,
       swing: op.kind === "door" ? "unknown" : undefined,
     };
+    if (opening.kind === "door") {
+      opening = { ...opening, swing: inferDoorSwing(opening) };
+    }
     openings.push(opening);
     const list = wallOpenings.get(host.id) ?? [];
     list.push(opening.id);
@@ -84,4 +87,45 @@ export function moveOpeningAlongWall(
   return openings.map((o) =>
     o.id === openingId ? { ...o, t: Math.min(1, Math.max(0, t)) } : o,
   );
+}
+
+export function resizeOpening(
+  openings: ArchitecturalOpening[],
+  openingId: string,
+  widthMm: number,
+  heightMm?: number,
+): ArchitecturalOpening[] {
+  return openings.map((o) =>
+    o.id === openingId
+      ? {
+          ...o,
+          widthMm: Math.max(200, widthMm),
+          heightMm: heightMm != null ? Math.max(400, heightMm) : o.heightMm,
+        }
+      : o,
+  );
+}
+
+export function rehostOpening(
+  openings: ArchitecturalOpening[],
+  openingId: string,
+  wallId: string,
+  t = 0.5,
+): ArchitecturalOpening[] {
+  return openings.map((o) => (o.id === openingId ? { ...o, wallId, t } : o));
+}
+
+export function setOpeningSwing(
+  openings: ArchitecturalOpening[],
+  openingId: string,
+  swing: "left" | "right" | "unknown",
+): ArchitecturalOpening[] {
+  return openings.map((o) => (o.id === openingId ? { ...o, swing } : o));
+}
+
+/** G-8.3 heuristic: doors nearer start → left swing. */
+export function inferDoorSwing(opening: ArchitecturalOpening): "left" | "right" | "unknown" {
+  if (opening.kind !== "door") return "unknown";
+  if (opening.swing && opening.swing !== "unknown") return opening.swing;
+  return opening.t < 0.5 ? "left" : "right";
 }

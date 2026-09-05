@@ -5,15 +5,16 @@ const MM = 0.001;
 
 export type ArchShellBox = {
   id: string;
-  kind: "wall" | "floor" | "opening" | "ceiling";
+  kind: "wall" | "floor" | "opening" | "ceiling" | "skirting" | "frame" | "fixture";
   position: [number, number, number];
   size: [number, number, number];
   rotationY: number;
   openingKind?: ArchitecturalOpening["kind"];
   materialId?: string;
+  entityId?: string;
 };
 
-/** Phase 11: procedural boxes from ArchitecturalScene (openings as cut markers). */
+/** Phase 11: procedural boxes from ArchitecturalScene (openings as cut markers + frames). */
 export function buildArchShell(scene: ArchitecturalScene): ArchShellBox[] {
   const boxes: ArchShellBox[] = [];
   for (const floor of scene.floors) {
@@ -23,19 +24,24 @@ export function buildArchShell(scene: ArchitecturalScene): ArchShellBox[] {
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
+    const room = scene.rooms.find((r) => r.id === floor.roomId);
+    const n = (room?.name ?? "").toLowerCase();
     boxes.push({
       id: floor.id,
       kind: "floor",
+      entityId: floor.roomId,
       position: [((minX + maxX) / 2) * MM, 0.01, ((minY + maxY) / 2) * MM],
       size: [(maxX - minX) * MM, 0.02, (maxY - minY) * MM],
       rotationY: 0,
-      materialId: scene.rooms.find((r) => r.id === floor.roomId)?.name?.toLowerCase().includes("kitchen")
+      materialId: n.includes("kitchen")
         ? "floor-kitchen"
-        : "floor-default",
+        : n.includes("bath")
+          ? "floor-bath"
+          : "floor-default",
     });
   }
   for (const wall of scene.walls) {
-    boxes.push(...wallBoxesWithOpenings(wall, scene.openings));
+    boxes.push(...wallBoxesWithOpenings(wall, scene.openings, scene.skirtingMm));
   }
   for (const ceil of scene.ceilings) {
     const xs = ceil.outlineMm.map((p) => p.x);
@@ -43,6 +49,7 @@ export function buildArchShell(scene: ArchitecturalScene): ArchShellBox[] {
     boxes.push({
       id: ceil.id,
       kind: "ceiling",
+      entityId: ceil.roomId,
       position: [
         ((Math.min(...xs) + Math.max(...xs)) / 2) * MM,
         ceil.heightMm * MM,
@@ -57,12 +64,25 @@ export function buildArchShell(scene: ArchitecturalScene): ArchShellBox[] {
       materialId: "ceiling-default",
     });
   }
+  for (const f of scene.fixtures) {
+    if (f.review === "rejected") continue;
+    boxes.push({
+      id: f.id,
+      kind: "fixture",
+      entityId: f.id,
+      position: [f.anchorMm.x * MM, 0.45, f.anchorMm.y * MM],
+      size: [0.5, 0.9, 0.5],
+      rotationY: 0,
+      materialId: "fixture",
+    });
+  }
   return boxes;
 }
 
 function wallBoxesWithOpenings(
   wall: ArchitecturalWall,
   openings: ArchitecturalOpening[],
+  skirtingMm: number,
 ): ArchShellBox[] {
   const len = Math.max(distMm(wall.start, wall.end), 1);
   const thick = wall.thicknessMm * MM;
@@ -71,20 +91,32 @@ function wallBoxesWithOpenings(
   const dy = wall.end.y - wall.start.y;
   const rot = -Math.atan2(dy, dx);
   const hosted = openings.filter((o) => o.wallId === wall.id);
-  if (!hosted.length) {
-    return [
-      {
-        id: wall.id,
-        kind: "wall",
-        position: [((wall.start.x + wall.end.x) / 2) * MM, h / 2, ((wall.start.y + wall.end.y) / 2) * MM],
-        size: [len * MM, h, thick],
-        rotationY: rot,
-        materialId: wall.type === "exterior" ? "wall-exterior" : "wall-interior",
-      },
-    ];
-  }
-  // Split wall into segments around openings + opening markers (void proxy).
-  const out: ArchShellBox[] = [];
+  const mid = {
+    id: wall.id,
+    kind: "wall" as const,
+    entityId: wall.id,
+    position: [((wall.start.x + wall.end.x) / 2) * MM, h / 2, ((wall.start.y + wall.end.y) / 2) * MM] as [
+      number,
+      number,
+      number,
+    ],
+    size: [len * MM, h, thick] as [number, number, number],
+    rotationY: rot,
+    materialId: wall.type === "exterior" ? "wall-exterior" : "wall-interior",
+  };
+  const skirtH = Math.max(skirtingMm, 1) * MM;
+  const skirt: ArchShellBox = {
+    id: `${wall.id}-skirt`,
+    kind: "skirting",
+    entityId: wall.id,
+    position: [mid.position[0], skirtH / 2, mid.position[2]],
+    size: [len * MM, skirtH, thick * 1.15],
+    rotationY: rot,
+    materialId: "skirting",
+  };
+  if (!hosted.length) return [mid, skirt];
+
+  const out: ArchShellBox[] = [skirt];
   const sorted = [...hosted].sort((a, b) => a.t - b.t);
   let cursor = 0;
   let seg = 0;
@@ -103,11 +135,22 @@ function wallBoxesWithOpenings(
     out.push({
       id: op.id,
       kind: "opening",
+      entityId: op.id,
       openingKind: op.kind,
       position: [mx * MM, sill + openH / 2, my * MM],
       size: [op.widthMm * MM, openH, thick * 1.35],
       rotationY: rot,
       materialId: op.kind === "door" ? "door" : "window",
+    });
+    // Frame around opening (void proxy + frame)
+    out.push({
+      id: `${op.id}-frame`,
+      kind: "frame",
+      entityId: op.id,
+      position: [mx * MM, sill + openH / 2, my * MM],
+      size: [op.widthMm * MM + 0.04, openH + 0.04, thick * 1.5],
+      rotationY: rot,
+      materialId: "frame",
     });
     cursor = b;
   }
@@ -136,6 +179,7 @@ function segmentBox(
   return {
     id,
     kind: "wall",
+    entityId: wall.id,
     position: [((ax + bx) / 2) * MM, h / 2, ((ay + by) / 2) * MM],
     size: [len * MM, h, thick],
     rotationY: rot,

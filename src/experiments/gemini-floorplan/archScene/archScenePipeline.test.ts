@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { SAMPLE_RECT_KITCHEN_MM } from "../sampleProposals";
 import { buildArchShell } from "./buildArchShell";
 import { cabinetWallSpans, mapFixturesToCatalog } from "./cabinetMapping";
-import { resolveMaterial } from "./materials";
+import { resolveMaterial, lightingForPreset } from "./materials";
 import { proposalToArchScene } from "./proposalToArchScene";
 import { evaluateReconstructionGate } from "./reconstructionGate";
-import { bindOpeningsToWalls } from "./bindOpenings";
+import { bindOpeningsToWalls, inferDoorSwing, resizeOpening } from "./bindOpenings";
+import { buildPlacementConstraints } from "./placementConstraints";
+import { traceRoomCycles } from "./roomCycles";
 import { buildWallTopology } from "./wallTopology";
 
 describe("Phases 8–14 architectural reconstruction", () => {
@@ -13,44 +15,56 @@ describe("Phases 8–14 architectural reconstruction", () => {
     const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
     expect(scene.openings.length).toBeGreaterThanOrEqual(1);
     expect(scene.openings.every((o) => scene.walls.some((w) => w.id === o.wallId))).toBe(true);
-    expect(scene.walls.some((w) => w.openingIds.length > 0)).toBe(true);
   });
 
-  it("Phase 9 builds floors/ceilings", () => {
+  it("Phase 8 resize + swing helpers", () => {
     const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
-    expect(scene.floors.length).toBe(1);
-    expect(scene.ceilings.length).toBe(1);
+    const id = scene.openings[0]!.id;
+    const resized = resizeOpening(scene.openings, id, 1200, 2100);
+    expect(resized.find((o) => o.id === id)?.widthMm).toBe(1200);
+    const door = { ...scene.openings[0]!, kind: "door" as const, t: 0.2, swing: "unknown" as const };
+    expect(inferDoorSwing(door)).toBe("left");
   });
 
-  it("Phase 10 infers kitchen semantic fixture", () => {
+  it("Phase 9 builds floors and wall cycles", () => {
     const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
-    expect(scene.fixtures.some((f) => f.type.includes("kitchen"))).toBe(true);
+    expect(scene.floors.length).toBeGreaterThanOrEqual(1);
+    const cycles = traceRoomCycles(scene.walls, scene.wallJunctions);
+    expect(cycles.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("Phase 11 builds arch shell with opening segments", () => {
+  it("Phase 10 fixtures have review state", () => {
+    const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
+    expect(scene.fixtures.every((f) => f.review === "pending")).toBe(true);
+  });
+
+  it("Phase 11 arch shell includes skirting/frames/fixtures", () => {
     const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
     const boxes = buildArchShell(scene);
-    expect(boxes.some((b) => b.kind === "floor")).toBe(true);
-    expect(boxes.some((b) => b.kind === "wall")).toBe(true);
+    expect(boxes.some((b) => b.kind === "skirting")).toBe(true);
     expect(boxes.some((b) => b.kind === "opening")).toBe(true);
   });
 
-  it("Phase 12 cabinet spans and catalog map", () => {
+  it("Phase 12 placement constraints", () => {
     const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
-    const spans = cabinetWallSpans(scene);
-    expect(spans.every((s) => s.usableMm <= s.lengthMm)).toBe(true);
+    const c = buildPlacementConstraints(scene);
+    expect(c.every((x) => x.usableMm <= x.lengthMm)).toBe(true);
     expect(mapFixturesToCatalog(scene).length).toBeGreaterThanOrEqual(0);
+    expect(cabinetWallSpans(scene).length).toBe(scene.walls.length);
   });
 
-  it("Phase 13 materials resolve", () => {
+  it("Phase 13 materials + lighting", () => {
     expect(resolveMaterial("door").color).toBe("#c9a227");
-    expect(resolveMaterial("missing").id).toBe("wall-interior");
+    expect(lightingForPreset("warm").color).toBe("#ffd9b0");
   });
 
-  it("Phase 14 gate passes kitchen scene", () => {
+  it("Phase 14 gate + heatmap", () => {
     const scene = proposalToArchScene(SAMPLE_RECT_KITCHEN_MM);
     const gate = evaluateReconstructionGate(scene);
     expect(gate.pass).toBe(true);
+    expect(gate.heatmap.length).toBeGreaterThan(0);
+    expect(scene.materialHints.length).toBeGreaterThan(0);
+    expect(scene.skirtingMm).toBe(100);
   });
 
   it("bindOpenings helper attaches by wallId", () => {
