@@ -9,6 +9,10 @@ export const INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS = [
   { id: "place-column" as const, label: "Column" },
 ];
 
+export const INTERIORS_DRAW_ROOM_NAV_TOOLS = [
+  { id: "measure" as const, label: "Measure" },
+];
+
 export function isInteriorsDrawRoomTool(tool: InteriorsChromeTool): boolean {
   return INTERIORS_CHROME_TOOLS.find((item) => item.id === tool)?.group === "room";
 }
@@ -18,6 +22,7 @@ export function interiorsChromeBuildTool(tool: InteriorsChromeTool) {
 }
 
 export function interiorsDrawRoomHint(tool: InteriorsChromeTool, buildTool?: BuildTool): string {
+  if (buildTool === "measure") return "Click points to measure · Esc clears · snaps to walls/openings/cabinets";
   if (buildTool === "draw-partition") return "Drag a partition segment on the plan";
   if (buildTool === "draw-surface") return "Click points, then close the surface polygon";
   if (buildTool === "place-column") return "Click the plan to place a column";
@@ -73,6 +78,10 @@ export function interiorsDrawRoomShowArchitecture(
 ): boolean {
   if (tool === "wall") return true;
   return INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS.some((item) => item.id === buildTool);
+}
+
+export function interiorsDrawRoomShowNavTools(): boolean {
+  return true;
 }
 
 export function interiorsDrawRoomShowUnderlay(tool: InteriorsChromeTool): boolean {

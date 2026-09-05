@@ -139,6 +139,11 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         cabinetRunCommands={interiorsCabinetRunStageCommands(props)}
         presentCommands={interiorsPresentStageCommands(props)}
         presenting={props.plannerMode === "render"}
+        onSelectMany={props.workspace.onSelectMany}
+        onSetWallLength={(wallId, lengthMm, anchor) => props.workspace.onSetWallPlan(wallId, { lengthMm, lengthAnchor: anchor })}
+        onRegisterViewControls={props.onRegisterViewControls}
+        onFitPlan={props.onFitPlan}
+        onFitSelection={props.onFitSelection}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>

@@ -86,4 +86,9 @@ export type LivingRoomPlanStageProps = {
   presentCommands?: InteriorsPresentCommands;
   presenting?: boolean;
   onSelectRoom?: () => void;
+  onSelectMany?: (objectIds: string[]) => void;
+  onSetWallLength?: (wallId: string, lengthMm: number, anchor: import("../../domain/livingRoom").WallLengthAnchor) => void;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+  onFitPlan?: () => void;
+  onFitSelection?: () => void;
 };

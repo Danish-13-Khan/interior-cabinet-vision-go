@@ -10,7 +10,8 @@ export function PlanArchitectureLayer(props: {
   activeWallId: string | null; visualStyle: PlanVisualStyle;
   previewNodes?: Map<string, Point2Mm>;
   onPaper: (event: ReactPointerEvent<SVGRectElement>) => void; onWall: (event: ReactPointerEvent<SVGLineElement>, wallId: string) => void;
-  onSelectRoom?: () => void;
+  /** Select-mode floor pointer: start marquee / click-select room (do not stopPropagation to paper alone). */
+  onFloor?: (event: ReactPointerEvent<SVGPathElement>) => void;
 }) {
   const underlay = getLivingRoomPlanUnderlay(props.project);
   const materials = new Map(props.project.materials.map((material) => [material.id, material]));
@@ -36,8 +37,8 @@ export function PlanArchitectureLayer(props: {
       opacity={underlay.opacity} preserveAspectRatio="none" className="lr-plan-underlay-image" pointerEvents="none"
       transform={`translate(${underlay.xMm ?? 0} ${underlay.zMm ?? 0}) rotate(${underlay.rotationDeg ?? 0})`} /> : null}
     {props.room ? <path data-room-floor={props.room.id} d={floorPath} fill={floorColor} fillRule="evenodd"
-      opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onSelectRoom ? "fill" : "none"}
-      onPointerDown={(event) => { if (!props.onSelectRoom) return; event.stopPropagation(); props.onSelectRoom(); }} /> : null}
+      opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onFloor ? "fill" : "none"}
+      onPointerDown={(event) => { if (!props.onFloor) return; props.onFloor(event); }} /> : null}
     {props.showGrid ? <rect x={bounds.minX} y={bounds.minZ} width={bounds.widthMm} height={bounds.depthMm} fill="url(#lr-grid-major)" clipPath={props.room ? `url(#${clipId})` : undefined} pointerEvents="none" /> : null}
     <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" pointerEvents="none" />
     <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />

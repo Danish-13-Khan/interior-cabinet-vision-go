@@ -249,6 +249,7 @@ function App() {
             }}
             onDiscardRecovery={c.discardRecovery}
             onSelect={c.selectInteriorObject}
+            onSelectMany={c.selectInteriorObjects}
             onMove={c.moveInteriorObject}
             onResize={c.resizeInteriorObject}
             onSetRotation={c.setInteriorObjectRotation}

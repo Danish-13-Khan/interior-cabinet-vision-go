@@ -371,6 +371,56 @@ export {
   type PlanSnapGuide,
   type PlanSnapResult,
 } from "./planSnapping";
+
+export {
+  PLAN_MARQUEE_CLICK_SCREEN_PX,
+  PLAN_POINTER_SNAP_SCREEN_PX,
+  PLAN_VIEW_DEFAULT_MARGIN_MM,
+  PLAN_VIEW_ZOOM_STEP,
+  PLAN_WALL_MOVE_SCREEN_PX,
+  boundsFromPoints,
+  clientToPlanPoint,
+  clientToPlanPointFromSvg,
+  expandBounds,
+  fitPlanViewToBounds,
+  panPlanView,
+  panPlanViewByScreen,
+  planPointerSnapThresholdMm,
+  planViewBoxString,
+  planViewWorldPerPx,
+  rectsIntersect,
+  screenPxToWorldMm,
+  zoomPlanViewToward,
+  type PlanViewBounds,
+  type PlanViewBox,
+} from "./planViewTransform";
+export {
+  appendMeasurePoint,
+  collectMeasureSnapPoints,
+  formatMeasureLengthMm,
+  measureLengthMm,
+  measureSegmentsFromPoints,
+  snapMeasurePoint,
+  type MeasureSegment,
+  type MeasureSnapKind,
+  type MeasureSnapPoint,
+} from "./planMeasure";
+export {
+  DEFAULT_WALL_LENGTH_ANCHOR,
+  describeTypedWallLengthChange,
+  setTypedWallLength,
+  wallLengthAnchorLabel,
+  type WallLengthAnchor,
+} from "./typedWallLength";
+export {
+  collectReferenceDimensions,
+  type PlanDimensionRole,
+  type ReferenceDimension,
+} from "./referenceDimensions";
+export {
+  pickNearestSnapGuide,
+  type PlanSnapGuideKind,
+} from "./planSnapping";
 export {
   inspectLivingRoomPlan,
   isBlockingLivingRoomPlanIssue,

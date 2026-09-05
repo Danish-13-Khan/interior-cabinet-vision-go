@@ -118,70 +118,54 @@ The Golden Cabinet Run workflow should be **boringly reliable**. Continuous undo
 ## 6. Phase 1 — Precision Canvas ★
 
 **Estimate:** 3–5 weeks  
-**Status:** `NEXT` — **highest priority after Phase 0**
+**Status:** `Mostly implemented` (2026-09-05 on `feat/2d-plan-layer`) — core navigation, selection, measure, typed wall length, driving/reference dims, labelled snap guides shipped. Pointer/coords follow-ups landed (floor marquee, measure-vs-drag, CTM mapping, on-demand grid, room-scoped snaps); polish remaining (pinch feel, more reference dim kinds, room overall typed dims)
 
 Make the 2D canvas feel like a professional planning tool.
 
-### 6.1 Navigation
+### 6.1 Navigation — `Implemented`
 
-- Mouse-wheel zoom  
-- Trackpad pinch zoom  
-- Zoom toward cursor  
-- Space + drag pan  
-- Middle-mouse pan  
-- Zoom-to-fit  
-- Zoom-to-selection  
+- Mouse-wheel zoom toward cursor (`usePlanCanvasNavigation` + viewBox)
+- Trackpad pinch zoom via `ctrl+wheel`
+- Space + drag pan, middle-mouse pan
+- Zoom-to-fit / Zoom-to-selection (toolbar + Draw Room titlebar Fit / Fit sel; shortcuts `F` / `Shift+F`, `Cmd/Ctrl+0`)
+- Persist view while editing; re-fit on project/room `fitKey` change
 
-Navigation should feel natural immediately.
+### 6.2 Selection — `Implemented`
 
-### 6.2 Selection
+- Click → select; Shift/Cmd/Ctrl-click → multi-select
+- Drag on paper or empty room floor → marquee select (`onSelectMany`); click floor without drag → select room
+- Esc → deselect + cancel tool (returns to Select; clears measure)
+- Delete/Backspace remove (modal gate preserved)
+- Cmd/Ctrl+D duplicate
+- Selection chrome already emphasized; marquee overlay added
 
-- Click → select  
-- Shift-click → multi-select  
-- Drag → marquee select  
-- Esc → deselect/cancel  
-- Delete → remove  
-- Cmd/Ctrl + D → duplicate  
+### 6.3 Keyboard workflow — `Implemented`
 
-Selection state must be visually obvious.
+Delete, Escape, Duplicate, Undo/Redo (modal gate), 90° rotate (`R` / `Shift+R`), Fit plan / Fit selection.
 
-### 6.3 Keyboard workflow
+### 6.4 Measurement system — `Implemented`
 
-At minimum: Delete, Escape, Duplicate, Undo, Redo, 90° rotate, Fit plan, Fit selection.
+Build tool `measure`: click A→B… running segments with mm labels; snaps to wall ends/corners, opening edges, cabinet edges/centres; grid rounded on demand (no lattice). Pointer capture prevents cabinet/opening drag from stealing measure clicks. Esc clears/exits via cancel tool.
 
-### 6.4 Measurement system
+### 6.5 Typed dimensions — `Implemented` (walls)
 
-**Measure tool:** Point A → Point B → length (e.g. `2,735 mm`), with snaps to wall endpoints, corners, opening edges, cabinet edges/centres, grid.
+Click wall length label → edit mm. Applies via `setTypedWallLength` / `setPlanWallLength` with explicit **start** anchor (keeps start fixed · moves end) — never uniform room scale. Inspector Length field shows the same anchor hint. Remaining polish: typed overall room pair dims.
 
-**Running measurement:** consecutive A—600—B—900—C for site-measure recreation.
+### 6.6 Driving vs reference dimensions — `Implemented` (MVP)
 
-### 6.5 Typed dimensions
+Wall lengths + room clear/overall pairs marked driving; reference dims for cabinet→opening and cabinet→wall offsets (`collectReferenceDimensions`) update as geometry moves.
 
-Click a dimension (e.g. `4200`) and type `4275`. Geometry change must be predictable:
+### 6.7 Snapping & alignment — `Implemented`
 
-- Keep left wall fixed → move right wall, **or**  
-- Keep right wall fixed → move left wall  
-
-Never unexpectedly scale the entire room. Behaviour should become consistent across walls, openings, and cabinet runs.
-
-### 6.6 Driving vs reference dimensions
-
-| Type | Meaning |
-| --- | --- |
-| **Driving** | Defines geometry (“this wall **is** 4275 mm”) |
-| **Reference** | Reports geometry (“cabinet edge is 650 mm from doorway”) |
-
-Especially valuable later for engineering drawings.
-
-### 6.7 Snapping & alignment
-
-Guides beyond grid: wall alignment/endpoints/centres, cabinet edges/centres, adjacent cabinets, opening edges, run alignment. Visual guides must show **what** the object is snapping to.
+Guides include wall / wall-centre / centre / object / opening / run / grid with **labels** showing what is snapped to (openings/walls room-scoped).
 
 ### Phase 1 exit
 
 A user who has used a floor-planning app before can operate the plan without training.
 
 **Test:** Give them a measured kitchen to reproduce — Room → Exact dimensions → Door → Window → Cabinet without assistance.
+
+**Shipped verification:** unit tests for view transform (meet letterboxing), measure (semantic snaps + on-demand grid), typed wall anchor, snap guide pick, reference dims; Playwright `phase-1-precision-canvas.spec.ts` covers measure-vs-drag, floor marquee, and CTM round-trip.
 
 ---
 
@@ -308,7 +292,7 @@ One click → plan a salesperson is comfortable attaching to a proposal.
 ```text
 PHASE 0  Reliability                    [Implemented]
     ↓
-PHASE 1 ★ Precision Canvas
+PHASE 1 ★ Precision Canvas              [Implemented — polish open]
          Pan / Zoom / Measure / Dimensions / Snap / Keyboard / Undo
     ↓
 PHASE 2  Measured Room
@@ -414,3 +398,5 @@ Get pan, zoom, fit, selection, measure, typed dimensions, snapping, keyboard, un
 | 2026-09-05 | Initial roadmap from competitive 2D audit + Product Book §15 |
 | 2026-09-05 | Phase 0 implemented (merge UX, dialogs, golden path, labels) |
 | 2026-09-05 | Replaced with consolidated product roadmap (review): precision canvas, driving/reference dims, maturity gate, moat, downstream architecture |
+| 2026-09-05 | Phase 1 Precision Canvas implemented on `feat/2d-plan-layer` (pan/zoom/fit, marquee, measure, typed wall length, reference dims, labelled snaps) |
+| 2026-09-05 | Phase 1 review fixes: floor marquee, measure capture before drag, inverse-CTM / meet-aware mapping, on-demand measure grid, room-scoped opening snaps + reference dims |
