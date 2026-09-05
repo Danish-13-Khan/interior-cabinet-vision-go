@@ -40,7 +40,7 @@ export function ProposalJsonPanel({
     <section className="gfl-panel gfl-json" aria-label="Vision proposal JSON">
       <header className="gfl-panel__head">
         <h2>Proposal JSON</h2>
-        <p>Upload an image, then run Vision. Offline fixtures skip Gemini.</p>
+        <p>Upload an image, then run Vision. 3D shell updates from the reviewed JSON.</p>
       </header>
       <div className="gfl-json__actions">
         <button type="button" disabled={busy} onClick={onRunVision}>

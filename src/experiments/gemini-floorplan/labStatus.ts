@@ -31,7 +31,7 @@ export function buildLabStatus(input: {
     return {
       phase: "done",
       headline: "Proposal ready",
-      detail: "Validated JSON normalized to mm. Use the review overlay to correct scale and walls.",
+      detail: "Validated JSON → review overlay + live 3D shell. Edit walls/scale and the mesh updates.",
     };
   }
   if (!input.hasKey) {
