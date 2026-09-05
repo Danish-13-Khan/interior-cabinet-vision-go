@@ -15,7 +15,7 @@ import {
 } from ".";
 import { createObjectRenderBinding, resolveEffectiveRenderStrategy } from "../livingRoom";
 import type { InteriorProject, MaterialEntity } from "../interiorProject";
-import manifestJson from "../../../public/catalog/builtin-catalog.v1.json";
+import { BUILTIN_CATALOG_MANIFEST as manifestJson } from "./builtinCatalogManifest";
 
 function sofaItem(): CatalogItem {
   const item = (manifestJson as { items: CatalogItem[] }).items.find(

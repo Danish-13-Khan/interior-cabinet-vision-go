@@ -1,10 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
+import { loadReleaseDemo, openQaRenderStudio, openInteriorsHome } from "./plannerStart";
 
 async function openRenderStudio(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors" }).click();
+  await openInteriorsHome(page);
   await loadReleaseDemo(page);
   await openQaRenderStudio(page);
 }

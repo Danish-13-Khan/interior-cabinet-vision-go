@@ -1,6 +1,7 @@
 /**
  * Regenerate Kenney catalog to a temp path and fail when it drifts from the
- * committed public/catalog/builtin-catalog.v1.json. Also rechecks file hashes.
+ * committed public/catalog/builtin-catalog.v1.json (and its src/ mirror).
+ * Also rechecks file hashes.
  * Run: node scripts/catalog/verify-catalog.mjs
  */
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -13,6 +14,7 @@ import { inspectGlb } from "./inspect-glb.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const committedPath = join(root, "public/catalog/builtin-catalog.v1.json");
+const srcMirrorPath = join(root, "src/domain/catalog/data/builtin-catalog.v1.json");
 
 function fail(message) {
   console.error(`[catalog:verify] ${message}`);
@@ -24,6 +26,10 @@ async function main() {
     fail(`missing committed manifest at ${committedPath}`);
     return;
   }
+  if (!existsSync(srcMirrorPath)) {
+    fail(`missing Vite-safe src mirror at ${srcMirrorPath}; run catalog:generate`);
+    return;
+  }
   const committed = JSON.parse(readFileSync(committedPath, "utf8"));
   const generated = await generateKenneyManifest();
   const tempDir = mkdtempSync(join(tmpdir(), "catalog-verify-"));
@@ -32,8 +38,12 @@ async function main() {
     writeFileSync(tempPath, `${JSON.stringify(generated, null, 2)}\n`);
     const a = readFileSync(committedPath, "utf8");
     const b = readFileSync(tempPath, "utf8");
+    const src = readFileSync(srcMirrorPath, "utf8");
     if (a !== b) {
       fail("committed manifest differs from regenerated output; run catalog:generate");
+    }
+    if (a !== src) {
+      fail("src catalog mirror differs from public/catalog; run catalog:generate");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

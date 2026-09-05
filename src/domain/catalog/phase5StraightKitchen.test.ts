@@ -12,7 +12,7 @@ import { validateInteriorProject } from "../interiorProject";
 import { compileLivingRoomScene } from "../livingRoom";
 import { countertopTouchesCabinet } from "../livingRoom/cabinetSceneRunExtras";
 import { cabinetRunForObject, isCabinetRunFiller } from "../livingRoom/wardrobePlacement";
-import manifest from "../../../public/catalog/builtin-catalog.v1.json";
+import { BUILTIN_CATALOG_MANIFEST as manifest } from "./builtinCatalogManifest";
 import type { CatalogManifest } from "./types";
 
 const catalog = manifest as CatalogManifest;

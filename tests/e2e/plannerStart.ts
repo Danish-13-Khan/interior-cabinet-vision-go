@@ -1,8 +1,29 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+/** Matches `src/marketing/lib/auth.ts` SESSION_KEY — required to enter `/app`. */
+export const E2E_SESSION_JSON = JSON.stringify({
+  email: "e2e@cabinet.studio",
+  theme: "calm",
+  at: "2026-01-01T00:00:00.000Z",
+});
+
+/**
+ * Seed a fake login. Marketing `/` has no Interiors control; the designer is at `/app`.
+ * Call before `goto("/app")` (and after any localStorage.clear in the same init script).
+ */
+export async function seedE2eSession(page: Page) {
+  await page.addInitScript((session) => {
+    window.localStorage.setItem("cabinetStudioSession", session);
+  }, E2E_SESSION_JSON);
+}
+
+/** Clear storage, seed auth, open the designer, enter Interiors workbench. */
 export async function openInteriorsHome(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
+  await page.addInitScript((session) => {
+    window.localStorage.clear();
+    window.localStorage.setItem("cabinetStudioSession", session);
+  }, E2E_SESSION_JSON);
+  await page.goto("/app");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
 }
 

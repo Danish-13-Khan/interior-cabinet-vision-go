@@ -1,9 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openInteriorsHome } from "./plannerStart";
 
 async function openPlan(page: Page) {
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await openInteriorsHome(page);
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
 }
 

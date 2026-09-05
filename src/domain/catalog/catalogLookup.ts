@@ -1,14 +1,13 @@
-import builtinCatalogJson from "../../../public/catalog/builtin-catalog.v1.json" with { type: "json" };
+import { BUILTIN_CATALOG_MANIFEST } from "./builtinCatalogManifest";
 import type {
   CatalogFileRecord,
   CatalogItem,
-  CatalogManifest,
   CatalogMaterial,
   MaterialSlotPolicy,
   ProjectTemplate,
 } from "./types";
 
-const MANIFEST = builtinCatalogJson as unknown as CatalogManifest;
+const MANIFEST = BUILTIN_CATALOG_MANIFEST;
 
 export function lookupBuiltInCatalogItem(id: string, version?: number): CatalogItem | null {
   const item = MANIFEST.items.find((candidate) => candidate.id === id) ?? null;

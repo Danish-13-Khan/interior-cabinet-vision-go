@@ -1,13 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { loadReleaseDemo, openQaRenderStudio } from "./plannerStart";
+import { loadReleaseDemo, openInteriorsHome, openQaRenderStudio } from "./plannerStart";
 
 test("verified demo completes Plan to Model to Render and reopens", async ({ page }) => {
   // Software WebGL capture is substantially slower on GitHub-hosted runners.
   test.setTimeout(process.env.CI ? 240_000 : 90_000);
-  await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/");
-
-  await page.getByRole("button", { name: "Interiors" }).click();
+  await openInteriorsHome(page);
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
   await loadReleaseDemo(page);
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Living Room Release Demo");

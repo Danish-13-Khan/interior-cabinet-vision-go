@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { E2E_SESSION_JSON } from "./plannerStart";
 
 const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 
@@ -16,11 +17,12 @@ type ModelViewRuntimeProfile = {
 };
 
 async function openModelView(page: Page) {
-  await page.addInitScript((key) => {
+  await page.addInitScript(([key, session]) => {
     window.localStorage.clear();
+    window.localStorage.setItem("cabinetStudioSession", session);
     window.localStorage.setItem(key, "dismissed");
-  }, GUIDE_KEY);
-  await page.goto("/");
+  }, [GUIDE_KEY, E2E_SESSION_JSON] as const);
+  await page.goto("/app");
   await page.getByRole("button", { name: "Interiors", exact: true }).click();
   await page.getByRole("button", { name: /Wardrobe wall/ }).click();
   await page.getByRole("button", { name: "3D", exact: true }).click();
