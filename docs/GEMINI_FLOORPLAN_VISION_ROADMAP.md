@@ -328,6 +328,19 @@ PHASE 6D Fixture scorecard → 2D-5.2      [done]
 
 **Phase 6 complete (lab):** 6A–6D landed on `feat/gemini-floorplan-lab`. Product port waits on [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
 
+### Phase 7 — Wall topology (`CURRENT` — in progress)
+
+| ID | Item | Exit criteria |
+| --- | --- | --- |
+| G-7.1 | Junctions from wall endpoints | T/L/X/corner kinds |
+| G-7.2 | Thickness + height on arch walls | Stored on `ArchitecturalWall` |
+| G-7.3 | Exterior/interior heuristic | Classification + confidence |
+| G-7.4 | Wall adjacency via junctions | Queryable neighbors |
+| G-7.5 | roomLeft / roomRight | Probe from centerline |
+| G-7.6 | join/split repair helpers | Pure functions + tests |
+
+See § Reconstruction program in repo history / Downloads draft for Phases 8–14 plan.
+
 ---
 
 ## 9. Success definition
