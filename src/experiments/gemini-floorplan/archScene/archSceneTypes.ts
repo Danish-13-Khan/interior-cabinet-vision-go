@@ -59,6 +59,17 @@ export type ArchFixture = {
   anchorMm: ArchPoint;
   confidence: "low" | "medium" | "high";
   source: "vision" | "manual" | "inferred";
+  /** G-10.4 review state */
+  review: "pending" | "accepted" | "rejected";
+  catalogId?: string;
+  annotation?: string;
+};
+
+export type MaterialHint = {
+  id: string;
+  target: "wall" | "floor" | "ceiling";
+  label: string;
+  confidence: "low" | "medium" | "high";
 };
 
 export type ArchitecturalScene = {
@@ -70,5 +81,8 @@ export type ArchitecturalScene = {
   floors: FloorSurface[];
   ceilings: CeilingSurface[];
   fixtures: ArchFixture[];
+  materialHints: MaterialHint[];
+  lightingPreset: "studio" | "warm" | "cool";
+  skirtingMm: number;
   notes: string[];
 };

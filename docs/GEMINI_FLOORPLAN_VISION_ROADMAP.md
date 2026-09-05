@@ -328,32 +328,28 @@ PHASE 6D Fixture scorecard → 2D-5.2      [done]
 
 **Phase 6 complete (lab):** 6A–6D landed on `feat/gemini-floorplan-lab`. Product port waits on [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
 
-### Phase 7 — Wall topology (`CURRENT` — done)
+### Phase 7 — Wall topology (`done`)
 
-| ID | Item | Exit criteria |
+| ID | Item | Exit |
 | --- | --- | --- |
-| G-7.1 | Junctions from wall endpoints | T/L/X/corner kinds |
-| G-7.2 | Thickness + height on arch walls | Stored on `ArchitecturalWall` |
-| G-7.3 | Exterior/interior heuristic | Classification + confidence |
-| G-7.4 | Wall adjacency via junctions | Queryable neighbors |
-| G-7.5 | roomLeft / roomRight | Probe from centerline |
-| G-7.6 | join/split repair helpers | Pure functions + tests |
+| G-7.1–7.5 | Junctions, thickness/height, classify, adjacency, roomLeft/Right | Domain + tests |
+| G-7.6 | Topology repair UI | `TopologyRepairPanel` join/split |
 
-### Phases 8–14 — Architectural reconstruction (`CURRENT` — done lab slice)
+### Phases 8–14 — Architectural reconstruction (`done` lab)
 
-Implemented under `src/experiments/gemini-floorplan/archScene/`:
-
-| Phase | Deliverable |
+| Phase | Exit items landed |
 | --- | --- |
-| 8 | Wall-hosted openings (`bindOpenings`) |
-| 9 | Floors/ceilings + open-loop report (`roomSurfaces`) |
-| 10 | Semantic fixtures from room names/notes |
-| 11 | Procedural arch shell with opening segments (`buildArchShell`) |
-| 12 | Cabinet wall spans + catalog map |
-| 13 | Material presets (non-dimensional) |
-| 14 | Reconstruction gate + lab panel |
+| **8** | Wall-hosted openings; swing infer/edit; move/resize/re-host UI (`OpeningEditorPanel`) |
+| **9** | Floors/ceilings; wall-graph cycles (`traceRoomCycles`); open-loop report |
+| **10** | Semantic fixtures + review accept/reject; unknown-symbol stubs |
+| **11** | `ArchShellViewer` ← `buildArchShell` (segments, frames, skirting, fixtures); 2D↔3D select |
+| **12** | Cabinet spans + catalog map + placement constraints + catalog UI |
+| **13** | Material presets + room hints + lighting presets + skirting control |
+| **14** | Gate (overlap/impossible dims/pending fixtures) + confidence heatmap + per-entity keep |
 
-**Next product work:** wire `ArchitecturalScene` → `InteriorProject` / 2D-5.2 port per [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
+**Still product-side (not lab):** true CSG Boolean cutouts; full Vision icon CNN; catalog GLBs; Accept → `InteriorProject` / 2D-5.2 port.
+
+**Next:** wire `ArchitecturalScene` → product per [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
 
 ---
 
