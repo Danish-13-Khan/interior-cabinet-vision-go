@@ -2,16 +2,31 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { useMemo } from "react";
 import { buildRoomShell } from "./buildRoomShell";
+import type { GeometryViewMode } from "./geometryMode";
 import type { GeminiFloorProposal } from "./proposalTypes";
 import { RoomShellMeshes } from "./RoomShellMeshes";
 
-type Props = { proposal: GeminiFloorProposal | null };
+type Props = {
+  proposal: GeminiFloorProposal | null;
+  geometryMode?: GeometryViewMode;
+};
 
-export function RoomShellViewer({ proposal }: Props) {
+function geometryFingerprint(proposal: GeminiFloorProposal): string {
+  return proposal.walls
+    .map(
+      (w) =>
+        `${w.id}:${w.a.x.toFixed(0)},${w.a.y.toFixed(0)}-${w.b.x.toFixed(0)},${w.b.y.toFixed(0)}`,
+    )
+    .join("|");
+}
+
+export function RoomShellViewer({ proposal, geometryMode }: Props) {
   const shell = useMemo(
     () => (proposal ? buildRoomShell(proposal) : null),
     [proposal],
   );
+  const fingerprint = proposal ? geometryFingerprint(proposal) : "empty";
+  const wallCount = proposal?.walls.length ?? 0;
 
   return (
     <section className="gfl-panel gfl-3d" aria-label="3D room shell">
@@ -19,13 +34,14 @@ export function RoomShellViewer({ proposal }: Props) {
         <h2>3D shell</h2>
         <p>
           {shell
-            ? "Orbit to inspect · doors gold · windows teal · same JSON → same mesh"
+            ? `Orbit · ${wallCount} walls${geometryMode ? ` · ${geometryMode}` : ""} · doors gold · windows teal`
             : "Load a proposal (Vision or offline) to build the room shell."}
         </p>
       </header>
       <div className="gfl-3d__stage gfl-3d__stage--live">
         {shell ? (
           <Canvas
+            key={fingerprint}
             shadows
             camera={{
               position: shell.cameraPosition,
