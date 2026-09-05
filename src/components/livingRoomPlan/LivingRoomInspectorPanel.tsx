@@ -31,6 +31,7 @@ type LivingRoomInspectorPanelProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onCompleteCabinetRun?: (runId: string) => void;
   onUpdateCabinetRun: (runId: string, options: {
     gapMm?: number;
     alignment?: "start" | "center" | "end";
@@ -107,6 +108,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onMove={props.onMove} onResize={props.onResize} onSetRotation={props.onSetRotation}
             onSetMaterial={props.onSetMaterial} onSetParameters={props.onSetParameters}
             onUpdateCabinetRun={props.onUpdateCabinetRun}
+            onCompleteCabinetRun={props.onCompleteCabinetRun}
             onDuplicate={props.onDuplicate} onDelete={props.onDelete}
           />
         ) : null}

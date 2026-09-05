@@ -9,6 +9,10 @@ import {
   updateCabinetRun,
   type CabinetRunOptions,
 } from "./cabinetRunLayout";
+import {
+  collectWallOccupancySpans,
+  freeSegmentsInInterval,
+} from "./cabinetRunPlacementPreview";
 import { attached, placementAt, wallLength } from "./wallSegmentPlacement";
 
 const FILLER_DEPTH_MM = 18;
@@ -103,51 +107,90 @@ function makeFillerDraft(options: {
   };
 }
 
+
+function referenceRoomId(members: InteriorObjectEntity[]): string {
+  return members[0]!.roomId;
+}
+
 export function syncCabinetRunFillers(project: InteriorProject, runId: string): InteriorProject {
   const members = runCabinets(project, runId);
   const metadata = members[0] ? cabinetRunForObject(members[0]) : null;
   if (!metadata || members.length === 0) return project;
 
-  const storedWall = project.walls.find((item) => item.id === metadata.wallId);
-  if (!storedWall) return project;
-  const wall = orientWallForRoom(project, members[0]!.roomId, storedWall);
-  const length = wallLength(wall);
-  if (!length) return project;
+  // Drop this run's fillers first so occupancy reflects openings / other runs / corners only.
+  const cleared = removeRunFillers(project, runId);
+  const clearedMembers = runCabinets(cleared, runId);
+  if (clearedMembers.length === 0) return cleared;
 
-  const cabinets = orderRunMembers(members, (cabinet) => offsetsAlongWall(cabinet, wall).start);
+  const roomId = referenceRoomId(clearedMembers);
+  const collected = collectWallOccupancySpans(cleared, metadata.wallId, roomId);
+  if (!collected) return cleared;
+  const { wall, lengthMm, occupied } = collected;
+  if (!lengthMm) return cleared;
+
+  const cabinets = orderRunMembers(clearedMembers, (cabinet) => offsetsAlongWall(cabinet, wall).start);
   const reference = cabinets[0]!;
   type Spec = { side: CabinetRunFillerSide; index?: number; widthMm: number; center: number; ref: InteriorObjectEntity };
   const specs: Spec[] = [];
 
+  const withoutIds = (ids: ReadonlySet<string>) => occupied.filter((span) => {
+    if (ids.has(span.id)) return false;
+    return !span.id.split("+").some((part) => ids.has(part));
+  });
+
   for (let index = 0; index < cabinets.length - 1; index += 1) {
     const current = cabinets[index]!;
     const next = cabinets[index + 1]!;
-    const gap = offsetsAlongWall(next, wall).start - offsetsAlongWall(current, wall).end;
-    // Use the same standard-width rule as the Cabinets CAD filler workflow.
-    const widthMm = fillerWidthForGap(gap);
-    if (widthMm === null) continue;
-    specs.push({
-      side: "between",
-      index: index + 1,
-      widthMm,
-      center: offsetsAlongWall(current, wall).end + widthMm / 2,
-      ref: current,
-    });
+    const currentSpan = offsetsAlongWall(current, wall);
+    const nextSpan = offsetsAlongWall(next, wall);
+    const intervalOccupied = withoutIds(new Set([current.id, next.id]));
+    const freeSegments = freeSegmentsInInterval(intervalOccupied, currentSpan.end, nextSpan.start);
+    // Place one filler per contiguous fillable segment (align with Complete Run proposal).
+    for (const segment of freeSegments) {
+      const widthMm = fillerWidthForGap(segment.lengthMm);
+      if (widthMm === null) continue;
+      specs.push({
+        side: "between",
+        index: index + 1,
+        widthMm,
+        center: segment.startMm + widthMm / 2,
+        ref: current,
+      });
+    }
   }
 
-  const startGap = offsetsAlongWall(cabinets[0]!, wall).start;
-  const endGap = length - offsetsAlongWall(cabinets[cabinets.length - 1]!, wall).end;
-  if (startGap >= FILLER_MIN_MM && startGap <= FILLER_MAX_MM) {
-    specs.push({ side: "start", widthMm: startGap, center: startGap / 2, ref: cabinets[0]! });
+  const firstSpan = offsetsAlongWall(cabinets[0]!, wall);
+  const lastSpan = offsetsAlongWall(cabinets[cabinets.length - 1]!, wall);
+  const startSegments = freeSegmentsInInterval(withoutIds(new Set([cabinets[0]!.id])), 0, firstSpan.start);
+  for (const startBest of startSegments) {
+    if (startBest.lengthMm >= FILLER_MIN_MM && startBest.lengthMm <= FILLER_MAX_MM) {
+      specs.push({
+        side: "start",
+        widthMm: startBest.lengthMm,
+        center: startBest.startMm + startBest.lengthMm / 2,
+        ref: cabinets[0]!,
+      });
+    }
   }
-  if (endGap >= FILLER_MIN_MM && endGap <= FILLER_MAX_MM) {
-    specs.push({ side: "end", widthMm: endGap, center: length - endGap / 2, ref: cabinets[cabinets.length - 1]! });
+  const endSegments = freeSegmentsInInterval(
+    withoutIds(new Set([cabinets[cabinets.length - 1]!.id])),
+    lastSpan.end,
+    lengthMm,
+  );
+  for (const endBest of endSegments) {
+    if (endBest.lengthMm >= FILLER_MIN_MM && endBest.lengthMm <= FILLER_MAX_MM) {
+      specs.push({
+        side: "end",
+        widthMm: endBest.lengthMm,
+        center: endBest.startMm + endBest.lengthMm / 2,
+        ref: cabinets[cabinets.length - 1]!,
+      });
+    }
   }
 
-  const cleared = removeRunFillers(project, runId);
   const fillers = specs.map((spec) => {
     const draft = makeFillerDraft({
-      id: `filler:${runId}:${spec.side}${spec.index ?? ""}`,
+      id: `filler:${runId}:${spec.side}${spec.index ?? ""}:${Math.round(spec.center)}`,
       runId,
       roomId: reference.roomId,
       wallId: metadata.wallId,

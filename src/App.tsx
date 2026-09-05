@@ -251,6 +251,9 @@ function App() {
             onSelect={c.selectInteriorObject}
             onSelectMany={c.selectInteriorObjects}
             onMove={c.moveInteriorObject}
+            onMovePreview={c.previewInteriorObjectMove}
+            onDragEnd={c.onInteriorObjectDragEnd}
+            onClearPreDropReason={c.clearLivingRoomPreDropReason}
             onResize={c.resizeInteriorObject}
             onSetRotation={c.setInteriorObjectRotation}
             onSetMaterial={c.setInteriorObjectMaterial}
@@ -268,6 +271,9 @@ function App() {
             onAlign={c.alignInteriorSelection}
             onCreateCabinetRun={c.createLivingRoomCabinetRun}
             onUpdateCabinetRun={c.updateLivingRoomCabinetRun}
+            onCompleteCabinetRun={c.completeLivingRoomCabinetRun}
+            onSetCabinetInlineDims={c.setLivingRoomCabinetInlineDims}
+            preDropReason={c.livingRoomPreDropReason}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onActiveRoom={c.setActiveLivingRoom}

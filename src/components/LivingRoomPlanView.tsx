@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject, Point2Mm, Point3Mm, RoomDrawingRequest, Size3Mm } from "../domain/interiorProject";
-import { EMPTY_PLAN_SITE_BOUNDS, roomPlanViewBounds } from "../domain/interiorProject";
+import { EMPTY_PLAN_SITE_BOUNDS, orientWallForRoom, roomPlanViewBounds } from "../domain/interiorProject";
 import {
   PLAN_MARQUEE_CLICK_SCREEN_PX,
   PLAN_POINTER_SNAP_SCREEN_PX,
@@ -22,6 +22,8 @@ import {
   type LivingRoomPlanIssue,
   type LivingRoomPlanUnderlay,
   type MeasureSnapPoint,
+  cabinetRunForObject,
+  previewCabinetRunPlacement,
   type PlanReadabilitySettings,
   type WallLengthAnchor,
 } from "../domain/livingRoom";
@@ -49,6 +51,8 @@ type Props = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectMany?: (objectIds: string[]) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onMovePreview?: (objectId: string, position: Point3Mm) => import("./livingRoomPlan/usePlanObjectInteraction").SnappedMovePose | null | void;
+  onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSelectWall: (wallId: string) => void; onSelectOpening: (openingId: string) => void;
   onSelectSurface: (surfaceId: string | null) => void;
@@ -70,6 +74,8 @@ type Props = {
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
   onSetPlanUnderlay?: (underlay: LivingRoomPlanUnderlay | null) => void;
   onCalibrateComplete?: () => void;
+  onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
+  preDropReason?: string | null;
 };
 
 type MarqueeState = {
@@ -93,6 +99,31 @@ export function LivingRoomPlanView(props: Props) {
   const wallMoveMm = nav.screenToWorldMm(PLAN_WALL_MOVE_SCREEN_PX);
 
   const tool = props.activeBuildTool ?? "select";
+  const selectedRunId = useMemo(() => {
+    for (const id of props.selectedIds) {
+      const object = props.project.objects.find((item) => item.id === id);
+      if (!object) continue;
+      const run = cabinetRunForObject(object);
+      if (run) return run.runId;
+    }
+    return null;
+  }, [props.project.objects, props.selectedIds]);
+  const previewWallId = props.activeWallId
+    ?? (selectedRunId
+      ? props.project.objects.map(cabinetRunForObject).find((meta) => meta?.runId === selectedRunId)?.wallId ?? null
+      : null);
+  const placementPreview = previewWallId
+    ? previewCabinetRunPlacement(props.project, previewWallId, { runId: selectedRunId, roomId: props.project.activeRoomId })
+    : null;
+  const freeSegmentWallPose = useMemo(() => {
+    if (!previewWallId || !room) return null;
+    const stored = props.project.walls.find((wall) => wall.id === previewWallId);
+    if (!stored) return null;
+    const wall = orientWallForRoom(props.project, room.id, stored);
+    const lengthMm = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
+    return { x1: wall.start.x, z1: wall.start.z, x2: wall.end.x, z2: wall.end.z, lengthMm };
+  }, [previewWallId, props.project, room]);
+
   const drawRoom = tool === "draw-room";
   const drawSurface = tool === "draw-surface";
   const drawWall = tool === "draw-wall";
@@ -156,7 +187,8 @@ export function LivingRoomPlanView(props: Props) {
   });
   const objects = usePlanObjectInteraction({
     project: props.project, snapSizeMm: props.snapSizeMm, snapThresholdMm: pointerSnapMm, worldPoint,
-    onSelect: props.onSelect, onMove: props.onMove, onResize: props.onResize,
+    onSelect: props.onSelect, onMove: props.onMove, onMovePreview: props.onMovePreview, onResize: props.onResize,
+    onDragEnd: props.onDragEnd,
   });
   const walls = usePlanWallInteraction({
     active: editWalls, project: props.project, snapSizeMm: props.snapSizeMm, moveThresholdMm: wallMoveMm, worldPoint,
@@ -425,6 +457,10 @@ export function LivingRoomPlanView(props: Props) {
       interactive={!measureLike} />
     <PlanObjectsLayer project={props.project} selectedIds={props.selectedIds} issues={props.issues}
       preview={objects.preview} guides={objects.guides} unit={props.readability.unit}
+      selectedRunId={selectedRunId}
+      freeSegments={placementPreview?.freeSegments}
+      freeSegmentWallPose={freeSegmentWallPose}
+      onSetCabinetDims={props.onSetCabinetInlineDims}
       onStart={objects.start} interactive={!measureLike} />
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
       settings={props.readability} referenceDims={referenceDims}
@@ -450,6 +486,17 @@ export function LivingRoomPlanView(props: Props) {
     {!room ? (
       <text className="lr-empty-plan-hint" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
         Drag a rectangle to draw the room, then use Draw Wall to add or split walls.
+      </text>
+    ) : null}
+    {props.preDropReason ? (
+      <text
+        className="lr-empty-plan-hint lr-predrop-reason"
+        data-testid="lr-predrop-reason"
+        x={bounds.centerX}
+        y={bounds.minZ + 120}
+        textAnchor="middle"
+      >
+        {props.preDropReason}
       </text>
     ) : null}
   </svg>

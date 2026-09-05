@@ -33,6 +33,8 @@ export type LivingRoomPlanStageProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onMovePreview?: (objectId: string, position: Point3Mm) => import("./usePlanObjectInteraction").SnappedMovePose | null | void;
+  onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
@@ -87,6 +89,8 @@ export type LivingRoomPlanStageProps = {
   presenting?: boolean;
   onSelectRoom?: () => void;
   onSelectMany?: (objectIds: string[]) => void;
+  onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
+  preDropReason?: string | null;
   onSetWallLength?: (wallId: string, lengthMm: number, anchor: import("../../domain/livingRoom").WallLengthAnchor) => void;
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
   onFitPlan?: () => void;

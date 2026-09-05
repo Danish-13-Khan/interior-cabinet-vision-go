@@ -25,7 +25,9 @@ export function PlanStageStatus(props: LivingRoomPlanStageProps) {
     return (
       <InteriorsCabinetRunStatus
         project={props.project} issues={props.issues} selectedIds={props.selectedIds}
-        snapSizeMm={props.snapSizeMm} onSelect={props.onSelect}
+        snapSizeMm={props.snapSizeMm} activeWallId={props.activeWallId}
+        preDropReason={props.preDropReason}
+        onSelect={props.onSelect}
       />
     );
   }

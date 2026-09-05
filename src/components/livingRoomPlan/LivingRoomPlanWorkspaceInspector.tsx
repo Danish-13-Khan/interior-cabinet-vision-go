@@ -33,6 +33,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
+      onCompleteCabinetRun={w.onCompleteCabinetRun}
       onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
       onUpdateOpening={(openingId, patch) => p.build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
       onDeleteOpening={(openingId) => { p.build.dispatchBuildCommand({ type: "deleteOpening", openingId }); p.setActiveOpeningId(null); }}

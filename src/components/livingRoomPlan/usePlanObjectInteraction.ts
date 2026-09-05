@@ -2,7 +2,18 @@ import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorObjectEntity, InteriorProject, Point3Mm, Size3Mm } from "../../domain/interiorProject";
 import { snapLivingRoomObject, type PlanSnapGuide } from "../../domain/livingRoom";
 
-export type ObjectPreview = { objectId: string; position: Point3Mm; dimensions: Size3Mm };
+export type ObjectPreview = {
+  objectId: string;
+  position: Point3Mm;
+  dimensions: Size3Mm;
+  rotationY?: number;
+};
+
+export type SnappedMovePose = {
+  position: Point3Mm;
+  rotationY: number;
+};
+
 type ObjectDrag = ObjectPreview & { mode: "move" | "resize"; startPointer: { x: number; z: number } };
 
 export function usePlanObjectInteraction(input: {
@@ -13,6 +24,14 @@ export function usePlanObjectInteraction(input: {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
+  /**
+   * Live pre-drop validation during drag. When a pose is returned, the ghost
+   * uses that wall-snapped position + rotation so it matches the validated drop.
+   */
+  onMovePreview?: (objectId: string, position: Point3Mm) => SnappedMovePose | null | void;
+  onResizePreview?: (objectId: string, dimensions: Size3Mm) => void;
+  /** Called when a drag gesture ends (after optional commit). */
+  onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
 }) {
   const [drag, setDrag] = useState<ObjectDrag | null>(null);
   const [preview, setPreview] = useState<ObjectPreview | null>(null);
@@ -24,7 +43,14 @@ export function usePlanObjectInteraction(input: {
     event.currentTarget.setPointerCapture(event.pointerId);
     input.onSelect(object.id, event.shiftKey || event.metaKey || event.ctrlKey);
     const startPointer = input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
-    const next = { mode, objectId: object.id, startPointer, position: { ...object.position }, dimensions: { ...object.dimensions } };
+    const next = {
+      mode,
+      objectId: object.id,
+      startPointer,
+      position: { ...object.position },
+      dimensions: { ...object.dimensions },
+      rotationY: object.rotation.y,
+    };
     setDrag(next); setPreview(next);
   }
 
@@ -41,7 +67,22 @@ export function usePlanObjectInteraction(input: {
         input.snapSizeMm,
         input.snapThresholdMm,
       );
-      setPreview({ objectId: drag.objectId, position: result.position, dimensions: drag.dimensions });
+      const snapped = input.onMovePreview?.(drag.objectId, result.position);
+      if (snapped && typeof snapped === "object" && "position" in snapped) {
+        setPreview({
+          objectId: drag.objectId,
+          position: snapped.position,
+          dimensions: drag.dimensions,
+          rotationY: snapped.rotationY,
+        });
+      } else {
+        setPreview({
+          objectId: drag.objectId,
+          position: result.position,
+          dimensions: drag.dimensions,
+          rotationY: drag.rotationY,
+        });
+      }
       setGuides(result.guides);
       return true;
     }
@@ -54,11 +95,20 @@ export function usePlanObjectInteraction(input: {
       widthMm: Math.max(100, Math.round((drag.dimensions.widthMm + localX * 2) / input.snapSizeMm) * input.snapSizeMm),
       depthMm: Math.max(100, Math.round((drag.dimensions.depthMm + localZ * 2) / input.snapSizeMm) * input.snapSizeMm),
     };
-    setPreview({ objectId: drag.objectId, position: drag.position, dimensions }); setGuides([]);
+    setPreview({
+      objectId: drag.objectId,
+      position: drag.position,
+      dimensions,
+      rotationY: drag.rotationY,
+    });
+    setGuides([]);
+    input.onResizePreview?.(drag.objectId, dimensions);
     return true;
   }
 
   function finish() {
+    let committed = false;
+    const mode = drag?.mode ?? "move";
     if (drag && preview) {
       if (
         drag.mode === "move"
@@ -67,6 +117,7 @@ export function usePlanObjectInteraction(input: {
           || preview.position.z !== drag.position.z)
       ) {
         input.onMove(drag.objectId, preview.position);
+        committed = true;
       }
       if (
         drag.mode === "resize"
@@ -75,7 +126,11 @@ export function usePlanObjectInteraction(input: {
           || preview.dimensions.depthMm !== drag.dimensions.depthMm)
       ) {
         input.onResize(drag.objectId, preview.dimensions);
+        committed = true;
       }
+    }
+    if (drag) {
+      input.onDragEnd?.({ committed, mode });
     }
     setDrag(null); setPreview(null); setGuides([]);
   }

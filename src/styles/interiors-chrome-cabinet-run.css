@@ -41,3 +41,13 @@
 .lr-run-status .is-clear {
   color: #276b46;
 }
+
+
+.lr-run-tray [data-testid="lr-complete-run"] {
+  min-height: 29px;
+}
+.lr-run-tray [data-testid="lr-remaining-wall"],
+.lr-run-status [data-testid="lr-remaining-wall"] {
+  color: #276b46;
+  font-variant-numeric: tabular-nums;
+}

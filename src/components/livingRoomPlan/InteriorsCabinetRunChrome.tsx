@@ -27,6 +27,7 @@ export function InteriorsCabinetRunChrome({
     <>
       <InteriorsCabinetRunTitlebar
         tool={tool} showGrid={showGrid} snapSizeMm={snapSizeMm} readability={readability}
+        commands={commands}
         onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
       />
       <InteriorsCabinetRunTray commands={commands} />
