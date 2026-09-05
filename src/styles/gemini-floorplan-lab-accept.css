@@ -1,6 +1,12 @@
 .gfl-grid--accept {
   margin-top: 1rem;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1.4fr 1fr;
+}
+
+@media (max-width: 1100px) {
+  .gfl-grid--accept {
+    grid-template-columns: 1fr;
+  }
 }
 
 .gfl-grid--accept > .gfl-panel {
@@ -73,4 +79,16 @@
   padding-left: 1.1rem;
   color: #e6d28a;
   font-size: 0.8rem;
+}
+
+.gfl-privacy__list {
+  margin: 0;
+  padding: 0.85rem 1rem 1rem 1.25rem;
+  color: var(--gfl-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.gfl-upload__pdf {
+  margin: 0 1rem 0.75rem;
 }

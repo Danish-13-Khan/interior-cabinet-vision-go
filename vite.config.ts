@@ -1,5 +1,6 @@
 import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { geminiFloorplanProxyPlugin } from "./scripts/gemini-floorplan/viteGeminiProxyPlugin";
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
@@ -10,7 +11,7 @@ const pagesBase = "/interior-cabinet-vision-go/";
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react()],
+  plugins: [react(), geminiFloorplanProxyPlugin()],
   resolve: {
     dedupe: ["three"],
   },

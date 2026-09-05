@@ -4,9 +4,11 @@ import {
   readGeminiApiKey,
   resolveGeminiModel,
 } from "./geminiVisionClient";
+import { hasGeminiVisionConfigured, shouldUseGeminiProxy } from "./labFlags";
 import { normalizeProposalToMm } from "./normalizeProposal";
 import { parseGeminiFloorProposal } from "./proposalSchema";
 import type { VisionExtractResult } from "./proposalTypes";
+import { stripImageExif } from "./stripImageExif";
 
 function parseJsonText(text: string): unknown {
   const trimmed = text.trim();
@@ -22,27 +24,28 @@ function parseJsonText(text: string): unknown {
   }
 }
 
-/** Full Phase 1 pipeline: image file → Gemini Vision → validate → mm. */
+/** Full pipeline: image → (strip EXIF) → Gemini Vision → validate → mm. */
 export async function extractFloorPlanFromImage(
   file: File,
   mimeType: string,
 ): Promise<VisionExtractResult> {
-  const apiKey = readGeminiApiKey();
-  if (!apiKey) {
+  if (!hasGeminiVisionConfigured()) {
     return {
       ok: false,
-      error: "VITE_GEMINI_API_KEY is not set. Add it to .env and restart Vite.",
+      error:
+        "Vision unavailable. Start Vite with GEMINI_API_KEY in .env (proxy) or set VITE_GEMINI_API_KEY.",
     };
   }
 
   const model = resolveGeminiModel();
   const started = performance.now();
   try {
-    const imageBase64 = await fileToBase64(file);
+    const cleaned = await stripImageExif(file);
+    const imageBase64 = await fileToBase64(cleaned);
     const vision = await callGeminiFloorplanVision({
-      apiKey,
+      apiKey: shouldUseGeminiProxy() ? undefined : readGeminiApiKey() ?? undefined,
       model,
-      mimeType,
+      mimeType: cleaned.type || mimeType,
       imageBase64,
     });
     const latencyMs = Math.round(performance.now() - started);
