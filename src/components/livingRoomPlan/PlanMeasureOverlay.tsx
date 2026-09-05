@@ -10,14 +10,16 @@ export function PlanMeasureOverlay(props: {
   cursor: Point2Mm | null;
   snap: MeasureSnapPoint | null;
   active: boolean;
+  mode?: "measure" | "calibrate";
 }) {
   if (!props.active) return null;
+  const mode = props.mode ?? "measure";
   const draftPoints = props.cursor && props.points.length > 0
     ? [...props.points, props.cursor]
     : props.points;
   const segments = measureSegmentsFromPoints(draftPoints);
   return (
-    <g className="lr-measure-overlay" pointerEvents="none" aria-label="Measure tool">
+    <g className={`lr-measure-overlay ${mode === "calibrate" ? "is-calibrate" : ""}`} pointerEvents="none" aria-label={mode === "calibrate" ? "Calibrate underlay" : "Measure tool"}>
       {segments.map((segment, index) => {
         const mx = (segment.a.x + segment.b.x) / 2;
         const mz = (segment.a.z + segment.b.z) / 2;
@@ -34,7 +36,14 @@ export function PlanMeasureOverlay(props: {
         );
       })}
       {props.points.map((point, index) => (
-        <circle key={`pt-${index}`} cx={point.x} cy={point.z} r={35} className="lr-measure-point" data-testid="lr-measure-point" />
+        <circle
+          key={`pt-${index}`}
+          cx={point.x}
+          cy={point.z}
+          r={35}
+          className="lr-measure-point"
+          data-testid={mode === "calibrate" ? "lr-calibrate-point" : "lr-measure-point"}
+        />
       ))}
       {props.snap ? (
         <g>

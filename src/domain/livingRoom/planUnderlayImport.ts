@@ -12,16 +12,25 @@ export function imageFileToUnderlay(
       const dataUrl = String(reader.result ?? "");
       const image = new Image();
       image.onerror = () => reject(new Error("The selected file is not a supported plan image."));
-      image.onload = () => resolve({
-        fileName: file.name,
-        dataUrl,
-        widthMm: roomWidthMm,
-        heightMm: roomWidthMm * image.naturalHeight / Math.max(1, image.naturalWidth),
-        opacity: 0.42,
-        xMm: 0,
-        zMm: 0,
-        rotationDeg: 0,
-      });
+      image.onload = () => {
+        const widthMm = roomWidthMm;
+        const heightMm = roomWidthMm * image.naturalHeight / Math.max(1, image.naturalWidth);
+        resolve({
+          fileName: file.name,
+          dataUrl,
+          widthMm,
+          heightMm,
+          opacity: 0.42,
+          xMm: 0,
+          zMm: 0,
+          rotationDeg: 0,
+          locked: false,
+          hidden: false,
+          calibrated: false,
+          importWidthMm: widthMm,
+          importHeightMm: heightMm,
+        });
+      };
       image.src = dataUrl;
     };
     reader.readAsDataURL(file);

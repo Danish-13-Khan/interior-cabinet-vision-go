@@ -7,6 +7,7 @@ import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomS
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
+import { toggleSiteMeasureChecklistItem } from "../../domain/livingRoom";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
@@ -39,6 +40,13 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onSetLayerVisibility={w.onSetLayerVisibility}
           onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
+          onCalibrateUnderlay={() => props.onBuildTool("calibrate-underlay")}
+          onToggleSiteMeasure={(key, value) => {
+            w.onPatchDocument(
+              (current) => toggleSiteMeasureChecklistItem(current, key, value),
+              "Updated site measure checklist.",
+            );
+          }}
           presenting={props.plannerMode === "render"}
           onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
           onActiveRoom={(roomId) => { w.onActiveRoom(roomId); inspectPlanTarget(props, { inspectRoom: true }); }}
@@ -144,6 +152,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onRegisterViewControls={props.onRegisterViewControls}
         onFitPlan={props.onFitPlan}
         onFitSelection={props.onFitSelection}
+        onSetPlanUnderlay={w.onSetPlanUnderlay}
+        onCalibrateComplete={() => props.onBuildTool("select")}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
     </div>

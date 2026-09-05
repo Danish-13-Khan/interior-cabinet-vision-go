@@ -7,6 +7,7 @@ import {
 } from "../../domain/livingRoom";
 import { interiorsCabinetRunSnapTarget } from "../../domain/desktopUx";
 import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
+import { toggleSiteMeasureChecklistItem, type SiteMeasureUserKey } from "../../domain/livingRoom";
 
 export function inspectPlanTarget(
   props: LivingRoomPlanWorkspaceBodyProps,
@@ -34,6 +35,12 @@ export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBod
     importError: props.importError,
     onSetPlanUnderlay: w.onSetPlanUnderlay,
     onReplaceUnderlay: () => props.underlayPickerRef.current?.(),
+    onToggleSiteMeasure: (key: SiteMeasureUserKey, value: boolean) => {
+      w.onPatchDocument(
+        (current) => toggleSiteMeasureChecklistItem(current, key, value),
+        "Updated site measure checklist.",
+      );
+    },
     onActiveRoom: (roomId: string) => {
       w.onActiveRoom(roomId);
       inspectPlanTarget(props, { inspectRoom: true });

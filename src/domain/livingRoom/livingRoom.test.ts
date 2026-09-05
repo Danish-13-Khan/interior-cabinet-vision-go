@@ -141,6 +141,9 @@ describe("Living Room Starter Contract", () => {
       xMm: 0,
       zMm: 0,
       rotationDeg: 0,
+      locked: false,
+      hidden: false,
+      calibrated: false,
     });
     expect(getLivingRoomPlanUnderlay(setLivingRoomPlanUnderlay(reopened, null))).toBeNull();
   });
@@ -156,8 +159,35 @@ describe("Living Room Starter Contract", () => {
       xMm: 150,
       zMm: -80,
       rotationDeg: 12,
+      locked: false,
+      hidden: false,
+      calibrated: false,
     };
     const withUnderlay = setLivingRoomPlanUnderlay(project, underlay);
     expect(getLivingRoomPlanUnderlay(withUnderlay)).toEqual(underlay);
+  });
+
+  it("parses locked, hidden, and calibrated underlay flags", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const underlay = {
+      fileName: "living-room-plan.png",
+      dataUrl: "data:image/png;base64,cGxhbg==",
+      widthMm: 5000,
+      heightMm: 4000,
+      opacity: 0.5,
+      locked: true,
+      hidden: true,
+      calibrated: true,
+      importWidthMm: 5000,
+      importHeightMm: 4000,
+    };
+    const parsed = getLivingRoomPlanUnderlay(setLivingRoomPlanUnderlay(project, underlay));
+    expect(parsed).toMatchObject({
+      locked: true,
+      hidden: true,
+      calibrated: true,
+      importWidthMm: 5000,
+      importHeightMm: 4000,
+    });
   });
 });
