@@ -1,15 +1,30 @@
-import { useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject, Point2Mm, Point3Mm, RoomDrawingRequest, Size3Mm } from "../domain/interiorProject";
 import { EMPTY_PLAN_SITE_BOUNDS, roomPlanViewBounds } from "../domain/interiorProject";
 import {
+  PLAN_MARQUEE_CLICK_SCREEN_PX,
+  PLAN_POINTER_SNAP_SCREEN_PX,
+  PLAN_WALL_MOVE_SCREEN_PX,
+  appendMeasurePoint,
+  boundsFromPoints,
+  collectMeasureSnapPoints,
+  collectReferenceDimensions,
+  expandBounds,
+  getObjectPlanBounds,
   getOpeningCatalogItem,
   openingOffsetAtPoint,
+  rectsIntersect,
+  snapMeasurePoint,
   type BuildTool,
   type LivingRoomPlanIssue,
+  type MeasureSnapPoint,
   type PlanReadabilitySettings,
+  type WallLengthAnchor,
 } from "../domain/livingRoom";
+import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
+import { PlanMeasureOverlay } from "./livingRoomPlan/PlanMeasureOverlay";
 import { PlanObjectsLayer } from "./livingRoomPlan/PlanObjectsLayer";
 import { PlanOpeningsLayer, usePlanOpeningInteraction } from "./livingRoomPlan/PlanOpeningsLayer";
 import { PlanSurfaceZonesLayer } from "./livingRoomPlan/PlanSurfaceZonesLayer";
@@ -27,6 +42,7 @@ type Props = {
   snapSizeMm: number; showGrid: boolean; activeWallId: string | null; activeOpeningId: string | null;
   activeSurfaceId: string | null; surfaceMaterialId: string;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectMany?: (objectIds: string[]) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSelectWall: (wallId: string) => void; onSelectOpening: (openingId: string) => void;
@@ -45,30 +61,74 @@ type Props = {
   roomPolygonCloseRequest: number;
   onRoomPolygonPointCount: (count: number) => void;
   readability: PlanReadabilitySettings;
+  onSetWallLength?: (wallId: string, lengthMm: number, anchor: WallLengthAnchor) => void;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+};
+
+type MarqueeState = {
+  start: Point2Mm;
+  current: Point2Mm;
+  additive: boolean;
+  /** True when gesture began on room floor (click without drag → select room). */
+  fromFloor: boolean;
 };
 
 export function LivingRoomPlanView(props: Props) {
-  const svgRef = useRef<SVGSVGElement | null>(null);
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId) ?? null;
-  const margin = 850;
   const bounds = room ? roomPlanViewBounds(props.project, room.id) : EMPTY_PLAN_SITE_BOUNDS;
-  const viewBox = `${bounds.minX - margin} ${bounds.minZ - margin} ${bounds.widthMm + margin * 2} ${bounds.depthMm + margin * 2}`;
+  const fitBounds = useMemo(() => ({
+    minX: bounds.minX, minZ: bounds.minZ, maxX: bounds.maxX, maxZ: bounds.maxZ,
+  }), [bounds.minX, bounds.minZ, bounds.maxX, bounds.maxZ]);
+  const fitKey = `${props.project.id}:${props.project.activeRoomId}`;
+  const nav = usePlanCanvasNavigation({ fitBounds, fitKey });
+  const pointerSnapMm = nav.screenToWorldMm(PLAN_POINTER_SNAP_SCREEN_PX);
+  const marqueeClickMm = nav.screenToWorldMm(PLAN_MARQUEE_CLICK_SCREEN_PX);
+  const wallMoveMm = nav.screenToWorldMm(PLAN_WALL_MOVE_SCREEN_PX);
+
   const tool = props.activeBuildTool ?? "select";
   const drawRoom = tool === "draw-room";
   const drawSurface = tool === "draw-surface";
   const drawWall = tool === "draw-wall";
   const drawPartition = tool === "draw-partition";
   const placeColumn = tool === "place-column";
+  const measuring = tool === "measure";
   const editWalls = tool === "select";
 
+  const [marquee, setMarquee] = useState<MarqueeState | null>(null);
+  const [measurePoints, setMeasurePoints] = useState<Point2Mm[]>([]);
+  const [measureCursor, setMeasureCursor] = useState<Point2Mm | null>(null);
+  const [measureSnap, setMeasureSnap] = useState<MeasureSnapPoint | null>(null);
+
+  useEffect(() => {
+    setMeasurePoints([]);
+    setMeasureCursor(null);
+    setMeasureSnap(null);
+  }, [tool, props.project.id, props.project.activeRoomId]);
+
+  useEffect(() => {
+    function fitSelection() {
+      if (props.selectedIds.length === 0) {
+        nav.fitPlan();
+        return;
+      }
+      const points = props.project.objects
+        .filter((object) => props.selectedIds.includes(object.id))
+        .flatMap((object) => {
+          const b = getObjectPlanBounds(object);
+          return [
+            { x: b.minX, z: b.minZ },
+            { x: b.maxX, z: b.maxZ },
+          ];
+        });
+      const selectionBounds = boundsFromPoints(points);
+      nav.fitSelectionBounds(selectionBounds ? expandBounds(selectionBounds, 200) : null);
+    }
+    props.onRegisterViewControls?.({ fitPlan: nav.fitPlan, fitSelection });
+    return () => props.onRegisterViewControls?.(null);
+  }, [nav.fitPlan, nav.fitSelectionBounds, props, props.project.objects, props.selectedIds]);
+
   function worldPoint(event: ReactPointerEvent<SVGSVGElement>) {
-    const svg = svgRef.current;
-    const matrix = svg?.getScreenCTM()?.inverse();
-    if (!svg || !matrix) return { x: 0, z: 0 };
-    const point = svg.createSVGPoint();
-    point.x = event.clientX; point.y = event.clientY;
-    const transformed = point.matrixTransform(matrix);
-    return { x: transformed.x, z: transformed.y };
+    return nav.worldFromClient(event.clientX, event.clientY);
   }
 
   const openings = usePlanOpeningInteraction({
@@ -77,11 +137,11 @@ export function LivingRoomPlanView(props: Props) {
     onResizeOpening: props.onResizeOpening,
   });
   const objects = usePlanObjectInteraction({
-    project: props.project, snapSizeMm: props.snapSizeMm, worldPoint,
+    project: props.project, snapSizeMm: props.snapSizeMm, snapThresholdMm: pointerSnapMm, worldPoint,
     onSelect: props.onSelect, onMove: props.onMove, onResize: props.onResize,
   });
   const walls = usePlanWallInteraction({
-    active: editWalls, project: props.project, snapSizeMm: props.snapSizeMm, worldPoint,
+    active: editWalls, project: props.project, snapSizeMm: props.snapSizeMm, moveThresholdMm: wallMoveMm, worldPoint,
     onSelectWall: props.onSelectWall, onMoveNode: props.onMoveNode, onTranslateWall: props.onTranslateWall,
   });
   const roomDrawing = useRoomDrawing({
@@ -98,7 +158,17 @@ export function LivingRoomPlanView(props: Props) {
     onCommit: (start, end) => props.onDrawWallSegment(start, end, drawPartition ? "partition" : "wall"),
   });
 
+  const measureCandidates = useMemo(
+    () => (measuring ? collectMeasureSnapPoints(props.project, props.snapSizeMm) : []),
+    [measuring, props.project, props.snapSizeMm],
+  );
+  const referenceDims = useMemo(
+    () => collectReferenceDimensions(props.project),
+    [props.project],
+  );
+
   function handleWall(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
+    if (measuring || nav.spaceDown) return;
     if (drawWall || drawPartition) { wallDrawing.begin(event); return; }
     if (editWalls && walls.beginWall(event, wallId)) return;
     event.stopPropagation();
@@ -115,18 +185,6 @@ export function LivingRoomPlanView(props: Props) {
     props.onSelectWall(wallId); props.onPlaceOpening(wallId, kind, offsetMm);
   }
 
-  function pointerMove(event: ReactPointerEvent<SVGSVGElement>) {
-    if (roomDrawing.move(event)) return;
-    if (wallDrawing.move(event)) return;
-    if (walls.move(event)) return;
-    if (!openings.openingDragMove(event)) objects.move(event);
-  }
-  function finish(event: ReactPointerEvent<SVGSVGElement>) {
-    if (roomDrawing.finish(event)) return;
-    if (wallDrawing.finish(event)) return;
-    if (walls.finish()) return;
-    objects.finish(); openings.finishOpeningDrag();
-  }
   function snapPoint(point: Point2Mm): Point2Mm {
     const grid = props.snapSizeMm;
     return { x: Math.round(point.x / grid) * grid, z: Math.round(point.z / grid) * grid };
@@ -140,29 +198,148 @@ export function LivingRoomPlanView(props: Props) {
     props.onPlaceColumn(snapPoint(worldPoint(event as ReactPointerEvent<SVGSVGElement>)));
   }
 
+  function updateMeasureHover(event: ReactPointerEvent<SVGSVGElement>) {
+    const raw = worldPoint(event);
+    const snapped = snapMeasurePoint(raw, measureCandidates, pointerSnapMm, props.snapSizeMm);
+    setMeasureSnap(snapped);
+    setMeasureCursor(snapped);
+  }
+
+  function commitMeasureClick(event: ReactPointerEvent<SVGElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    const raw = worldPoint(event as ReactPointerEvent<SVGSVGElement>);
+    const snapped = snapMeasurePoint(raw, measureCandidates, pointerSnapMm, props.snapSizeMm);
+    setMeasurePoints((current) => appendMeasurePoint(current, snapped));
+    setMeasureSnap(snapped);
+    setMeasureCursor(snapped);
+  }
+
   function paperDown(event: ReactPointerEvent<SVGRectElement>) {
+    if (nav.beginPan(event as unknown as ReactPointerEvent<SVGSVGElement>)) return;
+    if (measuring) { if (event.button === 0) commitMeasureClick(event); return; }
     if (placeColumn) { placeColumnAt(event); return; }
     if (roomDrawing.start(event)) return;
     if (wallDrawing.begin(event)) return;
+    if (editWalls && event.button === 0) {
+      const start = worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
+      setMarquee({ start, current: start, additive: event.shiftKey || event.metaKey || event.ctrlKey, fromFloor: false });
+      event.currentTarget.setPointerCapture(event.pointerId);
+      return;
+    }
     props.onSelect(null);
     props.onSelectSurface(null);
   }
 
-  return <svg ref={svgRef}
-    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging ? "is-dragging" : ""}`}
-    viewBox={viewBox} role="application" aria-label="Living room plan editor"
+  function floorDown(event: ReactPointerEvent<SVGPathElement>) {
+    if (nav.beginPan(event as unknown as ReactPointerEvent<SVGSVGElement>)) return;
+    if (measuring) { if (event.button === 0) commitMeasureClick(event); return; }
+    if (placeColumn) { placeColumnAt(event); return; }
+    if (!editWalls || event.button !== 0) return;
+    // Potential marquee from inside the room; click without drag selects the room.
+    event.preventDefault();
+    event.stopPropagation();
+    const start = worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
+    setMarquee({
+      start,
+      current: start,
+      additive: event.shiftKey || event.metaKey || event.ctrlKey,
+      fromFloor: true,
+    });
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function pointerMove(event: ReactPointerEvent<SVGSVGElement>) {
+    if (nav.movePan(event)) return;
+    if (measuring) { updateMeasureHover(event); return; }
+    if (marquee) {
+      setMarquee({ ...marquee, current: worldPoint(event) });
+      return;
+    }
+    if (roomDrawing.move(event)) return;
+    if (wallDrawing.move(event)) return;
+    if (walls.move(event)) return;
+    if (!openings.openingDragMove(event)) objects.move(event);
+  }
+
+  function finishMarquee() {
+    if (!marquee) return;
+    const minX = Math.min(marquee.start.x, marquee.current.x);
+    const maxX = Math.max(marquee.start.x, marquee.current.x);
+    const minZ = Math.min(marquee.start.z, marquee.current.z);
+    const maxZ = Math.max(marquee.start.z, marquee.current.z);
+    const tiny = Math.hypot(maxX - minX, maxZ - minZ) < marqueeClickMm;
+    if (tiny) {
+      if (marquee.fromFloor && !marquee.additive) {
+        props.onSelectRoom?.();
+      } else if (!marquee.additive) {
+        props.onSelect(null);
+        props.onSelectSurface(null);
+      }
+      setMarquee(null);
+      return;
+    }
+    const hit = props.project.objects.filter((object) => {
+      if (room && object.roomId !== room.id) return false;
+      const b = getObjectPlanBounds(object);
+      return rectsIntersect(b, { minX, minZ, maxX, maxZ });
+    }).map((object) => object.id);
+    if (props.onSelectMany) {
+      const next = marquee.additive
+        ? Array.from(new Set([...props.selectedIds, ...hit]))
+        : hit;
+      props.onSelectMany(next);
+    } else if (hit[0]) {
+      props.onSelect(hit[0], marquee.additive);
+    } else if (!marquee.additive) {
+      props.onSelect(null);
+    }
+    setMarquee(null);
+  }
+
+  function finish(event: ReactPointerEvent<SVGSVGElement>) {
+    if (nav.endPan(event)) return;
+    if (marquee) { finishMarquee(); return; }
+    if (roomDrawing.finish(event)) return;
+    if (wallDrawing.finish(event)) return;
+    if (walls.finish()) return;
+    objects.finish(); openings.finishOpeningDrag();
+  }
+
+  const marqueeRect = marquee ? {
+    x: Math.min(marquee.start.x, marquee.current.x),
+    z: Math.min(marquee.start.z, marquee.current.z),
+    width: Math.abs(marquee.current.x - marquee.start.x),
+    height: Math.abs(marquee.current.z - marquee.start.z),
+  } : null;
+
+  return <svg ref={nav.svgRef}
+    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""}`}
+    viewBox={nav.viewBox} role="application" aria-label="Living room plan editor"
+    data-testid="lr-plan-svg"
+    onWheel={nav.onWheel}
     onPointerDownCapture={(event) => {
-      // An armed architecture tool owns the canvas gesture. In particular,
-      // wall-mounted objects must not steal the start of a room-splitting wall.
+      if (nav.beginPan(event)) return;
+      if (measuring) {
+        // Capture before cabinet/opening drag handlers steal the gesture.
+        // Primary button only — right/middle must not add measure points.
+        if (event.button === 0) commitMeasureClick(event);
+        return;
+      }
       if (drawWall || drawPartition) { wallDrawing.begin(event); return; }
       if (placeColumn) placeColumnAt(event);
     }}
-    onPointerDown={(event) => { if (event.target === event.currentTarget) { props.onSelect(null); props.onSelectSurface(null); } }}
-    onPointerMove={pointerMove} onPointerUp={finish} onPointerCancel={finish}>
+    onPointerDown={(event) => {
+      if (nav.spaceDown || event.button === 1) { nav.beginPan(event); return; }
+      if (measuring) { if (event.button === 0) commitMeasureClick(event); return; }
+      if (event.target === event.currentTarget) { props.onSelect(null); props.onSelectSurface(null); }
+    }}
+    onPointerMove={pointerMove} onPointerUp={finish} onPointerCancel={finish}
+    onContextMenu={(event) => event.preventDefault()}>
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall}
-      onSelectRoom={editWalls ? props.onSelectRoom : undefined} />
+      onFloor={editWalls || measuring || placeColumn ? floorDown : undefined} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
     <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
@@ -174,10 +351,22 @@ export function LivingRoomPlanView(props: Props) {
       snapTarget={walls.feedback.snapTarget} snapLabel={walls.feedback.snapLabel} unit={props.readability.unit} /> : null}
     <PlanOpeningsLayer project={props.project} activeOpeningId={props.activeOpeningId}
       openingPreview={openings.openingPreview} onSelectOpening={props.onSelectOpening}
-      onStartDrag={openings.startOpeningDrag} unit={props.readability.unit} />
+      onStartDrag={openings.startOpeningDrag} unit={props.readability.unit}
+      interactive={!measuring} />
     <PlanObjectsLayer project={props.project} selectedIds={props.selectedIds} issues={props.issues}
-      preview={objects.preview} guides={objects.guides} unit={props.readability.unit} onStart={objects.start} />
-    {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId} settings={props.readability} /> : null}
+      preview={objects.preview} guides={objects.guides} unit={props.readability.unit}
+      onStart={objects.start} interactive={!measuring} />
+    {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
+      settings={props.readability} referenceDims={referenceDims}
+      onSetWallLength={props.onSetWallLength} /> : null}
+    <PlanMeasureOverlay active={measuring} points={measurePoints} cursor={measureCursor} snap={measureSnap} />
+    {marqueeRect ? (
+      <rect
+        className="lr-plan-marquee"
+        x={marqueeRect.x} y={marqueeRect.z} width={marqueeRect.width} height={marqueeRect.height}
+        data-testid="lr-plan-marquee"
+      />
+    ) : null}
     {!room ? (
       <text className="lr-empty-plan-hint" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
         Drag a rectangle to draw the room, then use Draw Wall to add or split walls.

@@ -221,6 +221,10 @@ export function useLivingRoomPlanEditor({
     });
   }
 
+  function selectObjects(objectIds: string[]) {
+    setSelectedObjectIds([...objectIds]);
+  }
+
   function moveObject(objectId: string, position: Point3Mm) {
     commitDocument(
       (current) => {
@@ -611,6 +615,7 @@ export function useLivingRoomPlanEditor({
     openLivingRoomProjectHome: () => setProjectHomeOpen(true),
     closeLivingRoomProjectHome: () => setProjectHomeOpen(false),
     selectInteriorObject: selectObject,
+    selectInteriorObjects: selectObjects,
     moveInteriorObject: moveObject,
     resizeInteriorObject: resizeObject,
     rotateInteriorSelection: rotateSelection,

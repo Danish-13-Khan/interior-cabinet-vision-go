@@ -61,6 +61,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onRestoreRecovery: () => void;
   onDiscardRecovery: () => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
+  onSelectMany?: (objectIds: string[]) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;

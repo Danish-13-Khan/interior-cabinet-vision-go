@@ -12,6 +12,9 @@ export function InteriorsDrawRoomTitlebar({
   onShowGrid,
   onSnapSize,
   onReadability,
+  onFitPlan,
+  onFitSelection,
+  hasSelection,
 }: {
   projectName: string;
   tool: InteriorsChromeTool;
@@ -22,6 +25,9 @@ export function InteriorsDrawRoomTitlebar({
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
+  onFitPlan?: () => void;
+  onFitSelection?: () => void;
+  hasSelection?: boolean;
 }) {
   return (
     <div className="lr-draw-titlebar lr-plan-titlebar has-readability" data-testid="interiors-draw-titlebar">
@@ -33,8 +39,10 @@ export function InteriorsDrawRoomTitlebar({
         {interiorsDrawRoomHint(tool, buildTool)}
       </span>
       <PlanReadabilityToolbar settings={readability} onChange={onReadability} />
-      <small>Scale: Fit · Units: {readability.unit}</small>
+      <small>Units: {readability.unit}</small>
       <div>
+        <button type="button" data-testid="fit-plan" title="Fit plan" onClick={() => onFitPlan?.()}>Fit</button>
+        <button type="button" data-testid="fit-selection" title="Fit selection" onClick={() => onFitSelection?.()} disabled={!hasSelection}>Fit sel</button>
         <button type="button" className={showGrid ? "is-active" : ""} aria-pressed={showGrid} onClick={() => onShowGrid(!showGrid)}>
           Grid
         </button>

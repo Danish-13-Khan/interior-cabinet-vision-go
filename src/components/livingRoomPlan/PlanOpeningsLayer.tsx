@@ -132,6 +132,7 @@ export function PlanOpeningsLayer({
   onSelectOpening,
   onStartDrag,
   unit,
+  interactive = true,
 }: {
   project: InteriorProject;
   activeOpeningId: string | null;
@@ -143,7 +144,9 @@ export function PlanOpeningsLayer({
     mode: "move" | "resize-start" | "resize-end",
   ) => void;
   unit: PlanDisplayUnit;
+  interactive?: boolean;
 }) {
+  const startDrag = interactive ? onStartDrag : (() => undefined);
   return (
     <>
       {project.openings
@@ -158,8 +161,8 @@ export function PlanOpeningsLayer({
               wall={wall}
               preview={openingPreview}
               active={opening.id === activeOpeningId}
-              onSelect={onSelectOpening}
-              onStartDrag={onStartDrag}
+              onSelect={interactive ? onSelectOpening : () => undefined}
+              onStartDrag={startDrag}
               unit={unit}
             />
           );

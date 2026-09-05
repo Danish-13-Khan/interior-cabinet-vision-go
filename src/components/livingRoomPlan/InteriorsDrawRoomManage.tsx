@@ -1,5 +1,6 @@
 import {
   INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS,
+  INTERIORS_DRAW_ROOM_NAV_TOOLS,
   interiorsDrawRoomShowArchitecture,
   interiorsDrawRoomShowUnderlay,
 } from "../../domain/desktopUx";
@@ -26,6 +27,19 @@ export function InteriorsDrawRoomManage({
           onMergeRooms={commands.onMergeRooms}
         />
       ) : null}
+      <div className="lr-draw-nav-tools" aria-label="Plan tools">
+        {INTERIORS_DRAW_ROOM_NAV_TOOLS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            data-build-tool={item.id}
+            className={activeBuildTool === item.id ? "is-active" : ""}
+            onClick={() => commands.onBuildTool(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
       {showArch ? (
         <div className="lr-draw-arch" aria-label="Architecture tools">
           {INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS.map((item) => (

@@ -7,6 +7,8 @@ type ObjectDrag = ObjectPreview & { mode: "move" | "resize"; startPointer: { x: 
 
 export function usePlanObjectInteraction(input: {
   project: InteriorProject; snapSizeMm: number;
+  /** Zoom-aware semantic snap radius in world mm (from screen px). */
+  snapThresholdMm?: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => { x: number; z: number };
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
@@ -32,7 +34,13 @@ export function usePlanObjectInteraction(input: {
     const dx = point.x - drag.startPointer.x;
     const dz = point.z - drag.startPointer.z;
     if (drag.mode === "move") {
-      const result = snapLivingRoomObject(input.project, drag.objectId, { ...drag.position, x: drag.position.x + dx, z: drag.position.z + dz }, input.snapSizeMm);
+      const result = snapLivingRoomObject(
+        input.project,
+        drag.objectId,
+        { ...drag.position, x: drag.position.x + dx, z: drag.position.z + dz },
+        input.snapSizeMm,
+        input.snapThresholdMm,
+      );
       setPreview({ objectId: drag.objectId, position: result.position, dimensions: drag.dimensions });
       setGuides(result.guides);
       return true;

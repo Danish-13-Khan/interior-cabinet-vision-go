@@ -67,4 +67,7 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   inspectRoom: boolean;
   setInspectRoom: React.Dispatch<React.SetStateAction<boolean>>;
   onWorkspaceView: (view: LivingRoomWorkspaceView) => void;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+  onFitPlan?: () => void;
+  onFitSelection?: () => void;
 };

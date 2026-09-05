@@ -24,7 +24,10 @@ export function PlanObjectsLayer(props: {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
   preview: ObjectPreview | null; guides: PlanSnapGuide[]; unit: PlanDisplayUnit;
   onStart: (event: ReactPointerEvent<SVGGElement | SVGRectElement>, object: InteriorObjectEntity, mode: "move" | "resize") => void;
+  /** When false (e.g. measure tool), skip pointer drag handlers so measure can receive clicks. */
+  interactive?: boolean;
 }) {
+  const interactive = props.interactive !== false;
   const issueIds = new Set(props.issues.flatMap((issue) => issue.objectIds));
   const materialsById = new Map(props.project.materials.map((material) => [material.id, material]));
   const objects = props.project.objects.filter((object) => object.extensions?.layerVisible !== false)
@@ -55,7 +58,7 @@ export function PlanObjectsLayer(props: {
         data-width-mm={dimensions.widthMm}
         data-label-mode={labelMode}
         style={fill ? { ["--lr-object-fill" as string]: fill } : undefined}
-        onPointerDown={(event) => props.onStart(event, object, "move")}>
+        onPointerDown={interactive ? (event) => props.onStart(event, object, "move") : undefined}>
         <rect x={-dimensions.widthMm / 2} y={-dimensions.depthMm / 2} width={dimensions.widthMm} height={dimensions.depthMm} rx={object.category === "rug" ? 45 : 12} />
         <PlanObjectSymbol object={object} dimensions={dimensions} />
         <line x1="0" y1="0" x2="0" y2={-dimensions.depthMm / 2 + 70} className="lr-object-axis" />
@@ -67,7 +70,7 @@ export function PlanObjectsLayer(props: {
           <tspan x="0" y={labelY}>{object.name}</tspan>
           {labelMode === "full" ? <tspan x="0" y="68" className="lr-object-size">{formatPlanDimension(dimensions.widthMm, props.unit)} × {formatPlanDimension(dimensions.depthMm, props.unit)}</tspan> : null}
         </text> : null}
-        {selected && props.selectedIds.length === 1 ? <rect x={dimensions.widthMm / 2 - 55} y={dimensions.depthMm / 2 - 55} width="110" height="110" className="lr-resize-handle" onPointerDown={(event) => props.onStart(event, object, "resize")} /> : null}
+        {selected && props.selectedIds.length === 1 ? <rect x={dimensions.widthMm / 2 - 55} y={dimensions.depthMm / 2 - 55} width="110" height="110" className="lr-resize-handle" onPointerDown={interactive ? (event) => props.onStart(event, object, "resize") : undefined} /> : null}
         {issueIds.has(object.id) ? (
           <g className="lr-object-warning" data-testid={`cabinet-issue-${object.id}`} transform={`translate(${dimensions.widthMm / 2 - 28} ${-dimensions.depthMm / 2 - 48})`}>
             <circle r="32" />
@@ -76,8 +79,21 @@ export function PlanObjectsLayer(props: {
         ) : null}
       </g>;
     })}
-    {props.guides.map((guide, index) => guide.axis === "x"
-      ? <line key={`x-${index}`} x1={guide.valueMm} y1={-10000} x2={guide.valueMm} y2={10000} className={`lr-snap-guide is-${guide.kind}`} />
-      : <line key={`z-${index}`} x1={-10000} y1={guide.valueMm} x2={10000} y2={guide.valueMm} className={`lr-snap-guide is-${guide.kind}`} />)}
+    {props.guides.map((guide, index) => (
+      <g key={`${guide.axis}-${index}`} className={`lr-snap-guide-group is-${guide.kind}`} data-snap-kind={guide.kind} data-snap-label={guide.label ?? guide.kind}>
+        {guide.axis === "x"
+          ? <line x1={guide.valueMm} y1={-10000} x2={guide.valueMm} y2={10000} className={`lr-snap-guide is-${guide.kind}`} />
+          : <line x1={-10000} y1={guide.valueMm} x2={10000} y2={guide.valueMm} className={`lr-snap-guide is-${guide.kind}`} />}
+        {guide.label ? (
+          <text
+            className={`lr-snap-guide-label is-${guide.kind}`}
+            x={guide.axis === "x" ? guide.valueMm + 40 : 0}
+            y={guide.axis === "z" ? guide.valueMm - 40 : 0}
+          >
+            {guide.label}
+          </text>
+        ) : null}
+      </g>
+    ))}
   </>;
 }

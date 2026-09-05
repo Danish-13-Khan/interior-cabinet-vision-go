@@ -27,6 +27,9 @@ export function InteriorsDrawRoomChrome({
   onOpeningCatalogItem,
   onCloseRoomPolygon,
   onCommitOpening,
+  onFitPlan,
+  onFitSelection,
+  hasSelection,
 }: {
   tool: InteriorsChromeTool;
   project: InteriorProject;
@@ -44,6 +47,9 @@ export function InteriorsDrawRoomChrome({
   onOpeningCatalogItem?: (catalogItemId: string) => void;
   onCloseRoomPolygon?: () => void;
   onCommitOpening?: (wallId: string, kind: "door" | "window") => void;
+  onFitPlan?: () => void;
+  onFitSelection?: () => void;
+  hasSelection?: boolean;
 }) {
   const wallId = interiorsDrawRoomPlacementWallId(activeWallId, interiorsDrawRoomRoomWallIds(project));
   return (
@@ -51,6 +57,7 @@ export function InteriorsDrawRoomChrome({
       <InteriorsDrawRoomTitlebar
         projectName={project.name} tool={tool} buildTool={activeBuildTool} showGrid={showGrid} snapSizeMm={snapSizeMm}
         readability={readability} onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
+        onFitPlan={onFitPlan} onFitSelection={onFitSelection} hasSelection={hasSelection}
       />
       <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands} />
       <InteriorsDrawRoomTray

@@ -29,13 +29,13 @@ type WallDrag = {
   moved: boolean;
 };
 
-const MOVE_THRESHOLD_MM = 40;
-
 /** Select-tool drag for wall endpoints and whole-wall translate (preview locally, commit on up). */
 export function usePlanWallInteraction(input: {
   active: boolean;
   project: InteriorProject;
   snapSizeMm: number;
+  /** Zoom-aware click-vs-drag threshold in world mm (from ~6 screen px). */
+  moveThresholdMm?: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point2Mm;
   onSelectWall: (wallId: string) => void;
   onMoveNode: (nodeId: string, position: Point2Mm) => void;
@@ -110,7 +110,7 @@ export function usePlanWallInteraction(input: {
     setDragState({
       ...current,
       delta,
-      moved: current.moved || Math.hypot(delta.x, delta.z) >= MOVE_THRESHOLD_MM,
+      moved: current.moved || Math.hypot(delta.x, delta.z) >= (input.moveThresholdMm ?? 40),
     });
     return true;
   }

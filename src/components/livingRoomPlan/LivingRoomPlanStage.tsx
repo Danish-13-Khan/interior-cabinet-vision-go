@@ -28,6 +28,9 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
             onRoomPolygonPointCount={props.onRoomPolygonPointCount} readability={props.readability}
             onSelectRoom={props.onSelectRoom}
+            onSelectMany={props.onSelectMany}
+            onSetWallLength={props.onSetWallLength}
+            onRegisterViewControls={props.onRegisterViewControls}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView

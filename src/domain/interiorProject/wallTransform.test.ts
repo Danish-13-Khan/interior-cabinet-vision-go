@@ -48,6 +48,15 @@ describe("wall plan transform", () => {
     expect(wallLengthMm(updated)).toBeCloseTo(wallLengthMm(partition), 0);
   });
 
+  it("keeps end fixed when length anchor is end", () => {
+    const project = drawnRectangle();
+    const wall = axisWall(project);
+    const next = setPlanWallLength(project, wall.id, 3200, "end");
+    const updated = next.walls.find((item) => item.id === wall.id)!;
+    expect(wallLengthMm(updated)).toBeCloseTo(3200, 0);
+    expect(updated.end).toEqual(wall.end);
+  });
+
   it("translates a wall from midpoint fields", () => {
     const project = drawnRectangle();
     const wall = axisWall(project);
