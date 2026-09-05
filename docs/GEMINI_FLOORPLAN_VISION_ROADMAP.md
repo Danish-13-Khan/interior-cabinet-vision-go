@@ -148,7 +148,7 @@ Upload → Gemini Vision → validated proposal JSON.
 
 ---
 
-### Phase 2 — Review overlay (`CURRENT` — implemented)
+### Phase 2 — Review overlay (`CURRENT` — done)
 
 Human can trust or distrust the draft before 3D.
 
@@ -163,7 +163,7 @@ Human can trust or distrust the draft before 3D.
 
 ---
 
-### Phase 3 — Deterministic 3D shell (`NEXT` after Phase 2)
+### Phase 3 — Deterministic 3D shell (`CURRENT` — implemented)
 
 Build a presentable room shell from the **reviewed** proposal.
 

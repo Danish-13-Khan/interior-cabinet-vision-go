@@ -4,10 +4,10 @@ import "../../styles/gemini-floorplan-lab-panels.css";
 import "../../styles/gemini-floorplan-lab-review.css";
 import { ConfidenceNotesPanel } from "./ConfidenceNotesPanel";
 import { LabStatusBar } from "./LabStatusBar";
-import { Placeholder3dPane } from "./Placeholder3dPane";
 import { PlanReviewOverlay } from "./PlanReviewOverlay";
 import { ProposalJsonPanel } from "./ProposalJsonPanel";
 import { ReviewEditorPanel } from "./ReviewEditorPanel";
+import { RoomShellViewer } from "./RoomShellViewer";
 import { UploadZone } from "./UploadZone";
 import { useGeminiFloorplanLab } from "./useGeminiFloorplanLab";
 import { useLabDocumentScroll } from "./useLabDocumentScroll";
@@ -20,7 +20,7 @@ export function GeminiFloorplanLabPage() {
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 2</p>
+          <p className="gfl-eyebrow">Lab · Phase 3</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -48,7 +48,7 @@ export function GeminiFloorplanLabPage() {
           onUseSampleImage={lab.onUseSampleImage}
           onLoadFixture={lab.onLoadFixture}
         />
-        <Placeholder3dPane />
+        <RoomShellViewer proposal={lab.proposal} />
       </div>
       <div className="gfl-grid gfl-grid--3 gfl-grid--review">
         <PlanReviewOverlay

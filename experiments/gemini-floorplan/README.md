@@ -7,9 +7,9 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 2 — Review overlay** (edit walls / scale / confidence without re-calling Vision).
+**Phase 3 — Deterministic 3D shell** (reviewed JSON → orbitable room).
 
-Phase 1 Vision extract remains available (offline fixtures work without a key).
+Phases 1–2 remain: Vision extract, review overlay, scale calibration.
 
 ## Run
 
