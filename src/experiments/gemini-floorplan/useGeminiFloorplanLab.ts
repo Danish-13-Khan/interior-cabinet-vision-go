@@ -64,10 +64,10 @@ export function useGeminiFloorplanLab() {
   }
 
   async function applyProposal(next: GeminiFloorProposal) {
-    if (geom.geometryMode === "cv") {
+    if (geom.geometryMode === "cv" || geom.geometryMode === "model") {
       geom.commitSource(next, "cleaned");
       setCvBusy(true);
-      const view = await geom.setGeometryMode("cv", file);
+      const view = await geom.setGeometryMode(geom.geometryMode, file, fileName);
       setCvBusy(false);
       if (view) selectFrom(view);
       return;
@@ -76,8 +76,8 @@ export function useGeminiFloorplanLab() {
   }
 
   async function setGeometryMode(mode: GeometryViewMode) {
-    if (mode === "cv") setCvBusy(true);
-    const view = await geom.setGeometryMode(mode, file);
+    if (mode === "cv" || mode === "model") setCvBusy(true);
+    const view = await geom.setGeometryMode(mode, file, fileName);
     setCvBusy(false);
     if (view) selectFrom(view);
   }

@@ -1,0 +1,15 @@
+{
+  "source": "fixture",
+  "imageWidthPx": 640,
+  "imageHeightPx": 480,
+  "notes": ["Offline CubiCasa-class spike for two-room.png"],
+  "polygons": [
+    { "class": "wall", "pointsPx": [{ "x": 60, "y": 100 }, { "x": 300, "y": 100 }] },
+    { "class": "wall", "pointsPx": [{ "x": 300, "y": 100 }, { "x": 300, "y": 380 }] },
+    { "class": "wall", "pointsPx": [{ "x": 300, "y": 380 }, { "x": 60, "y": 380 }] },
+    { "class": "wall", "pointsPx": [{ "x": 60, "y": 380 }, { "x": 60, "y": 100 }] },
+    { "class": "wall", "pointsPx": [{ "x": 300, "y": 100 }, { "x": 580, "y": 100 }] },
+    { "class": "wall", "pointsPx": [{ "x": 580, "y": 100 }, { "x": 580, "y": 380 }] },
+    { "class": "wall", "pointsPx": [{ "x": 580, "y": 380 }, { "x": 300, "y": 380 }] }
+  ]
+}

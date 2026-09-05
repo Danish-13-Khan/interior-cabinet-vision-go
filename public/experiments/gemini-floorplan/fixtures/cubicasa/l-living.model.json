@@ -1,0 +1,14 @@
+{
+  "source": "fixture",
+  "imageWidthPx": 640,
+  "imageHeightPx": 480,
+  "notes": ["Offline CubiCasa-class spike for l-living.png"],
+  "polygons": [
+    { "class": "wall", "pointsPx": [{ "x": 80, "y": 80 }, { "x": 520, "y": 80 }] },
+    { "class": "wall", "pointsPx": [{ "x": 520, "y": 80 }, { "x": 520, "y": 280 }] },
+    { "class": "wall", "pointsPx": [{ "x": 520, "y": 280 }, { "x": 320, "y": 280 }] },
+    { "class": "wall", "pointsPx": [{ "x": 320, "y": 280 }, { "x": 320, "y": 400 }] },
+    { "class": "wall", "pointsPx": [{ "x": 320, "y": 400 }, { "x": 80, "y": 400 }] },
+    { "class": "wall", "pointsPx": [{ "x": 80, "y": 400 }, { "x": 80, "y": 80 }] }
+  ]
+}
