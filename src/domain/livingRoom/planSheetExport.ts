@@ -564,9 +564,14 @@ export async function exportPlanSheetPngBlob(args: {
   const dataUrl = await exportPlanSheetPng(sheetSvg);
   const comma = dataUrl.indexOf(",");
   const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
-  const binary = typeof atob === "function"
-    ? atob(base64)
-    : Buffer.from(base64, "base64").toString("binary");
+  const binary = (() => {
+    if (typeof atob === "function") return atob(base64);
+    const nodeBuffer = (globalThis as {
+      Buffer?: { from(data: string, encoding: string): { toString(enc: string): string } };
+    }).Buffer;
+    if (!nodeBuffer) throw new Error("Unable to decode plan sheet PNG base64 (atob/Buffer unavailable).");
+    return nodeBuffer.from(base64, "base64").toString("binary");
+  })();
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
   return new Blob([bytes], { type: "image/png" });
