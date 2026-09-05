@@ -1,7 +1,10 @@
 import type { GeminiFloorProposal } from "../proposalTypes";
 import { assignRoomSides } from "./assignRoomSides";
+import { bindOpeningsToWalls } from "./bindOpenings";
 import { classifyWallTypes } from "./classifyWalls";
 import type { ArchitecturalScene, ArchitecturalWall } from "./archSceneTypes";
+import { buildRoomSurfaces, findOpenLoops } from "./roomSurfaces";
+import { extractSemanticFixtures } from "./semanticFixtures";
 import { buildWallTopology } from "./wallTopology";
 
 function proposalWallsToArch(proposal: GeminiFloorProposal): ArchitecturalWall[] {
@@ -18,11 +21,11 @@ function proposalWallsToArch(proposal: GeminiFloorProposal): ArchitecturalWall[]
   }));
 }
 
-/** Phase 7: proposal → architectural scene with wall topology. */
+/** Full reconstruction pipeline Phases 7–10 into ArchitecturalScene. */
 export function proposalToArchScene(proposal: GeminiFloorProposal): ArchitecturalScene {
   const rawWalls = proposalWallsToArch(proposal);
   const { walls: topoWalls, junctions } = buildWallTopology(rawWalls);
-  const rooms = proposal.rooms.map((r) => ({
+  const seedRooms = proposal.rooms.map((r) => ({
     id: r.id,
     name: r.name,
     outlineMm: r.outlineMm.map((p) => ({ ...p })),
@@ -30,21 +33,43 @@ export function proposalToArchScene(proposal: GeminiFloorProposal): Architectura
     floorHeightMm: 0,
     ceilingHeightMm: proposal.assumedWallHeightMm || 2700,
   }));
-  const sided = assignRoomSides(topoWalls, rooms);
-  const walls = classifyWallTypes(sided, junctions);
+  const sided = assignRoomSides(topoWalls, seedRooms);
+  const classified = classifyWallTypes(sided, junctions);
+  const { walls, openings } = bindOpeningsToWalls(classified, proposal);
 
-  return {
+  let scene: ArchitecturalScene = {
     units: "mm",
     walls,
     wallJunctions: junctions,
-    openings: [],
-    rooms,
+    openings,
+    rooms: seedRooms,
     floors: [],
     ceilings: [],
     fixtures: [],
-    notes: [
-      ...(proposal.notes ?? []),
-      `Phase 7 topology: ${walls.length} walls, ${junctions.length} junctions.`,
-    ],
+    notes: [...(proposal.notes ?? [])],
   };
+
+  const surfaces = buildRoomSurfaces(scene);
+  scene = {
+    ...scene,
+    rooms: surfaces.rooms,
+    floors: surfaces.floors,
+    ceilings: surfaces.ceilings,
+  };
+  scene = {
+    ...scene,
+    fixtures: extractSemanticFixtures(proposal, scene),
+  };
+
+  const openEnds = findOpenLoops(scene.walls);
+  scene.notes.push(
+    `Phase 7 topology: ${scene.walls.length} walls, ${scene.wallJunctions.length} junctions.`,
+    `Phase 8 openings: ${scene.openings.length} wall-hosted.`,
+    `Phase 9 rooms: ${scene.floors.length} floors / ${scene.ceilings.length} ceilings.`,
+    `Phase 10 fixtures: ${scene.fixtures.length}.`,
+  );
+  if (openEnds.length) {
+    scene.notes.push(`Phase 9 open-loop endpoints: ${openEnds.length}.`);
+  }
+  return scene;
 }

@@ -5,7 +5,7 @@
 **Branch:** `feat/gemini-floorplan-lab` (forked from `main` @ `494b7b3`)  
 **Worktree:** `/Users/danishkhan/alpha/danish_cargo/cabinet-designer-gemini-lab`  
 **Baseline date:** 2026-09-05  
-**Status:** Phases 0–5 done · **Phase 6 (`NEXT`)** — free hybrid CV quality pass  
+**Status:** Phases 0–14 lab complete · next: product port / InteriorProject bridge  
 **Constraint:** AI/CV proposes geometry; the editable project model remains the source of truth after human accept  
 **Cost constraint:** Phase 6 uses **no paid CV APIs** (no Tectly / Planner 5D / Polycam). Gemini (already in lab) + open-source / classical CV only.  
 
@@ -328,7 +328,7 @@ PHASE 6D Fixture scorecard → 2D-5.2      [done]
 
 **Phase 6 complete (lab):** 6A–6D landed on `feat/gemini-floorplan-lab`. Product port waits on [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
 
-### Phase 7 — Wall topology (`CURRENT` — in progress)
+### Phase 7 — Wall topology (`CURRENT` — done)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
@@ -339,7 +339,21 @@ PHASE 6D Fixture scorecard → 2D-5.2      [done]
 | G-7.5 | roomLeft / roomRight | Probe from centerline |
 | G-7.6 | join/split repair helpers | Pure functions + tests |
 
-See § Reconstruction program in repo history / Downloads draft for Phases 8–14 plan.
+### Phases 8–14 — Architectural reconstruction (`CURRENT` — done lab slice)
+
+Implemented under `src/experiments/gemini-floorplan/archScene/`:
+
+| Phase | Deliverable |
+| --- | --- |
+| 8 | Wall-hosted openings (`bindOpenings`) |
+| 9 | Floors/ceilings + open-loop report (`roomSurfaces`) |
+| 10 | Semantic fixtures from room names/notes |
+| 11 | Procedural arch shell with opening segments (`buildArchShell`) |
+| 12 | Cabinet wall spans + catalog map |
+| 13 | Material presets (non-dimensional) |
+| 14 | Reconstruction gate + lab panel |
+
+**Next product work:** wire `ArchitecturalScene` → `InteriorProject` / 2D-5.2 port per [`PORT_2D_5_2.md`](../experiments/gemini-floorplan/PORT_2D_5_2.md).
 
 ---
 
