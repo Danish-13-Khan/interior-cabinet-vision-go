@@ -447,6 +447,11 @@ export {
   parseKnownLengthMm,
 } from "./planUnderlayCalibrate";
 export {
+  dataUrlToUnderlay,
+  imageFileToUnderlay,
+  isPdfFile,
+} from "./planUnderlayImport";
+export {
   getSiteMeasureChecklist,
   listSiteMeasureChecklistItems,
   setSiteMeasureChecklist,

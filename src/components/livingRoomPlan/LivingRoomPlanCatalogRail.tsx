@@ -110,7 +110,17 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
 
   return <>
     <InteriorsToolRail activeTool={props.chromeTool} onTool={props.onChromeTool} />
-    <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
+    <input
+      ref={underlayInputRef}
+      type="file"
+      accept="image/png,image/jpeg,image/webp,application/pdf,.pdf"
+      hidden
+      onChange={(event) => {
+        const file = event.target.files?.[0] ?? null;
+        event.target.value = "";
+        void props.onImportUnderlay(file);
+      }}
+    />
     {props.toolRailVisible && !drawRoom && !props.presenting ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {cabinetRun && (activePanel === "materials" || props.chromeTool === "material") ? <>

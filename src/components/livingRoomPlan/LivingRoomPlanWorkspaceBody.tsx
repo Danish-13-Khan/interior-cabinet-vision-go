@@ -6,9 +6,16 @@ import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
-import { imageFileToUnderlay } from "../../domain/livingRoom/planUnderlayImport";
+import { lazy, Suspense, useState } from "react";
+import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
 import { toggleSiteMeasureChecklistItem } from "../../domain/livingRoom";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+
+/** Lazy: pdfjs (~100KB+ gzip) only loads after isPdfFile succeeds. */
+const PlanUnderlayPdfDialog = lazy(async () => {
+  const mod = await import("./PlanUnderlayPdfDialog");
+  return { default: mod.PlanUnderlayPdfDialog };
+});
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -21,6 +28,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     acceptedStillCount,
     geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
+
+  const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
@@ -85,6 +94,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onImportUnderlay={async (file) => {
             if (!file) return;
             props.onImportError("");
+            if (isPdfFile(file)) {
+              setPdfImportFile(file);
+              return;
+            }
             try {
               w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
               props.onStudioPanel("build");
@@ -159,6 +172,25 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onPatchDocument={w.onPatchDocument}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
+      {pdfImportFile ? (
+        <Suspense fallback={null}>
+          <PlanUnderlayPdfDialog
+            file={pdfImportFile}
+            roomWidthMm={room?.dimensions.widthMm ?? 6200}
+            onCancel={() => setPdfImportFile(null)}
+            onConfirm={(underlay) => {
+              setPdfImportFile(null);
+              w.onSetPlanUnderlay(underlay);
+              props.onStudioPanel("build");
+              build.dispatchBuildCommand({ type: "commitDraft" });
+            }}
+            onError={(message) => {
+              setPdfImportFile(null);
+              props.onImportError(message);
+            }}
+          />
+        </Suspense>
+      ) : null}
     </div>
   );
 }
