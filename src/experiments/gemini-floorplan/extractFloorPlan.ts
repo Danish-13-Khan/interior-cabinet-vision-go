@@ -8,7 +8,7 @@ import { hasGeminiVisionConfigured, shouldUseGeminiProxy } from "./labFlags";
 import { normalizeProposalToMm } from "./normalizeProposal";
 import { parseGeminiFloorProposal } from "./proposalSchema";
 import type { VisionExtractResult } from "./proposalTypes";
-import { stripImageExif } from "./stripImageExif";
+import { prepareVisionImage } from "./stripImageExif";
 
 function parseJsonText(text: string): unknown {
   const trimmed = text.trim();
@@ -24,7 +24,7 @@ function parseJsonText(text: string): unknown {
   }
 }
 
-/** Full pipeline: image → (strip EXIF) → Gemini Vision → validate → mm. */
+/** Full pipeline: image → downscale/strip → Gemini Vision → validate → mm. */
 export async function extractFloorPlanFromImage(
   file: File,
   mimeType: string,
@@ -40,7 +40,7 @@ export async function extractFloorPlanFromImage(
   const model = resolveGeminiModel();
   const started = performance.now();
   try {
-    const cleaned = await stripImageExif(file);
+    const cleaned = await prepareVisionImage(file);
     const imageBase64 = await fileToBase64(cleaned);
     const vision = await callGeminiFloorplanVision({
       apiKey: shouldUseGeminiProxy() ? undefined : readGeminiApiKey() ?? undefined,

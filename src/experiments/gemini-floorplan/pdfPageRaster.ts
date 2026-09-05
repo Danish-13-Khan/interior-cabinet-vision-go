@@ -1,6 +1,6 @@
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 
-const RENDER_SCALE = 2;
+const RENDER_SCALE = 1.25;
 
 function ensureBrowserWorker() {
   if (GlobalWorkerOptions.workerSrc) return;
