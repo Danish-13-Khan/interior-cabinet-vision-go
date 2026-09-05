@@ -1,12 +1,13 @@
 # Gemini Floor-Plan Vision Lab Roadmap
 
-**Document role:** Active roadmap for an isolated **upload 2D floor plan → Gemini Vision → reviewable 3D preview** lab  
+**Document role:** Active roadmap for an isolated **upload 2D floor plan → (Vision + free hybrid CV) → reviewable 3D preview** lab  
 **Product relationship:** Research / accelerator toward [2D Plan Layer Roadmap](./2D_PLAN_LAYER_ROADMAP.md) Phase 5.2 (AI floor-plan detection → review → accept). **Not** part of the current 2D precision-canvas WIP.  
 **Branch:** `feat/gemini-floorplan-lab` (forked from `main` @ `494b7b3`)  
 **Worktree:** `/Users/danishkhan/alpha/danish_cargo/cabinet-designer-gemini-lab`  
 **Baseline date:** 2026-09-05  
-**Status:** Draft for approval — implement only after this plan is accepted  
-**Constraint:** AI proposes geometry; the editable project model remains the source of truth after human accept  
+**Status:** Phases 0–5 done · **Phase 6 (`NEXT`)** — free hybrid CV quality pass  
+**Constraint:** AI/CV proposes geometry; the editable project model remains the source of truth after human accept  
+**Cost constraint:** Phase 6 uses **no paid CV APIs** (no Tectly / Planner 5D / Polycam). Gemini (already in lab) + open-source / classical CV only.  
 
 ---
 
@@ -15,7 +16,7 @@
 1. This lab is **separate** from `feat/2d-plan-layer` and must not merge into that WIP until both sides are ready.
 2. Status vocabulary: `CURRENT` · `NEXT` · `LATER` · `EXCLUDED`.
 3. Ship phase-by-phase; do not start Phase N+1 until Phase N exit criteria pass.
-4. Gemini **Vision** (multimodal image understanding) extracts structure. The app builds 3D from that structure — Gemini does **not** emit production GLB/mesh as the product model.
+4. Gemini **Vision** extracts semantics (and v0 geometry). Phase 6 adds **free hybrid CV** so walls/openings are detected or cleaned — not only guessed. The app builds 3D from the proposal — no generative GLB/mesh as the product model.
 
 ---
 
@@ -41,41 +42,46 @@
 
 ---
 
-## 3. Technical approach (Vision AI)
+## 3. Technical approach (Vision + hybrid CV)
 
 ```text
 [Floor-plan image]
         │
-        ▼
- Gemini Vision (structured JSON schema)
-        │
-        ▼
-  Lab proposal model (walls / rooms / openings / scale hint)
-        │
-        ▼
-  Review UI (2D overlay + editable JSON summary)
-        │
-        ▼
-  Deterministic 3D builder (Three.js room shell)
-        │
-        ▼
-  (Later) Accept → interior-project geometry
+        ├──────────────────────────────┐
+        ▼                              ▼
+ Gemini Vision (JSON)          Free CV path (Phase 6)
+ labels / rooms / notes        walls / openings / cleanup
+        │                              │
+        └──────────┬───────────────────┘
+                   ▼
+         Lab proposal model (merged)
+                   │
+                   ▼
+         Review UI (overlay + scale)
+                   │
+                   ▼
+         Deterministic 3D room shell
+                   │
+                   ▼
+         Accept → interior-project geometry
 ```
 
-**Why Vision, not mesh generation**
+**Why Vision + CV, not mesh generation**
 
 | Path | Use |
 | --- | --- |
-| Gemini Vision → JSON | Correct for walls, rooms, openings, labels, rough scale |
+| Gemini Vision → JSON | Labels, room names, notes, rough structure when CV is weak |
+| Classical / open CV → walls | Ortho snap, contours, CubiCasa-class segmentation (free) |
 | Image-to-3D generative mesh | Wrong for millwork — not editable, not measured, not topology-safe |
 | App builds 3D from JSON | Same pattern as current 2D→3D sync: one model of truth after accept |
 
-**API shape (planned)**
+**API / CV shape**
 
-- Model: Gemini multimodal (Vision-capable; pin a specific model ID in Phase 1)
-- Input: image (JPEG/PNG/WebP) + system/user prompt with JSON schema
-- Output: validated proposal JSON (Zod or equivalent)
+- Model: Gemini multimodal (pinned via env; proxy in Phase 5)
+- Input: image (JPEG/PNG/WebP/PDF raster) + schema prompt
+- Output: validated proposal JSON; Phase 6 may replace/merge wall geometry from free CV
 - Fail soft: show raw Vision text + validation errors; never crash the lab page
+- Phase 6: no paid floor-plan APIs — TypeScript cleanup → classical CV → optional CubiCasa-class weights
 
 ---
 
@@ -193,7 +199,7 @@ Connect lab output to real interior-project geometry — still review-gated.
 
 ---
 
-### Phase 5 — Hardening (`CURRENT` — implemented)
+### Phase 5 — Hardening (`CURRENT` — done)
 
 | ID | Item | Exit criteria |
 | --- | --- | --- |
@@ -201,6 +207,66 @@ Connect lab output to real interior-project geometry — still review-gated.
 | G-5.2 | PDF page → raster → Vision path | Multi-page PDF: pick page then run |
 | G-5.3 | Regression fixtures + golden JSON snapshots | Vision prompt changes don’t silently drift |
 | G-5.4 | Privacy: strip EXIF; local-only mode docs | Clear data-handling note for demos |
+
+**Phase exit:** Lab is demoable with proxy, PDF, fixtures, and privacy notes.
+
+---
+
+### Phase 6 — Free hybrid CV (`NEXT`)
+
+Improve wall/opening quality **without paid CV vendors**. Gemini stays for semantics; geometry gets classical cleanup and optional open-source detection. Still review-gated before Accept.
+
+**Principle:** detect or clean walls with free tools → merge into the same proposal schema → existing review / 3D / accept unchanged.
+
+| Sub | Focus | Cost |
+| --- | --- | --- |
+| **6A** | Geometry post-process on proposal JSON | Free (TypeScript only) |
+| **6B** | Browser / local classical CV wall candidates | Free (OpenCV.js or Canvas) |
+| **6C** | Open pretrained floor-plan model (CubiCasa / floorplan-to-3d) | Free weights; optional local GPU |
+| **6D** | Quality gate vs fixtures → ready for 2D-5.2 port | Free |
+
+#### 6A — Ortho / merge post-process (`NEXT` — build first)
+
+| ID | Item | Exit criteria |
+| --- | --- | --- |
+| G-6.1 | Snap wall angles to 0° / 90° (configurable tolerance) | Near-ortho walls become axis-aligned |
+| G-6.2 | Merge near-collinear / near-duplicate wall segments | Fewer overlapping stubs in overlay |
+| G-6.3 | Close nearly closed room loops where safe | Room outlines less fragmented |
+| G-6.4 | Pure `domain`-style helpers + unit tests on golden proposals | Deterministic; no network |
+| G-6.5 | Lab toggle: **Raw Vision** vs **CV-cleaned** proposal | Side-by-side quality check in UI |
+
+**6A exit:** Cleaned proposal looks tighter on fixtures than raw Gemini; 3D/Accept still work.
+
+#### 6B — Classical CV wall mask (`NEXT` after 6A)
+
+| ID | Item | Exit criteria |
+| --- | --- | --- |
+| G-6.6 | Raster prep: threshold / morphology on plan image | Strong line structure on clean B&W scans |
+| G-6.7 | Contour → polyline candidates mapped into proposal space | Candidate walls overlay the image |
+| G-6.8 | Merge strategy: CV walls preferred for geometry; Gemini for names/notes | Documented merge rules + tests |
+| G-6.9 | Fail soft on photo-of-paper / noisy scans | Falls back to Vision + 6A cleanup |
+
+**6B exit:** At least one golden scan produces usable walls **without** trusting Vision endpoints alone.
+
+#### 6C — Open pretrained model (`LATER` in Phase 6 if 6B insufficient)
+
+| ID | Item | Exit criteria |
+| --- | --- | --- |
+| G-6.10 | Spike: CubiCasa5k or `floorplan-to-3d` → wall/door/window polygons | Local inference script or tiny lab service |
+| G-6.11 | Adapter: model output → `GeminiFloorProposal` (same schema) | Drop-in for review / 3D / accept |
+| G-6.12 | License check (research / non-commercial vs product) | Written note in lab README before any product promise |
+| G-6.13 | Optional: Gemini only for room labels after CV geometry | Hybrid path documented |
+
+**6C exit:** On hard fixtures, CV model walls beat Gemini-only; still no paid API.
+
+#### 6D — Quality gate before 2D plan port
+
+| ID | Item | Exit criteria |
+| --- | --- | --- |
+| G-6.14 | Fixture scorecard: overlay alignment + wall count sanity | Recorded pass/fail on golden set |
+| G-6.15 | Checklist for port into [2D Plan Layer](./2D_PLAN_LAYER_ROADMAP.md) **2D-5.2** | Accept + underlay path listed; WIP branch still untouched until intentional merge |
+
+**Phase 6 exit:** Hybrid path clearly better than Vision-only on fixtures; ready to discuss 2D-5.2 integration — still behind review + Accept.
 
 ---
 
@@ -213,6 +279,8 @@ Connect lab output to real interior-project geometry — still review-gated.
 - DWG/DXF conversion (separate program)  
 - Merging lab into `feat/2d-plan-layer` while that branch is WIP  
 - Shipping Vision calls on production `/app` without flag + privacy review  
+- **Paid floor-plan CV APIs** as a Phase 6 dependency (Tectly, Planner 5D recognition, Polycam, etc.)  
+- Replacing Phase 2 review with fully automatic accept  
 
 ---
 
@@ -220,7 +288,9 @@ Connect lab output to real interior-project geometry — still review-gated.
 
 | Risk | Mitigation |
 | --- | --- |
-| Vision invents walls / wrong scale | Phase 2 review + calibration mandatory before accept |
+| Vision invents walls / wrong scale | Phase 2 review + calibration; Phase 6 CV cleanup / detection |
+| Classical CV fails on photos | Fail soft → Vision + 6A; reserve 6C for hard cases |
+| CubiCasa license limits product use | G-6.12 before promising customers |
 | API key leakage in client | Phase 0 env hygiene; Phase 5 proxy |
 | Prompt drift across Gemini versions | Pin model ID; fixture snapshots |
 | Contaminating 2D WIP | Separate worktree/branch; lab folder boundary |
@@ -231,49 +301,74 @@ Connect lab output to real interior-project geometry — still review-gated.
 ## 8. Suggested execution order
 
 ```text
-PHASE 0  Lab scaffold + env              [NEXT]
+PHASE 0  Lab scaffold + env              [done]
     ↓
-PHASE 1  Gemini Vision → JSON            [NEXT]
+PHASE 1  Gemini Vision → JSON            [done]
     ↓
-PHASE 2  Review overlay + scale          [NEXT]
+PHASE 2  Review overlay + scale          [done]
     ↓
-PHASE 3  Deterministic 3D shell          [NEXT]
+PHASE 3  Deterministic 3D shell          [done]
     ↓
-PHASE 4  Accept → interior project       [LATER]
+PHASE 4  Accept → interior project       [done]
     ↓
-PHASE 5  Proxy / PDF / hardening         [LATER]
+PHASE 5  Proxy / PDF / hardening         [done]
+    ↓
+PHASE 6A Ortho / merge post-process      [NEXT]  ← start here
+    ↓
+PHASE 6B Classical CV wall candidates    [NEXT]
+    ↓
+PHASE 6C Open CubiCasa-class model       [LATER if needed]
+    ↓
+PHASE 6D Fixture scorecard → 2D-5.2      [LATER]
 ```
 
 ---
 
-## 9. Success definition (lab complete)
+## 9. Success definition
 
-1. Upload plan image → Vision JSON → review → 3D shell works on fixtures.  
-2. No edits required on `feat/2d-plan-layer` to demo the lab.  
-3. Accept path (Phase 4) is optional and gated; AI never becomes a second source of truth.  
-4. Docs + env instructions are enough for you to run a demo with your Gemini key.
+**Lab v0 (Phases 0–5):**  
+1. Upload → Vision JSON → review → 3D shell on fixtures.  
+2. Accept path gated; AI never a second source of truth.  
+3. Proxy / PDF / privacy / goldens in place.
+
+**Lab v1 (Phase 6):**  
+4. Hybrid CV path improves wall overlay vs raw Vision on golden fixtures.  
+5. No paid CV vendor required.  
+6. Clear gate for porting into 2D roadmap **5.2**.
 
 ---
 
-## 10. Open decisions (resolve before Phase 1 code)
+## 10. Open decisions
+
+### Resolved (Phases 0–5)
+
+| Decision | Choice |
+| --- | --- |
+| Model ID | Flash-class default; env override |
+| Key transport | Server proxy preferred (`GEMINI_API_KEY`) |
+| Entry | `/lab/gemini-floorplan` behind flag |
+| 3D reuse | Tiny lab R3F viewer |
+
+### Resolve before / during Phase 6
 
 | Decision | Options | Recommendation |
 | --- | --- | --- |
-| Model ID | Gemini 2.x Flash vs Pro Vision | Start **Flash** for cost/latency; allow Pro toggle |
-| Key transport | Vite env vs local proxy | Vite env for Phase 0–3 lab; proxy in Phase 5 |
-| Entry | Dedicated route vs `experiments` Vite multi-page | Dedicated `/lab/gemini-floorplan` behind flag |
-| 3D reuse | Share existing R3F scene vs tiny lab viewer | Tiny lab viewer first (less coupling) |
+| 6A snap tolerance | 5° vs 10° vs 15° | Start **10°**; tune on fixtures |
+| 6B runtime | OpenCV.js in browser vs Canvas-only | Prefer **Canvas / pure TS** first; OpenCV.js if needed |
+| 6C host | Local Python script vs Vite plugin sidecar | Local script + JSON drop for spike; sidecar only if demo needs one-click |
+| Merge policy | CV overwrites Vision walls vs weighted blend | **CV geometry + Vision labels** when CV confidence high |
 
 ---
 
-## 11. Approval gate
+## 11. Approval gate (Phase 6)
 
-**Do not implement Phases 0+ until this roadmap is accepted.**
+Phases 0–5 are implemented on `feat/gemini-floorplan-lab`.
 
-When ready, reply with:
+When ready to build Phase 6, confirm:
 
-1. Approve roadmap as-is, or list edits  
-2. Choices for §10 (model, key transport, entry, 3D reuse)  
-3. Confirm Gemini key will be supplied via local `.env` (never pasted into chat)
+1. Phase 6 plan accepted (or list edits)  
+2. Choices for §10 Phase 6 (snap tolerance, 6B runtime, merge policy)  
+3. Still **no paid CV APIs**; CubiCasa only if 6A+6B are not enough  
+4. Still no merge into `feat/2d-plan-layer` until 6D gate  
 
-Then implementation starts at **Phase 0** on `feat/gemini-floorplan-lab` only.
+Then implementation starts at **Phase 6A** on `feat/gemini-floorplan-lab` only.
