@@ -8,9 +8,11 @@
   --gfl-warn: #c9a227;
   --gfl-ok: #6aab7a;
   min-height: 100vh;
+  height: auto;
   margin: 0;
-  padding: 1.25rem 1.5rem 2rem;
+  padding: 1.25rem 1.5rem 3rem;
   box-sizing: border-box;
+  overflow: visible;
   background:
     radial-gradient(ellipse 80% 50% at 10% -10%, #2a3540 0%, transparent 55%),
     var(--gfl-bg);
@@ -98,6 +100,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  align-items: start;
 }
 
 .gfl-grid--3 {
@@ -119,7 +122,8 @@
 .gfl-panel {
   display: flex;
   flex-direction: column;
-  min-height: 22rem;
+  min-height: 18rem;
+  max-height: min(70vh, 36rem);
   border: 1px solid var(--gfl-line);
   border-radius: 10px;
   background: var(--gfl-panel);

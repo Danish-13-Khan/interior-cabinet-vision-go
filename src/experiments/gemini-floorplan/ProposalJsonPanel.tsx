@@ -8,8 +8,9 @@ type Props = {
   metrics: VisionUsageMetrics | null;
   busy: boolean;
   hasKey: boolean;
-  canRunVision: boolean;
+  hasImage: boolean;
   onRunVision: () => void;
+  onUseSampleImage: () => void;
   onLoadFixture: (id: string) => void;
 };
 
@@ -30,19 +31,23 @@ export function ProposalJsonPanel({
   metrics,
   busy,
   hasKey,
-  canRunVision,
+  hasImage,
   onRunVision,
+  onUseSampleImage,
   onLoadFixture,
 }: Props) {
   return (
     <section className="gfl-panel gfl-json" aria-label="Vision proposal JSON">
       <header className="gfl-panel__head">
         <h2>Proposal JSON</h2>
-        <p>Phase 1 — validate + normalize to mm. 3D arrives in Phase 3.</p>
+        <p>Upload an image, then run Vision. Offline fixtures skip Gemini.</p>
       </header>
       <div className="gfl-json__actions">
-        <button type="button" disabled={!canRunVision || busy} onClick={onRunVision}>
+        <button type="button" disabled={busy} onClick={onRunVision}>
           {busy ? "Running Vision…" : "Run Gemini Vision"}
+        </button>
+        <button type="button" disabled={busy} onClick={onUseSampleImage}>
+          Use sample image
         </button>
         <button type="button" disabled={busy} onClick={() => onLoadFixture("rect-mm")}>
           Load offline kitchen
@@ -51,12 +56,13 @@ export function ProposalJsonPanel({
           Load offline L-room
         </button>
       </div>
-      {!hasKey ? (
-        <p className="gfl-json__hint">
-          No API key yet — offline fixtures still work. Add <code>VITE_GEMINI_API_KEY</code> later
-          and restart Vite to enable Vision.
-        </p>
-      ) : null}
+      <p className="gfl-json__hint">
+        {!hasKey
+          ? "Key not loaded in Vite yet — restart npm run dev after editing .env."
+          : !hasImage
+            ? "Key OK. Upload an image or click “Use sample image”, then Run Gemini Vision."
+            : "Image ready — click Run Gemini Vision."}
+      </p>
       {metrics ? <p className="gfl-json__metrics">{formatMetrics(metrics)}</p> : null}
       {error ? <p className="gfl-json__error">{error}</p> : null}
       {validationErrors.length ? (

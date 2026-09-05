@@ -132,7 +132,7 @@ Stand up an isolated surface with zero product risk.
 
 ---
 
-### Phase 1 — Vision extract (`CURRENT` — implemented)
+### Phase 1 — Vision extract (`CURRENT` — done)
 
 Upload → Gemini Vision → validated proposal JSON.
 
@@ -148,7 +148,7 @@ Upload → Gemini Vision → validated proposal JSON.
 
 ---
 
-### Phase 2 — Review overlay (`NEXT` after Phase 1)
+### Phase 2 — Review overlay (`CURRENT` — implemented)
 
 Human can trust or distrust the draft before 3D.
 

@@ -7,7 +7,9 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 1 — Vision extract** (offline fixtures work without a key).
+**Phase 2 — Review overlay** (edit walls / scale / confidence without re-calling Vision).
+
+Phase 1 Vision extract remains available (offline fixtures work without a key).
 
 ## Run
 
@@ -18,7 +20,7 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
    ```
 
 2. Optional for now: set `VITE_GEMINI_API_KEY` when you want live Vision.  
-   Optional: `VITE_GEMINI_MODEL` (default `gemini-2.0-flash`).  
+   Optional: `VITE_GEMINI_MODEL` (default `gemini-3.6-flash`).  
    Optional: `VITE_ENABLE_GEMINI_LAB=true` for production builds.
 
 3. ```bash
@@ -29,7 +31,7 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Without an API key
 
-Use **Load offline kitchen / L-room** to see validated proposal JSON.  
+Use **Load offline kitchen / L-room** → review overlay + editors + calibration.  
 Sample PNGs live under `/experiments/gemini-floorplan/fixtures/`.
 
 ## With an API key
