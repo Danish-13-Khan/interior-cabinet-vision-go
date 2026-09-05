@@ -1,5 +1,10 @@
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
-import { cabinetRunForObject, cabinetRunLengthMm, countCabinetRunFillers } from "../../domain/livingRoom";
+import {
+  cabinetRunForObject,
+  cabinetRunLengthMm,
+  countCabinetRunFillers,
+  proposeCabinetRunComplete,
+} from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 
 type Props = {
@@ -11,19 +16,24 @@ type Props = {
     extendToWall?: boolean;
     fillersEnabled?: boolean;
   }) => void;
+  onCompleteRun?: (runId: string) => void;
 };
 
-export function CabinetRunInspector({ object, project, onUpdate }: Props) {
+export function CabinetRunInspector({ object, project, onUpdate, onCompleteRun }: Props) {
   const run = cabinetRunForObject(object);
   if (!run) return null;
   const fillerCount = countCabinetRunFillers(project, run.runId);
   const lengthMm = cabinetRunLengthMm(project, run.runId);
+  const proposal = proposeCabinetRunComplete(project, run.runId);
   return <section className="lr-cabinet-run-inspector">
     <h4>Cabinet run</h4>
     <p className="lr-inspector-hint" data-run-wall-id={run.wallId}>Attached to wall {run.wallId}. Layout follows its real plan segment.</p>
     <p className="lr-inspector-hint" data-testid="cabinet-run-length" data-length-mm={lengthMm}>
       Run length <strong>{lengthMm}</strong> mm
     </p>
+    {proposal ? (
+      <p className="lr-inspector-hint" data-testid="lr-complete-run-summary">{proposal.summary}</p>
+    ) : null}
     <NumberField label="Gap" value={run.gapMm} onChange={(gapMm) => onUpdate(run.runId, { gapMm })} />
     <label className="lr-select-field"><span>Align</span>
       <select value={run.alignment} onChange={(event) => onUpdate(run.runId, { alignment: event.target.value as "start" | "center" | "end" })}>
@@ -35,5 +45,10 @@ export function CabinetRunInspector({ object, project, onUpdate }: Props) {
     <label className="lr-run-extend"><input type="checkbox" checked={run.fillersEnabled}
       onChange={(event) => onUpdate(run.runId, { fillersEnabled: event.target.checked })} /> Auto fillers (40–150 mm)</label>
     {run.fillersEnabled ? <p className="lr-inspector-hint"><strong>{fillerCount}</strong> filler{fillerCount === 1 ? "" : "s"} on this run.</p> : null}
+    {onCompleteRun ? (
+      <button type="button" data-testid="lr-complete-run" onClick={() => onCompleteRun(run.runId)}>
+        Complete Run
+      </button>
+    ) : null}
   </section>;
 }

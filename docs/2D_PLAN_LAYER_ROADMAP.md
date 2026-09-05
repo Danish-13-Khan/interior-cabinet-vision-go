@@ -215,7 +215,7 @@ Salesperson can: **Import plan → Calibrate → Trace walls → Add openings �
 ## 8. Phase 3 — Cabinet plan excellence ★
 
 **Estimate:** 3–5 weeks  
-**Status:** `NEXT` after Phase 2 (can partially parallel Phase 4)
+**Status:** `Implemented` (2026-09-05, branch `feat/2d-plan-layer`) — run-aware placement preview, Complete Run, inline dims, pre-drop validation, active-run hierarchy, plan marks
 
 This is where the product should become meaningfully different from generic floor planners.
 
@@ -239,7 +239,7 @@ Straight kitchen feels **guided**, not CAD homework. Target: completed room → 
 ## 9. Phase 4 — Presentation & export
 
 **Estimate:** 2–3 weeks  
-**Status:** `LATER` / after Phase 3 start
+**Status:** `NEXT` after Phase 3
 
 Same `InteriorProject` → different representations. Do not fork separate drawings.
 

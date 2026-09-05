@@ -78,6 +78,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const assetCategories = useMemo(() => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))], []);
 
   useEffect(() => {
+    props.onClearPreDropReason?.();
+    // Clear stale pre-drop copy when leaving the gesture context (tool / chrome changes).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional on tool identity only
+  }, [build.buildCommandState.activeTool, chrome.chromeTool, chrome.plannerMode]);
+
+  useEffect(() => {
     if (!props.project) return;
     setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : null);
     setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);

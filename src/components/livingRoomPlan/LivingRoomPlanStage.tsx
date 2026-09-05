@@ -15,7 +15,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
           <LivingRoomPlanView
             project={props.project} selectedIds={props.selectedIds} issues={props.issues}
             snapSizeMm={props.snapSizeMm} showGrid={props.showGrid}
-            onSelect={props.onSelect} onMove={props.onMove} onResize={props.onResize}
+            onSelect={props.onSelect} onMove={props.onMove} onMovePreview={props.onMovePreview} onDragEnd={props.onDragEnd} onResize={props.onResize}
             activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
             activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={props.surfaceMaterialId}
             onSelectWall={props.onSelectWall} onSelectOpening={props.onSelectOpening}
@@ -30,6 +30,8 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSelectRoom={props.onSelectRoom}
             onSelectMany={props.onSelectMany}
             onSetWallLength={props.onSetWallLength}
+            onSetCabinetInlineDims={props.onSetCabinetInlineDims}
+            preDropReason={props.preDropReason}
             onRegisterViewControls={props.onRegisterViewControls}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onCalibrateComplete={props.onCalibrateComplete}

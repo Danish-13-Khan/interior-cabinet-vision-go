@@ -1,12 +1,14 @@
 import { interiorsCabinetRunHint, type InteriorsChromeTool } from "../../domain/desktopUx";
 import type { PlanReadabilitySettings } from "../../domain/livingRoom";
 import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
+import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
 
 export function InteriorsCabinetRunTitlebar({
   tool,
   showGrid,
   snapSizeMm,
   readability,
+  commands,
   onShowGrid,
   onSnapSize,
   onReadability,
@@ -15,6 +17,7 @@ export function InteriorsCabinetRunTitlebar({
   showGrid: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
+  commands?: InteriorsCabinetRunCommands;
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
@@ -26,7 +29,12 @@ export function InteriorsCabinetRunTitlebar({
         {" · "}
         {interiorsCabinetRunHint(tool)}
       </span>
-      <PlanReadabilityToolbar settings={readability} onChange={onReadability} />
+      <PlanReadabilityToolbar
+        settings={readability}
+        onChange={onReadability}
+        planMarksEnabled={commands?.planMarksEnabled}
+        onPlanMarks={commands?.onTogglePlanMarks}
+      />
       <small>Scale: Fit · Units: {readability.unit}</small>
       <div>
         <button type="button" className={showGrid ? "is-active" : ""} aria-pressed={showGrid} onClick={() => onShowGrid(!showGrid)}>

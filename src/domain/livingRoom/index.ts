@@ -505,6 +505,45 @@ export {
   type WallPlacement,
 } from "./wardrobePlacement";
 export {
+  previewCabinetRunPlacement,
+  formatRemainingWallLabel,
+  collectWallOccupancySpans,
+  freeSegmentsAlongWall,
+  freeLengthInInterval,
+  freeSegmentsInInterval,
+  openingSpanOnOrientedWall,
+  isOrientedWallReversed,
+  type AlongWallSpan,
+  type FreeWallSegment,
+  type CabinetRunPlacementPreview,
+} from "./cabinetRunPlacementPreview";
+export {
+  validateCabinetRunPreDrop,
+  preDropReasonLabel,
+  type CabinetRunPreDropCode,
+  type CabinetRunPreDropResult,
+  type CabinetRunPreDropProposal,
+} from "./cabinetRunPreDrop";
+export {
+  proposeCabinetRunComplete,
+  completeCabinetRun,
+  type SuggestedFiller,
+  type CabinetRunCompleteProposal,
+  type CabinetRunCompleteResult,
+} from "./cabinetRunComplete";
+export {
+  formatPlanMark,
+  readPlanMarksSettings,
+  setPlanMarksSettings,
+  formatCabinetInlineDims,
+  DEFAULT_PLAN_MARKS,
+  type PlanMarksAudience,
+  type PlanMarksSettings,
+} from "./planMarks";
+export {
+  setCabinetInlineDimensions,
+} from "./cabinetRunInlineDims";
+export {
   placeStructuralColumn,
   STRUCTURAL_COLUMN_CATALOG_ID,
 } from "./structuralCommands";

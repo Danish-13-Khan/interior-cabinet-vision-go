@@ -2184,3 +2184,38 @@
   align-items: center;
   font-size: 12px;
 }
+
+
+/* Phase 3 — active run hierarchy, inline dims, free segments, plan marks */
+.lr-plan-object.is-dimmed-run {
+  opacity: 0.38;
+}
+.lr-plan-object.is-active-run > rect:first-of-type {
+  stroke-width: 20;
+  stroke: #1f6f4a;
+}
+.lr-plan-object.is-active-run.is-selected > rect:first-of-type {
+  stroke: #0864a4;
+}
+.lr-object-label .lr-object-size-editable {
+  pointer-events: auto;
+  cursor: text;
+  text-decoration: underline;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 10px;
+}
+.lr-plan-mark {
+  font-weight: 800;
+  fill: #0b3d5c;
+}
+.lr-free-wall-segment {
+  stroke: #2f9e6b;
+  stroke-width: 28;
+  stroke-linecap: round;
+  opacity: 0.45;
+  pointer-events: none;
+}
+.lr-predrop-reason {
+  fill: #b55338;
+  font-size: 120px;
+}

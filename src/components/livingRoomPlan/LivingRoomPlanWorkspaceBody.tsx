@@ -111,7 +111,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onSelect={(objectId, additive) => inspectPlanTarget(props, { objectId, additive })}
         onClearSelection={() => inspectPlanTarget(props)}
         onSelectRoom={() => inspectPlanTarget(props, { inspectRoom: true })}
-        onMove={w.onMove} onResize={w.onResize}         activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
+        onMove={w.onMove} onMovePreview={w.onMovePreview} onDragEnd={w.onDragEnd} onResize={w.onResize}         activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
         activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
         onSelectWall={(wallId) => inspectPlanTarget(props, { wallId })}
         onSelectOpening={(openingId) => inspectPlanTarget(props, { openingId })}
@@ -149,6 +149,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         presenting={props.plannerMode === "render"}
         onSelectMany={props.workspace.onSelectMany}
         onSetWallLength={(wallId, lengthMm, anchor) => props.workspace.onSetWallPlan(wallId, { lengthMm, lengthAnchor: anchor })}
+        onSetCabinetInlineDims={props.workspace.onSetCabinetInlineDims}
+        preDropReason={props.workspace.preDropReason}
         onRegisterViewControls={props.onRegisterViewControls}
         onFitPlan={props.onFitPlan}
         onFitSelection={props.onFitSelection}

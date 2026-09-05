@@ -19,11 +19,12 @@ type LivingRoomObjectInspectorProps = {
     extendToWall?: boolean;
     fillersEnabled?: boolean;
   }) => void;
+  onCompleteRun?: (runId: string) => void;
 };
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
 export function LivingRoomObjectInspector({
-  object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun,
+  object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun, onCompleteRun,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
@@ -64,7 +65,7 @@ export function LivingRoomObjectInspector({
         </>
       ) : null}
       {object.kind === "cabinet" && object.category !== "filler"
-        ? <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} />
+        ? <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} onCompleteRun={onCompleteRun} />
         : null}
     </section>
   );
