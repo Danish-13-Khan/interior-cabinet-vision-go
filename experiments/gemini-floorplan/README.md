@@ -7,8 +7,9 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 6D — Fixture scorecard** (done). Phase 6 lab complete (6A–6D).  
-See [`PORT_2D_5_2.md`](./PORT_2D_5_2.md) before any 2D plan port. CubiCasa NC: [`CUBICASA_LICENSE.md`](./CUBICASA_LICENSE.md).
+**Phase 7–14 — Architectural scene** (done lab slice).  
+Topology · openings · rooms/floors · fixtures · arch shell · cabinet spans · materials · gate.  
+See `src/experiments/gemini-floorplan/archScene/`.
 
 ## Run
 

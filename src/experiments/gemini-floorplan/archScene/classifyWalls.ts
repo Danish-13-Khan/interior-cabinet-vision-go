@@ -24,7 +24,7 @@ export function classifyWallTypes(
     return {
       ...w,
       type,
-      confidence: type === "unknown" ? "low" : "medium",
+      confidence: "medium",
     };
   });
 }
