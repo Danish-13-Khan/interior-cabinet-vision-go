@@ -14,7 +14,7 @@
 
 ## Protections in this lab
 
-1. **EXIF strip** — raster images are re-encoded to PNG before Vision (`stripImageExif`).
+1. **Downscale + EXIF strip** — rasters are capped (~1600px edge) and JPEG-encoded before Vision (`prepareVisionImage`).
 2. **Proxy** — `POST /api/lab/gemini-vision` keeps the key on the Vite server in DEV/preview.
 3. **No auto-upload to product `/app`** — Accept is explicit (Phase 4).
 

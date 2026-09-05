@@ -9,7 +9,7 @@ export function PrivacyNotesPanel() {
         <p>Phase 5 — local-only lab defaults. See experiments/gemini-floorplan/PRIVACY.md.</p>
       </header>
       <ul className="gfl-privacy__list">
-        <li>Images are re-encoded to PNG before Vision (EXIF / camera metadata stripped).</li>
+        <li>Images are downscaled (max 1600px) and re-encoded to JPEG before Vision (EXIF stripped).</li>
         <li>
           {proxy
             ? "Vision calls go through the local Vite proxy — the API key stays on the server (.env)."
