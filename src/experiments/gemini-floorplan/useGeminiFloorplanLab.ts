@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { proposalForGeometryMode, type GeometryViewMode } from "./cleanProposalGeometry";
 import { extractFloorPlanFromImage } from "./extractFloorPlan";
 import { guardFloorplanImage } from "./imageGuards";
 import { hasGeminiVisionConfigured } from "./labFlags";
@@ -8,6 +9,7 @@ import { normalizeProposalToMm } from "./normalizeProposal";
 import { rasterizePdfPageToPng, type PdfInfo } from "./pdfPageRaster";
 import type { GeminiFloorProposal, VisionUsageMetrics } from "./proposalTypes";
 import { SAMPLE_L_ROOM_CM, SAMPLE_RECT_KITCHEN_MM } from "./sampleProposals";
+import { useLabGeometryMode } from "./useLabGeometryMode";
 
 export function useGeminiFloorplanLab() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,7 +17,6 @@ export function useGeminiFloorplanLab() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [proposal, setProposal] = useState<GeminiFloorProposal | null>(null);
   const [rawText, setRawText] = useState<string | null>(null);
   const [extractError, setExtractError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -25,9 +26,10 @@ export function useGeminiFloorplanLab() {
   const [calibrateError, setCalibrateError] = useState<string | null>(null);
   const [pdfInfo, setPdfInfo] = useState<PdfInfo | null>(null);
   const [pdfPage, setPdfPage] = useState(1);
+  const geom = useLabGeometryMode("cleaned");
   const visionReady = hasGeminiVisionConfigured();
   const status = buildLabStatus({
-    hasKey: visionReady, fileName, busy, hasProposal: Boolean(proposal), extractError,
+    hasKey: visionReady, fileName, busy, hasProposal: Boolean(geom.proposal), extractError,
   });
 
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
@@ -47,11 +49,27 @@ export function useGeminiFloorplanLab() {
     setExtractError(null);
     setValidationErrors([]);
     setMetrics(null);
-    setProposal(null);
+    geom.clearGeometry();
     setRawText(null);
     setSelectedWallId(null);
     setSelectedRoomId(null);
     setCalibrateError(null);
+  }
+
+  function selectFrom(next: GeminiFloorProposal) {
+    setSelectedWallId(next.walls[0]?.id ?? null);
+    setSelectedRoomId(next.rooms[0]?.id ?? null);
+  }
+
+  function applyProposal(next: GeminiFloorProposal) {
+    const view = proposalForGeometryMode(next, geom.geometryMode);
+    geom.commitSource(next);
+    selectFrom(view);
+  }
+
+  function setGeometryMode(mode: GeometryViewMode) {
+    geom.setGeometryMode(mode);
+    if (geom.sourceProposal) selectFrom(proposalForGeometryMode(geom.sourceProposal, mode));
   }
 
   async function onFile(next: File | null) {
@@ -118,13 +136,11 @@ export function useGeminiFloorplanLab() {
     setMetrics(result.metrics ?? null);
     setRawText(result.rawText ?? null);
     if (result.ok) {
-      setProposal(result.proposal);
-      setSelectedWallId(result.proposal.walls[0]?.id ?? null);
-      setSelectedRoomId(result.proposal.rooms[0]?.id ?? null);
+      applyProposal(result.proposal);
       setExtractError(null);
       setValidationErrors([]);
     } else {
-      setProposal(null);
+      geom.clearGeometry();
       setExtractError(result.error);
       setValidationErrors(result.validationErrors ?? []);
     }
@@ -143,11 +159,7 @@ export function useGeminiFloorplanLab() {
   }
 
   function onLoadFixture(id: string) {
-    const sample = id === "l-cm" ? SAMPLE_L_ROOM_CM : SAMPLE_RECT_KITCHEN_MM;
-    const next = normalizeProposalToMm(sample);
-    setProposal(next);
-    setSelectedWallId(next.walls[0]?.id ?? null);
-    setSelectedRoomId(next.rooms[0]?.id ?? null);
+    applyProposal(normalizeProposalToMm(id === "l-cm" ? SAMPLE_L_ROOM_CM : SAMPLE_RECT_KITCHEN_MM));
     setRawText(null);
     setExtractError(null);
     setValidationErrors([]);
@@ -156,9 +168,13 @@ export function useGeminiFloorplanLab() {
   }
 
   return {
-    hasKey: visionReady, status, file, fileName, previewUrl, uploadError, busy, proposal,
-    setProposal, rawText, extractError, validationErrors, metrics, selectedWallId,
-    setSelectedWallId, selectedRoomId, setSelectedRoomId, calibrateError, setCalibrateError,
-    pdfInfo, pdfPage, onFile, onSelectPdfPage, onRunVision, onUseSampleImage, onLoadFixture,
+    hasKey: visionReady, status, file, fileName, previewUrl, uploadError, busy,
+    proposal: geom.proposal, setProposal: geom.setProposal,
+    geometryMode: geom.geometryMode, setGeometryMode,
+    hasSourceProposal: Boolean(geom.sourceProposal),
+    rawText, extractError, validationErrors, metrics,
+    selectedWallId, setSelectedWallId, selectedRoomId, setSelectedRoomId,
+    calibrateError, setCalibrateError, pdfInfo, pdfPage,
+    onFile, onSelectPdfPage, onRunVision, onUseSampleImage, onLoadFixture,
   };
 }
