@@ -40,6 +40,8 @@ type LivingRoomPlanCatalogRailProps = {
   onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
+  onCalibrateUnderlay?: () => void;
+  onToggleSiteMeasure?: (key: import("../../domain/livingRoom").SiteMeasureUserKey, value: boolean) => void;
   onImportUnderlay: (file: File | null) => void;
   onRegisterUnderlayPicker?: (openPicker: () => void) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
@@ -108,7 +110,17 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
 
   return <>
     <InteriorsToolRail activeTool={props.chromeTool} onTool={props.onChromeTool} />
-    <input ref={underlayInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => void props.onImportUnderlay(event.target.files?.[0] ?? null)} />
+    <input
+      ref={underlayInputRef}
+      type="file"
+      accept="image/png,image/jpeg,image/webp,application/pdf,.pdf"
+      hidden
+      onChange={(event) => {
+        const file = event.target.files?.[0] ?? null;
+        event.target.value = "";
+        void props.onImportUnderlay(file);
+      }}
+    />
     {props.toolRailVisible && !drawRoom && !props.presenting ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }}>
         {cabinetRun && (activePanel === "materials" || props.chromeTool === "material") ? <>
@@ -165,7 +177,8 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
               onUpdateSurface={props.onUpdateSurface} onDeleteSurface={props.onDeleteSurface}
               onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall}
               onUpdateWallThickness={props.onUpdateWallThickness} onJoinCoincidentNodes={props.onJoinCoincidentNodes}
-              onSetPlanUnderlay={props.onSetPlanUnderlay} onImportUnderlay={props.onImportUnderlay} underlayInputRef={underlayInputRef} />
+              onSetPlanUnderlay={props.onSetPlanUnderlay} onImportUnderlay={props.onImportUnderlay} underlayInputRef={underlayInputRef}
+              onCalibrateUnderlay={props.onCalibrateUnderlay} onToggleSiteMeasure={props.onToggleSiteMeasure} />
           </>
         )}
       </aside>

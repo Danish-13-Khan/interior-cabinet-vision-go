@@ -7,6 +7,8 @@ export type WallPlanPatch = {
   angleDeg?: number;
   xMm?: number;
   zMm?: number;
+  /** Which endpoint stays fixed when lengthMm is applied. Default: start. */
+  lengthAnchor?: "start" | "end";
 };
 
 export function wallPlanMidpoint(wall: WallEntity): Point2Mm {
@@ -17,19 +19,39 @@ export function wallPlanAngleDeg(wall: WallEntity): number {
   return Math.round(Math.atan2(wall.end.z - wall.start.z, wall.end.x - wall.start.x) * (180 / Math.PI));
 }
 
-/** Stretch a wall along its direction by moving the end node — corners stay in the graph. */
-export function setPlanWallLength(project: InteriorProject, wallId: string, lengthMm: number): InteriorProject {
+/**
+ * Stretch a wall along its direction by moving ONE endpoint.
+ * Default anchors the start node (keeps start fixed → end moves) — never uniform room scale.
+ */
+export function setPlanWallLength(
+  project: InteriorProject,
+  wallId: string,
+  lengthMm: number,
+  anchor: "start" | "end" = "start",
+): InteriorProject {
   const wall = project.walls.find((item) => item.id === wallId);
-  if (!wall?.endNodeId || !Number.isFinite(lengthMm)) return project;
+  if (!wall || !Number.isFinite(lengthMm)) return project;
   const dx = wall.end.x - wall.start.x;
   const dz = wall.end.z - wall.start.z;
   const length = Math.hypot(dx, dz);
   if (length < 1) return project;
+  const ux = dx / length;
+  const uz = dz / length;
   const nextLength = Math.max(MIN_SEGMENT_MM, Math.min(30000, Math.round(lengthMm)));
+  if (anchor === "start") {
+    if (!wall.endNodeId) return project;
+    return movePlanNodeWithOpenings(
+      project,
+      wall.endNodeId,
+      { x: wall.start.x + ux * nextLength, z: wall.start.z + uz * nextLength },
+      { joinCoincident: false },
+    );
+  }
+  if (!wall.startNodeId) return project;
   return movePlanNodeWithOpenings(
     project,
-    wall.endNodeId,
-    { x: wall.start.x + (dx / length) * nextLength, z: wall.start.z + (dz / length) * nextLength },
+    wall.startNodeId,
+    { x: wall.end.x - ux * nextLength, z: wall.end.z - uz * nextLength },
     { joinCoincident: false },
   );
 }
@@ -51,7 +73,7 @@ export function setPlanWallAngle(project: InteriorProject, wallId: string, angle
 
 export function applyWallPlanPatch(project: InteriorProject, wallId: string, patch: WallPlanPatch): InteriorProject {
   let next = project;
-  if (patch.lengthMm != null) next = setPlanWallLength(next, wallId, patch.lengthMm);
+  if (patch.lengthMm != null) next = setPlanWallLength(next, wallId, patch.lengthMm, patch.lengthAnchor ?? "start");
   if (patch.angleDeg != null) next = setPlanWallAngle(next, wallId, patch.angleDeg);
   if (patch.xMm == null && patch.zMm == null) return next;
   const wall = next.walls.find((item) => item.id === wallId);

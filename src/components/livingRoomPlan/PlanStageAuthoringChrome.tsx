@@ -30,13 +30,15 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
   if (planStageDrawRoom(props) && props.chromeTool && props.drawCommands) {
     return (
       <InteriorsDrawRoomChrome
-        tool={props.chromeTool} project={props.project} activeBuildTool={props.activeBuildTool}
+        tool={props.chromeTool} project={props.project} onPatchDocument={props.onPatchDocument!} activeBuildTool={props.activeBuildTool}
         activeWallId={props.activeWallId} openingCatalogItemId={props.openingCatalogItemId}
         roomPolygonPointCount={props.roomPolygonPointCount ?? 0} showGrid={props.showGrid}
         snapSizeMm={props.snapSizeMm} readability={props.readability} commands={props.drawCommands}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} onReadability={props.onReadability}
         onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}
         onCommitOpening={props.onCommitOpening}
+        onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection}
+        hasSelection={props.hasSelection}
       />
     );
   }
@@ -45,6 +47,7 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
       <InteriorsCabinetRunChrome
         tool={props.chromeTool} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
         readability={props.readability} commands={props.cabinetRunCommands}
+        project={props.project} onPatchDocument={props.onPatchDocument!}
         onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} onReadability={props.onReadability}
       />
     );
@@ -57,11 +60,13 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
           readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
           onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
           onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-          onReadability={props.onReadability} />
+          onReadability={props.onReadability}
+          onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection} />
       ) : null}
       <PlanStageTitlebar
         project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}
         v2BuildMode={props.v2BuildMode} readability={props.readability} onReadability={props.onReadability}
+        onPatchDocument={props.onPatchDocument}
       />
     </>
   );

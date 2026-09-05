@@ -3,8 +3,8 @@
   "jobId": "sj-spike-daylight-sofa-camera-a",
   "createdAt": "2026-08-13T00:00:00.000Z",
   "projectId": "phase1-bench-daylight-sofa",
-  "projectContentHash": "sj-proj-b40643fe",
-  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-b40643fe",
+  "projectContentHash": "sj-proj-095af428",
+  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-095af428",
   "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
   "cameraPose": {
     "eye": {

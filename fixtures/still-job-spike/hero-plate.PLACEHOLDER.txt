@@ -1,4 +1,4 @@
 Attach Client Preview PNG here as hero-plate.png (not committed).
 Camera: lr-camera-bench-daylight-sofa-camera-a
 Project: phase1-bench-daylight-sofa
-Hash: sj-proj-b40643fe
+Hash: sj-proj-095af428

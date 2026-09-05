@@ -1,0 +1,113 @@
+/* Portaled to document.body so tray / product-shell button rules cannot override. */
+.app-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(18, 24, 20, 0.48);
+}
+
+.app-confirm-dialog {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid #3d4a41;
+  border-radius: 10px;
+  background: #1a221c;
+  color: #eef3ed;
+  box-shadow: 0 18px 40px rgba(8, 12, 10, 0.45);
+}
+
+.app-confirm-dialog > strong {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.app-confirm-dialog > p {
+  margin: 0;
+  color: #c5cec7;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.app-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+body > .app-confirm-backdrop .app-confirm-actions button,
+.app-confirm-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #3d4a41;
+  border-radius: 6px;
+  background: #243029;
+  color: #e7f4eb;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+body > .app-confirm-backdrop .app-confirm-actions button.is-primary,
+.app-confirm-actions button.is-primary {
+  border-color: #276b46;
+  background: #276b46;
+  color: #fff;
+  font-weight: 700;
+}
+
+body > .app-confirm-backdrop .app-confirm-actions button.is-danger,
+.app-confirm-actions button.is-danger {
+  border-color: #8f2f2f;
+  background: #8f2f2f;
+  color: #fff;
+  font-weight: 700;
+}
+
+.app-confirm-dialog.is-danger {
+  border-color: #6e3434;
+}
+
+.app-prompt-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #c5cec7;
+}
+
+.app-prompt-field input {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #3d4a41;
+  border-radius: 6px;
+  background: #121812;
+  color: #eef3ed;
+  font: inherit;
+  font-size: 13px;
+}
+
+.app-prompt-field input:focus {
+  outline: 2px solid #3d8f5f;
+  outline-offset: 1px;
+}
+
+.app-confirm-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.app-prompt-error {
+  margin: 0;
+  color: #f0a8a8;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.app-prompt-field input[aria-invalid="true"] {
+  border-color: #c45c5c;
+}

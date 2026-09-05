@@ -1,12 +1,18 @@
 import { interiorsCabinetRunHint, type InteriorsChromeTool } from "../../domain/desktopUx";
+import type { InteriorProject } from "../../domain/interiorProject";
 import type { PlanReadabilitySettings } from "../../domain/livingRoom";
 import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
+import { PlanPrintExportControls } from "./PlanPrintExportControls";
+import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
 
 export function InteriorsCabinetRunTitlebar({
   tool,
   showGrid,
   snapSizeMm,
   readability,
+  commands,
+  project,
+  onPatchDocument,
   onShowGrid,
   onSnapSize,
   onReadability,
@@ -15,6 +21,12 @@ export function InteriorsCabinetRunTitlebar({
   showGrid: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
+  commands?: InteriorsCabinetRunCommands;
+  project: InteriorProject;
+  onPatchDocument: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
@@ -26,7 +38,13 @@ export function InteriorsCabinetRunTitlebar({
         {" · "}
         {interiorsCabinetRunHint(tool)}
       </span>
-      <PlanReadabilityToolbar settings={readability} onChange={onReadability} />
+      <PlanReadabilityToolbar
+        settings={readability}
+        onChange={onReadability}
+        planMarksEnabled={commands?.planMarksEnabled}
+        onPlanMarks={commands?.onTogglePlanMarks}
+      />
+      <PlanPrintExportControls project={project} onPatchDocument={onPatchDocument} />
       <small>Scale: Fit · Units: {readability.unit}</small>
       <div>
         <button type="button" className={showGrid ? "is-active" : ""} aria-pressed={showGrid} onClick={() => onShowGrid(!showGrid)}>

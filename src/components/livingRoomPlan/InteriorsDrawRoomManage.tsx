@@ -1,10 +1,12 @@
 import {
   INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS,
+  INTERIORS_DRAW_ROOM_NAV_TOOLS,
   interiorsDrawRoomShowArchitecture,
   interiorsDrawRoomShowUnderlay,
 } from "../../domain/desktopUx";
 import { BuildRoomManager } from "./BuildRoomManager";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
+import { SiteMeasureChecklist } from "./SiteMeasureChecklist";
 import type { InteriorsDrawRoomManageProps } from "./interiorsDrawRoomCommands";
 
 export function InteriorsDrawRoomManage({
@@ -26,6 +28,19 @@ export function InteriorsDrawRoomManage({
           onMergeRooms={commands.onMergeRooms}
         />
       ) : null}
+      <div className="lr-draw-nav-tools" aria-label="Plan tools">
+        {INTERIORS_DRAW_ROOM_NAV_TOOLS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            data-build-tool={item.id}
+            className={activeBuildTool === item.id ? "is-active" : ""}
+            onClick={() => commands.onBuildTool(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
       {showArch ? (
         <div className="lr-draw-arch" aria-label="Architecture tools">
           {INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS.map((item) => (
@@ -47,7 +62,11 @@ export function InteriorsDrawRoomManage({
             underlay={commands.underlay}
             onChange={commands.onSetPlanUnderlay}
             onReplace={commands.onReplaceUnderlay}
+            onCalibrate={() => commands.onBuildTool("calibrate-underlay")}
           />
+          {commands.onToggleSiteMeasure ? (
+            <SiteMeasureChecklist project={project} onToggle={commands.onToggleSiteMeasure} />
+          ) : null}
           {commands.importError ? <p className="lr-import-error">{commands.importError}</p> : null}
         </>
       ) : null}

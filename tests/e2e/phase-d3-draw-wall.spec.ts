@@ -1,15 +1,10 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { E2E_SESSION_JSON } from "./plannerStart";
+import { createShellPlan } from "./plannerStart";
+
+const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 
 async function openPlan(page: Page) {
-  await page.addInitScript((session) => {
-    window.localStorage.clear();
-    window.localStorage.setItem("cabinetStudioSession", session);
-    window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
-  }, E2E_SESSION_JSON);
-  await page.goto("/app");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
-  await page.getByRole("button", { name: /Wardrobe wall/ }).click();
+  await createShellPlan(page, { localStorage: { [GUIDE_KEY]: "dismissed" } });
 }
 
 async function pointOnPaper(paper: Locator, x: number, y: number) {

@@ -10,6 +10,7 @@ import {
   drawRoomFromPoints,
   mergeCoincidentPlanNodes,
   mergeInteriorRooms,
+  explainInteriorRoomMergeBlock,
   movePlanNodeWithOpenings,
   renameInteriorRoom,
   setActiveInteriorRoom,
@@ -57,6 +58,7 @@ import {
   resizeLivingRoom,
   resizeLivingRoomObject,
   rotateLivingRoomObject,
+  getLivingRoomPlanUnderlay,
   setLivingRoomPlanUnderlay,
   paintLivingRoomSurface,
   setLivingRoomObjectParameters,
@@ -64,6 +66,9 @@ import {
   placeStructuralColumn,
   setLivingRoomLayerVisibility,
   snapCabinetToWall,
+  setCabinetInlineDimensions,
+  validateCabinetRunPreDrop,
+  completeCabinetRun,
   updateLivingRoomOpening,
   type LivingRoomAlignMode,
   type LivingRoomCatalogId,
@@ -120,6 +125,7 @@ export function useLivingRoomPlanEditor({
 }: UseLivingRoomPlanEditorArgs) {
   const document = currentLivingRoomDocument(project);
   const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
+  const [preDropReason, setPreDropReason] = useState<string | null>(null);
   const [projectHomeOpen, setProjectHomeOpen] = useState(() => !document);
 
   useEffect(() => {
@@ -208,6 +214,7 @@ export function useLivingRoomPlanEditor({
   }
 
   function selectObject(objectId: string | null, additive = false) {
+    setPreDropReason(null);
     if (!objectId) {
       setSelectedObjectIds([]);
       return;
@@ -220,21 +227,87 @@ export function useLivingRoomPlanEditor({
     });
   }
 
+  function selectObjects(objectIds: string[]) {
+    setPreDropReason(null);
+    setSelectedObjectIds([...objectIds]);
+  }
+
   function moveObject(objectId: string, position: Point3Mm) {
+    if (!document) return;
+    const object = document.objects.find((item) => item.id === objectId);
+    if (object?.kind === "cabinet") {
+      const snapped = snapCabinetToWall(document, object, position);
+      const wallAttachment = snapped.extensions?.wallAttachment;
+      const wallId = wallAttachment && typeof wallAttachment === "object"
+        ? (wallAttachment as { wallId?: string }).wallId
+        : undefined;
+      const result = validateCabinetRunPreDrop(
+        { ...document, objects: document.objects.filter((item) => item.id !== objectId) },
+        { object: snapped, wallId },
+      );
+      if (!result.ok) {
+        setPreDropReason(result.message);
+        onStatus?.(result.message);
+        return;
+      }
+      setPreDropReason(result.advisory ? result.message : null);
+      commitDocument(
+        (current) => ({
+          ...current,
+          objects: current.objects.map((item) => item.id === objectId ? snapped : item),
+        }),
+        "Moved living-room object.",
+      );
+      return;
+    }
+    setPreDropReason(null);
     commitDocument(
-      (current) => {
-        const object = current.objects.find((item) => item.id === objectId);
-        return object?.kind === "cabinet"
-          ? { ...current, objects: current.objects.map((item) => item.id === objectId ? snapCabinetToWall(current, item, position) : item) }
-          : moveLivingRoomObject(current, objectId, position);
-      },
+      (current) => moveLivingRoomObject(current, objectId, position),
       "Moved living-room object.",
     );
   }
 
+  function previewMoveObject(objectId: string, position: Point3Mm) {
+    if (!document) return null;
+    const object = document.objects.find((item) => item.id === objectId);
+    if (object?.kind !== "cabinet") {
+      setPreDropReason(null);
+      return null;
+    }
+    const snapped = snapCabinetToWall(document, object, position);
+    const wallAttachment = snapped.extensions?.wallAttachment;
+    const wallId = wallAttachment && typeof wallAttachment === "object"
+      ? (wallAttachment as { wallId?: string }).wallId
+      : undefined;
+    const result = validateCabinetRunPreDrop(
+      { ...document, objects: document.objects.filter((item) => item.id !== objectId) },
+      { object: snapped, wallId },
+    );
+    if (!result.ok) {
+      setPreDropReason(result.message);
+    } else {
+      setPreDropReason(result.advisory ? result.message : null);
+    }
+    return { position: snapped.position, rotationY: snapped.rotation.y };
+  }
+
+  function handleObjectDragEnd(info: { committed: boolean; mode: "move" | "resize" }) {
+    // Keep a failed-drop reason when a move was attempted (moveObject sets it).
+    // Clear when the gesture ended without committing so a stale reason cannot linger.
+    if (!info.committed) {
+      setPreDropReason(null);
+    }
+  }
+
   function resizeObject(objectId: string, dimensions: Size3Mm) {
     commitDocument(
-      (current) => resizeLivingRoomObject(current, objectId, dimensions),
+      (current) => {
+        const object = current.objects.find((item) => item.id === objectId);
+        if (object?.kind === "cabinet") {
+          return setCabinetInlineDimensions(current, objectId, dimensions);
+        }
+        return resizeLivingRoomObject(current, objectId, dimensions);
+      },
       "Resized living-room object.",
     );
   }
@@ -289,9 +362,17 @@ export function useLivingRoomPlanEditor({
   }
 
   function setPlanUnderlay(underlay: LivingRoomPlanUnderlay | null) {
+    const previous = document ? getLivingRoomPlanUnderlay(document) : null;
+    const status = !underlay
+      ? "Removed plan underlay."
+      : !previous
+        ? "Imported plan underlay."
+        : Boolean(underlay.calibrated) && !previous.calibrated
+          ? "Calibrated plan underlay."
+          : "Updated plan underlay.";
     commitDocument(
       (current) => setLivingRoomPlanUnderlay(current, underlay),
-      underlay ? "Imported plan underlay." : "Removed plan underlay.",
+      status,
     );
   }
 
@@ -323,6 +404,22 @@ export function useLivingRoomPlanEditor({
     if (catalogItemId === "living:corner-wardrobe") {
       const corner = preferredRoomWallCorner(document, document.activeRoomId);
       if (corner) placed = placeCornerCabinet(document, item, corner);
+    }
+    if (placed.kind === "cabinet") {
+      const result = validateCabinetRunPreDrop(document, {
+        object: placed,
+        wallId: wallId ?? (placed.extensions?.wallAttachment && typeof placed.extensions.wallAttachment === "object"
+          ? (placed.extensions.wallAttachment as { wallId?: string }).wallId
+          : undefined),
+      });
+      if (!result.ok) {
+        setPreDropReason(result.message);
+        onStatus?.(result.message);
+        return;
+      }
+      setPreDropReason(result.advisory ? result.message : null);
+    } else {
+      setPreDropReason(null);
     }
     commitDocument(
       (current) => addLivingRoomObject(current, placed),
@@ -381,6 +478,23 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => updateCabinetRunLayout(current, runId, options), "Updated cabinet run.");
   }
 
+  function completeRun(runId: string) {
+    let leftover: string | null = null;
+    commitDocument((current) => {
+      const result = completeCabinetRun(current, runId);
+      leftover = result?.leftoverMessage ?? null;
+      return result?.project ?? current;
+    }, leftover ? `Completed cabinet run — ${leftover}` : "Completed cabinet run.");
+    if (leftover) onStatus?.(leftover);
+  }
+
+  function setInlineCabinetDims(objectId: string, dims: { widthMm?: number; depthMm?: number; heightMm?: number }) {
+    commitDocument(
+      (current) => setCabinetInlineDimensions(current, objectId, dims),
+      "Updated cabinet dimensions.",
+    );
+  }
+
   function nudgeSelection(dx: number, dz: number) {
     if (selectedObjectIds.length === 0) return;
     commitDocument((current) =>
@@ -417,7 +531,23 @@ export function useLivingRoomPlanEditor({
   }
 
   function mergeRooms(targetRoomId: string, absorbedRoomId: string) {
-    commitDocument((current) => mergeInteriorRooms(current, targetRoomId, absorbedRoomId), "Merged rooms.");
+    if (!document) return;
+    const block = explainInteriorRoomMergeBlock(document, targetRoomId, absorbedRoomId);
+    if (block) {
+      onStatus?.(block.message);
+      return;
+    }
+    const preview = mergeInteriorRooms(document, targetRoomId, absorbedRoomId);
+    if (preview.rooms.length >= document.rooms.length) {
+      onStatus?.(
+        "Merge could not rebuild a valid room outline from the shared wall. Check the walls and try again, or delete/redraw one room.",
+      );
+      return;
+    }
+    commitDocument(
+      (current) => mergeInteriorRooms(current, targetRoomId, absorbedRoomId),
+      "Merged rooms.",
+    );
   }
 
   function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
@@ -594,7 +724,10 @@ export function useLivingRoomPlanEditor({
     openLivingRoomProjectHome: () => setProjectHomeOpen(true),
     closeLivingRoomProjectHome: () => setProjectHomeOpen(false),
     selectInteriorObject: selectObject,
+    selectInteriorObjects: selectObjects,
     moveInteriorObject: moveObject,
+    previewInteriorObjectMove: previewMoveObject,
+    onInteriorObjectDragEnd: handleObjectDragEnd,
     resizeInteriorObject: resizeObject,
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: setObjectRotation,
@@ -613,6 +746,10 @@ export function useLivingRoomPlanEditor({
     alignInteriorSelection: alignSelection,
     createLivingRoomCabinetRun: createCabinetRun,
     updateLivingRoomCabinetRun: updateRun,
+    completeLivingRoomCabinetRun: completeRun,
+    setLivingRoomCabinetInlineDims: setInlineCabinetDims,
+    livingRoomPreDropReason: preDropReason,
+    clearLivingRoomPreDropReason: () => setPreDropReason(null),
     nudgeInteriorSelection: nudgeSelection,
     setLivingRoomDimensions: setRoomDimensions,
     setActiveLivingRoom: setActiveRoom,

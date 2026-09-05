@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ConfirmDialog } from "../ConfirmDialog";
 
 type BuildRoomSwitcherProps = {
   rooms: Array<{ id: string; name: string }>;
@@ -8,12 +9,26 @@ type BuildRoomSwitcherProps = {
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
   mergeableRoomIds?: string[];
+  /** Adjacent rooms blocked from merge (e.g. hole topology) with a short reason. */
+  mergeBlockedHint?: string | null;
 };
+
+type PendingConfirm =
+  | { kind: "delete"; roomId: string; roomName: string }
+  | {
+    kind: "merge";
+    targetRoomId: string;
+    targetName: string;
+    absorbedRoomId: string;
+    absorbedName: string;
+  }
+  | null;
 
 /** Minimal multi-room chrome: switch active face and rename. */
 export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
   const active = props.rooms.find((room) => room.id === props.activeRoomId) ?? props.rooms[0];
   const [draftName, setDraftName] = useState(active?.name ?? "");
+  const [pending, setPending] = useState<PendingConfirm>(null);
   useEffect(() => {
     setDraftName(active?.name ?? "");
   }, [active?.id, active?.name]);
@@ -30,18 +45,43 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
     props.onRenameRoom(active!.id, trimmed);
   }
 
-  function deleteActiveRoom() {
-    if (props.rooms.length > 1 && window.confirm(`Delete ${active!.name} and its contents?`)) {
-      props.onDeleteRoom?.(active!.id);
+  function requestDeleteActiveRoom() {
+    if (props.rooms.length > 1) {
+      setPending({ kind: "delete", roomId: active!.id, roomName: active!.name });
     }
   }
 
-  function mergeIntoActive(absorbedRoomId: string) {
+  function requestMergeIntoActive(absorbedRoomId: string) {
     const absorbed = props.rooms.find((room) => room.id === absorbedRoomId);
-    if (absorbed && window.confirm(`Merge ${absorbed.name} into ${active!.name}? The shared wall will be removed.`)) {
-      props.onMergeRooms?.(active!.id, absorbedRoomId);
+    if (absorbed) {
+      setPending({
+        kind: "merge",
+        targetRoomId: active!.id,
+        targetName: active!.name,
+        absorbedRoomId,
+        absorbedName: absorbed.name,
+      });
     }
   }
+
+  function closeConfirm() {
+    setPending(null);
+  }
+
+  function confirmPending() {
+    if (!pending) return;
+    if (pending.kind === "delete") {
+      props.onDeleteRoom?.(pending.roomId);
+    } else {
+      props.onMergeRooms?.(pending.targetRoomId, pending.absorbedRoomId);
+    }
+    setPending(null);
+  }
+
+  const blockedHint = props.mergeBlockedHint
+    ?? (mergeCandidates.length === 0 && props.rooms.length > 1
+      ? "No adjacent room available to merge."
+      : null);
 
   return (
     <section className="lr-room-switcher" data-testid="build-room-switcher" aria-label="Rooms">
@@ -76,22 +116,57 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
         />
       </label>
       <div className="lr-room-switcher-actions">
-        <button type="button" onClick={deleteActiveRoom} disabled={props.rooms.length <= 1}>Delete room</button>
+        <button type="button" data-testid="build-room-delete-open" onClick={requestDeleteActiveRoom} disabled={props.rooms.length <= 1}>Delete room</button>
         {mergeCandidates.length > 0 ? (
           <label>
             <span>Merge into this room</span>
-            <select defaultValue="" onChange={(event) => {
-              if (event.target.value) mergeIntoActive(event.target.value);
-              event.currentTarget.value = "";
-            }}>
+            <select
+              data-testid="build-room-merge-select"
+              defaultValue=""
+              onChange={(event) => {
+                if (event.target.value) requestMergeIntoActive(event.target.value);
+                event.currentTarget.value = "";
+              }}
+            >
               <option value="" disabled>Choose adjacent room…</option>
               {mergeCandidates.map((room) => (
                 <option key={room.id} value={room.id}>{room.name}</option>
               ))}
             </select>
           </label>
-        ) : props.rooms.length > 1 ? <small>No adjacent room available to merge.</small> : null}
+        ) : null}
+        {blockedHint ? (
+          <small data-testid="build-room-merge-blocked" role="status">{blockedHint}</small>
+        ) : null}
       </div>
+
+      <ConfirmDialog
+        open={pending?.kind === "delete"}
+        title="Delete room?"
+        message={
+          pending?.kind === "delete"
+            ? `Delete "${pending.roomName}" and its contents? You can Undo afterward if needed.`
+            : ""
+        }
+        confirmLabel="Delete room"
+        danger
+        testId="build-room-delete"
+        onConfirm={confirmPending}
+        onCancel={closeConfirm}
+      />
+      <ConfirmDialog
+        open={pending?.kind === "merge"}
+        title="Merge rooms?"
+        message={
+          pending?.kind === "merge"
+            ? `Merge ${pending.absorbedName} into ${pending.targetName}? The shared wall will be removed.`
+            : ""
+        }
+        confirmLabel="Merge rooms"
+        testId="build-room-merge"
+        onConfirm={confirmPending}
+        onCancel={closeConfirm}
+      />
     </section>
   );
 }

@@ -41,8 +41,8 @@ export function snapObjectToTopologyWall(
   const nearest = candidates[0];
   if (!nearest || nearest.distance > thresholdMm) return null;
   const guides: PlanSnapGuide[] = [
-    { axis: "x", valueMm: nearest.position.x, kind: "wall" },
-    { axis: "z", valueMm: nearest.position.z, kind: "wall" },
+    { axis: "x", valueMm: nearest.position.x, kind: "wall", label: "Wall flush" },
+    { axis: "z", valueMm: nearest.position.z, kind: "wall", label: "Wall flush" },
   ];
   return { position: nearest.position, guides };
 }

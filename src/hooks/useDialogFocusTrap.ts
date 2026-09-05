@@ -1,4 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
+import { beginAppModal, isEditorShortcutKey } from "./appModalGate";
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -16,7 +17,7 @@ function focusRestoreTarget(testId: string | null | undefined, previous: HTMLEle
   return previous;
 }
 
-/** Move focus into a dialog, trap Tab, handle Escape, restore focus on close. */
+/** Move focus into a dialog, trap Tab, block editor shortcuts, handle Escape, restore focus on close. */
 export function useDialogFocusTrap(
   active: boolean,
   containerRef: RefObject<HTMLElement | null>,
@@ -30,8 +31,13 @@ export function useDialogFocusTrap(
 
   useEffect(() => {
     if (!active) return;
+    const endModal = beginAppModal();
     const root = containerRef.current;
-    if (!root) return;
+    if (!root) {
+      return () => {
+        endModal();
+      };
+    }
     const dialog: HTMLElement = root;
 
     const previous = document.activeElement instanceof HTMLElement
@@ -42,7 +48,9 @@ export function useDialogFocusTrap(
     const frame = window.requestAnimationFrame(() => {
       const items = focusableElements(dialog);
       const preferred = dialog.querySelector<HTMLElement>("[data-dialog-initial-focus]");
-      (preferred ?? items[0] ?? dialog).focus();
+      // Prefer marked control only when it is actually focusable (not disabled).
+      const initial = preferred && items.includes(preferred) ? preferred : (items[0] ?? dialog);
+      initial.focus();
     });
 
     function onKeyDown(event: KeyboardEvent) {
@@ -50,28 +58,39 @@ export function useDialogFocusTrap(
         const escape = onEscapeRef.current;
         if (!escape) return;
         event.preventDefault();
+        event.stopPropagation();
         escape();
         return;
       }
-      if (event.key !== "Tab") return;
-      const items = focusableElements(dialog);
-      if (items.length === 0) {
-        event.preventDefault();
-        dialog.focus();
+      if (event.key === "Tab") {
+        const items = focusableElements(dialog);
+        if (items.length === 0) {
+          event.preventDefault();
+          event.stopPropagation();
+          dialog.focus();
+          return;
+        }
+        const first = items[0]!;
+        const last = items[items.length - 1]!;
+        const activeEl = document.activeElement;
+        if (event.shiftKey && activeEl === first) {
+          event.preventDefault();
+          event.stopPropagation();
+          last.focus();
+        } else if (!event.shiftKey && activeEl === last) {
+          event.preventDefault();
+          event.stopPropagation();
+          first.focus();
+        } else if (activeEl instanceof Node && !dialog.contains(activeEl)) {
+          event.preventDefault();
+          event.stopPropagation();
+          first.focus();
+        }
         return;
       }
-      const first = items[0]!;
-      const last = items[items.length - 1]!;
-      const activeEl = document.activeElement;
-      if (event.shiftKey && activeEl === first) {
+      if (isEditorShortcutKey(event, { allowTypingDefaults: true })) {
         event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && activeEl === last) {
-        event.preventDefault();
-        first.focus();
-      } else if (activeEl instanceof Node && !dialog.contains(activeEl)) {
-        event.preventDefault();
-        first.focus();
+        event.stopPropagation();
       }
     }
 
@@ -79,6 +98,7 @@ export function useDialogFocusTrap(
     return () => {
       window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKeyDown, true);
+      endModal();
       // Prefer stable test id: openers may remount when the dialog closes.
       window.setTimeout(() => {
         focusRestoreTarget(capturedTestId, previous)?.focus({ preventScroll: true });

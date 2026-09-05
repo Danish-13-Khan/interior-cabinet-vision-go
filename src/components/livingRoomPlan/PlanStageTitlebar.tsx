@@ -3,6 +3,7 @@ import { interiorsStageTitle } from "../../domain/desktopUx";
 import type { PlanReadabilitySettings } from "../../domain/livingRoom";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
+import { PlanPrintExportControls } from "./PlanPrintExportControls";
 
 type PlanStageTitlebarProps = {
   project: InteriorProject;
@@ -11,6 +12,10 @@ type PlanStageTitlebarProps = {
   v2BuildMode?: boolean;
   readability: PlanReadabilitySettings;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
+  onPatchDocument?: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
 };
 
 export function PlanStageTitlebar(props: PlanStageTitlebarProps) {
@@ -25,6 +30,9 @@ export function PlanStageTitlebar(props: PlanStageTitlebarProps) {
       </span>
       {props.v2BuildMode && props.workspaceView === "plan" ? (
         <PlanReadabilityToolbar settings={props.readability} onChange={props.onReadability} />
+      ) : null}
+      {props.workspaceView === "plan" && props.onPatchDocument ? (
+        <PlanPrintExportControls project={props.project} onPatchDocument={props.onPatchDocument} />
       ) : null}
       {props.workspaceView !== "model" ? (
         <small>

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isAppModalOpen } from "./appModalGate";
 import type { LivingRoomWorkspaceView } from "../components/livingRoomPlan/workspaceProps";
 
 export function useLivingRoomPlanHotkeys({
@@ -16,6 +17,10 @@ export function useLivingRoomPlanHotkeys({
   onNudge,
   onClearSelection,
   onCycleSelection,
+  onFitPlan,
+  onFitSelection,
+  onCancelTool,
+  onMeasureTool,
 }: {
   projectHomeOpen: boolean;
   snapSizeMm: number;
@@ -31,9 +36,14 @@ export function useLivingRoomPlanHotkeys({
   onNudge: (dx: number, dz: number) => void;
   onClearSelection: () => void;
   onCycleSelection?: (delta: 1 | -1) => void;
+  onFitPlan?: () => void;
+  onFitSelection?: () => void;
+  onCancelTool?: () => void;
+  onMeasureTool?: () => void;
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      if (isAppModalOpen()) return;
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select")) return;
       if (projectHomeOpen) return;
@@ -47,20 +57,30 @@ export function useLivingRoomPlanHotkeys({
         return;
       }
       if (event.key === "Escape") {
-        if (workspaceView === "model") {
-          event.preventDefault();
-          onClearSelection();
-        }
+        event.preventDefault();
+        onCancelTool?.();
+        onClearSelection();
         return;
       }
-      if (event.key === "1") {
+      if (event.key === "1" && !event.shiftKey) {
         event.preventDefault();
         onView("plan");
         return;
       }
-      if (event.key === "2") {
+      if (event.key === "2" && !event.shiftKey) {
         event.preventDefault();
         onView("model");
+        return;
+      }
+      if (event.key.toLowerCase() === "f" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        if (event.shiftKey) onFitSelection?.();
+        else onFitPlan?.();
+        return;
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === "0") {
+        event.preventDefault();
+        onFitPlan?.();
         return;
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
@@ -71,6 +91,11 @@ export function useLivingRoomPlanHotkeys({
       if (event.key === "Delete" || event.key === "Backspace") {
         event.preventDefault();
         onDelete();
+        return;
+      }
+      if (event.key.toLowerCase() === "m" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        onMeasureTool?.();
         return;
       }
       if (event.key.toLowerCase() === "r") {
@@ -92,7 +117,7 @@ export function useLivingRoomPlanHotkeys({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
-    canRedo, canUndo, onClearSelection, onCycleSelection, onDelete, onDuplicate, onNudge, onRedo, onRotateSelection,
-    onUndo, onView, projectHomeOpen, snapSizeMm, workspaceView,
+    canRedo, canUndo, onCancelTool, onClearSelection, onCycleSelection, onDelete, onDuplicate, onFitPlan,
+    onFitSelection, onMeasureTool, onNudge, onRedo, onRotateSelection, onUndo, onView, projectHomeOpen, snapSizeMm, workspaceView,
   ]);
 }
