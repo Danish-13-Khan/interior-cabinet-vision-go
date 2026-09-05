@@ -7,8 +7,8 @@ Does **not** modify the Living Room / 2D precision-canvas WIP.
 
 ## Current phase
 
-**Phase 6A — Ortho / merge post-process** (done).  
-Toggle **Raw Vision** vs **CV-cleaned** on the lab page. Next: **6B** classical CV.
+**Phase 6B — Classical CV wall candidates** (done).  
+Modes: **Raw Vision** · **6A cleaned** · **6B classical CV** (needs plan image). Next: **6C** only if fixtures still weak.
 
 ## Run
 
@@ -27,7 +27,15 @@ Toggle **Raw Vision** vs **CV-cleaned** on the lab page. Next: **6B** classical 
 - **Offline:** Load offline kitchen / L-room  
 - **Image Vision:** Use sample image or upload PNG/JPEG/WebP → Run Gemini Vision  
 - **PDF:** Upload PDF → pick page → raster PNG → Run Gemini Vision  
+- **Geometry modes:** Raw Vision · 6A cleaned (ortho/merge) · 6B classical CV (image → axis walls)  
 - **Accept:** Review → checkbox → Accept → download `.interior.json`
+
+### Phase 6B merge rules
+
+1. Classical CV owns **wall segments** (Otsu + morph close + H/V runs → proposal mm via ink bbox).  
+2. Vision keeps **rooms, openings, scale, height, notes**.  
+3. Result always runs through **6A cleanup**.  
+4. Fail soft (no image, bad ink density, too few/many segments) → 6A cleaned Vision walls + note.
 
 ## Privacy
 
