@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
 import "../../styles/gemini-floorplan-lab.css";
 import "../../styles/gemini-floorplan-lab-panels.css";
 import "../../styles/gemini-floorplan-lab-phase6.css";
 import "../../styles/gemini-floorplan-lab-review.css";
 import "../../styles/gemini-floorplan-lab-accept.css";
 import { AcceptBridgePanel } from "./AcceptBridgePanel";
+import { proposalToArchScene, TopologyPanel } from "./archScene";
 import { ConfidenceNotesPanel } from "./ConfidenceNotesPanel";
 import { FixtureScorecardPanel } from "./FixtureScorecardPanel";
 import { GeometryModeToggle } from "./GeometryModeToggle";
@@ -21,12 +23,16 @@ import { useLabDocumentScroll } from "./useLabDocumentScroll";
 export function GeminiFloorplanLabPage() {
   useLabDocumentScroll();
   const lab = useGeminiFloorplanLab();
+  const archScene = useMemo(
+    () => (lab.proposal ? proposalToArchScene(lab.proposal) : null),
+    [lab.proposal],
+  );
 
   return (
     <div className="gfl-page">
       <header className="gfl-top">
         <div>
-          <p className="gfl-eyebrow">Lab · Phase 6D</p>
+          <p className="gfl-eyebrow">Lab · Phase 7</p>
           <h1>Gemini floor-plan Vision</h1>
         </div>
         <Link className="gfl-back" to="/">
@@ -73,6 +79,7 @@ export function GeminiFloorplanLabPage() {
           mode={lab.geometryMode}
           fixtureHint={lab.fileName}
         />
+        <TopologyPanel scene={archScene} />
       </div>
       <div className="gfl-grid gfl-grid--3 gfl-grid--review">
         <PlanReviewOverlay
