@@ -190,15 +190,16 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 ---
 
-### M2 — Wall Selection and Visibility · `NEXT`
+### M2 — Wall Selection and Visibility · `DONE`
 
 **Answers:** Feedback #3 · P0 Hide Wall / Show All Walls (§4.3)
 
 - Select individual walls in 3D.
 - Right-click **Hide Wall** → set that wall’s existing `wall.visible = false`. **No keyboard shortcut in M2** (do not use `Cmd/Ctrl+H` — OS/browser reserved).
-- **Show Wall** → `wall.visible = true` for the target wall (Scene / Layers or context menu).
+- Selected-wall **Hide Wall** control in the 3D viewport (same command; supports e2e without WebGL contextmenu).
+- **Show Wall** → `wall.visible = true` for the target wall (hidden-walls panel).
 - **Show All Walls** → set **every wall’s** `visible` to `true` only (does **not** unhide panels/objects).
-- List walls with `visible === false` in Scene / Layers.
+- List walls with `visible === false` in the model viewport panel.
 - Persistence is automatic via the existing `WallEntity.visible` field (already parsed/serialized).
 
 **M2 scope limit:** Hide / Show All apply to **walls only**. Object and panel hiding lands with the M5 `visible` attachment model.
@@ -209,7 +210,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 **Exit:** Hide one wall → save → reopen → wall still hidden; Show All Walls sets all walls visible without changing panel/object visibility.
 
-**Tests (required):** Save-and-reopen for `wall.visible === false`; Show All Walls leaves every wall `visible === true` and does not invent object-hide behaviour.
+**Tests (required):** Save-and-reopen for `wall.visible === false`; Show All Walls leaves every wall `visible === true` and does not invent object-hide behaviour. Shipped: `wallVisibilityCommands.test.ts`, `tests/e2e/phase-m2-wall-visibility.spec.ts`.
 
 ---
 
@@ -340,8 +341,8 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 ## 8. First sprint (approved)
 
 1. **M1** — **DONE** on `phase-m/post-room-3d-editing` — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`
-2. **M2** — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut) · `NEXT`
+2. **M2** — **DONE** on `phase-m/post-room-3d-editing` — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)
 3. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet
 4. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M2**.
+Ready to start **M3** (or M5 planning lock if sequencing materials after panels).

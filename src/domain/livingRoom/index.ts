@@ -168,6 +168,13 @@ export {
   type LivingRoomPaintTarget,
 } from "./materialLayerCommands";
 export {
+  listHiddenWalls,
+  setWallVisible,
+  showAllWalls,
+  wallVisibilityLabel,
+  wallVisibilityLabelInProject,
+} from "./wallVisibilityCommands";
+export {
   applyMaterialToSelection,
   commonMaterialSlots,
   editableCommonMaterialSlots,
