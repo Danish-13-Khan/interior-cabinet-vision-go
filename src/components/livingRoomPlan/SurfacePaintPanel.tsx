@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { FinishUvRebind } from "../../domain/catalog/finishRebind";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import {
   commonMaterialSlots,
@@ -7,6 +8,7 @@ import {
   materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
 } from "../../domain/livingRoom";
+import { MaterialColourPanel } from "./MaterialColourPanel";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
 
 type Props = {
@@ -17,13 +19,15 @@ type Props = {
   onCeiling: (materialId: string) => void;
   onWall: (wallId: string, materialId: string) => void;
   onApplyToSelection: (materialId: string, slotName?: string) => void;
+  onApplyColour: (materialId: string, color: string, rebinds: FinishUvRebind[]) => void;
   onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
 };
 
 type PaintTarget = "floor" | "ceiling" | "wall" | "selection";
 
 export function SurfacePaintPanel({
-  project, activeWallId, selectedObjects, onFloor, onCeiling, onWall, onApplyToSelection, onImportFinish,
+  project, activeWallId, selectedObjects, onFloor, onCeiling, onWall, onApplyToSelection,
+  onApplyColour, onImportFinish,
 }: Props) {
   const wall = project.walls.find((item) => item.id === activeWallId) ?? project.walls[0] ?? null;
   const [target, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
@@ -34,11 +38,7 @@ export function SurfacePaintPanel({
   const canPaintSelection = selectedObjects.length > 0 && editableSlots.length > 0;
   const selectionMaterials = useMemo(() => {
     if (target !== "selection" || !activeSlot) return project.materials;
-    const compatible = materialsCompatibleWithSelectionSlot(
-      project.materials,
-      selectedObjects,
-      activeSlot,
-    );
+    const compatible = materialsCompatibleWithSelectionSlot(project.materials, selectedObjects, activeSlot);
     const activeId = selectedObjects[0]?.materialSlots[activeSlot];
     if (!activeId || compatible.some((material) => material.id === activeId)) return compatible;
     const current = project.materials.find((material) => material.id === activeId);
@@ -51,15 +51,31 @@ export function SurfacePaintPanel({
     : target === "ceiling"
       ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "ceiling")?.materialId
         ?? (project.rooms.find((room) => room.id === project.activeRoomId)?.extensions?.ceilingMaterialId as string | undefined)
-    : target === "wall" ? wall?.materialId
-      : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
-        : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
+      : target === "wall" ? wall?.materialId
+        : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
+          : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
+
+  const activeMaterial = project.materials.find((material) => material.id === activeMaterialId) ?? null;
 
   function apply(materialId: string) {
     if (target === "floor") onFloor(materialId);
     if (target === "ceiling") onCeiling(materialId);
     if (target === "wall" && wall) onWall(wall.id, materialId);
     if (target === "selection" && canPaintSelection) onApplyToSelection(materialId, activeSlot || undefined);
+  }
+
+  function colourRebinds(): FinishUvRebind[] {
+    if (target === "floor") return [{ kind: "floor" }];
+    if (target === "ceiling") return [{ kind: "ceiling" }];
+    if (target === "wall" && wall) return [{ kind: "wall", wallId: wall.id }];
+    if (target === "selection" && activeSlot) {
+      return selectedObjects.map((object) => ({
+        kind: "object" as const,
+        objectId: object.id,
+        slotName: activeSlot,
+      }));
+    }
+    return [];
   }
 
   return (
@@ -98,7 +114,15 @@ export function SurfacePaintPanel({
               : target === "ceiling" ? { ceiling: true }
               : target === "wall" && wall ? { wallId: wall.id } : undefined) : undefined}
           />
-          <p>Swatches save the project material ID. Plan tint follows fronts (or another face slot) when present; carcass-only edits still persist for 3D.</p>
+          <MaterialColourPanel
+            project={project}
+            material={activeMaterial}
+            onApplyColour={(color) => {
+              if (!activeMaterialId) return;
+              onApplyColour(activeMaterialId, color, colourRebinds());
+            }}
+          />
+          <p>Swatches save the project material ID. Shades and custom colours tint via clone-on-write when shared.</p>
         </>
       )}
     </section>

@@ -74,6 +74,11 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetCeilingMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
   onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
+  onApplyMaterialColour: (
+    materialId: string,
+    color: string,
+    rebinds: import("../../domain/catalog/finishRebind").FinishUvRebind[],
+  ) => void;
   onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: string, wallId?: string) => void;
