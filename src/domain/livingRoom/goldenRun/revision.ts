@@ -1,6 +1,6 @@
 import type { InteriorProject } from "../../interiorProject";
 import { persistCabinetFinishOnObject } from "../cabinetFinish";
-import { resizeLivingRoomObject } from "../planCommands";
+import { setCabinetInlineDimensions } from "../cabinetRunInlineDims";
 import { GOLDEN_RUN_OBJECT_IDS, GOLDEN_RUN_REVISED_FINISH_ID, GOLDEN_RUN_REVISED_WIDTH_MM } from "./types";
 
 /** Apply the locked Golden Run width revision to the first base cabinet. */
@@ -11,10 +11,8 @@ export function reviseGoldenRunCabinetWidth(
 ): InteriorProject {
   const object = project.objects.find((item) => item.id === objectId);
   if (!object) throw new Error(`Golden run is missing ${objectId}.`);
-  return resizeLivingRoomObject(project, objectId, {
-    ...object.dimensions,
-    widthMm,
-  });
+  // Match the inspector W mm path (resize + run reflow + filler/identity preservation).
+  return setCabinetInlineDimensions(project, objectId, { widthMm });
 }
 
 /** Apply the locked Golden Run finish revision to the first base cabinet. */

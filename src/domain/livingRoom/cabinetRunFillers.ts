@@ -117,6 +117,13 @@ export function syncCabinetRunFillers(project: InteriorProject, runId: string): 
   const metadata = members[0] ? cabinetRunForObject(members[0]) : null;
   if (!metadata || members.length === 0) return project;
 
+  // Keep prior start/end filler identity+width when reflow leaves a large end gap
+  // (auto sync only places fillers for gaps within FILLER_MIN/MAX).
+  const priorEndFillers = project.objects.filter((object) => {
+    const meta = cabinetRunFillerForObject(object);
+    return meta?.runId === runId && (meta.side === "start" || meta.side === "end");
+  });
+
   // Drop this run's fillers first so occupancy reflects openings / other runs / corners only.
   const cleared = removeRunFillers(project, runId);
   const clearedMembers = runCabinets(cleared, runId);
@@ -130,8 +137,19 @@ export function syncCabinetRunFillers(project: InteriorProject, runId: string): 
 
   const cabinets = orderRunMembers(clearedMembers, (cabinet) => offsetsAlongWall(cabinet, wall).start);
   const reference = cabinets[0]!;
-  type Spec = { side: CabinetRunFillerSide; index?: number; widthMm: number; center: number; ref: InteriorObjectEntity };
+  type Spec = {
+    side: CabinetRunFillerSide;
+    index?: number;
+    widthMm: number;
+    center: number;
+    ref: InteriorObjectEntity;
+    id?: string;
+  };
   const specs: Spec[] = [];
+  const priorBySide = {
+    start: priorEndFillers.find((object) => cabinetRunFillerForObject(object)?.side === "start"),
+    end: priorEndFillers.find((object) => cabinetRunFillerForObject(object)?.side === "end"),
+  };
 
   const withoutIds = (ids: ReadonlySet<string>) => occupied.filter((span) => {
     if (ids.has(span.id)) return false;
@@ -169,8 +187,25 @@ export function syncCabinetRunFillers(project: InteriorProject, runId: string): 
         widthMm: startBest.lengthMm,
         center: startBest.startMm + startBest.lengthMm / 2,
         ref: cabinets[0]!,
+        id: priorBySide.start?.id,
       });
     }
+  }
+  if (
+    priorBySide.start
+    && !specs.some((spec) => spec.side === "start")
+    && startSegments.some((segment) => segment.lengthMm >= priorBySide.start!.dimensions.widthMm)
+  ) {
+    // Preserve forced/manual start fillers (e.g. golden 100 mm) against the first cabinet
+    // when the end gap is larger than FILLER_MAX_MM.
+    const widthMm = priorBySide.start.dimensions.widthMm;
+    specs.push({
+      side: "start",
+      widthMm,
+      center: firstSpan.start - widthMm / 2,
+      ref: cabinets[0]!,
+      id: priorBySide.start.id,
+    });
   }
   const endSegments = freeSegmentsInInterval(
     withoutIds(new Set([cabinets[cabinets.length - 1]!.id])),
@@ -184,13 +219,29 @@ export function syncCabinetRunFillers(project: InteriorProject, runId: string): 
         widthMm: endBest.lengthMm,
         center: endBest.startMm + endBest.lengthMm / 2,
         ref: cabinets[cabinets.length - 1]!,
+        id: priorBySide.end?.id,
       });
     }
+  }
+  if (
+    priorBySide.end
+    && !specs.some((spec) => spec.side === "end")
+    && endSegments.some((segment) => segment.lengthMm >= priorBySide.end!.dimensions.widthMm)
+  ) {
+    // Preserve forced/manual end fillers against the last cabinet when the gap exceeds FILLER_MAX_MM.
+    const widthMm = priorBySide.end.dimensions.widthMm;
+    specs.push({
+      side: "end",
+      widthMm,
+      center: lastSpan.end + widthMm / 2,
+      ref: cabinets[cabinets.length - 1]!,
+      id: priorBySide.end.id,
+    });
   }
 
   const fillers = specs.map((spec) => {
     const draft = makeFillerDraft({
-      id: `filler:${runId}:${spec.side}${spec.index ?? ""}:${Math.round(spec.center)}`,
+      id: spec.id ?? `filler:${runId}:${spec.side}${spec.index ?? ""}:${Math.round(spec.center)}`,
       runId,
       roomId: reference.roomId,
       wallId: metadata.wallId,
