@@ -175,6 +175,26 @@ export {
   wallVisibilityLabelInProject,
 } from "./wallVisibilityCommands";
 export {
+  applyMaterialColour,
+  type ApplyMaterialColourArgs,
+} from "./applyMaterialColour";
+export {
+  hexToRgb,
+  normalizeHexColour,
+  resolveColourInput,
+  rgbToHex,
+} from "./materialColourFormat";
+export {
+  shadeGroupForKind,
+  shadeGroupForMaterial,
+  type MaterialShade,
+} from "./materialShadeGroups";
+export {
+  listRecentMaterialColours,
+  recordRecentMaterialColour,
+  type RecentMaterialColour,
+} from "./recentMaterialColours";
+export {
   applyMaterialToSelection,
   commonMaterialSlots,
   editableCommonMaterialSlots,

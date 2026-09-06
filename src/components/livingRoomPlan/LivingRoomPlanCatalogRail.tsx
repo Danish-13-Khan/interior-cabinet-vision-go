@@ -36,6 +36,11 @@ type LivingRoomPlanCatalogRailProps = {
   onSetCeilingMaterial: (materialId: string) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
   onApplyMaterialToSelection: (materialId: string, slotName?: string) => void;
+  onApplyMaterialColour: (
+    materialId: string,
+    color: string,
+    rebinds: import("../../domain/catalog/finishRebind").FinishUvRebind[],
+  ) => void;
   onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
   onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
@@ -128,7 +133,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           <SurfacePaintPanel project={props.project} activeWallId={activeWall?.id ?? null}
             selectedObjects={props.project.objects.filter((object) => props.selectedIds.includes(object.id))}
             onFloor={props.onSetFloorMaterial} onCeiling={props.onSetCeilingMaterial} onWall={props.onSetWallMaterial}
-            onApplyToSelection={props.onApplyMaterialToSelection} onImportFinish={props.onImportFinish} />
+            onApplyToSelection={props.onApplyMaterialToSelection}
+            onApplyColour={props.onApplyMaterialColour}
+            onImportFinish={props.onImportFinish} />
         </> : cabinetRun ? (
           <InteriorsCabinetRunCatalog tool={props.chromeTool} wallId={activeWall?.id ?? ""} onAdd={props.onAddCatalogObject} />
         ) : activePanel === "furniture" ? (
@@ -144,7 +151,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           <SurfacePaintPanel project={props.project} activeWallId={activeWall?.id ?? null}
             selectedObjects={props.project.objects.filter((object) => props.selectedIds.includes(object.id))}
             onFloor={props.onSetFloorMaterial} onCeiling={props.onSetCeilingMaterial} onWall={props.onSetWallMaterial}
-            onApplyToSelection={props.onApplyMaterialToSelection} onImportFinish={props.onImportFinish} />
+            onApplyToSelection={props.onApplyMaterialToSelection}
+            onApplyColour={props.onApplyMaterialColour}
+            onImportFinish={props.onImportFinish} />
         </> : activePanel === "layers" ? (
           <>
             <div className="context-panel-heading"><strong>Layers</strong><span>Scene structure</span></div>

@@ -31,7 +31,8 @@ export type ShortcutActionId =
   | "modelCamIsometric"
   | "modelCamPerspective"
   | "modelFitRoom"
-  | "modelFocusSelection";
+  | "modelFocusSelection"
+  | "openMaterial";
 
 /** Fired only while the 3D model canvas has keyboard focus (not via global editor shortcuts). */
 export const MODEL_VIEW_SHORTCUT_ACTION_IDS = [
@@ -86,6 +87,7 @@ export const SHORTCUT_ACTION_LABELS: Record<ShortcutActionId, string> = {
   modelCamPerspective: "3D Perspective (canvas focused)",
   modelFitRoom: "3D Fit room (canvas focused)",
   modelFocusSelection: "3D Focus selection (canvas focused)",
+  openMaterial: "Open material browser",
 };
 
 export const DEFAULT_SHORTCUT_MAP: ShortcutMap = {
@@ -120,6 +122,7 @@ export const DEFAULT_SHORTCUT_MAP: ShortcutMap = {
   modelCamPerspective: { key: "5" },
   modelFitRoom: { key: "f" },
   modelFocusSelection: { key: "f", shift: true },
+  openMaterial: { key: "b" },
 };
 
 export function clampShortcutBinding(

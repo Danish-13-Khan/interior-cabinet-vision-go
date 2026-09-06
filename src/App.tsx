@@ -262,6 +262,7 @@ function App() {
             onSetCeilingMaterial={c.setLivingRoomCeilingMaterial}
             onSetWallMaterial={c.setLivingRoomWallMaterial}
             onApplyMaterialToSelection={c.applyMaterialToSelection}
+            onApplyMaterialColour={c.applyMaterialColour}
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}
             onRotateSelection={c.rotateInteriorSelection}
             onAddCatalogObject={c.addLivingRoomCatalogObject}

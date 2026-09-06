@@ -214,20 +214,21 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 ---
 
-### M3 — Material and Colour Library · `NEXT`
+### M3 — Material and Colour Library · `DONE`
 
 **Answers:** Feedback #5 · P0 Material + P1 Replace / Colour Picker (§4.3–4.4)
 
-- Materials as visual thumbnails.
+- Materials as visual thumbnails (I5 Material Browser).
 - **Colour shades v1:** fixed shade groups for the selected material family (not procedural infinite ramps).
 - Custom colour picker with **HEX** and **RGB**.
-- Recently used materials and colours.
-- Apply to walls, floors, cabinets, furniture, and decorative panels.
-- Replace on one object or multiple selected objects.
+- Recently used colours (persisted on the project document).
+- Apply to walls, floors, cabinets, furniture (decorative panels reuse the same paint APIs in M5).
+- Replace on one object or multiple selected objects (existing selection paint + colour COW rebind).
+- **`B`** opens the Material Browser (interiors plan hotkeys + `shortcutMap.openMaterial`).
 
 **Exit:** Designer can pick a material, choose a fixed shade, set a custom colour, and apply to selection; recent colours appear after use.
 
-**Tests (required):** Apply shade / custom colour → save → reopen; multi-select replace where implemented.
+**Tests (required):** Apply shade / custom colour → save → reopen; multi-select replace where implemented. Shipped: `materialColour.test.ts`, `tests/e2e/phase-m3-material-colour.spec.ts`.
 
 ---
 
@@ -342,7 +343,8 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 
 1. **M1** — **DONE** on `phase-m/post-room-3d-editing` — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`
 2. **M2** — **DONE** on `phase-m/post-room-3d-editing` — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)
-3. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet
-4. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
+3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
+4. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet
+5. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M3** (or M5 planning lock if sequencing materials after panels).
+Ready to start **M5** (decorative / feature panels) or **M4** texture UX polish.

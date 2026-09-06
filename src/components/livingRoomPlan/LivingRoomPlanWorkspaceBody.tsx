@@ -45,6 +45,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
           onSetCeilingMaterial={w.onSetCeilingMaterial} onSetWallMaterial={w.onSetWallMaterial}
           onApplyMaterialToSelection={w.onApplyMaterialToSelection}
+          onApplyMaterialColour={w.onApplyMaterialColour}
           onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
           onSelect={(objectId) => inspectPlanTarget(props, { objectId })}

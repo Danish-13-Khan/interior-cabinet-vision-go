@@ -8,6 +8,7 @@ import {
 import { resolveFinishPickToProjectMaterial } from "../domain/catalog";
 import {
   addImportedFinish,
+  applyMaterialColour,
   applyMaterialToSelection,
   paintLivingRoomSurface,
   readImageAsDataUrl,
@@ -126,5 +127,17 @@ export function setLivingRoomFinishUv(
   commitDocument(
     (current) => setFinishUv(current, materialId, patch, rebind),
     "Adjusted finish mapping.",
+  );
+}
+
+export function paintLivingRoomMaterialColour(
+  commitDocument: CommitDocument,
+  materialId: string,
+  color: string,
+  rebinds: readonly FinishUvRebind[],
+) {
+  commitDocument(
+    (current) => applyMaterialColour(current, { materialId, color, rebinds }),
+    "Applied material colour.",
   );
 }

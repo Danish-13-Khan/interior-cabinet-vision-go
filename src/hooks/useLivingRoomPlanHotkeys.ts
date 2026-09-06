@@ -1,4 +1,8 @@
 import { useEffect } from "react";
+import {
+  eventMatchesBinding,
+  readShortcutMap,
+} from "../domain/desktopUx";
 import { isAppModalOpen } from "./appModalGate";
 import { isModelViewCanvasFocused } from "./modelViewFocusGate";
 import type { LivingRoomWorkspaceView } from "../components/livingRoomPlan/workspaceProps";
@@ -22,6 +26,7 @@ export function useLivingRoomPlanHotkeys({
   onFitSelection,
   onCancelTool,
   onMeasureTool,
+  onOpenMaterial,
 }: {
   projectHomeOpen: boolean;
   snapSizeMm: number;
@@ -41,6 +46,7 @@ export function useLivingRoomPlanHotkeys({
   onFitSelection?: () => void;
   onCancelTool?: () => void;
   onMeasureTool?: () => void;
+  onOpenMaterial?: () => void;
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -49,6 +55,15 @@ export function useLivingRoomPlanHotkeys({
       if (target?.closest("input, textarea, select")) return;
       if (projectHomeOpen) return;
       const modelFocused = isModelViewCanvasFocused();
+      const shortcutMap = readShortcutMap();
+
+      // Material browser — honour shortcutMap.openMaterial even with 3D canvas focused.
+      if (onOpenMaterial && eventMatchesBinding(event, shortcutMap.openMaterial)) {
+        event.preventDefault();
+        onOpenMaterial();
+        return;
+      }
+
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
         event.preventDefault();
         if (event.shiftKey) {
@@ -123,6 +138,7 @@ export function useLivingRoomPlanHotkeys({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
     canRedo, canUndo, onCancelTool, onClearSelection, onCycleSelection, onDelete, onDuplicate, onFitPlan,
-    onFitSelection, onMeasureTool, onNudge, onRedo, onRotateSelection, onUndo, onView, projectHomeOpen, snapSizeMm, workspaceView,
+    onFitSelection, onMeasureTool, onNudge, onOpenMaterial, onRedo, onRotateSelection, onUndo, onView,
+    projectHomeOpen, snapSizeMm, workspaceView,
   ]);
 }

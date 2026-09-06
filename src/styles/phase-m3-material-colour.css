@@ -1,0 +1,103 @@
+/* M3 — shade groups, HEX/RGB, and recent colours in the Material Browser. */
+.lr-material-colour {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #d5ddd7;
+}
+
+.lr-material-colour header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: #3d4a42;
+  font-size: 11px;
+}
+
+.lr-material-colour header span {
+  color: #6d7a72;
+}
+
+.lr-material-shades {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+}
+
+.lr-material-shades button {
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #c5cec8;
+  border-radius: 5px;
+  background: #fff;
+  color: #243029;
+  font-size: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lr-material-shades button.is-active,
+.lr-material-shades button:hover {
+  border-color: #2f6b4f;
+}
+
+.lr-material-shades i,
+.lr-material-recent i {
+  display: block;
+  width: 100%;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.lr-material-colour-fields {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, 0.7fr);
+  gap: 6px;
+}
+
+.lr-material-colour-fields label {
+  display: grid;
+  gap: 3px;
+  color: #58655e;
+  font-size: 10px;
+}
+
+.lr-material-colour-fields input {
+  min-height: 28px;
+  padding: 0 6px;
+  border: 1px solid #c5cec8;
+  border-radius: 4px;
+  background: #fff;
+  color: #1c2a22;
+  font-size: 11px;
+}
+
+.lr-material-recent {
+  display: grid;
+  gap: 6px;
+}
+
+.lr-material-recent strong {
+  color: #3d4a42;
+  font-size: 11px;
+}
+
+.lr-material-recent > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lr-material-recent button {
+  width: 28px;
+  height: 28px;
+  padding: 3px;
+  border: 1px solid #c5cec8;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
