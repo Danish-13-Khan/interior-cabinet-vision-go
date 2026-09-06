@@ -24,6 +24,7 @@ describe("resolveModelViewCameraOverrides", () => {
     expect(resolveModelViewCameraOverrides("orbit", 3300, 42)).toEqual({
       fieldOfViewDegrees: 42,
     });
+    expect(resolveModelViewCameraOverrides("isometric", 3300, 42)).toEqual({});
     expect(modelViewShowsHeightSlider("perspective")).toBe(false);
   });
 

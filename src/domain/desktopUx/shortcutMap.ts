@@ -24,7 +24,25 @@ export type ShortcutActionId =
   | "draftLeader"
   | "toggleGrid"
   | "rotate90"
-  | "cycleSnap";
+  | "cycleSnap"
+  | "modelCamTop"
+  | "modelCamFront"
+  | "modelCamSide"
+  | "modelCamIsometric"
+  | "modelCamPerspective"
+  | "modelFitRoom"
+  | "modelFocusSelection";
+
+/** Fired only while the 3D model canvas has keyboard focus (not via global editor shortcuts). */
+export const MODEL_VIEW_SHORTCUT_ACTION_IDS = [
+  "modelCamTop",
+  "modelCamFront",
+  "modelCamSide",
+  "modelCamIsometric",
+  "modelCamPerspective",
+  "modelFitRoom",
+  "modelFocusSelection",
+] as const satisfies readonly ShortcutActionId[];
 
 export type ShortcutBinding = {
   key: string;
@@ -61,6 +79,13 @@ export const SHORTCUT_ACTION_LABELS: Record<ShortcutActionId, string> = {
   toggleGrid: "Toggle grid",
   rotate90: "Rotate selection 90°",
   cycleSnap: "Cycle snap size",
+  modelCamTop: "3D Top (canvas focused)",
+  modelCamFront: "3D Front (canvas focused)",
+  modelCamSide: "3D Side (canvas focused)",
+  modelCamIsometric: "3D Isometric (canvas focused)",
+  modelCamPerspective: "3D Perspective (canvas focused)",
+  modelFitRoom: "3D Fit room (canvas focused)",
+  modelFocusSelection: "3D Focus selection (canvas focused)",
 };
 
 export const DEFAULT_SHORTCUT_MAP: ShortcutMap = {
@@ -88,15 +113,20 @@ export const DEFAULT_SHORTCUT_MAP: ShortcutMap = {
   toggleGrid: { key: "g" },
   rotate90: { key: "r" },
   cycleSnap: { key: "s", shift: true },
+  modelCamTop: { key: "1" },
+  modelCamFront: { key: "2" },
+  modelCamSide: { key: "3" },
+  modelCamIsometric: { key: "4" },
+  modelCamPerspective: { key: "5" },
+  modelFitRoom: { key: "f" },
+  modelFocusSelection: { key: "f", shift: true },
 };
 
 export function clampShortcutBinding(
   value: Partial<ShortcutBinding> | null | undefined,
   fallback: ShortcutBinding,
 ): ShortcutBinding {
-  const key = typeof value?.key === "string" && value.key.length > 0
-    ? value.key
-    : fallback.key;
+  const key = typeof value?.key === "string" && value.key.length > 0 ? value.key : fallback.key;
   return {
     key,
     meta: Boolean(value?.meta ?? fallback.meta),
@@ -116,62 +146,8 @@ export function clampShortcutMap(
   return next;
 }
 
-export function formatShortcutBinding(binding: ShortcutBinding): string {
-  const parts: string[] = [];
-  if (binding.meta || binding.ctrl) parts.push("Cmd/Ctrl");
-  if (binding.alt) parts.push("Alt");
-  if (binding.shift) parts.push("Shift");
-  const keyLabel =
-    binding.key === " " ? "Space" : binding.key.length === 1
-      ? binding.key.toUpperCase()
-      : binding.key;
-  parts.push(keyLabel);
-  return parts.join("+");
-}
-
-export function eventMatchesBinding(
-  event: Pick<KeyboardEvent, "key" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey">,
-  binding: ShortcutBinding,
-): boolean {
-  const eventKey = normalizeEventKey(event.key);
-  const bindingKey = normalizeEventKey(binding.key);
-  if (eventKey !== bindingKey) return false;
-
-  const wantsMod = Boolean(binding.meta || binding.ctrl);
-  const hasMod = event.metaKey || event.ctrlKey;
-  if (wantsMod !== hasMod) return false;
-  if (Boolean(binding.shift) !== event.shiftKey) return false;
-  if (Boolean(binding.alt) !== event.altKey) return false;
-  return true;
-}
-
-export function bindingFromKeyboardEvent(
-  event: Pick<KeyboardEvent, "key" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey">,
-): ShortcutBinding {
-  return {
-    key: normalizeEventKey(event.key),
-    meta: event.metaKey,
-    ctrl: event.ctrlKey,
-    shift: event.shiftKey,
-    alt: event.altKey,
-  };
-}
-
-export function findShortcutConflicts(
-  map: ShortcutMap,
-  actionId: ShortcutActionId,
-  binding: ShortcutBinding,
-): ShortcutActionId[] {
-  return (Object.keys(map) as ShortcutActionId[]).filter((id) => {
-    if (id === actionId) return false;
-    return bindingsEqual(map[id], binding);
-  });
-}
-
 export function readShortcutMap(
-  storage: Pick<Storage, "getItem"> | null = typeof window !== "undefined"
-    ? window.localStorage
-    : null,
+  storage: Pick<Storage, "getItem"> | null = typeof window !== "undefined" ? window.localStorage : null,
 ): ShortcutMap {
   if (!storage) return { ...DEFAULT_SHORTCUT_MAP };
   try {
@@ -187,25 +163,15 @@ export function readShortcutMap(
 
 export function persistShortcutMap(
   map: ShortcutMap,
-  storage: Pick<Storage, "setItem"> | null = typeof window !== "undefined"
-    ? window.localStorage
-    : null,
+  storage: Pick<Storage, "setItem"> | null = typeof window !== "undefined" ? window.localStorage : null,
 ) {
   if (!storage) return;
   storage.setItem(SHORTCUT_MAP_STORAGE_KEY, JSON.stringify(clampShortcutMap(map)));
 }
 
-function bindingsEqual(a: ShortcutBinding, b: ShortcutBinding) {
-  return (
-    normalizeEventKey(a.key) === normalizeEventKey(b.key) &&
-    Boolean(a.meta || a.ctrl) === Boolean(b.meta || b.ctrl) &&
-    Boolean(a.shift) === Boolean(b.shift) &&
-    Boolean(a.alt) === Boolean(b.alt)
-  );
-}
-
-function normalizeEventKey(key: string) {
-  if (key === "Backspace") return "Delete";
-  if (key.length === 1) return key.toLowerCase();
-  return key;
-}
+export {
+  bindingFromKeyboardEvent,
+  eventMatchesBinding,
+  findShortcutConflicts,
+  formatShortcutBinding,
+} from "./shortcutMapMatch";
