@@ -193,11 +193,22 @@ export {
 } from "./assetImportPipeline";
 export {
   getModelViewPreset,
+  MODEL_VIEW_EXPLORE_IDS,
   MODEL_VIEW_PRESETS,
+  MODEL_VIEW_PRIMARY_CAMERA_IDS,
+  modelViewUsesOrthographic,
+  orthographicZoomForSpan,
   resolveModelViewPose,
   type ModelViewPose,
   type ModelViewPresetId,
 } from "./modelViewPresets";
+export {
+  resolveModelViewFitPose,
+  resolveModelViewSelectionBoundsMm,
+  type ModelViewFitMode,
+  type ModelViewFitResult,
+  type ModelViewFitSelection,
+} from "./modelViewFit";
 export {
   modelViewNavHint,
   modelViewShowsHeightSlider,

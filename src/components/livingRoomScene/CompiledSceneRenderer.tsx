@@ -1,6 +1,4 @@
-import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { useMemo, useRef, useState } from "react";
-import { MOUSE } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
@@ -8,13 +6,13 @@ import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environ
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { filterModelReviewNodes, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
+import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
-import { CameraRig } from "./CameraRig";
 import { CompiledNodeView } from "./CompiledNodeView";
+import { ModelViewCameraKind } from "./ModelViewCameraKind";
+import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
 import { RendererColorPipeline } from "./RendererColorPipeline";
-import { WalkthroughNavigation } from "./WalkthroughNavigation";
-import { ModelPickHarness } from "./ModelPickHarness";
 import { modelNodeIsSelected, modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 
 type SceneRendererProps = {
@@ -43,6 +41,9 @@ type SceneRendererProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onExitWalkthrough?: () => void;
+  fitVersion?: number;
+  fitMode?: ModelViewFitMode;
+  fitSelection?: ModelViewFitSelection;
 };
 
 function wallFragmentArea(node: CompiledLivingRoomScene["nodes"][number]) {
@@ -52,33 +53,16 @@ function wallFragmentArea(node: CompiledLivingRoomScene["nodes"][number]) {
   }, 0);
 }
 
-export function CompiledSceneRenderer({
-  scene,
-  selectedIds,
-  selectedOpeningId = null,
-  selectedWallId = null,
-  activeCameraId,
-  viewPreset,
-  cameraHeightMm,
-  fieldOfViewDegrees,
-  snapSizeMm,
-  showGrid,
-  cutawayWalls,
-  interactive = true,
-  renderQuality = "standard",
-  renderComposition = "project-camera",
-  renderMode = "preview",
-  lightingQuality: lightingQualityOverride,
-  projectLightScale = 1,
-  windowKeyScale = 1,
-  onSelect,
-  onSelectOpening = () => {},
-  onSelectWall = () => {},
-  onClearSelection = () => onSelect(null),
-  onMove,
-  onMechanismClick,
-  onExitWalkthrough,
-}: SceneRendererProps) {
+export function CompiledSceneRenderer(props: SceneRendererProps) {
+  const {
+    scene, selectedIds, selectedOpeningId = null, selectedWallId = null, activeCameraId,
+    viewPreset, cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
+    interactive = true, renderQuality = "standard", renderComposition = "project-camera",
+    renderMode = "preview", lightingQuality: lightingQualityOverride, projectLightScale = 1,
+    windowKeyScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
+    onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
+    fitVersion = 0, fitMode = "room", fitSelection,
+  } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
   const [assetRevision, setAssetRevision] = useState(0);
@@ -100,7 +84,10 @@ export function CompiledSceneRenderer({
     renderCamera?.position ?? null,
     architectureBounds.center,
   );
-  const hideCeiling = viewPreset === "dollhouse" || viewPreset === "orbit" || viewPreset === "top";
+  const hideCeiling = viewPreset === "dollhouse"
+    || viewPreset === "orbit"
+    || viewPreset === "top"
+    || viewPreset === "isometric";
   const nodes = filterModelReviewNodes(
     scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
   );
@@ -117,6 +104,7 @@ export function CompiledSceneRenderer({
 
   return (
     <>
+      {viewPreset ? <ModelViewCameraKind viewPreset={viewPreset} /> : null}
       <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
@@ -171,51 +159,27 @@ export function CompiledSceneRenderer({
           onAssetReady={() => setAssetRevision((revision) => revision + 1)}
         />
       ))}
-      <ContactShadows
-        key={`${renderQuality}-${renderMode}`}
-        position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
-        scale={Math.max(8, roomSpan + 1)}
-        opacity={environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale}
-        blur={environment.contactShadowBlur * lightingQuality.contactShadowBlurScale}
-        far={lightingQuality.contactShadowFarMeters}
-        resolution={lightingQuality.contactShadowResolution}
-        frames={lightingQuality.contactShadowFrames}
-      />
-      {interactive ? (
-        <OrbitControls
-          ref={controlsRef}
-          makeDefault
-          enabled={!dragging}
-          enableDamping
-          dampingFactor={0.08}
-          enablePan={viewPreset !== "walkthrough"}
-          enableZoom={viewPreset !== "walkthrough"}
-          minDistance={1.4}
-          maxDistance={12}
-          maxPolarAngle={Math.PI / 2 - 0.02}
-          mouseButtons={{
-            LEFT: MOUSE.ROTATE,
-            MIDDLE: viewPreset === "walkthrough" ? MOUSE.ROTATE : MOUSE.PAN,
-            RIGHT: viewPreset === "walkthrough" ? MOUSE.ROTATE : MOUSE.PAN,
-          }}
-        />
-      ) : null}
-      <CameraRig
+      <ModelViewInteractionRig
         scene={scene}
-        activeCameraId={activeCameraId}
         controlsRef={controlsRef}
-        composition={renderComposition}
-        renderMode={renderMode}
+        activeCameraId={activeCameraId}
         viewPreset={viewPreset}
         cameraHeightMm={cameraHeightMm}
         fieldOfViewDegrees={fieldOfViewDegrees}
         assetRevision={assetRevision}
+        interactive={interactive}
+        dragging={dragging}
+        roomSpan={roomSpan}
+        renderQuality={renderQuality}
+        renderComposition={renderComposition}
+        renderMode={renderMode}
+        lightingQuality={lightingQuality}
+        environment={environment}
+        fitVersion={fitVersion}
+        fitMode={fitMode}
+        fitSelection={fitSelection}
+        onExitWalkthrough={onExitWalkthrough}
       />
-      <WalkthroughNavigation
-        enabled={interactive && viewPreset === "walkthrough"}
-        onExit={onExitWalkthrough}
-      />
-      {interactive && import.meta.env.DEV ? <ModelPickHarness /> : null}
     </>
   );
 }

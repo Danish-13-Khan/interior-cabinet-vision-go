@@ -2,7 +2,9 @@ import type { RenderQuality } from "../../domain/interiorProject";
 import type { CameraEntity } from "../../domain/interiorProject";
 import {
   LIVING_ROOM_STYLE_PRESETS,
+  MODEL_VIEW_EXPLORE_IDS,
   MODEL_VIEW_PRESETS,
+  MODEL_VIEW_PRIMARY_CAMERA_IDS,
   modelViewShowsHeightSlider,
   type LivingRoomStyleId,
   type ModelViewPresetId,
@@ -36,35 +38,60 @@ type ModelViewToolbarProps = {
   onOpenGuide: () => void;
   hasSelection: boolean;
   onClearSelection: () => void;
+  onFitRoom: () => void;
+  onFocusSelection: () => void;
 };
+
+function presetButton(
+  presetId: ModelViewPresetId,
+  active: ModelViewPresetId,
+  onViewPreset: (preset: ModelViewPresetId) => void,
+) {
+  const preset = MODEL_VIEW_PRESETS.find((item) => item.id === presetId)!;
+  return (
+    <button
+      type="button"
+      key={preset.id}
+      className={active === preset.id ? "is-active" : ""}
+      data-testid={`model-view-${preset.id}`}
+      aria-label={preset.label}
+      aria-pressed={active === preset.id}
+      title={preset.purpose}
+      onClick={() => onViewPreset(preset.id)}
+    >
+      <span aria-hidden="true">{preset.symbol}</span>{preset.label}
+    </button>
+  );
+}
 
 export function ModelViewToolbar(props: ModelViewToolbarProps) {
   return (
     <div className="lr-model-controls">
-      <div className="lr-view-presets" aria-label="3D camera views">
-        {MODEL_VIEW_PRESETS.map((preset) => (
-          <button
-            type="button"
-            key={preset.id}
-            className={props.viewPreset === preset.id ? "is-active" : ""}
-            aria-label={preset.label}
-            aria-pressed={props.viewPreset === preset.id}
-            title={preset.purpose}
-            onClick={() => props.onViewPreset(preset.id)}
-          >
-            <span aria-hidden="true">{preset.symbol}</span>{preset.label}
-          </button>
-        ))}
+      <div className="lr-view-presets" aria-label="3D camera views" data-testid="model-camera-presets">
+        {MODEL_VIEW_PRIMARY_CAMERA_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
+      </div>
+      <div className="lr-view-presets lr-view-explore" aria-label="3D explore modes">
+        {MODEL_VIEW_EXPLORE_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
+      </div>
+      <div className="lr-view-presets lr-view-fit" aria-label="3D framing">
+        <button type="button" data-testid="model-fit-room" title="Fit room (F)" onClick={props.onFitRoom}>
+          Fit Room
+        </button>
+        <button
+          type="button"
+          data-testid="model-focus-selection"
+          title="Focus selection (Shift+F)"
+          disabled={!props.hasSelection}
+          onClick={props.onFocusSelection}
+        >
+          Focus Selected
+        </button>
       </div>
       <button type="button" className="lr-model-guide-button" onClick={props.onOpenGuide}>
         ? 3D guide
       </button>
       {props.hasSelection ? (
-        <button
-          type="button"
-          data-testid="model-clear-selection"
-          onClick={props.onClearSelection}
-        >
+        <button type="button" data-testid="model-clear-selection" onClick={props.onClearSelection}>
           Clear selection
         </button>
       ) : null}

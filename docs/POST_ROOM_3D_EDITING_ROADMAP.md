@@ -170,7 +170,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 ## 5. Phase inventory
 
-### M1 — Camera and Navigation · `NEXT`
+### M1 — Camera and Navigation · `DONE`
 
 **Answers:** Feedback #1 · P0 camera / nav commands (§4.3)
 
@@ -185,6 +185,8 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 **Exit:** QA can switch Perspective, Isometric, Front, Side, and Top from obvious toolbar icons; Dollhouse remains available and distinct from Isometric; Plan/Model `1`/`2` still work when 3D is not focused.
 
 **Tests:** Toolbar + focused-canvas shortcut preset switching; Isometric uses orthographic camera; Fit Room / Focus Selected frame correctly; Plan/Model shortcuts unchanged when canvas unfocused.
+
+**Shipped (hardened):** orthographic `isometric` with viewport-aware zoom; primary/explore toolbar; one-shot Fit Room / Focus Selected; selection bounds via `computeCompiledSceneBounds`; canvas-host focus gate (not toolbar); `tests/e2e/phase-m1-camera-nav.spec.ts`.
 
 ---
 
@@ -337,9 +339,9 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 
 ## 8. First sprint (approved)
 
-1. **M1** — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`  
-2. **M2** — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)  
-3. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet  
+1. **M1** — **DONE** on `phase-m/post-room-3d-editing` — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`
+2. **M2** — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut) · `NEXT`
+3. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet
 4. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M1** and **M2**.
+Ready to start **M2**.
