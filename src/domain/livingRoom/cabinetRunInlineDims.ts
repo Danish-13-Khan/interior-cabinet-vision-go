@@ -2,6 +2,7 @@ import type { InteriorProject, Size3Mm } from "../interiorProject";
 import { persistCabinetIdentityOnObject } from "../cabinetIdentity";
 import { cabinetRunForObject } from "./cabinetRunLayout";
 import { updateCabinetRunLayout } from "./cabinetRunFillers";
+import { finalizeGoldenRunObjects } from "./goldenRun/cabinetsLossless";
 import { resizeLivingRoomObject } from "./planCommands";
 
 /**
@@ -34,5 +35,6 @@ export function setCabinetInlineDimensions(
   if (run) {
     next = updateCabinetRunLayout(next, run.runId, {});
   }
-  return next;
+  // Reflow updates poses; re-clamp golden planning extensions so Engineering handoff stays lossless.
+  return { ...next, objects: finalizeGoldenRunObjects(next.objects) };
 }
