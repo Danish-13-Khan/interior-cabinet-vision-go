@@ -44,6 +44,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onClearSelection={props.onClearSelection} onMove={props.onMove}
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
+            onPatchDocument={props.onPatchDocument}
             presentation={props.presenting}
           />
         ) : props.presenting ? (

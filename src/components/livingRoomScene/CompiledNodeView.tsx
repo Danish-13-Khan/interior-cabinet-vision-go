@@ -1,6 +1,5 @@
 import { type ThreeEvent } from "@react-three/fiber";
 import { useState } from "react";
-import { Plane, Vector3 } from "three";
 import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledMaterial, CompiledSceneNode } from "../../domain/livingRoom";
 import { modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
@@ -10,36 +9,16 @@ import { AssetBackedObject } from "./AssetBackedObject";
 import { CompiledNodeLabel } from "./CompiledNodeLabel";
 import { OpeningPickVolume } from "./OpeningPickVolume";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
-
-const FLOOR_DRAG_PLANE = new Plane(new Vector3(0, 1, 0), 0);
-
-type DragState = {
-  pointerId: number;
-  startPoint: Vector3;
-  startPosition: Point3Mm;
-};
+import { useCompiledNodeDrag } from "./useCompiledNodeDrag";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
 }
 
 export function CompiledNodeView({
-  node,
-  materials,
-  selected,
-  snapSizeMm,
-  renderMode,
-  renderQuality,
-  showSelectedLabel,
-  onSelect,
-  onSelectOpening,
-  onSelectWall,
-  onClearSelection,
-  onMove,
-  onDragStateChange,
-  interactive,
-  onMechanismClick,
-  onAssetReady,
+  node, materials, selected, snapSizeMm, renderMode, renderQuality, showSelectedLabel,
+  onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onDragStateChange,
+  interactive, onMechanismClick, onAssetReady, onWallContextMenu,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -57,37 +36,24 @@ export function CompiledNodeView({
   interactive: boolean;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onAssetReady?: () => void;
+  onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
 }) {
-  const [drag, setDrag] = useState<DragState | null>(null);
-  const [preview, setPreview] = useState<Point3Mm | null>(null);
   const [hovered, setHovered] = useState(false);
   const selectionTarget = modelSelectionTarget(node);
   const sourceObjectId = selectionTarget?.kind === "object" ? selectionTarget.id : null;
-  const position = preview ?? node.positionMm;
+  const drag = useCompiledNodeDrag(
+    snapSizeMm, node.positionMm, sourceObjectId, onMove, onDragStateChange,
+  );
+  const position = drag.preview ?? node.positionMm;
   const modelAsset = useModelAsset(node.renderBinding);
-  const useGlb = modelAsset.strategy === "glb"
-    && modelAsset.url
-    && modelAsset.definition;
-
-  function groundPoint(event: ThreeEvent<PointerEvent>) {
-    const result = new Vector3();
-    return event.ray.intersectPlane(FLOOR_DRAG_PLANE, result) ? result : null;
-  }
+  const useGlb = modelAsset.strategy === "glb" && modelAsset.url && modelAsset.definition;
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
     if (!interactive || event.button !== 0) return;
     event.stopPropagation();
-    if (!selectionTarget) {
-      onClearSelection();
-      return;
-    }
-    if (selectionTarget.kind === "opening") {
-      return;
-    }
-    if (selectionTarget.kind === "wall") {
-      onSelectWall(selectionTarget.id);
-      return;
-    }
+    if (!selectionTarget) { onClearSelection(); return; }
+    if (selectionTarget.kind === "opening") return;
+    if (selectionTarget.kind === "wall") { onSelectWall(selectionTarget.id); return; }
     const objectId = selectionTarget.id;
     const primitiveId = String(event.object.userData.primitiveId ?? "");
     if (primitiveId.startsWith("front-") && onMechanismClick) {
@@ -96,106 +62,59 @@ export function CompiledNodeView({
       return;
     }
     onSelect(objectId, event.shiftKey || event.metaKey || event.ctrlKey);
-    const point = groundPoint(event);
-    if (!point || event.shiftKey || event.metaKey || event.ctrlKey) return;
-    (event.nativeEvent.target as Element | null)?.setPointerCapture(event.pointerId);
-    setDrag({ pointerId: event.pointerId, startPoint: point, startPosition: node.positionMm });
-    setPreview({ ...node.positionMm });
-    onDragStateChange(true);
+    drag.beginDrag(event);
   }
 
-  function handleClick(event: ThreeEvent<MouseEvent>) {
-    if (!interactive || selectionTarget?.kind !== "opening") return;
+  function handleWallContextMenu(event: ThreeEvent<MouseEvent>) {
+    if (!interactive || !onWallContextMenu || selectionTarget?.kind !== "wall") return;
     event.stopPropagation();
-    onSelectOpening(selectionTarget.id);
-  }
-
-  function handlePointerMove(event: ThreeEvent<PointerEvent>) {
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    event.stopPropagation();
-    const point = groundPoint(event);
-    if (!point) return;
-    setPreview({
-      ...drag.startPosition,
-      x: Math.round((drag.startPosition.x + (point.x - drag.startPoint.x) * 1000) / snapSizeMm) * snapSizeMm,
-      z: Math.round((drag.startPosition.z + (point.z - drag.startPoint.z) * 1000) / snapSizeMm) * snapSizeMm,
+    event.nativeEvent.preventDefault();
+    onSelectWall(selectionTarget.id);
+    onWallContextMenu(selectionTarget.id, {
+      x: event.nativeEvent.clientX, y: event.nativeEvent.clientY,
     });
-  }
-
-  function finishDrag(event: ThreeEvent<PointerEvent>) {
-    if (!drag || drag.pointerId !== event.pointerId || !sourceObjectId) return;
-    event.stopPropagation();
-    (event.nativeEvent.target as Element | null)?.releasePointerCapture(event.pointerId);
-    if (preview && (preview.x !== drag.startPosition.x || preview.z !== drag.startPosition.z)) {
-      onMove(sourceObjectId, preview);
-    }
-    setDrag(null);
-    setPreview(null);
-    onDragStateChange(false);
   }
 
   return (
     <group
       userData={{
-        materialId: node.primitives[0]?.materialId,
-        objectId: node.id,
-        modelPickId: selectionTarget?.id ?? null,
-        modelPickKind: selectionTarget?.kind ?? null,
+        materialId: node.primitives[0]?.materialId, objectId: node.id,
+        modelPickId: selectionTarget?.id ?? null, modelPickKind: selectionTarget?.kind ?? null,
         modelPickOccluder: !selectionTarget,
       }}
       position={[position.x / 1000, position.y / 1000, position.z / 1000]}
-      rotation={[
-        degrees(node.rotationDegrees.x),
-        degrees(node.rotationDegrees.y),
-        degrees(node.rotationDegrees.z),
-      ]}
-      onPointerOver={selectionTarget ? (event) => {
-        event.stopPropagation();
-        setHovered(true);
-      } : undefined}
+      rotation={[degrees(node.rotationDegrees.x), degrees(node.rotationDegrees.y), degrees(node.rotationDegrees.z)]}
+      onPointerOver={selectionTarget ? (event) => { event.stopPropagation(); setHovered(true); } : undefined}
       onPointerOut={selectionTarget ? () => setHovered(false) : undefined}
-      onClick={selectionTarget?.kind === "opening" ? handleClick : undefined}
-      onPointerMove={handlePointerMove}
-      onPointerUp={finishDrag}
-      onPointerCancel={finishDrag}
+      onClick={selectionTarget?.kind === "opening" ? (event) => {
+        event.stopPropagation();
+        onSelectOpening(selectionTarget.id);
+      } : undefined}
+      onContextMenu={handleWallContextMenu}
+      onPointerMove={drag.handlePointerMove}
+      onPointerUp={drag.finishDrag}
+      onPointerCancel={drag.finishDrag}
     >
       {useGlb ? (
         <AssetBackedObject
-          url={modelAsset.url!}
-          definition={modelAsset.definition!}
-          binding={node.renderBinding}
-          materials={materials}
-          primitives={node.primitives}
-          selected={selected}
-          renderMode={renderMode}
-          renderQuality={renderQuality}
-          onReady={onAssetReady}
+          url={modelAsset.url!} definition={modelAsset.definition!} binding={node.renderBinding}
+          materials={materials} primitives={node.primitives} selected={selected}
+          renderMode={renderMode} renderQuality={renderQuality} onReady={onAssetReady}
           onPointerDown={handlePointerDown}
         />
       ) : (
         <ProceduralFallbackObject
-          primitives={node.primitives}
-          materials={materials}
-          selected={selected}
-          renderMode={renderMode}
-          renderQuality={renderQuality}
-          onPointerDown={handlePointerDown}
+          primitives={node.primitives} materials={materials} selected={selected}
+          renderMode={renderMode} renderQuality={renderQuality} onPointerDown={handlePointerDown}
         />
       )}
       {selectionTarget?.kind === "opening" ? (
         <OpeningPickVolume primitives={node.primitives} onPointerDown={handlePointerDown} />
       ) : null}
       <CompiledNodeLabel
-        node={node}
-        selectionTarget={selectionTarget}
-        selected={selected}
-        hovered={hovered}
-        interactive={interactive}
-        renderMode={renderMode}
-        showSelectedLabel={showSelectedLabel}
-        onSelect={onSelect}
-        onSelectOpening={onSelectOpening}
-        onSelectWall={onSelectWall}
+        node={node} selectionTarget={selectionTarget} selected={selected} hovered={hovered}
+        interactive={interactive} renderMode={renderMode} showSelectedLabel={showSelectedLabel}
+        onSelect={onSelect} onSelectOpening={onSelectOpening} onSelectWall={onSelectWall}
       />
     </group>
   );

@@ -29,6 +29,10 @@ import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
 import { LivingRoomModelChrome } from "./livingRoomScene/LivingRoomModelChrome";
+import {
+  ModelWallVisibilityHost,
+  type WallContextMenuState,
+} from "./livingRoomScene/ModelWallVisibilityHost";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
 
@@ -47,13 +51,17 @@ type LivingRoomModelViewProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onPatchDocument?: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
   presentation?: boolean;
 };
 
 export function LivingRoomModelView({
   project, selectedIds, activeOpeningId, activeWallId, snapSizeMm, showGrid,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onSetRotation,
-  onApplyStyle, onSetParameters, presentation = false,
+  onApplyStyle, onSetParameters, onPatchDocument, presentation = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
@@ -64,6 +72,7 @@ export function LivingRoomModelView({
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
   const [cutawayWalls, setCutawayWalls] = useState(false);
+  const [wallMenu, setWallMenu] = useState<WallContextMenuState | null>(null);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(getModelViewDefaultPresetId());
   const quality = getRenderQualityPreset(viewportQuality);
   const honesty = describeModelViewHonesty(viewportQuality);
@@ -73,8 +82,7 @@ export function LivingRoomModelView({
     ? project.objects.find((object) => object.id === selectedIds[0]) ?? null
     : null;
   const activeCamera = scene.cameras.find((item) => item.id === activeCameraId)
-    ?? scene.cameras[0]
-    ?? null;
+    ?? scene.cameras[0] ?? null;
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
   const cameraOverrides = resolveModelViewCameraOverrides(
     camera.viewPreset, cameraHeightMm, fieldOfViewDegrees,
@@ -92,33 +100,19 @@ export function LivingRoomModelView({
     >
       {!presentation ? (
         <ModelViewToolbar
-          viewPreset={camera.viewPreset}
-          cameraHeightMm={cameraHeightMm}
-          fieldOfViewDegrees={fieldOfViewDegrees}
-          activeCameraId={activeCameraId}
-          cameras={scene.cameras}
-          activeStyleId={activeStyleId}
-          cutawayWalls={cutawayWalls}
+          viewPreset={camera.viewPreset} cameraHeightMm={cameraHeightMm}
+          fieldOfViewDegrees={fieldOfViewDegrees} activeCameraId={activeCameraId}
+          cameras={scene.cameras} activeStyleId={activeStyleId} cutawayWalls={cutawayWalls}
           activeRotation={activeObject ? Math.round(activeObject.rotation.y) : 0}
-          hasActiveObject={Boolean(activeObject)}
-          viewportQuality={viewportQuality}
-          modelPresets={listModelViewRenderPresets()}
-          honesty={honesty}
-          onViewPreset={camera.setViewPreset}
-          onCameraHeightMm={setCameraHeightMm}
-          onFieldOfViewDegrees={setFieldOfViewDegrees}
-          onActiveCameraId={setActiveCameraId}
-          onApplyStyle={onApplyStyle}
-          onCutawayWalls={setCutawayWalls}
-          onSetRotation={(rotationY) => {
-            if (activeObject) onSetRotation(activeObject.id, rotationY);
-          }}
-          onViewportQuality={setViewportQuality}
-          onOpenGuide={() => setShowGuide(true)}
-          hasSelection={hasSelection}
-          onClearSelection={onClearSelection}
-          onFitRoom={camera.fitRoom}
-          onFocusSelection={camera.focusSelection}
+          hasActiveObject={Boolean(activeObject)} viewportQuality={viewportQuality}
+          modelPresets={listModelViewRenderPresets()} honesty={honesty}
+          onViewPreset={camera.setViewPreset} onCameraHeightMm={setCameraHeightMm}
+          onFieldOfViewDegrees={setFieldOfViewDegrees} onActiveCameraId={setActiveCameraId}
+          onApplyStyle={onApplyStyle} onCutawayWalls={setCutawayWalls}
+          onSetRotation={(rotationY) => { if (activeObject) onSetRotation(activeObject.id, rotationY); }}
+          onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}
+          hasSelection={hasSelection} onClearSelection={onClearSelection}
+          onFitRoom={camera.fitRoom} onFocusSelection={camera.focusSelection}
         />
       ) : null}
       <div
@@ -130,38 +124,24 @@ export function LivingRoomModelView({
           if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
           camera.onCanvasBlur();
         }}
-        onPointerDown={(event) => {
-          if (presentation) return;
-          event.currentTarget.focus();
-        }}
+        onPointerDown={(event) => { if (!presentation) event.currentTarget.focus(); }}
       >
         <ModelViewScene
-          scene={scene}
-          quality={quality}
-          viewportQuality={viewportQuality}
+          scene={scene} quality={quality} viewportQuality={viewportQuality}
           renderMode={resolveModelViewRenderMode()}
           lightingQuality={resolveModelViewLightingQuality(viewportQuality)}
           projectLightScale={modelViewProjectLightScale(viewportQuality)}
           windowKeyScale={modelViewWindowKeyScale(viewportQuality)}
-          selectedIds={selectedIds}
-          activeOpeningId={activeOpeningId}
-          activeWallId={activeWallId}
-          activeCameraId={activeCameraId}
-          viewPreset={camera.viewPreset}
+          selectedIds={selectedIds} activeOpeningId={activeOpeningId} activeWallId={activeWallId}
+          activeCameraId={activeCameraId} viewPreset={camera.viewPreset}
           cameraHeightMm={cameraOverrides.cameraHeightMm}
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
-          snapSizeMm={snapSizeMm}
-          showGrid={showGrid}
-          cutawayWalls={cutawayWalls}
-          fitVersion={camera.fitVersion}
-          fitMode={camera.fitMode}
-          fitSelection={fitSelection}
-          onClearSelection={onClearSelection}
-          onSelect={onSelect}
-          onSelectOpening={onSelectOpening}
-          onSelectWall={onSelectWall}
-          onMove={onMove}
+          snapSizeMm={snapSizeMm} showGrid={showGrid} cutawayWalls={cutawayWalls}
+          fitVersion={camera.fitVersion} fitMode={camera.fitMode} fitSelection={fitSelection}
+          onClearSelection={onClearSelection} onSelect={onSelect}
+          onSelectOpening={onSelectOpening} onSelectWall={onSelectWall} onMove={onMove}
           onExitWalkthrough={exitWalkthrough}
+          onWallContextMenu={(wallId, point) => setWallMenu({ wallId, ...point })}
           onMechanismClick={(objectId, primitiveId) => {
             const object = project.objects.find((item) => item.id === objectId);
             const state = object ? getCabinetMechanismState(object) : null;
@@ -172,22 +152,21 @@ export function LivingRoomModelView({
           }}
         />
       </div>
+      {!presentation && onPatchDocument ? (
+        <ModelWallVisibilityHost
+          project={project} activeWallId={activeWallId} wallMenu={wallMenu}
+          onCloseWallMenu={() => setWallMenu(null)} onPatchDocument={onPatchDocument}
+          onSelectWall={onSelectWall} onClearSelection={onClearSelection}
+        />
+      ) : null}
       {!presentation ? (
         <LivingRoomModelChrome
-          showGuide={showGuide}
-          viewPreset={camera.viewPreset}
+          showGuide={showGuide} viewPreset={camera.viewPreset}
           onChoosePreset={camera.setViewPreset}
-          onDismissGuide={() => {
-            setShowGuide(false);
-            persistModelGuideDismissal();
-          }}
-          diagnostics={diagnostics}
-          activeObject={activeObject}
-          onSetParameters={onSetParameters}
-          activeStyleId={activeStyleId}
-          activeStyleName={activeStyle.name}
-          onApplyStyle={onApplyStyle}
-          honestyBadge={honesty.shortBadge}
+          onDismissGuide={() => { setShowGuide(false); persistModelGuideDismissal(); }}
+          diagnostics={diagnostics} activeObject={activeObject} onSetParameters={onSetParameters}
+          activeStyleId={activeStyleId} activeStyleName={activeStyle.name}
+          onApplyStyle={onApplyStyle} honestyBadge={honesty.shortBadge}
           exposure={scene.style.colorManagement.exposure}
           planTraceHint={project.walls.some((wall) => wall.visible && !isWallRaised(wall))}
         />

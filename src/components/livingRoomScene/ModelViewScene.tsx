@@ -39,6 +39,7 @@ type ModelViewSceneProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
+  onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -48,6 +49,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
+    onWallContextMenu,
   } = props;
 
   return (
@@ -87,6 +89,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onMove={onMove}
           onExitWalkthrough={onExitWalkthrough}
           onMechanismClick={onMechanismClick}
+          onWallContextMenu={onWallContextMenu}
         />
       </ModelViewPreviewProfileProvider>
     </Canvas>

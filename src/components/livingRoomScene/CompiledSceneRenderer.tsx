@@ -41,6 +41,7 @@ type SceneRendererProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onExitWalkthrough?: () => void;
+  onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
   fitVersion?: number;
   fitMode?: ModelViewFitMode;
   fitSelection?: ModelViewFitSelection;
@@ -61,7 +62,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     renderMode = "preview", lightingQuality: lightingQualityOverride, projectLightScale = 1,
     windowKeyScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
-    fitVersion = 0, fitMode = "room", fitSelection,
+    onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -157,6 +158,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
           interactive={interactive}
           onMechanismClick={onMechanismClick}
           onAssetReady={() => setAssetRevision((revision) => revision + 1)}
+          onWallContextMenu={onWallContextMenu}
         />
       ))}
       <ModelViewInteractionRig
