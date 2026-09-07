@@ -275,7 +275,7 @@ Users can:
 
 ---
 
-### M6 — Materials From Websites · `DONE` (M6.1–M6.2)
+### M6 — Materials From Websites · `DONE` (M6.1–M6.3)
 
 **Answers:** Feedback #4 — deliver gradually; no arbitrary scraping.
 
@@ -283,7 +283,7 @@ Users can:
 | --- | --- |
 | M6.1 | Download texture elsewhere → upload manually (uses M4) — **DONE** with M4 |
 | M6.2 | Import from a direct image URL — **copy image bytes into the project**; do not depend on the live URL after import — **DONE** |
-| M6.3 | Selected manufacturer material catalogues — `LATER` |
+| M6.3 | Selected manufacturer material catalogues — **DONE** (curated in-app packs; copy into project) |
 | M6.4 | Later: brand, product code, dimensions, normal / roughness maps — `LATER` |
 
 **EXCLUDED from first version:** scraping arbitrary websites; hotlinking remote texture URLs as project truth.
@@ -291,6 +291,8 @@ Users can:
 **Tests (required when built):** After URL import, project reopens offline / without the original host.
 
 **Shipped (M6.2):** URL field in Material Browser; fetch → data URL draft → M4 preview/apply; MIME/size validation; CORS/network errors; `finishImportFromUrl.test.ts`; `tests/e2e/phase-m6-url-import.spec.ts`.
+
+**Shipped (M6.3):** Curated manufacturer catalogues (Studio Laminates, Atelier Woods); stage → preview → apply copies seed map bytes + colour/kind/provenance into `finish-import-*`; `manufacturerCatalogues.test.ts`; `tests/e2e/phase-m6-manufacturer-catalogues.spec.ts`.
 
 ---
 
@@ -357,8 +359,8 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
 4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
 5. **M4** — **DONE** on `phase-m/post-room-3d-editing` — texture preview, UV offset, MIME validation
-6. **M6.2** — **DONE** on `phase-m/post-room-3d-editing` — direct image URL → copy bytes into project (M6.3 catalogues later)
+6. **M6.2–M6.3** — **DONE** on `phase-m/post-room-3d-editing` — URL import + curated manufacturer catalogues (M6.4 maps/SKU later)
 7. **M7** — **DONE** on `phase-m/post-room-3d-editing` — exit-journey e2e (room → 3D → hide → materials → panel → edit → save/reopen → render)
 8. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Phase M core feedback track is complete. Optional later: **M6.3** catalogues, contextual command rail.
+Phase M core feedback track is complete. Optional later: **M6.4** brand/maps, contextual command rail.

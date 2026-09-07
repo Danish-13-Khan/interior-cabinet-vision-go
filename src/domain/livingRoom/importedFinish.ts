@@ -88,6 +88,12 @@ export function addImportedFinish(
     uvRotationDeg?: number;
     uvOffsetU?: number;
     uvOffsetV?: number;
+    color?: string;
+    kind?: MaterialEntity["kind"];
+    roughness?: number;
+    createdBy?: string;
+    manufacturerId?: string;
+    catalogueFinishId?: string;
   },
 ): { project: InteriorProject; materialId: string } {
   const dataInvalid = validateFinishDataUrl(input.dataUrl);
@@ -104,9 +110,9 @@ export function addImportedFinish(
   const material: MaterialEntity = {
     id: materialId,
     name: input.name.replace(/\.[^.]+$/, "").trim() || "Imported finish",
-    kind: "custom",
-    color: "#d8d0c4",
-    roughness: 0.72,
+    kind: input.kind ?? "custom",
+    color: input.color ?? "#d8d0c4",
+    roughness: input.roughness ?? 0.72,
     metalness: 0,
     opacity: 1,
     extensions: {
@@ -115,7 +121,9 @@ export function addImportedFinish(
       uvRotationDeg: uv.uvRotationDeg,
       uvOffsetU: uv.uvOffsetU,
       uvOffsetV: uv.uvOffsetV,
-      createdBy: "import-finish",
+      createdBy: input.createdBy ?? "import-finish",
+      ...(input.manufacturerId ? { manufacturerId: input.manufacturerId } : {}),
+      ...(input.catalogueFinishId ? { catalogueFinishId: input.catalogueFinishId } : {}),
     },
   };
   const next = { ...project, materials: [...project.materials, material] };

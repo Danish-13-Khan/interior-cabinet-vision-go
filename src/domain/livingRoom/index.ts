@@ -227,6 +227,7 @@ export {
   applyMaterialToSelection,
   commonMaterialSlots,
   editableCommonMaterialSlots,
+  finishKindCompatibleWithSelectionSlot,
   isSelectionSlotEditable,
   materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
@@ -270,6 +271,18 @@ export {
   commitFinishImportDraft,
   type ImportFinishApplyTarget,
 } from "./finishImportCommit";
+export {
+  findManufacturerFinish,
+  getManufacturerCatalogue,
+  listManufacturerCatalogues,
+  MANUFACTURER_CATALOGUES,
+} from "./manufacturerCatalogueSeeds";
+export type {
+  ManufacturerCatalogue,
+  ManufacturerFinishSeed,
+} from "./manufacturerCatalogueTypes";
+export { manufacturerFinishesCompatibleWithSelectionSlot } from "./manufacturerFinishCompatibility";
+export { stageManufacturerFinish } from "./stageManufacturerFinish";
 export type { FinishUvRebind } from "../catalog/finishRebind";
 export {
   ASSET_IMPORT_STARTER_PACK,

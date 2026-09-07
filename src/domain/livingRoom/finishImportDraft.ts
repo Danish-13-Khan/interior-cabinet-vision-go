@@ -1,3 +1,4 @@
+import type { MaterialKind } from "../interiorProject";
 import { readImageAsDataUrl } from "./importedFinish";
 
 export type FinishImportDraft = {
@@ -9,6 +10,13 @@ export type FinishImportDraft = {
   uvOffsetU: number;
   /** 0–1 texture offset along V. */
   uvOffsetV: number;
+  /** Optional catalogue / import metadata applied on commit. */
+  color?: string;
+  kind?: MaterialKind;
+  roughness?: number;
+  createdBy?: string;
+  manufacturerId?: string;
+  catalogueFinishId?: string;
 };
 
 export const DEFAULT_FINISH_IMPORT_UV = {
