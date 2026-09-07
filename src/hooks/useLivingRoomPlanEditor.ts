@@ -895,11 +895,18 @@ export function useLivingRoomPlanEditor({
     offsetLivingRoomLoop: (offsetMm: number) => commitOffsetLoop(commitDocument, offsetMm),
     setLivingRoomWallPlan: (wallId: string, patch: import("../domain/interiorProject").WallPlanPatch) =>
       commitWallPlan(commitDocument, wallId, patch),
-    importLivingRoomFinish: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) =>
-      commitImportedFinish(commitDocument, file, apply, onStatus),
+    importLivingRoomFinish: (
+      source: import("../domain/livingRoom").FinishImportDraft | File,
+      apply?: {
+        wallId?: string;
+        floor?: boolean;
+        ceiling?: boolean;
+        selection?: { objectIds: readonly string[]; slotName?: string };
+      },
+    ) => commitImportedFinish(commitDocument, source, apply, onStatus),
     setLivingRoomFinishUv: (
       materialId: string,
-      patch: { uvScaleMm?: number; uvRotationDeg?: number },
+      patch: import("../domain/livingRoom").FinishUvPatch,
       rebind?: import("../domain/catalog/finishRebind").FinishUvRebind,
     ) =>
       commitFinishUv(commitDocument, materialId, patch, rebind),

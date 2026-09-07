@@ -15,10 +15,12 @@ import {
   formatPlanDimension,
   finishMapUrl,
   wallLengthMm,
+  type FinishUvPatch,
   type PlanDisplayUnit,
 } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
+import { FinishUvFields } from "./FinishUvFields";
 import { HeightPresetRow } from "./HeightPresetRow";
 import { WallRaiseControls } from "./WallRaiseControls";
 import { WallGeometryFields } from "./WallGeometryFields";
@@ -42,11 +44,7 @@ type Props = {
   onOffsetLoop: (offsetMm: number) => void;
   onSetWallPlan: (wallId: string, patch: WallPlanPatch) => void;
   onImportFinish: (file: File, apply?: ImportApply) => void;
-  onSetFinishUv: (
-    materialId: string,
-    patch: { uvScaleMm?: number; uvRotationDeg?: number },
-    rebind?: FinishUvRebind,
-  ) => void;
+  onSetFinishUv: (materialId: string, patch: FinishUvPatch, rebind?: FinishUvRebind) => void;
   suppressEmptyWall?: boolean;
   compact?: boolean;
   hideRoom?: boolean;
@@ -126,12 +124,18 @@ export function PlanArchitectureInspector(props: Props) {
       <MaterialSwatchGrid materials={props.project.materials} activeMaterialId={wall.materialId ?? null} compact
         onPick={(materialId) => props.onSetWallMaterial(wall.id, materialId)}
         onImport={(file) => props.onImportFinish(file, { wallId: wall.id })} />
-      {finish && finishMapUrl(finish) ? <>
-        <NumberField label="Tile mm" value={Number(finish.extensions?.uvScaleMm) || 1000}
-          onChange={(uvScaleMm) => props.onSetFinishUv(finish.id, { uvScaleMm }, { kind: "wall", wallId: wall.id })} />
-        <NumberField label="Rotate °" value={Number(finish.extensions?.uvRotationDeg) || 0}
-          onChange={(uvRotationDeg) => props.onSetFinishUv(finish.id, { uvRotationDeg }, { kind: "wall", wallId: wall.id })} />
-      </> : null}
+      {finish && finishMapUrl(finish) ? (
+        <FinishUvFields
+          compact
+          values={{
+            uvScaleMm: Number(finish.extensions?.uvScaleMm) || 1000,
+            uvRotationDeg: Number(finish.extensions?.uvRotationDeg) || 0,
+            uvOffsetU: Number(finish.extensions?.uvOffsetU) || 0,
+            uvOffsetV: Number(finish.extensions?.uvOffsetV) || 0,
+          }}
+          onChange={(patch) => props.onSetFinishUv(finish.id, patch, { kind: "wall", wallId: wall.id })}
+        />
+      ) : null}
       <button type="button" className="lr-clear-material" onClick={() => props.onSetWallMaterial(wall.id, null)}>Clear wall material</button>
     </section> : props.suppressEmptyWall ? null : <section className="lr-inspector-empty"><h3>Wall</h3><p>Select a wall to edit length, angle, thickness, height, and raise it into 3D.</p></section>}
   </>;

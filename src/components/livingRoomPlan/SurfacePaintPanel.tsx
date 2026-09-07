@@ -7,9 +7,19 @@ import {
   isSelectionSlotEditable,
   materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
+  stageFinishImportFile,
+  type FinishImportDraft,
 } from "../../domain/livingRoom";
+import { FinishImportPreviewPanel } from "./FinishImportPreviewPanel";
 import { MaterialColourPanel } from "./MaterialColourPanel";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
+
+export type SurfacePaintImportApply = {
+  wallId?: string;
+  floor?: boolean;
+  ceiling?: boolean;
+  selection?: { objectIds: readonly string[]; slotName?: string };
+};
 
 type Props = {
   project: InteriorProject;
@@ -20,7 +30,7 @@ type Props = {
   onWall: (wallId: string, materialId: string) => void;
   onApplyToSelection: (materialId: string, slotName?: string) => void;
   onApplyColour: (materialId: string, color: string, rebinds: FinishUvRebind[]) => void;
-  onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
+  onImportFinish?: (draft: FinishImportDraft, apply?: SurfacePaintImportApply) => void;
 };
 
 type PaintTarget = "floor" | "ceiling" | "wall" | "selection";
@@ -32,6 +42,8 @@ export function SurfacePaintPanel({
   const wall = project.walls.find((item) => item.id === activeWallId) ?? project.walls[0] ?? null;
   const [target, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
   const [slot, setSlot] = useState("");
+  const [draft, setDraft] = useState<FinishImportDraft | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
   const sharedSlots = useMemo(() => commonMaterialSlots(selectedObjects), [selectedObjects]);
   const editableSlots = useMemo(() => editableCommonMaterialSlots(selectedObjects), [selectedObjects]);
   const activeSlot = editableSlots.includes(slot) ? slot : editableSlots[0] ?? "";
@@ -78,6 +90,26 @@ export function SurfacePaintPanel({
     return [];
   }
 
+  function importApply(): SurfacePaintImportApply | undefined {
+    if (target === "floor") return { floor: true };
+    if (target === "ceiling") return { ceiling: true };
+    if (target === "wall" && wall) return { wallId: wall.id };
+    if (target === "selection" && canPaintSelection) {
+      return { selection: { objectIds: selectedObjects.map((object) => object.id), slotName: activeSlot || undefined } };
+    }
+    return undefined;
+  }
+
+  function stageImport(file: File) {
+    setImportError(null);
+    void stageFinishImportFile(file).then((next) => {
+      setDraft(next);
+    }).catch((error: unknown) => {
+      setDraft(null);
+      setImportError(error instanceof Error ? error.message : "Could not import finish.");
+    });
+  }
+
   return (
     <section className="lr-surface-painter" aria-label="Surface paint">
       <div className="lr-paint-targets" role="tablist" aria-label="Paint target">
@@ -109,11 +141,27 @@ export function SurfacePaintPanel({
             materials={target === "selection" ? selectionMaterials : project.materials}
             activeMaterialId={activeMaterialId ?? null}
             onPick={apply}
-            onImport={onImportFinish ? (file) => onImportFinish(file, target === "floor"
-              ? { floor: true }
-              : target === "ceiling" ? { ceiling: true }
-              : target === "wall" && wall ? { wallId: wall.id } : undefined) : undefined}
+            onImport={onImportFinish ? stageImport : undefined}
           />
+          {draft && onImportFinish ? (
+            <FinishImportPreviewPanel
+              draft={draft}
+              error={importError}
+              onChange={(patch) => setDraft((current) => (current ? { ...current, ...patch } : current))}
+              onApply={() => {
+                onImportFinish(draft, importApply());
+                setDraft(null);
+                setImportError(null);
+              }}
+              onCancel={() => {
+                setDraft(null);
+                setImportError(null);
+              }}
+            />
+          ) : null}
+          {!draft && importError ? (
+            <p className="lr-finish-import-error" data-testid="finish-import-error" role="alert">{importError}</p>
+          ) : null}
           <MaterialColourPanel
             project={project}
             material={activeMaterial}

@@ -1,8 +1,8 @@
 import type { InteriorProject, InteriorRoomEntity } from "../../domain/interiorProject";
-import { finishMapUrl } from "../../domain/livingRoom";
+import { finishMapUrl, type FinishUvPatch } from "../../domain/livingRoom";
 import type { FinishUvRebind } from "../../domain/catalog/finishRebind";
+import { FinishUvFields } from "./FinishUvFields";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
-import { NumberField } from "./NumberField";
 
 type ImportApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
 
@@ -12,11 +12,7 @@ type Props = {
   onSetFloorMaterial: (materialId: string) => void;
   onSetCeilingMaterial: (materialId: string) => void;
   onImportFinish: (file: File, apply?: ImportApply) => void;
-  onSetFinishUv: (
-    materialId: string,
-    patch: { uvScaleMm?: number; uvRotationDeg?: number },
-    rebind?: FinishUvRebind,
-  ) => void;
+  onSetFinishUv: (materialId: string, patch: FinishUvPatch, rebind?: FinishUvRebind) => void;
 };
 
 function surfaceMaterial(project: InteriorProject, roomId: string, kind: "floor" | "ceiling") {
@@ -37,12 +33,18 @@ function FinishUv({
 }) {
   const finish = materialId ? project.materials.find((material) => material.id === materialId) : null;
   if (!finish || !finishMapUrl(finish)) return null;
-  return <>
-    <NumberField label="Tile mm" value={Number(finish.extensions?.uvScaleMm) || 1000}
-      onChange={(uvScaleMm) => onSetFinishUv(finish.id, { uvScaleMm }, rebind)} />
-    <NumberField label="Rotate °" value={Number(finish.extensions?.uvRotationDeg) || 0}
-      onChange={(uvRotationDeg) => onSetFinishUv(finish.id, { uvRotationDeg }, rebind)} />
-  </>;
+  return (
+    <FinishUvFields
+      compact
+      values={{
+        uvScaleMm: Number(finish.extensions?.uvScaleMm) || 1000,
+        uvRotationDeg: Number(finish.extensions?.uvRotationDeg) || 0,
+        uvOffsetU: Number(finish.extensions?.uvOffsetU) || 0,
+        uvOffsetV: Number(finish.extensions?.uvOffsetV) || 0,
+      }}
+      onChange={(patch) => onSetFinishUv(finish.id, patch, rebind)}
+    />
+  );
 }
 
 export function RoomFinishFields(props: Props) {
