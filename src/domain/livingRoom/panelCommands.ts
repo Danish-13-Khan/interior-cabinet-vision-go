@@ -77,6 +77,19 @@ export function setPanelVisible(
   return updatePanelAttachment(project, objectId, { visible });
 }
 
+/** Flip panel between interior / exterior face; pose reflows from attachment (not free Y rotation). */
+export function flipPanelWallSide(
+  project: InteriorProject,
+  objectId: string,
+): InteriorProject {
+  const object = project.objects.find((item) => item.id === objectId);
+  if (!object || !isWallPanelObject(object)) return project;
+  const current = readPanelAttachment(object);
+  if (!current) return project;
+  const wallSide = current.wallSide === "exterior" ? "interior" : "exterior";
+  return updatePanelAttachment(project, objectId, { wallSide });
+}
+
 const MIN_PANEL_WIDTH_MM = 100;
 const MIN_PANEL_HEIGHT_MM = 100;
 const MIN_PANEL_DEPTH_MM = 6;

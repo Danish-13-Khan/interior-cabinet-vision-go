@@ -88,18 +88,18 @@ Room → Wall → Door / Window → Cabinet → Furniture → Wall Panel → Mat
 
 Commands understand the **selected object**. No vertex / edge / face / Push-Pull mesh editing.
 
-### 4.1 Contextual commands · `LATER` (not M1/M2)
+### 4.1 Contextual commands · `DONE`
 
-Target UX by selection (design intent — **not** a first-sprint build):
+Target UX by selection:
 
 | Selection | Commands shown |
 | --- | --- |
-| Nothing | Select · Draw Room · Measure · Camera |
-| Wall | Edit · Material · Add Opening · Add Panel · Hide |
-| Cabinet | Move · Rotate · Resize · Duplicate · Material · Delete |
-| Feature panel | Move · Resize · Thickness · Offset · Material · Colour · Duplicate · Delete |
+| Nothing | Select · Measure · Camera |
+| Wall | Material · Add Panel · Hide Wall |
+| Cabinet | Rotate · Duplicate · Material · Delete |
+| Feature panel | Flip Side · Duplicate · Material · Delete |
 
-**M1/M2 scope note:** Reuse the **existing toolbar and inspector**. Do not build a new contextual command rail yet — it is an improvement beyond direct QA feedback.
+**Shipped:** `contextualCommandRail` domain + `ContextualCommandRail` under plan/model authoring chrome (`data-testid="contextual-command-rail"`); wires existing chrome/build/workspace actions. Move/Resize/Thickness/Offset remain inspector / drag. `tests/e2e/phase-m-contextual-command-rail.spec.ts`.
 
 ### 4.2 Shortcut infrastructure (required for all new bindings)
 
@@ -153,7 +153,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 | **Walk Mode** | Eye-level walkthrough (already a preset) | expose clearly in M1 |
 | **Duplicate Along Wall** | Cabinets / panels | M5 later |
 | **Lock Object** | Prevent accidental move | P1 later |
-| **Contextual command rail** | Selection-aware command strip (§4.1) | after M1/M2 |
+| **Contextual command rail** | Selection-aware command strip (§4.1) | **DONE** |
 
 ### 4.5 Explicitly do **not** implement
 
@@ -275,7 +275,7 @@ Users can:
 
 ---
 
-### M6 — Materials From Websites · `DONE` (M6.1–M6.3)
+### M6 — Materials From Websites · `DONE` (M6.1–M6.4)
 
 **Answers:** Feedback #4 — deliver gradually; no arbitrary scraping.
 
@@ -284,7 +284,7 @@ Users can:
 | M6.1 | Download texture elsewhere → upload manually (uses M4) — **DONE** with M4 |
 | M6.2 | Import from a direct image URL — **copy image bytes into the project**; do not depend on the live URL after import — **DONE** |
 | M6.3 | Selected manufacturer material catalogues — **DONE** (curated in-app packs; copy into project) |
-| M6.4 | Later: brand, product code, dimensions, normal / roughness maps — `LATER` |
+| M6.4 | Brand, product code, sheet dimensions, normal / roughness maps — **DONE** |
 
 **EXCLUDED from first version:** scraping arbitrary websites; hotlinking remote texture URLs as project truth.
 
@@ -292,7 +292,7 @@ Users can:
 
 **Shipped (M6.2):** URL field in Material Browser; fetch → data URL draft → M4 preview/apply; MIME/size validation; CORS/network errors; `finishImportFromUrl.test.ts`; `tests/e2e/phase-m6-url-import.spec.ts`.
 
-**Shipped (M6.3):** Curated manufacturer catalogues (Studio Laminates, Atelier Woods); stage → preview → apply copies seed map bytes + colour/kind/provenance into `finish-import-*`; `manufacturerCatalogues.test.ts`; `tests/e2e/phase-m6-manufacturer-catalogues.spec.ts`.
+**Shipped (M6.3–M6.4):** Curated manufacturer catalogues with brand / product code / sheet size and optional normal+roughness map bytes copied into `finish-import-*` extensions; compile + `resolveMaterialTextureUrls` merge imported maps; `manufacturerCatalogues.test.ts`; `tests/e2e/phase-m6-manufacturer-catalogues.spec.ts`.
 
 ---
 
@@ -327,7 +327,7 @@ M3 Material library + fixed shade groups
 M4 Texture import UX polish
 M6 Web / catalogue import (copy-into-project)  ← last
 M7 End-to-end QA
-Contextual command rail                          ← after M1/M2
+Contextual command rail                          ← DONE (§4.1)
 ```
 
 Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibility + Materials** on existing chrome, then **P1 Feature Wall / panelling + advanced materials + Walk / X-Ray**.
@@ -359,8 +359,8 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
 4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
 5. **M4** — **DONE** on `phase-m/post-room-3d-editing` — texture preview, UV offset, MIME validation
-6. **M6.2–M6.3** — **DONE** on `phase-m/post-room-3d-editing` — URL import + curated manufacturer catalogues (M6.4 maps/SKU later)
+6. **M6.2–M6.4** — **DONE** on `phase-m/post-room-3d-editing` — URL import, curated catalogues, brand/SKU/sheet size + companion maps
 7. **M7** — **DONE** on `phase-m/post-room-3d-editing` — exit-journey e2e (room → 3D → hide → materials → panel → edit → save/reopen → render)
-8. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
+8. **Command contract + contextual rail** — **DONE** — object-based editing (§4); selection-aware rail wires existing chrome actions
 
-Phase M core feedback track is complete. Optional later: **M6.4** brand/maps, contextual command rail.
+**Open before marking Phase M complete:** P1 follow-ups on the rail / M6.4 seeds — Measure hidden in Model (+ plan switch if invoked), panel Flip Side (not free Rotate) surviving reflow/save-reopen, PBR-valid normal/roughness seed maps. Unit coverage landed; confirm Model-view Measure e2e + catalogue map pixels before closing the program.

@@ -12,6 +12,7 @@ test("Phase M6.3 imports a curated manufacturer finish into project-owned bytes"
   await expect(page.getByTestId("manufacturer-catalogue")).toBeVisible();
   await page.getByTestId("manufacturer-catalogue-select").selectOption("mfr:atelier-woods");
   await page.getByTestId("manufacturer-finish-select").selectOption("mfr:atelier-woods:smoked-walnut");
+  await expect(page.getByTestId("manufacturer-finish-meta")).toContainText(/Atelier Woods|AW-SW-01/);
   await page.getByTestId("manufacturer-finish-stage").click();
   await expect(page.getByTestId("finish-import-preview")).toBeVisible();
   await page.getByTestId("finish-import-apply").click();

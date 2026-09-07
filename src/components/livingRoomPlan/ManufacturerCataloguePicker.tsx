@@ -27,6 +27,16 @@ export function ManufacturerCataloguePicker({
     return manufacturerFinishesCompatibleWithSelectionSlot(all, selectedObjects, slotName);
   }, [catalogue, filterForSelection, selectedObjects, slotName]);
   const [finishId, setFinishId] = useState(finishes[0]?.id ?? "");
+  const activeFinish = finishes.find((item) => item.id === finishId) ?? null;
+  const finishMeta = activeFinish && (activeFinish.brand || activeFinish.productCode)
+    ? [
+      activeFinish.brand,
+      activeFinish.productCode,
+      activeFinish.sheetWidthMm && activeFinish.sheetHeightMm
+        ? `${activeFinish.sheetWidthMm}×${activeFinish.sheetHeightMm} mm`
+        : null,
+    ].filter(Boolean).join(" · ")
+    : null;
 
   useEffect(() => {
     if (!finishes.some((finish) => finish.id === finishId)) {
@@ -59,6 +69,9 @@ export function ManufacturerCataloguePicker({
         </select>
       </label>
       {catalogue ? <small>{catalogue.note}</small> : null}
+      {finishMeta ? (
+        <p className="lr-manufacturer-finish-meta" data-testid="manufacturer-finish-meta">{finishMeta}</p>
+      ) : null}
       <label>
         <span>Finish</span>
         <select
