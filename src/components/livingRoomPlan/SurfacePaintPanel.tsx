@@ -9,19 +9,19 @@ import {
   primaryMaterialId,
   stageFinishImportFile,
   stageFinishImportUrl,
+  stageManufacturerFinish,
   type FinishImportDraft,
 } from "../../domain/livingRoom";
-import { FinishImportPreviewPanel } from "./FinishImportPreviewPanel";
-import { FinishImportUrlField } from "./FinishImportUrlField";
+import { FinishImportExtras } from "./FinishImportExtras";
 import { MaterialColourPanel } from "./MaterialColourPanel";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
+import {
+  surfacePaintColourRebinds,
+  surfacePaintImportApply,
+  type SurfacePaintImportApply,
+} from "./surfacePaintApply";
 
-export type SurfacePaintImportApply = {
-  wallId?: string;
-  floor?: boolean;
-  ceiling?: boolean;
-  selection?: { objectIds: readonly string[]; slotName?: string };
-};
+export type { SurfacePaintImportApply };
 
 type Props = {
   project: InteriorProject;
@@ -69,7 +69,6 @@ export function SurfacePaintPanel({
       : target === "wall" ? wall?.materialId
         : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
           : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
-
   const activeMaterial = project.materials.find((material) => material.id === activeMaterialId) ?? null;
 
   function apply(materialId: string) {
@@ -77,30 +76,6 @@ export function SurfacePaintPanel({
     if (target === "ceiling") onCeiling(materialId);
     if (target === "wall" && wall) onWall(wall.id, materialId);
     if (target === "selection" && canPaintSelection) onApplyToSelection(materialId, activeSlot || undefined);
-  }
-
-  function colourRebinds(): FinishUvRebind[] {
-    if (target === "floor") return [{ kind: "floor" }];
-    if (target === "ceiling") return [{ kind: "ceiling" }];
-    if (target === "wall" && wall) return [{ kind: "wall", wallId: wall.id }];
-    if (target === "selection" && activeSlot) {
-      return selectedObjects.map((object) => ({
-        kind: "object" as const,
-        objectId: object.id,
-        slotName: activeSlot,
-      }));
-    }
-    return [];
-  }
-
-  function importApply(): SurfacePaintImportApply | undefined {
-    if (target === "floor") return { floor: true };
-    if (target === "ceiling") return { ceiling: true };
-    if (target === "wall" && wall) return { wallId: wall.id };
-    if (target === "selection" && canPaintSelection) {
-      return { selection: { objectIds: selectedObjects.map((object) => object.id), slotName: activeSlot || undefined } };
-    }
-    return undefined;
   }
 
   function failImport(error: unknown) {
@@ -119,6 +94,13 @@ export function SurfacePaintPanel({
     setDraft(null);
     setUrlBusy(true);
     void stageFinishImportUrl(url).then(setDraft).catch(failImport).finally(() => setUrlBusy(false));
+  }
+
+  function stageCatalogue(finishId: string) {
+    if (urlBusy) return;
+    setImportError(null);
+    try { setDraft(stageManufacturerFinish(finishId)); }
+    catch (error) { failImport(error); }
   }
 
   return (
@@ -156,36 +138,35 @@ export function SurfacePaintPanel({
             importDisabled={urlBusy}
           />
           {onImportFinish ? (
-            <FinishImportUrlField busy={urlBusy} onSubmit={stageImportUrl} />
-          ) : null}
-          {draft && onImportFinish && !urlBusy ? (
-            <FinishImportPreviewPanel
+            <FinishImportExtras
               draft={draft}
-              error={importError}
-              onChange={(patch) => setDraft((current) => (current ? { ...current, ...patch } : current))}
+              importError={importError}
+              urlBusy={urlBusy}
+              selectedObjects={selectedObjects}
+              slotName={activeSlot}
+              filterCatalogueForSelection={target === "selection"}
+              onStageUrl={stageImportUrl}
+              onStageCatalogue={stageCatalogue}
+              onChangeDraft={(patch) => setDraft((current) => (current ? { ...current, ...patch } : current))}
               onApply={() => {
-                onImportFinish(draft, importApply());
+                if (!draft) return;
+                onImportFinish(draft, surfacePaintImportApply({
+                  target, wall, selectedObjects, activeSlot, canPaintSelection,
+                }));
                 setDraft(null);
                 setImportError(null);
               }}
-              onCancel={() => {
-                setDraft(null);
-                setImportError(null);
-              }}
+              onCancel={() => { setDraft(null); setImportError(null); }}
             />
-          ) : null}
-          {urlBusy ? (
-            <p className="lr-finish-import-busy" data-testid="finish-import-busy">Fetching texture…</p>
-          ) : null}
-          {!draft && importError ? (
-            <p className="lr-finish-import-error" data-testid="finish-import-error" role="alert">{importError}</p>
           ) : null}
           <MaterialColourPanel
             project={project}
             material={activeMaterial}
             onApplyColour={(color) => {
               if (!activeMaterialId) return;
-              onApplyColour(activeMaterialId, color, colourRebinds());
+              onApplyColour(activeMaterialId, color, surfacePaintColourRebinds({
+                target, wall, selectedObjects, activeSlot,
+              }));
             }}
           />
           <p>Swatches save the project material ID. Shades and custom colours tint via clone-on-write when shared.</p>
