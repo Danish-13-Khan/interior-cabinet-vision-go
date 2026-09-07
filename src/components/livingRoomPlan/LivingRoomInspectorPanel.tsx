@@ -67,6 +67,12 @@ type LivingRoomInspectorPanelProps = {
   onSplitWall?: (wallId: string) => void;
   onDeleteWall?: (wallId: string) => void;
   onJoinNodes?: () => void;
+  onAddWallPanel?: (wallId: string) => void;
+  onUpdatePanelAttachment?: (
+    objectId: string,
+    patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
+  ) => void;
+  onSetPanelVisible?: (objectId: string, visible: boolean) => void;
 };
 
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
@@ -110,6 +116,9 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdateCabinetRun={props.onUpdateCabinetRun}
             onCompleteCabinetRun={props.onCompleteCabinetRun}
             onDuplicate={props.onDuplicate} onDelete={props.onDelete}
+            onUpdatePanelAttachment={props.onUpdatePanelAttachment}
+            onSetPanelVisible={props.onSetPanelVisible}
+            onAddWallPanel={props.onAddWallPanel}
           />
         ) : null}
         {activeSurface ? (
@@ -125,7 +134,8 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSetFinishUv={props.onSetFinishUv} unit={props.unit}
             suppressEmptyWall={!activeWall} compact={props.drawRoom}
             hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
-            onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes} />
+            onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes}
+            onAddWallPanel={props.onAddWallPanel} />
         ) : null}
         {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun ? (
           <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />

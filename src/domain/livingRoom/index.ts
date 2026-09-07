@@ -175,6 +175,35 @@ export {
   wallVisibilityLabelInProject,
 } from "./wallVisibilityCommands";
 export {
+  applyPanelAttachmentPose,
+  defaultPanelAttachment,
+  isPanelAttachmentVisible,
+  isWallPanelObject,
+  readPanelAttachment,
+  resolvePanelPose,
+  writePanelAttachment,
+  type PanelAttachment,
+  type PanelWallSide,
+} from "./panelAttachment";
+export {
+  addWallPanel,
+  ensurePanelAttachmentFields,
+  listPanelsOnWall,
+  reflowPanelsForWalls,
+  resizeWallPanel,
+  setPanelVisible,
+  updatePanelAttachment,
+} from "./panelCommands";
+export { dragWallPanel } from "./panelDrag";
+export {
+  duplicateWallPanel,
+  panelHostWallIds,
+  removePanelsOnWall,
+  roomWallIds,
+  wallNeighborhoodIds,
+} from "./panelLifecycle";
+export { remapPanelsAfterWallSplit } from "./panelSplit";
+export {
   applyMaterialColour,
   type ApplyMaterialColourArgs,
 } from "./applyMaterialColour";

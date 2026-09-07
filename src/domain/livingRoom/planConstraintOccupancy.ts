@@ -7,6 +7,7 @@ const NON_BLOCKING_CATEGORIES = new Set([
   "rug",
   "mirror",
   "feature-wall",
+  "wall-panel",
   "display-niche",
   "accessory",
   "ceiling-fixture",

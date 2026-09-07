@@ -5,6 +5,7 @@ import {
   materialAssetIdForEntity,
 } from "./renderAssetBindings";
 import { compileCabinetRunExtras } from "./cabinetSceneRunExtras";
+import { isPanelAttachmentVisible } from "./panelAttachment";
 import { compileLivingRoomObjectNode } from "./sceneAdapters";
 import {
   computeArchitectureBounds,
@@ -81,7 +82,10 @@ export function compileLivingRoomScene(
 ): CompiledLivingRoomScene {
   const roomId = project.activeRoomId;
   const objectNodes = project.objects
-    .filter((object) => object.roomId === roomId && object.extensions?.layerVisible !== false)
+    .filter((object) =>
+      object.roomId === roomId
+      && object.extensions?.layerVisible !== false
+      && isPanelAttachmentVisible(object))
     .map((object) => compileLivingRoomObjectNode(object, project.materials));
   const nodes = [
     ...compileLivingRoomArchitecture(project),

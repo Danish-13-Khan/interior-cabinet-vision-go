@@ -251,7 +251,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 ---
 
-### M5 — Decorative and Feature Walls · `NEXT`
+### M5 — Decorative and Feature Walls · `DONE`
 
 **Answers:** Feedback #6 · P1 Add/Edit Panel + panel visibility (§4.1, §4.4)
 
@@ -259,16 +259,17 @@ Feature / wonder wall / panelling is a **design object** on a structural wall us
 
 Users can:
 
-- Add one or more decorative panels to an existing wall
+- Add one or more decorative panels to an existing wall (**Add Wall Panel**)
 - Move and resize the panel (along-wall + floor offset)
 - Set width, height, thickness, and floor offset
-- Change material and colour
+- Change material and colour (reuse M3)
 - Duplicate, hide, replace, or delete
 - Edit without changing the structural wall
+- Host wall move reflows panel poses via `reflowPanelsForWalls`
 
 **Exit:** After room create, add two panels on one wall, recolour one, hide one, save/reopen — structure unchanged; panels stay attached when the host wall moves.
 
-**Tests (required):** Save-and-reopen; wall move keeps panel attachment; hide panel without hiding wall.
+**Tests (required):** Save-and-reopen; wall move keeps panel attachment; hide panel without hiding wall. Shipped: `panelCommands.test.ts`, `tests/e2e/phase-m5-panels.spec.ts`.
 
 ---
 
@@ -344,7 +345,7 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 1. **M1** — **DONE** on `phase-m/post-room-3d-editing` — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`
 2. **M2** — **DONE** on `phase-m/post-room-3d-editing` — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)
 3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
-4. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet
+4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
 5. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M5** (decorative / feature panels) or **M4** texture UX polish.
+Ready to start **M4** (texture UX polish) or **M7** integration QA.

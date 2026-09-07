@@ -47,6 +47,9 @@ export function LivingRoomPlanWorkspaceInspector(props: {
         p.setActiveWallId((current) => (current === wallId ? p.project.walls.find((wall) => wall.id !== wallId)?.id ?? null : current));
       }}
       onJoinNodes={() => p.build.dispatchBuildCommand({ type: "joinCoincidentNodes" })}
+      onAddWallPanel={w.onAddWallPanel}
+      onUpdatePanelAttachment={w.onUpdatePanelAttachment}
+      onSetPanelVisible={w.onSetPanelVisible}
       onRaiseWalls={w.onRaiseWalls} onOffsetWall={w.onOffsetWall} onOffsetLoop={w.onOffsetLoop}
       onSetWallPlan={w.onSetWallPlan} onImportFinish={w.onImportFinish} onSetFinishUv={w.onSetFinishUv}
       onSetWallMaterial={w.onSetWallMaterial} onSetFloorMaterial={w.onSetFloorMaterial}

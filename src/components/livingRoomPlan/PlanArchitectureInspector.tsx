@@ -53,6 +53,7 @@ type Props = {
   onSplitWall?: (wallId: string) => void;
   onDeleteWall?: (wallId: string) => void;
   onJoinNodes?: () => void;
+  onAddWallPanel?: (wallId: string) => void;
 };
 
 export function PlanArchitectureInspector(props: Props) {
@@ -114,6 +115,13 @@ export function PlanArchitectureInspector(props: Props) {
         onChange={(heightMm) => props.onUpdateWall(wall.id, { heightMm })} />
       <WallRaiseControls wall={wall} roomWallIds={roomWallIds} heightMm={wall.heightMm}
         onRaise={props.onRaiseWalls} onOffset={(offsetMm) => props.onOffsetWall(wall.id, offsetMm)} />
+      {props.onAddWallPanel ? (
+        <div className="lr-wall-panel-actions">
+          <button type="button" data-testid="add-wall-panel" onClick={() => props.onAddWallPanel?.(wall.id)}>
+            Add Wall Panel
+          </button>
+        </div>
+      ) : null}
       <h4>Wall material</h4>
       <MaterialSwatchGrid materials={props.project.materials} activeMaterialId={wall.materialId ?? null} compact
         onPick={(materialId) => props.onSetWallMaterial(wall.id, materialId)}

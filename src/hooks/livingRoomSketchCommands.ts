@@ -12,14 +12,21 @@ import {
   applyMaterialToSelection,
   paintLivingRoomSurface,
   readImageAsDataUrl,
+  reflowCabinetRunsForWalls,
+  reflowPanelsForWalls,
   setFinishUv,
   setLivingRoomWallMaterial,
+  wallNeighborhoodIds,
 } from "../domain/livingRoom";
 import type { FinishUvRebind } from "../domain/catalog/finishRebind";
 
 type CommitDocument = (update: (current: InteriorProject) => InteriorProject, status: string) => void;
 
 export type ImportFinishApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
+
+function reflowWallAttachments(project: InteriorProject, wallIds: readonly string[]) {
+  return reflowPanelsForWalls(reflowCabinetRunsForWalls(project, wallIds), wallIds);
+}
 
 export function raiseLivingRoomWalls(
   commitDocument: CommitDocument,
@@ -35,18 +42,26 @@ export function raiseLivingRoomWalls(
 }
 
 export function offsetLivingRoomWall(commitDocument: CommitDocument, wallId: string, offsetMm: number) {
-  commitDocument((current) => offsetPlanWall(current, wallId, offsetMm), "Offset parallel wall.");
+  commitDocument((current) => {
+    const affected = wallNeighborhoodIds(current, wallId);
+    return reflowWallAttachments(offsetPlanWall(current, wallId, offsetMm), affected);
+  }, "Offset parallel wall.");
 }
 
 export function offsetLivingRoomLoop(commitDocument: CommitDocument, offsetMm: number) {
   commitDocument((current) => {
     const roomId = current.activeRoomId;
-    return roomId ? offsetPlanLoop(current, roomId, offsetMm) : current;
+    if (!roomId) return current;
+    const affected = current.walls.map((wall) => wall.id);
+    return reflowWallAttachments(offsetPlanLoop(current, roomId, offsetMm), affected);
   }, "Offset room loop.");
 }
 
 export function setLivingRoomWallPlan(commitDocument: CommitDocument, wallId: string, patch: WallPlanPatch) {
-  commitDocument((current) => applyWallPlanPatch(current, wallId, patch), "Updated wall plan.");
+  commitDocument((current) => {
+    const affected = wallNeighborhoodIds(current, wallId);
+    return reflowWallAttachments(applyWallPlanPatch(current, wallId, patch), affected);
+  }, "Updated wall plan.");
 }
 
 export function paintLivingRoomCeiling(commitDocument: CommitDocument, materialId: string) {

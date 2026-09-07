@@ -34,6 +34,21 @@ import {
   preferredRoomWallCorner,
   reconcileCabinetRunsAfterObjectRemoval,
   reflowCabinetRunsForWalls,
+  reflowPanelsForWalls,
+  addWallPanel as addWallPanelCommand,
+  updatePanelAttachment as updatePanelAttachmentCommand,
+  setPanelVisible as setPanelVisibleCommand,
+  resizeWallPanel as resizeWallPanelCommand,
+  dragWallPanel,
+  duplicateWallPanel,
+  remapPanelsAfterWallSplit,
+  panelHostWallIds,
+  removePanelsOnWall,
+  roomWallIds,
+  isWallPanelObject,
+  applyPanelAttachmentPose,
+  defaultPanelAttachment,
+  readPanelAttachment,
   updateCabinetRunLayout,
   addLivingRoomOpening,
   alignLivingRoomObjects,
@@ -236,6 +251,22 @@ export function useLivingRoomPlanEditor({
   function moveObject(objectId: string, position: Point3Mm) {
     if (!document) return;
     const object = document.objects.find((item) => item.id === objectId);
+    if (object && isWallPanelObject(object)) {
+      setPreDropReason(null);
+      commitDocument(
+        (current) => {
+          const live = current.objects.find((item) => item.id === objectId);
+          if (!live || !isWallPanelObject(live)) return current;
+          const next = dragWallPanel(current, live, position);
+          return {
+            ...current,
+            objects: current.objects.map((item) => (item.id === objectId ? next : item)),
+          };
+        },
+        "Moved wall panel.",
+      );
+      return;
+    }
     if (object?.kind === "cabinet") {
       const snapped = snapCabinetToWall(document, object, position);
       const wallAttachment = snapped.extensions?.wallAttachment;
@@ -271,6 +302,11 @@ export function useLivingRoomPlanEditor({
   function previewMoveObject(objectId: string, position: Point3Mm) {
     if (!document) return null;
     const object = document.objects.find((item) => item.id === objectId);
+    if (object && isWallPanelObject(object)) {
+      setPreDropReason(null);
+      const dragged = dragWallPanel(document, object, position);
+      return { position: dragged.position, rotationY: dragged.rotation.y };
+    }
     if (object?.kind !== "cabinet") {
       setPreDropReason(null);
       return null;
@@ -304,6 +340,9 @@ export function useLivingRoomPlanEditor({
     commitDocument(
       (current) => {
         const object = current.objects.find((item) => item.id === objectId);
+        if (object && isWallPanelObject(object)) {
+          return resizeWallPanelCommand(current, objectId, dimensions);
+        }
         if (object?.kind === "cabinet") {
           return setCabinetInlineDimensions(current, objectId, dimensions);
         }
@@ -406,7 +445,14 @@ export function useLivingRoomPlanEditor({
       const corner = preferredRoomWallCorner(document, document.activeRoomId);
       if (corner) placed = placeCornerCabinet(document, item, corner);
     }
-    if (placed.kind === "cabinet") {
+    if (wallId && isWallPanelObject(placed)) {
+      const attachment = {
+        ...defaultPanelAttachment(document, wallId, placed),
+        ...(readPanelAttachment(placed) ?? {}),
+      };
+      placed = applyPanelAttachmentPose(document, placed, attachment);
+      setPreDropReason(null);
+    } else if (placed.kind === "cabinet") {
       const result = validateCabinetRunPreDrop(document, {
         object: placed,
         wallId: wallId ?? (placed.extensions?.wallAttachment && typeof placed.extensions.wallAttachment === "object"
@@ -446,7 +492,13 @@ export function useLivingRoomPlanEditor({
     if (!sourceId) return;
     const duplicateId = uniqueObjectId("copy");
     commitDocument(
-      (current) => duplicateLivingRoomObject(current, sourceId, duplicateId),
+      (current) => {
+        const source = current.objects.find((item) => item.id === sourceId);
+        if (source && isWallPanelObject(source)) {
+          return duplicateWallPanel(current, sourceId, duplicateId);
+        }
+        return duplicateLivingRoomObject(current, sourceId, duplicateId);
+      },
       "Duplicated living-room object.",
     );
     setSelectedObjectIds([duplicateId]);
@@ -501,20 +553,38 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) =>
       selectedObjectIds.reduce((next, objectId) => {
         const object = next.objects.find((item) => item.id === objectId);
-        return object
-          ? moveLivingRoomObject(next, objectId, {
-              ...object.position,
-              x: object.position.x + dx,
-              z: object.position.z + dz,
-            })
-          : next;
+        if (!object) return next;
+        if (isWallPanelObject(object)) {
+          const dragged = dragWallPanel(next, object, {
+            x: object.position.x + dx,
+            y: object.position.y,
+            z: object.position.z + dz,
+          });
+          return {
+            ...next,
+            objects: next.objects.map((item) => (item.id === objectId ? dragged : item)),
+          };
+        }
+        return moveLivingRoomObject(next, objectId, {
+          ...object.position,
+          x: object.position.x + dx,
+          z: object.position.z + dz,
+        });
       }, current), "Nudged living-room selection.");
   }
 
   function setRoomDimensions(dimensions: Size3Mm) {
     if (!document) return;
     commitDocument(
-      (current) => resizeLivingRoom(current, current.activeRoomId, dimensions),
+      (current) => {
+        const next = resizeLivingRoom(current, current.activeRoomId, dimensions);
+        const cabinetWallIds = roomWallIds(next, current.activeRoomId);
+        const panelWallIds = panelHostWallIds(next, current.activeRoomId);
+        return reflowPanelsForWalls(
+          reflowCabinetRunsForWalls(next, cabinetWallIds),
+          panelWallIds,
+        );
+      },
       "Updated living-room dimensions.",
     );
   }
@@ -615,13 +685,25 @@ export function useLivingRoomPlanEditor({
     commitDocument((current) => {
       const result = splitPlanWallResult(current, wallId, offsetMm);
       firstWallId = result.firstWallId;
-      return result.project;
+      if (result.firstWallId === wallId && result.secondWallId === wallId) {
+        return current;
+      }
+      return remapPanelsAfterWallSplit(
+        result.project,
+        wallId,
+        result.firstWallId,
+        result.secondWallId,
+      );
     }, "Split wall.");
     return firstWallId;
   }
 
   function deleteWall(wallId: string) {
-    commitDocument((current) => deletePlanWall(current, wallId), "Deleted wall.");
+    commitDocument((current) => {
+      const next = deletePlanWall(current, wallId);
+      if (next.walls.some((wall) => wall.id === wallId)) return current;
+      return removePanelsOnWall(next, wallId);
+    }, "Deleted wall.");
   }
 
   function updateWall(wallId: string, patch: { thicknessMm?: number; heightMm?: number }) {
@@ -630,7 +712,8 @@ export function useLivingRoomPlanEditor({
       let next = current;
       if (patch.thicknessMm !== undefined) next = setPlanWallThickness(next, wallId, patch.thicknessMm);
       if (patch.heightMm !== undefined) next = setPlanWallHeight(next, wallId, patch.heightMm);
-      return next;
+      if (patch.thicknessMm === undefined) return next;
+      return reflowPanelsForWalls(next, [wallId]);
     }, "Updated wall properties.");
   }
 
@@ -644,7 +727,10 @@ export function useLivingRoomPlanEditor({
         const affectedWallIds = current.walls
           .filter((wall) => wall.startNodeId === nodeId || wall.endNodeId === nodeId)
           .map((wall) => wall.id);
-        return reflowCabinetRunsForWalls(movePlanNodeWithOpenings(current, nodeId, position), affectedWallIds);
+        return reflowPanelsForWalls(
+          reflowCabinetRunsForWalls(movePlanNodeWithOpenings(current, nodeId, position), affectedWallIds),
+          affectedWallIds,
+        );
       },
       "Moved wall node.",
     );
@@ -660,7 +746,10 @@ export function useLivingRoomPlanEditor({
               || item.startNodeId === wall.endNodeId || item.endNodeId === wall.endNodeId)
             .map((item) => item.id)
           : [wallId];
-        return reflowCabinetRunsForWalls(translatePlanWall(current, wallId, delta), affectedWallIds);
+        return reflowPanelsForWalls(
+          reflowCabinetRunsForWalls(translatePlanWall(current, wallId, delta), affectedWallIds),
+          affectedWallIds,
+        );
       },
       "Moved wall.",
     );
@@ -746,6 +835,32 @@ export function useLivingRoomPlanEditor({
     setLivingRoomLayerVisibility: setLayerVisibility,
     setLivingRoomPlanUnderlay: setPlanUnderlay,
     addLivingRoomCatalogObject: addCatalogObject,
+    addLivingRoomWallPanel: (wallId: string) => {
+      if (!document) return;
+      let createdId: string | null = null;
+      commitDocument((current) => {
+        const next = addWallPanelCommand(current, wallId);
+        const existing = new Set(current.objects.map((object) => object.id));
+        createdId = next.objects.find((object) => !existing.has(object.id))?.id ?? null;
+        return next;
+      }, "Added wall panel.");
+      if (createdId) setSelectedObjectIds([createdId]);
+    },
+    updateLivingRoomPanelAttachment: (
+      objectId: string,
+      patch: Parameters<typeof updatePanelAttachmentCommand>[2],
+    ) => {
+      commitDocument(
+        (current) => updatePanelAttachmentCommand(current, objectId, patch),
+        "Updated wall panel.",
+      );
+    },
+    setLivingRoomPanelVisible: (objectId: string, visible: boolean) => {
+      commitDocument(
+        (current) => setPanelVisibleCommand(current, objectId, visible),
+        visible ? "Showed wall panel." : "Hid wall panel.",
+      );
+    },
     addImportedLivingRoomAsset: addImportedAsset,
     duplicateInteriorSelection: duplicateSelection,
     deleteInteriorSelection: deleteSelection,
