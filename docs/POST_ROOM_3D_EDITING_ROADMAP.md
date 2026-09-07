@@ -4,7 +4,7 @@
 **Product relationship:** Companion to [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md) and successor to H–L in [Interior Design Tool Roadmap](./INTERIOR_DESIGN_TOOL_ROADMAP.md)  
 **QA feedback date:** 2026-09-06  
 **Baseline date:** 2026-09-06  
-**Revised:** 2026-09-06 (shortcut focus rules + M2 wall-only hide)  
+**Revised:** 2026-09-07 (Phase M locked — P1 QA rail/PBR fixes)  
 **Naming note:** Not “Phase 7” — that ID is already used in archive (Render Studio / V2 hardening). This program is **Phase M**.
 
 Status vocabulary: `CURRENT` · `NEXT` · `LATER` · `EXCLUDED` · `DONE`
@@ -362,5 +362,6 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 6. **M6.2–M6.4** — **DONE** on `phase-m/post-room-3d-editing` — URL import, curated catalogues, brand/SKU/sheet size + companion maps
 7. **M7** — **DONE** on `phase-m/post-room-3d-editing` — exit-journey e2e (room → 3D → hide → materials → panel → edit → save/reopen → render)
 8. **Command contract + contextual rail** — **DONE** — object-based editing (§4); selection-aware rail wires existing chrome actions
+9. **P1 QA follow-ups** — **DONE** — Model-safe Measure, panel Flip Side (reflow/save-reopen), PBR-valid catalogue normal/roughness maps
 
-**Open before marking Phase M complete:** P1 follow-ups on the rail / M6.4 seeds — Measure hidden in Model (+ plan switch if invoked), panel Flip Side (not free Rotate) surviving reflow/save-reopen, PBR-valid normal/roughness seed maps. Unit coverage landed; confirm Model-view Measure e2e + catalogue map pixels before closing the program.
+Phase M program (M1–M7, M6.4, contextual command rail, and P1 QA fixes) is **DONE** / locked on `phase-m/post-room-3d-editing`.
