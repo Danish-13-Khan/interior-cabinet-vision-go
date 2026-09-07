@@ -275,20 +275,22 @@ Users can:
 
 ---
 
-### M6 — Materials From Websites · `LATER`
+### M6 — Materials From Websites · `DONE` (M6.1–M6.2)
 
 **Answers:** Feedback #4 — deliver gradually; no arbitrary scraping.
 
 | Step | Scope |
 | --- | --- |
-| M6.1 | Download texture elsewhere → upload manually (uses M4) |
-| M6.2 | Import from a direct image URL — **copy image bytes into the project**; do not depend on the live URL after import |
-| M6.3 | Selected manufacturer material catalogues |
-| M6.4 | Later: brand, product code, dimensions, normal / roughness maps |
+| M6.1 | Download texture elsewhere → upload manually (uses M4) — **DONE** with M4 |
+| M6.2 | Import from a direct image URL — **copy image bytes into the project**; do not depend on the live URL after import — **DONE** |
+| M6.3 | Selected manufacturer material catalogues — `LATER` |
+| M6.4 | Later: brand, product code, dimensions, normal / roughness maps — `LATER` |
 
 **EXCLUDED from first version:** scraping arbitrary websites; hotlinking remote texture URLs as project truth.
 
 **Tests (required when built):** After URL import, project reopens offline / without the original host.
+
+**Shipped (M6.2):** URL field in Material Browser; fetch → data URL draft → M4 preview/apply; MIME/size validation; CORS/network errors; `finishImportFromUrl.test.ts`; `tests/e2e/phase-m6-url-import.spec.ts`.
 
 ---
 
@@ -349,6 +351,7 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
 4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
 5. **M4** — **DONE** on `phase-m/post-room-3d-editing` — texture preview, UV offset, MIME validation
-6. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
+6. **M6.2** — **DONE** on `phase-m/post-room-3d-editing` — direct image URL → copy bytes into project (M6.3 catalogues later)
+7. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M6** (web / catalogue import) or **M7** integration QA.
+Ready to start **M7** integration QA (or M6.3 catalogues later).
