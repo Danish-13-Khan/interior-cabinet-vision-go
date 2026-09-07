@@ -294,7 +294,7 @@ Users can:
 
 ---
 
-### M7 — Final QA and Workflow Testing · `LATER`
+### M7 — Final QA and Workflow Testing · `DONE`
 
 Full path:
 
@@ -305,6 +305,12 @@ Create room → Open 3D → Change camera view → Hide walls
 ```
 
 M7 is integration / exit-journey coverage. **Per-phase save-and-reopen tests for M2–M5 are required at each phase**, not deferred to M7.
+
+**Exit:** One e2e journey covers create room → 3D → camera change → hide wall → apply material/colour → add feature panel → edit object → save → reopen → Render Studio **Render Image** succeeds with a visible still.
+
+**Tests:** `tests/e2e/phase-m7-final-qa.spec.ts` (+ `tests/e2e/interiorsSaveReopen.ts`). Per-phase persistence for M2–M5 remains owned by those phases.
+
+**Shipped:** integration exit-journey on `phase-m/post-room-3d-editing`.
 
 ---
 
@@ -352,6 +358,7 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
 5. **M4** — **DONE** on `phase-m/post-room-3d-editing` — texture preview, UV offset, MIME validation
 6. **M6.2** — **DONE** on `phase-m/post-room-3d-editing` — direct image URL → copy bytes into project (M6.3 catalogues later)
-7. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
+7. **M7** — **DONE** on `phase-m/post-room-3d-editing` — exit-journey e2e (room → 3D → hide → materials → panel → edit → save/reopen → render)
+8. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M7** integration QA (or M6.3 catalogues later).
+Phase M core feedback track is complete. Optional later: **M6.3** catalogues, contextual command rail.
