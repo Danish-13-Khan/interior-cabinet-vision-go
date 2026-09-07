@@ -79,6 +79,12 @@ export type LivingRoomPlanWorkspaceProps = {
     color: string,
     rebinds: import("../../domain/catalog/finishRebind").FinishUvRebind[],
   ) => void;
+  onAddWallPanel: (wallId: string) => void;
+  onUpdatePanelAttachment: (
+    objectId: string,
+    patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
+  ) => void;
+  onSetPanelVisible: (objectId: string, visible: boolean) => void;
   onSetLayerVisibility: (layer: LivingRoomLayerId, visible: boolean) => void;
   onRotateSelection: (deltaDegrees: number) => void;
   onAddCatalogObject: (catalogItemId: string, wallId?: string) => void;

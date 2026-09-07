@@ -18,7 +18,7 @@ import { compileCabinet } from "./sceneAdaptersCabinet";
 import { cabinetSceneMetadata } from "./cabinetSceneMeta";
 import { cabinetScenePosition } from "./cabinetSceneMount";
 import { compileCornerWardrobe, compileRunFiller } from "./sceneAdaptersCorner";
-import { compileFlutedFeatureWall } from "./sceneAdaptersFeatureWalls";
+import { compileFlutedFeatureWall, compileDecorativePanel } from "./sceneAdaptersFeatureWalls";
 import {
   compileDecorSculpture,
   compileDecorVase,
@@ -45,6 +45,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "side-table-v1", catalogItemId: "living:side-table", compile: compileSideTable },
   { id: "tv-unit-v1", catalogItemId: "living:tv-unit", compile: compileTvUnit },
   { id: "fluted-feature-wall-v1", catalogItemId: "living:feature-wall-fluted", compile: compileFlutedFeatureWall },
+  { id: "decorative-panel-v1", catalogItemId: "living:decorative-panel", compile: compileDecorativePanel },
   { id: "display-niche-v1", catalogItemId: "living:display-niche", compile: compileDisplayNiche },
   { id: "decor-vase-v1", catalogItemId: "living:decor-vase", compile: compileDecorVase },
   { id: "decor-sculpture-v1", catalogItemId: "living:decor-sculpture", compile: compileDecorSculpture },

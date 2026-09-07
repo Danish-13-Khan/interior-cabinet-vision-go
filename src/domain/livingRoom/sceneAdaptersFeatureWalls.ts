@@ -45,3 +45,12 @@ export function compileFlutedFeatureWall(
   }
   return parts;
 }
+
+/** Plain decorative wall panel — face material only. */
+export function compileDecorativePanel(object: InteriorObjectEntity): CompiledPrimitive[] {
+  const { widthMm: w, heightMm: h, depthMm: d } = object.dimensions;
+  const face = materialSlot(object, "face", LIVING_ROOM_MATERIAL_IDS.naturalOak);
+  return [
+    boxPrimitive("face", { width: w, height: h, depth: d }, { x: 0, y: h / 2, z: 0 }, face),
+  ];
+}
