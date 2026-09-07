@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { inflateSync } from "zlib";
 import { kenneyItemId } from "../catalog";
 import {
   createEmptyInteriorProject,
@@ -18,6 +19,22 @@ import {
 } from "./index";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 
+function decodePngRgba(dataUrl: string): [number, number, number, number] {
+  const bytes = Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ""), "base64");
+  let offset = 8;
+  while (offset < bytes.length) {
+    const length = bytes.readUInt32BE(offset);
+    const type = bytes.subarray(offset + 4, offset + 8).toString("ascii");
+    const data = bytes.subarray(offset + 8, offset + 8 + length);
+    if (type === "IDAT") {
+      const raw = inflateSync(data);
+      return [raw[1]!, raw[2]!, raw[3]!, raw[4]!];
+    }
+    offset += 12 + length;
+  }
+  throw new Error("PNG has no IDAT");
+}
+
 describe("manufacturer catalogues (M6.3)", () => {
   it("lists curated catalogues with project-owned map bytes", () => {
     const catalogues = listManufacturerCatalogues();
@@ -31,6 +48,14 @@ describe("manufacturer catalogues (M6.3)", () => {
     }
   });
 
+  it("uses PBR-valid neutral normal and grayscale roughness seed maps", () => {
+    const finish = findManufacturerFinish("mfr:studio-laminates:warm-oak")!.finish;
+    expect(finish.normalMapDataUrl).not.toBe(finish.mapDataUrl);
+    expect(finish.roughnessMapDataUrl).not.toBe(finish.mapDataUrl);
+    expect(decodePngRgba(finish.normalMapDataUrl!)).toEqual([128, 128, 255, 255]);
+    expect(decodePngRgba(finish.roughnessMapDataUrl!)).toEqual([168, 168, 168, 255]);
+  });
+
   it("stages a finish and commits colour, kind, and provenance into the project", () => {
     const finishId = "mfr:studio-laminates:warm-oak";
     const match = findManufacturerFinish(finishId);
@@ -42,6 +67,10 @@ describe("manufacturer catalogues (M6.3)", () => {
     expect(draft.manufacturerId).toBe("mfr:studio-laminates");
     expect(draft.catalogueFinishId).toBe(finishId);
     expect(draft.dataUrl.startsWith("data:image/png;base64,")).toBe(true);
+    expect(draft.brand).toBe("Studio Laminates");
+    expect(draft.productCode).toBe("SL-WO-284");
+    expect(draft.sheetWidthMm).toBe(2800);
+    expect(draft.normalMapDataUrl?.startsWith("data:image/")).toBe(true);
 
     const project = createEmptyInteriorProject({
       id: "m63",
@@ -56,6 +85,11 @@ describe("manufacturer catalogues (M6.3)", () => {
     expect(material?.extensions?.createdBy).toBe("manufacturer-catalogue");
     expect(material?.extensions?.manufacturerId).toBe("mfr:studio-laminates");
     expect(material?.extensions?.catalogueFinishId).toBe(finishId);
+    expect(material?.extensions?.brand).toBe("Studio Laminates");
+    expect(material?.extensions?.productCode).toBe("SL-WO-284");
+    expect(material?.extensions?.sheetWidthMm).toBe(2800);
+    expect(typeof material?.extensions?.normalMapUrl).toBe("string");
+    expect(typeof material?.extensions?.roughnessMapUrl).toBe("string");
     expect(finishMapUrl(material!)?.startsWith("data:image/")).toBe(true);
 
     const reopened = loadInteriorProjectFile(serializeInteriorProjectFile(painted)).document;

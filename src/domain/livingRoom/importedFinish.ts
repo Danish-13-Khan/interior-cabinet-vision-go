@@ -94,15 +94,34 @@ export function addImportedFinish(
     createdBy?: string;
     manufacturerId?: string;
     catalogueFinishId?: string;
+    brand?: string;
+    productCode?: string;
+    sheetWidthMm?: number;
+    sheetHeightMm?: number;
+    normalMapDataUrl?: string;
+    roughnessMapDataUrl?: string;
   },
 ): { project: InteriorProject; materialId: string } {
   const dataInvalid = validateFinishDataUrl(input.dataUrl);
   if (dataInvalid) throw new Error(dataInvalid);
+  if (input.normalMapDataUrl) {
+    const invalid = validateFinishDataUrl(input.normalMapDataUrl);
+    if (invalid) throw new Error(invalid);
+  }
+  if (input.roughnessMapDataUrl) {
+    const invalid = validateFinishDataUrl(input.roughnessMapDataUrl);
+    if (invalid) throw new Error(invalid);
+  }
   const existingMapChars = project.materials.reduce((sum, material) => {
     const url = typeof material.extensions?.mapUrl === "string" ? material.extensions.mapUrl : "";
-    return sum + url.length;
+    const normal = typeof material.extensions?.normalMapUrl === "string" ? material.extensions.normalMapUrl : "";
+    const rough = typeof material.extensions?.roughnessMapUrl === "string" ? material.extensions.roughnessMapUrl : "";
+    return sum + url.length + normal.length + rough.length;
   }, 0);
-  if (mapPayloadExceedsProjectLimit(existingMapChars, input.dataUrl.length)) {
+  const nextMapChars = input.dataUrl.length
+    + (input.normalMapDataUrl?.length ?? 0)
+    + (input.roughnessMapDataUrl?.length ?? 0);
+  if (mapPayloadExceedsProjectLimit(existingMapChars, nextMapChars)) {
     throw new Error("This finish would make the project larger than 25 MB, so it cannot be saved and reopened.");
   }
   const uv = normalizeFinishUv(input);
@@ -124,6 +143,12 @@ export function addImportedFinish(
       createdBy: input.createdBy ?? "import-finish",
       ...(input.manufacturerId ? { manufacturerId: input.manufacturerId } : {}),
       ...(input.catalogueFinishId ? { catalogueFinishId: input.catalogueFinishId } : {}),
+      ...(input.brand ? { brand: input.brand } : {}),
+      ...(input.productCode ? { productCode: input.productCode } : {}),
+      ...(input.sheetWidthMm ? { sheetWidthMm: input.sheetWidthMm } : {}),
+      ...(input.sheetHeightMm ? { sheetHeightMm: input.sheetHeightMm } : {}),
+      ...(input.normalMapDataUrl ? { normalMapUrl: input.normalMapDataUrl } : {}),
+      ...(input.roughnessMapDataUrl ? { roughnessMapUrl: input.roughnessMapDataUrl } : {}),
     },
   };
   const next = { ...project, materials: [...project.materials, material] };

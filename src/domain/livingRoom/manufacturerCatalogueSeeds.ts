@@ -1,13 +1,23 @@
 import type { ManufacturerCatalogue } from "./manufacturerCatalogueTypes";
 
-/** 1×1 PNG — enough for mapUrl persistence / has-map swatches without bloating seeds. */
-const TINY_PNG =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
-
 /**
- * Curated in-app manufacturer packs (M6.3). Not scraped — finishes ship as project-copyable seeds.
- * M6.4 can add brand / SKU / multi-map fields later.
+ * Tiny project-owned PNGs for catalogue seeds.
+ * Normal ≈ RGB(128,128,255) opaque; roughness is opaque grayscale — never reuse albedo for PBR maps.
  */
+const ALBEDO_WARM =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGM4srTkPwAG6wLdBaK3NwAAAABJRU5ErkJggg==";
+const ALBEDO_SLATE =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGPIyiv5DwAE3gJMpedKvwAAAABJRU5ErkJggg==";
+const ALBEDO_WALNUT =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGPwNtb4DwADGQGmDt1SCwAAAABJRU5ErkJggg==";
+const ALBEDO_ASH =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGO4dGTFfwAH6AM+0hfREwAAAABJRU5ErkJggg==";
+const NORMAL_NEUTRAL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNoaPj/HwAGggL/s75RMwAAAABJRU5ErkJggg==";
+const ROUGHNESS_MID =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNYsWLFfwAG7AL4BWMKnwAAAABJRU5ErkJggg==";
+
+/** Curated in-app manufacturer packs (M6.3–M6.4). Not scraped — finishes ship as project-copyable seeds. */
 export const MANUFACTURER_CATALOGUES: readonly ManufacturerCatalogue[] = [
   {
     id: "mfr:studio-laminates",
@@ -19,16 +29,26 @@ export const MANUFACTURER_CATALOGUES: readonly ManufacturerCatalogue[] = [
         name: "Warm Oak Laminate",
         kind: "laminate",
         color: "#c4a574",
-        mapDataUrl: TINY_PNG,
+        mapDataUrl: ALBEDO_WARM,
         roughness: 0.68,
+        brand: "Studio Laminates",
+        productCode: "SL-WO-284",
+        sheetWidthMm: 2800,
+        sheetHeightMm: 2070,
+        normalMapDataUrl: NORMAL_NEUTRAL,
+        roughnessMapDataUrl: ROUGHNESS_MID,
       },
       {
         id: "mfr:studio-laminates:slate-grey",
         name: "Slate Grey Laminate",
         kind: "laminate",
         color: "#6a6e74",
-        mapDataUrl: TINY_PNG,
+        mapDataUrl: ALBEDO_SLATE,
         roughness: 0.7,
+        brand: "Studio Laminates",
+        productCode: "SL-SG-122",
+        sheetWidthMm: 2800,
+        sheetHeightMm: 2070,
       },
     ],
   },
@@ -42,16 +62,26 @@ export const MANUFACTURER_CATALOGUES: readonly ManufacturerCatalogue[] = [
         name: "Smoked Walnut Veneer",
         kind: "wood",
         color: "#4b3328",
-        mapDataUrl: TINY_PNG,
+        mapDataUrl: ALBEDO_WALNUT,
         roughness: 0.58,
+        brand: "Atelier Woods",
+        productCode: "AW-SW-01",
+        sheetWidthMm: 2500,
+        sheetHeightMm: 1250,
+        normalMapDataUrl: NORMAL_NEUTRAL,
+        roughnessMapDataUrl: ROUGHNESS_MID,
       },
       {
         id: "mfr:atelier-woods:natural-ash",
         name: "Natural Ash Veneer",
         kind: "wood",
         color: "#d2c4a8",
-        mapDataUrl: TINY_PNG,
+        mapDataUrl: ALBEDO_ASH,
         roughness: 0.62,
+        brand: "Atelier Woods",
+        productCode: "AW-NA-02",
+        sheetWidthMm: 2500,
+        sheetHeightMm: 1250,
       },
     ],
   },

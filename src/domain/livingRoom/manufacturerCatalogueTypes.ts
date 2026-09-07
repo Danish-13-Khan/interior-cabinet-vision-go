@@ -9,6 +9,13 @@ export type ManufacturerFinishSeed = {
   /** `data:image/...;base64,...` only — never a live remote URL. */
   mapDataUrl: string;
   roughness?: number;
+  /** M6.4 — manufacturer metadata + optional PBR companion maps (project-owned data URLs). */
+  brand?: string;
+  productCode?: string;
+  sheetWidthMm?: number;
+  sheetHeightMm?: number;
+  normalMapDataUrl?: string;
+  roughnessMapDataUrl?: string;
 };
 
 export type ManufacturerCatalogue = {

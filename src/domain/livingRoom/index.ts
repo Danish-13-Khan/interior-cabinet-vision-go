@@ -188,6 +188,7 @@ export {
 export {
   addWallPanel,
   ensurePanelAttachmentFields,
+  flipPanelWallSide,
   listPanelsOnWall,
   reflowPanelsForWalls,
   resizeWallPanel,
@@ -283,6 +284,13 @@ export type {
 } from "./manufacturerCatalogueTypes";
 export { manufacturerFinishesCompatibleWithSelectionSlot } from "./manufacturerFinishCompatibility";
 export { stageManufacturerFinish } from "./stageManufacturerFinish";
+export {
+  contextualRailCommands,
+  resolveContextualRailKind,
+  type ContextualRailCommand,
+  type ContextualRailCommandId,
+  type ContextualRailKind,
+} from "./contextualCommandRail";
 export type { FinishUvRebind } from "../catalog/finishRebind";
 export {
   ASSET_IMPORT_STARTER_PACK,

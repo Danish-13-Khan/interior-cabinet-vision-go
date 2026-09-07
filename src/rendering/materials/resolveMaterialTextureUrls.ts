@@ -23,7 +23,13 @@ function urlIfAvailable(textureId: string | undefined) {
 export function resolveMaterialTextureUrls(
   material: CompiledMaterial,
 ): MaterialTextureUrls {
-  if (material.textureMapUrl) return { map: material.textureMapUrl };
+  if (material.textureMapUrl || material.textureNormalMapUrl || material.textureRoughnessMapUrl) {
+    return {
+      ...(material.textureMapUrl ? { map: material.textureMapUrl } : {}),
+      ...(material.textureNormalMapUrl ? { normalMap: material.textureNormalMapUrl } : {}),
+      ...(material.textureRoughnessMapUrl ? { roughnessMap: material.textureRoughnessMapUrl } : {}),
+    };
+  }
   const asset = getMaterialAsset(material.materialAssetId)
     ?? getMaterialAsset(material.id);
   if (!asset) return {};

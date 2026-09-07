@@ -49,6 +49,12 @@ export function commitFinishImportDraft(
     createdBy: draft.createdBy,
     manufacturerId: draft.manufacturerId,
     catalogueFinishId: draft.catalogueFinishId,
+    brand: draft.brand,
+    productCode: draft.productCode,
+    sheetWidthMm: draft.sheetWidthMm,
+    sheetHeightMm: draft.sheetHeightMm,
+    normalMapDataUrl: draft.normalMapDataUrl,
+    roughnessMapDataUrl: draft.roughnessMapDataUrl,
   });
   let next = added.project;
   if (apply?.wallId) next = setLivingRoomWallMaterial(next, apply.wallId, added.materialId);

@@ -3,6 +3,7 @@ import { loadInteriorProjectFile, serializeInteriorProjectFile, translatePlanWal
 import { compileLivingRoomScene } from "./sceneCompiler";
 import {
   addWallPanel,
+  flipPanelWallSide,
   reflowPanelsForWalls,
   setPanelVisible,
   updatePanelAttachment,
@@ -103,5 +104,24 @@ describe("wall panels (M5)", () => {
     });
     expect(panel.position.y).toBe(200);
     expect(updated.walls.find((item) => item.id === wall.id)).toEqual(wallBefore);
+  });
+
+  it("flips panel wallSide and survives reflow + save/reopen", () => {
+    const project = createLivingRoomStarterProject({ now: "2026-09-07T00:00:00.000Z" });
+    const wall = project.walls[0]!;
+    const withPanel = addWallPanel(project, wall.id, { alongMm: 1200 });
+    const panelId = withPanel.objects.find((object) => object.category === "wall-panel")!.id;
+    const flipped = flipPanelWallSide(withPanel, panelId);
+    expect(readPanelAttachment(flipped.objects.find((object) => object.id === panelId)!)?.wallSide)
+      .toBe("exterior");
+
+    const moved = translatePlanWall(flipped, wall.id, { x: 80, z: 0 });
+    const reflowed = reflowPanelsForWalls(moved, [wall.id]);
+    const afterReflow = reflowed.objects.find((object) => object.id === panelId)!;
+    expect(readPanelAttachment(afterReflow)?.wallSide).toBe("exterior");
+
+    const reopened = loadInteriorProjectFile(serializeInteriorProjectFile(reflowed)).document;
+    expect(readPanelAttachment(reopened.objects.find((object) => object.id === panelId)!)?.wallSide)
+      .toBe("exterior");
   });
 });

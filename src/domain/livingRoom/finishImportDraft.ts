@@ -17,6 +17,12 @@ export type FinishImportDraft = {
   createdBy?: string;
   manufacturerId?: string;
   catalogueFinishId?: string;
+  brand?: string;
+  productCode?: string;
+  sheetWidthMm?: number;
+  sheetHeightMm?: number;
+  normalMapDataUrl?: string;
+  roughnessMapDataUrl?: string;
 };
 
 export const DEFAULT_FINISH_IMPORT_UV = {
