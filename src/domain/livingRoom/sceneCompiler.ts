@@ -37,6 +37,12 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
       const uvRotation = typeof material.extensions?.uvRotationDeg === "number"
         ? material.extensions.uvRotationDeg
         : undefined;
+      const uvOffsetU = typeof material.extensions?.uvOffsetU === "number"
+        ? material.extensions.uvOffsetU
+        : undefined;
+      const uvOffsetV = typeof material.extensions?.uvOffsetV === "number"
+        ? material.extensions.uvOffsetV
+        : undefined;
       return {
         id: material.id,
         name: material.name,
@@ -48,7 +54,9 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
         materialAssetId,
         uvScaleMm: uvScale,
         ...(mapUrl ? { textureMapUrl: mapUrl } : {}),
-        ...(uvRotation ? { uvRotationDeg: uvRotation } : {}),
+        ...(uvRotation !== undefined ? { uvRotationDeg: uvRotation } : {}),
+        ...(uvOffsetU !== undefined ? { uvOffsetU } : {}),
+        ...(uvOffsetV !== undefined ? { uvOffsetV } : {}),
       };
     }),
     {

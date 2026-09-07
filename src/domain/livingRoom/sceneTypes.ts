@@ -28,6 +28,8 @@ export type CompiledMaterial = {
   /** Optional project-owned image map for imported finishes. */
   textureMapUrl?: string;
   uvRotationDeg?: number;
+  uvOffsetU?: number;
+  uvOffsetV?: number;
 };
 
 export type CompiledBoxPrimitive = {

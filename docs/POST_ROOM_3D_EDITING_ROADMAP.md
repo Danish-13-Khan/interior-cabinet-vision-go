@@ -232,7 +232,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 ---
 
-### M4 — Local Texture Import · `NEXT`
+### M4 — Local Texture Import · `DONE`
 
 **Answers:** Feedback #2 · P1 Texture Upload (§4.4)
 
@@ -248,6 +248,8 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 **Exit:** Upload → preview → adjust transforms → apply → save → reopen still shows the texture with the same UV settings.
 
 **Tests (required):** Save-and-reopen of imported finish + UV; reject oversized / unsupported files with a clear warning.
+
+**Shipped:** MIME allowlist (`PNG`/`JPEG`/`WebP`); staging draft + preview panel; UV scale / rotation / offset U·V; swatch map thumbnails; `importedFinish.test.ts`; `tests/e2e/phase-m4-texture-import.spec.ts`.
 
 ---
 
@@ -346,6 +348,7 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 2. **M2** — **DONE** on `phase-m/post-room-3d-editing` — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)
 3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
 4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
-5. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
+5. **M4** — **DONE** on `phase-m/post-room-3d-editing` — texture preview, UV offset, MIME validation
+6. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
 
-Ready to start **M4** (texture UX polish) or **M7** integration QA.
+Ready to start **M6** (web / catalogue import) or **M7** integration QA.

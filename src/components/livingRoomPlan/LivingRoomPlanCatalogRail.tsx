@@ -41,7 +41,15 @@ type LivingRoomPlanCatalogRailProps = {
     color: string,
     rebinds: import("../../domain/catalog/finishRebind").FinishUvRebind[],
   ) => void;
-  onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
+  onImportFinish?: (
+    source: import("../../domain/livingRoom").FinishImportDraft | File,
+    apply?: {
+      wallId?: string;
+      floor?: boolean;
+      ceiling?: boolean;
+      selection?: { objectIds: readonly string[]; slotName?: string };
+    },
+  ) => void;
   onSetLayerVisibility: (layer: "walls" | "openings" | "furniture", visible: boolean) => void;
   onSelect: (objectId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;

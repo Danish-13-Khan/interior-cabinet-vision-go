@@ -236,9 +236,28 @@ export {
   finishMapUrl,
   mapPayloadExceedsProjectLimit,
   MAX_FINISH_BYTES,
+  normalizeFinishUv,
   readImageAsDataUrl,
   setFinishUv,
+  type FinishUvPatch,
 } from "./importedFinish";
+export {
+  FINISH_IMAGE_MIME_TYPES,
+  finishImageMimeLabel,
+  isAllowedFinishImageMime,
+  validateFinishDataUrl,
+  validateFinishImageFile,
+} from "./importedFinishValidate";
+export {
+  DEFAULT_FINISH_IMPORT_UV,
+  patchFinishImportDraft,
+  stageFinishImportFile,
+  type FinishImportDraft,
+} from "./finishImportDraft";
+export {
+  commitFinishImportDraft,
+  type ImportFinishApplyTarget,
+} from "./finishImportCommit";
 export type { FinishUvRebind } from "../catalog/finishRebind";
 export {
   ASSET_IMPORT_STARTER_PACK,
