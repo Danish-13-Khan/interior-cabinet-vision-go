@@ -8,9 +8,12 @@ type Props = {
   onPick: (materialId: string) => void;
   compact?: boolean;
   onImport?: (file: File) => void;
+  importDisabled?: boolean;
 };
 
-export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compact, onImport }: Props) {
+export function MaterialSwatchGrid({
+  materials, activeMaterialId, onPick, compact, onImport, importDisabled,
+}: Props) {
   const kinds = useMemo(() => {
     const unique = [...new Set(materials.map((material) => material.kind))];
     return unique.sort();
@@ -58,13 +61,22 @@ export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compac
             type="file"
             accept="image/png,image/jpeg,image/webp"
             data-testid="finish-import-input"
+            disabled={importDisabled}
             onChange={(event) => {
+              if (importDisabled) return;
               const file = event.target.files?.[0];
               if (file) onImport(file);
               event.target.value = "";
             }}
           />
-          <button type="button" data-testid="finish-import-open" onClick={() => fileRef.current?.click()}>
+          <button
+            type="button"
+            data-testid="finish-import-open"
+            disabled={importDisabled}
+            onClick={() => {
+              if (!importDisabled) fileRef.current?.click();
+            }}
+          >
             Import texture
           </button>
         </label>

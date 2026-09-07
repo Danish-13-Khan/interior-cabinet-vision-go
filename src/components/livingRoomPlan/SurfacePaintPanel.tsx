@@ -8,9 +8,11 @@ import {
   materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
   stageFinishImportFile,
+  stageFinishImportUrl,
   type FinishImportDraft,
 } from "../../domain/livingRoom";
 import { FinishImportPreviewPanel } from "./FinishImportPreviewPanel";
+import { FinishImportUrlField } from "./FinishImportUrlField";
 import { MaterialColourPanel } from "./MaterialColourPanel";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
 
@@ -44,6 +46,7 @@ export function SurfacePaintPanel({
   const [slot, setSlot] = useState("");
   const [draft, setDraft] = useState<FinishImportDraft | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [urlBusy, setUrlBusy] = useState(false);
   const sharedSlots = useMemo(() => commonMaterialSlots(selectedObjects), [selectedObjects]);
   const editableSlots = useMemo(() => editableCommonMaterialSlots(selectedObjects), [selectedObjects]);
   const activeSlot = editableSlots.includes(slot) ? slot : editableSlots[0] ?? "";
@@ -100,14 +103,22 @@ export function SurfacePaintPanel({
     return undefined;
   }
 
+  function failImport(error: unknown) {
+    setDraft(null);
+    setImportError(error instanceof Error ? error.message : "Could not import finish.");
+  }
+
   function stageImport(file: File) {
+    if (urlBusy) return;
     setImportError(null);
-    void stageFinishImportFile(file).then((next) => {
-      setDraft(next);
-    }).catch((error: unknown) => {
-      setDraft(null);
-      setImportError(error instanceof Error ? error.message : "Could not import finish.");
-    });
+    void stageFinishImportFile(file).then(setDraft).catch(failImport);
+  }
+
+  function stageImportUrl(url: string) {
+    setImportError(null);
+    setDraft(null);
+    setUrlBusy(true);
+    void stageFinishImportUrl(url).then(setDraft).catch(failImport).finally(() => setUrlBusy(false));
   }
 
   return (
@@ -142,8 +153,12 @@ export function SurfacePaintPanel({
             activeMaterialId={activeMaterialId ?? null}
             onPick={apply}
             onImport={onImportFinish ? stageImport : undefined}
+            importDisabled={urlBusy}
           />
-          {draft && onImportFinish ? (
+          {onImportFinish ? (
+            <FinishImportUrlField busy={urlBusy} onSubmit={stageImportUrl} />
+          ) : null}
+          {draft && onImportFinish && !urlBusy ? (
             <FinishImportPreviewPanel
               draft={draft}
               error={importError}
@@ -158,6 +173,9 @@ export function SurfacePaintPanel({
                 setImportError(null);
               }}
             />
+          ) : null}
+          {urlBusy ? (
+            <p className="lr-finish-import-busy" data-testid="finish-import-busy">Fetching texture…</p>
           ) : null}
           {!draft && importError ? (
             <p className="lr-finish-import-error" data-testid="finish-import-error" role="alert">{importError}</p>

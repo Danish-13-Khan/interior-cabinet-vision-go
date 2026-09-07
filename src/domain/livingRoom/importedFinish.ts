@@ -33,6 +33,10 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
+export function encodeFinishImageDataUrl(bytes: Uint8Array, mime: string): string {
+  return `data:${mime};base64,${bytesToBase64(bytes)}`;
+}
+
 /** Read a finish image as a data URL (works in browser and Vitest/Node). */
 export async function readImageAsDataUrl(file: File): Promise<string> {
   const invalid = validateFinishImageFile(file, MAX_FINISH_BYTES);
@@ -43,7 +47,7 @@ export async function readImageAsDataUrl(file: File): Promise<string> {
   } catch {
     throw new Error(`Could not read ${file.name}.`);
   }
-  const dataUrl = `data:${file.type};base64,${bytesToBase64(bytes)}`;
+  const dataUrl = encodeFinishImageDataUrl(bytes, file.type);
   const dataInvalid = validateFinishDataUrl(dataUrl);
   if (dataInvalid) throw new Error(dataInvalid);
   return dataUrl;
