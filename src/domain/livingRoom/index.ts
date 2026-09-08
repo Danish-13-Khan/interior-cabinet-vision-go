@@ -168,9 +168,67 @@ export {
   type LivingRoomPaintTarget,
 } from "./materialLayerCommands";
 export {
+  listHiddenWalls,
+  setWallVisible,
+  showAllWalls,
+  wallVisibilityLabel,
+  wallVisibilityLabelInProject,
+} from "./wallVisibilityCommands";
+export {
+  applyPanelAttachmentPose,
+  defaultPanelAttachment,
+  isPanelAttachmentVisible,
+  isWallPanelObject,
+  readPanelAttachment,
+  resolvePanelPose,
+  writePanelAttachment,
+  type PanelAttachment,
+  type PanelWallSide,
+} from "./panelAttachment";
+export {
+  addWallPanel,
+  ensurePanelAttachmentFields,
+  flipPanelWallSide,
+  listPanelsOnWall,
+  reflowPanelsForWalls,
+  resizeWallPanel,
+  setPanelVisible,
+  updatePanelAttachment,
+} from "./panelCommands";
+export { dragWallPanel } from "./panelDrag";
+export {
+  duplicateWallPanel,
+  panelHostWallIds,
+  removePanelsOnWall,
+  roomWallIds,
+  wallNeighborhoodIds,
+} from "./panelLifecycle";
+export { remapPanelsAfterWallSplit } from "./panelSplit";
+export {
+  applyMaterialColour,
+  type ApplyMaterialColourArgs,
+} from "./applyMaterialColour";
+export {
+  hexToRgb,
+  normalizeHexColour,
+  resolveColourInput,
+  rgbToHex,
+} from "./materialColourFormat";
+export {
+  shadeGroupForKind,
+  shadeGroupForMaterial,
+  type MaterialShade,
+} from "./materialShadeGroups";
+export {
+  listRecentMaterialColours,
+  recordRecentMaterialColour,
+  type RecentMaterialColour,
+} from "./recentMaterialColours";
+export {
   applyMaterialToSelection,
   commonMaterialSlots,
   editableCommonMaterialSlots,
+  finishKindCompatibleWithSelectionSlot,
   isSelectionSlotEditable,
   materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
@@ -180,9 +238,59 @@ export {
   finishMapUrl,
   mapPayloadExceedsProjectLimit,
   MAX_FINISH_BYTES,
+  normalizeFinishUv,
   readImageAsDataUrl,
   setFinishUv,
+  type FinishUvPatch,
 } from "./importedFinish";
+export {
+  FINISH_IMAGE_MIME_TYPES,
+  finishImageMimeLabel,
+  isAllowedFinishImageMime,
+  validateFinishDataUrl,
+  validateFinishImageFile,
+} from "./importedFinishValidate";
+export {
+  DEFAULT_FINISH_IMPORT_UV,
+  patchFinishImportDraft,
+  stageFinishImportFile,
+  type FinishImportDraft,
+} from "./finishImportDraft";
+export {
+  fetchFinishImageAsDataUrl,
+  readResponseBytesCapped,
+  stageFinishImportUrl,
+  type FinishFetch,
+} from "./finishImportFromUrl";
+export {
+  fileNameFromFinishImageUrl,
+  mimeFromContentType,
+  normalizeFinishImageUrl,
+  validateFinishImageUrl,
+} from "./finishImportUrlValidate";
+export {
+  commitFinishImportDraft,
+  type ImportFinishApplyTarget,
+} from "./finishImportCommit";
+export {
+  findManufacturerFinish,
+  getManufacturerCatalogue,
+  listManufacturerCatalogues,
+  MANUFACTURER_CATALOGUES,
+} from "./manufacturerCatalogueSeeds";
+export type {
+  ManufacturerCatalogue,
+  ManufacturerFinishSeed,
+} from "./manufacturerCatalogueTypes";
+export { manufacturerFinishesCompatibleWithSelectionSlot } from "./manufacturerFinishCompatibility";
+export { stageManufacturerFinish } from "./stageManufacturerFinish";
+export {
+  contextualRailCommands,
+  resolveContextualRailKind,
+  type ContextualRailCommand,
+  type ContextualRailCommandId,
+  type ContextualRailKind,
+} from "./contextualCommandRail";
 export type { FinishUvRebind } from "../catalog/finishRebind";
 export {
   ASSET_IMPORT_STARTER_PACK,
@@ -193,11 +301,22 @@ export {
 } from "./assetImportPipeline";
 export {
   getModelViewPreset,
+  MODEL_VIEW_EXPLORE_IDS,
   MODEL_VIEW_PRESETS,
+  MODEL_VIEW_PRIMARY_CAMERA_IDS,
+  modelViewUsesOrthographic,
+  orthographicZoomForSpan,
   resolveModelViewPose,
   type ModelViewPose,
   type ModelViewPresetId,
 } from "./modelViewPresets";
+export {
+  resolveModelViewFitPose,
+  resolveModelViewSelectionBoundsMm,
+  type ModelViewFitMode,
+  type ModelViewFitResult,
+  type ModelViewFitSelection,
+} from "./modelViewFit";
 export {
   modelViewNavHint,
   modelViewShowsHeightSlider,

@@ -43,17 +43,23 @@ export function materialsCompatibleWithSelectionSlot(
   slotName: string,
 ): MaterialEntity[] {
   if (!slotName || objects.length === 0) return [...materials];
-  return materials.filter((material) => {
-    const candidate = {
-      id: material.id,
-      kind: material.kind,
-      tags: tagsFromMaterialExtensions(material.extensions),
-    };
-    return objects.every((object) => {
-      const policy = catalogSlotPoliciesForObject(object)?.[slotName];
-      if (!policy) return true;
-      return isMaterialCompatibleWithSlot(candidate, policy);
-    });
+  return materials.filter((material) =>
+    finishKindCompatibleWithSelectionSlot(material.kind, objects, slotName, tagsFromMaterialExtensions(material.extensions)),
+  );
+}
+
+/** Kind (+ optional tags) allowed on the slot for every selected object. */
+export function finishKindCompatibleWithSelectionSlot(
+  kind: MaterialEntity["kind"],
+  objects: readonly InteriorObjectEntity[],
+  slotName: string,
+  tags?: string[],
+): boolean {
+  if (!slotName || objects.length === 0) return true;
+  return objects.every((object) => {
+    const policy = catalogSlotPoliciesForObject(object)?.[slotName];
+    if (!policy) return true;
+    return isMaterialCompatibleWithSlot({ id: `kind:${kind}`, kind, tags }, policy);
   });
 }
 

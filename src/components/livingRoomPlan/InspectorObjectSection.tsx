@@ -25,6 +25,12 @@ type Props = {
   }) => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onUpdatePanelAttachment?: (
+    objectId: string,
+    patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
+  ) => void;
+  onSetPanelVisible?: (objectId: string, visible: boolean) => void;
+  onAddWallPanel?: (wallId: string) => void;
 };
 
 export function InspectorObjectSection(props: Props) {
@@ -61,6 +67,9 @@ export function InspectorObjectSection(props: Props) {
         object={object} project={props.project} materials={props.project.materials}
         onResize={props.onResize} onSetMaterial={props.onSetMaterial}
         onSetParameters={props.onSetParameters} onUpdateRun={props.onUpdateCabinetRun} onCompleteRun={props.onCompleteCabinetRun}
+        onUpdatePanelAttachment={props.onUpdatePanelAttachment}
+        onSetPanelVisible={props.onSetPanelVisible}
+        onAddWallPanel={props.onAddWallPanel}
       />
     </>
   );

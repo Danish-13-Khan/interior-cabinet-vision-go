@@ -274,7 +274,7 @@
 
 .lr-model-controls {
   position: absolute;
-  z-index: 3;
+  z-index: 24;
   top: 7px;
   left: 7px;
   display: flex;
@@ -286,6 +286,7 @@
   box-shadow: 0 2px 8px rgba(34, 49, 60, 0.2);
   font-family: var(--font-mono);
   font-size: 0.55rem;
+  pointer-events: auto;
 }
 
 .lr-model-controls label {
@@ -300,6 +301,42 @@
   gap: 2px;
   padding-right: 4px;
   border-right: 1px solid #a8b4bc;
+}
+
+.lr-view-explore {
+  border-right: 1px solid #a8b4bc;
+}
+
+.lr-view-fit {
+  border-right: 1px solid #a8b4bc;
+}
+
+.lr-view-fit button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lr-model-viewport:focus {
+  outline: 1px solid #176b9c55;
+  outline-offset: -1px;
+}
+
+.lr-model-viewport:focus-visible {
+  outline: 2px solid #176b9c;
+  outline-offset: 0;
+}
+
+.lr-model-canvas-host {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  outline: none;
+}
+
+.lr-model-canvas-host:focus-visible {
+  outline: 2px solid #176b9c;
+  outline-offset: -2px;
 }
 
 .lr-camera-panel {

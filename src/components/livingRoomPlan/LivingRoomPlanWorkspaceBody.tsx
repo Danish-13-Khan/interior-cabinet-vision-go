@@ -45,6 +45,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
           onSetCeilingMaterial={w.onSetCeilingMaterial} onSetWallMaterial={w.onSetWallMaterial}
           onApplyMaterialToSelection={w.onApplyMaterialToSelection}
+          onApplyMaterialColour={w.onApplyMaterialColour}
           onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
           onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
@@ -170,6 +171,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onSetPlanUnderlay={w.onSetPlanUnderlay}
         onCalibrateComplete={() => props.onBuildTool("select")}
         onPatchDocument={w.onPatchDocument}
+        onChromeTool={props.onChromeTool}
+        onBuildTool={props.onBuildTool}
+        onWorkspaceView={props.onWorkspaceView}
+        onAddWallPanel={w.onAddWallPanel}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
       {pdfImportFile ? (

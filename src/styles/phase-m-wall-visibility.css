@@ -1,0 +1,69 @@
+/* M2 — hidden walls list + selected-wall Hide control in the 3D viewport. */
+.lr-wall-visibility-panel,
+.lr-wall-visibility-selected {
+  position: absolute;
+  z-index: 26;
+  border: 1px solid rgba(20, 40, 32, 0.18);
+  border-radius: 6px;
+  background: rgba(248, 251, 249, 0.96);
+  box-shadow: 0 8px 24px rgba(12, 28, 20, 0.12);
+  color: #1c2a22;
+  font-size: 12px;
+}
+
+.lr-wall-visibility-selected {
+  /* Sit below .lr-model-controls (top: 7px, ~one toolbar row) so camera presets stay clickable. */
+  top: 52px;
+  left: 7px;
+  z-index: 22;
+  padding: 6px 8px;
+}
+
+.lr-wall-visibility-panel {
+  right: 12px;
+  bottom: 12px;
+  min-width: 180px;
+  max-width: 240px;
+  padding: 8px 10px;
+}
+
+.lr-wall-visibility-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.lr-wall-visibility-panel ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.lr-wall-visibility-panel li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lr-wall-visibility-panel button,
+.lr-wall-visibility-selected button {
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid #9aada2;
+  border-radius: 4px;
+  background: #fff;
+  color: #1c2a22;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.lr-wall-visibility-panel button:hover,
+.lr-wall-visibility-selected button:hover {
+  border-color: #2f6b4f;
+  color: #2f6b4f;
+}

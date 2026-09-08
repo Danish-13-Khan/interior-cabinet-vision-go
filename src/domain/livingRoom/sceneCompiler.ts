@@ -5,6 +5,7 @@ import {
   materialAssetIdForEntity,
 } from "./renderAssetBindings";
 import { compileCabinetRunExtras } from "./cabinetSceneRunExtras";
+import { isPanelAttachmentVisible } from "./panelAttachment";
 import { compileLivingRoomObjectNode } from "./sceneAdapters";
 import {
   computeArchitectureBounds,
@@ -29,12 +30,22 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
     ...project.materials.map((material) => {
       const mapUrl = typeof material.extensions?.mapUrl === "string" ? material.extensions.mapUrl : undefined;
+      const normalMapUrl = typeof material.extensions?.normalMapUrl === "string"
+        ? material.extensions.normalMapUrl : undefined;
+      const roughnessMapUrl = typeof material.extensions?.roughnessMapUrl === "string"
+        ? material.extensions.roughnessMapUrl : undefined;
       const materialAssetId = materialAssetIdForEntity(material.id, material);
       const uvScale = typeof material.extensions?.uvScaleMm === "number"
         ? material.extensions.uvScaleMm
         : defaultUvScaleMmForMaterial(materialAssetId);
       const uvRotation = typeof material.extensions?.uvRotationDeg === "number"
         ? material.extensions.uvRotationDeg
+        : undefined;
+      const uvOffsetU = typeof material.extensions?.uvOffsetU === "number"
+        ? material.extensions.uvOffsetU
+        : undefined;
+      const uvOffsetV = typeof material.extensions?.uvOffsetV === "number"
+        ? material.extensions.uvOffsetV
         : undefined;
       return {
         id: material.id,
@@ -47,7 +58,11 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
         materialAssetId,
         uvScaleMm: uvScale,
         ...(mapUrl ? { textureMapUrl: mapUrl } : {}),
-        ...(uvRotation ? { uvRotationDeg: uvRotation } : {}),
+        ...(normalMapUrl ? { textureNormalMapUrl: normalMapUrl } : {}),
+        ...(roughnessMapUrl ? { textureRoughnessMapUrl: roughnessMapUrl } : {}),
+        ...(uvRotation !== undefined ? { uvRotationDeg: uvRotation } : {}),
+        ...(uvOffsetU !== undefined ? { uvOffsetU } : {}),
+        ...(uvOffsetV !== undefined ? { uvOffsetV } : {}),
       };
     }),
     {
@@ -81,7 +96,10 @@ export function compileLivingRoomScene(
 ): CompiledLivingRoomScene {
   const roomId = project.activeRoomId;
   const objectNodes = project.objects
-    .filter((object) => object.roomId === roomId && object.extensions?.layerVisible !== false)
+    .filter((object) =>
+      object.roomId === roomId
+      && object.extensions?.layerVisible !== false
+      && isPanelAttachmentVisible(object))
     .map((object) => compileLivingRoomObjectNode(object, project.materials));
   const nodes = [
     ...compileLivingRoomArchitecture(project),

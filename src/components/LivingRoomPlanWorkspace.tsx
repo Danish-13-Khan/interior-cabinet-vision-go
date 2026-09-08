@@ -101,6 +101,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null); },
     onCancelTool: () => build.selectBuildTool("select"),
     onMeasureTool: () => build.selectBuildTool("measure"),
+    onOpenMaterial: () => chrome.applyChromeTool("material"),
     onFitPlan: () => viewControlsRef.current?.fitPlan(),
     onFitSelection: () => viewControlsRef.current?.fitSelection(),
     onCycleSelection: (delta) => {

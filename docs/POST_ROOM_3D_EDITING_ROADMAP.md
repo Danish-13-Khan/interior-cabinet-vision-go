@@ -4,7 +4,7 @@
 **Product relationship:** Companion to [Cabinet Studio Product and Development Book](./CABINET_STUDIO_PRODUCT_BOOK.md) and successor to H–L in [Interior Design Tool Roadmap](./INTERIOR_DESIGN_TOOL_ROADMAP.md)  
 **QA feedback date:** 2026-09-06  
 **Baseline date:** 2026-09-06  
-**Revised:** 2026-09-06 (shortcut focus rules + M2 wall-only hide)  
+**Revised:** 2026-09-07 (Phase M locked — P1 QA rail/PBR fixes)  
 **Naming note:** Not “Phase 7” — that ID is already used in archive (Render Studio / V2 hardening). This program is **Phase M**.
 
 Status vocabulary: `CURRENT` · `NEXT` · `LATER` · `EXCLUDED` · `DONE`
@@ -88,18 +88,18 @@ Room → Wall → Door / Window → Cabinet → Furniture → Wall Panel → Mat
 
 Commands understand the **selected object**. No vertex / edge / face / Push-Pull mesh editing.
 
-### 4.1 Contextual commands · `LATER` (not M1/M2)
+### 4.1 Contextual commands · `DONE`
 
-Target UX by selection (design intent — **not** a first-sprint build):
+Target UX by selection:
 
 | Selection | Commands shown |
 | --- | --- |
-| Nothing | Select · Draw Room · Measure · Camera |
-| Wall | Edit · Material · Add Opening · Add Panel · Hide |
-| Cabinet | Move · Rotate · Resize · Duplicate · Material · Delete |
-| Feature panel | Move · Resize · Thickness · Offset · Material · Colour · Duplicate · Delete |
+| Nothing | Select · Measure · Camera |
+| Wall | Material · Add Panel · Hide Wall |
+| Cabinet | Rotate · Duplicate · Material · Delete |
+| Feature panel | Flip Side · Duplicate · Material · Delete |
 
-**M1/M2 scope note:** Reuse the **existing toolbar and inspector**. Do not build a new contextual command rail yet — it is an improvement beyond direct QA feedback.
+**Shipped:** `contextualCommandRail` domain + `ContextualCommandRail` under plan/model authoring chrome (`data-testid="contextual-command-rail"`); wires existing chrome/build/workspace actions. Move/Resize/Thickness/Offset remain inspector / drag. `tests/e2e/phase-m-contextual-command-rail.spec.ts`.
 
 ### 4.2 Shortcut infrastructure (required for all new bindings)
 
@@ -153,7 +153,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 | **Walk Mode** | Eye-level walkthrough (already a preset) | expose clearly in M1 |
 | **Duplicate Along Wall** | Cabinets / panels | M5 later |
 | **Lock Object** | Prevent accidental move | P1 later |
-| **Contextual command rail** | Selection-aware command strip (§4.1) | after M1/M2 |
+| **Contextual command rail** | Selection-aware command strip (§4.1) | **DONE** |
 
 ### 4.5 Explicitly do **not** implement
 
@@ -170,7 +170,7 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 ## 5. Phase inventory
 
-### M1 — Camera and Navigation · `NEXT`
+### M1 — Camera and Navigation · `DONE`
 
 **Answers:** Feedback #1 · P0 camera / nav commands (§4.3)
 
@@ -186,17 +186,20 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 **Tests:** Toolbar + focused-canvas shortcut preset switching; Isometric uses orthographic camera; Fit Room / Focus Selected frame correctly; Plan/Model shortcuts unchanged when canvas unfocused.
 
+**Shipped (hardened):** orthographic `isometric` with viewport-aware zoom; primary/explore toolbar; one-shot Fit Room / Focus Selected; selection bounds via `computeCompiledSceneBounds`; canvas-host focus gate (not toolbar); `tests/e2e/phase-m1-camera-nav.spec.ts`.
+
 ---
 
-### M2 — Wall Selection and Visibility · `NEXT`
+### M2 — Wall Selection and Visibility · `DONE`
 
 **Answers:** Feedback #3 · P0 Hide Wall / Show All Walls (§4.3)
 
 - Select individual walls in 3D.
 - Right-click **Hide Wall** → set that wall’s existing `wall.visible = false`. **No keyboard shortcut in M2** (do not use `Cmd/Ctrl+H` — OS/browser reserved).
-- **Show Wall** → `wall.visible = true` for the target wall (Scene / Layers or context menu).
+- Selected-wall **Hide Wall** control in the 3D viewport (same command; supports e2e without WebGL contextmenu).
+- **Show Wall** → `wall.visible = true` for the target wall (hidden-walls panel).
 - **Show All Walls** → set **every wall’s** `visible` to `true` only (does **not** unhide panels/objects).
-- List walls with `visible === false` in Scene / Layers.
+- List walls with `visible === false` in the model viewport panel.
 - Persistence is automatic via the existing `WallEntity.visible` field (already parsed/serialized).
 
 **M2 scope limit:** Hide / Show All apply to **walls only**. Object and panel hiding lands with the M5 `visible` attachment model.
@@ -207,28 +210,29 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 **Exit:** Hide one wall → save → reopen → wall still hidden; Show All Walls sets all walls visible without changing panel/object visibility.
 
-**Tests (required):** Save-and-reopen for `wall.visible === false`; Show All Walls leaves every wall `visible === true` and does not invent object-hide behaviour.
+**Tests (required):** Save-and-reopen for `wall.visible === false`; Show All Walls leaves every wall `visible === true` and does not invent object-hide behaviour. Shipped: `wallVisibilityCommands.test.ts`, `tests/e2e/phase-m2-wall-visibility.spec.ts`.
 
 ---
 
-### M3 — Material and Colour Library · `NEXT`
+### M3 — Material and Colour Library · `DONE`
 
 **Answers:** Feedback #5 · P0 Material + P1 Replace / Colour Picker (§4.3–4.4)
 
-- Materials as visual thumbnails.
+- Materials as visual thumbnails (I5 Material Browser).
 - **Colour shades v1:** fixed shade groups for the selected material family (not procedural infinite ramps).
 - Custom colour picker with **HEX** and **RGB**.
-- Recently used materials and colours.
-- Apply to walls, floors, cabinets, furniture, and decorative panels.
-- Replace on one object or multiple selected objects.
+- Recently used colours (persisted on the project document).
+- Apply to walls, floors, cabinets, furniture (decorative panels reuse the same paint APIs in M5).
+- Replace on one object or multiple selected objects (existing selection paint + colour COW rebind).
+- **`B`** opens the Material Browser (interiors plan hotkeys + `shortcutMap.openMaterial`).
 
 **Exit:** Designer can pick a material, choose a fixed shade, set a custom colour, and apply to selection; recent colours appear after use.
 
-**Tests (required):** Apply shade / custom colour → save → reopen; multi-select replace where implemented.
+**Tests (required):** Apply shade / custom colour → save → reopen; multi-select replace where implemented. Shipped: `materialColour.test.ts`, `tests/e2e/phase-m3-material-colour.spec.ts`.
 
 ---
 
-### M4 — Local Texture Import · `NEXT`
+### M4 — Local Texture Import · `DONE`
 
 **Answers:** Feedback #2 · P1 Texture Upload (§4.4)
 
@@ -245,9 +249,11 @@ Shortcuts respect **existing** Interiors bindings where they already work (`M` =
 
 **Tests (required):** Save-and-reopen of imported finish + UV; reject oversized / unsupported files with a clear warning.
 
+**Shipped:** MIME allowlist (`PNG`/`JPEG`/`WebP`); staging draft + preview panel; UV scale / rotation / offset U·V; swatch map thumbnails; `importedFinish.test.ts`; `tests/e2e/phase-m4-texture-import.spec.ts`.
+
 ---
 
-### M5 — Decorative and Feature Walls · `NEXT`
+### M5 — Decorative and Feature Walls · `DONE`
 
 **Answers:** Feedback #6 · P1 Add/Edit Panel + panel visibility (§4.1, §4.4)
 
@@ -255,37 +261,42 @@ Feature / wonder wall / panelling is a **design object** on a structural wall us
 
 Users can:
 
-- Add one or more decorative panels to an existing wall
+- Add one or more decorative panels to an existing wall (**Add Wall Panel**)
 - Move and resize the panel (along-wall + floor offset)
 - Set width, height, thickness, and floor offset
-- Change material and colour
+- Change material and colour (reuse M3)
 - Duplicate, hide, replace, or delete
 - Edit without changing the structural wall
+- Host wall move reflows panel poses via `reflowPanelsForWalls`
 
 **Exit:** After room create, add two panels on one wall, recolour one, hide one, save/reopen — structure unchanged; panels stay attached when the host wall moves.
 
-**Tests (required):** Save-and-reopen; wall move keeps panel attachment; hide panel without hiding wall.
+**Tests (required):** Save-and-reopen; wall move keeps panel attachment; hide panel without hiding wall. Shipped: `panelCommands.test.ts`, `tests/e2e/phase-m5-panels.spec.ts`.
 
 ---
 
-### M6 — Materials From Websites · `LATER`
+### M6 — Materials From Websites · `DONE` (M6.1–M6.4)
 
 **Answers:** Feedback #4 — deliver gradually; no arbitrary scraping.
 
 | Step | Scope |
 | --- | --- |
-| M6.1 | Download texture elsewhere → upload manually (uses M4) |
-| M6.2 | Import from a direct image URL — **copy image bytes into the project**; do not depend on the live URL after import |
-| M6.3 | Selected manufacturer material catalogues |
-| M6.4 | Later: brand, product code, dimensions, normal / roughness maps |
+| M6.1 | Download texture elsewhere → upload manually (uses M4) — **DONE** with M4 |
+| M6.2 | Import from a direct image URL — **copy image bytes into the project**; do not depend on the live URL after import — **DONE** |
+| M6.3 | Selected manufacturer material catalogues — **DONE** (curated in-app packs; copy into project) |
+| M6.4 | Brand, product code, sheet dimensions, normal / roughness maps — **DONE** |
 
 **EXCLUDED from first version:** scraping arbitrary websites; hotlinking remote texture URLs as project truth.
 
 **Tests (required when built):** After URL import, project reopens offline / without the original host.
 
+**Shipped (M6.2):** URL field in Material Browser; fetch → data URL draft → M4 preview/apply; MIME/size validation; CORS/network errors; `finishImportFromUrl.test.ts`; `tests/e2e/phase-m6-url-import.spec.ts`.
+
+**Shipped (M6.3–M6.4):** Curated manufacturer catalogues with brand / product code / sheet size and optional normal+roughness map bytes copied into `finish-import-*` extensions; compile + `resolveMaterialTextureUrls` merge imported maps; `manufacturerCatalogues.test.ts`; `tests/e2e/phase-m6-manufacturer-catalogues.spec.ts`.
+
 ---
 
-### M7 — Final QA and Workflow Testing · `LATER`
+### M7 — Final QA and Workflow Testing · `DONE`
 
 Full path:
 
@@ -296,6 +307,12 @@ Create room → Open 3D → Change camera view → Hide walls
 ```
 
 M7 is integration / exit-journey coverage. **Per-phase save-and-reopen tests for M2–M5 are required at each phase**, not deferred to M7.
+
+**Exit:** One e2e journey covers create room → 3D → camera change → hide wall → apply material/colour → add feature panel → edit object → save → reopen → Render Studio **Render Image** succeeds with a visible still.
+
+**Tests:** `tests/e2e/phase-m7-final-qa.spec.ts` (+ `tests/e2e/interiorsSaveReopen.ts`). Per-phase persistence for M2–M5 remains owned by those phases.
+
+**Shipped:** integration exit-journey on `phase-m/post-room-3d-editing`.
 
 ---
 
@@ -310,7 +327,7 @@ M3 Material library + fixed shade groups
 M4 Texture import UX polish
 M6 Web / catalogue import (copy-into-project)  ← last
 M7 End-to-end QA
-Contextual command rail                          ← after M1/M2
+Contextual command rail                          ← DONE (§4.1)
 ```
 
 Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibility + Materials** on existing chrome, then **P1 Feature Wall / panelling + advanced materials + Walk / X-Ray**.
@@ -337,9 +354,14 @@ Immediate implementation focus: **P0 Camera + Selection/Transform + Wall Visibil
 
 ## 8. First sprint (approved)
 
-1. **M1** — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`  
-2. **M2** — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)  
-3. **M5 planning only** — lock exact attachment property names in §2.1 (`wallId`, `alongMm`, `floorOffsetMm`, `wallSide`, `visible`); no full M5 build yet  
-4. **Command contract** — object-based editing (§4); reuse toolbar/inspector; no SketchUp tools; no new command rail yet
+1. **M1** — **DONE** on `phase-m/post-room-3d-editing` — visible camera icons, true orthographic Isometric (Dollhouse separate), Fit Room, Focus Selected; camera `1`–`5` only when 3D canvas focused; register via `shortcutMap`
+2. **M2** — **DONE** on `phase-m/post-room-3d-editing` — right-click Hide Wall, Show Wall, Show All **Walls**, persistence + save/reopen tests (walls only; no Hide keyboard shortcut)
+3. **M3** — **DONE** on `phase-m/post-room-3d-editing` — fixed shade groups, HEX/RGB colour, recent colours, `B` material browser
+4. **M5** — **DONE** on `phase-m/post-room-3d-editing` — §2.1 panel attachment, Add Wall Panel, hide panel, wall-move reflow
+5. **M4** — **DONE** on `phase-m/post-room-3d-editing` — texture preview, UV offset, MIME validation
+6. **M6.2–M6.4** — **DONE** on `phase-m/post-room-3d-editing` — URL import, curated catalogues, brand/SKU/sheet size + companion maps
+7. **M7** — **DONE** on `phase-m/post-room-3d-editing` — exit-journey e2e (room → 3D → hide → materials → panel → edit → save/reopen → render)
+8. **Command contract + contextual rail** — **DONE** — object-based editing (§4); selection-aware rail wires existing chrome actions
+9. **P1 QA follow-ups** — **DONE** — Model-safe Measure, panel Flip Side (reflow/save-reopen), PBR-valid catalogue normal/roughness maps
 
-Ready to start **M1** and **M2**.
+Phase M program (M1–M7, M6.4, contextual command rail, and P1 QA fixes) is **DONE** / locked on `phase-m/post-room-3d-editing`.

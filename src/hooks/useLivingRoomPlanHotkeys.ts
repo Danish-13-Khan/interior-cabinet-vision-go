@@ -1,5 +1,10 @@
 import { useEffect } from "react";
+import {
+  eventMatchesBinding,
+  readShortcutMap,
+} from "../domain/desktopUx";
 import { isAppModalOpen } from "./appModalGate";
+import { isModelViewCanvasFocused } from "./modelViewFocusGate";
 import type { LivingRoomWorkspaceView } from "../components/livingRoomPlan/workspaceProps";
 
 export function useLivingRoomPlanHotkeys({
@@ -21,6 +26,7 @@ export function useLivingRoomPlanHotkeys({
   onFitSelection,
   onCancelTool,
   onMeasureTool,
+  onOpenMaterial,
 }: {
   projectHomeOpen: boolean;
   snapSizeMm: number;
@@ -40,6 +46,7 @@ export function useLivingRoomPlanHotkeys({
   onFitSelection?: () => void;
   onCancelTool?: () => void;
   onMeasureTool?: () => void;
+  onOpenMaterial?: () => void;
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -47,6 +54,16 @@ export function useLivingRoomPlanHotkeys({
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select")) return;
       if (projectHomeOpen) return;
+      const modelFocused = isModelViewCanvasFocused();
+      const shortcutMap = readShortcutMap();
+
+      // Material browser — honour shortcutMap.openMaterial even with 3D canvas focused.
+      if (onOpenMaterial && eventMatchesBinding(event, shortcutMap.openMaterial)) {
+        event.preventDefault();
+        onOpenMaterial();
+        return;
+      }
+
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
         event.preventDefault();
         if (event.shiftKey) {
@@ -63,16 +80,19 @@ export function useLivingRoomPlanHotkeys({
         return;
       }
       if (event.key === "1" && !event.shiftKey) {
+        if (modelFocused) return;
         event.preventDefault();
         onView("plan");
         return;
       }
       if (event.key === "2" && !event.shiftKey) {
+        if (modelFocused) return;
         event.preventDefault();
         onView("model");
         return;
       }
       if (event.key.toLowerCase() === "f" && !event.metaKey && !event.ctrlKey) {
+        if (modelFocused) return;
         event.preventDefault();
         if (event.shiftKey) onFitSelection?.();
         else onFitPlan?.();
@@ -118,6 +138,7 @@ export function useLivingRoomPlanHotkeys({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
     canRedo, canUndo, onCancelTool, onClearSelection, onCycleSelection, onDelete, onDuplicate, onFitPlan,
-    onFitSelection, onMeasureTool, onNudge, onRedo, onRotateSelection, onUndo, onView, projectHomeOpen, snapSizeMm, workspaceView,
+    onFitSelection, onMeasureTool, onNudge, onOpenMaterial, onRedo, onRotateSelection, onUndo, onView,
+    projectHomeOpen, snapSizeMm, workspaceView,
   ]);
 }
