@@ -76,6 +76,13 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     parameters: { slatWidthMm: 46, slatGapMm: 18, edgeRailMm: 56 },
   },
   {
+    id: "living:decorative-panel", name: "Decorative Wall Panel",
+    kind: "cabinet", category: "wall-panel", placement: "wall",
+    dimensions: { widthMm: 1200, heightMm: 2400, depthMm: 24 },
+    materialSlots: { face: M.naturalOak },
+    parameters: { panel: true },
+  },
+  {
     id: "living:display-niche", name: "Lit Display Niche",
     kind: "cabinet", category: "display-niche", placement: "wall",
     dimensions: { widthMm: 560, heightMm: 1900, depthMm: 280 },

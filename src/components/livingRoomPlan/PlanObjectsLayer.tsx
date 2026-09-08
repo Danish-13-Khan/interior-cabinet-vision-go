@@ -7,6 +7,7 @@ import {
   formatCabinetInlineDims,
   formatPlanDimension,
   formatPlanMark,
+  isPanelAttachmentVisible,
   planObjectFootprintClass,
   planObjectFootprintKind,
   primaryMaterialId,
@@ -51,7 +52,8 @@ export function PlanObjectsLayer(props: {
   const interactive = props.interactive !== false;
   const issueIds = new Set(props.issues.flatMap((issue) => issue.objectIds));
   const materialsById = new Map(props.project.materials.map((material) => [material.id, material]));
-  const objects = props.project.objects.filter((object) => object.extensions?.layerVisible !== false)
+  const objects = props.project.objects
+    .filter((object) => object.extensions?.layerVisible !== false && isPanelAttachmentVisible(object))
     .sort((a, b) => Number(b.category === "rug") - Number(a.category === "rug"));
   const labelModes = resolvePlanObjectLabelModes(objects, props.selectedIds);
   const planMarks = readPlanMarksSettings(props.project);

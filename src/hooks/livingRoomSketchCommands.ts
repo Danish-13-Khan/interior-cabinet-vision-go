@@ -7,18 +7,28 @@ import {
 } from "../domain/interiorProject";
 import { resolveFinishPickToProjectMaterial } from "../domain/catalog";
 import {
-  addImportedFinish,
+  applyMaterialColour,
   applyMaterialToSelection,
+  commitFinishImportDraft,
   paintLivingRoomSurface,
   readImageAsDataUrl,
+  reflowCabinetRunsForWalls,
+  reflowPanelsForWalls,
   setFinishUv,
-  setLivingRoomWallMaterial,
+  wallNeighborhoodIds,
+  type FinishImportDraft,
+  type FinishUvPatch,
+  type ImportFinishApplyTarget,
 } from "../domain/livingRoom";
 import type { FinishUvRebind } from "../domain/catalog/finishRebind";
 
 type CommitDocument = (update: (current: InteriorProject) => InteriorProject, status: string) => void;
 
-export type ImportFinishApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
+export type ImportFinishApply = ImportFinishApplyTarget;
+
+function reflowWallAttachments(project: InteriorProject, wallIds: readonly string[]) {
+  return reflowPanelsForWalls(reflowCabinetRunsForWalls(project, wallIds), wallIds);
+}
 
 export function raiseLivingRoomWalls(
   commitDocument: CommitDocument,
@@ -34,18 +44,26 @@ export function raiseLivingRoomWalls(
 }
 
 export function offsetLivingRoomWall(commitDocument: CommitDocument, wallId: string, offsetMm: number) {
-  commitDocument((current) => offsetPlanWall(current, wallId, offsetMm), "Offset parallel wall.");
+  commitDocument((current) => {
+    const affected = wallNeighborhoodIds(current, wallId);
+    return reflowWallAttachments(offsetPlanWall(current, wallId, offsetMm), affected);
+  }, "Offset parallel wall.");
 }
 
 export function offsetLivingRoomLoop(commitDocument: CommitDocument, offsetMm: number) {
   commitDocument((current) => {
     const roomId = current.activeRoomId;
-    return roomId ? offsetPlanLoop(current, roomId, offsetMm) : current;
+    if (!roomId) return current;
+    const affected = current.walls.map((wall) => wall.id);
+    return reflowWallAttachments(offsetPlanLoop(current, roomId, offsetMm), affected);
   }, "Offset room loop.");
 }
 
 export function setLivingRoomWallPlan(commitDocument: CommitDocument, wallId: string, patch: WallPlanPatch) {
-  commitDocument((current) => applyWallPlanPatch(current, wallId, patch), "Updated wall plan.");
+  commitDocument((current) => {
+    const affected = wallNeighborhoodIds(current, wallId);
+    return reflowWallAttachments(applyWallPlanPatch(current, wallId, patch), affected);
+  }, "Updated wall plan.");
 }
 
 export function paintLivingRoomCeiling(commitDocument: CommitDocument, materialId: string) {
@@ -57,20 +75,28 @@ export function paintLivingRoomCeiling(commitDocument: CommitDocument, materialI
 
 export function importLivingRoomFinish(
   commitDocument: CommitDocument,
-  file: File,
+  source: File | FinishImportDraft,
   apply?: ImportFinishApply,
   onStatus?: (status: string) => void,
 ) {
-  void readImageAsDataUrl(file).then((dataUrl) => {
+  if (!(source instanceof File)) {
     try {
-      commitDocument((current) => {
-        const added = addImportedFinish(current, { name: file.name, dataUrl });
-        let next = added.project;
-        if (apply?.wallId) next = setLivingRoomWallMaterial(next, apply.wallId, added.materialId);
-        if (apply?.floor) next = paintLivingRoomSurface(next, { kind: "floor" }, added.materialId);
-        if (apply?.ceiling) next = paintLivingRoomSurface(next, { kind: "ceiling" }, added.materialId);
-        return next;
-      }, "Imported finish.");
+      commitDocument((current) => commitFinishImportDraft(current, source, apply), "Imported finish.");
+    } catch (error: unknown) {
+      onStatus?.(error instanceof Error ? error.message : "Could not import finish.");
+    }
+    return;
+  }
+  void readImageAsDataUrl(source).then((dataUrl) => {
+    try {
+      commitDocument((current) => commitFinishImportDraft(current, {
+        fileName: source.name,
+        dataUrl,
+        uvScaleMm: 1000,
+        uvRotationDeg: 0,
+        uvOffsetU: 0,
+        uvOffsetV: 0,
+      }, apply), "Imported finish.");
     } catch (error: unknown) {
       onStatus?.(error instanceof Error ? error.message : "Could not import finish.");
     }
@@ -120,11 +146,23 @@ export function paintLivingRoomSelection(
 export function setLivingRoomFinishUv(
   commitDocument: CommitDocument,
   materialId: string,
-  patch: { uvScaleMm?: number; uvRotationDeg?: number },
+  patch: FinishUvPatch,
   rebind?: FinishUvRebind,
 ) {
   commitDocument(
     (current) => setFinishUv(current, materialId, patch, rebind),
     "Adjusted finish mapping.",
+  );
+}
+
+export function paintLivingRoomMaterialColour(
+  commitDocument: CommitDocument,
+  materialId: string,
+  color: string,
+  rebinds: readonly FinishUvRebind[],
+) {
+  commitDocument(
+    (current) => applyMaterialColour(current, { materialId, color, rebinds }),
+    "Applied material colour.",
   );
 }

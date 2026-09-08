@@ -1,0 +1,87 @@
+/* M4 — local texture import preview and UV transform polish. */
+.lr-finish-import-preview {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #d5ddd7;
+}
+
+.lr-finish-import-preview header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: #3d4a42;
+  font-size: 11px;
+}
+
+.lr-finish-import-preview header span {
+  color: #6d7a72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.lr-finish-import-preview-frame {
+  position: relative;
+  min-height: 140px;
+  border: 1px solid #c5cec8;
+  border-radius: 5px;
+  background:
+    linear-gradient(45deg, #e8ece9 25%, transparent 25%),
+    linear-gradient(-45deg, #e8ece9 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e8ece9 75%),
+    linear-gradient(-45deg, transparent 75%, #e8ece9 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  overflow: hidden;
+}
+
+.lr-finish-import-preview-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.lr-finish-uv-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.lr-finish-uv-fields.is-compact {
+  grid-template-columns: 1fr 1fr;
+}
+
+.lr-finish-import-error {
+  margin: 0;
+  color: #8a2f2f;
+  font-size: 11px;
+}
+
+.lr-finish-import-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.lr-finish-import-actions button {
+  border: 1px solid #c5cec8;
+  border-radius: 5px;
+  background: #fff;
+  color: #243029;
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.lr-finish-import-actions button[data-testid="finish-import-apply"] {
+  background: #243029;
+  border-color: #243029;
+  color: #f4f7f5;
+}
+
+.lr-paint-swatches button i.has-map {
+  background-size: cover;
+  background-position: center;
+}

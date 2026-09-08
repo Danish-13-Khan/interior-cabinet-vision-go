@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { FinishUvRebind } from "../../domain/catalog/finishRebind";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import {
   commonMaterialSlots,
@@ -6,8 +7,21 @@ import {
   isSelectionSlotEditable,
   materialsCompatibleWithSelectionSlot,
   primaryMaterialId,
+  stageFinishImportFile,
+  stageFinishImportUrl,
+  stageManufacturerFinish,
+  type FinishImportDraft,
 } from "../../domain/livingRoom";
+import { FinishImportExtras } from "./FinishImportExtras";
+import { MaterialColourPanel } from "./MaterialColourPanel";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
+import {
+  surfacePaintColourRebinds,
+  surfacePaintImportApply,
+  type SurfacePaintImportApply,
+} from "./surfacePaintApply";
+
+export type { SurfacePaintImportApply };
 
 type Props = {
   project: InteriorProject;
@@ -17,28 +31,29 @@ type Props = {
   onCeiling: (materialId: string) => void;
   onWall: (wallId: string, materialId: string) => void;
   onApplyToSelection: (materialId: string, slotName?: string) => void;
-  onImportFinish?: (file: File, apply?: { wallId?: string; floor?: boolean; ceiling?: boolean }) => void;
+  onApplyColour: (materialId: string, color: string, rebinds: FinishUvRebind[]) => void;
+  onImportFinish?: (draft: FinishImportDraft, apply?: SurfacePaintImportApply) => void;
 };
 
 type PaintTarget = "floor" | "ceiling" | "wall" | "selection";
 
 export function SurfacePaintPanel({
-  project, activeWallId, selectedObjects, onFloor, onCeiling, onWall, onApplyToSelection, onImportFinish,
+  project, activeWallId, selectedObjects, onFloor, onCeiling, onWall, onApplyToSelection,
+  onApplyColour, onImportFinish,
 }: Props) {
   const wall = project.walls.find((item) => item.id === activeWallId) ?? project.walls[0] ?? null;
   const [target, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
   const [slot, setSlot] = useState("");
+  const [draft, setDraft] = useState<FinishImportDraft | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [urlBusy, setUrlBusy] = useState(false);
   const sharedSlots = useMemo(() => commonMaterialSlots(selectedObjects), [selectedObjects]);
   const editableSlots = useMemo(() => editableCommonMaterialSlots(selectedObjects), [selectedObjects]);
   const activeSlot = editableSlots.includes(slot) ? slot : editableSlots[0] ?? "";
   const canPaintSelection = selectedObjects.length > 0 && editableSlots.length > 0;
   const selectionMaterials = useMemo(() => {
     if (target !== "selection" || !activeSlot) return project.materials;
-    const compatible = materialsCompatibleWithSelectionSlot(
-      project.materials,
-      selectedObjects,
-      activeSlot,
-    );
+    const compatible = materialsCompatibleWithSelectionSlot(project.materials, selectedObjects, activeSlot);
     const activeId = selectedObjects[0]?.materialSlots[activeSlot];
     if (!activeId || compatible.some((material) => material.id === activeId)) return compatible;
     const current = project.materials.find((material) => material.id === activeId);
@@ -51,15 +66,41 @@ export function SurfacePaintPanel({
     : target === "ceiling"
       ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "ceiling")?.materialId
         ?? (project.rooms.find((room) => room.id === project.activeRoomId)?.extensions?.ceilingMaterialId as string | undefined)
-    : target === "wall" ? wall?.materialId
-      : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
-        : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
+      : target === "wall" ? wall?.materialId
+        : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
+          : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
+  const activeMaterial = project.materials.find((material) => material.id === activeMaterialId) ?? null;
 
   function apply(materialId: string) {
     if (target === "floor") onFloor(materialId);
     if (target === "ceiling") onCeiling(materialId);
     if (target === "wall" && wall) onWall(wall.id, materialId);
     if (target === "selection" && canPaintSelection) onApplyToSelection(materialId, activeSlot || undefined);
+  }
+
+  function failImport(error: unknown) {
+    setDraft(null);
+    setImportError(error instanceof Error ? error.message : "Could not import finish.");
+  }
+
+  function stageImport(file: File) {
+    if (urlBusy) return;
+    setImportError(null);
+    void stageFinishImportFile(file).then(setDraft).catch(failImport);
+  }
+
+  function stageImportUrl(url: string) {
+    setImportError(null);
+    setDraft(null);
+    setUrlBusy(true);
+    void stageFinishImportUrl(url).then(setDraft).catch(failImport).finally(() => setUrlBusy(false));
+  }
+
+  function stageCatalogue(finishId: string) {
+    if (urlBusy) return;
+    setImportError(null);
+    try { setDraft(stageManufacturerFinish(finishId)); }
+    catch (error) { failImport(error); }
   }
 
   return (
@@ -93,12 +134,42 @@ export function SurfacePaintPanel({
             materials={target === "selection" ? selectionMaterials : project.materials}
             activeMaterialId={activeMaterialId ?? null}
             onPick={apply}
-            onImport={onImportFinish ? (file) => onImportFinish(file, target === "floor"
-              ? { floor: true }
-              : target === "ceiling" ? { ceiling: true }
-              : target === "wall" && wall ? { wallId: wall.id } : undefined) : undefined}
+            onImport={onImportFinish ? stageImport : undefined}
+            importDisabled={urlBusy}
           />
-          <p>Swatches save the project material ID. Plan tint follows fronts (or another face slot) when present; carcass-only edits still persist for 3D.</p>
+          {onImportFinish ? (
+            <FinishImportExtras
+              draft={draft}
+              importError={importError}
+              urlBusy={urlBusy}
+              selectedObjects={selectedObjects}
+              slotName={activeSlot}
+              filterCatalogueForSelection={target === "selection"}
+              onStageUrl={stageImportUrl}
+              onStageCatalogue={stageCatalogue}
+              onChangeDraft={(patch) => setDraft((current) => (current ? { ...current, ...patch } : current))}
+              onApply={() => {
+                if (!draft) return;
+                onImportFinish(draft, surfacePaintImportApply({
+                  target, wall, selectedObjects, activeSlot, canPaintSelection,
+                }));
+                setDraft(null);
+                setImportError(null);
+              }}
+              onCancel={() => { setDraft(null); setImportError(null); }}
+            />
+          ) : null}
+          <MaterialColourPanel
+            project={project}
+            material={activeMaterial}
+            onApplyColour={(color) => {
+              if (!activeMaterialId) return;
+              onApplyColour(activeMaterialId, color, surfacePaintColourRebinds({
+                target, wall, selectedObjects, activeSlot,
+              }));
+            }}
+          />
+          <p>Swatches save the project material ID. Shades and custom colours tint via clone-on-write when shared.</p>
         </>
       )}
     </section>

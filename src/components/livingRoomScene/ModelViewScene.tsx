@@ -5,6 +5,7 @@ import type {
   ModelViewPresetId,
 } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
+import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import type { RenderQualityPreset } from "../../domain/livingRoom/renderStudio";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
@@ -28,6 +29,9 @@ type ModelViewSceneProps = {
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
+  fitVersion?: number;
+  fitMode?: ModelViewFitMode;
+  fitSelection?: ModelViewFitSelection;
   onClearSelection: () => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
@@ -35,34 +39,19 @@ type ModelViewSceneProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
+  onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
 };
 
-export function ModelViewScene({
-  scene,
-  quality,
-  viewportQuality,
-  renderMode,
-  lightingQuality,
-  projectLightScale,
-  windowKeyScale,
-  selectedIds,
-  activeOpeningId,
-  activeWallId,
-  activeCameraId,
-  viewPreset,
-  cameraHeightMm,
-  fieldOfViewDegrees,
-  snapSizeMm,
-  showGrid,
-  cutawayWalls,
-  onClearSelection,
-  onSelect,
-  onSelectOpening,
-  onSelectWall,
-  onMove,
-  onExitWalkthrough,
-  onMechanismClick,
-}: ModelViewSceneProps) {
+export function ModelViewScene(props: ModelViewSceneProps) {
+  const {
+    scene, quality, viewportQuality, renderMode, lightingQuality, projectLightScale,
+    windowKeyScale, selectedIds, activeOpeningId, activeWallId, activeCameraId, viewPreset,
+    cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
+    fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
+    onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
+    onWallContextMenu,
+  } = props;
+
   return (
     <Canvas
       shadows="percentage"
@@ -90,6 +79,9 @@ export function ModelViewScene({
           lightingQuality={lightingQuality}
           projectLightScale={projectLightScale}
           windowKeyScale={windowKeyScale}
+          fitVersion={fitVersion}
+          fitMode={fitMode}
+          fitSelection={fitSelection}
           onSelect={onSelect}
           onSelectOpening={onSelectOpening}
           onSelectWall={onSelectWall}
@@ -97,6 +89,7 @@ export function ModelViewScene({
           onMove={onMove}
           onExitWalkthrough={onExitWalkthrough}
           onMechanismClick={onMechanismClick}
+          onWallContextMenu={onWallContextMenu}
         />
       </ModelViewPreviewProfileProvider>
     </Canvas>

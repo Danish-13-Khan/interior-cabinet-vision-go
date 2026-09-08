@@ -1,0 +1,52 @@
+/* M6 — direct image URL import (copy bytes into project). */
+.lr-finish-import-url {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.lr-finish-import-url label {
+  display: grid;
+  gap: 4px;
+  color: #3d4a42;
+  font-size: 11px;
+}
+
+.lr-finish-import-url input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #c5cec8;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: #243029;
+  background: #fff;
+}
+
+.lr-finish-import-url button {
+  justify-self: start;
+  border: 1px solid #c5cec8;
+  border-radius: 5px;
+  background: #fff;
+  color: #243029;
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.lr-finish-import-url button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.lr-finish-import-busy {
+  margin: 6px 0 0;
+  color: #6d7a72;
+  font-size: 11px;
+}
+
+.lr-import-finish input:disabled + button,
+.lr-import-finish button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}

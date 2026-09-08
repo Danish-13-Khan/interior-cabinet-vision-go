@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import type { InteriorProject, MaterialKind } from "../../domain/interiorProject";
+import { finishMapUrl } from "../../domain/livingRoom";
 
 type Props = {
   materials: InteriorProject["materials"];
@@ -7,9 +8,12 @@ type Props = {
   onPick: (materialId: string) => void;
   compact?: boolean;
   onImport?: (file: File) => void;
+  importDisabled?: boolean;
 };
 
-export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compact, onImport }: Props) {
+export function MaterialSwatchGrid({
+  materials, activeMaterialId, onPick, compact, onImport, importDisabled,
+}: Props) {
   const kinds = useMemo(() => {
     const unique = [...new Set(materials.map((material) => material.kind))];
     return unique.sort();
@@ -29,20 +33,26 @@ export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compac
         ))}
       </div>
       <div className="lr-paint-swatches">
-        {visible.map((material) => (
-          <button
-            key={material.id}
-            type="button"
-            data-material-id={material.id}
-            className={activeMaterialId === material.id ? "is-active" : ""}
-            title={`Apply ${material.name}`}
-            onClick={() => onPick(material.id)}
-          >
-            <i style={{ background: material.color }} />
-            <span>{material.name}</span>
-            <small>{material.kind}</small>
-          </button>
-        ))}
+        {visible.map((material) => {
+          const mapUrl = finishMapUrl(material);
+          return (
+            <button
+              key={material.id}
+              type="button"
+              data-material-id={material.id}
+              className={activeMaterialId === material.id ? "is-active" : ""}
+              title={`Apply ${material.name}`}
+              onClick={() => onPick(material.id)}
+            >
+              <i
+                className={mapUrl ? "has-map" : undefined}
+                style={mapUrl ? { backgroundImage: `url(${mapUrl})`, backgroundColor: material.color } : { background: material.color }}
+              />
+              <span>{material.name}</span>
+              <small>{material.kind}</small>
+            </button>
+          );
+        })}
       </div>
       {onImport ? (
         <label className="lr-import-finish">
@@ -50,13 +60,25 @@ export function MaterialSwatchGrid({ materials, activeMaterialId, onPick, compac
             ref={fileRef}
             type="file"
             accept="image/png,image/jpeg,image/webp"
+            data-testid="finish-import-input"
+            disabled={importDisabled}
             onChange={(event) => {
+              if (importDisabled) return;
               const file = event.target.files?.[0];
               if (file) onImport(file);
               event.target.value = "";
             }}
           />
-          <button type="button" onClick={() => fileRef.current?.click()}>Import texture</button>
+          <button
+            type="button"
+            data-testid="finish-import-open"
+            disabled={importDisabled}
+            onClick={() => {
+              if (!importDisabled) fileRef.current?.click();
+            }}
+          >
+            Import texture
+          </button>
         </label>
       ) : null}
     </div>

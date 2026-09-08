@@ -101,4 +101,8 @@ export type LivingRoomPlanStageProps = {
     update: (current: import("../../domain/interiorProject").InteriorProject) => import("../../domain/interiorProject").InteriorProject,
     status: string,
   ) => void;
+  onChromeTool?: (tool: InteriorsChromeTool) => void;
+  onBuildTool?: (tool: BuildTool) => void;
+  onWorkspaceView?: (view: LivingRoomWorkspaceView) => void;
+  onAddWallPanel?: (wallId: string) => void;
 };

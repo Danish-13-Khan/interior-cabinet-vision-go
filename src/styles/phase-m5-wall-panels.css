@@ -1,0 +1,49 @@
+/* M5 — wall panel attachment inspector. */
+.lr-panel-attachment {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 8px 0 4px;
+  border-top: 1px solid #d5ddd7;
+}
+
+.lr-panel-attachment h4 {
+  margin: 0;
+  color: #243029;
+  font-size: 12px;
+}
+
+.lr-panel-attachment button {
+  justify-self: start;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #9aada2;
+  border-radius: 4px;
+  background: #fff;
+  color: #1c2a22;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.lr-panel-attachment button:hover {
+  border-color: #2f6b4f;
+  color: #2f6b4f;
+}
+
+.lr-wall-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.lr-wall-panel-actions button {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #9aada2;
+  border-radius: 4px;
+  background: #fff;
+  color: #1c2a22;
+  font-size: 11px;
+  cursor: pointer;
+}
