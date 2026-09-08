@@ -25,12 +25,16 @@ export function mapPayloadExceedsProjectLimit(existingMapChars: number, nextData
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
-  if (typeof Buffer !== "undefined") return Buffer.from(bytes).toString("base64");
   let binary = "";
   for (let index = 0; index < bytes.length; index += 1) {
     binary += String.fromCharCode(bytes[index]!);
   }
-  return btoa(binary);
+  if (typeof btoa === "function") return btoa(binary);
+  const nodeBuffer = (globalThis as {
+    Buffer?: { from(data: string, encoding: string): { toString(enc: string): string } };
+  }).Buffer;
+  if (!nodeBuffer) throw new Error("Unable to encode finish image as base64.");
+  return nodeBuffer.from(binary, "binary").toString("base64");
 }
 
 export function encodeFinishImageDataUrl(bytes: Uint8Array, mime: string): string {
