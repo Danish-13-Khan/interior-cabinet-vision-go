@@ -5,7 +5,7 @@ import {
   placeNewSingleDoor,
   pointOnPaper,
 } from "./roadmap-exit-journey.helpers";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 
@@ -52,7 +52,7 @@ test("Exit journey: footprint → split → run → 3D → schedule + client pac
   expect(hostWallId).toBeTruthy();
   await clickWallMidpoint(page, hostWallId!);
 
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
   await expect(page.locator("[data-object-id]")).toHaveCount(1);
   await expect(page.locator("[data-object-id]").first()).toHaveAttribute("data-wall-id", hostWallId!);

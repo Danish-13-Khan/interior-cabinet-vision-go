@@ -7,6 +7,7 @@ import {
   hasCuratedTextureUrls,
   resolveMaterialTextureUrls,
 } from "../../rendering/materials/resolveMaterialTextureUrls";
+import { reportMaterialTextureFallback } from "../../domain/livingRoom/materialTextureFeedback";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 import { CuratedPbrMaterial } from "./CuratedPbrMaterial";
 
@@ -72,7 +73,10 @@ export function CompiledMaterialView({
     return procedural;
   }
   return (
-    <GlbLoadErrorBoundary fallback={procedural}>
+    <GlbLoadErrorBoundary
+      fallback={procedural}
+      onError={() => reportMaterialTextureFallback({ materialId: material.id })}
+    >
       <Suspense fallback={procedural}>
         <CuratedPbrMaterial
           material={material}

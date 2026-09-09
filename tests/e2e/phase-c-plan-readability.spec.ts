@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function clickWall(page: Page, wall: Locator) {
   const box = await wall.boundingBox();
@@ -44,7 +44,7 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
   await readability.getByRole("button", { name: "Fill", exact: true }).click();
   await expect(page.locator(".lr-plan-svg")).toHaveClass(/is-fill-style/);
 
-  await page.getByTestId("interiors-tool-import").click();
+  await clickInteriorsTool(page, "import");
   await expect(page.getByRole("slider", { name: "Underlay opacity", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Choose plan image", exact: true })).toBeVisible();
 });

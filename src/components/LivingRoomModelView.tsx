@@ -35,6 +35,7 @@ import {
 } from "./livingRoomScene/ModelWallVisibilityHost";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
+import { MaterialTextureLoadBanner } from "./livingRoomScene/MaterialTextureLoadBanner";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -102,19 +103,20 @@ export function LivingRoomModelView({
         <ModelViewToolbar
           viewPreset={camera.viewPreset} cameraHeightMm={cameraHeightMm}
           fieldOfViewDegrees={fieldOfViewDegrees} activeCameraId={activeCameraId}
-          cameras={scene.cameras} activeStyleId={activeStyleId} cutawayWalls={cutawayWalls}
+          cameras={scene.cameras} cutawayWalls={cutawayWalls}
           activeRotation={activeObject ? Math.round(activeObject.rotation.y) : 0}
           hasActiveObject={Boolean(activeObject)} viewportQuality={viewportQuality}
           modelPresets={listModelViewRenderPresets()} honesty={honesty}
           onViewPreset={camera.setViewPreset} onCameraHeightMm={setCameraHeightMm}
           onFieldOfViewDegrees={setFieldOfViewDegrees} onActiveCameraId={setActiveCameraId}
-          onApplyStyle={onApplyStyle} onCutawayWalls={setCutawayWalls}
+          onCutawayWalls={setCutawayWalls}
           onSetRotation={(rotationY) => { if (activeObject) onSetRotation(activeObject.id, rotationY); }}
           onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}
           hasSelection={hasSelection} onClearSelection={onClearSelection}
           onFitRoom={camera.fitRoom} onFocusSelection={camera.focusSelection}
         />
       ) : null}
+      {!presentation ? <MaterialTextureLoadBanner /> : null}
       <div
         className="lr-model-canvas-host"
         data-testid="lr-model-canvas-host"

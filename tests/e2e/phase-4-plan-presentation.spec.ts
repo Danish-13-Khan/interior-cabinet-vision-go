@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { clickInteriorsTool } from "./plannerStart";
 import { openGoldenCabinetRun } from "./golden-cabinet-run.helpers";
 
 test.describe("Phase 4 plan presentation", () => {
@@ -6,7 +7,7 @@ test.describe("Phase 4 plan presentation", () => {
     test.setTimeout(90_000);
     await openGoldenCabinetRun(page);
 
-    await page.getByTestId("interiors-tool-select").click();
+    await clickInteriorsTool(page, "select");
     const toolbar = page.getByTestId("lr-print-export-toolbar").first();
     await expect(toolbar).toBeVisible({ timeout: 15_000 });
 
