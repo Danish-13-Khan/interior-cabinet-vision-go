@@ -1,9 +1,9 @@
 # Cabinet Studio UI workflow redesign
 
 Status: design direction accepted; detailed screen designs remain under review,
-September 9, 2026. Step 1 inventory and preservation baseline is complete.
-This pass changes documentation and local references only. It does not implement
-the redesign, approve its release, or replace the Product Book.
+September 9, 2026. Step 1 inventory and Step 2 contrast/overflow CSS are
+complete. This document is the redesign contract; production release and Product
+Book replacement are separate.
 
 ## Problem and intended outcome
 
@@ -217,10 +217,11 @@ permission to bypass domain commands or rewrite project serialization.
    records preserved destinations, repeatable fixtures and verification limits.
    No existing controls are removed; replacement reachability remains a gate
    for each subsequent UI migration.
-2. Unify control styling and fix contrast/overflow in the existing layout.
-   Check all enabled, selected, disabled, focus, error and loading states in
-   Calm/Compact. Keep current handlers and domain math unchanged. Complete the
-   2D Room reference as separate design work before step 3.
+2. **Complete — contrast and overflow:** unify Interiors control styling and fix
+   contrast/overflow in the existing layout. [Step 2 evidence](ui-workflow-step2/README.md)
+   covers Calm/Compact enabled, selected, disabled, focus, error and loading
+   states. Handlers and domain math unchanged. Complete the 2D Room reference
+   as separate design work before step 3.
 3. After reviewing the required 2D Room reference, build the shared shell and
    inspector expansion behavior. Include the full header and unnumbered free
    navigation from the outset. Verify widths, independent scrolling and keyboard

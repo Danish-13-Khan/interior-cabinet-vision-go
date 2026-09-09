@@ -156,6 +156,7 @@ line references; review its diff when handlers are moved.
 - Carry forward: exact placement of retained engineering tools in the detailed
   screen designs; browser reachability, visual quality and actual legacy-project
   recovery checks during later phases. Static mappings cannot certify these.
-- Step 2 can start with contrast/overflow fixes while retaining current handlers.
-  Any command lacking a verified replacement must stay reachable on its current
-  surface; removal is not an acceptable way to simplify the UI.
+- Step 2 contrast/overflow CSS is complete while retaining current handlers
+  ([Step 2 evidence](../ui-workflow-step2/README.md)). Any command lacking a
+  verified replacement must stay reachable on its current surface; removal is
+  not an acceptable way to simplify the UI.

@@ -1,0 +1,52 @@
+/* Interiors Calm/Compact control tokens (Step 2). Color + density only. */
+
+.lr-plan-shell.lr-product-shell-v2 {
+  color-scheme: light dark;
+  --iu-ink: light-dark(#1c2822, #ecf3ee);
+  --iu-muted: light-dark(#66736b, #9da9a1);
+  --iu-faint: light-dark(#f4f7f5, #111814);
+  --iu-panel: light-dark(#ffffff, #17201a);
+  --iu-panel-2: light-dark(#f8faf8, #1c2720);
+  --iu-canvas: light-dark(#f7faf8, #111713);
+  --iu-line: light-dark(#dfe6e1, #344139);
+  --iu-line-strong: light-dark(#c7d2ca, #4a5a50);
+  --iu-green: light-dark(#1f6f4a, #4fbd7b);
+  --iu-green-soft: light-dark(#e8f3ec, #183326);
+  --iu-blue-soft: light-dark(#ebf2fb, #18283b);
+  --iu-amber: light-dark(#9b611b, #e3aa5a);
+  --iu-red: light-dark(#a34040, #ef8585);
+  --iu-shadow: light-dark(0 18px 55px rgb(30 51 39 / 14%), 0 18px 55px rgb(0 0 0 / 34%));
+  --iu-on-green: light-dark(#fff, #102018);
+  --iu-control-ink: var(--iu-ink);
+  --iu-control-muted: var(--iu-muted);
+  --iu-control-bg: var(--iu-panel);
+  --iu-control-bg-2: var(--iu-panel-2);
+  --iu-control-border: var(--iu-line-strong);
+  --iu-control-hover-bg: var(--iu-green-soft);
+  --iu-control-active-bg: var(--iu-green-soft);
+  --iu-control-active-ink: var(--iu-green);
+  --iu-control-active-border: var(--iu-green);
+  --iu-control-focus: var(--iu-green);
+  --iu-control-error: var(--iu-red);
+  --iu-control-error-bg: light-dark(#fdf2f2, #2a1818);
+  --iu-control-disabled-opacity: 0.58;
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--iu-faint) !important;
+  color: var(--iu-ink) !important;
+}
+
+.lr-plan-shell.lr-product-shell-v2,
+.lr-plan-shell.lr-product-shell-v2 * {
+  box-sizing: border-box;
+}
+
+/* Font only — do not inherit muted parent ink onto actionable controls. */
+.lr-plan-shell.lr-product-shell-v2 button,
+.lr-plan-shell.lr-product-shell-v2 input,
+.lr-plan-shell.lr-product-shell-v2 select,
+.lr-plan-shell.lr-product-shell-v2 textarea {
+  font: inherit;
+}
