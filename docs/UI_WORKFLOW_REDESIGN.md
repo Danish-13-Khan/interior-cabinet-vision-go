@@ -134,9 +134,10 @@ panels and a stable canvas, verified with all accordions expanded.
 
 ## Functionality preservation map
 
-This is a capability-level migration map, not a completed handler-by-handler
-inventory. Before implementation, enumerate current commands and shortcuts and
-append their exact old/new entry points and relevant checks.
+This is the capability-level migration map. Step 1 adds the
+[source inventory, command mappings and preservation baseline](ui-workflow-step1/README.md).
+Proposed destinations do not certify runtime reachability; retain existing
+entry points until their replacements are verified.
 
 | Existing capability | Intended destination | Preservation check |
 | --- | --- | --- |
@@ -160,8 +161,11 @@ permission to bypass domain commands or rewrite project serialization.
 
 ## Build sequence and gates
 
-1. Inventory commands, screens, saved data and baseline outputs. Confirm no
-   capability is orphaned by the new navigation.
+1. **Complete — inventory and baseline:** inventory commands, screens, saved
+   data and baseline outputs. [Step 1 evidence](ui-workflow-step1/README.md)
+   records preserved destinations, repeatable fixtures and verification limits.
+   No existing controls are removed; replacement reachability remains a gate
+   for each subsequent UI migration.
 2. Unify control styling and fix contrast/overflow. Check all enabled, selected,
    disabled, focus, error and loading states in Calm/Compact.
 3. Build the shared shell and inspector expansion behavior. Verify widths and
