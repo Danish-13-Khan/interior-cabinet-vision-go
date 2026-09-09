@@ -30,6 +30,8 @@ export async function leavePresentForCabinetEdit(page: Page, objectId: string) {
   }
   await clickInteriorsTool(page, "cabinet");
   await page.getByRole("button", { name: "2D", exact: true }).click();
-  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
+  // Cabinet tool keeps the Cabinet-run titlebar on plan (not generic "Room plan").
+  await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Cabinet run");
+  await expect(page.locator(".lr-plan-svg")).toBeVisible();
   await selectGoldenCabinet(page, objectId);
 }
