@@ -3,6 +3,11 @@
 Status: proposed UI reference, not an implemented application. Review with the
 [full specification](../../UI_WORKFLOW_REDESIGN.md) before building.
 
+The design direction is accepted, with revisions recorded in the specification.
+These screenshots and the interactive concept have not yet been updated to show
+the unnumbered navigation, complete header, full 2D Room toolset and contextual
+Room inspector. Use them as layout references, not final implementation tickets.
+
 [Open the interactive concept](index.html). This local standalone copy preserves
 the sandboxed iframe and CSP from the visualization renderer. Its outer frame
 is taller for local review. It has not been published. Open it in a browser;
@@ -83,14 +88,24 @@ stacks. Both reference widths were checked for root horizontal overflow:
 
 ## Review checklist before implementation
 
-- [ ] Agree on the shared header and five freely accessible navigation areas.
-- [ ] Agree on library card height, preview/name/dimension layout and filtering.
-- [ ] Agree on inspector essentials and advanced-section grouping.
-- [ ] Agree on independent panel scrolling and narrow-screen panel access.
+- [x] Keep five freely accessible areas; remove numbering in the next reference.
+- [x] Require File, Save status, Undo and Redo in the first shared-shell build.
+- [x] Keep content-driven cards, wrapping names and separate dimension labels.
+- [x] Keep selection-specific essentials and expandable advanced settings.
+- [x] Keep independent panel scrolling; narrow stacking is a fallback, not mobile CAD.
+- [ ] Update and review the first-class 2D Room reference before step 3: drawing,
+  measurement, pan/zoom, snap, underlay/PDF, room management, runs and plan export.
 - [ ] Detail room, run, opening and empty-selection inspectors.
 - [ ] Detail quotation, freeze, approval, save/recovery and export dialogs.
-- [ ] Map every existing action/shortcut to its new entry point.
-- [ ] Confirm renderer/geometry work has separate acceptance criteria from UI.
+- [x] Complete Step 1 source inventory, proposed destinations and output baselines.
+- [ ] Verify each replacement entry point at runtime as controls move; retain
+  existing entry points until replacements are verified.
+- [ ] Update client Present to remove editing chrome and selection marks.
+- [x] Keep renderer/geometry acceptance separate from UI layout checks.
+
+Next implementation scope: step 2 contrast and overflow fixes in the existing
+layout, preserving current handlers. Complete the 2D reference before step 3;
+design commercial dialogs before their later migration.
 
 ## Validation performed in this documentation pass
 

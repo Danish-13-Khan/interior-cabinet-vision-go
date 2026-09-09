@@ -1,6 +1,7 @@
 # Cabinet Studio UI workflow redesign
 
-Status: proposed design specification for review, September 9, 2026.
+Status: design direction accepted; detailed screen designs remain under review,
+September 9, 2026. Step 1 inventory and preservation baseline is complete.
 This pass changes documentation and local references only. It does not implement
 the redesign, approve its release, or replace the Product Book.
 
@@ -17,6 +18,37 @@ background context. This proposal adds explicit overflow rules and a reviewable
 five-area navigation model. Navigation areas are freely selectable, not a
 mandatory wizard. Existing product boundaries and release gates still apply.
 
+## Review decisions and implementation boundary
+
+The direction is accepted; the existing concept is not a complete build ticket.
+These decisions govern subsequent UI work:
+
+1. Keep Room, Cabinets, Materials, Review and Present as freely accessible areas.
+   Remove numbered navigation labels in the next concept revision. Do not use
+   step-completion styling or navigation locks; production/approval gates still
+   apply to their respective actions.
+2. Room opens in 2D with first-class plan authoring. The current concept does
+   switch to an illustrative plan, but does not yet represent the full shipped
+   measurement, underlay, run and export workflow.
+3. The inspector follows selection: room essentials when nothing is selected,
+   then wall, opening, cabinet, run or supporting-object controls as appropriate.
+   Do not implement the concept's retained cabinet inspector on an empty Room.
+4. Include File, Save status, Undo and Redo in the first shared-shell build.
+   They are required from day one, not follow-up polish.
+5. Client presentation hides editing actions, selection outlines, grids and
+   diagnostics. Retain only appropriate presentation navigation; editing camera
+   tools remain available after returning to design.
+
+Keep the wrapping-card, essentials/advanced and independent-panel-scroll rules.
+Narrow layouts are a fallback, not a commitment to mobile CAD. Detailed quote,
+freeze, approval, recovery and export dialogs must be designed before those
+surfaces are reorganized. Geometry, costing and manufacturing math are outside
+the contrast and shell changes.
+
+Step 1 now provides the inventory and repeatable output evidence. Its proposed
+destinations still require per-control runtime verification as tools move; a
+static mapping is not proof that a replacement is reachable or correct.
+
 ## Complete journey
 
 Projects → create/open/restore job → Room → Cabinets → Materials → Review
@@ -27,7 +59,7 @@ drift and approval rules determine which downstream states become stale.
 ### Shared shell
 
 - Header: project/room/revision, file menu, save state, undo/redo, 2D/3D, Present.
-- Navigation: Room, Cabinets, Materials, Review, Present; preserve selection,
+- Navigation: unnumbered Room, Cabinets, Materials, Review, Present; preserve selection,
   camera and panel state where appropriate across switches.
 - Left panel: tools or library relevant to the active area. Search and category
   selection stay anchored to that library, not scattered across the viewport.
@@ -59,6 +91,25 @@ undo and underlay tools retain their real behavior.
 Switching to 3D must preserve room identity. View cutaway is separate from
 lowering a wall to a plan trace or changing wall height. Explain the difference
 where structural actions are exposed. Empty selection shows room essentials.
+
+#### Required 2D Room reference before the shell build
+
+Revise the concept to show a real plan-oriented screen arrangement with:
+
+- A measured room plan, readable dimensions, clear pan/zoom and Fit affordances.
+- Draw/select, Measure, snap controls and image/PDF underlay import, calibration
+  and visibility controls, using the currently supported operations.
+- Room selection/management and correct empty, wall and opening inspectors.
+- Existing cabinet runs visible in plan, with direct access to Cabinets/run
+  editing while retaining room and selection context.
+- Existing plan drawing-sheet/export actions accessible from the Room workflow.
+- The complete header, expanded panels and long labels at laptop widths.
+
+Review this reference against the existing
+[2D plan roadmap](2D_PLAN_LAYER_ROADMAP.md) and Step 1 inventory. Do not replace
+existing plan functionality with the concept's illustrative SVG. The updated
+reference is required before step 3, but does not block step 2's localized
+readability and overflow fixes.
 
 ### 2. Cabinets and supporting objects
 
@@ -166,14 +217,20 @@ permission to bypass domain commands or rewrite project serialization.
    records preserved destinations, repeatable fixtures and verification limits.
    No existing controls are removed; replacement reachability remains a gate
    for each subsequent UI migration.
-2. Unify control styling and fix contrast/overflow. Check all enabled, selected,
-   disabled, focus, error and loading states in Calm/Compact.
-3. Build the shared shell and inspector expansion behavior. Verify widths and
-   keyboard access before moving tools.
+2. Unify control styling and fix contrast/overflow in the existing layout.
+   Check all enabled, selected, disabled, focus, error and loading states in
+   Calm/Compact. Keep current handlers and domain math unchanged. Complete the
+   2D Room reference as separate design work before step 3.
+3. After reviewing the required 2D Room reference, build the shared shell and
+   inspector expansion behavior. Include the full header and unnumbered free
+   navigation from the outset. Verify widths, independent scrolling and keyboard
+   access before moving tools.
 4. Move room/cabinet/material controls, reusing existing handlers and undo.
 5. Fix camera framing/cutaways and material feedback as distinct changes.
 6. Resolve model adapters, assembly and material quality separately from CSS.
-7. Integrate Review, Present and engineering navigation with existing gates.
+7. Design the detailed quotation/freeze/approval/export screens before moving
+   their controls. Integrate Review, client Present and engineering navigation
+   with existing gates; verify the complete proposal-to-production journey.
 8. Verify representative room starters, saved projects and full golden journey.
 
 Required verification: meaningful existing unit/domain tests, build, relevant
@@ -192,6 +249,8 @@ do not use screenshot quality as proof of manufacturing correctness.
   shell must include them as specified above.
 - Room currently retains a cabinet inspector in the concept; the implemented
   room screen must use the room/wall/opening contextual inspector.
+- The concept's numbered navigation and incomplete 2D toolset predate the review
+  decisions above; update the reference before using it for the shared shell.
 - Present still includes view controls and a concept message; final client mode
   must remove editing-only elements and selection outlines.
 
