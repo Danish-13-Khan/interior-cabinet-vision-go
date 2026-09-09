@@ -106,8 +106,9 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [x] Complete Step 3 shared shell: unnumbered free nav, File menu, inspector
   expansion and independent panel scroll. See
   [Step 3 evidence](../../ui-workflow-step3/README.md). Tool relocation is step 4.
-- [ ] Verify each replacement entry point at runtime as controls move; retain
-  existing entry points until replacements are verified.
+- [x] Verify each replacement entry point at runtime as controls move; retain
+  existing entry points until replacements are verified. See
+  [Step 8 entry points](../../ui-workflow-step8/ENTRY_POINTS.md).
 - [x] Update client Present to remove editing chrome and selection marks.
   See [Step 7 evidence](../../ui-workflow-step7/README.md).
 - [x] Keep renderer/geometry acceptance separate from UI layout checks.
@@ -122,10 +123,11 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [x] Complete Step 7 Review/Present/engineering journey with existing gates
   and client Present chrome strip. See
   [Step 7 evidence](../../ui-workflow-step7/README.md).
+- [x] Complete Step 8 starters / save-reopen / area entry-point verification.
+  See [Step 8 evidence](../../ui-workflow-step8/README.md).
 
-Next implementation scope: step 8 verification of starters, saved projects, and
-the full golden journey. Keep completing the 2D Room reference and commercial
-dialog design pass in parallel.
+UI workflow redesign build sequence (steps 1–8) is complete. Remaining parallel
+work: 2D Room reference update and commercial dialog design pass.
 
 ## Validation performed in this documentation pass
 
