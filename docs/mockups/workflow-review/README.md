@@ -111,10 +111,12 @@ stacks. Both reference widths were checked for root horizontal overflow:
 
 - [x] Complete Step 4 area tool/library relocation (handlers unchanged). See
   [Step 4 evidence](../../ui-workflow-step4/README.md).
+- [x] Complete Step 5 camera framing, cutaway clarification, and material
+  feedback. See [Step 5 evidence](../../ui-workflow-step5/README.md).
 
-Next implementation scope: step 5 camera/cutaway and material feedback polish.
-Keep completing the 2D Room reference in parallel; design commercial dialogs
-before their later migration.
+Next implementation scope: step 6 model adapters / assembly / material quality
+(separate from CSS). Keep completing the 2D Room reference in parallel; design
+commercial dialogs before their later migration.
 
 ## Validation performed in this documentation pass
 

@@ -1,3 +1,4 @@
+import { clickInteriorsTool } from "./plannerStart";
 import { expect, test } from "@playwright/test";
 import { openGoldenCabinetRun } from "./golden-cabinet-run.helpers";
 
@@ -6,7 +7,7 @@ test.describe("Phase 3 cabinet plan excellence", () => {
     test.setTimeout(90_000);
     await openGoldenCabinetRun(page);
 
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await expect(page.getByTestId("interiors-cabinet-run-tray")).toBeVisible();
 
     // Select a golden-run cabinet so the Interiors run chrome sees selectedRunId.

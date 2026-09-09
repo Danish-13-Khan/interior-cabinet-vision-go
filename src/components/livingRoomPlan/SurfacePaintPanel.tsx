@@ -10,6 +10,8 @@ import {
   stageFinishImportFile,
   stageFinishImportUrl,
   stageManufacturerFinish,
+  surfacePaintCurrentFinishLabel,
+  surfacePaintScopeLabel,
   type FinishImportDraft,
 } from "../../domain/livingRoom";
 import { FinishImportExtras } from "./FinishImportExtras";
@@ -105,6 +107,20 @@ export function SurfacePaintPanel({
 
   return (
     <section className="lr-surface-painter" aria-label="Surface paint">
+      <div className="lr-paint-apply-summary" data-testid="paint-apply-summary">
+        <strong>Current finish</strong>
+        <span>{surfacePaintCurrentFinishLabel({
+          finishName: activeMaterial?.name,
+          materialId: activeMaterialId,
+        })}</span>
+        <strong>Applying to</strong>
+        <span>{surfacePaintScopeLabel({
+          target,
+          wallSide: wall ? String(wall.extensions?.wallSide ?? "") : null,
+          selectionCount: selectedObjects.length,
+          slotName: target === "selection" ? activeSlot : target,
+        })}</span>
+      </div>
       <div className="lr-paint-targets" role="tablist" aria-label="Paint target">
         <button type="button" role="tab" className={target === "floor" ? "is-active" : ""} onClick={() => setTarget("floor")}>Floor</button>
         <button type="button" role="tab" className={target === "ceiling" ? "is-active" : ""} onClick={() => setTarget("ceiling")}>Ceiling</button>

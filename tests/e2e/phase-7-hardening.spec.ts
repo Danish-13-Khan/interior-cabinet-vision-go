@@ -10,7 +10,7 @@ import {
   reviseBaseWidth,
   selectGoldenCabinet,
 } from "./golden-cabinet-run.helpers";
-import { openInteriorsHome } from "./plannerStart";
+import { clickInteriorsTool, openInteriorsHome } from "./plannerStart";
 import {
   assertPresentTabletLayout,
   assertProjectsFocusSurvivesAutosaveRerender,
@@ -41,7 +41,7 @@ test.describe("Phase 7 hardening", () => {
   test("Projects dialog keeps later focus across parent autosave rerenders", async ({ page }) => {
     await openGoldenCabinetRun(page);
     await page.clock.install();
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await page.getByTestId("interiors-project-crumb").click();
     await assertProjectsFocusSurvivesAutosaveRerender(page);
@@ -54,7 +54,7 @@ test.describe("Phase 7 hardening", () => {
     await expect(page.getByRole("button", { name: "3D", exact: true })).toHaveClass(/is-active/);
     await page.keyboard.press("1");
     await expect(page.getByRole("button", { name: "2D", exact: true })).toHaveClass(/is-active/);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await page.keyboard.press(undoChord());
     await expect(cabinetWidthNode(page, GOLDEN_RUN_OBJECT_IDS.baseA))
@@ -67,7 +67,7 @@ test.describe("Phase 7 hardening", () => {
     await page.getByTestId("interiors-present").click();
     await page.getByRole("button", { name: "Freeze quote", exact: true }).click();
     await expect(page.getByTestId("proposal-quote-status")).toContainText(/Frozen Rev/i);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await page.getByTestId("interiors-present").click();
     await expect(page.getByTestId("proposal-quote-status")).toContainText(/Stale · frozen Rev/i);
@@ -80,7 +80,7 @@ test.describe("Phase 7 hardening", () => {
 
   test("2D edits stay visible in 3D semantics", async ({ page }) => {
     await openGoldenCabinetRun(page);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await openGoldenRunModelView(page);
     await dismiss3dGuideIfVisible(page);
@@ -91,7 +91,7 @@ test.describe("Phase 7 hardening", () => {
   test("tablet Cabinet Run keeps selection properties editable", async ({ page }) => {
     await page.setViewportSize(TABLET_VIEWPORT);
     await openGoldenCabinetRun(page);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await selectGoldenCabinet(page, GOLDEN_RUN_OBJECT_IDS.baseA);
     const inspector = page.getByTestId("interiors-inspector");
     await expect(inspector).toBeVisible();
@@ -114,7 +114,7 @@ test.describe("Phase 7 hardening", () => {
   test("autosave recovery restores revised geometry after reload", async ({ page }) => {
     test.setTimeout(process.env.CI ? 120_000 : 60_000);
     await openGoldenCabinetRunForRecovery(page);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await waitForRecoveryAutosave(page);
     await page.reload();
@@ -130,7 +130,7 @@ test.describe("Phase 7 hardening", () => {
 
   test("redo restores a undone cabinet width change", async ({ page }) => {
     await openGoldenCabinetRun(page);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await page.keyboard.press(undoChord());
     await expect(cabinetWidthNode(page, GOLDEN_RUN_OBJECT_IDS.baseA))

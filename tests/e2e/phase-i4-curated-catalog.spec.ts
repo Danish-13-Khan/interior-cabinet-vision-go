@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function openBuildPlan(page: Page) {
   await createShellPlan(page);
@@ -19,6 +19,6 @@ test("I4 offers curated opening families and SKU millwork", async ({ page }) => 
   await page.getByRole("button", { name: /Place window on selected wall/ }).click();
   await expect(page.locator('[data-opening-id][data-catalog-item="opening:window-awning"]')).toHaveCount(1);
 
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*MW-BASE-900.*Place/ })).toBeVisible();
 });

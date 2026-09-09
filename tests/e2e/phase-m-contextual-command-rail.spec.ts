@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 test("Phase M contextual command rail adapts to wall and cabinet selection", async ({ page }) => {
   test.setTimeout(60_000);
@@ -12,7 +12,7 @@ test("Phase M contextual command rail adapts to wall and cabinet selection", asy
   await expect(page.getByTestId("rail-measure")).toBeVisible();
   await expect(page.getByTestId("rail-camera")).toBeVisible();
 
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await page.locator('line[data-wall-id="lr-wall-back"]').click({ force: true });
   await expect(rail).toHaveAttribute("data-rail-kind", "wall");
   await expect(page.getByTestId("rail-add-panel")).toBeVisible();
@@ -22,7 +22,7 @@ test("Phase M contextual command rail adapts to wall and cabinet selection", asy
   await expect(page.getByTestId("rail-flip-side")).toBeVisible();
   await expect(page.getByTestId("rail-rotate")).toHaveCount(0);
 
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
   await expect(page.locator("[data-object-id].is-selected").first()).toBeVisible();
   await expect(rail).toHaveAttribute("data-rail-kind", "cabinet");

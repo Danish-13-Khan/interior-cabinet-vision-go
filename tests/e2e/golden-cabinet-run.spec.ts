@@ -1,3 +1,4 @@
+import { clickInteriorsTool } from "./plannerStart";
 import { expect, test } from "@playwright/test";
 import {
   GOLDEN_RUN_COUNTERTOP_DEPTH_MM,
@@ -60,7 +61,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   await test.step("revise-width", async () => {
     await page.getByTestId("interiors-present").click();
     quoteBefore = await readSellTotal(page);
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
   });
 
@@ -70,7 +71,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("assert-cutlist", async () => {
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
       .toHaveAttribute("data-width-mm", String(GOLDEN_RUN_REVISED_WIDTH_MM));
     await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))

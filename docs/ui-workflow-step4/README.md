@@ -45,8 +45,8 @@ extra nav click because they invoke `applyChromeTool` directly.
 ## Explicitly out of scope
 
 - Quote/freeze/approval dialog redesign (step 7)
-- Client Present chrome removal (step 5+)
-- Camera/cutaway polish (step 5)
+- Client Present chrome removal
+- Camera/cutaway polish — completed in [Step 5](../ui-workflow-step5/README.md)
 - Domain, costing, or handler rewrites
 
 ## Suggested verification (user-run)

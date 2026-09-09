@@ -234,6 +234,15 @@ export {
   primaryMaterialId,
 } from "./paintSelection";
 export {
+  surfacePaintCurrentFinishLabel,
+  surfacePaintScopeLabel,
+  type SurfacePaintTarget,
+} from "./surfacePaintFeedback";
+export {
+  MATERIAL_TEXTURE_FALLBACK_EVENT,
+  reportMaterialTextureFallback,
+} from "./materialTextureFeedback";
+export {
   addImportedFinish,
   finishMapUrl,
   mapPayloadExceedsProjectLimit,
