@@ -1,5 +1,6 @@
 import { interiorsCabinetRunFamilyItems, type InteriorsChromeTool } from "../../domain/desktopUx";
 import { LIVING_ROOM_CATALOG } from "../../domain/livingRoom";
+import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
 
 export function InteriorsCabinetRunCatalog({
   tool,
@@ -11,6 +12,7 @@ export function InteriorsCabinetRunCatalog({
   onAdd: (catalogItemId: string, wallId?: string) => void;
 }) {
   const families = interiorsCabinetRunFamilyItems(tool, LIVING_ROOM_CATALOG);
+  const previewLabel = catalogPreviewFallbackLabel(false);
   return (
     <>
       <div className="context-panel-heading">
@@ -24,7 +26,10 @@ export function InteriorsCabinetRunCatalog({
             key={item.id}
             onClick={() => onAdd(item.id, wallId || undefined)}
           >
-            <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
+            <span className={`lr-asset-preview is-${item.category}`}>
+              <i /><i /><i />
+              {previewLabel ? <em className="lr-asset-preview-fallback">{previewLabel}</em> : null}
+            </span>
             <strong>{item.name}</strong>
             <small>
               {item.cabinetType}

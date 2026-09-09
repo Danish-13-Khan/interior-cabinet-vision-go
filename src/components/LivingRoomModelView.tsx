@@ -35,7 +35,7 @@ import {
 } from "./livingRoomScene/ModelWallVisibilityHost";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
-import { MaterialTextureLoadBanner } from "./livingRoomScene/MaterialTextureLoadBanner";
+import { ModelViewFeedbackBanners } from "./livingRoomScene/ModelViewFeedbackBanners";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -116,7 +116,7 @@ export function LivingRoomModelView({
           onFitRoom={camera.fitRoom} onFocusSelection={camera.focusSelection}
         />
       ) : null}
-      {!presentation ? <MaterialTextureLoadBanner /> : null}
+      {!presentation ? <ModelViewFeedbackBanners /> : null}
       <div
         className="lr-model-canvas-host"
         data-testid="lr-model-canvas-host"
