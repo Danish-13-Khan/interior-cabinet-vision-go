@@ -1,0 +1,307 @@
+{
+  "none": {
+    "plan": [
+      {
+        "id": "select",
+        "label": "Select",
+        "testId": "rail-select"
+      },
+      {
+        "id": "measure",
+        "label": "Measure",
+        "testId": "rail-measure"
+      },
+      {
+        "id": "camera",
+        "label": "Camera",
+        "testId": "rail-camera"
+      }
+    ],
+    "model": [
+      {
+        "id": "select",
+        "label": "Select",
+        "testId": "rail-select"
+      },
+      {
+        "id": "camera",
+        "label": "Camera",
+        "testId": "rail-camera"
+      }
+    ],
+    "render": [
+      {
+        "id": "select",
+        "label": "Select",
+        "testId": "rail-select"
+      },
+      {
+        "id": "measure",
+        "label": "Measure",
+        "testId": "rail-measure"
+      },
+      {
+        "id": "camera",
+        "label": "Camera",
+        "testId": "rail-camera"
+      }
+    ]
+  },
+  "wall": {
+    "plan": [
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "add-panel",
+        "label": "Add Panel",
+        "testId": "rail-add-panel"
+      },
+      {
+        "id": "hide-wall",
+        "label": "Hide Wall",
+        "testId": "rail-hide-wall"
+      }
+    ],
+    "model": [
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "add-panel",
+        "label": "Add Panel",
+        "testId": "rail-add-panel"
+      },
+      {
+        "id": "hide-wall",
+        "label": "Hide Wall",
+        "testId": "rail-hide-wall"
+      }
+    ],
+    "render": [
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "add-panel",
+        "label": "Add Panel",
+        "testId": "rail-add-panel"
+      },
+      {
+        "id": "hide-wall",
+        "label": "Hide Wall",
+        "testId": "rail-hide-wall"
+      }
+    ]
+  },
+  "cabinet": {
+    "plan": [
+      {
+        "id": "rotate",
+        "label": "Rotate",
+        "testId": "rail-rotate"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ],
+    "model": [
+      {
+        "id": "rotate",
+        "label": "Rotate",
+        "testId": "rail-rotate"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ],
+    "render": [
+      {
+        "id": "rotate",
+        "label": "Rotate",
+        "testId": "rail-rotate"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ]
+  },
+  "panel": {
+    "plan": [
+      {
+        "id": "flip-side",
+        "label": "Flip Side",
+        "testId": "rail-flip-side"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ],
+    "model": [
+      {
+        "id": "flip-side",
+        "label": "Flip Side",
+        "testId": "rail-flip-side"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ],
+    "render": [
+      {
+        "id": "flip-side",
+        "label": "Flip Side",
+        "testId": "rail-flip-side"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ]
+  },
+  "other": {
+    "plan": [
+      {
+        "id": "rotate",
+        "label": "Rotate",
+        "testId": "rail-rotate"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ],
+    "model": [
+      {
+        "id": "rotate",
+        "label": "Rotate",
+        "testId": "rail-rotate"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ],
+    "render": [
+      {
+        "id": "rotate",
+        "label": "Rotate",
+        "testId": "rail-rotate"
+      },
+      {
+        "id": "duplicate",
+        "label": "Duplicate",
+        "testId": "rail-duplicate"
+      },
+      {
+        "id": "material",
+        "label": "Material",
+        "testId": "rail-material"
+      },
+      {
+        "id": "delete",
+        "label": "Delete",
+        "testId": "rail-delete"
+      }
+    ]
+  }
+}

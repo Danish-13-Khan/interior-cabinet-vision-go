@@ -1,0 +1,22 @@
+{
+  "project.json": {
+    "bytes": 37445,
+    "sha256": "ac7b546e0491818773e8482c2fd12e5da50914437e0d45b5df393c13ea92faa0"
+  },
+  "cutlist.csv": {
+    "bytes": 5317,
+    "sha256": "a511a23742c8a149f7c0b0c7a165a8521b4fe1c87fc69e5a5a5ca10cc8e5d43d"
+  },
+  "machine-preview.json": {
+    "bytes": 67092,
+    "sha256": "f3880834420066192729660e38af95f11d0d5390bee806b2c871415829e06402"
+  },
+  "shortcuts.json": {
+    "bytes": 1859,
+    "sha256": "65663b3df0a7d89f5d866ddd66f144e76f0644734b4761430622db0c3086d139"
+  },
+  "contextual-commands.json": {
+    "bytes": 5942,
+    "sha256": "ad7bc0bdc5c748edf267dc2bc9d522d9292e32a198e236509e2ab8400e64ea2e"
+  }
+}

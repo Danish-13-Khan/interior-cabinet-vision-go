@@ -1,0 +1,133 @@
+{
+  "undo": {
+    "key": "z",
+    "meta": true,
+    "ctrl": true
+  },
+  "redo": {
+    "key": "z",
+    "meta": true,
+    "ctrl": true,
+    "shift": true
+  },
+  "save": {
+    "key": "s",
+    "meta": true,
+    "ctrl": true
+  },
+  "new": {
+    "key": "n",
+    "meta": true,
+    "ctrl": true
+  },
+  "copy": {
+    "key": "c",
+    "meta": true,
+    "ctrl": true
+  },
+  "paste": {
+    "key": "v",
+    "meta": true,
+    "ctrl": true
+  },
+  "duplicate": {
+    "key": "d",
+    "meta": true,
+    "ctrl": true
+  },
+  "selectAll": {
+    "key": "a",
+    "meta": true,
+    "ctrl": true
+  },
+  "remove": {
+    "key": "Delete"
+  },
+  "commandPalette": {
+    "key": "k",
+    "meta": true,
+    "ctrl": true
+  },
+  "shortcutHelp": {
+    "key": "?"
+  },
+  "viewPlan": {
+    "key": "1",
+    "meta": true,
+    "ctrl": true
+  },
+  "viewFront": {
+    "key": "2",
+    "meta": true,
+    "ctrl": true
+  },
+  "viewSide": {
+    "key": "3",
+    "meta": true,
+    "ctrl": true
+  },
+  "view3d": {
+    "key": "4",
+    "meta": true,
+    "ctrl": true
+  },
+  "toggleToolRail": {
+    "key": "[",
+    "meta": true,
+    "ctrl": true
+  },
+  "toggleInspector": {
+    "key": "]",
+    "meta": true,
+    "ctrl": true
+  },
+  "cycleWorkspace": {
+    "key": "Tab",
+    "meta": true,
+    "ctrl": true
+  },
+  "draftSelect": {
+    "key": "v"
+  },
+  "draftNote": {
+    "key": "n"
+  },
+  "draftLeader": {
+    "key": "l"
+  },
+  "toggleGrid": {
+    "key": "g"
+  },
+  "rotate90": {
+    "key": "r"
+  },
+  "cycleSnap": {
+    "key": "s",
+    "shift": true
+  },
+  "modelCamTop": {
+    "key": "1"
+  },
+  "modelCamFront": {
+    "key": "2"
+  },
+  "modelCamSide": {
+    "key": "3"
+  },
+  "modelCamIsometric": {
+    "key": "4"
+  },
+  "modelCamPerspective": {
+    "key": "5"
+  },
+  "modelFitRoom": {
+    "key": "f"
+  },
+  "modelFocusSelection": {
+    "key": "f",
+    "shift": true
+  },
+  "openMaterial": {
+    "key": "b"
+  }
+}
