@@ -96,3 +96,43 @@ export async function drawRectangleRoom(page: Page, x0 = 0.28, y0 = 0.28, x1 = 0
   await page.mouse.move(end.x, end.y, { steps: 5 });
   await page.mouse.up();
 }
+
+export type InteriorsWorkflowAreaId = "room" | "cabinets" | "materials" | "review" | "present";
+
+export type InteriorsToolId =
+  | "select"
+  | "room"
+  | "wall"
+  | "door"
+  | "window"
+  | "import"
+  | "cabinet"
+  | "run"
+  | "shelf"
+  | "material"
+  | "objects";
+
+const INTERIORS_TOOL_WORKFLOW_AREA: Record<InteriorsToolId, InteriorsWorkflowAreaId | null> = {
+  select: null,
+  room: "room",
+  wall: "room",
+  door: "room",
+  window: "room",
+  import: "room",
+  cabinet: "cabinets",
+  run: "cabinets",
+  shelf: "cabinets",
+  objects: "cabinets",
+  material: "materials",
+};
+
+/** Step 4+ tool rail is scoped to the active workflow area. */
+export async function selectInteriorsWorkflowArea(page: Page, area: InteriorsWorkflowAreaId) {
+  await page.getByTestId(`interiors-workflow-area-${area}`).click();
+}
+
+export async function clickInteriorsTool(page: Page, tool: InteriorsToolId) {
+  const area = INTERIORS_TOOL_WORKFLOW_AREA[tool];
+  if (area) await selectInteriorsWorkflowArea(page, area);
+  await page.getByTestId(`interiors-tool-${tool}`).click();
+}

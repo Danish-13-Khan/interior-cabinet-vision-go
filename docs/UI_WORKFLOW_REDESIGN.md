@@ -1,10 +1,10 @@
 # Cabinet Studio UI workflow redesign
 
 Status: design direction accepted; detailed screen designs remain under review,
-September 9, 2026. Steps 1–3 are complete (inventory, contrast/overflow CSS,
-shared shell navigation). The 2D Room reference checklist remains open as
-parallel design work. Production release and Product Book replacement are
-separate.
+September 9, 2026. Steps 1–4 are complete (inventory, contrast/overflow CSS,
+shared shell, area tool/library relocation). The 2D Room reference checklist
+remains open as parallel design work. Production release and Product Book
+replacement are separate.
 
 ## Problem and intended outcome
 
@@ -228,7 +228,9 @@ permission to bypass domain commands or rewrite project serialization.
    independent panel scroll. [Step 3 evidence](ui-workflow-step3/README.md).
    The 2D Room reference checklist remains open as parallel design work; this
    shell uses the live plan canvas. Do not relocate tools until step 4.
-4. Move room/cabinet/material controls, reusing existing handlers and undo.
+4. **Complete — area tool/library relocation:** route room/cabinet/material/review
+   controls through workflow areas, reusing existing handlers and undo.
+   [Step 4 evidence](ui-workflow-step4/README.md).
 5. Fix camera framing/cutaways and material feedback as distinct changes.
 6. Resolve model adapters, assembly and material quality separately from CSS.
 7. Design the detailed quotation/freeze/approval/export screens before moving

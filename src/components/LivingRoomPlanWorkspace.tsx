@@ -177,6 +177,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         issues={props.issues} readability={readability.settings} onReadability={readability.update}
         inspectRoom={inspectRoom} setInspectRoom={setInspectRoom}
         onWorkspaceView={chrome.changeWorkspaceView}
+        onPresent={chrome.present}
         onRegisterViewControls={registerViewControls}
         onFitPlan={() => viewControlsRef.current?.fitPlan()}
         onFitSelection={() => viewControlsRef.current?.fitSelection()}
