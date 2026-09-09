@@ -119,6 +119,10 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     setWorkflowArea("present");
   }
 
+  function returnToReview() {
+    setWorkflowArea("review");
+  }
+
   function showRenderStudio() {
     input.onCloseProjectHome();
     setPlannerMode("design");
@@ -138,6 +142,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     changeWorkspaceView,
     applyChromeTool,
     present,
+    returnToReview,
     showRenderStudio,
   };
 }

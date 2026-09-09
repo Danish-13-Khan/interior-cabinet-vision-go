@@ -29,6 +29,7 @@ type ModelViewSceneProps = {
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
+  interactive?: boolean;
   fitVersion?: number;
   fitMode?: ModelViewFitMode;
   fitSelection?: ModelViewFitSelection;
@@ -47,6 +48,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     scene, quality, viewportQuality, renderMode, lightingQuality, projectLightScale,
     windowKeyScale, selectedIds, activeOpeningId, activeWallId, activeCameraId, viewPreset,
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
+    interactive = true,
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu,
@@ -58,7 +60,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
       dpr={[1, quality.pixelRatio]}
       gl={{ antialias: true, preserveDrawingBuffer: true }}
       camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: 100 }}
-      onPointerMissed={onClearSelection}
+      onPointerMissed={interactive ? onClearSelection : undefined}
     >
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
         <CompiledSceneRenderer
@@ -73,6 +75,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
+          interactive={interactive}
           renderQuality={viewportQuality}
           renderComposition="architectural"
           renderMode={renderMode}

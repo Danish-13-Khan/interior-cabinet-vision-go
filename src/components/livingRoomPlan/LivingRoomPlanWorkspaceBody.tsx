@@ -114,6 +114,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           proposal={props.proposal}
           handoff={props.handoff}
           onCapture={() => props.onWorkspaceView("render")}
+          onReturnToReview={props.onReturnToReview}
         />
       ) : null}
       <LivingRoomPlanStage

@@ -1,11 +1,11 @@
 # Cabinet Studio UI workflow redesign
 
 Status: design direction accepted; detailed screen designs remain under review,
-September 9, 2026. Steps 1–6 are complete (inventory, contrast/overflow CSS,
-shared shell, area tool/library relocation, camera framing/cutaway + material
-feedback, model adapter/assembly/material quality surfaces). The 2D Room
-reference checklist remains open as parallel design work. Production release
-and Product Book replacement are separate.
+September 9, 2026. Steps 1–7 are complete (inventory through Review/Present/
+engineering journey with existing gates and client Present chrome strip). Full
+quotation/freeze/approval/export dialog redesign remains a design-pass follow-up.
+The 2D Room reference checklist remains open as parallel design work. Production
+release and Product Book replacement are separate.
 
 ## Problem and intended outcome
 
@@ -241,9 +241,11 @@ permission to bypass domain commands or rewrite project serialization.
    fallback, corner-preview, assembly, and GLB/catalog-preview signals in Review
    and the viewport without changing compile or gate math.
    [Step 6 evidence](ui-workflow-step6/README.md).
-7. Design the detailed quotation/freeze/approval/export screens before moving
-   their controls. Integrate Review, client Present and engineering navigation
-   with existing gates; verify the complete proposal-to-production journey.
+7. **Complete — Review / Present / engineering journey:** surface existing
+   proposal gate rows, client identity, Present client chrome strip, and
+   Return-to-Review / Open Present navigation without changing gate math.
+   Full commercial dialog redesign remains a documented design-pass follow-up.
+   [Step 7 evidence](ui-workflow-step7/README.md).
 8. Verify representative room starters, saved projects and full golden journey.
 
 Required verification: meaningful existing unit/domain tests, build, relevant

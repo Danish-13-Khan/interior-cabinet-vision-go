@@ -1,0 +1,61 @@
+/* Step 7 — client Present chrome strip + proposal readiness review rows */
+
+.lr-model-viewport.is-client-presentation .lr-model-canvas-host {
+  cursor: grab;
+}
+
+.lr-proposal-gate-panel .lr-proposal-gate-row {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 4px;
+  width: 100%;
+  padding: 5px 2px;
+  border-bottom: 1px solid var(--iu-line, #aab6be);
+  color: var(--iu-ink, #1c2822);
+  font-size: 0.57rem;
+  line-height: 1.3;
+}
+
+.lr-proposal-gate-panel .lr-proposal-gate-row span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lr-proposal-gate-panel .lr-proposal-gate-row small {
+  color: var(--iu-muted, #5b6871);
+  overflow-wrap: anywhere;
+}
+
+.lr-proposal-gate-panel .lr-proposal-gate-row.is-error b { color: #ae4a2f; }
+.lr-proposal-gate-panel .lr-proposal-gate-row.is-warning b { color: #9a751e; }
+.lr-proposal-gate-panel .lr-proposal-gate-row.is-pass b { color: #4f8064; }
+
+.interiors-review-journey,
+.interiors-proposal-identity {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.interiors-review-journey p,
+.interiors-review-journey-note {
+  margin: 0;
+  color: var(--iu-muted, #5b6871);
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+.interiors-review-journey-note {
+  font-size: 0.55rem;
+}
+
+.interiors-present-panel > button[data-testid="interiors-present-return-review"] {
+  justify-self: start;
+}
+
+.lr-present-titlebar {
+  flex-wrap: wrap;
+  gap: 8px;
+}
