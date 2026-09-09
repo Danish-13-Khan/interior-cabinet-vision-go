@@ -101,14 +101,17 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [x] Complete Step 2 control contrast/overflow CSS in the existing layout
   (Calm/Compact states; handlers unchanged). See
   [Step 2 evidence](../../ui-workflow-step2/README.md).
+- [x] Complete Step 3 shared shell: unnumbered free nav, File menu, inspector
+  expansion and independent panel scroll. See
+  [Step 3 evidence](../../ui-workflow-step3/README.md). Tool relocation is step 4.
 - [ ] Verify each replacement entry point at runtime as controls move; retain
   existing entry points until replacements are verified.
 - [ ] Update client Present to remove editing chrome and selection marks.
 - [x] Keep renderer/geometry acceptance separate from UI layout checks.
 
-Next implementation scope: after the 2D Room reference is reviewed, step 3
-shared shell and inspector expansion. Design commercial dialogs before their
-later migration.
+Next implementation scope: step 4 move room/cabinet/material controls onto the
+shared shell areas, reusing handlers. Keep completing the 2D Room reference in
+parallel; design commercial dialogs before their later migration.
 
 ## Validation performed in this documentation pass
 
