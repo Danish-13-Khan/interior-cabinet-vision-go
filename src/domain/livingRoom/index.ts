@@ -253,6 +253,13 @@ export {
   type ModelQualityKind,
 } from "./modelQualityFeedback";
 export {
+  proposalGateFeedbackRows,
+  proposalGateJourneyHint,
+  proposalGateSeverityClass,
+  type ProposalGateFeedbackRow,
+} from "./proposalGateFeedback";
+export { modelViewClientPresentationProps } from "./modelViewClientPresentation";
+export {
   addImportedFinish,
   finishMapUrl,
   mapPayloadExceedsProjectLimit,

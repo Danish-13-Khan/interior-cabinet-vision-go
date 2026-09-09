@@ -23,8 +23,9 @@ existing gates.
 ## Explicitly out of scope
 
 - Changing `compileCabinet`, `validateCabinetAssembly`, or export gate logic
-- Quote / freeze / approval dialog redesign (step 7)
-- Client Present chrome removal
+- Quote / freeze / approval dialog redesign — design-pass follow-up (Step 7
+  landed gate/journey UI; see [step 7](../ui-workflow-step7/README.md))
+- Client Present chrome removal — done in [step 7](../ui-workflow-step7/README.md)
 - Inventing new corner cut or manufacturing math
 
 ## Suggested verification (user-run)

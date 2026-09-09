@@ -96,7 +96,9 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [ ] Update and review the first-class 2D Room reference before step 3: drawing,
   measurement, pan/zoom, snap, underlay/PDF, room management, runs and plan export.
 - [ ] Detail room, run, opening and empty-selection inspectors.
-- [ ] Detail quotation, freeze, approval, save/recovery and export dialogs.
+- [ ] Detail quotation, freeze, approval, save/recovery and export dialogs
+  (design pass; Step 7 landed gate/journey UI only — see
+  [Step 7 evidence](../../ui-workflow-step7/README.md)).
 - [x] Complete Step 1 source inventory, proposed destinations and output baselines.
 - [x] Complete Step 2 control contrast/overflow CSS in the existing layout
   (Calm/Compact states; handlers unchanged). See
@@ -106,7 +108,8 @@ stacks. Both reference widths were checked for root horizontal overflow:
   [Step 3 evidence](../../ui-workflow-step3/README.md). Tool relocation is step 4.
 - [ ] Verify each replacement entry point at runtime as controls move; retain
   existing entry points until replacements are verified.
-- [ ] Update client Present to remove editing chrome and selection marks.
+- [x] Update client Present to remove editing chrome and selection marks.
+  See [Step 7 evidence](../../ui-workflow-step7/README.md).
 - [x] Keep renderer/geometry acceptance separate from UI layout checks.
 
 - [x] Complete Step 4 area tool/library relocation (handlers unchanged). See
@@ -116,10 +119,13 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [x] Complete Step 6 model adapters / assembly / material quality feedback
   (gates and compile math unchanged). See
   [Step 6 evidence](../../ui-workflow-step6/README.md).
+- [x] Complete Step 7 Review/Present/engineering journey with existing gates
+  and client Present chrome strip. See
+  [Step 7 evidence](../../ui-workflow-step7/README.md).
 
-Next implementation scope: step 7 quotation/freeze/approval/export design, then
-Present/engineering navigation with existing gates. Keep completing the 2D Room
-reference in parallel.
+Next implementation scope: step 8 verification of starters, saved projects, and
+the full golden journey. Keep completing the 2D Room reference and commercial
+dialog design pass in parallel.
 
 ## Validation performed in this documentation pass
 
