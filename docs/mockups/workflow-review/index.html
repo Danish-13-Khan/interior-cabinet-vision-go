@@ -1,0 +1,1448 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Cabinet Workflow</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:1800px;margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Cabinet Workflow" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Cabinet Workflow&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;cabinet-flow&quot; aria-label=&quot;Cabinet Studio proposed workspace&quot;&gt;
+&lt;style&gt;
+#cabinet-flow{--cs-bg:light-dark(#f6f7f4,#151d19);--cs-panel:light-dark(#ffffff,#202b24);--cs-ink:light-dark(#23342a,#edf4ef);--cs-muted:light-dark(#526258,#b4c3b9);--cs-line:light-dark(#d5dfd7,#425447);--cs-accent:light-dark(#206c49,#92d8af);--cs-active:light-dark(#e3f2e8,#304d3a);color:var(--cs-ink);background:var(--cs-bg);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.45;border:1px solid var(--cs-line);border-radius:12px;overflow-wrap:anywhere;isolation:isolate}
+#cabinet-flow *{box-sizing:border-box;min-width:0}#cabinet-flow button,#cabinet-flow input,#cabinet-flow select{font:inherit;color:var(--cs-ink);background:var(--cs-panel);border:1px solid var(--cs-line);border-radius:7px;padding:8px 10px;max-width:100%}#cabinet-flow button{cursor:pointer;text-align:left;white-space:normal}#cabinet-flow button:hover{border-color:var(--cs-accent)}#cabinet-flow button[aria-pressed=true]{background:var(--cs-active);border-color:var(--cs-accent);color:var(--cs-accent)}#cabinet-flow .cs-primary{background:var(--cs-accent);color:var(--cs-bg);border-color:var(--cs-accent)}#cabinet-flow button:focus-visible,#cabinet-flow summary:focus-visible{outline:2px solid var(--cs-accent);outline-offset:3px}#cabinet-flow .cs-top{padding:16px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--cs-line)}#cabinet-flow .cs-brand{font-weight:600;display:flex;gap:9px;align-items:center}#cabinet-flow .cs-logo{background:var(--cs-accent);color:var(--cs-bg);padding:6px;border-radius:8px}#cabinet-flow .cs-job{flex:1}#cabinet-flow small{display:block;font-size:12px;color:var(--cs-muted);line-height:1.5}#cabinet-flow .cs-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}#cabinet-flow .cs-steps{display:flex;padding:10px 18px;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--cs-line)}#cabinet-flow .cs-steps button{border-color:transparent;background:transparent}#cabinet-flow .cs-steps button[aria-pressed=true]{background:var(--cs-active);border-color:var(--cs-accent)}#cabinet-flow .cs-body{display:grid;grid-template-columns:220px minmax(0,1fr) 240px;align-items:start}#cabinet-flow .cs-left,#cabinet-flow .cs-right{padding:16px;background:var(--cs-panel)}#cabinet-flow .cs-left{border-right:1px solid var(--cs-line)}#cabinet-flow .cs-right{border-left:1px solid var(--cs-line)}#cabinet-flow h3{font:600 14px/1.4 Inter,system-ui,sans-serif;margin:0 0 5px}#cabinet-flow .cs-section{margin:16px 0}#cabinet-flow .cs-label{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--cs-muted);margin:0 0 8px}#cabinet-flow .cs-search{width:100%;margin:14px 0 8px}#cabinet-flow details{border-top:1px solid var(--cs-line);padding:12px 0}#cabinet-flow summary{cursor:pointer;font-weight:500;overflow-wrap:anywhere}#cabinet-flow details&gt;div{padding-top:12px}#cabinet-flow .cs-catalog{display:grid;gap:10px;margin-top:12px}#cabinet-flow .cs-object{display:grid;grid-template-columns:48px minmax(0,1fr);gap:9px;align-items:center;width:100%;padding:10px}#cabinet-flow .cs-thumb{height:48px;background:var(--cs-bg);display:grid;place-items:center;border-radius:5px;color:var(--cs-accent)}#cabinet-flow .cs-thumb svg{width:28px;height:28px}#cabinet-flow .cs-main{padding:14px;min-height:540px}#cabinet-flow .cs-viewbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:12px}#cabinet-flow .cs-viewbar button,#cabinet-flow .cs-viewbar select{font-size:12px}#cabinet-flow .cs-scene{background:light-dark(#e8ece8,#cdd7d0);border-radius:10px;position:relative;overflow:hidden}#cabinet-flow .cs-scene svg{display:block;width:100%;height:auto;min-height:300px}#cabinet-flow .cs-caption{padding:10px 12px;color:#304638;font-size:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}#cabinet-flow .cs-selected{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}#cabinet-flow .cs-selected span{flex:1}#cabinet-flow .cs-selected button{font-size:12px}#cabinet-flow .cs-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 18px;border-top:1px solid var(--cs-line);font-size:12px;color:var(--cs-muted)}#cabinet-flow .cs-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#cabinet-flow label{display:grid;gap:5px;font-size:12px;color:var(--cs-muted)}#cabinet-flow input,#cabinet-flow select{width:100%;font-size:14px}#cabinet-flow .cs-swatch{display:flex;width:100%;align-items:center;gap:10px;margin-top:8px}#cabinet-flow .cs-chip{width:36px;height:36px;flex:0 0 36px;border-radius:5px;border:1px solid #819486}#cabinet-flow .cs-style{display:flex;gap:4px;margin:3px 0 7px}#cabinet-flow .cs-style i{height:18px;flex:1;border-radius:2px}#cabinet-flow .cs-stylebutton{width:100%;margin:0 0 8px}#cabinet-flow .cs-hint{margin-top:12px;padding:10px;background:var(--cs-bg);border-radius:6px;font-size:12px;color:var(--cs-muted)}#cabinet-flow [hidden]{display:none!important}#cabinet-flow .cs-present .cs-left,#cabinet-flow .cs-present .cs-right,#cabinet-flow .cs-present .cs-selected{display:none}#cabinet-flow .cs-present{grid-template-columns:1fr}#cabinet-flow .cs-present .cs-scene{max-width:790px;margin:auto}#cabinet-flow .cs-review{padding:12px 0;border-bottom:1px solid var(--cs-line)}#cabinet-flow .cs-plan{fill:#eee8dc;stroke:#6b7d6f;stroke-width:3}#cabinet-flow .cs-finish{fill:#b28d64}#cabinet-flow .cs-compact .cs-object{padding:6px}#cabinet-flow .cs-compact .cs-catalog{gap:6px}
+@media(max-width:850px){#cabinet-flow .cs-body{grid-template-columns:200px minmax(0,1fr)}#cabinet-flow .cs-right{grid-column:1/-1;border-left:0;border-top:1px solid var(--cs-line);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}#cabinet-flow .cs-right&gt;header{grid-column:1/-1}#cabinet-flow .cs-main{min-height:0}#cabinet-flow .cs-present{grid-template-columns:1fr}}
+@media(max-width:560px){#cabinet-flow .cs-body{display:flex;flex-direction:column}#cabinet-flow .cs-left,#cabinet-flow .cs-right,#cabinet-flow .cs-main{width:100%;border-right:0}#cabinet-flow .cs-main{order:-1}#cabinet-flow .cs-right{display:block}#cabinet-flow .cs-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}#cabinet-flow .cs-object{grid-template-columns:1fr}#cabinet-flow .cs-top{gap:10px;padding:12px}#cabinet-flow .cs-job{flex-basis:45%}#cabinet-flow .cs-steps{padding:10px}#cabinet-flow .cs-steps button{flex:1 1 90px}#cabinet-flow .cs-scene svg{min-height:220px}}
+&lt;/style&gt;
+&lt;header class=&quot;cs-top&quot;&gt;&lt;div class=&quot;cs-brand&quot;&gt;&lt;span class=&quot;cs-logo&quot;&gt;///&lt;/span&gt; Cabinet Studio&lt;/div&gt;&lt;div class=&quot;cs-job&quot;&gt;L Kitchen &lt;small&gt;Design workspace · UI concept&lt;/small&gt;&lt;/div&gt;&lt;span class=&quot;cs-row&quot;&gt;&lt;button id=&quot;cs-layout&quot; aria-pressed=&quot;true&quot;&gt;3D&lt;/button&gt;&lt;button id=&quot;cs-present&quot; class=&quot;cs-primary&quot;&gt;Present&lt;/button&gt;&lt;/span&gt;&lt;/header&gt;
+&lt;nav class=&quot;cs-steps&quot; aria-label=&quot;Design workflow&quot;&gt;&lt;button data-step=&quot;Room&quot; aria-pressed=&quot;false&quot;&gt;1 · Room&lt;/button&gt;&lt;button data-step=&quot;Cabinets&quot; aria-pressed=&quot;true&quot;&gt;2 · Cabinets&lt;/button&gt;&lt;button data-step=&quot;Materials&quot; aria-pressed=&quot;false&quot;&gt;3 · Materials&lt;/button&gt;&lt;button data-step=&quot;Review&quot; aria-pressed=&quot;false&quot;&gt;4 · Review&lt;/button&gt;&lt;button data-step=&quot;Present&quot; aria-pressed=&quot;false&quot;&gt;5 · Present&lt;/button&gt;&lt;/nav&gt;
+&lt;div class=&quot;cs-body&quot;&gt;
+&lt;aside class=&quot;cs-left&quot;&gt;&lt;h3 id=&quot;cs-library-title&quot;&gt;Cabinet library&lt;/h3&gt;&lt;small id=&quot;cs-library-sub&quot;&gt;Select a component to inspect&lt;/small&gt;
+&lt;div id=&quot;cs-library-controls&quot;&gt;&lt;input class=&quot;cs-search&quot; id=&quot;cs-search&quot; type=&quot;search&quot; placeholder=&quot;Search library…&quot; aria-label=&quot;Search library&quot;&gt;&lt;label&gt;Category&lt;select id=&quot;cs-category&quot;&gt;&lt;option&gt;All&lt;/option&gt;&lt;option&gt;Base cabinets&lt;/option&gt;&lt;option&gt;Wall cabinets&lt;/option&gt;&lt;option&gt;Appliances&lt;/option&gt;&lt;option&gt;Bathroom&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
+&lt;div class=&quot;cs-catalog&quot; id=&quot;cs-catalog&quot;&gt;&lt;/div&gt;
+&lt;details id=&quot;cs-more&quot;&gt;&lt;summary&gt;More library categories&lt;/summary&gt;&lt;div class=&quot;cs-row&quot;&gt;&lt;button data-category=&quot;Appliances&quot;&gt;Kitchen appliances&lt;/button&gt;&lt;button data-category=&quot;Bathroom&quot;&gt;Bathroom fixtures&lt;/button&gt;&lt;button data-category=&quot;All&quot;&gt;All objects&lt;/button&gt;&lt;/div&gt;&lt;/details&gt;
+&lt;/aside&gt;
+&lt;main class=&quot;cs-main&quot;&gt;&lt;div class=&quot;cs-viewbar&quot;&gt;&lt;label&gt;View&lt;select id=&quot;cs-view&quot;&gt;&lt;option&gt;Dollhouse&lt;/option&gt;&lt;option&gt;Front elevation&lt;/option&gt;&lt;option&gt;Plan&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;button id=&quot;cs-fit&quot;&gt;Fit room&lt;/button&gt;&lt;button id=&quot;cs-focus&quot;&gt;Focus selection&lt;/button&gt;&lt;button id=&quot;cs-walls&quot; aria-pressed=&quot;true&quot;&gt;Cutaway on&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;cs-scene&quot;&gt;&lt;svg viewBox=&quot;0 0 540 440&quot; role=&quot;img&quot; aria-label=&quot;Illustrative kitchen with L shaped cabinets and wall cutaway; material selections change the cabinet fronts&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;cs-floor&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop stop-color=&quot;#f1eee4&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;#d8d7ca&quot;/&gt;&lt;/linearGradient&gt;&lt;pattern id=&quot;cs-grain&quot; width=&quot;9&quot; height=&quot;60&quot; patternUnits=&quot;userSpaceOnUse&quot;&gt;&lt;path d=&quot;M2 0Q8 15 3 30T3 60M7 0Q2 20 7 40T7 60&quot; fill=&quot;none&quot; stroke=&quot;#72552d&quot; stroke-opacity=&quot;.17&quot;/&gt;&lt;/pattern&gt;&lt;/defs&gt;
+&lt;g id=&quot;cs-perspective&quot;&gt;&lt;polygon points=&quot;60,259 277,146 492,265 271,391&quot; fill=&quot;url(#cs-floor)&quot;/&gt;&lt;polygon points=&quot;60,259 60,109 277,20 277,146&quot; fill=&quot;#eee9dc&quot;/&gt;&lt;polygon points=&quot;277,20 492,128 492,265 277,146&quot; fill=&quot;#dedacc&quot;/&gt;&lt;polygon points=&quot;316,63 397,105 397,158 316,116&quot; fill=&quot;#b4ccd0&quot; stroke=&quot;#f9f7ee&quot; stroke-width=&quot;7&quot;/&gt;&lt;path d=&quot;M356 86V137&quot; stroke=&quot;#f9f7ee&quot; stroke-width=&quot;4&quot;/&gt;
+&lt;g stroke=&quot;#6e6a58&quot; stroke-width=&quot;1&quot;&gt;&lt;polygon points=&quot;83,240 263,150 299,170 119,263&quot; fill=&quot;#eeeade&quot;/&gt;&lt;polygon points=&quot;119,263 299,170 299,235 119,331&quot; class=&quot;cs-finish&quot;/&gt;&lt;polygon points=&quot;83,240 119,263 119,331 83,308&quot; fill=&quot;#86795e&quot;/&gt;&lt;path d=&quot;M164 240V307M208 217V284M253 194V260&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M133 271l19-10M177 247l18-10M222 224l18-10M267 201l18-10&quot; stroke=&quot;#3b4137&quot; stroke-width=&quot;3&quot;/&gt;&lt;polygon points=&quot;267,167 299,150 448,232 412,253&quot; fill=&quot;#f5f0e4&quot;/&gt;&lt;polygon points=&quot;299,185 412,253 412,321 299,253&quot; class=&quot;cs-finish&quot;/&gt;&lt;polygon points=&quot;412,253 448,232 448,300 412,321&quot; fill=&quot;#85745a&quot;/&gt;&lt;path d=&quot;M337 208V275M375 231V297&quot;/&gt;&lt;path d=&quot;M310 204l18 11M348 228l18 11M385 250l18 11&quot; stroke=&quot;#3b4137&quot; stroke-width=&quot;3&quot;/&gt;&lt;/g&gt;
+&lt;polygon id=&quot;cs-grain-front&quot; points=&quot;119,263 299,170 299,235 119,331&quot; fill=&quot;url(#cs-grain)&quot;/&gt;&lt;polygon points=&quot;98,231 138,212 164,226 124,247&quot; fill=&quot;#343f39&quot;/&gt;&lt;path d=&quot;M110 229l15 8m3-14 14 8&quot; stroke=&quot;#a1ada3&quot; stroke-width=&quot;2&quot;/&gt;&lt;polygon points=&quot;337,200 363,186 399,207 375,220&quot; fill=&quot;#a5aeaa&quot; stroke=&quot;#68776d&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M365 201v-18q0-9 7-5v7&quot; fill=&quot;none&quot; stroke=&quot;#67786f&quot; stroke-width=&quot;4&quot;/&gt;
+&lt;g stroke=&quot;#77715e&quot;&gt;&lt;polygon points=&quot;87,139 208,84 208,139 87,197&quot; class=&quot;cs-finish&quot;/&gt;&lt;path d=&quot;M127 121v58M168 103v57&quot;/&gt;&lt;polygon points=&quot;208,84 227,95 227,149 208,139&quot; fill=&quot;#94856b&quot;/&gt;&lt;/g&gt;
+&lt;polygon id=&quot;cs-selection&quot; points=&quot;119,263 164,240 164,307 119,331&quot; fill=&quot;none&quot; stroke=&quot;#247653&quot; stroke-width=&quot;3&quot;/&gt;
+&lt;polygon id=&quot;cs-frontwall&quot; points=&quot;271,391 492,265 492,125 271,244&quot; fill=&quot;#eee9dc&quot; opacity=&quot;.94&quot; hidden/&gt;
+&lt;/g&gt;
+&lt;g id=&quot;cs-plan&quot; hidden&gt;&lt;rect x=&quot;72&quot; y=&quot;42&quot; width=&quot;388&quot; height=&quot;338&quot; class=&quot;cs-plan&quot;/&gt;&lt;path d=&quot;M91 66H270V117H145V356H91Z&quot; class=&quot;cs-finish&quot; stroke=&quot;#6b7d6f&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M145 171H91M145 227H91M145 284H91M201 66V117&quot; stroke=&quot;#6b7d6f&quot; stroke-width=&quot;2&quot;/&gt;&lt;rect x=&quot;295&quot; y=&quot;43&quot; width=&quot;102&quot; height=&quot;8&quot; fill=&quot;#b4ccd0&quot;/&gt;&lt;path d=&quot;M392 380V320Q443 320 443 380&quot; stroke=&quot;#6b7d6f&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot;/&gt;&lt;/g&gt;
+&lt;/svg&gt;&lt;div class=&quot;cs-caption&quot;&gt;&lt;span id=&quot;cs-scene-label&quot;&gt;L Kitchen · illustrative 3D&lt;/span&gt;&lt;span id=&quot;cs-finish-label&quot;&gt;Natural oak&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;cs-selected&quot;&gt;&lt;span&gt;&lt;small&gt;Selected&lt;/small&gt;&lt;strong id=&quot;cs-selected-name&quot;&gt;Base cabinet · 600&lt;/strong&gt;&lt;/span&gt;&lt;button id=&quot;cs-edit-finish&quot;&gt;Edit finish&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;cs-hint&quot; id=&quot;cs-message&quot; aria-live=&quot;polite&quot;&gt;Cabinet front selected&lt;/div&gt;
+&lt;/main&gt;
+&lt;aside class=&quot;cs-right&quot;&gt;&lt;header&gt;&lt;div class=&quot;cs-label&quot;&gt;Selection inspector&lt;/div&gt;&lt;h3 id=&quot;cs-inspector-name&quot;&gt;Base cabinet · 600&lt;/h3&gt;&lt;small id=&quot;cs-inspector-meta&quot;&gt;Base cabinets · editable component&lt;/small&gt;&lt;/header&gt;
+&lt;section class=&quot;cs-section&quot;&gt;&lt;h3&gt;Dimensions&lt;/h3&gt;&lt;div class=&quot;cs-fields&quot;&gt;&lt;label&gt;Width · mm&lt;input type=&quot;number&quot; value=&quot;600&quot; min=&quot;100&quot; id=&quot;cs-width&quot;&gt;&lt;/label&gt;&lt;label&gt;Height · mm&lt;input type=&quot;number&quot; value=&quot;720&quot; min=&quot;100&quot; id=&quot;cs-height&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/section&gt;
+&lt;section class=&quot;cs-section&quot;&gt;&lt;h3&gt;Current finish&lt;/h3&gt;&lt;button class=&quot;cs-swatch&quot; id=&quot;cs-current&quot;&gt;&lt;span class=&quot;cs-chip&quot; style=&quot;background:#b28d64&quot;&gt;&lt;/span&gt;&lt;span id=&quot;cs-current-name&quot;&gt;Natural oak&lt;small&gt;Cabinet fronts&lt;/small&gt;&lt;/span&gt;&lt;/button&gt;&lt;/section&gt;
+&lt;details open id=&quot;cs-finishes&quot;&gt;&lt;summary&gt;Finish library&lt;/summary&gt;&lt;div id=&quot;cs-swatches&quot;&gt;&lt;/div&gt;&lt;/details&gt;
+&lt;details&gt;&lt;summary&gt;Apply scope&lt;/summary&gt;&lt;div&gt;&lt;label&gt;Apply finish to&lt;select id=&quot;cs-scope&quot;&gt;&lt;option&gt;This cabinet&lt;/option&gt;&lt;option&gt;Cabinet fronts in this run&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;&lt;/details&gt;
+&lt;details id=&quot;cs-styles&quot;&gt;&lt;summary&gt;Room style presets&lt;/summary&gt;&lt;div&gt;&lt;button class=&quot;cs-stylebutton&quot; data-style=&quot;Warm Contemporary&quot;&gt;&lt;span class=&quot;cs-style&quot;&gt;&lt;i style=&quot;background:#b28d64&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#e5dfcb&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#777d62&quot;&gt;&lt;/i&gt;&lt;/span&gt;Warm Contemporary&lt;/button&gt;&lt;button class=&quot;cs-stylebutton&quot; data-style=&quot;Nordic Light&quot;&gt;&lt;span class=&quot;cs-style&quot;&gt;&lt;i style=&quot;background:#d0b78d&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#ece9df&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#9ca88b&quot;&gt;&lt;/i&gt;&lt;/span&gt;Nordic Light&lt;/button&gt;&lt;button class=&quot;cs-stylebutton&quot; data-style=&quot;Moody Walnut&quot;&gt;&lt;span class=&quot;cs-style&quot;&gt;&lt;i style=&quot;background:#644838&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#8b8879&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#bbb1a0&quot;&gt;&lt;/i&gt;&lt;/span&gt;Moody Walnut&lt;/button&gt;&lt;/div&gt;&lt;/details&gt;
+&lt;details&gt;&lt;summary&gt;Placement &amp; rotation&lt;/summary&gt;&lt;div class=&quot;cs-fields&quot;&gt;&lt;label&gt;X · mm&lt;input type=&quot;number&quot; value=&quot;600&quot;&gt;&lt;/label&gt;&lt;label&gt;Z · mm&lt;input type=&quot;number&quot; value=&quot;0&quot;&gt;&lt;/label&gt;&lt;label&gt;Rotation · °&lt;input type=&quot;number&quot; value=&quot;0&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/details&gt;
+&lt;details&gt;&lt;summary&gt;Advanced construction&lt;/summary&gt;&lt;div class=&quot;cs-fields&quot;&gt;&lt;label&gt;Panel · mm&lt;input type=&quot;number&quot; value=&quot;18&quot;&gt;&lt;/label&gt;&lt;label&gt;Plinth · mm&lt;input type=&quot;number&quot; value=&quot;100&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/details&gt;
+&lt;/aside&gt;&lt;/div&gt;&lt;footer class=&quot;cs-foot&quot;&gt;&lt;span id=&quot;cs-status&quot;&gt;Cabinets · shared 2D / 3D project&lt;/span&gt;&lt;span&gt;Interactive UI concept · no project changes&lt;/span&gt;&lt;/footer&gt;
+&lt;/div&gt;
+&lt;script&gt;
+(()=&gt;{const root=document.getElementById(&#x27;cabinet-flow&#x27;);const q=s=&gt;root.querySelector(s);const qa=s=&gt;[...root.querySelectorAll(s)];let step=&#x27;Cabinets&#x27;;let finish=&#x27;Natural oak&#x27;;let selected=&#x27;Base cabinet · 600&#x27;;const objects=[[&#x27;Base cabinet · 600&#x27;,&#x27;600 × 560 × 720 mm&#x27;,&#x27;Base cabinets&#x27;,&#x27;panel-top&#x27;],[&#x27;Three-drawer base cabinet&#x27;,&#x27;600 × 560 × 720 mm&#x27;,&#x27;Base cabinets&#x27;,&#x27;archive&#x27;],[&#x27;Corner base cabinet · 900&#x27;,&#x27;900 × 900 × 720 mm&#x27;,&#x27;Base cabinets&#x27;,&#x27;box&#x27;],[&#x27;Double-door wall cabinet&#x27;,&#x27;800 × 350 × 720 mm&#x27;,&#x27;Wall cabinets&#x27;,&#x27;columns-2&#x27;],[&#x27;Integrated refrigerator&#x27;,&#x27;600 × 650 × 2100 mm&#x27;,&#x27;Appliances&#x27;,&#x27;refrigerator&#x27;],[&#x27;Freestanding cooker&#x27;,&#x27;600 × 600 × 900 mm&#x27;,&#x27;Appliances&#x27;,&#x27;cooking-pot&#x27;],[&#x27;Wall-hung vanity with basin&#x27;,&#x27;820 × 460 × 550 mm&#x27;,&#x27;Bathroom&#x27;,&#x27;bath&#x27;],[&#x27;Frameless corner shower enclosure&#x27;,&#x27;900 × 900 × 2100 mm&#x27;,&#x27;Bathroom&#x27;,&#x27;shower-head&#x27;]];const finishes=[[&#x27;Natural oak&#x27;,&#x27;#b28d64&#x27;],[&#x27;Soft sage&#x27;,&#x27;#829c82&#x27;],[&#x27;Chalk white&#x27;,&#x27;#ece9df&#x27;],[&#x27;Smoked walnut&#x27;,&#x27;#644838&#x27;]];const message=t=&gt;q(&#x27;#cs-message&#x27;).textContent=t;
+function icons(){if(globalThis.lucide)lucide.createIcons({attrs:{width:20,height:20}})}
+function catalog(){const term=q(&#x27;#cs-search&#x27;).value.toLowerCase();const cat=q(&#x27;#cs-category&#x27;).value;const filtered=objects.filter(o=&gt;(cat===&#x27;All&#x27;||o[2]===cat)&amp;&amp;o.join(&#x27; &#x27;).toLowerCase().includes(term));q(&#x27;#cs-catalog&#x27;).innerHTML=filtered.map(o=&gt;`&lt;button class=&quot;cs-object&quot; data-object=&quot;${o[0]}&quot; aria-pressed=&quot;${o[0]===selected}&quot;&gt;&lt;span class=&quot;cs-thumb&quot;&gt;&lt;i data-lucide=&quot;${o[3]}&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span&gt;${o[0]}&lt;small&gt;${o[1]}&lt;/small&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#x27;&#x27;)||&#x27;&lt;small&gt;No matching objects&lt;/small&gt;&#x27;;qa(&#x27;[data-object]&#x27;).forEach(b=&gt;b.onclick=()=&gt;{selected=b.dataset.object;const o=objects.find(v=&gt;v[0]===selected);q(&#x27;#cs-selected-name&#x27;).textContent=selected;q(&#x27;#cs-inspector-name&#x27;).textContent=selected;q(&#x27;#cs-inspector-meta&#x27;).textContent=o[2]+&#x27; · library preview&#x27;;const dims=o[1].match(/\d+/g);q(&#x27;#cs-width&#x27;).value=dims[0];q(&#x27;#cs-height&#x27;).value=dims[2];message(&#x27;Inspecting &#x27;+selected+&#x27; · scene is illustrative&#x27;);catalog()});icons()}
+function applyFinish(name){finish=name;const color=finishes.find(f=&gt;f[0]===name)[1];qa(&#x27;.cs-finish&#x27;).forEach(e=&gt;e.style.fill=color);q(&#x27;#cs-finish-label&#x27;).textContent=name;q(&#x27;#cs-current-name&#x27;).innerHTML=name+&#x27;&lt;small&gt;Cabinet fronts&lt;/small&gt;&#x27;;q(&#x27;#cs-current .cs-chip&#x27;).style.background=color;qa(&#x27;[data-finish]&#x27;).forEach(b=&gt;b.setAttribute(&#x27;aria-pressed&#x27;,b.dataset.finish===name));message(name+&#x27; · preview applied to cabinet fronts&#x27;);q(&#x27;#cs-grain-front&#x27;).style.opacity=name===&#x27;Natural oak&#x27;||name===&#x27;Smoked walnut&#x27;?&#x27;1&#x27;:&#x27;0&#x27;}
+q(&#x27;#cs-swatches&#x27;).innerHTML=finishes.map(f=&gt;`&lt;button class=&quot;cs-swatch&quot; data-finish=&quot;${f[0]}&quot; aria-pressed=&quot;${f[0]===finish}&quot;&gt;&lt;span class=&quot;cs-chip&quot; style=&quot;background:${f[1]}&quot;&gt;&lt;/span&gt;&lt;span&gt;${f[0]}&lt;/span&gt;&lt;/button&gt;`).join(&#x27;&#x27;);qa(&#x27;[data-finish]&#x27;).forEach(b=&gt;b.onclick=()=&gt;applyFinish(b.dataset.finish));
+function setView(plan){q(&#x27;#cs-plan&#x27;).hidden=!plan;q(&#x27;#cs-perspective&#x27;).hidden=plan;q(&#x27;#cs-plan&#x27;).style.display=plan?&#x27;&#x27;:&#x27;none&#x27;;q(&#x27;#cs-perspective&#x27;).style.display=plan?&#x27;none&#x27;:&#x27;&#x27;;q(&#x27;#cs-layout&#x27;).textContent=plan?&#x27;2D&#x27;:&#x27;3D&#x27;;q(&#x27;#cs-scene-label&#x27;).textContent=plan?&#x27;L Kitchen · illustrative plan&#x27;:&#x27;L Kitchen · illustrative 3D&#x27;}
+function setStep(next){step=next;qa(&#x27;[data-step]&#x27;).forEach(b=&gt;b.setAttribute(&#x27;aria-pressed&#x27;,b.dataset.step===step));q(&#x27;.cs-body&#x27;).classList.toggle(&#x27;cs-present&#x27;,step===&#x27;Present&#x27;);q(&#x27;#cs-present&#x27;).textContent=step===&#x27;Present&#x27;?&#x27;Back to design&#x27;:&#x27;Present&#x27;;q(&#x27;#cs-status&#x27;).textContent=step+&#x27; · shared 2D / 3D project&#x27;;q(&#x27;#cs-library-controls&#x27;).hidden=false;q(&#x27;#cs-more&#x27;).hidden=false;
+if(step===&#x27;Cabinets&#x27;){q(&#x27;#cs-library-title&#x27;).textContent=&#x27;Cabinet &amp; object library&#x27;;q(&#x27;#cs-library-sub&#x27;).textContent=&#x27;Browse · select · inspect&#x27;;catalog();setView(false)}
+if(step===&#x27;Room&#x27;){q(&#x27;#cs-library-title&#x27;).textContent=&#x27;Room tools&#x27;;q(&#x27;#cs-library-sub&#x27;).textContent=&#x27;Geometry and openings&#x27;;q(&#x27;#cs-library-controls&#x27;).hidden=true;q(&#x27;#cs-more&#x27;).hidden=true;q(&#x27;#cs-catalog&#x27;).innerHTML=[&#x27;Select&#x27;,&#x27;Draw wall&#x27;,&#x27;Door&#x27;,&#x27;Window&#x27;,&#x27;Import plan&#x27;].map(n=&gt;`&lt;button data-room=&quot;${n}&quot;&gt;${n}&lt;/button&gt;`).join(&#x27;&#x27;);qa(&#x27;[data-room]&#x27;).forEach(b=&gt;b.onclick=()=&gt;{message(b.dataset.room+&#x27; tool selected · interaction preview&#x27;);qa(&#x27;[data-room]&#x27;).forEach(x=&gt;x.setAttribute(&#x27;aria-pressed&#x27;,x===b))});setView(true)}
+if(step===&#x27;Materials&#x27;){q(&#x27;#cs-library-title&#x27;).textContent=&#x27;Materials&#x27;;q(&#x27;#cs-library-sub&#x27;).textContent=&#x27;Choose a surface, then its finish&#x27;;q(&#x27;#cs-library-controls&#x27;).hidden=true;q(&#x27;#cs-more&#x27;).hidden=true;q(&#x27;#cs-catalog&#x27;).innerHTML=[&#x27;Cabinet fronts&#x27;,&#x27;Countertop&#x27;,&#x27;Walls&#x27;,&#x27;Floor&#x27;].map((n,i)=&gt;`&lt;button data-surface=&quot;${n}&quot; aria-pressed=&quot;${i===0}&quot;&gt;${n}&lt;/button&gt;`).join(&#x27;&#x27;);qa(&#x27;[data-surface]&#x27;).forEach(b=&gt;b.onclick=()=&gt;{qa(&#x27;[data-surface]&#x27;).forEach(x=&gt;x.setAttribute(&#x27;aria-pressed&#x27;,x===b));message(b.dataset.surface+&#x27; selected · this concept demonstrates cabinet finish previews&#x27;)});q(&#x27;#cs-finishes&#x27;).open=true;setView(false)}
+if(step===&#x27;Review&#x27;){q(&#x27;#cs-library-title&#x27;).textContent=&#x27;Design review&#x27;;q(&#x27;#cs-library-sub&#x27;).textContent=&#x27;Example issue navigation&#x27;;q(&#x27;#cs-library-controls&#x27;).hidden=true;q(&#x27;#cs-more&#x27;).hidden=true;q(&#x27;#cs-catalog&#x27;).innerHTML=&#x27;&lt;div class=&quot;cs-review&quot;&gt;Corner cabinet adapter&lt;small&gt;Resolve geometry before production&lt;/small&gt;&lt;button id=&quot;cs-issue&quot;&gt;Locate cabinet&lt;/button&gt;&lt;/div&gt;&lt;details&gt;&lt;summary&gt;Proposal &amp; production&lt;/summary&gt;&lt;div class=&quot;cs-row&quot;&gt;&lt;button data-review=&quot;Quote review&quot;&gt;Review quote&lt;/button&gt;&lt;button data-review=&quot;Engineering handoff&quot;&gt;Engineering handoff&lt;/button&gt;&lt;button data-review=&quot;Production exports&quot;&gt;Production exports&lt;/button&gt;&lt;/div&gt;&lt;/details&gt;&#x27;;q(&#x27;#cs-issue&#x27;).onclick=()=&gt;{q(&#x27;#cs-selection&#x27;).style.strokeWidth=&#x27;6&#x27;;message(&#x27;Corner adapter issue selected · example review state&#x27;)};qa(&#x27;[data-review]&#x27;).forEach(b=&gt;b.onclick=()=&gt;message(b.dataset.review+&#x27; remains in the workflow · not connected in this concept&#x27;));setView(false)}
+if(step===&#x27;Present&#x27;){setView(false);message(&#x27;Presentation layout · illustrative scene, not a finished render&#x27;)}
+}qa(&#x27;[data-step]&#x27;).forEach(b=&gt;b.onclick=()=&gt;setStep(b.dataset.step));q(&#x27;#cs-present&#x27;).onclick=()=&gt;setStep(step===&#x27;Present&#x27;?&#x27;Cabinets&#x27;:&#x27;Present&#x27;);q(&#x27;#cs-layout&#x27;).onclick=()=&gt;setView(q(&#x27;#cs-layout&#x27;).textContent===&#x27;3D&#x27;);q(&#x27;#cs-view&#x27;).onchange=()=&gt;{const v=q(&#x27;#cs-view&#x27;).value;setView(v===&#x27;Plan&#x27;);message(v===&#x27;Front elevation&#x27;?&#x27;Front elevation control · detailed elevation to be connected in implementation&#x27;:v+&#x27; view&#x27;)};q(&#x27;#cs-fit&#x27;).onclick=()=&gt;{q(&#x27;#cs-perspective&#x27;).setAttribute(&#x27;transform&#x27;,&#x27;&#x27;);message(&#x27;Room fitted to canvas&#x27;)};q(&#x27;#cs-focus&#x27;).onclick=()=&gt;{q(&#x27;#cs-perspective&#x27;).setAttribute(&#x27;transform&#x27;,&#x27;translate(-35,-40) scale(1.15)&#x27;);message(&#x27;Selection brought closer&#x27;)};q(&#x27;#cs-walls&#x27;).onclick=()=&gt;{const active=q(&#x27;#cs-walls&#x27;).getAttribute(&#x27;aria-pressed&#x27;)!==&#x27;true&#x27;;q(&#x27;#cs-walls&#x27;).setAttribute(&#x27;aria-pressed&#x27;,active);q(&#x27;#cs-walls&#x27;).textContent=active?&#x27;Cutaway on&#x27;:&#x27;Cutaway off&#x27;;q(&#x27;#cs-frontwall&#x27;).style.display=active?&#x27;none&#x27;:&#x27;&#x27;;q(&#x27;#cs-frontwall&#x27;).removeAttribute(&#x27;hidden&#x27;);message(&#x27;View visibility changed · wall geometry preserved&#x27;)};q(&#x27;#cs-edit-finish&#x27;).onclick=()=&gt;setStep(&#x27;Materials&#x27;);q(&#x27;#cs-current&#x27;).onclick=()=&gt;q(&#x27;#cs-finishes&#x27;).open=!q(&#x27;#cs-finishes&#x27;).open;q(&#x27;#cs-search&#x27;).oninput=catalog;q(&#x27;#cs-category&#x27;).onchange=catalog;qa(&#x27;[data-category]&#x27;).forEach(b=&gt;b.onclick=()=&gt;{q(&#x27;#cs-category&#x27;).value=b.dataset.category;catalog()});qa(&#x27;[data-style]&#x27;).forEach(b=&gt;b.onclick=()=&gt;{const name=b.dataset.style;applyFinish(name===&#x27;Moody Walnut&#x27;?&#x27;Smoked walnut&#x27;:name===&#x27;Nordic Light&#x27;?&#x27;Chalk white&#x27;:&#x27;Natural oak&#x27;);message(name+&#x27; · cabinet palette preview&#x27;)});qa(&#x27;input[type=number]&#x27;).forEach(i=&gt;i.onchange=()=&gt;message(&#x27;Dimension field edited · UI preview only; model dimensions unchanged&#x27;));q(&#x27;#cs-scope&#x27;).onchange=()=&gt;message(q(&#x27;#cs-scope&#x27;).value+&#x27; scope selected · UI preview only&#x27;);catalog();setView(false);
+const design={compact:false,inspector:240};function tweakRender(){root.classList.toggle(&#x27;cs-compact&#x27;,design.compact);if(root.clientWidth&gt;850)q(&#x27;.cs-body&#x27;).style.gridTemplateColumns=step===&#x27;Present&#x27;?&#x27;1fr&#x27;:`220px minmax(0,1fr) ${design.inspector}px`;}if(globalThis.Tweak){const tweak=new Tweak({container:root,onChange:tweakRender});tweak.addToggle(design,&#x27;compact&#x27;,{label:&#x27;Compact library spacing&#x27;});tweak.addSlider(design,&#x27;inspector&#x27;,{label:&#x27;Inspector width&#x27;,min:220,max:290,step:10,unit:&#x27;px&#x27;})}
+})();
+&lt;/script&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerdown&quot;, handlePointer);
+    document.removeEventListener(&quot;pointercancel&quot;, handlePointer);
+    document.removeEventListener(&quot;click&quot;, handleTouchClick);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerdown&quot;, handlePointer);
+  document.addEventListener(&quot;pointercancel&quot;, handlePointer);
+  document.addEventListener(&quot;click&quot;, handleTouchClick);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>

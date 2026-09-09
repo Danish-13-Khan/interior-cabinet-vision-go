@@ -21,6 +21,22 @@ kitchen-style run authored in the Interiors room workflow, reviewed in credible
 cabinet-specific 3D, priced as a proposal, and transitioned into the Cabinets
 engineering workbench using the same project and cabinet identities.
 
+## UI workflow redesign — review before implementation
+
+The September 9 usability review covers unreadable toolbars, clipped library
+cards, overflowing style names, crowded inspectors, obscured models, and weak
+material feedback. The proposed redesign preserves the proposal-to-production
+workflow and existing engineering capabilities.
+
+- [Full workflow specification and implementation gates](docs/UI_WORKFLOW_REDESIGN.md)
+- [Visual review guide and screenshot index](docs/mockups/workflow-review/README.md)
+- [Local interactive concept](docs/mockups/workflow-review/index.html)
+
+**Status: design review, not an implemented feature or release certification.**
+The concept uses an illustrative scene; its controls are not connected to real
+geometry, quotations, persistence, or exports. Review the specification and
+screenshots before changing the application. No Sites publication is required.
+
 ## Product Statement
 
 Build a professional desktop design application where a single, reusable
