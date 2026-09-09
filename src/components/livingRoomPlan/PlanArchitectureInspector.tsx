@@ -26,6 +26,7 @@ import { WallRaiseControls } from "./WallRaiseControls";
 import { WallGeometryFields } from "./WallGeometryFields";
 import { RoomFinishFields } from "./RoomFinishFields";
 import { WallDrawingPanel } from "./WallDrawingPanel";
+import { InspectorSection } from "./InspectorSection";
 
 type ImportApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
 
@@ -95,14 +96,6 @@ export function PlanArchitectureInspector(props: Props) {
         <span className="lr-wall-preview-line" style={{ background: props.project.materials.find((material) => material.id === wall.materialId)?.color ?? "#7d8c80" }} />
         <strong>{formatPlanDimension(wallLengthMm(wall), props.unit)}</strong><small>Length</small>
       </div>
-      {props.onSplitWall ? (
-        <WallDrawingPanel compact canEdit thicknessMm={wall.thicknessMm}
-          onThickness={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })}
-          onSplit={() => props.onSplitWall?.(wall.id)}
-          onDelete={() => props.onDeleteWall?.(wall.id)}
-          onJoinNodes={() => props.onJoinNodes?.()} />
-      ) : null}
-      <WallGeometryFields wall={wall} unit={props.unit} onChange={(patch) => props.onSetWallPlan(wall.id, patch)} />
       <NumberField label="Thickness" value={wall.thicknessMm}
         onChange={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })} />
       <HeightPresetRow label="Thickness" values={STANDARD_WALL_THICKNESSES_MM} value={wall.thicknessMm}
@@ -113,30 +106,40 @@ export function PlanArchitectureInspector(props: Props) {
         onChange={(heightMm) => props.onUpdateWall(wall.id, { heightMm })} />
       <WallRaiseControls wall={wall} roomWallIds={roomWallIds} heightMm={wall.heightMm}
         onRaise={props.onRaiseWalls} onOffset={(offsetMm) => props.onOffsetWall(wall.id, offsetMm)} />
-      {props.onAddWallPanel ? (
-        <div className="lr-wall-panel-actions">
-          <button type="button" data-testid="add-wall-panel" onClick={() => props.onAddWallPanel?.(wall.id)}>
-            Add Wall Panel
-          </button>
-        </div>
-      ) : null}
       <h4>Wall material</h4>
       <MaterialSwatchGrid materials={props.project.materials} activeMaterialId={wall.materialId ?? null} compact
         onPick={(materialId) => props.onSetWallMaterial(wall.id, materialId)}
         onImport={(file) => props.onImportFinish(file, { wallId: wall.id })} />
-      {finish && finishMapUrl(finish) ? (
-        <FinishUvFields
-          compact
-          values={{
-            uvScaleMm: Number(finish.extensions?.uvScaleMm) || 1000,
-            uvRotationDeg: Number(finish.extensions?.uvRotationDeg) || 0,
-            uvOffsetU: Number(finish.extensions?.uvOffsetU) || 0,
-            uvOffsetV: Number(finish.extensions?.uvOffsetV) || 0,
-          }}
-          onChange={(patch) => props.onSetFinishUv(finish.id, patch, { kind: "wall", wallId: wall.id })}
-        />
-      ) : null}
       <button type="button" className="lr-clear-material" onClick={() => props.onSetWallMaterial(wall.id, null)}>Clear wall material</button>
+      <InspectorSection title="Advanced" testId="inspector-wall-advanced">
+        {props.onSplitWall ? (
+          <WallDrawingPanel compact canEdit thicknessMm={wall.thicknessMm}
+            onThickness={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })}
+            onSplit={() => props.onSplitWall?.(wall.id)}
+            onDelete={() => props.onDeleteWall?.(wall.id)}
+            onJoinNodes={() => props.onJoinNodes?.()} />
+        ) : null}
+        <WallGeometryFields wall={wall} unit={props.unit} onChange={(patch) => props.onSetWallPlan(wall.id, patch)} />
+        {props.onAddWallPanel ? (
+          <div className="lr-wall-panel-actions">
+            <button type="button" data-testid="add-wall-panel" onClick={() => props.onAddWallPanel?.(wall.id)}>
+              Add Wall Panel
+            </button>
+          </div>
+        ) : null}
+        {finish && finishMapUrl(finish) ? (
+          <FinishUvFields
+            compact
+            values={{
+              uvScaleMm: Number(finish.extensions?.uvScaleMm) || 1000,
+              uvRotationDeg: Number(finish.extensions?.uvRotationDeg) || 0,
+              uvOffsetU: Number(finish.extensions?.uvOffsetU) || 0,
+              uvOffsetV: Number(finish.extensions?.uvOffsetV) || 0,
+            }}
+            onChange={(patch) => props.onSetFinishUv(finish.id, patch, { kind: "wall", wallId: wall.id })}
+          />
+        ) : null}
+      </InspectorSection>
     </section> : props.suppressEmptyWall ? null : <section className="lr-inspector-empty"><h3>Wall</h3><p>Select a wall to edit length, angle, thickness, height, and raise it into 3D.</p></section>}
   </>;
 }
