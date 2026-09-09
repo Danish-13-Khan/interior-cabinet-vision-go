@@ -1,0 +1,173 @@
+/* Step 2 contrast + overflow fixes on existing Interiors layout surfaces. */
+
+/* Canvas toolbar — readable ink, wrap secondary controls instead of shrinking. */
+.lr-plan-shell.lr-product-shell-v2 .lr-model-controls {
+  flex-wrap: wrap;
+  max-width: min(100% - 14px, 720px);
+  border-color: var(--iu-line-strong);
+  background: color-mix(in srgb, var(--iu-panel) 94%, transparent);
+  color: var(--iu-control-ink);
+  font-size: 0.62rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-model-controls label,
+.lr-plan-shell.lr-product-shell-v2 .lr-model-controls > span,
+.lr-plan-shell.lr-product-shell-v2 .lr-camera-panel > span {
+  color: var(--iu-control-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-model-controls b {
+  color: var(--iu-control-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-model-controls select,
+.lr-plan-shell.lr-product-shell-v2 .lr-model-controls button {
+  min-height: 26px;
+  padding: 3px 8px;
+  border-color: var(--iu-control-border);
+  background: var(--iu-control-bg);
+  color: var(--iu-control-ink);
+  font-size: 0.62rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-view-presets button span {
+  color: inherit;
+  font-size: 0.62rem;
+}
+
+/* Style presets — full-width rows, wrapping names, readable type. */
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette {
+  width: min(280px, calc(100% - 14px));
+  border-color: var(--iu-line-strong);
+  background: color-mix(in srgb, var(--iu-panel) 96%, transparent);
+  color: var(--iu-control-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette header {
+  background: var(--iu-panel-2);
+  border-bottom-color: var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette header span {
+  color: var(--iu-control-muted);
+  font-size: 0.58rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette header strong {
+  color: var(--iu-control-ink);
+  font-size: 0.66rem;
+  white-space: normal;
+  text-align: right;
+  line-height: 1.25;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette > div {
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding: 6px;
+  max-height: min(220px, 36vh);
+  overflow-y: auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette button {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 0.66rem;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette button > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-style-palette p {
+  color: var(--iu-control-muted);
+  font-size: 0.58rem;
+}
+
+/* Library cards — content-driven height; name and dimensions as separate rows. */
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-grid > button {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  color: var(--iu-control-ink);
+  border-color: var(--iu-line);
+  background: var(--iu-panel);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-grid > button strong {
+  padding: 8px 8px 2px;
+  color: var(--iu-control-ink);
+  font-size: 0.68rem;
+  line-height: 1.3;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: anywhere;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-grid > button small {
+  display: block;
+  padding: 0 8px 8px;
+  color: var(--iu-control-muted);
+  font-size: 0.58rem;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-categories {
+  flex-wrap: wrap;
+  max-height: none;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-asset-categories button {
+  white-space: normal;
+  line-height: 1.25;
+}
+
+/* Compact floating inspector — keep clip on shell; scroll body content. */
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-build .lr-inspector {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-inspector-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Forms — labels stay muted; values use ink; errors wrap below. */
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll label {
+  color: var(--iu-control-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll input,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll select,
+.lr-plan-shell.lr-product-shell-v2 .lr-number-field input {
+  min-width: 0;
+  color: var(--iu-control-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll .field-error,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll .is-error-message {
+  display: block;
+  margin-top: 4px;
+  color: var(--iu-control-error);
+  font-size: 0.62rem;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

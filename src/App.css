@@ -75,5 +75,11 @@
 @import "./styles/interiors-chrome-cabinet-run.css";
 @import "./styles/interiors-chrome-present.css";
 /* Visual contract for the selectable Calm Guided and Compact Pro modes. */
+@import "./styles/interiors-control-tokens.css";
 @import "./styles/interiors-ui-modes.css";
+@import "./styles/interiors-ui-modes-projects-compact.css";
+@import "./styles/interiors-ui-modes-authoring.css";
+@import "./styles/interiors-ui-modes-present.css";
+@import "./styles/interiors-controls.css";
+@import "./styles/interiors-contrast-overflow.css";
 @import "./styles/interiors-projects-home-layout.css";

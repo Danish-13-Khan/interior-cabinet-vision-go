@@ -98,14 +98,17 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [ ] Detail room, run, opening and empty-selection inspectors.
 - [ ] Detail quotation, freeze, approval, save/recovery and export dialogs.
 - [x] Complete Step 1 source inventory, proposed destinations and output baselines.
+- [x] Complete Step 2 control contrast/overflow CSS in the existing layout
+  (Calm/Compact states; handlers unchanged). See
+  [Step 2 evidence](../../ui-workflow-step2/README.md).
 - [ ] Verify each replacement entry point at runtime as controls move; retain
   existing entry points until replacements are verified.
 - [ ] Update client Present to remove editing chrome and selection marks.
 - [x] Keep renderer/geometry acceptance separate from UI layout checks.
 
-Next implementation scope: step 2 contrast and overflow fixes in the existing
-layout, preserving current handlers. Complete the 2D reference before step 3;
-design commercial dialogs before their later migration.
+Next implementation scope: after the 2D Room reference is reviewed, step 3
+shared shell and inspector expansion. Design commercial dialogs before their
+later migration.
 
 ## Validation performed in this documentation pass
 
