@@ -55,6 +55,13 @@
   justify-self: start;
 }
 
+.interiors-present-scope-note {
+  margin: 0;
+  color: var(--iu-muted, #5b6871);
+  font-size: 0.55rem;
+  line-height: 1.35;
+}
+
 .lr-present-titlebar {
   flex-wrap: wrap;
   gap: 8px;

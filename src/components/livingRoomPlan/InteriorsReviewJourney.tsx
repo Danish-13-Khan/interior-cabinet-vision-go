@@ -18,8 +18,10 @@ export function InteriorsReviewJourney({ ready, blockingCount, frozen, onPresent
         Open Present
       </button>
       <p className="interiors-review-journey-note">
-        Engineering handoff and production exports stay on Present / the engineering workbench.
-        Full quotation, freeze, approval, and export dialog redesigns need a separate design pass.
+        Layout and model-quality checks live above; this is journey readiness, not a full
+        quote or approval desk. Engineering handoff and production exports stay on Present
+        / the engineering workbench. Full quotation, freeze, approval, and export dialog
+        redesigns need a separate design pass.
       </p>
     </section>
   );

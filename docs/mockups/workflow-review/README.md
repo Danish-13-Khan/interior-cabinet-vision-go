@@ -1,17 +1,25 @@
 # Workflow visual review
 
-Status: proposed UI reference, not an implemented application. Review with the
-[full specification](../../UI_WORKFLOW_REDESIGN.md) before building.
+**QUARANTINE — layout-only concept.** Do not drive shell CSS, tool placement, or
+inspector work from these screenshots or the interactive concept. The live app
+on `codex/feat/ui-workflow-redesign` (steps 1–8) is the implementation source of
+truth. Remaining design work is listed in
+[ui-workflow-FOLLOW_UPS.md](../../ui-workflow-FOLLOW_UPS.md).
+
+Status: proposed UI **layout** reference only, not an implemented application.
+Review with the [full specification](../../UI_WORKFLOW_REDESIGN.md) before any
+new chrome work.
 
 The design direction is accepted, with revisions recorded in the specification.
-These screenshots and the interactive concept have not yet been updated to show
-the unnumbered navigation, complete header, full 2D Room toolset and contextual
-Room inspector. Use them as layout references, not final implementation tickets.
+These screenshots and the interactive concept have **not** been updated to show
+unnumbered navigation, the complete header, the full 2D Room toolset, or the
+contextual Room inspector. They still show numbered-wizard-era chrome.
 
-[Open the interactive concept](index.html). This local standalone copy preserves
-the sandboxed iframe and CSP from the visualization renderer. Its outer frame
-is taller for local review. It has not been published. Open it in a browser;
-Markdown renderers may only show its source.
+[Open the interactive concept](index.html) — read the on-page quarantine banner
+first. This local standalone copy preserves the sandboxed iframe and CSP from
+the visualization renderer. Its outer frame is taller for local review. It has
+not been published. Open it in a browser; Markdown renderers may only show its
+source.
 
 ## What to review
 
@@ -127,7 +135,9 @@ stacks. Both reference widths were checked for root horizontal overflow:
   See [Step 8 evidence](../../ui-workflow-step8/README.md).
 
 UI workflow redesign build sequence (steps 1–8) is complete. Remaining parallel
-work: 2D Room reference update and commercial dialog design pass.
+work is tracked in [ui-workflow-FOLLOW_UPS.md](../../ui-workflow-FOLLOW_UPS.md):
+2D Room reference update, commercial dialog design pass, dual-chrome /
+Report Center / shortcut tracks.
 
 ## Validation performed in this documentation pass
 
