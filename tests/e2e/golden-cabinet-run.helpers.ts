@@ -22,9 +22,11 @@ export async function selectGoldenCabinet(page: Page, objectId: string) {
   const fromInspector = page.getByTestId(`inspector-object-${objectId}`);
   if (await fromInspector.count()) {
     await fromInspector.click();
-  } else {
-    await page.locator(`[data-object-id="${objectId}"]`).first().click();
+    // Inspector works in 2D and 3D; plan `.is-selected` marks only exist on the SVG.
+    await expect(fromInspector).toHaveAttribute("aria-current", "true");
+    return;
   }
+  await page.locator(`[data-object-id="${objectId}"]`).first().click();
   await expect(page.locator(`[data-object-id="${objectId}"].is-selected`)).toBeVisible();
 }
 
