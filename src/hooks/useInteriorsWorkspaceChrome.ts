@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   applyInteriorsWorkflowArea,
   interiorsPresentAuthoringView,
+  interiorsWorkflowAreaForChromeTool,
   interiorsWorkflowAreaFromChrome,
   isInteriorsChromeToolReady,
   mapInteriorsChromeTool,
@@ -107,12 +108,11 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     const nextMode = target.plannerMode
       ?? (plannerMode === "project" ? "build" : plannerMode === "render" ? "design" : plannerMode);
     setPlannerMode(nextMode);
-    const nextPanel = target.studioPanel ?? studioPanel;
     if (target.studioPanel) setStudioPanel(target.studioPanel);
     setWorkspaceView((current) => interiorsPresentAuthoringView(plannerMode, current));
     input.onCloseProjectHome();
     input.selectBuildTool(target.buildTool);
-    syncAreaFromChrome(nextMode, nextPanel);
+    setWorkflowAreaState(interiorsWorkflowAreaForChromeTool(tool));
   }
 
   function present() {

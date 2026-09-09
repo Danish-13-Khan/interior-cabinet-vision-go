@@ -35,6 +35,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   return (
     <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={w.inspectorWidthPx} project={p.project} room={p.room} drawRoom={isInteriorsDrawRoomTool(p.chromeTool)}
       cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
+      workflowArea={p.workflowArea}
       inspectRoom={p.inspectRoom || emptyRoomEssentials || reviewEssentials} activeObject={activeObject} activeOpening={p.activeOpening} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues}

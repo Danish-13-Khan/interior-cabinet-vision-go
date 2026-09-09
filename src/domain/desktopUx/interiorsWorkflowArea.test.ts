@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   applyInteriorsWorkflowArea,
+  interiorsWorkflowAreaForChromeTool,
   interiorsWorkflowAreaFromChrome,
   interiorsWorkflowAreaLabel,
+  interiorsWorkflowCatalogView,
+  interiorsWorkflowToolsForArea,
   INTERIORS_WORKFLOW_AREAS,
 } from "./interiorsWorkflowArea";
 
@@ -53,5 +56,28 @@ describe("interiorsWorkflowArea", () => {
   it("labels areas for chrome without step numbers", () => {
     expect(interiorsWorkflowAreaLabel("room")).toBe("Room");
     expect(interiorsWorkflowAreaLabel("present")).toBe("Present");
+  });
+
+  it("lists area-specific tool rail entries for step 4 relocation", () => {
+    expect(interiorsWorkflowToolsForArea("room")).toEqual([
+      "select", "room", "wall", "door", "window", "import",
+    ]);
+    expect(interiorsWorkflowToolsForArea("cabinets")).toContain("objects");
+    expect(interiorsWorkflowToolsForArea("materials")).toEqual(["select", "material"]);
+    expect(interiorsWorkflowToolsForArea("review")).toEqual(["select"]);
+  });
+
+  it("maps chrome tools back to workflow areas", () => {
+    expect(interiorsWorkflowAreaForChromeTool("wall")).toBe("room");
+    expect(interiorsWorkflowAreaForChromeTool("cabinet")).toBe("cabinets");
+    expect(interiorsWorkflowAreaForChromeTool("material")).toBe("materials");
+  });
+
+  it("routes catalog panels by workflow area and tool", () => {
+    expect(interiorsWorkflowCatalogView({ area: "room", chromeTool: "select" })).toBe("room-build");
+    expect(interiorsWorkflowCatalogView({ area: "cabinets", chromeTool: "objects" })).toBe("object-browser");
+    expect(interiorsWorkflowCatalogView({ area: "materials", chromeTool: "material" })).toBe("materials");
+    expect(interiorsWorkflowCatalogView({ area: "review", chromeTool: "select" })).toBe("review");
+    expect(interiorsWorkflowCatalogView({ area: "present", chromeTool: "select" })).toBeNull();
   });
 });

@@ -154,6 +154,25 @@
   min-height: 0;
 }
 
+.interiors-review-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.interiors-review-panel .lr-issues-panel {
+  margin: 0;
+}
+
+.interiors-review-panel .proposal-review {
+  margin: 0;
+}
+
+.interiors-review-panel > button.is-primary {
+  align-self: stretch;
+}
+
 @media (max-width: 900px) {
   .lr-workflow-nav {
     padding-inline: 10px;

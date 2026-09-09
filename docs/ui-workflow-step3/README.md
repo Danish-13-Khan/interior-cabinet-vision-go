@@ -36,12 +36,12 @@ and Step 1 inventory; it does not replace plan tooling with concept SVG.
 
 Selection is not cleared on area switch. Cabinets/Materials/Review preserve 2D/3D.
 
-## Explicitly out of scope (step 4+)
+## Follow-up (step 4+)
 
-- Moving draw/measure/underlay/library controls into area-specific left panels
-- Quote/freeze/approval dialog redesign
-- Client Present chrome polish beyond existing `plannerMode === "render"`
-- Replacing the live plan with the concept’s illustrative SVG
+- Step 4 relocated area-specific tools and libraries — see
+  [Step 4 evidence](../ui-workflow-step4/README.md).
+- Quote/freeze/approval dialog redesign, Present polish, and plan reference
+  remain later steps.
 
 ## Suggested verification (user-run)
 

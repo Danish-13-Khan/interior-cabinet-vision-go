@@ -109,9 +109,12 @@ stacks. Both reference widths were checked for root horizontal overflow:
 - [ ] Update client Present to remove editing chrome and selection marks.
 - [x] Keep renderer/geometry acceptance separate from UI layout checks.
 
-Next implementation scope: step 4 move room/cabinet/material controls onto the
-shared shell areas, reusing handlers. Keep completing the 2D Room reference in
-parallel; design commercial dialogs before their later migration.
+- [x] Complete Step 4 area tool/library relocation (handlers unchanged). See
+  [Step 4 evidence](../../ui-workflow-step4/README.md).
+
+Next implementation scope: step 5 camera/cutaway and material feedback polish.
+Keep completing the 2D Room reference in parallel; design commercial dialogs
+before their later migration.
 
 ## Validation performed in this documentation pass
 
