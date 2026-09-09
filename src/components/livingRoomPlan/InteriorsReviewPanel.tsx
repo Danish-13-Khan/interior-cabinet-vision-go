@@ -35,7 +35,7 @@ export function InteriorsReviewPanel({
     <div className="interiors-review-panel" data-testid="interiors-review-panel">
       <div className="context-panel-heading">
         <strong>Review</strong>
-        <span>Layout · quality · proposal readiness</span>
+        <span>Layout · quality · proposal readiness · not a full quote desk</span>
       </div>
       <InspectorLayoutChecks issues={issues} onSelect={onSelectIssue} />
       <InspectorModelQualityChecks issues={modelIssues} onSelect={onSelectIssue} />

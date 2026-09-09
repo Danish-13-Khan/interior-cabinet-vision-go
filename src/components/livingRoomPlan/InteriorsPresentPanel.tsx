@@ -58,6 +58,10 @@ export function InteriorsPresentPanel({
         <span>Present and Send</span>
         <small>{state.blocking.length ? `${state.blocking.length} blocking` : "Ready for the next action"}</small>
       </header>
+      <p className="interiors-present-scope-note" data-testid="interiors-present-scope-note">
+        Client 3D hides selection marks and the edit toolbar. Live quote and commercial
+        fields stay here until the commercial dialog design pass.
+      </p>
       <button type="button" data-testid="interiors-present-return-review" onClick={onReturnToReview}>
         Return to Review
       </button>

@@ -12,7 +12,7 @@ type InteriorsWorkflowNavProps = {
 /** Unnumbered free navigation across design areas (Step 3 shared shell). */
 export function InteriorsWorkflowNav({ area, disabled = false, onArea }: InteriorsWorkflowNavProps) {
   return (
-    <nav className="lr-workflow-nav" aria-label="Design areas" data-testid="interiors-workflow-nav">
+    <nav className="lr-workflow-nav" aria-label="Interiors design areas" data-testid="interiors-workflow-nav">
       {INTERIORS_WORKFLOW_AREAS.map((entry) => (
         <button
           type="button"

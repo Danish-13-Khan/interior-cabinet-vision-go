@@ -42,18 +42,20 @@ contrast/overflow → projects home layout.
 
 ## State matrix checklist (Calm and Compact)
 
-Verify visually at 1280 px, 1440 px, and ~200% zoom:
+CSS contract verified in `interiors-controls.css` /
+`interiors-contrast-overflow.css` (September 10, 2026). Still spot-check on
+device at 1280 px, 1440 px, and ~200% zoom before release:
 
-- [ ] Enabled controls use ink on panel backgrounds (not muted-on-pale)
-- [ ] Selected / `.is-active` uses green soft + green ink
-- [ ] Disabled shows muted ink, panel-2 fill, and not-allowed cursor
-- [ ] Keyboard `:focus-visible` outline uses green control focus token
-- [ ] Autosave / field `.is-error` uses red ink and error background
-- [ ] Loading (`aria-busy` / `.is-loading`) uses dashed border + progress cursor
-- [ ] Long catalog names wrap; dimensions remain a separate line
-- [ ] Style preset names wrap on full-width rows (e.g. Warm Contemporary)
-- [ ] Compact inspector scrolls when every section is expanded
-- [ ] Model toolbar wraps rather than shrinking label text
+- [x] Enabled controls use ink on panel backgrounds (not muted-on-pale) — `--iu-control-ink` / `--iu-control-bg-2`
+- [x] Selected / `.is-active` uses green soft + green ink — `--iu-control-active-*`
+- [x] Disabled shows muted ink, panel-2 fill, and not-allowed cursor
+- [x] Keyboard `:focus-visible` outline uses green control focus token
+- [x] Autosave / field `.is-error` uses red ink and error background
+- [x] Loading (`aria-busy` / `.is-loading`) uses dashed border + progress cursor
+- [x] Long catalog names wrap; dimensions remain a separate line
+- [x] Style preset names wrap on full-width rows (e.g. Warm Contemporary)
+- [x] Compact inspector scrolls when every section is expanded
+- [x] Model toolbar wraps rather than shrinking label text
 
 ## Preservation
 

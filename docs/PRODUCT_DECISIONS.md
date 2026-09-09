@@ -97,11 +97,13 @@ Still pipeline may enhance presentation **only** within that contract. Authoring
 
 | Surface | Role | Chrome policy |
 |---|---|---|
-| **Interiors V2** (`lr-product-shell-v2`) | Living-room concept workflow: Project → Build → Design → Review | Dark green product shell, step rail, compact Save / 2D·3D |
-| **Cabinets / Job / Drawings** | Engineering CAD: wall runs, elevation, assembly, reports | Light dense ribbon, tool rail, engineering inspector |
+| **Interiors V2** (`lr-product-shell-v2`) | Living-room / millwork sales workflow: Projects → Room → Cabinets → Materials → Review → Present | Dark green product shell, unnumbered five-area nav, compact Save / 2D·3D |
+| **Cabinets / Job / Drawings** (engineering workbench) | Engineering CAD: wall runs, elevation, assembly, reports | Light dense ribbon, tool rail, engineering inspector |
+
+**Naming collision:** Interiors nav **Cabinets** means place/edit millwork in the room. Engineering ribbon **Cabinets** means the CAD workbench. Same word, different surfaces — bridge with Send to Engineering; do not merge labels without a product rename pass.
 
 **Share:** `InteriorProject` / room–cabinet data truth, stable cabinet identities, normalized cabinet configuration, millimetres, undo, open/save file formats, and workbench mode switching.
-**Do not share yet:** visual tokens, header layout, or inspector typography — forcing one chrome would dilute both jobs.
+**Do not share yet:** visual tokens, header layout, inspector typography, or Report Center inside the Interiors sales canvas — forcing one chrome would dilute both jobs.
 
 **P0 transition:** run handoff diagnostics, show the summary, block lossy Golden Run mappings, then switch workbench mode to Cabinets without creating a second project or requiring export/import.
 

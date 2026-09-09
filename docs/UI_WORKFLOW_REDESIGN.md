@@ -1,11 +1,11 @@
 # Cabinet Studio UI workflow redesign
 
-Status: design direction accepted; detailed screen designs remain under review,
-September 9, 2026. Steps 1–8 are complete (inventory through starter/golden
-journey verification). Full quotation/freeze/approval/export dialog redesign
-remains a design-pass follow-up. The 2D Room reference checklist remains open
-as parallel design work. Production release and Product Book replacement are
-separate.
+Status: design direction accepted; build steps 1–8 complete on
+`codex/feat/ui-workflow-redesign` (September 2026). Treat as **UI workflow
+complete**, not “redesign finished.” Open design and product tracks:
+[ui-workflow-FOLLOW_UPS.md](ui-workflow-FOLLOW_UPS.md) (2D Room reference,
+commercial dialogs, dual chrome, Report Center, shortcuts). Production release
+and Product Book replacement are separate.
 
 ## Problem and intended outcome
 
