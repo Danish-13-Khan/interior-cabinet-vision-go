@@ -243,6 +243,16 @@ export {
   reportMaterialTextureFallback,
 } from "./materialTextureFeedback";
 export {
+  catalogPreviewFallbackLabel,
+  collectModelQualityIssues,
+  MODEL_GLB_FALLBACK_EVENT,
+  modelQualityBlockingCount,
+  modelQualitySeverityClass,
+  reportModelGlbFallback,
+  type ModelQualityIssue,
+  type ModelQualityKind,
+} from "./modelQualityFeedback";
+export {
   addImportedFinish,
   finishMapUrl,
   mapPayloadExceedsProjectLimit,

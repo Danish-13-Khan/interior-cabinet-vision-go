@@ -21,7 +21,8 @@ Toolbar no longer duplicates the Style select (palette remains the style entry).
 
 ## Explicitly out of scope
 
-- Model adapter / GLB / assembly quality (step 6)
+- Model adapter / GLB / assembly quality feedback — done in
+  [step 6](../ui-workflow-step6/README.md)
 - Quote/freeze/approval dialog redesign (step 7)
 - Client Present chrome removal
 - Changing `resolveModelViewFitPose`, cutaway filters, or paint apply math

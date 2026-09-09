@@ -16,6 +16,7 @@ export function InteriorsWorkflowAreaPanel(props: InteriorsWorkflowAreaPanelProp
     case "review":
       return (
         <InteriorsReviewPanel
+          project={props.project}
           issues={props.issues}
           proposal={props.proposal}
           onSelectIssue={props.onSelectIssue}
