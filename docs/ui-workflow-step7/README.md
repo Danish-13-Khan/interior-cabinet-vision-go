@@ -35,6 +35,7 @@ npx tsc --noEmit
 npx vitest run src/domain/livingRoom/proposalGateFeedback.test.ts
 npx vitest run src/domain/livingRoom/modelViewClientPresentation.test.ts
 npx playwright test tests/e2e/phase-5-present-send.spec.ts
+npx playwright test tests/e2e/ui-workflow-step8-smoke.spec.ts
 ```
 
 Visual: Review shows Proposal readiness + identity fields; Present hides grid and

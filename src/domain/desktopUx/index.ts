@@ -16,3 +16,4 @@ export * from "./interiorsPresentAndSend";
 export * from "./interiorsCustomerChrome";
 export * from "./interiorsUiMode";
 export * from "./interiorsWorkflowArea";
+export * from "./interiorsWorkflowEntryPoints";
