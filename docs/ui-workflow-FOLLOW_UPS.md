@@ -6,15 +6,16 @@ tracks so shell CSS work does not rebuild from stale concept screenshots.
 
 ## Design (blocking for “redesign finished,” not for UI-workflow merge)
 
-1. **2D Room reference** — new [2D visual review with 11 screenshots](mockups/interiors-2d-review/README.md)
-   is awaiting user review (10 September 2026). It covers light/dark-frame
-   directions and expanded plan controls, but still needs the complete header,
-   selection inspectors and production command mapping. Keep this track open.
-   Replace or update
+1. **2D Room reference** — [2D visual review](mockups/interiors-2d-review/README.md)
+   appearance approved **A — Light drafting studio** as default (B optional);
+   10 September 2026. Chrome/layout only — do not remove camera/perspective or
+   other domain commands. Still open before implementation: complete header,
+   area-specific tools/inspector, left library, selection inspectors, full
+   layer/export command map, zoom and issue footer. Replace or update
    [workflow-review](mockups/workflow-review/README.md) so Room shows measured
    plan, draw/measure/snap, underlay/PDF, room management, runs, and plan export
-   with unnumbered nav and File/Save/Undo/Redo. Until then the interactive mock
-   is **layout-only / quarantine**.
+   with unnumbered nav and File/Save/Undo/Redo. Until that refinement lands, the
+   interactive mock stays **layout-only / quarantine**.
 2. **Commercial dialogs** — detailed quotation, freeze, approval, save/recovery,
    and export screens. Step 7 only surfaced existing gates and journey CTAs;
    Present still shows live quote/commercial fields intentionally.
