@@ -346,6 +346,21 @@ entry points until their replacements are verified.
 | Rendering, proposals and approvals | Present / Review | Existing export and approval gates |
 | Engineering, drawings, cutlist, machine output | Engineering workbench | Same production data for same document |
 
+### 3D object transform contract
+
+- Selecting one placed object, door, or window in the Perspective view shows a
+  conventional red X, green Y, and blue Z move gizmo at its project origin.
+- Axis dragging previews the transformed scene and inspector values together,
+  snaps with the document snap increment, and commits one existing move/update
+  command on pointer release so undo and persistence remain unchanged.
+- Cabinets continue through cabinet wall/run placement validation. Doors and
+  windows project back onto their host wall, remain inside its clear span, and
+  clamp vertically within the wall height.
+- The selection inspector keeps Position X/Y/Z beside Size W/H/D. Opening depth
+  is stored as an opening parameter and bounded by host-wall depth; changing it
+  does not mutate the wall shared by other openings.
+- Presentation mode does not render authoring gizmos or selection readouts.
+
 Likely UI entry points to inspect include `ModelViewToolbar.tsx`,
 `ContextualCommandRail.tsx`, `LivingRoomInspectorPanel.tsx`,
 `CatalogObjectBrowser.tsx`, `ModelViewStylePalette.tsx`, and the Interiors

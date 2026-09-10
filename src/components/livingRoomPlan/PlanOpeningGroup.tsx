@@ -27,6 +27,15 @@ export function PlanOpeningGroup({ opening, wall, preview, active, onSelect, onS
   return <g data-opening-id={opening.id} data-offset-mm={displayed.offsetMm} data-width-mm={displayed.widthMm}
     data-catalog-item={catalog.catalogItemId} className={`lr-opening lr-opening-${opening.kind} ${active ? "is-active" : ""}`}
     onPointerDown={(event) => onStartDrag(event, opening.id, "move")}>
+    {/* Wide invisible stroke so plan floor fill cannot steal picks near openings. */}
+    <line
+      className="lr-opening-hit"
+      x1={start.x}
+      y1={start.z}
+      x2={end.x}
+      y2={end.z}
+      pointerEvents="stroke"
+    />
     <line className="lr-opening-clear" x1={start.x} y1={start.z} x2={end.x} y2={end.z} />
     <OpeningSymbolDetail symbol={catalog.symbol} start={start} end={end} nx={nx} nz={nz} widthMm={displayed.widthMm} />
     <text className="lr-opening-width-label" x={labelPoint.x} y={labelPoint.z}>

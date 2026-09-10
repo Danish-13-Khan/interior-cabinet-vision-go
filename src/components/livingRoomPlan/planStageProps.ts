@@ -45,6 +45,8 @@ export type LivingRoomPlanStageProps = {
   onSelectSurface: (surfaceId: string | null) => void;
   onMoveOpening: (openingId: string, offsetMm: number) => void;
   onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<import("../../domain/interiorProject").OpeningEntity, "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm">>) => void;
+  onTransformPreviewChange?: (preview: import("../livingRoomScene/ModelMoveGizmo").ModelTransformPreview | null) => void;
   onMoveNode: (nodeId: string, position: import("../../domain/interiorProject").Point2Mm) => void;
   onTranslateWall: (wallId: string, delta: import("../../domain/interiorProject").Point2Mm) => void;
   activeBuildTool?: BuildTool;

@@ -172,10 +172,11 @@ describe("living-room plan authoring", () => {
       dimensions: { widthMm: 900, heightMm: 2200, depthMm: 600 },
     }));
     const source = { ...project, objects: cabinets };
-    const snapped = snapCabinetToWall(source, cabinets[0]!, { x: 0, y: 0, z: backWall.start.z + 200 });
+    const snapped = snapCabinetToWall(source, cabinets[0]!, { x: 0, y: 250, z: backWall.start.z + 200 });
     const run = arrangeCabinetRun(source, cabinets.map((cabinet) => cabinet.id), backWall.id);
 
     expect(snapped.extensions?.wallAttachment).toEqual({ wallId: backWall.id });
+    expect(snapped.position.y).toBe(250);
     expect(run.objects[0]!.rotation.y).toBe(0);
     expect(run.objects[0]!.position.x).toBeLessThan(run.objects[1]!.position.x);
   });

@@ -35,6 +35,7 @@ test("Phase B opening workflow places, manipulates, inspects, undoes, and recomp
   await expect(inspector.getByText("Double Swing Door", { exact: true })).toBeVisible();
   await expect(inspector.getByRole("spinbutton", { name: "W mm", exact: true })).toHaveValue("1600");
   await expect(inspector.getByRole("spinbutton", { name: "H mm", exact: true })).toHaveValue("2200");
+  await inspector.locator("details.lr-inspector-section").filter({ hasText: "Opening constraints" }).locator("summary").click();
   await expect(inspector.getByRole("spinbutton", { name: "Sill mm", exact: true })).toHaveValue("0");
   await expect(inspector.locator("[data-material-slot]")).toHaveCount(3);
 
@@ -63,7 +64,7 @@ test("Phase B opening workflow places, manipulates, inspects, undoes, and recomp
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
   await expect(page.locator(".lr-model-viewport canvas")).toBeVisible();
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await page.getByRole("button", { name: "Remove opening" }).click();
   await expect(opening).toHaveCount(0);
   await undo.click();
