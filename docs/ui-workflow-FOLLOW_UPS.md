@@ -6,7 +6,11 @@ tracks so shell CSS work does not rebuild from stale concept screenshots.
 
 ## Design (blocking for “redesign finished,” not for UI-workflow merge)
 
-1. **2D Room reference** — replace or update
+1. **2D Room reference** — new [2D visual review with 11 screenshots](mockups/interiors-2d-review/README.md)
+   is awaiting user review (10 September 2026). It covers light/dark-frame
+   directions and expanded plan controls, but still needs the complete header,
+   selection inspectors and production command mapping. Keep this track open.
+   Replace or update
    [workflow-review](mockups/workflow-review/README.md) so Room shows measured
    plan, draw/measure/snap, underlay/PDF, room management, runs, and plan export
    with unnumbered nav and File/Save/Undo/Redo. Until then the interactive mock

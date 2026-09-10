@@ -7,6 +7,92 @@ complete**, not “redesign finished.” Open design and product tracks:
 commercial dialogs, dual chrome, Report Center, shortcuts). Production release
 and Product Book replacement are separate.
 
+## New 2D visual proposal — awaiting review (10 September 2026)
+
+The latest live screenshot still shows a dark, hard-to-read plan and stacked
+selection, measurement, print and run controls. A new proposal compares a light
+drafting studio with a dark frame around a bright canvas. This is a follow-up
+proposal, not an accepted replacement for the completed steps 1–8.
+
+**Review the [complete 2D screenshot walkthrough](mockups/interiors-2d-review/README.md)**:
+11 embedded captures cover both appearances, the full plan, expanded room /
+opening / underlay / run settings, layers, export and branding, materials,
+wall drawing and measurement. The [interactive copy](mockups/interiors-2d-review/index.html)
+is also retained locally with its sandbox and CSP.
+
+Recommend the light drafting direction. Proposed changes: one compact plan
+toolbar, a bright canvas, contextual essentials and settings opened on demand.
+All current domain commands, undo/redo, imports, exports and issue navigation
+must remain reachable. The mockup does not yet cover the full production header,
+selection inspectors or commercial dialogs; its review checklist records these
+limits. **Review first; do not implement from these images until approved.**
+
+### 1. A — Light drafting studio: header and toolbar
+
+Preferred direction. Light controls, unnumbered area navigation and a single drawing toolbar. The next capture continues below this view.
+
+![A — Light drafting studio: header and toolbar](mockups/interiors-2d-review/screenshots/01-light-overview.png)
+
+### 2. A — Complete plan and footer
+
+The entire room boundary, opening, dimensions and footer are visible. A bright canvas and simplified symbols make the plan easier to read.
+
+![A — Complete plan and footer](mockups/interiors-2d-review/screenshots/02-light-lower.png)
+
+### 3. Room settings expanded
+
+Room essentials remain above Doors & windows, Import plan / PDF and Room & run management. The following capture shows the lower controls in full.
+
+![Room settings expanded](mockups/interiors-2d-review/screenshots/03-expanded-room.png)
+
+### 4. Openings, underlay and runs — lower detail
+
+Add door/window, Choose underlay, opacity, Calibrate scale, Manage rooms and Edit cabinet run are visible. These are proposed entry points; the dialogs are not implemented in this mockup.
+
+![Openings, underlay and runs — lower detail](mockups/interiors-2d-review/screenshots/04-expanded-room-lower.png)
+
+### 5. Plan layers
+
+Cabinets, Dimensions, Labels and Grid move out of the permanent top bars into an expandable section.
+
+![Plan layers](mockups/interiors-2d-review/screenshots/05-layers.png)
+
+### 6. Export sheet and branding expanded
+
+Drawing style, paper size, PDF/PNG choice, company name, drawing title and revision are shown together. This previews settings only; it does not generate an export.
+
+![Export sheet and branding expanded](mockups/interiors-2d-review/screenshots/06-export-expanded.png)
+
+### 7. B — Dark frame: header and toolbar
+
+Alternative dark chrome retains readable controls and the same navigation. The drawing surface remains light.
+
+![B — Dark frame: header and toolbar](mockups/interiors-2d-review/screenshots/07-dark-frame-top.png)
+
+### 8. B — Bright plan inside dark chrome
+
+Complete plan and footer in the alternative theme. Changing chrome does not require changing plan colors.
+
+![B — Bright plan inside dark chrome](mockups/interiors-2d-review/screenshots/08-dark-frame-plan.png)
+
+### 9. Materials inspector
+
+Soft sage, Natural oak and Chalk white demonstrate visible cabinet fills. These are illustrative choices, not the production material catalogue or application-scope design.
+
+![Materials inspector](mockups/interiors-2d-review/screenshots/09-materials.png)
+
+### 10. Draw wall — completed example
+
+Two clicks add a visible wall segment and an illustrative length in the status line. Production must preserve real snapping, topology, dimensions and undo.
+
+![Draw wall — completed example](mockups/interiors-2d-review/screenshots/10-draw-wall.png)
+
+### 11. Measure — completed example
+
+Two clicks add a dimension example. Mockup measurements use illustrative coordinates and are not manufacturing evidence.
+
+![Measure — completed example](mockups/interiors-2d-review/screenshots/11-measure.png)
+
 ## Problem and intended outcome
 
 The supplied kitchen, bathroom, object-browser, and style-preset screenshots
