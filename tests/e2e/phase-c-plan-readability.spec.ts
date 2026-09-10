@@ -11,6 +11,7 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
   await createShellPlan(page);
   await expect(page.getByTestId("lr-plan-canvas")).toBeVisible();
 
+  await page.getByTestId("lr-plan-layers-panel").locator("summary").click();
   const readability = page.locator(".lr-plan-titlebar .lr-readability-toolbar");
   await expect(readability).toBeVisible();
 

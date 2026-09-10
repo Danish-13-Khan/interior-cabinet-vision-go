@@ -1,0 +1,129 @@
+/* Room essentials inspector — match mock A stacked fields. */
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-planner-build .lr-inspector {
+  width: 280px !important;
+  min-width: 280px;
+  max-width: 280px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header {
+  display: grid;
+  gap: 4px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--iu-line);
+  background: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header span,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header .lr-chrome-eyebrow {
+  color: var(--iu-ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header strong,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header strong::after {
+  content: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--iu-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-architecture-inspector {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 0;
+  background: #fff !important;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-architecture-inspector .lr-inspector-section-heading {
+  display: none;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field > span {
+  color: var(--iu-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field input {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--iu-control-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--iu-ink);
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field small {
+  display: none;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-authoring-hint {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--iu-panel-2);
+  color: var(--iu-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-room-preview,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-preview {
+  border: 1px solid var(--iu-line);
+  border-radius: 8px;
+  background: #f6f8fb;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-room-preview path {
+  fill: #e8eef6;
+  stroke: #2a3340;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-room-preview text {
+  fill: #1c2430;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-height-presets button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise-actions button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-offset-field button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-offset-field input {
+  border-color: var(--iu-line);
+  background: #fff;
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise {
+  background: var(--iu-panel-2);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise p,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-offset-field span,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-height-presets > span {
+  color: var(--iu-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-height-presets button.is-active {
+  border-color: var(--iu-green);
+  background: var(--iu-green-soft);
+  color: var(--iu-control-active-ink);
+}

@@ -12,11 +12,42 @@
 }
 
 .lr-wall-visibility-selected {
-  /* Sit below .lr-model-controls (top: 7px, ~one toolbar row) so camera presets stay clickable. */
+  /* Legacy overlay fallback when not stacked under .lr-model-left-chrome. */
   top: 52px;
   left: 7px;
   z-index: 22;
   padding: 6px 8px;
+}
+
+.lr-model-left-chrome {
+  position: absolute;
+  z-index: 26;
+  top: 7px;
+  left: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: calc(100% - 14px);
+  pointer-events: none;
+}
+
+.lr-model-left-chrome > * {
+  pointer-events: auto;
+}
+
+.lr-model-left-chrome .lr-model-controls {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
+.lr-model-left-chrome .lr-wall-visibility-selected {
+  position: static;
+  top: auto;
+  left: auto;
+  z-index: auto;
 }
 
 .lr-wall-visibility-panel {

@@ -14,6 +14,7 @@ const PRESET_BY_ACTION: Partial<Record<(typeof MODEL_VIEW_SHORTCUT_ACTION_IDS)[n
   modelCamSide: "side",
   modelCamIsometric: "isometric",
   modelCamPerspective: "perspective",
+  modelCamOrbit: "orbit",
 };
 
 /** Phase M1 camera shortcuts — only while the 3D canvas is focused. */

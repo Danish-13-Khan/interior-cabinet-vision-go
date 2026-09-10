@@ -1,9 +1,8 @@
 # Interiors 2D workspace — visual review
 
-Status: **appearance approved (A default); implementation not authorized yet**.
-Captured 10 September 2026. Separate from completed workflow build steps 1–8
-and the older quarantined workflow concept. No application code has changed in
-this documentation pass.
+Status: **appearance approved (A default); live chrome landed as CSS only**.
+Captured 10 September 2026. Separate from completed workflow build steps 1–8.
+2D handlers are unchanged; inspector/command-map refinement is still open.
 
 [Back to the workflow specification](../../UI_WORKFLOW_REDESIGN.md) ·
 [Open the interactive mockup](index.html)

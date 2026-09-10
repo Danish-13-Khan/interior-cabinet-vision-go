@@ -221,41 +221,6 @@
   font-size: 0.78rem;
 }
 
-.shortcut-sheet-configurable {
-  max-height: min(78vh, 720px);
-  display: flex;
-  flex-direction: column;
-}
-
-.shortcut-row-button {
-  appearance: none;
-  width: 100%;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-}
-
-.shortcut-row-button:hover,
-.shortcut-row-button.is-capturing {
-  border-color: #b7c9da;
-  background: #f4f8fc;
-}
-
-.shortcut-conflict {
-  margin: 0 18px 8px;
-  color: #9f1239;
-  font-size: 0.74rem;
-}
-
-.shortcut-sheet-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 16px 16px;
-  border-top: 1px solid #e1e7ee;
-}
-
 .status-dock-shell {
   display: flex;
   flex-direction: column;

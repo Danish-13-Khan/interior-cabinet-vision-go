@@ -164,4 +164,5 @@ export type LivingRoomPlanWorkspaceProps = {
   onSaveProject: () => void;
   onExportProject: () => void;
   onWorkbenchModeChange: (mode: WorkbenchMode) => void;
+  onOpenShortcuts?: () => void;
 };
