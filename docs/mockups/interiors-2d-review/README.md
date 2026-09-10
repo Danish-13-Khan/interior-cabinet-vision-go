@@ -1,19 +1,24 @@
 # Interiors 2D workspace — visual review
 
-Status: **proposed; awaiting user review**. Captured 10 September 2026.
-This is a new 2D layout proposal, separate from the completed workflow build
-steps 1–8 and the older quarantined workflow concept. No application code has
-changed in this documentation pass.
+Status: **appearance approved (A default); implementation not authorized yet**.
+Captured 10 September 2026. Separate from completed workflow build steps 1–8
+and the older quarantined workflow concept. No application code has changed in
+this documentation pass.
 
 [Back to the workflow specification](../../UI_WORKFLOW_REDESIGN.md) ·
 [Open the interactive mockup](index.html)
 
-## Direction to review
+## Direction (approved)
 
-Recommend **A — Light drafting studio**. B keeps a dark frame around the same
-bright plan. Both reduce the permanent controls to the project header, free area
-navigation and one compact plan toolbar. Room essentials are contextual; less
-frequent settings expand on demand. Libraries should open only when needed.
+**A — Light drafting studio** is the default appearance. **B** remains an
+optional dark frame around the same bright plan. Both reduce permanent controls
+to the project header, free area navigation and one compact plan toolbar. Room
+essentials are contextual; less frequent settings expand on demand. Libraries
+open only when needed.
+
+**Functionality is unchanged by this approval.** Perspective / Orbit /
+Walkthrough, plan tools, materials, review/export and engineering commands stay
+reachable; only chrome and layout targets change after the refinement gate.
 
 The interactive copy preserves its sandboxed iframe and Content Security Policy.
 It is local and unpublished. Screenshots below cover every distinct 2D panel in
@@ -123,14 +128,15 @@ Two clicks add a dimension example. Mockup measurements use illustrative coordin
 
 ## Approval checklist
 
-- [ ] Choose A (recommended) or B as the default appearance.
-- [ ] Accept a bright 2D canvas with stronger linework and quieter grid.
-- [ ] Accept one plan toolbar; move layers/print options into expandable settings.
-- [ ] Accept contextual room essentials and on-demand libraries.
-- [ ] Review all expanded captures for readability and text wrapping.
+- [x] Choose A (recommended) or B as the default appearance. → **A default; B optional**
+- [x] Accept a bright 2D canvas with stronger linework and quieter grid.
+- [x] Accept one plan toolbar; move layers/print options into expandable settings.
+- [x] Accept contextual room essentials and on-demand libraries (pending left-library + selection-inspector frames).
+- [x] Review all expanded captures for readability and text wrapping.
 - [ ] Complete missing header, selection, zoom, issues and dialog states above.
 - [ ] Map every production command to its retained entry point before relocation.
-- [ ] Authorize implementation after this visual review.
+- [ ] Authorize implementation after the refinement pass (not after appearance alone).
+- [x] Confirm functionality preservation: no feature removal; camera/perspective and domain commands stay.
 
 ## Verification in this pass
 

@@ -2,34 +2,51 @@
 
 Status: design direction accepted; build steps 1–8 complete on
 `codex/feat/ui-workflow-redesign` (September 2026). Treat as **UI workflow
-complete**, not “redesign finished.” Open design and product tracks:
+complete**, not “redesign finished.” 2D Room appearance approved as **A — Light
+drafting studio** (chrome/layout only; functionality unchanged); refinement
+still blocks implementation. Open design and product tracks:
 [ui-workflow-FOLLOW_UPS.md](ui-workflow-FOLLOW_UPS.md) (2D Room reference,
 commercial dialogs, dual chrome, Report Center, shortcuts). Production release
 and Product Book replacement are separate.
 
-## New 2D visual proposal — awaiting review (10 September 2026)
+## New 2D visual proposal — appearance approved (10 September 2026)
 
 The latest live screenshot still shows a dark, hard-to-read plan and stacked
-selection, measurement, print and run controls. A new proposal compares a light
-drafting studio with a dark frame around a bright canvas. This is a follow-up
-proposal, not an accepted replacement for the completed steps 1–8.
+selection, measurement, print and run controls. A follow-up proposal compared a
+light drafting studio with a dark frame around a bright canvas. This is **not**
+a replacement for completed steps 1–8 and does **not** change product
+functionality.
 
-**Review the [complete 2D screenshot walkthrough](mockups/interiors-2d-review/README.md)**:
-11 embedded captures cover both appearances, the full plan, expanded room /
-opening / underlay / run settings, layers, export and branding, materials,
-wall drawing and measurement. The [interactive copy](mockups/interiors-2d-review/index.html)
-is also retained locally with its sandbox and CSP.
+**Appearance decision (approved):** default to **A — Light drafting studio**.
+Keep **B — Dark frame / bright canvas** as an optional chrome theme (plan surface
+stays light either way). Accept a bright 2D canvas with stronger linework and a
+quieter grid; one compact plan toolbar; layers/print options in expandable
+settings; contextual room essentials and on-demand libraries.
 
-Recommend the light drafting direction. Proposed changes: one compact plan
-toolbar, a bright canvas, contextual essentials and settings opened on demand.
-All current domain commands, undo/redo, imports, exports and issue navigation
-must remain reachable. The mockup does not yet cover the full production header,
-selection inspectors or commercial dialogs; its review checklist records these
-limits. **Review first; do not implement from these images until approved.**
+**Functionality preservation (non-negotiable):** this approval is chrome and
+layout only. Existing domain commands stay reachable — including perspective /
+Orbit / Walkthrough and other camera tools, draw/measure/snap, underlay, runs,
+materials, undo/redo, imports, exports, cutaways, review/quote gates, Present,
+and engineering outputs. Handlers, geometry, costing and manufacturing math are
+unchanged. Relocate entry points only after each replacement is verified; keep
+the old control until then.
+
+**Implementation gate:** do **not** implement from these images yet. Complete
+the refinement pass first (shared header with File/Save/Undo/Redo + save status
+and real 2D/3D; area-specific tools/inspector so Materials does not show Room
+draw tools; left library rail; wall/opening/run selection inspectors; full layer
+and export command map; zoom and live issue footer). See the
+[2D screenshot walkthrough](mockups/interiors-2d-review/README.md) and
+[follow-ups](ui-workflow-FOLLOW_UPS.md).
+
+Walkthrough: 11 captures cover both appearances, expanded room / opening /
+underlay / run settings, layers, export and branding, materials, wall drawing
+and measurement. The [interactive copy](mockups/interiors-2d-review/index.html)
+is retained locally with its sandbox and CSP.
 
 ### 1. A — Light drafting studio: header and toolbar
 
-Preferred direction. Light controls, unnumbered area navigation and a single drawing toolbar. The next capture continues below this view.
+**Approved default.** Light controls, unnumbered area navigation and a single drawing toolbar. The next capture continues below this view.
 
 ![A — Light drafting studio: header and toolbar](mockups/interiors-2d-review/screenshots/01-light-overview.png)
 
@@ -65,7 +82,7 @@ Drawing style, paper size, PDF/PNG choice, company name, drawing title and revis
 
 ### 7. B — Dark frame: header and toolbar
 
-Alternative dark chrome retains readable controls and the same navigation. The drawing surface remains light.
+**Optional chrome theme** (not the default). Dark chrome retains readable controls and the same navigation. The drawing surface remains light.
 
 ![B — Dark frame: header and toolbar](mockups/interiors-2d-review/screenshots/07-dark-frame-top.png)
 
