@@ -177,7 +177,11 @@ export function CameraRig({
     projectCamera?.target.y,
     projectCamera?.target.z,
     renderMode,
-    scene.fingerprint,
+    // Geometry edits (including gizmo commits) change scene.fingerprint. They
+    // must not overwrite the camera pose the user reached through orbit/pan.
+    // A project/room switch still applies the selected preset automatically.
+    scene.projectId,
+    scene.roomId,
     size.height,
     size.width,
     viewPreset,

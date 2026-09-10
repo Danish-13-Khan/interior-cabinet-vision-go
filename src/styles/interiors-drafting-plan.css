@@ -30,7 +30,7 @@
   stroke-width: 128;
 }
 
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening line {
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening line:not(.lr-opening-hit) {
   stroke: #fbfcfe;
 }
 

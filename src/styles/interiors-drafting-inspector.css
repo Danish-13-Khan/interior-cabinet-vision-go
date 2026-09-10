@@ -218,6 +218,56 @@
   margin: 0;
 }
 
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-position-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin-bottom: 10px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-position-fields .lr-number-field {
+  min-width: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-position-fields .lr-number-field input {
+  width: 100%;
+  min-width: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-transform-editor .lr-select-field {
+  grid-column: 1 / -1;
+}
+
+.lr-model-gizmo-readout {
+  width: max-content;
+  max-width: 260px;
+  padding: 6px 9px;
+  border: 1px solid light-dark(rgb(28 40 34 / 20%), rgb(236 243 238 / 22%));
+  border-radius: 7px;
+  background: light-dark(rgb(255 255 255 / 94%), rgb(18 25 21 / 94%));
+  box-shadow: 0 5px 18px rgb(0 0 0 / 18%);
+  color: light-dark(#1c2822, #ecf3ee);
+  font: 600 12px/1.2 "IBM Plex Sans", "Segoe UI", sans-serif;
+  white-space: nowrap;
+}
+
+.lr-model-gizmo-axis {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 28%);
+  color: #fff;
+  font: 800 11px/1 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.lr-model-gizmo-axis.is-x { background: #e14d4d; }
+.lr-model-gizmo-axis.is-y { background: #2d9860; }
+.lr-model-gizmo-axis.is-z { background: #3478e5; }
+
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field.lr-dimension-card {
   min-height: 68px;
   padding: 8px;

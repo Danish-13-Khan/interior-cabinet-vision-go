@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import {
   firstPickIdFromRay,
-  projectedScreenPointForPickId,
+  visibleScreenPointForPickId,
   type ModelPickScreenPoint,
 } from "./modelPickQuery";
 
@@ -27,7 +27,7 @@ export function ModelPickHarness() {
   useEffect(() => {
     const api: ModelPickApi = {
       screenPointForPickId(pickId) {
-        return projectedScreenPointForPickId(scene, camera, gl.domElement, pickId);
+        return visibleScreenPointForPickId(scene, camera, gl.domElement, pickId);
       },
       raycastHitsPickId(pickId) {
         const point = api.screenPointForPickId(pickId);

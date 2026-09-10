@@ -526,7 +526,13 @@
 .lr-wall-line { cursor: pointer; }
 .lr-wall-line.is-active { stroke: var(--lr-accent); stroke-width: 32; }
 .lr-opening { cursor: pointer; }
-.lr-opening.is-active line { stroke: var(--lr-accent); stroke-width: 34; }
+.lr-opening-hit {
+  fill: none;
+  stroke: transparent !important;
+  stroke-width: 360 !important;
+  pointer-events: stroke;
+}
+.lr-opening.is-active line:not(.lr-opening-hit) { stroke: var(--lr-accent); stroke-width: 34; }
 
 .lr-product-shell .lr-plan-object > rect:first-of-type {
   fill: rgba(255, 255, 255, 0.88);

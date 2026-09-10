@@ -12,6 +12,7 @@ type DragState = {
   startPoint: Vector3;
   startPosition: Point3Mm;
   moved: boolean;
+  captureTarget: Element;
 };
 
 export function useCompiledNodeDrag(
@@ -20,15 +21,18 @@ export function useCompiledNodeDrag(
   sourceObjectId: string | null,
   onMove: (objectId: string, position: Point3Mm) => void,
   onDragStateChange: (dragging: boolean) => void,
+  onMovePreview?: (objectId: string, position: Point3Mm) => Point3Mm,
 ) {
   const [preview, setPreview] = useState<Point3Mm | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const previewRef = useRef<Point3Mm | null>(null);
   const sourceIdRef = useRef(sourceObjectId);
   const onMoveRef = useRef(onMove);
+  const onMovePreviewRef = useRef(onMovePreview);
   const onDragStateRef = useRef(onDragStateChange);
   sourceIdRef.current = sourceObjectId;
   onMoveRef.current = onMove;
+  onMovePreviewRef.current = onMovePreview;
   onDragStateRef.current = onDragStateChange;
 
   function groundPoint(ray: ThreeEvent<PointerEvent>["ray"]) {
@@ -36,10 +40,11 @@ export function useCompiledNodeDrag(
     return ray.intersectPlane(FLOOR_DRAG_PLANE, result) ? result : null;
   }
 
-  function clearDrag(releaseTarget: Element | null, pointerId: number | null) {
-    if (releaseTarget && pointerId !== null) {
+  function clearDrag() {
+    const activeDrag = dragRef.current;
+    if (activeDrag) {
       try {
-        releaseTarget.releasePointerCapture(pointerId);
+        activeDrag.captureTarget.releasePointerCapture(activeDrag.pointerId);
       } catch {
         /* already released */
       }
@@ -54,13 +59,14 @@ export function useCompiledNodeDrag(
   function beginDrag(event: ThreeEvent<PointerEvent>) {
     const point = groundPoint(event.ray);
     if (!point || event.shiftKey || event.metaKey || event.ctrlKey) return;
-    const target = event.nativeEvent.target as Element | null;
-    target?.setPointerCapture(event.pointerId);
+    const captureTarget = event.target as Element;
+    captureTarget.setPointerCapture(event.pointerId);
     dragRef.current = {
       pointerId: event.pointerId,
       startPoint: point,
       startPosition,
       moved: false,
+      captureTarget,
     };
     previewRef.current = { ...startPosition };
     setPreview({ ...startPosition });
@@ -79,11 +85,15 @@ export function useCompiledNodeDrag(
       drag.moved = true;
       onDragStateRef.current(true);
     }
-    const next = {
+    const proposed = {
       ...drag.startPosition,
       x: Math.round((drag.startPosition.x + dxM * 1000) / snapSizeMm) * snapSizeMm,
       z: Math.round((drag.startPosition.z + dzM * 1000) / snapSizeMm) * snapSizeMm,
     };
+    const objectId = sourceIdRef.current;
+    const next = objectId
+      ? onMovePreviewRef.current?.(objectId, proposed) ?? proposed
+      : proposed;
     previewRef.current = next;
     setPreview(next);
   }
@@ -102,7 +112,7 @@ export function useCompiledNodeDrag(
     ) {
       onMoveRef.current(objectId, previewPose);
     }
-    clearDrag(event.nativeEvent.target as Element | null, event.pointerId);
+    clearDrag();
   }
 
   useEffect(() => {
@@ -119,7 +129,7 @@ export function useCompiledNodeDrag(
       ) {
         onMoveRef.current(objectId, previewPose);
       }
-      clearDrag(event.target as Element | null, event.pointerId);
+      clearDrag();
     }
     window.addEventListener("pointerup", onWindowEnd);
     window.addEventListener("pointercancel", onWindowEnd);

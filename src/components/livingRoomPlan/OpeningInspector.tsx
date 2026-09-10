@@ -4,13 +4,28 @@ import {
   STANDARD_WINDOW_HEIGHTS_MM,
   type InteriorProject,
   type OpeningEntity,
+  type Point3Mm,
+  type WallEntity,
 } from "../../domain/interiorProject";
-import { getOpeningCatalogItem } from "../../domain/livingRoom";
+import { getOpeningCatalogItem, openingOffsetAtPoint } from "../../domain/livingRoom";
 import { HeightPresetRow } from "./HeightPresetRow";
 import { NumberField } from "./NumberField";
 import { MaterialSlotList } from "./MaterialSlotList";
 
-type OpeningPatch = Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>;
+type OpeningPatch = Partial<Pick<OpeningEntity, "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots" | "parameters">>;
+
+function openingPosition(opening: OpeningEntity, wall: WallEntity | null): Point3Mm {
+  if (!wall) return { x: 0, y: opening.sillHeightMm, z: 0 };
+  const dx = wall.end.x - wall.start.x;
+  const dz = wall.end.z - wall.start.z;
+  const length = Math.max(1, Math.hypot(dx, dz));
+  const center = opening.offsetMm + opening.widthMm / 2;
+  return {
+    x: wall.start.x + dx / length * center,
+    y: opening.sillHeightMm,
+    z: wall.start.z + dz / length * center,
+  };
+}
 
 function OpeningPreview({ opening }: { opening: OpeningEntity }) {
   const item = getOpeningCatalogItem(opening.catalogItemId);
@@ -30,8 +45,11 @@ function OpeningPreview({ opening }: { opening: OpeningEntity }) {
   </div>;
 }
 
-export function OpeningInspector({ opening, materials, onUpdate, onDelete }: {
+export function OpeningInspector({ opening, wall, positionOverride, snapSizeMm, materials, onUpdate, onDelete }: {
   opening: OpeningEntity;
+  wall: WallEntity | null;
+  positionOverride?: Point3Mm | null;
+  snapSizeMm: number;
   materials: InteriorProject["materials"];
   onUpdate: (openingId: string, patch: OpeningPatch) => void;
   onDelete?: (openingId: string) => void;
@@ -39,23 +57,65 @@ export function OpeningInspector({ opening, materials, onUpdate, onDelete }: {
   const item = getOpeningCatalogItem(opening.catalogItemId);
   const slots = opening.materialSlots ?? {};
   const slotMap = Object.fromEntries(item.materialSlots.map((slot) => [slot, slots[slot] ?? ""]));
+  const position = positionOverride ?? openingPosition(opening, wall);
+  const maxDepthMm = Math.max(20, wall?.thicknessMm ?? 200);
+  const depthMm = Math.min(
+    maxDepthMm,
+    Math.max(20, Number(opening.parameters?.depthMm) || (opening.kind === "window" ? 34 : 42)),
+  );
+  function updateWithinWall(patch: OpeningPatch) {
+    if (!wall || (patch.heightMm === undefined && patch.sillHeightMm === undefined)) {
+      onUpdate(opening.id, patch);
+      return;
+    }
+    const heightMm = Math.min(wall.heightMm, Math.max(300, patch.heightMm ?? opening.heightMm));
+    const sillHeightMm = Math.min(
+      Math.max(0, wall.heightMm - heightMm),
+      Math.max(0, patch.sillHeightMm ?? opening.sillHeightMm),
+    );
+    onUpdate(opening.id, { ...patch, heightMm, sillHeightMm });
+  }
+  function patchPlanPosition(axis: "x" | "z", value: number) {
+    if (!wall) return;
+    const proposed = { ...position, [axis]: value };
+    onUpdate(opening.id, {
+      offsetMm: openingOffsetAtPoint(wall, proposed, opening.widthMm, snapSizeMm),
+    });
+  }
   return <section className="lr-opening-inspector">
     <h3>Selected Opening</h3>
     <OpeningPreview opening={opening} />
-    <h4>Dimensions <small>millimetres</small></h4>
+    <h4>Position <small>millimetres · snapped to wall</small></h4>
+    <div className="lr-position-fields">
+      <NumberField label="X" value={position.x} onChange={(x) => patchPlanPosition("x", x)} />
+      <NumberField label="Y" value={position.y} onChange={(sillHeightMm) => updateWithinWall({ sillHeightMm })} />
+      <NumberField label="Z" value={position.z} onChange={(z) => patchPlanPosition("z", z)} />
+    </div>
+    <h4>Size <small>millimetres</small></h4>
     <div className="lr-dimension-cards">
       <NumberField className="lr-dimension-card" label="W" value={opening.widthMm} onChange={(widthMm) => onUpdate(opening.id, { widthMm })} />
-      <NumberField className="lr-dimension-card" label="H" value={opening.heightMm} onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
-      <NumberField className="lr-dimension-card" label="Sill" value={opening.sillHeightMm} onChange={(sillHeightMm) => onUpdate(opening.id, { sillHeightMm })} />
+      <NumberField className="lr-dimension-card" label="H" value={opening.heightMm} onChange={(heightMm) => updateWithinWall({ heightMm })} />
+      <NumberField className="lr-dimension-card" label="D" value={depthMm}
+        onChange={(nextDepthMm) => onUpdate(opening.id, {
+          parameters: { ...opening.parameters, depthMm: Math.min(maxDepthMm, Math.max(20, nextDepthMm)) },
+        })} />
     </div>
+    <p className="lr-inspector-hint">Drag the XYZ arrows in 3D to reposition this opening. Wall projection and clear-span limits remain active.</p>
+    <details className="lr-inspector-section">
+      <summary>Opening constraints</summary>
+      <div className="lr-inspector-section-body">
+        <NumberField label="Sill" value={opening.sillHeightMm}
+          onChange={(sillHeightMm) => updateWithinWall({ sillHeightMm })} />
+      </div>
+    </details>
     {opening.kind === "door"
       ? <HeightPresetRow label="Door height" values={STANDARD_DOOR_HEIGHTS_MM} value={opening.heightMm}
-        onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
+        onChange={(heightMm) => updateWithinWall({ heightMm })} />
       : <>
         <HeightPresetRow label="Window height" values={STANDARD_WINDOW_HEIGHTS_MM} value={opening.heightMm}
-          onChange={(heightMm) => onUpdate(opening.id, { heightMm })} />
+          onChange={(heightMm) => updateWithinWall({ heightMm })} />
         <HeightPresetRow label="Sill height" values={STANDARD_SILL_HEIGHTS_MM} value={opening.sillHeightMm}
-          onChange={(sillHeightMm) => onUpdate(opening.id, { sillHeightMm })} />
+          onChange={(sillHeightMm) => updateWithinWall({ sillHeightMm })} />
       </>}
     <h4>Materials</h4>
     <MaterialSlotList slots={slotMap} materials={materials} allowEmpty

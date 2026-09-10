@@ -54,7 +54,13 @@ export function compileOpeningNode(
     "hardware",
     LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
   );
-  const insetDepth = opening.kind === "window" ? 34 : 42;
+  const configuredDepth = Number(opening.parameters?.depthMm);
+  const insetDepth = Math.min(
+    Math.max(20, wall.thicknessMm),
+    Number.isFinite(configuredDepth) && configuredDepth > 0
+      ? Math.max(20, configuredDepth)
+      : opening.kind === "window" ? 34 : 42,
+  );
   const border = opening.kind === "window" ? 46 : 58;
   const primitives = [boxPrimitive(
     opening.kind,

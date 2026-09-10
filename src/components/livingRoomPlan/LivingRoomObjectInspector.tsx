@@ -32,12 +32,13 @@ type LivingRoomObjectInspectorProps = {
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
   onAddWallPanel?: (wallId: string) => void;
   actions?: ReactNode;
+  positionEditor?: ReactNode;
 };
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
 export function LivingRoomObjectInspector({
   object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun, onCompleteRun,
-  onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, actions,
+  onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, actions, positionEditor,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
@@ -54,6 +55,7 @@ export function LivingRoomObjectInspector({
           : <em className="lr-millwork-badge is-soft">Furniture &amp; decor</em>}
       </div>
       {actions}
+      {positionEditor}
       <h4 className="lr-dimensions-heading">Dimensions <small>millimetres</small></h4>
       <div className="lr-dimension-cards" aria-label="Object dimensions in millimetres">
         <NumberField className="lr-dimension-card" label="W" value={object.dimensions.widthMm} onChange={(value) => patchDimension("widthMm", value)} />
