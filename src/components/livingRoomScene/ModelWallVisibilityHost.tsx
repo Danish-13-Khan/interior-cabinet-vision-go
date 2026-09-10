@@ -20,7 +20,22 @@ type ModelWallVisibilityHostProps = {
   ) => void;
   onSelectWall: (wallId: string) => void;
   onClearSelection: () => void;
+  /** When true, Hide Wall renders in the left chrome stack (not absolute overlay). */
+  stackedHideBar?: boolean;
 };
+
+export function ModelWallHideBar(props: {
+  wallId: string;
+  onHide: () => void;
+}) {
+  return (
+    <div className="lr-wall-visibility-selected" data-testid="model-wall-hide-bar">
+      <button type="button" data-testid="model-hide-wall" title="Hide wall (Alt+H)" onClick={props.onHide}>
+        Hide Wall
+      </button>
+    </div>
+  );
+}
 
 /** M2 — Hide Wall (selection + context menu) and Show / Show All Walls panel. */
 export function ModelWallVisibilityHost({
@@ -31,6 +46,7 @@ export function ModelWallVisibilityHost({
   onPatchDocument,
   onSelectWall,
   onClearSelection,
+  stackedHideBar = false,
 }: ModelWallVisibilityHostProps) {
   function hideWall(wallId: string) {
     onPatchDocument((current) => setWallVisible(current, wallId, false), "Hide wall");
@@ -49,12 +65,8 @@ export function ModelWallVisibilityHost({
 
   return (
     <>
-      {activeWallId ? (
-        <div className="lr-wall-visibility-selected" data-testid="model-wall-hide-bar">
-          <button type="button" data-testid="model-hide-wall" onClick={() => hideWall(activeWallId)}>
-            Hide Wall
-          </button>
-        </div>
+      {!stackedHideBar && activeWallId ? (
+        <ModelWallHideBar wallId={activeWallId} onHide={() => hideWall(activeWallId)} />
       ) : null}
       <ModelWallVisibilityPanel
         project={project}

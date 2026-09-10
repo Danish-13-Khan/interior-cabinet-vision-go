@@ -29,6 +29,7 @@ type InteriorsWorkspaceHeaderProps = {
   onUndo: () => void;
   onRedo: () => void;
   onPresent: () => void;
+  onOpenShortcuts?: () => void;
 };
 
 export function InteriorsWorkspaceHeader({
@@ -54,6 +55,7 @@ export function InteriorsWorkspaceHeader({
   onUndo,
   onRedo,
   onPresent,
+  onOpenShortcuts,
 }: InteriorsWorkspaceHeaderProps) {
   const saveLabel = interiorsSaveLabel(isDirty, autosaveState);
   const hasProject = Boolean(projectName);
@@ -119,6 +121,7 @@ export function InteriorsWorkspaceHeader({
             onOpen={onOpen}
             onSave={onSave}
             onExport={onExport}
+            onOpenShortcuts={onOpenShortcuts}
           />
           <div className="lr-chrome-history">
             <button type="button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}>
@@ -139,7 +142,7 @@ export function InteriorsWorkspaceHeader({
             onClick={() => onView("plan")}
             disabled={!hasProject}
           >
-            2D
+            2D plan
           </button>
           <button
             type="button"

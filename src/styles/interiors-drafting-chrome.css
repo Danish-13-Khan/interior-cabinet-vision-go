@@ -1,0 +1,190 @@
+/* Plan titlebar + rooms strip hierarchy (drafting studio only). */
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-titlebar,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-run-titlebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  min-height: 48px;
+  padding: 8px 14px;
+  background: #fff;
+  border-bottom: 1px solid var(--iu-line-strong);
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 8px;
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 220px;
+  color: var(--iu-ink);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-copy strong {
+  color: var(--iu-ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-sep {
+  color: var(--iu-line-strong);
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-project-name,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-hint {
+  color: #3a4554;
+  font-weight: 500;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px 12px;
+  margin-left: auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-view-tools {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--iu-line);
+  border-radius: 10px;
+  background: var(--iu-panel-2);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-units {
+  padding: 0 8px;
+  color: #3a4554;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-view-tools button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-view-tools select {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--iu-control-border);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--iu-ink);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-view-tools button.is-active {
+  border-color: var(--iu-green);
+  background: var(--iu-green-soft);
+  color: var(--iu-control-active-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar > small,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-titlebar > small {
+  color: #3a4554;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  max-height: none;
+  overflow: visible;
+  padding: 8px 14px;
+  background: var(--iu-panel-2);
+  border-bottom: 1px solid var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher > strong {
+  color: var(--iu-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher label > span,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher-actions small {
+  color: #3a4554;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher-tabs > button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher input,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher-actions button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher-actions select,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-nav-tools button {
+  min-height: 32px;
+  border: 1px solid var(--iu-control-border);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--iu-ink);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher input {
+  min-width: 140px;
+  padding: 0 10px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage .lr-room-switcher-tabs > button.is-active,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-nav-tools button.is-active {
+  border-color: var(--iu-green);
+  background: var(--iu-green-soft);
+  color: var(--iu-control-active-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-nav-tools {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-status,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-status,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-run-status {
+  color: #3a4554;
+  font-size: 0.74rem;
+  font-weight: 550;
+}

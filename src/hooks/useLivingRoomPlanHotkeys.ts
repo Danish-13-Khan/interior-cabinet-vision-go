@@ -27,6 +27,8 @@ export function useLivingRoomPlanHotkeys({
   onCancelTool,
   onMeasureTool,
   onOpenMaterial,
+  onHideSelectedWall,
+  onShowAllWalls,
 }: {
   projectHomeOpen: boolean;
   snapSizeMm: number;
@@ -47,6 +49,8 @@ export function useLivingRoomPlanHotkeys({
   onCancelTool?: () => void;
   onMeasureTool?: () => void;
   onOpenMaterial?: () => void;
+  onHideSelectedWall?: () => void;
+  onShowAllWalls?: () => void;
 }) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -57,10 +61,24 @@ export function useLivingRoomPlanHotkeys({
       const modelFocused = isModelViewCanvasFocused();
       const shortcutMap = readShortcutMap();
 
-      // Material browser — honour shortcutMap.openMaterial even with 3D canvas focused.
       if (onOpenMaterial && eventMatchesBinding(event, shortcutMap.openMaterial)) {
         event.preventDefault();
         onOpenMaterial();
+        return;
+      }
+      if (onShowAllWalls && eventMatchesBinding(event, shortcutMap.showAllWalls)) {
+        event.preventDefault();
+        onShowAllWalls();
+        return;
+      }
+      if (onHideSelectedWall && eventMatchesBinding(event, shortcutMap.hideSelectedWall)) {
+        event.preventDefault();
+        onHideSelectedWall();
+        return;
+      }
+      if (onMeasureTool && eventMatchesBinding(event, shortcutMap.measureTool)) {
+        event.preventDefault();
+        onMeasureTool();
         return;
       }
 
@@ -113,11 +131,6 @@ export function useLivingRoomPlanHotkeys({
         onDelete();
         return;
       }
-      if (event.key.toLowerCase() === "m" && !event.metaKey && !event.ctrlKey) {
-        event.preventDefault();
-        onMeasureTool?.();
-        return;
-      }
       if (event.key.toLowerCase() === "r") {
         event.preventDefault();
         onRotateSelection(event.shiftKey ? -90 : 90);
@@ -137,8 +150,8 @@ export function useLivingRoomPlanHotkeys({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
-    canRedo, canUndo, onCancelTool, onClearSelection, onCycleSelection, onDelete, onDuplicate, onFitPlan,
-    onFitSelection, onMeasureTool, onNudge, onOpenMaterial, onRedo, onRotateSelection, onUndo, onView,
-    projectHomeOpen, snapSizeMm, workspaceView,
+    canRedo, canUndo, onCancelTool, onClearSelection, onCycleSelection, onDelete, onDuplicate,
+    onFitPlan, onFitSelection, onHideSelectedWall, onMeasureTool, onNudge, onOpenMaterial, onRedo,
+    onRotateSelection, onShowAllWalls, onUndo, onView, projectHomeOpen, snapSizeMm, workspaceView,
   ]);
 }

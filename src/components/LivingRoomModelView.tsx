@@ -9,7 +9,6 @@ import {
   getModelViewDefaultPresetId,
   getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
-  listModelViewRenderPresets,
   mechanismFrontIndex,
   mechanismPanelPatch,
   modelViewProjectLightScale,
@@ -29,12 +28,9 @@ import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
 import { LivingRoomModelChrome } from "./livingRoomScene/LivingRoomModelChrome";
-import {
-  ModelWallVisibilityHost,
-  type WallContextMenuState,
-} from "./livingRoomScene/ModelWallVisibilityHost";
+import { type WallContextMenuState } from "./livingRoomScene/ModelWallVisibilityHost";
+import { ModelViewAuthoringOverlays } from "./livingRoomScene/ModelViewAuthoringOverlays";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
-import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
 import { ModelViewFeedbackBanners } from "./livingRoomScene/ModelViewFeedbackBanners";
 import { modelViewClientPresentationProps } from "../domain/livingRoom/modelViewClientPresentation";
 
@@ -105,20 +101,22 @@ export function LivingRoomModelView({
       data-view-preset={camera.viewPreset}
     >
       {!presentation ? (
-        <ModelViewToolbar
+        <ModelViewAuthoringOverlays
+          project={project} activeWallId={activeWallId} wallMenu={wallMenu}
           viewPreset={camera.viewPreset} cameraHeightMm={cameraHeightMm}
           fieldOfViewDegrees={fieldOfViewDegrees} activeCameraId={activeCameraId}
           cameras={scene.cameras} cutawayWalls={cutawayWalls}
           activeRotation={activeObject ? Math.round(activeObject.rotation.y) : 0}
           hasActiveObject={Boolean(activeObject)} viewportQuality={viewportQuality}
-          modelPresets={listModelViewRenderPresets()} honesty={honesty}
+          honesty={honesty} hasSelection={hasSelection}
           onViewPreset={camera.setViewPreset} onCameraHeightMm={setCameraHeightMm}
           onFieldOfViewDegrees={setFieldOfViewDegrees} onActiveCameraId={setActiveCameraId}
           onCutawayWalls={setCutawayWalls}
           onSetRotation={(rotationY) => { if (activeObject) onSetRotation(activeObject.id, rotationY); }}
           onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}
-          hasSelection={hasSelection} onClearSelection={onClearSelection}
-          onFitRoom={camera.fitRoom} onFocusSelection={camera.focusSelection}
+          onClearSelection={onClearSelection} onFitRoom={camera.fitRoom}
+          onFocusSelection={camera.focusSelection} onCloseWallMenu={() => setWallMenu(null)}
+          onSelectWall={onSelectWall} onPatchDocument={onPatchDocument}
         />
       ) : null}
       {!presentation ? <ModelViewFeedbackBanners /> : null}
@@ -166,13 +164,6 @@ export function LivingRoomModelView({
           }}
         />
       </div>
-      {!presentation && onPatchDocument ? (
-        <ModelWallVisibilityHost
-          project={project} activeWallId={activeWallId} wallMenu={wallMenu}
-          onCloseWallMenu={() => setWallMenu(null)} onPatchDocument={onPatchDocument}
-          onSelectWall={onSelectWall} onClearSelection={onClearSelection}
-        />
-      ) : null}
       {!presentation ? (
         <LivingRoomModelChrome
           showGuide={showGuide} viewPreset={camera.viewPreset}

@@ -87,6 +87,9 @@ type LivingRoomInspectorPanelProps = {
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? null;
   const { room, activeOpening, activeObject, activeSurface } = props;
+  const roomEssentials = Boolean(
+    props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface,
+  );
   const selectionTitle = interiorsSelectionTitle({
     openingName: activeOpening ? `${activeOpening.kind} opening` : null,
     objectName: activeObject?.name ?? null,
@@ -103,8 +106,8 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       aria-label="Selection properties"
     >
       <div className="inspector-header">
-        <span className="lr-chrome-eyebrow">Selected</span>
-        <strong>{selectionTitle}</strong>
+        <span className="lr-chrome-eyebrow">{roomEssentials ? "Room essentials" : "Selected"}</span>
+        <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>
       </div>
       <div className="lr-inspector-scroll">
         {room && !props.drawRoom ? (

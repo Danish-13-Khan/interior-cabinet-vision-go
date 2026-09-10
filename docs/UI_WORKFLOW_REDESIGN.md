@@ -31,11 +31,10 @@ and engineering outputs. Handlers, geometry, costing and manufacturing math are
 unchanged. Relocate entry points only after each replacement is verified; keep
 the old control until then.
 
-**Implementation gate:** do **not** implement from these images yet. Complete
-the refinement pass first (shared header with File/Save/Undo/Redo + save status
-and real 2D/3D; area-specific tools/inspector so Materials does not show Room
-draw tools; left library rail; wall/opening/run selection inspectors; full layer
-and export command map; zoom and live issue footer). See the
+**Chrome landed (plan workspace only):** an open job uses `is-drafting-studio`
+— light tokens, bright plan, compact toolbar, Layers / Export sheet on demand.
+Projects home is unchanged. Domain commands stay on existing handlers. Still
+open: inspector frames, zoom chrome, live issue footer. See the
 [2D screenshot walkthrough](mockups/interiors-2d-review/README.md) and
 [follow-ups](ui-workflow-FOLLOW_UPS.md).
 

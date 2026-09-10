@@ -5,6 +5,7 @@ type InteriorsWorkspaceFileMenuProps = {
   onOpen: () => void;
   onSave: () => void;
   onExport: () => void;
+  onOpenShortcuts?: () => void;
 };
 
 /** Day-one File menu: Open, Save, Export JSON — reuses existing workspace I/O. */
@@ -13,6 +14,7 @@ export function InteriorsWorkspaceFileMenu({
   onOpen,
   onSave,
   onExport,
+  onOpenShortcuts,
 }: InteriorsWorkspaceFileMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,16 @@ export function InteriorsWorkspaceFileMenu({
           <button type="button" role="menuitem" onClick={() => run(onExport)}>
             Export JSON…
           </button>
+          {onOpenShortcuts ? (
+            <button
+              type="button"
+              role="menuitem"
+              data-testid="interiors-open-shortcuts"
+              onClick={() => run(onOpenShortcuts)}
+            >
+              Keyboard shortcuts…
+            </button>
+          ) : null}
         </div>
       ) : null}
     </div>

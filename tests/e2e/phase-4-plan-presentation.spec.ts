@@ -8,6 +8,7 @@ test.describe("Phase 4 plan presentation", () => {
     await openGoldenCabinetRun(page);
 
     await clickInteriorsTool(page, "select");
+    await page.getByTestId("lr-plan-export-panel").locator("summary").click();
     const toolbar = page.getByTestId("lr-print-export-toolbar").first();
     await expect(toolbar).toBeVisible({ timeout: 15_000 });
 

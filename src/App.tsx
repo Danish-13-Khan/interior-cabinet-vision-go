@@ -326,6 +326,7 @@ function App() {
             onSaveProject={c.handleSaveProject}
             onExportProject={c.handleExportProjectJson}
             onWorkbenchModeChange={handleWorkbenchModeChange}
+            onOpenShortcuts={() => c.setIsShortcutSheetOpen(true)}
           />
         )}
         toolRailVisible={c.layout.toolRailVisible}
