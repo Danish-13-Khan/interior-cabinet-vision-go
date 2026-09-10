@@ -2,12 +2,27 @@ import { hasInteriorsInspectorSelection, isInteriorsCabinetRunTool, isInteriorsD
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
+import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
+import { isWallCabinetObject } from "../../domain/livingRoom/cabinetSceneMount";
 
 export function LivingRoomPlanWorkspaceInspector(props: {
   body: LivingRoomPlanWorkspaceBodyProps;
   activeObject: InteriorObjectEntity | null;
+  transformPreview: ModelTransformPreview | null;
 }) {
-  const { body: p, activeObject } = props;
+  const { body: p, transformPreview } = props;
+  const activeObject = props.activeObject && transformPreview?.kind === "object" && transformPreview.id === props.activeObject.id
+    ? {
+        ...props.activeObject,
+        position: transformPreview.positionMm,
+        parameters: isWallCabinetObject(props.activeObject)
+          ? { ...props.activeObject.parameters, mountHeightMm: transformPreview.positionMm.y }
+          : props.activeObject.parameters,
+      }
+    : props.activeObject;
+  const openingPositionOverride = p.activeOpening && transformPreview?.kind === "opening" && transformPreview.id === p.activeOpening.id
+    ? transformPreview.positionMm
+    : null;
   const w = p.workspace;
   const activeSurface = p.project.surfaces.find((surface) => surface.id === p.activeSurfaceId) ?? null;
   const emptyRoomEssentials =
@@ -36,7 +51,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={w.inspectorWidthPx} project={p.project} room={p.room} drawRoom={isInteriorsDrawRoomTool(p.chromeTool)}
       cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
       workflowArea={p.workflowArea}
-      inspectRoom={p.inspectRoom || emptyRoomEssentials || reviewEssentials} activeObject={activeObject} activeOpening={p.activeOpening} activeSurface={activeSurface}
+      inspectRoom={p.inspectRoom || emptyRoomEssentials || reviewEssentials} activeObject={activeObject} activeOpening={p.activeOpening}
+      openingPositionOverride={openingPositionOverride} snapSizeMm={p.snapSizeMm} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues}
       onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}

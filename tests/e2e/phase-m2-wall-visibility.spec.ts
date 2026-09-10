@@ -30,8 +30,8 @@ test("Phase M2 hides a wall, lists it, and restores with Show All Walls", async 
   await page.getByTestId("model-show-all-walls").click();
   await expect(page.getByTestId("model-wall-visibility")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
-  await expect(page.getByRole("button", { name: "2D", exact: true })).toHaveClass(/is-active/);
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
+  await expect(page.getByRole("button", { name: "2D plan", exact: true })).toHaveClass(/is-active/);
   // SVG <line> walls are often "hidden" to Playwright; assert presence like other plan specs.
   await expect(page.locator('[data-wall-id="lr-wall-back"]')).toHaveCount(1);
 });

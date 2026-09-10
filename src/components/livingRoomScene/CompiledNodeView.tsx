@@ -18,7 +18,9 @@ function degrees(value: number) {
 export function CompiledNodeView({
   node, materials, selected, snapSizeMm, renderMode, renderQuality, showSelectedLabel,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onDragStateChange,
+  onMovePreview,
   interactive, onMechanismClick, onAssetReady, onWallContextMenu,
+  positionOverride,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -32,19 +34,21 @@ export function CompiledNodeView({
   onSelectWall: (wallId: string) => void;
   onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
+  onMovePreview?: (objectId: string, position: Point3Mm) => Point3Mm;
   onDragStateChange: (dragging: boolean) => void;
   interactive: boolean;
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onAssetReady?: () => void;
   onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
+  positionOverride?: Point3Mm;
 }) {
   const [hovered, setHovered] = useState(false);
   const selectionTarget = modelSelectionTarget(node);
   const sourceObjectId = selectionTarget?.kind === "object" ? selectionTarget.id : null;
   const drag = useCompiledNodeDrag(
-    snapSizeMm, node.positionMm, sourceObjectId, onMove, onDragStateChange,
+    snapSizeMm, node.positionMm, sourceObjectId, onMove, onDragStateChange, onMovePreview,
   );
-  const position = drag.preview ?? node.positionMm;
+  const position = drag.preview ?? positionOverride ?? node.positionMm;
   const modelAsset = useModelAsset(node.renderBinding);
   const useGlb = modelAsset.strategy === "glb" && modelAsset.url && modelAsset.definition;
 
@@ -52,7 +56,10 @@ export function CompiledNodeView({
     if (!interactive || event.button !== 0) return;
     event.stopPropagation();
     if (!selectionTarget) { onClearSelection(); return; }
-    if (selectionTarget.kind === "opening") return;
+    if (selectionTarget.kind === "opening") {
+      onSelectOpening(selectionTarget.id);
+      return;
+    }
     if (selectionTarget.kind === "wall") { onSelectWall(selectionTarget.id); return; }
     const objectId = selectionTarget.id;
     const primitiveId = String(event.object.userData.primitiveId ?? "");

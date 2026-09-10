@@ -81,8 +81,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       [LIVING_ROOM_MATERIAL_IDS.woolRug]: materialRecipe("#b8a68d", 1),
     },
     environment: {
-      backgroundColor: "#dfe5e9",
-      fogColor: "#dfe5e9",
+      backgroundColor: "#b7c2cf",
+      fogColor: "#b7c2cf",
       fogNearMm: 10500,
       fogFarMm: 23000,
       hemisphereSkyColor: "#eaf2fb",
@@ -119,8 +119,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       [LIVING_ROOM_MATERIAL_IDS.woolRug]: materialRecipe("#c9c1b5", 1),
     },
     environment: {
-      backgroundColor: "#e8eef1",
-      fogColor: "#e8eef1",
+      backgroundColor: "#c3ced8",
+      fogColor: "#c3ced8",
       fogNearMm: 11000,
       fogFarMm: 25000,
       hemisphereSkyColor: "#f1f7ff",

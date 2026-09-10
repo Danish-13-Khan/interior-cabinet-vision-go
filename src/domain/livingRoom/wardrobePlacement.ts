@@ -1,5 +1,6 @@
 import type { InteriorObjectEntity, InteriorProject } from "../interiorProject";
 import { orientWallForRoom, selectRoomWalls } from "../interiorProject";
+import { isWallCabinetObject } from "./cabinetSceneMount";
 import { attached, placementAt, wallLength, type WallPlacement } from "./wallSegmentPlacement";
 
 export type { WallPlacement } from "./wallSegmentPlacement";
@@ -91,5 +92,16 @@ export function snapCabinetToWall(project: InteriorProject, object: InteriorObje
     })
     .sort((a, b) => a.distance - b.distance)[0];
   if (!nearest || nearest.distance > object.dimensions.depthMm + 350) return { ...object, position: desired };
-  return attached(object, placementAt(nearest.wall, object, nearest.offset));
+  const placement = placementAt(nearest.wall, object, nearest.offset);
+  const y = Math.min(
+    Math.max(0, nearest.wall.heightMm - object.dimensions.heightMm),
+    Math.max(0, desired.y),
+  );
+  const snapped = attached(object, {
+    ...placement,
+    position: { ...placement.position, y },
+  });
+  return isWallCabinetObject(snapped)
+    ? { ...snapped, parameters: { ...snapped.parameters, mountHeightMm: y } }
+    : snapped;
 }

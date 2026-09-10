@@ -8,7 +8,7 @@ export function PlanStageToolbar(props: {
   onRotate: (delta: number) => void; onAlign: (mode: LivingRoomAlignMode) => void;
   onCreateRun: () => void; onShowGrid: (value: boolean) => void; onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
-  onFitPlan?: () => void; onFitSelection?: () => void;
+  onFitPlan?: () => void; onFitSelection?: () => void; onZoomIn?: () => void; onZoomOut?: () => void;
 }) {
   return <header className="lr-plan-toolbar">
     <div className="lr-toolbar-group"><span>Edit</span>
@@ -30,6 +30,8 @@ export function PlanStageToolbar(props: {
     </div>
     <div className="lr-toolbar-group lr-toolbar-view"><span>View</span>
       <button type="button" data-testid="fit-plan" title="Fit plan (Shift+1)" onClick={() => props.onFitPlan?.()}>Fit</button>
+      <button type="button" aria-label="Zoom out" title="Zoom out" onClick={() => props.onZoomOut?.()}>−</button>
+      <button type="button" aria-label="Zoom in" title="Zoom in" onClick={() => props.onZoomIn?.()}>+</button>
       <button type="button" data-testid="fit-selection" title="Fit selection (Shift+2)" onClick={() => props.onFitSelection?.()} disabled={!props.hasSelection}>Fit sel</button>
     </div>
     <div className="lr-toolbar-group lr-toolbar-view"><span>Drawing</span>

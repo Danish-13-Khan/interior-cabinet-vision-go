@@ -1,0 +1,195 @@
+/* Shortcut sheet — light drafting studio chrome (matches Interiors editor). */
+
+.shortcut-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 56px 16px 24px;
+  background: rgb(28 36 48 / 34%);
+  backdrop-filter: blur(2px);
+  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.shortcut-sheet.shortcut-sheet-studio {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, calc(100vw - 24px));
+  max-height: min(82vh, 760px);
+  overflow: hidden;
+  border: 1px solid #9aa7b8;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgb(28 36 48 / 22%);
+  color: #1c2430;
+  padding-bottom: 0;
+}
+
+.shortcut-sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #c2cad6;
+  background: #f0f3f7;
+}
+
+.shortcut-sheet-eyebrow {
+  margin: 0 0 2px;
+  color: #3a4554;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.shortcut-sheet-header strong {
+  color: #1c2430;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.shortcut-sheet-header > span {
+  max-width: 220px;
+  color: #3a4554;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.shortcut-sheet-studio .shortcut-conflict {
+  margin: 0;
+  padding: 8px 18px;
+  border-bottom: 1px solid #f0c7cf;
+  background: #fff5f6;
+  color: #9f1239;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.shortcut-sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 14px 14px;
+  background: #f7f9fc;
+}
+
+.shortcut-sheet-studio .shortcut-group {
+  margin: 10px 0 0;
+  padding: 10px 10px 8px;
+  border: 1px solid #c2cad6;
+  border-radius: 12px;
+  background: #fff;
+  gap: 0;
+}
+
+.shortcut-sheet-studio .shortcut-group-title {
+  margin: 0 0 6px;
+  padding: 0 4px;
+  color: #1c2430;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.shortcut-group-list { display: grid; gap: 2px; }
+
+.shortcut-sheet-studio .shortcut-row {
+  display: grid;
+  grid-template-columns: minmax(108px, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #1c2430;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shortcut-sheet-studio .shortcut-row.is-fixed { cursor: default; }
+
+.shortcut-sheet-studio .shortcut-row:hover:not(.is-fixed),
+.shortcut-sheet-studio .shortcut-row.is-capturing {
+  border-color: #2f6fed;
+  background: #e8f0ff;
+}
+
+.shortcut-sheet-studio .shortcut-row kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid #b4bfcc;
+  border-radius: 7px;
+  background: #f0f3f7;
+  box-shadow: 0 1px 0 rgb(28 36 48 / 8%);
+  color: #1c2430;
+  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.shortcut-sheet-studio .shortcut-row.is-capturing kbd {
+  border-color: #2f6fed;
+  background: #2f6fed;
+  color: #fff;
+  box-shadow: none;
+}
+
+.shortcut-sheet-studio .shortcut-row span {
+  color: #3a4554;
+  font-size: 0.8rem;
+  font-weight: 550;
+}
+
+.shortcut-sheet-studio .shortcut-sheet-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #c2cad6;
+  background: #fff;
+}
+
+.shortcut-sheet-btn {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid #b4bfcc;
+  border-radius: 8px;
+  background: #fff;
+  color: #1c2430;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.shortcut-sheet-btn:hover {
+  border-color: #2f6fed;
+  background: #e8f0ff;
+}
+
+.shortcut-sheet-btn.is-primary {
+  border-color: #2f6fed;
+  background: #2f6fed;
+  color: #fff;
+}
+
+.shortcut-sheet-btn.is-primary:hover { filter: brightness(0.96); }

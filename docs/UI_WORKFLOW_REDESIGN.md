@@ -2,10 +2,150 @@
 
 Status: design direction accepted; build steps 1–8 complete on
 `codex/feat/ui-workflow-redesign` (September 2026). Treat as **UI workflow
-complete**, not “redesign finished.” Open design and product tracks:
+complete**, not “redesign finished.” 2D Room appearance approved as **A — Light
+drafting studio** (chrome/layout only; functionality unchanged); refinement
+still blocks implementation. Open design and product tracks:
 [ui-workflow-FOLLOW_UPS.md](ui-workflow-FOLLOW_UPS.md) (2D Room reference,
 commercial dialogs, dual chrome, Report Center, shortcuts). Production release
 and Product Book replacement are separate.
+
+## New 2D visual proposal — appearance approved (10 September 2026)
+
+The latest live screenshot still shows a dark, hard-to-read plan and stacked
+selection, measurement, print and run controls. A follow-up proposal compared a
+light drafting studio with a dark frame around a bright canvas. This is **not**
+a replacement for completed steps 1–8 and does **not** change product
+functionality.
+
+**Appearance decision (approved):** default to **A — Light drafting studio**.
+Keep **B — Dark frame / bright canvas** as an optional chrome theme (plan surface
+stays light either way). Accept a bright 2D canvas with stronger linework and a
+quieter grid; one compact plan toolbar; layers/print options in expandable
+settings; contextual room essentials and on-demand libraries.
+
+**Functionality preservation (non-negotiable):** this approval is chrome and
+layout only. Existing domain commands stay reachable — including perspective /
+Orbit / Walkthrough and other camera tools, draw/measure/snap, underlay, runs,
+materials, undo/redo, imports, exports, cutaways, review/quote gates, Present,
+and engineering outputs. Handlers, geometry, costing and manufacturing math are
+unchanged. Relocate entry points only after each replacement is verified; keep
+the old control until then.
+
+**Chrome landed (plan workspace only):** an open job uses `is-drafting-studio`
+— light tokens, bright plan, compact toolbar, Layers / Export sheet on demand.
+Projects home is unchanged. Domain commands stay on existing handlers. The
+follow-up implementation now includes explicit zoom buttons, the live actionable
+issue footer, contextual inspector frames, and responsive inspector reflow. See the
+[2D screenshot walkthrough](mockups/interiors-2d-review/README.md) and
+[follow-ups](ui-workflow-FOLLOW_UPS.md).
+
+### Recommendation closure — 10 September 2026
+
+The implementation pass on `codex/feat/animated-3d-showroom` closes the concrete
+review findings without changing geometry, costing, serialization, or production
+commands:
+
+- Layers and Export sheet panels anchor to the complete title bar, stay inside
+  the viewport, scroll internally, and close their sibling sheet when opened.
+- Measure and calibration are promoted into the compact primary plan bar. Room,
+  architecture, underlay, and site-measure settings use one expandable secondary
+  section instead of occupying a permanent row.
+- Plan zoom-out, zoom-in, Fit, Fit selection, grid, snap, layers, and export have
+  visible entry points. Existing wheel zoom and pan gestures remain available.
+- Below 960 px the inspector enters normal document flow under the canvas rather
+  than covering the drawing. The toolbar wraps and the canvas retains a usable
+  minimum height.
+- Catalog content now has its own bounded scrolling region. The selected-object
+  inspector hides the room object list while an item is active, shows a single
+  compact identity card, keeps technical catalogue IDs on demand, and uses
+  responsive action, dimension, and material grids.
+- File → Canvas appearance offers **Light studio** and **Dark frame**. Both keep
+  the drafting surface light and store the choice locally.
+- Editable shortcut bindings now drive Interiors undo, redo, duplicate, delete,
+  rotate, plan/3D switching, and Fit actions. Legacy plain `1` / `2` plan switching
+  and `Cmd/Ctrl+0` Fit remain available for continuity.
+- Review shows a compact readiness summary and progressive Plan/model, Client/job,
+  and Quote/approval sections. Existing proposal and gate handlers are reused.
+- 3D render diagnostics move behind a Scene health disclosure and remain absent
+  from Present. Camera, cutaway, materials, mechanisms, and style palette behavior
+  is unchanged.
+
+The remaining 3D quality limit is asset fidelity: procedural fallbacks and current
+catalog geometry cannot become presentation-grade furniture through shell CSS.
+Replacing those models, UVs, textures, and lighting assets remains a separate asset
+production track with render QA. Mobile layouts remain a practical reflow for
+review and emergency edits, not a promise of full phone CAD authoring.
+
+Walkthrough: 11 captures cover both appearances, expanded room / opening /
+underlay / run settings, layers, export and branding, materials, wall drawing
+and measurement. The [interactive copy](mockups/interiors-2d-review/index.html)
+is retained locally with its sandbox and CSP.
+
+### 1. A — Light drafting studio: header and toolbar
+
+**Approved default.** Light controls, unnumbered area navigation and a single drawing toolbar. The next capture continues below this view.
+
+![A — Light drafting studio: header and toolbar](mockups/interiors-2d-review/screenshots/01-light-overview.png)
+
+### 2. A — Complete plan and footer
+
+The entire room boundary, opening, dimensions and footer are visible. A bright canvas and simplified symbols make the plan easier to read.
+
+![A — Complete plan and footer](mockups/interiors-2d-review/screenshots/02-light-lower.png)
+
+### 3. Room settings expanded
+
+Room essentials remain above Doors & windows, Import plan / PDF and Room & run management. The following capture shows the lower controls in full.
+
+![Room settings expanded](mockups/interiors-2d-review/screenshots/03-expanded-room.png)
+
+### 4. Openings, underlay and runs — lower detail
+
+Add door/window, Choose underlay, opacity, Calibrate scale, Manage rooms and Edit cabinet run are visible. These are proposed entry points; the dialogs are not implemented in this mockup.
+
+![Openings, underlay and runs — lower detail](mockups/interiors-2d-review/screenshots/04-expanded-room-lower.png)
+
+### 5. Plan layers
+
+Cabinets, Dimensions, Labels and Grid move out of the permanent top bars into an expandable section.
+
+![Plan layers](mockups/interiors-2d-review/screenshots/05-layers.png)
+
+### 6. Export sheet and branding expanded
+
+Drawing style, paper size, PDF/PNG choice, company name, drawing title and revision are shown together. This previews settings only; it does not generate an export.
+
+![Export sheet and branding expanded](mockups/interiors-2d-review/screenshots/06-export-expanded.png)
+
+### 7. B — Dark frame: header and toolbar
+
+**Optional chrome theme** (not the default). Dark chrome retains readable controls and the same navigation. The drawing surface remains light.
+
+![B — Dark frame: header and toolbar](mockups/interiors-2d-review/screenshots/07-dark-frame-top.png)
+
+### 8. B — Bright plan inside dark chrome
+
+Complete plan and footer in the alternative theme. Changing chrome does not require changing plan colors.
+
+![B — Bright plan inside dark chrome](mockups/interiors-2d-review/screenshots/08-dark-frame-plan.png)
+
+### 9. Materials inspector
+
+Soft sage, Natural oak and Chalk white demonstrate visible cabinet fills. These are illustrative choices, not the production material catalogue or application-scope design.
+
+![Materials inspector](mockups/interiors-2d-review/screenshots/09-materials.png)
+
+### 10. Draw wall — completed example
+
+Two clicks add a visible wall segment and an illustrative length in the status line. Production must preserve real snapping, topology, dimensions and undo.
+
+![Draw wall — completed example](mockups/interiors-2d-review/screenshots/10-draw-wall.png)
+
+### 11. Measure — completed example
+
+Two clicks add a dimension example. Mockup measurements use illustrative coordinates and are not manufacturing evidence.
+
+![Measure — completed example](mockups/interiors-2d-review/screenshots/11-measure.png)
 
 ## Problem and intended outcome
 
@@ -206,6 +346,21 @@ entry points until their replacements are verified.
 | Rendering, proposals and approvals | Present / Review | Existing export and approval gates |
 | Engineering, drawings, cutlist, machine output | Engineering workbench | Same production data for same document |
 
+### 3D object transform contract
+
+- Selecting one placed object, door, or window in the Perspective view shows a
+  conventional red X, green Y, and blue Z move gizmo at its project origin.
+- Axis dragging previews the transformed scene and inspector values together,
+  snaps with the document snap increment, and commits one existing move/update
+  command on pointer release so undo and persistence remain unchanged.
+- Cabinets continue through cabinet wall/run placement validation. Doors and
+  windows project back onto their host wall, remain inside its clear span, and
+  clamp vertically within the wall height.
+- The selection inspector keeps Position X/Y/Z beside Size W/H/D. Opening depth
+  is stored as an opening parameter and bounded by host-wall depth; changing it
+  does not mutate the wall shared by other openings.
+- Presentation mode does not render authoring gizmos or selection readouts.
+
 Likely UI entry points to inspect include `ModelViewToolbar.tsx`,
 `ContextualCommandRail.tsx`, `LivingRoomInspectorPanel.tsx`,
 `CatalogObjectBrowser.tsx`, `ModelViewStylePalette.tsx`, and the Interiors
@@ -244,7 +399,9 @@ permission to bypass domain commands or rewrite project serialization.
 7. **Complete — Review / Present / engineering journey:** surface existing
    proposal gate rows, client identity, Present client chrome strip, and
    Return-to-Review / Open Present navigation without changing gate math.
-   Full commercial dialog redesign remains a documented design-pass follow-up.
+   The follow-up now groups commercial controls into progressive Review sections;
+   deeper quote-table and approval-dialog visual redesign remains tied to the
+   existing commercial domain and needs dedicated acceptance references.
    [Step 7 evidence](ui-workflow-step7/README.md).
 8. **Complete — starters / saved projects / golden journey verification:**
    five-area entry-point smoke, Present→Review→cabinet edit path, and

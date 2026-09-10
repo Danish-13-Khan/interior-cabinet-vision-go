@@ -5,7 +5,7 @@ import {
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
@@ -14,6 +14,7 @@ import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomS
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -28,6 +29,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   });
 
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
+  const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
+  useEffect(() => {
+    if (props.workspaceView !== "model") setModelTransformPreview(null);
+  }, [props.workspaceView]);
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
@@ -133,6 +138,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onSelectSurface={(surfaceId) => inspectPlanTarget(props, { surfaceId })}
         onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
         onResizeOpening={(openingId, widthMm, offsetMm) => build.dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
+        onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
+        onTransformPreviewChange={setModelTransformPreview}
         onMoveNode={(nodeId, position) => build.dispatchBuildCommand({ type: "moveNode", nodeId, position })}
         onTranslateWall={(wallId, delta) => build.dispatchBuildCommand({ type: "moveWall", wallId, delta })}
         activeBuildTool={props.activeBuildTool} openingCatalogItemId={build.openingCatalogItemId}
@@ -169,6 +176,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onRegisterViewControls={props.onRegisterViewControls}
         onFitPlan={props.onFitPlan}
         onFitSelection={props.onFitSelection}
+        onZoomIn={props.onZoomIn}
+        onZoomOut={props.onZoomOut}
         onSetPlanUnderlay={w.onSetPlanUnderlay}
         onCalibrateComplete={() => props.onBuildTool("select")}
         onPatchDocument={w.onPatchDocument}
@@ -177,7 +186,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onWorkspaceView={props.onWorkspaceView}
         onAddWallPanel={w.onAddWallPanel}
       />
-      <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
+      <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} transformPreview={modelTransformPreview} />
       <LivingRoomPlanPdfImportSlot
         file={pdfImportFile}
         roomWidthMm={room?.dimensions.widthMm ?? 6200}

@@ -22,7 +22,9 @@ type LivingRoomInspectorPanelProps = {
   room: InteriorProject["rooms"][number] | null;
   activeObject: InteriorObjectEntity | null;
   activeOpening: OpeningEntity | null;
+  openingPositionOverride?: Point3Mm | null;
   activeWallId: string | null;
+  snapSizeMm: number;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
   onRoomDimensions: (dimensions: Size3Mm) => void;
@@ -39,7 +41,7 @@ type LivingRoomInspectorPanelProps = {
     fillersEnabled?: boolean;
   }) => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
-  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots">>) => void;
+  onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "materialSlots" | "parameters">>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
   onSetFloorMaterial: (materialId: string) => void;
@@ -86,7 +88,13 @@ type LivingRoomInspectorPanelProps = {
 
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
   const activeWall = props.project.walls.find((wall) => wall.id === props.activeWallId) ?? null;
+  const openingWall = props.activeOpening
+    ? props.project.walls.find((wall) => wall.id === props.activeOpening?.wallId) ?? null
+    : null;
   const { room, activeOpening, activeObject, activeSurface } = props;
+  const roomEssentials = Boolean(
+    props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface,
+  );
   const selectionTitle = interiorsSelectionTitle({
     openingName: activeOpening ? `${activeOpening.kind} opening` : null,
     objectName: activeObject?.name ?? null,
@@ -103,20 +111,25 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       aria-label="Selection properties"
     >
       <div className="inspector-header">
-        <span className="lr-chrome-eyebrow">Selected</span>
-        <strong>{selectionTitle}</strong>
+        <span className="lr-chrome-eyebrow">{roomEssentials ? "Room essentials" : "Selected"}</span>
+        <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>
       </div>
       <div className="lr-inspector-scroll">
-        {room && !props.drawRoom ? (
+        {room && !props.drawRoom && !activeObject && !activeOpening && !activeWall && !activeSurface ? (
           <InspectorObjectList
             objects={props.project.objects}
             roomId={room.id}
-            selectedId={activeObject?.id ?? null}
+            selectedId={null}
             onSelect={props.onSelect}
           />
         ) : null}
         {activeOpening ? (
-          <OpeningInspector opening={activeOpening} materials={props.project.materials} onUpdate={props.onUpdateOpening} onDelete={props.onDeleteOpening} />
+          <OpeningInspector
+            opening={activeOpening} wall={openingWall} positionOverride={props.openingPositionOverride}
+            snapSizeMm={props.snapSizeMm} materials={props.project.materials}
+            onUpdate={props.onUpdateOpening}
+            onDelete={props.onDeleteOpening}
+          />
         ) : activeObject ? (
           <InspectorObjectSection
             mode={props.mode} object={activeObject} project={props.project}

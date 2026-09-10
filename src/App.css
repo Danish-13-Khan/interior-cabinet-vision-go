@@ -86,3 +86,10 @@
 @import "./styles/interiors-camera-material-feedback.css";
 @import "./styles/interiors-present-client.css";
 @import "./styles/interiors-projects-home-layout.css";
+@import "./styles/interiors-drafting-studio.css";
+@import "./styles/interiors-drafting-plan.css";
+@import "./styles/interiors-drafting-toolbar.css";
+@import "./styles/interiors-drafting-chrome.css";
+@import "./styles/interiors-drafting-ondemand.css";
+@import "./styles/interiors-drafting-inspector.css";
+@import "./styles/interiors-drafting-shortcuts.css";

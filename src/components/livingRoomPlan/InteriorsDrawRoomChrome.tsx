@@ -29,6 +29,8 @@ export function InteriorsDrawRoomChrome({
   onCommitOpening,
   onFitPlan,
   onFitSelection,
+  onZoomIn,
+  onZoomOut,
   hasSelection,
   onPatchDocument,
 }: {
@@ -50,6 +52,8 @@ export function InteriorsDrawRoomChrome({
   onCommitOpening?: (wallId: string, kind: "door" | "window") => void;
   onFitPlan?: () => void;
   onFitSelection?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
   hasSelection?: boolean;
   onPatchDocument: (
     update: (current: InteriorProject) => InteriorProject,
@@ -64,6 +68,8 @@ export function InteriorsDrawRoomChrome({
         readability={readability} onPatchDocument={onPatchDocument}
         onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
         onFitPlan={onFitPlan} onFitSelection={onFitSelection} hasSelection={hasSelection}
+        onZoomIn={onZoomIn} onZoomOut={onZoomOut}
+        commands={commands}
       />
       <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands} />
       <InteriorsDrawRoomTray

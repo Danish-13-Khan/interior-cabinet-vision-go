@@ -76,10 +76,18 @@ function candidateWorldPoints(root: Object3D, camera: Camera): Vector3[] {
   const hx = Math.max(0.02, size.x * 0.35);
   const hy = Math.max(0.02, size.y * 0.35);
   const hz = Math.max(0.02, size.z * 0.35);
-  return [
+  const facePush = Math.max(0.04, Math.min(size.x, size.y, size.z) * 0.48);
+  const face = center.clone().addScaledVector(towardCamera, facePush);
+  // Tangent basis on the camera-facing plane so wall-backed meshes stay first-hit.
+  const up = Math.abs(towardCamera.y) > 0.85 ? new Vector3(1, 0, 0) : new Vector3(0, 1, 0);
+  const right = new Vector3().crossVectors(towardCamera, up).normalize();
+  const upward = new Vector3().crossVectors(right, towardCamera).normalize();
+  const points = [
+    face,
     center,
     center.clone().addScaledVector(towardCamera, 0.08),
-    center.clone().addScaledVector(towardCamera, 0.16),
+    center.clone().addScaledVector(towardCamera, 0.2),
+    center.clone().addScaledVector(towardCamera, 0.35),
     center.clone().add(new Vector3(hx, 0, 0)),
     center.clone().add(new Vector3(-hx, 0, 0)),
     center.clone().add(new Vector3(0, hy, 0)),
@@ -87,6 +95,16 @@ function candidateWorldPoints(root: Object3D, camera: Camera): Vector3[] {
     center.clone().add(new Vector3(0, 0, hz)),
     center.clone().add(new Vector3(0, 0, -hz)),
   ];
+  for (const u of [-0.55, 0, 0.55]) {
+    for (const v of [-0.55, 0, 0.55]) {
+      points.push(
+        face.clone()
+          .addScaledVector(right, hx * u)
+          .addScaledVector(upward, hy * v),
+      );
+    }
+  }
+  return points;
 }
 
 export function visibleScreenPointForPickId(

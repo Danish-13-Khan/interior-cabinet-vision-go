@@ -71,7 +71,7 @@ type Props = {
   onRoomPolygonPointCount: (count: number) => void;
   readability: PlanReadabilitySettings;
   onSetWallLength?: (wallId: string, lengthMm: number, anchor: WallLengthAnchor) => void;
-  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => void;
   onSetPlanUnderlay?: (underlay: LivingRoomPlanUnderlay | null) => void;
   onCalibrateComplete?: () => void;
   onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
@@ -172,9 +172,9 @@ export function LivingRoomPlanView(props: Props) {
       const selectionBounds = boundsFromPoints(points);
       nav.fitSelectionBounds(selectionBounds ? expandBounds(selectionBounds, 200) : null);
     }
-    props.onRegisterViewControls?.({ fitPlan: nav.fitPlan, fitSelection });
+    props.onRegisterViewControls?.({ fitPlan: nav.fitPlan, fitSelection, zoomIn: nav.zoomIn, zoomOut: nav.zoomOut });
     return () => props.onRegisterViewControls?.(null);
-  }, [nav.fitPlan, nav.fitSelectionBounds, props, props.project.objects, props.selectedIds]);
+  }, [nav.fitPlan, nav.fitSelectionBounds, nav.zoomIn, nav.zoomOut, props, props.project.objects, props.selectedIds]);
 
   function worldPoint(event: ReactPointerEvent<SVGSVGElement>) {
     return nav.worldFromClient(event.clientX, event.clientY);

@@ -70,25 +70,26 @@ export function PlanArchitectureInspector(props: Props) {
     : null;
   return <>
     {props.hideRoom || (props.compact && wall) ? null : <section className="lr-architecture-inspector">
-      <div className="lr-inspector-section-heading"><h3>Room</h3><span>{room.name}</span></div>
-      <p className="lr-authoring-hint">2D plan stays independent. Raise walls to generate 3D. Units are millimetres.</p>
-      <div className="lr-room-preview" aria-label={`${room.name} room preview`}>
-        <svg viewBox="0 0 180 110" aria-hidden="true"><path d={previewPath} />
-          <text x="90" y="59">{formatPlanDimension(room.dimensions.widthMm, props.unit)} × {formatPlanDimension(room.dimensions.depthMm, props.unit)}</text></svg>
-      </div>
-      <NumberField label="Width" value={room.dimensions.widthMm}
+      <NumberField label="Wall height · mm" value={room.dimensions.heightMm}
+        onChange={(heightMm) => props.onRoomDimensions({ ...room.dimensions, heightMm })} />
+      <NumberField label="Width · mm" value={room.dimensions.widthMm}
         onChange={(widthMm) => props.onRoomDimensions({ ...room.dimensions, widthMm })} />
-      <NumberField label="Depth" value={room.dimensions.depthMm}
+      <NumberField label="Depth · mm" value={room.dimensions.depthMm}
         onChange={(depthMm) => props.onRoomDimensions({ ...room.dimensions, depthMm })} />
-      <NumberField label="Ceiling height" value={room.dimensions.heightMm}
-        onChange={(heightMm) => props.onRoomDimensions({ ...room.dimensions, heightMm })} />
-      <HeightPresetRow label="Standard ceiling" values={STANDARD_WALL_HEIGHTS_MM} value={room.dimensions.heightMm}
-        onChange={(heightMm) => props.onRoomDimensions({ ...room.dimensions, heightMm })} />
-      {!wall ? <WallRaiseControls wall={null} roomWallIds={roomWallIds} heightMm={room.dimensions.heightMm}
-        onRaise={props.onRaiseWalls} onOffsetLoop={props.onOffsetLoop} /> : null}
-      {!wall ? <RoomFinishFields project={props.project} room={room}
-        onSetFloorMaterial={props.onSetFloorMaterial} onSetCeilingMaterial={props.onSetCeilingMaterial}
-        onImportFinish={props.onImportFinish} onSetFinishUv={props.onSetFinishUv} /> : null}
+      <p className="lr-authoring-hint">Select Draw wall, then click two points on the plan.</p>
+      <InspectorSection title="Advanced" testId="inspector-room-advanced">
+        <div className="lr-room-preview" aria-label={`${room.name} room preview`}>
+          <svg viewBox="0 0 180 110" aria-hidden="true"><path d={previewPath} />
+            <text x="90" y="59">{formatPlanDimension(room.dimensions.widthMm, props.unit)} × {formatPlanDimension(room.dimensions.depthMm, props.unit)}</text></svg>
+        </div>
+        <HeightPresetRow label="Standard ceiling" values={STANDARD_WALL_HEIGHTS_MM} value={room.dimensions.heightMm}
+          onChange={(heightMm) => props.onRoomDimensions({ ...room.dimensions, heightMm })} />
+        {!wall ? <WallRaiseControls wall={null} roomWallIds={roomWallIds} heightMm={room.dimensions.heightMm}
+          onRaise={props.onRaiseWalls} onOffsetLoop={props.onOffsetLoop} /> : null}
+        {!wall ? <RoomFinishFields project={props.project} room={room}
+          onSetFloorMaterial={props.onSetFloorMaterial} onSetCeilingMaterial={props.onSetCeilingMaterial}
+          onImportFinish={props.onImportFinish} onSetFinishUv={props.onSetFinishUv} /> : null}
+      </InspectorSection>
     </section>}
     {wall ? <section className="lr-architecture-inspector lr-wall-inspector">
       <div className="lr-inspector-section-heading"><h3>Wall</h3><span>{wall.extensions?.isPartition ? "Partition" : "Architecture"}</span></div>

@@ -1,0 +1,246 @@
+/* Compact plan chrome. Existing tools stay mounted and reachable. */
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  width: auto;
+  min-height: 44px;
+  padding: 6px 12px;
+  gap: 4px;
+  border-right: 0;
+  border-bottom: 1px solid var(--iu-line);
+  background: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail button {
+  flex-direction: row;
+  width: auto;
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 12px;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--iu-ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail button.is-active {
+  border-color: var(--iu-green);
+  background: var(--iu-green-soft);
+  color: var(--iu-control-active-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail-break,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail .lr-chrome-rail-break {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-catalog {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-plan-center {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-inspector {
+  grid-column: 3;
+  grid-row: 1 / -1;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > :not(.lr-chrome-rail):not(.lr-catalog):not(.lr-plan-center):not(.lr-inspector) {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 40px;
+  background: #fff;
+  border-color: var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-tray {
+  min-height: 40px;
+  padding: 6px 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #fff;
+  border-bottom: 1px solid var(--iu-line-strong, #9aa7b8);
+  color: var(--iu-ink);
+  box-shadow: 0 1px 0 rgb(28 36 48 / 4%);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-primary-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-secondary-settings {
+  position: relative;
+  margin: 0;
+  border: 0;
+  background: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-secondary-settings > summary {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--iu-line);
+  color: var(--iu-muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-secondary-settings > summary::after {
+  content: "+";
+  margin-left: 8px;
+  color: var(--iu-green);
+  font-size: 1rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-secondary-settings[open] > summary::after { content: "−"; }
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-secondary-settings > summary::-webkit-details-marker { display: none; }
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-controls {
+  border: 1px solid var(--iu-line-strong, #9aa7b8);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 8px 22px rgb(28 36 48 / 12%);
+  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.72rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-controls button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-controls select {
+  min-height: 28px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar.has-readability .lr-readability-toolbar,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar {
+  margin-left: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--iu-line);
+  border-radius: 8px;
+  background: var(--iu-panel-2);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar.has-readability .lr-readability-toolbar > span,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar > span {
+  color: var(--iu-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar.has-readability .lr-readability-toolbar select,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar.has-readability .lr-readability-toolbar button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar input,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-titlebar button,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-titlebar select {
+  min-height: 28px;
+  border: 1px solid var(--iu-control-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-titlebar.has-readability .lr-readability-toolbar label,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar label {
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar button.is-primary,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-print-export-toolbar button.is-active,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-readability-toolbar button.is-active,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-titlebar button.is-active {
+  border-color: var(--iu-green);
+  background: var(--iu-green-soft);
+  color: var(--iu-control-active-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-ui-compact .lr-workspace-body.is-plan > .lr-inspector {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  width: 260px !important;
+  max-width: 260px;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+@media (max-width: 960px) {
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-chrome-rail,
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-catalog,
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-plan-center,
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-inspector {
+    grid-column: 1;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-catalog { grid-row: 2; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-plan-center { grid-row: 3; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-inspector {
+    grid-row: 4;
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    max-height: min(48vh, 520px);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan {
+    overflow: auto;
+  }
+
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .lr-plan-center {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 700px) {
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-copy { display: none; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-title-actions,
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-view-tools { width: 100%; flex-wrap: wrap; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-primary-tools { flex-wrap: wrap; }
+}

@@ -1,0 +1,195 @@
+/* Approved A — Light drafting studio. Chrome/tokens only; handlers unchanged. */
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio {
+  color-scheme: light;
+  --iu-ink: #1c2430;
+  --iu-muted: #3a4554;
+  --iu-faint: #e4e9f0;
+  --iu-panel: #ffffff;
+  --iu-panel-2: #f0f3f7;
+  --iu-canvas: #d5dce6;
+  --iu-line: #c2cad6;
+  --iu-line-strong: #9aa7b8;
+  --iu-green: #2f6fed;
+  --iu-green-soft: #e8f0ff;
+  --iu-blue-soft: #e8f0ff;
+  --iu-on-green: #ffffff;
+  --iu-control-ink: #1c2430;
+  --iu-control-muted: #3a4554;
+  --iu-control-bg: #ffffff;
+  --iu-control-bg-2: #f0f3f7;
+  --iu-control-border: #b4bfcc;
+  --iu-control-hover-bg: #e8f0ff;
+  --iu-control-active-bg: #e8f0ff;
+  --iu-control-active-ink: #1d4fbf;
+  --iu-control-active-border: #2f6fed;
+  --iu-control-focus: #2f6fed;
+  --lr-ink: #1c2430;
+  --lr-muted: #3a4554;
+  --lr-line: #c2cad6;
+  --lr-paper: #ffffff;
+  --lr-panel: #ffffff;
+  --lr-canvas: #d5dce6;
+  --lr-accent: #2f6fed;
+  background: #e4e9f0 !important;
+  color: #1c2430 !important;
+  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header {
+  min-height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--iu-line);
+  background: #fff;
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-brand strong {
+  font-size: 0.88rem;
+  letter-spacing: -0.03em;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-crumb {
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-crumb:hover {
+  background: var(--iu-green-soft);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header .lr-view-switch button {
+  min-width: 64px;
+  min-height: 32px;
+  border-radius: 7px;
+  color: var(--iu-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header .lr-view-switch button.is-active {
+  background: var(--iu-green);
+  color: #fff;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav {
+  padding: 5px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav button {
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav button.is-active {
+  border-color: var(--iu-green);
+  background: var(--iu-green-soft);
+  color: var(--iu-control-active-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body {
+  background: var(--iu-faint);
+  border-color: var(--iu-line);
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-center {
+  background: var(--iu-canvas);
+  border-left: 1px solid var(--iu-line-strong);
+  border-right: 1px solid var(--iu-line-strong);
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-canvas {
+  background: var(--iu-canvas);
+  border-color: var(--iu-line);
+  color: var(--iu-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-viewport {
+  background:
+    radial-gradient(ellipse at 50% 28%, #cfd7e2 0%, transparent 58%),
+    #b8c2d0;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-catalog,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-rail {
+  background: #fff;
+  border-color: var(--iu-line-strong);
+  color: var(--iu-ink);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 80%);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-status,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-status,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-run-status,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-present-status {
+  min-height: 34px;
+  padding: 0 14px;
+  border-color: var(--iu-line);
+  background: #fff;
+  color: var(--iu-muted);
+  font-size: 0.74rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .context-panel-heading {
+  background: #fff;
+  border-color: var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header strong,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .context-panel-heading strong {
+  color: var(--iu-ink);
+  font-size: 0.86rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector-section {
+  background: var(--iu-panel-2);
+  border-color: var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-product-mark {
+  background: var(--iu-green);
+}
+
+/* Optional B — dark surrounding chrome with the same bright drafting surface. */
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame {
+  --iu-faint: #16201c;
+  --iu-canvas: #d8dfe8;
+  background: #101713 !important;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame .lr-chrome-header,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame .lr-workflow-nav {
+  --iu-ink: #f1f5f2;
+  --iu-muted: #b7c4bc;
+  --iu-line: #33453b;
+  --iu-green-soft: #17392a;
+  --iu-control-active-ink: #68dc9c;
+  background: #121b16;
+  color: #f1f5f2;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame .lr-workspace-body {
+  background: #16201c;
+}
+
+.lr-chrome-file-theme {
+  display: grid;
+  gap: 2px;
+  margin-top: 5px;
+  padding-top: 7px;
+  border-top: 1px solid currentColor;
+}
+
+.lr-chrome-file-theme > span {
+  padding: 3px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.65;
+  text-transform: uppercase;
+}

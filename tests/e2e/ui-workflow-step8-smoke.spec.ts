@@ -33,8 +33,9 @@ test.describe("UI workflow Step 8 verification", () => {
     await expect(page.getByTestId("interiors-present-return-review")).toBeVisible();
 
     await leavePresentForCabinetEdit(page, GOLDEN_RUN_OBJECT_IDS.baseA);
-    await expect(page.getByTestId(`inspector-object-${GOLDEN_RUN_OBJECT_IDS.baseA}`))
-      .toHaveAttribute("aria-current", "true");
+    const selectedIdentity = page.locator(`.lr-object-identity[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`);
+    await expect(selectedIdentity).toBeVisible();
+    await expect(selectedIdentity.getByText("Millwork item", { exact: true })).toBeVisible();
     await expect(page.getByRole("spinbutton", { name: "W mm" })).toBeVisible();
 
     const download = await saveProjectViaDownload(page);

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
 import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import {
@@ -30,12 +31,14 @@ type LivingRoomObjectInspectorProps = {
   onUpdatePanelAttachment?: (objectId: string, patch: Partial<PanelAttachment>) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
   onAddWallPanel?: (wallId: string) => void;
+  actions?: ReactNode;
+  positionEditor?: ReactNode;
 };
 
 /** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
 export function LivingRoomObjectInspector({
   object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun, onCompleteRun,
-  onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel,
+  onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, actions, positionEditor,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
@@ -45,14 +48,14 @@ export function LivingRoomObjectInspector({
 
   return (
     <section>
-      <h3>Selected Object</h3>
-      <div className="lr-object-identity">
+      <div className="lr-object-identity" data-object-id={object.id}>
         <strong>{object.name}</strong>
-        <span>{object.catalogItemId}</span>
         {onSchedule
-          ? <em className="lr-millwork-badge">On Millwork Schedule</em>
-          : <em className="lr-millwork-badge is-soft">Soft good — not on schedule</em>}
+          ? <em className="lr-millwork-badge">Millwork item</em>
+          : <em className="lr-millwork-badge is-soft">Furniture &amp; decor</em>}
       </div>
+      {actions}
+      {positionEditor}
       <h4 className="lr-dimensions-heading">Dimensions <small>millimetres</small></h4>
       <div className="lr-dimension-cards" aria-label="Object dimensions in millimetres">
         <NumberField className="lr-dimension-card" label="W" value={object.dimensions.widthMm} onChange={(value) => patchDimension("widthMm", value)} />
@@ -62,7 +65,7 @@ export function LivingRoomObjectInspector({
       {object.kind === "cabinet" && !wallPanel ? (
         <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} />
       ) : null}
-      <p className="lr-inspector-hint">Drag to move. Duplicate, Copy, and Delete are in the inspector; plan shortcuts still work.</p>
+      <p className="lr-inspector-hint">Drag on the canvas to move. Arrow keys provide precise nudging.</p>
       {onUpdatePanelAttachment && onSetPanelVisible ? (
         <PanelAttachmentInspector
           object={object}
@@ -79,6 +82,10 @@ export function LivingRoomObjectInspector({
         slotPolicies={catalogSlotPoliciesForObject(object)}
         onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)}
       />
+      <details className="lr-inspector-section lr-object-technical-identity">
+        <summary>Technical identity</summary>
+        <div className="lr-inspector-section-body"><code>{object.catalogItemId}</code></div>
+      </details>
       {object.kind === "cabinet" && object.category !== "filler" && !wallPanel ? (
         <InspectorSection title="Advanced construction" testId="inspector-cabinet-advanced">
           <h4>Cabinet configuration</h4>

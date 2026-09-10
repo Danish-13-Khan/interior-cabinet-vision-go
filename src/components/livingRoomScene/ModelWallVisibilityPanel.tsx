@@ -23,7 +23,7 @@ export function ModelWallVisibilityPanel({
     <aside className="lr-wall-visibility-panel" data-testid="model-wall-visibility" aria-label="Hidden walls">
       <header>
         <strong>Hidden walls</strong>
-        <button type="button" data-testid="model-show-all-walls" onClick={onShowAllWalls}>
+        <button type="button" data-testid="model-show-all-walls" title="Show all walls (Alt+Shift+H)" onClick={onShowAllWalls}>
           Show All Walls
         </button>
       </header>

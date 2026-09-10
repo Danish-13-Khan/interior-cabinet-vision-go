@@ -6,6 +6,7 @@ import type {
 } from "../../domain/interiorProject";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { NumberField } from "./NumberField";
+import { isWallCabinetObject, resolveWallMountHeightMm } from "../../domain/livingRoom/cabinetSceneMount";
 
 type Props = {
   mode: "plan" | "model";
@@ -35,42 +36,49 @@ type Props = {
 
 export function InspectorObjectSection(props: Props) {
   const { object } = props;
-  return (
-    <>
-      {props.mode === "plan" ? (
-        <section>
-          <h4>Position</h4>
-          <NumberField label="X" value={object.position.x}
-            onChange={(value) => props.onMove(object.id, { ...object.position, x: value })} />
-          <NumberField label="Z" value={object.position.z}
-            onChange={(value) => props.onMove(object.id, { ...object.position, z: value })} />
-          <label className="lr-select-field">
-            <span>Rotation</span>
-            <select value={object.rotation.y}
-              onChange={(event) => props.onSetRotation(object.id, Number(event.target.value))}>
-              <option value="0">0°</option><option value="45">45°</option>
-              <option value="90">90°</option><option value="135">135°</option>
-              <option value="180">180°</option><option value="225">225°</option>
-              <option value="270">270°</option><option value="315">315°</option>
-            </select>
-          </label>
-        </section>
-      ) : (
-        <p className="lr-inspector-hint">Drag in the room to place. Size and finish below match Plan.</p>
-      )}
-      <div className="lr-object-edit-actions">
-        <button type="button" data-testid="inspector-duplicate" onClick={props.onDuplicate}>Duplicate</button>
-        <button type="button" data-testid="inspector-copy" onClick={props.onDuplicate}>Copy</button>
-        <button type="button" data-testid="inspector-delete" className="is-danger" onClick={props.onDelete}>Delete</button>
+  const position = isWallCabinetObject(object)
+    ? { ...object.position, y: resolveWallMountHeightMm(object) }
+    : object.position;
+  const actions = (
+    <div className="lr-object-edit-actions" aria-label="Selected object actions">
+      <button type="button" data-testid="inspector-duplicate" onClick={props.onDuplicate}>Duplicate</button>
+      <button type="button" data-testid="inspector-copy" onClick={props.onDuplicate}>Copy</button>
+      <button type="button" data-testid="inspector-delete" className="is-danger" onClick={props.onDelete}>Delete</button>
+    </div>
+  );
+  const positionEditor = (
+    <details className="lr-inspector-section lr-transform-editor" open={props.mode === "model"}>
+      <summary>Position &amp; rotation</summary>
+      <div className="lr-inspector-section-body lr-position-fields">
+        <NumberField label="X" value={position.x}
+          onChange={(value) => props.onMove(object.id, { ...position, x: value })} />
+        <NumberField label="Y" value={position.y}
+          onChange={(value) => props.onMove(object.id, { ...position, y: value })} />
+        <NumberField label="Z" value={position.z}
+          onChange={(value) => props.onMove(object.id, { ...position, z: value })} />
+        <label className="lr-select-field">
+          <span>Rotation</span>
+          <select value={object.rotation.y}
+            onChange={(event) => props.onSetRotation(object.id, Number(event.target.value))}>
+            <option value="0">0°</option><option value="45">45°</option>
+            <option value="90">90°</option><option value="135">135°</option>
+            <option value="180">180°</option><option value="225">225°</option>
+            <option value="270">270°</option><option value="315">315°</option>
+          </select>
+        </label>
       </div>
-      <LivingRoomObjectInspector
-        object={object} project={props.project} materials={props.project.materials}
-        onResize={props.onResize} onSetMaterial={props.onSetMaterial}
-        onSetParameters={props.onSetParameters} onUpdateRun={props.onUpdateCabinetRun} onCompleteRun={props.onCompleteCabinetRun}
-        onUpdatePanelAttachment={props.onUpdatePanelAttachment}
-        onSetPanelVisible={props.onSetPanelVisible}
-        onAddWallPanel={props.onAddWallPanel}
-      />
-    </>
+    </details>
+  );
+  return (
+    <LivingRoomObjectInspector
+      object={object} project={props.project} materials={props.project.materials}
+      onResize={props.onResize} onSetMaterial={props.onSetMaterial}
+      onSetParameters={props.onSetParameters} onUpdateRun={props.onUpdateCabinetRun} onCompleteRun={props.onCompleteCabinetRun}
+      onUpdatePanelAttachment={props.onUpdatePanelAttachment}
+      onSetPanelVisible={props.onSetPanelVisible}
+      onAddWallPanel={props.onAddWallPanel}
+      actions={actions}
+      positionEditor={positionEditor}
+    />
   );
 }

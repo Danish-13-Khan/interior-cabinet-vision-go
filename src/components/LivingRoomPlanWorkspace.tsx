@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { interiorsJobStatusLabel } from "../domain/desktopUx";
-import { nextSelectableObjectId } from "../domain/livingRoom/objectSelection";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
-import { useLivingRoomPlanHotkeys } from "../hooks/useLivingRoomPlanHotkeys";
+import { useLivingRoomPlanWorkspaceHotkeys } from "../hooks/useLivingRoomPlanWorkspaceHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
 import { useMillworkSchedule } from "../hooks/useMillworkSchedule";
 import { useProposalWorkflow } from "../hooks/useProposalWorkflow";
 import { useEngineeringHandoff } from "../hooks/useEngineeringHandoff";
 import { useInteriorsWorkspaceChrome } from "../hooks/useInteriorsWorkspaceChrome";
 import { useInteriorsUiMode } from "../hooks/useInteriorsUiMode";
+import { useDraftingAppearance } from "../hooks/useDraftingAppearance";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
@@ -21,6 +21,7 @@ import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspacePro
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const ui = useInteriorsUiMode();
+  const draftingAppearance = useDraftingAppearance();
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [assetQuery, setAssetQuery] = useState("");
@@ -33,8 +34,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
-  const viewControlsRef = useRef<{ fitPlan: () => void; fitSelection: () => void } | null>(null);
-  const registerViewControls = useCallback((controls: { fitPlan: () => void; fitSelection: () => void } | null) => {
+  const viewControlsRef = useRef<{ fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null>(null);
+  const registerViewControls = useCallback((controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => {
     viewControlsRef.current = controls;
   }, []);
   const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
@@ -80,7 +81,6 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   useEffect(() => {
     props.onClearPreDropReason?.();
-    // Clear stale pre-drop copy when leaving the gesture context (tool / chrome changes).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional on tool identity only
   }, [build.buildCommandState.activeTool, chrome.chromeTool, chrome.plannerMode]);
 
@@ -93,23 +93,33 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   useEffect(() => {
     if (activeWallId || activeOpeningId || activeSurfaceId) setInspectRoom(false);
   }, [activeWallId, activeOpeningId, activeSurfaceId]);
-  useLivingRoomPlanHotkeys({
-    projectHomeOpen: props.projectHomeOpen, snapSizeMm, workspaceView: chrome.workspaceView,
-    canUndo: props.canUndo, canRedo: props.canRedo,
-    onView: chrome.changeWorkspaceView, onUndo: props.onUndo, onRedo: props.onRedo,
-    onDuplicate: props.onDuplicate, onDelete: props.onDelete,
-    onRotateSelection: props.onRotateSelection, onNudge: props.onNudge,
-    onClearSelection: () => { setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null); },
+
+  useLivingRoomPlanWorkspaceHotkeys({
+    project: props.project,
+    projectHomeOpen: props.projectHomeOpen,
+    snapSizeMm,
+    workspaceView: chrome.workspaceView,
+    canUndo: props.canUndo,
+    canRedo: props.canRedo,
+    selectedIds: props.selectedIds,
+    activeWallId,
+    onView: chrome.changeWorkspaceView,
+    onUndo: props.onUndo,
+    onRedo: props.onRedo,
+    onDuplicate: props.onDuplicate,
+    onDelete: props.onDelete,
+    onRotateSelection: props.onRotateSelection,
+    onNudge: props.onNudge,
+    onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(id); },
+    onClearArchitecture: () => {
+      setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null);
+    },
     onCancelTool: () => build.selectBuildTool("select"),
     onMeasureTool: () => build.selectBuildTool("measure"),
     onOpenMaterial: () => chrome.applyChromeTool("material"),
     onFitPlan: () => viewControlsRef.current?.fitPlan(),
     onFitSelection: () => viewControlsRef.current?.fitSelection(),
-    onCycleSelection: (delta) => {
-      if (!props.project) return;
-      const next = nextSelectableObjectId(props.project.objects, props.selectedIds[0] ?? null, delta, props.project.activeRoomId);
-      if (next) { setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(next); }
-    },
+    onPatchDocument: props.onPatchDocument,
   });
   useEffect(() => { setRenderResults({ latest: null, previous: null }); }, [props.project?.id]);
   useEffect(() => { setAcceptedStillAssets([]); }, [props.project?.id]);
@@ -128,6 +138,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onOpen={props.onOpenProject} onExport={props.onExportProject}
       onView={chrome.changeWorkspaceView}
       onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
+      onOpenShortcuts={props.onOpenShortcuts}
+      appearance={draftingAppearance.appearance}
+      onAppearance={draftingAppearance.setAppearance}
     />
   );
 
@@ -146,12 +159,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }
 
   return (
-    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
+    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-drafting-studio is-ui-${ui.mode} is-appearance-${draftingAppearance.appearance}`} data-ui-mode={ui.mode} data-drafting-appearance={draftingAppearance.appearance}>
       {header}
-      <InteriorsWorkflowNav
-        area={chrome.workflowArea}
-        onArea={chrome.setWorkflowArea}
-      />
+      <InteriorsWorkflowNav area={chrome.workflowArea} onArea={chrome.setWorkflowArea} />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
         workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode}
@@ -182,6 +192,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRegisterViewControls={registerViewControls}
         onFitPlan={() => viewControlsRef.current?.fitPlan()}
         onFitSelection={() => viewControlsRef.current?.fitSelection()}
+        onZoomIn={() => viewControlsRef.current?.zoomIn()}
+        onZoomOut={() => viewControlsRef.current?.zoomOut()}
       />
     </section>
   );

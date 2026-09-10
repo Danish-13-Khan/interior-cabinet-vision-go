@@ -6,11 +6,12 @@ tracks so shell CSS work does not rebuild from stale concept screenshots.
 
 ## Design (blocking for “redesign finished,” not for UI-workflow merge)
 
-1. **2D Room reference** — replace or update
-   [workflow-review](mockups/workflow-review/README.md) so Room shows measured
-   plan, draw/measure/snap, underlay/PDF, room management, runs, and plan export
-   with unnumbered nav and File/Save/Undo/Redo. Until then the interactive mock
-   is **layout-only / quarantine**.
+1. **2D Room reference** — Appearance **A** applies to the **open-plan
+   workspace only** (`is-drafting-studio`), not Projects home. Layers and
+   Export sheet open on demand to match the mock. Handlers unchanged. Still
+   open: inspector frames, zoom chrome, live issue footer. B is optional.
+   [workflow-review](mockups/workflow-review/README.md) stays
+   **layout-only / quarantine**.
 2. **Commercial dialogs** — detailed quotation, freeze, approval, save/recovery,
    and export screens. Step 7 only surfaced existing gates and journey CTAs;
    Present still shows live quote/commercial fields intentionally.
