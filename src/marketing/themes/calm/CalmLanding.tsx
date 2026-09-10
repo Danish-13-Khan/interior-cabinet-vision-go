@@ -1,45 +1,9 @@
+import { Showroom } from '../../showroom/Showroom'
 import { Link } from 'react-router-dom'
 import { SiteNav } from '../../components/SiteNav'
 import { SiteFooter } from '../../components/SiteFooter'
 import { ThemeSwitchPanel } from '../../components/ThemeSwitchPanel'
 import { templatesCalm } from '../sharedTemplates'
-
-function HeroVisual() {
-  return (
-    <div className="hero-visual" aria-hidden="true">
-      <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-        <rect x="40" y="40" width="320" height="220" fill="#1a1a1a" stroke="#3a3a3a" strokeWidth="2" rx="2" />
-        <rect x="120" y="40" width="80" height="8" fill="#4a6a7a" />
-        <rect x="140" y="130" width="100" height="60" fill="#2a3a2e" stroke="#7dba8a" strokeWidth="1.5" rx="2" />
-        <text x="170" y="165" fill="#9fd4a8" fontSize="10" fontFamily="IBM Plex Sans,sans-serif">
-          Island
-        </text>
-        <rect x="40" y="40" width="28" height="220" fill="#243028" stroke="#7dba8a" strokeWidth="1" />
-        <rect x="40" y="232" width="320" height="28" fill="#243028" stroke="#7dba8a" strokeWidth="1" />
-        <rect x="68" y="50" width="50" height="36" fill="#2e4034" stroke="#7dba8a" strokeWidth="0.8" opacity="0.85" />
-        <rect x="200" y="50" width="70" height="36" fill="#2e4034" stroke="#7dba8a" strokeWidth="0.8" opacity="0.85" />
-        <line x1="40" y1="278" x2="360" y2="278" stroke="#7dba8a" strokeWidth="0.8" opacity="0.5" />
-        <text x="180" y="292" fill="#6e6e6e" fontSize="9" fontFamily="IBM Plex Sans,sans-serif">
-          14&apos;-6&quot;
-        </text>
-        <text
-          x="16"
-          y="150"
-          fill="#6e6e6e"
-          fontSize="9"
-          fontFamily="IBM Plex Sans,sans-serif"
-          transform="rotate(-90 16 150)"
-        >
-          11&apos;-0&quot;
-        </text>
-        <rect x="260" y="100" width="88" height="24" rx="12" fill="rgba(125,186,138,0.2)" stroke="#7dba8a" />
-        <text x="274" y="116" fill="#9fd4a8" fontSize="10" fontFamily="IBM Plex Sans,sans-serif" fontWeight="500">
-          3D ready
-        </text>
-      </svg>
-    </div>
-  )
-}
 
 function GoldenRunVisual() {
   return (
@@ -120,7 +84,7 @@ export function CalmLanding() {
           <p className="hero-note">Built for salespeople who need proposals that actually build.</p>
           <ThemeSwitchPanel />
         </div>
-        <HeroVisual />
+        <Showroom />
       </header>
 
       <section className="section" id="how">

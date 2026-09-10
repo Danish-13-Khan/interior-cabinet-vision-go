@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import App from "../App";
+import { lazy, Suspense } from "react";
+const App = lazy(() => import("../App"));
 import { RequireAuth } from "../marketing/components/RequireAuth";
 import { ThemeProvider } from "../marketing/lib/theme";
 import { Landing } from "../marketing/pages/Landing";
@@ -13,7 +14,7 @@ import { isTauriRuntime } from "../platform/desktopFiles";
  */
 export function RootRouter() {
   if (isTauriRuntime()) {
-    return <App />;
+    return <Suspense fallback={<p role="status">Opening Cabinet Studio…</p>}><App /></Suspense>;
   }
 
   return (
@@ -27,7 +28,7 @@ export function RootRouter() {
             path="/app"
             element={
               <RequireAuth>
-                <App />
+                <Suspense fallback={<p role="status">Opening Cabinet Studio…</p>}><App /></Suspense>
               </RequireAuth>
             }
           />
