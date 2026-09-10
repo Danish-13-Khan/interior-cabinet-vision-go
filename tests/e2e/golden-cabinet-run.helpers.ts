@@ -22,8 +22,8 @@ export async function selectGoldenCabinet(page: Page, objectId: string) {
   const fromInspector = page.getByTestId(`inspector-object-${objectId}`);
   if (await fromInspector.count()) {
     await fromInspector.click();
-    // Inspector works in 2D and 3D; plan `.is-selected` marks only exist on the SVG.
-    await expect(fromInspector).toHaveAttribute("aria-current", "true");
+    // The room list intentionally collapses after selection; the identity card is stable in 2D and 3D.
+    await expect(page.locator(`.lr-object-identity[data-object-id="${objectId}"]`)).toBeVisible();
     return;
   }
   await page.locator(`[data-object-id="${objectId}"]`).first().click();

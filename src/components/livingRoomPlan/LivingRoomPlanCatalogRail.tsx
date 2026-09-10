@@ -55,6 +55,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     />
     {props.toolRailVisible && catalogView && !drawRoom && !props.presenting ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }} data-workflow-area={props.workflowArea}>
+        <div className="lr-catalog-scroll">
         <InteriorsWorkflowAreaPanel
           view={catalogView}
           project={props.project}
@@ -119,6 +120,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           onSelectIssue={props.onSelectIssue}
           onPresent={props.onPresent}
         />
+        </div>
       </aside>
     ) : null}
   </>;

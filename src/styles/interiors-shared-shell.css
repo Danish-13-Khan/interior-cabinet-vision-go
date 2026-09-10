@@ -141,6 +141,24 @@
   flex-direction: column;
 }
 
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog-scroll {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog-scroll > .catalog-object-browser {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll {
   flex: 1 1 auto;
   min-height: 0;
