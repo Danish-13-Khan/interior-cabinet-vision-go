@@ -173,6 +173,42 @@
   align-self: stretch;
 }
 
+.interiors-review-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.interiors-review-summary > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--iu-line, #d8e0da);
+  border-radius: 10px;
+  background: var(--iu-panel-2, #f4f7f5);
+}
+
+.interiors-review-summary strong { font-size: 1rem; color: var(--iu-ink, #18221c); }
+.interiors-review-summary span { overflow: hidden; color: var(--iu-muted, #5b6a61); font-size: 0.68rem; text-overflow: ellipsis; }
+
+.interiors-review-section {
+  border: 1px solid var(--iu-line, #d8e0da);
+  border-radius: 10px;
+  background: var(--iu-panel, #fff);
+}
+
+.interiors-review-section > summary {
+  padding: 11px 12px;
+  color: var(--iu-ink, #18221c);
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.interiors-review-section > :not(summary) { margin: 0 8px 8px; }
+.interiors-review-next { padding-top: 2px; }
+
 @media (max-width: 900px) {
   .lr-workflow-nav {
     padding-inline: 10px;

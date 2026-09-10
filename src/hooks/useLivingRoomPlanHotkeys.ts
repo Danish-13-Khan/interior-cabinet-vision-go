@@ -82,13 +82,14 @@ export function useLivingRoomPlanHotkeys({
         return;
       }
 
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
+      if (eventMatchesBinding(event, shortcutMap.redo)) {
         event.preventDefault();
-        if (event.shiftKey) {
-          if (canRedo) onRedo();
-        } else if (canUndo) {
-          onUndo();
-        }
+        if (canRedo) onRedo();
+        return;
+      }
+      if (eventMatchesBinding(event, shortcutMap.undo)) {
+        event.preventDefault();
+        if (canUndo) onUndo();
         return;
       }
       if (event.key === "Escape") {
@@ -97,19 +98,19 @@ export function useLivingRoomPlanHotkeys({
         onClearSelection();
         return;
       }
-      if (event.key === "1" && !event.shiftKey) {
+      if (eventMatchesBinding(event, shortcutMap.viewPlan) || (event.key === "1" && !event.shiftKey && !event.metaKey && !event.ctrlKey)) {
         if (modelFocused) return;
         event.preventDefault();
         onView("plan");
         return;
       }
-      if (event.key === "2" && !event.shiftKey) {
+      if (eventMatchesBinding(event, shortcutMap.view3d) || (event.key === "2" && !event.shiftKey && !event.metaKey && !event.ctrlKey)) {
         if (modelFocused) return;
         event.preventDefault();
         onView("model");
         return;
       }
-      if (event.key.toLowerCase() === "f" && !event.metaKey && !event.ctrlKey) {
+      if (eventMatchesBinding(event, event.shiftKey ? shortcutMap.modelFocusSelection : shortcutMap.modelFitRoom)) {
         if (modelFocused) return;
         event.preventDefault();
         if (event.shiftKey) onFitSelection?.();
@@ -121,17 +122,17 @@ export function useLivingRoomPlanHotkeys({
         onFitPlan?.();
         return;
       }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
+      if (eventMatchesBinding(event, shortcutMap.duplicate)) {
         event.preventDefault();
         onDuplicate();
         return;
       }
-      if (event.key === "Delete" || event.key === "Backspace") {
+      if (eventMatchesBinding(event, shortcutMap.remove)) {
         event.preventDefault();
         onDelete();
         return;
       }
-      if (event.key.toLowerCase() === "r") {
+      if (eventMatchesBinding(event, shortcutMap.rotate90)) {
         event.preventDefault();
         onRotateSelection(event.shiftKey ? -90 : 90);
         return;

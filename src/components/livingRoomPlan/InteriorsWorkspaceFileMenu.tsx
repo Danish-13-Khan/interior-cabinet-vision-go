@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import type { DraftingAppearance } from "../../hooks/useDraftingAppearance";
 
 type InteriorsWorkspaceFileMenuProps = {
   disabled?: boolean;
@@ -6,6 +7,8 @@ type InteriorsWorkspaceFileMenuProps = {
   onSave: () => void;
   onExport: () => void;
   onOpenShortcuts?: () => void;
+  appearance?: DraftingAppearance;
+  onAppearance?: (appearance: DraftingAppearance) => void;
 };
 
 /** Day-one File menu: Open, Save, Export JSON — reuses existing workspace I/O. */
@@ -15,6 +18,8 @@ export function InteriorsWorkspaceFileMenu({
   onSave,
   onExport,
   onOpenShortcuts,
+  appearance,
+  onAppearance,
 }: InteriorsWorkspaceFileMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -74,6 +79,27 @@ export function InteriorsWorkspaceFileMenu({
             >
               Keyboard shortcuts…
             </button>
+          ) : null}
+          {onAppearance ? (
+            <div className="lr-chrome-file-theme" role="group" aria-label="Canvas appearance">
+              <span>Canvas appearance</span>
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={appearance !== "dark-frame"}
+                onClick={() => run(() => onAppearance("light"))}
+              >
+                Light studio {appearance !== "dark-frame" ? "✓" : ""}
+              </button>
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={appearance === "dark-frame"}
+                onClick={() => run(() => onAppearance("dark-frame"))}
+              >
+                Dark frame {appearance === "dark-frame" ? "✓" : ""}
+              </button>
+            </div>
           ) : null}
         </div>
       ) : null}

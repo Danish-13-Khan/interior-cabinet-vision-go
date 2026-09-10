@@ -93,6 +93,40 @@
   bottom: 36px;
 }
 
+.lr-model-diagnostics-disclosure {
+  position: absolute;
+  z-index: 9;
+  right: 12px;
+  bottom: 44px;
+}
+
+.lr-model-diagnostics-disclosure > summary {
+  display: inline-flex;
+  float: right;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 999px;
+  background: rgb(19 27 23 / 86%);
+  color: #eaf1ed;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  backdrop-filter: blur(8px);
+}
+
+.lr-model-diagnostics-disclosure > summary::-webkit-details-marker { display: none; }
+.lr-model-diagnostics-disclosure .lr-render-diagnostics {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  clear: both;
+  margin-top: 8px;
+  pointer-events: auto;
+}
+
 .lr-render-live {
   position: relative;
 }

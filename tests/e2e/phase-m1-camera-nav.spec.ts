@@ -24,8 +24,9 @@ test("Phase M1 exposes primary cameras, isometric framing, Fit, Focus, and focus
   await expect(page.locator(".lr-inspector").getByText("Selected Object", { exact: true })).toBeVisible();
 
   // Clear selection so pickable object labels cannot cover the camera toolbar.
-  await page.getByTestId("model-clear-selection").click({ force: true });
-  await expect(page.getByTestId("model-clear-selection")).toHaveCount(0);
+  const clearSelection = page.getByTestId("model-clear-selection");
+  if (await clearSelection.count()) await clearSelection.click({ force: true });
+  await expect(clearSelection).toHaveCount(0);
   await expect(page.getByTestId("model-focus-selection")).toBeDisabled();
 
   await expect(page.getByTestId("model-view-perspective")).toBeVisible();
@@ -58,8 +59,8 @@ test("Phase M1 exposes primary cameras, isometric framing, Fit, Focus, and focus
   await page.getByTestId("model-view-perspective").click();
   await expect(viewport).toHaveAttribute("data-view-preset", "perspective");
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
-  await expect(page.getByRole("button", { name: "2D", exact: true })).toHaveClass(/is-active/);
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
+  await expect(page.getByRole("button", { name: "2D plan", exact: true })).toHaveClass(/is-active/);
   await page.keyboard.press("2");
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
   await expect(page.getByRole("button", { name: "3D", exact: true })).toHaveClass(/is-active/);

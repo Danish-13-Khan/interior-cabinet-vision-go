@@ -9,6 +9,7 @@ import { useProposalWorkflow } from "../hooks/useProposalWorkflow";
 import { useEngineeringHandoff } from "../hooks/useEngineeringHandoff";
 import { useInteriorsWorkspaceChrome } from "../hooks/useInteriorsWorkspaceChrome";
 import { useInteriorsUiMode } from "../hooks/useInteriorsUiMode";
+import { useDraftingAppearance } from "../hooks/useDraftingAppearance";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
@@ -20,6 +21,7 @@ import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspacePro
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const ui = useInteriorsUiMode();
+  const draftingAppearance = useDraftingAppearance();
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [assetQuery, setAssetQuery] = useState("");
@@ -32,8 +34,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
-  const viewControlsRef = useRef<{ fitPlan: () => void; fitSelection: () => void } | null>(null);
-  const registerViewControls = useCallback((controls: { fitPlan: () => void; fitSelection: () => void } | null) => {
+  const viewControlsRef = useRef<{ fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null>(null);
+  const registerViewControls = useCallback((controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => {
     viewControlsRef.current = controls;
   }, []);
   const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
@@ -137,6 +139,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onView={chrome.changeWorkspaceView}
       onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
       onOpenShortcuts={props.onOpenShortcuts}
+      appearance={draftingAppearance.appearance}
+      onAppearance={draftingAppearance.setAppearance}
     />
   );
 
@@ -155,7 +159,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }
 
   return (
-    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-drafting-studio is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
+    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-drafting-studio is-ui-${ui.mode} is-appearance-${draftingAppearance.appearance}`} data-ui-mode={ui.mode} data-drafting-appearance={draftingAppearance.appearance}>
       {header}
       <InteriorsWorkflowNav area={chrome.workflowArea} onArea={chrome.setWorkflowArea} />
       <LivingRoomPlanWorkspaceBody
@@ -188,6 +192,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRegisterViewControls={registerViewControls}
         onFitPlan={() => viewControlsRef.current?.fitPlan()}
         onFitSelection={() => viewControlsRef.current?.fitSelection()}
+        onZoomIn={() => viewControlsRef.current?.zoomIn()}
+        onZoomOut={() => viewControlsRef.current?.zoomOut()}
       />
     </section>
   );

@@ -92,9 +92,11 @@ export type LivingRoomPlanStageProps = {
   onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
   preDropReason?: string | null;
   onSetWallLength?: (wallId: string, lengthMm: number, anchor: import("../../domain/livingRoom").WallLengthAnchor) => void;
-  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => void;
   onFitPlan?: () => void;
   onFitSelection?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
   onSetPlanUnderlay?: (underlay: import("../../domain/livingRoom").LivingRoomPlanUnderlay | null) => void;
   onCalibrateComplete?: () => void;
   onPatchDocument?: (

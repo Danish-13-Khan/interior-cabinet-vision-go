@@ -5,6 +5,7 @@ import {
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { InteriorsChromeIcon } from "./InteriorsChromeIcons";
 import { InteriorsWorkspaceFileMenu } from "./InteriorsWorkspaceFileMenu";
+import type { DraftingAppearance } from "../../hooks/useDraftingAppearance";
 
 type InteriorsWorkspaceHeaderProps = {
   projectName: string | null;
@@ -30,6 +31,8 @@ type InteriorsWorkspaceHeaderProps = {
   onRedo: () => void;
   onPresent: () => void;
   onOpenShortcuts?: () => void;
+  appearance?: DraftingAppearance;
+  onAppearance?: (appearance: DraftingAppearance) => void;
 };
 
 export function InteriorsWorkspaceHeader({
@@ -56,6 +59,8 @@ export function InteriorsWorkspaceHeader({
   onRedo,
   onPresent,
   onOpenShortcuts,
+  appearance,
+  onAppearance,
 }: InteriorsWorkspaceHeaderProps) {
   const saveLabel = interiorsSaveLabel(isDirty, autosaveState);
   const hasProject = Boolean(projectName);
@@ -122,6 +127,8 @@ export function InteriorsWorkspaceHeader({
             onSave={onSave}
             onExport={onExport}
             onOpenShortcuts={onOpenShortcuts}
+            appearance={appearance}
+            onAppearance={onAppearance}
           />
           <div className="lr-chrome-history">
             <button type="button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}>

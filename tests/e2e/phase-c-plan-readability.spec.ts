@@ -33,7 +33,7 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
   await expect(page.locator('[data-wall-length-id="lr-wall-back"]')).toHaveCount(0);
 
   await readability.getByLabel("Display units").selectOption("cm");
-  await expect(page.getByText("Scale: Fit · Units: cm")).toBeVisible();
+  await expect(page.locator(".lr-plan-units")).toHaveText("Units: cm");
   await expect(dimensionPairs.getByText("Clear 608 cm")).toBeVisible();
   await expect(page.locator('[data-wall-length-id="lr-wall-front"]')).toHaveText("620 cm");
 
@@ -47,5 +47,7 @@ test("Phase C plan readability shows measured dims, units, wall labels, and styl
 
   await clickInteriorsTool(page, "import");
   await expect(page.getByRole("slider", { name: "Underlay opacity", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Choose plan image", exact: true })).toBeVisible();
+  const chooseUnderlay = page.getByTestId("lr-underlay-choose");
+  await expect(chooseUnderlay).toBeVisible();
+  await expect(chooseUnderlay).toHaveAccessibleName("Choose plan file");
 });

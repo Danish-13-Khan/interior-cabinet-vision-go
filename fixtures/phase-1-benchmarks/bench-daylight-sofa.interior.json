@@ -1323,8 +1323,8 @@
         "id": "nordic-light",
         "version": 1,
         "environment": {
-          "backgroundColor": "#e8eef1",
-          "fogColor": "#e8eef1",
+          "backgroundColor": "#c3ced8",
+          "fogColor": "#c3ced8",
           "fogNearMm": 11000,
           "fogFarMm": 25000,
           "hemisphereSkyColor": "#f1f7ff",

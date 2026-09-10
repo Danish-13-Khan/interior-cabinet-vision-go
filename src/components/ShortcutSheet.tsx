@@ -68,7 +68,7 @@ export function ShortcutSheet({
             <p className="shortcut-sheet-eyebrow">Interiors · drafting studio</p>
             <strong id="shortcut-sheet-title">Keyboard Shortcuts</strong>
           </div>
-          <span>Click a key, then press a new combo · ? opens this panel</span>
+          <span>Select a command, then press a new key combination · ? opens this panel</span>
         </header>
         {conflictMessage ? <p className="shortcut-conflict">{conflictMessage}</p> : null}
         <div className="shortcut-sheet-body">
