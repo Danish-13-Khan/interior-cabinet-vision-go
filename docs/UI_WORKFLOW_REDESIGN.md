@@ -55,6 +55,10 @@ commands:
 - Below 960 px the inspector enters normal document flow under the canvas rather
   than covering the drawing. The toolbar wraps and the canvas retains a usable
   minimum height.
+- Catalog content now has its own bounded scrolling region. The selected-object
+  inspector hides the room object list while an item is active, shows a single
+  compact identity card, keeps technical catalogue IDs on demand, and uses
+  responsive action, dimension, and material grids.
 - File → Canvas appearance offers **Light studio** and **Dark frame**. Both keep
   the drafting surface light and store the choice locally.
 - Editable shortcut bindings now drive Interiors undo, redo, duplicate, delete,

@@ -35,34 +35,15 @@ type Props = {
 
 export function InspectorObjectSection(props: Props) {
   const { object } = props;
+  const actions = (
+    <div className="lr-object-edit-actions" aria-label="Selected object actions">
+      <button type="button" data-testid="inspector-duplicate" onClick={props.onDuplicate}>Duplicate</button>
+      <button type="button" data-testid="inspector-copy" onClick={props.onDuplicate}>Copy</button>
+      <button type="button" data-testid="inspector-delete" className="is-danger" onClick={props.onDelete}>Delete</button>
+    </div>
+  );
   return (
     <>
-      {props.mode === "plan" ? (
-        <section>
-          <h4>Position</h4>
-          <NumberField label="X" value={object.position.x}
-            onChange={(value) => props.onMove(object.id, { ...object.position, x: value })} />
-          <NumberField label="Z" value={object.position.z}
-            onChange={(value) => props.onMove(object.id, { ...object.position, z: value })} />
-          <label className="lr-select-field">
-            <span>Rotation</span>
-            <select value={object.rotation.y}
-              onChange={(event) => props.onSetRotation(object.id, Number(event.target.value))}>
-              <option value="0">0°</option><option value="45">45°</option>
-              <option value="90">90°</option><option value="135">135°</option>
-              <option value="180">180°</option><option value="225">225°</option>
-              <option value="270">270°</option><option value="315">315°</option>
-            </select>
-          </label>
-        </section>
-      ) : (
-        <p className="lr-inspector-hint">Drag in the room to place. Size and finish below match Plan.</p>
-      )}
-      <div className="lr-object-edit-actions">
-        <button type="button" data-testid="inspector-duplicate" onClick={props.onDuplicate}>Duplicate</button>
-        <button type="button" data-testid="inspector-copy" onClick={props.onDuplicate}>Copy</button>
-        <button type="button" data-testid="inspector-delete" className="is-danger" onClick={props.onDelete}>Delete</button>
-      </div>
       <LivingRoomObjectInspector
         object={object} project={props.project} materials={props.project.materials}
         onResize={props.onResize} onSetMaterial={props.onSetMaterial}
@@ -70,7 +51,31 @@ export function InspectorObjectSection(props: Props) {
         onUpdatePanelAttachment={props.onUpdatePanelAttachment}
         onSetPanelVisible={props.onSetPanelVisible}
         onAddWallPanel={props.onAddWallPanel}
+        actions={actions}
       />
+      {props.mode === "plan" ? (
+        <details className="lr-inspector-section">
+          <summary>Position &amp; rotation</summary>
+          <div className="lr-inspector-section-body">
+            <NumberField label="X" value={object.position.x}
+              onChange={(value) => props.onMove(object.id, { ...object.position, x: value })} />
+            <NumberField label="Z" value={object.position.z}
+              onChange={(value) => props.onMove(object.id, { ...object.position, z: value })} />
+            <label className="lr-select-field">
+              <span>Rotation</span>
+              <select value={object.rotation.y}
+                onChange={(event) => props.onSetRotation(object.id, Number(event.target.value))}>
+                <option value="0">0°</option><option value="45">45°</option>
+                <option value="90">90°</option><option value="135">135°</option>
+                <option value="180">180°</option><option value="225">225°</option>
+                <option value="270">270°</option><option value="315">315°</option>
+              </select>
+            </label>
+          </div>
+        </details>
+      ) : (
+        <p className="lr-inspector-hint">Drag in the room to move this object. Dimensions and finishes stay synchronized with Plan.</p>
+      )}
     </>
   );
 }
