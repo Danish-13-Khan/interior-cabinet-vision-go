@@ -12,7 +12,7 @@ export function isWallCabinetObject(object: InteriorObjectEntity): boolean {
 export function resolveWallMountHeightMm(object: InteriorObjectEntity): number {
   if (!isWallCabinetObject(object)) return 0;
   const authored = Number(object.parameters.mountHeightMm);
-  if (Number.isFinite(authored) && authored > 0) return Math.round(authored);
+  if (Number.isFinite(authored) && authored >= 0) return Math.round(authored);
   if (object.position.y > 0) return Math.round(object.position.y);
   return DEFAULT_WALL_CABINET_MOUNT_HEIGHT_MM;
 }

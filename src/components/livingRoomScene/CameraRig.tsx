@@ -102,10 +102,11 @@ export function CameraRig({
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
   const lastFitVersionRef = useRef(0);
+  const selectionRef = useRef(fitSelection ?? { objectIds: [], wallId: null, openingId: null });
+  selectionRef.current = fitSelection ?? { objectIds: [], wallId: null, openingId: null };
   const projectCamera = scene.cameras.find((candidate) => candidate.id === activeCameraId)
     ?? scene.cameras.find((candidate) => candidate.isDefault)
     ?? scene.cameras[0];
-  const selection = fitSelection ?? { objectIds: [], wallId: null, openingId: null };
 
   useLayoutEffect(() => {
     const current = sceneRef.current;
@@ -116,12 +117,12 @@ export function CameraRig({
     const namedPose = named
       ? resolveRenderCameraPose(named, current.bounds, composition, renderMode)
       : null;
-    // Fit/Focus is one-shot: only apply when fitVersion advances, then restore normal preset framing.
+    // Fit/Focus is one-shot when fitVersion advances. Selection alone must not reframe.
     const applyFitShot = fitVersion > lastFitVersionRef.current;
     if (applyFitShot) lastFitVersionRef.current = fitVersion;
 
     const framingPose = applyFitShot
-      ? resolveModelViewFitPose(current, viewPreset, fitMode, selection)
+      ? resolveModelViewFitPose(current, viewPreset, fitMode, selectionRef.current)
       : viewPreset === "perspective"
         ? namedPose
         : resolveModelViewPose(current, viewPreset === "walkthrough" ? "dollhouse" : viewPreset);
@@ -176,10 +177,11 @@ export function CameraRig({
     projectCamera?.target.y,
     projectCamera?.target.z,
     renderMode,
-    scene.fingerprint,
-    selection.objectIds.join(","),
-    selection.openingId,
-    selection.wallId,
+    // Geometry edits (including gizmo commits) change scene.fingerprint. They
+    // must not overwrite the camera pose the user reached through orbit/pan.
+    // A project/room switch still applies the selected preset automatically.
+    scene.projectId,
+    scene.roomId,
     size.height,
     size.width,
     viewPreset,

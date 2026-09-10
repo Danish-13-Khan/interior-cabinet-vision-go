@@ -28,6 +28,10 @@ export default defineConfig(async () => ({
       external: ["@napi-rs/canvas"],
       output: {
         manualChunks(id) {
+          // Shared loader helpers must not pull PDF/export code into the homepage.
+          if (id.includes("vite/preload-helper") || id.includes("commonjsHelpers")) {
+            return "runtime-helpers";
+          }
           if (!id.includes("node_modules")) {
             return undefined;
           }

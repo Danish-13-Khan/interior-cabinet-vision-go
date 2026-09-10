@@ -1,5 +1,8 @@
 # Workflow visual review
 
+New: [Interiors 2D proposal and full screenshot review](../interiors-2d-review/README.md)
+(10 September 2026, awaiting review). The older concept below remains quarantined.
+
 **QUARANTINE — layout-only concept.** Do not drive shell CSS, tool placement, or
 inspector work from these screenshots or the interactive concept. The live app
 on `codex/feat/ui-workflow-redesign` (steps 1–8) is the implementation source of

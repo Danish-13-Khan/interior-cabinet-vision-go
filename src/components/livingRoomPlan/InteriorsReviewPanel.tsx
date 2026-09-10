@@ -1,5 +1,5 @@
 import type { InteriorProject } from "../../domain/interiorProject";
-import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
+import { isBlockingLivingRoomPlanIssue, type LivingRoomPlanIssue } from "../../domain/livingRoom";
 import { collectModelQualityIssues } from "../../domain/livingRoom/modelQualityFeedback";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
@@ -30,30 +30,47 @@ export function InteriorsReviewPanel({
   const modelIssues = collectModelQualityIssues(project);
   const gate = proposal.gate;
   const live = proposal.live;
+  const blockingCount = issues.filter(isBlockingLivingRoomPlanIssue).length;
 
   return (
     <div className="interiors-review-panel" data-testid="interiors-review-panel">
       <div className="context-panel-heading">
         <strong>Review</strong>
-        <span>Layout · quality · proposal readiness · not a full quote desk</span>
+        <span>Resolve the plan, confirm pricing, then prepare the client view.</span>
       </div>
-      <InspectorLayoutChecks issues={issues} onSelect={onSelectIssue} />
-      <InspectorModelQualityChecks issues={modelIssues} onSelect={onSelectIssue} />
-      {gate ? (
-        <InspectorProposalGateChecks
-          items={gate.items}
-          blockingCount={gate.blockingCount}
-          ready={gate.ready}
+      <div className="interiors-review-summary" aria-label="Review summary">
+        <div><strong>{blockingCount}</strong><span>blocking</span></div>
+        <div><strong>{Math.max(0, issues.length - blockingCount)}</strong><span>warnings</span></div>
+        <div><strong>{modelIssues.length}</strong><span>model notes</span></div>
+      </div>
+      <details className="interiors-review-section" open>
+        <summary>Plan &amp; model checks</summary>
+        <InspectorLayoutChecks issues={issues} onSelect={onSelectIssue} />
+        <InspectorModelQualityChecks issues={modelIssues} onSelect={onSelectIssue} />
+        {gate ? (
+          <InspectorProposalGateChecks
+            items={gate.items}
+            blockingCount={gate.blockingCount}
+            ready={gate.ready}
+          />
+        ) : null}
+      </details>
+      <details className="interiors-review-section">
+        <summary>Client &amp; job details</summary>
+        {live ? <InteriorsProposalIdentity job={live.quote.job} onJob={proposal.patchJob} /> : null}
+      </details>
+      <details className="interiors-review-section" open>
+        <summary>Quote &amp; approval</summary>
+        <InteriorsPresentQuote proposal={proposal} />
+      </details>
+      <div className="interiors-review-next">
+        <InteriorsReviewJourney
+          ready={Boolean(gate?.ready)}
+          blockingCount={gate?.blockingCount ?? 0}
+          frozen={Boolean(live?.frozen)}
+          onPresent={onPresent}
         />
-      ) : null}
-      {live ? <InteriorsProposalIdentity job={live.quote.job} onJob={proposal.patchJob} /> : null}
-      <InteriorsPresentQuote proposal={proposal} />
-      <InteriorsReviewJourney
-        ready={Boolean(gate?.ready)}
-        blockingCount={gate?.blockingCount ?? 0}
-        frozen={Boolean(live?.frozen)}
-        onPresent={onPresent}
-      />
+      </div>
     </div>
   );
 }

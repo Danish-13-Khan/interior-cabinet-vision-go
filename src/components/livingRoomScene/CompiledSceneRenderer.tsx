@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
@@ -14,6 +14,7 @@ import { ModelViewCameraKind } from "./ModelViewCameraKind";
 import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
 import { RendererColorPipeline } from "./RendererColorPipeline";
 import { modelNodeIsSelected, modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
+import { ModelMoveGizmo, type ModelTransformTarget } from "./ModelMoveGizmo";
 
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
@@ -45,6 +46,9 @@ type SceneRendererProps = {
   fitVersion?: number;
   fitMode?: ModelViewFitMode;
   fitSelection?: ModelViewFitSelection;
+  transformTarget?: ModelTransformTarget | null;
+  onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
+  onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
 };
 
 function wallFragmentArea(node: CompiledLivingRoomScene["nodes"][number]) {
@@ -63,10 +67,20 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     windowKeyScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
+    transformTarget = null, onTransformPreview, onTransformCommit,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
   const [assetRevision, setAssetRevision] = useState(0);
+  const [transformPreview, setTransformPreview] = useState<Point3Mm | null>(null);
+  useEffect(() => setTransformPreview(null), [transformTarget?.kind, transformTarget?.id]);
+  function handleDragStateChange(nextDragging: boolean) {
+    // OrbitControls listens directly on the canvas. Disable it immediately so
+    // the initiating left-button gesture cannot also rotate the camera before
+    // React applies the updated `enabled` prop.
+    if (controlsRef.current) controlsRef.current.enabled = !nextDragging;
+    setDragging(nextDragging);
+  }
   const architectureBounds = computeArchitectureBounds(scene.nodes);
   const materialKey = scene.materials
     .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}:${material.uvRotationDeg}:${material.uvOffsetU ?? 0}:${material.uvOffsetV ?? 0}:${material.textureMapUrl ?? ""}`)
@@ -134,8 +148,18 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
           position={[0, 0.002, 0]}
         />
       ) : null}
-      {nodes.map((node) => (
-        <CompiledNodeView
+      {nodes.map((node) => {
+        const target = modelSelectionTarget(node);
+        const transformsNode = Boolean(transformTarget && target
+          && transformTarget.kind === target.kind && transformTarget.id === target.id);
+        const preview = transformsNode && transformPreview && transformTarget
+          ? {
+              x: node.positionMm.x + transformPreview.x - transformTarget.positionMm.x,
+              y: node.positionMm.y + transformPreview.y - transformTarget.positionMm.y,
+              z: node.positionMm.z + transformPreview.z - transformTarget.positionMm.z,
+            }
+          : undefined;
+        return <CompiledNodeView
           key={node.id}
           node={node}
           materials={materialMap}
@@ -153,14 +177,45 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
           onSelectOpening={onSelectOpening}
           onSelectWall={onSelectWall}
           onClearSelection={onClearSelection}
-          onMove={onMove}
-          onDragStateChange={setDragging}
+          onMove={(objectId, position) => {
+            if (transformTarget?.kind === "object" && transformTarget.id === objectId && onTransformCommit) {
+              onTransformCommit(transformTarget, position);
+              setTransformPreview(null);
+              return;
+            }
+            onMove(objectId, position);
+          }}
+          onMovePreview={(objectId, position) => {
+            if (transformTarget?.kind !== "object" || transformTarget.id !== objectId) return position;
+            const resolved = onTransformPreview?.(transformTarget, position) ?? position;
+            setTransformPreview(resolved);
+            return resolved;
+          }}
+          onDragStateChange={handleDragStateChange}
           interactive={interactive}
           onMechanismClick={onMechanismClick}
           onAssetReady={() => setAssetRevision((revision) => revision + 1)}
           onWallContextMenu={onWallContextMenu}
+          positionOverride={preview}
         />
-      ))}
+      })}
+      {interactive && transformTarget ? (
+        <ModelMoveGizmo
+          target={transformTarget}
+          positionOverride={transformPreview}
+          snapSizeMm={snapSizeMm}
+          onPreview={(position) => {
+            const resolved = onTransformPreview?.(transformTarget, position) ?? position;
+            setTransformPreview(resolved);
+            return resolved;
+          }}
+          onCommit={(position) => {
+            onTransformCommit?.(transformTarget, position);
+            setTransformPreview(null);
+          }}
+          onDragStateChange={handleDragStateChange}
+        />
+      ) : null}
       <ModelViewInteractionRig
         scene={scene}
         controlsRef={controlsRef}

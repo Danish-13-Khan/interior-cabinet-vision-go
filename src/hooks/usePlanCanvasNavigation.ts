@@ -166,6 +166,17 @@ export function usePlanCanvasNavigation(options: {
     fitToBounds(bounds);
   }, [fitPlan, fitToBounds]);
 
+  const zoomBy = useCallback((factor: number) => {
+    setView((current) => zoomPlanViewToward(
+      current,
+      factor,
+      current.minX + current.width / 2,
+      current.minZ + current.height / 2,
+    ));
+  }, []);
+  const zoomIn = useCallback(() => zoomBy(PLAN_VIEW_ZOOM_STEP), [zoomBy]);
+  const zoomOut = useCallback(() => zoomBy(1 / PLAN_VIEW_ZOOM_STEP), [zoomBy]);
+
   const worldPerPx = useCallback(() => {
     const size = readSize();
     return planViewWorldPerPx(viewRef.current, size.width, size.height);
@@ -190,6 +201,8 @@ export function usePlanCanvasNavigation(options: {
     screenToWorldMm,
     fitPlan,
     fitSelectionBounds,
+    zoomIn,
+    zoomOut,
     setView,
   };
 }

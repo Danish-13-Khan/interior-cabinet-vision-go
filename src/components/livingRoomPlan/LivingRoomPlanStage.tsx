@@ -89,6 +89,9 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             activeOpeningId={props.activeOpeningId} activeWallId={props.activeWallId} showGrid={props.showGrid}
             onSelect={props.onSelect} onSelectOpening={props.onSelectOpening} onSelectWall={props.onSelectWall}
             onClearSelection={props.onClearSelection} onMove={props.onMove}
+            onMovePreview={props.onMovePreview}
+            onUpdateOpening={props.onUpdateOpening}
+            onTransformPreviewChange={props.onTransformPreviewChange}
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
             onPatchDocument={props.onPatchDocument}

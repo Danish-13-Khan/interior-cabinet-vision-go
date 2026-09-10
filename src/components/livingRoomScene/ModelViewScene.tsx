@@ -10,6 +10,7 @@ import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import type { RenderQualityPreset } from "../../domain/livingRoom/renderStudio";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
+import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type ModelViewSceneProps = {
   scene: CompiledLivingRoomScene;
@@ -41,6 +42,9 @@ type ModelViewSceneProps = {
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
   onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
+  transformTarget?: ModelTransformTarget | null;
+  onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
+  onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -51,7 +55,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     interactive = true,
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
-    onWallContextMenu,
+    onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
   } = props;
 
   return (
@@ -93,6 +97,9 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onExitWalkthrough={onExitWalkthrough}
           onMechanismClick={onMechanismClick}
           onWallContextMenu={onWallContextMenu}
+          transformTarget={transformTarget}
+          onTransformPreview={onTransformPreview}
+          onTransformCommit={onTransformCommit}
         />
       </ModelViewPreviewProfileProvider>
     </Canvas>

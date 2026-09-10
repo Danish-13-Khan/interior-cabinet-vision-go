@@ -38,7 +38,15 @@ export function LivingRoomModelChrome(props: LivingRoomModelChromeProps) {
           onDismiss={props.onDismissGuide}
         />
       ) : null}
-      {props.diagnostics ? <RenderDiagnosticsPanel report={props.diagnostics} compact /> : null}
+      {props.diagnostics ? (
+        <details className="lr-model-diagnostics-disclosure">
+          <summary>
+            Scene health
+            {props.diagnostics.warnings.length > 0 ? ` · ${props.diagnostics.warnings.length}` : " · ready"}
+          </summary>
+          <RenderDiagnosticsPanel report={props.diagnostics} compact />
+        </details>
+      ) : null}
       <CabinetMechanismPanel
         object={props.activeObject}
         onChange={props.onSetParameters}

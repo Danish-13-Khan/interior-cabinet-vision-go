@@ -1,10 +1,14 @@
 import { useEffect, useId, useRef, useState } from "react";
+import type { DraftingAppearance } from "../../hooks/useDraftingAppearance";
 
 type InteriorsWorkspaceFileMenuProps = {
   disabled?: boolean;
   onOpen: () => void;
   onSave: () => void;
   onExport: () => void;
+  onOpenShortcuts?: () => void;
+  appearance?: DraftingAppearance;
+  onAppearance?: (appearance: DraftingAppearance) => void;
 };
 
 /** Day-one File menu: Open, Save, Export JSON — reuses existing workspace I/O. */
@@ -13,6 +17,9 @@ export function InteriorsWorkspaceFileMenu({
   onOpen,
   onSave,
   onExport,
+  onOpenShortcuts,
+  appearance,
+  onAppearance,
 }: InteriorsWorkspaceFileMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -63,6 +70,37 @@ export function InteriorsWorkspaceFileMenu({
           <button type="button" role="menuitem" onClick={() => run(onExport)}>
             Export JSON…
           </button>
+          {onOpenShortcuts ? (
+            <button
+              type="button"
+              role="menuitem"
+              data-testid="interiors-open-shortcuts"
+              onClick={() => run(onOpenShortcuts)}
+            >
+              Keyboard shortcuts…
+            </button>
+          ) : null}
+          {onAppearance ? (
+            <div className="lr-chrome-file-theme" role="group" aria-label="Canvas appearance">
+              <span>Canvas appearance</span>
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={appearance !== "dark-frame"}
+                onClick={() => run(() => onAppearance("light"))}
+              >
+                Light studio {appearance !== "dark-frame" ? "✓" : ""}
+              </button>
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={appearance === "dark-frame"}
+                onClick={() => run(() => onAppearance("dark-frame"))}
+              >
+                Dark frame {appearance === "dark-frame" ? "✓" : ""}
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>
