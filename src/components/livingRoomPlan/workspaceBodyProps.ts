@@ -70,7 +70,9 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   onWorkspaceView: (view: LivingRoomWorkspaceView) => void;
   onPresent: () => void;
   onReturnToReview: () => void;
-  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => void;
   onFitPlan?: () => void;
   onFitSelection?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
 };

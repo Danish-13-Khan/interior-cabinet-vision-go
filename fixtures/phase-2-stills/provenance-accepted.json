@@ -2,8 +2,8 @@
   "schemaVersion": 2,
   "jobId": "sj-p2-proof-sample",
   "projectId": "phase1-bench-daylight-sofa",
-  "projectContentHash": "sj-proj-095af428",
-  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-095af428",
+  "projectContentHash": "sj-proj-6a96a258",
+  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-6a96a258",
   "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
   "engine": {
     "id": "stilljob-hero",

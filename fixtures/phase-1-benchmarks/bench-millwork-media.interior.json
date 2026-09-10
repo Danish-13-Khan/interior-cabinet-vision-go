@@ -1323,8 +1323,8 @@
         "id": "warm-contemporary",
         "version": 1,
         "environment": {
-          "backgroundColor": "#dfe5e9",
-          "fogColor": "#dfe5e9",
+          "backgroundColor": "#b7c2cf",
+          "fogColor": "#b7c2cf",
           "fogNearMm": 10500,
           "fogFarMm": 23000,
           "hemisphereSkyColor": "#eaf2fb",

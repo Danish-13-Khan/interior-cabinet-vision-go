@@ -169,6 +169,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onRegisterViewControls={props.onRegisterViewControls}
         onFitPlan={props.onFitPlan}
         onFitSelection={props.onFitSelection}
+        onZoomIn={props.onZoomIn}
+        onZoomOut={props.onZoomOut}
         onSetPlanUnderlay={w.onSetPlanUnderlay}
         onCalibrateComplete={() => props.onBuildTool("select")}
         onPatchDocument={w.onPatchDocument}

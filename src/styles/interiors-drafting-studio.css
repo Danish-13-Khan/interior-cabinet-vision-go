@@ -155,3 +155,41 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-product-mark {
   background: var(--iu-green);
 }
+
+/* Optional B — dark surrounding chrome with the same bright drafting surface. */
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame {
+  --iu-faint: #16201c;
+  --iu-canvas: #d8dfe8;
+  background: #101713 !important;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame .lr-chrome-header,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame .lr-workflow-nav {
+  --iu-ink: #f1f5f2;
+  --iu-muted: #b7c4bc;
+  --iu-line: #33453b;
+  --iu-green-soft: #17392a;
+  --iu-control-active-ink: #68dc9c;
+  background: #121b16;
+  color: #f1f5f2;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-appearance-dark-frame .lr-workspace-body {
+  background: #16201c;
+}
+
+.lr-chrome-file-theme {
+  display: grid;
+  gap: 2px;
+  margin-top: 5px;
+  padding-top: 7px;
+  border-top: 1px solid currentColor;
+}
+
+.lr-chrome-file-theme > span {
+  padding: 3px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.65;
+  text-transform: uppercase;
+}

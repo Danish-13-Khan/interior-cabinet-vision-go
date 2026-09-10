@@ -38,6 +38,7 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
         onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}
         onCommitOpening={props.onCommitOpening}
         onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection}
+        onZoomIn={props.onZoomIn} onZoomOut={props.onZoomOut}
         hasSelection={props.hasSelection}
       />
     );
@@ -61,7 +62,8 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
           onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
           onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
           onReadability={props.onReadability}
-          onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection} />
+          onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection}
+          onZoomIn={props.onZoomIn} onZoomOut={props.onZoomOut} />
       ) : null}
       <PlanStageTitlebar
         project={props.project} workspaceView={props.workspaceView} selectedCount={props.selectedIds.length}

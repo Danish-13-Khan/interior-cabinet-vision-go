@@ -33,10 +33,44 @@ the old control until then.
 
 **Chrome landed (plan workspace only):** an open job uses `is-drafting-studio`
 — light tokens, bright plan, compact toolbar, Layers / Export sheet on demand.
-Projects home is unchanged. Domain commands stay on existing handlers. Still
-open: inspector frames, zoom chrome, live issue footer. See the
+Projects home is unchanged. Domain commands stay on existing handlers. The
+follow-up implementation now includes explicit zoom buttons, the live actionable
+issue footer, contextual inspector frames, and responsive inspector reflow. See the
 [2D screenshot walkthrough](mockups/interiors-2d-review/README.md) and
 [follow-ups](ui-workflow-FOLLOW_UPS.md).
+
+### Recommendation closure — 10 September 2026
+
+The implementation pass on `codex/feat/animated-3d-showroom` closes the concrete
+review findings without changing geometry, costing, serialization, or production
+commands:
+
+- Layers and Export sheet panels anchor to the complete title bar, stay inside
+  the viewport, scroll internally, and close their sibling sheet when opened.
+- Measure and calibration are promoted into the compact primary plan bar. Room,
+  architecture, underlay, and site-measure settings use one expandable secondary
+  section instead of occupying a permanent row.
+- Plan zoom-out, zoom-in, Fit, Fit selection, grid, snap, layers, and export have
+  visible entry points. Existing wheel zoom and pan gestures remain available.
+- Below 960 px the inspector enters normal document flow under the canvas rather
+  than covering the drawing. The toolbar wraps and the canvas retains a usable
+  minimum height.
+- File → Canvas appearance offers **Light studio** and **Dark frame**. Both keep
+  the drafting surface light and store the choice locally.
+- Editable shortcut bindings now drive Interiors undo, redo, duplicate, delete,
+  rotate, plan/3D switching, and Fit actions. Legacy plain `1` / `2` plan switching
+  and `Cmd/Ctrl+0` Fit remain available for continuity.
+- Review shows a compact readiness summary and progressive Plan/model, Client/job,
+  and Quote/approval sections. Existing proposal and gate handlers are reused.
+- 3D render diagnostics move behind a Scene health disclosure and remain absent
+  from Present. Camera, cutaway, materials, mechanisms, and style palette behavior
+  is unchanged.
+
+The remaining 3D quality limit is asset fidelity: procedural fallbacks and current
+catalog geometry cannot become presentation-grade furniture through shell CSS.
+Replacing those models, UVs, textures, and lighting assets remains a separate asset
+production track with render QA. Mobile layouts remain a practical reflow for
+review and emergency edits, not a promise of full phone CAD authoring.
 
 Walkthrough: 11 captures cover both appearances, expanded room / opening /
 underlay / run settings, layers, export and branding, materials, wall drawing
@@ -346,7 +380,9 @@ permission to bypass domain commands or rewrite project serialization.
 7. **Complete — Review / Present / engineering journey:** surface existing
    proposal gate rows, client identity, Present client chrome strip, and
    Return-to-Review / Open Present navigation without changing gate math.
-   Full commercial dialog redesign remains a documented design-pass follow-up.
+   The follow-up now groups commercial controls into progressive Review sections;
+   deeper quote-table and approval-dialog visual redesign remains tied to the
+   existing commercial domain and needs dedicated acceptance references.
    [Step 7 evidence](ui-workflow-step7/README.md).
 8. **Complete — starters / saved projects / golden journey verification:**
    five-area entry-point smoke, Present→Review→cabinet edit path, and
