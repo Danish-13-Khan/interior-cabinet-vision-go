@@ -11,6 +11,7 @@ import { DimensionPresetMenu } from "./DimensionPresetMenu";
 import { CabinetRunInspector } from "./CabinetRunInspector";
 import { MaterialSlotList } from "./MaterialSlotList";
 import { PanelAttachmentInspector } from "./PanelAttachmentInspector";
+import { InspectorSection } from "./InspectorSection";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
@@ -79,7 +80,7 @@ export function LivingRoomObjectInspector({
         onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)}
       />
       {object.kind === "cabinet" && object.category !== "filler" && !wallPanel ? (
-        <>
+        <InspectorSection title="Advanced construction" testId="inspector-cabinet-advanced">
           <h4>Cabinet configuration</h4>
           <label className="lr-select-field"><span>Finish</span>
             <select data-testid="cabinet-finish" value={cabinetFinishId(object)}
@@ -109,7 +110,7 @@ export function LivingRoomObjectInspector({
               ? "Wall snapped — drag near another wall to reattach."
               : "Drag near a wall to snap this cabinet."}
           </p>
-        </>
+        </InspectorSection>
       ) : null}
       {object.kind === "cabinet" && object.category !== "filler" && !wallPanel ? (
         <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} onCompleteRun={onCompleteRun} />

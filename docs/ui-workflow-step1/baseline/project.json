@@ -1,0 +1,1251 @@
+{
+  "format": "interior-project",
+  "schemaVersion": 2,
+  "savedAt": "2026-09-09T00:00:00.000Z",
+  "project": {
+    "schemaVersion": 2,
+    "id": "job-001",
+    "name": "JOB-001",
+    "units": "mm",
+    "createdAt": "2026-09-09T00:00:00.000Z",
+    "updatedAt": "2026-09-09T00:00:00.000Z",
+    "activeRoomId": "room-1",
+    "nodes": [
+      {
+        "id": "adapter-node-1",
+        "position": {
+          "x": -3000,
+          "z": -2000
+        },
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter"
+        }
+      },
+      {
+        "id": "adapter-node-2",
+        "position": {
+          "x": 3000,
+          "z": -2000
+        },
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter"
+        }
+      },
+      {
+        "id": "adapter-node-3",
+        "position": {
+          "x": -3000,
+          "z": 2000
+        },
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter"
+        }
+      },
+      {
+        "id": "adapter-node-4",
+        "position": {
+          "x": 3000,
+          "z": 2000
+        },
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter"
+        }
+      }
+    ],
+    "loops": [
+      {
+        "id": "room-1:outer-loop",
+        "wallUses": [
+          {
+            "wallId": "room-1:wall:back-wall",
+            "direction": "forward"
+          },
+          {
+            "wallId": "room-1:wall:right-wall",
+            "direction": "forward"
+          },
+          {
+            "wallId": "room-1:wall:front-wall",
+            "direction": "forward"
+          },
+          {
+            "wallId": "room-1:wall:left-wall",
+            "direction": "forward"
+          }
+        ],
+        "extensions": {
+          "graphDomainVersion": 1,
+          "roomId": "room-1"
+        }
+      }
+    ],
+    "rooms": [
+      {
+        "id": "room-1",
+        "name": "Room 1",
+        "roomType": "custom",
+        "dimensions": {
+          "widthMm": 6000,
+          "heightMm": 2800,
+          "depthMm": 4000
+        },
+        "wallThicknessMm": 120,
+        "outerLoopId": "room-1:outer-loop",
+        "holeLoopIds": [],
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter"
+        }
+      }
+    ],
+    "walls": [
+      {
+        "id": "room-1:wall:back-wall",
+        "roomId": "room-1",
+        "start": {
+          "x": -3000,
+          "z": -2000
+        },
+        "end": {
+          "x": 3000,
+          "z": -2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": null,
+        "startNodeId": "adapter-node-1",
+        "endNodeId": "adapter-node-2",
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter",
+          "wallSide": "back-wall"
+        }
+      },
+      {
+        "id": "room-1:wall:left-wall",
+        "roomId": "room-1",
+        "start": {
+          "x": -3000,
+          "z": 2000
+        },
+        "end": {
+          "x": -3000,
+          "z": -2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": null,
+        "startNodeId": "adapter-node-3",
+        "endNodeId": "adapter-node-1",
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter",
+          "wallSide": "left-wall"
+        }
+      },
+      {
+        "id": "room-1:wall:right-wall",
+        "roomId": "room-1",
+        "start": {
+          "x": 3000,
+          "z": -2000
+        },
+        "end": {
+          "x": 3000,
+          "z": 2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": true,
+        "materialId": null,
+        "startNodeId": "adapter-node-2",
+        "endNodeId": "adapter-node-4",
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter",
+          "wallSide": "right-wall"
+        }
+      },
+      {
+        "id": "room-1:wall:front-wall",
+        "roomId": "room-1",
+        "start": {
+          "x": 3000,
+          "z": 2000
+        },
+        "end": {
+          "x": -3000,
+          "z": 2000
+        },
+        "heightMm": 2800,
+        "thicknessMm": 120,
+        "visible": false,
+        "materialId": null,
+        "startNodeId": "adapter-node-4",
+        "endNodeId": "adapter-node-3",
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter",
+          "wallSide": "front-wall"
+        }
+      }
+    ],
+    "openings": [
+      {
+        "id": "room-1:door:door-1",
+        "wallId": "room-1:wall:right-wall",
+        "kind": "door",
+        "offsetMm": 900,
+        "widthMm": 900,
+        "heightMm": 2100,
+        "sillHeightMm": 0,
+        "catalogItemId": "opening:door-single",
+        "materialSlots": {},
+        "parameters": {},
+        "swingDirection": "in",
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter",
+          "sourceId": "door-1"
+        }
+      },
+      {
+        "id": "room-1:window:win-1",
+        "wallId": "room-1:wall:back-wall",
+        "kind": "window",
+        "offsetMm": -1500,
+        "widthMm": 1200,
+        "heightMm": 1200,
+        "sillHeightMm": 900,
+        "catalogItemId": "opening:window-fixed",
+        "materialSlots": {},
+        "parameters": {},
+        "extensions": {
+          "managedBy": "interior-cabinet-adapter",
+          "sourceId": "win-1"
+        }
+      }
+    ],
+    "surfaces": [
+      {
+        "id": "room-1:floor",
+        "kind": "floor",
+        "roomId": "room-1",
+        "loopId": "room-1:outer-loop",
+        "polygon": [
+          {
+            "x": -3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": 2000
+          },
+          {
+            "x": -3000,
+            "z": 2000
+          }
+        ],
+        "materialId": null,
+        "extensions": {
+          "generatedBy": "closed-room-loop"
+        }
+      },
+      {
+        "id": "room-1:ceiling",
+        "kind": "ceiling",
+        "roomId": "room-1",
+        "loopId": "room-1:outer-loop",
+        "polygon": [
+          {
+            "x": -3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": -2000
+          },
+          {
+            "x": 3000,
+            "z": 2000
+          },
+          {
+            "x": -3000,
+            "z": 2000
+          }
+        ],
+        "materialId": null,
+        "extensions": {
+          "generatedBy": "closed-room-loop"
+        }
+      }
+    ],
+    "objects": [
+      {
+        "id": "golden-base",
+        "roomId": "room-1",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:base-cabinet-900",
+        "name": "base 900",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 1,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-BASE-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-base",
+            "entityId": "golden-base",
+            "config": {
+              "type": "base",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 1,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-oak",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 1,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-base",
+              "catalogItemId": "living:base-cabinet-900",
+              "sku": "MW-BASE-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-base",
+            "catalogItemId": "living:base-cabinet-900",
+            "sku": "MW-BASE-900",
+            "cabinetType": "base",
+            "familyId": "frameless-standard-base",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "base 900",
+            "roomId": "room-1"
+          }
+        }
+      },
+      {
+        "id": "golden-wall",
+        "roomId": "room-1",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:wall-cabinet-900",
+        "name": "wall 900",
+        "position": {
+          "x": 0,
+          "y": 1400,
+          "z": -1825
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 350
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 1,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-WALL-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-wall",
+            "entityId": "golden-wall",
+            "config": {
+              "type": "wall",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 350,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 1,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 0,
+              "toeKickInset": 0,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "white-matte",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Door Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 1,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 1,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 1
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": false,
+                  "heightMm": 0,
+                  "insetMm": 0
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "dado",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-wall",
+              "catalogItemId": "living:wall-cabinet-900",
+              "sku": "MW-WALL-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "back-wall",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-wall",
+            "catalogItemId": "living:wall-cabinet-900",
+            "sku": "MW-WALL-900",
+            "cabinetType": "wall",
+            "familyId": "frameless-standard-wall",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "wall 900",
+            "roomId": "room-1"
+          }
+        }
+      },
+      {
+        "id": "golden-tall",
+        "roomId": "room-1",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:tall-pantry-600",
+        "name": "tall 600",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 600,
+          "heightMm": 2100,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 4,
+          "drawerCount": 0,
+          "hasDoors": true,
+          "sku": "MW-TALL-600"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-tall",
+            "entityId": "golden-tall",
+            "config": {
+              "type": "tall",
+              "dimensions": {
+                "width": 600,
+                "height": 2100,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 4,
+              "hasDoors": true,
+              "drawerCount": 0,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": true,
+              "rightEndPanel": true,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "wood-walnut",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "door"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Pantry Opening",
+                    "contentType": "door",
+                    "ratio": 0.95,
+                    "doorStyle": "double",
+                    "doorHinge": "both",
+                    "drawerCount": 0,
+                    "shelfCount": 4,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 4,
+                  "adjustable": true
+                },
+                "dividers": {
+                  "count": 0
+                },
+                "doors": {
+                  "enabled": true,
+                  "style": "double",
+                  "hinge": "both",
+                  "count": 2
+                },
+                "drawers": {
+                  "count": 0,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": true,
+                  "right": true
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "adjustable-pins",
+                "drawerBoxStyle": "butt-screw",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-tall",
+              "catalogItemId": "living:tall-pantry-600",
+              "sku": "MW-TALL-600"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-tall",
+            "catalogItemId": "living:tall-pantry-600",
+            "sku": "MW-TALL-600",
+            "cabinetType": "tall",
+            "familyId": "frameless-standard-tall",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "tall 600",
+            "roomId": "room-1"
+          }
+        }
+      },
+      {
+        "id": "golden-drawer",
+        "roomId": "room-1",
+        "kind": "cabinet",
+        "category": "storage",
+        "catalogItemId": "living:drawer-cabinet-900",
+        "name": "drawer 900",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dimensions": {
+          "widthMm": 900,
+          "heightMm": 720,
+          "depthMm": 560
+        },
+        "materialSlots": {},
+        "parameters": {
+          "shelfCount": 0,
+          "drawerCount": 3,
+          "hasDoors": false,
+          "sku": "MW-DRAWER-900"
+        },
+        "extensions": {
+          "cabinetPlanning": {
+            "sourceId": "golden-drawer",
+            "entityId": "golden-drawer",
+            "config": {
+              "type": "drawer",
+              "dimensions": {
+                "width": 900,
+                "height": 720,
+                "depth": 560,
+                "boardThickness": 18,
+                "backPanelThickness": 6
+              },
+              "shelfCount": 0,
+              "hasDoors": false,
+              "drawerCount": 3,
+              "toeKickHeight": 100,
+              "toeKickInset": 60,
+              "leftEndPanel": false,
+              "rightEndPanel": false,
+              "buildRules": {
+                "materialPresetId": "ply-premium",
+                "carcassThicknessMm": 18,
+                "backPanelThicknessMm": 6,
+                "shelfThicknessMm": 18,
+                "drawerBoxThicknessMm": 12,
+                "finishId": "grey",
+                "edgeBandingId": "abs-1mm",
+                "grainDirection": "lengthwise",
+                "backPanelType": "grooved"
+              },
+              "composition": {
+                "openings": [
+                  {
+                    "id": "opening-primary",
+                    "label": "Opening Structure",
+                    "style": "drawer"
+                  }
+                ],
+                "openingStructure": {
+                  "root": {
+                    "kind": "leaf",
+                    "id": "opening-primary",
+                    "label": "Drawer Stack",
+                    "contentType": "drawer-stack",
+                    "ratio": 0.95,
+                    "doorStyle": "none",
+                    "doorHinge": "both",
+                    "drawerCount": 3,
+                    "shelfCount": 0,
+                    "shelvesAdjustable": true
+                  },
+                  "activeOpeningId": "opening-primary"
+                },
+                "shelves": {
+                  "count": 0,
+                  "adjustable": false
+                },
+                "dividers": {
+                  "count": 0
+                },
+                "doors": {
+                  "enabled": false,
+                  "style": "none",
+                  "hinge": "both",
+                  "count": 0
+                },
+                "drawers": {
+                  "count": 3,
+                  "equalHeights": true
+                },
+                "toeKick": {
+                  "enabled": true,
+                  "heightMm": 100,
+                  "insetMm": 60
+                },
+                "fillers": {
+                  "leftMm": 0,
+                  "rightMm": 0
+                },
+                "endPanels": {
+                  "left": false,
+                  "right": false
+                }
+              },
+              "construction": {
+                "carcassStyle": "frameless",
+                "caseJoinery": "butt-screw",
+                "doorMount": "overlay",
+                "shelfMount": "fixed-screw",
+                "drawerBoxStyle": "dado-bottom",
+                "faceFrame": {
+                  "stileWidthMm": 50,
+                  "railWidthMm": 50
+                }
+              },
+              "hardware": {
+                "hingeId": "hinge-soft",
+                "slideId": "drawer-slide-soft",
+                "handleId": "handle-bar",
+                "legId": "leg-adj",
+                "bracketId": "wall-bracket",
+                "includeShelfPins": true,
+                "accessories": [],
+                "insertKind": "none",
+                "applianceWidthMm": 0,
+                "applianceHeightMm": 0,
+                "applianceDepthMm": 0
+              },
+              "familyId": "frameless-standard-drawer",
+              "catalogItemId": "living:drawer-cabinet-900",
+              "sku": "MW-DRAWER-900"
+            },
+            "layerId": "layer-default",
+            "groupId": null,
+            "attachment": "floor",
+            "displayCategory": "storage"
+          },
+          "cabinetIdentity": {
+            "objectId": "golden-drawer",
+            "catalogItemId": "living:drawer-cabinet-900",
+            "sku": "MW-DRAWER-900",
+            "cabinetType": "drawer",
+            "familyId": "frameless-standard-drawer",
+            "familyResolvedFromType": false,
+            "category": "storage",
+            "name": "drawer 900",
+            "roomId": "room-1"
+          }
+        }
+      }
+    ],
+    "materials": [],
+    "lights": [],
+    "cameras": [],
+    "renderSettings": {
+      "widthPx": 1920,
+      "heightPx": 1080,
+      "quality": "standard",
+      "exposure": 1,
+      "transparentBackground": false,
+      "activeCameraId": null,
+      "lightingRecipeId": "neutral-studio",
+      "composition": "architectural",
+      "packageCameraBookmarks": []
+    },
+    "extensions": {
+      "cabinetPlanning": {
+        "projectShell": {
+          "version": 1,
+          "layers": [
+            {
+              "id": "layer-default",
+              "name": "Default Layer",
+              "visible": true,
+              "locked": false
+            }
+          ],
+          "groups": [],
+          "preferences": {
+            "snapSizeMm": 50,
+            "showGrid": true,
+            "autoSaveToBrowser": true,
+            "costing": {
+              "presetId": "standard",
+              "wastePercent": 10,
+              "labourPercent": 40,
+              "hardwareAllowance": 0,
+              "labourAllowance": 0,
+              "materialRateMultiplier": 1,
+              "finishRateMultiplier": 1,
+              "hingeId": "hinge-soft",
+              "drawerSlideId": "drawer-slide-soft",
+              "handleId": "handle-bar"
+            },
+            "quote": {
+              "markupPercent": 18,
+              "taxPercent": 18,
+              "discountPercent": 0,
+              "validityDays": 30,
+              "labourAllowance": 0,
+              "finishPremiumPercent": 10,
+              "inclusions": "Cabinets, hardware, and specified finishes as shown.",
+              "exclusions": "Site installation, appliances, plumbing, and electrical not included.",
+              "currencyLabel": "INR",
+              "taxLabel": "GST",
+              "priceDetail": "summary"
+            },
+            "sheetOptimizer": {
+              "sheetId": "sheet-2440x1220",
+              "kerfMm": 3,
+              "trimMm": 10,
+              "allowRotateFreeGrain": true
+            },
+            "standards": {
+              "carcassThicknessMm": 18,
+              "backPanelThicknessMm": 6,
+              "shelfThicknessMm": 18,
+              "drawerBoxThicknessMm": 12,
+              "toeKickHeightMm": 100,
+              "toeKickInsetMm": 60,
+              "materialPresetId": "ply-premium",
+              "finishId": "wood-oak",
+              "edgeBandingId": "abs-1mm",
+              "countertopThicknessMm": 28,
+              "countertopOverhangFrontMm": 30,
+              "countertopOverhangSidesMm": 20
+            },
+            "drafting": {
+              "showCabinetTags": true,
+              "showOpeningTags": true,
+              "showApplianceTags": true,
+              "showDimensionChains": true,
+              "showOverallDims": true,
+              "showSelectedDims": true,
+              "showOpeningDims": true,
+              "showRunDims": true,
+              "showClearanceDims": true,
+              "showWallLabels": true,
+              "showRunBands": true,
+              "showRunLabels": true,
+              "showFillers": true,
+              "showCountertopSpans": true,
+              "dimMinSegmentMm": 40
+            }
+          },
+          "drafting": {
+            "notes": [],
+            "leaders": [],
+            "dimOffsets": [],
+            "tagOffsets": []
+          },
+          "quoteHistory": [],
+          "reviewNotes": [],
+          "revisionHistory": [],
+          "job": {
+            "customerName": "",
+            "projectNumber": "JOB-001",
+            "revision": "A",
+            "status": "draft",
+            "notes": "",
+            "createdAt": "2026-09-09T00:00:00.000Z",
+            "updatedAt": "2026-09-09T00:00:00.000Z"
+          },
+          "sheetSet": {
+            "sheets": [
+              {
+                "id": "plan",
+                "catalogId": "plan",
+                "code": "A-101",
+                "name": "Room Plan",
+                "shortLabel": "Plan",
+                "scaleText": "1:100",
+                "group": "plan",
+                "primaryView": "top",
+                "viewports": [
+                  {
+                    "id": "vp-top",
+                    "viewKind": "top",
+                    "title": "Room Plan",
+                    "x": 0,
+                    "y": 0,
+                    "width": 1,
+                    "height": 1,
+                    "scaleText": "1:100"
+                  }
+                ],
+                "notes": [],
+                "revisionRows": [
+                  {
+                    "id": "rev-1",
+                    "revision": "A",
+                    "date": "9/9/2026",
+                    "description": "Issued for construction",
+                    "by": "Designer"
+                  }
+                ],
+                "includeNotesArea": true,
+                "pageSize": "A4"
+              },
+              {
+                "id": "front",
+                "catalogId": "front",
+                "code": "A-201",
+                "name": "Front Elevation",
+                "shortLabel": "Front",
+                "scaleText": "1:100",
+                "group": "elevation",
+                "primaryView": "front",
+                "viewports": [
+                  {
+                    "id": "vp-front",
+                    "viewKind": "front",
+                    "title": "Front Elevation",
+                    "x": 0,
+                    "y": 0,
+                    "width": 1,
+                    "height": 1,
+                    "scaleText": "1:100"
+                  }
+                ],
+                "notes": [],
+                "revisionRows": [
+                  {
+                    "id": "rev-1",
+                    "revision": "A",
+                    "date": "9/9/2026",
+                    "description": "Issued for construction",
+                    "by": "Designer"
+                  }
+                ],
+                "includeNotesArea": true,
+                "pageSize": "A4"
+              },
+              {
+                "id": "side",
+                "catalogId": "side",
+                "code": "A-202",
+                "name": "Side Elevation",
+                "shortLabel": "Side",
+                "scaleText": "1:100",
+                "group": "elevation",
+                "primaryView": "side",
+                "viewports": [
+                  {
+                    "id": "vp-side",
+                    "viewKind": "side",
+                    "title": "Side Elevation",
+                    "x": 0,
+                    "y": 0,
+                    "width": 1,
+                    "height": 1,
+                    "scaleText": "1:100"
+                  }
+                ],
+                "notes": [],
+                "revisionRows": [
+                  {
+                    "id": "rev-1",
+                    "revision": "A",
+                    "date": "9/9/2026",
+                    "description": "Issued for construction",
+                    "by": "Designer"
+                  }
+                ],
+                "includeNotesArea": true,
+                "pageSize": "A4"
+              },
+              {
+                "id": "section",
+                "catalogId": "section",
+                "code": "A-301",
+                "name": "Section A-A",
+                "shortLabel": "Section",
+                "scaleText": "1:100",
+                "group": "section",
+                "primaryView": "section",
+                "viewports": [
+                  {
+                    "id": "vp-section",
+                    "viewKind": "section",
+                    "title": "Section A-A",
+                    "x": 0,
+                    "y": 0,
+                    "width": 1,
+                    "height": 1,
+                    "scaleText": "1:100"
+                  }
+                ],
+                "notes": [],
+                "revisionRows": [
+                  {
+                    "id": "rev-1",
+                    "revision": "A",
+                    "date": "9/9/2026",
+                    "description": "Issued for construction",
+                    "by": "Designer"
+                  }
+                ],
+                "includeNotesArea": true,
+                "pageSize": "A4"
+              },
+              {
+                "id": "detail",
+                "catalogId": "detail",
+                "code": "A-501",
+                "name": "Cabinet Detail DET-1",
+                "shortLabel": "Detail",
+                "scaleText": "1:45",
+                "group": "detail",
+                "primaryView": "detail",
+                "viewports": [
+                  {
+                    "id": "vp-detail",
+                    "viewKind": "detail",
+                    "title": "Cabinet Detail DET-1",
+                    "x": 0,
+                    "y": 0,
+                    "width": 1,
+                    "height": 1,
+                    "scaleText": "1:45"
+                  }
+                ],
+                "notes": [],
+                "revisionRows": [
+                  {
+                    "id": "rev-1",
+                    "revision": "A",
+                    "date": "9/9/2026",
+                    "description": "Issued for construction",
+                    "by": "Designer"
+                  }
+                ],
+                "includeNotesArea": true,
+                "pageSize": "A4"
+              },
+              {
+                "id": "report",
+                "catalogId": "report",
+                "code": "A-401",
+                "name": "Cabinet Schedule",
+                "shortLabel": "Report",
+                "scaleText": "NTS",
+                "group": "schedule",
+                "primaryView": "report",
+                "viewports": [
+                  {
+                    "id": "vp-report",
+                    "viewKind": "report",
+                    "title": "Cabinet Schedule",
+                    "x": 0,
+                    "y": 0,
+                    "width": 1,
+                    "height": 1,
+                    "scaleText": "NTS"
+                  }
+                ],
+                "notes": [],
+                "revisionRows": [
+                  {
+                    "id": "rev-1",
+                    "revision": "A",
+                    "date": "9/9/2026",
+                    "description": "Issued for construction",
+                    "by": "Designer"
+                  }
+                ],
+                "includeNotesArea": false,
+                "pageSize": "A4"
+              }
+            ],
+            "activeSheetId": "plan"
+          }
+        }
+      },
+      "wallGraphDomainVersion": 1
+    }
+  }
+}

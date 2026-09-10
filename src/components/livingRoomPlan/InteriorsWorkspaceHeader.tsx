@@ -4,6 +4,7 @@ import {
 } from "../../domain/desktopUx";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { InteriorsChromeIcon } from "./InteriorsChromeIcons";
+import { InteriorsWorkspaceFileMenu } from "./InteriorsWorkspaceFileMenu";
 
 type InteriorsWorkspaceHeaderProps = {
   projectName: string | null;
@@ -21,6 +22,8 @@ type InteriorsWorkspaceHeaderProps = {
   uiMode?: InteriorsUiMode;
   onUiMode?: (mode: InteriorsUiMode) => void;
   onProject: () => void;
+  onOpen: () => void;
+  onExport: () => void;
   onView: (view: LivingRoomWorkspaceView) => void;
   onSave: () => void;
   onUndo: () => void;
@@ -44,6 +47,8 @@ export function InteriorsWorkspaceHeader({
   uiMode = "calm",
   onUiMode,
   onProject,
+  onOpen,
+  onExport,
   onView,
   onSave,
   onUndo,
@@ -108,13 +113,21 @@ export function InteriorsWorkspaceHeader({
         </div>
       ) : null}
       {!projectHome ? (
-        <div className="lr-chrome-history">
-          <button type="button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}>
-            <InteriorsChromeIcon name="undo" />
-          </button>
-          <button type="button" aria-label="Redo" title="Redo" onClick={onRedo} disabled={!canRedo}>
-            <InteriorsChromeIcon name="redo" />
-          </button>
+        <div className="lr-chrome-edit">
+          <InteriorsWorkspaceFileMenu
+            disabled={!hasProject}
+            onOpen={onOpen}
+            onSave={onSave}
+            onExport={onExport}
+          />
+          <div className="lr-chrome-history">
+            <button type="button" aria-label="Undo" title="Undo" onClick={onUndo} disabled={!canUndo}>
+              <InteriorsChromeIcon name="undo" />
+            </button>
+            <button type="button" aria-label="Redo" title="Redo" onClick={onRedo} disabled={!canRedo}>
+              <InteriorsChromeIcon name="redo" />
+            </button>
+          </div>
         </div>
       ) : null}
       {!projectHome ? (

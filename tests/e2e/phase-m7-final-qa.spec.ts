@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 import {
   reopenViaDownloadedJson,
   renderQaStill,
@@ -15,7 +15,7 @@ const PANEL_WALL = "lr-wall-back";
 
 /** Same click path as phase-m5 (force on the SVG line — openings steal geometric midpoints). */
 async function selectWall(page: Page, wallId: string) {
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   const wall = page.locator(`line[data-wall-id="${wallId}"]`);
   await expect(wall).toHaveCount(1);
   await wall.click({ force: true });
@@ -45,7 +45,7 @@ test("Phase M7 exit journey: room → 3D → camera → hide → materials → p
   });
 
   await test.step("Apply material colour", async () => {
-    await page.getByTestId("interiors-tool-material").click();
+    await clickInteriorsTool(page, "material");
     await expect(page.getByText("Material Browser", { exact: true })).toBeVisible();
     await page.getByRole("tab", { name: "Floor", exact: true }).click();
     await page.locator(`[aria-label="Material browser"] [data-material-id="${OAK_ID}"]`).first().click();
@@ -62,7 +62,7 @@ test("Phase M7 exit journey: room → 3D → camera → hide → materials → p
   });
 
   await test.step("Place cabinet and edit width", async () => {
-    await page.getByTestId("interiors-tool-cabinet").click();
+    await clickInteriorsTool(page, "cabinet");
     await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
     await expect(page.locator("[data-object-id].is-selected").first()).toBeVisible();
     const width = page.getByRole("spinbutton", { name: "W mm" });
@@ -80,7 +80,7 @@ test("Phase M7 exit journey: room → 3D → camera → hide → materials → p
     await expect(page.locator('[data-catalog-item-id="living:decorative-panel"]')).toHaveCount(1);
     await expect(page.locator('[data-width-mm="1000"]').first()).toBeVisible();
     await expect(page.locator("[data-room-floor]").first()).toHaveAttribute("fill", WALNUT_HEX);
-    await page.getByTestId("interiors-tool-material").click();
+    await clickInteriorsTool(page, "material");
     await page.getByRole("tab", { name: "Floor", exact: true }).click();
     await expect(page.getByTestId("material-recent-4b3328")).toBeVisible();
   });

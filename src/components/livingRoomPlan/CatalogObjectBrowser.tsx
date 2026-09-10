@@ -4,6 +4,7 @@ import {
   OBJECT_BROWSER_CATEGORIES,
   type ObjectBrowserCategoryId,
 } from "../../domain/catalog";
+import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
 
 type CatalogObjectBrowserProps = {
   onPlace: (catalogItemId: string) => void;
@@ -49,32 +50,38 @@ export function CatalogObjectBrowser({ onPlace }: CatalogObjectBrowserProps) {
         </div>
       </div>
       <div className="lr-asset-grid" data-testid="catalog-object-grid">
-        {cards.map((card) => (
-          <button
-            type="button"
-            key={card.id}
-            data-testid={`catalog-object-card-${card.id}`}
-            data-catalog-item-id={card.id}
-            onClick={() => onPlace(card.id)}
-          >
-            <span className={`lr-asset-preview is-${card.category}`}>
-              {card.thumbnailUrl ? (
-                <img src={card.thumbnailUrl} alt="" loading="lazy" width={120} height={82} />
-              ) : (
-                <><i /><i /><i /></>
-              )}
-              {card.finishesEditable ? (
-                <em className="catalog-object-finish-dot" title="Finishes editable" aria-label="Finishes editable" />
-              ) : null}
-            </span>
-            <strong>{card.name}</strong>
-            <small>
-              {card.widthMm} × {card.depthMm} mm
-              {card.placement !== "floor" ? ` · ${card.placement}` : ""}
-            </small>
-            <b>Place</b>
-          </button>
-        ))}
+        {cards.map((card) => {
+          const previewLabel = catalogPreviewFallbackLabel(Boolean(card.thumbnailUrl));
+          return (
+            <button
+              type="button"
+              key={card.id}
+              data-testid={`catalog-object-card-${card.id}`}
+              data-catalog-item-id={card.id}
+              onClick={() => onPlace(card.id)}
+            >
+              <span className={`lr-asset-preview is-${card.category}`}>
+                {card.thumbnailUrl ? (
+                  <img src={card.thumbnailUrl} alt="" loading="lazy" width={120} height={82} />
+                ) : (
+                  <><i /><i /><i /></>
+                )}
+                {previewLabel ? (
+                  <em className="lr-asset-preview-fallback" data-testid="catalog-preview-unavailable">{previewLabel}</em>
+                ) : null}
+                {card.finishesEditable ? (
+                  <em className="catalog-object-finish-dot" title="Finishes editable" aria-label="Finishes editable" />
+                ) : null}
+              </span>
+              <strong>{card.name}</strong>
+              <small>
+                {card.widthMm} × {card.depthMm} mm
+                {card.placement !== "floor" ? ` · ${card.placement}` : ""}
+              </small>
+              <b>Place</b>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import type { ImportedAsset, LivingRoomCatalogItem } from "../../domain/livingRoom";
+import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
 import { AssetImportPanel } from "./AssetImportPanel";
 
 export function PlanAssetLibraryPanel(props: {
@@ -10,6 +11,7 @@ export function PlanAssetLibraryPanel(props: {
   onImport: (asset: ImportedAsset) => void;
 }) {
   const cabinets = props.mode === "cabinets";
+  const previewLabel = catalogPreviewFallbackLabel(false);
   return <>
     <div className="context-panel-heading"><strong>{cabinets ? "Millwork Design" : "Furniture Library"}</strong>
       <span>{cabinets ? `Parametric cabinet surface · attach to ${props.wallName}` : `${props.assets.length} curated v1 models`}</span></div>
@@ -26,7 +28,11 @@ export function PlanAssetLibraryPanel(props: {
     </div>
     <div className="lr-asset-grid">{props.assets.map((item) => <button type="button" key={item.id}
       onClick={() => props.onAdd(item.id, cabinets ? props.wallId : undefined)}>
-      <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span><strong>{item.name}</strong>
+      <span className={`lr-asset-preview is-${item.category}`}>
+        <i /><i /><i />
+        {previewLabel ? <em className="lr-asset-preview-fallback">{previewLabel}</em> : null}
+      </span>
+      <strong>{item.name}</strong>
       <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm{"sku" in item.parameters && typeof item.parameters.sku === "string" ? ` · ${item.parameters.sku}` : ""}</small><b>Place</b></button>)}</div>
   </>;
 }

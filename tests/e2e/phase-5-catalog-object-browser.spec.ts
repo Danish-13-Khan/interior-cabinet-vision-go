@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { openInteriorsHome } from "./plannerStart";
+import { clickInteriorsTool, openInteriorsHome } from "./plannerStart";
 
 test("Phase 5 Object Browser: categories → search → place → 3D", async ({ page }) => {
   test.setTimeout(process.env.CI ? 180_000 : 90_000);
@@ -11,7 +11,7 @@ test("Phase 5 Object Browser: categories → search → place → 3D", async ({ 
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Empty Room");
   await expect(page.locator(".lr-plan-svg [data-catalog-item-id]")).toHaveCount(0);
 
-  await page.getByTestId("interiors-tool-objects").click();
+  await clickInteriorsTool(page, "objects");
   await expect(page.getByTestId("catalog-object-browser")).toBeVisible();
   await expect(page.getByTestId("catalog-object-grid").locator("button")).toHaveCount(33);
 

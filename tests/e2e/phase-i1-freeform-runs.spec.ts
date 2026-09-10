@@ -1,10 +1,10 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function openDesignPlan(page: Page) {
   await createShellPlan(page);
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
 }
 
@@ -75,9 +75,9 @@ test("I1 creates and edits a wall-bound cabinet run with undo", async ({ page })
   await expect(runInspector.getByLabel("Extend run across wall")).toBeChecked();
 
   // V2 intentionally hides the legacy stage toolbar; history remains available in Build.
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await page.getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(runInspector.getByLabel("Extend run across wall")).not.toBeChecked();
 });
 
@@ -90,7 +90,7 @@ test("I1 reflows a cabinet run after a bound wall endpoint moves", async ({ page
   const before = await first.getAttribute("transform");
   expect(before).toBeTruthy();
 
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   // Wall geometry lines can extend beyond their stroke hit-area at browser zoom,
   // while the select-mode node handles are the supported wall-edit interaction.
   const node = page.locator("[data-node-id]").first();

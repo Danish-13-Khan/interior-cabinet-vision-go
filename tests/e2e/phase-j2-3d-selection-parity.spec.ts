@@ -1,12 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 const OAK_ID = "lr-material-natural-oak";
 
 async function openDesign(page: Page) {
   await createShellPlan(page, { localStorage: { [GUIDE_KEY]: "dismissed" } });
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
 }
 
 async function clearModelSelection(page: Page) {

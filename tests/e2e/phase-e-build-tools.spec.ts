@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function openPlan(page: Page) {
   await createShellPlan(page);
@@ -40,7 +40,7 @@ test("Phase E draws a surface zone, partition wall, and column", async ({ page }
   await expect(page.locator("[data-surface-zone-id]")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Delete surface zone" })).toBeVisible();
 
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await page.locator(".lr-room-switcher-tabs button.is-active").click();
   await expect(page.locator(".lr-architecture-inspector").getByRole("heading", { name: "Room" })).toBeVisible();
 

@@ -234,6 +234,32 @@ export {
   primaryMaterialId,
 } from "./paintSelection";
 export {
+  surfacePaintCurrentFinishLabel,
+  surfacePaintScopeLabel,
+  type SurfacePaintTarget,
+} from "./surfacePaintFeedback";
+export {
+  MATERIAL_TEXTURE_FALLBACK_EVENT,
+  reportMaterialTextureFallback,
+} from "./materialTextureFeedback";
+export {
+  catalogPreviewFallbackLabel,
+  collectModelQualityIssues,
+  MODEL_GLB_FALLBACK_EVENT,
+  modelQualityBlockingCount,
+  modelQualitySeverityClass,
+  reportModelGlbFallback,
+  type ModelQualityIssue,
+  type ModelQualityKind,
+} from "./modelQualityFeedback";
+export {
+  proposalGateFeedbackRows,
+  proposalGateJourneyHint,
+  proposalGateSeverityClass,
+  type ProposalGateFeedbackRow,
+} from "./proposalGateFeedback";
+export { modelViewClientPresentationProps } from "./modelViewClientPresentation";
+export {
   addImportedFinish,
   finishMapUrl,
   mapPayloadExceedsProjectLimit,

@@ -1,10 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function openDesignPlan(page: Page) {
   await createShellPlan(page);
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
 }
 
@@ -59,22 +59,22 @@ test("I2 enables auto fillers on a cabinet run", async ({ page }) => {
   await runInspector.getByLabel("Auto fillers (40–150 mm)").uncheck();
   await expect(page.locator(".lr-filler-symbol")).toHaveCount(0);
 
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await page.getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.locator(".lr-filler-symbol")).toHaveCount(1);
 });
 
 test("I2 places an open shelf and supports undo", async ({ page }) => {
   await openDesignPlan(page);
-  await page.getByTestId("interiors-tool-shelf").click();
+  await clickInteriorsTool(page, "shelf");
   const shelf = page.locator(".lr-asset-grid").getByRole("button", { name: /Open Shelf.*Place/ });
   await expect(shelf).toBeVisible();
   await shelf.click();
   await expect(page.locator("[data-object-id][data-cabinet-type='open-shelf']")).toHaveCount(1);
 
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await page.getByRole("button", { name: "Undo", exact: true }).click();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.locator("[data-object-id][data-cabinet-type='open-shelf']")).toHaveCount(0);
 });

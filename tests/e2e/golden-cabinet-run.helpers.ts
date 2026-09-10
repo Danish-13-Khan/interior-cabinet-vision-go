@@ -3,7 +3,7 @@ import {
   GOLDEN_RUN_OBJECT_IDS,
   GOLDEN_RUN_REVISED_FINISH_ID,
 } from "../../src/domain/livingRoom/goldenRun";
-import { E2E_SESSION_JSON, loadGoldenCabinetRun } from "./plannerStart";
+import { clickInteriorsTool, E2E_SESSION_JSON, loadGoldenCabinetRun } from "./plannerStart";
 
 export async function openGoldenCabinetRun(page: Page) {
   await page.addInitScript((session) => {
@@ -22,9 +22,11 @@ export async function selectGoldenCabinet(page: Page, objectId: string) {
   const fromInspector = page.getByTestId(`inspector-object-${objectId}`);
   if (await fromInspector.count()) {
     await fromInspector.click();
-  } else {
-    await page.locator(`[data-object-id="${objectId}"]`).first().click();
+    // Inspector works in 2D and 3D; plan `.is-selected` marks only exist on the SVG.
+    await expect(fromInspector).toHaveAttribute("aria-current", "true");
+    return;
   }
+  await page.locator(`[data-object-id="${objectId}"]`).first().click();
   await expect(page.locator(`[data-object-id="${objectId}"].is-selected`)).toBeVisible();
 }
 
@@ -38,7 +40,7 @@ export async function reviseBaseWidth(page: Page, widthMm: number) {
 }
 
 export async function changeGoldenFinish(page: Page, objectId = GOLDEN_RUN_OBJECT_IDS.baseA) {
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await selectGoldenCabinet(page, objectId);
   const finish = page.getByTestId("cabinet-finish");
   await finish.selectOption(GOLDEN_RUN_REVISED_FINISH_ID);
@@ -54,7 +56,7 @@ export async function readSellTotal(page: Page) {
 }
 
 export async function openGoldenRunModelView(page: Page) {
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
@@ -91,7 +93,7 @@ export async function saveAndReopenGoldenRun(page: Page) {
   await home.getByRole("button", { name: "Open project", exact: true }).click();
   await (await chooserPromise).setFiles(target);
   await expect(home).toBeHidden({ timeout: 15_000 });
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
   await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`)).toBeVisible();

@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function openDesignPlan(page: Page) {
   await createShellPlan(page);
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
 }
 

@@ -10,6 +10,14 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   const { body: p, activeObject } = props;
   const w = p.workspace;
   const activeSurface = p.project.surfaces.find((surface) => surface.id === p.activeSurfaceId) ?? null;
+  const emptyRoomEssentials =
+    p.workflowArea === "room" &&
+    Boolean(p.room) &&
+    !activeObject &&
+    !p.activeOpening &&
+    !p.activeWallId &&
+    !activeSurface;
+  const reviewEssentials = p.workflowArea === "review" && Boolean(p.room);
   if (
     !w.inspectorVisible ||
     p.workspaceView === "render" ||
@@ -19,7 +27,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       openingSelected: Boolean(p.activeOpening),
       wallSelected: Boolean(p.activeWallId),
       surfaceSelected: Boolean(activeSurface),
-      roomSelected: Boolean(p.inspectRoom && p.room),
+      roomSelected: Boolean(p.inspectRoom && p.room) || emptyRoomEssentials || reviewEssentials,
     })
   ) {
     return null;
@@ -27,7 +35,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   return (
     <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={w.inspectorWidthPx} project={p.project} room={p.room} drawRoom={isInteriorsDrawRoomTool(p.chromeTool)}
       cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
-      inspectRoom={p.inspectRoom} activeObject={activeObject} activeOpening={p.activeOpening} activeSurface={activeSurface}
+      workflowArea={p.workflowArea}
+      inspectRoom={p.inspectRoom || emptyRoomEssentials || reviewEssentials} activeObject={activeObject} activeOpening={p.activeOpening} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues}
       onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
