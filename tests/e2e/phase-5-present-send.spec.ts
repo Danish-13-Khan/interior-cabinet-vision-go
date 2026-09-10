@@ -1,3 +1,4 @@
+import { clickInteriorsTool } from "./plannerStart";
 import { expect, test } from "@playwright/test";
 import { GOLDEN_RUN_OBJECT_IDS, GOLDEN_RUN_REVISED_WIDTH_MM } from "../../src/domain/livingRoom/goldenRun";
 import {
@@ -21,7 +22,7 @@ test("Phase 5 Present freezes, proposes, approves, and sends", async ({ page }) 
   await expect(page.getByRole("button", { name: "Schedule CSV" })).toHaveCount(0);
 
   const before = await readSellTotal(page);
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
   await page.getByTestId("interiors-present").click();
   const afterRevise = await readSellTotal(page);

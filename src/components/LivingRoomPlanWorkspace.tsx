@@ -13,6 +13,7 @@ import { useInteriorsUiMode } from "../hooks/useInteriorsUiMode";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
 import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
+import { InteriorsWorkflowNav } from "./livingRoomPlan/InteriorsWorkflowNav";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
 import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjectsFixtures";
@@ -123,7 +124,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       chromeLocked={false}
       projectHome={props.projectHomeOpen || !props.project}
       uiMode={ui.mode} onUiMode={ui.setMode}
-      onProject={() => chrome.changePlannerMode("project")} onView={chrome.changeWorkspaceView}
+      onProject={() => chrome.changePlannerMode("project")}
+      onOpen={props.onOpenProject} onExport={props.onExportProject}
+      onView={chrome.changeWorkspaceView}
       onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
     />
   );
@@ -145,9 +148,15 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   return (
     <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
       {header}
+      <InteriorsWorkflowNav
+        area={chrome.workflowArea}
+        onArea={chrome.setWorkflowArea}
+      />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
-        workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode} studioPanel={chrome.studioPanel}
+        workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode}
+        workflowArea={chrome.workflowArea}
+        studioPanel={chrome.studioPanel}
         onStudioPanel={chrome.setStudioPanel} chromeTool={chrome.chromeTool} onChromeTool={chrome.applyChromeTool}
         assetQuery={assetQuery} assetCategory={assetCategory} assetCategories={assetCategories}
         importError={importError} onAssetQuery={setAssetQuery} onAssetCategory={setAssetCategory}
@@ -168,6 +177,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         issues={props.issues} readability={readability.settings} onReadability={readability.update}
         inspectRoom={inspectRoom} setInspectRoom={setInspectRoom}
         onWorkspaceView={chrome.changeWorkspaceView}
+        onPresent={chrome.present}
+        onReturnToReview={chrome.returnToReview}
         onRegisterViewControls={registerViewControls}
         onFitPlan={() => viewControlsRef.current?.fitPlan()}
         onFitSelection={() => viewControlsRef.current?.fitSelection()}

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 async function openStarterRoom(page: import("@playwright/test").Page) {
   await createShellPlan(page);
@@ -8,7 +8,7 @@ async function openStarterRoom(page: import("@playwright/test").Page) {
 test("Phase G keeps millwork Design and hides Advanced Studio parity chrome", async ({ page }) => {
   await openStarterRoom(page);
 
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.getByTestId("interiors-tool-cabinet")).toBeVisible();
   await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
   await expect(page.getByText("Cabinet families", { exact: true })).toBeVisible();
@@ -22,7 +22,7 @@ test("Phase G keeps millwork Design and hides Advanced Studio parity chrome", as
 test("Phase G keeps a shared canvas without Advanced panel", async ({ page }) => {
   await openStarterRoom(page);
   await expect(page.getByTestId("interiors-tool-select")).toBeVisible();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await expect(page.getByTestId("interiors-cabinet-run-catalog")).toBeVisible();
   await page.getByTestId("interiors-present").click();
   await expect(page.getByTestId("interiors-present-titlebar")).toContainText("Present and Send");

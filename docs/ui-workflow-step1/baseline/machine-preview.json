@@ -1,0 +1,2316 @@
+{
+  "schemaVersion": 1,
+  "format": "cabinet-designer-machine-json",
+  "disclaimer": "Intent / preview only — not verified CNC toolpaths or machine-ready programs.",
+  "generatedAt": "2026-09-09T00:00:00.000Z",
+  "job": {
+    "projectNumber": "JOB-001",
+    "revision": "A",
+    "customerName": "—",
+    "title": "JOB-001"
+  },
+  "summary": {
+    "partCount": 37,
+    "operationCount": 83,
+    "drillIntentCount": 9,
+    "grooveIntentCount": 25,
+    "cutIntentCount": 37,
+    "unverifiedCount": 46
+  },
+  "parts": [
+    {
+      "shopRef": "C01-P01",
+      "partId": "left-side",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 720,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P01-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 720 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 720,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C01-P01-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C01-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C01-P01-shelf-pins",
+          "kind": "drill",
+          "label": "Shelf pin holes (intent)",
+          "status": "intent",
+          "description": "Adjustable shelf pin drilling intent — hole pattern not generated",
+          "toolHint": "shelf-pin drill (not programmed)",
+          "geometry": {
+            "diameterMm": 5
+          },
+          "source": {
+            "shopRef": "C01-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P02",
+      "partId": "right-side",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 720,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P02-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 720 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 720,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C01-P02-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C01-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C01-P02-shelf-pins",
+          "kind": "drill",
+          "label": "Shelf pin holes (intent)",
+          "status": "intent",
+          "description": "Adjustable shelf pin drilling intent — hole pattern not generated",
+          "toolHint": "shelf-pin drill (not programmed)",
+          "geometry": {
+            "diameterMm": 5
+          },
+          "source": {
+            "shopRef": "C01-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P03",
+      "partId": "top",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P03-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P03",
+            "partId": "top",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C01-P03-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C01-P03",
+            "partId": "top",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P04",
+      "partId": "bottom",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P04-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C01-P04-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C01-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-base",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P05",
+      "partId": "back",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Back Panel",
+      "category": "Back",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 596,
+        "widthMm": 876,
+        "thicknessMm": 6,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P05-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 596 × 876 × 6 mm",
+          "geometry": {
+            "lengthMm": 596,
+            "widthMm": 876,
+            "depthMm": 6
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P05",
+            "partId": "back",
+            "cabinetId": "golden-base",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C01-P05-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C01-P05",
+            "partId": "back",
+            "cabinetId": "golden-base",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C01-P05-rebate-note",
+          "kind": "rebate",
+          "label": "Rebate intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router rebate (not programmed)",
+          "source": {
+            "shopRef": "C01-P05",
+            "partId": "back",
+            "cabinetId": "golden-base",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C01-P05-back-rebate",
+          "kind": "rebate",
+          "label": "Back panel rebate intent",
+          "status": "intent",
+          "description": "Back panel rebate intent (~12 mm) — depth not machine-verified",
+          "geometry": {
+            "depthMm": 12
+          },
+          "toolHint": "edge rebate (intent)",
+          "source": {
+            "shopRef": "C01-P05",
+            "partId": "back",
+            "cabinetId": "golden-base",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P06",
+      "partId": "shelf",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Adjustable Shelf",
+      "category": "Shelf",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 524,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P06-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 524 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 524,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P06",
+            "partId": "shelf",
+            "cabinetId": "golden-base",
+            "notes": "Adjustable on shelf pins; front edge setback"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P07",
+      "partId": "divider",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Vertical Divider",
+      "category": "Divider",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 584,
+        "widthMm": 252,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P07-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 584 × 252 × 18 mm",
+          "geometry": {
+            "lengthMm": 584,
+            "widthMm": 252,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P07",
+            "partId": "divider",
+            "cabinetId": "golden-base",
+            "notes": "Fixed assembly divider"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P08",
+      "partId": "door",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Door Opening",
+      "category": "Door",
+      "quantity": 2,
+      "blank": {
+        "lengthMm": 612,
+        "widthMm": 446,
+        "thicknessMm": 18,
+        "material": "MDF",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P08-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 612 × 446 × 18 mm",
+          "geometry": {
+            "lengthMm": 612,
+            "widthMm": 446,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P08",
+            "partId": "door",
+            "cabinetId": "golden-base",
+            "notes": "Overlay mount"
+          }
+        },
+        {
+          "id": "C01-P08-hinge-cups",
+          "kind": "hardware-intent",
+          "label": "Hinge cup drilling (intent)",
+          "status": "intent",
+          "description": "Door hinge cup / mounting intent — positions not generated",
+          "toolHint": "hinge boring (not programmed)",
+          "geometry": {
+            "diameterMm": 35
+          },
+          "source": {
+            "shopRef": "C01-P08",
+            "partId": "door",
+            "cabinetId": "golden-base",
+            "notes": "Overlay mount"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C01-P09",
+      "partId": "toe-kick",
+      "cabinetId": "golden-base",
+      "cabinetName": "base 900",
+      "label": "Toe Kick",
+      "category": "ToeKick",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 100,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-oak",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "none",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C01-P09-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 100 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 100,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C01-P09",
+            "partId": "toe-kick",
+            "cabinetId": "golden-base"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P01",
+      "partId": "left-side",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 720,
+        "widthMm": 350,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P01-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 720 × 350 × 18 mm",
+          "geometry": {
+            "lengthMm": 720,
+            "widthMm": 350,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P01-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Top and bottom housed in side dados",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C02-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P01-case-dado",
+          "kind": "groove",
+          "label": "Case dado intent",
+          "status": "intent",
+          "description": "Side panel case joinery: dado (no hole/path coordinates)",
+          "toolHint": "case joinery (intent)",
+          "source": {
+            "shopRef": "C02-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P01-shelf-pins",
+          "kind": "drill",
+          "label": "Shelf pin holes (intent)",
+          "status": "intent",
+          "description": "Adjustable shelf pin drilling intent — hole pattern not generated",
+          "toolHint": "shelf-pin drill (not programmed)",
+          "geometry": {
+            "diameterMm": 5
+          },
+          "source": {
+            "shopRef": "C02-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P02",
+      "partId": "right-side",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 720,
+        "widthMm": 350,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P02-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 720 × 350 × 18 mm",
+          "geometry": {
+            "lengthMm": 720,
+            "widthMm": 350,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P02-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Top and bottom housed in side dados",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C02-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P02-case-dado",
+          "kind": "groove",
+          "label": "Case dado intent",
+          "status": "intent",
+          "description": "Side panel case joinery: dado (no hole/path coordinates)",
+          "toolHint": "case joinery (intent)",
+          "source": {
+            "shopRef": "C02-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P02-shelf-pins",
+          "kind": "drill",
+          "label": "Shelf pin holes (intent)",
+          "status": "intent",
+          "description": "Adjustable shelf pin drilling intent — hole pattern not generated",
+          "toolHint": "shelf-pin drill (not programmed)",
+          "geometry": {
+            "diameterMm": 5
+          },
+          "source": {
+            "shopRef": "C02-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P03",
+      "partId": "top",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 350,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P03-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 350 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 350,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P03",
+            "partId": "top",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P03-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Top and bottom housed in side dados",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C02-P03",
+            "partId": "top",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P04",
+      "partId": "bottom",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 350,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P04-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 350 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 350,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        },
+        {
+          "id": "C02-P04-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Top and bottom housed in side dados",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C02-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-wall",
+            "notes": "Top and bottom housed in side dados"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P05",
+      "partId": "back",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Back Panel",
+      "category": "Back",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 696,
+        "widthMm": 876,
+        "thicknessMm": 6,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P05-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 696 × 876 × 6 mm",
+          "geometry": {
+            "lengthMm": 696,
+            "widthMm": 876,
+            "depthMm": 6
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P05",
+            "partId": "back",
+            "cabinetId": "golden-wall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C02-P05-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C02-P05",
+            "partId": "back",
+            "cabinetId": "golden-wall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C02-P05-rebate-note",
+          "kind": "rebate",
+          "label": "Rebate intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router rebate (not programmed)",
+          "source": {
+            "shopRef": "C02-P05",
+            "partId": "back",
+            "cabinetId": "golden-wall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C02-P05-back-rebate",
+          "kind": "rebate",
+          "label": "Back panel rebate intent",
+          "status": "intent",
+          "description": "Back panel rebate intent (~12 mm) — depth not machine-verified",
+          "geometry": {
+            "depthMm": 12
+          },
+          "toolHint": "edge rebate (intent)",
+          "source": {
+            "shopRef": "C02-P05",
+            "partId": "back",
+            "cabinetId": "golden-wall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P06",
+      "partId": "shelf",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Adjustable Shelf",
+      "category": "Shelf",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 314,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P06-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 314 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 314,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P06",
+            "partId": "shelf",
+            "cabinetId": "golden-wall",
+            "notes": "Adjustable on shelf pins; front edge setback"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P07",
+      "partId": "divider",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Vertical Divider",
+      "category": "Divider",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 684,
+        "widthMm": 158,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P07-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 684 × 158 × 18 mm",
+          "geometry": {
+            "lengthMm": 684,
+            "widthMm": 158,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P07",
+            "partId": "divider",
+            "cabinetId": "golden-wall",
+            "notes": "Fixed assembly divider"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C02-P08",
+      "partId": "door",
+      "cabinetId": "golden-wall",
+      "cabinetName": "wall 900",
+      "label": "Door Opening",
+      "category": "Door",
+      "quantity": 2,
+      "blank": {
+        "lengthMm": 712,
+        "widthMm": 446,
+        "thicknessMm": 18,
+        "material": "MDF",
+        "finish": "white-matte",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C02-P08-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 712 × 446 × 18 mm",
+          "geometry": {
+            "lengthMm": 712,
+            "widthMm": 446,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C02-P08",
+            "partId": "door",
+            "cabinetId": "golden-wall",
+            "notes": "Overlay mount"
+          }
+        },
+        {
+          "id": "C02-P08-hinge-cups",
+          "kind": "hardware-intent",
+          "label": "Hinge cup drilling (intent)",
+          "status": "intent",
+          "description": "Door hinge cup / mounting intent — positions not generated",
+          "toolHint": "hinge boring (not programmed)",
+          "geometry": {
+            "diameterMm": 35
+          },
+          "source": {
+            "shopRef": "C02-P08",
+            "partId": "door",
+            "cabinetId": "golden-wall",
+            "notes": "Overlay mount"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P01",
+      "partId": "left-side",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 2100,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P01-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 2100 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 2100,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C03-P01-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C03-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C03-P01-shelf-pins",
+          "kind": "drill",
+          "label": "Shelf pin holes (intent)",
+          "status": "intent",
+          "description": "Adjustable shelf pin drilling intent — hole pattern not generated",
+          "toolHint": "shelf-pin drill (not programmed)",
+          "geometry": {
+            "diameterMm": 5
+          },
+          "source": {
+            "shopRef": "C03-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P02",
+      "partId": "right-side",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 2100,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P02-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 2100 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 2100,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C03-P02-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C03-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C03-P02-shelf-pins",
+          "kind": "drill",
+          "label": "Shelf pin holes (intent)",
+          "status": "intent",
+          "description": "Adjustable shelf pin drilling intent — hole pattern not generated",
+          "toolHint": "shelf-pin drill (not programmed)",
+          "geometry": {
+            "diameterMm": 5
+          },
+          "source": {
+            "shopRef": "C03-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P03",
+      "partId": "top",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 564,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P03-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 564 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 564,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P03",
+            "partId": "top",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C03-P03-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C03-P03",
+            "partId": "top",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P04",
+      "partId": "bottom",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 564,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P04-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 564 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 564,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C03-P04-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C03-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-tall",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P05",
+      "partId": "back",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Back Panel",
+      "category": "Back",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 1976,
+        "widthMm": 576,
+        "thicknessMm": 6,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P05-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 1976 × 576 × 6 mm",
+          "geometry": {
+            "lengthMm": 1976,
+            "widthMm": 576,
+            "depthMm": 6
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P05",
+            "partId": "back",
+            "cabinetId": "golden-tall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C03-P05-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C03-P05",
+            "partId": "back",
+            "cabinetId": "golden-tall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C03-P05-rebate-note",
+          "kind": "rebate",
+          "label": "Rebate intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router rebate (not programmed)",
+          "source": {
+            "shopRef": "C03-P05",
+            "partId": "back",
+            "cabinetId": "golden-tall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C03-P05-back-rebate",
+          "kind": "rebate",
+          "label": "Back panel rebate intent",
+          "status": "intent",
+          "description": "Back panel rebate intent (~12 mm) — depth not machine-verified",
+          "geometry": {
+            "depthMm": 12
+          },
+          "toolHint": "edge rebate (intent)",
+          "source": {
+            "shopRef": "C03-P05",
+            "partId": "back",
+            "cabinetId": "golden-tall",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P06",
+      "partId": "shelf",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Adjustable Shelf",
+      "category": "Shelf",
+      "quantity": 4,
+      "blank": {
+        "lengthMm": 564,
+        "widthMm": 524,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P06-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 564 × 524 × 18 mm",
+          "geometry": {
+            "lengthMm": 564,
+            "widthMm": 524,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P06",
+            "partId": "shelf",
+            "cabinetId": "golden-tall",
+            "notes": "Adjustable on shelf pins; front edge setback"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P07",
+      "partId": "door",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Pantry Opening",
+      "category": "Door",
+      "quantity": 2,
+      "blank": {
+        "lengthMm": 1992,
+        "widthMm": 296,
+        "thicknessMm": 18,
+        "material": "MDF",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P07-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 1992 × 296 × 18 mm",
+          "geometry": {
+            "lengthMm": 1992,
+            "widthMm": 296,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P07",
+            "partId": "door",
+            "cabinetId": "golden-tall",
+            "notes": "Overlay mount"
+          }
+        },
+        {
+          "id": "C03-P07-hinge-cups",
+          "kind": "hardware-intent",
+          "label": "Hinge cup drilling (intent)",
+          "status": "intent",
+          "description": "Door hinge cup / mounting intent — positions not generated",
+          "toolHint": "hinge boring (not programmed)",
+          "geometry": {
+            "diameterMm": 35
+          },
+          "source": {
+            "shopRef": "C03-P07",
+            "partId": "door",
+            "cabinetId": "golden-tall",
+            "notes": "Overlay mount"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P08",
+      "partId": "left-end-panel",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Left End Panel",
+      "category": "EndPanel",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 2100,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P08-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 2100 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 2100,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P08",
+            "partId": "left-end-panel",
+            "cabinetId": "golden-tall"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P09",
+      "partId": "right-end-panel",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Right End Panel",
+      "category": "EndPanel",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 2100,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P09-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 2100 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 2100,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P09",
+            "partId": "right-end-panel",
+            "cabinetId": "golden-tall"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C03-P10",
+      "partId": "toe-kick",
+      "cabinetId": "golden-tall",
+      "cabinetName": "tall 600",
+      "label": "Toe Kick",
+      "category": "ToeKick",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 564,
+        "widthMm": 100,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "wood-walnut",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "none",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C03-P10-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 564 × 100 × 18 mm",
+          "geometry": {
+            "lengthMm": 564,
+            "widthMm": 100,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C03-P10",
+            "partId": "toe-kick",
+            "cabinetId": "golden-tall"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P01",
+      "partId": "left-side",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 720,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "grey",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P01-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 720 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 720,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C04-P01-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C04-P01",
+            "partId": "left-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P02",
+      "partId": "right-side",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 720,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "grey",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P02-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 720 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 720,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C04-P02-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C04-P02",
+            "partId": "right-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P03",
+      "partId": "top",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "grey",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P03-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P03",
+            "partId": "top",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C04-P03-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C04-P03",
+            "partId": "top",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P04",
+      "partId": "bottom",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 560,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "grey",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P04-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 560 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 560,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        },
+        {
+          "id": "C04-P04-joinery-note",
+          "kind": "joinery-note",
+          "label": "Joinery intent",
+          "status": "intent",
+          "description": "Butt joint with confirmat/screw fixings",
+          "source": {
+            "shopRef": "C04-P04",
+            "partId": "bottom",
+            "cabinetId": "golden-drawer",
+            "notes": "Butt joint with confirmat/screw fixings"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P05",
+      "partId": "back",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Back Panel",
+      "category": "Back",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 596,
+        "widthMm": 876,
+        "thicknessMm": 6,
+        "material": "PLY",
+        "finish": "grey",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "outside",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P05-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 596 × 876 × 6 mm",
+          "geometry": {
+            "lengthMm": 596,
+            "widthMm": 876,
+            "depthMm": 6
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P05",
+            "partId": "back",
+            "cabinetId": "golden-drawer",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C04-P05-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C04-P05",
+            "partId": "back",
+            "cabinetId": "golden-drawer",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C04-P05-rebate-note",
+          "kind": "rebate",
+          "label": "Rebate intent",
+          "status": "intent",
+          "description": "Grooved into side panels (12mm rebate)",
+          "toolHint": "router rebate (not programmed)",
+          "source": {
+            "shopRef": "C04-P05",
+            "partId": "back",
+            "cabinetId": "golden-drawer",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        },
+        {
+          "id": "C04-P05-back-rebate",
+          "kind": "rebate",
+          "label": "Back panel rebate intent",
+          "status": "intent",
+          "description": "Back panel rebate intent (~12 mm) — depth not machine-verified",
+          "geometry": {
+            "depthMm": 12
+          },
+          "toolHint": "edge rebate (intent)",
+          "source": {
+            "shopRef": "C04-P05",
+            "partId": "back",
+            "cabinetId": "golden-drawer",
+            "notes": "Grooved into side panels (12mm rebate)"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P06",
+      "partId": "drawer-front",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Drawer Stack Front",
+      "category": "DrawerFront",
+      "quantity": 3,
+      "blank": {
+        "lengthMm": 189,
+        "widthMm": 860,
+        "thicknessMm": 18,
+        "material": "MDF",
+        "finish": "grey",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P06-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 189 × 860 × 18 mm",
+          "geometry": {
+            "lengthMm": 189,
+            "widthMm": 860,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P06",
+            "partId": "drawer-front",
+            "cabinetId": "golden-drawer",
+            "notes": "Overlay front"
+          }
+        },
+        {
+          "id": "C04-P06-drawer-groove",
+          "kind": "groove",
+          "label": "Drawer bottom groove intent",
+          "status": "intent",
+          "description": "Drawer bottom housed in grooves — path not generated",
+          "toolHint": "drawer groove (intent)",
+          "source": {
+            "shopRef": "C04-P06",
+            "partId": "drawer-front",
+            "cabinetId": "golden-drawer",
+            "notes": "Overlay front"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P07",
+      "partId": "drawer-side",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Drawer Side",
+      "category": "DrawerBox",
+      "quantity": 6,
+      "blank": {
+        "lengthMm": 534,
+        "widthMm": 140,
+        "thicknessMm": 12,
+        "material": "PLY",
+        "finish": "laminate",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P07-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 534 × 140 × 12 mm",
+          "geometry": {
+            "lengthMm": 534,
+            "widthMm": 140,
+            "depthMm": 12
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P07",
+            "partId": "drawer-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Drawer bottom housed in side grooves"
+          }
+        },
+        {
+          "id": "C04-P07-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Drawer bottom housed in side grooves",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C04-P07",
+            "partId": "drawer-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Drawer bottom housed in side grooves"
+          }
+        },
+        {
+          "id": "C04-P07-drawer-groove",
+          "kind": "groove",
+          "label": "Drawer bottom groove intent",
+          "status": "intent",
+          "description": "Drawer bottom housed in grooves — path not generated",
+          "toolHint": "drawer groove (intent)",
+          "source": {
+            "shopRef": "C04-P07",
+            "partId": "drawer-side",
+            "cabinetId": "golden-drawer",
+            "notes": "Drawer bottom housed in side grooves"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P08",
+      "partId": "drawer-front-back",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Drawer Front/Back",
+      "category": "DrawerBox",
+      "quantity": 6,
+      "blank": {
+        "lengthMm": 838,
+        "widthMm": 140,
+        "thicknessMm": 12,
+        "material": "PLY",
+        "finish": "laminate",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "length",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P08-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 838 × 140 × 12 mm",
+          "geometry": {
+            "lengthMm": 838,
+            "widthMm": 140,
+            "depthMm": 12
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P08",
+            "partId": "drawer-front-back",
+            "cabinetId": "golden-drawer",
+            "notes": "Drawer bottom housed in side grooves"
+          }
+        },
+        {
+          "id": "C04-P08-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Drawer bottom housed in side grooves",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C04-P08",
+            "partId": "drawer-front-back",
+            "cabinetId": "golden-drawer",
+            "notes": "Drawer bottom housed in side grooves"
+          }
+        },
+        {
+          "id": "C04-P08-drawer-groove",
+          "kind": "groove",
+          "label": "Drawer bottom groove intent",
+          "status": "intent",
+          "description": "Drawer bottom housed in grooves — path not generated",
+          "toolHint": "drawer groove (intent)",
+          "source": {
+            "shopRef": "C04-P08",
+            "partId": "drawer-front-back",
+            "cabinetId": "golden-drawer",
+            "notes": "Drawer bottom housed in side grooves"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P09",
+      "partId": "drawer-bottom",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Drawer Bottom",
+      "category": "DrawerBox",
+      "quantity": 3,
+      "blank": {
+        "lengthMm": 850,
+        "widthMm": 546,
+        "thicknessMm": 6,
+        "material": "PLY",
+        "finish": "laminate",
+        "edgeBanding": "none"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "none",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P09-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 850 × 546 × 6 mm",
+          "geometry": {
+            "lengthMm": 850,
+            "widthMm": 546,
+            "depthMm": 6
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P09",
+            "partId": "drawer-bottom",
+            "cabinetId": "golden-drawer",
+            "notes": "Bottom housed in side grooves"
+          }
+        },
+        {
+          "id": "C04-P09-groove-note",
+          "kind": "groove",
+          "label": "Groove / dado intent",
+          "status": "intent",
+          "description": "Bottom housed in side grooves",
+          "toolHint": "router / CNC groove (not programmed)",
+          "source": {
+            "shopRef": "C04-P09",
+            "partId": "drawer-bottom",
+            "cabinetId": "golden-drawer",
+            "notes": "Bottom housed in side grooves"
+          }
+        },
+        {
+          "id": "C04-P09-drawer-groove",
+          "kind": "groove",
+          "label": "Drawer bottom groove intent",
+          "status": "intent",
+          "description": "Drawer bottom housed in grooves — path not generated",
+          "toolHint": "drawer groove (intent)",
+          "source": {
+            "shopRef": "C04-P09",
+            "partId": "drawer-bottom",
+            "cabinetId": "golden-drawer",
+            "notes": "Bottom housed in side grooves"
+          }
+        }
+      ]
+    },
+    {
+      "shopRef": "C04-P10",
+      "partId": "toe-kick",
+      "cabinetId": "golden-drawer",
+      "cabinetName": "drawer 900",
+      "label": "Toe Kick",
+      "category": "ToeKick",
+      "quantity": 1,
+      "blank": {
+        "lengthMm": 864,
+        "widthMm": 100,
+        "thicknessMm": 18,
+        "material": "PLY",
+        "finish": "grey",
+        "edgeBanding": "abs-1mm"
+      },
+      "orientation": {
+        "faceUp": "either",
+        "grainAlong": "none",
+        "originCorner": "bottom-left",
+        "rotationDeg": 0
+      },
+      "operations": [
+        {
+          "id": "C04-P10-cut",
+          "kind": "cut-outline",
+          "label": "Cut blank",
+          "status": "preview",
+          "description": "Rectangular blank 864 × 100 × 18 mm",
+          "geometry": {
+            "lengthMm": 864,
+            "widthMm": 100,
+            "depthMm": 18
+          },
+          "toolHint": "panel-saw / nested cut (intent)",
+          "source": {
+            "shopRef": "C04-P10",
+            "partId": "toe-kick",
+            "cabinetId": "golden-drawer"
+          }
+        }
+      ]
+    }
+  ]
+}

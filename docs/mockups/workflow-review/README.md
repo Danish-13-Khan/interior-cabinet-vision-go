@@ -1,12 +1,25 @@
 # Workflow visual review
 
-Status: proposed UI reference, not an implemented application. Review with the
-[full specification](../../UI_WORKFLOW_REDESIGN.md) before building.
+**QUARANTINE — layout-only concept.** Do not drive shell CSS, tool placement, or
+inspector work from these screenshots or the interactive concept. The live app
+on `codex/feat/ui-workflow-redesign` (steps 1–8) is the implementation source of
+truth. Remaining design work is listed in
+[ui-workflow-FOLLOW_UPS.md](../../ui-workflow-FOLLOW_UPS.md).
 
-[Open the interactive concept](index.html). This local standalone copy preserves
-the sandboxed iframe and CSP from the visualization renderer. Its outer frame
-is taller for local review. It has not been published. Open it in a browser;
-Markdown renderers may only show its source.
+Status: proposed UI **layout** reference only, not an implemented application.
+Review with the [full specification](../../UI_WORKFLOW_REDESIGN.md) before any
+new chrome work.
+
+The design direction is accepted, with revisions recorded in the specification.
+These screenshots and the interactive concept have **not** been updated to show
+unnumbered navigation, the complete header, the full 2D Room toolset, or the
+contextual Room inspector. They still show numbered-wizard-era chrome.
+
+[Open the interactive concept](index.html) — read the on-page quarantine banner
+first. This local standalone copy preserves the sandboxed iframe and CSP from
+the visualization renderer. Its outer frame is taller for local review. It has
+not been published. Open it in a browser; Markdown renderers may only show its
+source.
 
 ## What to review
 
@@ -83,14 +96,48 @@ stacks. Both reference widths were checked for root horizontal overflow:
 
 ## Review checklist before implementation
 
-- [ ] Agree on the shared header and five freely accessible navigation areas.
-- [ ] Agree on library card height, preview/name/dimension layout and filtering.
-- [ ] Agree on inspector essentials and advanced-section grouping.
-- [ ] Agree on independent panel scrolling and narrow-screen panel access.
+- [x] Keep five freely accessible areas; remove numbering in the next reference.
+- [x] Require File, Save status, Undo and Redo in the first shared-shell build.
+- [x] Keep content-driven cards, wrapping names and separate dimension labels.
+- [x] Keep selection-specific essentials and expandable advanced settings.
+- [x] Keep independent panel scrolling; narrow stacking is a fallback, not mobile CAD.
+- [ ] Update and review the first-class 2D Room reference before step 3: drawing,
+  measurement, pan/zoom, snap, underlay/PDF, room management, runs and plan export.
 - [ ] Detail room, run, opening and empty-selection inspectors.
-- [ ] Detail quotation, freeze, approval, save/recovery and export dialogs.
-- [ ] Map every existing action/shortcut to its new entry point.
-- [ ] Confirm renderer/geometry work has separate acceptance criteria from UI.
+- [ ] Detail quotation, freeze, approval, save/recovery and export dialogs
+  (design pass; Step 7 landed gate/journey UI only — see
+  [Step 7 evidence](../../ui-workflow-step7/README.md)).
+- [x] Complete Step 1 source inventory, proposed destinations and output baselines.
+- [x] Complete Step 2 control contrast/overflow CSS in the existing layout
+  (Calm/Compact states; handlers unchanged). See
+  [Step 2 evidence](../../ui-workflow-step2/README.md).
+- [x] Complete Step 3 shared shell: unnumbered free nav, File menu, inspector
+  expansion and independent panel scroll. See
+  [Step 3 evidence](../../ui-workflow-step3/README.md). Tool relocation is step 4.
+- [x] Verify each replacement entry point at runtime as controls move; retain
+  existing entry points until replacements are verified. See
+  [Step 8 entry points](../../ui-workflow-step8/ENTRY_POINTS.md).
+- [x] Update client Present to remove editing chrome and selection marks.
+  See [Step 7 evidence](../../ui-workflow-step7/README.md).
+- [x] Keep renderer/geometry acceptance separate from UI layout checks.
+
+- [x] Complete Step 4 area tool/library relocation (handlers unchanged). See
+  [Step 4 evidence](../../ui-workflow-step4/README.md).
+- [x] Complete Step 5 camera framing, cutaway clarification, and material
+  feedback. See [Step 5 evidence](../../ui-workflow-step5/README.md).
+- [x] Complete Step 6 model adapters / assembly / material quality feedback
+  (gates and compile math unchanged). See
+  [Step 6 evidence](../../ui-workflow-step6/README.md).
+- [x] Complete Step 7 Review/Present/engineering journey with existing gates
+  and client Present chrome strip. See
+  [Step 7 evidence](../../ui-workflow-step7/README.md).
+- [x] Complete Step 8 starters / save-reopen / area entry-point verification.
+  See [Step 8 evidence](../../ui-workflow-step8/README.md).
+
+UI workflow redesign build sequence (steps 1–8) is complete. Remaining parallel
+work is tracked in [ui-workflow-FOLLOW_UPS.md](../../ui-workflow-FOLLOW_UPS.md):
+2D Room reference update, commercial dialog design pass, dual-chrome /
+Report Center / shortcut tracks.
 
 ## Validation performed in this documentation pass
 

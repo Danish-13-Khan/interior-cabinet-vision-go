@@ -13,6 +13,7 @@ import type {
   RenderBinding,
   RenderMode,
 } from "../../domain/livingRoom/renderAssetContracts";
+import { reportModelGlbFallback } from "../../domain/livingRoom/modelQualityFeedback";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
 import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
@@ -174,7 +175,7 @@ export function AssetBackedObject({
   );
 
   return (
-    <GlbLoadErrorBoundary fallback={fallback}>
+    <GlbLoadErrorBoundary fallback={fallback} onError={reportModelGlbFallback}>
       <Suspense fallback={fallback}>
         <GlbSceneContent
           url={url}

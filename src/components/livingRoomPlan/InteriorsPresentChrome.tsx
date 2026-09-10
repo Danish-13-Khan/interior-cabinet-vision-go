@@ -6,17 +6,14 @@ import { InteriorsPresentTray } from "./InteriorsPresentTray";
 export function InteriorsPresentChrome({
   readability,
   commands,
-  onReadability,
 }: {
   readability: PlanReadabilitySettings;
   commands: InteriorsPresentCommands;
-  onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
+  onReadability?: (patch: Partial<PlanReadabilitySettings>) => void;
 }) {
   return (
     <>
-      <InteriorsPresentTitlebar
-        step={commands.step} readability={readability} onReadability={onReadability}
-      />
+      <InteriorsPresentTitlebar step={commands.step} unit={readability.unit} />
       <InteriorsPresentTray step={commands.step} />
     </>
   );

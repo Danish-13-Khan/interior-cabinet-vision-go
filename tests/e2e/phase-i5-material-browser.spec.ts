@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 const OAK_ID = "lr-material-natural-oak";
 const WALNUT_ID = "lr-material-walnut";
@@ -7,7 +7,7 @@ const WALNUT_ID = "lr-material-walnut";
 async function openDesignPlan(page: Page) {
   await createShellPlan(page);
   await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
 }
 
 async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
@@ -50,7 +50,7 @@ async function placeTwoSeparatedCabinets(page: Page) {
 
 test("I5 paints shared finishes, undoes paint, and edits opening materials", async ({ page }) => {
   await openDesignPlan(page);
-  await page.getByTestId("interiors-tool-material").click();
+  await clickInteriorsTool(page, "material");
   await expect(page.getByText("Material Browser", { exact: true })).toBeVisible();
 
   const oak = page.locator(`[aria-label="Material browser"] [data-material-id="${OAK_ID}"]`).first();
@@ -58,7 +58,7 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await oak.click();
   await expect(oak).toHaveClass(/is-active/);
 
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   const { baseId, wallId } = await placeTwoSeparatedCabinets(page);
 
   const base = page.locator(`[data-object-id="${baseId}"]`);
@@ -67,11 +67,12 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await expect(base).toHaveAttribute("data-material-id", OAK_ID);
   const originalFront = await base.getAttribute("data-material-id");
 
-  await base.click();
-  await wall.click({ modifiers: ["Shift"] });
-  await expect(page.locator(".lr-plan-object.is-selected")).toHaveCount(2);
+  // Prefer inspector list over SVG hits — same approach as golden/roadmap specs.
+  await page.getByTestId(`inspector-object-${baseId}`).click();
+  await page.getByTestId(`inspector-object-${wallId}`).click({ modifiers: ["Shift"] });
+  await expect(page.locator(".lr-plan-svg [data-object-id].is-selected")).toHaveCount(2);
 
-  await page.getByTestId("interiors-tool-material").click();
+  await clickInteriorsTool(page, "material");
   await page.getByRole("tab", { name: /Selection/ }).click();
   await page.getByLabel("Selection material slot").selectOption("fronts");
   await page.locator(`.lr-surface-painter [data-material-id="${WALNUT_ID}"]`).click();
@@ -83,7 +84,7 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await expect(base).toHaveAttribute("data-material-id", originalFront!);
   await expect(wall).toHaveAttribute("data-material-id", originalFront!);
 
-  await page.getByTestId("interiors-tool-select").click();
+  await clickInteriorsTool(page, "select");
   const openingLine = page.locator("g[data-opening-id]").first().locator("line").first();
   const openingBox = await openingLine.boundingBox();
   if (!openingBox) throw new Error("Opening is not rendered");

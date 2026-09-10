@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { createBlankPlan, pointOnPaper } from "./plannerStart";
+import { clickInteriorsTool, createBlankPlan, pointOnPaper } from "./plannerStart";
 
 test("D4 closes a freeform room into a measured 2D floor that remains available in 3D", async ({ page }) => {
   await createBlankPlan(page);
-  await page.getByTestId("interiors-tool-room").click();
+  await clickInteriorsTool(page, "room");
 
   const paper = page.getByRole("application", { name: "Living room plan editor" });
   const points: Array<[number, number]> = [

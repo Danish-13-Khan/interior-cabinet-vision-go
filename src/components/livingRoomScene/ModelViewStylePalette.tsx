@@ -17,6 +17,9 @@ export function ModelViewStylePalette({
         <span>STYLE</span>
         <strong>{activeStyleName}</strong>
       </header>
+      <p data-testid="style-preset-scope">
+        Applies room style materials across this project. Undo restores the previous finishes.
+      </p>
       <div>
         {LIVING_ROOM_STYLE_PRESETS.map((style) => (
           <button
@@ -24,7 +27,8 @@ export function ModelViewStylePalette({
             key={style.id}
             className={style.id === activeStyleId ? "is-active" : ""}
             onClick={() => onApplyStyle(style.id)}
-            aria-label={`Apply ${style.name}`}
+            aria-label={`Apply ${style.name} room style`}
+            title={`Apply ${style.name} to room materials (undoable)`}
           >
             <span className="lr-style-swatches">
               {style.swatches.map((color) => <i key={color} style={{ backgroundColor: color }} />)}

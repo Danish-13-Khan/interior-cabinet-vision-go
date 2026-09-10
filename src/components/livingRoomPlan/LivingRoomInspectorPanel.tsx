@@ -68,6 +68,7 @@ type LivingRoomInspectorPanelProps = {
   drawRoom?: boolean;
   cabinetRun?: boolean;
   inspectRoom?: boolean;
+  workflowArea?: import("../../domain/desktopUx").InteriorsWorkflowArea;
   activeSurface?: InteriorProject["surfaces"][number] | null;
   onDeleteOpening?: (openingId: string) => void;
   onUpdateSurface?: (surfaceId: string, materialId: string) => void;
@@ -145,7 +146,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes}
             onAddWallPanel={props.onAddWallPanel} />
         ) : null}
-        {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun ? (
+        {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun && props.workflowArea !== "review" ? (
           <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />
         ) : null}
       </div>

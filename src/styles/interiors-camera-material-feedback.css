@@ -1,0 +1,160 @@
+/* Step 5 — compact 3D framing toolbar, view settings popover, material feedback. */
+
+.lr-model-advanced {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.lr-model-advanced-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  display: grid;
+  gap: 8px;
+  min-width: min(320px, 70vw);
+  max-width: min(360px, 85vw);
+  padding: 10px;
+  border: 1px solid var(--iu-line-strong, #c7d2ca);
+  border-radius: 10px;
+  background: var(--iu-panel, #fff);
+  box-shadow: var(--iu-shadow, 0 12px 28px rgb(30 51 39 / 14%));
+  color: var(--iu-ink, #1c2822);
+}
+
+.lr-model-advanced-panel label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--iu-muted, #66736b);
+  font-size: 0.62rem;
+}
+
+.lr-model-advanced-panel select,
+.lr-model-advanced-panel input[type="range"] {
+  min-width: 0;
+}
+
+.lr-model-advanced-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lr-model-advanced-hint {
+  margin: 0;
+  color: var(--iu-muted, #66736b);
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.lr-paint-apply-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--iu-line, #dfe6e1);
+  border-radius: 8px;
+  background: var(--iu-panel-2, #f8faf8);
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.lr-paint-apply-summary strong {
+  color: var(--iu-muted, #66736b);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lr-paint-apply-summary span {
+  min-width: 0;
+  color: var(--iu-ink, #1c2822);
+  overflow-wrap: anywhere;
+}
+
+.lr-texture-fallback-banner {
+  position: absolute;
+  z-index: 28;
+  top: 48px;
+  left: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: min(420px, calc(100% - 14px));
+  padding: 8px 10px;
+  border: 1px solid var(--iu-amber, #9b611b);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--iu-panel, #fff) 92%, #fff4df);
+  color: var(--iu-ink, #1c2822);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.lr-texture-fallback-banner p {
+  margin: 0;
+  flex: 1 1 180px;
+}
+
+.lr-style-palette > p[data-testid="style-preset-scope"] {
+  margin: 0;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--iu-line, #aab6be);
+  color: var(--iu-muted, #5b6871);
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.lr-model-glb-fallback-banner {
+  top: 92px;
+}
+
+.lr-model-quality-panel .lr-model-quality-gate {
+  margin: 0 0 8px;
+  color: var(--iu-amber, #9b611b);
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+.lr-model-quality-panel button span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.lr-model-quality-panel button small {
+  color: var(--iu-muted, #5b6871);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.lr-model-quality-panel button.is-info {
+  border-color: var(--iu-line, #aab6be);
+  color: #3d4a52;
+}
+
+.lr-model-quality-panel button.is-info b {
+  color: #4d6a7c;
+}
+
+.lr-asset-preview-fallback {
+  position: absolute;
+  z-index: 2;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  margin: 0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--iu-panel, #fff) 88%, #1c2822);
+  color: var(--iu-ink, #1c2822);
+  font-size: 0.52rem;
+  font-style: normal;
+  line-height: 1.2;
+  text-align: center;
+}

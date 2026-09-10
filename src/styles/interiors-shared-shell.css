@@ -1,0 +1,185 @@
+/* Step 3 shared shell: workflow nav, File menu, inspector expand, panel scroll. */
+
+.lr-workflow-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--iu-line, #dfe6e1);
+  background: var(--iu-panel, #fff);
+}
+
+.lr-workflow-nav button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--iu-control-muted, var(--iu-muted, #66736b));
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lr-workflow-nav button:hover:not(:disabled) {
+  background: var(--iu-control-hover-bg, var(--iu-green-soft, #e8f3ec));
+  color: var(--iu-control-active-ink, var(--iu-green, #1f6f4a));
+}
+
+.lr-workflow-nav button.is-active {
+  border-color: var(--iu-control-active-border, var(--iu-green, #1f6f4a));
+  background: var(--iu-control-active-bg, var(--iu-green-soft, #e8f3ec));
+  color: var(--iu-control-active-ink, var(--iu-green, #1f6f4a));
+}
+
+.lr-workflow-nav button:focus-visible {
+  outline: 2px solid var(--iu-control-focus, var(--iu-green, #1f6f4a));
+  outline-offset: 2px;
+}
+
+.lr-chrome-file {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.lr-chrome-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lr-chrome-file > button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--iu-line, #dfe6e1);
+  border-radius: 8px;
+  background: var(--iu-panel, #fff);
+  color: var(--iu-ink, #1c2822);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.lr-chrome-file-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 168px;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--iu-line, #dfe6e1);
+  border-radius: 10px;
+  background: var(--iu-panel, #fff);
+  box-shadow: var(--iu-shadow, 0 12px 28px rgb(30 51 39 / 14%));
+}
+
+.lr-chrome-file-menu button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--iu-ink, #1c2822);
+  text-align: left;
+  font-size: 0.76rem;
+}
+
+.lr-chrome-file-menu button:hover {
+  background: var(--iu-green-soft, #e8f3ec);
+  color: var(--iu-green, #1f6f4a);
+}
+
+.lr-inspector-section {
+  margin-top: 8px;
+  border: 1px solid var(--iu-line, #dfe6e1);
+  border-radius: 8px;
+  background: var(--iu-panel-2, #f8faf8);
+}
+
+.lr-inspector-section > summary {
+  min-height: 34px;
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--iu-ink, #1c2822);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  list-style: none;
+}
+
+.lr-inspector-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lr-inspector-section > summary:focus-visible {
+  outline: 2px solid var(--iu-control-focus, var(--iu-green, #1f6f4a));
+  outline-offset: 2px;
+}
+
+.lr-inspector-section-body {
+  display: grid;
+  gap: 6px;
+  padding: 0 10px 10px;
+  min-width: 0;
+}
+
+/* Independent panel scroll: catalog + inspector grow in flex; canvas stays flexible. */
+.lr-plan-shell.lr-product-shell-v2 .lr-workspace-body {
+  min-height: 0;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog.lr-studio-panel,
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-plan-center {
+  min-width: 0;
+  min-height: 0;
+}
+
+.interiors-review-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.interiors-review-panel .lr-issues-panel {
+  margin: 0;
+}
+
+.interiors-review-panel .proposal-review {
+  margin: 0;
+}
+
+.interiors-review-panel > button.is-primary {
+  align-self: stretch;
+}
+
+@media (max-width: 900px) {
+  .lr-workflow-nav {
+    padding-inline: 10px;
+  }
+
+  .lr-workflow-nav button {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}

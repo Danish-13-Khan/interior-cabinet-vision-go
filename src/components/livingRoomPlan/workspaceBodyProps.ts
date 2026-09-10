@@ -1,4 +1,4 @@
-import type { InteriorsChromeTool } from "../../domain/desktopUx";
+import type { InteriorsChromeTool, InteriorsWorkflowArea } from "../../domain/desktopUx";
 import type { InteriorProject, InteriorRoomEntity, OpeningEntity } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { BuildTool, LivingRoomPlanIssue, LivingRoomRenderResult, PlanReadabilitySettings } from "../../domain/livingRoom";
@@ -23,6 +23,7 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   underlay: LivingRoomPlanUnderlay | null;
   workspaceView: LivingRoomWorkspaceView;
   plannerMode: PlannerMode;
+  workflowArea: InteriorsWorkflowArea;
   studioPanel: StudioPanel;
   onStudioPanel: (panel: StudioPanel) => void;
   chromeTool: InteriorsChromeTool;
@@ -67,6 +68,8 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   inspectRoom: boolean;
   setInspectRoom: React.Dispatch<React.SetStateAction<boolean>>;
   onWorkspaceView: (view: LivingRoomWorkspaceView) => void;
+  onPresent: () => void;
+  onReturnToReview: () => void;
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void } | null) => void;
   onFitPlan?: () => void;
   onFitSelection?: () => void;

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
 
 const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 
@@ -7,7 +7,7 @@ test("Phase M1 exposes primary cameras, isometric framing, Fit, Focus, and focus
   test.setTimeout(60_000);
   await createShellPlan(page, { localStorage: { [GUIDE_KEY]: "dismissed" } });
 
-  await page.getByTestId("interiors-tool-cabinet").click();
+  await clickInteriorsTool(page, "cabinet");
   await page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ }).click();
   const selectedPlanObject = page.locator("[data-object-id].is-selected").first();
   expect(await selectedPlanObject.getAttribute("data-object-id")).toBeTruthy();

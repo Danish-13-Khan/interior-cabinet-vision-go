@@ -35,6 +35,8 @@ import {
 } from "./livingRoomScene/ModelWallVisibilityHost";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewToolbar } from "./livingRoomScene/ModelViewToolbar";
+import { ModelViewFeedbackBanners } from "./livingRoomScene/ModelViewFeedbackBanners";
+import { modelViewClientPresentationProps } from "../domain/livingRoom/modelViewClientPresentation";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -90,6 +92,10 @@ export function LivingRoomModelView({
   const exitWalkthrough = useCallback(() => camera.setViewPreset("dollhouse"), [camera.setViewPreset]);
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
   const fitSelection = { objectIds: selectedIds, wallId: activeWallId, openingId: activeOpeningId };
+  const clientView = modelViewClientPresentationProps({
+    presentation, selectedIds, activeOpeningId, activeWallId, showGrid,
+  });
+  const noopSelect = () => {};
 
   return (
     <div
@@ -102,19 +108,20 @@ export function LivingRoomModelView({
         <ModelViewToolbar
           viewPreset={camera.viewPreset} cameraHeightMm={cameraHeightMm}
           fieldOfViewDegrees={fieldOfViewDegrees} activeCameraId={activeCameraId}
-          cameras={scene.cameras} activeStyleId={activeStyleId} cutawayWalls={cutawayWalls}
+          cameras={scene.cameras} cutawayWalls={cutawayWalls}
           activeRotation={activeObject ? Math.round(activeObject.rotation.y) : 0}
           hasActiveObject={Boolean(activeObject)} viewportQuality={viewportQuality}
           modelPresets={listModelViewRenderPresets()} honesty={honesty}
           onViewPreset={camera.setViewPreset} onCameraHeightMm={setCameraHeightMm}
           onFieldOfViewDegrees={setFieldOfViewDegrees} onActiveCameraId={setActiveCameraId}
-          onApplyStyle={onApplyStyle} onCutawayWalls={setCutawayWalls}
+          onCutawayWalls={setCutawayWalls}
           onSetRotation={(rotationY) => { if (activeObject) onSetRotation(activeObject.id, rotationY); }}
           onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}
           hasSelection={hasSelection} onClearSelection={onClearSelection}
           onFitRoom={camera.fitRoom} onFocusSelection={camera.focusSelection}
         />
       ) : null}
+      {!presentation ? <ModelViewFeedbackBanners /> : null}
       <div
         className="lr-model-canvas-host"
         data-testid="lr-model-canvas-host"
@@ -132,17 +139,24 @@ export function LivingRoomModelView({
           lightingQuality={resolveModelViewLightingQuality(viewportQuality)}
           projectLightScale={modelViewProjectLightScale(viewportQuality)}
           windowKeyScale={modelViewWindowKeyScale(viewportQuality)}
-          selectedIds={selectedIds} activeOpeningId={activeOpeningId} activeWallId={activeWallId}
+          selectedIds={clientView.selectedIds}
+          activeOpeningId={clientView.activeOpeningId}
+          activeWallId={clientView.activeWallId}
           activeCameraId={activeCameraId} viewPreset={camera.viewPreset}
           cameraHeightMm={cameraOverrides.cameraHeightMm}
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
-          snapSizeMm={snapSizeMm} showGrid={showGrid} cutawayWalls={cutawayWalls}
+          snapSizeMm={snapSizeMm} showGrid={clientView.showGrid} cutawayWalls={cutawayWalls}
+          interactive={clientView.interactive}
           fitVersion={camera.fitVersion} fitMode={camera.fitMode} fitSelection={fitSelection}
-          onClearSelection={onClearSelection} onSelect={onSelect}
-          onSelectOpening={onSelectOpening} onSelectWall={onSelectWall} onMove={onMove}
+          onClearSelection={presentation ? noopSelect : onClearSelection}
+          onSelect={presentation ? noopSelect : onSelect}
+          onSelectOpening={presentation ? noopSelect : onSelectOpening}
+          onSelectWall={presentation ? noopSelect : onSelectWall}
+          onMove={onMove}
           onExitWalkthrough={exitWalkthrough}
-          onWallContextMenu={(wallId, point) => setWallMenu({ wallId, ...point })}
+          onWallContextMenu={presentation ? undefined : (wallId, point) => setWallMenu({ wallId, ...point })}
           onMechanismClick={(objectId, primitiveId) => {
+            if (presentation) return;
             const object = project.objects.find((item) => item.id === objectId);
             const state = object ? getCabinetMechanismState(object) : null;
             const index = mechanismFrontIndex(primitiveId);

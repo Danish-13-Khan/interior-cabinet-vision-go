@@ -29,6 +29,7 @@ material feedback. The proposed redesign preserves the proposal-to-production
 workflow and existing engineering capabilities.
 
 - [Full workflow specification and implementation gates](docs/UI_WORKFLOW_REDESIGN.md)
+- [Step 1 completed: capability inventory and preservation baselines](docs/ui-workflow-step1/README.md)
 - [Visual review guide and screenshot index](docs/mockups/workflow-review/README.md)
 - [Local interactive concept](docs/mockups/workflow-review/index.html)
 

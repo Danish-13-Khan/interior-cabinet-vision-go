@@ -1,21 +1,19 @@
-import { isClientPackageExportBlocked, countResolvedPackageDeckViews } from "../../domain/livingRoom";
+import {
+  countResolvedPackageDeckViews,
+  isClientPackageExportBlocked,
+  toggleSiteMeasureChecklistItem,
+} from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
+import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
+import { useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
+import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
-import { lazy, Suspense, useState } from "react";
-import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
-import { toggleSiteMeasureChecklistItem } from "../../domain/livingRoom";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
-
-/** Lazy: pdfjs (~100KB+ gzip) only loads after isPdfFile succeeds. */
-const PlanUnderlayPdfDialog = lazy(async () => {
-  const mod = await import("./PlanUnderlayPdfDialog");
-  return { default: mod.PlanUnderlayPdfDialog };
-});
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -35,12 +33,15 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanCatalogRail
-          widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible} studioPanel={props.studioPanel}
-          onStudioPanel={props.onStudioPanel} chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}
+          widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible}
+          workflowArea={props.workflowArea}
+          studioPanel={props.studioPanel} onStudioPanel={props.onStudioPanel}
+          chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}
           project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
+          issues={props.issues} proposal={props.proposal} onPresent={props.onPresent}
           assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
-          underlay={props.underlay} importError={props.importError} onAssetQuery={props.onAssetQuery}
-          onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
+          underlay={props.underlay} importError={props.importError}
+          onAssetQuery={props.onAssetQuery} onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
           onCreateCabinetRun={w.onCreateCabinetRun}
           onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
           onSetCeilingMaterial={w.onSetCeilingMaterial} onSetWallMaterial={w.onSetWallMaterial}
@@ -49,6 +50,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onImportFinish={w.onImportFinish}
           onSetLayerVisibility={w.onSetLayerVisibility}
           onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
+          onSelectIssue={(objectId) => inspectPlanTarget(props, objectId ? { objectId } : {})}
           onSetPlanUnderlay={w.onSetPlanUnderlay}
           onCalibrateUnderlay={() => props.onBuildTool("calibrate-underlay")}
           onToggleSiteMeasure={(key, value) => {
@@ -70,9 +72,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onAddOpening={(wallId, kind) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, catalogItemId: build.openingCatalogItemId })}
           onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
           onDeleteOpening={(openingId) => { build.dispatchBuildCommand({ type: "deleteOpening", openingId }); props.setActiveOpeningId(null); }}
-          v2BuildMode={props.plannerMode === "build"} v2DesignMode={props.plannerMode === "design"}
-          activeBuildTool={props.activeBuildTool} onBuildTool={props.onBuildTool}
-          canUndo={w.canUndo} canRedo={w.canRedo} onUndo={w.onUndo} onRedo={w.onRedo}
+          activeBuildTool={props.activeBuildTool}
           openingCatalogItemId={build.openingCatalogItemId} onOpeningCatalogItem={build.setOpeningCatalogItemId}
           roomPolygonPointCount={props.roomPolygonPointCount} onCloseRoomPolygon={props.onRoomPolygonCloseRequest}
           onSplitWall={(wallId) => build.dispatchBuildCommand({ type: "splitWall", wallId })}
@@ -114,6 +114,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           proposal={props.proposal}
           handoff={props.handoff}
           onCapture={() => props.onWorkspaceView("render")}
+          onReturnToReview={props.onReturnToReview}
         />
       ) : null}
       <LivingRoomPlanStage
@@ -177,25 +178,18 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onAddWallPanel={w.onAddWallPanel}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} />
-      {pdfImportFile ? (
-        <Suspense fallback={null}>
-          <PlanUnderlayPdfDialog
-            file={pdfImportFile}
-            roomWidthMm={room?.dimensions.widthMm ?? 6200}
-            onCancel={() => setPdfImportFile(null)}
-            onConfirm={(underlay) => {
-              setPdfImportFile(null);
-              w.onSetPlanUnderlay(underlay);
-              props.onStudioPanel("build");
-              build.dispatchBuildCommand({ type: "commitDraft" });
-            }}
-            onError={(message) => {
-              setPdfImportFile(null);
-              props.onImportError(message);
-            }}
-          />
-        </Suspense>
-      ) : null}
+      <LivingRoomPlanPdfImportSlot
+        file={pdfImportFile}
+        roomWidthMm={room?.dimensions.widthMm ?? 6200}
+        onCancel={() => setPdfImportFile(null)}
+        onConfirm={(underlay) => {
+          setPdfImportFile(null);
+          w.onSetPlanUnderlay(underlay);
+          props.onStudioPanel("build");
+          build.dispatchBuildCommand({ type: "commitDraft" });
+        }}
+        onError={(message) => { setPdfImportFile(null); props.onImportError(message); }}
+      />
     </div>
   );
 }
