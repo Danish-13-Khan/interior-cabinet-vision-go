@@ -185,6 +185,17 @@ export {
   resolveModelViewMaxGlbCasters,
 } from "./modelViewPerf";
 export {
+  MODEL_VIEW_DEFAULT_LOCKED_TO_DRAFT,
+  MODEL_VIEW_PRODUCTION_TRACKS,
+  canRaiseModelViewDefaultToStandard,
+  evaluateGlbCastShadowAcceptanceRow,
+  listGlbCastShadowAcceptanceRows,
+  resolveModelViewDefaultQuality,
+  type GlbCastShadowAcceptanceRow,
+  type ModelViewProductionTrack,
+  type ModelViewProductionTrackId,
+} from "./modelViewProductionBar";
+export {
   computeFrameTimeMeanMs,
   computeFrameTimeP95Ms,
   exceedsFrameTimeBudget,

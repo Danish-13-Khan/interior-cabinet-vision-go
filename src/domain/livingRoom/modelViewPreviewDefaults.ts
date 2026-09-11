@@ -19,6 +19,7 @@ import {
   MODEL_VIEW_FRAMELOOP,
   resolveModelViewMaxGlbCasters,
 } from "./modelViewPerf";
+import { MODEL_VIEW_DEFAULT_LOCKED_TO_DRAFT } from "./modelViewProductionBar";
 
 /** Model view never uses hero/photoreal — review stays honest preview. */
 export function resolveModelViewRenderMode(): RenderMode {
@@ -116,6 +117,7 @@ export type ModelViewRuntimeProfile = {
   maxDirectionalCasters: number | undefined;
   maxGlbCasters: number;
   frameloop: typeof MODEL_VIEW_FRAMELOOP;
+  defaultQualityLocked: boolean;
 };
 
 /** Stable runtime metadata for tests and diagnostics — not persisted on project JSON. */
@@ -147,6 +149,7 @@ export function describeModelViewRuntimeProfile(
     maxDirectionalCasters: lighting.maxDirectionalCasters,
     maxGlbCasters: resolveModelViewMaxGlbCasters(quality),
     frameloop: MODEL_VIEW_FRAMELOOP,
+    defaultQualityLocked: MODEL_VIEW_DEFAULT_LOCKED_TO_DRAFT,
   };
 }
 
@@ -161,7 +164,9 @@ export function describeModelViewHonesty(
     mode: "preview",
     role: "balanced",
     headline: rich ? "Rich Preview" : "Designed Preview",
-    subline: "Soft studio lighting · interactive review · not client export",
+    subline: rich
+      ? "Grounded Standard · interactive review · not client export"
+      : "Fast Draft authoring · thinner shadows · not client export",
     shortBadge: `${base.qualityName.toUpperCase()} · PREVIEW`,
   };
 }
