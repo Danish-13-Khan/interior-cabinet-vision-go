@@ -119,7 +119,9 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
 
   return (
     <>
-      {viewPreset ? <ModelViewCameraKind viewPreset={viewPreset} /> : null}
+      {viewPreset ? (
+        <ModelViewCameraKind viewPreset={viewPreset} roomSpanMeters={roomSpan} />
+      ) : null}
       <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
