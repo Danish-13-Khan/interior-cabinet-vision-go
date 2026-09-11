@@ -73,6 +73,9 @@ describe("modelViewPreviewDefaults", () => {
     expect(draft.msaa).toBe(true);
     expect(draft.maxDirectionalCasters).toBe(1);
     expect(standard.maxDirectionalCasters).toBe(2);
+    expect(draft.maxGlbCasters).toBe(0);
+    expect(standard.maxGlbCasters).toBe(10);
+    expect(standard.frameloop).toBe("demand");
     expect(draft.anisotropy).toBe(6);
     expect(draft.proceduralMapWidth).toBe(128);
     expect(standard.anisotropy).toBe(10);

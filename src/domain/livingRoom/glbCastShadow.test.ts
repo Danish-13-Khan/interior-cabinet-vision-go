@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolveStudioRenderMode } from "./renderPresets";
-import { resolveGlbCastShadow } from "./glbCastShadow";
+import { assignGlbCasterSlots, resolveGlbCastShadow } from "./glbCastShadow";
 
 describe("resolveGlbCastShadow", () => {
   it("casts in Model View Standard preview, not Draft", () => {
@@ -16,6 +16,7 @@ describe("resolveGlbCastShadow", () => {
         renderMode: "preview",
         modelViewPreview: true,
         modelViewQuality: "standard",
+        glbCasterSlot: 0,
       }),
     ).toBe(true);
   });
@@ -60,5 +61,37 @@ describe("resolveGlbCastShadow", () => {
         modelViewQuality: "standard",
       }),
     ).toBe(false);
+  });
+
+  it("caps Model View Standard GLB casters by slot budget", () => {
+    expect(
+      resolveGlbCastShadow({
+        renderMode: "preview",
+        modelViewPreview: true,
+        modelViewQuality: "standard",
+        glbCasterSlot: 9,
+        maxGlbCasters: 10,
+      }),
+    ).toBe(true);
+    expect(
+      resolveGlbCastShadow({
+        renderMode: "preview",
+        modelViewPreview: true,
+        modelViewQuality: "standard",
+        glbCasterSlot: 10,
+        maxGlbCasters: 10,
+      }),
+    ).toBe(false);
+  });
+
+  it("assigns GLB caster slots in node order", () => {
+    const slots = assignGlbCasterSlots([
+      { id: "a", renderBinding: { strategy: "procedural" } },
+      { id: "b", renderBinding: { strategy: "glb" } },
+      { id: "c", renderBinding: { strategy: "glb" } },
+    ]);
+    expect(slots.get("b")).toBe(0);
+    expect(slots.get("c")).toBe(1);
+    expect(slots.has("a")).toBe(false);
   });
 });
