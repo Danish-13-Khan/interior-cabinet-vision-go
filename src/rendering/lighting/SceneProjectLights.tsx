@@ -1,4 +1,6 @@
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
+import type { ShadowCameraTuning } from "../../domain/livingRoom/shadowCameraTuning";
+import { STUDIO_PROJECT_SHADOW } from "../../domain/livingRoom/shadowCameraTuning";
 import { shadowMapSizePair } from "./shadowMapSizePair";
 
 function degrees(value: number) {
@@ -11,12 +13,17 @@ export function SceneProjectLights({
   shadowMapSize,
   shadowRadius,
   intensityScale = 1,
+  shadowCamera,
 }: {
   scene: CompiledLivingRoomScene;
   shadowMapSize: number;
   shadowRadius: number;
   intensityScale?: number;
+  /** Policy A override; Studio omits → STUDIO_PROJECT_SHADOW. */
+  shadowCamera?: ShadowCameraTuning;
 }) {
+  const cam = shadowCamera ?? STUDIO_PROJECT_SHADOW;
+  const half = cam.frustumHalfExtent ?? 7;
   return (
     <>
       {scene.lights.filter((light) => light.enabled).map((light) => {
@@ -37,15 +44,15 @@ export function SceneProjectLights({
               intensity={light.intensity * 0.86 * intensityScale}
               castShadow={light.parameters.castShadow === true}
               shadow-mapSize={shadowMapSizePair(shadowMapSize)}
-              shadow-bias={-0.00028}
-              shadow-normalBias={0.04}
-              shadow-radius={shadowRadius + 2}
-              shadow-camera-near={0.1}
-              shadow-camera-far={30}
-              shadow-camera-left={-7}
-              shadow-camera-right={7}
-              shadow-camera-top={7}
-              shadow-camera-bottom={-7}
+              shadow-bias={cam.bias}
+              shadow-normalBias={cam.normalBias}
+              shadow-radius={shadowRadius + cam.radiusExtra}
+              shadow-camera-near={cam.near}
+              shadow-camera-far={cam.far}
+              shadow-camera-left={-half}
+              shadow-camera-right={half}
+              shadow-camera-top={half}
+              shadow-camera-bottom={-half}
             />
           );
         }

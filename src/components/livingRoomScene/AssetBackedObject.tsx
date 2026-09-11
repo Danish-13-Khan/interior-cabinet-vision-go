@@ -8,6 +8,7 @@ import {
   computeGlbScaleFactors,
   nativeSizeMmToMeters,
 } from "../../domain/livingRoom/glbScale";
+import { resolveGlbCastShadow } from "../../domain/livingRoom/glbCastShadow";
 import type {
   ModelAssetDefinition,
   RenderBinding,
@@ -65,7 +66,11 @@ function GlbSceneContent({
   const modelViewQuality = useModelViewPreviewQuality();
   const gltf = useGLTF(url);
   const invalidate = useThree((state) => state.invalidate);
-  const castShadow = renderMode === "hero";
+  const castShadow = resolveGlbCastShadow({
+    renderMode,
+    modelViewPreview: modelViewQuality != null,
+    modelViewQuality,
+  });
   const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
   const target = binding.targetSizeMm;
   const [scale, setScale] = useState(() =>

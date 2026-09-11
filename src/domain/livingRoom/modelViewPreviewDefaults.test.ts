@@ -26,7 +26,7 @@ describe("modelViewPreviewDefaults", () => {
 
     const standard = resolveModelViewLightingQuality("standard");
     expect(standard.shadowMapSize).toBeGreaterThanOrEqual(draft.shadowMapSize);
-    expect(standard.contactShadowOpacityScale).toBeGreaterThan(draft.contactShadowOpacityScale);
+    expect(standard.contactShadowOpacityScale).toBeLessThanOrEqual(1.12);
   });
 
   it("boosts designed material response without hero mode", () => {
@@ -66,6 +66,8 @@ describe("modelViewPreviewDefaults", () => {
     expect(draft.textureDetail).toBe("low");
     expect(standard.textureDetail).toBe("high");
     expect(draft.modelViewPreview).toBe(true);
+    expect(draft.glbCastShadow).toBe(false);
+    expect(standard.glbCastShadow).toBe(true);
     expect(draft.anisotropy).toBe(6);
     expect(draft.proceduralMapWidth).toBe(128);
     expect(standard.anisotropy).toBe(10);
@@ -74,5 +76,16 @@ describe("modelViewPreviewDefaults", () => {
     expect(standard.envMapIntensityScale).toBeGreaterThan(draft.envMapIntensityScale);
     expect(standard.proceduralMapWidth).toBeGreaterThan(draft.proceduralMapWidth);
     expect(standard.anisotropy).toBeGreaterThan(draft.anisotropy);
+    expect(standard.projectShadowFrustum).toBeGreaterThan(draft.projectShadowFrustum ?? 0);
+  });
+
+  it("attaches Policy A shadow cameras only on the Model View lighting path", () => {
+    const mv = resolveModelViewLightingQuality("standard");
+    const studio = resolveEnvironmentLightingQuality("hero", "standard");
+    expect(mv.projectShadow).toBeDefined();
+    expect(mv.windowKeyShadow).toBeDefined();
+    expect(studio.projectShadow).toBeUndefined();
+    expect(studio.windowKeyShadow).toBeUndefined();
+    expect(mv.projectShadow!.frustumHalfExtent).not.toBe(7);
   });
 });

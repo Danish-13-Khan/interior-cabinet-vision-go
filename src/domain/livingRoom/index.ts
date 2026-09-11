@@ -155,6 +155,19 @@ export {
   type ModelViewMaterialBuildContext,
   type ModelViewRuntimeProfile,
 } from "./modelViewPreviewDefaults";
+export { resolveGlbCastShadow } from "./glbCastShadow";
+export {
+  computeFrameTimeMeanMs,
+  computeFrameTimeP95Ms,
+  exceedsFrameTimeBudget,
+} from "./frameTimeStats";
+export {
+  STUDIO_PROJECT_SHADOW,
+  STUDIO_WINDOW_KEY_SHADOW,
+  resolveModelViewProjectShadow,
+  resolveModelViewWindowKeyShadow,
+  type ShadowCameraTuning,
+} from "./shadowCameraTuning";
 export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
 export { assertV1CatalogScope, V1_PRODUCT_SCOPE } from "./v1Scope";
 export {

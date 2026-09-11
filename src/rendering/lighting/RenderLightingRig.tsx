@@ -70,12 +70,14 @@ export function RenderLightingRig({
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
         intensityScale={projectLightScale}
+        shadowCamera={lightingQuality.projectShadow}
       />
       <WindowKeyLight
         lights={windowKeys}
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
         intensityScale={windowKeyScale}
+        shadowCamera={lightingQuality.windowKeyShadow}
       />
     </>
   );
