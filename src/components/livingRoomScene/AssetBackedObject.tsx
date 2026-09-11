@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { createPortal, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
-import { Box3, BoxHelper, Group, Vector3 } from "three";
+import { BoxHelper, Group } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import {
@@ -15,6 +15,7 @@ import type {
 } from "../../domain/livingRoom/renderAssetContracts";
 import { reportModelGlbFallback } from "../../domain/livingRoom/modelQualityFeedback";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
+import { normalizeGlbFloorOrigin } from "../../rendering/loaders/normalizeGlbFloorOrigin";
 import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
@@ -78,15 +79,11 @@ function GlbSceneContent({
   const groupsKey = JSON.stringify(definition.materialGroups);
 
   useLayoutEffect(() => {
-    const bounds = new Box3().setFromObject(scene);
-    const center = bounds.getCenter(new Vector3());
-    scene.position.set(-center.x, -bounds.min.y, -center.z);
+    const size = normalizeGlbFloorOrigin(scene);
     scene.traverse((child) => {
       if (child instanceof Group) return;
       child.frustumCulled = false;
     });
-    scene.updateMatrixWorld(true);
-    const size = bounds.getSize(new Vector3());
     if (target) setScale(computeGlbScaleFactors(target, size));
   }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
 

@@ -1,0 +1,124 @@
+/* Material Browser — readable type, no horizontal clip in the narrow catalog rail. */
+
+.lr-plan-shell.lr-product-shell-v2 .lr-surface-painter {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-surface-painter > small,
+.lr-plan-shell.lr-product-shell-v2 .lr-surface-painter > p {
+  color: var(--iu-control-muted);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-browser {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters {
+  flex-wrap: wrap;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button {
+  min-height: 28px;
+  padding: 0 9px;
+  border-color: var(--iu-control-border);
+  background: var(--iu-control-bg);
+  color: var(--iu-control-ink);
+  font-size: 0.62rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button.is-active {
+  border-color: var(--lr-accent, #2f6feb);
+  background: #edf4ff;
+  color: var(--lr-accent, #2f6feb);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-targets button {
+  min-height: 32px;
+  border-color: var(--iu-control-border);
+  background: var(--iu-control-bg);
+  color: var(--iu-control-ink);
+  font-size: 0.62rem;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches button {
+  min-width: 0;
+  color: var(--iu-control-ink);
+  border-color: var(--iu-line);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches span {
+  min-width: 0;
+  color: var(--iu-control-ink);
+  font-size: 0.64rem;
+  line-height: 1.3;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: anywhere;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches small {
+  color: var(--iu-control-muted);
+  font-size: 0.58rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-browser.is-compact .lr-paint-swatches {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-browser.is-compact .lr-paint-swatches span {
+  font-size: 0.6rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-browser.is-compact .lr-paint-swatches small {
+  display: block;
+  font-size: 0.54rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-colour header,
+.lr-plan-shell.lr-product-shell-v2 .lr-material-colour-fields label {
+  color: var(--iu-control-muted);
+  font-size: 0.62rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-colour header {
+  color: var(--iu-control-ink);
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-colour-fields {
+  grid-template-columns: 1fr 1fr;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-colour-fields input {
+  min-width: 0;
+  color: var(--iu-control-ink);
+  font-size: 0.62rem;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-shades {
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-material-shades button {
+  color: var(--iu-control-ink);
+  font-size: 0.58rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-catalog[data-workflow-area="materials"] {
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+}

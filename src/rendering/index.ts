@@ -43,6 +43,7 @@ export {
 } from "./materials/resolveMaterialTextureUrls";
 export { drawHeroVignette } from "./export/heroExportPolish";
 export { measureObjectSizeMeters, measureUnscaledObjectSizeMeters } from "./loaders/measureObjectBounds";
+export { normalizeGlbFloorOrigin } from "./loaders/normalizeGlbFloorOrigin";
 export { useModelAsset, type ModelAssetState } from "./loaders/useModelAsset";
 export { usePbrMaterial } from "./loaders/usePbrMaterial";
 export { EnvironmentLighting } from "./lighting/EnvironmentLighting";
