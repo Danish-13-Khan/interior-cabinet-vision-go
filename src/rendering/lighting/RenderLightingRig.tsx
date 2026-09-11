@@ -6,6 +6,10 @@ import {
 } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import {
+  resolveRoomFitFrustumHalfExtent,
+  roomSpanMetersFromSizeMm,
+} from "../../domain/livingRoom/roomFitShadowFrustum";
 import { resolveWindowKeyLights } from "../../domain/livingRoom/windowKeyLight";
 import { resolveEnvironmentDrawState } from "../assets/assetRegistry";
 import { EnvironmentLighting } from "./EnvironmentLighting";
@@ -36,7 +40,21 @@ export function RenderLightingRig({
   windowKeyScale = 1,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
-  const roomCenter = computeArchitectureBounds(scene.nodes).center;
+  const architectureBounds = computeArchitectureBounds(scene.nodes);
+  const roomCenter = architectureBounds.center;
+  const projectShadow = useMemo(() => {
+    if (!lightingQuality.projectShadow) return undefined;
+    const span = roomSpanMetersFromSizeMm(architectureBounds.size);
+    const base = lightingQuality.projectShadow.frustumHalfExtent ?? 7;
+    return {
+      ...lightingQuality.projectShadow,
+      frustumHalfExtent: resolveRoomFitFrustumHalfExtent(span, base),
+    };
+  }, [
+    architectureBounds.size.depthMm,
+    architectureBounds.size.widthMm,
+    lightingQuality.projectShadow,
+  ]);
   const windowKeys = useMemo(
     () => resolveWindowKeyLights({
       openings: scene.windowOpenings,
@@ -70,12 +88,15 @@ export function RenderLightingRig({
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
         intensityScale={projectLightScale}
+        shadowCamera={projectShadow}
+        maxDirectionalCasters={lightingQuality.maxDirectionalCasters}
       />
       <WindowKeyLight
         lights={windowKeys}
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
         intensityScale={windowKeyScale}
+        shadowCamera={lightingQuality.windowKeyShadow}
       />
     </>
   );

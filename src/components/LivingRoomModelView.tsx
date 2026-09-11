@@ -6,8 +6,6 @@ import {
   describeModelViewRuntimeProfile,
   getActiveLivingRoomStyleId,
   getCabinetMechanismState,
-  getModelViewDefaultPresetId,
-  getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
   mechanismFrontIndex,
   mechanismPanelPatch,
@@ -16,6 +14,7 @@ import {
   openingOffsetAtPoint,
   preferModelViewCameraId,
   resolveModelViewCameraOverrides,
+  resolveModelViewDefaultQuality,
   resolveModelViewLightingQuality,
   resolveModelViewRenderMode,
   type LivingRoomStyleId,
@@ -70,14 +69,16 @@ export function LivingRoomModelView({
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
     () => preferModelViewCameraId(scene.cameras),
   );
-  const camera = useModelViewCameraSession(!presentation);
+  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
+  const camera = useModelViewCameraSession(!presentation, hasSelection);
   const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
   const [cutawayWalls, setCutawayWalls] = useState(false);
   const [wallMenu, setWallMenu] = useState<WallContextMenuState | null>(null);
-  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(getModelViewDefaultPresetId());
-  const quality = getRenderQualityPreset(viewportQuality);
+  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
+    resolveModelViewDefaultQuality,
+  );
   const honesty = describeModelViewHonesty(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
@@ -164,7 +165,6 @@ export function LivingRoomModelView({
     camera.viewPreset, cameraHeightMm, fieldOfViewDegrees,
   );
   const exitWalkthrough = useCallback(() => camera.setViewPreset("dollhouse"), [camera.setViewPreset]);
-  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
   const fitSelection = { objectIds: selectedIds, wallId: activeWallId, openingId: activeOpeningId };
   const clientView = modelViewClientPresentationProps({
     presentation, selectedIds, activeOpeningId, activeWallId, showGrid,
@@ -210,7 +210,7 @@ export function LivingRoomModelView({
         onPointerDown={(event) => { if (!presentation) event.currentTarget.focus(); }}
       >
         <ModelViewScene
-          scene={scene} quality={quality} viewportQuality={viewportQuality}
+          scene={scene} viewportQuality={viewportQuality}
           renderMode={resolveModelViewRenderMode()}
           lightingQuality={resolveModelViewLightingQuality(viewportQuality)}
           projectLightScale={modelViewProjectLightScale(viewportQuality)}

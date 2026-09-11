@@ -68,5 +68,19 @@ describe("curated living-room asset pack", () => {
     expect(hasCuratedTextureUrls(urls)).toBe(true);
     expect(urls.map).toContain("oak-color.png");
     expect(urls.normalMap).toContain("oak-normal.png");
+
+    const walnut = resolveMaterialTextureUrls({
+      id: LIVING_ROOM_MATERIAL_IDS.walnut,
+      name: "Smoked Walnut",
+      kind: "wood",
+      color: "#4a2e20",
+      roughness: 0.5,
+      metalness: 0,
+      opacity: 1,
+      materialAssetId: LIVING_ROOM_MATERIAL_IDS.walnut,
+      uvScaleMm: 900,
+    });
+    expect(walnut.roughnessMap).toContain("walnut-rough.png");
+    expect(existsSync(join(ROOT, "public", "textures/wood/walnut-rough.png"))).toBe(true);
   });
 });

@@ -37,7 +37,9 @@ export function createProceduralSurfaceMaps(
         : fabricMaps(material.uvScaleMm, mode, false, quality, modeQuality)
       : material.kind === "paint"
         ? noiseMaps("paint", material.id, material.uvScaleMm, mode, quality, modeQuality)
-        : {};
+        : material.kind === "stone"
+          ? noiseMaps("paint", material.id, material.uvScaleMm, mode, quality, modeQuality)
+          : {};
   cache.set(key, maps);
   return maps;
 }

@@ -155,6 +155,61 @@ export {
   type ModelViewMaterialBuildContext,
   type ModelViewRuntimeProfile,
 } from "./modelViewPreviewDefaults";
+export {
+  MODEL_VIEW_ANISOTROPY_FROZEN,
+  MODEL_VIEW_MSAA,
+  resolveModelViewDprRange,
+  resolveModelViewMaxDpr,
+} from "./modelViewSharpness";
+export {
+  MODEL_VIEW_CAMERA_EASE_MS,
+  consumeOrbitEaseCancelGeneration,
+  easeInOutCubic,
+  lerpNumber,
+  lerpPoint3,
+  resolveModelViewCameraFarMeters,
+  resolveModelViewMinPolarAngle,
+  resolveModelViewOrbitMaxDistance,
+} from "./modelViewCameraEase";
+export {
+  resolveRoomFitFrustumHalfExtent,
+  roomSpanMetersFromSizeMm,
+} from "./roomFitShadowFrustum";
+export {
+  shouldProjectDirectionalCast,
+  shouldProjectFillCastShadow,
+} from "./directionalCasterBudget";
+export { resolveGlbCastShadow, assignGlbCasterSlots } from "./glbCastShadow";
+export {
+  MODEL_VIEW_ADAPTIVE_DPR,
+  MODEL_VIEW_FRAMELOOP,
+  MODEL_VIEW_WALKTHROUGH_MAX_DELTA_S,
+  clampWalkthroughMoveDelta,
+  resolveModelViewMaxGlbCasters,
+} from "./modelViewPerf";
+export {
+  MODEL_VIEW_DEFAULT_LOCKED_TO_DRAFT,
+  MODEL_VIEW_PRODUCTION_TRACKS,
+  canRaiseModelViewDefaultToStandard,
+  evaluateGlbCastShadowAcceptanceRow,
+  listGlbCastShadowAcceptanceRows,
+  resolveModelViewDefaultQuality,
+  type GlbCastShadowAcceptanceRow,
+  type ModelViewProductionTrack,
+  type ModelViewProductionTrackId,
+} from "./modelViewProductionBar";
+export {
+  computeFrameTimeMeanMs,
+  computeFrameTimeP95Ms,
+  exceedsFrameTimeBudget,
+} from "./frameTimeStats";
+export {
+  STUDIO_PROJECT_SHADOW,
+  STUDIO_WINDOW_KEY_SHADOW,
+  resolveModelViewProjectShadow,
+  resolveModelViewWindowKeyShadow,
+  type ShadowCameraTuning,
+} from "./shadowCameraTuning";
 export { getCabinetMechanismState, mechanismAllPatch, mechanismFrontIndex, mechanismPanelPatch, type CabinetMechanismMode, type CabinetMechanismState } from "./cabinetMechanisms";
 export { assertV1CatalogScope, V1_PRODUCT_SCOPE } from "./v1Scope";
 export {
@@ -337,6 +392,7 @@ export {
   type ModelViewPresetId,
 } from "./modelViewPresets";
 export {
+  resolveModelViewFKeyFitMode,
   resolveModelViewFitPose,
   resolveModelViewSelectionBoundsMm,
   type ModelViewFitMode,

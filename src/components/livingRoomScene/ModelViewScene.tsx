@@ -7,14 +7,19 @@ import type {
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import type { RenderQualityPreset } from "../../domain/livingRoom/renderStudio";
+import {
+  MODEL_VIEW_MSAA,
+  resolveModelViewDprRange,
+} from "../../domain/livingRoom/modelViewSharpness";
+import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelViewCameraEase";
+import { MODEL_VIEW_FRAMELOOP } from "../../domain/livingRoom/modelViewPerf";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
+import { ModelViewCanvasInvalidator } from "./ModelViewCanvasInvalidator";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type ModelViewSceneProps = {
   scene: CompiledLivingRoomScene;
-  quality: RenderQualityPreset;
   viewportQuality: RenderQuality;
   renderMode: RenderMode;
   lightingQuality: EnvironmentLightingQuality;
@@ -49,7 +54,7 @@ type ModelViewSceneProps = {
 
 export function ModelViewScene(props: ModelViewSceneProps) {
   const {
-    scene, quality, viewportQuality, renderMode, lightingQuality, projectLightScale,
+    scene, viewportQuality, renderMode, lightingQuality, projectLightScale,
     windowKeyScale, selectedIds, activeOpeningId, activeWallId, activeCameraId, viewPreset,
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
     interactive = true,
@@ -57,16 +62,37 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
   } = props;
+  const roomSpanMeters = Math.max(
+    scene.bounds.size.widthMm,
+    scene.bounds.size.depthMm,
+  ) / 1000;
+  const cameraFar = resolveModelViewCameraFarMeters(roomSpanMeters);
+  const invalidateRevision = [
+    scene.fingerprint,
+    viewportQuality,
+    viewPreset,
+    activeCameraId,
+    fitVersion,
+    selectedIds.join(","),
+    activeOpeningId,
+    activeWallId,
+    cutawayWalls,
+    showGrid,
+    cameraHeightMm,
+    fieldOfViewDegrees,
+  ].join("|");
 
   return (
     <Canvas
+      frameloop={MODEL_VIEW_FRAMELOOP}
       shadows="percentage"
-      dpr={[1, quality.pixelRatio]}
-      gl={{ antialias: true, preserveDrawingBuffer: true }}
-      camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: 100 }}
+      dpr={resolveModelViewDprRange(viewportQuality)}
+      gl={{ antialias: MODEL_VIEW_MSAA, preserveDrawingBuffer: true }}
+      camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: cameraFar }}
       onPointerMissed={interactive ? onClearSelection : undefined}
     >
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
+        <ModelViewCanvasInvalidator revision={invalidateRevision} />
         <CompiledSceneRenderer
           scene={scene}
           selectedIds={selectedIds}
