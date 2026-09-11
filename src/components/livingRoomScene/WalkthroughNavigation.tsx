@@ -9,7 +9,7 @@ type WalkthroughNavigationProps = {
 
 /** Lightweight first-person navigation for the editable 3D viewport. */
 export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigationProps) {
-  const { camera, gl } = useThree();
+  const { camera, gl, invalidate } = useThree();
   const pressed = useRef(new Set<string>());
 
   useEffect(() => {
@@ -24,8 +24,12 @@ export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigation
         return;
       }
       pressed.current.add(event.key.toLowerCase());
+      invalidate();
     };
-    const up = (event: KeyboardEvent) => pressed.current.delete(event.key.toLowerCase());
+    const up = (event: KeyboardEvent) => {
+      pressed.current.delete(event.key.toLowerCase());
+      invalidate();
+    };
     const focus = () => gl.domElement.focus();
     window.addEventListener("keydown", down, true);
     window.addEventListener("keyup", up);
@@ -36,7 +40,7 @@ export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigation
       gl.domElement.removeEventListener("pointerdown", focus);
       pressed.current.clear();
     };
-  }, [enabled, gl, onExit]);
+  }, [enabled, gl, invalidate, onExit]);
 
   useFrame((_, delta) => {
     if (!enabled || pressed.current.size === 0) return;
@@ -51,7 +55,10 @@ export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigation
     if (pressed.current.has("s") || pressed.current.has("arrowdown")) move.sub(forward);
     if (pressed.current.has("d") || pressed.current.has("arrowright")) move.add(right);
     if (pressed.current.has("a") || pressed.current.has("arrowleft")) move.sub(right);
-    if (move.lengthSq() > 0) camera.position.addScaledVector(move.normalize(), speed * delta);
+    if (move.lengthSq() > 0) {
+      camera.position.addScaledVector(move.normalize(), speed * delta);
+      invalidate();
+    }
   });
 
   return null;

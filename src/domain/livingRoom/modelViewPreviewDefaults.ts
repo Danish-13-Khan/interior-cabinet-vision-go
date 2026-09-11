@@ -15,6 +15,10 @@ import {
   MODEL_VIEW_MSAA,
   resolveModelViewMaxDpr,
 } from "./modelViewSharpness";
+import {
+  MODEL_VIEW_FRAMELOOP,
+  resolveModelViewMaxGlbCasters,
+} from "./modelViewPerf";
 
 /** Model view never uses hero/photoreal — review stays honest preview. */
 export function resolveModelViewRenderMode(): RenderMode {
@@ -110,6 +114,8 @@ export type ModelViewRuntimeProfile = {
   maxDpr: number;
   msaa: boolean;
   maxDirectionalCasters: number | undefined;
+  maxGlbCasters: number;
+  frameloop: typeof MODEL_VIEW_FRAMELOOP;
 };
 
 /** Stable runtime metadata for tests and diagnostics — not persisted on project JSON. */
@@ -133,11 +139,14 @@ export function describeModelViewRuntimeProfile(
       renderMode: "preview",
       modelViewPreview: true,
       modelViewQuality: quality,
+      glbCasterSlot: 0,
     }),
     projectShadowFrustum: lighting.projectShadow?.frustumHalfExtent,
     maxDpr: resolveModelViewMaxDpr(quality),
     msaa: MODEL_VIEW_MSAA,
     maxDirectionalCasters: lighting.maxDirectionalCasters,
+    maxGlbCasters: resolveModelViewMaxGlbCasters(quality),
+    frameloop: MODEL_VIEW_FRAMELOOP,
   };
 }
 

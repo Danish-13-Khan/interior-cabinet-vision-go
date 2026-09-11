@@ -59,7 +59,7 @@ export function CameraRig({
   fitSelection?: ModelViewFitSelection;
   dragging?: boolean;
 }) {
-  const { camera, size } = useThree();
+  const { camera, size, invalidate } = useThree();
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
   const lastFitVersionRef = useRef(0);
@@ -134,6 +134,7 @@ export function CameraRig({
     if (orthoSwitched || draggingRef.current) {
       applyCameraPose(camera, controlsRef.current, goal);
       animatingRef.current = false;
+      invalidate();
       return;
     }
 
@@ -141,9 +142,10 @@ export function CameraRig({
     goalRef.current = goal;
     animStartRef.current = performance.now();
     animatingRef.current = true;
+    invalidate();
   }, [
     activeCameraId, assetRevision, camera, composition, cameraHeightMm, controlsRef,
-    fitMode, fitVersion, fieldOfViewDegrees, projectCamera?.fieldOfViewDegrees,
+    fitMode, fitVersion, fieldOfViewDegrees, invalidate, projectCamera?.fieldOfViewDegrees,
     projectCamera?.id, projectCamera?.position.x, projectCamera?.position.y,
     projectCamera?.position.z, projectCamera?.target.x, projectCamera?.target.y,
     projectCamera?.target.z, renderMode, scene.projectId, scene.roomId,
@@ -174,6 +176,7 @@ export function CameraRig({
       orthographic: goal.orthographic,
     });
     if (t >= 1) animatingRef.current = false;
+    else invalidate();
   });
 
   return null;

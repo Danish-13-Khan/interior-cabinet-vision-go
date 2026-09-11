@@ -12,8 +12,10 @@ import {
   resolveModelViewDprRange,
 } from "../../domain/livingRoom/modelViewSharpness";
 import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelViewCameraEase";
+import { MODEL_VIEW_FRAMELOOP } from "../../domain/livingRoom/modelViewPerf";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
+import { ModelViewCanvasInvalidator } from "./ModelViewCanvasInvalidator";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type ModelViewSceneProps = {
@@ -65,9 +67,24 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     scene.bounds.size.depthMm,
   ) / 1000;
   const cameraFar = resolveModelViewCameraFarMeters(roomSpanMeters);
+  const invalidateRevision = [
+    scene.fingerprint,
+    viewportQuality,
+    viewPreset,
+    activeCameraId,
+    fitVersion,
+    selectedIds.join(","),
+    activeOpeningId,
+    activeWallId,
+    cutawayWalls,
+    showGrid,
+    cameraHeightMm,
+    fieldOfViewDegrees,
+  ].join("|");
 
   return (
     <Canvas
+      frameloop={MODEL_VIEW_FRAMELOOP}
       shadows="percentage"
       dpr={resolveModelViewDprRange(viewportQuality)}
       gl={{ antialias: MODEL_VIEW_MSAA, preserveDrawingBuffer: true }}
@@ -75,6 +92,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
       onPointerMissed={interactive ? onClearSelection : undefined}
     >
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
+        <ModelViewCanvasInvalidator revision={invalidateRevision} />
         <CompiledSceneRenderer
           scene={scene}
           selectedIds={selectedIds}

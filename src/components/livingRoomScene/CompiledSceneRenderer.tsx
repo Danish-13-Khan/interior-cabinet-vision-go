@@ -14,6 +14,8 @@ import { ModelViewCameraKind } from "./ModelViewCameraKind";
 import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
 import { RendererColorPipeline } from "./RendererColorPipeline";
 import { modelNodeIsSelected, modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
+import { assignGlbCasterSlots } from "../../domain/livingRoom/glbCastShadow";
+import { resolveModelViewMaxGlbCasters } from "../../domain/livingRoom/modelViewPerf";
 import { ModelMoveGizmo, type ModelTransformTarget } from "./ModelMoveGizmo";
 
 type SceneRendererProps = {
@@ -106,6 +108,10 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const nodes = filterModelReviewNodes(
     scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
   );
+  const glbCasterSlots = useMemo(
+    () => assignGlbCasterSlots(nodes),
+    [nodes],
+  );
   const selectedWallLabelNodeId = selectedWallId
     ? nodes
       .filter((node) => modelSelectionTarget(node)?.kind === "wall"
@@ -116,6 +122,9 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const environment = scene.style.environment;
   const lightingQuality = lightingQualityOverride
     ?? resolveEnvironmentLightingQuality(renderMode, renderQuality);
+  const maxGlbCasters = lightingQuality.maxDirectionalCasters !== undefined
+    ? resolveModelViewMaxGlbCasters(renderQuality)
+    : undefined;
 
   return (
     <>
@@ -173,6 +182,8 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
           snapSizeMm={snapSizeMm}
           renderMode={renderMode}
           renderQuality={renderQuality}
+          glbCasterSlot={glbCasterSlots.get(node.id)}
+          maxGlbCasters={maxGlbCasters}
           showSelectedLabel={modelSelectionTarget(node)?.kind !== "wall"
             || node.id === selectedWallLabelNodeId}
           onSelect={onSelect}

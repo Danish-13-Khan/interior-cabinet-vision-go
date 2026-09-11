@@ -178,7 +178,12 @@ export {
   shouldProjectDirectionalCast,
   shouldProjectFillCastShadow,
 } from "./directionalCasterBudget";
-export { resolveGlbCastShadow } from "./glbCastShadow";
+export { resolveGlbCastShadow, assignGlbCasterSlots } from "./glbCastShadow";
+export {
+  MODEL_VIEW_ADAPTIVE_DPR,
+  MODEL_VIEW_FRAMELOOP,
+  resolveModelViewMaxGlbCasters,
+} from "./modelViewPerf";
 export {
   computeFrameTimeMeanMs,
   computeFrameTimeP95Ms,
