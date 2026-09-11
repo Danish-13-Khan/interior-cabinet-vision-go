@@ -11,6 +11,7 @@ import {
   MODEL_VIEW_MSAA,
   resolveModelViewDprRange,
 } from "../../domain/livingRoom/modelViewSharpness";
+import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelViewCameraEase";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
@@ -59,13 +60,18 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
   } = props;
+  const roomSpanMeters = Math.max(
+    scene.bounds.size.widthMm,
+    scene.bounds.size.depthMm,
+  ) / 1000;
+  const cameraFar = resolveModelViewCameraFarMeters(roomSpanMeters);
 
   return (
     <Canvas
       shadows="percentage"
       dpr={resolveModelViewDprRange(viewportQuality)}
       gl={{ antialias: MODEL_VIEW_MSAA, preserveDrawingBuffer: true }}
-      camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: 100 }}
+      camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: cameraFar }}
       onPointerMissed={interactive ? onClearSelection : undefined}
     >
       <ModelViewPreviewProfileProvider quality={viewportQuality}>

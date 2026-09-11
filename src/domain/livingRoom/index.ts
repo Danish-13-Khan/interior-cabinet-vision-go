@@ -162,6 +162,15 @@ export {
   resolveModelViewMaxDpr,
 } from "./modelViewSharpness";
 export {
+  MODEL_VIEW_CAMERA_EASE_MS,
+  easeInOutCubic,
+  lerpNumber,
+  lerpPoint3,
+  resolveModelViewCameraFarMeters,
+  resolveModelViewMinPolarAngle,
+  resolveModelViewOrbitMaxDistance,
+} from "./modelViewCameraEase";
+export {
   resolveRoomFitFrustumHalfExtent,
   roomSpanMetersFromSizeMm,
 } from "./roomFitShadowFrustum";

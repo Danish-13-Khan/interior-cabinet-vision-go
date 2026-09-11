@@ -7,6 +7,10 @@ import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/li
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import {
+  resolveModelViewMinPolarAngle,
+  resolveModelViewOrbitMaxDistance,
+} from "../../domain/livingRoom/modelViewCameraEase";
 import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
@@ -79,8 +83,10 @@ export function ModelViewInteractionRig({
           rotateSpeed={0.92}
           enablePan={viewPreset !== "walkthrough"}
           enableZoom={viewPreset !== "walkthrough"}
+          screenSpacePanning={false}
           minDistance={1.2}
-          maxDistance={16}
+          maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
+          minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
           maxPolarAngle={Math.PI / 2 - 0.02}
           mouseButtons={{
             LEFT: MOUSE.ROTATE,
@@ -102,6 +108,7 @@ export function ModelViewInteractionRig({
         fitVersion={fitVersion}
         fitMode={fitMode}
         fitSelection={fitSelection}
+        dragging={dragging}
       />
       <WalkthroughNavigation
         enabled={interactive && viewPreset === "walkthrough"}
