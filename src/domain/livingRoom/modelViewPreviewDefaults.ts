@@ -6,13 +6,22 @@ import {
   type PresetHonestyDescription,
 } from "./presetHonesty";
 import type { RenderMode, RenderModeQuality } from "./renderAssetContracts";
+import {
+  resolveModelViewProjectShadow,
+  resolveModelViewWindowKeyShadow,
+} from "./shadowCameraTuning";
+import { resolveGlbCastShadow } from "./glbCastShadow";
 
 /** Model view never uses hero/photoreal — review stays honest preview. */
 export function resolveModelViewRenderMode(): RenderMode {
   return "preview";
 }
 
-/** Soft studio lighting tuned for 3D review — designed, not client export. */
+/**
+ * Soft studio lighting for 3D review — designed, not client export.
+ * After Standard GLB castShadow, contact scales stay lighter so map + contact
+ * do not double-muddy the floor (Policy A shadow cameras attached).
+ */
 export function resolveModelViewLightingQuality(
   quality: RenderQuality,
 ): EnvironmentLightingQuality {
@@ -20,13 +29,15 @@ export function resolveModelViewLightingQuality(
   const rich = quality === "standard";
   return {
     ...base,
-    intensityScale: rich ? 0.98 : 0.9,
+    intensityScale: rich ? 1.0 : 0.9,
     shadowMapSize: rich ? Math.max(base.shadowMapSize, 768) : 640,
     shadowRadius: base.shadowRadius + (rich ? 3 : 2),
-    contactShadowOpacityScale: rich ? 1.2 : 1.1,
-    contactShadowBlurScale: rich ? 1.1 : 1.14,
-    hemisphereScale: rich ? 0.78 : 0.84,
+    contactShadowOpacityScale: rich ? 1.08 : 1.1,
+    contactShadowBlurScale: rich ? 1.05 : 1.14,
+    hemisphereScale: rich ? 0.76 : 0.84,
     preferHdri: true,
+    projectShadow: resolveModelViewProjectShadow(quality),
+    windowKeyShadow: resolveModelViewWindowKeyShadow(quality),
   };
 }
 
@@ -49,11 +60,11 @@ export function resolveModelViewMaterialQuality(
 }
 
 export function modelViewProjectLightScale(quality: RenderQuality) {
-  return quality === "standard" ? 0.94 : 0.88;
+  return quality === "standard" ? 0.96 : 0.88;
 }
 
 export function modelViewWindowKeyScale(quality: RenderQuality) {
-  return quality === "standard" ? 1.08 : 0.98;
+  return quality === "standard" ? 1.05 : 0.98;
 }
 
 export type ModelViewMaterialBuildContext = {
@@ -88,6 +99,8 @@ export type ModelViewRuntimeProfile = {
   anisotropy: number;
   proceduralMapWidth: number;
   modelViewPreview: boolean;
+  glbCastShadow: boolean;
+  projectShadowFrustum: number | undefined;
 };
 
 /** Stable runtime metadata for tests and diagnostics — not persisted on project JSON. */
@@ -107,6 +120,12 @@ export function describeModelViewRuntimeProfile(
     anisotropy: material.anisotropy,
     proceduralMapWidth: material.textureDetail === "high" ? 256 : 128,
     modelViewPreview: true,
+    glbCastShadow: resolveGlbCastShadow({
+      renderMode: "preview",
+      modelViewPreview: true,
+      modelViewQuality: quality,
+    }),
+    projectShadowFrustum: lighting.projectShadow?.frustumHalfExtent,
   };
 }
 

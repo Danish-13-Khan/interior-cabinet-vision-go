@@ -2,6 +2,7 @@ import type { RenderQuality } from "../interiorProject";
 import type { RenderMode } from "./renderAssetContracts";
 import { getRenderQualityPreset } from "./renderStudio";
 import { resolveGroundingQuality } from "./groundingQuality";
+import type { ShadowCameraTuning } from "./shadowCameraTuning";
 
 export type EnvironmentLightingQuality = {
   mode: RenderMode;
@@ -17,6 +18,9 @@ export type EnvironmentLightingQuality = {
   contactShadowHeightOffsetMeters: number;
   preferHdri: boolean;
   hemisphereScale: number;
+  /** Policy A: set only for Model View; Studio omits → studio defaults. */
+  projectShadow?: ShadowCameraTuning;
+  windowKeyShadow?: ShadowCameraTuning;
 };
 
 /**

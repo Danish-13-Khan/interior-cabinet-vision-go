@@ -1339,7 +1339,7 @@
           "toneMapping": "aces-filmic",
           "outputColorSpace": "srgb",
           "exposure": 1.05,
-          "shadowMap": "pcf-soft"
+          "shadowMap": "pcf"
         }
       },
       "phase1Benchmark": {
