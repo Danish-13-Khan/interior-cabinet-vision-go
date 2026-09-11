@@ -50,7 +50,7 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
     await expect(page.locator('[data-cabinet-type="wall"]')).toHaveCount(2);
     await expect(page.locator('[data-cabinet-type="tall"]')).toHaveCount(1);
     await expect(page.locator('[data-cabinet-type="drawer"]')).toHaveCount(1);
-    await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`)).toHaveAttribute("data-family-id", "frameless-standard-base");
+    await expect(page.locator(`.lr-plan-svg [data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`)).toHaveAttribute("data-family-id", "frameless-standard-base");
   });
 
   await test.step("confirm-run", async () => {
@@ -72,9 +72,9 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
 
   await test.step("assert-cutlist", async () => {
     await clickInteriorsTool(page, "cabinet");
-    await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
+    await expect(page.locator(`.lr-plan-svg [data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
       .toHaveAttribute("data-width-mm", String(GOLDEN_RUN_REVISED_WIDTH_MM));
-    await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
+    await expect(page.locator(`.lr-plan-svg [data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
       .toHaveAttribute("data-family-id", "frameless-standard-base");
   });
 
@@ -142,9 +142,9 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
 
   await test.step("reopen-project", async () => {
     await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
-    await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
+    await expect(page.locator(`.lr-plan-svg [data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
       .toHaveAttribute("data-width-mm", String(GOLDEN_RUN_REVISED_WIDTH_MM));
-    await page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`).click();
+    await page.locator(`.lr-plan-svg [data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`).click();
     await expect(page.getByTestId("cabinet-finish")).toHaveValue(GOLDEN_RUN_REVISED_FINISH_ID);
     await page.getByTestId("interiors-present").click();
     await expect(page.getByTestId("proposal-quote-status")).toContainText(/Frozen Rev A/i);

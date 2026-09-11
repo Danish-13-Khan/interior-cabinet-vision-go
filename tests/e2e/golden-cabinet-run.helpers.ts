@@ -26,8 +26,12 @@ export async function selectGoldenCabinet(page: Page, objectId: string) {
     await expect(page.locator(`.lr-object-identity[data-object-id="${objectId}"]`)).toBeVisible();
     return;
   }
-  await page.locator(`[data-object-id="${objectId}"]`).first().click();
-  await expect(page.locator(`[data-object-id="${objectId}"].is-selected`)).toBeVisible();
+  // Present leaves the editor in 3D, where data-object-id also appears on
+  // non-interactive scene metadata. Select the actual cabinet in the plan.
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
+  const planObject = page.locator(`.lr-plan-svg [data-object-id="${objectId}"]`);
+  await planObject.click();
+  await expect(planObject).toHaveClass(/is-selected/);
 }
 
 export async function reviseBaseWidth(page: Page, widthMm: number) {
@@ -35,7 +39,7 @@ export async function reviseBaseWidth(page: Page, widthMm: number) {
   const width = page.getByRole("spinbutton", { name: "W mm" });
   await width.fill(String(widthMm));
   await width.blur();
-  await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
+  await expect(page.locator(`[data-object-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"][data-width-mm]`))
     .toHaveAttribute("data-width-mm", String(widthMm));
 }
 
@@ -43,6 +47,10 @@ export async function changeGoldenFinish(page: Page, objectId = GOLDEN_RUN_OBJEC
   await clickInteriorsTool(page, "select");
   await selectGoldenCabinet(page, objectId);
   const finish = page.getByTestId("cabinet-finish");
+  const advanced = page.getByTestId("inspector-cabinet-advanced");
+  if (await advanced.getAttribute("open") === null) {
+    await advanced.locator("summary").click();
+  }
   await finish.selectOption(GOLDEN_RUN_REVISED_FINISH_ID);
   await expect(finish).toHaveValue(GOLDEN_RUN_REVISED_FINISH_ID);
 }
