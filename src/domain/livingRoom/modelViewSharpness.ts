@@ -23,8 +23,8 @@ export function resolveModelViewDprRange(quality: RenderQuality): [number, numbe
 }
 
 /**
- * Anisotropy is already 6 / 10 via resolveModelViewMaterialQuality.
- * Do not bump here until curated maps land (Phase D) and Standard still reads soft.
+ * Anisotropy stays at Model View 6 / 10 after Phase D curated maps.
+ * Bump only if Standard still reads soft with full normal/rough sets.
  */
 export const MODEL_VIEW_ANISOTROPY_FROZEN = {
   draft: 6,

@@ -20,7 +20,7 @@ describe("modelViewSharpness Phase B", () => {
     expect(resolveModelViewMaxDpr("client-preview")).toBe(1.5);
   });
 
-  it("documents MSAA-on and frozen anisotropy until Phase D maps", () => {
+  it("documents MSAA-on and frozen anisotropy after Phase D maps", () => {
     expect(MODEL_VIEW_MSAA).toBe(true);
     expect(resolveModelViewMaterialQuality("draft").anisotropy).toBe(
       MODEL_VIEW_ANISOTROPY_FROZEN.draft,

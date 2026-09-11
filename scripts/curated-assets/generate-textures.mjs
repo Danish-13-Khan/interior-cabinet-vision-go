@@ -1,5 +1,5 @@
 /**
- * Generate curated PBR texture PNGs for soft-goods materials.
+ * Generate curated PBR texture PNGs for living-room materials.
  * Run: node scripts/curated-assets/generate-textures.mjs
  */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -60,10 +60,65 @@ function fabricColor(base, contrast) {
   };
 }
 
+function fabricNormal() {
+  return (x, y) => {
+    const wx = x % 4 < 2 ? 10 : -10;
+    const wy = y % 4 < 2 ? 8 : -8;
+    return [128 + wx, 128 + wy, 255];
+  };
+}
+
+function fabricRough(base = 210) {
+  return (x, y) => {
+    const weave = ((x % 4) + (y % 4)) * 3;
+    const v = Math.max(0, Math.min(255, base + weave - 8));
+    return [v, v, v];
+  };
+}
+
 function paintColor(base) {
   return (x, y) => {
     const noise = ((x * 37 + y * 17) % 9) - 4;
     return [base[0] + noise, base[1] + noise, base[2] + noise];
+  };
+}
+
+function paintNormal() {
+  return (x, y) => {
+    const n = ((x * 19 + y * 23) % 11) - 5;
+    return [128 + n, 128 - n * 0.5, 255];
+  };
+}
+
+function paintRough() {
+  return (x, y) => {
+    const v = 200 + ((x * 11 + y * 13) % 15) - 7;
+    return [v, v, v];
+  };
+}
+
+function stoneColor(base) {
+  return (x, y) => {
+    const speck = ((x * 29 + y * 17) % 23) - 11;
+    return [
+      Math.max(0, Math.min(255, base[0] + speck)),
+      Math.max(0, Math.min(255, base[1] + speck * 0.85)),
+      Math.max(0, Math.min(255, base[2] + speck * 0.7)),
+    ];
+  };
+}
+
+function stoneNormal() {
+  return (x, y) => {
+    const n = Math.sin(x * 0.11) * 10 + Math.cos(y * 0.09) * 8;
+    return [128 + n, 128 - n * 0.6, 255];
+  };
+}
+
+function stoneRough() {
+  return (x, y) => {
+    const v = 150 + Math.sin((x + y) * 0.07) * 20 + ((x * 7 + y * 3) % 11);
+    return [v, v, v];
   };
 }
 
@@ -80,6 +135,7 @@ function metalAo() {
 mkdirSync(join(texturesDir, "wood"), { recursive: true });
 mkdirSync(join(texturesDir, "fabric"), { recursive: true });
 mkdirSync(join(texturesDir, "paint"), { recursive: true });
+mkdirSync(join(texturesDir, "stone"), { recursive: true });
 mkdirSync(join(texturesDir, "metal"), { recursive: true });
 
 writeRgb(join(texturesDir, "wood/oak-color.png"), woodColor([185, 138, 88], -22));
@@ -87,10 +143,22 @@ writeRgb(join(texturesDir, "wood/oak-normal.png"), woodNormal());
 writeRgb(join(texturesDir, "wood/oak-rough.png"), woodRough());
 writeRgb(join(texturesDir, "wood/walnut-color.png"), woodColor([90, 57, 40], -18));
 writeRgb(join(texturesDir, "wood/walnut-normal.png"), woodNormal());
+writeRgb(join(texturesDir, "wood/walnut-rough.png"), woodRough());
 writeRgb(join(texturesDir, "fabric/oatmeal-color.png"), fabricColor([200, 186, 166], 10));
+writeRgb(join(texturesDir, "fabric/oatmeal-normal.png"), fabricNormal());
+writeRgb(join(texturesDir, "fabric/oatmeal-rough.png"), fabricRough(215));
 writeRgb(join(texturesDir, "fabric/olive-color.png"), fabricColor([115, 118, 90], 9));
+writeRgb(join(texturesDir, "fabric/olive-normal.png"), fabricNormal());
+writeRgb(join(texturesDir, "fabric/olive-rough.png"), fabricRough(212));
 writeRgb(join(texturesDir, "fabric/rug-wool-color.png"), fabricColor([184, 166, 141], 12));
+writeRgb(join(texturesDir, "fabric/rug-wool-normal.png"), fabricNormal());
+writeRgb(join(texturesDir, "fabric/rug-wool-rough.png"), fabricRough(230));
 writeRgb(join(texturesDir, "paint/wall-color.png"), paintColor([233, 227, 216]));
+writeRgb(join(texturesDir, "paint/wall-normal.png"), paintNormal());
+writeRgb(join(texturesDir, "paint/wall-rough.png"), paintRough());
+writeRgb(join(texturesDir, "stone/warm-color.png"), stoneColor([216, 209, 197]));
+writeRgb(join(texturesDir, "stone/warm-normal.png"), stoneNormal());
+writeRgb(join(texturesDir, "stone/warm-rough.png"), stoneRough());
 writeRgb(join(texturesDir, "metal/charcoal-ao.png"), metalAo());
 
 console.log(`Wrote curated PBR textures to ${texturesDir}`);
