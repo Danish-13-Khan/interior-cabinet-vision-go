@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
+import { clampWalkthroughMoveDelta } from "../../domain/livingRoom/modelViewPerf";
 
 type WalkthroughNavigationProps = {
   enabled: boolean;
@@ -11,23 +12,33 @@ type WalkthroughNavigationProps = {
 export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigationProps) {
   const { camera, gl, invalidate } = useThree();
   const pressed = useRef(new Set<string>());
+  /** Drop the first post-idle frame so demand-frameloop clock gaps never apply. */
+  const resumeMoveRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      pressed.current.clear();
+      resumeMoveRef.current = false;
+      return;
+    }
     const down = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopImmediatePropagation();
         pressed.current.clear();
+        resumeMoveRef.current = false;
         gl.domElement.blur();
         onExit?.();
         return;
       }
-      pressed.current.add(event.key.toLowerCase());
+      const key = event.key.toLowerCase();
+      if (pressed.current.size === 0) resumeMoveRef.current = true;
+      pressed.current.add(key);
       invalidate();
     };
     const up = (event: KeyboardEvent) => {
       pressed.current.delete(event.key.toLowerCase());
+      if (pressed.current.size === 0) resumeMoveRef.current = false;
       invalidate();
     };
     const focus = () => gl.domElement.focus();
@@ -39,11 +50,24 @@ export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigation
       window.removeEventListener("keyup", up);
       gl.domElement.removeEventListener("pointerdown", focus);
       pressed.current.clear();
+      resumeMoveRef.current = false;
     };
   }, [enabled, gl, invalidate, onExit]);
 
   useFrame((_, delta) => {
-    if (!enabled || pressed.current.size === 0) return;
+    if (!enabled || pressed.current.size === 0) {
+      resumeMoveRef.current = false;
+      return;
+    }
+    let moveDelta = clampWalkthroughMoveDelta(delta);
+    if (resumeMoveRef.current) {
+      moveDelta = 0;
+      resumeMoveRef.current = false;
+    }
+    if (moveDelta <= 0) {
+      invalidate();
+      return;
+    }
     const speed = pressed.current.has("shift") ? 3.2 : 1.55;
     const forward = new Vector3();
     camera.getWorldDirection(forward);
@@ -56,7 +80,7 @@ export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigation
     if (pressed.current.has("d") || pressed.current.has("arrowright")) move.add(right);
     if (pressed.current.has("a") || pressed.current.has("arrowleft")) move.sub(right);
     if (move.lengthSq() > 0) {
-      camera.position.addScaledVector(move.normalize(), speed * delta);
+      camera.position.addScaledVector(move.normalize(), speed * moveDelta);
       invalidate();
     }
   });

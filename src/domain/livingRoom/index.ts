@@ -163,6 +163,7 @@ export {
 } from "./modelViewSharpness";
 export {
   MODEL_VIEW_CAMERA_EASE_MS,
+  consumeOrbitEaseCancelGeneration,
   easeInOutCubic,
   lerpNumber,
   lerpPoint3,
@@ -182,6 +183,8 @@ export { resolveGlbCastShadow, assignGlbCasterSlots } from "./glbCastShadow";
 export {
   MODEL_VIEW_ADAPTIVE_DPR,
   MODEL_VIEW_FRAMELOOP,
+  MODEL_VIEW_WALKTHROUGH_MAX_DELTA_S,
+  clampWalkthroughMoveDelta,
   resolveModelViewMaxGlbCasters,
 } from "./modelViewPerf";
 export {
@@ -389,6 +392,7 @@ export {
   type ModelViewPresetId,
 } from "./modelViewPresets";
 export {
+  resolveModelViewFKeyFitMode,
   resolveModelViewFitPose,
   resolveModelViewSelectionBoundsMm,
   type ModelViewFitMode,

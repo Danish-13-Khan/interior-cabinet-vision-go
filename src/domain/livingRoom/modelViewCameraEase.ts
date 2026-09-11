@@ -45,3 +45,17 @@ export function resolveModelViewMinPolarAngle(
   }
   return 0.12;
 }
+
+/**
+ * Wheel zoom fires OrbitControls start+end in one handler.
+ * Bump a generation on start; CameraRig latches cancel even after end.
+ */
+export function consumeOrbitEaseCancelGeneration(
+  cancelGeneration: number,
+  lastSeenGeneration: number,
+): { cancel: boolean; nextSeenGeneration: number } {
+  if (cancelGeneration === lastSeenGeneration) {
+    return { cancel: false, nextSeenGeneration: lastSeenGeneration };
+  }
+  return { cancel: true, nextSeenGeneration: cancelGeneration };
+}

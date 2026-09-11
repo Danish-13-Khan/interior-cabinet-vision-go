@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  consumeOrbitEaseCancelGeneration,
   easeInOutCubic,
   lerpNumber,
   lerpPoint3,
@@ -37,5 +38,21 @@ describe("modelViewCameraEase Phase E", () => {
     expect(resolveModelViewMinPolarAngle("top")).toBeLessThan(
       resolveModelViewMinPolarAngle("front"),
     );
+  });
+
+  it("latches ease cancel across synchronous wheel start/end", () => {
+    let generation = 0;
+    let lastSeen = 0;
+    let animating = true;
+    generation += 1; // OrbitControls onStart (wheel)
+    // onEnd clears navigating ref in the same handler; generation stays bumped
+    const afterWheel = consumeOrbitEaseCancelGeneration(generation, lastSeen);
+    expect(afterWheel.cancel).toBe(true);
+    lastSeen = afterWheel.nextSeenGeneration;
+    animating = false;
+    expect(animating).toBe(false);
+    const nextFrame = consumeOrbitEaseCancelGeneration(generation, lastSeen);
+    expect(nextFrame.cancel).toBe(false);
+    expect(nextFrame.nextSeenGeneration).toBe(lastSeen);
   });
 });
