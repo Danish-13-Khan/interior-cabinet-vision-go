@@ -46,7 +46,7 @@ describe("modelViewPreviewDefaults", () => {
     expect(draft.headline).toBe("Designed Preview");
     expect(draft.shortBadge).toContain("PREVIEW");
     expect(draft.shortBadge).not.toContain("HERO");
-    expect(draft.subline).toMatch(/not client export/i);
+    expect(draft.subline).toMatch(/fast draft|not client export/i);
 
     const standard = describeModelViewHonesty("standard");
     expect(standard.headline).toBe("Rich Preview");
@@ -76,6 +76,7 @@ describe("modelViewPreviewDefaults", () => {
     expect(draft.maxGlbCasters).toBe(0);
     expect(standard.maxGlbCasters).toBe(10);
     expect(standard.frameloop).toBe("demand");
+    expect(draft.defaultQualityLocked).toBe(true);
     expect(draft.anisotropy).toBe(6);
     expect(draft.proceduralMapWidth).toBe(128);
     expect(standard.anisotropy).toBe(10);
