@@ -69,7 +69,8 @@ export function LivingRoomModelView({
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
     () => preferModelViewCameraId(scene.cameras),
   );
-  const camera = useModelViewCameraSession(!presentation);
+  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
+  const camera = useModelViewCameraSession(!presentation, hasSelection);
   const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
@@ -164,7 +165,6 @@ export function LivingRoomModelView({
     camera.viewPreset, cameraHeightMm, fieldOfViewDegrees,
   );
   const exitWalkthrough = useCallback(() => camera.setViewPreset("dollhouse"), [camera.setViewPreset]);
-  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
   const fitSelection = { objectIds: selectedIds, wallId: activeWallId, openingId: activeOpeningId };
   const clientView = modelViewClientPresentationProps({
     presentation, selectedIds, activeOpeningId, activeWallId, showGrid,

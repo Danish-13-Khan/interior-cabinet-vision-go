@@ -100,7 +100,7 @@ export const SHORTCUT_ACTION_LABELS: Record<ShortcutActionId, string> = {
   modelCamIsometric: "3D Isometric (canvas focused)",
   modelCamPerspective: "3D Perspective (canvas focused)",
   modelCamOrbit: "3D Orbit (canvas focused)",
-  modelFitRoom: "3D Fit room (canvas focused)",
+  modelFitRoom: "3D Fit room / focus selection (canvas focused)",
   modelFocusSelection: "3D Focus selection (canvas focused)",
   openMaterial: "Open material browser",
 };

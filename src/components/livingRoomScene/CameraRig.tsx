@@ -16,6 +16,7 @@ import {
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
 import {
+  consumeOrbitEaseCancelGeneration,
   easeInOutCubic,
   lerpNumber,
   lerpPoint3,
@@ -44,6 +45,8 @@ export function CameraRig({
   fitMode = "room",
   fitSelection,
   dragging = false,
+  orbitNavigatingRef,
+  orbitEaseCancelGenerationRef,
 }: {
   scene: CompiledLivingRoomScene;
   activeCameraId: string | null;
@@ -58,6 +61,8 @@ export function CameraRig({
   fitMode?: ModelViewFitMode;
   fitSelection?: ModelViewFitSelection;
   dragging?: boolean;
+  orbitNavigatingRef?: RefObject<boolean>;
+  orbitEaseCancelGenerationRef?: RefObject<number>;
 }) {
   const { camera, size, invalidate } = useThree();
   const sceneRef = useRef(scene);
@@ -70,11 +75,24 @@ export function CameraRig({
   const goalRef = useRef<CameraPoseMeters | null>(null);
   const animStartRef = useRef(0);
   const animatingRef = useRef(false);
+  const lastOrbitCancelGenerationRef = useRef(0);
   const draggingRef = useRef(dragging);
   draggingRef.current = dragging;
   const projectCamera = scene.cameras.find((candidate) => candidate.id === activeCameraId)
     ?? scene.cameras.find((candidate) => candidate.isDefault)
     ?? scene.cameras[0];
+  function latchOrbitCancel() {
+    const result = consumeOrbitEaseCancelGeneration(
+      orbitEaseCancelGenerationRef?.current ?? 0,
+      lastOrbitCancelGenerationRef.current,
+    );
+    lastOrbitCancelGenerationRef.current = result.nextSeenGeneration;
+    if (result.cancel) animatingRef.current = false;
+    return result.cancel;
+  }
+  function userIsNavigating() {
+    return draggingRef.current || Boolean(orbitNavigatingRef?.current);
+  }
 
   useLayoutEffect(() => {
     const current = sceneRef.current;
@@ -131,13 +149,12 @@ export function CameraRig({
 
     const orthoSwitched = lastOrthoRef.current !== orthographic;
     lastOrthoRef.current = orthographic;
-    if (orthoSwitched || draggingRef.current) {
+    if (orthoSwitched || userIsNavigating()) {
       applyCameraPose(camera, controlsRef.current, goal);
       animatingRef.current = false;
       invalidate();
       return;
     }
-
     fromRef.current = readCameraPoseMeters(camera, controlsRef.current, orthographic);
     goalRef.current = goal;
     animStartRef.current = performance.now();
@@ -151,9 +168,8 @@ export function CameraRig({
     projectCamera?.target.z, renderMode, scene.projectId, scene.roomId,
     size.height, size.width, viewPreset,
   ]);
-
   useFrame(() => {
-    if (draggingRef.current) {
+    if (latchOrbitCancel() || userIsNavigating()) {
       animatingRef.current = false;
       return;
     }

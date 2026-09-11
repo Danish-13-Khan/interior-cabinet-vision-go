@@ -1,6 +1,6 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { MOUSE } from "three";
-import type { RefObject } from "react";
+import { useRef, type RefObject } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
@@ -59,6 +59,8 @@ export function ModelViewInteractionRig({
   fitSelection,
   onExitWalkthrough,
 }: ModelViewInteractionRigProps) {
+  const orbitNavigatingRef = useRef(false);
+  const orbitEaseCancelGenerationRef = useRef(0);
   return (
     <>
       <ContactShadows
@@ -88,6 +90,12 @@ export function ModelViewInteractionRig({
           maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
           minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
           maxPolarAngle={Math.PI / 2 - 0.02}
+          onStart={() => {
+            orbitNavigatingRef.current = true;
+            // Wheel fires start+end synchronously — latch cancel via generation.
+            orbitEaseCancelGenerationRef.current += 1;
+          }}
+          onEnd={() => { orbitNavigatingRef.current = false; }}
           mouseButtons={{
             LEFT: MOUSE.ROTATE,
             MIDDLE: viewPreset === "walkthrough" ? MOUSE.ROTATE : MOUSE.PAN,
@@ -109,6 +117,8 @@ export function ModelViewInteractionRig({
         fitMode={fitMode}
         fitSelection={fitSelection}
         dragging={dragging}
+        orbitNavigatingRef={orbitNavigatingRef}
+        orbitEaseCancelGenerationRef={orbitEaseCancelGenerationRef}
       />
       <WalkthroughNavigation
         enabled={interactive && viewPreset === "walkthrough"}
