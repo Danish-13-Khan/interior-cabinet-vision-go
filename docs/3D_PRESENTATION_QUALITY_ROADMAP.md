@@ -21,7 +21,8 @@
 3. P0 validation must include Model View viewport checks, not export-only stills.
 4. **Shared lights isolation** — `SceneProjectLights` / `WindowKeyLight` serve Model View and Render Studio; bias/frustum changes need an explicit Model View scope **or** Studio still regression (section 6.1).
 5. **Perf gate** — replace subjective “no stutter” with a recorded hardware + scene + frame-time protocol (section 8.4).
-6. **Hero castShadow regression** — today `castShadow = renderMode === "hero"`. Studio **Draft** resolves to `preview` (no GLB cast). Hero tiers are **standard / presentation / client-preview** (plus any forced `hero` lock). P0 must preserve and test **all** of those hero paths when adding Model View Standard casting (section 8.2).
+6. **Hero castShadow regression** — today `castShadow = renderMode === "hero"`. Studio **Draft** resolves to `preview` (no GLB cast) unless forced into `hero`. Hero tiers are **standard / presentation / client-preview** (plus any forced `hero` lock). P0 must preserve and test **all** of those hero paths when adding Model View Standard casting (section 8.2).
+7. **Perf metric** — gate requires **p95** from rAF / R3F frame deltas only; `renderer.info` is not a frame-time source; average is optional (section 8.4).
 
 ---
 
@@ -318,13 +319,16 @@ Subjective “no sustained stutter on a target laptop” is **not** a pass. Befo
 | **Scene** | Fixed project: prefer a Phase 1 bench (e.g. `bench-daylight-sofa`) **or** a named golden fixture; note object count, lighting recipe id, style id |
 | **Quality** | Model View **Standard** (the tier under test) |
 | **Motion** | Same orbit path each run (e.g. 10 s continuous orbit, or N scripted pose samples) |
-| **Metric** | Average and/or p95 **frame time (ms)** from `requestAnimationFrame` delta or `renderer.info` / R3F clock over the motion window — pick one method and keep it for before/after |
+| **Metric (required)** | **p95 frame time (ms)** from a list of per-frame durations. Collect timestamp deltas via `requestAnimationFrame` **or** an R3F `useFrame` / frame callback (`clock` / `state.clock` delta). Sort ascending; p95 = value at index `floor(0.95 * (n - 1))` (or nearest-rank equivalent — document which). **Required on every run** (baseline, after casters, after lighting). |
+| **Metric (optional)** | Mean / median frame time from the **same** delta list — helpful for PR notes, **not** sufficient alone to pass the gate |
+| **Do not use** | `renderer.info` (draw calls / triangles / memory only — **no frame durations**). Do not substitute FPS counters that only expose averages without a p95 over the motion window |
 | **Baseline** | Measured **before** P0 caster change |
 | **After casters** | Remeasure after Model View Standard castShadow |
 | **After lighting** | Remeasure after final bias/frustum/contact/intensity adjustments |
-| **Gate** | Fail P0 (and block raising default quality) if post-change p95 frame time exceeds **baseline × 1.25** **or** an absolute ceiling set from the baseline run (document the chosen number in the PR). Example placeholder until first baseline exists: e.g. p95 ≤ 22 ms (~45 FPS) on the recorded machine — **replace with the real ceiling after the baseline measurement** |
+| **Gate** | Fail P0 (and block raising default quality) if post-change **p95** exceeds **baseline p95 × 1.25** **or** an absolute p95 ceiling set from the baseline run (document the chosen number in the PR). Example placeholder until first baseline exists: e.g. p95 ≤ 22 ms (~45 FPS) on the recorded machine — **replace with the real ceiling after the baseline measurement** |
 
-Store the sheet in the PR description or `tmp/` (gitignored). Do not invent a universal FPS number without that first baseline.
+Store the sheet (including **n**, p95, and optional mean) in the PR description or `tmp/` (gitignored). Do not invent a universal FPS number without that first baseline.
+
 
 ---
 
@@ -354,9 +358,9 @@ Store the sheet in the PR description or `tmp/` (gitignored). Do not invent a un
 - [ ] Product agrees P0 = gated Standard castShadow + shadow param audit (not map-type swap)  
 - [ ] Engineering agrees Model View material/lighting edits go through `modelViewPreviewDefaults.ts`  
 - [ ] Shadow bias/frustum work uses **Policy A** (Model View–scoped) by default; Policy B requires Studio stills for all hero qualities  
-- [ ] Perf gate uses section **8.4** (hardware, viewport, fixed scene, frame-time threshold) with remeasure after lighting  
-- [ ] Studio regression covers **all hero tiers** (standard / presentation / client-preview + forced hero) and preserves Studio Draft as non-casting preview  
+- [ ] Perf gate uses section **8.4**: hardware, viewport, fixed scene, **required p95 from rAF/R3F deltas** (average optional; no `renderer.info` durations), remeasure after casters and after lighting  
+- [ ] Studio regression covers **all hero tiers** (standard / presentation / client-preview + forced hero) and preserves Studio Draft as non-casting preview (unless forced hero)  
 - [ ] No new packages in implementation PRs under this doc  
-- [ ] Default quality stays Draft until the recorded Standard frame-time gate passes  
+- [ ] Default quality stays Draft until the recorded Standard **p95** gate passes  
 
-**Approval:** _pending review on `main`_
+**Approval:** _ready for implementation after metric correction (source review)_
