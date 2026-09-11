@@ -1,6 +1,10 @@
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
 import type { ShadowCameraTuning } from "../../domain/livingRoom/shadowCameraTuning";
 import { STUDIO_PROJECT_SHADOW } from "../../domain/livingRoom/shadowCameraTuning";
+import {
+  shouldProjectDirectionalCast,
+  shouldProjectFillCastShadow,
+} from "../../domain/livingRoom/directionalCasterBudget";
 import { shadowMapSizePair } from "./shadowMapSizePair";
 
 function degrees(value: number) {
@@ -14,6 +18,7 @@ export function SceneProjectLights({
   shadowRadius,
   intensityScale = 1,
   shadowCamera,
+  maxDirectionalCasters,
 }: {
   scene: CompiledLivingRoomScene;
   shadowMapSize: number;
@@ -21,9 +26,13 @@ export function SceneProjectLights({
   intensityScale?: number;
   /** Policy A override; Studio omits → STUDIO_PROJECT_SHADOW. */
   shadowCamera?: ShadowCameraTuning;
+  /** Phase C Model View budget; Studio omits → unlimited project flags. */
+  maxDirectionalCasters?: number;
 }) {
   const cam = shadowCamera ?? STUDIO_PROJECT_SHADOW;
   const half = cam.frustumHalfExtent ?? 7;
+  const fillCast = shouldProjectFillCastShadow(maxDirectionalCasters);
+  let directionalCasterCount = 0;
   return (
     <>
       {scene.lights.filter((light) => light.enabled).map((light) => {
@@ -36,13 +45,19 @@ export function SceneProjectLights({
           return <ambientLight key={light.id} color={light.color} intensity={light.intensity * 0.58 * intensityScale} />;
         }
         if (light.kind === "directional") {
+          const castShadow = shouldProjectDirectionalCast(
+            light.parameters.castShadow === true,
+            directionalCasterCount,
+            maxDirectionalCasters,
+          );
+          if (castShadow) directionalCasterCount += 1;
           return (
             <directionalLight
               key={light.id}
               position={position}
               color={light.color}
               intensity={light.intensity * 0.86 * intensityScale}
-              castShadow={light.parameters.castShadow === true}
+              castShadow={castShadow}
               shadow-mapSize={shadowMapSizePair(shadowMapSize)}
               shadow-bias={cam.bias}
               shadow-normalBias={cam.normalBias}
@@ -64,7 +79,7 @@ export function SceneProjectLights({
               color={light.color}
               intensity={light.intensity * intensityScale}
               distance={Number(light.parameters.rangeMm ?? 5000) / 1000}
-              castShadow
+              castShadow={fillCast}
               shadow-radius={shadowRadius}
             />
           );
@@ -78,7 +93,7 @@ export function SceneProjectLights({
               intensity={light.intensity * intensityScale}
               angle={Math.PI / 4}
               penumbra={0.5}
-              castShadow
+              castShadow={fillCast}
               shadow-radius={shadowRadius}
             />
           );

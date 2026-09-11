@@ -11,6 +11,10 @@ import {
   resolveModelViewWindowKeyShadow,
 } from "./shadowCameraTuning";
 import { resolveGlbCastShadow } from "./glbCastShadow";
+import {
+  MODEL_VIEW_MSAA,
+  resolveModelViewMaxDpr,
+} from "./modelViewSharpness";
 
 /** Model view never uses hero/photoreal — review stays honest preview. */
 export function resolveModelViewRenderMode(): RenderMode {
@@ -19,6 +23,7 @@ export function resolveModelViewRenderMode(): RenderMode {
 
 /**
  * Soft studio lighting for 3D review — designed, not client export.
+ * Prefer HDRI (preferHdri) over ambient: slightly lower hemisphere, higher IBL scale.
  * After Standard GLB castShadow, contact scales stay lighter so map + contact
  * do not double-muddy the floor (Policy A shadow cameras attached).
  */
@@ -29,15 +34,16 @@ export function resolveModelViewLightingQuality(
   const rich = quality === "standard";
   return {
     ...base,
-    intensityScale: rich ? 1.0 : 0.9,
+    intensityScale: rich ? 1.06 : 0.94,
     shadowMapSize: rich ? Math.max(base.shadowMapSize, 768) : 640,
     shadowRadius: base.shadowRadius + (rich ? 3 : 2),
     contactShadowOpacityScale: rich ? 1.08 : 1.1,
     contactShadowBlurScale: rich ? 1.05 : 1.14,
-    hemisphereScale: rich ? 0.76 : 0.84,
+    hemisphereScale: rich ? 0.68 : 0.78,
     preferHdri: true,
     projectShadow: resolveModelViewProjectShadow(quality),
     windowKeyShadow: resolveModelViewWindowKeyShadow(quality),
+    maxDirectionalCasters: rich ? 2 : 1,
   };
 }
 
@@ -50,7 +56,7 @@ export function resolveModelViewMaterialQuality(
     mode: "preview",
     anisotropy: rich ? 10 : 6,
     textureDetail: rich ? "high" : "low",
-    envMapIntensityScale: rich ? 1.06 : 0.94,
+    envMapIntensityScale: rich ? 1.1 : 0.96,
     bumpScale: rich ? 0.84 : 0.7,
     clearcoatScale: rich ? 1.16 : 1.1,
     sheenScale: rich ? 1.14 : 1.08,
@@ -60,7 +66,7 @@ export function resolveModelViewMaterialQuality(
 }
 
 export function modelViewProjectLightScale(quality: RenderQuality) {
-  return quality === "standard" ? 0.96 : 0.88;
+  return quality === "standard" ? 0.92 : 0.86;
 }
 
 export function modelViewWindowKeyScale(quality: RenderQuality) {
@@ -101,6 +107,9 @@ export type ModelViewRuntimeProfile = {
   modelViewPreview: boolean;
   glbCastShadow: boolean;
   projectShadowFrustum: number | undefined;
+  maxDpr: number;
+  msaa: boolean;
+  maxDirectionalCasters: number | undefined;
 };
 
 /** Stable runtime metadata for tests and diagnostics — not persisted on project JSON. */
@@ -126,6 +135,9 @@ export function describeModelViewRuntimeProfile(
       modelViewQuality: quality,
     }),
     projectShadowFrustum: lighting.projectShadow?.frustumHalfExtent,
+    maxDpr: resolveModelViewMaxDpr(quality),
+    msaa: MODEL_VIEW_MSAA,
+    maxDirectionalCasters: lighting.maxDirectionalCasters,
   };
 }
 

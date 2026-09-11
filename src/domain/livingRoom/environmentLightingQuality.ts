@@ -21,6 +21,8 @@ export type EnvironmentLightingQuality = {
   /** Policy A: set only for Model View; Studio omits → studio defaults. */
   projectShadow?: ShadowCameraTuning;
   windowKeyShadow?: ShadowCameraTuning;
+  /** Policy A / Phase C: cap project directional map casters in Model View. */
+  maxDirectionalCasters?: number;
 };
 
 /**
