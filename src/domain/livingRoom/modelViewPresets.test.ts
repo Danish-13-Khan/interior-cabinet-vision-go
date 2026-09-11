@@ -8,12 +8,17 @@ import {
   resolveModelViewPose,
 } from "./modelViewPresets";
 import {
+  resolveModelViewFKeyFitMode,
   resolveModelViewFitPose,
   resolveModelViewSelectionBoundsMm,
 } from "./modelViewFit";
 import { computeCompiledSceneBounds } from "./sceneCompilerBounds";
 
 describe("model view presets", () => {
+  it("maps plain F to selection focus when something is selected", () => {
+    expect(resolveModelViewFKeyFitMode(false)).toBe("room");
+    expect(resolveModelViewFKeyFitMode(true)).toBe("selection");
+  });
   it("exposes primary cameras including true isometric, separate from dollhouse", () => {
     expect(MODEL_VIEW_PRIMARY_CAMERA_IDS).toEqual([
       "perspective", "isometric", "front", "side", "top",
@@ -70,5 +75,14 @@ describe("model view presets", () => {
     expect(focused.target.x).toBeCloseTo(expected.center.x, 5);
     expect(focused.target.z).toBeCloseTo(expected.center.z, 5);
     expect(focused.spanMm).toBeGreaterThan(0);
+
+    const dollhouseFocus = resolveModelViewFitPose(scene, "dollhouse", "selection", {
+      objectIds: [objectId!], wallId: null, openingId: null,
+    });
+    const roomFit = resolveModelViewFitPose(scene, "dollhouse", "room", {
+      objectIds: [], wallId: null, openingId: null,
+    });
+    expect(dollhouseFocus.target).toEqual(expected.center);
+    expect(dollhouseFocus.target).not.toEqual(roomFit.target);
   });
 });

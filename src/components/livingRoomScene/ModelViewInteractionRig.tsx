@@ -1,12 +1,16 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { MOUSE } from "three";
-import type { RefObject } from "react";
+import { useRef, type RefObject } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import {
+  resolveModelViewMinPolarAngle,
+  resolveModelViewOrbitMaxDistance,
+} from "../../domain/livingRoom/modelViewCameraEase";
 import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
@@ -55,6 +59,8 @@ export function ModelViewInteractionRig({
   fitSelection,
   onExitWalkthrough,
 }: ModelViewInteractionRigProps) {
+  const orbitNavigatingRef = useRef(false);
+  const orbitEaseCancelGenerationRef = useRef(0);
   return (
     <>
       <ContactShadows
@@ -79,9 +85,17 @@ export function ModelViewInteractionRig({
           rotateSpeed={0.92}
           enablePan={viewPreset !== "walkthrough"}
           enableZoom={viewPreset !== "walkthrough"}
+          screenSpacePanning={false}
           minDistance={1.2}
-          maxDistance={16}
+          maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
+          minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
           maxPolarAngle={Math.PI / 2 - 0.02}
+          onStart={() => {
+            orbitNavigatingRef.current = true;
+            // Wheel fires start+end synchronously — latch cancel via generation.
+            orbitEaseCancelGenerationRef.current += 1;
+          }}
+          onEnd={() => { orbitNavigatingRef.current = false; }}
           mouseButtons={{
             LEFT: MOUSE.ROTATE,
             MIDDLE: viewPreset === "walkthrough" ? MOUSE.ROTATE : MOUSE.PAN,
@@ -102,6 +116,9 @@ export function ModelViewInteractionRig({
         fitVersion={fitVersion}
         fitMode={fitMode}
         fitSelection={fitSelection}
+        dragging={dragging}
+        orbitNavigatingRef={orbitNavigatingRef}
+        orbitEaseCancelGenerationRef={orbitEaseCancelGenerationRef}
       />
       <WalkthroughNavigation
         enabled={interactive && viewPreset === "walkthrough"}

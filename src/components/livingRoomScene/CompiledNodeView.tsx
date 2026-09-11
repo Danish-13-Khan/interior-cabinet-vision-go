@@ -21,6 +21,8 @@ export function CompiledNodeView({
   onMovePreview,
   interactive, onMechanismClick, onAssetReady, onWallContextMenu,
   positionOverride,
+  glbCasterSlot,
+  maxGlbCasters,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -41,6 +43,8 @@ export function CompiledNodeView({
   onAssetReady?: () => void;
   onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
   positionOverride?: Point3Mm;
+  glbCasterSlot?: number;
+  maxGlbCasters?: number;
 }) {
   const [hovered, setHovered] = useState(false);
   const selectionTarget = modelSelectionTarget(node);
@@ -107,6 +111,7 @@ export function CompiledNodeView({
           url={modelAsset.url!} definition={modelAsset.definition!} binding={node.renderBinding}
           materials={materials} primitives={node.primitives} selected={selected}
           renderMode={renderMode} renderQuality={renderQuality} onReady={onAssetReady}
+          glbCasterSlot={glbCasterSlot} maxGlbCasters={maxGlbCasters}
           onPointerDown={handlePointerDown}
         />
       ) : (

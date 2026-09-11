@@ -71,13 +71,18 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
         {MODEL_VIEW_EXPLORE_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
       </div>
       <div className="lr-view-presets lr-view-fit" aria-label="3D framing">
-        <button type="button" data-testid="model-fit-room" title="Fit room (F)" onClick={props.onFitRoom}>
+        <button
+          type="button"
+          data-testid="model-fit-room"
+          title="Fit room (F when nothing selected)"
+          onClick={props.onFitRoom}
+        >
           Fit Room
         </button>
         <button
           type="button"
           data-testid="model-focus-selection"
-          title="Focus selection (Shift+F)"
+          title="Focus selection (F or Shift+F)"
           disabled={!props.hasSelection}
           onClick={props.onFocusSelection}
         >

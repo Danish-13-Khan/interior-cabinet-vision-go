@@ -26,6 +26,7 @@ describe("living-room interior style system", () => {
     expect(new Set(LIVING_ROOM_STYLE_PRESETS.map((style) => style.environment.backgroundColor)).size).toBe(3);
     expect(LIVING_ROOM_STYLE_PRESETS.every((style) => Object.keys(style.materialRecipes).length === 9)).toBe(true);
     expect(LIVING_ROOM_STYLE_PRESETS.every((style) => style.colorManagement.toneMapping === "aces-filmic")).toBe(true);
+    expect(LIVING_ROOM_STYLE_PRESETS.every((style) => style.colorManagement.shadowMap === "pcf")).toBe(true);
   });
 
   it("applies materials, lighting, environment, and exposure without mutating the source", () => {

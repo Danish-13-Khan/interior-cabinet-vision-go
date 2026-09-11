@@ -1,7 +1,7 @@
 import { LIVING_ROOM_MATERIAL_IDS } from "../../domain/livingRoom/materials";
 import type { MaterialAssetDefinition } from "../../domain/livingRoom/renderAssetContracts";
 
-/** PBR material spine for living-room materials. Maps stay procedural until files land. */
+/** PBR material spine for living-room materials — curated maps + procedural fallback. */
 export const MATERIAL_ASSET_MANIFEST = [
   {
     id: LIVING_ROOM_MATERIAL_IDS.wallPaint,
@@ -13,6 +13,8 @@ export const MATERIAL_ASSET_MANIFEST = [
     opacity: 1,
     uvScaleMm: 2400,
     colorMapId: "tex:paint-wall-color",
+    normalMapId: "tex:paint-wall-normal",
+    roughnessMapId: "tex:paint-wall-rough",
     proceduralFallback: true,
   },
   {
@@ -51,6 +53,7 @@ export const MATERIAL_ASSET_MANIFEST = [
     uvScaleMm: 900,
     colorMapId: "tex:walnut-color",
     normalMapId: "tex:walnut-normal",
+    roughnessMapId: "tex:walnut-rough",
     proceduralFallback: true,
   },
   {
@@ -63,6 +66,8 @@ export const MATERIAL_ASSET_MANIFEST = [
     opacity: 1,
     uvScaleMm: 450,
     colorMapId: "tex:fabric-oatmeal-color",
+    normalMapId: "tex:fabric-oatmeal-normal",
+    roughnessMapId: "tex:fabric-oatmeal-rough",
     proceduralFallback: true,
   },
   {
@@ -75,6 +80,8 @@ export const MATERIAL_ASSET_MANIFEST = [
     opacity: 1,
     uvScaleMm: 450,
     colorMapId: "tex:fabric-olive-color",
+    normalMapId: "tex:fabric-olive-normal",
+    roughnessMapId: "tex:fabric-olive-rough",
     proceduralFallback: true,
   },
   {
@@ -110,6 +117,8 @@ export const MATERIAL_ASSET_MANIFEST = [
     opacity: 1,
     uvScaleMm: 1600,
     colorMapId: "tex:rug-wool-color",
+    normalMapId: "tex:rug-wool-normal",
+    roughnessMapId: "tex:rug-wool-rough",
     proceduralFallback: true,
   },
   {
@@ -121,6 +130,9 @@ export const MATERIAL_ASSET_MANIFEST = [
     metalness: 0,
     opacity: 1,
     uvScaleMm: 1800,
+    colorMapId: "tex:stone-warm-color",
+    normalMapId: "tex:stone-warm-normal",
+    roughnessMapId: "tex:stone-warm-rough",
     proceduralFallback: true,
   },
 ] as const satisfies readonly MaterialAssetDefinition[];

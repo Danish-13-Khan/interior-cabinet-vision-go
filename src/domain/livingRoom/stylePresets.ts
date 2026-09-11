@@ -34,7 +34,8 @@ export type LivingRoomColorManagement = {
   toneMapping: "aces-filmic";
   outputColorSpace: "srgb";
   exposure: number;
-  shadowMap: "pcf-soft";
+  /** r185 soft-PCF uses PCFShadowMap — metadata only, not a runtime switch. */
+  shadowMap: "pcf" | "pcf-soft";
 };
 
 type MaterialRecipe = Pick<
@@ -97,7 +98,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       toneMapping: "aces-filmic",
       outputColorSpace: "srgb",
       exposure: 1.05,
-      shadowMap: "pcf-soft",
+      shadowMap: "pcf",
     },
   },
   {
@@ -135,7 +136,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       toneMapping: "aces-filmic",
       outputColorSpace: "srgb",
       exposure: 1.18,
-      shadowMap: "pcf-soft",
+      shadowMap: "pcf",
     },
   },
   {
@@ -173,7 +174,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       toneMapping: "aces-filmic",
       outputColorSpace: "srgb",
       exposure: 0.92,
-      shadowMap: "pcf-soft",
+      shadowMap: "pcf",
     },
   },
 ] as const satisfies readonly LivingRoomStylePreset[];

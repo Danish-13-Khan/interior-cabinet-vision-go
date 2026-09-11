@@ -1,6 +1,8 @@
 import { useLayoutEffect, useRef } from "react";
 import type { DirectionalLight } from "three";
 import type { WindowKeyLightDescriptor } from "../../domain/livingRoom/windowKeyLight";
+import type { ShadowCameraTuning } from "../../domain/livingRoom/shadowCameraTuning";
+import { STUDIO_WINDOW_KEY_SHADOW } from "../../domain/livingRoom/shadowCameraTuning";
 import { shadowMapSizePair } from "./shadowMapSizePair";
 
 type WindowKeyLightProps = {
@@ -8,6 +10,8 @@ type WindowKeyLightProps = {
   shadowMapSize: number;
   shadowRadius: number;
   intensityScale?: number;
+  /** Policy A override; Studio omits → STUDIO_WINDOW_KEY_SHADOW. */
+  shadowCamera?: ShadowCameraTuning;
 };
 
 function WindowKeyDirectional({
@@ -15,13 +19,16 @@ function WindowKeyDirectional({
   shadowMapSize,
   shadowRadius,
   intensityScale = 1,
+  shadowCamera,
 }: {
   light: WindowKeyLightDescriptor;
   shadowMapSize: number;
   shadowRadius: number;
   intensityScale?: number;
+  shadowCamera: ShadowCameraTuning;
 }) {
   const lightRef = useRef<DirectionalLight>(null);
+  const pad = shadowCamera.padMeters ?? light.shadowPadMeters;
   useLayoutEffect(() => {
     const current = lightRef.current;
     if (!current) return;
@@ -45,15 +52,15 @@ function WindowKeyDirectional({
       intensity={light.intensity * intensityScale}
       castShadow={light.castShadow}
       shadow-mapSize={light.castShadow ? shadowMapSizePair(shadowMapSize) : undefined}
-      shadow-bias={-0.0003}
-      shadow-normalBias={0.035}
-      shadow-radius={shadowRadius + 1}
-      shadow-camera-near={0.2}
-      shadow-camera-far={28}
-      shadow-camera-left={-light.shadowPadMeters}
-      shadow-camera-right={light.shadowPadMeters}
-      shadow-camera-top={light.shadowPadMeters}
-      shadow-camera-bottom={-light.shadowPadMeters}
+      shadow-bias={shadowCamera.bias}
+      shadow-normalBias={shadowCamera.normalBias}
+      shadow-radius={shadowRadius + shadowCamera.radiusExtra}
+      shadow-camera-near={shadowCamera.near}
+      shadow-camera-far={shadowCamera.far}
+      shadow-camera-left={-pad}
+      shadow-camera-right={pad}
+      shadow-camera-top={pad}
+      shadow-camera-bottom={-pad}
     />
   );
 }
@@ -64,7 +71,9 @@ export function WindowKeyLight({
   shadowMapSize,
   shadowRadius,
   intensityScale = 1,
+  shadowCamera,
 }: WindowKeyLightProps) {
+  const cam = shadowCamera ?? STUDIO_WINDOW_KEY_SHADOW;
   return (
     <>
       {lights.map((light) => (
@@ -74,6 +83,7 @@ export function WindowKeyLight({
           shadowMapSize={shadowMapSize}
           shadowRadius={shadowRadius}
           intensityScale={intensityScale}
+          shadowCamera={cam}
         />
       ))}
     </>

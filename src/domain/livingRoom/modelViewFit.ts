@@ -20,6 +20,11 @@ export type ModelViewFitResult = ModelViewPose & {
   spanMm: number;
 };
 
+/** Plain F in 3D: focus selection when present, otherwise fit the room. */
+export function resolveModelViewFKeyFitMode(hasSelection: boolean): ModelViewFitMode {
+  return hasSelection ? "selection" : "room";
+}
+
 function nodeMatchesSelection(
   node: CompiledLivingRoomScene["nodes"][number],
   selection: ModelViewFitSelection,
