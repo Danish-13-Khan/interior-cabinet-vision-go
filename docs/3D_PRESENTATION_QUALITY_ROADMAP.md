@@ -1,60 +1,60 @@
 # 3D Presentation Quality — Technical Review & Roadmap
 
-**Document role:** Review of the living-room WebGL Model View / Render Studio stack, industry comparison, and phased improvement plan  
-**Status:** DRAFT — awaiting product/engineering review (no implementation committed under this doc yet)  
-**Date:** 2026-09-11  
+**Document role:** Review of the living-room WebGL Model View / Render Studio stack and phased improvement plan  
+**Status:** REVISED DRAFT — awaiting product/engineering review (implementation not started under this doc)  
+**Date:** 2026-09-11 (revised same day after source review)  
 **Related:** [Phase 1 — WebGL Presentation Floor](./PHASE_1_WEBGL_PRESENTATION_FLOOR.md) · [Phase 2 — Hybrid Stills Pipeline](./PHASE_2_HYBRID_STILLS_PIPELINE.md) · [Product Decisions](./PRODUCT_DECISIONS.md)
 
-**Hard constraints (carry forward from Phase 1):**
+**Hard constraints:**
 
 - No Three types or absolute paths in InteriorProject JSON
-- Prefer focused modules (≤200 lines hard ceiling in this repo)
-- **No `@react-three/postprocessing`** and no BVH unless product explicitly reopens those constraints
-- Honest claims: strong interactive WebGL presentation, **not** Synaps / Twinmotion photoreal
-- Reuse R3F + Drei + existing presets / lighting / material ladders — do not rewrite the renderer
+- Prefer focused modules (repo ≤200-line script ceiling)
+- No new npm packages for this program — reuse installed `three`, `@react-three/fiber`, `@react-three/drei` only
+- No `@react-three/postprocessing`, no BVH, no path tracer in the live viewport unless product explicitly reopens Phase 1
+- Honest claims: interactive WebGL presentation, not photoreal marketing stills (Phase 2 owns wow frames)
+- Do not rewrite the renderer; tune existing compile → R3F path
+
+**Revision note (source review):** The first draft incorrectly treated `PCFSoftShadowMap` as a P0 fix. On Three **r185** (installed), soft-PCF is already the `PCFShadowMap` path; a type swap alone would not improve visuals. Shadow work is now bias / radius / frustum + caster coverage. Material work must target Model View override functions, not only `heroRenderQuality.ts`. P0 validation must include Model View viewport checks, not export-only Phase 1 stills.
 
 ---
 
 ## 1. Verdict
 
-The app already has a **real presentation stack** (Three + R3F + Drei, quality presets, HDRI, `MeshPhysicalMaterial`, contact shadows, ACES tone mapping). It still reads “flat CAD” mainly because of:
+The app already has a **real presentation stack** (R3F + Drei, quality presets, HDRI, `MeshPhysicalMaterial`, contact shadows, ACES). It still reads “flat CAD” mainly because of:
 
-1. **Miswired soft shadows** (`PCFShadowMap` forced while styles claim `pcf-soft`)
-2. **Preview-mode GLBs that do not cast realtime shadows** (Model View is always `preview`)
-3. **Weak / low-resolution material maps** (procedural ≤256px; incomplete normal/rough sets)
-4. **OrbitControls-only navigation** (no CameraControls-class truck/dolly/smooth focus)
-5. **Product ban on in-viewport post-processing** (MSAA only; export polish is 2D)
+1. **GLB furniture does not cast realtime shadows in Model View** (`castShadow` only when `renderMode === "hero"`; Model View is always `preview`) — **confirmed primary grounding bug**
+2. **Shadow softness / depth is under-tuned**, not “miswired to the wrong map type” — radius, bias, normalBias, and fixed ±7 m frustums need a measured audit against room size
+3. **Incomplete or low-res material maps** on some finishes (procedural fallbacks; partial curated sets) — but Model View Standard already boosts anisotropy / env response via dedicated overrides
+4. **Camera feel is OrbitControls-only** — fit/focus is abrupt; walkthrough exists; further UX can stay on existing Drei controls
+5. **In-viewport post-processing is intentionally out** — MSAA + export still polish only
 
-Modern web interior tools look sharper by stacking soft shadows + denser IBL + richer PBR maps + smoother cameras — and often by **baking or offline stills** for client marketing frames (aligned with Phase 2).
+Stale style metadata (`shadowMap: "pcf-soft"`) is documentation debt, not a runtime bug on r185.
 
 ---
 
-## 2. Current state (what we already implement)
+## 2. Current state
 
 | Area | Status |
 |------|--------|
-| Stack | `three` ^0.185, `@react-three/fiber`, `@react-three/drei` |
-| Color pipeline | ACESFilmic + sRGB + exposure (`RendererColorPipeline`) |
-| Quality tiers | `draft` / `standard` / `client-preview` / `presentation` |
-| Lighting | Hemisphere + recipe lights + window key lights + HDRI or Lightformer fallback |
-| Materials | MeshPhysical (clearcoat / sheen / transmission), curated + procedural maps |
-| Shadows | Directional shadow maps + Drei `ContactShadows` (`frames={1}`) |
-| Camera | OrbitControls, damping, view presets, fit room / focus selection, walkthrough WASD |
-| Export polish | Supersample + unsharp + vignette + depth contact (still engine) |
-| Honesty | Preview ≠ photoreal messaging already in Phase 1 docs |
+| Stack | Installed `three` r185, R3F, Drei — **no new deps planned** |
+| Color | ACESFilmic + sRGB + exposure (`RendererColorPipeline`) |
+| Quality | Project: draft / standard / client-preview / presentation; **Model View safe:** draft / standard only |
+| Lighting | Hemisphere + recipes + window keys + HDRI / Lightformer |
+| Materials | MeshPhysical + curated / procedural maps |
+| Shadows | Directional maps + Drei `ContactShadows` (`frames={1}`) |
+| Camera | OrbitControls, presets, fit room / focus selection, walkthrough WASD |
+| Export | Supersample + unsharp + vignette + depth contact (still engine) |
 
-### Scene mount path
+### Scene mount
 
 ```
-LivingRoomModelView
-  → ModelViewScene (Canvas)
-       → CompiledSceneRenderer
-            RendererColorPipeline
-            RenderLightingRig (Environment + project lights + window keys)
-            CompiledNodeView → procedural / AssetBackedObject (GLB)
-            ModelViewInteractionRig (ContactShadows, OrbitControls, CameraRig)
-LivingRoomRenderStudio
-  → LivingRoomRenderCanvas + RenderCaptureBridge (hero stills)
+LivingRoomModelView → ModelViewScene → CompiledSceneRenderer
+  RendererColorPipeline
+  RenderLightingRig
+  CompiledNodeView → procedural / AssetBackedObject
+  ModelViewInteractionRig (ContactShadows, OrbitControls, CameraRig)
+
+LivingRoomRenderStudio → LivingRoomRenderCanvas + RenderCaptureBridge
 ```
 
 ### Key files
@@ -62,197 +62,230 @@ LivingRoomRenderStudio
 | Concern | Path |
 |---------|------|
 | Model Canvas | `src/components/livingRoomScene/ModelViewScene.tsx` |
-| Render Canvas | `src/components/LivingRoomRenderCanvas.tsx` |
-| Color / tone / shadow type | `src/components/livingRoomScene/RendererColorPipeline.tsx` |
-| Contact shadows + OrbitControls | `src/components/livingRoomScene/ModelViewInteractionRig.tsx` |
+| Color / exposure / shadow map type | `src/components/livingRoomScene/RendererColorPipeline.tsx` |
+| Contact + orbit | `src/components/livingRoomScene/ModelViewInteractionRig.tsx` |
 | Camera pose / fit | `src/components/livingRoomScene/CameraRig.tsx` |
-| Lighting rig | `src/rendering/lighting/RenderLightingRig.tsx` |
-| HDRI / Lightformers | `src/rendering/lighting/EnvironmentLighting.tsx` |
+| **Model View lighting / material overrides** | `src/domain/livingRoom/modelViewPreviewDefaults.ts` |
+| Generic preview/hero material ladder | `src/domain/livingRoom/heroRenderQuality.ts` |
+| Env / shadow quality map | `src/domain/livingRoom/environmentLightingQuality.ts` |
+| Project lights (bias / frustum) | `src/rendering/lighting/SceneProjectLights.tsx` |
+| Window keys | `src/rendering/lighting/WindowKeyLight.tsx` |
+| GLB cast / receive | `src/components/livingRoomScene/AssetBackedObject.tsx` |
 | Presets | `src/domain/livingRoom/renderPresets/definitions.ts` |
-| Lighting quality map | `src/domain/livingRoom/environmentLightingQuality.ts` |
-| PBR descriptor | `src/rendering/materials/createPbrMaterial.ts` |
-| GLB materials | `src/rendering/materials/applyGlbSlotMaterials.ts` |
-| Still polish | `src/rendering/stillEngine/runHeroStillEngine.ts` |
-
-### Preset knobs (interactive / capture)
-
-| Preset | DPR | Shadow map | Contact res | Env res | Shadow radius |
-|--------|-----|------------|-------------|---------|---------------|
-| draft | 1 | 512 | 256 | 64 | 1 |
-| standard | 1.5 | 1024 | 512 | 128 | 4 |
-| client-preview | 1.75 | 1536 | 768 | 256 | 5 |
-| presentation | 2 | 2048 | 1024 | 256 | 7 |
-
-Model View is restricted to `modelViewSafe` presets (draft / standard) and always uses `renderMode: "preview"`.
 
 ---
 
-## 3. Problems → symptoms
+## 3. Effective Model View runtime (do not ignore)
 
-| User symptom | Likely cause |
-|--------------|--------------|
-| Flat materials / soft edges | Procedural maps ≤256px; incomplete normal/rough/metal maps; low anisotropy in draft |
-| Weak shadows / depth | `RendererColorPipeline` forces `PCFShadowMap` vs Canvas `shadows="percentage"` and style `"pcf-soft"` |
-| Furniture floats | GLB `castShadow` only when `renderMode === "hero"` — Model View never casts from GLBs |
-| Dull lighting | Preview light/env scales damp intensity; env res 64–128; ambient draw multiplier ~0.58× |
-| Non-pro camera feel | OrbitControls only; focus is one-shot fit; limited clamps |
-| Soft / muddy image | MSAA only; draft DPR = 1; no SMAA (postprocessing package forbidden) |
+Model View does **not** use generic `getRenderModeQuality("preview", …)` alone. When the viewport profile is active, materials and lighting resolve through:
+
+- `resolveModelViewLightingQuality(quality)`
+- `resolveModelViewMaterialQuality(quality)`
+- `modelViewProjectLightScale` / `modelViewWindowKeyScale`
+- `describeModelViewRuntimeProfile` (diagnostics / tests)
+
+| Knob | Draft Model View | Standard Model View | Notes |
+|------|------------------|---------------------|-------|
+| `renderMode` | `preview` | `preview` | Never hero |
+| Anisotropy | **6** | **10** | Already ≥ proposed “8” on Standard |
+| `envMapIntensityScale` | **0.94** | **1.06** | Above generic preview ladder |
+| Texture detail | low | high | Procedural width 128 / **256** |
+| Shadow map size | 640 | ≥768 | From Model View lighting override |
+| Shadow radius | base + 2 | base + 3 | Softer than generic preview |
+| Contact opacity / blur scales | 1.1 / 1.14 | 1.2 / 1.1 | Grounding boosted |
+| Project light scale | 0.88 | 0.94 | |
+| Window key scale | 0.98 | 1.08 | |
+| `preferHdri` | true | true | Forced on in Model View |
+
+**Implication:** Bumping anisotropy via `heroRenderQuality.ts` alone may **do nothing in Model View** (overrides win) or **change Render Studio** unintentionally. Viewport material/lighting work must edit `modelViewPreviewDefaults.ts` (and tests in `modelViewPreviewDefaults.test.ts`). Studio/export work stays on `heroRenderQuality.ts` / preset definitions.
+
+### Current directional shadow parameters (audit targets)
+
+| Source | Bias | Normal bias | Radius usage | Frustum |
+|--------|------|-------------|--------------|---------|
+| `SceneProjectLights` | −0.00028 | 0.04 | `shadowRadius + 2` on directionals | Fixed **±7** m, near 0.1 / far 30 |
+| `WindowKeyLight` | −0.0003 | 0.035 | `shadowRadius + 1` | Pad from light; near 0.2 / far 28 |
+
+`RendererColorPipeline` sets `PCFShadowMap` — correct for r185 soft-PCF behavior. Style field `"pcf-soft"` is leftover metadata; clean up when touching styles, do not treat as a shadow-engine switch.
 
 ---
 
-## 4. Industry comparison (web interior / floor planners)
+## 4. Problems → symptoms (corrected)
 
-Typical modern web planners use a **dual path**:
-
-1. **Realtime authoring view** — PBR + IBL + contact/soft shadows, capped DPR, few shadow-casting lights  
-2. **Presentation stills** — bake / path-trace / cloud render for marketing frames  
-
-Common camera UX: orbit + pan-to-cursor + eased focus + eye-height / walk presets (often `CameraControls`).
-
-Materials: tileable 1–2K albedo/normal/rough rather than procedural noise as the hero finish.
-
-Some demos (e.g. Homemaker-class) **disable realtime shadows** for FPS and lean on maps + cove lights. Our bet (shadows + HDRI + contact) is correct for cabinet sales previews — we need to **tune and un-conflict** it, not copy “no shadows.”
+| User symptom | Cause |
+|--------------|-------|
+| Furniture floats | GLB `castShadow` gated on hero only — **fix in Model View Standard+** |
+| Weak / blotchy shadows | Radius / bias / frustum not fit to room; contact carries too much of grounding |
+| Flat materials | Incomplete maps / procedural fallbacks; **not** missing Standard anisotropy (already 10) |
+| Dull lighting | May need Model View intensity/contact retune after castShadow lands — measure first |
+| Soft image | Draft DPR 1; MSAA only (by design) |
+| Camera not “pro” | Orbit + one-shot fit; improve within existing Drei OrbitControls / CameraRig |
 
 ---
 
-## 5. Recommended architecture (reuse, don’t rewrite)
-
-Keep the dual-path model:
+## 5. Recommended architecture
 
 ```
-Model View (interactive, honest WebGL)
-  → existing presets + lighting/material ladders
-  → fix misconfigs, enrich maps, improve camera UX
+Model View (draft | standard, always preview mode)
+  → tune modelViewPreviewDefaults + casters + shadow params
+  → acceptance = interactive viewport checks
 
-Render Studio / client stills
-  → existing capture + still engine polish
-  → Phase 2 hybrid stills for “wow” frames
-  → NOT EffectComposer in the live viewport (unless product reopens Phase 1 constraint)
+Render Studio (hero tiers for capture)
+  → keep separate ladders; do not conflate with Model View overrides
+
+Phase 2 stills
+  → photoreal / wow frames (out of this interactive program)
 ```
 
-Prefer: soft-shadow wiring fix, gated GLB castShadow, texture manifest enrichment, optional Drei `CameraControls` (already a dependency), Adaptive DPR later.
+**Dependency policy:** zero new packages. Prefer parameter and asset work inside existing modules. Optional later camera polish uses APIs already available from installed Drei/Three — no new control library.
 
 ---
 
 ## 6. Phased roadmap
 
-### Phase A — Quick wins · Priority P0 · Estimate 1–3 days
+### Phase A — Quick wins · P0
 
-| Recommendation | Why | What should change | Files | Libraries | Trade-offs |
-|----------------|-----|--------------------|-------|-----------|------------|
-| Honor soft shadows | Soft edges/depth currently defeated | Use `PCFSoftShadowMap` (or stop overriding); align style metadata | `RendererColorPipeline.tsx`, style presets | none | Slightly costlier than hard PCF |
-| GLB castShadow in Model View | Furniture looks ungrounded | Allow cast in preview for standard+ (keep draft off) | `AssetBackedObject.tsx`, quality flag | none | More casters → GPU up; gate by preset |
-| Raise Model View default quality | Draft looks intentionally flat | Default viewport to **standard** or bump draft env/contact | `modelViewPreviewDefaults.ts`, Model View UI | none | Heavier on weak GPUs |
-| Tune exposure / env for preview | Scene reads muddy | Slight bump preview envMap + window key; keep ACES | `environmentLightingQuality.ts`, `heroRenderQuality.ts` | none | Overbright risk — A/B vs Phase 1 benchmarks |
-| Contact shadow opacity/blur pass | Cheapest grounding realism | Per-style tweak via existing knobs | `stylePresets.ts`, `groundingQuality.ts` | none | Too dark = dirty floor blobs |
+| Item | Why | What changes | Files | Trade-off |
+|------|-----|--------------|-------|-----------|
+| **Gated GLB castShadow in Model View Standard** | Primary float bug | Cast when Model View quality is `standard` (keep draft contact-only or lighter). Preview mode stays preview — only caster flag changes | `AssetBackedObject.tsx`, optional quality helper | More GPU cost on Standard; must budget FPS |
+| **Shadow bias / radius / frustum audit** | Softness & acne, not map type | Measure room-scale; fit directional ortho frustum to room AABB (replace fixed ±7 where needed); tune bias / normalBias / radius via existing `shadowRadius` ladders | `SceneProjectLights.tsx`, `WindowKeyLight.tsx`, `resolveModelViewLightingQuality`, maybe small domain helper | Wrong bias → acne or peter-panning |
+| **Stale style metadata cleanup** | Avoid future false “pcf-soft” fixes | Align style docs/fields with r185 (`PCFShadowMap`) | `stylePresets.ts` (metadata only) | None |
+| **Model View lighting retune after casters** | Avoid guessing intensity before grounding exists | Adjust contact/window/project scales in `resolveModelViewLightingQuality` only after Standard cast is on | `modelViewPreviewDefaults.ts` | Overbright if done before casters |
+| **Do not raise Model View default to Standard yet** | Perf unknown | Keep Draft default until viewport budget passes; optional UI hint that Standard is richer | Model View UI / defaults | Raising default too early hurts low-end machines |
 
-### Phase B — Rendering sharpness · Priority P0–P1
+**Out of P0:** swapping shadow map enums for “softness”; anisotropy bumps aimed at Model View via `heroRenderQuality.ts`.
 
-| Recommendation | Why | What | Files | Libraries | Caveat |
-|----------------|-----|------|-------|-----------|--------|
-| DPR policy | Soft on retina | Keep `dpr={[1, preset]}`; Model View ≥1.5 on standard | `ModelViewScene.tsx`, presets | none | Battery/CPU |
-| Stay on MSAA | Product bans EffectComposer | Keep `antialias: true`; sharpness from textures + soft shadows | Canvas props | none | No SMAA unless constraint lifted |
-| Texture anisotropy | Soft wood/fabric | Preview standard ≥8 anisotropy | `heroRenderQuality.ts` | none | Minor VRAM |
-| Capture path unchanged | Client PNGs already supersample + unsharp | Do not move still polish into live viewport | still engine | none | — |
+### Phase B — Rendering sharpness · P1
 
-### Phase C — Lighting · Priority P1
+| Item | Why | What | Files | Caveat |
+|------|-----|------|-------|--------|
+| Keep MSAA | Already on Canvas | No change unless product opens postprocessing | `ModelViewScene.tsx` | — |
+| DPR | Soft on retina Draft | Leave Draft at 1; Standard already 1.5 — document only unless measured need | presets | Battery |
+| Anisotropy / env | Only if Standard still soft *after* maps | Tune **`resolveModelViewMaterialQuality`**, not only hero ladder | `modelViewPreviewDefaults.ts` | Studio path separate |
+| Capture polish | Client PNGs | Leave still engine as-is for this program | still engine | — |
 
-| Recommendation | Why | What | Files | Libraries | Caveat |
-|----------------|-----|------|-------|-----------|--------|
-| Soft map + bias consistency | Professional depth | Soft map + bias/normalBias/radius per preset | `SceneProjectLights`, `WindowKeyLight` | none | Shadow acne if bias wrong |
-| Limit shadow-casting lights | Performance | 1–2 casters (window key OR sun); others fill-only | lighting recipes, `SceneProjectLights` | none | Less multi-light drama |
-| Stronger IBL, weaker flat ambient | Modern look = reflections | Prefer HDRI; reduce ambient multiplier; raise env | `EnvironmentLighting`, `SceneProjectLights`, `environmentManifest` | existing HDR | HDR fail → Lightformer (already) |
-| Shadow frustum fit to room | Crisp shadows in large rooms | Fit ortho shadow cam to room AABB | light helpers | none | Update on room resize |
-| Optional HDR intensity / rotation UI | Designer control | Expose intensity; optional rotateY | render settings UI | none | Scope creep if full light editor |
+### Phase C — Lighting · P1
 
-### Phase D — Materials · Priority P1
+| Item | Why | What | Files | Caveat |
+|------|-----|------|-------|--------|
+| Caster budget | Many objects | Prefer 1–2 directional casters; fills without maps | recipes + `SceneProjectLights` | Less drama |
+| Room-fit shadow camera | Large rooms | Shared helper: frustum from room bounds | new small helper under `src/domain/livingRoom/` or `src/rendering/lighting/` | Update on room edit |
+| IBL vs ambient balance | After P0 | Prefer HDRI response; nudge ambient via Model View scales | `modelViewPreviewDefaults`, `EnvironmentLighting` | Measure in Standard |
+| HDR intensity UI | Nice-to-have | Expose existing exposure / intensity already in render settings | existing UI | Scope |
 
-| Recommendation | Why | What | Files | Libraries | Caveat |
-|----------------|-----|------|-------|-----------|--------|
-| Complete curated PBR sets | Flat finishes | Albedo+normal+rough for top woods/laminates/paint | `textureManifest`, `materialManifest`, `CuratedPbrMaterial` | none (assets) | Bundle size; KTX2 later |
-| Raise procedural fallback res | When no curated map | Selective 256→512 on standard+ | `proceduralMapQuality.ts` | none | CPU on first compile |
-| Consistent GLB vs procedural | Mixed look feels cheap | Shared roughness/env ladders | `createPbrMaterial`, `applyGlbSlotMaterials` | none | Kenney preserve-source path |
-| Edge perception without heavy bevels | “Sharp finishing” | Normal maps + slight clearcoat | material scales | none | Real bevels cost geometry |
+### Phase D — Materials · P1
 
-### Phase E — Camera · Priority P1
+| Item | Why | What | Files | Caveat |
+|------|-----|------|-------|--------|
+| Curated map completeness | Flat woods/laminates | Add normal/rough where missing; keep bytes project-owned | `textureManifest`, `materialManifest`, `CuratedPbrMaterial` | Bundle size |
+| Procedural fallback | Gaps | Optional higher width on Standard only via Model View textureDetail (already high @ 256) | `proceduralMapQuality` + Model View profile | CPU |
+| Path separation | Avoid cross-breaks | Model View → `resolveModelViewMaterialQuality`; Studio → `getRenderModeQuality` / hero | both ladders + tests | Dual maintenance |
 
-| Recommendation | Why | What | Files | Libraries | Caveat |
-|----------------|-----|------|-------|-----------|--------|
-| CameraControls upgrade (optional) | Pro pan/dolly/focus | Wrap/replace OrbitControls with Drei `CameraControls` | `ModelViewInteractionRig`, `CameraRig`, session hook | **drei only** | Fit/focus rewrite; careful walkthrough |
-| Smooth focus-on-selection | Fit is abrupt today | Ease look-at over 200–400ms | `CameraRig`, `modelViewFit` | CameraControls helpers | Don’t fight mid-drag |
-| Navigation limits | Avoid under-floor / chaos | Keep maxPolar; add minPolar; optional floor-locked pan | controls props | none | Too strict frustrates dollhouse |
-| FOV / near-far audit | Interior FOV ~35–45 is good (42 today) | Keep; scale `far` with roomSpan | `ModelViewScene`, fit helpers | none | Large far → z-fighting |
-| Preset transitions | Pros live on presets | Smooth front/side/iso/dollhouse moves | `modelViewPresets`, `CameraRig` | none | Ortho↔persp already special |
+### Phase E — Camera · P1 (existing stack only)
 
-### Phase F — Post-processing · Priority P2 (constrained)
+| Item | Why | What | Files | Caveat |
+|------|-----|------|-------|--------|
+| Smoother focus / fit | Abrupt reframes | Lerp target/position in `CameraRig` over ~200–400 ms | `CameraRig.tsx`, `modelViewFit.ts` | Don’t fight drag |
+| Limit polish | Disorientation | Optional minPolar / floor-locked pan on OrbitControls | `ModelViewInteractionRig.tsx` | Dollhouse |
+| Preset easing | Pro feel | Ease between existing presets | `CameraRig`, `modelViewPresets` | Ortho↔persp |
+| FOV / clip | Already ~42°, near 0.05 / far 100 | Scale `far` with `roomSpan` if large plans clip | `ModelViewScene`, fit helpers | Z-fight |
 
-| Recommendation | Why | What | Notes |
-|----------------|-----|------|-------|
-| In-viewport SSAO / SMAA / bloom | Looks “pro” | **Blocked** by Phase 1 | Prefer contact + soft maps + materials |
-| Export-time grade | Client stills | Keep/enhance unsharp, vignette, contrast, depth contact | Align with Phase 2 |
-| If constraint lifted later | Optional N8AO + SMAA at presentation only | Would need EffectComposer package | Gate behind presentation quality only |
+No new camera package. If Drei’s `CameraControls` is considered later, that is a **separate product decision** (still no new npm dep) and not part of P0.
 
-### Phase G — Performance · Priority P1–P2
+### Phase F — Post-processing · deferred
 
-| Recommendation | Why | What | Files | Caveat |
-|----------------|-----|------|-------|--------|
-| Shadow caster budget | Many objects | Cap casters; draft = contact only | quality ladders | Draft visual regression OK |
-| Demand frameloop | Idle GPU | `frameloop="demand"` + invalidate on interaction | Canvas, controls | Easy to miss redraws |
-| Adaptive DPR | Large rooms | Drei AdaptiveDpr / PerformanceMonitor | `ModelViewScene` | Flicker if aggressive |
-| Texture memory | Many materials | Share materials; dispose; optional KTX2 | loaders, manifests | Tooling work |
-| No BVH yet | Phase 1 forbid | Keep simple picking | — | Revisit if pick lag |
-| Static architecture batching | Draw calls | Later merge static walls/floors | scene compiler | Larger refactor |
+In-viewport SSAO / SMAA / bloom remain **out**. Export still grade and Phase 2 hybrid stills remain the photoreal path.
 
-### Phase H — Final production quality · Priority P2
+### Phase G — Performance · P1–P2
+
+| Item | Why | What | Files | Caveat |
+|------|-----|------|-------|--------|
+| Standard castShadow budget | P0 may cost FPS | Cap simultaneous casters; draft stays lighter | quality helpers | Visual vs speed |
+| Demand frameloop | Idle GPU | `frameloop="demand"` + invalidate on interaction | Canvas / controls | Missed redraws |
+| Adaptive DPR | Large rooms | Only if needed — prefer Drei helpers already installed | `ModelViewScene` | Flicker |
+| Material sharing / dispose | Memory | Existing loaders | loaders | — |
+
+### Phase H — Production quality bar
 
 | Track | Goal |
 |-------|------|
-| Interactive “sales floor” | Soft shadows + casting furniture + richer maps + smoother camera |
-| Client package | Render Studio hero presets + still polish; Phase 2 for wow frames |
-| Desktop / web | Cap DPR 1.5–2; 1–2 shadow lights; honor Phase 1 Tauri latency budgets |
-| Honesty | Keep “presentation WebGL” claims; do not market as Twinmotion |
+| Model View Standard | Grounded GLBs, readable materials, orbit stays responsive |
+| Draft | Fast authoring; honest thinner lighting/shadows |
+| Client package | Unchanged Studio hero + Phase 2 for wow |
+| Desktop / web | Meet interactive budget below before raising defaults |
 
 ---
 
-## 7. Priority summary
+## 7. P0 implementation slice (approved direction)
 
-| Priority | Do first |
-|----------|----------|
-| **P0** | Soft shadow map fix; GLB castShadow on standard+ Model View; contact + env/exposure retune; Model View default ≥ standard |
-| **P1** | Shadow frustum fit; curated PBR completion; CameraControls or smoother Orbit focus; demand frameloop / adaptive DPR |
-| **P2** | KTX2; static batching; reopen postprocessing only with product approval; Phase 2 stills for photoreal |
+**Start here — no new dependencies:**
 
----
-
-## 8. Suggested first implementation slice (after doc approval)
-
-**P0 only — no new libraries:**
-
-1. Soft shadows actually soft  
-2. Preview GLBs cast shadows on standard+  
-3. Contact + env/exposure retune against existing Phase 1 benchmark rooms  
-4. Validate Draft vs Client Preview remain visibly different  
-
-Materials pack + camera UX follow as a second PR after P0 lands.
+1. Enable **GLB `castShadow` for Model View Standard** (preview mode, gated).  
+2. Run **Model View acceptance** (section 8) and record a simple perf note (frame feel / interaction).  
+3. **Audit and tune** shadow bias, radius, and frustum for Standard with casters on.  
+4. Retune **Model View** contact / window / project scales only if still flat or too dark.  
+5. Clean stale `pcf-soft` style metadata when convenient.  
+6. **Do not** change default viewport quality to Standard until budgets pass.
 
 ---
 
-## 9. Explicit non-goals
+## 8. Acceptance criteria
 
-- Rewriting the renderer or abandoning compile → R3F architecture  
-- Adding `@react-three/postprocessing` without an explicit product decision  
-- Enabling every light to cast 2K shadows  
-- Chasing path-trace quality in the live viewport  
-- InteriorProject schema changes for polish-only work  
+### 8.1 Model View (required for P0 — primary)
+
+| Check | Pass condition |
+|-------|----------------|
+| Furniture grounding (Standard) | Selected Kenney/GLB pieces cast onto floor; contact + map shadows read as one grounded object |
+| Draft vs Standard | Draft remains lighter/faster; Standard visibly better grounded — not identical |
+| GLB load | Lamp / plant / sofa load without fallback flicker for known assets |
+| Move object | Drag XYZ; mesh, outline, and gizmo stay aligned; shadow follows |
+| Orbit / pan / zoom | Damping feels stable; no multi-second hitch after quality toggle |
+| Performance budget | On target laptop/desktop: Standard room with ~15–25 objects stays interactive (no sustained stutter while orbiting). Exact FPS gate set during P0 measurement — block raising default until recorded |
+| Walkthrough smoke | Enter/exit walkthrough still works after caster change |
+
+Export / Phase 1 still comparisons are **optional** for this slice; they do not replace viewport checks.
+
+### 8.2 Render Studio (regression only for P0)
+
+| Check | Pass condition |
+|-------|----------------|
+| Draft vs Client Preview stills | Still visibly different (existing Phase 1 intent) |
+| Hero castShadow | Unchanged behavior for non-draft studio modes |
+
+### 8.3 Explicit non-validation
+
+- Do not treat “switched shadow map enum” as a success metric  
+- Do not use anisotropy ≥8 in `heroRenderQuality` as Model View proof (Standard already at 10 via overrides)
 
 ---
 
-## 10. Review checklist
+## 9. Priority summary
 
-- [ ] Product agrees P0 scope (soft shadows + GLB cast + retune)  
-- [ ] Product confirms postprocessing remains **out** for interactive Model View  
-- [ ] Engineering confirms CameraControls is acceptable as a later P1 (Drei-only)  
-- [ ] Phase 1 benchmark rooms remain the visual regression kit  
-- [ ] Phase 2 stills remain the path for photoreal client marketing frames  
+| Priority | Work |
+|----------|------|
+| **P0** | Standard-preview GLB castShadow → Model View benchmarks → bias/radius/frustum tune → optional Model View light retune |
+| **P1** | Curated maps; Model View material tweaks in `modelViewPreviewDefaults`; camera easing; caster budget / demand frameloop |
+| **P2** | Compression / batching; reopen postprocessing only with product OK; Phase 2 stills |
+
+---
+
+## 10. Non-goals
+
+- New npm dependencies or external render tools  
+- `@react-three/postprocessing` / BVH / path tracing in Model View  
+- Fixing shadows by selecting `PCFSoftShadowMap`  
+- Raising Model View default quality before viewport budget passes  
+- Conflating Model View overrides with Render Studio hero ladders  
+- Schema changes for polish-only work  
+
+---
+
+## 11. Review checklist
+
+- [ ] Product agrees P0 = gated Standard castShadow + shadow param audit (not map-type swap)  
+- [ ] Engineering agrees Model View material/lighting edits go through `modelViewPreviewDefaults.ts`  
+- [ ] Model View acceptance table used as done definition for P0  
+- [ ] No new packages in implementation PRs under this doc  
+- [ ] Default quality stays Draft until Standard budget is recorded  
 
 **Approval:** _pending review on `main`_
