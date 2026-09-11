@@ -7,11 +7,19 @@ import {
 } from "three";
 import type { CompiledMaterial } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
-import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import { getRenderModeQuality } from "../../domain/livingRoom/heroRenderQuality";
+import { resolveModelViewMaterialQuality } from "../../domain/livingRoom/modelViewPreviewDefaults";
+import type {
+  RenderMode,
+  RenderModeQuality,
+} from "../../domain/livingRoom/renderAssetContracts";
+import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
 import { usePbrMaterial } from "../../rendering/loaders/usePbrMaterial";
-import type { MaterialTextureUrls } from "../../rendering/materials/resolveMaterialTextureUrls";
+import {
+  resolveCuratedBumpMap,
+  resolveCuratedMapAnisotropy,
+} from "../../rendering/materials/curatedMapQuality";
 import { textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
+import type { MaterialTextureUrls } from "../../rendering/materials/resolveMaterialTextureUrls";
 
 function prepareTexture(
   texture: Texture,
@@ -19,6 +27,7 @@ function prepareTexture(
   mode: RenderMode,
   colorSpace: boolean,
   quality?: RenderQuality,
+  modeQuality?: RenderModeQuality,
   uvRotationDeg = 0,
   uvOffsetU = 0,
   uvOffsetV = 0,
@@ -30,7 +39,7 @@ function prepareTexture(
   texture.center.set(0.5, 0.5);
   texture.rotation = (uvRotationDeg * Math.PI) / 180;
   texture.offset.set(uvOffsetU, uvOffsetV);
-  texture.anisotropy = getRenderModeQuality(mode, quality).anisotropy;
+  texture.anisotropy = resolveCuratedMapAnisotropy(mode, quality, modeQuality);
   if (colorSpace) texture.colorSpace = SRGBColorSpace;
   return texture;
 }
@@ -51,6 +60,10 @@ export function CuratedPbrMaterial({
   renderQuality?: RenderQuality;
   urls: MaterialTextureUrls;
 }) {
+  const modelViewQuality = useModelViewPreviewQuality();
+  const modeQuality = modelViewQuality
+    ? resolveModelViewMaterialQuality(modelViewQuality)
+    : undefined;
   const pbr = usePbrMaterial(material, renderMode, primitiveId, renderQuality);
   const entries = (Object.entries(urls) as Array<[Slot, string | undefined]>)
     .filter((entry): entry is [Slot, string] => Boolean(entry[1]));
@@ -77,20 +90,32 @@ export function CuratedPbrMaterial({
     const offsetU = material.uvOffsetU ?? 0;
     const offsetV = material.uvOffsetV ?? 0;
     if (textures.map) {
-      prepareTexture(textures.map, material.uvScaleMm, renderMode, true, renderQuality, material.uvRotationDeg, offsetU, offsetV);
+      prepareTexture(
+        textures.map, material.uvScaleMm, renderMode, true,
+        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+      );
     }
     if (textures.normalMap) {
-      prepareTexture(textures.normalMap, material.uvScaleMm, renderMode, false, renderQuality, material.uvRotationDeg, offsetU, offsetV);
+      prepareTexture(
+        textures.normalMap, material.uvScaleMm, renderMode, false,
+        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+      );
     }
     if (textures.roughnessMap) {
-      prepareTexture(textures.roughnessMap, material.uvScaleMm, renderMode, false, renderQuality, material.uvRotationDeg, offsetU, offsetV);
+      prepareTexture(
+        textures.roughnessMap, material.uvScaleMm, renderMode, false,
+        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+      );
     }
     if (textures.aoMap) {
-      prepareTexture(textures.aoMap, material.uvScaleMm, renderMode, false, renderQuality, material.uvRotationDeg, offsetU, offsetV);
+      prepareTexture(
+        textures.aoMap, material.uvScaleMm, renderMode, false,
+        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+      );
     }
   }, [
     material.uvOffsetU, material.uvOffsetV, material.uvRotationDeg, material.uvScaleMm,
-    renderMode, renderQuality, textures,
+    modeQuality, renderMode, renderQuality, textures,
   ]);
 
   return (
@@ -100,7 +125,7 @@ export function CuratedPbrMaterial({
       normalMap={textures.normalMap}
       roughnessMap={textures.roughnessMap}
       aoMap={textures.aoMap}
-      bumpMap={textures.map ? undefined : pbr.maps.bumpMap}
+      bumpMap={resolveCuratedBumpMap(textures.normalMap, pbr.maps.bumpMap)}
       bumpScale={pbr.bumpScale}
       roughness={pbr.roughness}
       metalness={pbr.metalness}
