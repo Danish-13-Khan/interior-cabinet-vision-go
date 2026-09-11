@@ -155,6 +155,20 @@ export {
   type ModelViewMaterialBuildContext,
   type ModelViewRuntimeProfile,
 } from "./modelViewPreviewDefaults";
+export {
+  MODEL_VIEW_ANISOTROPY_FROZEN,
+  MODEL_VIEW_MSAA,
+  resolveModelViewDprRange,
+  resolveModelViewMaxDpr,
+} from "./modelViewSharpness";
+export {
+  resolveRoomFitFrustumHalfExtent,
+  roomSpanMetersFromSizeMm,
+} from "./roomFitShadowFrustum";
+export {
+  shouldProjectDirectionalCast,
+  shouldProjectFillCastShadow,
+} from "./directionalCasterBudget";
 export { resolveGlbCastShadow } from "./glbCastShadow";
 export {
   computeFrameTimeMeanMs,

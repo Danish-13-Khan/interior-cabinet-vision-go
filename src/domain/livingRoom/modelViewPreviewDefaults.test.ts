@@ -68,6 +68,11 @@ describe("modelViewPreviewDefaults", () => {
     expect(draft.modelViewPreview).toBe(true);
     expect(draft.glbCastShadow).toBe(false);
     expect(standard.glbCastShadow).toBe(true);
+    expect(draft.maxDpr).toBe(1);
+    expect(standard.maxDpr).toBe(1.5);
+    expect(draft.msaa).toBe(true);
+    expect(draft.maxDirectionalCasters).toBe(1);
+    expect(standard.maxDirectionalCasters).toBe(2);
     expect(draft.anisotropy).toBe(6);
     expect(draft.proceduralMapWidth).toBe(128);
     expect(standard.anisotropy).toBe(10);
@@ -84,8 +89,18 @@ describe("modelViewPreviewDefaults", () => {
     const studio = resolveEnvironmentLightingQuality("hero", "standard");
     expect(mv.projectShadow).toBeDefined();
     expect(mv.windowKeyShadow).toBeDefined();
+    expect(mv.maxDirectionalCasters).toBe(2);
     expect(studio.projectShadow).toBeUndefined();
     expect(studio.windowKeyShadow).toBeUndefined();
+    expect(studio.maxDirectionalCasters).toBeUndefined();
     expect(mv.projectShadow!.frustumHalfExtent).not.toBe(7);
+  });
+
+  it("prefers HDRI response over ambient in Model View Standard", () => {
+    const draft = resolveModelViewLightingQuality("draft");
+    const standard = resolveModelViewLightingQuality("standard");
+    expect(standard.preferHdri).toBe(true);
+    expect(standard.intensityScale).toBeGreaterThan(draft.intensityScale);
+    expect(standard.hemisphereScale).toBeLessThan(draft.hemisphereScale);
   });
 });

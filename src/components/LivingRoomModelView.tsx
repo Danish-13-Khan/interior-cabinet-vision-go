@@ -7,7 +7,6 @@ import {
   getActiveLivingRoomStyleId,
   getCabinetMechanismState,
   getModelViewDefaultPresetId,
-  getRenderQualityPreset,
   LIVING_ROOM_STYLE_PRESETS,
   mechanismFrontIndex,
   mechanismPanelPatch,
@@ -77,7 +76,6 @@ export function LivingRoomModelView({
   const [cutawayWalls, setCutawayWalls] = useState(false);
   const [wallMenu, setWallMenu] = useState<WallContextMenuState | null>(null);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(getModelViewDefaultPresetId());
-  const quality = getRenderQualityPreset(viewportQuality);
   const honesty = describeModelViewHonesty(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
@@ -210,7 +208,7 @@ export function LivingRoomModelView({
         onPointerDown={(event) => { if (!presentation) event.currentTarget.focus(); }}
       >
         <ModelViewScene
-          scene={scene} quality={quality} viewportQuality={viewportQuality}
+          scene={scene} viewportQuality={viewportQuality}
           renderMode={resolveModelViewRenderMode()}
           lightingQuality={resolveModelViewLightingQuality(viewportQuality)}
           projectLightScale={modelViewProjectLightScale(viewportQuality)}

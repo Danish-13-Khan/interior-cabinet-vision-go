@@ -7,14 +7,16 @@ import type {
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import type { RenderQualityPreset } from "../../domain/livingRoom/renderStudio";
+import {
+  MODEL_VIEW_MSAA,
+  resolveModelViewDprRange,
+} from "../../domain/livingRoom/modelViewSharpness";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type ModelViewSceneProps = {
   scene: CompiledLivingRoomScene;
-  quality: RenderQualityPreset;
   viewportQuality: RenderQuality;
   renderMode: RenderMode;
   lightingQuality: EnvironmentLightingQuality;
@@ -49,7 +51,7 @@ type ModelViewSceneProps = {
 
 export function ModelViewScene(props: ModelViewSceneProps) {
   const {
-    scene, quality, viewportQuality, renderMode, lightingQuality, projectLightScale,
+    scene, viewportQuality, renderMode, lightingQuality, projectLightScale,
     windowKeyScale, selectedIds, activeOpeningId, activeWallId, activeCameraId, viewPreset,
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
     interactive = true,
@@ -61,8 +63,8 @@ export function ModelViewScene(props: ModelViewSceneProps) {
   return (
     <Canvas
       shadows="percentage"
-      dpr={[1, quality.pixelRatio]}
-      gl={{ antialias: true, preserveDrawingBuffer: true }}
+      dpr={resolveModelViewDprRange(viewportQuality)}
+      gl={{ antialias: MODEL_VIEW_MSAA, preserveDrawingBuffer: true }}
       camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: 100 }}
       onPointerMissed={interactive ? onClearSelection : undefined}
     >
