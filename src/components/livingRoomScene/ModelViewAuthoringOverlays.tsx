@@ -56,6 +56,7 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
       <ModelViewLeftChrome
         toolbar={(
           <ModelViewToolbar
+            fixtures={props.onPatchDocument ? { project: props.project, onPatchDocument: props.onPatchDocument } : undefined}
             viewPreset={props.viewPreset}
             cameraHeightMm={props.cameraHeightMm}
             fieldOfViewDegrees={props.fieldOfViewDegrees}

@@ -11,8 +11,11 @@ import type { PresetHonestyDescription } from "../../domain/livingRoom/presetHon
 import { ModelViewAdvancedCameraPopover } from "./ModelViewAdvancedCameraPopover";
 import { ModelViewDollhousePanel } from "./ModelViewDollhousePanel";
 import { RenderPresetHonestyBadge } from "./RenderPresetHonestyBadge";
+import type { RoomLightFixturesPanelProps } from "./RoomLightFixturesPanel";
+import { RoomLightFixturesPopover } from "./RoomLightFixturesPopover";
 
 type ModelViewToolbarProps = {
+  fixtures?: RoomLightFixturesPanelProps;
   viewPreset: ModelViewPresetId;
   cameraHeightMm: number;
   fieldOfViewDegrees: number;
@@ -64,6 +67,7 @@ function presetButton(
 export function ModelViewToolbar(props: ModelViewToolbarProps) {
   return (
     <div className="lr-model-controls">
+      {props.fixtures && <RoomLightFixturesPopover {...props.fixtures} />}
       <div className="lr-view-presets" aria-label="3D camera views" data-testid="model-camera-presets">
         {MODEL_VIEW_PRIMARY_CAMERA_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
       </div>
