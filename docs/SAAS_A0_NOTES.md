@@ -45,7 +45,7 @@ Default new local account: **Designer** + `active` stub subscription (desktop Ta
 
 | Phase | Deferred from / beyond A0 |
 | --- | --- |
-| **A** | Price book expansion (labour fields, editable rates UX) |
+| **A** | Price book — shipped separately; see `docs/SAAS_A_NOTES.md` |
 | **B** | Quote freeze / revisions **UI**, BOQ/PDF polish |
 | **C** | Payment ledger UI, outstanding/overdue reports, consolidated client history UX |
 | **D** | Company collaboration UX (seats in use, permissions, approvals, owner dashboard) |

@@ -9,6 +9,10 @@ import { clampPlanSku, type PlanSku } from "./plans";
 export type PlanEntitlements = {
   /** Save designs + project details — every paid plan (Designer+). */
   canSave: boolean;
+  /** Edit the personal Price Book (rates + labour + quote defaults) — Designer+. */
+  canEditPersonalPriceBook: boolean;
+  /** Shared org price book — Company only; product UX is Phase D. */
+  canUseSharedOrgPriceBook: boolean;
   /** Freeze issued quotes + basic revisions — every paid plan. */
   canFreezeQuotes: boolean;
   /** Basic client on project (name / contact / project link) — Designer+. */
@@ -27,6 +31,8 @@ export type PlanEntitlements = {
 
 const DESIGNER_ENTITLEMENTS: PlanEntitlements = {
   canSave: true,
+  canEditPersonalPriceBook: true,
+  canUseSharedOrgPriceBook: false,
   canFreezeQuotes: true,
   canUseBasicClient: true,
   canUseClientHistory: false,
@@ -45,6 +51,7 @@ const PROFESSIONAL_ENTITLEMENTS: PlanEntitlements = {
 
 const COMPANY_ENTITLEMENTS: PlanEntitlements = {
   ...PROFESSIONAL_ENTITLEMENTS,
+  canUseSharedOrgPriceBook: true,
   canUseCompanyControls: true,
   canUsePremiumAudit: true,
 };
@@ -58,6 +65,8 @@ const BY_PLAN: Record<PlanSku, PlanEntitlements> = {
 /** Entitlements when there is no active paid subscription (local guest / expired). */
 export const UNAVAILABLE_ENTITLEMENTS: PlanEntitlements = {
   canSave: false,
+  canEditPersonalPriceBook: false,
+  canUseSharedOrgPriceBook: false,
   canFreezeQuotes: false,
   canUseBasicClient: false,
   canUseClientHistory: false,
