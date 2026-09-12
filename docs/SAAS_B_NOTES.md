@@ -41,7 +41,7 @@ Price Book from Phase A now feeds **live estimates on the freeze path** (proposa
 | **B UI** | Full invoice branding settings panel (store + clamp ready; Present still freeze-focused) |
 | **A UI** | Full Price Book editor grid (unchanged) |
 | **C** | Shipped domain — see `docs/SAAS_C_NOTES.md` (UI still deferred) |
-| **D** | Company shared book, approvals, richer audit |
+| **D** | Domain shipped — see `docs/SAAS_D_NOTES.md` |
 | Packaging | Real `.xlsx` via a spreadsheet library (SpreadsheetML `.xls` XML ships without new deps) |
 
 ## How to test

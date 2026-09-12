@@ -8,7 +8,7 @@ import { DEFAULT_COSTING_SETTINGS } from "../costingSettings";
 import { DEFAULT_QUOTE_SETTINGS } from "../quoteSettings";
 import type {
   FutureCatalogSlot,
-  OrgPriceBookStub,
+  OrgPriceBookRecord,
   PriceBook,
   PriceBookLabour,
   PriceBookQuoteDefaults,
@@ -134,11 +134,24 @@ export function createDefaultPriceBook(
   };
 }
 
-export function createOrgPriceBookStub(): OrgPriceBookStub {
+/** Create a shared org price book (Phase D). */
+export function createOrgPriceBook(
+  orgId: string,
+  seed?: PriceBook,
+): OrgPriceBookRecord {
+  const book = seed
+    ? { ...seed, scope: "org" as const, ownerKey: orgId }
+    : createDefaultPriceBook(orgId, "org");
   return {
     scope: "org",
-    status: "deferred-phase-d",
-    notes:
-      "Company shared org price book + per-seat overrides ship in Phase D. Personal book is live.",
+    orgId: orgId.trim() || "org-local",
+    book,
+    seatOverrides: [],
+    updatedAt: book.updatedAt,
   };
+}
+
+/** @deprecated Prefer createOrgPriceBook(orgId). */
+export function createOrgPriceBookStub(orgId = "org-local"): OrgPriceBookRecord {
+  return createOrgPriceBook(orgId);
 }

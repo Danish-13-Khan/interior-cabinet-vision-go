@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   canSave,
+  canUseCompanyControls,
+  canUsePremiumAudit,
+  canUseSharedOrgPriceBook,
   entitlementsForPlan,
   resolveEntitlements,
   UNAVAILABLE_ENTITLEMENTS,
@@ -77,6 +80,15 @@ describe("plan entitlements (A0)", () => {
     });
     expect(e.canSave).toBe(true);
     expect(e.canUseCompanyControls).toBe(false);
+  });
+
+  it("helper wrappers match matrix for Company flags", () => {
+    expect(canUseCompanyControls("company")).toBe(true);
+    expect(canUsePremiumAudit("company")).toBe(true);
+    expect(canUseSharedOrgPriceBook("company")).toBe(true);
+    expect(canUseCompanyControls("professional")).toBe(false);
+    expect(canUsePremiumAudit("professional")).toBe(false);
+    expect(canUseSharedOrgPriceBook("designer")).toBe(false);
   });
 
   it("entitlement matrix matches BUSINESS_PRODUCT_SCOPE §5", () => {

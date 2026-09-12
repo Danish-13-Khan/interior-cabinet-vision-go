@@ -114,3 +114,14 @@ export function canUseOutstandingReports(plan: PlanSku, subscriptionActive = tru
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseOutstandingReports;
 }
 
+export function canUseCompanyControls(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseCompanyControls;
+}
+
+export function canUsePremiumAudit(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canUsePremiumAudit;
+}
+
+export function canUseSharedOrgPriceBook(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseSharedOrgPriceBook;
+}

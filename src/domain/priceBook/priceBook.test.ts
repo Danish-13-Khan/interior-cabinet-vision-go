@@ -5,7 +5,6 @@ import {
   clampPriceBook,
   clampPriceBookLabour,
   createDefaultPriceBook,
-  createOrgPriceBookStub,
   FUTURE_CATALOG_SLOTS,
   persistPersonalPriceBook,
   PRICE_BOOK_STORAGE_KEY,
@@ -103,7 +102,7 @@ describe("price book defaults + clamp (Phase A)", () => {
     expect(FUTURE_CATALOG_SLOTS.every((slot) => slot.status === "todo")).toBe(true);
   });
 
-  it("persists a personal book and stubs the org book for Phase D", () => {
+  it("persists a personal book and activates a real org book (Phase D)", () => {
     const storage = memoryStorage();
     const saved = persistPersonalPriceBook(
       clampPriceBook({ labour: { workshopPercent: 42 } }),
@@ -112,8 +111,10 @@ describe("price book defaults + clamp (Phase A)", () => {
     expect(storage.getItem(PRICE_BOOK_STORAGE_KEY)).toBeTruthy();
     expect(readPersonalPriceBook(storage).labour.workshopPercent).toBe(42);
     expect(saved.scope).toBe("personal");
-    const stub = readOrgPriceBookStub();
-    expect(stub).toEqual(createOrgPriceBookStub());
-    expect(stub.status).toBe("deferred-phase-d");
+    const stub = readOrgPriceBookStub("org-test");
+    expect(stub.scope).toBe("org");
+    expect(stub.orgId).toBe("org-test");
+    expect(stub.book.scope).toBe("org");
+    expect(stub.seatOverrides).toEqual([]);
   });
 });

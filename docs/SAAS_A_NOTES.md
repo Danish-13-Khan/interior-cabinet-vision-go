@@ -53,7 +53,7 @@ Typed **TODO slots** (not `BoardMaterialId` / `FinishId`): blockboard, pine, lam
 | **A UI** | Full Price Book editor grid (CostingTab still edits the **project** labour overlay) |
 | **B** | Shipped — see `docs/SAAS_B_NOTES.md` (UI polish still deferred) |
 | **C** | Shipped — see `docs/SAAS_C_NOTES.md` |
-| **D** | Company shared org book + overrides (`readOrgPriceBookStub`) |
+| **D** | Shipped — shared org book + seat overrides; see `docs/SAAS_D_NOTES.md` |
 | Catalog | Promote TODO slots into `BoardMaterialId` / `FinishId` when pickers can take them |
 | Geometry | Apply 16/18/9 shop thickness as construction defaults |
 
