@@ -28,11 +28,9 @@ import {
   createExportableProjectCutlist,
 } from "../domain/productionOutputs";
 import {
-  clampCostingSettings,
   DEFAULT_COSTING_SETTINGS,
 } from "../domain/costingSettings";
 import {
-  clampQuoteSettings,
   DEFAULT_QUOTE_SETTINGS,
 } from "../domain/quoteSettings";
 import { readPersonalPriceBook, resolveCommercialInputs } from "../domain/priceBook";

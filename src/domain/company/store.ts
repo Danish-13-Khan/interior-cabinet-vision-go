@@ -13,7 +13,15 @@ import {
   type CompanySharedProjectsState,
 } from "./sharedProjects";
 
-export const COMPANY_CONTROLS_STORAGE_KEY = "cabinet-studio-company-controls-v1";
+const COMPANY_CONTROLS_KEY_PREFIX = "cabinet-studio-company-controls-v1";
+
+/**
+ * One key per org. A single shared key let a second org's first write wipe the
+ * first org's shared projects and approvals on the same browser.
+ */
+export function companyControlsStorageKey(orgId: string): string {
+  return `${COMPANY_CONTROLS_KEY_PREFIX}:${orgId}`;
+}
 
 export type CompanyControlsState = {
   schemaVersion: 1;
@@ -69,7 +77,7 @@ export function readCompanyControls(
 ): CompanyControlsState {
   if (!storage || !orgId) return createEmptyCompanyControls(orgId || "org-local");
   try {
-    const raw = storage.getItem(COMPANY_CONTROLS_STORAGE_KEY);
+    const raw = storage.getItem(companyControlsStorageKey(orgId));
     if (!raw) return createEmptyCompanyControls(orgId);
     return clampControls(JSON.parse(raw) as Partial<CompanyControlsState>, orgId);
   } catch {
@@ -86,14 +94,16 @@ export function persistCompanyControls(
     schemaVersion: 1,
     updatedAt: new Date().toISOString(),
   };
-  if (storage) {
-    storage.setItem(COMPANY_CONTROLS_STORAGE_KEY, JSON.stringify(next));
+  if (storage && next.orgId) {
+    storage.setItem(companyControlsStorageKey(next.orgId), JSON.stringify(next));
   }
   return next;
 }
 
 export function clearCompanyControls(
+  orgId: string,
   storage: StorageLike | null = defaultStorage(),
 ): void {
-  storage?.removeItem(COMPANY_CONTROLS_STORAGE_KEY);
+  if (!orgId) return;
+  storage?.removeItem(companyControlsStorageKey(orgId));
 }

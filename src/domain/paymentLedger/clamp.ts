@@ -20,13 +20,13 @@ export function clampAllocation(raw: Partial<PaymentAllocation> | undefined): Pa
   return {
     documentId: String(raw.documentId),
     instalmentId: raw.instalmentId ? String(raw.instalmentId) : undefined,
-    amount: money(raw.amount),
+    amount: money(raw.amount ?? 0),
   };
 }
 
 export function clampInstalment(raw: Partial<PaymentInstalment> | undefined): PaymentInstalment | null {
   if (!raw) return null;
-  const amount = money(raw.amount);
+  const amount = money(raw.amount ?? 0);
   if (amount <= 0) return null;
   return {
     id: String(raw.id ?? createLedgerId("inst")),
@@ -49,7 +49,7 @@ export function clampDocument(raw: Partial<CommercialDocument> | undefined): Com
     clientId: raw.clientId ? String(raw.clientId) : undefined,
     quoteSnapshotId: String(raw.quoteSnapshotId),
     revisionLabel: String(raw.revisionLabel ?? "A").trim() || "A",
-    total: Math.max(0, money(raw.total)),
+    total: Math.max(0, money(raw.total ?? 0)),
     currencyLabel: String(raw.currencyLabel ?? "INR").trim().slice(0, 12) || "INR",
     dueDate: raw.dueDate === null ? null : raw.dueDate ? String(raw.dueDate).slice(0, 40) : undefined,
     supersedesDocumentId: raw.supersedesDocumentId ? String(raw.supersedesDocumentId) : undefined,
@@ -74,16 +74,27 @@ export function clampSchedule(raw: Partial<PaymentSchedule> | undefined): Paymen
   };
 }
 
+/**
+ * Clamp a payment. Rejects when `sum(allocations) !== amount` (no silent repair).
+ * Empty allocations are repaired to a single parent allocation (valid shape).
+ */
 export function clampPayment(raw: Partial<PaymentRecord> | undefined): PaymentRecord | null {
   if (!raw?.id || !raw.documentId || !raw.projectId) return null;
   const kind = PAY_KINDS.has(String(raw.kind)) ? (raw.kind as PaymentRecord["kind"]) : "payment";
   const status = PAY_STATUS.has(String(raw.status)) ? (raw.status as PaymentRecord["status"]) : "recorded";
-  const amount = money(raw.amount);
-  let allocations = (Array.isArray(raw.allocations) ? raw.allocations : [])
+  const amount = money(raw.amount ?? 0);
+  const rawAllocs = Array.isArray(raw.allocations) ? raw.allocations : [];
+  let allocations = rawAllocs
     .map((item) => clampAllocation(item))
     .filter((item): item is PaymentAllocation => Boolean(item));
   if (!allocations.length) {
     allocations = [{ documentId: String(raw.documentId), amount }];
+  } else {
+    const allocSum = money(allocations.reduce((s, a) => s + a.amount, 0));
+    if (allocSum !== amount) {
+      // Explicit reject — do not silently load corrupt allocation data.
+      return null;
+    }
   }
   return {
     id: String(raw.id),
@@ -112,6 +123,9 @@ export function clampPayment(raw: Partial<PaymentRecord> | undefined): PaymentRe
 
 export function clampAudit(raw: Partial<LedgerAuditEvent> | undefined): LedgerAuditEvent | null {
   if (!raw?.id || !raw.documentId || !raw.action) return null;
+  const instalmentIds = Array.isArray(raw.instalmentIds)
+    ? raw.instalmentIds.map(String).filter(Boolean).slice(0, 48)
+    : undefined;
   return {
     id: String(raw.id),
     at: String(raw.at ?? nowIso()),
@@ -121,6 +135,7 @@ export function clampAudit(raw: Partial<LedgerAuditEvent> | undefined): LedgerAu
     documentId: String(raw.documentId),
     reason: raw.reason ? String(raw.reason).trim().slice(0, 400) : undefined,
     detail: raw.detail ? String(raw.detail).trim().slice(0, 400) : undefined,
+    instalmentIds: instalmentIds?.length ? instalmentIds : undefined,
   };
 }
 
@@ -137,9 +152,9 @@ export function clampLedger(raw: Partial<PaymentLedgerState> | undefined): Payme
     payments: (Array.isArray(raw.payments) ? raw.payments : [])
       .map((item) => clampPayment(item))
       .filter((item): item is PaymentRecord => Boolean(item)),
+    // Full history retained — never truncate audit on load/save.
     audit: (Array.isArray(raw.audit) ? raw.audit : [])
       .map((item) => clampAudit(item))
-      .filter((item): item is LedgerAuditEvent => Boolean(item))
-      .slice(0, 2000),
+      .filter((item): item is LedgerAuditEvent => Boolean(item)),
   };
 }

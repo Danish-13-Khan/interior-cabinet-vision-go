@@ -52,7 +52,7 @@ export function Register() {
               <div>
                 <h2 style={{ marginBottom: 6 }}>Create your account</h2>
                 <p className="auth-sub" style={{ marginBottom: 0 }}>
-                  Free Starter plan · upgrade anytime.
+                  Paid plans: Designer → Professional → Company.
                 </p>
               </div>
               <ThemeSwitcher size="sm" />

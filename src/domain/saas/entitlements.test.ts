@@ -18,7 +18,7 @@ describe("plan entitlements (A0)", () => {
   it("grants canSave on every paid plan", () => {
     for (const sku of PLAN_SKUS) {
       expect(entitlementsForPlan(sku).canSave).toBe(true);
-      expect(canSave(sku)).toBe(true);
+      expect(canSave(sku, true)).toBe(true);
     }
   });
 
@@ -83,12 +83,12 @@ describe("plan entitlements (A0)", () => {
   });
 
   it("helper wrappers match matrix for Company flags", () => {
-    expect(canUseCompanyControls("company")).toBe(true);
-    expect(canUsePremiumAudit("company")).toBe(true);
-    expect(canUseSharedOrgPriceBook("company")).toBe(true);
-    expect(canUseCompanyControls("professional")).toBe(false);
-    expect(canUsePremiumAudit("professional")).toBe(false);
-    expect(canUseSharedOrgPriceBook("designer")).toBe(false);
+    expect(canUseCompanyControls("company", true)).toBe(true);
+    expect(canUsePremiumAudit("company", true)).toBe(true);
+    expect(canUseSharedOrgPriceBook("company", true)).toBe(true);
+    expect(canUseCompanyControls("professional", true)).toBe(false);
+    expect(canUsePremiumAudit("professional", true)).toBe(false);
+    expect(canUseSharedOrgPriceBook("designer", true)).toBe(false);
   });
 
   it("entitlement matrix matches BUSINESS_PRODUCT_SCOPE §5", () => {

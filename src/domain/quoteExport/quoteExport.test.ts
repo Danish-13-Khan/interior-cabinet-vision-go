@@ -103,8 +103,10 @@ describe("quote export + freeze gate (Phase B)", () => {
       branding: { legalName: "Acme Interiors", gstin: "29AAAAA0000A1Z5" },
       exportedAt: "2026-09-13T00:00:00.000Z",
     });
-    expect(bundle.quoteCsv).toContain("Quote total");
-    expect(bundle.boqCsv).toContain("Thickness mm");
+    expect(bundle.liveQuoteCsv).toContain("Quote total");
+    expect(bundle.liveBoqCsv).toContain("Thickness mm");
+    // Freshly frozen from this report, so live and issued still agree.
+    expect(bundle.liveDivergesFromFrozen).toBeNull();
     expect(bundle.excelXml).toContain("Worksheet");
     expect(bundle.quoteJson).toContain('"kind": "quote-export"');
     expect(bundle.invoiceJson).toContain('"kind": "invoice-template"');

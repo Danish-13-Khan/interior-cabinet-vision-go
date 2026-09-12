@@ -9,7 +9,6 @@ import {
   buildProposalDocument,
   collectProposalViewFrames,
   exportInteriorProposalPdf,
-  tryFreezeProposal,
   listProposalNamedViews,
   matchingProposalRelease,
   patchProposalJob,
@@ -25,6 +24,7 @@ import { getErrorMessage } from "../utils/errors";
 import { promptSavePath, writeBinaryBlob } from "../platform/desktopFiles";
 import { readPersonalPriceBook } from "../domain/priceBook";
 import { useAccountPlan } from "./useAccountPlan";
+import { freezeQuoteAndSyncLedger } from "./freezeQuoteAndSyncLedger";
 
 type PatchDocument = (
   update: (current: InteriorProject) => InteriorProject,
@@ -103,21 +103,22 @@ export function useProposalWorkflow(args: {
       setStatus("Quote freeze requires an active paid plan (Designer or higher).");
       return;
     }
+    let ledgerStatus: string | undefined;
     args.onPatchDocument((current) => {
-      const result = tryFreezeProposal(current, {
+      const result = freezeQuoteAndSyncLedger(current, {
         entitlements: account.entitlements,
         priceBook,
-        bumpRevisionWhenStale: true,
       });
       if (!result.ok) {
         setStatus(result.reason);
         return current;
       }
+      ledgerStatus = result.ledgerStatus;
       return result.document;
     }, "Froze quote snapshot.");
     setStaleOverride(false);
     setOverrideReason("");
-    setStatus("Quote frozen for this revision.");
+    setStatus(ledgerStatus ?? "Quote frozen for this revision.");
   }
 
   function toggleView(cameraId: string) {

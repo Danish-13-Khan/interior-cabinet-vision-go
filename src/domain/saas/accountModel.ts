@@ -59,7 +59,8 @@ export function clampLocalAccount(
       : "local@cabinet.studio";
   const planSku = clampPlanSku(value?.subscription?.planSku);
   const status = (value?.subscription?.status ?? "active") as SubscriptionStatus;
-  const safeStatus = KNOWN_STATUSES.includes(status) ? status : "active";
+  // Fail closed: an unrecognised/tampered status must not grant paid entitlements.
+  const safeStatus = KNOWN_STATUSES.includes(status) ? status : "none";
   const base = createLocalAccount({
     email,
     displayName:

@@ -33,9 +33,27 @@ export {
   listCurrentObligations,
 } from "./obligation";
 export { registerFrozenQuoteDocument, markDocumentAccepted } from "./documents";
+export {
+  ensureCabinetLedgerProjectId,
+  FORBIDDEN_CABINET_LEDGER_FALLBACK,
+  MISSING_LEDGER_PROJECT_ID,
+  type EnsureCabinetLedgerIdResult,
+} from "./cabinetLedgerProjectId";
+export {
+  registerCommercialDocFromFreeze,
+  syncFrozenQuoteToLedger,
+  INVOICE_SUPERSEDE_REFUSE,
+  LEDGER_PERSIST_FAIL,
+  LEDGER_UNEXPECTED_FAIL,
+  type FreezeLedgerSnapshot,
+  type FreezeLedgerSyncResult,
+  type RegisterFreezeDocResult,
+} from "./syncFreezeToLedger";
+export { assertInstalmentAllocations } from "./recordPayment";
 export { setPaymentSchedule } from "./schedule";
 export {
   applyPaymentsFifo,
+  instalmentOverridesFromPayments,
   netReceivedForDocument,
   overdueFromBalances,
 } from "./fifo";
@@ -55,15 +73,24 @@ export { createInvoiceAndRollForward } from "./rollForward";
 export { buildLedgerTrail, listPaymentsForDocument, type LedgerTrailItem } from "./trail";
 export {
   assertPaymentCapability,
+  assertPaymentMutation,
   gateClientHistory,
   gateOutstandingReports,
   gatePaymentRecords,
   hasPaymentCapability,
   type PaymentCapability,
+  type PaymentMutationGate,
+  type PaymentMutationKind,
 } from "./gate";
 export {
+  AUDIT_MEMORY_SOFT_WARN,
   PAYMENT_LEDGER_STORAGE_KEY,
   readPaymentLedger,
   persistPaymentLedger,
   clearPaymentLedger,
 } from "./store";
+export {
+  appendLedgerAudit,
+  requireActor,
+  requireNonSupersededDocument,
+} from "./audit";

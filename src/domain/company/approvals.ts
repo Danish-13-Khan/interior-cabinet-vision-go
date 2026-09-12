@@ -3,6 +3,9 @@
  * No payment gateway; Company can gate freeze/export behind approval.
  */
 
+import { seatHasPermission } from "./permissions";
+import type { SeatStub } from "../saas/companySchema";
+
 export type ApprovalKind = "quote_freeze" | "quote_export" | "invoice_export";
 
 export type ApprovalStatus =
@@ -68,8 +71,9 @@ export function requestApproval(
     revisionLabel: args.revisionLabel,
     createdAt: at,
   };
+  // Full approval history retained — `hasApprovedClearance` reads this list.
   return {
-    state: { ...state, requests: [request, ...state.requests].slice(0, 500) },
+    state: { ...state, requests: [request, ...state.requests] },
     request,
   };
 }
@@ -79,6 +83,7 @@ function decide(
   args: {
     requestId: string;
     decidedBySeatId: string;
+    decidedBySeat: SeatStub;
     status: "approved" | "rejected" | "cancelled";
     reason?: string;
     at?: string;
@@ -89,6 +94,21 @@ function decide(
   if (!found) throw new Error("Unknown approval request.");
   if (found.status !== "pending") {
     throw new Error(`Approval already ${found.status}.`);
+  }
+  const isSelf = found.requestedBySeatId === args.decidedBySeatId;
+  if (args.status === "cancelled") {
+    // Requesters may withdraw their own request; otherwise a decider is required.
+    if (!isSelf && !seatHasPermission(args.decidedBySeat, "approvals:decide")) {
+      throw new Error("Seat lacks approvals:decide.");
+    }
+  } else {
+    if (!seatHasPermission(args.decidedBySeat, "approvals:decide")) {
+      throw new Error("Seat lacks approvals:decide.");
+    }
+    // Segregation of duties: a requester cannot approve or reject their own request.
+    if (isSelf) {
+      throw new Error("Approvals require a different seat than the requester.");
+    }
   }
   return {
     ...state,
@@ -106,28 +126,41 @@ function decide(
   };
 }
 
+export type ApprovalDecisionArgs = {
+  requestId: string;
+  decidedBySeatId: string;
+  decidedBySeat: SeatStub;
+  reason?: string;
+  at?: string;
+};
+
 export function approveRequest(
   state: CompanyApprovalsState,
-  args: { requestId: string; decidedBySeatId: string; reason?: string; at?: string },
+  args: ApprovalDecisionArgs,
 ): CompanyApprovalsState {
   return decide(state, { ...args, status: "approved" });
 }
 
 export function rejectRequest(
   state: CompanyApprovalsState,
-  args: { requestId: string; decidedBySeatId: string; reason?: string; at?: string },
+  args: ApprovalDecisionArgs,
 ): CompanyApprovalsState {
   return decide(state, { ...args, status: "rejected" });
 }
 
 export function cancelRequest(
   state: CompanyApprovalsState,
-  args: { requestId: string; decidedBySeatId: string; reason?: string; at?: string },
+  args: ApprovalDecisionArgs,
 ): CompanyApprovalsState {
   return decide(state, { ...args, status: "cancelled" });
 }
 
-/** True when Company may proceed with freeze/export for this project+kind. */
+/**
+ * True when Company may proceed with freeze/export for this project+kind.
+ * Clearance is revision-scoped: when the caller names a snapshot, only an
+ * approval carrying that exact snapshot id clears it, so an approval for an
+ * earlier revision never authorises a newer one.
+ */
 export function hasApprovedClearance(
   state: CompanyApprovalsState,
   args: { projectId: string; kind: ApprovalKind; quoteSnapshotId?: string },
@@ -135,10 +168,9 @@ export function hasApprovedClearance(
   return state.requests.some((r) => {
     if (r.projectId !== args.projectId || r.kind !== args.kind) return false;
     if (r.status !== "approved") return false;
-    if (args.quoteSnapshotId && r.quoteSnapshotId && r.quoteSnapshotId !== args.quoteSnapshotId) {
-      return false;
-    }
-    return true;
+    if (args.quoteSnapshotId) return r.quoteSnapshotId === args.quoteSnapshotId;
+    // No snapshot named: only a project-wide approval (no snapshot) clears.
+    return !r.quoteSnapshotId;
   });
 }
 

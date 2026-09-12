@@ -8,7 +8,6 @@ import {
   clampQuoteHistory,
   clampQuoteSettings,
   DEFAULT_QUOTE_SETTINGS,
-  MAX_QUOTE_HISTORY,
   type QuoteSettings,
   type QuoteSnapshot,
 } from "../../quoteSettings";
@@ -137,7 +136,8 @@ export function appendFrozenQuote(
 ): InteriorProject {
   const current = readProposalCommercial(document);
   return writeProposalCommercial(document, {
-    quoteHistory: [snapshot, ...current.quoteHistory].slice(0, MAX_QUOTE_HISTORY),
+    // Full issued-quote retention (spec §6) — ledger documents reference these ids.
+    quoteHistory: [snapshot, ...current.quoteHistory],
     job: jobAfterNewFreeze(current.job, current.quoteHistory[0]?.id, snapshot.id),
     surface: {
       ...current.surface,

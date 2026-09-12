@@ -1,4 +1,9 @@
-import { applyPaymentsFifo, netReceivedForDocument, overdueFromBalances } from "./fifo";
+import {
+  applyPaymentsFifo,
+  instalmentOverridesFromPayments,
+  netReceivedForDocument,
+  overdueFromBalances,
+} from "./fifo";
 import { isDueDatePast, money, nowIso } from "./ids";
 import { currentObligationForProject, isCurrentObligation, listCurrentObligations } from "./obligation";
 import type {
@@ -43,6 +48,7 @@ export function computeDocumentBalances(
       instalments: schedule.instalments,
       received,
       asOfIso,
+      instalmentPaid: instalmentOverridesFromPayments(state.payments, documentId),
     });
     overdue = overdueFromBalances(balances);
   } else if (doc.dueDate && isDueDatePast(doc.dueDate, asOfIso)) {

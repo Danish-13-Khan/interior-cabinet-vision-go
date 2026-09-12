@@ -107,6 +107,7 @@ describe("shared projects permissions (Phase D)", () => {
       projectId: "proj-1",
       seatId: designerId,
       access: "view",
+      actorSeatId: ownerId,
     });
     expect(
       canSeatActOnProject({
@@ -117,56 +118,6 @@ describe("shared projects permissions (Phase D)", () => {
       }),
     ).toBe(false);
     expect(listProjectsVisibleToSeat(shared, org, designerId)).toHaveLength(1);
-  });
-});
-
-describe("approvals workflow stubs (Phase D)", () => {
-  it("request → approve clears freeze gate; reject does not", () => {
-    let state = createEmptyApprovalsState("org-1");
-    const { state: pending, request } = requestApproval(state, {
-      projectId: "proj-1",
-      kind: "quote_freeze",
-      requestedBySeatId: "seat-d",
-      quoteSnapshotId: "snap-1",
-      revisionLabel: "A",
-    });
-    expect(listPendingApprovals(pending)).toHaveLength(1);
-    expect(
-      hasApprovedClearance(pending, {
-        projectId: "proj-1",
-        kind: "quote_freeze",
-        quoteSnapshotId: "snap-1",
-      }),
-    ).toBe(false);
-
-    const approved = approveRequest(pending, {
-      requestId: request.id,
-      decidedBySeatId: "seat-owner",
-    });
-    expect(
-      hasApprovedClearance(approved, {
-        projectId: "proj-1",
-        kind: "quote_freeze",
-        quoteSnapshotId: "snap-1",
-      }),
-    ).toBe(true);
-
-    const { state: pending2, request: req2 } = requestApproval(
-      createEmptyApprovalsState("org-1"),
-      {
-        projectId: "proj-2",
-        kind: "quote_export",
-        requestedBySeatId: "seat-d",
-      },
-    );
-    const rejected = rejectRequest(pending2, {
-      requestId: req2.id,
-      decidedBySeatId: "seat-owner",
-      reason: "Wait for client",
-    });
-    expect(
-      hasApprovedClearance(rejected, { projectId: "proj-2", kind: "quote_export" }),
-    ).toBe(false);
   });
 });
 

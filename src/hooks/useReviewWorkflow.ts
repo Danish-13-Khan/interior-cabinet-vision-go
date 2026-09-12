@@ -1,5 +1,4 @@
 import {
-  clampJobMeta,
   patchJobMeta,
   type ProjectJobMeta,
 } from "../domain/jobMeta";
@@ -15,12 +14,11 @@ import {
   setReviewNoteResolved,
   type ReviewNoteSeverity,
 } from "../domain/projectReview";
-import {
-  freezeCabinetProjectQuote,
-  gateFreezeQuotes,
-} from "../domain/quoteExport";
+import { gateFreezeQuotes } from "../domain/quoteExport";
 import { readPersonalPriceBook } from "../domain/priceBook";
 import { getAccountView } from "../domain/saas";
+import { syncFrozenQuoteToLedger } from "../domain/paymentLedger";
+import { prepareCabinetFreezeForLedger } from "./freezeQuoteAndSyncLedger";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { createProjectReport } from "../domain/projectReport";
 import { getErrorMessage } from "../utils/errors";
@@ -62,17 +60,29 @@ export function useReviewWorkflow({
       return;
     }
     const priceBook = readPersonalPriceBook();
+    let prepared: ReturnType<typeof prepareCabinetFreezeForLedger> | undefined;
     commitProjectChange(
       (currentProject) => {
-        const frozen = freezeCabinetProjectQuote({
+        prepared = prepareCabinetFreezeForLedger({
           project: currentProject,
           quote: projectReport.quote,
           priceBook,
         });
-        return { project: frozen.project };
+        return { project: prepared.project };
       },
       "Froze quote snapshot.",
     );
+    if (!prepared) return;
+    if (prepared.ledgerRefuseReason) {
+      onStatus(prepared.ledgerRefuseReason);
+      return;
+    }
+    const sync = syncFrozenQuoteToLedger({
+      projectId: prepared.projectId,
+      snapshot: prepared.snapshot,
+      actor: "owner",
+    });
+    if (!sync.ok) onStatus(sync.reason);
   }
 
   function handleFreezeRevision(note: string, bumpRevision: boolean) {

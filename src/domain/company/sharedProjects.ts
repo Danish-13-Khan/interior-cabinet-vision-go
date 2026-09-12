@@ -5,10 +5,24 @@
 import type { OrganizationStub } from "../saas/companySchema";
 import {
   clampProjectAccess,
+  seatHasPermission,
   type ProjectAccessLevel,
   type SharedProjectGrant,
 } from "./permissions";
 import { findSeatById } from "./seats";
+
+/**
+ * ACL writes are owner-or-`projects:share` only, enforced here rather than at
+ * the call site — otherwise any active seat could grant itself `manage`.
+ */
+function requireShareAuthority(org: OrganizationStub, actorSeatId: string) {
+  const actor = findSeatById(org, actorSeatId);
+  if (!actor || !actor.active) throw new Error("Unknown actor seat.");
+  if (actor.role !== "owner" && !seatHasPermission(actor, "projects:share")) {
+    throw new Error("Seat lacks projects:share.");
+  }
+  return actor;
+}
 
 export type CompanySharedProjectsState = {
   schemaVersion: 1;
@@ -42,11 +56,7 @@ export function shareProject(
   if (args.org.id !== state.orgId) {
     throw new Error("Organization mismatch for shared projects.");
   }
-  const actor = findSeatById(args.org, args.actorSeatId);
-  if (!actor || !actor.active) throw new Error("Unknown actor seat.");
-  if (actor.role !== "owner") {
-    // Designers with projects:share may share; enforced at call site via gate+permission.
-  }
+  requireShareAuthority(args.org, args.actorSeatId);
   const projectId = args.projectId.trim();
   if (!projectId) throw new Error("projectId is required.");
   const at = args.at ?? new Date().toISOString();
@@ -74,8 +84,10 @@ export function setSeatProjectAccess(
     projectId: string;
     seatId: string;
     access: ProjectAccessLevel;
+    actorSeatId: string;
   },
 ): CompanySharedProjectsState {
+  requireShareAuthority(args.org, args.actorSeatId);
   if (!findSeatById(args.org, args.seatId)) {
     throw new Error("Unknown seat.");
   }
@@ -101,7 +113,9 @@ export function setSeatProjectAccess(
 export function unshareProject(
   state: CompanySharedProjectsState,
   projectId: string,
+  auth: { org: OrganizationStub; actorSeatId: string },
 ): CompanySharedProjectsState {
+  requireShareAuthority(auth.org, auth.actorSeatId);
   return {
     ...state,
     projects: state.projects.filter((p) => p.projectId !== projectId),

@@ -82,6 +82,8 @@ export type PaymentRecord = {
 
 export type LedgerAuditAction =
   | "create"
+  | "document_registered"
+  | "document_accepted"
   | "correct"
   | "refund"
   | "void"
@@ -98,6 +100,8 @@ export type LedgerAuditEvent = {
   documentId: string;
   reason?: string;
   detail?: string;
+  /** Instalment ids touched by this event (spec §7 retention). */
+  instalmentIds?: string[];
 };
 
 export type PaymentLedgerState = {

@@ -11,6 +11,7 @@ import {
 import type { OutstandingBreakdown, PaymentLedgerState, PaymentRecord } from "../paymentLedger/types";
 import { outstandingForProject } from "../paymentLedger/outstanding";
 import { listCurrentObligations } from "../paymentLedger/obligation";
+import { money } from "../paymentLedger/ids";
 
 export type ClientHistoryRecord = BasicClientRecord & {
   /** All linked projects (consolidated). */
@@ -67,20 +68,21 @@ export function summarizeClientHistory(
 ): ClientHistorySummary {
   const projectIds = new Set(client.projectIds);
   if (client.projectId) projectIds.add(client.projectId);
+  // Attribution requires the project to be linked to this client. A stray
+  // clientId on a document must not pull an unlinked project's balance in.
   const obligations = listCurrentObligations(ledger)
-    .filter((doc) => projectIds.has(doc.projectId) || doc.clientId === client.id)
+    .filter((doc) => projectIds.has(doc.projectId))
     .map((doc) => outstandingForProject(ledger, doc.projectId))
     .filter((row): row is OutstandingBreakdown => Boolean(row));
-  const payments = ledger.payments.filter(
-    (p: PaymentRecord) =>
-      p.clientId === client.id || projectIds.has(p.projectId),
+  const payments = ledger.payments.filter((p: PaymentRecord) =>
+    projectIds.has(p.projectId),
   );
   return {
     client,
     projectCount: projectIds.size,
     paymentCount: payments.filter((p) => p.status === "recorded").length,
-    outstanding: obligations.reduce((s, o) => s + o.outstanding, 0),
-    overdue: obligations.reduce((s, o) => s + o.overdue, 0),
+    outstanding: money(obligations.reduce((s, o) => s + o.outstanding, 0)),
+    overdue: money(obligations.reduce((s, o) => s + o.overdue, 0)),
     obligations,
   };
 }

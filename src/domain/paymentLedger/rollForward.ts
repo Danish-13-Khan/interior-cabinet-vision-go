@@ -1,3 +1,4 @@
+import { appendLedgerAudit } from "./audit";
 import { createLedgerId, money, nowIso } from "./ids";
 import type {
   ActorStamp,
@@ -8,6 +9,7 @@ import type {
 /**
  * Quote → invoice: payments on the quote document roll forward once to the
  * invoice parent (same ledger rows, new documentId). Count-once preserved.
+ * Always supersedes the quote so exactly one current obligation remains.
  */
 export function createInvoiceAndRollForward(
   state: PaymentLedgerState,
@@ -41,17 +43,18 @@ export function createInvoiceAndRollForward(
     createdAt: at,
     superseded: false,
   };
+  // Supersede all current docs for the project (exactly one obligation).
   const documents = state.documents.map((doc) =>
-    doc.id === quote.id ? { ...doc, superseded: true } : doc,
+    doc.projectId === quote.projectId && !doc.superseded
+      ? { ...doc, superseded: true }
+      : doc,
   );
   documents.push(invoice);
 
-  // Move schedule pointer if it was on the quote.
   const schedules = state.schedules.map((s) =>
     s.documentId === quote.id ? { ...s, documentId: invoice.id, updatedAt: at } : s,
   );
 
-  // Same ledger rows, new parent pointer — counted once.
   const payments = state.payments.map((p) => {
     if (p.documentId !== quote.id) return p;
     return {
@@ -64,23 +67,21 @@ export function createInvoiceAndRollForward(
     };
   });
 
-  const next: PaymentLedgerState = {
-    ...state,
-    documents,
-    schedules,
-    payments,
-    audit: [
-      {
-        id: createLedgerId("audit"),
-        at,
-        actor: args.stamp.actor,
-        action: "roll_forward",
-        documentId: invoice.id,
-        reason: args.stamp.reason,
-        detail: `from ${quote.id}`,
-      },
-      ...state.audit,
-    ].slice(0, 2000),
-  };
+  const next = appendLedgerAudit(
+    {
+      ...state,
+      documents,
+      schedules,
+      payments,
+    },
+    {
+      at,
+      actor: args.stamp.actor,
+      action: "roll_forward",
+      documentId: invoice.id,
+      reason: args.stamp.reason,
+      detail: `from ${quote.id}`,
+    },
+  );
   return { state: next, invoice };
 }

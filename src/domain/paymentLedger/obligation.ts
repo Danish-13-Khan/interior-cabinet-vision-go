@@ -1,19 +1,29 @@
 import type { CommercialDocument, PaymentLedgerState } from "./types";
 
-/** Current obligation for a project commercial thread (spec §7). */
+function byNewestFirst(a: CommercialDocument, b: CommercialDocument): number {
+  if (a.createdAt < b.createdAt) return 1;
+  if (a.createdAt > b.createdAt) return -1;
+  return 0;
+}
+
+/**
+ * Current obligation for a project commercial thread (spec §7).
+ * Newest non-superseded wins — older accepted A must not beat newer active B.
+ * Invoice (invoiced) still preferred when present among current docs.
+ */
 export function currentObligationForProject(
   state: PaymentLedgerState,
   projectId: string,
 ): CommercialDocument | null {
-  const docs = state.documents.filter((doc) => doc.projectId === projectId && !doc.superseded);
+  const docs = state.documents
+    .filter((doc) => doc.projectId === projectId && !doc.superseded)
+    .sort(byNewestFirst);
   if (!docs.length) return null;
-  const invoiced = docs.find((doc) => doc.kind === "invoice" && doc.threadStatus === "invoiced");
+  const invoiced = docs.find(
+    (doc) => doc.kind === "invoice" && doc.threadStatus === "invoiced",
+  );
   if (invoiced) return invoiced;
-  const accepted = docs.find((doc) => doc.threadStatus === "accepted");
-  if (accepted) return accepted;
-  // Newest non-superseded frozen quote (documents append chronologically).
-  const quotes = docs.filter((doc) => doc.kind === "frozen_quote");
-  return quotes[quotes.length - 1] ?? docs[docs.length - 1] ?? null;
+  return docs[0] ?? null;
 }
 
 export function isCurrentObligation(

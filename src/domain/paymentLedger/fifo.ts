@@ -14,24 +14,61 @@ export function netReceivedForDocument(
 }
 
 /**
- * Apply net received FIFO by instalment due date.
- * Remaining received after covering all instalments sits as unscheduled remainder.
+ * Sum recorded allocation amounts targeting specific instalment ids.
+ * Used so overdue respects user overrides before FIFO (spec §7).
+ */
+export function instalmentOverridesFromPayments(
+  payments: PaymentRecord[],
+  documentId: string,
+): Record<string, number> {
+  const map: Record<string, number> = {};
+  for (const p of payments) {
+    if (p.status !== "recorded" || p.documentId !== documentId) continue;
+    for (const a of p.allocations) {
+      if (!a.instalmentId) continue;
+      map[a.instalmentId] = money((map[a.instalmentId] ?? 0) + a.amount);
+    }
+  }
+  return map;
+}
+
+/**
+ * Apply net received: honour instalment overrides first, then FIFO by due date.
+ * Override amounts are capped to each instalment; unabsorbed override returns to the
+ * pool (never silently burned). Remaining after all instalments is unscheduled.
  */
 export function applyPaymentsFifo(args: {
   instalments: PaymentInstalment[];
   received: number;
   asOfIso: string;
+  /** Explicit paid amounts per instalment id (user override). */
+  instalmentPaid?: Record<string, number>;
 }): { balances: InstalmentBalance[]; unscheduledRemainderPaid: number } {
   const ordered = [...args.instalments].sort(
     (a, b) => dueDateValue(a.dueDate) - dueDateValue(b.dueDate),
   );
+  const targeted = args.instalmentPaid ?? {};
   let pool = Math.max(0, money(args.received));
-  const balances: InstalmentBalance[] = [];
+
+  const paidMap: Record<string, number> = {};
   for (const inst of ordered) {
-    const paid = Math.min(inst.amount, pool);
-    pool -= paid;
+    const override = Math.max(0, money(targeted[inst.id] ?? 0));
+    const apply = Math.min(inst.amount, override, pool);
+    paidMap[inst.id] = apply;
+    pool = money(pool - apply);
+  }
+  for (const inst of ordered) {
+    const already = paidMap[inst.id] ?? 0;
+    const room = Math.max(0, inst.amount - already);
+    const add = Math.min(room, pool);
+    paidMap[inst.id] = already + add;
+    pool = money(pool - add);
+  }
+
+  const balances: InstalmentBalance[] = ordered.map((inst) => {
+    const paid = paidMap[inst.id] ?? 0;
     const unpaid = Math.max(0, inst.amount - paid);
-    balances.push({
+    return {
       instalmentId: inst.id,
       label: inst.label,
       amount: inst.amount,
@@ -39,8 +76,8 @@ export function applyPaymentsFifo(args: {
       paid,
       unpaid,
       overdue: unpaid > 0 && isDueDatePast(inst.dueDate, args.asOfIso),
-    });
-  }
+    };
+  });
   return { balances, unscheduledRemainderPaid: pool };
 }
 

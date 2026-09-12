@@ -15,6 +15,7 @@ export function buildLedgerTrail(
   state: PaymentLedgerState,
   opts?: { documentId?: string; projectId?: string; limit?: number },
 ): LedgerTrailItem[] {
+  /** `limit` omitted → 100 (basic trail). Pass Infinity / large n for full history views. */
   const limit = opts?.limit ?? 100;
   const docIds = new Set(
     state.documents
