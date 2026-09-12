@@ -1,19 +1,17 @@
 import { useCallback, useState } from "react";
+import {
+  type DraftingAppearance,
+  persistDraftingAppearance,
+  readDraftingAppearance,
+} from "../domain/desktopUx/draftingAppearance";
 
-export type DraftingAppearance = "light" | "dark-frame";
-
-const STORAGE_KEY = "cabinet-designer-drafting-appearance";
-
-function readAppearance(): DraftingAppearance {
-  if (typeof window === "undefined") return "light";
-  return window.localStorage.getItem(STORAGE_KEY) === "dark-frame" ? "dark-frame" : "light";
-}
+export type { DraftingAppearance };
 
 export function useDraftingAppearance() {
-  const [appearance, setAppearanceState] = useState<DraftingAppearance>(readAppearance);
+  const [appearance, setAppearanceState] = useState<DraftingAppearance>(readDraftingAppearance);
   const setAppearance = useCallback((next: DraftingAppearance) => {
     setAppearanceState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
+    persistDraftingAppearance(next);
   }, []);
   return { appearance, setAppearance };
 }

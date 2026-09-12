@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
-import { interiorsJobStatusLabel } from "../domain/desktopUx";
+import { designUxShellClassNames, interiorsJobStatusLabel } from "../domain/desktopUx";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanWorkspaceHotkeys } from "../hooks/useLivingRoomPlanWorkspaceHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
@@ -146,7 +146,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
 
   if (!props.project || props.projectHomeOpen) {
     return (
-      <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-project-home is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
+    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-project-home is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
         {header}
         <div className="lr-empty-workspace">
           <LivingRoomHomeFromWorkspace
@@ -159,7 +159,11 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }
 
   return (
-    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-drafting-studio is-ui-${ui.mode} is-appearance-${draftingAppearance.appearance}`} data-ui-mode={ui.mode} data-drafting-appearance={draftingAppearance.appearance}>
+    <section className={designUxShellClassNames({
+      uiMode: ui.mode,
+      appearance: draftingAppearance.appearance,
+      presenting: chrome.plannerMode === "render",
+    }).join(" ")} data-ui-mode={ui.mode} data-drafting-appearance={draftingAppearance.appearance}>
       {header}
       <InteriorsWorkflowNav area={chrome.workflowArea} onArea={chrome.setWorkflowArea} />
       <LivingRoomPlanWorkspaceBody
