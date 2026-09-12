@@ -74,7 +74,7 @@ export {
 } from "./ownerDashboard";
 
 export {
-  COMPANY_CONTROLS_STORAGE_KEY,
+  companyControlsStorageKey,
   clearCompanyControls,
   createEmptyCompanyControls,
   persistCompanyControls,

@@ -3,6 +3,7 @@ import { csvFromProjectQuote } from "../projectQuote";
 import type { BoqViews } from "../boq";
 import { csvFromBoqViews } from "../boq";
 import type { QuoteSnapshot } from "../quoteSettings";
+import { csvRowToLine } from "../../utils/csvSafe";
 
 export { csvFromProjectQuote, csvFromBoqViews };
 
@@ -20,9 +21,7 @@ export function csvFromFrozenSnapshot(snapshot: QuoteSnapshot): string {
     ["Rates fingerprint", snapshot.ratesFingerprint ?? ""],
     ...snapshot.summaryLines.map((line) => [line.label, String(line.amount)]),
   ];
-  return rows
-    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-    .join("\n");
+  return rows.map(csvRowToLine).join("\n");
 }
 
 export function csvBundleFromQuoteAndBoq(

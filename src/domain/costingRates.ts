@@ -22,6 +22,9 @@ export function getBoardCost(
   rates?: CostRateOverrides,
 ): number {
   const overrideMap = rates?.boards?.[materialId];
+  // Customer rates apply on an EXACT thickness match only. Backs default to 6 mm
+  // and the catalog only carries 12/16/18/25, so matching the nearest key here
+  // would quietly bill a 6 mm back at the shop's own 12 mm rate.
   if (overrideMap && Number.isFinite(overrideMap[thicknessMm])) {
     return overrideMap[thicknessMm];
   }
@@ -31,9 +34,7 @@ export function getBoardCost(
   const closest = keys.reduce((prev, curr) =>
     Math.abs(curr - thicknessMm) < Math.abs(prev - thicknessMm) ? curr : prev,
   );
-  if (overrideMap && Number.isFinite(overrideMap[closest])) {
-    return overrideMap[closest];
-  }
+  // Catalog fallback keeps pre-Phase-A behaviour for thicknesses with no row.
   return mat.costPerM2[closest] ?? 0;
 }
 

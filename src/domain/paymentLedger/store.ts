@@ -1,9 +1,11 @@
 import { defaultStorage, type StorageLike } from "../saas/accountTypes";
+import { AUDIT_MEMORY_SOFT_WARN } from "./audit";
 import { clampLedger } from "./clamp";
 import { createEmptyLedger } from "./empty";
 import type { PaymentLedgerState } from "./types";
 
 export const PAYMENT_LEDGER_STORAGE_KEY = "cabinet-studio-payment-ledger-v1";
+export { AUDIT_MEMORY_SOFT_WARN };
 
 export function readPaymentLedger(
   storage: StorageLike | null = defaultStorage(),
@@ -18,6 +20,10 @@ export function readPaymentLedger(
   }
 }
 
+/**
+ * Persist full ledger history. Audit is never truncated on save (spec §7).
+ * Soft warning threshold: AUDIT_MEMORY_SOFT_WARN — surface in UX only; do not drop.
+ */
 export function persistPaymentLedger(
   state: PaymentLedgerState,
   storage: StorageLike | null = defaultStorage(),

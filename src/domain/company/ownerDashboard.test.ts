@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { markDocumentAccepted } from "../paymentLedger/documents";
 import { createInvoiceAndRollForward } from "../paymentLedger/rollForward";
 import { recordPayment } from "../paymentLedger/recordPayment";
-import { AS_OF, seedQuoteDoc } from "../paymentLedger/testFixtures";
+import { AS_OF, proGate, seedQuoteDoc } from "../paymentLedger/testFixtures";
 import { buildOwnerDashboard, ownerDashboardForProjects } from "./ownerDashboard";
 import {
   buildPremiumAuditReport,
@@ -33,12 +33,16 @@ describe("owner dashboard aggregates (Phase D)", () => {
       actor: "owner",
       at: "2026-09-10T10:00:00.000Z",
     });
-    const paid = recordPayment(state, {
-      documentId,
-      amount: 40_000,
-      actor: "owner",
-      at: "2026-09-11T10:00:00.000Z",
-    });
+    const paid = recordPayment(
+      state,
+      {
+        documentId,
+        amount: 40_000,
+        actor: "owner",
+        at: "2026-09-11T10:00:00.000Z",
+      },
+      proGate,
+    );
     state = paid.state;
 
     dash = buildOwnerDashboard(state, AS_OF);
@@ -69,12 +73,16 @@ describe("owner dashboard aggregates (Phase D)", () => {
 describe("premium audit views (Phase D)", () => {
   it("filters payment + freeze history and exports CSV", () => {
     const { state, documentId } = seedQuoteDoc(100_000, "proj-1");
-    const withPay = recordPayment(state, {
-      documentId,
-      amount: 10_000,
-      actor: "owner",
-      at: "2026-09-12T10:00:00.000Z",
-    }).state;
+    const withPay = recordPayment(
+      state,
+      {
+        documentId,
+        amount: 10_000,
+        actor: "owner",
+        at: "2026-09-12T10:00:00.000Z",
+      },
+      proGate,
+    ).state;
 
     const freezeEvents: FreezeAuditEvent[] = [
       {

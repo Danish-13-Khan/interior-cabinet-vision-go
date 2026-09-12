@@ -36,7 +36,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const showRail = designUxShowsToolRail({
     area: props.workflowArea,
     toolRailVisible: props.toolRailVisible,
-    presenting: props.presenting,
+    presenting: props.presenting ?? false,
   });
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     {designUxShowsCatalogRail({
       area: props.workflowArea,
       toolRailVisible: props.toolRailVisible,
-      presenting: props.presenting,
+      presenting: props.presenting ?? false,
       drawRoomActive: drawRoom,
     }) && catalogView ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }} data-workflow-area={props.workflowArea}>

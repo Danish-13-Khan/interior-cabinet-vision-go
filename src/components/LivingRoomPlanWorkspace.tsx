@@ -18,6 +18,8 @@ import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFrom
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
 import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjectsFixtures";
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
+import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
+import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const ui = useInteriorsUiMode();
@@ -34,10 +36,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
   const underlayPickerRef = useRef<(() => void) | null>(null);
-  const viewControlsRef = useRef<{ fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null>(null);
-  const registerViewControls = useCallback((controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => {
-    viewControlsRef.current = controls;
-  }, []);
+  const viewControlsRef = useRef<PlanViewControls | null>(null);
+  const registerViewControls = useCallback((controls: PlanViewControls | null) => { viewControlsRef.current = controls; }, []);
   const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
   const [acceptedStillAssets, setAcceptedStillAssets] = useState<AcceptedStillAsset[]>([]);
   const millwork = useMillworkSchedule(props.project);
@@ -83,12 +83,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     props.onClearPreDropReason?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional on tool identity only
   }, [build.buildCommandState.activeTool, chrome.chromeTool, chrome.plannerMode]);
-
   useEffect(() => {
     if (!props.project) return;
-    setActiveWallId((current) => props.project!.walls.some((wall) => wall.id === current) ? current : null);
-    setActiveOpeningId((current) => props.project!.openings.some((opening) => opening.id === current) ? current : null);
-    setActiveSurfaceId((current) => props.project!.surfaces.some((surface) => surface.id === current) ? current : null);
+    const p = props.project;
+    setActiveWallId((c) => (p.walls.some((w) => w.id === c) ? c : null));
+    setActiveOpeningId((c) => (p.openings.some((o) => o.id === c) ? c : null));
+    setActiveSurfaceId((c) => (p.surfaces.some((s) => s.id === c) ? c : null));
   }, [props.project]);
   useEffect(() => {
     if (activeWallId || activeOpeningId || activeSurfaceId) setInspectRoom(false);
@@ -121,17 +121,17 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onFitSelection: () => viewControlsRef.current?.fitSelection(),
     onPatchDocument: props.onPatchDocument,
   });
-  useEffect(() => { setRenderResults({ latest: null, previous: null }); }, [props.project?.id]);
-  useEffect(() => { setAcceptedStillAssets([]); }, [props.project?.id]);
-
+  useEffect(() => {
+    setRenderResults({ latest: null, previous: null });
+    setAcceptedStillAssets([]);
+  }, [props.project?.id]);
   const header = (
     <InteriorsWorkspaceHeader
       projectName={props.project?.name ?? null} roomName={room?.name ?? "Room"}
       revision={job?.revision ?? "A"}
       statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
       workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
-      canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"}
-      chromeLocked={false}
+      canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"} chromeLocked={false}
       projectHome={props.projectHomeOpen || !props.project}
       uiMode={ui.mode} onUiMode={ui.setMode}
       onProject={() => chrome.changePlannerMode("project")}
@@ -143,21 +143,16 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onAppearance={draftingAppearance.setAppearance}
     />
   );
-
   if (!props.project || props.projectHomeOpen) {
     return (
-    <section className={`lr-plan-shell lr-product-shell lr-product-shell-v2 is-project-home is-ui-${ui.mode}`} data-ui-mode={ui.mode}>
-        {header}
-        <div className="lr-empty-workspace">
-          <LivingRoomHomeFromWorkspace
-            workspace={props} open hasCurrentProject={Boolean(props.project)}
-            uiMode={ui.mode}
-          />
-        </div>
-      </section>
+      <LivingRoomPlanHomeShell uiMode={ui.mode} header={header}>
+        <LivingRoomHomeFromWorkspace
+          workspace={props} open hasCurrentProject={Boolean(props.project)}
+          uiMode={ui.mode}
+        />
+      </LivingRoomPlanHomeShell>
     );
   }
-
   return (
     <section className={designUxShellClassNames({
       uiMode: ui.mode,
@@ -169,8 +164,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
         workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode}
-        workflowArea={chrome.workflowArea}
-        studioPanel={chrome.studioPanel}
+        workflowArea={chrome.workflowArea} studioPanel={chrome.studioPanel}
         onStudioPanel={chrome.setStudioPanel} chromeTool={chrome.chromeTool} onChromeTool={chrome.applyChromeTool}
         assetQuery={assetQuery} assetCategory={assetCategory} assetCategories={assetCategories}
         importError={importError} onAssetQuery={setAssetQuery} onAssetCategory={setAssetCategory}

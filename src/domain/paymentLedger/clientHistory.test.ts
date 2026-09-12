@@ -7,7 +7,7 @@ import {
 import { entitlementsForPlan } from "../saas/entitlements";
 import { gateClientHistory } from "./gate";
 import { recordPayment } from "./recordPayment";
-import { AS_OF, seedQuoteDoc } from "./testFixtures";
+import { AS_OF, proGate, seedQuoteDoc } from "./testFixtures";
 
 describe("consolidated client history (Phase C)", () => {
   it("is gated to Professional+", () => {
@@ -26,13 +26,17 @@ describe("consolidated client history (Phase C)", () => {
     expect(client.projectIds).toEqual(["proj-1", "proj-2"]);
 
     let { state, documentId } = seedQuoteDoc(100_000, "proj-1");
-    state = recordPayment(state, {
-      documentId,
-      amount: 10_000,
-      actor: "owner",
-      clientId: "client-1",
-      at: AS_OF,
-    }).state;
+    state = recordPayment(
+      state,
+      {
+        documentId,
+        amount: 10_000,
+        actor: "owner",
+        clientId: "client-1",
+        at: AS_OF,
+      },
+      proGate,
+    ).state;
     const summary = summarizeClientHistory(client, state);
     expect(summary.projectCount).toBe(2);
     expect(summary.paymentCount).toBe(1);

@@ -5,57 +5,23 @@
 
 import type { LedgerAuditEvent, PaymentLedgerState } from "../paymentLedger/types";
 import { buildLedgerTrail, type LedgerTrailItem } from "../paymentLedger/trail";
+import { premiumAuditToCsv } from "./premiumAuditCsv";
+import type {
+  ApprovalAuditLike,
+  FreezeAuditEvent,
+  PremiumAuditFilter,
+  PremiumAuditRow,
+} from "./premiumAuditTypes";
 
-export type FreezeAuditEvent = {
-  id: string;
-  at: string;
-  actor: string;
-  action: "freeze" | "refreeze" | "export";
-  projectId: string;
-  quoteSnapshotId: string;
-  revisionLabel?: string;
-  detail?: string;
-};
+export type {
+  ApprovalAuditLike,
+  FreezeAuditEvent,
+  PremiumAuditFilter,
+  PremiumAuditKind,
+  PremiumAuditRow,
+} from "./premiumAuditTypes";
 
-export type PremiumAuditKind =
-  | "payment"
-  | "freeze"
-  | "export"
-  | "approval"
-  | "all";
-
-export type PremiumAuditFilter = {
-  kind?: PremiumAuditKind;
-  projectId?: string;
-  documentId?: string;
-  actor?: string;
-  action?: string;
-  fromIso?: string;
-  toIso?: string;
-  limit?: number;
-};
-
-export type PremiumAuditRow = {
-  at: string;
-  actor: string;
-  source: "payment" | "freeze" | "approval";
-  kind: string;
-  summary: string;
-  projectId?: string;
-  documentId?: string;
-  paymentId?: string;
-  quoteSnapshotId?: string;
-  reason?: string;
-};
-
-export type ApprovalAuditLike = {
-  at: string;
-  actor: string;
-  kind: string;
-  summary: string;
-  projectId: string;
-  reason?: string;
-};
+export { premiumAuditToCsv };
 
 function inRange(at: string, fromIso?: string, toIso?: string): boolean {
   if (fromIso && at < fromIso) return false;
@@ -70,7 +36,7 @@ function paymentRows(
   const trail = buildLedgerTrail(state, {
     documentId: filter.documentId,
     projectId: filter.projectId,
-    limit: 2000,
+    limit: Number.MAX_SAFE_INTEGER,
   });
   return trail
     .filter((item: LedgerTrailItem) => {
@@ -160,44 +126,6 @@ export function buildPremiumAuditReport(args: {
   return rows
     .sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0))
     .slice(0, limit);
-}
-
-/** CSV export stub for richer audit reporting. */
-export function premiumAuditToCsv(rows: PremiumAuditRow[]): string {
-  const header = [
-    "at",
-    "actor",
-    "source",
-    "kind",
-    "summary",
-    "projectId",
-    "documentId",
-    "paymentId",
-    "quoteSnapshotId",
-    "reason",
-  ];
-  const escape = (v: string | undefined) => {
-    const s = v ?? "";
-    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-    return s;
-  };
-  const lines = rows.map((r) =>
-    [
-      r.at,
-      r.actor,
-      r.source,
-      r.kind,
-      r.summary,
-      r.projectId,
-      r.documentId,
-      r.paymentId,
-      r.quoteSnapshotId,
-      r.reason,
-    ]
-      .map(escape)
-      .join(","),
-  );
-  return [header.join(","), ...lines].join("\n");
 }
 
 export function listPaymentAuditActions(

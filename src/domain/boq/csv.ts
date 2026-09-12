@@ -1,9 +1,6 @@
 import type { BoqViews } from "./types";
 import { boqBoardRoleLabel } from "./roles";
-
-function csvEscape(value: string | number) {
-  return `"${String(value).replace(/"/g, '""')}"`;
-}
+import { csvQuotedCell } from "../../utils/csvSafe";
 
 export function csvFromBoqViews(views: BoqViews): string {
   const header = [
@@ -39,6 +36,6 @@ export function csvFromBoqViews(views: BoqViews): string {
     line.sellPrice,
   ]);
   return [header, ...rows]
-    .map((row) => row.map(csvEscape).join(","))
+    .map((row) => row.map(csvQuotedCell).join(","))
     .join("\n");
 }

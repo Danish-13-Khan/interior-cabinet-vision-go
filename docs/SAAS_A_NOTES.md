@@ -23,7 +23,8 @@ Site installation stays in quote exclusions unless they add their own allowance.
 
 ## Merge rules
 
-1. **Rates** (board / finish / edge / hardware ₹): when a book is supplied, costing looks up the book first, then the catalog. Extra thickness keys (e.g. 9 mm) apply on **exact** match only so 6 mm backs do not silently retarget.
+1. **Rates** (board / finish / edge / hardware ₹): when a book is supplied, costing looks up the book first, then the catalog. Book rates apply on an **exact** thickness match only — a 9 mm or 12 mm book row never prices a 6 mm back.
+   - **Known gap (pre-existing, not introduced by Phase A):** the *catalog* fallback still picks the nearest stocked thickness, and the catalog only carries 12/16/18/25. Default 6 mm backs therefore fall back to catalog 12 mm ₹/m². Adding 6 mm and 9 mm catalog rows is tracked in `docs/SAAS_REVIEW_FOLLOWUPS.md`; until then the customer's own rates are never misapplied, but the catalog default for backs is high.
 2. **Workshop + quote numbers:** start from the book; any **project preference that differs from factory defaults** wins (per-job override).
 3. `createProjectReport` / room rollups take an optional `priceBook`. Live UI reads the personal book via `useAppDerivedState`.
 4. No book argument → identical to pre-A behaviour (unit tests stay green).

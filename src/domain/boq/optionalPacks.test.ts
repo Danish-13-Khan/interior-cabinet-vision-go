@@ -77,7 +77,10 @@ describe("optional BOQ packs (Phase F)", () => {
       { skuId: "fixture.mirror", quantity: 1 },
     ]);
     const merged = mergeOptionalIntoBoqViews(core, optional);
-    expect(merged.lines.length).toBe(core.lines.length + 2);
+    // Core millwork views stay millwork-only so group sums cannot double-count.
+    expect(merged.lines.length).toBe(core.lines.length);
+    expect(merged.allLines.length).toBe(core.lines.length + 2);
+    expect(merged.byCabinet.some((g) => g.key.includes("optional"))).toBe(false);
     expect(merged.byOptionalPack.map((g) => g.key)).toEqual([
       "optional:louvers",
       "optional:fixture",

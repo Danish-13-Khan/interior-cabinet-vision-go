@@ -8,7 +8,9 @@ import {
 } from "./outstanding";
 import { registerFrozenQuoteDocument } from "./documents";
 import { createEmptyLedger } from "./empty";
-import { AS_OF, NEXT_MONTH, YESTERDAY, seedQuoteDoc } from "./testFixtures";
+import { currentObligationForProject } from "./obligation";
+import { markDocumentAccepted } from "./documents";
+import { AS_OF, NEXT_MONTH, YESTERDAY, proGate, seedQuoteDoc } from "./testFixtures";
 
 describe("current obligation + FIFO overdue (Phase C)", () => {
   it("treats only current obligation as outstanding across projects", () => {
@@ -31,6 +33,47 @@ describe("current obligation + FIFO overdue (Phase C)", () => {
     expect(sumOpenBalances(state, AS_OF).outstanding).toBe(120_000);
   });
 
+  it("requires supersede when a current obligation already exists", () => {
+    const { state, documentId } = seedQuoteDoc(100_000, "proj-1");
+    expect(() =>
+      registerFrozenQuoteDocument(state, {
+        projectId: "proj-1",
+        quoteSnapshotId: "quote-snap-2",
+        revisionLabel: "B",
+        total: 120_000,
+        stamp: { actor: "owner", at: "2026-09-05T10:00:00.000Z" },
+      }),
+    ).toThrow(/supersed/i);
+    expect(documentId).toBeTruthy();
+  });
+
+  it("newest active quote beats older accepted (obligation ordering)", () => {
+    let { state, documentId } = seedQuoteDoc(100_000, "proj-ord");
+    state = markDocumentAccepted(state, documentId, {
+      actor: "owner",
+      at: "2026-09-02T10:00:00.000Z",
+    });
+    // Force two non-superseded via clamp-style corruption path: register with supersede
+    // then manually revive older for ordering regression check.
+    const newer = registerFrozenQuoteDocument(state, {
+      projectId: "proj-ord",
+      quoteSnapshotId: "quote-snap-b",
+      revisionLabel: "B",
+      total: 110_000,
+      supersedeDocumentId: documentId,
+      stamp: { actor: "owner", at: "2026-09-10T10:00:00.000Z" },
+    });
+    state = {
+      ...newer.state,
+      documents: newer.state.documents.map((d) =>
+        d.id === documentId ? { ...d, superseded: false, threadStatus: "accepted" as const } : d,
+      ),
+    };
+    const current = currentObligationForProject(state, "proj-ord");
+    expect(current?.id).toBe(newer.document.id);
+    expect(current?.revisionLabel).toBe("B");
+  });
+
   it("FIFO overdue: ₹100k with ₹20k due yesterday → overdue ₹20k if unpaid", () => {
     let { state, documentId } = seedQuoteDoc(100_000);
     const scheduled = setPaymentSchedule(state, {
@@ -46,15 +89,42 @@ describe("current obligation + FIFO overdue (Phase C)", () => {
     expect(unpaid?.outstanding).toBe(100_000);
     expect(unpaid?.overdue).toBe(20_000);
 
-    const paid = recordPayment(state, {
-      documentId,
-      amount: 20_000,
-      actor: "owner",
-      at: AS_OF,
-    });
+    const paid = recordPayment(
+      state,
+      { documentId, amount: 20_000, actor: "owner", at: AS_OF },
+      proGate,
+    );
     const after = outstandingForProject(paid.state, "proj-1", AS_OF);
     expect(after?.outstanding).toBe(80_000);
     expect(after?.overdue).toBe(0);
+  });
+
+  it("honours instalment override so overdue respects allocated lines", () => {
+    let { state, documentId } = seedQuoteDoc(100_000);
+    state = setPaymentSchedule(state, {
+      documentId,
+      instalments: [
+        { id: "i1", label: "Booking", amount: 20_000, dueDate: YESTERDAY },
+        { id: "i2", label: "Balance", amount: 80_000, dueDate: NEXT_MONTH },
+      ],
+      stamp: { actor: "owner", at: AS_OF },
+    }).state;
+    // User allocates ₹20k to future line i2 — past line stays overdue.
+    const paid = recordPayment(
+      state,
+      {
+        documentId,
+        amount: 20_000,
+        actor: "owner",
+        at: AS_OF,
+        allocations: [{ documentId, instalmentId: "i2", amount: 20_000 }],
+      },
+      proGate,
+    );
+    const bal = outstandingForProject(paid.state, "proj-1", AS_OF);
+    expect(bal?.outstanding).toBe(80_000);
+    expect(bal?.overdue).toBe(20_000);
+    expect(paid.state.audit[0]?.instalmentIds).toEqual(["i2"]);
   });
 
   it("never treats future instalments as overdue", () => {

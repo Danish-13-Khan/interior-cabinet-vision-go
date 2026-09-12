@@ -451,5 +451,9 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
     rooms: project.rooms,
     activeRoomId: project.activeRoomId,
     interiorDocument: project.interiorDocument,
+    ledgerProjectId: (() => {
+      const id = project.ledgerProjectId?.trim();
+      return id && id !== "cabinet-project" ? id : undefined;
+    })(),
   };
 }

@@ -128,4 +128,9 @@ export type CabinetProject = {
   sheetSet?: import("../sheetDocuments/types").ProjectSheetSet;
   /** Canonical document carried through the legacy editor during LR-01 migration. */
   interiorDocument?: InteriorProject;
+  /**
+   * Stable payment-ledger project key. Assigned once on first freeze/sync.
+   * Prefer interiorDocument.id when present; never editable projectNumber.
+   */
+  ledgerProjectId?: string;
 };

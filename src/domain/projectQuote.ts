@@ -10,6 +10,7 @@ import {
   type QuoteSnapshot,
   type QuoteSnapshotSummaryLine,
 } from "./quoteSettings";
+import { csvRowToLine } from "../utils/csvSafe";
 
 export type QuoteCabinetLine = {
   cabinetId: string;
@@ -272,9 +273,5 @@ export function csvFromProjectQuote(quote: ProjectQuote): string {
     ]),
     ["total", "Quote total", String(quote.sellTotal), `Rev ${quote.job.revision}`],
   ];
-  return rows
-    .map((row) =>
-      row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
-    )
-    .join("\n");
+  return rows.map(csvRowToLine).join("\n");
 }

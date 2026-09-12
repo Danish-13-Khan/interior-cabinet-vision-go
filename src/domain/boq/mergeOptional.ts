@@ -3,7 +3,6 @@
  * Optional lines map into BoqLine with role "other" and cabinetId "optional".
  */
 
-import { buildBoqViews } from "./views";
 import type { OptionalBoqLine } from "./optionalPacks";
 import { OPTIONAL_PACK_KIND_LABELS } from "./optionalPacks";
 import type { BoqGroup, BoqLine, BoqViews } from "./types";
@@ -13,6 +12,8 @@ export type BoqViewsWithOptional = BoqViews & {
   byOptionalPack: BoqGroup[];
   optionalSellTotal: number;
   optionalWorkshopTotal: number;
+  /** Every line including optional packs, for a combined export sheet. */
+  allLines: BoqLine[];
 };
 
 function areaFromOptional(line: OptionalBoqLine): number {
@@ -67,18 +68,21 @@ export function groupOptionalPackViews(lines: readonly OptionalBoqLine[]): BoqGr
 }
 
 /**
- * Append optional pack lines into BOQ views (rebuilds grouped views).
- * Core cutlist lines stay first; optional rows follow.
+ * Attach optional pack lines alongside the core BOQ views.
+ *
+ * Optional packs stay OUT of `lines` and the `byCabinet` / `byMaterial` /
+ * `byThickness` / `byRole` groups: those are millwork cutlist views, and folding
+ * unmarked-up fixture or paint rows into them makes any consumer that sums a
+ * group double-count against the quote. Use `allLines` for a combined sheet.
  */
 export function mergeOptionalIntoBoqViews(
   views: BoqViews,
   optionalLines: readonly OptionalBoqLine[],
 ): BoqViewsWithOptional {
   const mapped = optionalLines.map(optionalLineToBoqLine);
-  const mergedLines = [...views.lines, ...mapped];
-  const rebuilt = buildBoqViews(mergedLines);
   return {
-    ...rebuilt,
+    ...views,
+    allLines: [...views.lines, ...mapped],
     optionalLines: [...optionalLines],
     byOptionalPack: groupOptionalPackViews(optionalLines),
     optionalSellTotal: optionalLines.reduce((sum, line) => sum + line.sellPrice, 0),

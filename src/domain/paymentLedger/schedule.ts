@@ -1,3 +1,4 @@
+import { appendLedgerAudit } from "./audit";
 import { clampInstalment } from "./clamp";
 import { createLedgerId, money, nowIso } from "./ids";
 import type {
@@ -38,21 +39,17 @@ export function setPaymentSchedule(
   const schedules = existing
     ? state.schedules.map((s) => (s.id === existing.id ? schedule : s))
     : [...state.schedules, schedule];
-  const next: PaymentLedgerState = {
-    ...state,
-    schedules,
-    audit: [
-      {
-        id: createLedgerId("audit"),
-        at,
-        actor: args.stamp.actor,
-        action: "schedule_set",
-        documentId: args.documentId,
-        reason: args.stamp.reason,
-        detail: `${instalments.length} instalments`,
-      },
-      ...state.audit,
-    ].slice(0, 2000),
-  };
+  const next = appendLedgerAudit(
+    { ...state, schedules },
+    {
+      at,
+      actor: args.stamp.actor,
+      action: "schedule_set",
+      documentId: args.documentId,
+      reason: args.stamp.reason,
+      detail: `${instalments.length} instalments`,
+      instalmentIds: instalments.map((i) => i.id),
+    },
+  );
   return { state: next, schedule };
 }

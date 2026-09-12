@@ -94,34 +94,34 @@ export function resolveEntitlements(args: {
   return entitlementsForPlan(clampPlanSku(args.planSku));
 }
 
-export function canSave(plan: PlanSku, subscriptionActive = true): boolean {
+export function canSave(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canSave;
 }
 
-export function canFreezeQuotes(plan: PlanSku, subscriptionActive = true): boolean {
+export function canFreezeQuotes(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canFreezeQuotes;
 }
 
-export function canUsePaymentRecords(plan: PlanSku, subscriptionActive = true): boolean {
+export function canUsePaymentRecords(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUsePaymentRecords;
 }
 
-export function canUseClientHistory(plan: PlanSku, subscriptionActive = true): boolean {
+export function canUseClientHistory(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseClientHistory;
 }
 
-export function canUseOutstandingReports(plan: PlanSku, subscriptionActive = true): boolean {
+export function canUseOutstandingReports(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseOutstandingReports;
 }
 
-export function canUseCompanyControls(plan: PlanSku, subscriptionActive = true): boolean {
+export function canUseCompanyControls(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseCompanyControls;
 }
 
-export function canUsePremiumAudit(plan: PlanSku, subscriptionActive = true): boolean {
+export function canUsePremiumAudit(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUsePremiumAudit;
 }
 
-export function canUseSharedOrgPriceBook(plan: PlanSku, subscriptionActive = true): boolean {
+export function canUseSharedOrgPriceBook(plan: PlanSku, subscriptionActive: boolean): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseSharedOrgPriceBook;
 }
