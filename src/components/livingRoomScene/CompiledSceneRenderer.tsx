@@ -85,7 +85,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   }
   const architectureBounds = computeArchitectureBounds(scene.nodes);
   const materialKey = scene.materials
-    .map((material) => `${material.id}:${material.color}:${material.roughness}:${material.metalness}:${material.uvScaleMm}:${material.uvRotationDeg}:${material.uvOffsetU ?? 0}:${material.uvOffsetV ?? 0}:${material.textureMapUrl ?? ""}`)
+    .map((material) => JSON.stringify(material))
     .join("|");
   const materialMap = useMemo(
     () => new Map(scene.materials.map((material) => [material.id, material])),
