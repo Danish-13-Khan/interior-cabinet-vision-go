@@ -101,3 +101,16 @@ export function canSave(plan: PlanSku, subscriptionActive = true): boolean {
 export function canFreezeQuotes(plan: PlanSku, subscriptionActive = true): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canFreezeQuotes;
 }
+
+export function canUsePaymentRecords(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canUsePaymentRecords;
+}
+
+export function canUseClientHistory(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseClientHistory;
+}
+
+export function canUseOutstandingReports(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canUseOutstandingReports;
+}
+
