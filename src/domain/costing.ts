@@ -4,14 +4,8 @@ import { defaultConstruction } from "./cabinetConstruction";
 import type { ProductionCutlistLine } from "./productionCutlist";
 import type { CabinetMaterialSpec } from "./materialSystem";
 import {
-  BOARD_MATERIALS,
-  FINISHES,
-  EDGE_BANDING_OPTIONS,
   DEFAULT_CABINET_MATERIAL,
   resolveCabinetMaterialSpec,
-  type BoardMaterialId,
-  type FinishId,
-  type EdgeBandingId,
 } from "./materialSystem";
 import type { CostingSettings } from "./costingSettings";
 import {
@@ -22,6 +16,15 @@ import {
   buildHardwareLines,
   type HardwareLine,
 } from "./hardwareSystem";
+import {
+  applyHardwareRateOverrides,
+  getBoardCost,
+  getEdgeBandCost,
+  getFinishCost,
+  type CostRateOverrides,
+} from "./costingRates";
+
+export type { CostRateOverrides } from "./costingRates";
 
 export type { CostingSettings, CostingPreset } from "./costingSettings";
 export {
@@ -37,24 +40,6 @@ export {
   type HardwareLine,
   type HardwareKind,
 } from "./hardwareSystem";
-
-function getBoardCost(materialId: BoardMaterialId, thicknessMm: number): number {
-  const mat = BOARD_MATERIALS.find((item) => item.id === materialId);
-  if (!mat) return 0;
-  const keys = Object.keys(mat.costPerM2).map(Number).sort((a, b) => a - b);
-  const closest = keys.reduce((prev, curr) =>
-    Math.abs(curr - thicknessMm) < Math.abs(prev - thicknessMm) ? curr : prev,
-  );
-  return mat.costPerM2[closest] ?? 0;
-}
-
-function getFinishCost(finishId: FinishId): number {
-  return FINISHES.find((item) => item.id === finishId)?.costPerM2 ?? 0;
-}
-
-function getEdgeBandCost(edgeBandId: EdgeBandingId): number {
-  return EDGE_BANDING_OPTIONS.find((item) => item.id === edgeBandId)?.costPerM ?? 0;
-}
 
 function partPerimeterMm(lengthMm: number, widthMm: number): number {
   return (lengthMm + widthMm) * 2;
@@ -100,6 +85,7 @@ export function calculateCabinetCost(
   lines: ProductionCutlistLine[],
   materials: CabinetMaterialSpec = DEFAULT_CABINET_MATERIAL,
   settings: CostingSettings = DEFAULT_COSTING_SETTINGS,
+  rates?: CostRateOverrides,
 ): CabinetCost {
   const safeSettings = clampCostingSettings(settings);
   let boardCost = 0;
@@ -111,20 +97,23 @@ export function calculateCabinetCost(
     const areaM2 = (line.lengthMm * line.widthMm * line.quantity) / 1_000_000;
     const spec = boardSpecForLine(line, materials);
     boardCost +=
-      getBoardCost(spec.boardMaterialId, line.thicknessMm) *
+      getBoardCost(spec.boardMaterialId, line.thicknessMm, rates) *
       areaM2 *
       safeSettings.materialRateMultiplier;
     finishCost +=
-      getFinishCost(spec.finishId) * areaM2 * safeSettings.finishRateMultiplier;
+      getFinishCost(spec.finishId, rates) * areaM2 * safeSettings.finishRateMultiplier;
     if (spec.edgeBandingId !== "none") {
       const perimeter = partPerimeterMm(line.lengthMm, line.widthMm);
       edgeBandCost +=
-        (getEdgeBandCost(spec.edgeBandingId) * perimeter) / 1000 * line.quantity;
+        (getEdgeBandCost(spec.edgeBandingId, rates) * perimeter) / 1000 * line.quantity;
     }
   }
 
   const wasteCost = boardCost * (safeSettings.wastePercent / 100);
-  const hardwareLines = buildHardwareLines(cabinet, construction, safeSettings);
+  const hardwareLines = applyHardwareRateOverrides(
+    buildHardwareLines(cabinet, construction, safeSettings),
+    rates,
+  );
   const hardwareCost = hardwareLines.reduce((sum, line) => sum + line.totalCost, 0);
   const labourCost = (boardCost + wasteCost) * (safeSettings.labourPercent / 100);
   const materialTotal = boardCost + wasteCost + finishCost + edgeBandCost;
@@ -174,6 +163,7 @@ export function calculateProjectCost(
   cutlistMap: Map<string, ProductionCutlistLine[]>,
   materials: CabinetMaterialSpec = DEFAULT_CABINET_MATERIAL,
   settings: CostingSettings = DEFAULT_COSTING_SETTINGS,
+  rates?: CostRateOverrides,
 ): ProjectCost {
   const safeSettings = clampCostingSettings(settings);
   let totalMaterial = 0;
@@ -196,6 +186,7 @@ export function calculateProjectCost(
       cutlist,
       resolvedMaterials,
       safeSettings,
+      rates,
     );
     costs.push(cost);
     totalMaterial += cost.materialCost;

@@ -19,6 +19,15 @@ describe("plan entitlements (A0)", () => {
     }
   });
 
+  it("lets every paid plan edit the personal price book", () => {
+    for (const sku of PLAN_SKUS) {
+      expect(entitlementsForPlan(sku).canEditPersonalPriceBook).toBe(true);
+    }
+    expect(entitlementsForPlan("designer").canUseSharedOrgPriceBook).toBe(false);
+    expect(entitlementsForPlan("professional").canUseSharedOrgPriceBook).toBe(false);
+    expect(entitlementsForPlan("company").canUseSharedOrgPriceBook).toBe(true);
+  });
+
   it("grants quote freeze + basic client on Designer+", () => {
     for (const sku of PLAN_SKUS) {
       const e = entitlementsForPlan(sku);
