@@ -15,6 +15,9 @@ export {
   resolveEntitlements,
   canSave,
   canFreezeQuotes,
+  canUsePaymentRecords,
+  canUseClientHistory,
+  canUseOutstandingReports,
   type PlanEntitlements,
 } from "./entitlements";
 
@@ -61,3 +64,19 @@ export {
   type BasicClientContact,
   type BasicClientRecord,
 } from "./basicClient";
+
+export {
+  createClientHistoryRecord,
+  linkProjectToClient,
+  summarizeClientHistory,
+  type ClientHistoryRecord,
+  type ClientHistorySummary,
+} from "./clientHistory";
+
+export {
+  CLIENT_HISTORY_STORAGE_KEY,
+  readClientHistory,
+  persistClientHistory,
+  upsertClientHistory,
+} from "./clientHistoryStore";
+

@@ -47,7 +47,7 @@ Default new local account: **Designer** + `active` stub subscription (desktop Ta
 | --- | --- |
 | **A** | Price book — shipped separately; see `docs/SAAS_A_NOTES.md` |
 | **B** | Shipped — see `docs/SAAS_B_NOTES.md` (UI polish still deferred) |
-| **C** | Payment ledger UI, outstanding/overdue reports, consolidated client history UX |
+| **C** | Domain shipped — see `docs/SAAS_C_NOTES.md` (UI still deferred) |
 | **D** | Company collaboration UX (seats in use, permissions, approvals, owner dashboard) |
 | **E–F** | Design UX polish / optional packs — unrelated to A0 |
 | Auth/billing ops | Real IdP, email verification, hosted checkout, webhooks, signed entitlement snapshots |

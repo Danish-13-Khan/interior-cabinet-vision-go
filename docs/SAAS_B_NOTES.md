@@ -40,7 +40,7 @@ Price Book from Phase A now feeds **live estimates on the freeze path** (proposa
 | **B UI** | Dedicated BOQ browser tab / export buttons in chrome (domain helpers ready) |
 | **B UI** | Full invoice branding settings panel (store + clamp ready; Present still freeze-focused) |
 | **A UI** | Full Price Book editor grid (unchanged) |
-| **C** | Payment ledger / outstanding / overdue / status `accepted → invoiced` UX |
+| **C** | Shipped domain — see `docs/SAAS_C_NOTES.md` (UI still deferred) |
 | **D** | Company shared book, approvals, richer audit |
 | Packaging | Real `.xlsx` via a spreadsheet library (SpreadsheetML `.xls` XML ships without new deps) |
 
