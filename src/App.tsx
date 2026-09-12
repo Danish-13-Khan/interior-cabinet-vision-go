@@ -15,6 +15,7 @@ import {
   WORKBENCH_LABELS,
   type WorkbenchMode,
 } from "./domain/desktopUx";
+import { resolvePostHandoffBridge } from "./domain/engineerBridge";
 import { syncInteriorDocumentFromCabinets } from "./domain/livingRoom/handoff";
 
 function App() {
@@ -311,7 +312,8 @@ function App() {
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onPatchDocument={c.patchLivingRoomDocument}
             onEnterEngineering={(cabinetIds) => {
-              handleWorkbenchModeChange("cabinets");
+              const bridge = resolvePostHandoffBridge();
+              handleWorkbenchModeChange(bridge.workbenchMode);
               c.replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
             }}
             onLightingChange={c.setLivingRoomLightingRecipe}
