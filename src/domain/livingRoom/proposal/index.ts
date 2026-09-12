@@ -14,8 +14,16 @@ export {
   createQuoteDesignFingerprint,
   freezeLiveQuote,
   latestFrozenQuote,
+  type LiveQuoteOptions,
 } from "./liveQuote";
-export { freezeProposal } from "./freezeProposal";
+export {
+  freezeProposal,
+  tryFreezeProposal,
+  freezeAllowed,
+  issuedQuoteIntact,
+  type FreezeProposalOptions,
+  type FreezeProposalResult,
+} from "./freezeProposal";
 export { isQuoteStale, quoteStaleReason } from "./staleQuote";
 export {
   buildProposalDocument,

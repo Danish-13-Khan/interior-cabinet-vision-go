@@ -3,12 +3,15 @@ import type { InteriorProject } from "../../interiorProject";
 import { createProjectReport } from "../../projectReport";
 import { createQuoteSnapshotFromQuote } from "../../projectQuote";
 import { clampQuoteSnapshot, type QuoteSnapshot } from "../../quoteSettings";
+import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
 import { createQuoteDesignFingerprint } from "./quoteFingerprint";
 import { isQuoteStale, quoteStaleReason } from "./staleQuote";
 import type { LiveInteriorQuote } from "./types";
+import type { LiveQuoteOptions } from "./liveQuoteOptions";
 
 export { createQuoteDesignFingerprint } from "./quoteFingerprint";
+export type { LiveQuoteOptions } from "./liveQuoteOptions";
 
 export function latestFrozenQuote(history: QuoteSnapshot[]): QuoteSnapshot | null {
   return history[0] ?? null;
@@ -18,13 +21,20 @@ export function freezeLiveQuote(
   document: InteriorProject,
   now = new Date().toISOString(),
   snapshotId?: string,
+  options: LiveQuoteOptions = {},
 ): QuoteSnapshot {
-  const live = buildLiveInteriorQuote(document, now);
+  const live = buildLiveInteriorQuote(document, now, options);
+  const ratesFingerprint = ratesFingerprintFromBook(
+    { quote: live.quote.settings },
+    options.priceBook,
+  );
   const snapshot = clampQuoteSnapshot({
     ...createQuoteSnapshotFromQuote(live.quote),
     ...(snapshotId ? { id: snapshotId } : {}),
     quotedAt: now,
     designFingerprint: live.fingerprint,
+    ratesFingerprint,
+    priceBookUpdatedAt: options.priceBook?.updatedAt,
     currencyLabel: live.quote.settings.currencyLabel,
     taxLabel: live.quote.settings.taxLabel,
     priceDetail: live.quote.settings.priceDetail,
@@ -39,6 +49,7 @@ export function freezeLiveQuote(
 export function buildLiveInteriorQuote(
   document: InteriorProject,
   now = new Date().toISOString(),
+  options: LiveQuoteOptions = {},
 ): LiveInteriorQuote {
   const commercial = readProposalCommercial(document);
   const compatible = cabinetProjectFromInteriorProject(document);
@@ -56,16 +67,22 @@ export function buildLiveInteriorQuote(
       quoteHistory: commercial.quoteHistory,
     },
     compatible.room,
+    undefined,
+    { priceBook: options.priceBook ?? null },
   );
-  const fingerprint = createQuoteDesignFingerprint(document);
+  const fingerprint = createQuoteDesignFingerprint(document, options);
   const frozen = latestFrozenQuote(commercial.quoteHistory);
-  const stale = isQuoteStale(frozen, fingerprint, report.quote);
+  const ratesFingerprint = ratesFingerprintFromBook(
+    { quote: commercial.quote },
+    options.priceBook,
+  );
+  const stale = isQuoteStale(frozen, fingerprint, report.quote, ratesFingerprint);
   return {
     quote: report.quote,
     fingerprint,
     frozen,
     stale,
-    staleReason: quoteStaleReason(frozen, fingerprint, report.quote),
+    staleReason: quoteStaleReason(frozen, fingerprint, report.quote, ratesFingerprint),
     missingRate: report.quote.cabinetLines.length > 0 && report.quote.sellTotal === 0,
   };
 }

@@ -46,7 +46,7 @@ Default new local account: **Designer** + `active` stub subscription (desktop Ta
 | Phase | Deferred from / beyond A0 |
 | --- | --- |
 | **A** | Price book — shipped separately; see `docs/SAAS_A_NOTES.md` |
-| **B** | Quote freeze / revisions **UI**, BOQ/PDF polish |
+| **B** | Shipped — see `docs/SAAS_B_NOTES.md` (UI polish still deferred) |
 | **C** | Payment ledger UI, outstanding/overdue reports, consolidated client history UX |
 | **D** | Company collaboration UX (seats in use, permissions, approvals, owner dashboard) |
 | **E–F** | Design UX polish / optional packs — unrelated to A0 |

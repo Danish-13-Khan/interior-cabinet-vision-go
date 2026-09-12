@@ -97,3 +97,7 @@ export function resolveEntitlements(args: {
 export function canSave(plan: PlanSku, subscriptionActive = true): boolean {
   return resolveEntitlements({ planSku: plan, subscriptionActive }).canSave;
 }
+
+export function canFreezeQuotes(plan: PlanSku, subscriptionActive = true): boolean {
+  return resolveEntitlements({ planSku: plan, subscriptionActive }).canFreezeQuotes;
+}

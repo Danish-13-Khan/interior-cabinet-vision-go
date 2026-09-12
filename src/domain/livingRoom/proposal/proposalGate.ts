@@ -6,6 +6,7 @@ import { isMillworkObject } from "../stillJob/sceneRefs";
 import { buildLiveInteriorQuote } from "./liveQuote";
 import { missingProposalViewCaptures } from "./proposalViewFrames";
 import { proposalExportViews } from "./proposalRevision";
+import type { PriceBook } from "../../priceBook";
 import type { ProposalGate, ProposalGateItem, ProposalViewFrame } from "./types";
 
 export type ProposalGateInput = {
@@ -16,6 +17,7 @@ export type ProposalGateInput = {
   now?: string;
   viewFrames?: ProposalViewFrame[];
   acceptedStillCount?: number;
+  priceBook?: PriceBook | null;
 };
 
 function row(
@@ -29,7 +31,9 @@ function row(
 }
 
 export function buildProposalGate(input: ProposalGateInput): ProposalGate {
-  const live = buildLiveInteriorQuote(input.document, input.now);
+  const live = buildLiveInteriorQuote(input.document, input.now, {
+    priceBook: input.priceBook,
+  });
   const views = proposalExportViews(input.document);
   const missingFrames = missingProposalViewCaptures(input.document, input.viewFrames);
   const job = live.quote.job;

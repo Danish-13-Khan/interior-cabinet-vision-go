@@ -1,7 +1,9 @@
 import { cabinetProjectFromInteriorProject } from "../../interiorProject";
 import type { InteriorProject } from "../../interiorProject";
 import { hashString } from "../sceneCompilerBounds";
+import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
+import type { LiveQuoteOptions } from "./liveQuoteOptions";
 
 /** JSON-stable: omitted keys match file reload, so a freeze survives save/open. */
 function fingerprintStringify(value: unknown): string {
@@ -23,7 +25,10 @@ function selectedCameraIds(document: InteriorProject) {
   return new Set(document.renderSettings.packageCameraBookmarks.map((view) => view.cameraId));
 }
 
-export function createQuoteDesignFingerprint(document: InteriorProject): string {
+export function createQuoteDesignFingerprint(
+  document: InteriorProject,
+  options: LiveQuoteOptions = {},
+): string {
   const commercial = readProposalCommercial(document);
   const { project } = cabinetProjectFromInteriorProject(document);
   const cameras = selectedCameraIds(document);
@@ -96,5 +101,6 @@ export function createQuoteDesignFingerprint(document: InteriorProject): string 
     currency: commercial.quote.currencyLabel,
     taxLabel: commercial.quote.taxLabel,
     priceDetail: commercial.quote.priceDetail,
+    rates: ratesFingerprintFromBook({ quote: commercial.quote }, options.priceBook),
   }));
 }
