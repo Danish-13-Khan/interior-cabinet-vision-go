@@ -54,7 +54,7 @@ Document ₹100,000 with ₹20,000 due yesterday + ₹80,000 next month:
 | --- | --- |
 | **C UI** | Chrome panels for client history, payment entry, outstanding reports |
 | **C** | Wire freeze/accept UI to `registerFrozenQuoteDocument` / roll-forward automatically |
-| **D** | Company richer audit views / filters / export; seats & approvals |
+| **D** | Domain shipped — see `docs/SAAS_D_NOTES.md` (UI still deferred) |
 | Out of scope | Payment gateway, Stripe, end-client collection, inventing a second cost engine |
 
 ## How to test

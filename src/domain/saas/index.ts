@@ -18,6 +18,9 @@ export {
   canUsePaymentRecords,
   canUseClientHistory,
   canUseOutstandingReports,
+  canUseCompanyControls,
+  canUsePremiumAudit,
+  canUseSharedOrgPriceBook,
   type PlanEntitlements,
 } from "./entitlements";
 
@@ -52,8 +55,14 @@ export {
 
 export {
   COMPANY_ROLES,
+  COMPANY_PERMISSIONS,
+  ROLE_PERMISSIONS,
   createEmptyOrganizationStub,
+  createSeatStub,
   isCompanyRole,
+  permissionsForRole,
+  roleHasPermission,
+  type CompanyPermission,
   type CompanyRole,
   type SeatStub,
   type OrganizationStub,

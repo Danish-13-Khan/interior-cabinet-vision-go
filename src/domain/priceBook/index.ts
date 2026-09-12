@@ -4,7 +4,9 @@ export type {
   FinishRate,
   FutureCatalogSlot,
   HardwareRate,
+  OrgPriceBookRecord,
   OrgPriceBookStub,
+  OrgSeatPriceOverride,
   PriceBook,
   PriceBookLabour,
   PriceBookQuoteDefaults,
@@ -15,6 +17,7 @@ export type {
 
 export {
   createDefaultPriceBook,
+  createOrgPriceBook,
   createOrgPriceBookStub,
   DEFAULT_PRICE_BOOK_LABOUR,
   DEFAULT_PRICE_BOOK_QUOTE,
@@ -42,9 +45,14 @@ export {
 export { patchBoardRate, patchHardwareRate, toCostRateOverrides } from "./rates";
 
 export {
+  ORG_PRICE_BOOK_STORAGE_KEY,
   PRICE_BOOK_STORAGE_KEY,
+  clearOrgPriceBook,
   clearPersonalPriceBook,
+  persistOrgPriceBook,
   persistPersonalPriceBook,
+  readOrgPriceBook,
   readOrgPriceBookStub,
   readPersonalPriceBook,
+  resolveOrgPriceBookForSeat,
 } from "./store";

@@ -82,8 +82,23 @@ export type FutureCatalogSlot = {
   notes: string;
 };
 
-export type OrgPriceBookStub = {
-  scope: "org";
-  status: "deferred-phase-d";
-  notes: string;
+/**
+ * Shared org price book (Phase D — activated from A stub).
+ * Optional per-seat labour/quote overrides only (not a second engine).
+ */
+export type OrgSeatPriceOverride = {
+  seatId: string;
+  labour?: Partial<PriceBookLabour>;
+  quoteDefaults?: Partial<PriceBookQuoteDefaults>;
 };
+
+export type OrgPriceBookRecord = {
+  scope: "org";
+  orgId: string;
+  book: PriceBook;
+  seatOverrides: OrgSeatPriceOverride[];
+  updatedAt: string;
+};
+
+/** @deprecated Use OrgPriceBookRecord — kept for import compatibility. */
+export type OrgPriceBookStub = OrgPriceBookRecord;
