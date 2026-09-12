@@ -51,7 +51,7 @@ Typed **TODO slots** (not `BoardMaterialId` / `FinishId`): blockboard, pine, lam
 | Phase | Item |
 | --- | --- |
 | **A UI** | Full Price Book editor grid (CostingTab still edits the **project** labour overlay) |
-| **B** | Quote freeze / revisions UI, BOQ/PDF polish |
+| **B** | Shipped — see `docs/SAAS_B_NOTES.md` (UI polish still deferred) |
 | **C** | Payment ledger |
 | **D** | Company shared org book + overrides (`readOrgPriceBookStub`) |
 | Catalog | Promote TODO slots into `BoardMaterialId` / `FinishId` when pickers can take them |

@@ -24,7 +24,16 @@ export function InteriorsPresentQuote({ proposal }: { proposal: Proposal }) {
       ) : (
         <small>No validity date disclosed</small>
       )}
-      <button type="button" onClick={proposal.freezeQuote}>Freeze quote</button>
+      <button
+        type="button"
+        onClick={proposal.freezeQuote}
+        disabled={proposal.canFreezeQuotes === false}
+        title={proposal.canFreezeQuotes === false
+          ? "Requires an active paid plan (Designer or higher)"
+          : "Freeze quantities and prices for this revision"}
+      >
+        Freeze quote
+      </button>
       {live.stale && live.staleReason ? (
         <small className="is-warning" data-testid="proposal-stale">{live.staleReason}</small>
       ) : null}

@@ -76,6 +76,9 @@ export type QuoteSnapshot = {
   hardwareAllowance: number;
   summaryLines: QuoteSnapshotSummaryLine[];
   designFingerprint?: string;
+  /** Hash of price-book / commercial rates used when frozen (Phase B). */
+  ratesFingerprint?: string;
+  priceBookUpdatedAt?: string;
   currencyLabel?: string;
   taxLabel?: string;
   priceDetail?: QuotePriceDetail;
@@ -128,6 +131,12 @@ export function clampQuoteSnapshot(
     summaryLines,
     designFingerprint: snapshot.designFingerprint
       ? String(snapshot.designFingerprint).trim().slice(0, 64)
+      : undefined,
+    ratesFingerprint: snapshot.ratesFingerprint
+      ? String(snapshot.ratesFingerprint).trim().slice(0, 64)
+      : undefined,
+    priceBookUpdatedAt: snapshot.priceBookUpdatedAt
+      ? String(snapshot.priceBookUpdatedAt).trim().slice(0, 40)
       : undefined,
     currencyLabel: snapshot.currencyLabel
       ? String(snapshot.currencyLabel).trim().slice(0, 12)

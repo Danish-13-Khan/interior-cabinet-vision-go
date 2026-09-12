@@ -46,6 +46,7 @@ export function useAccountPlan() {
     ...view,
     planSku: view.planSku,
     canSave: view.entitlements.canSave,
+    canFreezeQuotes: view.entitlements.canFreezeQuotes,
     setPlan,
     refresh,
   };

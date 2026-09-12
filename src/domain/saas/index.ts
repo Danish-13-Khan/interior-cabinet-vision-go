@@ -14,6 +14,7 @@ export {
   entitlementsForPlan,
   resolveEntitlements,
   canSave,
+  canFreezeQuotes,
   type PlanEntitlements,
 } from "./entitlements";
 
