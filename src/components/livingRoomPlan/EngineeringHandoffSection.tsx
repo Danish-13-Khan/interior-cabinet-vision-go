@@ -1,4 +1,5 @@
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
+import { interiorsToReportCenterHint } from "../../domain/engineerBridge";
 
 type Handoff = ReturnType<typeof useEngineeringHandoff>;
 
@@ -56,9 +57,15 @@ export function EngineeringHandoffSection({
   const gate = handoff.gate;
   if (!summary || !gate) return null;
 
+  const bridgeHint = interiorsToReportCenterHint({
+    handoffSent: handoff.sent,
+    revisionApproved: handoff.revisionApproved,
+  });
+
   return (
     <section className="engineering-handoff" aria-label="Engineering handoff">
       <strong>Engineering handoff</strong>
+      <small data-testid="handoff-bridge-hint">{bridgeHint}</small>
       <small data-testid="handoff-revision">
         Rev {summary.revision} · {summary.cabinetCount} cabinet{summary.cabinetCount === 1 ? "" : "s"} · {summary.roomName}
       </small>
