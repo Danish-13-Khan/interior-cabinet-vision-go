@@ -43,6 +43,7 @@ type RenderJobState = {
 type ClientExport = ReturnType<typeof useClientPresentationExport>;
 
 type LivingRoomRenderStudioProps = {
+  onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
   project: InteriorProject;
   latestResult: LivingRoomRenderResult | null;
   previousResult: LivingRoomRenderResult | null;
@@ -73,6 +74,7 @@ async function dataUrlToBlob(dataUrl: string) {
 }
 
 export function LivingRoomRenderStudio({
+  onPatchDocument,
   project,
   latestResult,
   previousResult,
@@ -282,6 +284,7 @@ export function LivingRoomRenderStudio({
 
       <div className="lr-render-body">
         <LivingRoomRenderSettingsPanel
+          fixtures={onPatchDocument ? { project, onPatchDocument } : undefined}
           settings={settings}
           exposureDraft={exposureDraft}
           styleExposure={scene.style.colorManagement.exposure}

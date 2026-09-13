@@ -1,3 +1,4 @@
+import { useCommercialStorageRevision } from "./useCommercialStorageRevision";
 import { useMemo, useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import type { ProjectJobMeta } from "../domain/jobMeta";
@@ -39,6 +40,7 @@ export function useProposalWorkflow(args: {
   latestRender?: LivingRoomRenderResult | null;
   acceptedStills?: AcceptedStillAsset[];
 }) {
+  useCommercialStorageRevision();
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [staleOverride, setStaleOverride] = useState(false);
@@ -173,7 +175,9 @@ export function useProposalWorkflow(args: {
     }
   }
 
-  const released = Boolean(args.project && matchingProposalRelease(args.project).ok);
+  const released = Boolean(
+    args.project && matchingProposalRelease(args.project, { priceBook }).ok,
+  );
 
   return {
     live,

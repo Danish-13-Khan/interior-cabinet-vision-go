@@ -1,7 +1,7 @@
 /**
  * Designer-tier basic client (A0 typed stub).
  * Name / contact / project link only. Consolidated history = Professional+ (later).
- * Existing jobMeta.customerName remains the live field until a client UX ships.
+ * Wired in InteriorClientPanel; jobMeta.customerName stays the live proposal field.
  */
 
 export type BasicClientContact = {

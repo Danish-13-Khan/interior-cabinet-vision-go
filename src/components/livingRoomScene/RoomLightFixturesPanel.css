@@ -1,0 +1,21 @@
+.lr-room-light-popover {
+  position: fixed; top: 180px; left: 100px; z-index: 100;
+  width: min(310px, calc(100vw - 64px)); max-height: calc(100vh - 230px); overflow: auto;
+  padding: 16px; border: 1px solid #d5d9de; border-radius: 10px;
+  background: #fff; color: #253344; box-shadow: 0 8px 30px #17233526;
+}
+.lr-room-light-close { float: right; padding: 6px; margin-bottom: 12px; }
+@media (max-width: 700px) { .lr-room-light-popover { left: 16px; top: 100px; max-height: calc(100vh - 150px); } }
+.lr-room-light-fixtures { font-size: 13px; }
+.lr-room-light-fixtures label, .lr-room-light-fixtures label span,
+.lr-room-light-fixtures input, .lr-room-light-fixtures button { font: inherit; line-height: 1.4; }
+.lr-room-light-fixtures h3 { margin: 0 0 8px; }
+.lr-room-light-fixtures p { line-height: 1.5; white-space: normal; }
+.lr-room-light-fixtures > details { margin-top: 12px; border-top: 1px solid #d5d9de; padding-top: 10px; }
+.lr-room-light-fixtures summary { cursor: pointer; font-weight: 600; margin-bottom: 10px; }
+.lr-room-light-fixtures .lr-render-field { display: grid; grid-template-columns: minmax(0, 1fr) 110px; align-items: center; gap: 8px; margin: 8px 0; }
+.lr-room-light-fixtures input { min-width: 0; width: 100%; box-sizing: border-box; padding: 5px; }
+.lr-room-light-fixtures input[type="checkbox"] { width: auto; }
+.lr-room-light-fixtures .lr-render-quality-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.lr-room-light-fixtures button { display: block; white-space: normal; padding: 7px; }
+.lr-room-light-fixtures .lr-render-quality-grid button { display: block; width: 100%; min-width: 0; max-width: none; text-align: left; }

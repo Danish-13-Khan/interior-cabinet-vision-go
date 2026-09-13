@@ -18,7 +18,7 @@ export function InteriorsPresentQuote({ proposal }: { proposal: Proposal }) {
       <strong>Selling total</strong>
       <p className="proposal-review-total" data-testid="proposal-live-total" data-sell-total={quote.sellTotal}>{total}</p>
       <small data-testid="proposal-quote-status">{frozenLabel}</small>
-      {live.missingRate ? <small className="is-warning">Missing rate — total is zero.</small> : null}
+      {live.missingRate ? <small className="is-warning">Incomplete price — enter missing rates or exclude those items.</small> : null}
       {quote.validUntil ? (
         <small>Valid until {new Date(quote.validUntil).toLocaleDateString()}</small>
       ) : (
@@ -27,7 +27,7 @@ export function InteriorsPresentQuote({ proposal }: { proposal: Proposal }) {
       <button
         type="button"
         onClick={proposal.freezeQuote}
-        disabled={proposal.canFreezeQuotes === false}
+        disabled={proposal.canFreezeQuotes === false || live.missingRate}
         title={proposal.canFreezeQuotes === false
           ? "Requires an active paid plan (Designer or higher)"
           : "Freeze quantities and prices for this revision"}

@@ -21,6 +21,7 @@ import type {
   PriceBookWorkshop,
   ShopThicknessDefaults,
 } from "./types";
+import { clampInteriorRates } from "./interiorRates";
 
 const BOARD_IDS = new Set(BOARD_MATERIALS.map((item) => item.id));
 const FINISH_IDS = new Set(FINISHES.map((item) => item.id));
@@ -168,5 +169,6 @@ export function clampPriceBook(value?: Partial<PriceBook> | null): PriceBook {
     workshop: clampPriceBookWorkshop(value?.workshop),
     quoteDefaults: clampPriceBookQuoteDefaults(value?.quoteDefaults),
     shopThickness: clampShopThickness(value?.shopThickness),
+    interiorRates: clampInteriorRates(value?.interiorRates),
   };
 }

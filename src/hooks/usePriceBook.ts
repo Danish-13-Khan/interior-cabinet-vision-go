@@ -1,3 +1,4 @@
+import { useCommercialStorageRevision, notifyCommercialStorageChanged } from "./useCommercialStorageRevision";
 import { useCallback, useMemo, useState } from "react";
 import {
   clampPriceBook,
@@ -15,12 +16,13 @@ import { useAccountPlan } from "./useAccountPlan";
  */
 export function usePriceBook() {
   const { entitlements } = useAccountPlan();
+  const revision = useCommercialStorageRevision();
   const [tick, setTick] = useState(0);
 
   const priceBook = useMemo(() => {
     void tick;
     return readPersonalPriceBook();
-  }, [tick]);
+  }, [tick, revision]);
 
   const refresh = useCallback(() => {
     setTick((n) => n + 1);
@@ -30,6 +32,7 @@ export function usePriceBook() {
     (patch: Partial<PriceBook>) => {
       if (!entitlements.canEditPersonalPriceBook) return readPersonalPriceBook();
       const next = persistPersonalPriceBook(clampPriceBook({ ...priceBook, ...patch }));
+      notifyCommercialStorageChanged();
       setTick((n) => n + 1);
       return next;
     },
@@ -39,6 +42,7 @@ export function usePriceBook() {
   const resetToDefaults = useCallback(() => {
     if (!entitlements.canEditPersonalPriceBook) return readPersonalPriceBook();
     const next = persistPersonalPriceBook(createDefaultPriceBook(priceBook.ownerKey));
+    notifyCommercialStorageChanged();
     setTick((n) => n + 1);
     return next;
   }, [entitlements.canEditPersonalPriceBook, priceBook.ownerKey]);

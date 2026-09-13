@@ -1,6 +1,7 @@
 import type { InteriorProject } from "../../interiorProject";
 import { buildLivingRoomMillworkSchedule } from "../millworkSchedule";
 import { buildLiveInteriorQuote } from "./liveQuote";
+import type { LiveQuoteOptions } from "./liveQuoteOptions";
 import { liveProposalSceneBinding } from "./proposalRevision";
 import { selectedProposalViews } from "./proposalViews";
 import type {
@@ -35,14 +36,16 @@ export function allocateClientCabinetPrices(
   sellTotal: number,
 ): ProposalCabinetLine[] {
   if (!cabinets.length) return [];
-  const weights = cabinets.map((line) => Math.max(0, line.sellPrice) || 1);
+  const rawWeights = cabinets.map((line) => Math.max(0, line.sellPrice));
+  const weights = rawWeights.some(value => value > 0) ? rawWeights : rawWeights.map(() => 1);
   const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
-  let remaining = Math.round(sellTotal);
+  // Cumulative rounding conserves the total without assigning a remainder to a free item.
+  let cumulative = 0, allocated = 0;
   return cabinets.map((line, index) => {
-    const amount = index === cabinets.length - 1
-      ? remaining
-      : Math.round((weights[index]! / weightSum) * sellTotal);
-    remaining -= amount;
+    cumulative += weights[index];
+    const target = Math.round(cumulative / weightSum * sellTotal);
+    const amount = target - allocated;
+    allocated = target;
     return { ...line, sellPrice: amount };
   });
 }
@@ -70,14 +73,15 @@ export function proposalMaterialLines(document: InteriorProject): ProposalMateri
 export function buildProposalClientPayload(
   document: InteriorProject,
   snapshotId: string,
+  options: LiveQuoteOptions = {},
 ): ProposalClientPayload {
-  const live = buildLiveInteriorQuote(document);
+  const live = buildLiveInteriorQuote(document, undefined, options);
   const cabinets = allocateClientCabinetPrices(
-    live.quote.cabinetLines.map((line) => ({
+    [...live.quote.cabinetLines.map((line) => ({
       mark: line.mark,
       name: line.cabinetName,
       sellPrice: line.sellPrice,
-    })),
+    })), ...(live.quote.interiorLines ?? []).map((line, index) => ({ mark: `I${index + 1}`, name: line.label, sellPrice: line.amount }))],
     live.quote.sellTotal,
   );
   const scene = liveProposalSceneBinding(document);
