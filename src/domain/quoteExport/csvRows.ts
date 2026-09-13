@@ -20,6 +20,18 @@ export function csvFromFrozenSnapshot(snapshot: QuoteSnapshot): string {
     ["Cabinet count", String(snapshot.cabinetCount)],
     ["Rates fingerprint", snapshot.ratesFingerprint ?? ""],
     ...snapshot.summaryLines.map((line) => [line.label, String(line.amount)]),
+    ...(snapshot.detailLines?.length
+      ? [
+          [],
+          ["Issued line", "Amount", "Detail", "Kind"],
+          ...snapshot.detailLines.map((line) => [
+            line.label,
+            String(line.amount),
+            line.detail ?? "",
+            line.kind,
+          ]),
+        ]
+      : [["Issued line detail", "Not captured on this revision"]]),
   ];
   return rows.map(csvRowToLine).join("\n");
 }

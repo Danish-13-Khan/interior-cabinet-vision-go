@@ -12,11 +12,11 @@ function resolveModeQuality(
 
 /** Convert millimetre tile size into Three.js texture repeat factors. */
 export function textureRepeatFromUvScaleMm(uvScaleMm: number, axisMm = 1000) {
-  const scale = Math.max(120, uvScaleMm);
+  const scale = Number.isFinite(uvScaleMm) && uvScaleMm > 0 ? uvScaleMm : 1000;
   const repeat = axisMm / scale;
   return {
-    x: Math.max(0.35, repeat),
-    y: Math.max(0.35, repeat * 0.85),
+    x: repeat,
+    y: repeat,
   };
 }
 

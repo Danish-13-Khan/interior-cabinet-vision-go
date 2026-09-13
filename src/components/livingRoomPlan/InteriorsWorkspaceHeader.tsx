@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   interiorsSaveLabel,
   type InteriorsUiMode,
@@ -8,6 +9,7 @@ import { InteriorsWorkspaceFileMenu } from "./InteriorsWorkspaceFileMenu";
 import type { DraftingAppearance } from "../../hooks/useDraftingAppearance";
 
 type InteriorsWorkspaceHeaderProps = {
+  tools?: ReactNode;
   projectName: string | null;
   roomName: string;
   revision: string;
@@ -36,6 +38,7 @@ type InteriorsWorkspaceHeaderProps = {
 };
 
 export function InteriorsWorkspaceHeader({
+  tools,
   projectName,
   roomName,
   revision,
@@ -164,6 +167,7 @@ export function InteriorsWorkspaceHeader({
       ) : null}
       {!projectHome ? (
         <div className="lr-chrome-actions">
+          {tools}
           <button
             type="button"
             className={`lr-chrome-save${isDirty ? " is-dirty" : ""}`}

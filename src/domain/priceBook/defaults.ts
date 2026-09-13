@@ -16,6 +16,7 @@ import type {
   PriceBookWorkshop,
   ShopThicknessDefaults,
 } from "./types";
+import { DEFAULT_INTERIOR_RATES } from "./interiorRates";
 
 /** Indian shop workshop labour sits in the existing 35–45% preset band. */
 export const DEFAULT_PRICE_BOOK_LABOUR: PriceBookLabour = {
@@ -80,8 +81,22 @@ export const FUTURE_CATALOG_SLOTS: readonly FutureCatalogSlot[] = [
     id: "laminate-acrylic",
     kind: "finish",
     label: "Acrylic laminate",
-    status: "todo",
-    notes: "Acrylic grade slot — do not invent a parallel finish engine.",
+    status: "ready",
+    notes: "Priced on PriceBook.interiorRates as finish.acrylic; millwork FinishId stays laminate.",
+  },
+  {
+    id: "wallpaper",
+    kind: "finish",
+    label: "Wallpaper",
+    status: "ready",
+    notes: "Priced on PriceBook.interiorRates as surface.wall.wallpaper.",
+  },
+  {
+    id: "tile",
+    kind: "finish",
+    label: "Tile",
+    status: "ready",
+    notes: "Priced on PriceBook.interiorRates as surface.tile.",
   },
   {
     id: "laminate-matt",
@@ -131,6 +146,7 @@ export function createDefaultPriceBook(
     workshop: { ...DEFAULT_PRICE_BOOK_WORKSHOP },
     quoteDefaults: { ...DEFAULT_PRICE_BOOK_QUOTE },
     shopThickness: { ...DEFAULT_SHOP_THICKNESS },
+    interiorRates: DEFAULT_INTERIOR_RATES.map((row) => ({ ...row })),
   };
 }
 

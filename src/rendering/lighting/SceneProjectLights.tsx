@@ -6,6 +6,8 @@ import {
   shouldProjectFillCastShadow,
 } from "../../domain/livingRoom/directionalCasterBudget";
 import { shadowMapSizePair } from "./shadowMapSizePair";
+import { isRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
+import { RoomLightFixture } from "./RoomLightFixture";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
@@ -35,7 +37,10 @@ export function SceneProjectLights({
   let directionalCasterCount = 0;
   return (
     <>
-      {scene.lights.filter((light) => light.enabled).map((light) => {
+      {scene.lights.filter((light) => light.enabled || isRoomLightFixture(light)).map((light) => {
+        if (isRoomLightFixture(light)) {
+          return <RoomLightFixture key={light.id} light={light} intensityScale={intensityScale} castShadow={fillCast} />;
+        }
         const position: [number, number, number] = [
           light.position.x / 1000,
           light.position.y / 1000,

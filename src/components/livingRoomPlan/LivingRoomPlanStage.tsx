@@ -106,6 +106,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
           />
         ) : (
           <LivingRoomRenderStudio
+            onPatchDocument={props.onPatchDocument}
             project={props.project} latestResult={props.latestRender} previousResult={props.previousRender}
             onRendered={props.onRendered} onSettingsChange={props.onRenderSettingsChange}
             onLightingChange={props.onLightingChange} onBrowserThumbnail={props.onRenderBrowserThumbnail}

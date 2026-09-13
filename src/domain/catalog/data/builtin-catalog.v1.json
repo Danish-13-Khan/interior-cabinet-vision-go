@@ -5736,7 +5736,7 @@
       "id": "material:core:tile-ceramic-soft-gray:v1",
       "version": 1,
       "name": "Soft Gray Ceramic Tile",
-      "kind": "stone",
+      "kind": "tile",
       "tags": [
         "tile",
         "ceramic",
@@ -5750,6 +5750,172 @@
       "metalness": 0,
       "opacity": 1,
       "uvScaleMm": 300,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:acrylic-white-gloss:v1",
+      "version": 1,
+      "name": "White High-Gloss Acrylic",
+      "kind": "acrylic",
+      "tags": [
+        "acrylic",
+        "gloss",
+        "shutter",
+        "front",
+        "kitchen",
+        "wardrobe"
+      ],
+      "swatchColor": "#f4f5f6",
+      "baseColor": "#f4f5f6",
+      "roughness": 0.08,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:acrylic-graphite-gloss:v1",
+      "version": 1,
+      "name": "Graphite High-Gloss Acrylic",
+      "kind": "acrylic",
+      "tags": [
+        "acrylic",
+        "gloss",
+        "shutter",
+        "front",
+        "kitchen",
+        "wardrobe"
+      ],
+      "swatchColor": "#3a3f44",
+      "baseColor": "#3a3f44",
+      "roughness": 0.08,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:wallpaper-linen-ivory:v1",
+      "version": 1,
+      "name": "Ivory Linen Wallpaper",
+      "kind": "wallpaper",
+      "tags": [
+        "wallpaper",
+        "wall",
+        "textured",
+        "neutral"
+      ],
+      "swatchColor": "#e6e0d4",
+      "baseColor": "#e6e0d4",
+      "roughness": 0.82,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 530,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:wallpaper-damask-teal:v1",
+      "version": 1,
+      "name": "Teal Damask Wallpaper",
+      "kind": "wallpaper",
+      "tags": [
+        "wallpaper",
+        "wall",
+        "pattern",
+        "accent"
+      ],
+      "swatchColor": "#2f5d5b",
+      "baseColor": "#2f5d5b",
+      "roughness": 0.8,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 530,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:tile-glazed-white:v1",
+      "version": 1,
+      "name": "Glazed White Tile",
+      "kind": "tile",
+      "tags": [
+        "tile",
+        "glazed",
+        "wall",
+        "backsplash",
+        "bathroom",
+        "kitchen"
+      ],
+      "swatchColor": "#f0f2f1",
+      "baseColor": "#f0f2f1",
+      "roughness": 0.16,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 300,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:tile-matt-terracotta:v1",
+      "version": 1,
+      "name": "Matt Terracotta Tile",
+      "kind": "tile",
+      "tags": [
+        "tile",
+        "matt",
+        "floor",
+        "bathroom",
+        "utility"
+      ],
+      "swatchColor": "#a9694f",
+      "baseColor": "#a9694f",
+      "roughness": 0.7,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 600,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:paint-wall-chalk:v1",
+      "version": 1,
+      "name": "Chalk White Wall Paint",
+      "kind": "paint",
+      "tags": [
+        "paint",
+        "wall",
+        "matt",
+        "neutral"
+      ],
+      "swatchColor": "#eeeae4",
+      "baseColor": "#eeeae4",
+      "roughness": 0.9,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 1000,
+      "lifecycle": "active",
+      "visibleInPicker": true
+    },
+    {
+      "id": "material:core:paint-ceiling-white:v1",
+      "version": 1,
+      "name": "Ceiling White Paint",
+      "kind": "paint",
+      "tags": [
+        "paint",
+        "ceiling",
+        "matt"
+      ],
+      "swatchColor": "#f7f7f5",
+      "baseColor": "#f7f7f5",
+      "roughness": 0.92,
+      "metalness": 0,
+      "opacity": 1,
+      "uvScaleMm": 1000,
       "lifecycle": "active",
       "visibleInPicker": true
     }

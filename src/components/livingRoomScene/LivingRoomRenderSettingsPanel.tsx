@@ -11,8 +11,10 @@ import {
 } from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderTierHonestyLegend } from "./RenderTierHonestyLegend";
+import { RoomLightFixturesPanel, type RoomLightFixturesPanelProps } from "./RoomLightFixturesPanel";
 
 type LivingRoomRenderSettingsPanelProps = {
+  fixtures?: RoomLightFixturesPanelProps;
   settings: RenderSettings;
   exposureDraft: number;
   styleExposure: number;
@@ -25,6 +27,7 @@ type LivingRoomRenderSettingsPanelProps = {
 };
 
 export function LivingRoomRenderSettingsPanel({
+  fixtures,
   settings,
   exposureDraft,
   styleExposure,
@@ -142,6 +145,7 @@ export function LivingRoomRenderSettingsPanel({
           />
         </label>
       </section>
+      {fixtures && <RoomLightFixturesPanel {...fixtures} />}
       <section className="lr-render-summary">
         <h3>Frame Summary</h3>
         <dl>

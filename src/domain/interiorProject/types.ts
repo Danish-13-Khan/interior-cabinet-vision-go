@@ -128,6 +128,9 @@ export type MaterialKind =
   | "paint"
   | "stone"
   | "laminate"
+  | "acrylic"
+  | "wallpaper"
+  | "tile"
   | "custom";
 
 export type MaterialEntity = {

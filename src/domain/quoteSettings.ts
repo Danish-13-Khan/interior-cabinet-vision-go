@@ -1,3 +1,6 @@
+import { clampQuoteSnapshotDetailLines, type QuoteSnapshotDetailLine } from "./quoteSnapshotDetail";
+export { QUOTE_SNAPSHOT_DETAIL_LIMIT, type QuoteSnapshotDetailLine } from "./quoteSnapshotDetail";
+
 export type QuotePriceDetail = "summary" | "itemized";
 
 export type QuoteSettings = {
@@ -75,6 +78,7 @@ export type QuoteSnapshot = {
   labourAllowance: number;
   hardwareAllowance: number;
   summaryLines: QuoteSnapshotSummaryLine[];
+  detailLines?: QuoteSnapshotDetailLine[];
   designFingerprint?: string;
   /** Hash of price-book / commercial rates used when frozen (Phase B). */
   ratesFingerprint?: string;
@@ -115,6 +119,8 @@ export function clampQuoteSnapshot(
         }))
     : [];
 
+  const detailLines = clampQuoteSnapshotDetailLines(snapshot.detailLines);
+
   return {
     id: String(snapshot.id ?? createQuoteSnapshotId()),
     revision: String(snapshot.revision ?? "A").trim() || "A",
@@ -134,6 +140,7 @@ export function clampQuoteSnapshot(
     labourAllowance: Math.max(0, Math.round(Number(snapshot.labourAllowance) || 0)),
     hardwareAllowance: Math.max(0, Math.round(Number(snapshot.hardwareAllowance) || 0)),
     summaryLines,
+    ...(detailLines ? { detailLines } : {}),
     designFingerprint: snapshot.designFingerprint
       ? String(snapshot.designFingerprint).trim().slice(0, 64)
       : undefined,

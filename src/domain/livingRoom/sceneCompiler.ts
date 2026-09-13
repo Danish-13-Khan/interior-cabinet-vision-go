@@ -25,6 +25,7 @@ import {
 } from "./stylePresets";
 import type { CompiledLivingRoomScene, CompiledMaterial } from "./sceneTypes";
 import { sampleWindowOpenings } from "./windowKeyLight";
+import { resolveLightAttachment } from "./lightAttachments";
 
 function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
@@ -57,12 +58,15 @@ function compileMaterials(project: InteriorProject): CompiledMaterial[] {
         opacity: material.opacity,
         materialAssetId,
         uvScaleMm: uvScale,
+        ...(typeof material.extensions?.surfaceFinish === "string" ? { surfaceFinish: material.extensions.surfaceFinish } : {}),
         ...(mapUrl ? { textureMapUrl: mapUrl } : {}),
         ...(normalMapUrl ? { textureNormalMapUrl: normalMapUrl } : {}),
         ...(roughnessMapUrl ? { textureRoughnessMapUrl: roughnessMapUrl } : {}),
         ...(uvRotation !== undefined ? { uvRotationDeg: uvRotation } : {}),
         ...(uvOffsetU !== undefined ? { uvOffsetU } : {}),
         ...(uvOffsetV !== undefined ? { uvOffsetV } : {}),
+        ...(typeof material.extensions?.grainDirection === "string"
+          ? { grainDirection: material.extensions.grainDirection } : {}),
       };
     }),
     {
@@ -107,7 +111,8 @@ export function compileLivingRoomScene(
     ...compileCabinetRunExtras(project),
   ];
   const materials = compileMaterials(project);
-  const lights = project.lights.filter((light) => light.roomId === null || light.roomId === roomId);
+  const lights = project.lights.filter((light) => light.roomId === null || light.roomId === roomId)
+    .map((light) => resolveLightAttachment(project, light));
   const cameras = project.cameras.filter((camera) => camera.roomId === roomId);
   const stylePreset = resolveLivingRoomStyle(project);
   const style = {

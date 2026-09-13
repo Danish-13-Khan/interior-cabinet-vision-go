@@ -1,4 +1,5 @@
 import type { BoardMaterialId, EdgeBandingId, FinishId } from "../materialSystem";
+import type { InteriorRate } from "./interiorRates";
 
 export type PriceBookScope = "personal" | "org";
 
@@ -72,13 +73,17 @@ export type PriceBook = {
   workshop: PriceBookWorkshop;
   quoteDefaults: PriceBookQuoteDefaults;
   shopThickness: ShopThicknessDefaults;
+  /** Interior finish and lighting accessory rates (not millwork FinishId). */
+  interiorRates: InteriorRate[];
 };
+
+export type { InteriorRate } from "./interiorRates";
 
 export type FutureCatalogSlot = {
   id: string;
   kind: "board" | "finish";
   label: string;
-  status: "todo";
+  status: "todo" | "ready";
   notes: string;
 };
 

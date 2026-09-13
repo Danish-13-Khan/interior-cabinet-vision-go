@@ -52,7 +52,7 @@ export function freezeProposal(
   return appendFrozenQuote(
     prepared,
     snapshot,
-    buildProposalClientPayload(prepared, snapshot.id),
+    buildProposalClientPayload(prepared, snapshot.id, { priceBook: options.priceBook }),
   );
 }
 
@@ -65,6 +65,9 @@ export function tryFreezeProposal(
     if (!gate.ok) return gate;
   }
   const now = options.now ?? new Date().toISOString();
+  if (buildLiveInteriorQuote(document, now, { priceBook: options.priceBook }).missingRate) {
+    return { ok: false, reason: "Enter missing rates or explicitly exclude those items before freezing the quote." };
+  }
   return {
     ok: true,
     document: freezeProposal(document, now, options.snapshotId, options),

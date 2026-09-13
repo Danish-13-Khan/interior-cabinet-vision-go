@@ -63,7 +63,29 @@ export function resolveMaterialContrast(
     };
   }
 
-  if (kind === "paint") {
+  if (kind === "acrylic") {
+    return {
+      roughnessDelta: designed ? -0.02 : rich ? (client ? -0.05 : -0.03) : 0,
+      envBoost: rich ? (client ? 1.34 : 1.2) : 1.08,
+      clearcoatBoost: rich ? (client ? 1.35 : 1.2) : 1.05,
+      sheenBoost: 1,
+      specularBoost: rich ? 1.18 : 1.05,
+      bumpBoost: 1,
+    };
+  }
+
+  if (kind === "tile") {
+    return {
+      roughnessDelta: rich ? -0.02 : 0.01,
+      envBoost: rich ? (client ? 1.16 : 1.08) : 0.98,
+      clearcoatBoost: rich ? 1.12 : 1,
+      sheenBoost: 1,
+      specularBoost: rich ? 1.06 : 1,
+      bumpBoost: rich ? 1.08 : 1,
+    };
+  }
+
+  if (kind === "paint" || kind === "wallpaper") {
     return {
       roughnessDelta: rich ? 0.05 : 0.03,
       envBoost: rich ? 0.82 : 0.78,

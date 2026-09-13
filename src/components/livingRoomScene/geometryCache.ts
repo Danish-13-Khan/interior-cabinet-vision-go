@@ -1,6 +1,7 @@
 import { BoxGeometry, CylinderGeometry, ExtrudeGeometry, Path, Shape, type BufferGeometry } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { CompiledPrimitive } from "../../domain/livingRoom";
+import { applyBoxSurfaceUvs } from "../../rendering/materials/boxSurfaceUvs";
 
 const geometryCache = new Map<string, BufferGeometry>();
 
@@ -51,6 +52,9 @@ export function getCompiledGeometry(primitive: CompiledPrimitive) {
         primitive.heightMm / 1000,
         primitive.radialSegments,
       );
+  if (primitive.kind === "box" || primitive.kind === "rounded-box") {
+    applyBoxSurfaceUvs(geometry, primitive.sizeMm);
+  }
   geometryCache.set(primitive.geometryKey, geometry);
   return geometry;
 }

@@ -1,3 +1,4 @@
+import { useCommercialStorageRevision, notifyCommercialStorageChanged } from "./useCommercialStorageRevision";
 import { useCallback, useMemo, useState } from "react";
 import {
   ensureDesktopLocalAccount,
@@ -15,6 +16,7 @@ import { isTauriRuntime } from "../platform/desktopFiles";
  * Uses marketing session identity on web; desktop gets a local Designer account.
  */
 export function useAccountPlan() {
+  const revision = useCommercialStorageRevision();
   const [tick, setTick] = useState(0);
 
   const refresh = useCallback(() => {
@@ -32,11 +34,12 @@ export function useAccountPlan() {
       }
     }
     return getAccountView();
-  }, [tick]);
+  }, [tick, revision]);
 
   const setPlan = useCallback(
     (planSku: PlanSku) => {
       setLocalPlanSku(planSku);
+      notifyCommercialStorageChanged();
       refresh();
     },
     [refresh],

@@ -1,5 +1,7 @@
+import { InteriorProjectTools } from "./livingRoomPlan/InteriorProjectTools";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
+import { millworkAssetCategories } from "../domain/livingRoom/millworkShortcuts";
 import { designUxShellClassNames, interiorsJobStatusLabel } from "../domain/desktopUx";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanWorkspaceHotkeys } from "../hooks/useLivingRoomPlanWorkspaceHotkeys";
@@ -77,7 +79,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onOpenRenderStudio: chrome.showRenderStudio,
   });
   const job = props.project ? readProposalCommercial(props.project).job : null;
-  const assetCategories = useMemo(() => ["all", ...new Set(LIVING_ROOM_CATALOG.map((item) => item.category))], []);
+  const assetCategories = useMemo(() => millworkAssetCategories(LIVING_ROOM_CATALOG.map((item) => item.category)), []);
 
   useEffect(() => {
     props.onClearPreDropReason?.();
@@ -127,6 +129,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }, [props.project?.id]);
   const header = (
     <InteriorsWorkspaceHeader
+      tools={props.project && !props.projectHomeOpen ? <InteriorProjectTools project={props.project} onPatchDocument={update => props.onPatchDocument(update, "Project details updated")} /> : null}
       projectName={props.project?.name ?? null} roomName={room?.name ?? "Room"}
       revision={job?.revision ?? "A"}
       statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}

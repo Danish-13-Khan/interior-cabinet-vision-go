@@ -33,7 +33,7 @@
     "id": "material:core:tile-ceramic-soft-gray:v1",
     "version": 1,
     "name": "Soft Gray Ceramic Tile",
-    "kind": "stone",
+    "kind": "tile",
     "tags": ["tile", "ceramic", "floor", "wall", "bathroom"],
     "swatchColor": "#d5dbd8",
     "baseColor": "#d5dbd8",
