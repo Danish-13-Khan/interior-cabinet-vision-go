@@ -1,5 +1,7 @@
 # Interior product delivery
 
+**Full phase specification:** [Whole-interior product roadmap](./INTERIOR_PRODUCT_ROADMAP.md). This file tracks implementation evidence and remaining gaps.
+
 This branch implements the whole-interior product direction agreed with the owner:
 living rooms, bedrooms, kitchens, and other spaces share one design, materials,
 lighting, costing, and project-management workflow. It is not a kitchen-only product.
@@ -8,7 +10,8 @@ Branch: `codex/interior-product-roadmap`. Current base: local `main`, `633bb85`.
 The original interior checkpoint was rebased onto the completed SaaS merge without conflicts.
 All work is local. No publishing, pushing, or merging is part of this delivery.
 The completed `feat/saas-business-scope` work is now included through main (PR #33).
-All subsequent interior development belongs on this isolated roadmap branch.
+All subsequent interior development belongs on this roadmap branch, checked out in
+`cabinet-designer-mvp`. The secondary worktree is detached and is no longer the active workspace.
 
 ## Delivery status
 
@@ -30,6 +33,36 @@ that the broader roadmap release gates below have been met.
 | 9 — Company | Planned integration stage | Team persistence, permissions, shared rates, approvals, owner reporting and tenant isolation |
 | 10 — Production handoff | Existing engineering reports and cutlists | Verify cabinet/wardrobe outputs and contractor-specific handoff for whole projects |
 | 11 — Expansion | Backlog | Prioritise paid-customer evidence, catalogue breadth, integrations and performance |
+| P — Commercial platform | None. No server exists in `src/`; persistence is local files plus `localStorage`; billing entry points return `provider_not_configured` | Hosting, identity, tenancy, server-side entitlement and a real subscription provider |
+
+## Phase 0 audit inventory
+
+Source audit of the current tree, recorded so phases are not read as unbuilt work. "Implemented" means code exists and is exercised by tests; it still does not mean a release gate has passed.
+
+| Area | Status | Evidence |
+| --- | --- | --- |
+| Wall authoring, split/join/offset/raise | Implemented | `src/domain/interiorProject/wallEditing*.ts`, `wallTransform.ts`, `wallEditing.test.ts` |
+| Doors and windows | Implemented | `openingCatalog.ts` (12 items), `openingCommands.ts`, `OpeningInspector.tsx` |
+| Room topology, multi-room, split/merge | Implemented | `planTopology.ts`, `roomDrawing.ts`, `roomSplit.ts`, `roomOperations.ts`; 17 tests in `interiorProject/` |
+| Snapping, selection, undo/redo | Implemented | `planSnapping.ts`, `planInspectTarget.ts`, `useEditorHistory.ts` |
+| Save/reopen and legacy migration | Implemented | `fileFormat.ts` (schema v2, migrates legacy cabinet shapes), `useProjectFileIo.ts` |
+| Furniture catalogue | Partial | 140 items in `catalog/data/builtin-catalog.v1.json` — every model in the Kenney pack, now room-tagged and room-filterable via `catalogRooms.ts`. No wardrobe model exists in the pack; wardrobes are parametric `almirah` millwork, not a prop. Kitchen cabinets are still presentation props |
+| Parametric cabinet engineering | Implemented | `cabinetConstruction/`, `cabinetComposition/`, `hardwareSystem/` (20 items), `productionCutlist.ts`, `sheetYield/` |
+| Machine export | Partial by design | `machineExport/derive.ts` emits `status: "preview"` intent operations, not production CAM |
+| Materials and PBR spine | Implemented (core) | `MaterialKind` now includes `acrylic`, `wallpaper`, `tile`, with finishes, contrast tuning, PBR response and seed materials (`seedMaterialsSurfaces.data.json`). `grainRotation.ts` turns grain direction into map rotation on both the curated and GLB paths; `uvRotationDeg`/`uvOffset` apply on both. Procedural shared maps are still unrotated |
+| Lighting | Implemented (core) | `roomLightFixtures.ts` (downlight, pendant, under-cabinet, cove), `lightingEnvironment.ts`, `windowKeyLight.ts`, shadow/quality tiers. Kelvin is stored on the fixture and converted in `lightColorTemperature.ts`; brightness remains a renderer control |
+| Light and object cost lines | Implemented (uncommitted) | `interiorEstimate/measure.ts` emits `lm` for strips, `each` for fixtures and non-cabinet objects |
+| Costing bases | Implemented | `interiorEstimate/measure.ts` (area with opening deductions, length, count, per-line waste, `source`/`measured`, `category`, `rateSource`), `boq/fromReport.ts` (component), `costing.ts`. Category rates resolve object and light lines via `setEstimateCategoryRate` |
+| Commercial modifiers | Implemented | `projectQuote.ts`, `quoteSettings.ts`, `priceBook/` (labour, waste, markup, discount, tax, finish premium) |
+| Optional finish packs | Partial — overlap now detected | `interiorEstimate/reconcile.ts` flags optional `area_finish` SKUs and custom m² lines that repeat a geometry-derived surface; the estimate panel shows each conflict. Packs still have no caller that adds them to a project |
+| Quote freeze, revisions, BOQ, invoice | Implemented | `quoteExport/cabinetFreeze.ts`, `proposal/liveQuote.ts`, `invoiceDocument.ts`, `invoicePdf.ts`. `QuoteSnapshot.detailLines` retains issued per-line detail and the frozen CSV exports it; older snapshots label the gap |
+| Payment ledger | Implemented (local) | `paymentLedger/schedule.ts`, `fifo.ts`, `outstanding.ts`, `syncFreezeToLedger.ts` |
+| Client history | Partial | `clientHistory.ts`, `clientHistoryStore.ts`; `basicClient.ts` notes UX not fully wired |
+| Company seats, permissions, owner dashboard | Partial | `company/seats.ts` (admin UI deferred), `permissions.ts`, `sharedProjects.ts`, `ownerDashboard.ts`, `premiumAudit.ts` |
+| Approvals | Stub | `company/approvals.ts` — self-described workflow stubs |
+| Plans and entitlements | Implemented locally, unenforceable | `saas/plans.ts`, `entitlements.ts`, `accountPersistence.ts` (localStorage) |
+| Billing | Stub | `saas/billing.ts` returns `provider_not_configured`; `stubSetLocalPlan` |
+| Dual document model | Standing debt | `InteriorProject` and `CabinetProject` bridged by `projectRooms/cabinetAdapter.ts` |
 
 ## Checkpoint 1: material scale and room-light authoring
 

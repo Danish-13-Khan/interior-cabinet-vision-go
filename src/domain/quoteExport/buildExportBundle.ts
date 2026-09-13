@@ -13,7 +13,10 @@ export type CommercialExportBundle = {
   liveQuoteCsv: string;
   /** Built from the CURRENT cutlist, not from the frozen snapshot. */
   liveBoqCsv: string;
-  /** Issued-quote totals as frozen. Line detail is not captured on a snapshot. */
+  /**
+   * Issued quote as frozen, including its own per-line detail. Snapshots taken
+   * before `detailLines` existed export totals only and say so on the sheet.
+   */
   frozenCsv: string | null;
   excelXml: string;
   quoteJson: string;

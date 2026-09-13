@@ -2,11 +2,8 @@ import {
   Color,
   Mesh,
   MeshPhysicalMaterial,
-  RepeatWrapping,
-  SRGBColorSpace,
   type Material,
   type Object3D,
-  TextureLoader,
   type Texture,
 } from "three";
 import type { CompiledMaterial } from "../../domain/livingRoom";
@@ -21,49 +18,17 @@ import {
   readGlbSourceMaterialName,
 } from "./glbSourceMaterial";
 import { type GlbMaterialBuildContext, resolveGlbMaterialBuildContext } from "./glbMaterialBuildContext";
-import { textureRepeatFromUvScaleMm } from "./materialScale";
+import { grainRotationDeg } from "./grainRotation";
+import {
+  asMeshMaterials,
+  disposeMaterialTextures,
+  loadSlotTexture,
+  type UvPlacement,
+} from "./glbTextureLoad";
 import { resolveMaterialTextureUrls } from "./resolveMaterialTextureUrls";
 
 export type { GlbMaterialBuildContext } from "./glbMaterialBuildContext";
 export { resolveGlbMaterialBuildContext } from "./glbMaterialBuildContext";
-
-const textureLoader = new TextureLoader();
-
-function loadTexture(
-  url: string | undefined,
-  uvScaleMm: number,
-  build: GlbMaterialBuildContext,
-  colorSpace: boolean,
-) {
-  if (!url) return undefined;
-  const texture = textureLoader.load(url);
-  texture.wrapS = RepeatWrapping;
-  texture.wrapT = RepeatWrapping;
-  const repeat = textureRepeatFromUvScaleMm(uvScaleMm);
-  texture.repeat.set(repeat.x, repeat.y);
-  texture.anisotropy = build.anisotropy;
-  if (colorSpace) texture.colorSpace = SRGBColorSpace;
-  return texture;
-}
-
-function asMeshMaterials(material: Material | Material[]) {
-  return Array.isArray(material) ? material : [material];
-}
-
-function disposeMaterialTextures(material: Material) {
-  const maybe = material as Material & {
-    map?: Texture | null;
-    normalMap?: Texture | null;
-    roughnessMap?: Texture | null;
-    aoMap?: Texture | null;
-    bumpMap?: Texture | null;
-  };
-  maybe.map?.dispose();
-  maybe.normalMap?.dispose();
-  maybe.roughnessMap?.dispose();
-  maybe.aoMap?.dispose();
-  maybe.bumpMap?.dispose();
-}
 
 function buildPhysicalMaterial(
   compiled: CompiledMaterial,
@@ -79,10 +44,15 @@ function buildPhysicalMaterial(
     modelViewPreview: build.modelViewPreview,
   });
   const textureUrls = resolveMaterialTextureUrls(compiled);
-  const curatedMap = loadTexture(textureUrls.map, compiled.uvScaleMm, build, true);
-  const curatedNormal = loadTexture(textureUrls.normalMap, compiled.uvScaleMm, build, false);
-  const curatedRoughness = loadTexture(textureUrls.roughnessMap, compiled.uvScaleMm, build, false);
-  const curatedAo = loadTexture(textureUrls.aoMap, compiled.uvScaleMm, build, false);
+  const placement: UvPlacement = {
+    uvRotationDeg: grainRotationDeg(compiled),
+    uvOffsetU: compiled.uvOffsetU,
+    uvOffsetV: compiled.uvOffsetV,
+  };
+  const curatedMap = loadSlotTexture(textureUrls.map, compiled.uvScaleMm, build, true, placement);
+  const curatedNormal = loadSlotTexture(textureUrls.normalMap, compiled.uvScaleMm, build, false, placement);
+  const curatedRoughness = loadSlotTexture(textureUrls.roughnessMap, compiled.uvScaleMm, build, false, placement);
+  const curatedAo = loadSlotTexture(textureUrls.aoMap, compiled.uvScaleMm, build, false, placement);
   const map = curatedMap ?? pbr.maps.map;
   const maps = {
     ...(map ? { map } : {}),
@@ -120,10 +90,10 @@ function buildImportedMaterial(
   build: GlbMaterialBuildContext,
 ) {
   const response = resolveImportedGlbMaterialResponse(mode, build);
-  const map = loadTexture(textures.map, 1000, build, true);
-  const normalMap = loadTexture(textures.normalMap, 1000, build, false);
-  const roughnessMap = loadTexture(textures.roughnessMap, 1000, build, false);
-  const metalnessMap = loadTexture(textures.metalnessMap, 1000, build, false);
+  const map = loadSlotTexture(textures.map, 1000, build, true);
+  const normalMap = loadSlotTexture(textures.normalMap, 1000, build, false);
+  const roughnessMap = loadSlotTexture(textures.roughnessMap, 1000, build, false);
+  const metalnessMap = loadSlotTexture(textures.metalnessMap, 1000, build, false);
   const maps = {
     ...(map ? { map } : {}),
     ...(normalMap ? { normalMap } : {}),

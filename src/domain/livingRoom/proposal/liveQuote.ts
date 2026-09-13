@@ -1,7 +1,8 @@
 import { cabinetProjectFromInteriorProject } from "../../interiorProject";
 import type { InteriorProject } from "../../interiorProject";
 import { createProjectReport } from "../../projectReport";
-import { createQuoteSnapshotFromQuote } from "../../projectQuote";
+import { buildProjectQuote, createQuoteSnapshotFromQuote } from "../../projectQuote";
+import { interiorEstimateSummary } from "../../interiorEstimate/measure";
 import { clampQuoteSnapshot, type QuoteSnapshot } from "../../quoteSettings";
 import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
@@ -53,9 +54,11 @@ export function buildLiveInteriorQuote(
 ): LiveInteriorQuote {
   const commercial = readProposalCommercial(document);
   const compatible = cabinetProjectFromInteriorProject(document);
+  const interior = interiorEstimateSummary(document);
   const report = createProjectReport(
     {
       ...compatible.project,
+      ...(interior.enabled ? { cabinets: compatible.project.rooms?.flatMap((room) => room.cabinets) ?? compatible.project.cabinets } : {}),
       job: { ...commercial.job, quotedAt: commercial.job.quotedAt ?? now },
       preferences: {
         ...compatible.project.preferences,
@@ -70,19 +73,24 @@ export function buildLiveInteriorQuote(
     undefined,
     { priceBook: options.priceBook ?? null },
   );
+  const quote = interior.enabled ? buildProjectQuote(report.projectCost, report.quote.settings, report.quote.job, {
+    quotedAt: report.quote.quotedAt,
+    interiorLines: interior.lines.map((line) => ({ id: line.id, label: `${line.roomName} · ${line.label}`, amount: line.amount,
+      detail: `${line.quantity} ${line.unit} × ${line.rate ?? "missing rate"}` })),
+  }) : report.quote;
   const fingerprint = createQuoteDesignFingerprint(document, options);
   const frozen = latestFrozenQuote(commercial.quoteHistory);
   const ratesFingerprint = ratesFingerprintFromBook(
     { quote: commercial.quote },
     options.priceBook,
   );
-  const stale = isQuoteStale(frozen, fingerprint, report.quote, ratesFingerprint);
+  const stale = isQuoteStale(frozen, fingerprint, quote, ratesFingerprint);
   return {
-    quote: report.quote,
+    quote,
     fingerprint,
     frozen,
     stale,
-    staleReason: quoteStaleReason(frozen, fingerprint, report.quote, ratesFingerprint),
-    missingRate: report.quote.cabinetLines.length > 0 && report.quote.sellTotal === 0,
+    staleReason: quoteStaleReason(frozen, fingerprint, quote, ratesFingerprint),
+    missingRate: interior.missing.length > 0 || (quote.cabinetLines.length > 0 && quote.sellTotal === 0),
   };
 }

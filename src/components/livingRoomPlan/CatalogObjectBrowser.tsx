@@ -4,6 +4,7 @@ import {
   OBJECT_BROWSER_CATEGORIES,
   type ObjectBrowserCategoryId,
 } from "../../domain/catalog";
+import { CATALOG_ROOM_TYPES } from "../../domain/catalog/catalogRooms";
 import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
 
 type CatalogObjectBrowserProps = {
@@ -14,9 +15,10 @@ type CatalogObjectBrowserProps = {
 export function CatalogObjectBrowser({ onPlace }: CatalogObjectBrowserProps) {
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState<ObjectBrowserCategoryId>("all");
+  const [room, setRoom] = useState("all");
   const cards = useMemo(
-    () => listObjectBrowserCards({ categoryId, text: query }),
-    [categoryId, query],
+    () => listObjectBrowserCards({ categoryId, text: query, room }),
+    [categoryId, query, room],
   );
 
   return (
@@ -33,6 +35,17 @@ export function CatalogObjectBrowser({ onPlace }: CatalogObjectBrowserProps) {
           onChange={(event) => setQuery(event.target.value)}
           data-testid="catalog-object-search"
         />
+        <select
+          aria-label="Filter objects by room"
+          value={room}
+          data-testid="catalog-object-room"
+          onChange={(event) => setRoom(event.target.value)}
+        >
+          <option value="all">All rooms</option>
+          {CATALOG_ROOM_TYPES.map((entry) => (
+            <option key={entry.id} value={entry.id}>{entry.label}</option>
+          ))}
+        </select>
         <div className="lr-asset-categories" role="tablist" aria-label="Object categories">
           {OBJECT_BROWSER_CATEGORIES.map((category) => (
             <button

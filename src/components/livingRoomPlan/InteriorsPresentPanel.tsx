@@ -50,9 +50,9 @@ export function InteriorsPresentPanel({
   return (
     <aside className="planner-v2-review interiors-present-panel" data-testid="interiors-present-panel" data-step={state.step} aria-label="Present and Send">
       <div className="interiors-compact-close-heading">
-        <span>Close the cabinet sale</span>
+        <span>Present the interior proposal</span>
         <h1>Rev {live.quote.job.revision} is ready to present</h1>
-        <p>The price, proposal, approval, and engineering model stay on this cabinet revision.</p>
+        <p>The price, proposal, approval, and engineering model stay on this project revision.</p>
       </div>
       <header>
         <span>Present and Send</span>

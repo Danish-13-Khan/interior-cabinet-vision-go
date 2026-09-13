@@ -4,6 +4,7 @@ import { hashString } from "../sceneCompilerBounds";
 import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
 import type { LiveQuoteOptions } from "./liveQuoteOptions";
+import { readInteriorEstimate } from "../../interiorEstimate/state";
 
 /** JSON-stable: omitted keys match file reload, so a freeze survives save/open. */
 function fingerprintStringify(value: unknown): string {
@@ -33,6 +34,13 @@ export function createQuoteDesignFingerprint(
   const { project } = cabinetProjectFromInteriorProject(document);
   const cameras = selectedCameraIds(document);
   return hashString(fingerprintStringify({
+    interiorEstimate: readInteriorEstimate(document),
+    lights: document.lights,
+    materials: document.materials,
+    surfaces: document.surfaces,
+    openings: document.openings,
+    loops: document.loops,
+    nodes: document.nodes,
     cabinets: project.cabinets
       .map((cabinet) => ({
         id: cabinet.id,

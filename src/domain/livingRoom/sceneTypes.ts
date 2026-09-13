@@ -32,6 +32,9 @@ export type CompiledMaterial = {
   uvRotationDeg?: number;
   uvOffsetU?: number;
   uvOffsetV?: number;
+  /** "lengthwise" | "crosswise" | "none"; rotates the map so adjacent fronts run the same way. */
+  grainDirection?: string;
+  surfaceFinish?: string;
 };
 
 export type CompiledBoxPrimitive = {
