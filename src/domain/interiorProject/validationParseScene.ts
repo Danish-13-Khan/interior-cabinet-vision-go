@@ -26,7 +26,7 @@ import {
 export function parseMaterials(source: UnknownRecord, issues: InteriorValidationIssue[]) {
   const materialIds = new Set<string>();
   return records(source.materials).map((material, index) => {
-    const kind = ["wood", "fabric", "metal", "glass", "paint", "stone", "laminate", "custom"].includes(String(material.kind))
+    const kind = ["wood", "fabric", "metal", "glass", "paint", "stone", "laminate", "acrylic", "wallpaper", "tile", "custom"].includes(String(material.kind))
       ? (material.kind as MaterialEntity["kind"])
       : "custom";
     return {
