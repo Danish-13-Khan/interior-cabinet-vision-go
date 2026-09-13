@@ -4,26 +4,29 @@ This branch implements the whole-interior product direction agreed with the owne
 living rooms, bedrooms, kitchens, and other spaces share one design, materials,
 lighting, costing, and project-management workflow. It is not a kitchen-only product.
 
-Branch: `codex/interior-product-roadmap`. Base: local `main`, `e139171`.
+Branch: `codex/interior-product-roadmap`. Current base: local `main`, `633bb85`.
+The original interior checkpoint was rebased onto the completed SaaS merge without conflicts.
 All work is local. No publishing, pushing, or merging is part of this delivery.
-The parallel `feat/saas-business-scope` checkout is independent.
+The completed `feat/saas-business-scope` work is now included through main (PR #33).
+All subsequent interior development belongs on this isolated roadmap branch.
 
 ## Delivery status
 
 “Existing” means code was found, not that a phase has passed its release gate.
-Commercial work present on the parallel branch is not copied or claimed complete here.
+Commercial code is now inherited from main. Its presence does not by itself establish
+that the broader roadmap release gates below have been met.
 
 | Phase | Existing foundation / current status | Remaining release gate |
 | --- | --- | --- |
-| 0 — Product foundation | Initial source audit and this delivery tracker | Reconcile older millwork-first documents with whole-interior direction after parallel work is reviewed |
+| 0 — Product foundation | Initial source audit and this delivery tracker | Reconcile older millwork-first documents with whole-interior direction against the merged SaaS scope |
 | 1 — Room planning | Existing topology, room/wall/opening editing, 2D/3D, history and file persistence | Verify representative multi-room homes, undo/reopen, and topology edge cases |
 | 2 — Furnishing | Existing catalogue, room starters, imported models and cabinet adapters | Verify living-room, bedroom and kitchen placement/resize/material workflows and catalogue gaps |
 | 3 — Materials | First checkpoint: physical box-face UVs, square repeats, complete material-change invalidation | Curated finish responses, cylinder/GLB scale policy, grain direction, broader visual comparison |
 | 4 — Lighting | First checkpoint: saved editable ceiling, pendant, under-cabinet and cove fixtures in 3D and Render Studio | Direct placement/snapping, cabinet attachment, light budgets, coherent sun and exposure, representative-room visual QA |
-| 5 — Interior costing | Existing cabinet costing; parallel price-book work | Integrate area/length/count/component rules and fixture accessories without duplicate charges |
-| 6 — Quotes/presentation | Existing render, proposal and export paths; parallel quote work | Verify room-wise and consolidated proposals against final pricing integration |
-| 7 — Designer launch | Parallel account/entitlement work | Onboarding, recovery, real customer pilot and release checks |
-| 8 — Professional | Parallel payment/client implementation | Integrate and verify payment allocation, overdue, history, and downgrade data access |
+| 5 — Interior costing | Existing cabinet costing; merged price-book work | Integrate area/length/count/component rules and fixture accessories without duplicate charges |
+| 6 — Quotes/presentation | Existing render, proposal and export paths; merged quote work | Verify room-wise and consolidated proposals against final pricing integration |
+| 7 — Designer launch | Merged account/entitlement work | Onboarding, recovery, real customer pilot and release checks |
+| 8 — Professional | Merged payment/client implementation | Integrate and verify payment allocation, overdue, history, and downgrade data access |
 | 9 — Company | Planned integration stage | Team persistence, permissions, shared rates, approvals, owner reporting and tenant isolation |
 | 10 — Production handoff | Existing engineering reports and cutlists | Verify cabinet/wardrobe outputs and contractor-specific handoff for whole projects |
 | 11 — Expansion | Backlog | Prioritise paid-customer evidence, catalogue breadth, integrations and performance |
@@ -78,7 +81,7 @@ Preserve every paid plan's saving and basic quote revisions. Professional owns
 client/payment tools; Company adds collaboration and richer reporting. Record
 client payments without collecting or processing money.
 
-When merging the parallel work, review shared UI composition and project patch
-handling first, then integrate fixture quantity/length into the customer's price
+With the SaaS work now inherited from main, review shared UI composition and project
+patch handling, then integrate fixture quantity/length into the customer's price
 book. A separate worktree prevents checkout interference, not future merge conflicts.
-Do not mark phases 5–9 complete merely because corresponding files exist elsewhere.
+Do not mark phases 5–9 complete merely because corresponding files exist.
