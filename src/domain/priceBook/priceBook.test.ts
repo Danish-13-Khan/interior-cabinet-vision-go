@@ -94,12 +94,16 @@ describe("price book defaults + clamp (Phase A)", () => {
     expect(bad.shopThickness).toEqual({ carcassMm: 16, shutterMm: 18, backMm: 9 });
   });
 
-  it("reserves blockboard / pine / laminate grades as typed TODO slots", () => {
+  it("reserves remaining millwork grades as typed TODO slots and marks interior finishes ready", () => {
     const ids = FUTURE_CATALOG_SLOTS.map((slot) => slot.id);
     expect(ids).toEqual(
-      expect.arrayContaining(["blockboard", "pine", "laminate-hg", "laminate-acrylic", "laminate-matt", "laminate-inner"]),
+      expect.arrayContaining(["blockboard", "pine", "laminate-hg", "laminate-acrylic", "wallpaper", "tile"]),
     );
-    expect(FUTURE_CATALOG_SLOTS.every((slot) => slot.status === "todo")).toBe(true);
+    expect(FUTURE_CATALOG_SLOTS.filter((slot) => slot.status === "ready").map((slot) => slot.id))
+      .toEqual(["laminate-acrylic", "wallpaper", "tile"]);
+    const book = createDefaultPriceBook();
+    expect(book.interiorRates.some((row) => row.id === "acrylic")).toBe(true);
+    expect(book.interiorRates.every((row) => row.costPerUnit === 0)).toBe(true);
   });
 
   it("persists a personal book and activates a real org book (Phase D)", () => {

@@ -9,6 +9,7 @@ import type { CatalogItem, CatalogPlacement } from "./types";
 import type { InteriorProject, Point3Mm } from "../interiorProject";
 import { BUILTIN_CATALOG_MANIFEST } from "./builtinCatalogManifest";
 import { catalogItemServesRoom } from "./catalogRooms";
+import { itemMatchesDimensions, itemMatchesSubcategory, type DimensionFilter } from "./objectBrowserQuery";
 
 export {
   browserFootprintFitsRoom,
@@ -58,6 +59,11 @@ export type ObjectBrowserQuery = {
   text?: string;
   /** Room type id from CATALOG_ROOM_TYPES, or "all". */
   room?: string;
+  subcategory?: string;
+  minWidthMm?: number;
+  maxWidthMm?: number;
+  minDepthMm?: number;
+  maxDepthMm?: number;
 };
 
 function normalizeSearchText(value: string): string {
@@ -86,6 +92,8 @@ export function listObjectBrowserItems(query: ObjectBrowserQuery = {}): CatalogI
     .filter((item) => item.lifecycle === "active" && item.visibility.objectBrowser)
     .filter((item) => categoryAllows(item, categoryId))
     .filter((item) => catalogItemServesRoom(item, query.room ?? "all"))
+    .filter((item) => itemMatchesSubcategory(item, query.subcategory))
+    .filter((item) => itemMatchesDimensions(item, query as DimensionFilter))
     .filter((item) => itemMatchesText(item, needle))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

@@ -6,6 +6,7 @@ import { measureInteriorEstimate, interiorEstimateSummary } from "../../domain/i
 import { readInteriorEstimate, writeInteriorEstimate, patchEstimateLine, type EstimateUnit } from "../../domain/interiorEstimate/state";
 import { applySurfaceFinish, SURFACE_FINISHES } from "../../domain/livingRoom/surfaceFinishes";
 import { usePriceBook } from "../../hooks/usePriceBook";
+import { interiorRateLookup } from "../../domain/priceBook";
 import { InteriorPaymentsPanel } from "./InteriorPaymentsPanel";
 import { InteriorEstimateRates } from "./InteriorEstimateRates";
 import { rateCategoryLabel } from "../../domain/interiorEstimate/categories";
@@ -28,7 +29,9 @@ export function InteriorProjectTools(props: ProjectToolsProps) {
     </dialog></>;
 }
 function InteriorEstimatePanel({ project, onPatchDocument }: ProjectToolsProps) {
-  const state = readInteriorEstimate(project), rows = measureInteriorEstimate(project), summary = interiorEstimateSummary(project);
+  const { priceBook } = usePriceBook();
+  const bookRates = interiorRateLookup(priceBook.interiorRates);
+  const state = readInteriorEstimate(project), rows = measureInteriorEstimate(project, bookRates), summary = interiorEstimateSummary(project, bookRates);
   const [label, setLabel] = useState(""), [unit, setUnit] = useState<EstimateUnit>("each");
   const [qty, setQty] = useState(1), [rate, setRate] = useState(0);
   return <section><h3>Whole-interior estimate</h3><p>Cabinet costs remain in the existing cabinet engine. These additional quantities use your own rates. Whole-room finishes include full coverage; exclude them when pricing a custom finish breakdown.</p>
@@ -57,6 +60,7 @@ function InteriorPriceBookPanel() {
       <article><h4>Boards · per m²</h4>{book.boards.map((r, i) => <label key={`${r.materialId}:${r.thicknessMm}`}>{r.materialId} · {r.thicknessMm} mm<input type="number" min="0" value={r.costPerM2} onChange={e => save({ boards: book.boards.map((v,j) => i === j ? { ...v, costPerM2: Number(e.target.value) } : v) })} /></label>)}</article>
       <article><h4>Finishes · per m²</h4>{book.finishes.map((r,i) => <label key={r.finishId}>{r.finishId}<input type="number" min="0" value={r.costPerM2} onChange={e => save({ finishes: book.finishes.map((v,j) => i === j ? { ...v, costPerM2: Number(e.target.value) } : v) })} /></label>)}<h4>Edges · per metre</h4>{book.edges.map((r,i) => <label key={r.edgeBandingId}>{r.edgeBandingId}<input type="number" min="0" value={r.costPerM} onChange={e => save({ edges: book.edges.map((v,j) => i === j ? { ...v, costPerM: Number(e.target.value) } : v) })} /></label>)}</article>
       <article><h4>Hardware · each</h4>{book.hardware.map((r,i) => <label key={r.hardwareId}>{r.hardwareId}<input type="number" min="0" value={r.costPerUnit} onChange={e => save({ hardware: book.hardware.map((v,j) => i === j ? { ...v, costPerUnit: Number(e.target.value) } : v) })} /></label>)}</article>
+      <article><h4>Interior finishes and lighting accessories</h4><p>Zero means unset. Enter a rate here and matching estimate lines pick it up.</p>{book.interiorRates.map((r,i) => <label key={r.id}>{r.label} · per {r.unit}<input type="number" min="0" value={r.costPerUnit} onChange={e => save({ interiorRates: book.interiorRates.map((v,j) => i === j ? { ...v, costPerUnit: Number(e.target.value) } : v) })} /></label>)}</article>
       <article><h4>Labour</h4>{Object.entries(book.labour).map(([key,value]) => <label key={key}>{key}<input type="number" min="0" value={value} onChange={e => save({ labour: { ...book.labour, [key]: Number(e.target.value) } })} /></label>)}<h4>Quote defaults</h4>{Object.entries(book.quoteDefaults).map(([key,value]) => <label key={key}>{key}<input type="number" min="0" value={value} onChange={e => save({ quoteDefaults: { ...book.quoteDefaults, [key]: Number(e.target.value) } })} /></label>)}</article>
     </div></fieldset></section>;
 }

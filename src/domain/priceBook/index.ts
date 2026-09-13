@@ -26,6 +26,13 @@ export {
   FUTURE_CATALOG_SLOTS,
   SHOP_THICKNESS_CHOICES,
 } from "./defaults";
+export {
+  clampInteriorRate,
+  clampInteriorRates,
+  DEFAULT_INTERIOR_RATES,
+  interiorRateLookup,
+  type InteriorRate,
+} from "./interiorRates";
 
 export {
   clampPriceBook,

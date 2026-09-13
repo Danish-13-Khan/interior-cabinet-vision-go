@@ -3,6 +3,7 @@ import type { InteriorProject } from "../../interiorProject";
 import { createProjectReport } from "../../projectReport";
 import { buildProjectQuote, createQuoteSnapshotFromQuote } from "../../projectQuote";
 import { interiorEstimateSummary } from "../../interiorEstimate/measure";
+import { interiorRateLookup } from "../../priceBook";
 import { clampQuoteSnapshot, type QuoteSnapshot } from "../../quoteSettings";
 import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
@@ -54,7 +55,7 @@ export function buildLiveInteriorQuote(
 ): LiveInteriorQuote {
   const commercial = readProposalCommercial(document);
   const compatible = cabinetProjectFromInteriorProject(document);
-  const interior = interiorEstimateSummary(document);
+  const interior = interiorEstimateSummary(document, interiorRateLookup(options.priceBook?.interiorRates ?? []));
   const report = createProjectReport(
     {
       ...compatible.project,

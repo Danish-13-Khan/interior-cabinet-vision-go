@@ -11,7 +11,10 @@ export type SurfaceChargeConflict = {
   lineIds: string[];
 };
 
-const SURFACE_CATEGORIES = ["surface.floor", "surface.ceiling", "surface.wall"] as const;
+const SURFACE_CATEGORIES = [
+  "surface.floor", "surface.ceiling", "surface.wall",
+  "surface.wall.wallpaper", "surface.wall.tile", "surface.tile",
+] as const;
 
 /** Words that mean a manual line is pricing a surface the geometry already measured. */
 const SURFACE_WORDS: Record<string, readonly string[]> = {
