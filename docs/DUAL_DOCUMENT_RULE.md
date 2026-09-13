@@ -42,6 +42,8 @@ Crossing without the adapter duplicates phase 2–6 behaviour and drifts ids.
 
 Freeze snapshots and ledger documents must key commercial history to that stable id so interiors and cabinet freezes for the same job stay one ledger thread.
 
+Locked by `src/domain/livingRoom/proposal/designToFreezeSmoke.test.ts` (living-room freeze plus wardrobe / kitchen millwork through the adapter).
+
 ## Explicit non-goals (this pass)
 
 - No merge of `InteriorProject` and `CabinetProject` into one schema.
