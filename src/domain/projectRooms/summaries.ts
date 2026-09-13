@@ -7,13 +7,14 @@ import {
   calculateProjectCost,
   type ProjectCost,
 } from "../costing";
-import { DEFAULT_COSTING_SETTINGS, clampCostingSettings } from "../costingSettings";
+import { resolveCommercialInputs } from "../priceBook";
+import type { PriceBook } from "../priceBook";
 import { createCabinetPlanningWorkflow } from "../cabinetLibrary";
 import {
   createExportableCabinetCutlistMap,
   createExportableProjectCutlist,
 } from "../productionOutputs";
-import { DEFAULT_QUOTE_SETTINGS, clampQuoteSettings } from "../quoteSettings";
+
 import { buildProjectQuote } from "../projectQuote";
 import { createDefaultJobMeta, clampJobMeta } from "../jobMeta";
 import { listProjectRooms, normalizeMultiRoomProject } from "./normalize";
@@ -47,15 +48,15 @@ function roomProjectSlice(
 export function summarizeProjectRoom(
   project: CabinetProject,
   roomId: string,
+  priceBook?: PriceBook | null,
 ): RoomSummary | null {
   const normalized = normalizeMultiRoomProject(project);
   const room = normalized.rooms?.find((entry) => entry.id === roomId);
   if (!room) return null;
 
   const slice = roomProjectSlice(project, roomId)!;
-  const settings = clampCostingSettings(
-    slice.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
-  );
+  const commercial = resolveCommercialInputs(slice.preferences, priceBook);
+  const settings = commercial.costing;
   const productionCutlist = createExportableProjectCutlist(slice);
   const constructionMap = new Map(
     slice.cabinets.map(
@@ -69,6 +70,7 @@ export function summarizeProjectRoom(
     cutlistMap,
     undefined,
     settings,
+    commercial.rates,
   );
   const workflow = createCabinetPlanningWorkflow(slice, {
     widthMm: room.config.dimensions.widthMm,
@@ -90,10 +92,13 @@ export function summarizeProjectRoom(
   };
 }
 
-export function createWholeProjectReport(project: CabinetProject): WholeProjectReport {
+export function createWholeProjectReport(
+  project: CabinetProject,
+  priceBook?: PriceBook | null,
+): WholeProjectReport {
   const rooms = listProjectRooms(project);
   const roomSummaries = rooms
-    .map((room) => summarizeProjectRoom(project, room.id))
+    .map((room) => summarizeProjectRoom(project, room.id, priceBook))
     .filter((summary): summary is RoomSummary => Boolean(summary));
 
   const schedule: WholeProjectScheduleRow[] = [];
@@ -105,12 +110,9 @@ export function createWholeProjectReport(project: CabinetProject): WholeProjectR
     const slice = roomProjectSlice(project, room.id);
     if (!slice) return;
 
-    const settings = clampCostingSettings(
-      slice.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
-    );
-    const quoteSettings = clampQuoteSettings(
-      slice.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
-    );
+    const commercial = resolveCommercialInputs(slice.preferences, priceBook);
+    const settings = commercial.costing;
+    const quoteSettings = commercial.quote;
     const job = clampJobMeta(slice.job ?? createDefaultJobMeta());
     const productionCutlist = createExportableProjectCutlist(slice);
     const constructionMap = new Map(
@@ -125,6 +127,7 @@ export function createWholeProjectReport(project: CabinetProject): WholeProjectR
       cutlistMap,
       undefined,
       settings,
+      commercial.rates,
     );
     const costById = new Map(
       projectCost.cabinets.map((cost) => [cost.cabinetId, cost.totalCost] as const),

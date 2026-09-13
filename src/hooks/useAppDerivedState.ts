@@ -28,13 +28,12 @@ import {
   createExportableProjectCutlist,
 } from "../domain/productionOutputs";
 import {
-  clampCostingSettings,
   DEFAULT_COSTING_SETTINGS,
 } from "../domain/costingSettings";
 import {
-  clampQuoteSettings,
   DEFAULT_QUOTE_SETTINGS,
 } from "../domain/quoteSettings";
+import { readPersonalPriceBook, resolveCommercialInputs } from "../domain/priceBook";
 import {
   canApproveForRelease,
   canReleaseForProduction,
@@ -90,8 +89,11 @@ export function useAppDerivedState({
       standards: DEFAULT_PROJECT_STANDARDS,
       drafting: DEFAULT_DRAFTING_DISPLAY,
     };
-  const costingSettings = clampCostingSettings(projectPreferences.costing);
-  const quoteSettings = clampQuoteSettings(projectPreferences.quote);
+  const priceBook = readPersonalPriceBook();
+  const priceBookKey = JSON.stringify(priceBook);
+  const commercial = resolveCommercialInputs(projectPreferences, priceBook);
+  const costingSettings = commercial.costing;
+  const quoteSettings = commercial.quote;
   const sheetOptimizerSettings = clampSheetOptimizerSettings(
     projectPreferences.sheetOptimizer,
   );
@@ -145,12 +147,12 @@ export function useAppDerivedState({
     [project, roomBounds],
   );
   const projectReport = useMemo(
-    () => createProjectReport(project, room, planningWorkflow),
-    [planningWorkflow, project, room],
+    () => createProjectReport(project, room, planningWorkflow, { priceBook }),
+    [planningWorkflow, priceBookKey, project, room],
   );
   const wholeProjectReport = useMemo(
-    () => createWholeProjectReport(project),
-    [project],
+    () => createWholeProjectReport(project, priceBook),
+    [priceBookKey, project],
   );
   const machineJobDocument = useMemo(
     () => createMachineJobDocument(project, cutlistItems),

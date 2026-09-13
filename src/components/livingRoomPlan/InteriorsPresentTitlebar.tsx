@@ -1,4 +1,4 @@
-import { interiorsPresentHint, type InteriorsPresentStep } from "../../domain/desktopUx";
+import { interiorsPresentHint, presentClientViewCaption, type InteriorsPresentStep } from "../../domain/desktopUx";
 
 export function InteriorsPresentTitlebar({
   step,
@@ -14,7 +14,7 @@ export function InteriorsPresentTitlebar({
         {" · "}
         {interiorsPresentHint(step)}
       </span>
-      <small>Client 3D · Units: {unit}</small>
+      <small>{presentClientViewCaption({ unit, step })}</small>
     </div>
   );
 }

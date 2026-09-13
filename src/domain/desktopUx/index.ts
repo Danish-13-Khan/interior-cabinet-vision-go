@@ -17,3 +17,7 @@ export * from "./interiorsCustomerChrome";
 export * from "./interiorsUiMode";
 export * from "./interiorsWorkflowArea";
 export * from "./interiorsWorkflowEntryPoints";
+export * from "./draftingAppearance";
+export * from "./designUxShell";
+export * from "./planToolbar";
+export * from "./presentChrome";

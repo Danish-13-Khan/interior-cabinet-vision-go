@@ -1,5 +1,4 @@
 import {
-  clampJobMeta,
   patchJobMeta,
   type ProjectJobMeta,
 } from "../domain/jobMeta";
@@ -15,7 +14,11 @@ import {
   setReviewNoteResolved,
   type ReviewNoteSeverity,
 } from "../domain/projectReview";
-import { createQuoteSnapshotFromQuote } from "../domain/projectQuote";
+import { gateFreezeQuotes } from "../domain/quoteExport";
+import { readPersonalPriceBook } from "../domain/priceBook";
+import { getAccountView } from "../domain/saas";
+import { syncFrozenQuoteToLedger } from "../domain/paymentLedger";
+import { prepareCabinetFreezeForLedger } from "./freezeQuoteAndSyncLedger";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import type { createProjectReport } from "../domain/projectReport";
 import { getErrorMessage } from "../utils/errors";
@@ -50,27 +53,36 @@ export function useReviewWorkflow({
   }
 
   function handleFreezeQuoteSnapshot() {
-    const snapshot = createQuoteSnapshotFromQuote(projectReport.quote);
+    const entitlements = getAccountView().entitlements;
+    const gate = gateFreezeQuotes(entitlements);
+    if (!gate.ok) {
+      onStatus(gate.reason);
+      return;
+    }
+    const priceBook = readPersonalPriceBook();
+    let prepared: ReturnType<typeof prepareCabinetFreezeForLedger> | undefined;
     commitProjectChange(
       (currentProject) => {
-        const nextHistory = [snapshot, ...(currentProject.quoteHistory ?? [])].slice(
-          0,
-          12,
-        );
-        const shouldMarkQuoted =
-          !currentProject.job?.status || currentProject.job.status === "draft";
-        return {
-          project: {
-            ...currentProject,
-            quoteHistory: nextHistory,
-            job: shouldMarkQuoted
-              ? patchJobMeta(currentProject.job, { status: "quoted" })
-              : clampJobMeta(currentProject.job),
-          },
-        };
+        prepared = prepareCabinetFreezeForLedger({
+          project: currentProject,
+          quote: projectReport.quote,
+          priceBook,
+        });
+        return { project: prepared.project };
       },
-      `Froze quote snapshot for revision ${snapshot.revision}.`,
+      "Froze quote snapshot.",
     );
+    if (!prepared) return;
+    if (prepared.ledgerRefuseReason) {
+      onStatus(prepared.ledgerRefuseReason);
+      return;
+    }
+    const sync = syncFrozenQuoteToLedger({
+      projectId: prepared.projectId,
+      snapshot: prepared.snapshot,
+      actor: "owner",
+    });
+    if (!sync.ok) onStatus(sync.reason);
   }
 
   function handleFreezeRevision(note: string, bumpRevision: boolean) {

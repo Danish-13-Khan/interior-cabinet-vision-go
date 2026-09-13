@@ -1,4 +1,8 @@
 import type { ThemeId } from './theme'
+import {
+  clearLocalAccount,
+  ensureLocalAccountForSession,
+} from '../../domain/saas'
 
 export const SESSION_KEY = 'cabinetStudioSession'
 
@@ -25,10 +29,16 @@ export function isLoggedIn(): boolean {
 
 export function setSession(session: Session): void {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  // A0: keep SaaS account snapshot aligned with marketing identity (same auth stack).
+  ensureLocalAccountForSession({
+    email: session.email,
+    company: session.company,
+  })
 }
 
 export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY)
+  clearLocalAccount()
 }
 
 export function createSession(partial: {

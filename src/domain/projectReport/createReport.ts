@@ -4,9 +4,9 @@ import { createCabinetConstruction } from "../cabinetConstruction";
 import {
   calculateCabinetCost,
   calculateProjectCost,
-  clampCostingSettings,
-  DEFAULT_COSTING_SETTINGS,
 } from "../costing";
+import { resolveCommercialInputs } from "../priceBook";
+import type { PriceBook } from "../priceBook";
 import {
   computeProductionMaterialSummary,
   groupCutlistByCabinet,
@@ -30,11 +30,7 @@ import {
   type CabinetPlanningWorkflow,
 } from "../cabinetLibrary";
 import { buildProjectQuote } from "../projectQuote";
-import {
-  clampQuoteHistory,
-  clampQuoteSettings,
-  DEFAULT_QUOTE_SETTINGS,
-} from "../quoteSettings";
+import { clampQuoteHistory } from "../quoteSettings";
 import { planSheetYield } from "../sheetYield";
 import {
   clampSheetOptimizerSettings,
@@ -58,13 +54,14 @@ export function createProjectReport(
   project: CabinetProject,
   room: RoomConfig,
   planning?: CabinetPlanningWorkflow,
+  options?: { priceBook?: PriceBook | null },
 ): ProjectReport {
-  const settings = clampCostingSettings(
-    project.preferences?.costing ?? DEFAULT_COSTING_SETTINGS,
+  const commercial = resolveCommercialInputs(
+    project.preferences,
+    options?.priceBook ?? null,
   );
-  const quoteSettings = clampQuoteSettings(
-    project.preferences?.quote ?? DEFAULT_QUOTE_SETTINGS,
-  );
+  const settings = commercial.costing;
+  const quoteSettings = commercial.quote;
   const job = clampJobMeta(project.job ?? createDefaultJobMeta());
   const identity = diagnoseProjectIdentity(project);
   const productionCutlist = createExportableProjectCutlist(project);
@@ -80,6 +77,7 @@ export function createProjectReport(
     cutlistMap,
     undefined,
     settings,
+    commercial.rates,
   );
   const cabinetCosts = new Map(
     projectCost.cabinets.map((cost) => [cost.cabinetId, cost] as const),
@@ -97,7 +95,14 @@ export function createProjectReport(
       lines,
       cost:
         cabinetCosts.get(cabinet.id) ??
-        calculateCabinetCost(cabinet, construction, lines, undefined, settings),
+        calculateCabinetCost(
+          cabinet,
+          construction,
+          lines,
+          undefined,
+          settings,
+          commercial.rates,
+        ),
     };
   });
   const cabinetSchedule = buildCabinetSchedule(

@@ -9,7 +9,6 @@ import {
   buildProposalDocument,
   collectProposalViewFrames,
   exportInteriorProposalPdf,
-  freezeProposal,
   listProposalNamedViews,
   matchingProposalRelease,
   patchProposalJob,
@@ -23,6 +22,9 @@ import {
 import type { AcceptedStillAsset } from "./selectPackageAcceptedStillAssets";
 import { getErrorMessage } from "../utils/errors";
 import { promptSavePath, writeBinaryBlob } from "../platform/desktopFiles";
+import { readPersonalPriceBook } from "../domain/priceBook";
+import { useAccountPlan } from "./useAccountPlan";
+import { freezeQuoteAndSyncLedger } from "./freezeQuoteAndSyncLedger";
 
 type PatchDocument = (
   update: (current: InteriorProject) => InteriorProject,
@@ -41,10 +43,17 @@ export function useProposalWorkflow(args: {
   const [busy, setBusy] = useState(false);
   const [staleOverride, setStaleOverride] = useState(false);
   const [overrideReason, setOverrideReason] = useState("");
+  const account = useAccountPlan();
+  const priceBook = readPersonalPriceBook();
+  const priceBookKey = JSON.stringify(priceBook);
 
   const live = useMemo(
-    () => (args.project ? buildLiveInteriorQuote(args.project) : null),
-    [args.project],
+    () => (args.project
+      ? buildLiveInteriorQuote(args.project, undefined, { priceBook })
+      : null),
+    // priceBookKey tracks book edits; priceBook object is read fresh above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [args.project, priceBookKey],
   );
   const views = useMemo(
     () => (args.project ? listProposalNamedViews(args.project) : []),
@@ -68,9 +77,11 @@ export function useProposalWorkflow(args: {
           overrideReason,
           viewFrames,
           acceptedStillCount: args.acceptedStills?.length ?? 0,
+          priceBook,
         })
       : null),
-    [args.project, args.issues, staleOverride, overrideReason, viewFrames, args.acceptedStills],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [args.project, args.issues, staleOverride, overrideReason, viewFrames, args.acceptedStills, priceBookKey],
   );
 
   function patchQuote(patch: Partial<QuoteSettings>) {
@@ -88,10 +99,26 @@ export function useProposalWorkflow(args: {
   }
 
   function freezeQuote() {
-    args.onPatchDocument((current) => freezeProposal(current), "Froze quote snapshot.");
+    if (!account.canFreezeQuotes) {
+      setStatus("Quote freeze requires an active paid plan (Designer or higher).");
+      return;
+    }
+    let ledgerStatus: string | undefined;
+    args.onPatchDocument((current) => {
+      const result = freezeQuoteAndSyncLedger(current, {
+        entitlements: account.entitlements,
+        priceBook,
+      });
+      if (!result.ok) {
+        setStatus(result.reason);
+        return current;
+      }
+      ledgerStatus = result.ledgerStatus;
+      return result.document;
+    }, "Froze quote snapshot.");
     setStaleOverride(false);
     setOverrideReason("");
-    setStatus("Quote frozen for this revision.");
+    setStatus(ledgerStatus ?? "Quote frozen for this revision.");
   }
 
   function toggleView(cameraId: string) {
@@ -162,6 +189,7 @@ export function useProposalWorkflow(args: {
     patchQuote,
     patchJob,
     freezeQuote,
+    canFreezeQuotes: account.canFreezeQuotes,
     toggleView,
     createProposal,
   };
