@@ -1,6 +1,7 @@
 import { createRevisionFingerprint } from "../../projectReview";
 import type { InteriorProject } from "../../interiorProject";
 import { readProposalCommercial } from "../proposal/commercialState";
+import type { LiveQuoteOptions } from "../proposal/liveQuoteOptions";
 import { handoffApprovalReady } from "./handoffApprove";
 import { adaptHandoffProject, listHandoffCabinets } from "./handoffCabinets";
 import { createHandoffDesignFingerprint } from "./handoffDesignFingerprint";
@@ -10,8 +11,9 @@ export function commitEngineeringHandoff(
   document: InteriorProject,
   selectedInteriorObjectIds: string[] = [],
   now = new Date().toISOString(),
+  options: LiveQuoteOptions = {},
 ): InteriorProject {
-  if (!handoffApprovalReady(document).ok) return document;
+  if (!handoffApprovalReady(document, options).ok) return document;
   const commercial = readProposalCommercial(document);
   if (hasHandoffSnapshotForRevision(document, commercial.job.revision)) return document;
   const adapted = adaptHandoffProject(document);
