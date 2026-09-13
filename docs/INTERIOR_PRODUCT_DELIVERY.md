@@ -62,7 +62,7 @@ Source audit of the current tree, recorded so phases are not read as unbuilt wor
 | Approvals | Stub | `company/approvals.ts` — self-described workflow stubs |
 | Plans and entitlements | Implemented locally, unenforceable | `saas/plans.ts`, `entitlements.ts`, `accountPersistence.ts` (localStorage) |
 | Billing | Stub | `saas/billing.ts` returns `provider_not_configured`; `stubSetLocalPlan` |
-| Dual document model | Standing debt | `InteriorProject` and `CabinetProject` bridged by `projectRooms/cabinetAdapter.ts` |
+| Dual document model | Decided (keep both) | Seam: `interiorProject/cabinetAdapter*.ts` — [DUAL_DOCUMENT_RULE.md](./DUAL_DOCUMENT_RULE.md) |
 
 ## Checkpoint 1: material scale and room-light authoring
 

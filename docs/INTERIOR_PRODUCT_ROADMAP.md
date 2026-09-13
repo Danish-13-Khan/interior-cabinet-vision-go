@@ -83,7 +83,7 @@ Existing code is reused and verified. A phase becomes complete only when its end
 - [ ] Classify each feature as verified, implemented but unverified, partial, or missing; link evidence in the delivery tracker.
 - [ ] Reconcile legacy millwork-first documents and navigation with living-room, bedroom and kitchen scope.
 - [ ] Define stable project/room/object/material/light identifiers and units across design, costing, exports and history.
-- [ ] Decide the target of the dual document model. `InteriorProject` and `CabinetProject` are separate documents bridged by `src/domain/projectRooms/cabinetAdapter.ts`, so every phase 2–6 feature is otherwise built twice. Record whether we consolidate, keep the adapter as the permanent seam, or split the products.
+- [x] Dual document model: keep both; adapter is the seam — see [DUAL_DOCUMENT_RULE.md](./DUAL_DOCUMENT_RULE.md). (Adapters live in `src/domain/interiorProject/cabinetAdapter*.ts`, not `projectRooms/`.)
 - [ ] Consolidate the overlapping planning documents rather than adding to them. `docs/` already holds ~12,000 lines across `INTERIOR_PRODUCT_ROADMAP`, `INTERIOR_DESIGN_TOOL_ROADMAP`, `INTERIOR_PRODUCT_DELIVERY`, `BUSINESS_PRODUCT_SCOPE`, `CABINET_STUDIO_PRODUCT_BOOK` and seven `SAAS_*_NOTES` files. Name one owner document per area and mark the rest superseded.
 - [ ] Decide how saved local files, cloud copies and versions relate; document recovery and migration behaviour.
 - [ ] Define production authentication, subscription authority, tenant ownership and server permission enforcement before Company work.
@@ -101,7 +101,7 @@ Existing code is reused and verified. A phase becomes complete only when its end
 - [ ] Place and resize doors/windows with sill height, opening direction and wall attachment.
 - [ ] Support measured underlays, dimensions, snapping, precise numeric entry, pan and zoom.
 - [ ] Keep 2D, 3D and quantities derived from the same project data.
-- [ ] Execute the phase-0 decision on the dual document model before phase 2 adds catalogue and costing surface area on top of the adapter.
+- [x] Dual document decision executed for this pass: keep both; adapter seam — [DUAL_DOCUMENT_RULE.md](./DUAL_DOCUMENT_RULE.md).
 - [ ] Verify undo/redo, autosave/recovery, manual save, reopen and older-file migration.
 - [ ] Explain invalid edits without losing the last valid project state.
 
@@ -413,6 +413,6 @@ The first commercial milestone runs as three concurrent tracks, not as a walk fr
 
 **Punch list — done.** The material and lighting items are closed: grain direction and UV rotation now reach the renderer on both paths, wallpaper, acrylic and tile are real material kinds with selectable seed materials, Kelvin is stored and converted, and fixture count and strip length emit cost lines. Category rate resolution, double-charge detection and frozen per-line detail landed with them. What remains of those areas is listed under each phase as "still open".
 
-**Standing debt.** Execute the phase-0 decision on the dual document model before track A widens it. Roughly twenty source files exceed this repository's own 200-line ceiling, led by `src/hooks/useLivingRoomPlanEditor.ts` (924), `src/domain/livingRoom/index.ts` (913) and `src/App.tsx` (697); split them as the tracks touch them rather than in a separate cleanup pass.
+**Standing debt.** Dual document decision recorded in [DUAL_DOCUMENT_RULE.md](./DUAL_DOCUMENT_RULE.md) (keep both; adapter is the seam). Still split oversized files before track A widens the seam. Roughly twenty source files exceed this repository's own 200-line ceiling, led by `src/hooks/useLivingRoomPlanEditor.ts` (924), `src/domain/livingRoom/index.ts` (913) and `src/App.tsx` (697); split them as the tracks touch them rather than in a separate cleanup pass.
 
 Update the delivery tracker after each reviewable checkpoint with changed scope, test evidence and remaining limitations. Keep implementation local on the working branch. Commit, push, merge, deploy and paid-launch status must be reported separately; this document does not authorise an external launch.
