@@ -4,57 +4,8 @@ import { SiteNav } from '../../components/SiteNav'
 import { SiteFooter } from '../../components/SiteFooter'
 import { ThemeSwitchPanel } from '../../components/ThemeSwitchPanel'
 import { templatesCalm } from '../sharedTemplates'
-
-function GoldenRunVisual() {
-  return (
-    <div className="golden-run-visual" aria-hidden="true">
-      <svg viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg" width="100%">
-        <defs>
-          <linearGradient id="calm-g1" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#7dba8a" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#7dba8a" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <rect width="360" height="240" fill="#161616" rx="4" />
-        <circle cx="50" cy="120" r="22" fill="rgba(125,186,138,0.15)" stroke="#7dba8a" />
-        <text x="42" y="124" fill="#9fd4a8" fontSize="11" fontFamily="IBM Plex Sans,sans-serif">
-          1
-        </text>
-        <line x1="72" y1="120" x2="118" y2="120" stroke="#7dba8a" strokeWidth="2" opacity="0.5" />
-        <circle cx="140" cy="120" r="22" fill="rgba(125,186,138,0.15)" stroke="#7dba8a" />
-        <text x="132" y="124" fill="#9fd4a8" fontSize="11" fontFamily="IBM Plex Sans,sans-serif">
-          2
-        </text>
-        <line x1="162" y1="120" x2="208" y2="120" stroke="#7dba8a" strokeWidth="2" opacity="0.5" />
-        <circle cx="230" cy="120" r="22" fill="rgba(125,186,138,0.15)" stroke="#7dba8a" />
-        <text x="222" y="124" fill="#9fd4a8" fontSize="11" fontFamily="IBM Plex Sans,sans-serif">
-          3
-        </text>
-        <line x1="252" y1="120" x2="298" y2="120" stroke="#7dba8a" strokeWidth="2" opacity="0.5" />
-        <circle cx="320" cy="120" r="22" fill="#7dba8a" />
-        <text x="312" y="124" fill="#0f1a12" fontSize="11" fontFamily="IBM Plex Sans,sans-serif" fontWeight="600">
-          4
-        </text>
-        <text x="28" y="170" fill="#6e6e6e" fontSize="9" fontFamily="IBM Plex Sans,sans-serif">
-          Room
-        </text>
-        <text x="112" y="170" fill="#6e6e6e" fontSize="9" fontFamily="IBM Plex Sans,sans-serif">
-          Run
-        </text>
-        <text x="200" y="170" fill="#6e6e6e" fontSize="9" fontFamily="IBM Plex Sans,sans-serif">
-          Proposal
-        </text>
-        <text x="292" y="170" fill="#9fd4a8" fontSize="9" fontFamily="IBM Plex Sans,sans-serif">
-          Shop
-        </text>
-        <rect x="20" y="30" width="320" height="40" rx="8" fill="url(#calm-g1)" stroke="#2a2a2a" />
-        <text x="40" y="55" fill="#a8a8a8" fontSize="12" fontFamily="IBM Plex Sans,sans-serif">
-          Golden run · same design end-to-end
-        </text>
-      </svg>
-    </div>
-  )
-}
+import { CalmLandingPricing } from './CalmLandingPricing'
+import { GoldenRunVisual } from './CalmGoldenRunVisual'
 
 export function CalmLanding() {
   return (
@@ -192,62 +143,7 @@ export function CalmLanding() {
         </div>
       </section>
 
-      <section className="section" id="pricing" style={{ paddingTop: 0 }}>
-        <div className="section-header section-center">
-          <p className="eyebrow">Pricing</p>
-          <h2>Simple plans for sales teams</h2>
-          <p>Start free for one salesperson. Scale when the whole showroom is on board.</p>
-        </div>
-        <div className="pricing-grid">
-          <div className="pricing-card">
-            <div className="plan-name">Starter</div>
-            <div className="plan-price">
-              $0 <span>/ mo</span>
-            </div>
-            <p className="plan-desc">For evaluating the golden run on real jobs.</p>
-            <ul>
-              <li>1 user</li>
-              <li>3 active jobs</li>
-              <li>Standard templates</li>
-              <li>PDF proposals</li>
-            </ul>
-            <Link className="btn btn-secondary btn-block" to="/register">
-              Register
-            </Link>
-          </div>
-          <div className="pricing-card is-featured">
-            <div className="plan-name">Studio</div>
-            <div className="plan-price">
-              $79 <span>/ user / mo</span>
-            </div>
-            <p className="plan-desc">Full proposal-to-production for sales teams.</p>
-            <ul>
-              <li>Unlimited jobs</li>
-              <li>3D presentations</li>
-              <li>Live catalog pricing</li>
-              <li>Engineering handoff</li>
-              <li>Shared library</li>
-            </ul>
-            <Link className="btn btn-primary btn-block" to="/register">
-              Register
-            </Link>
-          </div>
-          <div className="pricing-card">
-            <div className="plan-name">Showroom</div>
-            <div className="plan-price">Custom</div>
-            <p className="plan-desc">Multi-location dealers and manufacturers.</p>
-            <ul>
-              <li>SSO &amp; roles</li>
-              <li>Custom catalogs</li>
-              <li>API &amp; ERP hooks</li>
-              <li>Dedicated success</li>
-            </ul>
-            <Link className="btn btn-ghost btn-block" to="/login">
-              Login to inquire
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CalmLandingPricing />
 
       <SiteFooter />
     </div>

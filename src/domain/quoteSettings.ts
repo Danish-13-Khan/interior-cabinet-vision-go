@@ -76,6 +76,9 @@ export type QuoteSnapshot = {
   hardwareAllowance: number;
   summaryLines: QuoteSnapshotSummaryLine[];
   designFingerprint?: string;
+  /** Hash of price-book / commercial rates used when frozen (Phase B). */
+  ratesFingerprint?: string;
+  priceBookUpdatedAt?: string;
   currencyLabel?: string;
   taxLabel?: string;
   priceDetail?: QuotePriceDetail;
@@ -84,7 +87,12 @@ export type QuoteSnapshot = {
   validUntil?: string | null;
 };
 
-export const MAX_QUOTE_HISTORY = 12;
+/**
+ * Soft memory warning threshold only — issued quote history is never truncated.
+ * Spec §6: a prior issued revision stays frozen; §7 keeps superseded commercial
+ * documents historical, and ledger documents reference `QuoteSnapshot.id`.
+ */
+export const QUOTE_HISTORY_SOFT_WARN = 200;
 
 export function createQuoteSnapshotId() {
   return `quote-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -129,6 +137,12 @@ export function clampQuoteSnapshot(
     designFingerprint: snapshot.designFingerprint
       ? String(snapshot.designFingerprint).trim().slice(0, 64)
       : undefined,
+    ratesFingerprint: snapshot.ratesFingerprint
+      ? String(snapshot.ratesFingerprint).trim().slice(0, 64)
+      : undefined,
+    priceBookUpdatedAt: snapshot.priceBookUpdatedAt
+      ? String(snapshot.priceBookUpdatedAt).trim().slice(0, 40)
+      : undefined,
     currencyLabel: snapshot.currencyLabel
       ? String(snapshot.currencyLabel).trim().slice(0, 12)
       : undefined,
@@ -154,10 +168,10 @@ export function clampQuoteHistory(
   history: Array<Partial<QuoteSnapshot>> | undefined,
 ): QuoteSnapshot[] {
   if (!Array.isArray(history)) return [];
+  // Retain every issued revision — never truncate on load/save.
   return history
     .map((item) => clampQuoteSnapshot(item))
-    .filter((item): item is QuoteSnapshot => Boolean(item))
-    .slice(0, MAX_QUOTE_HISTORY);
+    .filter((item): item is QuoteSnapshot => Boolean(item));
 }
 
 export function formatQuoteMoney(amount: number, currencyLabel = "INR") {

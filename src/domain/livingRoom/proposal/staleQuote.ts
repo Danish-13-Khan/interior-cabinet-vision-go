@@ -5,18 +5,27 @@ export function isQuoteStale(
   frozen: QuoteSnapshot | null,
   liveFingerprint: string,
   liveQuote: ProjectQuote,
+  liveRatesFingerprint?: string | null,
 ): boolean {
-  return quoteStaleReason(frozen, liveFingerprint, liveQuote) != null;
+  return quoteStaleReason(frozen, liveFingerprint, liveQuote, liveRatesFingerprint) != null;
 }
 
 export function quoteStaleReason(
   frozen: QuoteSnapshot | null,
   liveFingerprint: string,
   liveQuote: ProjectQuote,
+  liveRatesFingerprint?: string | null,
 ): string | null {
   if (!frozen) return null;
   if (frozen.designFingerprint && frozen.designFingerprint !== liveFingerprint) {
     return "The live design or commercial settings differ from the frozen quote.";
+  }
+  if (
+    frozen.ratesFingerprint &&
+    liveRatesFingerprint &&
+    frozen.ratesFingerprint !== liveRatesFingerprint
+  ) {
+    return "Price book rates changed after the quote was frozen.";
   }
   if (frozen.sellTotal !== liveQuote.sellTotal) {
     return "The live total no longer matches the frozen quote.";

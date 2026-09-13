@@ -2,8 +2,9 @@ import { useEffect, useMemo, useRef } from "react";
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import { LIVING_ROOM_CATALOG } from "../../domain/livingRoom";
 import {
+  designUxShowsCatalogRail,
+  designUxShowsToolRail,
   interiorsWorkflowCatalogView,
-  interiorsWorkflowShowsToolRail,
   isInteriorsDrawRoomTool,
 } from "../../domain/desktopUx";
 import { InteriorsToolRail } from "./InteriorsToolRail";
@@ -32,7 +33,11 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
   ).length;
   const drawRoom = props.workflowArea === "room" && isInteriorsDrawRoomTool(props.chromeTool);
-  const showRail = props.toolRailVisible && interiorsWorkflowShowsToolRail(props.workflowArea) && !props.presenting;
+  const showRail = designUxShowsToolRail({
+    area: props.workflowArea,
+    toolRailVisible: props.toolRailVisible,
+    presenting: props.presenting ?? false,
+  });
 
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
@@ -53,7 +58,12 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         void props.onImportUnderlay(file);
       }}
     />
-    {props.toolRailVisible && catalogView && !drawRoom && !props.presenting ? (
+    {designUxShowsCatalogRail({
+      area: props.workflowArea,
+      toolRailVisible: props.toolRailVisible,
+      presenting: props.presenting ?? false,
+      drawRoomActive: drawRoom,
+    }) && catalogView ? (
       <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }} data-workflow-area={props.workflowArea}>
         <div className="lr-catalog-scroll">
         <InteriorsWorkflowAreaPanel

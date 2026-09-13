@@ -12,6 +12,7 @@ import {
   mapHandoffSelection,
 } from "../domain/livingRoom/handoff";
 import { readProposalCommercial } from "../domain/livingRoom/proposal";
+import { resolvePostHandoffBridge } from "../domain/engineerBridge";
 
 type PatchDocument = (
   update: (current: InteriorProject) => InteriorProject,
@@ -60,5 +61,6 @@ export function useEngineeringHandoff(args: {
     args.onEnterEngineering(cabinetIds);
   }
 
-  return { summary, gate, canApprove, revisionApproved, sent, approveRevision, sendToEngineering };
+  const bridgeTarget = resolvePostHandoffBridge();
+  return { summary, gate, canApprove, revisionApproved, sent, approveRevision, sendToEngineering, bridgeTarget };
 }
