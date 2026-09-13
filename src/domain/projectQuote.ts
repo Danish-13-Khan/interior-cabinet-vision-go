@@ -3,11 +3,9 @@ import type { ProjectJobMeta } from "./jobMeta";
 import { clampJobMeta, createDefaultJobMeta } from "./jobMeta";
 import {
   clampQuoteSettings,
-  createQuoteSnapshotId,
   DEFAULT_QUOTE_SETTINGS,
   quoteValidUntil,
   type QuoteSettings,
-  type QuoteSnapshot,
   type QuoteSnapshotSummaryLine,
 } from "./quoteSettings";
 import { csvRowToLine } from "../utils/csvSafe";
@@ -42,6 +40,7 @@ export type QuoteEstimateLine = {
 };
 
 export type ProjectQuote = {
+  interiorLines?: Array<{ id: string; label: string; amount: number; detail?: string }>;
   settings: QuoteSettings;
   job: ProjectJobMeta;
   quotedAt: string;
@@ -89,6 +88,7 @@ export function buildProjectQuote(
   options: {
     quotedAt?: string;
     cabinetMarks?: Map<string, string>;
+    interiorLines?: Array<{ id: string; label: string; amount: number; detail?: string }>;
   } = {},
 ): ProjectQuote {
   const settings = clampQuoteSettings(quoteSettings ?? DEFAULT_QUOTE_SETTINGS);
@@ -104,7 +104,7 @@ export function buildProjectQuote(
   );
   const labourAllowance = settings.labourAllowance;
   const hardwareAllowance = projectCost.hardwareAllowance;
-  const workshopSubtotal = projectCost.grandTotal;
+  const workshopSubtotal = projectCost.grandTotal + (options.interiorLines ?? []).reduce((sum, line) => sum + line.amount, 0);
   const baseBeforeMarkup = roundMoney(
     workshopSubtotal + finishPremiumTotal + labourAllowance,
   );
@@ -141,7 +141,7 @@ export function buildProjectQuote(
   // hardware allowance that is shown as a separate estimate line below.
   const cabinetSellSum = cabinetLines.reduce((sum, line) => sum + line.sellPrice, 0);
   const targetCabinetSell = roundMoney(
-    workshopSubtotal - hardwareAllowance,
+    projectCost.grandTotal - hardwareAllowance,
   );
   if (cabinetSellSum > 0 && targetCabinetSell > 0) {
     const scale = targetCabinetSell / cabinetSellSum;
@@ -151,6 +151,7 @@ export function buildProjectQuote(
   }
 
   const estimateLines: QuoteEstimateLine[] = [
+    ...(options.interiorLines ?? []).map((line) => ({ ...line, kind: "note" as const })),
     ...cabinetLines.map((line) => ({
       id: `cabinet-${line.cabinetId}`,
       kind: "cabinet" as const,
@@ -221,6 +222,7 @@ export function buildProjectQuote(
   ];
 
   return {
+    ...(options.interiorLines ? { interiorLines: options.interiorLines } : {}),
     settings,
     job: safeJob,
     quotedAt,
@@ -242,25 +244,7 @@ export function buildProjectQuote(
   };
 }
 
-export function createQuoteSnapshotFromQuote(quote: ProjectQuote): QuoteSnapshot {
-  return {
-    id: createQuoteSnapshotId(),
-    revision: quote.job.revision,
-    quotedAt: quote.quotedAt,
-    customerName: quote.job.customerName,
-    projectNumber: quote.job.projectNumber,
-    workshopTotal: quote.workshopSubtotal,
-    sellTotal: quote.sellTotal,
-    cabinetCount: quote.cabinetLines.length,
-    markupPercent: quote.settings.markupPercent,
-    taxPercent: quote.settings.taxPercent,
-    discountPercent: quote.settings.discountPercent,
-    finishPremiumPercent: quote.settings.finishPremiumPercent,
-    labourAllowance: quote.labourAllowance,
-    hardwareAllowance: quote.hardwareAllowance,
-    summaryLines: quote.summaryCards,
-  };
-}
+// createQuoteSnapshotFromQuote lives in quoteSnapshotFromQuote.ts and is re-exported below.
 
 export function csvFromProjectQuote(quote: ProjectQuote): string {
   const rows = [
@@ -275,3 +259,5 @@ export function csvFromProjectQuote(quote: ProjectQuote): string {
   ];
   return rows.map(csvRowToLine).join("\n");
 }
+
+export { createQuoteSnapshotFromQuote } from "./quoteSnapshotFromQuote";

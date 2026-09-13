@@ -8,6 +8,7 @@ import { defaultBrowserPlacementPosition } from "./objectBrowserPlacement";
 import type { CatalogItem, CatalogPlacement } from "./types";
 import type { InteriorProject, Point3Mm } from "../interiorProject";
 import { BUILTIN_CATALOG_MANIFEST } from "./builtinCatalogManifest";
+import { catalogItemServesRoom } from "./catalogRooms";
 
 export {
   browserFootprintFitsRoom,
@@ -55,6 +56,8 @@ export type ObjectBrowserCard = {
 export type ObjectBrowserQuery = {
   categoryId?: ObjectBrowserCategoryId | string;
   text?: string;
+  /** Room type id from CATALOG_ROOM_TYPES, or "all". */
+  room?: string;
 };
 
 function normalizeSearchText(value: string): string {
@@ -82,6 +85,7 @@ export function listObjectBrowserItems(query: ObjectBrowserQuery = {}): CatalogI
   return MANIFEST.items
     .filter((item) => item.lifecycle === "active" && item.visibility.objectBrowser)
     .filter((item) => categoryAllows(item, categoryId))
+    .filter((item) => catalogItemServesRoom(item, query.room ?? "all"))
     .filter((item) => itemMatchesText(item, needle))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

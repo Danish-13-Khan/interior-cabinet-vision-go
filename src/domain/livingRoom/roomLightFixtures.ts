@@ -1,5 +1,6 @@
-import type { InteriorProject, LightEntity } from "../interiorProject";
+import type { InteriorProject, LightEntity, ParameterValue } from "../interiorProject";
 import { roomPlanViewBounds } from "../interiorProject/roomPlanBounds";
+import { DEFAULT_LIGHT_KELVIN, isLightKelvin, kelvinToHex } from "./lightColorTemperature";
 
 export const ROOM_LIGHT_FIXTURES = [
   { id: "ceiling-downlight", name: "Ceiling downlight", kind: "spot" },
@@ -9,6 +10,12 @@ export const ROOM_LIGHT_FIXTURES = [
 ] as const;
 export type RoomLightFixtureKind = typeof ROOM_LIGHT_FIXTURES[number]["id"];
 export type RoomLightPatch = Partial<Pick<LightEntity, "name" | "enabled" | "color" | "intensity" | "position" | "rotation" | "parameters">>;
+
+function withoutKelvin(parameters: Record<string, ParameterValue>) {
+  const next = { ...parameters };
+  delete next.colorTemperatureK;
+  return next;
+}
 
 export function isRoomLightFixture(light: LightEntity) {
   return ROOM_LIGHT_FIXTURES.some((preset) => preset.id === light.parameters.fixtureKind);
@@ -25,10 +32,11 @@ export function addRoomLightFixture(project: InteriorProject, kind: RoomLightFix
   const height = kind === "under-cabinet" ? 1450 : kind === "pendant" ? room.dimensions.heightMm - 650 : room.dimensions.heightMm - 80;
   const light: LightEntity = {
     id: `room-fixture-${serial}`, roomId: room.id, name: preset.name,
-    kind: preset.kind, enabled: true, color: "#ffe4c4", intensity: strip ? 3 : 5,
+    kind: preset.kind, enabled: true, color: kelvinToHex(DEFAULT_LIGHT_KELVIN), intensity: strip ? 3 : 5,
     position: { x: bounds.centerX, y: Math.max(100, height), z: bounds.centerZ },
     rotation: { x: kind === "cove" ? 90 : -90, y: 0, z: 0 },
-    parameters: { fixtureKind: kind, widthMm: strip ? 1000 : 100, heightMm: strip ? 20 : 100, rangeMm: 5000 },
+    parameters: { fixtureKind: kind, widthMm: strip ? 1000 : 100, heightMm: strip ? 20 : 100, rangeMm: 5000,
+      colorTemperatureK: DEFAULT_LIGHT_KELVIN },
   };
   return { ...project, lights: [...project.lights, light] };
 }
@@ -37,7 +45,15 @@ export function addRoomLightFixture(project: InteriorProject, kind: RoomLightFix
 export function updateRoomLightFixture(project: InteriorProject, id: string, patch: RoomLightPatch): InteriorProject {
   return { ...project, lights: project.lights.map((light) => {
     if (light.id !== id || light.roomId !== project.activeRoomId || !isRoomLightFixture(light)) return light;
-    const next: LightEntity = { ...light, ...patch, parameters: { ...light.parameters, ...patch.parameters, fixtureKind: light.parameters.fixtureKind } };
+    const merged: LightEntity = { ...light, ...patch, parameters: { ...light.parameters, ...patch.parameters, fixtureKind: light.parameters.fixtureKind } };
+    const kelvin = patch.parameters?.colorTemperatureK;
+    if (kelvin !== undefined && !isLightKelvin(kelvin)) return light;
+    // Kelvin drives the colour; a hand-picked colour is no longer a temperature.
+    const next: LightEntity = kelvin !== undefined
+      ? { ...merged, color: kelvinToHex(kelvin) }
+      : patch.color !== undefined
+        ? { ...merged, parameters: withoutKelvin(merged.parameters) }
+        : merged;
     if (!Number.isFinite(next.intensity) || next.intensity < 0 || next.intensity > 100) return light;
     if (!Object.values(next.position).every(Number.isFinite) || !Object.values(next.rotation).every(Number.isFinite)) return light;
     if (!/^#[\da-f]{6}$/i.test(next.color)) return light;

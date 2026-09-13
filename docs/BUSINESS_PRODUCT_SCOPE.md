@@ -6,6 +6,8 @@
 
 **Scope line (locked):** Client and payment **record** management is in scope. End-client payment **collection and processing** are out of scope.
 
+**Updated design direction:** Whole-interior design covers living rooms, bedrooms, kitchens and other spaces. The [full interior product roadmap](./INTERIOR_PRODUCT_ROADMAP.md) defines phases 0–11 and their acceptance gates. The A0–F table below records the earlier commercial delivery sequence; it is not a replacement for that full roadmap.
+
 ---
 
 ## 1. One-line pitch (plain language)
@@ -179,13 +181,14 @@ Users may **not** (via us): collect card/UPI through our gateway; hold escrow or
 
 ## 8. Design scope (product)
 
-### Core (millwork-first)
+### Core (whole-interior design)
 - 2D plan (draw, measure, underlay/PDF, runs, dims)
 - 3D review / present (client chrome stripped of edit tools)
 - Cabinets, runs, materials visualization
+- Living-room and bedroom furniture, wardrobes, room surfaces, ceiling finishes and lighting
 - Engineering packet / cutlist (feeds cost; Report Center)
 
-### Same BOQ model can later include (optional packs)
+### Whole-interior BOQ categories (delivered progressively)
 | Category | Examples | Notes |
 | --- | --- | --- |
 | Millwork-adjacent | Louvers, wall panels, countertops | Natural extension |
@@ -279,7 +282,7 @@ Separate **account foundations** (needed early) from **company product features*
 7. Outstanding / overdue / schedule / instalment FIFO / partial / refund-correction rules defined in §7; overdue = past-due unpaid instalments only.  
 8. Build order separates early **account foundations** from late **company controls**; roadmap phases match.  
 9. **Client and payment record management in scope; end-client payment collection/processing out of scope.**  
-10. Millwork-first; fixtures/wallpaper/etc. as optional BOQ lines later.  
+10. Whole-interior design: living rooms, bedrooms and kitchens share the core workflow; millwork, area finishes, furniture and fixtures join the same BOQ through appropriate measurement rules.
 11. Export invoice/quote as files is good; we do not collect payment.
 
 ---

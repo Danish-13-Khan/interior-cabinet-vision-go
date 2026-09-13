@@ -10,6 +10,7 @@ import type {
   RenderModeQuality,
 } from "../../domain/livingRoom/renderAssetContracts";
 import { getMaterialAsset } from "../assets/assetRegistry";
+import { getSurfaceFinish } from "../../domain/livingRoom/surfaceFinishes";
 import {
   bumpScaleForRenderMode,
   clearcoatForRenderMode,
@@ -65,6 +66,7 @@ export function createPbrMaterialDescriptor(
 ): PbrMaterialDescriptor {
   const quality = options?.quality;
   const asset = resolveAsset(material);
+  const finish = getSurfaceFinish(material.surfaceFinish);
   const color = material.color || asset?.baseColor || "#cccccc";
   const roughness = material.roughness ?? asset?.roughness ?? 0.7;
   const metalness = material.metalness ?? asset?.metalness ?? 0;
@@ -76,6 +78,8 @@ export function createPbrMaterialDescriptor(
   const isFabric = kind === "fabric";
   const isWood = kind === "wood" || kind === "laminate";
   const isMetal = kind === "metal";
+  const isAcrylic = kind === "acrylic";
+  const isTile = kind === "tile";
   const isMirror = options?.primitiveId === "mirror";
   const maps = createProceduralSurfaceMaps(
     {
@@ -86,8 +90,10 @@ export function createPbrMaterialDescriptor(
     quality,
     options?.modeQuality,
   );
-  const baseEnv = isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isWood ? 0.86 : isFabric ? 0.4 : 0.46;
-  const baseClearcoat = isWood ? 0.26 : kind === "paint" ? 0.04 : 0;
+  const baseEnv = isMirror ? 2 : isMetal ? 1.35 : isGlass ? 1.1 : isAcrylic ? 1.2 : isTile ? 0.92
+    : isWood ? 0.86 : isFabric ? 0.4 : 0.46;
+  const baseClearcoat = isAcrylic ? 0.92 : isTile ? 0.45 : isWood ? 0.26
+    : kind === "paint" || kind === "wallpaper" ? 0.04 : 0;
   const baseSheen = isFabric ? 0.78 : 0;
   const baseSpecular = isFabric ? 0.3 : isWood ? 0.54 : 1;
   const modeRoughness = isMirror ? 0.08 : roughnessForRenderMode(mode, roughness, quality, modeQuality);
@@ -97,7 +103,7 @@ export function createPbrMaterialDescriptor(
   return {
     asset,
     color,
-    roughness: tunedRoughness,
+    roughness: finish ? roughness : tunedRoughness,
     metalness: isMirror ? 0.82 : metalness,
     opacity: isMirror ? 1 : isGlass ? Math.max(0.42, opacity) : opacity,
     transparent: isMirror ? false : opacity < 1 || isGlass,
@@ -105,8 +111,9 @@ export function createPbrMaterialDescriptor(
     transmission: isMirror ? 0 : isGlass ? 0.72 : 0,
     thickness: isGlass ? 0.018 : 0,
     ior: isGlass ? 1.5 : 1.45,
-    clearcoat: clearcoatForRenderMode(mode, baseClearcoat, quality, modeQuality) * contrast.clearcoatBoost,
-    clearcoatRoughness: isWood ? (mode === "hero" ? 0.38 : 0.5) : 0.78,
+    clearcoat: finish?.clearcoat ?? clearcoatForRenderMode(mode, baseClearcoat, quality, modeQuality) * contrast.clearcoatBoost,
+    clearcoatRoughness: finish?.coatRoughness
+      ?? (isAcrylic ? 0.08 : isTile ? 0.2 : isWood ? (mode === "hero" ? 0.38 : 0.5) : 0.78),
     sheen: sheenForRenderMode(mode, baseSheen, quality, modeQuality) * contrast.sheenBoost,
     sheenColor: isFabric ? color : "#000000",
     sheenRoughness: isFabric ? (mode === "hero" ? 0.7 : 0.82) : 1,

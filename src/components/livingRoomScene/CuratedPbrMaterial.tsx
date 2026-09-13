@@ -19,6 +19,7 @@ import {
   resolveCuratedMapAnisotropy,
 } from "../../rendering/materials/curatedMapQuality";
 import { textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
+import { grainRotationDeg } from "../../rendering/materials/grainRotation";
 import type { MaterialTextureUrls } from "../../rendering/materials/resolveMaterialTextureUrls";
 
 function prepareTexture(
@@ -89,32 +90,33 @@ export function CuratedPbrMaterial({
   useEffect(() => {
     const offsetU = material.uvOffsetU ?? 0;
     const offsetV = material.uvOffsetV ?? 0;
+    const rotationDeg = grainRotationDeg(material);
     if (textures.map) {
       prepareTexture(
         textures.map, material.uvScaleMm, renderMode, true,
-        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+        renderQuality, modeQuality, rotationDeg, offsetU, offsetV,
       );
     }
     if (textures.normalMap) {
       prepareTexture(
         textures.normalMap, material.uvScaleMm, renderMode, false,
-        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+        renderQuality, modeQuality, rotationDeg, offsetU, offsetV,
       );
     }
     if (textures.roughnessMap) {
       prepareTexture(
         textures.roughnessMap, material.uvScaleMm, renderMode, false,
-        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+        renderQuality, modeQuality, rotationDeg, offsetU, offsetV,
       );
     }
     if (textures.aoMap) {
       prepareTexture(
         textures.aoMap, material.uvScaleMm, renderMode, false,
-        renderQuality, modeQuality, material.uvRotationDeg, offsetU, offsetV,
+        renderQuality, modeQuality, rotationDeg, offsetU, offsetV,
       );
     }
   }, [
-    material.uvOffsetU, material.uvOffsetV, material.uvRotationDeg, material.uvScaleMm,
+    material.uvOffsetU, material.uvOffsetV, material.uvRotationDeg, material.uvScaleMm, material.grainDirection,
     modeQuality, renderMode, renderQuality, textures,
   ]);
 

@@ -24,6 +24,8 @@ export type CatalogItem = {
   category: string;
   subcategory: string;
   tags: string[];
+  /** Rooms this item serves. Omitted items are derived from category — see catalogRooms.ts. */
+  rooms?: string[];
   placement: CatalogPlacement;
   dimensionsMm: { width: number; height: number; depth: number };
   modelAssetId: string;

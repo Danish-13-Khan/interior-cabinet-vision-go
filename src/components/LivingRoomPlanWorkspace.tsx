@@ -1,3 +1,4 @@
+import { InteriorProjectTools } from "./livingRoomPlan/InteriorProjectTools";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { designUxShellClassNames, interiorsJobStatusLabel } from "../domain/desktopUx";
@@ -127,6 +128,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }, [props.project?.id]);
   const header = (
     <InteriorsWorkspaceHeader
+      tools={props.project && !props.projectHomeOpen ? <InteriorProjectTools project={props.project} onPatchDocument={update => props.onPatchDocument(update, "Project details updated")} /> : null}
       projectName={props.project?.name ?? null} roomName={room?.name ?? "Room"}
       revision={job?.revision ?? "A"}
       statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
