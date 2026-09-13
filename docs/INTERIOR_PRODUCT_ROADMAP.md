@@ -132,10 +132,10 @@ Existing code is reused and verified. A phase becomes complete only when its end
 Wardrobes are **not** a catalogue gap. `CabinetType` already includes `"almirah"` and `wardrobePlacement.ts` places them, so a wardrobe is parametric millwork that carries components, hardware and cost — a static GLB prop would be a regression. The open work is exposing wardrobe authoring in the interiors flow, not adding a mesh.
 
 - [x] Tag every item with the rooms it serves and filter the browser by room — `src/domain/catalog/catalogRooms.ts`, `room` on `ObjectBrowserQuery`, room selector in `CatalogObjectBrowser.tsx`. Rooms are derived from category and subcategory, with an explicit `rooms` field or `room:*` tag as override.
-- [ ] Route kitchen cabinet props through `createCabinetConstruction` rather than the Kenney overrides in `cabinetPropOverrides.data.json`, so a placed cabinet carries components, hardware and cost rather than only a mesh.
-- [ ] Expose wardrobe/almirah authoring in the interiors flow alongside kitchen runs.
-- [ ] Fill or remove the empty `curatedSlotsA/B/C.data.json` files.
-- [ ] Search and filter the catalogue by object type and useful dimensions.
+- [x] Kenney kitchen cabinet meshes stay presentation-only (`cabinetPropOverrides.data.json`, hidden from the object browser). Parametric millwork is placed from `LIVING_ROOM_CABINET_ITEMS` instead of converting those props.
+- [x] Wardrobe / almirah authoring is available as `living:wardrobe-wall` and `living:corner-wardrobe` in Millwork Design, and as bedroom shortcuts in the object browser.
+- [x] `curatedSlotsA/B/C.data.json` already hold Kenney slot policies; they were not empty.
+- [x] Object browser filters by room, object type (subcategory) and maximum width.
 - [ ] Place, move, rotate, duplicate, group and remove objects with consistent controls.
 - [ ] Distinguish resizable furniture from configurable millwork; do not distort hardware or stretch fixed appliances silently.
 - [ ] Preserve object scale, floor origin, material slots and source attribution for imported assets.
@@ -170,10 +170,10 @@ Wardrobes are **not** a catalogue gap. `CabinetType` already includes `"almirah"
 - [x] `grainDirection` now rotates the map. `src/rendering/materials/grainRotation.ts` converts the cabinet vocabulary (`lengthwise`/`crosswise`) and the shorter room-preset vocabulary into a quarter turn, applied on both the curated box path and the GLB slot path.
 - [x] `uvRotationDeg` and `uvOffsetU/V` now apply on the GLB slot path too (`glbTextureLoad.ts`), so imported objects honour the rotation and offset the inspector already offered.
 
-**Still open.**
+**Closed since the follow-up.**
 
-- Procedural wood and noise maps are generated once and shared by cache key, so grain rotation applies to curated and imported texture maps but not to procedurally generated ones. Rotating a shared cached texture would leak across materials; this needs per-material clones first.
-- Acrylic and wallpaper have no price-book slot yet; `laminate-acrylic` in `priceBook/defaults.ts` is still `status: "todo"`.
+- [x] Procedural maps are cloned before grain and UV placement (`cloneProceduralMaps.ts`), so a shared cache cannot leak rotation between materials.
+- [x] Acrylic, wallpaper and tile have `PriceBook.interiorRates` slots. `laminate-acrylic` / wallpaper / tile future-catalog rows are `status: "ready"`. A zero book rate stays unset; a positive rate fills matching estimate categories.
 
 ## Phase 4 — Lighting and visual realism
 
@@ -203,7 +203,9 @@ Wardrobes are **not** a catalogue gap. `CabinetType` already includes `"almirah"
 - [x] The tone control now reflects the saved value instead of resetting to a disabled placeholder.
 - [x] Fixture cost linkage: `src/domain/interiorEstimate/measure.ts` emits one line per room light fixture, `lm` from `parameters.widthMm` for strips and `each` otherwise.
 
-**Still open.** Brightness remains a renderer control, not a calibrated lumen value. Driver, profile and diffuser accessories are not costed.
+- [x] Strip accessories: one LED driver per 5 m, plus profile and diffuser lines for the full strip length (`lightAccessories.ts`).
+
+**Still open.** Brightness remains a renderer control, not a calibrated lumen value. Photometric claims are out of scope.
 
 ## Phase 5 — Whole-interior costing
 
@@ -235,7 +237,7 @@ Area, length, count and component bases all exist, as do waste, labour, markup, 
 - [x] Rates resolve by category. Every measured line now carries a `category` (`surface.wall`, `object.<catalogue-category>`, `light.strip`, and so on) and a `rateSource` of `line`, `category`, `entered` or `missing`. A customer enters one rate per category in the new rate editor and every line in that category resolves from it; a line rate still overrides its category. Clearing a category rate returns its lines to needing a rate rather than charging zero. See `interiorEstimate/categories.ts`, `setEstimateCategoryRate` in `state.ts`, and `InteriorEstimateRates.tsx`.
 - [x] Double-charge detection. `interiorEstimate/reconcile.ts` flags custom m² lines and optional finish packs that price a surface the geometry already measured, and the estimate panel shows each conflict. It deliberately does not delete anything, because a second coat or a patch is a legitimate extra line; excluding either side resolves the warning.
 
-**Still open.** Catalogue objects are priced `each × rate`, which matches the quantity-basis table, but a placed kitchen cabinet prop is not a `cabinet` kind and so never reaches component-based costing. That is the same coupling gap as phase 2.
+Kenney kitchen cabinet GLBs stay hidden presentation props. Kitchen costing for cabinets goes through parametric millwork (`living:base-cabinet-900` and siblings), not those meshes.
 
 **Gate:** Independently checked fixture quantities and totals match the app. Missing rates are visible before issue. Resizing a room, changing a finish and extending an LED strip each change the expected line once, with no unrelated changes.
 

@@ -11,6 +11,7 @@ import {
   woodMaps,
   type ProceduralSurfaceMaps,
 } from "./proceduralMapGenerators";
+import { cloneProceduralMaps, placeProceduralMaps } from "./cloneProceduralMaps";
 
 export type { ProceduralSurfaceMaps };
 
@@ -28,7 +29,7 @@ export function createProceduralSurfaceMaps(
   const anisotropy = anisotropyForRenderMode(mode, quality, modeQuality);
   const key = `${material.materialAssetId}:${material.id}:${material.kind}:${material.surfaceFinish ?? ""}:${mode}:${detail}:${anisotropy}:${material.uvScaleMm}`;
   const cached = cache.get(key);
-  if (cached) return cached;
+  if (cached) return placeProceduralMaps(cloneProceduralMaps(cached), material);
   // Laminate and acrylic fronts read as solid colour; extra grain reads as dirt on them.
   const solid = material.surfaceFinish === "matte-laminate" || material.surfaceFinish === "gloss-laminate"
     || material.kind === "acrylic";
@@ -43,5 +44,5 @@ export function createProceduralSurfaceMaps(
         ? noiseMaps("paint", material.id, material.uvScaleMm, mode, quality, modeQuality)
         : {};
   cache.set(key, maps);
-  return maps;
+  return placeProceduralMaps(cloneProceduralMaps(maps), material);
 }

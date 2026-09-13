@@ -14,6 +14,13 @@ const FIXED_LABELS: Record<string, string> = {
   "surface.wall": "Wall finish",
   "light.strip": "LED strip",
   "light.fixture": "Light fixture",
+  "light.driver": "LED driver",
+  "light.profile": "LED profile",
+  "light.diffuser": "LED diffuser",
+  "surface.wall.wallpaper": "Wallpaper",
+  "surface.wall.tile": "Wall tile",
+  "surface.tile": "Floor tile",
+  "finish.acrylic": "Acrylic finish",
   manual: "Custom items",
 };
 
