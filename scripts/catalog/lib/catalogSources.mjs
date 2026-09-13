@@ -22,6 +22,7 @@ const MATERIAL_FILES = [
   "seedMaterials.data.json",
   "seedMaterialsPhase3.data.json",
   "seedMaterialsPhase4.data.json",
+  "seedMaterialsSurfaces.data.json",
 ];
 
 const TEMPLATE_FILES = [

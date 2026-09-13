@@ -175,7 +175,9 @@ export function useProposalWorkflow(args: {
     }
   }
 
-  const released = Boolean(args.project && matchingProposalRelease(args.project).ok);
+  const released = Boolean(
+    args.project && matchingProposalRelease(args.project, { priceBook }).ok,
+  );
 
   return {
     live,

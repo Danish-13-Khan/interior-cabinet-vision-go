@@ -1,5 +1,6 @@
 import type { InteriorProject } from "../../interiorProject";
 import { readProposalCommercial } from "../proposal/commercialState";
+import type { LiveQuoteOptions } from "../proposal/liveQuoteOptions";
 import { handoffApprovalReady } from "./handoffApprove";
 import { hasHandoffSnapshotForRevision } from "./handoffState";
 import { buildHandoffSummary } from "./handoffSummary";
@@ -8,6 +9,7 @@ import type { HandoffGate, HandoffGateItem } from "./types";
 export function buildHandoffGate(
   document: InteriorProject,
   selectedInteriorObjectIds: string[] = [],
+  options: LiveQuoteOptions = {},
 ): HandoffGate {
   const summary = buildHandoffSummary(document, selectedInteriorObjectIds);
   const items: HandoffGateItem[] = [];
@@ -48,7 +50,7 @@ export function buildHandoffGate(
       blocking: true,
     });
   }
-  const approval = handoffApprovalReady(document);
+  const approval = handoffApprovalReady(document, options);
   if (!approval.ok && approval.reason) {
     items.push({
       id: approval.reason.startsWith("Freeze") || approval.reason.startsWith("Frozen")
@@ -77,6 +79,9 @@ export function buildHandoffGate(
   };
 }
 
-export function isHandoffBlocked(document: InteriorProject): boolean {
-  return !buildHandoffGate(document).ready;
+export function isHandoffBlocked(
+  document: InteriorProject,
+  options: LiveQuoteOptions = {},
+): boolean {
+  return !buildHandoffGate(document, [], options).ready;
 }

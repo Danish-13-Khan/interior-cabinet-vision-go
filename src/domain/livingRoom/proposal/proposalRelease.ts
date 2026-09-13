@@ -1,12 +1,16 @@
 import type { InteriorProject } from "../../interiorProject";
 import { readProposalCommercial, writeProposalCommercial } from "./commercialState";
 import { buildLiveInteriorQuote } from "./liveQuote";
+import type { LiveQuoteOptions } from "./liveQuoteOptions";
 
-export function matchingProposalRelease(document: InteriorProject): {
+export function matchingProposalRelease(
+  document: InteriorProject,
+  options: LiveQuoteOptions = {},
+): {
   ok: boolean;
   reason: string | null;
 } {
-  const live = buildLiveInteriorQuote(document);
+  const live = buildLiveInteriorQuote(document, undefined, options);
   const commercial = readProposalCommercial(document);
   const release = commercial.surface.proposalRelease;
   if (!live.frozen) {
