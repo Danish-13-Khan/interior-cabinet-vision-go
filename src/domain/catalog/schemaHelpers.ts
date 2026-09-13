@@ -44,6 +44,9 @@ export const MATERIAL_KINDS = new Set([
   "paint",
   "stone",
   "laminate",
+  "acrylic",
+  "wallpaper",
+  "tile",
   "custom",
 ]);
 export const TEMPLATE_CATEGORIES = new Set([
