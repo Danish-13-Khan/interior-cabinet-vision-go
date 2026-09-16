@@ -104,8 +104,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onRegisterUnderlayPicker={(openPicker) => { props.underlayPickerRef.current = openPicker; }}
           onImportUnderlay={async (file) => {
             if (!file) return;
+            // Invalidate any in-flight extract/underlay work before first await.
+            const requestId = extractRequestIdRef.current + 1;
+            extractRequestIdRef.current = requestId;
             props.onImportError("");
             if (isPdfFile(file)) {
+              setExtractDraft(null);
               setPdfImportFile(file);
               return;
             }
@@ -114,22 +118,25 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
               || file.type.startsWith("image/")
               || file.type.includes("svg")
               || file.type.includes("dxf");
+            const stillCurrent = () => requestId === extractRequestIdRef.current;
             try {
               if (!lower.endsWith(".svg") && !lower.endsWith(".dxf") && file.type.startsWith("image/")) {
-                w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
+                const underlay = await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200);
+                if (!stillCurrent()) return;
+                w.onSetPlanUnderlay(underlay);
               }
               if (vectorOrRaster) {
                 const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
-                const requestId = extractRequestIdRef.current + 1;
-                extractRequestIdRef.current = requestId;
                 const draft = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
-                if (requestId !== extractRequestIdRef.current) return; // superseded by a newer import
+                if (!stillCurrent()) return;
                 setExtractDraft(draft);
                 setExtractDraftKey(requestId);
               }
+              if (!stillCurrent()) return;
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
             } catch (error) {
+              if (!stillCurrent()) return;
               props.onImportError(error instanceof Error ? error.message : "Plan import failed.");
             }
           }}
