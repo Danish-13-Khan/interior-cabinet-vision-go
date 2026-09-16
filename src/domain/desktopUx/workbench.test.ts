@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { normalizeWorkbenchMode, workbenchBreadcrumb } from "./workbench";
 
 describe("workbench", () => {
-  it("normalizes unknown modes to cabinets", () => {
-    expect(normalizeWorkbenchMode("unknown")).toBe("cabinets");
+  it("normalizes unknown modes to job", () => {
+    expect(normalizeWorkbenchMode("unknown")).toBe("job");
     expect(normalizeWorkbenchMode("production")).toBe("production");
     expect(normalizeWorkbenchMode("interiors")).toBe("interiors");
   });
