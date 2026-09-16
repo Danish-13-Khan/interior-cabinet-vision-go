@@ -5,7 +5,14 @@ import {
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
-import { useEffect, useState } from "react";
+import {
+  assertExtractionShape,
+  extractFloorplan,
+  type ExtractionResult,
+  type LiveSchemaStatus,
+} from "../../domain/floorplanExtract";
+import { FloorplanExtractReview } from "./FloorplanExtractReview";
+import { useEffect, useRef, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
@@ -28,11 +35,29 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
 
+  const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
+  const [extractDraftKey, setExtractDraftKey] = useState(0);
+  const [extractLiveSchema, setExtractLiveSchema] = useState<LiveSchemaStatus | null>(null);
+  const [lastAppliedExtract, setLastAppliedExtract] = useState<ExtractionResult | null>(null);
+  const extractRequestIdRef = useRef(0);
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
+  // Persist reopen across save/reload via InteriorProject.extensions.floorplanExtractDraft.
+  useEffect(() => {
+    const raw = project?.extensions?.floorplanExtractDraft;
+    if (!raw) {
+      setLastAppliedExtract(null);
+      return;
+    }
+    try {
+      setLastAppliedExtract(assertExtractionShape(raw));
+    } catch {
+      setLastAppliedExtract(null);
+    }
+  }, [project?.id, project?.extensions?.floorplanExtractAppliedAt, project?.extensions?.floorplanExtractDraft]);
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
@@ -99,16 +124,41 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           onRegisterUnderlayPicker={(openPicker) => { props.underlayPickerRef.current = openPicker; }}
           onImportUnderlay={async (file) => {
             if (!file) return;
+            // Invalidate any in-flight extract/underlay work before first await.
+            const requestId = extractRequestIdRef.current + 1;
+            extractRequestIdRef.current = requestId;
+            setExtractDraft(null); // drop prior review so Apply cannot hit the old extract
+            setExtractLiveSchema(null);
             props.onImportError("");
             if (isPdfFile(file)) {
               setPdfImportFile(file);
               return;
             }
+            const lower = file.name.toLowerCase();
+            const vectorOrRaster = /\.(png|jpe?g|gif|webp|svg|dxf)$/.test(lower)
+              || file.type.startsWith("image/")
+              || file.type.includes("svg")
+              || file.type.includes("dxf");
+            const stillCurrent = () => requestId === extractRequestIdRef.current;
             try {
-              w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
+              if (!lower.endsWith(".svg") && !lower.endsWith(".dxf") && file.type.startsWith("image/")) {
+                const underlay = await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200);
+                if (!stillCurrent()) return;
+                w.onSetPlanUnderlay(underlay);
+              }
+              if (vectorOrRaster) {
+                const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
+                const ingest = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
+                if (!stillCurrent()) return;
+                setExtractDraft(ingest.draft);
+                setExtractLiveSchema(ingest.liveSchema);
+                setExtractDraftKey(requestId);
+              }
+              if (!stillCurrent()) return;
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
             } catch (error) {
+              if (!stillCurrent()) return;
               props.onImportError(error instanceof Error ? error.message : "Plan import failed.");
             }
           }}
@@ -199,6 +249,42 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         }}
         onError={(message) => { setPdfImportFile(null); props.onImportError(message); }}
       />
+      {!extractDraft && lastAppliedExtract && project ? (
+        <div style={{ padding: 8 }}>
+          <button
+            type="button"
+            data-testid="lr-floorplan-reopen-import"
+            onClick={() => {
+              setExtractDraft(lastAppliedExtract);
+              setExtractLiveSchema({
+                state: "structural-fallback",
+                message: "Re-opened saved extract — re-run patch/extract to refresh live schema",
+              });
+              setExtractDraftKey((k) => k + 1);
+            }}
+          >
+            Re-open floor plan import
+          </button>
+        </div>
+      ) : null}
+      {extractDraft && project ? (
+        <FloorplanExtractReview
+          key={extractDraftKey}
+          draft={extractDraft}
+          draftKey={`extract-${extractDraftKey}`}
+          project={project}
+          initialLiveSchema={extractLiveSchema ?? undefined}
+          onClose={() => { setExtractDraft(null); setExtractLiveSchema(null); }}
+          onApply={(next, appliedDraft, status) => {
+            // draft + snapshot already persisted on next.extensions by applyFloorplanToInterior
+            w.onPatchDocument(() => next, status);
+            setLastAppliedExtract(appliedDraft);
+            setExtractDraft(null);
+            setExtractLiveSchema(null);
+          }}
+          onError={props.onImportError}
+        />
+      ) : null}
     </div>
   );
 }
