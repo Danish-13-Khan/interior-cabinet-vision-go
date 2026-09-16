@@ -7,6 +7,7 @@ import {
   exportFloorplanGlb,
   normalizeExtraction,
   patchFloorplanGeometry,
+  applyImpactKey,
   summarizeFloorplanApplyImpact,
   wrapSingleFloorBuilding,
   type ExtractionResult,
@@ -55,6 +56,10 @@ export function FloorplanExtractReview(props: Props) {
     [workingDraft, acceptThin],
   );
   const impact = useMemo(() => summarizeFloorplanApplyImpact(props.project), [props.project]);
+  const impactKey = applyImpactKey(props.project, impact);
+  useEffect(() => {
+    setReplaceAck(false);
+  }, [impactKey]);
   const gateOk = canPassApplyGate({ impact, liveSchema, replaceAck, schemaFallbackAck });
   const applyEnabled = normalized.canApply && scaleConfirmed && gateOk;
   const trimmedOpenings = Object.entries(normalized.openingAttachments)
@@ -165,7 +170,7 @@ export function FloorplanExtractReview(props: Props) {
           ))}
         </ul>
       ) : (
-        <p>Geometry gates passed — confirm scale and Apply gates before Apply.</p>
+        <p>Geometry gates passed.</p>
       )}
 
       <footer>
@@ -188,7 +193,7 @@ export function FloorplanExtractReview(props: Props) {
           Download building GLB
         </button>
         <button type="button" data-testid="lr-floorplan-extract-apply" disabled={!applyEnabled || busy}
-          title={!scaleConfirmed ? "Confirm scale first" : !gateOk ? "Acknowledge Apply gates" : !normalized.canApply ? "Geometry gates blocked" : "Apply shell replacement"}
+          title={!applyEnabled ? "Confirm scale and Apply gates" : "Apply shell replacement"}
           onClick={apply}>
           Apply to project (replace shell)
         </button>

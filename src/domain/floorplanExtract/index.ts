@@ -26,6 +26,10 @@ export {
 export {
   summarizeFloorplanApplyImpact,
   buildFloorplanApplySnapshot,
+  shellTopologyFingerprint,
+  replacementImpactFingerprint,
+  discardedContentFingerprint,
+  applyImpactKey,
   type ApplyImpactFinding,
   type FloorplanApplySnapshot,
 } from "./applyImpact";
