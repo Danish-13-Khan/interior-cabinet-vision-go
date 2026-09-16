@@ -1,0 +1,154 @@
+/* Light Cabinet Planner auth — matches Job home, not the old dark Studio. */
+.planner-auth {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #eceff2;
+  color: #141c26;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.planner-auth-bar {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  background: #dfe6ed;
+  border-bottom: 1px solid #c5d0da;
+}
+
+.planner-auth-bar a {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #0d3f67;
+  text-decoration: none;
+}
+
+.planner-auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.planner-auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 24px;
+  background: #fff;
+  border: 1px solid #c5d0da;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(20, 28, 38, 0.08);
+}
+
+.planner-auth-card h1 {
+  margin: 0 0 6px;
+  font-size: 1.35rem;
+  font-weight: 650;
+}
+
+.planner-auth-card .planner-auth-sub {
+  margin: 0 0 20px;
+  font-size: 0.88rem;
+  color: #5a6b7c;
+}
+
+.planner-auth .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.planner-auth .form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.planner-auth .form-row .form-group {
+  flex: 1;
+}
+
+.planner-auth .form-label {
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: #35485b;
+}
+
+.planner-auth .form-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #c5d0da;
+  border-radius: 6px;
+  background: #f7f9fb;
+  color: #141c26;
+}
+
+.planner-auth .form-input:focus {
+  outline: 2px solid #1e4d72;
+  outline-offset: 1px;
+}
+
+.planner-auth .password-field {
+  position: relative;
+}
+
+.planner-auth .password-field .form-input {
+  padding-right: 64px;
+}
+
+.planner-auth .password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #1e4d72;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.planner-auth .form-hint,
+.planner-auth-footer {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: #5a6b7c;
+  text-align: center;
+}
+
+.planner-auth-footer a {
+  color: #1e4d72;
+  font-weight: 650;
+}
+
+.planner-auth-submit,
+.planner-auth-secondary {
+  width: 100%;
+  min-height: 40px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.planner-auth-submit {
+  border: 0;
+  background: #1e4d72;
+  color: #fff;
+}
+
+.planner-auth-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  border: 1px solid #c5d0da;
+  background: #fff;
+  color: #141c26;
+  text-decoration: none;
+}
