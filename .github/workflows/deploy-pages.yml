@@ -57,6 +57,9 @@ jobs:
           test -d dist/assets
           test -f dist/mockups/interiors-chrome-mockups.html
           touch dist/.nojekyll
+          # GitHub Pages has no SPA rewrites — serve the app shell for unknown paths
+          # so /app, /login, /register work on hard refresh / deep link.
+          cp dist/index.html dist/404.html
           echo "Build OK — publishing to gh-pages"
 
       - name: Publish to gh-pages branch
