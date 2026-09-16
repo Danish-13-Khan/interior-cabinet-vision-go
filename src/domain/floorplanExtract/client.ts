@@ -2,6 +2,7 @@ import { floorplanApiBase } from "./config";
 import type { ExtractionResult } from "./types";
 import { assertExtractionShape } from "./validateExtract";
 import { coerceExtractionToMeters } from "./units";
+import { validateExtractionAgainstLiveSchema } from "./schemaValidate";
 
 export type ExtractQuery = {
   mode?: "raster2seq" | "yytsi" | "stub";
@@ -10,6 +11,15 @@ export type ExtractQuery = {
   ref_length_px?: number;
   profile?: "full" | "lite";
 };
+
+export type PolygonGroup = "walls" | "rooms" | "doors" | "windows" | "stairs";
+
+export type PatchOp =
+  | { kind: "set_scale"; pixel_scale: number; rescale_coords?: boolean }
+  | { kind: "upsert_polygon"; group: PolygonGroup; polygon: unknown }
+  | { kind: "delete_polygon"; group: PolygonGroup; id: string }
+  | { kind: "replace_polygons"; group: PolygonGroup; polygons: unknown[] }
+  | { kind: "set_defaults"; defaults: unknown };
 
 function buildQuery(q: ExtractQuery): string {
   const p = new URLSearchParams();
@@ -31,7 +41,27 @@ async function readError(res: Response): Promise<string> {
   }
 }
 
+async function ingestExtractionJson(raw: unknown): Promise<ExtractionResult> {
+  // Structural first (works offline); then live schema when sidecar is up.
+  const shaped = assertExtractionShape(raw);
+  try {
+    await validateExtractionAgainstLiveSchema(raw);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // If schema endpoint is down, keep structural result but surface when it's a real schema violation.
+    if (msg.startsWith("schema:")) throw err;
+    // network / schema fetch failure: allow offline review with shape-only
+  }
+  return coerceExtractionToMeters(shaped);
+}
+
 export async function extractFloorplan(file: File, query: ExtractQuery = {}): Promise<ExtractionResult> {
+  if (
+    query.pixel_scale == null
+    && ((query.ref_length_m == null) !== (query.ref_length_px == null))
+  ) {
+    throw new Error("ref_length_m and ref_length_px must both be set for scale calibration");
+  }
   const body = new FormData();
   body.append("file", file, file.name);
   const res = await fetch(`${floorplanApiBase()}/extract${buildQuery(query)}`, {
@@ -39,8 +69,7 @@ export async function extractFloorplan(file: File, query: ExtractQuery = {}): Pr
     body,
   });
   if (!res.ok) throw new Error(await readError(res));
-  const shaped = assertExtractionShape(await res.json());
-  return coerceExtractionToMeters(shaped);
+  return ingestExtractionJson(await res.json());
 }
 
 export async function exportFloorplanGlb(extraction: ExtractionResult): Promise<Blob> {
@@ -59,17 +88,6 @@ export async function exportFloorplanGlb(extraction: ExtractionResult): Promise<
   return await res.blob();
 }
 
-export type PatchOp = {
-  kind: string;
-  pixel_scale?: number;
-  rescale_coords?: boolean;
-  group?: string;
-  id?: string;
-  polygon?: unknown;
-  polygons?: unknown[];
-  defaults?: unknown;
-};
-
 export async function patchFloorplanGeometry(
   extraction: ExtractionResult,
   ops: PatchOp[],
@@ -84,8 +102,7 @@ export async function patchFloorplanGeometry(
     },
   );
   if (!res.ok) throw new Error(await readError(res));
-  const shaped = assertExtractionShape(await res.json());
-  return coerceExtractionToMeters(shaped);
+  return ingestExtractionJson(await res.json());
 }
 
 export async function floorplanReady(): Promise<boolean> {

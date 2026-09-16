@@ -6,7 +6,20 @@ export {
   floorplanReady,
   type ExtractQuery,
   type PatchOp,
+  type PolygonGroup,
 } from "./client";
+export {
+  fetchFloorplanSchema,
+  validateExtractionAgainstLiveSchema,
+  clearFloorplanSchemaCache,
+} from "./schemaValidate";
+export {
+  wrapSingleFloorBuilding,
+  exportFloorplanBuilding,
+  type MultiFloorProject,
+  type MultiFloorLevel,
+  type BuildingExportMode,
+} from "./building";
 export { ensureCollisionFreeIds } from "./ids";
 export { normalizeExtraction, type NormalizeOptions } from "./normalize";
 export { applyFloorplanToInterior } from "./applyToInterior";

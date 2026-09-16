@@ -2,36 +2,39 @@ import { useEffect, useMemo, useState } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import {
   applyFloorplanToInterior,
+  ensureCollisionFreeIds,
+  exportFloorplanBuilding,
   exportFloorplanGlb,
   normalizeExtraction,
-  rescaleExtractionCoords,
+  patchFloorplanGeometry,
+  wrapSingleFloorBuilding,
   type ExtractionResult,
   type NormalizedFloorplan,
+  type PolygonGroup,
 } from "../../domain/floorplanExtract";
 import { FloorplanExtractOverlay } from "./FloorplanExtractOverlay";
+import { FloorplanExtractCalibrate } from "./FloorplanExtractCalibrate";
+import { FloorplanExtractPatchPanel } from "./FloorplanExtractPatchPanel";
 
 type Props = {
   draft: ExtractionResult;
   draftKey: string;
   project: InteriorProject;
   onClose: () => void;
-  onApply: (next: InteriorProject, status: string) => void;
+  onApply: (next: InteriorProject, appliedDraft: ExtractionResult, status: string) => void;
   onError: (message: string) => void;
 };
 
 export function FloorplanExtractReview(props: Props) {
-  const [workingDraft, setWorkingDraft] = useState(props.draft);
+  const [workingDraft, setWorkingDraft] = useState(() => ensureCollisionFreeIds(props.draft));
   const [acceptThin, setAcceptThin] = useState(false);
   const [scaleConfirmed, setScaleConfirmed] = useState(false);
-  const [scaleInput, setScaleInput] = useState(String(props.draft.pixel_scale ?? 0.01));
   const [busy, setBusy] = useState(false);
 
-  // Reset when a newer extraction arrives (or remount key changes).
   useEffect(() => {
-    setWorkingDraft(props.draft);
+    setWorkingDraft(ensureCollisionFreeIds(props.draft));
     setAcceptThin(false);
     setScaleConfirmed(false);
-    setScaleInput(String(props.draft.pixel_scale ?? 0.01));
     setBusy(false);
   }, [props.draftKey, props.draft]);
 
@@ -43,43 +46,55 @@ export function FloorplanExtractReview(props: Props) {
   const trimmedOpenings = Object.entries(normalized.openingAttachments)
     .filter(([, a]) => a.status === "matched" && a.trimmed);
 
-  const applyScaleEdit = () => {
-    const nextScale = Number(scaleInput);
-    if (!(nextScale > 0)) {
-      props.onError("pixel_scale must be a positive number");
-      return;
+  const runPatch = async (ops: Parameters<typeof patchFloorplanGeometry>[1]) => {
+    setBusy(true);
+    try {
+      const next = await patchFloorplanGeometry(ensureCollisionFreeIds(workingDraft), ops);
+      setWorkingDraft(ensureCollisionFreeIds(next));
+      setScaleConfirmed(false);
+    } catch (error) {
+      props.onError(error instanceof Error ? error.message : "Patch failed.");
+    } finally {
+      setBusy(false);
     }
-    const prev = workingDraft.pixel_scale && workingDraft.pixel_scale > 0
-      ? workingDraft.pixel_scale
-      : 0.01;
-    setWorkingDraft({
-      ...rescaleExtractionCoords(workingDraft, nextScale / prev),
-      pixel_scale: nextScale,
-    });
-    setScaleConfirmed(false);
   };
 
   const apply = () => {
     if (!applyEnabled) return;
     try {
       const next = applyFloorplanToInterior(props.project, normalized);
-      props.onApply(next, "Applied floor plan topology.");
+      props.onApply(next, workingDraft, "Applied floor plan topology.");
       props.onClose();
     } catch (error) {
       props.onError(error instanceof Error ? error.message : "Apply failed.");
     }
   };
 
+  const downloadBlob = (blob: Blob, name: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const previewGlb = async () => {
     setBusy(true);
     try {
-      const blob = await exportFloorplanGlb(normalized.draft);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "floorplan-preview.glb"; a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(await exportFloorplanGlb(normalized.draft), "floorplan-preview.glb");
     } catch (error) {
       props.onError(error instanceof Error ? error.message : "GLB export failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const previewBuilding = async () => {
+    setBusy(true);
+    try {
+      const building = wrapSingleFloorBuilding(normalized.draft);
+      downloadBlob(await exportFloorplanBuilding(building, "stack"), "floorplan-building.glb");
+    } catch (error) {
+      props.onError(error instanceof Error ? error.message : "Building export failed.");
     } finally {
       setBusy(false);
     }
@@ -89,25 +104,48 @@ export function FloorplanExtractReview(props: Props) {
     <div className="lr-floorplan-extract-review" data-testid="lr-floorplan-extract-review" role="dialog" aria-label="Floor plan extract review">
       <header>
         <strong>Floor plan → 3D</strong>
-        <button type="button" onClick={props.onClose}>Close</button>
+        <button type="button" onClick={props.onClose} disabled={busy}>Close</button>
       </header>
 
       <FloorplanExtractOverlay draft={workingDraft} normalized={normalized} />
 
-      <label>
-        pixel_scale (m/unit)
-        <input data-testid="lr-floorplan-scale-input" value={scaleInput}
-          onChange={(e) => setScaleInput(e.target.value)} onBlur={applyScaleEdit} />
-      </label>
-      <button type="button" onClick={applyScaleEdit}>Apply scale to draft</button>
+      <FloorplanExtractCalibrate
+        pixelScale={workingDraft.pixel_scale}
+        busy={busy}
+        onApplyRefLength={(refLengthM, refLengthPx) => {
+          void runPatch([{ kind: "set_scale", pixel_scale: refLengthM / refLengthPx, rescale_coords: true }]);
+        }}
+        onApplyPixelScale={(pixelScale, rescaleCoords) => {
+          void runPatch([{ kind: "set_scale", pixel_scale: pixelScale, rescale_coords: rescaleCoords }]);
+        }}
+      />
+
+      <FloorplanExtractPatchPanel
+        draft={workingDraft}
+        busy={busy}
+        onDelete={(group, id) => { void runPatch([{ kind: "delete_polygon", group, id }]); }}
+        onUpsertJson={(group: PolygonGroup, polygonJson) => {
+          try {
+            const polygon = JSON.parse(polygonJson) as unknown;
+            void runPatch([{ kind: "upsert_polygon", group, polygon }]);
+          } catch {
+            props.onError("Polygon JSON is invalid.");
+          }
+        }}
+        onSetWallHeight={(heightM) => {
+          void runPatch([{ kind: "set_defaults", defaults: { wall_height_m: heightM } }]);
+        }}
+      />
 
       <label>
         <input type="checkbox" data-testid="lr-floorplan-scale-confirmed"
-          checked={scaleConfirmed} onChange={(e) => setScaleConfirmed(e.target.checked)} />
+          checked={scaleConfirmed} disabled={busy}
+          onChange={(e) => setScaleConfirmed(e.target.checked)} />
         I confirmed scale against the underlay / known dimension
       </label>
       <label>
-        <input type="checkbox" checked={acceptThin} onChange={(e) => setAcceptThin(e.target.checked)} />
+        <input type="checkbox" checked={acceptThin} disabled={busy}
+          onChange={(e) => setAcceptThin(e.target.checked)} />
         Accept thickening walls under 150 mm
       </label>
 
@@ -133,7 +171,10 @@ export function FloorplanExtractReview(props: Props) {
         <button type="button" disabled={busy} onClick={() => void previewGlb()}>
           {busy ? "Exporting…" : "Download GLB preview"}
         </button>
-        <button type="button" data-testid="lr-floorplan-extract-apply" disabled={!applyEnabled}
+        <button type="button" disabled={busy} onClick={() => void previewBuilding()}>
+          Download building GLB
+        </button>
+        <button type="button" data-testid="lr-floorplan-extract-apply" disabled={!applyEnabled || busy}
           title={!scaleConfirmed ? "Confirm scale first" : !normalized.canApply ? "Geometry gates blocked" : "Apply"}
           onClick={apply}>
           Apply to project
