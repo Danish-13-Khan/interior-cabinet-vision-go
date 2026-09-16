@@ -198,3 +198,41 @@
     box-shadow: none;
   }
 }
+
+/* Floorplan extract → InteriorProject review */
+.lr-floorplan-extract-review {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+  width: min(360px, calc(100% - 32px));
+  max-height: 50vh;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lr-floorplan-extract-review header,
+.lr-floorplan-extract-review footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.lr-floorplan-extract-review ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 12px;
+}
+
+.lr-floorplan-extract-overlay {
+  width: 100%;
+  height: 140px;
+  background: #f4f6f8;
+  border-radius: 8px;
+  border: 1px solid #dde3ea;
+}
