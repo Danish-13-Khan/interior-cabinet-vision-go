@@ -55,14 +55,21 @@ function assertPolygon(value: unknown, path: string): ExtractPolygon {
       throw new Error(`opening must be an object at ${path}.opening`);
     }
     const o = p.opening as Record<string, unknown>;
-    poly.opening = {
-      sill_m: assertFiniteNumber(o.sill_m ?? 0, `${path}.opening.sill_m`),
-      height_m: assertFiniteNumber(o.height_m ?? 0, `${path}.opening.height_m`),
+    const opening: ExtractPolygon["opening"] = {
       swing: o.swing == null ? null : String(o.swing),
-      wall_height_m: o.wall_height_m == null
-        ? undefined
-        : assertFiniteNumber(o.wall_height_m, `${path}.opening.wall_height_m`),
     };
+    if (o.sill_m != null) {
+      opening.sill_m = assertFiniteNumber(o.sill_m, `${path}.opening.sill_m`);
+    }
+    if (o.height_m != null) {
+      const h = assertFiniteNumber(o.height_m, `${path}.opening.height_m`);
+      if (!(h > 0)) throw new Error(`opening.height_m must be > 0 at ${path}.opening.height_m`);
+      opening.height_m = h;
+    }
+    if (o.wall_height_m != null) {
+      opening.wall_height_m = assertFiniteNumber(o.wall_height_m, `${path}.opening.wall_height_m`);
+    }
+    poly.opening = opening;
   }
   return poly;
 }

@@ -1,8 +1,10 @@
 export type PointM = [number, number];
 
 export type ExtractOpening = {
-  sill_m: number;
-  height_m: number;
+  /** Optional — Apply uses kind defaults when omitted. */
+  sill_m?: number;
+  /** Optional — Apply uses kind defaults when omitted. Never coerce missing → 0. */
+  height_m?: number;
   swing?: string | null;
   wall_height_m?: number;
 };

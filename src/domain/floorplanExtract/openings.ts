@@ -60,14 +60,26 @@ export function attachOpenings(
     const best = cands[0];
     const na = graph.nodes[best.edge.a], nb = graph.nodes[best.edge.b];
     const w0 = horizontal ? Math.min(na.x, nb.x) : Math.min(na.y, nb.y);
+    const w1 = horizontal ? Math.max(na.x, nb.x) : Math.max(na.y, nb.y);
     const trimmedLow = Math.max(Math.min(t0, t1), w0);
-    const trimmedHigh = Math.min(Math.max(t0, t1), horizontal ? Math.max(na.x, nb.x) : Math.max(na.y, nb.y));
+    const trimmedHigh = Math.min(Math.max(t0, t1), w1);
+    const widthM = trimmedHigh - trimmedLow;
+    // Do not invent length past the host — reject tiny/empty remaining intervals.
+    if (!(widthM > 1e-6)) {
+      out[id] = { status: "unmatched", reason: "insufficient width remains inside host wall after trim" };
+      continue;
+    }
+    // Re-check full containment of the trimmed interval within host (+ tol already applied upstream).
+    if (trimmedLow < w0 - 1e-9 || trimmedHigh > w1 + 1e-9) {
+      out[id] = { status: "unmatched", reason: "trimmed opening extends outside host wall" };
+      continue;
+    }
     const trimmed = best.overshoot > 0;
     out[id] = {
       status: "matched",
       wallSourceId: best.edge.sourceId,
       offsetM: trimmedLow - w0,
-      widthM: Math.max(0.05, trimmedHigh - trimmedLow),
+      widthM,
       trimmed,
     };
   }

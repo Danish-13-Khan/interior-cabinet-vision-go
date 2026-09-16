@@ -125,14 +125,19 @@ export function applyFloorplanToInterior(
     if (!att || att.status !== "matched") continue;
     if (!wallIds.has(att.wallSourceId)) continue;
     const kind = draft.polygons.doors.some((d) => d.id === id) ? "door" : "window";
+    const heightM = poly.opening?.height_m ?? (kind === "door" ? 2.1 : 1.2);
+    const sillM = poly.opening?.sill_m ?? (kind === "door" ? 0 : 0.9);
+    if (!(heightM > 0) || !(att.widthM > 0)) {
+      throw new Error(`Opening ${id} has nonpositive dimensions (height_m=${heightM}, width_m=${att.widthM})`);
+    }
     openings.push({
       id,
       wallId: att.wallSourceId,
       kind,
       offsetMm: mToMm(att.offsetM),
       widthMm: mToMm(att.widthM),
-      heightMm: mToMm(poly.opening?.height_m ?? (kind === "door" ? 2.1 : 1.2)),
-      sillHeightMm: mToMm(poly.opening?.sill_m ?? (kind === "door" ? 0 : 0.9)),
+      heightMm: mToMm(heightM),
+      sillHeightMm: mToMm(sillM),
       extensions: { fromFloorplanExtract: true, trimmed: att.trimmed },
     });
   }
