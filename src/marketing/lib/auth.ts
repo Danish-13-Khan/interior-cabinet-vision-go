@@ -1,4 +1,5 @@
 import type { ThemeId } from './theme'
+import { openJobWorkbench } from '../../domain/desktopUx'
 import {
   clearLocalAccount,
   ensureLocalAccountForSession,
@@ -53,5 +54,6 @@ export function createSession(partial: {
     at: new Date().toISOString(),
   }
   setSession(session)
+  openJobWorkbench()
   return session
 }

@@ -41,7 +41,7 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   toolRailVisible: true,
   inspectorVisible: true,
   statusDockOpen: false,
-  workbenchMode: "cabinets",
+  workbenchMode: "job",
   workspaceTab: "front",
   activeSheetId: "front",
   splitPlanWidthPct: 50,
@@ -129,6 +129,21 @@ export function persistDesktopLayout(
   storage.setItem(
     DESKTOP_LAYOUT_STORAGE_KEY,
     JSON.stringify(clampDesktopLayout(layout)),
+  );
+}
+
+/** Login/register should open Cabinet Planner Job home, not the old Cabinets canvas. */
+export function openJobWorkbench(
+  storage: Pick<Storage, "getItem" | "setItem"> | null = typeof window !== "undefined"
+    ? window.localStorage
+    : null,
+) {
+  persistDesktopLayout(
+    {
+      ...readDesktopLayout(storage),
+      workbenchMode: "job",
+    },
+    storage,
   );
 }
 

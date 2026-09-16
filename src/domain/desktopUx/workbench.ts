@@ -23,7 +23,7 @@ export const WORKBENCH_LABELS: Record<WorkbenchMode, string> = {
 export function normalizeWorkbenchMode(value: unknown): WorkbenchMode {
   return WORKBENCH_MODES.includes(value as WorkbenchMode)
     ? (value as WorkbenchMode)
-    : "cabinets";
+    : "job";
 }
 
 export function workbenchBreadcrumb(

@@ -9,6 +9,8 @@ import {
   formatPointerHud,
   formatShortcutBinding,
   nearestSnapPresetMm,
+  openJobWorkbench,
+  persistDesktopLayout,
   rankCommands,
   scoreCommandMatch,
   upsertRecentCommandId,
@@ -40,7 +42,7 @@ describe("desktopUx layout", () => {
     expect(defaults.splitPlanWidthPct).toBe(50);
     expect(defaults.splitTopRowPct).toBe(72);
     expect(defaults.sceneBrowserVisible).toBe(false);
-    expect(defaults.workbenchMode).toBe("cabinets");
+    expect(defaults.workbenchMode).toBe("job");
     expect(defaults.splitViewEnabled).toBe(false);
     expect(defaults.activeWallSide).toBe("back-wall");
     expect(defaults.splitTopRowPct).toBeGreaterThan(50);
@@ -55,6 +57,19 @@ describe("desktopUx layout", () => {
     expect(clamped.splitTopRowPct).toBe(80);
     expect(clamped.sceneBrowserVisible).toBe(false);
     expect(clamped.activeWallSide).toBe("left-wall");
+  });
+
+  it("opens Job home even when Cabinets was the last workbench", () => {
+    const memory: Record<string, string> = {};
+    const storage = {
+      getItem: (key: string) => memory[key] ?? null,
+      setItem: (key: string, value: string) => {
+        memory[key] = value;
+      },
+    };
+    persistDesktopLayout({ ...clampDesktopLayout({}), workbenchMode: "cabinets" }, storage);
+    openJobWorkbench(storage);
+    expect(JSON.parse(memory["cabinet-designer-desktop-layout"]).workbenchMode).toBe("job");
   });
 });
 
