@@ -21,6 +21,16 @@ export type PatchOp =
   | { kind: "replace_polygons"; group: PolygonGroup; polygons: unknown[] }
   | { kind: "set_defaults"; defaults: unknown };
 
+export type LiveSchemaStatus =
+  | { state: "live-ok" }
+  | { state: "structural-fallback"; message: string }
+  | { state: "live-rejected"; message: string };
+
+export type ExtractionIngest = {
+  draft: ExtractionResult;
+  liveSchema: LiveSchemaStatus;
+};
+
 function buildQuery(q: ExtractQuery): string {
   const p = new URLSearchParams();
   if (q.mode) p.set("mode", q.mode);
@@ -41,21 +51,27 @@ async function readError(res: Response): Promise<string> {
   }
 }
 
-async function ingestExtractionJson(raw: unknown): Promise<ExtractionResult> {
-  // Structural first (works offline); then live schema when sidecar is up.
+export async function ingestExtractionJson(raw: unknown): Promise<ExtractionIngest> {
   const shaped = assertExtractionShape(raw);
   try {
     await validateExtractionAgainstLiveSchema(raw);
+    return { draft: coerceExtractionToMeters(shaped), liveSchema: { state: "live-ok" } };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    // If schema endpoint is down, keep structural result but surface when it's a real schema violation.
-    if (msg.startsWith("schema:")) throw err;
-    // network / schema fetch failure: allow offline review with shape-only
+    if (msg.startsWith("schema:")) {
+      throw Object.assign(new Error(msg), { liveSchema: { state: "live-rejected", message: msg } satisfies LiveSchemaStatus });
+    }
+    return {
+      draft: coerceExtractionToMeters(shaped),
+      liveSchema: {
+        state: "structural-fallback",
+        message: msg || "Live GET /schema/v1 unavailable — structural checks only",
+      },
+    };
   }
-  return coerceExtractionToMeters(shaped);
 }
 
-export async function extractFloorplan(file: File, query: ExtractQuery = {}): Promise<ExtractionResult> {
+export async function extractFloorplan(file: File, query: ExtractQuery = {}): Promise<ExtractionIngest> {
   if (
     query.pixel_scale == null
     && ((query.ref_length_m == null) !== (query.ref_length_px == null))
@@ -92,7 +108,7 @@ export async function patchFloorplanGeometry(
   extraction: ExtractionResult,
   ops: PatchOp[],
   enrich = false,
-): Promise<ExtractionResult> {
+): Promise<ExtractionIngest> {
   const res = await fetch(
     `${floorplanApiBase()}/geometry/patch${enrich ? "?enrich=true" : ""}`,
     {
