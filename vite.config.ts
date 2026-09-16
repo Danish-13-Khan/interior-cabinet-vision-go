@@ -5,8 +5,10 @@ import react from "@vitejs/plugin-react";
 const host = process.env.TAURI_DEV_HOST;
 // @ts-expect-error process is a nodejs global
 const githubPages = process.env.GITHUB_PAGES === "true";
-// Repo name for project Pages URL: https://<user>.github.io/<repo>/
-const pagesBase = "/interior-cabinet-vision-go/";
+// Custom domain (modumitrasoftware.com) and apex Pages need root asset paths.
+// Project URL https://<user>.github.io/<repo>/ still works if Pages custom domain is set,
+// because GitHub redirects that host to the custom domain.
+const pagesBase = "/";
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
