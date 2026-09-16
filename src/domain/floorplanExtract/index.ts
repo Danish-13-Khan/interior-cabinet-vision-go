@@ -4,9 +4,12 @@ export {
   exportFloorplanGlb,
   patchFloorplanGeometry,
   floorplanReady,
+  ingestExtractionJson,
   type ExtractQuery,
   type PatchOp,
   type PolygonGroup,
+  type LiveSchemaStatus,
+  type ExtractionIngest,
 } from "./client";
 export {
   fetchFloorplanSchema,
@@ -20,6 +23,12 @@ export {
   type MultiFloorLevel,
   type BuildingExportMode,
 } from "./building";
+export {
+  summarizeFloorplanApplyImpact,
+  buildFloorplanApplySnapshot,
+  type ApplyImpactFinding,
+  type FloorplanApplySnapshot,
+} from "./applyImpact";
 export { ensureCollisionFreeIds } from "./ids";
 export { normalizeExtraction, type NormalizeOptions } from "./normalize";
 export { applyFloorplanToInterior } from "./applyToInterior";

@@ -5,7 +5,12 @@ import {
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
-import { extractFloorplan, type ExtractionResult } from "../../domain/floorplanExtract";
+import {
+  assertExtractionShape,
+  extractFloorplan,
+  type ExtractionResult,
+  type LiveSchemaStatus,
+} from "../../domain/floorplanExtract";
 import { FloorplanExtractReview } from "./FloorplanExtractReview";
 import { useEffect, useRef, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -32,6 +37,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
   const [extractDraftKey, setExtractDraftKey] = useState(0);
+  const [extractLiveSchema, setExtractLiveSchema] = useState<LiveSchemaStatus | null>(null);
   const [lastAppliedExtract, setLastAppliedExtract] = useState<ExtractionResult | null>(null);
   const extractRequestIdRef = useRef(0);
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
@@ -39,6 +45,19 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
+  // Persist reopen across save/reload via InteriorProject.extensions.floorplanExtractDraft.
+  useEffect(() => {
+    const raw = project?.extensions?.floorplanExtractDraft;
+    if (!raw) {
+      setLastAppliedExtract(null);
+      return;
+    }
+    try {
+      setLastAppliedExtract(assertExtractionShape(raw));
+    } catch {
+      setLastAppliedExtract(null);
+    }
+  }, [project?.id, project?.extensions?.floorplanExtractAppliedAt, project?.extensions?.floorplanExtractDraft]);
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
@@ -109,6 +128,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             const requestId = extractRequestIdRef.current + 1;
             extractRequestIdRef.current = requestId;
             setExtractDraft(null); // drop prior review so Apply cannot hit the old extract
+            setExtractLiveSchema(null);
             props.onImportError("");
             if (isPdfFile(file)) {
               setPdfImportFile(file);
@@ -128,9 +148,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
               }
               if (vectorOrRaster) {
                 const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
-                const draft = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
+                const ingest = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
                 if (!stillCurrent()) return;
-                setExtractDraft(draft);
+                setExtractDraft(ingest.draft);
+                setExtractLiveSchema(ingest.liveSchema);
                 setExtractDraftKey(requestId);
               }
               if (!stillCurrent()) return;
@@ -235,6 +256,10 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             data-testid="lr-floorplan-reopen-import"
             onClick={() => {
               setExtractDraft(lastAppliedExtract);
+              setExtractLiveSchema({
+                state: "structural-fallback",
+                message: "Re-opened saved extract — re-run patch/extract to refresh live schema",
+              });
               setExtractDraftKey((k) => k + 1);
             }}
           >
@@ -248,11 +273,14 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           draft={extractDraft}
           draftKey={`extract-${extractDraftKey}`}
           project={project}
-          onClose={() => setExtractDraft(null)}
+          initialLiveSchema={extractLiveSchema ?? undefined}
+          onClose={() => { setExtractDraft(null); setExtractLiveSchema(null); }}
           onApply={(next, appliedDraft, status) => {
+            // draft + snapshot already persisted on next.extensions by applyFloorplanToInterior
             w.onPatchDocument(() => next, status);
             setLastAppliedExtract(appliedDraft);
             setExtractDraft(null);
+            setExtractLiveSchema(null);
           }}
           onError={props.onImportError}
         />

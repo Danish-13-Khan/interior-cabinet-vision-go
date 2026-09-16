@@ -12,6 +12,7 @@ import { synchronizeWallCaches } from "../interiorProject/wallGraph";
 import { synchronizeRoomSurfaceZones } from "../interiorProject/roomSurfaces";
 import { mToMm, pointMToMm } from "./meters";
 import type { NormalizedFloorplan } from "./types";
+import { buildFloorplanApplySnapshot } from "./applyImpact";
 
 function roomTypeFromLabel(label?: string): InteriorRoomEntity["roomType"] {
   const l = (label ?? "").toLowerCase();
@@ -162,11 +163,20 @@ export function applyFloorplanToInterior(
       ...project.extensions,
       floorplanExtractAppliedAt: now,
       floorplanSource: draft.source ?? null,
+      floorplanExtractDraft: draft,
       wallGraphDomainVersion: 1,
     },
   });
 
   next = synchronizeRoomSurfaceZones(next);
+  next = {
+    ...next,
+    extensions: {
+      ...next.extensions,
+      floorplanApplySnapshot: buildFloorplanApplySnapshot(next),
+      floorplanExtractDraft: draft,
+    },
+  };
 
   const issues: InteriorValidationIssue[] = [];
   validatePlanTopology(next, issues);
