@@ -1,10 +1,16 @@
 import type { InteriorProject } from "../interiorProject/types";
+import {
+  replacementImpactFingerprint,
+  shellTopologyFingerprint,
+} from "./applyImpactCanon";
 
 export type FloorplanApplySnapshot = {
   wallIds: string[];
   openingIds: string[];
   roomIds: string[];
   objectCount: number;
+  /** Deterministic fingerprint of shell topology + replaced wall/opening content. */
+  shellFingerprint: string;
 };
 
 export type ApplyImpactFinding = {
@@ -12,19 +18,35 @@ export type ApplyImpactFinding = {
   message: string;
 };
 
-function readSnapshot(project: InteriorProject): FloorplanApplySnapshot | null {
+export {
+  shellTopologyFingerprint,
+  discardedContentFingerprint,
+  replacementImpactFingerprint,
+} from "./applyImpactCanon";
+
+type StoredApplySnapshot = {
+  wallIds: string[];
+  openingIds: string[];
+  roomIds: string[];
+  objectCount: number;
+  shellFingerprint?: string;
+};
+
+function readSnapshot(project: InteriorProject): StoredApplySnapshot | null {
   const raw = project.extensions?.floorplanApplySnapshot;
   if (!raw || typeof raw !== "object") return null;
   const s = raw as Record<string, unknown>;
   if (!Array.isArray(s.wallIds) || !Array.isArray(s.openingIds) || !Array.isArray(s.roomIds)) {
     return null;
   }
-  return {
+  const out: StoredApplySnapshot = {
     wallIds: s.wallIds.map(String),
     openingIds: s.openingIds.map(String),
     roomIds: s.roomIds.map(String),
     objectCount: typeof s.objectCount === "number" ? s.objectCount : 0,
   };
+  if (typeof s.shellFingerprint === "string") out.shellFingerprint = s.shellFingerprint;
+  return out;
 }
 
 function setEq(a: string[], b: string[]) {
@@ -54,6 +76,7 @@ export function summarizeFloorplanApplyImpact(project: InteriorProject): ApplyIm
   const wallIds = project.walls.map((w) => w.id);
   const openingIds = project.openings.map((o) => o.id);
   const roomIds = project.rooms.map((r) => r.id);
+  const fp = shellTopologyFingerprint(project);
 
   if (!snap) {
     if (project.walls.length > 0) {
@@ -77,27 +100,24 @@ export function summarizeFloorplanApplyImpact(project: InteriorProject): ApplyIm
     return findings;
   }
 
-  if (!setEq(wallIds, snap.wallIds)) {
+  if (!snap.shellFingerprint) {
     findings.push({
-      code: "walls_changed",
-      message: "Walls were edited in Studio since the last floorplan Apply — they will be replaced",
+      code: "snapshot_legacy",
+      message: "Prior Apply snapshot is ID-only — cannot verify geometry; re-Apply will replace the shell",
+    });
+  } else if (snap.shellFingerprint !== fp) {
+    const idsSame =
+      setEq(wallIds, snap.wallIds)
+      && setEq(openingIds, snap.openingIds)
+      && setEq(roomIds, snap.roomIds);
+    findings.push({
+      code: idsSame ? "shell_geometry_changed" : "shell_changed",
+      message: idsSame
+        ? "Shell geometry/content was edited in Studio (same IDs) — walls/openings/rooms/nodes/loops will be replaced"
+        : "Shell topology was edited in Studio since the last floorplan Apply — it will be replaced",
     });
   }
-  if (!setEq(openingIds, snap.openingIds)) {
-    findings.push({
-      code: "openings_changed",
-      message: "Openings were edited in Studio since the last floorplan Apply — they will be replaced",
-    });
-  }
-  if (!setEq(roomIds, snap.roomIds)) {
-    findings.push({
-      code: "rooms_changed",
-      message: "Rooms were edited in Studio since the last floorplan Apply — they will be replaced",
-    });
-  }
-  if (project.objects.length > snap.objectCount) {
-    // already covered by objects finding when > 0
-  }
+
   return findings;
 }
 
@@ -107,5 +127,15 @@ export function buildFloorplanApplySnapshot(project: InteriorProject): Floorplan
     openingIds: project.openings.map((o) => o.id),
     roomIds: project.rooms.map((r) => r.id),
     objectCount: project.objects.length,
+    shellFingerprint: shellTopologyFingerprint(project),
   };
+}
+
+/**
+ * Stable key for UI replace-ack — must change on further edits even when finding codes stay the same.
+ * Binds to the full replacement-impact fingerprint (shell + objects/surfaces).
+ */
+export function applyImpactKey(project: InteriorProject, findings: ApplyImpactFinding[]): string {
+  if (findings.length === 0) return "";
+  return replacementImpactFingerprint(project);
 }
