@@ -52,6 +52,28 @@ export function collectApplyGates(input: Omit<NormalizedFloorplan, "issues" | "c
       issues.push({ code: "ambiguous_opening", message: `Opening ${id}: ${att.reason}`, entityId: id, blocksApply: true });
     } else if (att.status === "unmatched") {
       issues.push({ code: "unmatched_opening", message: `Opening ${id}: ${att.reason}`, entityId: id, blocksApply: true });
+    } else if (att.status === "matched") {
+      if (!(att.widthM > 0)) {
+        issues.push({
+          code: "unmatched_opening",
+          message: `Opening ${id}: nonpositive width after trim`,
+          entityId: id,
+          blocksApply: true,
+        });
+      } else {
+        const poly = [...input.draft.polygons.doors, ...input.draft.polygons.windows]
+          .find((p) => p.id === id);
+        const kind = input.draft.polygons.doors.some((d) => d.id === id) ? "door" : "window";
+        const heightM = poly?.opening?.height_m ?? (kind === "door" ? 2.1 : 1.2);
+        if (!(heightM > 0)) {
+          issues.push({
+            code: "unmatched_opening",
+            message: `Opening ${id}: height_m must be > 0 (got ${heightM})`,
+            entityId: id,
+            blocksApply: true,
+          });
+        }
+      }
     }
   }
   return { issues, canApply: !issues.some((i) => i.blocksApply) };

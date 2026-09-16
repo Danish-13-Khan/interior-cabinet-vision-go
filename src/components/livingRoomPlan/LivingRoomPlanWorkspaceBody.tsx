@@ -7,7 +7,7 @@ import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSc
 import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
 import { extractFloorplan, type ExtractionResult } from "../../domain/floorplanExtract";
 import { FloorplanExtractReview } from "./FloorplanExtractReview";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
@@ -32,6 +32,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
   const [extractDraftKey, setExtractDraftKey] = useState(0);
+  const extractRequestIdRef = useRef(0);
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
   useEffect(() => {
@@ -119,9 +120,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
               }
               if (vectorOrRaster) {
                 const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
+                const requestId = extractRequestIdRef.current + 1;
+                extractRequestIdRef.current = requestId;
                 const draft = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
+                if (requestId !== extractRequestIdRef.current) return; // superseded by a newer import
                 setExtractDraft(draft);
-                setExtractDraftKey((k) => k + 1);
+                setExtractDraftKey(requestId);
               }
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
