@@ -5,7 +5,8 @@ name: Deploy GitHub Pages
 #   1. Repo must be Public (free Pages) OR have a plan that allows private Pages
 #   2. Settings → Pages → Source: Deploy from a branch
 #   3. Branch: gh-pages / (root) → Save
-# Site: https://Danish-13-Khan.github.io/interior-cabinet-vision-go/
+# Custom domain: https://modumitrasoftware.com/
+# Also: https://Danish-13-Khan.github.io/interior-cabinet-vision-go/
 
 on:
   push:
@@ -65,10 +66,12 @@ jobs:
           publish_dir: ./dist
           publish_branch: gh-pages
           force_orphan: true
+          cname: modumitrasoftware.com
 
       - name: Deployment published
         run: |
           echo "gh-pages branch updated."
           echo "If the site URL still 404s, enable Pages once:"
           echo "Settings → Pages → Deploy from a branch → gh-pages → / (root)"
-          echo "URL: https://Danish-13-Khan.github.io/interior-cabinet-vision-go/"
+          echo "URL: https://modumitrasoftware.com/"
+          echo "Fallback: https://Danish-13-Khan.github.io/interior-cabinet-vision-go/"
