@@ -26,7 +26,7 @@ export function Logo({ to = '/', variant = 'mark', style }: LogoProps) {
   return (
     <Link to={to} className="logo" style={style}>
       {mark}
-      Cabinet Studio
+      Cabinet Planner
     </Link>
   )
 }

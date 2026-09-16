@@ -3,32 +3,33 @@ import { lazy, Suspense } from "react";
 const App = lazy(() => import("../App"));
 import { RequireAuth } from "../marketing/components/RequireAuth";
 import { ThemeProvider } from "../marketing/lib/theme";
-import { Landing } from "../marketing/pages/Landing";
+import { GuestHome } from "../marketing/pages/GuestHome";
 import { Login } from "../marketing/pages/Login";
 import { Register } from "../marketing/pages/Register";
 import { isTauriRuntime } from "../platform/desktopFiles";
 
 /**
- * Web: marketing at /, auth at /login|/register, real designer at /app (gated).
- * Tauri desktop: boot straight into the designer (skip marketing/auth).
+ * Web: planner auth at /login|/register, designer at /app (gated).
+ * `/` skips the old Cabinet Studio marketing landing.
+ * Tauri desktop: boot straight into the designer.
  */
 export function RootRouter() {
   if (isTauriRuntime()) {
-    return <Suspense fallback={<p role="status">Opening Cabinet Studio…</p>}><App /></Suspense>;
+    return <Suspense fallback={<p role="status">Opening Cabinet Planner…</p>}><App /></Suspense>;
   }
 
   return (
     <BrowserRouter>
       <ThemeProvider>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<GuestHome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
             path="/app"
             element={
               <RequireAuth>
-                <Suspense fallback={<p role="status">Opening Cabinet Studio…</p>}><App /></Suspense>
+                <Suspense fallback={<p role="status">Opening Cabinet Planner…</p>}><App /></Suspense>
               </RequireAuth>
             }
           />
