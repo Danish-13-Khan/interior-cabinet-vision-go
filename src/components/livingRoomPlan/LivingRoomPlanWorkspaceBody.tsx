@@ -107,9 +107,9 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             // Invalidate any in-flight extract/underlay work before first await.
             const requestId = extractRequestIdRef.current + 1;
             extractRequestIdRef.current = requestId;
+            setExtractDraft(null); // drop prior review so Apply cannot hit the old extract
             props.onImportError("");
             if (isPdfFile(file)) {
-              setExtractDraft(null);
               setPdfImportFile(file);
               return;
             }
