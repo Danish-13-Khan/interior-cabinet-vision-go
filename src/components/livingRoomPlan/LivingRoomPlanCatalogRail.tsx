@@ -50,7 +50,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     <input
       ref={underlayInputRef}
       type="file"
-      accept="image/png,image/jpeg,image/webp,application/pdf,.pdf"
+      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml,application/pdf,.pdf,.svg,.dxf,.DXF"
       hidden
       onChange={(event) => {
         const file = event.target.files?.[0] ?? null;

@@ -5,6 +5,8 @@ import {
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
+import { extractFloorplan, type ExtractionResult } from "../../domain/floorplanExtract";
+import { FloorplanExtractReview } from "./FloorplanExtractReview";
 import { useEffect, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
@@ -28,6 +30,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
 
+  const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
+  const [extractDraftKey, setExtractDraftKey] = useState(0);
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
   useEffect(() => {
@@ -104,8 +108,21 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
               setPdfImportFile(file);
               return;
             }
+            const lower = file.name.toLowerCase();
+            const vectorOrRaster = /\.(png|jpe?g|gif|webp|svg|dxf)$/.test(lower)
+              || file.type.startsWith("image/")
+              || file.type.includes("svg")
+              || file.type.includes("dxf");
             try {
-              w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
+              if (!lower.endsWith(".svg") && !lower.endsWith(".dxf") && file.type.startsWith("image/")) {
+                w.onSetPlanUnderlay(await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200));
+              }
+              if (vectorOrRaster) {
+                const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
+                const draft = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
+                setExtractDraft(draft);
+                setExtractDraftKey((k) => k + 1);
+              }
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
             } catch (error) {
@@ -199,6 +216,20 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         }}
         onError={(message) => { setPdfImportFile(null); props.onImportError(message); }}
       />
+      {extractDraft && project ? (
+        <FloorplanExtractReview
+          key={extractDraftKey}
+          draft={extractDraft}
+          draftKey={`extract-${extractDraftKey}`}
+          project={project}
+          onClose={() => setExtractDraft(null)}
+          onApply={(next, status) => {
+            w.onPatchDocument(() => next, status);
+            setExtractDraft(null);
+          }}
+          onError={props.onImportError}
+        />
+      ) : null}
     </div>
   );
 }
