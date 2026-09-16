@@ -32,6 +32,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
   const [extractDraftKey, setExtractDraftKey] = useState(0);
+  const [lastAppliedExtract, setLastAppliedExtract] = useState<ExtractionResult | null>(null);
   const extractRequestIdRef = useRef(0);
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
@@ -227,6 +228,20 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         }}
         onError={(message) => { setPdfImportFile(null); props.onImportError(message); }}
       />
+      {!extractDraft && lastAppliedExtract && project ? (
+        <div style={{ padding: 8 }}>
+          <button
+            type="button"
+            data-testid="lr-floorplan-reopen-import"
+            onClick={() => {
+              setExtractDraft(lastAppliedExtract);
+              setExtractDraftKey((k) => k + 1);
+            }}
+          >
+            Re-open floor plan import
+          </button>
+        </div>
+      ) : null}
       {extractDraft && project ? (
         <FloorplanExtractReview
           key={extractDraftKey}
@@ -234,8 +249,9 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           draftKey={`extract-${extractDraftKey}`}
           project={project}
           onClose={() => setExtractDraft(null)}
-          onApply={(next, status) => {
+          onApply={(next, appliedDraft, status) => {
             w.onPatchDocument(() => next, status);
+            setLastAppliedExtract(appliedDraft);
             setExtractDraft(null);
           }}
           onError={props.onImportError}
