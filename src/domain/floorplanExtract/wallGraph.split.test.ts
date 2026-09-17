@@ -21,4 +21,14 @@ describe("T-junction split ids", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids.filter((id) => id === "host#b").length).toBe(0);
   });
+
+  it("extends a short T-stem onto the host wall", () => {
+    const walls = [
+      hWall("host", 0, 4, 0),
+      vWall("stem", 2, 0.35, 2),
+    ];
+    const graph = buildWallGraph(walls);
+    const hostParts = graph.edges.filter((e) => e.sourceId === "host" || e.sourceId.startsWith("host#"));
+    expect(hostParts.length).toBeGreaterThanOrEqual(2);
+  });
 });

@@ -22,19 +22,24 @@ export function ensureCollisionFreeIds(draft: ExtractionResult): ExtractionResul
       if (id) reserved.add(id);
     }
   }
+  const assigned = new Set<string>();
 
   const nextFree = (prefix: string) => {
     let n = 0;
-    while (reserved.has(`${prefix}${n}`)) n += 1;
+    while (reserved.has(`${prefix}${n}`) || assigned.has(`${prefix}${n}`)) n += 1;
     const id = `${prefix}${n}`;
     reserved.add(id);
+    assigned.add(id);
     return id;
   };
 
   const mapGroup = (key: keyof typeof PREFIX): ExtractPolygon[] =>
     groupList(draft, key).map((poly) => {
       const id = poly.id?.trim();
-      if (id) return { ...poly, id };
+      if (id && !assigned.has(id)) {
+        assigned.add(id);
+        return { ...poly, id };
+      }
       return { ...poly, id: nextFree(PREFIX[key]) };
     });
 

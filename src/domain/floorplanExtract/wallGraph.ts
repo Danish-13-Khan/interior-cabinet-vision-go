@@ -1,9 +1,6 @@
 import { MIN_SEG_LEN_M, MIN_WALL_THICK_M, SNAP_TOL_M } from "./meters";
+import { dist, snapTJunctions, weldNearbyNodes } from "./wallGraphSnap";
 import type { ExtractPolygon, WallGraph, WallGraphEdge, WallGraphNode } from "./types";
-
-function dist(x0: number, y0: number, x1: number, y1: number) {
-  return Math.hypot(x1 - x0, y1 - y0);
-}
 
 /** True if any footprint edge is meaningfully non-axis-aligned. */
 export function ringLooksDiagonal(outer: [number, number][]): boolean {
@@ -13,7 +10,6 @@ export function ringLooksDiagonal(outer: [number, number][]): boolean {
     const len = Math.hypot(dx, dy);
     if (len < 1e-6) continue;
     const ax = Math.abs(dx) / len, ay = Math.abs(dy) / len;
-    // ~3°+ off-axis: both components significant (catches gentle skew AABB would flatten).
     if (Math.min(ax, ay) > 0.05) return true;
   }
   return false;
@@ -41,70 +37,6 @@ export function centerlineFromWall(outer: [number, number][]): {
   return { a: [(minX + maxX) * 0.5, minY], b: [(minX + maxX) * 0.5, maxY], thick, ok: true, diagonalCollapsed };
 }
 
-function projectOnSegment(
-  px: number, py: number, ax: number, ay: number, bx: number, by: number,
-): { x: number; y: number; on: boolean } {
-  const abx = bx - ax, aby = by - ay;
-  const den = abx * abx + aby * aby;
-  if (den < 1e-18) return { x: ax, y: ay, on: false };
-  const t = ((px - ax) * abx + (py - ay) * aby) / den;
-  if (t <= 0 || t >= 1) return { x: ax + abx * t, y: ay + aby * t, on: false };
-  return { x: ax + abx * t, y: ay + aby * t, on: true };
-}
-
-function nextSplitSourceId(base: string, reserved: Set<string>): string {
-  let n = 0;
-  while (reserved.has(`${base}#${n}`)) n += 1;
-  const id = `${base}#${n}`;
-  reserved.add(id);
-  return id;
-}
-
-function snapTJunctions(nodes: WallGraphNode[], edges: WallGraphEdge[], snapTol: number) {
-  const reserved = new Set(edges.map((e) => e.sourceId));
-  let changed = true, guard = 0;
-  while (changed && guard < 64) {
-    changed = false;
-    guard += 1;
-    for (let ni = 0; ni < nodes.length; ni++) {
-      const n = nodes[ni];
-      for (let ei = 0; ei < edges.length; ei++) {
-        const e = edges[ei];
-        if (e.a === ni || e.b === ni) continue;
-        const a = nodes[e.a], b = nodes[e.b];
-        const proj = projectOnSegment(n.x, n.y, a.x, a.y, b.x, b.y);
-        if (!proj.on) continue;
-        if (dist(n.x, n.y, proj.x, proj.y) > snapTol) continue;
-        if (dist(proj.x, proj.y, a.x, a.y) < snapTol || dist(proj.x, proj.y, b.x, b.y) < snapTol) {
-          continue;
-        }
-        nodes[ni].x = proj.x;
-        nodes[ni].y = proj.y;
-        const thick = e.thickM, sid = e.sourceId, flags = {
-          thickened: e.thickened, diagonalCollapsed: e.diagonalCollapsed, role: e.role,
-        };
-        reserved.add(sid);
-        const sidB = nextSplitSourceId(sid.split("#")[0] ?? sid, reserved);
-        edges[ei] = {
-          id: e.id, a: e.a, b: ni, thickM: thick,
-          lengthM: dist(a.x, a.y, proj.x, proj.y),
-          role: flags.role, sourceId: sid,
-          thickened: flags.thickened, diagonalCollapsed: flags.diagonalCollapsed,
-        };
-        edges.push({
-          id: edges.length, a: ni, b: e.b, thickM: thick,
-          lengthM: dist(proj.x, proj.y, b.x, b.y),
-          role: flags.role, sourceId: sidB,
-          thickened: flags.thickened, diagonalCollapsed: flags.diagonalCollapsed,
-        });
-        changed = true;
-        break;
-      }
-      if (changed) break;
-    }
-  }
-}
-
 function markFloatingDropped(nodes: WallGraphNode[], edges: WallGraphEdge[]) {
   const parent = nodes.map((_, i) => i);
   const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
@@ -120,8 +52,7 @@ function markFloatingDropped(nodes: WallGraphNode[], edges: WallGraphEdge[]) {
     if (len > bestLen) { bestLen = len; bestRoot = r; }
   }
   for (const e of edges) {
-    if (find(e.a) !== bestRoot) e.role = "dropped";
-    else e.role = "interior";
+    e.role = find(e.a) !== bestRoot ? "dropped" : "interior";
   }
 }
 
@@ -166,6 +97,8 @@ export function buildWallGraph(walls: ExtractPolygon[], snapTol = SNAP_TOL_M, mi
   }
 
   snapTJunctions(nodes, edges, snap);
+  weldNearbyNodes(nodes, edges, snap);
+  for (let i = 0; i < edges.length; i++) edges[i].id = i;
   for (const e of edges) {
     const na = nodes[e.a], nb = nodes[e.b];
     e.lengthM = dist(na.x, na.y, nb.x, nb.y);
