@@ -315,3 +315,25 @@
 @media (max-width: 720px) {
   .lr-floorplan-extract-preview-row { grid-template-columns: 1fr; }
 }
+
+.lr-floorplan-preview-stale {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin: 0.35rem 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  background: #fff8c5;
+  border: 1px solid #d4a72c;
+  font-size: 0.8rem;
+  z-index: 3;
+  position: relative;
+}
+.lr-floorplan-preview-stale-badge {
+  font-weight: 600;
+  color: #7a5a00;
+}
+.lr-floorplan-preview-stale button {
+  font-size: 0.78rem;
+}

@@ -8,6 +8,7 @@ import type {
   SurfaceZoneEntity,
   WallEntity,
 } from "../interiorProject/types";
+import { hashFingerprintSeed } from "./glbExportFingerprint";
 
 export function byId<T extends { id: string }>(a: T, b: T) {
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
@@ -103,15 +104,16 @@ export function surfaceCanon(s: SurfaceZoneEntity) {
   };
 }
 
-/** Shell topology + persisted wall/opening content Apply replaces. */
+/** Shell topology + persisted wall/opening content Apply replaces (hashed; not raw JSON). */
 export function shellTopologyFingerprint(project: InteriorProject): string {
-  return JSON.stringify({
+  const canon = JSON.stringify({
     nodes: [...project.nodes].sort(byId).map(nodeCanon),
     walls: [...project.walls].sort(byId).map(wallCanon),
     openings: [...project.openings].sort(byId).map(openingCanon),
     rooms: [...project.rooms].sort(byId).map(roomCanon),
     loops: [...project.loops].sort(byId).map(loopCanon),
   });
+  return hashFingerprintSeed(canon);
 }
 
 /** Objects + surfaces Apply clears — included in ack reset key. */

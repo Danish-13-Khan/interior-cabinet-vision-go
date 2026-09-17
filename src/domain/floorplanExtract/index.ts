@@ -32,6 +32,10 @@ export {
 export {
   summarizeFloorplanApplyImpact,
   buildFloorplanApplySnapshot,
+  isFloorplanShellStaleSinceApply,
+  floorplanShellStaleSinceApply,
+  type FloorplanShellStaleReason,
+  type FloorplanShellStaleState,
   shellTopologyFingerprint,
   replacementImpactFingerprint,
   discardedContentFingerprint,
@@ -64,3 +68,5 @@ export {
   validateExtractionAgainstLiveSchema,
   clearFloorplanSchemaCache,
 } from "./schemaValidate";
+
+export { reapplyFloorplanExtract } from "./reapplyFloorplanExtract";
