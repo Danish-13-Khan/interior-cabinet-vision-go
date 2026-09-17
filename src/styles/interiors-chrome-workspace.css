@@ -236,3 +236,57 @@
   border-radius: 8px;
   border: 1px solid #dde3ea;
 }
+
+.lr-floorplan-preview-viewport {
+  margin-top: 0.75rem;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: #f6f8fa;
+}
+.lr-floorplan-preview-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  color: #57606a;
+}
+.lr-floorplan-preview-canvas-host {
+  height: 280px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1b1f23;
+}
+.lr-floorplan-preview-canvas-host canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.lr-floorplan-extract-glb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.lr-floorplan-preview-toggle {
+  position: absolute;
+  z-index: 3;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.8rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.lr-floorplan-model-preview-bridge {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+}
+
+.lr-floorplan-preview-note {
+  color: #57606a;
+  font-size: 0.75rem;
+}
+.lr-floorplan-preview-toggle select {
+  margin-left: 0.25rem;
+}

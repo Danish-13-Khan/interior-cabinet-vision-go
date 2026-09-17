@@ -15,6 +15,9 @@ import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelVi
 import { MODEL_VIEW_FRAMELOOP } from "../../domain/livingRoom/modelViewPerf";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
+import { FloorplanPreviewMesh } from "../floorplanPreview/FloorplanPreviewMesh";
+import { FloorplanPreviewStage } from "../floorplanPreview/FloorplanPreviewStage";
+import type { FloorplanPreviewMode } from "../floorplanPreview/floorplanPreviewMode";
 import { ModelViewCanvasInvalidator } from "./ModelViewCanvasInvalidator";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
@@ -50,6 +53,8 @@ type ModelViewSceneProps = {
   transformTarget?: ModelTransformTarget | null;
   onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
+  floorplanPreviewUrl?: string | null;
+  floorplanPreviewMode?: FloorplanPreviewMode;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -61,6 +66,8 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
+    floorplanPreviewUrl = null,
+    floorplanPreviewMode = "editable",
   } = props;
   const roomSpanMeters = Math.max(
     scene.bounds.size.widthMm,
@@ -80,6 +87,8 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     showGrid,
     cameraHeightMm,
     fieldOfViewDegrees,
+    floorplanPreviewUrl ?? "",
+    floorplanPreviewMode,
   ].join("|");
 
   return (
@@ -93,6 +102,14 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     >
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
         <ModelViewCanvasInvalidator revision={invalidateRevision} />
+        {floorplanPreviewMode === "preview" && floorplanPreviewUrl ? (
+          <FloorplanPreviewStage url={floorplanPreviewUrl} />
+        ) : null}
+        {floorplanPreviewMode === "both" && floorplanPreviewUrl ? (
+          <FloorplanPreviewMesh url={floorplanPreviewUrl} />
+        ) : null}
+        {/* Keep shell until preview URL is ready so Preview mode is not an empty canvas. */}
+        {!(floorplanPreviewMode === "preview" && floorplanPreviewUrl) ? (
         <CompiledSceneRenderer
           scene={scene}
           selectedIds={selectedIds}
@@ -127,6 +144,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onTransformPreview={onTransformPreview}
           onTransformCommit={onTransformCommit}
         />
+        ) : null}
       </ModelViewPreviewProfileProvider>
     </Canvas>
   );

@@ -1,4 +1,4 @@
-import { LivingRoomModelView } from "../LivingRoomModelView";
+import { FloorplanModelPreviewBridge } from "../floorplanPreview/FloorplanModelPreviewBridge";
 import { LivingRoomPlanView } from "../LivingRoomPlanView";
 import { LivingRoomRenderStudio } from "../LivingRoomRenderStudio";
 import { setWallVisible, flipPanelWallSide, type ContextualRailCommandId } from "../../domain/livingRoom";
@@ -84,7 +84,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onCalibrateComplete={props.onCalibrateComplete}
           />
         ) : props.workspaceView === "model" ? (
-          <LivingRoomModelView
+          <FloorplanModelPreviewBridge
             project={props.project} selectedIds={props.selectedIds} snapSizeMm={props.snapSizeMm}
             activeOpeningId={props.activeOpeningId} activeWallId={props.activeWallId} showGrid={props.showGrid}
             onSelect={props.onSelect} onSelectOpening={props.onSelectOpening} onSelectWall={props.onSelectWall}
