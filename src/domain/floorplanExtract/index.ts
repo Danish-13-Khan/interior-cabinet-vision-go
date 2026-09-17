@@ -70,3 +70,25 @@ export {
 } from "./schemaValidate";
 
 export { reapplyFloorplanExtract } from "./reapplyFloorplanExtract";
+
+export {
+  FLOORPLAN_OWNERSHIP,
+  FLOORPLAN_PREVIEW_OWNERSHIP_NOTE,
+  FLOORPLAN_STALE_OWNERSHIP_NOTE,
+} from "./floorplanOwnership";
+export {
+  recordFloorplanTelemetry,
+  listFloorplanTelemetry,
+  clearFloorplanTelemetry,
+  subscribeFloorplanTelemetry,
+  summarizeFloorplanTelemetry,
+  type FloorplanTelemetryEvent,
+  type FloorplanGlbExportOutcome,
+} from "./floorplanTelemetry";
+export {
+  fetchFloorplanSidecarStatus,
+  peekFloorplanSidecarVersion,
+  peekFloorplanSidecarStatus,
+  clearFloorplanSidecarStatusCache,
+  type FloorplanSidecarStatus,
+} from "./floorplanSidecarStatus";

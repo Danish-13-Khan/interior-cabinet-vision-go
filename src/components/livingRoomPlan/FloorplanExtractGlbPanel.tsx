@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import type { ExtractionResult, NormalizeIssue } from "../../domain/floorplanExtract";
 import {
+  FLOORPLAN_PREVIEW_OWNERSHIP_NOTE,
   exportFloorplanBuilding,
   exportFloorplanGlb,
   wrapSingleFloorBuilding,
+  type ExtractionResult,
+  type NormalizeIssue,
 } from "../../domain/floorplanExtract";
 import { FloorplanPreviewViewport } from "../floorplanPreview/FloorplanPreviewViewport";
 
@@ -92,7 +94,7 @@ export function FloorplanExtractGlbPanel({
           <FloorplanPreviewViewport draft={draft} draftKey={draftKey} />
           <aside className="lr-floorplan-preview-issues" aria-label="Floor plan notes">
             {blocks.length === 0 && notes.length === 0 ? (
-              <p>Preview from floorplan tool — not the editable shell.</p>
+              <p>{FLOORPLAN_PREVIEW_OWNERSHIP_NOTE}</p>
             ) : (
               <ul>
                 {blocks.map((issue, i) => (

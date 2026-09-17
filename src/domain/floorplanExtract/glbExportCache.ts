@@ -1,13 +1,14 @@
 import { floorplanApiBase } from "./config";
 import { fingerprintFloorplanGlbRequest } from "./glbExportFingerprint";
-import { assertGlbBlob } from "./glbMagic";
+import { fetchFloorplanGlbBlob } from "./glbExportCacheFetch";
 import { withCallerAbort } from "./glbExportCacheAbort";
 import {
-  floorplanGlbQuery,
   mergeFloorplanGlbFlags,
   type FloorplanGlbExportFlags,
 } from "./glbExportProfile";
 import type { ExtractionResult } from "./types";
+import { peekFloorplanSidecarVersion, fetchFloorplanSidecarStatus } from "./floorplanSidecarStatus";
+import { recordFloorplanTelemetry } from "./floorplanTelemetry";
 
 /** Max retained GLB blobs (LRU). Large meshes — keep this small. */
 export const FLOORPLAN_GLB_CACHE_LIMIT = 3;
@@ -42,15 +43,6 @@ export type GetFloorplanGlbOptions = {
   apiBase?: string;
 };
 
-async function readExportError(res: Response): Promise<string> {
-  try {
-    const j = (await res.json()) as { error?: string };
-    return j.error ?? res.statusText;
-  } catch {
-    return res.statusText || `HTTP ${res.status}`;
-  }
-}
-
 function touch(rec: CacheRecord) {
   rec.lastUsed = ++lruClock;
 }
@@ -77,26 +69,6 @@ function evictIfNeeded() {
 }
 
 
-async function fetchGlbBlob(
-  draft: ExtractionResult,
-  flags: FloorplanGlbExportFlags,
-  apiBase: string,
-  signal: AbortSignal,
-): Promise<Blob> {
-  const base = apiBase.replace(/\/$/, "");
-  const res = await fetch(`${base}/export/glb?${floorplanGlbQuery(flags)}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(draft),
-    signal,
-  });
-  const ctype = (res.headers.get("content-type") ?? "").toLowerCase();
-  if (!res.ok || ctype.includes("application/json")) {
-    throw new Error(await readExportError(res));
-  }
-  return assertGlbBlob(await res.blob());
-}
-
 /** Shared blob for Download + preview; object URLs via acquireFloorplanGlbObjectUrl. */
 export async function getFloorplanGlb(
   draft: ExtractionResult,
@@ -104,11 +76,22 @@ export async function getFloorplanGlb(
 ): Promise<FloorplanGlbHandle> {
   const apiBase = (opts.apiBase ?? floorplanApiBase()).replace(/\/$/, "");
   const flags = mergeFloorplanGlbFlags(opts.flags);
-  const fingerprint = fingerprintFloorplanGlbRequest({ draft, apiBase, flags });
+  try { await fetchFloorplanSidecarStatus({ apiBase, signal: opts.signal }); }
+  catch { /* abort/network — peek may keep a prior version */ }
+  const fingerprint = fingerprintFloorplanGlbRequest({
+    draft, apiBase, flags, sidecarVersion: peekFloorplanSidecarVersion(),
+  });
+  const started = performance.now();
 
   const hit = memory.get(fingerprint);
   if (hit) {
     touch(hit);
+    recordFloorplanTelemetry({
+      type: "glb_export",
+      outcome: "cache_hit",
+      latencyMs: performance.now() - started,
+      fingerprint,
+    });
     return { fingerprint: hit.fingerprint, blob: hit.blob };
   }
 
@@ -117,8 +100,9 @@ export async function getFloorplanGlb(
     const generation = cacheGeneration;
     const controller = new AbortController();
     const promise = (async (): Promise<FloorplanGlbHandle> => {
+      const fillStarted = performance.now();
       try {
-        const blob = await fetchGlbBlob(draft, flags, apiBase, controller.signal);
+        const blob = await fetchFloorplanGlbBlob(draft, flags, apiBase, controller.signal);
         if (generation !== cacheGeneration) {
           throw new DOMException("Floor-plan GLB cache was cleared", "AbortError");
         }
@@ -132,7 +116,24 @@ export async function getFloorplanGlb(
         touch(rec);
         memory.set(fingerprint, rec);
         evictIfNeeded();
+        recordFloorplanTelemetry({
+          type: "glb_export",
+          outcome: "cache_miss",
+          latencyMs: performance.now() - fillStarted,
+          fingerprint,
+        });
         return { fingerprint, blob };
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          recordFloorplanTelemetry({
+            type: "glb_export",
+            outcome: "error",
+            latencyMs: performance.now() - fillStarted,
+            fingerprint,
+            message: error instanceof Error ? error.message : "GLB export failed",
+          });
+        }
+        throw error;
       } finally {
         inflight.delete(fingerprint);
       }
