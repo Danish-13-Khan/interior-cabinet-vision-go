@@ -1,12 +1,6 @@
-import { Navigate } from "react-router-dom";
-import { openJobWorkbench } from "../../domain/desktopUx";
-import { isLoggedIn } from "../lib/auth";
+import { Landing } from "./Landing";
 
-/** Public site is the planner — skip the old Cabinet Studio marketing landing. */
+/** Keep the public showroom available, including when a local session exists. */
 export function GuestHome() {
-  if (isLoggedIn()) {
-    openJobWorkbench();
-    return <Navigate to="/app" replace />;
-  }
-  return <Navigate to="/login" replace />;
+  return <Landing />;
 }

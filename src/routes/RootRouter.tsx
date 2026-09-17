@@ -9,8 +9,8 @@ import { Register } from "../marketing/pages/Register";
 import { isTauriRuntime } from "../platform/desktopFiles";
 
 /**
- * Web: planner auth at /login|/register, designer at /app (gated).
- * `/` skips the old Cabinet Studio marketing landing.
+ * Web: `/` shows the animated showroom; registration/login opens gated `/app`.
+ * After login, App opens Interiors jobs/templates home.
  * Tauri desktop: boot straight into the designer.
  */
 export function RootRouter() {
