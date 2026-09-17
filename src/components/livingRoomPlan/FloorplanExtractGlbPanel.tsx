@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { ExtractionResult } from "../../domain/floorplanExtract";
+import { useEffect, useState } from "react";
+import type { ExtractionResult, NormalizeIssue } from "../../domain/floorplanExtract";
 import {
   exportFloorplanBuilding,
   exportFloorplanGlb,
@@ -13,6 +13,9 @@ type Props = {
   busy: boolean;
   setBusy: (v: boolean) => void;
   onError: (message: string) => void;
+  issues?: NormalizeIssue[];
+  /** When true, parent should hide its duplicate issue list. */
+  onPreviewOpenChange?: (open: boolean) => void;
 };
 
 function downloadBlob(blob: Blob, name: string) {
@@ -24,13 +27,30 @@ function downloadBlob(blob: Blob, name: string) {
   URL.revokeObjectURL(url);
 }
 
-/** Download + in-app sidecar preview (same P0a cache blob). */
-export function FloorplanExtractGlbPanel({ draft, draftKey, busy, setBusy, onError }: Props) {
+/** Primary View 3D + downloads (same P0a cache blob). */
+export function FloorplanExtractGlbPanel({
+  draft, draftKey, busy, setBusy, onError, issues = [], onPreviewOpenChange,
+}: Props) {
   const [showPreview, setShowPreview] = useState(false);
+  const notes = issues.filter((i) => !i.blocksApply);
+  const blocks = issues.filter((i) => i.blocksApply);
+
+  useEffect(() => {
+    onPreviewOpenChange?.(showPreview);
+  }, [showPreview, onPreviewOpenChange]);
 
   return (
     <div className="lr-floorplan-extract-glb-panel" data-testid="lr-floorplan-extract-glb-panel">
       <div className="lr-floorplan-extract-glb-actions">
+        <button
+          type="button"
+          className="is-primary"
+          disabled={busy}
+          data-testid="lr-floorplan-show-3d-preview"
+          onClick={() => setShowPreview((v) => !v)}
+        >
+          {showPreview ? "Hide 3D preview" : "View 3D"}
+        </button>
         <button
           type="button"
           disabled={busy}
@@ -45,7 +65,7 @@ export function FloorplanExtractGlbPanel({ draft, draftKey, busy, setBusy, onErr
             }
           })}
         >
-          {busy ? "Exporting…" : "Download GLB preview"}
+          {busy ? "Exporting…" : "Download GLB"}
         </button>
         <button
           type="button"
@@ -66,16 +86,26 @@ export function FloorplanExtractGlbPanel({ draft, draftKey, busy, setBusy, onErr
         >
           Download building GLB
         </button>
-        <button
-          type="button"
-          disabled={busy}
-          data-testid="lr-floorplan-show-3d-preview"
-          onClick={() => setShowPreview((v) => !v)}
-        >
-          {showPreview ? "Hide 3D preview" : "Show 3D preview"}
-        </button>
       </div>
-      {showPreview ? <FloorplanPreviewViewport draft={draft} draftKey={draftKey} /> : null}
+      {showPreview ? (
+        <div className="lr-floorplan-extract-preview-row" data-testid="lr-floorplan-extract-preview-row">
+          <FloorplanPreviewViewport draft={draft} draftKey={draftKey} />
+          <aside className="lr-floorplan-preview-issues" aria-label="Floor plan notes">
+            {blocks.length === 0 && notes.length === 0 ? (
+              <p>Preview from floorplan tool — not the editable shell.</p>
+            ) : (
+              <ul>
+                {blocks.map((issue, i) => (
+                  <li key={`b-${i}`} className="is-block">Block: {issue.message}</li>
+                ))}
+                {notes.map((issue, i) => (
+                  <li key={`n-${i}`} className="is-note">Note: {issue.message}</li>
+                ))}
+              </ul>
+            )}
+          </aside>
+        </div>
+      ) : null}
     </div>
   );
 }

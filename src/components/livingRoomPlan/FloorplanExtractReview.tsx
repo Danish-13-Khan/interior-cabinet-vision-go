@@ -39,6 +39,7 @@ export function FloorplanExtractReview(props: Props) {
   const [replaceAck, setReplaceAck] = useState(false);
   const [schemaFallbackAck, setSchemaFallbackAck] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     setWorkingDraft(ensureCollisionFreeIds(props.draft));
@@ -48,6 +49,7 @@ export function FloorplanExtractReview(props: Props) {
     setReplaceAck(false);
     setSchemaFallbackAck(false);
     setBusy(false);
+    setPreviewOpen(false);
   }, [props.draftKey, props.draft, props.initialLiveSchema]);
 
   const normalized: NormalizedFloorplan = useMemo(
@@ -158,17 +160,19 @@ export function FloorplanExtractReview(props: Props) {
         </p>
       ) : null}
 
-      {normalized.issues.length ? (
-        <ul data-testid="lr-floorplan-extract-issues">
-          {normalized.issues.map((issue, i) => (
-            <li key={`${issue.code}-${i}`} style={{ color: issue.blocksApply ? "#b00020" : "#666" }}>
-              {issue.blocksApply ? "Block: " : "Note: "}{issue.message}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Geometry gates passed.</p>
-      )}
+      {!previewOpen ? (
+        normalized.issues.length ? (
+          <ul data-testid="lr-floorplan-extract-issues">
+            {normalized.issues.map((issue, i) => (
+              <li key={`${issue.code}-${i}`} style={{ color: issue.blocksApply ? "#b00020" : "#666" }}>
+                {issue.blocksApply ? "Block: " : "Note: "}{issue.message}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Geometry gates passed.</p>
+        )
+      ) : null}
 
       <FloorplanExtractGlbPanel
         draft={normalized.draft}
@@ -176,6 +180,8 @@ export function FloorplanExtractReview(props: Props) {
         busy={busy}
         setBusy={setBusy}
         onError={props.onError}
+        issues={normalized.issues}
+        onPreviewOpenChange={setPreviewOpen}
       />
 
       <footer>

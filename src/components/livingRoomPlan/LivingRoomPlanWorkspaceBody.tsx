@@ -12,6 +12,7 @@ import {
   type LiveSchemaStatus,
 } from "../../domain/floorplanExtract";
 import { FloorplanExtractReview } from "./FloorplanExtractReview";
+import { requestFloorplanPreviewOnModel } from "../floorplanPreview/floorplanPreviewPreference";
 import { useEffect, useRef, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
@@ -299,6 +300,9 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             setLastAppliedExtract(appliedDraft);
             setExtractDraft(null);
             setExtractLiveSchema(null);
+            // P1 happy path: Apply → 3D Preview mesh
+            requestFloorplanPreviewOnModel();
+            props.onWorkspaceView("model");
           }}
           onError={props.onImportError}
         />

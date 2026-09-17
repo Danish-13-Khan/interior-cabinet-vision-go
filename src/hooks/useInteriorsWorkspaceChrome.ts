@@ -16,6 +16,8 @@ import type {
   PlannerMode,
   StudioPanel,
 } from "../components/livingRoomPlan/workspaceProps";
+import { requestFloorplanPreviewOnModel } from "../components/floorplanPreview/floorplanPreviewPreference";
+import { readSavedFloorplanDraft } from "../components/floorplanPreview/readSavedFloorplanDraft";
 
 type ChromeInput = {
   project: InteriorProject | null;
@@ -97,6 +99,10 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
       const panel = studioPanel === "build" ? "cabinets" : studioPanel;
       setStudioPanel(panel);
       syncAreaFromChrome("design", panel, workflowArea === "review" ? "review" : undefined);
+    }
+    // P1: main 3D control opens Preview mesh when a floorplan extract is saved.
+    if (view === "model" && readSavedFloorplanDraft(input.project?.extensions?.floorplanExtractDraft)) {
+      requestFloorplanPreviewOnModel();
     }
     setWorkspaceView(view);
   }

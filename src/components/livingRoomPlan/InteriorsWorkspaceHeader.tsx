@@ -157,7 +157,8 @@ export function InteriorsWorkspaceHeader({
           <button
             type="button"
             className={modelActive ? "is-active" : ""}
-            title="3D model"
+            title="3D — opens floorplan Preview mesh when an extract is saved"
+            data-testid="interiors-view-3d"
             onClick={() => onView("model")}
             disabled={!hasProject}
           >
