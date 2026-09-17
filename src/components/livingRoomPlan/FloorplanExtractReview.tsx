@@ -3,18 +3,17 @@ import type { InteriorProject } from "../../domain/interiorProject";
 import {
   applyFloorplanToInterior,
   ensureCollisionFreeIds,
-  exportFloorplanBuilding,
-  exportFloorplanGlb,
   normalizeExtraction,
   patchFloorplanGeometry,
   applyImpactKey,
   summarizeFloorplanApplyImpact,
-  wrapSingleFloorBuilding,
   type ExtractionResult,
   type LiveSchemaStatus,
   type NormalizedFloorplan,
   type PolygonGroup,
 } from "../../domain/floorplanExtract";
+import { FloorplanExtractGlbPanel } from "./FloorplanExtractGlbPanel";
+import { floorplanDraftHash } from "../floorplanPreview/floorplanDraftKey";
 import { FloorplanExtractOverlay } from "./FloorplanExtractOverlay";
 import { FloorplanExtractCalibrate } from "./FloorplanExtractCalibrate";
 import { FloorplanExtractPatchPanel } from "./FloorplanExtractPatchPanel";
@@ -62,6 +61,10 @@ export function FloorplanExtractReview(props: Props) {
   }, [impactKey]);
   const gateOk = canPassApplyGate({ impact, liveSchema, replaceAck, schemaFallbackAck });
   const applyEnabled = normalized.canApply && scaleConfirmed && gateOk;
+  const previewDraftKey = useMemo(
+    () => `${props.draftKey}:${floorplanDraftHash(normalized.draft)}`,
+    [props.draftKey, normalized.draft],
+  );
   const trimmedOpenings = Object.entries(normalized.openingAttachments)
     .filter(([, a]) => a.status === "matched" && a.trimmed);
 
@@ -91,12 +94,6 @@ export function FloorplanExtractReview(props: Props) {
     }
   };
 
-  const downloadBlob = (blob: Blob, name: string) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = name; a.click();
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="lr-floorplan-extract-review" data-testid="lr-floorplan-extract-review" role="dialog" aria-label="Floor plan extract review">
@@ -173,25 +170,15 @@ export function FloorplanExtractReview(props: Props) {
         <p>Geometry gates passed.</p>
       )}
 
+      <FloorplanExtractGlbPanel
+        draft={normalized.draft}
+        draftKey={previewDraftKey}
+        busy={busy}
+        setBusy={setBusy}
+        onError={props.onError}
+      />
+
       <footer>
-        <button type="button" disabled={busy} onClick={() => void (async () => {
-          setBusy(true);
-          try { downloadBlob(await exportFloorplanGlb(normalized.draft), "floorplan-preview.glb"); }
-          catch (e) { props.onError(e instanceof Error ? e.message : "GLB export failed."); }
-          finally { setBusy(false); }
-        })()}>
-          {busy ? "Exporting…" : "Download GLB preview"}
-        </button>
-        <button type="button" disabled={busy} onClick={() => void (async () => {
-          setBusy(true);
-          try {
-            downloadBlob(await exportFloorplanBuilding(wrapSingleFloorBuilding(normalized.draft)), "floorplan-building.glb");
-          } catch (e) {
-            props.onError(e instanceof Error ? e.message : "Building export failed.");
-          } finally { setBusy(false); }
-        })()}>
-          Download building GLB
-        </button>
         <button type="button" data-testid="lr-floorplan-extract-apply" disabled={!applyEnabled || busy}
           title={!applyEnabled ? "Confirm scale and Apply gates" : "Apply shell replacement"}
           onClick={apply}>
