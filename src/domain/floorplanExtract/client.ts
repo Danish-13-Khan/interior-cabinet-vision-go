@@ -80,10 +80,20 @@ export async function extractFloorplan(file: File, query: ExtractQuery = {}): Pr
   }
   const body = new FormData();
   body.append("file", file, file.name);
-  const res = await fetch(`${floorplanApiBase()}/extract${buildQuery(query)}`, {
-    method: "POST",
-    body,
-  });
+  const base = floorplanApiBase();
+  let res: Response;
+  try {
+    res = await fetch(`${base}/extract${buildQuery(query)}`, {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(120_000),
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+      throw new Error("Floor-plan generation timed out after two minutes. Try again once the service is ready.");
+    }
+    throw new Error(`Could not reach the floor-plan service at ${base}. ${/localhost|127\.0\.0\.1/.test(base) ? "Start the local floor-plan sidecar, or configure VITE_FLOORPLAN_API_BASE with your hosted service and rebuild." : "Check the service is online and allows requests from this website, then try again."}`);
+  }
   if (!res.ok) throw new Error(await readError(res));
   return ingestExtractionJson(await res.json());
 }

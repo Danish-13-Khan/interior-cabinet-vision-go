@@ -45,6 +45,7 @@ jobs:
         run: npm run build
         env:
           GITHUB_PAGES: "true"
+          VITE_FLOORPLAN_API_BASE: https://cabinet-floorplan.onrender.com
 
       - name: Add standalone UI mockups
         run: |
