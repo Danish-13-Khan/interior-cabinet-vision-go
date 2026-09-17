@@ -32,4 +32,29 @@ describe("matchRooms closed loops", () => {
     const bad = matchRooms([{ id: "room-0", outer: roomOuter }], openGraph);
     expect(bad["room-0"].status).toBe("unmatched");
   });
+
+  it("matches both rooms of a shared-wall house even with a stub and a gapped T", () => {
+    const walls = [
+      wall("south", 0, 0, 4, 0),
+      wall("north", 0, 6, 4, 6),
+      wall("west", 0, 0, 0, 6),
+      wall("east", 4, 0, 4, 6),
+      wall("mid", 0.35, 3, 3.65, 3),
+      wall("stub", 2, 0, 2, 0.7),
+    ];
+    const graph = buildWallGraph(walls);
+    const matched = matchRooms([
+      { id: "room-0", outer: [[0.2, 0.2], [3.8, 0.2], [3.8, 2.8], [0.2, 2.8]] },
+      { id: "room-1", outer: [[0.2, 3.2], [3.8, 3.2], [3.8, 5.8], [0.2, 5.8]] },
+    ], graph);
+    expect(matched["room-0"].status).toBe("matched");
+    expect(matched["room-1"].status).toBe("matched");
+    if (matched["room-0"].status === "matched" && matched["room-1"].status === "matched") {
+      expect(matched["room-0"].wallUses.length).toBeGreaterThanOrEqual(4);
+      expect(matched["room-1"].wallUses.length).toBeGreaterThanOrEqual(4);
+      const a = new Set(matched["room-0"].wallUses.map((u) => u.wallSourceId));
+      const b = new Set(matched["room-1"].wallUses.map((u) => u.wallSourceId));
+      expect([...a].some((id) => b.has(id))).toBe(true);
+    }
+  });
 });

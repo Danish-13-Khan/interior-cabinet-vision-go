@@ -1,4 +1,5 @@
 import type { DirectedWallUseM, ExtractPolygon, RoomLoopMatch, WallGraph, WallGraphEdge } from "./types";
+import { enumerateInteriorFaces, pointInRing, ringCentroid } from "./roomLoopsFaces";
 
 function distToSeg(px: number, py: number, ax: number, ay: number, bx: number, by: number) {
   const abx = bx - ax, aby = by - ay;
@@ -12,97 +13,101 @@ function candidateEdges(ring: [number, number][], graph: WallGraph): WallGraphEd
   const out: WallGraphEdge[] = [];
   for (const e of kept) {
     const na = graph.nodes[e.a], nb = graph.nodes[e.b];
-    const midX = (na.x + nb.x) * 0.5, midY = (na.y + nb.y) * 0.5;
     let best = Infinity;
-    for (let i = 0; i < ring.length; i++) {
-      const a = ring[i], b = ring[(i + 1) % ring.length];
-      best = Math.min(best, distToSeg(midX, midY, a[0], a[1], b[0], b[1]));
+    for (const p of [[na.x, na.y], [nb.x, nb.y], [(na.x + nb.x) * 0.5, (na.y + nb.y) * 0.5]] as [number, number][]) {
+      for (let i = 0; i < ring.length; i++) {
+        const a = ring[i], b = ring[(i + 1) % ring.length];
+        best = Math.min(best, distToSeg(p[0], p[1], a[0], a[1], b[0], b[1]));
+      }
     }
     if (best <= graph.snap + e.thickM * 0.5) out.push(e);
   }
   return out;
 }
 
-/** Walk shared nodes among candidate edges; require a simple closed cycle. */
-function walkClosedCycle(candidates: WallGraphEdge[]): DirectedWallUseM[] | null {
+/** Simple cycles among candidates; prefer a cycle whose wall count matches the ring. */
+function walkClosedCycle(candidates: WallGraphEdge[], ringVerts: number): DirectedWallUseM[] | null {
   if (candidates.length < 3) return null;
   const incident = new Map<number, WallGraphEdge[]>();
   for (const e of candidates) {
     incident.set(e.a, [...(incident.get(e.a) ?? []), e]);
     incident.set(e.b, [...(incident.get(e.b) ?? []), e]);
   }
-
-  const tryStart = (startEdge: WallGraphEdge, forward: boolean): DirectedWallUseM[] | null => {
-    const uses: DirectedWallUseM[] = [];
-    const used = new Set<number>();
-    let edge = startEdge;
-    let from = forward ? edge.a : edge.b;
-    let to = forward ? edge.b : edge.a;
-    const origin = from;
-    for (let step = 0; step < candidates.length + 1; step++) {
-      uses.push({
+  const found: DirectedWallUseM[][] = [];
+  const search = (origin: number, at: number, uses: DirectedWallUseM[], used: Set<number>) => {
+    if (found.length > 32 || uses.length > 16) return;
+    if (at === origin && uses.length >= 3) { found.push(uses); return; }
+    if (uses.length >= candidates.length) return;
+    for (const edge of incident.get(at) ?? []) {
+      if (used.has(edge.id)) continue;
+      const next = edge.a === at ? edge.b : edge.a;
+      search(origin, next, [...uses, {
         wallSourceId: edge.sourceId,
-        direction: edge.a === from ? "forward" : "reverse",
-      });
-      used.add(edge.id);
-      if (to === origin && uses.length >= 3) {
-        return used.size === candidates.length ? uses : null;
-      }
-      const nextOpts = (incident.get(to) ?? []).filter((e) => !used.has(e.id));
-      if (nextOpts.length === 0) return null;
-      // Prefer continuing with a single unused edge; if branching, try first then fail closed.
-      edge = nextOpts[0];
-      from = to;
-      to = edge.a === from ? edge.b : edge.a;
+        direction: edge.a === at ? "forward" : "reverse",
+      }], new Set([...used, edge.id]));
     }
-    return null;
   };
-
-  let best: DirectedWallUseM[] | null = null;
   for (const start of candidates) {
-    for (const forward of [true, false]) {
-      const cycle = tryStart(start, forward);
-      if (!cycle) continue;
-      // Must close and be contiguous unique walls
-      if (cycle.length < 3) continue;
-      const ids = new Set(cycle.map((u) => u.wallSourceId));
-      if (ids.size !== cycle.length) continue;
-      if (!best || cycle.length > best.length) best = cycle;
-    }
+    search(start.a, start.b, [{ wallSourceId: start.sourceId, direction: "forward" }], new Set([start.id]));
   }
-  // Require a closed cycle that uses every candidate (no dangling near-miss walls).
-  if (!best) return null;
-  if (best.length !== candidates.length) return null;
+  const target = Math.max(3, ringVerts);
+  let best: DirectedWallUseM[] | null = null, bestScore = Infinity;
+  for (const cycle of found) {
+    const ids = new Set(cycle.map((u) => u.wallSourceId));
+    if (ids.size !== cycle.length) continue;
+    const s = Math.abs(cycle.length - target) * 10 + cycle.length;
+    if (s < bestScore) { bestScore = s; best = cycle; }
+  }
   return best;
 }
 
-function matchRing(ring: [number, number][], graph: WallGraph): RoomLoopMatch {
-  if (ring.length < 3) return { status: "unmatched", reason: "ring too small" };
+function matchFromCandidates(ring: [number, number][], graph: WallGraph): RoomLoopMatch {
   const candidates = candidateEdges(ring, graph);
   if (candidates.length < 3) {
     return { status: "unmatched", reason: "fewer than 3 walls near room boundary" };
   }
-  const wallUses = walkClosedCycle(candidates);
+  const wallUses = walkClosedCycle(candidates, ring.length);
   if (!wallUses) {
     return { status: "unmatched", reason: "walls near room are not a closed directed loop" };
   }
   return { status: "matched", wallUses, holeMatches: [] };
 }
 
+function matchRing(ring: [number, number][], graph: WallGraph): RoomLoopMatch {
+  if (ring.length < 3) return { status: "unmatched", reason: "ring too small" };
+  const [cx, cy] = ringCentroid(ring);
+  const face = enumerateInteriorFaces(graph)
+    .filter((f) => pointInRing(cx, cy, f.ring))
+    .sort((a, b) => a.area - b.area)[0];
+  if (face && face.wallUses.length >= 3) {
+    return { status: "matched", wallUses: face.wallUses, holeMatches: [] };
+  }
+  return matchFromCandidates(ring, graph);
+}
+
 export function matchRooms(rooms: ExtractPolygon[], graph: WallGraph): Record<string, RoomLoopMatch> {
+  const faces = enumerateInteriorFaces(graph);
+  const claimed = new Set<number>();
+  const ranked = rooms.map((room) => {
+    const [cx, cy] = ringCentroid(room.outer as [number, number][]);
+    const hits = faces
+      .map((f, fi) => ({ fi, f }))
+      .filter(({ f }) => pointInRing(cx, cy, f.ring))
+      .sort((a, b) => a.f.area - b.f.area);
+    return { room, hits };
+  }).sort((a, b) => (a.hits[0]?.f.area ?? Infinity) - (b.hits[0]?.f.area ?? Infinity));
+
   const out: Record<string, RoomLoopMatch> = {};
-  for (const room of rooms) {
-    const id = room.id ?? "room";
-    const outer = matchRing(room.outer as [number, number][], graph);
-    if (outer.status !== "matched") {
-      out[id] = outer;
+  for (const row of ranked) {
+    const id = row.room.id ?? "room";
+    const free = row.hits.find((h) => !claimed.has(h.fi));
+    if (free && free.f.wallUses.length >= 3) {
+      claimed.add(free.fi);
+      const holeMatches = (row.room.holes ?? []).map((hole) => matchRing(hole as [number, number][], graph));
+      out[id] = { status: "matched", wallUses: free.f.wallUses, holeMatches };
       continue;
     }
-    const holeMatches: RoomLoopMatch[] = [];
-    for (const hole of room.holes ?? []) {
-      holeMatches.push(matchRing(hole as [number, number][], graph));
-    }
-    out[id] = { ...outer, holeMatches };
+    out[id] = matchFromCandidates(row.room.outer as [number, number][], graph);
   }
   return out;
 }

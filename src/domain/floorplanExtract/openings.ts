@@ -10,7 +10,11 @@ function aabb(outer: [number, number][]) {
   return { minX, minY, maxX, maxY, dx: maxX - minX, dy: maxY - minY };
 }
 
-/** Attach openings with orientation + full containment (OPENING_END_TOL_M). */
+function clamp(v: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+/** Attach openings by wall-axis containment; AABB may be a door swing into the room. */
 export function attachOpenings(
   openings: ExtractPolygon[],
   graph: WallGraph,
@@ -23,29 +27,25 @@ export function attachOpenings(
       continue;
     }
     const box = aabb(op.outer as [number, number][]);
-    const horizontal = box.dx >= box.dy;
-    const t0 = horizontal ? box.minX : box.minY;
-    const t1 = horizontal ? box.maxX : box.maxY;
-    const cy = horizontal ? (box.minY + box.maxY) * 0.5 : (box.minX + box.maxX) * 0.5;
-
     type Cand = { edge: (typeof graph.edges)[0]; perp: number; overshoot: number };
     const cands: Cand[] = [];
     for (const e of graph.edges) {
       if (e.role === "dropped") continue;
       const na = graph.nodes[e.a], nb = graph.nodes[e.b];
-      const edgeH = Math.abs(na.y - nb.y) < Math.abs(na.x - nb.x);
-      if (edgeH !== horizontal) continue;
+      const horizontal = Math.abs(na.y - nb.y) < Math.abs(na.x - nb.x);
       const w0 = horizontal ? Math.min(na.x, nb.x) : Math.min(na.y, nb.y);
       const w1 = horizontal ? Math.max(na.x, nb.x) : Math.max(na.y, nb.y);
-      const perp = horizontal
-        ? Math.abs(((na.y + nb.y) * 0.5) - cy)
-        : Math.abs(((na.x + nb.x) * 0.5) - cy);
+      const wallC = horizontal ? (na.y + nb.y) * 0.5 : (na.x + nb.x) * 0.5;
+      const t0 = horizontal ? box.minX : box.minY;
+      const t1 = horizontal ? box.maxX : box.maxY;
+      const nearest = horizontal
+        ? clamp(wallC, box.minY, box.maxY)
+        : clamp(wallC, box.minX, box.maxX);
+      const perp = Math.abs(wallC - nearest);
       if (perp > graph.snap) continue;
       const low = Math.min(t0, t1), high = Math.max(t0, t1);
-      const overshootLow = Math.max(0, w0 - low);
-      const overshootHigh = Math.max(0, high - w1);
-      const overshoot = Math.max(overshootLow, overshootHigh);
-      if (overshoot > OPENING_END_TOL_M) continue; // not fully contained within tolerance
+      const overshoot = Math.max(Math.max(0, w0 - low), Math.max(0, high - w1));
+      if (overshoot > OPENING_END_TOL_M) continue;
       cands.push({ edge: e, perp, overshoot });
     }
     cands.sort((a, b) => a.perp - b.perp || a.overshoot - b.overshoot);
@@ -59,28 +59,28 @@ export function attachOpenings(
     }
     const best = cands[0];
     const na = graph.nodes[best.edge.a], nb = graph.nodes[best.edge.b];
+    const horizontal = Math.abs(na.y - nb.y) < Math.abs(na.x - nb.x);
     const w0 = horizontal ? Math.min(na.x, nb.x) : Math.min(na.y, nb.y);
     const w1 = horizontal ? Math.max(na.x, nb.x) : Math.max(na.y, nb.y);
+    const t0 = horizontal ? box.minX : box.minY;
+    const t1 = horizontal ? box.maxX : box.maxY;
     const trimmedLow = Math.max(Math.min(t0, t1), w0);
     const trimmedHigh = Math.min(Math.max(t0, t1), w1);
     const widthM = trimmedHigh - trimmedLow;
-    // Do not invent length past the host — reject tiny/empty remaining intervals.
     if (!(widthM > 1e-6)) {
       out[id] = { status: "unmatched", reason: "insufficient width remains inside host wall after trim" };
       continue;
     }
-    // Re-check full containment of the trimmed interval within host (+ tol already applied upstream).
     if (trimmedLow < w0 - 1e-9 || trimmedHigh > w1 + 1e-9) {
       out[id] = { status: "unmatched", reason: "trimmed opening extends outside host wall" };
       continue;
     }
-    const trimmed = best.overshoot > 0;
     out[id] = {
       status: "matched",
       wallSourceId: best.edge.sourceId,
       offsetM: trimmedLow - w0,
       widthM,
-      trimmed,
+      trimmed: best.overshoot > 0,
     };
   }
   return out;

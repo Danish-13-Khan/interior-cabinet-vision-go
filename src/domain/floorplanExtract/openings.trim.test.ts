@@ -4,13 +4,32 @@ import { buildWallGraph } from "./wallGraph";
 import type { ExtractPolygon, WallGraph } from "./types";
 
 describe("opening trim containment", () => {
-  it("rejects when remaining host span is empty after clamp", () => {
+  it("rejects an opening that overshoots the host beyond 25 mm", () => {
     const walls: ExtractPolygon[] = [
-      { id: "wall-0", outer: [[0, 0], [0.02, 0], [0.02, 0.2], [0, 0.2]] },
+      { id: "wall-0", outer: [[0, 0], [0.2, 0], [0.2, 0.2], [0, 0.2]] },
     ];
     const graph = buildWallGraph(walls);
     const att = attachOpenings(
       [{ id: "door-0", outer: [[-0.1, 0], [0.4, 0], [0.4, 0.2], [-0.1, 0.2]] }],
+      graph,
+    );
+    expect(att["door-0"].status).not.toBe("matched");
+  });
+
+  it("rejects when trim leaves an empty interval on the host", () => {
+    const graph: WallGraph = {
+      snap: 0.15,
+      nodes: [
+        { id: 0, x: 0, y: 0.1 },
+        { id: 1, x: 1, y: 0.1 },
+      ],
+      edges: [{
+        id: 0, a: 0, b: 1, thickM: 0.2, lengthM: 1, role: "interior",
+        sourceId: "wall-0", thickened: false, diagonalCollapsed: false,
+      }],
+    };
+    const att = attachOpenings(
+      [{ id: "door-0", outer: [[-0.02, 0.08], [-0.001, 0.08], [-0.001, 0.12], [-0.02, 0.12]] }],
       graph,
     );
     expect(att["door-0"].status).not.toBe("matched");
