@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
 import type {
@@ -106,7 +107,9 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           <FloorplanPreviewStage url={floorplanPreviewUrl} />
         ) : null}
         {floorplanPreviewMode === "both" && floorplanPreviewUrl ? (
-          <FloorplanPreviewMesh url={floorplanPreviewUrl} />
+          <Suspense fallback={null}>
+            <FloorplanPreviewMesh url={floorplanPreviewUrl} />
+          </Suspense>
         ) : null}
         {/* Keep shell until preview URL is ready so Preview mode is not an empty canvas. */}
         {!(floorplanPreviewMode === "preview" && floorplanPreviewUrl) ? (

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import {
   FLOORPLAN_PREVIEW_OWNERSHIP_NOTE,
+  formatExtractInventory,
+  inventoryExtraction,
   exportFloorplanBuilding,
   exportFloorplanGlb,
   wrapSingleFloorBuilding,
@@ -8,6 +10,7 @@ import {
   type NormalizeIssue,
 } from "../../domain/floorplanExtract";
 import { FloorplanPreviewViewport } from "../floorplanPreview/FloorplanPreviewViewport";
+import { enqueueBrowserDownload } from "../../platform/browserDownloadQueue";
 
 type Props = {
   draft: ExtractionResult;
@@ -20,15 +23,6 @@ type Props = {
   onPreviewOpenChange?: (open: boolean) => void;
 };
 
-function downloadBlob(blob: Blob, name: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 /** Primary View 3D + downloads (same P0a cache blob). */
 export function FloorplanExtractGlbPanel({
   draft, draftKey, busy, setBusy, onError, issues = [], onPreviewOpenChange,
@@ -36,6 +30,7 @@ export function FloorplanExtractGlbPanel({
   const [showPreview, setShowPreview] = useState(false);
   const notes = issues.filter((i) => !i.blocksApply);
   const blocks = issues.filter((i) => i.blocksApply);
+  const inventory = inventoryExtraction(draft);
 
   useEffect(() => {
     onPreviewOpenChange?.(showPreview);
@@ -59,7 +54,7 @@ export function FloorplanExtractGlbPanel({
           onClick={() => void (async () => {
             setBusy(true);
             try {
-              downloadBlob(await exportFloorplanGlb(draft), "floorplan-preview.glb");
+              await enqueueBrowserDownload(await exportFloorplanGlb(draft), "floorplan-preview.glb");
             } catch (e) {
               onError(e instanceof Error ? e.message : "GLB export failed.");
             } finally {
@@ -75,7 +70,7 @@ export function FloorplanExtractGlbPanel({
           onClick={() => void (async () => {
             setBusy(true);
             try {
-              downloadBlob(
+              await enqueueBrowserDownload(
                 await exportFloorplanBuilding(wrapSingleFloorBuilding(draft)),
                 "floorplan-building.glb",
               );
@@ -89,6 +84,12 @@ export function FloorplanExtractGlbPanel({
           Download building GLB
         </button>
       </div>
+      <p className="lr-floorplan-extract-inventory" data-testid="lr-floorplan-extract-inventory">
+        Export source: {formatExtractInventory(inventory)}
+        {inventory.looksIncomplete ? (
+          <strong className="is-warn"> — extract looks incomplete (not lounge-scale). Re-upload the SVG; Preview cannot invent missing walls.</strong>
+        ) : null}
+      </p>
       {showPreview ? (
         <div className="lr-floorplan-extract-preview-row" data-testid="lr-floorplan-extract-preview-row">
           <FloorplanPreviewViewport draft={draft} draftKey={draftKey} />

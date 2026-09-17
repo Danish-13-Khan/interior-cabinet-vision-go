@@ -2,6 +2,8 @@
 let browserDownloadQueue: Promise<void> = Promise.resolve();
 
 const BROWSER_DOWNLOAD_GAP_MS = 250;
+/** Keep object URL alive until the browser has started the download (large GLBs). */
+const BROWSER_DOWNLOAD_REVOKE_MS = 4_000;
 
 function triggerBrowserDownload(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
@@ -12,7 +14,7 @@ function triggerBrowserDownload(blob: Blob, fileName: string) {
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), BROWSER_DOWNLOAD_REVOKE_MS);
 }
 
 export function enqueueBrowserDownload(blob: Blob, fileName: string): Promise<void> {

@@ -92,3 +92,9 @@ export {
   clearFloorplanSidecarStatusCache,
   type FloorplanSidecarStatus,
 } from "./floorplanSidecarStatus";
+
+export {
+  inventoryExtraction,
+  formatExtractInventory,
+  type ExtractInventory,
+} from "./extractInventory";
