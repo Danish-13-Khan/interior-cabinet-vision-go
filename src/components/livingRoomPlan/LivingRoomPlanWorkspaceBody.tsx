@@ -36,6 +36,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   });
 
   const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
+  const [extractStatus, setExtractStatus] = useState<{ loading: boolean; message: string } | null>(null);
   const [extractDraftKey, setExtractDraftKey] = useState(0);
   const [extractLiveSchema, setExtractLiveSchema] = useState<LiveSchemaStatus | null>(null);
   const [lastAppliedExtract, setLastAppliedExtract] = useState<ExtractionResult | null>(null);
@@ -129,6 +130,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             extractRequestIdRef.current = requestId;
             setExtractDraft(null); // drop prior review so Apply cannot hit the old extract
             setExtractLiveSchema(null);
+            setExtractStatus(null);
             props.onImportError("");
             if (isPdfFile(file)) {
               setPdfImportFile(file);
@@ -140,6 +142,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
               || file.type.includes("svg")
               || file.type.includes("dxf");
             const stillCurrent = () => requestId === extractRequestIdRef.current;
+            if (vectorOrRaster) setExtractStatus({ loading: true, message: `Generating editable rooms and walls from ${file.name}… This can take up to two minutes. Keep this page open.` });
             try {
               if (!lower.endsWith(".svg") && !lower.endsWith(".dxf") && file.type.startsWith("image/")) {
                 const underlay = await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200);
@@ -153,13 +156,16 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
                 setExtractDraft(ingest.draft);
                 setExtractLiveSchema(ingest.liveSchema);
                 setExtractDraftKey(requestId);
+                setExtractStatus(null);
               }
               if (!stillCurrent()) return;
               props.onStudioPanel("build");
               build.dispatchBuildCommand({ type: "commitDraft" });
             } catch (error) {
               if (!stillCurrent()) return;
-              props.onImportError(error instanceof Error ? error.message : "Plan import failed.");
+              const message = error instanceof Error ? error.message : "Plan import failed.";
+              props.onImportError(message);
+              setExtractStatus({ loading: false, message });
             }
           }}
         />
@@ -265,6 +271,18 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           >
             Re-open floor plan import
           </button>
+        </div>
+      ) : null}
+      {extractStatus ? (
+        <div className="lr-floorplan-extract-review" data-testid="lr-floorplan-extract-status"
+          role={extractStatus.loading ? "status" : "alert"} aria-live="polite">
+          <strong>{extractStatus.loading ? "Generating 3D from your plan" : "3D generation did not complete"}</strong>
+          <p>{extractStatus.message}</p>
+          {!extractStatus.loading ? <>
+            <p>Your plan image is still available for tracing. No generated geometry has been applied.</p>
+            <button type="button" onClick={() => props.underlayPickerRef.current?.()}>Choose plan again</button>
+            <button type="button" onClick={() => setExtractStatus(null)}>Dismiss</button>
+          </> : null}
         </div>
       ) : null}
       {extractDraft && project ? (
