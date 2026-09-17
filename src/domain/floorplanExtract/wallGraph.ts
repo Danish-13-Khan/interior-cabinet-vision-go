@@ -96,8 +96,14 @@ export function buildWallGraph(walls: ExtractPolygon[], snapTol = SNAP_TOL_M, mi
     const lengthM = dist(nodes[ai].x, nodes[ai].y, nodes[bi].x, nodes[bi].y);
     if (lengthM < minLen) continue;
     let thick = cl.thick;
-    const thickened = thick < MIN_WALL_THICK_M;
-    if (thickened) thick = MIN_WALL_THICK_M;
+    // Float noise around the 150 mm floor (common on synth room edges) is not a real thicken.
+    let thickened = false;
+    if (thick + 1e-6 < MIN_WALL_THICK_M) {
+      thickened = true;
+      thick = MIN_WALL_THICK_M;
+    } else if (thick < MIN_WALL_THICK_M) {
+      thick = MIN_WALL_THICK_M;
+    }
     edges.push({
       id: edges.length, a: ai, b: bi, thickM: thick, lengthM,
       role: "interior", sourceId: w.id ?? `wall-${edges.length}`,

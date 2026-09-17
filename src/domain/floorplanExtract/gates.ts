@@ -1,5 +1,10 @@
 import type { NormalizedFloorplan, NormalizeIssue } from "./types";
 
+/** Walls minted from room footprints (`room-0:edge-3`, splits `…#0`). */
+function isSynthRoomEdge(sourceId: string) {
+  return sourceId.includes(":edge-");
+}
+
 export function collectApplyGates(input: Omit<NormalizedFloorplan, "issues" | "canApply"> & {
   acceptThinWalls?: boolean;
 }): { issues: NormalizeIssue[]; canApply: boolean } {
@@ -13,12 +18,19 @@ export function collectApplyGates(input: Omit<NormalizedFloorplan, "issues" | "c
         blocksApply: true,
       });
     }
-    if (e.thickened && !input.acceptThinWalls) {
+    if (e.thickened && !input.acceptThinWalls && !isSynthRoomEdge(e.sourceId)) {
       issues.push({
         code: "thin_wall",
         message: `Wall ${e.sourceId} is under 150 mm and would be thickened.`,
         entityId: e.sourceId,
         blocksApply: true,
+      });
+    } else if (e.thickened && isSynthRoomEdge(e.sourceId)) {
+      issues.push({
+        code: "thin_wall",
+        message: `Wall ${e.sourceId} uses the 150 mm floor (room footprint).`,
+        entityId: e.sourceId,
+        blocksApply: false,
       });
     }
     if (e.role === "dropped") {

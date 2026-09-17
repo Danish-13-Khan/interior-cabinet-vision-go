@@ -17,7 +17,9 @@ export function wallPolygonsFromRing(
   thick = MIN_WALL_THICK_M,
 ): ExtractPolygon[] {
   if (ring.length < 3 || ringArea(ring) < 0.5) return [];
-  const half = thick / 2;
+  // Slightly above the floor so centerline AABB measure does not trip thin-wall FP.
+  const useThick = Math.max(thick, MIN_WALL_THICK_M) + 1e-4;
+  const half = useThick / 2;
   const out: ExtractPolygon[] = [];
   for (let i = 0; i < ring.length; i++) {
     const a = ring[i], b = ring[(i + 1) % ring.length];
