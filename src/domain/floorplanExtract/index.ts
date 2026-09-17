@@ -1,28 +1,34 @@
 export { floorplanApiBase } from "./config";
 export {
-  extractFloorplan,
-  exportFloorplanGlb,
-  patchFloorplanGeometry,
-  floorplanReady,
-  ingestExtractionJson,
-  type ExtractQuery,
-  type PatchOp,
-  type PolygonGroup,
-  type LiveSchemaStatus,
-  type ExtractionIngest,
+  FLOORPLAN_GLB_EXPORT_PROFILE_VERSION,
+  DEFAULT_FLOORPLAN_GLB_FLAGS,
+  mergeFloorplanGlbFlags,
+  floorplanGlbQuery,
+  type FloorplanGlbExportFlags,
+} from "./glbExportProfile";
+export {
+  hashFingerprintSeed,
+  fingerprintFloorplanGlbRequest,
+} from "./glbExportFingerprint";
+export {
+  FLOORPLAN_GLB_CACHE_LIMIT,
+  getFloorplanGlb,
+  peekFloorplanGlb,
+  acquireFloorplanGlbObjectUrl,
+  releaseFloorplanGlbObjectUrl,
+  releaseFloorplanGlb,
+  clearFloorplanGlbCache,
+  floorplanGlbCacheSize,
+  type FloorplanGlbHandle,
+  type GetFloorplanGlbOptions,
+} from "./glbExportCache";
+export { assertGlbBlob } from "./glbMagic";
+
+export {
+  ingestExtractionJson, extractFloorplan, exportFloorplanGlb, patchFloorplanGeometry, floorplanReady,
+  type ExtractQuery, type PolygonGroup, type PatchOp, type LiveSchemaStatus, type ExtractionIngest,
 } from "./client";
-export {
-  fetchFloorplanSchema,
-  validateExtractionAgainstLiveSchema,
-  clearFloorplanSchemaCache,
-} from "./schemaValidate";
-export {
-  wrapSingleFloorBuilding,
-  exportFloorplanBuilding,
-  type MultiFloorProject,
-  type MultiFloorLevel,
-  type BuildingExportMode,
-} from "./building";
+
 export {
   summarizeFloorplanApplyImpact,
   buildFloorplanApplySnapshot,
@@ -44,3 +50,17 @@ export type {
 } from "./types";
 export { coerceExtractionToMeters, rescaleExtractionCoords } from "./units";
 export { assertExtractionShape } from "./validateExtract";
+
+export {
+  wrapSingleFloorBuilding,
+  exportFloorplanBuilding,
+  type MultiFloorLevel,
+  type MultiFloorProject,
+  type BuildingExportMode,
+} from "./building";
+
+export {
+  fetchFloorplanSchema,
+  validateExtractionAgainstLiveSchema,
+  clearFloorplanSchemaCache,
+} from "./schemaValidate";

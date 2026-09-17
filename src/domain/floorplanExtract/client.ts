@@ -1,4 +1,5 @@
 import { floorplanApiBase } from "./config";
+import { getFloorplanGlb } from "./glbExportCache";
 import type { ExtractionResult } from "./types";
 import { assertExtractionShape } from "./validateExtract";
 import { coerceExtractionToMeters } from "./units";
@@ -98,20 +99,13 @@ export async function extractFloorplan(file: File, query: ExtractQuery = {}): Pr
   return ingestExtractionJson(await res.json());
 }
 
-export async function exportFloorplanGlb(extraction: ExtractionResult): Promise<Blob> {
-  const res = await fetch(
-    `${floorplanApiBase()}/export/glb?strict=0&props=1&floors=1&doors=1&frames=1&glass=1&trim=1&union=1`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(extraction),
-    },
-  );
-  const ctype = res.headers.get("content-type") ?? "";
-  if (!res.ok || ctype.includes("application/json")) {
-    throw new Error(await readError(res));
-  }
-  return await res.blob();
+/** Preview/download GLB — shares fingerprint cache with in-app preview (P0a). */
+export async function exportFloorplanGlb(
+  extraction: ExtractionResult,
+  opts?: { signal?: AbortSignal },
+): Promise<Blob> {
+  const handle = await getFloorplanGlb(extraction, { signal: opts?.signal });
+  return handle.blob;
 }
 
 export async function patchFloorplanGeometry(
