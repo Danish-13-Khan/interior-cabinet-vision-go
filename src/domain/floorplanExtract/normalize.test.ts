@@ -110,4 +110,23 @@ describe("normalizeExtraction", () => {
     // Unmatched openings no longer block; rooms must be closed.
     expect(out.canApply).toBe(true);
   });
+  it("synth room edges do not hard-block Apply without acceptThinWalls", () => {
+    const raw: ExtractionResult = {
+      schema_version: "1.0",
+      units: "meters",
+      polygons: {
+        rooms: [{
+          id: "room-0",
+          outer: [[1.14, 5.14], [3.96, 5.14], [3.96, 12.07], [1.14, 12.07]],
+        }],
+        walls: [rect("wall-3", 3.725, 9.8, 3.905, 12.02)],
+        doors: [],
+        windows: [],
+      },
+    };
+    const out = normalizeExtraction(raw);
+    expect(out.roomMatches["room-0"]?.status).toBe("matched");
+    expect(out.canApply).toBe(true);
+    expect(out.issues.some((i) => i.code === "thin_wall" && i.blocksApply)).toBe(false);
+  });
 });

@@ -35,7 +35,7 @@ export function FloorplanExtractReview(props: Props) {
   const [liveSchema, setLiveSchema] = useState<LiveSchemaStatus>(
     props.initialLiveSchema ?? { state: "structural-fallback", message: "Schema status unknown" },
   );
-  const [acceptThin, setAcceptThin] = useState(false);
+  const [acceptThin, setAcceptThin] = useState(true);
   const [scaleConfirmed, setScaleConfirmed] = useState(false);
   const [replaceAck, setReplaceAck] = useState(false);
   const [schemaFallbackAck, setSchemaFallbackAck] = useState(false);
@@ -44,7 +44,7 @@ export function FloorplanExtractReview(props: Props) {
   useEffect(() => {
     setWorkingDraft(ensureCollisionFreeIds(props.draft));
     setLiveSchema(props.initialLiveSchema ?? { state: "structural-fallback", message: "Schema status unknown" });
-    setAcceptThin(false);
+    setAcceptThin(true);
     setScaleConfirmed(false);
     setReplaceAck(false);
     setSchemaFallbackAck(false);
