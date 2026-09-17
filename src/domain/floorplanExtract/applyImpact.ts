@@ -121,6 +121,32 @@ export function summarizeFloorplanApplyImpact(project: InteriorProject): ApplyIm
   return findings;
 }
 
+
+export type FloorplanShellStaleReason = "diverged" | "legacy_snapshot";
+
+export type FloorplanShellStaleState =
+  | { stale: false }
+  | { stale: true; reason: FloorplanShellStaleReason };
+
+/**
+ * Preview freshness vs last Apply snapshot.
+ * ID-only snapshots (no shellFingerprint) are stale/unknown — same honesty as review's snapshot_legacy.
+ */
+export function floorplanShellStaleSinceApply(project: InteriorProject): FloorplanShellStaleState {
+  const snap = readSnapshot(project);
+  if (!snap) return { stale: false };
+  if (!snap.shellFingerprint) return { stale: true, reason: "legacy_snapshot" };
+  if (snap.shellFingerprint !== shellTopologyFingerprint(project)) {
+    return { stale: true, reason: "diverged" };
+  }
+  return { stale: false };
+}
+
+/** True when Studio shell diverged, or Apply snapshot cannot verify geometry. */
+export function isFloorplanShellStaleSinceApply(project: InteriorProject): boolean {
+  return floorplanShellStaleSinceApply(project).stale;
+}
+
 export function buildFloorplanApplySnapshot(project: InteriorProject): FloorplanApplySnapshot {
   return {
     wallIds: project.walls.map((w) => w.id),
