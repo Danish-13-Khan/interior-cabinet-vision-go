@@ -1,5 +1,8 @@
 import { Canvas } from "@react-three/fiber";
-import type { ExtractionResult } from "../../domain/floorplanExtract";
+import {
+  FLOORPLAN_PREVIEW_OWNERSHIP_NOTE,
+  type ExtractionResult,
+} from "../../domain/floorplanExtract";
 import { useFloorplanGlbPreview } from "../../hooks/useFloorplanGlbPreview";
 import { FloorplanPreviewStage } from "./FloorplanPreviewStage";
 import { GlbLoadErrorBoundary } from "../livingRoomScene/GlbLoadErrorBoundary";
@@ -15,7 +18,7 @@ export function FloorplanPreviewViewport({ draft, draftKey }: FloorplanPreviewVi
 
   return (
     <div className="lr-floorplan-preview-viewport" data-testid="lr-floorplan-preview-viewport">
-      <p className="lr-floorplan-preview-label">Preview mesh from floorplan tool (not editable shell)</p>
+      <p className="lr-floorplan-preview-label">{FLOORPLAN_PREVIEW_OWNERSHIP_NOTE}</p>
       {preview.status === "loading" ? <p>Building 3D preview…</p> : null}
       {preview.status === "error" ? (
         <p>

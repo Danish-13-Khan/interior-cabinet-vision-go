@@ -29,22 +29,26 @@ export type FloorplanGlbFingerprintInput = {
   flags?: Partial<FloorplanGlbExportFlags>;
   /** Defaults to FLOORPLAN_GLB_EXPORT_PROFILE_VERSION. */
   profileVersion?: string;
+  /** From GET /readyz when available (P3). Omitted from seed when null/undefined. */
+  sidecarVersion?: string | null;
 };
 
 /**
  * Fingerprint of the exact export request:
- * normalized draft + ordered flags + API base + client export-profile version.
- * Sidecar version intentionally omitted until /readyz (or a response header) exposes it.
+ * normalized draft + ordered flags + API base + client export-profile version
+ * + sidecar version when /readyz has exposed it (P3).
  */
 export function fingerprintFloorplanGlbRequest(input: FloorplanGlbFingerprintInput): string {
   const flags = mergeFloorplanGlbFlags(input.flags);
   const profile = input.profileVersion ?? FLOORPLAN_GLB_EXPORT_PROFILE_VERSION;
   const base = input.apiBase.replace(/\/$/, "");
-  const seed = [
+  const parts = [
     `profile:${profile}`,
     `base:${base}`,
     `flags:${floorplanGlbFlagsFingerprintPart(flags)}`,
     `draft:${JSON.stringify(input.draft)}`,
-  ].join("\n");
-  return hashFingerprintSeed(seed);
+  ];
+  const sidecar = input.sidecarVersion?.trim();
+  if (sidecar) parts.splice(1, 0, `sidecar:${sidecar}`);
+  return hashFingerprintSeed(parts.join("\n"));
 }

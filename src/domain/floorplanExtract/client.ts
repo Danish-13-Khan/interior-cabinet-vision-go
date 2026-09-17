@@ -1,5 +1,6 @@
 import { floorplanApiBase } from "./config";
 import { getFloorplanGlb } from "./glbExportCache";
+import { fetchFloorplanSidecarStatus } from "./floorplanSidecarStatus";
 import type { ExtractionResult } from "./types";
 import { assertExtractionShape } from "./validateExtract";
 import { coerceExtractionToMeters } from "./units";
@@ -126,12 +127,6 @@ export async function patchFloorplanGeometry(
 }
 
 export async function floorplanReady(): Promise<boolean> {
-  try {
-    const res = await fetch(`${floorplanApiBase()}/readyz`);
-    if (!res.ok) return false;
-    const j = (await res.json()) as { ok?: boolean };
-    return Boolean(j.ok);
-  } catch {
-    return false;
-  }
+  const status = await fetchFloorplanSidecarStatus();
+  return status.ok;
 }

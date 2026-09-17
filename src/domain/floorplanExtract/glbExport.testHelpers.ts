@@ -28,3 +28,10 @@ export function okGlbResponse(extra: number[] = [1, 2, 3]) {
     headers: { "content-type": "model/gltf-binary" },
   });
 }
+
+export function readyOkResponse(version = "0.5.0") {
+  return new Response(JSON.stringify({ ok: true, version, service: "cabinet-floorplan" }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
+}

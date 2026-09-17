@@ -3,6 +3,9 @@ import {
   floorplanShellStaleSinceApply,
   normalizeExtraction,
   reapplyFloorplanExtract,
+  recordFloorplanTelemetry,
+  FLOORPLAN_PREVIEW_OWNERSHIP_NOTE,
+  FLOORPLAN_STALE_OWNERSHIP_NOTE,
 } from "../../domain/floorplanExtract";
 import { LivingRoomModelView, type LivingRoomModelViewProps } from "../LivingRoomModelView";
 import { useFloorplanGlbPreview } from "../../hooks/useFloorplanGlbPreview";
@@ -80,6 +83,7 @@ export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
 
   const onRefreshSourcePreview = useCallback(() => {
     setActionError(null);
+    recordFloorplanTelemetry({ type: "refresh_source_preview" });
     if (mode === "editable") setMode("preview");
     preview.retry();
   }, [preview, mode]);
@@ -90,14 +94,20 @@ export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
       "Re-apply extract will replace walls, openings, and rooms from the saved floor plan, "
       + "and clear placed objects and surface zones. Continue?",
     );
-    if (!ok) return;
+    if (!ok) {
+      recordFloorplanTelemetry({ type: "reapply_extract", outcome: "cancelled" });
+      return;
+    }
     setReapplying(true);
     setActionError(null);
     try {
       const next = reapplyFloorplanExtract(props.project, draft, true);
       props.onPatchDocument(() => next, "Re-applied floor plan extract (shell reset).");
+      recordFloorplanTelemetry({ type: "reapply_extract", outcome: "ok" });
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : "Re-apply failed.");
+      const message = error instanceof Error ? error.message : "Re-apply failed.";
+      setActionError(message);
+      recordFloorplanTelemetry({ type: "reapply_extract", outcome: "error", message });
     } finally {
       setReapplying(false);
     }
@@ -120,7 +130,7 @@ export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
             </select>
           </label>
           {mode === "preview" ? (
-            <span className="lr-floorplan-preview-note"> Preview from floorplan tool</span>
+            <span className="lr-floorplan-preview-note"> {FLOORPLAN_PREVIEW_OWNERSHIP_NOTE}</span>
           ) : null}
           {mode === "both" ? (
             <span className="lr-floorplan-preview-note">
@@ -139,15 +149,18 @@ export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
         </div>
       ) : null}
       {staleState.stale && draft ? (
-        <FloorplanPreviewStaleBar
-          message={STALE_MESSAGES[staleState.reason]}
-          refreshing={preview.status === "loading"}
-          reapplying={reapplying}
-          onRefreshSourcePreview={onRefreshSourcePreview}
-          onReapplyExtract={onReapplyExtract}
-          reapplyDisabled={!reapplyGate.ok || !props.onPatchDocument}
-          reapplyTitle={reapplyGate.title}
-        />
+        <>
+          <FloorplanPreviewStaleBar
+            message={STALE_MESSAGES[staleState.reason]}
+            refreshing={preview.status === "loading"}
+            reapplying={reapplying}
+            onRefreshSourcePreview={onRefreshSourcePreview}
+            onReapplyExtract={onReapplyExtract}
+            reapplyDisabled={!reapplyGate.ok || !props.onPatchDocument}
+            reapplyTitle={reapplyGate.title}
+          />
+          <p className="lr-floorplan-preview-note">{FLOORPLAN_STALE_OWNERSHIP_NOTE}</p>
+        </>
       ) : null}
       {actionError ? <p className="lr-floorplan-preview-note" role="alert">{actionError}</p> : null}
       <LivingRoomModelView
