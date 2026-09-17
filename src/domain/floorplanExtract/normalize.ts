@@ -34,20 +34,19 @@ export function normalizeExtraction(
 ): NormalizedFloorplan {
   const meters = coerceExtractionToMeters(raw);
   const draft = ensureCollisionFreeIds(meters);
-  let walls = [...draft.polygons.walls];
-  let graph = buildWallGraph(walls);
+  const sourceWalls = [...draft.polygons.walls];
+  let graph = buildWallGraph(sourceWalls);
   let roomMatches = matchRooms(draft.polygons.rooms, graph);
 
   // Vision extracts often omit walls for some rooms while others match.
-  // Synthesize footprint edges only for still-unmatched rooms, then re-match.
+  // Synth footprint edges for Apply graph only — never bake into draft.polygons
+  // (GLB export must stay raw-extract parity with Desktop curl).
   const need = unmatchedRooms(draft.polygons.rooms, roomMatches);
   if (need.length) {
     const extra = synthWallsFromRooms(need);
     if (extra.length) {
-      walls = [...walls, ...extra];
-      graph = buildWallGraph(walls);
+      graph = buildWallGraph([...sourceWalls, ...extra]);
       roomMatches = matchRooms(draft.polygons.rooms, graph);
-      draft.polygons = { ...draft.polygons, walls };
     }
   }
 

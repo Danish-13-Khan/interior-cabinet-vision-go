@@ -216,6 +216,20 @@
   flex-direction: column;
   gap: 8px;
 }
+.lr-floorplan-extract-review:has(.lr-floorplan-extract-preview-row) {
+  width: min(720px, calc(100% - 32px));
+  max-height: min(85vh, 720px);
+}
+.lr-floorplan-extract-preview-scroll {
+  overflow: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+/* Keep WebGL host out of nested scroll jank — fixed canvas box. */
+.lr-floorplan-preview-canvas-host {
+  position: relative;
+  flex: 0 0 auto;
+}
 .lr-floorplan-extract-review header,
 .lr-floorplan-extract-review footer {
   display: flex;
@@ -336,4 +350,14 @@
 }
 .lr-floorplan-preview-stale button {
   font-size: 0.78rem;
+}
+
+.lr-floorplan-extract-inventory {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.78rem;
+  color: #57606a;
+}
+.lr-floorplan-extract-inventory .is-warn {
+  color: #b00020;
+  font-weight: 600;
 }

@@ -64,8 +64,8 @@ export function FloorplanExtractReview(props: Props) {
   const gateOk = canPassApplyGate({ impact, liveSchema, replaceAck, schemaFallbackAck });
   const applyEnabled = normalized.canApply && scaleConfirmed && gateOk;
   const previewDraftKey = useMemo(
-    () => `${props.draftKey}:${floorplanDraftHash(normalized.draft)}`,
-    [props.draftKey, normalized.draft],
+    () => `${props.draftKey}:${floorplanDraftHash(workingDraft)}`,
+    [props.draftKey, workingDraft],
   );
   const trimmedOpenings = Object.entries(normalized.openingAttachments)
     .filter(([, a]) => a.status === "matched" && a.trimmed);
@@ -89,7 +89,15 @@ export function FloorplanExtractReview(props: Props) {
     if (!applyEnabled) return;
     try {
       const next = applyFloorplanToInterior(props.project, normalized);
-      props.onApply(next, workingDraft, "Applied floor plan topology (shell replacement).");
+      // Persist the source extract for Preview/Download (parity with Desktop curl), not graph synth.
+      const withSourceDraft = {
+        ...next,
+        extensions: {
+          ...next.extensions,
+          floorplanExtractDraft: workingDraft,
+        },
+      };
+      props.onApply(withSourceDraft, workingDraft, "Applied floor plan topology (shell replacement).");
       props.onClose();
     } catch (error) {
       props.onError(error instanceof Error ? error.message : "Apply failed.");
@@ -175,7 +183,7 @@ export function FloorplanExtractReview(props: Props) {
       ) : null}
 
       <FloorplanExtractGlbPanel
-        draft={normalized.draft}
+        draft={workingDraft}
         draftKey={previewDraftKey}
         busy={busy}
         setBusy={setBusy}
