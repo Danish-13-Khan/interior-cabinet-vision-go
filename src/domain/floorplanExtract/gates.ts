@@ -51,7 +51,12 @@ export function collectApplyGates(input: Omit<NormalizedFloorplan, "issues" | "c
     if (att.status === "ambiguous") {
       issues.push({ code: "ambiguous_opening", message: `Opening ${id}: ${att.reason}`, entityId: id, blocksApply: true });
     } else if (att.status === "unmatched") {
-      issues.push({ code: "unmatched_opening", message: `Opening ${id}: ${att.reason}`, entityId: id, blocksApply: true });
+      issues.push({
+        code: "unmatched_opening",
+        message: `Opening ${id}: ${att.reason} (skipped)`,
+        entityId: id,
+        blocksApply: false,
+      });
     } else if (att.status === "matched") {
       if (!(att.widthM > 0)) {
         issues.push({

@@ -37,22 +37,31 @@ export function centerlineFromWall(outer: [number, number][]): {
   return { a: [(minX + maxX) * 0.5, minY], b: [(minX + maxX) * 0.5, maxY], thick, ok: true, diagonalCollapsed };
 }
 
+/**
+ * Drop only tiny floating stubs. Keep every component that can form a room
+ * (≥3 edges) so synthesized room-footprint walls are not discarded next to
+ * the main house component.
+ */
 function markFloatingDropped(nodes: WallGraphNode[], edges: WallGraphEdge[]) {
   const parent = nodes.map((_, i) => i);
   const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
   const unite = (a: number, b: number) => { parent[find(a)] = find(b); };
   for (const e of edges) unite(e.a, e.b);
   const lenBy = new Map<number, number>();
+  const edgeCountBy = new Map<number, number>();
   for (const e of edges) {
     const r = find(e.a);
     lenBy.set(r, (lenBy.get(r) ?? 0) + e.lengthM);
+    edgeCountBy.set(r, (edgeCountBy.get(r) ?? 0) + 1);
   }
   let bestRoot = -1, bestLen = -1;
   for (const [r, len] of lenBy) {
     if (len > bestLen) { bestLen = len; bestRoot = r; }
   }
   for (const e of edges) {
-    e.role = find(e.a) !== bestRoot ? "dropped" : "interior";
+    const r = find(e.a);
+    const keep = r === bestRoot || (edgeCountBy.get(r) ?? 0) >= 3;
+    e.role = keep ? "interior" : "dropped";
   }
 }
 
