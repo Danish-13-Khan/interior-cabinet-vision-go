@@ -53,7 +53,10 @@ export function LivingRoomModelView({
     () => preferModelViewCameraId(scene.cameras),
   );
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
-  const camera = useModelViewCameraSession(!presentation, hasSelection);
+  const camera = useModelViewCameraSession(
+    !presentation && floorplanPreviewMode !== "preview",
+    hasSelection,
+  );
   const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
@@ -108,7 +111,7 @@ export function LivingRoomModelView({
       data-model-view-profile={JSON.stringify(describeModelViewRuntimeProfile(viewportQuality))}
       data-view-preset={camera.viewPreset}
     >
-      {!presentation ? (
+      {!presentation && floorplanPreviewMode !== "preview" ? (
         <ModelViewAuthoringOverlays
           project={project} activeWallId={activeWallId} wallMenu={wallMenu}
           viewPreset={camera.viewPreset} cameraHeightMm={cameraHeightMm}
@@ -177,7 +180,7 @@ export function LivingRoomModelView({
           }}
         />
       </div>
-      {!presentation ? (
+      {!presentation && floorplanPreviewMode !== "preview" ? (
         <LivingRoomModelChrome
           showGuide={showGuide} viewPreset={camera.viewPreset}
           onChoosePreset={camera.setViewPreset}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LivingRoomModelView, type LivingRoomModelViewProps } from "../LivingRoomModelView";
 import { useFloorplanGlbPreview } from "../../hooks/useFloorplanGlbPreview";
 import {
@@ -7,7 +7,19 @@ import {
 } from "./floorplanPreviewMode";
 import { readSavedFloorplanDraft } from "./readSavedFloorplanDraft";
 import { floorplanDraftContentKey } from "./floorplanDraftKey";
+import {
+  consumeFloorplanPreviewOnModel,
+  peekFloorplanPreviewOnModel,
+  subscribeFloorplanPreviewRequest,
+} from "./floorplanPreviewPreference";
 
+function armPreviewIfRequested(
+  draft: unknown,
+  setMode: (mode: FloorplanPreviewMode) => void,
+) {
+  if (!draft) return;
+  if (consumeFloorplanPreviewOnModel()) setMode("preview");
+}
 
 /** Wraps Model View so Studio can render FloorplanPreviewMesh with the same cache leases. */
 export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
@@ -22,10 +34,18 @@ export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
       props.project.id,
     )
     : props.project.id;
-  const [mode, setMode] = useState<FloorplanPreviewMode>("editable");
+  const [mode, setMode] = useState<FloorplanPreviewMode>(() =>
+    draft && peekFloorplanPreviewOnModel() ? "preview" : "editable",
+  );
   const previewOn = mode === "preview" || mode === "both";
   const preview = useFloorplanGlbPreview(draft, previewOn, draftKey);
   const url = preview.status === "ready" ? preview.objectUrl : null;
+
+  // Mount / draft change, and request while already on Model (chrome 3D again).
+  useEffect(() => {
+    armPreviewIfRequested(draft, setMode);
+    return subscribeFloorplanPreviewRequest(() => armPreviewIfRequested(draft, setMode));
+  }, [draft, props.project.id, props.project.extensions?.floorplanExtractAppliedAt]);
 
   return (
     <div className="lr-floorplan-model-preview-bridge">
@@ -43,6 +63,9 @@ export function FloorplanModelPreviewBridge(props: LivingRoomModelViewProps) {
               ))}
             </select>
           </label>
+          {mode === "preview" ? (
+            <span className="lr-floorplan-preview-note"> Preview from floorplan tool</span>
+          ) : null}
           {mode === "both" ? (
             <span className="lr-floorplan-preview-note">
               {" "}Origins may not align — two buildings until alignment lands.
