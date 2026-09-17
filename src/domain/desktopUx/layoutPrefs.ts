@@ -41,9 +41,9 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
   toolRailVisible: true,
   inspectorVisible: true,
   statusDockOpen: false,
-  workbenchMode: "job",
-  workspaceTab: "front",
-  activeSheetId: "front",
+  workbenchMode: "interiors",
+  workspaceTab: "plan",
+  activeSheetId: "plan",
   splitPlanWidthPct: 50,
   /** Drawing panes dominate; 3D stays a support strip. */
   splitTopRowPct: 72,
@@ -132,7 +132,10 @@ export function persistDesktopLayout(
   );
 }
 
-/** Login/register should open Cabinet Planner Job home, not the old Cabinets canvas. */
+/**
+ * Login/register / web entry should open Cabinet Planner interiors home
+ * (jobs table + room templates), not Cabinets canvas or the bare Job summary.
+ */
 export function openJobWorkbench(
   storage: Pick<Storage, "getItem" | "setItem"> | null = typeof window !== "undefined"
     ? window.localStorage
@@ -141,10 +144,28 @@ export function openJobWorkbench(
   persistDesktopLayout(
     {
       ...readDesktopLayout(storage),
-      workbenchMode: "job",
+      workbenchMode: "interiors",
+      workspaceTab: "plan",
+      sceneBrowserVisible: false,
+      sheetBrowserVisible: false,
     },
     storage,
   );
+}
+
+/** Browser launch always lands on Interiors planner home; Tauri keeps last layout. */
+export function layoutForAppLaunch(
+  stored: DesktopLayoutPrefs,
+  runtime: "web" | "tauri",
+): DesktopLayoutPrefs {
+  if (runtime === "tauri") return stored;
+  return clampDesktopLayout({
+    ...stored,
+    workbenchMode: "interiors",
+    workspaceTab: "plan",
+    sceneBrowserVisible: false,
+    sheetBrowserVisible: false,
+  });
 }
 
 function clamp(value: number, min: number, max: number) {

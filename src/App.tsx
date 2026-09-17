@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import "./App.css";
 import { AppRibbon } from "./components/AppRibbon";
 import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
@@ -17,6 +18,7 @@ import {
 } from "./domain/desktopUx";
 import { resolvePostHandoffBridge } from "./domain/engineerBridge";
 import { syncInteriorDocumentFromCabinets } from "./domain/livingRoom/handoff";
+import { isTauriRuntime } from "./platform/desktopFiles";
 
 function App() {
   const c = useAppController();
@@ -77,6 +79,15 @@ function App() {
     c.setLayout(patch);
     c.setDraftingTool("select");
   }
+
+  // Web: land on Interiors jobs/templates home, not Cabinets canvas.
+  useEffect(() => {
+    if (isTauriRuntime()) return;
+    handleWorkbenchModeChange("interiors");
+    c.openLivingRoomProjectHome();
+    // mount-only for browser entry
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main

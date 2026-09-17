@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   clampDesktopLayout,
+  layoutForAppLaunch,
   persistDesktopLayout,
   readDesktopLayout,
   type DesktopLayoutPrefs,
   type WorkspaceTabId,
 } from "../domain/desktopUx";
+import { isTauriRuntime } from "../platform/desktopFiles";
 
 export function useDesktopLayout() {
   const [layout, setLayoutState] = useState<DesktopLayoutPrefs>(() =>
-    readDesktopLayout(),
+    layoutForAppLaunch(
+      readDesktopLayout(),
+      isTauriRuntime() ? "tauri" : "web",
+    ),
   );
 
   useEffect(() => {

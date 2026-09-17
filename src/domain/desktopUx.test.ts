@@ -9,6 +9,7 @@ import {
   formatPointerHud,
   formatShortcutBinding,
   nearestSnapPresetMm,
+  layoutForAppLaunch,
   openJobWorkbench,
   persistDesktopLayout,
   rankCommands,
@@ -42,7 +43,7 @@ describe("desktopUx layout", () => {
     expect(defaults.splitPlanWidthPct).toBe(50);
     expect(defaults.splitTopRowPct).toBe(72);
     expect(defaults.sceneBrowserVisible).toBe(false);
-    expect(defaults.workbenchMode).toBe("job");
+    expect(defaults.workbenchMode).toBe("interiors");
     expect(defaults.splitViewEnabled).toBe(false);
     expect(defaults.activeWallSide).toBe("back-wall");
     expect(defaults.splitTopRowPct).toBeGreaterThan(50);
@@ -69,7 +70,13 @@ describe("desktopUx layout", () => {
     };
     persistDesktopLayout({ ...clampDesktopLayout({}), workbenchMode: "cabinets" }, storage);
     openJobWorkbench(storage);
-    expect(JSON.parse(memory["cabinet-designer-desktop-layout"]).workbenchMode).toBe("job");
+    expect(JSON.parse(memory["cabinet-designer-desktop-layout"]).workbenchMode).toBe("interiors");
+  });
+
+  it("forces Interiors planner home for web launch even if Cabinets was saved", () => {
+    const stored = clampDesktopLayout({ workbenchMode: "cabinets" });
+    expect(layoutForAppLaunch(stored, "web").workbenchMode).toBe("interiors");
+    expect(layoutForAppLaunch(stored, "tauri").workbenchMode).toBe("cabinets");
   });
 });
 

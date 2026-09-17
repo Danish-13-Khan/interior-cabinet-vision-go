@@ -18,7 +18,7 @@ export function PlannerAuthLayout({
   return (
     <div className="planner-auth">
       <header className="planner-auth-bar">
-        <Link to="/login">Cabinet Planner</Link>
+        <Link to="/">Cabinet Planner</Link>
       </header>
       <main className="planner-auth-main">
         <div className="planner-auth-card">
