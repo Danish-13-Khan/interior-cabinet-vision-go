@@ -5,18 +5,18 @@ import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/li
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { filterModelReviewNodes, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
+import { useOrbitCutawaySides } from "./useOrbitCutawaySides";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
-import { CompiledNodeView } from "./CompiledNodeView";
+import { CompiledSceneObjectLayer } from "./CompiledSceneObjectLayer";
 import { ModelViewCameraKind } from "./ModelViewCameraKind";
 import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
 import { RendererColorPipeline } from "./RendererColorPipeline";
-import { modelNodeIsSelected, modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 import { assignGlbCasterSlots } from "../../domain/livingRoom/glbCastShadow";
 import { resolveModelViewMaxGlbCasters } from "../../domain/livingRoom/modelViewPerf";
-import { ModelMoveGizmo, type ModelTransformTarget } from "./ModelMoveGizmo";
+import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type SceneRendererProps = {
   scene: CompiledLivingRoomScene;
@@ -53,13 +53,6 @@ type SceneRendererProps = {
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
 };
 
-function wallFragmentArea(node: CompiledLivingRoomScene["nodes"][number]) {
-  return node.primitives.reduce((area, primitive) => {
-    if (primitive.kind !== "box" && primitive.kind !== "rounded-box") return area;
-    return area + primitive.sizeMm.width * primitive.sizeMm.height;
-  }, 0);
-}
-
 export function CompiledSceneRenderer(props: SceneRendererProps) {
   const {
     scene, selectedIds, selectedOpeningId = null, selectedWallId = null, activeCameraId,
@@ -77,16 +70,11 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const [transformPreview, setTransformPreview] = useState<Point3Mm | null>(null);
   useEffect(() => setTransformPreview(null), [transformTarget?.kind, transformTarget?.id]);
   function handleDragStateChange(nextDragging: boolean) {
-    // OrbitControls listens directly on the canvas. Disable it immediately so
-    // the initiating left-button gesture cannot also rotate the camera before
-    // React applies the updated `enabled` prop.
     if (controlsRef.current) controlsRef.current.enabled = !nextDragging;
     setDragging(nextDragging);
   }
   const architectureBounds = computeArchitectureBounds(scene.nodes);
-  const materialKey = scene.materials
-    .map((material) => JSON.stringify(material))
-    .join("|");
+  const materialKey = scene.materials.map((material) => JSON.stringify(material)).join("|");
   const materialMap = useMemo(
     () => new Map(scene.materials.map((material) => [material.id, material])),
     [materialKey],
@@ -97,40 +85,31 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const renderCamera = projectCamera
     ? resolveRenderCameraPose(projectCamera, architectureBounds, renderComposition, renderMode)
     : null;
-  const cutawaySides = resolveModelCutawaySides(
-    renderCamera?.position ?? null,
-    architectureBounds.center,
+  const savedCutawaySides = resolveModelCutawaySides(
+    renderCamera?.position ?? null, architectureBounds.center,
   );
-  const hideCeiling = viewPreset === "dollhouse"
-    || viewPreset === "orbit"
-    || viewPreset === "top"
-    || viewPreset === "isometric";
+  const orbitCutawaySides = useOrbitCutawaySides(
+    cutawayWalls && interactive,
+    architectureBounds.center.x, architectureBounds.center.z,
+    renderCamera?.position.x ?? null, renderCamera?.position.z ?? null,
+  );
+  const cutawaySides = cutawayWalls && interactive ? orbitCutawaySides : savedCutawaySides;
+  const hideCeiling = viewPreset === "dollhouse" || viewPreset === "orbit"
+    || viewPreset === "top" || viewPreset === "isometric";
   const nodes = filterModelReviewNodes(
     scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
   );
-  const glbCasterSlots = useMemo(
-    () => assignGlbCasterSlots(nodes),
-    [nodes],
-  );
-  const selectedWallLabelNodeId = selectedWallId
-    ? nodes
-      .filter((node) => modelSelectionTarget(node)?.kind === "wall"
-        && node.metadata.wallId === selectedWallId)
-      .sort((left, right) => wallFragmentArea(right) - wallFragmentArea(left))[0]?.id ?? null
-    : null;
+  const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const environment = scene.style.environment;
   const lightingQuality = lightingQualityOverride
     ?? resolveEnvironmentLightingQuality(renderMode, renderQuality);
   const maxGlbCasters = lightingQuality.maxDirectionalCasters !== undefined
-    ? resolveModelViewMaxGlbCasters(renderQuality)
-    : undefined;
+    ? resolveModelViewMaxGlbCasters(renderQuality) : undefined;
 
   return (
     <>
-      {viewPreset ? (
-        <ModelViewCameraKind viewPreset={viewPreset} roomSpanMeters={roomSpan} />
-      ) : null}
+      {viewPreset ? <ModelViewCameraKind viewPreset={viewPreset} roomSpanMeters={roomSpan} /> : null}
       <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
       <color attach="background" args={[environment.backgroundColor]} />
       <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
@@ -140,114 +119,41 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale}
       />
       <RenderLightingRig
-        scene={scene}
-        recipeId={scene.lightingRecipeId}
-        renderMode={renderMode}
-        renderQuality={renderQuality}
-        lightingQuality={lightingQuality}
-        projectLightScale={projectLightScale}
-        windowKeyScale={windowKeyScale}
+        scene={scene} recipeId={scene.lightingRecipeId} renderMode={renderMode}
+        renderQuality={renderQuality} lightingQuality={lightingQuality}
+        projectLightScale={projectLightScale} windowKeyScale={windowKeyScale}
       />
       {showGrid ? (
         <gridHelper
           args={[
-            Math.max(8, roomSpan + 2),
-            Math.max(16, Math.round((roomSpan + 2) * 2)),
-            environment.gridPrimaryColor,
-            environment.gridSecondaryColor,
+            Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)),
+            environment.gridPrimaryColor, environment.gridSecondaryColor,
           ]}
           position={[0, 0.002, 0]}
         />
       ) : null}
-      {nodes.map((node) => {
-        const target = modelSelectionTarget(node);
-        const transformsNode = Boolean(transformTarget && target
-          && transformTarget.kind === target.kind && transformTarget.id === target.id);
-        const preview = transformsNode && transformPreview && transformTarget
-          ? {
-              x: node.positionMm.x + transformPreview.x - transformTarget.positionMm.x,
-              y: node.positionMm.y + transformPreview.y - transformTarget.positionMm.y,
-              z: node.positionMm.z + transformPreview.z - transformTarget.positionMm.z,
-            }
-          : undefined;
-        return <CompiledNodeView
-          key={node.id}
-          node={node}
-          materials={materialMap}
-          selected={modelNodeIsSelected(node, {
-            objectIds: selectedIds,
-            openingId: selectedOpeningId,
-            wallId: selectedWallId,
-          })}
-          snapSizeMm={snapSizeMm}
-          renderMode={renderMode}
-          renderQuality={renderQuality}
-          glbCasterSlot={glbCasterSlots.get(node.id)}
-          maxGlbCasters={maxGlbCasters}
-          showSelectedLabel={modelSelectionTarget(node)?.kind !== "wall"
-            || node.id === selectedWallLabelNodeId}
-          onSelect={onSelect}
-          onSelectOpening={onSelectOpening}
-          onSelectWall={onSelectWall}
-          onClearSelection={onClearSelection}
-          onMove={(objectId, position) => {
-            if (transformTarget?.kind === "object" && transformTarget.id === objectId && onTransformCommit) {
-              onTransformCommit(transformTarget, position);
-              setTransformPreview(null);
-              return;
-            }
-            onMove(objectId, position);
-          }}
-          onMovePreview={(objectId, position) => {
-            if (transformTarget?.kind !== "object" || transformTarget.id !== objectId) return position;
-            const resolved = onTransformPreview?.(transformTarget, position) ?? position;
-            setTransformPreview(resolved);
-            return resolved;
-          }}
-          onDragStateChange={handleDragStateChange}
-          interactive={interactive}
-          onMechanismClick={onMechanismClick}
-          onAssetReady={() => setAssetRevision((revision) => revision + 1)}
-          onWallContextMenu={onWallContextMenu}
-          positionOverride={preview}
-        />
-      })}
-      {interactive && transformTarget ? (
-        <ModelMoveGizmo
-          target={transformTarget}
-          positionOverride={transformPreview}
-          snapSizeMm={snapSizeMm}
-          onPreview={(position) => {
-            const resolved = onTransformPreview?.(transformTarget, position) ?? position;
-            setTransformPreview(resolved);
-            return resolved;
-          }}
-          onCommit={(position) => {
-            onTransformCommit?.(transformTarget, position);
-            setTransformPreview(null);
-          }}
-          onDragStateChange={handleDragStateChange}
-        />
-      ) : null}
+      <CompiledSceneObjectLayer
+        nodes={nodes} materials={materialMap} selectedIds={selectedIds}
+        selectedOpeningId={selectedOpeningId} selectedWallId={selectedWallId}
+        snapSizeMm={snapSizeMm} renderMode={renderMode} renderQuality={renderQuality}
+        glbCasterSlots={glbCasterSlots} maxGlbCasters={maxGlbCasters}
+        interactive={interactive} transformTarget={transformTarget}
+        transformPreview={transformPreview} setTransformPreview={setTransformPreview}
+        onSelect={onSelect} onSelectOpening={onSelectOpening} onSelectWall={onSelectWall}
+        onClearSelection={onClearSelection} onMove={onMove}
+        onTransformPreview={onTransformPreview} onTransformCommit={onTransformCommit}
+        onDragStateChange={handleDragStateChange} onMechanismClick={onMechanismClick}
+        onAssetReady={() => setAssetRevision((revision) => revision + 1)}
+        onWallContextMenu={onWallContextMenu}
+      />
       <ModelViewInteractionRig
-        scene={scene}
-        controlsRef={controlsRef}
-        activeCameraId={activeCameraId}
-        viewPreset={viewPreset}
-        cameraHeightMm={cameraHeightMm}
-        fieldOfViewDegrees={fieldOfViewDegrees}
-        assetRevision={assetRevision}
-        interactive={interactive}
-        dragging={dragging}
-        roomSpan={roomSpan}
-        renderQuality={renderQuality}
-        renderComposition={renderComposition}
-        renderMode={renderMode}
-        lightingQuality={lightingQuality}
-        environment={environment}
-        fitVersion={fitVersion}
-        fitMode={fitMode}
-        fitSelection={fitSelection}
+        scene={scene} controlsRef={controlsRef} activeCameraId={activeCameraId}
+        viewPreset={viewPreset} cameraHeightMm={cameraHeightMm}
+        fieldOfViewDegrees={fieldOfViewDegrees} assetRevision={assetRevision}
+        interactive={interactive} dragging={dragging} roomSpan={roomSpan}
+        renderQuality={renderQuality} renderComposition={renderComposition}
+        renderMode={renderMode} lightingQuality={lightingQuality} environment={environment}
+        fitVersion={fitVersion} fitMode={fitMode} fitSelection={fitSelection}
         onExitWalkthrough={onExitWalkthrough}
       />
     </>

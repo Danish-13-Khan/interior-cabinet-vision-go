@@ -5,9 +5,12 @@ import {
   lerpNumber,
   lerpPoint3,
   MODEL_VIEW_CAMERA_EASE_MS,
+  MODEL_VIEW_SCREEN_SPACE_PANNING,
   resolveModelViewCameraFarMeters,
+  resolveModelViewMaxPolarAngle,
   resolveModelViewMinPolarAngle,
   resolveModelViewOrbitMaxDistance,
+  resolveModelViewOrbitMinDistance,
 } from "./modelViewCameraEase";
 
 describe("modelViewCameraEase Phase E", () => {
@@ -38,6 +41,14 @@ describe("modelViewCameraEase Phase E", () => {
     expect(resolveModelViewMinPolarAngle("top")).toBeLessThan(
       resolveModelViewMinPolarAngle("front"),
     );
+  });
+
+  it("allows close zoom and a little look below the horizon", () => {
+    expect(resolveModelViewOrbitMinDistance()).toBeLessThan(1.2);
+    expect(resolveModelViewOrbitMinDistance()).toBeGreaterThan(0.05);
+    expect(resolveModelViewMaxPolarAngle()).toBeGreaterThan(Math.PI / 2);
+    expect(resolveModelViewMaxPolarAngle()).toBeLessThan(Math.PI);
+    expect(MODEL_VIEW_SCREEN_SPACE_PANNING).toBe(true);
   });
 
   it("latches ease cancel across synchronous wheel start/end", () => {

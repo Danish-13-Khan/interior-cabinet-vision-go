@@ -4,7 +4,7 @@ import { Plane, Vector3 } from "three";
 import type { Point3Mm } from "../../domain/interiorProject";
 
 const FLOOR_DRAG_PLANE = new Plane(new Vector3(0, 1, 0), 0);
-/** Ignore micro-moves so click-select does not disable OrbitControls. */
+/** Ignore micro-moves so a click on a selected object does not commit a move. */
 const DRAG_DEAD_ZONE_M = 0.012;
 
 type DragState = {
@@ -49,11 +49,11 @@ export function useCompiledNodeDrag(
         /* already released */
       }
     }
-    const wasDragging = Boolean(dragRef.current?.moved);
+    const hadDrag = Boolean(dragRef.current);
     dragRef.current = null;
     previewRef.current = null;
     setPreview(null);
-    if (wasDragging) onDragStateRef.current(false);
+    if (hadDrag) onDragStateRef.current(false);
   }
 
   function beginDrag(event: ThreeEvent<PointerEvent>) {
@@ -70,6 +70,7 @@ export function useCompiledNodeDrag(
     };
     previewRef.current = { ...startPosition };
     setPreview({ ...startPosition });
+    onDragStateRef.current(true);
   }
 
   function handlePointerMove(event: ThreeEvent<PointerEvent>) {
@@ -81,10 +82,7 @@ export function useCompiledNodeDrag(
     const dxM = point.x - drag.startPoint.x;
     const dzM = point.z - drag.startPoint.z;
     if (!drag.moved && Math.hypot(dxM, dzM) < DRAG_DEAD_ZONE_M) return;
-    if (!drag.moved) {
-      drag.moved = true;
-      onDragStateRef.current(true);
-    }
+    drag.moved = true;
     const proposed = {
       ...drag.startPosition,
       x: Math.round((drag.startPosition.x + dxM * 1000) / snapSizeMm) * snapSizeMm,
@@ -94,6 +92,13 @@ export function useCompiledNodeDrag(
     const next = objectId
       ? onMovePreviewRef.current?.(objectId, proposed) ?? proposed
       : proposed;
+    const previous = previewRef.current;
+    if (
+      previous
+      && previous.x === next.x
+      && previous.y === next.y
+      && previous.z === next.z
+    ) return;
     previewRef.current = next;
     setPreview(next);
   }
@@ -136,7 +141,7 @@ export function useCompiledNodeDrag(
     return () => {
       window.removeEventListener("pointerup", onWindowEnd);
       window.removeEventListener("pointercancel", onWindowEnd);
-      if (dragRef.current?.moved) onDragStateRef.current(false);
+      if (dragRef.current) onDragStateRef.current(false);
       dragRef.current = null;
       previewRef.current = null;
     };

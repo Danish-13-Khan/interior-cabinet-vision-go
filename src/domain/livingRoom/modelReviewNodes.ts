@@ -4,15 +4,20 @@ export type CutawayCameraPosition = { x: number; z: number };
 export type CutawayRoomCenter = { x: number; z: number };
 
 /**
- * Pick walls to open for review. Only the near front/back face is cut so
- * left/right end walls stay — kitchen runs need that closer on the side.
+ * Hide the nearest envelope wall so orbiting a side does not leave that wall
+ * blocking the room. Kitchen runs on the far side stay visible.
  */
 export function resolveModelCutawaySides(
   camera: CutawayCameraPosition | null | undefined,
   center: CutawayRoomCenter,
 ): Set<string> {
   if (!camera) return new Set(["front"]);
-  return new Set([camera.z < center.z ? "back" : "front"]);
+  const dx = camera.x - center.x;
+  const dz = camera.z - center.z;
+  if (Math.abs(dx) > Math.abs(dz)) {
+    return new Set([dx < 0 ? "left" : "right"]);
+  }
+  return new Set([dz < 0 ? "back" : "front"]);
 }
 
 /**

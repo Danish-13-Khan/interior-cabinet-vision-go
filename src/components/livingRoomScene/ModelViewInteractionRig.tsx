@@ -8,8 +8,11 @@ import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environ
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import {
+  MODEL_VIEW_SCREEN_SPACE_PANNING,
+  resolveModelViewMaxPolarAngle,
   resolveModelViewMinPolarAngle,
   resolveModelViewOrbitMaxDistance,
+  resolveModelViewOrbitMinDistance,
 } from "../../domain/livingRoom/modelViewCameraEase";
 import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
@@ -85,11 +88,11 @@ export function ModelViewInteractionRig({
           rotateSpeed={0.92}
           enablePan={viewPreset !== "walkthrough"}
           enableZoom={viewPreset !== "walkthrough"}
-          screenSpacePanning={false}
-          minDistance={1.2}
+          screenSpacePanning={MODEL_VIEW_SCREEN_SPACE_PANNING}
+          minDistance={resolveModelViewOrbitMinDistance()}
           maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
           minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
-          maxPolarAngle={Math.PI / 2 - 0.02}
+          maxPolarAngle={resolveModelViewMaxPolarAngle()}
           onStart={() => {
             orbitNavigatingRef.current = true;
             // Wheel fires start+end synchronously — latch cancel via generation.
