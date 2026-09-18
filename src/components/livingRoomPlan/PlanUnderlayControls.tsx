@@ -10,8 +10,8 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
     return (
       <div className="lr-underlay-empty" data-testid="lr-underlay-empty">
         <span>⌁</span>
-        <strong>Import a floor plan</strong>
-        <p>Use PNG, JPG, WebP, or PDF as a tracing underlay. Calibrate with a known distance after import.</p>
+        <strong>Tracing underlay</strong>
+        <p>PNG, JPG, WebP, or PDF to trace over. This does not create walls. Calibrate with a known distance after import.</p>
         <button type="button" data-testid="lr-underlay-choose" onClick={onReplace}>Choose plan file</button>
       </div>
     );

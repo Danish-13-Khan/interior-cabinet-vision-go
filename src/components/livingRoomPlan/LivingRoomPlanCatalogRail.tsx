@@ -7,12 +7,14 @@ import {
   interiorsWorkflowCatalogView,
   isInteriorsDrawRoomTool,
 } from "../../domain/desktopUx";
+import { IMPORT_WALLS_ACCEPT, PLAN_UNDERLAY_ACCEPT } from "../../domain/floorplanExtract";
 import { InteriorsToolRail } from "./InteriorsToolRail";
 import { InteriorsWorkflowAreaPanel } from "./InteriorsWorkflowAreaPanel";
 import type { LivingRoomPlanCatalogRailProps } from "./livingRoomPlanCatalogRailProps";
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
+  const importWallsInputRef = useRef<HTMLInputElement | null>(null);
   const catalogView = interiorsWorkflowCatalogView({
     area: props.workflowArea,
     chromeTool: props.chromeTool,
@@ -42,6 +44,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   useEffect(() => {
     props.onRegisterUnderlayPicker?.(() => underlayInputRef.current?.click());
   }, [props.onRegisterUnderlayPicker]);
+  useEffect(() => {
+    props.onRegisterImportWallsPicker?.(() => importWallsInputRef.current?.click());
+  }, [props.onRegisterImportWallsPicker]);
 
   return <>
     {showRail ? (
@@ -50,12 +55,25 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     <input
       ref={underlayInputRef}
       type="file"
-      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml,application/pdf,.pdf,.svg,.dxf,.DXF"
+      accept={PLAN_UNDERLAY_ACCEPT}
       hidden
+      data-testid="lr-underlay-file"
       onChange={(event) => {
         const file = event.target.files?.[0] ?? null;
         event.target.value = "";
         void props.onImportUnderlay(file);
+      }}
+    />
+    <input
+      ref={importWallsInputRef}
+      type="file"
+      accept={IMPORT_WALLS_ACCEPT}
+      hidden
+      data-testid="lr-import-walls-file"
+      onChange={(event) => {
+        const file = event.target.files?.[0] ?? null;
+        event.target.value = "";
+        void props.onImportWalls(file);
       }}
     />
     {designUxShowsCatalogRail({
@@ -90,6 +108,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           issues={props.issues}
           proposal={props.proposal}
           underlayInputRef={underlayInputRef}
+          importWallsInputRef={importWallsInputRef}
           onRoomDimensions={props.onRoomDimensions}
           onAddPartitionWall={props.onAddPartitionWall}
           onActiveRoom={props.onActiveRoom}
@@ -113,6 +132,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           onJoinCoincidentNodes={props.onJoinCoincidentNodes}
           onSetPlanUnderlay={props.onSetPlanUnderlay}
           onImportUnderlay={props.onImportUnderlay}
+          onImportWalls={props.onImportWalls}
           onCalibrateUnderlay={props.onCalibrateUnderlay}
           onToggleSiteMeasure={props.onToggleSiteMeasure}
           onAssetQuery={props.onAssetQuery}

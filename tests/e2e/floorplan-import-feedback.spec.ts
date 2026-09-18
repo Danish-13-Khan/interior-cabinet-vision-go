@@ -1,51 +1,73 @@
-import { expect, test } from '@playwright/test';
-import { seedE2eSession } from './plannerStart';
+import { expect, test } from "@playwright/test";
+import {
+  applyGoldenKitchenImport,
+  expectImportedWallsInModel,
+  goldenKitchenDxfUpload,
+  placeBaseCabinetOnImportedWall,
+} from "./floorplan-import-golden.helpers";
+import { clickInteriorsTool, seedE2eSession } from "./plannerStart";
 
-test('plan import shows pending extraction and a visible service error', async ({ page }) => {
+const TINY_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
+
+test("import walls shows pending extraction and a visible service error", async ({ page }) => {
   await seedE2eSession(page);
   let release!: () => void;
-  const pending = new Promise<void>(resolve => { release = resolve; });
-  await page.route('**/extract*', async route => {
+  const pending = new Promise<void>((resolve) => { release = resolve; });
+  await page.route("**/extract*", async (route) => {
     await pending;
-    await route.abort('failed');
+    await route.abort("failed");
   });
-  await page.goto('/app');
-  await page.getByRole('button', { name: 'New cabinet job', exact: true }).click();
-  await page.locator('input[type="file"][accept*=".dxf"]').setInputFiles({
-    name: 'plan.png', mimeType: 'image/png',
-    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF1sAAAAASUVORK5CYII=', 'base64'),
-  });
-  const status = page.getByTestId('lr-floorplan-extract-status');
+  await page.goto("/app");
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
+  await page.getByTestId("lr-import-walls-file").setInputFiles(goldenKitchenDxfUpload());
+  const status = page.getByTestId("lr-floorplan-extract-status");
   try {
     await expect(status).toBeVisible();
-    await expect(status).toContainText('Generating 3D from your plan');
+    await expect(status).toContainText("Reading drawing into a review draft");
   } finally { release(); }
-  await expect(status).toHaveAttribute('role', 'alert');
-  await expect(status).toContainText('Could not reach the floor-plan service');
-  await expect(status.getByRole('button', { name: 'Choose plan again' })).toBeVisible();
-  await expect(page.getByTestId('lr-floorplan-extract-review')).toHaveCount(0);
+  await expect(status).toHaveAttribute("role", "alert");
+  await expect(status).toContainText("Could not reach the floor-plan service");
+  await expect(status.getByRole("button", { name: "Choose drawing again" })).toBeVisible();
+  await expect(page.getByTestId("lr-floorplan-extract-review")).toHaveCount(0);
 });
 
-test('successful extraction opens geometry review before Apply', async ({ page }) => {
+test("png underlay does not call extract", async ({ page }) => {
   await seedE2eSession(page);
-  const rect = (id: string, x: number, y: number, X: number, Y: number) => ({ id, outer: [[x,y],[X,y],[X,Y],[x,Y]] });
-  await page.route('**/schema/v1', route => route.fulfill({ json: { required: ['schema_version','units','polygons'], properties: { schema_version: { const: '1.0' } } } }));
-  await page.route('**/extract*', route => route.fulfill({ json: {
-    schema_version: '1.0', units: 'meters', pixel_scale: .01,
-    polygons: { rooms: [rect('r',.1,.1,3.9,3.9)], walls: [rect('top',0,-.1,4,.1),rect('right',3.9,0,4.1,4),rect('bottom',0,3.9,4,4.1),rect('left',-.1,0,.1,4)], doors: [], windows: [] },
-  } }));
-  await page.goto('/app');
-  await page.getByRole('button', { name: 'New cabinet job', exact: true }).click();
-  await page.locator('input[type="file"][accept*=".dxf"]').setInputFiles({ name: 'room.svg', mimeType: 'image/svg+xml', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"/>') });
-  const review = page.getByTestId('lr-floorplan-extract-review');
-  await expect(review).toBeVisible();
-  await expect(page.getByTestId('lr-floorplan-extract-status')).toHaveCount(0);
-  await expect(page.getByTestId('lr-floorplan-extract-apply')).toBeDisabled();
-  await page.getByTestId('lr-floorplan-scale-confirmed').check();
-  const ack = page.getByTestId('lr-floorplan-replace-ack');
-  if (await ack.isVisible()) await ack.check();
-  await expect(page.getByTestId('lr-floorplan-extract-apply')).toBeEnabled();
-  await page.getByTestId('lr-floorplan-extract-apply').click();
-  await expect(review).toHaveCount(0);
-  await expect(page.getByTestId('lr-floorplan-reopen-import')).toBeVisible();
+  let extractHits = 0;
+  await page.route("**/extract*", async (route) => {
+    extractHits += 1;
+    await route.abort("failed");
+  });
+  await page.goto("/app");
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
+  await clickInteriorsTool(page, "import");
+  await expect(page.getByTestId("lr-underlay-empty").or(page.getByTestId("lr-underlay-controls"))).toBeVisible();
+  await page.getByTestId("lr-underlay-file").setInputFiles({
+    name: "site-plan.png", mimeType: "image/png", buffer: TINY_PNG,
+  });
+  await expect(page.getByTestId("lr-plan-underlay-image")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("lr-floorplan-extract-status")).toHaveCount(0);
+  await expect(page.getByTestId("lr-floorplan-extract-review")).toHaveCount(0);
+  expect(extractHits).toBe(0);
+});
+
+test("golden kitchen DXF: review, calibrate, Apply, 3D, cabinet snap", async ({ page }) => {
+  test.setTimeout(90_000);
+  await seedE2eSession(page);
+  await page.addInitScript((key) => {
+    window.localStorage.setItem(key, "dismissed");
+  }, GUIDE_KEY);
+  await page.goto("/app");
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
+  await applyGoldenKitchenImport(page);
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  await expectImportedWallsInModel(page);
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
+  await expect(page.getByTestId("lr-plan-svg")).toBeVisible();
+  await placeBaseCabinetOnImportedWall(page);
 });

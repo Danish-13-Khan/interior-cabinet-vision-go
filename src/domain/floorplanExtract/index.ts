@@ -36,6 +36,17 @@ export {
 export { ensureCollisionFreeIds } from "./ids";
 export { normalizeExtraction, type NormalizeOptions } from "./normalize";
 export { applyFloorplanToInterior } from "./applyToInterior";
+export {
+  goldenKitchenExtraction,
+  GOLDEN_KITCHEN_DXF_LINES_MM,
+} from "./goldenKitchenExtract";
+export { parseDxfLineEntities, undirectedSegmentKey } from "./dxfLineEntities";
+export {
+  classifyPlanUpload,
+  planImportMismatchMessage,
+  PLAN_UNDERLAY_ACCEPT,
+  IMPORT_WALLS_ACCEPT,
+} from "./planImportKind";
 export { OPENING_END_TOL_M, MIN_WALL_THICK_M, M_TO_MM } from "./meters";
 export type {
   ExtractionResult,

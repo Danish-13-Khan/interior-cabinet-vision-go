@@ -54,7 +54,9 @@ export type LivingRoomPlanCatalogRailProps = {
   onCalibrateUnderlay?: () => void;
   onToggleSiteMeasure?: (key: import("../../domain/livingRoom").SiteMeasureUserKey, value: boolean) => void;
   onImportUnderlay: (file: File | null) => void;
+  onImportWalls: (file: File | null) => void;
   onRegisterUnderlayPicker?: (openPicker: () => void) => void;
+  onRegisterImportWallsPicker?: (openPicker: () => void) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;

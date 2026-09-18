@@ -29,6 +29,7 @@ export type InteriorsWorkflowAreaPanelProps = {
   issues: import("../../domain/livingRoom").LivingRoomPlanIssue[];
   proposal: ReturnType<typeof useProposalWorkflow>;
   underlayInputRef: React.RefObject<HTMLInputElement | null>;
+  importWallsInputRef: React.RefObject<HTMLInputElement | null>;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onAddPartitionWall: () => void;
   onActiveRoom?: (roomId: string) => void;
@@ -52,6 +53,7 @@ export type InteriorsWorkflowAreaPanelProps = {
   onJoinCoincidentNodes?: () => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onImportUnderlay: (file: File | null) => void;
+  onImportWalls: (file: File | null) => void;
   onCalibrateUnderlay?: () => void;
   onToggleSiteMeasure?: (key: import("../../domain/livingRoom").SiteMeasureUserKey, value: boolean) => void;
   onAssetQuery: (value: string) => void;
