@@ -51,6 +51,16 @@ describe("model review node filtering", () => {
       .toEqual(["back-wall", "sofa"]);
   });
 
+  it("cuts a left wall when that side is the near envelope", () => {
+    const nodes = [
+      node("left-wall", "wall", "left"),
+      node("right-wall", "wall", "right"),
+      node("sofa", "object"),
+    ];
+    expect(filterModelReviewNodes(nodes, true, new Set(["left"]), null).map((item) => item.id))
+      .toEqual(["right-wall", "sofa"]);
+  });
+
   it("hides the ceiling in dollhouse review so the room reads as a hollow shell", () => {
     const nodes = [node("ceiling", "architecture", "front", { surface: "ceiling" }), node("sofa", "object")];
     expect(filterModelReviewNodes(nodes, false, new Set(), null, true).map((item) => item.id))
@@ -72,9 +82,11 @@ describe("model review node filtering", () => {
 describe("resolveModelCutawaySides", () => {
   const center = { x: 0, z: 0 };
 
-  it("opens only the near front/back face so side walls stay for kitchen runs", () => {
+  it("opens the nearest envelope wall, including left/right from a side orbit", () => {
     expect([...resolveModelCutawaySides({ x: 1000, z: 2000 }, center)].sort()).toEqual(["front"]);
     expect([...resolveModelCutawaySides({ x: -1000, z: -2000 }, center)].sort()).toEqual(["back"]);
+    expect([...resolveModelCutawaySides({ x: 2500, z: 400 }, center)].sort()).toEqual(["right"]);
+    expect([...resolveModelCutawaySides({ x: -2500, z: 400 }, center)].sort()).toEqual(["left"]);
   });
 
   it("defaults to front when no camera is available", () => {

@@ -15,10 +15,44 @@ export type ModelViewFitSelection = {
 
 export type ModelViewFitMode = "room" | "selection";
 
+export type ModelViewHeldFit = {
+  mode: ModelViewFitMode;
+  selection: ModelViewFitSelection;
+};
+
 export type ModelViewFitResult = ModelViewPose & {
   /** World span used for orthographic zoom / framing distance. */
   spanMm: number;
 };
+
+/** Copy of the selection used when Fit was invoked — later sidebar changes must not steal it. */
+export function snapshotModelViewFit(
+  mode: ModelViewFitMode,
+  selection: ModelViewFitSelection | undefined,
+): ModelViewHeldFit {
+  const source = selection ?? { objectIds: [], wallId: null, openingId: null };
+  return {
+    mode,
+    selection: {
+      objectIds: [...source.objectIds],
+      wallId: source.wallId,
+      openingId: source.openingId,
+    },
+  };
+}
+
+/** Recapture only on a new Fit shot; otherwise keep the Fit-time target. */
+export function resolveHeldFitSnapshot(input: {
+  applyFitShot: boolean;
+  liveMode: ModelViewFitMode;
+  liveSelection: ModelViewFitSelection | undefined;
+  held: ModelViewHeldFit | null;
+}): ModelViewHeldFit {
+  if (input.applyFitShot || !input.held) {
+    return snapshotModelViewFit(input.liveMode, input.liveSelection);
+  }
+  return input.held;
+}
 
 /** Plain F in 3D: focus selection when present, otherwise fit the room. */
 export function resolveModelViewFKeyFitMode(hasSelection: boolean): ModelViewFitMode {

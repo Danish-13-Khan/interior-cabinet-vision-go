@@ -9,6 +9,7 @@ import { AssetBackedObject } from "./AssetBackedObject";
 import { CompiledNodeLabel } from "./CompiledNodeLabel";
 import { OpeningPickVolume } from "./OpeningPickVolume";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
+import { shouldBeginObjectBodyDrag } from "../../domain/livingRoom/objectOrbitDragPolicy";
 import { useCompiledNodeDrag } from "./useCompiledNodeDrag";
 
 function degrees(value: number) {
@@ -73,7 +74,14 @@ export function CompiledNodeView({
       return;
     }
     onSelect(objectId, event.shiftKey || event.metaKey || event.ctrlKey);
-    drag.beginDrag(event);
+    if (shouldBeginObjectBodyDrag({
+      alreadySelected: selected,
+      shiftKey: event.shiftKey,
+      metaKey: event.metaKey,
+      ctrlKey: event.ctrlKey,
+    })) {
+      drag.beginDrag(event);
+    }
   }
 
   function handleWallContextMenu(event: ThreeEvent<MouseEvent>) {

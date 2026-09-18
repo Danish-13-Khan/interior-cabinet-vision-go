@@ -163,14 +163,28 @@ export {
 } from "./modelViewSharpness";
 export {
   MODEL_VIEW_CAMERA_EASE_MS,
+  MODEL_VIEW_SCREEN_SPACE_PANNING,
   consumeOrbitEaseCancelGeneration,
   easeInOutCubic,
   lerpNumber,
   lerpPoint3,
   resolveModelViewCameraFarMeters,
+  resolveModelViewMaxPolarAngle,
   resolveModelViewMinPolarAngle,
   resolveModelViewOrbitMaxDistance,
+  resolveModelViewOrbitMinDistance,
 } from "./modelViewCameraEase";
+export {
+  cameraPoseFingerprint,
+  modelViewFramingIntentKey,
+  nextUserOwnedCameraPose,
+  shouldApplyCameraFramingPose,
+  shouldHoldFitFraming,
+} from "./modelViewCameraFramingPolicy";
+export {
+  samePoint3Mm,
+  shouldBeginObjectBodyDrag,
+} from "./objectOrbitDragPolicy";
 export {
   resolveRoomFitFrustumHalfExtent,
   roomSpanMetersFromSizeMm,
@@ -392,12 +406,15 @@ export {
   type ModelViewPresetId,
 } from "./modelViewPresets";
 export {
+  resolveHeldFitSnapshot,
   resolveModelViewFKeyFitMode,
   resolveModelViewFitPose,
   resolveModelViewSelectionBoundsMm,
+  snapshotModelViewFit,
   type ModelViewFitMode,
   type ModelViewFitResult,
   type ModelViewFitSelection,
+  type ModelViewHeldFit,
 } from "./modelViewFit";
 export {
   modelViewNavHint,

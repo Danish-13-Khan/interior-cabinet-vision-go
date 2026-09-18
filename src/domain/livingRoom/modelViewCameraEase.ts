@@ -33,6 +33,14 @@ export function resolveModelViewOrbitMaxDistance(roomSpanMeters: number): number
   return Math.max(16, roomSpanMeters * 2.4 + 4);
 }
 
+/** Close inspection — keep a small floor so the camera cannot enter the mesh. */
+export function resolveModelViewOrbitMinDistance(): number {
+  return 0.28;
+}
+
+/** Screen-space pan lets you inspect details without sliding on the floor plane. */
+export const MODEL_VIEW_SCREEN_SPACE_PANNING = true;
+
 /**
  * Soft floor on polar angle — avoids flipping under the floor.
  * Dollhouse/top stay freer so overview poses are not clipped.
@@ -44,6 +52,11 @@ export function resolveModelViewMinPolarAngle(
     return 0.02;
   }
   return 0.12;
+}
+
+/** Allow a little look-up under shelves; still block a full under-floor flip. */
+export function resolveModelViewMaxPolarAngle(): number {
+  return Math.PI / 2 + 0.24;
 }
 
 /**

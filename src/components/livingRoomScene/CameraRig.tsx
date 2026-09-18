@@ -4,15 +4,11 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import {
-  resolveModelViewFitPose,
+  resolveHeldFitSnapshot,
   type ModelViewFitMode,
   type ModelViewFitSelection,
+  type ModelViewHeldFit,
 } from "../../domain/livingRoom/modelViewFit";
-import {
-  orthographicZoomForSpan,
-  resolveModelViewPose,
-  resolveRenderCameraPose,
-} from "../../domain/livingRoom";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
 import {
@@ -21,15 +17,16 @@ import {
   lerpNumber,
   lerpPoint3,
   MODEL_VIEW_CAMERA_EASE_MS,
-  resolveModelViewCameraFarMeters,
 } from "../../domain/livingRoom/modelViewCameraEase";
 import {
-  applyCameraPose,
-  fallbackFraming,
-  mmToMeters,
-  readCameraPoseMeters,
-  type CameraPoseMeters,
-} from "./cameraRigPose";
+  cameraPoseFingerprint,
+  modelViewFramingIntentKey,
+  nextUserOwnedCameraPose,
+  shouldApplyCameraFramingPose,
+  shouldHoldFitFraming,
+} from "../../domain/livingRoom/modelViewCameraFramingPolicy";
+import { applyCameraPose, readCameraPoseMeters, type CameraPoseMeters } from "./cameraRigPose";
+import { applyCameraClipPlanes, buildCameraRigGoal } from "./cameraRigGoal";
 
 export function CameraRig({
   scene,
@@ -69,104 +66,109 @@ export function CameraRig({
   sceneRef.current = scene;
   const lastFitVersionRef = useRef(0);
   const lastOrthoRef = useRef(modelViewUsesOrthographic(viewPreset));
-  const selectionRef = useRef(fitSelection ?? { objectIds: [], wallId: null, openingId: null });
-  selectionRef.current = fitSelection ?? { objectIds: [], wallId: null, openingId: null };
+  const heldFitTargetRef = useRef<ModelViewHeldFit | null>(null);
   const fromRef = useRef<CameraPoseMeters | null>(null);
   const goalRef = useRef<CameraPoseMeters | null>(null);
   const animStartRef = useRef(0);
   const animatingRef = useRef(false);
   const lastOrbitCancelGenerationRef = useRef(0);
+  const lastIntentKeyRef = useRef("");
+  const userOwnedPoseRef = useRef(false);
+  const holdFitRef = useRef(false);
   const draggingRef = useRef(dragging);
   draggingRef.current = dragging;
   const projectCamera = scene.cameras.find((candidate) => candidate.id === activeCameraId)
     ?? scene.cameras.find((candidate) => candidate.isDefault)
     ?? scene.cameras[0];
+
+  function userIsNavigating() {
+    return draggingRef.current || Boolean(orbitNavigatingRef?.current);
+  }
   function latchOrbitCancel() {
     const result = consumeOrbitEaseCancelGeneration(
       orbitEaseCancelGenerationRef?.current ?? 0,
       lastOrbitCancelGenerationRef.current,
     );
     lastOrbitCancelGenerationRef.current = result.nextSeenGeneration;
+    userOwnedPoseRef.current = nextUserOwnedCameraPose({
+      intentChanged: false,
+      userNavigating: userIsNavigating(),
+      orbitCancelled: result.cancel,
+      wasOwned: userOwnedPoseRef.current,
+    });
     if (result.cancel) animatingRef.current = false;
     return result.cancel;
-  }
-  function userIsNavigating() {
-    return draggingRef.current || Boolean(orbitNavigatingRef?.current);
   }
 
   useLayoutEffect(() => {
     const current = sceneRef.current;
-    const named = current.cameras.find((candidate) => candidate.id === activeCameraId)
-      ?? current.cameras.find((candidate) => candidate.isDefault)
-      ?? current.cameras[0];
-    const orthographic = modelViewUsesOrthographic(viewPreset);
-    const namedPose = named
-      ? resolveRenderCameraPose(named, current.bounds, composition, renderMode)
-      : null;
     const applyFitShot = fitVersion > lastFitVersionRef.current;
     if (applyFitShot) lastFitVersionRef.current = fitVersion;
-
-    const framingPose = applyFitShot
-      ? resolveModelViewFitPose(current, viewPreset, fitMode, selectionRef.current)
-      : viewPreset === "perspective"
-        ? namedPose
-        : resolveModelViewPose(current, viewPreset === "walkthrough" ? "dollhouse" : viewPreset);
-    const framing = framingPose ?? fallbackFraming(current);
-    const overriddenPosition = typeof cameraHeightMm === "number"
-      ? { ...framing.position, y: cameraHeightMm }
-      : framing.position;
-    const spanMm = "spanMm" in framing && typeof framing.spanMm === "number"
-      ? framing.spanMm
-      : Math.max(
-        current.bounds.size.widthMm,
-        current.bounds.size.depthMm,
-        current.bounds.size.heightMm,
-        2400,
-      );
-    const roomSpanM = Math.max(current.bounds.size.widthMm, current.bounds.size.depthMm) / 1000;
-    camera.far = resolveModelViewCameraFarMeters(roomSpanM);
-    camera.near = 0.05;
-    camera.updateProjectionMatrix();
-
-    const goal: CameraPoseMeters = {
-      position: {
-        x: mmToMeters(overriddenPosition.x),
-        y: mmToMeters(overriddenPosition.y),
-        z: mmToMeters(overriddenPosition.z),
-      },
-      target: {
-        x: mmToMeters(framing.target.x),
-        y: mmToMeters(framing.target.y),
-        z: mmToMeters(framing.target.z),
-      },
-      fieldOfViewDegrees: fieldOfViewDegrees
-        ?? ("fieldOfViewDegrees" in framing ? framing.fieldOfViewDegrees : undefined),
-      orthographicZoom: orthographic
-        ? orthographicZoomForSpan(spanMm, { widthPx: size.width, heightPx: size.height })
-        : undefined,
-      orthographic,
-    };
-
-    const orthoSwitched = lastOrthoRef.current !== orthographic;
-    lastOrthoRef.current = orthographic;
-    if (orthoSwitched || userIsNavigating()) {
-      applyCameraPose(camera, controlsRef.current, goal);
+    const intentKey = modelViewFramingIntentKey({
+      activeCameraId, viewPreset, fitVersion, fitMode, cameraHeightMm, fieldOfViewDegrees,
+      composition, renderMode, projectId: current.projectId, roomId: current.roomId,
+      cameraFingerprint: cameraPoseFingerprint(projectCamera),
+    });
+    const intentChanged = intentKey !== lastIntentKeyRef.current;
+    lastIntentKeyRef.current = intentKey;
+    const holdFit = shouldHoldFitFraming({
+      applyFitShot, intentChanged, wasHoldingFit: holdFitRef.current,
+    });
+    holdFitRef.current = holdFit;
+    const heldFit = resolveHeldFitSnapshot({
+      applyFitShot,
+      liveMode: fitMode,
+      liveSelection: fitSelection,
+      held: heldFitTargetRef.current,
+    });
+    if (applyFitShot) heldFitTargetRef.current = heldFit;
+    const built = buildCameraRigGoal({
+      scene: current,
+      activeCameraId,
+      composition,
+      renderMode,
+      viewPreset,
+      cameraHeightMm,
+      fieldOfViewDegrees,
+      fitMode: heldFit.mode,
+      fitSelection: heldFit.selection,
+      viewport: { widthPx: size.width, heightPx: size.height },
+      useFitPose: holdFit,
+    });
+    applyCameraClipPlanes(camera, current);
+    const orthoSwitched = lastOrthoRef.current !== built.orthographic;
+    lastOrthoRef.current = built.orthographic;
+    userOwnedPoseRef.current = nextUserOwnedCameraPose({
+      intentChanged,
+      userNavigating: userIsNavigating(),
+      orbitCancelled: false,
+      wasOwned: userOwnedPoseRef.current,
+    });
+    if (!shouldApplyCameraFramingPose({
+      orthoSwitched, intentChanged,
+      userOwnedPose: userOwnedPoseRef.current, userNavigating: userIsNavigating(),
+    })) {
+      animatingRef.current = false;
+      return;
+    }
+    if (orthoSwitched) {
+      applyCameraPose(camera, controlsRef.current, built.goal);
       animatingRef.current = false;
       invalidate();
       return;
     }
-    fromRef.current = readCameraPoseMeters(camera, controlsRef.current, orthographic);
-    goalRef.current = goal;
+    fromRef.current = readCameraPoseMeters(camera, controlsRef.current, built.orthographic);
+    goalRef.current = built.goal;
     animStartRef.current = performance.now();
     animatingRef.current = true;
     invalidate();
   }, [
     activeCameraId, assetRevision, camera, composition, cameraHeightMm, controlsRef,
-    fitMode, fitVersion, fieldOfViewDegrees, invalidate, projectCamera?.fieldOfViewDegrees,
-    projectCamera?.id, projectCamera?.position.x, projectCamera?.position.y,
-    projectCamera?.position.z, projectCamera?.target.x, projectCamera?.target.y,
-    projectCamera?.target.z, renderMode, scene.projectId, scene.roomId,
-    size.height, size.width, viewPreset,
+    fitMode, fitVersion, fieldOfViewDegrees, invalidate, renderMode,
+    projectCamera?.fieldOfViewDegrees, projectCamera?.id, projectCamera?.position.x,
+    projectCamera?.position.y, projectCamera?.position.z, projectCamera?.target.x,
+    projectCamera?.target.y, projectCamera?.target.z, scene.projectId,
+    scene.roomId, size.height, size.width, viewPreset,
   ]);
   useFrame(() => {
     if (latchOrbitCancel() || userIsNavigating()) {
