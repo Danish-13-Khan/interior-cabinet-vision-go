@@ -1,5 +1,5 @@
 import { expect, type Download, type Page } from "@playwright/test";
-import { openQaRenderStudio } from "./plannerStart";
+import { openQaRenderStudio, expectInteriorsHome } from "./plannerStart";
 
 /** Save the open interiors project (JSON download). */
 export async function saveProjectViaDownload(page: Page): Promise<Download> {
@@ -20,7 +20,7 @@ export async function reopenViaDownloadedJson(page: Page, download: Download): P
   await download.saveAs(target);
 
   await page.goto("/app");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await expectInteriorsHome(page);
   const home = page.getByRole("dialog", { name: "Start a living room project" });
   await expect(home).toBeVisible();
 

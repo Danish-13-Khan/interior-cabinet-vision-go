@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { LIVING_ROOM_RECOVERY_STORAGE_KEY } from "../../src/domain/livingRoom";
-import { E2E_SESSION_JSON, loadGoldenCabinetRun } from "./plannerStart";
+import { E2E_SESSION_JSON, expectInteriorsHome, loadGoldenCabinetRun } from "./plannerStart";
 
 export const TABLET_VIEWPORT = { width: 1024, height: 768 };
 
@@ -57,7 +57,7 @@ export async function openGoldenCabinetRunForRecovery(page: Page) {
     window.localStorage.setItem("cabinetStudioSession", session);
   }, E2E_SESSION_JSON);
   await page.reload();
-  await page.getByRole("button", { name: "Interiors" }).click();
+  await expectInteriorsHome(page);
   await loadGoldenCabinetRun(page);
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
 }

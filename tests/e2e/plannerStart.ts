@@ -22,6 +22,11 @@ export type PlannerStartOptions = {
   localStorage?: Record<string, string>;
 };
 
+/** `/app` already is Interiors home — there is no Interiors nav button. */
+export async function expectInteriorsHome(page: Page) {
+  await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
+}
+
 /** Clear storage, seed auth, and open the designer's project picker. */
 export async function openInteriorsHome(page: Page, options?: PlannerStartOptions) {
   const extras = options?.localStorage ?? {};
@@ -33,7 +38,7 @@ export async function openInteriorsHome(page: Page, options?: PlannerStartOption
     }
   }, [E2E_SESSION_JSON, extras] as const);
   await page.goto("/app");
-  await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
+  await expectInteriorsHome(page);
 }
 
 async function loadInteriorsFixture(page: Page, key: "openReleaseDemo" | "openGoldenRun" | "openRenderStudio") {
