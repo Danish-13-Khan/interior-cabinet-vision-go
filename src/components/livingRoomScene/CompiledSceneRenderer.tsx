@@ -7,7 +7,11 @@ import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/envir
 import { filterModelReviewNodes, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
 import { useOrbitCutawaySides } from "./useOrbitCutawaySides";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
-import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
+import {
+  resolveModelViewSelectionBoundsMm,
+  type ModelViewFitMode,
+  type ModelViewFitSelection,
+} from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CompiledSceneObjectLayer } from "./CompiledSceneObjectLayer";
@@ -101,6 +105,12 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   );
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
+  const inspection = resolveModelViewSelectionBoundsMm(scene, {
+    objectIds: selectedIds,
+    wallId: selectedWallId,
+    openingId: selectedOpeningId,
+  });
+  const inspectionSpanMeters = inspection ? inspection.spanMm / 1000 : undefined;
   const environment = scene.style.environment;
   const lightingQuality = lightingQualityOverride
     ?? resolveEnvironmentLightingQuality(renderMode, renderQuality);
@@ -154,6 +164,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         renderQuality={renderQuality} renderComposition={renderComposition}
         renderMode={renderMode} lightingQuality={lightingQuality} environment={environment}
         fitVersion={fitVersion} fitMode={fitMode} fitSelection={fitSelection}
+        inspectionSpanMeters={inspectionSpanMeters}
         onExitWalkthrough={onExitWalkthrough}
       />
     </>

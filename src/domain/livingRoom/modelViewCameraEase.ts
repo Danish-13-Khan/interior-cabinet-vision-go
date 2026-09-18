@@ -33,10 +33,16 @@ export function resolveModelViewOrbitMaxDistance(roomSpanMeters: number): number
   return Math.max(16, roomSpanMeters * 2.4 + 4);
 }
 
-/** Close inspection — keep a small floor so the camera cannot enter the mesh. */
-export function resolveModelViewOrbitMinDistance(): number {
-  return 0.28;
+/** Close inspection — scale the floor with the focused object; stay out of the mesh. */
+export function resolveModelViewOrbitMinDistance(spanMeters?: number): number {
+  if (spanMeters === undefined || !Number.isFinite(spanMeters) || spanMeters <= 0) {
+    return 0.08;
+  }
+  return Math.min(0.45, Math.max(0.04, spanMeters * 0.08));
 }
+
+/** Wheel zooms toward the cursor and can carry the orbit target into the room. */
+export const MODEL_VIEW_ZOOM_TO_CURSOR = true;
 
 /** Screen-space pan lets you inspect details without sliding on the floor plane. */
 export const MODEL_VIEW_SCREEN_SPACE_PANNING = true;

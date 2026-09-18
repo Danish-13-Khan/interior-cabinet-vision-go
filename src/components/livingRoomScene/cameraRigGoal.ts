@@ -39,7 +39,11 @@ export function buildCameraRigGoal(args: {
     ? resolveRenderCameraPose(named, scene.bounds, args.composition, args.renderMode)
     : null;
   const framingPose = args.useFitPose
-    ? resolveModelViewFitPose(scene, viewPreset, args.fitMode, args.fitSelection)
+    ? resolveModelViewFitPose(scene, viewPreset, args.fitMode, args.fitSelection, {
+      widthPx: args.viewport.widthPx,
+      heightPx: args.viewport.heightPx,
+      fieldOfViewDegrees: args.fieldOfViewDegrees,
+    })
     : viewPreset === "perspective"
       ? namedPose
       : resolveModelViewPose(scene, viewPreset === "walkthrough" ? "dollhouse" : viewPreset);

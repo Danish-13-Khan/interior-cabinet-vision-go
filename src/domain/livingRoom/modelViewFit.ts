@@ -1,6 +1,7 @@
 import type { CompiledLivingRoomScene, CompiledSceneBounds } from "./sceneTypes";
 import { modelSelectionTarget } from "./modelSelection";
 import { computeCompiledSceneBounds } from "./sceneCompilerBounds";
+import { aabbFitDistanceMm, selectionFitDistanceMm, offsetFromTargetMm } from "./modelViewFitDistance";
 import {
   resolveModelViewPose,
   type ModelViewPose,
@@ -70,8 +71,8 @@ function nodeMatchesSelection(
   return selection.openingId === target.id;
 }
 
-function spanFromBounds(bounds: CompiledSceneBounds): number {
-  return Math.max(bounds.size.widthMm, bounds.size.heightMm, bounds.size.depthMm, 1200);
+function spanFromBounds(bounds: CompiledSceneBounds, floorMm = 0): number {
+  return Math.max(bounds.size.widthMm, bounds.size.heightMm, bounds.size.depthMm, floorMm);
 }
 
 /** World AABB for the current selection via compiled-scene bounds (node transforms included). */
@@ -90,66 +91,48 @@ export function resolveModelViewFitPose(
   viewPreset: ModelViewPresetId,
   mode: ModelViewFitMode,
   selection: ModelViewFitSelection,
+  view?: { widthPx: number; heightPx: number; fieldOfViewDegrees?: number },
 ): ModelViewFitResult {
   const basePreset: Exclude<ModelViewPresetId, "perspective" | "walkthrough"> =
     viewPreset === "perspective" || viewPreset === "walkthrough" ? "dollhouse" : viewPreset;
 
   if (mode === "room") {
     const roomPose = resolveModelViewPose(scene, basePreset);
-    return { ...roomPose, spanMm: spanFromBounds(scene.bounds) };
+    return { ...roomPose, spanMm: spanFromBounds(scene.bounds, 1200) };
   }
 
   const selected = resolveModelViewSelectionBoundsMm(scene, selection);
   if (!selected) {
     const roomPose = resolveModelViewPose(scene, basePreset);
-    return { ...roomPose, spanMm: spanFromBounds(scene.bounds) };
+    return { ...roomPose, spanMm: spanFromBounds(scene.bounds, 1200) };
   }
 
-  const { center, spanMm } = selected;
-  const distance = spanMm * 1.35;
+  const { center, spanMm, bounds } = selected;
+  const fov = view?.fieldOfViewDegrees
+    ?? (basePreset === "isometric" ? 35 : basePreset === "top" ? 38 : 42);
+  const aspect = view ? view.widthPx / Math.max(view.heightPx, 1) : 1.6;
   const target = { x: center.x, y: center.y, z: center.z };
-
-  if (basePreset === "isometric") {
-    const iso = spanMm * 1.4;
+  const pose = (direction: { x: number; y: number; z: number }) => {
+    const distance = view
+      ? aabbFitDistanceMm({
+        min: bounds.min,
+        max: bounds.max,
+        viewFromTarget: direction,
+        fovDegrees: fov,
+        aspect,
+      })
+      : selectionFitDistanceMm(bounds.size, view, spanMm, fov);
     return {
-      position: { x: center.x + iso, y: center.y + iso, z: center.z + iso },
+      position: offsetFromTargetMm(target, direction, distance),
       target,
-      fieldOfViewDegrees: 35,
+      fieldOfViewDegrees: fov,
       spanMm,
     };
-  }
-  if (basePreset === "top") {
-    return {
-      position: { x: center.x, y: center.y + distance * 1.5, z: center.z + 1 },
-      target,
-      fieldOfViewDegrees: 38,
-      spanMm,
-    };
-  }
-  if (basePreset === "front") {
-    return {
-      position: { x: center.x, y: center.y + distance * 0.1, z: center.z + distance },
-      target,
-      fieldOfViewDegrees: 42,
-      spanMm,
-    };
-  }
-  if (basePreset === "side") {
-    return {
-      position: { x: center.x - distance, y: center.y + distance * 0.1, z: center.z },
-      target,
-      fieldOfViewDegrees: 42,
-      spanMm,
-    };
-  }
-  return {
-    position: {
-      x: center.x + distance * 0.9,
-      y: center.y + distance * 0.55,
-      z: center.z + distance * 0.9,
-    },
-    target,
-    fieldOfViewDegrees: 42,
-    spanMm,
   };
+
+  if (basePreset === "isometric") return pose({ x: 1, y: 1, z: 1 });
+  if (basePreset === "top") return pose({ x: 0, y: 1, z: 0.02 });
+  if (basePreset === "front") return pose({ x: 0, y: 0.1, z: 1 });
+  if (basePreset === "side") return pose({ x: -1, y: 0.1, z: 0 });
+  return pose({ x: 1, y: 0.55, z: 1 });
 }
