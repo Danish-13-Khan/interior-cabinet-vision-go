@@ -22,7 +22,7 @@ export type PlannerStartOptions = {
   localStorage?: Record<string, string>;
 };
 
-/** Clear storage, seed auth, open the designer, enter Interiors workbench. */
+/** Clear storage, seed auth, and open the designer's project picker. */
 export async function openInteriorsHome(page: Page, options?: PlannerStartOptions) {
   const extras = options?.localStorage ?? {};
   await page.addInitScript(([session, extra]) => {
@@ -33,7 +33,7 @@ export async function openInteriorsHome(page: Page, options?: PlannerStartOption
     }
   }, [E2E_SESSION_JSON, extras] as const);
   await page.goto("/app");
-  await page.getByRole("button", { name: "Interiors", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
 }
 
 async function loadInteriorsFixture(page: Page, key: "openReleaseDemo" | "openGoldenRun" | "openRenderStudio") {

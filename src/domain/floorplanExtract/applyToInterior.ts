@@ -8,6 +8,7 @@ import type {
   PlanNodeEntity,
   WallEntity,
 } from "../interiorProject/types";
+import { clampOpeningVertical } from "../interiorProject/openingVerticalBounds";
 import { synchronizeWallCaches } from "../interiorProject/wallGraph";
 import { synchronizeRoomSurfaceZones } from "../interiorProject/roomSurfaces";
 import { mToMm, pointMToMm } from "./meters";
@@ -131,14 +132,19 @@ export function applyFloorplanToInterior(
     if (!(heightM > 0) || !(att.widthM > 0)) {
       throw new Error(`Opening ${id} has nonpositive dimensions (height_m=${heightM}, width_m=${att.widthM})`);
     }
+    const hostHeight = walls.find((wall) => wall.id === att.wallSourceId)?.heightMm ?? heightMm;
+    const vertical = clampOpeningVertical(
+      { heightMm: mToMm(heightM), sillHeightMm: mToMm(sillM) },
+      hostHeight,
+    );
     openings.push({
       id,
       wallId: att.wallSourceId,
       kind,
       offsetMm: mToMm(att.offsetM),
       widthMm: mToMm(att.widthM),
-      heightMm: mToMm(heightM),
-      sillHeightMm: mToMm(sillM),
+      heightMm: vertical.heightMm,
+      sillHeightMm: vertical.sillHeightMm,
       extensions: { fromFloorplanExtract: true, trimmed: att.trimmed },
     });
   }

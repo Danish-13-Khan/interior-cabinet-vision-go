@@ -2,7 +2,8 @@ import { isGeneratedRoomSurface, roomPlanPolygon, roomPolygonIsValid, selectRoom
 import { isWallRaised, outerLoopWallsRaised } from "../interiorProject/wallRaise";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
-import { boxPrimitive, polygonPrismPrimitive } from "./scenePrimitives";
+import { polygonPrismPrimitive } from "./scenePrimitives";
+import { compileWallSkirtingPrimitives } from "./skirtingGeometry";
 import type { CompiledSceneNode } from "./sceneTypes";
 
 const FLOOR_FALLBACK = "compiled:floor-fallback";
@@ -75,12 +76,9 @@ function compileLoopSkirting(
     id: `room-skirting:${room.id}`, name: `${room.name} Skirting`, sourceObjectId: null,
     adapterId: "room-loop-skirting-v2", positionMm: { x: 0, y: 0, z: 0 },
     rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: walls.map((wall) => {
-      const width = Math.max(1, Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z) - 20);
-      return boxPrimitive(`skirting:${wall.id}`, { width, height: 90, depth: 18 }, {
-        x: (wall.start.x + wall.end.x) / 2, y: 45, z: (wall.start.z + wall.end.z) / 2,
-      }, materialId, { rotationDegrees: { x: 0, y: -Math.atan2(wall.end.z - wall.start.z, wall.end.x - wall.start.x) * 180 / Math.PI, z: 0 } });
-    }),
+    primitives: walls.flatMap((wall) => compileWallSkirtingPrimitives(
+      project, room, wall, project.openings, materialId,
+    )),
     placeholder: false, metadata: { role: "architecture", surface: "skirting" },
     renderBinding: createProceduralRenderBinding({ surface: materialId }),
   };

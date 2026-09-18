@@ -3,7 +3,7 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import type { CompiledPrimitive } from "../../domain/livingRoom";
 import { applyBoxSurfaceUvs } from "../../rendering/materials/boxSurfaceUvs";
 
-const geometryCache = new Map<string, BufferGeometry>();
+const geometryCache = new Map<string, { geometry: BufferGeometry; users: number }>();
 
 function polygonGeometry(primitive: Extract<CompiledPrimitive, { kind: "polygon-prism" }>) {
   const shape = new Shape();
@@ -26,10 +26,7 @@ function polygonGeometry(primitive: Extract<CompiledPrimitive, { kind: "polygon-
   return geometry;
 }
 
-/** Share immutable geometry by compiler key across repeated scene nodes. */
-export function getCompiledGeometry(primitive: CompiledPrimitive) {
-  const cached = geometryCache.get(primitive.geometryKey);
-  if (cached) return cached;
+function createCompiledGeometry(primitive: CompiledPrimitive) {
   const geometry = primitive.kind === "polygon-prism"
     ? polygonGeometry(primitive)
     : primitive.kind === "box"
@@ -55,8 +52,32 @@ export function getCompiledGeometry(primitive: CompiledPrimitive) {
   if (primitive.kind === "box" || primitive.kind === "rounded-box") {
     applyBoxSurfaceUvs(geometry, primitive.sizeMm);
   }
-  geometryCache.set(primitive.geometryKey, geometry);
   return geometry;
+}
+
+/** Acquire only after mounting; abandoned React renders must not retain geometry. */
+export function acquireCompiledGeometry(primitive: CompiledPrimitive) {
+  const key = primitive.geometryKey;
+  let entry = geometryCache.get(key);
+  if (!entry) {
+    entry = { geometry: createCompiledGeometry(primitive), users: 0 };
+    geometryCache.set(key, entry);
+  }
+  entry.users += 1;
+  const acquired = entry;
+  let released = false;
+  return {
+    geometry: acquired.geometry,
+    release() {
+      if (released) return;
+      released = true;
+      acquired.users -= 1;
+      if (acquired.users === 0) {
+        geometryCache.delete(key);
+        acquired.geometry.dispose();
+      }
+    },
+  };
 }
 
 export function compiledGeometryCacheSize() {
