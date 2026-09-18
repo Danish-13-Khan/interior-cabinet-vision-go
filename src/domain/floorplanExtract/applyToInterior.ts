@@ -62,7 +62,7 @@ export function applyFloorplanToInterior(
         endNodeId: `fp-node-${e.b}`,
         heightMm,
         thicknessMm: mToMm(e.thickM),
-        raised: true,
+        raised: true, // Option B: import matches live Draw Room (instant 3D).
         visible: true,
         materialId: null,
         extensions: { fromFloorplanExtract: true },

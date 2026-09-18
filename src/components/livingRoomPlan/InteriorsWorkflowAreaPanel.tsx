@@ -64,8 +64,9 @@ export function InteriorsWorkflowAreaPanel(props: InteriorsWorkflowAreaPanelProp
           onUpdateSurface={props.onUpdateSurface} onDeleteSurface={props.onDeleteSurface}
           onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall}
           onUpdateWallThickness={props.onUpdateWallThickness} onJoinCoincidentNodes={props.onJoinCoincidentNodes}
-          onSetPlanUnderlay={props.onSetPlanUnderlay} onImportUnderlay={props.onImportUnderlay}
+          onSetPlanUnderlay={props.onSetPlanUnderlay}
           underlayInputRef={props.underlayInputRef}
+          importWallsInputRef={props.importWallsInputRef}
           onCalibrateUnderlay={props.onCalibrateUnderlay} onToggleSiteMeasure={props.onToggleSiteMeasure} />
       </>;
   }

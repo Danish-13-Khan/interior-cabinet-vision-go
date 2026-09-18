@@ -9,7 +9,7 @@ import {
 import type { BuildTool } from "../../domain/livingRoom/buildToolCommands";
 import { BuildRoomManager } from "./BuildRoomManager";
 import { OpeningCatalogPanel } from "./OpeningCatalogPanel";
-import { PlanUnderlayControls } from "./PlanUnderlayControls";
+import { BuildRoomPlanFiles } from "./BuildRoomPlanFiles";
 import { SiteMeasureChecklist } from "./SiteMeasureChecklist";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { SiteMeasureUserKey } from "../../domain/livingRoom";
@@ -52,8 +52,8 @@ type BuildRoomCatalogPanelProps = {
   onUpdateWallThickness?: (wallId: string, thicknessMm: number) => void;
   onJoinCoincidentNodes?: () => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
-  onImportUnderlay: (file: File | null) => void;
   underlayInputRef: RefObject<HTMLInputElement | null>;
+  importWallsInputRef: RefObject<HTMLInputElement | null>;
   onCalibrateUnderlay?: () => void;
   onToggleSiteMeasure?: (key: SiteMeasureUserKey, value: boolean) => void;
 };
@@ -65,12 +65,8 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
   return (
     <div className="lr-underlay-panel">
       {props.onActiveRoom && props.onRenameRoom ? (
-        <BuildRoomManager project={project}
-          onActiveRoom={props.onActiveRoom}
-          onRenameRoom={props.onRenameRoom}
-          onDeleteRoom={props.onDeleteRoom}
-          onMergeRooms={props.onMergeRooms}
-        />
+        <BuildRoomManager project={project} onActiveRoom={props.onActiveRoom} onRenameRoom={props.onRenameRoom}
+          onDeleteRoom={props.onDeleteRoom} onMergeRooms={props.onMergeRooms} />
       ) : null}
       {tool === "draw-surface" ? (
         <section className="lr-room-authoring lr-build-commit">
@@ -124,12 +120,9 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
       {activeSurface && tool === "select" ? (
         <section className="lr-room-authoring lr-build-commit">
           <strong>Surface zone · {activeSurface.id}</strong>
-          <label>
-            <span>Material</span>
-            <select
-              value={activeSurface.materialId ?? ""}
-              onChange={(event) => props.onUpdateSurface?.(activeSurface.id, event.target.value)}
-            >
+          <label><span>Material</span>
+            <select value={activeSurface.materialId ?? ""}
+              onChange={(event) => props.onUpdateSurface?.(activeSurface.id, event.target.value)}>
               {project.materials.map((material) => (
                 <option key={material.id} value={material.id}>{material.name}</option>
               ))}
@@ -165,13 +158,11 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
         </div>
         <small className="lr-build-selection">Selected wall: {activeWall ? String(activeWall.extensions?.wallSide ?? activeWall.id) : "None — draw a room first"}</small>
         {tool !== "place-door" && tool !== "place-window" ? (
-          <>
-            <strong className="lr-openings-heading">3. Add an opening</strong>
+          <><strong className="lr-openings-heading">3. Add an opening</strong>
             <div className="lr-opening-actions">
               <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, "door")}>+ Add door</button>
               <button type="button" disabled={!activeWall} onClick={() => activeWall && props.onAddOpening(activeWall.id, "window")}>+ Add window</button>
-            </div>
-          </>
+            </div></>
         ) : null}
         {activeWall ? project.openings.filter((opening) => opening.wallId === activeWall.id).map((opening) => (
           <button type="button" key={opening.id} className={`lr-opening-row ${opening.id === activeOpening?.id ? "is-active" : ""}`} onClick={() => props.onActiveOpening(opening.id)}>
@@ -192,20 +183,18 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
           </div>
         ) : null}
       </section>
-      <section className={`lr-room-authoring${tool === "upload-underlay" ? " is-tool-focus" : ""}`}>
-        <strong>4. Plan underlay</strong>
-        <small>{tool === "upload-underlay" ? "Upload tool armed — choose or replace a plan image." : "Optional: align a supplied floor plan before drawing."}</small>
-      </section>
-      <PlanUnderlayControls
+      <BuildRoomPlanFiles
+        tool={tool}
         underlay={props.underlay}
-        onChange={props.onSetPlanUnderlay}
-        onReplace={() => props.underlayInputRef.current?.click()}
-        onCalibrate={props.onCalibrateUnderlay}
+        importError={props.importError}
+        onSetPlanUnderlay={props.onSetPlanUnderlay}
+        underlayInputRef={props.underlayInputRef}
+        importWallsInputRef={props.importWallsInputRef}
+        onCalibrateUnderlay={props.onCalibrateUnderlay}
       />
       {props.onToggleSiteMeasure ? (
         <SiteMeasureChecklist project={project} onToggle={props.onToggleSiteMeasure} />
       ) : null}
-      {props.importError ? <p className="lr-import-error">{props.importError}</p> : null}
     </div>
   );
 }
