@@ -9,6 +9,7 @@ import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livin
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import {
   MODEL_VIEW_SCREEN_SPACE_PANNING,
+  MODEL_VIEW_ZOOM_TO_CURSOR,
   resolveModelViewMaxPolarAngle,
   resolveModelViewMinPolarAngle,
   resolveModelViewOrbitMaxDistance,
@@ -17,6 +18,7 @@ import {
 import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
+import { CursorDollyPastMin } from "./CursorDollyPastMin";
 
 type ModelViewInteractionRigProps = {
   scene: CompiledLivingRoomScene;
@@ -37,6 +39,7 @@ type ModelViewInteractionRigProps = {
   fitVersion: number;
   fitMode: ModelViewFitMode;
   fitSelection?: ModelViewFitSelection;
+  inspectionSpanMeters?: number;
   onExitWalkthrough?: () => void;
 };
 
@@ -60,6 +63,7 @@ export function ModelViewInteractionRig({
   fitVersion,
   fitMode,
   fitSelection,
+  inspectionSpanMeters,
   onExitWalkthrough,
 }: ModelViewInteractionRigProps) {
   const orbitNavigatingRef = useRef(false);
@@ -87,15 +91,15 @@ export function ModelViewInteractionRig({
           zoomSpeed={1.05}
           rotateSpeed={0.92}
           enablePan={viewPreset !== "walkthrough"}
-          enableZoom={viewPreset !== "walkthrough"}
+          enableZoom
+          zoomToCursor={MODEL_VIEW_ZOOM_TO_CURSOR}
           screenSpacePanning={MODEL_VIEW_SCREEN_SPACE_PANNING}
-          minDistance={resolveModelViewOrbitMinDistance()}
+          minDistance={resolveModelViewOrbitMinDistance(inspectionSpanMeters)}
           maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
           minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
           maxPolarAngle={resolveModelViewMaxPolarAngle()}
           onStart={() => {
             orbitNavigatingRef.current = true;
-            // Wheel fires start+end synchronously — latch cancel via generation.
             orbitEaseCancelGenerationRef.current += 1;
           }}
           onEnd={() => { orbitNavigatingRef.current = false; }}
@@ -106,6 +110,7 @@ export function ModelViewInteractionRig({
           }}
         />
       ) : null}
+      {interactive ? <CursorDollyPastMin controlsRef={controlsRef} /> : null}
       <CameraRig
         scene={scene}
         activeCameraId={activeCameraId}
@@ -125,6 +130,7 @@ export function ModelViewInteractionRig({
       />
       <WalkthroughNavigation
         enabled={interactive && viewPreset === "walkthrough"}
+        controlsRef={controlsRef}
         onExit={onExitWalkthrough}
       />
       {interactive && import.meta.env.DEV ? <ModelPickHarness /> : null}

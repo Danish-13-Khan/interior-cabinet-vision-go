@@ -1,18 +1,21 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { Vector3 } from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { clampWalkthroughMoveDelta } from "../../domain/livingRoom/modelViewPerf";
 
 type WalkthroughNavigationProps = {
   enabled: boolean;
+  controlsRef?: RefObject<OrbitControlsImpl | null>;
   onExit?: () => void;
 };
 
 /** Lightweight first-person navigation for the editable 3D viewport. */
-export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigationProps) {
+export function WalkthroughNavigation({
+  enabled, controlsRef, onExit,
+}: WalkthroughNavigationProps) {
   const { camera, gl, invalidate } = useThree();
   const pressed = useRef(new Set<string>());
-  /** Drop the first post-idle frame so demand-frameloop clock gaps never apply. */
   const resumeMoveRef = useRef(false);
 
   useEffect(() => {
@@ -79,8 +82,13 @@ export function WalkthroughNavigation({ enabled, onExit }: WalkthroughNavigation
     if (pressed.current.has("s") || pressed.current.has("arrowdown")) move.sub(forward);
     if (pressed.current.has("d") || pressed.current.has("arrowright")) move.add(right);
     if (pressed.current.has("a") || pressed.current.has("arrowleft")) move.sub(right);
+    if (pressed.current.has("e")) move.y += 1;
+    if (pressed.current.has("q")) move.y -= 1;
     if (move.lengthSq() > 0) {
-      camera.position.addScaledVector(move.normalize(), speed * moveDelta);
+      move.normalize();
+      const step = speed * moveDelta;
+      camera.position.addScaledVector(move, step);
+      controlsRef?.current?.target.addScaledVector(move, step);
       invalidate();
     }
   });
