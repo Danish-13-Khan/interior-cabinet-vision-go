@@ -1,4 +1,6 @@
 import {
+  DEFAULT_WALL_HEIGHT_MM,
+  clampOpeningVertical,
   validateInteriorProject,
   type InteriorProject,
   type OpeningEntity,
@@ -14,14 +16,17 @@ function wallLength(project: InteriorProject, wallId: string) {
 }
 
 function normaliseOpening(project: InteriorProject, opening: OpeningEntity): OpeningEntity {
+  const wall = project.walls.find((item) => item.id === opening.wallId);
   const length = wallLength(project, opening.wallId);
   const widthMm = Math.min(Math.max(300, opening.widthMm), Math.max(300, length - 200));
+  const vertical = clampOpeningVertical(
+    opening, wall?.heightMm ?? DEFAULT_WALL_HEIGHT_MM, { minHeightMm: 300 },
+  );
   return {
     ...opening,
     offsetMm: Math.min(Math.max(0, opening.offsetMm), Math.max(0, length - widthMm)),
     widthMm,
-    heightMm: Math.max(300, opening.heightMm),
-    sillHeightMm: Math.max(0, opening.sillHeightMm),
+    ...vertical,
   };
 }
 

@@ -1,3 +1,4 @@
+import { openingVerticalExceedsWall } from "./openingVerticalBounds";
 import { wallLengthMm } from "./planTopology";
 import type { InteriorValidationIssue, OpeningEntity, WallEntity } from "./types";
 
@@ -25,6 +26,12 @@ export function validateTopologyOpenings(
       issue(issues, {
         severity: "warning", code: "opening-out-of-range", path: `openings.${opening.id}`,
         message: "Opening extent should lie within the host wall length.",
+      });
+    }
+    if (openingVerticalExceedsWall(opening, wall.heightMm)) {
+      issue(issues, {
+        severity: "warning", code: "opening-vertical-out-of-range", path: `openings.${opening.id}`,
+        message: "Opening height and sill should lie within the host wall height.",
       });
     }
     byWall.set(opening.wallId, [...(byWall.get(opening.wallId) ?? []), opening]);

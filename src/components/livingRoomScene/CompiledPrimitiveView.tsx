@@ -1,10 +1,12 @@
 import { Edges } from "@react-three/drei";
 import { type ThreeEvent } from "@react-three/fiber";
+import { useLayoutEffect, useState } from "react";
+import type { BufferGeometry } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { CompiledMaterialView } from "./CompiledMaterialView";
-import { getCompiledGeometry } from "./geometryCache";
+import { acquireCompiledGeometry } from "./geometryCache";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
@@ -25,9 +27,17 @@ export function CompiledPrimitiveView({
   renderQuality?: RenderQuality;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
 }) {
+  const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
+  useLayoutEffect(() => {
+    const lease = acquireCompiledGeometry(primitive);
+    setGeometry(lease.geometry);
+    return lease.release;
+    // Geometry keys encode every dimension; material/position changes reuse the mesh.
+  }, [primitive.geometryKey]);
+  if (!geometry) return null;
   return (
     <mesh
-      geometry={getCompiledGeometry(primitive)}
+      geometry={geometry}
       dispose={null}
       userData={{ materialId: material.id, primitiveId: primitive.id }}
       position={[

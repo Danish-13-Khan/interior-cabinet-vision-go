@@ -4,7 +4,7 @@ import type {
   OpeningEntity,
   WallEntity,
 } from "../interiorProject";
-import { polygonBounds, roomPlanPolygon, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
+import { clampOpeningVertical, polygonBounds, roomPlanPolygon, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import { compileWallHeightMm, isWallRaised } from "../interiorProject/wallRaise";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { compileOpeningNode, wallPoint } from "./sceneCompilerOpenings";
@@ -93,9 +93,12 @@ function compileWall(project: InteriorProject, room: InteriorRoomEntity, wall: W
     const end = Math.max(start, Math.min(length, opening.offsetMm + opening.widthMm));
     const before = wallSegment(wall, `${wall.id}:before:${opening.id}`, cursor, start, 0, topMm, materialId, wallSide);
     if (before) nodes.push(before);
-    const below = wallSegment(wall, `${wall.id}:below:${opening.id}`, start, end, 0, opening.sillHeightMm, materialId, wallSide);
+    const vertical = clampOpeningVertical(opening, topMm);
+    const below = wallSegment(
+      wall, `${wall.id}:below:${opening.id}`, start, end, 0, vertical.sillHeightMm, materialId, wallSide,
+    );
     if (below) nodes.push(below);
-    const openingTop = Math.min(topMm, opening.sillHeightMm + opening.heightMm);
+    const openingTop = vertical.sillHeightMm + vertical.heightMm;
     const above = wallSegment(wall, `${wall.id}:above:${opening.id}`, start, end, openingTop, topMm, materialId, wallSide);
     if (above) nodes.push(above);
     cursor = Math.max(cursor, end);
@@ -119,7 +122,11 @@ export function compileLivingRoomArchitecture(
       .filter((opening) => opening.extensions?.layerVisible !== false)
       .map((opening) => {
         const wall = project.walls.find((candidate) => candidate.id === opening.wallId);
-        return wall && isWallRaised(wall) ? compileOpeningNode(opening, wall) : null;
+        if (!wall || !isWallRaised(wall)) return null;
+        const vertical = clampOpeningVertical(opening, compileWallHeightMm(wall));
+        return vertical.heightMm > 0
+          ? compileOpeningNode({ ...opening, ...vertical }, wall)
+          : null;
       })
       .filter((node): node is CompiledSceneNode => node !== null),
   ];

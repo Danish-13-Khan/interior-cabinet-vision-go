@@ -51,6 +51,10 @@ export {
   clampWallHeightMm,
   clampWallThicknessMm,
 } from "./authoringStandards";
+export {
+  clampOpeningVertical,
+  openingVerticalExceedsWall,
+} from "./openingVerticalBounds";
 export { MAX_PROJECT_ENTITIES_PER_COLLECTION, validateInteriorProject } from "./validation";
 export {
   migrateInteriorProjectDocument,
