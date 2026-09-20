@@ -19,10 +19,21 @@ export type ExtractPolygon = {
   opening?: ExtractOpening;
 };
 
+/** Human scale trust. `pixel_scale` alone is never millwork-trusted. */
+export type ScaleTrustStatus = "unknown" | "assumed" | "calibrated";
+
+export type ExtractScaleTrust = {
+  status: ScaleTrustStatus;
+  source?: string;
+  referenceLengthMm?: number;
+};
+
 export type ExtractionResult = {
   schema_version: string;
   units: "meters" | "centimeters";
   pixel_scale?: number | null;
+  /** Additive. Missing → treat as unknown (do not infer from pixel_scale). */
+  scale?: ExtractScaleTrust;
   image_size?: { width: number; height: number };
   source?: {
     filename?: string;

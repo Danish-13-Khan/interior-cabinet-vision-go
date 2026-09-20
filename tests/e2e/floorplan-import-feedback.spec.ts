@@ -70,4 +70,28 @@ test("golden kitchen DXF: review, calibrate, Apply, 3D, cabinet snap", async ({ 
   await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.getByTestId("lr-plan-svg")).toBeVisible();
   await placeBaseCabinetOnImportedWall(page);
+  await expect(page.getByTestId("lr-floorplan-apply-undo")).toHaveCount(0);
+});
+
+test("import apply Undo restores the prior shell", async ({ page }) => {
+  test.setTimeout(90_000);
+  await seedE2eSession(page);
+  await page.goto("/app");
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
+  await applyGoldenKitchenImport(page);
+  await expect(page.locator('[data-wall-id="wall-front"]')).toHaveCount(1);
+  await page.getByTestId("lr-floorplan-apply-undo").getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByTestId("lr-floorplan-apply-undo")).toHaveCount(0);
+  await expect(page.locator('[data-wall-id="wall-front"]')).toHaveCount(0);
+});
+
+test("toolbar Undo hides a stale import apply banner", async ({ page }) => {
+  test.setTimeout(90_000);
+  await seedE2eSession(page);
+  await page.goto("/app");
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
+  await applyGoldenKitchenImport(page);
+  await page.locator('button[aria-label="Undo"]').click();
+  await expect(page.getByTestId("lr-floorplan-apply-undo")).toHaveCount(0);
+  await expect(page.locator('[data-wall-id="wall-front"]')).toHaveCount(0);
 });

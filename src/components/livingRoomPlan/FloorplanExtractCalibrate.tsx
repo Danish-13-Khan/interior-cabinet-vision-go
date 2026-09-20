@@ -26,7 +26,7 @@ export function FloorplanExtractCalibrate(props: Props) {
     <section data-testid="lr-floorplan-calibrate" aria-label="Scale calibration">
       <strong>Calibrate scale</strong>
       <p style={{ margin: "4px 0", fontSize: 12, color: "#555" }}>
-        Measure a known wall on the plan (primary). pixel_scale is advanced.
+        Measure a known wall. Apply stays blocked until scale is calibrated.
       </p>
       <label>
         Real length (m)

@@ -1,6 +1,6 @@
 # Import Walls — locked roadmap
 
-**Branch:** `feat/import-walls-phase-01`  
+**Branch:** `feat/import-walls-phase-02`  
 **Role:** Product/engineering plan for floor-plan → editable room.  
 **Not:** a replacement for [FLOORPLAN_EXTRACT_API_CONTRACT.md](./FLOORPLAN_EXTRACT_API_CONTRACT.md) (sidecar JSON/API).
 
@@ -52,9 +52,9 @@ Detection has one job: fill `ExtractionResult`. Studio 3D compiles `InteriorProj
 
 | ID | Work | Status |
 | --- | --- | --- |
-| 0 | Split Underlay vs Import Walls (two actions, not two file-type silos). PNG may extract later; it must not today. | This slice |
-| 1 | Golden axis-aligned **single-room kitchen DXF** → review → calibrate → Apply (`raised: true`) → walls in existing 2D and 3D → **cabinet snaps** to an imported wall. No Raise step. No doors, layers, apartments, raster. | This slice |
-| 2 | Human review UX, scale status, confirm replace, visible Undo. Hide JSON patch from sales UI. | Next |
+| 0 | Split Underlay vs Import Walls (two actions, not two file-type silos). PNG may extract later; it must not today. | Done |
+| 1 | Golden axis-aligned **single-room kitchen DXF** → review → calibrate → Apply (`raised: true`) → walls in existing 2D and 3D → **cabinet snaps** to an imported wall. No Raise step. No doors, layers, apartments, raster. | Done |
+| 2 | Human review UX, scale status, confirm replace, visible Undo. Hide JSON patch from sales UI. | This slice |
 | 3 | Serious DXF/SVG importer **in the sidecar**. Rectangle → L → openings → T → shared wall. Cabinet only consumes `ExtractionResult`. | Later |
 | 3.5 | Room detection → pick working room → filter draft → Apply. | After 3 |
 | 4 | Clean PNG/JPG raster, same draft schema, mandatory scale if unknown. | After 3.5 |
@@ -78,3 +78,9 @@ Phase 1 fixture is constrained (axis-aligned, known scale, one room). “Real ar
 Proof in this repo: `fixtures/floorplanExtract/kitchen.dxf` (paired extract JSON), domain snap in `goldenKitchenApply.test.ts`, UI journey in `tests/e2e/floorplan-import-feedback.spec.ts`. `/extract` is still mocked (sidecar lives outside Cabinet); the DXF file is the real upload payload.
 
 Run Apply on an empty/drawn room: Apply **replaces the shell and clears objects**.
+
+## Phase 2 definition of done
+
+> Review shows scale `UNKNOWN` | `ASSUMED` | `CALIBRATED`. `pixel_scale = 0.001` is assumed, not trusted. Unknown and assumed **block Apply** until the user measures a length. JSON patch stays under Advanced. Apply uses editor history and shows **Undo**.
+
+Proof: `scaleTrust.test.ts`, review chip `lr-floorplan-scale-status`, banner `lr-floorplan-apply-undo`. Golden e2e calibrates to unlock Apply (no “I confirmed scale” checkbox).

@@ -42,4 +42,32 @@ describe("assertExtractionShape", () => {
     expect(shaped.polygons.doors[0].opening?.swing).toBe("left");
     expect(shaped.polygons.doors[0].opening?.height_m).toBeUndefined();
   });
+
+  it("preserves additive scale and does not invent it from pixel_scale", () => {
+    const shaped = assertExtractionShape({
+      schema_version: "1.0",
+      units: "meters",
+      pixel_scale: 0.001,
+      scale: { status: "assumed", source: "dxf_insunits" },
+      polygons: {
+        rooms: [],
+        walls: [{ id: "wall-0", outer: [[0, 0], [2, 0], [2, 0.2], [0, 0.2]] }],
+        doors: [],
+        windows: [],
+      },
+    });
+    expect(shaped.scale).toEqual({ status: "assumed", source: "dxf_insunits" });
+    const noScale = assertExtractionShape({
+      schema_version: "1.0",
+      units: "meters",
+      pixel_scale: 0.001,
+      polygons: {
+        rooms: [],
+        walls: [{ id: "wall-0", outer: [[0, 0], [2, 0], [2, 0.2], [0, 0.2]] }],
+        doors: [],
+        windows: [],
+      },
+    });
+    expect(noScale.scale).toBeUndefined();
+  });
 });
