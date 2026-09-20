@@ -1,6 +1,8 @@
 import type { InteriorProject } from "../interiorProject";
 
 export type LivingRoomPlanUnderlay = {
+  sourceType?: "dwg";
+  importReport?: string;
   fileName: string;
   dataUrl: string;
   widthMm: number;
@@ -41,7 +43,7 @@ export function getLivingRoomPlanUnderlay(
   let widthMm: number;
   let heightMm: number;
   if (rawW > 0 && rawH > 0) {
-    const uplift = Math.max(1, 100 / rawW, 100 / rawH);
+    const uplift = candidate.sourceType === "dwg" ? 1 : Math.max(1, 100 / rawW, 100 / rawH);
     widthMm = rawW * uplift;
     heightMm = rawH * uplift;
   } else {
@@ -49,6 +51,8 @@ export function getLivingRoomPlanUnderlay(
     heightMm = Math.max(100, rawH);
   }
   return {
+    importReport: typeof candidate.importReport === "string" ? candidate.importReport : undefined,
+    sourceType: candidate.sourceType === "dwg" ? "dwg" : undefined,
     fileName: candidate.fileName,
     dataUrl: candidate.dataUrl,
     widthMm,

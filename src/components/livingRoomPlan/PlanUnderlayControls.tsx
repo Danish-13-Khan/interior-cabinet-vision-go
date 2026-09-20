@@ -11,7 +11,7 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
       <div className="lr-underlay-empty" data-testid="lr-underlay-empty">
         <span>⌁</span>
         <strong>Import a floor plan</strong>
-        <p>Use PNG, JPG, WebP, or PDF as a tracing underlay. Calibrate with a known distance after import.</p>
+        <p>Use PNG, JPG, WebP, PDF, or DWG as a tracing underlay. Calibrate with a known distance after import.</p>
         <button type="button" data-testid="lr-underlay-choose" onClick={onReplace}>Choose plan file</button>
       </div>
     );
@@ -29,6 +29,7 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
     <div className={`lr-underlay-controls ${locked ? "is-locked" : ""} ${hidden ? "is-hidden" : ""}`} data-testid="lr-underlay-controls">
       <div className="lr-underlay-thumb"><img src={underlay.dataUrl} alt="Imported floor plan" /></div>
       <strong>{underlay.fileName}</strong>
+      {underlay.importReport && <details><summary>DWG import report</summary><p>{underlay.importReport}</p></details>}
       <small>{Math.round(underlay.widthMm)} × {Math.round(underlay.heightMm)} mm</small>
       <div className="lr-underlay-status" data-testid="lr-underlay-status" aria-label="Underlay status">
         <span className={calibrated ? "is-on" : ""} data-testid="lr-underlay-calibrated-chip">

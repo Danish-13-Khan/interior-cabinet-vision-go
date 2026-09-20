@@ -11,6 +11,7 @@ import {
   type ExtractionResult,
   type LiveSchemaStatus,
 } from "../../domain/floorplanExtract";
+import { PlanUnderlayDwgDialog } from "./PlanUnderlayDwgDialog";
 import { FloorplanExtractReview } from "./FloorplanExtractReview";
 import { useEffect, useRef, useState } from "react";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
@@ -41,6 +42,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   const [extractLiveSchema, setExtractLiveSchema] = useState<LiveSchemaStatus | null>(null);
   const [lastAppliedExtract, setLastAppliedExtract] = useState<ExtractionResult | null>(null);
   const extractRequestIdRef = useRef(0);
+  const [dwgImportFile, setDwgImportFile] = useState<File | null>(null);
   const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
   useEffect(() => {
@@ -132,6 +134,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             setExtractLiveSchema(null);
             setExtractStatus(null);
             props.onImportError("");
+            setDwgImportFile(null);
+            setPdfImportFile(null);
+            if (/\.dwg$/i.test(file.name)) {
+              setDwgImportFile(file);
+              return;
+            }
             if (isPdfFile(file)) {
               setPdfImportFile(file);
               return;
@@ -243,6 +251,13 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onAddWallPanel={w.onAddWallPanel}
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} transformPreview={modelTransformPreview} />
+      {dwgImportFile && <PlanUnderlayDwgDialog key={dwgImportFile.name + dwgImportFile.lastModified} file={dwgImportFile}
+        onCancel={() => setDwgImportFile(null)} onConfirm={underlay => {
+          setDwgImportFile(null);
+          w.onSetPlanUnderlay(underlay);
+          props.onStudioPanel("build");
+          props.onBuildTool("calibrate-underlay");
+        }} />}
       <LivingRoomPlanPdfImportSlot
         file={pdfImportFile}
         roomWidthMm={room?.dimensions.widthMm ?? 6200}
