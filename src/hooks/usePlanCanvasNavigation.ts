@@ -11,7 +11,6 @@ import {
   PLAN_VIEW_ZOOM_STEP,
   clientToPlanPoint,
   clientToPlanPointFromSvg,
-  fitPlanViewToBounds,
   panPlanViewByScreen,
   planViewBoxString,
   planViewWorldPerPx,
@@ -20,6 +19,7 @@ import {
   type PlanViewBounds,
   type PlanViewBox,
 } from "../domain/livingRoom/planViewTransform";
+import { usePlanCanvasFit } from "./usePlanCanvasFit";
 
 type SvgSize = { width: number; height: number };
 
@@ -44,28 +44,18 @@ export function usePlanCanvasNavigation(options: {
   const [spaceDown, setSpaceDown] = useState(false);
   const [panning, setPanning] = useState(false);
   const panDrag = useRef<{ pointerId: number; lastX: number; lastY: number } | null>(null);
-  const fittedKey = useRef<string | null>(null);
+  const { fitToBounds } = usePlanCanvasFit({
+    svg: svgEl,
+    fitBounds: options.fitBounds,
+    fitKey: options.fitKey,
+    marginMm,
+    setView,
+  });
 
   const readSize = useCallback((): SvgSize => {
     const rect = svgRef.current?.getBoundingClientRect();
-    return {
-      width: Math.max(1, rect?.width ?? 800),
-      height: Math.max(1, rect?.height ?? 600),
-    };
+    return { width: Math.max(1, rect?.width ?? 800), height: Math.max(1, rect?.height ?? 600) };
   }, []);
-
-  const fitToBounds = useCallback((bounds: PlanViewBounds | null) => {
-    if (!bounds) return;
-    const size = readSize();
-    setView(fitPlanViewToBounds(bounds, size.width, size.height, marginMm));
-  }, [marginMm, readSize]);
-
-  useEffect(() => {
-    if (!options.fitBounds) return;
-    if (fittedKey.current === options.fitKey) return;
-    fittedKey.current = options.fitKey;
-    fitToBounds(options.fitBounds);
-  }, [fitToBounds, options.fitBounds, options.fitKey]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
