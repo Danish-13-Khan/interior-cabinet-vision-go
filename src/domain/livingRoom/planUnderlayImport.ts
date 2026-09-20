@@ -1,10 +1,31 @@
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
+/** File input accept list for tracing underlays — images and PDF only. */
+export const PLAN_UNDERLAY_FILE_ACCEPT =
+  "image/png,image/jpeg,image/jpg,image/webp,image/gif,application/pdf,.pdf";
+
+export const PLAN_UNDERLAY_UNSUPPORTED_MESSAGE =
+  "Use a PNG, JPG, WebP, or PDF as a tracing image. Draw walls on the plan after import.";
+
 /** True when the file looks like a PDF (MIME and/or .pdf extension). */
 export function isPdfFile(file: File): boolean {
   const type = (file.type || "").toLowerCase();
   if (type === "application/pdf" || type === "application/x-pdf") return true;
   return /\.pdf$/i.test(file.name || "");
+}
+
+/** Raster images the underlay can display. SVG/DXF are not tracing images. */
+export function isUnderlayImageFile(file: File): boolean {
+  const type = (file.type || "").toLowerCase();
+  if (type === "image/svg+xml") return false;
+  if (type.startsWith("image/")) return true;
+  return /\.(png|jpe?g|gif|webp)$/i.test(file.name || "");
+}
+
+export function planUnderlayFileKind(file: File): "pdf" | "image" | "unsupported" {
+  if (isPdfFile(file)) return "pdf";
+  if (isUnderlayImageFile(file)) return "image";
+  return "unsupported";
 }
 
 /** Build underlay fields from an already-decoded PNG/JPEG/WebP data URL. */
