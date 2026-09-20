@@ -58,3 +58,36 @@ across 7 files. Failures were in existing File/crypto-dependent and PDF checks;
 the shell currently uses Node 18.15.0, below several dependency requirements.
 Repeat baseline verification under a supported Node runtime before integration.
 No existing production modules were changed by this initial implementation.
+
+## Browser import implementation
+
+The active project checkout now uses `codex/dwg-room-design-roadmap`, at the
+user's request. The original sibling worktree is detached at the foundation commit.
+
+Implemented: pinned LibreDWG Web 0.7.14, bundled local WASM, worker parsing with
+cancellation and timeout, DWG file selection, preview zoom, layer selection at
+import, unit-derived scale or manual millimeters-per-unit entry, explicit omitted
+entity reporting, and import into the existing calibration/transform workflow.
+SVG background, exact dimensions, transforms and the import report persist through
+the existing project model. DWG import does not generate editable walls.
+
+The initial geometry adapter supports planar LINE, straight LWPOLYLINE and CIRCLE.
+Blocks, arcs, curved polylines, text, hatches and other unsupported entities are
+reported, not silently approximated. Layers can be selected in the import dialog;
+changing layer visibility after import requires reimporting the DWG. The source
+DWG bytes are not saved; the generated self-contained SVG is saved.
+
+Verification: 42 focused tests pass, including scale, geometry, calibration and
+JSON save/reopen. Production build passes. A headless Chromium smoke test of the
+built worker parsed upstream `test/test-data/example_2018.dwg`: 8 entities drawn,
+one layer, millimeter units, with unsupported types reported. This is a mixed-entity
+parser sample, not representative validation of a customer room drawing.
+
+Dependency metadata identifies LibreDWG Web as GPL-3.0; the repository contains
+GPLv3 license text. Preserve upstream notices and provide corresponding source
+when distributing the bundled dependency. Dependency source:
+https://github.com/mlightcad/libredwg-web
+
+Still pending: broader entity/block support, representative customer DWGs,
+end-to-end room tracing/cabinet integration acceptance, and full application
+save/reopen/output regression validation. Do not call the complete roadmap done.
