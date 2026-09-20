@@ -1,3 +1,4 @@
+import { toggleDwgLayer } from "../../domain/livingRoom/dwgSource";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom";
 
 export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrate }: {
@@ -30,6 +31,12 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
       <div className="lr-underlay-thumb"><img src={underlay.dataUrl} alt="Imported floor plan" /></div>
       <strong>{underlay.fileName}</strong>
       {underlay.importReport && <details><summary>DWG import report</summary><p>{underlay.importReport}</p></details>}
+      {underlay.dwg && <details><summary>DWG layers</summary>
+        {underlay.dwg.preview.layers.map(layer => <label key={layer.name} style={{ display: "block" }}>
+          <input type="checkbox" disabled={locked} checked={!underlay.dwg!.hiddenLayers.includes(layer.name)}
+            onChange={() => onChange(toggleDwgLayer(underlay,layer.name))} />{layer.name}
+        </label>)}
+      </details>}
       <small>{Math.round(underlay.widthMm)} × {Math.round(underlay.heightMm)} mm</small>
       <div className="lr-underlay-status" data-testid="lr-underlay-status" aria-label="Underlay status">
         <span className={calibrated ? "is-on" : ""} data-testid="lr-underlay-calibrated-chip">

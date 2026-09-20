@@ -59,7 +59,10 @@ export function drawRoomFromPoints(
   const normalized = normalizeRoomPolygon(request.points);
   if (!normalized) return project;
   const firstRoom = project.rooms.length === 0;
-  const points = firstRoom ? centerPolygonAtOrigin(normalized) : normalized;
+  // Traced coordinates belong to the background's world frame. Recentring only
+  // the first room would detach it from the calibrated drawing.
+  const hasUnderlay = Boolean(project.extensions?.planUnderlay);
+  const points = firstRoom && !hasUnderlay ? centerPolygonAtOrigin(normalized) : normalized;
   const origin = {
     x: (Math.min(...points.map((point) => point.x)) + Math.max(...points.map((point) => point.x))) / 2,
     z: (Math.min(...points.map((point) => point.z)) + Math.max(...points.map((point) => point.z))) / 2,
