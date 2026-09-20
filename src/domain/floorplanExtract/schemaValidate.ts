@@ -29,11 +29,18 @@ export async function fetchFloorplanSchema(force = false): Promise<JsonSchema> {
   return cached;
 }
 
+/** Contract extras the hosted /schema/v1 enum sometimes omits (DXF → vector). */
+const CONTRACT_SOURCE_MODES = ["stub", "yytsi", "raster2seq", "vector", "worker"];
+
 function checkEnum(path: string, value: unknown, allowed: unknown[] | undefined) {
   if (!allowed || allowed.length === 0) return;
   if (!allowed.includes(value)) {
     throw new Error(`schema: ${path}=${JSON.stringify(value)} not in ${JSON.stringify(allowed)}`);
   }
+}
+
+function sourceModeAllowed(liveEnum: unknown[] | undefined): unknown[] {
+  return [...new Set([...(liveEnum ?? []), ...CONTRACT_SOURCE_MODES])];
 }
 
 /** Live GET /schema/v1 checks on top of structural assertExtractionShape. */
@@ -53,7 +60,7 @@ export async function validateExtractionAgainstLiveSchema(raw: unknown): Promise
   checkEnum("units", shaped.units, props.units?.enum as unknown[] | undefined);
   if (shaped.source?.mode != null) {
     const modeEnum = props.source?.properties?.mode?.enum as unknown[] | undefined;
-    checkEnum("source.mode", shaped.source.mode, modeEnum);
+    checkEnum("source.mode", shaped.source.mode, sourceModeAllowed(modeEnum));
   }
   if (shaped.source?.quality != null) {
     const qEnum = props.source?.properties?.quality?.enum as unknown[] | undefined;
