@@ -161,7 +161,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         clientPackageBlocked={clientPackageBlocked}
         v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
         readability={props.readability} onReadability={props.onReadability}
-        drawCommands={interiorsDrawRoomStageCommands(props)}
+        drawCommands={{ ...interiorsDrawRoomStageCommands(props), onImportWalls: () => importWallsPickerRef.current?.() }}
         cabinetRunCommands={interiorsCabinetRunStageCommands(props)}
         presentCommands={interiorsPresentStageCommands(props)}
         presenting={props.plannerMode === "render"}

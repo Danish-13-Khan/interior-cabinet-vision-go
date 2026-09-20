@@ -4,6 +4,7 @@ import {
   interiorsDrawRoomShowUnderlay,
 } from "../../domain/desktopUx";
 import { BuildRoomManager } from "./BuildRoomManager";
+import { ImportWallsControls } from "./ImportWallsControls";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
 import { SiteMeasureChecklist } from "./SiteMeasureChecklist";
 import type { InteriorsDrawRoomManageProps } from "./interiorsDrawRoomCommands";
@@ -43,6 +44,9 @@ export function InteriorsDrawRoomManage({
               </button>
             ))}
           </div>
+        ) : null}
+        {commands.onImportWalls ? (
+          <ImportWallsControls onChoose={commands.onImportWalls} />
         ) : null}
         {showUnderlay ? (
           <>
