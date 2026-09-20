@@ -668,6 +668,11 @@ export {
   type LivingRoomPlanUnderlay,
 } from "./planUnderlay";
 export {
+  planCanvasFitBounds,
+  planSiteBoundsForCanvas,
+  planUnderlayFitKey,
+} from "./planUnderlayBounds";
+export {
   calibrateUnderlayScale,
   parseKnownLengthMm,
 } from "./planUnderlayCalibrate";

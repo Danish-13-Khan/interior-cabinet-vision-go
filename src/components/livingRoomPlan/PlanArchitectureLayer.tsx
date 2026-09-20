@@ -1,9 +1,9 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import {
-  EMPTY_PLAN_SITE_BOUNDS, roomPlanPolygon, roomPlanViewBounds, selectWallsForRoom,
+  roomPlanPolygon, roomPlanViewBounds, selectWallsForRoom,
   type InteriorProject, type InteriorRoomEntity, type Point2Mm,
 } from "../../domain/interiorProject";
-import { getLivingRoomPlanUnderlay, type PlanVisualStyle } from "../../domain/livingRoom";
+import { getLivingRoomPlanUnderlay, planSiteBoundsForCanvas, type PlanVisualStyle } from "../../domain/livingRoom";
 
 export function PlanArchitectureLayer(props: {
   project: InteriorProject; room: InteriorRoomEntity | null; snapSizeMm: number; showGrid: boolean;
@@ -17,7 +17,10 @@ export function PlanArchitectureLayer(props: {
   const materials = new Map(props.project.materials.map((material) => [material.id, material]));
   const floorId = typeof props.room?.extensions?.floorMaterialId === "string" ? props.room.extensions.floorMaterialId : "";
   const floorColor = materials.get(floorId)?.color ?? "#e8dfd0";
-  const bounds = props.room ? roomPlanViewBounds(props.project, props.room.id) : EMPTY_PLAN_SITE_BOUNDS;
+  const bounds = planSiteBoundsForCanvas(
+    props.room ? roomPlanViewBounds(props.project, props.room.id) : null,
+    underlay,
+  );
   const polygon = props.room ? roomPlanPolygon(props.project, props.room.id) : null;
   const loopPath = (points: Point2Mm[]) => points.map((point, index) =>
     `${index ? "L" : "M"}${point.x} ${point.z}`).join(" ") + " Z";
