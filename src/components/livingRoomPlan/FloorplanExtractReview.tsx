@@ -3,13 +3,13 @@ import type { InteriorProject } from "../../domain/interiorProject";
 import {
   applyFloorplanToInterior,
   ensureCollisionFreeIds,
-  exportFloorplanBuilding,
-  exportFloorplanGlb,
+  markScaleCalibrated,
   normalizeExtraction,
   patchFloorplanGeometry,
   applyImpactKey,
+  resolveScaleTrust,
+  scaleTrustAllowsApply,
   summarizeFloorplanApplyImpact,
-  wrapSingleFloorBuilding,
   type ExtractionResult,
   type LiveSchemaStatus,
   type NormalizedFloorplan,
@@ -17,8 +17,9 @@ import {
 } from "../../domain/floorplanExtract";
 import { FloorplanExtractOverlay } from "./FloorplanExtractOverlay";
 import { FloorplanExtractCalibrate } from "./FloorplanExtractCalibrate";
-import { FloorplanExtractPatchPanel } from "./FloorplanExtractPatchPanel";
 import { FloorplanExtractApplyGate, canPassApplyGate } from "./FloorplanExtractApplyGate";
+import { FloorplanExtractReviewFooter } from "./FloorplanExtractReviewFooter";
+import { FloorplanExtractReviewIssues } from "./FloorplanExtractReviewIssues";
 
 type Props = {
   draft: ExtractionResult;
@@ -36,7 +37,6 @@ export function FloorplanExtractReview(props: Props) {
     props.initialLiveSchema ?? { state: "structural-fallback", message: "Schema status unknown" },
   );
   const [acceptThin, setAcceptThin] = useState(false);
-  const [scaleConfirmed, setScaleConfirmed] = useState(false);
   const [replaceAck, setReplaceAck] = useState(false);
   const [schemaFallbackAck, setSchemaFallbackAck] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -45,7 +45,6 @@ export function FloorplanExtractReview(props: Props) {
     setWorkingDraft(ensureCollisionFreeIds(props.draft));
     setLiveSchema(props.initialLiveSchema ?? { state: "structural-fallback", message: "Schema status unknown" });
     setAcceptThin(false);
-    setScaleConfirmed(false);
     setReplaceAck(false);
     setSchemaFallbackAck(false);
     setBusy(false);
@@ -57,21 +56,21 @@ export function FloorplanExtractReview(props: Props) {
   );
   const impact = useMemo(() => summarizeFloorplanApplyImpact(props.project), [props.project]);
   const impactKey = applyImpactKey(props.project, impact);
-  useEffect(() => {
-    setReplaceAck(false);
-  }, [impactKey]);
+  useEffect(() => { setReplaceAck(false); }, [impactKey]);
+  const trust = resolveScaleTrust(workingDraft);
   const gateOk = canPassApplyGate({ impact, liveSchema, replaceAck, schemaFallbackAck });
-  const applyEnabled = normalized.canApply && scaleConfirmed && gateOk;
-  const trimmedOpenings = Object.entries(normalized.openingAttachments)
-    .filter(([, a]) => a.status === "matched" && a.trimmed);
+  const applyEnabled = normalized.canApply && scaleTrustAllowsApply(trust) && gateOk;
 
-  const runPatch = async (ops: Parameters<typeof patchFloorplanGeometry>[1]) => {
+  const runPatch = async (
+    ops: Parameters<typeof patchFloorplanGeometry>[1],
+    stamp?: (draft: ExtractionResult) => ExtractionResult,
+  ) => {
     setBusy(true);
     try {
       const ingest = await patchFloorplanGeometry(ensureCollisionFreeIds(workingDraft), ops);
-      setWorkingDraft(ensureCollisionFreeIds(ingest.draft));
+      const next = stamp ? stamp(ingest.draft) : ingest.draft;
+      setWorkingDraft(ensureCollisionFreeIds(next));
       setLiveSchema(ingest.liveSchema);
-      setScaleConfirmed(false);
       setSchemaFallbackAck(false);
     } catch (error) {
       props.onError(error instanceof Error ? error.message : "Patch failed.");
@@ -91,17 +90,10 @@ export function FloorplanExtractReview(props: Props) {
     }
   };
 
-  const downloadBlob = (blob: Blob, name: string) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = name; a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
-    <div className="lr-floorplan-extract-review" data-testid="lr-floorplan-extract-review" role="dialog" aria-label="Floor plan extract review">
+    <div className="lr-floorplan-extract-review" data-testid="lr-floorplan-extract-review" role="dialog" aria-label="Review import draft">
       <header>
-        <strong>Floor plan → 3D</strong>
+        <strong>Review import draft</strong>
         <button type="button" onClick={props.onClose} disabled={busy}>Close</button>
       </header>
 
@@ -111,16 +103,33 @@ export function FloorplanExtractReview(props: Props) {
         pixelScale={workingDraft.pixel_scale}
         busy={busy}
         onApplyRefLength={(refLengthM, refLengthPx) => {
-          void runPatch([{ kind: "set_scale", pixel_scale: refLengthM / refLengthPx, rescale_coords: true }]);
+          void runPatch(
+            [{ kind: "set_scale", pixel_scale: refLengthM / refLengthPx, rescale_coords: true }],
+            (draft) => markScaleCalibrated(draft, { referenceLengthMm: refLengthM * 1000 }),
+          );
         }}
         onApplyPixelScale={(pixelScale, rescaleCoords) => {
-          void runPatch([{ kind: "set_scale", pixel_scale: pixelScale, rescale_coords: rescaleCoords }]);
+          void runPatch(
+            [{ kind: "set_scale", pixel_scale: pixelScale, rescale_coords: rescaleCoords }],
+            (draft) => markScaleCalibrated(draft, { source: "user_pixel_scale" }),
+          );
         }}
       />
 
-      <FloorplanExtractPatchPanel
-        draft={workingDraft}
-        busy={busy}
+      <FloorplanExtractReviewIssues
+        draft={workingDraft} trust={trust} normalized={normalized}
+        acceptThin={acceptThin} busy={busy} onAcceptThin={setAcceptThin}
+      />
+
+      <FloorplanExtractApplyGate
+        impact={impact} liveSchema={liveSchema}
+        replaceAck={replaceAck} schemaFallbackAck={schemaFallbackAck}
+        onReplaceAck={setReplaceAck} onSchemaFallbackAck={setSchemaFallbackAck}
+      />
+
+      <FloorplanExtractReviewFooter
+        draft={workingDraft} busy={busy} applyEnabled={applyEnabled}
+        onError={props.onError} onBusy={setBusy} onApply={apply}
         onDelete={(group, id) => { void runPatch([{ kind: "delete_polygon", group, id }]); }}
         onUpsertJson={(group: PolygonGroup, polygonJson) => {
           try {
@@ -133,71 +142,6 @@ export function FloorplanExtractReview(props: Props) {
           void runPatch([{ kind: "set_defaults", defaults: { wall_height_m: heightM } }]);
         }}
       />
-
-      <label>
-        <input type="checkbox" data-testid="lr-floorplan-scale-confirmed"
-          checked={scaleConfirmed} disabled={busy}
-          onChange={(e) => setScaleConfirmed(e.target.checked)} />
-        I confirmed scale against the underlay / known dimension
-      </label>
-      <label>
-        <input type="checkbox" checked={acceptThin} disabled={busy}
-          onChange={(e) => setAcceptThin(e.target.checked)} />
-        Accept thickening walls under 150 mm
-      </label>
-
-      <FloorplanExtractApplyGate
-        impact={impact}
-        liveSchema={liveSchema}
-        replaceAck={replaceAck}
-        schemaFallbackAck={schemaFallbackAck}
-        onReplaceAck={setReplaceAck}
-        onSchemaFallbackAck={setSchemaFallbackAck}
-      />
-
-      {trimmedOpenings.length ? (
-        <p data-testid="lr-floorplan-trimmed-openings" style={{ color: "#8a5a00" }}>
-          {trimmedOpenings.length} opening(s) trimmed to host walls — red segments on overlay (before Apply).
-        </p>
-      ) : null}
-
-      {normalized.issues.length ? (
-        <ul data-testid="lr-floorplan-extract-issues">
-          {normalized.issues.map((issue, i) => (
-            <li key={`${issue.code}-${i}`} style={{ color: issue.blocksApply ? "#b00020" : "#666" }}>
-              {issue.blocksApply ? "Block: " : "Note: "}{issue.message}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Geometry gates passed.</p>
-      )}
-
-      <footer>
-        <button type="button" disabled={busy} onClick={() => void (async () => {
-          setBusy(true);
-          try { downloadBlob(await exportFloorplanGlb(normalized.draft), "floorplan-preview.glb"); }
-          catch (e) { props.onError(e instanceof Error ? e.message : "GLB export failed."); }
-          finally { setBusy(false); }
-        })()}>
-          {busy ? "Exporting…" : "Download GLB preview"}
-        </button>
-        <button type="button" disabled={busy} onClick={() => void (async () => {
-          setBusy(true);
-          try {
-            downloadBlob(await exportFloorplanBuilding(wrapSingleFloorBuilding(normalized.draft)), "floorplan-building.glb");
-          } catch (e) {
-            props.onError(e instanceof Error ? e.message : "Building export failed.");
-          } finally { setBusy(false); }
-        })()}>
-          Download building GLB
-        </button>
-        <button type="button" data-testid="lr-floorplan-extract-apply" disabled={!applyEnabled || busy}
-          title={!applyEnabled ? "Confirm scale and Apply gates" : "Apply shell replacement"}
-          onClick={apply}>
-          Apply to project (replace shell)
-        </button>
-      </footer>
     </div>
   );
 }

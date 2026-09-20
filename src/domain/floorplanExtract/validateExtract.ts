@@ -1,4 +1,5 @@
 import type { ExtractionResult, ExtractPolygon, PointM } from "./types";
+import { parseExtractScale } from "./scaleTrust";
 
 function assertFiniteNumber(value: unknown, path: string): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -108,6 +109,9 @@ export function assertExtractionShape(raw: unknown): ExtractionResult {
   };
   if (r.pixel_scale != null) {
     shaped.pixel_scale = assertFiniteNumber(r.pixel_scale, "pixel_scale");
+  }
+  if (r.scale != null) {
+    shaped.scale = parseExtractScale(r.scale);
   }
   if (r.image_size != null) {
     if (typeof r.image_size !== "object" || !r.image_size) {

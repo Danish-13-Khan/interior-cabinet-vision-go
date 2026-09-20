@@ -170,10 +170,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onSetCabinetInlineDims={props.workspace.onSetCabinetInlineDims}
         preDropReason={props.workspace.preDropReason}
         onRegisterViewControls={props.onRegisterViewControls}
-        onFitPlan={props.onFitPlan}
-        onFitSelection={props.onFitSelection}
-        onZoomIn={props.onZoomIn}
-        onZoomOut={props.onZoomOut}
+        onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection}
+        onZoomIn={props.onZoomIn} onZoomOut={props.onZoomOut}
         onSetPlanUnderlay={w.onSetPlanUnderlay}
         onCalibrateComplete={() => props.onBuildTool("select")}
         onPatchDocument={w.onPatchDocument}
@@ -193,6 +191,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onImportError={props.onImportError}
         onPatchDocument={w.onPatchDocument}
         onRetryImportWalls={() => importWallsPickerRef.current?.()}
+        onUndo={w.onUndo} canUndo={w.canUndo}
       />
     </div>
   );

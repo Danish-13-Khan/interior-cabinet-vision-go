@@ -50,8 +50,19 @@ export {
 export { OPENING_END_TOL_M, MIN_WALL_THICK_M, M_TO_MM } from "./meters";
 export type {
   ExtractionResult,
+  ExtractScaleTrust,
   NormalizedFloorplan,
   NormalizeIssue,
+  ScaleTrustStatus,
 } from "./types";
 export { coerceExtractionToMeters, rescaleExtractionCoords } from "./units";
 export { assertExtractionShape } from "./validateExtract";
+export {
+  markScaleAssumed,
+  markScaleCalibrated,
+  parseExtractScale,
+  resolveScaleTrust,
+  scaleTrustAllowsApply,
+  stampImportWallsScale,
+} from "./scaleTrust";
+export { captureImportUndoHead, importApplyUndoVisible } from "./importApplyUndo";

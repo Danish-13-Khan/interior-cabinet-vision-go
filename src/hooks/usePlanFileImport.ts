@@ -5,6 +5,7 @@ import {
   classifyPlanUpload,
   extractFloorplan,
   planImportMismatchMessage,
+  stampImportWallsScale,
   type ExtractionResult,
   type LiveSchemaStatus,
 } from "../domain/floorplanExtract";
@@ -96,10 +97,11 @@ export function usePlanFileImport(args: Args) {
     });
     try {
       const lower = file.name.toLowerCase();
+      // 0.001 is a sidecar parse hint (mm drawing units), not trusted millwork scale.
       const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
       const ingest = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
       if (!stillCurrent()) return;
-      setExtractDraft(ingest.draft);
+      setExtractDraft(stampImportWallsScale(ingest.draft, pixel_scale != null)); // fresh upload, not reopen
       setExtractLiveSchema(ingest.liveSchema);
       setExtractDraftKey(requestId);
       setExtractStatus(null);

@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
+import { captureImportUndoHead, importApplyUndoVisible } from "../../domain/floorplanExtract";
 import type { PlanFileImportApi } from "../../hooks/usePlanFileImport";
 import { FloorplanExtractReview } from "./FloorplanExtractReview";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
@@ -18,11 +20,41 @@ type Props = {
     cabinetIds?: string[],
   ) => void;
   onRetryImportWalls: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
 };
 
 export function FloorplanImportOverlays(props: Props) {
   const { project, planImport: p } = props;
   const { extractDraft, extractStatus, lastAppliedExtract } = p;
+  const [undoArmed, setUndoArmed] = useState(false);
+  const [importHeadAt, setImportHeadAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (extractDraft || extractStatus) {
+      setUndoArmed(false);
+      setImportHeadAt(null);
+    }
+  }, [extractDraft, extractStatus]);
+
+  useEffect(() => {
+    if (!undoArmed) return;
+    const head = captureImportUndoHead(project);
+    if (!head) {
+      setUndoArmed(false);
+      setImportHeadAt(null);
+      return;
+    }
+    if (importHeadAt == null) setImportHeadAt(head);
+  }, [undoArmed, importHeadAt, project]);
+
+  const showApplyUndo = importApplyUndoVisible({
+    armed: undoArmed,
+    importHeadAt,
+    projectUpdatedAt: project?.updatedAt,
+    hasAppliedExtract: Boolean(project?.extensions?.floorplanExtractAppliedAt),
+  });
+
   return (
     <>
       <LivingRoomPlanPdfImportSlot
@@ -37,7 +69,18 @@ export function FloorplanImportOverlays(props: Props) {
         }}
         onError={(message) => { p.setPdfImportFile(null); props.onImportError(message); }}
       />
-      {!extractDraft && lastAppliedExtract && project ? (
+      {showApplyUndo ? (
+        <div className="lr-floorplan-extract-review lr-floorplan-apply-undo" data-testid="lr-floorplan-apply-undo" role="status">
+          <span>Import applied to the room.</span>
+          <button type="button" disabled={!props.canUndo} onClick={() => {
+            props.onUndo();
+            setUndoArmed(false);
+            setImportHeadAt(null);
+          }}>Undo</button>
+          <button type="button" onClick={() => { setUndoArmed(false); setImportHeadAt(null); }}>Dismiss</button>
+        </div>
+      ) : null}
+      {!extractDraft && lastAppliedExtract && project && !showApplyUndo ? (
         <div className="lr-floorplan-extract-review" style={{ maxHeight: "unset" }}>
           <button
             type="button"
@@ -80,6 +123,8 @@ export function FloorplanImportOverlays(props: Props) {
             p.setLastAppliedExtract(appliedDraft);
             p.setExtractDraft(null);
             p.setExtractLiveSchema(null);
+            setImportHeadAt(null);
+            setUndoArmed(true);
           }}
           onError={props.onImportError}
         />
