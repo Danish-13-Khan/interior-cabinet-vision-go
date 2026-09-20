@@ -1,0 +1,45 @@
+.lr-underlay-dwg-dialog {
+  width: min(900px, 100%);
+  max-height: min(92vh, 900px);
+  overflow: auto;
+}
+
+.lr-underlay-dwg-preview {
+  height: 320px;
+  overflow: auto;
+  border: 1px solid #3d4a41;
+  border-radius: 8px;
+  background: #121812;
+}
+
+.lr-underlay-dwg-preview img {
+  max-width: none;
+  object-fit: contain;
+  display: block;
+}
+
+.lr-underlay-dwg-layers {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #3d4a41;
+  border-radius: 8px;
+}
+
+.lr-underlay-dwg-layers legend {
+  padding: 0 6px;
+  color: #c5cec7;
+  font-size: 12px;
+}
+
+.lr-underlay-dwg-layers label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 12px 4px 0;
+  color: #e7f4eb;
+  font-size: 12px;
+}
+
+.lr-floorplan-reopen {
+  padding: 8px;
+}

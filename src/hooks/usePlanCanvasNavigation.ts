@@ -61,11 +61,19 @@ export function usePlanCanvasNavigation(options: {
   }, [marginMm, readSize]);
 
   useEffect(() => {
-    if (!options.fitBounds) return;
-    if (fittedKey.current === options.fitKey) return;
-    fittedKey.current = options.fitKey;
-    fitToBounds(options.fitBounds);
-  }, [fitToBounds, options.fitBounds, options.fitKey]);
+    if (!options.fitBounds || !svgEl) return;
+    const fitWhenVisible = () => {
+      const rect = svgEl.getBoundingClientRect();
+      if (rect.width < 10 || rect.height < 10) return;
+      if (fittedKey.current === options.fitKey) return;
+      fittedKey.current = options.fitKey;
+      fitToBounds(options.fitBounds);
+    };
+    fitWhenVisible();
+    const observer = new ResizeObserver(fitWhenVisible);
+    observer.observe(svgEl);
+    return () => observer.disconnect();
+  }, [fitToBounds, options.fitBounds, options.fitKey, svgEl]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

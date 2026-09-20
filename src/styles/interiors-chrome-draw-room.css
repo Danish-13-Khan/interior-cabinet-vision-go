@@ -218,3 +218,24 @@
 @media (max-width: 1100px) {
   .lr-draw-manage { grid-template-columns: 1fr; }
 }
+
+/* Imported drawings must not give the settings tray their intrinsic SVG size. */
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-draw-manage:has(.lr-underlay-controls) {
+  max-height: min(260px, 32vh);
+  overflow: auto;
+  align-items: flex-start;
+}
+.lr-draw-manage .lr-underlay-controls {
+  width: min(420px, 100%);
+  min-width: 0;
+  flex: 0 1 420px;
+}
+.lr-draw-manage .lr-underlay-thumb {
+  width: 128px;
+  height: 80px;
+  aspect-ratio: auto;
+  margin: 0;
+}
+.lr-draw-manage .lr-underlay-controls details {
+  overflow-wrap: anywhere;
+}

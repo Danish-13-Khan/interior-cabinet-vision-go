@@ -674,6 +674,7 @@ export {
 export {
   dataUrlToUnderlay,
   imageFileToUnderlay,
+  isDwgFile,
   isPdfFile,
 } from "./planUnderlayImport";
 export {
