@@ -1,20 +1,12 @@
 import {
   countResolvedPackageDeckViews,
   isClientPackageExportBlocked,
-  toggleSiteMeasureChecklistItem,
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
-import { imageFileToUnderlay, isPdfFile } from "../../domain/livingRoom/planUnderlayImport";
-import {
-  assertExtractionShape,
-  extractFloorplan,
-  type ExtractionResult,
-  type LiveSchemaStatus,
-} from "../../domain/floorplanExtract";
-import { FloorplanExtractReview } from "./FloorplanExtractReview";
-import { useEffect, useRef, useState } from "react";
-import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
+import { useEffect, useState } from "react";
+import { usePlanUnderlayImport } from "../../hooks/usePlanUnderlayImport";
 import { LivingRoomPlanPdfImportSlot } from "./LivingRoomPlanPdfImportSlot";
+import { LivingRoomPlanWorkspaceCatalog } from "./LivingRoomPlanWorkspaceCatalog";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
@@ -34,141 +26,24 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     acceptedStillCount,
     geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
-
-  const [extractDraft, setExtractDraft] = useState<ExtractionResult | null>(null);
-  const [extractStatus, setExtractStatus] = useState<{ loading: boolean; message: string } | null>(null);
-  const [extractDraftKey, setExtractDraftKey] = useState(0);
-  const [extractLiveSchema, setExtractLiveSchema] = useState<LiveSchemaStatus | null>(null);
-  const [lastAppliedExtract, setLastAppliedExtract] = useState<ExtractionResult | null>(null);
-  const extractRequestIdRef = useRef(0);
-  const [pdfImportFile, setPdfImportFile] = useState<File | null>(null);
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
+  const underlayImport = usePlanUnderlayImport({
+    roomWidthMm: room?.dimensions.widthMm ?? 6200,
+    onSetPlanUnderlay: w.onSetPlanUnderlay,
+    onImportError: props.onImportError,
+    onImported: () => {
+      props.onStudioPanel("build");
+      build.dispatchBuildCommand({ type: "commitDraft" });
+    },
+  });
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
-  // Persist reopen across save/reload via InteriorProject.extensions.floorplanExtractDraft.
-  useEffect(() => {
-    const raw = project?.extensions?.floorplanExtractDraft;
-    if (!raw) {
-      setLastAppliedExtract(null);
-      return;
-    }
-    try {
-      setLastAppliedExtract(assertExtractionShape(raw));
-    } catch {
-      setLastAppliedExtract(null);
-    }
-  }, [project?.id, project?.extensions?.floorplanExtractAppliedAt, project?.extensions?.floorplanExtractDraft]);
 
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
-        <LivingRoomPlanCatalogRail
-          widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible}
-          workflowArea={props.workflowArea}
-          studioPanel={props.studioPanel} onStudioPanel={props.onStudioPanel}
-          chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}
-          project={project} roomName={room?.name ?? "No room"} selectedIds={w.selectedIds}
-          issues={props.issues} proposal={props.proposal} onPresent={props.onPresent}
-          assetQuery={props.assetQuery} assetCategory={props.assetCategory} assetCategories={props.assetCategories}
-          underlay={props.underlay} importError={props.importError}
-          onAssetQuery={props.onAssetQuery} onAssetCategory={props.onAssetCategory} onAddCatalogObject={w.onAddCatalogObject}
-          onCreateCabinetRun={w.onCreateCabinetRun}
-          onAddImportedAsset={w.onAddImportedAsset} onSetFloorMaterial={w.onSetFloorMaterial}
-          onSetCeilingMaterial={w.onSetCeilingMaterial} onSetWallMaterial={w.onSetWallMaterial}
-          onApplyMaterialToSelection={w.onApplyMaterialToSelection}
-          onApplyMaterialColour={w.onApplyMaterialColour}
-          onImportFinish={w.onImportFinish}
-          onSetLayerVisibility={w.onSetLayerVisibility}
-          onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
-          onSelectIssue={(objectId) => inspectPlanTarget(props, objectId ? { objectId } : {})}
-          onSetPlanUnderlay={w.onSetPlanUnderlay}
-          onCalibrateUnderlay={() => props.onBuildTool("calibrate-underlay")}
-          onToggleSiteMeasure={(key, value) => {
-            w.onPatchDocument(
-              (current) => toggleSiteMeasureChecklistItem(current, key, value),
-              "Updated site measure checklist.",
-            );
-          }}
-          presenting={props.plannerMode === "render"}
-          onRoomDimensions={(dimensions) => build.dispatchBuildCommand({ type: "resizeRoom", dimensions })}
-          onActiveRoom={(roomId) => { w.onActiveRoom(roomId); inspectPlanTarget(props, { inspectRoom: true }); }}
-          onRenameRoom={w.onRenameRoom}
-          onDeleteRoom={w.onDeleteRoom}
-          onMergeRooms={w.onMergeRooms}
-          onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
-          activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-          onActiveWall={(wallId) => inspectPlanTarget(props, { wallId })}
-          onActiveOpening={(openingId) => inspectPlanTarget(props, { openingId })}
-          onAddOpening={(wallId, kind) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, catalogItemId: build.openingCatalogItemId })}
-          onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
-          onDeleteOpening={(openingId) => { build.dispatchBuildCommand({ type: "deleteOpening", openingId }); props.setActiveOpeningId(null); }}
-          activeBuildTool={props.activeBuildTool}
-          openingCatalogItemId={build.openingCatalogItemId} onOpeningCatalogItem={build.setOpeningCatalogItemId}
-          roomPolygonPointCount={props.roomPolygonPointCount} onCloseRoomPolygon={props.onRoomPolygonCloseRequest}
-          onSplitWall={(wallId) => build.dispatchBuildCommand({ type: "splitWall", wallId })}
-          onDeleteWall={(wallId) => {
-            build.dispatchBuildCommand({ type: "deleteWall", wallId });
-            props.setActiveWallId((current) => (current === wallId ? project.walls.find((wall) => wall.id !== wallId)?.id ?? null : current));
-          }}
-          onUpdateWallThickness={(wallId, thicknessMm) => build.dispatchBuildCommand({ type: "updateWall", wallId, patch: { thicknessMm } })}
-          onJoinCoincidentNodes={() => build.dispatchBuildCommand({ type: "joinCoincidentNodes" })}
-          surfaceMaterialId={build.surfaceMaterialId}
-          onSurfaceMaterialId={build.setSurfaceMaterialId}
-          activeSurfaceId={props.activeSurfaceId}
-          onCloseSurfacePolygon={props.onRoomPolygonCloseRequest}
-          onUpdateSurface={(surfaceId, materialId) => build.dispatchBuildCommand({ type: "updateSurface", surfaceId, materialId })}
-          onDeleteSurface={(surfaceId) => {
-            build.dispatchBuildCommand({ type: "deleteSurface", surfaceId });
-            props.setActiveSurfaceId((current) => (current === surfaceId ? null : current));
-          }}
-          onRegisterUnderlayPicker={(openPicker) => { props.underlayPickerRef.current = openPicker; }}
-          onImportUnderlay={async (file) => {
-            if (!file) return;
-            // Invalidate any in-flight extract/underlay work before first await.
-            const requestId = extractRequestIdRef.current + 1;
-            extractRequestIdRef.current = requestId;
-            setExtractDraft(null); // drop prior review so Apply cannot hit the old extract
-            setExtractLiveSchema(null);
-            setExtractStatus(null);
-            props.onImportError("");
-            if (isPdfFile(file)) {
-              setPdfImportFile(file);
-              return;
-            }
-            const lower = file.name.toLowerCase();
-            const vectorOrRaster = /\.(png|jpe?g|gif|webp|svg|dxf)$/.test(lower)
-              || file.type.startsWith("image/")
-              || file.type.includes("svg")
-              || file.type.includes("dxf");
-            const stillCurrent = () => requestId === extractRequestIdRef.current;
-            if (vectorOrRaster) setExtractStatus({ loading: true, message: `Generating editable rooms and walls from ${file.name}… This can take up to two minutes. Keep this page open.` });
-            try {
-              if (!lower.endsWith(".svg") && !lower.endsWith(".dxf") && file.type.startsWith("image/")) {
-                const underlay = await imageFileToUnderlay(file, room?.dimensions.widthMm ?? 6200);
-                if (!stillCurrent()) return;
-                w.onSetPlanUnderlay(underlay);
-              }
-              if (vectorOrRaster) {
-                const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
-                const ingest = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
-                if (!stillCurrent()) return;
-                setExtractDraft(ingest.draft);
-                setExtractLiveSchema(ingest.liveSchema);
-                setExtractDraftKey(requestId);
-                setExtractStatus(null);
-              }
-              if (!stillCurrent()) return;
-              props.onStudioPanel("build");
-              build.dispatchBuildCommand({ type: "commitDraft" });
-            } catch (error) {
-              if (!stillCurrent()) return;
-              const message = error instanceof Error ? error.message : "Plan import failed.";
-              props.onImportError(message);
-              setExtractStatus({ loading: false, message });
-            }
-          }}
-        />
+        <LivingRoomPlanWorkspaceCatalog body={props} onImportUnderlay={underlayImport.importUnderlay} />
       ) : null}
       {props.plannerMode === "render" ? (
         <InteriorsPresentPanel
@@ -244,65 +119,17 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} transformPreview={modelTransformPreview} />
       <LivingRoomPlanPdfImportSlot
-        file={pdfImportFile}
+        file={underlayImport.pdfImportFile}
         roomWidthMm={room?.dimensions.widthMm ?? 6200}
-        onCancel={() => setPdfImportFile(null)}
+        onCancel={() => underlayImport.setPdfImportFile(null)}
         onConfirm={(underlay) => {
-          setPdfImportFile(null);
+          underlayImport.setPdfImportFile(null);
           w.onSetPlanUnderlay(underlay);
           props.onStudioPanel("build");
           build.dispatchBuildCommand({ type: "commitDraft" });
         }}
-        onError={(message) => { setPdfImportFile(null); props.onImportError(message); }}
+        onError={(message) => { underlayImport.setPdfImportFile(null); props.onImportError(message); }}
       />
-      {!extractDraft && lastAppliedExtract && project ? (
-        <div style={{ padding: 8 }}>
-          <button
-            type="button"
-            data-testid="lr-floorplan-reopen-import"
-            onClick={() => {
-              setExtractDraft(lastAppliedExtract);
-              setExtractLiveSchema({
-                state: "structural-fallback",
-                message: "Re-opened saved extract — re-run patch/extract to refresh live schema",
-              });
-              setExtractDraftKey((k) => k + 1);
-            }}
-          >
-            Re-open floor plan import
-          </button>
-        </div>
-      ) : null}
-      {extractStatus ? (
-        <div className="lr-floorplan-extract-review" data-testid="lr-floorplan-extract-status"
-          role={extractStatus.loading ? "status" : "alert"} aria-live="polite">
-          <strong>{extractStatus.loading ? "Generating 3D from your plan" : "3D generation did not complete"}</strong>
-          <p>{extractStatus.message}</p>
-          {!extractStatus.loading ? <>
-            <p>Your plan image is still available for tracing. No generated geometry has been applied.</p>
-            <button type="button" onClick={() => props.underlayPickerRef.current?.()}>Choose plan again</button>
-            <button type="button" onClick={() => setExtractStatus(null)}>Dismiss</button>
-          </> : null}
-        </div>
-      ) : null}
-      {extractDraft && project ? (
-        <FloorplanExtractReview
-          key={extractDraftKey}
-          draft={extractDraft}
-          draftKey={`extract-${extractDraftKey}`}
-          project={project}
-          initialLiveSchema={extractLiveSchema ?? undefined}
-          onClose={() => { setExtractDraft(null); setExtractLiveSchema(null); }}
-          onApply={(next, appliedDraft, status) => {
-            // draft + snapshot already persisted on next.extensions by applyFloorplanToInterior
-            w.onPatchDocument(() => next, status);
-            setLastAppliedExtract(appliedDraft);
-            setExtractDraft(null);
-            setExtractLiveSchema(null);
-          }}
-          onError={props.onImportError}
-        />
-      ) : null}
     </div>
   );
 }
