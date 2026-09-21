@@ -43,7 +43,6 @@ import {
 import { CameraDebugOverlay } from "./cameraDebug/CameraDebugOverlay";
 import { OrbitDebugProbe } from "./cameraDebug/OrbitDebugProbe";
 import { useCameraDebugSession } from "./cameraDebug/useCameraDebugSession";
-import { SceneViewGizmo } from "./cabinetScene/SceneViewGizmo";
 
 export type { CabinetSceneHandle } from "./cabinetScene/types";
 
@@ -345,8 +344,6 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
             onSnapshot={cameraDebug.onSnapshot}
           />
         ) : null}
-
-        <SceneViewGizmo />
 
         <OrbitControls
           ref={controlsRef}
