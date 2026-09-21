@@ -4,6 +4,7 @@ import {
   applyDwgSuggestOverlap,
   buildDwgSuggestDraft,
   dwgSuggestCandidateSelectable,
+  dwgSuggestGeometryFingerprint,
   extractDwgSuggestCenterlines,
   resolveDwgSuggestLayerNames,
   setDwgSuggestCandidateAccepted,
@@ -68,12 +69,17 @@ export function useDwgSuggestSelection(
     setDraft(null);
   }, [sourceKey]);
 
+  const visibleLayers = visibleDwgLayerNames(underlay);
+  const selectedLayers = resolveDwgSuggestLayerNames(underlay, requested);
+  const fingerprint = dwgSuggestGeometryFingerprint(underlay, selectedLayers, region);
+
+  useEffect(() => {
+    setDraft((current) => current && current.fingerprint !== fingerprint ? null : current);
+  }, [fingerprint]);
+
   useEffect(() => {
     setDraft((current) => current ? applyDwgSuggestOverlap(current, walls) : current);
   }, [wallsKey]);
-
-  const visibleLayers = visibleDwgLayerNames(underlay);
-  const selectedLayers = resolveDwgSuggestLayerNames(underlay, requested);
   const extract = useMemo(
     () => extractDwgSuggestCenterlines(underlay, requested, region),
     [underlay, requested, region],
@@ -121,10 +127,13 @@ export function useDwgSuggestSelection(
       setPickingRegion(false);
     },
     onPreview: () => {
-      setDraft(applyDwgSuggestOverlap(
-        buildDwgSuggestDraft(extract.segments, { thicknessMm, heightMm }),
-        walls,
-      ));
+      setDraft({
+        ...applyDwgSuggestOverlap(
+          buildDwgSuggestDraft(extract.segments, { thicknessMm, heightMm }),
+          walls,
+        ),
+        fingerprint,
+      });
     },
     onClearDraft: () => setDraft(null),
     onToggleCandidate: (id) => {
@@ -149,6 +158,10 @@ export function useDwgSuggestSelection(
     },
     onApply: () => {
       if (!draft || !acceptedDwgSuggestCandidates(draft).length) return;
+      if (draft.fingerprint !== fingerprint) {
+        setDraft(null);
+        return;
+      }
       defaults?.onCommit?.(draft);
       setDraft(null);
     },

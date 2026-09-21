@@ -16,6 +16,19 @@ test("preview wall candidates without creating project walls", async ({ page }) 
   await expect(page.getByTestId("lr-dwg-suggest-apply")).toBeEnabled();
 });
 
+test("drop the draft when underlay pose changes", async ({ page }) => {
+  test.setTimeout(90_000);
+  await importRoomDxf(page);
+  await confirmCalibrateSouthWall(page);
+  await clickInteriorsTool(page, "import");
+  await page.getByTestId("lr-underlay-suggest-walls").click();
+  await expect(page.getByTestId("lr-dwg-suggest-draft")).toHaveCount(1);
+  await page.getByLabel("Underlay rotation").fill("15");
+  await expect(page.getByTestId("lr-dwg-suggest-draft")).toHaveCount(0);
+  await expect(page.getByTestId("lr-dwg-suggest-candidate")).toHaveCount(0);
+  await expect(planWalls(page)).toHaveCount(0);
+});
+
 test("apply suggested walls in one undo", async ({ page }) => {
   test.setTimeout(90_000);
   await importRoomDxf(page);

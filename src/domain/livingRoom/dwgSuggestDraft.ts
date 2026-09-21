@@ -19,6 +19,7 @@ export type DwgSuggestDraft = {
   candidates: DwgSuggestCandidate[];
   thicknessMm: number;
   heightMm: number;
+  fingerprint?: string;
 };
 
 function same(a: Point2Mm, b: Point2Mm) {
