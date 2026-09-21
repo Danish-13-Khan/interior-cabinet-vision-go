@@ -19,6 +19,12 @@ export function PlanUnderlayDwgSuggest({
           <p className="lr-underlay-dwg-suggest-note">
             Centerline detection does not interpret paired wall edges. Hidden layers are never used.
           </p>
+          {selection.skippedCurves > 0 ? (
+            <p className="lr-underlay-dwg-suggest-note" data-testid="lr-dwg-suggest-skipped-curves">
+              Skipped {selection.skippedCurves} curved segment{selection.skippedCurves === 1 ? "" : "s"}.
+              Straight LINE and polyline edges only.
+            </p>
+          ) : null}
           <fieldset className="lr-underlay-dwg-suggest-layers" disabled={locked}>
             <legend>Detect walls from visible layers</legend>
             {selection.visibleLayers.length ? selection.visibleLayers.map((name) => (
@@ -60,7 +66,7 @@ export function PlanUnderlayDwgSuggest({
           type="button"
           className="is-secondary"
           data-testid="lr-underlay-suggest-walls"
-          disabled={locked || Boolean(selection && !selection.selectedLayers.length)}
+          disabled={locked || Boolean(selection && (!selection.selectedLayers.length || selection.segmentCount === 0))}
           onClick={onSuggestDwgWalls}
         >
           Suggest walls from layers

@@ -100,6 +100,25 @@ describe("DWG trace assist", () => {
     expect(suggestRoomPolygonFromDwg(hidden, ["Walls"])).toBeNull();
   });
 
+  it("walks a closed straight polyline into a room outline", () => {
+    const preview = buildDwgPreview({
+      header: { INSUNITS: 4 },
+      entities: [{
+        type: "LWPOLYLINE", layer: "Walls", flag: 512,
+        vertices: [{ x: 0, y: 0 }, { x: 4000, y: 0 }, { x: 4000, y: 3000 }, { x: 0, y: 3000 }],
+      }],
+    } as import("@mlightcad/libredwg-web").DwgDatabase);
+    const underlay = {
+      ...roomUnderlay(),
+      dataUrl: dwgPreviewDataUrl(preview),
+      dwg: { preview, hiddenLayers: [] },
+    };
+    const polygon = suggestRoomPolygonFromDwg(underlay);
+    expect(new Set((polygon ?? []).map((point) => `${point.x},${point.z}`))).toEqual(new Set([
+      "-2000,1500", "2000,1500", "2000,-1500", "-2000,-1500",
+    ]));
+  });
+
   it("does not close a room from a south-wall-only region", () => {
     expect(suggestRoomPolygonFromDwg(roomUnderlay(), ["Walls"], {
       minX: -1900, maxX: 1900, minZ: 1400, maxZ: 1600,

@@ -682,6 +682,11 @@ export { collectDwgPlanEndpoints, collectProjectDwgPlanEndpoints, snapPlanPointT
 export { cadToPlanPoint } from "./dwgPlanMap";
 export { suggestRoomPolygonFromDwg } from "./dwgSuggestRoom";
 export {
+  extractDwgSuggestCenterlines,
+  type DwgSuggestCenterline,
+  type DwgSuggestExtract,
+} from "./dwgSuggestCenterlines";
+export {
   defaultDwgSuggestLayerNames,
   dwgSuggestSegmentHitsRegion,
   normalizeDwgSuggestRegion,
