@@ -60,4 +60,37 @@ describe("DWG trace assist", () => {
     expect(cabinet).toBeTruthy();
     expect(cabinet?.extensions?.wallAttachment).toMatchObject({ wallId: expect.any(String) });
   });
+
+  it("keeps two recognized inserts at distinct wall offsets", () => {
+    const underlay = roomUnderlay();
+    underlay.dwg = {
+      ...underlay.dwg!,
+      preview: {
+        ...underlay.dwg!.preview,
+        inserts: [
+          { name: "BASE-CABINET", layer: "Cabinets", x: 200, y: 400, rotation: 0 },
+          { name: "BASE-CABINET", layer: "Cabinets", x: 200, y: 1600, rotation: 0 },
+        ],
+      },
+    };
+    const traced = drawRoomFromPoints(
+      setLivingRoomPlanUnderlay(
+        applyPlannerStarterTemplate(createLivingRoomStarterProject({ now: "2026-09-21T00:00:00.000Z" }), "blank-room"),
+        underlay,
+      ),
+      { kind: "polygon", points: suggestRoomPolygonFromDwg(underlay)! },
+      { raised: true },
+    );
+    const cabinets = placeRecognizedDwgCabinets(traced, underlay).objects.filter(
+      (object) => object.catalogItemId === "living:base-cabinet-900",
+    );
+    expect(cabinets).toHaveLength(2);
+    expect(`${cabinets[0]!.position.x}:${cabinets[0]!.position.z}`).not.toBe(
+      `${cabinets[1]!.position.x}:${cabinets[1]!.position.z}`,
+    );
+  });
+
+  it("does not snap to a hidden underlay", () => {
+    expect(collectDwgPlanEndpoints({ ...roomUnderlay(), hidden: true })).toEqual([]);
+  });
 });

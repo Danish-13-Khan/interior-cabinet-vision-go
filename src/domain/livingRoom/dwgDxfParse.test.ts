@@ -30,6 +30,50 @@ describe("known-scale room drawing", () => {
     ]);
   });
 
+  it("keeps LWPOLYLINE bulges so arcs are drawn", () => {
+    const db = parseAsciiDxf(`  0
+SECTION
+  2
+HEADER
+  9
+$INSUNITS
+ 70
+     4
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+LWPOLYLINE
+  8
+Walls
+ 90
+     2
+ 10
+0.0
+ 20
+0.0
+ 42
+1.0
+ 10
+10.0
+ 20
+0.0
+  0
+ENDSEC
+  0
+EOF
+`);
+    const poly = db.entities[0] as { type: string; vertices: { x: number; y: number; bulge: number }[] };
+    expect(poly.vertices[0]).toMatchObject({ x: 0, y: 0, bulge: 1 });
+    expect(poly.vertices[1]).toMatchObject({ x: 10, y: 0, bulge: 0 });
+    const preview = buildDwgPreview(db);
+    expect(preview.layers[0]?.paths[0]?.d).toMatch(/ A/);
+    expect(preview.omitted).toEqual({});
+  });
+
   it("rejects non-ASCII payloads", () => {
     expect(() => parseAsciiDxf("not a dxf")).toThrow(/ASCII drawing/);
   });

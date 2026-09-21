@@ -1,9 +1,8 @@
-import type { InteriorProject, Point2Mm } from "../interiorProject";
-import { selectRoomWalls } from "../interiorProject";
+import type { InteriorProject } from "../interiorProject";
 import { cadToPlanPoint } from "./dwgPlanMap";
 import { createLivingRoomObject, type LivingRoomCatalogId } from "./catalog";
 import { addLivingRoomObject } from "./planCommands";
-import { attachToWall } from "./wardrobePlacement";
+import { snapCabinetToWall } from "./wardrobePlacement";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 import type { DwgInsertHint } from "./dwgGeometry";
 
@@ -34,20 +33,6 @@ function nextObjectId(project: InteriorProject, prefix: string) {
   return `${prefix}-${index}`;
 }
 
-function nearestWallId(project: InteriorProject, roomId: string, point: Point2Mm, minLength: number) {
-  let best: { id: string; distance: number } | null = null;
-  for (const wall of selectRoomWalls(project, roomId)) {
-    const dx = wall.end.x - wall.start.x;
-    const dz = wall.end.z - wall.start.z;
-    const length = Math.hypot(dx, dz);
-    if (length < minLength) continue;
-    const t = Math.max(0, Math.min(1, ((point.x - wall.start.x) * dx + (point.z - wall.start.z) * dz) / (length * length)));
-    const distance = Math.hypot(point.x - (wall.start.x + dx * t), point.z - (wall.start.z + dz * t));
-    if (!best || distance < best.distance) best = { id: wall.id, distance };
-  }
-  return best?.id ?? null;
-}
-
 export function placeRecognizedDwgCabinets(
   project: InteriorProject,
   underlay: LivingRoomPlanUnderlay | null,
@@ -64,9 +49,7 @@ export function placeRecognizedDwgCabinets(
       position: { x: plan.x, y: 0, z: plan.z },
       rotationY: insert.rotation * 180 / Math.PI,
     });
-    const wallId = nearestWallId(next, roomId, plan, draft.dimensions.widthMm);
-    if (!wallId) continue;
-    const placed = attachToWall(next, draft, wallId);
+    const placed = snapCabinetToWall(next, draft, { x: plan.x, y: 0, z: plan.z });
     if (!(placed.extensions?.wallAttachment && typeof placed.extensions.wallAttachment === "object")) continue;
     next = addLivingRoomObject(next, placed);
   }
