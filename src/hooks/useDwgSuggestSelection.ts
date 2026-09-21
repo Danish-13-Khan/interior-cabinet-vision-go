@@ -39,11 +39,17 @@ export type DwgSuggestSelectionUi = {
   onSetAccepted: (accepted: boolean) => void;
   onThicknessMm: (value: number) => void;
   onHeightMm: (value: number) => void;
+  onApply: () => void;
 };
 
 export function useDwgSuggestSelection(
   underlay: LivingRoomPlanUnderlay | null,
-  defaults?: { thicknessMm?: number; heightMm?: number; walls?: readonly DwgSuggestWallSeg[] },
+  defaults?: {
+    thicknessMm?: number;
+    heightMm?: number;
+    walls?: readonly DwgSuggestWallSeg[];
+    onCommit?: (draft: DwgSuggestDraft) => void;
+  },
 ): DwgSuggestSelectionUi {
   const [requested, setRequested] = useState<string[] | null>(null);
   const [region, setRegion] = useState<DwgSuggestPlanRegion | null>(null);
@@ -140,6 +146,11 @@ export function useDwgSuggestSelection(
       const next = clampWallHeightMm(value);
       setHeightMm(next);
       setDraft((current) => current ? { ...current, heightMm: next } : current);
+    },
+    onApply: () => {
+      if (!draft || !acceptedDwgSuggestCandidates(draft).length) return;
+      defaults?.onCommit?.(draft);
+      setDraft(null);
     },
   };
 }

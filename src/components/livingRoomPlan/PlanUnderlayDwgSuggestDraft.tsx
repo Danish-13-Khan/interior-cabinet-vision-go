@@ -10,7 +10,7 @@ export function PlanUnderlayDwgSuggestDraft({ locked, selection }: {
   const covered = candidates.filter((item) => item.overlap === "covered").length;
   const partial = candidates.filter((item) => item.overlap === "partial").length;
   return (
-    <div className="lr-underlay-dwg-suggest-draft" data-testid="lr-dwg-suggest-draft">
+    <div className="lr-underlay-dwg-suggest-draft">
       <label>
         <span>Thickness (mm)</span>
         <input
@@ -38,7 +38,7 @@ export function PlanUnderlayDwgSuggestDraft({ locked, selection }: {
         />
       </label>
       {selection.draft ? (
-        <>
+        <div data-testid="lr-dwg-suggest-draft">
           <p className="lr-underlay-dwg-suggest-note" data-testid="lr-dwg-suggest-draft-summary">
             {selection.acceptedCount} of {selection.draft.candidates.length} accepted
             ({closed} closed, {open} open
@@ -51,10 +51,15 @@ export function PlanUnderlayDwgSuggestDraft({ locked, selection }: {
             <button type="button" className="is-secondary" data-testid="lr-dwg-suggest-reject-all" disabled={locked} onClick={() => selection.onSetAccepted(false)}>Reject all</button>
             <button type="button" className="is-secondary" data-testid="lr-dwg-suggest-clear-draft" disabled={locked} onClick={selection.onClearDraft}>Clear preview</button>
           </div>
-          <button type="button" data-testid="lr-dwg-suggest-apply" disabled>
+          <button
+            type="button"
+            data-testid="lr-dwg-suggest-apply"
+            disabled={locked || selection.acceptedCount === 0}
+            onClick={selection.onApply}
+          >
             Apply {selection.acceptedCount} walls
           </button>
-        </>
+        </div>
       ) : null}
     </div>
   );
