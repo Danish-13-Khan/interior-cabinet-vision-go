@@ -1,12 +1,29 @@
 import { createModule, LibreDwg, Dwg_Error } from '@mlightcad/libredwg-web';
 import wasmUrl from '../../../node_modules/@mlightcad/libredwg-web/wasm/libredwg-web.wasm?url';
+import { isAsciiDxfName } from './dwgCadType';
+import { parseAsciiDxf } from './dwgDxfParse';
 import { buildDwgPreview } from './dwgGeometry';
 
-self.onmessage = async (event: MessageEvent<ArrayBuffer>) => {
+function request(data: unknown): { buffer: ArrayBuffer; name: string } {
+  if (data instanceof ArrayBuffer) return { buffer: data, name: 'preview.dwg' };
+  if (data && typeof data === 'object' && 'buffer' in data) {
+    const payload = data as { buffer: ArrayBuffer; name?: string };
+    if (payload.buffer instanceof ArrayBuffer) return { buffer: payload.buffer, name: payload.name || 'preview.dwg' };
+  }
+  throw new Error('Could not read the selected file.');
+}
+
+self.onmessage = async (event: MessageEvent<unknown>) => {
   try {
+    const { buffer, name } = request(event.data);
+    if (isAsciiDxfName(name)) {
+      const preview = buildDwgPreview(parseAsciiDxf(new TextDecoder().decode(buffer)));
+      self.postMessage({ preview });
+      return;
+    }
     const module = await createModule({ locateFile: () => wasmUrl });
     const reader = LibreDwg.createByWasmInstance(module);
-    module.FS.writeFile('preview.dwg', new Uint8Array(event.data));
+    module.FS.writeFile('preview.dwg', new Uint8Array(buffer));
     const result = module.dwg_read_file('preview.dwg');
     module.FS.unlink('preview.dwg');
     if (result.error & Dwg_Error.OUTOFMEM) {

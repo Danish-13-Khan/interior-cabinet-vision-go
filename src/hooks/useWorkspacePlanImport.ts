@@ -7,7 +7,8 @@ import {
 } from "../domain/floorplanExtract";
 import type { InteriorProject } from "../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../domain/livingRoom/planUnderlay";
-import { imageFileToUnderlay, isDwgFile, isPdfFile } from "../domain/livingRoom/planUnderlayImport";
+import { isCadUnderlayFile } from "../domain/livingRoom/dwgCadType";
+import { imageFileToUnderlay, isPdfFile } from "../domain/livingRoom/planUnderlayImport";
 import type { BuildTool, StudioPanel } from "../components/livingRoomPlan/workspaceProps";
 
 export type ExtractStatus = { loading: boolean; message: string };
@@ -60,7 +61,7 @@ export function useWorkspacePlanImport(args: PlanImportArgs) {
     args.onImportError("");
     setDwgImportFile(null);
     setPdfImportFile(null);
-    if (isDwgFile(file)) {
+    if (isCadUnderlayFile(file)) {
       setDwgImportFile(file);
       return;
     }
@@ -73,10 +74,9 @@ export function useWorkspacePlanImport(args: PlanImportArgs) {
 
   async function importImageOrExtract(file: File, requestId: number) {
     const lower = file.name.toLowerCase();
-    const vectorOrRaster = /\.(png|jpe?g|gif|webp|svg|dxf)$/.test(lower)
+    const vectorOrRaster = /\.(png|jpe?g|gif|webp|svg)$/.test(lower)
       || file.type.startsWith("image/")
-      || file.type.includes("svg")
-      || file.type.includes("dxf");
+      || file.type.includes("svg");
     const stillCurrent = () => requestId === extractRequestIdRef.current;
     if (vectorOrRaster) {
       setExtractStatus({
@@ -91,7 +91,7 @@ export function useWorkspacePlanImport(args: PlanImportArgs) {
         args.onSetPlanUnderlay(underlay);
       }
       if (vectorOrRaster) {
-        const pixel_scale = lower.endsWith(".svg") || lower.endsWith(".dxf") ? 0.001 : undefined;
+        const pixel_scale = lower.endsWith(".svg") ? 0.001 : undefined;
         const ingest = await extractFloorplan(file, pixel_scale != null ? { pixel_scale } : {});
         if (!stillCurrent()) return;
         setExtractDraft(ingest.draft);

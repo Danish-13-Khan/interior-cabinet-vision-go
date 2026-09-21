@@ -38,7 +38,7 @@ export function PlanUnderlayDwgDialog({ file, onCancel, onConfirm }: {
     worker.onerror = () => fail("The DWG reader could not start or ran out of memory. Try a smaller drawing.");
     if (file.size > 50 * 1024 * 1024) fail("DWG files must be 50 MB or smaller.");
     else void file.arrayBuffer()
-      .then((buffer) => { if (active) worker.postMessage(buffer, [buffer]); })
+      .then((buffer) => { if (active) worker.postMessage({ buffer, name: file.name }, [buffer]); })
       .catch(() => fail("Could not read the selected file."));
     return () => { active = false; window.clearTimeout(timeout); worker.terminate(); };
   }, [file]);

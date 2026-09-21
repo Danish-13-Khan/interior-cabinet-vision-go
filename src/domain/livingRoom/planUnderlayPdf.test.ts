@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { normalizeCropRect } from "./planUnderlayPdfCrop";
-import { createPlanUnderlayImportCancelGate, isDwgFile, isPdfFile } from "./planUnderlayImport";
+import { createPlanUnderlayImportCancelGate, isCadUnderlayFile, isDwgFile, isPdfFile } from "./planUnderlayImport";
 
 describe("normalizeCropRect", () => {
   it("returns null for missing or empty input", () => {
@@ -48,6 +48,9 @@ describe("isPdfFile", () => {
     expect(isDwgFile(new File([], "room.dwg"))).toBe(true);
     expect(isDwgFile(new File([], "ROOM.DWG"))).toBe(true);
     expect(isDwgFile(new File([], "plan.pdf"))).toBe(false);
+    expect(isCadUnderlayFile(new File([], "room.dxf"))).toBe(true);
+    expect(isCadUnderlayFile(new File([], "room.dwg"))).toBe(true);
+    expect(isCadUnderlayFile(new File([], "room.svg"))).toBe(false);
   });
 });
 

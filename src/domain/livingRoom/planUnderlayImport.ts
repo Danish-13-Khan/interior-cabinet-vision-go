@@ -1,5 +1,7 @@
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
+export { isCadUnderlayFile } from "./dwgCadType";
+
 export function isDwgFile(file: File): boolean {
   return /\.dwg$/i.test(file.name || "");
 }

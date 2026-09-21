@@ -1,18 +1,20 @@
 import { toggleDwgLayer } from "../../domain/livingRoom/dwgSource";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom";
 
-export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrate }: {
+export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrate, onSuggestDwgWalls, onPlaceDwgCabinets }: {
   underlay: LivingRoomPlanUnderlay | null;
   onChange: (underlay: LivingRoomPlanUnderlay | null) => void;
   onReplace: () => void;
   onCalibrate?: () => void;
+  onSuggestDwgWalls?: () => void;
+  onPlaceDwgCabinets?: () => void;
 }) {
   if (!underlay) {
     return (
       <div className="lr-underlay-empty" data-testid="lr-underlay-empty">
         <span>⌁</span>
         <strong>Import a floor plan</strong>
-        <p>Use PNG, JPG, WebP, PDF, or DWG as a tracing underlay. Calibrate with a known distance after import.</p>
+        <p>Use PNG, JPG, WebP, PDF, DWG, or DXF as a tracing underlay. Calibrate with a known distance after import.</p>
         <button type="button" data-testid="lr-underlay-choose" onClick={onReplace}>Choose plan file</button>
       </div>
     );
@@ -134,6 +136,16 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
           {hidden ? "Show" : "Hide"}
         </button>
       </div>
+      {underlay.dwg && onSuggestDwgWalls ? (
+        <button type="button" className="is-secondary" data-testid="lr-underlay-suggest-walls" disabled={locked} onClick={onSuggestDwgWalls}>
+          Suggest walls from layers
+        </button>
+      ) : null}
+      {underlay.dwg && onPlaceDwgCabinets ? (
+        <button type="button" className="is-secondary" data-testid="lr-underlay-place-cabinets" disabled={locked} onClick={onPlaceDwgCabinets}>
+          Place recognized cabinets
+        </button>
+      ) : null}
       <button
         type="button"
         className="is-secondary"
