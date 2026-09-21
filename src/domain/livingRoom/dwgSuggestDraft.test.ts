@@ -8,7 +8,9 @@ import {
   buildDwgSuggestDraft,
   chainDwgSuggestSegments,
   setDwgSuggestCandidateAccepted,
+  setDwgSuggestDraftAccepted,
 } from "./dwgSuggestDraft";
+import { applyDwgSuggestOverlap } from "./dwgSuggestOverlap";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
 function roomUnderlay(): LivingRoomPlanUnderlay {
@@ -53,5 +55,16 @@ describe("DWG suggest draft", () => {
     const next = setDwgSuggestCandidateAccepted(draft, draft.candidates[0]!.id, false);
     expect(acceptedDwgSuggestCandidates(next)).toEqual([]);
     expect(next.candidates).toHaveLength(1);
+  });
+
+  it("keeps covered and partial candidates out of accept-all", () => {
+    const covered = applyDwgSuggestOverlap(
+      buildDwgSuggestDraft([{ layer: "Walls", a: { x: 0, z: 0 }, b: { x: 1000, z: 0 } }]),
+      [{ start: { x: 0, z: 0 }, end: { x: 1000, z: 0 } }],
+    );
+    const accepted = setDwgSuggestDraftAccepted(covered, true);
+    expect(accepted.candidates[0]).toMatchObject({ overlap: "covered", accepted: false });
+    expect(acceptedDwgSuggestCandidates(accepted)).toEqual([]);
+    expect(setDwgSuggestCandidateAccepted(covered, covered.candidates[0]!.id, true).candidates[0]!.accepted).toBe(false);
   });
 });

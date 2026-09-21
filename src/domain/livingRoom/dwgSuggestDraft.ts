@@ -12,6 +12,7 @@ export type DwgSuggestCandidate = DwgSuggestCenterline & {
   chainId: string;
   closed: boolean;
   accepted: boolean;
+  overlap?: "none" | "covered" | "partial";
 };
 
 export type DwgSuggestDraft = {
@@ -80,7 +81,9 @@ export function buildDwgSuggestDraft(
 }
 
 export function acceptedDwgSuggestCandidates(draft: DwgSuggestDraft | null): DwgSuggestCandidate[] {
-  return draft?.candidates.filter((candidate) => candidate.accepted) ?? [];
+  return draft?.candidates.filter((candidate) => (
+    candidate.accepted && (candidate.overlap ?? "none") === "none"
+  )) ?? [];
 }
 
 export function setDwgSuggestCandidateAccepted(
@@ -90,15 +93,20 @@ export function setDwgSuggestCandidateAccepted(
 ): DwgSuggestDraft {
   return {
     ...draft,
-    candidates: draft.candidates.map((candidate) => (
-      candidate.id === candidateId ? { ...candidate, accepted } : candidate
-    )),
+    candidates: draft.candidates.map((candidate) => {
+      if (candidate.id !== candidateId) return candidate;
+      if ((candidate.overlap ?? "none") !== "none") return { ...candidate, accepted: false };
+      return { ...candidate, accepted };
+    }),
   };
 }
 
 export function setDwgSuggestDraftAccepted(draft: DwgSuggestDraft, accepted: boolean): DwgSuggestDraft {
   return {
     ...draft,
-    candidates: draft.candidates.map((candidate) => ({ ...candidate, accepted })),
+    candidates: draft.candidates.map((candidate) => ({
+      ...candidate,
+      accepted: accepted && (candidate.overlap ?? "none") === "none",
+    })),
   };
 }

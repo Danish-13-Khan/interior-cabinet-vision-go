@@ -110,8 +110,25 @@
   stroke-dasharray: 80 40;
 }
 
+.lr-dwg-suggest-stroke.is-covered {
+  stroke: #c62828;
+  stroke-dasharray: 20 36;
+  cursor: default;
+}
+
+.lr-dwg-suggest-stroke.is-partial {
+  stroke: #ef6c00;
+  stroke-dasharray: 60 28;
+  cursor: default;
+}
+
 .lr-dwg-suggest-stroke[data-candidate-id] {
   cursor: pointer;
+}
+
+.lr-dwg-suggest-stroke.is-covered[data-candidate-id],
+.lr-dwg-suggest-stroke.is-partial[data-candidate-id] {
+  cursor: default;
 }
 
 .lr-underlay-dwg-suggest-draft {

@@ -16,6 +16,7 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
   const dwgSuggest = useDwgSuggestSelection(props.underlay, {
     thicknessMm: room?.wallThicknessMm,
     heightMm: room?.dimensions.heightMm,
+    walls: project.walls,
   });
   const drawCommands = {
     ...interiorsDrawRoomStageCommands(props),

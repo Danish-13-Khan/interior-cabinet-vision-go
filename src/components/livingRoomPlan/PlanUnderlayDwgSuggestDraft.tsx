@@ -4,8 +4,11 @@ export function PlanUnderlayDwgSuggestDraft({ locked, selection }: {
   locked: boolean;
   selection: DwgSuggestSelectionUi;
 }) {
-  const closed = new Set(selection.draft?.candidates.filter((item) => item.closed).map((item) => item.chainId) ?? []).size;
-  const open = new Set(selection.draft?.candidates.filter((item) => !item.closed).map((item) => item.chainId) ?? []).size;
+  const candidates = selection.draft?.candidates ?? [];
+  const closed = new Set(candidates.filter((item) => item.closed).map((item) => item.chainId)).size;
+  const open = new Set(candidates.filter((item) => !item.closed).map((item) => item.chainId)).size;
+  const covered = candidates.filter((item) => item.overlap === "covered").length;
+  const partial = candidates.filter((item) => item.overlap === "partial").length;
   return (
     <div className="lr-underlay-dwg-suggest-draft" data-testid="lr-dwg-suggest-draft">
       <label>
@@ -38,7 +41,10 @@ export function PlanUnderlayDwgSuggestDraft({ locked, selection }: {
         <>
           <p className="lr-underlay-dwg-suggest-note" data-testid="lr-dwg-suggest-draft-summary">
             {selection.acceptedCount} of {selection.draft.candidates.length} accepted
-            ({closed} closed, {open} open). Click a highlight to reject. Walls are not created yet.
+            ({closed} closed, {open} open
+            {covered ? `, ${covered} already in the model` : ""}
+            {partial ? `, ${partial} partial overlap` : ""}
+            ). Click a highlight to reject. Covered strokes cannot be applied.
           </p>
           <div className="lr-underlay-dwg-suggest-region-actions">
             <button type="button" className="is-secondary" data-testid="lr-dwg-suggest-accept-all" disabled={locked} onClick={() => selection.onSetAccepted(true)}>Accept all</button>

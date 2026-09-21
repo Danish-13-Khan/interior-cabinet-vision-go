@@ -9,6 +9,7 @@ export type DwgSuggestHighlightStroke = {
   candidateId?: string;
   accepted?: boolean;
   closed?: boolean;
+  overlap?: "none" | "covered" | "partial";
 };
 
 /** Plan polylines for extracted straight centerlines (curves omitted). */

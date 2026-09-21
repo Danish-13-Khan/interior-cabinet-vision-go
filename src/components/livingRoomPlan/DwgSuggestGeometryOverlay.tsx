@@ -20,13 +20,14 @@ export function DwgSuggestGeometryOverlay(props: {
       {props.strokes.map((stroke, index) => (
         <polyline
           key={stroke.candidateId ?? `${stroke.layer}-${index}`}
-          className={`lr-dwg-suggest-stroke${stroke.accepted === false ? " is-rejected" : ""}${stroke.closed ? " is-closed" : ""}`}
+          className={`lr-dwg-suggest-stroke${stroke.accepted === false ? " is-rejected" : ""}${stroke.closed ? " is-closed" : ""}${(stroke.overlap ?? "none") !== "none" ? ` is-${stroke.overlap}` : ""}`}
           data-layer={stroke.layer}
           data-testid={stroke.candidateId ? "lr-dwg-suggest-candidate" : undefined}
           data-candidate-id={stroke.candidateId}
+          data-overlap={stroke.overlap ?? "none"}
           data-accepted={stroke.accepted === false ? "false" : "true"}
           fill="none"
-          pointerEvents={stroke.candidateId ? "stroke" : "none"}
+          pointerEvents={stroke.candidateId && (stroke.overlap ?? "none") === "none" ? "stroke" : "none"}
           points={stroke.points.map((point) => `${point.x},${point.z}`).join(" ")}
           onPointerDown={(event) => toggle(event, stroke.candidateId)}
         />
