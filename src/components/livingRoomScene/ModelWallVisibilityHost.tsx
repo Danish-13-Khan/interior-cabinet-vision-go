@@ -1,7 +1,8 @@
 import { ContextMenu } from "../ContextMenu";
 import type { InteriorProject } from "../../domain/interiorProject";
-import { setWallVisible, showAllWalls } from "../../domain/livingRoom";
+import { setLivingRoomWallMaterial, setWallVisible, showAllWalls } from "../../domain/livingRoom";
 import { ModelWallVisibilityPanel } from "./ModelWallVisibilityPanel";
+import { wallContextMenuItems } from "./wallContextMenuItems";
 
 export type WallContextMenuState = {
   wallId: string;
@@ -63,6 +64,20 @@ export function ModelWallVisibilityHost({
     onPatchDocument((current) => showAllWalls(current), "Show all walls");
   }
 
+  function applyWallMaterial(wallId: string, materialId: string) {
+    onPatchDocument(
+      (current) => setLivingRoomWallMaterial(current, wallId, materialId),
+      "Painted wall surface.",
+    );
+  }
+
+  function clearWallMaterial(wallId: string) {
+    onPatchDocument(
+      (current) => setLivingRoomWallMaterial(current, wallId, null),
+      "Cleared wall material.",
+    );
+  }
+
   return (
     <>
       {!stackedHideBar && activeWallId ? (
@@ -75,16 +90,16 @@ export function ModelWallVisibilityHost({
       />
       {wallMenu ? (
         <ContextMenu
+          testId="wall-context-menu"
           x={wallMenu.x}
           y={wallMenu.y}
           onClose={onCloseWallMenu}
-          items={[
-            {
-              id: "hide-wall",
-              label: "Hide Wall",
-              action: () => hideWall(wallMenu.wallId),
-            },
-          ]}
+          items={wallContextMenuItems({
+            materials: project.materials,
+            onHide: () => hideWall(wallMenu.wallId),
+            onApply: (materialId) => applyWallMaterial(wallMenu.wallId, materialId),
+            onClear: () => clearWallMaterial(wallMenu.wallId),
+          })}
         />
       ) : null}
     </>

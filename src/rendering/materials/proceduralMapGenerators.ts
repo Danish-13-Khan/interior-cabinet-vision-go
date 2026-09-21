@@ -38,7 +38,7 @@ function seededRandom(seed: string) {
   };
 }
 
-function finishTexture(
+export function finishTexture(
   canvas: HTMLCanvasElement,
   uvScaleMm: number,
   mode: RenderMode,
