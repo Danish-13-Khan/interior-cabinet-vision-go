@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  dwgSuggestHighlightStrokes,
+  extractDwgSuggestCenterlines,
   resolveDwgSuggestLayerNames,
   visibleDwgLayerNames,
   type DwgSuggestHighlightStroke,
@@ -14,6 +14,8 @@ export type DwgSuggestSelectionUi = {
   region: DwgSuggestPlanRegion | null;
   pickingRegion: boolean;
   strokes: DwgSuggestHighlightStroke[];
+  skippedCurves: number;
+  segmentCount: number;
   onToggleLayer: (name: string) => void;
   onPickRegion: () => void;
   onClearRegion: () => void;
@@ -34,9 +36,13 @@ export function useDwgSuggestSelection(underlay: LivingRoomPlanUnderlay | null):
 
   const visibleLayers = visibleDwgLayerNames(underlay);
   const selectedLayers = resolveDwgSuggestLayerNames(underlay, requested);
-  const strokes = useMemo(
-    () => dwgSuggestHighlightStrokes(underlay, requested, region),
+  const extract = useMemo(
+    () => extractDwgSuggestCenterlines(underlay, requested, region),
     [underlay, requested, region],
+  );
+  const strokes = useMemo(
+    () => extract.segments.map((segment) => ({ layer: segment.layer, points: [segment.a, segment.b] })),
+    [extract],
   );
 
   return {
@@ -45,6 +51,8 @@ export function useDwgSuggestSelection(underlay: LivingRoomPlanUnderlay | null):
     region,
     pickingRegion,
     strokes,
+    skippedCurves: extract.skippedCurves,
+    segmentCount: extract.segments.length,
     onToggleLayer: (name) => {
       if (!visibleLayers.includes(name)) return;
       const next = new Set(selectedLayers);

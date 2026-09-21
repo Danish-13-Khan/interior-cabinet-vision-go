@@ -1,10 +1,8 @@
 import type { Point2Mm } from "../interiorProject";
-import { cadToPlanPoint } from "./dwgPlanMap";
-import { transform } from "./dwgGeometryMath";
-import { resolveDwgSuggestLayerNames, dwgSuggestSegmentHitsRegion, type DwgSuggestPlanRegion } from "./dwgSuggestSelection";
+import { extractDwgSuggestCenterlines } from "./dwgSuggestCenterlines";
+import { type DwgSuggestPlanRegion } from "./dwgSuggestSelection";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
-const LINE = /^M(-?[\d.eE+]+),(-?[\d.eE+]+) L(-?[\d.eE+]+),(-?[\d.eE+]+)$/;
 const EPS = 0.5;
 
 type Seg = { a: Point2Mm; b: Point2Mm };
@@ -17,34 +15,12 @@ function same(a: Point2Mm, b: Point2Mm) {
   return Math.hypot(a.x - b.x, a.z - b.z) <= EPS;
 }
 
-function wallLayers(underlay: LivingRoomPlanUnderlay, names?: string[]) {
-  const allowed = new Set(resolveDwgSuggestLayerNames(underlay, names));
-  return (underlay.dwg?.preview.layers ?? []).filter((layer) => allowed.has(layer.name));
-}
-
-function segmentsFrom(underlay: LivingRoomPlanUnderlay, names?: string[], region?: DwgSuggestPlanRegion | null): Seg[] {
-  const source = underlay.dwg;
-  if (!source) return [];
-  const segments: Seg[] = [];
-  for (const layer of wallLayers(underlay, names)) {
-    for (const stroke of layer.paths) {
-      const match = LINE.exec(stroke.d);
-      if (!match) continue;
-      const start = transform(
-        { x: Number(match[1]), y: Number(match[2]) },
-        stroke.matrix as [number, number, number, number, number, number],
-      );
-      const end = transform(
-        { x: Number(match[3]), y: Number(match[4]) },
-        stroke.matrix as [number, number, number, number, number, number],
-      );
-      const a = cadToPlanPoint(start, underlay, source.preview.bounds);
-      const b = cadToPlanPoint(end, underlay, source.preview.bounds);
-      if (region && !dwgSuggestSegmentHitsRegion(a, b, region)) continue;
-      segments.push({ a, b });
-    }
-  }
-  return segments;
+function segmentsFrom(
+  underlay: LivingRoomPlanUnderlay,
+  names?: string[],
+  region?: DwgSuggestPlanRegion | null,
+): Seg[] {
+  return extractDwgSuggestCenterlines(underlay, names, region).segments.map(({ a, b }) => ({ a, b }));
 }
 
 function walk(segments: Seg[]): Point2Mm[] | null {
