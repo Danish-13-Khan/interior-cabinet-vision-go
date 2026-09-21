@@ -19,7 +19,7 @@ taped-wall proof.
 
 LibreDWG WASM cannot read DXF (`dwg_read_data` / `dwg_read_file` return
 nothing / error 2048). ASCII DXF uses `parseAsciiDxf`. `.dxf` opens the same
-tracing dialog as `.dwg`. PNG/SVG extract is unchanged.
+tracing dialog as `.dwg`. PNG/JPG/PDF import as a tracing underlay without the extract API.
 
 ## Implemented
 

@@ -1,7 +1,7 @@
-import { underlayPlanBounds, unionPlanBounds } from "../domain/livingRoom/planUnderlayBounds";
+import { planCanvasFitBounds, planSiteBoundsForCanvas, planUnderlayFitKey } from "../domain/livingRoom/planUnderlayBounds";
 import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject, Point2Mm, Point3Mm, RoomDrawingRequest, Size3Mm } from "../domain/interiorProject";
-import { EMPTY_PLAN_SITE_BOUNDS, orientWallForRoom, roomPlanViewBounds } from "../domain/interiorProject";
+import { orientWallForRoom, roomPlanViewBounds } from "../domain/interiorProject";
 import {
   PLAN_MARQUEE_CLICK_SCREEN_PX,
   PLAN_POINTER_SNAP_SCREEN_PX,
@@ -91,12 +91,13 @@ type MarqueeState = {
 export function LivingRoomPlanView(props: Props) {
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId) ?? null;
   const underlay = getLivingRoomPlanUnderlay(props.project);
-  const bounds = room ? roomPlanViewBounds(props.project, room.id) : EMPTY_PLAN_SITE_BOUNDS;
-  const fitBounds = useMemo(() => {
-    const background = underlayPlanBounds(underlay);
-    return !room && background ? background : unionPlanBounds(bounds, background);
-  }, [bounds.minX, bounds.minZ, bounds.maxX, bounds.maxZ, room?.id, underlay?.widthMm, underlay?.heightMm, underlay?.xMm, underlay?.zMm, underlay?.rotationDeg, underlay?.hidden]);
-  const fitKey = `${props.project.id}:${props.project.activeRoomId}:${underlay?.fileName ?? ""}:${underlay?.widthMm ?? ""}:${underlay?.heightMm ?? ""}`;
+  const roomBounds = room ? roomPlanViewBounds(props.project, room.id) : null;
+  const bounds = planSiteBoundsForCanvas(roomBounds, underlay);
+  const fitBounds = useMemo(
+    () => planCanvasFitBounds(roomBounds, underlay),
+    [roomBounds, underlay],
+  );
+  const fitKey = `${props.project.id}:${props.project.activeRoomId}:${planUnderlayFitKey(underlay)}`;
   const nav = usePlanCanvasNavigation({ fitBounds, fitKey });
   const pointerSnapMm = nav.screenToWorldMm(PLAN_POINTER_SNAP_SCREEN_PX);
   const marqueeClickMm = nav.screenToWorldMm(PLAN_MARQUEE_CLICK_SCREEN_PX);
@@ -450,7 +451,7 @@ export function LivingRoomPlanView(props: Props) {
       onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
-    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
+    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />
     <WallDrawingOverlay preview={wallDrawing.preview} snapTarget={wallDrawing.snapTarget} active={drawWall || drawPartition} unit={props.readability.unit} />
     <PlanWallNodesLayer project={props.project} activeWallId={props.activeWallId} editable={editWalls}
       previewNodes={walls.previewNodes} translatePreview={walls.translatePreview}
@@ -489,7 +490,7 @@ export function LivingRoomPlanView(props: Props) {
         data-testid="lr-plan-marquee"
       />
     ) : null}
-    {!room ? (
+    {!room && !underlay ? (
       <text className="lr-empty-plan-hint" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
         Drag a rectangle to draw the room, then use Draw Wall to add or split walls.
       </text>
