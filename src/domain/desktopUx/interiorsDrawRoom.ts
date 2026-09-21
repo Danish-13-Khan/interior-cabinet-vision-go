@@ -32,7 +32,7 @@ export function interiorsDrawRoomHint(tool: InteriorsChromeTool, buildTool?: Bui
   if (tool === "wall") return "Drag a wall segment on the plan";
   if (tool === "door") return "Click a wall to place a door";
   if (tool === "window") return "Click a wall to place a window";
-  if (tool === "import") return "Choose a plan image to trace";
+  if (tool === "import") return "Choose a plan image, DWG, or DXF to trace";
   return "Click a wall to edit";
 }
 

@@ -270,9 +270,12 @@ One click → plan a salesperson is comfortable attaching to a proposal.
 | --- | --- | --- |
 | 5.1 | Better PDF import (multi-page, crop, calibrate) — **Implemented** (2026-09-05 on `feat/2d-plan-layer`): page pick + optional crop → PNG underlay → existing calibrate flow. Images unchanged. | Low |
 | 5.2 | AI floor-plan detection → review → correct → accept into normal geometry | High; no separate AI model of truth |
-| 5.3 | DWG/DXF when customers demand it | Expensive; don’t delay salesperson workflow |
+| 5.3 | DWG/DXF tracing underlay — **Implemented**: calibrated background, endpoint snap, suggest walls, recognized cabinet blocks. Native DWG export evaluated and not shipped. | Medium |
 
-> **5.1 note:** PDF page pick / crop / calibrate underlay is implemented; 5.2 AI and 5.3 DWG remain out of current scope.
+> **5.1 note:** PDF page pick / crop / calibrate underlay is implemented.
+> **5.3 note:** DWG/DXF upload, scale, layers, snap, suggest-walls, and
+> recognized blocks are implemented; native DWG write is not. See
+> `docs/DWG_ROOM_DESIGN_ROADMAP.md`. 5.2 AI remains out of current scope.
 
 ---
 

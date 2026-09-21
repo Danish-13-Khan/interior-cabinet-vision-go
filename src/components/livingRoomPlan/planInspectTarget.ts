@@ -1,14 +1,19 @@
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import { drawRoomFromPoints } from "../../domain/interiorProject";
 import {
   cabinetRunForObject,
   cabinetRunLengthMm,
   completeCabinetRun,
   countCabinetRunFillers,
+  ensureDrawnRoomReviewRig,
+  getLivingRoomPlanUnderlay,
   isCabinetRunFiller,
+  placeRecognizedDwgCabinets,
   previewCabinetRunPlacement,
   proposeCabinetRunComplete,
   readPlanMarksSettings,
   setPlanMarksSettings,
+  suggestRoomPolygonFromDwg,
 } from "../../domain/livingRoom";
 import { interiorsCabinetRunSnapTarget } from "../../domain/desktopUx";
 import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
@@ -40,6 +45,20 @@ export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBod
     importError: props.importError,
     onSetPlanUnderlay: w.onSetPlanUnderlay,
     onReplaceUnderlay: () => props.underlayPickerRef.current?.(),
+    onSuggestDwgWalls: () => {
+      w.onPatchDocument((current) => {
+        const points = suggestRoomPolygonFromDwg(getLivingRoomPlanUnderlay(current));
+        return points
+          ? ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, { kind: "polygon", points }, { raised: true }))
+          : current;
+      }, "Suggested walls from DWG layers.");
+    },
+    onPlaceDwgCabinets: () => {
+      w.onPatchDocument(
+        (current) => placeRecognizedDwgCabinets(current, getLivingRoomPlanUnderlay(current)),
+        "Placed cabinets from DWG blocks.",
+      );
+    },
     onToggleSiteMeasure: (key: SiteMeasureUserKey, value: boolean) => {
       w.onPatchDocument(
         (current) => toggleSiteMeasureChecklistItem(current, key, value),

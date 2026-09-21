@@ -31,6 +31,7 @@
     "release:mac": "npm run tauri build -- --bundles app,dmg"
   },
   "dependencies": {
+    "@mlightcad/libredwg-web": "0.7.14",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@tauri-apps/api": "^2",

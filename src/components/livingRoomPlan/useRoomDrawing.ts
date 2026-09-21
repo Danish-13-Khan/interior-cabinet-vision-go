@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { rectanglePoints, type Point2Mm, type RoomDrawingRequest } from "../../domain/interiorProject";
+import { snapPlanPointToDwg } from "../../domain/livingRoom/dwgPlanSnap";
 
 type Point = Point2Mm;
 
-function snap(point: Point, size: number): Point {
-  return { x: Math.round(point.x / size) * size, z: Math.round(point.z / size) * size };
+function snap(point: Point, size: number, extra: readonly Point[] = []): Point {
+  return snapPlanPointToDwg(point, size, extra);
 }
 
 function distance(a: Point, b: Point) {
@@ -13,6 +14,7 @@ function distance(a: Point, b: Point) {
 
 export function useRoomDrawing(input: {
   active: boolean; snapSizeMm: number; closeRequest: number;
+  extraPoints?: readonly Point[];
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point;
   onCommit: (drawing: RoomDrawingRequest) => void;
   onPointCount: (count: number) => void;
@@ -41,21 +43,21 @@ export function useRoomDrawing(input: {
   function start(event: ReactPointerEvent<SVGRectElement>) {
     if (!input.active || event.button !== 0) return false;
     event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId);
-    const point = snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), input.snapSizeMm);
+    const point = snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), input.snapSizeMm, input.extraPoints);
     startRef.current = point; setRectangleStart(point); setCursor(point);
     return true;
   }
 
   function move(event: ReactPointerEvent<SVGSVGElement>) {
     if (!input.active || (!startRef.current && polygon.length === 0)) return false;
-    setCursor(snap(input.worldPoint(event), input.snapSizeMm));
+    setCursor(snap(input.worldPoint(event), input.snapSizeMm, input.extraPoints));
     return true;
   }
 
   function finish(event: ReactPointerEvent<SVGSVGElement>) {
     const startPoint = startRef.current;
     if (!input.active || !startPoint) return false;
-    const end = snap(input.worldPoint(event), input.snapSizeMm);
+    const end = snap(input.worldPoint(event), input.snapSizeMm, input.extraPoints);
     if (distance(startPoint, end) >= input.snapSizeMm * 3) {
       onCommitRef.current({ kind: "rectangle", points: rectanglePoints(startPoint, end) });
       setPolygon([]);

@@ -9,6 +9,8 @@ export type InteriorsDrawRoomCommands = {
   importError: string;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;
   onReplaceUnderlay: () => void;
+  onSuggestDwgWalls?: () => void;
+  onPlaceDwgCabinets?: () => void;
   onToggleSiteMeasure?: (key: SiteMeasureUserKey, value: boolean) => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;

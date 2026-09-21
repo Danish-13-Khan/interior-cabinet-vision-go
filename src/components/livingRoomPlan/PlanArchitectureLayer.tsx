@@ -1,3 +1,4 @@
+import { underlayPlanBounds, unionPlanBounds } from "../../domain/livingRoom/planUnderlayBounds";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import {
   EMPTY_PLAN_SITE_BOUNDS, roomPlanPolygon, roomPlanViewBounds, selectWallsForRoom,
@@ -18,6 +19,7 @@ export function PlanArchitectureLayer(props: {
   const floorId = typeof props.room?.extensions?.floorMaterialId === "string" ? props.room.extensions.floorMaterialId : "";
   const floorColor = materials.get(floorId)?.color ?? "#e8dfd0";
   const bounds = props.room ? roomPlanViewBounds(props.project, props.room.id) : EMPTY_PLAN_SITE_BOUNDS;
+  const paperBounds = unionPlanBounds({ minX: -20000, minZ: -20000, maxX: 20000, maxZ: 20000 }, underlayPlanBounds(underlay));
   const polygon = props.room ? roomPlanPolygon(props.project, props.room.id) : null;
   const loopPath = (points: Point2Mm[]) => points.map((point, index) =>
     `${index ? "L" : "M"}${point.x} ${point.z}`).join(" ") + " Z";
@@ -32,7 +34,7 @@ export function PlanArchitectureLayer(props: {
       <pattern id="lr-grid-major" width={props.snapSizeMm * 10} height={props.snapSizeMm * 10} patternUnits="userSpaceOnUse"><rect width="100%" height="100%" fill="url(#lr-grid-small)" /><path d={`M ${props.snapSizeMm * 10} 0 L 0 0 0 ${props.snapSizeMm * 10}`} className="lr-grid-major-line" /></pattern>
       <clipPath id={clipId}><path d={floorPath} fillRule="evenodd" /></clipPath>
     </defs>
-    <rect data-plan-paper x={-20000} y={-20000} width={40000} height={40000} className="lr-plan-paper" onPointerDown={props.onPaper} />
+    <rect data-plan-paper x={paperBounds.minX-1000} y={paperBounds.minZ-1000} width={paperBounds.maxX-paperBounds.minX+2000} height={paperBounds.maxZ-paperBounds.minZ+2000} className="lr-plan-paper" onPointerDown={props.onPaper} />
     {underlay && !underlay.hidden ? <image href={underlay.dataUrl} x={-underlay.widthMm / 2} y={-underlay.heightMm / 2} width={underlay.widthMm} height={underlay.heightMm}
       opacity={underlay.opacity} preserveAspectRatio="none" className="lr-plan-underlay-image" data-testid="lr-plan-underlay-image" pointerEvents="none"
       transform={`translate(${underlay.xMm ?? 0} ${underlay.zMm ?? 0}) rotate(${underlay.rotationDeg ?? 0})`} /> : null}

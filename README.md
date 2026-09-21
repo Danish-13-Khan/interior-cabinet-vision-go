@@ -14,6 +14,8 @@ same design to engineering without re-entering cabinet data.
 > cloud sync, hosted assets, security, and platform operations.
 > [`docs/2D_PLAN_LAYER_ROADMAP.md`](docs/2D_PLAN_LAYER_ROADMAP.md) is the active
 > Interiors 2D plan improvement program (pan/zoom, measure, underlay, presentation).
+> [`docs/DWG_ROOM_DESIGN_ROADMAP.md`](docs/DWG_ROOM_DESIGN_ROADMAP.md) covers DWG/DXF
+> tracing-underlay import in that 2D workspace.
 > Phase documents below remain implementation history and supporting detail.
 
 The current development program is **Golden Cabinet Run v1**: a straight
@@ -198,7 +200,9 @@ type InteriorObjectEntity = {
 ### Deliberately Excluded
 
 - Automatic interpretation of imported floor-plan images.
-- SketchUp, DWG, DXF, BIM, or third-party model import.
+- SketchUp, BIM, or third-party 3D model import. DWG/PDF/image tracing
+  underlays are in the current 2D workspace; see
+  [`docs/DWG_ROOM_DESIGN_ROADMAP.md`](docs/DWG_ROOM_DESIGN_ROADMAP.md).
 - Cloud rendering, accounts, authentication, databases, or backend APIs.
 - AI-generated room geometry or irreversible AI design changes.
 - Claims of D5 Render-level path-traced photorealism.
