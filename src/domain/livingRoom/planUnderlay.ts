@@ -76,15 +76,35 @@ export function getLivingRoomPlanUnderlay(
   };
 }
 
+export function persistLivingRoomPlanUnderlay(underlay: LivingRoomPlanUnderlay): LivingRoomPlanUnderlay {
+  const persisted: LivingRoomPlanUnderlay = {
+    fileName: underlay.fileName,
+    dataUrl: underlay.dataUrl,
+    widthMm: underlay.widthMm,
+    heightMm: underlay.heightMm,
+    opacity: underlay.opacity,
+  };
+  if (underlay.sourceType === "dwg") persisted.sourceType = "dwg";
+  if (underlay.dwg) persisted.dwg = underlay.dwg;
+  if (typeof underlay.importReport === "string") persisted.importReport = underlay.importReport;
+  if (Number.isFinite(underlay.xMm)) persisted.xMm = underlay.xMm;
+  if (Number.isFinite(underlay.zMm)) persisted.zMm = underlay.zMm;
+  if (Number.isFinite(underlay.rotationDeg)) persisted.rotationDeg = underlay.rotationDeg;
+  if (underlay.locked) persisted.locked = true;
+  if (underlay.hidden) persisted.hidden = true;
+  if (underlay.calibrated) persisted.calibrated = true;
+  if (Number.isFinite(underlay.importWidthMm)) persisted.importWidthMm = underlay.importWidthMm;
+  if (Number.isFinite(underlay.importHeightMm)) persisted.importHeightMm = underlay.importHeightMm;
+  if (readDwgSource(underlay.dwg)) persisted.dataUrl = "";
+  return persisted;
+}
+
 export function setLivingRoomPlanUnderlay(
   project: InteriorProject,
   underlay: LivingRoomPlanUnderlay | null,
 ): InteriorProject {
   const extensions = { ...project.extensions };
-  if (underlay) {
-    const persisted = { ...underlay };
-    if (readDwgSource(underlay.dwg)) persisted.dataUrl = "";
-    extensions.planUnderlay = persisted;
-  } else delete extensions.planUnderlay;
+  if (underlay) extensions.planUnderlay = persistLivingRoomPlanUnderlay(underlay);
+  else delete extensions.planUnderlay;
   return { ...project, extensions };
 }

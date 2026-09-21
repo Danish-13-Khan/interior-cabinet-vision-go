@@ -47,3 +47,22 @@ export async function confirmCalibrateSouthWall(page: Page) {
   await page.getByTestId("calibrate-known-length-input").fill("4000");
   await page.getByTestId("calibrate-known-length-confirm").click();
 }
+
+export async function saveInteriorProjectJson(page: Page) {
+  const download = page.waitForEvent("download");
+  await page.getByTestId("interiors-save-state").click();
+  const file = await download;
+  return JSON.parse(readFileSync((await file.path())!, "utf8")) as unknown;
+}
+
+export async function openInteriorProjectJson(page: Page, saved: unknown, name = "project.json") {
+  await page.getByTestId("interiors-project-crumb").evaluate((button: HTMLButtonElement) => button.click());
+  const chooser = page.waitForEvent("filechooser");
+  await page.getByRole("dialog", { name: "Start a living room project" })
+    .getByRole("button", { name: "Open project", exact: true }).click();
+  await (await chooser).setFiles({
+    name,
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(saved)),
+  });
+}
