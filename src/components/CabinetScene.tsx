@@ -36,6 +36,10 @@ import {
 } from "./cabinetScene/thumbnailCapture";
 import type { CabinetSceneHandle, CabinetSceneProps, ViewPreset } from "./cabinetScene/types";
 import { getCabinetWorldCenter } from "./cabinetScene/worldCoords";
+import {
+  cabinetSceneOrbitOverrides,
+  resolveOrbitControlsSharedCommons,
+} from "../domain/orbit/orbitControlsPreset";
 
 export type { CabinetSceneHandle } from "./cabinetScene/types";
 
@@ -354,14 +358,13 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <OrbitControls
           ref={controlsRef}
           makeDefault
-          enableDamping
-          dampingFactor={0.15}
-          rotateSpeed={0.8}
+          {...resolveOrbitControlsSharedCommons()}
+          dampingFactor={cabinetSceneOrbitOverrides.dampingFactor}
+          rotateSpeed={cabinetSceneOrbitOverrides.rotateSpeed}
+          minDistance={cabinetSceneOrbitOverrides.minDistance}
+          maxDistance={cabinetSceneOrbitOverrides.maxDistance}
+          target={[...cabinetSceneOrbitOverrides.target]}
           enabled={!isDragging}
-          screenSpacePanning
-          minDistance={1.1}
-          maxDistance={14}
-          target={[0, 0.7, 0]}
           mouseButtons={{
             LEFT: undefined,
             MIDDLE: MOUSE.PAN,

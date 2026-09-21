@@ -1,5 +1,7 @@
 /** Phase E camera easing + clip helpers (pure — no Three types). */
 
+import { ORBIT_SCREEN_SPACE_PANNING } from "../orbit/orbitControlsPreset";
+
 export const MODEL_VIEW_CAMERA_EASE_MS = 320;
 
 export function easeInOutCubic(t: number): number {
@@ -44,8 +46,8 @@ export function resolveModelViewOrbitMinDistance(spanMeters?: number): number {
 /** Wheel zooms toward the cursor and can carry the orbit target into the room. */
 export const MODEL_VIEW_ZOOM_TO_CURSOR = true;
 
-/** Screen-space pan lets you inspect details without sliding on the floor plane. */
-export const MODEL_VIEW_SCREEN_SPACE_PANNING = true;
+/** Screen-space pan — shared with CabinetScene via orbitControlsPreset (Phase 3). */
+export const MODEL_VIEW_SCREEN_SPACE_PANNING = ORBIT_SCREEN_SPACE_PANNING;
 
 /**
  * Soft floor on polar angle — avoids flipping under the floor.
