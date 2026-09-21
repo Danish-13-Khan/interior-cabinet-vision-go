@@ -1,27 +1,30 @@
-# Camera Phase 5 — Product view cube
+# Camera Phase 5 — Product view cube (in-canvas 3D gizmo)
 
 **Status:** Implemented (local)  
 **Branch:** `fix/cabinet-orbit-screen-space-panning`  
-**Direction locked:** Mockup **B** — minimalist corner view cube (no McCurdy, no Present strip).
+**Direction locked:** Mockup **B** — game-engine style orientation cube (no McCurdy, no Present strip).
 
 ## What shipped
 
-Always-on product control on `CabinetScene` (bottom-right):
+Always-on **in-canvas** 3D view cube on `CabinetScene`, rendered inside the R3F `Canvas` via `@react-three/drei` `GizmoHelper` + `GizmoViewcube` (Unity / Unreal / SketchUp style WebGL HUD).
 
-| Control | Action |
-|---------|--------|
-| **Home** | Iso preset + fit |
-| **Front / Side / Top** | Matching preset + fit |
-| **Reset** | Fit framing only (keeps current preset) |
+| Interaction | Behavior |
+|-------------|----------|
+| Click a face | Tweens the default `OrbitControls` camera to that orthographic-ish orientation |
+| Drag the cube | Rotates the main scene camera (gizmo drives `makeDefault` controls) |
 
-Top ISO / Front / Side / Top text buttons were removed from the scene toolbar to avoid duplication; **Isolate** stays in the top-right toolbar. Ribbon / workspace camera buttons are unchanged.
+The previous flat HTML bottom-right button overlay (`ViewCube.tsx`) was removed because it was easy to miss / clip under layout. The gizmo lives in the WebGL HUD at **bottom-right** (`alignment="bottom-right"`, `margin={[80, 80]}`).
+
+Top ISO / Front / Side / Top text buttons stay out of the scene toolbar to avoid duplication; **Isolate** stays in the top-right toolbar. Ribbon / workspace camera buttons are unchanged.
+
+`src/domain/orbit/viewCubeActions.ts` (+ tests) remains as mapping helpers for any future product face→preset wiring.
 
 ## Files
 
-- `src/domain/orbit/viewCubeActions.ts` (+ test)
-- `src/components/cabinetScene/ViewCube.tsx`
-- `src/components/CabinetScene.tsx` (wire-up)
-- `src/styles/scene.css` (`.view-cube*`)
+- `src/components/cabinetScene/SceneViewGizmo.tsx` — `GizmoHelper` + `GizmoViewcube`
+- `src/components/CabinetScene.tsx` — mounts gizmo inside `Canvas` (OrbitControls `makeDefault` kept)
+- `src/domain/orbit/viewCubeActions.ts` (+ test) — still valid helpers
+- Obsolete: `ViewCube.tsx` HTML overlay and `.view-cube*` CSS removed
 
 ## Not in this phase
 
@@ -34,4 +37,4 @@ Top ISO / Front / Side / Top text buttons were removed from the scene toolbar to
 
 1. On branch tip with this commit, run the app as usual.
 2. Open the cabinet **3D** editor canvas.
-3. Use the bottom-right cube — no URL flag required.
+3. Use the bottom-right **3D orientation cube** in the WebGL view — no URL flag required.

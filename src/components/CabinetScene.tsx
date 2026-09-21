@@ -43,7 +43,7 @@ import {
 import { CameraDebugOverlay } from "./cameraDebug/CameraDebugOverlay";
 import { OrbitDebugProbe } from "./cameraDebug/OrbitDebugProbe";
 import { useCameraDebugSession } from "./cameraDebug/useCameraDebugSession";
-import { ViewCube } from "./cabinetScene/ViewCube";
+import { SceneViewGizmo } from "./cabinetScene/SceneViewGizmo";
 
 export type { CabinetSceneHandle } from "./cabinetScene/types";
 
@@ -164,12 +164,6 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           {isolateSelected ? "All Panels" : "Isolate"}
         </button>
       </div>
-
-      <ViewCube
-        activePreset={viewPreset}
-        onSetPreset={setViewPreset}
-        onFitView={() => setFitVersion((prev) => prev + 1)}
-      />
 
       <div className="scene-overlay">
         <span className="scene-hint">
@@ -351,6 +345,8 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
             onSnapshot={cameraDebug.onSnapshot}
           />
         ) : null}
+
+        <SceneViewGizmo />
 
         <OrbitControls
           ref={controlsRef}
