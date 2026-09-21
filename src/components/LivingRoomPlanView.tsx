@@ -450,7 +450,7 @@ export function LivingRoomPlanView(props: Props) {
       onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
-    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} />
+    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />
     <WallDrawingOverlay preview={wallDrawing.preview} snapTarget={wallDrawing.snapTarget} active={drawWall || drawPartition} unit={props.readability.unit} />
     <PlanWallNodesLayer project={props.project} activeWallId={props.activeWallId} editable={editWalls}
       previewNodes={walls.previewNodes} translatePreview={walls.translatePreview}
@@ -489,7 +489,7 @@ export function LivingRoomPlanView(props: Props) {
         data-testid="lr-plan-marquee"
       />
     ) : null}
-    {!room ? (
+    {!room && !underlay ? (
       <text className="lr-empty-plan-hint" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
         Drag a rectangle to draw the room, then use Draw Wall to add or split walls.
       </text>

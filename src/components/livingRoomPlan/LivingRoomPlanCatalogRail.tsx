@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { selectWallsForRoom } from "../../domain/interiorProject";
 import { LIVING_ROOM_CATALOG } from "../../domain/livingRoom";
+import { PLAN_UNDERLAY_FILE_ACCEPT } from "../../domain/livingRoom/planUnderlayImport";
 import {
   designUxShowsCatalogRail,
   designUxShowsToolRail,
@@ -50,8 +51,9 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     <input
       ref={underlayInputRef}
       type="file"
-      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml,application/pdf,.pdf,.svg,.dxf,.DXF,.dwg,.DWG"
+      accept={PLAN_UNDERLAY_FILE_ACCEPT}
       hidden
+      data-testid="lr-plan-underlay-input"
       onChange={(event) => {
         const file = event.target.files?.[0] ?? null;
         event.target.value = "";
