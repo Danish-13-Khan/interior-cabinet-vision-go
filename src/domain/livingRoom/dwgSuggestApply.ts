@@ -5,6 +5,7 @@ import {
   type Point2Mm,
 } from "../interiorProject";
 import { ensureDrawnRoomReviewRig } from "./drawnRoomRig";
+import { ensureDwgSuggestHostRoom } from "./dwgSuggestApplyHost";
 import {
   acceptedDwgSuggestCandidates,
   type DwgSuggestCandidate,
@@ -78,8 +79,9 @@ export function applyDwgSuggestDraft(
   if (!draft || !accepted.length) return project;
   const used = new Set<string>();
   let next = addClosedChains(project, draft, used);
-  for (const candidate of accepted) {
-    if (used.has(candidate.id)) continue;
+  const leftover = accepted.filter((candidate) => !used.has(candidate.id));
+  if (leftover.length) next = ensureDwgSuggestHostRoom(next, draft, leftover);
+  for (const candidate of leftover) {
     next = stamp(next, createWallSegment(next, {
       start: candidate.a,
       end: candidate.b,
