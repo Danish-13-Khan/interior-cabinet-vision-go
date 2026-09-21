@@ -33,6 +33,7 @@
 @import "./styles/cutlist-warnings.css";
 @import "./styles/scene.css";
 @import "./styles/desktop-ux.css";
+@import "./styles/context-menu-submenu.css";
 @import "./styles/cad-shell-compress.css";
 @import "./styles/contextual-workbench.css";
 @import "./styles/living-room-plan.css";
