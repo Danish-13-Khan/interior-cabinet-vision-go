@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  acceptedDwgSuggestCandidates,
+  applyDwgSuggestOverlap,
   buildDwgSuggestDraft,
+  dwgSuggestCandidateSelectable,
   extractDwgSuggestCenterlines,
   resolveDwgSuggestLayerNames,
   setDwgSuggestCandidateAccepted,
@@ -9,6 +12,7 @@ import {
   type DwgSuggestDraft,
   type DwgSuggestHighlightStroke,
   type DwgSuggestPlanRegion,
+  type DwgSuggestWallSeg,
   type LivingRoomPlanUnderlay,
 } from "../domain/livingRoom";
 import { clampWallHeightMm, clampWallThicknessMm } from "../domain/interiorProject";
@@ -39,7 +43,7 @@ export type DwgSuggestSelectionUi = {
 
 export function useDwgSuggestSelection(
   underlay: LivingRoomPlanUnderlay | null,
-  defaults?: { thicknessMm?: number; heightMm?: number },
+  defaults?: { thicknessMm?: number; heightMm?: number; walls?: readonly DwgSuggestWallSeg[] },
 ): DwgSuggestSelectionUi {
   const [requested, setRequested] = useState<string[] | null>(null);
   const [region, setRegion] = useState<DwgSuggestPlanRegion | null>(null);
@@ -48,6 +52,8 @@ export function useDwgSuggestSelection(
   const [thicknessMm, setThicknessMm] = useState(clampWallThicknessMm(defaults?.thicknessMm ?? 120));
   const [heightMm, setHeightMm] = useState(clampWallHeightMm(defaults?.heightMm ?? 2800));
   const sourceKey = `${underlay?.fileName ?? ""}:${underlay?.dwg ? "dwg" : ""}`;
+  const walls = defaults?.walls ?? [];
+  const wallsKey = walls.map((wall) => `${wall.start.x},${wall.start.z}:${wall.end.x},${wall.end.z}`).join("|");
 
   useEffect(() => {
     setRequested(null);
@@ -55,6 +61,10 @@ export function useDwgSuggestSelection(
     setPickingRegion(false);
     setDraft(null);
   }, [sourceKey]);
+
+  useEffect(() => {
+    setDraft((current) => current ? applyDwgSuggestOverlap(current, walls) : current);
+  }, [wallsKey]);
 
   const visibleLayers = visibleDwgLayerNames(underlay);
   const selectedLayers = resolveDwgSuggestLayerNames(underlay, requested);
@@ -70,6 +80,7 @@ export function useDwgSuggestSelection(
         candidateId: candidate.id,
         accepted: candidate.accepted,
         closed: candidate.closed,
+        overlap: candidate.overlap,
       }));
     }
     return extract.segments.map((segment) => ({ layer: segment.layer, points: [segment.a, segment.b] }));
@@ -86,7 +97,7 @@ export function useDwgSuggestSelection(
     draft,
     thicknessMm,
     heightMm,
-    acceptedCount: draft?.candidates.filter((item) => item.accepted).length ?? 0,
+    acceptedCount: acceptedDwgSuggestCandidates(draft).length,
     onToggleLayer: (name) => {
       if (!visibleLayers.includes(name)) return;
       const next = new Set(selectedLayers);
@@ -104,15 +115,17 @@ export function useDwgSuggestSelection(
       setPickingRegion(false);
     },
     onPreview: () => {
-      setDraft(buildDwgSuggestDraft(extract.segments, { thicknessMm, heightMm }));
+      setDraft(applyDwgSuggestOverlap(
+        buildDwgSuggestDraft(extract.segments, { thicknessMm, heightMm }),
+        walls,
+      ));
     },
     onClearDraft: () => setDraft(null),
     onToggleCandidate: (id) => {
       setDraft((current) => {
         const item = current?.candidates.find((candidate) => candidate.id === id);
-        return current && item
-          ? setDwgSuggestCandidateAccepted(current, id, !item.accepted)
-          : current;
+        if (!current || !item || !dwgSuggestCandidateSelectable(item)) return current;
+        return setDwgSuggestCandidateAccepted(current, id, !item.accepted);
       });
     },
     onSetAccepted: (accepted) => {

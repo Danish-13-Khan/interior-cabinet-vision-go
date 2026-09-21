@@ -713,6 +713,13 @@ export {
   type DwgSuggestCandidate,
   type DwgSuggestDraft,
 } from "./dwgSuggestDraft";
+export {
+  applyDwgSuggestOverlap,
+  classifyDwgSuggestOverlap,
+  dwgSuggestCandidateSelectable,
+  type DwgSuggestOverlap,
+  type DwgSuggestWallSeg,
+} from "./dwgSuggestOverlap";
 export { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";
 export { parseAsciiDxf } from "./dwgDxfParse";
 export type { DwgInsertHint, DwgPreview } from "./dwgGeometry";

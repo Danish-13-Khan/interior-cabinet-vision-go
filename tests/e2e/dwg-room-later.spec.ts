@@ -11,6 +11,7 @@ test("preview wall candidates without creating project walls", async ({ page }) 
   await expect(page.getByTestId("lr-dwg-suggest-layer-Walls")).toBeChecked();
   await page.getByTestId("lr-underlay-suggest-walls").click();
   await expect(page.getByTestId("lr-dwg-suggest-candidate")).toHaveCount(6);
+  await expect(page.locator('[data-testid="lr-dwg-suggest-candidate"][data-overlap="none"]')).toHaveCount(6);
   await expect(planWalls(page)).toHaveCount(0);
   await expect(page.getByTestId("lr-dwg-suggest-apply")).toBeDisabled();
 });
