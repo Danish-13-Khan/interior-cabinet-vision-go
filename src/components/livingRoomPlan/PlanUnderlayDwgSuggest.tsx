@@ -1,4 +1,5 @@
 import type { DwgSuggestSelectionUi } from "../../hooks/useDwgSuggestSelection";
+import { PlanUnderlayDwgSuggestDraft } from "./PlanUnderlayDwgSuggestDraft";
 
 export function PlanUnderlayDwgSuggest({
   locked,
@@ -59,6 +60,7 @@ export function PlanUnderlayDwgSuggest({
               Clear region
             </button>
           </div>
+          <PlanUnderlayDwgSuggestDraft locked={locked} selection={selection} />
         </>
       ) : null}
       {onSuggestDwgWalls ? (
@@ -67,9 +69,9 @@ export function PlanUnderlayDwgSuggest({
           className="is-secondary"
           data-testid="lr-underlay-suggest-walls"
           disabled={locked || Boolean(selection && (!selection.selectedLayers.length || selection.segmentCount === 0))}
-          onClick={onSuggestDwgWalls}
+          onClick={selection?.onPreview ?? onSuggestDwgWalls}
         >
-          Suggest walls from layers
+          Preview wall candidates
         </button>
       ) : null}
       {onPlaceDwgCabinets ? (

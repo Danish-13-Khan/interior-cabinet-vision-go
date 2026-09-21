@@ -105,6 +105,26 @@
   stroke-dasharray: 40 40;
 }
 
+.lr-dwg-suggest-stroke.is-rejected {
+  stroke: #90a4ae;
+  stroke-dasharray: 80 40;
+}
+
+.lr-dwg-suggest-stroke[data-candidate-id] {
+  cursor: pointer;
+}
+
+.lr-underlay-dwg-suggest-draft {
+  display: grid;
+  gap: 8px;
+}
+
+.lr-underlay-dwg-suggest-draft label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+
 .lr-plan-svg.is-dwg-suggest-region {
   cursor: crosshair;
 }

@@ -1,11 +1,9 @@
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
-import { drawRoomFromPoints } from "../../domain/interiorProject";
 import {
   cabinetRunForObject,
   cabinetRunLengthMm,
   completeCabinetRun,
   countCabinetRunFillers,
-  ensureDrawnRoomReviewRig,
   getLivingRoomPlanUnderlay,
   isCabinetRunFiller,
   placeRecognizedDwgCabinets,
@@ -13,8 +11,6 @@ import {
   proposeCabinetRunComplete,
   readPlanMarksSettings,
   setPlanMarksSettings,
-  suggestRoomPolygonFromDwg,
-  type DwgSuggestPlanRegion,
 } from "../../domain/livingRoom";
 import { interiorsCabinetRunSnapTarget } from "../../domain/desktopUx";
 import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
@@ -38,11 +34,7 @@ export function inspectPlanTarget(
   props.workspace.onSelect(target.objectId ?? null, target.additive);
 }
 
-export function interiorsDrawRoomStageCommands(
-  props: LivingRoomPlanWorkspaceBodyProps,
-  selectedLayers?: string[],
-  region?: DwgSuggestPlanRegion | null,
-) {
+export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w } = props;
   return {
     onBuildTool: props.onBuildTool,
@@ -50,18 +42,6 @@ export function interiorsDrawRoomStageCommands(
     importError: props.importError,
     onSetPlanUnderlay: w.onSetPlanUnderlay,
     onReplaceUnderlay: () => props.underlayPickerRef.current?.(),
-    onSuggestDwgWalls: () => {
-      w.onPatchDocument((current) => {
-        const points = suggestRoomPolygonFromDwg(
-          getLivingRoomPlanUnderlay(current),
-          selectedLayers,
-          region,
-        );
-        return points
-          ? ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, { kind: "polygon", points }, { raised: true }))
-          : current;
-      }, "Suggested walls from DWG layers.");
-    },
     onPlaceDwgCabinets: () => {
       w.onPatchDocument(
         (current) => placeRecognizedDwgCabinets(current, getLivingRoomPlanUnderlay(current)),

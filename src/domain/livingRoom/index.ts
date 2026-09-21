@@ -704,6 +704,15 @@ export {
   dwgSuggestHighlightStrokes,
   type DwgSuggestHighlightStroke,
 } from "./dwgSuggestHighlight";
+export {
+  acceptedDwgSuggestCandidates,
+  buildDwgSuggestDraft,
+  chainDwgSuggestSegments,
+  setDwgSuggestCandidateAccepted,
+  setDwgSuggestDraftAccepted,
+  type DwgSuggestCandidate,
+  type DwgSuggestDraft,
+} from "./dwgSuggestDraft";
 export { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";
 export { parseAsciiDxf } from "./dwgDxfParse";
 export type { DwgInsertHint, DwgPreview } from "./dwgGeometry";
