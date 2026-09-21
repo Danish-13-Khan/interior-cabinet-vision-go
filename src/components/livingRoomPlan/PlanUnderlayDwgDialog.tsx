@@ -18,6 +18,7 @@ export function PlanUnderlayDwgDialog({ file, onCancel, onConfirm }: {
   const [error, setError] = useState("");
   const [scale, setScale] = useState("");
   const [hidden, setHidden] = useState<string[]>([]);
+  const [showAll, setShowAll] = useState(false);
   const [zoom, setZoom] = useState(1);
   useEffect(() => {
     let active = true;
@@ -42,9 +43,11 @@ export function PlanUnderlayDwgDialog({ file, onCancel, onConfirm }: {
       .catch(() => fail("Could not read the selected file."));
     return () => { active = false; window.clearTimeout(timeout); worker.terminate(); };
   }, [file]);
-  const dataUrl = useMemo(() => preview ? dwgPreviewDataUrl(preview, hidden) : "", [preview, hidden]);
+  const fittedPreview = useMemo(() => preview && showAll && preview.fullBounds
+    ? { ...preview, bounds: preview.fullBounds } : preview, [preview, showAll]);
+  const dataUrl = useMemo(() => fittedPreview ? dwgPreviewDataUrl(fittedPreview, hidden) : "", [fittedPreview, hidden]);
   let dimensions: { widthMm: number; heightMm: number } | null = null;
-  try { if (preview) dimensions = dwgPlanDimensionsMm(preview.bounds, Number(scale)); } catch { /* User is entering scale. */ }
+  try { if (fittedPreview) dimensions = dwgPlanDimensionsMm(fittedPreview.bounds, Number(scale)); } catch { /* User is entering scale. */ }
   const confirmDisabled = !preview || !dimensions || hidden.length === preview.layers.length;
   return createPortal(
     <div className="app-confirm-backdrop lr-underlay-dwg-backdrop" data-testid="lr-underlay-dwg-dialog-backdrop" onKeyDown={(event) => event.stopPropagation()}>
@@ -77,12 +80,14 @@ export function PlanUnderlayDwgDialog({ file, onCancel, onConfirm }: {
               {preview.mmPerUnit ? "Initial scale comes from DWG units." : "Drawing units are missing or unsupported. Enter the correct scale."}
               {" "}Verify a known distance with Calibrate after import.
             </p>
+            {preview.fullBounds && JSON.stringify(preview.bounds) !== JSON.stringify(preview.fullBounds) &&
+              <label><input type="checkbox" checked={showAll} onChange={event => { setShowAll(event.target.checked); setZoom(1); }} /> Show all geometry, including distant objects</label>}
             <label className="app-prompt-field">
               Preview zoom
               <input aria-label="Preview zoom" type="range" min="1" max="5" step="0.25" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} />
             </label>
             <div className="lr-underlay-dwg-preview">
-              <img alt="DWG tracing preview" src={dataUrl} style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }} />
+              <img alt="DWG tracing preview" src={dataUrl} style={{ transform: `scale(${zoom})`, transformOrigin: "center center" }} />
             </div>
             <fieldset className="lr-underlay-dwg-layers">
               <legend>Visible layers</legend>
@@ -98,6 +103,9 @@ export function PlanUnderlayDwgDialog({ file, onCancel, onConfirm }: {
               ))}
             </fieldset>
             {dimensions ? <p>{dimensions.widthMm.toFixed(1)} × {dimensions.heightMm.toFixed(1)} mm</p> : null}
+            {dimensions && Math.max(dimensions.widthMm, dimensions.heightMm) > 200_000 ? (
+              <p role="status">This size is still huge for a room. Hide unused layers, then calibrate a taped wall.</p>
+            ) : null}
           </>
         ) : null}
         <div className="app-confirm-actions">
@@ -109,11 +117,11 @@ export function PlanUnderlayDwgDialog({ file, onCancel, onConfirm }: {
               data-testid="lr-underlay-dwg-dialog-confirm"
               disabled={confirmDisabled}
               onClick={() => {
-                if (!dimensions) return;
+                if (!dimensions || !fittedPreview) return;
                 onConfirm({
                   fileName: file.name,
                   dataUrl,
-                  dwg: { preview, hiddenLayers: hidden },
+                  dwg: { preview: fittedPreview, hiddenLayers: hidden },
                   ...dimensions,
                   importWidthMm: dimensions.widthMm,
                   importHeightMm: dimensions.heightMm,

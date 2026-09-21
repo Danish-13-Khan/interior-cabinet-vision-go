@@ -9,6 +9,16 @@ function drawing(entities: unknown[]): DwgDatabase {
 }
 const line = { type: 'LINE', layer: 'Walls', startPoint: { x: 10, y: 20, z: 0 }, endPoint: { x: 610, y: 320, z: 0 } };
 describe('DWG preview', () => {
+  it('crops distant leftover geometry so the room fills the preview', () => {
+    const preview = buildDwgPreview(drawing([
+      line,
+      { type: 'LINE', layer: 'Walls', startPoint: { x: 10, y: 20, z: 0 }, endPoint: { x: 10, y: 320, z: 0 } },
+      { type: 'LINE', layer: 'Walls', startPoint: { x: 610, y: 20, z: 0 }, endPoint: { x: 610, y: 320, z: 0 } },
+      { type: 'LINE', layer: '0', startPoint: { x: 1e7, y: 1e7, z: 0 }, endPoint: { x: 1e7 + 10, y: 1e7, z: 0 } },
+    ]));
+    expect(preview.bounds).toEqual({ minX: 10, minY: 20, maxX: 610, maxY: 320 });
+    expect(preview.warnings.join(' ')).toMatch(/Distant leftover/);
+  });
   it('uses geometry bounds and inverts CAD Y without changing dimensions', () => {
     const preview = buildDwgPreview(drawing([line]));
     expect(preview.bounds).toEqual({ minX: 10, minY: 20, maxX: 610, maxY: 320 });
@@ -32,6 +42,16 @@ describe('DWG preview', () => {
     const preview = buildDwgPreview(drawing([{ type: 'LWPOLYLINE', layer: '0', flag: 512, vertices: [{ x: 0, y: 0 }, { x: 5, y: 5 }] }, { type: 'CIRCLE', center: { x: 0, y: 0 }, radius: 10 }]));
     expect(preview.bounds).toEqual({ minX: -10, minY: -10, maxX: 10, maxY: 10 });
     expect(preview.layers[0].paths[0].d).toContain(' Z');
+  });
+  it('draws SOLID quads so PDF walls fill the preview', () => {
+    const preview = buildDwgPreview(drawing([{
+      type: 'SOLID', layer: 'Walls',
+      corner1: { x: 0, y: 0 }, corner2: { x: 10, y: 0 },
+      corner3: { x: 0, y: 4 }, corner4: { x: 10, y: 4 },
+    }]));
+    expect(preview.rendered).toBe(1);
+    expect(preview.omitted).toEqual({});
+    expect(decodeURIComponent(dwgPreviewDataUrl(preview))).toContain('fill="#263238"');
   });
   it('rejects drawings with no supported area', () => {
     expect(() => buildDwgPreview(drawing([{ type: 'INSERT' }]))).toThrow(/Missing block/);

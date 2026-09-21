@@ -1,11 +1,14 @@
 import type { DwgDatabase, DwgEntity, DwgLineEntity, DwgLWPolylineEntity, DwgCircleEntity, DwgArcEntity, DwgEllipseEntity, DwgInsertEntity, DwgPolyline2dEntity, DwgPolyline3dEntity } from '@mlightcad/libredwg-web';
 import { dwgMillimetersPerUnit, type DwgPlanBounds } from './dwgUnits';
+import { clusterEntityBounds, entityBox } from './dwgPreviewCluster';
 import { IDENTITY, TAU, mod, multiply, transform, pose, ellipseArc, bulgeArc, type Matrix, type Point } from './dwgGeometryMath';
+export { dwgPreviewDataUrl } from './dwgPreviewSvg';
 
-export type DwgStroke = { d: string; matrix: Matrix };
+export type DwgStroke = { d: string; matrix: Matrix; fill?: boolean };
 export type DwgInsertHint = { name: string; layer: string; x: number; y: number; rotation: number };
 export type DwgPreview = {
   bounds: DwgPlanBounds;
+  fullBounds?: DwgPlanBounds;
   layers: { name: string; paths: DwgStroke[]; visible: boolean }[];
   mmPerUnit: number | null;
   rendered: number;
@@ -13,7 +16,7 @@ export type DwgPreview = {
   warnings: string[];
   inserts: DwgInsertHint[];
 };
-export const DWG_GEOMETRY_DESCRIPTION = 'Lines, arcs, circles, ellipses, straight/curved polylines and nested blocks. Text, hatches, splines, proxy objects and external files may be omitted; inspect the report.';
+export const DWG_GEOMETRY_DESCRIPTION = 'Lines, arcs, circles, ellipses, straight/curved polylines, filled solids and nested blocks. Text, hatches, splines, proxy objects and external files may be omitted; inspect the report.';
 const MAX_ENTITIES = 200000;
 const MAX_COORDINATES = 2000000;
 
@@ -25,7 +28,7 @@ export function buildDwgPreview(db: DwgDatabase, unknownEntityCount = 0): DwgPre
   const omitted: Record<string, number> = Object.create(null);
   const warnings = new Set<string>();
   const inserts: DwgInsertHint[] = [];
-  const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+  const boxes: ReturnType<typeof entityBox>[] = [];
   let rendered = 0, visited = 0, coordinates = 0;
   const omit = (type: string) => { omitted[type] = (omitted[type] ?? 0) + 1; };
   if (unknownEntityCount) omitted['Parser unsupported entities'] = unknownEntityCount;
@@ -116,26 +119,31 @@ export function buildDwgPreview(db: DwgDatabase, unknownEntityCount = 0): DwgPre
         if (closed) d += ' Z';
         if ('elevation' in poly && poly.elevation) warnings.add('Elevated geometry is projected onto the XY plan.');
         if (vertices.some(v => ('startWidth' in v && v.startWidth) || ('endWidth' in v && v.endWidth)) || ('constantWidth' in poly && poly.constantWidth)) warnings.add('Polyline widths are shown as centerlines.');
+      } else if (entity.type === 'SOLID' || entity.type === 'TRACE') {
+        const solid = entity as DwgEntity & { corner1: Point; corner2: Point; corner3: Point; corner4?: Point };
+        const fourth = solid.corner4 ?? solid.corner3;
+        points = [solid.corner1, solid.corner2, fourth, solid.corner3];
+        d = `M${solid.corner1.x},${solid.corner1.y} L${solid.corner2.x},${solid.corner2.y} L${fourth.x},${fourth.y} L${solid.corner3.x},${solid.corner3.y} Z`;
       } else { omit(entity.type); return; }
       const world = points.map(p => transform(p,matrix));
       if (world.length < 2 || !matrix.every(Number.isFinite) || world.some(p => !Number.isFinite(p.x) || !Number.isFinite(p.y)) || !/^[MLAZ0-9eE+.,\s-]+$/.test(d)) throw new Error('Invalid geometry');
-      for (const p of world) { bounds.minX=Math.min(bounds.minX,p.x); bounds.maxX=Math.max(bounds.maxX,p.x); bounds.minY=Math.min(bounds.minY,p.y); bounds.maxY=Math.max(bounds.maxY,p.y); }
+      const box = entityBox(world);
+      if (box) boxes.push(box);
       const layer = layers.get(name) ?? { name, paths: [], visible: !layerEntries.get(name)?.off && !layerEntries.get(name)?.frozen };
-      layer.paths.push({ d, matrix }); layers.set(name,layer); rendered++;
+      layer.paths.push({ d, matrix, fill: entity.type === 'SOLID' || entity.type === 'TRACE' }); layers.set(name,layer); rendered++;
     } catch (error) {
       if (visited > MAX_ENTITIES || coordinates > MAX_COORDINATES) throw error;
       omit(`${entity.type} (invalid)`);
     }
   }
   for (const entity of db.entities) visit(entity,IDENTITY);
-  if (!rendered || !Object.values(bounds).every(Number.isFinite) || bounds.maxX<=bounds.minX || bounds.maxY<=bounds.minY) throw new Error(`No usable planar area found. Omitted: ${Object.entries(omitted).map(([k,v]) => `${k}: ${v}`).join(', ') || 'empty drawing'}.`);
-  return { bounds, layers: [...layers.values()], mmPerUnit: dwgMillimetersPerUnit(db.header.INSUNITS), rendered, omitted, warnings: [...warnings], inserts };
-}
-
-export function dwgPreviewDataUrl(preview: DwgPreview, hidden: string[] = []): string {
-  const b = preview.bounds, width = b.maxX-b.minX, height = b.maxY-b.minY;
-  const paths = preview.layers.filter(layer => !hidden.includes(layer.name)).flatMap(layer => layer.paths)
-    .map(({d,matrix}) => `<path d="${d}" transform="matrix(${matrix.join(' ')})" vector-effect="non-scaling-stroke"/>`).join('');
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${b.minX} ${-b.maxY} ${width} ${height}" width="${width}" height="${height}"><g transform="scale(1 -1)" fill="none" stroke="#263238" stroke-width="1">${paths}</g></svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  const present = boxes.filter((box): box is NonNullable<typeof box> => Boolean(box));
+  const bounds = clusterEntityBounds(present);
+  if (!rendered || !bounds) throw new Error(`No usable planar area found. Omitted: ${Object.entries(omitted).map(([k,v]) => `${k}: ${v}`).join(', ') || 'empty drawing'}.`);
+  const full = entityBox(present.flatMap(box => [{ x: box.minX, y: box.minY }, { x: box.maxX, y: box.maxY }]));
+  const fullBounds = full ? { minX: full.minX, minY: full.minY, maxX: full.maxX, maxY: full.maxY } : bounds;
+  if (present.some((box) => box.minX < bounds.minX || box.maxX > bounds.maxX || box.minY < bounds.minY || box.maxY > bounds.maxY)) {
+    warnings.add('Distant leftover geometry is cropped so the room fills the preview.');
+  }
+  return { bounds, fullBounds, layers: [...layers.values()], mmPerUnit: dwgMillimetersPerUnit(db.header.INSUNITS), rendered, omitted, warnings: [...warnings], inserts };
 }
