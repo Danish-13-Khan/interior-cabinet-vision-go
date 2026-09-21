@@ -1,15 +1,19 @@
-import type { Point2Mm } from "../interiorProject";
+import type { Point } from "./dwgGeometryMath";
 import { cadToPlanPoint } from "./dwgPlanMap";
-import { transform, type Matrix, type Point } from "./dwgGeometryMath";
+import { transform, type Matrix } from "./dwgGeometryMath";
 import { parseDwgPathCommands } from "./dwgPathCommands";
+import { clipSegmentToBox } from "./dwgSuggestClip";
 import {
-  dwgSuggestSegmentHitsRegion,
-  resolveDwgSuggestLayerNames,
-  type DwgSuggestPlanRegion,
-} from "./dwgSuggestSelection";
+  clipPlanSegmentToRegion,
+  normalizeDwgSuggestSegments,
+  DWG_SUGGEST_MIN_LEN_MM,
+  type DwgSuggestCenterline,
+} from "./dwgSuggestNormalize";
+import { resolveDwgSuggestLayerNames, type DwgSuggestPlanRegion } from "./dwgSuggestSelection";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
+import type { DwgPlanBounds } from "./dwgUnits";
 
-export type DwgSuggestCenterline = { a: Point2Mm; b: Point2Mm; layer: string };
+export type { DwgSuggestCenterline };
 
 export type DwgSuggestExtract = {
   segments: DwgSuggestCenterline[];
@@ -17,27 +21,28 @@ export type DwgSuggestExtract = {
 };
 
 const MAX_SEGMENTS = 20000;
-const MIN_LEN_MM = 1;
 
-function toPlan(
-  cad: Point,
-  matrix: number[],
-  underlay: LivingRoomPlanUnderlay,
-  bounds: { minX: number; minY: number; maxX: number; maxY: number },
-): Point2Mm {
-  return cadToPlanPoint(transform(cad, matrix as Matrix), underlay, bounds);
+function worldPoint(cad: Point, matrix: number[]): Point {
+  return transform(cad, matrix as Matrix);
 }
 
 function emit(
   segments: DwgSuggestCenterline[],
   layer: string,
-  a: Point2Mm,
-  b: Point2Mm,
+  start: Point,
+  end: Point,
+  underlay: LivingRoomPlanUnderlay,
+  bounds: DwgPlanBounds,
   region: DwgSuggestPlanRegion | null,
 ) {
-  if (Math.hypot(b.x - a.x, b.z - a.z) < MIN_LEN_MM) return;
-  if (region && !dwgSuggestSegmentHitsRegion(a, b, region)) return;
-  if (segments.length < MAX_SEGMENTS) segments.push({ a, b, layer });
+  const cad = clipSegmentToBox(start, end, bounds);
+  if (!cad) return;
+  const a = cadToPlanPoint(cad.a, underlay, bounds);
+  const b = cadToPlanPoint(cad.b, underlay, bounds);
+  const plan = region ? clipPlanSegmentToRegion(a, b, region) : { a, b };
+  if (!plan) return;
+  if (Math.hypot(plan.b.x - plan.a.x, plan.b.z - plan.a.z) < DWG_SUGGEST_MIN_LEN_MM) return;
+  if (segments.length < MAX_SEGMENTS) segments.push({ a: plan.a, b: plan.b, layer });
 }
 
 /** Straight LINE and polyline edges in plan millimetres. Curves are counted, not converted. */
@@ -50,21 +55,21 @@ export function extractDwgSuggestCenterlines(
   const empty: DwgSuggestExtract = { segments: [], skippedCurves: 0 };
   if (!underlay || !source || underlay.hidden) return empty;
   const allowed = new Set(resolveDwgSuggestLayerNames(underlay, requestedLayers));
-  const segments: DwgSuggestCenterline[] = [];
+  const raw: DwgSuggestCenterline[] = [];
   let skippedCurves = 0;
-  const box = region ?? null;
+  const bounds = source.preview.bounds;
   for (const layer of source.preview.layers) {
     if (!allowed.has(layer.name)) continue;
     for (const path of layer.paths) {
       if (path.fill) continue;
-      let first: Point2Mm | null = null;
-      let current: Point2Mm | null = null;
+      let first: Point | null = null;
+      let current: Point | null = null;
       for (const command of parseDwgPathCommands(path.d)) {
         if (command.type === "Z") {
-          if (first && current) emit(segments, layer.name, current, first, box);
+          if (first && current) emit(raw, layer.name, current, first, underlay, bounds, region ?? null);
           continue;
         }
-        const point = toPlan(command, path.matrix, underlay, source.preview.bounds);
+        const point = worldPoint(command, path.matrix);
         if (command.type === "M") {
           first = point;
           current = point;
@@ -75,10 +80,10 @@ export function extractDwgSuggestCenterlines(
           current = point;
           continue;
         }
-        if (current) emit(segments, layer.name, current, point, box);
+        if (current) emit(raw, layer.name, current, point, underlay, bounds, region ?? null);
         current = point;
       }
     }
   }
-  return { segments, skippedCurves };
+  return { segments: normalizeDwgSuggestSegments(raw), skippedCurves };
 }

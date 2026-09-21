@@ -686,6 +686,12 @@ export {
   type DwgSuggestCenterline,
   type DwgSuggestExtract,
 } from "./dwgSuggestCenterlines";
+export { clipSegmentToBox } from "./dwgSuggestClip";
+export {
+  clipPlanSegmentToRegion,
+  normalizeDwgSuggestSegments,
+  DWG_SUGGEST_JOIN_MM,
+} from "./dwgSuggestNormalize";
 export {
   defaultDwgSuggestLayerNames,
   dwgSuggestSegmentHitsRegion,

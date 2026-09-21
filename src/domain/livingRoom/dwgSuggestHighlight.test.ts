@@ -38,8 +38,8 @@ describe("DWG suggest highlight", () => {
     });
     expect(south).toHaveLength(1);
     expect(south[0]?.points).toEqual([
-      { x: -2000, z: 1500 },
-      { x: 2000, z: 1500 },
+      { x: -1900, z: 1500 },
+      { x: 1900, z: 1500 },
     ]);
   });
 });
