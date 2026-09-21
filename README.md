@@ -14,7 +14,7 @@ same design to engineering without re-entering cabinet data.
 > cloud sync, hosted assets, security, and platform operations.
 > [`docs/2D_PLAN_LAYER_ROADMAP.md`](docs/2D_PLAN_LAYER_ROADMAP.md) is the active
 > Interiors 2D plan improvement program (pan/zoom, measure, underlay, presentation).
-> [`docs/DWG_ROOM_DESIGN_ROADMAP.md`](docs/DWG_ROOM_DESIGN_ROADMAP.md) covers DWG
+> [`docs/DWG_ROOM_DESIGN_ROADMAP.md`](docs/DWG_ROOM_DESIGN_ROADMAP.md) covers DWG/DXF
 > tracing-underlay import in that 2D workspace.
 > Phase documents below remain implementation history and supporting detail.
 

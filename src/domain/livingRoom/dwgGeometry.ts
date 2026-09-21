@@ -3,6 +3,7 @@ import { dwgMillimetersPerUnit, type DwgPlanBounds } from './dwgUnits';
 import { IDENTITY, TAU, mod, multiply, transform, pose, ellipseArc, bulgeArc, type Matrix, type Point } from './dwgGeometryMath';
 
 export type DwgStroke = { d: string; matrix: Matrix };
+export type DwgInsertHint = { name: string; layer: string; x: number; y: number; rotation: number };
 export type DwgPreview = {
   bounds: DwgPlanBounds;
   layers: { name: string; paths: DwgStroke[]; visible: boolean }[];
@@ -10,6 +11,7 @@ export type DwgPreview = {
   rendered: number;
   omitted: Record<string, number>;
   warnings: string[];
+  inserts: DwgInsertHint[];
 };
 export const DWG_GEOMETRY_DESCRIPTION = 'Lines, arcs, circles, ellipses, straight/curved polylines and nested blocks. Text, hatches, splines, proxy objects and external files may be omitted; inspect the report.';
 const MAX_ENTITIES = 200000;
@@ -22,6 +24,7 @@ export function buildDwgPreview(db: DwgDatabase, unknownEntityCount = 0): DwgPre
   const blocks = new Map((db.tables?.BLOCK_RECORD?.entries ?? []).map(block => [block.name, block]));
   const omitted: Record<string, number> = Object.create(null);
   const warnings = new Set<string>();
+  const inserts: DwgInsertHint[] = [];
   const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
   let rendered = 0, visited = 0, coordinates = 0;
   const omit = (type: string) => { omitted[type] = (omitted[type] ?? 0) + 1; };
@@ -44,6 +47,12 @@ export function buildDwgPreview(db: DwgDatabase, unknownEntityCount = 0): DwgPre
     try {
       if (entity.type === 'INSERT' || entity.type === 'DIMENSION') {
         const insert = entity as DwgInsertEntity;
+        if (entity.type === 'INSERT' && stack.length === 0 && insert.name && insert.insertionPoint) {
+          inserts.push({
+            name: insert.name, layer: name, x: insert.insertionPoint.x, y: insert.insertionPoint.y,
+            rotation: insert.rotation ?? 0,
+          });
+        }
         const block = blocks.get(insert.name);
         if (!block) { omit(`Missing block: ${insert.name}`); return; }
         if (block.flags & 12) { omit(`External reference: ${insert.name}`); return; }
@@ -120,7 +129,7 @@ export function buildDwgPreview(db: DwgDatabase, unknownEntityCount = 0): DwgPre
   }
   for (const entity of db.entities) visit(entity,IDENTITY);
   if (!rendered || !Object.values(bounds).every(Number.isFinite) || bounds.maxX<=bounds.minX || bounds.maxY<=bounds.minY) throw new Error(`No usable planar area found. Omitted: ${Object.entries(omitted).map(([k,v]) => `${k}: ${v}`).join(', ') || 'empty drawing'}.`);
-  return { bounds, layers: [...layers.values()], mmPerUnit: dwgMillimetersPerUnit(db.header.INSUNITS), rendered, omitted, warnings: [...warnings] };
+  return { bounds, layers: [...layers.values()], mmPerUnit: dwgMillimetersPerUnit(db.header.INSUNITS), rendered, omitted, warnings: [...warnings], inserts };
 }
 
 export function dwgPreviewDataUrl(preview: DwgPreview, hidden: string[] = []): string {

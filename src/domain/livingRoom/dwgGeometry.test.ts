@@ -66,6 +66,7 @@ describe('DWG blocks and curves', () => {
       { name:'inner',flags:0,basePoint:{x:0,y:0},entities:[{type:'LINE',layer:'0',startPoint:{x:0,y:0},endPoint:{x:5,y:10}}] },
     ] } } as DwgDatabase['tables'];
     const preview = buildDwgPreview(db);
+    expect(preview.inserts).toEqual([{ name: 'outer', layer: 'Walls', x: 100, y: 200, rotation: Math.PI / 2 }]);
     expect(preview.layers[0].name).toBe('Walls');
     expect(preview.bounds.minX).toBeCloseTo(70); expect(preview.bounds.maxX).toBeCloseTo(100);
     expect(preview.bounds.minY).toBeCloseTo(200); expect(preview.bounds.maxY).toBeCloseTo(210);

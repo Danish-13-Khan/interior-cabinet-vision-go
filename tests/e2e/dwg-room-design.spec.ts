@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createBlankPlan, drawRectangleRoom, clickInteriorsTool } from './plannerStart';
+import { importRoomDxf } from './dwg-room-design.helpers';
 const drawing=readFileSync(new URL('../fixtures/dwg/example_2018.dwg',import.meta.url));
 async function choose(page:Page, buffer=drawing) {
  await clickInteriorsTool(page,'import');
@@ -61,6 +62,14 @@ test('DWG import, calibration, tracing, layer persistence and 3D',async({page})=
  await page.getByText('DWG layers',{exact:true}).click();
  await expect(page.getByTestId('lr-underlay-controls').locator('details').filter({has:page.getByText('DWG layers',{exact:true})}).getByRole('checkbox').first()).not.toBeChecked();
  await expect(page.locator('[data-wall-id]')).toHaveCount(4);
+});
+test('known-scale room DXF reports millimetre walls on a supported layer', async ({ page }) => {
+  const dialog = await importRoomDxf(page);
+  await expect(dialog.getByLabel('Millimeters per drawing unit')).toHaveValue('1');
+  await expect(dialog.getByText('4000.0 × 3000.0 mm')).toBeVisible();
+  await expect(dialog.getByText(/13 entities drawn/)).toBeVisible();
+  await expect(dialog.getByText(/TEXT: 1/)).toBeVisible();
+  await expect(dialog.getByRole('checkbox', { name: 'Walls' })).toBeChecked();
 });
 test('malformed DWG and cancellation leave the existing project intact',async({page})=>{
  await createBlankPlan(page);

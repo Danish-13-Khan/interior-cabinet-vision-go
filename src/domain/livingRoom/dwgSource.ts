@@ -14,6 +14,9 @@ export function readDwgSource(value: unknown): DwgSource | undefined {
     || !source.hiddenLayers.every(name => typeof name === 'string') || !Array.isArray(p.warnings) || !p.warnings.every(w => typeof w === 'string')) return undefined;
   const b = p.bounds;
   if (![b.minX,b.minY,b.maxX,b.maxY].every(Number.isFinite) || b.maxX<=b.minX || b.maxY<=b.minY) return undefined;
+  if (p.inserts && (!Array.isArray(p.inserts) || p.inserts.length > 10000
+    || p.inserts.some((item) => !item || typeof item.name !== 'string' || typeof item.layer !== 'string'
+      || ![item.x, item.y, item.rotation].every(Number.isFinite)))) return undefined;
   let paths = 0, length = 0;
   for (const layer of p.layers) {
     if (!layer || typeof layer.name !== 'string' || !Array.isArray(layer.paths)) return undefined;

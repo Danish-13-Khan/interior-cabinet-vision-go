@@ -1,8 +1,10 @@
 import type { InteriorProject, Point2Mm } from "../interiorProject";
 import { selectOpeningsForRoom, selectWallsForRoom } from "../interiorProject";
+import { collectProjectDwgPlanEndpoints } from "./dwgPlanSnap";
 import { getObjectPlanBounds } from "./planGeometry";
 
 export type MeasureSnapKind =
+  | "dwg-end"
   | "grid"
   | "wall-end"
   | "corner"
@@ -97,6 +99,10 @@ export function collectMeasureSnapPoints(
     );
   }
 
+  for (const point of collectProjectDwgPlanEndpoints(project)) {
+    push(point, "dwg-end", "DWG endpoint");
+  }
+
   for (const object of project.objects) {
     if (object.roomId !== roomId) continue;
     const bounds = getObjectPlanBounds(object);
@@ -117,12 +123,13 @@ export function collectMeasureSnapPoints(
 }
 
 const SNAP_PRIORITY: Record<MeasureSnapKind, number> = {
-  "wall-end": 0,
-  corner: 1,
-  "opening-edge": 2,
-  "cabinet-edge": 3,
-  "cabinet-centre": 4,
-  grid: 5,
+  "dwg-end": 0,
+  "wall-end": 1,
+  corner: 2,
+  "opening-edge": 3,
+  "cabinet-edge": 4,
+  "cabinet-centre": 5,
+  grid: 6,
 };
 
 /** Snap to semantic candidates; round to grid on demand if nothing nearer. */

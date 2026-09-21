@@ -1,0 +1,294 @@
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1015
+  9
+$INSUNITS
+ 70
+     4
+  0
+ENDSEC
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+LAYER
+ 70
+     5
+  0
+LAYER
+  2
+Walls
+ 70
+     0
+ 62
+     7
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Doors
+ 70
+     0
+ 62
+     3
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Windows
+ 70
+     0
+ 62
+     4
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Cabinets
+ 70
+     0
+ 62
+     1
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Notes
+ 70
+     0
+ 62
+     2
+  6
+CONTINUOUS
+  0
+ENDTAB
+  0
+ENDSEC
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  8
+Cabinets
+  2
+BASE-CABINET
+ 70
+     0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  0
+LINE
+  8
+Cabinets
+ 10
+0.0
+ 20
+0.0
+ 11
+600.0
+ 21
+0.0
+  0
+LINE
+  8
+Cabinets
+ 10
+600.0
+ 20
+0.0
+ 11
+600.0
+ 21
+600.0
+  0
+LINE
+  8
+Cabinets
+ 10
+600.0
+ 20
+600.0
+ 11
+0.0
+ 21
+600.0
+  0
+LINE
+  8
+Cabinets
+ 10
+0.0
+ 20
+600.0
+ 11
+0.0
+ 21
+0.0
+  0
+ENDBLK
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+LINE
+  8
+Walls
+ 10
+0.0
+ 20
+0.0
+ 11
+4000.0
+ 21
+0.0
+  0
+LINE
+  8
+Walls
+ 10
+4000.0
+ 20
+0.0
+ 11
+4000.0
+ 21
+1800.0
+  0
+LINE
+  8
+Walls
+ 10
+4000.0
+ 20
+1800.0
+ 11
+2200.0
+ 21
+1800.0
+  0
+LINE
+  8
+Walls
+ 10
+2200.0
+ 20
+1800.0
+ 11
+2200.0
+ 21
+3000.0
+  0
+LINE
+  8
+Walls
+ 10
+2200.0
+ 20
+3000.0
+ 11
+0.0
+ 21
+3000.0
+  0
+LINE
+  8
+Walls
+ 10
+0.0
+ 20
+3000.0
+ 11
+0.0
+ 21
+0.0
+  0
+LINE
+  8
+Doors
+ 10
+1550.0
+ 20
+0.0
+ 11
+1550.0
+ 21
+80.0
+  0
+LINE
+  8
+Doors
+ 10
+2450.0
+ 20
+0.0
+ 11
+2450.0
+ 21
+80.0
+  0
+LINE
+  8
+Windows
+ 10
+400.0
+ 20
+3000.0
+ 11
+1800.0
+ 21
+3000.0
+  0
+INSERT
+  8
+Cabinets
+  2
+BASE-CABINET
+ 10
+200.0
+ 20
+400.0
+ 30
+0.0
+ 41
+1.0
+ 42
+1.0
+ 50
+0.0
+  0
+TEXT
+  8
+Notes
+ 10
+100.0
+ 20
+100.0
+ 40
+200.0
+  1
+LIVING
+  0
+ENDSEC
+  0
+EOF
