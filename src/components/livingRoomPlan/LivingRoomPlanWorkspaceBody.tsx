@@ -25,14 +25,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   });
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
   const planImport = useWorkspacePlanImport({
-    project,
     roomWidthMm: room?.dimensions.widthMm ?? 6200,
     onImportError: props.onImportError,
     onSetPlanUnderlay: w.onSetPlanUnderlay,
     onStudioPanel: props.onStudioPanel,
     onBuildTool: props.onBuildTool,
     onCommitDraft: () => build.dispatchBuildCommand({ type: "commitDraft" }),
-    onPatchDocument: w.onPatchDocument,
   });
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
@@ -59,26 +57,14 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       />
       <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} transformPreview={modelTransformPreview} />
       <LivingRoomPlanImportOverlays
-        project={project}
         roomWidthMm={room?.dimensions.widthMm ?? 6200}
         dwgFile={planImport.dwgImportFile}
         pdfFile={planImport.pdfImportFile}
-        extractDraft={planImport.extractDraft}
-        extractDraftKey={planImport.extractDraftKey}
-        extractLiveSchema={planImport.extractLiveSchema}
-        extractStatus={planImport.extractStatus}
-        lastAppliedExtract={planImport.lastAppliedExtract}
-        underlayPicker={props.underlayPickerRef.current}
         onCancelDwg={planImport.cancelDwg}
         onConfirmDwg={planImport.confirmDwg}
         onCancelPdf={planImport.cancelPdf}
         onConfirmPdf={planImport.confirmPdf}
         onPdfError={planImport.failPdf}
-        onReopenExtract={planImport.reopenExtract}
-        onDismissExtractStatus={planImport.dismissExtractStatus}
-        onCloseExtract={planImport.closeExtract}
-        onApplyExtract={planImport.applyExtract}
-        onImportError={props.onImportError}
       />
     </div>
   );
