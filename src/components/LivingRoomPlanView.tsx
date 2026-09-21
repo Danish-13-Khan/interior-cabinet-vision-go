@@ -468,6 +468,7 @@ export function LivingRoomPlanView(props: Props) {
         strokes={props.dwgSuggest.strokes}
         region={props.dwgSuggest.region}
         draftRegion={regionPick.draftRect}
+        onToggleCandidate={props.dwgSuggest.onToggleCandidate}
       />
     ) : null}
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}

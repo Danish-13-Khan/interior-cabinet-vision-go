@@ -3,7 +3,13 @@ import type { Point2Mm } from "../interiorProject";
 import type { DwgSuggestPlanRegion } from "./dwgSuggestSelection";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
-export type DwgSuggestHighlightStroke = { layer: string; points: Point2Mm[] };
+export type DwgSuggestHighlightStroke = {
+  layer: string;
+  points: Point2Mm[];
+  candidateId?: string;
+  accepted?: boolean;
+  closed?: boolean;
+};
 
 /** Plan polylines for extracted straight centerlines (curves omitted). */
 export function dwgSuggestHighlightStrokes(

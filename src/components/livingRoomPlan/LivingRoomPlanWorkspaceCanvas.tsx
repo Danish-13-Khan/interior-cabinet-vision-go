@@ -12,9 +12,14 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
   onTransformPreviewChange: (preview: ModelTransformPreview | null) => void;
 }) {
   const { workspace: w, project, build } = props;
-  const dwgSuggest = useDwgSuggestSelection(props.underlay);
+  const room = project.rooms.find((item) => item.id === project.activeRoomId);
+  const dwgSuggest = useDwgSuggestSelection(props.underlay, {
+    thicknessMm: room?.wallThicknessMm,
+    heightMm: room?.dimensions.heightMm,
+  });
   const drawCommands = {
-    ...interiorsDrawRoomStageCommands(props, dwgSuggest.selectedLayers, dwgSuggest.region),
+    ...interiorsDrawRoomStageCommands(props),
+    onSuggestDwgWalls: dwgSuggest.onPreview,
     dwgSuggest,
   };
   return (
