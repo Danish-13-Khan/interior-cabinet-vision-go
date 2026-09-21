@@ -51,6 +51,8 @@ export function InteriorsDrawRoomManage({
               onChange={commands.onSetPlanUnderlay}
               onReplace={commands.onReplaceUnderlay}
               onCalibrate={() => commands.onBuildTool("calibrate-underlay")}
+              onSuggestDwgWalls={commands.onSuggestDwgWalls}
+              onPlaceDwgCabinets={commands.onPlaceDwgCabinets}
             />
             {commands.onToggleSiteMeasure ? (
               <SiteMeasureChecklist project={project} onToggle={commands.onToggleSiteMeasure} />

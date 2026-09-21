@@ -45,7 +45,9 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     if (plannerMode !== "build" || !input.project || input.project.rooms.length > 0) return;
     input.selectBuildTool("draw-room");
     setChromeTool("room");
-  }, [plannerMode, input.project]);
+  // Initialize on entry or when the final room is removed, not on every edit.
+  // Underlay import/calibration must remain usable before the first room exists.
+  }, [plannerMode, input.project?.id, input.project?.rooms.length]);
 
   function syncAreaFromChrome(mode: PlannerMode, panel: StudioPanel, area?: InteriorsWorkflowArea) {
     setWorkflowAreaState(

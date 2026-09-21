@@ -1,6 +1,11 @@
+import { dwgPreviewDataUrl } from "./dwgGeometry";
+import { readDwgSource, type DwgSource } from "./dwgSource";
 import type { InteriorProject } from "../interiorProject";
 
 export type LivingRoomPlanUnderlay = {
+  sourceType?: "dwg";
+  dwg?: DwgSource;
+  importReport?: string;
   fileName: string;
   dataUrl: string;
   widthMm: number;
@@ -27,10 +32,13 @@ export function getLivingRoomPlanUnderlay(
   const value = project.extensions?.planUnderlay;
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<LivingRoomPlanUnderlay>;
+  const dwg = readDwgSource(candidate.dwg);
+  const dataUrl = dwg
+    ? dwgPreviewDataUrl(dwg.preview, dwg.hiddenLayers)
+    : typeof candidate.dataUrl === "string" ? candidate.dataUrl : "";
   if (
     typeof candidate.fileName !== "string" ||
-    typeof candidate.dataUrl !== "string" ||
-    !candidate.dataUrl.startsWith("data:image/") ||
+    !dataUrl.startsWith("data:image/") ||
     !Number.isFinite(candidate.widthMm) ||
     !Number.isFinite(candidate.heightMm) ||
     !Number.isFinite(candidate.opacity)
@@ -41,7 +49,7 @@ export function getLivingRoomPlanUnderlay(
   let widthMm: number;
   let heightMm: number;
   if (rawW > 0 && rawH > 0) {
-    const uplift = Math.max(1, 100 / rawW, 100 / rawH);
+    const uplift = candidate.sourceType === "dwg" ? 1 : Math.max(1, 100 / rawW, 100 / rawH);
     widthMm = rawW * uplift;
     heightMm = rawH * uplift;
   } else {
@@ -49,8 +57,11 @@ export function getLivingRoomPlanUnderlay(
     heightMm = Math.max(100, rawH);
   }
   return {
+    dwg,
+    importReport: typeof candidate.importReport === "string" ? candidate.importReport : undefined,
+    sourceType: candidate.sourceType === "dwg" ? "dwg" : undefined,
     fileName: candidate.fileName,
-    dataUrl: candidate.dataUrl,
+    dataUrl,
     widthMm,
     heightMm,
     opacity: Math.min(1, Math.max(0.05, Number(candidate.opacity))),
@@ -70,7 +81,10 @@ export function setLivingRoomPlanUnderlay(
   underlay: LivingRoomPlanUnderlay | null,
 ): InteriorProject {
   const extensions = { ...project.extensions };
-  if (underlay) extensions.planUnderlay = { ...underlay };
-  else delete extensions.planUnderlay;
+  if (underlay) {
+    const persisted = { ...underlay };
+    if (readDwgSource(underlay.dwg)) persisted.dataUrl = "";
+    extensions.planUnderlay = persisted;
+  } else delete extensions.planUnderlay;
   return { ...project, extensions };
 }

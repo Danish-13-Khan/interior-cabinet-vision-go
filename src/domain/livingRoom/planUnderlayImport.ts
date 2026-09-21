@@ -1,5 +1,11 @@
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
+export { isCadUnderlayFile } from "./dwgCadType";
+
+export function isDwgFile(file: File): boolean {
+  return /\.dwg$/i.test(file.name || "");
+}
+
 /** True when the file looks like a PDF (MIME and/or .pdf extension). */
 export function isPdfFile(file: File): boolean {
   const type = (file.type || "").toLowerCase();

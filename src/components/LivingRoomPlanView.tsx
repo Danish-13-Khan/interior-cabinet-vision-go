@@ -1,3 +1,4 @@
+import { underlayPlanBounds, unionPlanBounds } from "../domain/livingRoom/planUnderlayBounds";
 import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject, Point2Mm, Point3Mm, RoomDrawingRequest, Size3Mm } from "../domain/interiorProject";
 import { EMPTY_PLAN_SITE_BOUNDS, orientWallForRoom, roomPlanViewBounds } from "../domain/interiorProject";
@@ -28,6 +29,7 @@ import {
   type WallLengthAnchor,
 } from "../domain/livingRoom";
 import { PromptDialog } from "./PromptDialog";
+import { useDwgPlanSnap } from "./livingRoomPlan/useDwgPlanSnap";
 import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
@@ -88,11 +90,13 @@ type MarqueeState = {
 
 export function LivingRoomPlanView(props: Props) {
   const room = props.project.rooms.find((item) => item.id === props.project.activeRoomId) ?? null;
+  const underlay = getLivingRoomPlanUnderlay(props.project);
   const bounds = room ? roomPlanViewBounds(props.project, room.id) : EMPTY_PLAN_SITE_BOUNDS;
-  const fitBounds = useMemo(() => ({
-    minX: bounds.minX, minZ: bounds.minZ, maxX: bounds.maxX, maxZ: bounds.maxZ,
-  }), [bounds.minX, bounds.minZ, bounds.maxX, bounds.maxZ]);
-  const fitKey = `${props.project.id}:${props.project.activeRoomId}`;
+  const fitBounds = useMemo(() => {
+    const background = underlayPlanBounds(underlay);
+    return !room && background ? background : unionPlanBounds(bounds, background);
+  }, [bounds.minX, bounds.minZ, bounds.maxX, bounds.maxZ, room?.id, underlay?.widthMm, underlay?.heightMm, underlay?.xMm, underlay?.zMm, underlay?.rotationDeg, underlay?.hidden]);
+  const fitKey = `${props.project.id}:${props.project.activeRoomId}:${underlay?.fileName ?? ""}:${underlay?.widthMm ?? ""}:${underlay?.heightMm ?? ""}`;
   const nav = usePlanCanvasNavigation({ fitBounds, fitKey });
   const pointerSnapMm = nav.screenToWorldMm(PLAN_POINTER_SNAP_SCREEN_PX);
   const marqueeClickMm = nav.screenToWorldMm(PLAN_MARQUEE_CLICK_SCREEN_PX);
@@ -133,7 +137,6 @@ export function LivingRoomPlanView(props: Props) {
   const calibrating = tool === "calibrate-underlay";
   const measureLike = measuring || calibrating;
   const editWalls = tool === "select";
-  const underlay = getLivingRoomPlanUnderlay(props.project);
   const calibrateBlockedReason = !calibrating ? null
     : !underlay ? "Import a floor plan underlay before calibrating."
     : underlay.locked ? "Unlock the underlay before calibrating."
@@ -194,8 +197,10 @@ export function LivingRoomPlanView(props: Props) {
     active: editWalls, project: props.project, snapSizeMm: props.snapSizeMm, moveThresholdMm: wallMoveMm, worldPoint,
     onSelectWall: props.onSelectWall, onMoveNode: props.onMoveNode, onTranslateWall: props.onTranslateWall,
   });
+  const dwgSnap = useDwgPlanSnap(underlay);
   const roomDrawing = useRoomDrawing({
     active: drawRoom || drawSurface, snapSizeMm: props.snapSizeMm,
+    extraPoints: dwgSnap.extraPoints,
     closeRequest: props.roomPolygonCloseRequest, worldPoint,
     onCommit: (drawing) => {
       if (drawSurface) props.onDrawSurface(drawing, props.surfaceMaterialId);
@@ -204,7 +209,8 @@ export function LivingRoomPlanView(props: Props) {
     onPointCount: props.onRoomPolygonPointCount,
   });
   const wallDrawing = useWallDrawing({
-    active: drawWall || drawPartition, snapSizeMm: props.snapSizeMm, nodes: props.project.nodes, worldPoint,
+    active: drawWall || drawPartition, snapSizeMm: props.snapSizeMm,
+    nodes: [...props.project.nodes, ...dwgSnap.extraNodes], worldPoint,
     onCommit: (start, end) => props.onDrawWallSegment(start, end, drawPartition ? "partition" : "wall"),
   });
 
