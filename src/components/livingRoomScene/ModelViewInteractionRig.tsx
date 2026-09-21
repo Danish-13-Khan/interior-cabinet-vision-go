@@ -1,4 +1,4 @@
-import { ContactShadows, OrbitControls } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls } from "@react-three/drei";
 import { MOUSE } from "three";
 import { useRef, type RefObject } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -8,17 +8,23 @@ import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environ
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import {
-  MODEL_VIEW_SCREEN_SPACE_PANNING,
   MODEL_VIEW_ZOOM_TO_CURSOR,
   resolveModelViewMaxPolarAngle,
   resolveModelViewMinPolarAngle,
   resolveModelViewOrbitMaxDistance,
   resolveModelViewOrbitMinDistance,
 } from "../../domain/livingRoom/modelViewCameraEase";
+import {
+  modelViewOrbitOverrides,
+  resolveOrbitControlsSharedCommons,
+} from "../../domain/orbit/orbitControlsPreset";
 import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
 import { CursorDollyPastMin } from "./CursorDollyPastMin";
+import { CameraDebugOverlay } from "../cameraDebug/CameraDebugOverlay";
+import { OrbitDebugProbe } from "../cameraDebug/OrbitDebugProbe";
+import { useCameraDebugSession } from "../cameraDebug/useCameraDebugSession";
 
 type ModelViewInteractionRigProps = {
   scene: CompiledLivingRoomScene;
@@ -68,6 +74,8 @@ export function ModelViewInteractionRig({
 }: ModelViewInteractionRigProps) {
   const orbitNavigatingRef = useRef(false);
   const orbitEaseCancelGenerationRef = useRef(0);
+  const cameraDebug = useCameraDebugSession();
+  const exposureReadout = scene.style?.colorManagement?.exposure ?? null;
   return (
     <>
       <ContactShadows
@@ -85,15 +93,14 @@ export function ModelViewInteractionRig({
           ref={controlsRef}
           makeDefault
           enabled={!dragging}
-          enableDamping
-          dampingFactor={0.06}
-          panSpeed={1.05}
-          zoomSpeed={1.05}
-          rotateSpeed={0.92}
+          {...resolveOrbitControlsSharedCommons()}
+          dampingFactor={modelViewOrbitOverrides.dampingFactor}
+          panSpeed={modelViewOrbitOverrides.panSpeed}
+          zoomSpeed={modelViewOrbitOverrides.zoomSpeed}
+          rotateSpeed={modelViewOrbitOverrides.rotateSpeed}
           enablePan={viewPreset !== "walkthrough"}
           enableZoom
           zoomToCursor={MODEL_VIEW_ZOOM_TO_CURSOR}
-          screenSpacePanning={MODEL_VIEW_SCREEN_SPACE_PANNING}
           minDistance={resolveModelViewOrbitMinDistance(inspectionSpanMeters)}
           maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
           minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
@@ -134,6 +141,33 @@ export function ModelViewInteractionRig({
         onExit={onExitWalkthrough}
       />
       {interactive && import.meta.env.DEV ? <ModelPickHarness /> : null}
+
+      {cameraDebug.enabled ? (
+        <OrbitDebugProbe
+          canvas="model-view"
+          controlsRef={controlsRef}
+          exposure={exposureReadout}
+          wireframe={cameraDebug.wireframe}
+          punctualLights={cameraDebug.punctualLights}
+          onSnapshot={cameraDebug.onSnapshot}
+        />
+      ) : null}
+      {cameraDebug.enabled ? (
+        <Html fullscreen style={{ pointerEvents: "none" }} zIndexRange={[100, 0]}>
+          <div style={{ pointerEvents: "none", position: "relative", width: "100%", height: "100%" }}>
+            <CameraDebugOverlay
+              snapshot={cameraDebug.snapshot}
+              wireframe={cameraDebug.wireframe}
+              showGridOverride={cameraDebug.showGridOverride}
+              punctualLights={cameraDebug.punctualLights}
+              onWireframeChange={cameraDebug.setWireframe}
+              onShowGridOverrideChange={cameraDebug.setShowGridOverride}
+              onPunctualLightsChange={cameraDebug.setPunctualLights}
+              gridToggleEnabled={false}
+            />
+          </div>
+        </Html>
+      ) : null}
     </>
   );
 }
