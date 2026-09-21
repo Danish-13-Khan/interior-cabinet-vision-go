@@ -43,6 +43,7 @@ import {
 import { CameraDebugOverlay } from "./cameraDebug/CameraDebugOverlay";
 import { OrbitDebugProbe } from "./cameraDebug/OrbitDebugProbe";
 import { useCameraDebugSession } from "./cameraDebug/useCameraDebugSession";
+import { ViewCube } from "./cabinetScene/ViewCube";
 
 export type { CabinetSceneHandle } from "./cabinetScene/types";
 
@@ -157,40 +158,18 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
       <div className="scene-toolbar">
         <button
           type="button"
-          className={`toolbar-btn ${viewPreset === "iso" ? "active" : ""}`}
-          onClick={() => setViewPreset("iso")}
-        >
-          ISO
-        </button>
-        <button
-          type="button"
-          className={`toolbar-btn ${viewPreset === "front" ? "active" : ""}`}
-          onClick={() => setViewPreset("front")}
-        >
-          Front
-        </button>
-        <button
-          type="button"
-          className={`toolbar-btn ${viewPreset === "side" ? "active" : ""}`}
-          onClick={() => setViewPreset("side")}
-        >
-          Side
-        </button>
-        <button
-          type="button"
-          className={`toolbar-btn ${viewPreset === "top" ? "active" : ""}`}
-          onClick={() => setViewPreset("top")}
-        >
-          Top
-        </button>
-        <button
-          type="button"
           className={`toolbar-btn ${isolateSelected ? "active" : ""}`}
           onClick={() => setIsolateSelected((prev) => !prev)}
         >
           {isolateSelected ? "All Panels" : "Isolate"}
         </button>
       </div>
+
+      <ViewCube
+        activePreset={viewPreset}
+        onSetPreset={setViewPreset}
+        onFitView={() => setFitVersion((prev) => prev + 1)}
+      />
 
       <div className="scene-overlay">
         <span className="scene-hint">
