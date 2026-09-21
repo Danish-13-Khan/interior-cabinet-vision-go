@@ -81,6 +81,15 @@ describe("DWG suggest normalize", () => {
     expect(segments).toHaveLength(2);
   });
 
+  it("unions overlapping collinear segments instead of dropping the overlap", () => {
+    const segments = normalizeDwgSuggestSegments([
+      { layer: "Walls", a: { x: 0, z: 0 }, b: { x: 1000, z: 0 } },
+      { layer: "Walls", a: { x: 0, z: 0 }, b: { x: 500, z: 0 } },
+    ]);
+    expect(segments).toHaveLength(1);
+    expect(segments[0]).toMatchObject({ a: { x: 0, z: 0 }, b: { x: 1000, z: 0 } });
+  });
+
   it("clips a plan segment that only crosses the region", () => {
     expect(clipPlanSegmentToRegion(
       { x: -50, z: 10 },

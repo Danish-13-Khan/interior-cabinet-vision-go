@@ -41,54 +41,52 @@ function undirectedKey(a: Point2Mm, b: Point2Mm) {
   return ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`;
 }
 
-function collinear(a: Point2Mm, b: Point2Mm, c: Point2Mm, eps: number) {
-  const dx1 = b.x - a.x;
-  const dz1 = b.z - a.z;
-  const dx2 = c.x - b.x;
-  const dz2 = c.z - b.z;
-  return Math.abs(dx1 * dz2 - dz1 * dx2) <= eps * (Math.hypot(dx1, dz1) + Math.hypot(dx2, dz2));
+function onLine(origin: Point2Mm, ux: number, uz: number, point: Point2Mm, eps: number) {
+  return Math.abs((point.x - origin.x) * uz - (point.z - origin.z) * ux) <= eps;
 }
 
-function otherEnd(segment: DwgSuggestCenterline, node: Point2Mm): Point2Mm {
-  return pointKey(segment.a) === pointKey(node) ? segment.b : segment.a;
-}
-
-function addIndex(at: Map<string, number[]>, point: Point2Mm, index: number) {
-  const key = pointKey(point);
-  const list = at.get(key);
-  if (list) list.push(index);
-  else at.set(key, [index]);
-}
-
-function mergeCollinear(segments: DwgSuggestCenterline[], eps: number): DwgSuggestCenterline[] {
-  const active = [...segments];
-  let merged = true;
-  while (merged) {
-    merged = false;
-    const at = new Map<string, number[]>();
-    active.forEach((segment, index) => {
-      addIndex(at, segment.a, index);
-      addIndex(at, segment.b, index);
-    });
-    for (const [key, indexes] of at) {
-      if (indexes.length !== 2) continue;
-      const [i, j] = indexes as [number, number];
-      const left = active[i]!;
-      const right = active[j]!;
-      const node = pointKey(left.a) === key ? left.a : left.b;
-      const start = otherEnd(left, node);
-      const end = otherEnd(right, node);
-      if (!collinear(start, node, end, eps)) continue;
-      active[i] = { a: start, b: end, layer: left.layer };
-      active.splice(j, 1);
-      merged = true;
-      break;
+function unionCollinear(segments: DwgSuggestCenterline[], eps: number): DwgSuggestCenterline[] {
+  const used = segments.map(() => false);
+  const out: DwgSuggestCenterline[] = [];
+  for (let i = 0; i < segments.length; i += 1) {
+    if (used[i]) continue;
+    const seed = segments[i]!;
+    const len = Math.hypot(seed.b.x - seed.a.x, seed.b.z - seed.a.z);
+    const ux = (seed.b.x - seed.a.x) / len;
+    const uz = (seed.b.z - seed.a.z) / len;
+    const intervals: { t0: number; t1: number; layer: string }[] = [];
+    for (let j = i; j < segments.length; j += 1) {
+      if (used[j]) continue;
+      const item = segments[j]!;
+      const itemLen = Math.hypot(item.b.x - item.a.x, item.b.z - item.a.z);
+      const vx = (item.b.x - item.a.x) / itemLen;
+      const vz = (item.b.z - item.a.z) / itemLen;
+      if (Math.abs(ux * vz - uz * vx) > 0.02) continue;
+      if (!onLine(seed.a, ux, uz, item.a, eps) || !onLine(seed.a, ux, uz, item.b, eps)) continue;
+      used[j] = true;
+      const tA = (item.a.x - seed.a.x) * ux + (item.a.z - seed.a.z) * uz;
+      const tB = (item.b.x - seed.a.x) * ux + (item.b.z - seed.a.z) * uz;
+      intervals.push({ t0: Math.min(tA, tB), t1: Math.max(tA, tB), layer: item.layer });
+    }
+    intervals.sort((left, right) => left.t0 - right.t0);
+    const merged: { t0: number; t1: number; layer: string }[] = [];
+    for (const interval of intervals) {
+      const last = merged[merged.length - 1];
+      if (!last || interval.t0 > last.t1 + eps) merged.push({ ...interval });
+      else last.t1 = Math.max(last.t1, interval.t1);
+    }
+    for (const interval of merged) {
+      out.push({
+        a: { x: seed.a.x + ux * interval.t0, z: seed.a.z + uz * interval.t0 },
+        b: { x: seed.a.x + ux * interval.t1, z: seed.a.z + uz * interval.t1 },
+        layer: interval.layer,
+      });
     }
   }
-  return active;
+  return out;
 }
 
-/** Weld near endpoints, drop duplicates and stubs, join collinear 2-degree runs. */
+/** Weld near endpoints, drop duplicates and stubs, union overlapping collinear runs. */
 export function normalizeDwgSuggestSegments(
   segments: DwgSuggestCenterline[],
   epsMm = DWG_SUGGEST_JOIN_MM,
@@ -104,5 +102,5 @@ export function normalizeDwgSuggestSegments(
     seen.add(key);
     unique.push({ a, b, layer: segment.layer });
   }
-  return mergeCollinear(unique, epsMm);
+  return unionCollinear(unique, epsMm);
 }

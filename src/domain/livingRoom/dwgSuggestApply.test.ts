@@ -74,4 +74,25 @@ describe("DWG suggest apply", () => {
     const next = applyDwgSuggestDraft(host, draft);
     expect(next.walls.length - host.walls.length).toBe(2);
   });
+
+  it("applies an open run on a blank site without inventing closing walls", () => {
+    const draft = buildDwgSuggestDraft([
+      { layer: "Walls", a: { x: 0, z: 0 }, b: { x: 1000, z: 0 } },
+    ]);
+    const next = applyDwgSuggestDraft(blank(), draft);
+    expect(next.rooms).toHaveLength(1);
+    expect(next.walls).toHaveLength(1);
+    expect(next.walls[0]).toMatchObject({
+      start: { x: 0, z: 0 },
+      end: { x: 1000, z: 0 },
+      extensions: { createdBy: "dwg-suggest" },
+    });
+  });
+
+  it("applies the remaining walls when one side of a closed chain is rejected", () => {
+    const draft = buildDwgSuggestDraft(extractDwgSuggestCenterlines(roomUnderlay()).segments);
+    const rejected = setDwgSuggestCandidateAccepted(draft, draft.candidates[0]!.id, false);
+    const next = applyDwgSuggestDraft(blank(), rejected);
+    expect(next.walls).toHaveLength(5);
+  });
 });

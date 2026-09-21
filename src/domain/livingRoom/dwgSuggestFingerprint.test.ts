@@ -53,4 +53,25 @@ describe("DWG suggest geometry fingerprint", () => {
     const faded = dwgSuggestGeometryFingerprint({ ...underlay, opacity: 0.9 }, ["Walls", "Doors"], null);
     expect(faded).toBe(left);
   });
+
+  it("changes when source geometry, bounds, or underlay visibility change", () => {
+    const shown = withHidden([]);
+    const base = dwgSuggestGeometryFingerprint(shown, ["Walls"], null);
+    expect(dwgSuggestGeometryFingerprint({ ...shown, hidden: true }, ["Walls"], null)).not.toBe(base);
+    const moved = withHidden([]);
+    moved.dwg = {
+      ...moved.dwg!,
+      preview: { ...moved.dwg!.preview, bounds: { minX: 0, minY: 0, maxX: 8, maxY: 8 } },
+    };
+    expect(dwgSuggestGeometryFingerprint(moved, ["Walls"], null)).not.toBe(base);
+    const stroked = withHidden([]);
+    stroked.dwg = {
+      ...stroked.dwg!,
+      preview: {
+        ...stroked.dwg!.preview,
+        layers: [{ name: "Walls", visible: true, paths: [{ d: "M0 0L10 0", matrix: [1, 0, 0, 1, 0, 0] }] }],
+      },
+    };
+    expect(dwgSuggestGeometryFingerprint(stroked, ["Walls"], null)).not.toBe(base);
+  });
 });
