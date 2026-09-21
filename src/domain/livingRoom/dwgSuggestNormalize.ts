@@ -76,11 +76,16 @@ function unionCollinear(segments: DwgSuggestCenterline[], eps: number): DwgSugge
       else last.t1 = Math.max(last.t1, interval.t1);
     }
     for (const interval of merged) {
-      out.push({
-        a: { x: seed.a.x + ux * interval.t0, z: seed.a.z + uz * interval.t0 },
-        b: { x: seed.a.x + ux * interval.t1, z: seed.a.z + uz * interval.t1 },
-        layer: interval.layer,
-      });
+      const a = snapPoint({
+        x: seed.a.x + ux * interval.t0,
+        z: seed.a.z + uz * interval.t0,
+      }, eps);
+      const b = snapPoint({
+        x: seed.a.x + ux * interval.t1,
+        z: seed.a.z + uz * interval.t1,
+      }, eps);
+      if (Math.hypot(b.x - a.x, b.z - a.z) < DWG_SUGGEST_MIN_LEN_MM) continue;
+      out.push({ a, b, layer: interval.layer });
     }
   }
   return out;

@@ -11,6 +11,7 @@ import {
   type DwgSuggestCandidate,
   type DwgSuggestDraft,
 } from "./dwgSuggestDraft";
+import { DWG_SUGGEST_JOIN_MM } from "./dwgSuggestNormalize";
 
 function chainGroups(candidates: DwgSuggestCandidate[]) {
   const groups: DwgSuggestCandidate[][] = [];
@@ -27,10 +28,17 @@ function chainGroups(candidates: DwgSuggestCandidate[]) {
   return groups;
 }
 
+function near(a: Point2Mm, b: Point2Mm) {
+  return Math.hypot(a.x - b.x, a.z - b.z) <= DWG_SUGGEST_JOIN_MM;
+}
+
 function closedPolygon(group: DwgSuggestCandidate[]): Point2Mm[] | null {
   if (!group[0]?.closed || group.length < 3) return null;
   if (group.some((item) => !item.accepted || (item.overlap ?? "none") !== "none")) return null;
-  return [group[0].a, ...group.map((item) => item.b)];
+  const raw = [group[0].a, ...group.map((item) => item.b)];
+  const points = raw.filter((point, index) => index === 0 || !near(point, raw[index - 1]!));
+  if (points.length > 1 && near(points[0]!, points[points.length - 1]!)) points.pop();
+  return points.length >= 3 ? points : null;
 }
 
 function stamp(before: InteriorProject, after: InteriorProject, draft: DwgSuggestDraft): InteriorProject {
