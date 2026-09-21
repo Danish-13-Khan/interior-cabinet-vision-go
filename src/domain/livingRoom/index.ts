@@ -664,6 +664,7 @@ export {
 } from "./planObjectFootprint";
 export {
   getLivingRoomPlanUnderlay,
+  persistLivingRoomPlanUnderlay,
   setLivingRoomPlanUnderlay,
   type LivingRoomPlanUnderlay,
 } from "./planUnderlay";
