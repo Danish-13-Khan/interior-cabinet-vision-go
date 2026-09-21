@@ -40,6 +40,9 @@ import {
   cabinetSceneOrbitOverrides,
   resolveOrbitControlsSharedCommons,
 } from "../domain/orbit/orbitControlsPreset";
+import { CameraDebugOverlay } from "./cameraDebug/CameraDebugOverlay";
+import { OrbitDebugProbe } from "./cameraDebug/OrbitDebugProbe";
+import { useCameraDebugSession } from "./cameraDebug/useCameraDebugSession";
 
 export type { CabinetSceneHandle } from "./cabinetScene/types";
 
@@ -68,6 +71,11 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
   const viewportCameraRef = useRef<Camera | null>(null);
   const viewportSizeRef = useRef({ width: 1, height: 1 });
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const cameraDebug = useCameraDebugSession();
+  const effectiveShowGrid =
+    cameraDebug.enabled && cameraDebug.showGridOverride != null
+      ? cameraDebug.showGridOverride
+      : showGrid;
   const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
   const [fitVersion, setFitVersion] = useState(0);
   const [hovered, setHovered] = useState<{ cabinetId: string; panelName: PanelName } | null>(null);
@@ -226,7 +234,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         <color attach="background" args={["#f4f6f8"]} />
         <ambientLight intensity={1.1} />
         <directionalLight position={[5.2, 6.5, 4.4]} intensity={1.4} castShadow />
-        {showGrid ? (
+        {effectiveShowGrid ? (
           <gridHelper
             args={[
               millimetresToMetres(Math.max(roomDimensions.widthMm, roomDimensions.depthMm)),
@@ -355,6 +363,16 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           </>
         ) : null}
 
+        {cameraDebug.enabled ? (
+          <OrbitDebugProbe
+            canvas="cabinet"
+            controlsRef={controlsRef}
+            wireframe={cameraDebug.wireframe}
+            punctualLights={cameraDebug.punctualLights}
+            onSnapshot={cameraDebug.onSnapshot}
+          />
+        ) : null}
+
         <OrbitControls
           ref={controlsRef}
           makeDefault
@@ -372,6 +390,19 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           }}
         />
       </Canvas>
+
+      {cameraDebug.enabled ? (
+        <CameraDebugOverlay
+          snapshot={cameraDebug.snapshot}
+          wireframe={cameraDebug.wireframe}
+          showGridOverride={cameraDebug.showGridOverride}
+          punctualLights={cameraDebug.punctualLights}
+          onWireframeChange={cameraDebug.setWireframe}
+          onShowGridOverrideChange={cameraDebug.setShowGridOverride}
+          onPunctualLightsChange={cameraDebug.setPunctualLights}
+          gridToggleEnabled
+        />
+      ) : null}
     </div>
   );
 });
