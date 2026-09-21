@@ -83,7 +83,7 @@
     "showerGlass": {
       "sourceMaterialNames": ["glass"],
       "allowedMaterialKinds": ["glass"],
-      "allowedMaterialTags": ["clear-glass", "frosted-glass"],
+      "allowedMaterialTags": ["partition-glass", "clear-glass", "frosted-glass"],
       "defaultMaterialId": "material:core:glass-clear:v1",
       "editable": true
     },

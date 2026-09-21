@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ContextMenuEntry } from "./ContextMenuEntry";
 
 export type ContextMenuItem = {
   id: string;
@@ -7,6 +8,7 @@ export type ContextMenuItem = {
   disabled?: boolean;
   danger?: boolean;
   separator?: boolean;
+  children?: ContextMenuItem[];
   action?: () => void;
 };
 
@@ -15,16 +17,15 @@ type ContextMenuProps = {
   y: number;
   items: ContextMenuItem[];
   onClose: () => void;
+  testId?: string;
 };
 
-export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
+export function ContextMenu({ x, y, items, onClose, testId }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        onClose();
-      }
+      if (!menuRef.current?.contains(event.target as Node)) onClose();
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -52,29 +53,31 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
       ref={menuRef}
       className="context-menu"
       role="menu"
+      data-testid={testId}
       style={{ left: x, top: y }}
     >
-      {items.map((item) =>
-        item.separator ? (
-          <div key={item.id} className="context-menu-separator" role="separator" />
-        ) : (
-          <button
-            key={item.id}
-            type="button"
-            role="menuitem"
-            className={`context-menu-item ${item.danger ? "is-danger" : ""}`}
-            disabled={item.disabled}
-            onClick={() => {
-              if (item.disabled || !item.action) return;
-              item.action();
-              onClose();
-            }}
-          >
-            <span>{item.label}</span>
-            {item.shortcut ? <kbd>{item.shortcut}</kbd> : null}
-          </button>
-        ),
-      )}
+      <ContextMenuItems items={items} onClose={onClose} />
     </div>
+  );
+}
+
+function ContextMenuItems({
+  items,
+  onClose,
+}: {
+  items: ContextMenuItem[];
+  onClose: () => void;
+}) {
+  return items.map((item) =>
+    item.separator ? (
+      <div key={item.id} className="context-menu-separator" role="separator" />
+    ) : (
+      <ContextMenuEntry
+        key={item.id}
+        item={item}
+        onClose={onClose}
+        renderItems={(children) => <ContextMenuItems items={children} onClose={onClose} />}
+      />
+    ),
   );
 }
