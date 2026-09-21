@@ -358,6 +358,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           dampingFactor={0.15}
           rotateSpeed={0.8}
           enabled={!isDragging}
+          screenSpacePanning
           minDistance={1.1}
           maxDistance={14}
           target={[0, 0.7, 0]}
