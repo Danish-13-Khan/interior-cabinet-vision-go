@@ -720,6 +720,7 @@ export {
   type DwgSuggestOverlap,
   type DwgSuggestWallSeg,
 } from "./dwgSuggestOverlap";
+export { applyDwgSuggestDraft } from "./dwgSuggestApply";
 export { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";
 export { parseAsciiDxf } from "./dwgDxfParse";
 export type { DwgInsertHint, DwgPreview } from "./dwgGeometry";

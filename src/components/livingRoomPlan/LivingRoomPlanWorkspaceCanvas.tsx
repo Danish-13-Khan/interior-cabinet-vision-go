@@ -4,6 +4,7 @@ import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomS
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import { applyDwgSuggestDraft, acceptedDwgSuggestCandidates } from "../../domain/livingRoom";
 import { useDwgSuggestSelection } from "../../hooks/useDwgSuggestSelection";
 
 export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBodyProps & {
@@ -17,6 +18,13 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
     thicknessMm: room?.wallThicknessMm,
     heightMm: room?.dimensions.heightMm,
     walls: project.walls,
+    onCommit: (draft) => {
+      const count = acceptedDwgSuggestCandidates(draft).length;
+      w.onPatchDocument(
+        (current) => applyDwgSuggestDraft(current, draft),
+        count === 1 ? "Applied 1 suggested wall." : `Applied ${count} suggested walls.`,
+      );
+    },
   });
   const drawCommands = {
     ...interiorsDrawRoomStageCommands(props),
