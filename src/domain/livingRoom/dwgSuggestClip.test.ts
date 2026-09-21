@@ -90,6 +90,16 @@ describe("DWG suggest normalize", () => {
     expect(segments[0]).toMatchObject({ a: { x: 0, z: 0 }, b: { x: 1000, z: 0 } });
   });
 
+  it("snaps reconstructed collinear endpoints onto the weld grid", () => {
+    const segments = normalizeDwgSuggestSegments([
+      { layer: "Walls", a: { x: 0, z: 0 }, b: { x: 1310, z: 0 } },
+      { layer: "Walls", a: { x: 655, z: 0 }, b: { x: 1310, z: 0 } },
+    ]);
+    expect(segments).toHaveLength(1);
+    expect(segments[0]?.a).toEqual({ x: 0, z: 0 });
+    expect(segments[0]?.b).toEqual({ x: 1310, z: 0 });
+  });
+
   it("clips a plan segment that only crosses the region", () => {
     expect(clipPlanSegmentToRegion(
       { x: -50, z: 10 },
