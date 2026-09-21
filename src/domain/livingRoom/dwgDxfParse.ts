@@ -21,7 +21,29 @@ function entity(value: object): DwgEntity {
   return value as unknown as DwgEntity;
 }
 
-function toEntity(type: string, fields: Fields): DwgEntity {
+type Group = { code: number; value: string };
+
+function lwVertices(ordered: Group[]) {
+  const vertices: { x: number; y: number; bulge: number }[] = [];
+  let current: { x: number; y?: number; bulge: number } | null = null;
+  const flush = () => {
+    if (current && Number.isFinite(current.y)) {
+      vertices.push({ x: current.x, y: current.y!, bulge: current.bulge });
+    }
+    current = null;
+  };
+  for (const group of ordered) {
+    if (group.code === 10) {
+      flush();
+      current = { x: Number(group.value) || 0, bulge: 0 };
+    } else if (group.code === 20 && current) current.y = Number(group.value) || 0;
+    else if (group.code === 42 && current) current.bulge = Number(group.value) || 0;
+  }
+  flush();
+  return vertices;
+}
+
+function toEntity(type: string, fields: Fields, ordered: Group[]): DwgEntity {
   const layer = last(fields, 8, "0");
   if (type === "LINE") {
     return entity({ type, layer, startPoint: point(fields, 10, 20, 30), endPoint: point(fields, 11, 21, 31) });
@@ -34,10 +56,7 @@ function toEntity(type: string, fields: Fields): DwgEntity {
     });
   }
   if (type === "LWPOLYLINE") {
-    const xs = fields.get(10) ?? [];
-    const ys = fields.get(20) ?? [];
-    const vertices = xs.map((x, index) => ({ x: Number(x) || 0, y: Number(ys[index]) || 0 }));
-    return entity({ type, layer, flag: num(fields, 70) & 1 ? 512 : 0, vertices });
+    return entity({ type, layer, flag: num(fields, 70) & 1 ? 512 : 0, vertices: lwVertices(ordered) });
   }
   if (type === "CIRCLE" || type === "ARC") {
     return entity({
@@ -63,6 +82,7 @@ export function parseAsciiDxf(text: string): DwgDatabase {
   let headerVar = "";
   let type = "";
   let fields: Fields = new Map();
+  let ordered: Group[] = [];
   const layers: { name: string; off?: boolean; frozen?: boolean }[] = [];
   const blocks: BlockRecord[] = [];
   const entities: DwgEntity[] = [];
@@ -79,10 +99,11 @@ export function parseAsciiDxf(text: string): DwgDatabase {
       const flags = num(fields, 70);
       layers.push({ name: last(fields, 2, "0"), off: Boolean(flags & 1), frozen: Boolean(flags & 2) });
     } else if (type && !STRUCT.has(type)) {
-      dest()?.push(toEntity(type, fields));
+      dest()?.push(toEntity(type, fields, ordered));
     }
     type = "";
     fields = new Map();
+    ordered = [];
   }
 
   for (let index = 0; index + 1 < lines.length; index += 2) {
@@ -117,6 +138,7 @@ export function parseAsciiDxf(text: string): DwgDatabase {
     const list = fields.get(code) ?? [];
     list.push(value);
     fields.set(code, list);
+    ordered.push({ code, value });
   }
   flush();
   return {

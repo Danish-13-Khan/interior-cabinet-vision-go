@@ -21,7 +21,7 @@ function endpointsFromPath(d: string, matrix: number[]): { x: number; y: number 
 
 export function collectDwgPlanEndpoints(underlay: LivingRoomPlanUnderlay | null): Point2Mm[] {
   const source = underlay?.dwg;
-  if (!underlay || !source) return [];
+  if (!underlay || !source || underlay.hidden) return [];
   const hidden = new Set(source.hiddenLayers);
   const seen = new Set<string>();
   const points: Point2Mm[] = [];
