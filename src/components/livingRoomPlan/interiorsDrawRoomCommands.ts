@@ -2,6 +2,7 @@ import type { InteriorProject } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { BuildTool, SiteMeasureUserKey } from "../../domain/livingRoom";
 import type { InteriorsChromeTool } from "../../domain/desktopUx";
+import type { DwgSuggestSelectionUi } from "../../hooks/useDwgSuggestSelection";
 
 export type InteriorsDrawRoomCommands = {
   onBuildTool: (tool: BuildTool) => void;
@@ -11,6 +12,7 @@ export type InteriorsDrawRoomCommands = {
   onReplaceUnderlay: () => void;
   onSuggestDwgWalls?: () => void;
   onPlaceDwgCabinets?: () => void;
+  dwgSuggest?: DwgSuggestSelectionUi;
   onToggleSiteMeasure?: (key: SiteMeasureUserKey, value: boolean) => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;

@@ -41,10 +41,13 @@ import { PlanWallNodesLayer } from "./livingRoomPlan/PlanWallNodesLayer";
 import { DraftFeedbackOverlay } from "./livingRoomPlan/DraftFeedbackOverlay";
 import { RoomDrawingOverlay } from "./livingRoomPlan/RoomDrawingOverlay";
 import { WallDrawingOverlay } from "./livingRoomPlan/WallDrawingOverlay";
+import { DwgSuggestGeometryOverlay } from "./livingRoomPlan/DwgSuggestGeometryOverlay";
 import { usePlanObjectInteraction } from "./livingRoomPlan/usePlanObjectInteraction";
 import { usePlanWallInteraction } from "./livingRoomPlan/usePlanWallInteraction";
 import { useRoomDrawing } from "./livingRoomPlan/useRoomDrawing";
 import { useWallDrawing } from "./livingRoomPlan/useWallDrawing";
+import { useDwgSuggestRegionPick } from "../hooks/useDwgSuggestRegionPick";
+import type { DwgSuggestSelectionUi } from "../hooks/useDwgSuggestSelection";
 
 type Props = {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
@@ -76,6 +79,7 @@ type Props = {
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => void;
   onSetPlanUnderlay?: (underlay: LivingRoomPlanUnderlay | null) => void;
   onCalibrateComplete?: () => void;
+  dwgSuggest?: DwgSuggestSelectionUi;
   onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
   preDropReason?: string | null;
 };
@@ -199,6 +203,11 @@ export function LivingRoomPlanView(props: Props) {
     onSelectWall: props.onSelectWall, onMoveNode: props.onMoveNode, onTranslateWall: props.onTranslateWall,
   });
   const dwgSnap = useDwgPlanSnap(underlay);
+  const regionPick = useDwgSuggestRegionPick({
+    enabled: Boolean(props.dwgSuggest?.pickingRegion),
+    worldPoint: (event) => worldPoint(event as ReactPointerEvent<SVGSVGElement>),
+    onCommit: (region) => props.dwgSuggest?.onRegion(region),
+  });
   const roomDrawing = useRoomDrawing({
     active: drawRoom || drawSurface, snapSizeMm: props.snapSizeMm,
     extraPoints: dwgSnap.extraPoints,
@@ -225,7 +234,7 @@ export function LivingRoomPlanView(props: Props) {
   );
 
   function handleWall(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
-    if (measureLike || nav.spaceDown) return;
+    if (measureLike || nav.spaceDown || props.dwgSuggest?.pickingRegion) return;
     if (drawWall || drawPartition) { wallDrawing.begin(event); return; }
     if (editWalls && walls.beginWall(event, wallId)) return;
     event.stopPropagation();
@@ -305,6 +314,7 @@ export function LivingRoomPlanView(props: Props) {
 
   function paperDown(event: ReactPointerEvent<SVGRectElement>) {
     if (nav.beginPan(event as unknown as ReactPointerEvent<SVGSVGElement>)) return;
+    if (regionPick.begin(event)) return;
     if (measureLike) { if (event.button === 0) commitMeasureClick(event); return; }
     if (placeColumn) { placeColumnAt(event); return; }
     if (roomDrawing.start(event)) return;
@@ -321,6 +331,7 @@ export function LivingRoomPlanView(props: Props) {
 
   function floorDown(event: ReactPointerEvent<SVGPathElement>) {
     if (nav.beginPan(event as unknown as ReactPointerEvent<SVGSVGElement>)) return;
+    if (regionPick.begin(event)) return;
     if (measureLike) { if (event.button === 0) commitMeasureClick(event); return; }
     if (placeColumn) { placeColumnAt(event); return; }
     if (!editWalls || event.button !== 0) return;
@@ -339,6 +350,7 @@ export function LivingRoomPlanView(props: Props) {
 
   function pointerMove(event: ReactPointerEvent<SVGSVGElement>) {
     if (nav.movePan(event)) return;
+    if (regionPick.move(event)) return;
     if (measureLike) { updateMeasureHover(event); return; }
     if (marquee) {
       setMarquee({ ...marquee, current: worldPoint(event) });
@@ -387,6 +399,7 @@ export function LivingRoomPlanView(props: Props) {
 
   function finish(event: ReactPointerEvent<SVGSVGElement>) {
     if (nav.endPan(event)) return;
+    if (regionPick.finish()) return;
     if (marquee) { finishMarquee(); return; }
     if (roomDrawing.finish(event)) return;
     if (wallDrawing.finish(event)) return;
@@ -423,12 +436,13 @@ export function LivingRoomPlanView(props: Props) {
     }}
   />
   <svg ref={nav.svgRef}
-    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""} ${calibrating ? "is-calibrate" : ""}`}
+    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""} ${calibrating ? "is-calibrate" : ""} ${props.dwgSuggest?.pickingRegion ? "is-dwg-suggest-region" : ""}`}
     viewBox={nav.viewBox} role="application" aria-label="Living room plan editor"
     data-testid="lr-plan-svg"
     onWheel={nav.onWheel}
     onPointerDownCapture={(event) => {
       if (nav.beginPan(event)) return;
+      if (regionPick.begin(event)) return;
       if (measureLike) {
         // Capture before cabinet/opening drag handlers steal the gesture.
         // Primary button only — right/middle must not add measure points.
@@ -448,7 +462,14 @@ export function LivingRoomPlanView(props: Props) {
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall}
-      onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined} />
+      onFloor={editWalls || measureLike || placeColumn || Boolean(props.dwgSuggest?.pickingRegion) ? floorDown : undefined} />
+    {props.dwgSuggest ? (
+      <DwgSuggestGeometryOverlay
+        strokes={props.dwgSuggest.strokes}
+        region={props.dwgSuggest.region}
+        draftRegion={regionPick.draftRect}
+      />
+    ) : null}
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
     <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />

@@ -14,6 +14,7 @@ import {
   readPlanMarksSettings,
   setPlanMarksSettings,
   suggestRoomPolygonFromDwg,
+  type DwgSuggestPlanRegion,
 } from "../../domain/livingRoom";
 import { interiorsCabinetRunSnapTarget } from "../../domain/desktopUx";
 import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
@@ -37,7 +38,11 @@ export function inspectPlanTarget(
   props.workspace.onSelect(target.objectId ?? null, target.additive);
 }
 
-export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBodyProps) {
+export function interiorsDrawRoomStageCommands(
+  props: LivingRoomPlanWorkspaceBodyProps,
+  selectedLayers?: string[],
+  region?: DwgSuggestPlanRegion | null,
+) {
   const { workspace: w } = props;
   return {
     onBuildTool: props.onBuildTool,
@@ -47,7 +52,11 @@ export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBod
     onReplaceUnderlay: () => props.underlayPickerRef.current?.(),
     onSuggestDwgWalls: () => {
       w.onPatchDocument((current) => {
-        const points = suggestRoomPolygonFromDwg(getLivingRoomPlanUnderlay(current));
+        const points = suggestRoomPolygonFromDwg(
+          getLivingRoomPlanUnderlay(current),
+          selectedLayers,
+          region,
+        );
         return points
           ? ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, { kind: "polygon", points }, { raised: true }))
           : current;

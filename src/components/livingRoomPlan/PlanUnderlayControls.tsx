@@ -1,13 +1,16 @@
 import { toggleDwgLayer } from "../../domain/livingRoom/dwgSource";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom";
+import type { DwgSuggestSelectionUi } from "../../hooks/useDwgSuggestSelection";
+import { PlanUnderlayDwgSuggest } from "./PlanUnderlayDwgSuggest";
 
-export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrate, onSuggestDwgWalls, onPlaceDwgCabinets }: {
+export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrate, onSuggestDwgWalls, onPlaceDwgCabinets, dwgSuggest }: {
   underlay: LivingRoomPlanUnderlay | null;
   onChange: (underlay: LivingRoomPlanUnderlay | null) => void;
   onReplace: () => void;
   onCalibrate?: () => void;
   onSuggestDwgWalls?: () => void;
   onPlaceDwgCabinets?: () => void;
+  dwgSuggest?: DwgSuggestSelectionUi;
 }) {
   if (!underlay) {
     return (
@@ -136,15 +139,13 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
           {hidden ? "Show" : "Hide"}
         </button>
       </div>
-      {underlay.dwg && onSuggestDwgWalls ? (
-        <button type="button" className="is-secondary" data-testid="lr-underlay-suggest-walls" disabled={locked} onClick={onSuggestDwgWalls}>
-          Suggest walls from layers
-        </button>
-      ) : null}
-      {underlay.dwg && onPlaceDwgCabinets ? (
-        <button type="button" className="is-secondary" data-testid="lr-underlay-place-cabinets" disabled={locked} onClick={onPlaceDwgCabinets}>
-          Place recognized cabinets
-        </button>
+      {underlay.dwg ? (
+        <PlanUnderlayDwgSuggest
+          locked={locked}
+          selection={dwgSuggest}
+          onSuggestDwgWalls={onSuggestDwgWalls}
+          onPlaceDwgCabinets={onPlaceDwgCabinets}
+        />
       ) : null}
       <button
         type="button"

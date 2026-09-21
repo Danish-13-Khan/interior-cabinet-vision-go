@@ -82,6 +82,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onRegisterViewControls={props.onRegisterViewControls}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onCalibrateComplete={props.onCalibrateComplete}
+            dwgSuggest={props.drawCommands?.dwgSuggest}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
