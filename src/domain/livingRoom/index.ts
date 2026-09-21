@@ -681,6 +681,18 @@ export {
 export { collectDwgPlanEndpoints, collectProjectDwgPlanEndpoints, snapPlanPointToDwg } from "./dwgPlanSnap";
 export { cadToPlanPoint } from "./dwgPlanMap";
 export { suggestRoomPolygonFromDwg } from "./dwgSuggestRoom";
+export {
+  defaultDwgSuggestLayerNames,
+  dwgSuggestSegmentHitsRegion,
+  normalizeDwgSuggestRegion,
+  resolveDwgSuggestLayerNames,
+  visibleDwgLayerNames,
+  type DwgSuggestPlanRegion,
+} from "./dwgSuggestSelection";
+export {
+  dwgSuggestHighlightStrokes,
+  type DwgSuggestHighlightStroke,
+} from "./dwgSuggestHighlight";
 export { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";
 export { parseAsciiDxf } from "./dwgDxfParse";
 export type { DwgInsertHint, DwgPreview } from "./dwgGeometry";

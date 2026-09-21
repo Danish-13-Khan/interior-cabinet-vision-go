@@ -49,3 +49,62 @@
 .lr-floorplan-reopen {
   padding: 8px;
 }
+
+.lr-underlay-dwg-suggest {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.lr-underlay-dwg-suggest-note {
+  margin: 0;
+  font-size: 12px;
+  color: #c5cec7;
+}
+
+.lr-underlay-dwg-suggest-layers {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #3d4a41;
+  border-radius: 8px;
+}
+
+.lr-underlay-dwg-suggest-layers legend {
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+.lr-underlay-dwg-suggest-layers label {
+  display: block;
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.lr-underlay-dwg-suggest-region-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lr-dwg-suggest-stroke {
+  stroke: #1a73e8;
+  stroke-width: 40;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.lr-dwg-suggest-region {
+  fill: rgba(26, 115, 232, 0.08);
+  stroke: #1a73e8;
+  stroke-width: 24;
+  stroke-dasharray: 80 40;
+}
+
+.lr-dwg-suggest-region.is-draft {
+  stroke-dasharray: 40 40;
+}
+
+.lr-plan-svg.is-dwg-suggest-region {
+  cursor: crosshair;
+}

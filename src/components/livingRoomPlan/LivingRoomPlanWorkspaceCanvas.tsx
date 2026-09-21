@@ -4,6 +4,7 @@ import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomS
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import { useDwgSuggestSelection } from "../../hooks/useDwgSuggestSelection";
 
 export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBodyProps & {
   activeObject: InteriorObjectEntity | null;
@@ -11,6 +12,11 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
   onTransformPreviewChange: (preview: ModelTransformPreview | null) => void;
 }) {
   const { workspace: w, project, build } = props;
+  const dwgSuggest = useDwgSuggestSelection(props.underlay);
+  const drawCommands = {
+    ...interiorsDrawRoomStageCommands(props, dwgSuggest.selectedLayers, dwgSuggest.region),
+    dwgSuggest,
+  };
   return (
     <LivingRoomPlanStage
       project={project} workspaceView={props.workspaceView} chromeTool={props.chromeTool} selectedIds={w.selectedIds} issues={props.issues}
@@ -56,7 +62,7 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       clientPackageBlocked={props.clientPackageBlocked}
       v2BuildMode={props.plannerMode === "build"} v2ReviewMode={props.workspaceView === "model"}
       readability={props.readability} onReadability={props.onReadability}
-      drawCommands={interiorsDrawRoomStageCommands(props)}
+      drawCommands={drawCommands}
       cabinetRunCommands={interiorsCabinetRunStageCommands(props)}
       presentCommands={interiorsPresentStageCommands(props)}
       presenting={props.plannerMode === "render"}

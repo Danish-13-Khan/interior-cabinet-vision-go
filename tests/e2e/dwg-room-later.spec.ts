@@ -7,6 +7,8 @@ test("suggest walls from layers and place recognized cabinet blocks", async ({ p
   await importRoomDxf(page);
   await confirmCalibrateSouthWall(page);
   await clickInteriorsTool(page, "import");
+  await expect(page.getByTestId("lr-dwg-suggest-highlight").locator("polyline")).toHaveCount(6);
+  await expect(page.getByTestId("lr-dwg-suggest-layer-Walls")).toBeChecked();
   await page.getByTestId("lr-underlay-suggest-walls").click();
   await expect(planWalls(page)).toHaveCount(6);
   await page.getByTestId("lr-underlay-place-cabinets").click();

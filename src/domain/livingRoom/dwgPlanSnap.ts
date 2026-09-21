@@ -1,23 +1,9 @@
-import type { Point2Mm } from "../interiorProject";
-import { transform } from "./dwgGeometryMath";
+import type { InteriorProject, Point2Mm } from "../interiorProject";
 import { cadToPlanPoint } from "./dwgPlanMap";
+import { dwgStrokeCadPoints } from "./dwgStrokeCadPoints";
 import { getLivingRoomPlanUnderlay, type LivingRoomPlanUnderlay } from "./planUnderlay";
-import type { InteriorProject } from "../interiorProject";
 
-const COMMAND = /[ML]\s*(-?[\d.eE+]+)\s*[,\s]\s*(-?[\d.eE+]+)/g;
 const MAX_POINTS = 20000;
-
-function endpointsFromPath(d: string, matrix: number[]): { x: number; y: number }[] {
-  const points: { x: number; y: number }[] = [];
-  COMMAND.lastIndex = 0;
-  for (const match of d.matchAll(COMMAND)) {
-    const x = Number(match[1]);
-    const y = Number(match[2]);
-    if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-    points.push(transform({ x, y }, matrix as [number, number, number, number, number, number]));
-  }
-  return points;
-}
 
 export function collectDwgPlanEndpoints(underlay: LivingRoomPlanUnderlay | null): Point2Mm[] {
   const source = underlay?.dwg;
@@ -28,7 +14,7 @@ export function collectDwgPlanEndpoints(underlay: LivingRoomPlanUnderlay | null)
   for (const layer of source.preview.layers) {
     if (hidden.has(layer.name)) continue;
     for (const stroke of layer.paths) {
-      for (const cad of endpointsFromPath(stroke.d, stroke.matrix)) {
+      for (const cad of dwgStrokeCadPoints(stroke.d, stroke.matrix)) {
         const plan = cadToPlanPoint(cad, underlay, source.preview.bounds);
         const key = `${Math.round(plan.x * 100)}:${Math.round(plan.z * 100)}`;
         if (seen.has(key) || points.length >= MAX_POINTS) continue;

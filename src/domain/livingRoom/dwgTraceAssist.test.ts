@@ -93,4 +93,16 @@ describe("DWG trace assist", () => {
   it("does not snap to a hidden underlay", () => {
     expect(collectDwgPlanEndpoints({ ...roomUnderlay(), hidden: true })).toEqual([]);
   });
+
+  it("does not suggest walls from a hidden Walls layer even when named", () => {
+    const hidden = roomUnderlay();
+    hidden.dwg = { ...hidden.dwg!, hiddenLayers: ["Walls"] };
+    expect(suggestRoomPolygonFromDwg(hidden, ["Walls"])).toBeNull();
+  });
+
+  it("does not close a room from a south-wall-only region", () => {
+    expect(suggestRoomPolygonFromDwg(roomUnderlay(), ["Walls"], {
+      minX: -1900, maxX: 1900, minZ: 1400, maxZ: 1600,
+    })).toBeNull();
+  });
 });

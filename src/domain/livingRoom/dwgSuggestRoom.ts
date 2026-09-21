@@ -1,6 +1,7 @@
 import type { Point2Mm } from "../interiorProject";
 import { cadToPlanPoint } from "./dwgPlanMap";
 import { transform } from "./dwgGeometryMath";
+import { resolveDwgSuggestLayerNames, dwgSuggestSegmentHitsRegion, type DwgSuggestPlanRegion } from "./dwgSuggestSelection";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
 const LINE = /^M(-?[\d.eE+]+),(-?[\d.eE+]+) L(-?[\d.eE+]+),(-?[\d.eE+]+)$/;
@@ -17,15 +18,11 @@ function same(a: Point2Mm, b: Point2Mm) {
 }
 
 function wallLayers(underlay: LivingRoomPlanUnderlay, names?: string[]) {
-  const hidden = new Set(underlay.dwg?.hiddenLayers ?? []);
-  const layers = underlay.dwg?.preview.layers ?? [];
-  if (names?.length) return layers.filter((layer) => names.includes(layer.name));
-  const walls = layers.filter((layer) => /wall/i.test(layer.name) && !hidden.has(layer.name));
-  if (walls.length) return walls;
-  return layers.filter((layer) => !hidden.has(layer.name) && !/door|window|cabinet|note/i.test(layer.name));
+  const allowed = new Set(resolveDwgSuggestLayerNames(underlay, names));
+  return (underlay.dwg?.preview.layers ?? []).filter((layer) => allowed.has(layer.name));
 }
 
-function segmentsFrom(underlay: LivingRoomPlanUnderlay, names?: string[]): Seg[] {
+function segmentsFrom(underlay: LivingRoomPlanUnderlay, names?: string[], region?: DwgSuggestPlanRegion | null): Seg[] {
   const source = underlay.dwg;
   if (!source) return [];
   const segments: Seg[] = [];
@@ -41,10 +38,10 @@ function segmentsFrom(underlay: LivingRoomPlanUnderlay, names?: string[]): Seg[]
         { x: Number(match[3]), y: Number(match[4]) },
         stroke.matrix as [number, number, number, number, number, number],
       );
-      segments.push({
-        a: cadToPlanPoint(start, underlay, source.preview.bounds),
-        b: cadToPlanPoint(end, underlay, source.preview.bounds),
-      });
+      const a = cadToPlanPoint(start, underlay, source.preview.bounds);
+      const b = cadToPlanPoint(end, underlay, source.preview.bounds);
+      if (region && !dwgSuggestSegmentHitsRegion(a, b, region)) continue;
+      segments.push({ a, b });
     }
   }
   return segments;
@@ -71,7 +68,8 @@ function walk(segments: Seg[]): Point2Mm[] | null {
 export function suggestRoomPolygonFromDwg(
   underlay: LivingRoomPlanUnderlay | null,
   layerNames?: string[],
+  region?: DwgSuggestPlanRegion | null,
 ): Point2Mm[] | null {
   if (!underlay?.dwg) return null;
-  return walk(segmentsFrom(underlay, layerNames));
+  return walk(segmentsFrom(underlay, layerNames, region));
 }
