@@ -8,13 +8,16 @@ import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environ
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import {
-  MODEL_VIEW_SCREEN_SPACE_PANNING,
   MODEL_VIEW_ZOOM_TO_CURSOR,
   resolveModelViewMaxPolarAngle,
   resolveModelViewMinPolarAngle,
   resolveModelViewOrbitMaxDistance,
   resolveModelViewOrbitMinDistance,
 } from "../../domain/livingRoom/modelViewCameraEase";
+import {
+  modelViewOrbitOverrides,
+  resolveOrbitControlsSharedCommons,
+} from "../../domain/orbit/orbitControlsPreset";
 import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
@@ -85,15 +88,14 @@ export function ModelViewInteractionRig({
           ref={controlsRef}
           makeDefault
           enabled={!dragging}
-          enableDamping
-          dampingFactor={0.06}
-          panSpeed={1.05}
-          zoomSpeed={1.05}
-          rotateSpeed={0.92}
+          {...resolveOrbitControlsSharedCommons()}
+          dampingFactor={modelViewOrbitOverrides.dampingFactor}
+          panSpeed={modelViewOrbitOverrides.panSpeed}
+          zoomSpeed={modelViewOrbitOverrides.zoomSpeed}
+          rotateSpeed={modelViewOrbitOverrides.rotateSpeed}
           enablePan={viewPreset !== "walkthrough"}
           enableZoom
           zoomToCursor={MODEL_VIEW_ZOOM_TO_CURSOR}
-          screenSpacePanning={MODEL_VIEW_SCREEN_SPACE_PANNING}
           minDistance={resolveModelViewOrbitMinDistance(inspectionSpanMeters)}
           maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
           minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
