@@ -52,7 +52,7 @@ export type PlanToolbarSecondaryGroup = {
 export const PLAN_TOOLBAR_SECONDARY_GROUPS: readonly PlanToolbarSecondaryGroup[] = [
   { id: "room-settings", label: "Room", hint: "Dimensions, walls, manage rooms" },
   { id: "openings", label: "Doors & windows", hint: "Add door/window on the active wall" },
-  { id: "underlay", label: "Import plan / PDF", hint: "Underlay opacity and calibrate scale" },
+  { id: "underlay", label: "Import plan / PDF / DWG", hint: "Underlay opacity and calibrate scale" },
   { id: "runs", label: "Cabinet runs", hint: "Edit run and fillers" },
 ] as const;
 

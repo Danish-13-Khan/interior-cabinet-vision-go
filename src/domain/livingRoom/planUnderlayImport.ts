@@ -1,6 +1,16 @@
+import { isCadUnderlayFile } from "./dwgCadType";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 
-export { isCadUnderlayFile } from "./dwgCadType";
+export { isCadUnderlayFile };
+
+/** File picker accept list: raster + PDF tracing, plus DWG/DXF CAD underlays. */
+export const PLAN_UNDERLAY_FILE_ACCEPT =
+  "image/png,image/jpeg,image/jpg,image/webp,image/gif,application/pdf,.pdf,.dxf,.DXF,.dwg,.DWG";
+
+export const PLAN_UNDERLAY_UNSUPPORTED_MESSAGE =
+  "Use a PNG, JPG, WebP, PDF, DWG, or DXF as a tracing image. Draw walls on the plan after import.";
+
+export type PlanUnderlayFileKind = "pdf" | "image" | "cad" | "unsupported";
 
 export function isDwgFile(file: File): boolean {
   return /\.dwg$/i.test(file.name || "");
@@ -11,6 +21,21 @@ export function isPdfFile(file: File): boolean {
   const type = (file.type || "").toLowerCase();
   if (type === "application/pdf" || type === "application/x-pdf") return true;
   return /\.pdf$/i.test(file.name || "");
+}
+
+/** Raster images the underlay can display. SVG is not a tracing image. */
+export function isUnderlayImageFile(file: File): boolean {
+  const type = (file.type || "").toLowerCase();
+  if (type === "image/svg+xml") return false;
+  if (type.startsWith("image/")) return true;
+  return /\.(png|jpe?g|gif|webp)$/i.test(file.name || "");
+}
+
+export function planUnderlayFileKind(file: File): PlanUnderlayFileKind {
+  if (isCadUnderlayFile(file)) return "cad";
+  if (isPdfFile(file)) return "pdf";
+  if (isUnderlayImageFile(file)) return "image";
+  return "unsupported";
 }
 
 /** Build underlay fields from an already-decoded PNG/JPEG/WebP data URL. */

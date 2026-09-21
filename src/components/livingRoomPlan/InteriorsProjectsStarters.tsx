@@ -10,7 +10,7 @@ const STARTERS: Array<{
   { template: "wardrobe-wall", title: "Wardrobe wall", note: "Start a cabinet-led room concept." },
   { template: "l-room", title: "L-room", note: "Freeform L footprint ready for millwork." },
   { template: "2-room-flat", title: "2-room flat", note: "Living and bedroom split by a shared wall." },
-  { template: "import-plan", styleId: "nordic-light", title: "Import a plan", note: "Use a PNG, JPG, or WebP tracing underlay." },
+  { template: "import-plan", styleId: "nordic-light", title: "Import a plan", note: "Use a PNG, JPG, PDF, or DWG tracing underlay." },
 ];
 
 export function InteriorsProjectsStarters({
