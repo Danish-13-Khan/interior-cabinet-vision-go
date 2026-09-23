@@ -1,0 +1,66 @@
+{
+  "fixture": "designedAndRated + placeSmokeMillwork + fillMissingCategoryRates",
+  "helpers": "src/domain/livingRoom/proposal/designToFreezeSmoke.helpers.ts",
+  "now": "2026-09-23T12:00:00.000Z",
+  "projectId": "stage1-cabinet-commercial",
+  "snapshotId": "stage1-cabinet-snap-1",
+  "ledgerProjectId": "stage1-cabinet-commercial",
+  "cabinets": [
+    {
+      "id": "smoke-wardrobe",
+      "name": "Wardrobe Wall",
+      "type": "almirah",
+      "catalogItemId": "living:wardrobe-wall"
+    },
+    {
+      "id": "smoke-base",
+      "name": "Base Cabinet · 900",
+      "type": "base",
+      "catalogItemId": "living:base-cabinet-900"
+    }
+  ],
+  "cutlistLineCount": 20,
+  "cutlistKeys": [
+    "smoke-wardrobe:left-side",
+    "smoke-wardrobe:right-side",
+    "smoke-wardrobe:top",
+    "smoke-wardrobe:bottom",
+    "smoke-wardrobe:back",
+    "smoke-wardrobe:shelf",
+    "smoke-wardrobe:divider",
+    "smoke-wardrobe:door",
+    "smoke-wardrobe:left-end-panel",
+    "smoke-wardrobe:right-end-panel",
+    "smoke-wardrobe:toe-kick",
+    "smoke-base:left-side",
+    "smoke-base:right-side",
+    "smoke-base:top",
+    "smoke-base:bottom",
+    "smoke-base:back",
+    "smoke-base:shelf",
+    "smoke-base:divider",
+    "smoke-base:door",
+    "smoke-base:toe-kick"
+  ],
+  "sellTotal": 53403,
+  "workshopTotal": 38123,
+  "cabinetCount": 2,
+  "markupPercent": 18,
+  "taxPercent": 18,
+  "taxLabel": "GST",
+  "currencyLabel": "INR",
+  "validUntil": "2026-10-23T12:00:00.000Z",
+  "detailLineCount": 24,
+  "liveSellTotal": 53403,
+  "liveMatchesFrozen": true,
+  "missingRate": false,
+  "balances": {
+    "documentId": "cdoc-1790164801843-1315",
+    "projectId": "stage1-cabinet-commercial",
+    "documentTotal": 53403,
+    "received": 21361,
+    "outstanding": 32042,
+    "overdue": 0,
+    "isCurrentObligation": true
+  }
+}
