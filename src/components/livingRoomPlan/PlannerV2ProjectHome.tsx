@@ -1,12 +1,13 @@
 import { useMemo, useRef, useState } from "react";
 import { interiorsRecentProjectCard, type InteriorsUiMode } from "../../domain/desktopUx";
+import { filterProjectCards, type ProjectDashboardLayout } from "../../domain/studio/projectDashboard";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
 import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
 import { InteriorsCompactProjectsHome, type ProjectFilter } from "./InteriorsCompactProjectsHome";
 import { InteriorsPopularTemplates } from "./InteriorsPopularTemplates";
 import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
 import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
-import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
+import { ProjectJobBoard } from "../studio/ProjectJobBoard";
 import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
 import type { LivingRoomPlanWorkspaceProps, PlannerStarterTemplate } from "./workspaceProps";
 
@@ -27,23 +28,17 @@ export function PlannerV2ProjectHome({
   const [projectName, setProjectName] = useState("New cabinet job");
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ProjectFilter>("all");
+  const [layout, setLayout] = useState<ProjectDashboardLayout>("grid");
   const recentRows = useMemo(() => workspace.recentProjects.flatMap((entry) => {
     const card = interiorsRecentProjectCard(entry);
     const document = entry.project.interiorDocument;
     if (!card || !document) return [];
     return [{ ...card, thumbnail: entry.thumbnail || createLivingRoomPlanThumbnail(document) }];
   }).slice(0, 8), [workspace.recentProjects]);
-  const filteredRows = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return recentRows.filter((row) => {
-      const matchesQuery = !needle || `${row.name} ${row.kindLabel} ${row.statusLabel}`.toLowerCase().includes(needle);
-      const matchesFilter = filter === "all"
-        || (filter === "design" && row.statusTone === "design")
-        || (filter === "quoted" && row.statusTone === "quoted")
-        || (filter === "engineering" && (row.statusTone === "approved" || row.statusTone === "sent"));
-      return matchesQuery && matchesFilter;
-    });
-  }, [filter, query, recentRows]);
+  const filteredRows = useMemo(
+    () => filterProjectCards(recentRows, query, filter),
+    [filter, query, recentRows],
+  );
 
   useDialogFocusTrap(
     open,
@@ -104,7 +99,7 @@ export function PlannerV2ProjectHome({
                 <button type="button" data-testid="interiors-recovery-discard" onClick={workspace.onDiscardRecovery}>Discard</button>
               </section>
             ) : null}
-            <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />
+            <ProjectJobBoard rows={filteredRows} layout={layout} onLayout={setLayout} onOpen={workspace.onOpenRecentProject} />
             <InteriorsPopularTemplates onCreate={createFromCatalogTemplate} />
             {import.meta.env.DEV ? (
               <details className="interiors-template-drawer interiors-dev-qa">
@@ -130,6 +125,8 @@ export function PlannerV2ProjectHome({
           onFilter={setFilter}
           recentRows={recentRows}
           filteredRows={filteredRows}
+          layout={layout}
+          onLayout={setLayout}
           onCreateProject={createProject}
           onCreateCatalogTemplate={createFromCatalogTemplate}
           onOpenPhase1={openPhase1}

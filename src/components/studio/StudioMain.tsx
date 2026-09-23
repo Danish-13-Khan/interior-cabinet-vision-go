@@ -10,6 +10,7 @@ import { InteriorClientPanel } from "../livingRoomPlan/InteriorClientPanel";
 import { InteriorPaymentsPanel } from "../livingRoomPlan/InteriorPaymentsPanel";
 import { InteriorsPresentCommercial } from "../livingRoomPlan/InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "../livingRoomPlan/InteriorsPresentQuote";
+import { StudioQuoteComparison } from "./StudioQuoteComparison";
 import { InspectorProposalGateChecks } from "../livingRoomPlan/InspectorProposalGateChecks";
 import { StudioDocumentsPage } from "./StudioDocumentsPage";
 import { StudioEngineeringPage } from "./StudioEngineeringPage";
@@ -63,6 +64,7 @@ export function StudioMain(props: {
       ) : null}
       {props.surface === "project" && props.workflow === "quote" && props.proposal.live ? (
         <div className="studio-page" data-testid="studio-quote">
+          <StudioQuoteComparison proposal={props.proposal} />
           <InteriorsPresentQuote proposal={props.proposal} />
           <InteriorsPresentCommercial quote={props.proposal.live.quote.settings} onQuote={props.proposal.patchQuote} />
         </div>

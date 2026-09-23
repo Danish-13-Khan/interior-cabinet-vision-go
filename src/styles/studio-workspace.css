@@ -85,6 +85,10 @@
 .studio-cutlist-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
 .studio-table tbody tr { cursor: pointer; }
 .studio-table tr.is-selected { background: #d9f0e1; }
+.studio-project-board { display: grid; gap: 10px; }
+.studio-project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.studio-project-list { display: grid; gap: 8px; }
+.studio-project-card { display: grid; gap: 4px; text-align: left; cursor: pointer; width: 100%; }
 .studio-design-tools { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) {
