@@ -47,6 +47,16 @@ describe("proposal PDF", () => {
     expect(visual.ok).toBe(true);
   });
 
+  it("writes INR totals in the PDF font instead of a broken rupee sign", async () => {
+    const project = createFrozenGoldenProposalProject(NOW);
+    const proposal = buildProposalDocument(project, { now: NOW });
+    const blob = await exportProposalPdf(proposal, goldenProposalViewFrames(project));
+    const bytes = new TextDecoder("latin1").decode(await blob.arrayBuffer());
+    const amount = Math.round(proposal.sellTotal).toLocaleString("en-IN");
+    expect(bytes).toContain(`INR ${amount}`);
+    expect(bytes).not.toContain(`\u0000${amount[0]}`);
+  });
+
   it("renders the Golden Run proposal with branding, views, total, and approval", async () => {
     const project = freezeProposal(createGoldenCabinetRunProject(), GOLDEN_CABINET_RUN_NOW);
     const proposal = buildProposalDocument(project, { now: GOLDEN_CABINET_RUN_NOW });

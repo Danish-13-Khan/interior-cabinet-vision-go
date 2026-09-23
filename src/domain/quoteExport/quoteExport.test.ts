@@ -10,6 +10,7 @@ import {
   buildCommercialExportBundle,
   buildInvoiceTemplateDocument,
   clampInvoiceBranding,
+  exportInvoiceTemplatePdf,
   freezeCabinetProjectQuote,
   gateFreezeQuotes,
   ratesFingerprintFromBook,
@@ -89,7 +90,7 @@ describe("quote export + freeze gate (Phase B)", () => {
     expect(second.project.quoteHistory[1]?.sellTotal).toBe(first.snapshot.sellTotal);
   });
 
-  it("builds CSV / Excel / JSON export bundle and invoice template fields", () => {
+  it("builds CSV / Excel / JSON export bundle and invoice template fields", async () => {
     const project = makeProject();
     const report = createProjectReport(project, room);
     const frozen = freezeCabinetProjectQuote({
@@ -124,6 +125,9 @@ describe("quote export + freeze gate (Phase B)", () => {
     expect(invoice.invoiceNumber).toBe("INV-100");
     expect(invoice.sellTotal).toBe(frozen.snapshot.sellTotal);
     expect(invoice.disclaimer).toMatch(/Template export only/i);
+    const pdf = new TextDecoder("latin1").decode(await (await exportInvoiceTemplatePdf(invoice)).arrayBuffer());
+    expect(pdf).toContain(invoice.sellTotalLabel);
+    expect(pdf).toContain("INV-100");
   });
 
   it("changes rates fingerprint when the price book rates change", () => {

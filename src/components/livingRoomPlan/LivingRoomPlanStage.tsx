@@ -108,6 +108,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             latestResult={props.latestRender}
             onRendered={props.onRendered}
             onBrowserThumbnail={props.onRenderBrowserThumbnail}
+            onSelectCamera={(cameraId) => props.onRenderSettingsChange({ activeCameraId: cameraId })}
           />
         ) : (
           <LivingRoomRenderStudio

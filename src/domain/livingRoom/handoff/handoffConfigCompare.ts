@@ -1,4 +1,9 @@
-import type { CabinetInstance } from "../../cabinetDimensions";
+import {
+  clampCabinetPlacement,
+  type CabinetInstance,
+  type CabinetPlacement,
+} from "../../cabinetDimensions";
+import { applyWallMountPlacementFix } from "../../manufacturingRules/fixes";
 import type { InteriorObjectEntity } from "../../interiorProject";
 import { stableStringify } from "../sceneCompilerBounds";
 import { readHandoffAuthoredSource } from "./handoffConfigSource";
@@ -77,16 +82,37 @@ function compareObjectDims(
   return notes;
 }
 
+/** Placement the engineering adapter writes from this authored position, including its shop snap. */
+function engineeringPlacement(
+  source: ReturnType<typeof readHandoffAuthoredSource>,
+  adapted: CabinetInstance,
+): CabinetPlacement {
+  const attachment = source.attachment === "back-wall"
+    || source.attachment === "left-wall"
+    || source.attachment === "right-wall"
+    ? source.attachment
+    : "floor";
+  const mounted = applyWallMountPlacementFix(adapted.config.type, {
+    x: source.position.x,
+    y: source.position.y,
+    z: source.position.z,
+    rotation: adapted.placement.rotation,
+    attachment,
+  }).placement;
+  return clampCabinetPlacement(mounted, adapted.config.dimensions);
+}
+
 function comparePlacement(
   objectId: string,
   source: ReturnType<typeof readHandoffAuthoredSource>,
   adapted: CabinetInstance,
 ): HandoffWarning[] {
   const notes: HandoffWarning[] = [];
+  const expected = engineeringPlacement(source, adapted);
   if (
-    source.position.x !== adapted.placement.x
-    || source.position.y !== adapted.placement.y
-    || source.position.z !== adapted.placement.z
+    expected.x !== adapted.placement.x
+    || expected.y !== adapted.placement.y
+    || expected.z !== adapted.placement.z
   ) {
     notes.push(fieldNote(
       objectId,

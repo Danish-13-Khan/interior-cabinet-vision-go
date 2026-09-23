@@ -6,6 +6,7 @@ import {
   formatJobTitle,
   JOB_STATUS_LABELS,
 } from "../jobMeta";
+import { formatPdfMoney } from "../quoteSettings";
 import { compareRevisionFingerprints } from "./compare";
 import { createRevisionFingerprint } from "./fingerprint";
 import { getProjectReviewState } from "./operations";
@@ -35,7 +36,7 @@ export function buildRevisionSummaryLines(
   ];
   for (const snap of snapshots.slice(0, 12)) {
     lines.push(
-      `Rev ${snap.revision} · ${new Date(snap.createdAt).toLocaleString()} · ${JOB_STATUS_LABELS[snap.status]} · cabinets ${snap.fingerprint.cabinetCount} · sell ₹${snap.fingerprint.sellTotal.toLocaleString()}${snap.releasedForProduction ? " · RELEASED" : ""}${snap.productionFingerprint ? ` · ${snap.productionFingerprint}` : ""}`,
+      `Rev ${snap.revision} · ${new Date(snap.createdAt).toLocaleString()} · ${JOB_STATUS_LABELS[snap.status]} · cabinets ${snap.fingerprint.cabinetCount} · sell ${formatPdfMoney(snap.fingerprint.sellTotal)}${snap.releasedForProduction ? " · RELEASED" : ""}${snap.productionFingerprint ? ` · ${snap.productionFingerprint}` : ""}`,
     );
     for (const change of snap.changeLog.slice(0, 4)) {
       lines.push(`  • ${change.summary}`);
@@ -77,7 +78,7 @@ export async function exportRevisionSummaryPdf(
   doc.setTextColor(55, 65, 81);
   const currentLines = [
     `Cabinets ${current.cabinetCount} · Rooms ${current.roomCount} · Parts ${current.partLineCount}`,
-    `Workshop ₹${current.workshopTotal.toLocaleString()} · Sell ₹${current.sellTotal.toLocaleString()}`,
+    `Workshop ${formatPdfMoney(current.workshopTotal)} · Sell ${formatPdfMoney(current.sellTotal)}`,
     `Issues blockers ${current.blockerCount} · errors ${current.errorCount} · warnings ${current.warningCount}`,
   ];
   for (const line of currentLines) {

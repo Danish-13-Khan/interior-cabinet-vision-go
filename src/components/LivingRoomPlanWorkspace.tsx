@@ -43,13 +43,13 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const viewControlsRef = useRef<PlanViewControls | null>(null);
   const registerViewControls = useCallback((controls: PlanViewControls | null) => { viewControlsRef.current = controls; }, []);
-  const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null }>({ latest: null, previous: null });
+  const [renderResults, setRenderResults] = useState<{ latest: LivingRoomRenderResult | null; previous: LivingRoomRenderResult | null; frames: LivingRoomRenderResult[] }>({ latest: null, previous: null, frames: [] });
   const [acceptedStillAssets, setAcceptedStillAssets] = useState<AcceptedStillAsset[]>([]);
   const millwork = useMillworkSchedule(props.project);
   const clientExport = useClientPresentationExport();
   const proposal = useProposalWorkflow({
     project: props.project, issues: props.issues, onPatchDocument: props.onPatchDocument,
-    latestRender: renderResults.latest, acceptedStills: acceptedStillAssets,
+    latestRender: renderResults.frames, acceptedStills: acceptedStillAssets,
   });
   const handoff = useEngineeringHandoff({
     project: props.project, selectedInteriorObjectIds: props.selectedIds,
@@ -127,7 +127,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onPatchDocument: props.onPatchDocument,
   });
   useEffect(() => {
-    setRenderResults({ latest: null, previous: null });
+    setRenderResults({ latest: null, previous: null, frames: [] });
     setAcceptedStillAssets([]);
   }, [props.project?.id]);
   const nav = useStudioNav(Boolean(props.project) && !props.projectHomeOpen);
@@ -182,7 +182,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onRoomPolygonPointCount={setRoomPolygonPointCount}
         onRoomPolygonCloseRequest={() => setRoomPolygonCloseRequest((count) => count + 1)}
         renderResults={renderResults}
-        onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
+        onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest, frames: [...(current.frames ?? []).filter((item) => item.cameraId !== result.cameraId), result] }))}
         build={build} activeBuildTool={build.buildCommandState.activeTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
         proposal={proposal} handoff={handoff}

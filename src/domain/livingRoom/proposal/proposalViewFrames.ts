@@ -9,7 +9,7 @@ import {
 import type { ProposalNamedView, ProposalViewFrame } from "./types";
 
 export type ProposalViewFrameSource = {
-  latestRender?: LivingRoomRenderResult | null;
+  latestRender?: LivingRoomRenderResult | readonly LivingRoomRenderResult[] | null;
   acceptedStills?: Array<{
     provenance: {
       cameraId: string;
@@ -69,8 +69,10 @@ export function collectProposalViewFrames(
       projectContentHash: binding.projectContentHash,
     });
   }
-  const render = sources.latestRender;
-  if (render) {
+  const renders = Array.isArray(sources.latestRender)
+    ? sources.latestRender
+    : sources.latestRender ? [sources.latestRender] : [];
+  for (const render of renders) {
     acceptFrame(frames, views, binding, render.cameraId, render.dataUrl, {
       projectId: render.projectId,
       sceneFingerprint: render.sceneFingerprint,
