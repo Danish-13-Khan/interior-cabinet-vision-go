@@ -49,6 +49,7 @@ export function splitOpening(
     {
       ...target,
       id: nextOpeningId("opening"),
+      stableId: target.stableId ?? target.id,
       label: `${target.label} A`,
       contentType: leftContent,
       ratio: 0.5,

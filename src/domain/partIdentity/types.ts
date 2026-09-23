@@ -1,4 +1,7 @@
-/** Current construction key. Suffixes change when opening counts change. */
+/**
+ * Grouped manufacturing key. Suffixes change when opening counts change,
+ * and one key can cover several physical pieces. Selection uses PhysicalPiece.pieceId.
+ */
 export type ConstructionKey = string;
 
 export type PartIdentityLink = {

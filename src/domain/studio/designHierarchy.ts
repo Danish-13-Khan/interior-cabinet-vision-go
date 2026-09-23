@@ -25,6 +25,8 @@ export type DesignHierarchyNode = {
   openingId: string | null;
   cutlistKey?: string | null;
   constructionKey?: string | null;
+  /** Stable physical piece. Distinct from the grouped cut-list key. */
+  pieceId?: string | null;
 };
 
 function roomNodes(project: InteriorProject, roomId: string, active: boolean): DesignHierarchyNode[] {

@@ -22,9 +22,11 @@ export function DesignHierarchyPanel(props: {
   const contextKey = `${props.projectId}:${props.activeRoomId ?? ""}`;
   const [isolationContext, setIsolationContext] = useState(contextKey);
   const activeIsolation = isolationContext === contextKey ? isolatedObjectId : null;
-  const selectedObjectId = props.nodes.find((node) => node.cutlistKey && node.cutlistKey === props.selectedCutlistKey)?.objectId
-    ?? props.selectedIds[0]
-    ?? null;
+  const selectedObjectId = props.nodes.find((node) =>
+    (node.pieceId && node.pieceId === props.selectedCutlistKey)
+    || (node.cutlistKey && node.cutlistKey === props.selectedCutlistKey),
+  )?.objectId ?? props.selectedIds[0] ?? null;
+  const pieceHit = Boolean(props.selectedCutlistKey && props.nodes.some((node) => node.pieceId === props.selectedCutlistKey));
   const rows = useMemo(() => {
     const isolated = visibleHierarchyNodes(props.nodes, { isolatedObjectId: activeIsolation, hiddenObjectIds });
     return collapseHierarchy(filterDesignHierarchy(isolated, query), new Set(Object.keys(collapsed).filter((id) => collapsed[id])));
@@ -62,7 +64,9 @@ export function DesignHierarchyPanel(props: {
         {rows.map((node, index) => {
           const next = rows[index + 1];
           const expandable = Boolean(next && next.depth > node.depth) || Boolean(collapsed[node.id]);
-          const selected = node.cutlistKey
+          const selected = pieceHit
+            ? node.pieceId === props.selectedCutlistKey
+            : node.cutlistKey
             ? node.cutlistKey === props.selectedCutlistKey
             : node.objectId
               ? props.selectedIds.includes(node.objectId) && !props.selectedCutlistKey

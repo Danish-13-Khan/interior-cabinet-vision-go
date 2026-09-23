@@ -3,6 +3,7 @@ import { cabinetProjectFromInteriorProject, type InteriorProject } from "../../d
 import { exportProjectMachineFile } from "../../domain/machineExport/io";
 import type { ProductionCutlistLine } from "../../domain/productionCutlist";
 import type { ProjectWorkflow, StudioSection, StudioSurface } from "../../domain/studio/navigation";
+import { partPickForCutlistKey } from "../../domain/studio/partPick";
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { EngineeringHandoffSection } from "../livingRoomPlan/EngineeringHandoffSection";
@@ -52,6 +53,11 @@ export function StudioMain(props: {
       return { summary: "", json: null, error: error instanceof Error ? error.message : "Machine export failed." };
     }
   }, [props.project]);
+  const selectedManufacturingKey = useMemo(() => {
+    if (!props.project || !props.selectedCutlistKey) return null;
+    const cabinets = cabinetProjectFromInteriorProject(props.project).project.cabinets;
+    return partPickForCutlistKey(cabinets, props.selectedCutlistKey)?.cutlistKey ?? null;
+  }, [props.project, props.selectedCutlistKey]);
   const showDesign = Boolean(props.project) && props.surface === "project" && props.workflow === "design";
   return (
     <>
@@ -103,7 +109,7 @@ export function StudioMain(props: {
         <StudioEngineeringPage
           lines={props.cutlistLines}
           status={props.cutlistStatus}
-          selectedKey={props.selectedCutlistKey}
+          selectedKey={selectedManufacturingKey}
           machineSummary={machine.summary}
           machineJson={machine.json}
           machineError={machine.error}

@@ -1,27 +1,8 @@
 import type { CabinetInstance, CabinetProject, RoomBounds } from "../cabinetDimensions";
 import { detectCabinetRuns } from "../cabinetRuns/detect";
-import { partTreeNodeId } from "../partIdentity";
-import { createCabinetProductionCutlist, createProjectProductionCutlist, type ProductionCutlistLine } from "../productionCutlist";
+import { assemblyPartNodes } from "./assemblyNodes";
+import { createProjectProductionCutlist } from "../productionCutlist";
 import type { DesignHierarchyNode } from "./designHierarchy";
-
-const GROUPS: Record<string, string> = {
-  Side: "Carcass",
-  TopBottom: "Carcass",
-  Back: "Carcass",
-  EndPanel: "Carcass",
-  ToeKick: "Carcass",
-  Stretcher: "Carcass",
-  FaceFrame: "Carcass",
-  Shelf: "Compartments",
-  Divider: "Compartments",
-  Door: "Doors",
-  DrawerFront: "Drawers",
-  DrawerBox: "Box parts",
-};
-
-export function manufacturingGroup(category: string) {
-  return GROUPS[category] ?? "Carcass";
-}
 
 function matchCabinet(objectId: string, cabinets: readonly CabinetInstance[]) {
   return cabinets.find((cabinet) => cabinet.interiorObjectId === objectId || cabinet.id === objectId) ?? null;
@@ -40,43 +21,8 @@ function runBuckets(cabinets: readonly CabinetInstance[], roomBounds: RoomBounds
   return runs;
 }
 
-function partNodes(cabinet: CabinetInstance, index: number, roomId: string, objectId: string): DesignHierarchyNode[] {
-  const lines = createCabinetProductionCutlist(cabinet, index);
-  const grouped = new Map<string, ProductionCutlistLine[]>();
-  for (const line of lines) {
-    const title = manufacturingGroup(String(line.category));
-    grouped.set(title, [...(grouped.get(title) ?? []), line]);
-  }
-  const nodes: DesignHierarchyNode[] = [];
-  for (const [title, groupLines] of grouped) {
-    nodes.push({
-      id: `group:${cabinet.id}:${title}`,
-      kind: "group",
-      label: title,
-      detail: `${groupLines.length} parts`,
-      depth: 3,
-      roomId,
-      objectId,
-      wallId: null,
-      openingId: null,
-    });
-    for (const line of groupLines) {
-      nodes.push({
-        id: partTreeNodeId(cabinet.id, line.partId, roomId),
-        kind: "part",
-        label: line.label,
-        detail: `${line.material} · ${line.thicknessMm} mm`,
-        depth: 4,
-        roomId,
-        objectId,
-        wallId: null,
-        openingId: null,
-        cutlistKey: line.key,
-        constructionKey: line.partId,
-      });
-    }
-  }
-  return nodes;
+function partNodes(cabinet: CabinetInstance, index: number, roomId: string, objectId: string) {
+  return assemblyPartNodes(cabinet, roomId, objectId, index);
 }
 
 export function attachManufacturingParts(
