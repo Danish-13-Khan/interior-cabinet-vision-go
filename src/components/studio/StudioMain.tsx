@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import type { InteriorProject } from "../../domain/interiorProject";
+import { useMemo, type ReactNode } from "react";
+import { cabinetProjectFromInteriorProject, type InteriorProject } from "../../domain/interiorProject";
+import { exportProjectMachineFile } from "../../domain/machineExport/io";
 import type { ProductionCutlistLine } from "../../domain/productionCutlist";
 import type { ProjectWorkflow, StudioSection, StudioSurface } from "../../domain/studio/navigation";
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
@@ -28,9 +29,25 @@ export function StudioMain(props: {
   handoff: Handoff;
   cutlistLines: ProductionCutlistLine[];
   cutlistStatus: string;
+  selectedCutlistKey: string | null;
+  onSelectCutlistLine: (key: string) => void;
   home: ReactNode;
   design: ReactNode;
 }) {
+  const machine = useMemo(() => {
+    if (!props.project) return { summary: "", json: null as string | null, error: null as string | null };
+    try {
+      const file = exportProjectMachineFile(cabinetProjectFromInteriorProject(props.project).project);
+      const summary = file.document.summary;
+      return {
+        summary: `Machine file ${summary.partCount} parts, ${summary.operationCount} operations.`,
+        json: file.contents,
+        error: null,
+      };
+    } catch (error) {
+      return { summary: "", json: null, error: error instanceof Error ? error.message : "Machine export failed." };
+    }
+  }, [props.project]);
   const showDesign = Boolean(props.project) && props.surface === "project" && props.workflow === "design";
   return (
     <>
@@ -57,7 +74,15 @@ export function StudioMain(props: {
         </div>
       ) : null}
       {props.surface === "project" && props.workflow === "engineering" ? (
-        <StudioEngineeringPage lines={props.cutlistLines} status={props.cutlistStatus} />
+        <StudioEngineeringPage
+          lines={props.cutlistLines}
+          status={props.cutlistStatus}
+          selectedKey={props.selectedCutlistKey}
+          machineSummary={machine.summary}
+          machineJson={machine.json}
+          machineError={machine.error}
+          onSelectLine={props.onSelectCutlistLine}
+        />
       ) : null}
       {props.surface === "project" && props.workflow === "payments" && props.project ? (
         <div className="studio-page"><InteriorPaymentsPanel project={props.project} /></div>

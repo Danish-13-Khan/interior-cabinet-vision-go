@@ -13,7 +13,9 @@ import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { inspectPlanTarget } from "./planInspectTarget";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
+import { cabinetProjectFromInteriorProject } from "../../domain/interiorProject";
 import { buildDesignHierarchy, type DesignHierarchyNode } from "../../domain/studio/designHierarchy";
+import { attachManufacturingParts } from "../../domain/studio/manufacturingTree";
 import { DesignHierarchyPanel } from "../studio/DesignHierarchyPanel";
 import { DesignWorkspaceFooter } from "../studio/DesignWorkspaceFooter";
 
@@ -39,8 +41,16 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
-  const hierarchy = useMemo(() => buildDesignHierarchy(project), [project]);
+  const hierarchy = useMemo(() => {
+    const base = buildDesignHierarchy(project);
+    const engineering = cabinetProjectFromInteriorProject(project);
+    const bounds = room
+      ? { widthMm: room.dimensions.widthMm, depthMm: room.dimensions.depthMm, heightMm: room.dimensions.heightMm }
+      : null;
+    return attachManufacturingParts(base, engineering.project.cabinets, bounds);
+  }, [project, room]);
   function selectHierarchyNode(node: DesignHierarchyNode) {
+    props.onSelectCutlistKey?.(node.cutlistKey ?? null);
     if (node.kind === "room") {
       w.onActiveRoom(node.roomId);
       inspectPlanTarget(props, { inspectRoom: true });
@@ -62,9 +72,11 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       <DesignHierarchyPanel
         nodes={hierarchy}
         selectedIds={w.selectedIds}
+        selectedCutlistKey={props.selectedCutlistKey ?? null}
         activeWallId={props.activeWallId}
         activeOpeningId={props.activeOpeningId}
         onSelectNode={selectHierarchyNode}
+        onFocus={() => props.onFitSelection?.()}
       />
       {props.plannerMode === "render" ? (
         <InteriorsPresentPanel
