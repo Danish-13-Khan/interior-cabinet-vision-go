@@ -1,4 +1,6 @@
 import type { LivingRoomStyleId, PlannerStarterTemplate } from "../../domain/livingRoom";
+import { projectFilterCount, type ProjectDashboardLayout } from "../../domain/studio/projectDashboard";
+import { ProjectJobBoard } from "../studio/ProjectJobBoard";
 import { InteriorsPopularTemplates } from "./InteriorsPopularTemplates";
 import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
 import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
@@ -27,6 +29,8 @@ type Props = {
   onFilter: (filter: ProjectFilter) => void;
   recentRows: RecentRow[];
   filteredRows: RecentRow[];
+  layout: ProjectDashboardLayout;
+  onLayout: (layout: ProjectDashboardLayout) => void;
   onCreateProject: (template?: PlannerStarterTemplate, styleId?: LivingRoomStyleId) => void;
   onCreateCatalogTemplate: (catalogTemplateId: string) => void;
   onOpenPhase1: (benchmarkId: Parameters<LivingRoomPlanWorkspaceProps["onOpenPhase1Benchmark"]>[0]) => void;
@@ -44,6 +48,8 @@ export function InteriorsCompactProjectsHome({
   onFilter,
   recentRows,
   filteredRows,
+  layout,
+  onLayout,
   onCreateProject,
   onCreateCatalogTemplate,
   onOpenPhase1,
@@ -60,11 +66,7 @@ export function InteriorsCompactProjectsHome({
         ] as Array<[ProjectFilter, string]>).map(([id, label]) => (
           <button key={id} type="button" className={filter === id ? "is-selected" : ""} onClick={() => onFilter(id)}>
             <span>{label}</span>
-            <small>{id === "all" ? recentRows.length : recentRows.filter((row) => (
-              id === "design" ? row.statusTone === "design"
-                : id === "quoted" ? row.statusTone === "quoted"
-                  : row.statusTone === "approved" || row.statusTone === "sent"
-            )).length}</small>
+            <small>{projectFilterCount(recentRows, id)}</small>
           </button>
         ))}
       </aside>
@@ -97,21 +99,7 @@ export function InteriorsCompactProjectsHome({
             <button type="button" data-testid="interiors-recovery-discard" onClick={workspace.onDiscardRecovery}>Discard</button>
           </section>
         ) : null}
-        <div className="interiors-job-table" role="table" aria-label="Cabinet jobs">
-          <div className="interiors-job-table-head" role="row">
-            <span>Project</span><span>Room</span><span>Revision</span><span>Status</span><span>Updated</span>
-          </div>
-          {filteredRows.map((row) => (
-            <button type="button" role="row" key={row.id} data-testid="open-recent-project" onClick={() => workspace.onOpenRecentProject(row.id)}>
-              <strong>{row.name}<small>Cabinet Studio job</small></strong>
-              <span>{row.kindLabel}</span>
-              <span>Rev {row.revision}</span>
-              <span className={`interiors-project-status is-${row.statusTone}`}>{row.statusLabel}</span>
-              <small>{row.editedLabel}</small>
-            </button>
-          ))}
-          {!filteredRows.length ? <p>No jobs match this view.</p> : null}
-        </div>
+        <ProjectJobBoard rows={filteredRows} layout={layout} onLayout={onLayout} onOpen={workspace.onOpenRecentProject} />
         <details className="interiors-template-drawer">
           <summary>Quick start templates</summary>
           <InteriorsPopularTemplates onCreate={onCreateCatalogTemplate} />
