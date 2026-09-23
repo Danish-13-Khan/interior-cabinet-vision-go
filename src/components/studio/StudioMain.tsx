@@ -6,6 +6,7 @@ import type { ProjectWorkflow, StudioSection, StudioSurface } from "../../domain
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { EngineeringHandoffSection } from "../livingRoomPlan/EngineeringHandoffSection";
+import { InteriorProjectTools } from "../livingRoomPlan/InteriorProjectTools";
 import { InteriorClientPanel } from "../livingRoomPlan/InteriorClientPanel";
 import { InteriorPaymentsPanel } from "../livingRoomPlan/InteriorPaymentsPanel";
 import { InteriorsPresentCommercial } from "../livingRoomPlan/InteriorsPresentCommercial";
@@ -64,11 +65,21 @@ export function StudioMain(props: {
       {props.surface === "studio" && props.section === "settings" ? (
         <StudioSettingsPage project={props.project} quote={props.proposal.live?.quote.settings ?? null} onQuote={props.proposal.patchQuote} />
       ) : null}
-      {props.surface === "project" && props.workflow === "quote" && props.proposal.live ? (
+      {props.surface === "project" && props.workflow === "quote" && props.project ? (
         <div className="studio-page" data-testid="studio-quote">
-          <StudioQuoteComparison proposal={props.proposal} />
-          <InteriorsPresentQuote proposal={props.proposal} />
-          <InteriorsPresentCommercial quote={props.proposal.live.quote.settings} onQuote={props.proposal.patchQuote} />
+          <InteriorProjectTools
+            project={props.project}
+            onPatchDocument={props.onPatchDocument}
+          />
+          {props.proposal.live ? (
+            <>
+              <StudioQuoteComparison proposal={props.proposal} />
+              <InteriorsPresentQuote proposal={props.proposal} />
+              <InteriorsPresentCommercial quote={props.proposal.live.quote.settings} onQuote={props.proposal.patchQuote} />
+            </>
+          ) : (
+            <p className="studio-state">Use Project tools for interior rates, exclusions, manual lines, and company controls before a quote can be issued.</p>
+          )}
         </div>
       ) : null}
       {props.surface === "project" && props.workflow === "approval" && props.project ? (

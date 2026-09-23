@@ -24,6 +24,7 @@ import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShel
 import { StudioChrome } from "./studio/StudioChrome";
 import { StudioMain } from "./studio/StudioMain";
 import { useStudioNav } from "../hooks/useStudioNav";
+import { useStudioPartSelection } from "../hooks/useStudioPartSelection";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const ui = useInteriorsUiMode();
@@ -39,7 +40,6 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [inspectRoom, setInspectRoom] = useState(false);
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
-  const [selectedCutlistKey, setSelectedCutlistKey] = useState<string | null>(null);
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const viewControlsRef = useRef<PlanViewControls | null>(null);
   const registerViewControls = useCallback((controls: PlanViewControls | null) => { viewControlsRef.current = controls; }, []);
@@ -131,6 +131,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setAcceptedStillAssets([]);
   }, [props.project?.id]);
   const nav = useStudioNav(Boolean(props.project) && !props.projectHomeOpen);
+  const parts = useStudioPartSelection({
+    project: props.project,
+    selectedIds: props.selectedIds,
+    onSelect: props.onSelect,
+    onActiveRoom: props.onActiveRoom,
+  });
   const saveTone = props.autosaveState === "error" ? "error" : props.autosaveState === "saved" && !props.isDirty ? "saved" : "idle";
   const saveLabel = props.autosaveState === "saving" ? "Saving" : props.isDirty ? "Unsaved" : props.autosaveState === "error" ? "Save failed" : "Saved";
   const home = (
@@ -191,8 +197,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onFitSelection={() => viewControlsRef.current?.fitSelection()}
         onZoomIn={() => viewControlsRef.current?.zoomIn()}
         onZoomOut={() => viewControlsRef.current?.zoomOut()}
-        selectedCutlistKey={selectedCutlistKey}
-        onSelectCutlistKey={setSelectedCutlistKey}
+        selectedCutlistKey={parts.selectedCutlistKey}
+        onSelectCutlistKey={parts.setSelectedCutlistKey}
       />
     </section>
   ) : null;
@@ -215,7 +221,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     >
       <StudioMain
         surface={props.project && !props.projectHomeOpen ? nav.surface : "studio"}
-        section={props.projectHomeOpen || !props.project ? "projects" : nav.section}
+        section={nav.section}
         workflow={nav.workflow}
         project={props.project}
         onPatchDocument={(update) => props.onPatchDocument(update, "Project details updated")}
@@ -223,8 +229,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         handoff={handoff}
         cutlistLines={millwork.productionReport?.productionCutlist ?? []}
         cutlistStatus={millwork.status}
-        selectedCutlistKey={selectedCutlistKey}
-        onSelectCutlistLine={(key) => { setSelectedCutlistKey(key); nav.openWorkflow("design"); }}
+        selectedCutlistKey={parts.selectedCutlistKey}
+        onSelectCutlistLine={(key) => {
+          parts.selectCutlistLine(key);
+          props.onCloseProjectHome();
+          nav.openWorkflow("design");
+        }}
         onWorkflow={nav.openWorkflow}
         home={home}
         design={design}

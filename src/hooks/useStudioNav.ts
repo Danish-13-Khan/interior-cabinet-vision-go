@@ -17,10 +17,9 @@ export function useStudioNav(projectOpen: boolean) {
       setSurface("project");
       setWorkflow("design");
       setSidebarPinned(false);
-    } else {
-      setSurface("studio");
-      setSection("projects");
+      return;
     }
+    setSurface("studio");
   }, [projectOpen]);
 
   function openSection(next: StudioSection) {

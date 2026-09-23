@@ -7,7 +7,8 @@ const base = {
   quoteRevision: null as string | null,
   quoteFrozen: false,
   quoteStale: false,
-  clientApproved: false,
+  clientAccepted: false,
+  engineeringSent: false,
   cutlistCount: 0,
   productionReleased: false,
   paymentReady: false,
@@ -24,13 +25,17 @@ describe("studio handoff journey", () => {
     expect(states({ quoteFrozen: true, quoteRevision: "A" })).toEqual(["done", "done", "current", "blocked", "blocked"]);
     expect(states({ quoteFrozen: true, quoteRevision: "A", quoteStale: true })[1]).toBe("current");
     expect(states({
-      quoteFrozen: true, quoteRevision: "A", clientApproved: true, cutlistCount: 12,
+      quoteFrozen: true, quoteRevision: "A", clientAccepted: true, cutlistCount: 12,
+    })).toEqual(["done", "done", "done", "current", "blocked"]);
+    expect(states({
+      quoteFrozen: true, quoteRevision: "A", clientAccepted: true, engineeringSent: true, cutlistCount: 12,
     })).toEqual(["done", "done", "done", "done", "current"]);
     const released = studioHandoffJourney({
       ...base,
       quoteFrozen: true,
       quoteRevision: "A",
-      clientApproved: true,
+      clientAccepted: true,
+      engineeringSent: true,
       cutlistCount: 12,
       productionReleased: true,
       paymentReady: false,

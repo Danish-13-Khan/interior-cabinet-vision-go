@@ -82,6 +82,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onRegisterViewControls={props.onRegisterViewControls}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onCalibrateComplete={props.onCalibrateComplete}
+            viewportFilter={props.viewportFilter}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
@@ -96,6 +97,10 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSetParameters={props.onSetParameters}
             onPatchDocument={props.onPatchDocument}
             presentation={props.presenting}
+            onRegisterViewControls={props.onRegisterViewControls}
+            onPickPrimitive={props.onPickPrimitive}
+            partHighlight={props.partHighlight}
+            viewportFilter={props.viewportFilter}
           />
         ) : props.presenting ? (
           <InteriorsClientCaptureView

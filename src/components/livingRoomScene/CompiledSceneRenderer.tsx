@@ -20,6 +20,7 @@ import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
 import { RendererColorPipeline } from "./RendererColorPipeline";
 import { assignGlbCasterSlots } from "../../domain/livingRoom/glbCastShadow";
 import { resolveModelViewMaxGlbCasters } from "../../domain/livingRoom/modelViewPerf";
+import { viewportShowsObject, type ViewportObjectFilter } from "../../domain/studio/viewportVisibility";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type SceneRendererProps = {
@@ -55,6 +56,9 @@ type SceneRendererProps = {
   transformTarget?: ModelTransformTarget | null;
   onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
+  partHighlight?: { objectId: string; primitiveIds: readonly string[] } | null;
+  onPickPrimitive?: (objectId: string, geometryName: string) => void;
+  viewportFilter?: ViewportObjectFilter;
 };
 
 export function CompiledSceneRenderer(props: SceneRendererProps) {
@@ -67,6 +71,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
     transformTarget = null, onTransformPreview, onTransformCommit,
+    partHighlight = null, onPickPrimitive, viewportFilter,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -102,7 +107,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     || viewPreset === "top" || viewPreset === "isometric";
   const nodes = filterModelReviewNodes(
     scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
-  );
+  ).filter((node) => !viewportFilter || viewportShowsObject(node.sourceObjectId, viewportFilter));
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const inspection = resolveModelViewSelectionBoundsMm(scene, {
@@ -155,6 +160,8 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         onDragStateChange={handleDragStateChange} onMechanismClick={onMechanismClick}
         onAssetReady={() => setAssetRevision((revision) => revision + 1)}
         onWallContextMenu={onWallContextMenu}
+        partHighlight={partHighlight}
+        onPickPrimitive={onPickPrimitive}
       />
       <ModelViewInteractionRig
         scene={scene} controlsRef={controlsRef} activeCameraId={activeCameraId}

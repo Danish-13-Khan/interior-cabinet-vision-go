@@ -25,6 +25,7 @@ type AssetBackedObjectProps = {
   maxGlbCasters?: number;
   onReady?: () => void;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
+  highlightedIds?: readonly string[] | null;
 };
 
 /** Load and scale a registry GLB; fall back to procedural primitives on failure. */
@@ -41,6 +42,7 @@ export function AssetBackedObject({
   maxGlbCasters,
   onReady,
   onPointerDown,
+  highlightedIds = null,
 }: AssetBackedObjectProps) {
   const fallback = (
     <ProceduralFallbackObject
@@ -50,10 +52,12 @@ export function AssetBackedObject({
       renderMode={renderMode}
       renderQuality={renderQuality}
       onPointerDown={onPointerDown}
+      highlightedIds={highlightedIds}
     />
   );
 
   return (
+    <>
     <GlbLoadErrorBoundary fallback={fallback} onError={reportModelGlbFallback}>
       <Suspense fallback={fallback}>
         <AssetBackedGlbContent
@@ -61,7 +65,7 @@ export function AssetBackedObject({
           definition={definition}
           binding={binding}
           materials={materials}
-          selected={selected}
+          selected={selected && !highlightedIds?.length}
           renderMode={renderMode}
           renderQuality={renderQuality}
           glbCasterSlot={glbCasterSlot}
@@ -71,5 +75,17 @@ export function AssetBackedObject({
         />
       </Suspense>
     </GlbLoadErrorBoundary>
+    {highlightedIds?.length ? (
+      <ProceduralFallbackObject
+        primitives={primitives}
+        materials={materials}
+        selected={false}
+        renderMode={renderMode}
+        renderQuality={renderQuality}
+        highlightedIds={highlightedIds}
+        edgesOnly
+      />
+    ) : null}
+    </>
   );
 }

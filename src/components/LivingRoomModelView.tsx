@@ -27,6 +27,7 @@ import {
 import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
+import { RegisterModelViewportControls } from "./livingRoomScene/RegisterModelViewportControls";
 import { LivingRoomModelChrome } from "./livingRoomScene/LivingRoomModelChrome";
 import { type WallContextMenuState } from "./livingRoomScene/ModelWallVisibilityHost";
 import { ModelViewAuthoringOverlays } from "./livingRoomScene/ModelViewAuthoringOverlays";
@@ -58,12 +59,17 @@ type LivingRoomModelViewProps = {
     status: string,
   ) => void;
   presentation?: boolean;
+  onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => void;
+  onPickPrimitive?: (objectId: string, geometryName: string) => void;
+  partHighlight?: { objectId: string; primitiveIds: readonly string[] } | null;
+  viewportFilter?: { isolatedObjectId: string | null; hiddenObjectIds: readonly string[] };
 };
 
 export function LivingRoomModelView({
   project, selectedIds, activeOpeningId, activeWallId, snapSizeMm, showGrid,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
   onApplyStyle, onSetParameters, onPatchDocument, presentation = false,
+  onRegisterViewControls, onPickPrimitive, partHighlight = null, viewportFilter,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
@@ -179,6 +185,15 @@ export function LivingRoomModelView({
       data-view-preset={camera.viewPreset}
     >
       {!presentation ? (
+        <RegisterModelViewportControls
+          onRegister={onRegisterViewControls}
+          fitPlan={camera.fitRoom}
+          fitSelection={camera.focusSelection}
+          fieldOfView={fieldOfViewDegrees}
+          onFieldOfView={setFieldOfViewDegrees}
+        />
+      ) : null}
+      {!presentation ? (
         <ModelViewAuthoringOverlays
           project={project} activeWallId={activeWallId} wallMenu={wallMenu}
           viewPreset={camera.viewPreset} cameraHeightMm={cameraHeightMm}
@@ -234,6 +249,9 @@ export function LivingRoomModelView({
           onTransformCommit={commitTransformPosition}
           onExitWalkthrough={exitWalkthrough}
           onWallContextMenu={presentation ? undefined : (wallId, point) => setWallMenu({ wallId, ...point })}
+          partHighlight={partHighlight}
+          onPickPrimitive={onPickPrimitive}
+          viewportFilter={viewportFilter}
           onMechanismClick={(objectId, primitiveId) => {
             if (presentation) return;
             const object = project.objects.find((item) => item.id === objectId);

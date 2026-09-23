@@ -18,15 +18,33 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       hasSelection={Boolean(props.activeObject)}
       latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
       onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
-      onSelect={(objectId, additive) => inspectPlanTarget(props, { objectId, additive })}
-      onClearSelection={() => inspectPlanTarget(props)}
-      onSelectRoom={() => inspectPlanTarget(props, { inspectRoom: true })}
+      onSelect={(objectId, additive) => {
+        props.onSelectCutlistKey?.(null);
+        inspectPlanTarget(props, { objectId, additive });
+      }}
+      onClearSelection={() => {
+        props.onSelectCutlistKey?.(null);
+        inspectPlanTarget(props);
+      }}
+      onSelectRoom={() => {
+        props.onSelectCutlistKey?.(null);
+        inspectPlanTarget(props, { inspectRoom: true });
+      }}
       onMove={w.onMove} onMovePreview={w.onMovePreview} onDragEnd={w.onDragEnd} onResize={w.onResize}
       activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
       activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
-      onSelectWall={(wallId) => inspectPlanTarget(props, { wallId })}
-      onSelectOpening={(openingId) => inspectPlanTarget(props, { openingId })}
-      onSelectSurface={(surfaceId) => inspectPlanTarget(props, { surfaceId })}
+      onSelectWall={(wallId) => {
+        props.onSelectCutlistKey?.(null);
+        inspectPlanTarget(props, { wallId });
+      }}
+      onSelectOpening={(openingId) => {
+        props.onSelectCutlistKey?.(null);
+        inspectPlanTarget(props, { openingId });
+      }}
+      onSelectSurface={(surfaceId) => {
+        props.onSelectCutlistKey?.(null);
+        inspectPlanTarget(props, { surfaceId });
+      }}
       onMoveOpening={(openingId, offsetMm) => build.dispatchBuildCommand({ type: "moveOpening", openingId, offsetMm })}
       onResizeOpening={(openingId, widthMm, offsetMm) => build.dispatchBuildCommand({ type: "resizeOpening", openingId, widthMm, offsetMm })}
       onUpdateOpening={(openingId, patch) => build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
@@ -76,6 +94,11 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       onBuildTool={props.onBuildTool}
       onWorkspaceView={props.onWorkspaceView}
       onAddWallPanel={w.onAddWallPanel}
+      onPickPrimitive={props.onPickPrimitive}
+      partHighlight={props.partSelection
+        ? { objectId: props.partSelection.objectId, primitiveIds: props.partSelection.geometryNames }
+        : null}
+      viewportFilter={props.viewportFilter}
     />
   );
 }

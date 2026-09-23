@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { engineeringCutlistState } from "../../domain/studio/engineeringCutlistState";
 import { cutlistGroups, type CutlistGroupMode } from "../../domain/studio/cutlistView";
 import type { ProductionCutlistLine } from "../../domain/productionCutlist";
 
@@ -12,8 +13,18 @@ export function StudioEngineeringPage(props: {
   onSelectLine: (key: string) => void;
 }) {
   const [mode, setMode] = useState<CutlistGroupMode>("cabinet");
-  if (props.lines.length === 0) {
-    return <p className="studio-state" data-testid="studio-cutlist-empty">No manufactured parts in this project yet.</p>;
+  const presentation = engineeringCutlistState({
+    lineCount: props.lines.length,
+    status: props.status,
+    machineError: props.machineError,
+  });
+  if (presentation.kind !== "ready") {
+    return (
+      <section className="studio-page" data-testid={presentation.kind === "blocked" ? "studio-cutlist-blocked" : "studio-cutlist-empty"}>
+        <h2>Engineering & cut list</h2>
+        <p className={presentation.kind === "blocked" ? "studio-state is-error" : "studio-state"}>{presentation.message}</p>
+      </section>
+    );
   }
   const groups = cutlistGroups(props.lines, mode);
 

@@ -19,6 +19,7 @@ import {
   type PlanSnapGuide,
 } from "../../domain/livingRoom";
 import { PlanObjectSymbol } from "./PlanObjectSymbol";
+import { viewportShowsObject, type ViewportObjectFilter } from "../../domain/studio/viewportVisibility";
 import type { ObjectPreview } from "./usePlanObjectInteraction";
 
 function attachedWallId(object: InteriorObjectEntity) {
@@ -46,6 +47,7 @@ export function PlanObjectsLayer(props: {
   freeSegmentWallPose?: { x1: number; z1: number; x2: number; z2: number; lengthMm: number } | null;
   onStart: (event: ReactPointerEvent<SVGGElement | SVGRectElement>, object: InteriorObjectEntity, mode: "move" | "resize") => void;
   onSetCabinetDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
+  viewportFilter?: ViewportObjectFilter;
   /** When false (e.g. measure tool), skip pointer drag handlers so measure can receive clicks. */
   interactive?: boolean;
 }) {
@@ -54,6 +56,7 @@ export function PlanObjectsLayer(props: {
   const materialsById = new Map(props.project.materials.map((material) => [material.id, material]));
   const objects = props.project.objects
     .filter((object) => object.extensions?.layerVisible !== false && isPanelAttachmentVisible(object))
+    .filter((object) => !props.viewportFilter || viewportShowsObject(object.id, props.viewportFilter))
     .sort((a, b) => Number(b.category === "rug") - Number(a.category === "rug"));
   const labelModes = resolvePlanObjectLabelModes(objects, props.selectedIds);
   const planMarks = readPlanMarksSettings(props.project);

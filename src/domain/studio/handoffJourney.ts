@@ -30,20 +30,22 @@ export function studioHandoffJourney(input: {
   quoteRevision: string | null;
   quoteFrozen: boolean;
   quoteStale: boolean;
-  clientApproved: boolean;
+  clientAccepted: boolean;
+  engineeringSent: boolean;
   cutlistCount: number;
   productionReleased: boolean;
   paymentReady: boolean;
   paymentDetail: string;
 }): HandoffJourney {
   const quoteReady = input.quoteFrozen && !input.quoteStale;
-  const engineeringReady = quoteReady && input.clientApproved && input.cutlistCount > 0;
+  const accepted = quoteReady && input.clientAccepted;
+  const engineeringDone = accepted && input.engineeringSent && input.cutlistCount > 0;
   const states: Record<JourneyStepId, JourneyStepState> = {
     design: input.hasDesign ? "done" : "current",
     quote: !input.hasDesign ? "blocked" : quoteReady ? "done" : "current",
-    approval: !quoteReady ? "blocked" : input.clientApproved ? "done" : "current",
-    engineering: !quoteReady || !input.clientApproved ? "blocked" : engineeringReady ? "done" : "current",
-    production: !engineeringReady ? "blocked" : input.productionReleased ? "done" : "current",
+    approval: !quoteReady ? "blocked" : input.clientAccepted ? "done" : "current",
+    engineering: !accepted ? "blocked" : engineeringDone ? "done" : "current",
+    production: !engineeringDone ? "blocked" : input.productionReleased ? "done" : "current",
   };
   const details: Record<JourneyStepId, string> = {
     design: `Design rev ${input.designRevision}`,
@@ -52,9 +54,17 @@ export function studioHandoffJourney(input: {
       : input.quoteFrozen
         ? `Issued quote rev ${input.quoteRevision}`
         : "Estimate is live and not issued",
-    approval: input.clientApproved ? "Client approved this revision" : "Waiting for client approval",
-    engineering: input.cutlistCount > 0 ? `${input.cutlistCount} cut-list parts` : "No manufactured parts yet",
-    production: input.productionReleased ? "Released to production" : "Release after engineering is ready",
+    approval: input.clientAccepted
+      ? `Client accepted quote rev ${input.quoteRevision}`
+      : "Waiting for client acceptance of this quote revision",
+    engineering: input.engineeringSent
+      ? `Sent to engineering · design rev ${input.designRevision}`
+      : input.cutlistCount > 0
+        ? `${input.cutlistCount} parts · not sent to engineering`
+        : "No manufactured parts yet",
+    production: input.productionReleased
+      ? `Released to production · rev ${input.designRevision}`
+      : "Not released to production",
   };
   return {
     designRevision: input.designRevision,

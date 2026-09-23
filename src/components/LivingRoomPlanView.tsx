@@ -78,6 +78,7 @@ type Props = {
   onCalibrateComplete?: () => void;
   onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
   preDropReason?: string | null;
+  viewportFilter?: { isolatedObjectId: string | null; hiddenObjectIds: readonly string[] };
 };
 
 type MarqueeState = {
@@ -468,6 +469,7 @@ export function LivingRoomPlanView(props: Props) {
       freeSegments={placementPreview?.freeSegments}
       freeSegmentWallPose={freeSegmentWallPose}
       onSetCabinetDims={props.onSetCabinetInlineDims}
+      viewportFilter={props.viewportFilter}
       onStart={objects.start} interactive={!measureLike} />
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
       settings={props.readability} referenceDims={referenceDims}

@@ -50,6 +50,9 @@ type ModelViewSceneProps = {
   transformTarget?: ModelTransformTarget | null;
   onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
+  partHighlight?: { objectId: string; primitiveIds: readonly string[] } | null;
+  onPickPrimitive?: (objectId: string, geometryName: string) => void;
+  viewportFilter?: { isolatedObjectId: string | null; hiddenObjectIds: readonly string[] };
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -61,6 +64,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
     onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
+    partHighlight = null, onPickPrimitive, viewportFilter,
   } = props;
   const roomSpanMeters = Math.max(
     scene.bounds.size.widthMm,
@@ -126,6 +130,9 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           transformTarget={transformTarget}
           onTransformPreview={onTransformPreview}
           onTransformCommit={onTransformCommit}
+          partHighlight={partHighlight}
+          onPickPrimitive={onPickPrimitive}
+          viewportFilter={viewportFilter}
         />
       </ModelViewPreviewProfileProvider>
     </Canvas>
