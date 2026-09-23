@@ -1,29 +1,24 @@
 import { MarketingShell } from '../components/MarketingShell'
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { ThemeSwitcher } from '../components/ThemeSwitcher'
 import { PasswordField } from '../components/PasswordField'
-import { createSession } from '../lib/auth'
+import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
 import { useTheme } from '../lib/theme'
 
 export function Register() {
   const { theme } = useTheme()
-  const navigate = useNavigate()
   const [first, setFirst] = useState('')
   const [last, setLast] = useState('')
   const [company, setCompany] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [comingSoon, setComingSoon] = useState(false)
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    createSession({
-      email: email.trim() || 'you@showroom.com',
-      company: company.trim() || undefined,
-      theme,
-    })
-    navigate('/app')
+    setComingSoon(true)
   }
 
   const isCalm = theme === 'calm'
@@ -129,7 +124,7 @@ export function Register() {
                 By registering you agree to the terms of service.
               </p>
               <button type="submit" className="btn btn-primary btn-block btn-lg">
-                Register
+                Next
               </button>
             </form>
             <p className="auth-footer">
@@ -138,6 +133,13 @@ export function Register() {
           </div>
         </div>
       </div>
+      <AuthNoticeDialog
+        open={comingSoon}
+        title="Coming soon"
+        message="Registration isn't open yet. You can fill this form, but new accounts aren't created."
+        testId="register-coming-soon"
+        onClose={() => setComingSoon(false)}
+      />
     </div>
     </MarketingShell>
   )

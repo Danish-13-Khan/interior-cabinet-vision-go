@@ -1,0 +1,59 @@
+.auth-notice-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(8, 10, 9, 0.62);
+}
+
+.auth-notice {
+  width: min(400px, 100%);
+  display: grid;
+  gap: 12px;
+  padding: 22px 22px 18px;
+  border: 1px solid rgba(125, 186, 138, 0.35);
+  border-radius: 12px;
+  background: #1a1a1a;
+  color: #f2f2f2;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.auth-notice > strong {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.auth-notice > p {
+  margin: 0;
+  color: #a8a8a8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-notice-ok {
+  justify-self: end;
+  min-height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #7dba8a;
+  color: #0f1a12;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-notice-ok:hover {
+  background: #9fd4a8;
+}
+
+.auth-notice-ok:focus-visible {
+  outline: 2px solid #9fd4a8;
+  outline-offset: 2px;
+}

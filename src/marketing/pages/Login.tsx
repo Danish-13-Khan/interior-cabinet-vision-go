@@ -1,25 +1,21 @@
 import { MarketingShell } from '../components/MarketingShell'
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { ThemeSwitcher } from '../components/ThemeSwitcher'
 import { PasswordField } from '../components/PasswordField'
-import { createSession } from '../lib/auth'
+import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
 import { useTheme } from '../lib/theme'
 
 export function Login() {
   const { theme } = useTheme()
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [failed, setFailed] = useState(false)
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    createSession({
-      email: email.trim() || 'you@showroom.com',
-      theme,
-    })
-    navigate('/app')
+    setFailed(true)
   }
 
   const isCalm = theme === 'calm'
@@ -107,6 +103,13 @@ export function Login() {
           </div>
         </div>
       </div>
+      <AuthNoticeDialog
+        open={failed}
+        title="Login failed"
+        message="We couldn't sign you in. Check your email and password, then try again."
+        testId="login-failed"
+        onClose={() => setFailed(false)}
+      />
     </div>
     </MarketingShell>
   )
