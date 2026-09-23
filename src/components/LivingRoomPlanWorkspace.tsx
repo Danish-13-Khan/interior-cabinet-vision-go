@@ -225,6 +225,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         cutlistStatus={millwork.status}
         selectedCutlistKey={selectedCutlistKey}
         onSelectCutlistLine={(key) => { setSelectedCutlistKey(key); nav.openWorkflow("design"); }}
+        onWorkflow={nav.openWorkflow}
         home={home}
         design={design}
       />
