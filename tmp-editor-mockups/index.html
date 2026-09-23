@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cabinet Studio — editor mockups</title>
+<style>
+  :root {
+    --ink: #243029; --muted: #68766c; --line: #dce5de; --paper: #f7faf8;
+    --green: #276b46; --green-2: #1f5839; --soft: #e7f3eb; --gold: #8a6d12;
+    --font: "Avenir Next", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); font-family: var(--font); }
+  button { font-family: inherit; color: inherit; }
+  .deck { height: 100%; display: grid; grid-template-rows: 36px 1fr; }
+  .picker { display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #102018; color: #d7e6dc; font-size: 11px; }
+  .picker span { opacity: .7; margin-right: 6px; }
+  .picker button { height: 24px; padding: 0 8px; border: 0; border-radius: 5px; background: transparent; color: inherit; cursor: pointer; }
+  .picker button.on { background: #fff; color: var(--green-2); }
+  .app { height: 100%; min-height: 0; display: grid; grid-template-columns: 220px 1fr; }
+  .spine { border-right: 1px solid var(--line); background: #fff; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .brand { display: flex; align-items: center; gap: 8px; margin: 0 4px 16px; font-size: 14px; letter-spacing: -.02em; }
+  .mark { width: 22px; height: 22px; border-radius: 6px; background: var(--green); position: relative; }
+  .mark i { position: absolute; top: 5px; bottom: 5px; width: 2px; border-radius: 1px; background: #fff; }
+  .mark i:nth-child(1) { left: 5px; } .mark i:nth-child(2) { left: 9px; } .mark i:nth-child(3) { left: 13px; }
+  .step, .child { width: 100%; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; text-align: left; cursor: pointer; border-radius: 7px; }
+  .step { height: 36px; padding: 0 8px; font-size: 13px; font-weight: 650; }
+  .step small { margin-left: auto; font-size: 10px; font-weight: 650; color: var(--muted); }
+  .step.on { background: var(--soft); color: var(--green-2); }
+  .step .n { width: 18px; height: 18px; border-radius: 99px; border: 1px solid var(--line); display: grid; place-items: center; font-size: 10px; color: var(--muted); }
+  .step.on .n { border-color: var(--green); background: var(--green); color: #fff; }
+  .step.lock { color: #9aa59e; cursor: default; }
+  .child { height: 30px; margin-left: 26px; width: calc(100% - 26px); padding: 0 8px; font-size: 12px; color: var(--muted); }
+  .child.on { background: var(--soft); color: var(--ink); font-weight: 700; }
+  .child.lock { color: #b7c2bb; cursor: default; }
+  .spine .gap { height: 10px; }
+  .main { min-width: 0; min-height: 0; display: grid; grid-template-rows: 52px 1fr; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); background: #fff; }
+  .top h1 { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: -.02em; }
+  .top p { margin: 0; color: var(--muted); font-size: 12px; }
+  .top .grow { flex: 1; }
+  .btn { height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .btn.primary { border-color: var(--green); background: var(--green); color: #fff; }
+  .btn:disabled, .btn.lock { color: #9aa59e; cursor: default; }
+  .body { min-height: 0; display: grid; }
+  .body.split { grid-template-columns: minmax(0, 1fr) 260px; }
+  .canvas { min-width: 0; background: var(--paper); display: grid; place-items: center; padding: 24px; }
+  .side { border-left: 1px solid var(--line); background: #fff; padding: 16px; }
+  .side h2 { margin: 0 0 2px; font-size: 14px; }
+  .side .k { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
+  .row { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 12px; }
+  .row span { color: var(--muted); }
+  .empty { width: min(440px, 100%); }
+  .empty h2 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -.03em; }
+  .empty p { margin: 0 0 16px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  .drop {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    width: 100%; padding: 16px; border: 1px solid var(--green); border-radius: 8px;
+    background: var(--soft); cursor: pointer; text-align: left;
+  }
+  .drop strong { font-size: 14px; color: var(--green-2); }
+  .drop span { font-size: 12px; color: var(--muted); }
+  .link { margin-top: 10px; border: 0; background: transparent; padding: 0; color: var(--ink); font-size: 12px; font-weight: 650; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .later { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.45; }
+  .plan { width: min(560px, 100%); background: #fff; border: 1px solid var(--line); }
+  .plan text { font-family: var(--font); font-size: 11px; fill: var(--muted); }
+  .view { display: flex; height: 26px; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  .view button { min-width: 36px; border: 0; border-radius: 4px; background: transparent; font-size: 11px; font-weight: 750; color: var(--muted); cursor: pointer; }
+  .view button.on { background: var(--green); color: #fff; }
+  .sheet { width: min(880px, 100%); background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .totals { margin-left: auto; width: 260px; padding: 8px 0; }
+  .totals div { display: flex; justify-content: space-between; padding: 5px 12px; font-size: 13px; }
+  .totals .grand { margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--line); font-weight: 700; }
+  .unit { width: 100%; text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 7px; padding: 8px 10px; margin-bottom: 6px; cursor: pointer; }
+  .unit.on { border-color: var(--green); background: var(--soft); }
+  .unit strong { display: block; font-size: 12px; }
+  .unit small { color: var(--muted); font-size: 11px; }
+  .note { margin: 0 0 12px; padding: 8px 10px; border-radius: 7px; background: var(--soft); color: var(--green-2); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="deck">
+  <nav class="picker" aria-label="Mockup screens"><span>Mockup only</span></nav>
+  <div id="app"></div>
+</div>
+<script>
+const order = ["empty", "layout", "view3d", "cabinets", "quote", "shop"];
+const labels = {
+  empty: "1 · Nothing yet",
+  layout: "1 · Layout",
+  view3d: "1 · 3D view",
+  cabinets: "1 · Cabinets",
+  quote: "2 · Quote",
+  shop: "3 · Shop"
+};
+let current = "empty";
+
+function spine() {
+  const design = ["empty", "layout", "view3d", "cabinets"].includes(current);
+  const layoutOn = current === "empty" || current === "layout" || current === "view3d";
+  const item = (id, cls, html) => `<button type="button" class="${cls}${current === id || (id === "layout" && layoutOn && id !== "cabinets") ? "" : ""}" data-go="${id}">${html}</button>`;
+  return `<aside class="spine">
+    <div class="brand"><span class="mark"><i></i><i></i><i></i></span><strong>Cabinet Studio</strong></div>
+    <button type="button" class="step${design ? " on" : ""}" data-go="empty"><span class="n">1</span>Design</button>
+    <button type="button" class="child${layoutOn ? " on" : ""}" data-go="${current === "empty" ? "empty" : "layout"}">Layout</button>
+    <button type="button" class="child${current === "cabinets" ? " on" : ""}${current === "empty" ? " lock" : ""}" data-go="${current === "empty" ? "" : "cabinets"}">Cabinets</button>
+    <div class="gap"></div>
+    <button type="button" class="step${current === "quote" ? " on" : ""}${current === "empty" ? " lock" : ""}" data-go="${current === "empty" ? "" : "quote"}"><span class="n">2</span>Quote${current === "empty" ? "<small>Later</small>" : ""}</button>
+    <div class="gap"></div>
+    <button type="button" class="step${current === "shop" ? " on" : ""}${current === "quote" || current === "shop" ? "" : " lock"}" data-go="${current === "quote" || current === "shop" ? "shop" : ""}"><span class="n">3</span>Shop${current === "quote" || current === "shop" ? "" : "<small>Later</small>"}</button>
+  </aside>`;
+}
+
+function bar(title, sub, actions) {
+  return `<header class="top"><div><h1>${title}</h1><p>${sub}</p></div><div class="grow"></div>${actions}</header>`;
+}
+
+function plan(withRun) {
+  const run = withRun ? `
+    <rect x="150" y="78" width="110" height="64" fill="#e7f3eb" stroke="#276b46"/>
+    <rect x="260" y="78" width="140" height="64" fill="#d5eadc" stroke="#1f5839"/>
+    <rect x="400" y="78" width="110" height="64" fill="#e7f3eb" stroke="#276b46"/>
+    <text x="205" y="114" text-anchor="middle" fill="#1f5839">600</text>
+    <text x="330" y="114" text-anchor="middle" fill="#1f5839">Sink 800</text>
+    <text x="455" y="114" text-anchor="middle" fill="#1f5839">600</text>` : "";
+  return `<svg class="plan" viewBox="0 0 640 460" role="img" aria-label="Kitchen plan">
+    <rect x="80" y="50" width="480" height="340" fill="#fff" stroke="#243029" stroke-width="7"/>
+    <rect x="210" y="46" width="170" height="10" fill="#fff" stroke="#276b46" stroke-width="3"/>
+    ${run}
+    <text x="295" y="38" text-anchor="middle">Window 1,800</text>
+    <text x="320" y="430" text-anchor="middle">4,200 mm</text>
+  </svg>`;
+}
+
+function roomSide() {
+  return `<aside class="side"><h2>Kitchen</h2><p class="k">Layout is done. 3D only changes the view.</p>
+    <div class="row"><span>Width</span><strong>4,200 mm</strong></div>
+    <div class="row"><span>Depth</span><strong>3,300 mm</strong></div>
+    <div class="row"><span>Height</span><strong>2,700 mm</strong></div>
+  </aside>`;
+}
+
+const bodies = {
+  empty: () => `${spine()}<section class="main">
+    ${bar("Mehta Residence · Kitchen", "Design · no layout yet", `<button class="btn lock" disabled type="button">Quote later</button>`)}
+    <div class="body"><div class="canvas"><div class="empty">
+      <h2>No layout yet</h2>
+      <p>This kitchen has no walls. Import is part of this empty screen. It is not its own step.</p>
+      <button class="drop" type="button" data-go="layout"><strong>Import a floor plan</strong><span>Photo, PDF, or DWG. Set one known length, then the walls land here.</span></button>
+      <button class="link" type="button" data-go="layout">Draw the walls instead</button>
+      <p class="later">3D is a view of the layout, so it waits. Quote and Shop stay closed until the room exists.</p>
+    </div></div></div>
+  </section>`,
+
+  layout: () => `${spine()}<section class="main">
+    ${bar("Mehta Residence · Kitchen", "Design · Layout", `<div class="view"><button class="on" type="button">2D</button><button type="button" data-go="view3d">3D</button></div><button class="btn primary" type="button" data-go="cabinets">Add cabinets</button>`)}
+    <div class="body split"><div class="canvas">${plan(false)}</div>${roomSide()}</div>
+  </section>`,
+
+  view3d: () => `${spine()}<section class="main">
+    ${bar("Mehta Residence · Kitchen", "Design · Layout · 3D view", `<div class="view"><button type="button" data-go="layout">2D</button><button class="on" type="button">3D</button></div><button class="btn" type="button" data-go="layout">Back to plan</button>`)}
+    <div class="body split"><div class="canvas">
+      <svg class="plan" viewBox="0 0 640 460" role="img" aria-label="Same kitchen in 3D">
+        <polygon points="150,300 320,210 490,300 320,390" fill="#f7fbf8" stroke="#243029" stroke-width="2"/>
+        <polygon points="150,300 150,150 320,60 320,210" fill="#fff" stroke="#243029" stroke-width="2"/>
+        <polygon points="320,210 320,60 490,150 490,300" fill="#eef5f0" stroke="#243029" stroke-width="2"/>
+        <polygon points="370,112 450,152 450,210 370,170" fill="#d5eadc" stroke="#276b46" stroke-width="2"/>
+        <text x="320" y="430" text-anchor="middle">Same room. Switching to 3D does not start a new design.</text>
+      </svg>
+    </div>${roomSide()}</div>
+  </section>`,
+
+  cabinets: () => `${spine()}<section class="main">
+    ${bar("Mehta Residence · Kitchen", "Design · Cabinets", `<button class="btn" type="button" data-go="layout">Layout</button><button class="btn primary" type="button" data-go="quote">Price this design</button>`)}
+    <div class="body split"><div class="canvas">${plan(true)}</div>
+      <aside class="side"><h2>From your library</h2><p class="k">The catalog sits here, under Cabinets. It is not another step.</p>
+        <button class="unit" type="button"><strong>Base 600</strong><small>720 H · 580 D</small></button>
+        <button class="unit on" type="button"><strong>Sink base 800</strong><small>On the window wall</small></button>
+        <button class="unit" type="button"><strong>Wall 600</strong><small>720 H · 320 D</small></button>
+        <button class="unit" type="button"><strong>Tall pantry 600</strong><small>2,100 H</small></button>
+      </aside>
+    </div>
+  </section>`,
+
+  quote: () => `${spine()}<section class="main">
+    ${bar("Mehta Residence · Kitchen", "Quote · Rev 3 · live", `<button class="btn" type="button">Export</button><button class="btn primary" type="button" data-go="shop">Freeze quote</button>`)}
+    <div class="body"><div class="canvas" style="align-items:start"><div class="sheet">
+      <p class="note">Commercial BOQ. Quantities come from the cabinets. Freeze locks ₹1,05,540 on Rev 3. Export is a file action, not a step.</p>
+      <table>
+        <thead><tr><th>Line</th><th>Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Carcass · 18 mm plywood</td><td>14.2 m²</td><td class="num">₹1,450</td><td class="num">₹20,590</td></tr>
+          <tr><td>Shutters · laminate</td><td>9.6 m²</td><td class="num">₹2,800</td><td class="num">₹26,880</td></tr>
+          <tr><td>Edging</td><td>42 m</td><td class="num">₹45</td><td class="num">₹1,890</td></tr>
+          <tr><td>Hardware</td><td>11 sets</td><td class="num">—</td><td class="num">₹7,450</td></tr>
+          <tr><td>Labour · 40% of board</td><td>—</td><td class="num">—</td><td class="num">₹18,990</td></tr>
+        </tbody>
+      </table>
+      <div class="totals">
+        <div><span>Workshop</span><strong>₹75,800</strong></div>
+        <div><span>Markup 18%</span><strong>₹13,640</strong></div>
+        <div><span>GST 18%</span><strong>₹16,100</strong></div>
+        <div class="grand"><span>Customer quote</span><span>₹1,05,540</span></div>
+      </div>
+    </div></div></div>
+  </section>`,
+
+  shop: () => `${spine()}<section class="main">
+    ${bar("Mehta Residence · Kitchen", "Shop · Rev 3 approved", `<button class="btn primary" type="button">Cutlist</button>`)}
+    <div class="body"><div class="canvas" style="align-items:start"><div class="sheet">
+      <p class="note">Engineering. The shop builds the same cabinets from the frozen revision. The quote price does not move.</p>
+      <svg viewBox="0 0 760 150" role="img" aria-label="Sink wall elevation">
+        <rect x="24" y="24" width="710" height="100" fill="#fff" stroke="#243029"/>
+        <rect x="40" y="40" width="200" height="68" fill="#e7f3eb" stroke="#276b46"/>
+        <rect x="250" y="40" width="250" height="68" fill="#d5eadc" stroke="#1f5839"/>
+        <rect x="510" y="40" width="200" height="68" fill="#e7f3eb" stroke="#276b46"/>
+        <text x="140" y="80" text-anchor="middle" font-size="12" fill="#1f5839">600</text>
+        <text x="375" y="80" text-anchor="middle" font-size="12" fill="#1f5839">800 sink</text>
+        <text x="610" y="80" text-anchor="middle" font-size="12" fill="#1f5839">600</text>
+      </svg>
+      <table>
+        <thead><tr><th>Part</th><th>Size mm</th><th>Thk</th><th class="num">Qty</th></tr></thead>
+        <tbody>
+          <tr><td>Side</td><td>720 × 560</td><td>18</td><td class="num">2</td></tr>
+          <tr><td>Bottom</td><td>764 × 560</td><td>18</td><td class="num">1</td></tr>
+          <tr><td>Back</td><td>764 × 704</td><td>6</td><td class="num">1</td></tr>
+          <tr><td>Door</td><td>796 × 716</td><td>18</td><td class="num">1</td></tr>
+        </tbody>
+      </table>
+    </div></div></div>
+  </section>`
+};
+
+function render() {
+  document.getElementById("app").innerHTML = `<div class="app">${bodies[current]()}</div>`;
+  document.querySelectorAll("[data-go]").forEach((node) => {
+    node.addEventListener("click", () => {
+      const next = node.getAttribute("data-go");
+      if (!next) return;
+      current = next;
+      render();
+      mark();
+    });
+  });
+}
+function mark() {
+  document.querySelectorAll(".picker button").forEach((button) => {
+    button.classList.toggle("on", button.dataset.screen === current);
+  });
+}
+const picker = document.querySelector(".picker");
+order.forEach((id) => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = labels[id];
+  button.dataset.screen = id;
+  button.addEventListener("click", () => { current = id; render(); mark(); });
+  picker.appendChild(button);
+});
+render();
+mark();
+</script>
+</body>
+</html>
