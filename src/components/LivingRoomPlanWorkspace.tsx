@@ -1,4 +1,3 @@
-import { InteriorProjectTools } from "./livingRoomPlan/InteriorProjectTools";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { millworkAssetCategories } from "../domain/livingRoom/millworkShortcuts";
@@ -22,6 +21,9 @@ import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjects
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
 import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
 import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
+import { StudioChrome } from "./studio/StudioChrome";
+import { StudioMain } from "./studio/StudioMain";
+import { useStudioNav } from "../hooks/useStudioNav";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const ui = useInteriorsUiMode();
@@ -127,42 +129,35 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setRenderResults({ latest: null, previous: null });
     setAcceptedStillAssets([]);
   }, [props.project?.id]);
-  const header = (
-    <InteriorsWorkspaceHeader
-      tools={props.project && !props.projectHomeOpen ? <InteriorProjectTools project={props.project} onPatchDocument={update => props.onPatchDocument(update, "Project details updated")} /> : null}
-      projectName={props.project?.name ?? null} roomName={room?.name ?? "Room"}
-      revision={job?.revision ?? "A"}
-      statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
-      workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
-      canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"} chromeLocked={false}
-      projectHome={props.projectHomeOpen || !props.project}
-      uiMode={ui.mode} onUiMode={ui.setMode}
-      onProject={() => chrome.changePlannerMode("project")}
-      onOpen={props.onOpenProject} onExport={props.onExportProject}
-      onView={chrome.changeWorkspaceView}
-      onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
-      onOpenShortcuts={props.onOpenShortcuts}
-      appearance={draftingAppearance.appearance}
-      onAppearance={draftingAppearance.setAppearance}
-    />
+  const nav = useStudioNav(Boolean(props.project) && !props.projectHomeOpen);
+  const saveTone = props.autosaveState === "error" ? "error" : props.autosaveState === "saved" && !props.isDirty ? "saved" : "idle";
+  const saveLabel = props.autosaveState === "saving" ? "Saving" : props.isDirty ? "Unsaved" : props.autosaveState === "error" ? "Save failed" : "Saved";
+  const home = (
+    <LivingRoomPlanHomeShell uiMode={ui.mode} header={null}>
+      <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={Boolean(props.project)} uiMode={ui.mode} />
+    </LivingRoomPlanHomeShell>
   );
-  if (!props.project || props.projectHomeOpen) {
-    return (
-      <LivingRoomPlanHomeShell uiMode={ui.mode} header={header}>
-        <LivingRoomHomeFromWorkspace
-          workspace={props} open hasCurrentProject={Boolean(props.project)}
-          uiMode={ui.mode}
-        />
-      </LivingRoomPlanHomeShell>
-    );
-  }
-  return (
+  const design = props.project && !props.projectHomeOpen ? (
     <section className={designUxShellClassNames({
       uiMode: ui.mode,
       appearance: draftingAppearance.appearance,
       presenting: chrome.plannerMode === "render",
     }).join(" ")} data-ui-mode={ui.mode} data-drafting-appearance={draftingAppearance.appearance}>
-      {header}
+      <InteriorsWorkspaceHeader
+        projectName={props.project.name} roomName={room?.name ?? "Room"}
+        revision={job?.revision ?? "A"}
+        statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", props.project.objects.some((item) => item.kind === "cabinet"))}
+        workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
+        canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"} chromeLocked={false}
+        uiMode={ui.mode} onUiMode={ui.setMode}
+        onProject={() => chrome.changePlannerMode("project")}
+        onOpen={props.onOpenProject} onExport={props.onExportProject}
+        onView={chrome.changeWorkspaceView}
+        onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
+        onOpenShortcuts={props.onOpenShortcuts}
+        appearance={draftingAppearance.appearance}
+        onAppearance={draftingAppearance.setAppearance}
+      />
       <InteriorsWorkflowNav area={chrome.workflowArea} onArea={chrome.setWorkflowArea} />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
@@ -197,5 +192,37 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onZoomOut={() => viewControlsRef.current?.zoomOut()}
       />
     </section>
+  ) : null;
+  return (
+    <StudioChrome
+      surface={props.project && !props.projectHomeOpen ? nav.surface : "studio"}
+      section={nav.section}
+      workflow={nav.workflow}
+      collapsed={Boolean(props.project) && !props.projectHomeOpen && nav.collapsed}
+      projectName={props.project?.name ?? null}
+      roomName={room?.name ?? "Room"}
+      revision={job?.revision ?? "A"}
+      saveLabel={saveLabel}
+      saveTone={saveTone}
+      projectOpen={Boolean(props.project) && !props.projectHomeOpen}
+      onSection={(section) => { nav.openSection(section); if (section === "projects") props.onOpenProjectHome(); }}
+      onWorkflow={nav.openWorkflow}
+      onToggleSidebar={nav.toggleSidebar}
+      onSave={props.onSaveProject}
+    >
+      <StudioMain
+        surface={props.project && !props.projectHomeOpen ? nav.surface : "studio"}
+        section={props.projectHomeOpen || !props.project ? "projects" : nav.section}
+        workflow={nav.workflow}
+        project={props.project}
+        onPatchDocument={(update) => props.onPatchDocument(update, "Project details updated")}
+        proposal={proposal}
+        handoff={handoff}
+        cutlistLines={millwork.productionReport?.productionCutlist ?? []}
+        cutlistStatus={millwork.status}
+        home={home}
+        design={design}
+      />
+    </StudioChrome>
   );
 }
