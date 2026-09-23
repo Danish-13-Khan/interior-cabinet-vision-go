@@ -7,7 +7,7 @@ import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
 import { createInteriorQuoteReport } from "./interiorQuoteReport";
 import { buildBoqFromReport } from "../../boq";
-import { applyBoqDeltaToQuote, boqSellDelta } from "../../studio/boqWorksheet";
+import { applyBoqDeltaToQuote, boqWorkshopDelta } from "../../studio/boqWorksheet";
 import { createQuoteDesignFingerprint } from "./quoteFingerprint";
 import { isQuoteStale, quoteStaleReason } from "./staleQuote";
 import type { LiveInteriorQuote } from "./types";
@@ -63,7 +63,7 @@ export function buildLiveInteriorQuote(
       interiorLines: interior.lines.map((line) => ({ id: line.id, label: `${line.roomName} · ${line.label}`, amount: line.amount,
         detail: `${line.quantity} ${line.unit} × ${line.rate ?? "missing rate"}` })),
     }) : report.quote,
-    boqSellDelta(buildBoqFromReport(report).lines, commercial.surface.boqQuantities).delta,
+    boqWorkshopDelta(buildBoqFromReport(report).lines, commercial.surface.boqQuantities).delta,
   );
   const fingerprint = createQuoteDesignFingerprint(document, options);
   const frozen = latestFrozenQuote(commercial.quoteHistory);

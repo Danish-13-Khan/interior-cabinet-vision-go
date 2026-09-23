@@ -1,11 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { buildBoqFromReport, csvFromBoqViews } from "../../domain/boq";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { patchBoqQuantities, readProposalCommercial } from "../../domain/livingRoom/proposal/commercialState";
 import { createInteriorQuoteReport } from "../../domain/livingRoom/proposal/interiorQuoteReport";
 import { readPersonalPriceBook } from "../../domain/priceBook";
 import { formatQuoteMoney } from "../../domain/quoteSettings";
-import { applyBoqQuantities } from "../../domain/studio/boqWorksheet";
+import { applyBoqQuantities, boqQuantityLimitMessage } from "../../domain/studio/boqWorksheet";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { StudioProposalPreview } from "./StudioProposalPreview";
 
@@ -25,6 +25,7 @@ export function StudioBoqWorkspace(props: {
   proposal: Proposal;
   onPatchDocument: (update: (project: InteriorProject) => InteriorProject) => void;
 }) {
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
   const priceBookKey = JSON.stringify(readPersonalPriceBook());
   const built = useMemo(() => {
     try {
@@ -47,6 +48,7 @@ export function StudioBoqWorkspace(props: {
     const next = { ...readProposalCommercial(props.project).surface.boqQuantities };
     if (quantity === base) delete next[key];
     else next[key] = quantity;
+    setLimitMessage(boqQuantityLimitMessage(next));
     props.onPatchDocument((project) => patchBoqQuantities(project, next));
   }
 
@@ -57,6 +59,7 @@ export function StudioBoqWorkspace(props: {
           <div>
             <h2>Bill of quantities</h2>
             <p>Quantity edits are saved on this project and included in the proposal total Freeze issues.</p>
+            {limitMessage ? <p role="status">{limitMessage}</p> : null}
           </div>
           <button type="button" className="studio-btn" onClick={() => download("boq.csv", csvFromBoqViews({ ...built.views!, lines }), "text/csv")}>BOQ CSV</button>
         </header>
