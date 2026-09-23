@@ -1,3 +1,4 @@
+import { clampBoqQuantities } from "../../studio/boqWorksheet";
 import type {
   ProposalClientPayload,
   ProposalReleaseRecord,
@@ -83,5 +84,6 @@ export function readProposalSurface(raw: Record<string, unknown> | null): Propos
       : null,
     frozenClient: readFrozenClient(asRecord(raw?.frozenClient)),
     proposalRelease: readProposalRelease(asRecord(raw?.proposalRelease)),
+    boqQuantities: clampBoqQuantities(raw?.boqQuantities),
   };
 }

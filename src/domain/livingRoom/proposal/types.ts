@@ -68,6 +68,8 @@ export type ProposalSurfaceState = {
   staleOverride: ProposalStaleOverride | null;
   frozenClient: ProposalClientPayload | null;
   proposalRelease: ProposalReleaseRecord | null;
+  /** Part quantities that differ from the takeoff. Empty means the calculated estimate. */
+  boqQuantities: Record<string, number>;
 };
 
 export type ProposalCommercialState = {
