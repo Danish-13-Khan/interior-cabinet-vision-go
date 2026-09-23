@@ -47,7 +47,7 @@ export function finalizeStraightKitchenTemplate(
   ];
   const sourced = { ...project, objects: [...project.objects, ...seeds] };
   const floorIds = [ids.tall, ids.baseA, ids.drawer, ids.baseB];
-  const arranged = arrangeCabinetRun(sourced, floorIds, back.id, { alignment: "center", gapMm: 0 });
+  const arranged = arrangeCabinetRun(sourced, floorIds, back.id, { gapMm: 0, startAlongMm: 1760 });
   const runId = cabinetRunForObject(arranged.objects.find((item) => item.id === ids.baseA)!)?.runId;
   if (!runId) return review(arranged);
 
@@ -62,14 +62,11 @@ export function finalizeStraightKitchenTemplate(
     { id: ids.wallA, alongMm: alongWallMm(withFillers, roomId, back.id, baseA) },
     { id: ids.wallB, alongMm: alongWallMm(withFillers, roomId, back.id, drawer) },
   ]);
-  const tall = mounted.objects.find((item) => item.id === ids.tall)!;
   const baseB = mounted.objects.find((item) => item.id === ids.baseB)!;
-  const leftEdge = alongWallMm(mounted, roomId, back.id, tall) - tall.dimensions.widthMm / 2;
   const rightEdge = alongWallMm(mounted, roomId, back.id, baseB) + baseB.dimensions.widthMm / 2;
-  // Sink+fridge on the left (right side has room for stove only — sink is 800mm wide).
   const withAppliances = snapCatalogObjectsToWall(mounted, back.id, [
-    { catalogItemId: "kenney:kitchen-sink", alongMm: 600, inwardNudgeMm: 220 },
-    { catalogItemId: "kenney:kitchen-fridge", alongMm: Math.max(1400, leftEdge - 450), inwardNudgeMm: 220 },
+    { catalogItemId: "kenney:kitchen-sink", alongMm: 520, inwardNudgeMm: 220 },
+    { catalogItemId: "kenney:kitchen-fridge", alongMm: 1290, inwardNudgeMm: 220 },
     { catalogItemId: "kenney:kitchen-stove-electric", alongMm: rightEdge + 400, inwardNudgeMm: 220 },
     {
       catalogItemId: "kenney:hood-modern",

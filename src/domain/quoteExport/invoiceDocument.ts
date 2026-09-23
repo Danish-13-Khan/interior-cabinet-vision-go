@@ -1,5 +1,5 @@
 import type { QuoteSnapshot } from "../quoteSettings";
-import { formatQuoteMoney } from "../quoteSettings";
+import { formatPdfMoney } from "../quoteSettings";
 import { clampInvoiceBranding, type InvoiceBranding } from "./branding";
 
 export type InvoiceTemplateDocument = {
@@ -47,7 +47,7 @@ export function buildInvoiceTemplateDocument(args: {
   const lines = args.frozen.summaryLines.map((line) => ({
     label: line.label,
     amount: line.amount,
-    amountLabel: formatQuoteMoney(line.amount, currency),
+    amountLabel: formatPdfMoney(line.amount, currency),
   }));
   const fileName = `${sanitizeToken(invoiceNumber)}.pdf`;
   return {
@@ -66,7 +66,7 @@ export function buildInvoiceTemplateDocument(args: {
     taxLabel,
     lines,
     sellTotal: args.frozen.sellTotal,
-    sellTotalLabel: formatQuoteMoney(args.frozen.sellTotal, currency),
+    sellTotalLabel: formatPdfMoney(args.frozen.sellTotal, currency),
     bankNote: branding.bankNote,
     disclaimer:
       "Template export only. Payment is collected outside this software. Amounts match the frozen quote revision.",

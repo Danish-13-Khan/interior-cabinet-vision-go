@@ -1,5 +1,5 @@
 import type { InteriorProject } from "../../interiorProject";
-import { formatQuoteMoney } from "../../quoteSettings";
+import { formatPdfMoney } from "../../quoteSettings";
 import { readProposalCommercial } from "./commercialState";
 import { proposalFileName } from "./fileName";
 import { buildLiveInteriorQuote } from "./liveQuote";
@@ -109,5 +109,5 @@ export function buildProposalDocument(
 }
 
 export function formatProposalMoney(document: ProposalDocument, amount: number) {
-  return formatQuoteMoney(amount, document.currencyLabel);
+  return formatPdfMoney(amount, document.currencyLabel);
 }

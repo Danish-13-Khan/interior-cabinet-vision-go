@@ -77,15 +77,26 @@ export function diagnoseHandoffLoss(document: InteriorProject): HandoffWarning[]
     const cabinet = cabinetForInteriorObject(adapted.project, object);
     const rotation = rotationLoss(object);
     if (rotation) notes.push(rotation);
+    if (isCabinetRunFiller(object)) {
+      if (!cabinet) {
+        notes.push(warning({
+          code: "recreated-cabinet",
+          severity: "warning",
+          path: `objects.${object.id}`,
+          message: "Run filler stays on the interior cut list and is not sent as its own engineering cabinet.",
+          objectId: object.id,
+          blocking: false,
+        }));
+      }
+      continue;
+    }
     if (!cabinet) {
-      if (isCabinetRunFiller(object) || golden) {
+      if (golden) {
         notes.push(warning({
           code: "recreated-cabinet",
           severity: "error",
           path: `objects.${object.id}`,
-          message: isCabinetRunFiller(object)
-            ? "Run filler was not mapped and would be dropped."
-            : "Golden cabinet was not mapped and would be recreated.",
+          message: "Golden cabinet was not mapped and would be recreated.",
           objectId: object.id,
         }));
       }

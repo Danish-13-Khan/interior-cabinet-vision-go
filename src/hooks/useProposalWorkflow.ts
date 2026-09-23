@@ -37,7 +37,7 @@ export function useProposalWorkflow(args: {
   project: InteriorProject | null;
   issues: LivingRoomPlanIssue[];
   onPatchDocument: PatchDocument;
-  latestRender?: LivingRoomRenderResult | null;
+  latestRender?: LivingRoomRenderResult | readonly LivingRoomRenderResult[] | null;
   acceptedStills?: AcceptedStillAsset[];
 }) {
   useCommercialStorageRevision();
