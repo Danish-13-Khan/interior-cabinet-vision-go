@@ -1,0 +1,120 @@
+.studio-main.is-design > div:not([hidden]) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.studio-design {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.studio-design > .lr-workspace-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.studio-design-hierarchy {
+  display: flex;
+  flex: 0 0 200px;
+  flex-direction: column;
+  width: 200px;
+  min-height: 0;
+  overflow: auto;
+  border-right: 1px solid var(--studio-line, #d5dbd4);
+  background: #fff;
+  color: var(--studio-ink, #1d241f);
+}
+
+.studio-design-hierarchy header {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+
+.studio-design-hierarchy ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.studio-design-hierarchy button {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 6px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 6px 8px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.studio-design-hierarchy button.is-selected {
+  background: #d9f0e1;
+}
+
+.studio-design-hierarchy small {
+  grid-column: 2;
+  color: #5c675f;
+}
+
+.studio-design-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--studio-line, #d5dbd4);
+  background: #fff;
+  color: var(--studio-ink, #1d241f);
+  font-size: 0.78rem;
+}
+
+.studio-design-footer .is-warn { color: var(--studio-warn, #8a5a12); }
+.studio-design-tools { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) {
+  grid-template-columns: auto 200px minmax(0, 1fr) auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .studio-design-hierarchy {
+  grid-column: 2;
+  grid-row: 1 / -1;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-chrome-rail,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-plan-center {
+  grid-column: 3;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-inspector,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-ui-compact .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-inspector {
+  grid-column: 4;
+}
+
+@media (max-width: 960px) {
+  .studio-design-hierarchy { flex-basis: 160px; width: 160px; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(320px, 1fr) auto;
+  }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .studio-design-hierarchy {
+    grid-column: 1;
+    grid-row: 2;
+    width: auto;
+  }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-catalog { grid-row: 3; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-plan-center { grid-row: 4; min-height: 320px; }
+  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-inspector { grid-row: 5; }
+}

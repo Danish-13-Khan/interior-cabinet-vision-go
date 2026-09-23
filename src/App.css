@@ -1,5 +1,6 @@
 @import "./styles/tokens-shell.css";
 @import "./styles/studio-shell.css";
+@import "./styles/studio-workspace.css";
 @import "./styles/focus-visible.css";
 @import "./styles/command-overlays.css";
 @import "./styles/confirm-dialog.css";
