@@ -1,0 +1,194 @@
+{
+  "fixture": "getDefaultCabinetConfig base + drawer",
+  "note": "Cut-list key is cabinetId:current construction key. Scene tree kinds stop at opening. Construction keys are not claimed stable.",
+  "cutlistLineCount": 19,
+  "sampleCutlistIdentity": [
+    {
+      "key": "cab-base:left-side",
+      "partId": "left-side",
+      "shopRef": "C01-P01",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 720,
+      "widthMm": 560,
+      "thicknessMm": 18
+    },
+    {
+      "key": "cab-base:right-side",
+      "partId": "right-side",
+      "shopRef": "C01-P02",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 720,
+      "widthMm": 560,
+      "thicknessMm": 18
+    },
+    {
+      "key": "cab-base:top",
+      "partId": "top",
+      "shopRef": "C01-P03",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 864,
+      "widthMm": 560,
+      "thicknessMm": 18
+    },
+    {
+      "key": "cab-base:bottom",
+      "partId": "bottom",
+      "shopRef": "C01-P04",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 864,
+      "widthMm": 560,
+      "thicknessMm": 18
+    },
+    {
+      "key": "cab-base:back",
+      "partId": "back",
+      "shopRef": "C01-P05",
+      "label": "Back Panel",
+      "category": "Back",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 596,
+      "widthMm": 876,
+      "thicknessMm": 6
+    },
+    {
+      "key": "cab-base:shelf",
+      "partId": "shelf",
+      "shopRef": "C01-P06",
+      "label": "Adjustable Shelf",
+      "category": "Shelf",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 864,
+      "widthMm": 524,
+      "thicknessMm": 18
+    },
+    {
+      "key": "cab-base:divider",
+      "partId": "divider",
+      "shopRef": "C01-P07",
+      "label": "Vertical Divider",
+      "category": "Divider",
+      "cabinetId": "cab-base",
+      "qty": 1,
+      "lengthMm": 584,
+      "widthMm": 252,
+      "thicknessMm": 18
+    },
+    {
+      "key": "cab-base:door",
+      "partId": "door",
+      "shopRef": "C01-P08",
+      "label": "Door Opening",
+      "category": "Door",
+      "cabinetId": "cab-base",
+      "qty": 2,
+      "lengthMm": 612,
+      "widthMm": 446,
+      "thicknessMm": 18
+    }
+  ],
+  "constructionPartIds": [
+    {
+      "cabinetId": "cab-base",
+      "partIds": [
+        "left-side",
+        "right-side",
+        "top",
+        "bottom",
+        "back",
+        "shelf",
+        "divider",
+        "door",
+        "toe-kick"
+      ]
+    },
+    {
+      "cabinetId": "cab-drawer",
+      "partIds": [
+        "left-side",
+        "right-side",
+        "top",
+        "bottom",
+        "back",
+        "drawer-front",
+        "drawer-side",
+        "drawer-front-back",
+        "drawer-bottom",
+        "toe-kick"
+      ]
+    }
+  ],
+  "sceneTreeKinds": [
+    "room",
+    "wall",
+    "run",
+    "cabinet",
+    "opening"
+  ],
+  "sceneTreeNodeCount": 7,
+  "sceneTreeNodes": [
+    {
+      "id": "room:room-1",
+      "kind": "room",
+      "label": "Kitchen",
+      "cabinetId": null,
+      "openingId": null
+    },
+    {
+      "id": "wall:room-1:back-wall",
+      "kind": "wall",
+      "label": "Back wall",
+      "cabinetId": null,
+      "openingId": null
+    },
+    {
+      "id": "run:room-1:run-1",
+      "kind": "run",
+      "label": "R01 · Back wall",
+      "cabinetId": null,
+      "openingId": null
+    },
+    {
+      "id": "cabinet:room-1:cab-base",
+      "kind": "cabinet",
+      "label": "C01 · Base Cabinet",
+      "cabinetId": "cab-base",
+      "openingId": null
+    },
+    {
+      "id": "opening:room-1:cab-base:opening-primary",
+      "kind": "opening",
+      "label": "OP-1 · Door Opening",
+      "cabinetId": "cab-base",
+      "openingId": "opening-primary"
+    },
+    {
+      "id": "cabinet:room-1:cab-drawer",
+      "kind": "cabinet",
+      "label": "C02 · Drawer Cabinet",
+      "cabinetId": "cab-drawer",
+      "openingId": null
+    },
+    {
+      "id": "opening:room-1:cab-drawer:opening-primary",
+      "kind": "opening",
+      "label": "DW-1 · Drawer Stack",
+      "cabinetId": "cab-drawer",
+      "openingId": "opening-primary"
+    }
+  ],
+  "cutlistKeysPresentAsTreeNodeIds": []
+}

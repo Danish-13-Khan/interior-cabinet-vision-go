@@ -1,0 +1,90 @@
+{
+  "asOf": "2026-09-23T12:00:00.000Z",
+  "note": "In-memory ledger. InteriorPaymentsPanel persists cabinet-studio-payment-ledger-v1.",
+  "ledgerProjectId": "stage1-cabinet-commercial",
+  "document": {
+    "id": "cdoc-1790164801843-1315",
+    "kind": "frozen_quote",
+    "projectId": "stage1-cabinet-commercial",
+    "quoteSnapshotId": "stage1-cabinet-snap-1",
+    "revisionLabel": "A",
+    "total": 53403,
+    "currencyLabel": "INR",
+    "threadStatus": "quoted",
+    "createdAt": "2026-09-23T12:00:00.000Z",
+    "superseded": false
+  },
+  "schedule": [
+    {
+      "id": "inst-booking",
+      "label": "Booking",
+      "amount": 21361,
+      "dueDate": "2026-09-01"
+    },
+    {
+      "id": "inst-balance",
+      "label": "Balance",
+      "amount": 32042,
+      "dueDate": "2026-12-01"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay-1790164801847-2189",
+      "documentId": "cdoc-1790164801843-1315",
+      "projectId": "stage1-cabinet-commercial",
+      "amount": 21361,
+      "kind": "payment",
+      "status": "recorded",
+      "allocations": [
+        {
+          "documentId": "cdoc-1790164801843-1315",
+          "amount": 21361
+        }
+      ],
+      "note": "booking receipt",
+      "actor": "stage1-audit",
+      "createdAt": "2026-09-23T12:00:00.000Z"
+    }
+  ],
+  "balances": {
+    "documentId": "cdoc-1790164801843-1315",
+    "projectId": "stage1-cabinet-commercial",
+    "documentTotal": 53403,
+    "received": 21361,
+    "outstanding": 32042,
+    "overdue": 0,
+    "isCurrentObligation": true
+  },
+  "audit": [
+    {
+      "id": "audit-1790164801848-470",
+      "at": "2026-09-23T12:00:00.000Z",
+      "actor": "stage1-audit",
+      "action": "create",
+      "paymentId": "pay-1790164801847-2189",
+      "documentId": "cdoc-1790164801843-1315"
+    },
+    {
+      "id": "audit-1790164801846-5327",
+      "at": "2026-09-23T12:00:00.000Z",
+      "actor": "stage1-audit",
+      "action": "schedule_set",
+      "documentId": "cdoc-1790164801843-1315",
+      "reason": "stage1 sample schedule",
+      "detail": "2 instalments",
+      "instalmentIds": [
+        "inst-booking",
+        "inst-balance"
+      ]
+    },
+    {
+      "id": "audit-1790164801844-7556",
+      "at": "2026-09-23T12:00:00.000Z",
+      "actor": "stage1-audit",
+      "action": "document_registered",
+      "documentId": "cdoc-1790164801843-1315",
+      "detail": "frozen_quote A"
+    }
+  ]
+}
