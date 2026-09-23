@@ -13,6 +13,7 @@ import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { inspectPlanTarget } from "./planInspectTarget";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
+import { projectWithFinishPreview } from "../../domain/livingRoom/cabinetFinish";
 import { cabinetProjectFromInteriorProject } from "../../domain/interiorProject";
 import { buildDesignHierarchy, type DesignHierarchyNode } from "../../domain/studio/designHierarchy";
 import { attachManufacturingParts } from "../../domain/studio/manufacturingTree";
@@ -20,6 +21,7 @@ import { partPickForCutlistKey, partPickForMesh } from "../../domain/studio/part
 import type { ViewportObjectFilter } from "../../domain/studio/viewportVisibility";
 import { DesignHierarchyPanel } from "../studio/DesignHierarchyPanel";
 import { DesignWorkspaceFooter } from "../studio/DesignWorkspaceFooter";
+import { FinishPreviewContext } from "../studio/finishPreviewContext";
 import { InteriorProjectTools } from "./InteriorProjectTools";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
@@ -33,6 +35,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     geometryFallbackIds: activeRoomGeometryFallbackIds(project),
   });
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
+  const [finishOverrides, setFinishOverrides] = useState<Record<string, string>>({});
+  const viewProject = useMemo(
+    () => projectWithFinishPreview(project, finishOverrides),
+    [finishOverrides, project],
+  );
+  const finishPreview = useMemo(() => ({ setOverrides: setFinishOverrides }), []);
   const planImport = useWorkspacePlanImport({
     roomWidthMm: room?.dimensions.widthMm ?? 6200,
     onImportError: props.onImportError,
@@ -78,6 +86,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   }
 
   return (
+    <FinishPreviewContext.Provider value={finishPreview}>
     <div className="studio-design">
     <InteriorProjectTools
       project={project}
@@ -109,6 +118,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       ) : null}
       <LivingRoomPlanWorkspaceCanvas
         {...props}
+        project={viewProject}
         activeObject={activeObject}
         clientPackageBlocked={clientPackageBlocked}
         onTransformPreviewChange={setModelTransformPreview}
@@ -146,5 +156,6 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       onZoomOut={props.onZoomOut}
     />
     </div>
+    </FinishPreviewContext.Provider>
   );
 }

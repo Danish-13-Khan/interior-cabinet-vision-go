@@ -8,14 +8,14 @@ export function projectMatchesFilter(card: { statusTone: string }, filter: Proje
   return card.statusTone === "approved" || card.statusTone === "sent";
 }
 
-export function filterProjectCards<T extends { name: string; kindLabel: string; statusLabel: string; statusTone: string }>(
+export function filterProjectCards<T extends { name: string; kindLabel: string; statusLabel: string; statusTone: string; clientName?: string }>(
   cards: readonly T[],
   query: string,
   filter: ProjectDashboardFilter,
 ) {
   const needle = query.trim().toLowerCase();
   return cards.filter((card) => {
-    const matchesQuery = !needle || `${card.name} ${card.kindLabel} ${card.statusLabel}`.toLowerCase().includes(needle);
+    const matchesQuery = !needle || `${card.name} ${card.kindLabel} ${card.statusLabel} ${card.clientName ?? ""}`.toLowerCase().includes(needle);
     return matchesQuery && projectMatchesFilter(card, filter);
   });
 }

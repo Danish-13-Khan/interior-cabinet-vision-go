@@ -69,6 +69,9 @@ describe("interiorsProjects", () => {
     expect(card?.statusLabel).toBe("Quote Frozen");
     expect(card?.revision).toBe("B");
     expect(card?.kindLabel).toBe("Kitchen run");
+    expect(card?.clientName).toBe("No client");
+    expect(card?.cabinetCount).toBe(1);
+    expect(card?.roomCount).toBe(1);
     expect(interiorsRecentProjectCard(entry(undefined), now)).toBeNull();
   });
 });
