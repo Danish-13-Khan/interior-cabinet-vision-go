@@ -19,6 +19,7 @@ export function CompiledPrimitiveView({
   renderMode,
   renderQuality,
   onPointerDown,
+  edgesOnly = false,
 }: {
   primitive: CompiledPrimitive;
   material: CompiledMaterial;
@@ -26,6 +27,7 @@ export function CompiledPrimitiveView({
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
+  edgesOnly?: boolean;
 }) {
   const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
   useLayoutEffect(() => {
@@ -54,13 +56,15 @@ export function CompiledPrimitiveView({
       receiveShadow={primitive.receiveShadow}
       onPointerDown={onPointerDown}
     >
-      <CompiledMaterialView
-        material={material}
-        primitiveId={primitive.id}
-        renderMode={renderMode}
-        renderQuality={renderQuality}
-      />
-      {selected ? <Edges color="#0878bd" threshold={12} lineWidth={1.35} /> : null}
+      {edgesOnly ? <meshBasicMaterial transparent opacity={0} depthWrite={false} /> : (
+        <CompiledMaterialView
+          material={material}
+          primitiveId={primitive.id}
+          renderMode={renderMode}
+          renderQuality={renderQuality}
+        />
+      )}
+      {selected ? <Edges color={edgesOnly ? "#c47b12" : "#0878bd"} threshold={12} lineWidth={1.35} /> : null}
     </mesh>
   );
 }

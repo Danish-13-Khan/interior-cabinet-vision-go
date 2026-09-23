@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { useAccountPlan } from "../../hooks/useAccountPlan";
 import { seatHasPermission } from "../../domain/company/permissions";
+import { canViewPaymentRecords } from "../../domain/studio/paymentAccess";
 import { paymentDashboard } from "../../domain/studio/paymentDashboard";
 import { StudioPaymentsSummary } from "../studio/StudioPaymentsSummary";
 import { readPaymentLedger, persistPaymentLedger, currentObligationForProject, computeDocumentBalances, recordPayment, voidPayment, refundPayment, correctPayment, reallocatePayment, setPaymentSchedule, markDocumentAccepted, createInvoiceAndRollForward, assertPaymentMutation, type PaymentLedgerState } from "../../domain/paymentLedger";
@@ -13,7 +14,7 @@ export function InteriorPaymentsPanel({ project }: { project: InteriorProject })
   const seat = account.account?.organization?.seats.find(s => s.email.toLowerCase() === account.account?.email.toLowerCase());
   const gate = { entitlements: account.entitlements, seat };
   const company = account.entitlements.canUseCompanyControls;
-  const canView = account.entitlements.canUsePaymentRecords && (!company || Boolean(seat && seatHasPermission(seat, "payments:view")));
+  const canView = canViewPaymentRecords({ entitlements: account.entitlements, seat });
   const canCorrect = canView && (!company || Boolean(seat && seatHasPermission(seat, "payments:correct")));
   const doc = currentObligationForProject(ledger, project.id);
   const balance = doc ? computeDocumentBalances(ledger, doc.id) : null;

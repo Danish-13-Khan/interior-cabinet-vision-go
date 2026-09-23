@@ -4,7 +4,7 @@ import {
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { useWorkspacePlanImport } from "../../hooks/useWorkspacePlanImport";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LivingRoomPlanImportOverlays } from "./LivingRoomPlanImportOverlays";
 import { LivingRoomPlanWorkspaceCanvas } from "./LivingRoomPlanWorkspaceCanvas";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
@@ -16,8 +16,11 @@ import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { cabinetProjectFromInteriorProject } from "../../domain/interiorProject";
 import { buildDesignHierarchy, type DesignHierarchyNode } from "../../domain/studio/designHierarchy";
 import { attachManufacturingParts } from "../../domain/studio/manufacturingTree";
+import { partPickForCutlistKey, partPickForMesh } from "../../domain/studio/partPick";
+import type { ViewportObjectFilter } from "../../domain/studio/viewportVisibility";
 import { DesignHierarchyPanel } from "../studio/DesignHierarchyPanel";
 import { DesignWorkspaceFooter } from "../studio/DesignWorkspaceFooter";
+import { InteriorProjectTools } from "./InteriorProjectTools";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -41,14 +44,25 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
+  const [viewportFilter, setViewportFilter] = useState<ViewportObjectFilter>({
+    isolatedObjectId: null,
+    hiddenObjectIds: [],
+  });
+  const onViewportVisibility = useCallback((filter: ViewportObjectFilter) => {
+    setViewportFilter(filter);
+  }, []);
   const hierarchy = useMemo(() => {
     const base = buildDesignHierarchy(project);
     const engineering = cabinetProjectFromInteriorProject(project);
     const bounds = room
       ? { widthMm: room.dimensions.widthMm, depthMm: room.dimensions.depthMm, heightMm: room.dimensions.heightMm }
       : null;
-    return attachManufacturingParts(base, engineering.project.cabinets, bounds);
+    return {
+      nodes: attachManufacturingParts(base, engineering.project.cabinets, bounds),
+      cabinets: engineering.project.cabinets,
+    };
   }, [project, room]);
+  const partSelection = partPickForCutlistKey(hierarchy.cabinets, props.selectedCutlistKey ?? null);
   function selectHierarchyNode(node: DesignHierarchyNode) {
     props.onSelectCutlistKey?.(node.cutlistKey ?? null);
     if (node.kind === "room") {
@@ -65,18 +79,25 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   return (
     <div className="studio-design">
+    <InteriorProjectTools
+      project={project}
+      onPatchDocument={(update) => w.onPatchDocument(update, "Project tools updated")}
+    />
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanWorkspaceRail {...props} onImportUnderlay={planImport.onImportUnderlay} />
       ) : null}
       <DesignHierarchyPanel
-        nodes={hierarchy}
+        nodes={hierarchy.nodes}
         selectedIds={w.selectedIds}
         selectedCutlistKey={props.selectedCutlistKey ?? null}
         activeWallId={props.activeWallId}
         activeOpeningId={props.activeOpeningId}
         onSelectNode={selectHierarchyNode}
         onFocus={() => props.onFitSelection?.()}
+        onViewportVisibility={onViewportVisibility}
+        activeRoomId={room?.id ?? null}
+        projectId={project.id}
       />
       {props.plannerMode === "render" ? (
         <InteriorsPresentPanel
@@ -91,8 +112,14 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         activeObject={activeObject}
         clientPackageBlocked={clientPackageBlocked}
         onTransformPreviewChange={setModelTransformPreview}
+        partSelection={partSelection}
+        viewportFilter={viewportFilter}
+        onPickPrimitive={(objectId, geometryName) => {
+          const pick = partPickForMesh(hierarchy.cabinets, objectId, geometryName);
+          props.onSelectCutlistKey?.(pick?.cutlistKey ?? null);
+        }}
       />
-      <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} transformPreview={modelTransformPreview} />
+      <LivingRoomPlanWorkspaceInspector body={{ ...props, partSelection }} activeObject={activeObject} transformPreview={modelTransformPreview} />
       <LivingRoomPlanImportOverlays
         roomWidthMm={room?.dimensions.widthMm ?? 6200}
         dwgFile={planImport.dwgImportFile}

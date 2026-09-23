@@ -2,9 +2,12 @@ import { useState } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { readProposalCommercial } from "../../domain/livingRoom/proposal/commercialState";
 import { readPaymentLedger } from "../../domain/paymentLedger";
+import { revisionHandoffRecords } from "../../domain/studio/handoffRecords";
 import { moveJourneyFocus, studioHandoffJourney, type JourneyStepId } from "../../domain/studio/handoffJourney";
+import { canViewPaymentRecords } from "../../domain/studio/paymentAccess";
 import { paymentDashboard } from "../../domain/studio/paymentDashboard";
 import type { ProjectWorkflow } from "../../domain/studio/navigation";
+import { useAccountPlan } from "../../hooks/useAccountPlan";
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 
@@ -26,22 +29,41 @@ export function StudioHandoffJourney(props: {
   cutlistCount: number;
   onOpen: (workflow: ProjectWorkflow) => void;
 }) {
+  const account = useAccountPlan();
+  const seat = account.account?.organization?.seats.find(
+    (item) => item.email.toLowerCase() === account.account?.email.toLowerCase(),
+  );
+  const canViewPayments = canViewPaymentRecords({ entitlements: account.entitlements, seat });
   const job = readProposalCommercial(props.project).job;
-  const payment = paymentDashboard(readPaymentLedger(), props.project.id);
-  const paymentReady = Boolean(payment && payment.outstanding === 0 && payment.overdue === 0);
+  const designRevision = props.proposal.live?.quote.job.revision || job.revision || "A";
+  const quoteRevision = props.proposal.live?.frozen?.revision ?? null;
+  const records = revisionHandoffRecords({
+    designRevision,
+    quoteSnapshotId: props.proposal.live?.frozen?.id ?? null,
+    projectId: props.project.id,
+    jobRevision: job.revision,
+    jobStatus: job.status,
+    productionAt: job.productionAt,
+    engineeringSent: props.handoff.sent,
+    documents: readPaymentLedger().documents,
+  });
+  const payment = canViewPayments ? paymentDashboard(readPaymentLedger(), props.project.id) : null;
   const journey = studioHandoffJourney({
-    designRevision: props.proposal.live?.quote.job.revision || job.revision || "A",
+    designRevision,
     hasDesign: props.project.rooms.length > 0,
-    quoteRevision: props.proposal.live?.frozen?.revision ?? null,
+    quoteRevision,
     quoteFrozen: Boolean(props.proposal.live?.frozen),
     quoteStale: Boolean(props.proposal.live?.stale),
-    clientApproved: props.handoff.revisionApproved || job.status === "approved" || job.status === "production",
+    clientAccepted: records.clientAccepted,
+    engineeringSent: records.engineeringSent,
     cutlistCount: props.cutlistCount,
-    productionReleased: props.handoff.sent || job.status === "production",
-    paymentReady,
-    paymentDetail: payment
-      ? `Outstanding ${payment.outstanding.toLocaleString()}, overdue ${payment.overdue.toLocaleString()}`
-      : "No payment obligation yet",
+    productionReleased: records.productionReleased,
+    paymentReady: Boolean(canViewPayments && payment && payment.outstanding === 0 && payment.overdue === 0),
+    paymentDetail: !canViewPayments
+      ? "Payment balances need payment access."
+      : payment
+        ? `Outstanding ${payment.outstanding.toLocaleString()}, overdue ${payment.overdue.toLocaleString()}`
+        : "No payment obligation yet",
   });
   const [focus, setFocus] = useState<JourneyStepId>("design");
 

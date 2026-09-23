@@ -27,6 +27,7 @@ type LivingRoomInspectorPanelProps = {
   snapSizeMm: number;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
+  partNote?: string | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
@@ -114,6 +115,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         <span className="lr-chrome-eyebrow">{roomEssentials ? "Room essentials" : "Selected"}</span>
         <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>
       </div>
+      {props.partNote ? <p className="studio-state" data-testid="studio-part-selection">{props.partNote}</p> : null}
       <div className="lr-inspector-scroll">
         {room && !props.drawRoom && !activeObject && !activeOpening && !activeWall && !activeSurface ? (
           <InspectorObjectList

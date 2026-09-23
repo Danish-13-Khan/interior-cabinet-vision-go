@@ -95,6 +95,9 @@ export type LivingRoomPlanStageProps = {
   preDropReason?: string | null;
   onSetWallLength?: (wallId: string, lengthMm: number, anchor: import("../../domain/livingRoom").WallLengthAnchor) => void;
   onRegisterViewControls?: (controls: { fitPlan: () => void; fitSelection: () => void; zoomIn: () => void; zoomOut: () => void } | null) => void;
+  onPickPrimitive?: (objectId: string, geometryName: string) => void;
+  partHighlight?: { objectId: string; primitiveIds: readonly string[] } | null;
+  viewportFilter?: { isolatedObjectId: string | null; hiddenObjectIds: readonly string[] };
   onFitPlan?: () => void;
   onFitSelection?: () => void;
   onZoomIn?: () => void;
