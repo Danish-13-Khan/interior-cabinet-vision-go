@@ -48,7 +48,7 @@ export function drawProposalIdentity(
   const valid = proposal.validUntil
     ? new Date(proposal.validUntil).toLocaleDateString()
     : "No expiry disclosed";
-  drawCard(doc, margin, y, card, "Quote", proposal.quoteSnapshotId.slice(0, 22));
+  drawCard(doc, margin, y, card, "Quote", proposal.quoteSnapshotId);
   drawCard(doc, margin + card + 4, y, card, "Date", new Date(proposal.proposalDate).toLocaleDateString());
   drawCard(doc, margin + (card + 4) * 2, y, card, "Valid until", valid);
   return y + 20;
@@ -60,9 +60,15 @@ function drawCard(doc: jsPDF, x: number, y: number, width: number, label: string
   doc.setFontSize(7.5);
   doc.setTextColor(111, 121, 112);
   doc.text(label, x + 3, y + 5);
-  doc.setFontSize(9);
   doc.setTextColor(37, 48, 40);
-  doc.text(value.slice(0, 28), x + 3, y + 11.5);
+  let size = 9;
+  doc.setFontSize(size);
+  const maxWidth = Math.max(8, width - 6);
+  while (size > 6.5 && doc.getTextWidth(value) > maxWidth) {
+    size -= 0.5;
+    doc.setFontSize(size);
+  }
+  doc.text(value, x + 3, y + 11.5);
 }
 
 export function drawProposalSectionTitle(
