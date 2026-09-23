@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BoqLine } from "../boq";
-import { applyBoqDeltaToQuote, applyBoqQuantities, boqSellDelta, boqWorksheetTotals, clampBoqQuantities, scaleBoqLine } from "./boqWorksheet";
+import { DEFAULT_QUOTE_SETTINGS } from "../quoteSettings";
+import { applyBoqDeltaToQuote, applyBoqQuantities, boqQuantityLimitMessage, boqSellDelta, boqWorksheetTotals, clampBoqQuantities, scaleBoqLine } from "./boqWorksheet";
 import type { ProjectQuote } from "../projectQuote";
 
 const line: BoqLine = {
@@ -37,17 +38,45 @@ describe("BOQ worksheet", () => {
     expect(delta).toBe(-80);
   });
 
-  it("moves the quote total by the quantity sell delta", () => {
+  it("recalculates markup, discount, and tax from the workshop change", () => {
     const quote = {
-      sellTotal: 1000,
-      estimateLines: [],
-      summaryCards: [{ label: "Quote total", amount: 1000 }],
+      settings: { ...DEFAULT_QUOTE_SETTINGS, markupPercent: 10, discountPercent: 10, taxPercent: 10 },
+      workshopSubtotal: 1000,
+      baseBeforeMarkup: 1000,
+      markupAmount: 100,
+      discountAmount: 110,
+      taxableAmount: 990,
+      taxAmount: 99,
+      sellTotal: 1089,
+      estimateLines: [
+        { id: "markup", kind: "markup", label: "Markup (10%)", amount: 100 },
+        { id: "discount", kind: "discount", label: "Discount (10%)", amount: -110 },
+        { id: "tax", kind: "tax", label: "Tax (10%)", amount: 99 },
+      ],
+      summaryCards: [
+        { label: "Workshop cost", amount: 1000 },
+        { label: "Markup", amount: 100 },
+        { label: "Discount", amount: 110 },
+        { label: "Tax", amount: 99 },
+        { label: "Quote total", amount: 1089 },
+      ],
     } as ProjectQuote;
-    const adjusted = applyBoqDeltaToQuote(quote, -80);
-    expect(adjusted.sellTotal).toBe(920);
-    expect(adjusted.estimateLines[0]?.label).toBe("BOQ quantity adjustment");
-    expect(adjusted.summaryCards[0]?.amount).toBe(920);
+    const adjusted = applyBoqDeltaToQuote(quote, 100);
+    expect(adjusted.markupAmount).toBe(110);
+    expect(adjusted.discountAmount).toBe(121);
+    expect(adjusted.taxAmount).toBe(109);
+    expect(adjusted.sellTotal).toBe(1198);
+    expect(adjusted.estimateLines.find((line) => line.id === "boq-quantity")?.amount).toBe(100);
+    expect(adjusted.summaryCards.find((card) => card.label === "Tax")?.amount).toBe(109);
     expect(applyBoqDeltaToQuote(adjusted, 0)).toBe(adjusted);
+  });
+
+  it("keeps the first 200 quantity edits and names the rest", () => {
     expect(clampBoqQuantities({ "cab:door": 2.4, bad: -1, "": 3 })).toEqual({ "cab:door": 2 });
+    const raw = Object.fromEntries(Array.from({ length: 201 }, (_, index) => [`row-${index}`, 1]));
+    expect(Object.keys(clampBoqQuantities(raw))).toHaveLength(200);
+    expect(clampBoqQuantities(raw)["row-200"]).toBeUndefined();
+    expect(boqQuantityLimitMessage(raw)).toBe("Only 200 quantity edits are saved. 1 more was not kept.");
+    expect(boqQuantityLimitMessage({ "cab:door": 2 })).toBeNull();
   });
 });
