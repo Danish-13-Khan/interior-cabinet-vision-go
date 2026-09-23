@@ -78,7 +78,7 @@ export function StudioMain(props: {
             project={props.project}
             onPatchDocument={props.onPatchDocument}
           />
-          <StudioBoqWorkspace project={props.project} proposal={props.proposal} />
+          <StudioBoqWorkspace project={props.project} proposal={props.proposal} onPatchDocument={props.onPatchDocument} />
           {props.proposal.live ? (
             <>
               <StudioQuoteComparison proposal={props.proposal} />

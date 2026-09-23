@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BoqLine } from "../boq";
-import { applyBoqQuantities, boqWorksheetTotals, scaleBoqLine } from "./boqWorksheet";
+import { applyBoqDeltaToQuote, applyBoqQuantities, boqSellDelta, boqWorksheetTotals, clampBoqQuantities, scaleBoqLine } from "./boqWorksheet";
+import type { ProjectQuote } from "../projectQuote";
 
 const line: BoqLine = {
   key: "cab:door",
@@ -32,5 +33,21 @@ describe("BOQ worksheet", () => {
     expect(applied[0]?.sellPrice).toBe(320);
     expect(applied[1]?.quantity).toBe(1);
     expect(boqWorksheetTotals(applied).sell).toBe(360);
+    const { delta } = boqSellDelta([line, { ...line, key: "cab:side", quantity: 1, sellPrice: 40 }], { "cab:door": 1 });
+    expect(delta).toBe(-80);
+  });
+
+  it("moves the quote total by the quantity sell delta", () => {
+    const quote = {
+      sellTotal: 1000,
+      estimateLines: [],
+      summaryCards: [{ label: "Quote total", amount: 1000 }],
+    } as ProjectQuote;
+    const adjusted = applyBoqDeltaToQuote(quote, -80);
+    expect(adjusted.sellTotal).toBe(920);
+    expect(adjusted.estimateLines[0]?.label).toBe("BOQ quantity adjustment");
+    expect(adjusted.summaryCards[0]?.amount).toBe(920);
+    expect(applyBoqDeltaToQuote(adjusted, 0)).toBe(adjusted);
+    expect(clampBoqQuantities({ "cab:door": 2.4, bad: -1, "": 3 })).toEqual({ "cab:door": 2 });
   });
 });

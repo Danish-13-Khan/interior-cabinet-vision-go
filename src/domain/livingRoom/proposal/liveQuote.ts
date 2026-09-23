@@ -6,6 +6,8 @@ import { clampQuoteSnapshot, type QuoteSnapshot } from "../../quoteSettings";
 import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
 import { createInteriorQuoteReport } from "./interiorQuoteReport";
+import { buildBoqFromReport } from "../../boq";
+import { applyBoqDeltaToQuote, boqSellDelta } from "../../studio/boqWorksheet";
 import { createQuoteDesignFingerprint } from "./quoteFingerprint";
 import { isQuoteStale, quoteStaleReason } from "./staleQuote";
 import type { LiveInteriorQuote } from "./types";
@@ -55,11 +57,14 @@ export function buildLiveInteriorQuote(
   const commercial = readProposalCommercial(document);
   const interior = interiorEstimateSummary(document, interiorRateLookup(options.priceBook?.interiorRates ?? []));
   const report = createInteriorQuoteReport(document, now, options);
-  const quote = interior.enabled ? buildProjectQuote(report.projectCost, report.quote.settings, report.quote.job, {
-    quotedAt: report.quote.quotedAt,
-    interiorLines: interior.lines.map((line) => ({ id: line.id, label: `${line.roomName} · ${line.label}`, amount: line.amount,
-      detail: `${line.quantity} ${line.unit} × ${line.rate ?? "missing rate"}` })),
-  }) : report.quote;
+  const quote = applyBoqDeltaToQuote(
+    interior.enabled ? buildProjectQuote(report.projectCost, report.quote.settings, report.quote.job, {
+      quotedAt: report.quote.quotedAt,
+      interiorLines: interior.lines.map((line) => ({ id: line.id, label: `${line.roomName} · ${line.label}`, amount: line.amount,
+        detail: `${line.quantity} ${line.unit} × ${line.rate ?? "missing rate"}` })),
+    }) : report.quote,
+    boqSellDelta(buildBoqFromReport(report).lines, commercial.surface.boqQuantities).delta,
+  );
   const fingerprint = createQuoteDesignFingerprint(document, options);
   const frozen = latestFrozenQuote(commercial.quoteHistory);
   const ratesFingerprint = ratesFingerprintFromBook(

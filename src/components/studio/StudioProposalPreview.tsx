@@ -29,7 +29,7 @@ export function StudioProposalPreview(props: {
         <p>Not issued. Freeze locks this proposal total.</p>
       )}
       {live.staleReason ? <p className="studio-state is-error">{live.staleReason}</p> : null}
-      <small>This total is the live estimate. Freeze issues this amount.</small>
+      <small>This total includes saved quantity edits. Freeze issues this amount.</small>
     </aside>
   );
 }
