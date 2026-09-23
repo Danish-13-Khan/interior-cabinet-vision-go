@@ -64,7 +64,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   }, [project, room]);
   const partSelection = partPickForCutlistKey(hierarchy.cabinets, props.selectedCutlistKey ?? null);
   function selectHierarchyNode(node: DesignHierarchyNode) {
-    props.onSelectCutlistKey?.(node.cutlistKey ?? null);
+    props.onSelectCutlistKey?.(node.pieceId ?? node.cutlistKey ?? null);
     if (node.kind === "room") {
       w.onActiveRoom(node.roomId);
       inspectPlanTarget(props, { inspectRoom: true });
@@ -116,7 +116,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         viewportFilter={viewportFilter}
         onPickPrimitive={(objectId, geometryName) => {
           const pick = partPickForMesh(hierarchy.cabinets, objectId, geometryName);
-          props.onSelectCutlistKey?.(pick?.cutlistKey ?? null);
+          props.onSelectCutlistKey?.(pick?.pieceId ?? pick?.cutlistKey ?? null);
         }}
       />
       <LivingRoomPlanWorkspaceInspector body={{ ...props, partSelection }} activeObject={activeObject} transformPreview={modelTransformPreview} />

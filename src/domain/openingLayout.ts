@@ -14,6 +14,8 @@ import {
 
 export type OpeningFaceRect = {
   id: string;
+  /** Piece identity scope. Stays put when a split remints `id`. */
+  stableId: string;
   label: string;
   contentType: OpeningContentType;
   /** Origin at bottom-left of the face (above toe kick), mm. */
@@ -72,6 +74,7 @@ function layoutNode(
     return [
       {
         id: node.id,
+        stableId: node.stableId ?? node.id,
         label: node.label,
         contentType: node.contentType,
         xMm,
