@@ -82,6 +82,9 @@
 }
 
 .studio-design-footer .is-warn { color: var(--studio-warn, #8a5a12); }
+.studio-cutlist-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.studio-table tbody tr { cursor: pointer; }
+.studio-table tr.is-selected { background: #d9f0e1; }
 .studio-design-tools { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) {

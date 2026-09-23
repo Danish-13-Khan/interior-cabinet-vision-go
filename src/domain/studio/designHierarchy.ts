@@ -1,7 +1,17 @@
 import type { InteriorProject } from "../interiorProject";
 import { selectRoomObjects, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 
-export type DesignHierarchyKind = "room" | "wall" | "door" | "window" | "opening" | "cabinet" | "furniture";
+export type DesignHierarchyKind =
+  | "room"
+  | "wall"
+  | "door"
+  | "window"
+  | "opening"
+  | "run"
+  | "cabinet"
+  | "furniture"
+  | "group"
+  | "part";
 
 export type DesignHierarchyNode = {
   id: string;
@@ -13,6 +23,8 @@ export type DesignHierarchyNode = {
   objectId: string | null;
   wallId: string | null;
   openingId: string | null;
+  cutlistKey?: string | null;
+  constructionKey?: string | null;
 };
 
 function roomNodes(project: InteriorProject, roomId: string, active: boolean): DesignHierarchyNode[] {

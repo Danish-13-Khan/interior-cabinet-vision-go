@@ -75,4 +75,6 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   onFitSelection?: () => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
+  selectedCutlistKey?: string | null;
+  onSelectCutlistKey?: (key: string | null) => void;
 };

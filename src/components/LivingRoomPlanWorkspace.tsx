@@ -39,6 +39,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [inspectRoom, setInspectRoom] = useState(false);
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
+  const [selectedCutlistKey, setSelectedCutlistKey] = useState<string | null>(null);
   const underlayPickerRef = useRef<(() => void) | null>(null);
   const viewControlsRef = useRef<PlanViewControls | null>(null);
   const registerViewControls = useCallback((controls: PlanViewControls | null) => { viewControlsRef.current = controls; }, []);
@@ -190,6 +191,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onFitSelection={() => viewControlsRef.current?.fitSelection()}
         onZoomIn={() => viewControlsRef.current?.zoomIn()}
         onZoomOut={() => viewControlsRef.current?.zoomOut()}
+        selectedCutlistKey={selectedCutlistKey}
+        onSelectCutlistKey={setSelectedCutlistKey}
       />
     </section>
   ) : null;
@@ -220,6 +223,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         handoff={handoff}
         cutlistLines={millwork.productionReport?.productionCutlist ?? []}
         cutlistStatus={millwork.status}
+        selectedCutlistKey={selectedCutlistKey}
+        onSelectCutlistLine={(key) => { setSelectedCutlistKey(key); nav.openWorkflow("design"); }}
         home={home}
         design={design}
       />
