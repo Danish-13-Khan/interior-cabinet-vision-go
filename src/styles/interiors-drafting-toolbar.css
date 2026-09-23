@@ -72,7 +72,7 @@
   grid-row: 1 / -1;
 }
 
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > :not(.lr-chrome-rail):not(.lr-catalog):not(.lr-plan-center):not(.lr-inspector) {
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > :not(.lr-chrome-rail):not(.lr-catalog):not(.lr-plan-center):not(.lr-inspector):not(.studio-design-hierarchy) {
   grid-column: 1 / -1;
   grid-row: 1 / -1;
 }
