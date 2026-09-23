@@ -1,0 +1,126 @@
+{
+  "scale": "25.4",
+  "showAllCount": 1,
+  "showAllChecked": false,
+  "dialogText": "Import DWG background\n\nFLOORPLAN1.dwg\n\n4190 entities drawn. Lines, arcs, circles, ellipses, straight/curved polylines, filled solids and nested blocks. Text, hatches, splines, proxy objects and external files may be omitted; inspect the report.\n\nMissing content: MTEXT: 102; POINT: 207. Unsupported content is absent. Check against the original drawing.\n\nDistant leftover geometry is cropped so the room fills the preview.\n\nMillimeters per drawing unit\n\nInitial scale comes from DWG units. Verify a known distance with Calibrate after import.\n\n Show all geometry, including distant objects\nPreview zoom\nVisible layers\n0\nPDF_0\nPDF_WINDOW\nPDF_DOOR\nPDF_VEN\nPDF_CLOSET\nPDF_WASH-BASIN\nPDF_LAMPS\nPDF_PDF_PDF_0\nPDF_PDF_PDF_section\n\n18500.0 × 14612.2 mm\n\nCancel\nImport tracing background",
+  "widthMm": 18500.003030400003,
+  "heightMm": 14612.248672320002,
+  "layers": [
+    "0",
+    "PDF_0",
+    "PDF_WINDOW",
+    "PDF_DOOR",
+    "PDF_VEN",
+    "PDF_CLOSET",
+    "PDF_WASH-BASIN",
+    "PDF_LAMPS",
+    "PDF_PDF_PDF_0",
+    "PDF_PDF_PDF_section"
+  ],
+  "spans": [
+    {
+      "y": 203.5,
+      "x0": 229.75605680000004,
+      "x1": 727.7223728000001,
+      "len": 497.9663160000001
+    },
+    {
+      "y": 557.5,
+      "x0": 407.2597352,
+      "x1": 727.7223728000001,
+      "len": 320.4626376000001
+    },
+    {
+      "y": 205.5,
+      "x0": 444.7612064000001,
+      "x1": 725.7512048000001,
+      "len": 280.9899984
+    },
+    {
+      "y": 262.5,
+      "x0": 477.7289912000001,
+      "x1": 727.7223728000001,
+      "len": 249.99338160000002
+    },
+    {
+      "y": 185.5,
+      "x0": 238.72487120000005,
+      "x1": 472.89962960000014,
+      "len": 234.1747584000001
+    },
+    {
+      "y": 410.5,
+      "x0": 274.7479664,
+      "x1": 483.7410536000001,
+      "len": 208.9930872000001
+    },
+    {
+      "y": 515,
+      "x0": 303.19120570899304,
+      "x1": 496.85862216196324,
+      "len": 193.6674164529702
+    },
+    {
+      "y": 441.5,
+      "x0": 303.19120570899304,
+      "x1": 496.85862216196324,
+      "len": 193.6674164529702
+    },
+    {
+      "y": 514,
+      "x0": 304.26793358201667,
+      "x1": 495.7818942889396,
+      "len": 191.51396070692294
+    },
+    {
+      "y": 442.5,
+      "x0": 304.26793358201667,
+      "x1": 495.7818942889396,
+      "len": 191.51396070692294
+    },
+    {
+      "y": 267.5,
+      "x0": 544.7487032,
+      "x1": 718.7535584000001,
+      "len": 174.00485520000007
+    },
+    {
+      "y": 405.5,
+      "x0": 544.7487032,
+      "x1": 718.7535584000001,
+      "len": 174.00485520000007
+    }
+  ],
+  "span40": {
+    "y": 203.5,
+    "x0": 229.75605680000004,
+    "x1": 727.7223728000001,
+    "len": 497.9663160000001
+  },
+  "run40": {
+    "a": {
+      "x": 229.75605680000004,
+      "y": 203.5
+    },
+    "b": {
+      "x": 727.7223728000001,
+      "y": 203.5
+    },
+    "len": 497.9663160000001,
+    "layer": "PDF_0"
+  },
+  "run28": {
+    "a": {
+      "x": 727.7223728000001,
+      "y": 557.5448688000001
+    },
+    "b": {
+      "x": 407.2597352,
+      "y": 557.5448688000001
+    },
+    "len": 320.4626376000001,
+    "layer": "PDF_0"
+  },
+  "ft40Mm": 12192,
+  "ft28Mm": 8534.4
+}
