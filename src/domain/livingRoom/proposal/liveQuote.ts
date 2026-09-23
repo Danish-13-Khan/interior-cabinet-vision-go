@@ -1,12 +1,11 @@
-import { cabinetProjectFromInteriorProject } from "../../interiorProject";
 import type { InteriorProject } from "../../interiorProject";
-import { createProjectReport } from "../../projectReport";
 import { buildProjectQuote, createQuoteSnapshotFromQuote } from "../../projectQuote";
 import { interiorEstimateSummary } from "../../interiorEstimate/measure";
 import { interiorRateLookup } from "../../priceBook";
 import { clampQuoteSnapshot, type QuoteSnapshot } from "../../quoteSettings";
 import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
+import { createInteriorQuoteReport } from "./interiorQuoteReport";
 import { createQuoteDesignFingerprint } from "./quoteFingerprint";
 import { isQuoteStale, quoteStaleReason } from "./staleQuote";
 import type { LiveInteriorQuote } from "./types";
@@ -54,26 +53,8 @@ export function buildLiveInteriorQuote(
   options: LiveQuoteOptions = {},
 ): LiveInteriorQuote {
   const commercial = readProposalCommercial(document);
-  const compatible = cabinetProjectFromInteriorProject(document);
   const interior = interiorEstimateSummary(document, interiorRateLookup(options.priceBook?.interiorRates ?? []));
-  const report = createProjectReport(
-    {
-      ...compatible.project,
-      ...(interior.enabled ? { cabinets: compatible.project.rooms?.flatMap((room) => room.cabinets) ?? compatible.project.cabinets } : {}),
-      job: { ...commercial.job, quotedAt: commercial.job.quotedAt ?? now },
-      preferences: {
-        ...compatible.project.preferences,
-        snapSizeMm: compatible.project.preferences?.snapSizeMm ?? 50,
-        showGrid: compatible.project.preferences?.showGrid ?? true,
-        autoSaveToBrowser: compatible.project.preferences?.autoSaveToBrowser ?? true,
-        quote: commercial.quote,
-      },
-      quoteHistory: commercial.quoteHistory,
-    },
-    compatible.room,
-    undefined,
-    { priceBook: options.priceBook ?? null },
-  );
+  const report = createInteriorQuoteReport(document, now, options);
   const quote = interior.enabled ? buildProjectQuote(report.projectCost, report.quote.settings, report.quote.job, {
     quotedAt: report.quote.quotedAt,
     interiorLines: interior.lines.map((line) => ({ id: line.id, label: `${line.roomName} · ${line.label}`, amount: line.amount,

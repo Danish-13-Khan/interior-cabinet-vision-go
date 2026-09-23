@@ -8,13 +8,14 @@ import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { EngineeringHandoffSection } from "../livingRoomPlan/EngineeringHandoffSection";
 import { InteriorProjectTools } from "../livingRoomPlan/InteriorProjectTools";
-import { InteriorClientPanel } from "../livingRoomPlan/InteriorClientPanel";
 import { InteriorPaymentsPanel } from "../livingRoomPlan/InteriorPaymentsPanel";
 import { InteriorsPresentCommercial } from "../livingRoomPlan/InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "../livingRoomPlan/InteriorsPresentQuote";
 import { StudioHandoffJourney } from "./StudioHandoffJourney";
 import { StudioQuoteComparison } from "./StudioQuoteComparison";
 import { InspectorProposalGateChecks } from "../livingRoomPlan/InspectorProposalGateChecks";
+import { StudioBoqWorkspace } from "./StudioBoqWorkspace";
+import { StudioClientsPage } from "./StudioClientsPage";
 import { StudioDocumentsPage } from "./StudioDocumentsPage";
 import { StudioEngineeringPage } from "./StudioEngineeringPage";
 import { StudioPriceBookPage } from "./StudioPriceBookPage";
@@ -65,7 +66,7 @@ export function StudioMain(props: {
       {props.surface === "studio" && props.section === "projects" ? props.home : null}
       {props.surface === "studio" && props.section === "price-book" ? <StudioPriceBookPage /> : null}
       {props.surface === "studio" && props.section === "clients" ? (
-        props.project ? <InteriorClientPanel project={props.project} onPatchDocument={props.onPatchDocument} /> : <p className="studio-state">Open a project to link a client.</p>
+        <StudioClientsPage project={props.project} onPatchDocument={props.onPatchDocument} />
       ) : null}
       {props.surface === "studio" && props.section === "documents" ? <StudioDocumentsPage project={props.project} /> : null}
       {props.surface === "studio" && props.section === "settings" ? (
@@ -77,6 +78,7 @@ export function StudioMain(props: {
             project={props.project}
             onPatchDocument={props.onPatchDocument}
           />
+          <StudioBoqWorkspace project={props.project} proposal={props.proposal} />
           {props.proposal.live ? (
             <>
               <StudioQuoteComparison proposal={props.proposal} />

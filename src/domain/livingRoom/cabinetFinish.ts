@@ -14,7 +14,22 @@ export function cabinetFinishId(object: InteriorObjectEntity) {
   return typeof object.parameters.finishId === "string" ? object.parameters.finishId : "wood-oak";
 }
 
-/** Persist finish on planning buildRules so Engineering keeps it. */
+/** View-only finish. The document stays unchanged until Save commits it. */
+export function projectWithFinishPreview(
+  project: InteriorProject,
+  overrides: Readonly<Record<string, string>>,
+): InteriorProject {
+  const ids = Object.keys(overrides);
+  if (ids.length === 0) return project;
+  return {
+    ...project,
+    objects: project.objects.map((object) => {
+      const finishId = overrides[object.id];
+      return finishId ? persistCabinetFinishOnObject(object, finishId) : object;
+    }),
+  };
+}
+
 export function persistCabinetFinishOnObject(
   object: InteriorObjectEntity,
   finishId: string,

@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
 import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import {
-  cabinetFinishId,
   isMillworkObject,
   isWallPanelObject,
   type PanelAttachment,
@@ -13,6 +12,7 @@ import { CabinetRunInspector } from "./CabinetRunInspector";
 import { MaterialSlotList } from "./MaterialSlotList";
 import { PanelAttachmentInspector } from "./PanelAttachmentInspector";
 import { InspectorSection } from "./InspectorSection";
+import { CabinetFinishPreview } from "../studio/CabinetFinishPreview";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
@@ -89,15 +89,7 @@ export function LivingRoomObjectInspector({
       {object.kind === "cabinet" && object.category !== "filler" && !wallPanel ? (
         <InspectorSection title="Advanced construction" testId="inspector-cabinet-advanced">
           <h4>Cabinet configuration</h4>
-          <label className="lr-select-field"><span>Finish</span>
-            <select data-testid="cabinet-finish" value={cabinetFinishId(object)}
-              onChange={(event) => onSetParameters(object.id, { finishId: event.target.value })}>
-              <option value="wood-oak">Oak Woodgrain</option>
-              <option value="wood-walnut">Walnut</option>
-              <option value="white-matte">White Matte</option>
-              <option value="grey">Grey Matte</option>
-            </select>
-          </label>
+          <CabinetFinishPreview object={object} project={project} onSetParameters={onSetParameters} />
           <label className="lr-select-field"><span>Door style</span>
             <select data-testid="cabinet-door-style" value={String(object.parameters.doorStyle ?? "slab")}
               onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}>

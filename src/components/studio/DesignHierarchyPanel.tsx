@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { filterDesignHierarchy, type DesignHierarchyNode } from "../../domain/studio/designHierarchy";
 import { collapseHierarchy, visibleHierarchyNodes } from "../../domain/studio/manufacturingTree";
 import type { ViewportObjectFilter } from "../../domain/studio/viewportVisibility";
@@ -46,6 +46,22 @@ export function DesignHierarchyPanel(props: {
     props.onViewportVisibility?.({ isolatedObjectId: activeIsolation, hiddenObjectIds });
   }, [hiddenObjectIds, activeIsolation, props.onViewportVisibility]);
 
+  function startResize(event: ReactPointerEvent<HTMLButtonElement>) {
+    const startX = event.clientX;
+    const parent = event.currentTarget.parentElement?.parentElement;
+    const start = Number.parseFloat(parent?.style.getPropertyValue("--studio-hierarchy-width") || "200");
+    function move(moveEvent: PointerEvent) {
+      const next = Math.min(420, Math.max(160, start + moveEvent.clientX - startX));
+      parent?.style.setProperty("--studio-hierarchy-width", `${next}px`);
+    }
+    function stop() {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    }
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+  }
+
   return (
     <aside className="studio-design-hierarchy" aria-label="Hierarchy" data-testid="studio-hierarchy">
       <header>
@@ -77,19 +93,22 @@ export function DesignHierarchyPanel(props: {
                   : false;
           return (
             <li key={node.id}>
-              <button type="button" className={selected ? "is-selected" : ""} style={{ paddingLeft: 8 + node.depth * 12 }} aria-pressed={selected} onClick={() => props.onSelectNode(node)}>
+              <div className={selected ? "studio-hierarchy-row is-selected" : "studio-hierarchy-row"} style={{ paddingLeft: 8 + node.depth * 12 }}>
                 {expandable ? (
-                  <span role="presentation" onClick={(event) => { event.stopPropagation(); toggle(node.id); }}>
+                  <button type="button" className="studio-hierarchy-toggle" aria-expanded={!collapsed[node.id]} aria-label={collapsed[node.id] ? "Expand" : "Collapse"} onClick={() => toggle(node.id)}>
                     {collapsed[node.id] ? "▸" : "▾"}
-                  </span>
+                  </button>
                 ) : null}
-                <span>{node.label}</span>
-                <small>{node.detail}</small>
-              </button>
+                <button type="button" aria-pressed={selected} onClick={() => props.onSelectNode(node)}>
+                  <span>{node.label}</span>
+                  <small>{node.detail}</small>
+                </button>
+              </div>
             </li>
           );
         })}
       </ul>
+      <button type="button" className="studio-hierarchy-resize" aria-label="Resize hierarchy" onPointerDown={startResize} />
     </aside>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { csvFromProductionCutlist, type ProductionCutlistLine } from "../../domain/productionCutlist";
+import { cutlistPdfBlob } from "../../domain/studio/cutlistDocument";
 import { engineeringCutlistState } from "../../domain/studio/engineeringCutlistState";
 import { cutlistGroups, type CutlistGroupMode } from "../../domain/studio/cutlistView";
-import type { ProductionCutlistLine } from "../../domain/productionCutlist";
 
 export function StudioEngineeringPage(props: {
   lines: ProductionCutlistLine[];
@@ -28,13 +29,11 @@ export function StudioEngineeringPage(props: {
   }
   const groups = cutlistGroups(props.lines, mode);
 
-  function downloadMachine() {
-    if (!props.machineJson) return;
-    const blob = new Blob([props.machineJson], { type: "application/json" });
+  function downloadBlob(name: string, blob: Blob) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "machine-export.json";
+    link.download = name;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -53,7 +52,9 @@ export function StudioEngineeringPage(props: {
               {item}
             </button>
           ))}
-          <button type="button" className="studio-btn" onClick={downloadMachine} disabled={!props.machineJson}>Machine JSON</button>
+          <button type="button" className="studio-btn" onClick={() => downloadBlob("cut-list.csv", new Blob([csvFromProductionCutlist(props.lines)], { type: "text/csv" }))}>Cut list CSV</button>
+          <button type="button" className="studio-btn" onClick={() => downloadBlob("cut-list.pdf", cutlistPdfBlob(props.lines))}>Cut list PDF</button>
+          <button type="button" className="studio-btn" onClick={() => props.machineJson && downloadBlob("machine-export.json", new Blob([props.machineJson], { type: "application/json" }))} disabled={!props.machineJson}>Machine JSON</button>
         </div>
       </header>
       {groups.map((group) => (
@@ -63,27 +64,34 @@ export function StudioEngineeringPage(props: {
           <table className="studio-table">
             <thead>
               <tr>
-                <th>Shop ref</th><th>Cabinet</th><th>Part</th><th>Material</th><th>Thickness</th>
-                <th>Qty</th><th>Size</th><th>Edge</th><th>Grain</th><th>Category</th>
+                <th>Shop ref</th><th>Cabinet</th><th>Part</th><th>Material</th><th>Finish</th><th>Thickness</th>
+                <th>Qty</th><th>Size</th><th>Edge</th><th>Grain</th><th>Notes</th>
               </tr>
             </thead>
             <tbody>
               {group.lines.map((line) => (
                 <tr
                   key={line.key}
+                  tabIndex={0}
                   className={props.selectedKey === line.key ? "is-selected" : ""}
                   onClick={() => props.onSelectLine(line.key)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    event.preventDefault();
+                    props.onSelectLine(line.key);
+                  }}
                 >
                   <td>{line.shopRef}</td>
                   <td>{line.cabinetName}</td>
                   <td>{line.label}</td>
                   <td>{line.material}</td>
+                  <td>{line.finish}</td>
                   <td>{line.thicknessMm}</td>
                   <td>{line.quantity}</td>
                   <td>{line.lengthMm}×{line.widthMm}</td>
                   <td>{line.edgeBanding}</td>
                   <td>{line.grain}</td>
-                  <td>{line.category}</td>
+                  <td>{line.notes || "—"}</td>
                 </tr>
               ))}
             </tbody>

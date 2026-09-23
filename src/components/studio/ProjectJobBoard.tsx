@@ -8,6 +8,10 @@ type Row = {
   statusTone: string;
   statusLabel: string;
   editedLabel: string;
+  clientName?: string;
+  cabinetCount?: number;
+  roomCount?: number;
+  thumbnail?: string;
 };
 
 export function ProjectJobBoard(props: {
@@ -26,9 +30,11 @@ export function ProjectJobBoard(props: {
       <div className={props.layout === "grid" ? "studio-project-grid" : "studio-project-list"}>
         {props.rows.map((row) => (
           <button type="button" key={row.id} className="studio-card studio-project-card" data-testid="open-recent-project" onClick={() => props.onOpen(row.id)}>
+            {row.thumbnail ? <img className="studio-project-thumb" src={row.thumbnail} alt="" /> : <span className="studio-project-thumb" aria-hidden="true" />}
             <strong>{row.name}</strong>
+            <span>{row.clientName || "No client"}</span>
             <span>{row.kindLabel}</span>
-            <span>Rev {row.revision}</span>
+            <span>{row.roomCount ?? 0} rooms · {row.cabinetCount ?? 0} cabinets · Rev {row.revision}</span>
             <span className={`studio-badge is-${row.statusTone}`}>{row.statusLabel}</span>
             <small>{row.editedLabel}</small>
           </button>
