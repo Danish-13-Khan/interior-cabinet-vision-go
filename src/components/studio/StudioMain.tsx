@@ -10,6 +10,7 @@ import { InteriorClientPanel } from "../livingRoomPlan/InteriorClientPanel";
 import { InteriorPaymentsPanel } from "../livingRoomPlan/InteriorPaymentsPanel";
 import { InteriorsPresentCommercial } from "../livingRoomPlan/InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "../livingRoomPlan/InteriorsPresentQuote";
+import { StudioHandoffJourney } from "./StudioHandoffJourney";
 import { StudioQuoteComparison } from "./StudioQuoteComparison";
 import { InspectorProposalGateChecks } from "../livingRoomPlan/InspectorProposalGateChecks";
 import { StudioDocumentsPage } from "./StudioDocumentsPage";
@@ -32,6 +33,7 @@ export function StudioMain(props: {
   cutlistStatus: string;
   selectedCutlistKey: string | null;
   onSelectCutlistLine: (key: string) => void;
+  onWorkflow: (workflow: ProjectWorkflow) => void;
   home: ReactNode;
   design: ReactNode;
 }) {
@@ -69,9 +71,20 @@ export function StudioMain(props: {
           <InteriorsPresentCommercial quote={props.proposal.live.quote.settings} onQuote={props.proposal.patchQuote} />
         </div>
       ) : null}
-      {props.surface === "project" && props.workflow === "approval" && props.proposal.gate ? (
+      {props.surface === "project" && props.workflow === "approval" && props.project ? (
         <div className="studio-page" data-testid="studio-approval">
-          <InspectorProposalGateChecks items={props.proposal.gate.items} blockingCount={props.proposal.gate.blockingCount} ready={props.proposal.gate.ready} />
+          <StudioHandoffJourney
+            project={props.project}
+            proposal={props.proposal}
+            handoff={props.handoff}
+            cutlistCount={props.cutlistLines.length}
+            onOpen={props.onWorkflow}
+          />
+          {props.proposal.gate ? (
+            <InspectorProposalGateChecks items={props.proposal.gate.items} blockingCount={props.proposal.gate.blockingCount} ready={props.proposal.gate.ready} />
+          ) : (
+            <p className="studio-state">Approval checks appear when a quote can be estimated.</p>
+          )}
           <EngineeringHandoffSection handoff={props.handoff} />
         </div>
       ) : null}
