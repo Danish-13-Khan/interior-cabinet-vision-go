@@ -6,7 +6,7 @@ import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
 import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
 import type { LivingRoomPlanWorkspaceProps } from "./workspaceProps";
 
-export type ProjectFilter = "all" | "design" | "quoted" | "engineering";
+export type ProjectFilter = "all" | "design" | "quoted" | "approved" | "engineering";
 
 type RecentRow = {
   id: string;
@@ -62,6 +62,7 @@ export function InteriorsCompactProjectsHome({
           ["all", "All jobs"],
           ["design", "In design"],
           ["quoted", "Quoted"],
+          ["approved", "Approved"],
           ["engineering", "Engineering"],
         ] as Array<[ProjectFilter, string]>).map(([id, label]) => (
           <button key={id} type="button" className={filter === id ? "is-selected" : ""} onClick={() => onFilter(id)}>

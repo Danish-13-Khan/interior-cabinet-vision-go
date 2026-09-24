@@ -14,6 +14,7 @@ import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 import { InspectorObjectList } from "./InspectorObjectList";
 import { SurfaceInspector } from "./SurfaceInspector";
+import { InspectorSelectionActions } from "./InspectorSelectionActions";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -67,6 +68,7 @@ type LivingRoomInspectorPanelProps = {
   ) => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onMaterial?: () => void;
   unit: import("../../domain/livingRoom").PlanDisplayUnit;
   drawRoom?: boolean;
   cabinetRun?: boolean;
@@ -112,11 +114,21 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       aria-label="Selection properties"
     >
       <div className="inspector-header">
-        <span className="lr-chrome-eyebrow">{roomEssentials ? "Room essentials" : "Selected"}</span>
+        <span className="lr-chrome-eyebrow">{roomEssentials ? "Room essentials" : "Selected object"}</span>
         <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>
       </div>
       {props.partNote ? <p className="studio-state" data-testid="studio-part-selection">{props.partNote}</p> : null}
       <div className="lr-inspector-scroll">
+        {props.mode === "model" ? <div data-testid="model-review-dock" /> : null}
+        {activeObject ? (
+          <InspectorSelectionActions
+            hasObject
+            onRotate={() => props.onSetRotation(activeObject.id, (activeObject.rotation.y + 90) % 360)}
+            onDuplicate={props.onDuplicate}
+            onMaterial={props.onMaterial}
+            onDelete={props.onDelete}
+          />
+        ) : null}
         {room && !props.drawRoom && !activeObject && !activeOpening && !activeWall && !activeSurface ? (
           <InspectorObjectList
             objects={props.project.objects}

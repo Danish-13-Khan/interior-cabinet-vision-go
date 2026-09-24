@@ -1,17 +1,6 @@
 import { designViewToolIds, type DesignWorkspaceView } from "../../domain/studio/designContext";
 import { designFooterStatus, nextSnapSizeMm } from "../../domain/studio/designFooter";
 
-const TOOL_LABELS: Record<string, string> = {
-  grid: "Grid",
-  snap: "Snap",
-  "fit-plan": "Fit",
-  "fit-selection": "Fit selection",
-  "zoom-in": "Zoom in",
-  "zoom-out": "Zoom out",
-  plan: "2D",
-  model: "3D",
-};
-
 export function DesignWorkspaceFooter(props: {
   view: DesignWorkspaceView;
   snapSizeMm: number;
@@ -35,32 +24,31 @@ export function DesignWorkspaceFooter(props: {
     issues: props.issues,
   });
   const tools = designViewToolIds(props.view);
-
-  function run(id: string) {
-    if (id === "grid") props.onShowGrid(!props.showGrid);
-    if (id === "snap") props.onSnapSize(nextSnapSizeMm(props.snapSizeMm));
-    if (id === "fit-plan") props.onFitPlan?.();
-    if (id === "fit-selection") props.onFitSelection?.();
-    if (id === "zoom-in") props.onZoomIn?.();
-    if (id === "zoom-out") props.onZoomOut?.();
-    if (id === "plan") props.onView("plan");
-    if (id === "model") props.onView("model");
-  }
+  const showSnap = tools.includes("snap") || tools.includes("grid");
 
   return (
     <footer className="studio-design-footer" data-testid="studio-design-footer">
-      <span>Units {status.units}</span>
-      <span>Snap {status.snap}</span>
-      <span>Zoom {status.zoom}</span>
+      <span>Millimetres</span>
+      <span className="studio-footer-zoom">
+        Zoom
+        <button type="button" aria-label="Zoom out" onClick={() => props.onZoomOut?.()}>−</button>
+        <button type="button" aria-label="Zoom in" onClick={() => props.onZoomIn?.()}>+</button>
+        {props.view === "plan" ? (
+          <button type="button" onClick={() => props.onFitPlan?.()}>Fit</button>
+        ) : (
+          <button type="button" onClick={() => props.onFitSelection?.()} disabled={props.selectedCount < 1}>Fit</button>
+        )}
+      </span>
+      {showSnap ? (
+        <button type="button" aria-pressed={props.showGrid} onClick={() => {
+          if (!props.showGrid) props.onShowGrid(true);
+          else props.onSnapSize(nextSnapSizeMm(props.snapSizeMm));
+        }}>
+          Snap {props.showGrid ? "on" : "off"} · {status.snap}
+        </button>
+      ) : <span>Snap {status.snap}</span>}
       <span>Selection {status.selection}</span>
       <span className={props.issues.length ? "is-warn" : ""}>{status.warnings}</span>
-      <div className="studio-design-tools" role="toolbar" aria-label="View tools">
-        {tools.map((id) => (
-          <button key={id} type="button" className="studio-btn" onClick={() => run(id)}>
-            {TOOL_LABELS[id] ?? id}
-          </button>
-        ))}
-      </div>
     </footer>
   );
 }

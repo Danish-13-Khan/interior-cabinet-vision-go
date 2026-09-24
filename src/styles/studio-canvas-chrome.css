@@ -1,0 +1,174 @@
+/* One plan toolbar row, and 3D controls docked in the side panel. */
+
+.studio-design .studio-plan-toolbar {
+  display: flex;
+  position: relative;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 8px;
+  background: #fff;
+  border-bottom: 1px solid #e1e6e2;
+}
+
+.studio-design .studio-plan-toolbar .lr-plan-secondary-settings[open] > :not(summary),
+.studio-design .studio-plan-toolbar .lr-draw-tray {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 8px;
+  max-height: 280px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e1e6e2;
+  border-radius: 10px;
+}
+
+.studio-design .studio-plan-toolbar .lr-contextual-command-rail,
+.studio-design .studio-plan-toolbar .lr-draw-titlebar,
+.studio-design .studio-plan-toolbar .lr-plan-titlebar,
+.studio-design .studio-plan-toolbar .lr-plan-toolbar,
+.studio-design .studio-plan-toolbar .lr-plan-secondary-settings {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 0;
+  padding: 0;
+}
+
+.studio-design .studio-plan-toolbar .lr-contextual-command-rail {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.studio-design .studio-plan-toolbar .is-inspector-action,
+.studio-design .studio-plan-toolbar .lr-plan-view-tools,
+.studio-design .lr-plan-toolbar [data-group="transform"],
+.studio-design .lr-plan-toolbar [data-group="view"],
+.studio-design .lr-plan-toolbar [data-group="drawing"],
+.studio-design .lr-plan-toolbar [aria-label="Duplicate"],
+.studio-design .lr-plan-toolbar [aria-label="Delete"] {
+  display: none !important;
+}
+
+.studio-design .studio-plan-toolbar .lr-contextual-command-rail:not(:has(button:not(.is-inspector-action))) {
+  display: none;
+}
+
+.studio-design .studio-plan-toolbar .lr-plan-title-actions,
+.studio-design .studio-plan-toolbar .lr-plan-primary-tools,
+.studio-design .studio-plan-toolbar .lr-toolbar-group {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-design .studio-plan-toolbar .lr-draw-titlebar,
+.studio-design .studio-plan-toolbar .lr-plan-titlebar,
+.studio-design .studio-plan-toolbar .lr-plan-toolbar {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  height: 40px;
+  overflow: hidden;
+}
+
+.studio-design.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .studio-plan-toolbar .lr-plan-title-copy {
+  display: none;
+}
+
+.studio-design .lr-model-controls {
+  flex-wrap: nowrap;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  overflow-x: auto;
+}
+
+.studio-design .lr-model-preset-select {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.model-review-dock {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.model-review-dock .lr-style-palette,
+.model-review-dock .lr-mechanism-panel,
+.model-review-dock .lr-model-diagnostics-disclosure,
+.model-review-dock .lr-model-readout {
+  position: static;
+  inset: auto;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  float: none;
+  box-shadow: none;
+}
+
+.model-review-dock .lr-model-diagnostics-disclosure > summary {
+  float: none;
+  background: #e7f3ec;
+  color: #1e4d32;
+  border-color: #d5dbd4;
+}
+
+.model-review-dock-block {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e1e6e2;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.model-review-dock-block header {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #667268;
+}
+
+.model-review-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.lr-inspector-object-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lr-inspector-object-actions button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #d5dbd4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.studio-footer-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.studio-design-footer button {
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid #d5dbd4;
+  border-radius: 8px;
+  background: #fff;
+}

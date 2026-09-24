@@ -2,8 +2,8 @@ import type { CompiledLivingRoomScene, CompiledSceneBounds } from "./sceneTypes"
 import { modelSelectionTarget } from "./modelSelection";
 import { computeCompiledSceneBounds } from "./sceneCompilerBounds";
 import { aabbFitDistanceMm, selectionFitDistanceMm, offsetFromTargetMm } from "./modelViewFitDistance";
+import type { FitPoint3 } from "./modelViewFitDistance";
 import {
-  resolveModelViewPose,
   type ModelViewPose,
   type ModelViewPresetId,
 } from "./modelViewPresets";
@@ -71,6 +71,44 @@ function nodeMatchesSelection(
   return selection.openingId === target.id;
 }
 
+/** Front-elevated look into the open side so the room fills the review canvas. */
+function roomReviewDirection(
+  preset: Exclude<ModelViewPresetId, "perspective" | "walkthrough">,
+): FitPoint3 {
+  if (preset === "isometric") return { x: 1, y: 0.85, z: 1 };
+  if (preset === "top") return { x: 0, y: 1, z: 0.04 };
+  if (preset === "side") return { x: -1, y: 0.38, z: 0.12 };
+  return { x: 0.22, y: 0.46, z: 1 };
+}
+
+function roomFillPose(
+  scene: CompiledLivingRoomScene,
+  preset: Exclude<ModelViewPresetId, "perspective" | "walkthrough">,
+  view?: { widthPx: number; heightPx: number; fieldOfViewDegrees?: number },
+): ModelViewFitResult {
+  const bounds = scene.bounds;
+  const target = {
+    x: bounds.center.x,
+    y: bounds.center.y + bounds.size.heightMm * 0.16,
+    z: bounds.center.z,
+  };
+  const direction = roomReviewDirection(preset);
+  const fov = view?.fieldOfViewDegrees ?? (preset === "isometric" ? 35 : 42);
+  const aspect = view ? view.widthPx / Math.max(view.heightPx, 1) : 1.45;
+  const distance = view
+    ? aabbFitDistanceMm({
+      min: bounds.min, max: bounds.max, viewFromTarget: direction,
+      fovDegrees: fov, aspect, padding: 1.06,
+    })
+    : spanFromBounds(bounds, 1200) * 1.05;
+  return {
+    position: offsetFromTargetMm(target, direction, distance),
+    target,
+    fieldOfViewDegrees: fov,
+    spanMm: spanFromBounds(bounds, 1200),
+  };
+}
+
 function spanFromBounds(bounds: CompiledSceneBounds, floorMm = 0): number {
   return Math.max(bounds.size.widthMm, bounds.size.heightMm, bounds.size.depthMm, floorMm);
 }
@@ -97,15 +135,11 @@ export function resolveModelViewFitPose(
     viewPreset === "perspective" || viewPreset === "walkthrough" ? "dollhouse" : viewPreset;
 
   if (mode === "room") {
-    const roomPose = resolveModelViewPose(scene, basePreset);
-    return { ...roomPose, spanMm: spanFromBounds(scene.bounds, 1200) };
+    return roomFillPose(scene, basePreset, view);
   }
 
   const selected = resolveModelViewSelectionBoundsMm(scene, selection);
-  if (!selected) {
-    const roomPose = resolveModelViewPose(scene, basePreset);
-    return { ...roomPose, spanMm: spanFromBounds(scene.bounds, 1200) };
-  }
+  if (!selected) return roomFillPose(scene, basePreset, view);
 
   const { center, spanMm, bounds } = selected;
   const fov = view?.fieldOfViewDegrees

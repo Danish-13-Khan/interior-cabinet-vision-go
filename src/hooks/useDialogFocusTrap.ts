@@ -50,7 +50,7 @@ export function useDialogFocusTrap(
       const preferred = dialog.querySelector<HTMLElement>("[data-dialog-initial-focus]");
       // Prefer marked control only when it is actually focusable (not disabled).
       const initial = preferred && items.includes(preferred) ? preferred : (items[0] ?? dialog);
-      initial.focus();
+      initial.focus({ preventScroll: true });
     });
 
     function onKeyDown(event: KeyboardEvent) {

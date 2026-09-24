@@ -100,3 +100,7 @@
 @import "./styles/interiors-drafting-shortcuts.css";
 @import "./styles/studio-scene.css";
 @import "./styles/studio-desk.css";
+@import "./styles/studio-look.css";
+@import "./styles/studio-model.css";
+@import "./styles/studio-canvas-chrome.css";
+@import "./styles/studio-review-panel.css";

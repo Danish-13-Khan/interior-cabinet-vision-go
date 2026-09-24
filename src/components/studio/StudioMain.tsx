@@ -8,11 +8,12 @@ import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import { EngineeringHandoffSection } from "../livingRoomPlan/EngineeringHandoffSection";
 import { InteriorProjectTools } from "../livingRoomPlan/InteriorProjectTools";
-import { InteriorPaymentsPanel } from "../livingRoomPlan/InteriorPaymentsPanel";
 import { InteriorsPresentCommercial } from "../livingRoomPlan/InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "../livingRoomPlan/InteriorsPresentQuote";
 import { StudioHandoffJourney } from "./StudioHandoffJourney";
+import { StudioClientLedger } from "./StudioClientLedger";
 import { StudioQuoteComparison } from "./StudioQuoteComparison";
+import { StudioQuoteToolbar } from "./StudioQuoteToolbar";
 import { InspectorProposalGateChecks } from "../livingRoomPlan/InspectorProposalGateChecks";
 import { StudioBoqWorkspace } from "./StudioBoqWorkspace";
 import { StudioClientsPage } from "./StudioClientsPage";
@@ -74,6 +75,7 @@ export function StudioMain(props: {
       ) : null}
       {props.surface === "project" && props.workflow === "quote" && props.project ? (
         <div className="studio-page" data-testid="studio-quote">
+          <StudioQuoteToolbar proposal={props.proposal} />
           <InteriorProjectTools
             project={props.project}
             onPatchDocument={props.onPatchDocument}
@@ -119,7 +121,7 @@ export function StudioMain(props: {
         />
       ) : null}
       {props.surface === "project" && props.workflow === "payments" && props.project ? (
-        <div className="studio-page"><InteriorPaymentsPanel project={props.project} /></div>
+        <div className="studio-page" data-testid="studio-payments"><StudioClientLedger project={props.project} /></div>
       ) : null}
     </>
   );

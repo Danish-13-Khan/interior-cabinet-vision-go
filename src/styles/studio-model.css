@@ -1,0 +1,72 @@
+/* 3D review: the catalog must not take a grid cell or the canvas collapses beside it. */
+
+.studio-design .lr-workspace-body.is-model,
+.studio-design .lr-workspace-body.is-render {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  min-height: 0;
+  height: 100%;
+}
+
+.studio-design .lr-workspace-body.is-model > .lr-chrome-rail,
+.studio-design .lr-workspace-body.is-model > .studio-design-hierarchy,
+.studio-design .lr-workspace-body.is-model > .lr-catalog,
+.studio-design .lr-workspace-body.is-model > input,
+.studio-design .lr-workspace-body.is-render > .lr-chrome-rail,
+.studio-design .lr-workspace-body.is-render > .studio-design-hierarchy,
+.studio-design .lr-workspace-body.is-render > .lr-catalog,
+.studio-design .lr-workspace-body.is-model .lr-contextual-command-rail {
+  display: none !important;
+}
+
+.studio-design .lr-workspace-body.is-model > .lr-plan-center,
+.studio-design .lr-workspace-body.is-render > .lr-plan-center {
+  grid-column: 1;
+  grid-row: 1;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 0;
+  height: 100%;
+}
+
+.studio-design .lr-workspace-body.is-model > .lr-inspector,
+.studio-design .lr-workspace-body.is-render > .lr-inspector {
+  grid-column: 2;
+  grid-row: 1;
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 100%;
+  max-height: none;
+  box-shadow: none;
+}
+
+.studio-design .lr-workspace-body.is-model .lr-plan-canvas,
+.studio-design .lr-workspace-body.is-model .lr-model-viewport {
+  flex: 1 1 auto;
+  min-height: 280px;
+  height: 100%;
+}
+
+.studio-design .lr-model-left-chrome {
+  max-width: calc(100% - 16px);
+}
+
+.studio-design .lr-model-controls {
+  position: static;
+  left: auto;
+  right: auto;
+  top: auto;
+  max-width: 100%;
+}
+
+.studio-design .lr-model-advanced-panel {
+  left: 0;
+  right: auto;
+}

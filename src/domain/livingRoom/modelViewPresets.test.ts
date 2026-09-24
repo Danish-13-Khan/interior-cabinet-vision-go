@@ -84,5 +84,15 @@ describe("model view presets", () => {
     });
     expect(dollhouseFocus.target).toEqual(expected.center);
     expect(dollhouseFocus.target).not.toEqual(roomFit.target);
+
+    const fitted = resolveModelViewFitPose(scene, "dollhouse", "room", {
+      objectIds: [], wallId: null, openingId: null,
+    }, { widthPx: 900, heightPx: 600, fieldOfViewDegrees: 42 });
+    const loose = resolveModelViewPose(scene, "dollhouse");
+    const span = (pose: { position: { x: number; y: number; z: number }; target: { x: number; y: number; z: number } }) =>
+      Math.hypot(pose.position.x - pose.target.x, pose.position.y - pose.target.y, pose.position.z - pose.target.z);
+    expect(span(fitted)).toBeLessThan(span(loose));
+    expect(fitted.position.y).toBeGreaterThan(fitted.target.y);
+    expect(fitted.position.z).toBeGreaterThan(fitted.target.z);
   });
 });

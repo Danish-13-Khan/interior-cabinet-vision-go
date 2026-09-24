@@ -22,7 +22,6 @@ type ModelViewAuthoringOverlaysProps = {
   fieldOfViewDegrees: number;
   activeCameraId: string | null;
   cameras: readonly CameraEntity[];
-  cutawayWalls: boolean;
   activeRotation: number;
   hasActiveObject: boolean;
   viewportQuality: RenderQuality;
@@ -32,13 +31,14 @@ type ModelViewAuthoringOverlaysProps = {
   onCameraHeightMm: (value: number) => void;
   onFieldOfViewDegrees: (value: number) => void;
   onActiveCameraId: (cameraId: string | null) => void;
-  onCutawayWalls: (value: boolean) => void;
   onSetRotation: (rotationY: number) => void;
   onViewportQuality: (quality: RenderQuality) => void;
   onOpenGuide: () => void;
   onClearSelection: () => void;
   onFitRoom: () => void;
   onFocusSelection: () => void;
+  onMeasure?: () => void;
+  onMaterials?: () => void;
   onCloseWallMenu: () => void;
   onSelectWall: (wallId: string) => void;
   onPatchDocument?: (
@@ -56,13 +56,11 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
       <ModelViewLeftChrome
         toolbar={(
           <ModelViewToolbar
-            fixtures={props.onPatchDocument ? { project: props.project, onPatchDocument: props.onPatchDocument } : undefined}
             viewPreset={props.viewPreset}
             cameraHeightMm={props.cameraHeightMm}
             fieldOfViewDegrees={props.fieldOfViewDegrees}
             activeCameraId={props.activeCameraId}
             cameras={props.cameras}
-            cutawayWalls={props.cutawayWalls}
             activeRotation={props.activeRotation}
             hasActiveObject={props.hasActiveObject}
             viewportQuality={props.viewportQuality}
@@ -72,7 +70,6 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
             onCameraHeightMm={props.onCameraHeightMm}
             onFieldOfViewDegrees={props.onFieldOfViewDegrees}
             onActiveCameraId={props.onActiveCameraId}
-            onCutawayWalls={props.onCutawayWalls}
             onSetRotation={props.onSetRotation}
             onViewportQuality={props.onViewportQuality}
             onOpenGuide={props.onOpenGuide}
@@ -80,6 +77,8 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
             onClearSelection={props.onClearSelection}
             onFitRoom={props.onFitRoom}
             onFocusSelection={props.onFocusSelection}
+            onMeasure={props.onMeasure}
+            onMaterials={props.onMaterials}
           />
         )}
         wallAction={canPatch && wallId ? (

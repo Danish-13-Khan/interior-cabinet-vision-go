@@ -39,13 +39,6 @@ export function InspectorObjectSection(props: Props) {
   const position = isWallCabinetObject(object)
     ? { ...object.position, y: resolveWallMountHeightMm(object) }
     : object.position;
-  const actions = (
-    <div className="lr-object-edit-actions" aria-label="Selected object actions">
-      <button type="button" data-testid="inspector-duplicate" onClick={props.onDuplicate}>Duplicate</button>
-      <button type="button" data-testid="inspector-copy" onClick={props.onDuplicate}>Copy</button>
-      <button type="button" data-testid="inspector-delete" className="is-danger" onClick={props.onDelete}>Delete</button>
-    </div>
-  );
   const positionEditor = (
     <details className="lr-inspector-section lr-transform-editor" open={props.mode === "model"}>
       <summary>Position &amp; rotation</summary>
@@ -77,7 +70,6 @@ export function InspectorObjectSection(props: Props) {
       onUpdatePanelAttachment={props.onUpdatePanelAttachment}
       onSetPanelVisible={props.onSetPanelVisible}
       onAddWallPanel={props.onAddWallPanel}
-      actions={actions}
       positionEditor={positionEditor}
     />
   );
