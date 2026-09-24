@@ -14,17 +14,39 @@
   min-width: 0;
 }
 
+.studio-design > button {
+  align-self: flex-start;
+  margin: 8px 10px 0;
+}
 .studio-design > .lr-workspace-body {
   flex: 1;
+  min-width: 0;
   min-height: 0;
+}
+.studio-design > .lr-workspace-body.is-model,
+.studio-design > .lr-workspace-body.is-render {
+  display: flex;
+  min-width: 0;
+}
+.studio-design > .lr-workspace-body.is-model > .lr-plan-center,
+.studio-design > .lr-workspace-body.is-render > .lr-plan-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+.studio-design > .lr-workspace-body.is-model > .studio-design-hierarchy,
+.studio-design > .lr-workspace-body.is-model > .lr-chrome-rail,
+.studio-design > .lr-workspace-body.is-render > .studio-design-hierarchy,
+.studio-design > .lr-workspace-body.is-render > .lr-chrome-rail {
+  display: none;
 }
 
 .studio-design-hierarchy {
   display: flex;
   position: relative;
-  flex: 1 1 auto;
+  flex: 0 0 var(--studio-hierarchy-width, 240px);
   flex-direction: column;
-  width: auto;
+  width: var(--studio-hierarchy-width, 240px);
   min-width: 0;
   min-height: 0;
   overflow: auto;
@@ -35,11 +57,27 @@
 
 .studio-design-hierarchy header {
   display: grid;
-  gap: 6px;
-  padding: 8px;
+  gap: 8px;
+  padding: 12px;
   position: sticky;
   top: 0;
+  z-index: 1;
   background: #fff;
+  border-bottom: 1px solid var(--studio-line, #e1e6e2);
+}
+.studio-design-hierarchy header strong { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6d7a72; }
+.studio-design-hierarchy header .studio-btn {
+  width: auto;
+  display: inline-flex;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+}
+.studio-design-hierarchy header input {
+  width: 100%;
+  border: 1px solid var(--studio-line, #e1e6e2);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #f7f8f7;
 }
 
 .studio-design-hierarchy ul {
@@ -48,27 +86,27 @@
   padding: 0;
 }
 
-.studio-design-hierarchy button {
+.studio-hierarchy-row > button {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 2px 6px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
   width: 100%;
   border: 0;
   background: transparent;
   text-align: left;
-  padding: 6px 8px;
+  padding: 7px 8px;
+  border-radius: 8px;
   color: inherit;
   cursor: pointer;
 }
-
-.studio-design-hierarchy button.is-selected {
-  background: #d9f0e1;
+.studio-hierarchy-row > button span,
+.studio-hierarchy-row > button small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.studio-design-hierarchy small {
-  grid-column: 2;
-  color: #5c675f;
-}
+.studio-hierarchy-row.is-selected > button { background: #e7f3ec; }
+.studio-design-hierarchy small { color: #6d7a72; font-size: 0.72rem; }
 
 .studio-design-footer {
   display: flex;
@@ -105,38 +143,3 @@
 .studio-journey { display: flex; flex-wrap: wrap; gap: 8px; }
 .studio-journey .studio-btn { display: grid; text-align: left; min-width: 140px; }
 .studio-design-tools { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
-
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) {
-  grid-template-columns: auto var(--studio-hierarchy-width, 220px) minmax(0, 1fr) auto;
-}
-
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan > .studio-design-hierarchy {
-  grid-column: 2;
-  grid-row: 1 / -1;
-}
-
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-chrome-rail,
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-plan-center {
-  grid-column: 3;
-}
-
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-inspector,
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-ui-compact .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-inspector {
-  grid-column: 4;
-}
-
-@media (max-width: 960px) {
-  .studio-design-hierarchy { width: auto; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(320px, 1fr) auto;
-  }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .studio-design-hierarchy {
-    grid-column: 1;
-    grid-row: 2;
-    width: auto;
-  }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-catalog { grid-row: 3; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-plan-center { grid-row: 4; min-height: 320px; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan:has(> .studio-design-hierarchy) > .lr-inspector { grid-row: 5; }
-}

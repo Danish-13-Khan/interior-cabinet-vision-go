@@ -44,7 +44,8 @@ function roomNodes(project: InteriorProject, roomId: string, active: boolean): D
     openingId: null,
   }];
   if (!active) return nodes;
-  selectRoomWalls(project, room.id).forEach((wall, index) => {
+  const walls = selectRoomWalls(project, room.id);
+  walls.forEach((wall, index) => {
     nodes.push({
       id: `wall:${wall.id}`,
       kind: "wall",
@@ -59,11 +60,12 @@ function roomNodes(project: InteriorProject, roomId: string, active: boolean): D
   });
   for (const opening of selectRoomOpenings(project, room.id)) {
     const kind = opening.kind === "door" || opening.kind === "window" ? opening.kind : "opening";
+    const wallIndex = walls.findIndex((wall) => wall.id === opening.wallId);
     nodes.push({
       id: `opening:${opening.id}`,
       kind,
       label: `${kind[0]!.toUpperCase()}${kind.slice(1)} ${opening.widthMm}×${opening.heightMm}`,
-      detail: `Wall ${opening.wallId}`,
+      detail: wallIndex >= 0 ? `Wall ${wallIndex + 1}` : "Opening",
       depth: 1,
       roomId: room.id,
       objectId: null,

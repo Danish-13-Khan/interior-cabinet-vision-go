@@ -24,8 +24,8 @@ describe("studio navigation", () => {
     ]);
   });
 
-  it("collapses the studio sidebar only while designing", () => {
-    expect(studioSidebarCollapsed("project", "design")).toBe(true);
+  it("keeps the studio sidebar open while designing", () => {
+    expect(studioSidebarCollapsed("project", "design")).toBe(false);
     expect(studioSidebarCollapsed("project", "quote")).toBe(false);
     expect(studioSidebarCollapsed("studio", "design")).toBe(false);
   });

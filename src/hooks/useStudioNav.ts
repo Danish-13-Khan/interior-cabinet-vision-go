@@ -1,22 +1,16 @@
 import { useEffect, useState } from "react";
-import {
-  studioSidebarCollapsed,
-  type ProjectWorkflow,
-  type StudioSection,
-  type StudioSurface,
-} from "../domain/studio/navigation";
+import type { ProjectWorkflow, StudioSection, StudioSurface } from "../domain/studio/navigation";
 
 export function useStudioNav(projectOpen: boolean) {
   const [surface, setSurface] = useState<StudioSurface>(projectOpen ? "project" : "studio");
   const [section, setSection] = useState<StudioSection>("projects");
   const [workflow, setWorkflow] = useState<ProjectWorkflow>("design");
-  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(true);
 
   useEffect(() => {
     if (projectOpen) {
       setSurface("project");
       setWorkflow("design");
-      setSidebarPinned(false);
       return;
     }
     setSurface("studio");
@@ -30,10 +24,9 @@ export function useStudioNav(projectOpen: boolean) {
   function openWorkflow(next: ProjectWorkflow) {
     setWorkflow(next);
     setSurface("project");
-    if (next === "design") setSidebarPinned(false);
   }
 
-  const collapsed = studioSidebarCollapsed(surface, workflow) && !sidebarPinned;
+  const collapsed = !sidebarPinned;
 
   return {
     surface,
