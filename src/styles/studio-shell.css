@@ -100,6 +100,7 @@
 .studio-title small { color: #6d7a72; font-size: 0.75rem; }
 .studio-menu { padding: 4px 8px; color: #5d6b64; }
 .studio-actions { display: flex; gap: 8px; align-items: center; }
+.studio-view-switch { display: flex; gap: 4px; }
 .studio-workflows {
   display: flex;
   flex-wrap: nowrap;

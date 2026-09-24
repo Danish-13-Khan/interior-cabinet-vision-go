@@ -23,6 +23,9 @@ type StudioChromeProps = {
   onWorkflow: (workflow: ProjectWorkflow) => void;
   onToggleSidebar: () => void;
   onSave: () => void;
+  canvasView?: "plan" | "model" | "render";
+  onCanvasView?: (view: "plan" | "model") => void;
+  onPresent?: () => void;
   children: ReactNode;
 };
 
@@ -86,6 +89,13 @@ export function StudioChrome(props: StudioChromeProps) {
             </div>
           </div>
           <div className="studio-actions">
+            {designing && props.onCanvasView ? (
+              <div className="studio-view-switch" role="group" aria-label="Canvas view">
+                <button type="button" className={`studio-btn${props.canvasView === "plan" ? " is-primary" : ""}`} onClick={() => props.onCanvasView?.("plan")}>2D</button>
+                <button type="button" className={`studio-btn${props.canvasView === "model" || props.canvasView === "render" ? " is-primary" : ""}`} onClick={() => props.onCanvasView?.("model")}>3D</button>
+              </div>
+            ) : null}
+            {designing && props.onPresent ? <button type="button" className="studio-btn" onClick={props.onPresent}>Present</button> : null}
             <span className={`studio-badge is-${props.saveTone}`} data-testid="studio-save-status">{props.saveLabel}</span>
             <button type="button" className="studio-btn is-primary" onClick={props.onSave} disabled={!props.projectOpen}>Save</button>
           </div>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { millworkAssetCategories } from "../domain/livingRoom/millworkShortcuts";
-import { designUxShellClassNames, interiorsJobStatusLabel } from "../domain/desktopUx";
+import { designUxShellClassNames } from "../domain/desktopUx";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanWorkspaceHotkeys } from "../hooks/useLivingRoomPlanWorkspaceHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
@@ -13,7 +13,6 @@ import { useInteriorsUiMode } from "../hooks/useInteriorsUiMode";
 import { useDraftingAppearance } from "../hooks/useDraftingAppearance";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
-import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
 import { InteriorsWorkflowNav } from "./livingRoomPlan/InteriorsWorkflowNav";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
@@ -140,8 +139,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const saveTone = props.autosaveState === "error" ? "error" : props.autosaveState === "saved" && !props.isDirty ? "saved" : "idle";
   const saveLabel = props.autosaveState === "saving" ? "Saving" : props.isDirty ? "Unsaved" : props.autosaveState === "error" ? "Save failed" : "Saved";
   const home = (
-    <LivingRoomPlanHomeShell uiMode={ui.mode} header={null}>
-      <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={Boolean(props.project)} uiMode={ui.mode} />
+    <LivingRoomPlanHomeShell uiMode="calm" header={null}>
+      <LivingRoomHomeFromWorkspace workspace={props} open hasCurrentProject={Boolean(props.project)} uiMode="calm" />
     </LivingRoomPlanHomeShell>
   );
   const design = props.project && !props.projectHomeOpen ? (
@@ -150,21 +149,6 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       appearance: draftingAppearance.appearance,
       presenting: chrome.plannerMode === "render",
     }).join(" ")} data-ui-mode={ui.mode} data-drafting-appearance={draftingAppearance.appearance}>
-      <InteriorsWorkspaceHeader
-        projectName={props.project.name} roomName={room?.name ?? "Room"}
-        revision={job?.revision ?? "A"}
-        statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", props.project.objects.some((item) => item.kind === "cabinet"))}
-        workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
-        canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"} chromeLocked={false}
-        uiMode={ui.mode} onUiMode={ui.setMode}
-        onProject={() => chrome.changePlannerMode("project")}
-        onOpen={props.onOpenProject} onExport={props.onExportProject}
-        onView={chrome.changeWorkspaceView}
-        onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
-        onOpenShortcuts={props.onOpenShortcuts}
-        appearance={draftingAppearance.appearance}
-        onAppearance={draftingAppearance.setAppearance}
-      />
       <InteriorsWorkflowNav area={chrome.workflowArea} onArea={chrome.setWorkflowArea} />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
@@ -218,6 +202,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       onWorkflow={nav.openWorkflow}
       onToggleSidebar={nav.toggleSidebar}
       onSave={props.onSaveProject}
+      canvasView={chrome.workspaceView}
+      onCanvasView={chrome.changeWorkspaceView}
+      onPresent={chrome.present}
     >
       <StudioMain
         surface={props.project && !props.projectHomeOpen ? nav.surface : "studio"}
