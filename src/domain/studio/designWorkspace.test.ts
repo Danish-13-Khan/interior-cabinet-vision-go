@@ -66,6 +66,7 @@ describe("design workspace", () => {
   it("lists the active room with walls, openings, manufactured cabinets, and bought-in furniture", () => {
     const nodes = buildDesignHierarchy(project());
     expect(nodes.map((node) => node.kind)).toEqual(["room", "wall", "door", "window", "cabinet", "furniture", "room"]);
+    expect(nodes.find((node) => node.kind === "door")?.detail).toBe("Wall 1");
     expect(nodes.find((node) => node.kind === "cabinet")?.detail).toBe("Manufactured cabinetry");
     expect(nodes.find((node) => node.kind === "furniture")?.detail).toBe("Bought-in");
     expect(nodes.find((node) => node.id === "room:room-b")?.depth).toBe(0);

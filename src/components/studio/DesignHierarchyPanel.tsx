@@ -3,6 +3,12 @@ import { filterDesignHierarchy, type DesignHierarchyNode } from "../../domain/st
 import { collapseHierarchy, visibleHierarchyNodes } from "../../domain/studio/manufacturingTree";
 import type { ViewportObjectFilter } from "../../domain/studio/viewportVisibility";
 
+function sceneDetail(detail: string) {
+  if (detail === "Bought-in") return "Furniture";
+  if (detail === "Manufactured cabinetry") return "Cabinet";
+  return detail;
+}
+
 export function DesignHierarchyPanel(props: {
   nodes: DesignHierarchyNode[];
   selectedIds: readonly string[];
@@ -63,9 +69,9 @@ export function DesignHierarchyPanel(props: {
   }
 
   return (
-    <aside className="studio-design-hierarchy" aria-label="Hierarchy" data-testid="studio-hierarchy">
+    <aside className="studio-design-hierarchy" aria-label="Scene" data-testid="studio-hierarchy">
       <header>
-        <strong>Hierarchy</strong>
+        <strong>Scene</strong>
         <input className="studio-field" value={query} placeholder="Search" aria-label="Search hierarchy" onChange={(event) => setQuery(event.target.value)} />
         <div className="studio-tabs">
           <button type="button" className="studio-btn" title="Show only this object in the view. The cut list stays complete." disabled={!selectedObjectId} onClick={() => selectedObjectId && setIsolatedObjectId(selectedObjectId)}>Isolate</button>
@@ -101,7 +107,7 @@ export function DesignHierarchyPanel(props: {
                 ) : null}
                 <button type="button" aria-pressed={selected} onClick={() => props.onSelectNode(node)}>
                   <span>{node.label}</span>
-                  <small>{node.detail}</small>
+                  <small>{sceneDetail(node.detail)}</small>
                 </button>
               </div>
             </li>

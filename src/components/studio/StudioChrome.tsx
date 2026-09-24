@@ -28,12 +28,21 @@ type StudioChromeProps = {
 
 export function StudioChrome(props: StudioChromeProps) {
   const designing = props.surface === "project" && props.workflow === "design";
+  const settings = STUDIO_SECTIONS.find((item) => item.id === "settings");
+  const sections = STUDIO_SECTIONS.filter((item) => item.id !== "settings");
   return (
     <section className={`studio-shell${props.collapsed ? " is-sidebar-collapsed" : ""}`} data-testid="studio-shell">
       <aside className="studio-sidebar" aria-label="Cabinet Studio">
-        <p className="studio-brand">Cabinet Studio</p>
+        <div className="studio-brand">
+          <span className="studio-mark" aria-hidden="true" />
+          <span>
+            <strong>Cabinet Studio</strong>
+            <small>Drafting workspace</small>
+          </span>
+        </div>
+        <p className="studio-nav-label">Workspace</p>
         <nav className="studio-nav" aria-label="Studio">
-          {STUDIO_SECTIONS.map((item) => (
+          {sections.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -45,36 +54,60 @@ export function StudioChrome(props: StudioChromeProps) {
             </button>
           ))}
         </nav>
+        {props.projectName ? (
+          <div className="studio-current">
+            <small>Current project</small>
+            <strong>{props.projectName}</strong>
+            <span>{props.roomName} · Rev {props.revision}</span>
+          </div>
+        ) : null}
+        {settings ? (
+          <button
+            type="button"
+            className={`studio-nav-btn studio-nav-foot${props.surface === "studio" && props.section === "settings" ? " is-active" : ""}`}
+            aria-pressed={props.surface === "studio" && props.section === "settings"}
+            onClick={() => props.onSection(settings.id)}
+          >
+            Workspace settings
+          </button>
+        ) : null}
       </aside>
       <header className="studio-topbar">
-        <div>
-          <button type="button" className="studio-btn" onClick={props.onToggleSidebar}>
-            {props.collapsed ? "Show studio" : "Hide studio"}
-          </button>
-          <strong className="studio-crumb" data-testid="studio-breadcrumb">
-            {studioBreadcrumb(props.projectName, props.roomName, props.revision)}
-          </strong>
+        <div className="studio-topbar-row">
+          <div className="studio-topbar-leading">
+            <button type="button" className="studio-btn studio-menu" onClick={props.onToggleSidebar} aria-label={props.collapsed ? "Show studio" : "Hide studio"}>
+              {props.collapsed ? "Show" : "Hide"}
+            </button>
+            <div className="studio-title">
+              <strong className="studio-crumb" data-testid="studio-breadcrumb">
+                {studioBreadcrumb(props.projectName, props.roomName, props.revision)}
+              </strong>
+              {props.projectOpen ? <small>Rev {props.revision}</small> : null}
+            </div>
+          </div>
+          <div className="studio-actions">
+            <span className={`studio-badge is-${props.saveTone}`} data-testid="studio-save-status">{props.saveLabel}</span>
+            <button type="button" className="studio-btn is-primary" onClick={props.onSave} disabled={!props.projectOpen}>Save</button>
+          </div>
         </div>
-        <div className="studio-actions">
-          <span className={`studio-badge is-${props.saveTone}`} data-testid="studio-save-status">{props.saveLabel}</span>
-          <button type="button" className="studio-btn is-primary" onClick={props.onSave} disabled={!props.projectOpen}>Save</button>
-        </div>
+        {props.projectOpen ? (
+          <div className="studio-workflows" role="tablist" aria-label="Project workflow">
+            {PROJECT_WORKFLOWS.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                className={`studio-workflow-btn${props.workflow === item.id ? " is-active" : ""}`}
+                aria-selected={props.workflow === item.id}
+                onClick={() => props.onWorkflow(item.id)}
+              >
+                <span>{index + 1}</span>
+                {item.short}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </header>
-      <div className="studio-workflows" role="tablist" aria-label="Project workflow">
-        {PROJECT_WORKFLOWS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            className={`studio-workflow-btn${props.surface === "project" && props.workflow === item.id ? " is-active" : ""}`}
-            aria-selected={props.surface === "project" && props.workflow === item.id}
-            disabled={!props.projectOpen}
-            onClick={() => props.onWorkflow(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
       <div className={`studio-main${designing ? " is-design" : ""}`}>{props.children}</div>
     </section>
   );

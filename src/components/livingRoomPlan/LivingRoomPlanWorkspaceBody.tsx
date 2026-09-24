@@ -87,7 +87,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
 
   return (
     <FinishPreviewContext.Provider value={finishPreview}>
-    <div className="studio-design">
+    <div className="studio-design lr-plan-shell lr-product-shell lr-product-shell-v2 is-drafting-studio">
     <InteriorProjectTools
       project={project}
       onPatchDocument={(update) => w.onPatchDocument(update, "Project tools updated")}
