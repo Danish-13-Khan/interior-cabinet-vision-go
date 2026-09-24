@@ -11,6 +11,8 @@ type ProceduralFallbackObjectProps = {
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
+  highlightedIds?: readonly string[] | null;
+  edgesOnly?: boolean;
 };
 
 /** Existing compiled primitives path used when GLB is missing or fails. */
@@ -21,6 +23,8 @@ export function ProceduralFallbackObject({
   renderMode,
   renderQuality,
   onPointerDown,
+  highlightedIds = null,
+  edgesOnly = false,
 }: ProceduralFallbackObjectProps) {
   return (
     <>
@@ -29,10 +33,11 @@ export function ProceduralFallbackObject({
           key={primitive.id}
           primitive={primitive}
           material={materials.get(primitive.materialId) ?? materials.get("compiled:fallback")!}
-          selected={selected}
+          selected={highlightedIds ? highlightedIds.includes(primitive.id) : selected}
           renderMode={renderMode}
           renderQuality={renderQuality}
           onPointerDown={onPointerDown}
+          edgesOnly={edgesOnly}
         />
       ))}
     </>

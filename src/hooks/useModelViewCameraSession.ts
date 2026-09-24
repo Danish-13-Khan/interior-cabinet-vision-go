@@ -9,7 +9,7 @@ import { useModelViewCameraHotkeys } from "./useModelViewCameraHotkeys";
 
 export function useModelViewCameraSession(enabled: boolean, hasSelection = false) {
   const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("dollhouse");
-  const [fitVersion, setFitVersion] = useState(0);
+  const [fitVersion, setFitVersion] = useState(1);
   const [fitMode, setFitMode] = useState<ModelViewFitMode>("room");
   const hasSelectionRef = useRef(hasSelection);
   hasSelectionRef.current = hasSelection;

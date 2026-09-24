@@ -1,0 +1,50 @@
+.studio-main [data-testid="studio-quote"] {
+  max-width: none;
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.studio-main [data-testid="studio-quote"] > .studio-quote-bar {
+  grid-column: 1 / -1;
+}
+
+.studio-main [data-testid="studio-quote"] > button,
+.studio-main [data-testid="studio-quote"] > .studio-quote-comparison,
+.studio-main [data-testid="studio-quote"] > [data-testid="interiors-present-quote"],
+.studio-main [data-testid="studio-quote"] > [data-testid="interiors-present-commercial"] {
+  grid-column: 1 / -1;
+}
+
+.studio-main [data-testid="studio-quote"] > .studio-quote-split {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+}
+
+.studio-main [data-testid="studio-clients"],
+.studio-main [data-testid="studio-approval"] {
+  max-width: 1180px;
+}
+
+.studio-main [data-testid="studio-clients"] .studio-project-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.studio-page { width: 100%; box-sizing: border-box; }
+
+@media (max-width: 1100px) {
+  .studio-main [data-testid="studio-quote"],
+  .studio-main [data-testid="studio-quote"] > .studio-quote-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .studio-topbar-row { flex-wrap: wrap; }
+  .studio-page { padding: 12px; }
+  .studio-table { display: block; overflow-x: auto; }
+}

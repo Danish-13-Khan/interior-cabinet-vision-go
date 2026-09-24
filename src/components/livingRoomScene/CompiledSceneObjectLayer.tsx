@@ -60,6 +60,8 @@ export function CompiledSceneObjectLayer(props: {
   onMechanismClick?: (objectId: string, primitiveId: string) => void;
   onAssetReady: () => void;
   onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
+  partHighlight?: { objectId: string; primitiveIds: readonly string[] } | null;
+  onPickPrimitive?: (objectId: string, geometryName: string) => void;
 }) {
   const wallLabelId = selectedWallLabelNodeId(props.nodes, props.selectedWallId);
   return (
@@ -121,6 +123,8 @@ export function CompiledSceneObjectLayer(props: {
           onAssetReady={props.onAssetReady}
           onWallContextMenu={props.onWallContextMenu}
           positionOverride={preview}
+          highlightedPrimitiveIds={props.partHighlight?.objectId === node.sourceObjectId ? props.partHighlight.primitiveIds : null}
+          onPickPrimitive={props.onPickPrimitive}
         />;
       })}
       {props.interactive && props.transformTarget ? (

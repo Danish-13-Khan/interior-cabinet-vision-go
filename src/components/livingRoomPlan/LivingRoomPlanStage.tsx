@@ -49,14 +49,29 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
   });
   return (
     <div className="lr-plan-center">
-      {showRail && !props.presenting ? (
-        <ContextualCommandRail
-          kind={kind}
-          workspaceView={props.workspaceView}
-          onCommand={(id) => runRailCommand(props, id)}
-        />
-      ) : null}
-      <PlanStageAuthoringChrome {...props} />
+      {props.workspaceView === "plan" && !props.presenting ? (
+        <div className="studio-plan-toolbar">
+          {showRail ? (
+            <ContextualCommandRail
+              kind={kind}
+              workspaceView={props.workspaceView}
+              onCommand={(id) => runRailCommand(props, id)}
+            />
+          ) : null}
+          <PlanStageAuthoringChrome {...props} />
+        </div>
+      ) : (
+        <>
+          {showRail && !props.presenting ? (
+            <ContextualCommandRail
+              kind={kind}
+              workspaceView={props.workspaceView}
+              onCommand={(id) => runRailCommand(props, id)}
+            />
+          ) : null}
+          <PlanStageAuthoringChrome {...props} />
+        </>
+      )}
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (
           <LivingRoomPlanView
@@ -82,6 +97,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onRegisterViewControls={props.onRegisterViewControls}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
             onCalibrateComplete={props.onCalibrateComplete}
+            viewportFilter={props.viewportFilter}
           />
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
@@ -96,6 +112,12 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSetParameters={props.onSetParameters}
             onPatchDocument={props.onPatchDocument}
             presentation={props.presenting}
+            onRegisterViewControls={props.onRegisterViewControls}
+            onMeasure={() => props.onBuildTool?.("measure")}
+            onMaterials={() => props.onChromeTool?.("material")}
+            onPickPrimitive={props.onPickPrimitive}
+            partHighlight={props.partHighlight}
+            viewportFilter={props.viewportFilter}
           />
         ) : props.presenting ? (
           <InteriorsClientCaptureView
@@ -103,6 +125,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             latestResult={props.latestRender}
             onRendered={props.onRendered}
             onBrowserThumbnail={props.onRenderBrowserThumbnail}
+            onSelectCamera={(cameraId) => props.onRenderSettingsChange({ activeCameraId: cameraId })}
           />
         ) : (
           <LivingRoomRenderStudio

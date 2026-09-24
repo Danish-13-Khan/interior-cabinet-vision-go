@@ -186,6 +186,11 @@ export function formatQuoteMoney(amount: number, currencyLabel = "INR") {
   return `${label}${Math.round(amount).toLocaleString()}`;
 }
 
+export function formatPdfMoney(amount: number, currencyLabel = "INR") {
+  const label = currencyLabel === "INR" ? "INR" : currencyLabel;
+  return `${label} ${Math.round(amount).toLocaleString("en-IN")}`;
+}
+
 export function quoteValidUntil(quotedAt: string, validityDays: number) {
   const start = new Date(quotedAt);
   if (Number.isNaN(start.getTime())) return null;

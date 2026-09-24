@@ -14,6 +14,7 @@ type InteriorsClientCaptureViewProps = {
   latestResult: LivingRoomRenderResult | null;
   onRendered: (result: LivingRoomRenderResult) => void;
   onBrowserThumbnail?: (dataUrl: string) => void;
+  onSelectCamera: (cameraId: string) => void;
 };
 
 export function InteriorsClientCaptureView({
@@ -21,6 +22,7 @@ export function InteriorsClientCaptureView({
   latestResult,
   onRendered,
   onBrowserThumbnail,
+  onSelectCamera,
 }: InteriorsClientCaptureViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const settings = project.renderSettings;
@@ -83,6 +85,16 @@ export function InteriorsClientCaptureView({
         ) : null}
       </div>
       <div className="interiors-client-capture-bar">
+        {project.cameras.map((camera) => (
+          <button
+            key={camera.id}
+            type="button"
+            aria-pressed={camera.id === activeCamera?.id}
+            onClick={() => onSelectCamera(camera.id)}
+          >
+            {camera.name}
+          </button>
+        ))}
         <button
           type="button"
           className="is-primary"

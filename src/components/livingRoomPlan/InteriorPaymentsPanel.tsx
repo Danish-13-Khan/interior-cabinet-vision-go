@@ -2,6 +2,9 @@ import { useState } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { useAccountPlan } from "../../hooks/useAccountPlan";
 import { seatHasPermission } from "../../domain/company/permissions";
+import { canViewPaymentRecords } from "../../domain/studio/paymentAccess";
+import { paymentDashboard } from "../../domain/studio/paymentDashboard";
+import { StudioPaymentsSummary } from "../studio/StudioPaymentsSummary";
 import { readPaymentLedger, persistPaymentLedger, currentObligationForProject, computeDocumentBalances, recordPayment, voidPayment, refundPayment, correctPayment, reallocatePayment, setPaymentSchedule, markDocumentAccepted, createInvoiceAndRollForward, assertPaymentMutation, type PaymentLedgerState } from "../../domain/paymentLedger";
 
 export function InteriorPaymentsPanel({ project }: { project: InteriorProject }) {
@@ -11,7 +14,8 @@ export function InteriorPaymentsPanel({ project }: { project: InteriorProject })
   const seat = account.account?.organization?.seats.find(s => s.email.toLowerCase() === account.account?.email.toLowerCase());
   const gate = { entitlements: account.entitlements, seat };
   const company = account.entitlements.canUseCompanyControls;
-  const canView = account.entitlements.canUsePaymentRecords && (!company || Boolean(seat && seatHasPermission(seat, "payments:view")));
+  const canView = canViewPaymentRecords({ entitlements: account.entitlements, seat });
+  const canCorrect = canView && (!company || Boolean(seat && seatHasPermission(seat, "payments:correct")));
   const doc = currentObligationForProject(ledger, project.id);
   const balance = doc ? computeDocumentBalances(ledger, doc.id) : null;
   const actor = account.account?.email ?? "";
@@ -28,7 +32,7 @@ export function InteriorPaymentsPanel({ project }: { project: InteriorProject })
   const payments = ledger.payments.filter(p => p.projectId === project.id);
   const docIds = new Set(ledger.documents.filter(d => d.projectId === project.id).map(d => d.id));
   const schedule = ledger.schedules.find(s => s.documentId === doc?.id);
-  return <section><h3>Client payment records</h3><p>Records only: no money is collected here. All records are stored on this device. Receipts apply to the oldest due instalments first. Overdue excludes future instalments.</p>
+  return <section><StudioPaymentsSummary summary={canView ? paymentDashboard(ledger, project.id) : null} canCorrect={canCorrect} /><h3>Client payment records</h3><p>Records only: no money is collected here. All records are stored on this device. Receipts apply to the oldest due instalments first. Overdue excludes future instalments.</p>
     <button type="button" onClick={() => setLedger(readPaymentLedger())}>Refresh records</button>
     <p role="status">{message}</p>
     {!doc || !balance ? <p>Freeze a quote in Present to create a commercial obligation for this project.</p> : <>

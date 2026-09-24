@@ -1,0 +1,163 @@
+.studio-shell {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.studio-main.is-design .lr-plan-shell.lr-product-shell-v2 {
+  min-height: 0 !important;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.studio-design-footer {
+  flex: 0 0 auto;
+}
+
+.studio-design .lr-model-controls {
+  gap: 6px;
+  height: 40px;
+  padding: 4px;
+  overflow-x: auto;
+}
+
+.studio-design .lr-model-controls button,
+.studio-design .lr-model-controls select {
+  white-space: nowrap;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #d5dbd4;
+  border-radius: 8px;
+  background: #fff;
+  color: #1c2420;
+  font: 600 0.78rem "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.studio-design .lr-model-controls button.is-active {
+  background: #e7f3ec;
+  border-color: #2f6b45;
+  color: #1e4d32;
+}
+
+.model-review-dock {
+  width: 100%;
+  color: #1c2420;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 0.84rem;
+}
+
+.model-review-dock .model-review-dock-block,
+.model-review-dock .lr-style-palette,
+.model-review-dock .lr-mechanism-panel,
+.model-review-dock .lr-model-diagnostics-disclosure,
+.lr-inspector-object-actions {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e1e6e2;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+}
+
+.model-review-dock .lr-style-palette header,
+.model-review-dock .lr-mechanism-panel header,
+.model-review-dock-block header {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  color: #667268;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.model-review-dock .lr-style-palette header strong,
+.model-review-dock .lr-mechanism-panel header span {
+  color: #1c2420;
+  font-size: 0.84rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.model-review-dock .lr-style-palette p,
+.model-review-dock .lr-mechanism-panel,
+.model-review-dock .lr-render-diagnostics {
+  position: static;
+  width: auto;
+  color: #3d4842;
+  font: 0.78rem "Avenir Next", "Segoe UI", sans-serif;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.model-review-dock .lr-style-palette > div {
+  display: grid;
+  gap: 6px;
+}
+
+.model-review-dock .lr-style-palette button,
+.model-review-dock .lr-mechanism-panel button,
+.model-review-dock .model-review-dock-block button,
+.lr-inspector-object-actions button {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #d5dbd4;
+  border-radius: 8px;
+  background: #f7f8f6;
+  color: #1c2420;
+  font: 600 0.8rem "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.model-review-dock .lr-style-palette button.is-active,
+.model-review-toggle input:checked {
+  border-color: #2f6b45;
+  background: #e7f3ec;
+}
+
+.lr-inspector-object-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lr-inspector-object-actions .is-danger {
+  color: #9c3b32;
+  background: #fff;
+}
+
+.model-review-toggle input {
+  width: 36px;
+  height: 20px;
+  accent-color: #2f6b45;
+}
+
+.model-view-canvas-hint {
+  position: absolute;
+  z-index: 5;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: min(520px, calc(100% - 24px));
+  margin: 0;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid #d5dbd4;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 92%);
+  color: #3d4842;
+  font-size: 0.72rem;
+}
+
+.model-view-canvas-hint button {
+  border: 0;
+  background: transparent;
+  color: #1e4d32;
+  font-weight: 700;
+  cursor: pointer;
+}

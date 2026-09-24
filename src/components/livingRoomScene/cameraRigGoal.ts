@@ -48,7 +48,7 @@ export function buildCameraRigGoal(args: {
       ? namedPose
       : resolveModelViewPose(scene, viewPreset === "walkthrough" ? "dollhouse" : viewPreset);
   const framing = framingPose ?? fallbackFraming(scene);
-  const overriddenPosition = typeof args.cameraHeightMm === "number"
+  const overriddenPosition = !args.useFitPose && typeof args.cameraHeightMm === "number"
     ? { ...framing.position, y: args.cameraHeightMm }
     : framing.position;
   const spanMm = "spanMm" in framing && typeof framing.spanMm === "number"

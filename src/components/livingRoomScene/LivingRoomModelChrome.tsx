@@ -1,16 +1,9 @@
-import {
-  getCabinetMechanismState,
-  mechanismAllPatch,
-  type LivingRoomStyleId,
-  type ModelViewPresetId,
-} from "../../domain/livingRoom";
-import type { InteriorObjectEntity } from "../../domain/interiorProject";
+import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
+import type { LivingRoomStyleId, ModelViewPresetId } from "../../domain/livingRoom";
 import type { useRenderDiagnostics } from "../../hooks/useRenderDiagnostics";
-import { CabinetMechanismPanel } from "./CabinetMechanismPanel";
+import { ModelReviewDock } from "./ModelReviewDock";
+import { ModelViewCanvasHint } from "./ModelViewCanvasHint";
 import { ModelViewOnboarding } from "./ModelViewOnboarding";
-import { ModelViewReadout } from "./ModelViewReadout";
-import { ModelViewStylePalette } from "./ModelViewStylePalette";
-import { RenderDiagnosticsPanel } from "./RenderDiagnosticsPanel";
 
 type LivingRoomModelChromeProps = {
   showGuide: boolean;
@@ -26,6 +19,13 @@ type LivingRoomModelChromeProps = {
   honestyBadge: string;
   exposure: number;
   planTraceHint: boolean;
+  cutawayWalls: boolean;
+  onCutawayWalls: (value: boolean) => void;
+  project: InteriorProject;
+  onPatchDocument?: (
+    update: (current: InteriorProject) => InteriorProject,
+    status: string,
+  ) => void;
 };
 
 export function LivingRoomModelChrome(props: LivingRoomModelChromeProps) {
@@ -38,38 +38,22 @@ export function LivingRoomModelChrome(props: LivingRoomModelChromeProps) {
           onDismiss={props.onDismissGuide}
         />
       ) : null}
-      {props.diagnostics ? (
-        <details className="lr-model-diagnostics-disclosure">
-          <summary>
-            Scene health
-            {props.diagnostics.warnings.length > 0 ? ` · ${props.diagnostics.warnings.length}` : " · ready"}
-          </summary>
-          <RenderDiagnosticsPanel report={props.diagnostics} compact />
-        </details>
-      ) : null}
-      <CabinetMechanismPanel
-        object={props.activeObject}
-        onChange={props.onSetParameters}
-        onSoftClose={(object) => {
-          const state = getCabinetMechanismState(object);
-          if (!state) return;
-          props.onSetParameters(object.id, mechanismAllPatch(state, true));
-          window.setTimeout(
-            () => props.onSetParameters(object.id, mechanismAllPatch(state, false)),
-            650,
-          );
-        }}
+      <ModelViewCanvasHint
+        viewPreset={props.viewPreset}
+        honestyBadge={props.honestyBadge}
+        planTraceHint={props.planTraceHint}
       />
-      <ModelViewStylePalette
+      <ModelReviewDock
+        cutawayWalls={props.cutawayWalls}
+        onCutawayWalls={props.onCutawayWalls}
+        project={props.project}
+        onPatchDocument={props.onPatchDocument}
+        diagnostics={props.diagnostics}
+        activeObject={props.activeObject}
+        onSetParameters={props.onSetParameters}
         activeStyleId={props.activeStyleId}
         activeStyleName={props.activeStyleName}
         onApplyStyle={props.onApplyStyle}
-      />
-      <ModelViewReadout
-        viewPreset={props.viewPreset}
-        honestyBadge={props.honestyBadge}
-        exposure={props.exposure}
-        planTraceHint={props.planTraceHint}
       />
     </>
   );

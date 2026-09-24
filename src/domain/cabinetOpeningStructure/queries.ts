@@ -28,9 +28,11 @@ export function createOpeningLeaf(
             ? "Divider Section"
             : "Empty Opening");
 
+  const id = options.id ?? nextOpeningId("opening");
   return {
     kind: "leaf",
-    id: options.id ?? nextOpeningId("opening"),
+    id,
+    stableId: options.stableId ?? id,
     label,
     contentType,
     ratio: clampRatio(options.ratio ?? 1),

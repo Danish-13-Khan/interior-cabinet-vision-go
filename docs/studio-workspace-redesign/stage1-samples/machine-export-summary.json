@@ -1,0 +1,271 @@
+{
+  "source": "exportProjectMachineFile(engineering base+drawer, json-preview)",
+  "fullFile": "machine-export-full.json",
+  "schemaVersion": 1,
+  "format": "cabinet-designer-machine-json",
+  "disclaimer": "Intent / preview only — not verified CNC toolpaths or machine-ready programs.",
+  "generatedAt": "2026-09-23T12:00:00.000Z",
+  "summary": {
+    "partCount": 19,
+    "operationCount": 43,
+    "drillIntentCount": 3,
+    "grooveIntentCount": 13,
+    "cutIntentCount": 19,
+    "unverifiedCount": 24
+  },
+  "partCount": 19,
+  "parts": [
+    {
+      "shopRef": "C01-P01",
+      "partId": "left-side",
+      "cabinetId": "cab-base",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "operationCount": 3,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note",
+        "drill"
+      ]
+    },
+    {
+      "shopRef": "C01-P02",
+      "partId": "right-side",
+      "cabinetId": "cab-base",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "operationCount": 3,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note",
+        "drill"
+      ]
+    },
+    {
+      "shopRef": "C01-P03",
+      "partId": "top",
+      "cabinetId": "cab-base",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note"
+      ]
+    },
+    {
+      "shopRef": "C01-P04",
+      "partId": "bottom",
+      "cabinetId": "cab-base",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note"
+      ]
+    },
+    {
+      "shopRef": "C01-P05",
+      "partId": "back",
+      "cabinetId": "cab-base",
+      "label": "Back Panel",
+      "category": "Back",
+      "quantity": 1,
+      "operationCount": 4,
+      "operationKinds": [
+        "cut-outline",
+        "groove",
+        "rebate",
+        "rebate"
+      ]
+    },
+    {
+      "shopRef": "C01-P06",
+      "partId": "shelf",
+      "cabinetId": "cab-base",
+      "label": "Adjustable Shelf",
+      "category": "Shelf",
+      "quantity": 1,
+      "operationCount": 1,
+      "operationKinds": [
+        "cut-outline"
+      ]
+    },
+    {
+      "shopRef": "C01-P07",
+      "partId": "divider",
+      "cabinetId": "cab-base",
+      "label": "Vertical Divider",
+      "category": "Divider",
+      "quantity": 1,
+      "operationCount": 1,
+      "operationKinds": [
+        "cut-outline"
+      ]
+    },
+    {
+      "shopRef": "C01-P08",
+      "partId": "door",
+      "cabinetId": "cab-base",
+      "label": "Door Opening",
+      "category": "Door",
+      "quantity": 2,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "hardware-intent"
+      ]
+    },
+    {
+      "shopRef": "C01-P09",
+      "partId": "toe-kick",
+      "cabinetId": "cab-base",
+      "label": "Toe Kick",
+      "category": "ToeKick",
+      "quantity": 1,
+      "operationCount": 1,
+      "operationKinds": [
+        "cut-outline"
+      ]
+    },
+    {
+      "shopRef": "C02-P01",
+      "partId": "left-side",
+      "cabinetId": "cab-drawer",
+      "label": "Left Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note"
+      ]
+    },
+    {
+      "shopRef": "C02-P02",
+      "partId": "right-side",
+      "cabinetId": "cab-drawer",
+      "label": "Right Side Panel",
+      "category": "Side",
+      "quantity": 1,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note"
+      ]
+    },
+    {
+      "shopRef": "C02-P03",
+      "partId": "top",
+      "cabinetId": "cab-drawer",
+      "label": "Top Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note"
+      ]
+    },
+    {
+      "shopRef": "C02-P04",
+      "partId": "bottom",
+      "cabinetId": "cab-drawer",
+      "label": "Bottom Panel",
+      "category": "TopBottom",
+      "quantity": 1,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "joinery-note"
+      ]
+    },
+    {
+      "shopRef": "C02-P05",
+      "partId": "back",
+      "cabinetId": "cab-drawer",
+      "label": "Back Panel",
+      "category": "Back",
+      "quantity": 1,
+      "operationCount": 4,
+      "operationKinds": [
+        "cut-outline",
+        "groove",
+        "rebate",
+        "rebate"
+      ]
+    },
+    {
+      "shopRef": "C02-P06",
+      "partId": "drawer-front",
+      "cabinetId": "cab-drawer",
+      "label": "Drawer Stack Front",
+      "category": "DrawerFront",
+      "quantity": 3,
+      "operationCount": 2,
+      "operationKinds": [
+        "cut-outline",
+        "groove"
+      ]
+    },
+    {
+      "shopRef": "C02-P07",
+      "partId": "drawer-side",
+      "cabinetId": "cab-drawer",
+      "label": "Drawer Side",
+      "category": "DrawerBox",
+      "quantity": 6,
+      "operationCount": 3,
+      "operationKinds": [
+        "cut-outline",
+        "groove",
+        "groove"
+      ]
+    },
+    {
+      "shopRef": "C02-P08",
+      "partId": "drawer-front-back",
+      "cabinetId": "cab-drawer",
+      "label": "Drawer Front/Back",
+      "category": "DrawerBox",
+      "quantity": 6,
+      "operationCount": 3,
+      "operationKinds": [
+        "cut-outline",
+        "groove",
+        "groove"
+      ]
+    },
+    {
+      "shopRef": "C02-P09",
+      "partId": "drawer-bottom",
+      "cabinetId": "cab-drawer",
+      "label": "Drawer Bottom",
+      "category": "DrawerBox",
+      "quantity": 3,
+      "operationCount": 3,
+      "operationKinds": [
+        "cut-outline",
+        "groove",
+        "groove"
+      ]
+    },
+    {
+      "shopRef": "C02-P10",
+      "partId": "toe-kick",
+      "cabinetId": "cab-drawer",
+      "label": "Toe Kick",
+      "category": "ToeKick",
+      "quantity": 1,
+      "operationCount": 1,
+      "operationKinds": [
+        "cut-outline"
+      ]
+    }
+  ]
+}

@@ -109,6 +109,9 @@ export function createQuoteDesignFingerprint(
     currency: commercial.quote.currencyLabel,
     taxLabel: commercial.quote.taxLabel,
     priceDetail: commercial.quote.priceDetail,
+    ...(Object.keys(commercial.surface.boqQuantities).length
+      ? { boqQuantities: commercial.surface.boqQuantities }
+      : {}),
     rates: ratesFingerprintFromBook({ quote: commercial.quote }, options.priceBook),
   }));
 }

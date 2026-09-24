@@ -13,6 +13,7 @@ import {
 } from "../../quoteSettings";
 import type { InteriorProject } from "../../interiorProject";
 import { CABINET_EXTENSION } from "../../interiorProject/cabinetAdapterShared";
+import { clampBoqQuantities } from "../../studio/boqWorksheet";
 import { readProposalSurface } from "./proposalSurface";
 import type {
   ProposalClientPayload,
@@ -91,6 +92,7 @@ export function writeProposalCommercial(
         staleOverride: nextSurface.staleOverride,
         frozenClient: nextSurface.frozenClient,
         proposalRelease: nextSurface.proposalRelease,
+        boqQuantities: nextSurface.boqQuantities,
       },
     },
   };
@@ -103,6 +105,16 @@ export function patchProposalQuoteSettings(
   const current = readProposalCommercial(document);
   return writeProposalCommercial(document, {
     quote: clampQuoteSettings({ ...current.quote, ...patch }),
+  });
+}
+
+export function patchBoqQuantities(
+  document: InteriorProject,
+  quantities: Record<string, number>,
+): InteriorProject {
+  const current = readProposalCommercial(document);
+  return writeProposalCommercial(document, {
+    surface: { ...current.surface, boqQuantities: clampBoqQuantities(quantities) },
   });
 }
 

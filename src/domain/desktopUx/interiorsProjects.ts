@@ -14,6 +14,9 @@ export type InteriorsRecentProjectCard = {
   statusLabel: string;
   statusTone: InteriorsProjectStatusTone;
   editedLabel: string;
+  clientName: string;
+  cabinetCount: number;
+  roomCount: number;
 };
 
 export function interiorsProjectStatusTone(
@@ -61,5 +64,8 @@ export function interiorsRecentProjectCard(
     statusLabel: interiorsJobStatusLabel(job.status, hasCabinets),
     statusTone: interiorsProjectStatusTone(job.status, hasCabinets),
     editedLabel: interiorsRelativeTime(entry.updatedAt || document.updatedAt, nowMs),
+    clientName: job.customerName.trim() || "No client",
+    cabinetCount: document.objects.filter((item) => item.kind === "cabinet").length,
+    roomCount: document.rooms.length,
   };
 }

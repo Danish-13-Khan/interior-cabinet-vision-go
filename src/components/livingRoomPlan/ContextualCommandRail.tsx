@@ -5,6 +5,8 @@ import {
   type ContextualRailKind,
 } from "../../domain/livingRoom";
 
+const INSPECTOR_ACTIONS = new Set<ContextualRailCommandId>(["rotate", "duplicate", "material", "delete"]);
+
 type Props = {
   kind: ContextualRailKind;
   workspaceView?: "plan" | "model" | "render";
@@ -32,6 +34,7 @@ export function ContextualCommandRail({
           key={command.id}
           type="button"
           data-testid={command.testId}
+          className={INSPECTOR_ACTIONS.has(command.id) ? "is-inspector-action" : undefined}
           disabled={disabled.has(command.id)}
           onClick={() => onCommand(command.id)}
         >

@@ -14,6 +14,8 @@ export type OpeningStyle = "door" | "drawer" | "open" | "mixed";
 export type OpeningLeaf = {
   kind: "leaf";
   id: string;
+  /** Survives a split on the continuing opening. Piece identity uses this, not the reminted node id. */
+  stableId?: string;
   label: string;
   contentType: OpeningContentType;
   /** Share of parent split, 0.05–0.95 */

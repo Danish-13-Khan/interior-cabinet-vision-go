@@ -1,4 +1,6 @@
 @import "./styles/tokens-shell.css";
+@import "./styles/studio-shell.css";
+@import "./styles/studio-workspace.css";
 @import "./styles/focus-visible.css";
 @import "./styles/command-overlays.css";
 @import "./styles/confirm-dialog.css";
@@ -96,3 +98,9 @@
 @import "./styles/interiors-drafting-ondemand.css";
 @import "./styles/interiors-drafting-inspector.css";
 @import "./styles/interiors-drafting-shortcuts.css";
+@import "./styles/studio-scene.css";
+@import "./styles/studio-desk.css";
+@import "./styles/studio-look.css";
+@import "./styles/studio-model.css";
+@import "./styles/studio-canvas-chrome.css";
+@import "./styles/studio-review-panel.css";

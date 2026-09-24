@@ -33,7 +33,9 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     !p.activeWallId &&
     !activeSurface;
   const reviewEssentials = p.workflowArea === "review" && Boolean(p.room);
+  const modelReview = p.workspaceView === "model" && p.plannerMode !== "render";
   if (
+    !modelReview && (
     !w.inspectorVisible ||
     p.workspaceView === "render" ||
     p.plannerMode === "render" ||
@@ -44,6 +46,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       surfaceSelected: Boolean(activeSurface),
       roomSelected: Boolean(p.inspectRoom && p.room) || emptyRoomEssentials || reviewEssentials,
     })
+    )
   ) {
     return null;
   }
@@ -55,11 +58,17 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       openingPositionOverride={openingPositionOverride} snapSizeMm={p.snapSizeMm} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues}
+      partNote={p.partSelection ? `${p.partSelection.label} · ${p.partSelection.cutlistKey}${p.partSelection.geometryNames.length ? ` · ${p.partSelection.geometryNames.join(", ")}` : " · no 3D mesh"}` : null}
       onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
       onCompleteCabinetRun={w.onCompleteCabinetRun}
-      onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
+      onSelect={(objectId, additive) => {
+        p.onSelectCutlistKey?.(null);
+        p.setActiveOpeningId(null);
+        p.setActiveSurfaceId(null);
+        w.onSelect(objectId, additive);
+      }}
       onUpdateOpening={(openingId, patch) => p.build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
       onDeleteOpening={(openingId) => { p.build.dispatchBuildCommand({ type: "deleteOpening", openingId }); p.setActiveOpeningId(null); }}
       onUpdateSurface={(surfaceId, materialId) => p.build.dispatchBuildCommand({ type: "updateSurface", surfaceId, materialId })}
@@ -79,6 +88,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       onSetWallPlan={w.onSetWallPlan} onImportFinish={w.onImportFinish} onSetFinishUv={w.onSetFinishUv}
       onSetWallMaterial={w.onSetWallMaterial} onSetFloorMaterial={w.onSetFloorMaterial}
       onSetCeilingMaterial={w.onSetCeilingMaterial} onDuplicate={w.onDuplicate} onDelete={w.onDelete}
+      onMaterial={() => p.onChromeTool("material")}
       unit={p.readability.unit}
     />
   );

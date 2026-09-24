@@ -20,10 +20,12 @@ export function CompiledNodeView({
   node, materials, selected, snapSizeMm, renderMode, renderQuality, showSelectedLabel,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onDragStateChange,
   onMovePreview,
-  interactive, onMechanismClick, onAssetReady, onWallContextMenu,
+  interactive,   onMechanismClick, onAssetReady, onWallContextMenu,
   positionOverride,
   glbCasterSlot,
   maxGlbCasters,
+  highlightedPrimitiveIds = null,
+  onPickPrimitive,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -46,6 +48,8 @@ export function CompiledNodeView({
   positionOverride?: Point3Mm;
   glbCasterSlot?: number;
   maxGlbCasters?: number;
+  highlightedPrimitiveIds?: readonly string[] | null;
+  onPickPrimitive?: (objectId: string, geometryName: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const selectionTarget = modelSelectionTarget(node);
@@ -67,13 +71,15 @@ export function CompiledNodeView({
     }
     if (selectionTarget.kind === "wall") { onSelectWall(selectionTarget.id); return; }
     const objectId = selectionTarget.id;
-    const primitiveId = String(event.object.userData.primitiveId ?? "");
+    const primitiveId = String(event.object.userData.primitiveId || event.object.name || "");
     if (primitiveId.startsWith("front-") && onMechanismClick) {
       onSelect(objectId, event.shiftKey || event.metaKey || event.ctrlKey);
+      onPickPrimitive?.(objectId, primitiveId);
       onMechanismClick(objectId, primitiveId);
       return;
     }
     onSelect(objectId, event.shiftKey || event.metaKey || event.ctrlKey);
+    onPickPrimitive?.(objectId, primitiveId);
     if (shouldBeginObjectBodyDrag({
       alreadySelected: selected,
       shiftKey: event.shiftKey,
@@ -117,15 +123,17 @@ export function CompiledNodeView({
       {useGlb ? (
         <AssetBackedObject
           url={modelAsset.url!} definition={modelAsset.definition!} binding={node.renderBinding}
-          materials={materials} primitives={node.primitives} selected={selected}
+          materials={materials} primitives={node.primitives} selected={selected && !highlightedPrimitiveIds?.length}
           renderMode={renderMode} renderQuality={renderQuality} onReady={onAssetReady}
           glbCasterSlot={glbCasterSlot} maxGlbCasters={maxGlbCasters}
+          highlightedIds={highlightedPrimitiveIds}
           onPointerDown={handlePointerDown}
         />
       ) : (
         <ProceduralFallbackObject
-          primitives={node.primitives} materials={materials} selected={selected}
+          primitives={node.primitives} materials={materials} selected={selected && !highlightedPrimitiveIds?.length}
           renderMode={renderMode} renderQuality={renderQuality} onPointerDown={handlePointerDown}
+          highlightedIds={highlightedPrimitiveIds}
         />
       )}
       {selectionTarget?.kind === "opening" ? (
