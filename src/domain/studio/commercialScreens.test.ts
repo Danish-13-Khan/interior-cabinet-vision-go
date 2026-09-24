@@ -5,7 +5,7 @@ import { AS_OF, YESTERDAY, seedQuoteDoc } from "../paymentLedger/testFixtures";
 import type { ProjectQuote } from "../projectQuote";
 import type { QuoteSnapshot } from "../quoteSettings";
 import { paymentDashboard } from "./paymentDashboard";
-import { filterProjectCards, projectFilterCount } from "./projectDashboard";
+import { filterProjectCards, projectFilterCount, projectLandingStats } from "./projectDashboard";
 import { quoteComparisonView, quoteIssuedMatchesCurrent } from "./quoteComparison";
 
 const cards = [
@@ -17,9 +17,13 @@ const cards = [
 describe("studio commercial screens", () => {
   it("filters project cards by search and status", () => {
     expect(filterProjectCards(cards, "bed", "all").map((card) => card.name)).toEqual(["Wardrobe"]);
-    expect(filterProjectCards(cards, "", "engineering").map((card) => card.name)).toEqual(["Office"]);
+    expect(filterProjectCards(cards, "", "approved").map((card) => card.name)).toEqual(["Office"]);
+    expect(filterProjectCards(cards, "", "engineering")).toEqual([]);
     expect(projectFilterCount(cards, "design")).toBe(1);
     expect(filterProjectCards(cards, "missing", "all")).toEqual([]);
+    expect(projectLandingStats([{ statusTone: "design" }, { statusTone: "quoted", sellTotal: 1200 }], 1)).toMatchObject({
+      active: 2, awaitingTotal: 1200, awaitingCount: 1, recoveryPoints: 1,
+    });
   });
 
   it("shows the live estimate beside the issued quote and marks a design change stale", () => {

@@ -18,7 +18,8 @@ export function AssetImportPanel({
   const assets = ASSET_IMPORT_STARTER_PACK.filter((asset) => cabinetMode ? asset.kind === "cabinet" : asset.kind !== "cabinet");
   const maps = pending ? Object.entries(pending.textureUrls ?? {}) : [];
   const addPending = () => { if (pending) onAdd(pending); setPending(null); };
-  return <>
+  return <details className="lr-import-fold">
+    <summary>Import</summary>
     <section className="lr-model-import">
       <input ref={input} type="file" accept=".glb,model/gltf-binary,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
         const files = Array.from(event.target.files ?? []);
@@ -49,5 +50,5 @@ export function AssetImportPanel({
         </button>
       ))}
     </div>
-  </>;
+  </details>;
 }

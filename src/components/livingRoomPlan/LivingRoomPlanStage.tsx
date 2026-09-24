@@ -49,14 +49,29 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
   });
   return (
     <div className="lr-plan-center">
-      {showRail && !props.presenting ? (
-        <ContextualCommandRail
-          kind={kind}
-          workspaceView={props.workspaceView}
-          onCommand={(id) => runRailCommand(props, id)}
-        />
-      ) : null}
-      <PlanStageAuthoringChrome {...props} />
+      {props.workspaceView === "plan" && !props.presenting ? (
+        <div className="studio-plan-toolbar">
+          {showRail ? (
+            <ContextualCommandRail
+              kind={kind}
+              workspaceView={props.workspaceView}
+              onCommand={(id) => runRailCommand(props, id)}
+            />
+          ) : null}
+          <PlanStageAuthoringChrome {...props} />
+        </div>
+      ) : (
+        <>
+          {showRail && !props.presenting ? (
+            <ContextualCommandRail
+              kind={kind}
+              workspaceView={props.workspaceView}
+              onCommand={(id) => runRailCommand(props, id)}
+            />
+          ) : null}
+          <PlanStageAuthoringChrome {...props} />
+        </>
+      )}
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
         {props.workspaceView === "plan" ? (
           <LivingRoomPlanView
@@ -98,6 +113,8 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onPatchDocument={props.onPatchDocument}
             presentation={props.presenting}
             onRegisterViewControls={props.onRegisterViewControls}
+            onMeasure={() => props.onBuildTool?.("measure")}
+            onMaterials={() => props.onChromeTool?.("material")}
             onPickPrimitive={props.onPickPrimitive}
             partHighlight={props.partHighlight}
             viewportFilter={props.viewportFilter}

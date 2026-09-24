@@ -12,12 +12,20 @@ import { InteriorsToolRail } from "./InteriorsToolRail";
 import { InteriorsWorkflowAreaPanel } from "./InteriorsWorkflowAreaPanel";
 import type { LivingRoomPlanCatalogRailProps } from "./livingRoomPlanCatalogRailProps";
 
+function studioCatalogView(
+  area: LivingRoomPlanCatalogRailProps["workflowArea"],
+  chromeTool: LivingRoomPlanCatalogRailProps["chromeTool"],
+  project: LivingRoomPlanCatalogRailProps["project"],
+) {
+  const view = interiorsWorkflowCatalogView({ area, chromeTool });
+  const hasCabinets = project.objects.some((object) => object.kind === "cabinet");
+  if (chromeTool === "select" && hasCabinets && view === "room-build") return "cabinet-library";
+  return view;
+}
+
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
-  const catalogView = interiorsWorkflowCatalogView({
-    area: props.workflowArea,
-    chromeTool: props.chromeTool,
-  });
+  const catalogView = studioCatalogView(props.workflowArea, props.chromeTool, props.project);
   const visibleAssets = useMemo(() => {
     const query = props.assetQuery.trim().toLowerCase();
     return LIVING_ROOM_CATALOG.filter((item) =>
@@ -33,7 +41,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
   const selectedCabinetCount = props.project.objects.filter((object) =>
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
   ).length;
-  const drawRoom = props.workflowArea === "room" && isInteriorsDrawRoomTool(props.chromeTool);
+  const drawRoom = props.workflowArea === "room" && isInteriorsDrawRoomTool(props.chromeTool) && props.chromeTool !== "select";
   const showRail = designUxShowsToolRail({
     area: props.workflowArea,
     toolRailVisible: props.toolRailVisible,

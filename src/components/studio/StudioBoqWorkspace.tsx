@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { buildBoqFromReport, csvFromBoqViews } from "../../domain/boq";
+import { buildBoqFromReport, buildBoqViews, csvFromBoqViews } from "../../domain/boq";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { patchBoqQuantities, readProposalCommercial } from "../../domain/livingRoom/proposal/commercialState";
 import { createInteriorQuoteReport } from "../../domain/livingRoom/proposal/interiorQuoteReport";
@@ -7,6 +7,7 @@ import { readPersonalPriceBook } from "../../domain/priceBook";
 import { formatQuoteMoney } from "../../domain/quoteSettings";
 import { applyBoqQuantities, boqQuantityLimitMessage } from "../../domain/studio/boqWorksheet";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
+import { StudioBoqGroups } from "./StudioBoqGroups";
 import { StudioProposalPreview } from "./StudioProposalPreview";
 
 type Proposal = ReturnType<typeof useProposalWorkflow>;
@@ -39,6 +40,7 @@ export function StudioBoqWorkspace(props: {
   const baseLines = built.views.lines;
   const quantities = readProposalCommercial(props.project).surface.boqQuantities;
   const lines = applyBoqQuantities(baseLines, quantities);
+  const groups = buildBoqViews(lines).byCabinet;
   const currency = props.proposal.live?.quote.settings.currencyLabel;
   const money = (amount: number) => (currency ? formatQuoteMoney(amount, currency) : String(amount));
 
@@ -57,40 +59,14 @@ export function StudioBoqWorkspace(props: {
       <section className="studio-card">
         <header className="studio-cutlist-toolbar">
           <div>
+            <p className="studio-kicker">Estimate workspace</p>
             <h2>Bill of quantities</h2>
-            <p>Quantity edits are saved on this project and included in the proposal total Freeze issues.</p>
+            <p>Quantity edits stay on this project and are included when the quote is frozen.</p>
             {limitMessage ? <p role="status">{limitMessage}</p> : null}
           </div>
           <button type="button" className="studio-btn" onClick={() => download("boq.csv", csvFromBoqViews({ ...built.views!, lines }), "text/csv")}>BOQ CSV</button>
         </header>
-        <table className="studio-table">
-          <thead>
-            <tr><th>Cabinet</th><th>Part</th><th>Material</th><th>Qty</th><th>Sell share</th></tr>
-          </thead>
-          <tbody>
-            {lines.map((line) => {
-              const base = baseLines.find((item) => item.key === line.key)?.quantity ?? line.quantity;
-              return (
-                <tr key={line.key}>
-                  <td>{line.cabinetName}</td>
-                  <td>{line.partLabel}</td>
-                  <td>{line.material}</td>
-                  <td>
-                    <input
-                      aria-label={`Quantity for ${line.partLabel}`}
-                      type="number"
-                      min={0}
-                      max={9999}
-                      value={line.quantity}
-                      onChange={(event) => setQuantity(line.key, base, event.target.value)}
-                    />
-                  </td>
-                  <td>{money(line.sellPrice)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <StudioBoqGroups groups={groups} baseLines={baseLines} money={money} onQuantity={setQuantity} />
       </section>
       <StudioProposalPreview project={props.project} proposal={props.proposal} lineCount={lines.length} />
     </div>

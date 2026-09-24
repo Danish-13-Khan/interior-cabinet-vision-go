@@ -17,7 +17,7 @@ export function InteriorsDrawRoomManage({
   const showArch = interiorsDrawRoomShowArchitecture(tool, activeBuildTool);
   const showUnderlay = interiorsDrawRoomShowUnderlay(tool);
   return (
-    <details className="lr-plan-secondary-settings" data-testid="interiors-draw-manage" open={showArch || showUnderlay}>
+    <details className="lr-plan-secondary-settings" data-testid="interiors-draw-manage">
       <summary>Room &amp; plan settings</summary>
       <div className="lr-draw-tray lr-draw-manage">
         {commands.onActiveRoom && commands.onRenameRoom ? (

@@ -83,7 +83,11 @@ export function StudioChrome(props: StudioChromeProps) {
             </button>
             <div className="studio-title">
               <strong className="studio-crumb" data-testid="studio-breadcrumb">
-                {studioBreadcrumb(props.projectName, props.roomName, props.revision)}
+                {props.projectOpen
+                  ? studioBreadcrumb(props.projectName, props.roomName, props.revision)
+                  : props.section === "projects"
+                    ? "Projects / All work"
+                    : studioBreadcrumb(props.projectName, props.roomName, props.revision)}
               </strong>
               {props.projectOpen ? <small>Rev {props.revision}</small> : null}
             </div>
@@ -91,13 +95,13 @@ export function StudioChrome(props: StudioChromeProps) {
           <div className="studio-actions">
             {designing && props.onCanvasView ? (
               <div className="studio-view-switch" role="group" aria-label="Canvas view">
-                <button type="button" className={`studio-btn${props.canvasView === "plan" ? " is-primary" : ""}`} onClick={() => props.onCanvasView?.("plan")}>2D</button>
-                <button type="button" className={`studio-btn${props.canvasView === "model" || props.canvasView === "render" ? " is-primary" : ""}`} onClick={() => props.onCanvasView?.("model")}>3D</button>
+                <button type="button" className={`studio-btn${props.canvasView === "plan" ? " is-primary" : ""}`} onClick={() => props.onCanvasView?.("plan")}>2D plan</button>
+                <button type="button" className={`studio-btn${props.canvasView === "model" || props.canvasView === "render" ? " is-primary" : ""}`} onClick={() => props.onCanvasView?.("model")}>3D review</button>
               </div>
             ) : null}
             {designing && props.onPresent ? <button type="button" className="studio-btn" onClick={props.onPresent}>Present</button> : null}
-            <span className={`studio-badge is-${props.saveTone}`} data-testid="studio-save-status">{props.saveLabel}</span>
-            <button type="button" className="studio-btn is-primary" onClick={props.onSave} disabled={!props.projectOpen}>Save</button>
+            {props.projectOpen ? <span className={`studio-badge is-${props.saveTone}`} data-testid="studio-save-status">{props.saveLabel === "Saved" ? "All changes saved" : props.saveLabel}</span> : null}
+            {props.projectOpen ? <button type="button" className="studio-btn is-primary" onClick={props.onSave}>Save</button> : null}
           </div>
         </div>
         {props.projectOpen ? (

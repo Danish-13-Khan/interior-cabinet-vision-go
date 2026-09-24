@@ -33,7 +33,9 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     !p.activeWallId &&
     !activeSurface;
   const reviewEssentials = p.workflowArea === "review" && Boolean(p.room);
+  const modelReview = p.workspaceView === "model" && p.plannerMode !== "render";
   if (
+    !modelReview && (
     !w.inspectorVisible ||
     p.workspaceView === "render" ||
     p.plannerMode === "render" ||
@@ -44,6 +46,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       surfaceSelected: Boolean(activeSurface),
       roomSelected: Boolean(p.inspectRoom && p.room) || emptyRoomEssentials || reviewEssentials,
     })
+    )
   ) {
     return null;
   }
@@ -85,6 +88,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       onSetWallPlan={w.onSetWallPlan} onImportFinish={w.onImportFinish} onSetFinishUv={w.onSetFinishUv}
       onSetWallMaterial={w.onSetWallMaterial} onSetFloorMaterial={w.onSetFloorMaterial}
       onSetCeilingMaterial={w.onSetCeilingMaterial} onDuplicate={w.onDuplicate} onDelete={w.onDelete}
+      onMaterial={() => p.onChromeTool("material")}
       unit={p.readability.unit}
     />
   );

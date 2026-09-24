@@ -4,11 +4,9 @@ import { filterProjectCards, type ProjectDashboardLayout } from "../../domain/st
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
 import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
 import { InteriorsCompactProjectsHome, type ProjectFilter } from "./InteriorsCompactProjectsHome";
-import { InteriorsPopularTemplates } from "./InteriorsPopularTemplates";
-import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
-import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
-import { ProjectJobBoard } from "../studio/ProjectJobBoard";
-import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
+import { StudioProjectsLanding } from "../studio/StudioProjectsLanding";
+import { readProposalCommercial } from "../../domain/livingRoom/proposal/commercialState";
+import { formatQuoteMoney } from "../../domain/quoteSettings";
 import type { LivingRoomPlanWorkspaceProps, PlannerStarterTemplate } from "./workspaceProps";
 
 type PlannerV2ProjectHomeProps = {
@@ -33,7 +31,16 @@ export function PlannerV2ProjectHome({
     const card = interiorsRecentProjectCard(entry);
     const document = entry.project.interiorDocument;
     if (!card || !document) return [];
-    return [{ ...card, thumbnail: entry.thumbnail || createLivingRoomPlanThumbnail(document) }];
+    const commercial = readProposalCommercial(document);
+    const issued = commercial.quoteHistory[0]?.sellTotal;
+    return [{
+      ...card,
+      thumbnail: entry.thumbnail || createLivingRoomPlanThumbnail(document),
+      clientName: commercial.job.customerName,
+      sellLabel: issued ? formatQuoteMoney(issued, commercial.quote.currencyLabel) : undefined,
+      roomCount: document.rooms.length,
+      cabinetCount: document.objects.filter((item) => item.kind === "cabinet").length,
+    }];
   }).slice(0, 8), [workspace.recentProjects]);
   const filteredRows = useMemo(
     () => filterProjectCards(recentRows, query, filter),
@@ -74,7 +81,7 @@ export function PlannerV2ProjectHome({
   return (
     <section
       ref={dialogRef}
-      className={`planner-v2-home interiors-projects-home is-${uiMode}`}
+      className={`planner-v2-home interiors-projects-home studio-landing-shell is-${uiMode}`}
       role="dialog"
       aria-modal="true"
       aria-label="Start a living room project"
@@ -82,37 +89,28 @@ export function PlannerV2ProjectHome({
       tabIndex={-1}
     >
       {uiMode === "calm" ? (
-        <>
-          <InteriorsProjectsIntro
-            projectName={projectName}
-            hasCurrentProject={hasCurrentProject}
-            onProjectName={setProjectName}
-            onCreate={() => createProject()}
-            onOpen={workspace.onOpenProject}
-            onReturn={workspace.onCloseProjectHome}
-          />
-          <div className="planner-v2-home-content">
-            {workspace.recovery ? (
-              <section className="planner-v2-recovery" data-testid="interiors-recovery">
-                <div><span>Autosave available</span><strong>{workspace.recovery.project.name}</strong></div>
-                <button type="button" className="is-primary" data-testid="interiors-recovery-restore" onClick={workspace.onRestoreRecovery}>Restore</button>
-                <button type="button" data-testid="interiors-recovery-discard" onClick={workspace.onDiscardRecovery}>Discard</button>
-              </section>
-            ) : null}
-            <ProjectJobBoard rows={filteredRows} layout={layout} onLayout={setLayout} onOpen={workspace.onOpenRecentProject} />
-            <InteriorsPopularTemplates onCreate={createFromCatalogTemplate} />
-            {import.meta.env.DEV ? (
-              <details className="interiors-template-drawer interiors-dev-qa">
-                <summary>Developer · Phase 1 QA</summary>
-                <InteriorsProjectsPhase1Qa onOpen={openPhase1} />
-              </details>
-            ) : null}
-            <details className="interiors-template-drawer">
-              <summary>More room starters</summary>
-              <InteriorsProjectsStarters onCreate={createProject} />
-            </details>
-          </div>
-        </>
+        <StudioProjectsLanding
+          rows={recentRows}
+          filtered={filteredRows}
+          query={query}
+          onQuery={setQuery}
+          filter={filter}
+          onFilter={setFilter}
+          layout={layout}
+          onLayout={setLayout}
+          projectName={projectName}
+          onProjectName={setProjectName}
+          onCreate={() => createProject()}
+          onOpenFile={workspace.onOpenProject}
+          onOpenProject={workspace.onOpenRecentProject}
+          onOpenSample={() => workspace.onOpenGoldenRun()}
+          onCreateTemplate={createFromCatalogTemplate}
+          recoveryName={workspace.recovery?.project.name ?? null}
+          onRestore={workspace.onRestoreRecovery}
+          onDiscard={workspace.onDiscardRecovery}
+          hasCurrentProject={hasCurrentProject}
+          onReturn={workspace.onCloseProjectHome}
+        />
       ) : (
         <InteriorsCompactProjectsHome
           workspace={workspace}
