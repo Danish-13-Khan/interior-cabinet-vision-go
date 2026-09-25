@@ -5,19 +5,21 @@ import { finishImportPreviewLayerStyle } from "./finishImportPreviewStyle";
 type Props = {
   draft: FinishImportDraft;
   error?: string | null;
+  applyLabel?: string;
   onChange: (patch: Partial<Omit<FinishImportDraft, "fileName" | "dataUrl">>) => void;
   onApply: () => void;
   onCancel: () => void;
 };
 
 /** M4 — preview local texture and UV transforms before committing into the project. */
-export function FinishImportPreviewPanel({ draft, error, onChange, onApply, onCancel }: Props) {
+export function FinishImportPreviewPanel({ draft, error, applyLabel = "Apply texture", onChange, onApply, onCancel }: Props) {
   return (
     <section className="lr-finish-import-preview" data-testid="finish-import-preview" aria-label="Texture import preview">
       <header>
-        <strong>Texture preview</strong>
+        <strong>Previewing — not applied</strong>
         <span>{draft.fileName}</span>
       </header>
+      <p data-testid="finish-preview-note">This catalogue preview is not the room finish until you confirm.</p>
       <div className="lr-finish-import-preview-frame">
         <div
           className="lr-finish-import-preview-layer"
@@ -38,7 +40,7 @@ export function FinishImportPreviewPanel({ draft, error, onChange, onApply, onCa
       />
       {error ? <p className="lr-finish-import-error" data-testid="finish-import-error" role="alert">{error}</p> : null}
       <div className="lr-finish-import-actions">
-        <button type="button" data-testid="finish-import-apply" onClick={onApply}>Apply texture</button>
+        <button type="button" data-testid="finish-import-apply" onClick={onApply}>{applyLabel}</button>
         <button type="button" data-testid="finish-import-cancel" onClick={onCancel}>Cancel</button>
       </div>
     </section>

@@ -87,6 +87,7 @@
 @import "./styles/interiors-shared-shell.css";
 @import "./styles/interiors-materials-contrast.css";
 @import "./styles/interiors-camera-material-feedback.css";
+@import "./styles/plan-trace-empty.css";
 @import "./styles/interiors-present-client.css";
 @import "./styles/interiors-projects-home-layout.css";
 @import "./styles/interiors-drafting-studio.css";

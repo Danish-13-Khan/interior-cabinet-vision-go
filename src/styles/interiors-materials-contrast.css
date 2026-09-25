@@ -2,8 +2,8 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-surface-painter {
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
+  flex: 0 0 auto;
+  min-height: min-content;
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-surface-painter > small,
@@ -14,8 +14,11 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-browser {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   min-width: 0;
-  overflow-x: hidden;
+  min-height: min-content;
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters {
@@ -57,13 +60,39 @@
   border-color: var(--iu-line);
 }
 
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog[data-workflow-area="materials"] .lr-catalog-scroll {
+  display: flex;
+  flex-direction: column;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-catalog[data-workflow-area="materials"] .context-panel-heading {
+  flex: 0 0 auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches {
+  grid-auto-rows: min-content;
+  align-content: start;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches button {
+  height: auto;
+  overflow: hidden;
+  grid-template-rows: auto auto;
+}
+
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches span,
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches small,
+.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches i {
+  pointer-events: none;
+}
+
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches span {
   min-width: 0;
   color: var(--iu-control-ink);
   font-size: 0.64rem;
   line-height: 1.3;
   white-space: normal;
-  overflow: visible;
+  overflow: hidden;
   text-overflow: unset;
   overflow-wrap: anywhere;
 }

@@ -8,6 +8,7 @@ type Props = {
   draft: FinishImportDraft | null;
   importError: string | null;
   urlBusy: boolean;
+  applyLabel?: string;
   selectedObjects?: InteriorObjectEntity[];
   slotName?: string;
   filterCatalogueForSelection?: boolean;
@@ -20,7 +21,7 @@ type Props = {
 
 /** M4–M6 import chrome: catalogues, URL fetch, preview, errors. */
 export function FinishImportExtras({
-  draft, importError, urlBusy, selectedObjects, slotName, filterCatalogueForSelection,
+  draft, importError, urlBusy, applyLabel, selectedObjects, slotName, filterCatalogueForSelection,
   onStageUrl, onStageCatalogue, onChangeDraft, onApply, onCancel,
 }: Props) {
   return (
@@ -37,6 +38,7 @@ export function FinishImportExtras({
         <FinishImportPreviewPanel
           draft={draft}
           error={importError}
+          applyLabel={applyLabel}
           onChange={onChangeDraft}
           onApply={onApply}
           onCancel={onCancel}

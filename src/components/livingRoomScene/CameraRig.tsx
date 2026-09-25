@@ -11,13 +11,7 @@ import {
 } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
-import {
-  consumeOrbitEaseCancelGeneration,
-  easeInOutCubic,
-  lerpNumber,
-  lerpPoint3,
-  MODEL_VIEW_CAMERA_EASE_MS,
-} from "../../domain/livingRoom/modelViewCameraEase";
+import { consumeOrbitEaseCancelGeneration } from "../../domain/livingRoom/modelViewCameraEase";
 import {
   cameraPoseFingerprint,
   modelViewFramingIntentKey,
@@ -25,7 +19,7 @@ import {
   shouldApplyCameraFramingPose,
   shouldHoldFitFraming,
 } from "../../domain/livingRoom/modelViewCameraFramingPolicy";
-import { applyCameraPose, readCameraPoseMeters, type CameraPoseMeters } from "./cameraRigPose";
+import { applyCameraPose, easeTowardCameraGoal, markCameraFrameUnsettled, publishLiveCameraFrame, readCameraPoseMeters, type CameraPoseMeters } from "./cameraRigPose";
 import { applyCameraClipPlanes, buildCameraRigGoal } from "./cameraRigGoal";
 
 export function CameraRig({
@@ -61,7 +55,7 @@ export function CameraRig({
   orbitNavigatingRef?: RefObject<boolean>;
   orbitEaseCancelGenerationRef?: RefObject<number>;
 }) {
-  const { camera, size, invalidate } = useThree();
+  const { camera, size, invalidate, gl } = useThree();
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
   const lastFitVersionRef = useRef(0);
@@ -122,6 +116,7 @@ export function CameraRig({
       held: heldFitTargetRef.current,
     });
     if (applyFitShot) heldFitTargetRef.current = heldFit;
+    const viewport = { widthPx: size.width, heightPx: size.height };
     const built = buildCameraRigGoal({
       scene: current,
       activeCameraId,
@@ -132,10 +127,14 @@ export function CameraRig({
       fieldOfViewDegrees,
       fitMode: heldFit.mode,
       fitSelection: heldFit.selection,
-      viewport: { widthPx: size.width, heightPx: size.height },
+      viewport,
       useFitPose: holdFit,
     });
     applyCameraClipPlanes(camera, current);
+    const publishSettled = () => publishLiveCameraFrame(
+      gl.domElement, current.bounds, camera, controlsRef.current, built.orthographic, viewport, viewPreset === "walkthrough",
+    );
+    markCameraFrameUnsettled(gl.domElement);
     const orthoSwitched = lastOrthoRef.current !== built.orthographic;
     lastOrthoRef.current = built.orthographic;
     userOwnedPoseRef.current = nextUserOwnedCameraPose({
@@ -149,11 +148,13 @@ export function CameraRig({
       userOwnedPose: userOwnedPoseRef.current, userNavigating: userIsNavigating(),
     })) {
       animatingRef.current = false;
+      publishSettled();
       return;
     }
     if (orthoSwitched) {
       applyCameraPose(camera, controlsRef.current, built.goal);
       animatingRef.current = false;
+      publishSettled();
       invalidate();
       return;
     }
@@ -164,11 +165,12 @@ export function CameraRig({
     invalidate();
   }, [
     activeCameraId, assetRevision, camera, composition, cameraHeightMm, controlsRef,
-    fitMode, fitVersion, fieldOfViewDegrees, invalidate, renderMode,
+    fitMode, fitVersion, fieldOfViewDegrees, gl, invalidate, renderMode,
     projectCamera?.fieldOfViewDegrees, projectCamera?.id, projectCamera?.position.x,
     projectCamera?.position.y, projectCamera?.position.z, projectCamera?.target.x,
-    projectCamera?.target.y, projectCamera?.target.z, scene.projectId,
-    scene.roomId, size.height, size.width, viewPreset,
+    projectCamera?.target.y, projectCamera?.target.z, scene.projectId, scene.roomId,
+    scene.bounds.size.widthMm, scene.bounds.size.heightMm, scene.bounds.size.depthMm,
+    size.height, size.width, viewPreset,
   ]);
   useFrame(() => {
     if (latchOrbitCancel() || userIsNavigating()) {
@@ -176,25 +178,18 @@ export function CameraRig({
       return;
     }
     if (!animatingRef.current || !fromRef.current || !goalRef.current) return;
-    const elapsed = performance.now() - animStartRef.current;
-    const t = easeInOutCubic(elapsed / MODEL_VIEW_CAMERA_EASE_MS);
-    const from = fromRef.current;
-    const goal = goalRef.current;
-    applyCameraPose(camera, controlsRef.current, {
-      position: lerpPoint3(from.position, goal.position, t),
-      target: lerpPoint3(from.target, goal.target, t),
-      fieldOfViewDegrees: from.fieldOfViewDegrees !== undefined
-        && goal.fieldOfViewDegrees !== undefined
-        ? lerpNumber(from.fieldOfViewDegrees, goal.fieldOfViewDegrees, t)
-        : goal.fieldOfViewDegrees,
-      orthographicZoom: from.orthographicZoom !== undefined
-        && goal.orthographicZoom !== undefined
-        ? lerpNumber(from.orthographicZoom, goal.orthographicZoom, t)
-        : goal.orthographicZoom,
-      orthographic: goal.orthographic,
-    });
-    if (t >= 1) animatingRef.current = false;
-    else invalidate();
+    const step = easeTowardCameraGoal(
+      fromRef.current, goalRef.current, performance.now() - animStartRef.current,
+    );
+    applyCameraPose(camera, controlsRef.current, step.pose);
+    if (!step.settled) invalidate();
+    else {
+      animatingRef.current = false;
+      publishLiveCameraFrame(
+        gl.domElement, sceneRef.current.bounds, camera, controlsRef.current, step.pose.orthographic,
+        { widthPx: size.width, heightPx: size.height }, viewPreset === "walkthrough",
+      );
+    }
   });
 
   return null;

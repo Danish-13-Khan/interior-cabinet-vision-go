@@ -4,7 +4,7 @@ import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/in
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
-import { filterModelReviewNodes, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
+import { filterModelReviewNodes, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
 import { useOrbitCutawaySides } from "./useOrbitCutawaySides";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import {
@@ -18,6 +18,7 @@ import { CompiledSceneObjectLayer } from "./CompiledSceneObjectLayer";
 import { ModelViewCameraKind } from "./ModelViewCameraKind";
 import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
 import { RendererColorPipeline } from "./RendererColorPipeline";
+import { modelViewFogMeters } from "../../domain/livingRoom/modelViewExteriorFrame";
 import { assignGlbCasterSlots } from "../../domain/livingRoom/glbCastShadow";
 import { resolveModelViewMaxGlbCasters } from "../../domain/livingRoom/modelViewPerf";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
@@ -92,19 +93,20 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const savedCutawaySides = resolveModelCutawaySides(
     renderCamera?.position ?? null, architectureBounds.center,
   );
+  const cutNearWall = modelViewCutsNearWall(viewPreset);
   const orbitCutawaySides = useOrbitCutawaySides(
-    cutawayWalls && interactive,
+    (cutawayWalls && interactive) || cutNearWall,
     architectureBounds.center.x, architectureBounds.center.z,
     renderCamera?.position.x ?? null, renderCamera?.position.z ?? null,
   );
-  const cutawaySides = cutawayWalls && interactive ? orbitCutawaySides : savedCutawaySides;
-  const hideCeiling = viewPreset === "dollhouse" || viewPreset === "orbit"
-    || viewPreset === "top" || viewPreset === "isometric";
+  const cutawaySides = (cutawayWalls && interactive) || cutNearWall ? orbitCutawaySides : savedCutawaySides;
+  const hideCeiling = modelViewHidesCeiling(viewPreset);
   const nodes = filterModelReviewNodes(
-    scene.nodes, cutawayWalls, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
+    scene.nodes, cutawayWalls || cutNearWall, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
   );
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
+  const fog = modelViewFogMeters(roomSpan, scene.style.environment.fogNearMm, scene.style.environment.fogFarMm);
   const inspection = resolveModelViewSelectionBoundsMm(scene, {
     objectIds: selectedIds,
     wallId: selectedWallId,
@@ -122,7 +124,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
       {viewPreset ? <ModelViewCameraKind viewPreset={viewPreset} roomSpanMeters={roomSpan} /> : null}
       <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
       <color attach="background" args={[environment.backgroundColor]} />
-      <fog attach="fog" args={[environment.fogColor, environment.fogNearMm / 1000, environment.fogFarMm / 1000]} />
+      <fog attach="fog" args={[environment.fogColor, fog.near, fog.far]} />
       <hemisphereLight
         color={environment.hemisphereSkyColor}
         groundColor={environment.hemisphereGroundColor}

@@ -82,8 +82,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       [LIVING_ROOM_MATERIAL_IDS.woolRug]: materialRecipe("#b8a68d", 1),
     },
     environment: {
-      backgroundColor: "#b7c2cf",
-      fogColor: "#b7c2cf",
+      backgroundColor: "#7f93a8",
+      fogColor: "#7f93a8",
       fogNearMm: 10500,
       fogFarMm: 23000,
       hemisphereSkyColor: "#eaf2fb",
