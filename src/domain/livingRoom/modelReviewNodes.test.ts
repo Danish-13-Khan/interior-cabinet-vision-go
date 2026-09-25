@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CompiledSceneNode } from "./sceneTypes";
-import { filterModelReviewNodes, resolveModelCutawaySides } from "./modelReviewNodes";
+import { filterModelReviewNodes, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "./modelReviewNodes";
 
 function node(
   id: string,
@@ -91,5 +91,14 @@ describe("resolveModelCutawaySides", () => {
 
   it("defaults to front when no camera is available", () => {
     expect([...resolveModelCutawaySides(null, center)]).toEqual(["front"]);
+  });
+
+  it("opens perspective, front, and side, and keeps walkthrough enclosed", () => {
+    expect(modelViewHidesCeiling("perspective")).toBe(true);
+    expect(modelViewCutsNearWall("perspective")).toBe(true);
+    expect(modelViewCutsNearWall("front")).toBe(true);
+    expect(modelViewCutsNearWall("side")).toBe(true);
+    expect(modelViewCutsNearWall("dollhouse")).toBe(false);
+    expect(modelViewHidesCeiling("walkthrough")).toBe(false);
   });
 });

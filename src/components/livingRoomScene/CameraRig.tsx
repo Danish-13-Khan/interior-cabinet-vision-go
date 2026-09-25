@@ -25,7 +25,7 @@ import {
   shouldApplyCameraFramingPose,
   shouldHoldFitFraming,
 } from "../../domain/livingRoom/modelViewCameraFramingPolicy";
-import { applyCameraPose, readCameraPoseMeters, type CameraPoseMeters } from "./cameraRigPose";
+import { applyCameraPose, readCameraPoseMeters, stampFrameMetrics, type CameraPoseMeters } from "./cameraRigPose";
 import { applyCameraClipPlanes, buildCameraRigGoal } from "./cameraRigGoal";
 
 export function CameraRig({
@@ -61,7 +61,7 @@ export function CameraRig({
   orbitNavigatingRef?: RefObject<boolean>;
   orbitEaseCancelGenerationRef?: RefObject<number>;
 }) {
-  const { camera, size, invalidate } = useThree();
+  const { camera, size, invalidate, gl } = useThree();
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
   const lastFitVersionRef = useRef(0);
@@ -136,6 +136,9 @@ export function CameraRig({
       useFitPose: holdFit,
     });
     applyCameraClipPlanes(camera, current);
+    stampFrameMetrics(gl.domElement, current.bounds, built.goal, {
+      widthPx: size.width, heightPx: size.height,
+    }, viewPreset === "walkthrough");
     const orthoSwitched = lastOrthoRef.current !== built.orthographic;
     lastOrthoRef.current = built.orthographic;
     userOwnedPoseRef.current = nextUserOwnedCameraPose({
@@ -164,11 +167,12 @@ export function CameraRig({
     invalidate();
   }, [
     activeCameraId, assetRevision, camera, composition, cameraHeightMm, controlsRef,
-    fitMode, fitVersion, fieldOfViewDegrees, invalidate, renderMode,
+    fitMode, fitVersion, fieldOfViewDegrees, gl, invalidate, renderMode,
     projectCamera?.fieldOfViewDegrees, projectCamera?.id, projectCamera?.position.x,
     projectCamera?.position.y, projectCamera?.position.z, projectCamera?.target.x,
-    projectCamera?.target.y, projectCamera?.target.z, scene.projectId,
-    scene.roomId, size.height, size.width, viewPreset,
+    projectCamera?.target.y, projectCamera?.target.z, scene.projectId, scene.roomId,
+    scene.bounds.size.widthMm, scene.bounds.size.heightMm, scene.bounds.size.depthMm,
+    size.height, size.width, viewPreset,
   ]);
   useFrame(() => {
     if (latchOrbitCancel() || userIsNavigating()) {

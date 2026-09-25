@@ -17,7 +17,9 @@ async function goView(page: Page, view: "plan" | "model" | "render") {
     await openQaRenderStudio(page);
     return;
   }
-  await page.getByRole("button", { name: view === "plan" ? "2D" : "3D", exact: true }).click();
+  const guide = page.getByRole("button", { name: "Close 3D guide" });
+  if (await guide.isVisible().catch(() => false)) await guide.click();
+  await page.getByRole("button", { name: view === "plan" ? "2D plan" : "3D", exact: true }).click();
   const title = view === "plan" ? "Room plan" : "3D model";
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText(title);
 }
@@ -52,10 +54,34 @@ async function sampleWebglCanvas(page: Page, rootTestId: string) {
       if (data[o + 3] >= 8 && y > 8) nonblank += 1;
     }
     const coverage = nonblank / pixelCount;
+    const corner = 0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2];
+    const cols = 8;
+    const rows = 8;
+    let occupied = 0;
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const x0 = Math.floor((col * width) / cols);
+        const x1 = Math.floor(((col + 1) * width) / cols);
+        const y0 = Math.floor((row * height) / rows);
+        const y1 = Math.floor(((row + 1) * height) / rows);
+        let sum = 0;
+        let count = 0;
+        for (let y = y0; y < y1; y += 2) {
+          for (let x = x0; x < x1; x += 2) {
+            const o = (y * width + x) * 4;
+            sum += 0.2126 * data[o] + 0.7152 * data[o + 1] + 0.0722 * data[o + 2];
+            count += 1;
+          }
+        }
+        if (count > 0 && Math.abs(sum / count - corner) > 18) occupied += 1;
+      }
+    }
+    const geometryCoverage = occupied / (cols * rows);
     return {
-      ok: coverage >= 0.001,
+      ok: coverage >= 0.001 && geometryCoverage >= 0.12,
       coverage,
-      reason: coverage >= 0.001 ? null : "insufficient-coverage",
+      geometryCoverage,
+      reason: geometryCoverage >= 0.12 ? null : "grid-or-background-only",
       width,
       height,
     };
@@ -75,9 +101,12 @@ test("render QA smoke: Plan / Model / Render Studio screenshots stay nonblank", 
   await page.screenshot({ path: join(SHOT_DIR, "plan.png"), fullPage: false });
 
   await goView(page, "model");
-  await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
+  const model = page.getByTestId("lr-model-viewport");
+  await expect(model).toBeVisible();
+  await expect.poll(async () => Number(await model.getAttribute("data-scene-height-mm"))).toBeGreaterThan(400);
+  await expect.poll(async () => Number(await model.getAttribute("data-extruded-walls"))).toBeGreaterThan(0);
   const modelSample = await sampleWebglCanvas(page, "lr-model-viewport");
-  expect(modelSample.ok, `model canvas blank: ${JSON.stringify(modelSample)}`).toBe(true);
+  expect(modelSample.ok, `model canvas lacks room geometry: ${JSON.stringify(modelSample)}`).toBe(true);
   await page.screenshot({ path: join(SHOT_DIR, "model.png"), fullPage: false });
 
   await goView(page, "render");
