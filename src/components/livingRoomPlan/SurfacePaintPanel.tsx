@@ -120,6 +120,12 @@ export function SurfacePaintPanel({
           selectionCount: selectedObjects.length,
           slotName: target === "selection" ? activeSlot : target,
         })}</span>
+        {draft ? (
+          <>
+            <strong>Previewing</strong>
+            <span data-testid="paint-preview-finish">{draft.fileName} — not applied</span>
+          </>
+        ) : null}
       </div>
       <div className="lr-paint-targets" role="tablist" aria-label="Paint target">
         <button type="button" role="tab" className={target === "floor" ? "is-active" : ""} onClick={() => setTarget("floor")}>Floor</button>
@@ -155,6 +161,7 @@ export function SurfacePaintPanel({
           />
           {onImportFinish ? (
             <FinishImportExtras
+              applyLabel={target === "ceiling" ? "Apply to ceiling" : target === "wall" ? "Apply to wall" : target === "selection" ? "Apply to selection" : "Apply to floor"}
               draft={draft}
               importError={importError}
               urlBusy={urlBusy}

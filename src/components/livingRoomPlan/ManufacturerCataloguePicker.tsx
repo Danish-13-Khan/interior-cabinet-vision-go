@@ -52,7 +52,7 @@ export function ManufacturerCataloguePicker({
     <div className="lr-manufacturer-catalogue" data-testid="manufacturer-catalogue">
       <header>
         <strong>Manufacturer catalogues</strong>
-        <span>Curated samples · copied into this project</span>
+        <span>Selecting a finish only stages a preview</span>
       </header>
       <label>
         <span>Catalogue</span>

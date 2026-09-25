@@ -1,6 +1,11 @@
 import type { Camera, OrthographicCamera, PerspectiveCamera } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
+import {
+  cameraClearsWallVolume,
+  projectedRoomCoverage,
+} from "../../domain/livingRoom/modelViewExteriorFrame";
+import type { CompiledSceneBounds } from "../../domain/livingRoom/sceneTypes";
 
 export type CameraPoseMeters = {
   position: { x: number; y: number; z: number };
@@ -53,6 +58,29 @@ export function readCameraPoseMeters(
     orthographicZoom: orthographic ? ortho.zoom : undefined,
     orthographic,
   };
+}
+
+export function stampFrameMetrics(
+  canvas: HTMLCanvasElement,
+  bounds: CompiledSceneBounds,
+  goal: CameraPoseMeters,
+  viewport: { widthPx: number; heightPx: number },
+  walkthrough: boolean,
+) {
+  const position = {
+    x: goal.position.x * 1000, y: goal.position.y * 1000, z: goal.position.z * 1000,
+  };
+  const target = { x: goal.target.x * 1000, y: goal.target.y * 1000, z: goal.target.z * 1000 };
+  const coverage = projectedRoomCoverage({
+    bounds, position, target,
+    fovDegrees: goal.fieldOfViewDegrees ?? 42,
+    widthPx: viewport.widthPx,
+    heightPx: viewport.heightPx,
+    orthographicZoom: goal.orthographicZoom,
+  });
+  canvas.dataset.frameCoverage = coverage.area.toFixed(3);
+  canvas.dataset.frameSpan = Math.max(coverage.width, coverage.height).toFixed(3);
+  canvas.dataset.cameraOutside = cameraClearsWallVolume(bounds, position, walkthrough) ? "1" : "0";
 }
 
 export function fallbackFraming(scene: CompiledLivingRoomScene) {

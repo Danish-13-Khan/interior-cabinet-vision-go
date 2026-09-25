@@ -19,7 +19,8 @@ import {
   resolveModelViewRenderMode,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
-import { isWallRaised } from "../domain/interiorProject";
+import { isWallRaised, planClosedRoomModelRaise, setPlanWallsRaised } from "../domain/interiorProject";
+import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
 import {
   persistModelGuideDismissal,
   shouldShowModelGuide,
@@ -32,6 +33,7 @@ import { type WallContextMenuState } from "./livingRoomScene/ModelWallVisibility
 import { ModelViewAuthoringOverlays } from "./livingRoomScene/ModelViewAuthoringOverlays";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewFeedbackBanners } from "./livingRoomScene/ModelViewFeedbackBanners";
+import { PlanTraceEmptyState } from "./livingRoomScene/PlanTraceEmptyState";
 import { modelViewClientPresentationProps } from "../domain/livingRoom/modelViewClientPresentation";
 import type { ModelTransformPreview, ModelTransformTarget } from "./livingRoomScene/ModelMoveGizmo";
 
@@ -66,6 +68,10 @@ export function LivingRoomModelView({
   onApplyStyle, onSetParameters, onPatchDocument, presentation = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
+  const raisePlan = useMemo(() => planClosedRoomModelRaise(project), [project]);
+  const extrudedWalls = scene.nodes.filter(
+    (node) => node.metadata.role === "wall" && node.metadata.planTrace !== true,
+  ).length;
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
     () => preferModelViewCameraId(scene.cameras),
   );
@@ -177,6 +183,10 @@ export function LivingRoomModelView({
       data-testid="lr-model-viewport"
       data-model-view-profile={JSON.stringify(describeModelViewRuntimeProfile(viewportQuality))}
       data-view-preset={camera.viewPreset}
+      data-scene-height-mm={Math.round(scene.bounds.size.heightMm)}
+      data-extruded-walls={extrudedWalls}
+      data-ceiling-hidden={modelViewHidesCeiling(camera.viewPreset) ? "1" : "0"}
+      data-near-wall-cut={modelViewCutsNearWall(camera.viewPreset) ? "1" : "0"}
     >
       {!presentation ? (
         <ModelViewAuthoringOverlays
@@ -244,6 +254,20 @@ export function LivingRoomModelView({
             }
           }}
         />
+        {!presentation && raisePlan.status !== "ready" ? (
+          <PlanTraceEmptyState
+            reason={raisePlan.status === "blocked" ? raisePlan.reason : null}
+            canRaise={raisePlan.status === "raise"}
+            onRaise={() => {
+              if (raisePlan.status !== "raise" || !onPatchDocument) return;
+              const { wallIds, heightMm } = raisePlan;
+              onPatchDocument(
+                (current) => setPlanWallsRaised(current, wallIds, true, heightMm),
+                "Raised walls to 3D.",
+              );
+            }}
+          />
+        ) : null}
       </div>
       {!presentation ? (
         <LivingRoomModelChrome

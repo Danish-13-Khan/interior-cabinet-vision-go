@@ -9,7 +9,7 @@ import {
   type InteriorsChromeTool,
   type InteriorsWorkflowArea,
 } from "../domain/desktopUx";
-import type { InteriorProject } from "../domain/interiorProject";
+import { planClosedRoomModelRaise, type InteriorProject } from "../domain/interiorProject";
 import type { BuildTool } from "../domain/livingRoom/buildToolCommands";
 import type {
   LivingRoomWorkspaceView,
@@ -23,6 +23,7 @@ type ChromeInput = {
   onOpenProjectHome: () => void;
   onCloseProjectHome: () => void;
   selectBuildTool: (tool: BuildTool) => void;
+  onRaiseWalls?: (wallIds: string[], raised: boolean, heightMm?: number) => void;
 };
 
 export function useInteriorsWorkspaceChrome(input: ChromeInput) {
@@ -59,6 +60,14 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     );
   }
 
+  function showWorkspace(view: LivingRoomWorkspaceView) {
+    if (view === "model" && workspaceView !== "model" && input.project && input.onRaiseWalls) {
+      const plan = planClosedRoomModelRaise(input.project);
+      if (plan.status === "raise") input.onRaiseWalls(plan.wallIds, true, plan.heightMm);
+    }
+    setWorkspaceView(view);
+  }
+
   function setWorkflowArea(area: InteriorsWorkflowArea) {
     const target = applyInteriorsWorkflowArea(area);
     setWorkflowAreaState(area);
@@ -67,7 +76,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     setStudioPanel(target.studioPanel);
     setChromeTool(target.chromeTool);
     if (target.workspaceView === "plan") setWorkspaceView("plan");
-    else if (target.workspaceView === "model") setWorkspaceView("model");
+    else if (target.workspaceView === "model") showWorkspace("model");
     if (target.plannerMode === "render") return;
     input.selectBuildTool("select");
   }
@@ -80,7 +89,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
     }
     input.onCloseProjectHome();
     if (mode === "render") {
-      setWorkspaceView("model");
+      showWorkspace("model");
       setWorkflowAreaState("present");
       return;
     }
@@ -100,7 +109,7 @@ export function useInteriorsWorkspaceChrome(input: ChromeInput) {
       setStudioPanel(panel);
       syncAreaFromChrome("design", panel, workflowArea === "review" ? "review" : undefined);
     }
-    setWorkspaceView(view);
+    showWorkspace(view);
   }
 
   function applyChromeTool(tool: InteriorsChromeTool) {
