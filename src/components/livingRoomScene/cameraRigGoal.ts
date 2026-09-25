@@ -40,7 +40,7 @@ export function buildCameraRigGoal(args: {
     })
     : null;
   const named = scene.cameras.find((camera) => camera.id === args.activeCameraId) ?? null;
-  const savedPerspective = viewPreset === "perspective" && named && !selectionFit
+  const savedPerspective = viewPreset === "perspective" && named && !args.useFitPose
     ? resolveRenderCameraPose(named, scene.bounds, args.composition, args.renderMode)
     : null;
   const framing = selectionFit ?? savedPerspective ?? framed;
@@ -68,9 +68,11 @@ export function buildCameraRigGoal(args: {
       fieldOfViewDegrees: savedFov
         ?? args.fieldOfViewDegrees
         ?? ("fieldOfViewDegrees" in framing ? framing.fieldOfViewDegrees : undefined),
-      orthographicZoom: orthographic
-        ? framed.orthographicZoom ?? orthographicZoomForSpan(spanMm, args.viewport, 1.15)
-        : undefined,
+      orthographicZoom: !orthographic
+        ? undefined
+        : selectionFit
+          ? orthographicZoomForSpan(selectionFit.spanMm, args.viewport, 1.15)
+          : framed.orthographicZoom ?? orthographicZoomForSpan(spanMm, args.viewport, 1.15),
       orthographic,
     },
   };
