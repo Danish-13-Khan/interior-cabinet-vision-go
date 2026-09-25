@@ -17,35 +17,35 @@
       "templateObjectId": "kitchen-fridge",
       "catalogItemId": "kenney:kitchen-fridge",
       "catalogItemVersion": 1,
-      "positionMm": { "x": -2400, "y": 0, "z": -1800 },
+      "positionMm": { "x": -2200, "y": 0, "z": -1400 },
       "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-stove",
       "catalogItemId": "kenney:kitchen-stove-electric",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2150, "y": 0, "z": 500 },
-      "rotationY": -90
+      "positionMm": { "x": 0, "y": 0, "z": 400 },
+      "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-sink",
       "catalogItemId": "kenney:kitchen-sink",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2150, "y": 0, "z": 1300 },
-      "rotationY": -90
+      "positionMm": { "x": 1100, "y": 0, "z": 400 },
+      "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-hood",
       "catalogItemId": "kenney:hood-modern",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2200, "y": 1600, "z": 500 },
-      "rotationY": -90
+      "positionMm": { "x": 0, "y": 1600, "z": 400 },
+      "rotationY": 0
     },
     {
       "templateObjectId": "kitchen-microwave",
       "catalogItemId": "kenney:kitchen-microwave",
       "catalogItemVersion": 1,
-      "positionMm": { "x": -200, "y": 720, "z": -1550 },
+      "positionMm": { "x": 750, "y": 720, "z": -1910 },
       "rotationY": 0
     }
   ]

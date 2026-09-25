@@ -93,7 +93,7 @@ describe("Phase 5 L Kitchen template", () => {
       readCabinetIdentity(object)?.cabinetType === "tall" && !isCabinetRunFiller(object)
     )!;
     const backMeta = cabinetRunForObject(tall)!;
-    expect(backMeta.startAlongMm).toBe(2620);
+    expect(backMeta.startAlongMm).toBe(1800);
     const rightBases = project.objects.filter((object) =>
       readCabinetIdentity(object)?.cabinetType === "base"
       && !isCabinetRunFiller(object)
@@ -101,7 +101,7 @@ describe("Phase 5 L Kitchen template", () => {
     );
     expect(rightBases.length).toBe(2);
     const rightMeta = cabinetRunForObject(rightBases[0]!)!;
-    expect(rightMeta.startAlongMm).toBe(1020);
+    expect(rightMeta.startAlongMm).toBe(1600);
     const corner = project.objects.find((object) =>
       readCabinetIdentity(object)?.cabinetType === "corner"
     )!;

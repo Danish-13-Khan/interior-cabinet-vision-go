@@ -22,7 +22,7 @@ import { createDefaultPackageCameraBookmarks } from "../livingRoom/packageCamera
 
 export { snapCatalogObjectsToWall } from "./kitchenAppliancePlacement";
 export const WALL_MOUNT_Y_MM = 1400;
-const FILLER_WIDTH_MM = 100;
+const FILLER_WIDTH_MM = 280;
 const FILLER_DEPTH_MM = 18;
 
 export function wallBySide(project: InteriorProject, side: string) {
