@@ -11,6 +11,10 @@ async function openDesignPlan(page: Page) {
 }
 
 async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
+  const details = page.locator(".lr-inspector-scroll .lr-transform-editor");
+  if (await details.count() && (await details.getAttribute("open")) === null) {
+    await details.locator("summary").click();
+  }
   const field = page.locator(".lr-inspector-scroll").getByRole("spinbutton", { name: `${axis} mm`, exact: true });
   await field.fill(value);
   await field.blur();
@@ -22,7 +26,7 @@ async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
  * Offset each cabinet before selecting so plan clicks are not intercepted.
  */
 async function placeTwoSeparatedCabinets(page: Page) {
-  const objects = page.locator("[data-object-id]");
+  const objects = page.locator(".lr-plan-svg [data-object-id]");
   const initialIds = (await objects.evaluateAll((elements) =>
     elements.map((element) => element.getAttribute("data-object-id")),
   )).filter((id): id is string => Boolean(id));
@@ -61,13 +65,12 @@ test("I5 paints shared finishes, undoes paint, and edits opening materials", asy
   await clickInteriorsTool(page, "cabinet");
   const { baseId, wallId } = await placeTwoSeparatedCabinets(page);
 
-  const base = page.locator(`[data-object-id="${baseId}"]`);
-  const wall = page.locator(`[data-object-id="${wallId}"]`);
+  const base = page.locator(`.lr-plan-svg [data-object-id="${baseId}"]`);
+  const wall = page.locator(`.lr-plan-svg [data-object-id="${wallId}"]`);
   // Defaults tint from fronts (oak); paint fronts → walnut so the plan attribute changes.
   await expect(base).toHaveAttribute("data-material-id", OAK_ID);
   const originalFront = await base.getAttribute("data-material-id");
 
-  // Prefer inspector list over SVG hits — same approach as golden/roadmap specs.
   await page.getByTestId(`inspector-object-${baseId}`).click();
   await page.getByTestId(`inspector-object-${wallId}`).click({ modifiers: ["Shift"] });
   await expect(page.locator(".lr-plan-svg [data-object-id].is-selected")).toHaveCount(2);

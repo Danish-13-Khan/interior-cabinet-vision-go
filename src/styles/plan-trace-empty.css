@@ -1,0 +1,56 @@
+/* In-canvas empty state when a room cannot be shown as extruded 3D. */
+
+.lr-plan-trace-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--iu-canvas, #f7faf8) 78%, transparent);
+  pointer-events: none;
+}
+
+.lr-plan-trace-empty-card {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  max-width: 360px;
+  padding: 18px 20px;
+  border: 1px solid var(--iu-line, #dfe6e1);
+  border-radius: 12px;
+  background: var(--iu-panel, #fff);
+  box-shadow: var(--iu-shadow, 0 18px 55px rgb(30 51 39 / 14%));
+  color: var(--iu-ink, #1c2822);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.lr-plan-trace-empty-card h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.lr-plan-trace-empty-card p {
+  margin: 0;
+  color: var(--iu-muted, #66736b);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.lr-plan-trace-empty-card button {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--iu-green, #1f6f4a);
+  color: var(--iu-on-green, #fff);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lr-plan-trace-empty-card button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

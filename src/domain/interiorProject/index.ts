@@ -181,3 +181,8 @@ export {
   isWallRaised,
   outerLoopWallsRaised,
 } from "./wallRaise";
+export {
+  planClosedRoomModelRaise,
+  raiseClosedRoomForModel,
+  type RoomModelRaisePlan,
+} from "./roomModelRaise";

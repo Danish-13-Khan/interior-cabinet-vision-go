@@ -21,7 +21,7 @@ test("Phase M1 exposes primary cameras, isometric framing, Fit, Focus, and focus
   // Focus Selected while the placed cabinet is still selected from 2D.
   await expect(page.getByTestId("model-focus-selection")).toBeEnabled();
   await page.getByTestId("model-focus-selection").click({ force: true });
-  await expect(page.locator(".lr-inspector").getByText("Selected Object", { exact: true })).toBeVisible();
+  await expect(page.locator(".lr-inspector .lr-object-identity")).toBeVisible();
 
   // Clear selection so pickable object labels cannot cover the camera toolbar.
   const clearSelection = page.getByTestId("model-clear-selection");

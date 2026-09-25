@@ -20,6 +20,16 @@ export function resolveModelCutawaySides(
   return new Set([dz < 0 ? "back" : "front"]);
 }
 
+/** Exterior presets hide the ceiling so the shell is open. Walkthrough stays enclosed. */
+export function modelViewHidesCeiling(preset: string | undefined) {
+  return Boolean(preset) && preset !== "walkthrough";
+}
+
+/** Eye-level exterior views cut the near wall; overhead presets already see the floor. */
+export function modelViewCutsNearWall(preset: string | undefined) {
+  return preset === "perspective" || preset === "front" || preset === "side";
+}
+
 /**
  * Applies architectural cutaway. Openings on cutaway sides are removed unless
  * selected; the selected opening's host wall and any selected wall stay visible.

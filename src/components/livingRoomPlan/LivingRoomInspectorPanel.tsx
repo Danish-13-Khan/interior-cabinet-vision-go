@@ -115,11 +115,11 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>
       </div>
       <div className="lr-inspector-scroll">
-        {room && !props.drawRoom && !activeObject && !activeOpening && !activeWall && !activeSurface ? (
+        {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface ? (
           <InspectorObjectList
             objects={props.project.objects}
             roomId={room.id}
-            selectedId={null}
+            selectedId={activeObject?.id ?? null}
             onSelect={props.onSelect}
           />
         ) : null}

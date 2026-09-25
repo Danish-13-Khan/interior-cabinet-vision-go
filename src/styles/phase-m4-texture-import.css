@@ -16,6 +16,13 @@
   font-size: 11px;
 }
 
+.lr-finish-import-preview p[data-testid="finish-preview-note"] {
+  margin: 0;
+  color: #6d7a72;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .lr-finish-import-preview header span {
   color: #6d7a72;
   overflow: hidden;

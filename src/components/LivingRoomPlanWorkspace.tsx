@@ -70,7 +70,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const chrome = useInteriorsWorkspaceChrome({
     project: props.project, projectHomeOpen: props.projectHomeOpen,
     onOpenProjectHome: props.onOpenProjectHome, onCloseProjectHome: props.onCloseProjectHome,
-    selectBuildTool: build.selectBuildTool,
+    selectBuildTool: build.selectBuildTool, onRaiseWalls: props.onRaiseWalls,
   });
   useInteriorsProjectsFixtures({
     enabled: true,
