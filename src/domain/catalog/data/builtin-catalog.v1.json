@@ -11656,7 +11656,7 @@
           "positionMm": {
             "x": 0,
             "y": 0,
-            "z": 150
+            "z": 100
           },
           "rotationY": 0
         },
@@ -11667,7 +11667,7 @@
           "positionMm": {
             "x": 0,
             "y": 0,
-            "z": 1100
+            "z": 400
           },
           "rotationY": 0,
           "materialOverrides": {
@@ -11680,11 +11680,11 @@
           "catalogItemId": "kenney:lounge-chair",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": -1700,
+            "x": 2050,
             "y": 0,
             "z": 200
           },
-          "rotationY": 35
+          "rotationY": -15
         },
         {
           "templateObjectId": "living-room-coffee-table",
@@ -11693,7 +11693,7 @@
           "positionMm": {
             "x": 0,
             "y": 0,
-            "z": -50
+            "z": -750
           },
           "rotationY": 0
         },
@@ -11724,9 +11724,9 @@
           "catalogItemId": "kenney:lamp-round-floor",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 1900,
+            "x": 2050,
             "y": 0,
-            "z": -900
+            "z": -1350
           },
           "rotationY": 0
         },
@@ -11735,9 +11735,9 @@
           "catalogItemId": "kenney:potted-plant",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2100,
+            "x": -1900,
             "y": 0,
-            "z": 1300
+            "z": 1500
           },
           "rotationY": 0
         }
@@ -11779,9 +11779,9 @@
           "catalogItemId": "kenney:kitchen-fridge",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": -1700,
+            "x": -2400,
             "y": 0,
-            "z": -1370
+            "z": -1500
           },
           "rotationY": 0
         },
@@ -11790,9 +11790,9 @@
           "catalogItemId": "kenney:kitchen-stove-electric",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2050,
+            "x": 2300,
             "y": 0,
-            "z": -1420
+            "z": -1500
           },
           "rotationY": 0
         },
@@ -11801,9 +11801,9 @@
           "catalogItemId": "kenney:kitchen-sink",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": -2400,
+            "x": -1500,
             "y": 0,
-            "z": -1420
+            "z": -400
           },
           "rotationY": 0
         },
@@ -11812,9 +11812,9 @@
           "catalogItemId": "kenney:hood-modern",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2050,
+            "x": 2300,
             "y": 1400,
-            "z": -1510
+            "z": -1500
           },
           "rotationY": 0
         }
@@ -11840,9 +11840,9 @@
           "catalogItemId": "kenney:kitchen-fridge",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": -2400,
+            "x": -2200,
             "y": 0,
-            "z": -1800
+            "z": -1400
           },
           "rotationY": 0
         },
@@ -11851,42 +11851,42 @@
           "catalogItemId": "kenney:kitchen-stove-electric",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2150,
+            "x": 0,
             "y": 0,
-            "z": 500
+            "z": 400
           },
-          "rotationY": -90
+          "rotationY": 0
         },
         {
           "templateObjectId": "kitchen-sink",
           "catalogItemId": "kenney:kitchen-sink",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2150,
+            "x": 1100,
             "y": 0,
-            "z": 1300
+            "z": 400
           },
-          "rotationY": -90
+          "rotationY": 0
         },
         {
           "templateObjectId": "kitchen-hood",
           "catalogItemId": "kenney:hood-modern",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": 2200,
+            "x": 0,
             "y": 1600,
-            "z": 500
+            "z": 400
           },
-          "rotationY": -90
+          "rotationY": 0
         },
         {
           "templateObjectId": "kitchen-microwave",
           "catalogItemId": "kenney:kitchen-microwave",
           "catalogItemVersion": 1,
           "positionMm": {
-            "x": -200,
+            "x": 750,
             "y": 720,
-            "z": -1550
+            "z": -1910
           },
           "rotationY": 0
         }

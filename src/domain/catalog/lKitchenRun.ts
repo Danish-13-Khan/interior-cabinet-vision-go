@@ -35,7 +35,7 @@ function seedCorner(roomId: string, id: string): InteriorObjectEntity {
     ...defaults,
     type: "corner",
     familyId: "frameless-standard-corner",
-    catalogItemId: "cabinet:corner",
+    catalogItemId: "living:corner-wardrobe",
     dimensions: {
       ...defaults.dimensions,
       width: CORNER_FOOTPRINT_MM,
@@ -131,21 +131,18 @@ export function finalizeLKitchenTemplate(
     }),
   ];
   let next: InteriorProject = { ...graph, objects: [...graph.objects, ...seeds] };
-  // Back leg ends just before the corner; right leg starts past the corner footprint.
-  const backRunWidthMm = 600 + 900 + 900;
-  const backLen = Math.hypot(back.end.x - back.start.x, back.end.z - back.start.z);
   next = finalizeRun(
     next,
     [ids.tall, ids.baseBack, ids.drawer],
     back.id,
-    { startAlongMm: Math.max(0, backLen - CORNER_FOOTPRINT_MM - backRunWidthMm - 80) },
+    { startAlongMm: 1800 },
     idFactory,
   );
   next = finalizeRun(
     next,
     [ids.baseRightA, ids.baseRightB],
     right.id,
-    { startAlongMm: CORNER_FOOTPRINT_MM + 120 },
+    { startAlongMm: 1600 },
     idFactory,
   );
 
@@ -157,5 +154,15 @@ export function finalizeLKitchenTemplate(
   next = mountWallCabinets(next, right.id, [
     { id: ids.wallRight, alongMm: alongWallMm(next, roomId, right.id, baseRightA) },
   ]);
+  next = {
+    ...next,
+    objects: next.objects.map((object) => object.id === ids.corner
+      ? {
+          ...object,
+          position: { x: 2400, y: 0, z: -1700 },
+          rotation: { ...object.rotation, y: 0 },
+        }
+      : object),
+  };
   return review(next);
 }

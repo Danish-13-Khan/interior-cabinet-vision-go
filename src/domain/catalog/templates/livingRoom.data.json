@@ -17,14 +17,14 @@
       "templateObjectId": "living-room-rug",
       "catalogItemId": "kenney:rug-rectangle",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 0, "y": 0, "z": 150 },
+      "positionMm": { "x": 0, "y": 0, "z": 100 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-sofa",
       "catalogItemId": "kenney:lounge-sofa",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 0, "y": 0, "z": 1100 },
+      "positionMm": { "x": 0, "y": 0, "z": 400 },
       "rotationY": 0,
       "materialOverrides": {
         "upholstery": "material:core:fabric-oatmeal:v1",
@@ -35,14 +35,14 @@
       "templateObjectId": "living-room-chair",
       "catalogItemId": "kenney:lounge-chair",
       "catalogItemVersion": 1,
-      "positionMm": { "x": -1700, "y": 0, "z": 200 },
-      "rotationY": 35
+      "positionMm": { "x": 2050, "y": 0, "z": 200 },
+      "rotationY": -15
     },
     {
       "templateObjectId": "living-room-coffee-table",
       "catalogItemId": "kenney:table-coffee",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 0, "y": 0, "z": -50 },
+      "positionMm": { "x": 0, "y": 0, "z": -750 },
       "rotationY": 0
     },
     {
@@ -63,14 +63,14 @@
       "templateObjectId": "living-room-lamp",
       "catalogItemId": "kenney:lamp-round-floor",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 1900, "y": 0, "z": -900 },
+      "positionMm": { "x": 2050, "y": 0, "z": -1350 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-plant",
       "catalogItemId": "kenney:potted-plant",
       "catalogItemVersion": 1,
-      "positionMm": { "x": 2100, "y": 0, "z": 1300 },
+      "positionMm": { "x": -1900, "y": 0, "z": 1500 },
       "rotationY": 0
     }
   ]
