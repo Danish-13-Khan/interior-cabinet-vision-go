@@ -1,7 +1,15 @@
 import { roomPlanPolygon, roomPolygonIsValid } from "./roomGeometry";
-import { selectActiveInteriorRoom, selectRoomWalls } from "./selectors";
-import type { InteriorProject } from "./types";
-import { isWallRaised, setPlanWallsRaised } from "./wallRaise";
+import { selectActiveInteriorRoom } from "./selectors";
+import type { InteriorProject, WallEntity } from "./types";
+import { isWallRaised, outerLoopWallsRaised, setPlanWallsRaised } from "./wallRaise";
+
+function outerLoopWalls(project: InteriorProject, roomId: string): WallEntity[] {
+  const room = project.rooms.find((item) => item.id === roomId);
+  const loop = project.loops.find((item) => item.id === room?.outerLoopId);
+  return (loop?.wallUses ?? [])
+    .map((use) => project.walls.find((wall) => wall.id === use.wallId))
+    .filter((wall): wall is WallEntity => Boolean(wall));
+}
 
 export type RoomModelRaisePlan =
   | { status: "ready" }
@@ -14,12 +22,12 @@ export function planClosedRoomModelRaise(project: InteriorProject): RoomModelRai
   if (!room) {
     return { status: "blocked", reason: "Draw a closed room in 2D before opening 3D." };
   }
-  const walls = selectRoomWalls(project, room.id).filter((wall) => wall.visible);
+  const walls = outerLoopWalls(project, room.id);
   if (walls.length === 0) {
     return { status: "blocked", reason: "This room has no walls to extrude." };
   }
+  if (outerLoopWallsRaised(project, room)) return { status: "ready" };
   const unraised = walls.filter((wall) => !isWallRaised(wall));
-  if (unraised.length === 0) return { status: "ready" };
   const polygon = roomPlanPolygon(project, room.id);
   if (!polygon || !roomPolygonIsValid(polygon)) {
     return {

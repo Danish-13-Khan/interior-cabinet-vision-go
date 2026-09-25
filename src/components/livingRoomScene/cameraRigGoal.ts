@@ -7,6 +7,7 @@ import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
 import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelViewCameraEase";
 import { orthographicZoomForSpan } from "../../domain/livingRoom/modelViewPresets";
+import { resolveRenderCameraPose } from "../../domain/livingRoom/renderCameraPose";
 import { mmToMeters, type CameraPoseMeters } from "./cameraRigPose";
 
 export function buildCameraRigGoal(args: {
@@ -38,19 +39,19 @@ export function buildCameraRigGoal(args: {
       fieldOfViewDegrees: args.fieldOfViewDegrees,
     })
     : null;
-  const framing = selectionFit ?? framed;
+  const named = scene.cameras.find((camera) => camera.id === args.activeCameraId) ?? null;
+  const savedPerspective = viewPreset === "perspective" && named && !selectionFit
+    ? resolveRenderCameraPose(named, scene.bounds, args.composition, args.renderMode)
+    : null;
+  const framing = selectionFit ?? savedPerspective ?? framed;
   const heightDelta = viewPreset === "dollhouse" && typeof args.cameraHeightMm === "number"
     ? args.cameraHeightMm - 3300
     : 0;
   const overriddenPosition = { ...framing.position, y: framing.position.y + heightDelta };
   const spanMm = "spanMm" in framing && typeof framing.spanMm === "number"
     ? framing.spanMm
-    : Math.max(
-      scene.bounds.size.widthMm,
-      scene.bounds.size.depthMm,
-      scene.bounds.size.heightMm,
-      2400,
-    );
+    : Math.max(scene.bounds.size.widthMm, scene.bounds.size.depthMm, scene.bounds.size.heightMm, 2400);
+  const savedFov = savedPerspective?.fieldOfViewDegrees;
   return {
     orthographic,
     goal: {
@@ -64,7 +65,8 @@ export function buildCameraRigGoal(args: {
         y: mmToMeters(framing.target.y),
         z: mmToMeters(framing.target.z),
       },
-      fieldOfViewDegrees: args.fieldOfViewDegrees
+      fieldOfViewDegrees: savedFov
+        ?? args.fieldOfViewDegrees
         ?? ("fieldOfViewDegrees" in framing ? framing.fieldOfViewDegrees : undefined),
       orthographicZoom: orthographic
         ? framed.orthographicZoom ?? orthographicZoomForSpan(spanMm, args.viewport, 1.15)

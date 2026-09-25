@@ -4,7 +4,7 @@ import { createLivingRoomStarterProject } from "../livingRoom/preset";
 import { compileLivingRoomScene } from "../livingRoom/sceneCompiler";
 import { drawRoomFromPoints, rectanglePoints } from "./roomDrawing";
 import { planClosedRoomModelRaise, raiseClosedRoomForModel } from "./roomModelRaise";
-import { isWallRaised } from "./wallRaise";
+import { isWallRaised, outerLoopWallsRaised, setPlanWallsRaised } from "./wallRaise";
 
 function blankDrawnRoom() {
   const blank = applyPlannerStarterTemplate(
@@ -54,5 +54,30 @@ describe("planClosedRoomModelRaise", () => {
       expect(plan.reason).toMatch(/open or invalid/i);
     }
     expect(raiseClosedRoomForModel(open)).toBeNull();
+  });
+
+  it("raises a hidden boundary wall before the room is ready", () => {
+    const drawn = blankDrawnRoom();
+    const room = drawn.rooms[0]!;
+    const loop = drawn.loops.find((item) => item.id === room.outerLoopId)!;
+    const hiddenId = loop.wallUses[0]!.wallId;
+    const others = loop.wallUses.slice(1).map((use) => use.wallId);
+    const partial = setPlanWallsRaised(drawn, others, true, room.dimensions.heightMm);
+    const hidden = {
+      ...partial,
+      walls: partial.walls.map((wall) => (
+        wall.id === hiddenId ? { ...wall, visible: false, raised: false as const } : wall
+      )),
+    };
+    const plan = planClosedRoomModelRaise(hidden);
+    expect(plan.status).toBe("raise");
+    if (plan.status === "raise") expect(plan.wallIds).toContain(hiddenId);
+    const raised = raiseClosedRoomForModel(hidden);
+    expect(raised).not.toBeNull();
+    const hiddenWall = raised!.walls.find((wall) => wall.id === hiddenId)!;
+    expect(hiddenWall.visible).toBe(false);
+    expect(isWallRaised(hiddenWall)).toBe(true);
+    expect(outerLoopWallsRaised(raised!, raised!.rooms[0]!)).toBe(true);
+    expect(planClosedRoomModelRaise(raised!).status).toBe("ready");
   });
 });
