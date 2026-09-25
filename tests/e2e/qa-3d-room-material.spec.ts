@@ -16,6 +16,7 @@ async function enterModel(page: Page) {
 async function expectRoomFramed(page: Page, preset: string) {
   const model = page.getByTestId("lr-model-viewport");
   const canvas = page.locator(".lr-model-viewport canvas");
+  await expect.poll(async () => canvas.getAttribute("data-frame-settled")).toBe("1");
   await expect.poll(async () => canvas.getAttribute("data-camera-outside")).toBe("1");
   if (preset !== "walkthrough") await expect(model).toHaveAttribute("data-ceiling-hidden", "1");
   if (preset === "perspective" || preset === "front" || preset === "side") {
@@ -103,4 +104,20 @@ test("an open outline stays a 2D plan in 3D", async ({ page }) => {
   await expect(page.getByTestId("plan-trace-empty")).toContainText("This room is still a 2D plan");
   await expect(page.getByTestId("plan-trace-raise")).toBeDisabled();
   await page.screenshot({ path: join(SHOT_DIR, "open-room-empty-state.png") });
+});
+
+test("a saved perspective camera changes the settled viewport", async ({ page }) => {
+  test.setTimeout(90_000);
+  await createBlankPlan(page);
+  await drawRectangleRoom(page);
+  await enterModel(page);
+  const canvas = page.locator(".lr-model-viewport canvas");
+  await page.getByTestId("model-view-perspective").click();
+  await expect.poll(async () => canvas.getAttribute("data-frame-settled")).toBe("1");
+  const before = await canvas.getAttribute("data-camera-x");
+  await page.getByTestId("model-view-settings").getByRole("button").click();
+  await page.getByTestId("model-view-settings").locator("label", { hasText: "Camera" }).locator("select").selectOption({ label: "TV Wall" });
+  await expect.poll(async () => canvas.getAttribute("data-frame-settled")).toBe("1");
+  await expect.poll(async () => canvas.getAttribute("data-camera-x")).not.toBe(before);
+  await page.screenshot({ path: join(SHOT_DIR, "cameras", "saved-camera.png") });
 });

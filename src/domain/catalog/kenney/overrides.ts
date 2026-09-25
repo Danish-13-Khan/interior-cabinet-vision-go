@@ -1,10 +1,10 @@
 import type { CatalogLifecycle, CatalogPlacement, MaterialSlotPolicy } from "../types";
-import architectureOverrides from "./overrides.data.json";
-import cabinetPropOverrides from "./cabinetPropOverrides.data.json";
-import curatedBedroom from "./curatedBedroom.data.json";
-import curatedKitchenBathroom from "./curatedKitchenBathroom.data.json";
-import curatedLiving from "./curatedLiving.data.json";
-import curatedOfficeUtility from "./curatedOfficeUtility.data.json";
+import architectureOverrides from "./overrides.data.json" with { type: "json" };
+import cabinetPropOverrides from "./cabinetPropOverrides.data.json" with { type: "json" };
+import curatedBedroom from "./curatedBedroom.data.json" with { type: "json" };
+import curatedKitchenBathroom from "./curatedKitchenBathroom.data.json" with { type: "json" };
+import curatedLiving from "./curatedLiving.data.json" with { type: "json" };
+import curatedOfficeUtility from "./curatedOfficeUtility.data.json" with { type: "json" };
 
 export type KenneyItemOverride = {
   stem: string;

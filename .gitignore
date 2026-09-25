@@ -15,6 +15,7 @@ test-results
 blob-report
 *.local
 tmp/phase-1-baselines/
+artifacts/qa-3d/
 
 # Editor directories and files
 .vscode/*
