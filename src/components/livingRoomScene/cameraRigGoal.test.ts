@@ -43,4 +43,27 @@ describe("buildCameraRigGoal", () => {
     expect(goal({ renderMode: "hero" }).fieldOfViewDegrees).toBe(hero.fieldOfViewDegrees);
     expect(hero.fieldOfViewDegrees).not.toBe(resolved.fieldOfViewDegrees);
   });
+
+  it("Fit Room overrides a saved Perspective camera", () => {
+    const savedPose = goal();
+    const roomFit = goal({ useFitPose: true, fitMode: "room" });
+    const exterior = goal({ activeCameraId: null });
+    expect(roomFit.position.z).not.toBeCloseTo(savedPose.position.z);
+    expect(roomFit.position.x).toBeCloseTo(exterior.position.x);
+    expect(roomFit.position.z).toBeCloseTo(exterior.position.z);
+  });
+
+  it("Isometric Focus Selected zooms to the selection span", () => {
+    const objectId = scene.nodes.find((node) => node.sourceObjectId && node.primitives.length > 0)!
+      .sourceObjectId!;
+    const base = { viewPreset: "isometric" as const, activeCameraId: null };
+    const room = goal({ ...base, useFitPose: true, fitMode: "room" });
+    const focused = goal({
+      ...base,
+      useFitPose: true,
+      fitMode: "selection",
+      fitSelection: { objectIds: [objectId], wallId: null, openingId: null },
+    });
+    expect(focused.orthographicZoom!).toBeGreaterThan(room.orthographicZoom!);
+  });
 });
