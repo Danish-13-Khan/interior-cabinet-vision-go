@@ -69,6 +69,15 @@ export const LIVING_ROOM_CABINET_ITEMS = [
     parameters: { sku: "MW-SHELF-900", doorCount: 0, shelfCount: 3, openShelf: true },
   },
   {
+    id: "cabinet-television-1", name: "TV Media Unit · 1600",
+    kind: "cabinet", category: "storage", placement: "floor",
+    cabinetType: B["cabinet-television-1"].cabinetType,
+    familyId: B["cabinet-television-1"].familyId,
+    dimensions: { widthMm: 1600, heightMm: 450, depthMm: 400 },
+    materialSlots: { carcass: M.walnut, fronts: M.naturalOak, back: M.walnut, shelves: M.naturalOak },
+    parameters: { sku: "MW-MEDIA-1600", doorCount: 2, shelfCount: 1, drawerCount: 0, mediaUnit: true },
+  },
+  {
     id: "living:feature-wall-fluted", name: "Fluted Timber TV Feature Wall",
     kind: "cabinet", category: "feature-wall", placement: "wall",
     dimensions: { widthMm: 3600, heightMm: 2200, depthMm: 62 },

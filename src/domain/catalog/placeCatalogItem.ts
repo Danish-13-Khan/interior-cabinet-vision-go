@@ -7,6 +7,8 @@ import type {
 import { lookupBuiltInCatalogItem, lookupBuiltInCatalogMaterials } from "./catalogLookup";
 import { resetObjectFinishToCatalogDefaults } from "./finishCommands";
 import type { CatalogItem } from "./types";
+import { catalogBindingFor, persistCabinetIdentityOnObject } from "../cabinetIdentity";
+import { getDefaultCabinetConfig } from "../cabinetDimensions";
 
 export type CatalogObjectPlacement = {
   objectId: string;
@@ -25,10 +27,14 @@ function objectFromCatalogItem(
   item: CatalogItem,
   placement: CatalogObjectPlacement,
 ): InteriorObjectEntity {
-  return {
+  const binding = catalogBindingFor(item.id);
+  const productionConfig = binding?.production
+    ? getDefaultCabinetConfig(binding.cabinetType)
+    : null;
+  const object: InteriorObjectEntity = {
     id: placement.objectId,
     roomId: placement.roomId,
-    kind: kindFromCategory(item.category),
+    kind: productionConfig ? "cabinet" : kindFromCategory(item.category),
     category: item.category,
     catalogItemId: item.id,
     catalogItemVersion: item.version,
@@ -41,9 +47,15 @@ function objectFromCatalogItem(
       depthMm: item.dimensionsMm.depth,
     },
     materialSlots: {},
-    parameters: {},
+    parameters: productionConfig ? {
+      shelfCount: productionConfig.shelfCount,
+      drawerCount: productionConfig.drawerCount ?? 0,
+      hasDoors: productionConfig.hasDoors,
+      ...(binding?.sku ? { sku: binding.sku } : {}),
+    } : {},
     extensions: { placement: item.placement },
   };
+  return productionConfig ? persistCabinetIdentityOnObject(object) : object;
 }
 
 /**

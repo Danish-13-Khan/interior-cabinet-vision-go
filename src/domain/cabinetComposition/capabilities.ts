@@ -16,6 +16,7 @@ export function supportsDividers(type: CabinetType): boolean {
     type === "tall" ||
     type === "corner" ||
     type === "open-shelf" ||
+    type === "media-unit" ||
     type === "almirah"
   );
 }

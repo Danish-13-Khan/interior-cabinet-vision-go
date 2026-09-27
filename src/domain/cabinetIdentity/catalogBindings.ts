@@ -40,6 +40,12 @@ export const CABINET_CATALOG_BINDINGS: Record<string, CatalogCabinetBinding> = {
     sku: "MW-SHELF-900",
     production: true,
   },
+  "cabinet-television-1": {
+    cabinetType: "media-unit",
+    familyId: "frameless-standard-media-unit",
+    sku: "MW-MEDIA-1600",
+    production: true,
+  },
   "living:wardrobe-wall": {
     cabinetType: "almirah",
     familyId: "frameless-standard-almirah",
@@ -91,6 +97,12 @@ export const CABINET_CATALOG_BINDINGS: Record<string, CatalogCabinetBinding> = {
   "cabinet:open-shelf": {
     cabinetType: "open-shelf",
     familyId: "frameless-standard-open-shelf",
+    sku: null,
+    production: true,
+  },
+  "cabinet:media-unit": {
+    cabinetType: "media-unit",
+    familyId: "frameless-standard-media-unit",
     sku: null,
     production: true,
   },

@@ -6,7 +6,7 @@ import type { InteriorsChromeTool } from "./interiorsChrome";
 import { INTERIORS_CHROME_TOOLS } from "./interiorsChrome";
 
 export const INTERIORS_CABINET_RUN_FAMILY_ORDER = [
-  "base", "drawer", "wall", "tall", "open-shelf",
+  "base", "drawer", "media-unit", "wall", "tall", "open-shelf",
 ] as const;
 
 export function isInteriorsCabinetRunTool(tool: InteriorsChromeTool): boolean {

@@ -85,6 +85,7 @@ export function listFamilyEngineeringSummaries(): Array<{
     "sink",
     "corner",
     "open-shelf",
+    "media-unit",
     "almirah",
     "table",
   ];

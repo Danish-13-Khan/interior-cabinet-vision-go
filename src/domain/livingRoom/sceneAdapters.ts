@@ -38,6 +38,10 @@ import { compileStructuralColumn } from "./sceneAdaptersStructural";
 
 export type { LivingRoomObjectAdapter } from "./sceneAdapterTypes";
 
+// Keep parametric media-unit geometry available as the safe render fallback,
+// while its catalog GLB remains the preferred room-facing representation.
+const compileMediaUnit: LivingRoomObjectAdapter["compile"] = (object) => compileCabinet(object);
+
 const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "sofa-v1", catalogItemId: "living:sofa-3-seat", compile: compileSofa },
   { id: "chair-v1", catalogItemId: "living:lounge-chair", compile: compileChair },
@@ -66,6 +70,7 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "wall-cabinet-v1", catalogItemId: "living:wall-cabinet-900", compile: compileCabinet },
   { id: "drawer-cabinet-v1", catalogItemId: "living:drawer-cabinet-900", compile: compileCabinet },
   { id: "open-shelf-v1", catalogItemId: "living:open-shelf-900", compile: compileCabinet },
+  { id: "media-unit-v1", catalogItemId: "cabinet-television-1", compile: compileMediaUnit },
   { id: "corner-wardrobe-v1", catalogItemId: "living:corner-wardrobe", compile: compileCornerWardrobe },
   { id: "run-filler-v1", catalogItemId: "living:run-filler", compile: compileRunFiller },
   { id: "ottoman-v1", catalogItemId: "living:ottoman", compile: compileOttoman },

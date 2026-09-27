@@ -94,8 +94,11 @@ export function createObjectRenderBinding(
   const productionCabinet = Boolean(
     identity && catalogBindingFor(object.catalogItemId)?.production,
   );
-  // Production cabinets keep procedural geometry as dimensional truth (VIS-011).
-  if (productionCabinet) {
+  const presentationModelCabinet = productionCabinet && identity?.cabinetType === "media-unit";
+  // Most production cabinets keep procedural geometry as dimensional truth
+  // (VIS-011). The media unit is the deliberate exception: its GLB remains the
+  // room-facing representation while cabinet configuration drives production.
+  if (productionCabinet && !presentationModelCabinet) {
     return {
       strategy: "procedural",
       materialBindings,
@@ -113,6 +116,28 @@ export function createObjectRenderBinding(
     projectMaterials,
   );
   if (imported) return imported;
+
+  if (presentationModelCabinet) {
+    const catalogModel = createKenneyCatalogRenderBinding(
+      object,
+      materialBindings,
+      uvScaleMm,
+      slotPolicies,
+      projectMaterials,
+    );
+    if (catalogModel) return catalogModel;
+  }
+
+  // A missing presentation asset must never remove production geometry.
+  if (productionCabinet) {
+    return {
+      strategy: "procedural",
+      materialBindings,
+      uvScaleMm,
+      targetSizeMm: { ...object.dimensions },
+      slotPolicies,
+    };
+  }
 
   if (!isGlbIntentCatalogId(object.catalogItemId)) {
     const kenney = createKenneyCatalogRenderBinding(

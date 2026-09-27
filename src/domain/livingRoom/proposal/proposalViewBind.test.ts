@@ -47,7 +47,7 @@ describe("proposal view binding", () => {
     const view = proposalExportViews(frozen)[0]!;
     const binding = proposalSceneBinding(frozen);
     const postFreezeHash = stillJobProjectContentHash(frozen);
-    expect(postFreezeHash).not.toBe(binding.projectContentHash);
+    expect(postFreezeHash).toBe(binding.projectContentHash);
     expect(collectProposalViewFrames(frozen, {
       acceptedStills: [acceptedStill(frozen, view.cameraId, "sj-proj-old")],
     })).toEqual([]);

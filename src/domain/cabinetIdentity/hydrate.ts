@@ -26,11 +26,21 @@ export function hydrateCabinetIdentities(
   issues: InteriorValidationIssue[],
 ): InteriorObjectEntity[] {
   return objects.map((object) => {
-    if (object.kind !== "cabinet") return object;
+    const binding = catalogBindingFor(object.catalogItemId);
+    if (object.kind !== "cabinet") {
+      if (!binding?.production) return object;
+      issues.push(issue(
+        object.id,
+        "cabinet-production-promoted",
+        `Promoted ${object.name} to production family ${binding.familyId} from its catalog identity.`,
+        true,
+      ));
+      return persistCabinetIdentityOnObject({ ...object, kind: "cabinet" });
+    }
     if (readIdentityExtension(object.extensions)) return object;
     const identity = readCabinetIdentity(object);
     if (!identity) {
-      if (catalogBindingFor(object.catalogItemId)) return object;
+      if (binding) return object;
       const looksProduction = object.category === "storage" || Boolean(parseCabinetType(object.category));
       if (looksProduction) {
         issues.push(issue(

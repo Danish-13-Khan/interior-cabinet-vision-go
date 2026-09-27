@@ -164,6 +164,7 @@ export function createProjectReport(
         cabinet.config.type === "sink" ||
         cabinet.config.type === "corner" ||
         cabinet.config.type === "open-shelf" ||
+        cabinet.config.type === "media-unit" ||
         cabinet.config.type === "almirah",
       ).length,
       roomSizeLabel: `${room.dimensions.widthMm} x ${room.dimensions.depthMm} x ${room.dimensions.heightMm} mm`,

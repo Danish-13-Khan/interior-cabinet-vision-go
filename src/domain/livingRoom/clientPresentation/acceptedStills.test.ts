@@ -3,6 +3,8 @@ import { createLivingRoomReleaseDemoProject } from "..";
 import { stillJobProjectContentHash } from "../stillJob/projectHash";
 import type { StillProvenance } from "../stillJob/provenance";
 import { freezeProposal, recordProposalRelease } from "../proposal";
+import { approveEngineeringRevision } from "../handoff";
+import { readProposalCommercial, writeProposalCommercial } from "../proposal/commercialState";
 import {
   filterPackageEligibleStills,
   isPackageEligibleStill,
@@ -91,6 +93,40 @@ describe("package-eligible accepted stills", () => {
 
     expect(stillJobProjectContentHash(released)).toBe(stillJobProjectContentHash(frozen));
     expect(isPackageEligibleStill(released, accepted)).toBe(true);
+  });
+
+  it("keeps accepted captures eligible after Engineering approval metadata changes", () => {
+    const frozen = freezeProposal(createLivingRoomReleaseDemoProject(), NOW);
+    const accepted = sampleProvenance(frozen);
+    const released = recordProposalRelease(frozen, NOW);
+    const approved = approveEngineeringRevision(released, NOW);
+
+    expect(approved).not.toBe(released);
+    expect(stillJobProjectContentHash(approved)).toBe(stillJobProjectContentHash(frozen));
+    expect(isPackageEligibleStill(approved, accepted)).toBe(true);
+  });
+
+  it("keeps pre-upgrade captures when their frozen visual scene is unchanged", () => {
+    const frozen = freezeProposal(createLivingRoomReleaseDemoProject(), NOW);
+    const commercial = readProposalCommercial(frozen);
+    const frozenClient = commercial.surface.frozenClient!;
+    const legacyHash = "sj-proj-legacy-workflow-hash";
+    const legacyBound = writeProposalCommercial(frozen, {
+      surface: {
+        ...commercial.surface,
+        frozenClient: { ...frozenClient, projectContentHash: legacyHash },
+      },
+    });
+    const accepted = sampleProvenance(legacyBound, { projectContentHash: legacyHash });
+
+    expect(isPackageEligibleStill(legacyBound, accepted)).toBe(true);
+    const changed = {
+      ...legacyBound,
+      objects: legacyBound.objects.map((object, index) => index === 0
+        ? { ...object, position: { ...object.position, x: object.position.x + 100 } }
+        : object),
+    };
+    expect(isPackageEligibleStill(changed, accepted)).toBe(false);
   });
 
   it("still invalidates accepted captures after a visual object change", () => {

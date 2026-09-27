@@ -26,6 +26,7 @@ function markLetter(object: InteriorObjectEntity): string {
   if (type === "tall") return "T";
   if (type === "drawer") return "D";
   if (type === "open-shelf") return "S";
+  if (type === "media-unit") return "TV";
   if (type === "sink") return "A";
   if (type === "corner") return "C";
   if (type === "almirah") return "M";

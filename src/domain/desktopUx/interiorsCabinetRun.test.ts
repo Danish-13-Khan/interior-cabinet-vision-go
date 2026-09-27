@@ -26,7 +26,7 @@ describe("interiorsCabinetRun", () => {
   it("lists golden families and open shelf without furniture", () => {
     const cabinets = interiorsCabinetRunFamilyItems("cabinet", LIVING_ROOM_CATALOG);
     expect(cabinets.map((item) => item.cabinetType)).toEqual([
-      "base", "drawer", "wall", "tall", "open-shelf",
+      "base", "drawer", "media-unit", "wall", "tall", "open-shelf",
     ]);
     expect(interiorsCabinetRunFamilyItems("shelf", LIVING_ROOM_CATALOG).every((item) => item.cabinetType === "open-shelf")).toBe(true);
     expect(interiorsCabinetRunFamilyItems("material", LIVING_ROOM_CATALOG)).toEqual([]);
