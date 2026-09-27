@@ -1,5 +1,6 @@
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
+import type { InteriorsPresentStep } from "../../domain/desktopUx";
 import { EngineeringHandoffSection } from "./EngineeringHandoffSection";
 
 type Proposal = ReturnType<typeof useProposalWorkflow>;
@@ -9,19 +10,22 @@ export function InteriorsPresentActions({
   proposal,
   handoff,
   blocking,
+  step,
   needsCapture,
   onCapture,
 }: {
   proposal: Proposal;
   handoff: Handoff;
   blocking: readonly string[];
+  step: InteriorsPresentStep;
   needsCapture: boolean;
   onCapture: () => void;
 }) {
   const ready = Boolean(proposal.gate?.ready);
+  const showProposalBlocking = step === "capture" || step === "proposal";
   return (
     <>
-      {blocking.length ? (
+      {showProposalBlocking && blocking.length ? (
         <ul className="interiors-present-blocking" data-testid="interiors-present-blocking">
           {blocking.map((detail) => <li key={detail} className="is-blocking">{detail}</li>)}
         </ul>

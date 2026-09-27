@@ -18,7 +18,7 @@ export function buildHandoffGate(
     items.push({
       id: "cabinets",
       label: "Cabinets",
-      detail: "Identify at least one cabinet before sending to Engineering.",
+      detail: "No production cabinet is present. Add a cabinet from Cabinets before sending to Engineering.",
       blocking: true,
     });
   }

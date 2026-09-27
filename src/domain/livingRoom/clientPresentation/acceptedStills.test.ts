@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createLivingRoomReleaseDemoProject } from "..";
 import { stillJobProjectContentHash } from "../stillJob/projectHash";
 import type { StillProvenance } from "../stillJob/provenance";
+import { freezeProposal, recordProposalRelease } from "../proposal";
 import {
   filterPackageEligibleStills,
   isPackageEligibleStill,
@@ -60,5 +61,47 @@ describe("package-eligible accepted stills", () => {
     expect(manifest.acceptedStills).toHaveLength(1);
     expect(manifest.acceptedStills[0]?.jobId).toBe("sj-bound");
     expect(filterPackageEligibleStills(project, manifest.acceptedStills)).toEqual(manifest.acceptedStills);
+  });
+
+  it("keeps accepted captures eligible while selecting each package camera", () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const cameraIds = project.cameras.slice(0, 3).map((camera) => camera.id);
+    expect(cameraIds).toHaveLength(3);
+    const projectContentHash = stillJobProjectContentHash(project);
+    const accepted = cameraIds.map((cameraId, index) => sampleProvenance(project, {
+      jobId: `sj-camera-${index + 1}`,
+      cameraId,
+      projectContentHash,
+    }));
+
+    for (const activeCameraId of cameraIds) {
+      const selected = {
+        ...project,
+        renderSettings: { ...project.renderSettings, activeCameraId },
+      };
+      expect(stillJobProjectContentHash(selected)).toBe(projectContentHash);
+      expect(filterPackageEligibleStills(selected, accepted)).toHaveLength(3);
+    }
+  });
+
+  it("keeps accepted captures eligible after the proposal PDF is recorded", () => {
+    const frozen = freezeProposal(createLivingRoomReleaseDemoProject(), NOW);
+    const accepted = sampleProvenance(frozen);
+    const released = recordProposalRelease(frozen, NOW);
+
+    expect(stillJobProjectContentHash(released)).toBe(stillJobProjectContentHash(frozen));
+    expect(isPackageEligibleStill(released, accepted)).toBe(true);
+  });
+
+  it("still invalidates accepted captures after a visual object change", () => {
+    const project = createLivingRoomReleaseDemoProject();
+    const accepted = sampleProvenance(project);
+    const changed = {
+      ...project,
+      objects: project.objects.map((object, index) => index === 0
+        ? { ...object, position: { ...object.position, x: object.position.x + 100 } }
+        : object),
+    };
+    expect(isPackageEligibleStill(changed, accepted)).toBe(false);
   });
 });

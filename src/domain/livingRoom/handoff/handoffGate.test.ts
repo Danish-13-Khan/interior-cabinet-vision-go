@@ -20,6 +20,21 @@ describe("engineering handoff approval and snapshots", () => {
     expect(approveEngineeringRevision(approved, NOW)).toBe(approved);
   });
 
+  it("explains that visual storage furniture is not a production cabinet", () => {
+    const approved = createApprovedHandoffProject(NOW);
+    const withoutProductionCabinets = {
+      ...approved,
+      objects: approved.objects.map((object) => object.kind === "cabinet"
+        ? { ...object, kind: "furniture" as const, category: "storage" }
+        : object),
+    };
+    const gate = buildHandoffGate(withoutProductionCabinets);
+
+    expect(gate.items.find((item) => item.id === "cabinets")?.detail).toBe(
+      "No production cabinet is present. Add a cabinet from Cabinets before sending to Engineering.",
+    );
+  });
+
   it("rejects a second send of the same approved revision", () => {
     const approved = createApprovedHandoffProject(NOW);
     const handed = commitEngineeringHandoff(approved, [], NOW);

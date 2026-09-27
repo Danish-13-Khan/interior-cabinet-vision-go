@@ -61,6 +61,9 @@ export function EngineeringHandoffSection({
     handoffSent: handoff.sent,
     revisionApproved: handoff.revisionApproved,
   });
+  const visibleBlockers = gate.items.filter((item) => (
+    item.blocking && item.id !== "approval" && item.id !== "already-sent"
+  ));
 
   return (
     <section className="engineering-handoff" aria-label="Engineering handoff">
@@ -84,9 +87,9 @@ export function EngineeringHandoffSection({
           <HandoffDiagnostics warnings={summary.warnings} testId="handoff-diagnostics" />
         </>
       )}
-      {!gate.ready && !compact ? (
+      {visibleBlockers.length ? (
         <small className="is-warning" data-testid="handoff-blocked">
-          {gate.items.map((item) => item.detail).join(" ")}
+          {visibleBlockers.map((item) => item.detail).join(" ")}
         </small>
       ) : null}
       {handoff.revisionApproved ? (
