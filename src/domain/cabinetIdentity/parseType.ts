@@ -8,6 +8,7 @@ const CABINET_TYPES: readonly CabinetType[] = [
   "sink",
   "corner",
   "open-shelf",
+  "media-unit",
   "almirah",
   "table",
   "chair",

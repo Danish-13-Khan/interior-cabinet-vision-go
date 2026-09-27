@@ -93,6 +93,7 @@ describe("cabinet family opening rules", () => {
       "sink",
       "corner",
       "open-shelf",
+      "media-unit",
     ]);
 
     expect(getFamilyOpeningRules("wall").allowedContentTypes).not.toContain("drawer-stack");

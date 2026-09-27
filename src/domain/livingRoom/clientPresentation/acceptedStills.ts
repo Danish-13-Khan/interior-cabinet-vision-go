@@ -1,7 +1,18 @@
 import type { InteriorProject } from "../../interiorProject";
 import { stillJobProjectContentHash } from "../stillJob/projectHash";
 import type { StillProvenance } from "../stillJob/provenance";
+import { liveProposalSceneBinding, proposalSceneBinding } from "../proposal/proposalRevision";
 import type { ClientPresentationManifest } from "./buildPackage";
+
+function matchesUnchangedFrozenScene(
+  project: InteriorProject,
+  provenance: StillProvenance,
+): boolean {
+  const frozen = proposalSceneBinding(project);
+  const live = liveProposalSceneBinding(project);
+  return frozen.sceneFingerprint === live.sceneFingerprint
+    && provenance.projectContentHash === frozen.projectContentHash;
+}
 
 /** Accepted still bound to the current editable project snapshot. */
 export function isPackageEligibleStill(
@@ -11,7 +22,10 @@ export function isPackageEligibleStill(
   return (
     provenance.acceptanceStatus === "accepted"
     && provenance.projectId === project.id
-    && provenance.projectContentHash === stillJobProjectContentHash(project)
+    && (
+      provenance.projectContentHash === stillJobProjectContentHash(project)
+      || matchesUnchangedFrozenScene(project, provenance)
+    )
   );
 }
 

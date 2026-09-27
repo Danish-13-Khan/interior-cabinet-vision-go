@@ -143,6 +143,13 @@ export function getDefaultConstructionSpec(type: CabinetType): CabinetConstructi
         shelfMount: "adjustable-pins",
         doorMount: "overlay",
       };
+    case "media-unit":
+      return {
+        ...base,
+        caseJoinery: "dado",
+        shelfMount: "adjustable-pins",
+        doorMount: "full-overlay",
+      };
     case "drawer":
       return {
         ...base,

@@ -28,6 +28,7 @@ const CABINET_TYPES = new Set([
   "sink",
   "corner",
   "open-shelf",
+  "media-unit",
   "almirah",
 ]);
 

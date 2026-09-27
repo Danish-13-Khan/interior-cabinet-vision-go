@@ -16,6 +16,7 @@ export const CABINET_FAMILY_LABELS: Record<CabinetFamilyId, string> = {
   "frameless-standard-corner": "Frameless Standard Corner",
   "frameless-standard-sink": "Frameless Standard Sink",
   "frameless-standard-open-shelf": "Frameless Standard Open Shelf",
+  "frameless-standard-media-unit": "Frameless Standard Media Unit",
 };
 
 const FAMILY_TYPE: Record<CabinetFamilyId, CabinetType> = {
@@ -27,6 +28,7 @@ const FAMILY_TYPE: Record<CabinetFamilyId, CabinetType> = {
   "frameless-standard-corner": "corner",
   "frameless-standard-sink": "sink",
   "frameless-standard-open-shelf": "open-shelf",
+  "frameless-standard-media-unit": "media-unit",
 };
 
 const TYPE_FAMILY: Partial<Record<CabinetType, CabinetFamilyId>> = {
@@ -38,6 +40,7 @@ const TYPE_FAMILY: Partial<Record<CabinetType, CabinetFamilyId>> = {
   corner: "frameless-standard-corner",
   sink: "frameless-standard-sink",
   "open-shelf": "frameless-standard-open-shelf",
+  "media-unit": "frameless-standard-media-unit",
 };
 
 export function isCabinetFamilyId(value: unknown): value is CabinetFamilyId {

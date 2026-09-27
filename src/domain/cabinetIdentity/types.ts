@@ -16,6 +16,7 @@ export const CABINET_FAMILY_IDS = [
   "frameless-standard-corner",
   "frameless-standard-sink",
   "frameless-standard-open-shelf",
+  "frameless-standard-media-unit",
 ] as const;
 
 export type GoldenCabinetFamilyId = (typeof GOLDEN_CABINET_FAMILY_IDS)[number];

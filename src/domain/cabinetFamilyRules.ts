@@ -193,6 +193,25 @@ export function getFamilyOpeningRules(type: CabinetType): FamilyOpeningRules {
             shelfCount: 3,
           }),
       };
+    case "media-unit":
+      return {
+        family: "media-unit",
+        supportsOpenings: true,
+        allowedContentTypes: ["door", "drawer-stack", "open-shelf", "divider"],
+        allowVerticalSplit: true,
+        allowHorizontalSplit: true,
+        maxSplitDepth: 2,
+        maxLeaves: 4,
+        defaultToeKick: true,
+        notes: "Media units support closed equipment bays, drawers, and ventilated open shelving.",
+        createDefaultRoot: (widthMm) =>
+          leaf("door", {
+            id: "opening-primary",
+            label: "Media Storage",
+            doorStyle: widthMm < 600 ? "single" : "double",
+            shelfCount: 1,
+          }),
+      };
     case "almirah":
       return {
         family: "almirah",
@@ -241,6 +260,7 @@ export function listFamilyOpeningSummaries() {
     "sink",
     "corner",
     "open-shelf",
+    "media-unit",
   ];
   return families.map((family) => {
     const rules = getFamilyOpeningRules(family);

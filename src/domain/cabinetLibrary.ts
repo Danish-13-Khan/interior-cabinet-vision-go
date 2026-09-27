@@ -14,7 +14,7 @@ export const cabinetLibrary: CabinetLibraryCategory[] = [
   {
     id: "base-cabinets",
     label: "Base Cabinets",
-    types: ["base", "drawer", "sink", "corner", "open-shelf"],
+    types: ["base", "drawer", "sink", "corner", "open-shelf", "media-unit"],
   },
   {
     id: "wall-cabinets",

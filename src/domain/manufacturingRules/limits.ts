@@ -90,6 +90,12 @@ export function getFamilyDimensionLimits(type: CabinetType): FamilyDimensionLimi
         height: { min: 600, max: 2100, preferredMin: 700, preferredMax: 1800 },
         depth: { min: 300, max: 450, preferredMin: 320, preferredMax: 400 },
       };
+    case "media-unit":
+      return {
+        width: { min: 800, max: 2400, preferredMin: 1200, preferredMax: 1800 },
+        height: { min: 350, max: 900, preferredMin: 400, preferredMax: 600 },
+        depth: { min: 300, max: 600, preferredMin: 350, preferredMax: 500 },
+      };
     default:
       return global;
   }

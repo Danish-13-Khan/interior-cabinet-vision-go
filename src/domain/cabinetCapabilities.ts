@@ -6,6 +6,7 @@ export type CabinetType =
   | "sink"
   | "corner"
   | "open-shelf"
+  | "media-unit"
   | "almirah"
   | "table"
   | "chair"
@@ -21,6 +22,7 @@ export function isStorageType(type: CabinetType): boolean {
     type === "sink" ||
     type === "corner" ||
     type === "open-shelf" ||
+    type === "media-unit" ||
     type === "almirah"
   );
 }
@@ -38,6 +40,7 @@ export function supportsDrawers(type: CabinetType): boolean {
     type === "drawer" ||
     type === "base" ||
     type === "tall" ||
+    type === "media-unit" ||
     type === "almirah"
   );
 }
@@ -50,6 +53,7 @@ export function supportsToeKick(type: CabinetType): boolean {
     type === "sink" ||
     type === "corner" ||
     type === "open-shelf" ||
+    type === "media-unit" ||
     type === "almirah"
   );
 }
