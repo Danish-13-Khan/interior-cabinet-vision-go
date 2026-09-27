@@ -75,7 +75,7 @@ export function InteriorsPresentPanel({
       />
       <InteriorsPresentActions
         proposal={proposal} handoff={handoff} blocking={state.blocking}
-        needsCapture={state.needsCapture} onCapture={onCapture}
+        step={state.step} needsCapture={state.needsCapture} onCapture={onCapture}
       />
     </aside>
   );
