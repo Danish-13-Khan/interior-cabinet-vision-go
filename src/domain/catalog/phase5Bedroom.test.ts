@@ -25,13 +25,13 @@ const catalog = manifest as CatalogManifest;
 const NOW = "2026-09-04T12:30:00.000Z";
 
 const BEDROOM_ITEM_IDS = [
-  "kenney:bed-double",
-  "kenney:bookcase-open",
-  "kenney:cabinet-bed-drawer-table",
-  "kenney:cabinet-bed-drawer-table",
-  "kenney:lamp-round-table",
-  "kenney:pillow",
-  "kenney:rug-rectangle",
+  "bed-double-1",
+  "bookcase-open-1",
+  "cabinet-bed-drawer-table-1",
+  "cabinet-bed-drawer-table-1",
+  "lamp-round-table-1",
+  "pillow-1",
+  "rug-rectangle-1",
 ];
 
 describe("Phase 5 Bedroom template", () => {
@@ -68,7 +68,7 @@ describe("Phase 5 Bedroom template", () => {
       depthMm: 4200,
     });
     expect(project.openings.map((opening) => opening.kind).sort()).toEqual(["door", "window"]);
-    const bed = project.objects.find((object) => object.catalogItemId === "kenney:bed-double")!;
+    const bed = project.objects.find((object) => object.catalogItemId === "bed-double-1")!;
     expect(bed.catalogItemVersion).toBe(1);
     expect(bed.materialSlots.upholstery).toBeTruthy();
     expect(bed.materialSlots.bedding).toBeTruthy();
@@ -97,10 +97,10 @@ describe("Phase 5 Bedroom template", () => {
 
   it("recolors bed upholstery without touching bedding or frame", () => {
     const project = instantiateBedroomCatalogTemplate({ projectId: "br-finishes", now: NOW });
-    const bed = project.objects.find((object) => object.catalogItemId === "kenney:bed-double")!;
+    const bed = project.objects.find((object) => object.catalogItemId === "bed-double-1")!;
     const beddingBefore = bed.materialSlots.bedding;
     const frameBefore = bed.materialSlots.frame;
-    const bedItem = lookupBuiltInCatalogItem("kenney:bed-double")!;
+    const bedItem = lookupBuiltInCatalogItem("bed-double-1")!;
     const oliveChoices = catalogSwatchesForSlot(bedItem.materialSlots.upholstery!);
     expect(oliveChoices.some((material) => material.id === "material:core:fabric-olive:v1")).toBe(true);
 
@@ -124,7 +124,7 @@ describe("Phase 5 Bedroom template", () => {
       now: NOW,
     });
     const painted = paintObjectSlotFromCatalog(project, {
-      objectId: project.objects.find((object) => object.catalogItemId === "kenney:bed-double")!.id,
+      objectId: project.objects.find((object) => object.catalogItemId === "bed-double-1")!.id,
       slotName: "upholstery",
       catalogMaterialId: "material:core:fabric-olive:v1",
     });
@@ -133,7 +133,7 @@ describe("Phase 5 Bedroom template", () => {
     expect(reopened.extensions?.catalogTemplateId).toBe(BEDROOM_CATALOG_TEMPLATE_ID);
     expect(reopened.objects).toHaveLength(7);
     expect(reopened.rooms[0]?.roomType).toBe("bedroom");
-    const bed = reopened.objects.find((object) => object.catalogItemId === "kenney:bed-double")!;
+    const bed = reopened.objects.find((object) => object.catalogItemId === "bed-double-1")!;
     const upholstery = reopened.materials.find((material) => material.id === bed.materialSlots.upholstery)!;
     expect(upholstery.extensions?.catalogMaterialId).toBe("material:core:fabric-olive:v1");
     expect(upholstery.color).toBe("#6a6e52");

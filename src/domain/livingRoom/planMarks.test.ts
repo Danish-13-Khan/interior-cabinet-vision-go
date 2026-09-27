@@ -52,7 +52,7 @@ describe("planMarks", () => {
     const appliance = {
       ...base,
       id: "a1",
-      catalogItemId: "kenney:kitchen-fridge",
+      catalogItemId: "kitchen-fridge-1",
       category: "kitchen-and-appliances",
       dimensions: { widthMm: 900, heightMm: 1800, depthMm: 700 },
       extensions: {},

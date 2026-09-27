@@ -41,7 +41,7 @@ describe("planObjectFootprint", () => {
   it("treats kenney fridge as appliance footprint", () => {
     const object = minimalObject({
       category: "kitchen-and-appliances",
-      catalogItemId: "kenney:kitchen-fridge",
+      catalogItemId: "kitchen-fridge-1",
       name: "Fridge",
     });
     expect(isKitchenAppliancePlanObject(object)).toBe(true);
@@ -51,9 +51,9 @@ describe("planObjectFootprint", () => {
 
   it("treats stove, hood, and microwave as appliances", () => {
     for (const catalogItemId of [
-      "kenney:kitchen-stove-electric",
-      "kenney:kitchen-hood",
-      "kenney:kitchen-microwave",
+      "kitchen-stove-electric-1",
+      "kitchen-hood-1",
+      "kitchen-microwave-1",
     ]) {
       const object = minimalObject({
         category: "kitchen-and-appliances",
@@ -67,7 +67,7 @@ describe("planObjectFootprint", () => {
   it("does not treat kitchen-cabinet presentation prop as appliance", () => {
     const object = minimalObject({
       category: "kitchen-and-appliances",
-      catalogItemId: "kenney:kitchen-cabinet",
+      catalogItemId: "kitchen-cabinet-1",
       name: "Kitchen Cabinet",
     });
     expect(isKitchenAppliancePlanObject(object)).toBe(false);

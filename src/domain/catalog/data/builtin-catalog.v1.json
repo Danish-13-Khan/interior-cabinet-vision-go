@@ -6016,7 +6016,7 @@
   ],
   "items": [
     {
-      "id": "kenney:bathroom-cabinet",
+      "id": "bathroom-cabinet-1",
       "version": 1,
       "name": "Bathroom Cabinet",
       "category": "bathroom",
@@ -6049,7 +6049,7 @@
       }
     },
     {
-      "id": "kenney:bathroom-cabinet-drawer",
+      "id": "bathroom-cabinet-drawer-1",
       "version": 1,
       "name": "Bathroom Cabinet Drawer",
       "category": "bathroom",
@@ -6082,7 +6082,7 @@
       }
     },
     {
-      "id": "kenney:bathroom-mirror",
+      "id": "bathroom-mirror-1",
       "version": 1,
       "name": "Bathroom Mirror",
       "category": "bathroom",
@@ -6143,7 +6143,7 @@
       }
     },
     {
-      "id": "kenney:bathroom-sink",
+      "id": "bathroom-sink-1",
       "version": 1,
       "name": "Bathroom Sink",
       "category": "bathroom",
@@ -6206,7 +6206,7 @@
       }
     },
     {
-      "id": "kenney:bathroom-sink-square",
+      "id": "bathroom-sink-square-1",
       "version": 1,
       "name": "Bathroom Sink Square",
       "category": "bathroom",
@@ -6239,7 +6239,7 @@
       }
     },
     {
-      "id": "kenney:bathtub",
+      "id": "bathtub-1",
       "version": 1,
       "name": "Bathtub",
       "category": "bathroom",
@@ -6302,7 +6302,7 @@
       }
     },
     {
-      "id": "kenney:bear",
+      "id": "bear-1",
       "version": 1,
       "name": "Bear",
       "category": "decor",
@@ -6335,7 +6335,7 @@
       }
     },
     {
-      "id": "kenney:bed-bunk",
+      "id": "bed-bunk-1",
       "version": 1,
       "name": "Bed Bunk",
       "category": "beds-and-bedroom",
@@ -6368,7 +6368,7 @@
       }
     },
     {
-      "id": "kenney:bed-double",
+      "id": "bed-double-1",
       "version": 1,
       "name": "Double Bed",
       "category": "beds-and-bedroom",
@@ -6456,7 +6456,7 @@
       }
     },
     {
-      "id": "kenney:bed-single",
+      "id": "bed-single-1",
       "version": 1,
       "name": "Bed Single",
       "category": "beds-and-bedroom",
@@ -6489,7 +6489,7 @@
       }
     },
     {
-      "id": "kenney:bench",
+      "id": "bench-1",
       "version": 1,
       "name": "Bench",
       "category": "seating",
@@ -6522,7 +6522,7 @@
       }
     },
     {
-      "id": "kenney:bench-cushion",
+      "id": "bench-cushion-1",
       "version": 1,
       "name": "Bench Cushion",
       "category": "seating",
@@ -6555,7 +6555,7 @@
       }
     },
     {
-      "id": "kenney:bench-cushion-low",
+      "id": "bench-cushion-low-1",
       "version": 1,
       "name": "Bench Cushion Low",
       "category": "seating",
@@ -6588,7 +6588,7 @@
       }
     },
     {
-      "id": "kenney:bookcase-closed",
+      "id": "bookcase-closed-1",
       "version": 1,
       "name": "Bookcase Closed",
       "category": "storage",
@@ -6621,7 +6621,7 @@
       }
     },
     {
-      "id": "kenney:bookcase-closed-doors",
+      "id": "bookcase-closed-doors-1",
       "version": 1,
       "name": "Bookcase Closed Doors",
       "category": "storage",
@@ -6654,7 +6654,7 @@
       }
     },
     {
-      "id": "kenney:bookcase-closed-wide",
+      "id": "bookcase-closed-wide-1",
       "version": 1,
       "name": "Bookcase Closed Wide",
       "category": "storage",
@@ -6687,7 +6687,7 @@
       }
     },
     {
-      "id": "kenney:bookcase-open",
+      "id": "bookcase-open-1",
       "version": 1,
       "name": "Open Bookcase",
       "category": "storage",
@@ -6734,7 +6734,7 @@
       }
     },
     {
-      "id": "kenney:bookcase-open-low",
+      "id": "bookcase-open-low-1",
       "version": 1,
       "name": "Bookcase Open Low",
       "category": "storage",
@@ -6767,7 +6767,7 @@
       }
     },
     {
-      "id": "kenney:books",
+      "id": "books-1",
       "version": 1,
       "name": "Books",
       "category": "storage",
@@ -6800,7 +6800,7 @@
       }
     },
     {
-      "id": "kenney:cabinet-bed",
+      "id": "cabinet-bed-1",
       "version": 1,
       "name": "Cabinet Bed",
       "category": "beds-and-bedroom",
@@ -6833,7 +6833,7 @@
       }
     },
     {
-      "id": "kenney:cabinet-bed-drawer",
+      "id": "cabinet-bed-drawer-1",
       "version": 1,
       "name": "Cabinet Bed Drawer",
       "category": "beds-and-bedroom",
@@ -6866,7 +6866,7 @@
       }
     },
     {
-      "id": "kenney:cabinet-bed-drawer-table",
+      "id": "cabinet-bed-drawer-table-1",
       "version": 1,
       "name": "Bedside Drawer Table",
       "category": "beds-and-bedroom",
@@ -6928,7 +6928,7 @@
       }
     },
     {
-      "id": "kenney:cabinet-television",
+      "id": "cabinet-television-1",
       "version": 1,
       "name": "TV Cabinet",
       "category": "storage",
@@ -6976,7 +6976,7 @@
       }
     },
     {
-      "id": "kenney:cabinet-television-doors",
+      "id": "cabinet-television-doors-1",
       "version": 1,
       "name": "Cabinet Television Doors",
       "category": "storage",
@@ -7009,7 +7009,7 @@
       }
     },
     {
-      "id": "kenney:cardboard-box-closed",
+      "id": "cardboard-box-closed-1",
       "version": 1,
       "name": "Cardboard Box Closed",
       "category": "decor",
@@ -7042,7 +7042,7 @@
       }
     },
     {
-      "id": "kenney:cardboard-box-open",
+      "id": "cardboard-box-open-1",
       "version": 1,
       "name": "Cardboard Box Open",
       "category": "decor",
@@ -7075,7 +7075,7 @@
       }
     },
     {
-      "id": "kenney:ceiling-fan",
+      "id": "ceiling-fan-1",
       "version": 1,
       "name": "Ceiling Fan",
       "category": "lighting",
@@ -7108,7 +7108,7 @@
       }
     },
     {
-      "id": "kenney:chair",
+      "id": "chair-1",
       "version": 1,
       "name": "Chair",
       "category": "seating",
@@ -7141,7 +7141,7 @@
       }
     },
     {
-      "id": "kenney:chair-cushion",
+      "id": "chair-cushion-1",
       "version": 1,
       "name": "Chair Cushion",
       "category": "seating",
@@ -7174,7 +7174,7 @@
       }
     },
     {
-      "id": "kenney:chair-desk",
+      "id": "chair-desk-1",
       "version": 1,
       "name": "Desk Chair",
       "category": "seating",
@@ -7237,7 +7237,7 @@
       }
     },
     {
-      "id": "kenney:chair-modern-cushion",
+      "id": "chair-modern-cushion-1",
       "version": 1,
       "name": "Chair Modern Cushion",
       "category": "seating",
@@ -7270,7 +7270,7 @@
       }
     },
     {
-      "id": "kenney:chair-modern-frame-cushion",
+      "id": "chair-modern-frame-cushion-1",
       "version": 1,
       "name": "Chair Modern Frame Cushion",
       "category": "seating",
@@ -7303,7 +7303,7 @@
       }
     },
     {
-      "id": "kenney:chair-rounded",
+      "id": "chair-rounded-1",
       "version": 1,
       "name": "Chair Rounded",
       "category": "seating",
@@ -7336,7 +7336,7 @@
       }
     },
     {
-      "id": "kenney:coat-rack",
+      "id": "coat-rack-1",
       "version": 1,
       "name": "Coat Rack",
       "category": "decor",
@@ -7369,7 +7369,7 @@
       }
     },
     {
-      "id": "kenney:coat-rack-standing",
+      "id": "coat-rack-standing-1",
       "version": 1,
       "name": "Coat Rack Standing",
       "category": "decor",
@@ -7402,7 +7402,7 @@
       }
     },
     {
-      "id": "kenney:computer-keyboard",
+      "id": "computer-keyboard-1",
       "version": 1,
       "name": "Keyboard",
       "category": "electronics",
@@ -7453,7 +7453,7 @@
       }
     },
     {
-      "id": "kenney:computer-mouse",
+      "id": "computer-mouse-1",
       "version": 1,
       "name": "Computer Mouse",
       "category": "electronics",
@@ -7503,7 +7503,7 @@
       }
     },
     {
-      "id": "kenney:computer-screen",
+      "id": "computer-screen-1",
       "version": 1,
       "name": "Computer Screen",
       "category": "electronics",
@@ -7567,7 +7567,7 @@
       }
     },
     {
-      "id": "kenney:desk",
+      "id": "desk-1",
       "version": 1,
       "name": "Desk",
       "category": "tables-and-desks",
@@ -7625,7 +7625,7 @@
       }
     },
     {
-      "id": "kenney:desk-corner",
+      "id": "desk-corner-1",
       "version": 1,
       "name": "Desk Corner",
       "category": "tables-and-desks",
@@ -7658,7 +7658,7 @@
       }
     },
     {
-      "id": "kenney:doorway",
+      "id": "doorway-1",
       "version": 1,
       "name": "Doorway",
       "category": "architecture",
@@ -7691,7 +7691,7 @@
       }
     },
     {
-      "id": "kenney:doorway-front",
+      "id": "doorway-front-1",
       "version": 1,
       "name": "Doorway Front",
       "category": "architecture",
@@ -7724,7 +7724,7 @@
       }
     },
     {
-      "id": "kenney:doorway-open",
+      "id": "doorway-open-1",
       "version": 1,
       "name": "Doorway Open",
       "category": "architecture",
@@ -7757,7 +7757,7 @@
       }
     },
     {
-      "id": "kenney:dryer",
+      "id": "dryer-1",
       "version": 1,
       "name": "Dryer",
       "category": "utility",
@@ -7822,7 +7822,7 @@
       }
     },
     {
-      "id": "kenney:floor-corner",
+      "id": "floor-corner-1",
       "version": 1,
       "name": "Floor Corner",
       "category": "architecture",
@@ -7855,7 +7855,7 @@
       }
     },
     {
-      "id": "kenney:floor-corner-round",
+      "id": "floor-corner-round-1",
       "version": 1,
       "name": "Floor Corner Round",
       "category": "architecture",
@@ -7888,7 +7888,7 @@
       }
     },
     {
-      "id": "kenney:floor-full",
+      "id": "floor-full-1",
       "version": 1,
       "name": "Floor Full",
       "category": "architecture",
@@ -7921,7 +7921,7 @@
       }
     },
     {
-      "id": "kenney:floor-half",
+      "id": "floor-half-1",
       "version": 1,
       "name": "Floor Half",
       "category": "architecture",
@@ -7954,7 +7954,7 @@
       }
     },
     {
-      "id": "kenney:hood-large",
+      "id": "hood-large-1",
       "version": 1,
       "name": "Hood Large",
       "category": "kitchen-and-appliances",
@@ -7987,7 +7987,7 @@
       }
     },
     {
-      "id": "kenney:hood-modern",
+      "id": "hood-modern-1",
       "version": 1,
       "name": "Modern Range Hood",
       "category": "kitchen-and-appliances",
@@ -8039,7 +8039,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-bar",
+      "id": "kitchen-bar-1",
       "version": 1,
       "name": "Kitchen Bar (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8073,7 +8073,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-bar-end",
+      "id": "kitchen-bar-end-1",
       "version": 1,
       "name": "Kitchen Bar End (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8107,7 +8107,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-blender",
+      "id": "kitchen-blender-1",
       "version": 1,
       "name": "Kitchen Blender",
       "category": "kitchen-and-appliances",
@@ -8140,7 +8140,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet",
+      "id": "kitchen-cabinet-1",
       "version": 1,
       "name": "Kitchen Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8174,7 +8174,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-corner-inner",
+      "id": "kitchen-cabinet-corner-inner-1",
       "version": 1,
       "name": "Kitchen Corner Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8208,7 +8208,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-corner-round",
+      "id": "kitchen-cabinet-corner-round-1",
       "version": 1,
       "name": "Kitchen Round Corner Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8242,7 +8242,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-drawer",
+      "id": "kitchen-cabinet-drawer-1",
       "version": 1,
       "name": "Kitchen Drawer Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8276,7 +8276,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-upper",
+      "id": "kitchen-cabinet-upper-1",
       "version": 1,
       "name": "Upper Kitchen Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8310,7 +8310,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-upper-corner",
+      "id": "kitchen-cabinet-upper-corner-1",
       "version": 1,
       "name": "Upper Corner Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8344,7 +8344,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-upper-double",
+      "id": "kitchen-cabinet-upper-double-1",
       "version": 1,
       "name": "Upper Double Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8378,7 +8378,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-cabinet-upper-low",
+      "id": "kitchen-cabinet-upper-low-1",
       "version": 1,
       "name": "Low Upper Cabinet (Presentation Prop)",
       "category": "kitchen-and-appliances",
@@ -8412,7 +8412,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-coffee-machine",
+      "id": "kitchen-coffee-machine-1",
       "version": 1,
       "name": "Coffee Machine",
       "category": "kitchen-and-appliances",
@@ -8465,7 +8465,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-fridge",
+      "id": "kitchen-fridge-1",
       "version": 1,
       "name": "Kitchen Fridge",
       "category": "kitchen-and-appliances",
@@ -8544,7 +8544,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-fridge-built-in",
+      "id": "kitchen-fridge-built-in-1",
       "version": 1,
       "name": "Kitchen Fridge Built In",
       "category": "kitchen-and-appliances",
@@ -8577,7 +8577,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-fridge-large",
+      "id": "kitchen-fridge-large-1",
       "version": 1,
       "name": "Kitchen Fridge Large",
       "category": "kitchen-and-appliances",
@@ -8610,7 +8610,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-fridge-small",
+      "id": "kitchen-fridge-small-1",
       "version": 1,
       "name": "Kitchen Fridge Small",
       "category": "kitchen-and-appliances",
@@ -8643,7 +8643,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-microwave",
+      "id": "kitchen-microwave-1",
       "version": 1,
       "name": "Microwave",
       "category": "kitchen-and-appliances",
@@ -8710,7 +8710,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-sink",
+      "id": "kitchen-sink-1",
       "version": 1,
       "name": "Kitchen Sink",
       "category": "kitchen-and-appliances",
@@ -8789,7 +8789,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-stove",
+      "id": "kitchen-stove-1",
       "version": 1,
       "name": "Kitchen Stove",
       "category": "kitchen-and-appliances",
@@ -8822,7 +8822,7 @@
       }
     },
     {
-      "id": "kenney:kitchen-stove-electric",
+      "id": "kitchen-stove-electric-1",
       "version": 1,
       "name": "Electric Stove",
       "category": "kitchen-and-appliances",
@@ -8904,7 +8904,7 @@
       }
     },
     {
-      "id": "kenney:lamp-round-floor",
+      "id": "lamp-round-floor-1",
       "version": 1,
       "name": "Round Floor Lamp",
       "category": "lighting",
@@ -8967,7 +8967,7 @@
       }
     },
     {
-      "id": "kenney:lamp-round-table",
+      "id": "lamp-round-table-1",
       "version": 1,
       "name": "Round Table Lamp",
       "category": "lighting",
@@ -9030,7 +9030,7 @@
       }
     },
     {
-      "id": "kenney:lamp-square-ceiling",
+      "id": "lamp-square-ceiling-1",
       "version": 1,
       "name": "Lamp Square Ceiling",
       "category": "lighting",
@@ -9063,7 +9063,7 @@
       }
     },
     {
-      "id": "kenney:lamp-square-floor",
+      "id": "lamp-square-floor-1",
       "version": 1,
       "name": "Lamp Square Floor",
       "category": "lighting",
@@ -9096,7 +9096,7 @@
       }
     },
     {
-      "id": "kenney:lamp-square-table",
+      "id": "lamp-square-table-1",
       "version": 1,
       "name": "Lamp Square Table",
       "category": "lighting",
@@ -9129,7 +9129,7 @@
       }
     },
     {
-      "id": "kenney:lamp-wall",
+      "id": "lamp-wall-1",
       "version": 1,
       "name": "Lamp Wall",
       "category": "lighting",
@@ -9162,7 +9162,7 @@
       }
     },
     {
-      "id": "kenney:laptop",
+      "id": "laptop-1",
       "version": 1,
       "name": "Laptop",
       "category": "electronics",
@@ -9227,7 +9227,7 @@
       }
     },
     {
-      "id": "kenney:lounge-chair",
+      "id": "lounge-chair-1",
       "version": 1,
       "name": "Lounge Chair",
       "category": "seating",
@@ -9289,7 +9289,7 @@
       }
     },
     {
-      "id": "kenney:lounge-chair-relax",
+      "id": "lounge-chair-relax-1",
       "version": 1,
       "name": "Lounge Chair Relax",
       "category": "seating",
@@ -9322,7 +9322,7 @@
       }
     },
     {
-      "id": "kenney:lounge-design-chair",
+      "id": "lounge-design-chair-1",
       "version": 1,
       "name": "Lounge Design Chair",
       "category": "seating",
@@ -9355,7 +9355,7 @@
       }
     },
     {
-      "id": "kenney:lounge-design-sofa",
+      "id": "lounge-design-sofa-1",
       "version": 1,
       "name": "Lounge Design Sofa",
       "category": "seating",
@@ -9388,7 +9388,7 @@
       }
     },
     {
-      "id": "kenney:lounge-design-sofa-corner",
+      "id": "lounge-design-sofa-corner-1",
       "version": 1,
       "name": "Lounge Design Sofa Corner",
       "category": "seating",
@@ -9421,7 +9421,7 @@
       }
     },
     {
-      "id": "kenney:lounge-sofa",
+      "id": "lounge-sofa-1",
       "version": 1,
       "name": "Lounge Sofa",
       "category": "seating",
@@ -9483,7 +9483,7 @@
       }
     },
     {
-      "id": "kenney:lounge-sofa-corner",
+      "id": "lounge-sofa-corner-1",
       "version": 1,
       "name": "Lounge Sofa Corner",
       "category": "seating",
@@ -9516,7 +9516,7 @@
       }
     },
     {
-      "id": "kenney:lounge-sofa-long",
+      "id": "lounge-sofa-long-1",
       "version": 1,
       "name": "Lounge Sofa Long",
       "category": "seating",
@@ -9549,7 +9549,7 @@
       }
     },
     {
-      "id": "kenney:lounge-sofa-ottoman",
+      "id": "lounge-sofa-ottoman-1",
       "version": 1,
       "name": "Lounge Sofa Ottoman",
       "category": "seating",
@@ -9582,7 +9582,7 @@
       }
     },
     {
-      "id": "kenney:paneling",
+      "id": "paneling-1",
       "version": 1,
       "name": "Paneling",
       "category": "architecture",
@@ -9615,7 +9615,7 @@
       }
     },
     {
-      "id": "kenney:pillow",
+      "id": "pillow-1",
       "version": 1,
       "name": "Pillow",
       "category": "beds-and-bedroom",
@@ -9666,7 +9666,7 @@
       }
     },
     {
-      "id": "kenney:pillow-blue",
+      "id": "pillow-blue-1",
       "version": 1,
       "name": "Pillow Blue",
       "category": "beds-and-bedroom",
@@ -9699,7 +9699,7 @@
       }
     },
     {
-      "id": "kenney:pillow-blue-long",
+      "id": "pillow-blue-long-1",
       "version": 1,
       "name": "Pillow Blue Long",
       "category": "beds-and-bedroom",
@@ -9732,7 +9732,7 @@
       }
     },
     {
-      "id": "kenney:pillow-long",
+      "id": "pillow-long-1",
       "version": 1,
       "name": "Pillow Long",
       "category": "beds-and-bedroom",
@@ -9765,7 +9765,7 @@
       }
     },
     {
-      "id": "kenney:plant-small1",
+      "id": "plant-small1-1",
       "version": 1,
       "name": "Plant Small1",
       "category": "decor",
@@ -9798,7 +9798,7 @@
       }
     },
     {
-      "id": "kenney:plant-small2",
+      "id": "plant-small2-1",
       "version": 1,
       "name": "Plant Small2",
       "category": "decor",
@@ -9831,7 +9831,7 @@
       }
     },
     {
-      "id": "kenney:plant-small3",
+      "id": "plant-small3-1",
       "version": 1,
       "name": "Plant Small3",
       "category": "decor",
@@ -9864,7 +9864,7 @@
       }
     },
     {
-      "id": "kenney:potted-plant",
+      "id": "potted-plant-1",
       "version": 1,
       "name": "Potted Plant",
       "category": "decor",
@@ -9930,7 +9930,7 @@
       }
     },
     {
-      "id": "kenney:radio",
+      "id": "radio-1",
       "version": 1,
       "name": "Radio",
       "category": "electronics",
@@ -9963,7 +9963,7 @@
       }
     },
     {
-      "id": "kenney:rug-doormat",
+      "id": "rug-doormat-1",
       "version": 1,
       "name": "Rug Doormat",
       "category": "decor",
@@ -9996,7 +9996,7 @@
       }
     },
     {
-      "id": "kenney:rug-rectangle",
+      "id": "rug-rectangle-1",
       "version": 1,
       "name": "Rectangle Rug",
       "category": "decor",
@@ -10048,7 +10048,7 @@
       }
     },
     {
-      "id": "kenney:rug-round",
+      "id": "rug-round-1",
       "version": 1,
       "name": "Rug Round",
       "category": "decor",
@@ -10081,7 +10081,7 @@
       }
     },
     {
-      "id": "kenney:rug-rounded",
+      "id": "rug-rounded-1",
       "version": 1,
       "name": "Rug Rounded",
       "category": "decor",
@@ -10114,7 +10114,7 @@
       }
     },
     {
-      "id": "kenney:rug-square",
+      "id": "rug-square-1",
       "version": 1,
       "name": "Rug Square",
       "category": "decor",
@@ -10147,7 +10147,7 @@
       }
     },
     {
-      "id": "kenney:shower",
+      "id": "shower-1",
       "version": 1,
       "name": "Shower",
       "category": "bathroom",
@@ -10225,7 +10225,7 @@
       }
     },
     {
-      "id": "kenney:shower-round",
+      "id": "shower-round-1",
       "version": 1,
       "name": "Shower Round",
       "category": "bathroom",
@@ -10258,7 +10258,7 @@
       }
     },
     {
-      "id": "kenney:side-table",
+      "id": "side-table-1",
       "version": 1,
       "name": "Side Table",
       "category": "tables-and-desks",
@@ -10307,7 +10307,7 @@
       }
     },
     {
-      "id": "kenney:side-table-drawers",
+      "id": "side-table-drawers-1",
       "version": 1,
       "name": "Side Table Drawers",
       "category": "tables-and-desks",
@@ -10340,7 +10340,7 @@
       }
     },
     {
-      "id": "kenney:speaker",
+      "id": "speaker-1",
       "version": 1,
       "name": "Speaker",
       "category": "electronics",
@@ -10373,7 +10373,7 @@
       }
     },
     {
-      "id": "kenney:speaker-small",
+      "id": "speaker-small-1",
       "version": 1,
       "name": "Speaker Small",
       "category": "electronics",
@@ -10406,7 +10406,7 @@
       }
     },
     {
-      "id": "kenney:stairs",
+      "id": "stairs-1",
       "version": 1,
       "name": "Stairs",
       "category": "architecture",
@@ -10439,7 +10439,7 @@
       }
     },
     {
-      "id": "kenney:stairs-corner",
+      "id": "stairs-corner-1",
       "version": 1,
       "name": "Stairs Corner",
       "category": "architecture",
@@ -10472,7 +10472,7 @@
       }
     },
     {
-      "id": "kenney:stairs-open",
+      "id": "stairs-open-1",
       "version": 1,
       "name": "Stairs Open",
       "category": "architecture",
@@ -10505,7 +10505,7 @@
       }
     },
     {
-      "id": "kenney:stairs-open-single",
+      "id": "stairs-open-single-1",
       "version": 1,
       "name": "Stairs Open Single",
       "category": "architecture",
@@ -10538,7 +10538,7 @@
       }
     },
     {
-      "id": "kenney:stool-bar",
+      "id": "stool-bar-1",
       "version": 1,
       "name": "Stool Bar",
       "category": "seating",
@@ -10571,7 +10571,7 @@
       }
     },
     {
-      "id": "kenney:stool-bar-square",
+      "id": "stool-bar-square-1",
       "version": 1,
       "name": "Stool Bar Square",
       "category": "seating",
@@ -10604,7 +10604,7 @@
       }
     },
     {
-      "id": "kenney:table",
+      "id": "table-1",
       "version": 1,
       "name": "Table",
       "category": "tables-and-desks",
@@ -10637,7 +10637,7 @@
       }
     },
     {
-      "id": "kenney:table-cloth",
+      "id": "table-cloth-1",
       "version": 1,
       "name": "Table Cloth",
       "category": "tables-and-desks",
@@ -10670,7 +10670,7 @@
       }
     },
     {
-      "id": "kenney:table-coffee",
+      "id": "table-coffee-1",
       "version": 1,
       "name": "Coffee Table",
       "category": "tables-and-desks",
@@ -10717,7 +10717,7 @@
       }
     },
     {
-      "id": "kenney:table-coffee-glass",
+      "id": "table-coffee-glass-1",
       "version": 1,
       "name": "Table Coffee Glass",
       "category": "tables-and-desks",
@@ -10776,7 +10776,7 @@
       }
     },
     {
-      "id": "kenney:table-coffee-glass-square",
+      "id": "table-coffee-glass-square-1",
       "version": 1,
       "name": "Table Coffee Glass Square",
       "category": "tables-and-desks",
@@ -10809,7 +10809,7 @@
       }
     },
     {
-      "id": "kenney:table-coffee-square",
+      "id": "table-coffee-square-1",
       "version": 1,
       "name": "Table Coffee Square",
       "category": "tables-and-desks",
@@ -10842,7 +10842,7 @@
       }
     },
     {
-      "id": "kenney:table-cross",
+      "id": "table-cross-1",
       "version": 1,
       "name": "Table Cross",
       "category": "tables-and-desks",
@@ -10875,7 +10875,7 @@
       }
     },
     {
-      "id": "kenney:table-cross-cloth",
+      "id": "table-cross-cloth-1",
       "version": 1,
       "name": "Table Cross Cloth",
       "category": "tables-and-desks",
@@ -10908,7 +10908,7 @@
       }
     },
     {
-      "id": "kenney:table-glass",
+      "id": "table-glass-1",
       "version": 1,
       "name": "Table Glass",
       "category": "tables-and-desks",
@@ -10941,7 +10941,7 @@
       }
     },
     {
-      "id": "kenney:table-round",
+      "id": "table-round-1",
       "version": 1,
       "name": "Table Round",
       "category": "tables-and-desks",
@@ -10974,7 +10974,7 @@
       }
     },
     {
-      "id": "kenney:television-antenna",
+      "id": "television-antenna-1",
       "version": 1,
       "name": "Television Antenna",
       "category": "electronics",
@@ -11007,7 +11007,7 @@
       }
     },
     {
-      "id": "kenney:television-modern",
+      "id": "television-modern-1",
       "version": 1,
       "name": "Modern Television",
       "category": "electronics",
@@ -11072,7 +11072,7 @@
       }
     },
     {
-      "id": "kenney:television-vintage",
+      "id": "television-vintage-1",
       "version": 1,
       "name": "Television Vintage",
       "category": "electronics",
@@ -11105,7 +11105,7 @@
       }
     },
     {
-      "id": "kenney:toaster",
+      "id": "toaster-1",
       "version": 1,
       "name": "Toaster",
       "category": "kitchen-and-appliances",
@@ -11138,7 +11138,7 @@
       }
     },
     {
-      "id": "kenney:toilet",
+      "id": "toilet-1",
       "version": 1,
       "name": "Toilet",
       "category": "bathroom",
@@ -11201,7 +11201,7 @@
       }
     },
     {
-      "id": "kenney:toilet-square",
+      "id": "toilet-square-1",
       "version": 1,
       "name": "Toilet Square",
       "category": "bathroom",
@@ -11234,7 +11234,7 @@
       }
     },
     {
-      "id": "kenney:trashcan",
+      "id": "trashcan-1",
       "version": 1,
       "name": "Trashcan",
       "category": "utility",
@@ -11267,7 +11267,7 @@
       }
     },
     {
-      "id": "kenney:wall",
+      "id": "wall-1",
       "version": 1,
       "name": "Wall",
       "category": "architecture",
@@ -11300,7 +11300,7 @@
       }
     },
     {
-      "id": "kenney:wall-corner",
+      "id": "wall-corner-1",
       "version": 1,
       "name": "Wall Corner",
       "category": "architecture",
@@ -11333,7 +11333,7 @@
       }
     },
     {
-      "id": "kenney:wall-corner-rond",
+      "id": "wall-corner-rond-1",
       "version": 1,
       "name": "Wall Corner Round",
       "category": "architecture",
@@ -11366,7 +11366,7 @@
       }
     },
     {
-      "id": "kenney:wall-doorway",
+      "id": "wall-doorway-1",
       "version": 1,
       "name": "Wall Doorway",
       "category": "architecture",
@@ -11399,7 +11399,7 @@
       }
     },
     {
-      "id": "kenney:wall-doorway-wide",
+      "id": "wall-doorway-wide-1",
       "version": 1,
       "name": "Wall Doorway Wide",
       "category": "architecture",
@@ -11432,7 +11432,7 @@
       }
     },
     {
-      "id": "kenney:wall-half",
+      "id": "wall-half-1",
       "version": 1,
       "name": "Wall Half",
       "category": "architecture",
@@ -11465,7 +11465,7 @@
       }
     },
     {
-      "id": "kenney:wall-window",
+      "id": "wall-window-1",
       "version": 1,
       "name": "Wall Window",
       "category": "architecture",
@@ -11498,7 +11498,7 @@
       }
     },
     {
-      "id": "kenney:wall-window-slide",
+      "id": "wall-window-slide-1",
       "version": 1,
       "name": "Wall Window Slide",
       "category": "architecture",
@@ -11531,7 +11531,7 @@
       }
     },
     {
-      "id": "kenney:washer",
+      "id": "washer-1",
       "version": 1,
       "name": "Washer",
       "category": "utility",
@@ -11600,7 +11600,7 @@
       }
     },
     {
-      "id": "kenney:washer-dryer-stacked",
+      "id": "washer-dryer-stacked-1",
       "version": 1,
       "name": "Washer Dryer Stacked",
       "category": "utility",
@@ -11651,7 +11651,7 @@
       "objects": [
         {
           "templateObjectId": "living-room-rug",
-          "catalogItemId": "kenney:rug-rectangle",
+          "catalogItemId": "rug-rectangle-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11662,7 +11662,7 @@
         },
         {
           "templateObjectId": "living-room-sofa",
-          "catalogItemId": "kenney:lounge-sofa",
+          "catalogItemId": "lounge-sofa-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11677,7 +11677,7 @@
         },
         {
           "templateObjectId": "living-room-chair",
-          "catalogItemId": "kenney:lounge-chair",
+          "catalogItemId": "lounge-chair-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 2050,
@@ -11688,7 +11688,7 @@
         },
         {
           "templateObjectId": "living-room-coffee-table",
-          "catalogItemId": "kenney:table-coffee",
+          "catalogItemId": "table-coffee-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11699,7 +11699,7 @@
         },
         {
           "templateObjectId": "living-room-tv-cabinet",
-          "catalogItemId": "kenney:cabinet-television",
+          "catalogItemId": "cabinet-television-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11710,7 +11710,7 @@
         },
         {
           "templateObjectId": "living-room-tv",
-          "catalogItemId": "kenney:television-modern",
+          "catalogItemId": "television-modern-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11721,7 +11721,7 @@
         },
         {
           "templateObjectId": "living-room-lamp",
-          "catalogItemId": "kenney:lamp-round-floor",
+          "catalogItemId": "lamp-round-floor-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 2050,
@@ -11732,7 +11732,7 @@
         },
         {
           "templateObjectId": "living-room-plant",
-          "catalogItemId": "kenney:potted-plant",
+          "catalogItemId": "potted-plant-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -1900,
@@ -11776,7 +11776,7 @@
       "objects": [
         {
           "templateObjectId": "kitchen-fridge",
-          "catalogItemId": "kenney:kitchen-fridge",
+          "catalogItemId": "kitchen-fridge-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -2400,
@@ -11787,7 +11787,7 @@
         },
         {
           "templateObjectId": "kitchen-stove",
-          "catalogItemId": "kenney:kitchen-stove-electric",
+          "catalogItemId": "kitchen-stove-electric-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 2300,
@@ -11798,7 +11798,7 @@
         },
         {
           "templateObjectId": "kitchen-sink",
-          "catalogItemId": "kenney:kitchen-sink",
+          "catalogItemId": "kitchen-sink-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -1500,
@@ -11809,7 +11809,7 @@
         },
         {
           "templateObjectId": "kitchen-hood",
-          "catalogItemId": "kenney:hood-modern",
+          "catalogItemId": "hood-modern-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 2300,
@@ -11837,7 +11837,7 @@
       "objects": [
         {
           "templateObjectId": "kitchen-fridge",
-          "catalogItemId": "kenney:kitchen-fridge",
+          "catalogItemId": "kitchen-fridge-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -2200,
@@ -11848,7 +11848,7 @@
         },
         {
           "templateObjectId": "kitchen-stove",
-          "catalogItemId": "kenney:kitchen-stove-electric",
+          "catalogItemId": "kitchen-stove-electric-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11859,7 +11859,7 @@
         },
         {
           "templateObjectId": "kitchen-sink",
-          "catalogItemId": "kenney:kitchen-sink",
+          "catalogItemId": "kitchen-sink-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 1100,
@@ -11870,7 +11870,7 @@
         },
         {
           "templateObjectId": "kitchen-hood",
-          "catalogItemId": "kenney:hood-modern",
+          "catalogItemId": "hood-modern-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11881,7 +11881,7 @@
         },
         {
           "templateObjectId": "kitchen-microwave",
-          "catalogItemId": "kenney:kitchen-microwave",
+          "catalogItemId": "kitchen-microwave-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 750,
@@ -11909,7 +11909,7 @@
       "objects": [
         {
           "templateObjectId": "bedroom-rug",
-          "catalogItemId": "kenney:rug-rectangle",
+          "catalogItemId": "rug-rectangle-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11920,7 +11920,7 @@
         },
         {
           "templateObjectId": "bedroom-bed",
-          "catalogItemId": "kenney:bed-double",
+          "catalogItemId": "bed-double-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -11936,7 +11936,7 @@
         },
         {
           "templateObjectId": "bedroom-nightstand-left",
-          "catalogItemId": "kenney:cabinet-bed-drawer-table",
+          "catalogItemId": "cabinet-bed-drawer-table-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -1400,
@@ -11947,7 +11947,7 @@
         },
         {
           "templateObjectId": "bedroom-nightstand-right",
-          "catalogItemId": "kenney:cabinet-bed-drawer-table",
+          "catalogItemId": "cabinet-bed-drawer-table-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 1400,
@@ -11958,7 +11958,7 @@
         },
         {
           "templateObjectId": "bedroom-lamp",
-          "catalogItemId": "kenney:lamp-round-table",
+          "catalogItemId": "lamp-round-table-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 1400,
@@ -11969,7 +11969,7 @@
         },
         {
           "templateObjectId": "bedroom-bookcase",
-          "catalogItemId": "kenney:bookcase-open",
+          "catalogItemId": "bookcase-open-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 2100,
@@ -11980,7 +11980,7 @@
         },
         {
           "templateObjectId": "bedroom-pillow",
-          "catalogItemId": "kenney:pillow",
+          "catalogItemId": "pillow-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 0,
@@ -12008,7 +12008,7 @@
       "objects": [
         {
           "templateObjectId": "bathroom-shower",
-          "catalogItemId": "kenney:shower",
+          "catalogItemId": "shower-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 1530,
@@ -12023,7 +12023,7 @@
         },
         {
           "templateObjectId": "bathroom-toilet",
-          "catalogItemId": "kenney:toilet",
+          "catalogItemId": "toilet-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": 200,
@@ -12034,7 +12034,7 @@
         },
         {
           "templateObjectId": "bathroom-sink",
-          "catalogItemId": "kenney:bathroom-sink",
+          "catalogItemId": "bathroom-sink-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -1400,
@@ -12048,7 +12048,7 @@
         },
         {
           "templateObjectId": "bathroom-mirror",
-          "catalogItemId": "kenney:bathroom-mirror",
+          "catalogItemId": "bathroom-mirror-1",
           "catalogItemVersion": 1,
           "positionMm": {
             "x": -1400,

@@ -91,7 +91,7 @@ describe("catalog schema structural validation", () => {
 
   it("rejects template catalogItemVersion that does not match the item", () => {
     const withTemplate = cloneManifest();
-    const sofa = withTemplate.items.find((item) => item.id === "kenney:lounge-sofa")!;
+    const sofa = withTemplate.items.find((item) => item.id === "lounge-sofa-1")!;
     sofa.visibility.templateEligible = true;
     withTemplate.files.push({
       id: "image:template:living:v1",

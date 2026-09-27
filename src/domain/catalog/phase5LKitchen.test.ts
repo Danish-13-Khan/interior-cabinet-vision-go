@@ -18,11 +18,11 @@ import type { CatalogManifest } from "./types";
 const catalog = manifest as CatalogManifest;
 const NOW = "2026-09-04T12:30:00.000Z";
 const APPLIANCE_IDS = [
-  "kenney:hood-modern",
-  "kenney:kitchen-fridge",
-  "kenney:kitchen-microwave",
-  "kenney:kitchen-sink",
-  "kenney:kitchen-stove-electric",
+  "hood-modern-1",
+  "kitchen-fridge-1",
+  "kitchen-microwave-1",
+  "kitchen-sink-1",
+  "kitchen-stove-electric-1",
 ];
 
 describe("Phase 5 L Kitchen template", () => {

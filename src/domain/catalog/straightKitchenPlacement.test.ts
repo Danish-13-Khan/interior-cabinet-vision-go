@@ -10,9 +10,9 @@ import { adapterWallsForRooms } from "../interiorProject/cabinetAdapterWalls";
 
 const NOW = "2026-09-05T00:00:00.000Z";
 const APPLIANCES = [
-  "kenney:kitchen-fridge",
-  "kenney:kitchen-stove-electric",
-  "kenney:kitchen-sink",
+  "kitchen-fridge-1",
+  "kitchen-stove-electric-1",
+  "kitchen-sink-1",
 ] as const;
 
 describe("straight kitchen stays on the floor after adapter sync", () => {

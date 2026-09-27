@@ -6,6 +6,7 @@ import {
   modelQualitySeverityClass,
 } from "./modelQualityFeedback";
 import { createLivingRoomStarterProject } from "./preset";
+import { instantiateLivingRoomCatalogTemplate } from "../catalog/instantiateNamedCatalogTemplates";
 
 const NOW = "2026-09-09T12:00:00.000Z";
 
@@ -50,6 +51,12 @@ describe("modelQualityFeedback", () => {
     const missing = issues.find((issue) => issue.objectId === "future-cabinet");
     expect(missing?.blocking).toBe(true);
     expect(modelQualityBlockingCount(issues)).toBeGreaterThanOrEqual(1);
+  });
+
+  it("accepts built-in GLB catalog items as valid model-backed renderers", () => {
+    const project = instantiateLivingRoomCatalogTemplate({ projectId: "quality-glb", now: NOW });
+    const issues = collectModelQualityIssues(project);
+    expect(issues.filter((issue) => issue.code === "missing-adapter")).toEqual([]);
   });
 
   it("marks simplified corner wardrobe adapters as preview-only", () => {

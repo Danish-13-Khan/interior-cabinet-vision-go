@@ -55,10 +55,10 @@ describe("Phase 6 catalog aliases", () => {
       "pack:kitchen-cabinet-1",
       "pack:sofa-1",
     ]);
-    expect(resolveCatalogAlias("pack:sofa-1")?.targetItemId).toBe("kenney:lounge-sofa");
-    expect(canonicalCatalogItemId("kenney:lounge-sofa")).toBe("kenney:lounge-sofa");
+    expect(resolveCatalogAlias("pack:sofa-1")?.targetItemId).toBe("lounge-sofa-1");
+    expect(canonicalCatalogItemId("lounge-sofa-1")).toBe("lounge-sofa-1");
     expect(isPackStarterAliasId("pack:wardrobe-1")).toBe(true);
-    expect(isPackStarterAliasId("kenney:lounge-sofa")).toBe(false);
+    expect(isPackStarterAliasId("lounge-sofa-1")).toBe(false);
   });
 
   it("resolves pack aliases through the built-in provider", async () => {
@@ -80,7 +80,7 @@ describe("Phase 6 catalog aliases", () => {
       fronts: LIVING_ROOM_MATERIAL_IDS.walnut,
     };
     const sofaPolicies = catalogSlotPoliciesForObject({
-      catalogItemId: "kenney:lounge-sofa",
+      catalogItemId: "lounge-sofa-1",
     })!;
     const sofa = remapPackMaterialBindings("pack:sofa-1", legacy, {
       slotPolicies: sofaPolicies,
@@ -91,7 +91,7 @@ describe("Phase 6 catalog aliases", () => {
     expect(sofa.carcass).toBe(LIVING_ROOM_MATERIAL_IDS.naturalOak);
 
     const wardrobePolicies = catalogSlotPoliciesForObject({
-      catalogItemId: "kenney:bookcase-open",
+      catalogItemId: "bookcase-open-1",
     })!;
     expect(
       remapPackMaterialBindings("pack:wardrobe-1", legacy, {
@@ -141,13 +141,13 @@ describe("Phase 6 catalog aliases", () => {
     expect(
       isMaterialCompatibleWithSlot(
         { id: custom.id, kind: custom.kind },
-        catalogSlotPoliciesForObject({ catalogItemId: "kenney:lounge-sofa" })!.upholstery!,
+        catalogSlotPoliciesForObject({ catalogItemId: "lounge-sofa-1" })!.upholstery!,
       ),
     ).toBe(false);
     expect(
       isPackLegacyMaterialCompatibleWithSlot(
         { id: custom.id, kind: custom.kind },
-        catalogSlotPoliciesForObject({ catalogItemId: "kenney:lounge-sofa" })!.upholstery!,
+        catalogSlotPoliciesForObject({ catalogItemId: "lounge-sofa-1" })!.upholstery!,
       ),
     ).toBe(true);
     const sofa = getPackagedImportedAsset("pack:sofa-1")!;

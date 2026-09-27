@@ -13,7 +13,7 @@ describe("plan constraint mirror boundary", () => {
       roomId: room.id,
       kind: "furniture",
       category: "bathroom",
-      catalogItemId: "kenney:bathroom-mirror",
+      catalogItemId: "bathroom-mirror-1",
       name: "Bathroom Mirror",
       position: { x: 10000, y: 1100, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },

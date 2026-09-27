@@ -9,7 +9,7 @@ function cloneManifest(): CatalogManifest {
 describe("catalog template override compatibility", () => {
   it("rejects material overrides that violate slot kind/tag policy", () => {
     const withTemplate = cloneManifest();
-    const sofa = withTemplate.items.find((item) => item.id === "kenney:lounge-sofa")!;
+    const sofa = withTemplate.items.find((item) => item.id === "lounge-sofa-1")!;
     const metal = withTemplate.materials.find((material) => material.id.includes("metal-charcoal"))!;
     withTemplate.files.push({
       id: "image:template:bad-finish:v1",
