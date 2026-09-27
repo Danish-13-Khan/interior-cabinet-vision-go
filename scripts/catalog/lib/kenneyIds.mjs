@@ -1,4 +1,4 @@
-/** Stable Kenney ID helpers (mirrors src/domain/catalog/ids.ts). */
+/** Stable built-in ID helpers (mirrors src/domain/catalog/ids.ts). */
 
 export function camelStemToKebab(stem) {
   return stem
@@ -7,8 +7,13 @@ export function camelStemToKebab(stem) {
     .toLowerCase();
 }
 
+export function builtInItemId(stem, version = 1) {
+  return `${camelStemToKebab(stem)}-${version}`;
+}
+
+/** @deprecated Generator compatibility name. */
 export function kenneyItemId(stem) {
-  return `kenney:${camelStemToKebab(stem)}`;
+  return builtInItemId(stem);
 }
 
 export function kenneyModelId(stem, version = 1) {

@@ -17,6 +17,7 @@ export type {
   AssetUnavailableReason,
 } from "./types";
 export {
+  builtInItemId,
   camelStemToKebab,
   displayNameFromStem,
   kenneyIsoImageId,

@@ -79,7 +79,7 @@ describe("builtin catalog manifest", () => {
   });
 
   it("exposes lounge sofa with curated dimensions and Kenney materials", () => {
-    const sofa = catalog.items.find((item) => item.id === "kenney:lounge-sofa");
+    const sofa = catalog.items.find((item) => item.id === "lounge-sofa-1");
     expect(sofa?.name).toBe("Lounge Sofa");
     expect(sofa?.category).toBe("seating");
     expect(sofa?.lifecycle).toBe("active");

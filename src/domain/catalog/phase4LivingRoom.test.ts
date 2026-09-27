@@ -28,14 +28,14 @@ describe("Phase 4 Living Room vertical slice", () => {
     expect(template.name).toBe("Living Room");
     expect(template.objects).toHaveLength(8);
     expect(template.objects.map((object) => object.catalogItemId).sort()).toEqual([
-      "kenney:cabinet-television",
-      "kenney:lamp-round-floor",
-      "kenney:lounge-chair",
-      "kenney:lounge-sofa",
-      "kenney:potted-plant",
-      "kenney:rug-rectangle",
-      "kenney:table-coffee",
-      "kenney:television-modern",
+      "cabinet-television-1",
+      "lamp-round-floor-1",
+      "lounge-chair-1",
+      "lounge-sofa-1",
+      "potted-plant-1",
+      "rug-rectangle-1",
+      "table-coffee-1",
+      "television-modern-1",
     ].sort());
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
     expect(thumb?.kind).toBe("image");
@@ -57,7 +57,7 @@ describe("Phase 4 Living Room vertical slice", () => {
       heightMm: 2700,
       depthMm: 4200,
     });
-    const sofa = project.objects.find((object) => object.catalogItemId === "kenney:lounge-sofa")!;
+    const sofa = project.objects.find((object) => object.catalogItemId === "lounge-sofa-1")!;
     expect(sofa.catalogItemVersion).toBe(1);
     expect(sofa.materialSlots.upholstery).toBeTruthy();
     expect(sofa.materialSlots.legs).toBeTruthy();
@@ -83,9 +83,9 @@ describe("Phase 4 Living Room vertical slice", () => {
 
   it("changes upholstery independently from legs and keeps TV/plant locks", () => {
     const project = instantiateLivingRoomCatalogTemplate({ projectId: "lr-finishes", now: NOW });
-    const sofa = project.objects.find((object) => object.catalogItemId === "kenney:lounge-sofa")!;
+    const sofa = project.objects.find((object) => object.catalogItemId === "lounge-sofa-1")!;
     const legsBefore = sofa.materialSlots.legs;
-    const sofaItem = lookupBuiltInCatalogItem("kenney:lounge-sofa")!;
+    const sofaItem = lookupBuiltInCatalogItem("lounge-sofa-1")!;
     const oliveChoices = catalogSwatchesForSlot(sofaItem.materialSlots.upholstery!);
     expect(oliveChoices.some((material) => material.id === "material:core:fabric-olive:v1")).toBe(true);
 
@@ -100,7 +100,7 @@ describe("Phase 4 Living Room vertical slice", () => {
     const olive = painted.materials.find((material) => material.id === nextSofa.materialSlots.upholstery)!;
     expect(olive.extensions?.catalogMaterialId).toBe("material:core:fabric-olive:v1");
 
-    const tv = project.objects.find((object) => object.catalogItemId === "kenney:television-modern")!;
+    const tv = project.objects.find((object) => object.catalogItemId === "television-modern-1")!;
     expect(() =>
       paintObjectSlotFromCatalog(project, {
         objectId: tv.id,
@@ -108,7 +108,7 @@ describe("Phase 4 Living Room vertical slice", () => {
         catalogMaterialId: "material:core:fabric-olive:v1",
       }),
     ).toThrow(/locked/);
-    const plant = project.objects.find((object) => object.catalogItemId === "kenney:potted-plant")!;
+    const plant = project.objects.find((object) => object.catalogItemId === "potted-plant-1")!;
     expect(() =>
       paintObjectSlotFromCatalog(project, {
         objectId: plant.id,
@@ -125,7 +125,7 @@ describe("Phase 4 Living Room vertical slice", () => {
       now: NOW,
     });
     const painted = paintObjectSlotFromCatalog(project, {
-      objectId: project.objects.find((object) => object.catalogItemId === "kenney:lounge-sofa")!.id,
+      objectId: project.objects.find((object) => object.catalogItemId === "lounge-sofa-1")!.id,
       slotName: "upholstery",
       catalogMaterialId: "material:core:fabric-olive:v1",
     });
@@ -133,7 +133,7 @@ describe("Phase 4 Living Room vertical slice", () => {
     const reopened = loadInteriorProjectFile(json).document;
     expect(reopened.extensions?.catalogTemplateId).toBe(LIVING_ROOM_CATALOG_TEMPLATE_ID);
     expect(reopened.objects).toHaveLength(8);
-    const sofa = reopened.objects.find((object) => object.catalogItemId === "kenney:lounge-sofa")!;
+    const sofa = reopened.objects.find((object) => object.catalogItemId === "lounge-sofa-1")!;
     expect(sofa.catalogItemVersion).toBe(1);
     const upholstery = reopened.materials.find((material) => material.id === sofa.materialSlots.upholstery)!;
     expect(upholstery.extensions?.catalogMaterialId).toBe("material:core:fabric-olive:v1");

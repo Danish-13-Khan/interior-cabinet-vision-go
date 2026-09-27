@@ -15,7 +15,7 @@ describe("BuiltInCatalogProvider", () => {
   it("resolves lounge sofa item and model url", async () => {
     const provider = new BuiltInCatalogProvider();
     setCatalogProvider(provider);
-    const item = await getCatalogItem("kenney:lounge-sofa");
+    const item = await getCatalogItem("lounge-sofa-1");
     expect(item?.name).toBe("Lounge Sofa");
     expect(item?.modelAssetId).toBe("model:kenney:lounge-sofa:v1");
     const resolved = await resolveCatalogFile(item!.modelAssetId);
@@ -39,15 +39,16 @@ describe("BuiltInCatalogProvider", () => {
     expect(blocked.items.every((item) => item.lifecycle === "blocked")).toBe(true);
 
     const seating = await listCatalogItems({ category: "seating", text: "sofa" });
-    expect(seating.items.some((item) => item.id === "kenney:lounge-sofa")).toBe(true);
+    expect(seating.items.some((item) => item.id === "lounge-sofa-1")).toBe(true);
     expect(seating.items.every((item) => item.category === "seating")).toBe(true);
   });
 
   it("returns null for unknown or version-mismatched items", async () => {
     const provider = new BuiltInCatalogProvider();
-    expect(await provider.getItem("kenney:does-not-exist")).toBeNull();
-    expect(await provider.getItem("kenney:lounge-sofa", 99)).toBeNull();
-    expect(await provider.getItem("kenney:lounge-sofa", 1)).not.toBeNull();
+    expect(await provider.getItem("does-not-exist-1")).toBeNull();
+    expect(await provider.getItem("kenney:lounge-sofa")).toBeNull();
+    expect(await provider.getItem("lounge-sofa-1", 99)).toBeNull();
+    expect(await provider.getItem("lounge-sofa-1", 1)).not.toBeNull();
   });
 
   it("rejects unknown file ids", async () => {

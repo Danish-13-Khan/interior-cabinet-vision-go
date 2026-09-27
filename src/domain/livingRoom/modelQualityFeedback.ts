@@ -3,7 +3,7 @@
 import { validateCabinetAssembly } from "../cabinetAssembly";
 import type { InteriorProject } from "../interiorProject";
 import { cabinetFromObject } from "../interiorProject/cabinetAdapterCabinets";
-import { getLivingRoomObjectAdapter } from "./sceneAdapters";
+import { compileLivingRoomObjectNode, getLivingRoomObjectAdapter } from "./sceneAdapters";
 import { compileCabinet, isCabinetGeometryFallback } from "./sceneAdaptersCabinet";
 
 export const MODEL_GLB_FALLBACK_EVENT = "cabinet-studio-model-glb-fallback";
@@ -41,19 +41,22 @@ export function collectModelQualityIssues(project: InteriorProject): ModelQualit
 
   for (const object of activeRoomObjects(project)) {
     const adapter = getLivingRoomObjectAdapter(object.catalogItemId);
+    const compiledNode = adapter
+      ? null
+      : compileLivingRoomObjectNode(object, project.materials);
 
-    if (!adapter) {
+    if (!adapter && compiledNode?.placeholder) {
       issues.push({
         id: `missing-adapter:${object.id}`,
         code: "missing-adapter",
         severity: "warning",
         title: `Missing adapter · ${object.name}`,
-        detail: "No production adapter for this catalog item; a placeholder box is shown.",
+        detail: "No procedural or model-backed renderer was found; a placeholder box is shown.",
         objectId: object.id,
         blocking: object.kind === "cabinet",
         kind: "adapter",
       });
-    } else if (adapter.id === "corner-wardrobe-v1") {
+    } else if (adapter?.id === "corner-wardrobe-v1") {
       issues.push({
         id: `preview-corner:${object.id}`,
         code: "preview-corner-adapter",
@@ -64,7 +67,7 @@ export function collectModelQualityIssues(project: InteriorProject): ModelQualit
         blocking: false,
         kind: "adapter",
       });
-    } else if (adapter.compile === compileCabinet) {
+    } else if (adapter?.compile === compileCabinet) {
       const primitives = compileCabinet(object);
       if (isCabinetGeometryFallback(primitives)) {
         issues.push({

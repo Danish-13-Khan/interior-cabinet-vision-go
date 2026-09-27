@@ -20,17 +20,17 @@ export {
  * Matches template compositions — inspector cannot edit Y today.
  */
 const BROWSER_PLACEMENT_Y_BY_ID: Record<string, number> = {
-  "kenney:television-modern": 450,
-  "kenney:lamp-round-table": 550,
-  "kenney:pillow": 620,
-  "kenney:hood-modern": 1600,
-  "kenney:bathroom-mirror": 1100,
-  "kenney:kitchen-microwave": 720,
-  "kenney:kitchen-coffee-machine": 900,
-  "kenney:computer-screen": 750,
-  "kenney:computer-keyboard": 750,
-  "kenney:computer-mouse": 750,
-  "kenney:laptop": 750,
+  "television-modern-1": 450,
+  "lamp-round-table-1": 550,
+  "pillow-1": 620,
+  "hood-modern-1": 1600,
+  "bathroom-mirror-1": 1100,
+  "kitchen-microwave-1": 720,
+  "kitchen-coffee-machine-1": 900,
+  "computer-screen-1": 750,
+  "computer-keyboard-1": 750,
+  "computer-mouse-1": 750,
+  "laptop-1": 750,
 };
 
 /** Fallback when an item has no curated elevation. */

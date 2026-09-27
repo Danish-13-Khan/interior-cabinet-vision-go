@@ -1,4 +1,6 @@
-/** Stable pack IDs that resolve to curated Kenney catalog replacements. */
+import { builtInItemId } from "./ids";
+
+/** Stable legacy IDs that resolve to current numbered catalog items. */
 
 export type CatalogAliasRecord = {
   aliasId: string;
@@ -14,25 +16,25 @@ export type CatalogAliasRecord = {
 export const PACK_STARTER_ALIASES: readonly CatalogAliasRecord[] = [
   {
     aliasId: "pack:wardrobe-1",
-    targetItemId: "kenney:bookcase-open",
+    targetItemId: builtInItemId("bookcaseOpen"),
     lifecycle: "deprecated",
     note: "Legacy imported wardrobe → open bookcase",
   },
   {
     aliasId: "pack:dresser-1",
-    targetItemId: "kenney:cabinet-television",
+    targetItemId: builtInItemId("cabinetTelevision"),
     lifecycle: "deprecated",
     note: "Legacy imported dresser → TV cabinet storage",
   },
   {
     aliasId: "pack:kitchen-cabinet-1",
-    targetItemId: "kenney:kitchen-cabinet",
+    targetItemId: builtInItemId("kitchenCabinet"),
     lifecycle: "deprecated",
     note: "Legacy imported kitchen cabinet → Kenney presentation prop",
   },
   {
     aliasId: "pack:sofa-1",
-    targetItemId: "kenney:lounge-sofa",
+    targetItemId: builtInItemId("loungeSofa"),
     lifecycle: "deprecated",
     note: "Legacy imported sofa → lounge sofa",
   },

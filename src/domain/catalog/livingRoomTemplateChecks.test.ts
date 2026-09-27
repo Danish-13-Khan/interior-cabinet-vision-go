@@ -31,5 +31,6 @@ describe("catalog template plan and model checks", () => {
     expect(layout).toEqual([]);
     expect(modelQualityBlockingCount(model)).toBe(0);
     expect(model.filter((issue) => issue.severity === "error" || issue.blocking)).toEqual([]);
+    expect(model.filter((issue) => issue.code === "missing-adapter")).toEqual([]);
   });
 });

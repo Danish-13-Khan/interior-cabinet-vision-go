@@ -26,10 +26,10 @@ const catalog = manifest as CatalogManifest;
 const NOW = "2026-09-04T14:45:00.000Z";
 
 const BATHROOM_ITEM_IDS = [
-  "kenney:bathroom-mirror",
-  "kenney:bathroom-sink",
-  "kenney:shower",
-  "kenney:toilet",
+  "bathroom-mirror-1",
+  "bathroom-sink-1",
+  "shower-1",
+  "toilet-1",
 ];
 
 describe("Phase 5 Bathroom template", () => {
@@ -71,7 +71,7 @@ describe("Phase 5 Bathroom template", () => {
     expect(floor.extensions?.catalogMaterialId).toBe(BATHROOM_TILE_CATALOG_MATERIAL_ID);
     expect(project.walls.every((wall) => wall.materialId === floorId)).toBe(true);
     expect(project.openings.map((opening) => opening.kind).sort()).toEqual(["door", "window"]);
-    const sink = project.objects.find((object) => object.catalogItemId === "kenney:bathroom-sink")!;
+    const sink = project.objects.find((object) => object.catalogItemId === "bathroom-sink-1")!;
     expect(sink.catalogItemVersion).toBe(1);
     expect(sink.materialSlots.ceramic).toBeTruthy();
     const ceramic = lookupBuiltInCatalogMaterial("material:core:ceramic-white:v1")!;
@@ -99,9 +99,9 @@ describe("Phase 5 Bathroom template", () => {
 
   it("recolors sink ceramic without touching hardware", () => {
     const project = instantiateBathroomCatalogTemplate({ projectId: "ba-finishes", now: NOW });
-    const sink = project.objects.find((object) => object.catalogItemId === "kenney:bathroom-sink")!;
+    const sink = project.objects.find((object) => object.catalogItemId === "bathroom-sink-1")!;
     const hardwareBefore = sink.materialSlots.hardware;
-    const sinkItem = lookupBuiltInCatalogItem("kenney:bathroom-sink")!;
+    const sinkItem = lookupBuiltInCatalogItem("bathroom-sink-1")!;
     const ceramicChoices = catalogSwatchesForSlot(sinkItem.materialSlots.ceramic!);
     expect(ceramicChoices.some((material) => material.id === "material:core:planter-terracotta:v1")).toBe(true);
 
@@ -126,7 +126,7 @@ describe("Phase 5 Bathroom template", () => {
       now: NOW,
     });
     const painted = paintObjectSlotFromCatalog(project, {
-      objectId: project.objects.find((object) => object.catalogItemId === "kenney:bathroom-sink")!.id,
+      objectId: project.objects.find((object) => object.catalogItemId === "bathroom-sink-1")!.id,
       slotName: "ceramic",
       catalogMaterialId: "material:core:planter-terracotta:v1",
     });
@@ -139,7 +139,7 @@ describe("Phase 5 Bathroom template", () => {
     const floor = reopened.materials.find((material) => material.id === floorId)!;
     expect(floor.extensions?.catalogMaterialId).toBe(BATHROOM_TILE_CATALOG_MATERIAL_ID);
     expect(reopened.walls.every((wall) => wall.materialId === floorId)).toBe(true);
-    const sink = reopened.objects.find((object) => object.catalogItemId === "kenney:bathroom-sink")!;
+    const sink = reopened.objects.find((object) => object.catalogItemId === "bathroom-sink-1")!;
     const ceramic = reopened.materials.find((material) => material.id === sink.materialSlots.ceramic)!;
     expect(ceramic.extensions?.catalogMaterialId).toBe("material:core:planter-terracotta:v1");
     expect(ceramic.color).toBe("#b56b45");

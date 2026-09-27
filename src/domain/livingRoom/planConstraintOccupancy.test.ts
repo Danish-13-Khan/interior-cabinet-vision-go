@@ -36,7 +36,7 @@ describe("plan constraint occupancy", () => {
   it("keeps mirrors as boundary obstacles while skipping collision with supports", () => {
     const rug = objectStub({
       id: "rug",
-      catalogItemId: "kenney:rug-rectangle",
+      catalogItemId: "rug-rectangle-1",
       category: "decor",
       name: "Rectangle Rug",
       dimensions: { widthMm: 2000, heightMm: 10, depthMm: 1400 },
@@ -44,7 +44,7 @@ describe("plan constraint occupancy", () => {
     });
     const lamp = objectStub({
       id: "lamp",
-      catalogItemId: "kenney:lamp-round-table",
+      catalogItemId: "lamp-round-table-1",
       category: "lighting",
       name: "Round Table Lamp",
       position: { x: 0, y: 550, z: 0 },
@@ -53,7 +53,7 @@ describe("plan constraint occupancy", () => {
     });
     const mirror = objectStub({
       id: "mirror",
-      catalogItemId: "kenney:bathroom-mirror",
+      catalogItemId: "bathroom-mirror-1",
       category: "bathroom",
       name: "Bathroom Mirror",
       position: { x: 0, y: 1100, z: -400 },
@@ -62,7 +62,7 @@ describe("plan constraint occupancy", () => {
     });
     const sink = objectStub({
       id: "sink",
-      catalogItemId: "kenney:bathroom-sink",
+      catalogItemId: "bathroom-sink-1",
       category: "bathroom",
       name: "Bathroom Sink",
       position: { x: 0, y: 0, z: -400 },
@@ -80,14 +80,14 @@ describe("plan constraint occupancy", () => {
   it("skips support stacking but flags unsupported and surface-surface overlaps", () => {
     const nightstand = objectStub({
       id: "nightstand",
-      catalogItemId: "kenney:cabinet-bed-drawer-table",
+      catalogItemId: "cabinet-bed-drawer-table-1",
       category: "beds-and-bedroom",
       name: "Nightstand",
       dimensions: { widthMm: 450, heightMm: 550, depthMm: 400 },
     });
     const lamp = objectStub({
       id: "lamp",
-      catalogItemId: "kenney:lamp-round-table",
+      catalogItemId: "lamp-round-table-1",
       category: "lighting",
       name: "Lamp",
       position: { x: 0, y: 550, z: 0 },
@@ -97,7 +97,7 @@ describe("plan constraint occupancy", () => {
     const embeddedLamp = { ...lamp, id: "lamp-embedded", position: { x: 0, y: 0, z: 0 } };
     const otherLamp = objectStub({
       id: "lamp-b",
-      catalogItemId: "kenney:lamp-round-table",
+      catalogItemId: "lamp-round-table-1",
       category: "lighting",
       name: "Other Lamp",
       position: { x: 50, y: 550, z: 0 },
@@ -106,14 +106,14 @@ describe("plan constraint occupancy", () => {
     });
     const bed = objectStub({
       id: "bed",
-      catalogItemId: "kenney:bed-double",
+      catalogItemId: "bed-double-1",
       category: "beds-and-bedroom",
       name: "Double Bed",
       dimensions: { widthMm: 1600, heightMm: 900, depthMm: 2100 },
     });
     const pillow = objectStub({
       id: "pillow",
-      catalogItemId: "kenney:pillow",
+      catalogItemId: "pillow-1",
       category: "beds-and-bedroom",
       name: "Pillow",
       position: { x: 0, y: 620, z: 0 },
@@ -122,7 +122,7 @@ describe("plan constraint occupancy", () => {
     });
     const sofa = objectStub({
       id: "sofa",
-      catalogItemId: "kenney:lounge-sofa",
+      catalogItemId: "lounge-sofa-1",
       category: "seating",
       name: "Sofa",
       position: { x: 1800, y: 0, z: 0 },
@@ -155,7 +155,7 @@ describe("plan constraint occupancy", () => {
       ...accessory,
       id: "surface-lamp-out",
       category: "lighting",
-      catalogItemId: "kenney:lamp-round-table",
+      catalogItemId: "lamp-round-table-1",
       name: "Round Table Lamp",
       position: { x: 10000, y: 550, z: 0 },
       dimensions: { widthMm: 300, heightMm: 450, depthMm: 300 },

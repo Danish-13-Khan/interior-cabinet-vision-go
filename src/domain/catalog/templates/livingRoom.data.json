@@ -15,14 +15,14 @@
   "objects": [
     {
       "templateObjectId": "living-room-rug",
-      "catalogItemId": "kenney:rug-rectangle",
+      "catalogItemId": "rug-rectangle-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 0, "z": 100 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-sofa",
-      "catalogItemId": "kenney:lounge-sofa",
+      "catalogItemId": "lounge-sofa-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 0, "z": 400 },
       "rotationY": 0,
@@ -33,42 +33,42 @@
     },
     {
       "templateObjectId": "living-room-chair",
-      "catalogItemId": "kenney:lounge-chair",
+      "catalogItemId": "lounge-chair-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 2050, "y": 0, "z": 200 },
       "rotationY": -15
     },
     {
       "templateObjectId": "living-room-coffee-table",
-      "catalogItemId": "kenney:table-coffee",
+      "catalogItemId": "table-coffee-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 0, "z": -750 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-tv-cabinet",
-      "catalogItemId": "kenney:cabinet-television",
+      "catalogItemId": "cabinet-television-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 0, "z": -1650 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-tv",
-      "catalogItemId": "kenney:television-modern",
+      "catalogItemId": "television-modern-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 450, "z": -1650 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-lamp",
-      "catalogItemId": "kenney:lamp-round-floor",
+      "catalogItemId": "lamp-round-floor-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 2050, "y": 0, "z": -1350 },
       "rotationY": 0
     },
     {
       "templateObjectId": "living-room-plant",
-      "catalogItemId": "kenney:potted-plant",
+      "catalogItemId": "potted-plant-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": -1900, "y": 0, "z": 1500 },
       "rotationY": 0

@@ -1,4 +1,4 @@
-/** Stable Kenney catalog ID helpers. Filenames are never IDs. */
+/** Stable built-in catalog ID helpers. Filenames and vendor names are never item IDs. */
 
 export function camelStemToKebab(stem: string): string {
   return stem
@@ -7,8 +7,13 @@ export function camelStemToKebab(stem: string): string {
     .toLowerCase();
 }
 
+export function builtInItemId(stem: string, version = 1): string {
+  return `${camelStemToKebab(stem)}-${version}`;
+}
+
+/** @deprecated Use builtInItemId. Kept while callers migrate from the old helper name. */
 export function kenneyItemId(stem: string): string {
-  return `kenney:${camelStemToKebab(stem)}`;
+  return builtInItemId(stem);
 }
 
 export function kenneyModelId(stem: string, version = 1): string {

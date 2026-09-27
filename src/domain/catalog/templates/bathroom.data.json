@@ -15,7 +15,7 @@
   "objects": [
     {
       "templateObjectId": "bathroom-shower",
-      "catalogItemId": "kenney:shower",
+      "catalogItemId": "shower-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 1530, "y": 0, "z": -1230 },
       "rotationY": 0,
@@ -26,14 +26,14 @@
     },
     {
       "templateObjectId": "bathroom-toilet",
-      "catalogItemId": "kenney:toilet",
+      "catalogItemId": "toilet-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 200, "y": 0, "z": -1355 },
       "rotationY": 0
     },
     {
       "templateObjectId": "bathroom-sink",
-      "catalogItemId": "kenney:bathroom-sink",
+      "catalogItemId": "bathroom-sink-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": -1400, "y": 0, "z": -1455 },
       "rotationY": 0,
@@ -43,7 +43,7 @@
     },
     {
       "templateObjectId": "bathroom-mirror",
-      "catalogItemId": "kenney:bathroom-mirror",
+      "catalogItemId": "bathroom-mirror-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": -1400, "y": 1100, "z": -1655 },
       "rotationY": 0,

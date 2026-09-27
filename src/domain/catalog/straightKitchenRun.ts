@@ -63,11 +63,11 @@ export function finalizeStraightKitchenTemplate(
     { id: ids.wallB, alongMm: alongWallMm(withFillers, roomId, back.id, drawer) },
   ]);
   const withAppliances = snapCatalogObjectsToWall(mounted, back.id, [
-    { catalogItemId: "kenney:kitchen-fridge", alongMm: 600, inwardNudgeMm: 90 },
-    { catalogItemId: "kenney:kitchen-sink", alongMm: 1500, inwardNudgeMm: 1240 },
-    { catalogItemId: "kenney:kitchen-stove-electric", alongMm: 5300, inwardNudgeMm: 140 },
+    { catalogItemId: "kitchen-fridge-1", alongMm: 600, inwardNudgeMm: 90 },
+    { catalogItemId: "kitchen-sink-1", alongMm: 1500, inwardNudgeMm: 1240 },
+    { catalogItemId: "kitchen-stove-electric-1", alongMm: 5300, inwardNudgeMm: 140 },
     {
-      catalogItemId: "kenney:hood-modern",
+      catalogItemId: "hood-modern-1",
       alongMm: 5300,
       elevateYMm: WALL_MOUNT_Y_MM,
       inwardNudgeMm: 190,

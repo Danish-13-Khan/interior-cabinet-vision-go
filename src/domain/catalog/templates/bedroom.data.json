@@ -15,14 +15,14 @@
   "objects": [
     {
       "templateObjectId": "bedroom-rug",
-      "catalogItemId": "kenney:rug-rectangle",
+      "catalogItemId": "rug-rectangle-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 0, "z": -200 },
       "rotationY": 0
     },
     {
       "templateObjectId": "bedroom-bed",
-      "catalogItemId": "kenney:bed-double",
+      "catalogItemId": "bed-double-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 0, "z": -900 },
       "rotationY": 180,
@@ -34,35 +34,35 @@
     },
     {
       "templateObjectId": "bedroom-nightstand-left",
-      "catalogItemId": "kenney:cabinet-bed-drawer-table",
+      "catalogItemId": "cabinet-bed-drawer-table-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": -1400, "y": 0, "z": -1550 },
       "rotationY": 0
     },
     {
       "templateObjectId": "bedroom-nightstand-right",
-      "catalogItemId": "kenney:cabinet-bed-drawer-table",
+      "catalogItemId": "cabinet-bed-drawer-table-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 1400, "y": 0, "z": -1550 },
       "rotationY": 0
     },
     {
       "templateObjectId": "bedroom-lamp",
-      "catalogItemId": "kenney:lamp-round-table",
+      "catalogItemId": "lamp-round-table-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 1400, "y": 550, "z": -1550 },
       "rotationY": 0
     },
     {
       "templateObjectId": "bedroom-bookcase",
-      "catalogItemId": "kenney:bookcase-open",
+      "catalogItemId": "bookcase-open-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 2100, "y": 0, "z": 400 },
       "rotationY": -90
     },
     {
       "templateObjectId": "bedroom-pillow",
-      "catalogItemId": "kenney:pillow",
+      "catalogItemId": "pillow-1",
       "catalogItemVersion": 1,
       "positionMm": { "x": 0, "y": 620, "z": -1450 },
       "rotationY": 0

@@ -48,7 +48,7 @@ describe("partition glass library", () => {
     const choices = filterMaterialsForSlot(CATALOG_SEED_MATERIALS, shower);
     const ids = choices.map((material) => material.id);
     expect(shower.allowedMaterialTags).toEqual([...SHOWER_GLASS_SLOT_TAGS]);
-    expect(lookupBuiltInCatalogItem("kenney:shower")?.materialSlots.showerGlass?.allowedMaterialTags)
+    expect(lookupBuiltInCatalogItem("shower-1")?.materialSlots.showerGlass?.allowedMaterialTags)
       .toEqual([...SHOWER_GLASS_SLOT_TAGS]);
     expect(ids.sort()).toEqual([...PARTITION_GLASS_CATALOG_IDS].sort());
     expect(ids).not.toContain("material:core:glass-dark:v1");
@@ -67,7 +67,7 @@ describe("partition glass library", () => {
       projectId: "ba-glass",
       now: "2026-09-21T00:00:00.000Z",
     });
-    const shower = project.objects.find((object) => object.catalogItemId === "kenney:shower")!;
+    const shower = project.objects.find((object) => object.catalogItemId === "shower-1")!;
     const painted = paintObjectSlotFromCatalog(project, {
       objectId: shower.id,
       slotName: "showerGlass",
@@ -78,7 +78,7 @@ describe("partition glass library", () => {
     expect(fluted.extensions?.catalogMaterialId).toBe("material:core:glass-fluted:v1");
 
     const reopened = loadInteriorProjectFile(serializeInteriorProjectFile(painted)).document;
-    const reopenedShower = reopened.objects.find((object) => object.catalogItemId === "kenney:shower")!;
+    const reopenedShower = reopened.objects.find((object) => object.catalogItemId === "shower-1")!;
     const reopenedGlass = reopened.materials.find(
       (material) => material.id === reopenedShower.materialSlots.showerGlass,
     )!;
@@ -91,7 +91,7 @@ describe("partition glass library", () => {
       projectId: "ba-legacy-glass",
       now: "2026-09-21T00:00:00.000Z",
     });
-    const shower = project.objects.find((object) => object.catalogItemId === "kenney:shower")!;
+    const shower = project.objects.find((object) => object.catalogItemId === "shower-1")!;
     const glassId = shower.materialSlots.showerGlass!;
     const legacy = {
       ...project,

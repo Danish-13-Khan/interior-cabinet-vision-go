@@ -106,9 +106,9 @@ describe("Phase 7 CDN expiry and item fallback", () => {
     });
     await online.getManifest();
     expect(
-      (await online.listItems({ text: "sofa" })).items.some((i) => i.id === "kenney:lounge-sofa"),
+      (await online.listItems({ text: "sofa" })).items.some((i) => i.id === "lounge-sofa-1"),
     ).toBe(true);
-    expect(await online.getItem("kenney:lounge-sofa")).not.toBeNull();
+    expect(await online.getItem("lounge-sofa-1")).not.toBeNull();
 
     const offline = new RemoteCatalogProvider({
       transport,
@@ -117,6 +117,6 @@ describe("Phase 7 CDN expiry and item fallback", () => {
       isOnline: () => false,
     });
     expect((await offline.listItems({ category: "seating" })).total).toBeGreaterThan(0);
-    expect(await offline.getItem("kenney:lounge-sofa")).not.toBeNull();
+    expect(await offline.getItem("lounge-sofa-1")).not.toBeNull();
   });
 });
