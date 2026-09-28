@@ -8,6 +8,7 @@ import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environ
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
+import { resolveContactShadowLook } from "../../domain/livingRoom/clientGrounding";
 import {
   MODEL_VIEW_ZOOM_TO_CURSOR,
   resolveModelViewMaxPolarAngle,
@@ -79,14 +80,18 @@ export function ModelViewInteractionRig({
   const orbitEaseCancelGenerationRef = useRef(0);
   const cameraDebug = useCameraDebugSession();
   const exposureReadout = scene.style?.colorManagement?.exposure ?? null;
+  const contactShadow = resolveContactShadowLook({
+    opacity: environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale,
+    blur: environment.contactShadowBlur * lightingQuality.contactShadowBlurScale,
+  }, frameRun);
   return (
     <>
       <ContactShadows
         key={`${renderQuality}-${renderMode}`}
         position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
         scale={Math.max(8, roomSpan + 1)}
-        opacity={environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale}
-        blur={environment.contactShadowBlur * lightingQuality.contactShadowBlurScale}
+        opacity={contactShadow.opacity}
+        blur={contactShadow.blur}
         far={lightingQuality.contactShadowFarMeters}
         resolution={lightingQuality.contactShadowResolution}
         frames={lightingQuality.contactShadowFrames}
