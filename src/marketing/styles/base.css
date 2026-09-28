@@ -1,0 +1,94 @@
+.cs-marketing {
+  --mk-max: 1200px;
+  --mk-nav-h: 64px;
+  --mk-gutter: clamp(16px, 4vw, 32px);
+  --mk-tap: 44px;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+.cs-marketing, .cs-marketing *, .cs-marketing *::before, .cs-marketing *::after { box-sizing: border-box; }
+.cs-marketing :where(h1, h2, h3, h4, p, ul, ol, figure, blockquote) { margin: 0; padding: 0; }
+.cs-marketing :where(ul, ol) { list-style: none; }
+.cs-marketing a { color: inherit; text-decoration: none; }
+.cs-marketing img, .cs-marketing svg { display: block; max-width: 100%; }
+.cs-marketing :where(button, input, select, textarea) { font: inherit; color: inherit; }
+.cs-marketing :where(a, button, input, select, summary):focus-visible { outline: none; box-shadow: var(--focus); }
+.cs-marketing h1, .cs-marketing h2, .cs-marketing h3 { color: var(--ink); letter-spacing: -0.01em; }
+.cs-marketing h1 { font-size: var(--text-hero); line-height: 1.05; font-weight: 600; letter-spacing: -0.025em; }
+.cs-marketing h2 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; font-weight: 600; }
+.cs-marketing h3 { font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: 600; }
+.cs-marketing .lead { font-size: clamp(17px, 1.6vw, 19px); color: var(--ink-muted); max-width: 36em; }
+.cs-marketing .eyebrow {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.cs-marketing .container { width: 100%; max-width: var(--mk-max); margin-inline: auto; padding-inline: var(--mk-gutter); }
+.cs-marketing .section { padding-block: clamp(56px, 9vw, 112px); }
+.cs-marketing .section-alt { background: var(--surface); border-block: 1px solid var(--border); }
+.cs-marketing .section-header { max-width: 640px; margin-bottom: var(--space-7); }
+.cs-marketing .section-header > p:last-child { margin-top: var(--space-3); color: var(--ink-muted); }
+.cs-marketing .section-center { margin-inline: auto; text-align: center; }
+.cs-marketing .visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Buttons */
+.cs-marketing .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--mk-tap);
+  padding: 0 var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.cs-marketing .btn-primary { background: var(--accent); color: var(--on-accent); }
+.cs-marketing .btn-primary:hover { background: var(--accent-hover); }
+.cs-marketing .btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--border-strong); }
+.cs-marketing .btn-secondary:hover { background: var(--surface-2); }
+.cs-marketing .btn-ghost { background: transparent; color: var(--ink); }
+.cs-marketing .btn-ghost:hover { background: var(--surface-2); }
+.cs-marketing .btn-sm { min-height: 36px; padding: 0 var(--space-4); font-size: var(--text-sm); }
+.cs-marketing .btn-lg { min-height: 48px; padding: 0 var(--space-6); font-size: var(--text-lg); }
+.cs-marketing .btn-block { display: flex; width: 100%; }
+
+/* Logo */
+.cs-marketing .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--mk-tap);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  color: var(--ink);
+}
+.cs-marketing .logo-mark, .cs-marketing .logo-bars {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  border-radius: var(--radius-control);
+  background: var(--accent);
+}
+.cs-marketing .logo-mark span, .cs-marketing .logo-bars span { border-radius: 1px; background: var(--on-accent); }
+.cs-marketing .logo-bars { background: var(--ink); }

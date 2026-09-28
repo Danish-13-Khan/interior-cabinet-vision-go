@@ -1,0 +1,100 @@
+.cs-marketing .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+}
+.cs-marketing .site-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  height: var(--mk-nav-h);
+}
+.cs-marketing .site-nav-links { display: flex; gap: var(--space-1); margin-right: auto; }
+.cs-marketing .site-nav-links a,
+.cs-marketing .site-nav-cta .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  font-size: var(--text-md);
+  color: var(--ink-muted);
+}
+.cs-marketing .site-nav-links a:hover { color: var(--ink); background: var(--surface-2); }
+.cs-marketing .site-nav-cta { display: flex; align-items: center; gap: var(--space-2); }
+.cs-marketing .site-nav-menu {
+  display: none;
+  place-items: center;
+  width: var(--mk-tap);
+  height: var(--mk-tap);
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.cs-marketing .site-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(31, 36, 33, 0.32);
+  animation: mk-fade-in 160ms ease-out;
+}
+.cs-marketing .site-menu-sheet {
+  width: 100%;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  padding: var(--space-4) var(--mk-gutter) calc(var(--space-5) + env(safe-area-inset-bottom));
+  border-radius: var(--radius-dialog) var(--radius-dialog) 0 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  animation: mk-sheet-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cs-marketing .site-menu-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+.cs-marketing .site-menu-title { font-size: var(--text-sm); font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+.cs-marketing .site-menu-close {
+  display: grid;
+  place-items: center;
+  width: var(--mk-tap);
+  height: var(--mk-tap);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+}
+.cs-marketing .site-menu-close:hover { background: var(--surface-2); }
+.cs-marketing .site-menu-links { display: grid; margin-bottom: var(--space-5); }
+.cs-marketing .site-menu-links a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+.cs-marketing .site-menu-cta { display: grid; gap: var(--space-2); }
+
+@keyframes mk-fade-in { from { opacity: 0; } }
+@keyframes mk-sheet-in { from { transform: translateY(24px); opacity: 0; } }
+
+@media (max-width: 960px) {
+  .cs-marketing .site-nav { gap: var(--space-3); }
+  .cs-marketing .site-nav-links a { padding: 0 var(--space-2); }
+}
+@media (max-width: 767px) {
+  .cs-marketing .site-nav-links, .cs-marketing .site-nav-cta { display: none; }
+  .cs-marketing .site-nav-menu { display: grid; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs-marketing .site-menu-backdrop, .cs-marketing .site-menu-sheet { animation: none; }
+}

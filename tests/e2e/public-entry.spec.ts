@@ -10,10 +10,12 @@ test("public showroom stays public and registration shows coming soon", async ({
   await expect(showroom).toBeVisible();
   await expect(showroom.getByRole("button", { name: "Replay assembly" })).toBeEnabled({ timeout: 20_000 });
   await expect(showroom.locator("canvas")).toBeVisible();
-  await showroom.getByRole("button", { name: "Open drawer", exact: true }).click();
-  await expect(showroom.getByRole("button", { name: "Close drawer", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(showroom.getByRole("button", { name: "Oak", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await showroom.getByRole("button", { name: "Walnut", exact: true }).click();
+  await expect(showroom.getByRole("button", { name: "Walnut", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await showroom.getByRole("button", { name: "Replay assembly" }).click();
 
-  await page.getByRole("link", { name: "Register", exact: true }).first().click();
+  await page.getByRole("link", { name: "Start free", exact: true }).first().click();
   await expect(page).toHaveURL(/\/register$/);
   await expect(page.locator(".cs-marketing .auth-page")).toBeVisible();
   await page.getByLabel("First name", { exact: true }).fill("Local");

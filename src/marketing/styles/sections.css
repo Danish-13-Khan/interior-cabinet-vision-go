@@ -1,0 +1,113 @@
+/* Features */
+.cs-marketing .feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.cs-marketing .feature-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg);
+}
+.cs-marketing .feature-card p { font-size: var(--text-md); color: var(--ink-muted); }
+.cs-marketing .feature-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--space-2);
+  padding: 8px;
+  border-radius: var(--radius-control);
+  background: var(--accent-soft);
+}
+.cs-marketing .feature-icon path,
+.cs-marketing .golden-step-icon path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Golden run strip */
+.cs-marketing .golden-strip { position: relative; }
+.cs-marketing .golden-strip-track {
+  position: absolute;
+  top: 28px;
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  overflow: hidden;
+}
+.cs-marketing .golden-strip-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: 0 50%;
+}
+.cs-marketing .golden-strip-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.cs-marketing .golden-step { display: grid; justify-items: center; gap: var(--space-2); text-align: center; }
+.cs-marketing .golden-step p { max-width: 22ch; font-size: var(--text-md); color: var(--ink-muted); }
+.cs-marketing .golden-step-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 0 6px var(--bg);
+}
+.cs-marketing .golden-step-icon svg { width: 26px; height: 26px; }
+
+/* Final CTA band */
+.cs-marketing .cta-band { padding-block: clamp(56px, 8vw, 96px); background: var(--accent-soft); }
+.cs-marketing .cta-band-inner { display: grid; justify-items: center; gap: var(--space-5); text-align: center; }
+.cs-marketing .cta-band h2 { max-width: 20ch; }
+
+/* Footer */
+.cs-marketing .site-footer { padding-block: var(--space-6); border-top: 1px solid var(--border); background: var(--surface); }
+.cs-marketing .site-footer-inner { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-6); }
+.cs-marketing .site-footer-links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-right: auto; }
+.cs-marketing .site-footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--mk-tap);
+  font-size: var(--text-md);
+  color: var(--ink-muted);
+}
+.cs-marketing .site-footer-links a:hover { color: var(--ink); }
+.cs-marketing .site-footer-note { font-size: var(--text-sm); color: var(--ink-faint); }
+
+@media (max-width: 960px) {
+  .cs-marketing .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .cs-marketing .golden-strip-track { top: 0; bottom: 0; left: 27px; right: auto; width: 2px; height: auto; }
+  .cs-marketing .golden-strip-fill { transform-origin: 50% 0; }
+  .cs-marketing .golden-strip-steps { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+  .cs-marketing .golden-step {
+    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-areas: "icon title" "icon body";
+    justify-items: start;
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+    text-align: left;
+  }
+  .cs-marketing .golden-step-icon { grid-area: icon; }
+  .cs-marketing .golden-step h3 { grid-area: title; align-self: end; }
+  .cs-marketing .golden-step p { grid-area: body; max-width: none; }
+}
+@media (max-width: 560px) {
+  .cs-marketing .feature-grid { grid-template-columns: minmax(0, 1fr); }
+}
