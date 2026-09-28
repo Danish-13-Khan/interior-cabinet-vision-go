@@ -51,9 +51,9 @@ describe("designUxShell (Phase E)", () => {
       appearance: "light", presenting: false,
     })).toContain("is-drafting-studio");
     expect(designUxShellClassNames({
-      appearance: "dark-frame", presenting: true,
+      appearance: "light", presenting: true,
     })).toEqual(expect.arrayContaining([
-      "is-appearance-dark-frame",
+      "is-appearance-light",
       "is-presenting",
       "is-client-strip",
     ]));

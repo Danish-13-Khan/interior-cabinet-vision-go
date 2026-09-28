@@ -2,7 +2,7 @@
   padding: 18px 18px 20px;
   border: 1px solid var(--iu-line, #dce5de);
   border-radius: 12px;
-  background: var(--iu-panel, #fff) !important;
+  background: var(--iu-panel);
   color: var(--iu-ink, #2d3d31);
 }
 

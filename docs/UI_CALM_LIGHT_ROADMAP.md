@@ -254,6 +254,18 @@ Safari and Tauri WebView; still fallback verified with WebGL disabled.
 **Exit gate:** a first-time tester reaches the Room step from the projects home
 without help; every top-bar control ≥ 32px high.
 
+**Implementation notes (Phase 2):**
+- The separate workflow tab row is gone; `InteriorsWorkflowNav` renders numbered
+  steps inside the top bar. Step state (done / to do / blocked) comes from
+  `domain/desktopUx/interiorsWorkflowSteps.ts`; navigation stays free.
+- The File button became the job menu ▾ beside the job name (Project tools, Open,
+  Save, Export JSON, Keyboard shortcuts). Project tools opens via
+  `InteriorProjectToolsLauncher`.
+- "Dark frame" canvas appearance is retired (D2); stored values read as light.
+- Shell styling lives in `styles/app-shell.css` and `styles/app-shell-home.css`,
+  scoped by the new `.app-shell` class so no `!important` is needed.
+- The 2D / 3D switch stays in the top bar until Phase 3 builds the canvas header.
+
 ### Phase 3 — Room step (2D plan)
 
 1. Canvas header: view switch, Measure, Calibrate, Layers, Units, Grid, Snap, Export

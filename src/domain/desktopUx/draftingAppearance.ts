@@ -1,25 +1,23 @@
-/** Canvas appearance for the open-plan drafting studio (UI redesign A/B). */
+/** Canvas appearance for the drafting studio. Calm Light has one appearance; the old "dark-frame" reads as light. */
 
-export type DraftingAppearance = "light" | "dark-frame";
+export type DraftingAppearance = "light";
 
 export const DRAFTING_APPEARANCE_STORAGE_KEY = "cabinet-designer-drafting-appearance";
 
-export const DRAFTING_APPEARANCES = ["light", "dark-frame"] as const;
+export const DRAFTING_APPEARANCES = ["light"] as const;
 
 export const DRAFTING_APPEARANCE_LABELS: Record<DraftingAppearance, string> = {
   light: "Light studio",
-  "dark-frame": "Dark frame",
 };
 
-export function clampDraftingAppearance(value: unknown): DraftingAppearance {
-  return value === "dark-frame" ? "dark-frame" : "light";
+export function clampDraftingAppearance(_value: unknown): DraftingAppearance {
+  return "light";
 }
 
 export function draftingAppearanceLabel(appearance: DraftingAppearance): string {
   return DRAFTING_APPEARANCE_LABELS[appearance];
 }
 
-/** Both themes keep the plan surface light; only chrome density/frame changes. */
 export function draftingSurfaceStaysLight(_appearance: DraftingAppearance): boolean {
   return true;
 }
