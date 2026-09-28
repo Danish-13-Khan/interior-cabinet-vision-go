@@ -36,10 +36,13 @@ async function frameForObjectPick(page: Page) {
   await expect(page.getByTestId("lr-model-viewport")).toHaveAttribute("data-view-preset", "top");
 }
 
-/** The starter window is hosted by the left wall; its elevation is a deterministic first-hit view. */
+/**
+ * The starter window is hosted by the left wall. Side looks in from outside that
+ * wall and cuts it away, so pick from Front, which sees its interior face.
+ */
 async function frameForOpeningPick(page: Page) {
-  await page.getByTestId("model-view-side").click();
-  await expect(page.getByTestId("lr-model-viewport")).toHaveAttribute("data-view-preset", "side");
+  await page.getByTestId("model-view-front").click();
+  await expect(page.getByTestId("lr-model-viewport")).toHaveAttribute("data-view-preset", "front");
   await fitRoom(page);
 }
 
