@@ -38,12 +38,25 @@ test("app requires a session and auth can return to the public homepage", async 
   await expect(page.getByRole("region", { name: "Interactive cabinet showroom" })).toBeVisible();
 });
 
-test("failed login shows a popup and does not open a local session", async ({ page }) => {
+test("local login opens a session and lands in the app", async ({ page }) => {
+  await page.goto("/app");
+  await expect(page).toHaveURL(/\/login$/);
+  await page.getByLabel("Email", { exact: true }).fill("login-entry@example.test");
+  await page.getByLabel("Password", { exact: true }).fill("local-demo-pass");
+  await page.getByRole("button", { name: "Log in", exact: true }).click();
+  await expect(page).toHaveURL(/\/app/);
+  await expect(page.getByRole("dialog", { name: "Login failed" })).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("cabinetStudioSession") ?? "null")?.email))
+    .toBe("login-entry@example.test");
+});
+
+test("invalid login shows a popup and does not open a local session", async ({ page }) => {
   await page.goto("/login");
   await expect(page.locator(".cs-marketing .auth-brand")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Welcome back", exact: true })).toBeVisible();
   await page.getByLabel("Email", { exact: true }).fill("login-entry@example.test");
-  await page.getByLabel("Password", { exact: true }).fill("local-demo-pass");
+  await page.getByLabel("Password", { exact: true }).fill("short");
   await page.getByRole("button", { name: "Log in", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Login failed" })).toBeVisible();
   await expect(page).toHaveURL(/\/login$/);
