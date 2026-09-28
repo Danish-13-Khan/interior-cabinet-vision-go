@@ -5,8 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run src",
+    "test": "npm run lint:styles && vitest run src",
+    "lint:styles": "node scripts/ui-lint/check-styles.mjs",
+    "poster:showroom": "node scripts/showroom/render-poster.mjs",
     "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/calm-light-a11y.spec.ts",
+    "test:visual": "playwright test tests/e2e/calm-light-visual.spec.ts",
+    "test:visual:update": "playwright test tests/e2e/calm-light-visual.spec.ts --update-snapshots",
     "test:golden": "playwright test tests/e2e/golden-cabinet-run.spec.ts tests/e2e/living-room-release.spec.ts --project=chromium",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -23,7 +28,8 @@
     "stilljob:spike": "node scripts/still-job/export-spike.mjs",
     "stilljob:phase2a": "node scripts/still-job/export-phase2a.mjs",
     "phase2:proof": "node scripts/phase2-proof/run-proof.mjs",
-    "catalog:generate": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-l-kitchen-thumbnail.mjs && node scripts/catalog/generate-bedroom-thumbnail.mjs && node scripts/catalog/generate-bathroom-thumbnail.mjs && node scripts/catalog/generate-kenney-manifest.mjs",
+    "catalog:generate": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-l-kitchen-thumbnail.mjs && node scripts/catalog/generate-bedroom-thumbnail.mjs && node scripts/catalog/generate-bathroom-thumbnail.mjs && node scripts/catalog/generate-kenney-manifest.mjs && npm run catalog:render",
+    "catalog:render": "node scripts/catalog/render-catalog-thumbnails.mjs",
     "catalog:verify": "node scripts/catalog/verify-catalog.mjs",
     "catalog:thumbnail": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-l-kitchen-thumbnail.mjs && node scripts/catalog/generate-bedroom-thumbnail.mjs && node scripts/catalog/generate-bathroom-thumbnail.mjs",
     "tauri": "tauri",
@@ -45,6 +51,7 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@napi-rs/canvas": "^0.1.80",
     "@playwright/test": "^1.62.1",
     "@tauri-apps/cli": "^2",

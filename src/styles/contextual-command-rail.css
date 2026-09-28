@@ -1,0 +1,32 @@
+/* Phase M — contextual command rail (§4.1) */
+
+.lr-contextual-command-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--lr-line, var(--border-strong));
+  background: color-mix(in srgb, var(--lr-panel, var(--warning-soft)) 92%, white);
+}
+
+.lr-contextual-command-rail button {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--lr-line, var(--border-strong));
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--lr-ink, var(--ink));
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lr-contextual-command-rail button:hover:not(:disabled) {
+  border-color: var(--lr-green, var(--accent));
+  color: var(--lr-green, var(--accent));
+}
+
+.lr-contextual-command-rail button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

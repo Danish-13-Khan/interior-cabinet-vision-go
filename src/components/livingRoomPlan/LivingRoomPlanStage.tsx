@@ -96,6 +96,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSetParameters={props.onSetParameters}
             onPatchDocument={props.onPatchDocument}
             presentation={props.presenting}
+            showStylePalette={props.workflowArea === "materials"}
           />
         ) : props.presenting ? (
           <InteriorsClientCaptureView

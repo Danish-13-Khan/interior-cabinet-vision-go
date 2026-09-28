@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createGoldenCabinetRunProject, GOLDEN_RUN_OBJECT_IDS } from "./goldenRun";
-import { resolvePlanObjectLabelModes } from "./planObjectLabels";
+import { planObjectLabelBaselines, resolvePlanObjectLabelModes } from "./planObjectLabels";
 
 describe("plan object label declutter (CAB-046)", () => {
   it("prefers name labels on a packed golden kitchen run instead of blanking the run", () => {
@@ -76,5 +76,23 @@ describe("plan object label declutter (CAB-046)", () => {
     expect(modes.get("fill")).toBe("hidden");
     // Filler is excluded from the "nearly stacked" hide path for real cabinets.
     expect(modes.get("cab")).toMatch(/^(full|name)$/);
+  });
+});
+
+describe("planObjectLabelBaselines", () => {
+  it("centres a one-line label inside a deep footprint", () => {
+    const { nameY } = planObjectLabelBaselines({ widthMm: 600, depthMm: 560, rotationY: 0, mode: "name", selected: false });
+    expect(Math.abs(nameY)).toBeLessThan(560 / 2 - 100);
+  });
+
+  it("keeps both lines inside the footprint when showing size", () => {
+    const lines = planObjectLabelBaselines({ widthMm: 900, depthMm: 580, rotationY: 0, mode: "full", selected: false });
+    expect(lines.nameY - 100).toBeGreaterThan(-290);
+    expect(lines.sizeY).toBeLessThan(290);
+  });
+
+  it("puts shallow footprint labels in front, clear of the rotated extent", () => {
+    const lines = planObjectLabelBaselines({ widthMm: 900, depthMm: 150, rotationY: 90, mode: "name", selected: false });
+    expect(lines.nameY - 100).toBeGreaterThan(450);
   });
 });

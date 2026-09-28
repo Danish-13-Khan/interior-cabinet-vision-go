@@ -1,9 +1,9 @@
 .interiors-popular-templates {
   padding: 18px 18px 20px;
-  border: 1px solid var(--iu-line, #dce5de);
+  border: 1px solid var(--border, #dce5de);
   border-radius: 12px;
-  background: var(--iu-panel, #fff) !important;
-  color: var(--iu-ink, #2d3d31);
+  background: var(--surface);
+  color: var(--ink, #2d3d31);
 }
 
 .interiors-popular-templates header {
@@ -13,16 +13,16 @@
 }
 
 .interiors-popular-templates header span {
-  color: var(--iu-green, #276b46);
-  font-size: 0.68rem;
+  color: var(--accent, #276b46);
+  font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .interiors-popular-templates header small {
-  color: var(--iu-muted, #7b877d);
-  font-size: 0.72rem;
+  color: var(--ink-muted, #7b877d);
+  font-size: var(--text-sm);
   line-height: 1.4;
 }
 
@@ -38,15 +38,15 @@
   align-content: start;
   gap: 10px;
   padding: 12px;
-  border: 1px solid var(--iu-line, #dce5de);
+  border: 1px solid var(--border, #dce5de);
   border-radius: 10px;
-  background: var(--iu-panel-2, #f8faf8);
+  background: var(--surface-2, #f8faf8);
   text-align: left;
 }
 
 .interiors-popular-templates button:hover {
-  border-color: var(--iu-green, #73a182);
-  background: var(--iu-green-soft, #f5faf5);
+  border-color: var(--accent, #73a182);
+  background: var(--accent-soft, #f5faf5);
 }
 
 .interiors-popular-templates img,
@@ -56,21 +56,21 @@
   height: auto;
   object-fit: cover;
   border-radius: 7px;
-  border: 1px solid var(--iu-line, #e2e8e3);
-  background: var(--iu-faint, #f3f6f3);
+  border: 1px solid var(--border, #e2e8e3);
+  background: var(--bg, #f3f6f3);
 }
 
 .interiors-popular-templates strong {
-  color: var(--iu-ink, #2d3d31);
-  font-size: 0.8rem;
+  color: var(--ink, #2d3d31);
+  font-size: var(--text-md);
   line-height: 1.25;
 }
 
 .interiors-popular-templates button > small {
   display: -webkit-box;
   overflow: hidden;
-  color: var(--iu-muted, #78847a);
-  font-size: 0.66rem;
+  color: var(--ink-muted, #78847a);
+  font-size: var(--text-sm);
   line-height: 1.35;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

@@ -1,16 +1,11 @@
 /* Present and Send: close panel over the 3D client view. */
 .lr-present-tray {
-  color: #68766c;
-  font-size: 0.72rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
 }
 
-.lr-present-status .has-warning {
-  color: #b55338;
-}
-
-.lr-present-status .is-clear {
-  color: #276b46;
-}
+.lr-present-status .has-warning { color: var(--danger); }
+.lr-present-status .is-clear { color: var(--accent); }
 
 .interiors-present-blocking {
   margin: 0;
@@ -21,8 +16,8 @@
 }
 
 .interiors-present-blocking li {
-  color: #b55338;
-  font-size: 0.64rem;
+  color: var(--danger);
+  font-size: var(--text-sm);
   line-height: 1.35;
 }
 
@@ -31,44 +26,44 @@
   width: 280px;
   min-width: 280px;
   max-width: 280px;
-  background: #fff;
-  color: #243029;
-  border-color: #dce5de;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header span {
-  color: #276b46;
+  color: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff small {
-  color: #748076;
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff {
-  border-color: #e6ece7;
+  border-color: var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review > strong,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff > strong,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel section > strong {
-  color: #304236;
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-total {
-  color: #276b46;
+  color: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields label {
-  color: #4a5a4e;
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields input {
-  border-color: #cfe0d2;
-  background: #fff;
-  color: #243029;
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel [data-testid="interiors-present-capture"] {
@@ -76,33 +71,33 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff-identities summary {
-  color: #4a5a4e;
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision {
   display: grid;
   gap: 7px;
   padding: 14px;
-  border: 1px solid #3f5b48;
+  border: 1px solid var(--ink);
   border-radius: 8px;
-  background: #1f3026;
+  background: var(--ink);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > span {
-  color: #95d4a9;
-  font-size: .66rem;
+  color: var(--accent);
+  font-size: var(--text-sm);
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > strong {
-  color: #f1f7f2;
-  font-size: 1.05rem;
+  color: var(--ink-faint);
+  font-size: var(--text-lg);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > p {
   margin: 0;
-  color: #adbbb0;
-  font-size: .61rem;
+  color: var(--ink-faint);
+  font-size: var(--text-xs);
   line-height: 1.45;
 }
 
@@ -113,7 +108,7 @@
   grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 0;
-  background: #151b1f;
+  background: var(--ink);
 }
 
 .interiors-client-capture-stage {
@@ -133,15 +128,15 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: #151b1f;
+  background: var(--ink);
 }
 
 .interiors-client-capture-empty,
 .interiors-client-capture-error {
   margin: 0;
   padding: 16px;
-  color: #d7c4b8;
-  font-size: 0.82rem;
+  color: var(--warning);
+  font-size: var(--text-md);
 }
 
 .interiors-client-capture-bar {
@@ -149,8 +144,8 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: #fff;
-  border-top: 1px solid #dce5de;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 }
 
 .interiors-client-capture-bar .is-primary {

@@ -5,7 +5,7 @@
 
 .lr-run-tray {
   color: #68766c;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
 }
 
 .lr-run-tray .lr-run-extend {

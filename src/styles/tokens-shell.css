@@ -1,81 +1,16 @@
 :root {
-  /* Density scale — CAD shell compression */
+  /* CAD shell chrome (colours live in tokens.css) */
   --space-0: 0;
-  --space-1: 2px;
-  --space-2: 4px;
-  --space-3: 6px;
-  --space-4: 8px;
-  --radius-control: 0;
-  --radius-panel: 0;
-  --chrome-border: 1px solid var(--panel-border);
+  --chrome-border: 1px solid var(--border-strong);
   --shadow-none: none;
-  --shadow-menu: 0 8px 18px rgba(20, 32, 44, 0.22);
-
-  /* Core ink / surfaces — blue-gray technical chrome */
-  --ink: #141c26;
-  --muted: #5a6a7a;
-  --shell-bg: #8e9aab;
-  --panel-bg: #dce2e9;
-  --panel-raised: #e8edf2;
-  --panel-border: #7a8798;
-  --drawing-bg: #f4f6f8;
-  --canvas-bg: #eceff2;
-
-  /* Accent / selection (restrained steel blue) */
-  --accent: #1e4d72;
-  --accent-soft: #c8d7e6;
-  --selection: #155a96;
-  --selection-fill: rgba(21, 90, 150, 0.14);
-  --focus-ring: rgba(30, 77, 114, 0.5);
 
   /* Ribbon */
-  --ribbon-bg: #c5d0dc;
-  --ribbon-border: #6f7f91;
-  --ribbon-group-border: #8f9eae;
-  --ribbon-label: #4f5f70;
   --ribbon-height: 30px;
 
-  /* Tool rail */
-  --rail-bg: #cfd8e2;
-  --rail-border: #6a7a8c;
-  --rail-section-border: #9aabba;
-  --rail-header-bg: #bec9d5;
-
-  /* Workspace chrome / docks */
-  --workspace-chrome: #8b98a8;
-  --workspace-focus-bg: #c2ccd8;
-  --workspace-pane-header: #b8c3d0;
-  --workspace-pane-header-focus: #a8bcd0;
-  --workspace-gutter: #5a6878;
-  --workspace-split-hover: #3d5f7a;
-  --workspace-active-border: #1e4d72;
-
-  --browser-bg: #c8d2dc;
-  --browser-header-bg: #b4c0cd;
-  --browser-row-hover: #dde4eb;
-  --browser-row-selected: #c7d7e8;
-  --browser-row-active: #b5cce0;
   --browser-width: 132px;
 
-  /* Inspector — same cool chrome family (not warm card) */
-  --inspector-bg: #d4dbe4;
-  --inspector-header-bg: #c0cad6;
-  --inspector-border: #6f7f91;
-
   /* Status */
-  --status-bg: #2c3540;
-  --status-fg: #d5dde6;
-  --status-muted: #8f9eae;
-  --status-dock-bg: #dce2e9;
-  --status-border: #1e262f;
   --status-bar-height: 20px;
-
-  --warn-bg: #efe8d8;
-  --warn-border: #b9a47a;
-  --warn-fg: #6e5324;
-  --error-bg: #eadfdf;
-  --error-border: #b88a8a;
-  --error-fg: #7a2a2a;
 
   /* Drafting hierarchy — production line system */
   --draft-wall: #0e141a;
@@ -107,21 +42,18 @@
   --selection-active-fill: rgba(10, 95, 168, 0.2);
 
   /* Shared production document system (drawings + reports) */
-  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
-  --report-bg: var(--drawing-bg);
+  --report-bg: var(--canvas);
   --report-surface: #ffffff;
-  --report-chrome: var(--workspace-pane-header);
+  --report-chrome: var(--surface-2);
   --report-rule: var(--titleblock-rule, #2a3540);
-  --report-muted: var(--muted);
+  --report-muted: var(--ink-muted);
   --shop-link: var(--draft-cut);
   --shop-mark: var(--accent);
 
-  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 11.5px;
-  line-height: 1.22;
+  font-family: var(--font-sans);
   font-weight: 400;
   color: var(--ink);
-  background: var(--shell-bg);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -139,12 +71,15 @@ body,
 
 body {
   overflow: hidden;
+  font-size: var(--text-md);
+  line-height: 1.3;
 }
 
 button,
 input,
 select {
   font: inherit;
+  font-size: var(--text-sm);
 }
 
 .app-shell {
@@ -152,7 +87,7 @@ select {
   flex-direction: column;
   height: 100%;
   min-height: 100vh;
-  background: var(--shell-bg);
+  background: var(--bg);
   color: var(--ink);
 }
 
@@ -160,5 +95,5 @@ select {
   display: flex;
   flex: 1;
   min-height: 0;
-  border-top: 1px solid var(--ribbon-border);
+  border-top: 1px solid var(--border-strong);
 }

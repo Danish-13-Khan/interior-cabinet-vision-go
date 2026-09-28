@@ -643,6 +643,22 @@ export {
   type ReferenceDimension,
 } from "./referenceDimensions";
 export {
+  countPlanLabelOverlaps,
+  planLabelBox,
+  planLabelBoxesOverlap,
+  type PlanLabelBox,
+} from "./planLabelBoxes";
+export {
+  layoutPlanLabels,
+  type PlacedPlanLabel,
+  type PlanLabelRequest,
+} from "./planLabelLayout";
+export {
+  layoutReferenceDimensionLabels,
+  planObjectTagBoxes,
+  referenceDimensionLabel,
+} from "./planReferenceLabels";
+export {
   pickNearestSnapGuide,
   type PlanSnapGuideKind,
 } from "./planSnapping";
@@ -652,7 +668,7 @@ export {
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {
-  resolvePlanObjectLabelModes,
+  planObjectLabelBaselines, resolvePlanObjectLabelModes,
   type PlanObjectLabelMode,
   type PlanObjectLabelInput,
 } from "./planObjectLabels";

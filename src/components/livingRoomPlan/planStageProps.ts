@@ -81,6 +81,7 @@ export type LivingRoomPlanStageProps = {
   readability: PlanReadabilitySettings;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
   chromeTool?: InteriorsChromeTool;
+  workflowArea?: import("../../domain/desktopUx").InteriorsWorkflowArea;
   roomPolygonPointCount?: number;
   onOpeningCatalogItem?: (catalogItemId: string) => void;
   onCloseRoomPolygon?: () => void;

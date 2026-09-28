@@ -6,7 +6,10 @@ import {
 } from "../../domain/livingRoom";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import type { useRenderDiagnostics } from "../../hooks/useRenderDiagnostics";
+import { createPortal } from "react-dom";
+import { useInspectorModelExtrasSlot } from "../livingRoomPlan/InspectorPlanSettingsSlot";
 import { CabinetMechanismPanel } from "./CabinetMechanismPanel";
+import { ModelViewCameraDock } from "./ModelViewCameraDock";
 import { ModelViewOnboarding } from "./ModelViewOnboarding";
 import { ModelViewReadout } from "./ModelViewReadout";
 import { ModelViewStylePalette } from "./ModelViewStylePalette";
@@ -16,6 +19,7 @@ type LivingRoomModelChromeProps = {
   showGuide: boolean;
   viewPreset: ModelViewPresetId;
   onChoosePreset: (preset: ModelViewPresetId) => void;
+  onResetCamera: () => void;
   onDismissGuide: () => void;
   diagnostics: ReturnType<typeof useRenderDiagnostics>;
   activeObject: InteriorObjectEntity | null;
@@ -26,9 +30,36 @@ type LivingRoomModelChromeProps = {
   honestyBadge: string;
   exposure: number;
   planTraceHint: boolean;
+  /** Style presets belong to the Materials step. */
+  showStylePalette?: boolean;
 };
 
 export function LivingRoomModelChrome(props: LivingRoomModelChromeProps) {
+  const inspectorSlot = useInspectorModelExtrasSlot();
+  const extras = (
+    <>
+      <CabinetMechanismPanel
+        object={props.activeObject}
+        onChange={props.onSetParameters}
+        onSoftClose={(object) => {
+          const state = getCabinetMechanismState(object);
+          if (!state) return;
+          props.onSetParameters(object.id, mechanismAllPatch(state, true));
+          window.setTimeout(
+            () => props.onSetParameters(object.id, mechanismAllPatch(state, false)),
+            650,
+          );
+        }}
+      />
+      {props.showStylePalette ? (
+        <ModelViewStylePalette
+          activeStyleId={props.activeStyleId}
+          activeStyleName={props.activeStyleName}
+          onApplyStyle={props.onApplyStyle}
+        />
+      ) : null}
+    </>
+  );
   return (
     <>
       {props.showGuide ? (
@@ -47,23 +78,11 @@ export function LivingRoomModelChrome(props: LivingRoomModelChromeProps) {
           <RenderDiagnosticsPanel report={props.diagnostics} compact />
         </details>
       ) : null}
-      <CabinetMechanismPanel
-        object={props.activeObject}
-        onChange={props.onSetParameters}
-        onSoftClose={(object) => {
-          const state = getCabinetMechanismState(object);
-          if (!state) return;
-          props.onSetParameters(object.id, mechanismAllPatch(state, true));
-          window.setTimeout(
-            () => props.onSetParameters(object.id, mechanismAllPatch(state, false)),
-            650,
-          );
-        }}
-      />
-      <ModelViewStylePalette
-        activeStyleId={props.activeStyleId}
-        activeStyleName={props.activeStyleName}
-        onApplyStyle={props.onApplyStyle}
+      {inspectorSlot ? createPortal(extras, inspectorSlot) : extras}
+      <ModelViewCameraDock
+        viewPreset={props.viewPreset}
+        onChoosePreset={props.onChoosePreset}
+        onReset={props.onResetCamera}
       />
       <ModelViewReadout
         viewPreset={props.viewPreset}

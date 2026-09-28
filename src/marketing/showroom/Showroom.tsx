@@ -1,83 +1,95 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { PALETTES, readPalette, SHOWROOM_PALETTE_KEY, type PaletteId } from './palettes';
-import type { ShowroomController } from './createScene';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { DEFAULT_PALETTE, PALETTE_IDS, PALETTES, readPalette, SHOWROOM_PALETTE_KEY, type PaletteId } from './palettes';
+import { readShowroomEnvironment, resolveShowroomStart } from './autoplay';
+import type { ShowroomController, ShowroomMode } from './createScene';
+import { STAGE_LABELS, type TimelineStage } from './motion';
 import './showroom.css';
 
+const BASE = import.meta.env.BASE_URL;
+const POSTER = `${BASE}marketing/showroom-poster.png`;
+const POSTER_FALLBACK = `${BASE}catalog/templates/l-kitchen-v1.png`;
+
 export function Showroom() {
+  const start = useMemo(() => resolveShowroomStart(readShowroomEnvironment()), []);
+  const posterMode = start.mode === 'still';
   const [paletteId, setPaletteId] = useState<PaletteId>(() => {
-    try { return readPalette(window.localStorage); } catch { return 'midnight'; }
+    try { return readPalette(window.localStorage); } catch { return DEFAULT_PALETTE; }
   });
-  const [enabled, setEnabled] = useState(false);
+  const [mode, setMode] = useState<ShowroomMode | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [drawer, setDrawer] = useState(false);
-  const [status, setStatus] = useState('Preview your cabinet in 3D');
+  const [stage, setStage] = useState<TimelineStage>('hold');
+  const [status, setStatus] = useState('Finished kitchen run preview');
+  const [poster, setPoster] = useState(POSTER);
   const host = useRef<HTMLDivElement>(null), section = useRef<HTMLElement>(null);
   const controller = useRef<ShowroomController | null>(null);
   const palette = PALETTES[paletteId];
-  const currentPalette = useRef(palette); currentPalette.current = palette;
+  const currentPalette = useRef(palette);
+  currentPalette.current = palette;
+
   useEffect(() => {
-    // Keep the first page render light; opt out of automatic 3D on constrained connections.
-    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || connection?.saveData || /2g/.test(connection?.effectiveType ?? '')) return;
+    if (start.kind !== 'auto') return;
+    if (posterMode) { setMode('still'); return; }
     let timer: ReturnType<typeof setTimeout> | undefined;
     const observer = new IntersectionObserver(entries => {
       clearTimeout(timer);
-      if (entries[0].isIntersecting) timer = setTimeout(() => setEnabled(true), 1000);
+      if (entries[0].isIntersecting) timer = setTimeout(() => { setMode(start.mode); observer.disconnect(); }, 600);
     });
     if (section.current) observer.observe(section.current);
     return () => { clearTimeout(timer); observer.disconnect(); };
-  }, []);
+  }, [start, posterMode]);
+
   useEffect(() => {
-    if (!enabled || !host.current) return;
+    if (!mode || !host.current) return;
     let cancelled = false;
     const element = host.current;
     setFailed(false); setReady(false); setStatus('Loading 3D preview…');
     const fail = () => {
       if (cancelled) return;
       controller.current?.dispose(); controller.current = null;
-      setFailed(true); setReady(false); setStatus('3D is unavailable. You can still explore the website.');
+      setFailed(true); setReady(false); setStatus('3D is unavailable. The still preview stays in place.');
     };
     import('./createScene').then(({ createShowroom }) => {
       if (cancelled) return;
-      controller.current = createShowroom(element, currentPalette.current, setStatus, fail);
+      controller.current = createShowroom(element, currentPalette.current, {
+        mode, onStage: setStage, onError: fail,
+        onFirstFrame: () => section.current?.setAttribute('data-showroom-ready', 'true'),
+      });
       setReady(true);
+      setStatus(mode === 'still' ? 'Finished kitchen run' : 'Playing the build · drag to orbit');
     }).catch(fail);
     return () => { cancelled = true; controller.current?.dispose(); controller.current = null; };
-  }, [enabled, attempt]);
+  }, [mode, attempt]);
+
   useEffect(() => {
     controller.current?.setPalette(palette);
-    try { localStorage.setItem(SHOWROOM_PALETTE_KEY, paletteId); } catch { /* Private browsing: keep the in-memory choice. */ }
+    try { localStorage.setItem(SHOWROOM_PALETTE_KEY, paletteId); } catch { /* Private browsing keeps the in-memory choice. */ }
   }, [paletteId, palette]);
-  const style = {
-    '--showroom-bg': palette.background, '--showroom-halo': palette.halo,
-    '--showroom-text': palette.text, '--showroom-panel': palette.panel,
-    '--showroom-border': palette.border,
-  } as CSSProperties;
-  return <section ref={section} className="cs-showroom" style={style} aria-label="Interactive cabinet showroom">
-    <div className="cs-showroom-palettes" role="group" aria-label="Showroom color palette">
-      {(Object.keys(PALETTES) as PaletteId[]).map(id => <button type="button" key={id} aria-pressed={paletteId === id} onClick={() => setPaletteId(id)}>
-        <span className="cs-showroom-dot" style={{ background: PALETTES[id].wood }} />{PALETTES[id].name}
-      </button>)}
-    </div>
-    <div className="cs-showroom-caption"><span>From parts to possibilities</span><span>Cabinet Studio / 3D</span></div>
+
+  const launch = () => { setMode(start.mode); setAttempt(value => value + 1); };
+  const replay = () => controller.current?.replay(start.mode === 'loop');
+
+  return <section ref={section} className={`cs-showroom${posterMode ? ' is-poster' : ''}`} aria-label="Interactive cabinet showroom">
     <div className="cs-showroom-stage">
       <div ref={host} className="cs-showroom-canvas" />
       {!ready && <div className="cs-showroom-poster">
-        <img src={`${import.meta.env.BASE_URL}catalog/templates/l-kitchen-v1.png`} alt="Kitchen plan preview" width="480" height="320" />
-        <button type="button" onClick={() => { setEnabled(true); setAttempt(value => value + 1); }} disabled={enabled && !failed}>
-          {failed ? 'Retry 3D' : enabled ? 'Loading 3D…' : 'Watch it come together'}
-        </button>
+        <img src={poster} alt="Finished oak kitchen run with pantry, base and wall cabinets" width="960" height="720"
+          onError={() => setPoster(POSTER_FALLBACK)} />
+        {(start.kind === 'manual' || failed) && <button type="button" className="cs-showroom-play" onClick={launch} disabled={!!mode && !failed}>
+          {failed ? 'Retry 3D' : mode ? 'Loading 3D…' : start.kind === 'manual' ? start.label : 'Play'}
+        </button>}
       </div>}
+      {ready && !posterMode && <p className="cs-showroom-caption" aria-hidden="true">{STAGE_LABELS[stage]}</p>}
     </div>
-    <div className="cs-showroom-controls" role="group" aria-label="3D preview controls">
-      <button type="button" disabled={!ready} onClick={() => controller.current?.rotate(-1)} aria-label="Rotate cabinet left">← Rotate</button>
-      <button type="button" disabled={!ready} onClick={() => controller.current?.rotate(1)} aria-label="Rotate cabinet right">Rotate →</button>
-      <button type="button" disabled={!ready} onClick={() => { controller.current?.replay(); setDrawer(false); }}>Replay assembly</button>
-      <button type="button" disabled={!ready} aria-pressed={drawer} onClick={() => { controller.current?.setDrawer(!drawer); setDrawer(!drawer); }}>{drawer ? 'Close drawer' : 'Open drawer'}</button>
-    </div>
+    {!posterMode && <div className="cs-showroom-controls">
+      <div className="cs-showroom-palettes" role="group" aria-label="Cabinet finish">
+        {PALETTE_IDS.map(id => <button type="button" key={id} aria-pressed={paletteId === id} onClick={() => setPaletteId(id)}>
+          <span className="cs-showroom-dot" style={{ background: PALETTES[id].swatch }} />{PALETTES[id].name}
+        </button>)}
+      </div>
+      <button type="button" className="cs-showroom-replay" disabled={!ready} onClick={replay}>Replay assembly</button>
+    </div>}
     <p className="cs-showroom-status" role="status">{status}</p>
-    <small className="cs-showroom-disclaimer">Illustrative furniture preview · your projects stay unchanged</small>
   </section>;
 }

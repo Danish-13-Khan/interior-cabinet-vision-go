@@ -10,6 +10,7 @@ import {
   type ModelViewHeldFit,
 } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
 import { consumeOrbitEaseCancelGeneration } from "../../domain/livingRoom/modelViewCameraEase";
 import {
@@ -38,6 +39,7 @@ export function CameraRig({
   dragging = false,
   orbitNavigatingRef,
   orbitEaseCancelGenerationRef,
+  frameRun,
 }: {
   scene: CompiledLivingRoomScene;
   activeCameraId: string | null;
@@ -54,6 +56,7 @@ export function CameraRig({
   dragging?: boolean;
   orbitNavigatingRef?: RefObject<boolean>;
   orbitEaseCancelGenerationRef?: RefObject<number>;
+  frameRun?: CabinetRunAudience;
 }) {
   const { camera, size, invalidate, gl } = useThree();
   const sceneRef = useRef(scene);
@@ -129,6 +132,7 @@ export function CameraRig({
       fitSelection: heldFit.selection,
       viewport,
       useFitPose: holdFit,
+      frameRun,
     });
     applyCameraClipPlanes(camera, current);
     const publishSettled = () => publishLiveCameraFrame(
@@ -170,7 +174,7 @@ export function CameraRig({
     projectCamera?.position.y, projectCamera?.position.z, projectCamera?.target.x,
     projectCamera?.target.y, projectCamera?.target.z, scene.projectId, scene.roomId,
     scene.bounds.size.widthMm, scene.bounds.size.heightMm, scene.bounds.size.depthMm,
-    size.height, size.width, viewPreset,
+    size.height, size.width, viewPreset, frameRun,
   ]);
   useFrame(() => {
     if (latchOrbitCancel() || userIsNavigating()) {

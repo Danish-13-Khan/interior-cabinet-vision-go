@@ -78,8 +78,7 @@ export async function createShellPlan(page: Page, options?: PlannerStartOptions)
   await openInteriorsHome(page, options);
   const wardrobe = page.getByRole("button", { name: /Wardrobe wall/ });
   if (!(await wardrobe.isVisible().catch(() => false))) {
-    // Calm: starters live under "More room starters"; Compact: "Quick start templates".
-    const drawer = page.getByText(/More room starters|Quick start templates/).first();
+    const drawer = page.getByText("More room starters").first();
     await drawer.click();
   }
   await wardrobe.click();

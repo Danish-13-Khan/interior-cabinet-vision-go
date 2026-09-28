@@ -1,127 +1,118 @@
-/* Light drafting plan surface. Domain geometry and print export math unchanged. */
+/* Light drafting plan surface on Calm tokens. Domain geometry and print export math unchanged. */
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-paper {
-  fill: #ffffff;
+  fill: var(--canvas);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-grid-line {
-  stroke: #c5ceda;
+  stroke: var(--border);
   stroke-width: 4;
-  opacity: 0.95;
+  opacity: 1;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-grid-major-line {
-  stroke: #a8b4c4;
+  stroke: var(--border-strong);
   stroke-width: 7;
   opacity: 1;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-center-line {
-  stroke: #8e9aab;
+  stroke: var(--ink-faint);
   stroke-width: 7;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-empty-plan-hint {
-  fill: #4a5568;
+  fill: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-line {
-  stroke: #2a3340;
+  stroke: var(--ink);
   stroke-width: 128;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening line:not(.lr-opening-hit) {
-  stroke: #fbfcfe;
+  stroke: var(--canvas);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-window line,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-window .lr-opening-symbol-detail {
-  stroke: #3d8fd4;
+  stroke: var(--info);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-window .lr-opening-clear {
-  stroke: #d7ecf8;
+  stroke: var(--info-soft);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-dimension-pairs,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-length-labels {
-  stroke: #4a5563;
+  stroke: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-dimension-pairs text,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-length-labels text {
-  fill: #1c2430;
-  stroke: #fbfcfe;
+  fill: var(--ink);
+  stroke: var(--canvas);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-reference-dim line {
+  stroke: var(--info);
+  opacity: 0.7;
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-reference-dim text {
+  fill: var(--info);
+  paint-order: stroke;
+  stroke: var(--canvas);
+  stroke-width: 18;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-label,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-size,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening text {
-  fill: #1c2430;
+  fill: var(--ink);
 }
 
+/* Furniture and context objects stay neutral. */
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object > rect:first-of-type,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object:nth-of-type(3n) > rect:first-of-type {
-  fill: #eef2f7;
-  stroke: #6b7787;
+  fill: var(--surface-2);
+  stroke: var(--border-strong);
 }
 
+/* Cabinets: accent outline on accent-soft fill. */
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object[data-object-kind="cabinet"] > rect:first-of-type,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object.is-footprint-base > rect:first-of-type {
-  fill: #e7edf5;
+  fill: var(--accent-soft);
+  stroke: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object.is-footprint-appliance > rect:first-of-type {
-  fill: #e8eef3;
+  fill: var(--surface);
+  stroke: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object.is-selected > rect:first-of-type {
-  fill: rgb(47 111 237 / 14%);
-  stroke: #2f6fed;
+  fill: var(--info-soft);
+  stroke: var(--info);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-symbol,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-symbol * {
-  fill: rgb(47 111 237 / 8%);
-  stroke: #4a5563;
+  fill: transparent;
+  stroke: var(--ink-muted);
+}
+
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object[data-object-kind="cabinet"] .lr-plan-symbol,
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object[data-object-kind="cabinet"] .lr-plan-symbol * {
+  stroke: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-svg.is-line-style .lr-plan-object > rect {
-  fill: #fff;
+  fill: var(--surface);
   fill-opacity: 0.2;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-svg.is-line-style .lr-grid-line,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-svg.is-line-style .lr-grid-major-line {
   opacity: 0.35;
-}
-
-@media (prefers-color-scheme: dark) {
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-paper { fill: #ffffff; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-grid-line { stroke: #c5ceda; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-grid-major-line { stroke: #a8b4c4; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-center-line { stroke: #8e9aab; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-line { stroke: #2a3340; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening line { stroke: #fbfcfe; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-door line { stroke: #d4a017; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-window line { stroke: #3d8fd4; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening text,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-label,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-size { fill: #1c2430; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-dimension-pairs,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-length-labels { stroke: #4a5563; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-dimension-pairs text,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-length-labels text {
-    stroke: #fbfcfe;
-    fill: #1c2430;
-  }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object > rect:first-of-type,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object:nth-of-type(3n) > rect:first-of-type {
-    fill: #eef2f7;
-    stroke: #6b7787;
-  }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-symbol,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-symbol * {
-    fill: rgb(47 111 237 / 8%);
-    stroke: #4a5563;
-  }
 }

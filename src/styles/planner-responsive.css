@@ -31,7 +31,7 @@
   .lr-product-shell-v2 { padding: 14px 18px 18px; }
   .lr-product-shell-v2 .lr-studio-rail { width: 140px; flex-basis: 140px; padding: 16px 8px; }
   .lr-product-shell-v2 .lr-studio-rail button { min-height: 62px; padding: 9px 11px; font-size: 16px; }
-  .lr-product-shell-v2 .lr-studio-rail button small { font-size: 11px; }
+  .lr-product-shell-v2 .lr-studio-rail button small { font-size: var(--text-xs); }
   .lr-product-shell-v2 .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
   .lr-product-shell-v2 .lr-inspector { width: 300px !important; min-width: 300px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 140px; flex-basis: 140px; }
@@ -40,14 +40,14 @@
     padding: 9px 11px;
     font-size: 16px;
   }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button small { font-size: 11px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button small { font-size: var(--text-xs); }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 300px !important; min-width: 300px; }
   .lr-product-shell-v2 .lr-plan-titlebar { min-height: 44px; padding: 0 14px; }
   .lr-product-shell-v2 .lr-plan-titlebar span { font-size: 14px; }
 }
 
-/* Compact desktop: keep selection properties in a floating drawer. */
+/* Narrow desktop: keep selection properties in a floating drawer. */
 @media (max-width: 1180px) {
   .lr-product-shell-v2 .lr-inspector,
   .lr-plan-shell.lr-product-shell-v2 .lr-inspector,

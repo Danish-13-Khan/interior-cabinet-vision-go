@@ -1,0 +1,103 @@
+/* CAD shell density — Menus, overlays, scene chrome, forms. Loaded after feature styles. */
+
+/* ── Flat menus / overlays (less card-like) ── */
+.context-menu,
+.ribbon-menu-panel,
+.library-manager-shell {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-2);
+  border-color: var(--border-strong);
+}
+
+.context-menu {
+  padding: 2px;
+  min-width: 176px;
+}
+
+.context-menu-item,
+.ribbon-menu-item,
+.ribbon-menu-forget {
+  border-radius: var(--radius-control);
+  padding: 4px 7px;
+}
+
+.ribbon-menu-panel {
+  padding: 2px;
+  top: 100%;
+}
+
+.ribbon-menu-item {
+  padding: 5px 7px;
+}
+
+.pane-resize-x {
+  width: 3px;
+  margin: 0 -1px;
+}
+
+.pane-resize-y {
+  height: 3px;
+  margin: -1px 0;
+}
+
+/* ── Scene chrome — no pill badges ── */
+.resize-badge,
+.move-badge,
+.scene-hint,
+.group-badge,
+.scene-label {
+  border-radius: var(--radius-control);
+  box-shadow: none;
+  padding: 1px 5px;
+  font-size: var(--text-xs);
+}
+
+.resize-badge,
+.group-badge {
+  min-width: 0;
+  height: auto;
+}
+
+.scene-toolbar button,
+.scene-toolbar .toolbar-btn,
+.scene-overlay {
+  border-radius: var(--radius-control);
+}
+
+.scene-marquee {
+  border-radius: 0;
+}
+
+/* ── Forms / room editors — flatten ── */
+.field-grid {
+  gap: 6px;
+}
+
+.type-toggle {
+  gap: 3px;
+}
+
+.type-toggle button,
+.editable-name-input,
+.name-save-btn,
+.room-field input,
+.room-field select,
+.room-editor button,
+.opening-row,
+.room-chip {
+  border-radius: var(--radius-control) !important;
+}
+
+.editable-name-input:focus,
+.name-save-btn:hover,
+.type-toggle button:hover {
+  box-shadow: none;
+  transition: none;
+}
+
+.report-center .report-tab,
+.plans-panel .plans-card,
+.review-card {
+  border-radius: var(--radius-control);
+  box-shadow: none;
+}

@@ -1,6 +1,6 @@
 import { InteriorCompanyPanel } from "./InteriorCompanyPanel";
 import { InteriorClientPanel } from "./InteriorClientPanel";
-import { useRef, useState } from "react";
+import { useRef, useState, type RefObject } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { measureInteriorEstimate, interiorEstimateSummary } from "../../domain/interiorEstimate/measure";
 import { readInteriorEstimate, writeInteriorEstimate, patchEstimateLine, type EstimateUnit } from "../../domain/interiorEstimate/state";
@@ -15,9 +15,12 @@ export type ProjectToolsProps = { project: InteriorProject; onPatchDocument: (up
 
 export function InteriorProjectTools(props: ProjectToolsProps) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [tab, setTab] = useState("Estimate");
   return <><button type="button" onClick={() => dialog.current?.showModal()}>Project tools</button>
-    <dialog ref={dialog} className="interior-project-tools" aria-labelledby="project-tools-title">
+    <InteriorProjectToolsDialog {...props} dialogRef={dialog} /></>;
+}
+export function InteriorProjectToolsDialog({ dialogRef: dialog, ...props }: ProjectToolsProps & { dialogRef: RefObject<HTMLDialogElement | null> }) {
+  const [tab, setTab] = useState("Estimate");
+  return <dialog ref={dialog} className="interior-project-tools" aria-labelledby="project-tools-title">
       <header><div><h2 id="project-tools-title">{props.project.name} · Project tools</h2><p>Design details, your rates and commercial records.</p></div><button type="button" onClick={() => dialog.current?.close()} aria-label="Close project tools">Close</button></header>
       <nav aria-label="Project tools sections">{["Estimate", "Finishes", "Price book", "Client", "Payments", "Company"].map(name => <button type="button" key={name} aria-pressed={tab === name} onClick={() => setTab(name)}>{name}</button>)}</nav>
       {tab === "Estimate" && <InteriorEstimatePanel {...props} />}
@@ -26,7 +29,7 @@ export function InteriorProjectTools(props: ProjectToolsProps) {
       {tab === "Client" && <InteriorClientPanel {...props} />}
       {tab === "Company" && <InteriorCompanyPanel project={props.project} />}
       {tab === "Payments" && <InteriorPaymentsPanel project={props.project} />}
-    </dialog></>;
+    </dialog>;
 }
 function InteriorEstimatePanel({ project, onPatchDocument }: ProjectToolsProps) {
   const { priceBook } = usePriceBook();

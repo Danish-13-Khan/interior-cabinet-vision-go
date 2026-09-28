@@ -43,7 +43,7 @@ export function CameraDebugOverlay({
         background: "rgba(18, 22, 28, 0.88)",
         color: "#e8eef5",
         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-        fontSize: 11,
+        fontSize: 12,
         lineHeight: 1.45,
         pointerEvents: "auto",
         boxShadow: "0 8px 24px rgba(0,0,0,0.35)",

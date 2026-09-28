@@ -15,12 +15,12 @@
   align-items: center;
   gap: 6px;
   padding: 2px 5px;
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--muted);
-  border-bottom: 1px solid var(--panel-border);
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--border-strong);
   background: rgba(255, 255, 255, 0.28);
 }
 
@@ -32,9 +32,9 @@
 .cabinet-tree-clear-isolate {
   appearance: none;
   border: 0;
-  background: var(--browser-row-selected);
+  background: var(--accent-soft);
   color: var(--ink);
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   font-weight: 650;
   padding: 1px 5px;
   cursor: pointer;
@@ -56,7 +56,7 @@
 .cabinet-tree-empty {
   margin: 0;
   padding: 6px 5px;
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   color: #8090a0;
 }
 
@@ -74,15 +74,15 @@
 }
 
 .cabinet-tree-row:hover {
-  background: var(--browser-row-hover);
+  background: var(--surface-2);
 }
 
 .cabinet-tree-row.is-selected {
-  background: var(--browser-row-selected);
+  background: var(--accent-soft);
 }
 
 .cabinet-tree-row.is-active {
-  background: var(--browser-row-active);
+  background: var(--accent-soft);
   box-shadow: inset 2px 0 0 var(--accent);
 }
 
@@ -97,9 +97,9 @@
   width: 14px;
   height: 14px;
   padding: 0;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
   line-height: 1;
-  color: var(--muted);
+  color: var(--ink-muted);
   cursor: pointer;
 }
 
@@ -114,10 +114,10 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  border: 1px solid var(--panel-border);
+  border: 1px solid var(--border-strong);
   border-radius: 2px;
   background: #fff;
-  font-size: 0.48rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--ink);
   flex-shrink: 0;
@@ -144,7 +144,7 @@
 }
 
 .cabinet-tree-copy strong {
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 650;
   color: var(--ink);
   white-space: nowrap;
@@ -154,8 +154,8 @@
 }
 
 .cabinet-tree-copy small {
-  font-size: 0.48rem;
-  color: var(--muted);
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
   line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
@@ -165,7 +165,7 @@
 .cabinet-tree-rename {
   width: 100%;
   min-width: 0;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   padding: 1px 3px;
   border: 1px solid var(--accent);
   border-radius: 2px;
@@ -190,9 +190,9 @@
   width: 16px;
   height: 16px;
   padding: 0;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
   line-height: 1;
-  color: var(--muted);
+  color: var(--ink-muted);
   cursor: pointer;
 }
 
@@ -206,7 +206,7 @@
 }
 
 .scene-tree-panel .cabinet-tree-browser {
-  border: 1px solid var(--rail-section-border);
+  border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.35);
 }
 

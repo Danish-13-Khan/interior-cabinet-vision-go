@@ -1,0 +1,79 @@
+.cs-marketing .landing-hero {
+  padding-block: clamp(40px, 7vw, 96px) clamp(48px, 7vw, 88px);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+}
+.cs-marketing .landing-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 64px);
+}
+.cs-marketing .landing-hero-copy { display: grid; gap: var(--space-5); }
+.cs-marketing .landing-hero-copy .eyebrow { margin-bottom: 0; }
+.cs-marketing .hero-ctas { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.cs-marketing .hero-note { font-size: var(--text-md); color: var(--ink-faint); }
+.cs-marketing .landing-hero-visual { min-width: 0; }
+
+/* How it works */
+.cs-marketing .steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  counter-reset: step;
+}
+.cs-marketing .step {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.cs-marketing .step-clip {
+  margin: calc(var(--space-5) * -1) calc(var(--space-5) * -1) var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: var(--surface-2);
+}
+.cs-marketing .step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.cs-marketing .step p { font-size: var(--text-md); color: var(--ink-muted); }
+
+/* Clip artwork */
+.cs-marketing .clip { width: 100%; height: auto; aspect-ratio: 16 / 10; overflow: visible; }
+.cs-marketing .clip :where(path, rect, circle) { fill: none; stroke: var(--ink-faint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cs-marketing .clip .clip-wall { stroke: var(--ink); stroke-width: 3; stroke-dasharray: 1; }
+.cs-marketing .clip .clip-dim { stroke: var(--accent); stroke-width: 1.5; }
+.cs-marketing .clip .clip-pen { fill: var(--accent); stroke: none; }
+.cs-marketing .clip .clip-box { fill: var(--wood); stroke: var(--surface); transform-box: fill-box; transform-origin: 50% 100%; }
+.cs-marketing .clip .clip-top { fill: var(--ink-muted); stroke: none; }
+.cs-marketing .clip .clip-sheet { fill: var(--surface); stroke: var(--border-strong); }
+.cs-marketing .clip .clip-line { stroke: var(--ink-muted); stroke-dasharray: 1; }
+.cs-marketing .clip .clip-price { fill: var(--accent); stroke: none; }
+.cs-marketing .clip .clip-arrow { stroke: var(--accent); }
+.cs-marketing .clip .clip-shop { fill: var(--accent-soft); stroke: var(--accent); }
+.cs-marketing .clip .clip-packet { fill: var(--wood); stroke: none; }
+
+@media (max-width: 1080px) {
+  .cs-marketing .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .cs-marketing .landing-hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .cs-marketing .landing-hero-copy { max-width: 640px; }
+}
+@media (max-width: 560px) {
+  .cs-marketing .steps { grid-template-columns: minmax(0, 1fr); }
+  .cs-marketing .hero-ctas .btn { flex: 1 1 100%; }
+  .cs-marketing .landing-hero h1 br { display: none; }
+}

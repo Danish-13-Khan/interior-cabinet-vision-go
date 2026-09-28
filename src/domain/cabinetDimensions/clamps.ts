@@ -47,7 +47,7 @@ import type {
   CabinetConfig,
   CabinetDimensions,
   CabinetPlacement,
-  CabinetProject,
+  CabinetProject, RoomBounds,
 } from "./types";
 import {
   CABINET_DEPTH_MAX_MM,
@@ -354,7 +354,12 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
   };
 }
 
-export function clampCabinetProject(project: CabinetProject): CabinetProject {
+/** Placement grid for a cabinet: run fillers keep 1 mm so they stay flush with cabinet fronts. */
+export function cabinetPlacementGridMm(config: Pick<CabinetConfig, "catalogItemId"> | undefined): number | undefined {
+  return isRunFillerCatalogId(config?.catalogItemId) ? 1 : undefined;
+}
+
+export function clampCabinetProject(project: CabinetProject, roomBounds?: RoomBounds): CabinetProject {
   const layers = Array.isArray(project.layers) && project.layers.length > 0
     ? project.layers.map((layer, index) => ({
         id: layer.id || `layer-${index + 1}`,
@@ -407,7 +412,8 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
         const mounted = applyWallMountPlacementFix(type, rawPlacement).placement;
         return clampCabinetPlacement(
           mounted,
-          clampCabinetConfig(cabinet.config).dimensions,
+          clampCabinetConfig(cabinet.config).dimensions, roomBounds,
+          cabinetPlacementGridMm(cabinet.config),
         );
       })(),
     })),

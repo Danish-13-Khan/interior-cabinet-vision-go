@@ -32,9 +32,9 @@ export function InteriorsPopularTemplates({ onCreate }: Props) {
 
   return (
     <section className="planner-v2-starts interiors-popular-templates" data-testid="interiors-popular-templates">
-      <header>
-        <span>Popular templates</span>
-        <small>Start from a shell or furnished room — editable in 2D and 3D</small>
+      <header className="app-home-section-head">
+        <h2>Start from a template</h2>
+        <small>A shell or a furnished room, editable in 2D and 3D</small>
       </header>
       <div>
         {templates.map((template) => {

@@ -1,0 +1,73 @@
+/* Calm Light design tokens — the only file that may define raw colours.
+   See docs/UI_CALM_LIGHT_ROADMAP.md §3. Every other stylesheet uses var(--…). */
+
+:root {
+  color-scheme: light;
+
+  /* Colour */
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --surface-2: #f1efe9;
+  --border: #e3e0d8;
+  --border-strong: #cfcac0;
+  --ink: #1f2421;
+  --ink-muted: #5d655f;
+  --ink-faint: #8a918b;
+  --accent: #3f6b52;
+  --accent-hover: #345a45;
+  --accent-soft: #e4eee7;
+  --on-accent: #ffffff;
+  --wood: #a0714b;
+  --info: #2f6690;
+  --info-soft: #e6eef5;
+  --warning: #88550e;
+  --warning-soft: #fbf1de;
+  --danger: #b3412e;
+  --danger-soft: #fbe7e3;
+  --canvas: #fbfaf7;
+  --stage: linear-gradient(180deg, #eef0ec 0%, #ffffff 100%);
+  --focus-color: rgba(63, 107, 82, 0.35);
+  --focus: 0 0 0 3px var(--focus-color);
+
+  /* Type */
+  --font-sans: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+  --text-hero: clamp(40px, 6vw, 64px);
+  --leading-xs: 16px;
+  --leading-sm: 18px;
+  --leading-md: 20px;
+  --leading-lg: 24px;
+  --leading-xl: 28px;
+  --leading-2xl: 34px;
+
+  /* Space, shape, depth */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-dialog: 16px;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(31, 36, 33, 0.06), 0 1px 1px rgba(31, 36, 33, 0.04);
+  --shadow-2: 0 8px 24px rgba(31, 36, 33, 0.1);
+  --control-h: 32px;
+  --control-h-dense: 28px;
+  --control-h-lg: 40px;
+  --control-disabled-opacity: 0.58;
+  --selection-fill: rgba(63, 107, 82, 0.14);
+}
+
+html {
+  font-size: 16px;
+}

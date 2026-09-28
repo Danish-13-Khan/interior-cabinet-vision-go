@@ -11,9 +11,9 @@ export function InteriorsProjectsRecents({
 }) {
   return (
     <section className="interiors-projects-recents" aria-label="Recent projects">
-      <header>
-        <span>Recent work</span>
-        <h2>Continue a project</h2>
+      <header className="app-home-section-head">
+        <h2>Continue</h2>
+        <small>Your recent cabinet jobs</small>
       </header>
       {rows.length ? (
         <div className="interiors-project-list">
@@ -26,17 +26,16 @@ export function InteriorsProjectsRecents({
               onClick={() => onOpen(row.id)}
             >
               <img src={row.thumbnail} alt="" />
-              <span>
+              <span className="interiors-project-row-meta">
                 <strong>{row.name}</strong>
-                <small>{row.kindLabel} · Rev {row.revision}</small>
+                <small>{row.kindLabel} · Rev {row.revision} · {row.editedLabel}</small>
               </span>
               <span className={`interiors-project-status is-${row.statusTone}`}>{row.statusLabel}</span>
-              <small>{row.editedLabel}</small>
             </button>
           ))}
         </div>
       ) : (
-        <p>Save a job to keep it here for quick access.</p>
+        <p className="app-home-empty">Save a job to keep it here for quick access.</p>
       )}
     </section>
   );

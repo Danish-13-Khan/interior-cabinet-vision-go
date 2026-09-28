@@ -70,6 +70,7 @@ export {
   clampCabinetDimensions,
   clampCabinetConfig,
   clampCabinetProject,
+  cabinetPlacementGridMm,
 } from "./clamps";
 
 export {

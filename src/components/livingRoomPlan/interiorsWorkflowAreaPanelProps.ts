@@ -78,6 +78,6 @@ export type InteriorsWorkflowAreaPanelProps = {
     },
   ) => void;
   onSelect: (objectId: string) => void;
-  onSelectIssue: (objectId: string | null) => void;
+  onSelectIssue: (objectIds: string[]) => void;
   onPresent: () => void;
 };

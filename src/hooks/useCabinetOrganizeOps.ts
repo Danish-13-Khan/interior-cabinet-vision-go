@@ -23,7 +23,7 @@ type UseCabinetOrganizeOpsArgs = {
   isCabinetLocked: (cabinet: CabinetInstance) => boolean;
   clampPlacementInRoom: (
     placement: CabinetPlacement,
-    dimensions: CabinetInstance["config"]["dimensions"],
+    config: CabinetInstance["config"],
   ) => CabinetPlacement;
 };
 
@@ -170,7 +170,7 @@ export function useCabinetOrganizeOps({
                     projectPreferences.snapSizeMm,
                   ),
                 },
-                cabinet.config.dimensions,
+                cabinet.config,
               ),
             };
           }),

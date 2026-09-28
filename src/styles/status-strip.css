@@ -5,17 +5,17 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  background: var(--status-bg);
-  border-top: 1px solid var(--status-border);
-  font-size: 0.6rem;
-  color: var(--status-fg);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
 }
 
 .status-dock {
   max-height: min(48vh, 420px);
   overflow-y: auto;
-  border-top: 1px solid var(--status-border);
-  background: var(--status-dock-bg);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
   color: var(--ink);
 }
 
@@ -35,8 +35,8 @@
 }
 
 .output-stats {
-  color: var(--status-muted);
-  font-size: 0.58rem;
+  color: var(--ink-faint);
+  font-size: var(--text-xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -50,13 +50,13 @@
   gap: 4px;
   flex-shrink: 0;
   font-family: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
 }
 
 .status-hud-coords {
   color: #d7e2ec;
   padding: 0 4px;
-  min-width: 11.5rem;
+  min-width: 132px;
   white-space: nowrap;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .output-bar-actions .tb-btn {
-  color: var(--status-fg);
+  color: var(--ink-muted);
 }
 
 .output-bar-actions .tb-btn:hover {
@@ -108,20 +108,20 @@
   flex-wrap: wrap;
   gap: 4px;
   padding: 2px 6px;
-  background: var(--warn-bg);
-  border-top: 1px solid var(--warn-border);
-  color: var(--warn-fg);
+  background: var(--warning-soft);
+  border-top: 1px solid var(--warning);
+  color: var(--warning);
 }
 
 .output-warn {
-  font-size: 0.58rem;
-  color: var(--warn-fg);
+  font-size: var(--text-xs);
+  color: var(--warning);
 }
 
 .output-warn-error {
-  color: var(--error-fg);
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
   border-radius: var(--radius-control);
   padding: 1px 5px;
 }
@@ -141,37 +141,37 @@
   gap: 1px;
   padding: 4px 6px;
   border-radius: var(--radius-control);
-  border: 1px solid var(--panel-border);
-  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
 }
 
 .manufacturing-issue.severity-warning {
-  background: var(--warn-bg);
-  border-color: var(--warn-border);
+  background: var(--warning-soft);
+  border-color: var(--warning);
 }
 
 .manufacturing-issue.severity-error {
-  background: var(--error-bg);
-  border-color: var(--error-border);
+  background: var(--danger-soft);
+  border-color: var(--danger);
 }
 
 .manufacturing-issue strong {
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .manufacturing-issue.severity-warning strong {
-  color: var(--warn-fg);
+  color: var(--warning);
 }
 
 .manufacturing-issue.severity-error strong {
-  color: var(--error-fg);
+  color: var(--danger);
 }
 
 .manufacturing-issue span {
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   color: var(--ink);
   line-height: 1.3;
 }

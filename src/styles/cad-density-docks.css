@@ -1,0 +1,159 @@
+/* CAD shell density — Ribbon, tool rail, inspector docks, focus bar. Loaded after feature styles. */
+
+/* ── Ribbon ── */
+.app-ribbon,
+.app-toolbar {
+  height: var(--ribbon-height);
+  min-height: var(--ribbon-height);
+  padding: 0;
+  gap: 0;
+}
+
+.ribbon-brand {
+  min-width: 92px;
+  padding: 0 6px 0 4px;
+  margin-right: 0;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ribbon-brand strong {
+  font-size: var(--text-xs);
+}
+
+.ribbon-brand span {
+  font-size: var(--text-xs);
+}
+
+.ribbon-group {
+  padding: 0 4px;
+  gap: 0;
+}
+
+.ribbon-group-label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+}
+
+.tb-btn {
+  padding: 1px 5px;
+  min-height: 18px;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-control);
+}
+
+.tb-btn:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.tb-sep {
+  height: 12px;
+  margin: 0 1px;
+}
+
+/* ── Tool rail / inspector docks ── */
+.tool-rail,
+.library-sidebar {
+  width: var(--tool-rail-width, 176px);
+}
+
+.inspector-panel,
+.properties-panel {
+  width: var(--inspector-width, min(236px, 100%));
+}
+
+.rail-section {
+  padding: var(--space-1);
+}
+
+.rail-section-title {
+  margin-bottom: 2px;
+  font-size: var(--text-xs);
+}
+
+.library-item-list,
+.palette-library-group,
+.palette-family-grid {
+  gap: 2px;
+  margin-top: 3px;
+}
+
+.library-item-btn,
+.palette-family-btn,
+.palette-category-btn,
+.palette-preset-btn,
+.template-delete-btn {
+  border-radius: var(--radius-control);
+  padding: 3px 5px;
+  box-shadow: none;
+  transition: none;
+}
+
+.library-item-btn {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.library-item-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.palette-family-btn {
+  padding: 4px 3px;
+  border-color: var(--border-strong);
+}
+
+.inspector-header {
+  padding: 2px 5px;
+  min-height: 20px;
+}
+
+.inspector-header strong {
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+}
+
+.inspector-scroll {
+  padding: var(--space-1);
+  gap: var(--space-1);
+}
+
+/* ── Focus bar / pane tabs ── */
+.workspace-focus-bar {
+  min-height: 18px;
+  padding: 0 2px;
+  gap: 2px;
+}
+
+.workspace-focus-label {
+  font-size: var(--text-xs);
+  padding-right: 4px;
+}
+
+.workspace-focus-hint {
+  font-size: var(--text-xs);
+}
+
+.workspace-tabs {
+  padding: 0;
+}
+
+.workspace-tab {
+  padding: 2px 6px;
+  font-size: var(--text-xs);
+  gap: 3px;
+  border-bottom-width: 2px;
+}
+
+.workspace-tab-kbd {
+  border-radius: var(--radius-control);
+  padding: 0 2px;
+  font-size: var(--text-xs);
+  background: rgba(255, 255, 255, 0.4);
+  border-color: var(--border-strong);
+}
+
+.workspace-focus-bar .workspace-tab {
+  padding: 2px 5px;
+  font-size: var(--text-xs);
+}

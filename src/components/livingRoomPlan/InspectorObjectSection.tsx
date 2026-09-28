@@ -4,6 +4,7 @@ import type {
   Point3Mm,
   Size3Mm,
 } from "../../domain/interiorProject";
+import { InspectorModelExtrasSlot } from "./InspectorPlanSettingsSlot";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { NumberField } from "./NumberField";
 import { isWallCabinetObject, resolveWallMountHeightMm } from "../../domain/livingRoom/cabinetSceneMount";
@@ -32,6 +33,8 @@ type Props = {
   ) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
   onAddWallPanel?: (wallId: string) => void;
+  finishesOpen?: boolean;
+  runOpen?: boolean;
 };
 
 export function InspectorObjectSection(props: Props) {
@@ -47,8 +50,10 @@ export function InspectorObjectSection(props: Props) {
     </div>
   );
   const positionEditor = (
+    <>
+    {props.mode === "model" ? <InspectorModelExtrasSlot /> : null}
     <details className="lr-inspector-section lr-transform-editor" open={props.mode === "model"}>
-      <summary>Position &amp; rotation</summary>
+      <summary>Position</summary>
       <div className="lr-inspector-section-body lr-position-fields">
         <NumberField label="X" value={position.x}
           onChange={(value) => props.onMove(object.id, { ...position, x: value })} />
@@ -68,6 +73,7 @@ export function InspectorObjectSection(props: Props) {
         </label>
       </div>
     </details>
+    </>
   );
   return (
     <LivingRoomObjectInspector
@@ -79,6 +85,8 @@ export function InspectorObjectSection(props: Props) {
       onAddWallPanel={props.onAddWallPanel}
       actions={actions}
       positionEditor={positionEditor}
+      finishesOpen={props.finishesOpen}
+      runOpen={props.runOpen}
     />
   );
 }

@@ -14,7 +14,8 @@ export type ModelViewFitSelection = {
   openingId: string | null;
 };
 
-export type ModelViewFitMode = "room" | "selection";
+/** `run` re-frames the cabinet run (camera dock Reset); elsewhere it fits like `room`. */
+export type ModelViewFitMode = "room" | "selection" | "run";
 
 export type ModelViewHeldFit = {
   mode: ModelViewFitMode;
@@ -96,7 +97,7 @@ export function resolveModelViewFitPose(
   const basePreset: Exclude<ModelViewPresetId, "perspective" | "walkthrough"> =
     viewPreset === "perspective" || viewPreset === "walkthrough" ? "dollhouse" : viewPreset;
 
-  if (mode === "room") {
+  if (mode !== "selection") {
     const roomPose = resolveModelViewPose(scene, basePreset);
     return { ...roomPose, spanMm: spanFromBounds(scene.bounds, 1200) };
   }

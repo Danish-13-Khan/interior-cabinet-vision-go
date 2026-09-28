@@ -1,0 +1,74 @@
+/* Section motion: CSS only, scroll-driven where supported, and switched off for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .cs-marketing .reveal {
+      animation: mk-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    .cs-marketing .golden-strip { view-timeline-name: --golden-run; }
+    .cs-marketing .golden-strip-fill {
+      animation: mk-fill-x linear both;
+      animation-timeline: --golden-run;
+      animation-range: cover 20% cover 60%;
+    }
+    .cs-marketing .golden-step {
+      animation: mk-step-on linear both;
+      animation-timeline: --golden-run;
+      animation-range: cover calc(18% + var(--i) * 12%) cover calc(26% + var(--i) * 12%);
+    }
+  }
+
+  /* How-it-works clips loop gently. */
+  .cs-marketing .clip-wall { animation: mk-draw 4s ease-in-out infinite; }
+  .cs-marketing .clip-pen { animation: mk-pen 4s ease-in-out infinite; }
+  .cs-marketing .clip-box { animation: mk-rise 4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite; }
+  .cs-marketing .clip-top { animation: mk-drop 4s ease-out infinite; }
+  .cs-marketing .clip-line { animation: mk-draw 4s ease-in-out infinite; }
+  .cs-marketing .clip-price { animation: mk-pop 4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  .cs-marketing .clip-packet { animation: mk-send 4s ease-in-out infinite; }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 720px) {
+  @supports (animation-timeline: view()) {
+    .cs-marketing .golden-strip-fill { animation-name: mk-fill-y; }
+  }
+}
+
+@keyframes mk-reveal { from { opacity: 0; transform: translateY(24px); } }
+@keyframes mk-fill-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes mk-fill-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes mk-step-on { from { opacity: 0.35; filter: grayscale(1); } to { opacity: 1; filter: none; } }
+@keyframes mk-draw {
+  0% { stroke-dashoffset: 1; }
+  45%, 85% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 1; }
+}
+@keyframes mk-pen {
+  0% { transform: translate(-72px, 0); opacity: 1; }
+  10% { transform: translate(-72px, -60px); }
+  30% { transform: translate(40px, -60px); }
+  38% { transform: translate(40px, 0); }
+  45%, 85% { transform: translate(0, 0); opacity: 1; }
+  95%, 100% { transform: translate(0, 0); opacity: 0; }
+}
+@keyframes mk-rise {
+  0%, 8% { transform: scaleY(0); opacity: 0; }
+  24%, 88% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+@keyframes mk-drop {
+  0%, 55% { transform: translateY(-24px); opacity: 0; }
+  70%, 88% { transform: translateY(0); opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes mk-pop {
+  0%, 55% { transform: scale(0.4); opacity: 0; }
+  68%, 90% { transform: scale(1); opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes mk-send {
+  0%, 15% { transform: translateX(0); opacity: 1; }
+  60%, 80% { transform: translateX(90px); opacity: 1; }
+  90%, 100% { transform: translateX(90px); opacity: 0; }
+}

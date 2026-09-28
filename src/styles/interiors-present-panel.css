@@ -1,0 +1,45 @@
+/* Present panel and narrow breakpoints. */
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--ink);
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header span,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-total { color: var(--accent); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields label {
+  color: var(--ink-muted);
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff {
+  border-color: var(--border);
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review > strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff > strong,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel section > strong { color: var(--ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel input,
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button.is-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: light-dark(#fff, #102018);
+}
+.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .interiors-present-panel {
+  flex: 0 0 390px;
+  width: 390px;
+  min-width: 390px;
+  max-width: 390px;
+}
+@media (max-width: 620px) {
+  .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header {
+    min-height: 58px;
+    padding: 0 10px;
+  }
+  .lr-plan-shell.lr-product-shell-v2.is-project-home .lr-chrome-brand strong { display: none; }
+}

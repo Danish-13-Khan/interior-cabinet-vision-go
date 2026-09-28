@@ -1,4 +1,4 @@
-/* Unified Interiors control states for Calm and Compact (Step 2). */
+/* Unified Interiors control states (Step 2). */
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header button,
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-history button,
@@ -19,16 +19,16 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector select,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel input {
-  color: var(--iu-control-ink);
-  border-color: var(--iu-control-border);
-  background: var(--iu-control-bg-2);
+  color: var(--ink);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-present,
 .lr-plan-shell.lr-product-shell-v2 button.is-primary {
-  border-color: var(--iu-green);
-  background: var(--iu-green);
-  color: var(--iu-on-green);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header button:hover:not(:disabled):not(.is-active):not(.is-primary):not(.lr-chrome-present),
@@ -37,9 +37,9 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette button:hover:not(:disabled):not(.is-active),
 .lr-plan-shell.lr-product-shell-v2 .lr-asset-categories button:hover:not(:disabled):not(.is-active),
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector button:hover:not(:disabled):not(.is-active):not(.is-primary) {
-  border-color: var(--iu-control-active-border);
-  background: var(--iu-control-hover-bg);
-  color: var(--iu-control-active-ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button.is-active,
@@ -49,31 +49,31 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-asset-categories button.is-active,
 .lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button.is-active,
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-targets button.is-active {
-  border-color: var(--iu-control-active-border);
-  background: var(--iu-control-active-bg);
-  color: var(--iu-control-active-ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   background: transparent;
   border-color: transparent;
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button:hover:not(:disabled),
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-rail button.is-active {
-  background: var(--iu-control-active-bg);
-  color: var(--iu-control-active-ink);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2 button:disabled,
 .lr-plan-shell.lr-product-shell-v2 input:disabled,
 .lr-plan-shell.lr-product-shell-v2 select:disabled,
 .lr-plan-shell.lr-product-shell-v2 textarea:disabled {
-  opacity: var(--iu-control-disabled-opacity);
-  color: var(--iu-control-muted);
-  border-color: var(--iu-line);
-  background: var(--iu-panel-2);
+  opacity: var(--control-disabled-opacity);
+  color: var(--ink-muted);
+  border-color: var(--border);
+  background: var(--surface-2);
   cursor: not-allowed;
 }
 
@@ -81,30 +81,30 @@
 .lr-plan-shell.lr-product-shell-v2 input:focus-visible,
 .lr-plan-shell.lr-product-shell-v2 select:focus-visible,
 .lr-plan-shell.lr-product-shell-v2 textarea:focus-visible {
-  outline: 2px solid var(--iu-control-focus);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .lr-plan-shell.lr-product-shell-v2 .is-error,
 .lr-plan-shell.lr-product-shell-v2 input.is-error,
 .lr-plan-shell.lr-product-shell-v2 .lr-autosave-state.is-error {
-  color: var(--iu-control-error);
-  border-color: var(--iu-control-error);
-  background: var(--iu-control-error-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--danger-soft);
 }
 
 .lr-plan-shell.lr-product-shell-v2 [aria-busy="true"],
 .lr-plan-shell.lr-product-shell-v2 .is-loading {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   border-style: dashed;
   cursor: progress;
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb span,
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button:not(.is-active) {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-save {
-  color: var(--iu-control-ink);
+  color: var(--ink);
 }

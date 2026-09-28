@@ -9,6 +9,7 @@ import {
 } from "../domain/livingRoom";
 import type { RenderComposition, RenderQuality } from "../domain/interiorProject";
 import type { RenderMode } from "../domain/livingRoom/renderAssetContracts";
+import type { CabinetRunAudience } from "../domain/livingRoom/cabinetRunFrame";
 import { CompiledSceneRenderer } from "./livingRoomScene/CompiledSceneRenderer";
 import {
   RenderCaptureBridge,
@@ -21,6 +22,7 @@ type LivingRoomRenderCanvasProps = {
   quality: RenderQuality;
   composition: RenderComposition;
   renderMode?: RenderMode;
+  frameRun?: CabinetRunAudience;
 };
 
 const ignoreSelection = () => undefined;
@@ -30,7 +32,7 @@ export const LivingRoomRenderCanvas = forwardRef<
   RenderCaptureHandle,
   LivingRoomRenderCanvasProps
 >(function LivingRoomRenderCanvas(
-  { scene, activeCameraId, quality, composition, renderMode },
+  { scene, activeCameraId, quality, composition, renderMode, frameRun },
   ref,
 ) {
   const preset = getRenderQualityPreset(quality);
@@ -48,6 +50,7 @@ export const LivingRoomRenderCanvas = forwardRef<
         quality={quality}
         previewCameraId={activeCameraId}
         previewComposition={composition}
+        frameRun={frameRun}
       />
       <CompiledSceneRenderer
         scene={scene}
@@ -60,6 +63,7 @@ export const LivingRoomRenderCanvas = forwardRef<
         renderQuality={quality}
         renderComposition={composition}
         renderMode={mode}
+        frameRun={frameRun}
         onSelect={ignoreSelection}
         onMove={ignoreMove}
       />

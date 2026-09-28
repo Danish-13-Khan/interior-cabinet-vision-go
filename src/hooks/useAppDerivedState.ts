@@ -11,6 +11,7 @@ import {
   createCabinetDerivedMetrics,
 } from "../domain/cabinetGeometry";
 import type { RoomConfig } from "../domain/roomModel";
+import { cabinetRoomBounds } from "../domain/cabinetRoomBounds";
 import { createCabinetConstruction } from "../domain/cabinetConstruction";
 import { createCabinetPlanningWorkflow } from "../domain/cabinetLibrary";
 import { createProjectReport } from "../domain/projectReport";
@@ -135,12 +136,8 @@ export function useAppDerivedState({
     [selectedCabinet],
   );
   const roomBounds = useMemo(
-    () => ({
-      widthMm: room.dimensions.widthMm,
-      depthMm: room.dimensions.depthMm,
-      heightMm: room.dimensions.heightMm,
-    }),
-    [room.dimensions.depthMm, room.dimensions.heightMm, room.dimensions.widthMm],
+    () => cabinetRoomBounds(room.dimensions),
+    [room.dimensions],
   );
   const planningWorkflow = useMemo(
     () => createCabinetPlanningWorkflow(project, roomBounds),
