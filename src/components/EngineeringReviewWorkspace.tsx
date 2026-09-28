@@ -159,7 +159,7 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
           <div className="er-section-heading"><span>Handoff cabinets</span><b>{props.cabinets.length}</b></div>
           {props.cabinets.map((item, index) => {
             const selected = item.id === cabinet.id;
-            return <button key={item.id} type="button" className={selected ? "is-selected" : ""} onClick={() => props.onSelectCabinet(item.id)}><span className="er-cabinet-mark">{String(index + 1).padStart(2, "0")}</span><span><strong>{item.name}</strong><small>{titleCase(item.config.type)} · {item.config.dimensions.width} × {item.config.dimensions.height} × {item.config.dimensions.depth}</small><em>{item.config.sku ?? item.config.familyId ?? "Production identity"}</em></span><i>{selected ? "Reviewing" : "Open"}</i></button>;
+            return <button key={item.id} type="button" className={selected ? "is-selected" : ""} data-cabinet-id={item.id} data-cabinet-type={item.config.type} data-display-category={item.displayCategory ?? item.config.type} title={item.displayCategory === "filler" || item.runFiller ? "Run filler" : item.name} onClick={() => props.onSelectCabinet(item.id)}><span className="er-cabinet-mark">{String(index + 1).padStart(2, "0")}</span><span><strong>{item.name}</strong><small>{titleCase(item.config.type)} · {item.config.dimensions.width} × {item.config.dimensions.height} × {item.config.dimensions.depth}</small><em>{item.config.sku ?? item.config.familyId ?? "Production identity"}</em></span><i>{selected ? "Reviewing" : "Open"}</i></button>;
           })}
           <div className="er-checklist">
             <div className="er-section-heading"><span>Output readiness</span></div>

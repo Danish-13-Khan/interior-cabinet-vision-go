@@ -46,7 +46,7 @@ export function EngineeringProductionOutputs(props: EngineeringProductionOutputs
   return (
     <section className="engineering-production-workspace" aria-label="Production Outputs">
       <header className="epo-header">
-        <div className="er-brand"><span className="er-mark">P</span><div><strong>Production Outputs</strong><small>{report.summary.projectNumber} · Rev {report.summary.revision} · {report.summary.customerName}</small></div></div>
+        <div className="er-brand"><span className="er-mark">P</span><div><strong>Production Outputs</strong><small data-testid="production-revision">{report.summary.projectNumber} · Rev {report.summary.revision} · {report.summary.customerName}</small></div></div>
         <div className="epo-release"><span>Engineering package</span><strong>{report.summary.cabinetCount} cabinet{report.summary.cabinetCount === 1 ? "" : "s"}</strong><small>{report.productionCutlist.length} cut-list lines</small></div>
         <div className="epo-header-actions">
           <button type="button" data-testid="engineering-landing" onClick={props.onGoHome}>Landing page</button>
@@ -78,7 +78,7 @@ export function EngineeringProductionOutputs(props: EngineeringProductionOutputs
 
         {tab === "cutlist" ? <>
           <div className="epo-title"><div><strong>Workshop cut list</strong><span>Production parts for the handed-off revision</span></div><button type="button" onClick={props.onExportCutlist}>Export CSV</button></div>
-          <div className="epo-table-wrap"><table><thead><tr><th>Reference</th><th>Cabinet</th><th>Part</th><th>Material</th><th>Thickness</th><th>Qty</th><th>Length × width</th><th>Grain</th></tr></thead><tbody>{report.productionCutlist.map((row) => <tr key={row.key}><td><code>{row.shopRef}</code></td><td>{row.cabinetName}</td><td><strong>{row.label}</strong><small>{row.category}</small></td><td>{row.material}<small>{row.finish}</small></td><td>{row.thicknessMm} mm</td><td>{row.quantity}</td><td>{row.lengthMm} × {row.widthMm}</td><td>{row.grain}</td></tr>)}</tbody></table></div>
+          <div className="epo-table-wrap"><table><thead><tr><th>Reference</th><th>Cabinet</th><th>Part</th><th>Material</th><th>Thickness</th><th>Qty</th><th>Length × width</th><th>Grain</th></tr></thead><tbody>{report.productionCutlist.map((row) => <tr key={row.key} data-cabinet-id={row.cabinetId}><td><code>{row.shopRef}</code></td><td>{row.cabinetName}</td><td><strong>{row.label}</strong><small>{row.category}</small></td><td>{row.material}<small>{row.finish}</small></td><td>{row.thicknessMm} mm</td><td>{row.quantity}</td><td>{row.lengthMm} × {row.widthMm}</td><td>{row.grain}</td></tr>)}</tbody></table></div>
         </> : null}
 
         {tab === "machining" ? <>
