@@ -7,6 +7,7 @@ import type {
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import {
   MODEL_VIEW_MSAA,
   resolveModelViewDprRange,
@@ -50,6 +51,7 @@ type ModelViewSceneProps = {
   transformTarget?: ModelTransformTarget | null;
   onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
+  frameRun?: CabinetRunAudience;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -115,6 +117,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           fitVersion={fitVersion}
           fitMode={fitMode}
           fitSelection={fitSelection}
+          frameRun={props.frameRun}
           onSelect={onSelect}
           onSelectOpening={onSelectOpening}
           onSelectWall={onSelectWall}

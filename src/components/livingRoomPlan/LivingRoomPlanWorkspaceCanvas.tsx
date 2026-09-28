@@ -13,7 +13,7 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
   const { workspace: w, project, build } = props;
   return (
     <LivingRoomPlanStage
-      project={project} workspaceView={props.workspaceView} chromeTool={props.chromeTool} selectedIds={w.selectedIds} issues={props.issues}
+      project={project} workspaceView={props.workspaceView} chromeTool={props.chromeTool} workflowArea={props.workflowArea} selectedIds={w.selectedIds} issues={props.issues}
       snapSizeMm={props.snapSizeMm} showGrid={props.showGrid} canUndo={w.canUndo} canRedo={w.canRedo}
       hasSelection={Boolean(props.activeObject)}
       latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}

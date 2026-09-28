@@ -1,0 +1,164 @@
+/* Calm light 3D stage: full-height canvas, one stage wash, chrome moved off the canvas. */
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-viewport,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-viewport.is-presence {
+  background: var(--stage);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-canvas-host {
+  position: absolute;
+  inset: 0;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-canvas-host:focus-visible {
+  outline: var(--focus);
+  outline-offset: -2px;
+}
+
+/* Camera dock: orbit / walk / reset, bottom centre. */
+.lr-model-camera-dock {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: var(--space-3, 12px);
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+}
+
+.lr-model-camera-dock button {
+  min-height: var(--control-h);
+  padding: 0 var(--space-3, 12px);
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lr-model-camera-dock button:hover { background: var(--surface-2); }
+.lr-model-camera-dock button.is-active { background: var(--accent-soft); }
+.lr-model-camera-dock button:focus-visible { outline: var(--focus); }
+
+/* Camera readout: quiet light caption, bottom left. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-readout {
+  left: var(--space-3, 12px);
+  right: auto;
+  bottom: var(--space-3, 12px);
+  max-width: calc(50% - 150px);
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: var(--shadow-2);
+  color: var(--ink-muted);
+  font-family: inherit;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-readout .lr-model-mode-readout b {
+  color: var(--ink);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-diagnostics-disclosure {
+  bottom: var(--space-3, 12px);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-diagnostics-disclosure > summary {
+  min-height: var(--control-h);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-muted);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: none;
+}
+
+/* View presets and framing tools portalled into the canvas header. */
+.lr-canvas-header-tools {
+  display: contents;
+}
+
+.lr-canvas-header-tools:empty {
+  display: none;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-canvas-header-tools .lr-model-controls {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  z-index: 30;
+  flex-wrap: wrap;
+  gap: var(--space-1, 4px);
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  font-family: inherit;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-canvas-header-tools .lr-view-presets {
+  gap: var(--space-1, 4px);
+  padding-right: var(--space-1, 4px);
+  border-right: 1px solid var(--border);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-canvas-header-tools .lr-model-controls > span {
+  border-left-color: var(--border);
+  color: var(--ink-muted);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-canvas-header-tools .lr-model-controls button,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-canvas-header-tools .lr-model-controls select {
+  min-height: var(--control-h);
+  padding: 0 var(--space-2, 8px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-canvas-header-tools .lr-model-controls button.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+/* 3D extras (Fronts, style picker) render as static inspector sections. */
+.lr-inspector-model-extras:empty {
+  display: none;
+}
+
+.lr-inspector-model-extras {
+  display: grid;
+  gap: var(--space-2, 8px);
+  padding: var(--space-2, 8px) 0;
+  border-top: 1px solid var(--border);
+}
+
+.lr-inspector-model-extras .lr-mechanism-panel,
+.lr-inspector-model-extras .lr-style-palette {
+  position: static;
+  inset: auto;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: none;
+  backdrop-filter: none;
+}

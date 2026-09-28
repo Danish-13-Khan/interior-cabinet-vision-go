@@ -21,6 +21,7 @@ import {
 } from "../domain/livingRoom";
 import { isWallRaised, planClosedRoomModelRaise, setPlanWallsRaised } from "../domain/interiorProject";
 import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
+import { openingCenterMm } from "../domain/livingRoom/openingCenter";
 import {
   persistModelGuideDismissal,
   shouldShowModelGuide,
@@ -60,12 +61,13 @@ type LivingRoomModelViewProps = {
     status: string,
   ) => void;
   presentation?: boolean;
+  showStylePalette?: boolean;
 };
 
 export function LivingRoomModelView({
   project, selectedIds, activeOpeningId, activeWallId, snapSizeMm, showGrid,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
-  onApplyStyle, onSetParameters, onPatchDocument, presentation = false,
+  onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
   const raisePlan = useMemo(() => planClosedRoomModelRaise(project), [project]);
@@ -77,10 +79,14 @@ export function LivingRoomModelView({
   );
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
-  const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
+  const [showGuide, setShowGuide] = useState(() => !presentation && shouldShowModelGuide());
+  useEffect(() => {
+    if (showGuide) persistModelGuideDismissal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mark the guide seen the first time it shows
+  }, []);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
-  const [cutawayWalls, setCutawayWalls] = useState(false);
+  const [cutawayWalls, setCutawayWalls] = useState(true);
   const [wallMenu, setWallMenu] = useState<WallContextMenuState | null>(null);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
     resolveModelViewDefaultQuality,
@@ -101,17 +107,7 @@ export function LivingRoomModelView({
     ? project.walls.find((wall) => wall.id === activeOpening.wallId) ?? null
     : null;
   const openingCenter = activeOpening && activeOpeningWall
-    ? (() => {
-        const dx = activeOpeningWall.end.x - activeOpeningWall.start.x;
-        const dz = activeOpeningWall.end.z - activeOpeningWall.start.z;
-        const length = Math.max(1, Math.hypot(dx, dz));
-        const center = activeOpening.offsetMm + activeOpening.widthMm / 2;
-        return {
-          x: activeOpeningWall.start.x + dx / length * center,
-          y: activeOpening.sillHeightMm,
-          z: activeOpeningWall.start.z + dz / length * center,
-        };
-      })()
+    ? openingCenterMm(activeOpening, activeOpeningWall)
     : null;
   const transformTarget: ModelTransformTarget | null = activeObject
     ? { kind: "object", id: activeObject.id, positionMm: activeObjectOrigin ?? activeObject.position }
@@ -233,6 +229,7 @@ export function LivingRoomModelView({
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
           snapSizeMm={snapSizeMm} showGrid={clientView.showGrid} cutawayWalls={cutawayWalls}
           interactive={clientView.interactive}
+          frameRun={presentation ? "client" : "author"}
           fitVersion={camera.fitVersion} fitMode={camera.fitMode} fitSelection={fitSelection}
           onClearSelection={presentation ? noopSelect : onClearSelection}
           onSelect={presentation ? noopSelect : onSelect}
@@ -272,13 +269,14 @@ export function LivingRoomModelView({
       {!presentation ? (
         <LivingRoomModelChrome
           showGuide={showGuide} viewPreset={camera.viewPreset}
-          onChoosePreset={camera.setViewPreset}
+          onChoosePreset={camera.setViewPreset} onResetCamera={camera.resetView}
           onDismissGuide={() => { setShowGuide(false); persistModelGuideDismissal(); }}
           diagnostics={diagnostics} activeObject={activeObject} onSetParameters={onSetParameters}
           activeStyleId={activeStyleId} activeStyleName={activeStyle.name}
           onApplyStyle={onApplyStyle} honestyBadge={honesty.shortBadge}
           exposure={scene.style.colorManagement.exposure}
           planTraceHint={project.walls.some((wall) => wall.visible && !isWallRaised(wall))}
+          showStylePalette={showStylePalette}
         />
       ) : null}
       <CabinetSceneSemantics project={project} />

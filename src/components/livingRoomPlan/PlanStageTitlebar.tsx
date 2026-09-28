@@ -2,6 +2,7 @@ import type { InteriorProject } from "../../domain/interiorProject";
 import { interiorsStageTitle } from "../../domain/desktopUx";
 import type { PlanReadabilitySettings } from "../../domain/livingRoom";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
+import { CanvasHeaderToolsSlot } from "./InspectorPlanSettingsSlot";
 import { PlanOnDemandChrome } from "./PlanOnDemandChrome";
 import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
 import { PlanPrintExportControls } from "./PlanPrintExportControls";
@@ -32,6 +33,7 @@ export function PlanStageTitlebar(props: PlanStageTitlebarProps) {
         <span className="lr-plan-title-hint">{meta}</span>
       </p>
       <div className="lr-plan-title-actions">
+        {props.workspaceView === "model" ? <CanvasHeaderToolsSlot /> : null}
         {props.workspaceView === "plan" && (props.v2BuildMode || props.onPatchDocument) ? (
           <PlanOnDemandChrome
             layers={props.v2BuildMode

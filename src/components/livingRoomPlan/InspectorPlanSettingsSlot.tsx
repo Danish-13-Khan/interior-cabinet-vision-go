@@ -1,30 +1,16 @@
-import { useSyncExternalStore } from "react";
+import { createPortalSlot } from "./portalSlot";
 
-/**
- * Inspector mount point for Room & plan settings. While the inspector shows
- * room essentials (nothing selected), the draw-room chrome portals its settings
- * here; otherwise they render inline above the canvas.
- */
-let slotElement: HTMLElement | null = null;
-const listeners = new Set<() => void>();
+/** Room & plan settings while the inspector shows room essentials (nothing selected). */
+const planSettings = createPortalSlot("lr-inspector-plan-settings", "inspector-plan-settings");
+export const InspectorPlanSettingsSlot = planSettings.Slot;
+export const useInspectorPlanSettingsSlot = planSettings.useSlot;
 
-function setSlotElement(element: HTMLElement | null) {
-  if (slotElement === element) return;
-  slotElement = element;
-  listeners.forEach((listener) => listener());
-}
+/** 3D-only extras (cabinet fronts, style picker on the Materials step). */
+const modelExtras = createPortalSlot("lr-inspector-model-extras", "inspector-model-extras");
+export const InspectorModelExtrasSlot = modelExtras.Slot;
+export const useInspectorModelExtrasSlot = modelExtras.useSlot;
 
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-export function useInspectorPlanSettingsSlot(): HTMLElement | null {
-  return useSyncExternalStore(subscribe, () => slotElement, () => null);
-}
-
-export function InspectorPlanSettingsSlot() {
-  return <section className="lr-inspector-plan-settings" data-testid="inspector-plan-settings" ref={setSlotElement} />;
-}
+/** 3D view presets and framing tools in the canvas header. */
+const canvasHeaderTools = createPortalSlot("lr-canvas-header-tools", "canvas-header-tools");
+export const CanvasHeaderToolsSlot = canvasHeaderTools.Slot;
+export const useCanvasHeaderToolsSlot = canvasHeaderTools.useSlot;
