@@ -1,4 +1,5 @@
 import {
+  cabinetPlacementGridMm,
   cabinetsOverlap,
   clampCabinetPlacement,
   type CabinetInstance,
@@ -34,6 +35,7 @@ export function createOffsetDuplicate(
     basePlacement,
     cabinet.config.dimensions,
     roomBounds,
+    cabinetPlacementGridMm(cabinet.config),
   );
   const duplicate: CabinetInstance = {
     ...withNewCabinetIdentity(deepClone(cabinet), createCabinetId()),
@@ -55,6 +57,7 @@ export function createOffsetDuplicate(
           },
       cabinet.config.dimensions,
       roomBounds,
+      cabinetPlacementGridMm(cabinet.config),
     );
     const shiftedDuplicate = {
       ...duplicate,

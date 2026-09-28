@@ -1,4 +1,5 @@
 import type { InteriorObjectEntity } from "../interiorProject";
+import { materialIdForCabinetRole } from "./cabinetSceneRoles";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { materialSlot } from "./sceneAdapterTypes";
 import { boxPrimitive } from "./scenePrimitives";
@@ -27,6 +28,7 @@ export function compileRunFiller(object: InteriorObjectEntity): CompiledPrimitiv
     "filler",
     { width: w, height: h, depth: d },
     { x: 0, y: h / 2, z: 0 },
-    materialSlot(object, "carcass", LIVING_ROOM_MATERIAL_IDS.walnut),
+    // A run filler is a face strip, so it takes the run's front finish (same fallback as cabinet fronts).
+    materialIdForCabinetRole(object, "fronts"),
   )];
 }

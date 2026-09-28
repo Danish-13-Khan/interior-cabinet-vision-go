@@ -78,7 +78,7 @@ export function seedEndFillers(
         heightMm: member.dimensions.heightMm,
         depthMm: FILLER_DEPTH_MM,
       },
-      materialSlots: {},
+      materialSlots: { ...member.materialSlots },
       parameters: { filler: true },
       extensions: {
         placement: "wall",

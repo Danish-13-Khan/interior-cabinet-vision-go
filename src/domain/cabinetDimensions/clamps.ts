@@ -354,6 +354,11 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
   };
 }
 
+/** Placement grid for a cabinet: run fillers keep 1 mm so they stay flush with cabinet fronts. */
+export function cabinetPlacementGridMm(config: Pick<CabinetConfig, "catalogItemId"> | undefined): number | undefined {
+  return isRunFillerCatalogId(config?.catalogItemId) ? 1 : undefined;
+}
+
 export function clampCabinetProject(project: CabinetProject, roomBounds?: RoomBounds): CabinetProject {
   const layers = Array.isArray(project.layers) && project.layers.length > 0
     ? project.layers.map((layer, index) => ({
@@ -408,7 +413,7 @@ export function clampCabinetProject(project: CabinetProject, roomBounds?: RoomBo
         return clampCabinetPlacement(
           mounted,
           clampCabinetConfig(cabinet.config).dimensions, roomBounds,
-          isRunFillerCatalogId(cabinet.config?.catalogItemId) ? 1 : undefined,
+          cabinetPlacementGridMm(cabinet.config),
         );
       })(),
     })),

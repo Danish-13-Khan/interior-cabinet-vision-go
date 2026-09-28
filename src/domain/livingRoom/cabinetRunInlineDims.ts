@@ -1,4 +1,5 @@
 import type { InteriorProject, Size3Mm } from "../interiorProject";
+import { seatRunFillersAtFronts } from "../interiorProject/runFillerFronts";
 import { persistCabinetIdentityOnObject } from "../cabinetIdentity";
 import { cabinetRunForObject } from "./cabinetRunLayout";
 import { updateCabinetRunLayout } from "./cabinetRunFillers";
@@ -36,5 +37,9 @@ export function setCabinetInlineDimensions(
     next = updateCabinetRunLayout(next, run.runId, {});
   }
   // Reflow updates poses; re-clamp golden planning extensions so Engineering handoff stays lossless.
-  return { ...next, objects: finalizeGoldenRunObjects(next.objects) };
+  // The clamp grid-snaps cabinets after fillers were placed, so re-seat fillers on the snapped
+  // fronts (the same repair a reopened file gets) and stamp their final pose.
+  const finalized = { ...next, objects: finalizeGoldenRunObjects(next.objects) };
+  const seated = seatRunFillersAtFronts(finalized);
+  return seated === finalized ? finalized : { ...seated, objects: finalizeGoldenRunObjects(seated.objects) };
 }
