@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { MachineJobDocument } from "../domain/machineExport";
 import type { ProjectReport } from "../domain/projectReport";
+import { downloadProductionOutputsPackage } from "../platform/downloadProductionPackage";
 
 type ProductionTab = "materials" | "nesting" | "hardware" | "cutlist" | "machining" | "costing";
 
@@ -17,6 +18,7 @@ type EngineeringProductionOutputsProps = {
   report: ProjectReport;
   machineJob: MachineJobDocument | null;
   onBack: () => void;
+  onGoHome: () => void;
   onExportCutlist: () => void;
   onExportDrawings: () => void;
   onExportMachineJson: () => void;
@@ -46,7 +48,10 @@ export function EngineeringProductionOutputs(props: EngineeringProductionOutputs
       <header className="epo-header">
         <div className="er-brand"><span className="er-mark">P</span><div><strong>Production Outputs</strong><small>{report.summary.projectNumber} · Rev {report.summary.revision} · {report.summary.customerName}</small></div></div>
         <div className="epo-release"><span>Engineering package</span><strong>{report.summary.cabinetCount} cabinet{report.summary.cabinetCount === 1 ? "" : "s"}</strong><small>{report.productionCutlist.length} cut-list lines</small></div>
-        <button type="button" className="epo-back" onClick={props.onBack}>← Back to Engineering Review</button>
+        <div className="epo-header-actions">
+          <button type="button" data-testid="engineering-landing" onClick={props.onGoHome}>Landing page</button>
+          <button type="button" className="epo-back" onClick={props.onBack}>← Back to Engineering Review</button>
+        </div>
       </header>
 
       <nav className="epo-tabs" aria-label="Production output sections">
@@ -88,7 +93,21 @@ export function EngineeringProductionOutputs(props: EngineeringProductionOutputs
         </> : null}
       </main>
 
-      <footer className="epo-footer"><span>Production data is bound to Rev {report.summary.revision}.</span><div><button type="button" onClick={props.onExportDrawings}>Export drawings</button><button type="button" onClick={props.onExportCutlist}>Export cut list</button></div></footer>
+      <footer className="epo-footer">
+        <span>Production data is bound to Rev {report.summary.revision} · {report.summary.customerName}.</span>
+        <div>
+          <button type="button" onClick={props.onExportDrawings}>Export drawings</button>
+          <button type="button" onClick={props.onExportCutlist}>Export cut list</button>
+          <button
+            type="button"
+            className="is-primary"
+            data-testid="download-production-outputs"
+            onClick={() => { void downloadProductionOutputsPackage(report, props.machineJob); }}
+          >
+            Download full package
+          </button>
+        </div>
+      </footer>
     </section>
   );
 }
