@@ -1,10 +1,10 @@
 import { MarketingShell } from '../components/MarketingShell'
-import { CalmLanding } from '../themes/calm/CalmLanding'
+import { LandingPage } from '../landing/LandingPage'
 
 export function Landing() {
   return (
     <MarketingShell>
-      <CalmLanding />
+      <LandingPage />
     </MarketingShell>
   )
 }

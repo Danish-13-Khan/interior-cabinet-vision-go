@@ -227,6 +227,21 @@ rendered text in the editor ≥ 12px; golden-run e2e still green; style lint in 
 mobile; no horizontal scroll at 360–1440px; animation verified in Chromium,
 Safari and Tauri WebView; still fallback verified with WebGL disabled.
 
+**Implementation notes (Phase 1):**
+- `marketing.css` is now an `@import` barrel over `src/marketing/styles/*` (tokens
+  only, zero raw hex); the only `!important`s left are the scroll unlock, which now
+  uses `overflow-x: clip` on body/#root so the sticky header works.
+- Landing lives in `src/marketing/landing/`; the old `themes/` folder, `AppTopbar`
+  and `CalmAppHome` are deleted. Login and Register share `AuthLayout`.
+- Showroom: `layout.ts` (part list), `motion.ts` (8 s build + 3 s hold, stages,
+  camera sweep), `materials.ts` (product wood/paint recipes), `sceneBuild.ts`,
+  `createScene.ts` (loop / once / still), `autoplay.ts` (start policy).
+- Poster: `npm run poster:showroom` renders `public/marketing/showroom-poster.png`
+  from `/?showroom=poster`; the page falls back to the L-kitchen thumbnail if missing.
+- Pricing shows "Talk to us" until `pricingPlans.ts` has real amounts.
+- Template cards link to `/register?template=<catalog id>`; the template id is not
+  yet carried into project creation (registration is still "Coming soon").
+
 ### Phase 2 — App shell and projects home
 
 1. Implement the shell in 4.2: single top bar with workflow steps, save state,

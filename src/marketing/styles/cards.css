@@ -1,0 +1,90 @@
+/* Templates */
+.cs-marketing .template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.cs-marketing .template-card {
+  display: grid;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.cs-marketing .template-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-2); transform: translateY(-2px); }
+.cs-marketing .template-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.cs-marketing .template-meta { display: grid; gap: var(--space-1); padding: var(--space-4) var(--space-5) var(--space-5); }
+.cs-marketing .template-meta strong { font-size: var(--text-lg); }
+.cs-marketing .template-meta > span { font-size: var(--text-md); color: var(--ink-muted); }
+.cs-marketing .template-meta .template-cta { margin-top: var(--space-2); font-weight: 600; color: var(--accent); }
+
+/* Pricing */
+.cs-marketing .pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: stretch;
+}
+.cs-marketing .pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.cs-marketing .pricing-card.is-featured { border-color: var(--accent); box-shadow: var(--shadow-2); }
+.cs-marketing .pricing-badge {
+  position: absolute;
+  top: calc(var(--space-3) * -1);
+  left: var(--space-5);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+.cs-marketing .plan-name { font-size: var(--text-lg); color: var(--ink-muted); }
+.cs-marketing .plan-price { font-size: var(--text-2xl); line-height: var(--leading-2xl); font-weight: 600; color: var(--ink); }
+.cs-marketing .plan-price span { font-size: var(--text-md); font-weight: 400; color: var(--ink-faint); }
+.cs-marketing .plan-desc { font-size: var(--text-md); color: var(--ink-muted); }
+.cs-marketing .plan-features { display: grid; gap: var(--space-2); margin-bottom: auto; padding-block: var(--space-2) var(--space-4); }
+.cs-marketing .plan-features li {
+  position: relative;
+  padding-left: var(--space-5);
+  font-size: var(--text-md);
+}
+.cs-marketing .plan-features li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.45em;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 960px) {
+  .cs-marketing .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs-marketing .pricing-grid { grid-template-columns: minmax(0, 1fr); max-width: 480px; margin-inline: auto; }
+}
+@media (max-width: 560px) {
+  .cs-marketing .template-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs-marketing .template-card, .cs-marketing .template-card:hover { transition: none; transform: none; }
+}
