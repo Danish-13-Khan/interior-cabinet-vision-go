@@ -155,6 +155,7 @@ export function proposePlacement(
     proposed: next,
     roomWidthMm: room.dimensions.widthMm,
     roomDepthMm: room.dimensions.depthMm,
+    wallThicknessMm: room.dimensions.wallThicknessMm,
     gridSizeMm: snapSizeMm,
   });
 

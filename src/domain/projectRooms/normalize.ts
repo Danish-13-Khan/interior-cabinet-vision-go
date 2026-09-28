@@ -3,19 +3,21 @@ import {
   type CabinetInstance,
   type CabinetProject,
 } from "../cabinetDimensions";
+import { cabinetRoomBounds } from "../cabinetRoomBounds";
 import { DEFAULT_ROOM, type RoomConfig } from "../roomModel";
 import type { ProjectRoom } from "./types";
 
 function clampRoomCabinets(
   cabinets: CabinetInstance[],
   shell: CabinetProject,
+  config: RoomConfig,
 ): CabinetInstance[] {
   return clampCabinetProject({
     ...shell,
     cabinets,
     rooms: undefined,
     activeRoomId: undefined,
-  }).cabinets;
+  }, cabinetRoomBounds(config.dimensions)).cabinets;
 }
 
 export function createDefaultProjectRoom(
@@ -65,7 +67,7 @@ export function normalizeMultiRoomProject(
     id: room.id?.trim() || `room-${index + 1}`,
     name: room.name?.trim() || `Room ${index + 1}`,
     config: room.config ?? fallbackRoom,
-    cabinets: clampRoomCabinets(room.cabinets ?? [], shell),
+    cabinets: clampRoomCabinets(room.cabinets ?? [], shell, room.config ?? fallbackRoom),
   }));
 
   const activeRoomId =
