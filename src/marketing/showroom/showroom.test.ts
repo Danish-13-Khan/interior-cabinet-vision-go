@@ -59,10 +59,9 @@ describe('showroom start policy', () => {
   it('shows the finished still with a Play button for reduced motion', () => {
     expect(resolveShowroomStart({ search: '', reducedMotion: true })).toMatchObject({ kind: 'manual', mode: 'once' });
   });
-  it('waits for a tap on save-data or 2g connections', () => {
+  it('waits for a tap only when Save-Data is on', () => {
     expect(resolveShowroomStart({ search: '', reducedMotion: false, saveData: true }).kind).toBe('manual');
-    expect(resolveShowroomStart({ search: '', reducedMotion: false, effectiveType: 'slow-2g' }).kind).toBe('manual');
-    expect(resolveShowroomStart({ search: '', reducedMotion: false, effectiveType: '4g' }).kind).toBe('auto');
+    expect(resolveShowroomStart({ search: '', reducedMotion: false, saveData: false }).kind).toBe('auto');
   });
   it('renders a still frame in poster mode', () => {
     expect(resolveShowroomStart({ search: '?showroom=poster', reducedMotion: true })).toEqual({ kind: 'auto', mode: 'still' });

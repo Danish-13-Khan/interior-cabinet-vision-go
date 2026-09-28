@@ -668,7 +668,7 @@ export {
   type LivingRoomPlanIssue,
 } from "./planConstraints";
 export {
-  resolvePlanObjectLabelModes,
+  planObjectLabelBaselines, resolvePlanObjectLabelModes,
   type PlanObjectLabelMode,
   type PlanObjectLabelInput,
 } from "./planObjectLabels";

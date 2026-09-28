@@ -4,6 +4,7 @@ import type {
   Point3Mm,
   Size3Mm,
 } from "../../domain/interiorProject";
+import { InspectorModelExtrasSlot } from "./InspectorPlanSettingsSlot";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { NumberField } from "./NumberField";
 import { isWallCabinetObject, resolveWallMountHeightMm } from "../../domain/livingRoom/cabinetSceneMount";
@@ -49,6 +50,8 @@ export function InspectorObjectSection(props: Props) {
     </div>
   );
   const positionEditor = (
+    <>
+    {props.mode === "model" ? <InspectorModelExtrasSlot /> : null}
     <details className="lr-inspector-section lr-transform-editor" open={props.mode === "model"}>
       <summary>Position</summary>
       <div className="lr-inspector-section-body lr-position-fields">
@@ -70,6 +73,7 @@ export function InspectorObjectSection(props: Props) {
         </label>
       </div>
     </details>
+    </>
   );
   return (
     <LivingRoomObjectInspector

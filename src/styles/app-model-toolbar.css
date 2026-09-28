@@ -1,0 +1,40 @@
+/* Calm Light 3D view toolbar: explore modes as labelled buttons, camera angles as
+   one icon-only segmented control, so the header fits one row at 1280 px. */
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-presets {
+  gap: var(--space-1);
+  padding-right: var(--space-2);
+  border-right: 1px solid var(--border);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles {
+  gap: 0;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles button {
+  min-width: var(--control-h);
+  padding: 0;
+  border-radius: 0;
+  font-size: var(--text-md);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles button + button {
+  margin-left: -1px;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles button:first-child {
+  border-radius: var(--radius-control) 0 0 var(--radius-control);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles button:last-child {
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles button span {
+  font-size: var(--text-md);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-model-controls .lr-view-angles button.is-active {
+  position: relative;
+  z-index: 1;
+}

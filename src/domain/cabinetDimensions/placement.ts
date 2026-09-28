@@ -105,11 +105,15 @@ export function clampCabinetPlacement(
     attachment,
   };
 
+  // Wall attachments force their own rotation (so use the unrotated size); room bounds are wall centrelines.
+  const along = dimensions.width / 2;
+  const off = dimensions.depth / 2 + (roomBounds.wallThicknessMm ?? 120) / 2;
+
   if (attachment === "back-wall") {
     return {
       ...basePlacement,
-      x: Math.min(Math.max(basePlacement.x, -roomWidth / 2 + halfWidth), roomWidth / 2 - halfWidth),
-      z: -roomDepth / 2 + halfDepth,
+      x: Math.min(Math.max(basePlacement.x, -roomWidth / 2 + along), roomWidth / 2 - along),
+      z: -roomDepth / 2 + off,
       rotation: 0,
     };
   }
@@ -117,8 +121,8 @@ export function clampCabinetPlacement(
   if (attachment === "left-wall") {
     return {
       ...basePlacement,
-      x: -roomWidth / 2 + halfDepth,
-      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + halfWidth), roomDepth / 2 - halfWidth),
+      x: -roomWidth / 2 + off,
+      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + along), roomDepth / 2 - along),
       rotation: 90,
     };
   }
@@ -126,8 +130,8 @@ export function clampCabinetPlacement(
   if (attachment === "right-wall") {
     return {
       ...basePlacement,
-      x: roomWidth / 2 - halfDepth,
-      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + halfWidth), roomDepth / 2 - halfWidth),
+      x: roomWidth / 2 - off,
+      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + along), roomDepth / 2 - along),
       rotation: 270,
     };
   }

@@ -954,7 +954,7 @@
         "catalogItemId": "living:wall-cabinet-900",
         "name": "wall 900",
         "position": {
-          "x": 2550,
+          "x": 2765,
           "y": 1400,
           "z": -500
         },
@@ -1117,7 +1117,7 @@
         "catalogItemId": "living:wall-cabinet-900",
         "name": "wall 900",
         "position": {
-          "x": 2550,
+          "x": 2765,
           "y": 1400,
           "z": 500
         },

@@ -8,7 +8,7 @@ export function LandingHero() {
         <div className="landing-hero-copy">
           <p className="eyebrow">Cabinet design · proposal to production</p>
           <h1 id="landing-hero-title">
-            Start with the room.
+            Start with the room.{" "}
             <br />
             Finish with a buildable run.
           </h1>
