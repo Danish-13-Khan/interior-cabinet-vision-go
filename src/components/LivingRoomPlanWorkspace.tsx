@@ -19,6 +19,7 @@ import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjects
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
 import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
 import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
+import { useSelectionFrameRequest } from "../hooks/useSelectionFrameRequest";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const draftingAppearance = useDraftingAppearance();
@@ -91,6 +92,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     if (activeWallId || activeOpeningId || activeSurfaceId) setInspectRoom(false);
   }, [activeWallId, activeOpeningId, activeSurfaceId]);
 
+  useSelectionFrameRequest(() => viewControlsRef.current?.fitSelection());
   useLivingRoomPlanWorkspaceHotkeys({
     project: props.project,
     projectHomeOpen: props.projectHomeOpen,
