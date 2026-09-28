@@ -8,6 +8,7 @@ import { uniqueSubcategories, parseOptionalMm } from "../../domain/catalog/objec
 import { listObjectBrowserItems } from "../../domain/catalog/objectBrowser";
 import { millworkShortcutsForRoom } from "../../domain/livingRoom/millworkShortcuts";
 import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
+import { livingRoomThumbnailUrl } from "../../domain/livingRoom/livingRoomThumbnails";
 import { CatalogObjectFilters } from "./CatalogObjectFilters";
 
 type CatalogObjectBrowserProps = {
@@ -59,7 +60,9 @@ export function CatalogObjectBrowser({ onPlace }: CatalogObjectBrowserProps) {
           {millwork.map((item) => (
             <button type="button" key={item.id} data-testid={`catalog-millwork-${item.id}`}
               onClick={() => onPlace(item.id)}>
-              <span className={`lr-asset-preview is-${item.category}`}><i /><i /><i /></span>
+              <span className={`lr-asset-preview is-${item.category}`}>
+                <img src={livingRoomThumbnailUrl(item.id) ?? ""} alt="" loading="lazy" width={120} height={82} />
+              </span>
               <strong>{item.name}</strong>
               <small>{item.dimensions.widthMm} × {item.dimensions.depthMm} mm · millwork</small>
               <b>Place</b>

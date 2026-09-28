@@ -2,17 +2,16 @@ import type { ReactNode } from "react";
 import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
 import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import {
-  cabinetFinishId,
   isMillworkObject,
   isWallPanelObject,
   type PanelAttachment,
 } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
 import { DimensionPresetMenu } from "./DimensionPresetMenu";
+import { CabinetConstructionSection } from "./CabinetConstructionSection";
 import { CabinetRunInspector } from "./CabinetRunInspector";
 import { MaterialSlotList } from "./MaterialSlotList";
 import { PanelAttachmentInspector } from "./PanelAttachmentInspector";
-import { InspectorSection } from "./InspectorSection";
 
 type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
@@ -33,39 +32,52 @@ type LivingRoomObjectInspectorProps = {
   onAddWallPanel?: (wallId: string) => void;
   actions?: ReactNode;
   positionEditor?: ReactNode;
+  /** Finishes start open (Materials step, furniture & decor). */
+  finishesOpen?: boolean;
+  /** Run starts open (Run tool). */
+  runOpen?: boolean;
 };
 
-/** Shared Plan/Model size and finish editor — millimetres stay InteriorProject truth. */
+/**
+ * Shared Plan/Model editor — millimetres stay InteriorProject truth.
+ * Order: Identity → Size → Position → Finishes → Construction → Run; only Size opens by default.
+ */
 export function LivingRoomObjectInspector({
   object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun, onCompleteRun,
   onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, actions, positionEditor,
+  finishesOpen = false, runOpen = false,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value });
   }
   const onSchedule = isMillworkObject(object);
   const wallPanel = isWallPanelObject(object);
+  const boxCabinet = object.kind === "cabinet" && object.category !== "filler" && !wallPanel;
 
   return (
-    <section>
+    <section className="lr-object-inspector">
       <div className="lr-object-identity" data-object-id={object.id}>
         <strong>{object.name}</strong>
         {onSchedule
           ? <em className="lr-millwork-badge">Millwork item</em>
           : <em className="lr-millwork-badge is-soft">Furniture &amp; decor</em>}
+        <code className="lr-object-technical-identity" title="Catalogue id">{object.catalogItemId}</code>
       </div>
       {actions}
+      <details className="lr-inspector-section lr-size-section" data-testid="inspector-size" open>
+        <summary>Size <small>mm</small></summary>
+        <div className="lr-inspector-section-body">
+          <div className="lr-dimension-cards" aria-label="Object dimensions in millimetres">
+            <NumberField className="lr-dimension-card" label="W" value={object.dimensions.widthMm} onChange={(value) => patchDimension("widthMm", value)} />
+            <NumberField className="lr-dimension-card" label="H" value={object.dimensions.heightMm} onChange={(value) => patchDimension("heightMm", value)} />
+            <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
+          </div>
+          {object.kind === "cabinet" && !wallPanel ? (
+            <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} />
+          ) : null}
+        </div>
+      </details>
       {positionEditor}
-      <h4 className="lr-dimensions-heading">Dimensions <small>millimetres</small></h4>
-      <div className="lr-dimension-cards" aria-label="Object dimensions in millimetres">
-        <NumberField className="lr-dimension-card" label="W" value={object.dimensions.widthMm} onChange={(value) => patchDimension("widthMm", value)} />
-        <NumberField className="lr-dimension-card" label="H" value={object.dimensions.heightMm} onChange={(value) => patchDimension("heightMm", value)} />
-        <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
-      </div>
-      {object.kind === "cabinet" && !wallPanel ? (
-        <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} />
-      ) : null}
-      <p className="lr-inspector-hint">Drag on the canvas to move. Arrow keys provide precise nudging.</p>
       {onUpdatePanelAttachment && onSetPanelVisible ? (
         <PanelAttachmentInspector
           object={object}
@@ -75,52 +87,20 @@ export function LivingRoomObjectInspector({
           onAddWallPanel={onAddWallPanel}
         />
       ) : null}
-      <h4 className="lr-dimensions-heading">Finishes <small>model look until you pick a swatch</small></h4>
-      <MaterialSlotList
-        slots={object.materialSlots}
-        materials={materials}
-        slotPolicies={catalogSlotPoliciesForObject(object)}
-        onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)}
-      />
-      <details className="lr-inspector-section lr-object-technical-identity">
-        <summary>Technical identity</summary>
-        <div className="lr-inspector-section-body"><code>{object.catalogItemId}</code></div>
+      <details className="lr-inspector-section lr-finishes-section" data-testid="inspector-finishes" open={finishesOpen}>
+        <summary>Finishes</summary>
+        <div className="lr-inspector-section-body">
+          <MaterialSlotList
+            slots={object.materialSlots}
+            materials={materials}
+            slotPolicies={catalogSlotPoliciesForObject(object)}
+            onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)}
+          />
+        </div>
       </details>
-      {object.kind === "cabinet" && object.category !== "filler" && !wallPanel ? (
-        <InspectorSection title="Advanced construction" testId="inspector-cabinet-advanced">
-          <h4>Cabinet configuration</h4>
-          <label className="lr-select-field"><span>Finish</span>
-            <select data-testid="cabinet-finish" value={cabinetFinishId(object)}
-              onChange={(event) => onSetParameters(object.id, { finishId: event.target.value })}>
-              <option value="wood-oak">Oak Woodgrain</option>
-              <option value="wood-walnut">Walnut</option>
-              <option value="white-matte">White Matte</option>
-              <option value="grey">Grey Matte</option>
-            </select>
-          </label>
-          <label className="lr-select-field"><span>Door style</span>
-            <select data-testid="cabinet-door-style" value={String(object.parameters.doorStyle ?? "slab")}
-              onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}>
-              <option value="slab">Slab</option>
-              <option value="shaker">Shaker</option>
-              <option value="glass">Glass</option>
-            </select>
-          </label>
-          <NumberField label="Door count" value={Number(object.parameters.doorCount) || 2}
-            onChange={(doorCount) => onSetParameters(object.id, { doorCount: Math.max(1, Math.round(doorCount)) })} />
-          <NumberField label="Drawer count" value={Number(object.parameters.drawerCount) || 0}
-            onChange={(drawerCount) => onSetParameters(object.id, { drawerCount: Math.max(0, Math.round(drawerCount)) })} />
-          <NumberField label="Shelf count" value={Number(object.parameters.shelfCount) || 0}
-            onChange={(shelfCount) => onSetParameters(object.id, { shelfCount: Math.max(0, Math.round(shelfCount)) })} />
-          <p className="lr-inspector-hint" data-wall-snapped={object.extensions?.wallAttachment ? "true" : "false"}>
-            {object.extensions?.wallAttachment
-              ? "Wall snapped — drag near another wall to reattach."
-              : "Drag near a wall to snap this cabinet."}
-          </p>
-        </InspectorSection>
-      ) : null}
-      {object.kind === "cabinet" && object.category !== "filler" && !wallPanel ? (
-        <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} onCompleteRun={onCompleteRun} />
+      {boxCabinet ? <CabinetConstructionSection object={object} onSetParameters={onSetParameters} /> : null}
+      {boxCabinet ? (
+        <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} onCompleteRun={onCompleteRun} open={runOpen} />
       ) : null}
     </section>
   );

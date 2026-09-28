@@ -1,0 +1,137 @@
+/* Calm light: inspector sections, left-rail Scene list, catalogue thumbnails, material preview. */
+
+/* Left rail: catalogue scrolls above, Scene list is a capped footer. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-catalog-scroll > * {
+  flex-shrink: 0;
+}
+
+.lr-catalog-scene:empty {
+  display: none;
+}
+
+.lr-catalog-scene {
+  flex: 0 1 auto;
+  max-height: 38%;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.lr-scene-section > summary,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-inspector-section > summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2, 8px);
+  min-height: var(--control-h);
+  padding: 0 var(--space-3, 12px);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+  align-content: center;
+}
+
+.lr-scene-section > summary small,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-inspector-section > summary small {
+  color: var(--ink-faint);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lr-catalog-scene .lr-scene-section {
+  padding-bottom: var(--space-2, 8px);
+}
+
+.lr-catalog-scene .lr-inspector-hint,
+.lr-catalog-scene .lr-millwork-lines {
+  margin: 0 var(--space-3, 12px) var(--space-2, 8px);
+}
+
+.lr-catalog-scene .lr-millwork-lines button[aria-current="true"] {
+  border-color: var(--info);
+  background: var(--info-soft);
+}
+
+/* Catalogue cards: real thumbnails fill the preview well. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-asset-preview img {
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-asset-preview:has(img)::after {
+  display: none;
+}
+
+/* Object inspector: identity, then collapsible sections; Size is the only one open. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-object-identity .lr-object-technical-identity {
+  display: block;
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--ink-faint);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-size-section .lr-dimension-cards {
+  gap: var(--space-2, 8px);
+  margin-bottom: var(--space-2, 8px);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-size-section .lr-number-field.lr-dimension-card {
+  min-height: 0;
+  padding: var(--space-2, 8px) 6px;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-size-section .lr-dimension-card input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Materials: live preview tile and applied state on swatches. */
+.lr-material-preview {
+  display: grid;
+  grid-template-rows: 128px auto;
+  gap: 4px;
+  margin: 0 0 var(--space-2, 8px);
+}
+
+.lr-material-preview > div,
+.lr-material-preview-empty {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-2);
+}
+
+.lr-material-preview-empty {
+  display: grid;
+  place-items: center;
+  padding: var(--space-2, 8px);
+  color: var(--ink-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.lr-material-preview figcaption {
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches button[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches button[aria-pressed="true"] small {
+  color: var(--accent);
+  font-weight: 650;
+}

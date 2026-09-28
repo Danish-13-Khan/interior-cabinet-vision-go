@@ -70,6 +70,8 @@ type LivingRoomInspectorPanelProps = {
   unit: import("../../domain/livingRoom").PlanDisplayUnit;
   drawRoom?: boolean;
   cabinetRun?: boolean;
+  /** Run tool active: the Run section starts open. */
+  runToolActive?: boolean;
   inspectRoom?: boolean;
   workflowArea?: import("../../domain/desktopUx").InteriorsWorkflowArea;
   activeSurface?: InteriorProject["surfaces"][number] | null;
@@ -144,6 +146,8 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdatePanelAttachment={props.onUpdatePanelAttachment}
             onSetPanelVisible={props.onSetPanelVisible}
             onAddWallPanel={props.onAddWallPanel}
+            finishesOpen={props.workflowArea === "materials" || activeObject.kind !== "cabinet"}
+            runOpen={props.runToolActive}
           />
         ) : null}
         {activeSurface ? (
