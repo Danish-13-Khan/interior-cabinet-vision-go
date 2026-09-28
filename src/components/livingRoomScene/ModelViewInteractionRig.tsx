@@ -7,6 +7,7 @@ import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/li
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import {
   MODEL_VIEW_ZOOM_TO_CURSOR,
   resolveModelViewMaxPolarAngle,
@@ -47,6 +48,7 @@ type ModelViewInteractionRigProps = {
   fitSelection?: ModelViewFitSelection;
   inspectionSpanMeters?: number;
   onExitWalkthrough?: () => void;
+  frameRun?: CabinetRunAudience;
 };
 
 /** Orbit / pan / zoom controls plus camera rig for the model viewport. */
@@ -71,6 +73,7 @@ export function ModelViewInteractionRig({
   fitSelection,
   inspectionSpanMeters,
   onExitWalkthrough,
+  frameRun,
 }: ModelViewInteractionRigProps) {
   const orbitNavigatingRef = useRef(false);
   const orbitEaseCancelGenerationRef = useRef(0);
@@ -134,6 +137,7 @@ export function ModelViewInteractionRig({
         dragging={dragging}
         orbitNavigatingRef={orbitNavigatingRef}
         orbitEaseCancelGenerationRef={orbitEaseCancelGenerationRef}
+        frameRun={frameRun}
       />
       <WalkthroughNavigation
         enabled={interactive && viewPreset === "walkthrough"}

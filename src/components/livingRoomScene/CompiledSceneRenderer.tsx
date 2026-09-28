@@ -13,6 +13,8 @@ import {
   type ModelViewFitSelection,
 } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import { resolveCabinetRunFrame, type CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
+import { MODEL_VIEW_STAGE_COLOR } from "../../domain/livingRoom/modelViewStage";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CompiledSceneObjectLayer } from "./CompiledSceneObjectLayer";
 import { ModelViewCameraKind } from "./ModelViewCameraKind";
@@ -56,6 +58,8 @@ type SceneRendererProps = {
   transformTarget?: ModelTransformTarget | null;
   onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
+  /** Frame the cabinet run: "author" on Dollhouse entry, "client" for Present. */
+  frameRun?: CabinetRunAudience;
 };
 
 export function CompiledSceneRenderer(props: SceneRendererProps) {
@@ -67,7 +71,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     windowKeyScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
-    transformTarget = null, onTransformPreview, onTransformCommit,
+    transformTarget = null, onTransformPreview, onTransformCommit, frameRun,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -99,10 +103,18 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     architectureBounds.center.x, architectureBounds.center.z,
     renderCamera?.position.x ?? null, renderCamera?.position.z ?? null,
   );
-  const cutawaySides = (cutawayWalls && interactive) || cutNearWall ? orbitCutawaySides : savedCutawaySides;
-  const hideCeiling = modelViewHidesCeiling(viewPreset);
+  const clientCutaway = useMemo(
+    () => (frameRun === "client"
+      ? resolveCabinetRunFrame(scene, { widthPx: 16, heightPx: 9 }, { audience: "client" })?.cutawaySides ?? null
+      : null),
+    [scene, frameRun],
+  );
+  const cutawaySides = clientCutaway
+    ?? ((cutawayWalls && interactive) || cutNearWall ? orbitCutawaySides : savedCutawaySides);
+  const hideCeiling = modelViewHidesCeiling(viewPreset) || Boolean(clientCutaway);
   const nodes = filterModelReviewNodes(
-    scene.nodes, cutawayWalls || cutNearWall, cutawaySides, selectedOpeningId, hideCeiling, selectedWallId,
+    scene.nodes, cutawayWalls || cutNearWall || Boolean(clientCutaway), cutawaySides,
+    selectedOpeningId, hideCeiling, selectedWallId,
   );
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
@@ -123,8 +135,8 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     <>
       {viewPreset ? <ModelViewCameraKind viewPreset={viewPreset} roomSpanMeters={roomSpan} /> : null}
       <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
-      <color attach="background" args={[environment.backgroundColor]} />
-      <fog attach="fog" args={[environment.fogColor, fog.near, fog.far]} />
+      <color attach="background" args={[frameRun ? MODEL_VIEW_STAGE_COLOR : environment.backgroundColor]} />
+      <fog attach="fog" args={[frameRun ? MODEL_VIEW_STAGE_COLOR : environment.fogColor, fog.near, fog.far]} />
       <hemisphereLight
         color={environment.hemisphereSkyColor}
         groundColor={environment.hemisphereGroundColor}
@@ -168,6 +180,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         fitVersion={fitVersion} fitMode={fitMode} fitSelection={fitSelection}
         inspectionSpanMeters={inspectionSpanMeters}
         onExitWalkthrough={onExitWalkthrough}
+        frameRun={frameRun}
       />
     </>
   );

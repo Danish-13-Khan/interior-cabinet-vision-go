@@ -11,6 +11,7 @@ import {
   resolveStudioRenderMode,
   type CompiledLivingRoomScene,
 } from "../../domain/livingRoom";
+import { resolveCabinetRunFrame, type CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import { drawHeroVignette } from "../../rendering/export/heroExportPolish";
 import { beginSizedGlCapture } from "../../rendering/export/webglCaptureSetup";
 import { captureStillSupportMaps } from "../../rendering/export/stillSupportPasses";
@@ -43,12 +44,15 @@ export const RenderCaptureBridge = forwardRef<
     quality: RenderQuality;
     previewCameraId: string;
     previewComposition: RenderComposition;
+    /** Capture from the cabinet-run frame (Present) instead of the project camera. */
+    frameRun?: CabinetRunAudience;
   }
 >(function RenderCaptureBridge({
   compiledScene,
   quality,
   previewCameraId,
   previewComposition,
+  frameRun,
 }, ref) {
   const { camera, gl, invalidate, scene, size } = useThree();
 
@@ -60,7 +64,10 @@ export const RenderCaptureBridge = forwardRef<
         throw new Error("Render Studio requires a perspective camera.");
       }
       const captureMode = resolveStudioRenderMode(quality);
-      const preset = resolveRenderCameraPose(
+      const runFrame = frameRun
+        ? resolveCabinetRunFrame(compiledScene, { widthPx: request.widthPx, heightPx: request.heightPx }, { audience: frameRun })
+        : null;
+      const preset = runFrame ?? resolveRenderCameraPose(
         projectCamera,
         compiledScene.bounds,
         request.composition,
@@ -92,7 +99,7 @@ export const RenderCaptureBridge = forwardRef<
         renderHeight: Math.max(request.heightPx, Math.round(request.heightPx * safeScale)),
         restorePose: () => {
           const previewProjectCamera = compiledScene.cameras.find((item) => item.id === previewCameraId);
-          const preview = previewProjectCamera
+          const preview = previewProjectCamera && !runFrame
             ? resolveRenderCameraPose(
                 previewProjectCamera,
                 compiledScene.bounds,
@@ -170,8 +177,8 @@ export const RenderCaptureBridge = forwardRef<
     };
   }, [
     camera,
-    compiledScene.bounds,
-    compiledScene.cameras,
+    compiledScene,
+    frameRun,
     gl,
     invalidate,
     previewCameraId,

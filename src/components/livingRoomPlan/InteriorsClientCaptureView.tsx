@@ -70,6 +70,7 @@ export function InteriorsClientCaptureView({
             quality={settings.quality}
             composition={settings.composition}
             renderMode={resolveStudioRenderMode(settings.quality)}
+            frameRun="client"
           />
         ) : (
           <p className="interiors-client-capture-empty">No project camera is available.</p>

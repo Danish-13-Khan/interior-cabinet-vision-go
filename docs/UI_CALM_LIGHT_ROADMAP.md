@@ -310,6 +310,25 @@ without help; every top-bar control ≥ 32px high.
 **Exit gate:** on opening 3D and Present for the golden run, every cabinet in
 the run is visible in the first frame (screen-space bounds test).
 
+**Implementation notes (Phase 4):**
+- Framing is pure domain code: `livingRoom/sceneNodeBounds.ts` (cabinet AABBs),
+  `cameraScreenBounds.ts` (project a box to screen) and `cabinetRunFrame.ts`
+  (camera from the room interior, 35° author / 22° client, distance refined to
+  ~70% fill, cutaway sides). `cabinetRunFrame.test.ts` is the exit gate.
+- `buildCameraRigGoal` takes `frameRun`: authors get the run frame on Dollhouse,
+  Present and client capture always use it (walls away from the run hidden,
+  ceiling off, light stage `MODEL_VIEW_STAGE_COLOR`). Dollhouse cutaway is on by
+  default. Fit Room still fits the whole room.
+- Chrome: view presets portal into the canvas header (`CanvasHeaderToolsSlot`),
+  Fronts and the style picker portal into the inspector
+  (`InspectorModelExtrasSlot`; the style picker only on the Materials step), the
+  3D guide shows once per install, and `ModelViewCameraDock` is the bottom-centre
+  Orbit / Walk / Reset control (Reset = fit mode `run`).
+- `styles/app-stage.css`: full-height canvas host, `--stage` background, light
+  readout and scene-health pill.
+- `LivingRoomModelView.tsx` is still above 200 lines (pre-existing); Phase 8
+  splits it.
+
 ### Phase 5 — Cabinets and Materials steps
 
 1. Library cards with real thumbnails generated from the product renderer

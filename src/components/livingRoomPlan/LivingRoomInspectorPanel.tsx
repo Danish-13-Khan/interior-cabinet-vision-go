@@ -13,7 +13,7 @@ import { InspectorObjectSection } from "./InspectorObjectSection";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 import { InspectorObjectList } from "./InspectorObjectList";
-import { InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
+import { InspectorModelExtrasSlot, InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
 import { SurfaceInspector } from "./SurfaceInspector";
 
 type LivingRoomInspectorPanelProps = {
@@ -117,6 +117,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       </div>
       <div className="lr-inspector-scroll">
         {roomEssentials && props.drawRoom ? <InspectorPlanSettingsSlot /> : null}
+        {props.mode === "model" ? <InspectorModelExtrasSlot /> : null}
         {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface ? (
           <InspectorObjectList
             objects={props.project.objects}
