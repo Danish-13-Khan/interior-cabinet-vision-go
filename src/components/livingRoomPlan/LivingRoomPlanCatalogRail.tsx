@@ -10,6 +10,7 @@ import {
 } from "../../domain/desktopUx";
 import { InteriorsToolRail } from "./InteriorsToolRail";
 import { InteriorsWorkflowAreaPanel } from "./InteriorsWorkflowAreaPanel";
+import { SceneListSlot } from "./InspectorPlanSettingsSlot";
 import type { LivingRoomPlanCatalogRailProps } from "./livingRoomPlanCatalogRailProps";
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
@@ -133,6 +134,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           onPresent={props.onPresent}
         />
         </div>
+        <SceneListSlot />
       </aside>
     ) : null}
   </>;

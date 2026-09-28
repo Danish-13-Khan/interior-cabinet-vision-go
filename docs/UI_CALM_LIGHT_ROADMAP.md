@@ -341,6 +341,26 @@ the run is visible in the first frame (screen-space bounds test).
 **Exit gate:** every catalogue item has a thumbnail; the inspector for a selected
 cabinet fits 900px height with only Size expanded.
 
+**Implementation notes (Phase 5):**
+- `npm run catalog:render` (also run by `catalog:generate`) opens the dev-only
+  `/?catalog-thumb=<id>` page, renders each living-room catalogue item through
+  `CompiledNodeView` with a local studio environment, and writes
+  `public/catalog/items/<id>.png`. `livingRoomThumbnails.test.ts` is the exit
+  gate: every item has a PNG, every family / shortcut resolves one, and every
+  object-browser card already has a Kenney render.
+- Inspector order is Identity (name, badge, catalogue id, actions) → Size (open)
+  → Position → Finishes → Construction → Run. Exceptions kept for flow: Position
+  opens in 3D, Finishes opens on the Materials step and for furniture, Run opens
+  with the Run tool. A selected golden-run cabinet ends ~500px down at 1440×900.
+- The object list is a collapsible "Scene" section portalled into the foot of
+  the left rail (`SceneListSlot`); where no rail is shown it stays in the
+  inspector.
+- Materials: the Selection target falls back to Floor when nothing selected has
+  a paintable slot (it used to hide the swatch grid). Swatches show "Applied"
+  and `aria-pressed`; hovering or focusing one previews it live in
+  `MaterialPreviewTile` (a door panel rendered with `CompiledMaterialView`).
+- Styles: `styles/app-inspector.css`.
+
 ### Phase 6 — Review step
 
 1. Group issues by cabinet and type ("3 cabinets: shelf span > 800mm").

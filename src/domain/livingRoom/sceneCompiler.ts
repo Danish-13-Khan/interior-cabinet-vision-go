@@ -27,7 +27,7 @@ import type { CompiledLivingRoomScene, CompiledMaterial } from "./sceneTypes";
 import { sampleWindowOpenings } from "./windowKeyLight";
 import { resolveLightAttachment } from "./lightAttachments";
 
-function compileMaterials(project: InteriorProject): CompiledMaterial[] {
+export function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
     ...project.materials.map((material) => {
       const mapUrl = typeof material.extensions?.mapUrl === "string" ? material.extensions.mapUrl : undefined;

@@ -10,6 +10,11 @@ const modelExtras = createPortalSlot("lr-inspector-model-extras", "inspector-mod
 export const InspectorModelExtrasSlot = modelExtras.Slot;
 export const useInspectorModelExtrasSlot = modelExtras.useSlot;
 
+/** Scene object list at the foot of the left catalogue rail. */
+const sceneList = createPortalSlot("lr-catalog-scene", "catalog-scene-slot");
+export const SceneListSlot = sceneList.Slot;
+export const useSceneListSlot = sceneList.useSlot;
+
 /** 3D view presets and framing tools in the canvas header. */
 const canvasHeaderTools = createPortalSlot("lr-canvas-header-tools", "canvas-header-tools");
 export const CanvasHeaderToolsSlot = canvasHeaderTools.Slot;
