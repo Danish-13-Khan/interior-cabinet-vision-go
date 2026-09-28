@@ -391,6 +391,17 @@ sheets and PDFs keep their print styles (black on white) — only the chrome cha
 
 **Exit gate:** engineering handoff e2e green; visual baseline approved.
 
+**Implementation notes (Phase 7):**
+- `engineering-review-workspace`, `engineering-production-workspace`,
+  `engineering-inspector`, `engineering-handoff`, `report-center` and
+  `cutlist-warnings` now use only Calm Light tokens (no raw hex): surfaces,
+  borders, ink, accent, warning/danger/info and `--shadow-*`; buttons use
+  `--control-h` / `--radius-control`, type uses `--font-sans`.
+- Dark-shell overrides in `engineering-handoff.css` were removed (the v2 shell
+  is light). The handoff cabinet list is 248px minimum so names stop wrapping.
+- `drawing-sheet.css` and `report-tables.css` are untouched: sheets and PDFs keep
+  their black-on-white print styles.
+
 ### Phase 8 — CSS consolidation and quality gates
 
 1. Collapse the 101 style files into: `tokens.css`, `base.css`, `components/*.css`
