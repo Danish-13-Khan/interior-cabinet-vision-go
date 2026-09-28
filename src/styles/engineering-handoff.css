@@ -1,6 +1,6 @@
 .engineering-handoff { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid #e6ece7; }
-.engineering-handoff > strong { color: #304236; font-size: .75rem; }
-.engineering-handoff small { color: #748076; font-size: .61rem; line-height: 1.35; }
+.engineering-handoff > strong { color: #304236; font-size: var(--text-sm); }
+.engineering-handoff small { color: #748076; font-size: var(--text-xs); line-height: 1.35; }
 .engineering-handoff small.is-warning { color: #9a3412; }
 .engineering-handoff-cabinets,
 .engineering-handoff-warnings { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
@@ -11,7 +11,7 @@
 .engineering-handoff-send { min-height: 36px !important; font-weight: 700 !important; }
 .engineering-handoff-identities summary {
   cursor: pointer;
-  font-size: 0.64rem;
+  font-size: var(--text-sm);
   color: #4a5a4e;
 }
 .status-hud-chip.is-warning { color: #9a3412; border-color: #f0c7a7; }

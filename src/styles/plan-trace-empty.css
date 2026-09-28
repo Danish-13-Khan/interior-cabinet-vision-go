@@ -28,14 +28,14 @@
 
 .lr-plan-trace-empty-card h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--text-lg);
   font-weight: 700;
 }
 
 .lr-plan-trace-empty-card p {
   margin: 0;
   color: var(--iu-muted, #66736b);
-  font-size: 0.82rem;
+  font-size: var(--text-md);
   line-height: 1.4;
 }
 

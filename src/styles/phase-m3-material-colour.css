@@ -13,7 +13,7 @@
   justify-content: space-between;
   gap: 8px;
   color: #3d4a42;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-material-colour header span {
@@ -34,7 +34,7 @@
   border-radius: 5px;
   background: #fff;
   color: #243029;
-  font-size: 10px;
+  font-size: var(--text-xs);
   text-align: left;
   cursor: pointer;
 }
@@ -63,7 +63,7 @@
   display: grid;
   gap: 3px;
   color: #58655e;
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 
 .lr-material-colour-fields input {
@@ -73,7 +73,7 @@
   border-radius: 4px;
   background: #fff;
   color: #1c2a22;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-material-recent {
@@ -83,7 +83,7 @@
 
 .lr-material-recent strong {
   color: #3d4a42;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-material-recent > div {

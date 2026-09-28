@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
-import { ThemeSwitcher } from './ThemeSwitcher'
 
 export function SiteNav() {
   return (
@@ -15,7 +14,6 @@ export function SiteNav() {
         </div>
       </div>
       <div className="site-nav-cta">
-        <ThemeSwitcher size="sm" />
         <Link className="btn btn-ghost btn-sm" to="/login">
           Login
         </Link>

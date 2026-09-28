@@ -22,13 +22,13 @@
 .lr-manufacturer-catalogue header span,
 .lr-manufacturer-catalogue small {
   color: var(--lr-muted, #6f6a60);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-manufacturer-catalogue label {
   display: grid;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-manufacturer-catalogue select {
@@ -60,5 +60,5 @@
 .lr-manufacturer-finish-meta {
   margin: 0;
   color: var(--lr-muted, #6f6a60);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }

@@ -17,7 +17,7 @@
   border-radius: 8px;
   background: transparent;
   color: var(--iu-control-muted, var(--iu-muted, #66736b));
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
 }
@@ -57,7 +57,7 @@
   border-radius: 8px;
   background: var(--iu-panel, #fff);
   color: var(--iu-ink, #1c2822);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -84,7 +84,7 @@
   background: transparent;
   color: var(--iu-ink, #1c2822);
   text-align: left;
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
 }
 
 .lr-chrome-file-menu button:hover {
@@ -104,7 +104,7 @@
   padding: 8px 10px;
   cursor: pointer;
   color: var(--iu-ink, #1c2822);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -207,8 +207,8 @@
   background: var(--iu-panel-2, #f4f7f5);
 }
 
-.interiors-review-summary strong { font-size: 1rem; color: var(--iu-ink, #18221c); }
-.interiors-review-summary span { overflow: hidden; color: var(--iu-muted, #5b6a61); font-size: 0.68rem; text-overflow: ellipsis; }
+.interiors-review-summary strong { font-size: var(--text-lg); color: var(--iu-ink, #18221c); }
+.interiors-review-summary span { overflow: hidden; color: var(--iu-muted, #5b6a61); font-size: var(--text-sm); text-overflow: ellipsis; }
 
 .interiors-review-section {
   border: 1px solid var(--iu-line, #d8e0da);
@@ -219,7 +219,7 @@
 .interiors-review-section > summary {
   padding: 11px 12px;
   color: var(--iu-ink, #18221c);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   font-weight: 750;
   cursor: pointer;
 }

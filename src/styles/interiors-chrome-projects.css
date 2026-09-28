@@ -19,7 +19,7 @@
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery span {
   color: #276b46;
-  font-size: 0.64rem;
+  font-size: var(--text-sm);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home h1 {
@@ -30,12 +30,12 @@
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro p,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-start-note {
   color: #68766c;
-  font-size: 0.88rem;
+  font-size: var(--text-md);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro label {
   color: #5d6b61;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro input,
@@ -92,7 +92,7 @@
 .interiors-projects-recents header h2 {
   margin: 2px 0 14px;
   color: #243029;
-  font-size: 1.05rem;
+  font-size: var(--text-lg);
 }
 
 .interiors-project-list {
@@ -130,7 +130,7 @@
   border-radius: 999px;
   background: #f3f6f3;
   color: #5d6b61;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   white-space: nowrap;
 }

@@ -1,12 +1,12 @@
 .proposal-review { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid #e6ece7; }
-.proposal-review > strong { color: #304236; font-size: .75rem; }
-.proposal-review-total { margin: 0; color: #276b46; font-size: 1.15rem; font-weight: 700; }
-.proposal-review small { color: #748076; font-size: .61rem; line-height: 1.35; }
+.proposal-review > strong { color: #304236; font-size: var(--text-sm); }
+.proposal-review-total { margin: 0; color: #276b46; font-size: var(--text-lg); font-weight: 700; }
+.proposal-review small { color: #748076; font-size: var(--text-xs); line-height: 1.35; }
 .proposal-review small.is-warning { color: #9a3412; }
 .proposal-review-fields { display: grid; gap: 7px; }
 .proposal-review-fields label,
 .proposal-review-views label,
-.proposal-review-override { display: grid; gap: 3px; color: #4a5a4e; font-size: .62rem; }
+.proposal-review-override { display: grid; gap: 3px; color: #4a5a4e; font-size: var(--text-xs); }
 .proposal-review-fields input,
 .proposal-review-fields textarea {
   width: 100%;

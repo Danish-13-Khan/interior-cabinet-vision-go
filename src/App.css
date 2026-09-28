@@ -41,7 +41,6 @@
 @import "./styles/interiors-product.css";
 @import "./styles/catalog-object-browser.css";
 @import "./styles/interiors-materials.css";
-@import "./styles/planner-ui-v2-tokens.css";
 @import "./styles/planner-ui-v2.css";
 @import "./styles/pre-export-checklist.css";
 @import "./styles/proposal-review.css";
@@ -78,12 +77,11 @@
 @import "./styles/interiors-chrome-draw-room.css";
 @import "./styles/interiors-chrome-cabinet-run.css";
 @import "./styles/interiors-chrome-present.css";
-/* Visual contract for the selectable Calm Guided and Compact Pro modes. */
+/* Interiors editor shell (Calm Light). */
 @import "./styles/interiors-control-tokens.css";
-@import "./styles/interiors-ui-modes.css";
-@import "./styles/interiors-ui-modes-projects-compact.css";
-@import "./styles/interiors-ui-modes-authoring.css";
-@import "./styles/interiors-ui-modes-present.css";
+@import "./styles/interiors-workbar.css";
+@import "./styles/interiors-authoring-surfaces.css";
+@import "./styles/interiors-present-panel.css";
 @import "./styles/interiors-controls.css";
 @import "./styles/interiors-contrast-overflow.css";
 @import "./styles/interiors-shared-shell.css";

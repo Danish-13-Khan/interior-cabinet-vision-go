@@ -19,8 +19,6 @@ export type DesignUxChromeSurface = {
   clientStrip: boolean;
 };
 
-export type DesignUxShellDensity = "calm" | "compact";
-
 /**
  * Resolve which chrome surfaces belong on for a workflow area.
  * `presenting` forces client strip (Present / render mode).
@@ -85,7 +83,6 @@ export function designUxShowsToolRail(input: {
 }
 
 export function designUxShellClassNames(input: {
-  uiMode: DesignUxShellDensity;
   appearance: "light" | "dark-frame";
   presenting: boolean;
 }): string[] {
@@ -94,7 +91,6 @@ export function designUxShellClassNames(input: {
     "lr-product-shell",
     "lr-product-shell-v2",
     "is-drafting-studio",
-    `is-ui-${input.uiMode}`,
     `is-appearance-${input.appearance}`,
   ];
   if (input.presenting) classes.push("is-presenting", "is-client-strip");

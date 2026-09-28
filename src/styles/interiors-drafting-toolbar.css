@@ -1,4 +1,4 @@
-/* Compact plan chrome. Existing tools stay mounted and reachable. */
+/* Dense plan chrome. Existing tools stay mounted and reachable. */
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-plan {
   display: grid;
@@ -33,7 +33,7 @@
   border: 1px solid transparent;
   border-radius: 8px;
   color: var(--iu-ink);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -116,7 +116,7 @@
   padding: 0 14px;
   border-bottom: 1px solid var(--iu-line);
   color: var(--iu-muted);
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
   font-weight: 650;
   cursor: pointer;
   list-style: none;
@@ -126,7 +126,7 @@
   content: "+";
   margin-left: 8px;
   color: var(--iu-green);
-  font-size: 1rem;
+  font-size: var(--text-lg);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-secondary-settings[open] > summary::after { content: "−"; }
@@ -138,13 +138,13 @@
   background: rgb(255 255 255 / 96%);
   box-shadow: 0 8px 22px rgb(28 36 48 / 12%);
   font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-controls button,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-controls select {
   min-height: 28px;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -187,19 +187,6 @@
   border-color: var(--iu-green);
   background: var(--iu-green-soft);
   color: var(--iu-control-active-ink);
-}
-
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio.is-ui-compact .lr-workspace-body.is-plan > .lr-inspector {
-  grid-column: 3;
-  grid-row: 1 / -1;
-  position: static;
-  top: auto;
-  right: auto;
-  bottom: auto;
-  width: 260px !important;
-  max-width: 260px;
-  box-shadow: none;
-  border-radius: 0;
 }
 
 @media (max-width: 960px) {

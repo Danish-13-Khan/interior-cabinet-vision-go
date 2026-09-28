@@ -9,7 +9,7 @@
   display: grid;
   gap: 4px;
   color: #3d4a42;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-finish-import-url input {
@@ -18,7 +18,7 @@
   border: 1px solid #c5cec8;
   border-radius: 5px;
   padding: 6px 8px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: #243029;
   background: #fff;
 }
@@ -29,7 +29,7 @@
   border-radius: 5px;
   background: #fff;
   color: #243029;
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding: 6px 10px;
   cursor: pointer;
 }
@@ -42,7 +42,7 @@
 .lr-finish-import-busy {
   margin: 6px 0 0;
   color: #6d7a72;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lr-import-finish input:disabled + button,

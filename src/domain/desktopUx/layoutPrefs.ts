@@ -133,7 +133,7 @@ export function persistDesktopLayout(
 }
 
 /**
- * Login/register / web entry should open Cabinet Planner interiors home
+ * Login/register / web entry should open Cabinet Studio interiors home
  * (jobs table + room templates), not Cabinets canvas or the bare Job summary.
  */
 export function openJobWorkbench(

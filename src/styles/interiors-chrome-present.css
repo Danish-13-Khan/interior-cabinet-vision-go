@@ -1,7 +1,7 @@
 /* Present and Send: close panel over the 3D client view. */
 .lr-present-tray {
   color: #68766c;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
 }
 
 .lr-present-status .has-warning {
@@ -22,7 +22,7 @@
 
 .interiors-present-blocking li {
   color: #b55338;
-  font-size: 0.64rem;
+  font-size: var(--text-sm);
   line-height: 1.35;
 }
 
@@ -89,20 +89,20 @@
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > span {
   color: #95d4a9;
-  font-size: .66rem;
+  font-size: var(--text-sm);
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > strong {
   color: #f1f7f2;
-  font-size: 1.05rem;
+  font-size: var(--text-lg);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > p {
   margin: 0;
   color: #adbbb0;
-  font-size: .61rem;
+  font-size: var(--text-xs);
   line-height: 1.45;
 }
 
@@ -141,7 +141,7 @@
   margin: 0;
   padding: 16px;
   color: #d7c4b8;
-  font-size: 0.82rem;
+  font-size: var(--text-md);
 }
 
 .interiors-client-capture-bar {

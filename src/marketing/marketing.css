@@ -1,9 +1,10 @@
 /* Cabinet Studio — production styles
-   Dark SaaS · IBM Plex Sans · mint accents · Calm + Compact themes */
+   Dark SaaS · IBM Plex Sans · mint accents (light rebuild: roadmap Phase 1) */
 
 /* Fonts loaded via index.html; scoped under .cs-marketing to avoid clobbering App */
 
-:root {
+/* Scoped so the dark palette never overrides app tokens in tokens.css. */
+.cs-marketing {
   --bg: #121212;
   --bg-elevated: #1a1a1a;
   --bg-card: #1e1e1e;
@@ -329,7 +330,7 @@ html.cs-marketing-active #root {
   align-items: center;
   padding: 3px 10px;
   border-radius: var(--radius-pill);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   background: var(--bg-hover);
   color: var(--text-secondary);
@@ -341,7 +342,7 @@ html.cs-marketing-active #root {
   border-color: var(--border-mint);
 }
 .eyebrow {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -732,7 +733,7 @@ html.cs-marketing-active #root {
   margin-bottom: 28px;
 }
 .autosave-bar .as-label {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--mint);
@@ -801,141 +802,13 @@ html.cs-marketing-active #root {
   gap: 6px;
   flex-shrink: 0;
 }
-.recent-meta .time { font-size: 11px; color: var(--text-muted); }
+.recent-meta .time { font-size: var(--text-xs); color: var(--text-muted); }
 
 .calm-templates {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
-
-/* ─── Compact app home ─── */
-.compact-layout {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  min-height: calc(100vh - var(--nav-h));
-}
-.compact-sidebar {
-  border-right: 1px solid var(--border);
-  padding: 20px 12px;
-  background: #0e0e0e;
-}
-.compact-sidebar .ws-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 0 12px;
-  margin-bottom: 10px;
-}
-.ws-nav a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 2px;
-  transition: var(--transition);
-}
-.ws-nav a:hover { background: var(--bg-hover); color: var(--text); }
-.ws-nav a.is-active {
-  background: var(--mint-dim);
-  color: var(--mint-light);
-}
-.ws-nav .count {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
-.ws-nav a.is-active .count { color: var(--mint); }
-
-.compact-main {
-  padding: 24px 28px 48px;
-  overflow-y: auto;
-}
-.compact-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.compact-header .eyebrow { margin-bottom: 4px; }
-.compact-header h1 {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.compact-toolbar {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.compact-toolbar .form-group {
-  margin-bottom: 0;
-  min-width: 180px;
-}
-.compact-toolbar .form-input {
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
-.jobs-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
-}
-.jobs-table th {
-  text-align: left;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-}
-.jobs-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 13px;
-  vertical-align: middle;
-}
-.jobs-table tr:hover td { background: var(--bg-hover); }
-.jobs-table .job-name {
-  font-weight: 500;
-  color: var(--text);
-}
-.jobs-table .job-sub {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-.jobs-table .muted { color: var(--text-muted); }
-
-.expandable {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 16px;
-  margin-top: 10px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  color: var(--text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  transition: var(--transition);
-  text-align: left;
-}
-.expandable:hover { border-color: var(--border-mint); color: var(--text); }
-.expandable .chevron { color: var(--mint); font-size: 10px; }
 
 /* ─── Landing hero variants ─── */
 .landing-hero-a {
@@ -993,62 +866,6 @@ html.cs-marketing-active #root {
   pointer-events: none;
 }
 
-.landing-hero-b {
-  padding: 56px 32px 64px;
-  max-width: var(--max);
-  margin: 0 auto;
-  text-align: center;
-}
-.landing-hero-b .eyebrow { margin-bottom: 14px; }
-.landing-hero-b h1 {
-  font-size: 40px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  max-width: 720px;
-  margin: 0 auto 16px;
-}
-.landing-hero-b .lead {
-  font-size: 16px;
-  color: var(--text-secondary);
-  max-width: 520px;
-  margin: 0 auto 28px;
-}
-.landing-hero-b .hero-ctas {
-  justify-content: center;
-}
-.hero-b-preview {
-  margin-top: 48px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  text-align: left;
-}
-
-/* Dense SaaS preview strip inside compact landing */
-.preview-chrome {
-  display: flex;
-  gap: 12px;
-  min-height: 280px;
-}
-.preview-side {
-  width: 160px;
-  background: #0e0e0e;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  padding: 12px;
-  flex-shrink: 0;
-}
-.preview-main {
-  flex: 1;
-  background: #141414;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  padding: 16px;
-}
-
 /* ─── Utility ─── */
 .sr-only {
   position: absolute;
@@ -1084,111 +901,6 @@ html.cs-marketing-active #root {
   .auth-page { justify-content: center; }
 }
 
-
-/* ─── Theme switcher (polished) ─── */
-.theme-switcher {
-  position: relative;
-  display: inline-flex;
-  padding: 3px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  gap: 0;
-}
-.theme-switcher-thumb {
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  width: calc(50% - 3px);
-  left: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--mint-dim);
-  border: 1px solid var(--border-mint);
-  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), background 200ms ease;
-  pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(125, 186, 138, 0.08), 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-.theme-switcher[data-theme="compact"] .theme-switcher-thumb {
-  transform: translateX(100%);
-}
-.theme-switcher button {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-width: 78px;
-  padding: 6px 14px;
-  border: none;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 200ms ease;
-  line-height: 1.2;
-}
-.theme-switcher button:hover { color: var(--text-secondary); }
-.theme-switcher button.is-active { color: var(--mint-light); }
-.theme-switcher-lg {
-  padding: 4px;
-}
-.theme-switcher-lg .theme-switcher-thumb {
-  top: 4px;
-  bottom: 4px;
-  width: calc(50% - 4px);
-  left: 4px;
-}
-.theme-switcher-lg button {
-  min-width: 110px;
-  padding: 10px 20px;
-  font-size: 13px;
-}
-.theme-switcher-lg button .ts-label {
-  display: block;
-  font-weight: 600;
-}
-.theme-switcher-lg button .ts-sub {
-  display: block;
-  font-size: 10px;
-  font-weight: 400;
-  opacity: 0.7;
-  margin-top: 2px;
-  letter-spacing: 0.02em;
-}
-
-/* Homepage hero theme switcher panel */
-.theme-switch-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 28px;
-  padding: 16px 18px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  max-width: 360px;
-}
-.landing-hero-b .theme-switch-panel {
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
-  text-align: center;
-}
-.theme-switch-panel .ts-heading {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.theme-switch-panel .ts-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
 /* Theme crossfade */
 .theme-view {
   animation: themeIn 320ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1219,6 +931,6 @@ html.cs-marketing-active #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
 }

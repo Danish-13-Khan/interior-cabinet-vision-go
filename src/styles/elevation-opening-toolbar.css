@@ -10,10 +10,10 @@
 }
 
 .elevation-opening-toolbar-meta {
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 650;
   color: var(--ink);
-  min-width: 8rem;
+  min-width: 92px;
 }
 
 .elevation-opening-toolbar-group {

@@ -15,7 +15,7 @@ export * from "./interiorsDrawRoom";
 export * from "./interiorsCabinetRun";
 export * from "./interiorsPresentAndSend";
 export * from "./interiorsCustomerChrome";
-export * from "./interiorsUiMode";
+export * from "./layoutPreferenceMigration";
 export * from "./interiorsWorkflowArea";
 export * from "./interiorsWorkflowEntryPoints";
 export * from "./draftingAppearance";

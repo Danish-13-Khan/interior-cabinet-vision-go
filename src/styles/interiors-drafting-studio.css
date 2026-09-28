@@ -2,50 +2,28 @@
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio {
   color-scheme: light;
-  --iu-ink: #1c2430;
-  --iu-muted: #3a4554;
-  --iu-faint: #e4e9f0;
-  --iu-panel: #ffffff;
-  --iu-panel-2: #f0f3f7;
-  --iu-canvas: #d5dce6;
-  --iu-line: #c2cad6;
-  --iu-line-strong: #9aa7b8;
-  --iu-green: #2f6fed;
-  --iu-green-soft: #e8f0ff;
-  --iu-blue-soft: #e8f0ff;
-  --iu-on-green: #ffffff;
-  --iu-control-ink: #1c2430;
-  --iu-control-muted: #3a4554;
-  --iu-control-bg: #ffffff;
-  --iu-control-bg-2: #f0f3f7;
-  --iu-control-border: #b4bfcc;
-  --iu-control-hover-bg: #e8f0ff;
-  --iu-control-active-bg: #e8f0ff;
-  --iu-control-active-ink: #1d4fbf;
-  --iu-control-active-border: #2f6fed;
-  --iu-control-focus: #2f6fed;
-  --lr-ink: #1c2430;
-  --lr-muted: #3a4554;
-  --lr-line: #c2cad6;
-  --lr-paper: #ffffff;
-  --lr-panel: #ffffff;
-  --lr-canvas: #d5dce6;
-  --lr-accent: #2f6fed;
-  background: #e4e9f0 !important;
-  color: #1c2430 !important;
-  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --lr-ink: var(--ink);
+  --lr-muted: var(--ink-muted);
+  --lr-line: var(--border);
+  --lr-paper: var(--canvas);
+  --lr-panel: var(--surface);
+  --lr-canvas: var(--surface-2);
+  --lr-accent: var(--accent);
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header {
   min-height: 52px;
   padding: 0 16px;
   border-bottom: 1px solid var(--iu-line);
-  background: #fff;
+  background: var(--surface);
   color: var(--iu-ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-brand strong {
-  font-size: 0.88rem;
+  font-size: var(--text-md);
   letter-spacing: -0.03em;
 }
 
@@ -80,7 +58,7 @@
   min-height: 30px;
   padding: 0 14px;
   border-radius: 999px;
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav button.is-active {
@@ -132,7 +110,7 @@
   border-color: var(--iu-line);
   background: #fff;
   color: var(--iu-muted);
-  font-size: 0.74rem;
+  font-size: var(--text-sm);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header,
@@ -144,7 +122,7 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header strong,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .context-panel-heading strong {
   color: var(--iu-ink);
-  font-size: 0.86rem;
+  font-size: var(--text-md);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector-section {
@@ -188,7 +166,7 @@
 
 .lr-chrome-file-theme > span {
   padding: 3px 10px;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   opacity: 0.65;
   text-transform: uppercase;

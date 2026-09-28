@@ -31,7 +31,7 @@ test("public showroom stays public and registration shows coming soon", async ({
 test("app requires a session and auth can return to the public homepage", async ({ page }) => {
   await page.goto("/app");
   await expect(page).toHaveURL(/\/login$/);
-  await page.getByRole("link", { name: "Cabinet Planner", exact: true }).click();
+  await page.getByRole("link", { name: "Cabinet Studio", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("region", { name: "Interactive cabinet showroom" })).toBeVisible();
 });

@@ -26,7 +26,7 @@
   grid-row: 1 / span 2;
   align-self: center;
   color: #276b46;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -34,12 +34,12 @@
 
 .pre-export-check > strong {
   color: #304236;
-  font-size: 0.67rem;
+  font-size: var(--text-sm);
 }
 
 .pre-export-check > small {
   color: #748076;
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
   line-height: 1.35;
 }
 

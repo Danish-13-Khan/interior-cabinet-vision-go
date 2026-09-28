@@ -2,13 +2,10 @@ import { MarketingShell } from '../components/MarketingShell'
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
-import { ThemeSwitcher } from '../components/ThemeSwitcher'
 import { PasswordField } from '../components/PasswordField'
 import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
-import { useTheme } from '../lib/theme'
 
 export function Register() {
-  const { theme } = useTheme()
   const [first, setFirst] = useState('')
   const [last, setLast] = useState('')
   const [company, setCompany] = useState('')
@@ -21,24 +18,18 @@ export function Register() {
     setComingSoon(true)
   }
 
-  const isCalm = theme === 'calm'
-
   return (
     <MarketingShell>
-    <div className="theme-view" key={`register-${theme}`}>
+    <div className="theme-view">
       <div className="auth-page">
         <aside className="auth-brand">
           <Logo style={{ marginBottom: 40 }} />
           <p className="eyebrow">Get started</p>
           <h1>
-            {isCalm
-              ? 'Proposal-to-production in one workspace.'
-              : 'Dense workspace for high-volume sales.'}
+            Proposal-to-production in one workspace.
           </h1>
           <p>
-            {isCalm
-              ? 'Create an account to measure rooms, build cabinet runs, price proposals, and hand designs to engineering.'
-              : 'Register to manage cabinet jobs in a sidebar + table layout built for scanning and shipping proposals.'}
+            Create an account to measure rooms, build cabinet runs, price proposals, and hand designs to engineering.
           </p>
         </aside>
         <div className="auth-panel">
@@ -50,7 +41,6 @@ export function Register() {
                   Paid plans: Designer → Professional → Company.
                 </p>
               </div>
-              <ThemeSwitcher size="sm" />
             </div>
             <form onSubmit={onSubmit}>
               <div className="form-row">

@@ -9,7 +9,7 @@
 .context-menu-caret {
   margin-left: auto;
   color: #6b7c8d;
-  font-size: 0.7rem;
+  font-size: var(--text-sm);
 }
 
 .context-menu.context-menu-submenu {

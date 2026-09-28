@@ -19,12 +19,12 @@
   padding: 7px 8px;
   background: var(--panel-bg);
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .assembly-summary strong {
   color: var(--ink);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 .assembly-section {
@@ -46,14 +46,14 @@
 .assembly-section-heading h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 0.64rem;
+  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.055em;
 }
 
 .assembly-section-heading span {
   color: var(--muted);
-  font-size: 0.56rem;
+  font-size: var(--text-xs);
 }
 
 .assembly-opening-list {
@@ -89,7 +89,7 @@
   padding: 3px 2px;
   border: 1px solid currentColor;
   color: var(--accent);
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   font-weight: 750;
   text-align: center;
 }
@@ -107,12 +107,12 @@
 }
 
 .assembly-opening-copy strong {
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .assembly-opening-copy small {
   color: var(--muted);
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
 }
 
 .assembly-field,
@@ -125,7 +125,7 @@
   padding: 4px 7px;
   border-bottom: 1px solid rgba(122, 135, 152, 0.45);
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
 }
 
 .assembly-field input,
@@ -167,7 +167,7 @@
   border: 1px solid var(--panel-border);
   background: var(--panel-raised);
   color: var(--ink);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
 }
 
 .assembly-action-grid button:hover:not(:disabled) {
@@ -183,7 +183,7 @@
 .assembly-issues p {
   margin: 0;
   padding: 7px;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   line-height: 1.35;
 }
 

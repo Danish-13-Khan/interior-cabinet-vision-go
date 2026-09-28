@@ -180,6 +180,23 @@ Phase 0 is merged.
 **Exit gate:** no 'compact' string in `src/` outside the migration; smallest
 rendered text in the editor ≥ 12px; golden-run e2e still green; style lint in CI.
 
+**Implementation notes (Phase 0):**
+- The Compact *layout mode* is gone. Unrelated `compact` density props on
+  individual widgets (render diagnostics, swatch grid, cabinet tree) remain.
+- Stored `compact` values are rewritten at boot by
+  `src/domain/desktopUx/layoutPreferenceMigration.ts`.
+- Marketing palette variables are scoped to `.cs-marketing` (dark until Phase 1)
+  so they cannot override `tokens.css`.
+- SVG drawing text (rules that set `fill`/`stroke`) and `@media print` keep their
+  sizes; the lint skips them.
+- Raw hex and `!important` are ratcheted per file via
+  `scripts/ui-lint/baseline.json`; lower it with `--write-baseline`, never raise it.
+- `interiors-ui-modes*.css` were renamed (`interiors-workbar.css`,
+  `interiors-authoring-surfaces.css`, `interiors-present-panel.css`) rather than
+  merged, because the target component files already exceed 200 lines.
+- Still open for later phases: the File menu "dark frame" appearance (conflicts
+  with D2).
+
 ### Phase 1 — Website: light Calm + 3D hero animation
 
 1. Rebuild `CalmLanding` on light tokens; drop the dark palette in `marketing.css`.

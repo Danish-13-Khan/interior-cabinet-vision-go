@@ -12,14 +12,14 @@
 .lr-render-preset-meta {
   margin: 8px 0 0;
   color: #6f7f76;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.02em;
 }
 
 .lr-render-preset-hint {
   margin: 4px 0 0;
   color: #8a9a91;
-  font-size: 0.52rem;
+  font-size: var(--text-xs);
 }
 
 .lr-preset-honesty {
@@ -39,18 +39,18 @@
 }
 
 .lr-preset-honesty strong {
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .lr-preset-honesty span {
-  font-size: 0.52rem;
+  font-size: var(--text-xs);
   color: #5f6f66;
 }
 
 .lr-preset-honesty small {
-  font-size: 0.48rem;
+  font-size: var(--text-xs);
   color: #7a8a81;
 }
 
@@ -72,7 +72,7 @@
 
 .lr-render-tier-legend h3 {
   margin: 0 0 6px;
-  font-size: 0.56rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #53665c;
@@ -111,18 +111,18 @@
 }
 
 .lr-render-tier-legend strong {
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .lr-render-tier-legend span {
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   color: #66766d;
 }
 
 .lr-render-tier-legend small {
-  font-size: 0.48rem;
+  font-size: var(--text-xs);
   color: #87968d;
   line-height: 1.35;
 }

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run src",
+    "test": "npm run lint:styles && vitest run src",
+    "lint:styles": "node scripts/ui-lint/check-styles.mjs",
     "test:e2e": "playwright test",
     "test:golden": "playwright test tests/e2e/golden-cabinet-run.spec.ts tests/e2e/living-room-release.spec.ts --project=chromium",
     "build": "tsc && vite build",

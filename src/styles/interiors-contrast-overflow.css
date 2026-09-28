@@ -7,7 +7,7 @@
   border-color: var(--iu-line-strong);
   background: color-mix(in srgb, var(--iu-panel) 94%, transparent);
   color: var(--iu-control-ink);
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls label,
@@ -27,12 +27,12 @@
   border-color: var(--iu-control-border);
   background: var(--iu-control-bg);
   color: var(--iu-control-ink);
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-view-presets button span {
   color: inherit;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 /* Style presets — full-width rows, wrapping names, readable type. */
@@ -50,12 +50,12 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette header span {
   color: var(--iu-control-muted);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette header strong {
   color: var(--iu-control-ink);
-  font-size: 0.66rem;
+  font-size: var(--text-sm);
   white-space: normal;
   text-align: right;
   line-height: 1.25;
@@ -77,7 +77,7 @@
   min-height: 36px;
   padding: 6px 8px;
   text-align: left;
-  font-size: 0.66rem;
+  font-size: var(--text-sm);
   line-height: 1.3;
   white-space: normal;
 }
@@ -89,7 +89,7 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette p {
   color: var(--iu-control-muted);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
 }
 
 /* Library cards — content-driven height; name and dimensions as separate rows. */
@@ -105,7 +105,7 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-asset-grid > button strong {
   padding: 8px 8px 2px;
   color: var(--iu-control-ink);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   line-height: 1.3;
   white-space: normal;
   overflow: visible;
@@ -117,7 +117,7 @@
   display: block;
   padding: 0 8px 8px;
   color: var(--iu-control-muted);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   line-height: 1.35;
   white-space: normal;
 }
@@ -130,23 +130,6 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-asset-categories button {
   white-space: normal;
   line-height: 1.25;
-}
-
-/* Compact floating inspector — keep clip on shell; scroll body content. */
-.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-inspector,
-.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-workspace-body.is-planner-build .lr-inspector {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.lr-plan-shell.lr-product-shell-v2.is-ui-compact .lr-inspector-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
 /* Forms — labels stay muted; values use ink; errors wrap below. */
@@ -166,7 +149,7 @@
   display: block;
   margin-top: 4px;
   color: var(--iu-control-error);
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   line-height: 1.35;
   white-space: normal;
   overflow-wrap: anywhere;
