@@ -88,3 +88,27 @@ export function resolvePlanObjectLabelModes(
 
   return modes;
 }
+
+/** Footprints shallower than this put the label just in front instead of inside. */
+export const PLAN_LABEL_INSIDE_MIN_DEPTH_MM = 300;
+
+/**
+ * Baselines (plan mm, label frame is world-aligned) for the name and size lines.
+ * Labels stay inside the footprint so wall-backed cabinets never label the wall line.
+ */
+export function planObjectLabelBaselines(input: {
+  widthMm: number;
+  depthMm: number;
+  rotationY: number;
+  mode: PlanObjectLabelMode;
+  selected: boolean;
+}): { nameY: number; sizeY: number } {
+  const twoLines = input.mode === "full" || input.selected;
+  const radians = (input.rotationY * Math.PI) / 180;
+  const halfY = Math.abs(Math.sin(radians)) * input.widthMm / 2 + Math.abs(Math.cos(radians)) * input.depthMm / 2;
+  if (Math.min(input.widthMm, input.depthMm) < PLAN_LABEL_INSIDE_MIN_DEPTH_MM) {
+    const nameY = halfY + 140;
+    return { nameY, sizeY: nameY + 115 };
+  }
+  return twoLines ? { nameY: -20, sizeY: 100 } : { nameY: 45, sizeY: 160 };
+}

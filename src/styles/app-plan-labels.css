@@ -1,0 +1,23 @@
+/* Calm Light plan labels: sizes are plan millimetres (~13 px at the default
+   room fit). A canvas halo keeps names readable over symbols and wall lines. */
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-object-label {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 140px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 20px;
+  stroke-linejoin: round;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-object-label.is-compact {
+  font-size: 125px;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-object-label .lr-object-size {
+  fill: var(--ink-muted);
+  font-size: 100px;
+  font-weight: 500;
+}

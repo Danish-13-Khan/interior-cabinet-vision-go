@@ -106,6 +106,7 @@ export type RoomBounds = {
   widthMm: number;
   depthMm: number;
   heightMm: number;
+  wallThicknessMm?: number;
 };
 
 export type CabinetProject = {

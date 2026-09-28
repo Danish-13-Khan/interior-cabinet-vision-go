@@ -119,7 +119,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       </div>
       <div className="lr-inspector-scroll">
         {roomEssentials && props.drawRoom ? <InspectorPlanSettingsSlot /> : null}
-        {props.mode === "model" ? <InspectorModelExtrasSlot /> : null}
+        {props.mode === "model" && !activeObject ? <InspectorModelExtrasSlot /> : null}
         {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface ? (
           <InspectorObjectList
             objects={props.project.objects}
