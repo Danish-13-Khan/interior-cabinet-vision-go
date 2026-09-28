@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type {
   CabinetConfig,
   CabinetInstance,
@@ -9,7 +9,7 @@ import type { ManufacturingIssue } from "../domain/manufacturingRules";
 import type { ProjectReport } from "../domain/projectReport";
 import type { MachineJobDocument } from "../domain/machineExport";
 import { buildEngineerDepthChecklist, engineerDepthReadyCount } from "../domain/engineerBridge";
-import { CabinetScene, type CabinetSceneHandle } from "./CabinetScene";
+import { EngineeringCabinetViewport } from "./EngineeringCabinetViewport";
 import { EngineeringProductionOutputs } from "./EngineeringProductionOutputs";
 
 type ReviewTab = "dimensions" | "construction" | "openings" | "materials" | "validation";
@@ -30,6 +30,7 @@ type EngineeringReviewWorkspaceProps = {
   onConfigChange: (config: Partial<CabinetConfig>) => void;
   onOpenAdvanced: () => void;
   onOpenReports: () => void;
+  onGoHome: () => void;
   onExportMachineJson: () => void;
   onExportMachineCsv: () => void;
   onFreezeRevision: () => void;
@@ -52,30 +53,6 @@ function titleCase(value: string) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return <div className="er-metric"><span>{label}</span><strong>{value}</strong></div>;
-}
-
-function CabinetViewport({ project, cabinet, mode }: { project: CabinetProject; cabinet: CabinetInstance; mode: ViewMode }) {
-  const sceneRef = useRef<CabinetSceneHandle | null>(null);
-  useEffect(() => {
-    sceneRef.current?.setViewPreset(mode === "plan" ? "top" : mode === "front" ? "front" : "iso");
-  }, [mode]);
-  return <div className="er-preview er-preview-live" aria-label={`${mode} interactive preview of ${cabinet.name}`}>
-    <CabinetScene
-      ref={sceneRef}
-      project={project}
-      snapSizeMm={50}
-      showGrid
-      reviewMode
-      onCabinetMove={() => false}
-      selectedCabinetIds={[cabinet.id]}
-      activeCabinetId={cabinet.id}
-      selectedPanelName={null}
-      onCabinetResize={() => undefined}
-      onSelectedCabinetChange={() => undefined}
-      onSelectedPanelChange={() => undefined}
-    />
-    <div className="er-orbit-hint">Drag to rotate · Scroll to zoom · Middle-drag to pan</div>
-  </div>;
 }
 
 function DimensionField({
@@ -103,7 +80,7 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
   const [tab, setTab] = useState<ReviewTab>("dimensions");
   const [view, setView] = useState<ViewMode>("3d");
   const [productionOpen, setProductionOpen] = useState(false);
-  const cabinet = props.cabinet;
+  const cabinet = props.cabinet ?? props.cabinets[0] ?? null;
   const errors = props.manufacturingIssues.filter((issue) => issue.severity === "error");
   const warnings = props.manufacturingIssues.filter((issue) => issue.severity === "warning");
   const checklist = buildEngineerDepthChecklist({
@@ -130,6 +107,7 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
       report={props.report}
       machineJob={props.machineJob}
       onBack={() => setProductionOpen(false)}
+      onGoHome={props.onGoHome}
       onExportCutlist={props.onExportCutlist}
       onExportDrawings={props.onExportDrawings}
       onExportMachineJson={props.onExportMachineJson}
@@ -140,7 +118,11 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
   if (!cabinet) {
     return (
       <section className="engineering-review-workspace">
-        <div className="er-empty"><strong>No handed-off cabinet selected</strong><span>Return to Interiors and send a production cabinet to Engineering.</span></div>
+        <div className="er-empty">
+          <strong>No handed-off cabinet selected</strong>
+          <span>Return to Interiors and send a production cabinet to Engineering.</span>
+          <button type="button" className="er-secondary-action" onClick={props.onGoHome}>Landing page</button>
+        </div>
       </section>
     );
   }
@@ -154,9 +136,16 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
   return (
     <section className="engineering-review-workspace" aria-label="Engineering Review">
       <header className="er-header">
-        <div className="er-brand"><span className="er-mark">E</span><div><strong>Engineering Review</strong><small>{props.report.summary.projectNumber} · {props.report.summary.customerName}</small></div></div>
+        <button type="button" className="er-brand" onClick={props.onGoHome} aria-label="Go to landing page">
+          <span className="er-mark">E</span>
+          <div><strong>Engineering Review</strong><small>{props.report.summary.projectNumber} · {props.report.summary.customerName}</small></div>
+        </button>
         <div className="er-handoff-state"><span>Handoff received</span><strong>Rev {revision}</strong><small>{props.report.summary.cabinetCount} cabinet{props.report.summary.cabinetCount === 1 ? "" : "s"} · {props.report.job.status}</small></div>
-        <div className="er-header-actions"><button type="button" onClick={props.onOpenReports}>Reports</button><button type="button" onClick={props.onOpenAdvanced}>Advanced Cabinet Designer</button></div>
+        <div className="er-header-actions">
+          <button type="button" data-testid="engineering-landing" onClick={props.onGoHome}>Landing page</button>
+          <button type="button" onClick={props.onOpenReports}>Reports</button>
+          <button type="button" onClick={props.onOpenAdvanced}>Advanced Cabinet Designer</button>
+        </div>
       </header>
 
       <div className="er-progress" aria-label="Engineering readiness">
@@ -180,7 +169,7 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
 
         <main className="er-stage">
           <div className="er-stage-toolbar"><div><strong>{cabinet.name}</strong><small>{cabinet.config.familyId ?? titleCase(cabinet.config.type)} · {cabinet.id}</small></div><nav aria-label="Preview view">{(["3d", "front", "plan"] as ViewMode[]).map((item) => <button key={item} type="button" className={view === item ? "is-active" : ""} onClick={() => setView(item)}>{item === "3d" ? "3D" : titleCase(item)}</button>)}</nav></div>
-          <CabinetViewport project={props.project} cabinet={cabinet} mode={view} />
+          <EngineeringCabinetViewport cabinet={cabinet} mode={view} />
           <div className="er-stage-summary"><Metric label="Parts" value={String(props.constructionParts.length)} /><Metric label="Cut-list lines" value={String(props.report.perItemCutlists.find((item) => item.cabinetId === cabinet.id)?.lines.length ?? 0)} /><Metric label="Hardware" value={String(props.report.hardwareByCabinet.find((item) => item.cabinetId === cabinet.id)?.lines.length ?? 0)} /><Metric label="Validation" value={errors.length ? `${errors.length} errors` : warnings.length ? `${warnings.length} warnings` : "Clear"} /></div>
         </main>
 

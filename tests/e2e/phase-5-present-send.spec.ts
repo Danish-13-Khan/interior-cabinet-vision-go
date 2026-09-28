@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 import { GOLDEN_RUN_OBJECT_IDS, GOLDEN_RUN_REVISED_WIDTH_MM } from "../../src/domain/livingRoom/goldenRun";
 import {
   captureProposalView,
-  expandEngineeringTree,
   openGoldenCabinetRun,
   readSellTotal,
   reviseBaseWidth,
@@ -56,8 +55,26 @@ test("Phase 5 Present freezes, proposes, approves, and sends", async ({ page }) 
   await expect(page.getByTestId("interiors-present-panel")).toHaveAttribute("data-step", "send");
   await expect(page.getByTestId("send-to-engineering")).toBeEnabled();
   await page.getByTestId("send-to-engineering").evaluate((button: HTMLButtonElement) => button.click());
-  await expect(page.getByRole("button", { name: "Cabinets", exact: true })).toHaveAttribute("aria-current", "page");
-  await expandEngineeringTree(page);
-  await expect(page.locator(`.cabinet-tree-row[data-kind="cabinet"][data-cabinet-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`))
-    .toHaveCount(1);
+  const engineering = page.getByRole("region", { name: "Engineering Review" });
+  await expect(engineering).toBeVisible();
+  await expect(engineering.getByText("Handoff received")).toBeVisible();
+  await expect(engineering.locator(".er-stage-toolbar small")).toContainText(GOLDEN_RUN_OBJECT_IDS.baseA);
+  const preview = engineering.getByTestId("engineering-cabinet-preview");
+  const model = engineering.getByTestId("engineering-cabinet-model");
+  await expect(preview).toBeVisible();
+  await expect(model).toBeVisible();
+  await expect.poll(async () => {
+    const box = await model.boundingBox();
+    return box ? Math.min(box.width, box.height) : 0;
+  }).toBeGreaterThan(80);
+  const beforeOrbit = await model.getAttribute("style");
+  const bounds = await preview.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (bounds) {
+    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(bounds.x + bounds.width / 2 + 80, bounds.y + bounds.height / 2 + 20);
+    await page.mouse.up();
+  }
+  await expect.poll(() => model.getAttribute("style")).not.toBe(beforeOrbit);
 });

@@ -12,10 +12,12 @@ import {
   layoutForAppLaunch,
   openJobWorkbench,
   persistDesktopLayout,
+  readEngineeringSessionRoute,
   rankCommands,
   scoreCommandMatch,
   upsertRecentCommandId,
   upsertRecentFile,
+  writeEngineeringSessionRoute,
   workspaceTabLabel,
 } from "./desktopUx/index";
 
@@ -77,6 +79,20 @@ describe("desktopUx layout", () => {
     const stored = clampDesktopLayout({ workbenchMode: "cabinets" });
     expect(layoutForAppLaunch(stored, "web").workbenchMode).toBe("interiors");
     expect(layoutForAppLaunch(stored, "tauri").workbenchMode).toBe("interiors");
+  });
+
+  it("keeps Engineering active across a WebView reload only for the current session", () => {
+    const memory: Record<string, string> = {};
+    const storage = {
+      getItem: (key: string) => memory[key] ?? null,
+      setItem: (key: string, value: string) => { memory[key] = value; },
+      removeItem: (key: string) => { delete memory[key]; },
+    };
+    expect(readEngineeringSessionRoute(storage)).toBe(false);
+    writeEngineeringSessionRoute(true, storage);
+    expect(readEngineeringSessionRoute(storage)).toBe(true);
+    writeEngineeringSessionRoute(false, storage);
+    expect(readEngineeringSessionRoute(storage)).toBe(false);
   });
 });
 

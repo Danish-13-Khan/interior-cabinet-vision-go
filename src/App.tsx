@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import "./App.css";
 import { AppRibbon } from "./components/AppRibbon";
 import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
@@ -15,10 +14,12 @@ import {
   cycleSnapSizeMm,
   workbenchBreadcrumb,
   WORKBENCH_LABELS,
+  writeEngineeringSessionRoute,
   type WorkbenchMode,
 } from "./domain/desktopUx";
 import { resolvePostHandoffBridge } from "./domain/engineerBridge";
 import { syncInteriorDocumentFromCabinets } from "./domain/livingRoom/handoff";
+import { isTauriRuntime } from "./platform/desktopFiles";
 
 function App() {
   const c = useAppController();
@@ -54,6 +55,7 @@ function App() {
   }
 
   function handleWorkbenchModeChange(mode: WorkbenchMode) {
+    writeEngineeringSessionRoute(mode === "engineering");
     const patch: Parameters<typeof c.setLayout>[0] = {
       workbenchMode: mode,
       statusDockOpen: false,
@@ -67,6 +69,10 @@ function App() {
     } else if (mode === "drawings") {
       patch.sheetBrowserVisible = true;
       patch.sceneBrowserVisible = false;
+    } else if (mode === "engineering") {
+      patch.workspaceTab = "3d";
+      patch.sceneBrowserVisible = false;
+      patch.sheetBrowserVisible = false;
     } else if (mode === "interiors") {
       patch.workspaceTab = "plan";
       patch.sceneBrowserVisible = false;
@@ -80,18 +86,9 @@ function App() {
     c.setDraftingTool("select");
   }
 
-  // Every launch starts at the modern Interiors jobs/templates home. The
-  // advanced Cabinets editor remains available from an opened project.
-  useEffect(() => {
-    handleWorkbenchModeChange("interiors");
-    c.openLivingRoomProjectHome();
-    // mount-only for browser and desktop entry
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <main
-      className={`app-shell${workbenchMode === "interiors" ? " app-shell-interiors" : ""}`}
+      className={`app-shell${workbenchMode === "interiors" ? " app-shell-interiors" : ""}${workbenchMode === "engineering" ? " app-shell-engineering" : ""}`}
       style={{
         ["--tool-rail-width" as string]: `${c.layout.toolRailWidthPx}px`,
         ["--inspector-width" as string]: `${c.layout.inspectorWidthPx}px`,
@@ -226,6 +223,15 @@ function App() {
             onConfigChange={c.handleConfigChange}
             onOpenAdvanced={() => handleWorkbenchModeChange("cabinets")}
             onOpenReports={() => handleWorkbenchModeChange("reports")}
+            onGoHome={() => {
+              writeEngineeringSessionRoute(false);
+              if (isTauriRuntime()) {
+                handleWorkbenchModeChange("interiors");
+                c.openLivingRoomProjectHome();
+                return;
+              }
+              window.location.assign("/");
+            }}
             onExportMachineJson={() => { void c.handleExportMachineJson(); }}
             onExportMachineCsv={() => { void c.handleExportMachineCsv(); }}
             onFreezeRevision={() => c.handleFreezeRevision("Engineering review", false)}
@@ -346,10 +352,13 @@ function App() {
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onPatchDocument={c.patchLivingRoomDocument}
-            onEnterEngineering={(cabinetIds) => {
+            onEnterEngineering={() => {
               const bridge = resolvePostHandoffBridge();
+              // The handoff commit already applies the adapted project and its
+              // cabinet selection atomically. Re-selecting here would sanitize
+              // those new IDs against the stale pre-handoff project.
+              c.closeLivingRoomProjectHome();
               handleWorkbenchModeChange(bridge.workbenchMode);
-              c.replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
             }}
             onLightingChange={c.setLivingRoomLightingRecipe}
             onRenderBrowserThumbnail={(dataUrl) => {
