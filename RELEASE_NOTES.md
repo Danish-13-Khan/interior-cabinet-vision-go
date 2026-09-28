@@ -10,7 +10,12 @@
   60 mm into it. They now use the room's wall thickness (Room settings) so the
   cabinet back meets the inner face. Existing projects are re-clamped when they
   are opened, so wall-attached cabinets in saved files move to the corrected
-  position; floor cabinets are unchanged.
+  position.
+- **Opened projects fit each room's real size.** Cabinets used to be fitted to
+  a default 6000 × 4000 mm room on load; they are now fitted to the room they
+  belong to. Floor cabinets can move too: in rooms larger than the default they
+  are no longer pulled inside the old edges, and in smaller rooms any cabinet
+  past the room edge is pulled inside when the project opens.
 
 ### Known issues
 
