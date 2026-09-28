@@ -470,7 +470,7 @@ export function LivingRoomPlanView(props: Props) {
       onSetCabinetDims={props.onSetCabinetInlineDims}
       onStart={objects.start} interactive={!measureLike} />
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
-      settings={props.readability} referenceDims={referenceDims}
+      settings={props.readability} referenceDims={referenceDims} selectedIds={props.selectedIds}
       onSetWallLength={props.onSetWallLength} /> : null}
     <PlanMeasureOverlay active={measureLike} points={measurePoints} cursor={measureCursor} snap={measureSnap} mode={calibrating ? "calibrate" : "measure"} />
     {calibrating && calibrateBlockedReason ? (
