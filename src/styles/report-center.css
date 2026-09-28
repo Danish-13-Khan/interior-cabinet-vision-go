@@ -11,7 +11,7 @@
   display: flex;
   gap: 1px;
   padding: 2px 4px 0;
-  border-bottom: 1px solid var(--workspace-gutter, var(--border-strong));
+  border-bottom: 1px solid var(--border-strong, var(--border-strong));
   background: var(--report-chrome, var(--border-strong));
   position: sticky;
   top: 0;
@@ -35,7 +35,7 @@
 
 .report-center-tab.is-active {
   background: var(--report-surface, var(--surface));
-  border-color: var(--workspace-gutter, var(--border-strong));
+  border-color: var(--border-strong, var(--border-strong));
   border-bottom-color: var(--report-surface, var(--surface));
   color: var(--ink);
 }

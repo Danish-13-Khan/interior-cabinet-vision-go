@@ -5,9 +5,9 @@
   gap: 12px;
   min-height: 56px;
   padding: 0 16px;
-  border-bottom: 1px solid var(--planner-v2-line, #dce5de);
+  border-bottom: 1px solid var(--border, #dce5de);
   background: #fff;
-  color: var(--planner-v2-ink, #243029);
+  color: var(--ink, #243029);
 }
 
 .lr-chrome-brand,
@@ -46,7 +46,7 @@
 }
 
 .lr-chrome-crumb span {
-  color: var(--planner-v2-muted, #68766c);
+  color: var(--ink-muted, #68766c);
   font-size: var(--text-sm);
 }
 
@@ -130,7 +130,7 @@
   flex-direction: column;
   gap: 4px;
   padding: 10px 8px;
-  border-right: 1px solid var(--planner-v2-line, #dce5de);
+  border-right: 1px solid var(--border, #dce5de);
   background: #f8fbf8;
 }
 

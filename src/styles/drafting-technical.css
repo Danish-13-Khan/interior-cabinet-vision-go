@@ -39,7 +39,7 @@
 .warning-panel p,
 .scene-overlay span {
   margin: 0;
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
 }
 
@@ -58,7 +58,7 @@
   gap: 6px;
   padding: 7px 8px;
   border-radius: 3px;
-  background: var(--panel-raised);
+  background: var(--surface-2);
   border: 1px solid #d5dde6;
 }
 
@@ -103,7 +103,7 @@
 .cabinet-list-item.active {
   background: var(--accent-soft);
   border-color: #9ebedc;
-  box-shadow: inset 3px 0 0 var(--selection);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .cabinet-list-icon {
@@ -130,7 +130,7 @@
 
 .cabinet-list-type {
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .cabinet-property-grid {
@@ -142,7 +142,7 @@
 .property-grid-section {
   border: 1px solid #d5dde6;
   border-radius: 3px;
-  background: var(--panel-raised);
+  background: var(--surface-2);
   overflow: hidden;
 }
 
@@ -167,7 +167,7 @@
 
 .property-grid-section-header span {
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .property-grid-rows {
@@ -237,13 +237,13 @@
 .property-grid-number em {
   font-style: normal;
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--ink-muted);
   font-weight: 650;
 }
 
 .property-grid-readonly {
   font-size: var(--text-sm);
-  color: var(--muted);
+  color: var(--ink-muted);
   text-align: right;
   line-height: 1.25;
   word-break: break-word;

@@ -138,7 +138,7 @@ export function EngineeringReviewWorkspace(props: EngineeringReviewWorkspaceProp
       <header className="er-header">
         <button type="button" className="er-brand" onClick={props.onGoHome} aria-label="Go to landing page">
           <span className="er-mark">E</span>
-          <div><strong>Engineering Review</strong><small>{props.report.summary.projectNumber} · {props.report.summary.customerName}</small></div>
+          <div><strong>Engineering Review</strong><small>{[props.report.summary.projectNumber, props.report.summary.customerName].filter((part) => part && part !== "—").join(" · ")}</small></div>
         </button>
         <div className="er-handoff-state"><span>Handoff received</span><strong>Rev {revision}</strong><small>{props.report.summary.cabinetCount} cabinet{props.report.summary.cabinetCount === 1 ? "" : "s"} · {props.report.job.status}</small></div>
         <div className="er-header-actions">

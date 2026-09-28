@@ -2,14 +2,14 @@
 
 .technical-view .twod-cabinet.twod-selected {
   fill: var(--selection-fill);
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 1.75px;
   filter: none;
 }
 
 .technical-view .twod-cabinet.twod-active {
   fill: var(--selection-active-fill);
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 2.05px;
   filter: none;
 }
@@ -20,12 +20,12 @@
 
 .technical-view .twod-opening-face.is-active-opening,
 .technical-view .twod-opening-chrome.is-active-opening {
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 1.7px;
 }
 
 .technical-view .twod-opening-active-tick {
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 1.55px;
   fill: none;
 }
@@ -36,7 +36,7 @@
 }
 
 .technical-view .twod-dim-selected {
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 1.15px;
   opacity: 0.95;
 }
@@ -63,7 +63,7 @@
 }
 
 .technical-view .twod-annotation.twod-dim-selected {
-  fill: var(--selection);
+  fill: var(--accent);
 }
 
 .technical-view .twod-annotation.twod-dim.is-selected,

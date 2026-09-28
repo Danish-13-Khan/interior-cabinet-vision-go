@@ -3,7 +3,7 @@
   top: 0;
   z-index: 4;
   padding: 6px;
-  border-bottom: 1px solid var(--rail-section-border);
+  border-bottom: 1px solid var(--border);
   background: #d8e0e8;
 }
 
@@ -29,7 +29,7 @@
 .wall-layout-title span,
 .wall-layout-hint {
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .wall-health {
@@ -42,9 +42,9 @@
 }
 
 .wall-health.is-warning {
-  border-color: var(--warn-border);
-  background: var(--warn-bg);
-  color: var(--warn-fg) !important;
+  border-color: var(--warning);
+  background: var(--warning-soft);
+  color: var(--warning) !important;
 }
 
 .wall-selector {
@@ -98,7 +98,7 @@
 .wall-layout-metrics span,
 .wall-layout-metrics small {
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .wall-layout-metrics strong {
@@ -120,7 +120,7 @@
   flex-direction: column;
   gap: 2px;
   margin-bottom: 4px;
-  color: var(--warn-fg);
+  color: var(--warning);
   font-size: var(--text-xs);
 }
 
@@ -174,7 +174,7 @@
 
 .twod-cabinet-resize-handle {
   fill: #fff;
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
   cursor: ew-resize;
@@ -182,7 +182,7 @@
 
 .wall-run-inspector {
   padding: 6px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--border-strong);
   background: #d8e0e8;
 }
 
@@ -213,7 +213,7 @@
 
 .wall-run-inspector .property-section-heading > div > span {
   overflow: hidden;
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -226,7 +226,7 @@
 .wall-run-inspector-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--panel-border);
+  border: 1px solid var(--border-strong);
   margin-top: 4px;
 }
 
@@ -236,8 +236,8 @@
   justify-content: space-between;
   gap: 4px;
   padding: 4px 5px;
-  border-right: 1px solid var(--panel-border);
-  border-bottom: 1px solid var(--panel-border);
+  border-right: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
   background: rgba(255, 255, 255, 0.45);
 }
 
@@ -250,7 +250,7 @@
 }
 
 .wall-run-inspector-grid span {
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -285,9 +285,9 @@
 }
 
 .run-health.is-blocked {
-  border-color: var(--warn-border);
-  background: var(--warn-bg);
-  color: var(--warn-fg);
+  border-color: var(--warning);
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 
 .run-member-strip {
@@ -312,13 +312,13 @@
 }
 
 .run-member-strip button.is-active {
-  border: 2px solid var(--selection);
+  border: 2px solid var(--accent);
   background: var(--accent-soft);
 }
 
 .run-member-strip span {
   font: var(--text-xs) var(--font-mono);
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .run-member-strip strong {
@@ -340,9 +340,9 @@
   gap: 2px;
   margin-top: 4px;
   padding: 4px 5px;
-  border-left: 3px solid var(--warn-border);
-  background: var(--warn-bg);
-  color: var(--warn-fg);
+  border-left: 3px solid var(--warning);
+  background: var(--warning-soft);
+  color: var(--warning);
   font-size: var(--text-xs);
 }
 
@@ -360,7 +360,7 @@
   align-items: center;
   gap: 6px;
   margin: 4px 0;
-  color: var(--muted);
+  color: var(--ink-muted);
   font: var(--text-xs) var(--font-mono);
 }
 
@@ -372,13 +372,13 @@
 .run-command-group {
   margin-top: 6px;
   padding-top: 5px;
-  border-top: 1px solid var(--panel-border);
+  border-top: 1px solid var(--border-strong);
 }
 
 .run-command-group > label {
   display: block;
   margin-bottom: 3px;
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
@@ -394,8 +394,8 @@
 .run-command-group button,
 .run-context-actions button {
   min-height: 24px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
   color: var(--ink);
   font-size: var(--text-xs);
 }
@@ -430,8 +430,8 @@
 
 .wall-run-inspector-actions button {
   min-height: 23px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
   color: var(--ink);
   font-size: var(--text-xs);
   font-weight: 700;

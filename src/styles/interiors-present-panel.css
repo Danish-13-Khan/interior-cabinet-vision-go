@@ -1,33 +1,33 @@
 /* Present panel and narrow breakpoints. */
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel {
-  border-color: var(--iu-line);
-  background: var(--iu-panel);
-  color: var(--iu-ink);
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--ink);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header span,
-.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-total { color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-total { color: var(--accent); }
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel header small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review-fields label {
-  color: var(--iu-muted);
+  color: var(--ink-muted);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff {
-  border-color: var(--iu-line);
+  border-color: var(--border);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .proposal-review > strong,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel .engineering-handoff > strong,
-.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel section > strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-panel section > strong { color: var(--ink); }
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel input,
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button {
-  border-color: var(--iu-line);
-  background: var(--iu-panel-2);
-  color: var(--iu-ink);
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-present-panel button.is-primary {
-  border-color: var(--iu-green);
-  background: var(--iu-green);
+  border-color: var(--accent);
+  background: var(--accent);
   color: light-dark(#fff, #102018);
 }
 .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .interiors-present-panel {

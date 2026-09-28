@@ -2,7 +2,7 @@
 
 /* ── Split panes — desktop CAD feel ── */
 .workspace-split {
-  background: var(--workspace-gutter);
+  background: var(--border-strong);
   grid-template-columns:
     minmax(0, var(--split-plan-pct, 50%))
     2px
@@ -14,26 +14,26 @@
 }
 
 .workspace-pane {
-  border: 1px solid var(--workspace-gutter);
-  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
   box-shadow: none;
-  background: var(--panel-bg);
+  background: var(--surface);
 }
 
 .workspace-pane.is-focused {
-  border-color: var(--workspace-active-border);
-  box-shadow: inset 0 0 0 1px var(--workspace-active-border);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .workspace-pane-header {
   min-height: 18px;
   padding: 0 2px 0 3px;
-  background: var(--workspace-pane-header);
+  background: var(--surface-2);
 }
 
 .workspace-pane.is-focused .workspace-pane-header {
-  background: var(--workspace-pane-header-focus);
-  border-bottom-color: var(--workspace-active-border);
+  background: var(--accent-soft);
+  border-bottom-color: var(--accent);
 }
 
 .workspace-pane-title {
@@ -49,7 +49,7 @@
 .drawing-sheet-embedded,
 .drawing-sheet-embedded .drawing-sheet-scroll,
 .drawing-sheet-scroll {
-  background: var(--drawing-bg);
+  background: var(--canvas);
 }
 
 .drawing-sheet-embedded .drawing-sheet-scroll,
@@ -59,7 +59,7 @@
 
 .viewport-panel,
 .viewport-panel-embedded {
-  background: var(--canvas-bg);
+  background: var(--canvas);
 }
 
 .workspace-scene-browser {
@@ -92,8 +92,8 @@
 .drawing-sheet-tabs {
   padding: 0 2px;
   gap: 0;
-  background: var(--workspace-chrome);
-  border-bottom-color: var(--workspace-gutter);
+  background: var(--surface-2);
+  border-bottom-color: var(--border-strong);
 }
 
 .drawing-sheet-tab {
@@ -104,20 +104,20 @@
 }
 
 .drawing-sheet-tab.is-active {
-  background: var(--drawing-bg);
-  border-color: var(--workspace-gutter);
-  border-bottom-color: var(--drawing-bg);
+  background: var(--canvas);
+  border-color: var(--border-strong);
+  border-bottom-color: var(--canvas);
 }
 
 .drawing-sheet-meta {
   padding: 1px 5px;
   gap: 6px;
-  background: var(--workspace-pane-header);
-  border-bottom-color: var(--panel-border);
+  background: var(--surface-2);
+  border-bottom-color: var(--border-strong);
 }
 
 .drawing-sheet.is-active-sheet {
-  box-shadow: inset 0 0 0 1px var(--workspace-active-border);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 /* ── Status strip / dock ── */

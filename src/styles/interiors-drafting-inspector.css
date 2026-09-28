@@ -11,13 +11,13 @@
   display: grid;
   gap: 4px;
   padding: 16px 16px 12px;
-  border-bottom: 1px solid var(--iu-line);
+  border-bottom: 1px solid var(--border);
   background: #fff;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header span,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header .lr-chrome-eyebrow {
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: 0;
@@ -30,7 +30,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: 0;
-  color: var(--iu-muted);
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-architecture-inspector {
@@ -56,7 +56,7 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field > span {
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: var(--text-sm);
   font-weight: 600;
 }
@@ -64,10 +64,10 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field input {
   min-height: 36px;
   padding: 0 10px;
-  border: 1px solid var(--iu-control-border);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
   background: #fff;
-  color: var(--iu-ink);
+  color: var(--ink);
   text-align: left;
   font-size: var(--text-md);
 }
@@ -80,15 +80,15 @@
   margin: 0;
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--iu-panel-2);
-  color: var(--iu-muted);
+  background: var(--surface-2);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
   line-height: 1.45;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-room-preview,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-preview {
-  border: 1px solid var(--iu-line);
+  border: 1px solid var(--border);
   border-radius: 8px;
   background: #f6f8fb;
 }
@@ -107,25 +107,25 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise-actions button,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-offset-field button,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-offset-field input {
-  border-color: var(--iu-line);
+  border-color: var(--border);
   background: #fff;
-  color: var(--iu-ink);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise {
-  background: var(--iu-panel-2);
+  background: var(--surface-2);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-raise p,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-offset-field span,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-height-presets > span {
-  color: var(--iu-muted);
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-height-presets button.is-active {
-  border-color: var(--iu-green);
-  background: var(--iu-green-soft);
-  color: var(--iu-control-active-ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 /* Selected-object inspector: override the legacy oversized planner treatment. */
@@ -145,15 +145,15 @@
   gap: 8px;
   min-width: 0;
   padding: 10px 12px;
-  border: 1px solid var(--iu-line);
-  border-left: 3px solid var(--iu-green);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
   border-radius: 8px;
-  background: var(--iu-panel-2);
+  background: var(--surface-2);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-identity strong {
   min-width: 0;
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: var(--text-md);
   line-height: 1.3;
   overflow-wrap: anywhere;
@@ -172,8 +172,8 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-millwork-badge.is-soft {
-  border-color: var(--iu-line-strong);
-  color: var(--iu-muted);
+  border-color: var(--border-strong);
+  color: var(--ink-muted);
   background: #fff;
 }
 
@@ -188,10 +188,10 @@
   min-width: 0;
   min-height: 34px;
   padding: 0 8px;
-  border: 1px solid var(--iu-control-border);
+  border: 1px solid var(--border-strong);
   border-radius: 7px;
   background: #fff;
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: var(--text-sm);
 }
 
@@ -203,13 +203,13 @@
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-dimensions-heading {
   margin: 2px 0 0;
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: var(--text-sm);
   letter-spacing: 0.04em;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-dimensions-heading small {
-  color: var(--iu-muted);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
 }
 
@@ -271,18 +271,18 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-number-field.lr-dimension-card {
   min-height: 68px;
   padding: 8px;
-  border: 1px solid var(--iu-control-border);
+  border: 1px solid var(--border-strong);
   border-radius: 9px;
   background: #fff;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-dimension-card > span {
-  color: var(--iu-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-dimension-card input {
-  color: var(--iu-ink);
+  color: var(--ink);
   background: #fff;
   font: 600 var(--text-md)/1.2 "IBM Plex Sans", "Segoe UI", sans-serif;
 }
@@ -291,8 +291,8 @@
   margin: 0;
   padding: 9px 10px;
   border-radius: 7px;
-  background: var(--iu-panel-2);
-  color: var(--iu-muted);
+  background: var(--surface-2);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
   line-height: 1.45;
 }
@@ -310,7 +310,7 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-technical-identity code {
-  color: var(--iu-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
   overflow-wrap: anywhere;
 }
@@ -324,7 +324,7 @@
   content: "+";
   position: absolute;
   right: 10px;
-  color: var(--iu-green);
+  color: var(--accent);
   font-size: var(--text-md);
 }
 
