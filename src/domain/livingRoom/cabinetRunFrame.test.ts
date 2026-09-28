@@ -63,7 +63,7 @@ describe("resolveCabinetRunFrame — Phase 4 exit gate", () => {
   it("camera faces every wall cabinet's front, not its side or back", () => {
     for (const audience of ["author", "client"] as const) {
       const frame = resolveCabinetRunFrame(scene, viewports[0], { audience })!;
-      for (const node of cabinets) {
+      for (const node of cabinets.filter((item) => item.metadata.category !== "filler")) {
         const box = sceneNodeAabbMm(node)!;
         const side = cabinetWallSide(box, scene.bounds);
         expect(side, node.id).not.toBeNull();

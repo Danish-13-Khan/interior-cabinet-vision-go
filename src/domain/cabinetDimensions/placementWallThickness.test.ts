@@ -55,4 +55,13 @@ describe("wall-attached placement honours the room wall thickness", () => {
     const placed = project.rooms![0]!.cabinets[0]!.placement;
     expect(placed.z - dimensions.depth / 2).toBe(-config.dimensions.depthMm / 2 + 100);
   });
+
+  it("stops floor cabinets at the inner wall face, not the centreline", () => {
+    const base = getDefaultCabinetConfig("base").dimensions;
+    const bounds = { ...room, wallThicknessMm: 200 };
+    const pushed = clampCabinetPlacement({ x: 9000, y: 0, z: -9000, rotation: 0, attachment: "floor" }, base, bounds);
+    expect(pushed.x + base.width / 2).toBeLessThanOrEqual(room.widthMm / 2 - 100);
+    expect(pushed.z - base.depth / 2).toBeGreaterThanOrEqual(-room.depthMm / 2 + 100);
+  });
 });
+
