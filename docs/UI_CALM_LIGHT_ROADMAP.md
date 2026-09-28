@@ -1,6 +1,6 @@
 # Calm Light UI roadmap
 
-**Status:** Proposed — 2026-09-28
+**Status:** Phases 0–7 implemented; Phase 8 partly done (see its notes) — 2026-09-28
 **Scope:** Public website, sign-in, projects home, the Interiors editor
 (Room → Cabinets → Materials → Review → Present) and Engineering Review.
 **Relationship to other docs:** Carries forward the workflow in
@@ -416,6 +416,30 @@ sheets and PDFs keep their print styles (black on white) — only the chrome cha
 
 **Exit gate:** `npm run release:check` green with style lint, visual baselines
 and axe checks included.
+
+**Implementation notes (Phase 8, first pass):**
+- Retired file names: `cad-shell-compress.css` is split into
+  `cad-density-{docks,panes,overlays}.css`; the `phase-*` and `*-contrast*`
+  files are renamed by concern (`plan-readability`, `model-onboarding`,
+  `model-selection`, `model-wall-visibility`, `material-colour`,
+  `texture-import`, `wall-panels`, `url-import`, `contextual-command-rail`,
+  `manufacturer-catalogues`, `interiors-overflow`,
+  `interiors-materials-readability`). Each keeps its import slot in `App.css`,
+  so the cascade is unchanged, and all of them now use tokens only.
+- Accessibility fixes found by axe: faint inspector hints and catalogue id use
+  `--ink-muted`; `--warning` darkened to `#88550e` (4.5:1 on `--surface-2`);
+  the surface-zones SVG group has `role="group"`; old `#748076` greys replaced.
+- Gates: `tests/e2e/calm-light-a11y.spec.ts` (`npm run test:a11y`, zero
+  serious/critical WCAG AA issues) and `tests/e2e/calm-light-visual.spec.ts`
+  (`npm run test:visual`; create baselines once with `npm run test:visual:update`)
+  cover the website (desktop, phone), projects home, each workflow step and
+  Engineering Review. Both run inside `release:check` via `test:e2e`.
+- `LivingRoomModelView.tsx` is under 200 lines (`useModelViewTransform`,
+  `PlanTraceRaisePrompt`, `mechanismTogglePatch`).
+- Still open: 108 style files (target ~10 + one per component), 84 `!important`
+  (lint blocks new ones), raw hex in 69 legacy style files, and 24 style files
+  over 200 lines (`living-room-plan.css`, `interiors-product.css`, …). The legacy
+  alias block in `tokens.css` stays until those files move to Calm Light names.
 
 ## 6. Order and rough size
 

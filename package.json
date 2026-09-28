@@ -9,6 +9,9 @@
     "lint:styles": "node scripts/ui-lint/check-styles.mjs",
     "poster:showroom": "node scripts/showroom/render-poster.mjs",
     "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/calm-light-a11y.spec.ts",
+    "test:visual": "playwright test tests/e2e/calm-light-visual.spec.ts",
+    "test:visual:update": "playwright test tests/e2e/calm-light-visual.spec.ts --update-snapshots",
     "test:golden": "playwright test tests/e2e/golden-cabinet-run.spec.ts tests/e2e/living-room-release.spec.ts --project=chromium",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -48,6 +51,7 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@napi-rs/canvas": "^0.1.80",
     "@playwright/test": "^1.62.1",
     "@tauri-apps/cli": "^2",

@@ -17,7 +17,7 @@ shared shell (step 3).
 | --- | --- |
 | `src/styles/interiors-control-tokens.css` | `--iu-*` shell tokens plus control ink/border/focus/error/disabled tokens. Stops `color: inherit` from pushing muted parent ink onto buttons. |
 | `src/styles/interiors-controls.css` | Shared enabled, hover, selected (`.is-active` / `.is-primary`), disabled, `:focus-visible`, `.is-error`, and loading (`[aria-busy]` / `.is-loading`) states. |
-| `src/styles/interiors-contrast-overflow.css` | Model toolbar wrap + readable type; style presets as full-width wrapping rows; catalog cards with wrapping name/dimension rows; Compact inspector body scroll. |
+| `src/styles/interiors-overflow.css` | Model toolbar wrap + readable type; style presets as full-width wrapping rows; catalog cards with wrapping name/dimension rows; Compact inspector body scroll. |
 | `src/styles/interiors-ui-modes*.css` | Existing Calm/Compact layout split to ≤200 lines per file (chrome/projects, compact projects, authoring, present). |
 
 Import order in `src/App.css`: tokens → mode layout modules → controls →
@@ -43,7 +43,7 @@ contrast/overflow → projects home layout.
 ## State matrix checklist (Calm and Compact)
 
 CSS contract verified in `interiors-controls.css` /
-`interiors-contrast-overflow.css` (September 10, 2026). Still spot-check on
+`interiors-overflow.css` (September 10, 2026). Still spot-check on
 device at 1280 px, 1440 px, and ~200% zoom before release:
 
 - [x] Enabled controls use ink on panel backgrounds (not muted-on-pale) — `--iu-control-ink` / `--iu-control-bg-2`

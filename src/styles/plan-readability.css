@@ -1,16 +1,16 @@
 .lr-plan-dimension-pairs {
   fill: none;
-  stroke: #526258;
+  stroke: var(--ink-muted);
   stroke-width: 12px;
 }
 
 .lr-plan-dimension-pairs text,
 .lr-wall-length-labels text {
   paint-order: stroke;
-  stroke: #f8faf8;
+  stroke: var(--canvas);
   stroke-width: 34px;
   stroke-linejoin: round;
-  fill: #35433a;
+  fill: var(--ink);
   font-size: 145px;
   font-weight: 650;
   text-anchor: middle;
@@ -23,7 +23,7 @@
 }
 
 .lr-plan-svg.is-line-style .lr-plan-object > rect {
-  fill: #fff;
+  fill: var(--surface);
   fill-opacity: .08;
 }
 
@@ -42,7 +42,7 @@
 
 .lr-readability-toolbar button.is-active {
   border-color: var(--lr-accent);
-  background: #eaf4ee;
+  background: var(--accent-soft);
   color: var(--lr-accent);
 }
 
@@ -64,13 +64,13 @@
   gap: 8px;
   margin-left: auto;
   padding: 6px 10px;
-  border: 1px solid #465448;
+  border: 1px solid var(--ink);
   border-radius: 8px;
-  background: #1d251e;
+  background: var(--ink);
 }
 
 .lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar > span {
-  color: #aeb8b0;
+  color: var(--ink-faint);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -80,10 +80,10 @@
 .lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar select,
 .lr-product-shell-v2 .lr-plan-titlebar.has-readability .lr-readability-toolbar button {
   min-height: 28px;
-  border: 1px solid #465448;
+  border: 1px solid var(--ink);
   border-radius: 6px;
-  background: #202a21;
-  color: #eef3ed;
+  background: var(--ink);
+  color: var(--ink-faint);
   font-size: 12px;
 }
 
@@ -91,13 +91,13 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #c6d0c7;
+  color: var(--ink-faint);
   font-size: 12px;
 }
 
 .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-titlebar.has-readability small {
   display: inline;
-  color: #9eaaa0;
+  color: var(--ink-faint);
 }
 
 .lr-underlay-controls {
@@ -119,7 +119,7 @@
 .lr-underlay-transform-grid input {
   min-width: 0;
   height: 28px;
-  border: 1px solid #cbd1d7;
+  border: 1px solid var(--border-strong);
   border-radius: 5px;
   padding: 0 6px;
 }
@@ -135,11 +135,11 @@
   fill: color-mix(in srgb, var(--lr-accent) 10%, transparent);
 }
 
-.lr-room-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
+.lr-room-drawing-overlay circle { fill: var(--lr-accent); stroke: var(--surface); stroke-width: 14px; }
 
 .lr-room-drawing-overlay text {
   fill: var(--lr-accent); font-size: 130px; font-weight: 700; text-anchor: middle;
-  paint-order: stroke; stroke: #fff; stroke-width: 28px;
+  paint-order: stroke; stroke: var(--surface); stroke-width: 28px;
 }
 
 .lr-wall-drawing-overlay line {
@@ -148,7 +148,7 @@
   stroke-dasharray: 50 30;
 }
 
-.lr-wall-drawing-overlay circle { fill: var(--lr-accent); stroke: #fff; stroke-width: 14px; }
+.lr-wall-drawing-overlay circle { fill: var(--lr-accent); stroke: var(--surface); stroke-width: 14px; }
 
 .lr-wall-line.is-partition {
   stroke-dasharray: 70 40;
