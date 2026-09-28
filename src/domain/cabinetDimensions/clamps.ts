@@ -47,7 +47,7 @@ import type {
   CabinetConfig,
   CabinetDimensions,
   CabinetPlacement,
-  CabinetProject,
+  CabinetProject, RoomBounds,
 } from "./types";
 import {
   CABINET_DEPTH_MAX_MM,
@@ -354,7 +354,7 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
   };
 }
 
-export function clampCabinetProject(project: CabinetProject): CabinetProject {
+export function clampCabinetProject(project: CabinetProject, roomBounds?: RoomBounds): CabinetProject {
   const layers = Array.isArray(project.layers) && project.layers.length > 0
     ? project.layers.map((layer, index) => ({
         id: layer.id || `layer-${index + 1}`,
@@ -407,7 +407,7 @@ export function clampCabinetProject(project: CabinetProject): CabinetProject {
         const mounted = applyWallMountPlacementFix(type, rawPlacement).placement;
         return clampCabinetPlacement(
           mounted,
-          clampCabinetConfig(cabinet.config).dimensions,
+          clampCabinetConfig(cabinet.config).dimensions, roomBounds,
         );
       })(),
     })),
