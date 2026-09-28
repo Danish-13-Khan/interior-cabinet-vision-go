@@ -5,9 +5,9 @@
   gap: 8px;
   margin-top: 10px;
   padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--lr-line, #d5d0c6) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lr-line, var(--border-strong)) 90%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--lr-panel-2, #f7f4ee) 88%, white);
+  background: color-mix(in srgb, var(--lr-panel-2, var(--warning-soft)) 88%, white);
 }
 
 .lr-manufacturer-catalogue header {
@@ -21,7 +21,7 @@
 
 .lr-manufacturer-catalogue header span,
 .lr-manufacturer-catalogue small {
-  color: var(--lr-muted, #6f6a60);
+  color: var(--lr-muted, var(--ink-muted));
   font-size: var(--text-xs);
 }
 
@@ -35,19 +35,19 @@
   width: 100%;
   min-height: 32px;
   padding: 4px 8px;
-  border: 1px solid var(--lr-line, #d5d0c6);
+  border: 1px solid var(--lr-line, var(--border-strong));
   border-radius: 6px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .lr-manufacturer-catalogue button[data-testid="manufacturer-finish-stage"] {
   justify-self: start;
   min-height: 32px;
   padding: 0 12px;
-  border: 1px solid var(--lr-green, #2f6b4f);
+  border: 1px solid var(--lr-green, var(--accent));
   border-radius: 6px;
-  background: color-mix(in srgb, var(--lr-green, #2f6b4f) 12%, white);
-  color: var(--lr-green, #2f6b4f);
+  background: color-mix(in srgb, var(--lr-green, var(--accent)) 12%, white);
+  color: var(--lr-green, var(--accent));
   font-size: 12px;
   cursor: pointer;
 }
@@ -59,6 +59,6 @@
 
 .lr-manufacturer-finish-meta {
   margin: 0;
-  color: var(--lr-muted, #6f6a60);
+  color: var(--lr-muted, var(--ink-muted));
   font-size: var(--text-xs);
 }

@@ -87,7 +87,7 @@
   color: var(--ink-muted);
 }
 .cs-marketing .site-footer-links a:hover { color: var(--ink); }
-.cs-marketing .site-footer-note { font-size: var(--text-sm); color: var(--ink-faint); }
+.cs-marketing .site-footer-note { font-size: var(--text-sm); color: var(--ink-muted); }
 
 @media (max-width: 960px) {
   .cs-marketing .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

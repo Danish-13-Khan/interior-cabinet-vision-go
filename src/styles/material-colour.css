@@ -4,7 +4,7 @@
   gap: 8px;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #d5ddd7;
+  border-top: 1px solid var(--border-strong);
 }
 
 .lr-material-colour header {
@@ -12,12 +12,12 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-  color: #3d4a42;
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
 .lr-material-colour header span {
-  color: #6d7a72;
+  color: var(--ink-muted);
 }
 
 .lr-material-shades {
@@ -30,10 +30,10 @@
   display: grid;
   gap: 4px;
   padding: 6px;
-  border: 1px solid #c5cec8;
+  border: 1px solid var(--border-strong);
   border-radius: 5px;
-  background: #fff;
-  color: #243029;
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
   text-align: left;
   cursor: pointer;
@@ -41,7 +41,7 @@
 
 .lr-material-shades button.is-active,
 .lr-material-shades button:hover {
-  border-color: #2f6b4f;
+  border-color: var(--accent);
 }
 
 .lr-material-shades i,
@@ -62,17 +62,17 @@
 .lr-material-colour-fields label {
   display: grid;
   gap: 3px;
-  color: #58655e;
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
 .lr-material-colour-fields input {
   min-height: 28px;
   padding: 0 6px;
-  border: 1px solid #c5cec8;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #fff;
-  color: #1c2a22;
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
@@ -82,7 +82,7 @@
 }
 
 .lr-material-recent strong {
-  color: #3d4a42;
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
@@ -96,8 +96,8 @@
   width: 28px;
   height: 28px;
   padding: 3px;
-  border: 1px solid #c5cec8;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
   cursor: pointer;
 }

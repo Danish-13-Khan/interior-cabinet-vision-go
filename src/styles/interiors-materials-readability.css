@@ -35,9 +35,9 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button.is-active {
-  border-color: var(--lr-accent, #2f6feb);
-  background: #edf4ff;
-  color: var(--lr-accent, #2f6feb);
+  border-color: var(--lr-accent, var(--info));
+  background: var(--info-soft);
+  color: var(--lr-accent, var(--info));
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-targets button {

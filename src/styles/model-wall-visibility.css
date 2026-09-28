@@ -7,7 +7,7 @@
   border-radius: 6px;
   background: rgba(248, 251, 249, 0.96);
   box-shadow: 0 8px 24px rgba(12, 28, 20, 0.12);
-  color: #1c2a22;
+  color: var(--ink);
   font-size: 12px;
 }
 
@@ -85,16 +85,16 @@
 .lr-wall-visibility-selected button {
   min-height: 26px;
   padding: 0 8px;
-  border: 1px solid #9aada2;
+  border: 1px solid var(--ink-faint);
   border-radius: 4px;
-  background: #fff;
-  color: #1c2a22;
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
   cursor: pointer;
 }
 
 .lr-wall-visibility-panel button:hover,
 .lr-wall-visibility-selected button:hover {
-  border-color: #2f6b4f;
-  color: #2f6b4f;
+  border-color: var(--accent);
+  color: var(--accent);
 }

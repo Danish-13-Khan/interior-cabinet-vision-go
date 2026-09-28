@@ -4,12 +4,12 @@
   gap: 8px;
   margin: 10px 0;
   padding: 8px 0 4px;
-  border-top: 1px solid #d5ddd7;
+  border-top: 1px solid var(--border-strong);
 }
 
 .lr-panel-attachment h4 {
   margin: 0;
-  color: #243029;
+  color: var(--ink);
   font-size: 12px;
 }
 
@@ -17,17 +17,17 @@
   justify-self: start;
   min-height: 28px;
   padding: 0 10px;
-  border: 1px solid #9aada2;
+  border: 1px solid var(--ink-faint);
   border-radius: 4px;
-  background: #fff;
-  color: #1c2a22;
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
   cursor: pointer;
 }
 
 .lr-panel-attachment button:hover {
-  border-color: #2f6b4f;
-  color: #2f6b4f;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .lr-wall-panel-actions {
@@ -40,10 +40,10 @@
 .lr-wall-panel-actions button {
   min-height: 28px;
   padding: 0 10px;
-  border: 1px solid #9aada2;
+  border: 1px solid var(--ink-faint);
   border-radius: 4px;
-  background: #fff;
-  color: #1c2a22;
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
   cursor: pointer;
 }

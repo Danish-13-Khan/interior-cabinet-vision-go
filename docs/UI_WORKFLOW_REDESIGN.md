@@ -1,5 +1,10 @@
 # Cabinet Studio UI workflow redesign
 
+> **Appearance:** colours, type, spacing, layouts and the visual / accessibility
+> gates are now owned by [UI_CALM_LIGHT_ROADMAP.md](UI_CALM_LIGHT_ROADMAP.md).
+> This document stays the source for workflow structure and capability
+> preservation; where the two disagree on looks, the Calm Light roadmap wins.
+
 Status: design direction accepted; build steps 1–8 complete on
 `codex/feat/ui-workflow-redesign` (September 2026). Treat as **UI workflow
 complete**, not “redesign finished.” 2D Room appearance approved as **A — Light
