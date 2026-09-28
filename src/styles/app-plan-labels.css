@@ -8,7 +8,7 @@
   font-weight: 600;
   paint-order: stroke;
   stroke: var(--surface);
-  stroke-width: 20px;
+  stroke-width: 28px;
   stroke-linejoin: round;
 }
 
@@ -20,4 +20,26 @@
   fill: var(--ink-muted);
   font-size: 100px;
   font-weight: 500;
+}
+
+/* The name already says "tall": drop the T mark and soften the X under it. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-object:has(.lr-object-label) .lr-cabinet-mark {
+  display: none;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-cabinet-tall-symbol path {
+  stroke-opacity: 0.35;
+}
+
+/* Dim other runs' footprints only; their names stay readable. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-object.is-dimmed-run {
+  opacity: 1;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-object.is-dimmed-run > :not(.lr-object-label) {
+  opacity: 0.38;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-object.is-dimmed-run .lr-object-label {
+  fill: var(--ink-muted);
 }
