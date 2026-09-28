@@ -49,6 +49,7 @@ describe("production TV media unit", () => {
       drawerCount: 0,
     });
     expect(mediaCabinet.config.composition?.openingStructure).toBeTruthy();
+    expect(mediaCabinet.config.composition?.dividers.count).toBeGreaterThanOrEqual(2);
     expect(mediaCabinet.config.construction).toBeTruthy();
 
     const report = createProjectReport(adapted.project, adapted.room);

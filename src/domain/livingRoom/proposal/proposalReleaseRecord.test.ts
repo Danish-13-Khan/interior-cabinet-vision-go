@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { patchProposalQuoteSettings } from "./commercialState";
 import { freezeProposal } from "./freezeProposal";
 import { createGoldenProposalProject } from "./goldenProposal";
+import { buildProposalGate } from "./proposalGate";
 import { matchingProposalRelease, recordProposalRelease } from "./proposalRelease";
 
 const NOW = "2026-08-30T10:00:00.000Z";
@@ -25,5 +26,24 @@ describe("proposal release record", () => {
     const refrozen = freezeProposal(stale, "2026-08-31T10:00:00.000Z");
     expect(matchingProposalRelease(refrozen).ok).toBe(false);
     expect(matchingProposalRelease(recordProposalRelease(refrozen)).ok).toBe(true);
+  });
+
+  it("uses the persisted release as proof that client views were captured", () => {
+    const released = recordProposalRelease(
+      freezeProposal(createGoldenProposalProject(NOW), NOW),
+      NOW,
+    );
+    const clientViews = buildProposalGate({
+      document: released,
+      issues: [],
+      viewFrames: [],
+      proposalReleased: matchingProposalRelease(released).ok,
+    }).items.find((item) => item.id === "view-frames");
+
+    expect(clientViews).toMatchObject({
+      status: "pass",
+      blocking: false,
+      detail: "Captured in the released proposal",
+    });
   });
 });

@@ -45,7 +45,13 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         <InteriorsPresentPanel
           proposal={props.proposal}
           handoff={props.handoff}
-          onCapture={() => props.onWorkspaceView("render")}
+          onCapture={() => {
+            // Reassert Present before opening capture. Desktop/WebView state can
+            // restore the workspace view independently of the planner mode;
+            // capture must always resolve to the dedicated client render canvas.
+            props.onPresent();
+            props.onWorkspaceView("render");
+          }}
           onReturnToReview={props.onReturnToReview}
         />
       ) : null}

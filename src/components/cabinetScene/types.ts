@@ -18,6 +18,8 @@ export type CabinetSceneProps = {
   project: CabinetProject;
   snapSizeMm: number;
   showGrid?: boolean;
+  /** Read-only focused viewer used by Engineering Review. */
+  reviewMode?: boolean;
   room?: RoomConfig;
   countertops?: CountertopSegment[];
   fillers?: RunFiller[];

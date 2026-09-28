@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import "./App.css";
 import { AppRibbon } from "./components/AppRibbon";
 import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
@@ -7,6 +6,7 @@ import { AppMainBody } from "./components/AppMainBody";
 import { ReportCenter } from "./components/ReportCenter";
 import { JobWorkspace } from "./components/JobWorkspace";
 import { LivingRoomPlanWorkspace } from "./components/LivingRoomPlanWorkspace";
+import { EngineeringReviewWorkspace } from "./components/EngineeringReviewWorkspace";
 import { createWallLayoutSummary, type WallLayoutSide } from "./domain/wallLayout";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
@@ -14,6 +14,7 @@ import {
   cycleSnapSizeMm,
   workbenchBreadcrumb,
   WORKBENCH_LABELS,
+  writeEngineeringSessionRoute,
   type WorkbenchMode,
 } from "./domain/desktopUx";
 import { resolvePostHandoffBridge } from "./domain/engineerBridge";
@@ -54,6 +55,7 @@ function App() {
   }
 
   function handleWorkbenchModeChange(mode: WorkbenchMode) {
+    writeEngineeringSessionRoute(mode === "engineering");
     const patch: Parameters<typeof c.setLayout>[0] = {
       workbenchMode: mode,
       statusDockOpen: false,
@@ -67,6 +69,10 @@ function App() {
     } else if (mode === "drawings") {
       patch.sheetBrowserVisible = true;
       patch.sceneBrowserVisible = false;
+    } else if (mode === "engineering") {
+      patch.workspaceTab = "3d";
+      patch.sceneBrowserVisible = false;
+      patch.sheetBrowserVisible = false;
     } else if (mode === "interiors") {
       patch.workspaceTab = "plan";
       patch.sceneBrowserVisible = false;
@@ -80,25 +86,16 @@ function App() {
     c.setDraftingTool("select");
   }
 
-  // Web: land on Interiors jobs/templates home, not Cabinets canvas.
-  useEffect(() => {
-    if (isTauriRuntime()) return;
-    handleWorkbenchModeChange("interiors");
-    c.openLivingRoomProjectHome();
-    // mount-only for browser entry
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <main
-      className={`app-shell${workbenchMode === "interiors" ? " app-shell-interiors" : ""}`}
+      className={`app-shell${workbenchMode === "interiors" ? " app-shell-interiors" : ""}${workbenchMode === "engineering" ? " app-shell-engineering" : ""}`}
       style={{
         ["--tool-rail-width" as string]: `${c.layout.toolRailWidthPx}px`,
         ["--inspector-width" as string]: `${c.layout.inspectorWidthPx}px`,
         ["--status-dock-height" as string]: `${c.layout.statusDockHeightPx}px`,
       }}
     >
-      {workbenchMode !== "interiors" ? <AppRibbon
+      {workbenchMode !== "interiors" && workbenchMode !== "engineering" ? <AppRibbon
         workbenchMode={workbenchMode}
         workspaceLabel={
           workbenchMode === "room" ||
@@ -208,6 +205,39 @@ function App() {
             onOpen={c.handleLoadProject}
             onSave={c.handleSaveProject}
             onNavigate={handleWorkbenchModeChange}
+          />
+        )}
+        engineeringWorkspace={(
+          <EngineeringReviewWorkspace
+            project={c.project}
+            cabinet={c.selectedCabinet}
+            cabinets={c.project.cabinets}
+            report={c.projectReport}
+            machineJob={c.machineJobDocument}
+            constructionParts={c.selectedConstruction?.parts ?? []}
+            manufacturingIssues={c.manufacturingIssues}
+            validationMessages={c.validationMessages}
+            releaseBlockedReasons={c.releaseGate.reasons}
+            projectStatus={c.projectStatus}
+            onSelectCabinet={(cabinetId) => c.replaceSelection([cabinetId], cabinetId, null)}
+            onConfigChange={c.handleConfigChange}
+            onOpenAdvanced={() => handleWorkbenchModeChange("cabinets")}
+            onOpenReports={() => handleWorkbenchModeChange("reports")}
+            onGoHome={() => {
+              writeEngineeringSessionRoute(false);
+              if (isTauriRuntime()) {
+                handleWorkbenchModeChange("interiors");
+                c.openLivingRoomProjectHome();
+                return;
+              }
+              window.location.assign("/");
+            }}
+            onExportMachineJson={() => { void c.handleExportMachineJson(); }}
+            onExportMachineCsv={() => { void c.handleExportMachineCsv(); }}
+            onFreezeRevision={() => c.handleFreezeRevision("Engineering review", false)}
+            onReleaseForProduction={() => c.handleReleaseForProduction()}
+            onExportCutlist={() => { void c.handleExportCutlistCsv(); }}
+            onExportDrawings={() => { void c.handleExportPdf(); }}
           />
         )}
         interiorWorkspace={(
@@ -322,10 +352,13 @@ function App() {
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onPatchDocument={c.patchLivingRoomDocument}
-            onEnterEngineering={(cabinetIds) => {
+            onEnterEngineering={() => {
               const bridge = resolvePostHandoffBridge();
+              // The handoff commit already applies the adapted project and its
+              // cabinet selection atomically. Re-selecting here would sanitize
+              // those new IDs against the stale pre-handoff project.
+              c.closeLivingRoomProjectHome();
               handleWorkbenchModeChange(bridge.workbenchMode);
-              c.replaceSelection(cabinetIds, cabinetIds[0] ?? null, null);
             }}
             onLightingChange={c.setLivingRoomLightingRecipe}
             onRenderBrowserThumbnail={(dataUrl) => {
@@ -638,7 +671,7 @@ function App() {
         onCloseContextMenu={() => c.setContextMenu(null)}
       />
 
-      {workbenchMode !== "interiors" ? <AppStatusDock
+      {workbenchMode !== "interiors" && workbenchMode !== "engineering" ? <AppStatusDock
         workbenchMode={workbenchMode}
         project={c.project}
         projectStatus={c.projectStatus}

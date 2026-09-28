@@ -153,12 +153,11 @@ export function openJobWorkbench(
   );
 }
 
-/** Browser launch always lands on Interiors planner home; Tauri keeps last layout. */
+/** Every app launch starts from the modern Interiors project home. */
 export function layoutForAppLaunch(
   stored: DesktopLayoutPrefs,
-  runtime: "web" | "tauri",
+  _runtime: "web" | "tauri",
 ): DesktopLayoutPrefs {
-  if (runtime === "tauri") return stored;
   return clampDesktopLayout({
     ...stored,
     workbenchMode: "interiors",

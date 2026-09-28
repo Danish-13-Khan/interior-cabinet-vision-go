@@ -70,6 +70,9 @@ export function useProposalWorkflow(args: {
       : []),
     [args.project, args.latestRender, args.acceptedStills],
   );
+  const released = Boolean(
+    args.project && matchingProposalRelease(args.project, { priceBook }).ok,
+  );
   const gate = useMemo(
     () => (args.project
       ? buildProposalGate({
@@ -79,11 +82,12 @@ export function useProposalWorkflow(args: {
           overrideReason,
           viewFrames,
           acceptedStillCount: args.acceptedStills?.length ?? 0,
+          proposalReleased: released,
           priceBook,
         })
       : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [args.project, args.issues, staleOverride, overrideReason, viewFrames, args.acceptedStills, priceBookKey],
+    [args.project, args.issues, staleOverride, overrideReason, viewFrames, args.acceptedStills, released, priceBookKey],
   );
 
   function patchQuote(patch: Partial<QuoteSettings>) {
@@ -174,10 +178,6 @@ export function useProposalWorkflow(args: {
       setBusy(false);
     }
   }
-
-  const released = Boolean(
-    args.project && matchingProposalRelease(args.project, { priceBook }).ok,
-  );
 
   return {
     live,

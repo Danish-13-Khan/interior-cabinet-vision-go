@@ -9,12 +9,12 @@ import {
 } from "./reportCenterBridge";
 
 describe("engineerBridge / Report Center (Phase F)", () => {
-  it("defaults Present→Send to Cabinets engineering shell", () => {
+  it("defaults Present→Send to the focused Engineering Review workspace", () => {
     expect(resolvePostHandoffBridge()).toMatchObject({
       intent: "edit",
-      workbenchMode: "cabinets",
+      workbenchMode: "engineering",
       reportCenterTab: null,
-      focus: "cabinets",
+      focus: "engineering",
     });
   });
 
