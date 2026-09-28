@@ -279,6 +279,22 @@ without help; every top-bar control ≥ 32px high.
 **Exit gate:** golden-run plan at 100% zoom has zero overlapping labels
 (automated bounding-box test).
 
+**Implementation notes (Phase 3):**
+- Label layout is pure domain code: `livingRoom/planLabelBoxes.ts` (text boxes,
+  overlap count), `planLabelLayout.ts` (greedy placement by priority, hides
+  labels with no clear spot or below a readable size at low zoom) and
+  `planReferenceLabels.ts` (reference dims slide along / stack beside their line,
+  cabinet tags are obstacles). `planReferenceLabels.test.ts` is the exit gate on
+  the golden run; dims whose label is hidden are not drawn.
+- `styles/app-canvas-header.css` gives every header control (tools, Layers,
+  Export sheet, zoom, Grid, Snap, contextual commands) one secondary button at
+  `--control-h`; Export sheet is secondary.
+- `interiors-drafting-plan.css` now uses tokens only: paper `--canvas`, walls
+  `--ink`, cabinets `--accent` on `--accent-soft`, selection `--info`.
+- Room & plan settings portal into the inspector (`InspectorPlanSettingsSlot`)
+  while it shows room essentials; with a selection they stay above the canvas.
+- The 2D / 3D switch remains in the top bar; the canvas header keeps view tools.
+
 ### Phase 4 — 3D view and Present
 
 1. **Default camera frames the cabinet run**: target = run bounds, camera from
