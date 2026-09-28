@@ -1,13 +1,15 @@
+import { useMemo } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
-import { isBlockingLivingRoomPlanIssue, type LivingRoomPlanIssue } from "../../domain/livingRoom";
+import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
 import { collectModelQualityIssues } from "../../domain/livingRoom/modelQualityFeedback";
+import { groupReviewIssues, reviewIssueCounts } from "../../domain/livingRoom/reviewIssueGroups";
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
-import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
-import { InspectorModelQualityChecks } from "./InspectorModelQualityChecks";
 import { InspectorProposalGateChecks } from "./InspectorProposalGateChecks";
 import { InteriorsPresentQuote } from "./InteriorsPresentQuote";
 import { InteriorsProposalIdentity } from "./InteriorsProposalIdentity";
 import { InteriorsReviewJourney } from "./InteriorsReviewJourney";
+import { ReviewIssueList } from "./ReviewIssueList";
+import { ReviewSummaryBar } from "./ReviewSummaryBar";
 
 type Proposal = ReturnType<typeof useProposalWorkflow>;
 
@@ -15,11 +17,11 @@ type InteriorsReviewPanelProps = {
   project: InteriorProject;
   issues: LivingRoomPlanIssue[];
   proposal: Proposal;
-  onSelectIssue: (objectId: string | null) => void;
+  onSelectIssue: (objectIds: string[]) => void;
   onPresent: () => void;
 };
 
-/** Review — layout, model quality, proposal gates, quote, Present journey (steps 4–7). */
+/** Review — grouped issues, proposal checklist, quote, Present journey (steps 4–7). */
 export function InteriorsReviewPanel({
   project,
   issues,
@@ -27,10 +29,13 @@ export function InteriorsReviewPanel({
   onSelectIssue,
   onPresent,
 }: InteriorsReviewPanelProps) {
-  const modelIssues = collectModelQualityIssues(project);
+  const groups = useMemo(
+    () => groupReviewIssues(project, issues, collectModelQualityIssues(project)),
+    [project, issues],
+  );
+  const counts = reviewIssueCounts(groups);
   const gate = proposal.gate;
   const live = proposal.live;
-  const blockingCount = issues.filter(isBlockingLivingRoomPlanIssue).length;
 
   return (
     <div className="interiors-review-panel" data-testid="interiors-review-panel">
@@ -38,23 +43,17 @@ export function InteriorsReviewPanel({
         <strong>Review</strong>
         <span>Resolve the plan, confirm pricing, then prepare the client view.</span>
       </div>
-      <div className="interiors-review-summary" aria-label="Review summary">
-        <div><strong>{blockingCount}</strong><span>blocking</span></div>
-        <div><strong>{Math.max(0, issues.length - blockingCount)}</strong><span>warnings</span></div>
-        <div><strong>{modelIssues.length}</strong><span>model notes</span></div>
-      </div>
+      <ReviewSummaryBar blocking={counts.blocking} warnings={counts.warnings} ready={Boolean(gate?.ready)} />
       <details className="interiors-review-section" open>
-        <summary>Plan &amp; model checks</summary>
-        <InspectorLayoutChecks issues={issues} onSelect={onSelectIssue} />
-        <InspectorModelQualityChecks issues={modelIssues} onSelect={onSelectIssue} />
-        {gate ? (
-          <InspectorProposalGateChecks
-            items={gate.items}
-            blockingCount={gate.blockingCount}
-            ready={gate.ready}
-          />
-        ) : null}
+        <summary>Issues · {groups.length}</summary>
+        <ReviewIssueList groups={groups} onSelect={onSelectIssue} />
       </details>
+      {gate ? (
+        <details className="interiors-review-section" open={!gate.ready}>
+          <summary>Proposal checklist</summary>
+          <InspectorProposalGateChecks items={gate.items} blockingCount={gate.blockingCount} ready={gate.ready} />
+        </details>
+      ) : null}
       <details className="interiors-review-section">
         <summary>Client &amp; job details</summary>
         {live ? <InteriorsProposalIdentity job={live.quote.job} onJob={proposal.patchJob} /> : null}

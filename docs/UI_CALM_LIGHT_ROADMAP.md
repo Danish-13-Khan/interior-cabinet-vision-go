@@ -370,6 +370,19 @@ cabinet fits 900px height with only Size expanded.
 
 **Exit gate:** golden-run review list ≤ 10 rows grouped; every row selects its object.
 
+**Implementation notes (Phase 6):**
+- `domain/livingRoom/reviewIssueGroups.ts` merges layout and model issues by
+  source + check + severity, drops the per-object name prefix and folds differing
+  numbers into ranges ("4 cabinets: … 864–910 mm"). `reviewIssueGroups.test.ts`
+  is the exit gate (golden run: 3 rows today, every row has real object ids,
+  counts add up to the raw list).
+- `ReviewIssueList` rows call `onSelectIssue(objectIds)`: the rail selects every
+  object in the group and fires `requestSelectionFrame()`; the plan
+  (`fitSelection`) and the 3D camera (`focusSelection`) both listen.
+- `ReviewSummaryBar` replaces the three count tiles; the proposal gate is its own
+  "Proposal checklist" section, collapsed once the proposal is ready.
+- Styles: `styles/app-review.css`.
+
 ### Phase 7 — Engineering Review and production outputs
 
 Apply the same shell, tokens and inspector patterns to

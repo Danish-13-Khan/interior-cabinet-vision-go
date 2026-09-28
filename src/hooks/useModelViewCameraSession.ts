@@ -6,6 +6,7 @@ import {
 import type { ModelViewPresetId } from "../domain/livingRoom";
 import { setModelViewCanvasFocused } from "./modelViewFocusGate";
 import { useModelViewCameraHotkeys } from "./useModelViewCameraHotkeys";
+import { useSelectionFrameRequest } from "./useSelectionFrameRequest";
 
 export function useModelViewCameraSession(enabled: boolean, hasSelection = false) {
   const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("dollhouse");
@@ -42,6 +43,10 @@ export function useModelViewCameraSession(enabled: boolean, hasSelection = false
     onViewPreset: setViewPreset,
     onFitRoom: fitFromHotkey,
     onFocusSelection: focusSelection,
+  });
+
+  useSelectionFrameRequest(() => {
+    if (enabled) focusSelection();
   });
 
   useEffect(() => {

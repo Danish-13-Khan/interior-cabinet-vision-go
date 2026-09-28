@@ -1,4 +1,5 @@
 import { toggleSiteMeasureChecklistItem } from "../../domain/livingRoom";
+import { requestSelectionFrame } from "../../utils/selectionFrameRequest";
 import { inspectPlanTarget } from "./planInspectTarget";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
@@ -26,7 +27,7 @@ export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyPr
       onImportFinish={w.onImportFinish}
       onSetLayerVisibility={w.onSetLayerVisibility}
       onSelect={(objectId) => inspectPlanTarget(props, { objectId })}
-      onSelectIssue={(objectId) => inspectPlanTarget(props, objectId ? { objectId } : {})}
+      onSelectIssue={(objectIds) => selectIssueObjects(props, objectIds)}
       onSetPlanUnderlay={w.onSetPlanUnderlay}
       onCalibrateUnderlay={() => props.onBuildTool("calibrate-underlay")}
       onToggleSiteMeasure={(key, value) => {
@@ -71,4 +72,11 @@ export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyPr
       onImportUnderlay={props.onImportUnderlay}
     />
   );
+}
+
+/** Review row click: select every object in the group, then frame them in the active view. */
+function selectIssueObjects(props: LivingRoomPlanWorkspaceBodyProps, objectIds: string[]) {
+  inspectPlanTarget(props, { objectId: objectIds[0] ?? null });
+  if (objectIds.length > 1) props.workspace.onSelectMany?.(objectIds);
+  if (objectIds.length > 0) requestSelectionFrame();
 }

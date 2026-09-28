@@ -1,0 +1,99 @@
+/* Review step — summary bar, grouped issue rows, proposal checklist (calm light tokens). */
+
+.review-summary-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2, 8px);
+}
+
+.review-summary-bar > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 8px);
+  background: var(--surface);
+}
+
+.review-summary-bar strong {
+  color: var(--ink);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.review-summary-bar span {
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+.review-summary-bar .is-blocking { border-color: var(--danger); background: var(--danger-soft); }
+.review-summary-bar .is-blocking strong { color: var(--danger); }
+.review-summary-bar .is-warning { border-color: var(--warning); background: var(--warning-soft); }
+.review-summary-bar .is-ready { border-color: var(--accent); background: var(--accent-soft); }
+.review-summary-bar .is-ready strong { color: var(--accent); }
+
+.review-issue-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review-issue-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 8px);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.review-issue-row:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface-2); }
+.review-issue-row:focus-visible { outline: none; box-shadow: var(--focus); }
+.review-issue-row:disabled { cursor: default; }
+
+.review-issue-row b {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  font-size: var(--text-xs);
+}
+
+.review-issue-row.is-blocking b { background: var(--danger-soft); color: var(--danger); }
+.review-issue-row.is-warning b { background: var(--warning-soft); color: var(--warning); }
+.review-issue-row.is-info b { background: var(--info-soft); color: var(--info); }
+
+.review-issue-row span { display: grid; gap: 2px; min-width: 0; }
+.review-issue-row strong { font-size: var(--text-sm); font-weight: 600; line-height: 1.35; }
+.review-issue-row small { color: var(--ink-muted); font-size: var(--text-xs); line-height: 1.35; }
+
+.review-issue-clear {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-control, 8px);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-sm);
+}
+
+.interiors-review-section .lr-proposal-gate-panel {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
