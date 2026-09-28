@@ -49,6 +49,27 @@ describe("interiorsPresentAndSend", () => {
     })).toBe("done");
   });
 
+  it("restores persisted milestones ahead of session-only client captures", () => {
+    expect(interiorsPresentStep({
+      frozen: true, stale: false, needsCapture: true, proposalReleased: true, approved: false, handoffSent: false,
+    })).toBe("approve");
+    expect(interiorsPresentStep({
+      frozen: true, stale: false, needsCapture: true, proposalReleased: true, approved: true, handoffSent: false,
+    })).toBe("send");
+    expect(interiorsPresentStep({
+      frozen: true, stale: false, needsCapture: true, proposalReleased: true, approved: true, handoffSent: true,
+    })).toBe("done");
+  });
+
+  it("requires a new freeze when released proposal data has changed", () => {
+    expect(interiorsPresentStep({
+      frozen: true, stale: true, needsCapture: true, proposalReleased: true, approved: false, handoffSent: false,
+    })).toBe("freeze");
+    expect(interiorsPresentStep({
+      frozen: true, stale: true, needsCapture: true, proposalReleased: true, approved: true, handoffSent: false,
+    })).toBe("freeze");
+  });
+
   it("shows only blocking problems for the next action", () => {
     expect(interiorsPresentNeedsCapture(captureFail)).toBe(true);
     expect(interiorsPresentBlocking("freeze", captureFail, [])).toEqual([]);

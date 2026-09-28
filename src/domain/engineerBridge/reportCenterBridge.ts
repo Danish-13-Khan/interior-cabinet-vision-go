@@ -13,10 +13,10 @@ import type {
 const TARGETS: Record<EngineerBridgeIntent, EngineerBridgeTarget> = {
   edit: {
     intent: "edit",
-    workbenchMode: "cabinets",
+    workbenchMode: "engineering",
     reportCenterTab: null,
-    focus: "cabinets",
-    label: "Open Cabinets engineering shell",
+    focus: "engineering",
+    label: "Open Engineering Review",
   },
   packet: {
     intent: "packet",
@@ -41,7 +41,7 @@ const TARGETS: Record<EngineerBridgeIntent, EngineerBridgeTarget> = {
   },
 };
 
-/** Default after Present → Send to Engineering (matches App today). */
+/** Default after Present → Send to Engineering. */
 export const DEFAULT_POST_HANDOFF_INTENT: EngineerBridgeIntent = "edit";
 
 export function resolvePostHandoffBridge(

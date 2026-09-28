@@ -73,10 +73,10 @@ describe("desktopUx layout", () => {
     expect(JSON.parse(memory["cabinet-designer-desktop-layout"]).workbenchMode).toBe("interiors");
   });
 
-  it("forces Interiors planner home for web launch even if Cabinets was saved", () => {
+  it("forces Interiors planner home for web and desktop launches even if Cabinets was saved", () => {
     const stored = clampDesktopLayout({ workbenchMode: "cabinets" });
     expect(layoutForAppLaunch(stored, "web").workbenchMode).toBe("interiors");
-    expect(layoutForAppLaunch(stored, "tauri").workbenchMode).toBe("cabinets");
+    expect(layoutForAppLaunch(stored, "tauri").workbenchMode).toBe("interiors");
   });
 });
 

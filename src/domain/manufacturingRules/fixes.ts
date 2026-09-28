@@ -275,9 +275,13 @@ export function getMinDividersForShelfSpan(config: CabinetConfig): number {
     materialSpec.shelfMaterial.thicknessMm,
     materialSpec.shelfMaterial.boardMaterialId,
   );
-  if (maxSpan <= 0 || openingWidth <= maxSpan) {
+  // Design to the advisory threshold as well as the hard structural limit.
+  // A default cabinet should not arrive in Engineering already within 10% of
+  // its material limit; that margin is reserved for intentional overrides.
+  const preferredSpan = maxSpan * 0.9;
+  if (maxSpan <= 0 || openingWidth <= preferredSpan) {
     return current;
   }
-  const needed = Math.ceil(openingWidth / maxSpan) - 1;
+  const needed = Math.ceil(openingWidth / preferredSpan) - 1;
   return Math.max(current, needed);
 }

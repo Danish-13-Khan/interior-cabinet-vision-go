@@ -17,6 +17,8 @@ export type ProposalGateInput = {
   now?: string;
   viewFrames?: ProposalViewFrame[];
   acceptedStillCount?: number;
+  /** A persisted proposal release proves its selected views were captured. */
+  proposalReleased?: boolean;
   priceBook?: PriceBook | null;
 };
 
@@ -36,6 +38,7 @@ export function buildProposalGate(input: ProposalGateInput): ProposalGate {
   });
   const views = proposalExportViews(input.document);
   const missingFrames = missingProposalViewCaptures(input.document, input.viewFrames);
+  const viewsCaptured = Boolean(input.proposalReleased) || missingFrames.length === 0;
   const job = live.quote.job;
   const blockingIssues = input.issues.filter(isBlockingLivingRoomPlanIssue);
   const advisories = input.issues.filter((issue) => !isBlockingLivingRoomPlanIssue(issue));
@@ -60,7 +63,7 @@ export function buildProposalGate(input: ProposalGateInput): ProposalGate {
     row("millwork", "Project items", millworkCount + interiorCount === 0 ? "fail" : "pass", millworkCount + interiorCount === 0 ? "Add priced interior items or cabinetry before creating a proposal." : `${millworkCount} millwork items · ${interiorCount} interior lines`),
     row("geometry", "Cabinet geometry", fallbackIds.length ? "fail" : "pass", fallbackIds.length ? "Fallback cabinet geometry cannot appear on a client proposal." : "Shared cabinet geometry compiled"),
     row("views", "Named views", views.length === 0 ? "fail" : "pass", views.length === 0 ? "Bookmark at least one client view for the proposal." : `${views.length} named view${views.length === 1 ? "" : "s"}`),
-    row("view-frames", "Client views", views.length > 0 && missingFrames.length ? "fail" : "pass", missingFrames.length ? (missingFrames.length === views.length ? "Capture every selected client view before creating a proposal." : `Capture the remaining selected view${missingFrames.length === 1 ? "" : "s"} before creating a proposal.`) : "Selected client views are captured"),
+    row("view-frames", "Client views", views.length > 0 && !viewsCaptured ? "fail" : "pass", input.proposalReleased ? "Captured in the released proposal" : missingFrames.length ? (missingFrames.length === views.length ? "Capture every selected client view before creating a proposal." : `Capture the remaining selected view${missingFrames.length === 1 ? "" : "s"} before creating a proposal.`) : "Selected client views are captured"),
     row("freeze", "Quote freeze", live.frozen ? "pass" : "fail", live.frozen ? `Frozen Rev ${live.frozen.revision}` : "Freeze the quote before creating a priced proposal."),
     row("stale", "Stale quote", staleStatus, staleStatus === "fail" ? (live.staleReason ?? "Re-freeze or disclose the stale quote with a reason.") : staleStatus === "warn" ? "Stale quote disclosed with an override reason." : "Frozen quote matches the live design"),
     row("price", "Price", priceMissing ? "fail" : "pass", priceMissing ? "Add priced items and resolve missing rates. Review commercial settings." : "Project pricing is ready"),

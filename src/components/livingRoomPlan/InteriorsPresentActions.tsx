@@ -22,7 +22,8 @@ export function InteriorsPresentActions({
   onCapture: () => void;
 }) {
   const ready = Boolean(proposal.gate?.ready);
-  const showProposalBlocking = step === "capture" || step === "proposal";
+  const proposalCommitted = Boolean(proposal.released || handoff.revisionApproved || handoff.sent);
+  const showProposalBlocking = !proposalCommitted && (step === "capture" || step === "proposal");
   return (
     <>
       {showProposalBlocking && blocking.length ? (
@@ -30,12 +31,12 @@ export function InteriorsPresentActions({
           {blocking.map((detail) => <li key={detail} className="is-blocking">{detail}</li>)}
         </ul>
       ) : null}
-      {needsCapture ? (
+      {needsCapture && !proposalCommitted ? (
         <button type="button" data-testid="interiors-present-capture" onClick={onCapture}>
           Capture client view
         </button>
       ) : null}
-      <button
+      {!proposalCommitted ? <button
         type="button"
         className="is-primary proposal-review-create"
         data-testid="create-proposal"
@@ -43,7 +44,7 @@ export function InteriorsPresentActions({
         disabled={!ready || proposal.busy}
       >
         Create Proposal
-      </button>
+      </button> : null}
       {proposal.status ? <p className="planner-v2-review-status">{proposal.status}</p> : null}
         <EngineeringHandoffSection handoff={handoff} compact />
     </>

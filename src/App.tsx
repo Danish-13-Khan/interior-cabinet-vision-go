@@ -7,6 +7,7 @@ import { AppMainBody } from "./components/AppMainBody";
 import { ReportCenter } from "./components/ReportCenter";
 import { JobWorkspace } from "./components/JobWorkspace";
 import { LivingRoomPlanWorkspace } from "./components/LivingRoomPlanWorkspace";
+import { EngineeringReviewWorkspace } from "./components/EngineeringReviewWorkspace";
 import { createWallLayoutSummary, type WallLayoutSide } from "./domain/wallLayout";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
@@ -18,7 +19,6 @@ import {
 } from "./domain/desktopUx";
 import { resolvePostHandoffBridge } from "./domain/engineerBridge";
 import { syncInteriorDocumentFromCabinets } from "./domain/livingRoom/handoff";
-import { isTauriRuntime } from "./platform/desktopFiles";
 
 function App() {
   const c = useAppController();
@@ -80,12 +80,12 @@ function App() {
     c.setDraftingTool("select");
   }
 
-  // Web: land on Interiors jobs/templates home, not Cabinets canvas.
+  // Every launch starts at the modern Interiors jobs/templates home. The
+  // advanced Cabinets editor remains available from an opened project.
   useEffect(() => {
-    if (isTauriRuntime()) return;
     handleWorkbenchModeChange("interiors");
     c.openLivingRoomProjectHome();
-    // mount-only for browser entry
+    // mount-only for browser and desktop entry
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -98,7 +98,7 @@ function App() {
         ["--status-dock-height" as string]: `${c.layout.statusDockHeightPx}px`,
       }}
     >
-      {workbenchMode !== "interiors" ? <AppRibbon
+      {workbenchMode !== "interiors" && workbenchMode !== "engineering" ? <AppRibbon
         workbenchMode={workbenchMode}
         workspaceLabel={
           workbenchMode === "room" ||
@@ -208,6 +208,30 @@ function App() {
             onOpen={c.handleLoadProject}
             onSave={c.handleSaveProject}
             onNavigate={handleWorkbenchModeChange}
+          />
+        )}
+        engineeringWorkspace={(
+          <EngineeringReviewWorkspace
+            project={c.project}
+            cabinet={c.selectedCabinet}
+            cabinets={c.project.cabinets}
+            report={c.projectReport}
+            machineJob={c.machineJobDocument}
+            constructionParts={c.selectedConstruction?.parts ?? []}
+            manufacturingIssues={c.manufacturingIssues}
+            validationMessages={c.validationMessages}
+            releaseBlockedReasons={c.releaseGate.reasons}
+            projectStatus={c.projectStatus}
+            onSelectCabinet={(cabinetId) => c.replaceSelection([cabinetId], cabinetId, null)}
+            onConfigChange={c.handleConfigChange}
+            onOpenAdvanced={() => handleWorkbenchModeChange("cabinets")}
+            onOpenReports={() => handleWorkbenchModeChange("reports")}
+            onExportMachineJson={() => { void c.handleExportMachineJson(); }}
+            onExportMachineCsv={() => { void c.handleExportMachineCsv(); }}
+            onFreezeRevision={() => c.handleFreezeRevision("Engineering review", false)}
+            onReleaseForProduction={() => c.handleReleaseForProduction()}
+            onExportCutlist={() => { void c.handleExportCutlistCsv(); }}
+            onExportDrawings={() => { void c.handleExportPdf(); }}
           />
         )}
         interiorWorkspace={(
@@ -638,7 +662,7 @@ function App() {
         onCloseContextMenu={() => c.setContextMenu(null)}
       />
 
-      {workbenchMode !== "interiors" ? <AppStatusDock
+      {workbenchMode !== "interiors" && workbenchMode !== "engineering" ? <AppStatusDock
         workbenchMode={workbenchMode}
         project={c.project}
         projectStatus={c.projectStatus}

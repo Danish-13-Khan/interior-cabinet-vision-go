@@ -16,6 +16,20 @@ export type SavedProjectBrowserEntry = {
   room: RoomConfig;
 };
 
+/** Replace the saved copy of the same Interiors document instead of creating stale duplicates. */
+export function upsertSavedProjectEntry(
+  projects: SavedProjectBrowserEntry[],
+  entry: SavedProjectBrowserEntry,
+  limit = 16,
+): SavedProjectBrowserEntry[] {
+  const documentId = entry.project.interiorDocument?.id;
+  const remaining = projects.filter((item) => {
+    if (documentId) return item.project.interiorDocument?.id !== documentId;
+    return item.id !== entry.id;
+  });
+  return [entry, ...remaining].slice(0, limit);
+}
+
 export function getProjectDisplayName(project: CabinetProject, count: number) {
   const job = clampJobMeta(project.job);
   if (job.projectNumber || job.customerName) {

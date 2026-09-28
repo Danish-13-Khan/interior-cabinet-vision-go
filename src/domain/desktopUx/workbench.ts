@@ -2,6 +2,7 @@ export const WORKBENCH_MODES = [
   "job",
   "room",
   "interiors",
+  "engineering",
   "cabinets",
   "drawings",
   "production",
@@ -14,6 +15,7 @@ export const WORKBENCH_LABELS: Record<WorkbenchMode, string> = {
   job: "Job",
   room: "Room",
   interiors: "Interiors",
+  engineering: "Engineering",
   cabinets: "Cabinets",
   drawings: "Drawings",
   production: "Production",
@@ -33,6 +35,7 @@ export function workbenchBreadcrumb(
 ) {
   const segments = ["Job", roomName];
   if (mode === "interiors") segments.push("Interior Plan");
+  if (mode === "engineering") segments.push("Engineering Review");
   if (mode === "cabinets" && cabinetName) segments.push(cabinetName);
   if (mode === "drawings") segments.push("Drawings");
   if (mode === "production") segments.push("Production");
