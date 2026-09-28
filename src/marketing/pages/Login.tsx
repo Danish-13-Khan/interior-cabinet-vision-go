@@ -4,8 +4,7 @@ import { AuthLayout } from '../components/AuthLayout'
 import { PasswordField } from '../components/PasswordField'
 import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
 import { createSession } from '../lib/auth'
-import { localSignInEnabled, postLoginPath, validLocalCredentials } from '../lib/localSignIn'
-import { isTauriRuntime } from '../../platform/desktopFiles'
+import { postLoginPath, validLocalCredentials } from '../lib/localSignIn'
 
 export function Login() {
   const navigate = useNavigate()
@@ -16,12 +15,7 @@ export function Login() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    const enabled = localSignInEnabled({
-      dev: import.meta.env.DEV,
-      desktop: isTauriRuntime(),
-      flag: import.meta.env.VITE_LOCAL_AUTH,
-    })
-    if (!enabled || !validLocalCredentials(email, password)) {
+    if (!validLocalCredentials(email, password)) {
       setFailed(true)
       return
     }
