@@ -23,4 +23,11 @@
 - **Run end fillers sit flush with the cabinet fronts.** Fillers were placed
   against the wall behind the run (and Engineering's 50 mm grid pushed them
   into the wall face); new and regenerated fillers now close the gap at the
-  front, and Engineering keeps them at millimetre precision.
+  front, and Engineering keeps them at millimetre precision when moving,
+  rotating, resizing or duplicating. Fillers in project files and recovery
+  snapshots slide forward to the cabinet fronts when opened (width, id and
+  position along the wall are kept). Projects reopened from the in-app
+  project list keep their old filler position until the run is edited.
+- **Run fillers match the cabinet finish.** A filler with no finish of its own
+  used to render in walnut; it now takes the run's front finish, and seeded
+  fillers copy their cabinet's material slots.

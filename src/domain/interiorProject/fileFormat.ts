@@ -18,6 +18,7 @@ import {
 } from "./types";
 import { validateInteriorProject } from "./validation";
 import { migrateInteriorProjectDocument } from "./migrations";
+import { seatRunFillersAtFronts } from "./runFillerFronts";
 import {
   assertInteriorProjectFileByteLimit,
   MAX_INTERIOR_PROJECT_FILE_BYTES,
@@ -142,9 +143,10 @@ export function loadInteriorProjectFile(
   if (canonical) {
     const migration = migrateInteriorProjectDocument(canonical);
     const validation = validateInteriorProject(migration.document);
-    const compatible = cabinetProjectFromInteriorProject(validation.project);
+    const seated = seatRunFillersAtFronts(validation.project);
+    const compatible = cabinetProjectFromInteriorProject(seated);
     return {
-      document: validation.project,
+      document: seated,
       project: compatible.project,
       room: compatible.room,
       source: "interior-project-v2",
