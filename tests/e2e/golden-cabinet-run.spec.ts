@@ -15,7 +15,6 @@ import {
   approveAndSendToEngineering,
   captureProposalView,
   changeGoldenFinish,
-  expandEngineeringTree,
   expandHandoffIdentities,
   openGoldenCabinetRun,
   openGoldenRunModelView,
@@ -170,27 +169,30 @@ test("P0-E Golden Cabinet Run: open, revise, quote, save/reopen, engineering", a
   });
 
   await test.step("assert-ids", async () => {
-    await expect(page.getByRole("button", { name: "Cabinets", exact: true })).toHaveAttribute("aria-current", "page");
-    await expandEngineeringTree(page);
+    const engineering = page.getByRole("region", { name: "Engineering Review" });
+    await expect(engineering).toBeVisible();
+    await expect(engineering.getByText("Handoff received")).toBeVisible();
     for (const objectId of Object.values(GOLDEN_RUN_OBJECT_IDS)) {
-      const row = page.locator(`.cabinet-tree-row[data-kind="cabinet"][data-cabinet-id="${objectId}"]`);
+      const row = engineering.locator(`.er-cabinet-list [data-cabinet-id="${objectId}"]`);
       await expect(row).toHaveCount(1);
       await expect(row).toHaveAttribute("data-cabinet-type", /base|wall|tall|drawer/);
     }
     for (const fillerId of Object.values(GOLDEN_RUN_FILLER_IDS)) {
-      const row = page.locator(`.cabinet-tree-row[data-kind="cabinet"][data-cabinet-id="${fillerId}"]`);
+      const row = engineering.locator(`.er-cabinet-list [data-cabinet-id="${fillerId}"]`);
       await expect(row).toHaveCount(1);
       await expect(row).toHaveAttribute("title", /filler/i);
     }
   });
 
   await test.step("verify-revision", async () => {
-    await page.getByRole("button", { name: "Production", exact: true }).click();
+    await page.getByRole("button", { name: "Production outputs →", exact: true }).click();
+    const outputs = page.getByRole("region", { name: "Production Outputs" });
+    await expect(outputs).toBeVisible();
     const revision = page.getByTestId("production-revision");
     await expect(revision).toContainText(GOLDEN_RUN_JOB.projectNumber);
     await expect(revision).toContainText(`Rev ${GOLDEN_RUN_JOB.revision}`);
-    await page.getByRole("tab", { name: "Cutlist" }).click();
-    await expect(page.getByText("Workshop Cutlist")).toBeVisible();
+    await page.getByRole("button", { name: "Cut list", exact: true }).click();
+    await expect(page.getByText("Workshop cut list")).toBeVisible();
     await expect(page.locator(`[data-cabinet-id="${GOLDEN_RUN_OBJECT_IDS.baseA}"]`).first()).toBeVisible();
     await expect(page.locator(`[data-cabinet-id="${GOLDEN_RUN_FILLER_IDS.start}"]`).first()).toBeVisible();
     await expect(page.getByTestId("production-revision")).toContainText(GOLDEN_RUN_JOB.projectNumber);
