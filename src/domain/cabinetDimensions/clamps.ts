@@ -408,6 +408,7 @@ export function clampCabinetProject(project: CabinetProject, roomBounds?: RoomBo
         return clampCabinetPlacement(
           mounted,
           clampCabinetConfig(cabinet.config).dimensions, roomBounds,
+          isRunFillerCatalogId(cabinet.config?.catalogItemId) ? 1 : undefined,
         );
       })(),
     })),

@@ -96,6 +96,7 @@ export function placeGoldenRunCabinets(project: InteriorProject): InteriorProjec
   )?.runId;
   if (!runId) throw new Error("Golden run failed to form on the back wall.");
   const mounted = mountWallRun(updateCabinetRunLayout(arranged, runId, { fillersEnabled: true }));
-  const withFillers = seedGoldenRunFillers(mounted, runId);
+  // Finalize first so fillers align with the grid-snapped cabinet fronts Engineering will see.
+  const withFillers = seedGoldenRunFillers({ ...mounted, objects: finalizeGoldenRunObjects(mounted.objects) }, runId);
   return { ...withFillers, objects: finalizeGoldenRunObjects(withFillers.objects) };
 }

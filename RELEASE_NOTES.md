@@ -16,9 +16,11 @@
   belong to. Floor cabinets can move too: in rooms larger than the default they
   are no longer pulled inside the old edges, and in smaller rooms any cabinet
   past the room edge is pulled inside when the project opens.
-
-### Known issues
-
-- Golden-run end fillers are rounded to the 50 mm Engineering grid and sit
-  behind the cabinets, 1–19 mm into the wall face, instead of flush with the
-  cabinet fronts.
+- **Floor cabinets stop at the inner wall face too.** A floor cabinet pushed
+  against a wall used to clamp to the wall centreline and could sit up to half
+  the wall thickness inside it; saved projects with such cabinets move out by
+  up to that amount when opened.
+- **Run end fillers sit flush with the cabinet fronts.** Fillers were placed
+  against the wall behind the run (and Engineering's 50 mm grid pushed them
+  into the wall face); new and regenerated fillers now close the gap at the
+  front, and Engineering keeps them at millimetre precision.

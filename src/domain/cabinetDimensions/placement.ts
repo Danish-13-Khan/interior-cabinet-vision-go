@@ -82,6 +82,8 @@ export function clampCabinetPlacement(
     depthMm: ROOM_DEPTH_MM,
     heightMm: ROOM_HEIGHT_MM,
   },
+  /** Plan grid for x/z; run fillers pass 1 so they can sit flush with cabinet fronts. */
+  gridMm: number = CABINET_GRID_SNAP_MM,
 ): CabinetPlacement {
   const rotation = normalizeRotationAngle(placement.rotation);
   const footprint = getFootprintDimensions(dimensions, rotation);
@@ -98,49 +100,38 @@ export function clampCabinetPlacement(
   );
 
   const basePlacement: CabinetPlacement = {
-    x: snapMillimetresToGrid(Number.isFinite(placement.x) ? placement.x : 0),
+    x: snapMillimetresToGrid(Number.isFinite(placement.x) ? placement.x : 0, gridMm),
     y: snapMillimetresToGrid(clampedY),
-    z: snapMillimetresToGrid(Number.isFinite(placement.z) ? placement.z : 0),
+    z: snapMillimetresToGrid(Number.isFinite(placement.z) ? placement.z : 0, gridMm),
     rotation,
     attachment,
   };
 
-  // Wall attachments force their own rotation (so use the unrotated size); room bounds are wall centrelines.
+  // Room bounds are wall centrelines; every cabinet stops at the inner wall face.
+  const innerX = roomWidth / 2 - (roomBounds.wallThicknessMm ?? 120) / 2;
+  const innerZ = roomDepth / 2 - (roomBounds.wallThicknessMm ?? 120) / 2;
+  const within = (value: number, inner: number, half: number) => Math.min(Math.max(value, -inner + half), inner - half);
+  // Wall attachments force their own rotation, so they use the unrotated size.
   const along = dimensions.width / 2;
-  const off = dimensions.depth / 2 + (roomBounds.wallThicknessMm ?? 120) / 2;
+  const off = dimensions.depth / 2;
 
   if (attachment === "back-wall") {
-    return {
-      ...basePlacement,
-      x: Math.min(Math.max(basePlacement.x, -roomWidth / 2 + along), roomWidth / 2 - along),
-      z: -roomDepth / 2 + off,
-      rotation: 0,
-    };
+    return { ...basePlacement, x: within(basePlacement.x, innerX, along), z: -innerZ + off, rotation: 0 };
   }
 
   if (attachment === "left-wall") {
-    return {
-      ...basePlacement,
-      x: -roomWidth / 2 + off,
-      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + along), roomDepth / 2 - along),
-      rotation: 90,
-    };
+    return { ...basePlacement, x: -innerX + off, z: within(basePlacement.z, innerZ, along), rotation: 90 };
   }
 
   if (attachment === "right-wall") {
-    return {
-      ...basePlacement,
-      x: roomWidth / 2 - off,
-      z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + along), roomDepth / 2 - along),
-      rotation: 270,
-    };
+    return { ...basePlacement, x: innerX - off, z: within(basePlacement.z, innerZ, along), rotation: 270 };
   }
 
   return {
     ...basePlacement,
     y: 0,
-    x: Math.min(Math.max(basePlacement.x, -roomWidth / 2 + halfWidth), roomWidth / 2 - halfWidth),
-    z: Math.min(Math.max(basePlacement.z, -roomDepth / 2 + halfDepth), roomDepth / 2 - halfDepth),
+    x: within(basePlacement.x, innerX, halfWidth),
+    z: within(basePlacement.z, innerZ, halfDepth),
   };
 }
 

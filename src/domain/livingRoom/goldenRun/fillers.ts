@@ -3,7 +3,7 @@ import { orientWallForRoom } from "../../interiorProject";
 import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
 import { orderRunMembers } from "../../cabinetRuns";
 import { cabinetRunForObject, isCabinetRunFiller } from "../wardrobePlacement";
-import { attached, placementAt, wallLength } from "../wallSegmentPlacement";
+import { attached, frontFlushStandOffMm, placementAt, wallLength } from "../wallSegmentPlacement";
 import { GOLDEN_RUN_FILLER_IDS } from "./types";
 
 const FILLER_WIDTH_MM = 100;
@@ -51,7 +51,8 @@ function makeFiller(
       cabinetRunFiller: { runId, side },
     },
   };
-  return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, center)));
+  const standOff = frontFlushStandOffMm(wall, member, FILLER_DEPTH_MM);
+  return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, center, standOff)));
 }
 
 /** Stamp 100 mm end fillers so the golden run stays filler-forced on a long wall. */
