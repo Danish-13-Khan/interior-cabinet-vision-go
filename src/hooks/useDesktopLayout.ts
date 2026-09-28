@@ -4,18 +4,22 @@ import {
   layoutForAppLaunch,
   persistDesktopLayout,
   readDesktopLayout,
+  readEngineeringSessionRoute,
   type DesktopLayoutPrefs,
   type WorkspaceTabId,
 } from "../domain/desktopUx";
 import { isTauriRuntime } from "../platform/desktopFiles";
 
 export function useDesktopLayout() {
-  const [layout, setLayoutState] = useState<DesktopLayoutPrefs>(() =>
-    layoutForAppLaunch(
+  const [layout, setLayoutState] = useState<DesktopLayoutPrefs>(() => {
+    const launch = layoutForAppLaunch(
       readDesktopLayout(),
       isTauriRuntime() ? "tauri" : "web",
-    ),
-  );
+    );
+    return readEngineeringSessionRoute()
+      ? clampDesktopLayout({ ...launch, workbenchMode: "engineering", workspaceTab: "3d" })
+      : launch;
+  });
 
   useEffect(() => {
     persistDesktopLayout(layout);

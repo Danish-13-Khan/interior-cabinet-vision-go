@@ -50,12 +50,14 @@ export function interiorsPresentStep(input: {
   approved: boolean;
   handoffSent: boolean;
 }): InteriorsPresentStep {
+  // Persisted downstream milestones take precedence over ephemeral capture
+  // state restored by the current UI session.
+  if (input.handoffSent) return "done";
   if (!input.frozen || input.stale) return "freeze";
+  if (input.approved) return "send";
+  if (input.proposalReleased) return "approve";
   if (input.needsCapture) return "capture";
-  if (!input.proposalReleased) return "proposal";
-  if (!input.approved) return "approve";
-  if (!input.handoffSent) return "send";
-  return "done";
+  return "proposal";
 }
 
 export function interiorsPresentBlocking(

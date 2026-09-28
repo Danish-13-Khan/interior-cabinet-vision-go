@@ -79,6 +79,33 @@
   color: #4a5a4e;
 }
 
+.lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid #3f5b48;
+  border-radius: 8px;
+  background: #1f3026;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > span {
+  color: #95d4a9;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > strong {
+  color: #f1f7f2;
+  font-size: 1.05rem;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > small,
+.lr-plan-shell.lr-product-shell-v2 .interiors-approved-revision > p {
+  margin: 0;
+  color: #adbbb0;
+  font-size: .61rem;
+  line-height: 1.45;
+}
+
 .interiors-client-capture {
   position: absolute;
   inset: 0;

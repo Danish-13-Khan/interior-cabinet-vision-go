@@ -17,7 +17,7 @@ export type EngineerBridgeTarget = {
   intent: EngineerBridgeIntent;
   workbenchMode: WorkbenchMode;
   reportCenterTab: EngineerReportTab | null;
-  focus: "cabinets" | "packet" | "cutlist" | "costing" | "production";
+  focus: "engineering" | "cabinets" | "packet" | "cutlist" | "costing" | "production";
   label: string;
 };
 
