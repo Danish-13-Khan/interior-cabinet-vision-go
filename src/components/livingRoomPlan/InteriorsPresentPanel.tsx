@@ -10,6 +10,7 @@ import { InteriorsPresentActions } from "./InteriorsPresentActions";
 import { InteriorsPresentCommercial } from "./InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "./InteriorsPresentQuote";
 import { InteriorsProposalIdentity } from "./InteriorsProposalIdentity";
+import { formatQuoteMoney } from "../../domain/quoteSettings";
 
 type Proposal = ReturnType<typeof useProposalWorkflow>;
 type Handoff = ReturnType<typeof useEngineeringHandoff>;
@@ -47,6 +48,8 @@ export function InteriorsPresentPanel({
   const live = proposal.live;
   if (!live || !proposal.gate) return null;
   const state = interiorsPresentPanelState(proposal, handoff);
+  const revisionLocked = Boolean(handoff.sent)
+    || (handoff.revisionApproved && Boolean(live.frozen) && !live.stale);
   return (
     <aside className="planner-v2-review interiors-present-panel" data-testid="interiors-present-panel" data-step={state.step} aria-label="Present and Send">
       <div className="interiors-compact-close-heading">
@@ -65,14 +68,25 @@ export function InteriorsPresentPanel({
       <button type="button" data-testid="interiors-present-return-review" onClick={onReturnToReview}>
         Return to Review
       </button>
-      <InteriorsProposalIdentity job={live.quote.job} onJob={proposal.patchJob} />
-      <InteriorsPresentQuote proposal={proposal} />
-      <InteriorsPresentCommercial quote={live.quote.settings} onQuote={proposal.patchQuote} />
-      <InspectorProposalGateChecks
-        items={proposal.gate.items}
-        blockingCount={proposal.gate.blockingCount}
-        ready={proposal.gate.ready}
-      />
+      {revisionLocked ? (
+        <section className="interiors-approved-revision" aria-label="Approved revision summary">
+          <span>✓ Approved revision</span>
+          <strong>{formatQuoteMoney(live.quote.sellTotal, live.quote.settings.currencyLabel)}</strong>
+          <small>Rev {live.quote.job.revision} · proposal released · client views retained</small>
+          <p>Quote and client-preview checks are locked to the approved revision. Create a new revision to change them.</p>
+        </section>
+      ) : (
+        <>
+          <InteriorsProposalIdentity job={live.quote.job} onJob={proposal.patchJob} />
+          <InteriorsPresentQuote proposal={proposal} />
+          <InteriorsPresentCommercial quote={live.quote.settings} onQuote={proposal.patchQuote} />
+          <InspectorProposalGateChecks
+            items={proposal.gate.items}
+            blockingCount={proposal.gate.blockingCount}
+            ready={proposal.gate.ready}
+          />
+        </>
+      )}
       <InteriorsPresentActions
         proposal={proposal} handoff={handoff} blocking={state.blocking}
         step={state.step} needsCapture={state.needsCapture} onCapture={onCapture}

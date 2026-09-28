@@ -51,6 +51,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
     project,
     snapSizeMm,
     showGrid = true,
+    reviewMode = false,
     room,
     countertops,
     fillers,
@@ -83,7 +84,17 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
   const [isDragging, setIsDragging] = useState(false);
   const [marqueeRect, setMarqueeRect] = useState<MarqueeRect | null>(null);
   const marqueeStartRef = useRef<MarqueeStart | null>(null);
-  const roomDimensions = room?.dimensions ?? {
+  const focusedDimensions = project.cabinets.find(
+    (item) => item.id === activeCabinetId,
+  )?.config.dimensions;
+  const roomDimensions = reviewMode && focusedDimensions ? {
+    widthMm: Math.max(1800, focusedDimensions.width * 1.4),
+    depthMm: Math.max(1400, focusedDimensions.depth * 2.5),
+    heightMm: Math.max(1200, focusedDimensions.height * 2.2),
+    showBackWall: false,
+    showLeftWall: false,
+    showRightWall: false,
+  } : room?.dimensions ?? {
     widthMm: 6000,
     depthMm: 4000,
     heightMm: 2800,
@@ -154,7 +165,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
       onPointerMoveCapture={handleMarqueePointerMove}
       onPointerUpCapture={handleMarqueePointerUp}
     >
-      <div className="scene-toolbar">
+      {!reviewMode ? <div className="scene-toolbar">
         <button
           type="button"
           className={`toolbar-btn ${isolateSelected ? "active" : ""}`}
@@ -162,15 +173,15 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
         >
           {isolateSelected ? "All Panels" : "Isolate"}
         </button>
-      </div>
+      </div> : null}
 
-      <div className="scene-overlay">
+      {!reviewMode ? <div className="scene-overlay">
         <span className="scene-hint">
           {selectedCabinet
             ? `Selected: ${selectedCabinet.name} (${selectedCabinet.config.dimensions.width} × ${selectedCabinet.config.dimensions.height} × ${selectedCabinet.config.dimensions.depth} mm)`
             : "Click an item to select it. Shift-drag for marquee selection."}
         </span>
-      </div>
+      </div> : null}
       {marqueeRect ? (
         <div
           className="scene-marquee"
@@ -216,11 +227,11 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
             ]}
           />
         ) : null}
-        <RoomShell
+        {!reviewMode ? <RoomShell
           dims={roomDimensions}
           doors={room ? room.doors : []}
           windows={room ? room.windows : []}
-        />
+        /> : null}
         <CountertopMeshes countertops={countertops} />
         <FillerMeshes fillers={fillers} />
 
@@ -284,7 +295,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           );
         })}
 
-        {selectedCabinet ? (
+        {selectedCabinet && !reviewMode ? (
           <>
             <MoveHandle
               cabinet={selectedCabinet}
@@ -356,7 +367,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           target={[...cabinetSceneOrbitOverrides.target]}
           enabled={!isDragging}
           mouseButtons={{
-            LEFT: undefined,
+            LEFT: reviewMode ? MOUSE.ROTATE : undefined,
             MIDDLE: MOUSE.PAN,
             RIGHT: MOUSE.ROTATE,
           }}

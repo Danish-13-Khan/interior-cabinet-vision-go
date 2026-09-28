@@ -57,4 +57,14 @@ describe("shelf span on defaults", () => {
       ).toHaveLength(0);
     }
   });
+
+  it("keeps the 1600 mm media-unit shelf below the advisory span", () => {
+    const media = getDefaultCabinetConfig("media-unit");
+    expect(media.composition?.dividers.count).toBeGreaterThanOrEqual(2);
+    expect(
+      evaluateCabinetRules(media).filter((issue) =>
+        issue.code === "SHELF_SPAN" || issue.code === "MATERIAL_SHELF_SPAN",
+      ),
+    ).toHaveLength(0);
+  });
 });
