@@ -17,7 +17,7 @@ export function PlanSurfaceZonesLayer(props: {
     && !isGeneratedRoomSurface(surface)
     && (surface.polygon?.length ?? 0) >= 3);
   return (
-    <g className="lr-surface-zones" aria-label="Surface zones" pointerEvents={props.selectable ? "auto" : "none"}>
+    <g className="lr-surface-zones" role="group" aria-label="Surface zones" pointerEvents={props.selectable ? "auto" : "none"}>
       {zones.map((surface) => {
         const color = materials.get(surface.materialId ?? "")?.color ?? "#c8b087";
         const active = surface.id === props.activeSurfaceId;

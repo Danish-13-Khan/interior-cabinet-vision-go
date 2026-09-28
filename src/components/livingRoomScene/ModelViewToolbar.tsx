@@ -45,6 +45,7 @@ function presetButton(
   presetId: ModelViewPresetId,
   active: ModelViewPresetId,
   onViewPreset: (preset: ModelViewPresetId) => void,
+  iconOnly = false,
 ) {
   const preset = MODEL_VIEW_PRESETS.find((item) => item.id === presetId)!;
   return (
@@ -55,10 +56,10 @@ function presetButton(
       data-testid={`model-view-${preset.id}`}
       aria-label={preset.label}
       aria-pressed={active === preset.id}
-      title={preset.purpose}
+      title={iconOnly ? `${preset.label} — ${preset.purpose}` : preset.purpose}
       onClick={() => onViewPreset(preset.id)}
     >
-      <span aria-hidden="true">{preset.symbol}</span>{preset.label}
+      <span aria-hidden="true">{preset.symbol}</span>{iconOnly ? null : preset.label}
     </button>
   );
 }
@@ -68,29 +69,31 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
   return (
     <div className="lr-model-controls">
       {props.fixtures && <RoomLightFixturesPopover {...props.fixtures} />}
-      <div className="lr-view-presets" aria-label="3D camera views" data-testid="model-camera-presets">
-        {MODEL_VIEW_PRIMARY_CAMERA_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
-      </div>
       <div className="lr-view-presets lr-view-explore" aria-label="3D explore modes">
         {MODEL_VIEW_EXPLORE_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
+      </div>
+      <div className="lr-view-presets lr-view-angles" aria-label="3D camera views" data-testid="model-camera-presets">
+        {MODEL_VIEW_PRIMARY_CAMERA_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset, true))}
       </div>
       <div className="lr-view-presets lr-view-fit" aria-label="3D framing">
         <button
           type="button"
           data-testid="model-fit-room"
+          aria-label="Fit Room"
           title="Fit room (F when nothing selected)"
           onClick={props.onFitRoom}
         >
-          Fit Room
+          Fit
         </button>
         <button
           type="button"
           data-testid="model-focus-selection"
+          aria-label="Focus Selected"
           title="Focus selection (F or Shift+F)"
           disabled={!props.hasSelection}
           onClick={props.onFocusSelection}
         >
-          Focus Selected
+          Focus
         </button>
       </div>
       <button

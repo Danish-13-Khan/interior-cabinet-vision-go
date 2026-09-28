@@ -1,6 +1,7 @@
 import { interiorsCabinetRunFamilyItems, type InteriorsChromeTool } from "../../domain/desktopUx";
 import { LIVING_ROOM_CATALOG } from "../../domain/livingRoom";
 import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
+import { livingRoomThumbnailUrl } from "../../domain/livingRoom/livingRoomThumbnails";
 
 export function InteriorsCabinetRunCatalog({
   tool,
@@ -12,7 +13,6 @@ export function InteriorsCabinetRunCatalog({
   onAdd: (catalogItemId: string, wallId?: string) => void;
 }) {
   const families = interiorsCabinetRunFamilyItems(tool, LIVING_ROOM_CATALOG);
-  const previewLabel = catalogPreviewFallbackLabel(false);
   return (
     <>
       <div className="context-panel-heading">
@@ -20,14 +20,19 @@ export function InteriorsCabinetRunCatalog({
         <span>Place on the selected wall · same identities in 2D and 3D</span>
       </div>
       <div className="lr-asset-grid lr-run-catalog" data-testid="interiors-cabinet-run-catalog">
-        {families.map((item) => (
+        {families.map((item) => {
+          const thumbnailUrl = livingRoomThumbnailUrl(item.id);
+          const previewLabel = catalogPreviewFallbackLabel(Boolean(thumbnailUrl));
+          return (
           <button
             type="button"
             key={item.id}
             onClick={() => onAdd(item.id, wallId || undefined)}
           >
             <span className={`lr-asset-preview is-${item.category}`}>
-              <i /><i /><i />
+              {thumbnailUrl
+                ? <img src={thumbnailUrl} alt="" loading="lazy" width={120} height={82} />
+                : <><i /><i /><i /></>}
               {previewLabel ? <em className="lr-asset-preview-fallback">{previewLabel}</em> : null}
             </span>
             <strong>{item.name}</strong>
@@ -41,7 +46,8 @@ export function InteriorsCabinetRunCatalog({
             </small>
             <b>Place</b>
           </button>
-        ))}
+          );
+        })}
       </div>
     </>
   );

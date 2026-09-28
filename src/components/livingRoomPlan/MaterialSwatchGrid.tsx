@@ -9,10 +9,12 @@ type Props = {
   compact?: boolean;
   onImport?: (file: File) => void;
   importDisabled?: boolean;
+  /** Hover / focus preview; null when the pointer leaves the grid. */
+  onPreview?: (materialId: string | null) => void;
 };
 
 export function MaterialSwatchGrid({
-  materials, activeMaterialId, onPick, compact, onImport, importDisabled,
+  materials, activeMaterialId, onPick, compact, onImport, importDisabled, onPreview,
 }: Props) {
   const kinds = useMemo(() => {
     const unique = [...new Set(materials.map((material) => material.kind))];
@@ -32,24 +34,29 @@ export function MaterialSwatchGrid({
           </button>
         ))}
       </div>
-      <div className="lr-paint-swatches">
+      <div className="lr-paint-swatches" onMouseLeave={() => onPreview?.(null)}>
         {visible.map((material) => {
           const mapUrl = finishMapUrl(material);
+          const applied = activeMaterialId === material.id;
           return (
             <button
               key={material.id}
               type="button"
               data-material-id={material.id}
-              className={activeMaterialId === material.id ? "is-active" : ""}
+              className={applied ? "is-active" : ""}
+              aria-pressed={applied}
               title={`Apply ${material.name}`}
               onClick={() => onPick(material.id)}
+              onMouseEnter={() => onPreview?.(material.id)}
+              onFocus={() => onPreview?.(material.id)}
+              onBlur={() => onPreview?.(null)}
             >
               <i
                 className={mapUrl ? "has-map" : undefined}
                 style={mapUrl ? { backgroundImage: `url(${mapUrl})`, backgroundColor: material.color } : { background: material.color }}
               />
               <span>{material.name}</span>
-              <small>{material.kind}</small>
+              <small>{applied ? "Applied" : material.kind}</small>
             </button>
           );
         })}

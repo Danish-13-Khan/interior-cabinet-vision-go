@@ -11,8 +11,8 @@
   display: flex;
   gap: 1px;
   padding: 2px 4px 0;
-  border-bottom: 1px solid var(--workspace-gutter, #b8c0ca);
-  background: var(--report-chrome, #b8c3d0);
+  border-bottom: 1px solid var(--border-strong, var(--border-strong));
+  background: var(--report-chrome, var(--border-strong));
   position: sticky;
   top: 0;
   z-index: 2;
@@ -23,8 +23,8 @@
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
-  color: var(--report-muted, #5a6a7a);
-  font-size: 0.62rem;
+  color: var(--report-muted, var(--ink-muted));
+  font-size: var(--text-xs);
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -34,23 +34,23 @@
 }
 
 .report-center-tab.is-active {
-  background: var(--report-surface, #fff);
-  border-color: var(--workspace-gutter, #b8c0ca);
-  border-bottom-color: var(--report-surface, #fff);
+  background: var(--report-surface, var(--surface));
+  border-color: var(--border-strong, var(--border-strong));
+  border-bottom-color: var(--report-surface, var(--surface));
   color: var(--ink);
 }
 
 .report-center-body {
   padding: 8px;
-  background: var(--report-bg, #f4f6f8);
+  background: var(--report-bg, var(--surface-2));
 }
 
 .report-doc {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: var(--report-surface, #fff);
-  border: 1px solid var(--report-rule, #2a3540);
+  background: var(--report-surface, var(--surface));
+  border: 1px solid var(--report-rule, var(--ink));
   padding: 8px 10px;
 }
 
@@ -60,27 +60,27 @@
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--report-rule, #2a3540);
+  border-bottom: 1px solid var(--report-rule, var(--ink));
 }
 
 .report-doc-header strong {
   display: block;
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink);
 }
 
 .report-doc-header span {
-  font-size: 0.62rem;
-  color: var(--report-muted, #5a6a7a);
+  font-size: var(--text-xs);
+  color: var(--report-muted, var(--ink-muted));
 }
 
 .report-subsection h3 {
   margin: 0 0 6px;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--accent, #1e4d72);
+  color: var(--accent, var(--info));
   font-family: var(--font-mono);
 }

@@ -1,138 +1,97 @@
-import { MarketingShell } from '../components/MarketingShell'
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { Logo } from '../components/Logo'
-import { ThemeSwitcher } from '../components/ThemeSwitcher'
+import { Link, useSearchParams } from 'react-router-dom'
+import { AuthLayout } from '../components/AuthLayout'
 import { PasswordField } from '../components/PasswordField'
 import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
-import { useTheme } from '../lib/theme'
+import { findMarketingTemplate, MARKETING_TEMPLATES, TEMPLATE_QUERY_PARAM } from '../landing/marketingTemplates'
+
+const BASE = import.meta.env.BASE_URL
+
+type TextFieldProps = {
+  id: string
+  label: string
+  value: string
+  onChange: (value: string) => void
+  type?: string
+  placeholder?: string
+  autoComplete?: string
+}
+
+function TextField({ id, label, value, onChange, type = 'text', placeholder, autoComplete }: TextFieldProps) {
+  return (
+    <div className="form-group">
+      <label className="form-label" htmlFor={id}>{label}</label>
+      <input
+        className="form-input"
+        type={type}
+        id={id}
+        name={id}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  )
+}
 
 export function Register() {
-  const { theme } = useTheme()
+  const [params] = useSearchParams()
   const [first, setFirst] = useState('')
   const [last, setLast] = useState('')
   const [company, setCompany] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [templateId, setTemplateId] = useState(() => findMarketingTemplate(params.get(TEMPLATE_QUERY_PARAM))?.id ?? '')
   const [comingSoon, setComingSoon] = useState(false)
+  const template = findMarketingTemplate(templateId)
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     setComingSoon(true)
   }
 
-  const isCalm = theme === 'calm'
-
   return (
-    <MarketingShell>
-    <div className="theme-view" key={`register-${theme}`}>
-      <div className="auth-page">
-        <aside className="auth-brand">
-          <Logo style={{ marginBottom: 40 }} />
-          <p className="eyebrow">Get started</p>
-          <h1>
-            {isCalm
-              ? 'Proposal-to-production in one workspace.'
-              : 'Dense workspace for high-volume sales.'}
-          </h1>
-          <p>
-            {isCalm
-              ? 'Create an account to measure rooms, build cabinet runs, price proposals, and hand designs to engineering.'
-              : 'Register to manage cabinet jobs in a sidebar + table layout built for scanning and shipping proposals.'}
-          </p>
-        </aside>
-        <div className="auth-panel">
-          <div className="auth-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12 }}>
-              <div>
-                <h2 style={{ marginBottom: 6 }}>Create your account</h2>
-                <p className="auth-sub" style={{ marginBottom: 0 }}>
-                  Paid plans: Designer → Professional → Company.
-                </p>
-              </div>
-              <ThemeSwitcher size="sm" />
-            </div>
-            <form onSubmit={onSubmit}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="first">
-                    First name
-                  </label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    id="first"
-                    name="first"
-                    placeholder="Alex"
-                    value={first}
-                    onChange={(e) => setFirst(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="last">
-                    Last name
-                  </label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    id="last"
-                    name="last"
-                    placeholder="Rivera"
-                    value={last}
-                    onChange={(e) => setLast(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="company">
-                  Company
-                </label>
-                <input
-                  className="form-input"
-                  type="text"
-                  id="company"
-                  name="company"
-                  placeholder="Showroom or dealer name"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="email">
-                  Work email
-                </label>
-                <input
-                  className="form-input"
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="you@showroom.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <PasswordField
-                id="password"
-                label="Password"
-                value={password}
-                placeholder="At least 8 characters"
-                autoComplete="new-password"
-                onChange={setPassword}
-              />
-              <p className="form-hint" style={{ marginBottom: 16 }}>
-                By registering you agree to the terms of service.
-              </p>
-              <button type="submit" className="btn btn-primary btn-block btn-lg">
-                Next
-              </button>
-            </form>
-            <p className="auth-footer">
-              Already have an account? <Link to="/login">Log in</Link>
-            </p>
+    <AuthLayout
+      eyebrow="Get started"
+      title="Proposal to production in one workspace."
+      body="Create an account to measure rooms, build cabinet runs, price proposals and hand designs to engineering."
+    >
+      <header className="auth-card-head">
+        <h2>Create your account</h2>
+        <p className="auth-sub">Plans: Designer, Professional and Company.</p>
+      </header>
+      <form onSubmit={onSubmit} noValidate>
+        <div className="form-row">
+          <TextField id="first" label="First name" placeholder="Alex" autoComplete="given-name" value={first} onChange={setFirst} />
+          <TextField id="last" label="Last name" placeholder="Rivera" autoComplete="family-name" value={last} onChange={setLast} />
+        </div>
+        <TextField id="company" label="Company" placeholder="Showroom or dealer name" autoComplete="organization" value={company} onChange={setCompany} />
+        <TextField id="email" label="Work email" type="email" placeholder="you@showroom.com" autoComplete="email" value={email} onChange={setEmail} />
+        <PasswordField
+          id="password"
+          label="Password"
+          value={password}
+          placeholder="At least 8 characters"
+          autoComplete="new-password"
+          onChange={setPassword}
+        />
+        <div className="form-group">
+          <label className="form-label" htmlFor="template">Starting template</label>
+          <div className="template-pick">
+            {template && <img src={`${BASE}${template.image}`} alt="" width="64" height="48" />}
+            <select className="form-input" id="template" name="template" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+              <option value="">Blank project</option>
+              {MARKETING_TEMPLATES.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
           </div>
         </div>
-      </div>
+        <p className="form-hint">By registering you agree to the terms of service.</p>
+        <button type="submit" className="btn btn-primary btn-block btn-lg">Next</button>
+      </form>
+      <p className="auth-footer">
+        Already have an account? <Link to="/login">Log in</Link>
+      </p>
       <AuthNoticeDialog
         open={comingSoon}
         title="Coming soon"
@@ -140,7 +99,6 @@ export function Register() {
         testId="register-coming-soon"
         onClose={() => setComingSoon(false)}
       />
-    </div>
-    </MarketingShell>
+    </AuthLayout>
   )
 }

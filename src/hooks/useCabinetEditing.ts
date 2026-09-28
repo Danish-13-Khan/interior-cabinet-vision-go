@@ -38,7 +38,7 @@ type UseCabinetEditingArgs = {
   isCabinetLocked: (cabinet: CabinetInstance) => boolean;
   clampPlacementInRoom: (
     placement: CabinetPlacement,
-    dimensions: CabinetInstance["config"]["dimensions"],
+    config: CabinetInstance["config"],
   ) => CabinetPlacement;
   updateCabinet: (
     cabinetId: string,

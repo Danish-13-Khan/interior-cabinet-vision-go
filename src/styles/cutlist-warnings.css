@@ -9,9 +9,9 @@
   display: grid;
   grid-template-columns: 1fr 60px 160px;
   gap: 8px;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 700;
-  color: #7b8a98;
+  color: var(--ink-muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -30,19 +30,19 @@
 }
 
 .cutlist-row strong {
-  font-size: 0.82rem;
-  color: #243442;
+  font-size: var(--text-md);
+  color: var(--ink);
 }
 
 .cutlist-row span {
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 /* ── Warning Panel ── */
 .warning-panel p {
   margin: 0;
-  color: #8b6e3c;
-  font-size: 0.8rem;
+  color: var(--warning);
+  font-size: var(--text-md);
 }
 
 .warning-panel p + p {

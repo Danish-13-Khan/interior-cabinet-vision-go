@@ -10,9 +10,9 @@
   gap: 4px;
   width: 100%;
   padding: 5px 2px;
-  border-bottom: 1px solid var(--iu-line, #aab6be);
-  color: var(--iu-ink, #1c2822);
-  font-size: 0.57rem;
+  border-bottom: 1px solid var(--border, #aab6be);
+  color: var(--ink, #1c2822);
+  font-size: var(--text-xs);
   line-height: 1.3;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .lr-proposal-gate-panel .lr-proposal-gate-row small {
-  color: var(--iu-muted, #5b6871);
+  color: var(--ink-muted, #5b6871);
   overflow-wrap: anywhere;
 }
 
@@ -42,24 +42,17 @@
 .interiors-review-journey p,
 .interiors-review-journey-note {
   margin: 0;
-  color: var(--iu-muted, #5b6871);
-  font-size: 0.62rem;
+  color: var(--ink-muted, #5b6871);
+  font-size: var(--text-xs);
   line-height: 1.35;
 }
 
 .interiors-review-journey-note {
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
 }
 
 .interiors-present-panel > button[data-testid="interiors-present-return-review"] {
   justify-self: start;
-}
-
-.interiors-present-scope-note {
-  margin: 0;
-  color: var(--iu-muted, #5b6871);
-  font-size: 0.55rem;
-  line-height: 1.35;
 }
 
 .lr-present-titlebar {

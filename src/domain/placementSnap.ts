@@ -172,7 +172,7 @@ export function snapPlanPlacement(options: {
   others: CabinetInstance[];
   proposed: CabinetPlacement;
   roomWidthMm: number;
-  roomDepthMm: number;
+  roomDepthMm: number; wallThicknessMm?: number;
   gridSizeMm: number;
   runs?: CabinetRun[];
 }): PlanSnapResult {
@@ -238,7 +238,7 @@ export function snapPlanPlacement(options: {
   const roomBounds: RoomBounds = {
     widthMm: roomWidthMm,
     depthMm: roomDepthMm,
-    heightMm: 2800,
+    heightMm: 2800, wallThicknessMm: options.wallThicknessMm,
   };
   const runSnap = snapPlacementIntoRuns({
     cabinet,

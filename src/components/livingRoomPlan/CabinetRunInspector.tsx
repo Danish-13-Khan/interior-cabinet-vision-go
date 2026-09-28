@@ -17,16 +17,18 @@ type Props = {
     fillersEnabled?: boolean;
   }) => void;
   onCompleteRun?: (runId: string) => void;
+  open?: boolean;
 };
 
-export function CabinetRunInspector({ object, project, onUpdate, onCompleteRun }: Props) {
+export function CabinetRunInspector({ object, project, onUpdate, onCompleteRun, open = false }: Props) {
   const run = cabinetRunForObject(object);
   if (!run) return null;
   const fillerCount = countCabinetRunFillers(project, run.runId);
   const lengthMm = cabinetRunLengthMm(project, run.runId);
   const proposal = proposeCabinetRunComplete(project, run.runId);
-  return <section className="lr-cabinet-run-inspector">
-    <h4>Cabinet run</h4>
+  return <details className="lr-inspector-section lr-cabinet-run-inspector" data-testid="inspector-run" open={open}>
+    <summary>Run <small>{lengthMm} mm</small></summary>
+    <div className="lr-inspector-section-body">
     <p className="lr-inspector-hint" data-run-wall-id={run.wallId}>Attached to wall {run.wallId}. Layout follows its real plan segment.</p>
     <p className="lr-inspector-hint" data-testid="cabinet-run-length" data-length-mm={lengthMm}>
       Run length <strong>{lengthMm}</strong> mm
@@ -50,5 +52,6 @@ export function CabinetRunInspector({ object, project, onUpdate, onCompleteRun }
         Complete Run
       </button>
     ) : null}
-  </section>;
+    </div>
+  </details>;
 }

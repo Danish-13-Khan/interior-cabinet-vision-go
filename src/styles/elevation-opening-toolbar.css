@@ -4,16 +4,16 @@
   align-items: center;
   gap: 4px 8px;
   padding: 2px 6px;
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--workspace-pane-header-focus);
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--accent-soft);
   flex-shrink: 0;
 }
 
 .elevation-opening-toolbar-meta {
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 650;
   color: var(--ink);
-  min-width: 8rem;
+  min-width: 92px;
 }
 
 .elevation-opening-toolbar-group {
@@ -25,7 +25,7 @@
 
 .elevation-opening-toolbar-group + .elevation-opening-toolbar-group {
   padding-left: 6px;
-  border-left: 1px solid var(--panel-border);
+  border-left: 1px solid var(--border-strong);
 }
 
 .twod-opening-label,
@@ -39,7 +39,7 @@
 }
 
 .twod-opening-resize-handle {
-  stroke: var(--selection);
+  stroke: var(--accent);
   stroke-width: 7;
   stroke-opacity: 0.34;
   pointer-events: stroke;

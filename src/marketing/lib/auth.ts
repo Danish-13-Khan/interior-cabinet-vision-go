@@ -18,7 +18,7 @@ export function getSession(): Session | null {
   try {
     const raw = localStorage.getItem(SESSION_KEY)
     if (!raw) return null
-    return JSON.parse(raw) as Session
+    return { ...(JSON.parse(raw) as Session), theme: 'calm' }
   } catch {
     return null
   }

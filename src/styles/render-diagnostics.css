@@ -12,7 +12,7 @@
   border-radius: 6px;
   background: rgba(22, 28, 26, 0.92);
   color: #d7e0db;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   line-height: 1.35;
   pointer-events: none;
 }
@@ -34,7 +34,7 @@
 .lr-render-diagnostics header strong {
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .lr-render-diagnostics header span {
@@ -110,7 +110,7 @@
   border-radius: 999px;
   background: rgb(19 27 23 / 86%);
   color: #eaf1ed;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
   list-style: none;

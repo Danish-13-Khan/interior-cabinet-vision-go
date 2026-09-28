@@ -1,7 +1,7 @@
 /* CAD object hierarchy — walls, cabinets, openings, dims, guides */
 
 .technical-view .twod-sheet {
-  fill: var(--drawing-bg);
+  fill: var(--canvas);
 }
 
 .technical-view .twod-draft[data-mode="print"] .twod-sheet {
@@ -258,7 +258,7 @@
 }
 
 .technical-view .twod-dim-selected.twod-dim-arrow {
-  fill: var(--selection);
+  fill: var(--accent);
 }
 
 .technical-view .twod-dim-witness-line {
@@ -267,15 +267,15 @@
 }
 
 .technical-view .twod-dim-grip {
-  fill: var(--panel-raised, #e8edf2);
-  stroke: var(--selection);
+  fill: var(--surface-2, #e8edf2);
+  stroke: var(--accent);
   stroke-width: 1px;
   opacity: 0.95;
 }
 
 .technical-view .twod-dim-grip.is-selected {
   fill: var(--accent-soft);
-  stroke: var(--draft-edit, var(--selection));
+  stroke: var(--draft-edit, var(--accent));
 }
 
 .technical-view .twod-dim-ext {
@@ -327,7 +327,7 @@
 }
 
 .technical-view .twod-guide-align {
-  stroke: var(--selection);
+  stroke: var(--accent);
 }
 
 .technical-view .twod-guide-grid {

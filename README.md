@@ -16,6 +16,9 @@ same design to engineering without re-entering cabinet data.
 > Interiors 2D plan improvement program (pan/zoom, measure, underlay, presentation).
 > [`docs/DWG_ROOM_DESIGN_ROADMAP.md`](docs/DWG_ROOM_DESIGN_ROADMAP.md) covers DWG/DXF
 > tracing-underlay import in that 2D workspace.
+> [`docs/UI_CALM_LIGHT_ROADMAP.md`](docs/UI_CALM_LIGHT_ROADMAP.md) is the
+> **appearance source of truth** (Calm Light tokens in `src/styles/tokens.css`,
+> type, layouts, and the style / visual / accessibility gates).
 > Phase documents below remain implementation history and supporting detail.
 
 The current development program is **Golden Cabinet Run v1**: a straight
@@ -348,6 +351,9 @@ material slots, and the universal JSON contract.
 - The application remains usable without network connectivity.
 - The desktop shell has no document-level scrolling or clipped primary tools.
 - Build output remains split into maintainable production chunks.
+- Styles pass `npm run lint:styles` (tokens only, no new `!important`, 12px
+  minimum type); `npm run test:visual` and `npm run test:a11y` hold the Calm
+  Light screenshots and zero serious/critical axe issues.
 
 ## Target Source Boundaries
 

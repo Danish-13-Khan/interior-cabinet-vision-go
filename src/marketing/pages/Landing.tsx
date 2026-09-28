@@ -1,13 +1,10 @@
 import { MarketingShell } from '../components/MarketingShell'
-import { useTheme } from '../lib/theme'
-import { CalmLanding } from '../themes/calm/CalmLanding'
-import { CompactLanding } from '../themes/compact/CompactLanding'
+import { LandingPage } from '../landing/LandingPage'
 
 export function Landing() {
-  const { theme } = useTheme()
   return (
     <MarketingShell>
-      {theme === 'compact' ? <CompactLanding /> : <CalmLanding />}
+      <LandingPage />
     </MarketingShell>
   )
 }

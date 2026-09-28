@@ -1,3 +1,7 @@
+import { useMemo } from "react";
+import type { InteriorProject } from "../../domain/interiorProject";
+import { planClosedRoomModelRaise, setPlanWallsRaised } from "../../domain/interiorProject";
+
 type Props = {
   reason: string | null;
   canRaise: boolean;
@@ -24,5 +28,28 @@ export function PlanTraceEmptyState({ reason, canRaise, onRaise }: Props) {
         </button>
       </div>
     </div>
+  );
+}
+
+/** Shows the raise prompt only while the room has not been extruded yet. */
+export function PlanTraceRaisePrompt({ project, onPatchDocument }: {
+  project: InteriorProject;
+  onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
+}) {
+  const raisePlan = useMemo(() => planClosedRoomModelRaise(project), [project]);
+  if (raisePlan.status === "ready") return null;
+  return (
+    <PlanTraceEmptyState
+      reason={raisePlan.status === "blocked" ? raisePlan.reason : null}
+      canRaise={raisePlan.status === "raise"}
+      onRaise={() => {
+        if (raisePlan.status !== "raise" || !onPatchDocument) return;
+        const { wallIds, heightMm } = raisePlan;
+        onPatchDocument(
+          (current) => setPlanWallsRaised(current, wallIds, true, heightMm),
+          "Raised walls to 3D.",
+        );
+      }}
+    />
   );
 }

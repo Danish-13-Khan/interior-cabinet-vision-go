@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { roomPlanViewBounds, selectRoomWalls, type InteriorProject, type InteriorRoomEntity } from "../../domain/interiorProject";
 import {
   formatPlanDimension,
@@ -7,6 +7,8 @@ import {
   wallLengthMm,
   wallLengthAnchorLabel,
   DEFAULT_WALL_LENGTH_ANCHOR,
+  layoutReferenceDimensionLabels,
+  type PlacedPlanLabel,
   type PlanReadabilitySettings,
   type ReferenceDimension,
   type WallLengthAnchor,
@@ -34,20 +36,19 @@ function VerticalDimension({ x, z, depth, label, role }: {
   </g>;
 }
 
-function ReferenceDimGraphic({ dim, label }: { dim: ReferenceDimension; label: string }) {
-  const mx = (dim.a.x + dim.b.x) / 2;
-  const mz = (dim.a.z + dim.b.z) / 2;
+function ReferenceDimGraphic({ dim, label }: { dim: ReferenceDimension; label: PlacedPlanLabel }) {
   return (
     <g className="lr-reference-dim is-reference-dim" data-dim-role="reference" data-testid={`ref-dim-${dim.kind}`}>
       <line x1={dim.a.x} y1={dim.a.z} x2={dim.b.x} y2={dim.b.z} />
-      <text x={mx} y={mz - 30}>{label}</text>
+      <text x={label.x} y={label.z} data-testid="ref-dim-label">{label.text}</text>
     </g>
   );
 }
 
-export function PlanDimensionsLayer({ project, room, activeWallId, settings, referenceDims = [], onSetWallLength }: {
+export function PlanDimensionsLayer({ project, room, activeWallId, settings, referenceDims = [], selectedIds = [], onSetWallLength }: {
   project: InteriorProject; room: InteriorRoomEntity; activeWallId: string | null; settings: PlanReadabilitySettings;
   referenceDims?: ReferenceDimension[];
+  selectedIds?: string[];
   onSetWallLength?: (wallId: string, lengthMm: number, anchor: WallLengthAnchor) => void;
 }) {
   const pair = topologyPlanDimensionPair(project, room.id);
@@ -59,6 +60,11 @@ export function PlanDimensionsLayer({ project, room, activeWallId, settings, ref
   const [editingWallId, setEditingWallId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const anchor: WallLengthAnchor = DEFAULT_WALL_LENGTH_ANCHOR;
+  const referenceLabels = useMemo(
+    () => layoutReferenceDimensionLabels(project, referenceDims, format, { selectedIds }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- format only depends on the unit
+    [project, referenceDims, selectedIds, settings.unit],
+  );
 
   function beginEdit(wallId: string, length: number) {
     if (!onSetWallLength) return;
@@ -128,9 +134,9 @@ export function PlanDimensionsLayer({ project, room, activeWallId, settings, ref
       })}
     </g>
     <g className="lr-reference-dimensions" pointerEvents="none" aria-label="Reference dimensions">
-      {referenceDims.slice(0, 8).map((dim) => (
-        <ReferenceDimGraphic key={dim.id} dim={dim} label={`Ref ${format(dim.lengthMm)}`} />
-      ))}
+      {referenceDims.map((dim, index) => (referenceLabels[index].hidden ? null : (
+        <ReferenceDimGraphic key={dim.id} dim={dim} label={referenceLabels[index]} />
+      )))}
     </g>
   </>;
 }

@@ -11,7 +11,10 @@ test("I3 flags overlapping cabinets and lets the designer select the conflict", 
   await openDesignPlan(page);
   const cabinet = page.locator(".lr-asset-grid").getByRole("button", { name: /Base Cabinet.*Place/ });
   await cabinet.click();
-  await cabinet.click();
+  // Pre-drop refuses a second catalogue drop onto the same wall slot; Duplicate
+  // offsets the copy 150 mm, which still overlaps a 900 × 600 cabinet.
+  await page.getByRole("button", { name: "Duplicate", exact: true }).first().click();
+  await expect(page.locator(".lr-plan-object[data-object-id]")).toHaveCount(2);
 
   await expect(page.getByRole("button", { name: "Schedule CSV", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Production", exact: true })).toHaveCount(0);

@@ -1,5 +1,6 @@
 import { useEffect, type Dispatch, type SetStateAction } from "react";
 import {
+  cabinetPlacementGridMm,
   clampCabinetPlacement,
   clampCabinetProject,
   type CabinetInstance,
@@ -168,6 +169,7 @@ export function useProjectCommit({
           cabinet.placement,
           cabinet.config.dimensions,
           roomBounds,
+          cabinetPlacementGridMm(cabinet.config),
         );
 
         if (

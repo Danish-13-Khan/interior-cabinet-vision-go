@@ -13,7 +13,7 @@ import {
   collectWallOccupancySpans,
   freeSegmentsInInterval,
 } from "./cabinetRunPlacementPreview";
-import { attached, placementAt, wallLength } from "./wallSegmentPlacement";
+import { attached, frontFlushStandOffMm, placementAt, wallLength } from "./wallSegmentPlacement";
 
 const FILLER_DEPTH_MM = 18;
 
@@ -251,7 +251,7 @@ export function syncCabinetRunFillers(project: InteriorProject, runId: string): 
       heightMm: reference.dimensions.heightMm,
       reference: spec.ref,
     });
-    return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, spec.center)));
+    return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, spec.center, frontFlushStandOffMm(wall, spec.ref, FILLER_DEPTH_MM))));
   });
   return { ...cleared, objects: [...cleared.objects, ...fillers] };
 }

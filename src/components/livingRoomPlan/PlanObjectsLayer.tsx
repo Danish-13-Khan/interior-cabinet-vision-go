@@ -12,7 +12,7 @@ import {
   planObjectFootprintKind,
   primaryMaterialId,
   readPlanMarksSettings,
-  resolvePlanObjectLabelModes,
+  planObjectLabelBaselines, resolvePlanObjectLabelModes,
   type FreeWallSegment,
   type LivingRoomPlanIssue,
   type PlanDisplayUnit,
@@ -129,9 +129,9 @@ export function PlanObjectsLayer(props: {
       const finish = materialsById.get(primaryMaterialId(object) ?? "");
       const fill = finish?.color ? `${finish.color}99` : undefined;
       const identity = readCabinetIdentity(object);
-      const labelY = selected || labelMode === "full"
-        ? (compact ? -dimensions.depthMm / 2 - 70 : -8)
-        : -dimensions.depthMm / 2 - 55;
+      const { nameY: labelY, sizeY } = planObjectLabelBaselines({
+        widthMm: dimensions.widthMm, depthMm: dimensions.depthMm, rotationY, mode: labelMode, selected,
+      });
       const footprintKind = planObjectFootprintKind(object);
       const footprintClass = planObjectFootprintClass(object);
       const objectRunId = runIdFor(object);
@@ -179,7 +179,7 @@ export function PlanObjectsLayer(props: {
             editing ? null : (
               <tspan
                 x="0"
-                y="68"
+                y={sizeY}
                 className="lr-object-size lr-object-size-editable"
                 data-testid={`cabinet-inline-dim-${object.id}`}
                 style={{ cursor: props.onSetCabinetDims ? "text" : "default" }}
@@ -196,7 +196,7 @@ export function PlanObjectsLayer(props: {
               </tspan>
             )
           ) : showSize && !showInlineDims && labelMode === "full" ? (
-            <tspan x="0" y="68" className="lr-object-size">{formatPlanDimension(dimensions.widthMm, props.unit)} × {formatPlanDimension(dimensions.depthMm, props.unit)}</tspan>
+            <tspan x="0" y={sizeY} className="lr-object-size">{formatPlanDimension(dimensions.widthMm, props.unit)} × {formatPlanDimension(dimensions.depthMm, props.unit)}</tspan>
           ) : null}
         </text> : null}
         {editing ? (

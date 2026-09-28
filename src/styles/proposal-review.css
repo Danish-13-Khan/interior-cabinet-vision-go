@@ -1,21 +1,21 @@
-.proposal-review { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid #e6ece7; }
-.proposal-review > strong { color: #304236; font-size: .75rem; }
-.proposal-review-total { margin: 0; color: #276b46; font-size: 1.15rem; font-weight: 700; }
-.proposal-review small { color: #748076; font-size: .61rem; line-height: 1.35; }
-.proposal-review small.is-warning { color: #9a3412; }
+.proposal-review { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid var(--border); }
+.proposal-review > strong { color: var(--ink); font-size: var(--text-sm); }
+.proposal-review-total { margin: 0; color: var(--accent); font-size: var(--text-lg); font-weight: 700; }
+.proposal-review small { color: var(--ink-muted); font-size: var(--text-xs); line-height: 1.35; }
+.proposal-review small.is-warning { color: var(--danger); }
 .proposal-review-fields { display: grid; gap: 7px; }
 .proposal-review-fields label,
 .proposal-review-views label,
-.proposal-review-override { display: grid; gap: 3px; color: #4a5a4e; font-size: .62rem; }
+.proposal-review-override { display: grid; gap: 3px; color: var(--ink-muted); font-size: var(--text-xs); }
 .proposal-review-fields input,
 .proposal-review-fields textarea {
   width: 100%;
   min-height: 28px;
   padding: 4px 6px;
-  border: 1px solid #cfe0d2;
+  border: 1px solid var(--border-strong);
   border-radius: 5px;
-  background: #fff;
-  color: #243029;
+  background: var(--surface);
+  color: var(--ink);
   font: inherit;
 }
 .proposal-review-fields fieldset {
@@ -33,17 +33,17 @@
 .proposal-review-override-block { display: grid; gap: 6px; }
 .proposal-review [data-testid="proposal-gate"] { margin: 0; }
 .lr-product-shell-v2 .planner-v2-review { width: 280px; min-width: 280px; }
-.lr-product-shell-v2 .proposal-review { border-color: #364238; }
-.lr-product-shell-v2 .proposal-review > strong { color: #d7e4d8; }
-.lr-product-shell-v2 .proposal-review-total { color: #8dce9f; }
-.lr-product-shell-v2 .proposal-review small { color: #9aab9d; }
-.lr-product-shell-v2 .proposal-review small.is-warning { color: #f0c7a7; }
+.lr-product-shell-v2 .proposal-review { border-color: var(--ink); }
+.lr-product-shell-v2 .proposal-review > strong { color: var(--ink-faint); }
+.lr-product-shell-v2 .proposal-review-total { color: var(--accent); }
+.lr-product-shell-v2 .proposal-review small { color: var(--ink-faint); }
+.lr-product-shell-v2 .proposal-review small.is-warning { color: var(--warning); }
 .lr-product-shell-v2 .proposal-review-fields label,
 .lr-product-shell-v2 .proposal-review-views label,
-.lr-product-shell-v2 .proposal-review-override { color: #c5d2c6; }
+.lr-product-shell-v2 .proposal-review-override { color: var(--ink-faint); }
 .lr-product-shell-v2 .proposal-review-fields input,
 .lr-product-shell-v2 .proposal-review-fields textarea {
-  border-color: #3d4d40;
-  background: #101610;
-  color: #eef3ed;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ink-faint);
 }

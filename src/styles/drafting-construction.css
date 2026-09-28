@@ -163,7 +163,7 @@
 
 .technical-view .twod-opening-marker.is-active-opening {
   fill: var(--accent-soft);
-  stroke: var(--selection);
+  stroke: var(--accent);
 }
 
 .technical-view .twod-opening-marker-text {
@@ -174,7 +174,7 @@
 }
 
 .technical-view .twod-opening-marker-text.is-active-opening {
-  fill: var(--selection);
+  fill: var(--accent);
 }
 
 .technical-view .twod-cabinet-elev-title {

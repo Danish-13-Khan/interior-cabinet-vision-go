@@ -1,25 +1,22 @@
 import { useEffect, useId, useRef, useState } from "react";
-import type { DraftingAppearance } from "../../hooks/useDraftingAppearance";
 
 type InteriorsWorkspaceFileMenuProps = {
   disabled?: boolean;
+  onProjectTools?: () => void;
   onOpen: () => void;
   onSave: () => void;
   onExport: () => void;
   onOpenShortcuts?: () => void;
-  appearance?: DraftingAppearance;
-  onAppearance?: (appearance: DraftingAppearance) => void;
 };
 
-/** Day-one File menu: Open, Save, Export JSON — reuses existing workspace I/O. */
+/** Job menu ▾ next to the job name: project tools plus File actions (open, save, export). */
 export function InteriorsWorkspaceFileMenu({
   disabled = false,
+  onProjectTools,
   onOpen,
   onSave,
   onExport,
   onOpenShortcuts,
-  appearance,
-  onAppearance,
 }: InteriorsWorkspaceFileMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -50,17 +47,25 @@ export function InteriorsWorkspaceFileMenu({
     <div className="lr-chrome-file" ref={rootRef} data-testid="interiors-file-menu">
       <button
         type="button"
-        className={open ? "is-active" : ""}
+        className={`lr-chrome-job-toggle${open ? " is-active" : ""}`}
+        aria-label="Job menu"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
         disabled={disabled}
         onClick={() => setOpen((value) => !value)}
       >
-        File
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
       </button>
       {open ? (
         <div className="lr-chrome-file-menu" role="menu" id={menuId}>
+          {onProjectTools ? (
+            <button type="button" role="menuitem" data-testid="interiors-open-project-tools" onClick={() => run(onProjectTools)}>
+              Project tools…
+            </button>
+          ) : null}
           <button type="button" role="menuitem" onClick={() => run(onOpen)}>
             Open…
           </button>
@@ -79,27 +84,6 @@ export function InteriorsWorkspaceFileMenu({
             >
               Keyboard shortcuts…
             </button>
-          ) : null}
-          {onAppearance ? (
-            <div className="lr-chrome-file-theme" role="group" aria-label="Canvas appearance">
-              <span>Canvas appearance</span>
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={appearance !== "dark-frame"}
-                onClick={() => run(() => onAppearance("light"))}
-              >
-                Light studio {appearance !== "dark-frame" ? "✓" : ""}
-              </button>
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={appearance === "dark-frame"}
-                onClick={() => run(() => onAppearance("dark-frame"))}
-              >
-                Dark frame {appearance === "dark-frame" ? "✓" : ""}
-              </button>
-            </div>
           ) : null}
         </div>
       ) : null}

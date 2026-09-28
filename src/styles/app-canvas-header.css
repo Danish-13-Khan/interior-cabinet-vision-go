@@ -1,0 +1,158 @@
+/* Calm Light canvas header: plan title + view tools on one row, every control the
+   same secondary button at --control-h. Export sheet is secondary, not primary. */
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-title-copy {
+  display: flex;
+  flex: 1 1 220px;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm, 18px);
+  white-space: nowrap;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-title-copy strong { font-size: var(--text-md); font-weight: 600; color: var(--ink); }
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-title-copy span { overflow: hidden; color: var(--ink-muted); text-overflow: ellipsis; }
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-title-sep { color: var(--ink-faint); }
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-title-actions,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-primary-tools,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-view-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-title-actions { gap: var(--space-2); }
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-view-tools { padding-left: var(--space-2); border-left: 1px solid var(--border); }
+
+/* One button component for every header control. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar button,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar select,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar .lr-plan-on-demand-panel > summary,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-contextual-command-rail button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--control-h);
+  min-height: var(--control-h);
+  min-width: var(--control-h);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  box-shadow: none;
+  filter: none;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar select { padding-right: var(--space-6, 28px); }
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar button:hover:not(:disabled),
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar .lr-plan-on-demand-panel > summary:hover,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-contextual-command-rail button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar button.is-active,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar button[aria-pressed="true"],
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar .lr-plan-on-demand-panel[open] > summary,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-contextual-command-rail button.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Export sheet: secondary like its neighbours. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar .lr-plan-on-demand-panel.is-export > summary {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar .lr-plan-on-demand-panel.is-export[open] > summary {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar button:disabled,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-contextual-command-rail button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar button:focus-visible,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar select:focus-visible,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-titlebar summary:focus-visible,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-contextual-command-rail button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-units {
+  padding: 0 var(--space-2);
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-on-demand-body {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+}
+
+/* Room & plan settings inside the inspector (nothing selected). */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-inspector-plan-settings:empty { display: none; }
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-inspector-plan-settings {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-in-inspector {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-in-inspector > summary {
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-in-inspector .lr-draw-tray {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}

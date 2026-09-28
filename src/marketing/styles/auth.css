@@ -1,0 +1,121 @@
+.cs-marketing .auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+.cs-marketing .auth-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) clamp(24px, 5vw, 64px);
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.cs-marketing .auth-brand-copy { display: grid; gap: var(--space-3); max-width: 30em; margin-top: auto; }
+.cs-marketing .auth-brand-copy .eyebrow { margin-bottom: 0; }
+.cs-marketing .auth-brand h1 { font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; }
+.cs-marketing .auth-brand-copy > p:last-child { color: var(--ink-muted); }
+.cs-marketing .auth-brand-art {
+  margin-bottom: auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-dialog);
+  background: var(--stage);
+  box-shadow: var(--shadow-2);
+}
+.cs-marketing .auth-brand-art img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.cs-marketing .auth-panel {
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) var(--mk-gutter);
+}
+.cs-marketing .auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-dialog);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.cs-marketing .auth-card-head { display: grid; gap: var(--space-1); margin-bottom: var(--space-5); }
+.cs-marketing .auth-card h2 { font-size: var(--text-2xl); line-height: var(--leading-2xl); }
+.cs-marketing .auth-sub { font-size: var(--text-md); color: var(--ink-muted); }
+
+/* Form controls */
+.cs-marketing .form-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-3); }
+.cs-marketing .form-group { display: grid; gap: var(--space-1); margin-bottom: var(--space-4); }
+.cs-marketing .form-label { font-size: var(--text-sm); font-weight: 600; color: var(--ink); }
+.cs-marketing .form-input {
+  width: 100%;
+  min-height: var(--mk-tap);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-lg);
+}
+.cs-marketing .form-input::placeholder { color: var(--ink-faint); }
+.cs-marketing .form-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus); }
+.cs-marketing .form-hint { margin-bottom: var(--space-4); font-size: var(--text-sm); color: var(--ink-faint); }
+.cs-marketing .password-field { position: relative; }
+.cs-marketing .password-field .form-input { padding-right: 72px; }
+.cs-marketing .password-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--space-1);
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.cs-marketing .password-toggle:hover { background: var(--accent-soft); }
+.cs-marketing .template-pick { display: flex; align-items: center; gap: var(--space-3); }
+.cs-marketing .template-pick img {
+  flex: 0 0 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+}
+.cs-marketing .auth-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  font-size: var(--text-md);
+}
+.cs-marketing .auth-check { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--mk-tap); color: var(--ink-muted); cursor: pointer; }
+.cs-marketing .auth-check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.cs-marketing .auth-muted-link { color: var(--ink-faint); }
+.cs-marketing .auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+}
+.cs-marketing .auth-divider::before, .cs-marketing .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.cs-marketing .auth-footer { margin-top: var(--space-5); font-size: var(--text-md); color: var(--ink-muted); text-align: center; }
+.cs-marketing .auth-footer a { color: var(--accent); font-weight: 600; }
+
+@media (max-width: 900px) {
+  .cs-marketing .auth-page { grid-template-columns: minmax(0, 1fr); }
+  .cs-marketing .auth-brand { gap: var(--space-4); border-right: 0; border-bottom: 1px solid var(--border); padding-block: var(--space-4) var(--space-5); }
+  .cs-marketing .auth-brand-copy { margin-top: 0; }
+  .cs-marketing .auth-brand-art { display: none; }
+  .cs-marketing .auth-panel { place-items: start center; }
+}
+@media (max-width: 480px) {
+  .cs-marketing .auth-card { padding: var(--space-5) var(--space-4); border: 0; box-shadow: none; background: transparent; }
+  .cs-marketing .form-row { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}

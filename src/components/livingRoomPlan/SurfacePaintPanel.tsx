@@ -6,15 +6,14 @@ import {
   editableCommonMaterialSlots,
   isSelectionSlotEditable,
   materialsCompatibleWithSelectionSlot,
-  primaryMaterialId,
-  stageFinishImportFile,
-  stageFinishImportUrl,
-  stageManufacturerFinish,
   surfacePaintCurrentFinishLabel,
   surfacePaintScopeLabel,
   type FinishImportDraft,
 } from "../../domain/livingRoom";
+import { effectiveSurfacePaintTarget, surfacePaintActiveMaterialId } from "../../domain/livingRoom/surfacePaintTarget";
+import { useFinishImportDraft } from "../../hooks/useFinishImportDraft";
 import { FinishImportExtras } from "./FinishImportExtras";
+import { MaterialPreviewTile } from "./MaterialPreviewTile";
 import { MaterialColourPanel } from "./MaterialColourPanel";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
 import {
@@ -44,15 +43,16 @@ export function SurfacePaintPanel({
   onApplyColour, onImportFinish,
 }: Props) {
   const wall = project.walls.find((item) => item.id === activeWallId) ?? project.walls[0] ?? null;
-  const [target, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
+  const [requestedTarget, setTarget] = useState<PaintTarget>(selectedObjects.length ? "selection" : "floor");
   const [slot, setSlot] = useState("");
-  const [draft, setDraft] = useState<FinishImportDraft | null>(null);
-  const [importError, setImportError] = useState<string | null>(null);
-  const [urlBusy, setUrlBusy] = useState(false);
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const { draft, importError, urlBusy, stageImport, stageImportUrl, stageCatalogue, patchDraft, clear } =
+    useFinishImportDraft();
   const sharedSlots = useMemo(() => commonMaterialSlots(selectedObjects), [selectedObjects]);
   const editableSlots = useMemo(() => editableCommonMaterialSlots(selectedObjects), [selectedObjects]);
   const activeSlot = editableSlots.includes(slot) ? slot : editableSlots[0] ?? "";
   const canPaintSelection = selectedObjects.length > 0 && editableSlots.length > 0;
+  const target = effectiveSurfacePaintTarget(requestedTarget, canPaintSelection);
   const selectionMaterials = useMemo(() => {
     if (target !== "selection" || !activeSlot) return project.materials;
     const compatible = materialsCompatibleWithSelectionSlot(project.materials, selectedObjects, activeSlot);
@@ -62,47 +62,17 @@ export function SurfacePaintPanel({
     return current ? [...compatible, current] : compatible;
   }, [target, activeSlot, project.materials, selectedObjects]);
 
-  const activeMaterialId = target === "floor"
-    ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "floor")?.materialId
-      ?? (project.rooms.find((room) => room.id === project.activeRoomId)?.extensions?.floorMaterialId as string | undefined)
-    : target === "ceiling"
-      ? project.surfaces.find((surface) => surface.roomId === project.activeRoomId && surface.kind === "ceiling")?.materialId
-        ?? (project.rooms.find((room) => room.id === project.activeRoomId)?.extensions?.ceilingMaterialId as string | undefined)
-      : target === "wall" ? wall?.materialId
-        : selectedObjects[0] && activeSlot ? selectedObjects[0].materialSlots[activeSlot]
-          : selectedObjects[0] ? primaryMaterialId(selectedObjects[0]) : null;
+  const activeMaterialId = surfacePaintActiveMaterialId({
+    project, target, wallId: wall?.id ?? null, selectedObjects, slotName: activeSlot,
+  });
   const activeMaterial = project.materials.find((material) => material.id === activeMaterialId) ?? null;
+  const previewMaterial = project.materials.find((material) => material.id === previewId) ?? null;
 
   function apply(materialId: string) {
     if (target === "floor") onFloor(materialId);
     if (target === "ceiling") onCeiling(materialId);
     if (target === "wall" && wall) onWall(wall.id, materialId);
     if (target === "selection" && canPaintSelection) onApplyToSelection(materialId, activeSlot || undefined);
-  }
-
-  function failImport(error: unknown) {
-    setDraft(null);
-    setImportError(error instanceof Error ? error.message : "Could not import finish.");
-  }
-
-  function stageImport(file: File) {
-    if (urlBusy) return;
-    setImportError(null);
-    void stageFinishImportFile(file).then(setDraft).catch(failImport);
-  }
-
-  function stageImportUrl(url: string) {
-    setImportError(null);
-    setDraft(null);
-    setUrlBusy(true);
-    void stageFinishImportUrl(url).then(setDraft).catch(failImport).finally(() => setUrlBusy(false));
-  }
-
-  function stageCatalogue(finishId: string) {
-    if (urlBusy) return;
-    setImportError(null);
-    try { setDraft(stageManufacturerFinish(finishId)); }
-    catch (error) { failImport(error); }
   }
 
   return (
@@ -146,16 +116,24 @@ export function SurfacePaintPanel({
           </select>
         </label>
       ) : null}
-      {target === "selection" && selectedObjects.length > 0 && sharedSlots.length === 0
-        ? <p>Select one or more objects that share a material slot.</p> : null}
-      {target === "selection" && sharedSlots.length > 0 && editableSlots.length === 0
-        ? <p>Shared slots on this selection are locked by the catalog.</p> : null}
-      {target === "selection" && !canPaintSelection ? null : (
+      {requestedTarget === "selection" && selectedObjects.length > 0 && !canPaintSelection ? (
+        <p className="lr-inspector-hint" data-testid="paint-selection-unavailable">
+          {sharedSlots.length > 0 ? "Shared slots on this selection are locked by the catalog." : "The selection has no shared paintable slot."}
+          {" "}Painting the floor; cabinet finishes are under Construction.
+        </p>
+      ) : null}
+      {(
         <>
+          <MaterialPreviewTile
+            project={project}
+            materialId={previewId ?? activeMaterialId}
+            label={previewMaterial ? `Previewing ${previewMaterial.name}` : activeMaterial ? `Applied · ${activeMaterial.name}` : "No finish applied"}
+          />
           <MaterialSwatchGrid
             materials={target === "selection" ? selectionMaterials : project.materials}
             activeMaterialId={activeMaterialId ?? null}
             onPick={apply}
+            onPreview={setPreviewId}
             onImport={onImportFinish ? stageImport : undefined}
             importDisabled={urlBusy}
           />
@@ -170,16 +148,15 @@ export function SurfacePaintPanel({
               filterCatalogueForSelection={target === "selection"}
               onStageUrl={stageImportUrl}
               onStageCatalogue={stageCatalogue}
-              onChangeDraft={(patch) => setDraft((current) => (current ? { ...current, ...patch } : current))}
+              onChangeDraft={patchDraft}
               onApply={() => {
                 if (!draft) return;
                 onImportFinish(draft, surfacePaintImportApply({
                   target, wall, selectedObjects, activeSlot, canPaintSelection,
                 }));
-                setDraft(null);
-                setImportError(null);
+                clear();
               }}
-              onCancel={() => { setDraft(null); setImportError(null); }}
+              onCancel={clear}
             />
           ) : null}
           <MaterialColourPanel

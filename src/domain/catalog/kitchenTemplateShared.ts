@@ -17,7 +17,7 @@ import {
   isCabinetRunFiller,
 } from "../livingRoom/wardrobePlacement";
 import type { LivingRoomIdFactory } from "../livingRoom/ids";
-import { attached, placementAt, wallLength } from "../livingRoom/wallSegmentPlacement";
+import { attached, frontFlushStandOffMm, placementAt, wallLength } from "../livingRoom/wallSegmentPlacement";
 import { createDefaultPackageCameraBookmarks } from "../livingRoom/packageCameraBookmarks";
 
 export { snapCatalogObjectsToWall } from "./kitchenAppliancePlacement";
@@ -78,7 +78,7 @@ export function seedEndFillers(
         heightMm: member.dimensions.heightMm,
         depthMm: FILLER_DEPTH_MM,
       },
-      materialSlots: {},
+      materialSlots: { ...member.materialSlots },
       parameters: { filler: true },
       extensions: {
         placement: "wall",
@@ -86,7 +86,8 @@ export function seedEndFillers(
         cabinetRunFiller: { runId, side },
       },
     };
-    return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, center)));
+    const standOff = frontFlushStandOffMm(wall, member, FILLER_DEPTH_MM);
+    return persistCabinetIdentityOnObject(attached(draft, placementAt(wall, draft, center, standOff)));
   };
   const without = project.objects.filter((object) => {
     const filler = object.extensions?.cabinetRunFiller as { runId?: string } | undefined;

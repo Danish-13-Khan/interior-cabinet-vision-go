@@ -11,7 +11,7 @@
 }
 
 .plans-panel-title {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: #4a5568;
   text-transform: uppercase;

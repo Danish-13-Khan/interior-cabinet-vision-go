@@ -46,7 +46,7 @@ export function computeSheetFrame(input: SheetFrameInput): SheetFrame {
 }
 
 export function sheetBackground(svgWidth: number, svgHeight: number, print: boolean) {
-  const fill = print ? "#ffffff" : "var(--drawing-bg, #ffffff)";
+  const fill = print ? "#ffffff" : "var(--canvas, #ffffff)";
   return `<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="${fill}" class="twod-sheet" />`;
 }
 

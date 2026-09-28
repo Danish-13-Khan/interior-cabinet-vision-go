@@ -36,8 +36,8 @@ Start a project → Build in 2D → Design + dimensions → Review + export
 | Accent soft | `#e9f3eb` | Hover/selected background |
 | Danger | `#b42318` | Destructive actions only |
 
-Use the tokens in `src/styles/planner-ui-v2-tokens.css`; do not introduce a
-second V2 palette in components.
+Superseded: colours now come from `src/styles/tokens.css` (see
+`UI_CALM_LIGHT_ROADMAP.md`); the `--planner-v2-*` names are legacy aliases.
 
 ## Type, spacing, and surfaces
 

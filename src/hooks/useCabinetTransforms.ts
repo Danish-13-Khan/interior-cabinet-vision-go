@@ -1,4 +1,5 @@
 import {
+  cabinetPlacementGridMm,
   clampCabinetConfig,
   clampCabinetPlacement,
   getWallPlacement,
@@ -61,9 +62,9 @@ export function useCabinetTransforms({
 
   function clampPlacementInRoom(
     placement: CabinetPlacement,
-    dimensions: CabinetDimensions,
+    config: CabinetConfig,
   ) {
-    return clampCabinetPlacement(placement, dimensions, roomBounds);
+    return clampCabinetPlacement(placement, config.dimensions, roomBounds, cabinetPlacementGridMm(config));
   }
 
   function cabinetWouldBlockOpening(
@@ -115,6 +116,7 @@ export function useCabinetTransforms({
       },
       nextConfig.dimensions,
       roomBounds,
+      cabinetPlacementGridMm(nextConfig),
     );
 
     if (
@@ -150,7 +152,7 @@ export function useCabinetTransforms({
 
     const nextPlacement = clampPlacementInRoom(
       { ...selectedCabinet.placement, [axis]: value },
-      selectedCabinet.config.dimensions,
+      selectedCabinet.config,
     );
 
     if (
@@ -180,7 +182,7 @@ export function useCabinetTransforms({
         ...selectedCabinet.placement,
         rotation: normalizeRotationAngle(rotation),
       },
-      selectedCabinet.config.dimensions,
+      selectedCabinet.config,
     );
 
     if (
@@ -246,7 +248,7 @@ export function useCabinetTransforms({
     const nextConfig = clampCabinetConfig({ ...cabinet.config, dimensions });
     const nextPlacement = clampPlacementInRoom(
       cabinet.placement,
-      nextConfig.dimensions,
+      nextConfig,
     );
 
     if (
@@ -283,7 +285,7 @@ export function useCabinetTransforms({
 
     const nextPlacement = clampPlacementInRoom(
       placement,
-      cabinet.config.dimensions,
+      cabinet.config,
     );
 
     if (
@@ -312,7 +314,7 @@ export function useCabinetTransforms({
 
     const nextPlacement = clampPlacementInRoom(
       { ...cabinet.placement, rotation: normalizeRotationAngle(rotation) },
-      cabinet.config.dimensions,
+      cabinet.config,
     );
 
     if (

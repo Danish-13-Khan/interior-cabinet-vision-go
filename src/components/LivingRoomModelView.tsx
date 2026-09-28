@@ -5,13 +5,9 @@ import {
   describeModelViewHonesty,
   describeModelViewRuntimeProfile,
   getActiveLivingRoomStyleId,
-  getCabinetMechanismState,
   LIVING_ROOM_STYLE_PRESETS,
-  mechanismFrontIndex,
-  mechanismPanelPatch,
   modelViewProjectLightScale,
   modelViewWindowKeyScale,
-  openingOffsetAtPoint,
   preferModelViewCameraId,
   resolveModelViewCameraOverrides,
   resolveModelViewDefaultQuality,
@@ -19,13 +15,15 @@ import {
   resolveModelViewRenderMode,
   type LivingRoomStyleId,
 } from "../domain/livingRoom";
-import { isWallRaised, planClosedRoomModelRaise, setPlanWallsRaised } from "../domain/interiorProject";
+import { isWallRaised } from "../domain/interiorProject";
+import { mechanismTogglePatch } from "../domain/livingRoom/mechanismToggle";
 import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
 import {
   persistModelGuideDismissal,
   shouldShowModelGuide,
 } from "../domain/livingRoom/modelViewGuidePreference";
 import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
+import { useModelViewTransform } from "../hooks/useModelViewTransform";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
 import { LivingRoomModelChrome } from "./livingRoomScene/LivingRoomModelChrome";
@@ -33,9 +31,9 @@ import { type WallContextMenuState } from "./livingRoomScene/ModelWallVisibility
 import { ModelViewAuthoringOverlays } from "./livingRoomScene/ModelViewAuthoringOverlays";
 import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewFeedbackBanners } from "./livingRoomScene/ModelViewFeedbackBanners";
-import { PlanTraceEmptyState } from "./livingRoomScene/PlanTraceEmptyState";
+import { PlanTraceRaisePrompt } from "./livingRoomScene/PlanTraceEmptyState";
 import { modelViewClientPresentationProps } from "../domain/livingRoom/modelViewClientPresentation";
-import type { ModelTransformPreview, ModelTransformTarget } from "./livingRoomScene/ModelMoveGizmo";
+import type { ModelTransformPreview } from "./livingRoomScene/ModelMoveGizmo";
 
 type LivingRoomModelViewProps = {
   project: InteriorProject;
@@ -55,20 +53,17 @@ type LivingRoomModelViewProps = {
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
-  onPatchDocument?: (
-    update: (current: InteriorProject) => InteriorProject,
-    status: string,
-  ) => void;
+  onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
   presentation?: boolean;
+  showStylePalette?: boolean;
 };
 
 export function LivingRoomModelView({
   project, selectedIds, activeOpeningId, activeWallId, snapSizeMm, showGrid,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
-  onApplyStyle, onSetParameters, onPatchDocument, presentation = false,
+  onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
-  const raisePlan = useMemo(() => planClosedRoomModelRaise(project), [project]);
   const extrudedWalls = scene.nodes.filter(
     (node) => node.metadata.role === "wall" && node.metadata.planTrace !== true,
   ).length;
@@ -77,10 +72,14 @@ export function LivingRoomModelView({
   );
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
-  const [showGuide, setShowGuide] = useState(shouldShowModelGuide);
+  const [showGuide, setShowGuide] = useState(() => !presentation && shouldShowModelGuide());
+  useEffect(() => {
+    if (showGuide) persistModelGuideDismissal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mark the guide seen the first time it shows
+  }, []);
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
-  const [cutawayWalls, setCutawayWalls] = useState(false);
+  const [cutawayWalls, setCutawayWalls] = useState(true);
   const [wallMenu, setWallMenu] = useState<WallContextMenuState | null>(null);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
     resolveModelViewDefaultQuality,
@@ -88,82 +87,10 @@ export function LivingRoomModelView({
   const honesty = describeModelViewHonesty(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
-  const activeObject = selectedIds.length === 1
-    ? project.objects.find((object) => object.id === selectedIds[0]) ?? null
-    : null;
-  const activeObjectOrigin = activeObject
-    ? scene.nodes.find((node) => node.sourceObjectId === activeObject.id)?.positionMm ?? activeObject.position
-    : null;
-  const activeOpening = activeOpeningId
-    ? project.openings.find((opening) => opening.id === activeOpeningId) ?? null
-    : null;
-  const activeOpeningWall = activeOpening
-    ? project.walls.find((wall) => wall.id === activeOpening.wallId) ?? null
-    : null;
-  const openingCenter = activeOpening && activeOpeningWall
-    ? (() => {
-        const dx = activeOpeningWall.end.x - activeOpeningWall.start.x;
-        const dz = activeOpeningWall.end.z - activeOpeningWall.start.z;
-        const length = Math.max(1, Math.hypot(dx, dz));
-        const center = activeOpening.offsetMm + activeOpening.widthMm / 2;
-        return {
-          x: activeOpeningWall.start.x + dx / length * center,
-          y: activeOpening.sillHeightMm,
-          z: activeOpeningWall.start.z + dz / length * center,
-        };
-      })()
-    : null;
-  const transformTarget: ModelTransformTarget | null = activeObject
-    ? { kind: "object", id: activeObject.id, positionMm: activeObjectOrigin ?? activeObject.position }
-    : activeOpening && openingCenter
-      ? { kind: "opening", id: activeOpening.id, positionMm: openingCenter }
-      : null;
-
-  useEffect(() => {
-    onTransformPreviewChange?.(null);
-  }, [activeObject?.id, activeOpening?.id, onTransformPreviewChange]);
-
-  const resolveTransformPosition = useCallback((target: ModelTransformTarget, proposed: Point3Mm) => {
-    let resolved: Point3Mm;
-    if (target.kind === "object") {
-      const preview = onMovePreview?.(target.id, proposed);
-      resolved = preview && typeof preview === "object" ? preview.position : proposed;
-      onTransformPreviewChange?.({ ...target, positionMm: resolved });
-      return resolved;
-    }
-    const opening = project.openings.find((item) => item.id === target.id);
-    const wall = opening ? project.walls.find((item) => item.id === opening.wallId) : null;
-    if (!opening || !wall) return target.positionMm;
-    const offsetMm = openingOffsetAtPoint(wall, proposed, opening.widthMm, snapSizeMm);
-    const dx = wall.end.x - wall.start.x;
-    const dz = wall.end.z - wall.start.z;
-    const length = Math.max(1, Math.hypot(dx, dz));
-    const center = offsetMm + opening.widthMm / 2;
-    resolved = {
-      x: wall.start.x + dx / length * center,
-      y: Math.min(Math.max(0, wall.heightMm - opening.heightMm), Math.max(0, proposed.y)),
-      z: wall.start.z + dz / length * center,
-    };
-    onTransformPreviewChange?.({ ...target, positionMm: resolved });
-    return resolved;
-  }, [onMovePreview, onTransformPreviewChange, project.openings, project.walls, snapSizeMm]);
-
-  const commitTransformPosition = useCallback((target: ModelTransformTarget, proposed: Point3Mm) => {
-    const resolved = resolveTransformPosition(target, proposed);
-    if (target.kind === "object") {
-      onMove(target.id, resolved);
-      onTransformPreviewChange?.(null);
-      return;
-    }
-    const opening = project.openings.find((item) => item.id === target.id);
-    const wall = opening ? project.walls.find((item) => item.id === opening.wallId) : null;
-    if (!opening || !wall) return;
-    onUpdateOpening?.(opening.id, {
-      offsetMm: openingOffsetAtPoint(wall, resolved, opening.widthMm, snapSizeMm),
-      sillHeightMm: Math.max(0, resolved.y),
-    });
-    onTransformPreviewChange?.(null);
-  }, [onMove, onTransformPreviewChange, onUpdateOpening, project.openings, project.walls, resolveTransformPosition, snapSizeMm]);
+  const { activeObject, transformTarget, resolveTransformPosition, commitTransformPosition } = useModelViewTransform({
+    project, scene, selectedIds, activeOpeningId, snapSizeMm,
+    onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange,
+  });
   const activeCamera = scene.cameras.find((item) => item.id === activeCameraId)
     ?? scene.cameras[0] ?? null;
   const diagnostics = useRenderDiagnostics(scene, activeCamera);
@@ -233,6 +160,7 @@ export function LivingRoomModelView({
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
           snapSizeMm={snapSizeMm} showGrid={clientView.showGrid} cutawayWalls={cutawayWalls}
           interactive={clientView.interactive}
+          frameRun={presentation ? "client" : "author"}
           fitVersion={camera.fitVersion} fitMode={camera.fitMode} fitSelection={fitSelection}
           onClearSelection={presentation ? noopSelect : onClearSelection}
           onSelect={presentation ? noopSelect : onSelect}
@@ -245,40 +173,23 @@ export function LivingRoomModelView({
           onExitWalkthrough={exitWalkthrough}
           onWallContextMenu={presentation ? undefined : (wallId, point) => setWallMenu({ wallId, ...point })}
           onMechanismClick={(objectId, primitiveId) => {
-            if (presentation) return;
-            const object = project.objects.find((item) => item.id === objectId);
-            const state = object ? getCabinetMechanismState(object) : null;
-            const index = mechanismFrontIndex(primitiveId);
-            if (state && index !== null && index < state.count) {
-              onSetParameters(objectId, mechanismPanelPatch(index, !state.open[index]));
-            }
+            const patch = presentation ? null : mechanismTogglePatch(project, objectId, primitiveId);
+            if (patch) onSetParameters(objectId, patch);
           }}
         />
-        {!presentation && raisePlan.status !== "ready" ? (
-          <PlanTraceEmptyState
-            reason={raisePlan.status === "blocked" ? raisePlan.reason : null}
-            canRaise={raisePlan.status === "raise"}
-            onRaise={() => {
-              if (raisePlan.status !== "raise" || !onPatchDocument) return;
-              const { wallIds, heightMm } = raisePlan;
-              onPatchDocument(
-                (current) => setPlanWallsRaised(current, wallIds, true, heightMm),
-                "Raised walls to 3D.",
-              );
-            }}
-          />
-        ) : null}
+        {!presentation ? <PlanTraceRaisePrompt project={project} onPatchDocument={onPatchDocument} /> : null}
       </div>
       {!presentation ? (
         <LivingRoomModelChrome
           showGuide={showGuide} viewPreset={camera.viewPreset}
-          onChoosePreset={camera.setViewPreset}
+          onChoosePreset={camera.setViewPreset} onResetCamera={camera.resetView}
           onDismissGuide={() => { setShowGuide(false); persistModelGuideDismissal(); }}
           diagnostics={diagnostics} activeObject={activeObject} onSetParameters={onSetParameters}
           activeStyleId={activeStyleId} activeStyleName={activeStyle.name}
           onApplyStyle={onApplyStyle} honestyBadge={honesty.shortBadge}
           exposure={scene.style.colorManagement.exposure}
           planTraceHint={project.walls.some((wall) => wall.visible && !isWallRaised(wall))}
+          showStylePalette={showStylePalette}
         />
       ) : null}
       <CabinetSceneSemantics project={project} />
