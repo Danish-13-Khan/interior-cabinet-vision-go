@@ -4,9 +4,9 @@
 .context-menu,
 .ribbon-menu-panel,
 .library-manager-shell {
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-menu);
-  border-color: var(--panel-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-2);
+  border-color: var(--border-strong);
 }
 
 .context-menu {

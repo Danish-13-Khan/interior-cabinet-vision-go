@@ -78,7 +78,7 @@
 
 .project-browser-meta span {
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .project-browser-actions {

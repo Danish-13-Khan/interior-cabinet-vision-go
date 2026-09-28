@@ -4,12 +4,12 @@
   min-height: 68px;
   padding: 0 22px;
   gap: 12px;
-  border-color: var(--iu-line);
-  background: var(--iu-panel);
-  color: var(--iu-ink);
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--ink);
 }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-brand,
-.lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb { color: var(--ink); }
 .lr-plan-shell.lr-product-shell-v2 .lr-product-mark {
   position: relative;
   display: inline-flex;
@@ -17,7 +17,7 @@
   height: 30px;
   flex: 0 0 30px;
   border-radius: 9px;
-  background: var(--iu-green);
+  background: var(--accent);
 }
 .lr-plan-shell.lr-product-shell-v2 .lr-product-mark i {
   position: absolute;
@@ -33,32 +33,32 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb {
   min-height: 42px;
   padding: 0 12px;
-  border-left: 1px solid var(--iu-line);
+  border-left: 1px solid var(--border);
   border-radius: 0;
 }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb:hover,
-.lr-plan-shell.lr-product-shell-v2 .lr-chrome-history button:hover { background: var(--iu-panel-2); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-history button:hover { background: var(--surface-2); }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-crumb span,
-.lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button { color: var(--ink-muted); }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-history button,
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-save {
-  border-color: var(--iu-line);
-  background: var(--iu-panel);
+  border-color: var(--border);
+  background: var(--surface);
 }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-present {
-  border-color: var(--iu-green);
-  background: var(--iu-green);
+  border-color: var(--accent);
+  background: var(--accent);
   color: light-dark(#fff, #102018);
 }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch {
   padding: 3px;
-  border: 1px solid var(--iu-line);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--iu-panel-2);
+  background: var(--surface-2);
 }
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header .lr-view-switch button.is-active {
-  background: var(--iu-panel);
-  color: var(--iu-ink);
+  background: var(--surface);
+  color: var(--ink);
   box-shadow: 0 1px 5px light-dark(rgb(30 51 39 / 12%), rgb(0 0 0 / 30%));
 }
 .lr-plan-shell.lr-product-shell-v2.is-project-home .lr-chrome-header {
@@ -71,29 +71,29 @@
   display: inline-flex;
   align-items: center;
   border-radius: 8px;
-  color: var(--iu-muted);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
 }
 .lr-projects-nav span.is-active {
-  background: var(--iu-green-soft);
-  color: var(--iu-green);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 /* Projects home shell — layout overrides live in interiors-projects-home-layout.css */
 .lr-plan-shell.lr-product-shell-v2 .lr-empty-workspace {
   min-height: 0;
   padding: 0;
-  background: var(--iu-faint);
+  background: var(--bg);
 }
 
 /* Calm Guided Projects */
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery span,
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts header > span { color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts header > span { color: var(--accent); }
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home h1 {
   max-width: 590px;
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: clamp(35px, 4.3vw, 58px);
   font-weight: 500;
   letter-spacing: -.055em;
@@ -104,71 +104,71 @@
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header small,
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents p,
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents small,
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts small { color: var(--iu-muted); }
-.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro label { color: var(--iu-muted); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts small { color: var(--ink-muted); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro label { color: var(--ink-muted); }
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro input,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home button,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home input {
-  border-color: var(--iu-line);
-  background: var(--iu-panel-2);
-  color: var(--iu-ink);
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home button.is-primary {
-  border-color: var(--iu-green);
-  background: var(--iu-green);
+  border-color: var(--accent);
+  background: var(--accent);
   color: light-dark(#fff, #102018);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents,
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery {
-  border-color: var(--iu-line);
-  background: var(--iu-panel);
+  border-color: var(--border);
+  background: var(--surface);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-row,
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts button {
-  border-color: var(--iu-line);
-  background: var(--iu-panel-2);
-  color: var(--iu-ink);
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-row:hover,
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts button:hover {
-  border-color: var(--iu-green);
-  background: var(--iu-green-soft);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-row img {
-  border-color: var(--iu-line);
-  background: var(--iu-faint);
+  border-color: var(--border);
+  background: var(--bg);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents strong,
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts strong { color: var(--ink); }
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-recents header h2,
-.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery strong { color: var(--iu-ink); }
+.lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery strong { color: var(--ink); }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-status {
-  color: var(--iu-muted);
-  background: var(--iu-panel-2);
+  color: var(--ink-muted);
+  background: var(--surface-2);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-design,
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-approved {
-  color: var(--iu-green);
-  background: var(--iu-green-soft);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-quoted {
-  color: var(--iu-amber);
+  color: var(--warning);
   background: light-dark(#fff4df, #382a16);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-project-status.is-sent {
   color: light-dark(#3b5d88, #8bb6ed);
-  background: var(--iu-blue-soft);
+  background: var(--info-soft);
 }
 .interiors-template-drawer {
   margin-top: 12px;
-  border: 1px solid var(--iu-line);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--iu-panel);
+  background: var(--surface);
 }
 .interiors-template-drawer > summary {
   padding: 12px 15px;
-  color: var(--iu-muted);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
@@ -176,6 +176,6 @@
 .lr-plan-shell.lr-product-shell-v2 .interiors-template-drawer .interiors-projects-starts {
   margin: 0;
   border: 0;
-  border-top: 1px solid var(--iu-line);
+  border-top: 1px solid var(--border);
   border-radius: 0 0 10px 10px;
 }

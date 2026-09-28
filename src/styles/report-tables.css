@@ -74,7 +74,7 @@
 
 .cutlist-mode-toggle button {
   appearance: none;
-  border: 1px solid var(--panel-border, #7a8798);
+  border: 1px solid var(--border-strong, #7a8798);
   background: var(--report-surface, #fff);
   color: var(--ink);
   font-size: var(--text-xs);
@@ -310,5 +310,5 @@
 .report-row span,
 .report-group span {
   font-size: var(--text-sm);
-  color: var(--muted);
+  color: var(--ink-muted);
 }

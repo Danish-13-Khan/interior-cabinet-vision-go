@@ -1,7 +1,7 @@
 :root {
   /* CAD shell chrome (colours live in tokens.css) */
   --space-0: 0;
-  --chrome-border: 1px solid var(--panel-border);
+  --chrome-border: 1px solid var(--border-strong);
   --shadow-none: none;
 
   /* Ribbon */
@@ -42,18 +42,18 @@
   --selection-active-fill: rgba(10, 95, 168, 0.2);
 
   /* Shared production document system (drawings + reports) */
-  --report-bg: var(--drawing-bg);
+  --report-bg: var(--canvas);
   --report-surface: #ffffff;
-  --report-chrome: var(--workspace-pane-header);
+  --report-chrome: var(--surface-2);
   --report-rule: var(--titleblock-rule, #2a3540);
-  --report-muted: var(--muted);
+  --report-muted: var(--ink-muted);
   --shop-link: var(--draft-cut);
   --shop-mark: var(--accent);
 
   font-family: var(--font-sans);
   font-weight: 400;
   color: var(--ink);
-  background: var(--shell-bg);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -87,7 +87,7 @@ select {
   flex-direction: column;
   height: 100%;
   min-height: 100vh;
-  background: var(--shell-bg);
+  background: var(--bg);
   color: var(--ink);
 }
 
@@ -95,5 +95,5 @@ select {
   display: flex;
   flex: 1;
   min-height: 0;
-  border-top: 1px solid var(--ribbon-border);
+  border-top: 1px solid var(--border-strong);
 }

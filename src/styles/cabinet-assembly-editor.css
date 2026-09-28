@@ -8,8 +8,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-border);
+  border: 1px solid var(--border-strong);
+  background: var(--border-strong);
 }
 
 .assembly-summary span {
@@ -17,8 +17,8 @@
   align-items: baseline;
   gap: 5px;
   padding: 7px 8px;
-  background: var(--panel-bg);
-  color: var(--muted);
+  background: var(--surface);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -28,8 +28,8 @@
 }
 
 .assembly-section {
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
 }
 
 .assembly-section-heading {
@@ -39,8 +39,8 @@
   gap: 8px;
   min-height: 27px;
   padding: 4px 7px;
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--inspector-header-bg);
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-2);
 }
 
 .assembly-section-heading h2 {
@@ -52,7 +52,7 @@
 }
 
 .assembly-section-heading span {
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -77,11 +77,11 @@
 
 .assembly-opening-card:hover {
   border-color: var(--panel-border-strong);
-  background: var(--browser-row-hover);
+  background: var(--surface-2);
 }
 
 .assembly-opening-card.is-active {
-  border-color: var(--selection);
+  border-color: var(--accent);
   background: var(--selection-fill);
 }
 
@@ -111,7 +111,7 @@
 }
 
 .assembly-opening-copy small {
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -124,7 +124,7 @@
   min-height: 30px;
   padding: 4px 7px;
   border-bottom: 1px solid rgba(122, 135, 152, 0.45);
-  color: var(--muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -151,7 +151,7 @@
 }
 
 .assembly-toggle small {
-  color: var(--muted);
+  color: var(--ink-muted);
   text-align: right;
 }
 
@@ -164,15 +164,15 @@
 
 .assembly-action-grid button {
   min-height: 27px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
   color: var(--ink);
   font-size: var(--text-xs);
 }
 
 .assembly-action-grid button:hover:not(:disabled) {
   border-color: var(--accent);
-  background: var(--browser-row-hover);
+  background: var(--surface-2);
 }
 
 .assembly-action-grid .assembly-reset {

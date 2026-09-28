@@ -4,29 +4,29 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls {
   flex-wrap: wrap;
   max-width: min(100% - 14px, 720px);
-  border-color: var(--iu-line-strong);
-  background: color-mix(in srgb, var(--iu-panel) 94%, transparent);
-  color: var(--iu-control-ink);
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls label,
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls > span,
 .lr-plan-shell.lr-product-shell-v2 .lr-camera-panel > span {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls b {
-  color: var(--iu-control-ink);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls select,
 .lr-plan-shell.lr-product-shell-v2 .lr-model-controls button {
   min-height: 26px;
   padding: 3px 8px;
-  border-color: var(--iu-control-border);
-  background: var(--iu-control-bg);
-  color: var(--iu-control-ink);
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
@@ -38,23 +38,23 @@
 /* Style presets — full-width rows, wrapping names, readable type. */
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette {
   width: min(280px, calc(100% - 14px));
-  border-color: var(--iu-line-strong);
-  background: color-mix(in srgb, var(--iu-panel) 96%, transparent);
-  color: var(--iu-control-ink);
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette header {
-  background: var(--iu-panel-2);
-  border-bottom-color: var(--iu-line);
+  background: var(--surface-2);
+  border-bottom-color: var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette header span {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette header strong {
-  color: var(--iu-control-ink);
+  color: var(--ink);
   font-size: var(--text-sm);
   white-space: normal;
   text-align: right;
@@ -88,7 +88,7 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-style-palette p {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -97,14 +97,14 @@
   height: auto;
   min-height: 0;
   overflow: visible;
-  color: var(--iu-control-ink);
-  border-color: var(--iu-line);
-  background: var(--iu-panel);
+  color: var(--ink);
+  border-color: var(--border);
+  background: var(--surface);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-asset-grid > button strong {
   padding: 8px 8px 2px;
-  color: var(--iu-control-ink);
+  color: var(--ink);
   font-size: var(--text-sm);
   line-height: 1.3;
   white-space: normal;
@@ -116,7 +116,7 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-asset-grid > button small {
   display: block;
   padding: 0 8px 8px;
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
   line-height: 1.35;
   white-space: normal;
@@ -134,21 +134,21 @@
 
 /* Forms — labels stay muted; values use ink; errors wrap below. */
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll label {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll input,
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll select,
 .lr-plan-shell.lr-product-shell-v2 .lr-number-field input {
   min-width: 0;
-  color: var(--iu-control-ink);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll .field-error,
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector-scroll .is-error-message {
   display: block;
   margin-top: 4px;
-  color: var(--iu-control-error);
+  color: var(--danger);
   font-size: var(--text-xs);
   line-height: 1.35;
   white-space: normal;

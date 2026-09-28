@@ -159,7 +159,8 @@ Phase 0 is merged.
    `src/styles/**` and `src/App.css` to the type tokens (script-assisted:
    `0.48–0.62rem → --text-xs`, `0.64–0.78rem → --text-sm`, larger → nearest token).
 3. Map legacy variables (`--ink`, `--panel-bg`, `--planner-v2-*`, …) to the new
-   tokens in one alias block so existing files keep working during migration.
+   tokens in one alias block so existing files keep working during migration
+   (block removed in Phase 8 once every file used Calm Light names).
 4. Remove Compact:
    - Delete `src/marketing/themes/compact/`, `CompactAppHome`, `CompactLanding`.
    - Reduce `ThemeId` to `'calm'`, drop `toggle`, and remove the theme switcher
@@ -436,10 +437,19 @@ and axe checks included.
   Engineering Review. Both run inside `release:check` via `test:e2e`.
 - `LivingRoomModelView.tsx` is under 200 lines (`useModelViewTransform`,
   `PlanTraceRaisePrompt`, `mechanismTogglePatch`).
-- Still open: 108 style files (target ~10 + one per component), 84 `!important`
-  (lint blocks new ones), raw hex in 69 legacy style files, and 24 style files
-  over 200 lines (`living-room-plan.css`, `interiors-product.css`, …). The legacy
-  alias block in `tokens.css` stays until those files move to Calm Light names.
+- Legacy alias block removed: 80 aliases (`--iu-*`, `--planner-v2-*`, shell
+  chrome names) folded into their Calm Light tokens across 55 files; the two
+  literal values left became tokens (`--selection-fill`,
+  `--control-disabled-opacity`).
+- Review fixes (second pass): wall-attached cabinets clamp to the wall's inner
+  face (half wall thickness), run framing weights each wall by run length and is
+  tested to face every cabinet front, 3D toolbar on one row (icon-only camera
+  angles), Fronts after Size in the inspector, plan labels inside footprints at
+  ~13 px, Engineering tabs wrap and the preview box faces meet.
+- Still open: 110 style files (target ~10 + one per component), 84 `!important`
+  (lint blocks new ones), raw hex in 71 legacy style files, and 24 style files
+  over 200 lines (`living-room-plan.css`, `interiors-product.css`, …). Visual
+  baselines must be regenerated after the second pass before they are committed.
 
 ## 6. Order and rough size
 

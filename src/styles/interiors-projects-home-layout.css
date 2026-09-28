@@ -11,7 +11,7 @@
   flex: 0 0 auto;
   width: 100%;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  border-bottom: 1px solid var(--iu-line, #dce5de);
+  border-bottom: 1px solid var(--border, #dce5de);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-project-home .lr-empty-workspace {
@@ -31,8 +31,8 @@
   min-height: 0;
   grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
-  background: var(--iu-faint);
-  color: var(--iu-ink);
+  background: var(--bg);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.planner-v2-home {
@@ -45,7 +45,7 @@
   overflow-y: auto;
   padding: clamp(40px, 6vw, 76px);
   justify-content: center;
-  background: var(--iu-panel);
+  background: var(--surface);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .interiors-projects-home.planner-v2-home .planner-v2-home-content {
@@ -58,7 +58,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: var(--iu-faint);
+  background: var(--bg);
 }
 
 .interiors-projects-home .lr-phase1-qa {

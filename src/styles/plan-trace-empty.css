@@ -7,7 +7,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: color-mix(in srgb, var(--iu-canvas, #f7faf8) 78%, transparent);
+  background: color-mix(in srgb, var(--canvas, #f7faf8) 78%, transparent);
   pointer-events: none;
 }
 
@@ -17,11 +17,11 @@
   justify-items: center;
   max-width: 360px;
   padding: 18px 20px;
-  border: 1px solid var(--iu-line, #dfe6e1);
+  border: 1px solid var(--border, #dfe6e1);
   border-radius: 12px;
-  background: var(--iu-panel, #fff);
-  box-shadow: var(--iu-shadow, 0 18px 55px rgb(30 51 39 / 14%));
-  color: var(--iu-ink, #1c2822);
+  background: var(--surface, #fff);
+  box-shadow: var(--shadow-2, 0 18px 55px rgb(30 51 39 / 14%));
+  color: var(--ink, #1c2822);
   text-align: center;
   pointer-events: auto;
 }
@@ -34,7 +34,7 @@
 
 .lr-plan-trace-empty-card p {
   margin: 0;
-  color: var(--iu-muted, #66736b);
+  color: var(--ink-muted, #66736b);
   font-size: var(--text-md);
   line-height: 1.4;
 }
@@ -44,8 +44,8 @@
   padding: 0 16px;
   border: 0;
   border-radius: 8px;
-  background: var(--iu-green, #1f6f4a);
-  color: var(--iu-on-green, #fff);
+  background: var(--accent, #1f6f4a);
+  color: var(--on-accent, #fff);
   font-weight: 700;
   cursor: pointer;
 }

@@ -17,9 +17,9 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header {
   min-height: 52px;
   padding: 0 16px;
-  border-bottom: 1px solid var(--iu-line);
+  border-bottom: 1px solid var(--border);
   background: var(--surface);
-  color: var(--iu-ink);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-brand strong {
@@ -33,25 +33,25 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-crumb:hover {
-  background: var(--iu-green-soft);
+  background: var(--accent-soft);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header .lr-view-switch button {
   min-width: 64px;
   min-height: 32px;
   border-radius: 7px;
-  color: var(--iu-muted);
+  color: var(--ink-muted);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-header .lr-view-switch button.is-active {
-  background: var(--iu-green);
+  background: var(--accent);
   color: #fff;
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav {
   padding: 5px 16px;
   background: #fff;
-  border-bottom: 1px solid var(--iu-line);
+  border-bottom: 1px solid var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav button {
@@ -62,28 +62,28 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workflow-nav button.is-active {
-  border-color: var(--iu-green);
-  background: var(--iu-green-soft);
-  color: var(--iu-control-active-ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body {
-  background: var(--iu-faint);
-  border-color: var(--iu-line);
-  color: var(--iu-ink);
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-center {
-  background: var(--iu-canvas);
-  border-left: 1px solid var(--iu-line-strong);
-  border-right: 1px solid var(--iu-line-strong);
-  color: var(--iu-ink);
+  background: var(--canvas);
+  border-left: 1px solid var(--border-strong);
+  border-right: 1px solid var(--border-strong);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-canvas {
-  background: var(--iu-canvas);
-  border-color: var(--iu-line);
-  color: var(--iu-ink);
+  background: var(--canvas);
+  border-color: var(--border);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-model-viewport {
@@ -96,8 +96,8 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-chrome-rail {
   background: #fff;
-  border-color: var(--iu-line-strong);
-  color: var(--iu-ink);
+  border-color: var(--border-strong);
+  color: var(--ink);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 80%);
 }
 
@@ -107,29 +107,29 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-present-status {
   min-height: 34px;
   padding: 0 14px;
-  border-color: var(--iu-line);
+  border-color: var(--border);
   background: #fff;
-  color: var(--iu-muted);
+  color: var(--ink-muted);
   font-size: var(--text-sm);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .context-panel-heading {
   background: #fff;
-  border-color: var(--iu-line);
+  border-color: var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .inspector-header strong,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .context-panel-heading strong {
-  color: var(--iu-ink);
+  color: var(--ink);
   font-size: var(--text-md);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector-section {
-  background: var(--iu-panel-2);
-  border-color: var(--iu-line);
+  background: var(--surface-2);
+  border-color: var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-product-mark {
-  background: var(--iu-green);
+  background: var(--accent);
 }

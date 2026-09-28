@@ -6,8 +6,8 @@
   min-width: 0;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--iu-faint) !important;
-  color: var(--iu-ink) !important;
+  background: var(--bg) !important;
+  color: var(--ink) !important;
 }
 
 .lr-plan-shell.lr-product-shell-v2,

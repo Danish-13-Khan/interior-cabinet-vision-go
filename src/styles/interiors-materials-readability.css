@@ -8,7 +8,7 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-surface-painter > small,
 .lr-plan-shell.lr-product-shell-v2 .lr-surface-painter > p {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
   line-height: 1.4;
 }
@@ -28,9 +28,9 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-material-kind-filters button {
   min-height: 28px;
   padding: 0 9px;
-  border-color: var(--iu-control-border);
-  background: var(--iu-control-bg);
-  color: var(--iu-control-ink);
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
@@ -42,9 +42,9 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-targets button {
   min-height: 32px;
-  border-color: var(--iu-control-border);
-  background: var(--iu-control-bg);
-  color: var(--iu-control-ink);
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
   font-size: var(--text-xs);
   white-space: normal;
   line-height: 1.25;
@@ -56,8 +56,8 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches button {
   min-width: 0;
-  color: var(--iu-control-ink);
-  border-color: var(--iu-line);
+  color: var(--ink);
+  border-color: var(--border);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-catalog[data-workflow-area="materials"] .lr-catalog-scroll {
@@ -88,7 +88,7 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches span {
   min-width: 0;
-  color: var(--iu-control-ink);
+  color: var(--ink);
   font-size: var(--text-sm);
   line-height: 1.3;
   white-space: normal;
@@ -98,7 +98,7 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-paint-swatches small {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
@@ -117,12 +117,12 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-colour header,
 .lr-plan-shell.lr-product-shell-v2 .lr-material-colour-fields label {
-  color: var(--iu-control-muted);
+  color: var(--ink-muted);
   font-size: var(--text-xs);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-colour header {
-  color: var(--iu-control-ink);
+  color: var(--ink);
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-colour-fields {
@@ -131,7 +131,7 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-colour-fields input {
   min-width: 0;
-  color: var(--iu-control-ink);
+  color: var(--ink);
   font-size: var(--text-xs);
 }
 
@@ -140,7 +140,7 @@
 }
 
 .lr-plan-shell.lr-product-shell-v2 .lr-material-shades button {
-  color: var(--iu-control-ink);
+  color: var(--ink);
   font-size: var(--text-xs);
   white-space: normal;
   overflow-wrap: anywhere;

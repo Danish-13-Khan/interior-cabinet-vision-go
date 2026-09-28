@@ -5,17 +5,17 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  background: var(--status-bg);
-  border-top: 1px solid var(--status-border);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
   font-size: var(--text-xs);
-  color: var(--status-fg);
+  color: var(--ink-muted);
 }
 
 .status-dock {
   max-height: min(48vh, 420px);
   overflow-y: auto;
-  border-top: 1px solid var(--status-border);
-  background: var(--status-dock-bg);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
   color: var(--ink);
 }
 
@@ -35,7 +35,7 @@
 }
 
 .output-stats {
-  color: var(--status-muted);
+  color: var(--ink-faint);
   font-size: var(--text-xs);
   white-space: nowrap;
   overflow: hidden;
@@ -94,7 +94,7 @@
 }
 
 .output-bar-actions .tb-btn {
-  color: var(--status-fg);
+  color: var(--ink-muted);
 }
 
 .output-bar-actions .tb-btn:hover {
@@ -108,20 +108,20 @@
   flex-wrap: wrap;
   gap: 4px;
   padding: 2px 6px;
-  background: var(--warn-bg);
-  border-top: 1px solid var(--warn-border);
-  color: var(--warn-fg);
+  background: var(--warning-soft);
+  border-top: 1px solid var(--warning);
+  color: var(--warning);
 }
 
 .output-warn {
   font-size: var(--text-xs);
-  color: var(--warn-fg);
+  color: var(--warning);
 }
 
 .output-warn-error {
-  color: var(--error-fg);
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
   border-radius: var(--radius-control);
   padding: 1px 5px;
 }
@@ -141,33 +141,33 @@
   gap: 1px;
   padding: 4px 6px;
   border-radius: var(--radius-control);
-  border: 1px solid var(--panel-border);
-  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
 }
 
 .manufacturing-issue.severity-warning {
-  background: var(--warn-bg);
-  border-color: var(--warn-border);
+  background: var(--warning-soft);
+  border-color: var(--warning);
 }
 
 .manufacturing-issue.severity-error {
-  background: var(--error-bg);
-  border-color: var(--error-border);
+  background: var(--danger-soft);
+  border-color: var(--danger);
 }
 
 .manufacturing-issue strong {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--ink-muted);
 }
 
 .manufacturing-issue.severity-warning strong {
-  color: var(--warn-fg);
+  color: var(--warning);
 }
 
 .manufacturing-issue.severity-error strong {
-  color: var(--error-fg);
+  color: var(--danger);
 }
 
 .manufacturing-issue span {

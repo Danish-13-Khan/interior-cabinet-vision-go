@@ -6,8 +6,8 @@
   gap: 4px;
   min-width: 0;
   padding: 6px 16px;
-  border-bottom: 1px solid var(--iu-line, #dfe6e1);
-  background: var(--iu-panel, #fff);
+  border-bottom: 1px solid var(--border, #dfe6e1);
+  background: var(--surface, #fff);
 }
 
 .lr-workflow-nav button {
@@ -16,25 +16,25 @@
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
-  color: var(--iu-control-muted, var(--iu-muted, #66736b));
+  color: var(--ink-muted, var(--ink-muted, #66736b));
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
 }
 
 .lr-workflow-nav button:hover:not(:disabled) {
-  background: var(--iu-control-hover-bg, var(--iu-green-soft, #e8f3ec));
-  color: var(--iu-control-active-ink, var(--iu-green, #1f6f4a));
+  background: var(--accent-soft, var(--accent-soft, #e8f3ec));
+  color: var(--accent, var(--accent, #1f6f4a));
 }
 
 .lr-workflow-nav button.is-active {
-  border-color: var(--iu-control-active-border, var(--iu-green, #1f6f4a));
-  background: var(--iu-control-active-bg, var(--iu-green-soft, #e8f3ec));
-  color: var(--iu-control-active-ink, var(--iu-green, #1f6f4a));
+  border-color: var(--accent, var(--accent, #1f6f4a));
+  background: var(--accent-soft, var(--accent-soft, #e8f3ec));
+  color: var(--accent, var(--accent, #1f6f4a));
 }
 
 .lr-workflow-nav button:focus-visible {
-  outline: 2px solid var(--iu-control-focus, var(--iu-green, #1f6f4a));
+  outline: 2px solid var(--accent, var(--accent, #1f6f4a));
   outline-offset: 2px;
 }
 
@@ -53,10 +53,10 @@
 .lr-chrome-file > button {
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid var(--iu-line, #dfe6e1);
+  border: 1px solid var(--border, #dfe6e1);
   border-radius: 8px;
-  background: var(--iu-panel, #fff);
-  color: var(--iu-ink, #1c2822);
+  background: var(--surface, #fff);
+  color: var(--ink, #1c2822);
   font-size: var(--text-sm);
   font-weight: 600;
 }
@@ -70,10 +70,10 @@
   padding: 6px;
   display: grid;
   gap: 2px;
-  border: 1px solid var(--iu-line, #dfe6e1);
+  border: 1px solid var(--border, #dfe6e1);
   border-radius: 10px;
-  background: var(--iu-panel, #fff);
-  box-shadow: var(--iu-shadow, 0 12px 28px rgb(30 51 39 / 14%));
+  background: var(--surface, #fff);
+  box-shadow: var(--shadow-2, 0 12px 28px rgb(30 51 39 / 14%));
 }
 
 .lr-chrome-file-menu button {
@@ -82,28 +82,28 @@
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: var(--iu-ink, #1c2822);
+  color: var(--ink, #1c2822);
   text-align: left;
   font-size: var(--text-sm);
 }
 
 .lr-chrome-file-menu button:hover {
-  background: var(--iu-green-soft, #e8f3ec);
-  color: var(--iu-green, #1f6f4a);
+  background: var(--accent-soft, #e8f3ec);
+  color: var(--accent, #1f6f4a);
 }
 
 .lr-inspector-section {
   margin-top: 8px;
-  border: 1px solid var(--iu-line, #dfe6e1);
+  border: 1px solid var(--border, #dfe6e1);
   border-radius: 8px;
-  background: var(--iu-panel-2, #f8faf8);
+  background: var(--surface-2, #f8faf8);
 }
 
 .lr-inspector-section > summary {
   min-height: 34px;
   padding: 8px 10px;
   cursor: pointer;
-  color: var(--iu-ink, #1c2822);
+  color: var(--ink, #1c2822);
   font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -116,7 +116,7 @@
 }
 
 .lr-inspector-section > summary:focus-visible {
-  outline: 2px solid var(--iu-control-focus, var(--iu-green, #1f6f4a));
+  outline: 2px solid var(--accent, var(--accent, #1f6f4a));
   outline-offset: 2px;
 }
 
@@ -192,14 +192,14 @@
 }
 
 .interiors-review-section {
-  border: 1px solid var(--iu-line, #d8e0da);
+  border: 1px solid var(--border, #d8e0da);
   border-radius: 10px;
-  background: var(--iu-panel, #fff);
+  background: var(--surface, #fff);
 }
 
 .interiors-review-section > summary {
   padding: 11px 12px;
-  color: var(--iu-ink, #18221c);
+  color: var(--ink, #18221c);
   font-size: var(--text-sm);
   font-weight: 750;
   cursor: pointer;
