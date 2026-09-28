@@ -21,14 +21,14 @@
 }
 
 .wall-layout-title strong {
-  font-size: 0.7rem;
+  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .wall-layout-title span,
 .wall-layout-hint {
-  font-size: 0.56rem;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
@@ -60,7 +60,7 @@
   border-right: 1px solid #9aa7b4;
   background: #edf1f4;
   color: #425466;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   cursor: pointer;
 }
@@ -97,12 +97,12 @@
 
 .wall-layout-metrics span,
 .wall-layout-metrics small {
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
 .wall-layout-metrics strong {
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 
@@ -111,7 +111,7 @@
   gap: 8px;
   padding: 4px 1px;
   font-family: var(--font-mono);
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   color: #4c6072;
 }
 
@@ -121,7 +121,7 @@
   gap: 2px;
   margin-bottom: 4px;
   color: var(--warn-fg);
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
 }
 
 .wall-layout-actions {
@@ -135,7 +135,7 @@
   border: 1px solid #8493a2;
   background: #edf1f4;
   color: #2e4051;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   cursor: pointer;
 }
@@ -204,7 +204,7 @@
 
 .wall-run-inspector .property-section-heading strong {
   overflow: hidden;
-  font-size: 0.67rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -214,7 +214,7 @@
 .wall-run-inspector .property-section-heading > div > span {
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -251,11 +251,11 @@
 
 .wall-run-inspector-grid span {
   color: var(--muted);
-  font-size: 0.56rem;
+  font-size: var(--text-xs);
 }
 
 .wall-run-inspector-grid strong {
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   text-transform: capitalize;
 }
 
@@ -272,7 +272,7 @@
   background: #edf1f4;
   color: #435466;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
@@ -317,12 +317,12 @@
 }
 
 .run-member-strip span {
-  font: 0.48rem var(--font-mono);
+  font: var(--text-xs) var(--font-mono);
   color: var(--muted);
 }
 
 .run-member-strip strong {
-  font: 700 0.6rem var(--font-mono);
+  font: 700 var(--text-xs) var(--font-mono);
 }
 
 .run-member-strip i {
@@ -343,7 +343,7 @@
   border-left: 3px solid var(--warn-border);
   background: var(--warn-bg);
   color: var(--warn-fg);
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
 }
 
 .run-ready-note {
@@ -352,7 +352,7 @@
   border-left: 3px solid #6c9678;
   background: #e4eee7;
   color: #315d3d;
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
 }
 
 .run-generated-row {
@@ -361,12 +361,12 @@
   gap: 6px;
   margin: 4px 0;
   color: var(--muted);
-  font: 0.51rem var(--font-mono);
+  font: var(--text-xs) var(--font-mono);
 }
 
 .run-generated-row strong {
   color: #40566a;
-  font-size: 0.52rem;
+  font-size: var(--text-xs);
 }
 
 .run-command-group {
@@ -379,7 +379,7 @@
   display: block;
   margin-bottom: 3px;
   color: var(--muted);
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -397,7 +397,7 @@
   border: 1px solid var(--panel-border);
   background: var(--panel-raised);
   color: var(--ink);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
 }
 
 .run-context-actions {
@@ -433,7 +433,7 @@
   border: 1px solid var(--panel-border);
   background: var(--panel-raised);
   color: var(--ink);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   cursor: pointer;
 }

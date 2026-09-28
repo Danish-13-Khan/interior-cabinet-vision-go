@@ -11,7 +11,7 @@
   border-radius: 3px;
   background: #fff;
   color: #3d4f63;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
 }
@@ -61,7 +61,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  font-size: 0.64rem;
+  font-size: var(--text-sm);
   color: #9aa8b6;
 }
 
@@ -72,12 +72,12 @@
 }
 
 .project-browser-meta strong {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 
 .project-browser-meta span {
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
@@ -93,7 +93,7 @@
   border-radius: 3px;
   background: #fff;
   color: #3d4f63;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
 }
@@ -121,7 +121,7 @@
 .job-browser-filters input,
 .job-browser-filters select {
   width: 100%;
-  font-size: 0.7rem;
+  font-size: var(--text-sm);
   padding: 5px 7px;
   border: 1px solid #c5ced8;
   border-radius: 3px;
@@ -142,7 +142,7 @@
   flex-shrink: 0;
   padding: 1px 6px;
   border-radius: 3px;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -182,7 +182,7 @@
 }
 
 .sort-controls span {
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   color: #7b8a98;
   font-weight: 600;
 }
@@ -193,7 +193,7 @@
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.8);
   color: #3d566b;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -221,7 +221,7 @@
   border: 1px solid rgba(157, 171, 185, 0.65);
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.9);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   color: #243442;
   min-width: 0;
 }
@@ -243,7 +243,7 @@
   border-radius: 2px;
   background: rgba(244, 249, 253, 0.95);
   color: #3d566b;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;

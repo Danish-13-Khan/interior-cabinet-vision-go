@@ -7,7 +7,7 @@
   flex-shrink: 0;
   background: var(--status-bg);
   border-top: 1px solid var(--status-border);
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
   color: var(--status-fg);
 }
 
@@ -36,7 +36,7 @@
 
 .output-stats {
   color: var(--status-muted);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -50,13 +50,13 @@
   gap: 4px;
   flex-shrink: 0;
   font-family: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
 }
 
 .status-hud-coords {
   color: #d7e2ec;
   padding: 0 4px;
-  min-width: 11.5rem;
+  min-width: 132px;
   white-space: nowrap;
 }
 
@@ -114,7 +114,7 @@
 }
 
 .output-warn {
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   color: var(--warn-fg);
 }
 
@@ -156,7 +156,7 @@
 }
 
 .manufacturing-issue strong {
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -171,7 +171,7 @@
 }
 
 .manufacturing-issue span {
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   color: var(--ink);
   line-height: 1.3;
 }

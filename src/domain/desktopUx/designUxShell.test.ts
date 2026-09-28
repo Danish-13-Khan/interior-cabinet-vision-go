@@ -48,12 +48,11 @@ describe("designUxShell (Phase E)", () => {
 
   it("emits drafting-studio shell class tokens", () => {
     expect(designUxShellClassNames({
-      uiMode: "calm", appearance: "light", presenting: false,
+      appearance: "light", presenting: false,
     })).toContain("is-drafting-studio");
     expect(designUxShellClassNames({
-      uiMode: "compact", appearance: "dark-frame", presenting: true,
+      appearance: "dark-frame", presenting: true,
     })).toEqual(expect.arrayContaining([
-      "is-ui-compact",
       "is-appearance-dark-frame",
       "is-presenting",
       "is-client-strip",

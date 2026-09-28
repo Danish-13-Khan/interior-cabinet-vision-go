@@ -15,7 +15,7 @@ import { isTauriRuntime } from "../platform/desktopFiles";
  */
 export function RootRouter() {
   if (isTauriRuntime()) {
-    return <Suspense fallback={<p role="status">Opening Cabinet Planner…</p>}><App /></Suspense>;
+    return <Suspense fallback={<p role="status">Opening Cabinet Studio…</p>}><App /></Suspense>;
   }
 
   return (
@@ -29,7 +29,7 @@ export function RootRouter() {
             path="/app"
             element={
               <RequireAuth>
-                <Suspense fallback={<p role="status">Opening Cabinet Planner…</p>}><App /></Suspense>
+                <Suspense fallback={<p role="status">Opening Cabinet Studio…</p>}><App /></Suspense>
               </RequireAuth>
             }
           />

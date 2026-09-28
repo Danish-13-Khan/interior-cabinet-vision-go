@@ -50,7 +50,7 @@
 }
 
 .workspace-tab-kbd {
-  font-size: 0.46rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: #5a6a7a;
   background: rgba(255, 255, 255, 0.4);
@@ -109,7 +109,7 @@
 }
 
 .context-menu-item kbd {
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   color: #6b7c8d;
 }
 
@@ -165,11 +165,11 @@
 }
 
 .ribbon-menu-item strong {
-  font-size: 0.66rem;
+  font-size: var(--text-sm);
 }
 
 .ribbon-menu-item small {
-  font-size: 0.54rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -195,7 +195,7 @@
 .ribbon-menu-empty {
   padding: 8px;
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-sm);
 }
 
 .command-bar-item.is-active {
@@ -206,7 +206,7 @@
 .command-bar-category {
   display: block;
   font-style: normal;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -218,7 +218,7 @@
   padding: 18px 12px;
   text-align: center;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 .status-dock-shell {

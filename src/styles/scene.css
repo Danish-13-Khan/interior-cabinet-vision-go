@@ -32,7 +32,7 @@
   border-radius: 1px;
   background: rgba(248, 250, 252, 0.96);
   color: #334155;
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   cursor: pointer;
 }
@@ -74,7 +74,7 @@
 .scene-overlay strong {
   display: block;
   margin-bottom: 2px;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 
@@ -89,7 +89,7 @@
   background: rgba(248, 250, 252, 0.96);
   border: 1px solid #8e9aab;
   color: #334155;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   box-shadow: none;
 }
@@ -106,7 +106,7 @@
   background: rgba(248, 250, 252, 0.94);
   border: 1px solid #8e9aab;
   color: #4a5a6a;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   white-space: nowrap;
   box-shadow: none;
@@ -122,7 +122,7 @@
   background: rgba(248, 250, 252, 0.96);
   border: 1px solid rgba(79, 134, 198, 0.75);
   color: #3d6a96;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   box-shadow: none;
 }
@@ -133,7 +133,7 @@
   border: 1px solid #8e9aab;
   border-radius: var(--radius-control);
   padding: 1px 5px;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: #334155;
   white-space: nowrap;

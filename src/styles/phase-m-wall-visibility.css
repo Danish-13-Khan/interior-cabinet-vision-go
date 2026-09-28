@@ -89,7 +89,7 @@
   border-radius: 4px;
   background: #fff;
   color: #1c2a22;
-  font-size: 11px;
+  font-size: var(--text-xs);
   cursor: pointer;
 }
 

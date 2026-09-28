@@ -14,7 +14,7 @@
 }
 
 .lr-still-review header strong {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -22,7 +22,7 @@
 .lr-still-review header span,
 .lr-still-review header small {
   color: #93a59c;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
 }
 
 .lr-still-review nav {
@@ -39,7 +39,7 @@
   border-radius: 6px;
   background: #303a35;
   color: #d9dfdb;
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
 }
 
 .lr-still-review nav button.is-active,
@@ -74,7 +74,7 @@
 .lr-still-review-note,
 .lr-still-review p {
   margin: 0;
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
   color: #9aada3;
 }
 
@@ -111,7 +111,7 @@
 
 .lr-still-review-split figcaption {
   padding: 4px 6px;
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #93a59c;
@@ -122,7 +122,7 @@
   border: 1px solid #3e4944;
   border-radius: 6px;
   background: rgba(20, 25, 23, 0.7);
-  font-size: 0.52rem;
+  font-size: var(--text-xs);
 }
 
 .lr-still-trust.is-overlay {

@@ -10,7 +10,7 @@
   background: rgba(245, 250, 253, 0.94);
   color: #123a54;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-xs);
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;

@@ -25,7 +25,7 @@
   border-radius: 8px;
   background: #fff;
   color: var(--iu-ink);
-  font-size: 0.8rem;
+  font-size: var(--text-md);
   font-weight: 650;
   letter-spacing: 0.01em;
   line-height: 1;

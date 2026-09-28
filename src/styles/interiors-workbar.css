@@ -1,4 +1,4 @@
-/* Calm/Compact shared workbar + Projects home (modes layout). */
+/* Shared workbar + Projects home layout. */
 
 .lr-plan-shell.lr-product-shell-v2 .lr-chrome-header {
   min-height: 68px;
@@ -72,7 +72,7 @@
   align-items: center;
   border-radius: 8px;
   color: var(--iu-muted);
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 .lr-projects-nav span.is-active {
   background: var(--iu-green-soft);
@@ -90,8 +90,7 @@
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-intro > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home-content header > span,
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-recovery span,
-.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts header > span,
-.interiors-job-heading > div > span { color: var(--iu-green); }
+.lr-plan-shell.lr-product-shell-v2 .interiors-projects-starts header > span { color: var(--iu-green); }
 .lr-plan-shell.lr-product-shell-v2 .planner-v2-home h1 {
   max-width: 590px;
   color: var(--iu-ink);
@@ -170,7 +169,7 @@
 .interiors-template-drawer > summary {
   padding: 12px 15px;
   color: var(--iu-muted);
-  font-size: .72rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
 }

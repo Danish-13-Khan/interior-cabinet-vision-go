@@ -14,7 +14,7 @@
 
 .interiors-popular-templates header span {
   color: var(--iu-green, #276b46);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -22,7 +22,7 @@
 
 .interiors-popular-templates header small {
   color: var(--iu-muted, #7b877d);
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   line-height: 1.4;
 }
 
@@ -62,7 +62,7 @@
 
 .interiors-popular-templates strong {
   color: var(--iu-ink, #2d3d31);
-  font-size: 0.8rem;
+  font-size: var(--text-md);
   line-height: 1.25;
 }
 
@@ -70,7 +70,7 @@
   display: -webkit-box;
   overflow: hidden;
   color: var(--iu-muted, #78847a);
-  font-size: 0.66rem;
+  font-size: var(--text-sm);
   line-height: 1.35;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

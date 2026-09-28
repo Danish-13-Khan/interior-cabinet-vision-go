@@ -52,11 +52,6 @@ export function InteriorsPresentPanel({
     || (handoff.revisionApproved && Boolean(live.frozen) && !live.stale);
   return (
     <aside className="planner-v2-review interiors-present-panel" data-testid="interiors-present-panel" data-step={state.step} aria-label="Present and Send">
-      <div className="interiors-compact-close-heading">
-        <span>Present the interior proposal</span>
-        <h1>Rev {live.quote.job.revision} is ready to present</h1>
-        <p>The price, proposal, approval, and engineering model stay on this project revision.</p>
-      </div>
       <header>
         <span>Present and Send</span>
         <small>{state.blocking.length ? `${state.blocking.length} blocking` : "Ready for the next action"}</small>

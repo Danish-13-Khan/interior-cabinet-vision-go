@@ -94,34 +94,3 @@
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-svg.is-line-style .lr-grid-major-line {
   opacity: 0.35;
 }
-
-@media (prefers-color-scheme: dark) {
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-paper { fill: #ffffff; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-grid-line { stroke: #c5ceda; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-grid-major-line { stroke: #a8b4c4; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-center-line { stroke: #8e9aab; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-line { stroke: #2a3340; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening line { stroke: #fbfcfe; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-door line { stroke: #d4a017; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening-window line { stroke: #3d8fd4; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening text,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-label,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-object-size { fill: #1c2430; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-dimension-pairs,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-length-labels { stroke: #4a5563; }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-dimension-pairs text,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-length-labels text {
-    stroke: #fbfcfe;
-    fill: #1c2430;
-  }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object > rect:first-of-type,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-object:nth-of-type(3n) > rect:first-of-type {
-    fill: #eef2f7;
-    stroke: #6b7787;
-  }
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-symbol,
-  .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-symbol * {
-    fill: rgb(47 111 237 / 8%);
-    stroke: #4a5563;
-  }
-}

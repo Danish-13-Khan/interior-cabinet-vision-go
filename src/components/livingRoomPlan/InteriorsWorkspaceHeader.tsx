@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
-import {
-  interiorsSaveLabel,
-  type InteriorsUiMode,
-} from "../../domain/desktopUx";
+import { interiorsSaveLabel } from "../../domain/desktopUx";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { InteriorsChromeIcon } from "./InteriorsChromeIcons";
 import { InteriorsWorkspaceFileMenu } from "./InteriorsWorkspaceFileMenu";
@@ -22,8 +19,6 @@ type InteriorsWorkspaceHeaderProps = {
   presenting: boolean;
   chromeLocked?: boolean;
   projectHome?: boolean;
-  uiMode?: InteriorsUiMode;
-  onUiMode?: (mode: InteriorsUiMode) => void;
   onProject: () => void;
   onOpen: () => void;
   onExport: () => void;
@@ -51,8 +46,6 @@ export function InteriorsWorkspaceHeader({
   presenting,
   chromeLocked = false,
   projectHome = false,
-  uiMode = "calm",
-  onUiMode,
   onProject,
   onOpen,
   onExport,
@@ -100,28 +93,6 @@ export function InteriorsWorkspaceHeader({
           </span>
         </button>
       )}
-      {projectHome && onUiMode ? (
-        <div className="lr-projects-mode" role="group" aria-label="Workspace style" data-testid="interiors-ui-mode-menu">
-          <button
-            type="button"
-            className={uiMode === "calm" ? "is-selected" : ""}
-            aria-pressed={uiMode === "calm"}
-            data-testid="interiors-mode-calm"
-            onClick={() => onUiMode("calm")}
-          >
-            Calm
-          </button>
-          <button
-            type="button"
-            className={uiMode === "compact" ? "is-selected" : ""}
-            aria-pressed={uiMode === "compact"}
-            data-testid="interiors-mode-compact"
-            onClick={() => onUiMode("compact")}
-          >
-            Compact
-          </button>
-        </div>
-      ) : null}
       {!projectHome ? (
         <div className="lr-chrome-edit">
           <InteriorsWorkspaceFileMenu

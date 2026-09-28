@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
-import { ThemeSwitcher } from './ThemeSwitcher'
 import { clearSession, getSession } from '../lib/auth'
 import { useNavigate } from 'react-router-dom'
 
@@ -33,7 +32,6 @@ export function AppTopbar() {
         </nav>
       </div>
       <div className="app-topbar-right">
-        <ThemeSwitcher size="sm" />
         {session && (
           <div className="user-chip" title={session.email}>
             <span className="avatar">{initial}</span>

@@ -2,7 +2,6 @@ import { Showroom } from '../../showroom/Showroom'
 import { Link } from 'react-router-dom'
 import { SiteNav } from '../../components/SiteNav'
 import { SiteFooter } from '../../components/SiteFooter'
-import { ThemeSwitchPanel } from '../../components/ThemeSwitchPanel'
 import { templatesCalm } from '../sharedTemplates'
 import { CalmLandingPricing } from './CalmLandingPricing'
 import { GoldenRunVisual } from './CalmGoldenRunVisual'
@@ -33,7 +32,6 @@ export function CalmLanding() {
             </Link>
           </div>
           <p className="hero-note">Built for salespeople who need proposals that actually build.</p>
-          <ThemeSwitchPanel />
         </div>
         <Showroom />
       </header>
