@@ -83,10 +83,11 @@ export function designUxShowsToolRail(input: {
 }
 
 export function designUxShellClassNames(input: {
-  appearance: "light" | "dark-frame";
+  appearance: "light";
   presenting: boolean;
 }): string[] {
   const classes = [
+    "app-shell",
     "lr-plan-shell",
     "lr-product-shell",
     "lr-product-shell-v2",

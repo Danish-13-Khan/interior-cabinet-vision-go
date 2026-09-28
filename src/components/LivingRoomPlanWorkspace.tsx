@@ -1,8 +1,7 @@
-import { InteriorProjectTools } from "./livingRoomPlan/InteriorProjectTools";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, readProposalCommercial, type LivingRoomRenderResult } from "../domain/livingRoom";
+import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { millworkAssetCategories } from "../domain/livingRoom/millworkShortcuts";
-import { designUxShellClassNames, interiorsJobStatusLabel } from "../domain/desktopUx";
+import { designUxShellClassNames } from "../domain/desktopUx";
 import { useClientPresentationExport } from "../hooks/useClientPresentationExport";
 import { useLivingRoomPlanWorkspaceHotkeys } from "../hooks/useLivingRoomPlanWorkspaceHotkeys";
 import { useLivingRoomBuildCommands } from "../hooks/useLivingRoomBuildCommands";
@@ -13,8 +12,7 @@ import { useInteriorsWorkspaceChrome } from "../hooks/useInteriorsWorkspaceChrom
 import { useDraftingAppearance } from "../hooks/useDraftingAppearance";
 import type { AcceptedStillAsset } from "../hooks/selectPackageAcceptedStillAssets";
 import { usePlanReadabilitySettings } from "./livingRoomPlan/usePlanReadabilitySettings";
-import { InteriorsWorkspaceHeader } from "./livingRoomPlan/InteriorsWorkspaceHeader";
-import { InteriorsWorkflowNav } from "./livingRoomPlan/InteriorsWorkflowNav";
+import { LivingRoomWorkspaceTopBar } from "./livingRoomPlan/LivingRoomWorkspaceTopBar";
 import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFromWorkspace";
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
 import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjectsFixtures";
@@ -76,7 +74,6 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onOpenGoldenRun: () => { props.onDiscardRecovery(); props.onOpenGoldenRun(); },
     onOpenRenderStudio: chrome.showRenderStudio,
   });
-  const job = props.project ? readProposalCommercial(props.project).job : null;
   const assetCategories = useMemo(() => millworkAssetCategories(LIVING_ROOM_CATALOG.map((item) => item.category)), []);
 
   useEffect(() => {
@@ -125,24 +122,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setRenderResults({ latest: null, previous: null });
     setAcceptedStillAssets([]);
   }, [props.project?.id]);
-  const header = (
-    <InteriorsWorkspaceHeader
-      tools={props.project && !props.projectHomeOpen ? <InteriorProjectTools project={props.project} onPatchDocument={update => props.onPatchDocument(update, "Project details updated")} /> : null}
-      projectName={props.project?.name ?? null} roomName={room?.name ?? "Room"}
-      revision={job?.revision ?? "A"}
-      statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", Boolean(props.project?.objects.some((item) => item.kind === "cabinet")))}
-      workspaceView={chrome.workspaceView} isDirty={props.isDirty} autosaveState={props.autosaveState}
-      canUndo={props.canUndo} canRedo={props.canRedo} presenting={chrome.plannerMode === "render"} chromeLocked={false}
-      projectHome={props.projectHomeOpen || !props.project}
-      onProject={() => chrome.changePlannerMode("project")}
-      onOpen={props.onOpenProject} onExport={props.onExportProject}
-      onView={chrome.changeWorkspaceView}
-      onSave={props.onSaveProject} onUndo={props.onUndo} onRedo={props.onRedo} onPresent={chrome.present}
-      onOpenShortcuts={props.onOpenShortcuts}
-      appearance={draftingAppearance.appearance}
-      onAppearance={draftingAppearance.setAppearance}
-    />
-  );
+  const header = <LivingRoomWorkspaceTopBar workspace={props} chrome={chrome} roomName={room?.name ?? "Room"} />;
   if (!props.project || props.projectHomeOpen) {
     return (
       <LivingRoomPlanHomeShell header={header}>
@@ -158,7 +138,6 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       presenting: chrome.plannerMode === "render",
     }).join(" ")} data-drafting-appearance={draftingAppearance.appearance}>
       {header}
-      <InteriorsWorkflowNav area={chrome.workflowArea} onArea={chrome.setWorkflowArea} />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
         workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode}
