@@ -3,7 +3,6 @@ import { PACK_STARTER_ALIASES } from "../catalog/aliases";
 import { resolvePackStarterAlias } from "../catalog/compatibility";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import type { ModelTextureUrls } from "./renderAssetContracts";
-import { storeAssetBlob, type AssetBlobStore } from "./storedAssets";
 
 export type ImportedAsset = {
   id: string;
@@ -14,6 +13,10 @@ export type ImportedAsset = {
   sourceUrl: string;
   materialGroups?: Record<string, string>;
   textureUrls?: ModelTextureUrls;
+  /** Unit confirmed for this new import. Saved placements are not resized. */
+  importUnit?: "mm" | "cm" | "m" | "in" | "ft";
+  /** Largest side in file units, so the dialog can show every candidate. */
+  rawLargestSide?: number;
 };
 
 /** Historical pack footprints preserved so old layouts and pack UI stay familiar. */
@@ -66,8 +69,6 @@ function buildPackStarterAsset(aliasId: string): ImportedAsset {
 export const ASSET_IMPORT_STARTER_PACK: readonly ImportedAsset[] =
   PACK_STARTER_ALIASES.map((alias) => buildPackStarterAsset(alias.aliasId));
 
-const MAX_MODEL_BYTES = 25 * 1024 * 1024;
-
 export function getPackagedImportedAsset(id: string) {
   return ASSET_IMPORT_STARTER_PACK.find((asset) => asset.id === id) ?? null;
 }
@@ -98,52 +99,5 @@ export function createImportedAssetObject(
   };
 }
 
-async function storeFile(store: AssetBlobStore, file: File): Promise<string> {
-  try {
-    return await storeAssetBlob(store, file);
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : "storage failed";
-    throw new Error(`Could not store ${file.name} in this browser (${reason}).`);
-  }
-}
-
-function textureSlot(name: string): keyof ModelTextureUrls | null {
-  const normalized = name.toLowerCase();
-  if (/(base.?color|albedo|diffuse|color)/.test(normalized)) return "map";
-  if (/normal/.test(normalized)) return "normalMap";
-  if (/roughness/.test(normalized)) return "roughnessMap";
-  if (/(metallic|metalness)/.test(normalized)) return "metalnessMap";
-  return null;
-}
-
-/**
- * Store a GLB and any sidecar texture images in the blob store (IndexedDB in the app).
- * The project document keeps only `idb:` references; project files embed the bytes on save.
- */
-export async function readImportedGlb(files: File | File[], store: AssetBlobStore): Promise<ImportedAsset> {
-  const all = Array.isArray(files) ? files : [files];
-  const file = all.find((item) => item.name.toLowerCase().endsWith(".glb"));
-  if (!file) throw new Error("Select one GLB file together with any texture images.");
-  if (!file.name.toLowerCase().endsWith(".glb")) {
-    throw new Error("Import GLB files only. Convert FBX to GLB first so textures travel with the model.");
-  }
-  if (file.size > MAX_MODEL_BYTES) throw new Error("Model is larger than 25 MB. Optimize it before importing.");
-  const textureUrls: ModelTextureUrls = {};
-  await Promise.all(
-    all
-      .filter((item) => item !== file && item.type.startsWith("image/"))
-      .map(async (image) => {
-        const slot = textureSlot(image.name);
-        if (slot && !textureUrls[slot]) textureUrls[slot] = await storeFile(store, image);
-      }),
-  );
-  return {
-    id: `file:${file.name}-${file.size}`,
-    name: file.name.replace(/\.glb$/i, ""),
-    category: "imported",
-    kind: "custom",
-    dimensions: { widthMm: 1000, heightMm: 1000, depthMm: 1000 },
-    sourceUrl: await storeFile(store, file),
-    ...(Object.keys(textureUrls).length ? { textureUrls } : {}),
-  };
-}
+export type { LengthUnit } from "../../workers/modelImport/protocol";
+export { readImportedGlb } from "./readMeasuredGlb";
