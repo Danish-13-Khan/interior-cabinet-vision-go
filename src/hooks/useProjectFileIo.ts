@@ -159,12 +159,13 @@ export function useProjectFileIo({
     [applySnapshot, onStatus, rememberFile, room, setProjectFilePath],
   );
 
-  const handleSaveProject = useCallback(async () => {
+  const saveProject = useCallback(async (saveAs: boolean) => {
     try {
       const document = currentInteriorDocument(project, room);
       const targetPath =
-        projectFilePath ??
-        (await promptSavePath({
+        !saveAs && projectFilePath
+          ? projectFilePath
+          : (await promptSavePath({
           title: "Save Interior Project",
           defaultPath: interiorProjectFileName(
             document.name,
@@ -204,6 +205,9 @@ export function useProjectFileIo({
     setProjectFilePath,
     writeFile,
   ]);
+
+  const handleSaveProject = useCallback(() => saveProject(false), [saveProject]);
+  const handleSaveAsProject = useCallback(() => saveProject(true), [saveProject]);
 
   const handleLoadProject = useCallback(async () => {
     try {
@@ -303,6 +307,7 @@ export function useProjectFileIo({
     writeFile,
     isProjectDirty: currentFingerprint !== savedFingerprint,
     handleSaveProject,
+    handleSaveAsProject,
     handleLoadProject,
     handleOpenRecentFile,
     handleExportMachineJson,

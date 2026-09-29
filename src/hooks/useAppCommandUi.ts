@@ -27,6 +27,7 @@ type UseAppCommandUiArgs = {
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
+  onSaveAs: () => void;
   onReset: () => void;
   onCopy: () => void;
   onPaste: () => void;
@@ -70,6 +71,7 @@ export function useAppCommandUi({
   onUndo,
   onRedo,
   onSave,
+  onSaveAs,
   onReset,
   onCopy,
   onPaste,
@@ -107,6 +109,9 @@ export function useAppCommandUi({
       onRedo,
       onSave: () => {
         void onSave();
+      },
+      onSaveAs: () => {
+        void onSaveAs();
       },
       onNew: onReset,
       onCopy,
@@ -168,6 +173,7 @@ export function useAppCommandUi({
     onReset,
     onLoadProject,
     onSaveProject,
+    onSaveAsProject: onSaveAs,
     onUndo,
     onRedo,
     onCopy,

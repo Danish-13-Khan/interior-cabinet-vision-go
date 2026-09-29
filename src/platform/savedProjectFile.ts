@@ -41,7 +41,7 @@ export async function writeSavedProject(path: string, document: InteriorProject,
   const target = isCabinetPath(path) ? path : `${path}.cabinet`;
   const packed = await packCabinetArchive(document, indexedDbAssetBlobStore, thumbnail);
   setStorageWarning("missing-model-files", missingStoredAssetsMessage(packed.missing));
-  await writeProjectBytes(target, packed.bytes);
+  await writeProjectBytes(target, packed.bytes, document.id);
   return target;
 }
 

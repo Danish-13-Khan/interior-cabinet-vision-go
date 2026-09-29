@@ -4,6 +4,7 @@ export type ShortcutActionId =
   | "undo"
   | "redo"
   | "save"
+  | "saveAs"
   | "new"
   | "copy"
   | "paste"
