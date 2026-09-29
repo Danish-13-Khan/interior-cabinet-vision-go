@@ -9,7 +9,7 @@ export function isTauriRuntime(): boolean {
   );
 }
 
-function pickBrowserFile(accept: string): Promise<File | null> {
+export function pickBrowserFile(accept: string): Promise<File | null> {
   return new Promise((resolve) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -41,10 +41,16 @@ export async function promptSavePath(args: {
     return args.defaultPath;
   }
   const { save } = await import("@tauri-apps/plugin-dialog");
+  const filters = args.extensions[0] === "cabinet"
+    ? [
+        { name: "Cabinet project", extensions: ["cabinet"] },
+        { name: "JSON project", extensions: ["json"] },
+      ]
+    : [{ name: args.title, extensions: args.extensions }];
   return save({
     title: args.title,
     defaultPath: args.defaultPath,
-    filters: [{ name: args.title, extensions: args.extensions }],
+    filters,
   });
 }
 
@@ -56,11 +62,17 @@ export async function promptOpenPath(args: {
     return null;
   }
   const { open } = await import("@tauri-apps/plugin-dialog");
+  const filters = args.extensions[0] === "cabinet"
+    ? [
+        { name: "Cabinet project", extensions: ["cabinet"] },
+        { name: "JSON project", extensions: ["json"] },
+      ]
+    : [{ name: args.title, extensions: args.extensions }];
   const selected = await open({
     title: args.title,
     multiple: false,
     directory: false,
-    filters: [{ name: args.title, extensions: args.extensions }],
+    filters,
   });
   if (!selected || Array.isArray(selected)) return null;
   return selected;

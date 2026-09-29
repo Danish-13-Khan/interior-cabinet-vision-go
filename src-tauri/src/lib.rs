@@ -1,4 +1,8 @@
 use base64::Engine;
+use tauri::Emitter;
+
+mod open_path;
+mod project_bytes;
 use std::fs;
 use std::path::Path;
 
@@ -37,13 +41,42 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            if let Some(path) = open_path::cabinet_path_from_args(&args) {
+                open_path::remember_cabinet_path(path.clone());
+                let _ = app.emit("cabinet-open-path", path);
+            }
+        }))
         .invoke_handler(tauri::generate_handler![
             save_project_file,
             load_project_file,
-            save_binary_file
+            save_binary_file,
+            project_bytes::save_project_bytes,
+            project_bytes::load_project_bytes,
+            open_path::take_pending_cabinet_path
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .setup(|app| {
+            let args = std::env::args().skip(1).collect::<Vec<_>>();
+            if let Some(path) = open_path::cabinet_path_from_args(&args) {
+                open_path::remember_cabinet_path(path);
+            }
+            let _ = app;
+            Ok(())
+        })
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(|app, event| {
+            if let tauri::RunEvent::Opened { urls } = event {
+                for url in urls {
+                    let Ok(path) = url.to_file_path() else { continue; };
+                    let text = path.to_string_lossy().to_string();
+                    if text.to_ascii_lowercase().ends_with(".cabinet") {
+                        open_path::remember_cabinet_path(text.clone());
+                        let _ = app.emit("cabinet-open-path", text);
+                    }
+                }
+            }
+        });
 }
 
 #[cfg(test)]
