@@ -1,27 +1,15 @@
 import { useEffect, useRef } from "react";
+import { documentsInUse } from "../domain/projectDrafts/inUseDocuments";
+import { migrateBrowserDrafts } from "../domain/projectDrafts/migrateBrowserDrafts";
 import { pruneStoredAssets } from "../domain/livingRoom/storedAssets";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
+import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 
 const CLEANUP_DELAY_MS = 5000;
 
-function localStorageDocuments(): unknown[] {
-  const documents: unknown[] = [];
-  try {
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      const raw = key ? window.localStorage.getItem(key) : null;
-      if (!raw || !raw.includes("idb:")) continue;
-      try { documents.push(JSON.parse(raw) as unknown); } catch { /* not JSON */ }
-    }
-  } catch {
-    /* storage unavailable */
-  }
-  return documents;
-}
-
 /**
- * Once per session, remove stored model files that no saved project, recovery snapshot,
- * or the open project references (deleted objects, deleted projects, cancelled imports).
+ * Once per session, remove stored model files that no draft or the open project references.
+ * Migration runs first so a project that only lives in the old localStorage list is not pruned.
  */
 export function useStoredAssetCleanup(currentProject: unknown) {
   const currentRef = useRef(currentProject);
@@ -29,8 +17,19 @@ export function useStoredAssetCleanup(currentProject: unknown) {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void pruneStoredAssets(indexedDbAssetBlobStore, [currentRef.current, ...localStorageDocuments()])
-        .catch(() => 0);
+      void (async () => {
+        try {
+          await migrateBrowserDrafts({
+            storage: localStorage,
+            blobs: indexedDbAssetBlobStore,
+            drafts: indexedDbDraftStore,
+          });
+          const drafts = await indexedDbDraftStore.list();
+          await pruneStoredAssets(indexedDbAssetBlobStore, documentsInUse(currentRef.current, drafts));
+        } catch {
+          /* storage unavailable */
+        }
+      })();
     }, CLEANUP_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);

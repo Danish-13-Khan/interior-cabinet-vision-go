@@ -55,9 +55,10 @@ describe("interiorsChrome", () => {
   });
 
   it("shows save state and a selection title for the shared inspector", () => {
-    expect(interiorsSaveLabel(false, "idle")).toBe("Saved");
-    expect(interiorsSaveLabel(true, "idle")).toBe("Unsaved");
-    expect(interiorsSaveLabel(true, "saving")).toBe("Saving");
+    expect(interiorsSaveLabel(false, "idle")).toBe("Saved · just now");
+    expect(interiorsSaveLabel(true, "idle")).toBe("Unsaved changes");
+    expect(interiorsSaveLabel(true, "saving")).toBe("Saving…");
+    expect(interiorsSaveLabel(true, "saved")).toBe("Saved · just now");
     expect(interiorsSelectionTitle({ selectedCount: 0 })).toBe("Nothing selected");
     expect(interiorsSelectionTitle({ wallLabel: "North wall", selectedCount: 0 })).toBe("North wall");
     expect(interiorsSelectionTitle({ objectName: "Base A", selectedCount: 1 })).toBe("Base A");

@@ -28,6 +28,8 @@ import {
 } from "../domain/interiorProject";
 import { openedProjectFile, portableProjectText } from "./portableProjectFile";
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
+import { noteDraftFileSaved } from "../domain/projectDrafts/commitDraft";
+import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
 
@@ -181,6 +183,7 @@ export function useProjectFileIo({
 
       setProjectFilePath(targetPath);
       setSavedFingerprint(persistenceFingerprint(document));
+      void noteDraftFileSaved(document.id, indexedDbDraftStore, localStorage).catch(() => undefined);
       rememberFile(targetPath);
       saveCurrentProjectToBrowser(document.name);
       onStatus(

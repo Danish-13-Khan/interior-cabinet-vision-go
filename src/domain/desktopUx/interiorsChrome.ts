@@ -67,9 +67,10 @@ export function interiorsSaveLabel(
   isDirty: boolean,
   autosaveState: "idle" | "saving" | "saved" | "error",
 ): string {
-  if (autosaveState === "saving") return "Saving";
+  if (autosaveState === "saving") return "Saving…";
   if (autosaveState === "error") return "Save failed";
-  return isDirty ? "Unsaved" : "Saved";
+  if (autosaveState === "saved") return "Saved · just now";
+  return isDirty ? "Unsaved changes" : "Saved · just now";
 }
 
 export function interiorsSelectionTitle(input: {
