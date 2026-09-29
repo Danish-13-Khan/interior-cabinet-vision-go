@@ -84,7 +84,7 @@ test("Exit journey: footprint → split → run → 3D → schedule + client pac
   await expect(page.getByRole("button", { name: "Dollhouse", exact: true })).toHaveClass(/is-active/);
   await expect(page.locator(".lr-model-viewport canvas")).toBeVisible();
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.getByRole("button", { name: "Schedule CSV", exact: true })).toHaveCount(0);
 
   await page.getByTestId("interiors-present").click();
