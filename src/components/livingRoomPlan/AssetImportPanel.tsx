@@ -26,26 +26,27 @@ export function AssetImportPanel({
   const [pending, setPending] = useState<ImportedAsset | null>(null);
   const [unit, setUnit] = useState<LengthUnit>("m");
   const chosenFiles = useRef<File[]>([]);
-  const importFiles = (files: File[], nextUnit: LengthUnit) => {
+  const importFiles = (files: File[], nextUnit: LengthUnit, honorFileUnits = false) => {
     chosenFiles.current = files;
     setError("");
-    void readImportedGlb(files, indexedDbAssetBlobStore, nextUnit).then(setPending).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
+    void readImportedGlb(files, indexedDbAssetBlobStore, nextUnit, honorFileUnits).then(setPending).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
   };
   const assets = ASSET_IMPORT_STARTER_PACK.filter((asset) => cabinetMode ? asset.kind === "cabinet" : asset.kind !== "cabinet");
   const maps = pending ? Object.entries(pending.textureUrls ?? {}) : [];
   const addPending = () => { if (pending) onAdd(pending); setPending(null); };
   return <>
     <section className="lr-model-import">
-      <input ref={input} type="file" accept=".glb,model/gltf-binary,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
+      <input ref={input} type="file" accept=".glb,.gltf,.fbx,.obj,.mtl,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
         const files = Array.from(event.target.files ?? []);
         event.target.value = "";
         if (!files.length) return;
-        importFiles(files, unit);
+        importFiles(files, unit, true);
       }} />
       <strong>Asset Import</strong>
       <small>Select a GLB and its BaseColor/normal/roughness images together. Files are kept in this browser and embedded when you save the project to a file.</small>
-      <button type="button" onClick={() => input.current?.click()}>Import GLB + textures</button>
+      <button type="button" onClick={() => input.current?.click()}>Import model + textures</button>
       {error ? <p className="lr-import-error">{error}</p> : null}
+      {pending?.importWarnings?.length ? <p>{pending.importWarnings[0]}</p> : null}
     </section>
     {pending ? <section className="lr-texture-window" aria-label="Texture setup">
       <strong>Texture setup</strong><small>{pending.name} · {Math.round(pending.dimensions.widthMm)} × {Math.round(pending.dimensions.heightMm)} × {Math.round(pending.dimensions.depthMm)} mm</small>
