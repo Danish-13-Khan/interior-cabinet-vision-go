@@ -1,0 +1,54 @@
+.app-error-boundary {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: #f5f6f8;
+  color: #1d2330;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app-error-boundary section {
+  max-width: 520px;
+  padding: 28px 32px;
+  border: 1px solid #d9dde5;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(20, 30, 50, 0.08);
+}
+
+.app-error-boundary h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.app-error-boundary p {
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.app-error-boundary pre {
+  margin: 0 0 20px;
+  padding: 10px 12px;
+  max-height: 160px;
+  overflow: auto;
+  border-radius: 6px;
+  background: #f1f3f6;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.app-error-boundary button {
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 6px;
+  background: #0878bd;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-error-boundary button:hover {
+  background: #066aa7;
+}

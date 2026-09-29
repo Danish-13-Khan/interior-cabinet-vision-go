@@ -23,10 +23,10 @@ import {
   interiorProjectFileName,
   interiorProjectFromCabinetProject,
   loadInteriorProjectFile,
-  serializeInteriorProjectFile,
   validateInteriorProject,
   type InteriorProject,
 } from "../domain/interiorProject";
+import { parseProjectFileText, serializeProjectFileWithAssets } from "../platform/projectFileAssets";
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
 
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
@@ -103,7 +103,7 @@ export function useProjectFileIo({
     void (async () => {
       try {
         const raw = await readTextFile(session.projectFilePath!);
-        const parsed = JSON.parse(raw) as unknown;
+        const parsed = await parseProjectFileText(raw);
         const loaded = snapshotFromParsedFile(
           parsed,
           DEFAULT_ROOM,
@@ -177,7 +177,7 @@ export function useProjectFileIo({
         return;
       }
 
-      await writeFile(targetPath, serializeInteriorProjectFile(document));
+      await writeFile(targetPath, await serializeProjectFileWithAssets(document));
 
       setProjectFilePath(targetPath);
       setSavedFingerprint(persistenceFingerprint(document));
@@ -213,7 +213,7 @@ export function useProjectFileIo({
         return false;
       }
       applyLoadedFile(
-        JSON.parse(opened.contents) as unknown,
+        await parseProjectFileText(opened.contents),
         opened.path,
         isTauriRuntime()
           ? "Project loaded from JSON file."
@@ -235,7 +235,7 @@ export function useProjectFileIo({
         }
         const raw = await readTextFile(path);
         applyLoadedFile(
-          JSON.parse(raw) as unknown,
+          await parseProjectFileText(raw),
           path,
           `Opened recent file “${path.split(/[/\\]/).pop()}”.`,
         );
@@ -268,7 +268,7 @@ export function useProjectFileIo({
 
       await writeFile(
         targetPath,
-        serializeInteriorProjectFile(currentDocument),
+        await serializeProjectFileWithAssets(currentDocument),
       );
       onStatus("Project exported to JSON.");
     } catch (error) {

@@ -9,6 +9,7 @@ import {
 import {
   getProjectDisplayName,
   persistSavedProjects,
+  PROJECT_BROWSER_QUOTA_MESSAGE,
   readSavedProjects,
   upsertSavedProjectEntry,
   type SavedProjectBrowserEntry,
@@ -36,14 +37,22 @@ export function useSavedProjectBrowser({
   );
   const captureThumbnailRef = useRef(captureThumbnail);
   captureThumbnailRef.current = captureThumbnail;
+  const onStatusRef = useRef(onStatus);
+  onStatusRef.current = onStatus;
+  const loadedProjectsRef = useRef(savedProjects);
+  const persistFailedRef = useRef(false);
 
-  const setProjectAndPersist = useCallback(
-    (nextProjects: SavedProjectBrowserEntry[]) => {
-      setSavedProjects(nextProjects);
-      persistSavedProjects(nextProjects);
-    },
-    [],
-  );
+  useEffect(() => {
+    if (savedProjects === loadedProjectsRef.current) return;
+    const result = persistSavedProjects(savedProjects);
+    const failed = result === "quota-exceeded" || result === "failed";
+    if (failed && !persistFailedRef.current) {
+      onStatusRef.current(result === "quota-exceeded" ? PROJECT_BROWSER_QUOTA_MESSAGE : "Browser autosave failed; save the project to a file instead.");
+    }
+    persistFailedRef.current = failed;
+  }, [savedProjects]);
+
+  const setProjectAndPersist = setSavedProjects;
 
   const sortedSavedProjects = useMemo(
     () =>
@@ -87,9 +96,7 @@ export function useSavedProjectBrowser({
         project: safeProject,
         room: getActiveProjectRoom(safeProject).config,
       };
-      const next = upsertSavedProjectEntry(current, entry);
-      persistSavedProjects(next);
-      return next;
+      return upsertSavedProjectEntry(current, entry);
     });
   }, [project, room]);
 
@@ -102,7 +109,7 @@ export function useSavedProjectBrowser({
   const saveCurrentProjectToBrowser = useCallback(
     (nameOverride?: string) => {
       upsertCurrentProject({ nameOverride });
-      onStatus("Saved current project to the browser.");
+      if (!persistFailedRef.current) onStatus("Saved current project to the browser.");
     },
     [
       onStatus,
