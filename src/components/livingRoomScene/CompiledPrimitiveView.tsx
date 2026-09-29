@@ -5,6 +5,7 @@ import type { BufferGeometry } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import { EXCLUDE_FROM_EXPORT } from "../../rendering/sceneExport/sceneExportFilter";
 import { CompiledMaterialView } from "./CompiledMaterialView";
 import { acquireCompiledGeometry } from "./geometryCache";
 
@@ -60,7 +61,8 @@ export function CompiledPrimitiveView({
         renderMode={renderMode}
         renderQuality={renderQuality}
       />
-      {selected ? <Edges color="#0878bd" threshold={12} lineWidth={1.35} /> : null}
+      {selected ? <Edges color="#0878bd" threshold={12} lineWidth={1.35}
+        userData={{ [EXCLUDE_FROM_EXPORT]: true }} /> : null}
     </mesh>
   );
 }

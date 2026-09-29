@@ -4,7 +4,9 @@ import {
 } from "../../domain/livingRoom";
 import { activeRoomGeometryFallbackIds } from "../../domain/livingRoom/cabinetSceneFallbacks";
 import { useWorkspacePlanImport } from "../../hooks/useWorkspacePlanImport";
+import { useFloorplanExtractFlow } from "../../hooks/useFloorplanExtractFlow";
 import { useEffect, useState } from "react";
+import { FloorplanExtractSlot } from "./FloorplanExtractSlot";
 import { LivingRoomPlanImportOverlays } from "./LivingRoomPlanImportOverlays";
 import { LivingRoomPlanWorkspaceCanvas } from "./LivingRoomPlanWorkspaceCanvas";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
@@ -32,6 +34,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     onBuildTool: props.onBuildTool,
     onCommitDraft: () => build.dispatchBuildCommand({ type: "commitDraft" }),
   });
+  const floorplanExtract = useFloorplanExtractFlow(props.underlay);
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
@@ -39,7 +42,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   return (
     <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
-        <LivingRoomPlanWorkspaceRail {...props} onImportUnderlay={planImport.onImportUnderlay} />
+        <LivingRoomPlanWorkspaceRail {...props} onImportUnderlay={planImport.onImportUnderlay}
+          floorplanExtract={floorplanExtract.launcher} />
       ) : null}
       {props.plannerMode === "render" ? (
         <InteriorsPresentPanel
@@ -71,6 +75,12 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         onCancelPdf={planImport.cancelPdf}
         onConfirmPdf={planImport.confirmPdf}
         onPdfError={planImport.failPdf}
+      />
+      <FloorplanExtractSlot
+        draft={floorplanExtract.draft}
+        project={project}
+        onClose={floorplanExtract.close}
+        onApply={(next, status) => w.onPatchDocument(() => next, status)}
       />
     </div>
   );

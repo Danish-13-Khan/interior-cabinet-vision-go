@@ -3,6 +3,7 @@ import { Html } from "@react-three/drei";
 import { useLayoutEffect, useRef, useState } from "react";
 import { Plane, Vector3 } from "three";
 import type { Point3Mm } from "../../domain/interiorProject";
+import { EXCLUDE_FROM_EXPORT } from "../../rendering/sceneExport/sceneExportFilter";
 
 export type ModelTransformTarget = {
   kind: "object" | "opening";
@@ -135,7 +136,8 @@ export function ModelMoveGizmo({ target, positionOverride, snapSizeMm, onPreview
   }
 
   return (
-    <group position={[position.x / 1000, position.y / 1000, position.z / 1000]} renderOrder={1000}>
+    <group position={[position.x / 1000, position.y / 1000, position.z / 1000]} renderOrder={1000}
+      userData={{ [EXCLUDE_FROM_EXPORT]: true }}>
       <mesh><sphereGeometry args={[0.045, 16, 12]} /><meshBasicMaterial color="#ffffff" depthTest={false} depthWrite={false} /></mesh>
       {arrow("x", [0, 0, -Math.PI / 2], [0, 0.58, 0])}
       {arrow("y", [0, 0, 0], [0, 0.58, 0])}

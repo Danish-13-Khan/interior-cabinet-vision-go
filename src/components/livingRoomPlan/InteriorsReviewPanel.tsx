@@ -9,6 +9,7 @@ import { InteriorsPresentQuote } from "./InteriorsPresentQuote";
 import { InteriorsProposalIdentity } from "./InteriorsProposalIdentity";
 import { InteriorsReviewJourney } from "./InteriorsReviewJourney";
 import { ReviewIssueList } from "./ReviewIssueList";
+import { ReviewSceneExport } from "./ReviewSceneExport";
 import { ReviewSummaryBar } from "./ReviewSummaryBar";
 
 type Proposal = ReturnType<typeof useProposalWorkflow>;
@@ -61,6 +62,10 @@ export function InteriorsReviewPanel({
       <details className="interiors-review-section" open>
         <summary>Quote &amp; approval</summary>
         <InteriorsPresentQuote proposal={proposal} />
+      </details>
+      <details className="interiors-review-section">
+        <summary>Export 3D model</summary>
+        <ReviewSceneExport projectName={project.name} />
       </details>
       <div className="interiors-review-next">
         <InteriorsReviewJourney

@@ -9,14 +9,17 @@ import { listObjectBrowserItems } from "../../domain/catalog/objectBrowser";
 import { millworkShortcutsForRoom } from "../../domain/livingRoom/millworkShortcuts";
 import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
 import { livingRoomThumbnailUrl } from "../../domain/livingRoom/livingRoomThumbnails";
+import type { ImportedAsset } from "../../domain/livingRoom";
+import { AssetImportPanel } from "./AssetImportPanel";
 import { CatalogObjectFilters } from "./CatalogObjectFilters";
 
 type CatalogObjectBrowserProps = {
   onPlace: (catalogItemId: string) => void;
+  onImport?: (asset: ImportedAsset) => void;
 };
 
 /** Curated Kenney object browser plus parametric millwork shortcuts. */
-export function CatalogObjectBrowser({ onPlace }: CatalogObjectBrowserProps) {
+export function CatalogObjectBrowser({ onPlace, onImport }: CatalogObjectBrowserProps) {
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState<ObjectBrowserCategoryId>("all");
   const [room, setRoom] = useState("all");
@@ -40,6 +43,7 @@ export function CatalogObjectBrowser({ onPlace }: CatalogObjectBrowserProps) {
         <strong>Object Browser</strong>
         <span>{cards.length} curated models · place in plan</span>
       </div>
+      {onImport ? <AssetImportPanel cabinetMode={false} onAdd={onImport} /> : null}
       <CatalogObjectFilters
         query={query} room={room} subcategory={subcategory} subcategories={subcategories}
         maxWidthMm={maxWidthMm} onQuery={setQuery} onRoom={setRoom}
