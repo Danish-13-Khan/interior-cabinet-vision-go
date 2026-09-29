@@ -16,8 +16,7 @@ import {
   writeBinaryBlob,
   writeTextFile,
 } from "../platform/desktopFiles";
-import { embedStoredAssets } from "../domain/livingRoom/storedAssets";
-import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
+import { portableProject } from "./portableProjectFile";
 
 export function useClientPresentationExport() {
   const [status, setStatus] = useState("");
@@ -32,9 +31,8 @@ export function useClientPresentationExport() {
     setBusy(true);
     setStatus("");
     try {
-      const { value: portableProject } = await embedStoredAssets(project, indexedDbAssetBlobStore);
       const { packageData, files } = await assembleClientPresentationFiles(
-        portableProject,
+        await portableProject(project),
         render,
         new Date().toISOString(),
         acceptedStills,

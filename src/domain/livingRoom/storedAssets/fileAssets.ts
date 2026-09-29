@@ -45,6 +45,17 @@ export async function mapImportedAssetUrls<T>(value: T, map: UrlMapper): Promise
   return (await visit(value)) as T;
 }
 
+/** True when any imported asset still carries its bytes inline (legacy saves, or IndexedDB was unavailable). */
+export function hasEmbeddedAssetData(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(hasEmbeddedAssetData);
+  if (!isRecord(value)) return false;
+  return Object.entries(value).some(([key, child]) => {
+    if (key !== "assetImport" || !isRecord(child)) return hasEmbeddedAssetData(child);
+    const textures = isRecord(child.textureUrls) ? Object.values(child.textureUrls) : [];
+    return [child.sourceUrl, ...textures].some(isDataUrl);
+  });
+}
+
 /** For a portable project file: replace `idb:` references with the stored bytes as data URLs. */
 export async function embedStoredAssets<T>(value: T, store: AssetBlobStore): Promise<{ value: T; missing: string[] }> {
   const missing: string[] = [];

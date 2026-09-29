@@ -1,14 +1,24 @@
 /** Binary storage for imported model files; localStorage (~5 MB) cannot hold GLBs. */
 export type AssetBlobStore = {
   get: (key: string) => Promise<Blob | null>;
+  /** Writing an existing key refreshes its `storedAt`. */
   put: (key: string, blob: Blob) => Promise<void>;
 };
 
-export function createMemoryAssetBlobStore(): AssetBlobStore & { size: () => number } {
-  const blobs = new Map<string, Blob>();
+export type StoredAssetEntry = { key: string; storedAt: number };
+
+export type PrunableAssetBlobStore = AssetBlobStore & {
+  list: () => Promise<StoredAssetEntry[]>;
+  delete: (key: string) => Promise<void>;
+};
+
+export function createMemoryAssetBlobStore(now: () => number = Date.now): PrunableAssetBlobStore & { size: () => number } {
+  const blobs = new Map<string, { blob: Blob; storedAt: number }>();
   return {
-    get: async (key) => blobs.get(key) ?? null,
-    put: async (key, blob) => { blobs.set(key, blob); },
+    get: async (key) => blobs.get(key)?.blob ?? null,
+    put: async (key, blob) => { blobs.set(key, { blob, storedAt: now() }); },
+    list: async () => Array.from(blobs, ([key, { storedAt }]) => ({ key, storedAt })),
+    delete: async (key) => { blobs.delete(key); },
     size: () => blobs.size,
   };
 }

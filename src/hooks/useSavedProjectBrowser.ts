@@ -8,14 +8,15 @@ import {
 } from "../domain/projectRooms";
 import {
   getProjectDisplayName,
-  persistSavedProjects,
-  PROJECT_BROWSER_QUOTA_MESSAGE,
   readSavedProjects,
   upsertSavedProjectEntry,
   type SavedProjectBrowserEntry,
 } from "../domain/projectBrowserStorage";
 import type { RoomConfig } from "../domain/roomModel";
 import type { EditorSnapshot } from "../domain/editorSnapshot";
+import { useSavedProjectsPersistence } from "./useSavedProjectsPersistence";
+import { useStoredAssetCleanup } from "./useStoredAssetCleanup";
+import { useOpenDocumentWarnings } from "./useStorageWarnings";
 
 type UseSavedProjectBrowserArgs = {
   project: CabinetProject;
@@ -37,21 +38,9 @@ export function useSavedProjectBrowser({
   );
   const captureThumbnailRef = useRef(captureThumbnail);
   captureThumbnailRef.current = captureThumbnail;
-  const onStatusRef = useRef(onStatus);
-  onStatusRef.current = onStatus;
-  const loadedProjectsRef = useRef(savedProjects);
-  const persistFailedRef = useRef(false);
-
-  useEffect(() => {
-    if (savedProjects === loadedProjectsRef.current) return;
-    const result = persistSavedProjects(savedProjects);
-    const failed = result === "quota-exceeded" || result === "failed";
-    if (failed && !persistFailedRef.current) {
-      onStatusRef.current(result === "quota-exceeded" ? PROJECT_BROWSER_QUOTA_MESSAGE : "Browser autosave failed; save the project to a file instead.");
-    }
-    persistFailedRef.current = failed;
-  }, [savedProjects]);
-
+  const { failedRef: persistFailedRef } = useSavedProjectsPersistence(savedProjects, setSavedProjects, onStatus);
+  useStoredAssetCleanup(project);
+  useOpenDocumentWarnings(project.interiorDocument?.id ?? null);
   const setProjectAndPersist = setSavedProjects;
 
   const sortedSavedProjects = useMemo(

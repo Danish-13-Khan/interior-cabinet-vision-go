@@ -1,0 +1,64 @@
+.lr-storage-warning {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 340px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid #e0a43a;
+  border-radius: 7px;
+  background: #fff6e5;
+  color: #7a4b00;
+  font-size: var(--text-xs, 12px);
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: help;
+}
+
+.lr-storage-warning i {
+  display: grid;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e0a43a;
+  color: #fff;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.lr-storage-warning span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.lr-storage-warning b {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #e0a43a;
+  color: #fff;
+  font-size: 11px;
+}
+
+/* Narrow windows: icon only (full text in the tooltip and for screen readers) so the steps stay visible. */
+@media (max-width: 1440px) {
+  .lr-storage-warning {
+    padding: 0 8px;
+  }
+
+  .lr-storage-warning span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

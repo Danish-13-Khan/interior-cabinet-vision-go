@@ -6,5 +6,14 @@ export {
   storedAssetKey,
   storedAssetRef,
   type AssetBlobStore,
+  type PrunableAssetBlobStore,
+  type StoredAssetEntry,
 } from "./refs";
-export { embedStoredAssets, mapImportedAssetUrls, stashEmbeddedAssets } from "./fileAssets";
+export { collectStoredAssetKeys, pruneStoredAssets, STORED_ASSET_PRUNE_GRACE_MS } from "./prune";
+export {
+  embedStoredAssets,
+  hasEmbeddedAssetData,
+  mapImportedAssetUrls,
+  stashEmbeddedAssets,
+} from "./fileAssets";
+export { missingStoredAssetsMessage } from "./messages";
