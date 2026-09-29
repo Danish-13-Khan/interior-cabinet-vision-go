@@ -26,7 +26,7 @@ import {
   validateInteriorProject,
   type InteriorProject,
 } from "../domain/interiorProject";
-import { parseProjectFileText, serializeProjectFileWithAssets } from "../platform/projectFileAssets";
+import { openedProjectFile, portableProjectText } from "./portableProjectFile";
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
 
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
@@ -103,7 +103,7 @@ export function useProjectFileIo({
     void (async () => {
       try {
         const raw = await readTextFile(session.projectFilePath!);
-        const parsed = await parseProjectFileText(raw);
+        const parsed = await openedProjectFile(raw);
         const loaded = snapshotFromParsedFile(
           parsed,
           DEFAULT_ROOM,
@@ -177,7 +177,7 @@ export function useProjectFileIo({
         return;
       }
 
-      await writeFile(targetPath, await serializeProjectFileWithAssets(document));
+      await writeFile(targetPath, await portableProjectText(document));
 
       setProjectFilePath(targetPath);
       setSavedFingerprint(persistenceFingerprint(document));
@@ -213,7 +213,7 @@ export function useProjectFileIo({
         return false;
       }
       applyLoadedFile(
-        await parseProjectFileText(opened.contents),
+        await openedProjectFile(opened.contents),
         opened.path,
         isTauriRuntime()
           ? "Project loaded from JSON file."
@@ -235,7 +235,7 @@ export function useProjectFileIo({
         }
         const raw = await readTextFile(path);
         applyLoadedFile(
-          await parseProjectFileText(raw),
+          await openedProjectFile(raw),
           path,
           `Opened recent file “${path.split(/[/\\]/).pop()}”.`,
         );
@@ -266,10 +266,7 @@ export function useProjectFileIo({
         return;
       }
 
-      await writeFile(
-        targetPath,
-        await serializeProjectFileWithAssets(currentDocument),
-      );
+      await writeFile(targetPath, await portableProjectText(currentDocument));
       onStatus("Project exported to JSON.");
     } catch (error) {
       onStatus(`Project export failed: ${getErrorMessage(error)}`);

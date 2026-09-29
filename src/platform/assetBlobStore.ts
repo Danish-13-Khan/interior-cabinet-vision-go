@@ -1,7 +1,9 @@
-import type { AssetBlobStore } from "../domain/livingRoom/storedAssets";
+import type { PrunableAssetBlobStore, StoredAssetEntry } from "../domain/livingRoom/storedAssets";
 
 const DB_NAME = "cabinet-designer-assets";
 const STORE_NAME = "blobs";
+
+type StoredRecord = { blob: Blob; storedAt: number };
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -31,12 +33,33 @@ function run<T>(mode: IDBTransactionMode, action: (store: IDBObjectStore) => IDB
   }));
 }
 
-export const indexedDbAssetBlobStore: AssetBlobStore = {
-  get: async (key) => {
-    const value = await run<unknown>("readonly", (store) => store.get(key));
-    return value instanceof Blob ? value : null;
-  },
+function toRecord(value: unknown): StoredRecord | null {
+  if (value instanceof Blob) return { blob: value, storedAt: 0 };
+  const record = value as Partial<StoredRecord> | null;
+  return record && record.blob instanceof Blob ? { blob: record.blob, storedAt: Number(record.storedAt) || 0 } : null;
+}
+
+export const indexedDbAssetBlobStore: PrunableAssetBlobStore = {
+  get: async (key) => toRecord(await run<unknown>("readonly", (store) => store.get(key)))?.blob ?? null,
   put: async (key, blob) => {
-    await run("readwrite", (store) => store.put(blob, key));
+    const record: StoredRecord = { blob, storedAt: Date.now() };
+    await run("readwrite", (store) => store.put(record, key));
+  },
+  list: async () => {
+    const entries: StoredAssetEntry[] = [];
+    await run("readonly", (store) => {
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) return;
+        entries.push({ key: String(cursor.key), storedAt: toRecord(cursor.value)?.storedAt ?? 0 });
+        cursor.continue();
+      };
+      return request;
+    });
+    return entries;
+  },
+  delete: async (key) => {
+    await run("readwrite", (store) => store.delete(key));
   },
 };
