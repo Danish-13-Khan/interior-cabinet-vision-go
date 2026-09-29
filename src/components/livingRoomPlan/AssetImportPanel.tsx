@@ -4,6 +4,13 @@ import {
   readImportedGlb,
   type ImportedAsset,
 } from "../../domain/livingRoom";
+import { useStoredAssetUrl } from "../../hooks/useStoredAssetUrl";
+import { indexedDbAssetBlobStore } from "../../platform/assetBlobStore";
+
+function TexturePreview({ url }: { url: string }) {
+  const src = useStoredAssetUrl(url);
+  return src ? <img src={src} alt="" /> : <span className="lr-texture-loading" aria-hidden="true" />;
+}
 
 export function AssetImportPanel({
   cabinetMode,
@@ -25,16 +32,16 @@ export function AssetImportPanel({
         event.target.value = "";
         if (!files.length) return;
         setError("");
-        void readImportedGlb(files).then(setPending).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
+        void readImportedGlb(files, indexedDbAssetBlobStore).then(setPending).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
       }} />
       <strong>Asset Import</strong>
-      <small>Select a GLB and its BaseColor/normal/roughness images together. Everything is stored in this project.</small>
+      <small>Select a GLB and its BaseColor/normal/roughness images together. Files are kept in this browser and embedded when you save the project to a file.</small>
       <button type="button" onClick={() => input.current?.click()}>Import GLB + textures</button>
       {error ? <p className="lr-import-error">{error}</p> : null}
     </section>
     {pending ? <section className="lr-texture-window" aria-label="Texture setup">
       <strong>Texture setup</strong><small>{pending.name}</small>
-      {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}><img src={url} alt="" /><span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
+      {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}>{url ? <TexturePreview url={url} /> : null}<span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
       <footer>
         <button type="button" onClick={() => setPending(null)}>Cancel</button>
         <button type="button" onClick={addPending}>Add to room</button>

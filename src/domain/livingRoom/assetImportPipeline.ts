@@ -3,6 +3,7 @@ import { PACK_STARTER_ALIASES } from "../catalog/aliases";
 import { resolvePackStarterAlias } from "../catalog/compatibility";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import type { ModelTextureUrls } from "./renderAssetContracts";
+import { storeAssetBlob, type AssetBlobStore } from "./storedAssets";
 
 export type ImportedAsset = {
   id: string;
@@ -97,13 +98,13 @@ export function createImportedAssetObject(
   };
 }
 
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.readAsDataURL(file);
-  });
+async function storeFile(store: AssetBlobStore, file: File): Promise<string> {
+  try {
+    return await storeAssetBlob(store, file);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "storage failed";
+    throw new Error(`Could not store ${file.name} in this browser (${reason}).`);
+  }
 }
 
 function textureSlot(name: string): keyof ModelTextureUrls | null {
@@ -115,8 +116,11 @@ function textureSlot(name: string): keyof ModelTextureUrls | null {
   return null;
 }
 
-/** Persist a GLB and any selected sidecar texture images in the project document. */
-export async function readImportedGlb(files: File | File[]): Promise<ImportedAsset> {
+/**
+ * Store a GLB and any sidecar texture images in the blob store (IndexedDB in the app).
+ * The project document keeps only `idb:` references; project files embed the bytes on save.
+ */
+export async function readImportedGlb(files: File | File[], store: AssetBlobStore): Promise<ImportedAsset> {
   const all = Array.isArray(files) ? files : [files];
   const file = all.find((item) => item.name.toLowerCase().endsWith(".glb"));
   if (!file) throw new Error("Select one GLB file together with any texture images.");
@@ -130,7 +134,7 @@ export async function readImportedGlb(files: File | File[]): Promise<ImportedAss
       .filter((item) => item !== file && item.type.startsWith("image/"))
       .map(async (image) => {
         const slot = textureSlot(image.name);
-        if (slot && !textureUrls[slot]) textureUrls[slot] = await readFileAsDataUrl(image);
+        if (slot && !textureUrls[slot]) textureUrls[slot] = await storeFile(store, image);
       }),
   );
   return {
@@ -139,7 +143,7 @@ export async function readImportedGlb(files: File | File[]): Promise<ImportedAss
     category: "imported",
     kind: "custom",
     dimensions: { widthMm: 1000, heightMm: 1000, depthMm: 1000 },
-    sourceUrl: await readFileAsDataUrl(file),
+    sourceUrl: await storeFile(store, file),
     ...(Object.keys(textureUrls).length ? { textureUrls } : {}),
   };
 }
