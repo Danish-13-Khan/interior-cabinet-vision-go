@@ -97,3 +97,10 @@
   background: transparent;
   box-shadow: none;
 }
+
+.interiors-review-export {
+  display: grid;
+  gap: 6px;
+}
+
+.interiors-review-export small { color: var(--muted, #5d6b62); }

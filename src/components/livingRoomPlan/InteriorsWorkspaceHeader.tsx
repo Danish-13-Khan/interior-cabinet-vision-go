@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { interiorsSaveLabel } from "../../domain/desktopUx";
+import { useStorageWarnings } from "../../hooks/useStorageWarnings";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { InteriorsChromeIcon } from "./InteriorsChromeIcons";
 import { InteriorsWorkspaceFileMenu } from "./InteriorsWorkspaceFileMenu";
@@ -36,6 +37,7 @@ type InteriorsWorkspaceHeaderProps = {
 export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
   const { projectName, workspaceView, isDirty, autosaveState, chromeLocked = false, projectHome = false } = props;
   const saveLabel = interiorsSaveLabel(isDirty, autosaveState);
+  const storageWarnings = useStorageWarnings();
   const hasProject = Boolean(projectName);
   const modelActive = workspaceView === "model" || workspaceView === "render";
 
@@ -98,6 +100,13 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
               onClick={() => props.onView("model")} disabled={!hasProject}>3D</button>
           </div>
           <div className="lr-chrome-actions">
+            {storageWarnings.length ? (
+              <p className="lr-storage-warning" role="alert" data-testid="interiors-storage-warning" title={storageWarnings.join("\n")}>
+                <i aria-hidden="true">!</i>
+                <span>{storageWarnings[0]}</span>
+                {storageWarnings.length > 1 ? <b>+{storageWarnings.length - 1}</b> : null}
+              </p>
+            ) : null}
             <button
               type="button"
               className={`lr-chrome-save${isDirty ? " is-dirty" : ""}`}

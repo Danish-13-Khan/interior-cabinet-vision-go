@@ -17,6 +17,7 @@ import { MODEL_VIEW_FRAMELOOP } from "../../domain/livingRoom/modelViewPerf";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
 import { ModelViewCanvasInvalidator } from "./ModelViewCanvasInvalidator";
+import { ModelViewSceneExportBridge } from "./ModelViewSceneExportBridge";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type ModelViewSceneProps = {
@@ -95,6 +96,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     >
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
         <ModelViewCanvasInvalidator revision={invalidateRevision} />
+        <ModelViewSceneExportBridge />
         <CompiledSceneRenderer
           scene={scene}
           selectedIds={selectedIds}

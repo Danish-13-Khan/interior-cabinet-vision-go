@@ -66,12 +66,31 @@ export function readSavedProjects(
   }
 }
 
+export type PersistSavedProjectsResult = "saved" | "quota-exceeded" | "failed" | "unavailable";
+
+export const PROJECT_BROWSER_QUOTA_MESSAGE =
+  "Project too large for browser autosave; save it to a file instead.";
+
+export function isStorageQuotaError(error: unknown): boolean {
+  if (!(error instanceof Error) && !(typeof DOMException !== "undefined" && error instanceof DOMException)) {
+    return false;
+  }
+  const { name } = error as { name: string };
+  return name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED";
+}
+
+/** Never throws: localStorage holds ~5 MB per origin and a large project must not take the app down. */
 export function persistSavedProjects(
   projects: SavedProjectBrowserEntry[],
   storage: Pick<Storage, "setItem"> | null = typeof window !== "undefined"
     ? window.localStorage
     : null,
-) {
-  if (!storage) return;
-  storage.setItem(PROJECT_BROWSER_STORAGE_KEY, JSON.stringify(projects));
+): PersistSavedProjectsResult {
+  if (!storage) return "unavailable";
+  try {
+    storage.setItem(PROJECT_BROWSER_STORAGE_KEY, JSON.stringify(projects));
+    return "saved";
+  } catch (error) {
+    return isStorageQuotaError(error) ? "quota-exceeded" : "failed";
+  }
 }

@@ -17,6 +17,7 @@ import type {
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
 import { normalizeGlbFloorOrigin } from "../../rendering/loaders/normalizeGlbFloorOrigin";
 import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
+import { readStoredAssetUrl, readStoredTextureUrls } from "../../platform/storedAssetUrls";
 
 export type AssetBackedGlbContentProps = {
   url: string;
@@ -64,7 +65,9 @@ export function AssetBackedGlbContent({
   onPointerDown,
 }: AssetBackedGlbContentProps) {
   const modelViewQuality = useModelViewPreviewQuality();
-  const gltf = useGLTF(url);
+  const gltf = useGLTF(readStoredAssetUrl(url));
+  const importedTextures = readStoredTextureUrls(binding.modelTextureUrls);
+  const texturesKey = JSON.stringify(importedTextures ?? null);
   const invalidate = useThree((state) => state.invalidate);
   const castShadow = resolveGlbCastShadow({
     renderMode,
@@ -121,13 +124,13 @@ export function AssetBackedGlbContent({
       modelViewQuality,
       castShadow,
       receiveShadow: true,
-      importedTextures: binding.modelTextureUrls,
+      importedTextures,
       slotPolicies: binding.slotPolicies,
       preserveSourceMaterials: binding.preserveSourceMaterials,
     });
   }, [
     castShadow, groupsKey, materials, modelViewQuality, renderMode, renderQuality,
-    scene, slotKey, binding.modelTextureUrls, binding.slotPolicies,
+    scene, slotKey, texturesKey, binding.slotPolicies,
     binding.preserveSourceMaterials,
   ]);
 

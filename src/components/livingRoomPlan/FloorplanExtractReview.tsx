@@ -3,13 +3,10 @@ import type { InteriorProject } from "../../domain/interiorProject";
 import {
   applyFloorplanToInterior,
   ensureCollisionFreeIds,
-  exportFloorplanBuilding,
-  exportFloorplanGlb,
   normalizeExtraction,
   patchFloorplanGeometry,
   applyImpactKey,
   summarizeFloorplanApplyImpact,
-  wrapSingleFloorBuilding,
   type ExtractionResult,
   type LiveSchemaStatus,
   type NormalizedFloorplan,
@@ -19,6 +16,7 @@ import { FloorplanExtractOverlay } from "./FloorplanExtractOverlay";
 import { FloorplanExtractCalibrate } from "./FloorplanExtractCalibrate";
 import { FloorplanExtractPatchPanel } from "./FloorplanExtractPatchPanel";
 import { FloorplanExtractApplyGate, canPassApplyGate } from "./FloorplanExtractApplyGate";
+import { FloorplanExtractDownloads } from "./FloorplanExtractDownloads";
 
 type Props = {
   draft: ExtractionResult;
@@ -27,7 +25,7 @@ type Props = {
   initialLiveSchema?: LiveSchemaStatus;
   onClose: () => void;
   onApply: (next: InteriorProject, appliedDraft: ExtractionResult, status: string) => void;
-  onError: (message: string) => void;
+  onError?: (message: string) => void;
 };
 
 export function FloorplanExtractReview(props: Props) {
@@ -40,6 +38,8 @@ export function FloorplanExtractReview(props: Props) {
   const [replaceAck, setReplaceAck] = useState(false);
   const [schemaFallbackAck, setSchemaFallbackAck] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const fail = (message: string) => { setError(message); if (message) props.onError?.(message); };
 
   useEffect(() => {
     setWorkingDraft(ensureCollisionFreeIds(props.draft));
@@ -49,6 +49,7 @@ export function FloorplanExtractReview(props: Props) {
     setReplaceAck(false);
     setSchemaFallbackAck(false);
     setBusy(false);
+    setError("");
   }, [props.draftKey, props.draft, props.initialLiveSchema]);
 
   const normalized: NormalizedFloorplan = useMemo(
@@ -67,6 +68,7 @@ export function FloorplanExtractReview(props: Props) {
 
   const runPatch = async (ops: Parameters<typeof patchFloorplanGeometry>[1]) => {
     setBusy(true);
+    setError("");
     try {
       const ingest = await patchFloorplanGeometry(ensureCollisionFreeIds(workingDraft), ops);
       setWorkingDraft(ensureCollisionFreeIds(ingest.draft));
@@ -74,7 +76,7 @@ export function FloorplanExtractReview(props: Props) {
       setScaleConfirmed(false);
       setSchemaFallbackAck(false);
     } catch (error) {
-      props.onError(error instanceof Error ? error.message : "Patch failed.");
+      fail(error instanceof Error ? error.message : "Patch failed.");
     } finally {
       setBusy(false);
     }
@@ -87,15 +89,8 @@ export function FloorplanExtractReview(props: Props) {
       props.onApply(next, workingDraft, "Applied floor plan topology (shell replacement).");
       props.onClose();
     } catch (error) {
-      props.onError(error instanceof Error ? error.message : "Apply failed.");
+      fail(error instanceof Error ? error.message : "Apply failed.");
     }
-  };
-
-  const downloadBlob = (blob: Blob, name: string) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = name; a.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -104,6 +99,8 @@ export function FloorplanExtractReview(props: Props) {
         <strong>Floor plan → 3D</strong>
         <button type="button" onClick={props.onClose} disabled={busy}>Close</button>
       </header>
+
+      {error ? <p className="lr-import-error" role="alert" data-testid="lr-floorplan-extract-error">{error}</p> : null}
 
       <FloorplanExtractOverlay draft={workingDraft} normalized={normalized} />
 
@@ -126,7 +123,7 @@ export function FloorplanExtractReview(props: Props) {
           try {
             void runPatch([{ kind: "upsert_polygon", group, polygon: JSON.parse(polygonJson) as unknown }]);
           } catch {
-            props.onError("Polygon JSON is invalid.");
+            fail("Polygon JSON is invalid.");
           }
         }}
         onSetWallHeight={(heightM) => {
@@ -174,24 +171,7 @@ export function FloorplanExtractReview(props: Props) {
       )}
 
       <footer>
-        <button type="button" disabled={busy} onClick={() => void (async () => {
-          setBusy(true);
-          try { downloadBlob(await exportFloorplanGlb(normalized.draft), "floorplan-preview.glb"); }
-          catch (e) { props.onError(e instanceof Error ? e.message : "GLB export failed."); }
-          finally { setBusy(false); }
-        })()}>
-          {busy ? "Exporting…" : "Download GLB preview"}
-        </button>
-        <button type="button" disabled={busy} onClick={() => void (async () => {
-          setBusy(true);
-          try {
-            downloadBlob(await exportFloorplanBuilding(wrapSingleFloorBuilding(normalized.draft)), "floorplan-building.glb");
-          } catch (e) {
-            props.onError(e instanceof Error ? e.message : "Building export failed.");
-          } finally { setBusy(false); }
-        })()}>
-          Download building GLB
-        </button>
+        <FloorplanExtractDownloads draft={normalized.draft} busy={busy} onBusy={setBusy} onError={fail} />
         <button type="button" data-testid="lr-floorplan-extract-apply" disabled={!applyEnabled || busy}
           title={!applyEnabled ? "Confirm scale and Apply gates" : "Apply shell replacement"}
           onClick={apply}>

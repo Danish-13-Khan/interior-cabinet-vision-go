@@ -2,15 +2,19 @@ import { interiorsCabinetRunFamilyItems, type InteriorsChromeTool } from "../../
 import { LIVING_ROOM_CATALOG } from "../../domain/livingRoom";
 import { catalogPreviewFallbackLabel } from "../../domain/livingRoom/modelQualityFeedback";
 import { livingRoomThumbnailUrl } from "../../domain/livingRoom/livingRoomThumbnails";
+import type { ImportedAsset } from "../../domain/livingRoom";
+import { AssetImportPanel } from "./AssetImportPanel";
 
 export function InteriorsCabinetRunCatalog({
   tool,
   wallId,
   onAdd,
+  onImport,
 }: {
   tool: InteriorsChromeTool;
   wallId: string;
   onAdd: (catalogItemId: string, wallId?: string) => void;
+  onImport?: (asset: ImportedAsset) => void;
 }) {
   const families = interiorsCabinetRunFamilyItems(tool, LIVING_ROOM_CATALOG);
   return (
@@ -19,6 +23,7 @@ export function InteriorsCabinetRunCatalog({
         <strong>{tool === "shelf" ? "Open shelf" : "Cabinet families"}</strong>
         <span>Place on the selected wall · same identities in 2D and 3D</span>
       </div>
+      {onImport ? <AssetImportPanel cabinetMode onAdd={onImport} /> : null}
       <div className="lr-asset-grid lr-run-catalog" data-testid="interiors-cabinet-run-catalog">
         {families.map((item) => {
           const thumbnailUrl = livingRoomThumbnailUrl(item.id);
