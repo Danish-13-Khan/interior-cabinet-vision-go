@@ -11,14 +11,14 @@ test("Phase 5 L Kitchen: template → L run + appliances → 3D → save → reo
   await expect(page.locator(".lr-plan-titlebar")).toContainText("L Kitchen");
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
 
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:kitchen-fridge"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:kitchen-stove-electric"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:kitchen-sink"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:hood-modern"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:kitchen-microwave"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kitchen-fridge-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kitchen-stove-electric-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kitchen-sink-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="hood-modern-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kitchen-microwave-1"]')).toHaveCount(1);
   await expect(page.locator('.lr-plan-svg [data-catalog-item-id="living:base-cabinet-900"]')).toHaveCount(3);
   await expect(page.locator('.lr-plan-svg [data-catalog-item-id="living:tall-pantry-600"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="cabinet:corner"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-cabinet-type="corner"]')).toHaveCount(1);
 
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
@@ -35,9 +35,9 @@ test("Phase 5 L Kitchen: template → L run + appliances → 3D → save → reo
   await recent.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeHidden();
   await expect(page.locator(".lr-plan-titlebar")).toContainText("L Kitchen");
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:kitchen-fridge"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="cabinet:corner"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kitchen-fridge-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-cabinet-type="corner"]')).toHaveCount(1);
   await expect(page.locator('.lr-plan-svg [data-catalog-item-id="living:base-cabinet-900"]')).toHaveCount(3);
 });

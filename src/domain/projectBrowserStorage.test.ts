@@ -4,6 +4,8 @@ import { readProposalCommercial } from "./livingRoom/proposal";
 import { createApprovedHandoffProject } from "./livingRoom/handoff/handoff.testHelpers";
 import { patchProposalJob } from "./livingRoom/proposal/commercialState";
 import {
+  isStorageQuotaError,
+  persistSavedProjects,
   readSavedProjects,
   upsertSavedProjectEntry,
   type SavedProjectBrowserEntry,
@@ -50,5 +52,31 @@ describe("project browser workflow persistence", () => {
 
     const reopened = readSavedProjects(storage);
     expect(readProposalCommercial(reopened[0]!.project.interiorDocument!).job.status).toBe("approved");
+  });
+});
+
+describe("persistSavedProjects", () => {
+  const approvedEntry = () => entry("saved-project", createApprovedHandoffProject(NOW));
+
+  it("reports quota errors instead of throwing", () => {
+    const storage = {
+      setItem: () => { throw new DOMException("Setting the value exceeded the quota.", "QuotaExceededError"); },
+    };
+    expect(() => persistSavedProjects([approvedEntry()], storage)).not.toThrow();
+    expect(persistSavedProjects([approvedEntry()], storage)).toBe("quota-exceeded");
+  });
+
+  it("reports other storage failures and success", () => {
+    const broken = { setItem: () => { throw new Error("SecurityError"); } };
+    expect(persistSavedProjects([approvedEntry()], broken)).toBe("failed");
+    expect(persistSavedProjects([approvedEntry()], { setItem: () => {} })).toBe("saved");
+    expect(persistSavedProjects([approvedEntry()], null)).toBe("unavailable");
+  });
+
+  it("recognises quota errors across browsers", () => {
+    expect(isStorageQuotaError(new DOMException("full", "QuotaExceededError"))).toBe(true);
+    expect(isStorageQuotaError(Object.assign(new Error("full"), { name: "NS_ERROR_DOM_QUOTA_REACHED" }))).toBe(true);
+    expect(isStorageQuotaError(new Error("other"))).toBe(false);
+    expect(isStorageQuotaError("QuotaExceededError")).toBe(false);
   });
 });

@@ -72,6 +72,7 @@
 @import "./styles/responsive.css";
 @import "./styles/planner-responsive.css";
 @import "./styles/interiors-chrome.css";
+@import "./styles/storage-warning.css";
 /* Shared Interiors shell is last so it overrides planner V2 / reference / home. */
 @import "./styles/interiors-chrome-workspace.css";
 @import "./styles/interiors-chrome-projects.css";

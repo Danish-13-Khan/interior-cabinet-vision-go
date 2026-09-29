@@ -29,7 +29,7 @@ test("Phase 5 Empty Room: template → shell only → 3D → save → reopen", a
   await recent.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeHidden();
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Empty Room");
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
   await expect(page.locator(".lr-plan-svg [data-catalog-item-id]")).toHaveCount(0);
   await expect(page.locator("g.lr-opening-door")).toHaveCount(1);

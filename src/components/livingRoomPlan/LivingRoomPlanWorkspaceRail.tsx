@@ -3,9 +3,11 @@ import { requestSelectionFrame } from "../../utils/selectionFrameRequest";
 import { inspectPlanTarget } from "./planInspectTarget";
 import { LivingRoomPlanCatalogRail } from "./LivingRoomPlanCatalogRail";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import type { FloorplanExtractLauncherState } from "../../hooks/useFloorplanExtractFlow";
 
 export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyProps & {
   onImportUnderlay: (file: File | null) => void | Promise<void>;
+  floorplanExtract?: FloorplanExtractLauncherState;
 }) {
   const { workspace: w, project, room, build } = props;
   return (
@@ -70,6 +72,7 @@ export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyPr
       }}
       onRegisterUnderlayPicker={(openPicker) => { props.underlayPickerRef.current = openPicker; }}
       onImportUnderlay={props.onImportUnderlay}
+      floorplanExtract={props.floorplanExtract}
     />
   );
 }

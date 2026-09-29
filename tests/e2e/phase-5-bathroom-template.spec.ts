@@ -18,12 +18,12 @@ test("Phase 5 Bathroom: template → 2D → finish → 3D → save → reopen", 
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Bathroom");
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
   await expect(page.locator(".lr-plan-svg [data-catalog-item-id]")).toHaveCount(4);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:toilet"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:bathroom-sink"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:bathroom-mirror"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:shower"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="toilet-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="bathroom-sink-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="bathroom-mirror-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="shower-1"]')).toHaveCount(1);
 
-  await selectCatalogObject(page, "kenney:bathroom-sink");
+  await selectCatalogObject(page, "bathroom-sink-1");
   await expect(page.getByTestId("interiors-inspector")).toContainText("Bathroom Sink");
   const ceramic = page.locator('[data-material-slot="ceramic"]');
   await expect(ceramic).toBeVisible();
@@ -45,11 +45,11 @@ test("Phase 5 Bathroom: template → 2D → finish → 3D → save → reopen", 
   await recent.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeHidden();
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Bathroom");
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:bathroom-sink"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="bathroom-sink-1"]')).toHaveCount(1);
 
-  await selectCatalogObject(page, "kenney:bathroom-sink");
+  await selectCatalogObject(page, "bathroom-sink-1");
   await expect(
     page.locator('[data-material-slot="ceramic"] [data-material-id="material:core:planter-terracotta:v1"]'),
   ).toHaveClass(/is-active/);

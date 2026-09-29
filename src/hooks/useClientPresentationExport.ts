@@ -16,6 +16,7 @@ import {
   writeBinaryBlob,
   writeTextFile,
 } from "../platform/desktopFiles";
+import { portableProject } from "./portableProjectFile";
 
 export function useClientPresentationExport() {
   const [status, setStatus] = useState("");
@@ -31,7 +32,7 @@ export function useClientPresentationExport() {
     setStatus("");
     try {
       const { packageData, files } = await assembleClientPresentationFiles(
-        project,
+        await portableProject(project),
         render,
         new Date().toISOString(),
         acceptedStills,

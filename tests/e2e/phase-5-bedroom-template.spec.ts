@@ -18,14 +18,14 @@ test("Phase 5 Bedroom: template → 2D → finish → 3D → save → reopen", a
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Bedroom");
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
   await expect(page.locator(".lr-plan-svg [data-catalog-item-id]")).toHaveCount(7);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:bed-double"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:cabinet-bed-drawer-table"]')).toHaveCount(2);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:lamp-round-table"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:bookcase-open"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:rug-rectangle"]')).toHaveCount(1);
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:pillow"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="bed-double-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="cabinet-bed-drawer-table-1"]')).toHaveCount(2);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="lamp-round-table-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="bookcase-open-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="rug-rectangle-1"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="pillow-1"]')).toHaveCount(1);
 
-  await selectCatalogObject(page, "kenney:bed-double");
+  await selectCatalogObject(page, "bed-double-1");
   await expect(page.getByTestId("interiors-inspector")).toContainText("Double Bed");
   const upholstery = page.locator('[data-material-slot="upholstery"]');
   await expect(upholstery).toBeVisible();
@@ -47,11 +47,11 @@ test("Phase 5 Bedroom: template → 2D → finish → 3D → save → reopen", a
   await recent.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeHidden();
   await expect(page.locator(".lr-plan-titlebar")).toContainText("Bedroom");
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:bed-double"]')).toHaveCount(1);
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="bed-double-1"]')).toHaveCount(1);
 
-  await selectCatalogObject(page, "kenney:bed-double");
+  await selectCatalogObject(page, "bed-double-1");
   await expect(
     page.locator('[data-material-slot="upholstery"] [data-material-id="material:core:fabric-olive:v1"]'),
   ).toHaveClass(/is-active/);

@@ -54,7 +54,7 @@ test("Phase M7 exit journey: room → 3D → camera → hide → materials → p
   });
 
   await test.step("Add a feature wall panel", async () => {
-    await page.getByRole("button", { name: "2D", exact: true }).click();
+    await page.getByRole("button", { name: "2D plan", exact: true }).click();
     await expect(page.locator("[data-room-floor]").first()).toHaveAttribute("fill", WALNUT_HEX);
     await selectWall(page, PANEL_WALL);
     await page.getByTestId("add-wall-panel").click();

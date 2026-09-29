@@ -93,6 +93,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           issues={props.issues}
           proposal={props.proposal}
           underlayInputRef={underlayInputRef}
+          floorplanExtract={props.floorplanExtract}
           onRoomDimensions={props.onRoomDimensions}
           onAddPartitionWall={props.onAddPartitionWall}
           onActiveRoom={props.onActiveRoom}

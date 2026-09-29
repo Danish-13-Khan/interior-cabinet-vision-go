@@ -9,6 +9,7 @@ import type { ModelViewFitMode, ModelViewFitSelection } from "../../domain/livin
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import { resolveContactShadowLook } from "../../domain/livingRoom/clientGrounding";
+import { EXCLUDE_FROM_EXPORT } from "../../rendering/sceneExport/sceneExportFilter";
 import {
   MODEL_VIEW_ZOOM_TO_CURSOR,
   resolveModelViewMaxPolarAngle,
@@ -86,16 +87,18 @@ export function ModelViewInteractionRig({
   }, frameRun);
   return (
     <>
-      <ContactShadows
-        key={`${renderQuality}-${renderMode}`}
-        position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
-        scale={Math.max(8, roomSpan + 1)}
-        opacity={contactShadow.opacity}
-        blur={contactShadow.blur}
-        far={lightingQuality.contactShadowFarMeters}
-        resolution={lightingQuality.contactShadowResolution}
-        frames={lightingQuality.contactShadowFrames}
-      />
+      <group userData={{ [EXCLUDE_FROM_EXPORT]: true }}>
+        <ContactShadows
+          key={`${renderQuality}-${renderMode}`}
+          position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
+          scale={Math.max(8, roomSpan + 1)}
+          opacity={contactShadow.opacity}
+          blur={contactShadow.blur}
+          far={lightingQuality.contactShadowFarMeters}
+          resolution={lightingQuality.contactShadowResolution}
+          frames={lightingQuality.contactShadowFrames}
+        />
+      </group>
       {interactive ? (
         <OrbitControls
           ref={controlsRef}
