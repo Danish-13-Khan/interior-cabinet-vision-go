@@ -1,3 +1,4 @@
+import { noteProjectSnapshot } from "../domain/projectSnapshots/capture";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { millworkAssetCategories } from "../domain/livingRoom/millworkShortcuts";
@@ -156,9 +157,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
         roomPolygonPointCount={roomPolygonPointCount} roomPolygonCloseRequest={roomPolygonCloseRequest}
         onRoomPolygonPointCount={setRoomPolygonPointCount}
-        onRoomPolygonCloseRequest={() => setRoomPolygonCloseRequest((count) => count + 1)}
+        onRoomPolygonCloseRequest={() => { setRoomPolygonCloseRequest((count) => count + 1); noteProjectSnapshot("room-closed"); }}
         renderResults={renderResults}
-        onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
+        onRenderResults={(result) => { setRenderResults((current) => ({ latest: result, previous: current.latest })); noteProjectSnapshot("render"); }}
         build={build} activeBuildTool={build.buildCommandState.activeTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
         proposal={proposal} handoff={handoff}

@@ -1,6 +1,12 @@
 import type { ProjectDraft } from "./types";
 
-/** Documents prune must treat as live: the open project plus every draft. */
-export function documentsInUse(current: unknown, drafts: readonly ProjectDraft[]): unknown[] {
-  return [current, ...drafts.map((draft) => draft.document)];
+type StoredDocument = { document: unknown };
+
+/** Documents prune must treat as live: the open project, every draft, and every snapshot. */
+export function documentsInUse(
+  current: unknown,
+  drafts: readonly ProjectDraft[] | readonly StoredDocument[],
+  snapshots: readonly StoredDocument[] = [],
+): unknown[] {
+  return [current, ...drafts.map((draft) => draft.document), ...snapshots.map((snapshot) => snapshot.document)];
 }

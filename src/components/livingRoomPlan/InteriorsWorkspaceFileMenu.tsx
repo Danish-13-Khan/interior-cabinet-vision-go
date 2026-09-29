@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { VersionHistoryMenu } from "./VersionHistoryMenu";
 
 type InteriorsWorkspaceFileMenuProps = {
   disabled?: boolean;
@@ -72,6 +73,7 @@ export function InteriorsWorkspaceFileMenu({
           <button type="button" role="menuitem" onClick={() => run(onSave)}>
             Save
           </button>
+          <VersionHistoryMenu />
           <button type="button" role="menuitem" onClick={() => run(onExport)}>
             Export JSON…
           </button>
