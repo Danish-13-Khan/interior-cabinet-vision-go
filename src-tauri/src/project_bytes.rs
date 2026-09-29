@@ -1,15 +1,9 @@
+use crate::backups::{backup_dir, rotate_backups};
+use crate::safe_write::atomic_write;
 use std::fs;
 use std::path::Path;
 use tauri::ipc::{InvokeBody, Request, Response};
-
-fn ensure_parent_dir(path: &str) -> Result<(), String> {
-    if let Some(parent) = Path::new(path).parent() {
-        if !parent.as_os_str().is_empty() {
-            fs::create_dir_all(parent).map_err(|error| error.to_string())?;
-        }
-    }
-    Ok(())
-}
+use tauri::Manager;
 
 pub fn percent_decode(input: &str) -> String {
     let bytes = input.as_bytes();
@@ -42,8 +36,7 @@ pub fn path_from_headers(path_header: Option<&str>) -> Result<String, String> {
 }
 
 pub fn write_project_bytes(path: &str, bytes: &[u8]) -> Result<(), String> {
-    ensure_parent_dir(path)?;
-    fs::write(path, bytes).map_err(|error| error.to_string())
+    atomic_write(Path::new(path), bytes)
 }
 
 pub fn read_project_bytes(path: &str) -> Result<Vec<u8>, String> {
@@ -51,17 +44,28 @@ pub fn read_project_bytes(path: &str) -> Result<Vec<u8>, String> {
 }
 
 #[tauri::command]
-pub fn save_project_bytes(request: Request<'_>) -> Result<(), String> {
+pub fn save_project_bytes(app: tauri::AppHandle, request: Request<'_>) -> Result<(), String> {
     let header = request
         .headers()
         .get("path")
         .and_then(|value| value.to_str().ok());
     let path = path_from_headers(header)?;
+    let project_id = request
+        .headers()
+        .get("project-id")
+        .and_then(|value| value.to_str().ok())
+        .map(percent_decode);
     let bytes = match request.body() {
         InvokeBody::Raw(bytes) => bytes.clone(),
         InvokeBody::Json(_) => return Err("Project save expected raw bytes.".into()),
     };
-    write_project_bytes(&path, &bytes)
+    write_project_bytes(&path, &bytes)?;
+    if let Some(project_id) = project_id {
+        if let Ok(dir) = app.path().app_data_dir() {
+            let _ = rotate_backups(&backup_dir(&dir, &project_id), &bytes);
+        }
+    }
+    Ok(())
 }
 
 #[tauri::command]

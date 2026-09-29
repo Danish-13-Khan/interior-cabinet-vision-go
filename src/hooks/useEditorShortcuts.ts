@@ -10,6 +10,7 @@ type EditorShortcutActions = {
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
+  onSaveAs: () => void;
   onNew: () => void;
   onCopy: () => void;
   onPaste: () => void;
@@ -38,6 +39,7 @@ const ACTION_KEYS: Array<[ShortcutActionId, keyof EditorShortcutActions]> = [
   ["undo", "onUndo"],
   ["redo", "onRedo"],
   ["save", "onSave"],
+  ["saveAs", "onSaveAs"],
   ["new", "onNew"],
   ["copy", "onCopy"],
   ["paste", "onPaste"],
@@ -63,6 +65,7 @@ const ACTION_KEYS: Array<[ShortcutActionId, keyof EditorShortcutActions]> = [
 
 const BLOCKED_WHILE_TYPING: ShortcutActionId[] = [
   "save",
+  "saveAs",
   "new",
   "copy",
   "paste",

@@ -15,6 +15,7 @@ import { useReviewWorkflow } from "./useReviewWorkflow";
 import { useProjectPreferences } from "./useProjectPreferences";
 import { useAppContextMenus } from "./useAppContextMenus";
 import { useAppCommandUi } from "./useAppCommandUi";
+import { useDirtyWindowTitle } from "./useDirtyWindowTitle";
 import { useAppControllerCabinets } from "./useAppControllerCabinets";
 import { useAppControllerSession } from "./useAppControllerSession";
 import { useSceneTreeOps } from "./useSceneTreeOps";
@@ -187,6 +188,7 @@ export function useAppController() {
     onUndo: s.handleUndo,
     onRedo: s.handleRedo,
     onSave: () => { void fileIo.handleSaveProject(); },
+    onSaveAs: () => { void fileIo.handleSaveAsProject(); },
     onReset: cabinets.handleReset,
     onCopy: cabinets.handleCopySelection,
     onPaste: cabinets.handlePasteSelection,
@@ -231,6 +233,8 @@ export function useAppController() {
     onReleaseForProduction: review.handleReleaseForProduction,
     onExportRevisionSummary: review.handleExportRevisionSummary,
   });
+
+  useDirtyWindowTitle(fileIo.isProjectDirty, s.project.interiorDocument?.name ?? "Interior Cabinet Designer");
 
   const activeRoomName = getActiveProjectRoom(s.project).name;
   const workspaceLabel =

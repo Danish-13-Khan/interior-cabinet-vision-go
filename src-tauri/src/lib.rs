@@ -1,8 +1,10 @@
 use base64::Engine;
 use tauri::Emitter;
 
+mod backups;
 mod open_path;
 mod project_bytes;
+mod safe_write;
 use std::fs;
 use std::path::Path;
 

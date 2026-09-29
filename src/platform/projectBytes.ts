@@ -22,14 +22,19 @@ function toArrayBuffer(payload: ArrayBuffer | ArrayBufferView | number[]): Array
 }
 
 /** Raw bytes, not base64, so a cabinet file is not inflated on the way to disk. */
-export async function writeProjectBytes(path: string, bytes: Uint8Array): Promise<void> {
+export async function writeProjectBytes(path: string, bytes: Uint8Array, projectId?: string): Promise<void> {
   const copy = copyBytes(bytes);
   if (!inTauri()) {
     await enqueueBrowserDownload(new Blob([copy], { type: CABINET_MIME }), cabinetFileName(path));
     return;
   }
   const { invoke } = await import("@tauri-apps/api/core");
-  await invoke("save_project_bytes", copy, { headers: { path: encodeURIComponent(path) } });
+  await invoke("save_project_bytes", copy, {
+    headers: {
+      path: encodeURIComponent(path),
+      ...(projectId ? { "project-id": encodeURIComponent(projectId) } : {}),
+    },
+  });
 }
 
 export async function readProjectBytes(path: string): Promise<ArrayBuffer> {
