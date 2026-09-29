@@ -7,9 +7,6 @@ function isMesh(value: Object3D): value is Mesh {
 
 /** Bake root transforms, convert units, optionally Z-up to Y-up, then sit the model on y = 0. */
 export function normalizeImportedObject(root: Object3D, options: { scaleToMm: number; rotateZUp: boolean }): Size3Mm {
-  root.position.set(0, 0, 0);
-  root.rotation.set(0, 0, 0);
-  root.scale.set(1, 1, 1);
   if (options.rotateZUp) root.rotateX(-Math.PI / 2);
   root.scale.setScalar(options.scaleToMm);
   root.updateMatrixWorld(true);

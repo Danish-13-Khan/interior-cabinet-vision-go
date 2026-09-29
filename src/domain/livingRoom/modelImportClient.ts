@@ -31,8 +31,12 @@ export async function importModel(request: ImportRequest): Promise<ImportResult>
   return runImport(next);
 }
 
-export async function measureGlbImport(files: { name: string; bytes: ArrayBuffer }[], settings: ImportSettings): Promise<ImportResult> {
-  return importModel({ files, settings });
+export async function measureGlbImport(
+  files: { name: string; bytes: ArrayBuffer }[],
+  settings: ImportSettings,
+  honorFileUnits = true,
+): Promise<ImportResult> {
+  return importModel({ files, settings, honorFileUnits });
 }
 
 export function defaultGlbSettings(unit: LengthUnit = "m"): ImportSettings {

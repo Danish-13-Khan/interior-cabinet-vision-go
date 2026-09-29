@@ -17,6 +17,7 @@ export type ImportedAsset = {
   importUnit?: "mm" | "cm" | "m" | "in" | "ft";
   /** Largest side in file units, so the dialog can show every candidate. */
   rawLargestSide?: number;
+  importWarnings?: string[];
 };
 
 /** Historical pack footprints preserved so old layouts and pack UI stay familiar. */

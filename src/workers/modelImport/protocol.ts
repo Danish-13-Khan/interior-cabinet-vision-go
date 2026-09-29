@@ -14,6 +14,8 @@ export type ImportRequest = {
   settings: ImportSettings;
   /** When the spike fails, textures stay on the main thread. */
   texturesOnMain?: boolean;
+  /** FBX unit scale and OBJ exporter comments win until the user picks a unit. */
+  honorFileUnits?: boolean;
 };
 
 export type ImportResult = {
