@@ -29,6 +29,7 @@ export type InteriorsWorkflowAreaPanelProps = {
   issues: import("../../domain/livingRoom").LivingRoomPlanIssue[];
   proposal: ReturnType<typeof useProposalWorkflow>;
   underlayInputRef: React.RefObject<HTMLInputElement | null>;
+  floorplanExtract?: import("../../hooks/useFloorplanExtractFlow").FloorplanExtractLauncherState;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onAddPartitionWall: () => void;
   onActiveRoom?: (roomId: string) => void;

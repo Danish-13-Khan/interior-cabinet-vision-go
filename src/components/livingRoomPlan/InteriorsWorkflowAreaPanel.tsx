@@ -3,6 +3,7 @@ import { isLivingRoomLayerVisible } from "../../domain/livingRoom";
 import { InteriorsCabinetRunCatalog } from "./InteriorsCabinetRunCatalog";
 import { BuildRoomCatalogPanel } from "./BuildRoomCatalogPanel";
 import { CatalogObjectBrowser } from "./CatalogObjectBrowser";
+import { FloorplanExtractLauncher } from "./FloorplanExtractLauncher";
 import { InteriorsReviewPanel } from "./InteriorsReviewPanel";
 import { PlanAssetLibraryPanel } from "./PlanAssetLibraryPanel";
 import { SurfacePaintPanel } from "./SurfacePaintPanel";
@@ -34,9 +35,11 @@ export function InteriorsWorkflowAreaPanel(props: InteriorsWorkflowAreaPanelProp
           onImportFinish={props.onImportFinish} />
       </>;
     case "object-browser":
-      return <CatalogObjectBrowser onPlace={(catalogItemId) => props.onAddCatalogObject(catalogItemId)} />;
+      return <CatalogObjectBrowser onPlace={(catalogItemId) => props.onAddCatalogObject(catalogItemId)}
+        onImport={props.onAddImportedAsset} />;
     case "cabinet-run":
-      return <InteriorsCabinetRunCatalog tool={props.chromeTool} wallId={wallId} onAdd={props.onAddCatalogObject} />;
+      return <InteriorsCabinetRunCatalog tool={props.chromeTool} wallId={wallId} onAdd={props.onAddCatalogObject}
+        onImport={props.onAddImportedAsset} />;
     case "cabinet-library":
       return (
         <PlanAssetLibraryPanel mode="cabinets" wallName={String(props.activeWall?.extensions?.wallSide ?? "wall")}
@@ -67,6 +70,7 @@ export function InteriorsWorkflowAreaPanel(props: InteriorsWorkflowAreaPanelProp
           onSetPlanUnderlay={props.onSetPlanUnderlay} onImportUnderlay={props.onImportUnderlay}
           underlayInputRef={props.underlayInputRef}
           onCalibrateUnderlay={props.onCalibrateUnderlay} onToggleSiteMeasure={props.onToggleSiteMeasure} />
+        {props.floorplanExtract ? <FloorplanExtractLauncher state={props.floorplanExtract} /> : null}
       </>;
   }
 }

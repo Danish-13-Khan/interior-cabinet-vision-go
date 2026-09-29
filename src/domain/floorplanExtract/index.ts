@@ -44,3 +44,4 @@ export type {
 } from "./types";
 export { coerceExtractionToMeters, rescaleExtractionCoords } from "./units";
 export { assertExtractionShape } from "./validateExtract";
+export { canExtractFromUnderlay, underlayToFile, underlayUploadName } from "./underlayFile";

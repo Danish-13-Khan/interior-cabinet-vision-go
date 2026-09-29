@@ -55,6 +55,7 @@ export type LivingRoomPlanCatalogRailProps = {
   onToggleSiteMeasure?: (key: import("../../domain/livingRoom").SiteMeasureUserKey, value: boolean) => void;
   onImportUnderlay: (file: File | null) => void;
   onRegisterUnderlayPicker?: (openPicker: () => void) => void;
+  floorplanExtract?: import("../../hooks/useFloorplanExtractFlow").FloorplanExtractLauncherState;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onActiveRoom?: (roomId: string) => void;
   onRenameRoom?: (roomId: string, name: string) => void;
