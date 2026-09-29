@@ -1,5 +1,4 @@
 import { expect, type Page } from "@playwright/test";
-import { LIVING_ROOM_RECOVERY_STORAGE_KEY } from "../../src/domain/livingRoom";
 import { E2E_SESSION_JSON, expectInteriorsHome, loadGoldenCabinetRun } from "./plannerStart";
 
 export const TABLET_VIEWPORT = { width: 1024, height: 768 };
@@ -38,10 +37,7 @@ export async function assertPresentTabletLayout(page: Page) {
 }
 
 export async function waitForRecoveryAutosave(page: Page) {
-  await expect.poll(
-    () => page.evaluate((key) => window.localStorage.getItem(key), LIVING_ROOM_RECOVERY_STORAGE_KEY),
-    { timeout: 8_000 },
-  ).toBeTruthy();
+  await expect(page.getByTestId("interiors-save-state")).toContainText("Saved", { timeout: 8_000 });
 }
 
 /** Clear storage once, then open Golden without an init script that wipes recovery on reload. */
@@ -79,7 +75,7 @@ export async function assertProjectsFocusSurvivesAutosaveRerender(page: Page) {
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await expect(openButton).toBeFocused();
-  await page.clock.fastForward(1_200);
+  await page.clock.fastForward(2_000);
   await waitForRecoveryAutosave(page);
   await expect(openButton).toBeFocused();
 }

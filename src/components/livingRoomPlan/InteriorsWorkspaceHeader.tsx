@@ -114,7 +114,7 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
               onClick={props.onSave}
               disabled={!hasProject || autosaveState === "saving"}
             >
-              {saveLabel === "Saved" ? <InteriorsChromeIcon name="check" /> : null}
+              {saveLabel.startsWith("Saved") ? <InteriorsChromeIcon name="check" /> : null}
               {saveLabel}
             </button>
             <button

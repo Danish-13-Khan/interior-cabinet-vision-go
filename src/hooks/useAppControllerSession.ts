@@ -25,6 +25,7 @@ import { useWorkshopLibrary } from "./useWorkshopLibrary";
 import { useEditorHistory, captureEditorSnapshot } from "./useEditorHistory";
 import { useUserTemplates } from "./useUserTemplates";
 import { useSavedProjectBrowser } from "./useSavedProjectBrowser";
+import { isTauriRuntime } from "../platform/desktopFiles";
 import { useDesktopLayout } from "./useDesktopLayout";
 import { useShortcutMap } from "./useShortcutMap";
 import { useRecentFiles } from "./useRecentFiles";
@@ -167,6 +168,8 @@ export function useAppControllerSession() {
     },
     applySnapshot,
     onStatus: setProjectStatus,
+    filePath: projectFilePath,
+    platform: isTauriRuntime() ? "desktop" : "web",
   });
 
   async function setLivingRoomBrowserThumbnail(dataUrl: string) {

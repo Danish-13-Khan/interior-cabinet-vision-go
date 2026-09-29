@@ -20,6 +20,7 @@ import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspacePro
 import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
 import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
 import { useSelectionFrameRequest } from "../hooks/useSelectionFrameRequest";
+import { ProjectTabLockNotice } from "./ProjectTabLockNotice";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const draftingAppearance = useDraftingAppearance();
@@ -140,6 +141,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       presenting: chrome.plannerMode === "render",
     }).join(" ")} data-drafting-appearance={draftingAppearance.appearance}>
       {header}
+      <ProjectTabLockNotice projectId={props.project?.id ?? null} />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
         workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode}

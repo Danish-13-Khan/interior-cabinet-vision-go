@@ -120,8 +120,7 @@ test.describe("Phase 7 hardening", () => {
     await page.reload();
     const interiorsTab = page.getByRole("button", { name: "Interiors", exact: true });
     if (await interiorsTab.count()) await interiorsTab.click();
-    await expect(page.getByTestId("interiors-recovery")).toBeVisible();
-    await page.getByTestId("interiors-recovery-restore").click();
+    await expect(page.getByTestId("interiors-recovery")).toHaveCount(0);
     await expect(page.getByTestId("interiors-projects-home")).toHaveCount(0);
     await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
     await expect(cabinetWidthNode(page, GOLDEN_RUN_OBJECT_IDS.baseA))
