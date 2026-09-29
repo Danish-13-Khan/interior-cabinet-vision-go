@@ -53,7 +53,7 @@ test.describe("Phase 7 hardening", () => {
     await dismiss3dGuideIfVisible(page);
     await expect(page.getByRole("button", { name: "3D", exact: true })).toHaveClass(/is-active/);
     await page.keyboard.press("1");
-    await expect(page.getByRole("button", { name: "2D", exact: true })).toHaveClass(/is-active/);
+    await expect(page.getByRole("button", { name: "2D plan", exact: true })).toHaveClass(/is-active/);
     await clickInteriorsTool(page, "cabinet");
     await reviseBaseWidth(page, GOLDEN_RUN_REVISED_WIDTH_MM);
     await page.keyboard.press(undoChord());

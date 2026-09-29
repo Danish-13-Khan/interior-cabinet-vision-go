@@ -145,7 +145,7 @@ test("K1 hybrid stills: reject leaves project editable", async ({ page }) => {
   await reject.evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.getByTestId("still-review-status")).toHaveText("rejected", { timeout: 15_000 });
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
-  await expect(page.getByRole("button", { name: "2D", exact: true })).toHaveClass(/is-active/);
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
+  await expect(page.getByRole("button", { name: "2D plan", exact: true })).toHaveClass(/is-active/);
   await expect(page.locator(".lr-plan-svg .lr-plan-object").first()).toBeVisible({ timeout: 15_000 });
 });

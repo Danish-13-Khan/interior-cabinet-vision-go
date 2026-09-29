@@ -30,7 +30,7 @@ test("Phase J1 introduces client-facing 3D modes and keeps the guide reopenable"
   await expect(guide).toBeVisible();
   await guide.getByRole("button", { name: "Close 3D guide" }).click();
 
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(guide).toHaveCount(0);
 });

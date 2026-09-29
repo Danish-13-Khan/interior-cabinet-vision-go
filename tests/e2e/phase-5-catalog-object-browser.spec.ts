@@ -16,16 +16,16 @@ test("Phase 5 Object Browser: categories → search → place → 3D", async ({ 
   await expect(page.getByTestId("catalog-object-grid").locator("button")).toHaveCount(33);
 
   await page.getByTestId("catalog-object-category-bathroom").click();
-  await expect(page.getByTestId("catalog-object-card-kenney:toilet")).toBeVisible();
-  await expect(page.getByTestId("catalog-object-card-kenney:lounge-sofa")).toHaveCount(0);
+  await expect(page.getByTestId("catalog-object-card-toilet-1")).toBeVisible();
+  await expect(page.getByTestId("catalog-object-card-lounge-sofa-1")).toHaveCount(0);
 
   await page.getByTestId("catalog-object-category-all").click();
   await page.getByTestId("catalog-object-search").fill("lounge sofa");
-  await expect(page.getByTestId("catalog-object-card-kenney:lounge-sofa")).toBeVisible();
+  await expect(page.getByTestId("catalog-object-card-lounge-sofa-1")).toBeVisible();
   await expect(page.getByTestId("catalog-object-grid").locator("button")).toHaveCount(1);
 
-  await page.getByTestId("catalog-object-card-kenney:lounge-sofa").click();
-  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="kenney:lounge-sofa"]')).toHaveCount(1);
+  await page.getByTestId("catalog-object-card-lounge-sofa-1").click();
+  await expect(page.locator('.lr-plan-svg [data-catalog-item-id="lounge-sofa-1"]')).toHaveCount(1);
 
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("3D model");
