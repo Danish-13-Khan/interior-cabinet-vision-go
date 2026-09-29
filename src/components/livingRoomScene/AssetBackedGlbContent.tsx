@@ -1,4 +1,6 @@
 import { useGLTF } from "@react-three/drei";
+
+useGLTF.setDecoderPath(`${import.meta.env.BASE_URL}draco/`);
 import { createPortal, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useState } from "react";
 import { BoxHelper, Group } from "three";

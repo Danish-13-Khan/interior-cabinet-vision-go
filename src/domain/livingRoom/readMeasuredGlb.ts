@@ -7,7 +7,8 @@ import { toMillimetres } from "../../workers/modelImport/units";
 import type { ImportedAsset } from "./assetImportPipeline";
 import { extensionOf, unsupportedImportMessage } from "../../workers/modelImport/messages";
 
-const MAX_MODEL_BYTES = 25 * 1024 * 1024;
+const MAX_RAW_MODEL_BYTES = 150 * 1024 * 1024;
+const MAX_OPTIMIZED_GLB_BYTES = 25 * 1024 * 1024;
 
 async function storeFile(store: AssetBlobStore, file: File): Promise<string> {
   try { return await storeAssetBlob(store, file); }
@@ -40,9 +41,12 @@ export async function readImportedGlb(
   }
   const file = all.find((item) => ["glb", "gltf", "fbx", "obj"].includes(extensionOf(item.name)));
   if (!file) throw new Error("Select a GLB, FBX, or OBJ file.");
-  if (file.size > MAX_MODEL_BYTES) throw new Error("Model is larger than 25 MB. Optimize it before importing.");
+  if (file.size > MAX_RAW_MODEL_BYTES) throw new Error("Model is larger than 150 MB.");
   const payloads = await Promise.all(all.map(async (item) => ({ name: item.name, bytes: await item.arrayBuffer() })));
   const measured = await measureGlbImport(payloads, defaultGlbSettings(unit), honorFileUnits);
+  if (measured.glb && measured.glb.byteLength > MAX_OPTIMIZED_GLB_BYTES) {
+    throw new Error("Optimized model is larger than 25 MB.");
+  }
   const glbBytes = measured.glb ?? payloads.find((item) => item.name === file.name)!.bytes;
   const textureUrls: ModelTextureUrls = {};
   await Promise.all(all.filter((item) => item !== file && item.type.startsWith("image/")).map(async (image) => {
