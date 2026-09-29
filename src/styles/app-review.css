@@ -103,4 +103,4 @@
   gap: 6px;
 }
 
-.interiors-review-export small { color: var(--muted, #5d6b62); }
+.interiors-review-export small { color: var(--ink-muted); }
