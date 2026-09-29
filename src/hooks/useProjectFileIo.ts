@@ -12,12 +12,13 @@ import type { DesktopSessionState } from "../domain/desktopUx";
 import { getErrorMessage } from "../utils/errors";
 import {
   isTauriRuntime,
-  openTextProjectFile,
   promptSavePath,
-  readTextFile,
   writeBinaryBlob,
   writeTextFile,
 } from "../platform/desktopFiles";
+import { openProjectFile, parseSavedProject, readSavedProject, writeSavedProject } from "../platform/savedProjectFile";
+import { portableProjectText } from "./portableProjectFile";
+import { useCabinetOpenEvent } from "./useCabinetOpenEvent";
 import type { ApplySnapshot } from "./projectCommit";
 import {
   interiorProjectFileName,
@@ -26,7 +27,6 @@ import {
   validateInteriorProject,
   type InteriorProject,
 } from "../domain/interiorProject";
-import { openedProjectFile, portableProjectText } from "./portableProjectFile";
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
 import { noteDraftFileSaved } from "../domain/projectDrafts/commitDraft";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
@@ -104,8 +104,7 @@ export function useProjectFileIo({
     if (!session.restoreLastFile || !session.projectFilePath) return;
     void (async () => {
       try {
-        const raw = await readTextFile(session.projectFilePath!);
-        const parsed = await openedProjectFile(raw);
+        const parsed = await readSavedProject(session.projectFilePath!);
         const loaded = snapshotFromParsedFile(
           parsed,
           DEFAULT_ROOM,
@@ -170,8 +169,8 @@ export function useProjectFileIo({
           defaultPath: interiorProjectFileName(
             document.name,
             readProposalCommercial(document).job,
-          ),
-          extensions: ["json"],
+          ).replace(/\.json$/i, ".cabinet"),
+          extensions: ["cabinet", "json"],
         }));
 
       if (!targetPath) {
@@ -179,22 +178,23 @@ export function useProjectFileIo({
         return;
       }
 
-      await writeFile(targetPath, await portableProjectText(document));
+      const written = await writeSavedProject(targetPath, document, captureThumbnail());
 
-      setProjectFilePath(targetPath);
+      setProjectFilePath(written);
       setSavedFingerprint(persistenceFingerprint(document));
       void noteDraftFileSaved(document.id, indexedDbDraftStore, localStorage).catch(() => undefined);
-      rememberFile(targetPath);
+      rememberFile(written);
       saveCurrentProjectToBrowser(document.name);
       onStatus(
-        isTauriRuntime()
-          ? "Project saved to JSON file."
-          : "Project downloaded as JSON.",
+        written.toLowerCase().endsWith(".json")
+          ? (isTauriRuntime() ? "Project saved to JSON file." : "Project downloaded as JSON.")
+          : (isTauriRuntime() ? "Project saved as a Cabinet file." : "Project downloaded as a Cabinet file."),
       );
     } catch (error) {
       onStatus(`Save failed: ${getErrorMessage(error)}`);
     }
   }, [
+    captureThumbnail,
     onStatus,
     project,
     projectFilePath,
@@ -207,20 +207,15 @@ export function useProjectFileIo({
 
   const handleLoadProject = useCallback(async () => {
     try {
-      const opened = await openTextProjectFile({
-        title: "Open Cabinet Project",
-        extensions: ["json"],
-      });
+      const opened = await openProjectFile({ title: "Open Cabinet Project" });
       if (!opened) {
         onStatus("Load cancelled.");
         return false;
       }
       applyLoadedFile(
-        await openedProjectFile(opened.contents),
+        await parseSavedProject(opened),
         opened.path,
-        isTauriRuntime()
-          ? "Project loaded from JSON file."
-          : "Project loaded from browser file.",
+        opened.kind === "cabinet" ? "Project loaded from Cabinet file." : "Project loaded from JSON file.",
       );
       return true;
     } catch (error) {
@@ -236,9 +231,8 @@ export function useProjectFileIo({
           onStatus("Recent disk files need the desktop app. Use Open instead.");
           return;
         }
-        const raw = await readTextFile(path);
         applyLoadedFile(
-          await openedProjectFile(raw),
+          await readSavedProject(path),
           path,
           `Opened recent file “${path.split(/[/\\]/).pop()}”.`,
         );
@@ -249,6 +243,8 @@ export function useProjectFileIo({
     },
     [applyLoadedFile, forgetFile, onStatus],
   );
+
+  useCabinetOpenEvent(handleOpenRecentFile);
 
   const {
     handleExportMachineJson,
