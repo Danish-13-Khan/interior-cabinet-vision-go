@@ -4,6 +4,7 @@ import { migrateBrowserDrafts } from "../domain/projectDrafts/migrateBrowserDraf
 import { pruneStoredAssets } from "../domain/livingRoom/storedAssets";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
+import { indexedDbSnapshotStore } from "../platform/indexedDbSnapshotStore";
 
 const CLEANUP_DELAY_MS = 5000;
 
@@ -25,7 +26,8 @@ export function useStoredAssetCleanup(currentProject: unknown) {
             drafts: indexedDbDraftStore,
           });
           const drafts = await indexedDbDraftStore.list();
-          await pruneStoredAssets(indexedDbAssetBlobStore, documentsInUse(currentRef.current, drafts));
+          const snapshots = await indexedDbSnapshotStore.list().catch(() => []);
+          await pruneStoredAssets(indexedDbAssetBlobStore, documentsInUse(currentRef.current, drafts, snapshots));
         } catch {
           /* storage unavailable */
         }

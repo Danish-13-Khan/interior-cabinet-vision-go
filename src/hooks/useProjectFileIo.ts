@@ -19,6 +19,7 @@ import {
 import { openProjectFile, parseSavedProject, readSavedProject, writeSavedProject } from "../platform/savedProjectFile";
 import { portableProjectText } from "./portableProjectFile";
 import { useCabinetOpenEvent } from "./useCabinetOpenEvent";
+import { useProjectSnapshots } from "./useProjectSnapshots";
 import type { ApplySnapshot } from "./projectCommit";
 import {
   interiorProjectFileName,
@@ -205,6 +206,12 @@ export function useProjectFileIo({
     setProjectFilePath,
     writeFile,
   ]);
+
+  useProjectSnapshots({
+    document: currentDocument,
+    cabinetCount: project.cabinets.length,
+    restore: (parsed) => applyLoadedFile(parsed, projectFilePath ?? "version", "Restored a saved version."),
+  });
 
   const handleSaveProject = useCallback(() => saveProject(false), [saveProject]);
   const handleSaveAsProject = useCallback(() => saveProject(true), [saveProject]);
