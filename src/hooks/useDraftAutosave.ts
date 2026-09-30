@@ -4,7 +4,7 @@ import { splitDwgPreviews } from "../domain/projectDrafts/dwgDraftSplit";
 import { projectIdOf, schemaVersionOf } from "../domain/projectDrafts/draftDocument";
 import { commitDraftSave } from "../domain/projectDrafts/commitDraft";
 import { markDraftPending } from "../domain/projectDrafts/pendingMarker";
-import { autosaveStatus, draftWritesHeld, draftWritesSuspended, registerDraftFlush } from "../domain/projectDrafts/browserSignals";
+import { autosaveStatus, draftWritesHeld, draftWritesSuspended, notePendingEdit, registerDraftFlush } from "../domain/projectDrafts/browserSignals";
 import { DRAFT_AUTOSAVE_MS, type ProjectDraft } from "../domain/projectDrafts/types";
 import type { RoomConfig } from "../domain/roomModel";
 import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
@@ -64,7 +64,7 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
       lastFileSaveAt: existing?.lastFileSaveAt ?? null,
     };
     const storage = window.localStorage;
-    await commitDraftSave(draft, indexedDbDraftStore, storage, gen, generation.current);
+    await commitDraftSave(draft, indexedDbDraftStore, storage, gen, () => generation.current);
     const thumbnail = thumbRef.current();
     const key = await thumbnailKey(id, thumbnail, null);
     onSavedRef.current({
@@ -89,6 +89,7 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
     generation.current += 1;
     const gen = generation.current;
     markDraftPending(window.localStorage, id);
+    notePendingEdit();
     autosaveStatus.set({ state: "idle", at: autosaveStatus.get().at });
     const timer = window.setTimeout(() => { void write(gen, fingerprint).catch(() => autosaveStatus.set({ state: "error", at: null })); }, DRAFT_AUTOSAVE_MS);
     return () => window.clearTimeout(timer);
@@ -99,7 +100,7 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
     generation.current += 1;
     const gen = generation.current;
     const id = projectIdOf(projectRef.current, "");
-    if (id) markDraftPending(window.localStorage, id);
+    if (id) { markDraftPending(window.localStorage, id); notePendingEdit(); }
     await write(gen, fingerprintRef.current);
   }), [enabled]);
 

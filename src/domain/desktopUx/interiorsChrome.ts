@@ -63,14 +63,26 @@ export function interiorsJobStatusLabel(
   return hasCabinets ? "Design" : "Room";
 }
 
+export function savedAgeLabel(savedAt: string | null, now = Date.now()): string {
+  if (!savedAt) return "just now";
+  const elapsed = now - Date.parse(savedAt);
+  if (!Number.isFinite(elapsed) || elapsed < 60_000) return "just now";
+  const minutes = Math.floor(elapsed / 60_000);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+}
+
 export function interiorsSaveLabel(
   isDirty: boolean,
   autosaveState: "idle" | "saving" | "saved" | "error",
+  savedAt: string | null = null,
+  now = Date.now(),
 ): string {
   if (autosaveState === "saving") return "Saving…";
   if (autosaveState === "error") return "Save failed";
-  if (autosaveState === "saved") return "Saved · just now";
-  return isDirty ? "Unsaved changes" : "Saved · just now";
+  if (autosaveState === "saved" || !isDirty) return `Saved · ${savedAgeLabel(savedAt, now)}`;
+  return "Unsaved changes";
 }
 
 export function interiorsSelectionTitle(input: {

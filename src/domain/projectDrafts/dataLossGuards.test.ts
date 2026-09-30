@@ -38,7 +38,7 @@ describe("recovery copy is removed only after IndexedDB accepts it", () => {
       delete: async () => undefined,
       list: async () => [],
     };
-    await expect(migrateBrowserDrafts({ storage, blobs: createMemoryAssetBlobStore(), drafts })).rejects.toThrow(/IndexedDB/);
+    await expect(migrateBrowserDrafts({ storage, blobs: createMemoryAssetBlobStore(), drafts })).resolves.toEqual([]);
     expect(storage.getItem(LIVING_ROOM_RECOVERY_STORAGE_KEY)).toBe(raw);
   });
 

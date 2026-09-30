@@ -47,6 +47,7 @@ export function LivingRoomWorkspaceTopBar({ workspace: props, chrome, roomName }
       workspaceView={chrome.workspaceView}
       isDirty={props.isDirty}
       autosaveState={props.autosaveState}
+      lastAutosavedAt={props.lastAutosavedAt}
       canUndo={props.canUndo}
       canRedo={props.canRedo}
       presenting={chrome.plannerMode === "render"}

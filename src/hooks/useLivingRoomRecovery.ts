@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import { clearLivingRoomRecovery, type LivingRoomRecoverySnapshot } from "../domain/livingRoom";
 import { createLivingRoomRecoverySnapshot } from "../domain/livingRoom";
-import { autosaveStatus, projectFileAdoption, recoveryOffer, webDraftRestore } from "../domain/projectDrafts/browserSignals";
+import { autosaveStatus, cleanProjectId, projectFileAdoption, recoveryOffer, webDraftRestore } from "../domain/projectDrafts/browserSignals";
+import { clearDraftPending } from "../domain/projectDrafts/pendingMarker";
 import { acceptOpenedFileAsDraft } from "../domain/projectDrafts/openedFileRecovery";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 
@@ -29,6 +30,10 @@ export function useLivingRoomRecovery({ onRestore, onStatus }: Args) {
     restored.current = true;
     projectFileAdoption.set(request.filePath);
     onRestore(interior);
+    cleanProjectId.set(interior.id);
+    setAutosaveState("saved");
+    setLastAutosavedAt(request.entry.updatedAt);
+    clearDraftPending(localStorage, interior.id);
     if (request.notice) onStatus(request.notice);
   }), [onRestore, onStatus]);
 

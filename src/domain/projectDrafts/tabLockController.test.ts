@@ -131,4 +131,27 @@ describe("project tab lock", () => {
     clock.fire(0);
     expect(draftWritesSuspended()).toBe(true);
   });
+
+  it("Take over tells the holder to stop and lets the other tab load the draft", async () => {
+    const locks = memoryLocks();
+    const channel = bus();
+    const clock = timers();
+    registerDraftFlush(async () => undefined);
+    let holder = "free";
+    const release = bindProjectTabLock({ projectId: "proj", locks, openChannel: () => channel.open(), onState: (next) => { holder = next; }, armTimer: clock.armTimer });
+    expect(holder).toBe("held");
+    let reloaded = false;
+    const takeover = finishProjectTakeover("proj", () => channel.open(), clock.armTimer, async () => { reloaded = true; });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(holder).toBe("taken-over");
+    await takeover;
+    expect(reloaded).toBe(true);
+    release();
+    clock.fire(0);
+    await Promise.resolve();
+    let next = "free";
+    bindProjectTabLock({ projectId: "proj", locks, openChannel: () => channel.open(), onState: (state) => { next = state; }, armTimer: clock.armTimer });
+    expect(next).toBe("held");
+  });
 });
