@@ -104,7 +104,8 @@ export const LIGHT_FIXTURE_DEFINITIONS: readonly LightFixtureDefinition[] = [
       profileFinish: "aluminium", orientation: "horizontal", colorTemperatureK: 3500 }) },
   { id: "panel", name: "Panel light", kind: "area", category: "ceiling",
     mounts: ["free", "ceiling"],
-    defaults: area({ widthMm: 600, heightMm: 600, depthMm: 30, ceilingDropMm: 40, colorTemperatureK: 4000 }) },
+    // Brightest fixture on a ceiling: at 3 a 600 mm panel lifted the floor by 4 where a COB lifted it by 9.
+    defaults: area({ intensity: 12, widthMm: 600, heightMm: 600, depthMm: 30, ceilingDropMm: 40, colorTemperatureK: 4000 }) },
   { id: "cob", name: "COB downlight", kind: "spot", category: "ceiling",
     mounts: ["free", "ceiling"],
     defaults: emitter({ widthMm: 90, heightMm: 90, beamAngleDeg: 40, ceilingDropMm: 40, colorTemperatureK: 3000 }) },

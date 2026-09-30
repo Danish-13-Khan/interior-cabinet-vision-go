@@ -5,7 +5,14 @@ import { beamHalfAngleRad, clampedHeadCount, readFixtureSize } from "./fixtureMe
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
 
-/** Rail on X. Each head is its own spot, tilted about local X by aimAngleDeg, emitting −Z. */
+/**
+ * Rail on X. Each head is its own spot, tilted about local X by aimAngleDeg,
+ * emitting −Z. Heads alternate the tilt sign so the pools straddle the rail
+ * instead of all landing on one side.
+ */
+export function headAimRad(aimRad: number, index: number) {
+  return index % 2 === 0 ? aimRad : -aimRad;
+}
 export function TrackFixture(props: FixtureViewProps) {
   const size = readFixtureSize(props.light, props.intensityScale, props.castShadow);
   const heads = clampedHeadCount(props.light);
@@ -25,7 +32,7 @@ export function TrackFixture(props: FixtureViewProps) {
         <meshStandardMaterial color={size.body} metalness={size.metal} roughness={0.36} />
       </mesh>
       {targets.map((target, index) => (
-        <group key={target.uuid} position={[xs[index] ?? 0, 0, -(size.depth * 0.28)]} rotation={[aim, 0, 0]}>
+        <group key={target.uuid} position={[xs[index] ?? 0, 0, -(size.depth * 0.28)]} rotation={[headAimRad(aim, index), 0, 0]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -size.depth * 0.35]}>
             <cylinderGeometry args={[size.across * 0.28, size.across * 0.36, size.depth * 0.7, 16]} />
             <meshStandardMaterial color={size.body} emissive={glow} emissiveIntensity={size.glow} metalness={size.metal} roughness={0.4} />
