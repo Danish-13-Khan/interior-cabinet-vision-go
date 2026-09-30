@@ -2,6 +2,7 @@ use crate::backups::{backup_dir, rotate_backups};
 use crate::safe_write::atomic_write;
 use std::fs;
 use std::path::Path;
+use std::sync::Mutex;
 use tauri::ipc::{InvokeBody, Request, Response};
 use tauri::Manager;
 
@@ -35,8 +36,14 @@ pub fn path_from_headers(path_header: Option<&str>) -> Result<String, String> {
     Ok(path)
 }
 
+/// Saves run as async commands, so two can arrive at once (a double Cmd+S). One at a time keeps
+/// the read-previous / write / rotate-backups sequence from interleaving.
+static SAVE_LOCK: Mutex<()> = Mutex::new(());
+
 /// Replace `path` with `bytes`. When a backup dir is set, slot 1 becomes the previous file, not this write.
+/// The project file is what matters: a failed backup is logged, not reported as a failed save.
 pub fn save_replacing(path: &str, bytes: &[u8], backup_dir: Option<&Path>) -> Result<(), String> {
+    let _guard = SAVE_LOCK.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let checked = crate::user_path::validate_user_path(path)?;
     let previous = if checked.is_file() {
         Some(fs::read(&checked).map_err(|error| error.to_string())?)
@@ -45,7 +52,9 @@ pub fn save_replacing(path: &str, bytes: &[u8], backup_dir: Option<&Path>) -> Re
     };
     atomic_write(&checked, bytes)?;
     if let (Some(dir), Some(previous)) = (backup_dir, previous) {
-        rotate_backups(dir, &previous)?;
+        if let Err(error) = rotate_backups(dir, &previous) {
+            eprintln!("Saved {path}, but the backup could not be written: {error}");
+        }
     }
     Ok(())
 }

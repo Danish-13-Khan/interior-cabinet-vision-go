@@ -157,10 +157,9 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
       drafts: indexedDbDraftStore,
       snapshots: indexedDbSnapshotStore,
       blobs: indexedDbAssetBlobStore,
-      current: project,
     }).catch(() => onStatus("Removed the project, but some of its stored files could not be deleted."));
     onStatus("Removed project from the browser.");
-  }, [onStatus, project]);
+  }, [onStatus]);
 
   const handleRenameSavedProject = useCallback((projectId: string, newName: string) => {
     const trimmed = newName.trim();

@@ -8,7 +8,7 @@ import { rememberProjectFileBinding } from "../domain/projectDrafts/projectFileB
 import { settleOpenedFile } from "../domain/projectDrafts/openedFileRecovery";
 import { versionRestorePlan } from "../domain/projectSnapshots/versionRestore";
 import { getErrorMessage } from "../utils/errors";
-import { confirmDiscardUnsaved } from "../platform/confirmDiscardUnsaved";
+import { askDiscardUnsaved, confirmDiscardUnsaved } from "../platform/confirmDiscardUnsaved";
 import { isTauriRuntime, writeTextFile } from "../platform/desktopFiles";
 import { openProjectFile, parseSavedProject, readSavedProject } from "../platform/savedProjectFile";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
@@ -157,9 +157,21 @@ export function useProjectFileIo(args: Args) {
   }, [applyLoadedFile, args]);
 
   useCabinetOpenEvent((path) => {
-    if (!confirmDiscardUnsaved(dirtyRef.current, (message) => window.confirm(message))) return false;
-    openGeneration.current += 1;
-    void handleOpenRecentFile(path);
+    const open = () => {
+      openGeneration.current += 1;
+      void handleOpenRecentFile(path);
+    };
+    if (!dirtyRef.current) {
+      open();
+      return true;
+    }
+    // Wait for the answer; nothing is replaced until the user picks "Discard and open".
+    void confirmDiscardUnsaved(true, askDiscardUnsaved)
+      .then((discard) => {
+        if (discard) open();
+        else args.onStatus("Kept your unsaved changes. The other file was not opened.");
+      })
+      .catch(() => args.onStatus("Could not ask about unsaved changes, so the other file was not opened."));
     return true;
   });
 

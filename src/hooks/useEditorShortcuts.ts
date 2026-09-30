@@ -132,6 +132,8 @@ export function useEditorShortcuts(
         const disposition = editorShortcutDisposition(actionId, isTypingTarget);
         if (!disposition.run) continue;
         if (disposition.prevent) event.preventDefault();
+        // Holding Cmd+S auto-repeats keydown; one save per press.
+        if (event.repeat && (actionId === "save" || actionId === "saveAs")) return;
         const handler = actionsRef.current[handlerKey];
         handler();
         return;

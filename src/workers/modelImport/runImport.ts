@@ -4,6 +4,7 @@ import { bboxMinY, normalizeImportedObject } from "./normalize";
 import { exportSceneGlb } from "./exportGlb";
 import type { ImportRequest, ImportResult } from "./protocol";
 import { optimizeGlb } from "./optimize";
+import { stripUnloadedTextures } from "./stripUnloadedTextures";
 
 /** Convert every supported model to one normalized GLB. */
 export async function runImport(request: ImportRequest): Promise<ImportResult> {
@@ -16,6 +17,8 @@ export async function runImport(request: ImportRequest): Promise<ImportResult> {
     rotateZUp: loaded.rotateZUp,
   });
   if (bboxMinY(loaded.scene) > 1e-2) throw new Error("Imported model did not sit on the floor.");
+  // Missing textures are warnings (already reported by the loaders), never a failed export.
+  const clearedTextures = stripUnloadedTextures(loaded.scene);
   const [exported, assetId] = await Promise.all([
     exportSceneGlb(loaded.scene).catch(() => null),
     assetIdForImport(request.files, request.settings, {
@@ -26,6 +29,9 @@ export async function runImport(request: ImportRequest): Promise<ImportResult> {
   ]);
   let glb = exported;
   const warnings = [...loaded.warnings];
+  if (clearedTextures > 0 && loaded.warnings.length === 0) {
+    warnings.push(`${clearedTextures} texture${clearedTextures === 1 ? "" : "s"} could not be loaded and were left off.`);
+  }
   if (glb && !request.signal?.aborted) {
     try {
       const optimized = await optimizeGlb(glb);

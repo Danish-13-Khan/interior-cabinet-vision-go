@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import { interiorProjectFileName } from "../domain/interiorProject";
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
@@ -25,10 +25,19 @@ type Args = {
 };
 
 export function useProjectFileSave(args: Args) {
+  const saving = useRef(false);
   const saveProject = useCallback(async (saveAs: boolean) => {
+    // A second save while one is running would race the same file and its backups.
+    if (saving.current) {
+      args.onStatus("Already saving…");
+      return;
+    }
+    saving.current = true;
     try {
       const document = currentInteriorDocument(args.project, args.room);
       const epoch = pendingEpochNow();
+      // Taken before the write: an autosave that lands during a slow save must count as newer.
+      const savedAt = new Date().toISOString();
       const targetPath = !saveAs && args.projectFilePath
         ? args.projectFilePath
         : await promptSavePath({
@@ -43,7 +52,7 @@ export function useProjectFileSave(args: Args) {
       const written = await writeSavedProject(targetPath, document, args.captureThumbnail());
       args.setProjectFilePath(written);
       args.setSavedFingerprint(persistenceFingerprint(document));
-      await noteDraftFileSaved(document.id, indexedDbDraftStore, localStorage, new Date().toISOString(), epoch).catch(() => undefined);
+      await noteDraftFileSaved(document.id, indexedDbDraftStore, localStorage, savedAt, epoch).catch(() => undefined);
       args.rememberFile(written);
       rememberProjectFileBinding(localStorage, document.id, written);
       args.saveCurrentProjectToBrowser(document.name);
@@ -53,6 +62,8 @@ export function useProjectFileSave(args: Args) {
         : (isTauriRuntime() ? "Project saved as a Cabinet file." : "Project downloaded as a Cabinet file."));
     } catch (error) {
       args.onStatus(`Save failed: ${getErrorMessage(error)}`);
+    } finally {
+      saving.current = false;
     }
   }, [args]);
   return {
