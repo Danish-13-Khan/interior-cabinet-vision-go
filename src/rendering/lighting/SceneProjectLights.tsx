@@ -23,6 +23,8 @@ export function SceneProjectLights({
   intensityScale = 1,
   shadowCamera,
   maxDirectionalCasters,
+  selectedLightId = null,
+  onSelectLight,
 }: {
   scene: CompiledLivingRoomScene;
   shadowMapSize: number;
@@ -32,6 +34,9 @@ export function SceneProjectLights({
   shadowCamera?: ShadowCameraTuning;
   /** Phase C Model View budget; Studio omits → unlimited project flags. */
   maxDirectionalCasters?: number;
+  /** Phase 2 plumbs selection. Callers omit both until a light can be picked. */
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
 }) {
   ensureRectAreaLightSupport();
   const cam = shadowCamera ?? STUDIO_PROJECT_SHADOW;
@@ -42,7 +47,16 @@ export function SceneProjectLights({
     <>
       {scene.lights.filter((light) => light.enabled || isRoomLightFixture(light)).map((light) => {
         if (isRoomLightFixture(light)) {
-          return <RoomLightFixture key={light.id} light={light} intensityScale={intensityScale} castShadow={fillCast} />;
+          return (
+            <RoomLightFixture
+              key={light.id}
+              light={light}
+              intensityScale={intensityScale}
+              castShadow={fillCast}
+              selected={selectedLightId === light.id}
+              onSelect={onSelectLight}
+            />
+          );
         }
         const position: [number, number, number] = [
           light.position.x / 1000,

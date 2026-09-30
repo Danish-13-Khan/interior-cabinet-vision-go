@@ -60,6 +60,9 @@ type SceneRendererProps = {
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
   /** Frame the cabinet run: "author" on Dollhouse entry, "client" for Present. */
   frameRun?: CabinetRunAudience;
+  /** Forwarded to fixtures. Render Studio does not pass these. */
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
 };
 
 export function CompiledSceneRenderer(props: SceneRendererProps) {
@@ -72,6 +75,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
     transformTarget = null, onTransformPreview, onTransformCommit, frameRun,
+    selectedLightId = null, onSelectLight,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -146,6 +150,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         scene={scene} recipeId={scene.lightingRecipeId} renderMode={renderMode}
         renderQuality={renderQuality} lightingQuality={lightingQuality}
         projectLightScale={projectLightScale} windowKeyScale={windowKeyScale}
+        selectedLightId={selectedLightId} onSelectLight={onSelectLight}
       />
       {showGrid ? (
         <gridHelper

@@ -24,6 +24,8 @@ type RenderLightingRigProps = {
   lightingQuality: EnvironmentLightingQuality;
   projectLightScale?: number;
   windowKeyScale?: number;
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
 };
 
 /**
@@ -38,6 +40,8 @@ export function RenderLightingRig({
   lightingQuality,
   projectLightScale = 1,
   windowKeyScale = 1,
+  selectedLightId = null,
+  onSelectLight,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
   const architectureBounds = computeArchitectureBounds(scene.nodes);
@@ -90,6 +94,8 @@ export function RenderLightingRig({
         intensityScale={projectLightScale}
         shadowCamera={projectShadow}
         maxDirectionalCasters={lightingQuality.maxDirectionalCasters}
+        selectedLightId={selectedLightId}
+        onSelectLight={onSelectLight}
       />
       <WindowKeyLight
         lights={windowKeys}
