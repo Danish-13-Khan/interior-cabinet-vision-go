@@ -20,7 +20,7 @@ type Args = {
   setSavedFingerprint: (fingerprint: string) => void;
   onStatus: (status: string) => void;
   rememberFile: (path: string) => void;
-  saveCurrentProjectToBrowser: (nameOverride?: string) => void;
+  saveCurrentProjectToBrowser: (nameOverride?: string, savedAt?: string) => void;
   captureThumbnail: () => string;
 };
 
@@ -55,7 +55,7 @@ export function useProjectFileSave(args: Args) {
       await noteDraftFileSaved(document.id, indexedDbDraftStore, localStorage, savedAt, epoch).catch(() => undefined);
       args.rememberFile(written);
       rememberProjectFileBinding(localStorage, document.id, written);
-      args.saveCurrentProjectToBrowser(document.name);
+      args.saveCurrentProjectToBrowser(document.name, savedAt);
       const json = written.toLowerCase().endsWith(".json");
       args.onStatus(json
         ? (isTauriRuntime() ? "Project saved to JSON file." : "Project downloaded as JSON.")

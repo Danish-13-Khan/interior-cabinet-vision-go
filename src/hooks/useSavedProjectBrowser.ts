@@ -112,11 +112,12 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
     ...entry, job: entry.project.job, cabinetCount: entry.project.cabinets.length,
   })), [savedProjects]);
 
-  const saveCurrentProjectToBrowser = useCallback((nameOverride?: string) => {
+  /** `savedAt` from a file save keeps the draft no newer than that file, so reopening it asks nothing. */
+  const saveCurrentProjectToBrowser = useCallback((nameOverride?: string, savedAt?: string) => {
     const safeProject = normalizeMultiRoomProject(writeActiveRoomState(project, project.cabinets, room), room);
     const id = safeProject.interiorDocument?.id;
     if (!id) return;
-    const updatedAt = new Date().toISOString();
+    const updatedAt = savedAt ?? new Date().toISOString();
     const savedRoom = getActiveProjectRoom(safeProject).config;
     void persistBrowserProjectDraft(indexedDbDraftStore, safeProject, savedRoom, updatedAt).then(() => {
       remember({

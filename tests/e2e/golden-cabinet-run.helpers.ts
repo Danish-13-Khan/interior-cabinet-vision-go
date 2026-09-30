@@ -86,7 +86,7 @@ export async function saveAndReopenGoldenRun(page: Page) {
   const download = page.waitForEvent("download");
   await page.getByTestId("interiors-save-state").click();
   const file = await download;
-  expect(file.suggestedFilename()).toBe("gcr-001-golden-cabinet-run.json");
+  expect(file.suggestedFilename()).toBe("gcr-001-golden-cabinet-run.cabinet");
   const target = testOutputPath(file.suggestedFilename());
   await file.saveAs(target);
   await page.goto("/app");

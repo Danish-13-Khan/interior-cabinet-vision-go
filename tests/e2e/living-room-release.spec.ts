@@ -29,7 +29,7 @@ test("verified demo completes Plan to Model to Render and reopens", async ({ pag
   const downloadPromise = page.waitForEvent("download");
   await page.getByTestId("interiors-save-state").click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe("living-room-release-demo.json");
+  expect(download.suggestedFilename()).toBe("living-room-release-demo.cabinet");
   await expect(page.getByTestId("interiors-save-state")).toBeVisible();
 
   // Shared chrome opens project home from the project crumb.
