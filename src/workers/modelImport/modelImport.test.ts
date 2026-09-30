@@ -73,9 +73,10 @@ describe("import identity and size", () => {
     expect(dimensionsForPlacement(null, imported.dimensions).widthMm).toBeCloseTo(2000, 0);
   });
 
-  it("keeps textures off the worker when the spike cannot decode images", () => {
-    expect(decideImportRuntime({ worker: true, imageBitmap: true, offscreenWebgl: true, webpEncode: true })).toBe("worker");
-    expect(decideImportRuntime({ worker: true, imageBitmap: false, offscreenWebgl: false, webpEncode: false })).toBe("split");
+  it("imports on the main thread when the worker cannot decode or draw textures", () => {
+    expect(decideImportRuntime({ worker: true, imageBitmap: true, offscreen2d: true })).toBe("worker");
+    expect(decideImportRuntime({ worker: true, imageBitmap: false, offscreen2d: true })).toBe("main");
+    expect(decideImportRuntime({ worker: true, imageBitmap: true, offscreen2d: false })).toBe("main");
   });
 
   it("declares WebP only when the encoded blob is WebP", async () => {

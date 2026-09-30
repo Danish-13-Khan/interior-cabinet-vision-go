@@ -96,14 +96,16 @@ export function attachFbxTextureLoader(files: readonly { name: string; bytes: Ar
           return;
         }
         texture.userData.matchedName = name;
-        // ImageBitmap ignores UNPACK_FLIP_Y. Pre-flip and keep flipY off so the GLB is upright.
-        const bitmap = await decodeTexture(image.bytes, image.mime, true);
-        if (!bitmap) {
+        // FBX/OBJ UVs follow three's TextureLoader convention (flipY on). GLTFExporter flips the pixels
+        // when flipY is set, so the GLB is upright iff (bitmap pre-flipped XOR flipY). Decode upright
+        // and let the exporter flip: imageOrientation "flipY" is silently ignored on some engines.
+        const decoded = await decodeTexture(image.bytes, image.mime);
+        if (!decoded) {
           warnings.push(unsupportedTextureWarning(name || "image"));
           return;
         }
-        texture.image = bitmap as unknown as HTMLImageElement;
-        texture.flipY = false;
+        texture.image = decoded.bitmap as unknown as HTMLImageElement;
+        texture.flipY = !decoded.flipped;
         texture.userData.matchedName = name;
         texture.needsUpdate = true;
         onLoad?.(texture);

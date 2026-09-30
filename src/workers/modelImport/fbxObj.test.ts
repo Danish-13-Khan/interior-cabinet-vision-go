@@ -4,7 +4,7 @@ import { fbxNormalizeOptions, fbxScaleToMm } from "./loaders/fbx";
 import { attachFbxTextureLoader } from "./loaders/fbxTextures";
 import { loadModel } from "./loaders/loadModel";
 import { objTextureWarnings } from "./loaders/obj";
-import { unsupportedImportMessage } from "./messages";
+import { dedupeTextureWarnings, unsupportedImportMessage } from "./messages";
 import { normalizeImportedObject } from "./normalize";
 import { runImport } from "./runImport";
 
@@ -64,5 +64,11 @@ describe("FBX and OBJ import", () => {
     const texture = handler.load("textures/Fabric.PNG");
     await session.ready();
     expect(texture.userData.matchedName).toBe("fabric.png");
+  });
+
+  it("keeps one warning per texture name regardless of case", () => {
+    expect(dedupeTextureWarnings([
+      "Missing texture Fabric.png.", "Unsupported texture fabric.png.", "Missing texture wood.jpg.", "Unsupported texture.",
+    ])).toEqual(["Missing texture Fabric.png.", "Missing texture wood.jpg.", "Unsupported texture."]);
   });
 });

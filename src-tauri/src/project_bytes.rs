@@ -11,11 +11,10 @@ pub fn percent_decode(input: &str) -> String {
     let mut out = Vec::with_capacity(bytes.len());
     let mut index = 0;
     while index < bytes.len() {
-        if bytes[index] == b'%' && index + 2 < bytes.len() {
-            if let Ok(value) = u8::from_str_radix(
-                std::str::from_utf8(&bytes[index + 1..index + 3]).unwrap_or(""),
-                16,
-            ) {
+        // `index + 2 < len` already admits a %XX that ends the string (its last byte is len - 1).
+        let hex = bytes.get(index + 1..index + 3).filter(|pair| pair.iter().all(u8::is_ascii_hexdigit));
+        if bytes[index] == b'%' && hex.is_some() {
+            if let Ok(value) = u8::from_str_radix(std::str::from_utf8(hex.unwrap_or_default()).unwrap_or(""), 16) {
                 out.push(value);
                 index += 3;
                 continue;
@@ -42,29 +41,29 @@ static SAVE_LOCK: Mutex<()> = Mutex::new(());
 
 /// Replace `path` with `bytes`. When a backup dir is set, slot 1 becomes the previous file, not this write.
 /// The project file is what matters: a failed backup is logged, not reported as a failed save.
-pub fn save_replacing(path: &str, bytes: &[u8], backup_dir: Option<&Path>) -> Result<(), String> {
+/// `checked` must already be authorized (see `trusted_paths`).
+pub fn save_replacing(checked: &Path, bytes: &[u8], backup_dir: Option<&Path>) -> Result<(), String> {
     let _guard = SAVE_LOCK.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-    let checked = crate::user_path::validate_user_path(path)?;
     let previous = if checked.is_file() {
         Some(fs::read(&checked).map_err(|error| error.to_string())?)
     } else {
         None
     };
-    atomic_write(&checked, bytes)?;
+    atomic_write(checked, bytes)?;
     if let (Some(dir), Some(previous)) = (backup_dir, previous) {
         if let Err(error) = rotate_backups(dir, &previous) {
-            eprintln!("Saved {path}, but the backup could not be written: {error}");
+            eprintln!("Saved {}, but the backup could not be written: {error}", checked.display());
         }
     }
     Ok(())
 }
 
-pub fn write_project_bytes(path: &str, bytes: &[u8]) -> Result<(), String> {
-    save_replacing(path, bytes, None)
+#[cfg(test)]
+pub fn write_project_bytes(checked: &Path, bytes: &[u8]) -> Result<(), String> {
+    save_replacing(checked, bytes, None)
 }
 
-pub fn read_project_bytes(path: &str) -> Result<Vec<u8>, String> {
-    let checked = crate::user_path::validate_user_path(path)?;
+pub fn read_project_bytes(checked: &Path) -> Result<Vec<u8>, String> {
     fs::read(checked).map_err(|error| error.to_string())
 }
 
@@ -72,7 +71,7 @@ pub fn read_project_bytes(path: &str) -> Result<Vec<u8>, String> {
 pub async fn save_project_bytes(app: tauri::AppHandle, request: Request<'_>) -> Result<(), String> {
     // Async commands run off the UI thread. The body is borrowed, so the bytes are not cloned.
     let header = request.headers().get("path").and_then(|value| value.to_str().ok());
-    let path = path_from_headers(header)?;
+    let path = crate::trusted_paths::authorize(&app, &path_from_headers(header)?)?;
     let project_id = request
         .headers()
         .get("project-id")
@@ -89,8 +88,9 @@ pub async fn save_project_bytes(app: tauri::AppHandle, request: Request<'_>) -> 
 }
 
 #[tauri::command]
-pub async fn load_project_bytes(path: String) -> Result<Response, String> {
-    Ok(Response::new(read_project_bytes(&path)?))
+pub async fn load_project_bytes(app: tauri::AppHandle, path: String) -> Result<Response, String> {
+    let checked = crate::trusted_paths::authorize(&app, &path)?;
+    Ok(Response::new(read_project_bytes(&checked)?))
 }
 
 #[cfg(test)]
@@ -104,9 +104,7 @@ mod tests {
             .join(format!(
                 "cabinet-bytes-{}.cabinet",
                 SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
-            ))
-            .to_string_lossy()
-            .into_owned();
+            ));
         let bytes = b"PK\x03\x04cabinet-bytes";
         write_project_bytes(&path, bytes).expect("write bytes");
         let loaded = read_project_bytes(&path).expect("read bytes");
@@ -121,6 +119,14 @@ mod tests {
     }
 
     #[test]
+    fn percent_escape_at_the_very_end_is_decoded() {
+        assert_eq!(percent_decode("/Users/room%20"), "/Users/room ");
+        assert_eq!(percent_decode("a%2"), "a%2");
+        assert_eq!(percent_decode("%"), "%");
+        assert_eq!(percent_decode("%+1"), "%+1");
+    }
+
+    #[test]
     fn backups_are_earlier_versions_not_the_file_just_saved() {
         let dir = std::env::temp_dir().join(format!(
             "cabinet-backup-save-{}",
@@ -129,10 +135,9 @@ mod tests {
         fs::create_dir_all(&dir).unwrap();
         let path = dir.join("room.cabinet");
         let backups = dir.join("backups");
-        let path_text = path.to_string_lossy().into_owned();
-        write_project_bytes(&path_text, b"v1").unwrap();
-        save_replacing(&path_text, b"v2", Some(&backups)).unwrap();
-        save_replacing(&path_text, b"v3", Some(&backups)).unwrap();
+        write_project_bytes(&path, b"v1").unwrap();
+        save_replacing(&path, b"v2", Some(&backups)).unwrap();
+        save_replacing(&path, b"v3", Some(&backups)).unwrap();
         assert_eq!(fs::read(&path).unwrap(), b"v3");
         assert_eq!(fs::read(backups.join("1.cabinet")).unwrap(), b"v2");
         assert_eq!(fs::read(backups.join("2.cabinet")).unwrap(), b"v1");

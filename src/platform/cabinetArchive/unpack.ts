@@ -27,7 +27,8 @@ export async function unpackCabinetArchive(bytes: Uint8Array, store: AssetBlobSt
   assertArchiveBudget(Object.keys(files).length, actualBytes);
   const projectBytes = archiveBytes(files, "project.json");
   if (!projectBytes) throw new Error("Cabinet file is missing project.json.");
-  const previews: Record<string, unknown> = {};
+  // No prototype: an entry named underlays/__proto__.json must not replace the object's prototype.
+  const previews: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
   for (const [path, data] of Object.entries(files)) {
     const match = /^underlays\/(.+)\.json$/.exec(path);
     if (!match) continue;

@@ -13,7 +13,7 @@ import { reloadSavedDraft } from "./hydrateBrowserEntries";
 import { migrateBrowserDrafts } from "./migrateBrowserDrafts";
 import { chooseRecoveryProject, readProjectFileBindings, rememberProjectFileBinding } from "./projectFileBinding";
 import { projectThumbnailStorageKey, storeProjectThumbnail, thumbnailKeepValues } from "./projectThumbnail";
-import { persistSharedProjectIndex } from "./sharedProjectIndex";
+import { persistSharedProjectIndex, recordProjectDeletion } from "./sharedProjectIndex";
 import { createMemoryDraftStore, type DraftStore, type ProjectIndexEntry } from "./types";
 import { seedOpenedDraft } from "../../platform/cabinetArchive/seedDraft";
 
@@ -78,9 +78,9 @@ describe("project index is not wiped or cross-clobbered", () => {
   it("does not write when startup failed, and keeps entries whose drafts are missing", () => {
     const kept: ProjectIndexEntry = { id: "missing", name: "Kept", updatedAt: "2026-09-02T00:00:00.000Z", thumbnailKey: null };
     const storage = memoryStorage({ [PROJECT_BROWSER_STORAGE_KEY]: JSON.stringify([kept]) });
-    expect(persistSharedProjectIndex(storage, [], new Set(), false)).toBe("skipped");
+    expect(persistSharedProjectIndex(storage, [], false)).toBe("skipped");
     expect(storage.getItem(PROJECT_BROWSER_STORAGE_KEY)).toContain("missing");
-    expect(persistSharedProjectIndex(storage, [], new Set(), true)).toBe("saved");
+    expect(persistSharedProjectIndex(storage, [], true)).toBe("saved");
     expect(storage.getItem(PROJECT_BROWSER_STORAGE_KEY)).toContain("missing");
   });
 
@@ -91,10 +91,21 @@ describe("project index is not wiped or cross-clobbered", () => {
     ];
     const storage = memoryStorage({ [PROJECT_BROWSER_STORAGE_KEY]: JSON.stringify(stored) });
     const visible = [{ id: "a", name: "Old A", updatedAt: "2026-09-01T00:00:00.000Z", thumbnailKey: null }];
-    persistSharedProjectIndex(storage, visible, new Set(), true);
+    persistSharedProjectIndex(storage, visible, true);
     const saved = JSON.parse(storage.getItem(PROJECT_BROWSER_STORAGE_KEY) ?? "[]") as ProjectIndexEntry[];
     expect(saved.map((entry) => entry.id).sort()).toEqual(["a", "b"]);
     expect(saved.find((entry) => entry.id === "a")?.updatedAt).toBe("2026-09-02T00:00:00.000Z");
+  });
+
+  it("keeps a project deleted in one tab out of another tab's stale list", () => {
+    const gone = { id: "gone", name: "Deleted", updatedAt: "2026-09-02T00:00:00.000Z", thumbnailKey: null };
+    const storage = memoryStorage({ [PROJECT_BROWSER_STORAGE_KEY]: JSON.stringify([]) });
+    recordProjectDeletion(storage, "gone", "2026-09-05T00:00:00.000Z");
+    persistSharedProjectIndex(storage, [gone], true);
+    expect(storage.getItem(PROJECT_BROWSER_STORAGE_KEY)).not.toContain("gone");
+    // A tab still editing it after the delete keeps its newer work.
+    persistSharedProjectIndex(storage, [{ ...gone, updatedAt: "2026-09-06T00:00:00.000Z" }], true);
+    expect(storage.getItem(PROJECT_BROWSER_STORAGE_KEY)).toContain("gone");
   });
 });
 

@@ -12,8 +12,6 @@ export type ImportFile = { name: string; bytes: ArrayBuffer };
 export type ImportRequest = {
   files: ImportFile[];
   settings: ImportSettings;
-  /** When image decoding is unavailable in the worker, textures stay on the main thread. */
-  texturesOnMain?: boolean;
   signal?: AbortSignal;
   /** FBX unit scale and OBJ exporter comments win until the user picks a unit. */
   honorFileUnits?: boolean;
@@ -31,3 +29,8 @@ export type ImportResult = {
   /** Millimetres per file unit after that decision. */
   scaleToMm: number;
 };
+
+/** `unsupported` means the worker itself could not do the job, so the main thread should retry. */
+export type WorkerResponse =
+  | { id: number; ok: true; result: ImportResult }
+  | { id: number; ok: false; error: string; unsupported?: boolean };

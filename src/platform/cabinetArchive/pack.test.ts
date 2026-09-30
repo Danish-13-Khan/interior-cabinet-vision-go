@@ -85,4 +85,14 @@ describe("cabinet archive", () => {
     const parsed = await parseProjectFileText(JSON.stringify({ id: "legacy", schemaVersion: 2, name: "Old" }), store);
     expect(parsed).toMatchObject({ id: "legacy", schemaVersion: 2 });
   });
+
+  it("ignores an underlay named __proto__ instead of replacing the preview map's prototype", async () => {
+    const hostile = zipSync({
+      "project.json": strToU8(JSON.stringify({ id: "p", objects: [] })),
+      "underlays/__proto__.json": strToU8(JSON.stringify({ polluted: true })),
+    });
+    const opened = await unpackCabinetArchive(hostile, createMemoryAssetBlobStore());
+    expect(opened.document).toMatchObject({ id: "p" });
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
 });

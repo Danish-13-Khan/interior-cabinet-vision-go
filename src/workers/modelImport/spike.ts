@@ -1,16 +1,16 @@
 export type ImportProbe = {
   worker: boolean;
   imageBitmap: boolean;
-  offscreenWebgl: boolean;
-  webpEncode: boolean;
+  /** GLTFExporter draws textures to an OffscreenCanvas when there is no document (a worker). */
+  offscreen2d: boolean;
 };
 
-export type ImportRuntime = "worker" | "split";
+export type ImportRuntime = "worker" | "main";
 
-/** Pass: whole import in the worker. Fail: textures on the main thread. */
+/** Pass: whole import in the worker. Fail: whole import on the main thread, which has a document canvas. */
 export function decideImportRuntime(probe: ImportProbe): ImportRuntime {
-  if (probe.worker && probe.imageBitmap) return "worker";
-  return "split";
+  if (probe.worker && probe.imageBitmap && probe.offscreen2d) return "worker";
+  return "main";
 }
 
 function looksLikeWebp(bytes: Uint8Array): boolean {
@@ -19,8 +19,15 @@ function looksLikeWebp(bytes: Uint8Array): boolean {
     && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
 }
 
-/** True only when a canvas really emits a WebP payload, not merely because convertToBlob exists. */
-export async function canEncodeWebp(): Promise<boolean> {
+let webpProbe: Promise<boolean> | null = null;
+
+/** True only when a canvas really emits a WebP payload, not merely because convertToBlob exists. Cached. */
+export function canEncodeWebp(): Promise<boolean> {
+  webpProbe ??= probeWebpEncode();
+  return webpProbe;
+}
+
+async function probeWebpEncode(): Promise<boolean> {
   if (typeof OffscreenCanvas === "undefined") return false;
   try {
     const canvas = new OffscreenCanvas(1, 1);
@@ -53,23 +60,26 @@ async function canDecodeBitmap(): Promise<boolean> {
   }
 }
 
-function canUseOffscreenWebgl(): boolean {
+function canUseOffscreen2d(): boolean {
   if (typeof OffscreenCanvas === "undefined") return false;
   try {
-    const canvas = new OffscreenCanvas(16, 16);
-    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+    return Boolean(new OffscreenCanvas(1, 1).getContext("2d"));
   } catch {
     return false;
   }
 }
 
-/** Real capability check. WebP is not assumed from the presence of convertToBlob. */
-export async function probeImportRuntime(): Promise<ImportProbe> {
-  const [imageBitmap, webpEncode] = await Promise.all([canDecodeBitmap(), canEncodeWebp()]);
-  return {
+let runtimeProbe: Promise<ImportProbe> | null = null;
+
+/**
+ * Real capability check, run once per session. OffscreenCanvas and createImageBitmap are the same
+ * globals in a worker on the engines we support, so the main-thread result stands in for the worker.
+ */
+export function probeImportRuntime(): Promise<ImportProbe> {
+  runtimeProbe ??= canDecodeBitmap().then((imageBitmap) => ({
     worker: typeof Worker !== "undefined",
     imageBitmap,
-    offscreenWebgl: canUseOffscreenWebgl(),
-    webpEncode,
-  };
+    offscreen2d: canUseOffscreen2d(),
+  }));
+  return runtimeProbe;
 }

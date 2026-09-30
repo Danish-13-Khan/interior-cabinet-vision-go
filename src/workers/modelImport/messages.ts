@@ -21,3 +21,16 @@ export function missingTextureWarning(name: string): string {
 export function unsupportedTextureWarning(name: string): string {
   return name ? `Unsupported texture ${name}.` : "Unsupported texture.";
 }
+
+const TEXTURE_WARNING = /^(?:Missing|Unsupported) texture (.+)\.$/;
+
+/** One message per texture: the first warning wins, names compared case-insensitively. */
+export function dedupeTextureWarnings(warnings: readonly string[]): string[] {
+  const seen = new Set<string>();
+  return warnings.filter((warning) => {
+    const key = TEXTURE_WARNING.exec(warning)?.[1]?.toLowerCase() ?? warning;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
