@@ -64,7 +64,6 @@ const ACTION_KEYS: Array<[ShortcutActionId, keyof EditorShortcutActions]> = [
 ];
 
 const BLOCKED_WHILE_TYPING: ShortcutActionId[] = [
-  "save",
   "saveAs",
   "new",
   "copy",
@@ -87,6 +86,13 @@ const BLOCKED_WHILE_TYPING: ShortcutActionId[] = [
   "rotate90",
   "cycleSnap",
 ];
+
+/** Cmd/Ctrl+S still saves while a field is focused, and it must cancel the browser Save Page dialog. */
+export function editorShortcutDisposition(actionId: ShortcutActionId, isTyping: boolean): { prevent: boolean; run: boolean } {
+  if (actionId === "save") return { prevent: true, run: true };
+  if (isTyping && BLOCKED_WHILE_TYPING.includes(actionId)) return { prevent: false, run: false };
+  return { prevent: true, run: true };
+}
 
 export function useEditorShortcuts(
   actions: EditorShortcutActions,
@@ -123,10 +129,9 @@ export function useEditorShortcuts(
       for (const [actionId, handlerKey] of ACTION_KEYS) {
         const binding = mapRef.current[actionId];
         if (!eventMatchesBinding(event, binding)) continue;
-        if (isTypingTarget && BLOCKED_WHILE_TYPING.includes(actionId)) {
-          continue;
-        }
-        event.preventDefault();
+        const disposition = editorShortcutDisposition(actionId, isTypingTarget);
+        if (!disposition.run) continue;
+        if (disposition.prevent) event.preventDefault();
         const handler = actionsRef.current[handlerKey];
         handler();
         return;
