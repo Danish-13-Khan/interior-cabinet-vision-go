@@ -1,4 +1,5 @@
 import {
+  addWallDecoration,
   addWallPanel as addWallPanelCommand,
   arrangeCabinetRun,
   completeCabinetRun,
@@ -19,6 +20,18 @@ type RunLayoutOptions = {
 /** Cabinet runs, inline cabinet sizes, and wall panels. */
 export function cabinetRunCommands(ctx: EditorCommandContext) {
   const { document, commitDocument, selectedObjectIds, setSelectedObjectIds, onStatus } = ctx;
+
+  function placePanel(apply: Parameters<typeof commitDocument>[0], message: string) {
+    if (!document) return;
+    let createdId: string | null = null;
+    commitDocument((current) => {
+      const next = apply(current);
+      const existing = new Set(current.objects.map((object) => object.id));
+      createdId = next.objects.find((object) => !existing.has(object.id))?.id ?? null;
+      return next;
+    }, message);
+    if (createdId) setSelectedObjectIds([createdId]);
+  }
 
   function completeRun(runId: string) {
     let leftover: string | null = null;
@@ -46,15 +59,10 @@ export function cabinetRunCommands(ctx: EditorCommandContext) {
       );
     },
     addLivingRoomWallPanel: (wallId: string) => {
-      if (!document) return;
-      let createdId: string | null = null;
-      commitDocument((current) => {
-        const next = addWallPanelCommand(current, wallId);
-        const existing = new Set(current.objects.map((object) => object.id));
-        createdId = next.objects.find((object) => !existing.has(object.id))?.id ?? null;
-        return next;
-      }, "Added wall panel.");
-      if (createdId) setSelectedObjectIds([createdId]);
+      placePanel((current) => addWallPanelCommand(current, wallId), "Added wall panel.");
+    },
+    addLivingRoomWallDecoration: (wallId: string, presetId: string) => {
+      placePanel((current) => addWallDecoration(current, wallId, presetId), "Added wall decoration.");
     },
     updateLivingRoomPanelAttachment: (
       objectId: string,

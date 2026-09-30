@@ -323,6 +323,13 @@ export {
 } from "./panelLifecycle";
 export { remapPanelsAfterWallSplit } from "./panelSplit";
 export {
+  addWallDecoration,
+  getWallDecorationPreset,
+  WALL_DECORATION_PRESETS,
+  type WallDecorationGroup,
+  type WallDecorationPreset,
+} from "./wallDecorations";
+export {
   applyMaterialColour,
   type ApplyMaterialColourArgs,
 } from "./applyMaterialColour";
