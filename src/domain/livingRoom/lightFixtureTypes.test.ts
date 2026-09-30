@@ -9,11 +9,11 @@ const on = { enabled: true, intensity: 5 };
 const off = { enabled: false, intensity: 5 };
 
 describe("light render scale", () => {
-  it("keeps the Phase 0 tuned table, including the old recipe multipliers", () => {
+  it("keeps the Phase 0 reviewed table, including the old recipe multipliers", () => {
     expect(LIGHT_RENDER_SCALE).toEqual({
-      areaNitsPerUnit: 200,
-      pointCandelaPerUnit: 180,
-      spotCandelaPerUnit: 400,
+      areaNitsPerUnit: 10,
+      pointCandelaPerUnit: 8,
+      spotCandelaPerUnit: 10,
       emissivePerUnit: 0.22,
       maxEmissive: 4,
       coveWallShare: 0.35,
@@ -23,9 +23,9 @@ describe("light render scale", () => {
   });
 
   it("maps fixture brightness into nits or candela and zeros a disabled light", () => {
-    expect(fixtureRenderIntensity(on, "area", 0.92)).toBeCloseTo(5 * 200 * 0.92);
-    expect(fixtureRenderIntensity(on, "point", 1)).toBe(900);
-    expect(fixtureRenderIntensity(on, "spot", 1)).toBe(2000);
+    expect(fixtureRenderIntensity(on, "area", 0.92)).toBeCloseTo(5 * 10 * 0.92);
+    expect(fixtureRenderIntensity(on, "point", 1)).toBe(40);
+    expect(fixtureRenderIntensity(on, "spot", 1)).toBe(50);
     expect(fixtureRenderIntensity(off, "area", 1)).toBe(0);
   });
 
