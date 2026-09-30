@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { interiorsRecentProjectCard } from "../../domain/desktopUx";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
 import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
@@ -8,6 +8,7 @@ import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
 import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
 import { InteriorsProjectsStarters } from "./InteriorsProjectsStarters";
 import type { LivingRoomPlanWorkspaceProps, PlannerStarterTemplate } from "./workspaceProps";
+import { browserLoading, recoveryOffer } from "../../domain/projectDrafts/browserSignals";
 
 type PlannerV2ProjectHomeProps = {
   workspace: LivingRoomPlanWorkspaceProps;
@@ -22,6 +23,10 @@ export function PlannerV2ProjectHome({
 }: PlannerV2ProjectHomeProps) {
   const dialogRef = useRef<HTMLElement>(null);
   const [projectName, setProjectName] = useState("New cabinet job");
+  const [projectsLoading, setProjectsLoading] = useState(browserLoading.get());
+  const [recoveryPrompt, setRecoveryPrompt] = useState<string | null>(recoveryOffer.get()?.prompt ?? null);
+  useEffect(() => browserLoading.subscribe(setProjectsLoading), []);
+  useEffect(() => recoveryOffer.subscribe((offer) => setRecoveryPrompt(offer?.prompt ?? null)), []);
   const recentRows = useMemo(() => workspace.recentProjects.flatMap((entry) => {
     const card = interiorsRecentProjectCard(entry);
     const document = entry.project.interiorDocument;
@@ -81,11 +86,12 @@ export function PlannerV2ProjectHome({
       <div className="planner-v2-home-content">
         {workspace.recovery ? (
           <section className="planner-v2-recovery" data-testid="interiors-recovery">
-            <div><span>Autosave available</span><strong>{workspace.recovery.project.name}</strong></div>
+            <div><span>{recoveryPrompt ?? "Restore unsaved changes?"}</span><strong>{workspace.recovery.project.name}</strong></div>
             <button type="button" className="is-primary" data-testid="interiors-recovery-restore" onClick={workspace.onRestoreRecovery}>Restore</button>
             <button type="button" data-testid="interiors-recovery-discard" onClick={workspace.onDiscardRecovery}>Discard</button>
           </section>
         ) : null}
+        {projectsLoading ? <p data-testid="projects-loading">Loading projects…</p> : null}
         <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />
         <InteriorsPopularTemplates onCreate={createFromCatalogTemplate} />
         {import.meta.env.DEV ? (

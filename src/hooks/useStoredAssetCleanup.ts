@@ -1,27 +1,19 @@
 import { useEffect, useRef } from "react";
-import { pruneStoredAssets } from "../domain/livingRoom/storedAssets";
+import { pruneIfSnapshotsLoaded } from "../domain/projectDrafts/assetCleanup";
+import { migrateBrowserDrafts } from "../domain/projectDrafts/migrateBrowserDrafts";
+import { readStoredBrowserList } from "../domain/projectDrafts/projectIndex";
+import { PROJECT_BROWSER_STORAGE_KEY } from "../domain/projectBrowserStorage";
+import { projectThumbnailStorageKey } from "../domain/projectDrafts/projectThumbnail";
+import { storedAssetRef, pruneStoredAssets } from "../domain/livingRoom/storedAssets";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
+import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
+import { indexedDbSnapshotStore } from "../platform/indexedDbSnapshotStore";
 
 const CLEANUP_DELAY_MS = 5000;
 
-function localStorageDocuments(): unknown[] {
-  const documents: unknown[] = [];
-  try {
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      const raw = key ? window.localStorage.getItem(key) : null;
-      if (!raw || !raw.includes("idb:")) continue;
-      try { documents.push(JSON.parse(raw) as unknown); } catch { /* not JSON */ }
-    }
-  } catch {
-    /* storage unavailable */
-  }
-  return documents;
-}
-
 /**
- * Once per session, remove stored model files that no saved project, recovery snapshot,
- * or the open project references (deleted objects, deleted projects, cancelled imports).
+ * Once per session, remove stored model files that no draft or the open project references.
+ * Migration runs first so a project that only lives in the old localStorage list is not pruned.
  */
 export function useStoredAssetCleanup(currentProject: unknown) {
   const currentRef = useRef(currentProject);
@@ -29,8 +21,31 @@ export function useStoredAssetCleanup(currentProject: unknown) {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void pruneStoredAssets(indexedDbAssetBlobStore, [currentRef.current, ...localStorageDocuments()])
-        .catch(() => 0);
+      void (async () => {
+        try {
+          await migrateBrowserDrafts({
+            storage: localStorage,
+            blobs: indexedDbAssetBlobStore,
+            drafts: indexedDbDraftStore,
+          });
+          const drafts = await indexedDbDraftStore.list();
+          const index = readStoredBrowserList(localStorage.getItem(PROJECT_BROWSER_STORAGE_KEY)).index;
+          const thumbnailRefs = [
+            ...index.map((entry) => entry.thumbnailKey),
+            ...drafts.map((draft) => storedAssetRef(projectThumbnailStorageKey(draft.id))),
+            ...index.map((entry) => storedAssetRef(projectThumbnailStorageKey(entry.id))),
+          ];
+          await pruneIfSnapshotsLoaded({
+            listSnapshots: () => indexedDbSnapshotStore.list(),
+            listDrafts: async () => drafts,
+            current: currentRef.current,
+            thumbnailRefs,
+            prune: (documents) => pruneStoredAssets(indexedDbAssetBlobStore, documents),
+          });
+        } catch {
+          /* storage unavailable */
+        }
+      })();
     }, CLEANUP_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);

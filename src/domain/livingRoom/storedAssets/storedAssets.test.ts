@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { blobToDataUrl } from "../../../utils/dataUrl";
 import { readImportedGlb } from "../assetImportPipeline";
+import { buildTriangleGlb } from "../../../workers/modelImport/minimalGlb";
 import {
   createMemoryAssetBlobStore,
   embedStoredAssets,
@@ -35,7 +36,7 @@ describe("stored assets", () => {
   it("imports a GLB and its textures as idb references, not data URLs", async () => {
     const store = createMemoryAssetBlobStore();
     const asset = await readImportedGlb([
-      new File([glbBytes], "chair.glb", { type: "model/gltf-binary" }),
+      new File([buildTriangleGlb([-1, 0, -0.5, 1, 0, 0.5, 0, 1, 0])], "chair.glb", { type: "model/gltf-binary" }),
       new File([new Uint8Array([1, 2, 3])], "chair_BaseColor.png", { type: "image/png" }),
     ], store);
     expect(isStoredAssetRef(asset.sourceUrl)).toBe(true);
