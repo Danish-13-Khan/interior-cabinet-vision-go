@@ -18,8 +18,14 @@ describe("contextual command rail (§4.1)", () => {
       selectedObjects: [],
     })).toBe("wall");
     expect(contextualRailCommands("wall").map((item) => item.id)).toEqual([
-      "material", "add-panel", "hide-wall",
+      "material", "add-panel", "add-light", "hide-wall",
     ]);
+    expect(resolveContextualRailKind({
+      activeWallId: null,
+      activeLightId: "room-fixture-1",
+      selectedObjects: [],
+    })).toBe("light");
+    expect(contextualRailCommands("light").map((item) => item.id)).toEqual(["duplicate", "delete"]);
   });
 
   it("prefers panel / cabinet over wall when objects are selected", () => {

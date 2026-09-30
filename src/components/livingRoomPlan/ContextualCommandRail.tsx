@@ -44,6 +44,7 @@ export function ContextualCommandRail({
 
 export function contextualRailKindFromStage(input: {
   activeWallId: string | null;
+  activeLightId?: string | null;
   selectedObjects: readonly { category?: string; kind?: string; catalogItemId?: string }[];
 }): ContextualRailKind {
   return resolveContextualRailKind(input);

@@ -37,14 +37,28 @@ function runRailCommand(props: LivingRoomPlanStageProps, id: ContextualRailComma
       props.onPatchDocument((current) => flipPanelWallSide(current, panelId), "Flip panel side");
     }
   }
-  if (id === "duplicate") props.onDuplicate();
-  if (id === "delete") props.onDelete();
+  if (id === "add-light" && props.activeWallId) {
+    const lightId = props.lightActions.addLight("cove", { kind: "wall", wallId: props.activeWallId });
+    if (lightId) props.onSelectLight(lightId);
+  }
+  const lightOnly = Boolean(props.activeLightId) && props.selectedIds.length === 0;
+  if (id === "duplicate") {
+    if (lightOnly && props.activeLightId) props.lightActions.duplicateLight(props.activeLightId);
+    else props.onDuplicate();
+  }
+  if (id === "delete") {
+    if (lightOnly && props.activeLightId) {
+      props.lightActions.removeLight(props.activeLightId);
+      props.onClearSelection();
+    } else props.onDelete();
+  }
 }
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
   const showRail = props.workspaceView === "plan" || props.workspaceView === "model";
   const kind = contextualRailKindFromStage({
     activeWallId: props.activeWallId,
+    activeLightId: props.activeLightId,
     selectedObjects: selectedObjects(props),
   });
   return (
@@ -92,6 +106,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             activeLightId={props.presenting ? null : props.activeLightId} showGrid={props.showGrid}
             onSelect={props.onSelect} onSelectOpening={props.onSelectOpening} onSelectWall={props.onSelectWall}
             onSelectLight={props.presenting ? () => {} : props.onSelectLight}
+            lightActions={props.lightActions}
             onClearSelection={props.onClearSelection} onMove={props.onMove}
             onMovePreview={props.onMovePreview}
             onUpdateOpening={props.onUpdateOpening}

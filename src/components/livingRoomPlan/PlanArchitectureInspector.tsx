@@ -27,6 +27,9 @@ import { WallGeometryFields } from "./WallGeometryFields";
 import { RoomFinishFields } from "./RoomFinishFields";
 import { WallDrawingPanel } from "./WallDrawingPanel";
 import { InspectorSection } from "./InspectorSection";
+import { CeilingLightingSection } from "./CeilingLightingSection";
+import { WallLightingSection } from "./WallLightingSection";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 
 type ImportApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
 
@@ -53,6 +56,8 @@ type Props = {
   onDeleteWall?: (wallId: string) => void;
   onJoinNodes?: () => void;
   onAddWallPanel?: (wallId: string) => void;
+  lightActions?: LightFixtureActions;
+  onSelectLight?: (id: string) => void;
 };
 
 export function PlanArchitectureInspector(props: Props) {
@@ -77,6 +82,9 @@ export function PlanArchitectureInspector(props: Props) {
       <NumberField label="Depth · mm" value={room.dimensions.depthMm}
         onChange={(depthMm) => props.onRoomDimensions({ ...room.dimensions, depthMm })} />
       <p className="lr-authoring-hint">Select Draw wall, then click two points on the plan.</p>
+      {props.lightActions && props.onSelectLight ? (
+        <CeilingLightingSection actions={props.lightActions} onSelectLight={props.onSelectLight} />
+      ) : null}
       <InspectorSection title="Advanced" testId="inspector-room-advanced">
         <div className="lr-room-preview" aria-label={`${room.name} room preview`}>
           <svg viewBox="0 0 180 110" aria-hidden="true"><path d={previewPath} />
@@ -107,6 +115,9 @@ export function PlanArchitectureInspector(props: Props) {
         onChange={(heightMm) => props.onUpdateWall(wall.id, { heightMm })} />
       <WallRaiseControls wall={wall} roomWallIds={roomWallIds} heightMm={wall.heightMm}
         onRaise={props.onRaiseWalls} onOffset={(offsetMm) => props.onOffsetWall(wall.id, offsetMm)} />
+      {props.lightActions && props.onSelectLight ? (
+        <WallLightingSection wallId={wall.id} actions={props.lightActions} onSelectLight={props.onSelectLight} />
+      ) : null}
       <h4>Wall material</h4>
       <MaterialSwatchGrid materials={props.project.materials} activeMaterialId={wall.materialId ?? null} compact
         onPick={(materialId) => props.onSetWallMaterial(wall.id, materialId)}

@@ -17,7 +17,7 @@ import { InspectorObjectList } from "./InspectorObjectList";
 import { InspectorModelExtrasSlot, InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
 import { SurfaceInspector } from "./SurfaceInspector";
 import { LightFixtureInspector } from "./LightFixtureInspector";
-import type { LightDocumentPatch } from "./lightFixtureEdits";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -91,7 +91,8 @@ type LivingRoomInspectorPanelProps = {
   ) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
   activeLight?: LightEntity | null;
-  onPatchDocument?: LightDocumentPatch;
+  lightActions?: LightFixtureActions;
+  onSelectLight?: (id: string) => void;
   onRemovedLight?: () => void;
 };
 
@@ -136,9 +137,9 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSelect={props.onSelect}
           />
         ) : null}
-        {activeLight && props.onPatchDocument ? (
-          <LightFixtureInspector project={props.project} light={activeLight}
-            onPatchDocument={props.onPatchDocument} onRemoved={props.onRemovedLight} />
+        {activeLight && props.lightActions ? (
+          <LightFixtureInspector project={props.project} light={activeLight} actions={props.lightActions}
+            onRemoved={props.onRemovedLight} />
         ) : activeOpening ? (
           <OpeningInspector
             opening={activeOpening} wall={openingWall} positionOverride={props.openingPositionOverride}
@@ -175,7 +176,8 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             suppressEmptyWall={!activeWall} compact={props.drawRoom}
             hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
             onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes}
-            onAddWallPanel={props.onAddWallPanel} />
+            onAddWallPanel={props.onAddWallPanel}
+            lightActions={props.lightActions} onSelectLight={props.onSelectLight} />
         ) : null}
         {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun && props.workflowArea !== "review" ? (
           <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />

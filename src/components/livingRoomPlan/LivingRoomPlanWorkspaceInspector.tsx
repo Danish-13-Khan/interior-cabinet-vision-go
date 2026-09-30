@@ -5,6 +5,7 @@ import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { isWallCabinetObject } from "../../domain/livingRoom/cabinetSceneMount";
 import { resolveLightAttachment } from "../../domain/livingRoom/lightAttachments";
+import { inspectPlanTarget } from "./planInspectTarget";
 
 export function LivingRoomPlanWorkspaceInspector(props: {
   body: LivingRoomPlanWorkspaceBodyProps;
@@ -68,7 +69,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
         const light = p.project.lights.find((item) => item.id === p.activeLightId) ?? null;
         return light ? resolveLightAttachment(p.project, light) : null;
       })()}
-      onPatchDocument={w.onPatchDocument}
+      lightActions={w.lightActions}
+      onSelectLight={(lightId) => inspectPlanTarget(p, { lightId })}
       onRemovedLight={() => p.setActiveLightId(null)}
       onUpdateOpening={(openingId, patch) => p.build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
       onDeleteOpening={(openingId) => { p.build.dispatchBuildCommand({ type: "deleteOpening", openingId }); p.setActiveOpeningId(null); }}
