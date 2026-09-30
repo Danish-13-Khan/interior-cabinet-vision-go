@@ -23,18 +23,30 @@ export function AssetImportPanel({
 }) {
   const input = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<ImportedAsset | null>(null);
   const chosenFiles = useRef<File[]>([]);
+  const flight = useRef<AbortController | null>(null);
   const importFiles = (files: File[], nextUnit: LengthUnit, honorFileUnits = false) => {
+    flight.current?.abort();
+    const controller = new AbortController();
+    flight.current = controller;
     chosenFiles.current = files;
     setError("");
-    void readImportedGlb(files, indexedDbAssetBlobStore, nextUnit, honorFileUnits).then(setPending).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
+    setBusy(true);
+    void readImportedGlb(files, indexedDbAssetBlobStore, nextUnit, honorFileUnits, controller.signal)
+      .then((asset) => { if (!controller.signal.aborted) setPending(asset); })
+      .catch((reason: unknown) => {
+        if (controller.signal.aborted) return;
+        setError(reason instanceof Error ? reason.message : "Model import failed.");
+      })
+      .finally(() => { if (flight.current === controller) setBusy(false); });
   };
   const assets = ASSET_IMPORT_STARTER_PACK.filter((asset) => cabinetMode ? asset.kind === "cabinet" : asset.kind !== "cabinet");
   const maps = pending ? Object.entries(pending.textureUrls ?? {}) : [];
   const addPending = () => { if (pending) onAdd(pending); setPending(null); };
   return <>
-    <section className="lr-model-import">
+    <section className="lr-model-import" aria-busy={busy}>
       <input ref={input} type="file" accept=".glb,.gltf,.fbx,.obj,.mtl,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
         const files = Array.from(event.target.files ?? []);
         event.target.value = "";
@@ -43,21 +55,21 @@ export function AssetImportPanel({
       }} />
       <strong>Asset Import</strong>
       <small>Select a GLB and its BaseColor/normal/roughness images together. Files are kept in this browser and embedded when you save the project to a file.</small>
-      <button type="button" onClick={() => input.current?.click()}>Import model + textures</button>
+      <button type="button" onClick={() => input.current?.click()} disabled={busy}>{busy ? "Importing…" : "Import model + textures"}</button>
       {error ? <p className="lr-import-error">{error}</p> : null}
       {pending?.importWarnings?.length ? <p>{pending.importWarnings[0]}</p> : null}
     </section>
-    {pending ? <section className="lr-texture-window" aria-label="Texture setup">
+    {pending ? <section className="lr-texture-window" aria-label="Texture setup" aria-busy={busy}>
       <strong>Texture setup</strong><small>{pending.name} · {Math.round(pending.dimensions.widthMm)} × {Math.round(pending.dimensions.heightMm)} × {Math.round(pending.dimensions.depthMm)} mm</small>
-      <ImportSizeConfirm asset={pending} onUnit={(next) => {
-        if (!chosenFiles.current.length) return;
+      <ImportSizeConfirm asset={pending} busy={busy} onUnit={(next) => {
+        if (!chosenFiles.current.length || busy) return;
         if (next === "file") importFiles(chosenFiles.current, "m", true);
         else importFiles(chosenFiles.current, next);
       }} />
       {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}>{url ? <TexturePreview url={url} /> : null}<span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
       <footer>
-        <button type="button" onClick={() => setPending(null)}>Cancel</button>
-        <button type="button" onClick={addPending}>Add to room</button>
+        <button type="button" onClick={() => { flight.current?.abort(); setPending(null); setBusy(false); }}>Cancel</button>
+        <button type="button" onClick={addPending} disabled={busy}>Add to room</button>
       </footer>
     </section> : null}
     <div className="lr-import-pack">

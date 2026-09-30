@@ -4,7 +4,9 @@ import { WebIO } from "@gltf-transform/core";
 import { EXTMeshoptCompression, KHRMeshQuantization } from "@gltf-transform/extensions";
 import { MeshoptDecoder } from "meshoptimizer";
 import { buildTriangleGlb } from "./minimalGlb";
-import { optimizeGlb, simplifyRatio } from "./optimize";
+import { createOptimizeIO, optimizeGlb, simplifyRatio } from "./optimize";
+import { Document } from "@gltf-transform/core";
+import { KHRMaterialsUnlit, KHRTextureTransform } from "@gltf-transform/extensions";
 
 function denseGlb(): ArrayBuffer {
   const positions: number[] = [];
@@ -36,5 +38,17 @@ describe("model optimizer", () => {
     const after = getBounds((await io.readBinary(optimized.glb)).getRoot().listScenes()[0]);
     expect(after.max[0] - after.min[0]).toBeCloseTo(before.max[0] - before.min[0], 0);
     expect(after.max[1]).toBeGreaterThanOrEqual(-0.01);
+  });
+
+  it("keeps material and texture-transform extensions", async () => {
+    const document = new Document();
+    document.createBuffer();
+    document.createExtension(KHRMaterialsUnlit);
+    document.createExtension(KHRTextureTransform).createTransform();
+    const io = createOptimizeIO();
+    const written = await io.writeBinary(document);
+    const read = await io.readBinary(written);
+    const names = read.getRoot().listExtensionsUsed().map((extension) => extension.extensionName);
+    expect(names).toEqual(expect.arrayContaining(["KHR_materials_unlit", "KHR_texture_transform"]));
   });
 });

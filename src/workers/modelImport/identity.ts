@@ -24,7 +24,7 @@ export async function assetIdForImport(
   settings: ImportSettings,
   decision: ImportUnitDecision = {},
 ): Promise<string> {
-  const sorted = [...files].sort((a, b) => a.name.localeCompare(b.name));
+  const sorted = [...files].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const parts: string[] = [];
   for (const file of sorted) parts.push(`${file.name}:${await sha256Hex(file.bytes)}`);
   const honorFileUnits = decision.honorFileUnits === true;

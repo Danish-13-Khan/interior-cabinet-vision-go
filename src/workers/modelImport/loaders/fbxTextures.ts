@@ -1,5 +1,5 @@
 import { Loader, LoadingManager, Texture } from "three";
-import { unsupportedTextureWarning } from "../messages";
+import { missingTextureWarning, unsupportedTextureWarning } from "../messages";
 import { decodeTexture } from "./textures";
 
 const IMAGE_EXTS = ["png", "jpg", "jpeg", "webp", "bmp", "gif"];
@@ -90,10 +90,21 @@ export function attachFbxTextureLoader(files: readonly { name: string; bytes: Ar
       const resolved = this.path ? `${this.path}${url}` : url;
       const texture = new Texture();
       const task = readTextureBytes(resolved, images).then(async (image) => {
-        if (!image) return;
-        const bitmap = await decodeTexture(image.bytes, image.mime, false);
-        if (!bitmap) return;
+        const name = basename(resolved);
+        if (!image) {
+          if (!resolved.startsWith("blob:") && !resolved.startsWith("data:")) warnings.push(missingTextureWarning(name || resolved));
+          return;
+        }
+        texture.userData.matchedName = name;
+        // ImageBitmap ignores UNPACK_FLIP_Y. Pre-flip and keep flipY off so the GLB is upright.
+        const bitmap = await decodeTexture(image.bytes, image.mime, true);
+        if (!bitmap) {
+          warnings.push(unsupportedTextureWarning(name || "image"));
+          return;
+        }
         texture.image = bitmap as unknown as HTMLImageElement;
+        texture.flipY = false;
+        texture.userData.matchedName = name;
         texture.needsUpdate = true;
         onLoad?.(texture);
       }).catch((error: unknown) => { onError?.(error); });

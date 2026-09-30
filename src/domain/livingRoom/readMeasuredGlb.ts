@@ -38,6 +38,7 @@ export async function readImportedGlb(
   store: AssetBlobStore,
   unit: LengthUnit = "m",
   honorFileUnits = true,
+  signal?: AbortSignal,
 ): Promise<ImportedAsset> {
   const all = Array.isArray(files) ? files : [files];
   for (const item of all) {
@@ -46,9 +47,10 @@ export async function readImportedGlb(
   }
   const file = all.find((item) => ["glb", "gltf", "fbx", "obj"].includes(extensionOf(item.name)));
   if (!file) throw new Error("Select a GLB, FBX, or OBJ file.");
+  if (signal?.aborted) throw new DOMException("Import cancelled", "AbortError");
   if (file.size > MAX_RAW_MODEL_BYTES) throw new Error("Model is larger than 150 MB.");
   const payloads = await Promise.all(all.map(async (item) => ({ name: item.name, bytes: await item.arrayBuffer() })));
-  const measured = await measureGlbImport(payloads, defaultGlbSettings(unit), honorFileUnits);
+  const measured = await measureGlbImport(payloads, defaultGlbSettings(unit), honorFileUnits, signal);
   const glbBytes = requireOptimizedGlb(measured.glb);
   const textureUrls: ModelTextureUrls = {};
   await Promise.all(all.filter((item) => item !== file && item.type.startsWith("image/")).map(async (image) => {
