@@ -30,6 +30,8 @@ export type LightFixtureDefaults = {
   ceilingDropMm: number;
   /** Free placement at a fixed height above the finished floor. */
   absoluteYMm?: number;
+  /** Seeded as parameters.colorTemperatureK. Not the global 3000 K fallback. */
+  colorTemperatureK: number;
   /** Euler X of a free fixture. Cove aims up (90); down-lights use −90. */
   rotationX: number;
   /** Initial wall-mount centre when the kind is not a fitted cove. */
@@ -46,6 +48,8 @@ export type LightFixtureDefinition = {
   name: string;
   kind: Extract<LightKind, "area" | "point" | "spot">;
   category: LightFixtureCategory;
+  /** Hosts the UI may offer. `addRoomLightFixture` refuses anything else. */
+  mounts: readonly LightMountKind[];
   defaults: LightFixtureDefaults;
 };
 
@@ -63,6 +67,7 @@ const area = (over: Partial<LightFixtureDefaults> = {}): LightFixtureDefaults =>
   rangeMm: 5000,
   ceilingDropMm: 80,
   rotationX: -90,
+  colorTemperatureK: 3000,
   ...over,
 });
 
@@ -71,27 +76,42 @@ const emitter = (over: Partial<LightFixtureDefaults> = {}): LightFixtureDefaults
   ...over,
 });
 
+/**
+ * Kelvin seeds: rope 2700, profile 3500, panel 4000 (roadmap intent).
+ * The architecture doc lists no other values, so the rest are role defaults:
+ * cove / cob / downlight 3000, track / pendant 2700, under-cabinet 4000.
+ */
 export const LIGHT_FIXTURE_DEFINITIONS: readonly LightFixtureDefinition[] = [
   { id: "ceiling-downlight", name: "Ceiling downlight", kind: "spot", category: "ceiling",
-    defaults: emitter({ beamAngleDeg: 36, ceilingDropMm: 80 }) },
+    mounts: ["free", "ceiling"],
+    defaults: emitter({ beamAngleDeg: 36, ceilingDropMm: 80, colorTemperatureK: 3000 }) },
   { id: "pendant", name: "Pendant light", kind: "point", category: "ceiling",
-    defaults: emitter({ depthMm: 100, ceilingDropMm: 650 }) },
+    mounts: ["free", "ceiling"],
+    defaults: emitter({ depthMm: 100, ceilingDropMm: 650, colorTemperatureK: 2700 }) },
   { id: "under-cabinet", name: "Under-cabinet LED strip", kind: "area", category: "cabinet",
-    defaults: area({ depthMm: 12, absoluteYMm: 1450 }) },
+    mounts: ["free", "object"],
+    defaults: area({ depthMm: 12, absoluteYMm: 1450, colorTemperatureK: 4000 }) },
   { id: "cove", name: "Cove LED strip", kind: "area", category: "wall",
-    defaults: area({ depthMm: 40, rotationX: 90, ceilingDropMm: 80 }) },
+    mounts: ["free", "wall"],
+    defaults: area({ depthMm: 40, rotationX: 90, ceilingDropMm: 80, colorTemperatureK: 3000 }) },
   { id: "rope", name: "Rope light", kind: "area", category: "wall",
-    defaults: area({ heightMm: 12, depthMm: 12, rotationX: 0, absoluteYMm: 1200, wallCenterHeightMm: 1200 }) },
+    mounts: ["free", "wall", "object"],
+    defaults: area({ heightMm: 12, depthMm: 12, rotationX: 0, absoluteYMm: 1200, wallCenterHeightMm: 1200,
+      colorTemperatureK: 2700 }) },
   { id: "profile", name: "Profile light", kind: "area", category: "wall",
+    mounts: ["free", "wall"],
     defaults: area({ heightMm: 30, depthMm: 24, rotationX: 0, absoluteYMm: 1400, wallCenterHeightMm: 1400,
-      profileFinish: "aluminium", orientation: "horizontal" }) },
+      profileFinish: "aluminium", orientation: "horizontal", colorTemperatureK: 3500 }) },
   { id: "panel", name: "Panel light", kind: "area", category: "ceiling",
-    defaults: area({ widthMm: 600, heightMm: 600, depthMm: 30, ceilingDropMm: 40 }) },
+    mounts: ["free", "ceiling"],
+    defaults: area({ widthMm: 600, heightMm: 600, depthMm: 30, ceilingDropMm: 40, colorTemperatureK: 4000 }) },
   { id: "cob", name: "COB downlight", kind: "spot", category: "ceiling",
-    defaults: emitter({ widthMm: 90, heightMm: 90, beamAngleDeg: 40, ceilingDropMm: 40 }) },
+    mounts: ["free", "ceiling"],
+    defaults: emitter({ widthMm: 90, heightMm: 90, beamAngleDeg: 40, ceilingDropMm: 40, colorTemperatureK: 3000 }) },
   { id: "track", name: "Track light", kind: "spot", category: "ceiling",
+    mounts: ["free", "ceiling"],
     defaults: emitter({ widthMm: 1200, heightMm: 40, depthMm: 35, beamAngleDeg: 30, headCount: 3,
-      aimAngleDeg: 20, profileFinish: "aluminium", ceilingDropMm: 80 }) },
+      aimAngleDeg: 20, profileFinish: "aluminium", ceilingDropMm: 80, colorTemperatureK: 2700 }) },
 ];
 
 const BY_KIND = new Map(LIGHT_FIXTURE_DEFINITIONS.map((definition) => [definition.id, definition]));

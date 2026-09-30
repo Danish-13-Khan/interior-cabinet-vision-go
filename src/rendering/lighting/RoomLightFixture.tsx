@@ -3,6 +3,12 @@ import { Object3D } from "three";
 import type { LightEntity } from "../../domain/interiorProject";
 import { fixtureEmissiveIntensity, fixtureRenderIntensity } from "../../domain/livingRoom/lightFixtureTypes";
 
+/** Degrees to a group Euler. YXZ tilts about X before yaw, so a side-wall cove still aims up. */
+export function roomLightRotation(rotation: { x: number; y: number; z: number }): [number, number, number, "YXZ"] {
+  const toRad = Math.PI / 180;
+  return [rotation.x * toRad, rotation.y * toRad, rotation.z * toRad, "YXZ"];
+}
+
 /** Visible fixture and its illumination share a transform and saved light entity. */
 export function RoomLightFixture({ light, intensityScale, castShadow }: {
   light: LightEntity;
@@ -17,7 +23,7 @@ export function RoomLightFixture({ light, intensityScale, castShadow }: {
   const intensity = fixtureRenderIntensity(light, light.kind, intensityScale);
   const widthMm = Number(light.parameters.widthMm ?? 1000);
   const heightMm = Number(light.parameters.heightMm ?? 20);
-  const rotation = [light.rotation.x, light.rotation.y, light.rotation.z].map((value) => value * Math.PI / 180) as [number, number, number];
+  const rotation = roomLightRotation(light.rotation);
   return <group position={[light.position.x / 1000, light.position.y / 1000, light.position.z / 1000]} rotation={rotation}>
     <primitive object={target} />
     <mesh rotation={light.kind === "spot" ? [Math.PI / 2, 0, 0] : [0, 0, 0]}>

@@ -61,7 +61,7 @@ references.
    (`free | object | wall | ceiling`), `readLightMount`, `resolveLightAttachment`
    dispatching to object (existing logic), wall (`orientWallForRoom` +
    `selectRoomWalls`, `alongMm` clamped to half length, `centerHeightMm`,
-   `wallSide`, `fitHostWidth` → length − 2 × `WALL_STRIP_END_MARGIN_MM`;
+   `wallSide`, `fitHostWidth` → length − 2 × `WALL_STRIP_END_MARGIN_MM` (20 mm each end, not 50);
    rotation yaw so local −Z points away from the wall, plus `x: 90` for cove),
    ceiling (`y = room.heightMm − ceilingDropMm`, rotation `x: −90`, keep yaw).
    Add `attachLightToWall`, `attachLightToCeiling`, `updateLightMount`;
