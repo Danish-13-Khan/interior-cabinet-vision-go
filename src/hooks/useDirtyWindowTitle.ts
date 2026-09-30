@@ -14,6 +14,8 @@ export function useDirtyWindowTitle(dirty: boolean, projectName: string) {
     if (!isTauriRuntime()) return;
     void import("@tauri-apps/api/window")
       .then(({ getCurrentWindow }) => getCurrentWindow().setTitle(title))
-      .catch(() => undefined);
+      .catch((error: unknown) => {
+        console.error("Could not set the window title.", error);
+      });
   }, [dirty, projectName]);
 }
