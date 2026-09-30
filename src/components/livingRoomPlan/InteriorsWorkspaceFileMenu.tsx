@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { VersionHistoryMenu } from "./VersionHistoryMenu";
 
 type InteriorsWorkspaceFileMenuProps = {
+  projectId?: string | null;
   disabled?: boolean;
   onProjectTools?: () => void;
   onOpen: () => void;
@@ -12,6 +13,7 @@ type InteriorsWorkspaceFileMenuProps = {
 
 /** Job menu ▾ next to the job name: project tools plus File actions (open, save, export). */
 export function InteriorsWorkspaceFileMenu({
+  projectId = null,
   disabled = false,
   onProjectTools,
   onOpen,
@@ -73,7 +75,7 @@ export function InteriorsWorkspaceFileMenu({
           <button type="button" role="menuitem" onClick={() => run(onSave)}>
             Save
           </button>
-          <VersionHistoryMenu />
+          <VersionHistoryMenu projectId={projectId} />
           <button type="button" role="menuitem" onClick={() => run(onExport)}>
             Export JSON…
           </button>

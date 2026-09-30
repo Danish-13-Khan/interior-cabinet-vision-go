@@ -59,15 +59,13 @@ async function putBody(
 async function foldRecovery(storage: StorageLike, drafts: DraftStore, index: ProjectIndexEntry[]): Promise<boolean> {
   const raw = storage.getItem(LIVING_ROOM_RECOVERY_STORAGE_KEY);
   if (!raw) return false;
-  try {
-    const parsed = JSON.parse(raw) as { savedAt?: string; project?: unknown };
-    const loaded = parsed.project ? loadInteriorProjectFile(parsed.project) : null;
-    if (loaded?.document && isDraftBody(cabinetProjectFromInteriorProject(loaded.document))) {
-      const compatible = cabinetProjectFromInteriorProject(loaded.document);
-      const savedAt = typeof parsed.savedAt === "string" ? parsed.savedAt : new Date(0).toISOString();
-      await putBody(drafts, index, loaded.document.id, loaded.document.name, savedAt, compatible, null);
-    }
-  } catch { /* drop invalid recovery; the draft store is the only copy */ }
+  const parsed = JSON.parse(raw) as { savedAt?: string; project?: unknown };
+  const loaded = parsed.project ? loadInteriorProjectFile(parsed.project) : null;
+  if (!loaded?.document) return false;
+  const compatible = cabinetProjectFromInteriorProject(loaded.document);
+  if (!isDraftBody(compatible)) return false;
+  const savedAt = typeof parsed.savedAt === "string" ? parsed.savedAt : new Date(0).toISOString();
+  await putBody(drafts, index, loaded.document.id, loaded.document.name, savedAt, compatible, null);
   storage.removeItem(LIVING_ROOM_RECOVERY_STORAGE_KEY);
   return true;
 }

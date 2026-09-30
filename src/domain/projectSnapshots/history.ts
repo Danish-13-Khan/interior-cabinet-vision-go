@@ -2,6 +2,12 @@ import { rebuildDwgDataUrls, splitDwgPreviews } from "../projectDrafts/dwgDraftS
 import { migrateInteriorProjectDocument } from "../interiorProject/migrations";
 import { SNAPSHOT_LIMIT, type ProjectSnapshot, type SnapshotReason, type SnapshotStore } from "./types";
 
+/** History is per project. Missing id must not list every project's snapshots. */
+export function snapshotsForProject(all: readonly ProjectSnapshot[], projectId: string | null | undefined): ProjectSnapshot[] {
+  if (!projectId) return [];
+  return all.filter((snapshot) => snapshot.projectId === projectId).sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
+}
+
 export function snapshotId(projectId: string, createdAt: string): string {
   return `${projectId}:${createdAt}`;
 }

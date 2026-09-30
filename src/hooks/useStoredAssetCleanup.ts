@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
-import { documentsInUse } from "../domain/projectDrafts/inUseDocuments";
+import { pruneIfSnapshotsLoaded } from "../domain/projectDrafts/assetCleanup";
 import { migrateBrowserDrafts } from "../domain/projectDrafts/migrateBrowserDrafts";
-import { pruneStoredAssets } from "../domain/livingRoom/storedAssets";
+import { readStoredBrowserList } from "../domain/projectDrafts/projectIndex";
+import { PROJECT_BROWSER_STORAGE_KEY } from "../domain/projectBrowserStorage";
+import { projectThumbnailStorageKey } from "../domain/projectDrafts/projectThumbnail";
+import { storedAssetRef, pruneStoredAssets } from "../domain/livingRoom/storedAssets";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 import { indexedDbSnapshotStore } from "../platform/indexedDbSnapshotStore";
@@ -26,8 +29,19 @@ export function useStoredAssetCleanup(currentProject: unknown) {
             drafts: indexedDbDraftStore,
           });
           const drafts = await indexedDbDraftStore.list();
-          const snapshots = await indexedDbSnapshotStore.list().catch(() => []);
-          await pruneStoredAssets(indexedDbAssetBlobStore, documentsInUse(currentRef.current, drafts, snapshots));
+          const index = readStoredBrowserList(localStorage.getItem(PROJECT_BROWSER_STORAGE_KEY)).index;
+          const thumbnailRefs = [
+            ...index.map((entry) => entry.thumbnailKey),
+            ...drafts.map((draft) => storedAssetRef(projectThumbnailStorageKey(draft.id))),
+            ...index.map((entry) => storedAssetRef(projectThumbnailStorageKey(entry.id))),
+          ];
+          await pruneIfSnapshotsLoaded({
+            listSnapshots: () => indexedDbSnapshotStore.list(),
+            listDrafts: async () => drafts,
+            current: currentRef.current,
+            thumbnailRefs,
+            prune: (documents) => pruneStoredAssets(indexedDbAssetBlobStore, documents),
+          });
         } catch {
           /* storage unavailable */
         }
