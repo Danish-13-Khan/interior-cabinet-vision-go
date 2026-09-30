@@ -15,7 +15,9 @@ import { schemaVersionOf } from "../domain/projectDrafts/draftDocument";
 import type { RoomConfig } from "../domain/roomModel";
 import type { EditorSnapshot } from "../domain/editorSnapshot";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
+import { deleteProjectData } from "../domain/projectDrafts/deleteProjectData";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
+import { indexedDbSnapshotStore } from "../platform/indexedDbSnapshotStore";
 import { isTauriRuntime } from "../platform/desktopFiles";
 import { useDraftAutosave } from "./useDraftAutosave";
 import { useStoredAssetCleanup } from "./useStoredAssetCleanup";
@@ -150,9 +152,15 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
   const handleDeleteSavedProject = useCallback((projectId: string) => {
     deletedIds.current.add(projectId);
     setSavedProjects((current) => current.filter((item) => item.id !== projectId));
-    void indexedDbDraftStore.delete(projectId);
+    void deleteProjectData({
+      projectId,
+      drafts: indexedDbDraftStore,
+      snapshots: indexedDbSnapshotStore,
+      blobs: indexedDbAssetBlobStore,
+      current: project,
+    }).catch(() => onStatus("Removed the project, but some of its stored files could not be deleted."));
     onStatus("Removed project from the browser.");
-  }, [onStatus]);
+  }, [onStatus, project]);
 
   const handleRenameSavedProject = useCallback((projectId: string, newName: string) => {
     const trimmed = newName.trim();

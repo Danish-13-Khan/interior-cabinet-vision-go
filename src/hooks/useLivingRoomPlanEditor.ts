@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { noteProjectSnapshot } from "../domain/projectSnapshots/capture";
 import type { CabinetProject } from "../domain/cabinetDimensions";
 import {
   cabinetProjectFromInteriorProject,
@@ -648,10 +649,13 @@ export function useLivingRoomPlanEditor({
   }
 
   function drawRoom(drawing: RoomDrawingRequest) {
-    commitDocument(
-      (current) => ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, drawing, { raised: true })),
-      `Created ${drawing.kind} room.`,
-    );
+    let committed: InteriorProject | null = null;
+    commitDocument((current) => {
+      const next = ensureDrawnRoomReviewRig(current, drawRoomFromPoints(current, drawing, { raised: true }));
+      committed = next;
+      return next;
+    }, `Created ${drawing.kind} room.`);
+    if (drawing.kind === "polygon" && committed) noteProjectSnapshot("room-closed", committed);
   }
 
   function drawWallSegment(start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") {

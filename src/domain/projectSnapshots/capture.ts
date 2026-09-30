@@ -1,7 +1,7 @@
 import type { SnapshotReason } from "./types";
 
 type Session = {
-  capture: (reason: SnapshotReason) => void;
+  capture: (reason: SnapshotReason, document?: unknown) => void;
   restore: (document: unknown) => void;
 };
 
@@ -16,8 +16,8 @@ export function bindSnapshotSession(next: Session): () => void {
   };
 }
 
-export function noteProjectSnapshot(reason: SnapshotReason) {
-  session?.capture(reason);
+export function noteProjectSnapshot(reason: SnapshotReason, document?: unknown) {
+  session?.capture(reason, document);
 }
 
 export function restoreProjectSnapshot(document: unknown) {
