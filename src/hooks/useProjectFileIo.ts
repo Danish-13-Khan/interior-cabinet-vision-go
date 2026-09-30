@@ -32,7 +32,7 @@ type Args = {
   onStatus: (status: string) => void;
   rememberFile: (path: string) => void;
   forgetFile: (path: string) => void;
-  saveCurrentProjectToBrowser: (nameOverride?: string) => void;
+  saveCurrentProjectToBrowser: (nameOverride?: string, savedAt?: string) => void;
   captureThumbnail: () => string;
   initialSession: DesktopSessionState;
 };
