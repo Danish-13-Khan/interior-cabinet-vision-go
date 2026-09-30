@@ -28,6 +28,22 @@ export const browserLoading = signal(false);
 export const recoveryOffer = signal<RecoveryOffer>(null);
 export const webDraftRestore = signal<WebDraftRestore | null>(null);
 export const autosaveStatus = signal<AutosaveStatus>({ state: "idle", at: null });
+/** Status the Interiors editor renders. projectStatus alone is not on that screen. */
+export const editorStatus = signal("");
+/** Set when a saved draft has just been loaded so the file fingerprint can be marked clean. */
+export const cleanProjectId = signal<string | null>(null);
+
+let pendingEpoch = 0;
+
+/** An edit happened. Saves that started earlier must not clear the pending marker. */
+export function notePendingEdit(): number {
+  pendingEpoch += 1;
+  return pendingEpoch;
+}
+
+export function pendingEpochNow(): number {
+  return pendingEpoch;
+}
 
 let flushImpl: (() => Promise<void>) | null = null;
 let writesSuspended = false;
