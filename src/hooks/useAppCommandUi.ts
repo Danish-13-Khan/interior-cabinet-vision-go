@@ -1,208 +1,56 @@
-import type { Dispatch, SetStateAction } from "react";
-import type { DraftingTool } from "../components/TwoDView";
-import type { ContextMenuItem } from "../components/ContextMenu";
-import type { ShortcutMap } from "../domain/desktopUx";
-import type { DesktopLayoutPrefs } from "../domain/desktopUx";
-import type { CabinetType } from "../domain/cabinetDimensions";
+import { buildEditorShortcutActions, type UseAppCommandUiArgs } from "./appCommandUiBindings";
 import { useEditorShortcuts } from "./useEditorShortcuts";
 import { useAppCommandItems } from "./useAppCommandItems";
-import type { AlignmentMode } from "../domain/cabinetAlignment";
 
-type UseAppCommandUiArgs = {
-  shortcutMap: ShortcutMap;
-  showGrid: boolean;
-  snapSizeMm: number;
-  setIsCommandBarOpen: Dispatch<SetStateAction<boolean>>;
-  setCommandQuery: Dispatch<SetStateAction<string>>;
-  setIsShortcutSheetOpen: Dispatch<SetStateAction<boolean>>;
-  setLibraryManagerOpen: Dispatch<SetStateAction<boolean>>;
-  setContextMenu: Dispatch<
-    SetStateAction<{ x: number; y: number; items: ContextMenuItem[] } | null>
-  >;
-  setWorkspaceTab: (tab: DesktopLayoutPrefs["workspaceTab"]) => void;
-  setDraftingTool: Dispatch<SetStateAction<DraftingTool>>;
-  toggleToolRail: () => void;
-  toggleInspector: () => void;
-  cycleWorkspaceTab: () => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  onSave: () => void;
-  onSaveAs: () => void;
-  onReset: () => void;
-  onCopy: () => void;
-  onPaste: () => void;
-  onDuplicate: () => void;
-  onSelectAll: () => void;
-  onRemove: () => void;
-  onCreateGroup: () => void;
-  onClearGroup: () => void;
-  onAlignSelection: (mode: AlignmentMode) => void;
-  onAutoAlignRuns: () => void;
-  onToggleGrid: () => void;
-  onRotate90: () => void;
-  onCycleSnap: () => void;
-  onAddCabinet: (type: CabinetType) => void;
-  onToggleSheetBrowser: () => void;
-  onLoadProject: () => void | Promise<void>;
-  onSaveProject: () => void | Promise<void>;
-  onExportProjectJson: () => void | Promise<void>;
-  onExportCutlistCsv: () => void | Promise<void>;
-  onExportPdf: () => void | Promise<void>;
-  onExportMachineJson: () => void | Promise<void>;
-  onFreezeRevision: () => void;
-  onReleaseForProduction: () => void;
-  onExportRevisionSummary: () => void | Promise<void>;
-};
-
-export function useAppCommandUi({
-  shortcutMap,
-  showGrid,
-  snapSizeMm,
-  setIsCommandBarOpen,
-  setCommandQuery,
-  setIsShortcutSheetOpen,
-  setLibraryManagerOpen,
-  setContextMenu,
-  setWorkspaceTab,
-  setDraftingTool,
-  toggleToolRail,
-  toggleInspector,
-  cycleWorkspaceTab,
-  onUndo,
-  onRedo,
-  onSave,
-  onSaveAs,
-  onReset,
-  onCopy,
-  onPaste,
-  onDuplicate,
-  onSelectAll,
-  onRemove,
-  onCreateGroup,
-  onClearGroup,
-  onAlignSelection,
-  onAutoAlignRuns,
-  onToggleGrid,
-  onRotate90,
-  onCycleSnap,
-  onAddCabinet,
-  onToggleSheetBrowser,
-  onLoadProject,
-  onSaveProject,
-  onExportProjectJson,
-  onExportCutlistCsv,
-  onExportPdf,
-  onExportMachineJson,
-  onFreezeRevision,
-  onReleaseForProduction,
-  onExportRevisionSummary,
-}: UseAppCommandUiArgs) {
+export function useAppCommandUi(args: UseAppCommandUiArgs) {
   function closeCommandSurfaces() {
-    setIsCommandBarOpen(false);
-    setCommandQuery("");
-    setIsShortcutSheetOpen(false);
+    args.setIsCommandBarOpen(false);
+    args.setCommandQuery("");
+    args.setIsShortcutSheetOpen(false);
   }
 
   useEditorShortcuts(
-    {
-      onUndo,
-      onRedo,
-      onSave: () => {
-        void onSave();
-      },
-      onSaveAs: () => {
-        void onSaveAs();
-      },
-      onNew: onReset,
-      onCopy,
-      onPaste,
-      onDuplicate,
-      onSelectAll,
-      onRemove,
-      onToggleCommandPalette: () => {
-        setIsCommandBarOpen((value) => !value);
-        setIsShortcutSheetOpen(false);
-        setContextMenu(null);
-      },
-      onToggleShortcuts: () => {
-        setIsShortcutSheetOpen((value) => !value);
-        setIsCommandBarOpen(false);
-        setContextMenu(null);
-      },
-      onEscape: () => {
-        closeCommandSurfaces();
-        setContextMenu(null);
-        setDraftingTool("select");
-      },
-      onViewPlan: () => {
-        setWorkspaceTab("plan");
-        setDraftingTool("select");
-      },
-      onViewFront: () => {
-        setWorkspaceTab("front");
-        setDraftingTool("select");
-      },
-      onViewSide: () => {
-        setWorkspaceTab("side");
-        setDraftingTool("select");
-      },
-      onView3d: () => {
-        setWorkspaceTab("3d");
-        setDraftingTool("select");
-      },
-      onToggleToolRail: toggleToolRail,
-      onToggleInspector: toggleInspector,
-      onCycleWorkspace: () => {
-        cycleWorkspaceTab();
-        setDraftingTool("select");
-      },
-      onDraftSelect: () => setDraftingTool("select"),
-      onDraftNote: () => setDraftingTool("note"),
-      onDraftLeader: () => setDraftingTool("leader"),
-      onToggleGrid,
-      onRotate90,
-      onCycleSnap,
-    },
-    shortcutMap,
+    buildEditorShortcutActions(args, closeCommandSurfaces),
+    args.shortcutMap,
   );
 
   const commandItems = useAppCommandItems({
-    shortcutMap,
-    showGrid,
-    snapSizeMm,
-    onReset,
-    onLoadProject,
-    onSaveProject,
-    onSaveAsProject: onSaveAs,
-    onUndo,
-    onRedo,
-    onCopy,
-    onPaste,
-    onDuplicate,
-    onSelectAll,
-    onRemove,
-    onCreateGroup,
-    onClearGroup,
-    onAlignSelection,
-    onAutoAlignRuns,
-    onSetWorkspaceTab: setWorkspaceTab,
-    onSetDraftingTool: setDraftingTool,
-    onRotate90,
-    onCycleSnap,
-    onAddCabinet,
-    onToggleSheetBrowser,
-    onToggleToolRail: toggleToolRail,
-    onToggleInspector: toggleInspector,
-    onToggleGrid,
-    onOpenLibraryManager: () => setLibraryManagerOpen(true),
-    onExportProjectJson,
-    onExportCutlistCsv,
-    onExportPdf,
-    onExportMachineJson,
-    onFreezeRevision,
-    onReleaseForProduction,
-    onExportRevisionSummary,
-    onOpenShortcuts: () => setIsShortcutSheetOpen(true),
+    shortcutMap: args.shortcutMap,
+    showGrid: args.showGrid,
+    snapSizeMm: args.snapSizeMm,
+    onReset: args.onReset,
+    onLoadProject: args.onLoadProject,
+    onSaveProject: args.onSaveProject,
+    onSaveAsProject: args.onSaveAs,
+    onUndo: args.onUndo,
+    onRedo: args.onRedo,
+    onCopy: args.onCopy,
+    onPaste: args.onPaste,
+    onDuplicate: args.onDuplicate,
+    onSelectAll: args.onSelectAll,
+    onRemove: args.onRemove,
+    onCreateGroup: args.onCreateGroup,
+    onClearGroup: args.onClearGroup,
+    onAlignSelection: args.onAlignSelection,
+    onAutoAlignRuns: args.onAutoAlignRuns,
+    onSetWorkspaceTab: args.setWorkspaceTab,
+    onSetDraftingTool: args.setDraftingTool,
+    onRotate90: args.onRotate90,
+    onCycleSnap: args.onCycleSnap,
+    onAddCabinet: args.onAddCabinet,
+    onToggleSheetBrowser: args.onToggleSheetBrowser,
+    onToggleToolRail: args.toggleToolRail,
+    onToggleInspector: args.toggleInspector,
+    onToggleGrid: args.onToggleGrid,
+    onOpenLibraryManager: () => args.setLibraryManagerOpen(true),
+    onExportProjectJson: args.onExportProjectJson,
+    onExportCutlistCsv: args.onExportCutlistCsv,
+    onExportPdf: args.onExportPdf,
+    onExportMachineJson: args.onExportMachineJson,
+    onFreezeRevision: args.onFreezeRevision,
+    onReleaseForProduction: args.onReleaseForProduction,
+    onExportRevisionSummary: args.onExportRevisionSummary,
+    onOpenShortcuts: () => args.setIsShortcutSheetOpen(true),
   });
 
   return { closeCommandSurfaces, commandItems };
