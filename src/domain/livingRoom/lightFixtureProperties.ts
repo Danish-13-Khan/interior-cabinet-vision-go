@@ -34,7 +34,12 @@ export function readLightProperties(light: LightEntity): LightProperties {
 export function applyLightProperties(light: LightEntity, patch: Partial<LightProperties>): LightEntity {
   let next: LightEntity = { ...light, parameters: { ...light.parameters } };
   if (patch.enabled !== undefined) next = { ...next, enabled: patch.enabled };
-  if (patch.intensity !== undefined) next = { ...next, intensity: patch.intensity };
+  if (patch.intensity !== undefined) {
+    const intensity = Number.isFinite(patch.intensity)
+      ? Math.min(100, Math.max(0, patch.intensity))
+      : patch.intensity;
+    next = { ...next, intensity };
+  }
   if (patch.colorTemperature !== undefined) {
     return {
       ...next,

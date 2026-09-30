@@ -1,6 +1,6 @@
 import type { InteriorProject, LightEntity, ParameterValue } from "../interiorProject";
 import { orientWallForRoom, roomPlanViewBounds, selectRoomWalls } from "../interiorProject";
-import { DEFAULT_LIGHT_KELVIN, isLightKelvin } from "./lightColorTemperature";
+import { isLightKelvin, kelvinToHex } from "./lightColorTemperature";
 import {
   attachLightToCeiling,
   attachLightToObject,
@@ -8,7 +8,7 @@ import {
   readLightMount,
   resolveLightAttachment,
 } from "./lightAttachments";
-import { applyLightProperties, defaultFixtureColor } from "./lightFixtureProperties";
+import { applyLightProperties } from "./lightFixtureProperties";
 import {
   LIGHT_FIXTURE_DEFINITIONS,
   getLightFixtureDefinition,
@@ -60,7 +60,7 @@ function seedParameters(definition: LightFixtureDefinition): Record<string, Para
     heightMm: defaults.heightMm,
     depthMm: defaults.depthMm,
     rangeMm: defaults.rangeMm,
-    colorTemperatureK: DEFAULT_LIGHT_KELVIN,
+    colorTemperatureK: defaults.colorTemperatureK,
   };
   if (defaults.beamAngleDeg !== undefined) parameters.beamAngleDeg = defaults.beamAngleDeg;
   if (defaults.headCount !== undefined) parameters.headCount = defaults.headCount;
@@ -81,7 +81,7 @@ function freeLight(project: InteriorProject, roomId: string, definition: LightFi
     name: definition.name,
     kind: definition.kind,
     enabled: true,
-    color: defaultFixtureColor(),
+    color: kelvinToHex(definition.defaults.colorTemperatureK),
     intensity: definition.defaults.intensity,
     position: { x: bounds.centerX, y: Math.max(100, y), z: bounds.centerZ },
     rotation: { x: definition.defaults.rotationX, y: 0, z: 0 },
@@ -97,6 +97,7 @@ export function addRoomLightFixture(
   const roomId = project.activeRoomId;
   if (!roomId || !isLightFixtureKind(kind)) return project;
   const definition = getLightFixtureDefinition(kind);
+  if (mount && !definition.mounts.includes(mount.kind)) return project;
   const light = freeLight(project, roomId, definition);
   if (!light) return project;
   if (mount?.kind === "object" && !project.objects.some((object) => object.id === mount.hostObjectId && object.roomId === roomId)) return project;

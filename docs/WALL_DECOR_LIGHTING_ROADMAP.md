@@ -18,7 +18,7 @@ It changes no wall-graph, room, opening or cabinet contract.
 | # | Decision | Consequence |
 | --- | --- | --- |
 | D1 | **Finished floor level stays at `y = 0`.** Floor build-up grows downward. | Walls, skirting, cabinets, panels, openings, the drag plane and the grid keep their elevation math. Floor thickness only changes the floor geometry and scene bounds. |
-| D2 | **One `LightEntity` for every light type.** New fixture types are `parameters.fixtureKind`; `LightKind` stays the five validated kinds. | Old files load unchanged. No new validation branch, no schema bump. Fixture-specific extras live in `parameters` (scalar only, already whitelisted). |
+| D2 | **One `LightEntity` for every light type.** New fixture types are `parameters.fixtureKind`; `LightKind` stays the five validated kinds. | Old files load unchanged. No new validation branch, no schema bump. Fixture-specific extras live in `parameters` (scalar only, already whitelisted). Popover groups are `wall` / `ceiling` / `cabinet` (Wall lighting, Ceiling lighting, Cabinet lighting), not ceiling / cove-strip / general; Phase 4 reads `LIGHT_FIXTURE_CATEGORY_LABELS` and each kind's `mounts`. |
 | D3 | **Fixtures attach to hosts and resolve at read time** (wall, ceiling, cabinet), exactly like §2.1 panels. | Moving a wall, changing room height or resizing a cabinet reflows its lights in the same undo step. World XYZ is a cache, not the source of truth. |
 | D4 | **Wall decorations are design objects on a wall**, using the existing §2.1 attachment (`wallId / alongMm / floorOffsetMm / wallSide / visible`). | No parallel wall model. Every decoration is editable with the existing object inspector plus the panel attachment fields. `reflowPanelsForWalls`, `remapPanelsAfterWallSplit`, `removePanelsOnWall` already keep them consistent. |
 | D5 | **Cutting a wall = an `OpeningEntity` of kind `"opening"`.** Recessed niches are out of scope until the compiler can subtract from wall boxes. | The Wall window offers Cut opening and a surface-mounted lit niche, and says why a true recess is unavailable. |
@@ -112,7 +112,7 @@ Lights store flat scalar keys in `parameters` (that map only accepts
 | Mount | Keys | Pose rule |
 | --- | --- | --- |
 | object (exists) | `hostObjectId`, `offsetXmm/Ymm/Zmm`, `fitHostWidth` | unchanged |
-| wall (new) | `hostWallId`, `alongMm` (centre, along the **oriented** wall, same as panels), `centerHeightMm`, `wallSide: "interior" \| "exterior"` (same values as `PanelWallSide`), `fitHostWidth` (reused: stretch to the host wall) | face point + normal × (thickness/2 + depth/2) |
+| wall (new) | `hostWallId`, `alongMm` (centre, along the **oriented** wall, same as panels), `centerHeightMm`, `wallSide: "interior" \| "exterior"` (same values as `PanelWallSide`), `fitHostWidth` (stretch to the host wall, inset 20 mm at each end) | face point + normal × (thickness/2 + depth/2) |
 | ceiling (new) | `hostSurface: "ceiling"`, `ceilingDropMm` | `y = room.dimensions.heightMm − drop`; x/z stay authored |
 | free | none | authored position and full rotation |
 
@@ -135,6 +135,14 @@ yaw plus `x: 90` so it emits up; ceiling types: `x: −90` so they emit down).
 Free fixtures keep whatever rotation the user saved, so a tilted spot aimed at
 a picture keeps its tilt; today's presets (`x: 90` cove, `x: −90` others, yaw
 0) already match this frame.
+
+`fitHostWidth` shortens a strip to the host length minus 20 mm at each end
+(`WALL_STRIP_END_MARGIN_MM`). That inset stays 20 mm; it is not 50 mm.
+
+Each registry definition lists `mounts: readonly LightMountKind[]` (always
+including `"free"`). `addRoomLightFixture` returns the project unchanged when
+the requested mount is not in that list, so `addRoomLightFixture("cove", { kind: "ceiling" })`
+does not add a light. Phase 4 buttons offer only those hosts.
 
 ### 3.4 Render scale (single table, `LIGHT_RENDER_SCALE`)
 
@@ -201,6 +209,10 @@ Select Room (ceiling)  ──▶  Room inspector "Ceiling lighting"
                    └── Floor build (structural + flooring thickness)
 
 Room lights popover (3D toolbar / Render Studio)  ──▶  add any fixture, list, jump to selection
+                   grouped by the code categories (not ceiling / cove-strip / general):
+                   ├── Wall lighting      (Cove · Rope · Profile)
+                   ├── Ceiling lighting   (Downlight · Pendant · Panel · COB · Track)
+                   └── Cabinet lighting   (Under-cabinet)
 
 Select Light (2D glyph or 3D fixture)  ──▶  Light inspector
                    ├── Mount (Free · Wall · Ceiling · Cabinet) + along / height / face
@@ -315,9 +327,10 @@ light highlighted; Escape clears; deleting the light clears the selection;
   the ceiling at the room centre, then select the new light.
 - Wall inspector "Lighting" section: add Cove (fit to wall length, top of wall),
   Rope, Profile (horizontal / vertical) mounted to the selected wall.
-- Room lights popover regrouped by category using
-  `LIGHT_FIXTURE_CATEGORY_LABELS`; "Attach beneath" becomes "Mount" with wall /
-  ceiling / cabinet choices.
+- Room lights popover regrouped with `LIGHT_FIXTURE_CATEGORY_LABELS`
+  (wall / ceiling / cabinet: Wall lighting, Ceiling lighting, Cabinet lighting),
+  not ceiling / cove-strip / general. "Attach beneath" becomes "Mount", and
+  each kind offers only the hosts in its `mounts` list.
 
 **Exit gate:** from a fresh drawn L-room, the user can add a cove on each wall
 and a track on the ceiling without typing a coordinate; all follow wall / room
