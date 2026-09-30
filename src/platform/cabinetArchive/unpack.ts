@@ -3,6 +3,7 @@ import { rebuildDwgDataUrls } from "../../domain/projectDrafts/dwgDraftSplit";
 import { mapImportedAssetUrls } from "../../domain/livingRoom/storedAssets/fileAssets";
 import { isStoredAssetRef, storeAssetBlob, type AssetBlobStore } from "../../domain/livingRoom/storedAssets/refs";
 import { mimeForArchivePath } from "./names";
+import { assertArchiveBudget } from "./zipBudget";
 
 export type UnpackedCabinet = { document: unknown; missing: string[] };
 
@@ -12,7 +13,18 @@ function archiveBytes(files: Record<string, Uint8Array>, path: string): Uint8Arr
 
 /** Put zip binaries in the blob store and restore underlay previews. No portable JSON size cap. */
 export async function unpackCabinetArchive(bytes: Uint8Array, store: AssetBlobStore): Promise<UnpackedCabinet> {
-  const files = unzipSync(bytes);
+  let entryCount = 0;
+  let claimedBytes = 0;
+  const files = unzipSync(bytes, {
+    filter(file) {
+      entryCount += 1;
+      claimedBytes += file.originalSize;
+      assertArchiveBudget(entryCount, claimedBytes);
+      return true;
+    },
+  });
+  const actualBytes = Object.values(files).reduce((sum, item) => sum + item.byteLength, 0);
+  assertArchiveBudget(Object.keys(files).length, actualBytes);
   const projectBytes = archiveBytes(files, "project.json");
   if (!projectBytes) throw new Error("Cabinet file is missing project.json.");
   const previews: Record<string, unknown> = {};

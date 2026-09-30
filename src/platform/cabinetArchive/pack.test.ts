@@ -52,7 +52,25 @@ describe("cabinet archive", () => {
     expect(new Uint8Array(await texture!.arrayBuffer())).toEqual(png);
     expect(again.missing).toEqual([]);
     expect(asset.sourceUrl.startsWith("idb:")).toBe(true);
+    const glbName = Object.keys(unzipped).find((name) => name.endsWith(".glb"));
+    expect(glbName).toBeTruthy();
+    expect(compressionMethod(packed.bytes, glbName!)).toBe(0);
+    expect(compressionMethod(packed.bytes, "thumbnail.png")).toBe(0);
   });
+
+  function compressionMethod(zip: Uint8Array, name: string): number | null {
+    const encoded = new TextEncoder().encode(name);
+    for (let index = 0; index + 30 + encoded.length < zip.length; index += 1) {
+      if (zip[index] !== 0x50 || zip[index + 1] !== 0x4b || zip[index + 2] !== 3 || zip[index + 3] !== 4) continue;
+      const nameLength = zip[index + 26]! | (zip[index + 27]! << 8);
+      const start = index + 30;
+      const slice = zip.subarray(start, start + nameLength);
+      if (slice.length === encoded.length && encoded.every((byte, offset) => slice[offset] === byte)) {
+        return zip[index + 8]! | (zip[index + 9]! << 8);
+      }
+    }
+    return null;
+  }
 
   it("reports a missing model instead of dropping the reference", async () => {
     const packed = await packCabinetArchive({ id: "p", objects: [{ extensions: { assetImport: { sourceUrl: "idb:missing" } } }] }, createMemoryAssetBlobStore());

@@ -1,4 +1,4 @@
-import { strToU8, zipSync } from "fflate";
+import { strToU8, zip, type AsyncZippable, type AsyncZippableFile } from "fflate";
 import { splitDwgPreviews } from "../../domain/projectDrafts/dwgDraftSplit";
 import { mapImportedAssetUrls } from "../../domain/livingRoom/storedAssets/fileAssets";
 import { isStoredAssetRef, storedAssetKey, type AssetBlobStore } from "../../domain/livingRoom/storedAssets/refs";
@@ -21,7 +21,8 @@ export async function packCabinetArchive(
   thumbnail?: string | null,
 ): Promise<CabinetPack> {
   const split = splitDwgPreviews(document);
-  const files: Record<string, Uint8Array> = {};
+  const files: AsyncZippable = {};
+  const storeOnly = (bytes: Uint8Array): AsyncZippableFile => [bytes, { level: 0 }];
   const missing: string[] = [];
   const rewritten = await mapImportedAssetUrls(split.document, async (url) => {
     if (!isStoredAssetRef(url)) return url;
@@ -32,15 +33,18 @@ export async function packCabinetArchive(
     }
     const bytes = new Uint8Array(await blob.arrayBuffer());
     const path = await archivePath(blob, bytes);
-    files[path] = bytes;
+    files[path] = storeOnly(bytes);
     return path;
   });
   for (const [id, preview] of Object.entries(split.dwgPreviews)) {
     files[underlayArchivePath(id)] = strToU8(JSON.stringify(preview));
   }
   if (thumbnail && isDataUrl(thumbnail)) {
-    files["thumbnail.png"] = new Uint8Array(await dataUrlToBlob(thumbnail).arrayBuffer());
+    files["thumbnail.png"] = storeOnly(new Uint8Array(await dataUrlToBlob(thumbnail).arrayBuffer()));
   }
   files["project.json"] = strToU8(JSON.stringify(rewritten));
-  return { bytes: zipSync(files), missing };
+  const bytes = await new Promise<Uint8Array>((resolve, reject) => {
+    zip(files, (error, data) => (error ? reject(error) : resolve(data)));
+  });
+  return { bytes, missing };
 }

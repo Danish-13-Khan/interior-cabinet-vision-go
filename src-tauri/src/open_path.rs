@@ -2,6 +2,18 @@ use std::sync::Mutex;
 
 static PENDING: Mutex<Option<String>> = Mutex::new(None);
 
+pub fn cabinet_path_from_os_args<I, S>(args: I) -> Option<String>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<std::ffi::OsStr>,
+{
+    let owned: Vec<String> = args
+        .into_iter()
+        .map(|arg| arg.as_ref().to_string_lossy().into_owned())
+        .collect();
+    cabinet_path_from_args(&owned)
+}
+
 pub fn cabinet_path_from_args(args: &[String]) -> Option<String> {
     args.iter().find_map(|arg| {
         let trimmed = arg.trim().trim_matches('"');
@@ -42,5 +54,21 @@ mod tests {
             cabinet_path_from_args(&args).as_deref(),
             Some("/Users/room/plan.cabinet")
         );
+    }
+
+    #[test]
+    fn pending_path_is_cleared_so_it_cannot_reopen() {
+        remember_cabinet_path("/tmp/once.cabinet".into());
+        assert_eq!(take_pending_cabinet_path().as_deref(), Some("/tmp/once.cabinet"));
+        assert_eq!(take_pending_cabinet_path(), None);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn non_utf8_args_do_not_panic() {
+        use std::os::unix::ffi::OsStrExt;
+        let arg = std::ffi::OsStr::from_bytes(b"/tmp/room\xff.cabinet");
+        let found = cabinet_path_from_os_args([arg]);
+        assert!(found.is_some());
     }
 }
