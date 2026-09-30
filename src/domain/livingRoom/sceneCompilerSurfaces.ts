@@ -1,4 +1,14 @@
-import { isGeneratedRoomSurface, roomPlanPolygon, roomPolygonIsValid, selectRoomWalls, type InteriorProject, type InteriorRoomEntity } from "../interiorProject";
+import {
+  CEILING_SLAB_THICKNESS_MM,
+  FLOOR_STRUCTURE_MATERIAL_ID,
+  isGeneratedRoomSurface,
+  resolveFloorBuild,
+  roomPlanPolygon,
+  roomPolygonIsValid,
+  selectRoomWalls,
+  type InteriorProject,
+  type InteriorRoomEntity,
+} from "../interiorProject";
 import { isWallRaised, outerLoopWallsRaised } from "../interiorProject/wallRaise";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
@@ -24,11 +34,18 @@ export function compileRoomLoopSurfaces(
   if (!polygon || !roomPolygonIsValid(polygon)) return [];
   const floorMaterial = roomMaterial(project, room, "floor");
   const ceilingMaterial = roomMaterial(project, room, "ceiling");
+  const build = resolveFloorBuild(room);
+  const floorLayers = build.flooringThicknessMm > 0
+    ? [
+      polygonPrismPrimitive("flooring", polygon.outer, polygon.holes, build.flooringThicknessMm, -build.flooringThicknessMm / 2, floorMaterial),
+      polygonPrismPrimitive("floor-structure", polygon.outer, polygon.holes, build.structuralThicknessMm, -build.flooringThicknessMm - build.structuralThicknessMm / 2, FLOOR_STRUCTURE_MATERIAL_ID),
+    ]
+    : [polygonPrismPrimitive("floor", polygon.outer, polygon.holes, build.structuralThicknessMm, -build.structuralThicknessMm / 2, floorMaterial)];
   const floor: CompiledSceneNode = {
     id: `room-floor:${room.id}`, name: `${room.name} Floor`, sourceObjectId: null,
     adapterId: "room-loop-floor-v2", positionMm: { x: 0, y: 0, z: 0 },
     rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [polygonPrismPrimitive("floor", polygon.outer, polygon.holes, 12, -6, floorMaterial)],
+    primitives: floorLayers,
     placeholder: false, metadata: { role: "floor", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: floorMaterial }),
   };
@@ -38,7 +55,7 @@ export function compileRoomLoopSurfaces(
     id: `room-ceiling:${room.id}`, name: `${room.name} Ceiling`, sourceObjectId: null,
     adapterId: "room-loop-ceiling-v2", positionMm: { x: 0, y: 0, z: 0 },
     rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [polygonPrismPrimitive("ceiling", polygon.outer, polygon.holes, 24, room.dimensions.heightMm + 12, ceilingMaterial)],
+    primitives: [polygonPrismPrimitive("ceiling", polygon.outer, polygon.holes, CEILING_SLAB_THICKNESS_MM, room.dimensions.heightMm + CEILING_SLAB_THICKNESS_MM / 2, ceilingMaterial)],
     placeholder: false, metadata: { role: "architecture", surface: "ceiling", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: ceilingMaterial }),
   };

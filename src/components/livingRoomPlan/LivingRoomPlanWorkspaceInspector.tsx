@@ -60,7 +60,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       openingPositionOverride={openingPositionOverride} snapSizeMm={p.snapSizeMm} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues}
-      onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
+      onRoomDimensions={w.onRoomDimensions} onSetFloorBuild={w.onSetFloorBuild} onMove={w.onMove} onResize={w.onResize}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
       onCompleteCabinetRun={w.onCompleteCabinetRun}

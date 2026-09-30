@@ -1,4 +1,4 @@
-import type { InteriorProject } from "../interiorProject";
+import { FLOOR_STRUCTURE_MATERIAL_ID, type InteriorProject } from "../interiorProject";
 import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import {
   defaultUvScaleMmForMaterial,
@@ -91,6 +91,17 @@ export function compileMaterials(project: InteriorProject): CompiledMaterial[] {
       opacity: 1,
       materialAssetId: FLOOR_MATERIAL_ID,
       uvScaleMm: 900,
+    },
+    {
+      id: FLOOR_STRUCTURE_MATERIAL_ID,
+      name: "Floor structure",
+      kind: "stone" as const,
+      color: "#8d8f92",
+      roughness: 0.95,
+      metalness: 0,
+      opacity: 1,
+      materialAssetId: FLOOR_STRUCTURE_MATERIAL_ID,
+      uvScaleMm: 1000,
     },
   ];
 }

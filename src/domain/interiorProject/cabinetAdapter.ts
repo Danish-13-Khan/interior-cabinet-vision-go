@@ -93,7 +93,12 @@ export function interiorProjectFromCabinetProject(options: {
     activeRoomId: normalized.activeRoomId ?? rooms[0]?.id ?? "",
     rooms: topology.rooms.map((room) => {
       const previous = base.rooms.find((item) => item.id === room.id);
-      return previous?.roomType ? { ...room, roomType: previous.roomType, name: previous.name || room.name } : room;
+      if (!previous) return room;
+      return {
+        ...room,
+        ...(previous.roomType ? { roomType: previous.roomType, name: previous.name || room.name } : {}),
+        extensions: { ...previous.extensions, managedBy: MANAGED_BY },
+      };
     }),
     nodes: topology.nodes,
     loops: topology.loops,

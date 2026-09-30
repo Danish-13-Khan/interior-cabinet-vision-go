@@ -28,6 +28,7 @@ import { RoomFinishFields } from "./RoomFinishFields";
 import { WallDrawingPanel } from "./WallDrawingPanel";
 import { InspectorSection } from "./InspectorSection";
 import { CeilingLightingSection } from "./CeilingLightingSection";
+import { FloorBuildSection } from "./FloorBuildSection";
 import { WallLightingSection } from "./WallLightingSection";
 import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 
@@ -38,6 +39,7 @@ type Props = {
   room: InteriorRoomEntity;
   wall: WallEntity | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
   unit: PlanDisplayUnit;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
@@ -85,6 +87,7 @@ export function PlanArchitectureInspector(props: Props) {
       {props.lightActions && props.onSelectLight ? (
         <CeilingLightingSection actions={props.lightActions} onSelectLight={props.onSelectLight} />
       ) : null}
+      {props.onSetFloorBuild ? <FloorBuildSection room={room} onChange={props.onSetFloorBuild} /> : null}
       <InspectorSection title="Advanced" testId="inspector-room-advanced">
         <div className="lr-room-preview" aria-label={`${room.name} room preview`}>
           <svg viewBox="0 0 180 110" aria-hidden="true"><path d={previewPath} />
