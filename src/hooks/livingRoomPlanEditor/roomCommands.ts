@@ -27,6 +27,7 @@ import {
   resizeLivingRoom,
   roomWallIds,
 } from "../../domain/livingRoom";
+import { resolveFloorBuild, writeFloorBuild, type FloorBuild } from "../../domain/interiorProject";
 import { uniqueObjectId, type EditorCommandContext } from "./context";
 
 /** Rooms, drawing, openings, surface zones, and columns. */
@@ -143,5 +144,13 @@ export function roomCommands(ctx: EditorCommandContext) {
       commitDocument((current) => deleteSurfaceZone(current, surfaceId), "Deleted surface zone.");
     },
     placeLivingRoomColumn: placeColumn,
+    setLivingRoomFloorBuild: (patch: Partial<FloorBuild>) => {
+      commitDocument((current) => {
+        const room = current.rooms.find((item) => item.id === current.activeRoomId);
+        if (!room) return current;
+        const next = writeFloorBuild(room, { ...resolveFloorBuild(room), ...patch });
+        return { ...current, rooms: current.rooms.map((item) => item.id === room.id ? next : item) };
+      }, "Updated floor build.");
+    },
   };
 }

@@ -105,6 +105,7 @@ export type LivingRoomPlanWorkspaceProps = {
   preDropReason?: string | null;
   onNudge: (dx: number, dz: number) => void;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onSetFloorBuild: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onActiveRoom: (roomId: string) => void;
   onRenameRoom: (roomId: string, name: string) => void;
   onDeleteRoom: (roomId: string) => void;

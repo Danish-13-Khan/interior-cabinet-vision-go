@@ -322,6 +322,7 @@ function App() {
             preDropReason={c.livingRoomPreDropReason}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onSetFloorBuild={c.setLivingRoomFloorBuild}
             onActiveRoom={c.setActiveLivingRoom}
             onRenameRoom={c.renameLivingRoom}
             onDeleteRoom={c.deleteLivingRoom}

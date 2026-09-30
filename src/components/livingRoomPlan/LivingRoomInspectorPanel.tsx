@@ -32,6 +32,7 @@ type LivingRoomInspectorPanelProps = {
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
@@ -167,7 +168,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdate={props.onUpdateSurface} onDelete={props.onDeleteSurface} />
         ) : room && !activeObject && !activeLight && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
-            onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
+            onRoomDimensions={props.onRoomDimensions} onSetFloorBuild={props.onSetFloorBuild} onUpdateWall={props.onUpdateWall}
             onSetWallMaterial={props.onSetWallMaterial} onSetFloorMaterial={props.onSetFloorMaterial}
             onSetCeilingMaterial={props.onSetCeilingMaterial} onRaiseWalls={props.onRaiseWalls}
             onOffsetWall={props.onOffsetWall} onOffsetLoop={props.onOffsetLoop}
