@@ -1,10 +1,15 @@
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
+static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// A temp name unique to this write, so two saves of the same file never share one temp file.
 pub fn temp_path_for(path: &Path) -> PathBuf {
     let name = path.file_name().and_then(|value| value.to_str()).unwrap_or("project.cabinet");
-    path.with_file_name(format!("{name}.tmp"))
+    let unique = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    path.with_file_name(format!(".{name}.{}-{unique}.tmp", std::process::id()))
 }
 
 /// Write `path.tmp`, flush it, then rename over `path`. A crash before rename keeps the original.
@@ -42,6 +47,13 @@ mod tests {
         dir
     }
 
+    fn leftover_temps(dir: &Path) -> usize {
+        fs::read_dir(dir)
+            .unwrap()
+            .filter(|entry| entry.as_ref().unwrap().file_name().to_string_lossy().ends_with(".tmp"))
+            .count()
+    }
+
     #[test]
     fn interrupted_write_leaves_the_original() {
         let dir = scratch();
@@ -53,7 +65,7 @@ mod tests {
         fs::remove_file(&temp).unwrap();
         atomic_write(&path, b"saved").unwrap();
         assert_eq!(fs::read(&path).unwrap(), b"saved");
-        assert!(!temp_path_for(&path).exists());
+        assert_eq!(leftover_temps(&dir), 0);
         fs::remove_dir_all(dir).unwrap();
     }
 
@@ -64,7 +76,13 @@ mod tests {
         fs::create_dir(&path).unwrap();
         let error = atomic_write(&path, b"bytes");
         assert!(error.is_err());
-        assert!(!temp_path_for(&path).exists());
+        assert_eq!(leftover_temps(&dir), 0);
         fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn each_write_gets_its_own_temp_name() {
+        let path = Path::new("/tmp/room.cabinet");
+        assert_ne!(temp_path_for(path), temp_path_for(path));
     }
 }

@@ -4,28 +4,28 @@ import { createMemorySnapshotStore } from "../projectSnapshots/types";
 import { buildSnapshot } from "../projectSnapshots/history";
 import { createMemoryDraftStore } from "./types";
 import { deleteProjectData } from "./deleteProjectData";
+import { storeProjectThumbnail, projectThumbnailStorageKey } from "./projectThumbnail";
 
 describe("delete project data", () => {
-  it("deletes that project's snapshots and blobs, and leaves another project's blob", async () => {
+  it("deletes the draft, snapshots and thumbnail, but leaves model blobs for the grace-period prune", async () => {
     const blobs = createMemoryAssetBlobStore(() => 0);
-    const own = await storeAssetBlob(blobs, new Blob(["sofa"]));
-    const shared = await storeAssetBlob(blobs, new Blob(["shared"]));
+    const model = await storeAssetBlob(blobs, new Blob(["sofa"]));
+    await storeProjectThumbnail(blobs, "gone", new Blob(["thumb"]));
     const drafts = createMemoryDraftStore();
     await drafts.put({
-      id: "gone", document: { objects: [{ extensions: { assetImport: { sourceUrl: own } } }] },
-      dwgPreviews: {}, updatedAt: "2026-09-29T00:00:00.000Z", schemaVersion: 2, lastFileSaveAt: null,
-    });
-    await drafts.put({
-      id: "kept", document: { objects: [{ extensions: { assetImport: { sourceUrl: shared } } }] },
+      id: "gone", document: { objects: [{ extensions: { assetImport: { sourceUrl: model } } }] },
       dwgPreviews: {}, updatedAt: "2026-09-29T00:00:00.000Z", schemaVersion: 2, lastFileSaveAt: null,
     });
     const snapshots = createMemorySnapshotStore();
-    const snap = buildSnapshot({ id: "gone", objects: [{ extensions: { assetImport: { sourceUrl: own } } }] }, "interval", "2026-09-29T01:00:00.000Z");
+    const snap = buildSnapshot({ id: "gone", objects: [{ extensions: { assetImport: { sourceUrl: model } } }] }, "interval", "2026-09-29T01:00:00.000Z");
     await snapshots.put(snap!);
-    await deleteProjectData({ projectId: "gone", drafts, snapshots, blobs, current: null });
+
+    await deleteProjectData({ projectId: "gone", drafts, snapshots, blobs });
+
     expect(await drafts.get("gone")).toBeNull();
     expect(await snapshots.list()).toEqual([]);
-    expect(await blobs.get(storedAssetKey(own))).toBeNull();
-    expect(await blobs.get(storedAssetKey(shared))).not.toBeNull();
+    expect(await blobs.get(projectThumbnailStorageKey("gone"))).toBeNull();
+    // Content-hashed model bytes may be shared with undo history or another tab.
+    expect(await blobs.get(storedAssetKey(model))).not.toBeNull();
   });
 });
