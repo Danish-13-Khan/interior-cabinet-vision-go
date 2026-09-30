@@ -33,4 +33,19 @@ describe("cabinet file open", () => {
     }, (path) => opened.push(path));
     expect(opened).toEqual(["/tmp/room.cabinet"]);
   });
+
+  it("leaves the pending path for the next run when cancelled after listening", async () => {
+    let took = false;
+    const opened: string[] = [];
+    const result = await openCabinetPathStream({
+      listen: async () => () => undefined,
+      takePending: async () => {
+        took = true;
+        return "/tmp/room.cabinet";
+      },
+    }, (path) => opened.push(path), () => true);
+    expect(took).toBe(false);
+    expect(opened).toEqual([]);
+    expect(result.openedLaunch).toBe(false);
+  });
 });

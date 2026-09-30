@@ -8,7 +8,7 @@ import type { RecoveryPlatform } from "../domain/projectDrafts/recoveryDecision"
 import { loadSavedBrowser, savedProjectsWarning } from "../domain/projectDrafts/loadSavedBrowser";
 import { persistBrowserProjectDraft } from "../domain/projectDrafts/browserDraftSave";
 import { reloadSavedDraft } from "../domain/projectDrafts/hydrateBrowserEntries";
-import { persistSharedProjectIndex } from "../domain/projectDrafts/sharedProjectIndex";
+import { persistSharedProjectIndex, recordProjectDeletion } from "../domain/projectDrafts/sharedProjectIndex";
 import type { ProjectIndexEntry } from "../domain/projectDrafts/types";
 import { splitDwgPreviews } from "../domain/projectDrafts/dwgDraftSplit";
 import { schemaVersionOf } from "../domain/projectDrafts/draftDocument";
@@ -41,7 +41,6 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
   const platformRef = useRef(platform);
   const captureThumbnailRef = useRef(captureThumbnail);
   const loadOk = useRef(false);
-  const deletedIds = useRef(new Set<string>());
   captureThumbnailRef.current = captureThumbnail;
   filePathRef.current = filePath;
   useStoredAssetCleanup(project);
@@ -91,18 +90,19 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
       updatedAt: entry.updatedAt,
       thumbnailKey: thumbnailKeys.current.get(entry.id) ?? null,
     }));
-    persistSharedProjectIndex(localStorage, visible, deletedIds.current, true);
+    persistSharedProjectIndex(localStorage, visible, true);
   }, [ready, savedProjects]);
 
   const remember = useCallback((entry: SavedProjectBrowserEntry & { thumbnailKey?: string | null }) => {
     if ("thumbnailKey" in entry) thumbnailKeys.current.set(entry.id, entry.thumbnailKey ?? null);
     setSavedProjects((current) => {
       const existing = current.find((item) => item.id === entry.id);
+      // Every saved project stays listed (its draft is user data); the home screen shows the recent ones.
       return upsertSavedProjectEntry(current, {
         ...entry,
         name: existing?.name || entry.name,
         thumbnail: entry.thumbnail || existing?.thumbnail || "",
-      });
+      }, Number.POSITIVE_INFINITY);
     });
   }, []);
 
@@ -150,7 +150,7 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
   }, [applySnapshot, onStatus, project, room, savedProjects]);
 
   const handleDeleteSavedProject = useCallback((projectId: string) => {
-    deletedIds.current.add(projectId);
+    recordProjectDeletion(localStorage, projectId);
     setSavedProjects((current) => current.filter((item) => item.id !== projectId));
     void deleteProjectData({
       projectId,
@@ -176,7 +176,7 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
     const duplicate: SavedProjectBrowserEntry = { ...entry, id: copyId, name: `${entry.name} Copy`, updatedAt: new Date().toISOString(), project: projectCopy };
     const split = splitDwgPreviews({ project: projectCopy, room: entry.room });
     void indexedDbDraftStore.put({ id: copyId, document: split.document, dwgPreviews: split.dwgPreviews, updatedAt: duplicate.updatedAt, schemaVersion: schemaVersionOf(projectCopy), lastFileSaveAt: null });
-    setSavedProjects((current) => [duplicate, ...current].slice(0, 16));
+    setSavedProjects((current) => [duplicate, ...current]);
     onStatus(`Duplicated "${entry.name}".`);
   }, [onStatus, savedProjects]);
 

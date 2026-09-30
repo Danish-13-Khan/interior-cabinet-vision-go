@@ -1,50 +1,58 @@
 use base64::Engine;
-use tauri::Emitter;
+use tauri::Manager;
 
 mod backups;
-mod user_path;
 mod open_path;
 mod project_bytes;
 mod safe_write;
+mod trusted_paths;
+mod user_path;
 use std::fs;
+use std::path::Path;
 
-fn save_project_text(path: &str, contents: &str) -> Result<(), String> {
-    safe_write::atomic_write(&user_path::validate_user_path(path)?, contents.as_bytes())
+fn save_project_text(path: &Path, contents: &str) -> Result<(), String> {
+    safe_write::atomic_write(path, contents.as_bytes())
 }
 
-fn load_project_text(path: &str) -> Result<String, String> {
-    fs::read_to_string(user_path::validate_user_path(path)?).map_err(|error| error.to_string())
+fn load_project_text(path: &Path) -> Result<String, String> {
+    fs::read_to_string(path).map_err(|error| error.to_string())
 }
 
-fn save_binary_bytes(path: &str, bytes: &[u8]) -> Result<(), String> {
-    safe_write::atomic_write(&user_path::validate_user_path(path)?, bytes)
-}
-
-#[tauri::command]
-async fn save_project_file(path: String, contents: String) -> Result<(), String> {
-    save_project_text(&path, &contents)
+fn save_binary_bytes(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    safe_write::atomic_write(path, bytes)
 }
 
 #[tauri::command]
-async fn load_project_file(path: String) -> Result<String, String> {
-    load_project_text(&path)
+async fn save_project_file(app: tauri::AppHandle, path: String, contents: String) -> Result<(), String> {
+    save_project_text(&trusted_paths::authorize(&app, &path)?, &contents)
 }
 
 #[tauri::command]
-async fn save_binary_file(path: String, base64_data: String) -> Result<(), String> {
-    let bytes = base64::engine::general_purpose::STANDARD
-        .decode(base64_data.as_bytes())
-        .map_err(|e| e.to_string())?;
-    save_binary_bytes(&path, &bytes)
+async fn load_project_file(app: tauri::AppHandle, path: String) -> Result<String, String> {
+    load_project_text(&trusted_paths::authorize(&app, &path)?)
+}
+
+#[tauri::command]
+async fn save_binary_file(app: tauri::AppHandle, path: String, base64_data: String) -> Result<(), String> {
+    let checked = trusted_paths::authorize(&app, &path)?;
+    save_binary_bytes(&checked, &decode_base64(&base64_data)?)
+}
+
+fn decode_base64(data: &str) -> Result<Vec<u8>, String> {
+    base64::engine::general_purpose::STANDARD
+        .decode(data.as_bytes())
+        .map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
-            if let Some(path) = open_path::cabinet_path_from_args(&args) {
-                open_path::remember_cabinet_path(path.clone());
-                let _ = app.emit("cabinet-open-path", path);
+        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+            // args[0] is the second instance's executable; paths are relative to its cwd.
+            let cwd = (!cwd.is_empty()).then(|| Path::new(&cwd).to_path_buf());
+            let rest = args.get(1..).unwrap_or_default();
+            if let Some(path) = open_path::cabinet_path_from_args(rest, cwd.as_deref()) {
+                open_path::deliver(app, &path);
             }
         }))
         .plugin(tauri_plugin_dialog::init())
@@ -58,11 +66,18 @@ pub fn run() {
             project_bytes::load_project_bytes,
             open_path::take_pending_cabinet_path
         ])
-        .setup(|app| {
-            if let Some(path) = open_path::cabinet_path_from_os_args(std::env::args_os().skip(1)) {
-                open_path::remember_cabinet_path(path);
+        .on_page_load(|_, payload| {
+            if payload.event() == tauri::webview::PageLoadEvent::Started {
+                open_path::page_loading();
             }
-            let _ = app;
+        })
+        .setup(|app| {
+            let app_data = app.path().app_data_dir().ok();
+            app.manage(trusted_paths::TrustedPaths::load(app_data));
+            let cwd = std::env::current_dir().ok();
+            if let Some(path) = open_path::cabinet_path_from_os_args(std::env::args_os().skip(1), cwd.as_deref()) {
+                open_path::deliver(app.handle(), &path);
+            }
             Ok(())
         })
         .build(tauri::generate_context!())
@@ -71,10 +86,8 @@ pub fn run() {
             if let tauri::RunEvent::Opened { urls } = event {
                 for url in urls {
                     let Ok(path) = url.to_file_path() else { continue; };
-                    let text = path.to_string_lossy().to_string();
-                    if text.to_ascii_lowercase().ends_with(".cabinet") {
-                        open_path::remember_cabinet_path(text.clone());
-                        let _ = app.emit("cabinet-open-path", text);
+                    if let Some(path) = open_path::resolve_project_arg(&path.to_string_lossy(), None) {
+                        open_path::deliver(app, &path);
                     }
                 }
             }
@@ -86,15 +99,12 @@ mod tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    fn test_path(extension: &str) -> String {
+    fn test_path(extension: &str) -> std::path::PathBuf {
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("system clock")
             .as_nanos();
-        std::env::temp_dir()
-            .join(format!("interior-cabinet-designer-{nonce}.{extension}"))
-            .to_string_lossy()
-            .into_owned()
+        std::env::temp_dir().join(format!("interior-cabinet-designer-{nonce}.{extension}"))
     }
 
     #[test]
@@ -113,7 +123,7 @@ mod tests {
     fn binary_export_decodes_base64_before_writing() {
         let path = test_path("png");
         save_binary_bytes(&path, b"release-image").expect("save binary");
-        let loaded = fs::read(path.clone()).expect("read binary");
+        let loaded = fs::read(&path).expect("read binary");
 
         assert_eq!(loaded, b"release-image");
         fs::remove_file(path).expect("remove test image");
@@ -131,9 +141,9 @@ mod tests {
         let text_path = base.join("client-preview").join("project.json");
         let binary_path = base.join("client-preview").join("hero.png");
 
-        save_project_text(&text_path.to_string_lossy(), "{\"ok\":true}")
+        save_project_text(&text_path, "{\"ok\":true}")
             .expect("save text in nested folder");
-        save_binary_bytes(&binary_path.to_string_lossy(), b"png")
+        save_binary_bytes(&binary_path, b"png")
             .expect("save binary in nested folder");
 
         assert_eq!(fs::read_to_string(text_path).expect("read nested text"), "{\"ok\":true}");
@@ -143,9 +153,7 @@ mod tests {
 
     #[test]
     fn invalid_binary_data_returns_an_actionable_error() {
-        let path = test_path("png");
-        let error = tauri::async_runtime::block_on(save_binary_file(path, "not-base64***".to_string()))
-            .expect_err("invalid base64 must fail");
+        let error = decode_base64("not-base64***").expect_err("invalid base64 must fail");
 
         assert!(!error.trim().is_empty());
     }

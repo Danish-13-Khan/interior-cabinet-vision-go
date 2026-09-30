@@ -28,16 +28,24 @@ export type CabinetOpenIo = {
   takePending: () => Promise<string | null>;
 };
 
-/** Listen first, then take the pending path so it cannot be opened again later. */
-export async function openCabinetPathStream(io: CabinetOpenIo, onPath: (path: string) => boolean | void): Promise<{ stop: () => void; openedLaunch: boolean }> {
+/**
+ * Listen first, then take the pending path so it cannot be opened again later.
+ * A run cancelled before it takes (React StrictMode's first effect) leaves the path for the next run.
+ */
+export async function openCabinetPathStream(
+  io: CabinetOpenIo,
+  onPath: (path: string) => boolean | void,
+  isCancelled: () => boolean = () => false,
+): Promise<{ stop: () => void; openedLaunch: boolean }> {
   let sawEvent = false;
   let accepted = false;
   const deliver = (path: string) => {
-    if (!path) return;
+    if (!path || isCancelled()) return;
     sawEvent = true;
     if (onPath(path) !== false) accepted = true;
   };
   const stop = await io.listen(deliver);
+  if (isCancelled()) return { stop, openedLaunch: false };
   const pending = await io.takePending();
   if (pending && !sawEvent) deliver(pending);
   return { stop, openedLaunch: accepted };
@@ -58,9 +66,13 @@ export function useCabinetOpenEvent(onPath: (path: string) => boolean | void) {
         const stream = await openCabinetPathStream({
           listen: async (deliver) => listen<string>("cabinet-open-path", (event) => deliver(event.payload)),
           takePending: () => invoke<string | null>("take_pending_cabinet_path"),
-        }, (path) => (cancelled ? false : onPathRef.current(path)));
-        if (cancelled) stream.stop();
-        else stop = stream.stop;
+        }, (path) => onPathRef.current(path), () => cancelled);
+        if (cancelled) {
+          // The next effect run listens, takes the pending path and announces.
+          stream.stop();
+          return;
+        }
+        stop = stream.stop;
         announce(stream.openedLaunch);
       } catch (error) {
         console.error("Could not listen for a Cabinet file open.", error);

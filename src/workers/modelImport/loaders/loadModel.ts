@@ -1,6 +1,6 @@
 import type { Object3D } from "three";
 import type { ImportFile, ImportSettings, LengthUnit } from "../protocol";
-import { extensionOf } from "../messages";
+import { dedupeTextureWarnings, extensionOf } from "../messages";
 import { largestExtent } from "../normalize";
 import { parseGlb } from "./gltf";
 import { fbxNormalizeOptions, parseFbx } from "./fbx";
@@ -44,7 +44,7 @@ export async function loadModel(files: readonly ImportFile[], settings: ImportSe
       scene: parsed.scene,
       ...scaled(honorFileUnits, fromFile.scaleToMm, fileUnit, settings),
       rotateZUp: false,
-      warnings: parsed.warnings,
+      warnings: dedupeTextureWarnings(parsed.warnings),
     };
   }
   const mtl = files.find((file) => extensionOf(file.name) === "mtl");
@@ -56,6 +56,6 @@ export async function loadModel(files: readonly ImportFile[], settings: ImportSe
     scene: parsed.scene,
     ...scaled(honorFileUnits, toMillimetres(1, guessed), guessed, settings),
     rotateZUp: settings.upAxis === "z",
-    warnings: [...new Set(warnings)],
+    warnings: dedupeTextureWarnings(warnings),
   };
 }
