@@ -60,3 +60,25 @@ export function fixtureEmissiveIntensity(
     light.intensity * LIGHT_RENDER_SCALE.emissivePerUnit,
   );
 }
+
+export type {
+  LightFixtureCategory,
+  LightFixtureDefaults,
+  LightFixtureDefinition,
+  LightFixtureKind,
+  LightMountKind,
+} from "./lightFixtureRegistry";
+export {
+  LIGHT_FIXTURE_CATEGORY_LABELS,
+  LIGHT_FIXTURE_DEFINITIONS,
+  getLightFixtureDefinition,
+  isLightFixtureKind,
+  lightFixtureDefinitionFor,
+  listLightFixtureDefinitions,
+} from "./lightFixtureRegistry";
+export {
+  applyLightProperties,
+  defaultFixtureColor,
+  fixtureNumber,
+  readLightProperties,
+} from "./lightFixtureProperties";
