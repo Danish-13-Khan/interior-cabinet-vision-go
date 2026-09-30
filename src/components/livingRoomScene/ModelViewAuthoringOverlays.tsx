@@ -1,4 +1,5 @@
 import type { CameraEntity, InteriorProject, RenderQuality } from "../../domain/interiorProject";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import {
   listModelViewRenderPresets,
   setWallVisible,
@@ -42,6 +43,7 @@ type ModelViewAuthoringOverlaysProps = {
   onCloseWallMenu: () => void;
   onSelectWall: (wallId: string) => void;
   onSelectLight?: (lightId: string) => void;
+  lightActions?: LightFixtureActions;
   onPatchDocument?: (
     update: (current: InteriorProject) => InteriorProject,
     status: string,
@@ -57,7 +59,7 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
       <ModelViewLeftChrome
         toolbar={(
           <ModelViewToolbar
-            fixtures={props.onPatchDocument ? { project: props.project, onPatchDocument: props.onPatchDocument, onSelectLight: props.onSelectLight } : undefined}
+            fixtures={props.onPatchDocument ? { project: props.project, onPatchDocument: props.onPatchDocument, lightActions: props.lightActions, onSelectLight: props.onSelectLight } : undefined}
             viewPreset={props.viewPreset}
             cameraHeightMm={props.cameraHeightMm}
             fieldOfViewDegrees={props.fieldOfViewDegrees}

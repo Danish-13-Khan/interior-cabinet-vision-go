@@ -1,16 +1,12 @@
 import type { LightEntity } from "../../domain/interiorProject";
 import { readLightMount } from "../../domain/livingRoom/lightAttachments";
-import { updateRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
-import type { LightDocumentPatch } from "./lightFixtureEdits";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import { LightNumberField } from "./LightNumberField";
 
-export function LightPoseSection(props: { light: LightEntity; onPatchDocument: LightDocumentPatch }) {
-  const { light, onPatchDocument } = props;
+export function LightPoseSection(props: { light: LightEntity; actions: LightFixtureActions }) {
+  const { light, actions } = props;
   const locked = readLightMount(light).kind !== "free";
-  const set = (patch: Parameters<typeof updateRoomLightFixture>[2]) => onPatchDocument(
-    (current) => updateRoomLightFixture(current, light.id, patch),
-    "Updated room light.",
-  );
+  const set = (patch: Parameters<LightFixtureActions["updateLight"]>[1]) => actions.updateLight(light.id, patch);
   return (
     <>
       {([

@@ -1,10 +1,9 @@
-import type { InteriorProject, LightEntity } from "../../domain/interiorProject";
+import type { LightEntity } from "../../domain/interiorProject";
 import { readLightMount } from "../../domain/livingRoom/lightAttachments";
 import { fixtureNumber } from "../../domain/livingRoom/lightFixtureProperties";
 import { lightFixtureDefinitionFor } from "../../domain/livingRoom/lightFixtureTypes";
 import { LIGHT_PARAMETER_LIMITS } from "../../domain/livingRoom/lightParameterLimits";
-import { updateRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
-import type { LightDocumentPatch } from "./lightFixtureEdits";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import { LightNumberField } from "./LightNumberField";
 
 function has(light: LightEntity, key: string) {
@@ -12,18 +11,14 @@ function has(light: LightEntity, key: string) {
 }
 
 export function LightSizeSection(props: {
-  project: InteriorProject;
   light: LightEntity;
-  onPatchDocument: LightDocumentPatch;
+  actions: LightFixtureActions;
 }) {
-  const { light, onPatchDocument } = props;
+  const { light, actions } = props;
   const mounted = readLightMount(light).kind !== "free";
   const fitted = light.parameters.fitHostWidth === true;
   const limits = LIGHT_PARAMETER_LIMITS;
-  const set = (key: string, value: number | string) => onPatchDocument(
-    (current) => updateRoomLightFixture(current, light.id, { parameters: { [key]: value } }),
-    "Updated room light.",
-  );
+  const set = (key: string, value: number | string) => actions.updateLight(light.id, { parameters: { [key]: value } });
   return (
     <>
       <LightNumberField label={light.kind === "area" ? "Strip length (mm)" : "Length (mm)"}

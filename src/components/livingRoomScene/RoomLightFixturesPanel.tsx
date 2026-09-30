@@ -5,11 +5,11 @@ import {
   LIGHT_FIXTURE_CATEGORY_LABELS,
   type LightFixtureCategory,
 } from "../../domain/livingRoom/lightFixtureTypes";
+import { isRoomLightFixture, ROOM_LIGHT_FIXTURES } from "../../domain/livingRoom/roomLightFixtures";
 import {
-  addRoomLightFixture,
-  isRoomLightFixture,
-  ROOM_LIGHT_FIXTURES,
-} from "../../domain/livingRoom/roomLightFixtures";
+  lightFixtureActions,
+  type LightFixtureActions,
+} from "../../hooks/livingRoomPlanEditor/lightCommands";
 import { LightFixtureInspector } from "../livingRoomPlan/LightFixtureInspector";
 import type { LightDocumentPatch } from "../livingRoomPlan/lightFixtureEdits";
 
@@ -17,11 +17,15 @@ const CATEGORIES: readonly LightFixtureCategory[] = ["wall", "ceiling", "cabinet
 
 export type RoomLightFixturesPanelProps = {
   project: InteriorProject;
-  onPatchDocument: LightDocumentPatch;
+  /** Render Studio still patches. The model popover passes lightActions instead. */
+  onPatchDocument?: LightDocumentPatch;
+  lightActions?: LightFixtureActions;
   onSelectLight?: (id: string) => void;
 };
 
-export function RoomLightFixturesPanel({ project, onPatchDocument, onSelectLight }: RoomLightFixturesPanelProps) {
+export function RoomLightFixturesPanel({ project, onPatchDocument, lightActions, onSelectLight }: RoomLightFixturesPanelProps) {
+  const actions = lightActions ?? (onPatchDocument ? lightFixtureActions(onPatchDocument, project) : null);
+  if (!actions) return null;
   const lights = project.lights
     .filter((light) => light.roomId === project.activeRoomId && isRoomLightFixture(light))
     .map((light) => resolveLightAttachment(project, light));
@@ -35,7 +39,7 @@ export function RoomLightFixturesPanel({ project, onPatchDocument, onSelectLight
           <div className="lr-render-quality-grid">
             {ROOM_LIGHT_FIXTURES.filter((preset) => preset.category === category).map((preset) => (
               <button type="button" key={preset.id}
-                onClick={() => onPatchDocument((current) => addRoomLightFixture(current, preset.id), `Added ${preset.name.toLowerCase()}.`)}>
+                onClick={() => actions.addLight(preset.id)}>
                 {preset.name}
               </button>
             ))}
@@ -48,7 +52,7 @@ export function RoomLightFixturesPanel({ project, onPatchDocument, onSelectLight
           <LightFixtureInspector
             project={project}
             light={light}
-            onPatchDocument={onPatchDocument}
+            actions={actions}
             onSelect={onSelectLight ? () => onSelectLight(light.id) : undefined}
           />
         </details>

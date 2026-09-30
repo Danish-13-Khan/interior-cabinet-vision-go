@@ -8,6 +8,7 @@ import type {
 } from "../../domain/interiorProject";
 import type { SavedProjectBrowserEntry } from "../../domain/projectBrowserStorage";
 import type { WorkbenchMode } from "../../domain/desktopUx";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import type {
   LivingRoomAlignMode,
   LivingRoomLightingRecipeId,
@@ -155,6 +156,7 @@ export type LivingRoomPlanWorkspaceProps = {
     status: string,
     cabinetIds?: string[],
   ) => void;
+  lightActions: LightFixtureActions;
   onEnterEngineering: (cabinetIds: string[]) => void;
   onLightingChange: (recipeId: LivingRoomLightingRecipeId) => void;
   onRenderBrowserThumbnail?: (dataUrl: string) => void;

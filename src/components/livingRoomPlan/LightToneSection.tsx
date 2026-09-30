@@ -6,17 +6,13 @@ import {
   MIN_LIGHT_KELVIN,
   readLightKelvin,
 } from "../../domain/livingRoom/lightColorTemperature";
-import { updateRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
-import type { LightDocumentPatch } from "./lightFixtureEdits";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import { LightNumberField } from "./LightNumberField";
 
-export function LightToneSection(props: { light: LightEntity; onPatchDocument: LightDocumentPatch }) {
-  const { light, onPatchDocument } = props;
+export function LightToneSection(props: { light: LightEntity; actions: LightFixtureActions }) {
+  const { light, actions } = props;
   const kelvin = readLightKelvin(light);
-  const set = (patch: Parameters<typeof updateRoomLightFixture>[2]) => onPatchDocument(
-    (current) => updateRoomLightFixture(current, light.id, patch),
-    "Updated room light.",
-  );
+  const set = (patch: Parameters<LightFixtureActions["updateLight"]>[1]) => actions.updateLight(light.id, patch);
   return (
     <>
       <label className="lr-render-field"><span>Name</span>

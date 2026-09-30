@@ -1,5 +1,6 @@
 import type { InteriorProject, Point3Mm } from "../domain/interiorProject";
 import type { LivingRoomStyleId } from "../domain/livingRoom";
+import type { LightFixtureActions } from "../hooks/livingRoomPlanEditor/lightCommands";
 import type { ModelTransformPreview } from "./livingRoomScene/ModelMoveGizmo";
 
 export type LivingRoomModelViewProps = {
@@ -14,6 +15,7 @@ export type LivingRoomModelViewProps = {
   onSelectOpening: (openingId: string) => void;
   onSelectWall: (wallId: string) => void;
   onSelectLight?: (lightId: string) => void;
+  lightActions?: LightFixtureActions;
   onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onMovePreview?: (objectId: string, position: Point3Mm) => { position: Point3Mm; rotationY: number } | null | void;

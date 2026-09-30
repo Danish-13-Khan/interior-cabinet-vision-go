@@ -352,6 +352,13 @@ function App() {
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onPatchDocument={c.patchLivingRoomDocument}
+            lightActions={{
+              addLight: c.addLivingRoomLight,
+              updateLight: c.updateLivingRoomLight,
+              removeLight: c.removeLivingRoomLight,
+              duplicateLight: c.duplicateLivingRoomLight,
+              setLightMount: c.setLivingRoomLightMount,
+            }}
             onEnterEngineering={() => {
               const bridge = resolvePostHandoffBridge();
               // The handoff commit already applies the adapted project and its

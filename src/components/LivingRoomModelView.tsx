@@ -36,7 +36,7 @@ import type { LivingRoomModelViewProps } from "./livingRoomModelViewProps";
 
 export function LivingRoomModelView({
   project, selectedIds, activeOpeningId, activeWallId, activeLightId = null, snapSizeMm, showGrid,
-  onSelect, onSelectOpening, onSelectWall, onSelectLight, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
+  onSelect, onSelectOpening, onSelectWall, onSelectLight, lightActions, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
   onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
@@ -107,7 +107,7 @@ export function LivingRoomModelView({
           onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}
           onClearSelection={onClearSelection} onFitRoom={camera.fitRoom}
           onFocusSelection={camera.focusSelection} onCloseWallMenu={() => setWallMenu(null)}
-          onSelectWall={onSelectWall} onSelectLight={onSelectLight} onPatchDocument={onPatchDocument}
+          onSelectWall={onSelectWall} onSelectLight={onSelectLight} lightActions={lightActions} onPatchDocument={onPatchDocument}
         />
       ) : null}
       {!presentation ? <ModelViewFeedbackBanners /> : null}
