@@ -49,12 +49,13 @@ export async function loadModel(files: readonly ImportFile[], settings: ImportSe
   }
   const mtl = files.find((file) => extensionOf(file.name) === "mtl");
   const objText = textOf(model);
-  const scene = parseObjFile(model);
-  const guessed = guessObjUnit(objText, largestExtent(scene));
+  const parsed = await parseObjFile(model, files);
+  const guessed = guessObjUnit(objText, largestExtent(parsed.scene));
+  const warnings = [...objTextureWarnings(objText, textOf(mtl), files), ...parsed.textureWarnings];
   return {
-    scene,
+    scene: parsed.scene,
     ...scaled(honorFileUnits, toMillimetres(1, guessed), guessed, settings),
     rotateZUp: settings.upAxis === "z",
-    warnings: objTextureWarnings(objText, textOf(mtl), files),
+    warnings: [...new Set(warnings)],
   };
 }

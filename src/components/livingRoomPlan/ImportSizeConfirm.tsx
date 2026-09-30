@@ -4,9 +4,11 @@ import { importUnitChoice, LENGTH_UNITS, sizesUnderUnits } from "../../workers/m
 
 export function ImportSizeConfirm({
   asset,
+  busy = false,
   onUnit,
 }: {
   asset: ImportedAsset;
+  busy?: boolean;
   onUnit: (unit: LengthUnit | "file") => void;
 }) {
   if (asset.rawLargestSide == null) return null;
@@ -16,7 +18,7 @@ export function ImportSizeConfirm({
   return (
     <label className="lr-import-unit">
       Unit
-      <select aria-label="Import unit" value={choice.value} onChange={(event) => onUnit(event.target.value as LengthUnit | "file")}>
+      <select aria-label="Import unit" value={choice.value} disabled={busy} onChange={(event) => onUnit(event.target.value as LengthUnit | "file")}>
         {choice.label && fileMm != null ? <option value="file">{choice.label} · {fileMm} mm</option> : null}
         {LENGTH_UNITS.map((unit) => (
           <option key={unit} value={unit}>{unit} · {Math.round(choices[unit])} mm</option>

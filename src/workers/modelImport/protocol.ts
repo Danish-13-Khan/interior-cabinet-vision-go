@@ -12,8 +12,9 @@ export type ImportFile = { name: string; bytes: ArrayBuffer };
 export type ImportRequest = {
   files: ImportFile[];
   settings: ImportSettings;
-  /** When the spike fails, textures stay on the main thread. */
+  /** When image decoding is unavailable in the worker, textures stay on the main thread. */
   texturesOnMain?: boolean;
+  signal?: AbortSignal;
   /** FBX unit scale and OBJ exporter comments win until the user picks a unit. */
   honorFileUnits?: boolean;
 };

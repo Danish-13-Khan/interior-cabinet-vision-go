@@ -4,7 +4,9 @@ import { assetIdForImport } from "./identity";
 import { buildTriangleGlb } from "./minimalGlb";
 import { bboxMinY, normalizeImportedObject } from "./normalize";
 import { runImport } from "./runImport";
-import { decideImportRuntime, thumbnailMime } from "./spike";
+import { decideImportRuntime } from "./spike";
+import { declareWebpIfNeeded, storedTextureMime } from "./webpTexture";
+import { Document } from "@gltf-transform/core";
 import { guessObjUnit, guessUnitFromSize, sizesUnderUnits } from "./units";
 import { dimensionsForPlacement } from "../../domain/livingRoom/modelImportClient";
 
@@ -39,6 +41,15 @@ describe("import identity and size", () => {
     expect(again).toBe(first);
     expect(centimetres).not.toBe(first);
     expect(first.startsWith("file:")).toBe(true);
+    const ordered = await assetIdForImport([
+      { name: "b.glb", bytes: files[0].bytes },
+      { name: "a.glb", bytes: files[0].bytes },
+    ], settings);
+    const reversed = await assetIdForImport([
+      { name: "a.glb", bytes: files[0].bytes },
+      { name: "b.glb", bytes: files[0].bytes },
+    ], settings);
+    expect(reversed).toBe(ordered);
   });
 
   it("puts a fixture on the floor and measures a 2 m side as about 2000 mm", async () => {
@@ -65,6 +76,16 @@ describe("import identity and size", () => {
   it("keeps textures off the worker when the spike cannot decode images", () => {
     expect(decideImportRuntime({ worker: true, imageBitmap: true, offscreenWebgl: true, webpEncode: true })).toBe("worker");
     expect(decideImportRuntime({ worker: true, imageBitmap: false, offscreenWebgl: false, webpEncode: false })).toBe("split");
-    expect(thumbnailMime(false)).toBe("image/jpeg");
+  });
+
+  it("declares WebP only when the encoded blob is WebP", async () => {
+    expect(storedTextureMime("image/png", true)).toBe("image/png");
+    expect(storedTextureMime("image/webp", false)).toBe("image/jpeg");
+    expect(storedTextureMime("image/webp", true)).toBe("image/webp");
+    const document = new Document();
+    declareWebpIfNeeded(document, "image/jpeg");
+    expect(document.getRoot().listExtensionsUsed().map((extension) => extension.extensionName)).not.toContain("EXT_texture_webp");
+    declareWebpIfNeeded(document, "image/webp");
+    expect(document.getRoot().listExtensionsUsed().map((extension) => extension.extensionName)).toContain("EXT_texture_webp");
   });
 });

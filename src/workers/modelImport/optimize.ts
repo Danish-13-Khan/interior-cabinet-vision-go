@@ -1,8 +1,9 @@
 import { WebIO } from "@gltf-transform/core";
-import { EXTMeshoptCompression, KHRMeshQuantization } from "@gltf-transform/extensions";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { dedup, flatten, getBounds, instance, meshopt, prune, simplify, weld } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
 import { resizeDocumentTextures } from "./textureResize";
+import { canEncodeWebp } from "./spike";
 
 export const TRIANGLE_BUDGET = 200_000;
 export { MAX_TEXTURE_PX } from "./textureResize";
@@ -27,15 +28,20 @@ function countTriangles(document: Awaited<ReturnType<WebIO["readBinary"]>>): num
   return triangles;
 }
 
+/** Keeps KHR_materials_* and KHR_texture_transform instead of dropping unregistered extensions. */
+export function createOptimizeIO(): WebIO {
+  return new WebIO()
+    .registerExtensions(ALL_EXTENSIONS)
+    .registerDependencies({ "meshopt.encoder": MeshoptEncoder });
+}
+
 export async function optimizeGlb(bytes: ArrayBuffer): Promise<{ glb: Uint8Array; beforeTriangles: number; afterTriangles: number }> {
   await MeshoptEncoder.ready;
   await MeshoptSimplifier.ready;
-  const io = new WebIO()
-    .registerExtensions([EXTMeshoptCompression, KHRMeshQuantization])
-    .registerDependencies({ "meshopt.encoder": MeshoptEncoder });
+  const io = createOptimizeIO();
   const document = await io.readBinary(new Uint8Array(bytes));
   const beforeTriangles = countTriangles(document);
-  await resizeDocumentTextures(document, typeof OffscreenCanvas !== "undefined");
+  await resizeDocumentTextures(document, await canEncodeWebp());
   const ratio = simplifyRatio(beforeTriangles);
   await document.transform(
     dedup(),
