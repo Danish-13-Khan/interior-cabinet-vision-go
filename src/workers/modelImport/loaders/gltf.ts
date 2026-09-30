@@ -7,6 +7,8 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 export function createImportGltfLoader(): GLTFLoader {
   const loader = new GLTFLoader();
   const draco = new DRACOLoader();
+  // Same public/draco path as AssetBackedGlbContent. Default import.meta.url points at Vite's HTML.
+  draco.setDecoderPath(`${import.meta.env.BASE_URL}draco/`);
   loader.setDRACOLoader(draco);
   loader.setMeshoptDecoder(MeshoptDecoder);
   return loader;

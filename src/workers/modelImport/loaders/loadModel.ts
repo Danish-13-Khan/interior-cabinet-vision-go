@@ -10,7 +10,7 @@ import { guessObjUnit, toMillimetres, unitFromScale } from "../units";
 export type LoadedModel = {
   scene: Object3D;
   scaleToMm: number;
-  appliedUnit: LengthUnit;
+  appliedUnit: LengthUnit | null;
   rotateZUp: boolean;
   warnings: string[];
 };
@@ -19,7 +19,7 @@ function textOf(file: ImportFile | undefined): string {
   return file ? new TextDecoder().decode(file.bytes) : "";
 }
 
-function scaled(honorFileUnits: boolean, fileScale: number, fileUnit: LengthUnit, settings: ImportSettings) {
+function scaled(honorFileUnits: boolean, fileScale: number, fileUnit: LengthUnit | null, settings: ImportSettings) {
   if (!honorFileUnits) return { scaleToMm: toMillimetres(1, settings.unit), appliedUnit: settings.unit };
   return { scaleToMm: fileScale, appliedUnit: fileUnit };
 }
@@ -39,7 +39,7 @@ export async function loadModel(files: readonly ImportFile[], settings: ImportSe
   if (ext === "fbx") {
     const parsed = await parseFbx(model.bytes, files);
     const fromFile = fbxNormalizeOptions(parsed.scene);
-    const fileUnit = unitFromScale(fromFile.scaleToMm) ?? "m";
+    const fileUnit = unitFromScale(fromFile.scaleToMm);
     return {
       scene: parsed.scene,
       ...scaled(honorFileUnits, fromFile.scaleToMm, fileUnit, settings),

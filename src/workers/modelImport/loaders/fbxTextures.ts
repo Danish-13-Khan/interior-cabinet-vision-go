@@ -1,7 +1,8 @@
 import { Loader, LoadingManager, Texture } from "three";
+import { unsupportedTextureWarning } from "../messages";
 import { decodeTexture } from "./textures";
 
-const IMAGE_EXTS = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff"];
+const IMAGE_EXTS = ["png", "jpg", "jpeg", "webp", "bmp", "gif"];
 
 type ImageBytes = { bytes: ArrayBuffer; mime: string };
 
@@ -55,7 +56,22 @@ async function readTextureBytes(url: string, images: ReadonlyMap<string, ArrayBu
   }
 }
 
-export type FbxTextureSession = { manager: LoadingManager; ready: () => Promise<void> };
+type TextureHandler = {
+  path: string | undefined;
+  setPath: (path?: string) => TextureHandler;
+  load: (
+    url: string,
+    onLoad?: (texture: Texture) => void,
+    onProgress?: unknown,
+    onError?: (error: unknown) => void,
+  ) => Texture;
+};
+
+export type FbxTextureSession = {
+  manager: LoadingManager;
+  ready: () => Promise<void>;
+  warnings: () => readonly string[];
+};
 
 /** Image handler that never touches `document`, so textured FBX can parse in a worker. */
 export function attachFbxTextureLoader(files: readonly { name: string; bytes: ArrayBuffer }[]): FbxTextureSession {
@@ -65,11 +81,12 @@ export function attachFbxTextureLoader(files: readonly { name: string; bytes: Ar
     if (base) images.set(base, file.bytes);
   }
   const pending: Promise<void>[] = [];
+  const warnings: string[] = [];
   const manager = new LoadingManager();
-  const loader = {
-    path: "" as string | undefined,
+  const imageLoader: TextureHandler = {
+    path: "",
     setPath(path?: string) { this.path = path; return this; },
-    load(url: string, onLoad?: (texture: Texture) => void, _onProgress?: unknown, onError?: (error: unknown) => void) {
+    load(url, onLoad, _onProgress, onError) {
       const resolved = this.path ? `${this.path}${url}` : url;
       const texture = new Texture();
       const task = readTextureBytes(resolved, images).then(async (image) => {
@@ -84,6 +101,18 @@ export function attachFbxTextureLoader(files: readonly { name: string; bytes: Ar
       return texture;
     },
   };
-  for (const ext of IMAGE_EXTS) manager.addHandler(new RegExp(`\\.${ext}$`, "i"), loader as unknown as Loader);
-  return { manager, ready: () => Promise.all(pending).then(() => undefined) };
+  // .tga, .dds, .tif and anything else must not fall through to TextureLoader, which needs document.
+  const fallback: TextureHandler = {
+    path: "",
+    setPath(path?: string) { this.path = path; return this; },
+    load(url) {
+      const resolved = this.path ? `${this.path}${url}` : url;
+      const embedded = resolved.startsWith("blob:") || resolved.startsWith("data:");
+      warnings.push(unsupportedTextureWarning(embedded ? "" : basename(resolved)));
+      return new Texture();
+    },
+  };
+  for (const ext of IMAGE_EXTS) manager.addHandler(new RegExp(`\\.${ext}$`, "i"), imageLoader as unknown as Loader);
+  manager.addHandler(/.+/, fallback as unknown as Loader);
+  return { manager, ready: () => Promise.all(pending).then(() => undefined), warnings: () => warnings };
 }

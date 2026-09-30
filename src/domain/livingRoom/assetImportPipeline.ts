@@ -15,6 +15,8 @@ export type ImportedAsset = {
   textureUrls?: ModelTextureUrls;
   /** Unit confirmed for this new import. Saved placements are not resized. */
   importUnit?: "mm" | "cm" | "m" | "in" | "ft";
+  /** Millimetres per file unit. Set so a custom FBX scale is not shown as metres. */
+  scaleToMm?: number;
   /** Largest side in file units, so the dialog can show every candidate. */
   rawLargestSide?: number;
   importWarnings?: string[];

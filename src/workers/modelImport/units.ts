@@ -40,3 +40,23 @@ export function sizesUnderUnits(largestSide: number): Record<LengthUnit, number>
 }
 
 export const LENGTH_UNITS: LengthUnit[] = ["mm", "cm", "m", "in", "ft"];
+
+/** Label for an FBX scale that is not mm, cm, m, in, or ft. Null when it is one of those. */
+export function nonstandardScaleLabel(scaleToMm: number): string | null {
+  if (unitFromScale(scaleToMm)) return null;
+  const shown = Number(scaleToMm.toPrecision(8));
+  return `${shown} mm/unit`;
+}
+
+/** Select value for the import dialog. A custom file scale must not show up as metres. */
+export function importUnitChoice(
+  scaleToMm: number | undefined,
+  importUnit: LengthUnit | undefined,
+): { value: LengthUnit | "file"; label: string | null } {
+  if (scaleToMm != null) {
+    const standard = unitFromScale(scaleToMm);
+    if (!standard) return { value: "file", label: nonstandardScaleLabel(scaleToMm) };
+    return { value: standard, label: null };
+  }
+  return { value: importUnit ?? "m", label: null };
+}

@@ -22,7 +22,7 @@ export async function parseFbx(
   try {
     const scene = new FBXLoader(textures.manager).parse(bytes, "") as Group;
     await textures.ready();
-    const warnings: string[] = [];
+    const warnings: string[] = [...textures.warnings()];
     const animated = Array.isArray((scene as Group & { animations?: unknown[] }).animations)
       && (scene as Group & { animations?: unknown[] }).animations!.length > 0;
     let skinned = false;

@@ -2,9 +2,16 @@ import type { ImportFile, ImportSettings, LengthUnit } from "./protocol";
 
 export type ImportUnitDecision = {
   honorFileUnits?: boolean;
-  appliedUnit?: LengthUnit;
+  appliedUnit?: LengthUnit | null;
   scaleToMm?: number;
 };
+
+function decidedUnit(settings: ImportSettings, decision: ImportUnitDecision): string {
+  if (decision.honorFileUnits !== true) return settings.unit;
+  if (decision.appliedUnit) return decision.appliedUnit;
+  if (typeof decision.scaleToMm === "number") return `mm-per-unit:${decision.scaleToMm}`;
+  return settings.unit;
+}
 
 export async function sha256Hex(bytes: BufferSource): Promise<string> {
   const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
@@ -21,7 +28,7 @@ export async function assetIdForImport(
   const parts: string[] = [];
   for (const file of sorted) parts.push(`${file.name}:${await sha256Hex(file.bytes)}`);
   const honorFileUnits = decision.honorFileUnits === true;
-  const unit = honorFileUnits && decision.appliedUnit ? decision.appliedUnit : settings.unit;
+  const unit = decidedUnit(settings, decision);
   parts.push(JSON.stringify({
     unit,
     upAxis: settings.upAxis,

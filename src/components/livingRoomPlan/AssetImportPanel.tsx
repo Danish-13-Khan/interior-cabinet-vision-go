@@ -49,7 +49,11 @@ export function AssetImportPanel({
     </section>
     {pending ? <section className="lr-texture-window" aria-label="Texture setup">
       <strong>Texture setup</strong><small>{pending.name} · {Math.round(pending.dimensions.widthMm)} × {Math.round(pending.dimensions.heightMm)} × {Math.round(pending.dimensions.depthMm)} mm</small>
-      <ImportSizeConfirm asset={pending} onUnit={(next) => { if (chosenFiles.current.length) importFiles(chosenFiles.current, next); }} />
+      <ImportSizeConfirm asset={pending} onUnit={(next) => {
+        if (!chosenFiles.current.length) return;
+        if (next === "file") importFiles(chosenFiles.current, "m", true);
+        else importFiles(chosenFiles.current, next);
+      }} />
       {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}>{url ? <TexturePreview url={url} /> : null}<span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
       <footer>
         <button type="button" onClick={() => setPending(null)}>Cancel</button>
