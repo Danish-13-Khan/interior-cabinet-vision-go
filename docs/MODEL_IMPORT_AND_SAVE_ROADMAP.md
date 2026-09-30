@@ -1,6 +1,6 @@
 # Model import and project saving roadmap
 
-**Status:** Proposed, reviews 1–2 applied — 2026-09-29
+**Status:** Implemented on `feat/model-import-and-autosave` — 2026-09-30. See §0.
 **Scope:** Importing 3D objects (GLB today; FBX and OBJ next) and keeping a
 project safe while it is being created from nothing (autosave, recovery,
 project file, desktop save).
@@ -10,6 +10,45 @@ as evaluated in [`DWG_EXPORT_EVAL.md`](DWG_EXPORT_EVAL.md). This roadmap only
 changes how the DWG underlay is **stored** (Phase 1 and Phase 5).
 
 ---
+
+## 0. Delivery status (2026-09-30)
+
+All seven phases are built. Beyond the plan below, review rounds added: an
+async unsaved-changes dialog for Finder opens, a production CSP, a trusted-path
+allow-list for the desktop file commands, a modal that pauses a blocked tab,
+per-project delete tombstones, and a pack budget equal to the open budget.
+
+| Phase | State | Notes |
+| --- | --- | --- |
+| 1 Draft autosave / recovery | Done | Web opens the latest draft (notice when the pending marker was set); desktop asks per file. Tab lock pauses the second tab behind a modal. |
+| 2 Import pipeline | Done | Worker with main-thread fallback only when the worker itself fails; 60 s+ timeout; Cancel. 256 px thumbnail is rendered on the main thread (not the worker). Z-up choice in the dialog. |
+| 3 FBX and OBJ | Done | MTL and selected textures applied; missing or unsupported textures are warnings. |
+| 4 Optimize | Done | meshopt only, `ALL_EXTENSIONS`, 2048 px textures (WebP, else PNG/JPEG by source). |
+| 5 `.cabinet` zip | Done | 400 MB / 400-entry budget on save and open. |
+| 6 Desktop save | Done | Serialized atomic writes with unique temp names; 3 backups in app data; a failed backup is logged, not a failed save. |
+| 7 Snapshots | Done | Per-project history with preview (counts and changes) and a "before restore" snapshot. |
+
+**Verified in the browser (dev server and a CSP'd production web build):**
+autosave/restore, recovery notice, tab lock and Take over, OBJ/GLB/Draco
+imports, nested transforms, unit guesses, Z-up, texture orientation, missing
+textures, thumbnail, version preview and restore, CSP directives. Phase 4
+render check: 20 imported sofas add ~0.7 ms per frame (0.69 → 1.40 ms,
+653 draw calls, 247k triangles) on the development Mac.
+
+**Not yet verified:** clicking through the native desktop app (Finder open
+with unsaved work, Save As to a new folder, recent files after restart, PDF
+package export, double Cmd+S); the unit suite and the Playwright specs
+(including `tests/e2e/phase-1-draft-autosave.spec.ts`) after the last changes.
+
+**Known limits:**
+- After upgrading, recent files opened before the trusted-path list existed
+  must be opened or saved once through a dialog.
+- Saving into hidden folders, `~/Library/Application Support`,
+  `~/Library/Containers` and system folders is refused on purpose.
+- A re-run import (unit or axis change) leaves its previous model blob until
+  the 30-day prune.
+- `src/hooks/useLivingRoomPlanEditor.ts` is ~930 lines (already over the
+  200-line rule on `main`); not split here.
 
 ## 1. Decisions
 

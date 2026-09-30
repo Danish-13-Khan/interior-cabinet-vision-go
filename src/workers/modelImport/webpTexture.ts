@@ -9,8 +9,14 @@ export function declareWebpIfNeeded(document: Document, mime: string): void {
   document.createExtension(EXTTextureWebP).setRequired(true);
 }
 
-export function storedTextureMime(encodedType: string, webpWanted: boolean): string {
+/** Without WebP, only JPEG sources stay JPEG. PNG (and WebP) sources may carry alpha, so they become PNG. */
+export function fallbackTextureMime(sourceMime: string): "image/png" | "image/jpeg" {
+  const source = sourceMime.toLowerCase();
+  return source === "image/jpeg" || source === "image/jpg" ? "image/jpeg" : "image/png";
+}
+
+export function storedTextureMime(encodedType: string, webpWanted: boolean, sourceMime = "image/jpeg"): string {
   if (webpWanted && encodedType === "image/webp") return "image/webp";
-  if (encodedType === "image/png") return "image/png";
-  return "image/jpeg";
+  if (encodedType === "image/png" || encodedType === "image/jpeg") return encodedType;
+  return fallbackTextureMime(sourceMime);
 }

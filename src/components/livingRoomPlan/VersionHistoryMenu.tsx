@@ -1,24 +1,12 @@
 import { useEffect, useState } from "react";
-import { restoreSnapshot, snapshotsForProject } from "../../domain/projectSnapshots/history";
-import { restoreProjectSnapshot } from "../../domain/projectSnapshots/capture";
-import type { ProjectSnapshot, SnapshotReason } from "../../domain/projectSnapshots/types";
+import { snapshotsForProject } from "../../domain/projectSnapshots/history";
+import { SNAPSHOT_REASON_LABELS } from "../../domain/projectSnapshots/snapshotSummary";
+import type { ProjectSnapshot } from "../../domain/projectSnapshots/types";
 import { indexedDbSnapshotStore } from "../../platform/indexedDbSnapshotStore";
+import { snapshotTime } from "./VersionPreviewDialog";
 
-const REASONS: Record<SnapshotReason, string> = {
-  interval: "Autosave",
-  "room-closed": "Room closed",
-  "first-cabinet": "First cabinet",
-  render: "Render",
-};
-
-function when(createdAt: string): string {
-  const parsed = new Date(createdAt);
-  if (Number.isNaN(parsed.getTime())) return createdAt;
-  return parsed.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" });
-}
-
-/** Preview and restore the last snapshots for the open project. */
-export function VersionHistoryMenu({ projectId }: { projectId?: string | null }) {
+/** Lists the open project's last snapshots; choosing one opens a preview before restoring. */
+export function VersionHistoryMenu({ projectId, onChoose }: { projectId?: string | null; onChoose: (snapshot: ProjectSnapshot) => void }) {
   const [snapshots, setSnapshots] = useState<ProjectSnapshot[]>([]);
   useEffect(() => {
     let live = true;
@@ -35,9 +23,10 @@ export function VersionHistoryMenu({ projectId }: { projectId?: string | null })
           key={snapshot.id}
           type="button"
           role="menuitem"
-          onClick={() => restoreProjectSnapshot(restoreSnapshot(snapshot))}
+          data-testid="version-history-item"
+          onClick={() => onChoose(snapshot)}
         >
-          {REASONS[snapshot.reason]} · {when(snapshot.createdAt)}
+          {SNAPSHOT_REASON_LABELS[snapshot.reason] ?? "Saved version"} · {snapshotTime(snapshot.createdAt)}
         </button>
       ))}
     </div>

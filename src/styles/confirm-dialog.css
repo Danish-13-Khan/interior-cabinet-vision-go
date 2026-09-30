@@ -111,3 +111,12 @@ body > .app-confirm-backdrop .app-confirm-actions button.is-danger,
 .app-prompt-field input[aria-invalid="true"] {
   border-color: #c45c5c;
 }
+
+.app-confirm-summary {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}

@@ -41,7 +41,7 @@ export function useProjectSnapshots({ document, cabinetCount, restore }: Args) {
       void recordSnapshot(indexedDbSnapshotStore, snapshot).catch(() => undefined);
     });
     captureRef.current = capture;
-    return bindSnapshotSession({ capture, restore: (parsed) => restoreRef.current(parsed) });
+    return bindSnapshotSession({ capture, restore: (parsed) => restoreRef.current(parsed), current: () => documentRef.current });
   }, []);
 
   useEffect(() => {

@@ -20,6 +20,10 @@ export type ImportedAsset = {
   /** Largest side in file units, so the dialog can show every candidate. */
   rawLargestSide?: number;
   importWarnings?: string[];
+  /** Up axis chosen in the import dialog. FBX files set their own. */
+  importUpAxis?: "y" | "z";
+  /** Import dialog preview only (data: URL). Never written into the project document. */
+  thumbnailUrl?: string;
 };
 
 /** Historical pack footprints preserved so old layouts and pack UI stay familiar. */
@@ -82,7 +86,8 @@ export function createImportedAssetObject(
   roomId: string,
   position: Point3Mm,
 ): InteriorObjectEntity {
-  const persistedAsset = getPackagedImportedAsset(asset.id) ? { id: asset.id } : asset;
+  const { thumbnailUrl: _preview, ...stored } = asset;
+  const persistedAsset = getPackagedImportedAsset(asset.id) ? { id: asset.id } : stored;
   return {
     id,
     roomId,
