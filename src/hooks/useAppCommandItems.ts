@@ -13,6 +13,7 @@ type UseAppCommandItemsArgs = {
   onReset: () => void;
   onLoadProject: () => void | Promise<void>;
   onSaveProject: () => void | Promise<void>;
+  onSaveAsProject: () => void | Promise<void>;
   onUndo: () => void;
   onRedo: () => void;
   onCopy: () => void;
@@ -51,6 +52,7 @@ export function useAppCommandItems({
   onReset,
   onLoadProject,
   onSaveProject,
+  onSaveAsProject,
   onUndo,
   onRedo,
   onCopy,
@@ -85,7 +87,8 @@ export function useAppCommandItems({
     () => [
       { id: "new", label: "New Project", hint: "Reset the current project", shortcut: formatShortcutBinding(shortcutMap.new), category: "File", keywords: ["reset"], action: onReset },
       { id: "open", label: "Open Project", hint: "Open a project JSON from disk", shortcut: "File", category: "File", keywords: ["load"], action: () => { void onLoadProject(); } },
-      { id: "save", label: "Save Project", hint: "Save project JSON to disk", shortcut: formatShortcutBinding(shortcutMap.save), category: "File", action: () => { void onSaveProject(); } },
+      { id: "save", label: "Save Project", hint: "Save the Cabinet project", shortcut: formatShortcutBinding(shortcutMap.save), category: "File", action: () => { void onSaveProject(); } },
+      { id: "save-as", label: "Save Project As", hint: "Write a new .cabinet file", shortcut: formatShortcutBinding(shortcutMap.saveAs), category: "File", action: () => { void onSaveAsProject(); } },
       { id: "undo", label: "Undo", hint: "Reverse the last change", shortcut: formatShortcutBinding(shortcutMap.undo), category: "Edit", action: onUndo },
       { id: "redo", label: "Redo", hint: "Reapply the last undone change", shortcut: formatShortcutBinding(shortcutMap.redo), category: "Edit", action: onRedo },
       { id: "copy", label: "Copy Selection", hint: "Copy selected items", shortcut: formatShortcutBinding(shortcutMap.copy), category: "Edit", action: onCopy },

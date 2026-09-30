@@ -62,6 +62,7 @@
 @import "./styles/model-wall-visibility.css";
 @import "./styles/material-colour.css";
 @import "./styles/texture-import.css";
+@import "./styles/model-import-dialog.css";
 @import "./styles/wall-panels.css";
 @import "./styles/url-import.css";
 @import "./styles/contextual-command-rail.css";

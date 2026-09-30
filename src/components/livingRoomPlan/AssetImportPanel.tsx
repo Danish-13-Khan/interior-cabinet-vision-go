@@ -1,4 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { LengthUnit, UpAxis } from "../../workers/modelImport/protocol";
+import { extensionOf } from "../../workers/modelImport/messages";
+import { ImportSizeConfirm, ImportUpAxisConfirm } from "./ImportSizeConfirm";
 import {
   ASSET_IMPORT_STARTER_PACK,
   readImportedGlb,
@@ -12,6 +15,14 @@ function TexturePreview({ url }: { url: string }) {
   return src ? <img src={src} alt="" /> : <span className="lr-texture-loading" aria-hidden="true" />;
 }
 
+type ImportRun = { unit: LengthUnit; honorFileUnits: boolean; upAxis: UpAxis };
+const FIRST_RUN: ImportRun = { unit: "m", honorFileUnits: true, upAxis: "y" };
+
+function modelIsFbx(files: readonly File[]): boolean {
+  const model = files.find((file) => ["glb", "gltf", "fbx", "obj"].includes(extensionOf(file.name)));
+  return model ? extensionOf(model.name) === "fbx" : false;
+}
+
 export function AssetImportPanel({
   cabinetMode,
   onAdd,
@@ -21,35 +32,81 @@ export function AssetImportPanel({
 }) {
   const input = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<ImportedAsset | null>(null);
+  const chosenFiles = useRef<File[]>([]);
+  /** Settings of the preview on screen, so a unit or axis change keeps the other choice. */
+  const shownRun = useRef<ImportRun>(FIRST_RUN);
+  const flight = useRef<AbortController | null>(null);
+  useEffect(() => () => flight.current?.abort(), []);
+  const cancelImport = () => {
+    flight.current?.abort();
+    flight.current = null;
+    setBusy(false);
+  };
+  const importFiles = (files: File[], run: ImportRun) => {
+    flight.current?.abort();
+    const controller = new AbortController();
+    flight.current = controller;
+    chosenFiles.current = files;
+    setError("");
+    setBusy(true);
+    void readImportedGlb(files, indexedDbAssetBlobStore, run.unit, run.honorFileUnits, controller.signal, run.upAxis)
+      .then((asset) => {
+        if (controller.signal.aborted) return;
+        shownRun.current = run;
+        setPending(asset);
+      })
+      .catch((reason: unknown) => {
+        if (controller.signal.aborted) return;
+        setError(reason instanceof Error ? reason.message : "Model import failed.");
+      })
+      .finally(() => { if (flight.current === controller) setBusy(false); });
+  };
   const assets = ASSET_IMPORT_STARTER_PACK.filter((asset) => cabinetMode ? asset.kind === "cabinet" : asset.kind !== "cabinet");
   const maps = pending ? Object.entries(pending.textureUrls ?? {}) : [];
   const addPending = () => { if (pending) onAdd(pending); setPending(null); };
+  const rerun = (change: Partial<ImportRun>) => {
+    if (!chosenFiles.current.length || busy) return;
+    importFiles(chosenFiles.current, { ...shownRun.current, ...change });
+  };
+  // A failed unit re-run keeps the last good preview; show why next to it, not only in the header.
+  const errorLine = error ? <p className="lr-import-error" role="alert">{error}</p> : null;
   return <>
-    <section className="lr-model-import">
-      <input ref={input} type="file" accept=".glb,model/gltf-binary,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
+    <section className="lr-model-import" aria-busy={busy}>
+      <input ref={input} type="file" accept=".glb,.gltf,.fbx,.obj,.mtl,image/png,image/jpeg,image/webp" multiple hidden onChange={(event) => {
         const files = Array.from(event.target.files ?? []);
         event.target.value = "";
         if (!files.length) return;
-        setError("");
-        void readImportedGlb(files, indexedDbAssetBlobStore).then(setPending).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Model import failed."));
+        setPending(null); // a different model; the old preview would be misleading if this one fails
+        importFiles(files, FIRST_RUN);
       }} />
       <strong>Asset Import</strong>
-      <small>Select a GLB and its BaseColor/normal/roughness images together. Files are kept in this browser and embedded when you save the project to a file.</small>
-      <button type="button" onClick={() => input.current?.click()}>Import GLB + textures</button>
-      {error ? <p className="lr-import-error">{error}</p> : null}
+      <small>Select a GLB, FBX, or OBJ file. For OBJ, also select its .mtl file; for any model, select its texture images in the same pick. Files are kept in this browser and embedded when you save the project to a file.</small>
+      <button type="button" onClick={() => input.current?.click()} disabled={busy}>{busy ? "Importing…" : "Import model + textures"}</button>
+      {busy ? <button type="button" onClick={cancelImport}>Cancel import</button> : null}
+      {pending ? null : errorLine}
+      {pending?.importWarnings?.length ? <p>{pending.importWarnings[0]}</p> : null}
     </section>
-    {pending ? <section className="lr-texture-window" aria-label="Texture setup">
-      <strong>Texture setup</strong><small>{pending.name}</small>
+    {pending ? <section className="lr-texture-window" aria-label="Texture setup" aria-busy={busy}>
+      <header className="lr-import-summary">
+        {pending.thumbnailUrl ? <img className="lr-import-thumbnail" src={pending.thumbnailUrl} alt={`${pending.name} preview`} width={64} height={64} /> : null}
+        <div><strong>Texture setup</strong><small>{pending.name} · {Math.round(pending.dimensions.widthMm)} × {Math.round(pending.dimensions.heightMm)} × {Math.round(pending.dimensions.depthMm)} mm</small></div>
+      </header>
+      <ImportSizeConfirm asset={pending} busy={busy} onUnit={(next) => {
+        rerun(next === "file" ? { unit: "m", honorFileUnits: true } : { unit: next, honorFileUnits: false });
+      }} />
+      <ImportUpAxisConfirm asset={pending} busy={busy} fixedByFile={modelIsFbx(chosenFiles.current)} onUpAxis={(upAxis) => rerun({ upAxis })} />
+      {errorLine}
       {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}>{url ? <TexturePreview url={url} /> : null}<span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
       <footer>
-        <button type="button" onClick={() => setPending(null)}>Cancel</button>
-        <button type="button" onClick={addPending}>Add to room</button>
+        <button type="button" onClick={() => { cancelImport(); setError(""); setPending(null); }}>Cancel</button>
+        <button type="button" onClick={addPending} disabled={busy}>Add to room</button>
       </footer>
     </section> : null}
     <div className="lr-import-pack">
       {assets.map((asset) => (
-        <button type="button" key={asset.id} onClick={() => setPending(asset)}>
+        <button type="button" key={asset.id} onClick={() => { cancelImport(); setError(""); setPending(asset); }}>
           <span>⬡</span>
           <strong>{asset.name}</strong>
           <small>GLB · {asset.dimensions.widthMm} mm · catalog alias</small>

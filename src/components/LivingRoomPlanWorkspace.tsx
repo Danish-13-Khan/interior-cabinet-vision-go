@@ -1,3 +1,4 @@
+import { noteProjectSnapshot } from "../domain/projectSnapshots/capture";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVING_ROOM_CATALOG, getLivingRoomPlanUnderlay, type LivingRoomRenderResult } from "../domain/livingRoom";
 import { millworkAssetCategories } from "../domain/livingRoom/millworkShortcuts";
@@ -20,6 +21,7 @@ import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspacePro
 import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
 import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
 import { useSelectionFrameRequest } from "../hooks/useSelectionFrameRequest";
+import { ProjectTabLockNotice } from "./ProjectTabLockNotice";
 
 export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const draftingAppearance = useDraftingAppearance();
@@ -140,6 +142,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
       presenting: chrome.plannerMode === "render",
     }).join(" ")} data-drafting-appearance={draftingAppearance.appearance}>
       {header}
+      <ProjectTabLockNotice projectId={props.project?.id ?? null} />
       <LivingRoomPlanWorkspaceBody
         workspace={props} project={props.project} room={room ?? null} underlay={underlay}
         workspaceView={chrome.workspaceView} plannerMode={chrome.plannerMode}
@@ -154,9 +157,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
         roomPolygonPointCount={roomPolygonPointCount} roomPolygonCloseRequest={roomPolygonCloseRequest}
         onRoomPolygonPointCount={setRoomPolygonPointCount}
-        onRoomPolygonCloseRequest={() => setRoomPolygonCloseRequest((count) => count + 1)}
+        onRoomPolygonCloseRequest={() => { setRoomPolygonCloseRequest((count) => count + 1); }}
         renderResults={renderResults}
-        onRenderResults={(result) => setRenderResults((current) => ({ latest: result, previous: current.latest }))}
+        onRenderResults={(result) => { setRenderResults((current) => ({ latest: result, previous: current.latest })); noteProjectSnapshot("render"); }}
         build={build} activeBuildTool={build.buildCommandState.activeTool} onBuildTool={build.selectBuildTool}
         underlayPickerRef={underlayPickerRef} millwork={millwork} clientExport={clientExport}
         proposal={proposal} handoff={handoff}
