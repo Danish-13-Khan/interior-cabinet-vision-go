@@ -9,6 +9,8 @@ import {
   clampedHeadCount,
   coveWallIntensity,
 } from "./fixtures/fixtureMeasures";
+import { headAimRad } from "./fixtures/TrackFixture";
+import { getLightFixtureDefinition } from "../../domain/livingRoom/lightFixtureRegistry";
 
 function apply(rotation: [number, number, number, "YXZ"], local: Vector3) {
   return local.applyEuler(new Euler(rotation[0], rotation[1], rotation[2], rotation[3]));
@@ -29,6 +31,17 @@ describe("fixture emission frame", () => {
     expect(clampedHeadCount({ parameters: { headCount: 0 } })).toBe(1);
     expect(clampedHeadCount({ parameters: {} })).toBe(3);
     expect(beamHalfAngleRad({ parameters: { beamAngleDeg: 40 } })).toBeCloseTo((20 * Math.PI) / 180);
+  });
+
+  it("alternates track head tilt so the pools straddle the rail", () => {
+    const aim = 20 * Math.PI / 180;
+    expect([0, 1, 2, 3].map((index) => headAimRad(aim, index))).toEqual([aim, -aim, aim, -aim]);
+    expect(headAimRad(0, 1)).toBe(-0);
+  });
+
+  it("seeds the panel brighter than a point-like emitter, since it is the ceiling's main source", () => {
+    expect(getLightFixtureDefinition("panel").defaults.intensity).toBe(12);
+    expect(getLightFixtureDefinition("cob").defaults.intensity).toBeLessThan(12);
   });
 
   it("scales the cove wall band by coveWallShare and no other factor", () => {
