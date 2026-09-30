@@ -30,6 +30,11 @@ import {
 } from "../domain/interiorProject";
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
 import { noteDraftFileSaved } from "../domain/projectDrafts/commitDraft";
+import { projectFileAdoption } from "../domain/projectDrafts/browserSignals";
+import { offerDesktopFileRecovery } from "../domain/projectDrafts/loadSavedBrowser";
+import { rememberProjectFileBinding } from "../domain/projectDrafts/projectFileBinding";
+import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
+import { versionRestorePlan } from "../domain/projectSnapshots/versionRestore";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 
 type PlanningWorkflow = ReturnType<typeof createCabinetPlanningWorkflow>;
@@ -129,6 +134,14 @@ export function useProjectFileIo({
         setProjectFilePath(session.projectFilePath);
         setSavedFingerprint(persistenceFingerprint(loaded.document));
         rememberFile(session.projectFilePath!);
+        rememberProjectFileBinding(localStorage, loaded.document.id, session.projectFilePath!);
+        await offerDesktopFileRecovery({
+          storage: localStorage,
+          blobs: indexedDbAssetBlobStore,
+          drafts: indexedDbDraftStore,
+          projectId: loaded.document.id,
+          filePath: session.projectFilePath!,
+        });
         onStatus("Restored previous session file.");
       } catch {
         onStatus("Could not restore previous session file.");
@@ -155,6 +168,7 @@ export function useProjectFileIo({
       setProjectFilePath(path);
       setSavedFingerprint(persistenceFingerprint(loaded.document));
       rememberFile(path);
+      rememberProjectFileBinding(localStorage, loaded.document.id, path);
       onStatus(status);
     },
     [applySnapshot, onStatus, rememberFile, room, setProjectFilePath],
@@ -186,6 +200,7 @@ export function useProjectFileIo({
       setSavedFingerprint(persistenceFingerprint(document));
       void noteDraftFileSaved(document.id, indexedDbDraftStore, localStorage).catch(() => undefined);
       rememberFile(written);
+      rememberProjectFileBinding(localStorage, document.id, written);
       saveCurrentProjectToBrowser(document.name);
       onStatus(
         written.toLowerCase().endsWith(".json")
@@ -207,10 +222,33 @@ export function useProjectFileIo({
     writeFile,
   ]);
 
+  useEffect(() => projectFileAdoption.subscribe((path) => {
+    if (path === undefined) return;
+    setProjectFilePath(path);
+  }), [setProjectFilePath]);
+
   useProjectSnapshots({
     document: currentDocument,
     cabinetCount: project.cabinets.length,
-    restore: (parsed) => applyLoadedFile(parsed, projectFilePath ?? "version", "Restored a saved version."),
+    restore: (parsed) => {
+      const loaded = snapshotFromParsedFile(parsed, room);
+      const plan = versionRestorePlan({
+        currentPath: projectFilePath,
+        currentProjectId: currentDocument.id,
+        restoredProjectId: loaded.document.id,
+      });
+      applySnapshot({
+        project: loaded.project,
+        room: loaded.room,
+        selectedCabinetIds: loaded.project.cabinets[0]?.id ? [loaded.project.cabinets[0].id] : [],
+        activeCabinetId: loaded.project.cabinets[0]?.id ?? null,
+        selectedPanelName: null,
+      });
+      setProjectFilePath(plan.path);
+      if (plan.markClean) setSavedFingerprint(persistenceFingerprint(loaded.document));
+      if (plan.rememberPath) rememberFile(plan.rememberPath);
+      onStatus("Restored a saved version.");
+    },
   });
 
   const handleSaveProject = useCallback(() => saveProject(false), [saveProject]);

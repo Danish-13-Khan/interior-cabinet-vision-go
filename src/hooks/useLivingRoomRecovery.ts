@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import { clearLivingRoomRecovery, type LivingRoomRecoverySnapshot } from "../domain/livingRoom";
 import { createLivingRoomRecoverySnapshot } from "../domain/livingRoom";
-import { autosaveStatus, recoveryOffer, webDraftRestore } from "../domain/projectDrafts/browserSignals";
+import { autosaveStatus, projectFileAdoption, recoveryOffer, webDraftRestore } from "../domain/projectDrafts/browserSignals";
 import { noteDraftFileSaved } from "../domain/projectDrafts/commitDraft";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 
@@ -27,6 +27,7 @@ export function useLivingRoomRecovery({ onRestore, onStatus }: Args) {
     const interior = request?.entry.project.interiorDocument;
     if (!request || !interior || restored.current) return;
     restored.current = true;
+    projectFileAdoption.set(request.filePath);
     onRestore(interior);
     if (request.notice) onStatus(request.notice);
   }), [onRestore, onStatus]);
@@ -57,8 +58,10 @@ export function useLivingRoomRecovery({ onRestore, onStatus }: Args) {
 
   const restoreRecovery = useCallback(() => {
     if (!recovery) return;
+    const filePath = recoveryOffer.get()?.filePath ?? null;
     clearLivingRoomRecovery();
     recoveryOffer.set(null);
+    projectFileAdoption.set(filePath);
     setRecovery(null);
     setPrompt(null);
     setAutosaveState("saved");

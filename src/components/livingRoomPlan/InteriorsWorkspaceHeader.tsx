@@ -10,6 +10,7 @@ type InteriorsWorkspaceHeaderProps = {
   tools?: ReactNode;
   steps?: ReactNode;
   projectName: string | null;
+  projectId?: string | null;
   roomName: string;
   revision: string;
   statusLabel: string;
@@ -72,6 +73,7 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
             <span>{projectName ? `Rev ${props.revision} · ${props.statusLabel}` : "Cabinet jobs"}</span>
           </button>
           <InteriorsWorkspaceFileMenu
+            projectId={props.projectId}
             disabled={!hasProject}
             onProjectTools={props.onProjectTools}
             onOpen={props.onOpen}

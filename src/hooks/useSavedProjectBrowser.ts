@@ -3,12 +3,12 @@ import type { CabinetProject } from "../domain/cabinetDimensions";
 import { clampCabinetProject } from "../domain/cabinetDimensions";
 import { getActiveProjectRoom, normalizeMultiRoomProject, writeActiveRoomState } from "../domain/projectRooms";
 import { getProjectDisplayName, upsertSavedProjectEntry, type SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
-import { browserLoading, recoveryOffer, requestPersistentStorage, webDraftRestore } from "../domain/projectDrafts/browserSignals";
-import { decideDraftRecovery, type RecoveryPlatform } from "../domain/projectDrafts/recoveryDecision";
-import { migrateBrowserDrafts } from "../domain/projectDrafts/migrateBrowserDrafts";
-import { hydrateBrowserEntries } from "../domain/projectDrafts/hydrateBrowserEntries";
-import { isDraftPending } from "../domain/projectDrafts/pendingMarker";
-import { writeProjectIndex } from "../domain/projectDrafts/projectIndex";
+import { browserLoading, projectFileAdoption, recoveryOffer, registerDraftReload, requestPersistentStorage, webDraftRestore } from "../domain/projectDrafts/browserSignals";
+import type { RecoveryPlatform } from "../domain/projectDrafts/recoveryDecision";
+import { loadSavedBrowser } from "../domain/projectDrafts/loadSavedBrowser";
+import { persistBrowserProjectDraft } from "../domain/projectDrafts/browserDraftSave";
+import { reloadSavedDraft } from "../domain/projectDrafts/hydrateBrowserEntries";
+import { persistSharedProjectIndex } from "../domain/projectDrafts/sharedProjectIndex";
 import type { ProjectIndexEntry } from "../domain/projectDrafts/types";
 import { splitDwgPreviews } from "../domain/projectDrafts/dwgDraftSplit";
 import { schemaVersionOf } from "../domain/projectDrafts/draftDocument";
@@ -38,48 +38,57 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
   const filePathRef = useRef(filePath);
   const platformRef = useRef(platform);
   const captureThumbnailRef = useRef(captureThumbnail);
+  const loadOk = useRef(false);
+  const deletedIds = useRef(new Set<string>());
   captureThumbnailRef.current = captureThumbnail;
+  filePathRef.current = filePath;
   useStoredAssetCleanup(project);
   useOpenDocumentWarnings(project.interiorDocument?.id ?? null);
+
+  useEffect(() => registerDraftReload(async (projectId) => {
+    await reloadSavedDraft(projectId, indexedDbDraftStore, applySnapshot);
+  }), [applySnapshot]);
 
   useEffect(() => {
     let live = true;
     browserLoading.set(true);
     if (!isTauriRuntime()) requestPersistentStorage();
-    void (async () => {
-      const index = await migrateBrowserDrafts({ storage: localStorage, blobs: indexedDbAssetBlobStore, drafts: indexedDbDraftStore });
-      index.forEach((entry) => thumbnailKeys.current.set(entry.id, entry.thumbnailKey));
-      const entries = await hydrateBrowserEntries(index, indexedDbDraftStore, indexedDbAssetBlobStore);
+    const openFilePath = filePathRef.current;
+    const openPlatform = platformRef.current ?? (isTauriRuntime() ? "desktop" : "web");
+    void loadSavedBrowser({
+      storage: localStorage,
+      blobs: indexedDbAssetBlobStore,
+      drafts: indexedDbDraftStore,
+      openFilePath,
+      platform: openPlatform,
+    }).then((result) => {
       if (!live) return;
-      setSavedProjects(entries);
-      const latest = [...entries].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
-      if (latest) {
-        const draft = await indexedDbDraftStore.get(latest.id);
-        const decision = decideDraftRecovery({
-          platform: platformRef.current ?? (isTauriRuntime() ? "desktop" : "web"),
-          filePath: filePathRef.current,
-          draftUpdatedAt: latest.updatedAt,
-          lastFileSaveAt: draft?.lastFileSaveAt ?? null,
-          pending: isDraftPending(localStorage, latest.id),
-        });
-        if (decision.action === "open-draft") webDraftRestore.set({ entry: latest, notice: decision.notice });
-        else if (decision.action === "ask") recoveryOffer.set({ prompt: decision.prompt, entry: latest });
+      if (result.ok) {
+        result.thumbnails.forEach(([id, key]) => thumbnailKeys.current.set(id, key));
+        loadOk.current = true;
+        setSavedProjects(result.entries);
+        const recovery = result.recovery;
+        if (recovery?.decision.action === "open-draft") {
+          webDraftRestore.set({ entry: recovery.entry, notice: recovery.decision.notice, filePath: recovery.filePath });
+        } else if (recovery?.decision.action === "ask") {
+          recoveryOffer.set({ prompt: recovery.decision.prompt, entry: recovery.entry, filePath: recovery.filePath });
+        }
       }
       setReady(true);
       browserLoading.set(false);
-    })().catch(() => { if (live) { setReady(true); browserLoading.set(false); } });
+    }).catch(() => { if (live) { setReady(true); browserLoading.set(false); } });
     return () => { live = false; };
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
-    const index: ProjectIndexEntry[] = savedProjects.map((entry) => ({
+    if (!ready || !loadOk.current) return;
+    const visible: ProjectIndexEntry[] = savedProjects.map((entry) => ({
       id: entry.id,
       name: entry.name,
       updatedAt: entry.updatedAt,
       thumbnailKey: thumbnailKeys.current.get(entry.id) ?? null,
     }));
-    writeProjectIndex(index, localStorage);
+    persistSharedProjectIndex(localStorage, visible, deletedIds.current, true);
   }, [ready, savedProjects]);
 
   const remember = useCallback((entry: SavedProjectBrowserEntry & { thumbnailKey?: string | null }) => {
@@ -104,22 +113,27 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
     const safeProject = normalizeMultiRoomProject(writeActiveRoomState(project, project.cabinets, room), room);
     const id = safeProject.interiorDocument?.id;
     if (!id) return;
-    remember({
-      id,
-      name: nameOverride ?? getProjectDisplayName(safeProject, savedProjects.length + 1),
-      thumbnail: captureThumbnailRef.current(),
-      thumbnailKey: thumbnailKeys.current.get(id) ?? null,
-      updatedAt: new Date().toISOString(),
-      project: safeProject,
-      room: getActiveProjectRoom(safeProject).config,
-    });
-    onStatus("Saved current project to the browser.");
+    const updatedAt = new Date().toISOString();
+    const savedRoom = getActiveProjectRoom(safeProject).config;
+    void persistBrowserProjectDraft(indexedDbDraftStore, safeProject, savedRoom, updatedAt).then(() => {
+      remember({
+        id,
+        name: nameOverride ?? getProjectDisplayName(safeProject, savedProjects.length + 1),
+        thumbnail: captureThumbnailRef.current(),
+        thumbnailKey: thumbnailKeys.current.get(id) ?? null,
+        updatedAt,
+        project: safeProject,
+        room: savedRoom,
+      });
+      onStatus("Saved current project to the browser.");
+    }).catch(() => onStatus("Could not save the project to the browser."));
   }, [onStatus, project, remember, room, savedProjects.length]);
 
   const handleLoadSavedProject = useCallback((projectId: string) => {
     const entry = savedProjects.find((item) => item.id === projectId);
     if (!entry) return;
     const same = project.interiorDocument?.id && project.interiorDocument.id === entry.project.interiorDocument?.id;
+    if (!same) projectFileAdoption.set(null);
     const safeProject = clampCabinetProject(same ? normalizeMultiRoomProject(writeActiveRoomState(project, project.cabinets, room), room) : entry.project);
     const activeRoom = getActiveProjectRoom(safeProject);
     applySnapshot({
@@ -133,6 +147,7 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
   }, [applySnapshot, onStatus, project, room, savedProjects]);
 
   const handleDeleteSavedProject = useCallback((projectId: string) => {
+    deletedIds.current.add(projectId);
     setSavedProjects((current) => current.filter((item) => item.id !== projectId));
     void indexedDbDraftStore.delete(projectId);
     onStatus("Removed project from the browser.");

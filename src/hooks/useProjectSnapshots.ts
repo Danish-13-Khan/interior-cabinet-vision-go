@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { captureSnapshotIfAllowed } from "../domain/projectDrafts/browserSignals";
 import { bindSnapshotSession } from "../domain/projectSnapshots/capture";
 import { buildSnapshot, recordSnapshot } from "../domain/projectSnapshots/history";
 import { SNAPSHOT_INTERVAL_MS, type SnapshotReason } from "../domain/projectSnapshots/types";
@@ -27,7 +28,7 @@ export function useProjectSnapshots({ document, cabinetCount, restore }: Args) {
   }, [document]);
 
   useEffect(() => {
-    const capture = (reason: SnapshotReason) => {
+    const capture = (reason: SnapshotReason) => captureSnapshotIfAllowed(() => {
       const snapshot = buildSnapshot(documentRef.current, reason, new Date().toISOString());
       if (!snapshot) return;
       const fingerprint = JSON.stringify(snapshot.document);
@@ -35,7 +36,7 @@ export function useProjectSnapshots({ document, cabinetCount, restore }: Args) {
       lastSaved.current = fingerprint;
       dirty.current = false;
       void recordSnapshot(indexedDbSnapshotStore, snapshot).catch(() => undefined);
-    };
+    });
     const unbind = bindSnapshotSession({ capture, restore: (parsed) => restoreRef.current(parsed) });
     const timer = window.setInterval(() => {
       if (!dirty.current) return;
@@ -49,8 +50,10 @@ export function useProjectSnapshots({ document, cabinetCount, restore }: Args) {
 
   useEffect(() => {
     if (cabinets.current === 0 && cabinetCount === 1) {
-      const snapshot = buildSnapshot(documentRef.current, "first-cabinet", new Date().toISOString());
-      if (snapshot) void recordSnapshot(indexedDbSnapshotStore, snapshot).catch(() => undefined);
+      captureSnapshotIfAllowed(() => {
+        const snapshot = buildSnapshot(documentRef.current, "first-cabinet", new Date().toISOString());
+        if (snapshot) void recordSnapshot(indexedDbSnapshotStore, snapshot).catch(() => undefined);
+      });
     }
     cabinets.current = cabinetCount;
   }, [cabinetCount]);

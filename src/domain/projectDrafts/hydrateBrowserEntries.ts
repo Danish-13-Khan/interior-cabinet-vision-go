@@ -5,7 +5,7 @@ import { isStoredAssetRef, storedAssetKey, type AssetBlobStore } from "../living
 import { blobToDataUrl } from "../../utils/dataUrl";
 import { rebuildDwgDataUrls } from "./dwgDraftSplit";
 import { isDraftBody } from "./draftDocument";
-import type { DraftStore, ProjectIndexEntry } from "./types";
+import type { DraftStore, ProjectDraft, ProjectIndexEntry } from "./types";
 
 async function thumbnailFromKey(key: string | null, blobs: AssetBlobStore): Promise<string> {
   if (!key) return "";
@@ -52,4 +52,31 @@ export function snapshotFromEntry(entry: SavedProjectBrowserEntry) {
     activeCabinetId: project.cabinets[0]?.id ?? null,
     selectedPanelName: null,
   };
+}
+
+/** Apply the latest stored draft after another tab hands this one the lock. */
+export async function reloadSavedDraft(
+  projectId: string,
+  drafts: DraftStore,
+  apply: (snapshot: ReturnType<typeof snapshotFromEntry>) => void,
+): Promise<boolean> {
+  const draft: ProjectDraft | null = await drafts.get(projectId);
+  if (!draft) return false;
+  const rebuilt = rebuildDwgDataUrls(draft.document, draft.dwgPreviews);
+  if (!isDraftBody(rebuilt)) return false;
+  try {
+    const project = clampCabinetProject(rebuilt.project);
+    const room = rebuilt.room?.dimensions ? rebuilt.room : getActiveProjectRoom(project).config;
+    apply(snapshotFromEntry({
+      id: projectId,
+      name: project.interiorDocument?.name || "Project",
+      thumbnail: "",
+      updatedAt: draft.updatedAt,
+      project,
+      room,
+    }));
+    return true;
+  } catch {
+    return false;
+  }
 }

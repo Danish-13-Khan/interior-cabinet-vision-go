@@ -1,6 +1,6 @@
 import type { SavedProjectBrowserEntry } from "../projectBrowserStorage";
 
-export type WebDraftRestore = { entry: SavedProjectBrowserEntry; notice: string | null };
+export type WebDraftRestore = { entry: SavedProjectBrowserEntry; notice: string | null; filePath: string | null };
 
 type Listener<T> = (value: T) => void;
 
@@ -18,7 +18,9 @@ function signal<T>(initial: T) {
   };
 }
 
-export type RecoveryOffer = { prompt: string; entry: SavedProjectBrowserEntry } | null;
+export type RecoveryOffer = { prompt: string; entry: SavedProjectBrowserEntry; filePath: string | null } | null;
+/** undefined means nobody has asked to change the open file path. */
+export const projectFileAdoption = signal<string | null | undefined>(undefined);
 export type AutosaveState = "idle" | "saving" | "saved" | "error";
 export type AutosaveStatus = { state: AutosaveState; at: string | null };
 
@@ -45,6 +47,25 @@ export function setDraftWritesSuspended(suspended: boolean): void {
 
 export function draftWritesSuspended(): boolean {
   return writesSuspended;
+}
+
+export function snapshotCaptureAllowed(): boolean {
+  return !writesSuspended;
+}
+
+export function captureSnapshotIfAllowed(capture: () => void): void {
+  if (snapshotCaptureAllowed()) capture();
+}
+
+let reloadImpl: ((projectId: string) => Promise<void>) | null = null;
+
+export function registerDraftReload(reload: (projectId: string) => Promise<void>): () => void {
+  reloadImpl = reload;
+  return () => { if (reloadImpl === reload) reloadImpl = null; };
+}
+
+export function reloadDraftNow(projectId: string): Promise<void> {
+  return reloadImpl?.(projectId) ?? Promise.resolve();
 }
 
 export function requestPersistentStorage(): void {

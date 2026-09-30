@@ -11,7 +11,7 @@ import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 import { dataUrlToBlob } from "../utils/dataUrl";
-import { storeAssetBlob } from "../domain/livingRoom/storedAssets";
+import { storeProjectThumbnail } from "../domain/projectDrafts/projectThumbnail";
 
 type Args = {
   enabled: boolean;
@@ -21,9 +21,9 @@ type Args = {
   onSaved: (entry: SavedProjectBrowserEntry & { thumbnailKey: string | null }) => void;
 };
 
-async function thumbnailKey(dataUrl: string, previous: string | null): Promise<string | null> {
+async function thumbnailKey(projectId: string, dataUrl: string, previous: string | null): Promise<string | null> {
   if (!dataUrl) return previous;
-  try { return await storeAssetBlob(indexedDbAssetBlobStore, dataUrlToBlob(dataUrl)); } catch { return previous; }
+  try { return await storeProjectThumbnail(indexedDbAssetBlobStore, projectId, dataUrlToBlob(dataUrl)); } catch { return previous; }
 }
 
 export function useDraftAutosave({ enabled, project, room, captureThumbnail, onSaved }: Args) {
@@ -63,11 +63,12 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
     };
     const storage = window.localStorage;
     await commitDraftSave(draft, indexedDbDraftStore, storage, gen, generation.current);
-    const key = await thumbnailKey(thumbRef.current(), null);
+    const thumbnail = thumbRef.current();
+    const key = await thumbnailKey(id, thumbnail, null);
     onSavedRef.current({
       id,
       name: currentProject.interiorDocument?.name || "Project",
-      thumbnail: thumbRef.current(),
+      thumbnail,
       thumbnailKey: key,
       updatedAt,
       project: currentProject,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { restoreSnapshot } from "../../domain/projectSnapshots/history";
+import { restoreSnapshot, snapshotsForProject } from "../../domain/projectSnapshots/history";
 import { restoreProjectSnapshot } from "../../domain/projectSnapshots/capture";
 import type { ProjectSnapshot, SnapshotReason } from "../../domain/projectSnapshots/types";
 import { indexedDbSnapshotStore } from "../../platform/indexedDbSnapshotStore";
@@ -18,12 +18,14 @@ function when(createdAt: string): string {
 }
 
 /** Preview and restore the last snapshots for the open project. */
-export function VersionHistoryMenu({ projectId }: { projectId?: string }) {
+export function VersionHistoryMenu({ projectId }: { projectId?: string | null }) {
   const [snapshots, setSnapshots] = useState<ProjectSnapshot[]>([]);
   useEffect(() => {
+    let live = true;
     void indexedDbSnapshotStore.list().then((all) => {
-      setSnapshots(all.filter((snapshot) => !projectId || snapshot.projectId === projectId).sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1)));
-    }).catch(() => setSnapshots([]));
+      if (live) setSnapshots(snapshotsForProject(all, projectId));
+    }).catch(() => { if (live) setSnapshots([]); });
+    return () => { live = false; };
   }, [projectId]);
   if (snapshots.length === 0) return <p className="lr-chrome-history-empty">No saved versions yet.</p>;
   return (

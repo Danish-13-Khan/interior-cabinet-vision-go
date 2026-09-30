@@ -40,6 +40,7 @@ export function LivingRoomWorkspaceTopBar({ workspace: props, chrome, roomName }
       ) : null}
       steps={<InteriorsWorkflowNav steps={steps} onArea={chrome.setWorkflowArea} />}
       projectName={project?.name ?? null}
+      projectId={project?.id ?? null}
       roomName={roomName}
       revision={job?.revision ?? "A"}
       statusLabel={interiorsJobStatusLabel(job?.status ?? "draft", cabinetCount > 0)}
