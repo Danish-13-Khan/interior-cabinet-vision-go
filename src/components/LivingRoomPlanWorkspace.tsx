@@ -33,6 +33,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [activeWallId, setActiveWallId] = useState<string | null>(null);
   const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
   const [activeSurfaceId, setActiveSurfaceId] = useState<string | null>(null);
+  const [activeLightId, setActiveLightId] = useState<string | null>(null);
   const [inspectRoom, setInspectRoom] = useState(false);
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
@@ -89,9 +90,16 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setActiveWallId((c) => (p.walls.some((w) => w.id === c) ? c : null));
     setActiveOpeningId((c) => (p.openings.some((o) => o.id === c) ? c : null));
     setActiveSurfaceId((c) => (p.surfaces.some((s) => s.id === c) ? c : null));
+    setActiveLightId((c) => {
+      const light = p.lights.find((item) => item.id === c);
+      return light && light.roomId === p.activeRoomId ? c : null;
+    });
   }, [props.project]);
   useEffect(() => {
-    if (activeWallId || activeOpeningId || activeSurfaceId) setInspectRoom(false);
+    if (activeWallId || activeOpeningId || activeSurfaceId) {
+      setInspectRoom(false);
+      setActiveLightId(null);
+    }
   }, [activeWallId, activeOpeningId, activeSurfaceId]);
 
   useSelectionFrameRequest(() => viewControlsRef.current?.fitSelection());
@@ -111,9 +119,9 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onDelete: props.onDelete,
     onRotateSelection: props.onRotateSelection,
     onNudge: props.onNudge,
-    onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(id); },
+    onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); props.onSelect(id); },
     onClearArchitecture: () => {
-      setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null);
+      setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); setInspectRoom(false); props.onSelect(null);
     },
     onCancelTool: () => build.selectBuildTool("select"),
     onMeasureTool: () => build.selectBuildTool("measure"),
@@ -153,8 +161,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onImportError={setImportError} snapSizeMm={snapSizeMm} showGrid={showGrid}
         onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm}
         activeWallId={activeWallId} activeOpeningId={activeOpeningId} activeOpening={activeOpening}
-        activeSurfaceId={activeSurfaceId} setActiveSurfaceId={setActiveSurfaceId}
-        setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
+        activeSurfaceId={activeSurfaceId} activeLightId={activeLightId} setActiveSurfaceId={setActiveSurfaceId}
+        setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId} setActiveLightId={setActiveLightId}
         roomPolygonPointCount={roomPolygonPointCount} roomPolygonCloseRequest={roomPolygonCloseRequest}
         onRoomPolygonPointCount={setRoomPolygonPointCount}
         onRoomPolygonCloseRequest={() => { setRoomPolygonCloseRequest((count) => count + 1); }}

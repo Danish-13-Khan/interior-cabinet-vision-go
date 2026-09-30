@@ -23,7 +23,9 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       onSelectRoom={() => inspectPlanTarget(props, { inspectRoom: true })}
       onMove={w.onMove} onMovePreview={w.onMovePreview} onDragEnd={w.onDragEnd} onResize={w.onResize}
       activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-      activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
+      activeSurfaceId={props.activeSurfaceId} activeLightId={props.activeLightId}
+      surfaceMaterialId={build.surfaceMaterialId}
+      onSelectLight={(lightId) => inspectPlanTarget(props, { lightId })}
       onSelectWall={(wallId) => inspectPlanTarget(props, { wallId })}
       onSelectOpening={(openingId) => inspectPlanTarget(props, { openingId })}
       onSelectSurface={(surfaceId) => inspectPlanTarget(props, { surfaceId })}

@@ -41,6 +41,7 @@ type ModelViewAuthoringOverlaysProps = {
   onFocusSelection: () => void;
   onCloseWallMenu: () => void;
   onSelectWall: (wallId: string) => void;
+  onSelectLight?: (lightId: string) => void;
   onPatchDocument?: (
     update: (current: InteriorProject) => InteriorProject,
     status: string,
@@ -56,7 +57,7 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
       <ModelViewLeftChrome
         toolbar={(
           <ModelViewToolbar
-            fixtures={props.onPatchDocument ? { project: props.project, onPatchDocument: props.onPatchDocument } : undefined}
+            fixtures={props.onPatchDocument ? { project: props.project, onPatchDocument: props.onPatchDocument, onSelectLight: props.onSelectLight } : undefined}
             viewPreset={props.viewPreset}
             cameraHeightMm={props.cameraHeightMm}
             fieldOfViewDegrees={props.fieldOfViewDegrees}

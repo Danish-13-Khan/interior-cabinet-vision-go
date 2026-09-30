@@ -1,0 +1,10 @@
+.lr-plan-light {
+  cursor: pointer;
+  fill: none;
+  stroke: #3f6b52;
+  stroke-width: 36;
+  stroke-linecap: round;
+}
+.lr-plan-light.is-rect,
+.lr-plan-light.is-circle { fill: #3f6b5224; }
+.lr-plan-light.is-selected { stroke: var(--accent, #3f6b52); stroke-width: 56; }

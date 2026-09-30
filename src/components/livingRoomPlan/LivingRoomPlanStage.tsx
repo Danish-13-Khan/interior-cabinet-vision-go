@@ -64,7 +64,9 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             snapSizeMm={props.snapSizeMm} showGrid={props.showGrid}
             onSelect={props.onSelect} onMove={props.onMove} onMovePreview={props.onMovePreview} onDragEnd={props.onDragEnd} onResize={props.onResize}
             activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-            activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={props.surfaceMaterialId}
+            activeSurfaceId={props.activeSurfaceId} activeLightId={props.activeLightId}
+            onSelectLight={props.onSelectLight}
+            surfaceMaterialId={props.surfaceMaterialId}
             onSelectWall={props.onSelectWall} onSelectOpening={props.onSelectOpening}
             onSelectSurface={props.onSelectSurface} onMoveOpening={props.onMoveOpening}
             onResizeOpening={props.onResizeOpening} onMoveNode={props.onMoveNode}
@@ -86,8 +88,10 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
             project={props.project} selectedIds={props.selectedIds} snapSizeMm={props.snapSizeMm}
-            activeOpeningId={props.activeOpeningId} activeWallId={props.activeWallId} showGrid={props.showGrid}
+            activeOpeningId={props.activeOpeningId} activeWallId={props.activeWallId}
+            activeLightId={props.presenting ? null : props.activeLightId} showGrid={props.showGrid}
             onSelect={props.onSelect} onSelectOpening={props.onSelectOpening} onSelectWall={props.onSelectWall}
+            onSelectLight={props.presenting ? () => {} : props.onSelectLight}
             onClearSelection={props.onClearSelection} onMove={props.onMove}
             onMovePreview={props.onMovePreview}
             onUpdateOpening={props.onUpdateOpening}

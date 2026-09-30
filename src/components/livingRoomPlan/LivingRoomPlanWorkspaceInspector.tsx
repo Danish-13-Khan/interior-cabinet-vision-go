@@ -4,6 +4,7 @@ import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { isWallCabinetObject } from "../../domain/livingRoom/cabinetSceneMount";
+import { resolveLightAttachment } from "../../domain/livingRoom/lightAttachments";
 
 export function LivingRoomPlanWorkspaceInspector(props: {
   body: LivingRoomPlanWorkspaceBodyProps;
@@ -31,7 +32,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     !activeObject &&
     !p.activeOpening &&
     !p.activeWallId &&
-    !activeSurface;
+    !activeSurface &&
+    !p.activeLightId;
   const reviewEssentials = p.workflowArea === "review" && Boolean(p.room);
   if (
     !w.inspectorVisible ||
@@ -42,6 +44,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       openingSelected: Boolean(p.activeOpening),
       wallSelected: Boolean(p.activeWallId),
       surfaceSelected: Boolean(activeSurface),
+      lightSelected: Boolean(p.activeLightId),
       roomSelected: Boolean(p.inspectRoom && p.room) || emptyRoomEssentials || reviewEssentials,
     })
   ) {
@@ -60,7 +63,13 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
       onCompleteCabinetRun={w.onCompleteCabinetRun}
-      onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
+      onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); p.setActiveLightId(null); w.onSelect(objectId, additive); }}
+      activeLight={(() => {
+        const light = p.project.lights.find((item) => item.id === p.activeLightId) ?? null;
+        return light ? resolveLightAttachment(p.project, light) : null;
+      })()}
+      onPatchDocument={w.onPatchDocument}
+      onRemovedLight={() => p.setActiveLightId(null)}
       onUpdateOpening={(openingId, patch) => p.build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
       onDeleteOpening={(openingId) => { p.build.dispatchBuildCommand({ type: "deleteOpening", openingId }); p.setActiveOpeningId(null); }}
       onUpdateSurface={(surfaceId, materialId) => p.build.dispatchBuildCommand({ type: "updateSurface", surfaceId, materialId })}
