@@ -6,8 +6,10 @@ import {
   shouldProjectFillCastShadow,
 } from "../../domain/livingRoom/directionalCasterBudget";
 import { shadowMapSizePair } from "./shadowMapSizePair";
+import { LIGHT_RENDER_SCALE } from "../../domain/livingRoom/lightFixtureTypes";
 import { isRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
 import { RoomLightFixture } from "./RoomLightFixture";
+import { ensureRectAreaLightSupport } from "./rectAreaLightSupport";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
@@ -31,6 +33,7 @@ export function SceneProjectLights({
   /** Phase C Model View budget; Studio omits → unlimited project flags. */
   maxDirectionalCasters?: number;
 }) {
+  ensureRectAreaLightSupport();
   const cam = shadowCamera ?? STUDIO_PROJECT_SHADOW;
   const half = cam.frustumHalfExtent ?? 7;
   const fillCast = shouldProjectFillCastShadow(maxDirectionalCasters);
@@ -47,7 +50,7 @@ export function SceneProjectLights({
           light.position.z / 1000,
         ];
         if (light.kind === "ambient") {
-          return <ambientLight key={light.id} color={light.color} intensity={light.intensity * 0.58 * intensityScale} />;
+          return <ambientLight key={light.id} color={light.color} intensity={light.intensity * LIGHT_RENDER_SCALE.recipeAmbientScale * intensityScale} />;
         }
         if (light.kind === "directional") {
           const castShadow = shouldProjectDirectionalCast(
@@ -61,7 +64,7 @@ export function SceneProjectLights({
               key={light.id}
               position={position}
               color={light.color}
-              intensity={light.intensity * 0.86 * intensityScale}
+              intensity={light.intensity * LIGHT_RENDER_SCALE.recipeDirectionalScale * intensityScale}
               castShadow={castShadow}
               shadow-mapSize={shadowMapSizePair(shadowMapSize)}
               shadow-bias={cam.bias}

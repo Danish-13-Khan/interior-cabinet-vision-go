@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Object3D } from "three";
 import type { LightEntity } from "../../domain/interiorProject";
+import { fixtureEmissiveIntensity, fixtureRenderIntensity } from "../../domain/livingRoom/lightFixtureTypes";
 
 /** Visible fixture and its illumination share a transform and saved light entity. */
 export function RoomLightFixture({ light, intensityScale, castShadow }: {
@@ -13,7 +14,7 @@ export function RoomLightFixture({ light, intensityScale, castShadow }: {
     object.position.set(0, 0, -1);
     return object;
   }, []);
-  const intensity = light.enabled ? light.intensity * intensityScale : 0;
+  const intensity = fixtureRenderIntensity(light, light.kind, intensityScale);
   const width = Number(light.parameters.widthMm ?? 1000) / 1000;
   const height = Number(light.parameters.heightMm ?? 20) / 1000;
   const rotation = [light.rotation.x, light.rotation.y, light.rotation.z].map((value) => value * Math.PI / 180) as [number, number, number];
@@ -24,7 +25,7 @@ export function RoomLightFixture({ light, intensityScale, castShadow }: {
         : light.kind === "spot" ? <cylinderGeometry args={[0.05, 0.05, 0.02, 24]} />
           : <sphereGeometry args={[0.06, 16, 12]} />}
       <meshStandardMaterial color={light.enabled ? light.color : "#dedbd5"} roughness={0.45}
-        emissive={light.color} emissiveIntensity={light.enabled ? Math.min(3, light.intensity * 0.2) : 0} />
+        emissive={light.color} emissiveIntensity={fixtureEmissiveIntensity(light)} />
     </mesh>
     {light.kind === "area" ? <rectAreaLight position={[0, 0, -0.012]} color={light.color} intensity={intensity} width={width} height={height} />
       : light.kind === "spot" ? <spotLight position={[0, 0, -0.025]} target={target} color={light.color} intensity={intensity}
