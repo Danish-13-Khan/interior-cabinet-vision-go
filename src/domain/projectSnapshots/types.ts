@@ -1,7 +1,7 @@
 export const SNAPSHOT_LIMIT = 20;
 export const SNAPSHOT_INTERVAL_MS = 10 * 60 * 1000;
 
-export type SnapshotReason = "interval" | "room-closed" | "first-cabinet" | "render";
+export type SnapshotReason = "interval" | "room-closed" | "first-cabinet" | "render" | "before-restore";
 
 export type ProjectSnapshot = {
   id: string;

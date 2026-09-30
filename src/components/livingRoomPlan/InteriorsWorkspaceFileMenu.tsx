@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
+import type { ProjectSnapshot } from "../../domain/projectSnapshots/types";
 import { VersionHistoryMenu } from "./VersionHistoryMenu";
+import { VersionPreviewDialog } from "./VersionPreviewDialog";
 
 type InteriorsWorkspaceFileMenuProps = {
   projectId?: string | null;
@@ -22,6 +24,7 @@ export function InteriorsWorkspaceFileMenu({
   onOpenShortcuts,
 }: InteriorsWorkspaceFileMenuProps) {
   const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState<ProjectSnapshot | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
 
@@ -75,7 +78,7 @@ export function InteriorsWorkspaceFileMenu({
           <button type="button" role="menuitem" onClick={() => run(onSave)}>
             Save
           </button>
-          <VersionHistoryMenu projectId={projectId} />
+          <VersionHistoryMenu projectId={projectId} onChoose={(snapshot) => run(() => setPreview(snapshot))} />
           <button type="button" role="menuitem" onClick={() => run(onExport)}>
             Export JSON…
           </button>
@@ -91,6 +94,7 @@ export function InteriorsWorkspaceFileMenu({
           ) : null}
         </div>
       ) : null}
+      <VersionPreviewDialog snapshot={preview} onClose={() => setPreview(null)} />
     </div>
   );
 }

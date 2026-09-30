@@ -5,7 +5,7 @@ import { buildTriangleGlb } from "./minimalGlb";
 import { bboxMinY, normalizeImportedObject } from "./normalize";
 import { runImport } from "./runImport";
 import { decideImportRuntime } from "./spike";
-import { declareWebpIfNeeded, storedTextureMime } from "./webpTexture";
+import { declareWebpIfNeeded, fallbackTextureMime, storedTextureMime } from "./webpTexture";
 import { Document } from "@gltf-transform/core";
 import { guessObjUnit, guessUnitFromSize, sizesUnderUnits } from "./units";
 import { dimensionsForPlacement } from "../../domain/livingRoom/modelImportClient";
@@ -83,10 +83,18 @@ describe("import identity and size", () => {
     expect(storedTextureMime("image/png", true)).toBe("image/png");
     expect(storedTextureMime("image/webp", false)).toBe("image/jpeg");
     expect(storedTextureMime("image/webp", true)).toBe("image/webp");
+    expect(storedTextureMime("image/webp", false, "image/png")).toBe("image/png");
     const document = new Document();
     declareWebpIfNeeded(document, "image/jpeg");
     expect(document.getRoot().listExtensionsUsed().map((extension) => extension.extensionName)).not.toContain("EXT_texture_webp");
     declareWebpIfNeeded(document, "image/webp");
     expect(document.getRoot().listExtensionsUsed().map((extension) => extension.extensionName)).toContain("EXT_texture_webp");
+  });
+
+  it("keeps PNG (alpha) textures as PNG when WebP is not available", () => {
+    expect(fallbackTextureMime("image/png")).toBe("image/png");
+    expect(fallbackTextureMime("image/webp")).toBe("image/png");
+    expect(fallbackTextureMime("image/jpeg")).toBe("image/jpeg");
+    expect(storedTextureMime("image/jpeg", false, "image/jpeg")).toBe("image/jpeg");
   });
 });

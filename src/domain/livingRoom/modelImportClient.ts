@@ -1,6 +1,6 @@
 import type { Size3Mm } from "../interiorProject";
 import { assetIdForImport } from "../../workers/modelImport/identity";
-import type { ImportRequest, ImportResult, ImportSettings, LengthUnit, WorkerResponse } from "../../workers/modelImport/protocol";
+import type { ImportRequest, ImportResult, ImportSettings, LengthUnit, UpAxis, WorkerResponse } from "../../workers/modelImport/protocol";
 import { OPTIMIZER_VERSION } from "../../workers/modelImport/optimizerVersion";
 import { decideImportRuntime, probeImportRuntime } from "../../workers/modelImport/spike";
 
@@ -85,8 +85,8 @@ export async function measureGlbImport(
   return importModel({ files, settings, honorFileUnits, signal }, signal);
 }
 
-export function defaultGlbSettings(unit: LengthUnit = "m"): ImportSettings {
-  return { unit, upAxis: "y", optimizerVersion: OPTIMIZER_VERSION };
+export function defaultGlbSettings(unit: LengthUnit = "m", upAxis: UpAxis = "y"): ImportSettings {
+  return { unit, upAxis, optimizerVersion: OPTIMIZER_VERSION };
 }
 
 export { assetIdForImport };
