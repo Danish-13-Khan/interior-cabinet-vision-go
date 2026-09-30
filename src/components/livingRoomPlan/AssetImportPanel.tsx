@@ -82,7 +82,7 @@ export function AssetImportPanel({
         importFiles(files, FIRST_RUN);
       }} />
       <strong>Asset Import</strong>
-      <small>Select a GLB and its BaseColor/normal/roughness images together. Files are kept in this browser and embedded when you save the project to a file.</small>
+      <small>Select a GLB, FBX, or OBJ file. For OBJ, also select its .mtl file; for any model, select its texture images in the same pick. Files are kept in this browser and embedded when you save the project to a file.</small>
       <button type="button" onClick={() => input.current?.click()} disabled={busy}>{busy ? "Importing…" : "Import model + textures"}</button>
       {busy ? <button type="button" onClick={cancelImport}>Cancel import</button> : null}
       {pending ? null : errorLine}
