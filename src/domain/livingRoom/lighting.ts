@@ -193,6 +193,22 @@ export function applyLivingRoomLightingRecipe(
   };
 }
 
+/**
+ * Recipe lights are persisted per project, so a seed retune would never reach
+ * saved files or browser drafts. Resolve them at read time instead: a light
+ * that belongs to a known recipe takes the current seed's colour and
+ * intensity. Recipe lights are not user-editable, so nothing authored is lost.
+ */
+export function resolveRecipeLightSeed(light: LightEntity): LightEntity {
+  const recipeId = light.parameters.recipeId;
+  if (typeof recipeId !== "string") return light;
+  const recipe = LIVING_ROOM_LIGHTING_RECIPES.find((item) => item.id === recipeId);
+  const seed = recipe?.lights.find((item) => item.name === light.name && item.kind === light.kind);
+  if (!seed) return light;
+  if (seed.intensity === light.intensity && seed.color === light.color) return light;
+  return { ...light, intensity: seed.intensity, color: seed.color };
+}
+
 export {
   environmentAssetIdForRecipe,
   LIGHTING_RECIPE_ENVIRONMENT_IDS,
