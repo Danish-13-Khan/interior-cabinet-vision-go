@@ -45,6 +45,8 @@ type ModelViewSceneProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
   onSelectWall: (wallId: string) => void;
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
@@ -62,7 +64,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
     interactive = true,
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
-    onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
+    onSelectOpening, onSelectWall, selectedLightId = null, onSelectLight, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
   } = props;
   const roomSpanMeters = Math.max(
@@ -79,6 +81,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     selectedIds.join(","),
     activeOpeningId,
     activeWallId,
+    selectedLightId,
     cutawayWalls,
     showGrid,
     cameraHeightMm,
@@ -123,6 +126,8 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onSelect={onSelect}
           onSelectOpening={onSelectOpening}
           onSelectWall={onSelectWall}
+          selectedLightId={selectedLightId}
+          onSelectLight={onSelectLight}
           onClearSelection={onClearSelection}
           onMove={onMove}
           onExitWalkthrough={onExitWalkthrough}

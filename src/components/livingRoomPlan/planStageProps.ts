@@ -39,6 +39,8 @@ export type LivingRoomPlanStageProps = {
   activeWallId: string | null;
   activeOpeningId: string | null;
   activeSurfaceId: string | null;
+  activeLightId: string | null;
+  onSelectLight: (lightId: string) => void;
   surfaceMaterialId: string;
   onSelectWall: (wallId: string) => void;
   onSelectOpening: (openingId: string) => void;

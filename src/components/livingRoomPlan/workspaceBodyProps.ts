@@ -42,10 +42,12 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   activeWallId: string | null;
   activeOpeningId: string | null;
   activeSurfaceId: string | null;
+  activeLightId: string | null;
   setActiveSurfaceId: React.Dispatch<React.SetStateAction<string | null>>;
   activeOpening: OpeningEntity | null;
   setActiveWallId: React.Dispatch<React.SetStateAction<string | null>>;
   setActiveOpeningId: React.Dispatch<React.SetStateAction<string | null>>;
+  setActiveLightId: React.Dispatch<React.SetStateAction<string | null>>;
   roomPolygonPointCount: number;
   roomPolygonCloseRequest: number;
   onRoomPolygonPointCount: (count: number) => void;

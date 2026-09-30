@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { InteriorProject, Point3Mm, RenderQuality } from "../domain/interiorProject";
+import type { RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
   describeModelViewHonesty,
@@ -13,7 +13,6 @@ import {
   resolveModelViewDefaultQuality,
   resolveModelViewLightingQuality,
   resolveModelViewRenderMode,
-  type LivingRoomStyleId,
 } from "../domain/livingRoom";
 import { isWallRaised } from "../domain/interiorProject";
 import { mechanismTogglePatch } from "../domain/livingRoom/mechanismToggle";
@@ -33,34 +32,11 @@ import { ModelViewScene } from "./livingRoomScene/ModelViewScene";
 import { ModelViewFeedbackBanners } from "./livingRoomScene/ModelViewFeedbackBanners";
 import { PlanTraceRaisePrompt } from "./livingRoomScene/PlanTraceEmptyState";
 import { modelViewClientPresentationProps } from "../domain/livingRoom/modelViewClientPresentation";
-import type { ModelTransformPreview } from "./livingRoomScene/ModelMoveGizmo";
-
-type LivingRoomModelViewProps = {
-  project: InteriorProject;
-  selectedIds: string[];
-  activeOpeningId: string | null;
-  activeWallId: string | null;
-  snapSizeMm: number;
-  showGrid: boolean;
-  onSelect: (objectId: string | null, additive?: boolean) => void;
-  onSelectOpening: (openingId: string) => void;
-  onSelectWall: (wallId: string) => void;
-  onClearSelection: () => void;
-  onMove: (objectId: string, position: Point3Mm) => void;
-  onMovePreview?: (objectId: string, position: Point3Mm) => { position: Point3Mm; rotationY: number } | null | void;
-  onUpdateOpening?: (openingId: string, patch: { offsetMm?: number; sillHeightMm?: number }) => void;
-  onTransformPreviewChange?: (preview: ModelTransformPreview | null) => void;
-  onSetRotation: (objectId: string, rotationY: number) => void;
-  onApplyStyle: (styleId: LivingRoomStyleId) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
-  onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
-  presentation?: boolean;
-  showStylePalette?: boolean;
-};
+import type { LivingRoomModelViewProps } from "./livingRoomModelViewProps";
 
 export function LivingRoomModelView({
-  project, selectedIds, activeOpeningId, activeWallId, snapSizeMm, showGrid,
-  onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
+  project, selectedIds, activeOpeningId, activeWallId, activeLightId = null, snapSizeMm, showGrid,
+  onSelect, onSelectOpening, onSelectWall, onSelectLight, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
   onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
 }: LivingRoomModelViewProps) {
   const scene = useMemo(() => compileLivingRoomScene(project), [project]);
@@ -70,7 +46,7 @@ export function LivingRoomModelView({
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
     () => preferModelViewCameraId(scene.cameras),
   );
-  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId);
+  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
   const [showGuide, setShowGuide] = useState(() => !presentation && shouldShowModelGuide());
   useEffect(() => {
@@ -131,7 +107,7 @@ export function LivingRoomModelView({
           onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}
           onClearSelection={onClearSelection} onFitRoom={camera.fitRoom}
           onFocusSelection={camera.focusSelection} onCloseWallMenu={() => setWallMenu(null)}
-          onSelectWall={onSelectWall} onPatchDocument={onPatchDocument}
+          onSelectWall={onSelectWall} onSelectLight={onSelectLight} onPatchDocument={onPatchDocument}
         />
       ) : null}
       {!presentation ? <ModelViewFeedbackBanners /> : null}
@@ -155,6 +131,8 @@ export function LivingRoomModelView({
           selectedIds={clientView.selectedIds}
           activeOpeningId={clientView.activeOpeningId}
           activeWallId={clientView.activeWallId}
+          selectedLightId={presentation ? null : activeLightId}
+          onSelectLight={presentation ? noopSelect : onSelectLight}
           activeCameraId={activeCameraId} viewPreset={camera.viewPreset}
           cameraHeightMm={cameraOverrides.cameraHeightMm}
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}

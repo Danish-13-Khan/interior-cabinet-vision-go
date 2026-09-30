@@ -87,6 +87,7 @@ export function interiorsSaveLabel(
 
 export function interiorsSelectionTitle(input: {
   openingName?: string | null;
+  lightName?: string | null;
   objectName?: string | null;
   wallLabel?: string | null;
   surfaceName?: string | null;
@@ -94,6 +95,7 @@ export function interiorsSelectionTitle(input: {
   selectedCount: number;
 }): string {
   if (input.openingName) return input.openingName;
+  if (input.lightName) return input.lightName;
   if (input.objectName) return input.objectName;
   if (input.wallLabel) return input.wallLabel;
   if (input.surfaceName) return input.surfaceName;
@@ -108,9 +110,10 @@ export function hasInteriorsInspectorSelection(input: {
   wallSelected?: boolean;
   surfaceSelected?: boolean;
   roomSelected?: boolean;
+  lightSelected?: boolean;
 }): boolean {
   return Boolean(
     input.objectSelected || input.openingSelected || input.wallSelected
-    || input.surfaceSelected || input.roomSelected,
+    || input.surfaceSelected || input.roomSelected || input.lightSelected,
   );
 }

@@ -34,6 +34,7 @@ import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
 import { PlanMeasureOverlay } from "./livingRoomPlan/PlanMeasureOverlay";
+import { PlanLightsLayer } from "./livingRoomPlan/PlanLightsLayer";
 import { PlanObjectsLayer } from "./livingRoomPlan/PlanObjectsLayer";
 import { PlanOpeningsLayer, usePlanOpeningInteraction } from "./livingRoomPlan/PlanOpeningsLayer";
 import { PlanSurfaceZonesLayer } from "./livingRoomPlan/PlanSurfaceZonesLayer";
@@ -49,7 +50,8 @@ import { useWallDrawing } from "./livingRoomPlan/useWallDrawing";
 type Props = {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
   snapSizeMm: number; showGrid: boolean; activeWallId: string | null; activeOpeningId: string | null;
-  activeSurfaceId: string | null; surfaceMaterialId: string;
+  activeSurfaceId: string | null; activeLightId?: string | null; surfaceMaterialId: string;
+  onSelectLight?: (lightId: string) => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectMany?: (objectIds: string[]) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
@@ -469,6 +471,10 @@ export function LivingRoomPlanView(props: Props) {
       freeSegmentWallPose={freeSegmentWallPose}
       onSetCabinetDims={props.onSetCabinetInlineDims}
       onStart={objects.start} interactive={!measureLike} />
+    {props.onSelectLight ? (
+      <PlanLightsLayer project={props.project} activeLightId={props.activeLightId ?? null}
+        hidden={measureLike} onSelectLight={props.onSelectLight} />
+    ) : null}
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
       settings={props.readability} referenceDims={referenceDims} selectedIds={props.selectedIds}
       onSetWallLength={props.onSetWallLength} /> : null}

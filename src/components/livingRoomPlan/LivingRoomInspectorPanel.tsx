@@ -1,6 +1,7 @@
 import type {
   InteriorObjectEntity,
   InteriorProject,
+  LightEntity,
   OpeningEntity,
   Point3Mm,
   Size3Mm,
@@ -15,6 +16,8 @@ import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 import { InspectorObjectList } from "./InspectorObjectList";
 import { InspectorModelExtrasSlot, InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
 import { SurfaceInspector } from "./SurfaceInspector";
+import { LightFixtureInspector } from "./LightFixtureInspector";
+import type { LightDocumentPatch } from "./lightFixtureEdits";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -87,6 +90,9 @@ type LivingRoomInspectorPanelProps = {
     patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
   ) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
+  activeLight?: LightEntity | null;
+  onPatchDocument?: LightDocumentPatch;
+  onRemovedLight?: () => void;
 };
 
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
@@ -95,11 +101,13 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
     ? props.project.walls.find((wall) => wall.id === props.activeOpening?.wallId) ?? null
     : null;
   const { room, activeOpening, activeObject, activeSurface } = props;
+  const activeLight = props.activeLight ?? null;
   const roomEssentials = Boolean(
-    props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface,
+    props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface && !activeLight,
   );
   const selectionTitle = interiorsSelectionTitle({
     openingName: activeOpening ? `${activeOpening.kind} opening` : null,
+    lightName: activeLight?.name ?? null,
     objectName: activeObject?.name ?? null,
     wallLabel: activeWall ? String(activeWall.extensions?.wallSide ?? "Wall") : null,
     surfaceName: activeSurface ? "Surface zone" : null,
@@ -120,7 +128,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       <div className="lr-inspector-scroll">
         {roomEssentials && props.drawRoom ? <InspectorPlanSettingsSlot /> : null}
         {props.mode === "model" && !activeObject ? <InspectorModelExtrasSlot /> : null}
-        {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface ? (
+        {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface && !activeLight ? (
           <InspectorObjectList
             objects={props.project.objects}
             roomId={room.id}
@@ -128,7 +136,10 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSelect={props.onSelect}
           />
         ) : null}
-        {activeOpening ? (
+        {activeLight && props.onPatchDocument ? (
+          <LightFixtureInspector project={props.project} light={activeLight}
+            onPatchDocument={props.onPatchDocument} onRemoved={props.onRemovedLight} />
+        ) : activeOpening ? (
           <OpeningInspector
             opening={activeOpening} wall={openingWall} positionOverride={props.openingPositionOverride}
             snapSizeMm={props.snapSizeMm} materials={props.project.materials}
@@ -153,7 +164,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         {activeSurface ? (
           <SurfaceInspector surface={activeSurface} materials={props.project.materials}
             onUpdate={props.onUpdateSurface} onDelete={props.onDeleteSurface} />
-        ) : room && !activeObject && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
+        ) : room && !activeObject && !activeLight && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
             onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
             onSetWallMaterial={props.onSetWallMaterial} onSetFloorMaterial={props.onSetFloorMaterial}

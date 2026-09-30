@@ -27,12 +27,14 @@ export function inspectPlanTarget(
     surfaceId?: string | null;
     inspectRoom?: boolean;
     objectId?: string | null;
+    lightId?: string | null;
     additive?: boolean;
   } = {},
 ) {
   props.setActiveWallId(target.wallId ?? null);
   props.setActiveOpeningId(target.openingId ?? null);
   props.setActiveSurfaceId(target.surfaceId ?? null);
+  props.setActiveLightId(target.lightId ?? null);
   props.setInspectRoom(Boolean(target.inspectRoom));
   props.workspace.onSelect(target.objectId ?? null, target.additive);
 }
