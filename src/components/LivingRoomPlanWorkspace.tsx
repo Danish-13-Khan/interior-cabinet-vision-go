@@ -157,7 +157,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
         roomPolygonPointCount={roomPolygonPointCount} roomPolygonCloseRequest={roomPolygonCloseRequest}
         onRoomPolygonPointCount={setRoomPolygonPointCount}
-        onRoomPolygonCloseRequest={() => { setRoomPolygonCloseRequest((count) => count + 1); noteProjectSnapshot("room-closed"); }}
+        onRoomPolygonCloseRequest={() => { setRoomPolygonCloseRequest((count) => count + 1); }}
         renderResults={renderResults}
         onRenderResults={(result) => { setRenderResults((current) => ({ latest: result, previous: current.latest })); noteProjectSnapshot("render"); }}
         build={build} activeBuildTool={build.buildCommandState.activeTool} onBuildTool={build.selectBuildTool}
