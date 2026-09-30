@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { interiorsSaveLabel } from "../../domain/desktopUx";
+import { editorStatus } from "../../domain/projectDrafts/browserSignals";
 import { useStorageWarnings } from "../../hooks/useStorageWarnings";
 import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import { InteriorsChromeIcon } from "./InteriorsChromeIcons";
@@ -17,6 +18,7 @@ type InteriorsWorkspaceHeaderProps = {
   workspaceView: LivingRoomWorkspaceView;
   isDirty: boolean;
   autosaveState: "idle" | "saving" | "saved" | "error";
+  lastAutosavedAt?: string | null;
   canUndo: boolean;
   canRedo: boolean;
   presenting: boolean;
@@ -37,7 +39,14 @@ type InteriorsWorkspaceHeaderProps = {
 /** Single 48px top bar: brand · job ▾ · numbered steps · undo/redo · view · save · Present. */
 export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
   const { projectName, workspaceView, isDirty, autosaveState, chromeLocked = false, projectHome = false } = props;
-  const saveLabel = interiorsSaveLabel(isDirty, autosaveState);
+  const [now, setNow] = useState(() => Date.now());
+  const [activity, setActivity] = useState("");
+  useEffect(() => editorStatus.subscribe(setActivity), []);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const saveLabel = interiorsSaveLabel(isDirty, autosaveState, props.lastAutosavedAt ?? null, now);
   const storageWarnings = useStorageWarnings();
   const hasProject = Boolean(projectName);
   const modelActive = workspaceView === "model" || workspaceView === "render";
@@ -102,6 +111,7 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
               onClick={() => props.onView("model")} disabled={!hasProject}>3D</button>
           </div>
           <div className="lr-chrome-actions">
+            {activity ? <p className="lr-chrome-status" role="status" data-testid="interiors-activity-status">{activity}</p> : null}
             {storageWarnings.length ? (
               <p className="lr-storage-warning" role="alert" data-testid="interiors-storage-warning" title={storageWarnings.join("\n")}>
                 <i aria-hidden="true">!</i>

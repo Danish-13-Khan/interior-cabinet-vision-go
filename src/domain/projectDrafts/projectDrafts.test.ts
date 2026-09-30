@@ -76,3 +76,22 @@ describe("draft autosave migration", () => {
     clearDraftPending(storage, "proj-1");
   });
 });
+
+describe("draft save races", () => {
+  it("keeps lastFileSaveAt when autosave commits and does not clear a newer edit", async () => {
+    const storage = memoryStorage();
+    const drafts = createMemoryDraftStore();
+    const draft = { id: "proj-1", document: {}, dwgPreviews: {}, updatedAt: "2026-09-29T00:00:00.000Z", schemaVersion: 2, lastFileSaveAt: "2026-09-01T00:00:00.000Z" };
+    await drafts.put(draft);
+    await commitDraftSave({ ...draft, lastFileSaveAt: null, updatedAt: "2026-09-02T00:00:00.000Z" }, drafts, storage, 1, 1);
+    expect((await drafts.get("proj-1"))?.lastFileSaveAt).toBe("2026-09-01T00:00:00.000Z");
+    markDraftPending(storage, "proj-1");
+    let latest = 1;
+    await commitDraftSave(draft, {
+      ...drafts,
+      put: async (next) => { latest = 2; await drafts.put(next); },
+    }, storage, 1, () => latest);
+    expect(isDraftPending(storage, "proj-1")).toBe(true);
+  });
+});
+
