@@ -1,7 +1,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 
 /** Sticky storage problems that must stay visible until resolved, unlike transient status messages. */
-export type StorageWarningKey = "browser-autosave" | "missing-model-files";
+export type StorageWarningKey = "browser-autosave" | "missing-model-files" | "saved-projects";
 
 const warnings = new Map<StorageWarningKey, string>();
 const listeners = new Set<() => void>();

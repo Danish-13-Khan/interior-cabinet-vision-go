@@ -7,7 +7,7 @@ import { DEFAULT_ROOM } from "../roomModel";
 import { pruneIfSnapshotsLoaded } from "./assetCleanup";
 import { recoveryOffer } from "./browserSignals";
 import { persistBrowserProjectDraft } from "./browserDraftSave";
-import { loadSavedBrowser, offerDesktopFileRecovery } from "./loadSavedBrowser";
+import { loadSavedBrowser, offerFileDraftRecovery } from "./loadSavedBrowser";
 import { isDraftBody } from "./draftDocument";
 import { reloadSavedDraft } from "./hydrateBrowserEntries";
 import { migrateBrowserDrafts } from "./migrateBrowserDrafts";
@@ -134,8 +134,24 @@ describe("desktop recovery uses the open file's own project", () => {
     const loaded = await loadSavedBrowser({ storage, blobs, drafts, openFilePath: "/tmp/a.cabinet", platform: "desktop" });
     expect(loaded.ok && loaded.recovery).toBeNull();
     recoveryOffer.set(null);
-    await offerDesktopFileRecovery({ storage, blobs, drafts, projectId: "proj-a", filePath: "/tmp/a.cabinet" });
+    const olderFile = createEmptyInteriorProject({ id: "proj-a", name: "A on disk", now: "2026-09-05T00:00:00.000Z" });
+    await offerFileDraftRecovery({ storage, blobs, drafts, fileDocument: olderFile, filePath: "/tmp/a.cabinet" });
     expect(recoveryOffer.get()).toMatchObject({ filePath: "/tmp/a.cabinet", entry: { id: "proj-a" } });
+    recoveryOffer.set(null);
+  });
+
+  it("offers a draft only when it is newer than the opened file", async () => {
+    const drafts = createMemoryDraftStore();
+    const blobs = createMemoryAssetBlobStore();
+    const storage = memoryStorage({});
+    const draftDoc = createEmptyInteriorProject({ id: "proj-a", name: "A", now: "2026-09-10T00:00:00.000Z" });
+    await seedOpenedDraft(draftDoc, drafts, "2026-09-01T00:00:00.000Z");
+    recoveryOffer.set(null);
+    const newerFile = createEmptyInteriorProject({ id: "proj-a", name: "A newer", now: "2026-09-12T00:00:00.000Z" });
+    await offerFileDraftRecovery({ storage, blobs, drafts, fileDocument: newerFile, filePath: "/tmp/a.cabinet" });
+    expect(recoveryOffer.get()).toBeNull();
+    await offerFileDraftRecovery({ storage, blobs, drafts, fileDocument: { id: "proj-a" }, filePath: "/tmp/a.cabinet" });
+    expect(recoveryOffer.get()).not.toBeNull();
     recoveryOffer.set(null);
   });
 });
