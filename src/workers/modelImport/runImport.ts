@@ -9,7 +9,8 @@ import { optimizeGlb } from "./optimize";
 
 /** Convert every supported model to one normalized GLB. */
 export async function runImport(request: ImportRequest): Promise<ImportResult> {
-  const loaded = await loadModel(request.files, request.settings, request.honorFileUnits !== false);
+  const honorFileUnits = request.honorFileUnits !== false;
+  const loaded = await loadModel(request.files, request.settings, honorFileUnits);
   const dimensions = normalizeImportedObject(loaded.scene, {
     scaleToMm: loaded.scaleToMm,
     rotateZUp: loaded.rotateZUp,
@@ -19,7 +20,11 @@ export async function runImport(request: ImportRequest): Promise<ImportResult> {
   const [exported, thumbnail, assetId] = await Promise.all([
     exportSceneGlb(loaded.scene).catch(() => null),
     request.texturesOnMain ? Promise.resolve(null) : renderThumbnail(probe.webpEncode),
-    assetIdForImport(request.files, request.settings),
+    assetIdForImport(request.files, request.settings, {
+      honorFileUnits,
+      appliedUnit: loaded.appliedUnit,
+      scaleToMm: loaded.scaleToMm,
+    }),
   ]);
   let glb = exported;
   const warnings = [...loaded.warnings];
@@ -32,5 +37,8 @@ export async function runImport(request: ImportRequest): Promise<ImportResult> {
       warnings.push("Optimizer skipped; the normalized model was kept.");
     }
   }
-  return { glb, dimensions, thumbnail, warnings, sourceHash: assetId, assetId };
+  return {
+    glb, dimensions, thumbnail, warnings, sourceHash: assetId, assetId,
+    appliedUnit: loaded.appliedUnit, scaleToMm: loaded.scaleToMm,
+  };
 }

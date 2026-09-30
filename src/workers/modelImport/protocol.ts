@@ -25,4 +25,8 @@ export type ImportResult = {
   warnings: string[];
   sourceHash: string;
   assetId: string;
+  /** Unit that was actually applied, not the previous import's choice. */
+  appliedUnit: LengthUnit;
+  /** Millimetres per file unit after that decision. */
+  scaleToMm: number;
 };
