@@ -17,13 +17,22 @@ export type BrowserRecovery = {
 };
 
 export type LoadedBrowser =
-  | { ok: false }
+  | { ok: false; error: string }
   | {
     ok: true;
     entries: SavedProjectBrowserEntry[];
     thumbnails: [string, string | null][];
     recovery: BrowserRecovery | null;
+    /** Some old projects could not be moved yet; they stay in localStorage for the next launch. */
+    partial: boolean;
   };
+
+/** Sticky message for a load that could not show every saved project. The data itself is left in place. */
+export function savedProjectsWarning(result: LoadedBrowser): string | null {
+  if (!result.ok) return `Saved projects could not be loaded (${result.error}). Nothing was deleted; reload to try again.`;
+  if (result.partial) return "Some older saved projects could not be moved to the new storage yet. They are kept and will be retried on the next launch.";
+  return null;
+}
 
 /** Startup load. Any throw becomes ok:false so the caller does not write an empty index. */
 export async function loadSavedBrowser(options: {
@@ -34,7 +43,8 @@ export async function loadSavedBrowser(options: {
   platform: RecoveryPlatform;
 }): Promise<LoadedBrowser> {
   try {
-    const index = await migrateBrowserDrafts(options);
+    let partial = false;
+    const index = await migrateBrowserDrafts({ ...options, onPartialFailure: () => { partial = true; } });
     const entries = await hydrateBrowserEntries(index, options.drafts, options.blobs);
     const desktopFile = options.platform === "desktop" && Boolean(options.openFilePath) && options.openFilePath !== "version";
     const choice = desktopFile ? null : chooseRecoveryProject({
@@ -60,35 +70,48 @@ export async function loadSavedBrowser(options: {
       entries,
       thumbnails: index.map((item) => [item.id, item.thumbnailKey]),
       recovery,
+      partial,
     };
-  } catch {
-    return { ok: false };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Saved projects could not be read." };
   }
 }
 
-/** After a desktop file is open, ask only about that project's draft. */
-export async function offerDesktopFileRecovery(options: {
+function sameContent(left: unknown, right: unknown): boolean {
+  if (!left || !right || typeof left !== "object" || typeof right !== "object") return false;
+  return JSON.stringify({ ...left, updatedAt: "" }) === JSON.stringify({ ...right, updatedAt: "" });
+}
+
+/**
+ * After a file is opened, ask only about that project's draft, and only when the draft
+ * is newer than the file itself and holds different content.
+ */
+export async function offerFileDraftRecovery(options: {
   storage: StorageLike;
   blobs: AssetBlobStore;
   drafts: DraftStore;
-  projectId: string;
+  fileDocument: { id: string; updatedAt?: string };
   filePath: string;
 }): Promise<void> {
-  if (!options.projectId || !options.filePath || options.filePath === "version") return;
+  const projectId = options.fileDocument.id;
+  if (!projectId || !options.filePath || options.filePath === "version") return;
   const entries = await hydrateBrowserEntries(
-    [{ id: options.projectId, name: options.projectId, updatedAt: "1970-01-01T00:00:00.000Z", thumbnailKey: null }],
+    [{ id: projectId, name: projectId, updatedAt: "1970-01-01T00:00:00.000Z", thumbnailKey: null }],
     options.drafts,
     options.blobs,
   );
-  const entry = entries.find((item) => item.id === options.projectId);
+  const entry = entries.find((item) => item.id === projectId);
   if (!entry) return;
-  const draft = await options.drafts.get(options.projectId);
+  const fileTime = Date.parse(options.fileDocument.updatedAt ?? "");
+  if (!Number.isNaN(fileTime) && Date.parse(entry.updatedAt) <= fileTime) return;
+  if (sameContent(entry.project.interiorDocument, options.fileDocument)) return;
+  const draft = await options.drafts.get(projectId);
   const decision = decideDraftRecovery({
     platform: "desktop",
     filePath: options.filePath,
     draftUpdatedAt: entry.updatedAt,
     lastFileSaveAt: draft?.lastFileSaveAt ?? null,
-    pending: isDraftPending(options.storage, options.projectId),
+    pending: isDraftPending(options.storage, projectId),
   });
   if (decision.action === "ask") recoveryOffer.set({ prompt: decision.prompt, entry, filePath: options.filePath });
 }

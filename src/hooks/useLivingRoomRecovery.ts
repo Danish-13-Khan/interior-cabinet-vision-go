@@ -3,7 +3,7 @@ import type { InteriorProject } from "../domain/interiorProject";
 import { clearLivingRoomRecovery, type LivingRoomRecoverySnapshot } from "../domain/livingRoom";
 import { createLivingRoomRecoverySnapshot } from "../domain/livingRoom";
 import { autosaveStatus, projectFileAdoption, recoveryOffer, webDraftRestore } from "../domain/projectDrafts/browserSignals";
-import { noteDraftFileSaved } from "../domain/projectDrafts/commitDraft";
+import { acceptOpenedFileAsDraft } from "../domain/projectDrafts/openedFileRecovery";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 
 type AutosaveState = "idle" | "saving" | "saved" | "error";
@@ -51,7 +51,8 @@ export function useLivingRoomRecovery({ onRestore, onStatus }: Args) {
     const offer = recoveryOffer.get();
     clearLivingRoomRecovery();
     recoveryOffer.set(null);
-    if (offer) void noteDraftFileSaved(offer.entry.id, indexedDbDraftStore, localStorage, offer.entry.updatedAt);
+    // Discard keeps what is on screen (the opened file), so that becomes the draft.
+    if (offer) void acceptOpenedFileAsDraft(offer.entry.id, { drafts: indexedDbDraftStore, storage: localStorage });
     setRecovery(null);
     setPrompt(null);
   }, []);

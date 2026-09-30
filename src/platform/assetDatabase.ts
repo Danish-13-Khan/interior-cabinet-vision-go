@@ -58,8 +58,14 @@ export function openAssetDatabase(): Promise<IDBDatabase> {
     }
     return indexedDB.open(DB_NAME, DB_VERSION);
   });
-  dbPromise.catch(() => { dbPromise = null; });
-  return dbPromise;
+  const opening = dbPromise;
+  // A connection closed by versionchange (or by the browser) must not stay cached, or every later write fails.
+  const forget = () => { if (dbPromise === opening) dbPromise = null; };
+  opening.then((db) => {
+    db.addEventListener("versionchange", forget);
+    db.addEventListener("close", forget);
+  }, forget);
+  return opening;
 }
 
 export function runStore<T>(

@@ -35,9 +35,14 @@ export const TAKEOVER_WAIT_MS = 8000;
 export function createTabLockHost() {
   const sessions = new Map<string, Session>();
 
+  /** Derived from every live session: a released old project must not unblock the one opened after it. */
+  function syncSuspended() {
+    setDraftWritesSuspended([...sessions.values()].some((item) => item.state === "blocked" || item.state === "taken-over"));
+  }
+
   function publish(session: Session, state: TabLockState) {
     session.state = state;
-    setDraftWritesSuspended(state === "blocked" || state === "taken-over");
+    syncSuspended();
     session.listeners.forEach((listener) => listener(state));
   }
 
@@ -103,6 +108,7 @@ export function createTabLockHost() {
       session.grace?.cancel();
       session.channel?.close();
       sessions.delete(options.projectId);
+      syncSuspended();
       session = undefined;
     }
     if (!session) {

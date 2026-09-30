@@ -4,7 +4,7 @@ import { splitDwgPreviews } from "../domain/projectDrafts/dwgDraftSplit";
 import { projectIdOf, schemaVersionOf } from "../domain/projectDrafts/draftDocument";
 import { commitDraftSave } from "../domain/projectDrafts/commitDraft";
 import { markDraftPending } from "../domain/projectDrafts/pendingMarker";
-import { autosaveStatus, draftWritesSuspended, registerDraftFlush } from "../domain/projectDrafts/browserSignals";
+import { autosaveStatus, draftWritesHeld, draftWritesSuspended, registerDraftFlush } from "../domain/projectDrafts/browserSignals";
 import { DRAFT_AUTOSAVE_MS, type ProjectDraft } from "../domain/projectDrafts/types";
 import type { RoomConfig } from "../domain/roomModel";
 import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
@@ -44,7 +44,9 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
   enabledRef.current = enabled;
 
   async function write(gen: number, currentFingerprint: string) {
-    if (draftWritesSuspended()) return;
+    if (draftWritesSuspended() || draftWritesHeld()) return;
+    // A flush already wrote this content; a late debounce must not bump updatedAt past the file save.
+    if (baseline.current === currentFingerprint) return;
     const currentProject = projectRef.current;
     const currentRoom = roomRef.current;
     const id = projectIdOf(currentProject, "");

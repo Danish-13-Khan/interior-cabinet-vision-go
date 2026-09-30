@@ -56,16 +56,34 @@ async function putBody(
   upsertIndex(index, { id, name, updatedAt, thumbnailKey });
 }
 
+/**
+ * Fold the old recovery snapshot into the drafts. Unreadable data is dropped (nothing to save);
+ * a failed draft write keeps the key so the next launch can retry. Never throws.
+ */
 async function foldRecovery(storage: StorageLike, drafts: DraftStore, index: ProjectIndexEntry[]): Promise<boolean> {
   const raw = storage.getItem(LIVING_ROOM_RECOVERY_STORAGE_KEY);
   if (!raw) return false;
-  const parsed = JSON.parse(raw) as { savedAt?: string; project?: unknown };
-  const loaded = parsed.project ? loadInteriorProjectFile(parsed.project) : null;
-  if (!loaded?.document) return false;
-  const compatible = cabinetProjectFromInteriorProject(loaded.document);
-  if (!isDraftBody(compatible)) return false;
-  const savedAt = typeof parsed.savedAt === "string" ? parsed.savedAt : new Date(0).toISOString();
-  await putBody(drafts, index, loaded.document.id, loaded.document.name, savedAt, compatible, null);
+  let body: { id: string; name: string; savedAt: string; compatible: DraftBody } | null = null;
+  try {
+    const parsed = JSON.parse(raw) as { savedAt?: string; project?: unknown };
+    const loaded = parsed.project ? loadInteriorProjectFile(parsed.project) : null;
+    const compatible = loaded?.document ? cabinetProjectFromInteriorProject(loaded.document) : null;
+    if (loaded?.document && compatible && isDraftBody(compatible)) {
+      const savedAt = typeof parsed.savedAt === "string" ? parsed.savedAt : new Date(0).toISOString();
+      body = { id: loaded.document.id, name: loaded.document.name, savedAt, compatible };
+    }
+  } catch {
+    body = null;
+  }
+  if (!body) {
+    storage.removeItem(LIVING_ROOM_RECOVERY_STORAGE_KEY);
+    return false;
+  }
+  try {
+    await putBody(drafts, index, body.id, body.name, body.savedAt, body.compatible, null);
+  } catch {
+    return false;
+  }
   storage.removeItem(LIVING_ROOM_RECOVERY_STORAGE_KEY);
   return true;
 }
@@ -75,20 +93,30 @@ export async function migrateBrowserDrafts(options: {
   storage: StorageLike;
   blobs: AssetBlobStore;
   drafts: DraftStore;
+  onPartialFailure?: () => void;
 }): Promise<ProjectIndexEntry[]> {
   const stored = readStoredBrowserList(options.storage.getItem(PROJECT_BROWSER_STORAGE_KEY));
   const index: ProjectIndexEntry[] = stored.index.map((entry) => ({ ...entry }));
+  let legacyFailed = false;
   for (const item of stored.legacy ?? []) {
     const entry = asLegacy(item);
     if (!entry?.project || typeof entry.project !== "object") continue;
-    const project = await stashEmbeddedAssets(entry.project, options.blobs) as DraftBody["project"];
-    const id = projectIdOf(project, typeof entry.id === "string" ? entry.id : "");
-    if (!id) continue;
-    const room = (entry.room ?? {}) as DraftBody["room"];
-    const thumbnailKey = await thumbnailKeyFor(entry.thumbnail, options.blobs);
-    await putBody(options.drafts, index, id, entry.name || "Project", entry.updatedAt || new Date(0).toISOString(), { project, room }, thumbnailKey);
+    try {
+      const project = await stashEmbeddedAssets(entry.project, options.blobs) as DraftBody["project"];
+      const id = projectIdOf(project, typeof entry.id === "string" ? entry.id : "");
+      if (!id) continue;
+      const room = (entry.room ?? {}) as DraftBody["room"];
+      const thumbnailKey = await thumbnailKeyFor(entry.thumbnail, options.blobs);
+      await putBody(options.drafts, index, id, entry.name || "Project", entry.updatedAt || new Date(0).toISOString(), { project, room }, thumbnailKey);
+    } catch {
+      // Keep going: one bad project must not hide the others. The legacy list stays for a retry.
+      legacyFailed = true;
+    }
   }
-  const folded = await foldRecovery(options.storage, options.drafts, index);
-  if (stored.legacy || folded) writeProjectIndex(index, options.storage);
+  // Leave the old recovery key alone too: the index that would list it is not written this time.
+  const folded = legacyFailed ? false : await foldRecovery(options.storage, options.drafts, index);
+  // Overwriting the legacy list after a failed item would drop that item for good.
+  if (legacyFailed) options.onPartialFailure?.();
+  else if (stored.legacy || folded) writeProjectIndex(index, options.storage);
   return index;
 }

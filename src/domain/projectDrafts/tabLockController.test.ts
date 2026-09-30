@@ -119,4 +119,16 @@ describe("project tab lock", () => {
     expect(reloaded).toBe(true);
     expect(locks.held()).toBeNull();
   });
+
+  it("keeps writes suspended when the previous project is released after a blocked one opens", () => {
+    const locks = memoryLocks();
+    const clock = timers();
+    const releaseA = bindProjectTabLock({ projectId: "a", locks, openChannel: () => null, onState: () => undefined, armTimer: clock.armTimer });
+    releaseA();
+    let stateB = "free";
+    bindProjectTabLock({ projectId: "b", locks, openChannel: () => null, onState: (next) => { stateB = next; }, armTimer: clock.armTimer });
+    expect(stateB).toBe("blocked");
+    clock.fire(0);
+    expect(draftWritesSuspended()).toBe(true);
+  });
 });

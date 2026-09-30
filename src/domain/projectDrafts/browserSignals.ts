@@ -49,6 +49,24 @@ export function draftWritesSuspended(): boolean {
   return writesSuspended;
 }
 
+let writeHolds = 0;
+
+/** Pause autosave while an opened file is checked against its draft. Returns the release. */
+export function holdDraftWrites(): () => void {
+  writeHolds += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    writeHolds -= 1;
+  };
+}
+
+/** A pending recovery prompt also holds writes, or autosave would overwrite the draft it offers. */
+export function draftWritesHeld(): boolean {
+  return writeHolds > 0 || recoveryOffer.get() !== null;
+}
+
 export function snapshotCaptureAllowed(): boolean {
   return !writesSuspended;
 }

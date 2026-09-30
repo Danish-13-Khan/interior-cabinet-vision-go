@@ -5,7 +5,7 @@ import { getActiveProjectRoom, normalizeMultiRoomProject, writeActiveRoomState }
 import { getProjectDisplayName, upsertSavedProjectEntry, type SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
 import { browserLoading, projectFileAdoption, recoveryOffer, registerDraftReload, requestPersistentStorage, webDraftRestore } from "../domain/projectDrafts/browserSignals";
 import type { RecoveryPlatform } from "../domain/projectDrafts/recoveryDecision";
-import { loadSavedBrowser } from "../domain/projectDrafts/loadSavedBrowser";
+import { loadSavedBrowser, savedProjectsWarning } from "../domain/projectDrafts/loadSavedBrowser";
 import { persistBrowserProjectDraft } from "../domain/projectDrafts/browserDraftSave";
 import { reloadSavedDraft } from "../domain/projectDrafts/hydrateBrowserEntries";
 import { persistSharedProjectIndex } from "../domain/projectDrafts/sharedProjectIndex";
@@ -19,7 +19,7 @@ import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
 import { isTauriRuntime } from "../platform/desktopFiles";
 import { useDraftAutosave } from "./useDraftAutosave";
 import { useStoredAssetCleanup } from "./useStoredAssetCleanup";
-import { useOpenDocumentWarnings } from "./useStorageWarnings";
+import { setStorageWarning, useOpenDocumentWarnings } from "./useStorageWarnings";
 
 type Args = {
   project: CabinetProject;
@@ -63,6 +63,7 @@ export function useSavedProjectBrowser({ project, room, captureThumbnail, applyS
       platform: openPlatform,
     }).then((result) => {
       if (!live) return;
+      setStorageWarning("saved-projects", savedProjectsWarning(result));
       if (result.ok) {
         result.thumbnails.forEach(([id, key]) => thumbnailKeys.current.set(id, key));
         loadOk.current = true;

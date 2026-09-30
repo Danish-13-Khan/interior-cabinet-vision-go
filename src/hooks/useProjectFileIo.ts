@@ -31,7 +31,7 @@ import {
 import { readProposalCommercial } from "../domain/livingRoom/proposal/commercialState";
 import { noteDraftFileSaved } from "../domain/projectDrafts/commitDraft";
 import { projectFileAdoption } from "../domain/projectDrafts/browserSignals";
-import { offerDesktopFileRecovery } from "../domain/projectDrafts/loadSavedBrowser";
+import { settleOpenedFile } from "../domain/projectDrafts/openedFileRecovery";
 import { rememberProjectFileBinding } from "../domain/projectDrafts/projectFileBinding";
 import { indexedDbAssetBlobStore } from "../platform/assetBlobStore";
 import { versionRestorePlan } from "../domain/projectSnapshots/versionRestore";
@@ -120,27 +120,25 @@ export function useProjectFileIo({
           safeProject.cabinets.some((cabinet) => cabinet.id === id),
         );
         const fallbackId = safeProject.cabinets[0]?.id ?? null;
-        applySnapshot({
-          project: safeProject,
-          room: activeRoom,
-          selectedCabinetIds: preferredIds.length
-            ? preferredIds
-            : fallbackId
-              ? [fallbackId]
-              : [],
-          activeCabinetId: preferredIds[0] ?? fallbackId,
-          selectedPanelName: null,
-        });
-        setProjectFilePath(session.projectFilePath);
-        setSavedFingerprint(persistenceFingerprint(loaded.document));
-        rememberFile(session.projectFilePath!);
-        rememberProjectFileBinding(localStorage, loaded.document.id, session.projectFilePath!);
-        await offerDesktopFileRecovery({
+        await settleOpenedFile({
           storage: localStorage,
           blobs: indexedDbAssetBlobStore,
           drafts: indexedDbDraftStore,
-          projectId: loaded.document.id,
+          fileDocument: loaded.document,
           filePath: session.projectFilePath!,
+          apply: () => {
+            applySnapshot({
+              project: safeProject,
+              room: activeRoom,
+              selectedCabinetIds: preferredIds.length ? preferredIds : fallbackId ? [fallbackId] : [],
+              activeCabinetId: preferredIds[0] ?? fallbackId,
+              selectedPanelName: null,
+            });
+            setProjectFilePath(session.projectFilePath);
+            setSavedFingerprint(persistenceFingerprint(loaded.document));
+            rememberFile(session.projectFilePath!);
+            rememberProjectFileBinding(localStorage, loaded.document.id, session.projectFilePath!);
+          },
         });
         onStatus("Restored previous session file.");
       } catch {
@@ -154,22 +152,23 @@ export function useProjectFileIo({
   }, []);
 
   const applyLoadedFile = useCallback(
-    (parsed: unknown, path: string, status: string) => {
+    async (parsed: unknown, path: string, status: string) => {
       const loaded = snapshotFromParsedFile(parsed, room);
-      applySnapshot({
-        project: loaded.project,
-        room: loaded.room,
-        selectedCabinetIds: loaded.project.cabinets[0]?.id
-          ? [loaded.project.cabinets[0].id]
-          : [],
-        activeCabinetId: loaded.project.cabinets[0]?.id ?? null,
-        selectedPanelName: null,
-      });
-      setProjectFilePath(path);
-      setSavedFingerprint(persistenceFingerprint(loaded.document));
-      rememberFile(path);
-      rememberProjectFileBinding(localStorage, loaded.document.id, path);
-      onStatus(status);
+      const stores = { storage: localStorage, blobs: indexedDbAssetBlobStore, drafts: indexedDbDraftStore };
+      await settleOpenedFile({ ...stores, fileDocument: loaded.document, filePath: path, apply: () => {
+        applySnapshot({
+          project: loaded.project,
+          room: loaded.room,
+          selectedCabinetIds: loaded.project.cabinets[0]?.id ? [loaded.project.cabinets[0].id] : [],
+          activeCabinetId: loaded.project.cabinets[0]?.id ?? null,
+          selectedPanelName: null,
+        });
+        setProjectFilePath(path);
+        setSavedFingerprint(persistenceFingerprint(loaded.document));
+        rememberFile(path);
+        rememberProjectFileBinding(localStorage, loaded.document.id, path);
+        onStatus(status);
+      } });
     },
     [applySnapshot, onStatus, rememberFile, room, setProjectFilePath],
   );
@@ -261,7 +260,7 @@ export function useProjectFileIo({
         onStatus("Load cancelled.");
         return false;
       }
-      applyLoadedFile(
+      await applyLoadedFile(
         await parseSavedProject(opened),
         opened.path,
         opened.kind === "cabinet" ? "Project loaded from Cabinet file." : "Project loaded from JSON file.",
@@ -280,7 +279,7 @@ export function useProjectFileIo({
           onStatus("Recent disk files need the desktop app. Use Open instead.");
           return;
         }
-        applyLoadedFile(
+        await applyLoadedFile(
           await readSavedProject(path),
           path,
           `Opened recent file “${path.split(/[/\\]/).pop()}”.`,
