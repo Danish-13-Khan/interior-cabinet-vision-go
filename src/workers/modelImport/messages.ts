@@ -17,3 +17,7 @@ export const SKINNED_FBX_WARNING = "Animated or skinned FBX is imported as the s
 export function missingTextureWarning(name: string): string {
   return `Missing texture ${name}.`;
 }
+
+export function unsupportedTextureWarning(name: string): string {
+  return name ? `Unsupported texture ${name}.` : "Unsupported texture.";
+}

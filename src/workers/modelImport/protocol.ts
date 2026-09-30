@@ -25,8 +25,8 @@ export type ImportResult = {
   warnings: string[];
   sourceHash: string;
   assetId: string;
-  /** Unit that was actually applied, not the previous import's choice. */
-  appliedUnit: LengthUnit;
+  /** Unit that was actually applied. Null when the file scale is not mm, cm, m, in, or ft. */
+  appliedUnit: LengthUnit | null;
   /** Millimetres per file unit after that decision. */
   scaleToMm: number;
 };

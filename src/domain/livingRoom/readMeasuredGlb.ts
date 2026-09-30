@@ -63,9 +63,10 @@ export async function readImportedGlb(
     kind: "custom",
     dimensions: dimensionsForPlacement(undefined, measured.dimensions),
     sourceUrl: await storeFile(store, new File([glbBytes], file.name, { type: "model/gltf-binary" })),
-    importUnit: measured.appliedUnit,
+    importUnit: measured.appliedUnit ?? undefined,
     importWarnings: measured.warnings,
     rawLargestSide: largestMm / measured.scaleToMm,
+    scaleToMm: measured.scaleToMm,
     ...(Object.keys(textureUrls).length ? { textureUrls } : {}),
   };
 }
