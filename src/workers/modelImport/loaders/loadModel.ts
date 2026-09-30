@@ -1,20 +1,27 @@
 import type { Object3D } from "three";
-import type { ImportFile, ImportSettings } from "../protocol";
+import type { ImportFile, ImportSettings, LengthUnit } from "../protocol";
 import { extensionOf } from "../messages";
+import { largestExtent } from "../normalize";
 import { parseGlb } from "./gltf";
 import { fbxNormalizeOptions, parseFbx } from "./fbx";
 import { objTextureWarnings, parseObjFile } from "./obj";
-import { guessObjUnit, toMillimetres } from "../units";
+import { guessObjUnit, toMillimetres, unitFromScale } from "../units";
 
 export type LoadedModel = {
   scene: Object3D;
   scaleToMm: number;
+  appliedUnit: LengthUnit;
   rotateZUp: boolean;
   warnings: string[];
 };
 
 function textOf(file: ImportFile | undefined): string {
   return file ? new TextDecoder().decode(file.bytes) : "";
+}
+
+function scaled(honorFileUnits: boolean, fileScale: number, fileUnit: LengthUnit, settings: ImportSettings) {
+  if (!honorFileUnits) return { scaleToMm: toMillimetres(1, settings.unit), appliedUnit: settings.unit };
+  return { scaleToMm: fileScale, appliedUnit: fileUnit };
 }
 
 export async function loadModel(files: readonly ImportFile[], settings: ImportSettings, honorFileUnits: boolean): Promise<LoadedModel> {
@@ -24,27 +31,29 @@ export async function loadModel(files: readonly ImportFile[], settings: ImportSe
   if (ext === "glb" || ext === "gltf") {
     return {
       scene: await parseGlb(model.bytes),
-      scaleToMm: toMillimetres(1, settings.unit),
+      ...scaled(honorFileUnits, toMillimetres(1, "m"), "m", settings),
       rotateZUp: settings.upAxis === "z",
       warnings: [],
     };
   }
   if (ext === "fbx") {
-    const parsed = parseFbx(model.bytes);
+    const parsed = await parseFbx(model.bytes, files);
     const fromFile = fbxNormalizeOptions(parsed.scene);
+    const fileUnit = unitFromScale(fromFile.scaleToMm) ?? "m";
     return {
       scene: parsed.scene,
-      scaleToMm: honorFileUnits ? fromFile.scaleToMm : toMillimetres(1, settings.unit),
+      ...scaled(honorFileUnits, fromFile.scaleToMm, fileUnit, settings),
       rotateZUp: false,
       warnings: parsed.warnings,
     };
   }
   const mtl = files.find((file) => extensionOf(file.name) === "mtl");
   const objText = textOf(model);
-  const guessed = guessObjUnit(objText, 1);
+  const scene = parseObjFile(model);
+  const guessed = guessObjUnit(objText, largestExtent(scene));
   return {
-    scene: parseObjFile(model),
-    scaleToMm: honorFileUnits ? toMillimetres(1, guessed) : toMillimetres(1, settings.unit),
+    scene,
+    ...scaled(honorFileUnits, toMillimetres(1, guessed), guessed, settings),
     rotateZUp: settings.upAxis === "z",
     warnings: objTextureWarnings(objText, textOf(mtl), files),
   };

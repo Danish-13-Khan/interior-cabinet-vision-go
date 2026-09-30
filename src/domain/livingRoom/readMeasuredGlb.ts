@@ -3,7 +3,6 @@ import { storeAssetBlob } from "./storedAssets";
 import type { ModelTextureUrls } from "./renderAssetContracts";
 import { dimensionsForPlacement, defaultGlbSettings, measureGlbImport } from "./modelImportClient";
 import type { LengthUnit } from "../../workers/modelImport/protocol";
-import { toMillimetres } from "../../workers/modelImport/units";
 import type { ImportedAsset } from "./assetImportPipeline";
 import { extensionOf, unsupportedImportMessage } from "../../workers/modelImport/messages";
 
@@ -27,6 +26,12 @@ function textureSlot(name: string): keyof ModelTextureUrls | null {
   return null;
 }
 
+function requireOptimizedGlb(glb: ArrayBuffer | null): ArrayBuffer {
+  if (!glb) throw new Error("Could not convert the model to GLB.");
+  if (glb.byteLength > MAX_OPTIMIZED_GLB_BYTES) throw new Error("Optimized model is larger than 25 MB.");
+  return glb;
+}
+
 /** New imports use the measured bounding box. Changing `unit` re-runs the pipeline. */
 export async function readImportedGlb(
   files: File | File[],
@@ -44,25 +49,23 @@ export async function readImportedGlb(
   if (file.size > MAX_RAW_MODEL_BYTES) throw new Error("Model is larger than 150 MB.");
   const payloads = await Promise.all(all.map(async (item) => ({ name: item.name, bytes: await item.arrayBuffer() })));
   const measured = await measureGlbImport(payloads, defaultGlbSettings(unit), honorFileUnits);
-  if (measured.glb && measured.glb.byteLength > MAX_OPTIMIZED_GLB_BYTES) {
-    throw new Error("Optimized model is larger than 25 MB.");
-  }
-  const glbBytes = measured.glb ?? payloads.find((item) => item.name === file.name)!.bytes;
+  const glbBytes = requireOptimizedGlb(measured.glb);
   const textureUrls: ModelTextureUrls = {};
   await Promise.all(all.filter((item) => item !== file && item.type.startsWith("image/")).map(async (image) => {
     const slot = textureSlot(image.name);
     if (slot && !textureUrls[slot]) textureUrls[slot] = await storeFile(store, image);
   }));
+  const largestMm = Math.max(measured.dimensions.widthMm, measured.dimensions.heightMm, measured.dimensions.depthMm);
   return {
     id: measured.assetId,
     name: file.name.replace(/\.(glb|gltf|fbx|obj)$/i, ""),
     category: "imported",
     kind: "custom",
     dimensions: dimensionsForPlacement(undefined, measured.dimensions),
-    sourceUrl: await storeFile(store, new File([glbBytes], file.name, { type: file.type || "model/gltf-binary" })),
-    importUnit: unit,
+    sourceUrl: await storeFile(store, new File([glbBytes], file.name, { type: "model/gltf-binary" })),
+    importUnit: measured.appliedUnit,
     importWarnings: measured.warnings,
-    rawLargestSide: Math.max(measured.dimensions.widthMm, measured.dimensions.heightMm, measured.dimensions.depthMm) / toMillimetres(1, unit),
+    rawLargestSide: largestMm / measured.scaleToMm,
     ...(Object.keys(textureUrls).length ? { textureUrls } : {}),
   };
 }

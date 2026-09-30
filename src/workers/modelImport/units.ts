@@ -22,6 +22,13 @@ export function guessObjUnit(source: string, largestSide: number): LengthUnit {
   return guessUnitFromSize(largestSide);
 }
 
+export function unitFromScale(scaleToMm: number): LengthUnit | null {
+  for (const unit of LENGTH_UNITS) {
+    if (Math.abs(TO_MM[unit] - scaleToMm) < 1e-6) return unit;
+  }
+  return null;
+}
+
 export function sizesUnderUnits(largestSide: number): Record<LengthUnit, number> {
   return {
     mm: toMillimetres(largestSide, "mm"),

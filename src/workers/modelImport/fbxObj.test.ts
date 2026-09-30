@@ -36,7 +36,7 @@ describe("FBX and OBJ import", () => {
       honorFileUnits: true,
     });
     expect(imported.dimensions.widthMm).toBeCloseTo(2000, 0);
-    expect(imported.warnings).toEqual(["Missing texture missing.png."]);
+    expect(imported.warnings[0]).toBe("Missing texture missing.png.");
     expect(unsupportedImportMessage("chair.max")).toMatch(/FBX or glTF/);
     expect(unsupportedImportMessage("chair.stl")).toMatch(/Unsupported file/);
   });

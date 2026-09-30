@@ -1,7 +1,6 @@
 import type { Size3Mm } from "../interiorProject";
 import { assetIdForImport } from "../../workers/modelImport/identity";
 import type { ImportRequest, ImportResult, ImportSettings, LengthUnit } from "../../workers/modelImport/protocol";
-import { runImport } from "../../workers/modelImport/runImport";
 import { decideImportRuntime, probeImportRuntime } from "../../workers/modelImport/spike";
 
 /** Saved 1000 mm placements stay as they are. Measured size is only for a new import. */
@@ -22,13 +21,18 @@ async function importWithWorker(request: ImportRequest): Promise<ImportResult> {
   });
 }
 
+async function importOnMainThread(request: ImportRequest): Promise<ImportResult> {
+  const pipeline = await import("../../workers/modelImport/runImport");
+  return pipeline.runImport(request);
+}
+
 export async function importModel(request: ImportRequest): Promise<ImportResult> {
   const runtime = decideImportRuntime(probeImportRuntime());
   const next = runtime === "split" ? { ...request, texturesOnMain: true } : request;
   if (typeof Worker !== "undefined") {
-    try { return await importWithWorker(next); } catch { /* main-thread fallback */ }
+    try { return await importWithWorker(next); } catch { /* separate chunk; not the textured-FBX success path */ }
   }
-  return runImport(next);
+  return importOnMainThread(next);
 }
 
 export async function measureGlbImport(

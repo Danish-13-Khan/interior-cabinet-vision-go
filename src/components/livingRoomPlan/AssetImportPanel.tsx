@@ -24,7 +24,6 @@ export function AssetImportPanel({
   const input = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState<ImportedAsset | null>(null);
-  const [unit, setUnit] = useState<LengthUnit>("m");
   const chosenFiles = useRef<File[]>([]);
   const importFiles = (files: File[], nextUnit: LengthUnit, honorFileUnits = false) => {
     chosenFiles.current = files;
@@ -40,7 +39,7 @@ export function AssetImportPanel({
         const files = Array.from(event.target.files ?? []);
         event.target.value = "";
         if (!files.length) return;
-        importFiles(files, unit, true);
+        importFiles(files, "m", true);
       }} />
       <strong>Asset Import</strong>
       <small>Select a GLB and its BaseColor/normal/roughness images together. Files are kept in this browser and embedded when you save the project to a file.</small>
@@ -50,7 +49,7 @@ export function AssetImportPanel({
     </section>
     {pending ? <section className="lr-texture-window" aria-label="Texture setup">
       <strong>Texture setup</strong><small>{pending.name} · {Math.round(pending.dimensions.widthMm)} × {Math.round(pending.dimensions.heightMm)} × {Math.round(pending.dimensions.depthMm)} mm</small>
-      <ImportSizeConfirm asset={pending} onUnit={(next) => { setUnit(next); if (chosenFiles.current.length) importFiles(chosenFiles.current, next); }} />
+      <ImportSizeConfirm asset={pending} onUnit={(next) => { if (chosenFiles.current.length) importFiles(chosenFiles.current, next); }} />
       {maps.length ? <div className="lr-texture-slots">{maps.map(([slot, url]) => <div key={slot}>{url ? <TexturePreview url={url} /> : null}<span>{slot.replace("Map", "")}</span><b>Attached</b></div>)}</div> : <p>No sidecar images found. The GLB’s embedded materials will be used.</p>}
       <footer>
         <button type="button" onClick={() => setPending(null)}>Cancel</button>
