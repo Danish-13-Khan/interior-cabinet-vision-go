@@ -8,6 +8,7 @@ pub fn temp_path_for(path: &Path) -> PathBuf {
 }
 
 /// Write `path.tmp`, flush it, then rename over `path`. A crash before rename keeps the original.
+/// A failed write deletes the temp file so the next save does not trip over it.
 pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -15,10 +16,16 @@ pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
         }
     }
     let temp = temp_path_for(path);
-    let mut file = File::create(&temp).map_err(|error| error.to_string())?;
-    file.write_all(bytes).map_err(|error| error.to_string())?;
-    file.sync_all().map_err(|error| error.to_string())?;
-    fs::rename(&temp, path).map_err(|error| error.to_string())
+    let result = (|| -> Result<(), String> {
+        let mut file = File::create(&temp).map_err(|error| error.to_string())?;
+        file.write_all(bytes).map_err(|error| error.to_string())?;
+        file.sync_all().map_err(|error| error.to_string())?;
+        fs::rename(&temp, path).map_err(|error| error.to_string())
+    })();
+    if result.is_err() {
+        let _ = fs::remove_file(&temp);
+    }
+    result
 }
 
 #[cfg(test)]
@@ -46,6 +53,17 @@ mod tests {
         fs::remove_file(&temp).unwrap();
         atomic_write(&path, b"saved").unwrap();
         assert_eq!(fs::read(&path).unwrap(), b"saved");
+        assert!(!temp_path_for(&path).exists());
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn failed_replace_deletes_the_temp_file() {
+        let dir = scratch();
+        let path = dir.join("room.cabinet");
+        fs::create_dir(&path).unwrap();
+        let error = atomic_write(&path, b"bytes");
+        assert!(error.is_err());
         assert!(!temp_path_for(&path).exists());
         fs::remove_dir_all(dir).unwrap();
     }

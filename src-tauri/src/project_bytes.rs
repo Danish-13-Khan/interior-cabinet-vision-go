@@ -35,20 +35,34 @@ pub fn path_from_headers(path_header: Option<&str>) -> Result<String, String> {
     Ok(path)
 }
 
+/// Replace `path` with `bytes`. When a backup dir is set, slot 1 becomes the previous file, not this write.
+pub fn save_replacing(path: &str, bytes: &[u8], backup_dir: Option<&Path>) -> Result<(), String> {
+    let checked = crate::user_path::validate_user_path(path)?;
+    let previous = if checked.is_file() {
+        Some(fs::read(&checked).map_err(|error| error.to_string())?)
+    } else {
+        None
+    };
+    atomic_write(&checked, bytes)?;
+    if let (Some(dir), Some(previous)) = (backup_dir, previous) {
+        rotate_backups(dir, &previous)?;
+    }
+    Ok(())
+}
+
 pub fn write_project_bytes(path: &str, bytes: &[u8]) -> Result<(), String> {
-    atomic_write(Path::new(path), bytes)
+    save_replacing(path, bytes, None)
 }
 
 pub fn read_project_bytes(path: &str) -> Result<Vec<u8>, String> {
-    fs::read(path).map_err(|error| error.to_string())
+    let checked = crate::user_path::validate_user_path(path)?;
+    fs::read(checked).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
-pub fn save_project_bytes(app: tauri::AppHandle, request: Request<'_>) -> Result<(), String> {
-    let header = request
-        .headers()
-        .get("path")
-        .and_then(|value| value.to_str().ok());
+pub async fn save_project_bytes(app: tauri::AppHandle, request: Request<'_>) -> Result<(), String> {
+    // Async commands run off the UI thread. The body is borrowed, so the bytes are not cloned.
+    let header = request.headers().get("path").and_then(|value| value.to_str().ok());
     let path = path_from_headers(header)?;
     let project_id = request
         .headers()
@@ -56,20 +70,17 @@ pub fn save_project_bytes(app: tauri::AppHandle, request: Request<'_>) -> Result
         .and_then(|value| value.to_str().ok())
         .map(percent_decode);
     let bytes = match request.body() {
-        InvokeBody::Raw(bytes) => bytes.clone(),
+        InvokeBody::Raw(bytes) => bytes.as_slice(),
         InvokeBody::Json(_) => return Err("Project save expected raw bytes.".into()),
     };
-    write_project_bytes(&path, &bytes)?;
-    if let Some(project_id) = project_id {
-        if let Ok(dir) = app.path().app_data_dir() {
-            let _ = rotate_backups(&backup_dir(&dir, &project_id), &bytes);
-        }
-    }
-    Ok(())
+    let backup = project_id.and_then(|project_id| {
+        app.path().app_data_dir().ok().map(|dir| backup_dir(&dir, &project_id))
+    });
+    save_replacing(&path, bytes, backup.as_deref())
 }
 
 #[tauri::command]
-pub fn load_project_bytes(path: String) -> Result<Response, String> {
+pub async fn load_project_bytes(path: String) -> Result<Response, String> {
     Ok(Response::new(read_project_bytes(&path)?))
 }
 
@@ -98,5 +109,25 @@ mod tests {
     fn path_header_is_percent_decoded() {
         let decoded = path_from_headers(Some("%2FUsers%2Froom%20plan.cabinet")).unwrap();
         assert_eq!(decoded, "/Users/room plan.cabinet");
+    }
+
+    #[test]
+    fn backups_are_earlier_versions_not_the_file_just_saved() {
+        let dir = std::env::temp_dir().join(format!(
+            "cabinet-backup-save-{}",
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("room.cabinet");
+        let backups = dir.join("backups");
+        let path_text = path.to_string_lossy().into_owned();
+        write_project_bytes(&path_text, b"v1").unwrap();
+        save_replacing(&path_text, b"v2", Some(&backups)).unwrap();
+        save_replacing(&path_text, b"v3", Some(&backups)).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"v3");
+        assert_eq!(fs::read(backups.join("1.cabinet")).unwrap(), b"v2");
+        assert_eq!(fs::read(backups.join("2.cabinet")).unwrap(), b"v1");
+        assert!(!backups.join("3.cabinet").exists());
+        fs::remove_dir_all(dir).unwrap();
     }
 }
