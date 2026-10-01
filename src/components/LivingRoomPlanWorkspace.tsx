@@ -18,6 +18,7 @@ import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFrom
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
 import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjectsFixtures";
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
+import { deleteLightOrObject, duplicateLightOrObject } from "./livingRoomPlan/lightOnlySelectionEdit";
 import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
 import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
 import { useSelectionFrameRequest } from "../hooks/useSelectionFrameRequest";
@@ -103,6 +104,13 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   }, [activeWallId, activeOpeningId, activeSurfaceId]);
 
   useSelectionFrameRequest(() => viewControlsRef.current?.fitSelection());
+  const clearArchitecture = () => {
+    setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); setInspectRoom(false); props.onSelect(null);
+  };
+  const lightEdit = {
+    activeLightId, selectedIds: props.selectedIds, lightActions: props.lightActions,
+    onDuplicate: props.onDuplicate, onDelete: props.onDelete, onClearSelection: clearArchitecture,
+  };
   useLivingRoomPlanWorkspaceHotkeys({
     project: props.project,
     projectHomeOpen: props.projectHomeOpen,
@@ -115,14 +123,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onView: chrome.changeWorkspaceView,
     onUndo: props.onUndo,
     onRedo: props.onRedo,
-    onDuplicate: props.onDuplicate,
-    onDelete: props.onDelete,
+    onDuplicate: () => duplicateLightOrObject(lightEdit),
+    onDelete: () => deleteLightOrObject(lightEdit),
     onRotateSelection: props.onRotateSelection,
     onNudge: props.onNudge,
     onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); props.onSelect(id); },
-    onClearArchitecture: () => {
-      setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); setInspectRoom(false); props.onSelect(null);
-    },
+    onClearArchitecture: clearArchitecture,
     onCancelTool: () => build.selectBuildTool("select"),
     onMeasureTool: () => build.selectBuildTool("measure"),
     onOpenMaterial: () => chrome.applyChromeTool("material"),
