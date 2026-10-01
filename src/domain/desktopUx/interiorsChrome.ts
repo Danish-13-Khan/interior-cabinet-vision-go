@@ -85,6 +85,12 @@ export function interiorsSaveLabel(
   return "Unsaved changes";
 }
 
+/** Cut uses kind "opening"; other kinds stay "<kind> opening". */
+export function openingInspectorTitle(kind: string): string {
+  if (kind === "opening") return "Wall opening";
+  return `${kind} opening`;
+}
+
 export function interiorsSelectionTitle(input: {
   openingName?: string | null;
   lightName?: string | null;

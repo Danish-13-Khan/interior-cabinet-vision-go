@@ -7,6 +7,7 @@ import {
 } from "../../domain/livingRoom/directionalCasterBudget";
 import { shadowMapSizePair } from "./shadowMapSizePair";
 import { LIGHT_RENDER_SCALE } from "../../domain/livingRoom/lightFixtureTypes";
+import { projectLightIsMounted } from "../../domain/livingRoom/fixtureLightBudget";
 import { isRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
 import { RoomLightFixture } from "./RoomLightFixture";
 import { ensureRectAreaLightSupport } from "./rectAreaLightSupport";
@@ -45,7 +46,7 @@ export function SceneProjectLights({
   let directionalCasterCount = 0;
   return (
     <>
-      {scene.lights.filter((light) => light.enabled || isRoomLightFixture(light)).map((light) => {
+      {scene.lights.filter((light) => projectLightIsMounted(light)).map((light) => {
         if (isRoomLightFixture(light)) {
           return (
             <RoomLightFixture

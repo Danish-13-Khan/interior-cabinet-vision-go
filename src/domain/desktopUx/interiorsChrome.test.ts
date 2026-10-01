@@ -4,6 +4,7 @@ import {
   interiorsJobStatusLabel,
   interiorsSaveLabel,
   interiorsSelectionTitle,
+  openingInspectorTitle,
   isInteriorsChromeToolReady,
   mapInteriorsChromeTool,
 } from "./interiorsChrome";
@@ -70,5 +71,12 @@ describe("interiorsChrome", () => {
     expect(interiorsSelectionTitle({ lightName: "Cove LED strip", selectedCount: 0 })).toBe("Cove LED strip");
     expect(interiorsSelectionTitle({ roomName: "Living", selectedCount: 0 })).toBe("Living");
     expect(interiorsSelectionTitle({ surfaceName: "Surface zone", selectedCount: 0 })).toBe("Surface zone");
+  });
+
+  it("titles a cut as Wall opening and keeps door and window kinds", () => {
+    expect(openingInspectorTitle("opening")).toBe("Wall opening");
+    expect(openingInspectorTitle("door")).toBe("door opening");
+    expect(openingInspectorTitle("window")).toBe("window opening");
+    expect(interiorsSelectionTitle({ openingName: openingInspectorTitle("opening"), selectedCount: 0 })).toBe("Wall opening");
   });
 });
