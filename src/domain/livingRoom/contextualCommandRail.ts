@@ -5,6 +5,7 @@ export type ContextualRailCommandId =
   | "measure"
   | "camera"
   | "material"
+  | "cut-opening"
   | "add-panel"
   | "add-light"
   | "hide-wall"
@@ -24,6 +25,7 @@ const COMMANDS: Record<ContextualRailCommandId, ContextualRailCommand> = {
   measure: { id: "measure", label: "Measure", testId: "rail-measure" },
   camera: { id: "camera", label: "Camera", testId: "rail-camera" },
   material: { id: "material", label: "Material", testId: "rail-material" },
+  "cut-opening": { id: "cut-opening", label: "Cut opening", testId: "rail-cut-opening" },
   "add-panel": { id: "add-panel", label: "Add Panel", testId: "rail-add-panel" },
   "add-light": { id: "add-light", label: "Add light", testId: "rail-add-light" },
   "hide-wall": { id: "hide-wall", label: "Hide Wall", testId: "rail-hide-wall" },
@@ -35,7 +37,7 @@ const COMMANDS: Record<ContextualRailCommandId, ContextualRailCommand> = {
 
 const BY_KIND: Record<ContextualRailKind, readonly ContextualRailCommandId[]> = {
   none: ["select", "measure", "camera"],
-  wall: ["material", "add-panel", "add-light", "hide-wall"],
+  wall: ["material", "cut-opening", "add-panel", "add-light", "hide-wall"],
   cabinet: ["rotate", "duplicate", "material", "delete"],
   light: ["duplicate", "delete"],
   /** Panels: attachment-aware flip — not free Y rotate (reflow would overwrite). */

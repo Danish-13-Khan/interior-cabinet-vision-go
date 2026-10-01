@@ -85,6 +85,10 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       }}
       onJoinNodes={() => p.build.dispatchBuildCommand({ type: "joinCoincidentNodes" })}
       onAddWallPanel={w.onAddWallPanel}
+      wallEditing={{
+        onAddOpening: (wallId, kind, offset) => p.build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm: offset }),
+        onAddDecoration: w.onAddWallDecoration,
+      }}
       onUpdatePanelAttachment={w.onUpdatePanelAttachment}
       onSetPanelVisible={w.onSetPanelVisible}
       onRaiseWalls={w.onRaiseWalls} onOffsetWall={w.onOffsetWall} onOffsetLoop={w.onOffsetLoop}

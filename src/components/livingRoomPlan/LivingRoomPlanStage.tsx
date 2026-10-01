@@ -26,6 +26,7 @@ function runRailCommand(props: LivingRoomPlanStageProps, id: ContextualRailComma
   if (id === "camera") props.onWorkspaceView?.("model");
   if (id === "material") props.onChromeTool?.("material");
   if (id === "add-panel" && props.activeWallId) props.onAddWallPanel?.(props.activeWallId);
+  if (id === "cut-opening" && props.activeWallId) props.onCutOpening?.(props.activeWallId);
   if (id === "hide-wall" && props.activeWallId && props.onPatchDocument) {
     const wallId = props.activeWallId;
     props.onPatchDocument((current) => setWallVisible(current, wallId, false), "Hide wall");

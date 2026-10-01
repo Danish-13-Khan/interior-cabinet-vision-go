@@ -306,6 +306,7 @@ function App() {
             onApplyMaterialToSelection={c.applyMaterialToSelection}
             onApplyMaterialColour={c.applyMaterialColour}
             onAddWallPanel={c.addLivingRoomWallPanel}
+            onAddWallDecoration={c.addLivingRoomWallDecoration}
             onUpdatePanelAttachment={c.updateLivingRoomPanelAttachment}
             onSetPanelVisible={c.setLivingRoomPanelVisible}
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}

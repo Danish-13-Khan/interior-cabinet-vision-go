@@ -2,6 +2,7 @@ import type {
   InteriorObjectEntity,
   InteriorProject,
   OpeningEntity,
+  OpeningKind,
   Point3Mm,
   RenderSettings,
   Size3Mm,
@@ -81,6 +82,7 @@ export type LivingRoomPlanWorkspaceProps = {
     rebinds: import("../../domain/catalog/finishRebind").FinishUvRebind[],
   ) => void;
   onAddWallPanel: (wallId: string) => void;
+  onAddWallDecoration: (wallId: string, presetId: string) => void;
   onUpdatePanelAttachment: (
     objectId: string,
     patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
@@ -146,7 +148,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onJoinCoincidentNodes: () => void;
   onMoveNode: (nodeId: string, position: import("../../domain/interiorProject").Point2Mm) => void;
   onTranslateWall: (wallId: string, delta: import("../../domain/interiorProject").Point2Mm) => void;
-  onAddOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
+  onAddOpening: (wallId: string, kind: OpeningKind, offsetMm?: number, catalogItemId?: string) => void;
   onUpdateOpening: (openingId: string, patch: Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>) => void;
   onDeleteOpening: (openingId: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay | null) => void;

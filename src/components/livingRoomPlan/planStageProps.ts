@@ -114,4 +114,5 @@ export type LivingRoomPlanStageProps = {
   onBuildTool?: (tool: BuildTool) => void;
   onWorkspaceView?: (view: LivingRoomWorkspaceView) => void;
   onAddWallPanel?: (wallId: string) => void;
+  onCutOpening?: (wallId: string) => void;
 };
