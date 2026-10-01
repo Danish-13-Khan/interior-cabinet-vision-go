@@ -10,6 +10,7 @@ import { InteriorsClientCaptureView } from "./InteriorsClientCaptureView";
 import { PlanStageAuthoringChrome } from "./PlanStageAuthoringChrome";
 import { PlanStageStatus } from "./PlanStageStatus";
 import type { LivingRoomPlanStageProps } from "./planStageProps";
+import { deleteLightOrObject, duplicateLightOrObject } from "./lightOnlySelectionEdit";
 
 function selectedObjects(props: LivingRoomPlanStageProps) {
   const ids = new Set(props.selectedIds);
@@ -41,17 +42,8 @@ function runRailCommand(props: LivingRoomPlanStageProps, id: ContextualRailComma
     const lightId = props.lightActions.addLight("cove", { kind: "wall", wallId: props.activeWallId });
     if (lightId) props.onSelectLight(lightId);
   }
-  const lightOnly = Boolean(props.activeLightId) && props.selectedIds.length === 0;
-  if (id === "duplicate") {
-    if (lightOnly && props.activeLightId) props.lightActions.duplicateLight(props.activeLightId);
-    else props.onDuplicate();
-  }
-  if (id === "delete") {
-    if (lightOnly && props.activeLightId) {
-      props.lightActions.removeLight(props.activeLightId);
-      props.onClearSelection();
-    } else props.onDelete();
-  }
+  if (id === "duplicate") duplicateLightOrObject(props);
+  if (id === "delete") deleteLightOrObject(props);
 }
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
