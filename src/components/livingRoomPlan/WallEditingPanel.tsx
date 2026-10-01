@@ -7,6 +7,7 @@ import {
 } from "../../domain/livingRoom/wallDecorations";
 import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
+import { wallDeleteActionLabel } from "./wallDeleteLabel";
 import { WallLightingSection } from "./WallLightingSection";
 
 type ImportApply = { wallId?: string };
@@ -62,7 +63,7 @@ export function WallEditingPanel(props: Props) {
           <button type="button" onClick={() => props.onSplitWall?.(wall.id)}>Split wall</button>
         ) : null}
         {props.onDeleteWall ? (
-          <button type="button" onClick={() => props.onDeleteWall?.(wall.id)}>Delete section</button>
+          <button type="button" onClick={() => props.onDeleteWall?.(wall.id)}>{wallDeleteActionLabel(wall)}</button>
         ) : null}
       </div>
       {SECTIONS.map((section) => (

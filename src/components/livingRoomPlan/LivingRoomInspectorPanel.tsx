@@ -8,7 +8,7 @@ import type {
   WallPlanPatch,
 } from "../../domain/interiorProject";
 import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
-import { interiorsSelectionTitle } from "../../domain/desktopUx";
+import { interiorsSelectionTitle, openingInspectorTitle } from "../../domain/desktopUx";
 import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
 import { InspectorObjectSection } from "./InspectorObjectSection";
 import { OpeningInspector } from "./OpeningInspector";
@@ -110,7 +110,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
     props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface && !activeLight,
   );
   const selectionTitle = interiorsSelectionTitle({
-    openingName: activeOpening ? `${activeOpening.kind} opening` : null,
+    openingName: activeOpening ? openingInspectorTitle(activeOpening.kind) : null,
     lightName: activeLight?.name ?? null,
     objectName: activeObject?.name ?? null,
     wallLabel: activeWall ? String(activeWall.extensions?.wallSide ?? "Wall") : null,
