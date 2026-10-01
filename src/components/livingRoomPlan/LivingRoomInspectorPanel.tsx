@@ -13,6 +13,7 @@ import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
 import { InspectorObjectSection } from "./InspectorObjectSection";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
+import type { WallEditingActions } from "./WallEditingPanel";
 import { InspectorObjectList } from "./InspectorObjectList";
 import { InspectorModelExtrasSlot, InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
 import { SurfaceInspector } from "./SurfaceInspector";
@@ -86,6 +87,7 @@ type LivingRoomInspectorPanelProps = {
   onDeleteWall?: (wallId: string) => void;
   onJoinNodes?: () => void;
   onAddWallPanel?: (wallId: string) => void;
+  wallEditing?: WallEditingActions;
   onUpdatePanelAttachment?: (
     objectId: string,
     patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
@@ -178,6 +180,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
             onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes}
             onAddWallPanel={props.onAddWallPanel}
+            wallEditing={props.wallEditing}
             lightActions={props.lightActions} onSelectLight={props.onSelectLight} />
         ) : null}
         {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun && props.workflowArea !== "review" ? (

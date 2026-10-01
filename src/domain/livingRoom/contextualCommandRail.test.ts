@@ -18,7 +18,7 @@ describe("contextual command rail (§4.1)", () => {
       selectedObjects: [],
     })).toBe("wall");
     expect(contextualRailCommands("wall").map((item) => item.id)).toEqual([
-      "material", "add-panel", "add-light", "hide-wall",
+      "material", "cut-opening", "add-panel", "add-light", "hide-wall",
     ]);
     expect(resolveContextualRailKind({
       activeWallId: null,
