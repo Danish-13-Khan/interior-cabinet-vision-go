@@ -19,6 +19,25 @@ export default defineConfig(async () => ({
   base: githubPages ? pagesBase : "/",
   optimizeDeps: {
     exclude: ["@napi-rs/canvas", "pdfjs-dist"],
+    // Deps only reached at runtime (DWG + model-import workers, save/export
+    // paths). Discovering one mid-session makes Vite re-optimize and reload
+    // every open page, which strands an e2e run on a fresh dev server.
+    include: [
+      "@mlightcad/libredwg-web",
+      "fflate",
+      "jspdf",
+      "meshoptimizer",
+      "@gltf-transform/core",
+      "@gltf-transform/extensions",
+      "@gltf-transform/functions",
+      "three/examples/jsm/exporters/GLTFExporter.js",
+      "three/examples/jsm/libs/meshopt_decoder.module.js",
+      "three/examples/jsm/loaders/DRACOLoader.js",
+      "three/examples/jsm/loaders/FBXLoader.js",
+      "three/examples/jsm/loaders/GLTFLoader.js",
+      "three/examples/jsm/loaders/MTLLoader.js",
+      "three/examples/jsm/loaders/OBJLoader.js",
+    ],
   },
   test: {
     // Playwright owns browser specs; importing them in Vitest throws before collection.
