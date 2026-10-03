@@ -26,8 +26,12 @@ test("Phase J1 introduces client-facing 3D modes and keeps the guide reopenable"
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Dollhouse", exact: true })).toHaveAttribute("aria-pressed", "true");
 
-  await page.getByRole("button", { name: "? 3D guide", exact: true }).click();
+  // The guide reopens from the View settings popover.
+  await page.getByTestId("model-view-settings").getByRole("button", { name: "View settings" }).click();
+  await page.getByRole("button", { name: "3D guide", exact: true }).click();
   await expect(guide).toBeVisible();
+  // The popover stays open over the guide's close button; toggle it shut first.
+  await page.getByTestId("model-view-settings").getByRole("button", { name: "View settings" }).click();
   await guide.getByRole("button", { name: "Close 3D guide" }).click();
 
   await page.getByRole("button", { name: "2D plan", exact: true }).click();

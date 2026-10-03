@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { createShellPlan } from "./plannerStart";
+import { clickInteriorsTool, createShellPlan } from "./plannerStart";
+import { clickWallMidpoint } from "./roadmap-exit-journey.helpers";
 
 const GUIDE_KEY = "cabinet-designer:3d-guide:j1";
 
@@ -15,6 +16,16 @@ async function pointOnPaper(paper: Locator, x: number, y: number) {
 
 async function armDrawWall(page: Page) {
   await page.locator('[data-build-tool="draw-wall"]').click();
+}
+
+/** Split / thickness / delete / join live in the wall inspector's collapsed Advanced section. */
+async function openWallAdvanced(page: Page) {
+  const advanced = page.getByTestId("inspector-wall-advanced");
+  await expect(advanced).toBeVisible();
+  if (!(await advanced.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await advanced.locator("summary").click();
+  }
+  return advanced;
 }
 
 async function pickModelEntity(page: Page, id: string) {
@@ -75,17 +86,24 @@ test("D3 splits, deletes, edits thickness, and joins nodes on selected walls", a
   const drawnWall = page.locator("[data-wall-id]").last();
   await expect(drawnWall).toHaveClass(/is-active/);
 
-  await page.getByRole("button", { name: "Split at midpoint", exact: true }).click();
+  let advanced = await openWallAdvanced(page);
+  await advanced.getByRole("button", { name: "Split at midpoint", exact: true }).click();
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialCount + 2);
   await expect(page.locator("[data-wall-id].is-active")).toHaveCount(1);
 
-  const thickness = page.getByLabel("Wall thickness (mm)");
+  advanced = await openWallAdvanced(page);
+  const thickness = advanced.getByLabel("Wall thickness (mm)");
   await thickness.fill("180");
   await expect(thickness).toHaveValue("180");
 
-  await page.getByRole("button", { name: "Delete wall", exact: true }).click();
+  await advanced.getByRole("button", { name: "Delete wall", exact: true }).click();
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialCount + 1);
 
-  await page.getByRole("button", { name: "Join coincident nodes", exact: true }).click();
+  // Deleting clears the selection; pick the surviving segment to reach Join.
+  await clickInteriorsTool(page, "select");
+  const survivor = await page.locator("[data-wall-id]").last().getAttribute("data-wall-id");
+  await clickWallMidpoint(page, survivor!);
+  advanced = await openWallAdvanced(page);
+  await advanced.getByRole("button", { name: "Join coincident nodes", exact: true }).click();
   await expect(page.locator("[data-wall-id]")).toHaveCount(initialCount + 1);
 });

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { strFromU8, unzipSync } from 'fflate';
 import { createBlankPlan, drawRectangleRoom, clickInteriorsTool } from './plannerStart';
 import { importRoomDxf } from './dwg-room-design.helpers';
 const drawing=readFileSync(new URL('../fixtures/dwg/example_2018.dwg',import.meta.url));
@@ -46,8 +47,11 @@ test('DWG import, calibration, tracing, layer persistence and 3D',async({page})=
  const download=page.waitForEvent('download');
  await page.getByTestId('interiors-save-state').click();
  const file=await download;
- const saved=JSON.parse(readFileSync((await file.path())!,'utf8'));
- expect(JSON.stringify(saved)).toContain('hiddenLayers');
+ // The .cabinet zip keeps the document in project.json and each DWG preview under underlays/.
+ const archiveBytes=readFileSync((await file.path())!);
+ const archive=unzipSync(archiveBytes);
+ const saved=Object.entries(archive).filter(([name])=>name.endsWith('.json')).map(([,bytes])=>strFromU8(bytes)).join('\n');
+ expect(saved).toContain('hiddenLayers');
  await page.getByRole('button',{name:'3D',exact:true}).click();
  await expect(page.getByTestId('lr-model-viewport')).toBeVisible();
  await page.getByRole('button',{name:'2D plan',exact:true}).click();
@@ -56,7 +60,7 @@ test('DWG import, calibration, tracing, layer persistence and 3D',async({page})=
  await page.getByTestId('interiors-project-crumb').evaluate((button: HTMLButtonElement) => button.click());
  const chooser=page.waitForEvent('filechooser');
  await page.getByRole('dialog',{name:'Start a living room project'}).getByRole('button',{name:'Open project',exact:true}).click();
- await (await chooser).setFiles({name:'dwg-room.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});
+ await (await chooser).setFiles({name:'dwg-room.cabinet',mimeType:'application/vnd.cabinet-studio+zip',buffer:archiveBytes});
  await expect(page.getByTestId('lr-plan-underlay-image')).toHaveAttribute('transform',before!);
  await clickInteriorsTool(page,'import');
  await page.getByText('DWG layers',{exact:true}).click();
