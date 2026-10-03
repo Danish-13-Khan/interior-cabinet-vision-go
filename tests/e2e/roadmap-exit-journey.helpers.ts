@@ -36,9 +36,9 @@ export async function longestRoomWallId(page: Page, roomId: string) {
   });
 }
 
-/** SVG lines can have a zero-height DOM box; click their transformed midpoint instead. */
-export async function clickWallMidpoint(page: Page, wallId: string) {
-  const point = await page.locator(`line[data-wall-id="${wallId}"]`).evaluate((node, expectedWallId) => {
+/** Screen point of a plan wall's midpoint, independent of how the SVG is letterboxed. */
+export async function wallMidpointOnScreen(page: Page, wallId: string) {
+  return page.locator(`line[data-wall-id="${wallId}"]`).evaluate((node, expectedWallId) => {
     const line = node as SVGLineElement;
     const matrix = line.getScreenCTM();
     const svg = line.ownerSVGElement;
@@ -49,5 +49,20 @@ export async function clickWallMidpoint(page: Page, wallId: string) {
     const client = midpoint.matrixTransform(matrix);
     return { x: client.x, y: client.y };
   }, wallId);
+}
+
+/** Drag Draw Wall from one wall's midpoint to another's, so the segment splits the room. */
+export async function dragWallBetween(page: Page, fromWallId: string, toWallId: string) {
+  const start = await wallMidpointOnScreen(page, fromWallId);
+  const end = await wallMidpointOnScreen(page, toWallId);
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(end.x, end.y, { steps: 8 });
+  await page.mouse.up();
+}
+
+/** SVG lines can have a zero-height DOM box; click their transformed midpoint instead. */
+export async function clickWallMidpoint(page: Page, wallId: string) {
+  const point = await wallMidpointOnScreen(page, wallId);
   await page.mouse.click(point.x, point.y);
 }

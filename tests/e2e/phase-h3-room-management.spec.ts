@@ -10,6 +10,14 @@ async function planPoint(page: Page, x: number, z: number) {
   }, { x, z });
 }
 
+/** The Calm canvas header collapses "Room & plan settings" once a wall is selected. */
+async function openRoomSettings(page: Page) {
+  const settings = page.locator("details.lr-plan-secondary-settings").first();
+  if (!(await settings.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await settings.locator("summary").click();
+  }
+}
+
 async function splitRoom(page: Page) {
   await page.locator('[data-build-tool="draw-wall"]').click();
   const start = await planPoint(page, 0, -2300);
@@ -27,6 +35,7 @@ test("H3 deletes and merges rooms with undo", async ({ page }) => {
   await createShellPlan(page);
   await splitRoom(page);
 
+  await openRoomSettings(page);
   await page.getByTestId("build-room-delete-open").click();
   const dialog = page.getByRole("alertdialog", { name: "Delete room?" });
   await expect(dialog).toBeVisible();
@@ -53,6 +62,7 @@ test("H3 modal keyboard isolation: Ctrl+Z does not undo while delete confirm is 
   const tabs = page.locator('[data-testid="build-room-switcher"] [role="tab"]');
   await expect(tabs).toHaveCount(2);
 
+  await openRoomSettings(page);
   await page.getByTestId("build-room-delete-open").click();
   const dialog = page.getByRole("alertdialog", { name: "Delete room?" });
   await expect(dialog).toBeVisible();

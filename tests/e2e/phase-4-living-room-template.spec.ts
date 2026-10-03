@@ -19,14 +19,14 @@ test("Phase 4 Living Room: template → 2D → 3D → finish → save → reopen
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
   await expect(page.locator(".lr-plan-svg [data-catalog-item-id]")).toHaveCount(8);
 
-  await selectCatalogObject(page, "kenney:lounge-sofa");
+  await selectCatalogObject(page, "lounge-sofa-1");
   await expect(page.getByTestId("interiors-inspector")).toContainText("Lounge Sofa");
   const upholstery = page.locator('[data-material-slot="upholstery"]');
   await expect(upholstery).toBeVisible();
   await upholstery.getByTitle("Apply Olive Weave").click();
   await expect(upholstery.locator('[data-material-id="material:core:fabric-olive:v1"]')).toHaveClass(/is-active/);
 
-  await selectCatalogObject(page, "kenney:television-modern");
+  await selectCatalogObject(page, "television-modern-1");
   await expect(page.locator('[data-material-slot="screen"][data-slot-locked="true"]')).toBeVisible();
   await expect(page.locator('[data-material-slot="screen"] .lr-paint-swatches')).toHaveCount(0);
 
@@ -48,7 +48,7 @@ test("Phase 4 Living Room: template → 2D → 3D → finish → save → reopen
   await page.getByRole("button", { name: "2D plan", exact: true }).click();
   await expect(page.locator(".lr-plan-titlebar strong")).toHaveText("Room plan");
 
-  await selectCatalogObject(page, "kenney:lounge-sofa");
+  await selectCatalogObject(page, "lounge-sofa-1");
   await expect(
     page.locator('[data-material-slot="upholstery"] [data-material-id="material:core:fabric-olive:v1"]'),
   ).toHaveClass(/is-active/);

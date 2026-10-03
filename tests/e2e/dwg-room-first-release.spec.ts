@@ -42,11 +42,12 @@ test("first release on the known-scale room drawing", async ({ page }) => {
   await expect(planWalls(page)).toHaveCount(6);
   const download = page.waitForEvent("download");
   await page.getByTestId("interiors-save-state").click();
-  const saved = JSON.parse(readFileSync((await (await download).path())!, "utf8"));
+  // Projects save as a .cabinet zip; reopen the exact bytes that were downloaded.
+  const saved = readFileSync((await (await download).path())!);
   await page.getByTestId("interiors-project-crumb").evaluate((button: HTMLButtonElement) => button.click());
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("dialog", { name: "Start a living room project" }).getByRole("button", { name: "Open project", exact: true }).click();
-  await (await chooser).setFiles({ name: "dwg-first-release.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
+  await (await chooser).setFiles({ name: "dwg-first-release.cabinet", mimeType: "application/vnd.cabinet-studio+zip", buffer: saved });
   await expect(planWalls(page)).toHaveCount(6);
   await expect(page.locator("[data-opening-id]")).toHaveCount(2);
   await expect(page.locator('[data-catalog-item-id="living:base-cabinet-900"]')).toHaveCount(1);

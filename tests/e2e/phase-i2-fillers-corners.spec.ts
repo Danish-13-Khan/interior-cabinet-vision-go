@@ -19,7 +19,16 @@ async function setObjectDimension(page: Page, axis: "W" | "H" | "D", value: stri
   await expect(field).toHaveValue(value);
 }
 
+async function openPositionSection(page: Page) {
+  // The Calm object inspector keeps Position collapsed in plan mode.
+  const section = page.locator("details.lr-transform-editor").first();
+  if (!(await section.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await section.locator("summary").click();
+  }
+}
+
 async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
+  await openPositionSection(page);
   const field = page.locator(".lr-inspector-scroll").getByRole("spinbutton", { name: `${axis} mm`, exact: true });
   await field.fill(value);
   await field.blur();
@@ -28,16 +37,16 @@ async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
 
 async function placeTwoSeparatedCabinets(page: Page) {
   await placeCatalogCabinet(page);
-  await expect(page.locator("[data-object-id]")).toHaveCount(1);
+  await expect(page.locator(".lr-plan-svg [data-object-id]")).toHaveCount(1);
   await setObjectDimension(page, "W", "900");
   await setObjectPosition(page, "X", "-1800");
   await placeCatalogCabinet(page);
-  await expect(page.locator("[data-object-id]")).toHaveCount(2);
+  await expect(page.locator(".lr-plan-svg [data-object-id]")).toHaveCount(2);
   await setObjectDimension(page, "W", "900");
 }
 
 async function createCabinetRun(page: Page) {
-  const objects = page.locator("[data-object-id]");
+  const objects = page.locator(".lr-plan-svg [data-object-id]");
   await objects.nth(0).click();
   await objects.nth(1).click({ modifiers: ["Shift"] });
   await page.getByRole("button", { name: "Snap selection into run", exact: true }).click();
@@ -50,6 +59,10 @@ test("I2 enables auto fillers on a cabinet run", async ({ page }) => {
   await createCabinetRun(page);
 
   const runInspector = page.locator(".lr-cabinet-run-inspector");
+  // The Calm inspector keeps the Run section collapsed unless the Run tool is active.
+  if (!(await runInspector.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await runInspector.locator("summary").click();
+  }
   const gap = runInspector.getByRole("spinbutton", { name: "Gap mm", exact: true });
   await gap.fill("80");
   await gap.blur();

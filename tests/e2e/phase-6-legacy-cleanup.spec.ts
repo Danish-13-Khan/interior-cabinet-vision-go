@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync, writeFileSync } from "node:fs";
+import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { openInteriorsHome } from "./plannerStart";
 
 test("Phase 6: reopen pack:sofa-1 alias in 3D loads Kenney loungeSofa.glb", async ({
@@ -19,21 +20,21 @@ test("Phase 6: reopen pack:sofa-1 alias in 3D loads Kenney loungeSofa.glb", asyn
   const downloadPromise = page.waitForEvent("download");
   await page.getByTestId("interiors-save-state").click();
   const download = await downloadPromise;
-  const fixturePath = testInfo.outputPath("phase-6-pack-sofa.json");
-  await download.saveAs(fixturePath);
+  const downloadPath = testInfo.outputPath("phase-6-pack-sofa.cabinet");
+  await download.saveAs(downloadPath);
 
-  const file = JSON.parse(readFileSync(fixturePath, "utf8")) as {
-    project: {
-      activeRoomId: string;
-      objects: Record<string, unknown>[];
-      materials: { id: string }[];
-    };
+  // A .cabinet is a zip whose project.json holds the bare document.
+  const archive = unzipSync(readFileSync(downloadPath));
+  const file = JSON.parse(strFromU8(archive["project.json"]!)) as {
+    activeRoomId: string;
+    objects: Record<string, unknown>[];
+    materials: { id: string }[];
   };
-  const roomId = file.project.activeRoomId;
-  const materialIds = new Set(file.project.materials.map((material) => material.id));
+  const roomId = file.activeRoomId;
+  const materialIds = new Set(file.materials.map((material) => material.id));
   expect(materialIds.has("lr-material-natural-oak")).toBe(true);
   expect(materialIds.has("lr-material-walnut")).toBe(true);
-  file.project.objects.push({
+  file.objects.push({
     id: "legacy-pack-sofa",
     roomId,
     kind: "furniture",
@@ -50,7 +51,8 @@ test("Phase 6: reopen pack:sofa-1 alias in 3D loads Kenney loungeSofa.glb", asyn
     parameters: {},
     extensions: { placement: "floor", assetImport: { id: "pack:sofa-1" } },
   });
-  writeFileSync(fixturePath, JSON.stringify(file, null, 2));
+  const fixturePath = testInfo.outputPath("phase-6-pack-sofa-legacy.cabinet");
+  writeFileSync(fixturePath, zipSync({ "project.json": strToU8(JSON.stringify(file)) }));
 
   await page.getByTestId("interiors-project-crumb").evaluate((button: HTMLButtonElement) => {
     button.click();
