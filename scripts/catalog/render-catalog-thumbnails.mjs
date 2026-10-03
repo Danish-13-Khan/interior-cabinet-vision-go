@@ -5,7 +5,9 @@
  * public/catalog/items/<id>.png.
  *
  *   npm run catalog:render
+ *   npm run catalog:render -- --missing   # only items without a PNG on disk
  */
+import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,6 +15,7 @@ import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const missingOnly = process.argv.includes("--missing");
 const server = await createServer({ root, server: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
 await server.listen();
 const address = server.httpServer?.address();
@@ -26,6 +29,7 @@ try {
   const list = JSON.parse(await page.locator("#catalog-thumb-list").innerText({ timeout: 60_000 }));
   await mkdir(join(root, "public", "catalog", "items"), { recursive: true });
   for (const { id, file } of list) {
+    if (missingOnly && existsSync(join(root, "public", file))) continue;
     await page.goto(`${base}?catalog-thumb=${encodeURIComponent(id)}`, { waitUntil: "networkidle" });
     await page.waitForSelector('[data-catalog-thumb-ready="true"]', { timeout: 60_000 });
     await page.waitForTimeout(1200);

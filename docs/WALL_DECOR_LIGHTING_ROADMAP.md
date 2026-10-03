@@ -1,6 +1,6 @@
 # Floor build, wall decoration and lighting roadmap
 
-**Status:** Proposed — 2026-09-30. No phase started.
+**Status:** Complete — 2026-10-01. Phases 0–8 landed on `feat/lighting-fixtures` (nine fixture kinds in wall / ceiling / cabinet categories, 20 mm panel inset, floor build, wall editing window). `release:check` green. The §11 performance item is modelled (draft quality caps, demand frameloop), not timed; a budgeted timing pass is follow-up work.
 **Scope:** The Interiors editor (Room → Cabinets → Materials → Review → Present):
 floor thickness, a wall editing / decoration window, wall paneling systems,
 cove / rope / profile lighting, ceiling lighting, a shared light model, and the
