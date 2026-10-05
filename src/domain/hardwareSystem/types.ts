@@ -75,6 +75,8 @@ export type CabinetHardwareSummary = {
   cabinetName: string;
   mark: string;
   insertKind: ApplianceInsertKind;
+  /** Report notes such as the worktop cut-out (the cut list itself stays rectangular). */
+  notes: string[];
   lines: HardwareLine[];
   totalCost: number;
 };

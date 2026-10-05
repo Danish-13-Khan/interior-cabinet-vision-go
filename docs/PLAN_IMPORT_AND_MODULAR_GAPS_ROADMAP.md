@@ -91,7 +91,7 @@ These go into the reply to Ilyas, not into phases.
 | G4 | **Gola is a front system on the cabinet, not a handle item.** It is `CabinetConstructionSpec.frontSystem`, and every gap rule reads it from one resolver. | The 3D view, production parts, elevation and the hardware schedule agree. A gola cabinet reports **no handle** and **N metres of gola profile** per run. |
 | G5 | **One front-gap resolver before gola.** The three rules in §2 collapse into `resolveFrontGaps(cabinet)`. | This removes today's 3 mm vs 4 mm vs `DOOR_GAP` drift. **Visible change:** 3D fronts shift by ≤1 mm on existing projects. Cut-list sizes do not change (production rule wins). |
 | G6 | **Door style is drawn or hidden, never silently ignored.** | Phase 6 landed: **Shaker** and **Glass** are drawn in 3D; the "(plan only)" labels are gone. |
-| G7 | **Appliances attach to a cabinet host the way lights do** (`hostObjectId` + offsets, resolved at read time). | Moving or resizing a sink base carries its sink. Host deletion detaches with the same alert pattern as lights. |
+| G7 | **Appliances attach to a cabinet host the way lights do** (`hostCabinetId` + offsets; re-derived in the commit funnel so every reader sees it). | Moving or resizing a sink base carries its sink. Host deletion detaches with the same alert pattern as lights. |
 | G8 | **Arch / fillet / radius is deferred** until a project needs it. | It needs arc outlines in the scene, non-rectangular cut-list parts and a CNC / DXF export that does not exist yet (§5, Phase 8). |
 | G9 | **No partial erase of the underlay.** | **Crop selection** (PDF) and **DWG layers** cover the need. Revisit only if a raster plan really needs it. |
 
@@ -316,6 +316,22 @@ made** defaults to Bought (cut list unchanged); In-house cuts stiles, rails and
 **Exit gate:** move the sink base 600 mm and the sink follows in one undo
 step. Delete the base and the sink detaches with an alert. The hardware schedule
 reflects the insert.
+
+**Landed (2026-10-05):** `src/domain/hostedAppliances/`. A **Place in cabinet**
+inspector section on furniture / imported objects (base, sink and drawer hosts
+only) writes `hostCabinetId`, offsets, cut-out size and `insertKind` on the
+appliance. `syncHostedAppliances` runs inside `commitDocument`, so every edit
+(move, nudge, rotate, resize, align, delete) re-derives the appliance from its
+host in the same undo step; offsets stay the source of truth. The appliance sits
+on the run's countertop top (`positionY + thicknessMm`; a lone cabinet falls
+back to carcass height + 28 mm) and follows the host's rotation. The host object
+gets `insertKind`, `insertHostedBy` and the cut-out size on its own parameters,
+so `cabinetFromObject` keeps them and `resolve.ts` drops drawer slides. A deleted
+host leaves the appliance where it was with `hostRemoved` and an inline alert
+(the lights pattern). The hardware report lists the worktop cut-out per cabinet;
+the cut list stays rectangular. **Not yet:** dragging a hosted appliance to set
+its offset (it snaps back to the host; release it first), and an e2e for the
+exit gate.
 
 ### Phase 8 — Arch / fillet / radius (deferred, G8)
 

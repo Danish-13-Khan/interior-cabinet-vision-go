@@ -1,4 +1,5 @@
 import type { CabinetInstance, CabinetType } from "../cabinetDimensions";
+import { worktopCutoutNote } from "./insertParameters";
 import { normalizeCabinetHardware } from "./normalize";
 import type {
   ApplianceInsertKind,
@@ -30,6 +31,7 @@ export function createHardwareSchedule(
       cabinetName: cabinet.name,
       mark,
       insertKind: hardware.insertKind,
+      notes: [worktopCutoutNote(hardware)].filter((note): note is string => note !== null),
       lines,
       totalCost: lines.reduce((sum, line) => sum + line.totalCost, 0),
     });

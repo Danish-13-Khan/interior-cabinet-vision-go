@@ -83,7 +83,10 @@ export function HardwareTab({ report, onSelectCabinet }: HardwareTabProps) {
                       {row.cabinetName}
                     </button>
                   </td>
-                  <td>{row.insertKind}</td>
+                  <td>
+                    {row.insertKind}
+                    {row.notes.map((note) => <small key={note} className="shop-row-note">{note}</small>)}
+                  </td>
                   <td>{row.lines.length}</td>
                   <td>
                     <strong>{money(row.totalCost)}</strong>
