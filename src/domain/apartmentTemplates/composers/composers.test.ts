@@ -67,7 +67,7 @@ describe("Phase 1 room composers", () => {
   });
 
   it("secondary legs land on the fixed-end span in world space (either wall direction)", () => {
-    const bare = bareRoom("kitchen", 5000, 4200);
+    const bare = bareRoom("kitchen", 5000, 4800);
     const roomId = bare.activeRoomId;
     const cases = [
       { layout: "L", runSide: "north", secondarySide: "east" },
@@ -78,7 +78,7 @@ describe("Phase 1 room composers", () => {
     const directions = new Set<boolean>();
     for (const options of cases) {
       const label = `${options.layout} ${options.secondarySide}`;
-      const needed = options.layout === "L" ? 1800 : 2700;
+      const needed = 1800;
       const piece = longestFreePieceOnSide(bare, roomId, options.secondarySide, needed)!;
       const stored = bare.walls.find((wall) => wall.id === piece.wall.id)!;
       directions.add(stored.start.x === piece.wall.start.x && stored.start.z === piece.wall.start.z);
@@ -88,8 +88,10 @@ describe("Phase 1 room composers", () => {
       const legs = next.objects.filter((o) => o.id.includes("-leg-"));
       const legWidth = legs.reduce((sum, o) => sum + o.dimensions.widthMm, 0);
       const slack = piece.lengthMm - legWidth;
+      // North primary: the corner is at each side wall's fixed (lower-z) start. L legs hug
+      // that end and clear the primary depth only when the piece reaches into it.
       const fixedStart = piece.startAlongMm
-        + (options.layout === "L" ? Math.min(600, slack) : slack / 2);
+        + (options.layout === "L" ? Math.min(Math.max(0, 600 + stored.thicknessMm / 2 - piece.startAlongMm), slack) : slack / 2);
       const vertical = options.secondarySide === "east" || options.secondarySide === "west";
       const along = (o: (typeof legs)[number]) => (vertical ? o.position.z : o.position.x);
       const lo = Math.min(...legs.map((o) => along(o) - o.dimensions.widthMm / 2));

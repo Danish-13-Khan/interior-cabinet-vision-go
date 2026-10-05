@@ -55,12 +55,20 @@ describe("Phase 6 apartment entry points", () => {
     expect(a.document.rooms.map((r) => r.id)).toEqual(b.document.rooms.map((r) => r.id));
   });
 
-  it("stashes and consumes a pending register handoff once", () => {
-    sessionStorage.clear();
-    stashPendingTemplate("template:apartment:1bhk:v1");
-    expect(sessionStorage.getItem(PENDING_TEMPLATE_STORAGE_KEY)).toBe("template:apartment:1bhk:v1");
-    expect(takePendingTemplate()).toBe("template:apartment:1bhk:v1");
-    expect(takePendingTemplate()).toBeNull();
+  it("stashes and consumes a pending register handoff once (injected storage, no globals)", () => {
+    const store = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => { store.set(key, value); },
+      removeItem: (key: string) => { store.delete(key); },
+    };
+    stashPendingTemplate("template:apartment:1bhk:v1", storage);
+    expect(store.get(PENDING_TEMPLATE_STORAGE_KEY)).toBe("template:apartment:1bhk:v1");
+    expect(takePendingTemplate(storage)).toBe("template:apartment:1bhk:v1");
+    expect(takePendingTemplate(storage)).toBeNull();
+    // Outside a browser the default storage is null: no throw, nothing stashed.
+    expect(() => stashPendingTemplate("template:apartment:1bhk:v1", null)).not.toThrow();
+    expect(takePendingTemplate(null)).toBeNull();
   });
 
   it("resolves a showcase bookmark camera per authored room", () => {

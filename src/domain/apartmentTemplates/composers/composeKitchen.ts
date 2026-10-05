@@ -24,6 +24,7 @@ import {
   withActiveRoom,
 } from "./helpers";
 import { addUnderCabinetLights, hostKitchenAppliances } from "./kitchenAppliances";
+import { composeSecondaryLeg, KitchenLegDoesNotFitError } from "./kitchenSecondaryLeg";
 import { addRoomFixtureKinds } from "./roomLights";
 
 export type ComposeKitchenArgs = KitchenComposeOptions & {
@@ -121,10 +122,13 @@ export function composeKitchen(
     ], roomId);
   }
 
-  if (layout === "L" && options.secondarySide) {
-    next = composeSecondaryLeg(next, roomId, options.secondarySide, idFactory, "L", options);
-  } else if (layout === "parallel" && options.secondarySide) {
-    next = composeSecondaryLeg(next, roomId, options.secondarySide, idFactory, "parallel", options);
+  if (layout === "L" || layout === "parallel") {
+    if (!options.secondarySide) {
+      throw new KitchenLegDoesNotFitError(`${layout} kitchen in ${roomId} needs a secondarySide`);
+    }
+    next = composeSecondaryLeg(
+      next, roomId, options.secondarySide, runSide, piece.wall, idFactory, layout, options,
+    );
   }
 
   next = hostKitchenAppliances(next, roomId, [ids.baseA, ids.drawer, ids.baseB], options, idFactory);
@@ -138,48 +142,4 @@ export function composeKitchen(
   if (options.cobLight) extra.push("cob");
   if (extra.length) next = addRoomFixtureKinds(next, roomId, extra);
   return applyFinishRolesToCabinets(next, roomId);
-}
-
-/** L leg starts this far from the corner so it clears the primary run depth. */
-const L_CORNER_CLEARANCE_MM = 600;
-
-function composeSecondaryLeg(
-  project: InteriorProject,
-  roomId: string,
-  side: WallSide,
-  idFactory: LivingRoomIdFactory,
-  layout: "L" | "parallel",
-  options: ComposeKitchenArgs,
-): InteriorProject {
-  const needed = layout === "L" ? 1800 : 2700;
-  const piece = longestFreePieceOnSide(project, roomId, side, needed);
-  if (!piece) return project;
-  const bounds = roomPlanViewBounds(project, roomId);
-  const count = layout === "L" ? 2 : 3;
-  const ids = Array.from({ length: count }, (_, index) =>
-    idFactory("object", `${roomId}-leg-${index}`));
-  const seeds = ids.map((id, index) => applyCabinetFrontOptions(
-    seedCabinet(roomId, "frameless-standard-base", id, {
-      x: bounds.centerX + index * 100, y: 0, z: bounds.centerZ + index * 100,
-    }),
-    options,
-  ));
-  const next = { ...project, objects: [...project.objects, ...seeds] };
-  // Real seeded width (today 2 or 3 × 900 frameless bases), not the search width.
-  const legWidth = seeds.reduce((sum, seed) => sum + seed.dimensions.widthMm, 0);
-  const slack = Math.max(0, piece.lengthMm - legWidth);
-  // L: push away from the corner so the secondary leg does not collide with the primary run.
-  const fixedStart = layout === "L"
-    ? piece.startAlongMm + Math.min(L_CORNER_CLEARANCE_MM, slack)
-    : piece.startAlongMm + slack / 2;
-  // Convert with the real leg width (not `needed`) so a stored wall that runs
-  // high→low mirrors the leg onto the same fixed-end span.
-  const startAlong = fixedAlongToRoomAlongMm(
-    next, roomId, piece.wall, fixedStart, legWidth,
-  );
-  return arrangeCabinetRun(next, ids, piece.wall.id, {
-    alignment: "start",
-    startAlongMm: startAlong,
-    gapMm: 0,
-  });
 }

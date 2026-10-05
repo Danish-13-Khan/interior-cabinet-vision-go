@@ -10,6 +10,7 @@ import {
   composeApartment,
   lookupApartmentTemplate,
 } from "./index";
+import { builtKitchenLayout } from "./builtLayout";
 import { roomIdByKey } from "./testSupport";
 
 const options = { now: COMPOSER_TEST_NOW };
@@ -79,10 +80,12 @@ describe("Phase 5 showcase coverage (§4 matrix)", () => {
     expect(byId["template:apartment:2bhk:v1"]!.spec.styleId).toBe("moody-walnut");
     expect(byId["template:apartment:3bhk:v1"]!.spec.lightingRecipeId).toBe("warm-evening");
 
-    const kitchenLayouts = all.flatMap(({ spec }) =>
-      spec.rooms.filter((room) => room.compose.kind === "kitchen")
-        .map((room) => room.compose.kind === "kitchen" ? room.compose.options?.layout ?? "straight" : null),
-    );
+    // Read the layout back from the built cabinets, not the spec.
+    const kitchenLayouts = all.flatMap(({ spec, project }) => {
+      const ids = roomIdByKey(project);
+      return spec.rooms.filter((room) => room.compose.kind === "kitchen")
+        .map((room) => builtKitchenLayout(project, ids.get(room.key)!));
+    });
     expect(kitchenLayouts).toEqual(expect.arrayContaining(["straight", "L", "parallel"]));
 
     const fronts = new Set(all.flatMap(({ project }) => [...frontKinds(project)]));

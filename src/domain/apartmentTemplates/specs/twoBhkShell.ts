@@ -37,7 +37,8 @@ export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     { kind: "door", between: ["living", "master"], offsetMm: 300, widthMm: 900 },
     { kind: "door", between: ["master", "master-bath"], offsetMm: 300, widthMm: 700 },
     { kind: "opening", between: ["master", "walk-in"], offsetMm: 1200, widthMm: 900 },
-    { kind: "opening", between: ["living", "kitchen"], offsetMm: 400, widthMm: 1200 },
+    // West end so the kitchen's parallel run and the living TV wall share a 2.2 m free piece.
+    { kind: "opening", between: ["living", "kitchen"], offsetMm: 150, widthMm: 1000 },
     { kind: "door", between: { room: "living", side: "west" }, offsetMm: 500, widthMm: 900 },
     { kind: "window", between: { room: "living", side: "south" }, offsetMm: 1800, widthMm: 1800, sillHeightMm: 900 },
     { kind: "window", between: { room: "master", side: "south" }, offsetMm: 1500, widthMm: 1800, sillHeightMm: 900 },

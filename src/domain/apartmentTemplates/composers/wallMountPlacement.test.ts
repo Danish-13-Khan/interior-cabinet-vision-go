@@ -60,7 +60,8 @@ describe("wall-mounted composer placement", () => {
         (id) => id.includes("tall"),
       );
 
-      const livingBare = bareRoom("living-room");
+      // Large enough that every side keeps a free piece wider than the TV unit beside its door / window.
+      const livingBare = bareRoom("living-room", 5400, 4800);
       expectCentresInside(
         "living-wall",
         side,

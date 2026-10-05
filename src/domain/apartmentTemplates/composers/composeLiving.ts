@@ -1,5 +1,4 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
-import { addWallDecoration } from "../../livingRoom/wallDecorations";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { LivingComposeOptions, WallSide } from "../types";
@@ -14,6 +13,7 @@ import {
   placeCatalogOnWall,
   withActiveRoom,
 } from "./helpers";
+import { addDecorOnSide } from "./decorPlacement";
 import { addRoomFixtureKinds } from "./roomLights";
 
 export type ComposeLivingArgs = LivingComposeOptions & {
@@ -41,15 +41,10 @@ export function composeLiving(
   }
 
   if (options.featureWallPreset) {
-    const wall = longestFreePieceOnSide(next, roomId, tvSide, 600)?.wall;
-    if (wall) {
-      next = addWallDecoration(
-        withActiveRoom(next, roomId),
-        wall.id,
-        options.featureWallPreset,
-        { id: idFactory("object", `${roomId}-feature-decor`) },
-      );
-    }
+    next = addDecorOnSide(
+      next, roomId, tvSide, options.featureWallPreset,
+      idFactory("object", `${roomId}-feature-decor`), 600,
+    );
   } else {
     next = placeCatalogOnWall(
       next, roomId, tvSide, "living:feature-wall-fluted", `${roomId}-feature`, idFactory, 0.5,

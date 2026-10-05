@@ -26,7 +26,8 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
     compose: {
       kind: "living",
       options: {
-        tvWallSide: "north",
+        // North is arches to kitchen / passage; the east wall is the one free 3.2 m piece.
+        tvWallSide: "east",
         featureWallPreset: "slat",
         displayNiche: true,
         sofaSet: true,
@@ -38,8 +39,8 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
       },
     },
     camera: {
-      eyeMm: { x: -3600, y: 1600, z: 2800 },
-      targetMm: { x: -3600, y: 1000, z: -200 },
+      eyeMm: { x: -5600, y: 1600, z: 1800 },
+      targetMm: { x: -1200, y: 1000, z: 1800 },
     },
   },
   {

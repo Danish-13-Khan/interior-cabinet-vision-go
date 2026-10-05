@@ -1,5 +1,4 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
-import { addWallDecoration } from "../../livingRoom/wallDecorations";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
 import { createLivingRoomObject } from "../../livingRoom/catalog";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
@@ -15,6 +14,7 @@ import {
 } from "./helpers";
 import { applyCabinetFrontOptions } from "./cabinetOptions";
 import { addRoomFixtureKinds } from "./roomLights";
+import { addDecorOnSide } from "./decorPlacement";
 
 export type ComposeBedroomArgs = BedroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -71,15 +71,10 @@ export function composeBedroom(
   void foot;
 
   if (options.headboardDecor) {
-    const head = longestFreePieceOnSide(next, roomId, bedSide, 600)?.wall;
-    if (head) {
-      next = addWallDecoration(
-        withActiveRoom(next, roomId),
-        head.id,
-        options.headboardDecor,
-        { id: idFactory("object", `${roomId}-headboard`) },
-      );
-    }
+    next = addDecorOnSide(
+      next, roomId, bedSide, options.headboardDecor,
+      idFactory("object", `${roomId}-headboard`), 600,
+    );
   }
 
   if (options.pendants !== false) {

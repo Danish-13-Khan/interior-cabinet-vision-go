@@ -88,7 +88,11 @@ export { APARTMENT_TEMPLATE_CARDS } from "./apartmentCards";
 export type { ApartmentTemplateCard } from "./apartmentCards";
 export {
   PENDING_TEMPLATE_STORAGE_KEY,
+  clearPendingTemplate,
+  defaultPendingTemplateStorage,
+  peekPendingTemplate,
   stashPendingTemplate,
   takePendingTemplate,
 } from "./pendingTemplateHandoff";
+export type { PendingTemplateStorage } from "./pendingTemplateHandoff";
 export { showcaseCameraForRoom } from "./showcaseCamera";

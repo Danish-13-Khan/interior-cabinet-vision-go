@@ -44,8 +44,8 @@ describe("Phase 4 Studio and 1 BHK authored templates", () => {
       for (const room of spec.rooms) {
         const roomId = ids.get(room.key)!;
         expect(project.objects.some((o) => o.roomId === roomId), `${spec.id} ${room.key}`).toBe(true);
-        const overlaps = roomObjectsOverlapOpenings(project, roomId)
-          .filter((object) => object.kind === "cabinet");
+        // Every wall-hosted object (cabinets, TV, niche, decor, mirrors) keeps doors / windows / arches clear.
+        const overlaps = roomObjectsOverlapOpenings(project, roomId).map((object) => object.id);
         expect(overlaps, `${spec.id} ${room.key}`).toEqual([]);
         const cam = project.cameras.find((c) => c.roomId === roomId && c.name.includes("Showcase"));
         expect(cam, `${spec.id} ${room.key} camera`).toBeTruthy();

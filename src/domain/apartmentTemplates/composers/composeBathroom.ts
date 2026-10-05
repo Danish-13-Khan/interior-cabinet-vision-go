@@ -1,6 +1,5 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
 import { finalizeBathroomTemplate } from "../../catalog/bathroomSurfaces";
-import { addWallDecoration } from "../../livingRoom/wallDecorations";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
 import { attachLightToObject } from "../../livingRoom/lightAttachments";
 import { placeCatalogItemWithDefaults } from "../../catalog/placeCatalogItem";
@@ -8,12 +7,12 @@ import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { BathroomComposeOptions, WallSide } from "../types";
 import { apartmentIdFactory } from "../ids";
 import {
-  longestFreePieceOnSide,
   offsetTowardSide,
   oppositeSide,
   withActiveRoom,
 } from "./helpers";
 import { addRoomFixtureKinds } from "./roomLights";
+import { addDecorOnSide } from "./decorPlacement";
 
 export type ComposeBathroomArgs = BathroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -45,15 +44,7 @@ export function composeBathroom(
     rotationY: vanityPose.rotationY,
   });
 
-  const wall = longestFreePieceOnSide(next, roomId, vanitySide, 600)?.wall;
-  if (wall) {
-    next = addWallDecoration(
-      withActiveRoom(next, roomId),
-      wall.id,
-      "mirror",
-      { id: idFactory("object", `${roomId}-mirror`) },
-    );
-  }
+  next = addDecorOnSide(next, roomId, vanitySide, "mirror", idFactory("object", `${roomId}-mirror`), 600);
 
   const wcPose = offsetTowardSide(oppositeSide(vanitySide), bounds, 0.28);
   // Nudge WC off-center so it does not sit on top of the vanity axis.
