@@ -75,6 +75,27 @@ export const HARDWARE_CATALOG: HardwareItem[] = [
     costPerUnit: 70,
   },
   {
+    id: "gola-l",
+    label: "Gola J / L profile (per m)",
+    kind: "profile",
+    costPerUnit: 450,
+    description: "Under-countertop handleless profile",
+  },
+  {
+    id: "gola-c",
+    label: "Gola C profile (per m)",
+    kind: "profile",
+    costPerUnit: 520,
+    description: "Between stacked drawers",
+  },
+  {
+    id: "gola-wall",
+    label: "Gola wall-unit profile (per m)",
+    kind: "profile",
+    costPerUnit: 380,
+    description: "Under upper wall cabinets",
+  },
+  {
     id: "shelf-pin",
     label: "Shelf support pin",
     kind: "shelf-pin",

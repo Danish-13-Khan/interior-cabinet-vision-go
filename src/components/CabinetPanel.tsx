@@ -28,6 +28,8 @@ function getPanelColor(
       return isCabinetSelected ? "#cdb490" : "#c7ae86";
     case "door":
       return isCabinetSelected ? "#ddbf93" : "#d7b98d";
+    case "metal":
+      return isCabinetSelected ? "#b4b8bb" : "#a7abae";
     default:
       return isCabinetSelected ? "#d6b78c" : "#d0b186";
   }

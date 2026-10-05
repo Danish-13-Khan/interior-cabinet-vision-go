@@ -50,7 +50,7 @@ export function createHardwareSchedule(
         });
         continue;
       }
-      existing.quantity += line.quantity;
+      existing.quantity = Math.round((existing.quantity + line.quantity) * 100) / 100;
       existing.totalCost += line.totalCost;
       if (!existing.markSet.has(mark)) {
         existing.markSet.add(mark);

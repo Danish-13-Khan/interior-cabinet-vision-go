@@ -1,4 +1,6 @@
+import { supportsDoors, supportsDrawers } from "../../domain/cabinetCapabilities";
 import { readCabinetIdentity } from "../../domain/cabinetIdentity";
+import { GolaFrontFields } from "./GolaFrontFields";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import { cabinetFinishId } from "../../domain/livingRoom";
 import { InspectorSection } from "./InspectorSection";
@@ -11,7 +13,8 @@ type Props = {
 
 /** Cabinet finish, door style and box counts (collapsed by default). */
 export function CabinetConstructionSection({ object, onSetParameters }: Props) {
-  const compiled = readCabinetIdentity(object) !== null;
+  const identity = readCabinetIdentity(object);
+  const compiled = identity !== null;
   return (
     <InspectorSection title="Construction" testId="inspector-cabinet-advanced">
       <label className="lr-select-field"><span>Finish</span>
@@ -31,6 +34,9 @@ export function CabinetConstructionSection({ object, onSetParameters }: Props) {
           <option value="glass">Glass (plan only)</option>
         </select>
       </label>
+      {identity && (supportsDoors(identity.cabinetType) || supportsDrawers(identity.cabinetType)) ? (
+        <GolaFrontFields object={object} cabinetType={identity.cabinetType} onSetParameters={onSetParameters} />
+      ) : null}
       {compiled ? (
         <p className="lr-inspector-hint" data-testid="cabinet-door-count-auto">Door count: auto from width</p>
       ) : (

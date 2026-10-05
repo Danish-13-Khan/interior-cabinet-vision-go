@@ -1,3 +1,4 @@
+import type { CabinetPanelMaterial } from "../cabinetGeometry/types";
 import type { InteriorObjectEntity } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { materialSlot } from "./sceneAdapterTypes";
@@ -11,6 +12,7 @@ export const CABINET_SCENE_ROLES = [
   "end-panel",
   "filler",
   "countertop",
+  "hardware",
   "fallback",
 ] as const;
 
@@ -25,15 +27,17 @@ const SLOT_FOR_ROLE: Record<CabinetSceneRole, string> = {
   "end-panel": "carcass",
   filler: "carcass",
   countertop: "countertop",
+  hardware: "hardware",
   fallback: "carcass",
 };
 
 /** Map engineering panel names onto semantic visual roles. */
 export function cabinetSceneRole(
   panelName: string,
-  panelMaterial: "board" | "back" | "door",
+  panelMaterial: CabinetPanelMaterial,
 ): CabinetSceneRole {
   if (panelName === "fallback-carcass") return "fallback";
+  if (panelMaterial === "metal") return "hardware";
   if (panelName === "toe-kick" || panelName.startsWith("toe-kick")) return "toe-kick";
   if (panelName.includes("end-panel")) return "end-panel";
   if (panelName.startsWith("filler") || panelName.endsWith("-filler")) return "filler";
@@ -57,6 +61,8 @@ export function materialIdForCabinetRole(
   const slot = SLOT_FOR_ROLE[role];
   const fallback = role === "countertop"
     ? LIVING_ROOM_MATERIAL_IDS.warmStone
-    : materialSlot(object, "carcass", LIVING_ROOM_MATERIAL_IDS.naturalOak);
+    : role === "hardware"
+      ? LIVING_ROOM_MATERIAL_IDS.charcoalMetal
+      : materialSlot(object, "carcass", LIVING_ROOM_MATERIAL_IDS.naturalOak);
   return materialSlot(object, slot, fallback);
 }
