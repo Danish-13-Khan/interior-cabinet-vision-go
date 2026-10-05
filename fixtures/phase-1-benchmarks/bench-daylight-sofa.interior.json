@@ -928,7 +928,7 @@
           "z": 0
         },
         "color": "#fff0dc",
-        "intensity": 0.6,
+        "intensity": 120,
         "enabled": true,
         "parameters": {
           "widthMm": 2800,
@@ -999,7 +999,7 @@
           "z": 0
         },
         "color": "#dcecff",
-        "intensity": 2.2,
+        "intensity": 280,
         "enabled": true,
         "parameters": {
           "widthMm": 1800,
@@ -1046,7 +1046,7 @@
           "z": 0
         },
         "color": "#ffc788",
-        "intensity": 1.35,
+        "intensity": 160,
         "enabled": false,
         "parameters": {
           "widthMm": 2800,
@@ -1140,7 +1140,7 @@
           "z": 0
         },
         "color": "#ffe0bd",
-        "intensity": 2.1,
+        "intensity": 18,
         "enabled": false,
         "parameters": {
           "widthMm": 3600,
@@ -1164,7 +1164,7 @@
           "z": 0
         },
         "color": "#ffe5c4",
-        "intensity": 0.85,
+        "intensity": 90,
         "enabled": false,
         "parameters": {
           "widthMm": 2800,
@@ -1258,7 +1258,7 @@
           "z": 0
         },
         "color": "#dbe8ff",
-        "intensity": 2.2,
+        "intensity": 160,
         "enabled": false,
         "parameters": {
           "widthMm": 1600,

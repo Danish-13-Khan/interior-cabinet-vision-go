@@ -1,0 +1,122 @@
+/* Calm light: the fixture inspector uses the same cards and controls as the
+   cabinet and wall inspectors. Colours come from tokens only. */
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-inspector {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-inspector .lr-inspector-section-heading h3 {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-inspector .lr-object-edit-actions {
+  margin: 0;
+  padding: 0;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-alert {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-control);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: var(--text-sm);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-section {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-2);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-3);
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+/* Selects, text and the hint read better at full width; numbers pair up. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field:has(select),
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field:has(input:not([type="number"])),
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-check,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-authoring-hint {
+  grid-column: 1 / -1;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field input,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field select {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--control-h);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  box-shadow: none;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field input[type="color"] {
+  width: 56px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field input:disabled {
+  background: var(--surface-2);
+  color: var(--ink-faint);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field input:focus-visible,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-field select:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-sm);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-render-check input {
+  accent-color: var(--accent);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-light-fields .lr-authoring-hint {
+  margin: 0;
+}
+
+/* The 3D tag of a selected light, so it is not mistaken for its host wall. */
+.lr-model-object-label.is-pickable.is-light {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: default;
+}

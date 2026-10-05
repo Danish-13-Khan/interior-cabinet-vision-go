@@ -11,10 +11,12 @@ import {
   setActiveInteriorRoom,
   setSurfaceZoneMaterial,
   type InteriorProject,
+  type OpeningKind,
   type Point2Mm,
   type RoomDrawingRequest,
   type Size3Mm,
 } from "../../domain/interiorProject";
+import { createCutOpening, cutOpeningOffsetMm } from "../../domain/livingRoom/cutOpening";
 import {
   addLivingRoomOpening,
   createOpeningCatalogInstance,
@@ -27,6 +29,7 @@ import {
   resizeLivingRoom,
   roomWallIds,
 } from "../../domain/livingRoom";
+import { resolveFloorBuild, writeFloorBuild, type FloorBuild } from "../../domain/interiorProject";
 import { uniqueObjectId, type EditorCommandContext } from "./context";
 
 /** Rooms, drawing, openings, surface zones, and columns. */
@@ -69,12 +72,20 @@ export function roomCommands(ctx: EditorCommandContext) {
     );
   }
 
-  function addOpening(wallId: string, kind: "door" | "window", requestedOffsetMm?: number, catalogItemId?: string) {
+  function addOpening(wallId: string, kind: OpeningKind, requestedOffsetMm?: number, catalogItemId?: string) {
     if (!document) return;
     const wall = document.walls.find((item) => item.id === wallId);
     if (!wall) return;
     const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
     const id = `living-opening-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
+    if (kind === "opening") {
+      commitDocument((current) => addLivingRoomOpening(current, createCutOpening({
+        id, roomId: current.activeRoomId, wallId,
+        offsetMm: requestedOffsetMm ?? cutOpeningOffsetMm(length),
+        wallHeightMm: wall.heightMm,
+      })), "Cut opening.");
+      return;
+    }
     const catalog = getOpeningCatalogItem(catalogItemId);
     const item = catalog.kind === kind ? catalog : getOpeningCatalogItem(kind === "door" ? "opening:door-single" : "opening:window-fixed");
     commitDocument((current) => addLivingRoomOpening(current, createOpeningCatalogInstance({
@@ -143,5 +154,13 @@ export function roomCommands(ctx: EditorCommandContext) {
       commitDocument((current) => deleteSurfaceZone(current, surfaceId), "Deleted surface zone.");
     },
     placeLivingRoomColumn: placeColumn,
+    setLivingRoomFloorBuild: (patch: Partial<FloorBuild>) => {
+      commitDocument((current) => {
+        const room = current.rooms.find((item) => item.id === current.activeRoomId);
+        if (!room) return current;
+        const next = writeFloorBuild(room, { ...resolveFloorBuild(room), ...patch });
+        return { ...current, rooms: current.rooms.map((item) => item.id === room.id ? next : item) };
+      }, "Updated floor build.");
+    },
   };
 }

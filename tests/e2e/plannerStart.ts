@@ -24,7 +24,16 @@ export type PlannerStartOptions = {
 
 /** `/app` already is Interiors home — there is no Interiors nav button. */
 export async function expectInteriorsHome(page: Page) {
-  await expect(page.getByRole("dialog", { name: "Start a living room project" })).toBeVisible();
+  const home = page.getByRole("dialog", { name: "Start a living room project" });
+  // /app loads lazily. Right after a test that rendered and accepted a still,
+  // the next page has been seen to sit on the "Opening Cabinet Studio…" fallback
+  // for 60-115 s with every module already downloaded and no request pending.
+  // That is a renderer-side stall of the lazy import, so a reload clears it.
+  if (await home.isVisible().catch(() => false)) return;
+  const quick = await home.waitFor({ state: "visible", timeout: 15_000 }).then(() => true, () => false);
+  if (quick) return;
+  await page.reload();
+  await expect(home).toBeVisible({ timeout: 60_000 });
 }
 
 /** Clear storage, seed auth, and open the designer's project picker. */

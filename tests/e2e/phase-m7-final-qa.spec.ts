@@ -72,9 +72,9 @@ test("Phase M7 exit journey: room → 3D → camera → hide → materials → p
     await expect(page.locator('[data-width-mm="1000"]').first()).toBeVisible();
   });
 
-  await test.step("Save and cold-reopen downloaded JSON", async () => {
+  await test.step("Save and cold-reopen the downloaded .cabinet", async () => {
     const download = await saveProjectViaDownload(page);
-    expect(download.suggestedFilename()).toMatch(/\.json$/i);
+    expect(download.suggestedFilename()).toMatch(/\.cabinet$/i);
     await reopenViaDownloadedJson(page, download);
     await expect(page.locator('svg[aria-label="Living room plan editor"]')).toBeVisible();
     await expect(page.locator('[data-catalog-item-id="living:decorative-panel"]')).toHaveCount(1);

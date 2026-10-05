@@ -10,6 +10,7 @@ import { InteriorsClientCaptureView } from "./InteriorsClientCaptureView";
 import { PlanStageAuthoringChrome } from "./PlanStageAuthoringChrome";
 import { PlanStageStatus } from "./PlanStageStatus";
 import type { LivingRoomPlanStageProps } from "./planStageProps";
+import { deleteLightOrObject, duplicateLightOrObject } from "./lightOnlySelectionEdit";
 
 function selectedObjects(props: LivingRoomPlanStageProps) {
   const ids = new Set(props.selectedIds);
@@ -25,6 +26,7 @@ function runRailCommand(props: LivingRoomPlanStageProps, id: ContextualRailComma
   if (id === "camera") props.onWorkspaceView?.("model");
   if (id === "material") props.onChromeTool?.("material");
   if (id === "add-panel" && props.activeWallId) props.onAddWallPanel?.(props.activeWallId);
+  if (id === "cut-opening" && props.activeWallId) props.onCutOpening?.(props.activeWallId);
   if (id === "hide-wall" && props.activeWallId && props.onPatchDocument) {
     const wallId = props.activeWallId;
     props.onPatchDocument((current) => setWallVisible(current, wallId, false), "Hide wall");
@@ -37,14 +39,19 @@ function runRailCommand(props: LivingRoomPlanStageProps, id: ContextualRailComma
       props.onPatchDocument((current) => flipPanelWallSide(current, panelId), "Flip panel side");
     }
   }
-  if (id === "duplicate") props.onDuplicate();
-  if (id === "delete") props.onDelete();
+  if (id === "add-light" && props.activeWallId) {
+    const lightId = props.lightActions.addLight("cove", { kind: "wall", wallId: props.activeWallId });
+    if (lightId) props.onSelectLight(lightId);
+  }
+  if (id === "duplicate") duplicateLightOrObject(props);
+  if (id === "delete") deleteLightOrObject(props);
 }
 
 export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
   const showRail = props.workspaceView === "plan" || props.workspaceView === "model";
   const kind = contextualRailKindFromStage({
     activeWallId: props.activeWallId,
+    activeLightId: props.activeLightId,
     selectedObjects: selectedObjects(props),
   });
   return (
@@ -64,7 +71,9 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             snapSizeMm={props.snapSizeMm} showGrid={props.showGrid}
             onSelect={props.onSelect} onMove={props.onMove} onMovePreview={props.onMovePreview} onDragEnd={props.onDragEnd} onResize={props.onResize}
             activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-            activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={props.surfaceMaterialId}
+            activeSurfaceId={props.activeSurfaceId} activeLightId={props.activeLightId}
+            onSelectLight={props.onSelectLight}
+            surfaceMaterialId={props.surfaceMaterialId}
             onSelectWall={props.onSelectWall} onSelectOpening={props.onSelectOpening}
             onSelectSurface={props.onSelectSurface} onMoveOpening={props.onMoveOpening}
             onResizeOpening={props.onResizeOpening} onMoveNode={props.onMoveNode}
@@ -86,8 +95,11 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
         ) : props.workspaceView === "model" ? (
           <LivingRoomModelView
             project={props.project} selectedIds={props.selectedIds} snapSizeMm={props.snapSizeMm}
-            activeOpeningId={props.activeOpeningId} activeWallId={props.activeWallId} showGrid={props.showGrid}
+            activeOpeningId={props.activeOpeningId} activeWallId={props.activeWallId}
+            activeLightId={props.presenting ? null : props.activeLightId} showGrid={props.showGrid}
             onSelect={props.onSelect} onSelectOpening={props.onSelectOpening} onSelectWall={props.onSelectWall}
+            onSelectLight={props.presenting ? () => {} : props.onSelectLight}
+            lightActions={props.lightActions}
             onClearSelection={props.onClearSelection} onMove={props.onMove}
             onMovePreview={props.onMovePreview}
             onUpdateOpening={props.onUpdateOpening}

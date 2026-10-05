@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { MaterialKind } from "../interiorProject";
 import { CATALOG_SEED_MATERIALS } from "../catalog/materials/seedMaterials";
 import { createLivingRoomStarterProject } from "./preset";
-import { applySurfaceFinish, getSurfaceFinish, SURFACE_FINISHES } from "./surfaceFinishes";
+import { applySurfaceFinish, getSurfaceFinish, laminateTexture, SURFACE_FINISHES, surfaceFinishIsSolid } from "./surfaceFinishes";
 
 const REQUIRED_KINDS: MaterialKind[] = [
   "laminate", "acrylic", "wood", "paint", "wallpaper", "stone", "tile", "fabric", "metal",
@@ -61,5 +61,15 @@ describe("seed material library", () => {
   it("keeps seed material ids unique", () => {
     const ids = CATALOG_SEED_MATERIALS.map((material) => material.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("classifies laminate finishes for the renderer", () => {
+    expect(surfaceFinishIsSolid("matte-laminate")).toBe(true);
+    expect(surfaceFinishIsSolid("suede-laminate")).toBe(false);
+    expect(laminateTexture("suede-laminate")).toBe("suede");
+    expect(laminateTexture("linen-laminate")).toBe("linen");
+    expect(laminateTexture("gloss-laminate")).toBeNull();
+    expect(getSurfaceFinish("suede-laminate")?.kind).toBe("laminate");
+    expect(getSurfaceFinish("linen-laminate")?.kind).toBe("laminate");
   });
 });

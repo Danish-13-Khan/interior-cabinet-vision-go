@@ -1,6 +1,6 @@
 # Floor build, wall decoration and lighting roadmap
 
-**Status:** Proposed — 2026-09-30. No phase started.
+**Status:** Complete — 2026-10-01. Phases 0–8 landed on `feat/lighting-fixtures` (nine fixture kinds in wall / ceiling / cabinet categories, 20 mm panel inset, floor build, wall editing window). `release:check` green. The §11 performance item is modelled (draft quality caps, demand frameloop), not timed; a budgeted timing pass is follow-up work.
 **Scope:** The Interiors editor (Room → Cabinets → Materials → Review → Present):
 floor thickness, a wall editing / decoration window, wall paneling systems,
 cove / rope / profile lighting, ceiling lighting, a shared light model, and the
@@ -18,13 +18,13 @@ It changes no wall-graph, room, opening or cabinet contract.
 | # | Decision | Consequence |
 | --- | --- | --- |
 | D1 | **Finished floor level stays at `y = 0`.** Floor build-up grows downward. | Walls, skirting, cabinets, panels, openings, the drag plane and the grid keep their elevation math. Floor thickness only changes the floor geometry and scene bounds. |
-| D2 | **One `LightEntity` for every light type.** New fixture types are `parameters.fixtureKind`; `LightKind` stays the five validated kinds. | Old files load unchanged. No new validation branch, no schema bump. Fixture-specific extras live in `parameters` (scalar only, already whitelisted). |
+| D2 | **One `LightEntity` for every light type.** New fixture types are `parameters.fixtureKind`; `LightKind` stays the five validated kinds. | Old files load unchanged. No new validation branch, no schema bump. Fixture-specific extras live in `parameters` (scalar only, already whitelisted). Popover groups are `wall` / `ceiling` / `cabinet` (Wall lighting, Ceiling lighting, Cabinet lighting), not ceiling / cove-strip / general; Phase 4 reads `LIGHT_FIXTURE_CATEGORY_LABELS` and each kind's `mounts`. |
 | D3 | **Fixtures attach to hosts and resolve at read time** (wall, ceiling, cabinet), exactly like §2.1 panels. | Moving a wall, changing room height or resizing a cabinet reflows its lights in the same undo step. World XYZ is a cache, not the source of truth. |
 | D4 | **Wall decorations are design objects on a wall**, using the existing §2.1 attachment (`wallId / alongMm / floorOffsetMm / wallSide / visible`). | No parallel wall model. Every decoration is editable with the existing object inspector plus the panel attachment fields. `reflowPanelsForWalls`, `remapPanelsAfterWallSplit`, `removePanelsOnWall` already keep them consistent. |
 | D5 | **Cutting a wall = an `OpeningEntity` of kind `"opening"`.** Recessed niches are out of scope until the compiler can subtract from wall boxes. | The Wall window offers Cut opening and a surface-mounted lit niche, and says why a true recess is unavailable. |
 | D6 | **Brightness is an authoring number (0–100); the renderer owns the physical-unit mapping** in one scale table. | three ≥ r155 candela / nits conversions never appear in components or presets. **Appearance of saved projects changes:** existing fixtures at brightness 3–5 become visibly brighter, and recipe area lights emit for the first time. Data needs no migration; the look does change, and Phase 0 owns re-tuning it. The `"YXZ"` Euler order in §3.3 only re-orients free fixtures that were saved with both a tilt and a non-zero yaw; none of the presets are. |
 | D7 | **Lights become selectable in 2D and 3D** through the same selection state as walls and openings (`activeLightId`). | The Room lights popover remains for adding fixtures (e2e contract), the inspector edits the selected light. |
-| D8 | **Starters, presets and golden fixtures are not changed.** New settings are optional with resolver defaults. | `fixtures/golden-cabinet-run/v1.interior.json` stays byte-identical; `livingRoom.test.ts` round-trip stays green. |
+| D8 | **Starters, presets and golden fixtures are not changed by the new features.** New settings are optional with resolver defaults. | `livingRoom.test.ts` round-trip stays green. One exception, already made: Phase 0 re-tuned the recipe seed intensities, so the golden and phase-1 benchmark fixtures were regenerated once for that data change. |
 | D9 | **Catalog additions stay under the v1 cap of 50 curated items** (32 today). | Five new wall-decoration items (→ 37); mirror, slat panel and custom section reuse existing items; further variants are parameters, not items. |
 
 ## 2. Evidence from the 2026-09-30 lighting review
@@ -112,7 +112,7 @@ Lights store flat scalar keys in `parameters` (that map only accepts
 | Mount | Keys | Pose rule |
 | --- | --- | --- |
 | object (exists) | `hostObjectId`, `offsetXmm/Ymm/Zmm`, `fitHostWidth` | unchanged |
-| wall (new) | `hostWallId`, `alongMm` (centre, along the **oriented** wall, same as panels), `centerHeightMm`, `wallSide: "interior" \| "exterior"` (same values as `PanelWallSide`), `fitHostWidth` (reused: stretch to the host wall) | face point + normal × (thickness/2 + depth/2) |
+| wall (new) | `hostWallId`, `alongMm` (centre, along the **oriented** wall, same as panels), `centerHeightMm`, `wallSide: "interior" \| "exterior"` (same values as `PanelWallSide`), `fitHostWidth` (stretch to the host wall, inset 20 mm at each end) | face point + normal × (thickness/2 + depth/2) |
 | ceiling (new) | `hostSurface: "ceiling"`, `ceilingDropMm` | `y = room.dimensions.heightMm − drop`; x/z stay authored |
 | free | none | authored position and full rotation |
 
@@ -136,11 +136,34 @@ Free fixtures keep whatever rotation the user saved, so a tilted spot aimed at
 a picture keeps its tilt; today's presets (`x: 90` cove, `x: −90` others, yaw
 0) already match this frame.
 
+`fitHostWidth` shortens a strip to the host length minus 20 mm at each end
+(`WALL_STRIP_END_MARGIN_MM`). That inset stays 20 mm; it is not 50 mm.
+
+Each registry definition lists `mounts: readonly LightMountKind[]` (always
+including `"free"`). `addRoomLightFixture` returns the project unchanged when
+the requested mount is not in that list, so `addRoomLightFixture("cove", { kind: "ceiling" })`
+does not add a light. Phase 4 buttons offer only those hosts.
+
 ### 3.4 Render scale (single table, `LIGHT_RENDER_SCALE`)
 
 `areaNitsPerUnit`, `pointCandelaPerUnit`, `spotCandelaPerUnit`,
-`emissivePerUnit`, `maxEmissive`, `coveWallShare`. Initial values 6 / 4 / 5 /
-0.22 / 4 / 0.35, tuned visually in Phase 1.
+`emissivePerUnit`, `maxEmissive`, `coveWallShare`. Phase 0 reviewed values
+10 / 8 / 10 / 0.22 / 4 / 0.35, measured by pixel readout on the release-demo
+back wall: a 2000 cd downlight clipped the floor to white while 40–60 cd read
+as a real downlight; a 1 m × 20 mm strip 130 mm from the wall lifts the wall
+pixel from 231 to 243 at 18 nits and to 252 at 60 nits.
+
+**How to judge lighting (lesson from Phase 0):** the default wall paint under
+the HDRI already sits near white (≈231/255), so a wash saturates to 255
+instead of standing out, and downscaled screenshots hide it completely. Judge
+strips by pixel readout, on a mid-tone wall material, or in Walkthrough (the
+only preset that shows the ceiling). Rect area lights behave correctly down
+to at least 120 mm from the lit surface; no segmentation is needed.
+
+**Recipe seeds are resolved at read time** (`resolveRecipeLightSeed` in the
+scene compiler): saved files and drafts carry their own recipe lights, so a
+seed retune would otherwise never reach them. Recipe lights are not
+user-editable, so nothing authored is overwritten.
 
 ### 3.5 Wall decoration presets — catalog items, `category: "wall-panel"`
 
@@ -186,6 +209,10 @@ Select Room (ceiling)  ──▶  Room inspector "Ceiling lighting"
                    └── Floor build (structural + flooring thickness)
 
 Room lights popover (3D toolbar / Render Studio)  ──▶  add any fixture, list, jump to selection
+                   grouped by the code categories (not ceiling / cove-strip / general):
+                   ├── Wall lighting      (Cove · Rope · Profile)
+                   ├── Ceiling lighting   (Downlight · Pendant · Panel · COB · Track)
+                   └── Cabinet lighting   (Under-cabinet)
 
 Select Light (2D glyph or 3D fixture)  ──▶  Light inspector
                    ├── Mount (Free · Wall · Ceiling · Cabinet) + along / height / face
@@ -221,10 +248,14 @@ Fix the root cause before adding fixture types.
   `render-qa-smoke` and the phase-1 / phase-2 proof fixtures may shift and need
   their reference images regenerated after the retune is approved.
 
-**Exit gate:** a cove strip at default brightness visibly washes the wall and
-ceiling in Model View draft and standard; a downlight shows a pool on the floor;
-all three recipes reviewed in Render Studio at standard quality and approved;
-render-QA references regenerated where they moved; `tsc --noEmit` clean;
+- Resolve recipe seeds at read time in the scene compiler
+  (`resolveRecipeLightSeed`), so saved files and drafts pick up the retune.
+
+**Exit gate:** a downlight at default brightness shows a soft pool on the
+floor without clipping; a cove strip at default brightness placed 130 mm from a
+wall lifts the wall pixel measurably (§3.4 tells how to judge it); all three
+recipes reviewed in Model View at standard quality; render-QA references
+regenerated where they moved; `tsc --noEmit` clean;
 `room-light-fixtures.spec.ts` unchanged and green (reported, not run by the
 reviewer).
 
@@ -261,6 +292,8 @@ reviewer).
   is the ceiling receiving a real area light, not bounced light. Track heads
   are capped by `LIGHT_PARAMETER_LIMITS.headCount` (default 3, max 6) because
   each head is a separate spot light.
+- One rect area light per strip; the cove's second light (`coveWallShare`)
+  and each track head count as separate sources in the light budget.
 
 **Exit gate:** each of the nine kinds renders a body and an illumination effect
 in Model View; screenshots of cove, panel, COB and track attached to the
@@ -294,9 +327,10 @@ light highlighted; Escape clears; deleting the light clears the selection;
   the ceiling at the room centre, then select the new light.
 - Wall inspector "Lighting" section: add Cove (fit to wall length, top of wall),
   Rope, Profile (horizontal / vertical) mounted to the selected wall.
-- Room lights popover regrouped by category using
-  `LIGHT_FIXTURE_CATEGORY_LABELS`; "Attach beneath" becomes "Mount" with wall /
-  ceiling / cabinet choices.
+- Room lights popover regrouped with `LIGHT_FIXTURE_CATEGORY_LABELS`
+  (wall / ceiling / cabinet: Wall lighting, Ceiling lighting, Cabinet lighting),
+  not ceiling / cove-strip / general. "Attach beneath" becomes "Mount", and
+  each kind offers only the hosts in its `mounts` list.
 
 **Exit gate:** from a fresh drawn L-room, the user can add a cove on each wall
 and a track on the ceiling without typing a coordinate; all follow wall / room
@@ -377,7 +411,8 @@ and `phase-h2-wall-edit.spec.ts` unchanged and green.
   (cove on wall → panel light on ceiling → wainscot → save → reopen → render).
 - Performance check, static and dynamic: ≤ 12 light sources in Model View
   standard keeps frame time within the current budget (`modelViewPerf.ts`
-  caps shadow casters; fixtures never cast shadows in draft). Adding or
+  caps shadow casters; fixtures never cast shadows in draft). Count cove
+  secondary lights and track heads as sources, not fixtures. Adding or
   removing a light changes the light count, and three.js keys its shader
   program cache on those counts (`WebGLPrograms.js` `numSpotLights`,
   `numRectAreaLights`, …), so every material recompiles once per add / remove.

@@ -34,5 +34,5 @@ export function modelViewNavHint(viewPreset: ModelViewPresetId): string {
   if (viewPreset === "isometric") {
     return "Orthographic isometric · Drag orbit · Right / middle drag pan · Scroll zoom";
   }
-  return "Drag orbit · Space or right/middle drag pan · Scroll zoom · Drag objects to place";
+  return "Drag orbit · Space or right/middle drag pan · Scroll zoom · Double-click to set the orbit centre · Drag objects to place";
 }

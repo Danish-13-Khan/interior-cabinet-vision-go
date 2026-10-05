@@ -33,6 +33,7 @@ type Props = {
   ) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
   onAddWallPanel?: (wallId: string) => void;
+  onImportFinish?: (file: File, apply: { selection: { objectIds: readonly string[]; slotName: string } }) => void;
   finishesOpen?: boolean;
   runOpen?: boolean;
 };
@@ -82,6 +83,7 @@ export function InspectorObjectSection(props: Props) {
       onSetParameters={props.onSetParameters} onUpdateRun={props.onUpdateCabinetRun} onCompleteRun={props.onCompleteCabinetRun}
       onUpdatePanelAttachment={props.onUpdatePanelAttachment}
       onSetPanelVisible={props.onSetPanelVisible}
+      onImportFinish={props.onImportFinish}
       onAddWallPanel={props.onAddWallPanel}
       actions={actions}
       positionEditor={positionEditor}

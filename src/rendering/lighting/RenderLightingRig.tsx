@@ -24,6 +24,12 @@ type RenderLightingRigProps = {
   lightingQuality: EnvironmentLightingQuality;
   projectLightScale?: number;
   windowKeyScale?: number;
+  /** Lighting mood. 1 is day; evening dims sky, sun, recipe and window light. */
+  roomLightScale?: number;
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
+  onLightDragState?: (dragging: boolean) => void;
 };
 
 /**
@@ -38,6 +44,11 @@ export function RenderLightingRig({
   lightingQuality,
   projectLightScale = 1,
   windowKeyScale = 1,
+  roomLightScale = 1,
+  selectedLightId = null,
+  onSelectLight,
+  onMoveLight,
+  onLightDragState,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
   const architectureBounds = computeArchitectureBounds(scene.nodes);
@@ -74,11 +85,15 @@ export function RenderLightingRig({
     ],
   );
 
+  const environmentQuality = roomLightScale === 1
+    ? lightingQuality
+    : { ...lightingQuality, intensityScale: lightingQuality.intensityScale * roomLightScale };
+
   return (
     <>
       <EnvironmentLighting
         recipeId={recipeId}
-        quality={lightingQuality}
+        quality={environmentQuality}
         definition={environment.definition}
         url={environment.url}
         enabled={lightingQuality.preferHdri}
@@ -88,14 +103,19 @@ export function RenderLightingRig({
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
         intensityScale={projectLightScale}
+        roomLightScale={roomLightScale}
         shadowCamera={projectShadow}
         maxDirectionalCasters={lightingQuality.maxDirectionalCasters}
+        selectedLightId={selectedLightId}
+        onSelectLight={onSelectLight}
+        onMoveLight={onMoveLight}
+        onLightDragState={onLightDragState}
       />
       <WindowKeyLight
         lights={windowKeys}
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
-        intensityScale={windowKeyScale}
+        intensityScale={windowKeyScale * roomLightScale}
         shadowCamera={lightingQuality.windowKeyShadow}
       />
     </>

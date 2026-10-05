@@ -25,6 +25,7 @@ import { CameraRig } from "./CameraRig";
 import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
 import { CursorDollyPastMin } from "./CursorDollyPastMin";
+import { OrbitPivotFocus } from "./OrbitPivotFocus";
 import { CameraDebugOverlay } from "../cameraDebug/CameraDebugOverlay";
 import { OrbitDebugProbe } from "../cameraDebug/OrbitDebugProbe";
 import { useCameraDebugSession } from "../cameraDebug/useCameraDebugSession";
@@ -129,6 +130,12 @@ export function ModelViewInteractionRig({
         />
       ) : null}
       {interactive ? <CursorDollyPastMin controlsRef={controlsRef} /> : null}
+      <OrbitPivotFocus
+        controlsRef={controlsRef}
+        navigatingRef={orbitNavigatingRef}
+        cancelGenerationRef={orbitEaseCancelGenerationRef}
+        enabled={interactive && viewPreset !== "walkthrough"}
+      />
       <CameraRig
         scene={scene}
         activeCameraId={activeCameraId}

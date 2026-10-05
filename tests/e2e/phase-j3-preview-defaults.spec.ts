@@ -70,6 +70,8 @@ async function sampleWebglCanvas(page: Page) {
 test("J3 defaults model view to designed preview lighting and materials", async ({ page }) => {
   test.setTimeout(60_000);
   await openModelView(page);
+  // Quality and the honesty badge live behind the View settings popover.
+  await page.getByTestId("model-view-settings").getByRole("button", { name: "View settings" }).click();
 
   const honesty = page.getByTestId("lr-preset-honesty");
   await expect(honesty).toContainText("Designed Preview");

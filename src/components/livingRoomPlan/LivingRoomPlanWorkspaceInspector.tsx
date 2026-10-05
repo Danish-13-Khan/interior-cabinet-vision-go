@@ -4,6 +4,8 @@ import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { isWallCabinetObject } from "../../domain/livingRoom/cabinetSceneMount";
+import { resolveLightAttachment } from "../../domain/livingRoom/lightAttachments";
+import { inspectPlanTarget } from "./planInspectTarget";
 
 export function LivingRoomPlanWorkspaceInspector(props: {
   body: LivingRoomPlanWorkspaceBodyProps;
@@ -31,7 +33,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     !activeObject &&
     !p.activeOpening &&
     !p.activeWallId &&
-    !activeSurface;
+    !activeSurface &&
+    !p.activeLightId;
   const reviewEssentials = p.workflowArea === "review" && Boolean(p.room);
   if (
     !w.inspectorVisible ||
@@ -42,6 +45,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       openingSelected: Boolean(p.activeOpening),
       wallSelected: Boolean(p.activeWallId),
       surfaceSelected: Boolean(activeSurface),
+      lightSelected: Boolean(p.activeLightId),
       roomSelected: Boolean(p.inspectRoom && p.room) || emptyRoomEssentials || reviewEssentials,
     })
   ) {
@@ -56,11 +60,18 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       openingPositionOverride={openingPositionOverride} snapSizeMm={p.snapSizeMm} activeSurface={activeSurface}
       selectedCount={w.selectedIds.length}
       issues={p.issues}
-      onRoomDimensions={w.onRoomDimensions} onMove={w.onMove} onResize={w.onResize}
+      onRoomDimensions={w.onRoomDimensions} onSetFloorBuild={w.onSetFloorBuild} onMove={w.onMove} onResize={w.onResize}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
       onCompleteCabinetRun={w.onCompleteCabinetRun}
-      onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); w.onSelect(objectId, additive); }}
+      onSelect={(objectId, additive) => { p.setActiveOpeningId(null); p.setActiveSurfaceId(null); p.setActiveLightId(null); w.onSelect(objectId, additive); }}
+      activeLight={(() => {
+        const light = p.project.lights.find((item) => item.id === p.activeLightId) ?? null;
+        return light ? resolveLightAttachment(p.project, light) : null;
+      })()}
+      lightActions={w.lightActions}
+      onSelectLight={(lightId) => inspectPlanTarget(p, { lightId })}
+      onRemovedLight={() => p.setActiveLightId(null)}
       onUpdateOpening={(openingId, patch) => p.build.dispatchBuildCommand({ type: "updateOpening", openingId, patch })}
       onDeleteOpening={(openingId) => { p.build.dispatchBuildCommand({ type: "deleteOpening", openingId }); p.setActiveOpeningId(null); }}
       onUpdateSurface={(surfaceId, materialId) => p.build.dispatchBuildCommand({ type: "updateSurface", surfaceId, materialId })}
@@ -74,6 +85,10 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       }}
       onJoinNodes={() => p.build.dispatchBuildCommand({ type: "joinCoincidentNodes" })}
       onAddWallPanel={w.onAddWallPanel}
+      wallEditing={{
+        onAddOpening: (wallId, kind, offset) => p.build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm: offset }),
+        onAddDecoration: w.onAddWallDecoration,
+      }}
       onUpdatePanelAttachment={w.onUpdatePanelAttachment}
       onSetPanelVisible={w.onSetPanelVisible}
       onRaiseWalls={w.onRaiseWalls} onOffsetWall={w.onOffsetWall} onOffsetLoop={w.onOffsetLoop}

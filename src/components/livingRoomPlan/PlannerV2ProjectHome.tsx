@@ -73,6 +73,7 @@ export function PlannerV2ProjectHome({
       aria-modal="true"
       aria-label="Start a living room project"
       data-testid="interiors-projects-home"
+      data-autosave-state={workspace.autosaveState}
       tabIndex={-1}
     >
       <InteriorsProjectsIntro

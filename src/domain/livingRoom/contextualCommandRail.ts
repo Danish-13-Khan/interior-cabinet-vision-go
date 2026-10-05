@@ -1,11 +1,13 @@
-export type ContextualRailKind = "none" | "wall" | "cabinet" | "panel" | "other";
+export type ContextualRailKind = "none" | "wall" | "cabinet" | "panel" | "light" | "other";
 
 export type ContextualRailCommandId =
   | "select"
   | "measure"
   | "camera"
   | "material"
+  | "cut-opening"
   | "add-panel"
+  | "add-light"
   | "hide-wall"
   | "rotate"
   | "flip-side"
@@ -23,7 +25,9 @@ const COMMANDS: Record<ContextualRailCommandId, ContextualRailCommand> = {
   measure: { id: "measure", label: "Measure", testId: "rail-measure" },
   camera: { id: "camera", label: "Camera", testId: "rail-camera" },
   material: { id: "material", label: "Material", testId: "rail-material" },
+  "cut-opening": { id: "cut-opening", label: "Cut opening", testId: "rail-cut-opening" },
   "add-panel": { id: "add-panel", label: "Add Panel", testId: "rail-add-panel" },
+  "add-light": { id: "add-light", label: "Add light", testId: "rail-add-light" },
   "hide-wall": { id: "hide-wall", label: "Hide Wall", testId: "rail-hide-wall" },
   rotate: { id: "rotate", label: "Rotate", testId: "rail-rotate" },
   "flip-side": { id: "flip-side", label: "Flip Side", testId: "rail-flip-side" },
@@ -33,8 +37,9 @@ const COMMANDS: Record<ContextualRailCommandId, ContextualRailCommand> = {
 
 const BY_KIND: Record<ContextualRailKind, readonly ContextualRailCommandId[]> = {
   none: ["select", "measure", "camera"],
-  wall: ["material", "add-panel", "hide-wall"],
+  wall: ["material", "cut-opening", "add-panel", "add-light", "hide-wall"],
   cabinet: ["rotate", "duplicate", "material", "delete"],
+  light: ["duplicate", "delete"],
   /** Panels: attachment-aware flip — not free Y rotate (reflow would overwrite). */
   panel: ["flip-side", "duplicate", "material", "delete"],
   other: ["rotate", "duplicate", "material", "delete"],
@@ -61,12 +66,14 @@ function isCabinetObject(object: { category?: string; kind?: string }) {
 /** Resolve §4.1 selection kind for the contextual command rail. */
 export function resolveContextualRailKind(input: {
   activeWallId: string | null;
+  activeLightId?: string | null;
   selectedObjects: readonly { category?: string; kind?: string; catalogItemId?: string }[];
 }): ContextualRailKind {
   const selected = input.selectedObjects;
   if (selected.length === 1 && isPanelObject(selected[0]!)) return "panel";
   if (selected.length >= 1 && selected.every(isCabinetObject)) return "cabinet";
   if (selected.length >= 1) return "other";
+  if (input.activeLightId) return "light";
   if (input.activeWallId) return "wall";
   return "none";
 }

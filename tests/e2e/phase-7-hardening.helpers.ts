@@ -37,14 +37,26 @@ export async function assertPresentTabletLayout(page: Page) {
 }
 
 export async function waitForRecoveryAutosave(page: Page) {
+  // The projects home replaces the workspace header, so read the autosave state
+  // it mirrors instead of the save button while the dialog is open.
+  const home = page.getByTestId("interiors-projects-home");
+  if (await home.count()) {
+    await expect(home).toHaveAttribute("data-autosave-state", "saved", { timeout: 8_000 });
+    return;
+  }
   await expect(page.getByTestId("interiors-save-state")).toContainText("Saved", { timeout: 8_000 });
 }
 
 /** Clear storage once, then open Golden without an init script that wipes recovery on reload. */
 export async function openGoldenCabinetRunForRecovery(page: Page) {
-  await page.addInitScript(() => {
+  // /app redirects to /login without a session, so every load re-seeds it;
+  // nothing here clears storage on reload, which keeps the recovery draft.
+  await page.addInitScript((session) => {
     window.sessionStorage.setItem("golden-scene-semantics", "1");
-  });
+    if (!window.localStorage.getItem("cabinetStudioSession")) {
+      window.localStorage.setItem("cabinetStudioSession", session);
+    }
+  }, E2E_SESSION_JSON);
   await page.goto("/app");
   await page.evaluate((session) => {
     window.localStorage.clear();
@@ -52,7 +64,7 @@ export async function openGoldenCabinetRunForRecovery(page: Page) {
     window.sessionStorage.setItem("golden-scene-semantics", "1");
     window.localStorage.setItem("cabinetStudioSession", session);
   }, E2E_SESSION_JSON);
-  await page.reload();
+  await page.goto("/app");
   await expectInteriorsHome(page);
   await loadGoldenCabinetRun(page);
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Golden Cabinet Run");
@@ -65,7 +77,11 @@ export async function assertProjectsFocusTrap(page: Page) {
   await expect(jobName).toBeFocused({ timeout: 5_000 });
   await page.keyboard.press("Tab");
   await expect(page.getByTestId("interiors-new-job")).toBeFocused();
-  await expect(page.getByTestId("interiors-workspace-header")).toHaveAttribute("aria-hidden", "true");
+  // The Calm projects home swaps the workspace chrome for the Projects nav, so
+  // nothing behind the dialog is left to reach.
+  const header = page.getByTestId("interiors-workspace-header");
+  await expect(header.locator(".lr-projects-nav")).toBeVisible();
+  await expect(header.getByTestId("interiors-save-state")).toHaveCount(0);
 }
 
 /** Keep focus on a later dialog control across parent autosave rerenders. */

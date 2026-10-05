@@ -20,6 +20,12 @@ import { cabinetScenePosition } from "./cabinetSceneMount";
 import { compileCornerWardrobe, compileRunFiller } from "./sceneAdaptersCorner";
 import { compileFlutedFeatureWall, compileDecorativePanel } from "./sceneAdaptersFeatureWalls";
 import {
+  compileGroovedPanel,
+  compileMouldingStrip,
+  compileProfileStrip,
+  compileWainscot,
+} from "./sceneAdaptersWallDecor";
+import {
   compileDecorSculpture,
   compileDecorVase,
   compileDisplayNiche,
@@ -50,6 +56,12 @@ const ADAPTERS: readonly LivingRoomObjectAdapter[] = [
   { id: "tv-unit-v1", catalogItemId: "living:tv-unit", compile: compileTvUnit },
   { id: "fluted-feature-wall-v1", catalogItemId: "living:feature-wall-fluted", compile: compileFlutedFeatureWall },
   { id: "decorative-panel-v1", catalogItemId: "living:decorative-panel", compile: compileDecorativePanel },
+  { id: "wall-panel-full-v1", catalogItemId: "living:wall-panel-full", compile: compileDecorativePanel },
+  { id: "wall-panel-vertical-v1", catalogItemId: "living:wall-panel-vertical", compile: compileGroovedPanel },
+  { id: "wall-panel-horizontal-v1", catalogItemId: "living:wall-panel-horizontal", compile: compileGroovedPanel },
+  { id: "wainscot-panel-v1", catalogItemId: "living:wainscot-panel", compile: compileWainscot },
+  { id: "moulding-strip-v1", catalogItemId: "living:moulding-strip", compile: compileMouldingStrip },
+  { id: "profile-strip-v1", catalogItemId: "living:profile-strip", compile: compileProfileStrip },
   { id: "display-niche-v1", catalogItemId: "living:display-niche", compile: compileDisplayNiche },
   { id: "decor-vase-v1", catalogItemId: "living:decor-vase", compile: compileDecorVase },
   { id: "decor-sculpture-v1", catalogItemId: "living:decor-sculpture", compile: compileDecorSculpture },

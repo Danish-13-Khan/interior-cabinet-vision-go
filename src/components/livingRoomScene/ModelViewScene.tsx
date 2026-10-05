@@ -45,6 +45,10 @@ type ModelViewSceneProps = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening: (openingId: string) => void;
   onSelectWall: (wallId: string) => void;
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
+  roomLightScale?: number;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
@@ -62,7 +66,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
     interactive = true,
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
-    onSelectOpening, onSelectWall, onMove, onExitWalkthrough, onMechanismClick,
+    onSelectOpening, onSelectWall, selectedLightId = null, onSelectLight, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
   } = props;
   const roomSpanMeters = Math.max(
@@ -79,6 +83,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     selectedIds.join(","),
     activeOpeningId,
     activeWallId,
+    selectedLightId,
     cutawayWalls,
     showGrid,
     cameraHeightMm,
@@ -116,6 +121,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           lightingQuality={lightingQuality}
           projectLightScale={projectLightScale}
           windowKeyScale={windowKeyScale}
+          roomLightScale={props.roomLightScale}
           fitVersion={fitVersion}
           fitMode={fitMode}
           fitSelection={fitSelection}
@@ -123,6 +129,9 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onSelect={onSelect}
           onSelectOpening={onSelectOpening}
           onSelectWall={onSelectWall}
+          selectedLightId={selectedLightId}
+          onSelectLight={onSelectLight}
+          onMoveLight={props.onMoveLight}
           onClearSelection={onClearSelection}
           onMove={onMove}
           onExitWalkthrough={onExitWalkthrough}

@@ -1,4 +1,4 @@
-import type { InteriorProject } from "../interiorProject";
+import { FLOOR_STRUCTURE_MATERIAL_ID, type InteriorProject } from "../interiorProject";
 import { selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import {
   defaultUvScaleMmForMaterial,
@@ -26,6 +26,7 @@ import {
 import type { CompiledLivingRoomScene, CompiledMaterial } from "./sceneTypes";
 import { sampleWindowOpenings } from "./windowKeyLight";
 import { resolveLightAttachment } from "./lightAttachments";
+import { resolveRecipeLightSeed } from "./lighting";
 
 export function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
@@ -91,6 +92,17 @@ export function compileMaterials(project: InteriorProject): CompiledMaterial[] {
       materialAssetId: FLOOR_MATERIAL_ID,
       uvScaleMm: 900,
     },
+    {
+      id: FLOOR_STRUCTURE_MATERIAL_ID,
+      name: "Floor structure",
+      kind: "stone" as const,
+      color: "#8d8f92",
+      roughness: 0.95,
+      metalness: 0,
+      opacity: 1,
+      materialAssetId: FLOOR_STRUCTURE_MATERIAL_ID,
+      uvScaleMm: 1000,
+    },
   ];
 }
 
@@ -112,7 +124,7 @@ export function compileLivingRoomScene(
   ];
   const materials = compileMaterials(project);
   const lights = project.lights.filter((light) => light.roomId === null || light.roomId === roomId)
-    .map((light) => resolveLightAttachment(project, light));
+    .map((light) => resolveRecipeLightSeed(resolveLightAttachment(project, light)));
   const cameras = project.cameras.filter((camera) => camera.roomId === roomId);
   const stylePreset = resolveLivingRoomStyle(project);
   const style = {

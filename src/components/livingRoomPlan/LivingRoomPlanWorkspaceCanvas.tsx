@@ -1,4 +1,6 @@
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
+import { wallLengthMm } from "../../domain/livingRoom";
+import { cutOpeningOffsetMm } from "../../domain/livingRoom/cutOpening";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomStageCommands } from "./planInspectTarget";
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
@@ -23,7 +25,10 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       onSelectRoom={() => inspectPlanTarget(props, { inspectRoom: true })}
       onMove={w.onMove} onMovePreview={w.onMovePreview} onDragEnd={w.onDragEnd} onResize={w.onResize}
       activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
-      activeSurfaceId={props.activeSurfaceId} surfaceMaterialId={build.surfaceMaterialId}
+      activeSurfaceId={props.activeSurfaceId} activeLightId={props.activeLightId}
+      surfaceMaterialId={build.surfaceMaterialId}
+      onSelectLight={(lightId) => inspectPlanTarget(props, { lightId })}
+      lightActions={w.lightActions}
       onSelectWall={(wallId) => inspectPlanTarget(props, { wallId })}
       onSelectOpening={(openingId) => inspectPlanTarget(props, { openingId })}
       onSelectSurface={(surfaceId) => inspectPlanTarget(props, { surfaceId })}
@@ -76,6 +81,13 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       onBuildTool={props.onBuildTool}
       onWorkspaceView={props.onWorkspaceView}
       onAddWallPanel={w.onAddWallPanel}
+      onCutOpening={(wallId) => {
+        const wall = project.walls.find((item) => item.id === wallId);
+        if (!wall) return;
+        build.dispatchBuildCommand({
+          type: "placeOpening", wallId, kind: "opening", offsetMm: cutOpeningOffsetMm(wallLengthMm(wall)),
+        });
+      }}
     />
   );
 }

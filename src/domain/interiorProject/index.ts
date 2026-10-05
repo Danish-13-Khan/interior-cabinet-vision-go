@@ -139,6 +139,17 @@ export {
   type RoomPlanPolygon,
 } from "./roomGeometry";
 export { synchronizeRoomSurfaceZones } from "./roomSurfaces";
+export {
+  CEILING_SLAB_THICKNESS_MM,
+  DEFAULT_FLOOR_BUILD,
+  FLOOR_BUILD_LIMITS,
+  FLOOR_STRUCTURE_MATERIAL_ID,
+  floorBottomMm,
+  flooringBottomMm,
+  resolveFloorBuild,
+  writeFloorBuild,
+  type FloorBuild,
+} from "./floorBuild";
 export { splitRoomByWall } from "./roomSplit";
 export { renameInteriorRoom, setActiveInteriorRoom } from "./roomActivation";
 export { deleteInteriorRoom, mergeInteriorRooms } from "./roomOperations";

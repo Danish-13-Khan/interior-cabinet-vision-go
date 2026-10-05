@@ -30,6 +30,8 @@ type LivingRoomObjectInspectorProps = {
   onUpdatePanelAttachment?: (objectId: string, patch: Partial<PanelAttachment>) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
   onAddWallPanel?: (wallId: string) => void;
+  /** Import a photo of a laminate, veneer or fabric onto one surface of this object. */
+  onImportFinish?: (file: File, apply: { selection: { objectIds: readonly string[]; slotName: string } }) => void;
   actions?: ReactNode;
   positionEditor?: ReactNode;
   /** Finishes start open (Materials step, furniture & decor). */
@@ -44,7 +46,7 @@ type LivingRoomObjectInspectorProps = {
  */
 export function LivingRoomObjectInspector({
   object, project, materials, onResize, onSetMaterial, onSetParameters, onUpdateRun, onCompleteRun,
-  onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, actions, positionEditor,
+  onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, onImportFinish, actions, positionEditor,
   finishesOpen = false, runOpen = false,
 }: LivingRoomObjectInspectorProps) {
   function patchDimension(axis: keyof Size3Mm, value: number) {
@@ -95,6 +97,9 @@ export function LivingRoomObjectInspector({
             materials={materials}
             slotPolicies={catalogSlotPoliciesForObject(object)}
             onSet={(slotName, materialId) => onSetMaterial(object.id, slotName, materialId)}
+            onImport={onImportFinish
+              ? (slotName, file) => onImportFinish(file, { selection: { objectIds: [object.id], slotName } })
+              : undefined}
           />
         </div>
       </details>

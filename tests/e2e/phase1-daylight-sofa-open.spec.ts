@@ -8,6 +8,11 @@ test("Phase 1 Daylight Sofa opens a visible plan", async ({ page }) => {
     if (msg.type() === "error") errors.push(msg.text());
   });
   await openInteriorsHome(page);
+  // The Phase 1 benches sit in a collapsed developer drawer on the Calm projects home.
+  const drawer = page.locator("details.interiors-dev-qa");
+  if (!(await drawer.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await drawer.locator("summary").click();
+  }
   await page.getByTestId("interiors-phase1-bench-daylight-sofa").click();
   await expect(page.getByTestId("interiors-projects-home")).toHaveCount(0, { timeout: 10_000 });
   await expect(page.getByTestId("interiors-project-crumb")).toContainText("Daylight Sofa");

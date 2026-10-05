@@ -1,31 +1,16 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { createShellPlan } from "./plannerStart";
+import { dragWallBetween } from "./roadmap-exit-journey.helpers";
 
 async function openPlan(page: Page) {
   await createShellPlan(page);
 }
 
-async function pointOnPaper(paper: Locator, x: number, y: number) {
-  const box = await paper.boundingBox();
-  if (!box) throw new Error("Plan paper is not rendered");
-  return { x: box.x + box.width * x, y: box.y + box.height * y };
-}
-
-/**
- * LivingRoomPlanView uses an 850mm margin around the active room.
- * Starter room is 6200×4600 → viewBox depth 6300. Mid-wall fractions:
- * back z=-2300 → 850/6300 ≈ 0.135; front z=2300 → 5450/6300 ≈ 0.865; x center = 0.5.
- */
 test("H1 splits a room with Draw Wall, renames, switches, and shows both faces in 3D", async ({ page }) => {
   await openPlan(page);
   await page.locator('[data-build-tool="draw-wall"]').click();
-  const paper = page.getByRole("application", { name: "Living room plan editor" });
-  const start = await pointOnPaper(paper, 0.5, 850 / 6300);
-  const end = await pointOnPaper(paper, 0.5, 5450 / 6300);
-  await page.mouse.move(start.x, start.y);
-  await page.mouse.down();
-  await page.mouse.move(end.x, end.y, { steps: 8 });
-  await page.mouse.up();
+  // Back wall to front wall through the room centre; both ends land on walls, which splits it.
+  await dragWallBetween(page, "lr-wall-back", "lr-wall-front");
 
   const switcher = page.getByTestId("build-room-switcher");
   await expect(switcher.getByRole("tab")).toHaveCount(2);

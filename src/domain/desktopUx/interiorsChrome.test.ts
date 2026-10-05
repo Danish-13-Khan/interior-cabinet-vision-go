@@ -4,6 +4,7 @@ import {
   interiorsJobStatusLabel,
   interiorsSaveLabel,
   interiorsSelectionTitle,
+  openingInspectorTitle,
   isInteriorsChromeToolReady,
   mapInteriorsChromeTool,
 } from "./interiorsChrome";
@@ -44,6 +45,7 @@ describe("interiorsChrome", () => {
     expect(hasInteriorsInspectorSelection({ openingSelected: true })).toBe(true);
     expect(hasInteriorsInspectorSelection({ surfaceSelected: true })).toBe(true);
     expect(hasInteriorsInspectorSelection({ roomSelected: true })).toBe(true);
+    expect(hasInteriorsInspectorSelection({ lightSelected: true })).toBe(true);
   });
 
   it("labels job status from the existing commercial job without new engines", () => {
@@ -66,7 +68,15 @@ describe("interiorsChrome", () => {
     expect(interiorsSelectionTitle({ selectedCount: 0 })).toBe("Nothing selected");
     expect(interiorsSelectionTitle({ wallLabel: "North wall", selectedCount: 0 })).toBe("North wall");
     expect(interiorsSelectionTitle({ objectName: "Base A", selectedCount: 1 })).toBe("Base A");
+    expect(interiorsSelectionTitle({ lightName: "Cove LED strip", selectedCount: 0 })).toBe("Cove LED strip");
     expect(interiorsSelectionTitle({ roomName: "Living", selectedCount: 0 })).toBe("Living");
     expect(interiorsSelectionTitle({ surfaceName: "Surface zone", selectedCount: 0 })).toBe("Surface zone");
+  });
+
+  it("titles a cut as Wall opening and keeps door and window kinds", () => {
+    expect(openingInspectorTitle("opening")).toBe("Wall opening");
+    expect(openingInspectorTitle("door")).toBe("door opening");
+    expect(openingInspectorTitle("window")).toBe("window opening");
+    expect(interiorsSelectionTitle({ openingName: openingInspectorTitle("opening"), selectedCount: 0 })).toBe("Wall opening");
   });
 });
