@@ -22,7 +22,5 @@ export type ConstructionContext = {
   faceFrameEnabled: boolean;
   stile: number;
   rail: number;
-  faceOpeningWidth: number;
-  faceOpeningHeight: number;
   parts: CabinetPart[];
 };

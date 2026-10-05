@@ -47,15 +47,6 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
   const faceFrameEnabled = constructionSpec.carcassStyle === "face-frame";
   const stile = constructionSpec.faceFrame.stileWidthMm;
   const rail = constructionSpec.faceFrame.railWidthMm;
-  const faceOpeningWidth = faceFrameEnabled
-    ? Math.max(120, dimensions.width - stile * 2)
-    : innerWidth;
-  const faceOpeningHeight = faceFrameEnabled
-    ? Math.max(
-        120,
-        dimensions.height - rail * 2 - (safeConfig.toeKickHeight > 0 ? safeConfig.toeKickHeight : 0),
-      )
-    : Math.max(120, dimensions.height - safeConfig.toeKickHeight - dimensions.boardThickness * 2);
   const parts: CabinetPart[] = [];
 
   const ctx: ConstructionContext = {
@@ -77,8 +68,6 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
     faceFrameEnabled,
     stile,
     rail,
-    faceOpeningWidth,
-    faceOpeningHeight,
     parts,
   };
 
