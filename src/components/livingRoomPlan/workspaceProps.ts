@@ -52,6 +52,7 @@ export type LivingRoomPlanWorkspaceProps = {
     styleId?: LivingRoomStyleId;
     template?: PlannerStarterTemplate;
     catalogTemplateId?: string;
+    apartmentTemplateId?: string;
   }) => void;
   onOpenDemo: () => void;
   onOpenGoldenRun: () => void;

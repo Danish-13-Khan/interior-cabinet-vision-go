@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { interiorsRecentProjectCard } from "../../domain/desktopUx";
 import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../domain/livingRoom";
 import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
+import { InteriorsApartmentTemplates } from "./InteriorsApartmentTemplates";
 import { InteriorsPopularTemplates } from "./InteriorsPopularTemplates";
+import { takePendingTemplate } from "../../domain/apartmentTemplates/pendingTemplateHandoff";
+import { lookupApartmentTemplate } from "../../domain/apartmentTemplates";
+import { lookupBuiltInCatalogTemplate } from "../../domain/catalog";
 import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
 import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
 import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
@@ -60,6 +64,22 @@ export function PlannerV2ProjectHome({
     });
   }
 
+  function createFromApartmentTemplate(apartmentTemplateId: string) {
+    workspace.onDiscardRecovery();
+    const name = projectName.trim();
+    workspace.onCreateStarter({
+      projectName: name && name !== "New cabinet job" ? name : undefined,
+      apartmentTemplateId,
+    });
+  }
+
+  useEffect(() => {
+    const pending = takePendingTemplate();
+    if (!pending) return;
+    if (lookupApartmentTemplate(pending)) createFromApartmentTemplate(pending);
+    else if (lookupBuiltInCatalogTemplate(pending)) createFromCatalogTemplate(pending);
+  }, []);
+
   function openPhase1(benchmarkId: Parameters<LivingRoomPlanWorkspaceProps["onOpenPhase1Benchmark"]>[0]) {
     workspace.onDiscardRecovery();
     workspace.onOpenPhase1Benchmark(benchmarkId);
@@ -94,6 +114,7 @@ export function PlannerV2ProjectHome({
         ) : null}
         {projectsLoading ? <p data-testid="projects-loading">Loading projects…</p> : null}
         <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />
+        <InteriorsApartmentTemplates onCreate={createFromApartmentTemplate} />
         <InteriorsPopularTemplates onCreate={createFromCatalogTemplate} />
         {import.meta.env.DEV ? (
           <details className="interiors-template-drawer interiors-dev-qa">

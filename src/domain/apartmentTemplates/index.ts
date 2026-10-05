@@ -83,3 +83,12 @@ export type {
   ComposeStudyArgs,
 } from "./composers";
 export { APARTMENT_TEMPLATE_DECISIONS } from "./decisions";
+
+export { APARTMENT_TEMPLATE_CARDS } from "./apartmentCards";
+export type { ApartmentTemplateCard } from "./apartmentCards";
+export {
+  PENDING_TEMPLATE_STORAGE_KEY,
+  stashPendingTemplate,
+  takePendingTemplate,
+} from "./pendingTemplateHandoff";
+export { showcaseCameraForRoom } from "./showcaseCamera";

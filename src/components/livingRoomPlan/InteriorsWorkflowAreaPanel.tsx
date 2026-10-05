@@ -60,6 +60,7 @@ export function InteriorsWorkflowAreaPanel(props: InteriorsWorkflowAreaPanelProp
           onRoomDimensions={props.onRoomDimensions} onAddPartitionWall={props.onAddPartitionWall}
           onActiveRoom={props.onActiveRoom} onRenameRoom={props.onRenameRoom}
           onDeleteRoom={props.onDeleteRoom} onMergeRooms={props.onMergeRooms}
+          onRenderSettingsChange={props.onRenderSettingsChange}
           onActiveWall={props.onActiveWall} onActiveOpening={props.onActiveOpening} onAddOpening={props.onAddOpening}
           onUpdateOpening={props.onUpdateOpening} onDeleteOpening={props.onDeleteOpening}
           onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}

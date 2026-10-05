@@ -44,6 +44,7 @@ export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyPr
       onRenameRoom={w.onRenameRoom}
       onDeleteRoom={w.onDeleteRoom}
       onMergeRooms={w.onMergeRooms}
+      onRenderSettingsChange={w.onRenderSettingsChange}
       onAddPartitionWall={() => build.dispatchBuildCommand({ type: "createWall" })}
       activeWallId={props.activeWallId} activeOpeningId={props.activeOpeningId}
       onActiveWall={(wallId) => inspectPlanTarget(props, { wallId })}

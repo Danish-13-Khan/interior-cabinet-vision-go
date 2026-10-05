@@ -100,6 +100,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           onRenameRoom={props.onRenameRoom}
           onDeleteRoom={props.onDeleteRoom}
           onMergeRooms={props.onMergeRooms}
+          onRenderSettingsChange={props.onRenderSettingsChange}
           onActiveWall={props.onActiveWall}
           onActiveOpening={props.onActiveOpening}
           onAddOpening={props.onAddOpening}

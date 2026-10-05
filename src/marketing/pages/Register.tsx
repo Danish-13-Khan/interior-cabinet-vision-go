@@ -4,6 +4,7 @@ import { AuthLayout } from '../components/AuthLayout'
 import { PasswordField } from '../components/PasswordField'
 import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
 import { findMarketingTemplate, MARKETING_TEMPLATES, TEMPLATE_QUERY_PARAM } from '../landing/marketingTemplates'
+import { stashPendingTemplate } from '../../domain/apartmentTemplates/pendingTemplateHandoff'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -48,6 +49,7 @@ export function Register() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
+    if (templateId) stashPendingTemplate(templateId)
     setComingSoon(true)
   }
 

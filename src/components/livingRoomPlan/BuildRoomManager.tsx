@@ -1,5 +1,7 @@
-import type { InteriorProject } from "../../domain/interiorProject";
+import type { InteriorProject, RenderSettings } from "../../domain/interiorProject";
 import { explainInteriorRoomMergeBlock } from "../../domain/interiorProject";
+import { showcaseCameraForRoom } from "../../domain/apartmentTemplates/showcaseCamera";
+import { roomTypeIcon } from "./roomTypeIcon";
 import { BuildRoomSwitcher } from "./BuildRoomSwitcher";
 
 type Props = {
@@ -8,6 +10,7 @@ type Props = {
   onRenameRoom: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  onRenderSettingsChange?: (patch: Partial<RenderSettings>) => void;
 };
 
 function sharesWallWithActive(project: InteriorProject, activeWallIds: Set<string>, roomId: string) {
@@ -52,8 +55,22 @@ export function BuildRoomManager(props: Props) {
         : null)
       : null);
 
+  const isApartment = Boolean(props.project.extensions?.apartmentTemplateId);
+  const jumpShowcase = (roomId: string) => {
+    props.onActiveRoom(roomId);
+    const camera = showcaseCameraForRoom(props.project, roomId);
+    if (camera && props.onRenderSettingsChange) {
+      props.onRenderSettingsChange({ activeCameraId: camera.id });
+    }
+  };
+
   return <BuildRoomSwitcher
-    rooms={props.project.rooms.map((room) => ({ id: room.id, name: room.name }))}
+    rooms={props.project.rooms.map((room) => ({
+      id: room.id,
+      name: room.name,
+      roomType: room.roomType,
+      icon: roomTypeIcon(room.roomType),
+    }))}
     activeRoomId={props.project.activeRoomId}
     onActiveRoom={props.onActiveRoom}
     onRenameRoom={props.onRenameRoom}
@@ -61,5 +78,7 @@ export function BuildRoomManager(props: Props) {
     onMergeRooms={props.onMergeRooms}
     mergeableRoomIds={mergeableRoomIds}
     mergeBlockedHint={mergeBlockedHint}
+    showcaseAvailable={isApartment}
+    onShowcaseView={isApartment ? jumpShowcase : undefined}
   />;
 }
