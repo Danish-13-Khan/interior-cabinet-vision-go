@@ -4,6 +4,7 @@ import {
   type CabinetConfig,
   type CabinetProject,
 } from "../cabinetDimensions";
+import { resolveCabinetBuildRules } from "../cabinetConstruction/buildRules";
 import { freestandingCutlist } from "./freestandingCutlist";
 import { frontCutlistItems } from "./frontCutlist";
 import { getCabinetMeasurements } from "./measurements";
@@ -19,6 +20,7 @@ export function createCabinetCutlist(
   const { innerWidth, openingHeight, usableShelfDepth } =
     getCabinetMeasurements(config);
   const { dimensions, shelfCount, toeKickHeight } = safeConfig;
+  const rules = resolveCabinetBuildRules(safeConfig);
 
   const items: CabinetCutlistItem[] = [
     {
@@ -27,7 +29,7 @@ export function createCabinetCutlist(
       quantity: safeConfig.type === "corner" ? 3 : 2,
       lengthMm: dimensions.height,
       widthMm: dimensions.depth,
-      thicknessMm: dimensions.boardThickness,
+      thicknessMm: rules.carcassThicknessMm,
       material: "Board",
     },
     {
@@ -36,7 +38,7 @@ export function createCabinetCutlist(
       quantity: safeConfig.type === "sink" ? 3 : 2,
       lengthMm: Math.round(innerWidth * 1000),
       widthMm: safeConfig.type === "sink" ? Math.round(Math.min(dimensions.depth * 0.16, 90)) : dimensions.depth,
-      thicknessMm: dimensions.boardThickness,
+      thicknessMm: rules.carcassThicknessMm,
       material: "Board",
     },
     {
@@ -45,7 +47,7 @@ export function createCabinetCutlist(
       quantity: 1,
       lengthMm: Math.round(innerWidth * 1000),
       widthMm: Math.round(openingHeight * 1000),
-      thicknessMm: dimensions.backPanelThickness,
+      thicknessMm: rules.backPanelThicknessMm,
       material: "Back Panel",
     },
   ];
@@ -57,7 +59,7 @@ export function createCabinetCutlist(
       quantity: 1,
       lengthMm: Math.round(innerWidth * 1000),
       widthMm: toeKickHeight,
-      thicknessMm: dimensions.boardThickness,
+      thicknessMm: rules.carcassThicknessMm,
       material: "Board",
     });
   }
@@ -69,7 +71,7 @@ export function createCabinetCutlist(
       quantity: shelfCount,
       lengthMm: Math.round(innerWidth * 1000),
       widthMm: Math.round(usableShelfDepth * 1000),
-      thicknessMm: dimensions.boardThickness,
+      thicknessMm: rules.shelfThicknessMm,
       material: "Board",
     });
   }
@@ -83,7 +85,7 @@ export function createCabinetCutlist(
       quantity: Number(safeConfig.leftEndPanel) + Number(safeConfig.rightEndPanel),
       lengthMm: dimensions.height,
       widthMm: dimensions.depth,
-      thicknessMm: dimensions.boardThickness,
+      thicknessMm: rules.carcassThicknessMm,
       material: "Board",
     });
   }

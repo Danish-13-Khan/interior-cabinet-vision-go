@@ -1,4 +1,5 @@
 import type { CabinetConfig } from "../cabinetDimensions";
+import { resolveCabinetBuildRules } from "../cabinetConstruction/buildRules";
 import { doorPieces, type DoorPieceKind } from "../cabinetConstruction/doorPieces";
 import { resolveFrontGaps } from "../cabinetConstruction/frontGaps";
 import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
@@ -48,7 +49,7 @@ function groupRows(rows: Row[]): CabinetCutlistItem[] {
 export function frontCutlistItems(config: CabinetConfig): CabinetCutlistItem[] {
   const openings = resolveFrontGaps(config).openings;
   const spec = normalizeConstructionSpec(config.type, config.construction);
-  const thickness = config.dimensions.boardThickness;
+  const thickness = resolveCabinetBuildRules(config).carcassThicknessMm;
   const leavesOf = (kind: "door" | "drawer") => openings.filter((entry) => entry.kind === kind).flatMap((entry) => entry.leaves);
   const drawerRows = leavesOf("drawer").map((leaf): Row => ({
     key: "drawer-fronts", label: "Drawer Front", lengthMm: leaf.heightMm, widthMm: leaf.widthMm, thicknessMm: thickness, quantity: 1,

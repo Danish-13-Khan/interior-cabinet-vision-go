@@ -306,7 +306,16 @@ made** defaults to Bought (cut list unchanged); In-house cuts stiles, rails and
 (placeholder price). Shaker / glass apply to doors only; drawer fronts stay slab.
 Production and the classic editor's legacy cut list both cut doors with
 `doorPieces`, so in-house frames list the same stiles, rails and panels in both.
+Both lists also take every board thickness from the build rules
+(`resolveCabinetBuildRules`), never `dimensions`, so a custom carcass, shelf or
+back thickness cannot make them disagree.
 **Still open:** Ilyas's answer to §6.4 (made in-house or bought).
+**Follow-ups (not blocking):**
+- Rails are cut to the gap between the stiles with no joint allowance (tenon or
+  dowel); add it once Ilyas answers §6.6.
+- Shaker / Glass apply to doors only; drawer fronts stay slab.
+- 2D elevations still draw every door as slab; they don't show the Shaker frame
+  or Glass.
 
 ### Phase 7 — Hosted sink and hob (answers Modular Q3)
 
@@ -362,6 +371,8 @@ Start only when a signed project needs it.
 3. Do you notch the carcass sides on CNC, or use a profile that needs no notch?
 4. Shaker doors: made in-house (frame parts on the cut list) or bought ready-made?
 5. Arch / fillet: on what exactly? A photo or drawing of a recent job helps.
+6. In-house shaker / glass frames: how are rails joined to stiles (tenon, dowel,
+   cope-and-stick), and how much length does the joint add to each rail?
 
 ## 7. Suggested order
 
