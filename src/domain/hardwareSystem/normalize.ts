@@ -64,7 +64,7 @@ export function normalizeCabinetHardware(
 ): CabinetHardwareSpec {
   const hingeIds = new Set(hardwareItemsOfKind("hinge").map((item) => item.id));
   const slideIds = new Set(hardwareItemsOfKind("slide").map((item) => item.id));
-  const handleIds = new Set(hardwareItemsOfKind("handle").map((item) => item.id));
+  const handleIds = new Set(["none", ...hardwareItemsOfKind("handle").map((item) => item.id)]);
   const legIds = new Set(["none", ...hardwareItemsOfKind("leg").map((item) => item.id)]);
   const bracketIds = new Set([
     "none",
