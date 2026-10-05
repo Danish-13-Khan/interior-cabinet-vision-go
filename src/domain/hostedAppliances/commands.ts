@@ -9,17 +9,26 @@ import {
   INSERT_KIND,
   OFFSET_ALONG_MM,
   OFFSET_DEPTH_MM,
+  readApplianceHost,
+  ROTATION_OFFSET_DEG,
   type HostedInsertKind,
 } from "./parameters";
 import { syncHostedAppliances } from "./sync";
 
 type Patch = Record<string, ParameterValue>;
 
-/** Worktop-height cabinets in the appliance's room (tall and wall units never carry a worktop). */
+/**
+ * Worktop-height cabinets in the appliance's room (tall and wall units never carry a worktop) that do not
+ * already hold another appliance: a cabinet records one insert.
+ */
 export function applianceHostCandidates(project: InteriorProject, appliance: InteriorObjectEntity): InteriorObjectEntity[] {
+  const occupied = new Set(project.objects
+    .filter((object) => object.id !== appliance.id)
+    .map((object) => readApplianceHost(object)?.hostCabinetId)
+    .filter((id): id is string => Boolean(id)));
   return project.objects.filter((object) => {
     const type = object.roomId === appliance.roomId && object.kind === "cabinet" ? readCabinetIdentity(object)?.cabinetType : undefined;
-    return type !== undefined && supportsCountertop(type);
+    return type !== undefined && supportsCountertop(type) && !occupied.has(object.id);
   });
 }
 
@@ -29,6 +38,7 @@ export function placeInCabinetPatch(appliance: InteriorObjectEntity, host: Inter
     [HOST_CABINET_ID]: host.id,
     [OFFSET_ALONG_MM]: 0,
     [OFFSET_DEPTH_MM]: 0,
+    [ROTATION_OFFSET_DEG]: 0,
     [CUTOUT_WIDTH_MM]: Math.round(Math.min(appliance.dimensions.widthMm, host.dimensions.widthMm)),
     [CUTOUT_DEPTH_MM]: Math.round(Math.min(appliance.dimensions.depthMm, host.dimensions.depthMm)),
     [INSERT_KIND]: insertKind,

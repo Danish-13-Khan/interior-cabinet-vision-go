@@ -6,6 +6,8 @@ export {
   HOSTED_INSERT_OPTIONS,
   INSERT_HOSTED_BY,
   INSERT_KIND,
+  OFFSET_ALONG_MM,
+  OFFSET_DEPTH_MM,
   detectApplianceInsertKind,
   isPlaceableAppliance,
   readApplianceHost,
@@ -13,6 +15,12 @@ export {
   type ApplianceHost,
   type HostedInsertKind,
 } from "./parameters";
-export { fallbackWorktopTopMm, hostedAppliancePose, worktopTopsByObjectId } from "./resolve";
+export {
+  clampApplianceOffsets,
+  fallbackWorktopTopMm,
+  hostedAppliancePose,
+  offsetsFromPosition,
+  worktopTopsByObjectId,
+} from "./resolve";
 export { syncHostedAppliances } from "./sync";
 export { applianceHostCandidates, placeApplianceInCabinet, placeInCabinetPatch, RELEASE_APPLIANCE_PATCH, releaseAppliance } from "./commands";

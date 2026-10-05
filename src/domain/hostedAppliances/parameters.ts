@@ -4,6 +4,7 @@ import type { InteriorObjectEntity, ParameterValue } from "../interiorProject";
 export const HOST_CABINET_ID = "hostCabinetId";
 export const OFFSET_ALONG_MM = "offsetAlongMm";
 export const OFFSET_DEPTH_MM = "offsetDepthMm";
+export const ROTATION_OFFSET_DEG = "rotationOffsetDeg";
 export const CUTOUT_WIDTH_MM = "cutoutWidthMm";
 export const CUTOUT_DEPTH_MM = "cutoutDepthMm";
 export const INSERT_KIND = "insertKind";
@@ -27,6 +28,8 @@ export type ApplianceHost = {
   offsetDepthMm: number;
   cutoutWidthMm: number;
   cutoutDepthMm: number;
+  /** Quarter turns on top of the host's rotation. */
+  rotationOffsetDeg: number;
   insertKind: HostedInsertKind;
 };
 
@@ -42,9 +45,19 @@ export function detectApplianceInsertKind(object: InteriorObjectEntity): HostedI
   return /hob|cooktop|stove|range|induction/.test(text) ? "cooktop" : "sink-bowl";
 }
 
-/** Objects that can be placed in a cabinet (furniture / imported models, never cabinets or lights). */
+const APPLIANCE_CATEGORIES = new Set(["kitchen-and-appliances", "appliances", "kitchen"]);
+
+/** Kitchen / appliance catalog items and imported models (plus anything already placed); never sofas or cabinets. */
 export function isPlaceableAppliance(object: InteriorObjectEntity): boolean {
-  return object.kind === "furniture" || object.kind === "custom";
+  if (object.kind === "cabinet") return false;
+  return APPLIANCE_CATEGORIES.has(object.category)
+    || Boolean(object.extensions?.assetImport)
+    || readApplianceHost(object) !== null;
+}
+
+/** Appliance turns relative to the host snap to quarter turns (0, 90, 180, 270). */
+export function quarterTurn(degrees: number): number {
+  return ((Math.round(degrees / 90) * 90) % 360 + 360) % 360;
 }
 
 export function readApplianceHost(object: InteriorObjectEntity): ApplianceHost | null {
@@ -56,6 +69,7 @@ export function readApplianceHost(object: InteriorObjectEntity): ApplianceHost |
     offsetDepthMm: finite(object.parameters[OFFSET_DEPTH_MM], 0),
     cutoutWidthMm: finite(object.parameters[CUTOUT_WIDTH_MM], object.dimensions.widthMm),
     cutoutDepthMm: finite(object.parameters[CUTOUT_DEPTH_MM], object.dimensions.depthMm),
+    rotationOffsetDeg: quarterTurn(finite(object.parameters[ROTATION_OFFSET_DEG], 0)),
     insertKind: readHostedInsertKind(object.parameters[INSERT_KIND]) ?? detectApplianceInsertKind(object),
   };
 }
@@ -64,5 +78,7 @@ export function withoutKeys(parameters: Record<string, ParameterValue>, keys: re
   return Object.fromEntries(Object.entries(parameters).filter(([key]) => !keys.includes(key)));
 }
 
-export const APPLIANCE_HOST_KEYS = [HOST_CABINET_ID, OFFSET_ALONG_MM, OFFSET_DEPTH_MM, CUTOUT_WIDTH_MM, CUTOUT_DEPTH_MM] as const;
+export const APPLIANCE_HOST_KEYS = [
+  HOST_CABINET_ID, OFFSET_ALONG_MM, OFFSET_DEPTH_MM, ROTATION_OFFSET_DEG, CUTOUT_WIDTH_MM, CUTOUT_DEPTH_MM,
+] as const;
 export const HOST_INSERT_KEYS = [INSERT_KIND, INSERT_HOSTED_BY, APPLIANCE_WIDTH_MM, APPLIANCE_DEPTH_MM] as const;

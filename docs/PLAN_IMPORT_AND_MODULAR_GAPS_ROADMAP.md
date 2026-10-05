@@ -329,9 +329,16 @@ gets `insertKind`, `insertHostedBy` and the cut-out size on its own parameters,
 so `cabinetFromObject` keeps them and `resolve.ts` drops drawer slides. A deleted
 host leaves the appliance where it was with `hostRemoved` and an inline alert
 (the lights pattern). The hardware report lists the worktop cut-out per cabinet;
-the cut list stays rectangular. **Not yet:** dragging a hosted appliance to set
-its offset (it snaps back to the host; release it first), and an e2e for the
-exit gate.
+the cut list stays rectangular. Dragging the appliance, typing X / Z, or the
+**Along / Depth** fields set its offsets in the host's frame, clamped so the
+cut-out stays inside the cabinet; R adds a quarter turn on top of the host's
+rotation. Only kitchen / appliance items and imported models offer **Place in
+cabinet**, and a cabinet that already holds an appliance is not offered again.
+**Known limitations:** undermount sinks render sitting on the worktop, because
+the 3D worktop has no hole yet (a bowl underneath would be hidden). Each commit
+with a placed appliance builds the cabinet project twice (countertop heights,
+then the normal rebuild); share that work if commits ever feel slow. No e2e for
+the exit gate yet.
 
 ### Phase 8 — Arch / fillet / radius (deferred, G8)
 

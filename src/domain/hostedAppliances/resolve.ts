@@ -35,6 +35,28 @@ export function hostedAppliancePose(host: InteriorObjectEntity, mount: Appliance
       y: Math.round(worktopTopMm * 10) / 10,
       z: Math.round((host.position.z - along * Math.sin(angle) + depth * Math.cos(angle)) * 10) / 10,
     },
-    rotationY: host.rotation.y,
+    rotationY: (host.rotation.y + mount.rotationOffsetDeg) % 360,
   };
+}
+
+type Offsets = Pick<ApplianceHost, "offsetAlongMm" | "offsetDepthMm">;
+
+/** Keeps the cut-out inside the host's footprint (centred when it is as wide / deep as the host). */
+export function clampApplianceOffsets(host: InteriorObjectEntity, mount: ApplianceHost, offsets: Offsets): Offsets {
+  const limit = (value: number, room: number) => Math.round(Math.min(Math.max(value, -room), room));
+  return {
+    offsetAlongMm: limit(offsets.offsetAlongMm, Math.max(0, (host.dimensions.widthMm - mount.cutoutWidthMm) / 2)),
+    offsetDepthMm: limit(offsets.offsetDepthMm, Math.max(0, (host.dimensions.depthMm - mount.cutoutDepthMm) / 2)),
+  };
+}
+
+/** Inverse of `hostedAppliancePose`: a dragged or typed plan position as offsets in the host's frame. */
+export function offsetsFromPosition(host: InteriorObjectEntity, mount: ApplianceHost, position: { x: number; z: number }): Offsets {
+  const angle = (host.rotation.y * Math.PI) / 180;
+  const dx = position.x - host.position.x;
+  const dz = position.z - host.position.z;
+  return clampApplianceOffsets(host, mount, {
+    offsetAlongMm: dx * Math.cos(angle) - dz * Math.sin(angle),
+    offsetDepthMm: dx * Math.sin(angle) + dz * Math.cos(angle),
+  });
 }

@@ -2,31 +2,15 @@ import { describe, expect, it } from "vitest";
 import { createCabinetConstruction } from "../cabinetConstruction/createConstruction";
 import { buildHardwareLines, createHardwareSchedule, normalizeCabinetHardware } from "../hardwareSystem";
 import { DEFAULT_COSTING_SETTINGS } from "../costingSettings";
-import { cabinetProjectFromInteriorProject, type InteriorObjectEntity, type InteriorProject } from "../interiorProject";
+import { cabinetProjectFromInteriorProject } from "../interiorProject";
 import { readGoldenRunCountertop } from "../livingRoom/goldenRun/countertops";
-import { createGoldenCabinetRunProject } from "../livingRoom/goldenRun/createProject";
 import { GOLDEN_RUN_OBJECT_IDS } from "../livingRoom/goldenRun/types";
 import { INSERT_HOSTED_BY, OFFSET_ALONG_MM } from "./parameters";
 import { applianceHostCandidates, placeApplianceInCabinet, releaseAppliance } from "./commands";
+import { findObject as find, mapObject, SINK_ID, withSink } from "./hostedAppliances.testHelpers";
 import { syncHostedAppliances } from "./sync";
 
-const SINK_ID = "test-sink";
 const { baseA, drawer, tall } = GOLDEN_RUN_OBJECT_IDS;
-
-function withSink(): InteriorProject {
-  const project = createGoldenCabinetRunProject();
-  const sink: InteriorObjectEntity = {
-    id: SINK_ID, roomId: project.activeRoomId!, kind: "furniture", category: "kitchen-and-appliances",
-    catalogItemId: "imported-sink", name: "Undermount sink", position: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0 }, dimensions: { widthMm: 760, heightMm: 200, depthMm: 480 },
-    materialSlots: {}, parameters: {},
-  };
-  return { ...project, objects: [...project.objects, sink] };
-}
-
-const find = (project: InteriorProject, id: string) => project.objects.find((object) => object.id === id)!;
-const mapObject = (project: InteriorProject, id: string, update: (object: InteriorObjectEntity) => InteriorObjectEntity) =>
-  ({ ...project, objects: project.objects.map((object) => (object.id === id ? update(object) : object)) });
 
 describe("hosted appliances", () => {
   it("offers worktop-height cabinets only", () => {
@@ -58,13 +42,13 @@ describe("hosted appliances", () => {
 
   it("rotating the host turns the sink and its offset with it", () => {
     let project = placeApplianceInCabinet(withSink(), SINK_ID, baseA, "sink-bowl");
-    project = mapObject(project, SINK_ID, (object) => ({ ...object, parameters: { ...object.parameters, [OFFSET_ALONG_MM]: 100 } }));
+    project = mapObject(project, SINK_ID, (object) => ({ ...object, parameters: { ...object.parameters, [OFFSET_ALONG_MM]: 50 } }));
     project = syncHostedAppliances(mapObject(project, baseA, (object) => ({ ...object, rotation: { ...object.rotation, y: 90 } })));
     const host = find(project, baseA);
     const sink = find(project, SINK_ID);
     expect(sink.rotation.y).toBe(90);
     expect(sink.position.x).toBeCloseTo(host.position.x, 1);
-    expect(sink.position.z).toBeCloseTo(host.position.z - 100, 1);
+    expect(sink.position.z).toBeCloseTo(host.position.z - 50, 1);
   });
 
   it("deleting the host detaches the sink where it was, with the host-removed flag", () => {
