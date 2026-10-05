@@ -1,6 +1,6 @@
 import type { InteriorProject, RenderSettings } from "../../domain/interiorProject";
 import { explainInteriorRoomMergeBlock } from "../../domain/interiorProject";
-import { showcaseCameraForRoom } from "../../domain/apartmentTemplates/showcaseCamera";
+import { showcaseCameraPatch } from "../../domain/apartmentTemplates/showcaseCamera";
 import { roomTypeIcon } from "./roomTypeIcon";
 import { BuildRoomSwitcher } from "./BuildRoomSwitcher";
 
@@ -57,11 +57,10 @@ export function BuildRoomManager(props: Props) {
 
   const isApartment = Boolean(props.project.extensions?.apartmentTemplateId);
   const jumpShowcase = (roomId: string) => {
-    props.onActiveRoom(roomId);
-    const camera = showcaseCameraForRoom(props.project, roomId);
-    if (camera && props.onRenderSettingsChange) {
-      props.onRenderSettingsChange({ activeCameraId: camera.id });
-    }
+    if (roomId !== props.project.activeRoomId) props.onActiveRoom(roomId);
+    // Clears the camera for a room without one; null patch = no change, so no empty undo step.
+    const patch = showcaseCameraPatch(props.project, roomId);
+    if (patch && props.onRenderSettingsChange) props.onRenderSettingsChange(patch);
   };
 
   return <BuildRoomSwitcher
@@ -69,7 +68,8 @@ export function BuildRoomManager(props: Props) {
       id: room.id,
       name: room.name,
       roomType: room.roomType,
-      icon: roomTypeIcon(room.roomType),
+      // Room-type icons help tell apart many rooms in an apartment; single-room jobs stay plain.
+      icon: isApartment ? roomTypeIcon(room.roomType) : undefined,
     }))}
     activeRoomId={props.project.activeRoomId}
     onActiveRoom={props.onActiveRoom}

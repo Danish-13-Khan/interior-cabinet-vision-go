@@ -4,9 +4,9 @@ import { createLivingRoomPlanThumbnail, type LivingRoomStyleId } from "../../dom
 import { useDialogFocusTrap } from "../../hooks/useDialogFocusTrap";
 import { InteriorsApartmentTemplates } from "./InteriorsApartmentTemplates";
 import { InteriorsPopularTemplates } from "./InteriorsPopularTemplates";
-import { takePendingTemplate } from "../../domain/apartmentTemplates/pendingTemplateHandoff";
-import { lookupApartmentTemplate } from "../../domain/apartmentTemplates";
-import { lookupBuiltInCatalogTemplate } from "../../domain/catalog";
+import { clearPendingTemplate } from "../../domain/apartmentTemplates/pendingTemplateHandoff";
+import { pendingTemplateOffer, type PendingTemplateOffer } from "../../domain/apartmentTemplates/pendingTemplateOffer";
+import { PendingTemplatePrompt } from "./PendingTemplatePrompt";
 import { InteriorsProjectsIntro } from "./InteriorsProjectsIntro";
 import { InteriorsProjectsPhase1Qa } from "./InteriorsProjectsPhase1Qa";
 import { InteriorsProjectsRecents } from "./InteriorsProjectsRecents";
@@ -31,6 +31,11 @@ export function PlannerV2ProjectHome({
   const [recoveryPrompt, setRecoveryPrompt] = useState<string | null>(recoveryOffer.get()?.prompt ?? null);
   useEffect(() => browserLoading.subscribe(setProjectsLoading), []);
   useEffect(() => recoveryOffer.subscribe((offer) => setRecoveryPrompt(offer?.prompt ?? null)), []);
+  // Register → editor handoff is only an offer; re-read whenever the home opens. Hooks stay above the early return.
+  const [pendingOffer, setPendingOffer] = useState<PendingTemplateOffer | null>(() => pendingTemplateOffer());
+  useEffect(() => {
+    if (open) setPendingOffer(pendingTemplateOffer());
+  }, [open]);
   const recentRows = useMemo(() => workspace.recentProjects.flatMap((entry) => {
     const card = interiorsRecentProjectCard(entry);
     const document = entry.project.interiorDocument;
@@ -55,6 +60,7 @@ export function PlannerV2ProjectHome({
   }
 
   function createFromCatalogTemplate(catalogTemplateId: string) {
+    if (pendingOffer?.templateId === catalogTemplateId) dismissPendingTemplate();
     workspace.onDiscardRecovery();
     const name = projectName.trim();
     workspace.onCreateStarter({
@@ -65,6 +71,7 @@ export function PlannerV2ProjectHome({
   }
 
   function createFromApartmentTemplate(apartmentTemplateId: string) {
+    if (pendingOffer?.templateId === apartmentTemplateId) dismissPendingTemplate();
     workspace.onDiscardRecovery();
     const name = projectName.trim();
     workspace.onCreateStarter({
@@ -73,12 +80,19 @@ export function PlannerV2ProjectHome({
     });
   }
 
-  useEffect(() => {
-    const pending = takePendingTemplate();
-    if (!pending) return;
-    if (lookupApartmentTemplate(pending)) createFromApartmentTemplate(pending);
-    else if (lookupBuiltInCatalogTemplate(pending)) createFromCatalogTemplate(pending);
-  }, []);
+  function dismissPendingTemplate() {
+    clearPendingTemplate();
+    setPendingOffer(null);
+  }
+
+  function openPendingTemplate() {
+    // Never clobber a waiting restore-draft: the prompt disables Open until it is resolved.
+    if (!pendingOffer || workspace.recovery) return;
+    const { templateId, kind } = pendingOffer;
+    dismissPendingTemplate();
+    if (kind === "apartment") createFromApartmentTemplate(templateId);
+    else createFromCatalogTemplate(templateId);
+  }
 
   function openPhase1(benchmarkId: Parameters<LivingRoomPlanWorkspaceProps["onOpenPhase1Benchmark"]>[0]) {
     workspace.onDiscardRecovery();
@@ -111,6 +125,14 @@ export function PlannerV2ProjectHome({
             <button type="button" className="is-primary" data-testid="interiors-recovery-restore" onClick={workspace.onRestoreRecovery}>Restore</button>
             <button type="button" data-testid="interiors-recovery-discard" onClick={workspace.onDiscardRecovery}>Discard</button>
           </section>
+        ) : null}
+        {pendingOffer ? (
+          <PendingTemplatePrompt
+            offer={pendingOffer}
+            hasRecovery={Boolean(workspace.recovery)}
+            onOpen={openPendingTemplate}
+            onDismiss={dismissPendingTemplate}
+          />
         ) : null}
         {projectsLoading ? <p data-testid="projects-loading">Loading projects…</p> : null}
         <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />

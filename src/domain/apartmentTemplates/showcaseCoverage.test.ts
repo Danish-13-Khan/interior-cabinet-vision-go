@@ -37,7 +37,8 @@ function decorPresets(project: ReturnType<typeof composeApartment>) {
     if (typeof preset === "string") presets.add(preset);
     // addWallDecoration stamps catalog ids — map known ones back to presets.
     const catalog = object.catalogItemId;
-    if (catalog === "living:feature-wall-fluted") presets.add("slat");
+    // The default TV feature panel alone does not count as the authored slat preset.
+    if (catalog === "living:feature-wall-fluted" && /-(feature-decor|headboard)$/.test(object.id)) presets.add("slat");
     if (catalog === "living:wall-panel-full") presets.add("full");
     if (catalog === "living:wall-panel-vertical") presets.add("vertical");
     if (catalog === "living:wall-panel-horizontal") presets.add("horizontal");

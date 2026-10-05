@@ -97,7 +97,9 @@ export function Register() {
       <AuthNoticeDialog
         open={comingSoon}
         title="Coming soon"
-        message="Registration isn't open yet. You can fill this form, but new accounts aren't created."
+        message={template
+          ? `Registration isn't open yet, so no account was created. The editor will offer to start from ${template.name} next time you open it — nothing is created until you choose it.`
+          : "Registration isn't open yet. You can fill this form, but new accounts aren't created."}
         testId="register-coming-soon"
         onClose={() => setComingSoon(false)}
       />

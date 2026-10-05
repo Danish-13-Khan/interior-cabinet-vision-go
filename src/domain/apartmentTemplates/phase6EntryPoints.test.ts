@@ -15,6 +15,9 @@ describe("Phase 6 apartment entry points", () => {
     expect(APARTMENT_TEMPLATE_CARDS.map((c) => c.id)).toEqual([...APARTMENT_TEMPLATE_IDS]);
     for (const card of APARTMENT_TEMPLATE_CARDS) {
       expect(card.areaM2).toBeGreaterThan(0);
+      // Carpet (inside wall faces) is smaller than the centreline footprint, but not by more than walls take.
+      expect(card.carpetM2).toBeLessThan(card.footprintM2);
+      expect(card.carpetM2).toBeGreaterThan(card.footprintM2 * 0.8);
       expect(card.roomCount).toBeGreaterThan(0);
       expect(card.name.length).toBeGreaterThan(0);
     }
@@ -34,9 +37,21 @@ describe("Phase 6 apartment entry points", () => {
     expect(a.document.extensions?.apartmentTemplateId).toBe("template:apartment:studio:v1");
     expect(a.document.id).toBe("proj-a");
     expect(b.document.id).toBe("proj-b");
-    const aRoomIds = a.document.rooms.map((r) => r.id).sort();
-    const bRoomIds = b.document.rooms.map((r) => r.id).sort();
-    expect(aRoomIds).not.toEqual(bRoomIds);
+    // Every id is unique inside each document; factory-minted ids (openings, objects, cameras) are
+    // never shared between the two opens. Shell ids (rooms, walls, light rig) are document-local
+    // sequential ids from the editor commands and may repeat across separate projects.
+    const allIds = (doc: typeof a.document) => [
+      ...doc.rooms, ...doc.walls, ...doc.openings, ...doc.objects, ...doc.lights, ...doc.cameras,
+    ].map((entity) => entity.id);
+    for (const doc of [a.document, b.document]) {
+      expect(new Set(allIds(doc)).size).toBe(allIds(doc).length);
+    }
+    const minted = (doc: typeof a.document) =>
+      [...doc.openings, ...doc.objects, ...doc.cameras].map((entity) => entity.id);
+    const aIds = minted(a.document);
+    const bIds = new Set(minted(b.document));
+    expect(aIds.length).toBeGreaterThan(20);
+    expect(aIds.filter((id) => bIds.has(id))).toEqual([]);
   });
 
   it("keeps deterministic ids when uniqueIds is false (authoring / tests)", () => {

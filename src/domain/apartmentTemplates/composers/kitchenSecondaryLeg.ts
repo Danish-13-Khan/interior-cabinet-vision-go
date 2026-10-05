@@ -5,7 +5,7 @@ import { roomPlanViewBounds, type InteriorProject, type WallEntity } from "../..
 import type { KitchenComposeOptions, WallSide } from "../types";
 import { applyCabinetFrontOptions } from "./cabinetOptions";
 import { oppositeSide } from "./helpers";
-import { fixedAlongToRoomAlongMm, freePiecesOnSide, pointAlongWall } from "./wallPieces";
+import { COUNTER_WINDOW_SILL_MM, fixedAlongToRoomAlongMm, freePiecesOnSide, pointAlongWall } from "./wallPieces";
 
 /** L leg starts this far from the corner so it clears the primary run depth. */
 export const L_CORNER_CLEARANCE_MM = 600;
@@ -47,7 +47,8 @@ export function composeSecondaryLeg(
   }
   const minimum = MIN_LEG_BASES * LEG_BASE_WIDTH_MM;
   // A piece whose near end sits inside the primary run's depth must start clear of it.
-  const fit = freePiecesOnSide(project, roomId, side, minimum).map((piece) => {
+  const under = { passUnderWindowsFromMm: COUNTER_WINDOW_SILL_MM };
+  const fit = freePiecesOnSide(project, roomId, side, minimum, under).map((piece) => {
     const lo = pointAlongWall(piece.wall, piece.startAlongMm);
     const hi = pointAlongWall(piece.wall, piece.startAlongMm + piece.lengthMm);
     const dLo = distanceToLine(lo, primaryWall);

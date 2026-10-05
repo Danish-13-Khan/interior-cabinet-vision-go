@@ -4,7 +4,8 @@ import {
   readPlanningExtension,
 } from "../../cabinetIdentity";
 import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
-import type { DoorSourcingOption, FinishRole, HandleHardwareId } from "../types";
+import type { DoorSourcingOption, HandleHardwareId } from "../types";
+import { applyFinishRolesToRoom } from "./applyFinishRoles";
 import {
   DOOR_SOURCING_PARAMETER,
   DOOR_STYLE_PARAMETER,
@@ -64,21 +65,10 @@ function patchHardwareHandle(
   };
 }
 
+/** Kitchen composers keep this name; finish roles now cover every joinery / decor object in the room. */
 export function applyFinishRolesToCabinets(
   project: InteriorProject,
   roomId: string,
 ): InteriorProject {
-  const roles = project.extensions?.finishRoles as Partial<Record<FinishRole, string>> | undefined;
-  if (!roles) return project;
-  return {
-    ...project,
-    objects: project.objects.map((object) => {
-      if (object.roomId !== roomId || object.kind !== "cabinet") return object;
-      const slots = { ...object.materialSlots };
-      if (roles.carcass) slots.carcass = roles.carcass;
-      if (roles["front-primary"]) slots.fronts = roles["front-primary"];
-      if (roles.worktop) slots.countertop = roles.worktop;
-      return { ...object, materialSlots: slots };
-    }),
-  };
+  return applyFinishRolesToRoom(project, roomId);
 }

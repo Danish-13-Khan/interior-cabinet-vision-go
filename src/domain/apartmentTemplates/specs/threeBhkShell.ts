@@ -58,6 +58,8 @@ export const THREE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
       widthMm: 1800,
       catalogItemId: "opening:door-sliding",
     },
+    // Kitchen window over the L leg's counter on the outside (north) wall.
+    { kind: "window", between: { room: "kitchen", side: "north" }, offsetMm: 700, widthMm: 900, heightMm: 1000, sillHeightMm: 1100 },
     { kind: "window", between: { room: "living", side: "west" }, offsetMm: 1400, widthMm: 1600, sillHeightMm: 900 },
     { kind: "window", between: { room: "balcony", side: "south" }, offsetMm: 1700, widthMm: 2000, sillHeightMm: 100 },
     { kind: "window", between: { room: "kids", side: "south" }, offsetMm: 700, widthMm: 1200, sillHeightMm: 900 },
@@ -67,10 +69,10 @@ export const THREE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
   heroRoomKey: "living",
   finishRoles: {
     carcass: LIVING_ROOM_MATERIAL_IDS.naturalOak,
-    "front-primary": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "front-primary": LIVING_ROOM_MATERIAL_IDS.naturalOak,
     "front-accent": LIVING_ROOM_MATERIAL_IDS.walnut,
     worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
-    "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "wall-panel": LIVING_ROOM_MATERIAL_IDS.walnut,
     floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
   },
 };

@@ -1,5 +1,6 @@
 import type { InteriorProject } from "../interiorProject";
 import { applyShowcaseCameras } from "./applyShowcaseCameras";
+import { applyFinishRolesToAllRooms } from "./composers/applyFinishRoles";
 import { buildApartmentShell, type BuildApartmentShellOptions } from "./buildApartmentShell";
 import { apartmentIdFactory } from "./ids";
 import type { ApartmentTemplateSpec, RoomComposition } from "./types";
@@ -34,6 +35,8 @@ export function composeApartment(
     if (!roomId) continue;
     project = runComposer(project, roomId, room.compose, idFactory);
   }
+  // Finish roles reach every room (wardrobes, vanities, TV units, decor), not only kitchens.
+  project = applyFinishRolesToAllRooms(project);
   const heroId = keyToId.get(spec.heroRoomKey);
   if (heroId && project.activeRoomId !== heroId) {
     project = { ...project, activeRoomId: heroId };

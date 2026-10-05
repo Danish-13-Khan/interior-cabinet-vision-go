@@ -149,10 +149,10 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
   heroRoomKey: "living",
   finishRoles: {
     carcass: LIVING_ROOM_MATERIAL_IDS.naturalOak,
-    "front-primary": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "front-primary": LIVING_ROOM_MATERIAL_IDS.naturalOak,
     "front-accent": LIVING_ROOM_MATERIAL_IDS.naturalOak,
     worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
-    "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "wall-panel": LIVING_ROOM_MATERIAL_IDS.naturalOak,
     floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
   },
 };

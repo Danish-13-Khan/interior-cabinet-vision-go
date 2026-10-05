@@ -7,6 +7,15 @@ export const ONE_BHK_OPENINGS: readonly ApartmentOpeningSpec[] = [
   { kind: "door", between: ["bedroom", "bath"], offsetMm: 300, widthMm: 700 },
   { kind: "opening", between: ["living", "kitchen"], offsetMm: 600, widthMm: 1400 },
   { kind: "door", between: { room: "living", side: "west" }, offsetMm: 400, widthMm: 900 },
+  // Kitchen window over the counter (base-b end of the north run, clear of the wall units).
+  {
+    kind: "window",
+    between: { room: "kitchen", side: "north" },
+    offsetMm: 2900,
+    widthMm: 800,
+    heightMm: 1000,
+    sillHeightMm: 1100,
+  },
   {
     kind: "window",
     between: { room: "living", side: "south" },

@@ -27,7 +27,7 @@ export function InteriorsApartmentTemplates({ onCreate }: Props) {
             <span className="interiors-template-thumb-fallback" aria-hidden />
             <strong>{card.name}</strong>
             <small>
-              {card.areaM2} m² · {card.roomCount} rooms — {card.description}
+              {card.carpetM2} m² carpet ({card.footprintM2} m² built-up) · {card.roomCount} rooms — {card.description}
             </small>
           </button>
         ))}

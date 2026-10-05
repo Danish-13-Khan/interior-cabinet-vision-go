@@ -33,7 +33,7 @@ export function composeBedroom(
   const bounds = roomPlanViewBounds(next, roomId);
 
   const widthMm = options.wardrobeWidthMm ?? 1800;
-  const piece = longestFreePieceOnSide(next, roomId, wardrobeSide, widthMm);
+  const piece = longestFreePieceOnSide(next, roomId, wardrobeSide, widthMm + (options.cornerWardrobe ? 120 : 0));
   if (piece) {
     const wardrobeId = idFactory("object", `${roomId}-wardrobe`);
     // Seed from frameless-standard-almirah via living:wardrobe-wall binding (not tall pantry).
@@ -45,9 +45,16 @@ export function composeBedroom(
     });
     seed.dimensions = { ...seed.dimensions, widthMm };
     seed = applyCabinetFrontOptions(seed, options);
-    const along = piece.startAlongMm
-      + Math.max(0, (piece.lengthMm - widthMm) / 2)
-      + widthMm / 2;
+    // Corner wardrobes tuck into the corner the free piece reaches (inside the return wall);
+    // wall wardrobes centre on the piece.
+    const wallLen = Math.hypot(piece.wall.end.x - piece.wall.start.x, piece.wall.end.z - piece.wall.start.z);
+    const inset = Math.max(...next.walls.map((wall) => wall.thicknessMm)) / 2;
+    const atEnd = piece.startAlongMm > 1 && piece.startAlongMm + piece.lengthMm >= wallLen - 1;
+    const along = options.cornerWardrobe
+      ? (atEnd
+        ? piece.startAlongMm + piece.lengthMm - inset - widthMm / 2
+        : piece.startAlongMm + (piece.startAlongMm < 1 ? inset : 0) + widthMm / 2)
+      : piece.startAlongMm + Math.max(0, (piece.lengthMm - widthMm) / 2) + widthMm / 2;
     next = placeCabinetOnWall(next, seed, piece.wall, along);
   }
 

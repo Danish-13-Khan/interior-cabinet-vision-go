@@ -40,6 +40,8 @@ export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     // West end so the kitchen's parallel run and the living TV wall share a 2.2 m free piece.
     { kind: "opening", between: ["living", "kitchen"], offsetMm: 150, widthMm: 1000 },
     { kind: "door", between: { room: "living", side: "west" }, offsetMm: 500, widthMm: 900 },
+    // Kitchen daylight on the free outside (west) wall between the two runs.
+    { kind: "window", between: { room: "kitchen", side: "west" }, offsetMm: 1300, widthMm: 900, heightMm: 1100, sillHeightMm: 1000 },
     { kind: "window", between: { room: "living", side: "south" }, offsetMm: 1800, widthMm: 1800, sillHeightMm: 900 },
     { kind: "window", between: { room: "master", side: "south" }, offsetMm: 1500, widthMm: 1800, sillHeightMm: 900 },
     { kind: "window", between: { room: "kids", side: "east" }, offsetMm: 800, widthMm: 1200, sillHeightMm: 900 },
@@ -50,7 +52,7 @@ export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     "front-primary": LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
     "front-accent": LIVING_ROOM_MATERIAL_IDS.walnut,
     worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
-    "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "wall-panel": LIVING_ROOM_MATERIAL_IDS.walnut,
     floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
   },
 };

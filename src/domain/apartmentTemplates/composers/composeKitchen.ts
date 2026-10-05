@@ -23,6 +23,7 @@ import {
   longestFreePieceOnSide,
   withActiveRoom,
 } from "./helpers";
+import { COUNTER_WINDOW_SILL_MM } from "./wallPieces";
 import { addUnderCabinetLights, hostKitchenAppliances } from "./kitchenAppliances";
 import { composeSecondaryLeg, KitchenLegDoesNotFitError } from "./kitchenSecondaryLeg";
 import { addRoomFixtureKinds } from "./roomLights";
@@ -44,8 +45,10 @@ export function composeKitchen(
   const bounds = roomPlanViewBounds(next, roomId);
   const runWidth = (options.tallPantry ? 600 : 0) + 2700;
   const fillerPad = 280 * 2;
-  const piece = longestFreePieceOnSide(next, roomId, runSide, runWidth + fillerPad)
-    ?? longestFreePieceOnSide(next, roomId, runSide, runWidth);
+  // Base runs pass under a counter-height window; the overlap check still guards tall / wall units.
+  const under = { passUnderWindowsFromMm: COUNTER_WINDOW_SILL_MM };
+  const piece = longestFreePieceOnSide(next, roomId, runSide, runWidth + fillerPad, under)
+    ?? longestFreePieceOnSide(next, roomId, runSide, runWidth, under);
   if (!piece) return next;
   const canFill = piece.lengthMm + 0.5 >= runWidth + fillerPad;
 

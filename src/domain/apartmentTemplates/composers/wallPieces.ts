@@ -25,7 +25,12 @@ export type FreeWallPiece = {
 export type FreePieceOptions = {
   /** Treat wall-hosted objects (not decor panels) as occupied. Default true. */
   avoidObjects?: boolean;
+  /** Base-height runs may pass under windows whose sill is at least this high (mm). */
+  passUnderWindowsFromMm?: number;
 };
+
+/** Sill clear of a base run + worktop + splash; kitchens use it for windows over the counter. */
+export const COUNTER_WINDOW_SILL_MM = 1000;
 
 /** Wall id an object is hosted on (cabinets, TV units and decor panels share the key). */
 export function hostWallId(object: InteriorObjectEntity): string | undefined {
@@ -52,8 +57,10 @@ function occupiedOnWall(
   const stored = project.walls.find((wall) => wall.id === oriented.id);
   if (!stored) return [];
   const length = wallLength(oriented);
+  const passUnder = options.passUnderWindowsFromMm;
   const spans: AlongWallSpan[] = selectRoomOpenings(project, roomId)
     .filter((opening) => opening.wallId === oriented.id)
+    .filter((opening) => !(passUnder != null && opening.kind === "window" && opening.sillHeightMm >= passUnder))
     .map((opening) => openingSpanOnOrientedWall(opening, stored, oriented, length));
   if (options.avoidObjects !== false) {
     for (const object of project.objects) {

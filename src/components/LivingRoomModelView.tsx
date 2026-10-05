@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
@@ -44,9 +44,21 @@ export function LivingRoomModelView({
   const extrudedWalls = scene.nodes.filter(
     (node) => node.metadata.role === "wall" && node.metadata.planTrace !== true,
   ).length;
+  const projectCameraId = project.renderSettings.activeCameraId ?? null;
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
-    () => preferModelViewCameraId(scene.cameras),
+    () => (projectCameraId && scene.cameras.some((item) => item.id === projectCameraId)
+      ? projectCameraId
+      : preferModelViewCameraId(scene.cameras)),
   );
+  // Showcase view / Render Studio drive the document camera; follow it (null = free orbit).
+  const seenProjectCameraId = useRef(projectCameraId);
+  useEffect(() => {
+    if (seenProjectCameraId.current === projectCameraId) return;
+    seenProjectCameraId.current = projectCameraId;
+    if (!projectCameraId) setActiveCameraId(null);
+    else if (scene.cameras.some((item) => item.id === projectCameraId)) setActiveCameraId(projectCameraId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to document camera changes only
+  }, [projectCameraId]);
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
   const [showGuide, setShowGuide] = useState(() => !presentation && shouldShowModelGuide());

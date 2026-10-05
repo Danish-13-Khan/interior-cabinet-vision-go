@@ -7,6 +7,6 @@ export const DEFAULT_FINISH_ROLES: Record<FinishRole, string> = {
   "front-primary": LIVING_ROOM_MATERIAL_IDS.naturalOak,
   "front-accent": LIVING_ROOM_MATERIAL_IDS.walnut,
   worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
-  "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+  "wall-panel": LIVING_ROOM_MATERIAL_IDS.naturalOak,
   floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
 };

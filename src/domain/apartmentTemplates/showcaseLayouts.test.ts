@@ -8,6 +8,7 @@ import {
 } from "./index";
 import { builtKitchenLayout, hostedObjectCollisions, kitchenLegClashes } from "./builtLayout";
 import { roomIdByKey } from "./testSupport";
+import { roomIdsUsingWall } from "../interiorProject/planTopology";
 
 const built = APARTMENT_TEMPLATE_IDS.map((id) => {
   const spec = lookupApartmentTemplate(id)!;
@@ -55,6 +56,22 @@ describe("showcase layouts read from the built project", () => {
       for (const room of project.rooms) {
         expect(roomObjectsOverlapOpenings(project, room.id).map((o) => o.id),
           `${id} ${room.extensions?.apartmentRoomKey}`).toEqual([]);
+      }
+    }
+  });
+});
+
+describe("kitchen daylight", () => {
+  it("every template kitchen has a window on an outside wall, clear of its units", () => {
+    for (const { id, spec, project } of built) {
+      const ids = roomIdByKey(project);
+      for (const room of spec.rooms.filter((item) => item.compose.kind === "kitchen")) {
+        const roomId = ids.get(room.key)!;
+        const windows = project.openings.filter((opening) => opening.kind === "window"
+          && roomIdsUsingWall(project, opening.wallId).length === 1
+          && roomIdsUsingWall(project, opening.wallId)[0] === roomId);
+        expect(windows.length, `${id} ${room.key}`).toBeGreaterThan(0);
+        expect(roomObjectsOverlapOpenings(project, roomId), `${id} ${room.key}`).toEqual([]);
       }
     }
   });
