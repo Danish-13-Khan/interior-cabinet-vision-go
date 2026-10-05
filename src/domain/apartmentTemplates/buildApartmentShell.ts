@@ -16,6 +16,13 @@ export type BuildApartmentShellOptions = {
   idFactory?: ReturnType<typeof apartmentIdFactory>;
 };
 
+const OPENING_FAIL_CODES = new Set([
+  "opening-out-of-range",
+  "opening-overlap",
+  "opening-vertical-out-of-range",
+  "opening-unknown-wall",
+]);
+
 /**
  * Outer rectangle → guillotine splits → rename/type rooms → openings.
  * Pure and deterministic when `now` + id factory are fixed (D3).
@@ -73,10 +80,14 @@ export function buildApartmentShell(
       `Apartment shell required repairs: ${repairs.map((i) => i.code).join(", ")}`,
     );
   }
-  const errors = result.issues.filter((issue) => issue.severity === "error");
-  if (errors.length) {
+  const fatal = result.issues.filter(
+    (issue) =>
+      issue.severity === "error"
+      || OPENING_FAIL_CODES.has(issue.code),
+  );
+  if (fatal.length) {
     throw new Error(
-      `Apartment shell invalid: ${errors.map((i) => i.message).join("; ")}`,
+      `Apartment shell invalid: ${fatal.map((i) => i.message).join("; ")}`,
     );
   }
   return result.project;

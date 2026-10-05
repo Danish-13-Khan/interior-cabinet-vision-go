@@ -2,11 +2,10 @@ import {
   type InteriorProject,
   type OpeningEntity,
 } from "../interiorProject";
-import { addLivingRoomOpening } from "../livingRoom/openingCommands";
 import type { LivingRoomIdFactory } from "../livingRoom/ids";
 import { sharedWallBetween } from "./sharedWall";
 import type { ApartmentOpeningSpec } from "./types";
-import { wallOnSide } from "./wallSide";
+import { exteriorWallOnSide } from "./wallSide";
 
 function roomIdForKey(
   rooms: Map<string, string>,
@@ -17,7 +16,11 @@ function roomIdForKey(
   return id;
 }
 
-/** Place doors/windows/arches on shared or external walls (§3.1 openings). */
+/**
+ * Place doors/windows/arches on shared or exterior walls (§3.1).
+ * Values are kept as authored (no silent squeeze); the shell builder rejects
+ * out-of-range / overlap warnings.
+ */
 export function applyApartmentOpenings(
   project: InteriorProject,
   openings: readonly ApartmentOpeningSpec[],
@@ -45,7 +48,7 @@ export function applyApartmentOpenings(
       catalogItemId: spec.catalogItemId,
       swingDirection: spec.kind === "door" ? "in" : undefined,
     };
-    next = addLivingRoomOpening(next, opening);
+    next = { ...next, openings: [...next.openings, opening] };
   });
   return next;
 }
@@ -61,5 +64,5 @@ function resolveOpeningWall(
     return sharedWallBetween(project, a, b);
   }
   const roomId = roomIdForKey(roomKeyToId, spec.between.room);
-  return wallOnSide(project, roomId, spec.between.side);
+  return exteriorWallOnSide(project, roomId, spec.between.side);
 }

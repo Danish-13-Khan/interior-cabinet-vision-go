@@ -25,6 +25,7 @@ export function addWallPanel(
   project: InteriorProject,
   wallId: string,
   options?: {
+    id?: string;
     catalogItemId?: LivingRoomCatalogId;
     alongMm?: number;
     floorOffsetMm?: number;
@@ -35,7 +36,7 @@ export function addWallPanel(
   if (!project.walls.some((wall) => wall.id === wallId)) return project;
   const catalogItemId = options?.catalogItemId ?? DEFAULT_PANEL_CATALOG_ID;
   const draft = createLivingRoomObject(catalogItemId, {
-    id: uniquePanelId(),
+    id: options?.id ?? uniquePanelId(),
     roomId: project.activeRoomId,
     position: { x: 0, y: 0, z: 0 },
   });

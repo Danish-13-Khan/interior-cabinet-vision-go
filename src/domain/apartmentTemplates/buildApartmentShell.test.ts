@@ -10,6 +10,7 @@ import {
   APARTMENT_SHELL_SPECS,
   THREE_BHK_SHELL_SPEC,
   TWO_ROOM_FLAT_SPEC,
+  apartmentIdFactory,
   buildApartmentShell,
   sharedWallBetween,
 } from "./index";
@@ -57,6 +58,28 @@ describe("Phase 0 apartment shell builder", () => {
         expect(placed).toBeTruthy();
         expect(roomIdsUsingWall(project, wall!.id).sort()).toEqual([a, b].sort());
       }
+    }
+  });
+
+  it("keeps exterior openings on exterior walls with authored size/offset", () => {
+    for (const spec of APARTMENT_SHELL_SPECS) {
+      const project = buildApartmentShell(spec, { now: NOW });
+      const keyToId = new Map(
+        project.rooms.map((room) => [
+          String(room.extensions?.apartmentRoomKey ?? ""),
+          room.id,
+        ]),
+      );
+      const ids = apartmentIdFactory(spec.id);
+      spec.openings.forEach((opening, index) => {
+        const placed = project.openings.find((item) => item.id === ids("opening", `o${index}`));
+        expect(placed, `${spec.id} opening #${index}`).toBeTruthy();
+        expect(placed!.widthMm).toBe(opening.widthMm);
+        expect(placed!.offsetMm).toBe(opening.offsetMm);
+        if (Array.isArray(opening.between)) return;
+        const roomId = keyToId.get(opening.between.room)!;
+        expect(roomIdsUsingWall(project, placed!.wallId)).toEqual([roomId]);
+      });
     }
   });
 

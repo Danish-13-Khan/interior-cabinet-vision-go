@@ -6,15 +6,19 @@ import { attachLightToObject } from "../../livingRoom/lightAttachments";
 import { placeCatalogItemWithDefaults } from "../../catalog/placeCatalogItem";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { BathroomComposeOptions, WallSide } from "../types";
-import { wallOnSide } from "../wallSide";
 import { apartmentIdFactory } from "../ids";
-import { withActiveRoom } from "./helpers";
+import {
+  longestFreePieceOnSide,
+  offsetTowardSide,
+  oppositeSide,
+  withActiveRoom,
+} from "./helpers";
 
 export type ComposeBathroomArgs = BathroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
 };
 
-/** Vanity, mirror + optional rope light; wet-room finishes. */
+/** Vanity + WC relative to vanitySide; mirror + optional rope light. */
 export function composeBathroom(
   project: InteriorProject,
   roomId: string,
@@ -27,22 +31,43 @@ export function composeBathroom(
 
   next = finalizeBathroomTemplate(next, { roomId });
 
+  const vanityPose = offsetTowardSide(vanitySide, bounds, 0.28);
   const vanityId = idFactory("object", `${roomId}-vanity`);
   next = placeCatalogItemWithDefaults(next, "bathroom-sink-1", {
     objectId: vanityId,
     roomId,
-    position: { x: bounds.centerX - 400, y: 0, z: bounds.centerZ - bounds.depthMm * 0.25 },
+    position: {
+      x: bounds.centerX + vanityPose.x,
+      y: 0,
+      z: bounds.centerZ + vanityPose.z,
+    },
+    rotationY: vanityPose.rotationY,
   });
 
-  const wall = wallOnSide(next, roomId, vanitySide);
+  const wall = longestFreePieceOnSide(next, roomId, vanitySide, 600)?.wall;
   if (wall) {
-    next = addWallDecoration(withActiveRoom(next, roomId), wall.id, "mirror");
+    next = addWallDecoration(
+      withActiveRoom(next, roomId),
+      wall.id,
+      "mirror",
+      { id: idFactory("object", `${roomId}-mirror`) },
+    );
   }
 
+  const wcPose = offsetTowardSide(oppositeSide(vanitySide), bounds, 0.28);
+  // Nudge WC off-center so it does not sit on top of the vanity axis.
+  const wcOffset = vanitySide === "north" || vanitySide === "south"
+    ? { x: bounds.widthMm * 0.18, z: wcPose.z }
+    : { x: wcPose.x, z: bounds.depthMm * 0.18 };
   next = placeCatalogItemWithDefaults(next, "toilet-1", {
     objectId: idFactory("object", `${roomId}-wc`),
     roomId,
-    position: { x: bounds.centerX + 400, y: 0, z: bounds.centerZ - bounds.depthMm * 0.25 },
+    position: {
+      x: bounds.centerX + wcOffset.x,
+      y: 0,
+      z: bounds.centerZ + wcOffset.z,
+    },
+    rotationY: wcPose.rotationY,
   });
 
   if (options.mirrorRopeLight !== false) {

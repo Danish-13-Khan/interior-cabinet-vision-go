@@ -3,9 +3,11 @@ import { addWallDecoration } from "../../livingRoom/wallDecorations";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { LivingComposeOptions, WallSide } from "../types";
-import { wallOnSide } from "../wallSide";
 import { apartmentIdFactory } from "../ids";
 import {
+  longestFreePieceOnSide,
+  offsetTowardSide,
+  oppositeSide,
   placeCatalogInRoom,
   placeCatalogOnWall,
   withActiveRoom,
@@ -15,7 +17,7 @@ export type ComposeLivingArgs = LivingComposeOptions & {
   idFactory?: LivingRoomIdFactory;
 };
 
-/** TV wall, sofa set, optional feature wall and cove/track lights. */
+/** TV wall, sofa set facing it, optional feature wall and cove/track lights. */
 export function composeLiving(
   project: InteriorProject,
   roomId: string,
@@ -34,10 +36,13 @@ export function composeLiving(
   );
 
   if (options.featureWallPreset) {
-    const wall = wallOnSide(next, roomId, tvSide);
+    const wall = longestFreePieceOnSide(next, roomId, tvSide, 600)?.wall;
     if (wall) {
       next = addWallDecoration(
-        withActiveRoom(next, roomId), wall.id, options.featureWallPreset,
+        withActiveRoom(next, roomId),
+        wall.id,
+        options.featureWallPreset,
+        { id: idFactory("object", `${roomId}-feature-decor`) },
       );
     }
   } else {
@@ -47,9 +52,10 @@ export function composeLiving(
   }
 
   if (options.sofaSet !== false) {
+    const sofa = offsetTowardSide(oppositeSide(tvSide), bounds, 0.18);
     next = placeCatalogInRoom(
       next, roomId, "living:sofa-3-seat", `${roomId}-sofa`, idFactory,
-      { x: 0, z: bounds.depthMm * 0.18, rotationY: 0 },
+      { x: sofa.x, z: sofa.z, rotationY: sofa.rotationY },
       bounds,
     );
     next = placeCatalogInRoom(
@@ -59,14 +65,14 @@ export function composeLiving(
     );
     next = placeCatalogInRoom(
       next, roomId, "living:area-rug", `${roomId}-rug`, idFactory,
-      { x: 0, z: bounds.depthMm * 0.05 },
+      { x: sofa.x * 0.4, z: sofa.z * 0.4 },
       bounds,
     );
   }
 
   next = withActiveRoom(next, roomId);
   if (options.coveLight !== false) {
-    const wall = wallOnSide(next, roomId, tvSide);
+    const wall = longestFreePieceOnSide(next, roomId, tvSide, 400)?.wall;
     if (wall) {
       next = addRoomLightFixture(next, "cove", { kind: "wall", wallId: wall.id });
     }

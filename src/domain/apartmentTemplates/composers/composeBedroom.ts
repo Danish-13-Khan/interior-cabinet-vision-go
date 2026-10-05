@@ -1,15 +1,15 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
 import { addWallDecoration } from "../../livingRoom/wallDecorations";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
-import { arrangeCabinetRun } from "../../livingRoom/wardrobePlacement";
-import {
-  seedCabinet,
-} from "../../catalog/kitchenTemplateShared";
+import { createLivingRoomObject } from "../../livingRoom/catalog";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { BedroomComposeOptions, WallSide } from "../types";
-import { wallOnSide } from "../wallSide";
 import { apartmentIdFactory } from "../ids";
 import {
+  longestFreePieceOnSide,
+  offsetTowardSide,
+  oppositeSide,
+  placeCabinetOnWall,
   placeCatalogInRoom,
   withActiveRoom,
 } from "./helpers";
@@ -18,7 +18,7 @@ export type ComposeBedroomArgs = BedroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
 };
 
-/** Bed, wardrobe on a side, optional headboard decor and pendants. */
+/** Bed, wardrobe (almirah family), optional headboard decor and pendants. */
 export function composeBedroom(
   project: InteriorProject,
   roomId: string,
@@ -30,42 +30,52 @@ export function composeBedroom(
   let next = withActiveRoom(project, roomId);
   const bounds = roomPlanViewBounds(next, roomId);
 
-  const wardrobeWall = wallOnSide(next, roomId, wardrobeSide);
-  if (wardrobeWall) {
+  const widthMm = options.wardrobeWidthMm ?? 1800;
+  const piece = longestFreePieceOnSide(next, roomId, wardrobeSide, widthMm);
+  if (piece) {
     const wardrobeId = idFactory("object", `${roomId}-wardrobe`);
-    const widthMm = options.wardrobeWidthMm ?? 1800;
-    const seed = seedCabinet(roomId, "frameless-standard-tall", wardrobeId, {
-      x: bounds.centerX, y: 0, z: bounds.centerZ,
+    // Seed from frameless-standard-almirah via living:wardrobe-wall binding (not tall pantry).
+    const seed = createLivingRoomObject("living:wardrobe-wall", {
+      id: wardrobeId,
+      roomId,
+      position: { x: bounds.centerX, y: 0, z: bounds.centerZ },
     });
     seed.dimensions = { ...seed.dimensions, widthMm };
-    seed.catalogItemId = "living:wardrobe-wall";
-    seed.name = "Wardrobe Wall";
-    next = { ...next, objects: [...next.objects, seed] };
-    next = arrangeCabinetRun(next, [wardrobeId], wardrobeWall.id, {
-      alignment: "center",
-      gapMm: 0,
-    });
+    const along = piece.startAlongMm
+      + Math.max(0, (piece.lengthMm - widthMm) / 2)
+      + widthMm / 2;
+    next = placeCabinetOnWall(next, seed, piece.wall, along);
   }
 
+  const bed = offsetTowardSide(bedSide, bounds, 0.22);
   next = placeCatalogInRoom(
     next, roomId, "living:ottoman", `${roomId}-bed-proxy`, idFactory,
-    { x: 0, z: -bounds.depthMm * 0.15, rotationY: bedSide === "north" ? 180 : 0 },
+    { x: bed.x, z: bed.z, rotationY: bed.rotationY },
     bounds,
+  );
+  const foot = offsetTowardSide(oppositeSide(bedSide), bounds, 0.12);
+  // Side tables near the headboard wall, flanking the bed.
+  const flank = bedSide === "north" || bedSide === "south"
+    ? [{ x: -bounds.widthMm * 0.22, z: bed.z }, { x: bounds.widthMm * 0.22, z: bed.z }]
+    : [{ x: bed.x, z: -bounds.depthMm * 0.22 }, { x: bed.x, z: bounds.depthMm * 0.22 }];
+  next = placeCatalogInRoom(
+    next, roomId, "living:side-table", `${roomId}-side-l`, idFactory, flank[0]!, bounds,
   );
   next = placeCatalogInRoom(
-    next, roomId, "living:side-table", `${roomId}-side-l`, idFactory,
-    { x: -bounds.widthMm * 0.22, z: -bounds.depthMm * 0.22 },
-    bounds,
+    next, roomId, "living:side-table", `${roomId}-side-r`, idFactory, flank[1]!, bounds,
   );
-  next = placeCatalogInRoom(
-    next, roomId, "living:side-table", `${roomId}-side-r`, idFactory,
-    { x: bounds.widthMm * 0.22, z: -bounds.depthMm * 0.22 },
-    bounds,
-  );
+  void foot;
 
   if (options.headboardDecor) {
-    const wall = wallOnSide(next, roomId, bedSide);
-    if (wall) next = addWallDecoration(withActiveRoom(next, roomId), wall.id, options.headboardDecor);
+    const head = longestFreePieceOnSide(next, roomId, bedSide, 600)?.wall;
+    if (head) {
+      next = addWallDecoration(
+        withActiveRoom(next, roomId),
+        head.id,
+        options.headboardDecor,
+        { id: idFactory("object", `${roomId}-headboard`) },
+      );
+    }
   }
 
   if (options.pendants !== false) {

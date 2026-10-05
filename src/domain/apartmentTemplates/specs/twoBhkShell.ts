@@ -78,7 +78,7 @@ export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     { kind: "opening", between: ["living", "kitchen"], offsetMm: 400, widthMm: 1200 },
     { kind: "door", between: { room: "living", side: "west" }, offsetMm: 500, widthMm: 900 },
     { kind: "window", between: { room: "living", side: "south" }, offsetMm: 1200, widthMm: 1800, sillHeightMm: 900 },
-    { kind: "window", between: { room: "master", side: "east" }, offsetMm: 600, widthMm: 1400, sillHeightMm: 900 },
+    { kind: "window", between: { room: "master", side: "south" }, offsetMm: 600, widthMm: 1400, sillHeightMm: 900 },
     { kind: "window", between: { room: "kids", side: "east" }, offsetMm: 400, widthMm: 1200, sillHeightMm: 900 },
   ],
   heroRoomKey: "living",

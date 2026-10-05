@@ -8,7 +8,9 @@ export type ApartmentTemplateId =
   | "template:apartment:studio:v1"
   | "template:apartment:1bhk:v1"
   | "template:apartment:2bhk:v1"
-  | "template:apartment:3bhk:v1";
+  | "template:apartment:3bhk:v1"
+  /** Phase 0 topology check — not a product template. */
+  | "template:apartment:2-room-flat:check";
 
 /** Cardinal wall side relative to a room's plan bounds (north = −Z). */
 export type WallSide = "north" | "south" | "east" | "west";
@@ -54,6 +56,10 @@ export type KitchenComposeOptions = {
   frontSystem?: "handled" | "gola";
   doorStyle?: "slab" | "shaker" | "glass";
   underCabinetLights?: boolean;
+  /** Host sink on the primary-run base at this index (0-based among floor bases). */
+  sinkHostIndex?: number;
+  /** Host cooktop/hob on the primary-run base at this index. */
+  hobHostIndex?: number;
 };
 
 export type BedroomComposeOptions = {
@@ -110,7 +116,7 @@ export type ApartmentOpeningSpec = {
 };
 
 export type ApartmentTemplateSpec = {
-  id: ApartmentTemplateId | string;
+  id: ApartmentTemplateId;
   name: string;
   description: string;
   styleId: LivingRoomStyleId;

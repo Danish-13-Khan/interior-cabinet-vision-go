@@ -16,4 +16,5 @@ export {
   objectOverlapsOpeningOnWall,
   roomObjectsOverlapOpenings,
   withActiveRoom,
+  longestFreePieceOnSide,
 } from "./helpers";

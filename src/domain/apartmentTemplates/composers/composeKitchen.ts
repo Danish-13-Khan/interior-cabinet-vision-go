@@ -4,8 +4,6 @@ import {
   updateCabinetRunLayout,
 } from "../../livingRoom/wardrobePlacement";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
-import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
-import { attachLightToObject } from "../../livingRoom/lightAttachments";
 import {
   alongWallMm,
   mountWallCabinets,
@@ -13,12 +11,19 @@ import {
   seedEndFillers,
   WALL_MOUNT_Y_MM,
 } from "../../catalog/kitchenTemplateShared";
-import type { InteriorProject } from "../../interiorProject";
-import { roomPlanViewBounds } from "../../interiorProject";
-import type { KitchenComposeOptions, WallSide } from "../types";
-import { wallOnSide } from "../wallSide";
+import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
+import type { KitchenComposeOptions, KitchenLayout, WallSide } from "../types";
 import { apartmentIdFactory } from "../ids";
-import { withActiveRoom } from "./helpers";
+import {
+  applyCabinetFrontOptions,
+  applyFinishRolesToCabinets,
+} from "./cabinetOptions";
+import {
+  fixedAlongToRoomAlongMm,
+  longestFreePieceOnSide,
+  withActiveRoom,
+} from "./helpers";
+import { addUnderCabinetLights, hostKitchenAppliances } from "./kitchenAppliances";
 
 export type ComposeKitchenArgs = KitchenComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -32,12 +37,16 @@ export function composeKitchen(
 ): InteriorProject {
   const idFactory = options.idFactory ?? apartmentIdFactory("template:apartment:compose");
   const runSide: WallSide = options.runSide ?? "north";
-  const layout = options.layout ?? "straight";
+  const layout: KitchenLayout = options.layout ?? "straight";
   let next = withActiveRoom(project, roomId);
-  const wall = wallOnSide(next, roomId, runSide);
-  if (!wall) return next;
-
   const bounds = roomPlanViewBounds(next, roomId);
+  const runWidth = (options.tallPantry ? 600 : 0) + 2700;
+  const fillerPad = 280 * 2;
+  const piece = longestFreePieceOnSide(next, roomId, runSide, runWidth + fillerPad)
+    ?? longestFreePieceOnSide(next, roomId, runSide, runWidth);
+  if (!piece) return next;
+  const canFill = piece.lengthMm + 0.5 >= runWidth + fillerPad;
+
   const ids = {
     baseA: idFactory("object", `${roomId}-base-a`),
     drawer: idFactory("object", `${roomId}-drawer`),
@@ -72,13 +81,23 @@ export function composeKitchen(
       }),
     );
   }
-  next = { ...next, objects: [...next.objects, ...seeds] };
-  const floorIds = seeds
-    .filter((object) => object.position.y < 100)
-    .map((object) => object.id);
-  next = arrangeCabinetRun(next, floorIds, wall.id, { alignment: "center", gapMm: 0 });
+  const styled = seeds.map((seed) => applyCabinetFrontOptions(seed, options));
+  next = { ...next, objects: [...next.objects, ...styled] };
+  const floorIds = styled.filter((object) => object.position.y < 100).map((o) => o.id);
+  const occupied = canFill ? runWidth + fillerPad : runWidth;
+  const fixedStart = piece.startAlongMm
+    + (canFill ? 280 : 0)
+    + Math.max(0, (piece.lengthMm - occupied) / 2);
+  const startAlong = fixedAlongToRoomAlongMm(
+    next, roomId, piece.wall, fixedStart, runWidth,
+  );
+  next = arrangeCabinetRun(next, floorIds, piece.wall.id, {
+    alignment: "start",
+    startAlongMm: startAlong,
+    gapMm: 0,
+  });
   const runId = cabinetRunForObject(next.objects.find((o) => o.id === ids.baseA)!)?.runId;
-  if (runId) {
+  if (runId && canFill) {
     next = seedEndFillers(
       updateCabinetRunLayout(next, runId, { fillersEnabled: true }),
       runId,
@@ -88,23 +107,24 @@ export function composeKitchen(
   if (options.wallCabinets !== false) {
     const baseA = next.objects.find((o) => o.id === ids.baseA)!;
     const drawer = next.objects.find((o) => o.id === ids.drawer)!;
-    next = mountWallCabinets(next, wall.id, [
-      { id: ids.wallA, alongMm: alongWallMm(next, roomId, wall.id, baseA) },
-      { id: ids.wallB, alongMm: alongWallMm(next, roomId, wall.id, drawer) },
+    next = mountWallCabinets(next, piece.wall.id, [
+      { id: ids.wallA, alongMm: alongWallMm(next, roomId, piece.wall.id, baseA) },
+      { id: ids.wallB, alongMm: alongWallMm(next, roomId, piece.wall.id, drawer) },
     ], roomId);
   }
 
   if (layout === "L" && options.secondarySide) {
-    next = composeSecondaryLeg(next, roomId, options.secondarySide, idFactory);
+    next = composeSecondaryLeg(next, roomId, options.secondarySide, idFactory, "L", options);
+  } else if (layout === "parallel" && options.secondarySide) {
+    next = composeSecondaryLeg(next, roomId, options.secondarySide, idFactory, "parallel", options);
   }
-  if (layout === "parallel" && options.secondarySide) {
-    next = composeSecondaryLeg(next, roomId, options.secondarySide, idFactory);
-  }
+
+  next = hostKitchenAppliances(next, roomId, [ids.baseA, ids.drawer, ids.baseB], options, idFactory);
 
   if (options.underCabinetLights !== false && options.wallCabinets !== false) {
     next = addUnderCabinetLights(next, roomId, [ids.wallA, ids.wallB]);
   }
-  return next;
+  return applyFinishRolesToCabinets(next, roomId);
 }
 
 function composeSecondaryLeg(
@@ -112,36 +132,33 @@ function composeSecondaryLeg(
   roomId: string,
   side: WallSide,
   idFactory: LivingRoomIdFactory,
+  layout: "L" | "parallel",
+  options: ComposeKitchenArgs,
 ): InteriorProject {
-  const wall = wallOnSide(project, roomId, side);
-  if (!wall) return project;
+  const needed = layout === "L" ? 1800 : 2700;
+  const piece = longestFreePieceOnSide(project, roomId, side, needed);
+  if (!piece) return project;
   const bounds = roomPlanViewBounds(project, roomId);
-  const ids = [
-    idFactory("object", `${roomId}-leg-a`),
-    idFactory("object", `${roomId}-leg-b`),
-  ];
-  const seeds = ids.map((id, index) => seedCabinet(
-    roomId,
-    "frameless-standard-base",
-    id,
-    { x: bounds.centerX + index * 100, y: 0, z: bounds.centerZ + index * 100 },
+  const count = layout === "L" ? 2 : 3;
+  const ids = Array.from({ length: count }, (_, index) =>
+    idFactory("object", `${roomId}-leg-${index}`));
+  const seeds = ids.map((id, index) => applyCabinetFrontOptions(
+    seedCabinet(roomId, "frameless-standard-base", id, {
+      x: bounds.centerX + index * 100, y: 0, z: bounds.centerZ + index * 100,
+    }),
+    options,
   ));
   let next = { ...project, objects: [...project.objects, ...seeds] };
-  return arrangeCabinetRun(next, ids, wall.id, { alignment: "start", gapMm: 0 });
-}
-
-function addUnderCabinetLights(
-  project: InteriorProject,
-  roomId: string,
-  hostIds: string[],
-): InteriorProject {
-  let next = withActiveRoom(project, roomId);
-  for (const hostId of hostIds) {
-    if (!next.objects.some((object) => object.id === hostId)) continue;
-    const before = new Set(next.lights.map((light) => light.id));
-    next = addRoomLightFixture(next, "under-cabinet", { kind: "object", hostObjectId: hostId });
-    const added = next.lights.find((light) => !before.has(light.id));
-    if (added) next = attachLightToObject(next, added.id, hostId);
-  }
-  return next;
+  // L: push away from the corner so the secondary leg does not collide with the primary run.
+  const fixedStart = layout === "L"
+    ? piece.startAlongMm + Math.min(600, Math.max(0, piece.lengthMm - needed))
+    : piece.startAlongMm + Math.max(0, (piece.lengthMm - needed) / 2);
+  const startAlong = fixedAlongToRoomAlongMm(
+    next, roomId, piece.wall, fixedStart, needed,
+  );
+  return arrangeCabinetRun(next, ids, piece.wall.id, {
+    alignment: "start",
+    startAlongMm: startAlong,
+    gapMm: 0,
+  });
 }

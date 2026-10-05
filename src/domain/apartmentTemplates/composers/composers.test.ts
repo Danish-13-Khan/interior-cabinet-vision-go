@@ -1,16 +1,17 @@
 import { describe, expect, it } from "vitest";
-import {
-  createEmptyInteriorProject,
-  validateInteriorProject,
-} from "../../interiorProject";
-import { createRectangularRoomShell } from "../../interiorFoundation";
-import {
-  createLivingRoomMaterials,
-  LIVING_ROOM_MATERIAL_IDS,
-} from "../../livingRoom/materials";
-import { defaultLivingRoomIdFactory } from "../../livingRoom/ids";
+import { validateInteriorProject } from "../../interiorProject";
+import { LIVING_ROOM_MATERIAL_IDS } from "../../livingRoom/materials";
 import { resolveLightAttachment } from "../../livingRoom/lightAttachments";
 import { reflowCabinetRunsForWalls } from "../../livingRoom/wardrobePlacement";
+import { readCabinetIdentity } from "../../cabinetIdentity";
+import { FRONT_SYSTEM_PARAMETER, DOOR_STYLE_PARAMETER } from "../../frontSystem";
+import {
+  APARTMENT_SHELL_SPECS,
+  apartmentIdFactory,
+  buildApartmentShell,
+  composeApartment,
+} from "../index";
+import { bareRoom, COMPOSER_TEST_NOW } from "./bareRoom";
 import {
   composeBathroom,
   composeBedroom,
@@ -22,65 +23,8 @@ import {
   roomObjectsOverlapOpenings,
 } from "./index";
 
-const NOW = "2026-10-05T00:00:00.000Z";
-
-type BareRoomType =
-  | "kitchen" | "bedroom" | "living-room" | "bathroom" | "custom" | "utility" | "office";
-
-function bareRoom(roomType: BareRoomType, widthMm = 4200, depthMm = 3600) {
-  const idFactory = defaultLivingRoomIdFactory;
-  const roomId = idFactory("room", roomType);
-  const shell = createRectangularRoomShell({
-    roomId,
-    dimensions: { widthMm, depthMm, heightMm: 2850, wallThicknessMm: 120 },
-    wallMaterialId: LIVING_ROOM_MATERIAL_IDS.wallPaint,
-    openings: [
-      {
-        key: "door",
-        wallSide: "front",
-        kind: "door",
-        offsetMm: 400,
-        widthMm: 900,
-        heightMm: 2100,
-        sillHeightMm: 0,
-        swingDirection: "in",
-      },
-      {
-        key: "window",
-        wallSide: "left",
-        kind: "window",
-        offsetMm: 800,
-        widthMm: 1200,
-        heightMm: 1300,
-        sillHeightMm: 900,
-      },
-    ],
-    idFactory,
-  });
-  const base = createEmptyInteriorProject({ id: `bare-${roomType}`, name: roomType, now: NOW });
-  const document = {
-    ...base,
-    activeRoomId: roomId,
-    rooms: [{
-      id: roomId,
-      name: roomType,
-      roomType,
-      dimensions: { widthMm, heightMm: 2850, depthMm },
-      wallThicknessMm: 120,
-      extensions: {
-        floorMaterialId: LIVING_ROOM_MATERIAL_IDS.warmStone,
-        ceilingMaterialId: LIVING_ROOM_MATERIAL_IDS.ceilingPaint,
-      },
-    }],
-    walls: shell.walls.map((wall) => ({ ...wall, raised: true })),
-    openings: shell.openings,
-    materials: createLivingRoomMaterials(),
-  };
-  return validateInteriorProject(document).project;
-}
-
 describe("Phase 1 room composers", () => {
-  it("composeKitchen on a bare kitchen yields a valid project", () => {
+  it("composeKitchen delivers frontSystem, doorStyle, finishes, hosted appliances", () => {
     const bare = bareRoom("kitchen");
     const next = composeKitchen(bare, bare.activeRoomId, {
       layout: "straight",
@@ -88,38 +32,84 @@ describe("Phase 1 room composers", () => {
       wallCabinets: true,
       tallPantry: true,
       underCabinetLights: true,
+      frontSystem: "gola",
+      doorStyle: "shaker",
     });
-    const result = validateInteriorProject(next);
-    expect(result.issues.filter((i) => i.severity === "error")).toEqual([]);
+    expect(validateInteriorProject(next).issues.filter((i) => i.severity === "error")).toEqual([]);
+    expect(roomObjectsOverlapOpenings(next, bare.activeRoomId)).toEqual([]);
+    const cabinet = next.objects.find((o) => o.kind === "cabinet" && o.category !== "filler")!;
+    expect(cabinet.parameters[FRONT_SYSTEM_PARAMETER]).toBe("gola");
+    expect(cabinet.parameters[DOOR_STYLE_PARAMETER]).toBe("shaker");
+    expect(cabinet.materialSlots.fronts).toBe(LIVING_ROOM_MATERIAL_IDS.walnut);
+    expect(next.objects.some((o) => o.catalogItemId === "kitchen-sink-1")).toBe(true);
+    expect(next.objects.some((o) => o.catalogItemId === "kitchen-stove-electric-1")).toBe(true);
+  });
+
+  it("kitchen run avoids a door on the run wall", () => {
+    const bare = bareRoom("kitchen", 5000, 3600);
+    const next = composeKitchen(bare, bare.activeRoomId, {
+      layout: "straight",
+      runSide: "south",
+      wallCabinets: false,
+      underCabinetLights: false,
+    });
+    expect(roomObjectsOverlapOpenings(next, bare.activeRoomId)).toEqual([]);
     expect(next.objects.some((o) => o.kind === "cabinet")).toBe(true);
+  });
+
+  it("L and parallel secondary legs differ", () => {
+    const bare = bareRoom("kitchen", 5000, 4200);
+    const L = composeKitchen(bare, bare.activeRoomId, {
+      layout: "L", runSide: "north", secondarySide: "east",
+      wallCabinets: false, underCabinetLights: false,
+    });
+    const parallel = composeKitchen(bare, bare.activeRoomId, {
+      layout: "parallel", runSide: "north", secondarySide: "south",
+      wallCabinets: false, underCabinetLights: false,
+    });
+    expect(L.objects.filter((o) => o.id.includes("-leg-"))).toHaveLength(2);
+    expect(parallel.objects.filter((o) => o.id.includes("-leg-"))).toHaveLength(3);
+  });
+
+  it("composeBedroom seeds almirah wardrobe", () => {
+    const bare = bareRoom("bedroom");
+    const next = composeBedroom(bare, bare.activeRoomId, {
+      wardrobeSide: "east", bedAlongSide: "south",
+    });
+    const wardrobe = next.objects.find((o) => o.id.includes("wardrobe"))!;
+    expect(readCabinetIdentity(wardrobe)?.familyId).toBe("frameless-standard-almirah");
+    expect(readCabinetIdentity(wardrobe)?.cabinetType).toBe("almirah");
     expect(roomObjectsOverlapOpenings(next, bare.activeRoomId)).toEqual([]);
   });
 
   it("composeBedroom / composeLiving / composeBathroom validate", () => {
     for (const [type, compose] of [
       ["bedroom", (p: ReturnType<typeof bareRoom>, id: string) => composeBedroom(p, id, { wardrobeSide: "east" })],
-      ["living-room", (p: ReturnType<typeof bareRoom>, id: string) => composeLiving(p, id, { tvWallSide: "north" })],
-      ["bathroom", (p: ReturnType<typeof bareRoom>, id: string) => composeBathroom(p, id, { vanitySide: "north" })],
+      ["living-room", (p: ReturnType<typeof bareRoom>, id: string) => composeLiving(p, id, { tvWallSide: "east" })],
+      ["bathroom", (p: ReturnType<typeof bareRoom>, id: string) => composeBathroom(p, id, { vanitySide: "east" })],
     ] as const) {
       const bare = bareRoom(type);
       const next = compose(bare, bare.activeRoomId);
-      const result = validateInteriorProject(next);
-      expect(result.issues.filter((i) => i.severity === "error"), type).toEqual([]);
+      expect(validateInteriorProject(next).issues.filter((i) => i.severity === "error"), type).toEqual([]);
       expect(roomObjectsOverlapOpenings(next, bare.activeRoomId), type).toEqual([]);
     }
   });
 
-  it("composeFoyer / composeUtility / composeStudy validate", () => {
+  it("composeFoyer shoe is a base cabinet; utility/study validate", () => {
+    const bare = bareRoom("custom", 3000, 2400);
+    const next = composeFoyer(bare, bare.activeRoomId);
+    const shoe = next.objects.find((o) => o.parameters.apartmentRole === "shoe-cabinet")!;
+    expect(shoe.kind).toBe("cabinet");
+    expect(readCabinetIdentity(shoe)?.familyId).toBe("frameless-standard-base");
+
     for (const [type, compose] of [
-      ["custom", (p: ReturnType<typeof bareRoom>, id: string) => composeFoyer(p, id)],
       ["utility", (p: ReturnType<typeof bareRoom>, id: string) => composeUtility(p, id)],
       ["office", (p: ReturnType<typeof bareRoom>, id: string) => composeStudy(p, id)],
     ] as const) {
-      const bare = bareRoom(type, 3000, 2400);
-      const next = compose(bare, bare.activeRoomId);
-      const result = validateInteriorProject(next);
-      expect(result.issues.filter((i) => i.severity === "error"), type).toEqual([]);
-      expect(roomObjectsOverlapOpenings(next, bare.activeRoomId), type).toEqual([]);
+      const room = bareRoom(type, 3000, 2400);
+      const composed = compose(room, room.activeRoomId);
+      expect(validateInteriorProject(composed).issues.filter((i) => i.severity === "error")).toEqual([]);
+      expect(roomObjectsOverlapOpenings(composed, room.activeRoomId)).toEqual([]);
     }
   });
 
@@ -127,9 +117,7 @@ describe("Phase 1 room composers", () => {
     const bare = bareRoom("kitchen", 5000, 3600);
     const roomId = bare.activeRoomId;
     let next = composeKitchen(bare, roomId, {
-      runSide: "north",
-      wallCabinets: true,
-      underCabinetLights: true,
+      runSide: "north", wallCabinets: true, underCabinetLights: true,
     });
     const hosted = next.lights.filter((light) =>
       light.roomId === roomId && light.parameters.hostObjectId,
@@ -140,12 +128,44 @@ describe("Phase 1 room composers", () => {
     const wallId = (host.extensions?.wallAttachment as { wallId?: string } | undefined)?.wallId;
     expect(wallId).toBeTruthy();
     const before = resolveLightAttachment(next, hosted[0]!);
-
     next = reflowCabinetRunsForWalls(next, [wallId!]);
-    const afterLight = next.lights.find((light) => light.id === hosted[0]!.id)!;
-    const after = resolveLightAttachment(next, afterLight);
+    const after = resolveLightAttachment(next, next.lights.find((light) => light.id === hosted[0]!.id)!);
     expect(after.parameters.hostObjectId).toBe(hostId);
     expect(after.parameters.attachmentMissing).not.toBe(true);
     expect(Math.abs(after.position.x - before.position.x)).toBeLessThan(800);
   });
+
+  it("composed shells are repeatable (D3) across all four specs", () => {
+    for (const spec of APARTMENT_SHELL_SPECS) {
+      const a = composeDemoContent(spec);
+      const b = composeDemoContent(spec);
+      expect(JSON.stringify(a), spec.id).toBe(JSON.stringify(b));
+    }
+  });
 });
+
+function composeDemoContent(spec: (typeof APARTMENT_SHELL_SPECS)[number]) {
+  let project = buildApartmentShell(spec, { now: COMPOSER_TEST_NOW });
+  const idFactory = apartmentIdFactory(spec.id);
+  for (const room of project.rooms) {
+    if (room.roomType === "kitchen") {
+      project = composeKitchen(project, room.id, {
+        runSide: "north", wallCabinets: true, idFactory, underCabinetLights: false,
+      });
+    } else if (room.roomType === "bedroom") {
+      project = composeBedroom(project, room.id, { wardrobeSide: "east", idFactory, pendants: false });
+    } else if (room.roomType === "living-room") {
+      project = composeLiving(project, room.id, {
+        tvWallSide: "north", featureWallPreset: "slat", idFactory, coveLight: false, sofaSet: false,
+      });
+    } else if (room.roomType === "bathroom") {
+      project = composeBathroom(project, room.id, {
+        vanitySide: "north", idFactory, mirrorRopeLight: false,
+      });
+    } else if (room.roomType === "utility") {
+      project = composeUtility(project, room.id, { idFactory });
+    }
+  }
+  void composeApartment(spec, { now: COMPOSER_TEST_NOW });
+  return project;
+}

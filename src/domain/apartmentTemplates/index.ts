@@ -17,10 +17,18 @@ export type {
   WallSide,
 } from "./types";
 
+/** Deterministic template ids (D3). Phase 6: customer clones may use createUniqueLivingRoomIdFactory. */
 export { apartmentIdFactory } from "./ids";
 export { buildApartmentShell } from "./buildApartmentShell";
 export type { BuildApartmentShellOptions } from "./buildApartmentShell";
-export { wallOnSide, legacyWallSide, wallSideFromLegacy } from "./wallSide";
+export {
+  wallOnSide,
+  wallsOnSide,
+  exteriorWallOnSide,
+  legacyWallSide,
+  wallSideFromLegacy,
+} from "./wallSide";
+export { composeApartment } from "./composeApartment";
 export { sharedWallBetween } from "./sharedWall";
 
 export { TWO_ROOM_FLAT_SPEC } from "./specs/twoRoomFlat";

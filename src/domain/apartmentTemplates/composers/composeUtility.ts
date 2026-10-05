@@ -1,11 +1,13 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
-import { arrangeCabinetRun } from "../../livingRoom/wardrobePlacement";
 import { seedCabinet } from "../../catalog/kitchenTemplateShared";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { UtilityComposeOptions, WallSide } from "../types";
-import { wallOnSide } from "../wallSide";
 import { apartmentIdFactory } from "../ids";
-import { withActiveRoom } from "./helpers";
+import {
+  longestFreePieceOnSide,
+  placeCabinetOnWall,
+  withActiveRoom,
+} from "./helpers";
 
 export type ComposeUtilityArgs = UtilityComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -20,8 +22,8 @@ export function composeUtility(
   const idFactory = options.idFactory ?? apartmentIdFactory("template:apartment:compose");
   const side: WallSide = options.tallUnitSide ?? "north";
   let next = withActiveRoom(project, roomId);
-  const wall = wallOnSide(next, roomId, side);
-  if (!wall) return next;
+  const piece = longestFreePieceOnSide(next, roomId, side, 600);
+  if (!piece) return next;
   const bounds = roomPlanViewBounds(next, roomId);
   const tallId = idFactory("object", `${roomId}-tall`);
   const seed = seedCabinet(roomId, "frameless-standard-tall", tallId, {
@@ -30,6 +32,8 @@ export function composeUtility(
   seed.catalogItemId = "living:tall-pantry-600";
   seed.name = "Utility tall unit";
   seed.parameters = { ...seed.parameters, apartmentRole: "utility-tall" };
-  next = { ...next, objects: [...next.objects, seed] };
-  return arrangeCabinetRun(next, [tallId], wall.id, { alignment: "center", gapMm: 0 });
+  const along = piece.startAlongMm
+    + Math.max(0, (piece.lengthMm - seed.dimensions.widthMm) / 2)
+    + seed.dimensions.widthMm / 2;
+  return placeCabinetOnWall(next, seed, piece.wall, along);
 }
