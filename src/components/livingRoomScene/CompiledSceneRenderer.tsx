@@ -44,6 +44,8 @@ type SceneRendererProps = {
   lightingQuality?: EnvironmentLightingQuality;
   projectLightScale?: number;
   windowKeyScale?: number;
+  /** Lighting mood multiplier for room light. Fixtures are not scaled. */
+  roomLightScale?: number;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectOpening?: (openingId: string) => void;
   onSelectWall?: (wallId: string) => void;
@@ -71,7 +73,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     viewPreset, cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
     interactive = true, renderQuality = "standard", renderComposition = "project-camera",
     renderMode = "preview", lightingQuality: lightingQualityOverride, projectLightScale = 1,
-    windowKeyScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
+    windowKeyScale = 1, roomLightScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
     transformTarget = null, onTransformPreview, onTransformCommit, frameRun,
@@ -116,9 +118,14 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const cutawaySides = clientCutaway
     ?? ((cutawayWalls && interactive) || cutNearWall ? orbitCutawaySides : savedCutawaySides);
   const hideCeiling = modelViewHidesCeiling(viewPreset) || Boolean(clientCutaway);
+  // A selected wall light keeps its host wall standing, as selecting the wall would.
+  const selectedLightHost = selectedLightId
+    ? scene.lights.find((light) => light.id === selectedLightId)?.parameters.hostWallId
+    : undefined;
+  const lightHostWallId = typeof selectedLightHost === "string" ? selectedLightHost : null;
   const nodes = filterModelReviewNodes(
     scene.nodes, cutawayWalls || cutNearWall || Boolean(clientCutaway), cutawaySides,
-    selectedOpeningId, hideCeiling, selectedWallId,
+    selectedOpeningId, hideCeiling, selectedWallId ?? lightHostWallId,
   );
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
@@ -144,12 +151,13 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
       <hemisphereLight
         color={environment.hemisphereSkyColor}
         groundColor={environment.hemisphereGroundColor}
-        intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale}
+        intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale * roomLightScale}
       />
       <RenderLightingRig
         scene={scene} recipeId={scene.lightingRecipeId} renderMode={renderMode}
         renderQuality={renderQuality} lightingQuality={lightingQuality}
         projectLightScale={projectLightScale} windowKeyScale={windowKeyScale}
+        roomLightScale={roomLightScale}
         selectedLightId={selectedLightId} onSelectLight={onSelectLight}
       />
       {showGrid ? (
@@ -164,6 +172,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
       <CompiledSceneObjectLayer
         nodes={nodes} materials={materialMap} selectedIds={selectedIds}
         selectedOpeningId={selectedOpeningId} selectedWallId={selectedWallId}
+        lightSelected={Boolean(selectedLightId)}
         snapSizeMm={snapSizeMm} renderMode={renderMode} renderQuality={renderQuality}
         glbCasterSlots={glbCasterSlots} maxGlbCasters={maxGlbCasters}
         interactive={interactive} transformTarget={transformTarget}

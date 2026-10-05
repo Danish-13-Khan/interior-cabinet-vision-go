@@ -24,6 +24,8 @@ type RenderLightingRigProps = {
   lightingQuality: EnvironmentLightingQuality;
   projectLightScale?: number;
   windowKeyScale?: number;
+  /** Lighting mood. 1 is day; evening dims sky, sun, recipe and window light. */
+  roomLightScale?: number;
   selectedLightId?: string | null;
   onSelectLight?: (id: string) => void;
 };
@@ -40,6 +42,7 @@ export function RenderLightingRig({
   lightingQuality,
   projectLightScale = 1,
   windowKeyScale = 1,
+  roomLightScale = 1,
   selectedLightId = null,
   onSelectLight,
 }: RenderLightingRigProps) {
@@ -78,11 +81,15 @@ export function RenderLightingRig({
     ],
   );
 
+  const environmentQuality = roomLightScale === 1
+    ? lightingQuality
+    : { ...lightingQuality, intensityScale: lightingQuality.intensityScale * roomLightScale };
+
   return (
     <>
       <EnvironmentLighting
         recipeId={recipeId}
-        quality={lightingQuality}
+        quality={environmentQuality}
         definition={environment.definition}
         url={environment.url}
         enabled={lightingQuality.preferHdri}
@@ -92,6 +99,7 @@ export function RenderLightingRig({
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
         intensityScale={projectLightScale}
+        roomLightScale={roomLightScale}
         shadowCamera={projectShadow}
         maxDirectionalCasters={lightingQuality.maxDirectionalCasters}
         selectedLightId={selectedLightId}
@@ -101,7 +109,7 @@ export function RenderLightingRig({
         lights={windowKeys}
         shadowMapSize={lightingQuality.shadowMapSize}
         shadowRadius={lightingQuality.shadowRadius}
-        intensityScale={windowKeyScale}
+        intensityScale={windowKeyScale * roomLightScale}
         shadowCamera={lightingQuality.windowKeyShadow}
       />
     </>

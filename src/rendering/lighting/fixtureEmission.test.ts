@@ -42,6 +42,8 @@ describe("fixture emission frame", () => {
   it("seeds the panel brighter than a point-like emitter, since it is the ceiling's main source", () => {
     expect(getLightFixtureDefinition("panel").defaults.intensity).toBe(12);
     expect(getLightFixtureDefinition("cob").defaults.intensity).toBeLessThan(12);
+    // Thin strip: needs far more per unit than a panel to wash the ceiling at all.
+    expect(getLightFixtureDefinition("cove").defaults.intensity).toBe(24);
   });
 
   it("scales the cove wall band by coveWallShare and no other factor", () => {
