@@ -1,6 +1,5 @@
 import type { CabinetDimensions } from "../cabinetDimensions";
 import type { GrainDirection } from "../materialSystem";
-import { DOOR_GAP, type DoorMount } from "../cabinetConstructionSpec";
 import type { CabinetPart, PartCategory } from "./types";
 
 export function createPart(
@@ -43,31 +42,4 @@ export function getInnerMeasurements(dimensions: CabinetDimensions) {
     innerHeight,
     innerDepth,
   };
-}
-
-export function doorFrontSize(
-  mount: DoorMount,
-  cabinetWidth: number,
-  cabinetHeight: number,
-  toeKickHeight: number,
-  doorQty: number,
-  faceInsetWidthMm: number,
-  faceInsetHeightMm: number,
-) {
-  const gaps = DOOR_GAP[mount];
-  if (mount === "inset") {
-    const width =
-      doorQty === 1
-        ? faceInsetWidthMm - gaps.sideMm * 2
-        : (faceInsetWidthMm - gaps.sideMm * 2 - gaps.centerMm * (doorQty - 1)) / doorQty;
-    const height = faceInsetHeightMm - gaps.bottomMm;
-    return { width, height };
-  }
-
-  const width =
-    doorQty === 1
-      ? cabinetWidth - gaps.sideMm * 2
-      : (cabinetWidth - gaps.sideMm * 2 - gaps.centerMm * (doorQty - 1)) / doorQty;
-  const height = cabinetHeight - toeKickHeight - gaps.bottomMm;
-  return { width, height };
 }

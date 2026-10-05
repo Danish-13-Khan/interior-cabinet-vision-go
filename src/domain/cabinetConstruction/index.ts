@@ -6,6 +6,14 @@ export type {
 
 export { createCabinetConstruction } from "./createConstruction";
 export {
+  frontGapSpec,
+  resolveFrontGaps,
+  type FrontGapSpec,
+  type FrontLeaf,
+  type ResolvedFronts,
+  type ResolvedOpeningFronts,
+} from "./frontGaps";
+export {
   defaultConstruction,
   getConstructionFlatParts,
   getConstructionSummary,

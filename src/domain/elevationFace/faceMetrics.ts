@@ -1,11 +1,11 @@
-import { DOOR_GAP } from "../cabinetConstructionSpec";
+import { frontGapSpec } from "../cabinetConstruction/frontGaps";
 
 /** Elevation front gaps (mm) — overlay mount as shop default. */
-export const ELEV_DOOR_GAPS = DOOR_GAP.overlay;
+export const ELEV_DOOR_GAPS = frontGapSpec("overlay");
 
-export const ELEV_DRAWER_GAP_MM = DOOR_GAP.overlay.centerMm;
-export const ELEV_DRAWER_SIDE_MM = DOOR_GAP.overlay.sideMm;
-export const ELEV_DRAWER_BOTTOM_MM = DOOR_GAP.overlay.bottomMm;
+export const ELEV_DRAWER_GAP_MM = ELEV_DOOR_GAPS.centerMm;
+export const ELEV_DRAWER_SIDE_MM = ELEV_DOOR_GAPS.sideMm;
+export const ELEV_DRAWER_BOTTOM_MM = ELEV_DOOR_GAPS.bottomMm;
 
 export function elevMm(pxScale: number, mm: number) {
   return Math.max(0.35, mm / pxScale);

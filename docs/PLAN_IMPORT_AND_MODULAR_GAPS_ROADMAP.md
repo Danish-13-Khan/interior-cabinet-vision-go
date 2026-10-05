@@ -1,6 +1,6 @@
 # Plan import and modular gaps roadmap
 
-**Status:** In progress — Phases 0–3 landed 2026-10-05. Phases 4–5 wait on §6.1–3.
+**Status:** In progress — Phases 0–4 landed 2026-10-05. Phase 5 waits on §6.1–3.
 **Source:** Factory QA questions from Ilyas (production manager), 2026-10-04:
 plan rotation, raising walls, centre axis, erasing a plan, L / C gola,
 arch / fillet shapes, importing sinks / profiles / doors.
@@ -221,6 +221,20 @@ Save → reopen keeps them.
 **Exit gate:** 3D and cut list agree to the millimetre on the golden run. The
 cut-list snapshot is unchanged and the 3D shift is ≤1 mm (G5).
 
+**Landed (2026-10-05):** `resolveFrontGaps(config)` in
+`cabinetConstruction/frontGaps.ts` returns every door / drawer-front leaf in
+face coordinates. Production (`partsInterior`, `partsDrawers`), 3D
+(`storageOpeningPanels`), the legacy cut list (`frontCutlist`) and elevation
+gap constants (`faceMetrics` via `frontGapSpec`) all read it; the 3 mm / 4 mm
+rules and `doorFrontSize` are gone. `frontGapSpec(mount).topMm` is 0 today;
+Phase 5 subtracts the gola recess there.
+**Correction to G5:** the 3D shift is larger than 1 mm for a cabinet whose face
+is one door opening. Before, 3D drew those doors inside the clear opening
+(between the carcass sides); production sizes overlay doors to the full carcass
+width. A 600 mm base double door goes from about 277 mm to 296 mm per leaf in
+3D, matching the cut list. Split faces and drawers move by a few mm. Cut-list
+sizes are unchanged; visual snapshots of 3D cabinets need re-baselining.
+
 ### Phase 5 — Gola handleless system (answers Modular Q1)
 
 - §4.3 contract. Add a catalog entry per profile (L, C), with a hardware kind
@@ -285,5 +299,5 @@ Start only when a signed project needs it.
 ## 7. Suggested order
 
 Phase 0 → 1 → 2 can ship together as a week-one patch (Q1, the sideways plan).
-Phase 3 landed. Phases 4 → 5 after Ilyas answers §6.1–3. Phases 6 and 7 are
+Phases 3 and 4 landed. Phase 5 after Ilyas answers §6.1–3. Phases 6 and 7 are
 independent and can follow in either order. Phase 8 waits.
