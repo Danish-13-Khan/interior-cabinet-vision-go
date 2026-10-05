@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createLivingRoomStarterProject } from ".";
 import {
   formatRotationDeg,
+  isOffQuarterTurn,
   normalizeRotationDeg,
   rotatesInQuarterTurns,
   rotationStepFor,
@@ -36,5 +37,14 @@ describe("object rotation rules", () => {
     expect(formatRotationDeg(33.6900675)).toBe("33.7");
     expect(formatRotationDeg(-15)).toBe("345");
     expect(formatRotationDeg(90)).toBe("90");
+    expect(formatRotationDeg(359.97)).toBe("0");
+  });
+
+  it("flags cabinets angled off a quarter turn", () => {
+    const { cabinet } = fixtures();
+    const at = (y: number) => ({ ...cabinet, rotation: { ...cabinet.rotation, y } });
+    expect(isOffQuarterTurn(at(90))).toBe(false);
+    expect(isOffQuarterTurn(at(359.8))).toBe(false);
+    expect(isOffQuarterTurn(at(33.7))).toBe(true);
   });
 });

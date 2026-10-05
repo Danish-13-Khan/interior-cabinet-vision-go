@@ -1,6 +1,6 @@
 # Plan import and modular gaps roadmap
 
-**Status:** In progress — Phases 0–1 landed 2026-10-05.
+**Status:** In progress — Phases 0–2 landed 2026-10-05. Phase 3 next.
 **Source:** Factory QA questions from Ilyas (production manager), 2026-10-04:
 plan rotation, raising walls, centre axis, erasing a plan, L / C gola,
 arch / fillet shapes, importing sinks / profiles / doors.
@@ -183,6 +183,11 @@ cannot be moved. A DWG underlay keeps its layers after rotation.
 - Cabinet kinds route through a 90° rounding guard (G1). Handoff behaviour is unchanged.
 - Check `planSnapping` edge snap for rotated objects. It is AABB-based today,
   so it is acceptable, but document it.
+  **Documented (2026-10-05):** `snapLivingRoomObject` edge targets use
+  `getObjectPlanBounds`, the axis-aligned box around the rotated footprint, so a
+  37° chair snaps by its bounding box. Collision and room-fit checks
+  (`planConstraints`, `objectFitsRoom`) use the true rotated corners
+  (`getObjectPlanCorners`), so overlap warnings stay exact.
 
 **Exit gate:** a chair typed to 37° saves, reopens at 37° and collides correctly
 (OBB). A cabinet typed to 37° lands at 0° or 90° with the hint shown. No new
