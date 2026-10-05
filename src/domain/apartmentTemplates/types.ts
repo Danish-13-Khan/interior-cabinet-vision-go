@@ -66,6 +66,9 @@ export type KitchenComposeOptions = {
   /** Ceiling downlight / profile strip in the kitchen. */
   downlight?: boolean;
   profileLight?: boolean;
+  cobLight?: boolean;
+  /** Override door style for wall cabinets only (e.g. glass over slab bases). */
+  wallDoorStyle?: "slab" | "shaker" | "glass";
   /** Host sink on the primary-run base at this index (0-based among floor bases). */
   sinkHostIndex?: number;
   /** Host cooktop/hob on the primary-run base at this index (default 1: the drawer base). */
@@ -84,6 +87,9 @@ export type BedroomComposeOptions = {
   doorSourcing?: DoorSourcingOption;
   handleId?: HandleHardwareId;
   downlight?: boolean;
+  cobLight?: boolean;
+  /** Use living:corner-wardrobe instead of the wall wardrobe. */
+  cornerWardrobe?: boolean;
 };
 
 export type LivingComposeOptions = {
@@ -100,12 +106,17 @@ export type LivingComposeOptions = {
   profileLight?: boolean;
   panelLight?: boolean;
   downlight?: boolean;
+  cobLight?: boolean;
+  pendantLight?: boolean;
+  /** Place a study desk + open shelf in this living room (2 BHK). */
+  studyCorner?: boolean;
 };
 
 export type BathroomComposeOptions = {
   vanitySide?: WallSide;
   mirrorRopeLight?: boolean;
   downlight?: boolean;
+  cobLight?: boolean;
 };
 
 export type FoyerComposeOptions = { shoeCabinetSide?: WallSide };

@@ -90,7 +90,6 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
           wardrobeWidthMm: 1800,
           sofaSet: true,
           coveLight: true,
-          profileLight: true,
           downlight: true,
         },
       },

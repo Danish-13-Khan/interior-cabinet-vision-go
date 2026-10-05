@@ -82,6 +82,9 @@ export function composeBathroom(
     if (added && mirror) next = attachLightToObject(next, added.id, mirror.id);
     else if (added) next = attachLightToObject(next, added.id, vanityId);
   }
-  if (options.downlight) next = addRoomFixtureKinds(next, roomId, ["ceiling-downlight"]);
+  const bathLights: Array<"ceiling-downlight" | "cob"> = [];
+  if (options.downlight) bathLights.push("ceiling-downlight");
+  if (options.cobLight) bathLights.push("cob");
+  if (bathLights.length) next = addRoomFixtureKinds(next, roomId, bathLights);
   return next;
 }

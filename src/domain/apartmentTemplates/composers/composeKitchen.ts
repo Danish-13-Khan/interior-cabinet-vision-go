@@ -82,7 +82,14 @@ export function composeKitchen(
       }),
     );
   }
-  const styled = seeds.map((seed) => applyCabinetFrontOptions(seed, options));
+  const styled = seeds.map((seed) => {
+    const isWall = seed.position.y >= 1000 || String(seed.catalogItemId).includes("wall")
+      || seed.id.includes("-wall-");
+    if (isWall && options.wallDoorStyle) {
+      return applyCabinetFrontOptions(seed, { ...options, doorStyle: options.wallDoorStyle });
+    }
+    return applyCabinetFrontOptions(seed, options);
+  });
   next = { ...next, objects: [...next.objects, ...styled] };
   const floorIds = styled.filter((object) => object.position.y < 100).map((o) => o.id);
   const occupied = canFill ? runWidth + fillerPad : runWidth;
@@ -125,9 +132,10 @@ export function composeKitchen(
   if (options.underCabinetLights !== false && options.wallCabinets !== false) {
     next = addUnderCabinetLights(next, roomId, [ids.wallA, ids.wallB]);
   }
-  const extra: Array<"ceiling-downlight" | "profile"> = [];
+  const extra: Array<"ceiling-downlight" | "profile" | "cob"> = [];
   if (options.downlight) extra.push("ceiling-downlight");
   if (options.profileLight) extra.push("profile");
+  if (options.cobLight) extra.push("cob");
   if (extra.length) next = addRoomFixtureKinds(next, roomId, extra);
   return applyFinishRolesToCabinets(next, roomId);
 }

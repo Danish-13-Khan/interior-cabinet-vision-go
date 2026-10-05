@@ -1,11 +1,10 @@
+import { LIVING_ROOM_MATERIAL_IDS } from "../../livingRoom/materials";
 import type { ApartmentTemplateSpec } from "../types";
-import { DEFAULT_FINISH_ROLES } from "./finishRoles";
+import { TWO_BHK_ROOMS } from "./twoBhkRooms";
 
 /**
- * 2 BHK shell ≈ 10200×7800 (80 m²). Content authored in Phase 5.
- * West: kitchen + passage (common bath, hall) over living. East: kids
- * (north, off the hall) over a master suite — walk-in + master bath strip
- * above a full-width master (4800×3200) that opens off the living room.
+ * 2 BHK ≈ 10200×7800 (80 m²). Moody walnut · evening · warm-evening (§4).
+ * West: kitchen + passage over living. East: kids over master suite.
  */
 export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
   id: "template:apartment:2bhk:v1",
@@ -30,16 +29,7 @@ export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     { key: "master-suite", inCell: "master-block", axis: "z", atMm: 700, cells: ["suite-strip", "master"] },
     { key: "walkin-bath", inCell: "suite-strip", axis: "x", atMm: 2700, cells: ["walk-in", "master-bath"] },
   ],
-  rooms: [
-    { key: "living", cell: "living", name: "Living", roomType: "living-room", compose: { kind: "none" } },
-    { key: "kitchen", cell: "kitchen", name: "Kitchen", roomType: "kitchen", compose: { kind: "none" } },
-    { key: "master", cell: "master", name: "Master", roomType: "bedroom", compose: { kind: "none" } },
-    { key: "walk-in", cell: "walk-in", name: "Walk-in", roomType: "custom", compose: { kind: "none" } },
-    { key: "kids", cell: "kids", name: "Kids", roomType: "bedroom", compose: { kind: "none" } },
-    { key: "master-bath", cell: "master-bath", name: "Master Bath", roomType: "bathroom", compose: { kind: "none" } },
-    { key: "common-bath", cell: "common-bath", name: "Bath", roomType: "bathroom", compose: { kind: "none" } },
-    { key: "hall", cell: "hall", name: "Passage", roomType: "custom", compose: { kind: "none" } },
-  ],
+  rooms: [...TWO_BHK_ROOMS],
   openings: [
     { kind: "door", between: ["living", "hall"], offsetMm: 600, widthMm: 900 },
     { kind: "door", between: ["hall", "common-bath"], offsetMm: 700, widthMm: 700 },
@@ -54,5 +44,12 @@ export const TWO_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     { kind: "window", between: { room: "kids", side: "east" }, offsetMm: 800, widthMm: 1200, sillHeightMm: 900 },
   ],
   heroRoomKey: "living",
-  finishRoles: { ...DEFAULT_FINISH_ROLES },
+  finishRoles: {
+    carcass: LIVING_ROOM_MATERIAL_IDS.walnut,
+    "front-primary": LIVING_ROOM_MATERIAL_IDS.charcoalMetal,
+    "front-accent": LIVING_ROOM_MATERIAL_IDS.walnut,
+    worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
+    "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
+  },
 };

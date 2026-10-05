@@ -1,15 +1,11 @@
+import { LIVING_ROOM_MATERIAL_IDS } from "../../livingRoom/materials";
 import type { ApartmentTemplateSpec } from "../types";
-import { DEFAULT_FINISH_ROLES } from "./finishRoles";
+import { THREE_BHK_ROOMS_A } from "./threeBhkRoomsA";
+import { THREE_BHK_ROOMS_B } from "./threeBhkRoomsB";
 
 /**
- * 3 BHK shell ≈ 12600×9200 (115 m²). Also doubles as D2 spike (≥8 cuts,
- * including T-junctions and a four-way node from nested guillotine splits).
- *
- * West: utility | kitchen | foyer (north) over living over a 1200 balcony.
- * The foyer opens into the living room; entry is on the foyer's north wall.
- * East: study | guest | guest bath + common bath (north band), a 1300 passage
- * off the living room, then kids | master | master bath + walk-in. Every
- * bedroom and the common bath open off the passage.
+ * 3 BHK ≈ 12600×9200 (115 m²). Premium warm · evening · warm-evening (§4).
+ * Also the D2 spike shell (≥8 cuts / T-junctions).
  */
 export const THREE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
   id: "template:apartment:3bhk:v1",
@@ -40,22 +36,7 @@ export const THREE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     { key: "master-suite", inCell: "master-block", axis: "x", atMm: 4800, cells: ["master", "suite-strip"] },
     { key: "master-bath-walkin", inCell: "suite-strip", axis: "z", atMm: 2600, cells: ["master-bath", "walk-in"] },
   ],
-  rooms: [
-    { key: "foyer", cell: "foyer", name: "Foyer", roomType: "custom", compose: { kind: "none" } },
-    { key: "living", cell: "living", name: "Living", roomType: "living-room", compose: { kind: "none" } },
-    { key: "balcony", cell: "balcony", name: "Balcony", roomType: "custom", compose: { kind: "none" } },
-    { key: "kitchen", cell: "kitchen", name: "Kitchen", roomType: "kitchen", compose: { kind: "none" } },
-    { key: "utility", cell: "utility", name: "Utility", roomType: "utility", compose: { kind: "none" } },
-    { key: "passage", cell: "passage", name: "Passage", roomType: "custom", compose: { kind: "none" } },
-    { key: "study", cell: "study", name: "Study", roomType: "office", compose: { kind: "none" } },
-    { key: "guest", cell: "guest", name: "Guest", roomType: "bedroom", compose: { kind: "none" } },
-    { key: "guest-bath", cell: "guest-bath", name: "Guest Bath", roomType: "bathroom", compose: { kind: "none" } },
-    { key: "common-bath", cell: "common-bath", name: "Bath", roomType: "bathroom", compose: { kind: "none" } },
-    { key: "kids", cell: "kids", name: "Kids", roomType: "bedroom", compose: { kind: "none" } },
-    { key: "master", cell: "master", name: "Master", roomType: "bedroom", compose: { kind: "none" } },
-    { key: "master-bath", cell: "master-bath", name: "Master Bath", roomType: "bathroom", compose: { kind: "none" } },
-    { key: "walk-in", cell: "walk-in", name: "Walk-in", roomType: "custom", compose: { kind: "none" } },
-  ],
+  rooms: [...THREE_BHK_ROOMS_A, ...THREE_BHK_ROOMS_B],
   openings: [
     { kind: "door", between: { room: "foyer", side: "north" }, offsetMm: 250, widthMm: 1000 },
     { kind: "opening", between: ["foyer", "living"], offsetMm: 200, widthMm: 1100 },
@@ -84,5 +65,12 @@ export const THREE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     { kind: "window", between: { room: "guest", side: "north" }, offsetMm: 1100, widthMm: 1400, sillHeightMm: 900 },
   ],
   heroRoomKey: "living",
-  finishRoles: { ...DEFAULT_FINISH_ROLES },
+  finishRoles: {
+    carcass: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    "front-primary": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "front-accent": LIVING_ROOM_MATERIAL_IDS.walnut,
+    worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
+    "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
+  },
 };

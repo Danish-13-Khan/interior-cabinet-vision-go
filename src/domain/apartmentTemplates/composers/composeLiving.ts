@@ -103,10 +103,22 @@ export function composeLiving(
   if (options.trackLight) {
     next = addRoomLightFixture(next, "track", { kind: "ceiling" });
   }
-  const extra: Array<"profile" | "panel" | "ceiling-downlight"> = [];
+  if (options.pendantLight) {
+    next = addRoomLightFixture(withActiveRoom(next, roomId), "pendant", { kind: "ceiling" });
+  }
+  if (options.studyCorner) {
+    next = placeCatalogOnWall(
+      next, roomId, oppositeSide(tvSide), "living:console-table", `${roomId}-desk`, idFactory, 0.3,
+    );
+    next = placeCatalogOnWall(
+      next, roomId, oppositeSide(tvSide), "living:open-shelf-900", `${roomId}-shelf`, idFactory, 0.7,
+    );
+  }
+  const extra: Array<"profile" | "panel" | "ceiling-downlight" | "cob"> = [];
   if (options.profileLight) extra.push("profile");
   if (options.panelLight) extra.push("panel");
   if (options.downlight) extra.push("ceiling-downlight");
+  if (options.cobLight) extra.push("cob");
   if (extra.length) next = addRoomFixtureKinds(next, roomId, extra);
   return next;
 }
