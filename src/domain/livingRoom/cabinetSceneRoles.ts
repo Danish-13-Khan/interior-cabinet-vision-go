@@ -13,6 +13,7 @@ export const CABINET_SCENE_ROLES = [
   "filler",
   "countertop",
   "hardware",
+  "glass",
   "fallback",
 ] as const;
 
@@ -28,6 +29,7 @@ const SLOT_FOR_ROLE: Record<CabinetSceneRole, string> = {
   filler: "carcass",
   countertop: "countertop",
   hardware: "hardware",
+  glass: "glass",
   fallback: "carcass",
 };
 
@@ -38,6 +40,7 @@ export function cabinetSceneRole(
 ): CabinetSceneRole {
   if (panelName === "fallback-carcass") return "fallback";
   if (panelMaterial === "metal") return "hardware";
+  if (panelMaterial === "glass") return "glass";
   if (panelName === "toe-kick" || panelName.startsWith("toe-kick")) return "toe-kick";
   if (panelName.includes("end-panel")) return "end-panel";
   if (panelName.startsWith("filler") || panelName.endsWith("-filler")) return "filler";
@@ -63,6 +66,8 @@ export function materialIdForCabinetRole(
     ? LIVING_ROOM_MATERIAL_IDS.warmStone
     : role === "hardware"
       ? LIVING_ROOM_MATERIAL_IDS.charcoalMetal
-      : materialSlot(object, "carcass", LIVING_ROOM_MATERIAL_IDS.naturalOak);
+      : role === "glass"
+        ? LIVING_ROOM_MATERIAL_IDS.clearGlass
+        : materialSlot(object, "carcass", LIVING_ROOM_MATERIAL_IDS.naturalOak);
   return materialSlot(object, slot, fallback);
 }

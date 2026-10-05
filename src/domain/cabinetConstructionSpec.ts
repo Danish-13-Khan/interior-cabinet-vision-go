@@ -8,6 +8,7 @@ import {
   SHELF_MOUNT_OPTIONS,
 } from "./cabinetConstructionOptions";
 import { normalizeFrontSystem, type FrontSystem } from "./frontSystem/golaProfiles";
+import { normalizeDoorFrontStyle, type DoorFrontStyle } from "./frontSystem/doorStyles";
 
 export { CARCASS_STYLE_OPTIONS, CASE_JOINERY_OPTIONS, DOOR_MOUNT_OPTIONS, DRAWER_BOX_STYLE_OPTIONS, SHELF_MOUNT_OPTIONS };
 
@@ -32,12 +33,19 @@ export type CabinetConstructionSpec = {
   faceFrame: FaceFrameSpec;
   /** Absent = handles. Normalised specs only carry it for gola, so handled projects serialise unchanged. */
   frontSystem?: FrontSystem;
+  /** Absent = slab doors. Shaker / glass frames reuse the face-frame stile and rail widths. */
+  frontStyle?: DoorFrontStyle;
 };
 
 function golaFrontSystem(type: CabinetType, value: unknown): { frontSystem?: FrontSystem } {
   if (!supportsDoors(type) && !supportsDrawers(type)) return {};
   const frontSystem = normalizeFrontSystem(value);
   return frontSystem.kind === "gola" ? { frontSystem } : {};
+}
+
+function frontStyleField(type: CabinetType, value: unknown): { frontStyle?: DoorFrontStyle } {
+  const frontStyle = normalizeDoorFrontStyle(type, value);
+  return frontStyle ? { frontStyle } : {};
 }
 
 export const DEFAULT_FACE_FRAME: FaceFrameSpec = {
@@ -67,34 +75,12 @@ export const FACE_FRAME_STILE_MAX_MM = 80;
 export const FACE_FRAME_RAIL_MIN_MM = 40;
 export const FACE_FRAME_RAIL_MAX_MM = 80;
 
-function isCarcassStyle(value: unknown): value is CarcassStyle {
-  return value === "frameless" || value === "face-frame";
-}
-
-function isCaseJoinery(value: unknown): value is CaseJoinery {
-  return (
-    value === "butt-screw" ||
-    value === "dado" ||
-    value === "rabbet" ||
-    value === "confirmat"
-  );
-}
-
-function isDoorMount(value: unknown): value is DoorMount {
-  return value === "overlay" || value === "full-overlay" || value === "inset";
-}
-
-function isShelfMount(value: unknown): value is ShelfMount {
-  return (
-    value === "adjustable-pins" ||
-    value === "fixed-dado" ||
-    value === "fixed-screw"
-  );
-}
-
-function isDrawerBoxStyle(value: unknown): value is DrawerBoxStyle {
-  return value === "butt-screw" || value === "dado-bottom" || value === "dovetail";
-}
+const oneOf = <T extends string>(values: readonly T[]) => (value: unknown): value is T => values.includes(value as T);
+const isCarcassStyle = oneOf<CarcassStyle>(["frameless", "face-frame"]);
+const isCaseJoinery = oneOf<CaseJoinery>(["butt-screw", "dado", "rabbet", "confirmat"]);
+const isDoorMount = oneOf<DoorMount>(["overlay", "full-overlay", "inset"]);
+const isShelfMount = oneOf<ShelfMount>(["adjustable-pins", "fixed-dado", "fixed-screw"]);
+const isDrawerBoxStyle = oneOf<DrawerBoxStyle>(["butt-screw", "dado-bottom", "dovetail"]);
 
 function clampMm(value: number, min: number, max: number, fallback: number) {
   if (!Number.isFinite(value)) return fallback;
@@ -216,6 +202,7 @@ export function normalizeConstructionSpec(
       ? merged.drawerBoxStyle
       : defaults.drawerBoxStyle,
     ...golaFrontSystem(type, merged.frontSystem),
+    ...frontStyleField(type, merged.frontStyle),
     faceFrame: {
       stileWidthMm: clampMm(
         merged.faceFrame.stileWidthMm,

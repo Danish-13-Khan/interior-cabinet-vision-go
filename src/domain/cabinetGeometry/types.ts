@@ -11,7 +11,7 @@ export type CabinetPanelGeometry = {
   material: CabinetPanelMaterial;
 };
 
-export type CabinetPanelMaterial = "board" | "back" | "door" | "metal";
+export type CabinetPanelMaterial = "board" | "back" | "door" | "metal" | "glass";
 
 export type CabinetDimensionGuide = {
   id: "width" | "height" | "depth";

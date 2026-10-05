@@ -8,7 +8,9 @@ export type HardwareKind =
   | "accessory"
   | "consumable"
   /** Sold by the metre (gola profiles); quantity is metres. */
-  | "profile";
+  | "profile"
+  /** Door glazing; quantity is square metres. */
+  | "glass";
 
 export type HardwareItem = {
   id: string;

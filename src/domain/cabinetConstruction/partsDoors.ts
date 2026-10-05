@@ -1,0 +1,58 @@
+import type { CabinetConfig } from "../cabinetDimensions";
+import { getDoorMountLabel, normalizeConstructionSpec } from "../cabinetConstructionSpec";
+import { DOOR_PANEL_GROOVE_MM, doorFrameWidths } from "../frontSystem/doorStyles";
+import type { ConstructionContext } from "./context";
+import { resolveFrontGaps, type ResolvedOpeningFronts } from "./frontGaps";
+import { createPart } from "./helpers";
+
+/**
+ * Door parts. Slab and bought shaker / glass doors stay one part per opening (cut list unchanged);
+ * in-house frames cut two stiles and two rails per leaf, plus a centre panel for shaker.
+ * Glass is never a board part: it goes on the hardware list (`doorGlassSquareMetres`).
+ */
+export function appendDoorParts(ctx: ConstructionContext, doorOpenings: ResolvedOpeningFronts[]): void {
+  const { buildRules, constructionSpec, materialSpec, parts } = ctx;
+  const door = materialSpec.doorMaterial;
+  const thickness = buildRules.carcassThicknessMm;
+  const mount = `${getDoorMountLabel(constructionSpec.doorMount)} mount`;
+  const style = constructionSpec.frontStyle;
+  const part = (id: string, label: string, quantity: number, lengthMm: number, widthMm: number, thicknessMm: number, note: string) =>
+    createPart(id, label, "Door", quantity, lengthMm, widthMm, thicknessMm, door.grainDirection,
+      door.boardMaterialId.toUpperCase(), door.finishId, door.edgeBandingId, note);
+
+  for (const { opening, leaves } of doorOpenings) {
+    const suffix = doorOpenings.length === 1 ? "" : `-${opening.id}`;
+    const leaf = leaves[0]!;
+    if (style?.sourcing !== "in-house") {
+      parts.push(part(`door${suffix}`, opening.label, leaves.length, leaf.heightMm, leaf.widthMm, thickness, mount));
+      continue;
+    }
+    const { stileMm, railMm } = doorFrameWidths(leaf, constructionSpec.faceFrame);
+    const kind = style.style === "glass" ? "Glass door" : "Shaker door";
+    parts.push(part(`door${suffix}-stile`, `${opening.label} stile`, leaves.length * 2, leaf.heightMm, stileMm, thickness,
+      `${kind} stile, full leaf height · ${mount}`));
+    parts.push(part(`door${suffix}-rail`, `${opening.label} rail`, leaves.length * 2, leaf.widthMm - stileMm * 2, railMm, thickness,
+      `${kind} rail, fits between the stiles`));
+    if (style.style === "shaker") {
+      parts.push(part(`door${suffix}-panel`, `${opening.label} panel`, leaves.length,
+        leaf.heightMm - railMm * 2 + DOOR_PANEL_GROOVE_MM * 2, leaf.widthMm - stileMm * 2 + DOOR_PANEL_GROOVE_MM * 2,
+        Math.round(thickness / 2), `Shaker centre panel, ${DOOR_PANEL_GROOVE_MM} mm into the frame groove each side`));
+    }
+  }
+}
+
+/** Glass area for in-house glass doors (bought glass doors come glazed), rounded to 0.01 m². */
+export function doorGlassSquareMetres(config: CabinetConfig): number {
+  const spec = normalizeConstructionSpec(config.type, config.construction);
+  if (spec.frontStyle?.style !== "glass" || spec.frontStyle.sourcing !== "in-house") return 0;
+  const area = resolveFrontGaps(config).openings
+    .filter((entry) => entry.kind === "door")
+    .flatMap((entry) => entry.leaves)
+    .reduce((sum, leaf) => {
+      const { stileMm, railMm } = doorFrameWidths(leaf, spec.faceFrame);
+      const width = leaf.widthMm - stileMm * 2 + DOOR_PANEL_GROOVE_MM * 2;
+      const height = leaf.heightMm - railMm * 2 + DOOR_PANEL_GROOVE_MM * 2;
+      return sum + (width * height) / 1_000_000;
+    }, 0);
+  return Math.round(area * 100) / 100;
+}

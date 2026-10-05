@@ -1,11 +1,11 @@
 import { millimetresToMetres, type CabinetConfig } from "../cabinetDimensions";
-import { resolveFrontGaps, type FrontLeaf } from "../cabinetConstruction/frontGaps";
+import { resolveFrontGaps } from "../cabinetConstruction/frontGaps";
+import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
+import { frontLeafPanels, golaProfilePanels, handlePanels, type FacePlacer } from "./frontPanels";
 import { layoutCabinetElevationFace, type OpeningFaceRect } from "../openingLayout";
 import type { CabinetPanelGeometry } from "./types";
 
 const SHELF_SIDE_CLEARANCE_MM = 3;
-/** Keeps profile faces off the carcass faces they touch so the renderer never z-fights. */
-const PROFILE_SETBACK_MM = 0.5;
 
 function nearlyEqual(a: number, b: number) {
   return Math.abs(a - b) < 0.8;
@@ -101,45 +101,23 @@ export function openingComponentPanels(
   const frontZ = outerDepth / 2 + boardThickness / 2;
   const single = layout.openings.length === 1;
   const panels = openingBoundaryPanels(layout.openings, config, layout.leftFillerMm, usableShelfDepth, shelfCenterZ);
-  const centre = (leaf: FrontLeaf): [number, number, number] => [
-    -outerWidth / 2 + millimetresToMetres(layout.leftFillerMm + leaf.xMm + leaf.widthMm / 2),
-    -outerHeight / 2 + toeKick + millimetresToMetres(leaf.yMm + leaf.heightMm / 2),
-    frontZ,
+  const place: FacePlacer = (xMm, yMm) => [
+    -outerWidth / 2 + millimetresToMetres(layout.leftFillerMm + xMm),
+    -outerHeight / 2 + toeKick + millimetresToMetres(yMm),
   ];
 
   const fronts = resolveFrontGaps(config);
-  const boardMm = config.dimensions.boardThickness;
-  fronts.profiles.forEach((band, index) => {
-    const depth = millimetresToMetres(band.depthMm - PROFILE_SETBACK_MM);
-    // Full-width bands sit between the sides; L stops under the top panel, wall clears the bottom panel's face.
-    const endTrim = band.kind === "C" ? 0 : boardMm;
-    const lengthMm = band.lengthMm - endTrim * 2;
-    const bottomMm = band.yMm + (band.kind === "wall" ? PROFILE_SETBACK_MM : 0);
-    const heightMm = band.heightMm - (band.kind === "L" ? boardMm : band.kind === "wall" ? PROFILE_SETBACK_MM : 0);
-    panels.push({
-      name: `gola-${band.kind.toLowerCase()}-${index + 1}`,
-      label: `Gola ${band.kind === "wall" ? "wall-unit" : band.kind} profile`,
-      size: [millimetresToMetres(lengthMm), millimetresToMetres(heightMm), depth],
-      position: [
-        -outerWidth / 2 + millimetresToMetres(layout.leftFillerMm + band.xMm + endTrim + lengthMm / 2),
-        -outerHeight / 2 + toeKick + millimetresToMetres(bottomMm + heightMm / 2),
-        outerDepth / 2 - millimetresToMetres(PROFILE_SETBACK_MM) - depth / 2,
-      ],
-      material: "metal",
-    });
-  });
-
+  const spec = normalizeConstructionSpec(config.type, config.construction);
+  panels.push(...golaProfilePanels(config, fronts, place, outerDepth));
   for (const { opening, kind, leaves } of fronts.openings) {
     leaves.forEach((leaf, index) => {
-      panels.push({
-        name: frontName(kind, opening, index, leaves.length, single),
-        label: `${opening.label} ${kind === "door" ? "Door" : "Drawer"} ${index + 1}`,
-        size: [millimetresToMetres(leaf.widthMm), millimetresToMetres(leaf.heightMm), boardThickness],
-        position: centre(leaf),
-        material: "door",
-      });
+      const name = frontName(kind, opening, index, leaves.length, single);
+      const label = `${opening.label} ${kind === "door" ? "Door" : "Drawer"} ${index + 1}`;
+      const style = kind === "door" ? spec.frontStyle : undefined;
+      panels.push(...frontLeafPanels(name, label, leaf, place, frontZ, boardThickness, style, spec.faceFrame));
     });
   }
+  panels.push(...handlePanels(config, fronts, place, frontZ, boardThickness));
 
   for (const opening of layout.openings) {
     if ((opening.contentType !== "door" && opening.contentType !== "open-shelf") || opening.shelfCount <= 0) continue;

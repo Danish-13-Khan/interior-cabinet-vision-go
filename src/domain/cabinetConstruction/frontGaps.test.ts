@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { clampCabinetConfig, getDefaultCabinetConfig, type CabinetConfig, type CabinetType } from "../cabinetDimensions";
 import { resolveCabinetComposition } from "../cabinetComposition";
 import { normalizeConstructionSpec, type DoorMount } from "../cabinetConstructionSpec";
-import { createCabinetCutlist, createCabinetGeometry } from "../cabinetGeometry";
+import { createCabinetCutlist, createCabinetGeometry, isFrontLeafPanel } from "../cabinetGeometry";
 import { collectOpeningLeaves, setOpeningContentType, splitOpening, updateOpeningLeaf } from "../cabinetOpeningStructure";
 import { createCabinetConstruction } from "./createConstruction";
 import { frontGapSpec, resolveFrontGaps } from "./frontGaps";
@@ -41,7 +41,7 @@ const toMm = (metres: number) => Math.round(Number((metres * 1000).toFixed(6)));
 
 function modelFronts(config: CabinetConfig) {
   return sorted(createCabinetGeometry(config)
-    .filter((panel) => panel.material === "door")
+    .filter(isFrontLeafPanel)
     .map((panel) => `${toMm(panel.size[1])}x${toMm(panel.size[0])}`));
 }
 

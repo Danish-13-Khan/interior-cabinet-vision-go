@@ -48,14 +48,17 @@ test.describe("Inspector rotation (Phases 0 and 2)", () => {
     await expect(cabinet).toHaveAttribute("data-rotation-y", String((before + 90) % 360));
   });
 
-  test("Shaker and Glass are labelled plan only; door count is automatic", async ({ page }) => {
+  test("Shaker and Glass render (no plan-only label), default to bought; door count is automatic", async ({ page }) => {
     await openGoldenCabinetRun(page);
     await selectGoldenCabinet(page, GOLDEN_RUN_OBJECT_IDS.baseA);
     const advanced = page.getByTestId("inspector-cabinet-advanced");
     if (await advanced.getAttribute("open") === null) await advanced.locator("summary").click();
     const style = page.getByTestId("cabinet-door-style");
-    await expect(style.locator('option[value="shaker"]')).toHaveText("Shaker (plan only)");
-    await expect(style.locator('option[value="glass"]')).toHaveText("Glass (plan only)");
+    await expect(style.locator('option[value="shaker"]')).toHaveText("Shaker");
+    await expect(style.locator('option[value="glass"]')).toHaveText("Glass");
+    await expect(page.getByTestId("cabinet-door-sourcing")).toHaveCount(0);
+    await style.selectOption("glass");
+    await expect(page.getByTestId("cabinet-door-sourcing")).toHaveValue("bought");
     await expect(page.getByTestId("cabinet-door-count-auto")).toBeVisible();
   });
 });

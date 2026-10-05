@@ -1,5 +1,6 @@
 import { supportsDoors, supportsDrawers } from "../../domain/cabinetCapabilities";
 import { readCabinetIdentity } from "../../domain/cabinetIdentity";
+import { DOOR_SOURCING_PARAMETER, DOOR_STYLE_OPTIONS, DOOR_STYLE_PARAMETER, readDoorStyleKind } from "../../domain/frontSystem";
 import { GolaFrontFields } from "./GolaFrontFields";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import { cabinetFinishId } from "../../domain/livingRoom";
@@ -16,6 +17,7 @@ type Props = {
 export function CabinetConstructionSection({ object, project, onSetParameters }: Props) {
   const identity = readCabinetIdentity(object);
   const compiled = identity !== null;
+  const doorStyle = readDoorStyleKind(object.parameters[DOOR_STYLE_PARAMETER]);
   return (
     <InspectorSection title="Construction" testId="inspector-cabinet-advanced">
       <label className="lr-select-field"><span>Finish</span>
@@ -28,13 +30,20 @@ export function CabinetConstructionSection({ object, project, onSetParameters }:
         </select>
       </label>
       <label className="lr-select-field"><span>Door style</span>
-        <select data-testid="cabinet-door-style" value={String(object.parameters.doorStyle ?? "slab")}
-          onChange={(event) => onSetParameters(object.id, { doorStyle: event.target.value })}>
-          <option value="slab">Slab</option>
-          <option value="shaker">Shaker (plan only)</option>
-          <option value="glass">Glass (plan only)</option>
+        <select data-testid="cabinet-door-style" value={doorStyle}
+          onChange={(event) => onSetParameters(object.id, { [DOOR_STYLE_PARAMETER]: event.target.value })}>
+          {DOOR_STYLE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </label>
+      {doorStyle !== "slab" ? (
+        <label className="lr-select-field"><span>Doors made</span>
+          <select data-testid="cabinet-door-sourcing" value={object.parameters[DOOR_SOURCING_PARAMETER] === "in-house" ? "in-house" : "bought"}
+            onChange={(event) => onSetParameters(object.id, { [DOOR_SOURCING_PARAMETER]: event.target.value })}>
+            <option value="bought">Bought ready-made</option>
+            <option value="in-house">Made in-house (frame parts on the cut list)</option>
+          </select>
+        </label>
+      ) : null}
       {identity && (supportsDoors(identity.cabinetType) || supportsDrawers(identity.cabinetType)) ? (
         <GolaFrontFields object={object} project={project} cabinetType={identity.cabinetType} onSetParameters={onSetParameters} />
       ) : null}
