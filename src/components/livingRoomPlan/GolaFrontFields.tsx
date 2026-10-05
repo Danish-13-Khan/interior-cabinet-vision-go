@@ -19,7 +19,7 @@ type Props = {
   object: InteriorObjectEntity;
   project: InteriorProject;
   cabinetType: CabinetType;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
 };
 
 /** Handles vs gola handleless, with profile sizes clamped to the standard ranges. */
@@ -34,9 +34,7 @@ export function GolaFrontFields({ object, project, cabinetType, onSetParameters 
     onSetParameters(object.id, { [golaParameterKey(kind, dimension)]: size[dimension] });
   };
   const matchRun = () => {
-    if (!mismatch) return;
-    const patch = golaParametersPatch(mismatch.profiles);
-    for (const id of mismatch.memberIds) onSetParameters(id, patch);
+    if (mismatch) onSetParameters(mismatch.memberIds, golaParametersPatch(mismatch.profiles));
   };
   return (
     <div className="lr-gola-fields" data-testid="cabinet-gola-fields">

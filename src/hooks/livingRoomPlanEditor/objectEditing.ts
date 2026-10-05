@@ -151,9 +151,10 @@ export function objectEditingCommands(ctx: EditorCommandContext) {
       if (selectedObjectIds.length === 0) return;
       commitSelectionPaint(commitDocument, selectedObjectIds, materialId, slotName, onStatus);
     },
-    setInteriorObjectParameters: (objectId: string, patch: Record<string, string | number | boolean>) => {
+    setInteriorObjectParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => {
+      const ids = typeof objectId === "string" ? [objectId] : objectId;
       commitDocument(
-        (current) => setLivingRoomObjectParameters(current, objectId, patch),
+        (current) => ids.reduce((next, id) => setLivingRoomObjectParameters(next, id, patch), current),
         "Updated cabinet configuration.",
       );
     },

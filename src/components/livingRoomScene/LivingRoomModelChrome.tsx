@@ -23,7 +23,7 @@ type LivingRoomModelChromeProps = {
   onDismissGuide: () => void;
   diagnostics: ReturnType<typeof useRenderDiagnostics>;
   activeObject: InteriorObjectEntity | null;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   activeStyleId: LivingRoomStyleId;
   activeStyleName: string;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;

@@ -38,7 +38,7 @@ type LivingRoomInspectorPanelProps = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onCompleteCabinetRun?: (runId: string) => void;
   onUpdateCabinetRun: (runId: string, options: {
     gapMm?: number;
