@@ -4,12 +4,15 @@ import {
   HOST_REMOVED,
   HOSTED_INSERT_OPTIONS,
   INSERT_KIND,
+  OFFSET_ALONG_MM,
+  OFFSET_DEPTH_MM,
   placeInCabinetPatch,
   readApplianceHost,
   readHostedInsertKind,
   RELEASE_APPLIANCE_PATCH,
 } from "../../domain/hostedAppliances";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
+import { NumberField } from "./NumberField";
 
 type Props = {
   object: InteriorObjectEntity;
@@ -22,6 +25,9 @@ export function ApplianceHostSection({ object, project, onSetParameters }: Props
   const mount = readApplianceHost(object);
   const hostRemoved = object.parameters[HOST_REMOVED] === true;
   const hosts = applianceHostCandidates(project, object);
+  const sharing = mount
+    ? project.objects.find((item) => item.id !== object.id && readApplianceHost(item)?.hostCabinetId === mount.hostCabinetId)
+    : undefined;
   const insertKind = mount?.insertKind ?? readHostedInsertKind(object.parameters[INSERT_KIND]) ?? detectApplianceInsertKind(object);
   const chooseHost = (hostId: string) => {
     const host = hosts.find((item) => item.id === hostId);
@@ -52,9 +58,20 @@ export function ApplianceHostSection({ object, project, onSetParameters }: Props
             {HOSTED_INSERT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
+        {mount ? (
+          <>
+            <NumberField label="Along" value={mount.offsetAlongMm} testId="appliance-offset-along"
+              onChange={(value) => onSetParameters(object.id, { [OFFSET_ALONG_MM]: value })} />
+            <NumberField label="Depth" value={mount.offsetDepthMm} testId="appliance-offset-depth"
+              onChange={(value) => onSetParameters(object.id, { [OFFSET_DEPTH_MM]: value })} />
+          </>
+        ) : null}
+        {sharing ? (
+          <p className="lr-appliance-warning">{sharing.name} is also placed in this cabinet; only one insert is recorded. Move one to another cabinet.</p>
+        ) : null}
         <p className="lr-inspector-hint">
           {mount
-            ? "Sits on the worktop and follows the cabinet when it moves or turns. The worktop cut-out is listed in the hardware report."
+            ? "Sits on the worktop and moves or turns with the cabinet. Drag it, type X / Z, or set Along / Depth (mm from the cabinet centre) to slide it inside the cabinet. The worktop cut-out is listed in the hardware report."
             : hosts.length === 0 ? "Add a base or sink cabinet to place this in." : "Pick a base or sink cabinet to drop this into its worktop."}
         </p>
       </div>

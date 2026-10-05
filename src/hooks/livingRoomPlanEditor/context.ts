@@ -44,7 +44,7 @@ export function createCommitDocument(commitProjectChange: CommitProjectChange): 
       const current = currentLivingRoomDocument(currentProject);
       if (!current) return null;
       const next = {
-        ...syncHostedAppliances(update(current)),
+        ...syncHostedAppliances(update(current), current),
         updatedAt: new Date().toISOString(),
       };
       const compatible = cabinetProjectFromInteriorProject(next);
