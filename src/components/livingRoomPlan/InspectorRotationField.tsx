@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { HOSTED_APPLIANCE_ROTATION_HINT, readApplianceHost } from "../../domain/hostedAppliances";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import {
   CABINET_OFF_GRID_HINT,
@@ -18,6 +19,7 @@ type Props = {
 /** Typed rotation plus ±90° steps; shows stored 15° and wall-normal angles as-is. */
 export function InspectorRotationField({ object, onSetRotation }: Props) {
   const quarterTurns = rotatesInQuarterTurns(object);
+  const hosted = readApplianceHost(object) !== null;
   const value = object.rotation.y;
   const shown = formatRotationDeg(value);
   const [draft, setDraft] = useState(shown);
@@ -41,7 +43,7 @@ export function InspectorRotationField({ object, onSetRotation }: Props) {
           type="number"
           aria-label="Rotation degrees"
           data-testid="inspector-rotation-input"
-          step={rotationStepFor(object)}
+          step={hosted ? 90 : rotationStepFor(object)}
           value={draft}
           onFocus={() => { focusedRef.current = true; }}
           onChange={(event) => setDraft(event.target.value)}
@@ -62,6 +64,9 @@ export function InspectorRotationField({ object, onSetRotation }: Props) {
         <button type="button" data-testid="inspector-rotate-right" title="Rotate right 90°"
           onClick={() => onSetRotation(object.id, value + 90)}>+90°</button>
       </div>
+      {hosted ? (
+        <p className="lr-inspector-hint" data-testid="inspector-rotation-hint">{HOSTED_APPLIANCE_ROTATION_HINT}</p>
+      ) : null}
       {quarterTurns ? (
         <p className="lr-inspector-hint" data-testid="inspector-rotation-hint">
           {CABINET_ROTATION_HINT}

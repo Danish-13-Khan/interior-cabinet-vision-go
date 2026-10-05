@@ -2,6 +2,7 @@ import type { CabinetConfig } from "../cabinetDimensions";
 import { getDoorMountLabel, normalizeConstructionSpec } from "../cabinetConstructionSpec";
 import { DOOR_PANEL_GROOVE_MM, doorFrameWidths } from "../frontSystem/doorStyles";
 import type { ConstructionContext } from "./context";
+import { doorPieces, type DoorPieceKind } from "./doorPieces";
 import { resolveFrontGaps, type ResolvedOpeningFronts } from "./frontGaps";
 import { createPart } from "./helpers";
 
@@ -20,23 +21,19 @@ export function appendDoorParts(ctx: ConstructionContext, doorOpenings: Resolved
     createPart(id, label, "Door", quantity, lengthMm, widthMm, thicknessMm, door.grainDirection,
       door.boardMaterialId.toUpperCase(), door.finishId, door.edgeBandingId, note);
 
+  const kindLabel = style?.style === "glass" ? "Glass door" : "Shaker door";
+  const notes: Record<DoorPieceKind, string> = {
+    door: mount,
+    stile: `${kindLabel} stile, full leaf height · ${mount}`,
+    rail: `${kindLabel} rail, fits between the stiles`,
+    panel: `Shaker centre panel, ${DOOR_PANEL_GROOVE_MM} mm into the frame groove each side`,
+  };
   for (const { opening, leaves } of doorOpenings) {
     const suffix = doorOpenings.length === 1 ? "" : `-${opening.id}`;
-    const leaf = leaves[0]!;
-    if (style?.sourcing !== "in-house") {
-      parts.push(part(`door${suffix}`, opening.label, leaves.length, leaf.heightMm, leaf.widthMm, thickness, mount));
-      continue;
-    }
-    const { stileMm, railMm } = doorFrameWidths(leaf, constructionSpec.faceFrame);
-    const kind = style.style === "glass" ? "Glass door" : "Shaker door";
-    parts.push(part(`door${suffix}-stile`, `${opening.label} stile`, leaves.length * 2, leaf.heightMm, stileMm, thickness,
-      `${kind} stile, full leaf height · ${mount}`));
-    parts.push(part(`door${suffix}-rail`, `${opening.label} rail`, leaves.length * 2, leaf.widthMm - stileMm * 2, railMm, thickness,
-      `${kind} rail, fits between the stiles`));
-    if (style.style === "shaker") {
-      parts.push(part(`door${suffix}-panel`, `${opening.label} panel`, leaves.length,
-        leaf.heightMm - railMm * 2 + DOOR_PANEL_GROOVE_MM * 2, leaf.widthMm - stileMm * 2 + DOOR_PANEL_GROOVE_MM * 2,
-        Math.round(thickness / 2), `Shaker centre panel, ${DOOR_PANEL_GROOVE_MM} mm into the frame groove each side`));
+    for (const piece of doorPieces(leaves[0]!, style, constructionSpec.faceFrame, thickness)) {
+      const own = piece.kind === "door" ? "" : `-${piece.kind}`;
+      parts.push(part(`door${suffix}${own}`, piece.kind === "door" ? opening.label : `${opening.label} ${piece.kind}`,
+        leaves.length * piece.perLeaf, piece.lengthMm, piece.widthMm, piece.thicknessMm, notes[piece.kind]));
     }
   }
 }

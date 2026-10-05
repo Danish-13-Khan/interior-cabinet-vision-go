@@ -304,6 +304,8 @@ plus four `-frame-` pieces; Glass = transparent glass panel plus frame. **Doors
 made** defaults to Bought (cut list unchanged); In-house cuts stiles, rails and
 (shaker) a grooved panel, and in-house glass goes on the hardware list in m²
 (placeholder price). Shaker / glass apply to doors only; drawer fronts stay slab.
+Production and the classic editor's legacy cut list both cut doors with
+`doorPieces`, so in-house frames list the same stiles, rails and panels in both.
 **Still open:** Ilyas's answer to §6.4 (made in-house or bought).
 
 ### Phase 7 — Hosted sink and hob (answers Modular Q3)

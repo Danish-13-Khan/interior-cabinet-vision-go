@@ -3,6 +3,7 @@ import { clampCabinetConfig, getDefaultCabinetConfig, type CabinetConfig, type C
 import { resolveCabinetComposition } from "../cabinetComposition";
 import { normalizeConstructionSpec, type DoorMount } from "../cabinetConstructionSpec";
 import { createCabinetCutlist, createCabinetGeometry, isFrontLeafPanel } from "../cabinetGeometry";
+import type { DoorFrontStyle } from "../frontSystem";
 import { collectOpeningLeaves, setOpeningContentType, splitOpening, updateOpeningLeaf } from "../cabinetOpeningStructure";
 import { createCabinetConstruction } from "./createConstruction";
 import { frontGapSpec, resolveFrontGaps } from "./frontGaps";
@@ -67,6 +68,27 @@ describe("resolveFrontGaps — one front rule for 3D, production and the legacy 
       });
     }
   }
+
+  it("in-house shaker / glass and bought doors: every legacy door row equals production, thickness included", () => {
+    const styles: Array<DoorFrontStyle | undefined> = [
+      { style: "shaker", sourcing: "in-house" },
+      { style: "glass", sourcing: "in-house" },
+      { style: "shaker", sourcing: "bought" },
+      undefined,
+    ];
+    for (const frontStyle of styles) {
+      for (const base of [getDefaultCabinetConfig("base"), drawersOverDoor()]) {
+        const config = clampCabinetConfig({ ...base, construction: { ...normalizeConstructionSpec(base.type, base.construction), frontStyle } });
+        const production = sorted(createCabinetConstruction(config).parts
+          .filter((part) => part.category === "Door" || part.category === "DrawerFront")
+          .flatMap((part) => Array.from({ length: part.quantity }, () => `${part.lengthMm}x${part.widthMm}x${part.thicknessMm}`)));
+        const legacy = sorted(createCabinetCutlist(config)
+          .filter((item) => item.key.startsWith("door") || item.key.startsWith("drawer-fronts"))
+          .flatMap((item) => Array.from({ length: item.quantity }, () => `${item.lengthMm}x${item.widthMm}x${item.thicknessMm}`)));
+        expect(legacy, JSON.stringify(frontStyle)).toEqual(production);
+      }
+    }
+  });
 
   it("inset fronts in a face-frame carcass match too", () => {
     const config = withMount(getDefaultCabinetConfig("base"), "inset", true);
