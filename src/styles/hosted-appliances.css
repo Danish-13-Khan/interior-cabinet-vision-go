@@ -1,0 +1,27 @@
+/* Sink / hob placed in a cabinet (roadmap Phase 7). */
+
+.lr-appliance-host-body {
+  display: grid;
+  gap: 8px;
+}
+
+.lr-appliance-host-body .lr-inspector-hint {
+  margin: 0;
+}
+
+.lr-appliance-dismiss {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.shop-table .shop-row-note {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: var(--warning);
+}

@@ -4,6 +4,8 @@ import type {
   Point3Mm,
   Size3Mm,
 } from "../../domain/interiorProject";
+import { isPlaceableAppliance } from "../../domain/hostedAppliances";
+import { ApplianceHostSection } from "./ApplianceHostSection";
 import { InspectorModelExtrasSlot } from "./InspectorPlanSettingsSlot";
 import { InspectorRotationField } from "./InspectorRotationField";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
@@ -54,6 +56,9 @@ export function InspectorObjectSection(props: Props) {
   const positionEditor = (
     <>
     {props.mode === "model" ? <InspectorModelExtrasSlot /> : null}
+    {isPlaceableAppliance(object) ? (
+      <ApplianceHostSection object={object} project={props.project} onSetParameters={props.onSetParameters} />
+    ) : null}
     <details className="lr-inspector-section lr-transform-editor" open={props.mode === "model"}>
       <summary>Position</summary>
       <div className="lr-inspector-section-body lr-position-fields">

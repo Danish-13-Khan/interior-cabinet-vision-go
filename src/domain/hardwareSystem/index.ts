@@ -25,6 +25,8 @@ export {
   describeHardwareSpec,
 } from "./normalize";
 
+export { applyInsertParameters, worktopCutoutNote } from "./insertParameters";
+
 export {
   resolveHardwareCounts,
   buildHardwareLines,
