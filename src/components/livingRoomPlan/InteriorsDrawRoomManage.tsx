@@ -58,6 +58,8 @@ export function InteriorsDrawRoomManage({
               onChange={commands.onSetPlanUnderlay}
               onReplace={commands.onReplaceUnderlay}
               onCalibrate={() => commands.onBuildTool("calibrate-underlay")}
+              moveActive={activeBuildTool === "move-underlay"}
+              onToggleMove={() => commands.onBuildTool(activeBuildTool === "move-underlay" ? "select" : "move-underlay")}
               onSuggestDwgWalls={commands.onSuggestDwgWalls}
               onPlaceDwgCabinets={commands.onPlaceDwgCabinets}
             />

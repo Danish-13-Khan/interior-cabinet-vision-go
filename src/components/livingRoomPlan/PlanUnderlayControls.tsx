@@ -1,13 +1,19 @@
 import { toggleDwgLayer } from "../../domain/livingRoom/dwgSource";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom";
+import { PlanUnderlayTransformActions } from "./PlanUnderlayTransformActions";
 
-export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrate, onSuggestDwgWalls, onPlaceDwgCabinets }: {
+export function PlanUnderlayControls({
+  underlay, onChange, onReplace, onCalibrate, onSuggestDwgWalls, onPlaceDwgCabinets, moveActive, onToggleMove,
+}: {
   underlay: LivingRoomPlanUnderlay | null;
   onChange: (underlay: LivingRoomPlanUnderlay | null) => void;
   onReplace: () => void;
   onCalibrate?: () => void;
   onSuggestDwgWalls?: () => void;
   onPlaceDwgCabinets?: () => void;
+  /** Move underlay drag mode is active on the plan canvas. */
+  moveActive?: boolean;
+  onToggleMove?: () => void;
 }) {
   if (!underlay) {
     return (
@@ -118,6 +124,8 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
           />
         </label>
       </div>
+      <PlanUnderlayTransformActions underlay={underlay} onChange={onChange}
+        moveActive={moveActive} onToggleMove={onToggleMove} />
       <div className="lr-underlay-toggles">
         <button
           type="button"
@@ -154,21 +162,6 @@ export function PlanUnderlayControls({ underlay, onChange, onReplace, onCalibrat
         onClick={onCalibrate}
       >
         Calibrate with known distance
-      </button>
-      <button
-        type="button"
-        className="is-secondary"
-        disabled={locked}
-        onClick={() => update({
-          xMm: 0,
-          zMm: 0,
-          rotationDeg: 0,
-          ...(underlay.importWidthMm && underlay.importHeightMm
-            ? { widthMm: underlay.importWidthMm, heightMm: underlay.importHeightMm, calibrated: false }
-            : {}),
-        })}
-      >
-        Reset transform
       </button>
       <button type="button" className="is-secondary" disabled={locked} onClick={onReplace}>Replace file</button>
       <button type="button" className="is-danger" disabled={locked} onClick={() => onChange(null)}>Remove underlay</button>

@@ -1,6 +1,6 @@
 # Plan import and modular gaps roadmap
 
-**Status:** In progress — Phase 0 landed 2026-10-05.
+**Status:** In progress — Phases 0–1 landed 2026-10-05.
 **Source:** Factory QA questions from Ilyas (production manager), 2026-10-04:
 plan rotation, raising walls, centre axis, erasing a plan, L / C gola,
 arch / fillet shapes, importing sinks / profiles / doors.

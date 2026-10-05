@@ -17,7 +17,6 @@ import {
   getObjectPlanBounds,
   getOpeningCatalogItem,
   openingOffsetAtPoint,
-  rectsIntersect,
   snapMeasurePoint,
   type BuildTool,
   type LivingRoomPlanIssue,
@@ -42,7 +41,9 @@ import { PlanWallNodesLayer } from "./livingRoomPlan/PlanWallNodesLayer";
 import { DraftFeedbackOverlay } from "./livingRoomPlan/DraftFeedbackOverlay";
 import { RoomDrawingOverlay } from "./livingRoomPlan/RoomDrawingOverlay";
 import { WallDrawingOverlay } from "./livingRoomPlan/WallDrawingOverlay";
+import { usePlanMarquee } from "./livingRoomPlan/usePlanMarquee";
 import { usePlanObjectInteraction } from "./livingRoomPlan/usePlanObjectInteraction";
+import { usePlanUnderlayDrag } from "./livingRoomPlan/usePlanUnderlayDrag";
 import { usePlanWallInteraction } from "./livingRoomPlan/usePlanWallInteraction";
 import { useRoomDrawing } from "./livingRoomPlan/useRoomDrawing";
 import { useWallDrawing } from "./livingRoomPlan/useWallDrawing";
@@ -80,14 +81,6 @@ type Props = {
   onCalibrateComplete?: () => void;
   onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number }) => void;
   preDropReason?: string | null;
-};
-
-type MarqueeState = {
-  start: Point2Mm;
-  current: Point2Mm;
-  additive: boolean;
-  /** True when gesture began on room floor (click without drag → select room). */
-  fromFloor: boolean;
 };
 
 export function LivingRoomPlanView(props: Props) {
@@ -138,6 +131,7 @@ export function LivingRoomPlanView(props: Props) {
   const placeColumn = tool === "place-column";
   const measuring = tool === "measure";
   const calibrating = tool === "calibrate-underlay";
+  const movingUnderlay = tool === "move-underlay";
   const measureLike = measuring || calibrating;
   const editWalls = tool === "select";
   const calibrateBlockedReason = !calibrating ? null
@@ -145,7 +139,6 @@ export function LivingRoomPlanView(props: Props) {
     : underlay.locked ? "Unlock the underlay before calibrating."
     : null;
 
-  const [marquee, setMarquee] = useState<MarqueeState | null>(null);
   const [measurePoints, setMeasurePoints] = useState<Point2Mm[]>([]);
   const [measureCursor, setMeasureCursor] = useState<Point2Mm | null>(null);
   const [measureSnap, setMeasureSnap] = useState<MeasureSnapPoint | null>(null);
@@ -199,6 +192,14 @@ export function LivingRoomPlanView(props: Props) {
   const walls = usePlanWallInteraction({
     active: editWalls, project: props.project, snapSizeMm: props.snapSizeMm, moveThresholdMm: wallMoveMm, worldPoint,
     onSelectWall: props.onSelectWall, onMoveNode: props.onMoveNode, onTranslateWall: props.onTranslateWall,
+  });
+  const marquee = usePlanMarquee({
+    project: props.project, room, selectedIds: props.selectedIds, clickThresholdMm: marqueeClickMm,
+    onSelect: props.onSelect, onSelectMany: props.onSelectMany, onSelectSurface: props.onSelectSurface,
+    onSelectRoom: props.onSelectRoom,
+  });
+  const underlayDrag = usePlanUnderlayDrag({
+    active: movingUnderlay, underlay, worldPoint, onCommit: props.onSetPlanUnderlay,
   });
   const dwgSnap = useDwgPlanSnap(underlay);
   const roomDrawing = useRoomDrawing({
@@ -312,9 +313,7 @@ export function LivingRoomPlanView(props: Props) {
     if (roomDrawing.start(event)) return;
     if (wallDrawing.begin(event)) return;
     if (editWalls && event.button === 0) {
-      const start = worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
-      setMarquee({ start, current: start, additive: event.shiftKey || event.metaKey || event.ctrlKey, fromFloor: false });
-      event.currentTarget.setPointerCapture(event.pointerId);
+      marquee.begin(event, worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), false);
       return;
     }
     props.onSelect(null);
@@ -329,79 +328,31 @@ export function LivingRoomPlanView(props: Props) {
     // Potential marquee from inside the room; click without drag selects the room.
     event.preventDefault();
     event.stopPropagation();
-    const start = worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
-    setMarquee({
-      start,
-      current: start,
-      additive: event.shiftKey || event.metaKey || event.ctrlKey,
-      fromFloor: true,
-    });
-    event.currentTarget.setPointerCapture(event.pointerId);
+    marquee.begin(event, worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), true);
   }
 
   function pointerMove(event: ReactPointerEvent<SVGSVGElement>) {
     if (nav.movePan(event)) return;
     if (measureLike) { updateMeasureHover(event); return; }
-    if (marquee) {
-      setMarquee({ ...marquee, current: worldPoint(event) });
-      return;
-    }
+    if (underlayDrag.move(event)) return;
+    if (marquee.active) { marquee.update(worldPoint(event)); return; }
     if (roomDrawing.move(event)) return;
     if (wallDrawing.move(event)) return;
     if (walls.move(event)) return;
     if (!openings.openingDragMove(event)) objects.move(event);
   }
 
-  function finishMarquee() {
-    if (!marquee) return;
-    const minX = Math.min(marquee.start.x, marquee.current.x);
-    const maxX = Math.max(marquee.start.x, marquee.current.x);
-    const minZ = Math.min(marquee.start.z, marquee.current.z);
-    const maxZ = Math.max(marquee.start.z, marquee.current.z);
-    const tiny = Math.hypot(maxX - minX, maxZ - minZ) < marqueeClickMm;
-    if (tiny) {
-      if (marquee.fromFloor && !marquee.additive) {
-        props.onSelectRoom?.();
-      } else if (!marquee.additive) {
-        props.onSelect(null);
-        props.onSelectSurface(null);
-      }
-      setMarquee(null);
-      return;
-    }
-    const hit = props.project.objects.filter((object) => {
-      if (room && object.roomId !== room.id) return false;
-      const b = getObjectPlanBounds(object);
-      return rectsIntersect(b, { minX, minZ, maxX, maxZ });
-    }).map((object) => object.id);
-    if (props.onSelectMany) {
-      const next = marquee.additive
-        ? Array.from(new Set([...props.selectedIds, ...hit]))
-        : hit;
-      props.onSelectMany(next);
-    } else if (hit[0]) {
-      props.onSelect(hit[0], marquee.additive);
-    } else if (!marquee.additive) {
-      props.onSelect(null);
-    }
-    setMarquee(null);
-  }
-
   function finish(event: ReactPointerEvent<SVGSVGElement>) {
     if (nav.endPan(event)) return;
-    if (marquee) { finishMarquee(); return; }
+    if (underlayDrag.finish()) return;
+    if (marquee.finish()) return;
     if (roomDrawing.finish(event)) return;
     if (wallDrawing.finish(event)) return;
     if (walls.finish()) return;
     objects.finish(); openings.finishOpeningDrag();
   }
 
-  const marqueeRect = marquee ? {
-    x: Math.min(marquee.start.x, marquee.current.x),
-    z: Math.min(marquee.start.z, marquee.current.z),
-    width: Math.abs(marquee.current.x - marquee.start.x),
-    height: Math.abs(marquee.current.z - marquee.start.z),
-  } : null;
+  const marqueeRect = marquee.rect;
 
   return <>
   <PromptDialog
@@ -425,7 +376,7 @@ export function LivingRoomPlanView(props: Props) {
     }}
   />
   <svg ref={nav.svgRef}
-    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""} ${calibrating ? "is-calibrate" : ""}`}
+    className={`lr-plan-svg is-${props.readability.visualStyle}-style ${objects.dragging || walls.dragging || underlayDrag.dragging || nav.panning ? "is-dragging" : ""} ${nav.spaceDown ? "is-pan-ready" : ""} ${measuring ? "is-measure" : ""} ${calibrating ? "is-calibrate" : ""}`}
     viewBox={nav.viewBox} role="application" aria-label="Living room plan editor"
     data-testid="lr-plan-svg"
     onWheel={nav.onWheel}
@@ -450,7 +401,8 @@ export function LivingRoomPlanView(props: Props) {
     <PlanArchitectureLayer project={props.project} room={room} snapSizeMm={props.snapSizeMm}
       showGrid={props.showGrid} activeWallId={props.activeWallId} visualStyle={props.readability.visualStyle}
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall}
-      onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined} />
+      onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined}
+      underlayOffset={underlayDrag.preview} onUnderlayPointerDown={underlayDrag.movable ? underlayDrag.start : undefined} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
     <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />
@@ -470,7 +422,7 @@ export function LivingRoomPlanView(props: Props) {
       freeSegments={placementPreview?.freeSegments}
       freeSegmentWallPose={freeSegmentWallPose}
       onSetCabinetDims={props.onSetCabinetInlineDims}
-      onStart={objects.start} interactive={!measureLike} />
+      onStart={objects.start} interactive={!measureLike && !underlayDrag.movable} />
     {props.onSelectLight ? (
       <PlanLightsLayer project={props.project} activeLightId={props.activeLightId ?? null}
         hidden={measureLike} onSelectLight={props.onSelectLight} />
