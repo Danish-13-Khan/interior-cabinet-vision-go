@@ -47,6 +47,7 @@ type ModelViewSceneProps = {
   onSelectWall: (wallId: string) => void;
   selectedLightId?: string | null;
   onSelectLight?: (id: string) => void;
+  roomLightScale?: number;
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
@@ -119,6 +120,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           lightingQuality={lightingQuality}
           projectLightScale={projectLightScale}
           windowKeyScale={windowKeyScale}
+          roomLightScale={props.roomLightScale}
           fitVersion={fitVersion}
           fitMode={fitMode}
           fitSelection={fitSelection}

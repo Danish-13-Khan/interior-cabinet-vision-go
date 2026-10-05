@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { Html } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { LightEntity } from "../../../domain/interiorProject";
 import { roomLightRotation } from "./fixtureMeasures";
@@ -45,15 +46,26 @@ export function FixtureGroup({
       document.body.style.cursor = "";
     },
   } : {};
+  const origin: [number, number, number] = [light.position.x / 1000, light.position.y / 1000, light.position.z / 1000];
   return (
-    <group
-      position={[light.position.x / 1000, light.position.y / 1000, light.position.z / 1000]}
-      rotation={roomLightRotation(light.rotation)}
-      {...pick}
-    >
-      {children}
-      {selected ? <SelectionOutline span={span} /> : null}
-    </group>
+    <>
+      <group position={origin} rotation={roomLightRotation(light.rotation)} {...pick}>
+        {children}
+        {selected ? <SelectionOutline span={span} /> : null}
+      </group>
+      {selected ? (
+        // World-up offset, outside the rotated group, so the tag sits above any mount.
+        <Html position={[origin[0], origin[1] + 0.22, origin[2]]} center distanceFactor={7}>
+          <span
+            className="lr-model-object-label is-pickable is-selected is-light"
+            data-model-select="light"
+            data-model-id={light.id}
+          >
+            {light.name}
+          </span>
+        </Html>
+      ) : null}
+    </>
   );
 }
 

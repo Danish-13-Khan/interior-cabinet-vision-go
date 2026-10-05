@@ -13,6 +13,7 @@ import { ModelViewDollhousePanel } from "./ModelViewDollhousePanel";
 import { RenderPresetHonestyBadge } from "./RenderPresetHonestyBadge";
 import type { RoomLightFixturesPanelProps } from "./RoomLightFixturesPanel";
 import { RoomLightFixturesPopover } from "./RoomLightFixturesPopover";
+import { LightingMoodToggle } from "./LightingMoodToggle";
 
 type ModelViewToolbarProps = {
   fixtures?: RoomLightFixturesPanelProps;
@@ -69,6 +70,9 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
   return (
     <div className="lr-model-controls">
       {props.fixtures && <RoomLightFixturesPopover {...props.fixtures} />}
+      {props.fixtures?.onPatchDocument
+        ? <LightingMoodToggle project={props.fixtures.project} onPatchDocument={props.fixtures.onPatchDocument} />
+        : null}
       <div className="lr-view-presets lr-view-explore" aria-label="3D explore modes">
         {MODEL_VIEW_EXPLORE_IDS.map((id) => presetButton(id, props.viewPreset, props.onViewPreset))}
       </div>

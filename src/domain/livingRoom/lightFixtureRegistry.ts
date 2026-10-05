@@ -93,7 +93,9 @@ export const LIGHT_FIXTURE_DEFINITIONS: readonly LightFixtureDefinition[] = [
     defaults: area({ depthMm: 12, absoluteYMm: 1450, colorTemperatureK: 4000 }) },
   { id: "cove", name: "Cove LED strip", kind: "area", category: "wall",
     mounts: ["free", "wall"],
-    defaults: area({ depthMm: 40, rotationX: 90, ceilingDropMm: 80, colorTemperatureK: 3000 }) },
+    // A 40 mm strip has a fifteenth of a panel's emitting area. Measured in evening: at 3 the ceiling
+    // beside it rose by 4 of 255, at 24 by 24, with the wall below up by 17.
+    defaults: area({ intensity: 24, depthMm: 40, rotationX: 90, ceilingDropMm: 80, colorTemperatureK: 3000 }) },
   { id: "rope", name: "Rope light", kind: "area", category: "wall",
     mounts: ["free", "wall", "object"],
     defaults: area({ heightMm: 12, depthMm: 12, rotationX: 0, absoluteYMm: 1200, wallCenterHeightMm: 1200,

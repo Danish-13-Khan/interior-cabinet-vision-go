@@ -16,6 +16,7 @@ import {
 } from "../domain/livingRoom";
 import { isWallRaised } from "../domain/interiorProject";
 import { mechanismTogglePatch } from "../domain/livingRoom/mechanismToggle";
+import { readLightingMood, roomLightScaleForMood } from "../domain/livingRoom/lightingMood";
 import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
 import {
   persistModelGuideDismissal,
@@ -128,6 +129,7 @@ export function LivingRoomModelView({
           lightingQuality={resolveModelViewLightingQuality(viewportQuality)}
           projectLightScale={modelViewProjectLightScale(viewportQuality)}
           windowKeyScale={modelViewWindowKeyScale(viewportQuality)}
+          roomLightScale={roomLightScaleForMood(readLightingMood(project))}
           selectedIds={clientView.selectedIds}
           activeOpeningId={clientView.activeOpeningId}
           activeWallId={clientView.activeWallId}
