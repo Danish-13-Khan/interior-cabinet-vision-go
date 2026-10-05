@@ -4,6 +4,8 @@ import { layoutCabinetElevationFace, type OpeningFaceRect } from "../openingLayo
 import type { CabinetPanelGeometry } from "./types";
 
 const SHELF_SIDE_CLEARANCE_MM = 3;
+/** Keeps profile faces off the carcass faces they touch so the renderer never z-fights. */
+const PROFILE_SETBACK_MM = 0.5;
 
 function nearlyEqual(a: number, b: number) {
   return Math.abs(a - b) < 0.8;
@@ -106,16 +108,22 @@ export function openingComponentPanels(
   ];
 
   const fronts = resolveFrontGaps(config);
+  const boardMm = config.dimensions.boardThickness;
   fronts.profiles.forEach((band, index) => {
-    const depth = millimetresToMetres(band.depthMm);
+    const depth = millimetresToMetres(band.depthMm - PROFILE_SETBACK_MM);
+    // Full-width bands sit between the sides; L stops under the top panel, wall clears the bottom panel's face.
+    const endTrim = band.kind === "C" ? 0 : boardMm;
+    const lengthMm = band.lengthMm - endTrim * 2;
+    const bottomMm = band.yMm + (band.kind === "wall" ? PROFILE_SETBACK_MM : 0);
+    const heightMm = band.heightMm - (band.kind === "L" ? boardMm : band.kind === "wall" ? PROFILE_SETBACK_MM : 0);
     panels.push({
       name: `gola-${band.kind.toLowerCase()}-${index + 1}`,
       label: `Gola ${band.kind === "wall" ? "wall-unit" : band.kind} profile`,
-      size: [millimetresToMetres(band.lengthMm), millimetresToMetres(band.heightMm), depth],
+      size: [millimetresToMetres(lengthMm), millimetresToMetres(heightMm), depth],
       position: [
-        -outerWidth / 2 + millimetresToMetres(layout.leftFillerMm + band.xMm + band.lengthMm / 2),
-        -outerHeight / 2 + toeKick + millimetresToMetres(band.yMm + band.heightMm / 2),
-        outerDepth / 2 - depth / 2,
+        -outerWidth / 2 + millimetresToMetres(layout.leftFillerMm + band.xMm + endTrim + lengthMm / 2),
+        -outerHeight / 2 + toeKick + millimetresToMetres(bottomMm + heightMm / 2),
+        outerDepth / 2 - millimetresToMetres(PROFILE_SETBACK_MM) - depth / 2,
       ],
       material: "metal",
     });

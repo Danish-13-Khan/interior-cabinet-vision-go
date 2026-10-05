@@ -103,7 +103,7 @@ export function LivingRoomObjectInspector({
           />
         </div>
       </details>
-      {boxCabinet ? <CabinetConstructionSection object={object} onSetParameters={onSetParameters} /> : null}
+      {boxCabinet ? <CabinetConstructionSection object={object} project={project} onSetParameters={onSetParameters} /> : null}
       {boxCabinet ? (
         <CabinetRunInspector object={object} project={project} onUpdate={onUpdateRun} onCompleteRun={onCompleteRun} open={runOpen} />
       ) : null}

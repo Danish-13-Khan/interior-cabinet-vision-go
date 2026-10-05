@@ -74,23 +74,24 @@ export const HARDWARE_CATALOG: HardwareItem[] = [
     kind: "handle",
     costPerUnit: 70,
   },
+  // Gola prices are placeholders until supplier rates arrive; labels say so on every quote.
   {
     id: "gola-l",
-    label: "Gola J / L profile (per m)",
+    label: "Gola J / L profile (per m, placeholder price)",
     kind: "profile",
     costPerUnit: 450,
     description: "Under-countertop handleless profile",
   },
   {
     id: "gola-c",
-    label: "Gola C profile (per m)",
+    label: "Gola C profile (per m, placeholder price)",
     kind: "profile",
     costPerUnit: 520,
     description: "Between stacked drawers",
   },
   {
     id: "gola-wall",
-    label: "Gola wall-unit profile (per m)",
+    label: "Gola wall-unit profile (per m, placeholder price)",
     kind: "profile",
     costPerUnit: 380,
     description: "Under upper wall cabinets",

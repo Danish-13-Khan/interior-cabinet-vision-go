@@ -6,6 +6,7 @@ import {
   type FrontSystem,
   type GolaProfileKind,
   type GolaProfileSize,
+  type GolaProfiles,
 } from "./golaProfiles";
 
 type Parameters = Record<string, string | number | boolean>;
@@ -27,6 +28,16 @@ export function frontSystemFromParameters(parameters: Parameters): FrontSystem |
     depthMm: parameters[golaParameterKey(profile, "depthMm")],
   }]));
   return normalizeFrontSystem({ kind: "gola", profiles });
+}
+
+/** Every gola parameter for one profile set; used to copy a cabinet's sizes along its run. */
+export function golaParametersPatch(profiles: GolaProfiles): Parameters {
+  const patch: Parameters = { [FRONT_SYSTEM_PARAMETER]: "gola" };
+  for (const kind of GOLA_PROFILE_KINDS) {
+    patch[golaParameterKey(kind, "heightMm")] = profiles[kind].heightMm;
+    patch[golaParameterKey(kind, "depthMm")] = profiles[kind].depthMm;
+  }
+  return patch;
 }
 
 export function applyFrontSystemParameters(config: CabinetConfig, parameters: Parameters): CabinetConfig {

@@ -16,4 +16,5 @@ export {
   applyFrontSystemParameters,
   frontSystemFromParameters,
   golaParameterKey,
+  golaParametersPatch,
 } from "./frontSystemParameters";

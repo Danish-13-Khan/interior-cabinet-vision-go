@@ -10,8 +10,11 @@ export function frontGapSpec(mount: DoorMount): FrontGapSpec {
   return { ...DOOR_GAP[mount], topMm: 0 };
 }
 
-/** Same origin as `OpeningFaceRect`: bottom-left of the face (after left filler, above toe kick), mm. */
-export type FrontLeaf = { xMm: number; yMm: number; widthMm: number; heightMm: number };
+/**
+ * Same origin as `OpeningFaceRect`: bottom-left of the face (after left filler, above toe kick), mm.
+ * `golaGrip` is set when a profile runs along the edge you pull; other gola fronts keep a handle.
+ */
+export type FrontLeaf = { xMm: number; yMm: number; widthMm: number; heightMm: number; golaGrip?: true };
 
 /** A gola profile run in face coordinates; `yMm` is the bottom of the band the profile takes from the fronts. */
 export type GolaBand = { kind: GolaProfileKind; xMm: number; yMm: number; lengthMm: number; heightMm: number; depthMm: number };
@@ -114,19 +117,29 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
       if (uses.has("C")) edges.stackMm = gola.C.heightMm;
     }
     if (gola && !atTop && uses.has("C")) band("C", opening.xMm, opening.yMm + opening.heightMm - edges.topMm, opening.widthMm);
+    const topGrip = Boolean(gola) && (atTop ? uses.has("L") : uses.has("C"));
+    const bottomGrip = Boolean(gola) && atBottom && uses.has("wall");
+    const grip = (leaf: FrontLeaf, held: boolean) => (held ? { ...leaf, golaGrip: true as const } : leaf);
     if (isDoor) {
       const count = opening.doorStyle === "single" ? 1 : 2;
       const leaves = single
         ? fullFaceDoorRow(config, mount, gaps, edges, count, face.leftFillerMm)
         : splitRow(opening.xMm, opening.yMm + edges.bottomMm, opening.widthMm, opening.heightMm - edges.bottomMm - edges.topMm, count, gaps);
-      openings.push({ opening, kind: "door", leaves });
+      openings.push({ opening, kind: "door", leaves: leaves.map((leaf) => grip(leaf, topGrip || bottomGrip)) });
     } else {
       const leaves = drawerColumn(opening, gaps, edges);
       if (gola && uses.has("C")) leaves.slice(0, -1).forEach((leaf) => band("C", opening.xMm, leaf.yMm + leaf.heightMm, opening.widthMm));
-      openings.push({ opening, kind: "drawer", leaves });
+      const last = leaves.length - 1;
+      const held = (index: number) => (index === last ? topGrip : Boolean(gola) && uses.has("C")) || (index === 0 && bottomGrip);
+      openings.push({ opening, kind: "drawer", leaves: leaves.map((leaf, index) => grip(leaf, held(index))) });
     }
   }
   if (topBand) band("L", -face.leftFillerMm, face.faceHeightMm - gola!.L.heightMm, config.dimensions.width);
   if (bottomBand) band("wall", -face.leftFillerMm, 0, config.dimensions.width);
   return { mount, gaps, openings, profiles };
+}
+
+/** Fronts that still need a handle: every front when handled, ungripped fronts under gola. */
+export function handledFrontCount(fronts: ResolvedFronts): number {
+  return fronts.openings.reduce((sum, entry) => sum + entry.leaves.filter((leaf) => !leaf.golaGrip).length, 0);
 }

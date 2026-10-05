@@ -11,6 +11,7 @@ import {
   resolveDoorLeafCount,
 } from "../constructionGraphics";
 import { ELEV_DOOR_GAPS, elevMm, openingHitAttrs } from "./faceMetrics";
+import { faceRectToSvg, leafSpan, resolvedOpeningFronts } from "./resolvedFronts";
 import { faceToSvg, line, rect } from "./svgPrimitives";
 
 export function renderDoorLeaf(
@@ -23,38 +24,24 @@ export function renderDoorLeaf(
   active: boolean,
 ): string[] {
   const elements: string[] = [];
-  const faceOriginX = layout.leftFillerMm;
-  const faceOriginY = layout.toeKickHeightMm;
   const style = opening.doorStyle ?? "double";
   const doorCount = resolveDoorLeafCount(style, opening.widthMm);
   if (doorCount === 0) return elements;
 
-  const sideGap = elevMm(scale, ELEV_DOOR_GAPS.sideMm);
-  const centerGap = elevMm(scale, ELEV_DOOR_GAPS.centerMm);
-  const bottomGap = elevMm(scale, ELEV_DOOR_GAPS.bottomMm);
-  const topGap = elevMm(scale, ELEV_DOOR_GAPS.sideMm);
-
-  const ox = faceOriginX + opening.xMm;
-  const oy = faceOriginY + opening.yMm;
-  const topLeft = faceToSvg(
-    ox,
-    oy + opening.heightMm,
-    cabinetSvgX,
-    cabinetSvgY,
-    layout.carcassHeightMm,
-    scale,
-  );
-  const width = opening.widthMm / scale;
-  const height = opening.heightMm / scale;
-  const gapsTotal = sideGap * 2 + centerGap * Math.max(0, doorCount - 1);
-  const doorW = Math.max(2, (width - gapsTotal) / doorCount);
-  const doorH = Math.max(2, height - topGap - bottomGap);
+  const resolved = resolvedOpeningFronts(cabinet.config, opening.id);
+  const span = resolved ? leafSpan(resolved.leaves) : null;
+  const centerGap = elevMm(scale, resolved?.centerMm ?? ELEV_DOOR_GAPS.centerMm);
+  const row = span
+    ? faceRectToSvg(span, layout, cabinetSvgX, cabinetSvgY, scale)
+    : fallbackRow(opening, layout, cabinetSvgX, cabinetSvgY, scale);
+  const doorW = Math.max(2, (row.width - centerGap * Math.max(0, doorCount - 1)) / doorCount);
+  const doorH = Math.max(2, row.height);
+  const dy = row.y;
   const leafXs: number[] = [];
   const hinge = opening.doorHinge;
 
   for (let index = 0; index < doorCount; index += 1) {
-    const dx = topLeft.x + sideGap + index * (doorW + centerGap);
-    const dy = topLeft.y + topGap;
+    const dx = row.x + index * (doorW + centerGap);
     leafXs.push(dx);
     elements.push(
       rect(
@@ -81,15 +68,17 @@ export function renderDoorLeaf(
         ? dx + doorW - elevMm(scale, 28)
         : dx + elevMm(scale, 28);
     const handleH = Math.min(doorH * 0.22, elevMm(scale, 120));
-    elements.push(
-      line(
-        handleX,
-        dy + doorH / 2 - handleH / 2,
-        handleX,
-        dy + doorH / 2 + handleH / 2,
-        `class="twod-cabinet-opening twod-door-handle" pointer-events="none"`,
-      ),
-    );
+    if (!span?.golaGrip) {
+      elements.push(
+        line(
+          handleX,
+          dy + doorH / 2 - handleH / 2,
+          handleX,
+          dy + doorH / 2 + handleH / 2,
+          `class="twod-cabinet-opening twod-door-handle" pointer-events="none"`,
+        ),
+      );
+    }
 
     const hingeSide = hingeSideForLeaf(hinge, index, doorCount);
     const hx =
@@ -117,11 +106,37 @@ export function renderDoorLeaf(
     elements.push(
       ...elevBifoldFolds(
         leafXs.map((x, i) => x + (i === 0 ? doorW : 0)),
-        topLeft.y + topGap,
+        dy,
         doorH,
       ),
     );
   }
 
   return elements;
+}
+
+/** Openings the resolver does not front (unsupported types) keep the overlay-gap sketch. */
+function fallbackRow(
+  opening: OpeningFaceRect,
+  layout: CabinetElevationFaceLayout,
+  cabinetSvgX: number,
+  cabinetSvgY: number,
+  scale: number,
+) {
+  const sideGap = elevMm(scale, ELEV_DOOR_GAPS.sideMm);
+  const bottomGap = elevMm(scale, ELEV_DOOR_GAPS.bottomMm);
+  const topLeft = faceToSvg(
+    layout.leftFillerMm + opening.xMm,
+    layout.toeKickHeightMm + opening.yMm + opening.heightMm,
+    cabinetSvgX,
+    cabinetSvgY,
+    layout.carcassHeightMm,
+    scale,
+  );
+  return {
+    x: topLeft.x + sideGap,
+    y: topLeft.y + sideGap,
+    width: opening.widthMm / scale - sideGap * 2,
+    height: opening.heightMm / scale - sideGap - bottomGap,
+  };
 }
