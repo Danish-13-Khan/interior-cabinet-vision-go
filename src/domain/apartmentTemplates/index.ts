@@ -8,6 +8,8 @@ export type {
   BedroomComposeOptions,
   FinishRole,
   FoyerComposeOptions,
+  HandleHardwareId,
+  DoorSourcingOption,
   KitchenComposeOptions,
   KitchenLayout,
   LivingComposeOptions,
@@ -29,6 +31,12 @@ export {
   wallSideFromLegacy,
 } from "./wallSide";
 export { composeApartment } from "./composeApartment";
+export { applyShowcaseCameras } from "./applyShowcaseCameras";
+export {
+  APARTMENT_TEMPLATE_IDS,
+  instantiateApartmentTemplate,
+  lookupApartmentTemplate,
+} from "./instantiateApartmentTemplate";
 export { sharedWallBetween } from "./sharedWall";
 
 export { TWO_ROOM_FLAT_SPEC } from "./specs/twoRoomFlat";

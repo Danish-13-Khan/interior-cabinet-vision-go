@@ -1,4 +1,5 @@
 import type { InteriorProject } from "../interiorProject";
+import { applyShowcaseCameras } from "./applyShowcaseCameras";
 import { buildApartmentShell, type BuildApartmentShellOptions } from "./buildApartmentShell";
 import { apartmentIdFactory } from "./ids";
 import type { ApartmentTemplateSpec, RoomComposition } from "./types";
@@ -13,8 +14,8 @@ import {
 } from "./composers";
 
 /**
- * Shell + per-room composers. Deterministic when `now` / id factory are fixed (D3).
- * Phase 6 may swap in createUniqueLivingRoomIdFactory for customer projects.
+ * Shell + per-room composers + showcase cameras. Deterministic when `now` /
+ * id factory are fixed (D3). Phase 6 may swap in createUniqueLivingRoomIdFactory.
  */
 export function composeApartment(
   spec: ApartmentTemplateSpec,
@@ -33,7 +34,11 @@ export function composeApartment(
     if (!roomId) continue;
     project = runComposer(project, roomId, room.compose, idFactory);
   }
-  return project;
+  const heroId = keyToId.get(spec.heroRoomKey);
+  if (heroId && project.activeRoomId !== heroId) {
+    project = { ...project, activeRoomId: heroId };
+  }
+  return applyShowcaseCameras(project, spec, keyToId, idFactory);
 }
 
 function runComposer(

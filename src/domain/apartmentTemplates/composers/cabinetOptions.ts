@@ -1,15 +1,28 @@
-import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
-import type { FinishRole } from "../types";
+import type { CabinetConfig } from "../../cabinetDimensions";
 import {
+  CABINET_PLANNING_EXTENSION,
+  readPlanningExtension,
+} from "../../cabinetIdentity";
+import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
+import type { DoorSourcingOption, FinishRole, HandleHardwareId } from "../types";
+import {
+  DOOR_SOURCING_PARAMETER,
   DOOR_STYLE_PARAMETER,
   FRONT_SYSTEM_PARAMETER,
   defaultGolaProfiles,
   golaParametersPatch,
 } from "../../frontSystem";
 
+export type CabinetFrontPatch = {
+  frontSystem?: "handled" | "gola";
+  doorStyle?: "slab" | "shaker" | "glass";
+  doorSourcing?: DoorSourcingOption;
+  handleId?: HandleHardwareId;
+};
+
 export function applyCabinetFrontOptions(
   object: InteriorObjectEntity,
-  options: { frontSystem?: "handled" | "gola"; doorStyle?: "slab" | "shaker" | "glass" },
+  options: CabinetFrontPatch,
 ): InteriorObjectEntity {
   const parameters = { ...object.parameters };
   if (options.frontSystem === "gola") {
@@ -18,7 +31,32 @@ export function applyCabinetFrontOptions(
     parameters[FRONT_SYSTEM_PARAMETER] = "handled";
   }
   if (options.doorStyle) parameters[DOOR_STYLE_PARAMETER] = options.doorStyle;
-  return { ...object, parameters };
+  if (options.doorSourcing) parameters[DOOR_SOURCING_PARAMETER] = options.doorSourcing;
+  let next: InteriorObjectEntity = { ...object, parameters };
+  if (options.handleId) next = patchHardwareHandle(next, options.handleId);
+  return next;
+}
+
+function patchHardwareHandle(
+  object: InteriorObjectEntity,
+  handleId: HandleHardwareId,
+): InteriorObjectEntity {
+  const planning = readPlanningExtension(object.extensions);
+  const config = planning?.config as CabinetConfig | undefined;
+  if (!config?.hardware) return object;
+  return {
+    ...object,
+    extensions: {
+      ...object.extensions,
+      [CABINET_PLANNING_EXTENSION]: {
+        ...planning,
+        config: {
+          ...config,
+          hardware: { ...config.hardware, handleId },
+        },
+      },
+    },
+  };
 }
 
 export function applyFinishRolesToCabinets(

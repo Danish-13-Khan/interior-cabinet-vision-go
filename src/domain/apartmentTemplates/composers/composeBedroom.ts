@@ -13,6 +13,8 @@ import {
   placeCatalogInRoom,
   withActiveRoom,
 } from "./helpers";
+import { applyCabinetFrontOptions } from "./cabinetOptions";
+import { addRoomFixtureKinds } from "./roomLights";
 
 export type ComposeBedroomArgs = BedroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -35,12 +37,13 @@ export function composeBedroom(
   if (piece) {
     const wardrobeId = idFactory("object", `${roomId}-wardrobe`);
     // Seed from frameless-standard-almirah via living:wardrobe-wall binding (not tall pantry).
-    const seed = createLivingRoomObject("living:wardrobe-wall", {
+    let seed = createLivingRoomObject("living:wardrobe-wall", {
       id: wardrobeId,
       roomId,
       position: { x: bounds.centerX, y: 0, z: bounds.centerZ },
     });
     seed.dimensions = { ...seed.dimensions, widthMm };
+    seed = applyCabinetFrontOptions(seed, options);
     const along = piece.startAlongMm
       + Math.max(0, (piece.lengthMm - widthMm) / 2)
       + widthMm / 2;
@@ -82,5 +85,6 @@ export function composeBedroom(
     next = withActiveRoom(next, roomId);
     next = addRoomLightFixture(next, "pendant", { kind: "ceiling" });
   }
+  if (options.downlight) next = addRoomFixtureKinds(next, roomId, ["ceiling-downlight"]);
   return next;
 }

@@ -1,7 +1,7 @@
+import { LIVING_ROOM_MATERIAL_IDS } from "../../livingRoom/materials";
 import type { ApartmentTemplateSpec } from "../types";
-import { DEFAULT_FINISH_ROLES } from "./finishRoles";
 
-/** Studio shell ≈ 6000×5400 (32 m²). Content authored in Phase 4. */
+/** Studio ≈ 6000×5400 (32 m²). Nordic light · day · daylight (§4). */
 export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
   id: "template:apartment:studio:v1",
   name: "Studio · Nordic light",
@@ -38,21 +38,66 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
       cell: "bath",
       name: "Bath",
       roomType: "bathroom",
-      compose: { kind: "none" },
+      floorMaterialId: LIVING_ROOM_MATERIAL_IDS.warmStone,
+      compose: {
+        kind: "bathroom",
+        options: { vanitySide: "north", mirrorRopeLight: true, downlight: true },
+      },
+      camera: {
+        eyeMm: { x: -1400, y: 1600, z: -1100 },
+        targetMm: { x: -2200, y: 1100, z: -2000 },
+      },
     },
     {
       key: "entry",
       cell: "entry",
-      name: "Entry",
+      name: "Kitchenette",
       roomType: "kitchen",
-      compose: { kind: "none" },
+      floorMaterialId: LIVING_ROOM_MATERIAL_IDS.warmStone,
+      compose: {
+        kind: "kitchen",
+        options: {
+          layout: "straight",
+          runSide: "north",
+          wallCabinets: true,
+          tallPantry: false,
+          frontSystem: "gola",
+          doorStyle: "slab",
+          doorSourcing: "in-house",
+          underCabinetLights: true,
+          profileLight: true,
+          downlight: true,
+        },
+      },
+      camera: {
+        eyeMm: { x: 1050, y: 1600, z: -1050 },
+        targetMm: { x: 1050, y: 1000, z: -2200 },
+      },
     },
     {
       key: "living",
       cell: "front",
       name: "Living",
       roomType: "living-room",
-      compose: { kind: "none" },
+      floorMaterialId: LIVING_ROOM_MATERIAL_IDS.warmStone,
+      compose: {
+        kind: "living",
+        options: {
+          tvWallSide: "north",
+          featureWallPreset: "slat",
+          displayNiche: false,
+          wardrobeSide: "east",
+          wardrobeWidthMm: 1800,
+          sofaSet: true,
+          coveLight: true,
+          profileLight: true,
+          downlight: true,
+        },
+      },
+      camera: {
+        eyeMm: { x: 400, y: 1600, z: 2200 },
+        targetMm: { x: 0, y: 1000, z: -400 },
+      },
     },
   ],
   openings: [
@@ -73,7 +118,7 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
     {
       kind: "door",
       between: { room: "entry", side: "north" },
-      offsetMm: 400,
+      offsetMm: 2800,
       widthMm: 900,
       heightMm: 2100,
     },
@@ -85,7 +130,30 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
       heightMm: 1400,
       sillHeightMm: 900,
     },
+    {
+      kind: "window",
+      between: { room: "entry", side: "east" },
+      offsetMm: 350,
+      widthMm: 1000,
+      heightMm: 1200,
+      sillHeightMm: 900,
+    },
+    {
+      kind: "window",
+      between: { room: "bath", side: "west" },
+      offsetMm: 500,
+      widthMm: 500,
+      heightMm: 500,
+      sillHeightMm: 1800,
+    },
   ],
   heroRoomKey: "living",
-  finishRoles: { ...DEFAULT_FINISH_ROLES },
+  finishRoles: {
+    carcass: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    "front-primary": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    "front-accent": LIVING_ROOM_MATERIAL_IDS.naturalOak,
+    worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
+    "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+    floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
+  },
 };

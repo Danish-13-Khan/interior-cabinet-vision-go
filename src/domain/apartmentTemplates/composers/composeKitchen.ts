@@ -24,6 +24,7 @@ import {
   withActiveRoom,
 } from "./helpers";
 import { addUnderCabinetLights, hostKitchenAppliances } from "./kitchenAppliances";
+import { addRoomFixtureKinds } from "./roomLights";
 
 export type ComposeKitchenArgs = KitchenComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -124,6 +125,10 @@ export function composeKitchen(
   if (options.underCabinetLights !== false && options.wallCabinets !== false) {
     next = addUnderCabinetLights(next, roomId, [ids.wallA, ids.wallB]);
   }
+  const extra: Array<"ceiling-downlight" | "profile"> = [];
+  if (options.downlight) extra.push("ceiling-downlight");
+  if (options.profileLight) extra.push("profile");
+  if (extra.length) next = addRoomFixtureKinds(next, roomId, extra);
   return applyFinishRolesToCabinets(next, roomId);
 }
 

@@ -42,8 +42,11 @@ function withCompose(
 const options = { now: COMPOSER_TEST_NOW };
 
 describe("composeApartment runner", () => {
-  it("compose:none specs equal the bare shell", () => {
-    for (const spec of APARTMENT_SHELL_SPECS) {
+  it("compose:none specs equal the bare shell (no cameras)", () => {
+    const bare = APARTMENT_SHELL_SPECS.filter((spec) =>
+      spec.rooms.every((room) => room.compose.kind === "none" && !room.camera));
+    expect(bare.length).toBeGreaterThan(0);
+    for (const spec of bare) {
       expect(JSON.stringify(composeApartment(spec, options)), spec.id)
         .toBe(JSON.stringify(buildApartmentShell(spec, options)));
     }

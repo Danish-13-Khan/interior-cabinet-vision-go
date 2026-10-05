@@ -47,6 +47,9 @@ export type RoomComposition =
 
 export type KitchenLayout = "straight" | "L" | "parallel";
 
+export type HandleHardwareId = "handle-bar" | "handle-knob" | "handle-cup";
+export type DoorSourcingOption = "bought" | "in-house";
+
 export type KitchenComposeOptions = {
   layout?: KitchenLayout;
   runSide?: WallSide;
@@ -55,7 +58,12 @@ export type KitchenComposeOptions = {
   tallPantry?: boolean;
   frontSystem?: "handled" | "gola";
   doorStyle?: "slab" | "shaker" | "glass";
+  doorSourcing?: DoorSourcingOption;
+  handleId?: HandleHardwareId;
   underCabinetLights?: boolean;
+  /** Ceiling downlight / profile strip in the kitchen. */
+  downlight?: boolean;
+  profileLight?: boolean;
   /** Host sink on the primary-run base at this index (0-based among floor bases). */
   sinkHostIndex?: number;
   /** Host cooktop/hob on the primary-run base at this index (default 1: the drawer base). */
@@ -68,19 +76,33 @@ export type BedroomComposeOptions = {
   headboardDecor?: string;
   bedAlongSide?: WallSide;
   pendants?: boolean;
+  frontSystem?: "handled" | "gola";
+  doorStyle?: "slab" | "shaker" | "glass";
+  doorSourcing?: DoorSourcingOption;
+  handleId?: HandleHardwareId;
+  downlight?: boolean;
 };
 
 export type LivingComposeOptions = {
   tvWallSide?: WallSide;
   featureWallPreset?: string;
+  /** When true, place living:display-niche beside the TV unit (2/3 BHK). */
+  displayNiche?: boolean;
+  /** Optional sleep wardrobe in an open studio living room. */
+  wardrobeSide?: WallSide;
+  wardrobeWidthMm?: number;
   sofaSet?: boolean;
   coveLight?: boolean;
   trackLight?: boolean;
+  profileLight?: boolean;
+  panelLight?: boolean;
+  downlight?: boolean;
 };
 
 export type BathroomComposeOptions = {
   vanitySide?: WallSide;
   mirrorRopeLight?: boolean;
+  downlight?: boolean;
 };
 
 export type FoyerComposeOptions = { shoeCabinetSide?: WallSide };

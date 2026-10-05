@@ -13,6 +13,7 @@ import {
   oppositeSide,
   withActiveRoom,
 } from "./helpers";
+import { addRoomFixtureKinds } from "./roomLights";
 
 export type ComposeBathroomArgs = BathroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -81,5 +82,6 @@ export function composeBathroom(
     if (added && mirror) next = attachLightToObject(next, added.id, mirror.id);
     else if (added) next = attachLightToObject(next, added.id, vanityId);
   }
+  if (options.downlight) next = addRoomFixtureKinds(next, roomId, ["ceiling-downlight"]);
   return next;
 }

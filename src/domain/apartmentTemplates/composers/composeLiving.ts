@@ -4,14 +4,17 @@ import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { LivingComposeOptions, WallSide } from "../types";
 import { apartmentIdFactory } from "../ids";
+import { createLivingRoomObject } from "../../livingRoom/catalog";
 import {
   longestFreePieceOnSide,
   offsetTowardSide,
   oppositeSide,
+  placeCabinetOnWall,
   placeCatalogInRoom,
   placeCatalogOnWall,
   withActiveRoom,
 } from "./helpers";
+import { addRoomFixtureKinds } from "./roomLights";
 
 export type ComposeLivingArgs = LivingComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -31,9 +34,11 @@ export function composeLiving(
   next = placeCatalogOnWall(
     next, roomId, tvSide, "living:tv-unit", `${roomId}-tv`, idFactory, 0.45,
   );
-  next = placeCatalogOnWall(
-    next, roomId, tvSide, "living:display-niche", `${roomId}-niche`, idFactory, 0.75,
-  );
+  if (options.displayNiche) {
+    next = placeCatalogOnWall(
+      next, roomId, tvSide, "living:display-niche", `${roomId}-niche`, idFactory, 0.75,
+    );
+  }
 
   if (options.featureWallPreset) {
     const wall = longestFreePieceOnSide(next, roomId, tvSide, 600)?.wall;
@@ -49,6 +54,24 @@ export function composeLiving(
     next = placeCatalogOnWall(
       next, roomId, tvSide, "living:feature-wall-fluted", `${roomId}-feature`, idFactory, 0.5,
     );
+  }
+
+  if (options.wardrobeSide) {
+    const widthMm = options.wardrobeWidthMm ?? 1800;
+    const piece = longestFreePieceOnSide(next, roomId, options.wardrobeSide, widthMm);
+    if (piece) {
+      const wardrobeId = idFactory("object", `${roomId}-wardrobe`);
+      const seed = createLivingRoomObject("living:wardrobe-wall", {
+        id: wardrobeId,
+        roomId,
+        position: { x: bounds.centerX, y: 0, z: bounds.centerZ },
+      });
+      seed.dimensions = { ...seed.dimensions, widthMm };
+      const along = piece.startAlongMm
+        + Math.max(0, (piece.lengthMm - widthMm) / 2)
+        + widthMm / 2;
+      next = placeCabinetOnWall(next, seed, piece.wall, along);
+    }
   }
 
   if (options.sofaSet !== false) {
@@ -80,5 +103,10 @@ export function composeLiving(
   if (options.trackLight) {
     next = addRoomLightFixture(next, "track", { kind: "ceiling" });
   }
+  const extra: Array<"profile" | "panel" | "ceiling-downlight"> = [];
+  if (options.profileLight) extra.push("profile");
+  if (options.panelLight) extra.push("panel");
+  if (options.downlight) extra.push("ceiling-downlight");
+  if (extra.length) next = addRoomFixtureKinds(next, roomId, extra);
   return next;
 }

@@ -70,7 +70,7 @@ export function seedEndFillers(
   const last = ordered[ordered.length - 1]!;
   const make = (side: "start" | "end", member: InteriorObjectEntity, center: number) => {
     const draft: InteriorObjectEntity = {
-      id: idFactory("object", `filler-${runId}-${side}`),
+      id: idFactory("object", `filler-${wall.id}-${side}`),
       roomId: member.roomId,
       kind: "cabinet",
       category: "filler",
