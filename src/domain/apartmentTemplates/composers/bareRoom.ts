@@ -8,6 +8,7 @@ import {
   LIVING_ROOM_MATERIAL_IDS,
 } from "../../livingRoom/materials";
 import { defaultLivingRoomIdFactory } from "../../livingRoom/ids";
+import { finishIdsFromRoles } from "../specs/finishRoles";
 
 export const COMPOSER_TEST_NOW = "2026-10-05T00:00:00.000Z";
 
@@ -73,6 +74,14 @@ export function bareRoom(roomType: BareRoomType, widthMm = 4200, depthMm = 3600)
         "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
         floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
       },
+      finishIds: finishIdsFromRoles({
+        carcass: LIVING_ROOM_MATERIAL_IDS.naturalOak,
+        "front-primary": LIVING_ROOM_MATERIAL_IDS.walnut,
+        "front-accent": LIVING_ROOM_MATERIAL_IDS.walnut,
+        worktop: LIVING_ROOM_MATERIAL_IDS.warmStone,
+        "wall-panel": LIVING_ROOM_MATERIAL_IDS.wallPaint,
+        floor: LIVING_ROOM_MATERIAL_IDS.warmStone,
+      }),
     },
   }).project;
 }

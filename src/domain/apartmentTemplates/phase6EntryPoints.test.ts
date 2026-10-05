@@ -77,9 +77,9 @@ describe("Phase 6 apartment entry points", () => {
       setItem: (key: string, value: string) => { store.set(key, value); },
       removeItem: (key: string) => { store.delete(key); },
     };
-    stashPendingTemplate("template:apartment:1bhk:v1", storage);
-    expect(store.get(PENDING_TEMPLATE_STORAGE_KEY)).toBe("template:apartment:1bhk:v1");
-    expect(takePendingTemplate(storage)).toBe("template:apartment:1bhk:v1");
+    stashPendingTemplate("template:apartment:1bhk:v1", storage, 1_000);
+    expect(JSON.parse(store.get(PENDING_TEMPLATE_STORAGE_KEY)!).templateId).toBe("template:apartment:1bhk:v1");
+    expect(takePendingTemplate(storage, 1_000)).toBe("template:apartment:1bhk:v1");
     expect(takePendingTemplate(storage)).toBeNull();
     // Outside a browser the default storage is null: no throw, nothing stashed.
     expect(() => stashPendingTemplate("template:apartment:1bhk:v1", null)).not.toThrow();

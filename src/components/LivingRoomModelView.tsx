@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { RenderQuality } from "../domain/interiorProject";
 import {
   compileLivingRoomScene,
@@ -22,6 +22,7 @@ import {
   persistModelGuideDismissal,
   shouldShowModelGuide,
 } from "../domain/livingRoom/modelViewGuidePreference";
+import { useDocumentCameraFollow } from "../hooks/useDocumentCameraFollow";
 import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useModelViewTransform } from "../hooks/useModelViewTransform";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
@@ -50,17 +51,15 @@ export function LivingRoomModelView({
       ? projectCameraId
       : preferModelViewCameraId(scene.cameras)),
   );
-  // Showcase view / Render Studio drive the document camera; follow it (null = free orbit).
-  const seenProjectCameraId = useRef(projectCameraId);
-  useEffect(() => {
-    if (seenProjectCameraId.current === projectCameraId) return;
-    seenProjectCameraId.current = projectCameraId;
-    if (!projectCameraId) setActiveCameraId(null);
-    else if (scene.cameras.some((item) => item.id === projectCameraId)) setActiveCameraId(projectCameraId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to document camera changes only
-  }, [projectCameraId]);
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
+  // Showcase / Render Studio drive the document camera; jump revives after orbit.
+  useDocumentCameraFollow({
+    projectCameraId,
+    knownCameraIds: scene.cameras.map((item) => item.id),
+    setActiveCameraId,
+    setViewPreset: camera.setViewPreset,
+  });
   const [showGuide, setShowGuide] = useState(() => !presentation && shouldShowModelGuide());
   useEffect(() => {
     if (showGuide) persistModelGuideDismissal();

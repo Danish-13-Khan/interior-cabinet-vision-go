@@ -44,7 +44,12 @@ export { STUDIO_SHELL_SPEC } from "./specs/studioShell";
 export { ONE_BHK_SHELL_SPEC } from "./specs/oneBhkShell";
 export { TWO_BHK_SHELL_SPEC } from "./specs/twoBhkShell";
 export { THREE_BHK_SHELL_SPEC } from "./specs/threeBhkShell";
-export { DEFAULT_FINISH_ROLES } from "./specs/finishRoles";
+export {
+  DEFAULT_FINISH_ROLES,
+  DEFAULT_FINISH_IDS,
+  finishIdForRoleMaterial,
+  finishIdsFromRoles,
+} from "./specs/finishRoles";
 
 import { STUDIO_SHELL_SPEC } from "./specs/studioShell";
 import { ONE_BHK_SHELL_SPEC } from "./specs/oneBhkShell";
@@ -88,6 +93,7 @@ export { APARTMENT_TEMPLATE_CARDS } from "./apartmentCards";
 export type { ApartmentTemplateCard } from "./apartmentCards";
 export {
   PENDING_TEMPLATE_STORAGE_KEY,
+  PENDING_TEMPLATE_TTL_MS,
   clearPendingTemplate,
   defaultPendingTemplateStorage,
   peekPendingTemplate,
@@ -95,4 +101,9 @@ export {
   takePendingTemplate,
 } from "./pendingTemplateHandoff";
 export type { PendingTemplateStorage } from "./pendingTemplateHandoff";
-export { showcaseCameraForRoom } from "./showcaseCamera";
+export { showcaseCameraForRoom, showcaseCameraPatch } from "./showcaseCamera";
+export {
+  onShowcaseCameraJump,
+  requestShowcaseCameraJump,
+  resetShowcaseCameraJumpForTests,
+} from "./showcaseJump";

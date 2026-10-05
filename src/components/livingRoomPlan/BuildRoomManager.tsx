@@ -1,6 +1,7 @@
 import type { InteriorProject, RenderSettings } from "../../domain/interiorProject";
 import { explainInteriorRoomMergeBlock } from "../../domain/interiorProject";
 import { showcaseCameraPatch } from "../../domain/apartmentTemplates/showcaseCamera";
+import { requestShowcaseCameraJump } from "../../domain/apartmentTemplates/showcaseJump";
 import { roomTypeIcon } from "./roomTypeIcon";
 import { BuildRoomSwitcher } from "./BuildRoomSwitcher";
 
@@ -61,6 +62,8 @@ export function BuildRoomManager(props: Props) {
     // Clears the camera for a room without one; null patch = no change, so no empty undo step.
     const patch = showcaseCameraPatch(props.project, roomId);
     if (patch && props.onRenderSettingsChange) props.onRenderSettingsChange(patch);
+    // Always bump: after orbit the document camera is unchanged, so patch is null.
+    requestShowcaseCameraJump();
   };
 
   return <BuildRoomSwitcher

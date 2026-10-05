@@ -1,5 +1,7 @@
 import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
+import { persistCabinetFinishOnObject } from "../../livingRoom/cabinetFinish";
 import { isWallPanelObject } from "../../livingRoom/panelAttachment";
+import { finishIdForRoleMaterial, finishIdsFromRoles } from "../specs/finishRoles";
 import type { FinishRole } from "../types";
 
 type Roles = Partial<Record<FinishRole, string>>;
@@ -32,9 +34,17 @@ function rolePatch(object: InteriorObjectEntity, roles: Roles): Record<string, s
   return patch;
 }
 
+function frontFinishId(object: InteriorObjectEntity, roles: Roles): string {
+  const role: FinishRole = ACCENT_JOINERY.has(String(object.catalogItemId))
+    ? "front-accent"
+    : "front-primary";
+  return finishIdForRoleMaterial(roles[role]);
+}
+
 /**
  * Apply the template finish roles (D9) to joinery and decor in one room:
  * kitchens, wardrobes, vanities, TV units, niches, shelves and wall panels.
+ * Cabinets also get buildRules.finishId so cut list / quote match the 3D finish.
  */
 export function applyFinishRolesToRoom(project: InteriorProject, roomId: string): InteriorProject {
   const roles = project.extensions?.finishRoles as Roles | undefined;
@@ -45,11 +55,19 @@ export function applyFinishRolesToRoom(project: InteriorProject, roomId: string)
       if (object.roomId !== roomId) return object;
       const patch = rolePatch(object, roles);
       if (!patch || Object.keys(patch).length === 0) return object;
-      return { ...object, materialSlots: { ...object.materialSlots, ...patch } };
+      const withSlots = { ...object, materialSlots: { ...object.materialSlots, ...patch } };
+      if (object.kind !== "cabinet") return withSlots;
+      return persistCabinetFinishOnObject(withSlots, frontFinishId(object, roles));
     }),
   };
 }
 
 export function applyFinishRolesToAllRooms(project: InteriorProject): InteriorProject {
-  return project.rooms.reduce((next, room) => applyFinishRolesToRoom(next, room.id), project);
+  const withFinishes = project.rooms.reduce((next, room) => applyFinishRolesToRoom(next, room.id), project);
+  const roles = withFinishes.extensions?.finishRoles as Roles | undefined;
+  if (!roles || withFinishes.extensions?.finishIds) return withFinishes;
+  return {
+    ...withFinishes,
+    extensions: { ...withFinishes.extensions, finishIds: finishIdsFromRoles(roles) },
+  };
 }

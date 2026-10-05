@@ -10,6 +10,7 @@ import { apartmentIdFactory } from "./ids";
 import { applyApartmentOpenings } from "./openings";
 import { applyRoomSpecs } from "./renameRooms";
 import type { ApartmentTemplateSpec } from "./types";
+import { finishIdsFromRoles } from "./specs/finishRoles";
 
 export type BuildApartmentShellOptions = {
   now?: string;
@@ -67,6 +68,7 @@ export function buildApartmentShell(
       ...project.extensions,
       apartmentTemplateId: spec.id,
       finishRoles: { ...spec.finishRoles },
+      finishIds: finishIdsFromRoles(spec.finishRoles),
     },
   };
 
