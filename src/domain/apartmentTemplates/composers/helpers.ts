@@ -63,7 +63,13 @@ export function placeCabinetOnWall(
   wall: WallEntity,
   alongMm: number,
 ): InteriorProject {
-  const placed = attached(object, placementAt(wall, object, alongMm));
+  const stored = project.walls.find((item) => item.id === wall.id) ?? wall;
+  const roomWall = orientWallForRoom(project, object.roomId, stored);
+  const width = object.dimensions.widthMm;
+  const roomAlong = fixedAlongToRoomAlongMm(
+    project, object.roomId, wall, alongMm - width / 2, width,
+  ) + width / 2;
+  const placed = attached(object, placementAt(roomWall, object, roomAlong));
   const others = project.objects.filter((item) => item.id !== object.id);
   return { ...project, objects: [...others, placed] };
 }
