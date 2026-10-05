@@ -1,0 +1,36 @@
+/* Inspector rotation field and underlay gestures (PLAN_IMPORT_AND_MODULAR_GAPS_ROADMAP Phases 0–1). */
+
+.lr-rotation-field {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
+  align-items: end;
+  min-width: 0;
+}
+
+.lr-rotation-field .lr-number-field input {
+  width: 100%;
+  min-width: 0;
+}
+
+.lr-rotation-steps {
+  display: flex;
+  gap: 4px;
+}
+
+.lr-rotation-steps button {
+  min-width: 44px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.lr-rotation-field .lr-inspector-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+}

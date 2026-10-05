@@ -5,6 +5,7 @@ import type {
   Size3Mm,
 } from "../../domain/interiorProject";
 import { InspectorModelExtrasSlot } from "./InspectorPlanSettingsSlot";
+import { InspectorRotationField } from "./InspectorRotationField";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { NumberField } from "./NumberField";
 import { isWallCabinetObject, resolveWallMountHeightMm } from "../../domain/livingRoom/cabinetSceneMount";
@@ -62,16 +63,7 @@ export function InspectorObjectSection(props: Props) {
           onChange={(value) => props.onMove(object.id, { ...position, y: value })} />
         <NumberField label="Z" value={position.z}
           onChange={(value) => props.onMove(object.id, { ...position, z: value })} />
-        <label className="lr-select-field">
-          <span>Rotation</span>
-          <select value={object.rotation.y}
-            onChange={(event) => props.onSetRotation(object.id, Number(event.target.value))}>
-            <option value="0">0°</option><option value="45">45°</option>
-            <option value="90">90°</option><option value="135">135°</option>
-            <option value="180">180°</option><option value="225">225°</option>
-            <option value="270">270°</option><option value="315">315°</option>
-          </select>
-        </label>
+        <InspectorRotationField object={object} onSetRotation={props.onSetRotation} />
       </div>
     </details>
     </>
