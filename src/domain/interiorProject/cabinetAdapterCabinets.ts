@@ -11,11 +11,8 @@ import {
   readCabinetIdentity,
   readPlanningExtension,
 } from "../cabinetIdentity";
-import {
-  collectOpeningLeaves,
-  setOpeningContentType,
-  type OpeningStructure,
-} from "../cabinetOpeningStructure";
+import { collectOpeningLeaves, setOpeningContentType, type OpeningStructure } from "../cabinetOpeningStructure";
+import { applyFrontSystemParameters } from "../frontSystem/frontSystemParameters";
 import { CABINET_EXTENSION } from "./cabinetAdapterShared";
 import { objectId } from "./cabinetAdapterIds";
 import type { InteriorObjectEntity } from "./types";
@@ -196,7 +193,7 @@ export function cabinetFromObject(object: InteriorObjectEntity): CabinetInstance
     displayCategory: object.category,
     interiorObjectId: typeof planning?.entityId === "string" ? planning.entityId : object.id,
     ...(runFiller ? { runFiller } : {}),
-    config,
+    config: applyFrontSystemParameters(config, object.parameters),
     placement: {
       x: object.position.x,
       y: object.position.y,

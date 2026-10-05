@@ -84,7 +84,7 @@ function frontName(kind: "door" | "drawer", opening: OpeningFaceRect, index: num
   return single ? "door" : `door-${opening.id}-${index + 1}`;
 }
 
-/** Shelves and assembly boards per opening; doors and drawer fronts sized by `resolveFrontGaps`. */
+/** Shelves and assembly boards per opening; doors, drawer fronts and gola profiles from `resolveFrontGaps`. */
 export function openingComponentPanels(
   config: CabinetConfig,
   outerDepth: number,
@@ -105,7 +105,23 @@ export function openingComponentPanels(
     frontZ,
   ];
 
-  for (const { opening, kind, leaves } of resolveFrontGaps(config).openings) {
+  const fronts = resolveFrontGaps(config);
+  fronts.profiles.forEach((band, index) => {
+    const depth = millimetresToMetres(band.depthMm);
+    panels.push({
+      name: `gola-${band.kind.toLowerCase()}-${index + 1}`,
+      label: `Gola ${band.kind === "wall" ? "wall-unit" : band.kind} profile`,
+      size: [millimetresToMetres(band.lengthMm), millimetresToMetres(band.heightMm), depth],
+      position: [
+        -outerWidth / 2 + millimetresToMetres(layout.leftFillerMm + band.xMm + band.lengthMm / 2),
+        -outerHeight / 2 + toeKick + millimetresToMetres(band.yMm + band.heightMm / 2),
+        outerDepth / 2 - depth / 2,
+      ],
+      material: "metal",
+    });
+  });
+
+  for (const { opening, kind, leaves } of fronts.openings) {
     leaves.forEach((leaf, index) => {
       panels.push({
         name: frontName(kind, opening, index, leaves.length, single),

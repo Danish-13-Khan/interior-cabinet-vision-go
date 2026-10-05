@@ -101,6 +101,7 @@ export function clampHardwareEntry(
     "shelf-pin",
     "accessory",
     "consumable",
+    "profile",
   ];
   const kind = kinds.includes(entry.kind as HardwareKind)
     ? (entry.kind as HardwareKind)

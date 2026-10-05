@@ -1,5 +1,6 @@
 import { supportsDoors, supportsDrawers, type CabinetConfig } from "../cabinetDimensions";
 import { DOOR_GAP, normalizeConstructionSpec, type DoorMount } from "../cabinetConstructionSpec";
+import { golaProfilesForType, type GolaProfileKind, type GolaProfiles } from "../frontSystem/golaProfiles";
 import { layoutCabinetElevationFace, type OpeningFaceRect } from "../openingLayout";
 
 export type FrontGapSpec = { sideMm: number; centerMm: number; bottomMm: number; topMm: number };
@@ -12,6 +13,9 @@ export function frontGapSpec(mount: DoorMount): FrontGapSpec {
 /** Same origin as `OpeningFaceRect`: bottom-left of the face (after left filler, above toe kick), mm. */
 export type FrontLeaf = { xMm: number; yMm: number; widthMm: number; heightMm: number };
 
+/** A gola profile run in face coordinates; `yMm` is the bottom of the band the profile takes from the fronts. */
+export type GolaBand = { kind: GolaProfileKind; xMm: number; yMm: number; lengthMm: number; heightMm: number; depthMm: number };
+
 export type ResolvedOpeningFronts = {
   opening: OpeningFaceRect;
   kind: "door" | "drawer";
@@ -22,7 +26,10 @@ export type ResolvedFronts = {
   mount: DoorMount;
   gaps: FrontGapSpec;
   openings: ResolvedOpeningFronts[];
+  profiles: GolaBand[];
 };
+
+type Edges = { bottomMm: number; topMm: number; stackMm: number };
 
 function splitRow(xMm: number, yMm: number, spanMm: number, heightMm: number, count: number, gaps: FrontGapSpec): FrontLeaf[] {
   const widthMm = (spanMm - gaps.sideMm * 2 - gaps.centerMm * (count - 1)) / count;
@@ -35,11 +42,11 @@ function splitRow(xMm: number, yMm: number, spanMm: number, heightMm: number, co
 }
 
 /** A single full-face door follows the mount: overlay covers the carcass, inset sits in the face opening. */
-function fullFaceDoorRow(config: CabinetConfig, mount: DoorMount, gaps: FrontGapSpec, count: number, leftFillerMm: number) {
+function fullFaceDoorRow(config: CabinetConfig, mount: DoorMount, gaps: FrontGapSpec, edges: Edges, count: number, leftFillerMm: number) {
   const { width, height, boardThickness } = config.dimensions;
   const toeKick = config.toeKickHeight;
   if (mount !== "inset") {
-    return splitRow(-leftFillerMm, gaps.bottomMm, width, height - toeKick - gaps.bottomMm - gaps.topMm, count, gaps);
+    return splitRow(-leftFillerMm, edges.bottomMm, width, height - toeKick - edges.bottomMm - edges.topMm, count, gaps);
   }
   const spec = normalizeConstructionSpec(config.type, config.construction);
   const faceFrame = spec.carcassStyle === "face-frame";
@@ -47,16 +54,16 @@ function fullFaceDoorRow(config: CabinetConfig, mount: DoorMount, gaps: FrontGap
   const rail = faceFrame ? spec.faceFrame.railWidthMm : boardThickness;
   const openingWidth = faceFrame ? Math.max(120, width - stile * 2) : width - boardThickness * 2;
   const openingHeight = Math.max(120, height - toeKick - rail * 2);
-  return splitRow(stile - leftFillerMm, rail + gaps.bottomMm, openingWidth, openingHeight - gaps.bottomMm - gaps.topMm, count, gaps);
+  return splitRow(stile - leftFillerMm, rail + edges.bottomMm, openingWidth, openingHeight - edges.bottomMm - edges.topMm, count, gaps);
 }
 
-function drawerColumn(opening: OpeningFaceRect, gaps: FrontGapSpec): FrontLeaf[] {
+function drawerColumn(opening: OpeningFaceRect, gaps: FrontGapSpec, edges: Edges): FrontLeaf[] {
   const count = Math.max(1, opening.drawerCount);
-  const available = opening.heightMm - gaps.bottomMm - gaps.topMm - (count - 1) * gaps.centerMm;
+  const available = opening.heightMm - edges.bottomMm - edges.topMm - (count - 1) * edges.stackMm;
   const ratios = opening.drawerRatios?.length === count
     ? opening.drawerRatios
     : Array.from({ length: count }, () => 1 / count);
-  let cursor = opening.yMm + gaps.bottomMm;
+  let cursor = opening.yMm + edges.bottomMm;
   return ratios.map((ratio) => {
     const leaf = {
       xMm: opening.xMm + gaps.sideMm,
@@ -64,30 +71,62 @@ function drawerColumn(opening: OpeningFaceRect, gaps: FrontGapSpec): FrontLeaf[]
       widthMm: opening.widthMm - gaps.sideMm * 2,
       heightMm: available * ratio,
     };
-    cursor += leaf.heightMm + gaps.centerMm;
+    cursor += leaf.heightMm + edges.stackMm;
     return leaf;
   });
 }
 
+const near = (a: number, b: number) => Math.abs(a - b) < 1;
+
 /**
  * The one front-gap rule. Production parts, the 3D model, the legacy cut list
- * and elevations all size doors and drawer fronts from this.
+ * and elevations all size doors and drawer fronts from this. A gola front
+ * system replaces the edge gaps with the profile band (L on top, C between
+ * stacked fronts, the wall profile along the bottom of wall units).
  */
 export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
-  const mount = normalizeConstructionSpec(config.type, config.construction).doorMount;
+  const spec = normalizeConstructionSpec(config.type, config.construction);
+  const mount = spec.doorMount;
   const gaps = frontGapSpec(mount);
   const face = layoutCabinetElevationFace(config);
+  const gola: GolaProfiles | null = spec.frontSystem?.kind === "gola" ? spec.frontSystem.profiles : null;
+  const uses = new Set(gola ? golaProfilesForType(config.type) : []);
+  const single = face.openings.length === 1;
+  const faceTop = face.faceInsetBottomMm + face.clearHeightMm;
   const openings: ResolvedOpeningFronts[] = [];
+  const profiles: GolaBand[] = [];
+  const band = (kind: GolaProfileKind, xMm: number, yMm: number, lengthMm: number) =>
+    profiles.push({ kind, xMm, yMm, lengthMm, heightMm: gola![kind].heightMm, depthMm: gola![kind].depthMm });
+  let topBand = false;
+  let bottomBand = false;
+
   for (const opening of face.openings) {
-    if (opening.contentType === "door" && supportsDoors(config.type)) {
+    const isDoor = opening.contentType === "door" && supportsDoors(config.type);
+    const isDrawer = opening.contentType === "drawer-stack" && supportsDrawers(config.type);
+    if (!isDoor && !isDrawer) continue;
+    const atTop = single || near(opening.yMm + opening.heightMm, faceTop);
+    const atBottom = single || near(opening.yMm, face.faceInsetBottomMm);
+    const edges: Edges = { bottomMm: gaps.bottomMm, topMm: gaps.topMm, stackMm: gaps.centerMm };
+    if (gola) {
+      if (atTop && uses.has("L")) { edges.topMm = gola.L.heightMm; topBand = true; }
+      if (!atTop && uses.has("C")) edges.topMm = Math.max(0, gola.C.heightMm - gaps.bottomMm);
+      if (atBottom && uses.has("wall")) { edges.bottomMm = gola.wall.heightMm; bottomBand = true; }
+      if (uses.has("C")) edges.stackMm = gola.C.heightMm;
+    }
+    if (gola && !atTop && uses.has("C")) band("C", opening.xMm, opening.yMm + opening.heightMm - edges.topMm, opening.widthMm);
+    if (isDoor) {
       const count = opening.doorStyle === "single" ? 1 : 2;
-      const leaves = face.openings.length === 1
-        ? fullFaceDoorRow(config, mount, gaps, count, face.leftFillerMm)
-        : splitRow(opening.xMm, opening.yMm + gaps.bottomMm, opening.widthMm, opening.heightMm - gaps.bottomMm - gaps.topMm, count, gaps);
+      const leaves = single
+        ? fullFaceDoorRow(config, mount, gaps, edges, count, face.leftFillerMm)
+        : splitRow(opening.xMm, opening.yMm + edges.bottomMm, opening.widthMm, opening.heightMm - edges.bottomMm - edges.topMm, count, gaps);
       openings.push({ opening, kind: "door", leaves });
-    } else if (opening.contentType === "drawer-stack" && supportsDrawers(config.type)) {
-      openings.push({ opening, kind: "drawer", leaves: drawerColumn(opening, gaps) });
+    } else {
+      const leaves = drawerColumn(opening, gaps, edges);
+      if (gola && uses.has("C")) leaves.slice(0, -1).forEach((leaf) => band("C", opening.xMm, leaf.yMm + leaf.heightMm, opening.widthMm));
+      openings.push({ opening, kind: "drawer", leaves });
     }
   }
-  return { mount, gaps, openings };
+  if (topBand) band("L", -face.leftFillerMm, face.faceHeightMm - gola!.L.heightMm, config.dimensions.width);
+  if (bottomBand) band("wall", -face.leftFillerMm, 0, config.dimensions.width);
+  return { mount, gaps, openings, profiles };
 }

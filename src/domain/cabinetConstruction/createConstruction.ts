@@ -16,6 +16,7 @@ import { getInnerMeasurements } from "./helpers";
 import { appendCaseParts } from "./partsCase";
 import { appendInteriorParts } from "./partsInterior";
 import { appendExtraParts } from "./partsExtras";
+import { appendGolaNotchNotes } from "./golaParts";
 import type { ConstructionContext } from "./context";
 import type { CabinetConstruction, CabinetPart } from "./types";
 
@@ -74,6 +75,7 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
   appendCaseParts(ctx);
   appendInteriorParts(ctx);
   appendExtraParts(ctx);
+  appendGolaNotchNotes(parts, safeConfig);
 
   return {
     buildRules,

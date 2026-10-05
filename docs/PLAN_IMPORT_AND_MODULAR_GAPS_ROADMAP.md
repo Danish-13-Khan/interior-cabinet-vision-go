@@ -1,6 +1,6 @@
 # Plan import and modular gaps roadmap
 
-**Status:** In progress — Phases 0–4 landed 2026-10-05. Phase 5 waits on §6.1–3.
+**Status:** In progress — Phases 0–5 landed 2026-10-05 (gola sizes from the factory table; §6.2–3 still open).
 **Source:** Factory QA questions from Ilyas (production manager), 2026-10-04:
 plan rotation, raising walls, centre axis, erasing a plan, L / C gola,
 arch / fillet shapes, importing sinks / profiles / doors.
@@ -124,16 +124,22 @@ in plan view settings. Drawing tools snap to guides with the existing
 
 ```ts
 type FrontSystem =
-  | { kind: "handled" }                          // default, today's behaviour
-  | { kind: "gola"; profile: "L" | "C"; profileId: string };
+  | { kind: "handled" }                          // default; omitted from saved specs
+  | { kind: "gola"; profiles: Record<"L" | "C" | "wall", { heightMm: number; depthMm: number }> };
 ```
 
-| Gola parameter (catalog, per `profileId`) | Meaning | Default (to confirm with factory) |
-| --- | --- | --- |
-| `recessHeightMm` | front height lost to the profile | L: 30, C: 2 × 30 |
-| `recessDepthMm` | notch depth in carcass sides | 25 |
-| `profileLengthPerCabinet` | `"width"` (run-length metres) | width |
-| `finish` | aluminium / black / champagne | aluminium |
+Profile sizes (factory table, 2026-10-05). Each cabinet's sizes are editable
+inside the standard range and clamped to it (one decimal).
+
+| Profile | Height (default) | Depth (default) | Where |
+| --- | --- | --- | --- |
+| J / L | 56.5–68 (60) | 26–27.5 (27) | Under the countertop, top front of base / drawer / sink / corner units |
+| C | 73–75 (74) | 26–27.2 (27) | Between stacked drawers and stacked openings (base family and tall) |
+| Wall unit | 18.8–27.2 (23) | 18.8–27 (23) | Bottom edge of wall-unit fronts |
+
+The profile **height is the band it takes out of the front face**; the depth
+is the notch into the carcass sides and the 3D recess. Profile length is the
+cabinet width (L / wall) or the opening width (C). Finish is not modelled yet.
 
 Placement rule: **L** sits under the worktop on base and tall-top fronts.
 **C** sits between stacked drawer fronts and between an oven and the drawer
@@ -251,6 +257,16 @@ in 3D, fronts shortened by `recessHeightMm` in both 3D and cut list, 0 handles
 and run-length metres of profile in the schedule. Switching back to Handle
 restores the original part sizes exactly.
 
+**Landed (2026-10-05):** `frontSystem/` (catalog, clamping, object-parameter
+mapping). Interiors inspector **Construction → Fronts: Handles / Gola
+handleless** with height / depth per profile. `resolveFrontGaps` applies the
+bands and returns them as `profiles`; 3D draws each as a `"metal"` box recessed
+into the carcass front; side parts carry a `Gola notch: …` note; hardware drops
+handles and adds `gola-l` / `gola-c` / `gola-wall` lines in metres (kind
+`"profile"`), summed per run by the schedule. Switching back to Handles gives
+identical parts. **Not yet:** run-level "apply to run", the classic editor
+field, gola in 2D elevations, profile finish, and a real CNC notch op.
+
 ### Phase 6 — Handles and door styles in 3D (answers Modular Q3, partly)
 
 - Handle meshes from `handleId` (bar / knob / cup), positioned per front from
@@ -290,7 +306,8 @@ Start only when a signed project needs it.
 
 ## 6. Questions for Ilyas before Phase 5–6
 
-1. Gola profiles: supplier and the real profile section (recess height and depth)?
+1. ~~Gola profiles: supplier and the real profile section (recess height and depth)?~~
+   Answered 2026-10-05 with standard ranges (§4.3); supplier still unknown.
 2. Which cabinets get L vs C in your standard kitchen?
 3. Do you notch the carcass sides on CNC, or use a profile that needs no notch?
 4. Shaker doors: made in-house (frame parts on the cut list) or bought ready-made?
@@ -299,5 +316,5 @@ Start only when a signed project needs it.
 ## 7. Suggested order
 
 Phase 0 → 1 → 2 can ship together as a week-one patch (Q1, the sideways plan).
-Phases 3 and 4 landed. Phase 5 after Ilyas answers §6.1–3. Phases 6 and 7 are
+Phases 3–5 landed; confirm §6.2–3 (L vs C placement, CNC notch) with Ilyas. Phases 6 and 7 are
 independent and can follow in either order. Phase 8 waits.

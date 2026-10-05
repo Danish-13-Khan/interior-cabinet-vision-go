@@ -4,6 +4,18 @@ import { getResolvedDoorCount, resolveCabinetComposition } from "../cabinetCompo
 import { getHardwareItem, normalizeCabinetHardware } from "./normalize";
 import type { HardwareLine } from "./types";
 import { layoutCabinetElevationFace } from "../openingLayout";
+import { resolveFrontGaps } from "../cabinetConstruction/frontGaps";
+import { GOLA_PROFILE_CATALOG } from "../frontSystem/golaProfiles";
+
+/** Metres of each gola profile on this cabinet; summed across a run by the hardware schedule. */
+export function golaProfileMetres(config: CabinetInstance["config"]): Map<string, number> {
+  const metres = new Map<string, number>();
+  for (const band of resolveFrontGaps(config).profiles) {
+    const id = GOLA_PROFILE_CATALOG[band.kind].hardwareId;
+    metres.set(id, Math.round(((metres.get(id) ?? 0) + band.lengthMm / 1000) * 100) / 100);
+  }
+  return metres;
+}
 
 export function resolveHardwareCounts(
   cabinet: CabinetInstance,
@@ -43,11 +55,12 @@ export function resolveHardwareCounts(
     0,
   );
 
+  const gola = construction.constructionSpec.frontSystem?.kind === "gola";
   return {
     doorCount,
     hingeCount,
     drawerCount,
-    handleCount: doorCount + drawerFrontCount,
+    handleCount: gola ? 0 : doorCount + drawerFrontCount,
     shelfCount,
   };
 }
@@ -94,6 +107,7 @@ export function buildHardwareLines(
     insertBlocksDrawers ? 0 : counts.drawerCount,
   );
   push(hardware.handleId, counts.handleCount);
+  for (const [id, metres] of golaProfileMetres(cabinet.config)) push(id, metres);
 
   if (
     hardware.includeShelfPins &&

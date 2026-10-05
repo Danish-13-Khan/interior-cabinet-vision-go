@@ -6,7 +6,9 @@ export type HardwareKind =
   | "bracket"
   | "shelf-pin"
   | "accessory"
-  | "consumable";
+  | "consumable"
+  /** Sold by the metre (gola profiles); quantity is metres. */
+  | "profile";
 
 export type HardwareItem = {
   id: string;
