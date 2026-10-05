@@ -19,7 +19,7 @@ type LivingRoomObjectInspectorProps = {
   materials: InteriorProject["materials"];
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onUpdateRun: (runId: string, options: {
     gapMm?: number;
     alignment?: "start" | "center" | "end";

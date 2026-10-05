@@ -9,7 +9,7 @@ import { NumberField } from "./NumberField";
 type Props = {
   object: InteriorObjectEntity;
   project: InteriorProject;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
 };
 
 /** Cabinet finish, door style and box counts (collapsed by default). */
