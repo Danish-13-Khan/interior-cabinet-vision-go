@@ -3,8 +3,10 @@ import type {
   CabinetHardwareSpec,
   HardwareItem,
 } from "./types";
+import { PUSH_HARDWARE_ITEMS } from "./pushHardware";
 
 export const HARDWARE_CATALOG: HardwareItem[] = [
+  ...PUSH_HARDWARE_ITEMS,
   {
     id: "hinge-soft",
     label: "Soft-close hinge",

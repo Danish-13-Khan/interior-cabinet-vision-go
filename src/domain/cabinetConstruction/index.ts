@@ -7,6 +7,8 @@ export type {
 export { createCabinetConstruction } from "./createConstruction";
 export {
   frontGapSpec,
+  handledFrontCount,
+  pushFrontCount,
   resolveFrontGaps,
   type FrontGapSpec,
   type FrontLeaf,

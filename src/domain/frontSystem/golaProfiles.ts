@@ -1,12 +1,15 @@
 import type { CabinetType } from "../cabinetCapabilities";
+import type { PushMechanism } from "./pushDefaults";
 
 export type GolaProfileKind = "L" | "C" | "wall";
 export type GolaProfileSize = { heightMm: number; depthMm: number };
 export type GolaProfiles = Record<GolaProfileKind, GolaProfileSize>;
+export type { PushMechanism } from "./pushDefaults";
 
 export type FrontSystem =
   | { kind: "handled" }
-  | { kind: "gola"; profiles: GolaProfiles };
+  | { kind: "gola"; profiles: GolaProfiles }
+  | { kind: "push"; mechanism: PushMechanism };
 
 type Range = { min: number; max: number; default: number };
 
@@ -69,7 +72,17 @@ export function clampGolaProfileSize(kind: GolaProfileKind, size: Partial<GolaPr
 }
 
 export function normalizeFrontSystem(value: unknown): FrontSystem {
-  const raw = value as { kind?: unknown; profiles?: Partial<Record<GolaProfileKind, Partial<GolaProfileSize>>> } | undefined;
+  const raw = value as {
+    kind?: unknown;
+    mechanism?: unknown;
+    profiles?: Partial<Record<GolaProfileKind, Partial<GolaProfileSize>>>;
+  } | undefined;
+  if (raw?.kind === "push") {
+    return {
+      kind: "push",
+      mechanism: raw.mechanism === "push-latch" ? "push-latch" : "tip-on",
+    };
+  }
   if (raw?.kind !== "gola") return { kind: "handled" };
   return {
     kind: "gola",

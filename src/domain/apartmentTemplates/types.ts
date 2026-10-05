@@ -2,6 +2,7 @@ import type { OpeningKind, Point3Mm, RoomType } from "../interiorProject";
 import type { LivingRoomLightingRecipeId } from "../livingRoom/lighting";
 import type { LightingMood } from "../livingRoom/lightingMood";
 import type { LivingRoomStyleId } from "../livingRoom/stylePresets";
+import type { PushMechanism } from "../frontSystem";
 
 /** Stable apartment template ids (D8). */
 export type ApartmentTemplateId =
@@ -56,7 +57,8 @@ export type KitchenComposeOptions = {
   secondarySide?: WallSide;
   wallCabinets?: boolean;
   tallPantry?: boolean;
-  frontSystem?: "handled" | "gola";
+  frontSystem?: "handled" | "gola" | "push";
+  pushMechanism?: PushMechanism;
   doorStyle?: "slab" | "shaker" | "glass";
   doorSourcing?: DoorSourcingOption;
   handleId?: HandleHardwareId;
@@ -76,7 +78,8 @@ export type BedroomComposeOptions = {
   headboardDecor?: string;
   bedAlongSide?: WallSide;
   pendants?: boolean;
-  frontSystem?: "handled" | "gola";
+  frontSystem?: "handled" | "gola" | "push";
+  pushMechanism?: PushMechanism;
   doorStyle?: "slab" | "shaker" | "glass";
   doorSourcing?: DoorSourcingOption;
   handleId?: HandleHardwareId;

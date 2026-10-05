@@ -11,10 +11,13 @@ import {
   FRONT_SYSTEM_PARAMETER,
   defaultGolaProfiles,
   golaParametersPatch,
+  pushParametersPatch,
+  type PushMechanism,
 } from "../../frontSystem";
 
 export type CabinetFrontPatch = {
-  frontSystem?: "handled" | "gola";
+  frontSystem?: "handled" | "gola" | "push";
+  pushMechanism?: PushMechanism;
   doorStyle?: "slab" | "shaker" | "glass";
   doorSourcing?: DoorSourcingOption;
   handleId?: HandleHardwareId;
@@ -27,6 +30,8 @@ export function applyCabinetFrontOptions(
   const parameters = { ...object.parameters };
   if (options.frontSystem === "gola") {
     Object.assign(parameters, golaParametersPatch(defaultGolaProfiles()));
+  } else if (options.frontSystem === "push") {
+    Object.assign(parameters, pushParametersPatch(options.pushMechanism));
   } else if (options.frontSystem === "handled") {
     parameters[FRONT_SYSTEM_PARAMETER] = "handled";
   }
