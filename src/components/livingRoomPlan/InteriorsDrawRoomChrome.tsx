@@ -71,7 +71,8 @@ export function InteriorsDrawRoomChrome({
         onZoomIn={onZoomIn} onZoomOut={onZoomOut}
         commands={commands}
       />
-      <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands} />
+      <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands}
+        onPatchDocument={onPatchDocument} />
       <InteriorsDrawRoomTray
         tool={tool} activeBuildTool={activeBuildTool} wallId={wallId}
         openingCatalogItemId={openingCatalogItemId} roomPolygonPointCount={roomPolygonPointCount}

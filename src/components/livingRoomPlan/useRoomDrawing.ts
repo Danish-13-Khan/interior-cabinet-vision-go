@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { rectanglePoints, type Point2Mm, type RoomDrawingRequest } from "../../domain/interiorProject";
 import { snapPlanPointToDwg } from "../../domain/livingRoom/dwgPlanSnap";
+import { snapPointToGuides, type PlanGuide } from "../../domain/livingRoom/planGuides";
 
 type Point = Point2Mm;
 
@@ -15,10 +16,14 @@ function distance(a: Point, b: Point) {
 export function useRoomDrawing(input: {
   active: boolean; snapSizeMm: number; closeRequest: number;
   extraPoints?: readonly Point[];
+  guides?: readonly PlanGuide[];
+  guideToleranceMm?: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point;
   onCommit: (drawing: RoomDrawingRequest) => void;
   onPointCount: (count: number) => void;
 }) {
+  const snapAt = (raw: Point) =>
+    snapPointToGuides(snap(raw, input.snapSizeMm, input.extraPoints), raw, input.guides ?? [], input.guideToleranceMm ?? 0, input.extraPoints);
   const [polygon, setPolygon] = useState<Point[]>([]);
   const [rectangleStart, setRectangleStart] = useState<Point | null>(null);
   const [cursor, setCursor] = useState<Point | null>(null);
@@ -43,21 +48,21 @@ export function useRoomDrawing(input: {
   function start(event: ReactPointerEvent<SVGRectElement>) {
     if (!input.active || event.button !== 0) return false;
     event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId);
-    const point = snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), input.snapSizeMm, input.extraPoints);
+    const point = snapAt(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>));
     startRef.current = point; setRectangleStart(point); setCursor(point);
     return true;
   }
 
   function move(event: ReactPointerEvent<SVGSVGElement>) {
     if (!input.active || (!startRef.current && polygon.length === 0)) return false;
-    setCursor(snap(input.worldPoint(event), input.snapSizeMm, input.extraPoints));
+    setCursor(snapAt(input.worldPoint(event)));
     return true;
   }
 
   function finish(event: ReactPointerEvent<SVGSVGElement>) {
     const startPoint = startRef.current;
     if (!input.active || !startPoint) return false;
-    const end = snap(input.worldPoint(event), input.snapSizeMm, input.extraPoints);
+    const end = snapAt(input.worldPoint(event));
     if (distance(startPoint, end) >= input.snapSizeMm * 3) {
       onCommitRef.current({ kind: "rectangle", points: rectanglePoints(startPoint, end) });
       setPolygon([]);

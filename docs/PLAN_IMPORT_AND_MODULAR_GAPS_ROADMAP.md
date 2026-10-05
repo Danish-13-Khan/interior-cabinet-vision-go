@@ -1,6 +1,6 @@
 # Plan import and modular gaps roadmap
 
-**Status:** In progress — Phases 0–2 landed 2026-10-05. Phase 3 next.
+**Status:** In progress — Phases 0–3 landed 2026-10-05. Phases 4–5 wait on §6.1–3.
 **Source:** Factory QA questions from Ilyas (production manager), 2026-10-04:
 plan rotation, raising walls, centre axis, erasing a plan, L / C gola,
 arch / fillet shapes, importing sinks / profiles / doors.
@@ -113,7 +113,7 @@ The data stays `xMm / zMm / rotationDeg` on `LivingRoomPlanUnderlay`. New UI:
 | `axis` | `"x" \| "z"` | vertical (constant X) or horizontal (constant Z) line |
 | `positionMm` | number | world coordinate of the line |
 | `label` | string? | e.g. "A", "1", "CL" |
-| `locked` | boolean? | prevents accidental drag |
+| `locked` | boolean? | prevents accidental drag, typed moves and the Delete key; the panel's explicit **Delete** button still removes it |
 
 Defaults: none. `planSiteBoundsForCanvas` keeps drawing the automatic centre
 line **only when the list is empty**, and gains a **Show centre line** toggle
@@ -195,8 +195,13 @@ cannot be moved. A DWG underlay keeps its layers after rotation.
 
 ### Phase 3 — Plan guides / centre axis (answers Q3)
 
-- §4.2 data, a **Guides** tool in the build list (click to place on the X or Z axis,
-  drag to move, Delete to remove, label field in the inspector).
+- §4.2 data. Two toolbar tools, **Guide ↕** (X) and **Guide ↔** (Z), sit next to
+  Measure / Calibrate: click to place, drag to move, Delete to remove. While a
+  Guide tool is active the whole line is grabbable; in Select mode only the
+  bubble is, so walls drawn on a guide stay clickable. Label, position, lock
+  and delete live in the **Plan guides** list under Room & plan settings.
+- Snap order: an existing wall node / DWG point wins over a guide, so new walls
+  still join exactly.
 - **Show centre line** toggle. Guides render with the existing dash-dot
   `.lr-center-line` style plus a bubble label.
 - Wall and room drawing snaps to guides.
@@ -280,5 +285,5 @@ Start only when a signed project needs it.
 ## 7. Suggested order
 
 Phase 0 → 1 → 2 can ship together as a week-one patch (Q1, the sideways plan).
-Phase 3 next. Phases 4 → 5 after Ilyas answers §6.1–3. Phases 6 and 7 are
+Phase 3 landed. Phases 4 → 5 after Ilyas answers §6.1–3. Phases 6 and 7 are
 independent and can follow in either order. Phase 8 waits.

@@ -8,6 +8,8 @@ export type BuildTool =
   | "measure"
   | "calibrate-underlay"
   | "move-underlay"
+  | "place-guide-x"
+  | "place-guide-z"
   | "upload-underlay"
   | "draw-room"
   | "draw-wall"

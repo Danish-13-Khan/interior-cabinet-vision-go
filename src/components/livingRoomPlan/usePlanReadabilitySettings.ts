@@ -13,6 +13,7 @@ function loadSettings(): PlanReadabilitySettings {
       unit: ["mm", "cm", "m", "ft-in"].includes(parsed?.unit) ? parsed.unit : "mm",
       alwaysShowWallLengths: Boolean(parsed?.alwaysShowWallLengths),
       visualStyle: parsed?.visualStyle === "line" ? "line" : "fill",
+      showCenterLine: parsed?.showCenterLine !== false,
     };
   } catch {
     return DEFAULT_PLAN_READABILITY;
