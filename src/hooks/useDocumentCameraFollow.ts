@@ -33,6 +33,8 @@ export function useDocumentCameraFollow(args: {
     setActiveCameraId(null);
     queueMicrotask(() => {
       if (!id) return;
+      // Keep this guard: on a room switch `id` is the old room's camera, and the
+      // follow effect above applies the new one.
       if (idsRef.current.includes(id)) setActiveCameraId(id);
     });
   }), [setActiveCameraId, setViewPreset]);
