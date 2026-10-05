@@ -28,6 +28,8 @@ type RenderLightingRigProps = {
   roomLightScale?: number;
   selectedLightId?: string | null;
   onSelectLight?: (id: string) => void;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
+  onLightDragState?: (dragging: boolean) => void;
 };
 
 /**
@@ -45,6 +47,8 @@ export function RenderLightingRig({
   roomLightScale = 1,
   selectedLightId = null,
   onSelectLight,
+  onMoveLight,
+  onLightDragState,
 }: RenderLightingRigProps) {
   const environment = resolveEnvironmentDrawState(recipeId);
   const architectureBounds = computeArchitectureBounds(scene.nodes);
@@ -104,6 +108,8 @@ export function RenderLightingRig({
         maxDirectionalCasters={lightingQuality.maxDirectionalCasters}
         selectedLightId={selectedLightId}
         onSelectLight={onSelectLight}
+        onMoveLight={onMoveLight}
+        onLightDragState={onLightDragState}
       />
       <WindowKeyLight
         lights={windowKeys}

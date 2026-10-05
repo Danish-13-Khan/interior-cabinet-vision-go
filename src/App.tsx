@@ -360,6 +360,7 @@ function App() {
               removeLight: c.removeLivingRoomLight,
               duplicateLight: c.duplicateLivingRoomLight,
               setLightMount: c.setLivingRoomLightMount,
+              moveLight: c.moveLivingRoomLight,
             }}
             onEnterEngineering={() => {
               const bridge = resolvePostHandoffBridge();

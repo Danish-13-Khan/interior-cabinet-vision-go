@@ -40,12 +40,16 @@ const EMPTY: ShaderLightCounts = { numRectAreaLights: 0, numSpotLights: 0, numPo
 
 /**
  * Sources, not fixtures. A cove is two rect lights (up-light + wall share).
+ * A rope or profile on a wall is two as well (emitter + wall halo).
  * A track is one spot per head.
  */
 export function fixtureShaderCounts(light: CountedLight): ShaderLightCounts {
   if (!projectLightIsMounted(light)) return EMPTY;
   const kind = light.parameters.fixtureKind;
   if (kind === "cove") return { numRectAreaLights: 2, numSpotLights: 0, numPointLights: 0 };
+  if ((kind === "rope" || kind === "profile") && typeof light.parameters.hostWallId === "string" && light.parameters.hostWallId !== "") {
+    return { numRectAreaLights: 2, numSpotLights: 0, numPointLights: 0 };
+  }
   if (kind === "track") return { numRectAreaLights: 0, numSpotLights: headSources(light), numPointLights: 0 };
   if (kind === "pendant") return { numRectAreaLights: 0, numSpotLights: 0, numPointLights: 1 };
   if (kind === "cob" || kind === "ceiling-downlight") return { numRectAreaLights: 0, numSpotLights: 1, numPointLights: 0 };

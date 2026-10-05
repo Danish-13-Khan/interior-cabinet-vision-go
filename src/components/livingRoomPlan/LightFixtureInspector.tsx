@@ -26,7 +26,8 @@ export function LightFixtureInspector(props: {
   onRemoved?: () => void;
 }) {
   const { project, light, actions } = props;
-  const mounted = readLightMount(light).kind !== "free";
+  const mountKind = readLightMount(light).kind;
+  const poseLocked = mountKind === "wall" || mountKind === "object";
   return (
     <div className="lr-light-inspector" data-testid="light-fixture-inspector">
       <div className="lr-inspector-section-heading"><h3>{hostCaption(project, light)}</h3></div>
@@ -43,7 +44,7 @@ export function LightFixtureInspector(props: {
       <Section title="Mount"><LightMountSection project={project} light={light} actions={actions} /></Section>
       <Section title="Size"><LightSizeSection light={light} actions={actions} /></Section>
       {/* A mounted light takes its pose from the host, so these fields are read-only there. */}
-      <Section title="Position" open={!mounted}><LightPoseSection light={light} actions={actions} /></Section>
+      <Section title="Position" open={!poseLocked}><LightPoseSection light={light} actions={actions} /></Section>
     </div>
   );
 }

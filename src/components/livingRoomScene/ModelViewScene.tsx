@@ -48,6 +48,7 @@ type ModelViewSceneProps = {
   selectedLightId?: string | null;
   onSelectLight?: (id: string) => void;
   roomLightScale?: number;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onExitWalkthrough: () => void;
   onMechanismClick: (objectId: string, primitiveId: string) => void;
@@ -130,6 +131,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onSelectWall={onSelectWall}
           selectedLightId={selectedLightId}
           onSelectLight={onSelectLight}
+          onMoveLight={props.onMoveLight}
           onClearSelection={onClearSelection}
           onMove={onMove}
           onExitWalkthrough={onExitWalkthrough}

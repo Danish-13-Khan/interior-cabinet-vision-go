@@ -44,6 +44,9 @@ describe("fixture emission frame", () => {
     expect(getLightFixtureDefinition("cob").defaults.intensity).toBeLessThan(12);
     // Thin strip: needs far more per unit than a panel to wash the ceiling at all.
     expect(getLightFixtureDefinition("cove").defaults.intensity).toBe(24);
+    expect(getLightFixtureDefinition("rope").defaults.intensity).toBe(12);
+    expect(getLightFixtureDefinition("profile").defaults.intensity).toBe(8);
+    expect(getLightFixtureDefinition("under-cabinet").defaults.intensity).toBe(16);
   });
 
   it("scales the cove wall band by coveWallShare and no other factor", () => {

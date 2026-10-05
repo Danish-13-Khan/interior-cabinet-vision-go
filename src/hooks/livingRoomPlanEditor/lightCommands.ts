@@ -1,6 +1,7 @@
 import type { InteriorProject } from "../../domain/interiorProject";
 import { attachLightToObject, updateLightMount, type LightMount } from "../../domain/livingRoom/lightAttachments";
 import { getLightFixtureDefinition, type LightFixtureKind } from "../../domain/livingRoom/lightFixtureRegistry";
+import { relocateLight } from "../../domain/livingRoom/lightRelocate";
 import {
   addRoomLightFixture,
   duplicateRoomLightFixture,
@@ -26,6 +27,8 @@ export type LightFixtureActions = {
   removeLight: (id: string) => void;
   duplicateLight: (id: string) => void;
   setLightMount: (id: string, mount: LightMount) => void;
+  /** Drag in 3D: one undo step, the mount is kept. Millimetres, world space. */
+  moveLight: (id: string, point: { x: number; y: number; z: number }) => void;
 };
 
 export function lightFixtureActions(
@@ -45,6 +48,9 @@ export function lightFixtureActions(
     },
     setLightMount: (id, mount) => {
       commitDocument((current) => applyMount(current, id, mount), "Updated light attachment.");
+    },
+    moveLight: (id, point) => {
+      commitDocument((current) => relocateLight(current, id, point), "Moved room light.");
     },
   };
 }
@@ -86,5 +92,6 @@ export function lightCommands(ctx: EditorCommandContext) {
     removeLivingRoomLight: actions.removeLight,
     duplicateLivingRoomLight: actions.duplicateLight,
     setLivingRoomLightMount: actions.setLightMount,
+    moveLivingRoomLight: actions.moveLight,
   };
 }
