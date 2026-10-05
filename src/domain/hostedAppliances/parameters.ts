@@ -55,6 +55,9 @@ export function isPlaceableAppliance(object: InteriorObjectEntity): boolean {
     || readApplianceHost(object) !== null;
 }
 
+export const HOSTED_APPLIANCE_ROTATION_HINT =
+  "Placed in a cabinet: turns snap to 90° steps relative to the cabinet, so any typed angle rounds to the nearest quarter turn.";
+
 /** Appliance turns relative to the host snap to quarter turns (0, 90, 180, 270). */
 export function quarterTurn(degrees: number): number {
   return ((Math.round(degrees / 90) * 90) % 360 + 360) % 360;
