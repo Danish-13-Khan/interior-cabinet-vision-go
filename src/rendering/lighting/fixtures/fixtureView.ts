@@ -7,4 +7,8 @@ export type FixtureViewProps = {
   castShadow: boolean;
   selected?: boolean;
   onSelect?: (id: string) => void;
+  /** Commit of a 3D drag, world millimetres. Unset where lights cannot be moved. */
+  onMove?: (id: string, point: { x: number; y: number; z: number }) => void;
+  /** True while dragging, so the view stops orbiting. */
+  onDragState?: (dragging: boolean) => void;
 };

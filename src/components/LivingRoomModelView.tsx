@@ -135,6 +135,7 @@ export function LivingRoomModelView({
           activeWallId={clientView.activeWallId}
           selectedLightId={presentation ? null : activeLightId}
           onSelectLight={presentation ? noopSelect : onSelectLight}
+          onMoveLight={presentation ? undefined : lightActions?.moveLight}
           activeCameraId={activeCameraId} viewPreset={camera.viewPreset}
           cameraHeightMm={cameraOverrides.cameraHeightMm}
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}

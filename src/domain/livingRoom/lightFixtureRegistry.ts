@@ -90,7 +90,8 @@ export const LIGHT_FIXTURE_DEFINITIONS: readonly LightFixtureDefinition[] = [
     defaults: emitter({ depthMm: 100, ceilingDropMm: 650, colorTemperatureK: 2700 }) },
   { id: "under-cabinet", name: "Under-cabinet LED strip", kind: "area", category: "cabinet",
     mounts: ["free", "object"],
-    defaults: area({ depthMm: 12, absoluteYMm: 1450, colorTemperatureK: 4000 }) },
+    // Task light over a counter. Set by analogy with the rope readings, not measured on a counter.
+    defaults: area({ intensity: 16, depthMm: 12, absoluteYMm: 1450, colorTemperatureK: 4000 }) },
   { id: "cove", name: "Cove LED strip", kind: "area", category: "wall",
     mounts: ["free", "wall"],
     // A 40 mm strip has a fifteenth of a panel's emitting area. Measured in evening: at 3 the ceiling
@@ -98,11 +99,14 @@ export const LIGHT_FIXTURE_DEFINITIONS: readonly LightFixtureDefinition[] = [
     defaults: area({ intensity: 24, depthMm: 40, rotationX: 90, ceilingDropMm: 80, colorTemperatureK: 3000 }) },
   { id: "rope", name: "Rope light", kind: "area", category: "wall",
     mounts: ["free", "wall", "object"],
-    defaults: area({ heightMm: 12, depthMm: 12, rotationX: 0, absoluteYMm: 1200, wallCenterHeightMm: 1200,
+    // Measured in evening with the wall halo: at 3 the wall 150 mm above rose by 14 of 255,
+    // at 12 by 39 with a soft falloff, and at 24 the wall beside the strip clips.
+    defaults: area({ intensity: 12, heightMm: 12, depthMm: 12, rotationX: 0, absoluteYMm: 1200, wallCenterHeightMm: 1200,
       colorTemperatureK: 2700 }) },
   { id: "profile", name: "Profile light", kind: "area", category: "wall",
     mounts: ["free", "wall"],
-    defaults: area({ heightMm: 30, depthMm: 24, rotationX: 0, absoluteYMm: 1400, wallCenterHeightMm: 1400,
+    // 2.5 times the rope's emitting height, so it needs less per unit for the same halo.
+    defaults: area({ intensity: 8, heightMm: 30, depthMm: 24, rotationX: 0, absoluteYMm: 1400, wallCenterHeightMm: 1400,
       profileFinish: "aluminium", orientation: "horizontal", colorTemperatureK: 3500 }) },
   { id: "panel", name: "Panel light", kind: "area", category: "ceiling",
     mounts: ["free", "ceiling"],

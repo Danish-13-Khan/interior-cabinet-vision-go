@@ -32,6 +32,12 @@ function fake(kind: string, parameters: LightEntity["parameters"] = {}, enabled 
 }
 
 describe("fixture light budget", () => {
+  it("counts the wall halo of a wall-mounted rope or profile, and not of a free one", () => {
+    expect(sumShaderCounts([fake("rope", { hostWallId: "w" })]).numRectAreaLights).toBe(2);
+    expect(sumShaderCounts([fake("profile", { hostWallId: "w" })]).numRectAreaLights).toBe(2);
+    expect(sumShaderCounts([fake("rope"), fake("under-cabinet", { hostWallId: "w" })]).numRectAreaLights).toBe(2);
+  });
+
   it("counts cove wall share and track heads as sources, and stays inside 12", () => {
     const lights = [
       fake("cove"), fake("cove"),

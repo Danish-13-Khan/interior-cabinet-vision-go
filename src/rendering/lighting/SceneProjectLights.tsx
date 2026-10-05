@@ -27,6 +27,8 @@ export function SceneProjectLights({
   maxDirectionalCasters,
   selectedLightId = null,
   onSelectLight,
+  onMoveLight,
+  onLightDragState,
 }: {
   scene: CompiledLivingRoomScene;
   shadowMapSize: number;
@@ -41,6 +43,8 @@ export function SceneProjectLights({
   /** Phase 2 plumbs selection. Callers omit both until a light can be picked. */
   selectedLightId?: string | null;
   onSelectLight?: (id: string) => void;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
+  onLightDragState?: (dragging: boolean) => void;
 }) {
   ensureRectAreaLightSupport();
   const recipeScale = intensityScale * roomLightScale;
@@ -60,6 +64,8 @@ export function SceneProjectLights({
               castShadow={fillCast}
               selected={selectedLightId === light.id}
               onSelect={onSelectLight}
+              onMove={onMoveLight}
+              onDragState={onLightDragState}
             />
           );
         }

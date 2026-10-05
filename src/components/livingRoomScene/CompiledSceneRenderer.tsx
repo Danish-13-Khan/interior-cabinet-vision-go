@@ -65,6 +65,7 @@ type SceneRendererProps = {
   /** Forwarded to fixtures. Render Studio does not pass these. */
   selectedLightId?: string | null;
   onSelectLight?: (id: string) => void;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
 };
 
 export function CompiledSceneRenderer(props: SceneRendererProps) {
@@ -77,7 +78,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
     transformTarget = null, onTransformPreview, onTransformCommit, frameRun,
-    selectedLightId = null, onSelectLight,
+    selectedLightId = null, onSelectLight, onMoveLight,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -159,6 +160,8 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         projectLightScale={projectLightScale} windowKeyScale={windowKeyScale}
         roomLightScale={roomLightScale}
         selectedLightId={selectedLightId} onSelectLight={onSelectLight}
+        onMoveLight={interactive ? onMoveLight : undefined}
+        onLightDragState={handleDragStateChange}
       />
       {showGrid ? (
         <gridHelper

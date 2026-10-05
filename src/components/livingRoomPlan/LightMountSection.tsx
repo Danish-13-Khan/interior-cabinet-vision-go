@@ -46,7 +46,7 @@ export function LightMountSection(props: {
       </label>
       {mount.kind === "wall" ? (
         <>
-          <LightNumberField label="Along wall (mm)" value={mount.alongMm} step={10}
+          <LightNumberField label="Along wall (mm)" value={mount.alongMm} step={10} disabled={mount.fitHostWidth}
             onChange={(alongMm) => apply({ ...mount, alongMm })} />
           <LightNumberField label="Centre height (mm)" value={mount.centerHeightMm} min={0} step={10}
             onChange={(centerHeightMm) => apply({ ...mount, centerHeightMm })} />
@@ -62,6 +62,9 @@ export function LightMountSection(props: {
               onChange={(event) => apply({ ...mount, fitHostWidth: event.target.checked })} />
             Fit to wall
           </label>
+          {mount.fitHostWidth ? (
+            <p className="lr-authoring-hint">A fitted strip spans the whole wall, so it cannot slide along it. Untick Fit to wall to shorten and move it.</p>
+          ) : null}
         </>
       ) : null}
       {mount.kind === "ceiling" ? (

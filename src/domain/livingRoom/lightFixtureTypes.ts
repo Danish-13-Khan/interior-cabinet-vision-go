@@ -28,6 +28,8 @@ export const LIGHT_RENDER_SCALE = {
   emissivePerUnit: 0.22,
   maxEmissive: 4,
   coveWallShare: 0.35,
+  /** Halo a wall-mounted rope or profile throws back onto its own wall. */
+  stripHaloShare: 1,
   /** Former inline `0.58` on recipe ambient lights. */
   recipeAmbientScale: 0.58,
   /** Former inline `0.86` on recipe directional lights. */

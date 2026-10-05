@@ -17,6 +17,7 @@ describe("light render scale", () => {
       emissivePerUnit: 0.22,
       maxEmissive: 4,
       coveWallShare: 0.35,
+      stripHaloShare: 1,
       recipeAmbientScale: 0.58,
       recipeDirectionalScale: 0.86,
     });

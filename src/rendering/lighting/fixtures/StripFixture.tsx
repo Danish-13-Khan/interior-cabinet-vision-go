@@ -1,4 +1,4 @@
-import { readFixtureSize } from "./fixtureMeasures";
+import { readFixtureSize, STRIP_HALO_ROTATION, STRIP_HALO_STANDOFF_M, stripHaloIntensity } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
 
@@ -12,6 +12,7 @@ export function StripFixture(props: FixtureViewProps) {
     : [size.length, size.across, size.depth];
   const front = rope ? Math.min(size.across, size.depth) / 2 : size.depth / 2;
   const glow = props.light.enabled ? props.light.color : size.body;
+  const onWall = typeof props.light.parameters.hostWallId === "string" && props.light.parameters.hostWallId !== "";
   return (
     <FixtureGroup {...props} span={span}>
       {rope
@@ -33,6 +34,16 @@ export function StripFixture(props: FixtureViewProps) {
         width={span[0]}
         height={Math.max(span[1], 0.01)}
       />
+      {onWall ? (
+        <rectAreaLight
+          position={[0, 0, -(front + STRIP_HALO_STANDOFF_M)]}
+          rotation={STRIP_HALO_ROTATION}
+          color={props.light.color}
+          intensity={stripHaloIntensity(size.intensity)}
+          width={span[0]}
+          height={Math.max(span[1], 0.01)}
+        />
+      ) : null}
     </FixtureGroup>
   );
 }

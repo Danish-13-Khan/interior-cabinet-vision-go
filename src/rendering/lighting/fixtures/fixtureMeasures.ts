@@ -32,6 +32,20 @@ export function coveWallIntensity(areaIntensity: number) {
   return areaIntensity * LIGHT_RENDER_SCALE.coveWallShare;
 }
 
+/**
+ * A rope or profile only emits away from its wall, so the wall it sits on stays dark.
+ * A second rect area this far off the wall, turned back to face it, gives the halo a real
+ * strip has. Metres.
+ */
+export const STRIP_HALO_STANDOFF_M = 0.06;
+
+/** Local rotation that turns the −Z emitter back onto the wall behind the strip. */
+export const STRIP_HALO_ROTATION: [number, number, number] = [0, Math.PI, 0];
+
+export function stripHaloIntensity(areaIntensity: number) {
+  return areaIntensity * LIGHT_RENDER_SCALE.stripHaloShare;
+}
+
 export function clampedHeadCount(light: { parameters: Record<string, ParameterValue> }) {
   const raw = Math.round(fixtureNumber(light, "headCount", 3));
   const { min, max } = LIGHT_PARAMETER_LIMITS.headCount;
