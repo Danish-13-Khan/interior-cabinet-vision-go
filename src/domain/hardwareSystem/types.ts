@@ -22,6 +22,8 @@ export type HardwareItem = {
   lengthMm?: number;
   softClose?: boolean;
   pair?: boolean;
+  /** D10: an industry default no factory has confirmed yet (flagged in schedule and export). */
+  unconfirmedDefault?: boolean;
 };
 
 export type ApplianceInsertKind =
@@ -57,6 +59,8 @@ export type HardwareLine = {
   quantity: number;
   unitCost: number;
   totalCost: number;
+  /** D10: flagged "unconfirmed default" in the hardware schedule and production export. */
+  unconfirmedDefault?: true;
 };
 
 export type HardwareScheduleRow = {
@@ -68,6 +72,7 @@ export type HardwareScheduleRow = {
   totalCost: number;
   cabinetCount: number;
   cabinetMarks: string[];
+  unconfirmedDefault?: true;
 };
 
 export type CabinetHardwareSummary = {

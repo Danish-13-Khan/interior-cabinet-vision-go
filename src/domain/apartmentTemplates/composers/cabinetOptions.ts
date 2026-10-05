@@ -13,8 +13,13 @@ import {
   defaultGolaProfiles,
   golaParametersPatch,
   pushParametersPatch,
+  slidingParametersPatch,
+  supportsSlidingDoors,
   type PushMechanism,
+  type SlidingLeafCount,
+  type WardrobeDoors,
 } from "../../frontSystem";
+import { readCabinetIdentity } from "../../cabinetIdentity";
 
 export type CabinetFrontPatch = {
   frontSystem?: "handled" | "gola" | "push";
@@ -22,6 +27,9 @@ export type CabinetFrontPatch = {
   doorStyle?: "slab" | "shaker" | "glass";
   doorSourcing?: DoorSourcingOption;
   handleId?: HandleHardwareId;
+  /** Wardrobes only: sliding shutters (§3.4); hinged leaves the object unchanged. */
+  wardrobeDoors?: WardrobeDoors;
+  slidingLeafCount?: SlidingLeafCount;
 };
 
 export function applyCabinetFrontOptions(
@@ -36,11 +44,20 @@ export function applyCabinetFrontOptions(
   } else if (options.frontSystem === "handled") {
     parameters[FRONT_SYSTEM_PARAMETER] = "handled";
   }
+  if (options.wardrobeDoors === "sliding" && isWardrobe(object)) {
+    // Sliding is exclusive with gola / push: the patch normalises the front system to handled.
+    Object.assign(parameters, slidingParametersPatch({ leafCount: options.slidingLeafCount }));
+  }
   if (options.doorStyle) parameters[DOOR_STYLE_PARAMETER] = options.doorStyle;
   if (options.doorSourcing) parameters[DOOR_SOURCING_PARAMETER] = options.doorSourcing;
   let next: InteriorObjectEntity = { ...object, parameters };
   if (options.handleId) next = patchHardwareHandle(next, options.handleId);
   return next;
+}
+
+function isWardrobe(object: InteriorObjectEntity): boolean {
+  const type = readCabinetIdentity(object)?.cabinetType;
+  return type !== undefined && supportsSlidingDoors(type);
 }
 
 function patchHardwareHandle(

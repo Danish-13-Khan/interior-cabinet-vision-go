@@ -1,3 +1,4 @@
+import { getCabinetDimensionLimits } from "./slidingLimits";
 import type { CabinetType } from "../cabinetCapabilities";
 import {
   isStorageType,
@@ -17,7 +18,6 @@ import {
 } from "../materialSystem";
 import type { ManufacturingIssue } from "./types";
 import {
-  getFamilyDimensionLimits,
   getMaxUnsupportedShelfSpanMm,
   MIN_DRAWER_FRONT_HEIGHT_MM,
   MIN_SHELF_SPACING_MM,
@@ -49,7 +49,7 @@ export function applyManufacturingFixes(config: CabinetConfig): {
     buildRules: { ...(config.buildRules ?? {}) },
   };
 
-  const limits = getFamilyDimensionLimits(next.type);
+  const limits = getCabinetDimensionLimits(next);
 
   if (isStorageType(next.type)) {
     const before = { ...next.dimensions };

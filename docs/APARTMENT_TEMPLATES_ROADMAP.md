@@ -1,8 +1,8 @@
 # Apartment templates roadmap (Studio, 1 BHK, 2 BHK, 3 BHK)
 
 **Status:** Phases 0, 1, 2, 4, 5 and 6 done on `feat/apartment-templates`
-(reviewed 2026-10-06). **Next: Phase 3 (sliding wardrobes), then Phase 7
-(showcase tour).** Phase 8 stays deferred. Factory hardware values are built
+(reviewed 2026-10-06); Phase 3 done on `feat/sliding-wardrobe` (awaiting
+review). **Next: Phase 7 (showcase tour).** Phase 8 stays deferred. Factory hardware values are built
 as settings with industry defaults (D10); Ilyas confirms them, he no longer
 blocks a phase.
 **Goal:** Four ready-made apartments the user can open with one click. Between
@@ -338,8 +338,8 @@ specs; the clear (carpet) size is smaller by half of each bounding wall.
 ### Phase 2 — Push-to-open front system (§3.3)
 
 **Status:** Done, with D10 defaults: push-open runners for drawers, normal
-gaps (buffer off), spring-free hinges. Still to add when Phase 3 builds the
-flag: mark the push hardware lines "unconfirmed default" too.
+gaps (buffer off), spring-free hinges. Push hardware lines now carry the
+"unconfirmed default" flag (added with Phase 3).
 
 - Add the `FrontSystem` push kind, hardware items, the resolver gap, 3D with
   no handle, the inspector option, the cut list and the hardware schedule.
@@ -352,10 +352,11 @@ flag: mark the push hardware lines "unconfirmed default" too.
   - no handle in 3D or in the elevations
 - Switching handled → push → gola round-trips cleanly.
 
-### Phase 3 — Sliding wardrobe shutters (§3.4) — **next**
+### Phase 3 — Sliding wardrobe shutters (§3.4)
 
-**Status:** Unblocked by D10. Build with the defaults in §3.4; Ilyas confirms
-the numbers later.
+**Status:** Done on `feat/sliding-wardrobe` with the §3.4 defaults
+(`confirmed: false`); Ilyas confirms the numbers later. Sliding almirahs allow
+900–2400 mm width. Studio and the 3 BHK master use sliding shutters.
 
 1. `slidingDefaults.ts` and the `"sliding"` door style; parameter read/write
    like `pushParametersPatch`.
@@ -403,7 +404,7 @@ the numbers later.
 
 ### Phase 5 — 2 BHK and 3 BHK authored, plus coverage test
 
-**Status:** Done (sliding row waits for Phase 3).
+**Status:** Done (sliding row now checked against the built Studio and 3 BHK).
 
 - Write both specs.
 - Add `showcaseCoverage.test.ts`: it reads the four built projects and asserts
@@ -487,7 +488,7 @@ None of these block a phase any more. Send them to Ilyas as one
 
 ## 8. Suggested order
 
-Done: Phases 0, 1, 4, 2, 5 and 6 (in that order).
+Done: Phases 0, 1, 4, 2, 5, 6 and 3 (in that order).
 
 Next:
 1. Merge `feat/apartment-templates` (open the PR; don't stack new phases on

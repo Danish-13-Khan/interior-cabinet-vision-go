@@ -33,7 +33,10 @@ export {
 } from "./resolve";
 
 export {
+  UNCONFIRMED_DEFAULT_LABEL,
   createHardwareSchedule,
   csvFromHardwareSchedule,
   getInsertCompatibilityNotes,
 } from "./schedule";
+
+export { SLIDING_HARDWARE_ITEMS, slidingHardwareQuantities } from "./slidingHardware";

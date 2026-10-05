@@ -39,6 +39,9 @@ export function HardwareTab({ report, onSelectCabinet }: HardwareTabProps) {
               <tr key={row.hardwareId}>
                 <td>
                   <strong>{row.label}</strong>
+                  {row.unconfirmedDefault ? (
+                    <small data-testid="hardware-unconfirmed-default"> · unconfirmed default</small>
+                  ) : null}
                 </td>
                 <td>{row.kind}</td>
                 <td>{row.quantity}</td>

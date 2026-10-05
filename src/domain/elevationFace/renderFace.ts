@@ -20,6 +20,7 @@ import {
   renderOpeningChrome,
 } from "./openingChrome";
 import { renderGolaProfiles } from "./resolvedFronts";
+import { hasSlidingFronts, renderSlidingLeaves } from "./slidingLeaves";
 import type { ElevationSvgOptions } from "./svgPrimitives";
 
 /**
@@ -84,10 +85,12 @@ export function renderElevationFaceGraphics(
     ...renderOpeningBoundaries(layout, cabinetSvgX, cabinetSvgY, scale),
   );
 
+  const sliding = hasSlidingFronts(cabinet);
   for (const opening of layout.openings) {
     const active = activeId === opening.id;
     if (opening.contentType === "door") {
-      elements.push(
+      // Sliding shutters span the whole face; they are drawn once below, with no hinge marks.
+      if (!sliding) elements.push(
         ...renderDoorLeaf(
           opening,
           cabinet,
@@ -147,6 +150,7 @@ export function renderElevationFaceGraphics(
       ),
     );
   }
+  if (sliding) elements.push(...renderSlidingLeaves(cabinet, layout, cabinetSvgX, cabinetSvgY, scale, activeId));
   elements.push(...renderGolaProfiles(cabinet.config, layout, cabinetSvgX, cabinetSvgY, scale));
 
   return elements;

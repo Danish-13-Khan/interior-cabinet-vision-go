@@ -2,7 +2,7 @@ import type { OpeningKind, Point3Mm, RoomType } from "../interiorProject";
 import type { LivingRoomLightingRecipeId } from "../livingRoom/lighting";
 import type { LightingMood } from "../livingRoom/lightingMood";
 import type { LivingRoomStyleId } from "../livingRoom/stylePresets";
-import type { PushMechanism } from "../frontSystem";
+import type { PushMechanism, SlidingLeafCount, WardrobeDoors } from "../frontSystem";
 
 /** Stable apartment template ids (D8). */
 export type ApartmentTemplateId =
@@ -90,6 +90,10 @@ export type BedroomComposeOptions = {
   cobLight?: boolean;
   /** Use living:corner-wardrobe instead of the wall wardrobe. */
   cornerWardrobe?: boolean;
+  /** Phase 3: sliding shutters on the wall wardrobe (normalises the front system to handled). */
+  wardrobeDoors?: WardrobeDoors;
+  /** Override the width-picked sliding leaf count. */
+  slidingLeafCount?: SlidingLeafCount;
 };
 
 export type LivingComposeOptions = {
@@ -100,6 +104,9 @@ export type LivingComposeOptions = {
   /** Optional sleep wardrobe in an open studio living room. */
   wardrobeSide?: WallSide;
   wardrobeWidthMm?: number;
+  /** Phase 3: hinged or sliding doors on the studio sleep wardrobe. */
+  wardrobeDoors?: WardrobeDoors;
+  slidingLeafCount?: SlidingLeafCount;
   sofaSet?: boolean;
   coveLight?: boolean;
   trackLight?: boolean;

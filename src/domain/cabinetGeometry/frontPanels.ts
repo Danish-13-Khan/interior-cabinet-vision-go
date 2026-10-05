@@ -77,7 +77,7 @@ export function handlePanels(config: CabinetConfig, fronts: ResolvedFronts, plac
   const panels: CabinetPanelGeometry[] = [];
   for (const { opening, kind, leaves } of fronts.openings) {
     leaves.forEach((leaf, index) => {
-      if (leaf.golaGrip || leaf.pushOpen) return;
+      if (leaf.golaGrip || leaf.pushOpen || leaf.slidingPlane !== undefined) return;
       const [xMm, yMm] = kind === "drawer"
         ? [leaf.xMm + leaf.widthMm / 2, leaf.yMm + leaf.heightMm / 2]
         : doorHandleSpot(config, opening, leaf, index, leaves.length);

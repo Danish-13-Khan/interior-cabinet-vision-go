@@ -46,7 +46,7 @@ export function drawCostingSection(
     }
     const values = [
       row.label.length > 24 ? `${row.label.slice(0, 23)}…` : row.label,
-      row.kind,
+      row.unconfirmedDefault ? `${row.kind} · unconfirmed default` : row.kind,
       String(row.quantity),
       String(row.unitCost),
       String(row.totalCost),

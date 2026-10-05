@@ -3,6 +3,7 @@ import { DOOR_GAP, normalizeConstructionSpec, type DoorMount } from "../cabinetC
 import { golaProfilesForType, type GolaProfileKind, type GolaProfiles } from "../frontSystem/golaProfiles";
 import { APPLY_PUSH_LATCH_BUFFER, PUSH_LATCH_BUFFER_MM } from "../frontSystem/pushDefaults";
 import { layoutCabinetElevationFace, type OpeningFaceRect } from "../openingLayout";
+import { resolveSlidingFronts } from "./slidingFronts";
 
 export type FrontGapSpec = { sideMm: number; centerMm: number; bottomMm: number; topMm: number };
 
@@ -21,6 +22,8 @@ export type FrontLeaf = {
   golaGrip?: true;
   /** Push-to-open: no handle; latch / tip-on opens the leaf. */
   pushOpen?: true;
+  /** Sliding shutter on track plane 0 (rear) or 1 (front); flush pull, no hinges. */
+  slidingPlane?: 0 | 1;
 };
 
 /** A gola profile run in face coordinates; `yMm` is the bottom of the band the profile takes from the fronts. */
@@ -110,9 +113,11 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
     profiles.push({ kind, xMm, yMm, lengthMm, heightMm: gola![kind].heightMm, depthMm: gola![kind].depthMm });
   let topBand = false;
   let bottomBand = false;
+  const sliding = spec.sliding ? resolveSlidingFronts(config, face, spec.sliding) : null;
+  if (sliding) openings.push(sliding);
 
   for (const opening of face.openings) {
-    const isDoor = opening.contentType === "door" && supportsDoors(config.type);
+    const isDoor = opening.contentType === "door" && supportsDoors(config.type) && !sliding;
     const isDrawer = opening.contentType === "drawer-stack" && supportsDrawers(config.type);
     if (!isDoor && !isDrawer) continue;
     const atTop = single || near(opening.yMm + opening.heightMm, faceTop);
@@ -159,10 +164,10 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
   return { mount, gaps, openings, profiles };
 }
 
-/** Fronts that still need a handle: every front when handled, ungripped fronts under gola; never push. */
+/** Fronts that still need a handle: every front when handled, ungripped fronts under gola; never push or sliding (flush pull). */
 export function handledFrontCount(fronts: ResolvedFronts): number {
   return fronts.openings.reduce(
-    (sum, entry) => sum + entry.leaves.filter((leaf) => !leaf.golaGrip && !leaf.pushOpen).length,
+    (sum, entry) => sum + entry.leaves.filter((leaf) => !leaf.golaGrip && !leaf.pushOpen && leaf.slidingPlane === undefined).length,
     0,
   );
 }

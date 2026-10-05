@@ -88,6 +88,7 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
           displayNiche: false,
           wardrobeSide: "east",
           wardrobeWidthMm: 1800,
+          wardrobeDoors: "sliding",
           sofaSet: true,
           coveLight: true,
           downlight: true,

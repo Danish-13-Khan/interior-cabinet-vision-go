@@ -1,7 +1,10 @@
 import { supportsDoors, supportsDrawers } from "../../domain/cabinetCapabilities";
 import { readCabinetIdentity } from "../../domain/cabinetIdentity";
-import { DOOR_SOURCING_PARAMETER, DOOR_STYLE_OPTIONS, DOOR_STYLE_PARAMETER, readDoorStyleKind } from "../../domain/frontSystem";
+import {
+  DOOR_SOURCING_PARAMETER, DOOR_STYLE_OPTIONS, DOOR_STYLE_PARAMETER, readDoorStyleKind, readWardrobeDoors, supportsSlidingDoors,
+} from "../../domain/frontSystem";
 import { GolaFrontFields } from "./GolaFrontFields";
+import { SlidingDoorFields } from "./SlidingDoorFields";
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import { cabinetFinishId } from "../../domain/livingRoom";
 import { InspectorSection } from "./InspectorSection";
@@ -44,8 +47,12 @@ export function CabinetConstructionSection({ object, project, onSetParameters }:
           </select>
         </label>
       ) : null}
+      {identity && supportsSlidingDoors(identity.cabinetType) ? (
+        <SlidingDoorFields object={object} onSetParameters={onSetParameters} />
+      ) : null}
       {identity && (supportsDoors(identity.cabinetType) || supportsDrawers(identity.cabinetType)) ? (
-        <GolaFrontFields object={object} project={project} cabinetType={identity.cabinetType} onSetParameters={onSetParameters} />
+        <GolaFrontFields object={object} project={project} cabinetType={identity.cabinetType} onSetParameters={onSetParameters}
+          slidingLocked={supportsSlidingDoors(identity.cabinetType) && readWardrobeDoors(object.parameters) === "sliding"} />
       ) : null}
       {compiled ? (
         <p className="lr-inspector-hint" data-testid="cabinet-door-count-auto">Door count: auto from width</p>

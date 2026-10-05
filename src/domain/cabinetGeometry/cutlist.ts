@@ -9,16 +9,20 @@ import { freestandingCutlist } from "./freestandingCutlist";
 import { frontCutlistItems } from "./frontCutlist";
 import { getCabinetMeasurements } from "./measurements";
 import type { CabinetCutlistItem } from "./types";
+import { slidingCarcassConfig, slidingDoorsOf } from "../frontSystem/slidingSpec";
 
 export function createCabinetCutlist(
   config: CabinetConfig,
 ): CabinetCutlistItem[] {
-  const safeConfig = clampCabinetConfig(config);
+  const clamped = clampCabinetConfig(config);
 
-  if (!isStorageType(safeConfig.type)) return freestandingCutlist(safeConfig);
+  if (!isStorageType(clamped.type)) return freestandingCutlist(clamped);
 
+  // Sliding wardrobes: carcass rows use `depth − trackAllowance`; end panels keep full depth.
+  const sliding = slidingDoorsOf(clamped);
+  const safeConfig = sliding ? slidingCarcassConfig(clamped, sliding) : clamped;
   const { innerWidth, openingHeight, usableShelfDepth } =
-    getCabinetMeasurements(config);
+    getCabinetMeasurements(sliding ? safeConfig : config);
   const { dimensions, shelfCount, toeKickHeight } = safeConfig;
   const rules = resolveCabinetBuildRules(safeConfig);
 
@@ -84,7 +88,7 @@ export function createCabinetCutlist(
       label: "End Panel",
       quantity: Number(safeConfig.leftEndPanel) + Number(safeConfig.rightEndPanel),
       lengthMm: dimensions.height,
-      widthMm: dimensions.depth,
+      widthMm: clamped.dimensions.depth,
       thicknessMm: rules.carcassThicknessMm,
       material: "Board",
     });

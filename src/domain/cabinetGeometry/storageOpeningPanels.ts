@@ -111,6 +111,7 @@ export function openingComponentPanels(
   panels.push(...golaProfilePanels(config, fronts, place, outerDepth));
   for (const { opening, kind, leaves } of fronts.openings) {
     leaves.forEach((leaf, index) => {
+      if (leaf.slidingPlane !== undefined) return; // slidingWardrobeGeometry places these on their tracks
       const name = frontName(kind, opening, index, leaves.length, single);
       const label = `${opening.label} ${kind === "door" ? "Door" : "Drawer"} ${index + 1}`;
       const style = kind === "door" ? spec.frontStyle : undefined;

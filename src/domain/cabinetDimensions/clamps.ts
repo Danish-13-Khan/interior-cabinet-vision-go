@@ -21,7 +21,7 @@ import {
   getMinDividersForShelfSpan,
   applyWallMountPlacementFix,
 } from "../manufacturingRules";
-import { getFamilyDimensionLimits } from "../manufacturingRules/limits";
+import { getCabinetDimensionLimits } from "../manufacturingRules/slidingLimits";
 import {
   clampDraftingDisplay,
   clampProjectDrafting,
@@ -213,7 +213,7 @@ export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
       merged.buildRules?.backPanelThicknessMm ?? merged.dimensions.backPanelThickness,
   };
   const resolvedMaterialSpec = resolveCabinetMaterialSpec(merged.buildRules);
-  const familyLimits = getFamilyDimensionLimits(merged.type);
+  const familyLimits = getCabinetDimensionLimits(merged);
   const globallySafeDimensions = clampCabinetDimensions(merged.dimensions);
   // Family ranges are stricter than the global safety limits, except for the
   // 250/300 mm BPO pull-out base carcasses.

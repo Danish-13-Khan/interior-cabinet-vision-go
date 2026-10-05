@@ -14,6 +14,7 @@ import {
   PUSH_MECHANISM_PARAMETER,
   type PushMechanism,
 } from "./pushDefaults";
+import { applySlidingParameters } from "./slidingSpec";
 
 type Parameters = Record<string, string | number | boolean>;
 
@@ -64,12 +65,13 @@ export function golaParametersPatch(profiles: GolaProfiles): Parameters {
 export function applyFrontSystemParameters(config: CabinetConfig, parameters: Parameters): CabinetConfig {
   const frontSystem = frontSystemFromParameters(parameters);
   const frontStyle = doorFrontStyleFromParameters(parameters);
-  if (!frontSystem && !frontStyle) return config;
+  if (!frontSystem && !frontStyle) return applySlidingParameters(config, parameters);
   const spec = normalizeConstructionSpec(config.type, config.construction);
   const next = {
     ...spec,
     ...(frontSystem ? { frontSystem } : {}),
     ...(frontStyle ? { frontStyle: frontStyle === "slab" ? undefined : frontStyle } : {}),
   };
-  return { ...config, construction: normalizeConstructionSpec(config.type, next) };
+  // Sliding (wardrobes) is applied last so it can normalise gola / push back to handled.
+  return applySlidingParameters({ ...config, construction: normalizeConstructionSpec(config.type, next) }, parameters);
 }

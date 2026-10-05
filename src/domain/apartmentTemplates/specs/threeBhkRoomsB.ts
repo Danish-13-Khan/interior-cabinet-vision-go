@@ -3,7 +3,7 @@ import type { ApartmentRoomSpec } from "../types";
 
 const floor = LIVING_ROOM_MATERIAL_IDS.warmStone;
 
-/** 3 BHK bedrooms and baths (§4): push master, corner wardrobe, guest hinged. */
+/** 3 BHK bedrooms and baths (§4): sliding master, push corner wardrobe (kids), guest hinged. */
 export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
   {
     key: "guest",
@@ -14,7 +14,8 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
     compose: {
       kind: "bedroom",
       options: {
-        wardrobeSide: "east",
+        // West: the east wall's longest free run (1600) was too short, so no wardrobe placed.
+        wardrobeSide: "west",
         wardrobeWidthMm: 1800,
         bedAlongSide: "north",
         headboardDecor: "moulding",
@@ -41,14 +42,15 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
       kind: "bedroom",
       options: {
         wardrobeSide: "west",
-        wardrobeWidthMm: 1800,
+        wardrobeWidthMm: 900,
         bedAlongSide: "south",
         headboardDecor: "horizontal",
         pendants: true,
-        frontSystem: "handled",
+        frontSystem: "push",
+        pushMechanism: "tip-on",
         doorStyle: "slab",
         doorSourcing: "bought",
-        handleId: "handle-bar",
+        cornerWardrobe: true,
         cobLight: true,
       },
     },
@@ -67,15 +69,13 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
       kind: "bedroom",
       options: {
         wardrobeSide: "west",
-        wardrobeWidthMm: 900,
+        wardrobeWidthMm: 2400,
         bedAlongSide: "south",
         headboardDecor: "profile",
         pendants: true,
-        frontSystem: "push",
-        pushMechanism: "tip-on",
+        wardrobeDoors: "sliding",
         doorStyle: "shaker",
         doorSourcing: "in-house",
-        cornerWardrobe: true,
         cobLight: true,
       },
     },
