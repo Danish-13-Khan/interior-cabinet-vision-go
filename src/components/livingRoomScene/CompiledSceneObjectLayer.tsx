@@ -40,6 +40,8 @@ export function CompiledSceneObjectLayer(props: {
   selectedIds: string[];
   selectedOpeningId: string | null;
   selectedWallId: string | null;
+  /** A selected light owns the label; its host wall stays highlighted but unlabelled. */
+  lightSelected?: boolean;
   snapSizeMm: number;
   renderMode: RenderMode;
   renderQuality: RenderQuality;
@@ -90,7 +92,8 @@ export function CompiledSceneObjectLayer(props: {
           renderQuality={props.renderQuality}
           glbCasterSlot={props.glbCasterSlots.get(node.id)}
           maxGlbCasters={props.maxGlbCasters}
-          showSelectedLabel={modelSelectionTarget(node)?.kind !== "wall" || node.id === wallLabelId}
+          showSelectedLabel={!props.lightSelected
+            && (modelSelectionTarget(node)?.kind !== "wall" || node.id === wallLabelId)}
           onSelect={props.onSelect}
           onSelectOpening={props.onSelectOpening}
           onSelectWall={props.onSelectWall}

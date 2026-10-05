@@ -23,6 +23,7 @@ import { finishCommands } from "./livingRoomPlanEditor/finishCommands";
 import { objectEditingCommands } from "./livingRoomPlanEditor/objectEditing";
 import { objectPlacementCommands } from "./livingRoomPlanEditor/objectPlacement";
 import { roomCommands } from "./livingRoomPlanEditor/roomCommands";
+import { lightCommands } from "./livingRoomPlanEditor/lightCommands";
 import { wallCommands } from "./livingRoomPlanEditor/wallCommands";
 
 type UseLivingRoomPlanEditorArgs = {
@@ -133,6 +134,7 @@ export function useLivingRoomPlanEditor({
     ...finishCommands(ctx),
     ...roomCommands(ctx),
     ...wallCommands(ctx),
+    ...lightCommands(ctx),
     livingRoomPreDropReason: preDropReason,
     clearLivingRoomPreDropReason: () => setPreDropReason(null),
     patchLivingRoomDocument: commitDocument,

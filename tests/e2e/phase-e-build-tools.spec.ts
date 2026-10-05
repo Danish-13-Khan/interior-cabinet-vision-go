@@ -41,8 +41,13 @@ test("Phase E draws a surface zone, partition wall, and column", async ({ page }
   await expect(page.getByRole("button", { name: "Delete surface zone" })).toBeVisible();
 
   await clickInteriorsTool(page, "select");
+  // The room switcher sits in the collapsed "Room & plan settings" section.
+  const settings = page.locator("details.lr-plan-secondary-settings").first();
+  if (!(await settings.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await settings.locator("summary").click();
+  }
   await page.locator(".lr-room-switcher-tabs button.is-active").click();
-  await expect(page.locator(".lr-architecture-inspector").getByRole("heading", { name: "Room" })).toBeVisible();
+  await expect(page.locator(".inspector-header .lr-chrome-eyebrow")).toHaveText("Room essentials");
 
   await page.locator('[data-build-tool="draw-wall"]').click();
   await page.locator('[data-build-tool="place-column"]').click();

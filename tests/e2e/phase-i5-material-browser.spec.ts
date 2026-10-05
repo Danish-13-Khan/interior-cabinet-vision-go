@@ -10,7 +10,16 @@ async function openDesignPlan(page: Page) {
   await clickInteriorsTool(page, "cabinet");
 }
 
+async function openPositionSection(page: Page) {
+  // The Calm object inspector keeps Position collapsed in plan mode.
+  const section = page.locator("details.lr-transform-editor").first();
+  if (!(await section.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await section.locator("summary").click();
+  }
+}
+
 async function setObjectPosition(page: Page, axis: "X" | "Z", value: string) {
+  await openPositionSection(page);
   const details = page.locator(".lr-inspector-scroll .lr-transform-editor");
   if (await details.count() && (await details.getAttribute("open")) === null) {
     await details.locator("summary").click();

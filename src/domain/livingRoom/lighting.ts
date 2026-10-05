@@ -44,7 +44,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "daylight",
     name: "Soft Daylight",
     lights: [
-      featureWallCoveLight("#fff0dc", 0.6),
+      featureWallCoveLight("#fff0dc", 120),
       displayNicheLight("#ffe9cb", 0.45),
       {
         key: "ambient",
@@ -61,7 +61,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
         position: { x: -2850, y: 1850, z: -250 },
         rotation: { x: 0, y: 90, z: 0 },
         color: "#dcecff",
-        intensity: 2.2,
+        intensity: 280,
         parameters: { widthMm: 1800, heightMm: 1200 },
       },
       {
@@ -80,7 +80,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "warm-evening",
     name: "Warm Evening",
     lights: [
-      featureWallCoveLight("#ffc788", 1.35),
+      featureWallCoveLight("#ffc788", 160),
       displayNicheLight("#ffc47c", 1.05),
       {
         key: "ambient",
@@ -106,7 +106,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
         position: { x: 0, y: 2650, z: 0 },
         rotation: { x: -90, y: 0, z: 0 },
         color: "#ffe0bd",
-        intensity: 2.1,
+        intensity: 18,
         parameters: { widthMm: 3600, heightMm: 2400 },
       },
     ],
@@ -115,7 +115,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
     id: "neutral-studio",
     name: "Neutral Studio",
     lights: [
-      featureWallCoveLight("#ffe5c4", 0.85),
+      featureWallCoveLight("#ffe5c4", 90),
       displayNicheLight("#ffd6a1", 0.7),
       {
         key: "ambient",
@@ -142,7 +142,7 @@ export const LIVING_ROOM_LIGHTING_RECIPES: readonly LivingRoomLightingRecipe[] =
         position: { x: -2800, y: 1750, z: 0 },
         rotation: { x: 0, y: 90, z: 0 },
         color: "#dbe8ff",
-        intensity: 2.2,
+        intensity: 160,
         parameters: { widthMm: 1600, heightMm: 1100 },
       },
     ],
@@ -191,6 +191,22 @@ export function applyLivingRoomLightingRecipe(
       lightingRecipeId: recipeId,
     },
   };
+}
+
+/**
+ * Recipe lights are persisted per project, so a seed retune would never reach
+ * saved files or browser drafts. Resolve them at read time instead: a light
+ * that belongs to a known recipe takes the current seed's colour and
+ * intensity. Recipe lights are not user-editable, so nothing authored is lost.
+ */
+export function resolveRecipeLightSeed(light: LightEntity): LightEntity {
+  const recipeId = light.parameters.recipeId;
+  if (typeof recipeId !== "string") return light;
+  const recipe = LIVING_ROOM_LIGHTING_RECIPES.find((item) => item.id === recipeId);
+  const seed = recipe?.lights.find((item) => item.name === light.name && item.kind === light.kind);
+  if (!seed) return light;
+  if (seed.intensity === light.intensity && seed.color === light.color) return light;
+  return { ...light, intensity: seed.intensity, color: seed.color };
 }
 
 export {

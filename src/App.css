@@ -104,6 +104,7 @@
 @import "./styles/app-shell.css";
 @import "./styles/app-shell-home.css";
 @import "./styles/app-canvas-header.css";
+@import "./styles/app-light-inspector.css";
 @import "./styles/app-model-toolbar.css";
 @import "./styles/app-plan-labels.css";
 @import "./styles/app-stage.css";

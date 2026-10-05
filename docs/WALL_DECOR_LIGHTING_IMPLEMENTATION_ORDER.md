@@ -28,10 +28,16 @@ Branches: `feat/lighting-fixtures` (Phases 0–4), `feat/floor-build` (Phase 5),
    times the named constants.
 4. **Verify in the browser, then re-tune.** Model View, release demo: add a
    Cove LED strip and a downlight from the Room lights popover; both must
-   visibly light surfaces at default brightness. Then open Render Studio,
-   cycle Soft Daylight / Warm Evening / Neutral Studio at standard quality and
-   lower the seed intensities in `lighting.ts` (`ceiling`, `tv-wall-cove`,
-   `window`, `window-fill`, `display-niche`) until they look balanced.
+   visibly light surfaces at default brightness. Dollhouse, Perspective and
+   the orthographic presets hide the ceiling, so judge anything aimed upward
+   in Walkthrough. Then cycle Soft Daylight / Warm Evening / Neutral Studio at
+   standard quality and adjust the seed intensities in `lighting.ts`
+   (`ceiling`, `tv-wall-cove`, `window`, `window-fill`, `display-niche`) until
+   they look balanced. Seeds are resolved at read time in the compiler, so
+   the demo draft shows the new values without being re-created. The default
+   wall paint is already near white under the HDRI, so a strip wash saturates
+   rather than contrasts: judge by pixel readout or on a mid-tone wall
+   material, not from a downscaled screenshot (roadmap §3.4).
 5. **Reference images.** Regenerate any render-QA reference that moved
    (`render-qa-smoke`, `phase-k3-render-honesty`, phase-1 / phase-2 proof
    fixtures). `calm-light-visual` masks canvases and needs nothing.
@@ -55,7 +61,7 @@ references.
    (`free | object | wall | ceiling`), `readLightMount`, `resolveLightAttachment`
    dispatching to object (existing logic), wall (`orientWallForRoom` +
    `selectRoomWalls`, `alongMm` clamped to half length, `centerHeightMm`,
-   `wallSide`, `fitHostWidth` → length − 2 × `WALL_STRIP_END_MARGIN_MM`;
+   `wallSide`, `fitHostWidth` → length − 2 × `WALL_STRIP_END_MARGIN_MM` (20 mm each end, not 50);
    rotation yaw so local −Z points away from the wall, plus `x: 90` for cove),
    ceiling (`y = room.heightMm − ceilingDropMm`, rotation `x: −90`, keep yaw).
    Add `attachLightToWall`, `attachLightToCeiling`, `updateLightMount`;

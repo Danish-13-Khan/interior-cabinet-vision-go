@@ -1,20 +1,24 @@
 import type {
   InteriorObjectEntity,
   InteriorProject,
+  LightEntity,
   OpeningEntity,
   Point3Mm,
   Size3Mm,
   WallPlanPatch,
 } from "../../domain/interiorProject";
 import type { LivingRoomPlanIssue } from "../../domain/livingRoom";
-import { interiorsSelectionTitle } from "../../domain/desktopUx";
+import { interiorsSelectionTitle, openingInspectorTitle } from "../../domain/desktopUx";
 import { InspectorLayoutChecks } from "./InspectorLayoutChecks";
 import { InspectorObjectSection } from "./InspectorObjectSection";
 import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
+import type { WallEditingActions } from "./WallEditingPanel";
 import { InspectorObjectList } from "./InspectorObjectList";
 import { InspectorModelExtrasSlot, InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
 import { SurfaceInspector } from "./SurfaceInspector";
+import { LightFixtureInspector } from "./LightFixtureInspector";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
@@ -29,6 +33,7 @@ type LivingRoomInspectorPanelProps = {
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
@@ -82,11 +87,16 @@ type LivingRoomInspectorPanelProps = {
   onDeleteWall?: (wallId: string) => void;
   onJoinNodes?: () => void;
   onAddWallPanel?: (wallId: string) => void;
+  wallEditing?: WallEditingActions;
   onUpdatePanelAttachment?: (
     objectId: string,
     patch: Partial<import("../../domain/livingRoom").PanelAttachment>,
   ) => void;
   onSetPanelVisible?: (objectId: string, visible: boolean) => void;
+  activeLight?: LightEntity | null;
+  lightActions?: LightFixtureActions;
+  onSelectLight?: (id: string) => void;
+  onRemovedLight?: () => void;
 };
 
 export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
@@ -95,11 +105,13 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
     ? props.project.walls.find((wall) => wall.id === props.activeOpening?.wallId) ?? null
     : null;
   const { room, activeOpening, activeObject, activeSurface } = props;
+  const activeLight = props.activeLight ?? null;
   const roomEssentials = Boolean(
-    props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface,
+    props.inspectRoom && room && !activeObject && !activeOpening && !activeWall && !activeSurface && !activeLight,
   );
   const selectionTitle = interiorsSelectionTitle({
-    openingName: activeOpening ? `${activeOpening.kind} opening` : null,
+    openingName: activeOpening ? openingInspectorTitle(activeOpening.kind) : null,
+    lightName: activeLight?.name ?? null,
     objectName: activeObject?.name ?? null,
     wallLabel: activeWall ? String(activeWall.extensions?.wallSide ?? "Wall") : null,
     surfaceName: activeSurface ? "Surface zone" : null,
@@ -120,7 +132,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
       <div className="lr-inspector-scroll">
         {roomEssentials && props.drawRoom ? <InspectorPlanSettingsSlot /> : null}
         {props.mode === "model" && !activeObject ? <InspectorModelExtrasSlot /> : null}
-        {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface ? (
+        {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface && !activeLight ? (
           <InspectorObjectList
             objects={props.project.objects}
             roomId={room.id}
@@ -128,7 +140,10 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onSelect={props.onSelect}
           />
         ) : null}
-        {activeOpening ? (
+        {activeLight && props.lightActions ? (
+          <LightFixtureInspector project={props.project} light={activeLight} actions={props.lightActions}
+            onRemoved={props.onRemovedLight} />
+        ) : activeOpening ? (
           <OpeningInspector
             opening={activeOpening} wall={openingWall} positionOverride={props.openingPositionOverride}
             snapSizeMm={props.snapSizeMm} materials={props.project.materials}
@@ -143,6 +158,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdateCabinetRun={props.onUpdateCabinetRun}
             onCompleteCabinetRun={props.onCompleteCabinetRun}
             onDuplicate={props.onDuplicate} onDelete={props.onDelete}
+            onImportFinish={props.onImportFinish}
             onUpdatePanelAttachment={props.onUpdatePanelAttachment}
             onSetPanelVisible={props.onSetPanelVisible}
             onAddWallPanel={props.onAddWallPanel}
@@ -153,9 +169,9 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         {activeSurface ? (
           <SurfaceInspector surface={activeSurface} materials={props.project.materials}
             onUpdate={props.onUpdateSurface} onDelete={props.onDeleteSurface} />
-        ) : room && !activeObject && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
+        ) : room && !activeObject && !activeLight && !(props.drawRoom && activeOpening) && !(props.cabinetRun && activeObject) ? (
           <PlanArchitectureInspector project={props.project} room={room} wall={activeWall}
-            onRoomDimensions={props.onRoomDimensions} onUpdateWall={props.onUpdateWall}
+            onRoomDimensions={props.onRoomDimensions} onSetFloorBuild={props.onSetFloorBuild} onUpdateWall={props.onUpdateWall}
             onSetWallMaterial={props.onSetWallMaterial} onSetFloorMaterial={props.onSetFloorMaterial}
             onSetCeilingMaterial={props.onSetCeilingMaterial} onRaiseWalls={props.onRaiseWalls}
             onOffsetWall={props.onOffsetWall} onOffsetLoop={props.onOffsetLoop}
@@ -164,7 +180,9 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             suppressEmptyWall={!activeWall} compact={props.drawRoom}
             hideRoom={Boolean(props.drawRoom && !props.inspectRoom)}
             onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall} onJoinNodes={props.onJoinNodes}
-            onAddWallPanel={props.onAddWallPanel} />
+            onAddWallPanel={props.onAddWallPanel}
+            wallEditing={props.wallEditing}
+            lightActions={props.lightActions} onSelectLight={props.onSelectLight} />
         ) : null}
         {props.issues.length > 0 && !props.drawRoom && !props.cabinetRun && props.workflowArea !== "review" ? (
           <InspectorLayoutChecks issues={props.issues} onSelect={props.onSelect} />

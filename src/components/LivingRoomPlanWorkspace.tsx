@@ -18,6 +18,7 @@ import { LivingRoomHomeFromWorkspace } from "./livingRoomPlan/LivingRoomHomeFrom
 import { LivingRoomPlanWorkspaceBody } from "./livingRoomPlan/LivingRoomPlanWorkspaceBody";
 import { useInteriorsProjectsFixtures } from "./livingRoomPlan/InteriorsProjectsFixtures";
 import type { LivingRoomPlanWorkspaceProps } from "./livingRoomPlan/workspaceProps";
+import { deleteLightOrObject, duplicateLightOrObject } from "./livingRoomPlan/lightOnlySelectionEdit";
 import type { PlanViewControls } from "./livingRoomPlan/planViewControls";
 import { LivingRoomPlanHomeShell } from "./livingRoomPlan/LivingRoomPlanHomeShell";
 import { useSelectionFrameRequest } from "../hooks/useSelectionFrameRequest";
@@ -33,6 +34,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const [activeWallId, setActiveWallId] = useState<string | null>(null);
   const [activeOpeningId, setActiveOpeningId] = useState<string | null>(null);
   const [activeSurfaceId, setActiveSurfaceId] = useState<string | null>(null);
+  const [activeLightId, setActiveLightId] = useState<string | null>(null);
   const [inspectRoom, setInspectRoom] = useState(false);
   const [roomPolygonPointCount, setRoomPolygonPointCount] = useState(0);
   const [roomPolygonCloseRequest, setRoomPolygonCloseRequest] = useState(0);
@@ -89,12 +91,26 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     setActiveWallId((c) => (p.walls.some((w) => w.id === c) ? c : null));
     setActiveOpeningId((c) => (p.openings.some((o) => o.id === c) ? c : null));
     setActiveSurfaceId((c) => (p.surfaces.some((s) => s.id === c) ? c : null));
+    setActiveLightId((c) => {
+      const light = p.lights.find((item) => item.id === c);
+      return light && light.roomId === p.activeRoomId ? c : null;
+    });
   }, [props.project]);
   useEffect(() => {
-    if (activeWallId || activeOpeningId || activeSurfaceId) setInspectRoom(false);
+    if (activeWallId || activeOpeningId || activeSurfaceId) {
+      setInspectRoom(false);
+      setActiveLightId(null);
+    }
   }, [activeWallId, activeOpeningId, activeSurfaceId]);
 
   useSelectionFrameRequest(() => viewControlsRef.current?.fitSelection());
+  const clearArchitecture = () => {
+    setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); setInspectRoom(false); props.onSelect(null);
+  };
+  const lightEdit = {
+    activeLightId, selectedIds: props.selectedIds, lightActions: props.lightActions,
+    onDuplicate: props.onDuplicate, onDelete: props.onDelete, onClearSelection: clearArchitecture,
+  };
   useLivingRoomPlanWorkspaceHotkeys({
     project: props.project,
     projectHomeOpen: props.projectHomeOpen,
@@ -107,14 +123,12 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onView: chrome.changeWorkspaceView,
     onUndo: props.onUndo,
     onRedo: props.onRedo,
-    onDuplicate: props.onDuplicate,
-    onDelete: props.onDelete,
+    onDuplicate: () => duplicateLightOrObject(lightEdit),
+    onDelete: () => deleteLightOrObject(lightEdit),
     onRotateSelection: props.onRotateSelection,
     onNudge: props.onNudge,
-    onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); props.onSelect(id); },
-    onClearArchitecture: () => {
-      setActiveWallId(null); setActiveOpeningId(null); setActiveSurfaceId(null); setInspectRoom(false); props.onSelect(null);
-    },
+    onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); props.onSelect(id); },
+    onClearArchitecture: clearArchitecture,
     onCancelTool: () => build.selectBuildTool("select"),
     onMeasureTool: () => build.selectBuildTool("measure"),
     onOpenMaterial: () => chrome.applyChromeTool("material"),
@@ -153,8 +167,8 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         onImportError={setImportError} snapSizeMm={snapSizeMm} showGrid={showGrid}
         onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm}
         activeWallId={activeWallId} activeOpeningId={activeOpeningId} activeOpening={activeOpening}
-        activeSurfaceId={activeSurfaceId} setActiveSurfaceId={setActiveSurfaceId}
-        setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId}
+        activeSurfaceId={activeSurfaceId} activeLightId={activeLightId} setActiveSurfaceId={setActiveSurfaceId}
+        setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId} setActiveLightId={setActiveLightId}
         roomPolygonPointCount={roomPolygonPointCount} roomPolygonCloseRequest={roomPolygonCloseRequest}
         onRoomPolygonPointCount={setRoomPolygonPointCount}
         onRoomPolygonCloseRequest={() => { setRoomPolygonCloseRequest((count) => count + 1); }}

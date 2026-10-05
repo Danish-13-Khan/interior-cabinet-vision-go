@@ -62,6 +62,54 @@ export {
   type LivingRoomLightingRecipeId,
 } from "./lighting";
 export {
+  LIGHT_RENDER_SCALE,
+  LIGHT_FIXTURE_CATEGORY_LABELS,
+  LIGHT_FIXTURE_DEFINITIONS,
+  fixtureRenderIntensity,
+  fixtureEmissiveIntensity,
+  getLightFixtureDefinition,
+  isLightFixtureKind,
+  lightFixtureDefinitionFor,
+  listLightFixtureDefinitions,
+  applyLightProperties,
+  defaultFixtureColor,
+  fixtureNumber,
+  readLightProperties,
+  type LightProperties,
+  type LightFixtureCategory,
+  type LightFixtureDefaults,
+  type LightFixtureDefinition,
+  type LightFixtureKind,
+  type LightMountKind,
+} from "./lightFixtureTypes";
+export {
+  resolveLightAttachment,
+  readLightMount,
+  attachLightToObject,
+  attachLightToWall,
+  attachLightToCeiling,
+  updateLightMount,
+  detachLight,
+  type LightMount,
+  type ObjectLightMount,
+  type WallLightMount,
+  type CeilingLightMount,
+} from "./lightAttachments";
+export { WALL_STRIP_END_MARGIN_MM } from "./lightWallPose";
+export {
+  ROOM_LIGHT_FIXTURES,
+  LIGHT_PARAMETER_LIMITS,
+  isRoomLightFixture,
+  addRoomLightFixture,
+  updateRoomLightFixture,
+  removeRoomLightFixture,
+  duplicateRoomLightFixture,
+  validParameters,
+  type RoomLightFixtureKind,
+  type RoomLightPatch,
+  type RoomLightMountTarget,
+} from "./roomLightFixtures";
+export {
   createLivingRoomMaterials,
   LIVING_ROOM_MATERIAL_IDS,
 } from "./materials";
@@ -274,6 +322,13 @@ export {
   wallNeighborhoodIds,
 } from "./panelLifecycle";
 export { remapPanelsAfterWallSplit } from "./panelSplit";
+export {
+  addWallDecoration,
+  getWallDecorationPreset,
+  WALL_DECORATION_PRESETS,
+  type WallDecorationGroup,
+  type WallDecorationPreset,
+} from "./wallDecorations";
 export {
   applyMaterialColour,
   type ApplyMaterialColourArgs,

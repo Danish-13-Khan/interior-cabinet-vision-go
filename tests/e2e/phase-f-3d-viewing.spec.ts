@@ -5,6 +5,14 @@ async function openStarterRoom(page: import("@playwright/test").Page) {
   await createShellPlan(page);
 }
 
+/** Camera height / FOV live behind "View settings"; an outside click closes it. */
+async function openViewSettings(page: import("@playwright/test").Page) {
+  const settings = page.getByTestId("model-view-settings");
+  if (!(await settings.getByRole("dialog", { name: "View settings" }).count())) {
+    await settings.getByRole("button", { name: "View settings" }).click();
+  }
+}
+
 async function enterModelView(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
@@ -19,20 +27,24 @@ test("Phase F dollhouse defaults, camera panel scoping, and walkthrough hints", 
 
   const dollhouse = page.getByRole("button", { name: "Dollhouse", exact: true });
   await expect(dollhouse).toHaveClass(/is-active/);
+  await openViewSettings(page);
   await expect(page.getByLabel("Dollhouse camera controls")).toBeVisible();
   await expect(page.getByLabel("Camera height", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Camera field of view", { exact: true })).toBeVisible();
   await expect(page.locator(".lr-model-readout")).toContainText("Drag orbit");
 
   await page.getByRole("button", { name: "Perspective", exact: true }).click();
+  await openViewSettings(page);
   await expect(page.getByLabel("Dollhouse camera controls")).toHaveCount(0);
   await expect(page.locator(".lr-model-readout")).toContainText("Drag orbit");
 
   await page.getByRole("button", { name: "Walkthrough", exact: true }).click();
+  await openViewSettings(page);
   await expect(page.getByLabel("Dollhouse camera controls")).toHaveCount(0);
   await expect(page.locator(".lr-model-readout")).toContainText("WASD");
 
   await page.getByRole("button", { name: "Dollhouse", exact: true }).click();
+  await openViewSettings(page);
   await expect(page.getByLabel("Dollhouse camera controls")).toBeVisible();
 });
 

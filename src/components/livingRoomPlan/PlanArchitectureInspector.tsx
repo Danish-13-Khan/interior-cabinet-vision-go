@@ -19,7 +19,6 @@ import {
   type PlanDisplayUnit,
 } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
-import { MaterialSwatchGrid } from "./MaterialSwatchGrid";
 import { FinishUvFields } from "./FinishUvFields";
 import { HeightPresetRow } from "./HeightPresetRow";
 import { WallRaiseControls } from "./WallRaiseControls";
@@ -27,6 +26,10 @@ import { WallGeometryFields } from "./WallGeometryFields";
 import { RoomFinishFields } from "./RoomFinishFields";
 import { WallDrawingPanel } from "./WallDrawingPanel";
 import { InspectorSection } from "./InspectorSection";
+import { CeilingLightingSection } from "./CeilingLightingSection";
+import { FloorBuildSection } from "./FloorBuildSection";
+import { WallEditingPanel, type WallEditingActions } from "./WallEditingPanel";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 
 type ImportApply = { wallId?: string; floor?: boolean; ceiling?: boolean };
 
@@ -35,6 +38,7 @@ type Props = {
   room: InteriorRoomEntity;
   wall: WallEntity | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
+  onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
   unit: PlanDisplayUnit;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
@@ -53,6 +57,9 @@ type Props = {
   onDeleteWall?: (wallId: string) => void;
   onJoinNodes?: () => void;
   onAddWallPanel?: (wallId: string) => void;
+  wallEditing?: WallEditingActions;
+  lightActions?: LightFixtureActions;
+  onSelectLight?: (id: string) => void;
 };
 
 export function PlanArchitectureInspector(props: Props) {
@@ -77,6 +84,10 @@ export function PlanArchitectureInspector(props: Props) {
       <NumberField label="Depth · mm" value={room.dimensions.depthMm}
         onChange={(depthMm) => props.onRoomDimensions({ ...room.dimensions, depthMm })} />
       <p className="lr-authoring-hint">Select Draw wall, then click two points on the plan.</p>
+      {props.lightActions && props.onSelectLight ? (
+        <CeilingLightingSection actions={props.lightActions} onSelectLight={props.onSelectLight} />
+      ) : null}
+      {props.onSetFloorBuild ? <FloorBuildSection room={room} onChange={props.onSetFloorBuild} /> : null}
       <InspectorSection title="Advanced" testId="inspector-room-advanced">
         <div className="lr-room-preview" aria-label={`${room.name} room preview`}>
           <svg viewBox="0 0 180 110" aria-hidden="true"><path d={previewPath} />
@@ -97,6 +108,13 @@ export function PlanArchitectureInspector(props: Props) {
         <span className="lr-wall-preview-line" style={{ background: props.project.materials.find((material) => material.id === wall.materialId)?.color ?? "#7d8c80" }} />
         <strong>{formatPlanDimension(wallLengthMm(wall), props.unit)}</strong><small>Length</small>
       </div>
+      {props.onAddWallPanel ? (
+        <div className="lr-wall-panel-actions">
+          <button type="button" data-testid="add-wall-panel" onClick={() => props.onAddWallPanel?.(wall.id)}>
+            Add Wall Panel
+          </button>
+        </div>
+      ) : null}
       <NumberField label="Thickness" value={wall.thicknessMm}
         onChange={(thicknessMm) => props.onUpdateWall(wall.id, { thicknessMm })} />
       <HeightPresetRow label="Thickness" values={STANDARD_WALL_THICKNESSES_MM} value={wall.thicknessMm}
@@ -107,11 +125,10 @@ export function PlanArchitectureInspector(props: Props) {
         onChange={(heightMm) => props.onUpdateWall(wall.id, { heightMm })} />
       <WallRaiseControls wall={wall} roomWallIds={roomWallIds} heightMm={wall.heightMm}
         onRaise={props.onRaiseWalls} onOffset={(offsetMm) => props.onOffsetWall(wall.id, offsetMm)} />
-      <h4>Wall material</h4>
-      <MaterialSwatchGrid materials={props.project.materials} activeMaterialId={wall.materialId ?? null} compact
-        onPick={(materialId) => props.onSetWallMaterial(wall.id, materialId)}
-        onImport={(file) => props.onImportFinish(file, { wallId: wall.id })} />
-      <button type="button" className="lr-clear-material" onClick={() => props.onSetWallMaterial(wall.id, null)}>Clear wall material</button>
+      <WallEditingPanel project={props.project} wall={wall} editing={props.wallEditing}
+        onSplitWall={props.onSplitWall} onDeleteWall={props.onDeleteWall}
+        onSetWallMaterial={props.onSetWallMaterial} onImportFinish={props.onImportFinish}
+        lightActions={props.lightActions} onSelectLight={props.onSelectLight} />
       <InspectorSection title="Advanced" testId="inspector-wall-advanced">
         {props.onSplitWall ? (
           <WallDrawingPanel compact canEdit thicknessMm={wall.thicknessMm}
@@ -121,13 +138,6 @@ export function PlanArchitectureInspector(props: Props) {
             onJoinNodes={() => props.onJoinNodes?.()} />
         ) : null}
         <WallGeometryFields wall={wall} unit={props.unit} onChange={(patch) => props.onSetWallPlan(wall.id, patch)} />
-        {props.onAddWallPanel ? (
-          <div className="lr-wall-panel-actions">
-            <button type="button" data-testid="add-wall-panel" onClick={() => props.onAddWallPanel?.(wall.id)}>
-              Add Wall Panel
-            </button>
-          </div>
-        ) : null}
         {finish && finishMapUrl(finish) ? (
           <FinishUvFields
             compact

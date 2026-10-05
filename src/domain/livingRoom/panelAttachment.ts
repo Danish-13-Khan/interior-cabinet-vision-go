@@ -15,10 +15,21 @@ export type PanelAttachment = {
 
 const PANEL_CATEGORIES = new Set(["wall-panel", "feature-wall"]);
 
+function hasAlongMm(object: InteriorObjectEntity) {
+  const raw = object.extensions?.wallAttachment;
+  if (!raw || typeof raw !== "object") return false;
+  return typeof (raw as { alongMm?: unknown }).alongMm === "number";
+}
+
 export function isWallPanelObject(object: InteriorObjectEntity): boolean {
   if (PANEL_CATEGORIES.has(object.category)) return true;
-  return object.catalogItemId === "living:decorative-panel"
-    || object.catalogItemId === "living:feature-wall-fluted";
+  if (
+    object.catalogItemId === "living:decorative-panel"
+    || object.catalogItemId === "living:feature-wall-fluted"
+  ) return true;
+  // Attached mirrors (and any other object) join the panel contract via alongMm.
+  // `mirror` stays out of PANEL_CATEGORIES so unattached mirrors keep free placement.
+  return hasAlongMm(object);
 }
 
 export function readPanelAttachment(object: InteriorObjectEntity): PanelAttachment | null {

@@ -6,8 +6,11 @@ import {
   shouldProjectFillCastShadow,
 } from "../../domain/livingRoom/directionalCasterBudget";
 import { shadowMapSizePair } from "./shadowMapSizePair";
+import { LIGHT_RENDER_SCALE } from "../../domain/livingRoom/lightFixtureTypes";
+import { projectLightIsMounted } from "../../domain/livingRoom/fixtureLightBudget";
 import { isRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
 import { RoomLightFixture } from "./RoomLightFixture";
+import { ensureRectAreaLightSupport } from "./rectAreaLightSupport";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
@@ -19,27 +22,52 @@ export function SceneProjectLights({
   shadowMapSize,
   shadowRadius,
   intensityScale = 1,
+  roomLightScale = 1,
   shadowCamera,
   maxDirectionalCasters,
+  selectedLightId = null,
+  onSelectLight,
+  onMoveLight,
+  onLightDragState,
 }: {
   scene: CompiledLivingRoomScene;
   shadowMapSize: number;
   shadowRadius: number;
   intensityScale?: number;
+  /** Lighting mood: scales recipe lights only. Placed fixtures keep their own output. */
+  roomLightScale?: number;
   /** Policy A override; Studio omits → STUDIO_PROJECT_SHADOW. */
   shadowCamera?: ShadowCameraTuning;
   /** Phase C Model View budget; Studio omits → unlimited project flags. */
   maxDirectionalCasters?: number;
+  /** Phase 2 plumbs selection. Callers omit both until a light can be picked. */
+  selectedLightId?: string | null;
+  onSelectLight?: (id: string) => void;
+  onMoveLight?: (id: string, point: { x: number; y: number; z: number }) => void;
+  onLightDragState?: (dragging: boolean) => void;
 }) {
+  ensureRectAreaLightSupport();
+  const recipeScale = intensityScale * roomLightScale;
   const cam = shadowCamera ?? STUDIO_PROJECT_SHADOW;
   const half = cam.frustumHalfExtent ?? 7;
   const fillCast = shouldProjectFillCastShadow(maxDirectionalCasters);
   let directionalCasterCount = 0;
   return (
     <>
-      {scene.lights.filter((light) => light.enabled || isRoomLightFixture(light)).map((light) => {
+      {scene.lights.filter((light) => projectLightIsMounted(light)).map((light) => {
         if (isRoomLightFixture(light)) {
-          return <RoomLightFixture key={light.id} light={light} intensityScale={intensityScale} castShadow={fillCast} />;
+          return (
+            <RoomLightFixture
+              key={light.id}
+              light={light}
+              intensityScale={intensityScale}
+              castShadow={fillCast}
+              selected={selectedLightId === light.id}
+              onSelect={onSelectLight}
+              onMove={onMoveLight}
+              onDragState={onLightDragState}
+            />
+          );
         }
         const position: [number, number, number] = [
           light.position.x / 1000,
@@ -47,7 +75,7 @@ export function SceneProjectLights({
           light.position.z / 1000,
         ];
         if (light.kind === "ambient") {
-          return <ambientLight key={light.id} color={light.color} intensity={light.intensity * 0.58 * intensityScale} />;
+          return <ambientLight key={light.id} color={light.color} intensity={light.intensity * LIGHT_RENDER_SCALE.recipeAmbientScale * recipeScale} />;
         }
         if (light.kind === "directional") {
           const castShadow = shouldProjectDirectionalCast(
@@ -61,7 +89,7 @@ export function SceneProjectLights({
               key={light.id}
               position={position}
               color={light.color}
-              intensity={light.intensity * 0.86 * intensityScale}
+              intensity={light.intensity * LIGHT_RENDER_SCALE.recipeDirectionalScale * recipeScale}
               castShadow={castShadow}
               shadow-mapSize={shadowMapSizePair(shadowMapSize)}
               shadow-bias={cam.bias}
@@ -82,7 +110,7 @@ export function SceneProjectLights({
               key={light.id}
               position={position}
               color={light.color}
-              intensity={light.intensity * intensityScale}
+              intensity={light.intensity * recipeScale}
               distance={Number(light.parameters.rangeMm ?? 5000) / 1000}
               castShadow={fillCast}
               shadow-radius={shadowRadius}
@@ -95,7 +123,7 @@ export function SceneProjectLights({
               key={light.id}
               position={position}
               color={light.color}
-              intensity={light.intensity * intensityScale}
+              intensity={light.intensity * recipeScale}
               angle={Math.PI / 4}
               penumbra={0.5}
               castShadow={fillCast}
@@ -109,7 +137,7 @@ export function SceneProjectLights({
             position={position}
             rotation={[degrees(light.rotation.x), degrees(light.rotation.y), degrees(light.rotation.z)]}
             color={light.color}
-            intensity={light.intensity * intensityScale}
+            intensity={light.intensity * recipeScale}
             width={Number(light.parameters.widthMm ?? 1200) / 1000}
             height={Number(light.parameters.heightMm ?? 900) / 1000}
           />

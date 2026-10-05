@@ -306,6 +306,7 @@ function App() {
             onApplyMaterialToSelection={c.applyMaterialToSelection}
             onApplyMaterialColour={c.applyMaterialColour}
             onAddWallPanel={c.addLivingRoomWallPanel}
+            onAddWallDecoration={c.addLivingRoomWallDecoration}
             onUpdatePanelAttachment={c.updateLivingRoomPanelAttachment}
             onSetPanelVisible={c.setLivingRoomPanelVisible}
             onSetLayerVisibility={c.setLivingRoomLayerVisibility}
@@ -322,6 +323,7 @@ function App() {
             preDropReason={c.livingRoomPreDropReason}
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
+            onSetFloorBuild={c.setLivingRoomFloorBuild}
             onActiveRoom={c.setActiveLivingRoom}
             onRenameRoom={c.renameLivingRoom}
             onDeleteRoom={c.deleteLivingRoom}
@@ -352,6 +354,14 @@ function App() {
             onApplyStyle={c.setLivingRoomStyle}
             onRenderSettingsChange={c.setLivingRoomRenderSettings}
             onPatchDocument={c.patchLivingRoomDocument}
+            lightActions={{
+              addLight: c.addLivingRoomLight,
+              updateLight: c.updateLivingRoomLight,
+              removeLight: c.removeLivingRoomLight,
+              duplicateLight: c.duplicateLivingRoomLight,
+              setLightMount: c.setLivingRoomLightMount,
+              moveLight: c.moveLivingRoomLight,
+            }}
             onEnterEngineering={() => {
               const bridge = resolvePostHandoffBridge();
               // The handoff commit already applies the adapted project and its

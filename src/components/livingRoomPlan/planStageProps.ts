@@ -15,6 +15,7 @@ import type { LivingRoomWorkspaceView } from "./workspaceProps";
 import type { InteriorsDrawRoomCommands } from "./interiorsDrawRoomCommands";
 import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands";
 import type { InteriorsPresentCommands } from "./interiorsPresentCommands";
+import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 
 export type LivingRoomPlanStageProps = {
   project: InteriorProject;
@@ -39,6 +40,9 @@ export type LivingRoomPlanStageProps = {
   activeWallId: string | null;
   activeOpeningId: string | null;
   activeSurfaceId: string | null;
+  activeLightId: string | null;
+  onSelectLight: (lightId: string) => void;
+  lightActions: LightFixtureActions;
   surfaceMaterialId: string;
   onSelectWall: (wallId: string) => void;
   onSelectOpening: (openingId: string) => void;
@@ -110,4 +114,5 @@ export type LivingRoomPlanStageProps = {
   onBuildTool?: (tool: BuildTool) => void;
   onWorkspaceView?: (view: LivingRoomWorkspaceView) => void;
   onAddWallPanel?: (wallId: string) => void;
+  onCutOpening?: (wallId: string) => void;
 };

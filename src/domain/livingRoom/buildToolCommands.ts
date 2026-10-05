@@ -1,4 +1,4 @@
-import type { OpeningEntity, Point2Mm, RoomDrawingRequest, Size3Mm } from "../interiorProject";
+import type { OpeningEntity, OpeningKind, Point2Mm, RoomDrawingRequest, Size3Mm } from "../interiorProject";
 
 export type OpeningCommandPatch = Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>;
 export type WallCommandPatch = { thicknessMm?: number; heightMm?: number };
@@ -44,7 +44,7 @@ export type BuildCommand =
   | { type: "joinCoincidentNodes" }
   | { type: "moveNode"; nodeId: string; position: Point2Mm }
   | { type: "moveWall"; wallId: string; delta: Point2Mm }
-  | { type: "placeOpening"; wallId: string; kind: "door" | "window"; offsetMm?: number; catalogItemId?: string }
+  | { type: "placeOpening"; wallId: string; kind: OpeningKind; offsetMm?: number; catalogItemId?: string }
   | { type: "moveOpening"; openingId: string; offsetMm: number }
   | { type: "resizeOpening"; openingId: string; widthMm: number; offsetMm?: number }
   | { type: "updateOpening"; openingId: string; patch: OpeningCommandPatch }
@@ -67,7 +67,7 @@ export type BuildCommandHandlers = {
   joinCoincidentNodes: () => void;
   moveNode: (nodeId: string, position: Point2Mm) => void;
   moveWall: (wallId: string, delta: Point2Mm) => void;
-  placeOpening: (wallId: string, kind: "door" | "window", offsetMm?: number, catalogItemId?: string) => void;
+  placeOpening: (wallId: string, kind: OpeningKind, offsetMm?: number, catalogItemId?: string) => void;
   updateOpening: (openingId: string, patch: OpeningCommandPatch) => void;
   deleteOpening: (openingId: string) => void;
   requestUnderlayUpload: () => void;

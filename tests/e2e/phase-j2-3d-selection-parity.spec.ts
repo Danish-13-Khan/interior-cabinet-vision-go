@@ -30,10 +30,15 @@ async function fitRoom(page: Page) {
   await expect(page.getByTestId("lr-model-viewport")).toBeVisible();
 }
 
-/** Top framing (ceiling hidden) keeps wall-backed cabinets first-hit. */
+/**
+ * The countertop is a non-selectable occluder on top of every cabinet, so a
+ * top-down ray never reaches the cabinet first. Front sees the doors of the
+ * back-wall cabinet directly once cutaway removes the near wall.
+ */
 async function frameForObjectPick(page: Page) {
-  await page.getByTestId("model-view-top").click();
-  await expect(page.getByTestId("lr-model-viewport")).toHaveAttribute("data-view-preset", "top");
+  await page.getByTestId("model-view-front").click();
+  await expect(page.getByTestId("lr-model-viewport")).toHaveAttribute("data-view-preset", "front");
+  await fitRoom(page);
 }
 
 /**
