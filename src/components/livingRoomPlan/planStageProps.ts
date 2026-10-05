@@ -63,7 +63,7 @@ export type LivingRoomPlanStageProps = {
   roomPolygonCloseRequest: number;
   onRoomPolygonPointCount: (count: number) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onUndo: () => void;
   onRedo: () => void;

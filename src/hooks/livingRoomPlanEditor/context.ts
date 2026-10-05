@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { CabinetProject } from "../../domain/cabinetDimensions";
+import { syncHostedAppliances } from "../../domain/hostedAppliances";
 import { cabinetProjectFromInteriorProject, type InteriorProject } from "../../domain/interiorProject";
 import type { CommitProjectChange } from "../projectCommit";
 
@@ -43,7 +44,7 @@ export function createCommitDocument(commitProjectChange: CommitProjectChange): 
       const current = currentLivingRoomDocument(currentProject);
       if (!current) return null;
       const next = {
-        ...update(current),
+        ...syncHostedAppliances(update(current), current),
         updatedAt: new Date().toISOString(),
       };
       const compatible = cabinetProjectFromInteriorProject(next);

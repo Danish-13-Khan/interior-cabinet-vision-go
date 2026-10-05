@@ -6,6 +6,8 @@ export type PlanReadabilitySettings = {
   unit: PlanDisplayUnit;
   alwaysShowWallLengths: boolean;
   visualStyle: PlanVisualStyle;
+  /** Automatic site centre line; drawn only when the plan has no guides. */
+  showCenterLine?: boolean;
 };
 
 export type PlanDimensionPair = {
@@ -19,6 +21,7 @@ export const DEFAULT_PLAN_READABILITY: PlanReadabilitySettings = {
   unit: "mm",
   alwaysShowWallLengths: false,
   visualStyle: "fill",
+  showCenterLine: true,
 };
 
 function trimmed(value: number, digits: number) {

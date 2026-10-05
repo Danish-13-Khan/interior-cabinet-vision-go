@@ -13,8 +13,16 @@ export function PlanArchitectureLayer(props: {
   onPaper: (event: ReactPointerEvent<SVGRectElement>) => void; onWall: (event: ReactPointerEvent<SVGLineElement>, wallId: string) => void;
   /** Select-mode floor pointer: start marquee / click-select room (do not stopPropagation to paper alone). */
   onFloor?: (event: ReactPointerEvent<SVGPathElement>) => void;
+  /** Live pan while a Move underlay drag is in progress. */
+  underlayOffset?: { xMm: number; zMm: number } | null;
+  /** Set only while Move underlay is on and the underlay is unlocked. */
+  onUnderlayPointerDown?: (event: ReactPointerEvent<SVGImageElement>) => void;
+  /** Automatic site centre line; the caller hides it when guides exist. */
+  showCenterLine?: boolean;
 }) {
   const underlay = getLivingRoomPlanUnderlay(props.project);
+  const underlayX = props.underlayOffset?.xMm ?? underlay?.xMm ?? 0;
+  const underlayZ = props.underlayOffset?.zMm ?? underlay?.zMm ?? 0;
   const materials = new Map(props.project.materials.map((material) => [material.id, material]));
   const floorId = typeof props.room?.extensions?.floorMaterialId === "string" ? props.room.extensions.floorMaterialId : "";
   const floorColor = materials.get(floorId)?.color ?? "#e8dfd0";
@@ -39,14 +47,19 @@ export function PlanArchitectureLayer(props: {
     </defs>
     <rect data-plan-paper x={paperBounds.minX-1000} y={paperBounds.minZ-1000} width={paperBounds.maxX-paperBounds.minX+2000} height={paperBounds.maxZ-paperBounds.minZ+2000} className="lr-plan-paper" onPointerDown={props.onPaper} />
     {underlay && !underlay.hidden ? <image href={underlay.dataUrl} x={-underlay.widthMm / 2} y={-underlay.heightMm / 2} width={underlay.widthMm} height={underlay.heightMm}
-      opacity={underlay.opacity} preserveAspectRatio="none" className="lr-plan-underlay-image" data-testid="lr-plan-underlay-image" pointerEvents="none"
-      transform={`translate(${underlay.xMm ?? 0} ${underlay.zMm ?? 0}) rotate(${underlay.rotationDeg ?? 0})`} /> : null}
+      opacity={underlay.opacity} preserveAspectRatio="none" data-testid="lr-plan-underlay-image"
+      className={`lr-plan-underlay-image${props.onUnderlayPointerDown ? " is-movable" : ""}`}
+      pointerEvents={props.onUnderlayPointerDown ? "visiblePainted" : "none"}
+      onPointerDown={props.onUnderlayPointerDown}
+      transform={`translate(${underlayX} ${underlayZ}) rotate(${underlay.rotationDeg ?? 0})`} /> : null}
     {props.room ? <path data-room-floor={props.room.id} d={floorPath} fill={floorColor} fillRule="evenodd"
       opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onFloor ? "fill" : "none"}
       onPointerDown={(event) => { if (!props.onFloor) return; props.onFloor(event); }} /> : null}
     {props.showGrid ? <rect className="lr-plan-grid" data-testid="lr-plan-grid" x={bounds.minX} y={bounds.minZ} width={bounds.widthMm} height={bounds.depthMm} fill="url(#lr-grid-major)" clipPath={props.room ? `url(#${clipId})` : undefined} pointerEvents="none" /> : null}
-    <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" pointerEvents="none" />
-    <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />
+    {props.showCenterLine !== false ? <>
+      <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" data-testid="lr-auto-center-line" pointerEvents="none" />
+      <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />
+    </> : null}
     {props.project.walls.filter((wall) => wall.visible).map((wall) => {
       const start = (wall.startNodeId && props.previewNodes?.get(wall.startNodeId)) || wall.start;
       const end = (wall.endNodeId && props.previewNodes?.get(wall.endNodeId)) || wall.end;

@@ -1,12 +1,8 @@
 import type { CabinetConfig } from "../cabinetDimensions";
 import { clampCabinetConfig } from "../cabinetDimensions";
 import { resolveCabinetComposition } from "../cabinetComposition";
-import {
-  BACK_PANEL_RULES,
-  DEFAULT_BUILD_RULES,
-  resolveCabinetMaterialSpec,
-  type CabinetBuildRules,
-} from "../materialSystem";
+import { BACK_PANEL_RULES, resolveCabinetMaterialSpec } from "../materialSystem";
+import { resolveCabinetBuildRules } from "./buildRules";
 import {
   SHELF_PIN_SETBACK_MM,
   getCaseJoineryNote,
@@ -16,15 +12,13 @@ import { getInnerMeasurements } from "./helpers";
 import { appendCaseParts } from "./partsCase";
 import { appendInteriorParts } from "./partsInterior";
 import { appendExtraParts } from "./partsExtras";
+import { appendGolaNotchNotes } from "./golaParts";
 import type { ConstructionContext } from "./context";
 import type { CabinetConstruction, CabinetPart } from "./types";
 
 export function createCabinetConstruction(config: CabinetConfig): CabinetConstruction {
   const safeConfig = clampCabinetConfig(config);
-  const buildRules: CabinetBuildRules = {
-    ...DEFAULT_BUILD_RULES,
-    ...(safeConfig.buildRules ?? {}),
-  };
+  const buildRules = resolveCabinetBuildRules(safeConfig);
   const constructionSpec = normalizeConstructionSpec(
     safeConfig.type,
     safeConfig.construction,
@@ -47,15 +41,6 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
   const faceFrameEnabled = constructionSpec.carcassStyle === "face-frame";
   const stile = constructionSpec.faceFrame.stileWidthMm;
   const rail = constructionSpec.faceFrame.railWidthMm;
-  const faceOpeningWidth = faceFrameEnabled
-    ? Math.max(120, dimensions.width - stile * 2)
-    : innerWidth;
-  const faceOpeningHeight = faceFrameEnabled
-    ? Math.max(
-        120,
-        dimensions.height - rail * 2 - (safeConfig.toeKickHeight > 0 ? safeConfig.toeKickHeight : 0),
-      )
-    : Math.max(120, dimensions.height - safeConfig.toeKickHeight - dimensions.boardThickness * 2);
   const parts: CabinetPart[] = [];
 
   const ctx: ConstructionContext = {
@@ -77,14 +62,13 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
     faceFrameEnabled,
     stile,
     rail,
-    faceOpeningWidth,
-    faceOpeningHeight,
     parts,
   };
 
   appendCaseParts(ctx);
   appendInteriorParts(ctx);
   appendExtraParts(ctx);
+  appendGolaNotchNotes(parts, safeConfig);
 
   return {
     buildRules,

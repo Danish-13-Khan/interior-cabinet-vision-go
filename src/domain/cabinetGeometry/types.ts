@@ -8,8 +8,10 @@ export type CabinetPanelGeometry = {
   label: string;
   size: Vector3Tuple;
   position: Vector3Tuple;
-  material: "board" | "back" | "door";
+  material: CabinetPanelMaterial;
 };
+
+export type CabinetPanelMaterial = "board" | "back" | "door" | "metal" | "glass";
 
 export type CabinetDimensionGuide = {
   id: "width" | "height" | "depth";

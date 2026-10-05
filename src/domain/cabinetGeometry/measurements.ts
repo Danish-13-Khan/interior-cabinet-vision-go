@@ -48,13 +48,6 @@ export function getCabinetMeasurements(config: CabinetConfig) {
   const usableShelfDepth =
     outerDepth - backPanelThickness - millimetresToMetres(30);
   const shelfCenterZ = -outerDepth / 2 + backPanelThickness + usableShelfDepth / 2;
-  const frontDoorGap = millimetresToMetres(4);
-  const doorBottomY =
-    -outerHeight / 2 +
-    (toeKickHeightM > 0 ? toeKickHeightM + frontDoorGap : frontDoorGap);
-  const doorTopY = outerHeight / 2 - frontDoorGap;
-  const doorHeight = doorTopY - doorBottomY;
-  const doorWidth = (outerWidth - frontDoorGap * 3) / 2;
 
   return {
     safeConfig,
@@ -80,8 +73,5 @@ export function getCabinetMeasurements(config: CabinetConfig) {
     backPanelY,
     usableShelfDepth,
     shelfCenterZ,
-    doorWidth,
-    doorHeight,
-    doorCenterY: doorBottomY + doorHeight / 2,
   };
 }

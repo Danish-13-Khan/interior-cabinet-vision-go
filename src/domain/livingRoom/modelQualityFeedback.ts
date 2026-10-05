@@ -5,6 +5,7 @@ import type { InteriorProject } from "../interiorProject";
 import { cabinetFromObject } from "../interiorProject/cabinetAdapterCabinets";
 import { compileLivingRoomObjectNode, getLivingRoomObjectAdapter } from "./sceneAdapters";
 import { compileCabinet, isCabinetGeometryFallback } from "./sceneAdaptersCabinet";
+import { collectGolaReviewIssues } from "./golaRunChecks";
 
 export const MODEL_GLB_FALLBACK_EVENT = "cabinet-studio-model-glb-fallback";
 
@@ -102,7 +103,7 @@ export function collectModelQualityIssues(project: InteriorProject): ModelQualit
     }
   }
 
-  return issues;
+  return [...issues, ...collectGolaReviewIssues(project)];
 }
 
 export function modelQualityBlockingCount(issues: readonly ModelQualityIssue[]): number {

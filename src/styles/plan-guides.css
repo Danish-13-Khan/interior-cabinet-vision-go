@@ -1,0 +1,89 @@
+/* Plan guides / grid axes (PLAN_IMPORT_AND_MODULAR_GAPS_ROADMAP Phase 3). */
+
+.lr-plan-svg .lr-plan-guide .lr-center-line.lr-plan-guide-line {
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-dasharray: 70 35 15 35;
+}
+
+.lr-plan-svg .lr-plan-guide.is-selected .lr-center-line.lr-plan-guide-line {
+  stroke-width: 18;
+}
+
+.lr-plan-svg .lr-plan-guide-hit {
+  stroke: transparent;
+  fill: none;
+  cursor: grab;
+}
+
+.lr-plan-svg .lr-plan-guide.is-locked .lr-plan-guide-hit {
+  cursor: pointer;
+}
+
+.lr-plan-svg .lr-plan-guide-bubble circle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 14;
+}
+
+.lr-plan-svg .lr-plan-guide.is-selected .lr-plan-guide-bubble circle {
+  fill: var(--accent);
+}
+
+.lr-plan-svg .lr-plan-guide-bubble text {
+  fill: var(--accent);
+  font-size: 220px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.lr-plan-svg .lr-plan-guide.is-selected .lr-plan-guide-bubble text {
+  fill: var(--surface);
+}
+
+.lr-plan-svg.is-placing-guide {
+  cursor: crosshair;
+}
+
+.lr-plan-guides-panel {
+  display: grid;
+  gap: 6px;
+}
+
+.lr-plan-guides-panel small {
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+}
+
+.lr-plan-guide-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 6px;
+  align-items: end;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+
+.lr-plan-guide-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+.lr-plan-guide-axis {
+  align-self: center;
+  color: var(--accent);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.lr-plan-guide-label-field {
+  display: grid;
+  gap: 2px;
+}
+
+.lr-plan-guide-lock {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: var(--text-xs);
+}

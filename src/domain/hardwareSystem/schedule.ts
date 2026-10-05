@@ -1,4 +1,5 @@
 import type { CabinetInstance, CabinetType } from "../cabinetDimensions";
+import { worktopCutoutNote } from "./insertParameters";
 import { normalizeCabinetHardware } from "./normalize";
 import type {
   ApplianceInsertKind,
@@ -30,6 +31,7 @@ export function createHardwareSchedule(
       cabinetName: cabinet.name,
       mark,
       insertKind: hardware.insertKind,
+      notes: [worktopCutoutNote(hardware)].filter((note): note is string => note !== null),
       lines,
       totalCost: lines.reduce((sum, line) => sum + line.totalCost, 0),
     });
@@ -50,7 +52,7 @@ export function createHardwareSchedule(
         });
         continue;
       }
-      existing.quantity += line.quantity;
+      existing.quantity = Math.round((existing.quantity + line.quantity) * 100) / 100;
       existing.totalCost += line.totalCost;
       if (!existing.markSet.has(mark)) {
         existing.markSet.add(mark);

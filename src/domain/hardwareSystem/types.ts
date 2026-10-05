@@ -6,7 +6,11 @@ export type HardwareKind =
   | "bracket"
   | "shelf-pin"
   | "accessory"
-  | "consumable";
+  | "consumable"
+  /** Sold by the metre (gola profiles); quantity is metres. */
+  | "profile"
+  /** Door glazing; quantity is square metres. */
+  | "glass";
 
 export type HardwareItem = {
   id: string;
@@ -71,6 +75,8 @@ export type CabinetHardwareSummary = {
   cabinetName: string;
   mark: string;
   insertKind: ApplianceInsertKind;
+  /** Report notes such as the worktop cut-out (the cut list itself stays rectangular). */
+  notes: string[];
   lines: HardwareLine[];
   totalCost: number;
 };

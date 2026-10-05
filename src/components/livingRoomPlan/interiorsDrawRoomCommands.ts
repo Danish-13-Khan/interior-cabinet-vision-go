@@ -23,4 +23,5 @@ export type InteriorsDrawRoomManageProps = {
   tool: InteriorsChromeTool;
   activeBuildTool?: BuildTool;
   commands: InteriorsDrawRoomCommands;
+  onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
 };

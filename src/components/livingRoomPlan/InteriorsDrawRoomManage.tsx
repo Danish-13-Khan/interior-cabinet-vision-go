@@ -6,6 +6,7 @@ import {
 import { createPortal } from "react-dom";
 import { BuildRoomManager } from "./BuildRoomManager";
 import { useInspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
+import { PlanGuidesPanel } from "./PlanGuidesPanel";
 import { PlanUnderlayControls } from "./PlanUnderlayControls";
 import { SiteMeasureChecklist } from "./SiteMeasureChecklist";
 import type { InteriorsDrawRoomManageProps } from "./interiorsDrawRoomCommands";
@@ -15,6 +16,7 @@ export function InteriorsDrawRoomManage({
   tool,
   activeBuildTool,
   commands,
+  onPatchDocument,
 }: InteriorsDrawRoomManageProps) {
   const showArch = interiorsDrawRoomShowArchitecture(tool, activeBuildTool);
   const showUnderlay = interiorsDrawRoomShowUnderlay(tool);
@@ -51,6 +53,7 @@ export function InteriorsDrawRoomManage({
             ))}
           </div>
         ) : null}
+        {onPatchDocument ? <PlanGuidesPanel project={project} onPatchDocument={onPatchDocument} /> : null}
         {showUnderlay ? (
           <>
             <PlanUnderlayControls
@@ -58,6 +61,8 @@ export function InteriorsDrawRoomManage({
               onChange={commands.onSetPlanUnderlay}
               onReplace={commands.onReplaceUnderlay}
               onCalibrate={() => commands.onBuildTool("calibrate-underlay")}
+              moveActive={activeBuildTool === "move-underlay"}
+              onToggleMove={() => commands.onBuildTool(activeBuildTool === "move-underlay" ? "select" : "move-underlay")}
               onSuggestDwgWalls={commands.onSuggestDwgWalls}
               onPlaceDwgCabinets={commands.onPlaceDwgCabinets}
             />

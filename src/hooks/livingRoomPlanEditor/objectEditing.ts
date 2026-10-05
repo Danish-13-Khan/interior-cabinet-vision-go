@@ -14,6 +14,7 @@ import {
   setLivingRoomObjectParameters,
   type LivingRoomAlignMode,
 } from "../../domain/livingRoom";
+import { setLivingRoomObjectRotation } from "../../domain/livingRoom/objectRotation";
 import {
   paintLivingRoomObjectSlot as commitObjectPaint,
   paintLivingRoomSelection as commitSelectionPaint,
@@ -139,7 +140,7 @@ export function objectEditingCommands(ctx: EditorCommandContext) {
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: (objectId: string, rotationY: number) => {
       commitDocument(
-        (current) => rotateLivingRoomObject(current, objectId, rotationY),
+        (current) => setLivingRoomObjectRotation(current, objectId, rotationY),
         "Changed object rotation.",
       );
     },
@@ -150,9 +151,10 @@ export function objectEditingCommands(ctx: EditorCommandContext) {
       if (selectedObjectIds.length === 0) return;
       commitSelectionPaint(commitDocument, selectedObjectIds, materialId, slotName, onStatus);
     },
-    setInteriorObjectParameters: (objectId: string, patch: Record<string, string | number | boolean>) => {
+    setInteriorObjectParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => {
+      const ids = typeof objectId === "string" ? [objectId] : objectId;
       commitDocument(
-        (current) => setLivingRoomObjectParameters(current, objectId, patch),
+        (current) => ids.reduce((next, id) => setLivingRoomObjectParameters(next, id, patch), current),
         "Updated cabinet configuration.",
       );
     },

@@ -23,7 +23,7 @@ export type LivingRoomModelViewProps = {
   onTransformPreviewChange?: (preview: ModelTransformPreview | null) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
   presentation?: boolean;
   showStylePalette?: boolean;

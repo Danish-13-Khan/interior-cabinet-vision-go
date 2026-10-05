@@ -4,7 +4,10 @@ import type {
   Point3Mm,
   Size3Mm,
 } from "../../domain/interiorProject";
+import { isPlaceableAppliance } from "../../domain/hostedAppliances";
+import { ApplianceHostSection } from "./ApplianceHostSection";
 import { InspectorModelExtrasSlot } from "./InspectorPlanSettingsSlot";
+import { InspectorRotationField } from "./InspectorRotationField";
 import { LivingRoomObjectInspector } from "./LivingRoomObjectInspector";
 import { NumberField } from "./NumberField";
 import { isWallCabinetObject, resolveWallMountHeightMm } from "../../domain/livingRoom/cabinetSceneMount";
@@ -17,7 +20,7 @@ type Props = {
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
-  onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
+  onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onCompleteCabinetRun?: (runId: string) => void;
   onUpdateCabinetRun: (runId: string, options: {
     gapMm?: number;
@@ -53,6 +56,9 @@ export function InspectorObjectSection(props: Props) {
   const positionEditor = (
     <>
     {props.mode === "model" ? <InspectorModelExtrasSlot /> : null}
+    {isPlaceableAppliance(object) ? (
+      <ApplianceHostSection object={object} project={props.project} onSetParameters={props.onSetParameters} />
+    ) : null}
     <details className="lr-inspector-section lr-transform-editor" open={props.mode === "model"}>
       <summary>Position</summary>
       <div className="lr-inspector-section-body lr-position-fields">
@@ -62,16 +68,7 @@ export function InspectorObjectSection(props: Props) {
           onChange={(value) => props.onMove(object.id, { ...position, y: value })} />
         <NumberField label="Z" value={position.z}
           onChange={(value) => props.onMove(object.id, { ...position, z: value })} />
-        <label className="lr-select-field">
-          <span>Rotation</span>
-          <select value={object.rotation.y}
-            onChange={(event) => props.onSetRotation(object.id, Number(event.target.value))}>
-            <option value="0">0°</option><option value="45">45°</option>
-            <option value="90">90°</option><option value="135">135°</option>
-            <option value="180">180°</option><option value="225">225°</option>
-            <option value="270">270°</option><option value="315">315°</option>
-          </select>
-        </label>
+        <InspectorRotationField key={object.id} object={object} onSetRotation={props.onSetRotation} />
       </div>
     </details>
     </>

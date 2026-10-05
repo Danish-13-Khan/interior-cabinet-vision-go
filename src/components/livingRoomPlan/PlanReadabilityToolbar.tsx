@@ -15,6 +15,10 @@ export function PlanReadabilityToolbar({ settings, onChange, planMarksEnabled, o
     <label title="Show every wall length">
       <input type="checkbox" aria-label="Show all wall lengths" checked={settings.alwaysShowWallLengths} onChange={(event) => onChange({ alwaysShowWallLengths: event.target.checked })} /> Walls
     </label>
+    <label title="Show the automatic centre line when the plan has no guides">
+      <input type="checkbox" aria-label="Show centre line" data-testid="lr-center-line-toggle"
+        checked={settings.showCenterLine !== false} onChange={(event) => onChange({ showCenterLine: event.target.checked })} /> Centre line
+    </label>
     {onPlanMarks ? (
       <label title="Show compact plan marks (B600)">
         <input
