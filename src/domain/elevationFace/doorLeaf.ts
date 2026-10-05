@@ -68,7 +68,7 @@ export function renderDoorLeaf(
         ? dx + doorW - elevMm(scale, 28)
         : dx + elevMm(scale, 28);
     const handleH = Math.min(doorH * 0.22, elevMm(scale, 120));
-    if (!span?.golaGrip) {
+    if (!span?.golaGrip && !span?.pushOpen) {
       elements.push(
         line(
           handleX,

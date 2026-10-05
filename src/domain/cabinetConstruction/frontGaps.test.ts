@@ -104,3 +104,17 @@ describe("resolveFrontGaps — one front rule for 3D, production and the legacy 
     expect(leaf.yMm + leaf.heightMm).toBeCloseTo(config.dimensions.height - config.toeKickHeight, 6);
   });
 });
+
+describe("push fronts keep normal gaps until Ilyas answers Q3", () => {
+  for (const mount of MOUNTS) {
+    for (const type of ["base", "wall", "tall", "drawer"] as CabinetType[]) {
+      it(`${type} · ${mount}: push leaves equal handled leaves (no latch buffer by default)`, () => {
+        const base = withMount(getDefaultCabinetConfig(type), mount);
+        const spec = normalizeConstructionSpec(base.type, base.construction);
+        const push = clampCabinetConfig({ ...base, construction: { ...spec, frontSystem: { kind: "push", mechanism: "tip-on" } } });
+        expect(productionFronts(push)).toEqual(productionFronts(base));
+        expect(modelFronts(push)).toEqual(productionFronts(push));
+      });
+    }
+  }
+});

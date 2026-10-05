@@ -24,6 +24,14 @@ export const HARDWARE_CATALOG: HardwareItem[] = [
     description: "Basic overlay hinge",
   },
   {
+    id: "hinge-spring-free",
+    label: "Spring-free hinge (push-to-open)",
+    kind: "hinge",
+    costPerUnit: 35,
+    softClose: false,
+    description: "Non soft-close hinge for mechanical push / Tip-On; soft-close fights the latch (Ilyas Q — brand TBD)",
+  },
+  {
     id: "hinge-inset",
     label: "Inset soft-close hinge",
     kind: "hinge",

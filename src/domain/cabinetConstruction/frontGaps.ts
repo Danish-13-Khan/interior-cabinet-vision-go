@@ -1,7 +1,7 @@
 import { supportsDoors, supportsDrawers, type CabinetConfig } from "../cabinetDimensions";
 import { DOOR_GAP, normalizeConstructionSpec, type DoorMount } from "../cabinetConstructionSpec";
 import { golaProfilesForType, type GolaProfileKind, type GolaProfiles } from "../frontSystem/golaProfiles";
-import { PUSH_LATCH_BUFFER_MM } from "../frontSystem/pushDefaults";
+import { APPLY_PUSH_LATCH_BUFFER, PUSH_LATCH_BUFFER_MM } from "../frontSystem/pushDefaults";
 import { layoutCabinetElevationFace, type OpeningFaceRect } from "../openingLayout";
 
 export type FrontGapSpec = { sideMm: number; centerMm: number; bottomMm: number; topMm: number };
@@ -118,7 +118,7 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
     const atTop = single || near(opening.yMm + opening.heightMm, faceTop);
     const atBottom = single || near(opening.yMm, face.faceInsetBottomMm);
     const edges: Edges = { bottomMm: gaps.bottomMm, topMm: gaps.topMm, stackMm: gaps.centerMm };
-    if (push) {
+    if (push && APPLY_PUSH_LATCH_BUFFER) {
       const buffer = PUSH_LATCH_BUFFER_MM;
       edges.bottomMm = Math.max(edges.bottomMm, buffer);
       edges.topMm = Math.max(edges.topMm, buffer);
@@ -136,8 +136,8 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
       if (push) return { ...leaf, pushOpen: true as const };
       return held ? { ...leaf, golaGrip: true as const } : leaf;
     };
-    // Push fronts also widen the side gaps by the latch buffer (same resolver for 3D / cut list).
-    const leafGaps = push
+    // Opt-in latch buffer (APPLY_PUSH_LATCH_BUFFER); off until Ilyas Q3.
+    const leafGaps = push && APPLY_PUSH_LATCH_BUFFER
       ? { ...gaps, sideMm: gaps.sideMm + PUSH_LATCH_BUFFER_MM, centerMm: gaps.centerMm + PUSH_LATCH_BUFFER_MM }
       : gaps;
     if (isDoor) {

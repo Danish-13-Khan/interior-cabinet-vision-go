@@ -8,6 +8,7 @@ import { handledFrontCount, resolveFrontGaps } from "../cabinetConstruction/fron
 import { doorGlassSquareMetres } from "../cabinetConstruction/partsDoors";
 import { GOLA_PROFILE_CATALOG } from "../frontSystem/golaProfiles";
 import {
+  PUSH_DOOR_HINGE_ID,
   PUSH_DRAWER_SLIDE_ID,
   PUSH_MECHANISM_HARDWARE,
 } from "../frontSystem/pushDefaults";
@@ -112,7 +113,8 @@ export function buildHardwareLines(
   const isPush = frontSystem?.kind === "push";
   const pushMechanism = isPush ? frontSystem.mechanism : null;
 
-  push(hardware.hingeId, counts.hingeCount);
+  // Soft-close hinges fight mechanical push / Tip-On — schedule spring-free (Ilyas Q).
+  push(isPush ? PUSH_DOOR_HINGE_ID : hardware.hingeId, counts.hingeCount);
   // Q2: push fronts use push-open runners; drawers then need no separate latch.
   const slideId = isPush ? PUSH_DRAWER_SLIDE_ID : hardware.slideId;
   push(slideId, insertBlocksDrawers ? 0 : counts.drawerCount);

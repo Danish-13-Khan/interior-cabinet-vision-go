@@ -17,7 +17,7 @@ export function leafSpan(leaves: FrontLeaf[]): FrontLeaf {
   const right = Math.max(...leaves.map((leaf) => leaf.xMm + leaf.widthMm));
   const bottom = Math.min(...leaves.map((leaf) => leaf.yMm));
   const top = Math.max(...leaves.map((leaf) => leaf.yMm + leaf.heightMm));
-  return { xMm: left, yMm: bottom, widthMm: right - left, heightMm: top - bottom, golaGrip: leaves.every((leaf) => leaf.golaGrip) || undefined };
+  return { xMm: left, yMm: bottom, widthMm: right - left, heightMm: top - bottom, golaGrip: leaves.every((leaf) => leaf.golaGrip) || undefined, pushOpen: leaves.every((leaf) => leaf.pushOpen) || undefined };
 }
 
 /** SVG box for a face-coordinate rectangle (face origin = after left filler, above toe kick). */

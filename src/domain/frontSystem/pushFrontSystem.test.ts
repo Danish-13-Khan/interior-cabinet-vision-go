@@ -13,9 +13,12 @@ import {
 import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
 import { DEFAULT_COSTING_SETTINGS } from "../costingSettings";
 import { createCabinetGeometry } from "../cabinetGeometry";
+import { renderElevationFaceGraphics } from "../elevationFace";
 import { buildHardwareLines } from "../hardwareSystem";
 import {
+  APPLY_PUSH_LATCH_BUFFER,
   DEFAULT_PUSH_MECHANISM,
+  PUSH_DOOR_HINGE_ID,
   PUSH_DRAWER_SLIDE_ID,
   PUSH_LATCH_BUFFER_MM,
   PUSH_MECHANISM_HARDWARE,
@@ -52,6 +55,20 @@ function scheduled(config: CabinetConfig) {
   );
 }
 
+function elevationSvg(config: CabinetConfig) {
+  const cabinet = {
+    id: "c",
+    name: "c",
+    config,
+    placement: { x: 0, y: 0, z: 0, rotation: 0, attachment: "floor" as const },
+  };
+  const { width, height } = config.dimensions;
+  return renderElevationFaceGraphics(cabinet, 0, 0, width, height, {
+    scale: 1,
+    showDetails: true,
+  }).join("");
+}
+
 const PUSH: FrontSystem = { kind: "push", mechanism: DEFAULT_PUSH_MECHANISM };
 const GOLA: FrontSystem = { kind: "gola", profiles: defaultGolaProfiles() };
 
@@ -85,7 +102,7 @@ describe("Phase 2 push-to-open front system", () => {
     });
   });
 
-  it("resolver: push doors share one gap rule with latch buffer; no handles in 3D or schedule", () => {
+  it("resolver: push doors match handled gaps by default; no handles in 3D, elevation, or schedule", () => {
     const handled = resolveFrontGaps(withFront({ kind: "handled" }));
     const push = resolveFrontGaps(withFront(PUSH));
     expect(pushFrontCount(push)).toBeGreaterThan(0);
@@ -94,13 +111,19 @@ describe("Phase 2 push-to-open front system", () => {
 
     const pushLeaf = push.openings[0]!.leaves[0]!;
     const handledLeaf = handled.openings[0]!.leaves[0]!;
-    // Latch buffer shrinks the leaf vs handled (same mount).
-    expect(pushLeaf.widthMm).toBeLessThan(handledLeaf.widthMm);
-    expect(pushLeaf.heightMm).toBeLessThan(handledLeaf.heightMm);
+    // Latch buffer is opt-in (Ilyas Q3); default cut sizes stay on normal gaps.
+    expect(APPLY_PUSH_LATCH_BUFFER).toBe(false);
     expect(PUSH_LATCH_BUFFER_MM).toBe(3);
+    expect(pushLeaf.widthMm).toBeCloseTo(handledLeaf.widthMm, 6);
+    expect(pushLeaf.heightMm).toBeCloseTo(handledLeaf.heightMm, 6);
+    expect(pushLeaf.pushOpen).toBe(true);
 
     const geometry = createCabinetGeometry(withFront(PUSH));
     expect(geometry.filter((panel) => panel.name.startsWith("handle-"))).toHaveLength(0);
+
+    const svg = elevationSvg(withFront(PUSH));
+    expect(svg).not.toContain("twod-door-handle");
+    expect(elevationSvg(withFront({ kind: "handled" }))).toContain("twod-door-handle");
 
     const lines = scheduled(withFront(PUSH));
     expect(lines.filter((line) => line.kind === "handle")).toEqual([]);
@@ -109,9 +132,27 @@ describe("Phase 2 push-to-open front system", () => {
       .reduce((sum, o) => sum + o.leaves.length, 0));
   });
 
+  it("schedules spring-free hinges for push doors, never hinge-soft", () => {
+    const lines = scheduled(withFront(PUSH));
+    expect(lines.some((line) => line.id === "hinge-soft")).toBe(false);
+    const hinge = lines.find((line) => line.id === PUSH_DOOR_HINGE_ID);
+    expect(hinge?.quantity).toBeGreaterThan(0);
+    expect(scheduled(withFront({ kind: "handled" })).some((line) => line.id === "hinge-soft")).toBe(true);
+  });
+
+  it("elevation drawers under push drop pulls the same as gola", () => {
+    const config = clampCabinetConfig({
+      ...getDefaultCabinetConfig("drawer"),
+      construction: {
+        ...normalizeConstructionSpec("drawer", getDefaultCabinetConfig("drawer").construction),
+        frontSystem: PUSH,
+      },
+    });
+    expect(elevationSvg(config)).not.toContain("twod-drawer-pull");
+    expect(elevationSvg(withFront(GOLA))).not.toContain("twod-drawer-pull");
+  });
+
   it("Q2: drawers on push fronts use push-open runners, not a per-drawer latch", () => {
-    const drawer = withFront(PUSH);
-    drawer.type = "drawer";
     const config = clampCabinetConfig({
       ...getDefaultCabinetConfig("drawer"),
       construction: {
