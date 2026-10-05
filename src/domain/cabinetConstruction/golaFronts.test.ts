@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { clampCabinetConfig, getDefaultCabinetConfig, type CabinetConfig, type CabinetInstance, type CabinetType } from "../cabinetDimensions";
 import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
-import { createCabinetGeometry } from "../cabinetGeometry";
+import { createCabinetGeometry, isFrontLeafPanel } from "../cabinetGeometry";
 import { DEFAULT_COSTING_SETTINGS } from "../costingSettings";
 import { defaultGolaProfiles, type FrontSystem } from "../frontSystem";
 import { buildHardwareLines, createHardwareSchedule } from "../hardwareSystem";
@@ -53,10 +53,10 @@ describe("gola fronts", () => {
         .filter((part) => part.category === "Door" || part.category === "DrawerFront")
         .flatMap((part) => Array.from({ length: part.quantity }, () => `${part.lengthMm}x${part.widthMm}`)).sort();
       const panels = createCabinetGeometry(config);
-      const fronts = panels.filter((panel) => panel.material === "door")
+      const fronts = panels.filter(isFrontLeafPanel)
         .map((panel) => `${Math.round(Number((panel.size[1] * 1000).toFixed(6)))}x${Math.round(Number((panel.size[0] * 1000).toFixed(6)))}`).sort();
       expect(fronts).toEqual(parts);
-      expect(panels.filter((panel) => panel.material === "metal")).toHaveLength(resolveFrontGaps(config).profiles.length);
+      expect(panels.filter((panel) => panel.name.startsWith("gola-"))).toHaveLength(resolveFrontGaps(config).profiles.length);
     }
   });
 

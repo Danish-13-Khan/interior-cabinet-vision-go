@@ -90,7 +90,7 @@ These go into the reply to Ilyas, not into phases.
 | G3 | **Guides are plan data, not underlay data.** `InteriorProject.extensions.planGuides`. | Guides survive **Replace file** / **Remove underlay**. The automatic centre line stays as a fallback when there are no guides. |
 | G4 | **Gola is a front system on the cabinet, not a handle item.** It is `CabinetConstructionSpec.frontSystem`, and every gap rule reads it from one resolver. | The 3D view, production parts, elevation and the hardware schedule agree. A gola cabinet reports **no handle** and **N metres of gola profile** per run. |
 | G5 | **One front-gap resolver before gola.** The three rules in §2 collapse into `resolveFrontGaps(cabinet)`. | This removes today's 3 mm vs 4 mm vs `DOOR_GAP` drift. **Visible change:** 3D fronts shift by ≤1 mm on existing projects. Cut-list sizes do not change (production rule wins). |
-| G6 | **Door style is drawn or hidden, never silently ignored.** | Until Phase 6 lands, **Shaker** and **Glass** are labelled "(plan only)". |
+| G6 | **Door style is drawn or hidden, never silently ignored.** | Phase 6 landed: **Shaker** and **Glass** are drawn in 3D; the "(plan only)" labels are gone. |
 | G7 | **Appliances attach to a cabinet host the way lights do** (`hostObjectId` + offsets, resolved at read time). | Moving or resizing a sink base carries its sink. Host deletion detaches with the same alert pattern as lights. |
 | G8 | **Arch / fillet / radius is deferred** until a project needs it. | It needs arc outlines in the scene, non-rectangular cut-list parts and a CNC / DXF export that does not exist yet (§5, Phase 8). |
 | G9 | **No partial erase of the underlay.** | **Crop selection** (PDF) and **DWG layers** cover the need. Revisit only if a raster plan really needs it. |
@@ -293,6 +293,18 @@ options for tall units, and a real CNC notch op.
 
 **Exit gate:** a slab / shaker / glass cabinet side by side in Model View
 reviewed; handle count in 3D equals `handleCount` in the schedule.
+
+**Landed (2026-10-05):** 3D handles come from the `resolveFrontGaps` leaves
+(gripped leaves skip), so the 3D count equals `handleCount`, which is now
+`handledFrontCount` for every front system. Bar / knob / cup shapes from
+`handleId`; door handles sit opposite the hinge (`handleSideForLeaf`, the same
+side elevations draw). `doorStyle` / `doorSourcing` parameters map to
+`construction.frontStyle` in `applyFrontSystemParameters`. Shaker = leaf panel
+plus four `-frame-` pieces; Glass = transparent glass panel plus frame. **Doors
+made** defaults to Bought (cut list unchanged); In-house cuts stiles, rails and
+(shaker) a grooved panel, and in-house glass goes on the hardware list in m²
+(placeholder price). Shaker / glass apply to doors only; drawer fronts stay slab.
+**Still open:** Ilyas's answer to §6.4 (made in-house or bought).
 
 ### Phase 7 — Hosted sink and hob (answers Modular Q3)
 

@@ -93,15 +93,7 @@ export function clampHardwareEntry(
 ): HardwareLibraryEntry | null {
   if (!entry?.id || !entry.label) return null;
   const kinds: HardwareKind[] = [
-    "hinge",
-    "slide",
-    "handle",
-    "leg",
-    "bracket",
-    "shelf-pin",
-    "accessory",
-    "consumable",
-    "profile",
+    "hinge", "slide", "handle", "leg", "bracket", "shelf-pin", "accessory", "consumable", "profile", "glass",
   ];
   const kind = kinds.includes(entry.kind as HardwareKind)
     ? (entry.kind as HardwareKind)

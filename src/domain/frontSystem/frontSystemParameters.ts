@@ -8,6 +8,7 @@ import {
   type GolaProfileSize,
   type GolaProfiles,
 } from "./golaProfiles";
+import { doorFrontStyleFromParameters } from "./doorStyles";
 
 type Parameters = Record<string, string | number | boolean>;
 
@@ -42,6 +43,13 @@ export function golaParametersPatch(profiles: GolaProfiles): Parameters {
 
 export function applyFrontSystemParameters(config: CabinetConfig, parameters: Parameters): CabinetConfig {
   const frontSystem = frontSystemFromParameters(parameters);
-  if (!frontSystem) return config;
-  return { ...config, construction: { ...normalizeConstructionSpec(config.type, config.construction), frontSystem } };
+  const frontStyle = doorFrontStyleFromParameters(parameters);
+  if (!frontSystem && !frontStyle) return config;
+  const spec = normalizeConstructionSpec(config.type, config.construction);
+  const next = {
+    ...spec,
+    ...(frontSystem ? { frontSystem } : {}),
+    ...(frontStyle ? { frontStyle: frontStyle === "slab" ? undefined : frontStyle } : {}),
+  };
+  return { ...config, construction: normalizeConstructionSpec(config.type, next) };
 }

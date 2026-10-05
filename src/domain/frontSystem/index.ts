@@ -12,6 +12,19 @@ export {
   type GolaProfiles,
 } from "./golaProfiles";
 export {
+  DOOR_PANEL_GROOVE_MM,
+  DOOR_SOURCING_PARAMETER,
+  DOOR_STYLE_OPTIONS,
+  DOOR_STYLE_PARAMETER,
+  doorFrameWidths,
+  doorFrontStyleFromParameters,
+  normalizeDoorFrontStyle,
+  readDoorStyleKind,
+  type DoorFrontStyle,
+  type DoorSourcing,
+  type DoorStyleKind,
+} from "./doorStyles";
+export {
   FRONT_SYSTEM_PARAMETER,
   applyFrontSystemParameters,
   frontSystemFromParameters,

@@ -30,6 +30,8 @@ function getPanelColor(
       return isCabinetSelected ? "#ddbf93" : "#d7b98d";
     case "metal":
       return isCabinetSelected ? "#b4b8bb" : "#a7abae";
+    case "glass":
+      return "#d6e6ea";
     default:
       return isCabinetSelected ? "#d6b78c" : "#d0b186";
   }
@@ -75,8 +77,11 @@ export function CabinetPanel({
       <boxGeometry args={size} />
       <meshStandardMaterial
         color={getPanelColor(material, isHovered, isSelected, isCabinetSelected)}
-        roughness={0.74}
+        roughness={material === "glass" ? 0.08 : 0.74}
         metalness={0.05}
+        transparent={material === "glass"}
+        opacity={material === "glass" ? 0.32 : 1}
+        depthWrite={material !== "glass"}
         emissive={
           isSelected ? "#73582b" : isHovered ? "#604a29" : isCabinetSelected ? "#3a2812" : "#000000"
         }

@@ -5,6 +5,7 @@ import { getHardwareItem, normalizeCabinetHardware } from "./normalize";
 import type { HardwareLine } from "./types";
 import { layoutCabinetElevationFace } from "../openingLayout";
 import { handledFrontCount, resolveFrontGaps } from "../cabinetConstruction/frontGaps";
+import { doorGlassSquareMetres } from "../cabinetConstruction/partsDoors";
 import { GOLA_PROFILE_CATALOG } from "../frontSystem/golaProfiles";
 
 /** Metres of each gola profile on this cabinet; summed across a run by the hardware schedule. */
@@ -28,9 +29,10 @@ export function resolveHardwareCounts(
   shelfCount: number;
 } {
   const composition = resolveCabinetComposition(cabinet.config);
+  const fronts = resolveFrontGaps(cabinet.config);
   const doorCount = Math.max(
     getResolvedDoorCount(cabinet.config),
-    construction.parts.find((part) => part.category === "Door")?.quantity ?? 0,
+    fronts.openings.filter((entry) => entry.kind === "door").reduce((sum, entry) => sum + entry.leaves.length, 0),
   );
   const drawerCount = Math.max(
     composition.drawers.count,
@@ -38,9 +40,6 @@ export function resolveHardwareCounts(
       .filter((part) => part.category === "DrawerBox")
       .reduce((sum, part) => Math.max(sum, Math.ceil(part.quantity / 2)), 0),
   );
-  const drawerFrontCount =
-    construction.parts.find((part) => part.category === "DrawerFront")?.quantity ??
-    drawerCount;
   const shelfCount = Math.max(
     composition.shelves.count,
     construction.parts.find((part) => part.category === "Shelf")?.quantity ?? 0,
@@ -55,12 +54,12 @@ export function resolveHardwareCounts(
     0,
   );
 
-  const gola = construction.constructionSpec.frontSystem?.kind === "gola";
   return {
     doorCount,
     hingeCount,
     drawerCount,
-    handleCount: gola ? handledFrontCount(resolveFrontGaps(cabinet.config)) : doorCount + drawerFrontCount,
+    /** Same fronts the 3D model puts handles on; gola-gripped fronts skip. */
+    handleCount: handledFrontCount(fronts),
     shelfCount,
   };
 }
@@ -108,6 +107,7 @@ export function buildHardwareLines(
   );
   push(hardware.handleId, counts.handleCount);
   for (const [id, metres] of golaProfileMetres(cabinet.config)) push(id, metres);
+  push("door-glass", doorGlassSquareMetres(cabinet.config));
 
   if (
     hardware.includeShelfPins &&

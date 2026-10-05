@@ -1,10 +1,11 @@
 import { supportsShelves } from "../cabinetDimensions";
 import { collectAssemblyBoundaries } from "../cabinetAssembly";
 import { getResolvedDividerCount } from "../cabinetComposition";
-import { getDoorMountLabel, getShelfMountNote } from "../cabinetConstructionSpec";
+import { getShelfMountNote } from "../cabinetConstructionSpec";
 import { createPart } from "./helpers";
 import type { ConstructionContext } from "./context";
 import { resolveFrontGaps } from "./frontGaps";
+import { appendDoorParts } from "./partsDoors";
 import { appendDrawerParts } from "./partsDrawers";
 import { layoutCabinetElevationFace } from "../openingLayout";
 
@@ -100,27 +101,6 @@ export function appendInteriorParts(ctx: ConstructionContext): void {
   }
 
   const fronts = resolveFrontGaps(safeConfig).openings;
-  const doorOpenings = fronts.filter((entry) => entry.kind === "door");
-  const door = materialSpec.doorMaterial;
-  for (const { opening, leaves } of doorOpenings) {
-    const suffix = doorOpenings.length === 1 ? "" : `-${opening.id}`;
-    parts.push(
-      createPart(
-        `door${suffix}`,
-        opening.label,
-        "Door",
-        leaves.length,
-        leaves[0]!.heightMm,
-        leaves[0]!.widthMm,
-        buildRules.carcassThicknessMm,
-        door.grainDirection,
-        door.boardMaterialId.toUpperCase(),
-        door.finishId,
-        door.edgeBandingId,
-        `${getDoorMountLabel(constructionSpec.doorMount)} mount`,
-      ),
-    );
-  }
-
+  appendDoorParts(ctx, fronts.filter((entry) => entry.kind === "door"));
   appendDrawerParts(ctx, fronts.filter((entry) => entry.kind === "drawer"));
 }
