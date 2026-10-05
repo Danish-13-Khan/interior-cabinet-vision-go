@@ -1,5 +1,6 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { snapPlanPoint, type Point2Mm, type PlanNodeEntity } from "../../domain/interiorProject";
+import { snapPointToGuides, type PlanGuide } from "../../domain/livingRoom/planGuides";
 
 function distance(a: Point2Mm, b: Point2Mm) {
   return Math.hypot(a.x - b.x, a.z - b.z);
@@ -9,6 +10,8 @@ export function useWallDrawing(input: {
   active: boolean;
   snapSizeMm: number;
   nodes: PlanNodeEntity[];
+  guides?: readonly PlanGuide[];
+  guideToleranceMm?: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point2Mm;
   onCommit: (start: Point2Mm, end: Point2Mm) => void;
 }) {
@@ -20,7 +23,9 @@ export function useWallDrawing(input: {
   onCommitRef.current = input.onCommit;
 
   function snap(point: Point2Mm) {
-    return snapPlanPoint(point, input.snapSizeMm, input.nodes);
+    const snapped = snapPlanPoint(point, input.snapSizeMm, input.nodes);
+    const anchors = input.nodes.map((node) => node.position);
+    return snapPointToGuides(snapped, point, input.guides ?? [], input.guideToleranceMm ?? 0, anchors);
   }
 
   /** Begin from paper or wall geometry — capture on the SVG root so drag keeps streaming. */

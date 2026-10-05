@@ -90,6 +90,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             preDropReason={props.preDropReason}
             onRegisterViewControls={props.onRegisterViewControls}
             onSetPlanUnderlay={props.onSetPlanUnderlay}
+            onPatchDocument={props.onPatchDocument}
             onCalibrateComplete={props.onCalibrateComplete}
           />
         ) : props.workspaceView === "model" ? (
