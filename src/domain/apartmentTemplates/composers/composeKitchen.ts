@@ -127,6 +127,9 @@ export function composeKitchen(
   return applyFinishRolesToCabinets(next, roomId);
 }
 
+/** L leg starts this far from the corner so it clears the primary run depth. */
+const L_CORNER_CLEARANCE_MM = 600;
+
 function composeSecondaryLeg(
   project: InteriorProject,
   roomId: string,
@@ -148,13 +151,18 @@ function composeSecondaryLeg(
     }),
     options,
   ));
-  let next = { ...project, objects: [...project.objects, ...seeds] };
+  const next = { ...project, objects: [...project.objects, ...seeds] };
+  // Real seeded width (today 2 or 3 × 900 frameless bases), not the search width.
+  const legWidth = seeds.reduce((sum, seed) => sum + seed.dimensions.widthMm, 0);
+  const slack = Math.max(0, piece.lengthMm - legWidth);
   // L: push away from the corner so the secondary leg does not collide with the primary run.
   const fixedStart = layout === "L"
-    ? piece.startAlongMm + Math.min(600, Math.max(0, piece.lengthMm - needed))
-    : piece.startAlongMm + Math.max(0, (piece.lengthMm - needed) / 2);
+    ? piece.startAlongMm + Math.min(L_CORNER_CLEARANCE_MM, slack)
+    : piece.startAlongMm + slack / 2;
+  // Convert with the real leg width (not `needed`) so a stored wall that runs
+  // high→low mirrors the leg onto the same fixed-end span.
   const startAlong = fixedAlongToRoomAlongMm(
-    next, roomId, piece.wall, fixedStart, needed,
+    next, roomId, piece.wall, fixedStart, legWidth,
   );
   return arrangeCabinetRun(next, ids, piece.wall.id, {
     alignment: "start",

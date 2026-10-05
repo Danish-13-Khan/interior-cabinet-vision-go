@@ -77,5 +77,24 @@ export function applyGuillotineSplit(
   const newRoomId = next.rooms.find((room) => !beforeIds.has(room.id))!.id;
   cells.delete(split.inCell);
   assignCells(next, roomId, newRoomId, split.axis, split.cells, cells);
-  return next;
+  return withCutThickness(next, internalWallMm);
+}
+
+/**
+ * splitRoomByWall stamps the room's (external) thickness on every cut; apply
+ * the spec's internal partition thickness to all room-split walls instead.
+ * (Wall ids are recycled across splits, so match by structural kind.)
+ */
+function withCutThickness(
+  next: InteriorProject,
+  internalWallMm: number,
+): InteriorProject {
+  return {
+    ...next,
+    walls: next.walls.map((wall) =>
+      wall.extensions?.structuralKind === "room-split"
+        && wall.thicknessMm !== internalWallMm
+        ? { ...wall, thicknessMm: internalWallMm }
+        : wall),
+  };
 }

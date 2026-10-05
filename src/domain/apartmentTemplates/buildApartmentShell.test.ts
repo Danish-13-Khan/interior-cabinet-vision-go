@@ -61,7 +61,7 @@ describe("Phase 0 apartment shell builder", () => {
     }
   });
 
-  it("keeps exterior openings on exterior walls with authored size/offset", () => {
+  it("keeps exterior openings on exterior walls (world offsets: openings.test.ts)", () => {
     for (const spec of APARTMENT_SHELL_SPECS) {
       const project = buildApartmentShell(spec, { now: NOW });
       const keyToId = new Map(
@@ -75,7 +75,6 @@ describe("Phase 0 apartment shell builder", () => {
         const placed = project.openings.find((item) => item.id === ids("opening", `o${index}`));
         expect(placed, `${spec.id} opening #${index}`).toBeTruthy();
         expect(placed!.widthMm).toBe(opening.widthMm);
-        expect(placed!.offsetMm).toBe(opening.offsetMm);
         if (Array.isArray(opening.between)) return;
         const roomId = keyToId.get(opening.between.room)!;
         expect(roomIdsUsingWall(project, placed!.wallId)).toEqual([roomId]);

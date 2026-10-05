@@ -58,7 +58,7 @@ export type KitchenComposeOptions = {
   underCabinetLights?: boolean;
   /** Host sink on the primary-run base at this index (0-based among floor bases). */
   sinkHostIndex?: number;
-  /** Host cooktop/hob on the primary-run base at this index. */
+  /** Host cooktop/hob on the primary-run base at this index (default 1: the drawer base). */
   hobHostIndex?: number;
 };
 
@@ -108,6 +108,7 @@ export type ApartmentOpeningBetween =
 export type ApartmentOpeningSpec = {
   kind: OpeningKind;
   between: ApartmentOpeningBetween;
+  /** From the wall's fixed end: lower x (east–west walls) or lower z (north–south walls). */
   offsetMm: number;
   widthMm: number;
   heightMm?: number;

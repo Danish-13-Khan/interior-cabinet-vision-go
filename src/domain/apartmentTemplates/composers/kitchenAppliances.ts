@@ -7,6 +7,16 @@ import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject"
 import type { KitchenComposeOptions } from "../types";
 import { withActiveRoom } from "./helpers";
 
+/** Sink on the first base (index 0, base A) of the primary run. */
+export const DEFAULT_SINK_HOST_INDEX = 0;
+/**
+ * Hob on the drawer base (index 1) by design: pots and utensils live in the
+ * drawers directly under the cooktop, while the sink keeps base A (index 0)
+ * with its plumbing void. Override with `hobHostIndex`.
+ */
+export const DEFAULT_HOB_HOST_INDEX = 1;
+
+/** `baseIds` is the primary run in order: [base A, drawer, base B]. */
 export function hostKitchenAppliances(
   project: InteriorProject,
   roomId: string,
@@ -14,8 +24,8 @@ export function hostKitchenAppliances(
   options: KitchenComposeOptions,
   idFactory: LivingRoomIdFactory,
 ): InteriorProject {
-  const sinkHost = baseIds[options.sinkHostIndex ?? 0];
-  const hobHost = baseIds[options.hobHostIndex ?? 1];
+  const sinkHost = baseIds[options.sinkHostIndex ?? DEFAULT_SINK_HOST_INDEX];
+  const hobHost = baseIds[options.hobHostIndex ?? DEFAULT_HOB_HOST_INDEX];
   if (!sinkHost || !hobHost) return project;
   const bounds = roomPlanViewBounds(project, roomId);
   const sinkId = idFactory("object", `${roomId}-sink`);

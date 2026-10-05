@@ -1,7 +1,12 @@
 import type { ApartmentTemplateSpec } from "../types";
 import { DEFAULT_FINISH_ROLES } from "./finishRoles";
 
-/** 1 BHK shell ≈ 7500×6700 (50 m²). Content authored in Phase 4. */
+/**
+ * 1 BHK shell ≈ 7500×6700 (50 m²). Content authored in Phase 4.
+ * Left column: kitchen (north) over living. Right column: utility next to the
+ * kitchen and bath next to the bedroom (north strip) over the bedroom.
+ * Utility opens off the kitchen; the bath opens off the bedroom.
+ */
 export const ONE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
   id: "template:apartment:1bhk:v1",
   name: "1 BHK · Warm contemporary",
@@ -39,11 +44,11 @@ export const ONE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
       cells: ["wet", "bedroom"],
     },
     {
-      key: "bath-utility",
+      key: "utility-bath",
       inCell: "wet",
       axis: "x",
-      atMm: 2550,
-      cells: ["bath", "utility"],
+      atMm: 1650,
+      cells: ["utility", "bath"],
     },
   ],
   rooms: [
@@ -92,14 +97,14 @@ export const ONE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     },
     {
       kind: "door",
-      between: ["kitchen", "bath"],
-      offsetMm: 200,
-      widthMm: 800,
+      between: ["kitchen", "utility"],
+      offsetMm: 1700,
+      widthMm: 700,
     },
     {
       kind: "door",
-      between: ["bath", "utility"],
-      offsetMm: 100,
+      between: ["bedroom", "bath"],
+      offsetMm: 300,
       widthMm: 700,
     },
     {
@@ -117,14 +122,14 @@ export const ONE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
     {
       kind: "window",
       between: { room: "living", side: "south" },
-      offsetMm: 800,
+      offsetMm: 1300,
       widthMm: 1600,
       sillHeightMm: 900,
     },
     {
       kind: "window",
       between: { room: "bedroom", side: "east" },
-      offsetMm: 600,
+      offsetMm: 1400,
       widthMm: 1200,
       sillHeightMm: 900,
     },

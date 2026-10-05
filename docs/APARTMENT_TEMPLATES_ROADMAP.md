@@ -124,6 +124,11 @@ interface ApartmentOpeningSpec {
 }
 ```
 
+`offsetMm` is measured from the wall piece's fixed end (lower x for east–west
+walls, lower z for north–south walls), whatever direction the stored wall runs.
+Openings must also clear half the thickness of the walls that meet each end of
+the piece (57.5 mm at a 115 mm partition, 115 mm at an external corner).
+
 `buildApartmentTemplate(spec): InteriorProject` is pure, deterministic and
 ends with `validateInteriorProject`.
 
@@ -229,24 +234,27 @@ type DoorStyle = "none" | "single" | "double" | "bi-fold" | "sliding";   // NEW
   on the fluted wall, and a daybed.
 
 **1 BHK, ≈ 7500 × 6700 (50 m²).** Split along x at 4200:
-- Left column: **Living** 4200 × 4000 and **Kitchen** 4200 × 2700 (L-kitchen).
-- Right column 3300 wide: **Bedroom** 3300 × 4000, then **Bath** 2100 × 2700
-  and **Utility** 1200 × 2700.
+- Left column: **Kitchen** 4200 × 2700 (L-kitchen, north) over **Living**
+  4200 × 4000, joined by an arch.
+- Right column 3300 wide: **Utility** 1200 × 2700 beside the kitchen (door
+  from the kitchen) and **Bath** 2100 × 2700 (door from the bedroom), over
+  the **Bedroom** 3300 × 4000.
 
 **2 BHK, ≈ 10200 × 7800 (80 m²).**
-- Living + dining 5400 × 4400 (hero room)
-- Kitchen 2700 × 3400 (parallel)
-- Master bedroom 4800 × 3600 with attached bath 2100 × 1800
-- Kids bedroom 3600 × 3400
-- Common bath
-- Short passage
+- Living + dining 5400 × 4300 (hero room); kitchen 3300 × 3500 (parallel)
+- Short passage 2100 × 1900 off the living room, with the common bath
+  2100 × 1600 and the kids bedroom (4800 × 2800) off it
+- Master suite: master bedroom 4800 × 3200 (off the living room, never
+  smaller than kids), master bath 2400 × 1800 and walk-in 2400 × 1800
 
 **3 BHK, ≈ 12600 × 9200 (115 m²).** The 2 BHK set plus:
-- Foyer
-- Guest bedroom
-- Second attached bath
-- Utility room (off the kitchen)
-- Balcony (off the living room)
+- Foyer 1500 × 3500 with the entry door, opening straight into the living
+  room (5400 × 4500); kitchen 2700 × 3500 with the utility 1200 × 3500 off it
+- Passage 7200 × 1300 off the living room: study (1800 × 3500, door from the
+  foyer), guest 3600 × 3500 with its own bath 1800 × 1900, common bath
+  1800 × 1600, kids 2700 × 4400 and master 3000 × 4400 all open off it
+- Master bath 1500 × 2400 and walk-in 1500 × 2000
+- Balcony 5400 × 1200 (off the living room)
 - No pooja unit (Q5)
 
 The balcony is a room typed `custom` with an external-style floor, joined to
@@ -254,7 +262,8 @@ the living room by a sliding door (`opening:door-sliding`). The utility room
 is typed `utility` and holds the washing machine bay and a tall unit.
 
 The exact split order for each template is written in the spec in Phase 4 and
-Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
+Phase 5. Room sizes above are wall-centreline cells as authored in the
+specs; the clear (carpet) size is smaller by half of each bounding wall.
 
 ## 6. Phases
 

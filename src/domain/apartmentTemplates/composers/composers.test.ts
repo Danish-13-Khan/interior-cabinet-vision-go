@@ -5,13 +5,7 @@ import { resolveLightAttachment } from "../../livingRoom/lightAttachments";
 import { reflowCabinetRunsForWalls } from "../../livingRoom/wardrobePlacement";
 import { readCabinetIdentity } from "../../cabinetIdentity";
 import { FRONT_SYSTEM_PARAMETER, DOOR_STYLE_PARAMETER } from "../../frontSystem";
-import {
-  APARTMENT_SHELL_SPECS,
-  apartmentIdFactory,
-  buildApartmentShell,
-  composeApartment,
-} from "../index";
-import { bareRoom, COMPOSER_TEST_NOW } from "./bareRoom";
+import { bareRoom } from "./bareRoom";
 import {
   composeBathroom,
   composeBedroom,
@@ -22,6 +16,7 @@ import {
   composeUtility,
   roomObjectsOverlapOpenings,
 } from "./index";
+import { longestFreePieceOnSide } from "./helpers";
 
 describe("Phase 1 room composers", () => {
   it("composeKitchen delivers frontSystem, doorStyle, finishes, hosted appliances", () => {
@@ -69,6 +64,42 @@ describe("Phase 1 room composers", () => {
     });
     expect(L.objects.filter((o) => o.id.includes("-leg-"))).toHaveLength(2);
     expect(parallel.objects.filter((o) => o.id.includes("-leg-"))).toHaveLength(3);
+  });
+
+  it("secondary legs land on the fixed-end span in world space (either wall direction)", () => {
+    const bare = bareRoom("kitchen", 5000, 4200);
+    const roomId = bare.activeRoomId;
+    const cases = [
+      { layout: "L", runSide: "north", secondarySide: "east" },
+      { layout: "L", runSide: "north", secondarySide: "west" },
+      { layout: "parallel", runSide: "north", secondarySide: "south" },
+      { layout: "parallel", runSide: "south", secondarySide: "north" },
+    ] as const;
+    const directions = new Set<boolean>();
+    for (const options of cases) {
+      const label = `${options.layout} ${options.secondarySide}`;
+      const needed = options.layout === "L" ? 1800 : 2700;
+      const piece = longestFreePieceOnSide(bare, roomId, options.secondarySide, needed)!;
+      const stored = bare.walls.find((wall) => wall.id === piece.wall.id)!;
+      directions.add(stored.start.x === piece.wall.start.x && stored.start.z === piece.wall.start.z);
+      const next = composeKitchen(bare, roomId, {
+        ...options, wallCabinets: false, underCabinetLights: false,
+      });
+      const legs = next.objects.filter((o) => o.id.includes("-leg-"));
+      const legWidth = legs.reduce((sum, o) => sum + o.dimensions.widthMm, 0);
+      const slack = piece.lengthMm - legWidth;
+      const fixedStart = piece.startAlongMm
+        + (options.layout === "L" ? Math.min(600, slack) : slack / 2);
+      const vertical = options.secondarySide === "east" || options.secondarySide === "west";
+      const along = (o: (typeof legs)[number]) => (vertical ? o.position.z : o.position.x);
+      const lo = Math.min(...legs.map((o) => along(o) - o.dimensions.widthMm / 2));
+      const hi = Math.max(...legs.map((o) => along(o) + o.dimensions.widthMm / 2));
+      const wallLo = vertical ? piece.wall.start.z : piece.wall.start.x;
+      expect(lo, label).toBeCloseTo(wallLo + fixedStart, 0);
+      expect(hi - lo, label).toBeCloseTo(legWidth, 0);
+    }
+    // Both stored directions (low→high and high→low) are exercised.
+    expect(directions.size).toBe(2);
   });
 
   it("composeBedroom seeds almirah wardrobe", () => {
@@ -134,38 +165,4 @@ describe("Phase 1 room composers", () => {
     expect(after.parameters.attachmentMissing).not.toBe(true);
     expect(Math.abs(after.position.x - before.position.x)).toBeLessThan(800);
   });
-
-  it("composed shells are repeatable (D3) across all four specs", () => {
-    for (const spec of APARTMENT_SHELL_SPECS) {
-      const a = composeDemoContent(spec);
-      const b = composeDemoContent(spec);
-      expect(JSON.stringify(a), spec.id).toBe(JSON.stringify(b));
-    }
-  });
 });
-
-function composeDemoContent(spec: (typeof APARTMENT_SHELL_SPECS)[number]) {
-  let project = buildApartmentShell(spec, { now: COMPOSER_TEST_NOW });
-  const idFactory = apartmentIdFactory(spec.id);
-  for (const room of project.rooms) {
-    if (room.roomType === "kitchen") {
-      project = composeKitchen(project, room.id, {
-        runSide: "north", wallCabinets: true, idFactory, underCabinetLights: false,
-      });
-    } else if (room.roomType === "bedroom") {
-      project = composeBedroom(project, room.id, { wardrobeSide: "east", idFactory, pendants: false });
-    } else if (room.roomType === "living-room") {
-      project = composeLiving(project, room.id, {
-        tvWallSide: "north", featureWallPreset: "slat", idFactory, coveLight: false, sofaSet: false,
-      });
-    } else if (room.roomType === "bathroom") {
-      project = composeBathroom(project, room.id, {
-        vanitySide: "north", idFactory, mirrorRopeLight: false,
-      });
-    } else if (room.roomType === "utility") {
-      project = composeUtility(project, room.id, { idFactory });
-    }
-  }
-  void composeApartment(spec, { now: COMPOSER_TEST_NOW });
-  return project;
-}

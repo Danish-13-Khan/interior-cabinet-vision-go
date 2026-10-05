@@ -80,7 +80,7 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
     {
       kind: "window",
       between: { room: "living", side: "south" },
-      offsetMm: 1500,
+      offsetMm: 2100,
       widthMm: 1800,
       heightMm: 1400,
       sillHeightMm: 900,
