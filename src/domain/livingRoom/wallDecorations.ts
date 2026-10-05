@@ -114,12 +114,14 @@ export function addWallDecoration(
   project: InteriorProject,
   wallId: string,
   presetId: string,
+  options?: { id?: string },
 ): InteriorProject {
   const preset = getWallDecorationPreset(presetId);
   const stored = project.walls.find((wall) => wall.id === wallId);
   if (!preset || !stored) return project;
   const wall = orientWallForRoom(project, project.activeRoomId, stored);
   return addWallPanel(project, wallId, {
+    id: options?.id,
     catalogItemId: preset.catalogItemId,
     dimensions: preset.size(wall),
     floorOffsetMm: preset.floorOffsetMm,

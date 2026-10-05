@@ -13,7 +13,7 @@ import {
 import { faceRectToSvg, resolvedOpeningFronts } from "./resolvedFronts";
 import { faceToSvg, line, rect, text } from "./svgPrimitives";
 
-type DrawerBox = { x: number; y: number; width: number; height: number; golaGrip: boolean };
+type DrawerBox = { x: number; y: number; width: number; height: number; golaGrip: boolean; pushOpen: boolean };
 
 /** Top-first drawer fronts in SVG space, sized by the production resolver when it fronts this opening. */
 function drawerBoxes(
@@ -29,6 +29,7 @@ function drawerBoxes(
     return [...resolved.leaves].reverse().map((leaf) => ({
       ...faceRectToSvg(leaf, layout, cabinetSvgX, cabinetSvgY, scale),
       golaGrip: Boolean(leaf.golaGrip),
+      pushOpen: Boolean(leaf.pushOpen),
     }));
   }
   const count = Math.max(1, opening.drawerCount || 1);
@@ -51,7 +52,7 @@ function drawerBoxes(
     : Array.from({ length: count }, () => 1 / count);
   let cursor = topLeft.y + centerGap;
   return ratios.map((ratio) => {
-    const box = { x: topLeft.x + sideGap, y: cursor, width: Math.max(2, width - sideGap * 2), height: available * ratio, golaGrip: false };
+    const box = { x: topLeft.x + sideGap, y: cursor, width: Math.max(2, width - sideGap * 2), height: available * ratio, golaGrip: false, pushOpen: false };
     cursor += box.height + centerGap;
     return box;
   });
@@ -106,7 +107,7 @@ export function renderDrawerStack(
         `class="twod-line-hidden twod-drawer-box-cue" pointer-events="none"`,
       ),
     );
-    if (!box.golaGrip) {
+    if (!box.golaGrip && !box.pushOpen) {
       const pullY = dy + drawerH / 2;
       const pullW = Math.min(frontW * 0.32, elevMm(scale, 140));
       elements.push(

@@ -3,6 +3,7 @@ import {
   selectWallsForRoom,
   type InteriorProject,
   type OpeningEntity,
+  type RenderSettings,
   type Size3Mm,
   type WallEntity,
 } from "../../domain/interiorProject";
@@ -36,6 +37,7 @@ type BuildRoomCatalogPanelProps = {
   onRenameRoom?: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  onRenderSettingsChange?: (patch: Partial<RenderSettings>) => void;
   onActiveWall: (wallId: string) => void;
   onActiveOpening: (openingId: string) => void;
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
@@ -70,6 +72,7 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
           onRenameRoom={props.onRenameRoom}
           onDeleteRoom={props.onDeleteRoom}
           onMergeRooms={props.onMergeRooms}
+          onRenderSettingsChange={props.onRenderSettingsChange}
         />
       ) : null}
       {tool === "draw-surface" ? (

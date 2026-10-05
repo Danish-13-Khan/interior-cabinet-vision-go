@@ -1,4 +1,4 @@
-import type { InteriorProject } from "../../domain/interiorProject";
+import type { InteriorProject, RenderSettings } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { BuildTool, SiteMeasureUserKey } from "../../domain/livingRoom";
 import type { InteriorsChromeTool } from "../../domain/desktopUx";
@@ -16,6 +16,7 @@ export type InteriorsDrawRoomCommands = {
   onRenameRoom?: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  onRenderSettingsChange?: (patch: Partial<RenderSettings>) => void;
 };
 
 export type InteriorsDrawRoomManageProps = {

@@ -22,6 +22,7 @@ import {
   persistModelGuideDismissal,
   shouldShowModelGuide,
 } from "../domain/livingRoom/modelViewGuidePreference";
+import { useDocumentCameraFollow } from "../hooks/useDocumentCameraFollow";
 import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useModelViewTransform } from "../hooks/useModelViewTransform";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
@@ -44,11 +45,21 @@ export function LivingRoomModelView({
   const extrudedWalls = scene.nodes.filter(
     (node) => node.metadata.role === "wall" && node.metadata.planTrace !== true,
   ).length;
+  const projectCameraId = project.renderSettings.activeCameraId ?? null;
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
-    () => preferModelViewCameraId(scene.cameras),
+    () => (projectCameraId && scene.cameras.some((item) => item.id === projectCameraId)
+      ? projectCameraId
+      : preferModelViewCameraId(scene.cameras)),
   );
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
+  // Showcase / Render Studio drive the document camera; jump revives after orbit.
+  useDocumentCameraFollow({
+    projectCameraId,
+    knownCameraIds: scene.cameras.map((item) => item.id),
+    setActiveCameraId,
+    setViewPreset: camera.setViewPreset,
+  });
   const [showGuide, setShowGuide] = useState(() => !presentation && shouldShowModelGuide());
   useEffect(() => {
     if (showGuide) persistModelGuideDismissal();

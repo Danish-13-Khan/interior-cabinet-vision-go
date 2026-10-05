@@ -2,12 +2,16 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { BUILTIN_CATALOG_MANIFEST } from '../../domain/catalog/builtinCatalogManifest';
+import { APARTMENT_TEMPLATE_IDS } from '../../domain/apartmentTemplates';
 import { findMarketingTemplate, MARKETING_TEMPLATES, registerHrefForTemplate, TEMPLATE_QUERY_PARAM } from './marketingTemplates';
 
 describe('marketing templates', () => {
-  it('lists exactly the catalog templates', () => {
+  it('lists catalog templates plus the four apartment templates', () => {
     const catalogIds = BUILTIN_CATALOG_MANIFEST.templates.map((template) => template.id).sort();
-    expect(MARKETING_TEMPLATES.map((template) => template.id).sort()).toEqual(catalogIds);
+    const marketedCatalog = MARKETING_TEMPLATES.filter((t) => t.kind !== 'apartment').map((t) => t.id).sort();
+    expect(marketedCatalog).toEqual(catalogIds);
+    const apartments = MARKETING_TEMPLATES.filter((t) => t.kind === 'apartment').map((t) => t.id).sort();
+    expect(apartments).toEqual([...APARTMENT_TEMPLATE_IDS].sort());
   });
   it('points every card at a shipped thumbnail', () => {
     for (const template of MARKETING_TEMPLATES) {
@@ -19,6 +23,8 @@ describe('marketing templates', () => {
     const params = new URLSearchParams(href.split('?')[1]);
     expect(href.startsWith('/register?')).toBe(true);
     expect(findMarketingTemplate(params.get(TEMPLATE_QUERY_PARAM))?.name).toBe('L Kitchen');
+    const apt = registerHrefForTemplate('template:apartment:studio:v1');
+    expect(findMarketingTemplate(new URLSearchParams(apt.split('?')[1]).get(TEMPLATE_QUERY_PARAM))?.name).toBe('Studio');
   });
   it('ignores unknown or missing ids', () => {
     expect(findMarketingTemplate('template:core:nope:v1')).toBeNull();

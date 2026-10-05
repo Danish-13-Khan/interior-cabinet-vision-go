@@ -1,4 +1,4 @@
-import type { InteriorProject, OpeningEntity, Size3Mm } from "../../domain/interiorProject";
+import type { InteriorProject, OpeningEntity, RenderSettings, Size3Mm } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { ImportedAsset, LivingRoomPlanIssue } from "../../domain/livingRoom";
 import type { InteriorsChromeTool, InteriorsWorkflowArea } from "../../domain/desktopUx";
@@ -61,6 +61,7 @@ export type LivingRoomPlanCatalogRailProps = {
   onRenameRoom?: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  onRenderSettingsChange?: (patch: Partial<RenderSettings>) => void;
   onAddPartitionWall: () => void;
   activeWallId: string | null;
   activeOpeningId: string | null;

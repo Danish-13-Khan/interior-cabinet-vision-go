@@ -9,6 +9,11 @@ import {
   type GolaProfiles,
 } from "./golaProfiles";
 import { doorFrontStyleFromParameters } from "./doorStyles";
+import {
+  DEFAULT_PUSH_MECHANISM,
+  PUSH_MECHANISM_PARAMETER,
+  type PushMechanism,
+} from "./pushDefaults";
 
 type Parameters = Record<string, string | number | boolean>;
 
@@ -22,13 +27,28 @@ export function golaParameterKey(kind: GolaProfileKind, dimension: keyof GolaPro
 /** Interiors objects keep the front system in parameters; null when the object never set one. */
 export function frontSystemFromParameters(parameters: Parameters): FrontSystem | null {
   const kind = parameters[FRONT_SYSTEM_PARAMETER];
-  if (kind !== "gola" && kind !== "handled") return null;
+  if (kind !== "gola" && kind !== "handled" && kind !== "push") return null;
   if (kind === "handled") return { kind: "handled" };
+  if (kind === "push") {
+    const mechanism = parameters[PUSH_MECHANISM_PARAMETER];
+    return normalizeFrontSystem({
+      kind: "push",
+      mechanism: mechanism === "push-latch" ? "push-latch" : DEFAULT_PUSH_MECHANISM,
+    });
+  }
   const profiles = Object.fromEntries(GOLA_PROFILE_KINDS.map((profile) => [profile, {
     heightMm: parameters[golaParameterKey(profile, "heightMm")],
     depthMm: parameters[golaParameterKey(profile, "depthMm")],
   }]));
   return normalizeFrontSystem({ kind: "gola", profiles });
+}
+
+/** Parameter patch that selects push-to-open (clears gola sizes). */
+export function pushParametersPatch(mechanism: PushMechanism = DEFAULT_PUSH_MECHANISM): Parameters {
+  return {
+    [FRONT_SYSTEM_PARAMETER]: "push",
+    [PUSH_MECHANISM_PARAMETER]: mechanism,
+  };
 }
 
 /** Every gola parameter for one profile set; used to copy a cabinet's sizes along its run. */

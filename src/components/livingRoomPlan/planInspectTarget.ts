@@ -74,6 +74,7 @@ export function interiorsDrawRoomStageCommands(props: LivingRoomPlanWorkspaceBod
     onRenameRoom: w.onRenameRoom,
     onDeleteRoom: w.onDeleteRoom,
     onMergeRooms: w.onMergeRooms,
+    onRenderSettingsChange: w.onRenderSettingsChange,
   };
 }
 

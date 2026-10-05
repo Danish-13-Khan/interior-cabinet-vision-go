@@ -90,6 +90,7 @@ export function useLivingRoomPlanEditor({
     styleId?: LivingRoomStyleId;
     template?: PlannerStarterTemplate;
     catalogTemplateId?: string;
+    apartmentTemplateId?: string;
   } = {}) {
     const { document: starter, label } = buildLivingRoomStarterDocument({
       ...options,

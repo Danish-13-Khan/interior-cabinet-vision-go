@@ -1,6 +1,10 @@
 # Apartment templates roadmap (Studio, 1 BHK, 2 BHK, 3 BHK)
 
-**Status:** Proposed, 2026-10-05. §7 Q1, Q5 and Q6 answered the same day. No code yet; pick a phase to start.
+**Status:** Phases 0, 1, 2, 4, 5 and 6 done on `feat/apartment-templates`
+(reviewed 2026-10-06). **Next: Phase 3 (sliding wardrobes), then Phase 7
+(showcase tour).** Phase 8 stays deferred. Factory hardware values are built
+as settings with industry defaults (D10); Ilyas confirms them, he no longer
+blocks a phase.
 **Goal:** Four ready-made apartments the user can open with one click. Between
 them they show every capability we sell: cabinet types, front systems
 (handles, gola, push-to-open, sliding), door styles, finishes, wall
@@ -77,6 +81,7 @@ push-to-open front system on the front-gap resolver and `FrontSystem` from
 | D7 | Push-to-open and sliding shutters are **real production features** (cut list, hardware schedule, gaps), not visual tricks. | Factory accuracy comes before visuals ([[factory-qa-ilyas]] rule). A template that shows a front the factory cannot cut is a liability. |
 | D8 | Templates are **versioned** (`template:apartment:2bhk:v1`) and record `extensions.apartmentTemplateId` on the project. | Same pattern as `catalogTemplateId`. Lets analytics and later migrations recognise a template project. |
 | D9 | Templates use **generic finishes through finish roles**, never brand SKUs. Each spec maps roles (`carcass`, `front-primary`, `front-accent`, `worktop`, `wall-panel`, `floor`) to generic `FinishId`s and surface finishes. A later **finish pack** remaps roles to a real brand's codes. | The manufacturer catalogue holds placeholder brands only (`mfr:studio-laminates`, `mfr:atelier-woods`). Real Indian brands (Merino, Greenlam, Century and others) differ per factory and change often. With roles, one template works for every customer, and a factory can apply its own pack in one step. |
+| D10 | Factory hardware values (latch gap, hinge type, sliding track, overlap, track allowance) are **settings with industry defaults**, not blockers. Each default lives in one module, can be overridden per cabinet, and is marked **"unconfirmed default"** in the hardware schedule and production export until a factory confirms it. | These are standard hardware facts; only the brand and stock a factory buys is local knowledge. Building with flagged defaults keeps phases moving, and the flag stops an unconfirmed guess from silently reaching a real order. |
 
 ## 3. Contracts (lock before implementation)
 
@@ -124,6 +129,11 @@ interface ApartmentOpeningSpec {
 }
 ```
 
+`offsetMm` is measured from the wall piece's fixed end (lower x for east–west
+walls, lower z for north–south walls), whatever direction the stored wall runs.
+Openings must also clear half the thickness of the walls that meet each end of
+the piece (57.5 mm at a 115 mm partition, 115 mm at an external corner).
+
 `buildApartmentTemplate(spec): InteriorProject` is pure, deterministic and
 ends with `validateInteriorProject`.
 
@@ -157,27 +167,54 @@ type FrontSystem =
 
 - Object parameter: `frontSystem: "push"`, `pushMechanism`.
 - Hardware items `push-latch` and `tip-on-door`. Drawers swap to
-  `drawer-slide-push` (open question Q2).
-- Front-gap resolver: there is no handle, and the door gains a set-back for
-  the latch buffer (value from Ilyas, Q3). 3D, production and the legacy cut
-  list all read it through the one resolver.
+  `drawer-slide-push` (Q2 default, shipped).
+- Front-gap resolver: no handle; doors keep the **normal gaps**. The latch
+  set-back is a depth offset and does not change cut sizes, so the 3 mm
+  buffer sits behind `APPLY_PUSH_LATCH_BUFFER` (off) until a factory asks for
+  it (Q3). 3D, production and the legacy cut list read the one resolver.
+- Hinges: push door leaves schedule `hinge-spring-free` (no closing spring),
+  the standard rule for mechanical push openers.
 - 3D: no handle mesh. The inspector shows "Push to open".
 - Hardware schedule: one latch per door leaf, and per drawer when push slides
   are not used.
 
-### 3.4 Sliding shutters
+### 3.4 Sliding shutters (built with settings, D10)
 
 ```ts
 type DoorStyle = "none" | "single" | "double" | "bi-fold" | "sliding";   // NEW
-// parameters: slidingLeafCount (2 | 3), slidingOverlapMm (default 40),
-//             slidingTrackId ("track-top-hung" | "track-bottom-roll")
+
+// domain/frontSystem/slidingDefaults.ts — one module, like pushDefaults.ts
+type SlidingTrackKind = "bottom-roll" | "top-hung";
+const SLIDING_DEFAULTS = {
+  trackKind: "bottom-roll",     // common in Indian modular wardrobes
+  overlapMm: 40,                // ≈ vertical profile width; typical 30–50
+  trackAllowanceMm: 90,         // double track; typical 75–100
+  heightDeductionMm: 40,        // track + roller clearance off the opening height
+  maxLeafWidthMm: 1000,         // picks the leaf count
+  confirmed: false,             // D10: flagged until a factory confirms
+};
+// Per-cabinet overrides (object parameters): slidingLeafCount (2 | 3),
+// slidingOverlapMm, slidingTrackKind, slidingTrackAllowanceMm.
 ```
 
-- Leaf width = `(W + overlapMm × (n − 1)) / n`.
-- Carcass depth gains the track allowance (Q4). Leaves sit on alternating
-  planes in 3D.
-- Cut list: n shutters. Hardware schedule: one track set plus rollers per leaf.
-- This applies to wardrobes (`almirah`) only in v1. The inspector hides it for
+- **Leaf count:** `clamp(ceil(W / maxLeafWidthMm), 2, 3)` unless overridden.
+- **Leaf width:** `(W + overlapMm × (n − 1)) / n`. **Leaf height:** opening
+  height − `heightDeductionMm`.
+- **Depth:** the cabinet's overall depth stays the same, so the plan footprint
+  does not move. The carcass (internal) depth is `depth − trackAllowanceMm`;
+  the track sits in front of it.
+- **One resolver:** `resolveFrontGaps` gains a sliding branch, so 3D, the
+  elevations, production and the legacy cut list read the same leaves (same
+  rule as gola and push).
+- **3D:** leaves on alternating planes, `trackAllowanceMm / 2` apart; no
+  hinges.
+- **Elevations:** overlapping leaves drawn as such; no hinge marks.
+- **Hardware schedule:** one track set per wardrobe (length = W) and one
+  roller set per leaf; **zero hinges**; one pull per leaf. Every sliding line
+  carries the "unconfirmed default" flag while `confirmed` is false.
+- **Exclusive with gola and push:** choosing sliding normalises the front
+  system to handled; the inspector disables gola / push for sliding wardrobes.
+- **Scope:** wardrobes (`almirah`) only in v1. The inspector hides it for
   other types.
 
 ## 4. Showcase matrix (what each template shows)
@@ -229,24 +266,27 @@ type DoorStyle = "none" | "single" | "double" | "bi-fold" | "sliding";   // NEW
   on the fluted wall, and a daybed.
 
 **1 BHK, ≈ 7500 × 6700 (50 m²).** Split along x at 4200:
-- Left column: **Living** 4200 × 4000 and **Kitchen** 4200 × 2700 (L-kitchen).
-- Right column 3300 wide: **Bedroom** 3300 × 4000, then **Bath** 2100 × 2700
-  and **Utility** 1200 × 2700.
+- Left column: **Kitchen** 4200 × 2700 (L-kitchen, north) over **Living**
+  4200 × 4000, joined by an arch.
+- Right column 3300 wide: **Utility** 1200 × 2700 beside the kitchen (door
+  from the kitchen) and **Bath** 2100 × 2700 (door from the bedroom), over
+  the **Bedroom** 3300 × 4000.
 
 **2 BHK, ≈ 10200 × 7800 (80 m²).**
-- Living + dining 5400 × 4400 (hero room)
-- Kitchen 2700 × 3400 (parallel)
-- Master bedroom 4800 × 3600 with attached bath 2100 × 1800
-- Kids bedroom 3600 × 3400
-- Common bath
-- Short passage
+- Living + dining 5400 × 4300 (hero room); kitchen 3300 × 3500 (parallel)
+- Short passage 2100 × 1900 off the living room, with the common bath
+  2100 × 1600 and the kids bedroom (4800 × 2800) off it
+- Master suite: master bedroom 4800 × 3200 (off the living room, never
+  smaller than kids), master bath 2400 × 1800 and walk-in 2400 × 1800
 
 **3 BHK, ≈ 12600 × 9200 (115 m²).** The 2 BHK set plus:
-- Foyer
-- Guest bedroom
-- Second attached bath
-- Utility room (off the kitchen)
-- Balcony (off the living room)
+- Foyer 1500 × 3500 with the entry door, opening straight into the living
+  room (5400 × 4500); kitchen 2700 × 3500 with the utility 1200 × 3500 off it
+- Passage 7200 × 1300 off the living room: study (1800 × 3500, door from the
+  foyer), guest 3600 × 3500 with its own bath 1800 × 1900, common bath
+  1800 × 1600, kids 2700 × 4400 and master 3000 × 4400 all open off it
+- Master bath 1500 × 2400 and walk-in 1500 × 2000
+- Balcony 5400 × 1200 (off the living room)
 - No pooja unit (Q5)
 
 The balcony is a room typed `custom` with an external-style floor, joined to
@@ -254,11 +294,14 @@ the living room by a sliding door (`opening:door-sliding`). The utility room
 is typed `utility` and holds the washing machine bay and a tall unit.
 
 The exact split order for each template is written in the spec in Phase 4 and
-Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
+Phase 5. Room sizes above are wall-centreline cells as authored in the
+specs; the clear (carpet) size is smaller by half of each bounding wall.
 
 ## 6. Phases
 
 ### Phase 0 — Contract and shell builder (no UI)
+
+**Status:** Done.
 
 - `domain/apartmentTemplates/types.ts` (§3.1) and `buildApartmentShell(spec)`:
   outer rectangle → guillotine splits → rename and type rooms → openings on
@@ -274,6 +317,8 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 - Ids are deterministic: two builds give byte-identical JSON.
 
 ### Phase 1 — Room composers
+
+**Status:** Done.
 
 - `composeKitchen`, `composeBedroom`, `composeLiving`, `composeBathroom`,
   `composeFoyer`, `composeUtility`, `composeStudy` (§3.2), addressing walls by
@@ -292,9 +337,12 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 
 ### Phase 2 — Push-to-open front system (§3.3)
 
+**Status:** Done, with D10 defaults: push-open runners for drawers, normal
+gaps (buffer off), spring-free hinges. Still to add when Phase 3 builds the
+flag: mark the push hardware lines "unconfirmed default" too.
+
 - Add the `FrontSystem` push kind, hardware items, the resolver gap, 3D with
   no handle, the inspector option, the cut list and the hardware schedule.
-- Needs Ilyas's answers to Q2–Q3 first.
 
 **Exit gate:**
 - One push-to-open kitchen run gives:
@@ -304,20 +352,41 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
   - no handle in 3D or in the elevations
 - Switching handled → push → gola round-trips cleanly.
 
-### Phase 3 — Sliding wardrobe shutters (§3.4)
+### Phase 3 — Sliding wardrobe shutters (§3.4) — **next**
 
-- `DoorStyle "sliding"`, leaf maths, track allowance, 3D leaves on two planes,
-  cut list, hardware schedule. Wardrobes only.
-- Can ship after Phase 4. Until it lands, the Studio and 3 BHK use a hinged
-  wardrobe, and the matrix row stays open.
+**Status:** Unblocked by D10. Build with the defaults in §3.4; Ilyas confirms
+the numbers later.
+
+1. `slidingDefaults.ts` and the `"sliding"` door style; parameter read/write
+   like `pushParametersPatch`.
+2. Sliding branch in `resolveFrontGaps` (leaf count, widths, height, planes).
+3. 3D leaves on two planes; carcass depth reduced by the track allowance.
+4. Elevations: overlapping leaves, no hinge marks.
+5. Hardware: track set + roller sets, zero hinges, pulls; the "unconfirmed
+   default" flag in the hardware schedule and production export (and apply
+   it to the push lines from Phase 2).
+6. Inspector: **Door style → Sliding** for wardrobes; leaf count, overlap and
+   track kind fields; gola / push disabled while sliding.
+7. Composer: `BedroomComposeOptions.wardrobeDoors: "hinged" | "sliding"`;
+   switch the Studio and the 3 BHK master to sliding, and make the coverage
+   test's sliding row read the built project instead of the hinged stand-in.
 
 **Exit gate:**
-- A 2400 wardrobe with 2 and with 3 leaves gives the correct leaf widths
-  (formula test).
-- The track appears in the hardware schedule.
-- Leaves do not intersect in 3D.
+- Formula test: a 2400 wardrobe with 2 and with 3 leaves gives the correct
+  leaf widths; leaf count picks 2 / 3 from width when not overridden.
+- 3D, elevation, production and legacy cut list give the same leaf sizes
+  (one resolver).
+- Hardware schedule: track and rollers present, **no hinges**, and every
+  sliding (and push) line flagged "unconfirmed default".
+- Leaves do not intersect in 3D and stay inside the cabinet's overall depth
+  on all four wall sides.
+- Hinged → sliding → hinged round-trips cleanly; sliding never coexists with
+  gola or push.
+- Showcase coverage: the sliding row passes on the built Studio and 3 BHK.
 
 ### Phase 4 — Studio and 1 BHK authored
+
+**Status:** Done.
 
 - Write both specs with layout, composition, materials, lights, mood and one
   camera bookmark per room.
@@ -334,6 +403,8 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 
 ### Phase 5 — 2 BHK and 3 BHK authored, plus coverage test
 
+**Status:** Done (sliding row waits for Phase 3).
+
 - Write both specs.
 - Add `showcaseCoverage.test.ts`: it reads the four built projects and asserts
   every matrix row in §4 is present (front systems, door styles, fixture
@@ -347,6 +418,9 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 - Production export succeeds.
 
 ### Phase 6 — Entry points
+
+**Status:** Done. Open follow-ups: real apartment thumbnails for the marketing
+cards (Phase 7 stills can supply them) and editor-wide unique room ids.
 
 - Project home: an **Apartment templates** section above the single-room
   cards (Calm-light card style, area in m² and room count on each card).
@@ -364,16 +438,25 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 - Each template creates a new project. The template itself is never modified,
   and autosave writes a new draft.
 
-### Phase 7 — Showcase tour (optional)
+### Phase 7 — Showcase tour — after Phase 3
 
-- A **Tour** button that steps through the rooms' bookmarks with smooth camera
-  moves.
-- Optional day → evening mood toggle during the tour.
-- Useful for sales demos and the marketing hero video.
+**Status:** Not started; unblocked.
+
+- A **Tour** button that steps through the rooms' showcase cameras with smooth
+  camera moves, in spec room order starting from the hero room.
+- Rooms without a camera are skipped, never left on a stale camera.
+- Driven by the ephemeral showcase signal (`showcaseJump.ts`), **never** by
+  undoable render settings: a tour adds no undo steps.
+- Any orbit, click in the canvas or Escape stops the tour.
+- Optional day → evening mood toggle during the tour (view-only, not saved).
+- Capture one still per template as the marketing card thumbnails (closes the
+  Phase 6 thumbnail follow-up).
 
 **Exit gate:**
 - The tour runs through every room of the 3 BHK without a frame hitch longer
   than 100 ms.
+- Undo history is unchanged after a full tour.
+- Orbit or Escape stops it immediately.
 
 ### Phase 8 — Whole-apartment 3D view (deferred, D4)
 
@@ -384,14 +467,19 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 ## 7. Open questions
 
 1. ~~**Market and sizes.**~~ **Answered:** Indian carpet areas, as in D6.
-2. **Push-to-open drawers** (for Ilyas): push-open runners (Blum
-   Tip-On / Hettich Push to Open Silent), or handleless drawers with a gola?
-3. **Push latch set-back and gap** (for Ilyas): door gap and latch depth for
-   the brand the factory buys.
-4. **Sliding wardrobes** (for Ilyas):
-   - top-hung or bottom-rolling track?
-   - extra carcass depth for the track
-   - overlap per leaf
+2. **Push-to-open drawers.** **Default shipped (D10):** push-open runners.
+   Ilyas confirms the brand.
+3. **Push latch set-back and gap.** **Default shipped (D10):** normal gaps;
+   set-back is depth only. Ilyas confirms whether his brand needs the 3 mm
+   buffer (`APPLY_PUSH_LATCH_BUFFER`).
+4. **Sliding wardrobes.** **Defaults in §3.4 (D10):** bottom-rolling double
+   track, 40 mm overlap, 90 mm track allowance, 40 mm height deduction. Ilyas
+   confirms the track his factory buys; then set `confirmed: true`.
+7. **Hinge for push doors.** **Default shipped:** spring-free hinge. Ilyas
+   names the brand.
+
+None of these block a phase any more. Send them to Ilyas as one
+"are these our numbers?" message.
 5. ~~**Pooja / balcony / utility.**~~ **Answered:** balcony and utility room
    only, with no pooja unit (see §5).
 6. ~~**Brand finishes.**~~ **Answered:** generic finishes through finish roles
@@ -399,11 +487,14 @@ Phase 5. Room sizes above are carpet sizes; wall thickness comes on top.
 
 ## 8. Suggested order
 
-1. Phase 0 and Phase 1 (foundation; no product-visible change).
-2. Phase 4 (Studio and 1 BHK). This shows value early using only existing
-   features: gola, handles, door styles, lighting, decor.
-3. Phase 2 (push-to-open), once Ilyas answers Q2–Q3.
-4. Phase 5 (2 BHK and 3 BHK).
-5. Phase 6 (entry points).
-6. Phase 3 (sliding) whenever Q4 is answered.
-7. Phase 7 and Phase 8 later.
+Done: Phases 0, 1, 4, 2, 5 and 6 (in that order).
+
+Next:
+1. Merge `feat/apartment-templates` (open the PR; don't stack new phases on
+   an unmerged branch).
+2. **Phase 3** (sliding wardrobes, with D10 defaults and the "unconfirmed
+   default" flag). Review checkpoint on its own.
+3. **Phase 7** (showcase tour and marketing stills). Review checkpoint on its
+   own.
+4. Send Ilyas the §7 confirmation message; flip `confirmed` when he answers.
+5. Phase 8 (whole-apartment 3D) needs its own architecture pass first.

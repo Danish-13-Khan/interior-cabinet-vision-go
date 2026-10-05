@@ -3,8 +3,10 @@ import type {
   CabinetHardwareSpec,
   HardwareItem,
 } from "./types";
+import { PUSH_HARDWARE_ITEMS } from "./pushHardware";
 
 export const HARDWARE_CATALOG: HardwareItem[] = [
+  ...PUSH_HARDWARE_ITEMS,
   {
     id: "hinge-soft",
     label: "Soft-close hinge",
@@ -20,6 +22,14 @@ export const HARDWARE_CATALOG: HardwareItem[] = [
     costPerUnit: 25,
     softClose: false,
     description: "Basic overlay hinge",
+  },
+  {
+    id: "hinge-spring-free",
+    label: "Spring-free hinge (push-to-open)",
+    kind: "hinge",
+    costPerUnit: 35,
+    softClose: false,
+    description: "Non soft-close hinge for mechanical push / Tip-On; soft-close fights the latch (Ilyas Q — brand TBD)",
   },
   {
     id: "hinge-inset",

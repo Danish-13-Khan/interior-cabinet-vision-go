@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ConfirmDialog } from "../ConfirmDialog";
 
 type BuildRoomSwitcherProps = {
-  rooms: Array<{ id: string; name: string }>;
+  rooms: Array<{ id: string; name: string; roomType?: string; icon?: string }>;
   activeRoomId: string;
   onActiveRoom: (roomId: string) => void;
   onRenameRoom: (roomId: string, name: string) => void;
@@ -11,6 +11,9 @@ type BuildRoomSwitcherProps = {
   mergeableRoomIds?: string[];
   /** Adjacent rooms blocked from merge (e.g. hole topology) with a short reason. */
   mergeBlockedHint?: string | null;
+  /** Jump to the room's showcase camera bookmark (apartment templates). */
+  onShowcaseView?: (roomId: string) => void;
+  showcaseAvailable?: boolean;
 };
 
 type PendingConfirm =
@@ -97,6 +100,7 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
             className={room.id === props.activeRoomId ? "is-active" : ""}
             onClick={() => props.onActiveRoom(room.id)}
           >
+            {room.icon ? <span aria-hidden>{room.icon} </span> : null}
             {room.name}
           </button>
         ))}
@@ -115,6 +119,15 @@ export function BuildRoomSwitcher(props: BuildRoomSwitcherProps) {
           }}
         />
       </label>
+      {props.onShowcaseView && props.showcaseAvailable ? (
+        <button
+          type="button"
+          data-testid="build-room-showcase"
+          onClick={() => props.onShowcaseView?.(active.id)}
+        >
+          Showcase view
+        </button>
+      ) : null}
       <div className="lr-room-switcher-actions">
         <button type="button" data-testid="build-room-delete-open" onClick={requestDeleteActiveRoom} disabled={props.rooms.length <= 1}>Delete room</button>
         {mergeCandidates.length > 0 ? (

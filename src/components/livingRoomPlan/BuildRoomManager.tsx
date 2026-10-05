@@ -1,5 +1,8 @@
-import type { InteriorProject } from "../../domain/interiorProject";
+import type { InteriorProject, RenderSettings } from "../../domain/interiorProject";
 import { explainInteriorRoomMergeBlock } from "../../domain/interiorProject";
+import { showcaseCameraPatch } from "../../domain/apartmentTemplates/showcaseCamera";
+import { requestShowcaseCameraJump } from "../../domain/apartmentTemplates/showcaseJump";
+import { roomTypeIcon } from "./roomTypeIcon";
 import { BuildRoomSwitcher } from "./BuildRoomSwitcher";
 
 type Props = {
@@ -8,6 +11,7 @@ type Props = {
   onRenameRoom: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  onRenderSettingsChange?: (patch: Partial<RenderSettings>) => void;
 };
 
 function sharesWallWithActive(project: InteriorProject, activeWallIds: Set<string>, roomId: string) {
@@ -52,8 +56,24 @@ export function BuildRoomManager(props: Props) {
         : null)
       : null);
 
+  const isApartment = Boolean(props.project.extensions?.apartmentTemplateId);
+  const jumpShowcase = (roomId: string) => {
+    if (roomId !== props.project.activeRoomId) props.onActiveRoom(roomId);
+    // Clears the camera for a room without one; null patch = no change, so no empty undo step.
+    const patch = showcaseCameraPatch(props.project, roomId);
+    if (patch && props.onRenderSettingsChange) props.onRenderSettingsChange(patch);
+    // Always bump: after orbit the document camera is unchanged, so patch is null.
+    requestShowcaseCameraJump();
+  };
+
   return <BuildRoomSwitcher
-    rooms={props.project.rooms.map((room) => ({ id: room.id, name: room.name }))}
+    rooms={props.project.rooms.map((room) => ({
+      id: room.id,
+      name: room.name,
+      roomType: room.roomType,
+      // Room-type icons help tell apart many rooms in an apartment; single-room jobs stay plain.
+      icon: isApartment ? roomTypeIcon(room.roomType) : undefined,
+    }))}
     activeRoomId={props.project.activeRoomId}
     onActiveRoom={props.onActiveRoom}
     onRenameRoom={props.onRenameRoom}
@@ -61,5 +81,7 @@ export function BuildRoomManager(props: Props) {
     onMergeRooms={props.onMergeRooms}
     mergeableRoomIds={mergeableRoomIds}
     mergeBlockedHint={mergeBlockedHint}
+    showcaseAvailable={isApartment}
+    onShowcaseView={isApartment ? jumpShowcase : undefined}
   />;
 }

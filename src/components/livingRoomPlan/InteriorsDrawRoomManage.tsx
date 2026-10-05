@@ -36,6 +36,7 @@ export function InteriorsDrawRoomManage({
             onRenameRoom={commands.onRenameRoom}
             onDeleteRoom={commands.onDeleteRoom}
             onMergeRooms={commands.onMergeRooms}
+            onRenderSettingsChange={commands.onRenderSettingsChange}
           />
         ) : null}
         {showArch ? (

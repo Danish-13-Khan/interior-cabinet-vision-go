@@ -1,6 +1,7 @@
 import { supportsDoors, supportsDrawers, type CabinetConfig } from "../cabinetDimensions";
 import { DOOR_GAP, normalizeConstructionSpec, type DoorMount } from "../cabinetConstructionSpec";
 import { golaProfilesForType, type GolaProfileKind, type GolaProfiles } from "../frontSystem/golaProfiles";
+import { APPLY_PUSH_LATCH_BUFFER, PUSH_LATCH_BUFFER_MM } from "../frontSystem/pushDefaults";
 import { layoutCabinetElevationFace, type OpeningFaceRect } from "../openingLayout";
 
 export type FrontGapSpec = { sideMm: number; centerMm: number; bottomMm: number; topMm: number };
@@ -14,7 +15,13 @@ export function frontGapSpec(mount: DoorMount): FrontGapSpec {
  * Same origin as `OpeningFaceRect`: bottom-left of the face (after left filler, above toe kick), mm.
  * `golaGrip` is set when a profile runs along the edge you pull; other gola fronts keep a handle.
  */
-export type FrontLeaf = { xMm: number; yMm: number; widthMm: number; heightMm: number; golaGrip?: true };
+export type FrontLeaf = {
+  xMm: number; yMm: number; widthMm: number; heightMm: number;
+  /** Gola profile replaces the handle on this leaf. */
+  golaGrip?: true;
+  /** Push-to-open: no handle; latch / tip-on opens the leaf. */
+  pushOpen?: true;
+};
 
 /** A gola profile run in face coordinates; `yMm` is the bottom of the band the profile takes from the fronts. */
 export type GolaBand = { kind: GolaProfileKind; xMm: number; yMm: number; lengthMm: number; heightMm: number; depthMm: number };
@@ -93,6 +100,7 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
   const gaps = frontGapSpec(mount);
   const face = layoutCabinetElevationFace(config);
   const gola: GolaProfiles | null = spec.frontSystem?.kind === "gola" ? spec.frontSystem.profiles : null;
+  const push = spec.frontSystem?.kind === "push";
   const uses = new Set(gola ? golaProfilesForType(config.type) : []);
   const single = face.openings.length === 1;
   const faceTop = face.faceInsetBottomMm + face.clearHeightMm;
@@ -110,6 +118,11 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
     const atTop = single || near(opening.yMm + opening.heightMm, faceTop);
     const atBottom = single || near(opening.yMm, face.faceInsetBottomMm);
     const edges: Edges = { bottomMm: gaps.bottomMm, topMm: gaps.topMm, stackMm: gaps.centerMm };
+    if (push && APPLY_PUSH_LATCH_BUFFER) {
+      const buffer = PUSH_LATCH_BUFFER_MM;
+      edges.bottomMm = Math.max(edges.bottomMm, buffer);
+      edges.topMm = Math.max(edges.topMm, buffer);
+    }
     if (gola) {
       if (atTop && uses.has("L")) { edges.topMm = gola.L.heightMm; topBand = true; }
       if (!atTop && uses.has("C")) edges.topMm = Math.max(0, gola.C.heightMm - gaps.bottomMm);
@@ -119,15 +132,22 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
     if (gola && !atTop && uses.has("C")) band("C", opening.xMm, opening.yMm + opening.heightMm - edges.topMm, opening.widthMm);
     const topGrip = Boolean(gola) && (atTop ? uses.has("L") : uses.has("C"));
     const bottomGrip = Boolean(gola) && atBottom && uses.has("wall");
-    const grip = (leaf: FrontLeaf, held: boolean) => (held ? { ...leaf, golaGrip: true as const } : leaf);
+    const grip = (leaf: FrontLeaf, held: boolean) => {
+      if (push) return { ...leaf, pushOpen: true as const };
+      return held ? { ...leaf, golaGrip: true as const } : leaf;
+    };
+    // Opt-in latch buffer (APPLY_PUSH_LATCH_BUFFER); off until Ilyas Q3.
+    const leafGaps = push && APPLY_PUSH_LATCH_BUFFER
+      ? { ...gaps, sideMm: gaps.sideMm + PUSH_LATCH_BUFFER_MM, centerMm: gaps.centerMm + PUSH_LATCH_BUFFER_MM }
+      : gaps;
     if (isDoor) {
       const count = opening.doorStyle === "single" ? 1 : 2;
       const leaves = single
-        ? fullFaceDoorRow(config, mount, gaps, edges, count, face.leftFillerMm)
-        : splitRow(opening.xMm, opening.yMm + edges.bottomMm, opening.widthMm, opening.heightMm - edges.bottomMm - edges.topMm, count, gaps);
+        ? fullFaceDoorRow(config, mount, leafGaps, edges, count, face.leftFillerMm)
+        : splitRow(opening.xMm, opening.yMm + edges.bottomMm, opening.widthMm, opening.heightMm - edges.bottomMm - edges.topMm, count, leafGaps);
       openings.push({ opening, kind: "door", leaves: leaves.map((leaf) => grip(leaf, topGrip || bottomGrip)) });
     } else {
-      const leaves = drawerColumn(opening, gaps, edges);
+      const leaves = drawerColumn(opening, leafGaps, edges);
       if (gola && uses.has("C")) leaves.slice(0, -1).forEach((leaf) => band("C", opening.xMm, leaf.yMm + leaf.heightMm, opening.widthMm));
       const last = leaves.length - 1;
       const held = (index: number) => (index === last ? topGrip : Boolean(gola) && uses.has("C")) || (index === 0 && bottomGrip);
@@ -139,7 +159,18 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
   return { mount, gaps, openings, profiles };
 }
 
-/** Fronts that still need a handle: every front when handled, ungripped fronts under gola. */
+/** Fronts that still need a handle: every front when handled, ungripped fronts under gola; never push. */
 export function handledFrontCount(fronts: ResolvedFronts): number {
-  return fronts.openings.reduce((sum, entry) => sum + entry.leaves.filter((leaf) => !leaf.golaGrip).length, 0);
+  return fronts.openings.reduce(
+    (sum, entry) => sum + entry.leaves.filter((leaf) => !leaf.golaGrip && !leaf.pushOpen).length,
+    0,
+  );
+}
+
+/** Door + drawer leaves opened by a push latch / tip-on (one mechanism per leaf). */
+export function pushFrontCount(fronts: ResolvedFronts): number {
+  return fronts.openings.reduce(
+    (sum, entry) => sum + entry.leaves.filter((leaf) => leaf.pushOpen).length,
+    0,
+  );
 }

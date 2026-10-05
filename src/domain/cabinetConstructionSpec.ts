@@ -31,16 +31,17 @@ export type CabinetConstructionSpec = {
   shelfMount: ShelfMount;
   drawerBoxStyle: DrawerBoxStyle;
   faceFrame: FaceFrameSpec;
-  /** Absent = handles. Normalised specs only carry it for gola, so handled projects serialise unchanged. */
+  /** Absent = handles. Normalised specs carry gola or push; handled serialises unchanged. */
   frontSystem?: FrontSystem;
   /** Absent = slab doors. Shaker / glass frames reuse the face-frame stile and rail widths. */
   frontStyle?: DoorFrontStyle;
 };
 
-function golaFrontSystem(type: CabinetType, value: unknown): { frontSystem?: FrontSystem } {
+function carriedFrontSystem(type: CabinetType, value: unknown): { frontSystem?: FrontSystem } {
   if (!supportsDoors(type) && !supportsDrawers(type)) return {};
   const frontSystem = normalizeFrontSystem(value);
-  return frontSystem.kind === "gola" ? { frontSystem } : {};
+  if (frontSystem.kind === "handled") return {};
+  return { frontSystem };
 }
 
 function frontStyleField(type: CabinetType, value: unknown): { frontStyle?: DoorFrontStyle } {
@@ -201,7 +202,7 @@ export function normalizeConstructionSpec(
     drawerBoxStyle: isDrawerBoxStyle(merged.drawerBoxStyle)
       ? merged.drawerBoxStyle
       : defaults.drawerBoxStyle,
-    ...golaFrontSystem(type, merged.frontSystem),
+    ...carriedFrontSystem(type, merged.frontSystem),
     ...frontStyleField(type, merged.frontStyle),
     faceFrame: {
       stileWidthMm: clampMm(

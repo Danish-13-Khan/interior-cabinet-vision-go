@@ -25,8 +25,13 @@ export const WALL_MOUNT_Y_MM = 1400;
 const FILLER_WIDTH_MM = 280;
 const FILLER_DEPTH_MM = 18;
 
-export function wallBySide(project: InteriorProject, side: string) {
-  return project.walls.find((wall) => wall.extensions?.wallSide === side) ?? null;
+/** Catalog-shell wall tagged `extensions.wallSide` (back/front/left/right). */
+export function wallBySide(project: InteriorProject, side: string, roomId?: string) {
+  return project.walls.find((wall) => {
+    if (wall.extensions?.wallSide !== side) return false;
+    if (!roomId) return true;
+    return wall.roomId === roomId || wall.roomId == null;
+  }) ?? null;
 }
 
 export function seedCabinet(
@@ -65,7 +70,7 @@ export function seedEndFillers(
   const last = ordered[ordered.length - 1]!;
   const make = (side: "start" | "end", member: InteriorObjectEntity, center: number) => {
     const draft: InteriorObjectEntity = {
-      id: idFactory("object", `filler-${runId}-${side}`),
+      id: idFactory("object", `filler-${wall.id}-${side}`),
       roomId: member.roomId,
       kind: "cabinet",
       category: "filler",
@@ -107,10 +112,10 @@ export function mountWallCabinets(
   project: InteriorProject,
   wallId: string,
   wallCabinets: Array<{ id: string; alongMm: number }>,
+  roomId = project.activeRoomId ?? project.rooms[0]?.id,
 ): InteriorProject {
   const stored = project.walls.find((wall) => wall.id === wallId);
   if (!stored) return project;
-  const roomId = project.activeRoomId ?? project.rooms[0]?.id;
   if (!roomId) return project;
   const wall = orientWallForRoom(project, roomId, stored);
   return {

@@ -7,6 +7,12 @@ import { layoutCabinetElevationFace } from "../openingLayout";
 import { handledFrontCount, resolveFrontGaps } from "../cabinetConstruction/frontGaps";
 import { doorGlassSquareMetres } from "../cabinetConstruction/partsDoors";
 import { GOLA_PROFILE_CATALOG } from "../frontSystem/golaProfiles";
+import {
+  PUSH_DOOR_HINGE_ID,
+  PUSH_DRAWER_SLIDE_ID,
+  PUSH_MECHANISM_HARDWARE,
+} from "../frontSystem/pushDefaults";
+import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
 
 /** Metres of each gola profile on this cabinet; summed across a run by the hardware schedule. */
 export function golaProfileMetres(config: CabinetInstance["config"]): Map<string, number> {
@@ -100,12 +106,27 @@ export function buildHardwareLines(
     hardware.insertKind === "dishwasher-gap" ||
     hardware.insertKind === "cooktop";
 
-  push(hardware.hingeId, counts.hingeCount);
-  push(
-    hardware.slideId,
-    insertBlocksDrawers ? 0 : counts.drawerCount,
-  );
-  push(hardware.handleId, counts.handleCount);
+  const frontSystem = normalizeConstructionSpec(
+    cabinet.config.type,
+    cabinet.config.construction,
+  ).frontSystem;
+  const isPush = frontSystem?.kind === "push";
+  const pushMechanism = isPush ? frontSystem.mechanism : null;
+
+  // Soft-close hinges fight mechanical push / Tip-On — schedule spring-free (Ilyas Q).
+  push(isPush ? PUSH_DOOR_HINGE_ID : hardware.hingeId, counts.hingeCount);
+  // Q2: push fronts use push-open runners; drawers then need no separate latch.
+  const slideId = isPush ? PUSH_DRAWER_SLIDE_ID : hardware.slideId;
+  push(slideId, insertBlocksDrawers ? 0 : counts.drawerCount);
+  push(hardware.handleId, isPush ? 0 : counts.handleCount);
+  if (isPush && pushMechanism) {
+    const fronts = resolveFrontGaps(cabinet.config);
+    // Q2: one latch per door leaf; drawers use push slides (no separate latch).
+    const doorLeaves = fronts.openings
+      .filter((entry) => entry.kind === "door")
+      .reduce((sum, entry) => sum + entry.leaves.length, 0);
+    push(PUSH_MECHANISM_HARDWARE[pushMechanism], doorLeaves);
+  }
   for (const [id, metres] of golaProfileMetres(cabinet.config)) push(id, metres);
   push("door-glass", doorGlassSquareMetres(cabinet.config));
 

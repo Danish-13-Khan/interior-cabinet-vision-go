@@ -4,6 +4,7 @@ import { AuthLayout } from '../components/AuthLayout'
 import { PasswordField } from '../components/PasswordField'
 import { AuthNoticeDialog } from '../components/AuthNoticeDialog'
 import { findMarketingTemplate, MARKETING_TEMPLATES, TEMPLATE_QUERY_PARAM } from '../landing/marketingTemplates'
+import { stashPendingTemplate } from '../../domain/apartmentTemplates/pendingTemplateHandoff'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -48,6 +49,7 @@ export function Register() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
+    if (templateId) stashPendingTemplate(templateId)
     setComingSoon(true)
   }
 
@@ -95,7 +97,9 @@ export function Register() {
       <AuthNoticeDialog
         open={comingSoon}
         title="Coming soon"
-        message="Registration isn't open yet. You can fill this form, but new accounts aren't created."
+        message={template
+          ? `Registration isn't open yet, so no account was created. The editor will offer to start from ${template.name} when you open it again in this browser (kept for about 7 days, including new tabs) — nothing is created until you choose it.`
+          : "Registration isn't open yet. You can fill this form, but new accounts aren't created."}
         testId="register-coming-soon"
         onClose={() => setComingSoon(false)}
       />

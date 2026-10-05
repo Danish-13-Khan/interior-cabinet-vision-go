@@ -1,4 +1,4 @@
-import type { InteriorProject, OpeningEntity, Size3Mm, WallEntity } from "../../domain/interiorProject";
+import type { InteriorProject, OpeningEntity, RenderSettings, Size3Mm, WallEntity } from "../../domain/interiorProject";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 import type { ImportedAsset, LivingRoomCatalogItem } from "../../domain/livingRoom";
 import type { InteriorsWorkflowCatalogView } from "../../domain/desktopUx";
@@ -36,6 +36,7 @@ export type InteriorsWorkflowAreaPanelProps = {
   onRenameRoom?: (roomId: string, name: string) => void;
   onDeleteRoom?: (roomId: string) => void;
   onMergeRooms?: (targetRoomId: string, absorbedRoomId: string) => void;
+  onRenderSettingsChange?: (patch: Partial<RenderSettings>) => void;
   onActiveWall: (wallId: string) => void;
   onActiveOpening: (openingId: string) => void;
   onAddOpening: (wallId: string, kind: "door" | "window") => void;
