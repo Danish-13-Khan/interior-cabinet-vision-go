@@ -4,6 +4,9 @@ export type SurfaceFinish = { id: string; label: string; kind: MaterialKind; rou
 export const SURFACE_FINISHES: readonly SurfaceFinish[] = [
   { id: "matte-laminate", label: "Matte laminate", kind: "laminate", roughness: 0.75, metalness: 0, clearcoat: 0, coatRoughness: 0.7 },
   { id: "gloss-laminate", label: "Gloss laminate", kind: "laminate", roughness: 0.18, metalness: 0, clearcoat: 0.85, coatRoughness: 0.12 },
+  // Textured laminates: the grain is a bump, not a print, so the renderer gives them their own maps.
+  { id: "suede-laminate", label: "Suede laminate", kind: "laminate", roughness: 0.92, metalness: 0, clearcoat: 0, coatRoughness: 0.9 },
+  { id: "linen-laminate", label: "Linen-textured laminate", kind: "laminate", roughness: 0.68, metalness: 0, clearcoat: 0, coatRoughness: 0.7 },
   { id: "acrylic-gloss", label: "High-gloss acrylic", kind: "acrylic", roughness: 0.08, metalness: 0, clearcoat: 1, coatRoughness: 0.05 },
   { id: "acrylic-matt", label: "Matt acrylic", kind: "acrylic", roughness: 0.45, metalness: 0, clearcoat: 0.35, coatRoughness: 0.4 },
   { id: "natural-wood", label: "Natural wood", kind: "wood", roughness: 0.7, metalness: 0, clearcoat: 0.04, coatRoughness: 0.65 },
@@ -17,6 +20,18 @@ export const SURFACE_FINISHES: readonly SurfaceFinish[] = [
   { id: "fabric", label: "Woven upholstery", kind: "fabric", roughness: 0.95, metalness: 0, clearcoat: 0, coatRoughness: 1 },
   { id: "brushed-metal", label: "Brushed metal", kind: "metal", roughness: 0.4, metalness: 1, clearcoat: 0, coatRoughness: 0.4 },
 ];
+/** Solid-colour finishes: wood grain on these reads as dirt. */
+export function surfaceFinishIsSolid(id?: string) {
+  return id === "matte-laminate" || id === "gloss-laminate";
+}
+
+/** Which bump texture a textured laminate uses, or null for every other finish. */
+export function laminateTexture(id?: string): "suede" | "linen" | null {
+  if (id === "suede-laminate") return "suede";
+  if (id === "linen-laminate") return "linen";
+  return null;
+}
+
 export function getSurfaceFinish(id?: string) { return SURFACE_FINISHES.find((finish) => finish.id === id); }
 export function applySurfaceFinish(project: InteriorProject, materialId: string, finishId: string): InteriorProject {
   const finish = getSurfaceFinish(finishId);

@@ -158,6 +158,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
             onUpdateCabinetRun={props.onUpdateCabinetRun}
             onCompleteCabinetRun={props.onCompleteCabinetRun}
             onDuplicate={props.onDuplicate} onDelete={props.onDelete}
+            onImportFinish={props.onImportFinish}
             onUpdatePanelAttachment={props.onUpdatePanelAttachment}
             onSetPanelVisible={props.onSetPanelVisible}
             onAddWallPanel={props.onAddWallPanel}

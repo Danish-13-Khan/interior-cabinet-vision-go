@@ -11,6 +11,8 @@ type Props = {
   onSet: (slotName: string, materialId: string) => void;
   allowEmpty?: boolean;
   slotPolicies?: Record<string, MaterialSlotPolicy>;
+  /** Offer "import an image" on each unlocked surface, the same as a wall has. */
+  onImport?: (slotName: string, file: File) => void;
 };
 
 function materialsForSlot(
@@ -43,7 +45,7 @@ function activeSwatchId(
 }
 
 /** Slot-aware finish editor — shared by object and opening inspectors. */
-export function MaterialSlotList({ slots, materials, onSet, allowEmpty, slotPolicies }: Props) {
+export function MaterialSlotList({ slots, materials, onSet, allowEmpty, slotPolicies, onImport }: Props) {
   const names = Object.keys(slots);
   if (names.length === 0 && !allowEmpty) {
     return <p className="lr-inspector-hint">No material slots on this item.</p>;
@@ -79,6 +81,7 @@ export function MaterialSlotList({ slots, materials, onSet, allowEmpty, slotPoli
                 activeMaterialId={activeSwatchId(materials, materialId)}
                 compact
                 onPick={(nextId) => onSet(slotName, nextId)}
+                onImport={onImport ? (file) => onImport(slotName, file) : undefined}
               />
             )}
           </div>
