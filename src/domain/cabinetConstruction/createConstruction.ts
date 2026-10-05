@@ -1,12 +1,8 @@
 import type { CabinetConfig } from "../cabinetDimensions";
 import { clampCabinetConfig } from "../cabinetDimensions";
 import { resolveCabinetComposition } from "../cabinetComposition";
-import {
-  BACK_PANEL_RULES,
-  DEFAULT_BUILD_RULES,
-  resolveCabinetMaterialSpec,
-  type CabinetBuildRules,
-} from "../materialSystem";
+import { BACK_PANEL_RULES, resolveCabinetMaterialSpec } from "../materialSystem";
+import { resolveCabinetBuildRules } from "./buildRules";
 import {
   SHELF_PIN_SETBACK_MM,
   getCaseJoineryNote,
@@ -22,10 +18,7 @@ import type { CabinetConstruction, CabinetPart } from "./types";
 
 export function createCabinetConstruction(config: CabinetConfig): CabinetConstruction {
   const safeConfig = clampCabinetConfig(config);
-  const buildRules: CabinetBuildRules = {
-    ...DEFAULT_BUILD_RULES,
-    ...(safeConfig.buildRules ?? {}),
-  };
+  const buildRules = resolveCabinetBuildRules(safeConfig);
   const constructionSpec = normalizeConstructionSpec(
     safeConfig.type,
     safeConfig.construction,
