@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import {
+  CABINET_OFF_GRID_HINT,
   CABINET_ROTATION_HINT,
   formatRotationDeg,
+  isOffQuarterTurn,
   rotatesInQuarterTurns,
   rotationStepFor,
 } from "../../domain/livingRoom/objectRotation";
@@ -26,10 +28,8 @@ export function InspectorRotationField({ object, onSetRotation }: Props) {
 
   function commit() {
     const next = parseMmDraft(draft);
-    if (next === null || formatRotationDeg(next) === shown) {
-      setDraft(shown);
-      return;
-    }
+    setDraft(shown);
+    if (next === null || formatRotationDeg(next) === shown) return;
     onSetRotation(object.id, next);
   }
 
@@ -63,7 +63,10 @@ export function InspectorRotationField({ object, onSetRotation }: Props) {
           onClick={() => onSetRotation(object.id, value + 90)}>+90°</button>
       </div>
       {quarterTurns ? (
-        <p className="lr-inspector-hint" data-testid="inspector-rotation-hint">{CABINET_ROTATION_HINT}</p>
+        <p className="lr-inspector-hint" data-testid="inspector-rotation-hint">
+          {CABINET_ROTATION_HINT}
+          {isOffQuarterTurn(object) ? ` ${CABINET_OFF_GRID_HINT}` : null}
+        </p>
       ) : null}
     </div>
   );

@@ -8,6 +8,7 @@ import {
   type Size3Mm,
   type WallEntity,
 } from "../interiorProject";
+import { guardRotationFor, ROTATION_STEP_DEG } from "./objectRotation";
 import { getObjectPlanBounds } from "./planGeometry";
 
 export type LivingRoomAlignMode =
@@ -68,10 +69,10 @@ export function rotateLivingRoomObject(
   objectId: string,
   rotationY: number,
 ) {
-  const snapped = ((Math.round(rotationY / 15) * 15) % 360 + 360) % 360;
+  const snapped = Math.round(rotationY / ROTATION_STEP_DEG) * ROTATION_STEP_DEG;
   return mapObject(project, objectId, (object) => ({
     ...object,
-    rotation: { ...object.rotation, y: snapped },
+    rotation: { ...object.rotation, y: guardRotationFor(object, snapped) },
   }));
 }
 

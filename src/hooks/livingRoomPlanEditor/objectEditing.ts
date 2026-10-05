@@ -14,6 +14,7 @@ import {
   setLivingRoomObjectParameters,
   type LivingRoomAlignMode,
 } from "../../domain/livingRoom";
+import { setLivingRoomObjectRotation } from "../../domain/livingRoom/objectRotation";
 import {
   paintLivingRoomObjectSlot as commitObjectPaint,
   paintLivingRoomSelection as commitSelectionPaint,
@@ -139,7 +140,7 @@ export function objectEditingCommands(ctx: EditorCommandContext) {
     rotateInteriorSelection: rotateSelection,
     setInteriorObjectRotation: (objectId: string, rotationY: number) => {
       commitDocument(
-        (current) => rotateLivingRoomObject(current, objectId, rotationY),
+        (current) => setLivingRoomObjectRotation(current, objectId, rotationY),
         "Changed object rotation.",
       );
     },

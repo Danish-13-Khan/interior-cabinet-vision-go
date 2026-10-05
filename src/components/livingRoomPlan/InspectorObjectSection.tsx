@@ -63,7 +63,7 @@ export function InspectorObjectSection(props: Props) {
           onChange={(value) => props.onMove(object.id, { ...position, y: value })} />
         <NumberField label="Z" value={position.z}
           onChange={(value) => props.onMove(object.id, { ...position, z: value })} />
-        <InspectorRotationField object={object} onSetRotation={props.onSetRotation} />
+        <InspectorRotationField key={object.id} object={object} onSetRotation={props.onSetRotation} />
       </div>
     </details>
     </>
