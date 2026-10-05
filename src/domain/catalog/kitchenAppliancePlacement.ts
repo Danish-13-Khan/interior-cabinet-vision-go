@@ -15,9 +15,9 @@ export function snapCatalogObjectsToWall(
   project: InteriorProject,
   wallId: string,
   placements: ReadonlyArray<KitchenWallPlacement>,
+  roomId = project.activeRoomId ?? project.rooms[0]?.id,
 ): InteriorProject {
   const stored = project.walls.find((wall) => wall.id === wallId);
-  const roomId = project.activeRoomId ?? project.rooms[0]?.id;
   if (!stored || !roomId) return project;
   const wall = orientWallForRoom(project, roomId, stored);
   const length = wallLength(wall);

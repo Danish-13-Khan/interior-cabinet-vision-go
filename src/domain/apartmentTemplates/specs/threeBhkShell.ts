@@ -1,0 +1,71 @@
+import type { ApartmentTemplateSpec } from "../types";
+import { DEFAULT_FINISH_ROLES } from "./finishRoles";
+
+/**
+ * 3 BHK shell ≈ 12600×9200 (115 m²). Also doubles as D2 spike (≥8 cuts,
+ * including T-junctions from nested guillotine splits).
+ */
+export const THREE_BHK_SHELL_SPEC: ApartmentTemplateSpec = {
+  id: "template:apartment:3bhk:v1",
+  name: "3 BHK · Premium warm",
+  description: "Foyer, living, kitchen, three bedrooms, baths, utility, balcony",
+  styleId: "warm-contemporary",
+  lightingRecipeId: "warm-evening",
+  mood: "evening",
+  shell: {
+    widthMm: 12600,
+    depthMm: 9200,
+    heightMm: 2850,
+    externalWallMm: 230,
+    internalWallMm: 115,
+  },
+  splits: [
+    { key: "foyer-cut", inCell: "root", axis: "z", atMm: -3100, cells: ["foyer-strip", "main"] },
+    { key: "foyer-guest", inCell: "foyer-strip", axis: "x", atMm: -2100, cells: ["foyer", "guest-block"] },
+    { key: "guest-bath", inCell: "guest-block", axis: "x", atMm: 2100, cells: ["guest", "guest-bath"] },
+    { key: "west-east", inCell: "main", axis: "x", atMm: 600, cells: ["west", "east"] },
+    { key: "living-balcony", inCell: "west", axis: "z", atMm: 2600, cells: ["living-core", "balcony"] },
+    { key: "living-kitchen", inCell: "living-core", axis: "z", atMm: -400, cells: ["kitchen-util", "living"] },
+    { key: "kitchen-util", inCell: "kitchen-util", axis: "x", atMm: -2400, cells: ["kitchen", "utility"] },
+    { key: "master-kids", inCell: "east", axis: "z", atMm: 400, cells: ["kids-study", "master-block"] },
+    { key: "master-ensuite", inCell: "master-block", axis: "x", atMm: 3600, cells: ["master", "master-bath"] },
+    { key: "kids-study", inCell: "kids-study", axis: "x", atMm: 3600, cells: ["kids", "study"] },
+  ],
+  rooms: [
+    { key: "foyer", cell: "foyer", name: "Foyer", roomType: "custom", compose: { kind: "none" } },
+    { key: "guest", cell: "guest", name: "Guest", roomType: "bedroom", compose: { kind: "none" } },
+    { key: "guest-bath", cell: "guest-bath", name: "Guest Bath", roomType: "bathroom", compose: { kind: "none" } },
+    { key: "living", cell: "living", name: "Living", roomType: "living-room", compose: { kind: "none" } },
+    { key: "balcony", cell: "balcony", name: "Balcony", roomType: "custom", compose: { kind: "none" } },
+    { key: "kitchen", cell: "kitchen", name: "Kitchen", roomType: "kitchen", compose: { kind: "none" } },
+    { key: "utility", cell: "utility", name: "Utility", roomType: "utility", compose: { kind: "none" } },
+    { key: "master", cell: "master", name: "Master", roomType: "bedroom", compose: { kind: "none" } },
+    { key: "master-bath", cell: "master-bath", name: "Master Bath", roomType: "bathroom", compose: { kind: "none" } },
+    { key: "kids", cell: "kids", name: "Kids", roomType: "bedroom", compose: { kind: "none" } },
+    { key: "study", cell: "study", name: "Study", roomType: "office", compose: { kind: "none" } },
+  ],
+  openings: [
+    { kind: "door", between: ["foyer", "kitchen"], offsetMm: 400, widthMm: 1000 },
+    { kind: "door", between: ["foyer", "guest"], offsetMm: 300, widthMm: 800 },
+    { kind: "door", between: ["guest", "guest-bath"], offsetMm: 200, widthMm: 700 },
+    { kind: "door", between: ["living", "master"], offsetMm: 400, widthMm: 900 },
+    { kind: "door", between: ["master", "master-bath"], offsetMm: 200, widthMm: 700 },
+    { kind: "door", between: ["living", "kids"], offsetMm: 300, widthMm: 800 },
+    { kind: "door", between: ["kids", "study"], offsetMm: 200, widthMm: 800 },
+    { kind: "opening", between: ["living", "kitchen"], offsetMm: 500, widthMm: 1400 },
+    { kind: "door", between: ["kitchen", "utility"], offsetMm: 150, widthMm: 700 },
+    {
+      kind: "door",
+      between: ["living", "balcony"],
+      offsetMm: 600,
+      widthMm: 1800,
+      catalogItemId: "opening:door-sliding",
+    },
+    { kind: "door", between: { room: "foyer", side: "south" }, offsetMm: 400, widthMm: 1000 },
+    { kind: "window", between: { room: "living", side: "west" }, offsetMm: 800, widthMm: 1600, sillHeightMm: 900 },
+    { kind: "window", between: { room: "master", side: "east" }, offsetMm: 600, widthMm: 1400, sillHeightMm: 900 },
+    { kind: "window", between: { room: "balcony", side: "north" }, offsetMm: 400, widthMm: 2000, sillHeightMm: 100 },
+  ],
+  heroRoomKey: "living",
+  finishRoles: { ...DEFAULT_FINISH_ROLES },
+};
