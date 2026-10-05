@@ -19,6 +19,7 @@ import {
   renderOpeningBoundaries,
   renderOpeningChrome,
 } from "./openingChrome";
+import { renderGolaProfiles } from "./resolvedFronts";
 import type { ElevationSvgOptions } from "./svgPrimitives";
 
 /**
@@ -146,6 +147,7 @@ export function renderElevationFaceGraphics(
       ),
     );
   }
+  elements.push(...renderGolaProfiles(cabinet.config, layout, cabinetSvgX, cabinetSvgY, scale));
 
   return elements;
 }

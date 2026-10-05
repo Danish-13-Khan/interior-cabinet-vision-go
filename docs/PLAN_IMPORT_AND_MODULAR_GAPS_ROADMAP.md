@@ -146,7 +146,11 @@ Placement rule: **L** sits under the worktop on base and tall-top fronts.
 below it. `resolveFrontGaps` subtracts the recess from the relevant fronts.
 The carcass side parts get a **notch note** (machine op `"notch"`, scalar
 size), because cut-list outlines stay rectangular (G8). The hardware line is
-`gola-<profile>` in metres, summed per run. `handleCount` = 0.
+`gola-<profile>` in metres, summed per run. Handles drop only on fronts a
+profile grips (`FrontLeaf.golaGrip`: L/C along the top, wall profile along the
+bottom); any other front — e.g. a lone full-height tall door — keeps its handle
+and is counted on the hardware list. Gola prices in the catalog are
+placeholders (labelled "placeholder price") until supplier rates arrive.
 
 ### 4.4 Hosted appliance — object `parameters`
 
@@ -264,8 +268,17 @@ bands and returns them as `profiles`; 3D draws each as a `"metal"` box recessed
 into the carcass front; side parts carry a `Gola notch: …` note; hardware drops
 handles and adds `gola-l` / `gola-c` / `gola-wall` lines in metres (kind
 `"profile"`), summed per run by the schedule. Switching back to Handles gives
-identical parts. **Not yet:** run-level "apply to run", the classic editor
-field, gola in 2D elevations, profile finish, and a real CNC notch op.
+identical parts.
+
+**Review fixes (2026-10-05):** fronts with no profile keep their handle and
+the inspector + Review panel warn about them; a gola cabinet whose run
+neighbours use other sizes (or handles, in the same band) warns, and **Match
+run** copies its sizes to every run member; 2D elevation fronts now come from
+`resolveFrontGaps` (sizes match the cut list for every cabinet, handles drop on
+gripped fronts, profile bands drawn dashed); the notch note gives its span and
+reference edges; 3D profile boxes stop inside the sides / under the top.
+**Not yet:** the classic editor field, profile finish, vertical / push-to-open
+options for tall units, and a real CNC notch op.
 
 ### Phase 6 — Handles and door styles in 3D (answers Modular Q3, partly)
 

@@ -10,9 +10,11 @@ export function golaNotchNote(config: CabinetConfig): string | null {
   const { profiles } = resolveFrontGaps(config);
   if (!profiles.length) return null;
   const toeKick = config.toeKickHeight;
-  const notches = profiles.map((band) =>
-    `${band.kind === "wall" ? "wall" : band.kind} ${mm(band.heightMm)}×${mm(band.depthMm)} mm at ${mm(toeKick + band.yMm)} mm`);
-  return `Gola notch: ${[...new Set(notches)].join("; ")}`;
+  const notches = profiles.map((band) => {
+    const from = toeKick + band.yMm;
+    return `${band.kind} ${mm(band.heightMm)}×${mm(band.depthMm)} mm from ${mm(from)} to ${mm(from + band.heightMm)} mm`;
+  });
+  return `Gola notch: ${[...new Set(notches)].join("; ")} (heights from the side's bottom edge, depth from its front edge)`;
 }
 
 export function appendGolaNotchNotes(parts: CabinetPart[], config: CabinetConfig): void {

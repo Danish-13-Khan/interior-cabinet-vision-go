@@ -39,4 +39,16 @@ test.describe("Gola handleless fronts (Phase 5)", () => {
     await expect(page.getByTestId("cabinet-gola-L")).toHaveCount(0);
     await expect(page.getByTestId("cabinet-gola-wall-depth")).toHaveValue("23");
   });
+
+  test("a gola cabinet beside handled ones warns until the run is matched", async ({ page }) => {
+    await openGoldenCabinetRun(page);
+    await openConstruction(page, GOLDEN_RUN_OBJECT_IDS.baseA);
+    await page.getByTestId("cabinet-front-system").selectOption("gola");
+    await expect(page.getByTestId("cabinet-gola-run-warning")).toBeVisible();
+    await page.getByTestId("cabinet-gola-match-run").click();
+    await expect(page.getByTestId("cabinet-gola-run-warning")).toHaveCount(0);
+
+    await openConstruction(page, GOLDEN_RUN_OBJECT_IDS.baseB);
+    await expect(page.getByTestId("cabinet-front-system")).toHaveValue("gola");
+  });
 });

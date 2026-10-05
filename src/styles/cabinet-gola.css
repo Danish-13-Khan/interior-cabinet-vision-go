@@ -25,3 +25,26 @@
   grid-column: 1 / -1;
   margin: 0;
 }
+
+.lr-gola-warning {
+  margin: 0;
+  color: var(--warning);
+  font-size: var(--text-xs);
+}
+
+.lr-gola-match-run {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.technical-view .twod-gola-profile {
+  stroke: var(--draft-outline);
+  stroke-width: 0.85px;
+  stroke-dasharray: 4 2;
+  vector-effect: non-scaling-stroke;
+}

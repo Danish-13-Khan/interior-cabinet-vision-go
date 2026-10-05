@@ -4,7 +4,7 @@ import { getResolvedDoorCount, resolveCabinetComposition } from "../cabinetCompo
 import { getHardwareItem, normalizeCabinetHardware } from "./normalize";
 import type { HardwareLine } from "./types";
 import { layoutCabinetElevationFace } from "../openingLayout";
-import { resolveFrontGaps } from "../cabinetConstruction/frontGaps";
+import { handledFrontCount, resolveFrontGaps } from "../cabinetConstruction/frontGaps";
 import { GOLA_PROFILE_CATALOG } from "../frontSystem/golaProfiles";
 
 /** Metres of each gola profile on this cabinet; summed across a run by the hardware schedule. */
@@ -60,7 +60,7 @@ export function resolveHardwareCounts(
     doorCount,
     hingeCount,
     drawerCount,
-    handleCount: gola ? 0 : doorCount + drawerFrontCount,
+    handleCount: gola ? handledFrontCount(resolveFrontGaps(cabinet.config)) : doorCount + drawerFrontCount,
     shelfCount,
   };
 }

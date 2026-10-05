@@ -10,7 +10,52 @@ import {
   elevMm,
   openingHitAttrs,
 } from "./faceMetrics";
+import { faceRectToSvg, resolvedOpeningFronts } from "./resolvedFronts";
 import { faceToSvg, line, rect, text } from "./svgPrimitives";
+
+type DrawerBox = { x: number; y: number; width: number; height: number; golaGrip: boolean };
+
+/** Top-first drawer fronts in SVG space, sized by the production resolver when it fronts this opening. */
+function drawerBoxes(
+  opening: OpeningFaceRect,
+  cabinet: CabinetInstance,
+  cabinetSvgX: number,
+  cabinetSvgY: number,
+  layout: CabinetElevationFaceLayout,
+  scale: number,
+): DrawerBox[] {
+  const resolved = resolvedOpeningFronts(cabinet.config, opening.id);
+  if (resolved) {
+    return [...resolved.leaves].reverse().map((leaf) => ({
+      ...faceRectToSvg(leaf, layout, cabinetSvgX, cabinetSvgY, scale),
+      golaGrip: Boolean(leaf.golaGrip),
+    }));
+  }
+  const count = Math.max(1, opening.drawerCount || 1);
+  const sideGap = elevMm(scale, ELEV_DRAWER_SIDE_MM);
+  const centerGap = elevMm(scale, ELEV_DRAWER_GAP_MM);
+  const bottomGap = elevMm(scale, ELEV_DRAWER_BOTTOM_MM);
+  const topLeft = faceToSvg(
+    layout.leftFillerMm + opening.xMm,
+    layout.toeKickHeightMm + opening.yMm + opening.heightMm,
+    cabinetSvgX,
+    cabinetSvgY,
+    layout.carcassHeightMm,
+    scale,
+  );
+  const width = opening.widthMm / scale;
+  const height = opening.heightMm / scale;
+  const available = Math.max(count * 4, height - centerGap - bottomGap - centerGap * (count - 1));
+  const ratios = opening.drawerRatios?.length === count
+    ? opening.drawerRatios
+    : Array.from({ length: count }, () => 1 / count);
+  let cursor = topLeft.y + centerGap;
+  return ratios.map((ratio) => {
+    const box = { x: topLeft.x + sideGap, y: cursor, width: Math.max(2, width - sideGap * 2), height: available * ratio, golaGrip: false };
+    cursor += box.height + centerGap;
+    return box;
+  });
+}
 
 export function renderDrawerStack(
   opening: OpeningFaceRect,
@@ -22,43 +67,11 @@ export function renderDrawerStack(
   active: boolean,
 ): string[] {
   const elements: string[] = [];
-  const count = Math.max(1, opening.drawerCount || 1);
-  const faceOriginX = layout.leftFillerMm;
-  const faceOriginY = layout.toeKickHeightMm;
-  const sideGap = elevMm(scale, ELEV_DRAWER_SIDE_MM);
-  const centerGap = elevMm(scale, ELEV_DRAWER_GAP_MM);
-  const bottomGap = elevMm(scale, ELEV_DRAWER_BOTTOM_MM);
-  const topGap = elevMm(scale, ELEV_DRAWER_GAP_MM);
-
-  const ox = faceOriginX + opening.xMm;
-  const oy = faceOriginY + opening.yMm;
-  const topLeft = faceToSvg(
-    ox,
-    oy + opening.heightMm,
-    cabinetSvgX,
-    cabinetSvgY,
-    layout.carcassHeightMm,
-    scale,
-  );
-  const width = opening.widthMm / scale;
-  const height = opening.heightMm / scale;
-  const available = Math.max(
-    count * 4,
-    height - topGap - bottomGap - centerGap * (count - 1),
-  );
-  const ratios =
-    opening.drawerRatios?.length === count
-      ? opening.drawerRatios
-      : Array.from({ length: count }, () => 1 / count);
-  const frontW = Math.max(2, width - sideGap * 2);
-
-  let drawerCursor = topLeft.y + topGap;
-  for (let index = 0; index < count; index += 1) {
-    const drawerH = available * (ratios[index] ?? 1 / count);
-    const dy = drawerCursor;
+  drawerBoxes(opening, cabinet, cabinetSvgX, cabinetSvgY, layout, scale).forEach((box, index) => {
+    const { x, y: dy, width: frontW, height: drawerH } = box;
     elements.push(
       rect(
-        topLeft.x + sideGap,
+        x,
         dy,
         frontW,
         drawerH,
@@ -67,7 +80,7 @@ export function renderDrawerStack(
     );
     elements.push(
       rect(
-        topLeft.x + sideGap,
+        x,
         dy,
         frontW,
         drawerH,
@@ -76,9 +89,9 @@ export function renderDrawerStack(
     );
     elements.push(
       line(
-        topLeft.x + sideGap,
+        x,
         dy,
-        topLeft.x + sideGap + frontW,
+        x + frontW,
         dy,
         `class="twod-drawer-reveal twod-line-reference" pointer-events="none"`,
       ),
@@ -86,35 +99,36 @@ export function renderDrawerStack(
     // Side box depth cue
     elements.push(
       line(
-        topLeft.x + sideGap,
+        x,
         dy + elevMm(scale, 6),
-        topLeft.x + sideGap + elevMm(scale, 10),
+        x + elevMm(scale, 10),
         dy + elevMm(scale, 6),
         `class="twod-line-hidden twod-drawer-box-cue" pointer-events="none"`,
       ),
     );
-    const pullY = dy + drawerH / 2;
-    const pullW = Math.min(frontW * 0.32, elevMm(scale, 140));
-    elements.push(
-      line(
-        topLeft.x + width / 2 - pullW / 2,
-        pullY,
-        topLeft.x + width / 2 + pullW / 2,
-        pullY,
-        `class="twod-cabinet-opening twod-drawer-pull" pointer-events="none"`,
-      ),
-    );
+    if (!box.golaGrip) {
+      const pullY = dy + drawerH / 2;
+      const pullW = Math.min(frontW * 0.32, elevMm(scale, 140));
+      elements.push(
+        line(
+          x + frontW / 2 - pullW / 2,
+          pullY,
+          x + frontW / 2 + pullW / 2,
+          pullY,
+          `class="twod-cabinet-opening twod-drawer-pull" pointer-events="none"`,
+        ),
+      );
+    }
     if (drawerH > elevMm(scale, 80) && frontW > elevMm(scale, 120)) {
       elements.push(
         text(
-          topLeft.x + sideGap + elevMm(scale, 8),
+          x + elevMm(scale, 8),
           dy + elevMm(scale, 14),
           `D${index + 1}`,
           `class="twod-drawer-index" font-size="5.5" pointer-events="none"`,
         ),
       );
     }
-    drawerCursor += drawerH + centerGap;
-  }
+  });
   return elements;
 }

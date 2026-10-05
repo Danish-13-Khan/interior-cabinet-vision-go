@@ -1,18 +1,19 @@
 import { supportsDoors, supportsDrawers } from "../../domain/cabinetCapabilities";
 import { readCabinetIdentity } from "../../domain/cabinetIdentity";
 import { GolaFrontFields } from "./GolaFrontFields";
-import type { InteriorObjectEntity } from "../../domain/interiorProject";
+import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import { cabinetFinishId } from "../../domain/livingRoom";
 import { InspectorSection } from "./InspectorSection";
 import { NumberField } from "./NumberField";
 
 type Props = {
   object: InteriorObjectEntity;
+  project: InteriorProject;
   onSetParameters: (objectId: string, patch: Record<string, string | number | boolean>) => void;
 };
 
 /** Cabinet finish, door style and box counts (collapsed by default). */
-export function CabinetConstructionSection({ object, onSetParameters }: Props) {
+export function CabinetConstructionSection({ object, project, onSetParameters }: Props) {
   const identity = readCabinetIdentity(object);
   const compiled = identity !== null;
   return (
@@ -35,7 +36,7 @@ export function CabinetConstructionSection({ object, onSetParameters }: Props) {
         </select>
       </label>
       {identity && (supportsDoors(identity.cabinetType) || supportsDrawers(identity.cabinetType)) ? (
-        <GolaFrontFields object={object} cabinetType={identity.cabinetType} onSetParameters={onSetParameters} />
+        <GolaFrontFields object={object} project={project} cabinetType={identity.cabinetType} onSetParameters={onSetParameters} />
       ) : null}
       {compiled ? (
         <p className="lr-inspector-hint" data-testid="cabinet-door-count-auto">Door count: auto from width</p>
