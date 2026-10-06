@@ -1,4 +1,8 @@
-import { createCabinetPlanningWorkflow, type CountertopSegment } from "../cabinetRuns";
+import {
+  COUNTERTOP_HOST_MAX_HEIGHT_MM,
+  createCabinetPlanningWorkflow,
+  type CountertopSegment,
+} from "../cabinetRuns";
 import { cabinetProjectFromInteriorProject } from "../interiorProject";
 import { roomFrame } from "../interiorProject/roomFrame";
 import type { InteriorProject } from "../interiorProject";
@@ -44,9 +48,6 @@ export function countertopBoxSizeMm(segment: CountertopSegment) {
   const alongZ = segment.axis === "z" ? segment.widthMm : segment.depthMm;
   return { width: alongX, height: segment.thicknessMm, depth: alongZ };
 }
-
-/** Worktops sit on base-height cabinets; a taller host (corner wardrobe) never gets one. */
-const COUNTERTOP_HOST_MAX_HEIGHT_MM = 1200;
 
 /**
  * Run countertops — never authored through tall cabinets. The classic adapter

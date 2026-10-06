@@ -18,6 +18,10 @@ export function roomFrame(project: InteriorProject, roomId: string): RoomFrame {
   };
 }
 
+/** Near the origin still uses the centred clamp. 1e-12 must not skip it. */
+const ORIGIN_TOLERANCE_MM = 0.5;
+
 export function frameIsOrigin(frame: RoomFrame): boolean {
-  return frame.centre.x === 0 && frame.centre.z === 0;
+  return Math.abs(frame.centre.x) < ORIGIN_TOLERANCE_MM
+    && Math.abs(frame.centre.z) < ORIGIN_TOLERANCE_MM;
 }

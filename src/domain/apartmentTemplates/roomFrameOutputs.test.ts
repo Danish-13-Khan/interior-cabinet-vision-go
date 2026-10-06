@@ -1,18 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { createCabinetPlanningWorkflow, FILLER_MAX_MM, FILLER_MIN_MM } from "../cabinetRuns";
+import {
+  COUNTERTOP_HOST_MAX_HEIGHT_MM,
+  createCabinetPlanningWorkflow,
+  FILLER_MAX_MM,
+  FILLER_MIN_MM,
+} from "../cabinetRuns";
 import { worktopTopsByObjectId } from "../hostedAppliances";
 import {
   cabinetProjectFromInteriorProject,
   pointInRoomPolygon,
   roomPlanPolygon,
+  type InteriorProject,
 } from "../interiorProject";
-import type { InteriorProject } from "../interiorProject";
 import { roomFrame } from "../interiorProject/roomFrame";
 import { compileCabinetRunExtras } from "../livingRoom/cabinetSceneRunExtras";
 import { isCabinetRunFiller } from "../livingRoom/cabinetRunFillers";
 import { compileLivingRoomScene } from "../livingRoom/sceneCompiler";
 import { buildReportItemList } from "../projectReport/scheduleRows";
 import { createTechnicalView } from "../technicalViews";
+import { SCALE } from "../technicalViews/constants";
 import { COMPOSER_TEST_NOW } from "./composers/bareRoom";
 import { objectBox } from "./composers/objectBounds";
 import { APARTMENT_TEMPLATE_IDS, composeApartment, lookupApartmentTemplate } from "./index";
@@ -30,6 +36,48 @@ function planRoom(project: InteriorProject, roomId: string) {
     frame: roomFrame(project, roomId),
     workflow: createCabinetPlanningWorkflow(adapted.project, { widthMm, depthMm, heightMm }),
   };
+}
+
+function svgRect(svg: string, pattern: RegExp) {
+  const match = svg.match(pattern);
+  if (!match) return null;
+  return { x: Number(match[1]), y: Number(match[2]), width: Number(match[3]), height: Number(match[4]) };
+}
+
+function planCabinetRects(svg: string) {
+  const rects = [];
+  const pattern = /<rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)" data-cabinet-id="[^"]+" class="[^"]*twod-cabinet-(?:floor|wall|rotated)/g;
+  for (const match of svg.matchAll(pattern)) {
+    rects.push({
+      x: Number(match[1]),
+      y: Number(match[2]),
+      width: Number(match[3]),
+      height: Number(match[4]),
+    });
+  }
+  return rects;
+}
+
+type SvgBox = { x: number; y: number; width: number; height: number };
+
+function rectInside(inner: SvgBox, outer: SvgBox, slack = 0.01) {
+  return inner.x >= outer.x - slack
+    && inner.y >= outer.y - slack
+    && inner.x + inner.width <= outer.x + outer.width + slack
+    && inner.y + inner.height <= outer.y + outer.height + slack;
+}
+
+/** Outline is the wall centreline. A carcass may cross it by less than half the wall. */
+function planRectInRoom(cabinet: SvgBox, room: SvgBox, wallSlack: number) {
+  const centre = { x: cabinet.x + cabinet.width / 2, y: cabinet.y + cabinet.height / 2 };
+  const centreInRoom = centre.x >= room.x && centre.x <= room.x + room.width
+    && centre.y >= room.y && centre.y <= room.y + room.height;
+  return centreInRoom && rectInside(cabinet, {
+    x: room.x - wallSlack,
+    y: room.y - wallSlack,
+    width: room.width + wallSlack * 2,
+    height: room.height + wallSlack * 2,
+  });
 }
 
 function expectOnBox(x: number, z: number, box: ReturnType<typeof objectBox>) {
@@ -90,7 +138,7 @@ describe("apartment room frame outputs sit on their cabinets", () => {
         for (const cabinetId of segment.cabinetIds) {
           const host = project.objects.find((object) => object.id === cabinetId);
           expect(host, cabinetId).toBeTruthy();
-          if (host!.dimensions.heightMm > 1200) {
+          if (host!.dimensions.heightMm > COUNTERTOP_HOST_MAX_HEIGHT_MM) {
             expect(tops.has(cabinetId)).toBe(false);
             continue;
           }
@@ -109,6 +157,13 @@ describe("apartment room frame outputs sit on their cabinets", () => {
       const { adapted, frame, workflow } = planRoom(project, room.id);
       const drawing = createTechnicalView(adapted.project, adapted.room, "top", workflow.countertops);
       expect(drawing.svg.length).toBeGreaterThan(100);
+      if (adapted.project.cabinets.length > 0) {
+        const outline = svgRect(drawing.svg, /<rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)" class="[^"]*twod-plan-floor/);
+        const cabinets = planCabinetRects(drawing.svg);
+        expect(outline, room.id).toBeTruthy();
+        const wallSlack = adapted.room.dimensions.wallThicknessMm / 2 / SCALE;
+        expect(cabinets.some((rect) => planRectInRoom(rect, outline!, wallSlack)), room.id).toBe(true);
+      }
       const rows = buildReportItemList(adapted.project);
       for (const cabinet of adapted.project.cabinets) {
         const object = project.objects.find((item) => item.id === (cabinet.interiorObjectId ?? cabinet.id));

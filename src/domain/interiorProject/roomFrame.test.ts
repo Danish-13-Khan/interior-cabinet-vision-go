@@ -13,7 +13,7 @@ import { resolveRecipeLightSeed } from "../livingRoom/lighting";
 import { createLivingRoomStarterProject } from "../livingRoom/preset";
 import { compileLivingRoomScene } from "../livingRoom/sceneCompiler";
 import type { InteriorProject } from "./types";
-import { roomFrame } from "./roomFrame";
+import { frameIsOrigin, roomFrame } from "./roomFrame";
 
 const NOW = "2026-10-06T00:00:00.000Z";
 
@@ -29,6 +29,12 @@ const singles: Array<[string, InteriorProject]> = [
 ];
 
 describe("single-room projects stay on the origin frame", () => {
+  it("treats a centre within 0.5 mm as the origin", () => {
+    const span = { widthMm: 1000, depthMm: 1000 };
+    expect(frameIsOrigin({ centre: { x: 1e-12, z: 0 }, ...span })).toBe(true);
+    expect(frameIsOrigin({ centre: { x: 0.5, z: 0 }, ...span })).toBe(false);
+  });
+
   it.each(singles)("%s lights and frame match the centred scene", (_name, project) => {
     expect(roomFrame(project, project.activeRoomId).centre).toEqual({ x: 0, z: 0 });
     const scene = compileLivingRoomScene(project);

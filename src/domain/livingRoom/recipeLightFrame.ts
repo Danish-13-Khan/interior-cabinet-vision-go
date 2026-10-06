@@ -17,6 +17,10 @@ function fitToRoom(seed: number, spanMm: number, referenceMm: number) {
  * Recipe seeds are offsets from a room centred on the origin. Off-centre rooms
  * get those offsets scaled to the room and parked inside it. A room already on
  * the origin is returned unchanged so single-room scenes stay byte-identical.
+ *
+ * Preset fill is only on the room that owns the recipe light (the hero room).
+ * Other rooms have fixtures and no preset fill. Phase 8.2 overview lighting
+ * must not assume every room carries this rig.
  */
 export function placeRecipeLight(project: InteriorProject, light: LightEntity): LightEntity {
   if (typeof light.parameters.recipeId !== "string") return light;

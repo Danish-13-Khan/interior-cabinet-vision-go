@@ -20,7 +20,12 @@ import { objectId, projectName, projectSlug } from "./cabinetAdapterIds";
 import { adapterWallsForRooms, openingsForRoom, topologyForRectangularAdapter } from "./cabinetAdapterWalls";
 import { roomConfigFromDocument, roomEntitiesFromProject } from "./cabinetAdapterRooms";
 import { cabinetFromObject } from "./cabinetAdapterCabinets";
-import { cabinetObjectInWorld, centreRoomCabinets, keepOffCentrePlacements } from "./cabinetAdapterFrame";
+import {
+  cabinetsInWorld,
+  centreRoomCabinets,
+  keepOffCentrePlacements,
+  rememberReadPlacements,
+} from "./cabinetAdapterFrame";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
   type InteriorProject,
@@ -107,7 +112,7 @@ export function interiorProjectFromCabinetProject(options: {
     openings: [...preservedOpenings, ...rooms.flatMap(openingsForRoom)],
     objects: [
       ...preservedObjects,
-      ...rooms.flatMap((room) => room.cabinets.map((cabinet) => cabinetObjectInWorld(base, room.id, cabinet))),
+      ...cabinetsInWorld(base, rooms, options.project),
     ],
     extensions: {
       ...base.extensions,
@@ -165,11 +170,11 @@ export function cabinetProjectFromInteriorProject(input: unknown): {
     activeRoomId,
     interiorDocument: document,
   };
-  const project = keepOffCentrePlacements(
+  const project = rememberReadPlacements(keepOffCentrePlacements(
     document,
     rooms,
     normalizeMultiRoomProject(clampCabinetProject(seeded), active.config),
-  );
+  ));
   return {
     project,
     room: active.config,

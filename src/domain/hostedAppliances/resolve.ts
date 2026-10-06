@@ -1,4 +1,8 @@
-import { createCabinetPlanningWorkflow, DEFAULT_COUNTERTOP_THICKNESS_MM } from "../cabinetRuns";
+import {
+  COUNTERTOP_HOST_MAX_HEIGHT_MM,
+  createCabinetPlanningWorkflow,
+  DEFAULT_COUNTERTOP_THICKNESS_MM,
+} from "../cabinetRuns";
 import { cabinetProjectFromInteriorProject, type InteriorObjectEntity, type InteriorProject } from "../interiorProject";
 import type { ApplianceHost } from "./parameters";
 
@@ -19,7 +23,7 @@ export function worktopTopsByObjectId(project: InteriorProject): Map<string, num
     const lowHost = (cabinetId: string) => {
       const objectId = objectIdOf.get(cabinetId) ?? cabinetId;
       const host = project.objects.find((object) => object.id === objectId);
-      return (host?.dimensions.heightMm ?? 0) <= 1200;
+      return (host?.dimensions.heightMm ?? 0) <= COUNTERTOP_HOST_MAX_HEIGHT_MM;
     };
     for (const segment of workflow.countertops) {
       if (!segment.cabinetIds.every(lowHost)) continue;
