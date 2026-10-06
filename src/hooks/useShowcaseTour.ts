@@ -57,12 +57,14 @@ export function useShowcaseTour<P extends string>(args: {
   activeCameraId: string | null;
   setActiveCameraId: (cameraId: string | null) => void;
   canvasHostRef: RefObject<HTMLElement | null>;
+  /** A still script is driving the view; its `setLook` mood must win over the saved mood. */
+  captureSession?: boolean;
 }) {
   const { project, sceneFor, presentation, viewPreset } = args;
   const stops = useMemo(() => showcaseTourStops(project), [project]);
   const [tour, setTour] = useState<ShowcaseTourState>(IDLE_SHOWCASE_TOUR);
   const [moodOverride, setMoodOverride] = useState<LightingMood | null>(null);
-  const mode = { touring: tour.active, presentation };
+  const mode = { touring: tour.active, presentation, capture: args.captureSession === true };
   const showMood = showcaseMoodOffered(mode);
 
   const latest = useRef({ ...args, stops });

@@ -2,12 +2,16 @@ import type { RenderComposition } from "../interiorProject";
 import type { CabinetRunAudience } from "../livingRoom/cabinetRunFrame";
 import type { LightingMood } from "../livingRoom/lightingMood";
 
-/** How Model View is being shown: authoring, touring, presenting to a client, or touring inside Present. */
-export type ShowcaseViewMode = { touring: boolean; presentation: boolean };
+/**
+ * How Model View is being shown: authoring, touring, presenting to a client, or
+ * touring inside Present. `capture` is a still script driving the view through
+ * the card-capture hook; it chooses the mood the still is graded against.
+ */
+export type ShowcaseViewMode = { touring: boolean; presentation: boolean; capture?: boolean };
 
-/** The view-only Day/Evening toggle is offered while touring or presenting. */
+/** The view-only Day/Evening toggle is offered while touring, presenting, or capturing stills. */
 export function showcaseMoodOffered(mode: ShowcaseViewMode): boolean {
-  return mode.touring || mode.presentation;
+  return mode.touring || mode.presentation || mode.capture === true;
 }
 
 /**

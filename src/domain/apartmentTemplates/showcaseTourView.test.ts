@@ -10,6 +10,9 @@ describe("Showcase tour view state", () => {
   it("offers the view-only mood while touring or presenting, never while authoring", () => {
     expect(showcaseMoodOffered(authoring)).toBe(false);
     for (const mode of [touring, presenting, touringInPresent]) expect(showcaseMoodOffered(mode)).toBe(true);
+    // A still script's setLook mood applies in plain Model View too.
+    expect(showcaseMoodOffered({ ...authoring, capture: true })).toBe(true);
+    expect(showcaseMoodOverride("evening", { ...authoring, capture: true })).toBe("evening");
   });
 
   it("drops the mood override once the tour ends or Present is left", () => {
