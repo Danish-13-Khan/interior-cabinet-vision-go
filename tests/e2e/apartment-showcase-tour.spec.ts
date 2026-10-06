@@ -56,7 +56,7 @@ test("3 BHK tour visits every room in order, glides without stalls, and adds no 
   expect(saveStateUnchanged(probe.saveLabels), probe.saveLabels.join(" | ")).toBe(true);
 });
 
-test("Escape, canvas click, orbit drag, wheel and leaving 3D stop the tour; mood stays view-only", async ({ page }) => {
+test("Escape, canvas input, Fit Room, F, camera menu and leaving 3D stop the tour; mood stays view-only", async ({ page }) => {
   test.setTimeout(240_000);
   await installTourProbe(page);
   await openThreeBhkIn3d(page);
@@ -85,6 +85,24 @@ test("Escape, canvas click, orbit drag, wheel and leaving 3D stop the tour; mood
   await page.mouse.move(centre.x, centre.y);
   await page.mouse.wheel(0, 240);
   await expectTourStopped(page, "canvas");
+
+  // Camera commands outside the canvas take the camera back too.
+  await startTour(page);
+  await page.getByTestId("model-fit-room").click();
+  await expectTourStopped(page, "user");
+
+  await startTour(page);
+  await canvas.focus();
+  await page.keyboard.press("f");
+  await expectTourStopped(page, "user");
+
+  await startTour(page);
+  await page.getByTestId("model-view-settings").getByRole("button").first().click();
+  const cameraMenu = page.getByTestId("model-view-settings").getByRole("combobox", { name: /^Camera/ });
+  const otherCamera = await cameraMenu.locator("option").last().getAttribute("value");
+  await cameraMenu.selectOption(otherCamera!);
+  await expectTourStopped(page, "user");
+  await page.keyboard.press("Escape");
 
   // Mood: the tour's Day/Evening toggle changes the view only.
   await resetTourProbe(page);

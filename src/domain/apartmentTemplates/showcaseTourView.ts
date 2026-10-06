@@ -19,6 +19,20 @@ export function showcaseMoodOverride(override: LightingMood | null, mode: Showca
 }
 
 /**
+ * A camera command from outside the canvas (camera menu pick, Fit Room, F key)
+ * takes the camera back like canvas input does: stop the tour first, then run it.
+ */
+export function stoppingTourFirst<A extends unknown[]>(
+  stopTour: () => void,
+  command: (...args: A) => void,
+): (...args: A) => void {
+  return (...args) => {
+    stopTour();
+    command(...args);
+  };
+}
+
+/**
  * Camera framing: while touring, each showcase camera is shown as authored
  * (no cabinet-run framing, no architectural re-frame); otherwise Present frames
  * the run for the client and authoring frames it for the designer.

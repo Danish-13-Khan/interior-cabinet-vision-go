@@ -39,7 +39,7 @@ export type ShowcaseTourSessionView<P extends string> = {
   restoreCameraId: (cameraBefore: string | null) => string | null;
   /**
    * Resolves once the room on screen has its models loaded and drawn (enables
-   * the warm-up pre-roll). Should resolve early once `signal` aborts (tour stopped).
+   * the warm-up pre-roll). Should resolve early once `signal` aborts (tour stopped or warm-up out of time).
    */
   waitForRoomReady?: (signal: AbortSignal) => Promise<void>;
 };
@@ -59,7 +59,6 @@ export class ShowcaseTourSession<P extends string> {
   private atStart: TourWatchState | null = null;
   private presetBefore: P | null = null;
   private cameraBefore: string | null = null;
-  private warmAbort: AbortController | null = null;
   private disposed = false;
 
   constructor(
@@ -81,18 +80,17 @@ export class ShowcaseTourSession<P extends string> {
     this.atStart = { activeRoomId: at.activeRoomId, viewPreset: "perspective" };
     this.presetBefore = at.viewPreset;
     this.cameraBefore = at.cameraId;
-    const warmAbort = new AbortController();
-    this.warmAbort = warmAbort;
+    const { waitForRoomReady } = this.view;
     this.controller = new ShowcaseTourController(stops, {
       show: (stop, index, glideMs) => {
         this.view.setTour({ active: true, preparing: false, index, roomId: stop.roomId, lastStopReason: null });
         requestShowcaseCameraJump({ cameraId: stop.cameraId, glideMs });
       },
       end: (reason) => this.end(reason),
-      warm: this.view.waitForRoomReady ? (stop, index) => {
+      warm: waitForRoomReady ? (stop, index, signal) => {
         this.view.setTour({ active: true, preparing: true, index, roomId: stop.roomId, lastStopReason: null });
         requestShowcaseCameraJump({ cameraId: stop.cameraId, glideMs: 1 });
-        return this.view.waitForRoomReady!(warmAbort.signal);
+        return waitForRoomReady(signal);
       } : undefined,
     }, this.scheduler, this.timing);
     if (input) {
@@ -121,8 +119,6 @@ export class ShowcaseTourSession<P extends string> {
   private end(reason: ShowcaseTourStopReason): void {
     this.unbind?.();
     this.unbind = null;
-    this.warmAbort?.abort();
-    this.warmAbort = null;
     if (this.disposed) return;
     this.view.setTour({ ...IDLE_SHOWCASE_TOUR, lastStopReason: reason });
     this.view.setActiveCameraId(this.view.restoreCameraId(this.cameraBefore));

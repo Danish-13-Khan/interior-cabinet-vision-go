@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { showcaseCameraFraming, showcaseMoodOffered, showcaseMoodOverride } from "./showcaseTourView";
+import { showcaseCameraFraming, showcaseMoodOffered, showcaseMoodOverride, stoppingTourFirst } from "./showcaseTourView";
 
 const authoring = { touring: false, presentation: false };
 const touring = { touring: true, presentation: false };
@@ -27,5 +27,14 @@ describe("Showcase tour view state", () => {
     expect(showcaseCameraFraming(touringInPresent)).toEqual({ composition: "project-camera" });
     expect(showcaseCameraFraming(presenting)).toEqual({ frameRun: "client" });
     expect(showcaseCameraFraming(authoring)).toEqual({ frameRun: "author" });
+  });
+
+  it("camera menu, Fit Room and F stop the tour before they run", () => {
+    const calls: string[] = [];
+    const pickCamera = stoppingTourFirst(() => calls.push("stop"), (cameraId: string | null) => calls.push(`camera:${cameraId}`));
+    const fitRoom = stoppingTourFirst(() => calls.push("stop"), () => calls.push("fit"));
+    pickCamera("cam-kitchen");
+    fitRoom();
+    expect(calls).toEqual(["stop", "camera:cam-kitchen", "stop", "fit"]);
   });
 });

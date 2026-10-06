@@ -28,6 +28,7 @@ import { useModelViewTransform } from "../hooks/useModelViewTransform";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
 import { useShowcaseTour } from "../hooks/useShowcaseTour";
 import { ShowcaseTourControls } from "./livingRoomScene/ShowcaseTourControls";
+import { stoppingTourFirst } from "../domain/apartmentTemplates/showcaseTourView";
 import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
 import { LivingRoomModelChrome } from "./livingRoomScene/LivingRoomModelChrome";
 import { type WallContextMenuState } from "./livingRoomScene/ModelWallVisibilityHost";
@@ -44,7 +45,8 @@ export function LivingRoomModelView({
   onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
 }: LivingRoomModelViewProps) {
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
-  const camera = useModelViewCameraSession(!presentation, hasSelection);
+  const stopTourRef = useRef<() => void>(() => undefined);
+  const camera = useModelViewCameraSession(!presentation, hasSelection, () => stopTourRef.current());
   const canvasHostRef = useRef<HTMLDivElement>(null);
   const sceneFor = useMemo(() => createRoomSceneCache(project), [project]);
   const projectCameraId = project.renderSettings.activeCameraId ?? null;
@@ -53,6 +55,7 @@ export function LivingRoomModelView({
     project, sceneFor, presentation, viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
     activeCameraId, setActiveCameraId, canvasHostRef,
   });
+  stopTourRef.current = tour.stop; // Fit Room / Focus / F stop the tour before re-framing
   const scene = tour.scene; // view-only: the toured room's scene, memoized per room
   const extrudedWalls = scene.nodes.filter((node) => node.metadata.role === "wall" && node.metadata.planTrace !== true).length;
   // Showcase / Render Studio drive the document camera; jump revives after orbit.
@@ -114,7 +117,7 @@ export function LivingRoomModelView({
           hasActiveObject={Boolean(activeObject)} viewportQuality={viewportQuality}
           honesty={honesty} hasSelection={hasSelection}
           onViewPreset={camera.setViewPreset} onCameraHeightMm={setCameraHeightMm}
-          onFieldOfViewDegrees={setFieldOfViewDegrees} onActiveCameraId={setActiveCameraId}
+          onFieldOfViewDegrees={setFieldOfViewDegrees} onActiveCameraId={stoppingTourFirst(tour.stop, setActiveCameraId)}
           onCutawayWalls={setCutawayWalls}
           onSetRotation={(rotationY) => { if (activeObject) onSetRotation(activeObject.id, rotationY); }}
           onViewportQuality={setViewportQuality} onOpenGuide={() => setShowGuide(true)}

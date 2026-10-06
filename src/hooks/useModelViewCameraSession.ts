@@ -8,19 +8,27 @@ import { setModelViewCanvasFocused } from "./modelViewFocusGate";
 import { useModelViewCameraHotkeys } from "./useModelViewCameraHotkeys";
 import { useSelectionFrameRequest } from "./useSelectionFrameRequest";
 
-export function useModelViewCameraSession(enabled: boolean, hasSelection = false) {
+/**
+ * `beforeFit` runs ahead of every fit command (Fit Room, Focus selection, the
+ * F key), e.g. to stop the Showcase tour before the camera is taken back.
+ */
+export function useModelViewCameraSession(enabled: boolean, hasSelection = false, beforeFit?: () => void) {
   const [viewPreset, setViewPreset] = useState<ModelViewPresetId>("dollhouse");
   const [fitVersion, setFitVersion] = useState(0);
   const [fitMode, setFitMode] = useState<ModelViewFitMode>("room");
   const hasSelectionRef = useRef(hasSelection);
   hasSelectionRef.current = hasSelection;
+  const beforeFitRef = useRef(beforeFit);
+  beforeFitRef.current = beforeFit;
 
   const fitRoom = useCallback(() => {
+    beforeFitRef.current?.();
     setFitMode("room");
     setFitVersion((value) => value + 1);
   }, []);
 
   const focusSelection = useCallback(() => {
+    beforeFitRef.current?.();
     setFitMode("selection");
     setFitVersion((value) => value + 1);
   }, []);
@@ -34,6 +42,7 @@ export function useModelViewCameraSession(enabled: boolean, hasSelection = false
 
   /** Canvas F: focus selection when present, otherwise fit room (toolbar Fit Room stays room-only). */
   const fitFromHotkey = useCallback(() => {
+    beforeFitRef.current?.();
     setFitMode(resolveModelViewFKeyFitMode(hasSelectionRef.current));
     setFitVersion((value) => value + 1);
   }, []);

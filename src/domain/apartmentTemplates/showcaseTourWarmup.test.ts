@@ -1,8 +1,8 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { COMPOSER_TEST_NOW } from "./composers/bareRoom";
 import { instantiateApartmentTemplate } from "./instantiateApartmentTemplate";
 import { showcaseTourStops } from "./showcaseTour";
-import { ShowcaseTourController } from "./showcaseTourController";
+import { SHOWCASE_TOUR_TIMING, ShowcaseTourController } from "./showcaseTourController";
 import { onShowcaseCameraJump, resetShowcaseCameraJumpForTests, type ShowcaseJumpTarget } from "./showcaseJump";
 import { ShowcaseTourSession, type ShowcaseTourState } from "./showcaseTourSession";
 import { manualScheduler } from "./showcaseTourTestSupport";
@@ -94,5 +94,56 @@ describe("Showcase tour warm-up pre-roll (3 BHK)", () => {
     expect(states.at(-1)).toMatchObject({ active: false, lastStopReason: "escape" });
     await ready.readyAll();
     expect(states.some((state) => state.active && !state.preparing)).toBe(false);
+  });
+});
+
+describe("Showcase tour warm-up time limit (fake timers)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("starts the tour after 8 s in total even if a room never reports ready, and aborts that wait", async () => {
+    vi.useFakeTimers();
+    const shown: number[] = [];
+    const signals: AbortSignal[] = [];
+    const controller = new ShowcaseTourController(stops, {
+      // Room 0 is ready at once; room 1 hangs (a model that never finishes loading).
+      warm: (_stop, index, signal) => {
+        signals.push(signal);
+        return index === 0 ? Promise.resolve() : new Promise<void>(() => undefined);
+      },
+      show: (_stop, index) => shown.push(index),
+      end: () => undefined,
+    });
+    controller.start();
+    await vi.advanceTimersByTimeAsync(SHOWCASE_TOUR_TIMING.warmLimitMs - 1);
+    expect(shown).toEqual([]);
+    expect(signals).toHaveLength(2);
+    expect(signals[1]!.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(shown).toEqual([0]);
+    expect(signals[1]!.aborted).toBe(true);
+    expect(controller.active).toBe(true);
+    controller.stop("user");
+  });
+
+  it("stopping during warm-up clears the limit timer, and a quick warm-up never waits for it", async () => {
+    vi.useFakeTimers();
+    const stopped = new ShowcaseTourController(stops, {
+      warm: () => new Promise<void>(() => undefined), show: () => undefined, end: () => undefined,
+    });
+    stopped.start();
+    stopped.stop("escape");
+    expect(vi.getTimerCount()).toBe(0);
+    const shown: number[] = [];
+    const quick = new ShowcaseTourController(stops, {
+      warm: () => Promise.resolve(), show: (_stop, index) => shown.push(index), end: () => undefined,
+    });
+    quick.start();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(shown).toEqual([0]);
+    // Only the first stop's glide + hold timer is left; the warm-up limit is gone.
+    expect(vi.getTimerCount()).toBe(1);
+    quick.stop("user");
   });
 });
