@@ -10,6 +10,7 @@ import { type PanelName } from "../domain/cabinetGeometry";
 import { DEFAULT_ROOM, type RoomConfig } from "../domain/roomModel";
 import { getActiveProjectRoom, normalizeMultiRoomProject } from "../domain/projectRooms";
 import { sanitizeSelection, type EditorSnapshot } from "../domain/editorSnapshot";
+import { adoptInteriorDocumentExposure } from "../domain/interiorProject/adoptStyleExposure";
 import { loadInitialSessionState, useSessionPersist } from "./useSessionPersist";
 import { editorStatus } from "../domain/projectDrafts/browserSignals";
 import { useSessionShellState } from "./useSessionShellState";
@@ -41,7 +42,11 @@ export function useAppControllerSession() {
   const derived = useAppDerivedState({ project, room, activeCabinetId, selectedCabinetIds });
 
   function applySnapshot(snapshot: EditorSnapshot) {
-    const safeProject = normalizeMultiRoomProject(clampCabinetProject(snapshot.project), snapshot.room);
+    // Browser drafts skip the file loader, so a retired preset exposure is adopted here as well.
+    const safeProject = normalizeMultiRoomProject(
+      clampCabinetProject(adoptInteriorDocumentExposure(snapshot.project)),
+      snapshot.room,
+    );
     const activeRoom = getActiveProjectRoom(safeProject);
     const safeSelection = sanitizeSelection(safeProject, snapshot.selectedCabinetIds, snapshot.activeCabinetId);
     setProject(safeProject);

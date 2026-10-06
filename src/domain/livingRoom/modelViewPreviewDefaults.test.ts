@@ -109,7 +109,11 @@ describe("modelViewPreviewDefaults", () => {
     expect(standard.hemisphereScale).toBe(0);
     expect(draft.resolution).toBeLessThanOrEqual(64);
     expect(draft.hemisphereScale).toBe(0.78);
-    expect(resolveModelViewLightingQuality("client-preview").resolution).toBeLessThanOrEqual(128);
+    // The stills scripts pin client-preview; it must read the same lighting as Standard.
+    const clientPreview = resolveModelViewLightingQuality("client-preview");
+    expect(clientPreview.resolution).toBe(256);
+    expect(clientPreview.hemisphereScale).toBe(0);
+    expect(clientPreview.shadowMapSize).toBe(standard.shadowMapSize);
     expect(resolveEnvironmentLightingQuality("preview", "standard").resolution).toBeLessThanOrEqual(128);
   });
 });

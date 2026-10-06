@@ -53,3 +53,14 @@ export function adoptCurrentStyleExposure(input: UnknownRecord): UnknownRecord {
     extensions: nextExtensions,
   };
 }
+
+/**
+ * Same adoption for a cabinet project that carries its interior document, so a
+ * browser draft reopened without going through the file loader is covered too.
+ */
+export function adoptInteriorDocumentExposure<T extends { interiorDocument?: unknown }>(project: T): T {
+  const document = record(project.interiorDocument);
+  if (!document) return project;
+  const adopted = adoptCurrentStyleExposure(document);
+  return adopted === document ? project : { ...project, interiorDocument: adopted };
+}

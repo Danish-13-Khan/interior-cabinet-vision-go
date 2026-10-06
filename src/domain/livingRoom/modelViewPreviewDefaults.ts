@@ -26,9 +26,16 @@ export function resolveModelViewRenderMode(): RenderMode {
   return "preview";
 }
 
+/** Draft is the fast authoring tier; Standard, Client Preview and Presentation share the rich path. */
+export function isRichModelViewQuality(quality: RenderQuality): boolean {
+  return quality !== "draft";
+}
+
 /**
  * Soft studio lighting for 3D review — designed, not client export.
  * Prefer HDRI (preferHdri) over ambient: slightly lower hemisphere, higher IBL scale.
+ * Every tier above Draft is "rich": the stills scripts pin client-preview, so
+ * that tier must read the same lighting a designer sees at Standard.
  * After Standard GLB castShadow, contact scales stay lighter so map + contact
  * do not double-muddy the floor (Policy A shadow cameras attached).
  */
@@ -36,11 +43,11 @@ export function resolveModelViewLightingQuality(
   quality: RenderQuality,
 ): EnvironmentLightingQuality {
   const base = resolveEnvironmentLightingQuality("preview", quality);
-  const rich = quality === "standard";
+  const rich = isRichModelViewQuality(quality);
   return {
     ...base,
     intensityScale: rich ? 1.06 : 0.94,
-    // Standard reads the 1k map at 256. Draft keeps the preview clamp.
+    // Rich tiers read the 1k map at 256. Draft keeps the preview clamp.
     resolution: rich ? 256 : base.resolution,
     shadowMapSize: rich ? Math.max(base.shadowMapSize, 768) : 640,
     shadowRadius: base.shadowRadius + (rich ? 3 : 2),
@@ -58,7 +65,7 @@ export function resolveModelViewLightingQuality(
 export function resolveModelViewMaterialQuality(
   quality: RenderQuality,
 ): RenderModeQuality {
-  const rich = quality === "standard";
+  const rich = isRichModelViewQuality(quality);
   return {
     mode: "preview",
     anisotropy: rich ? 10 : 6,
@@ -73,11 +80,11 @@ export function resolveModelViewMaterialQuality(
 }
 
 export function modelViewProjectLightScale(quality: RenderQuality) {
-  return quality === "standard" ? 0.92 : 0.86;
+  return isRichModelViewQuality(quality) ? 0.92 : 0.86;
 }
 
 export function modelViewWindowKeyScale(quality: RenderQuality) {
-  return quality === "standard" ? 1.05 : 0.98;
+  return isRichModelViewQuality(quality) ? 1.05 : 0.98;
 }
 
 export type ModelViewMaterialBuildContext = {
@@ -160,7 +167,7 @@ export function describeModelViewHonesty(
   quality: RenderQuality,
 ): PresetHonestyDescription {
   const base = describePresetHonesty(quality, "preview");
-  const rich = quality === "standard";
+  const rich = isRichModelViewQuality(quality);
   return {
     ...base,
     mode: "preview",
