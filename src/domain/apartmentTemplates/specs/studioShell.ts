@@ -95,9 +95,10 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
         },
       },
       camera: {
-        // Wide, high three-quarter view from the far corner: the tour's opening shot and the card still.
-        eyeMm: { x: -2800, y: 2350, z: 2500 },
-        targetMm: { x: 1200, y: 800, z: -500 },
+        // Wide, high three-quarter view from the far corner: the card still. Turned right of the
+        // white arch wall, whose cove wash near the ceiling clips (still exposure check).
+        eyeMm: { x: -2400, y: 2350, z: 2500 },
+        targetMm: { x: 1700, y: 700, z: -500 },
       },
     },
   ],

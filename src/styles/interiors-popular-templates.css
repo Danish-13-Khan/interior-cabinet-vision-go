@@ -88,3 +88,25 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Apartment cards: the whole-apartment overview cross-fades over the hero room on hover / focus. */
+.interiors-apartment-thumbs {
+  position: relative;
+  display: block;
+}
+
+.interiors-apartment-templates img.interiors-apartment-plan {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.interiors-apartment-templates button:hover .interiors-apartment-plan,
+.interiors-apartment-templates button:focus-visible .interiors-apartment-plan {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interiors-apartment-templates img.interiors-apartment-plan { transition: none; }
+}

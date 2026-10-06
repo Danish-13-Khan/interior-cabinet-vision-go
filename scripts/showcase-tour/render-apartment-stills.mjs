@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Marketing / project-home thumbnails for apartment templates: open each
- * template in 3D, enter the whole-apartment view, and grab the canvas once
- * the default high corner has settled. Writes
- * public/catalog/templates/apartment-<slug>-v1.webp at 800×600 (4:3) and
- * checks exposure and file size from the pixels.
+ * Marketing / project-home card images for apartment templates, two per
+ * template at 800×600 (4:3), each checked for exposure and file size:
+ *   - apartment-<slug>-v1.webp       the card: hero room from the Showcase tour, daylight
+ *   - apartment-<slug>-plan-v1.webp  the second image: whole-apartment overview (hover / focus)
  *
- *   npm run stills:apartments           # every apartment
- *   npm run stills:apartments -- 3bhk   # one template
- *   npm run stills:apartments -- --hero # hero room via the tour (legacy cards)
+ *   npm run stills:apartments              # both images, every apartment
+ *   npm run stills:apartments -- 3bhk      # one template
+ *   npm run stills:apartments -- --hero    # card images only
+ *   npm run stills:apartments -- --overview  # plan images only
  *
  * Uses the Metal GPU on macOS and SwiftShader elsewhere (slower, same pixels).
  */
@@ -29,7 +29,12 @@ const SESSION = JSON.stringify({ email: "stills@cabinet.studio", theme: "calm", 
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
-const hero = args.includes("--hero");
+const onlyHero = args.includes("--hero");
+const onlyOverview = args.includes("--overview");
+const kinds = [
+  ...(onlyOverview ? [] : [{ kind: "card", suffix: "v1" }]),
+  ...(onlyHero ? [] : [{ kind: "plan", suffix: "plan-v1" }]),
+];
 const mood = args.find((arg) => arg.startsWith("--mood="))?.slice("--mood=".length) ?? "day";
 if (!["day", "evening"].includes(mood)) throw new Error(`--mood must be day or evening, not ${mood}`);
 const only = args.filter((arg) => !arg.startsWith("--"));
@@ -74,7 +79,7 @@ async function grabCanvas(page) {
   return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
 }
 
-/** Whole-apartment view from the default high corner (8.5 card still). */
+/** Whole-apartment view from the default high corner (the card's second image). */
 async function captureOverview(page, baseUrl, slug) {
   await openTemplate(page, baseUrl, slug);
   await page.getByRole("button", { name: "3D", exact: true }).click();
@@ -85,7 +90,7 @@ async function captureOverview(page, baseUrl, slug) {
   return grabCanvas(page);
 }
 
-/** Hero room via Present + tour (legacy). */
+/** Hero room via Present + tour: stop 0 is the overview, stop 1 the hero room (the card image). */
 async function captureHero(page, baseUrl, slug) {
   await openTemplate(page, baseUrl, slug);
   await page.getByTestId("interiors-present").click();
@@ -118,17 +123,19 @@ try {
       window.localStorage.setItem("cabinetStudioSession", session);
       window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
     }, SESSION);
-    const page = await context.newPage();
-    const capture = hero ? captureHero : captureOverview;
-    const { webp, exposure } = await capture(page, `http://127.0.0.1:${port}`, slug);
-    const output = join(root, "public", "catalog", "templates", `apartment-${slug}-v1.webp`);
-    await mkdir(dirname(output), { recursive: true });
-    await writeFile(output, webp);
-    const kb = Math.round(webp.length / 1024);
-    const problems = exposureProblems(exposure);
-    console.log(`${slug}: ${output} (${kb} KB) — ${formatExposure(exposure)}`);
-    if (kb > STILL_MAX_KB) failures.push(`${slug}: ${kb} KB exceeds ${STILL_MAX_KB} KB`);
-    for (const problem of problems) failures.push(`${slug}: ${problem}`);
+    for (const { kind, suffix } of kinds) {
+      const page = await context.newPage();
+      const capture = kind === "card" ? captureHero : captureOverview;
+      const { webp, exposure } = await capture(page, `http://127.0.0.1:${port}`, slug);
+      const output = join(root, "public", "catalog", "templates", `apartment-${slug}-${suffix}.webp`);
+      await mkdir(dirname(output), { recursive: true });
+      await writeFile(output, webp);
+      const kb = Math.round(webp.length / 1024);
+      console.log(`${slug} ${kind}: ${output} (${kb} KB) — ${formatExposure(exposure)}`);
+      if (kb > STILL_MAX_KB) failures.push(`${slug} ${kind}: ${kb} KB exceeds ${STILL_MAX_KB} KB`);
+      for (const problem of exposureProblems(exposure)) failures.push(`${slug} ${kind}: ${problem}`);
+      await page.close();
+    }
     await context.close();
   }
 } finally {

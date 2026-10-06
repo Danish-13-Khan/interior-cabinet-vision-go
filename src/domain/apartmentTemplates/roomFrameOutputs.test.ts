@@ -13,6 +13,8 @@ import {
   type InteriorProject,
 } from "../interiorProject";
 import { roomFrame } from "../interiorProject/roomFrame";
+import { recipeLightAreaScale } from "../livingRoom/recipeLightFrame";
+import { resolveRecipeLightSeed } from "../livingRoom/lighting";
 import { compileCabinetRunExtras } from "../livingRoom/cabinetSceneRunExtras";
 import { isCabinetRunFiller } from "../livingRoom/cabinetRunFillers";
 import { compileLivingRoomScene } from "../livingRoom/sceneCompiler";
@@ -192,6 +194,12 @@ describe("apartment room frame outputs sit on their cabinets", () => {
         expect(light.parameters.targetXMm).toBe(frame.centre.x);
         expect(light.parameters.targetZMm).toBe(frame.centre.z);
       }
+      // Local lights dim with floor area (never brighter than the seed); the sun keeps its intensity.
+      const stored = resolveRecipeLightSeed(project.lights.find((item) => item.id === light.id)!);
+      const scale = recipeLightAreaScale(light.kind, frame.widthMm, frame.depthMm);
+      expect(scale).toBeLessThanOrEqual(1);
+      expect(light.intensity).toBeCloseTo(stored.intensity * scale, 6);
+      if (light.kind === "directional") expect(light.intensity).toBe(stored.intensity);
     }
   });
 });

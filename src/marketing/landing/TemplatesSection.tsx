@@ -16,7 +16,12 @@ export function TemplatesSection() {
           {MARKETING_TEMPLATES.map((template) => (
             <li key={template.id} className="reveal">
               <Link className="template-card" to={registerHrefForTemplate(template.id)} data-template-id={template.id}>
-                <img className="template-thumb" src={`${BASE}${template.image}`} alt="" width="640" height="480" loading="lazy" decoding="async" />
+                <span className="template-thumbs">
+                  <img className="template-thumb" src={`${BASE}${template.image}`} alt="" width="640" height="480" loading="lazy" decoding="async" />
+                  {template.planImage ? (
+                    <img className="template-thumb template-thumb-plan" src={`${BASE}${template.planImage}`} alt="" width="640" height="480" loading="lazy" decoding="async" />
+                  ) : null}
+                </span>
                 <span className="template-meta">
                   <strong>{template.name}</strong>
                   <span>{template.blurb}</span>
