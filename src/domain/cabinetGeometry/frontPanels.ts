@@ -1,5 +1,5 @@
 import { millimetresToMetres as m, type CabinetConfig } from "../cabinetDimensions";
-import type { FrontLeaf, ResolvedFronts } from "../cabinetConstruction/frontGaps";
+import { isHandleFreeLeaf, type FrontLeaf, type ResolvedFronts } from "../cabinetConstruction/frontGaps";
 import type { FaceFrameSpec } from "../cabinetConstructionSpec";
 import { handleSideForLeaf } from "../constructionGraphics/doorSwing";
 import { doorFrameWidths, type DoorFrontStyle } from "../frontSystem/doorStyles";
@@ -77,7 +77,7 @@ export function handlePanels(config: CabinetConfig, fronts: ResolvedFronts, plac
   const panels: CabinetPanelGeometry[] = [];
   for (const { opening, kind, leaves } of fronts.openings) {
     leaves.forEach((leaf, index) => {
-      if (leaf.golaGrip || leaf.pushOpen || leaf.slidingPlane !== undefined) return;
+      if (isHandleFreeLeaf(leaf)) return;
       const [xMm, yMm] = kind === "drawer"
         ? [leaf.xMm + leaf.widthMm / 2, leaf.yMm + leaf.heightMm / 2]
         : doorHandleSpot(config, opening, leaf, index, leaves.length);

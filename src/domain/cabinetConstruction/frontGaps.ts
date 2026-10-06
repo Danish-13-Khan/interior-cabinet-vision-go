@@ -24,6 +24,8 @@ export type FrontLeaf = {
   pushOpen?: true;
   /** Sliding shutter on track plane 0 (rear) or 1 (front); flush pull, no hinges. */
   slidingPlane?: 0 | 1;
+  /** Drawer behind sliding shutters: handle-less (finger groove) so the leaves pass in front. */
+  behindSliding?: true;
 };
 
 /** A gola profile run in face coordinates; `yMm` is the bottom of the band the profile takes from the fronts. */
@@ -138,6 +140,7 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
     const topGrip = Boolean(gola) && (atTop ? uses.has("L") : uses.has("C"));
     const bottomGrip = Boolean(gola) && atBottom && uses.has("wall");
     const grip = (leaf: FrontLeaf, held: boolean) => {
+      if (sliding) return { ...leaf, behindSliding: true as const };
       if (push) return { ...leaf, pushOpen: true as const };
       return held ? { ...leaf, golaGrip: true as const } : leaf;
     };
@@ -164,12 +167,14 @@ export function resolveFrontGaps(config: CabinetConfig): ResolvedFronts {
   return { mount, gaps, openings, profiles };
 }
 
-/** Fronts that still need a handle: every front when handled, ungripped fronts under gola; never push or sliding (flush pull). */
+/** No protruding handle: gola grip, push-open, sliding leaf (flush pull) or a drawer behind sliding shutters. */
+export function isHandleFreeLeaf(leaf: FrontLeaf): boolean {
+  return Boolean(leaf.golaGrip || leaf.pushOpen || leaf.behindSliding) || leaf.slidingPlane !== undefined;
+}
+
+/** Fronts that still need a handle: every front when handled, ungripped fronts under gola; never push or sliding. */
 export function handledFrontCount(fronts: ResolvedFronts): number {
-  return fronts.openings.reduce(
-    (sum, entry) => sum + entry.leaves.filter((leaf) => !leaf.golaGrip && !leaf.pushOpen && leaf.slidingPlane === undefined).length,
-    0,
-  );
+  return fronts.openings.reduce((sum, entry) => sum + entry.leaves.filter((leaf) => !isHandleFreeLeaf(leaf)).length, 0);
 }
 
 /** Door + drawer leaves opened by a push latch / tip-on (one mechanism per leaf). */
