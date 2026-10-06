@@ -15,6 +15,15 @@ import type { CompiledSceneNode } from "./sceneTypes";
 export const FALLBACK_MATERIAL_ID = "compiled:fallback";
 export const FLOOR_MATERIAL_ID = "compiled:floor-fallback";
 
+/** Front/back/left/right from which side of a plan centre the wall's midpoint sits on. */
+export function wallSideFromCentre(wall: WallEntity, centre: { x: number; z: number }) {
+  const midX = (wall.start.x + wall.end.x) / 2;
+  const midZ = (wall.start.z + wall.end.z) / 2;
+  return Math.abs(wall.end.x - wall.start.x) >= Math.abs(wall.end.z - wall.start.z)
+    ? (midZ < centre.z ? "back" : "front")
+    : (midX < centre.x ? "left" : "right");
+}
+
 function outerWallSide(project: InteriorProject, room: InteriorRoomEntity, wall: WallEntity) {
   const stored = wall.extensions?.wallSide;
   if (typeof stored === "string" && stored !== "custom") return stored;
@@ -22,13 +31,10 @@ function outerWallSide(project: InteriorProject, room: InteriorRoomEntity, wall:
   if (!loop?.wallUses.some((use) => use.wallId === wall.id)) return "custom";
   const polygon = roomPlanPolygon(project, room.id);
   const bounds = polygon ? polygonBounds(polygon.outer) : null;
-  const centerX = bounds ? (bounds.minX + bounds.maxX) / 2 : 0;
-  const centerZ = bounds ? (bounds.minZ + bounds.maxZ) / 2 : 0;
-  const midX = (wall.start.x + wall.end.x) / 2;
-  const midZ = (wall.start.z + wall.end.z) / 2;
-  return Math.abs(wall.end.x - wall.start.x) >= Math.abs(wall.end.z - wall.start.z)
-    ? (midZ < centerZ ? "back" : "front")
-    : (midX < centerX ? "left" : "right");
+  return wallSideFromCentre(wall, {
+    x: bounds ? (bounds.minX + bounds.maxX) / 2 : 0,
+    z: bounds ? (bounds.minZ + bounds.maxZ) / 2 : 0,
+  });
 }
 
 function wallSegment(

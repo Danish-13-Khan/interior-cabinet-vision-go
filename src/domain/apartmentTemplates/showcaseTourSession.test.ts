@@ -61,7 +61,7 @@ describe("Showcase tour session (3 BHK)", () => {
     expect(h.lastReason()).toBe("finished");
     // Back on the document's camera and the preset from before the tour.
     expect(h.cameras).toEqual([DOC_CAMERA]);
-    expect(h.presets).toEqual(["dollhouse"]);
+    expect(h.presets).toEqual(["perspective", "dollhouse"]);
     // Frozen document: any write would have thrown; the autosave fingerprint is unchanged.
     expect(JSON.stringify({ project, room: null })).toBe(before);
   });
@@ -103,7 +103,7 @@ describe("Showcase tour session (3 BHK)", () => {
     h.clock.advance(2000);
     h.session.stop("user");
     expect(h.cameras).toEqual([USER_CAMERA.id]);
-    expect(h.presets).toEqual(["dollhouse"]);
+    expect(h.presets).toEqual(["perspective", "dollhouse"]);
     // A pre-tour camera that is not in the document's room falls back to the document's camera.
     const again = harness();
     again.start("dollhouse", stops[2]!.cameraId);
@@ -116,7 +116,7 @@ describe("Showcase tour session (3 BHK)", () => {
     h.start();
     h.session.observe({ activeRoomId: project.activeRoomId, viewPreset: "perspective" });
     expect(h.session.active).toBe(true);
-    h.session.observe({ activeRoomId: stops[3]!.roomId, viewPreset: "perspective" });
+    h.session.observe({ activeRoomId: stops[4]!.roomId, viewPreset: "perspective" });
     expect(h.lastReason()).toBe("room-switch");
     h.clock.advance(showcaseTourDurationMs(stops.length));
     expect(h.jumps).toHaveLength(1);
@@ -127,7 +127,7 @@ describe("Showcase tour session (3 BHK)", () => {
     h.start("top");
     h.session.observe({ activeRoomId: project.activeRoomId, viewPreset: "walkthrough" });
     expect(h.lastReason()).toBe("view-change");
-    expect(h.presets).toEqual([]);
+    expect(h.presets).toEqual(["perspective"]);
   });
 
   it("leaving 3D (unmount) stops timers and listeners without touching unmounted state", () => {

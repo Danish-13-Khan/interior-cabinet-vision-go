@@ -44,7 +44,7 @@ const EMPTY: ShaderLightCounts = { numRectAreaLights: 0, numSpotLights: 0, numPo
  * A track is one spot per head.
  */
 export function fixtureShaderCounts(light: CountedLight): ShaderLightCounts {
-  if (!projectLightIsMounted(light)) return EMPTY;
+  if (!projectLightIsMounted(light) || light.parameters.emissiveOnly === true) return EMPTY;
   const kind = light.parameters.fixtureKind;
   if (kind === "cove") return { numRectAreaLights: 2, numSpotLights: 0, numPointLights: 0 };
   if ((kind === "rope" || kind === "profile") && typeof light.parameters.hostWallId === "string" && light.parameters.hostWallId !== "") {

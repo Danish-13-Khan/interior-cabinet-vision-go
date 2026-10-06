@@ -5,6 +5,7 @@ import { projectIdOf, schemaVersionOf } from "../domain/projectDrafts/draftDocum
 import { commitDraftSave } from "../domain/projectDrafts/commitDraft";
 import { markDraftPending } from "../domain/projectDrafts/pendingMarker";
 import { autosaveStatus, draftWritesHeld, draftWritesSuspended, notePendingEdit, registerDraftFlush } from "../domain/projectDrafts/browserSignals";
+import { draftAutosaveAction } from "../domain/projectDrafts/draftAutosaveAction";
 import { DRAFT_AUTOSAVE_MS, type ProjectDraft } from "../domain/projectDrafts/types";
 import type { RoomConfig } from "../domain/roomModel";
 import type { SavedProjectBrowserEntry } from "../domain/projectBrowserStorage";
@@ -81,11 +82,20 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
   }
 
   useEffect(() => {
-    if (!enabled || draftWritesSuspended()) return;
-    if (baseline.current === null) { baseline.current = fingerprint; return; }
-    if (baseline.current === fingerprint) return;
-    const id = projectIdOf(project, "");
-    if (!id || project.preferences?.autoSaveToBrowser === false) return;
+    const currentProject = projectRef.current;
+    const id = projectIdOf(currentProject, "");
+    const action = draftAutosaveAction({
+      baseline: baseline.current,
+      enabled,
+      suspended: draftWritesSuspended(),
+      fingerprint,
+      canSave: Boolean(id) && currentProject.preferences?.autoSaveToBrowser !== false,
+    });
+    if (action === "adopt") {
+      baseline.current = fingerprint;
+      return;
+    }
+    if (action !== "write") return;
     generation.current += 1;
     const gen = generation.current;
     markDraftPending(window.localStorage, id);
@@ -93,7 +103,7 @@ export function useDraftAutosave({ enabled, project, room, captureThumbnail, onS
     autosaveStatus.set({ state: "idle", at: autosaveStatus.get().at });
     const timer = window.setTimeout(() => { void write(gen, fingerprint).catch(() => autosaveStatus.set({ state: "error", at: null })); }, DRAFT_AUTOSAVE_MS);
     return () => window.clearTimeout(timer);
-  }, [enabled, fingerprint, project]);
+  }, [enabled, fingerprint]);
 
   useEffect(() => registerDraftFlush(async () => {
     if (!enabledRef.current || baseline.current === null || baseline.current === fingerprintRef.current) return;

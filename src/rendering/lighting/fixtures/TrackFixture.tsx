@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Object3D } from "three";
 import { fixtureNumber } from "../../../domain/livingRoom/lightFixtureProperties";
+import { FixtureEmitter } from "./FixtureEmitter";
 import { beamHalfAngleRad, clampedHeadCount, readFixtureSize } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
@@ -38,16 +39,18 @@ export function TrackFixture(props: FixtureViewProps) {
             <meshStandardMaterial color={size.body} emissive={glow} emissiveIntensity={size.glow} metalness={size.metal} roughness={0.4} />
           </mesh>
           <primitive object={target} />
-          <spotLight
-            position={[0, 0, -size.depth * 0.55]}
-            target={target}
-            color={props.light.color}
-            intensity={size.intensity}
-            distance={size.range}
-            angle={angle}
-            penumbra={0.55}
-            castShadow={size.cast}
-          />
+          <FixtureEmitter on={props.emitsLight !== false}>
+            <spotLight
+              position={[0, 0, -size.depth * 0.55]}
+              target={target}
+              color={props.light.color}
+              intensity={size.intensity}
+              distance={size.range}
+              angle={angle}
+              penumbra={0.55}
+              castShadow={size.cast}
+            />
+          </FixtureEmitter>
         </group>
       ))}
     </FixtureGroup>

@@ -984,6 +984,7 @@ export {
 export {
   compileLivingRoomScene,
 } from "./sceneCompiler";
+export { compileApartmentScene } from "./apartmentScene";
 export { computeArchitectureBounds } from "./sceneCompilerBounds";
 export {
   compileLivingRoomObjectNode,

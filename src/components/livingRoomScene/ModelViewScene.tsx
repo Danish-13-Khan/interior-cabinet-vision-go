@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type {
@@ -16,6 +17,7 @@ import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelVi
 import { MODEL_VIEW_FRAMELOOP } from "../../domain/livingRoom/modelViewPerf";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
+import { GlbInstancingProvider } from "./GlbInstanceBatch";
 import { ModelViewCanvasInvalidator } from "./ModelViewCanvasInvalidator";
 import { ModelViewSceneExportBridge } from "./ModelViewSceneExportBridge";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
@@ -59,6 +61,10 @@ type ModelViewSceneProps = {
   frameRun?: CabinetRunAudience;
   /** "project-camera" shows saved cameras exactly as authored (Showcase tour); default re-frames them. */
   renderComposition?: RenderComposition;
+  /** Extra scene content, drawn with the compiled room (apartment room pick). */
+  overlay?: ReactNode;
+  /** Share one draw per repeated model. The room view leaves this off. */
+  instanceRepeatedModels?: boolean;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -104,6 +110,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
         <ModelViewCanvasInvalidator revision={invalidateRevision} />
         <ModelViewSceneExportBridge />
+        <GlbInstancingProvider enabled={props.instanceRepeatedModels === true}>
         <CompiledSceneRenderer
           scene={scene}
           selectedIds={selectedIds}
@@ -143,6 +150,8 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           onTransformPreview={onTransformPreview}
           onTransformCommit={onTransformCommit}
         />
+        {props.overlay}
+        </GlbInstancingProvider>
       </ModelViewPreviewProfileProvider>
     </Canvas>
   );

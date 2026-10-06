@@ -1,3 +1,4 @@
+import { FixtureEmitter } from "./FixtureEmitter";
 import { COVE_WALL_LIGHT_ROTATION, coveWallIntensity, readFixtureSize } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
@@ -21,21 +22,23 @@ export function CoveFixture(props: FixtureViewProps) {
         <boxGeometry args={[size.length * 0.92, size.depth * 0.55, 0.004]} />
         <meshStandardMaterial color={props.light.color} emissive={props.light.color} emissiveIntensity={size.glow} roughness={0.35} />
       </mesh>
-      <rectAreaLight
-        position={[0, 0, emitZ - 0.004]}
-        color={props.light.color}
-        intensity={size.intensity}
-        width={size.length}
-        height={size.depth}
-      />
-      <rectAreaLight
-        position={[0, -size.depth * 0.2, emitZ]}
-        rotation={COVE_WALL_LIGHT_ROTATION}
-        color={props.light.color}
-        intensity={coveWallIntensity(size.intensity)}
-        width={size.length}
-        height={size.depth}
-      />
+      <FixtureEmitter on={props.emitsLight !== false}>
+        <rectAreaLight
+          position={[0, 0, emitZ - 0.004]}
+          color={props.light.color}
+          intensity={size.intensity}
+          width={size.length}
+          height={size.depth}
+        />
+        <rectAreaLight
+          position={[0, -size.depth * 0.2, emitZ]}
+          rotation={COVE_WALL_LIGHT_ROTATION}
+          color={props.light.color}
+          intensity={coveWallIntensity(size.intensity)}
+          width={size.length}
+          height={size.depth}
+        />
+      </FixtureEmitter>
     </FixtureGroup>
   );
 }

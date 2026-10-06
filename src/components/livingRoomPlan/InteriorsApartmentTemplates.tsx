@@ -24,7 +24,14 @@ export function InteriorsApartmentTemplates({ onCreate }: Props) {
             data-template-id={card.id}
             onClick={() => onCreate(card.id)}
           >
-            <img src={`${import.meta.env.BASE_URL}${card.thumbnail}`} alt="" loading="lazy" width={160} height={120} />
+            <span className="interiors-apartment-thumbs">
+              <img src={`${import.meta.env.BASE_URL}${card.thumbnail}`} alt="" loading="lazy" width={160} height={120} />
+              <img
+                className="interiors-apartment-plan"
+                src={`${import.meta.env.BASE_URL}${card.planThumbnail}`}
+                alt="" loading="lazy" width={160} height={120}
+              />
+            </span>
             <strong>{card.name}</strong>
             <small>
               {card.carpetM2} m² carpet ({card.footprintM2} m² built-up) · {card.roomCount} rooms — {card.description}

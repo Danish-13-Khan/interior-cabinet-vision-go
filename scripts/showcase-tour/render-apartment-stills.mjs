@@ -1,16 +1,14 @@
 #!/usr/bin/env node
 /**
- * Marketing / project-home thumbnails for the apartment templates, captured
- * from the Showcase tour itself: open each template, enter Present, start the
- * tour in daylight, and grab the canvas once the first stop (the hero room's
- * wide still camera) has settled. Writes
- * public/catalog/templates/apartment-<slug>-v1.webp at 800×600 (4:3, about 2×
- * the landing card; project-home cards crop it to 16:10) and checks exposure
- * from the pixels: out-of-range stills are reported and the run exits 1.
+ * Marketing / project-home card images for apartment templates, two per
+ * template at 800×600 (4:3), each checked for exposure and file size:
+ *   - apartment-<slug>-v1.webp       the card: hero room from the Showcase tour, daylight
+ *   - apartment-<slug>-plan-v1.webp  the second image: whole-apartment overview (hover / focus)
  *
- *   npm run stills:apartments                     # every apartment, daylight
- *   npm run stills:apartments -- --mood=evening   # the evening look instead
- *   npm run stills:apartments -- 3bhk             # one template
+ *   npm run stills:apartments              # both images, every apartment
+ *   npm run stills:apartments -- 3bhk      # one template
+ *   npm run stills:apartments -- --hero    # card images only
+ *   npm run stills:apartments -- --overview  # plan images only
  *
  * Uses the Metal GPU on macOS and SwiftShader elsewhere (slower, same pixels).
  */
@@ -26,10 +24,17 @@ const SLUGS = ["studio", "1bhk", "2bhk", "3bhk"];
 const OUT_W = 800;
 const OUT_H = 600;
 const WEBP_QUALITY = 95;
+const STILL_MAX_KB = 120;
 const SESSION = JSON.stringify({ email: "stills@cabinet.studio", theme: "calm", at: "2026-01-01T00:00:00.000Z" });
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
+const onlyHero = args.includes("--hero");
+const onlyOverview = args.includes("--overview");
+const kinds = [
+  ...(onlyOverview ? [] : [{ kind: "card", suffix: "v1" }]),
+  ...(onlyHero ? [] : [{ kind: "plan", suffix: "plan-v1" }]),
+];
 const mood = args.find((arg) => arg.startsWith("--mood="))?.slice("--mood=".length) ?? "day";
 if (!["day", "evening"].includes(mood)) throw new Error(`--mood must be day or evening, not ${mood}`);
 const only = args.filter((arg) => !arg.startsWith("--"));
@@ -59,24 +64,45 @@ async function fitCanvasToCard(page) {
   await page.waitForTimeout(300);
 }
 
-async function captureStill(page, baseUrl, slug) {
-  const templateId = `template:apartment:${slug}:v1`;
+async function openTemplate(page, baseUrl, slug) {
   await page.goto(`${baseUrl}/app`);
-  await page.getByTestId(`apartment-template-${templateId}`).click({ timeout: 90_000 });
+  await page.getByTestId(`apartment-template-template:apartment:${slug}:v1`).click({ timeout: 90_000 });
+}
+
+/** The rig marks the frame settled; give the lights one more beat, then read the canvas. */
+async function grabCanvas(page) {
+  await fitCanvasToCard(page);
+  const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
+  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
+  await page.waitForTimeout(400);
+  const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
+  return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
+}
+
+/** Whole-apartment view from the default high corner (the card's second image). */
+async function captureOverview(page, baseUrl, slug) {
+  await openTemplate(page, baseUrl, slug);
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  await page.getByTestId("lr-model-viewport").waitFor({ timeout: 60_000 });
+  await fitCanvasToCard(page);
+  await page.getByTestId("apartment-overview-toggle").click();
+  await page.getByTestId("apartment-overview").and(page.locator('[data-overview-phase="overview"]')).waitFor({ timeout: 90_000 });
+  return grabCanvas(page);
+}
+
+/** Hero room via Present + tour: stop 0 is the overview, stop 1 the hero room (the card image). */
+async function captureHero(page, baseUrl, slug) {
+  await openTemplate(page, baseUrl, slug);
   await page.getByTestId("interiors-present").click();
   await page.locator(".lr-model-viewport.is-client-presentation").waitFor({ timeout: 60_000 });
   await fitCanvasToCard(page);
   const tour = page.getByTestId("showcase-tour");
   await page.getByTestId("showcase-tour-toggle").click();
   await page.getByTestId(`showcase-tour-mood-${mood}`).click();
-  await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="0"]')).waitFor({ timeout: 90_000 });
-  const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
-  // The first glide ends with the rig marking the frame settled; give lights one more beat.
-  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
-  await page.waitForTimeout(400);
-  const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
+  await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="1"]')).waitFor({ timeout: 90_000 });
+  const card = await grabCanvas(page);
   await page.keyboard.press("Escape");
-  return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
+  return card;
 }
 
 const server = await createServer({ root, server: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
@@ -97,14 +123,19 @@ try {
       window.localStorage.setItem("cabinetStudioSession", session);
       window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
     }, SESSION);
-    const page = await context.newPage();
-    const { webp, exposure } = await captureStill(page, `http://127.0.0.1:${port}`, slug);
-    const output = join(root, "public", "catalog", "templates", `apartment-${slug}-v1.webp`);
-    await mkdir(dirname(output), { recursive: true });
-    await writeFile(output, webp);
-    const problems = exposureProblems(exposure);
-    console.log(`${slug}: ${output} (${Math.round(webp.length / 1024)} KB) — ${formatExposure(exposure)}`);
-    for (const problem of problems) failures.push(`${slug}: ${problem}`);
+    for (const { kind, suffix } of kinds) {
+      const page = await context.newPage();
+      const capture = kind === "card" ? captureHero : captureOverview;
+      const { webp, exposure } = await capture(page, `http://127.0.0.1:${port}`, slug);
+      const output = join(root, "public", "catalog", "templates", `apartment-${slug}-${suffix}.webp`);
+      await mkdir(dirname(output), { recursive: true });
+      await writeFile(output, webp);
+      const kb = Math.round(webp.length / 1024);
+      console.log(`${slug} ${kind}: ${output} (${kb} KB) — ${formatExposure(exposure)}`);
+      if (kb > STILL_MAX_KB) failures.push(`${slug} ${kind}: ${kb} KB exceeds ${STILL_MAX_KB} KB`);
+      for (const problem of exposureProblems(exposure)) failures.push(`${slug} ${kind}: ${problem}`);
+      await page.close();
+    }
     await context.close();
   }
 } finally {
@@ -112,6 +143,6 @@ try {
   await server.close();
 }
 if (failures.length) {
-  console.error(`Exposure out of range:\n  ${failures.join("\n  ")}`);
+  console.error(`Stills out of range:\n  ${failures.join("\n  ")}`);
   process.exitCode = 1;
 }

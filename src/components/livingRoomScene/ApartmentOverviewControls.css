@@ -1,0 +1,64 @@
+.lr-apartment-overview {
+  position: absolute;
+  left: 50%;
+  top: var(--space-3);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  pointer-events: auto;
+}
+
+.lr-apartment-overview button {
+  min-height: var(--control-h-dense);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.lr-apartment-overview .lr-apartment-overview-toggle,
+.lr-apartment-overview button.is-active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.lr-apartment-overview button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.lr-apartment-overview-status {
+  padding: 0 var(--space-2);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.lr-apartment-overview-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: var(--canvas);
+}
+
+.lr-apartment-room-name {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-2);
+}

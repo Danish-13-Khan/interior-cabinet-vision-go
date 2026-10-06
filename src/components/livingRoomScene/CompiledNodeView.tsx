@@ -6,6 +6,7 @@ import { modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
 import { AssetBackedObject } from "./AssetBackedObject";
+import { GlbPickVolume } from "./GlbPickVolume";
 import { CompiledNodeLabel } from "./CompiledNodeLabel";
 import { OpeningPickVolume } from "./OpeningPickVolume";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
@@ -24,6 +25,7 @@ export function CompiledNodeView({
   positionOverride,
   glbCasterSlot,
   maxGlbCasters,
+  batched = false,
 }: {
   node: CompiledSceneNode;
   materials: Map<string, CompiledMaterial>;
@@ -46,6 +48,8 @@ export function CompiledNodeView({
   positionOverride?: Point3Mm;
   glbCasterSlot?: number;
   maxGlbCasters?: number;
+  /** Drawn by the shared instance batch; this node only keeps a pick volume. */
+  batched?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const selectionTarget = modelSelectionTarget(node);
@@ -114,7 +118,9 @@ export function CompiledNodeView({
       onPointerUp={drag.finishDrag}
       onPointerCancel={drag.finishDrag}
     >
-      {useGlb ? (
+      {useGlb && batched ? (
+        <GlbPickVolume target={node.renderBinding.targetSizeMm} onPointerDown={handlePointerDown} />
+      ) : useGlb ? (
         <AssetBackedObject
           url={modelAsset.url!} definition={modelAsset.definition!} binding={node.renderBinding}
           materials={materials} primitives={node.primitives} selected={selected}

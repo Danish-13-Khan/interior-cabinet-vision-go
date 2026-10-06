@@ -17,6 +17,7 @@ import type {
   RenderMode,
 } from "../../domain/livingRoom/renderAssetContracts";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
+import { enableGlbFrustumCulling } from "../../domain/livingRoom/glbFrustumBounds";
 import { normalizeGlbFloorOrigin } from "../../rendering/loaders/normalizeGlbFloorOrigin";
 import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
 import { readStoredAssetUrl, readStoredTextureUrls } from "../../platform/storedAssetUrls";
@@ -91,10 +92,7 @@ export function AssetBackedGlbContent({
 
   useLayoutEffect(() => {
     const size = normalizeGlbFloorOrigin(scene);
-    scene.traverse((child) => {
-      if (child instanceof Group) return;
-      child.frustumCulled = false;
-    });
+    enableGlbFrustumCulling(scene);
     if (target) setScale(computeGlbScaleFactors(target, size));
   }, [scene, target?.depthMm, target?.heightMm, target?.widthMm]);
 

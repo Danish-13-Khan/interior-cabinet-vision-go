@@ -1,12 +1,15 @@
 import type { InteriorProject } from "../interiorProject";
 import { lookupApartmentTemplate } from "./instantiateApartmentTemplate";
 import { showcaseCameraForRoom } from "./showcaseCamera";
+import { showcaseTourOverviewStop, showcaseTourPrependsOverview } from "./showcaseTourOverview";
 
-/** One room the Showcase tour visits, with the camera it frames the room through. */
+/** One stop on the Showcase tour: the whole plan or a room's showcase camera. */
 export type ShowcaseTourStop = {
-  roomId: string;
+  roomId: string | null;
   roomName: string;
   cameraId: string;
+  /** Whole-apartment view from a high corner; no room is switched. */
+  overview?: boolean;
 };
 
 function roomKey(room: InteriorProject["rooms"][number]): string {
@@ -46,7 +49,7 @@ export function showcaseTourStops(project: InteriorProject): ShowcaseTourStop[] 
     const room = project.rooms.find((entry) => entry.id === roomId)!;
     stops.push({ roomId, roomName: room.name, cameraId: camera.id });
   }
-  return stops;
+  return showcaseTourPrependsOverview(project) ? [showcaseTourOverviewStop(), ...stops] : stops;
 }
 
 /** The tour is offered when it would visit at least two rooms. */
