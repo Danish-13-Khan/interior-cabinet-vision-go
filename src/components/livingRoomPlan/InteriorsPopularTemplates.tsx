@@ -1,24 +1,26 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   LIVING_ROOM_CATALOG_TEMPLATE_ID,
   lookupBuiltInCatalogFile,
   lookupBuiltInCatalogTemplates,
   type ProjectTemplate,
 } from "../../domain/catalog";
-import { publicAssetUrl } from "../../utils/publicAssetUrl";
+import { catalogPosterFromObjectKey, type CatalogPosterRef } from "../../domain/templateCardMedia";
+import { CardMedia } from "../cardMedia";
+
+/** The catalog's own thumbnail: a v2 WebP pair for srcset, or a legacy single image. */
+function catalogPoster(template: ProjectTemplate): CatalogPosterRef | null {
+  const file = lookupBuiltInCatalogFile(template.images.thumbnailId);
+  return file?.kind === "image" ? catalogPosterFromObjectKey(file.objectKey) : null;
+}
 
 type Props = {
   onCreate: (catalogTemplateId: string) => void;
 };
 
-function templateThumbnailUrl(template: ProjectTemplate): string | null {
-  const file = lookupBuiltInCatalogFile(template.images.thumbnailId);
-  if (!file || file.kind !== "image") return null;
-  return publicAssetUrl(file.objectKey);
-}
-
 /** Popular catalog templates on project home — Living Room first. */
 export function InteriorsPopularTemplates({ onCreate }: Props) {
+  const [clipLockedId, setClipLockedId] = useState<string | null>(null);
   const templates = useMemo(() => {
     const list = lookupBuiltInCatalogTemplates();
     return [...list].sort((a, b) => {
@@ -37,26 +39,30 @@ export function InteriorsPopularTemplates({ onCreate }: Props) {
         <small>A shell or a furnished room, editable in 2D and 3D</small>
       </header>
       <div>
-        {templates.map((template) => {
-          const thumb = templateThumbnailUrl(template);
-          return (
-            <button
-              type="button"
-              key={template.id}
-              data-testid={`catalog-template-${template.id}`}
-              data-template-id={template.id}
-              onClick={() => onCreate(template.id)}
-            >
-              {thumb ? (
-                <img src={thumb} alt="" loading="lazy" width={160} height={120} />
-              ) : (
-                <span className="interiors-template-thumb-fallback" aria-hidden />
-              )}
-              <strong>{template.name}</strong>
-              <small>{template.description}</small>
-            </button>
-          );
-        })}
+        {templates.map((template) => (
+          <button
+            type="button"
+            key={template.id}
+            data-testid={`catalog-template-${template.id}`}
+            data-template-id={template.id}
+            onClick={() => {
+              setClipLockedId(template.id);
+              onCreate(template.id);
+            }}
+          >
+            <CardMedia
+              templateId={template.id}
+              poster={catalogPoster(template)}
+              fallbackClassName="interiors-template-thumb-fallback"
+              width={160}
+              height={120}
+              clipDismissed={clipLockedId === template.id}
+              clipDisabled={clipLockedId !== null}
+            />
+            <strong>{template.name}</strong>
+            <small>{template.description}</small>
+          </button>
+        ))}
       </div>
     </section>
   );

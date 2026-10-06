@@ -5439,6 +5439,60 @@
       "mimeType": "image/png",
       "byteSize": 3119,
       "contentHash": "sha256:8efa5e89fd11281f8599cb0ca82a69d76409b2fde6e6cf00065cc0102295928d"
+    },
+    {
+      "id": "image:template:living-room:v2",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/living-room-v2.webp",
+      "mimeType": "image/webp",
+      "byteSize": 29196,
+      "contentHash": "sha256:ac0684a377ae80cf96723f8803a915d02bec1fb0bc10d84b5657dfaf10265fd3"
+    },
+    {
+      "id": "image:template:empty-room:v2",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/empty-room-v2.webp",
+      "mimeType": "image/webp",
+      "byteSize": 24824,
+      "contentHash": "sha256:9d1716656ebf59d122756863d422cb997c6cd4f622eb2856127eb03c242f7882"
+    },
+    {
+      "id": "image:template:straight-kitchen:v2",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/straight-kitchen-v2.webp",
+      "mimeType": "image/webp",
+      "byteSize": 22886,
+      "contentHash": "sha256:37a63217e8c057d20b2d9894337111957d4fdef65be5cd3a725a6ef489d2a41f"
+    },
+    {
+      "id": "image:template:l-kitchen:v2",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/l-kitchen-v2.webp",
+      "mimeType": "image/webp",
+      "byteSize": 25310,
+      "contentHash": "sha256:9ccd006096e01df8302e0ec1616270a18f959ca08ff90e304dcf3b7971cc1419"
+    },
+    {
+      "id": "image:template:bedroom:v2",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/bedroom-v2.webp",
+      "mimeType": "image/webp",
+      "byteSize": 29608,
+      "contentHash": "sha256:86a75fff85d01f89103611ec2179b9036feeaee0910b957b449da279a6f45095"
+    },
+    {
+      "id": "image:template:bathroom:v2",
+      "kind": "image",
+      "role": "template-thumbnail",
+      "objectKey": "catalog/templates/bathroom-v2.webp",
+      "mimeType": "image/webp",
+      "byteSize": 24652,
+      "contentHash": "sha256:fc00a65de0f868937838514d82be707e1d5b83493dfdd6650755d6433f759638"
     }
   ],
   "materials": [
@@ -11641,7 +11695,7 @@
       "category": "living-room",
       "description": "Furnished living room with an editable presentation layout.",
       "images": {
-        "thumbnailId": "image:template:living-room:v1"
+        "thumbnailId": "image:template:living-room:v2"
       },
       "room": {
         "widthMm": 5200,
@@ -11750,7 +11804,7 @@
       "category": "empty",
       "description": "Parametric room shell with a door and window — start from a blank interior.",
       "images": {
-        "thumbnailId": "image:template:empty-room:v1"
+        "thumbnailId": "image:template:empty-room:v2"
       },
       "room": {
         "widthMm": 5200,
@@ -11766,7 +11820,7 @@
       "category": "kitchen",
       "description": "Smart cabinet run with fillers, countertop, and Kenney appliances — proposal-ready.",
       "images": {
-        "thumbnailId": "image:template:straight-kitchen:v1"
+        "thumbnailId": "image:template:straight-kitchen:v2"
       },
       "room": {
         "widthMm": 6000,
@@ -11827,7 +11881,7 @@
       "category": "kitchen",
       "description": "L-shaped smart cabinet runs with corner, fillers, countertops, and Kenney appliances — proposal-ready.",
       "images": {
-        "thumbnailId": "image:template:l-kitchen:v1"
+        "thumbnailId": "image:template:l-kitchen:v2"
       },
       "room": {
         "widthMm": 6000,
@@ -11899,7 +11953,7 @@
       "category": "bedroom",
       "description": "Furnished bedroom with bed, nightstands, storage, and soft finishes.",
       "images": {
-        "thumbnailId": "image:template:bedroom:v1"
+        "thumbnailId": "image:template:bedroom:v2"
       },
       "room": {
         "widthMm": 5200,
@@ -11998,7 +12052,7 @@
       "category": "bathroom",
       "description": "Furnished bathroom with toilet, vanity, mirror, and shower.",
       "images": {
-        "thumbnailId": "image:template:bathroom:v1"
+        "thumbnailId": "image:template:bathroom:v2"
       },
       "room": {
         "widthMm": 4200,

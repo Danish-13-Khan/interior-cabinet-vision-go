@@ -65,4 +65,5 @@ export type LivingRoomModelViewportProps = {
   onClearSelection: LivingRoomModelViewProps["onClearSelection"];
   snapSizeMm: number;
   activeLightId: string | null;
+  captureFixedDpr?: number;
 };

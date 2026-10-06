@@ -65,6 +65,8 @@ type ModelViewSceneProps = {
   overlay?: ReactNode;
   /** Share one draw per repeated model. The room view leaves this off. */
   instanceRepeatedModels?: boolean;
+  /** Card-media capture: lock Canvas DPR at 2 for 1600×1200 stills. */
+  captureFixedDpr?: number;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -102,7 +104,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     <Canvas
       frameloop={MODEL_VIEW_FRAMELOOP}
       shadows="percentage"
-      dpr={resolveModelViewDprRange(viewportQuality)}
+      dpr={props.captureFixedDpr ?? resolveModelViewDprRange(viewportQuality)}
       gl={{ antialias: MODEL_VIEW_MSAA, preserveDrawingBuffer: true }}
       camera={{ position: [0, 1.5, 2], fov: 42, near: 0.05, far: cameraFar }}
       onPointerMissed={interactive ? onClearSelection : undefined}

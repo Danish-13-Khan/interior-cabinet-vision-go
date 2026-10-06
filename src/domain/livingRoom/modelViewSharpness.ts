@@ -1,4 +1,5 @@
 import type { RenderQuality } from "../interiorProject";
+import { isCardCaptureSession } from "../templateCardsCapture/captureMode";
 import { getRenderPresetBehavior } from "./renderPresets";
 
 /**
@@ -12,6 +13,7 @@ export const MODEL_VIEW_MSAA = true as const;
 export function resolveModelViewMaxDpr(quality: RenderQuality): number {
   const preset = getRenderPresetBehavior(quality);
   if (!preset.modelViewSafe) {
+    if (import.meta.env.DEV && isCardCaptureSession() && quality === "presentation") return preset.pixelRatio;
     return getRenderPresetBehavior("standard").pixelRatio;
   }
   return preset.pixelRatio;

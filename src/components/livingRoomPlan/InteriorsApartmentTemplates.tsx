@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { APARTMENT_TEMPLATE_CARDS } from "../../domain/apartmentTemplates/apartmentCards";
+import { CardMedia } from "../cardMedia";
 
 type Props = {
   onCreate: (apartmentTemplateId: string) => void;
@@ -6,6 +8,8 @@ type Props = {
 
 /** Apartment templates section above single-room catalog cards (Phase 6). */
 export function InteriorsApartmentTemplates({ onCreate }: Props) {
+  const [clipLockedId, setClipLockedId] = useState<string | null>(null);
+
   return (
     <section
       className="planner-v2-starts interiors-apartment-templates"
@@ -22,16 +26,18 @@ export function InteriorsApartmentTemplates({ onCreate }: Props) {
             key={card.id}
             data-testid={`apartment-template-${card.id}`}
             data-template-id={card.id}
-            onClick={() => onCreate(card.id)}
+            onClick={() => {
+              setClipLockedId(card.id);
+              onCreate(card.id);
+            }}
           >
-            <span className="interiors-apartment-thumbs">
-              <img src={`${import.meta.env.BASE_URL}${card.thumbnail}`} alt="" loading="lazy" width={160} height={120} />
-              <img
-                className="interiors-apartment-plan"
-                src={`${import.meta.env.BASE_URL}${card.planThumbnail}`}
-                alt="" loading="lazy" width={160} height={120}
-              />
-            </span>
+            <CardMedia
+              templateId={card.id}
+              width={160}
+              height={120}
+              clipDismissed={clipLockedId === card.id}
+              clipDisabled={clipLockedId !== null}
+            />
             <strong>{card.name}</strong>
             <small>
               {card.carpetM2} m² carpet ({card.footprintM2} m² built-up) · {card.roomCount} rooms — {card.description}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RenderQuality } from "../domain/interiorProject";
 import { isWallRaised, setActiveInteriorRoom } from "../domain/interiorProject";
 import {
@@ -30,7 +30,13 @@ import { useShowcaseTour } from "../hooks/useShowcaseTour";
 import { useApartmentOverview } from "../hooks/useApartmentOverview";
 import { modelViewClientPresentationProps } from "../domain/livingRoom/modelViewClientPresentation";
 import type { LivingRoomModelViewProps } from "./livingRoomModelViewProps";
+import { isCardCaptureSession } from "../domain/templateCardsCapture/captureMode";
 import { LivingRoomModelViewport } from "./livingRoomScene/LivingRoomModelViewport";
+
+/** Dev-only: production builds drop the capture bridge and its camera-path code. */
+const CardCaptureDevBridge = import.meta.env.DEV
+  ? lazy(() => import("./livingRoomScene/CardCaptureDevBridge").then((m) => ({ default: m.CardCaptureDevBridge })))
+  : null;
 
 export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   const {
@@ -39,6 +45,8 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
     onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
   } = props;
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
+  const cardCapture = import.meta.env.DEV && isCardCaptureSession();
+  const [captureOverview, setCaptureOverview] = useState(false);
   const stopTourRef = useRef<() => void>(() => undefined);
   const camera = useModelViewCameraSession(!presentation, hasSelection, () => stopTourRef.current());
   const canvasHostRef = useRef<HTMLDivElement>(null);
@@ -55,7 +63,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
     viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
     activeCameraId, setActiveCameraId, stopTour: tour.stop, onFrameRoom: camera.fitRoom,
   });
-  const showApartment = overview.showApartment || tour.touringOverview;
+  const showApartment = (cardCapture && captureOverview) || overview.showApartment || tour.touringOverview;
   const apartmentScene = useMemo(() => (
     showApartment ? sceneWithOverviewCameras(compileApartmentScene(project, sceneFor)) : null
   ), [showApartment, project, sceneFor]);
@@ -109,6 +117,21 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   }, [showApartment]);
 
   return (
+    <>
+      {CardCaptureDevBridge && cardCapture ? (
+        <Suspense fallback={null}>
+          <CardCaptureDevBridge
+            project={project}
+            sceneFor={sceneFor}
+            canvasHostRef={canvasHostRef}
+            onPatchDocument={onPatchDocument}
+            setViewportQuality={setViewportQuality}
+            setMoodOverride={tour.setMood}
+            setCaptureOverview={setCaptureOverview}
+            setActiveCameraId={setActiveCameraId}
+          />
+        </Suspense>
+      ) : null}
     <LivingRoomModelViewport
       handlers={props} camera={camera} tour={tour} scene={scene} overview={overview}
       canvasHostRef={canvasHostRef} showGuide={showGuide} onShowGuide={setShowGuide}
@@ -123,6 +146,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
       viewOnly={viewOnly} clientView={clientView} hoveredRoomId={hoveredRoomId}
       onHoverRoom={setHoveredRoomId} onActivateRoom={activateRoom}
       showStylePalette={showStylePalette} presentation={presentation}
+      captureFixedDpr={cardCapture ? 2 : undefined}
       profile={describeModelViewRuntimeProfile(viewportQuality)}
       ceilingHidden={modelViewHidesCeiling(camera.viewPreset)}
       nearWallCut={modelViewCutsNearWall(camera.viewPreset)}
@@ -141,5 +165,6 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
       onSelect={onSelect} onClearSelection={onClearSelection} snapSizeMm={snapSizeMm}
       activeLightId={activeLightId}
     />
+    </>
   );
 }
