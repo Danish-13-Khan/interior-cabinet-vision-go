@@ -9,10 +9,13 @@ import {
 
 /**
  * Phase 7 exit gate. (Model View has no room switcher on screen, so the
- * room-switch stop is covered by showcaseTourSession.test.ts.) Frame budget is enforced with TOUR_PERF_STRICT=1 (a GPU
- * and ideally a production build: TOUR_PERF_BASE=http://127.0.0.1:4173 after
- * `vite build && vite preview`); otherwise the numbers are reported only,
- * because software GL (SwiftShader) cannot hold 100 ms frames on any scene.
+ * room-switch stop is covered by showcaseTourSession.test.ts.) Frame budget is enforced with TOUR_PERF_STRICT=1,
+ * and only means something against a production build on a GPU:
+ *   npm run build && npx vite preview --host 127.0.0.1 --port 4173
+ *   TOUR_PERF_STRICT=1 TOUR_PERF_BASE=http://127.0.0.1:4173 npx playwright test tests/e2e/apartment-showcase-tour.spec.ts
+ * Without TOUR_PERF_BASE the run uses the dev server (unminified React, dev
+ * checks), whose frames are not representative. Otherwise the numbers are
+ * reported only, because software GL (SwiftShader) cannot hold 100 ms frames.
  */
 const STRICT = process.env.TOUR_PERF_STRICT === "1";
 const STALL_BUDGET_MS = 100;
@@ -35,7 +38,9 @@ test("3 BHK tour visits every room in order, glides without stalls, and adds no 
 
   const probe = await readTourProbe(page);
   expect(probe.rooms).toEqual(EXPECTED_STOPS);
-  const touring = probe.frames.filter((frame) => frame.phase === "touring").map((frame) => frame.dt);
+  const touringFrames = probe.frames.filter((frame) => frame.phase === "touring");
+  const touring = touringFrames.map((frame) => frame.dt);
+  const worst = touringFrames.reduce((max, frame) => (frame.dt > max.dt ? frame : max), { dt: 0, stop: "" });
   const preparing = probe.frames.filter((frame) => frame.phase === "preparing").map((frame) => frame.dt);
   const sorted = [...touring].sort((a, b) => a - b);
   const stats = {
@@ -44,12 +49,14 @@ test("3 BHK tour visits every room in order, glides without stalls, and adds no 
     maxMs: Math.round(Math.max(...touring)),
     p95Ms: Math.round(sorted[Math.floor(sorted.length * 0.95)] ?? 0),
     over100: touring.filter((dt) => dt > STALL_BUDGET_MS).length,
+    worstStop: worst.stop,
+    stallStops: [...new Set(touringFrames.filter((frame) => frame.dt > STALL_BUDGET_MS).map((frame) => frame.stop))],
     preRollMs: Math.round(preparing.reduce((sum, dt) => sum + dt, 0)),
     preRollMaxMs: Math.round(Math.max(0, ...preparing)),
   };
   test.info().annotations.push({ type: "tour-frames", description: JSON.stringify(stats) });
   expect(touring.length).toBeGreaterThan(EXPECTED_STOPS.length * 60);
-  if (STRICT) expect(stats.maxMs).toBeLessThan(STALL_BUDGET_MS);
+  if (STRICT) expect(stats.maxMs, `longest frame at stop ${stats.worstStop}; stalls at ${stats.stallStops.join(", ")}`).toBeLessThan(STALL_BUDGET_MS);
 
   // View-only: undo/redo stacks identical, never dirty, never autosaved during the tour.
   expect(await historyDepths(page)).toBe(historyBefore);

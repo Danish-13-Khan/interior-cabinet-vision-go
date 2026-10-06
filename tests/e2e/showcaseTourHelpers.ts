@@ -9,7 +9,7 @@ export const TOUR_LAUNCH = process.platform === "darwin"
   : {};
 
 export type TourProbe = {
-  frames: Array<{ phase: string; dt: number }>;
+  frames: Array<{ phase: string; dt: number; stop: string }>;
   rooms: string[];
   saveLabels: string[];
 };
@@ -21,18 +21,20 @@ export type TourProbe = {
  */
 export async function installTourProbe(page: Page) {
   await page.addInitScript(() => {
-    const probe = { frames: [] as Array<{ phase: string; dt: number }>, rooms: [] as string[], saveLabels: [] as string[] };
+    const probe = { frames: [] as Array<{ phase: string; dt: number; stop: string }>, rooms: [] as string[], saveLabels: [] as string[] };
     (window as unknown as { __tourProbe: typeof probe }).__tourProbe = probe;
     let last = performance.now();
     let lastIndex = "";
     const tick = (now: number) => {
       const tour = document.querySelector("[data-testid=showcase-tour]");
       const phase = tour?.getAttribute("data-tour-phase") ?? "none";
-      probe.frames.push({ phase, dt: now - last });
-      last = now;
       const index = tour?.getAttribute("data-tour-stop-index") ?? "";
+      // Which stop each frame belongs to, so a stall can be traced to a room (or the overview).
+      const stopName = document.querySelector("[data-testid=showcase-tour-status]")?.textContent?.split(" · ")[0] ?? "";
+      probe.frames.push({ phase, dt: now - last, stop: `${index}:${stopName}` });
+      last = now;
       if (phase === "touring" && index !== lastIndex) {
-        probe.rooms.push(document.querySelector("[data-testid=showcase-tour-status]")?.textContent?.split(" · ")[0] ?? "");
+        probe.rooms.push(stopName);
       }
       lastIndex = phase === "touring" ? index : "";
       const label = document.querySelector("[data-testid=interiors-save-state]");

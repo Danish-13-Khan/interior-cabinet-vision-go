@@ -1,11 +1,9 @@
 # Apartment templates roadmap (Studio, 1 BHK, 2 BHK, 3 BHK)
 
-**Status:** Phases 0, 1, 2, 4, 5 and 6 done on `feat/apartment-templates`
-(reviewed 2026-10-06); Phase 3 done on `feat/sliding-wardrobe` (awaiting
-review); Phase 7 (showcase tour) done on `feat/sliding-wardrobe` (awaiting
-review). Phase 8 stays deferred. Factory hardware values are built
-as settings with industry defaults (D10); Ilyas confirms them, he no longer
-blocks a phase.
+**Status:** Complete. All phases (0–7 and 8.0–8.5) are built, reviewed and
+merged to `main` (PRs #52–#56, 2026-10-06), and the strict performance gates
+pass on a production build (§10). Remaining: one manual check (a two-room
+imported plan in the app) and Ilyas confirming the factory defaults (D10).
 **Goal:** Four ready-made apartments the user can open with one click. Between
 them they show every capability we sell: cabinet types, front systems
 (handles, gola, push-to-open, sliding), door styles, finishes, wall
@@ -355,7 +353,7 @@ gaps (buffer off), spring-free hinges. Push hardware lines now carry the
 
 ### Phase 3 — Sliding wardrobe shutters (§3.4)
 
-**Status:** Done on `feat/sliding-wardrobe` with the §3.4 defaults
+**Status:** Done and merged (PR #53/#54) with the §3.4 defaults
 (`confirmed: false`); Ilyas confirms the numbers later. Sliding almirahs allow
 900–2400 mm width. Studio and the 3 BHK master use sliding shutters.
 
@@ -440,9 +438,10 @@ apartment thumbnails: closed by the Phase 7 stills.)
 - Each template creates a new project. The template itself is never modified,
   and autosave writes a new draft.
 
-### Phase 7 — Showcase tour — after Phase 3
+### Phase 7 — Showcase tour
 
-**Status:** Done on `feat/sliding-wardrobe`.
+**Status:** Done and merged (PR #53/#54). Since 8.5 the tour opens on the
+whole-apartment overview.
 
 As built:
 - `showcaseTour.ts` (stop order), `showcaseTourController.ts` (timers:
@@ -501,7 +500,8 @@ As built:
 
 ### Phase 8 — Whole-apartment 3D view
 
-**Status:** Architecture written (§9), not started. Split into sub-phases
+**Status:** Built and merged: 8.0 in PR #55, 8.1–8.5 in PR #56. Gates
+still to measure are listed in §10. Split into sub-phases
 8.0–8.5; 8.0 fixes bugs the shipped templates already have and goes first,
 in its own PR.
 
@@ -528,15 +528,9 @@ None of these block a phase any more. Send them to Ilyas as one
 
 ## 8. Suggested order
 
-Done: Phases 0, 1, 4, 2, 5, 6, 3 and 7 (in that order).
+Done and merged: Phases 0, 1, 4, 2, 5, 6, 3, 7, then 8.0–8.5.
 
-Next:
-1. Merge `feat/sliding-wardrobe` (Phases 3 and 7 plus review fixes).
-2. Send Ilyas the §7 confirmation message; flip `confirmed` when he answers.
-3. **Phase 8.0** (room frame and recipe lights, §9.3) on its own branch and
-   PR: it fixes bugs the shipped templates already have.
-4. **Phase 8.1–8.5** (whole apartment view) on a second branch, one review
-   checkpoint per sub-phase.
+Next: §10.
 
 ## 9. Phase 8 architecture — whole-apartment 3D
 
@@ -675,6 +669,14 @@ Fixtures come from the resolved room scenes and render glow-only
 
 #### 8.3 — Whole apartment view mode
 
+**Status:** Done (PR #56). View-only (no undo step, no autosave), warm-up
+veil, hover highlight and click-to-enter (clicking the current room writes
+nothing), four corners plus top. Overview stills pass exposure (luma 182 /
+181 / 123 / 156) with one stage colour (#9aa7b3) and one exposure (1.55);
+the sun stays 0.58. A two-room starter plan (not a template) compiles,
+picks rooms and tours correctly at the code level. Still to do by hand:
+open a two-room imported plan in the app (§10).
+
 - **Whole apartment** toggle in 3D for projects with two or more rooms.
 - Camera presets: four high corners and top-down, framed on the union bounds.
 - Hovering a room highlights it and shows its name; clicking enters it;
@@ -696,14 +698,35 @@ Fixtures come from the resolved room scenes and render glow-only
 
 #### 8.4 — Performance
 
+**Status:** Built (PR #56). GLB children are frustum-culled from recomputed
+bounds (skinned meshes stay unculled); repeated GLBs are instanced **in the
+overview only**, so the room view keeps per-model shadows and hover; batches
+are keyed by ids so they no longer rebuild on every render. The overview
+opens in **Draft** (answers §9.5 Q3) and restores the room view's quality on
+leaving.
+**Gate passed (2026-10-06).** Apple M5 (Metal), production build via
+`vite preview`, 3 BHK, overview in Draft, strict run: overview orbit
+**p95 18 ms**, longest frame 26 ms, cold entry 697 ms, warm entry 261 ms,
+room-view orbit p95 9 ms. (Before Draft and the rebuild fix, on Standard:
+p95 50 ms, longest 67 ms.)
+
 - Frustum culling for GLB children; instancing of repeated GLBs.
 
-**Exit gate (reference laptop, Standard quality, production build):**
+**Exit gate (reference machine, overview default quality = Draft, production build):**
 - 3 BHK overview: p95 frame time ≤ 33 ms while orbiting; first frame
   ≤ 4 s warm.
 - Room view frame times no worse than before.
 
 #### 8.5 — Tour and marketing
+
+**Status:** Done (PR #56). The tour's first stop is "Whole apartment", then
+the rooms in spec order from the hero room. Cards keep the daylight hero-room
+still (`apartment-<slug>-v1.webp`) and add the overview as a second image
+(`apartment-<slug>-plan-v1.webp`) that cross-fades in on hover / focus
+(answers §9.5 Q2). Recipe point / spot / area lights in off-centre rooms now
+dim with floor area, so small rooms are not overlit. All eight stills pass
+exposure and are 26–78 KB. **Gate passed (2026-10-06):** strict 3 BHK tour on
+a production build (Apple M5), overview stop included, no frame over 100 ms.
 
 - The tour opens on the overview, then glides into the hero room.
 - Card stills switch to the overview shot (or one overview + one room shot).
@@ -720,10 +743,54 @@ Fixtures come from the resolved room scenes and render glow-only
 - Per-room fixture light in the overview (a fixed pool of light slots is a
   possible later step).
 
-### 9.5 Questions
+### 9.5 Questions (answered)
 
-1. Should clicking a room in the overview enter it, or only highlight it
-   until a second click?
-2. Card image: overview only, or overview plus hero room?
-3. Is p95 ≤ 33 ms on Standard the right bar, or should the overview default
-   to Draft quality?
+1. ~~Click to enter or highlight first?~~ Hover highlights and names the
+   room; a click (not a drag) enters it.
+2. ~~Card image?~~ Hero room as the card; the overview as a second image on
+   hover / focus.
+3. ~~Standard or Draft?~~ The overview defaults to Draft; Standard stays a
+   choice inside the overview.
+
+## 10. Completion
+
+**Built, reviewed and merged (2026-10-06):** every phase. Four templates
+(Studio, 1 BHK, 2 BHK, 3 BHK), push-to-open and sliding wardrobes, the
+showcase coverage matrix (§4), entry points, the showcase tour, the room
+frame fix, and the whole-apartment view with its tour stop and card images.
+
+**Performance gates (passed 2026-10-06, Apple M5, production build):**
+
+| Gate | Result |
+| --- | --- |
+| 8.4: overview orbit p95 ≤ 33 ms (Draft) | ✓ p95 18 ms, longest 26 ms; cold entry 697 ms, warm 261 ms; room view p95 9 ms |
+| 8.5: full 3 BHK tour, overview included, no frame > 100 ms | ✓ strict run passed |
+| 8.3: no stall entering / leaving the overview | ✓ (same overview run) |
+
+**Still open:**
+
+| Item | How | Gate |
+| --- | --- | --- |
+| Two-room imported plan | Import (or draw) a two-room plan, open 3D, enter **Whole apartment**, click each room. Already verified at code level on the "2-room-flat" starter (overview compiles, shared wall is interior, room pick and tour work). | 8.3 |
+
+To re-run the performance gates: `npm run build`, then
+`npx vite preview --host 127.0.0.1 --port 4173` in a second terminal, then
+`TOUR_PERF_STRICT=1 TOUR_PERF_BASE=http://127.0.0.1:4173 npx playwright test tests/e2e/apartment-showcase-tour.spec.ts --project=chromium`
+and
+`OVERVIEW_PERF_STRICT=1 TOUR_PERF_BASE=http://127.0.0.1:4173 npx playwright test tests/e2e/apartment-overview.spec.ts --project=chromium`.
+
+Performance runs only count against a production build: `npm run build`,
+then `npx vite preview --host 127.0.0.1 --port 4173` in a second terminal.
+Without `TOUR_PERF_BASE` Playwright uses the dev server, whose frames are not
+representative (a dev-server tour run showed a 183 ms frame).
+
+**Waiting on the factory (D10, §7):** sliding track kind and lengths
+(per-metre vs fixed bars), overlap and track allowance, the 900–2400 mm
+sliding width range, the 3 × 700 split for a 2100 mm hinged wardrobe,
+whether quoted widths include end panels, the hinge brand for push doors and
+the push latch buffer. Until Ilyas confirms, those lines stay marked
+"unconfirmed default" in the schedule and exports.
+
+**Follow-ups, outside this roadmap:** Render Studio ignores the day / evening
+mood; editor-wide unique room ids; out-of-scope items in §9.4 (editing in
+the overview, whole-apartment Render Studio, wall cut height, multi-storey).
