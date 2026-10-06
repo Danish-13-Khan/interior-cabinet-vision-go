@@ -40,3 +40,11 @@ export function viewLightingMood(
 ): LightingMood {
   return override ?? readLightingMood(project);
 }
+
+/**
+ * An evening recipe carries the evening look (warm HDRI, low window keys). In
+ * day mood the room is lit by the daylight recipe instead, so Day reads as day.
+ */
+export function lightingRecipeForMood(recipeId: string, mood: LightingMood): string {
+  return mood === "day" && recipeId === "warm-evening" ? "daylight" : recipeId;
+}

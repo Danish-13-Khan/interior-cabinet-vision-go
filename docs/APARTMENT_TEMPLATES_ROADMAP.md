@@ -467,9 +467,14 @@ As built:
 - Day/Evening in the tour pill is a local override; the toolbar's Evening
   button stays the saved one.
 - Stills: `npm run stills:apartments` captures each template's first tour stop
-  in Present to `public/catalog/templates/apartment-<slug>-v1.png`, used by the
-  marketing and project-home cards. Studio and 1 BHK hero cameras were
-  re-aimed at their TV walls for these stills.
+  in Present, in Day mood, to `public/catalog/templates/apartment-<slug>-v1.webp`
+  (800×600, ~2× the cards), used by the marketing and project-home cards. Each
+  hero camera is a wide, high three-quarter corner view that doubles as the
+  still. The script reads the pixels (mean luma, near-black/near-white share,
+  channel means / cast) and fails when a still is out of range.
+- Day mood under the warm-evening recipe lights the room with the daylight
+  recipe (`lightingRecipeForMood`); before, Day still showed the evening rig,
+  which gave the 2 BHK an orange cast.
 - Measured (e2e `apartment-showcase-tour.spec.ts`, Apple M5 / Metal, full
   3 BHK): max frame 25 ms on a production build, 67 ms on the dev server;
   0 frames over 100 ms. Strict mode: `vite build && vite preview --port 4173`,

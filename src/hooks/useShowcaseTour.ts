@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } fro
 import type { InteriorProject } from "../domain/interiorProject";
 import { pickModelViewCameraId } from "../domain/livingRoom";
 import type { RoomSceneLookup } from "../domain/livingRoom/roomSceneCache";
-import { viewLightingMood, type LightingMood } from "../domain/livingRoom/lightingMood";
+import { lightingRecipeForMood, viewLightingMood, type LightingMood } from "../domain/livingRoom/lightingMood";
 import { glbLoadsPending } from "../domain/livingRoom/glbLoadTracker";
 import { showcaseTourAvailable, showcaseTourStops } from "../domain/apartmentTemplates/showcaseTour";
 import {
@@ -101,12 +101,19 @@ export function useShowcaseTour<P extends string>(args: {
   }, []);
   const stop = useCallback(() => sessionRef.current?.stop("user"), []);
 
+  const mood = viewLightingMood(project, showcaseMoodOverride(moodOverride, mode));
+  const roomScene = sceneFor(tour.roomId);
+  const scene = useMemo(() => {
+    const lightingRecipeId = lightingRecipeForMood(roomScene.lightingRecipeId, mood);
+    return lightingRecipeId === roomScene.lightingRecipeId ? roomScene : { ...roomScene, lightingRecipeId };
+  }, [roomScene, mood]);
+
   return {
     stops,
     available: showcaseTourAvailable(stops),
     tour,
-    scene: sceneFor(tour.roomId),
-    mood: viewLightingMood(project, showcaseMoodOverride(moodOverride, mode)),
+    scene,
+    mood,
     setMood: setMoodOverride,
     showMood,
     ...showcaseCameraFraming(mode),

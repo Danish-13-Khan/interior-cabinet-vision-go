@@ -25,8 +25,9 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
       },
     },
     camera: {
-      eyeMm: { x: -2400, y: 1600, z: 3400 },
-      targetMm: { x: -2400, y: 1000, z: 0 },
+      // Wide, high three-quarter view from the far corner: the tour's opening shot and the card still.
+      eyeMm: { x: -4950, y: 2650, z: 3750 },
+      targetMm: { x: -1700, y: 500, z: 300 },
     },
   },
   {

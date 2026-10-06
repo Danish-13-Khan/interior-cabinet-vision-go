@@ -95,9 +95,9 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
         },
       },
       camera: {
-        // Diagonal from the sofa corner onto the fluted TV wall (the tour still / card thumbnail).
-        eyeMm: { x: -1200, y: 1600, z: 2300 },
-        targetMm: { x: 1500, y: 1000, z: -700 },
+        // Wide, high three-quarter view from the far corner: the tour's opening shot and the card still.
+        eyeMm: { x: -2800, y: 2350, z: 2500 },
+        targetMm: { x: 1200, y: 800, z: -500 },
       },
     },
   ],

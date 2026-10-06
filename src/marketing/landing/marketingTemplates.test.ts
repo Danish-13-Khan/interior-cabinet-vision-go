@@ -22,7 +22,7 @@ describe('marketing templates', () => {
   it('shows each apartment through its showcase-tour still', () => {
     for (const template of MARKETING_TEMPLATES.filter((t) => t.kind === 'apartment')) {
       expect(template.image).toBe(apartmentStillPath(template.id));
-      expect(template.image).toMatch(/^catalog\/templates\/apartment-[a-z0-9]+-v1\.png$/);
+      expect(template.image).toMatch(/^catalog\/templates\/apartment-[a-z0-9]+-v1\.webp$/);
     }
   });
   it('builds register links that round-trip the template id', () => {

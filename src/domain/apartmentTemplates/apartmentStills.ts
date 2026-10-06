@@ -6,5 +6,5 @@
  */
 export function apartmentStillPath(id: string): string {
   const [, , slug = "unknown", version = "v1"] = id.split(":");
-  return `catalog/templates/apartment-${slug}-${version}.png`;
+  return `catalog/templates/apartment-${slug}-${version}.webp`;
 }
