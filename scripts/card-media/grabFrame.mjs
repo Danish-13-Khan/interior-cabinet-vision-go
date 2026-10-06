@@ -1,5 +1,9 @@
+import { applyStillCaptureLook } from "../showcase-tour/stillCaptureQuality.mjs";
+
 export const CAPTURE_CSS = { width: 800, height: 600 };
 export const CAPTURE_PIXELS = { width: 1600, height: 1200 };
+
+let activeMood = "evening";
 
 async function readCanvasMetrics(page) {
   return page.evaluate(() => {
@@ -46,9 +50,8 @@ export async function capturePose(page, path, t, options = {}) {
 }
 
 export async function setCaptureLook(page, mood = "evening") {
-  await page.evaluate(async (look) => {
-    await window.__cardCapture?.setLook(look);
-  }, { quality: "presentation", mood });
+  activeMood = mood;
+  await applyStillCaptureLook(page, mood);
   await page.waitForTimeout(1500);
 }
 
@@ -94,5 +97,7 @@ export async function grabCanvasPng(page, { skipViewportPrep = false } = {}) {
 /** Pose, resize, wait for a settled frame, then grab. */
 export async function captureStillPng(page, path, t) {
   await capturePose(page, path, t);
+  // Pose can open the overview, which would otherwise leave the frame on Draft.
+  await applyStillCaptureLook(page, activeMood);
   return grabCanvasPng(page);
 }

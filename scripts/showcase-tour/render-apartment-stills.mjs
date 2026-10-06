@@ -9,7 +9,9 @@
  *   npm run stills:apartments -- 3bhk      # one template
  *   npm run stills:apartments -- --hero    # card images only
  *   npm run stills:apartments -- --overview  # plan images only
+ *   npm run stills:apartments -- --record-bands
  *
+ * Captures at client-preview and device pixel ratio 2 (`?capture=1`).
  * Uses the Metal GPU on macOS and SwiftShader elsewhere (slower, same pixels).
  */
 import { mkdir, writeFile } from "node:fs/promises";
@@ -19,6 +21,8 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 import { exposureProblems, formatExposure, readExposure } from "./still-exposure.mjs";
+import { STILL_CAPTURE_DPR, applyStillCaptureLook } from "./stillCaptureQuality.mjs";
+import { collectSurfaceProblems, loadSurfaceBands, writeRecordedBands } from "./still-surface-bands.mjs";
 
 const SLUGS = ["studio", "1bhk", "2bhk", "3bhk"];
 const OUT_W = 800;
@@ -65,18 +69,21 @@ async function fitCanvasToCard(page) {
 }
 
 async function openTemplate(page, baseUrl, slug) {
-  await page.goto(`${baseUrl}/app`);
+  await page.goto(`${baseUrl}/app?capture=1`);
   await page.getByTestId(`apartment-template-template:apartment:${slug}:v1`).click({ timeout: 90_000 });
 }
 
 /** The rig marks the frame settled; give the lights one more beat, then read the canvas. */
-async function grabCanvas(page) {
+async function grabCanvas(page, label) {
+  await applyStillCaptureLook(page, mood);
   await fitCanvasToCard(page);
   const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
   await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
   await page.waitForTimeout(400);
   const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
-  return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
+  const card = await cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
+  const surfaces = await collectSurfaceProblems(page, label, surfaceBands, recordBands);
+  return { ...card, surfaces };
 }
 
 /** Whole-apartment view from the default high corner (the card's second image). */
@@ -87,7 +94,7 @@ async function captureOverview(page, baseUrl, slug) {
   await fitCanvasToCard(page);
   await page.getByTestId("apartment-overview-toggle").click();
   await page.getByTestId("apartment-overview").and(page.locator('[data-overview-phase="overview"]')).waitFor({ timeout: 90_000 });
-  return grabCanvas(page);
+  return grabCanvas(page, `apartment-${slug}-plan-v1`);
 }
 
 /** Hero room via Present + tour: stop 0 is the overview, stop 1 the hero room (the card image). */
@@ -100,7 +107,7 @@ async function captureHero(page, baseUrl, slug) {
   await page.getByTestId("showcase-tour-toggle").click();
   await page.getByTestId(`showcase-tour-mood-${mood}`).click();
   await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="1"]')).waitFor({ timeout: 90_000 });
-  const card = await grabCanvas(page);
+  const card = await grabCanvas(page, `apartment-${slug}-v1`);
   await page.keyboard.press("Escape");
   return card;
 }
@@ -114,29 +121,46 @@ const browser = await chromium.launch(gpu
   ? { channel: "chromium", args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"] }
   : { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 
+const recordBands = args.includes("--record-bands");
+const surfaceBands = recordBands ? null : await loadSurfaceBands(root);
 const failures = [];
 try {
   for (const slug of slugs) {
-    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
-    await context.addInitScript((session) => {
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 },
+      deviceScaleFactor: STILL_CAPTURE_DPR,
+    });
+    await context.addInitScript(({ session, dpr }) => {
       window.localStorage.clear();
       window.localStorage.setItem("cabinetStudioSession", session);
       window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
-    }, SESSION);
+      Object.defineProperty(window, "devicePixelRatio", { get: () => dpr, configurable: true });
+    }, { session: SESSION, dpr: STILL_CAPTURE_DPR });
     for (const { kind, suffix } of kinds) {
       const page = await context.newPage();
       const capture = kind === "card" ? captureHero : captureOverview;
-      const { webp, exposure } = await capture(page, `http://127.0.0.1:${port}`, slug);
+      const { webp, exposure, surfaces } = await capture(page, `http://127.0.0.1:${port}`, slug);
       const output = join(root, "public", "catalog", "templates", `apartment-${slug}-${suffix}.webp`);
-      await mkdir(dirname(output), { recursive: true });
-      await writeFile(output, webp);
       const kb = Math.round(webp.length / 1024);
-      console.log(`${slug} ${kind}: ${output} (${kb} KB) — ${formatExposure(exposure)}`);
-      if (kb > STILL_MAX_KB) failures.push(`${slug} ${kind}: ${kb} KB exceeds ${STILL_MAX_KB} KB`);
-      for (const problem of exposureProblems(exposure)) failures.push(`${slug} ${kind}: ${problem}`);
+      const problems = [];
+      if (kb > STILL_MAX_KB) problems.push(`${slug} ${kind}: ${kb} KB exceeds ${STILL_MAX_KB} KB`);
+      for (const problem of exposureProblems(exposure)) problems.push(`${slug} ${kind}: ${problem}`);
+      problems.push(...surfaces.map((problem) => `${slug} ${kind}: ${problem}`));
+      if (problems.length) {
+        failures.push(...problems);
+        console.error(`${slug} ${kind} left the previous file in place:\n  ${problems.join("\n  ")}`);
+      } else {
+        await mkdir(dirname(output), { recursive: true });
+        await writeFile(output, webp);
+        console.log(`${slug} ${kind}: ${output} (${kb} KB) — ${formatExposure(exposure)}`);
+      }
       await page.close();
     }
     await context.close();
+  }
+  if (recordBands) {
+    const written = await writeRecordedBands(root);
+    if (written) console.log(`Wrote ${written}`);
   }
 } finally {
   await browser.close();

@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { exposureProblems, formatExposure, readExposure } from "../showcase-tour/still-exposure.mjs";
+import { collectSurfaceProblems, loadSurfaceBands, surfaceLabel } from "../showcase-tour/still-surface-bands.mjs";
 import { encodePosterVariants, OUT_W1600 } from "./encodeVariants.mjs";
 import { captureStillPng, setCaptureLook, waitForCaptureReady } from "./grabFrame.mjs";
 import { apartmentEntry, posterEntry, readExistingCardMedia, writeCardMediaManifest } from "./manifest.mjs";
@@ -44,10 +45,12 @@ export async function runStillsPass({
   apartmentsOnly,
   failures,
   dumpSkipped,
+  recordBands = false,
 }) {
+  const surfaceBands = recordBands ? null : await loadSurfaceBands(root);
   const manifest = {};
 
-  async function saveVariants(rel800, rel1600, pngPromise, exposureMood = "evening", exposureOverrides = {}) {
+  async function saveVariants(rel800, rel1600, pngPromise, exposureMood = "evening", exposureOverrides = {}, page, gateSurfaces = true) {
     const problems = [];
     let png;
     try {
@@ -77,6 +80,9 @@ export async function runStillsPass({
         problems.push(`${rel1600}: ${Math.round(encoded.w1600.length / 1024)} KB > ${LIMITS.w1600}`);
       }
       problems.push(...exposureProblems(exposure, exposureMood, exposureOverrides));
+      if (page && gateSurfaces) {
+        problems.push(...await collectSurfaceProblems(page, surfaceLabel(rel800), surfaceBands, recordBands));
+      }
     }
     if (problems.length) {
       failures.push(...problems);
@@ -134,6 +140,8 @@ export async function runStillsPass({
         `catalog/templates/apartment-${apt.slug}-v2-1600.webp`,
         captureStillPng(page, "hero", 1),
         exposureMoodForCapturePath("hero"),
+        {},
+        page,
       );
       const plan = await saveVariants(
         `catalog/templates/apartment-${apt.slug}-plan-v2.webp`,
@@ -144,6 +152,7 @@ export async function runStillsPass({
         })(),
         exposureMoodForCapturePath("overview"),
         apt.planExposure,
+        page,
       );
       if (hero || plan) {
         const prior = priorCardMedia[apt.id];
@@ -172,6 +181,9 @@ export async function runStillsPass({
         `catalog/templates/${room.slug}-v2-1600.webp`,
         captureStillPng(page, "room-arc", 0.5),
         exposureMoodForCapturePath("room-arc"),
+        {},
+        page,
+        false,
       );
       if (poster) manifest[room.id] = posterEntry(poster.w800, poster.w1600);
       await context.close();

@@ -108,13 +108,15 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   }, [overview.showApartment, camera.viewPreset, camera.setViewPreset]);
   useEffect(() => { if (!overview.showApartment) setHoveredRoomId(null); }, [overview.showApartment]);
   // The overview opens in Draft; leaving restores the room view's quality (view state only).
+  // Still capture (?capture=1) sets client-preview itself; this step would wipe that preset.
   const qualityBeforeOverview = useRef<RenderQuality | null>(null);
   useEffect(() => {
+    if (cardCapture) return;
     const step = overviewQualityStep(showApartment, viewportQuality, qualityBeforeOverview.current);
     qualityBeforeOverview.current = step.saved;
     if (step.set) setViewportQuality(step.set);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on entering or leaving the overview
-  }, [showApartment]);
+  }, [showApartment, cardCapture]);
 
   return (
     <>

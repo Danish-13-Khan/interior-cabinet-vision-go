@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** PROPOSAL — revised 2026-10-06 (rev 3: light rebuild, units and rerun rule aligned to code and trust contract). No `src/` work started.
+**Status:** Phase 0 instrument is in the tree (rev 4: nearest-visible readout, poster gate, re-record rule). Phases 1–4 are not started.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -44,19 +44,22 @@ Its **spending plan is wrong for this project**:
 ### Phase 0 — Fix the measuring instrument (hours)
 
 - `render-apartment-stills.mjs` moves to `deviceScaleFactor: 2`. Both it and the card-media capture **select the `client-preview` preset explicitly** instead of inheriting the seed project.
-- Pixel-readout gate added to the stills proof. **Targets are set in this phase, not inherited**: the ≈231/255 daylight wall in `WALL_DECOR_LIGHTING_ROADMAP.md` §2 is the *overexposure warning* (any wash saturates to 255), not a pass value. Target bands for wall, floor and the darkest door are agreed from the first re-render.
+- Pixel-readout gate on **apartment stills only**. Catalog room posters stay on the exposure gate. A sample counts only when the **nearest visible** hit is that surface: invisible pick volumes and export-excluded helpers are skipped, and a TV or console in front of a wall is not a wall sample. The probe casts a 12×9 grid at ±0.85 NDC so side walls in the 4:3 card crop reach the three-hit minimum, and it restores raycasting on instanced GLB batches for the duration of one read so overview furniture blocks the floor behind it.
+- **Targets are set in this phase, not inherited**: the ≈231/255 daylight wall in `WALL_DECOR_LIGHTING_ROADMAP.md` §2 is the *overexposure warning* (any wash saturates to 255), not a pass value. Bands live in `fixtures/photo-stills/surface-bands.json` at ±12 luma.
+- **Re-record is how a new look is accepted.** ±12 luma rejects every intentional lighting change. Phase 1 and every later lighting phase re-records the bands on purpose after the still is reviewed. The tolerance is a regression check between those re-records.
+- The 2 BHK overview is a near-black shell in this capture (wall ~28, floor ~42). Those figures are the measured broken look, not the photograph we want. Phase 1 sets an overview target and re-records them.
 
-**Done when:** every still in `fixtures/` is re-rendered at the new settings, the diff is reviewed, and the pixel bands are written into the proof.
+**Done when:** apartment stills are re-rendered at the new settings, the diff is reviewed, and the pixel bands are written into the proof.
 
 ### Phase 1 — Lighting and colour assets, shared by both engines (~1.5 days)
 
 - **HDRIs:** three CC0 Poly Haven maps at 1k (interior daylight, warm evening, neutral studio), ~0.5–1 MB each, lazy-loaded for the active recipe only. `environmentManifest.ts` entries unchanged; files replaced.
 - **Model View actually sees them:** `resolveModelViewLightingQuality` (`modelViewPreviewDefaults.ts`) is the resolver to edit. **Standard only:** `resolution` 256 and `hemisphereScale` 0 when `preferHdri` is true. Draft keeps its clamp and its hemisphere. The generic resolver's preview branch is left alone.
 - **Tone mapping:** `AgXToneMapping` (built into three r185). `RendererColorPipeline` **reads** `style.colorManagement.toneMapping` (today it ignores it); the union widens to `"aces-filmic" | "agx"`; exposure re-tuned per style by pixel readout; `stylePresets.test.ts:28` updated. Three's AgX and Blender's AgX view are the same family, not a pixel match: the Phase 3 review gate, not the curve, guarantees parity.
-- **Background / fog:** neutral background per style; fog disabled when the camera is inside the room.
+- **Background / fog:** neutral background per style; fog disabled when the camera is inside the room. Confirmed on the Phase 0 stills: the 1 BHK and 3 BHK show the style backdrop as a blue slab through the window cutaway.
 - **Colour fixes:** moody-walnut walnut `#3d2d26` → ~`#5a4034` (other styles unchanged). Light colour temperature already exists (`colorTemperatureK` → `kelvinToHex` → `light.color` in `lightFixtureProperties.ts:46`), so nothing is invented here; Phase 3 sends what the app stores.
 
-**Done when:** Model View Standard pixel readout for wall, floor and walnut door sits inside the Phase 0 bands; no new npm packages.
+**Done when:** Model View Standard pixel readout for wall, floor and walnut door sits inside bands **re-recorded** after this phase, including a new 2 BHK overview target; no new npm packages.
 
 ### Phase 2 — Real material sets, shared by both engines (~2 days)
 
@@ -113,7 +116,7 @@ The bundle rebuilds **the lights the scene actually has**, one Cycles light per 
 
 Only what the quality roadmap already allows:
 
-- Shadow **bias / normalBias / radius** audit per room size (fixes the speckled strip under the console without moving geometry).
+- Shadow **bias / normalBias / radius** audit per room size (fixes the speckled strip under the console without moving geometry). The strip is still in the Phase 0 2 BHK hero at device pixel ratio 2, so it is not a capture-aliasing artefact.
 - `ContactShadows` tuned per tier; GLB casters at Standard (quality roadmap P0).
 - Fixture read in the viewport stays as `WALL_DECOR_LIGHTING_ROADMAP.md` Phase 2 delivered it (emissive body, no bloom). Glow is a Phase 3 deliverable only.
 
@@ -151,7 +154,7 @@ Landing page stays at its current ~250 KB of WebP stills throughout.
 
 ## 5. Order and gates
 
-1. **Phase 0 → 1 → 2** in that order; each gated by pixel readout plus a re-rendered 2 BHK still reviewed by the user.
+1. **Phase 0 → 1 → 2** in that order; each gated by pixel readout plus a re-rendered 2 BHK still reviewed by the user. Each lighting phase re-records `fixtures/photo-stills/surface-bands.json` on purpose. ±12 luma will fail an intentional change until that re-record.
 2. **Phase 3** starts once Phase 2 lands, because Cycles renders sine-wave wood just as faithfully as real oak.
 3. **Phase 4** last, only after the Cycles still is accepted, so viewport work cannot become the polish loop again.
 

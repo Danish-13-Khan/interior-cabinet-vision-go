@@ -5,6 +5,7 @@
  *   npm run media:cards:clips
  *   npm run media:cards -- studio
  *   npm run media:cards -- --with-clips
+ *   npm run media:cards -- --record-bands
  */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,7 @@ import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 import { runClipPass } from "./captureClipPass.mjs";
 import { runStillsPass } from "./captureStillsPass.mjs";
+import { writeRecordedBands } from "../showcase-tour/still-surface-bands.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
@@ -21,6 +23,7 @@ const clipsOnly = args.includes("--clips-only");
 const withClips = args.includes("--with-clips") || clipsOnly;
 const pick = args.filter((arg) => !arg.startsWith("--"));
 const dumpSkipped = args.find((arg) => arg.startsWith("--dump-skipped="))?.slice("--dump-skipped=".length) ?? null;
+const recordBands = args.includes("--record-bands");
 
 const server = await createServer({
   root,
@@ -48,7 +51,12 @@ try {
       apartmentsOnly,
       failures,
       dumpSkipped,
+      recordBands,
     });
+    if (recordBands) {
+      const written = await writeRecordedBands(root);
+      if (written) console.log(`Wrote ${written}`);
+    }
   }
   if (withClips) {
     // The clip timeline (frame count, fps, path parameter, cross-fade) has one home: the app's TS module.
