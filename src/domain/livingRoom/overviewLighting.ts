@@ -16,8 +16,8 @@ export const OVERVIEW_DIRECTIONAL_LIGHTS = 1;
  * shared exposure below are what put all four templates inside the check.
  */
 export const OVERVIEW_SUN_INTENSITY = 0.58;
-/** Mid grey-blue. Luma sits inside the still check so the empty stage does not fail it. */
-export const OVERVIEW_STAGE_COLOR = "#9aa7b3";
+/** Neutral grey. Same luma band as the old grey-blue so the empty stage still clears the still check. */
+export const OVERVIEW_STAGE_COLOR = "#a5a5a5";
 /** One exposure for every plan. Style exposures leave walnut under the near-black limit and nordic over it. */
 export const OVERVIEW_EXPOSURE = 1.55;
 

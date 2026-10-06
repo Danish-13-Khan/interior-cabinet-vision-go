@@ -64,6 +64,8 @@ export function useCardCaptureHook(args: Args): void {
       async setLook(look) {
         latest.current.setViewportQuality(look.quality);
         latest.current.setMoodOverride(look.mood);
+        await nextFrame();
+        await nextFrame();
         await waitForAssets();
         await waitForFrameSettled(latest.current.canvasHostRef.current);
       },

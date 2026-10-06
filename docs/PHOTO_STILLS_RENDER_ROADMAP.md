@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** Phase 0 instrument is in the tree (rev 4: nearest-visible readout, poster gate, re-record rule). Phases 1–4 are not started.
+**Status:** Phase 1 lighting is in the tree (Poly Haven 1k HDRIs, AgX, neutral backgrounds, fog off inside the room, lighter walnut, bands re-recorded). Phases 2–4 are not started.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -53,7 +53,7 @@ Its **spending plan is wrong for this project**:
 
 ### Phase 1 — Lighting and colour assets, shared by both engines (~1.5 days)
 
-- **HDRIs:** three CC0 Poly Haven maps at 1k (interior daylight, warm evening, neutral studio), ~0.5–1 MB each, lazy-loaded for the active recipe only. `environmentManifest.ts` entries unchanged; files replaced.
+- **HDRIs:** three CC0 Poly Haven maps at 1k (interior daylight, warm evening, neutral studio). The 1k files are about 1.6 MB each, lazy-loaded for the active recipe only. `environmentManifest.ts` entries unchanged; files replaced.
 - **Model View actually sees them:** `resolveModelViewLightingQuality` (`modelViewPreviewDefaults.ts`) is the resolver to edit. **Standard only:** `resolution` 256 and `hemisphereScale` 0 when `preferHdri` is true. Draft keeps its clamp and its hemisphere. The generic resolver's preview branch is left alone.
 - **Tone mapping:** `AgXToneMapping` (built into three r185). `RendererColorPipeline` **reads** `style.colorManagement.toneMapping` (today it ignores it); the union widens to `"aces-filmic" | "agx"`; exposure re-tuned per style by pixel readout; `stylePresets.test.ts:28` updated. Three's AgX and Blender's AgX view are the same family, not a pixel match: the Phase 3 review gate, not the curve, guarantees parity.
 - **Background / fog:** neutral background per style; fog disabled when the camera is inside the room. Confirmed on the Phase 0 stills: the 1 BHK and 3 BHK show the style backdrop as a blue slab through the window cutaway.

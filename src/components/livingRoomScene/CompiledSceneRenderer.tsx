@@ -14,13 +14,11 @@ import {
 } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { resolveCabinetRunFrame, type CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
-import { MODEL_VIEW_STAGE_COLOR } from "../../domain/livingRoom/modelViewStage";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
+import { CompiledSceneAtmosphere } from "./CompiledSceneAtmosphere";
 import { CompiledSceneObjectLayer } from "./CompiledSceneObjectLayer";
 import { ModelViewCameraKind } from "./ModelViewCameraKind";
 import { ModelViewInteractionRig } from "./ModelViewInteractionRig";
-import { RendererColorPipeline } from "./RendererColorPipeline";
-import { modelViewFogMeters } from "../../domain/livingRoom/modelViewExteriorFrame";
 import { assignGlbCasterSlots } from "../../domain/livingRoom/glbCastShadow";
 import { resolveModelViewMaxGlbCasters } from "../../domain/livingRoom/modelViewPerf";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
@@ -130,14 +128,12 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   );
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
-  const fog = modelViewFogMeters(roomSpan, scene.style.environment.fogNearMm, scene.style.environment.fogFarMm);
   const inspection = resolveModelViewSelectionBoundsMm(scene, {
     objectIds: selectedIds,
     wallId: selectedWallId,
     openingId: selectedOpeningId,
   });
   const inspectionSpanMeters = inspection ? inspection.spanMm / 1000 : undefined;
-  const environment = scene.style.environment;
   const lightingQuality = lightingQualityOverride
     ?? resolveEnvironmentLightingQuality(renderMode, renderQuality);
   const maxGlbCasters = lightingQuality.maxDirectionalCasters !== undefined
@@ -146,13 +142,14 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   return (
     <>
       {viewPreset ? <ModelViewCameraKind viewPreset={viewPreset} roomSpanMeters={roomSpan} /> : null}
-      <RendererColorPipeline exposure={scene.style.colorManagement.exposure} />
-      <color attach="background" args={[frameRun ? MODEL_VIEW_STAGE_COLOR : environment.backgroundColor]} />
-      <fog attach="fog" args={[frameRun ? MODEL_VIEW_STAGE_COLOR : environment.fogColor, fog.near, fog.far]} />
-      <hemisphereLight
-        color={environment.hemisphereSkyColor}
-        groundColor={environment.hemisphereGroundColor}
-        intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale * roomLightScale}
+      <CompiledSceneAtmosphere
+        scene={scene}
+        bounds={architectureBounds}
+        frameRun={frameRun}
+        lightingQuality={lightingQuality}
+        roomLightScale={roomLightScale}
+        roomSpan={roomSpan}
+        showGrid={showGrid}
       />
       <RenderLightingRig
         scene={scene} recipeId={scene.lightingRecipeId} renderMode={renderMode}
@@ -163,15 +160,6 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         onMoveLight={interactive ? onMoveLight : undefined}
         onLightDragState={handleDragStateChange}
       />
-      {showGrid ? (
-        <gridHelper
-          args={[
-            Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)),
-            environment.gridPrimaryColor, environment.gridSecondaryColor,
-          ]}
-          position={[scene.bounds.center.x / 1000, 0.002, scene.bounds.center.z / 1000]}
-        />
-      ) : null}
       <CompiledSceneObjectLayer
         nodes={nodes} materials={materialMap} selectedIds={selectedIds}
         selectedOpeningId={selectedOpeningId} selectedWallId={selectedWallId}
@@ -193,7 +181,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         fieldOfViewDegrees={fieldOfViewDegrees} assetRevision={assetRevision}
         interactive={interactive} dragging={dragging} roomSpan={roomSpan}
         renderQuality={renderQuality} renderComposition={renderComposition}
-        renderMode={renderMode} lightingQuality={lightingQuality} environment={environment}
+        renderMode={renderMode} lightingQuality={lightingQuality} environment={scene.style.environment}
         fitVersion={fitVersion} fitMode={fitMode} fitSelection={fitSelection}
         inspectionSpanMeters={inspectionSpanMeters}
         onExitWalkthrough={onExitWalkthrough}

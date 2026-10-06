@@ -40,11 +40,13 @@ export function resolveModelViewLightingQuality(
   return {
     ...base,
     intensityScale: rich ? 1.06 : 0.94,
+    // Standard reads the 1k map at 256. Draft keeps the preview clamp.
+    resolution: rich ? 256 : base.resolution,
     shadowMapSize: rich ? Math.max(base.shadowMapSize, 768) : 640,
     shadowRadius: base.shadowRadius + (rich ? 3 : 2),
     contactShadowOpacityScale: rich ? 1.08 : 1.1,
     contactShadowBlurScale: rich ? 1.05 : 1.14,
-    hemisphereScale: rich ? 0.68 : 0.78,
+    hemisphereScale: rich ? 0 : 0.78,
     preferHdri: true,
     projectShadow: resolveModelViewProjectShadow(quality),
     windowKeyShadow: resolveModelViewWindowKeyShadow(quality),

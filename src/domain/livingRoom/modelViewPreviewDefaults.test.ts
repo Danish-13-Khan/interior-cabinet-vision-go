@@ -105,6 +105,11 @@ describe("modelViewPreviewDefaults", () => {
     const standard = resolveModelViewLightingQuality("standard");
     expect(standard.preferHdri).toBe(true);
     expect(standard.intensityScale).toBeGreaterThan(draft.intensityScale);
-    expect(standard.hemisphereScale).toBeLessThan(draft.hemisphereScale);
+    expect(standard.resolution).toBe(256);
+    expect(standard.hemisphereScale).toBe(0);
+    expect(draft.resolution).toBeLessThanOrEqual(64);
+    expect(draft.hemisphereScale).toBe(0.78);
+    expect(resolveModelViewLightingQuality("client-preview").resolution).toBeLessThanOrEqual(128);
+    expect(resolveEnvironmentLightingQuality("preview", "standard").resolution).toBeLessThanOrEqual(128);
   });
 });

@@ -21,7 +21,7 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 import { exposureProblems, formatExposure, readExposure } from "./still-exposure.mjs";
-import { STILL_CAPTURE_DPR, applyStillCaptureLook } from "./stillCaptureQuality.mjs";
+import { STILL_CAPTURE_DPR, applyStillCaptureLook, armTourHeroWatch, waitForTourHero } from "./stillCaptureQuality.mjs";
 import { collectSurfaceProblems, loadSurfaceBands, writeRecordedBands } from "./still-surface-bands.mjs";
 
 const SLUGS = ["studio", "1bhk", "2bhk", "3bhk"];
@@ -75,11 +75,8 @@ async function openTemplate(page, baseUrl, slug) {
 
 /** The rig marks the frame settled; give the lights one more beat, then read the canvas. */
 async function grabCanvas(page, label) {
-  await applyStillCaptureLook(page, mood);
-  await fitCanvasToCard(page);
+  await page.waitForTimeout(300);
   const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
-  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
-  await page.waitForTimeout(400);
   const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
   const card = await cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
   const surfaces = await collectSurfaceProblems(page, label, surfaceBands, recordBands);
@@ -92,8 +89,10 @@ async function captureOverview(page, baseUrl, slug) {
   await page.getByRole("button", { name: "3D", exact: true }).click();
   await page.getByTestId("lr-model-viewport").waitFor({ timeout: 60_000 });
   await fitCanvasToCard(page);
+  await applyStillCaptureLook(page, mood);
   await page.getByTestId("apartment-overview-toggle").click();
   await page.getByTestId("apartment-overview").and(page.locator('[data-overview-phase="overview"]')).waitFor({ timeout: 90_000 });
+  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
   return grabCanvas(page, `apartment-${slug}-plan-v1`);
 }
 
@@ -103,10 +102,11 @@ async function captureHero(page, baseUrl, slug) {
   await page.getByTestId("interiors-present").click();
   await page.locator(".lr-model-viewport.is-client-presentation").waitFor({ timeout: 60_000 });
   await fitCanvasToCard(page);
-  const tour = page.getByTestId("showcase-tour");
+  await applyStillCaptureLook(page, mood);
+  await armTourHeroWatch(page);
   await page.getByTestId("showcase-tour-toggle").click();
   await page.getByTestId(`showcase-tour-mood-${mood}`).click();
-  await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="1"]')).waitFor({ timeout: 90_000 });
+  await waitForTourHero(page);
   const card = await grabCanvas(page, `apartment-${slug}-v1`);
   await page.keyboard.press("Escape");
   return card;

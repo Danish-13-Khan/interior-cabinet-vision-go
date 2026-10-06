@@ -31,7 +31,7 @@ export type LivingRoomEnvironment = {
 };
 
 export type LivingRoomColorManagement = {
-  toneMapping: "aces-filmic";
+  toneMapping: "aces-filmic" | "agx";
   outputColorSpace: "srgb";
   exposure: number;
   /** r185 soft-PCF uses PCFShadowMap — metadata only, not a runtime switch. */
@@ -82,8 +82,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       [LIVING_ROOM_MATERIAL_IDS.woolRug]: materialRecipe("#b8a68d", 1),
     },
     environment: {
-      backgroundColor: "#7f93a8",
-      fogColor: "#7f93a8",
+      backgroundColor: "#8f8f8f",
+      fogColor: "#8f8f8f",
       fogNearMm: 10500,
       fogFarMm: 23000,
       hemisphereSkyColor: "#eaf2fb",
@@ -95,7 +95,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       contactShadowBlur: 2.8,
     },
     colorManagement: {
-      toneMapping: "aces-filmic",
+      toneMapping: "agx",
       outputColorSpace: "srgb",
       exposure: 1.05,
       shadowMap: "pcf",
@@ -120,8 +120,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       [LIVING_ROOM_MATERIAL_IDS.woolRug]: materialRecipe("#c9c1b5", 1),
     },
     environment: {
-      backgroundColor: "#c3ced8",
-      fogColor: "#c3ced8",
+      backgroundColor: "#cccccc",
+      fogColor: "#cccccc",
       fogNearMm: 11000,
       fogFarMm: 25000,
       hemisphereSkyColor: "#f1f7ff",
@@ -133,7 +133,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       contactShadowBlur: 3.2,
     },
     colorManagement: {
-      toneMapping: "aces-filmic",
+      toneMapping: "agx",
       outputColorSpace: "srgb",
       exposure: 1.18,
       shadowMap: "pcf",
@@ -144,13 +144,13 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     version: 1,
     name: "Moody Walnut",
     description: "Deep walnut, mineral walls and a warm evening light rig.",
-    swatches: ["#43291e", "#817d73", "#a99884"],
+    swatches: ["#5a4034", "#817d73", "#a99884"],
     lightingRecipeId: "warm-evening",
     materialRecipes: {
       [LIVING_ROOM_MATERIAL_IDS.wallPaint]: materialRecipe("#817d73", 0.88),
       [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: materialRecipe("#d9d2c7", 0.92),
       [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#866a53", 0.64),
-      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#3d2d26", 0.56),
+      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#5a4034", 0.56),
       [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: materialRecipe("#a99884", 0.97),
       [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: materialRecipe("#555d48", 0.98),
       [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: materialRecipe("#1d2020", 0.28, 0.78),
@@ -158,8 +158,8 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       [LIVING_ROOM_MATERIAL_IDS.woolRug]: materialRecipe("#756d62", 1),
     },
     environment: {
-      backgroundColor: "#54575a",
-      fogColor: "#54575a",
+      backgroundColor: "#6a6a6a",
+      fogColor: "#6a6a6a",
       fogNearMm: 9000,
       fogFarMm: 19000,
       hemisphereSkyColor: "#9aa6b0",
@@ -171,9 +171,9 @@ export const LIVING_ROOM_STYLE_PRESETS = [
       contactShadowBlur: 2.3,
     },
     colorManagement: {
-      toneMapping: "aces-filmic",
+      toneMapping: "agx",
       outputColorSpace: "srgb",
-      exposure: 0.92,
+      exposure: 1.05,
       shadowMap: "pcf",
     },
   },

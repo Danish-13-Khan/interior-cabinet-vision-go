@@ -1,6 +1,10 @@
 import type { EnvironmentAssetDefinition } from "../../domain/livingRoom/renderAssetContracts";
 
-/** Local HDR presets bound to living-room lighting recipes. */
+/**
+ * Local HDR presets bound to living-room lighting recipes.
+ * Files are Poly Haven CC0 1k (1024×512): studio_small_09, brown_photostudio_02,
+ * photo_studio_01. Only the active recipe is mounted.
+ */
 export const ENVIRONMENT_ASSET_MANIFEST = [
   {
     id: "env:daylight",
