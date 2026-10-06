@@ -10,6 +10,7 @@ import {
   resolveRoomFitFrustumHalfExtent,
   roomSpanMetersFromSizeMm,
 } from "../../domain/livingRoom/roomFitShadowFrustum";
+import { environmentScaleForRoomLight } from "../../domain/livingRoom/lightingMood";
 import { resolveWindowKeyLights } from "../../domain/livingRoom/windowKeyLight";
 import { resolveEnvironmentDrawState } from "../assets/assetRegistry";
 import { EnvironmentLighting } from "./EnvironmentLighting";
@@ -85,9 +86,10 @@ export function RenderLightingRig({
     ],
   );
 
-  const environmentQuality = roomLightScale === 1
+  const environmentScale = environmentScaleForRoomLight(roomLightScale);
+  const environmentQuality = environmentScale === 1
     ? lightingQuality
-    : { ...lightingQuality, intensityScale: lightingQuality.intensityScale * roomLightScale };
+    : { ...lightingQuality, intensityScale: lightingQuality.intensityScale * environmentScale };
 
   return (
     <>

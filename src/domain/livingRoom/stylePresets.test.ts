@@ -25,7 +25,7 @@ describe("living-room interior style system", () => {
     ]);
     expect(new Set(LIVING_ROOM_STYLE_PRESETS.map((style) => style.environment.backgroundColor)).size).toBe(3);
     expect(LIVING_ROOM_STYLE_PRESETS.every((style) => Object.keys(style.materialRecipes).length === 9)).toBe(true);
-    expect(LIVING_ROOM_STYLE_PRESETS.every((style) => style.colorManagement.toneMapping === "aces-filmic")).toBe(true);
+    expect(LIVING_ROOM_STYLE_PRESETS.every((style) => style.colorManagement.toneMapping === "agx")).toBe(true);
     expect(LIVING_ROOM_STYLE_PRESETS.every((style) => style.colorManagement.shadowMap === "pcf")).toBe(true);
   });
 
@@ -36,12 +36,12 @@ describe("living-room interior style system", () => {
 
     expect(getActiveLivingRoomStyleId(styled)).toBe("moody-walnut");
     expect(styled.renderSettings).toMatchObject({
-      exposure: 0.92,
+      exposure: 1.05,
       lightingRecipeId: "warm-evening",
     });
     expect(styled.lights.filter((light) => light.enabled).every((light) => light.parameters.recipeId === "warm-evening")).toBe(true);
     expect(styled.materials.find((material) => material.id === "lr-material-wall-warm-white")!.color).toBe("#817d73");
-    expect(resolveLivingRoomEnvironment(styled).backgroundColor).toBe("#54575a");
+    expect(resolveLivingRoomEnvironment(styled).backgroundColor).toBe("#6a6a6a");
     expect(source.materials.find((material) => material.id === "lr-material-wall-warm-white")!.color).toBe(beforeColor);
   });
 
@@ -105,6 +105,36 @@ describe("living-room interior style system", () => {
     expect(getActiveLivingRoomStyleId(loaded.document)).toBe("moody-walnut");
     expect(after.style).toEqual(before.style);
     expect(after.fingerprint).toBe(before.fingerprint);
+  });
+
+  it("adopts a retired preset exposure and keeps a custom one", () => {
+    const retired = [
+      ["moody-walnut", 0.92],
+      ["nordic-light", 1.18],
+      ["warm-contemporary", 1.05],
+    ] as const;
+    for (const [styleId, exposure] of retired) {
+      const styled = applyLivingRoomStyle(createLivingRoomStarterProject({ now: NOW }), styleId);
+      const snapshot = styled.extensions?.livingRoomStyle as { colorManagement: { exposure: number } };
+      const stale = {
+        ...styled,
+        renderSettings: { ...styled.renderSettings, exposure },
+        extensions: {
+          ...styled.extensions,
+          livingRoomStyle: {
+            ...snapshot,
+            colorManagement: { ...snapshot.colorManagement, exposure },
+          },
+        },
+      };
+      const loaded = loadInteriorProjectFile(serializeInteriorProjectFile(stale, NOW)).document;
+      expect(loaded.renderSettings.exposure).toBe(styled.renderSettings.exposure);
+      const adopted = loaded.extensions?.livingRoomStyle as { colorManagement: { exposure: number } };
+      expect(adopted.colorManagement.exposure).toBe(styled.renderSettings.exposure);
+    }
+    const custom = applyLivingRoomStyle(createLivingRoomStarterProject({ now: NOW }), "moody-walnut");
+    const kept = { ...custom, renderSettings: { ...custom.renderSettings, exposure: 0.8 } };
+    expect(loadInteriorProjectFile(serializeInteriorProjectFile(kept, NOW)).document.renderSettings.exposure).toBe(0.8);
   });
 });
 

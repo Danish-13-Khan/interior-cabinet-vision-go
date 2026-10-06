@@ -12,6 +12,20 @@ const EXTENSION_KEY = "lightingMood";
 /** Share of the recipe's ambient, sun, sky and window light kept in evening. */
 export const EVENING_ROOM_LIGHT_SCALE = 0.18;
 
+/**
+ * Evening HDRI and hemisphere fill. The sun and window keys stay at
+ * {@link EVENING_ROOM_LIGHT_SCALE} so placed fixtures still lead. The sky keeps
+ * more than the sun: at 0.18 the walnut fronts went black, at 1 the evening
+ * card heroes read as daylight (the 1 BHK hit 197 against a 175 cap). 0.35
+ * measured 167 on the 1 BHK card crop and left the 2 BHK fronts at 82/36/25.
+ */
+export const EVENING_ENVIRONMENT_SCALE = 0.35;
+
+/** Day keeps the map as authored. Evening keeps the fill and drops the sun. */
+export function environmentScaleForRoomLight(roomLightScale: number): number {
+  return roomLightScale === 1 ? 1 : EVENING_ENVIRONMENT_SCALE;
+}
+
 export function readLightingMood(project: Pick<InteriorProject, "extensions">): LightingMood {
   return project.extensions?.[EXTENSION_KEY] === "evening" ? "evening" : "day";
 }

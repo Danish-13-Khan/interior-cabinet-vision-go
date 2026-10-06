@@ -1,3 +1,4 @@
+import { adoptCurrentStyleExposure } from "./adoptStyleExposure";
 import { WALL_GRAPH_DOMAIN_VERSION } from "./boxRoomGraphMigration";
 import { DEFAULT_RENDER_SETTINGS } from "./defaults";
 import { buildContiguousWallUses, pointKey } from "./planTopology";
@@ -168,7 +169,7 @@ export function migrateInteriorProjectDocument(input: unknown): InteriorMigratio
   }
 
   return {
-    document,
+    document: adoptCurrentStyleExposure(document),
     fromVersion,
     toVersion: version,
     steps,

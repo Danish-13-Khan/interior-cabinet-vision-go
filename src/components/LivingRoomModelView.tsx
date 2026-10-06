@@ -55,7 +55,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   const [activeCameraId, setActiveCameraId] = useState(() => pickModelViewCameraId(sceneFor(null).cameras, [projectCameraId]));
   const tour = useShowcaseTour({
     project, sceneFor, presentation, viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
-    activeCameraId, setActiveCameraId, canvasHostRef,
+    activeCameraId, setActiveCameraId, canvasHostRef, captureSession: cardCapture,
   });
   stopTourRef.current = tour.stop;
   const overview = useApartmentOverview({

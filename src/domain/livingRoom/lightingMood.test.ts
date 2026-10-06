@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { loadInteriorProjectFile, serializeInteriorProjectFile } from "../interiorProject";
 import {
-  EVENING_ROOM_LIGHT_SCALE, lightingRecipeForMood, readLightingMood, roomLightScaleForMood, writeLightingMood,
+  environmentScaleForRoomLight,
+  EVENING_ENVIRONMENT_SCALE,
+  EVENING_ROOM_LIGHT_SCALE,
+  lightingRecipeForMood,
+  readLightingMood,
+  roomLightScaleForMood,
+  writeLightingMood,
 } from "./lightingMood";
 import { createLivingRoomStarterProject } from "./preset";
 
@@ -13,6 +19,8 @@ describe("lighting mood", () => {
     expect(readLightingMood(project)).toBe("day");
     expect(writeLightingMood(project, "day")).toBe(project);
     expect(roomLightScaleForMood("day")).toBe(1);
+    expect(environmentScaleForRoomLight(1)).toBe(1);
+    expect(environmentScaleForRoomLight(EVENING_ROOM_LIGHT_SCALE)).toBe(EVENING_ENVIRONMENT_SCALE);
   });
 
   it("round-trips evening through save and reopen, and clears back to day", () => {
