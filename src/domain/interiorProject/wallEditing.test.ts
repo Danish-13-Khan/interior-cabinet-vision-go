@@ -198,3 +198,68 @@ describe("D3 wall editing domain", () => {
     expect(joined.nodes.some((node) => node.id === "node-shift")).toBe(false);
   });
 });
+
+describe("free wall tracing on an empty site", () => {
+  function emptySite(): InteriorProject {
+    return createEmptyInteriorProject({ id: "blank-site", name: "Blank site", now: "2026-10-06T00:00:00.000Z" });
+  }
+  const square = [
+    { start: { x: 0, z: 0 }, end: { x: 4000, z: 0 } },
+    { start: { x: 4000, z: 0 }, end: { x: 4000, z: 3000 } },
+    { start: { x: 4000, z: 3000 }, end: { x: 0, z: 3000 } },
+    { start: { x: 0, z: 3000 }, end: { x: 0, z: 0 } },
+  ];
+
+  it("draws a free wall when the project has no room yet", () => {
+    const { project, wallId } = createWallSegmentResult(emptySite(), square[0]!);
+    expect(wallId).toBeTruthy();
+    expect(project.walls).toHaveLength(1);
+    expect(project.walls[0]?.roomId).toBeNull();
+    expect(project.walls[0]?.heightMm).toBe(2800);
+    expect(project.walls[0]?.thicknessMm).toBe(120);
+    expect(project.rooms).toHaveLength(0);
+    expect(validateInteriorProject(project).issues.filter((issue) => issue.severity === "error")).toEqual([]);
+  });
+
+  it("promotes traced walls to a room once they close a loop", () => {
+    const traced = square.reduce((project, segment) => createWallSegment(project, segment), emptySite());
+    expect(traced.rooms).toHaveLength(1);
+    const room = traced.rooms[0]!;
+    expect(traced.activeRoomId).toBe(room.id);
+    expect(room.dimensions.widthMm).toBe(4000);
+    expect(room.dimensions.depthMm).toBe(3000);
+    expect(room.extensions?.createdBy).toBe("draw-wall");
+    const loop = traced.loops.find((item) => item.id === room.outerLoopId);
+    expect(loop?.wallUses).toHaveLength(4);
+    expect(traced.walls.every((wall) => wall.roomId === room.id)).toBe(true);
+    expect(traced.walls.every((wall) => roomIdsUsingWall(traced, wall.id).includes(room.id))).toBe(true);
+    const issues = validateInteriorProject(traced).issues;
+    expect(issues.filter((issue) => issue.severity === "error")).toEqual([]);
+    expect(issues.find((issue) => issue.code === "outer-loop-winding")).toBeUndefined();
+  });
+
+  it("winds the room loop with the interior on the left regardless of trace direction", () => {
+    const clockwise = [...square].reverse().map((segment) => ({ start: segment.end, end: segment.start }));
+    const traced = clockwise.reduce((project, segment) => createWallSegment(project, segment), emptySite());
+    expect(traced.rooms).toHaveLength(1);
+    const issues = validateInteriorProject(traced).issues;
+    expect(issues.find((issue) => issue.code === "outer-loop-winding")).toBeUndefined();
+    expect(issues.filter((issue) => issue.severity === "error")).toEqual([]);
+  });
+
+  it("keeps an open trace as free walls", () => {
+    const open = square.slice(0, 3).reduce((project, segment) => createWallSegment(project, segment), emptySite());
+    expect(open.walls).toHaveLength(3);
+    expect(open.rooms).toHaveLength(0);
+    expect(open.loops).toHaveLength(0);
+  });
+
+  it("does not form a room from free partitions", () => {
+    const traced = square.reduce(
+      (project, segment) => createWallSegment(project, { ...segment, kind: "partition" }),
+      emptySite(),
+    );
+    expect(traced.walls).toHaveLength(4);
+    expect(traced.rooms).toHaveLength(0);
+  });
+});

@@ -3,7 +3,7 @@ import { synchronizeWallCaches } from "./wallGraph";
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import type { InteriorProject, Point2Mm, WallEntity } from "./types";
 
-function pickMaterialId(project: InteriorProject, match: (id: string, kind: string) => boolean) {
+export function pickMaterialId(project: InteriorProject, match: (id: string, kind: string) => boolean) {
   return project.materials.find((material) => match(material.id, material.kind))?.id ?? null;
 }
 
