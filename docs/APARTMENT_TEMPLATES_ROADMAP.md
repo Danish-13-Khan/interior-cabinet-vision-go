@@ -499,11 +499,11 @@ As built:
 - Undo history is unchanged after a full tour.
 - Orbit or Escape stops it immediately.
 
-### Phase 8 — Whole-apartment 3D view (deferred, D4)
+### Phase 8 — Whole-apartment 3D view
 
-- Compile every room at once: a dollhouse view with the ceilings cut away.
-- Needs a light budget strategy (bake or cull inactive-room lights) and
-  instancing. Assess after Phase 6.
+**Status:** Architecture written (§9), not started. Split into sub-phases
+8.0–8.5; 8.0 fixes bugs the shipped templates already have and goes first,
+in its own PR.
 
 ## 7. Open questions
 
@@ -531,9 +531,177 @@ None of these block a phase any more. Send them to Ilyas as one
 Done: Phases 0, 1, 4, 2, 5, 6, 3 and 7 (in that order).
 
 Next:
-1. Merge `feat/apartment-templates` (open the PR; don't stack new phases on
-   an unmerged branch).
-2. Review checkpoints for **Phase 3** (sliding wardrobes) and **Phase 7**
-   (showcase tour and marketing stills), each on its own.
-3. Send Ilyas the §7 confirmation message; flip `confirmed` when he answers.
-4. Phase 8 (whole-apartment 3D) needs its own architecture pass first.
+1. Merge `feat/sliding-wardrobe` (Phases 3 and 7 plus review fixes).
+2. Send Ilyas the §7 confirmation message; flip `confirmed` when he answers.
+3. **Phase 8.0** (room frame and recipe lights, §9.3) on its own branch and
+   PR: it fixes bugs the shipped templates already have.
+4. **Phase 8.1–8.5** (whole apartment view) on a second branch, one review
+   checkpoint per sub-phase.
+
+## 9. Phase 8 architecture — whole-apartment 3D
+
+Written 2026-10-06 from a code audit. Goal: a view-only **Whole apartment**
+mode that shows every room at once (ceilings off, high three-quarter
+"dollhouse" view), as the opening shot of the tour and as the card image
+that actually sells a 2 or 3 BHK. Editing stays per room (D4 holds for
+editing).
+
+### 9.1 Evidence
+
+**One active room is assumed throughout the 3D pipeline.**
+- `compileLivingRoomScene` (`livingRoom/sceneCompiler.ts:113-128`) keeps
+  objects, lights and cameras of `activeRoomId` only.
+- `compileLivingRoomArchitecture` (`sceneCompilerRoom.ts:114`) draws one
+  room's floor, ceiling, walls and openings. Shared walls carry
+  `roomId: null` and are returned for both rooms, so a naive union of
+  per-room compiles draws every shared wall twice, with duplicate node ids.
+- Cutaway sides (`modelReviewNodes.ts:10-21`), `roomSpan` fog / grid / orbit
+  distance (`CompiledSceneRenderer.tsx:136`) and the grid and ContactShadows
+  at the world origin (`CompiledSceneRenderer.tsx:160`,
+  `ModelViewInteractionRig.tsx:92`) assume one room around the origin.
+- Render Studio (`LivingRoomRenderStudio.tsx:90`), window key lights
+  (`windowKeyLight.ts`, max 2) and the project shadow frustum
+  (`RenderLightingRig.tsx:54-86`) are fitted to one room.
+
+**"Rooms are centred on the origin" is assumed by the classic cabinet model.**
+- `cabinetProjectFromInteriorProject` → `clampCabinetProject` /
+  `normalizeMultiRoomProject` clamps placements to ±(w/2, d/2)
+  (`cabinetDimensions/placement.ts:110`, `projectRooms/normalize.ts:10`).
+- Run detection, run fillers and countertops use the same ±w/2 frame
+  (`cabinetRuns/detect.ts:21`, `geometry.ts:46,99`, `fillers.ts:51`).
+- 3D run countertops were fixed by shifting into the room frame
+  (`cabinetSceneRunExtras.ts`). **Still unfixed, same bug class:**
+  - `hostedAppliances/resolve.ts:6` (`worktopTopsByObjectId`, runs on every
+    commit) — run grouping can be wrong in off-centre rooms;
+  - run filler widths and countertop lengths in the **BOM / quote** for
+    off-centre rooms;
+  - technical drawings, run drafting, PDF technical pages and the schedule's
+    x/z (`technicalViews/*`, `runDrafting/*`, `pdfExport/technicalPages.ts`,
+    `projectReport/scheduleRows.ts`).
+  - Cut-list part sizes are position-independent and are not affected.
+
+**Recipe lights are wrong in apartments today.** `applyLivingRoomStyle`
+tags all 15 recipe lights (5 enabled) with the hero room, at positions made
+for a 6200 × 4600 room centred on the origin (`livingRoom/lighting.ts:152`).
+In the 2 BHK the living room spans x −5100…300, z −400…3900, so lights such
+as (0, 2250, −2100) sit outside it. Directional recipe lights have no target
+and aim at the world origin (`SceneProjectLights.tsx:88`).
+
+**Renderer budget.**
+- `MODEL_VIEW_FIXTURE_SOURCE_BUDGET = 12` sources per room
+  (`fixtureLightBudget.ts:13`) is enforced by tests only; there is no runtime
+  guard and no light culling. A changed light count recompiles every
+  material.
+- A composed 3 BHK has about 25–30 fixtures, **35–45 shader sources** (3–4×
+  the budget), 14 cameras and 100–150 objects.
+- GLB children are never frustum-culled (`AssetBackedGlbContent.tsx:96`);
+  each object clones its GLB scene; there is no instancing (procedural
+  geometry is shared by `geometryKey`).
+- Shadows: at most 2 directional casters on Standard, 1 on Draft; point,
+  spot and fixtures never cast.
+
+**What already exists.** The "dollhouse" view preset and panel
+(`modelViewPresets.ts:40`) are single-room. `roomSceneCache.ts` compiles one
+scene per room. The 2D plan already draws every wall and object in world
+coordinates (`PlanArchitectureLayer.tsx`, `PlanObjectsLayer.tsx`).
+
+### 9.2 Decisions
+
+| # | Decision | Why |
+| --- | --- | --- |
+| P8-D1 | **Fix the frame at the source (8.0).** One helper, `roomFrame(project, roomId)` → `{ centre, widthMm, depthMm }`; `cabinetProjectFromInteriorProject` moves each room's cabinets into that room's centred frame, and every consumer that maps back to world adds the centre. Countertop-style patches per caller are removed. | One fix covers 3D, BOM, drawings and hosted appliances. Single-room projects are centred already, so their output is unchanged. |
+| P8-D2 | **Recipe lights are room-relative.** Seed positions are offsets from the room centre (and scaled to the room size where they are spread), and directional lights target the room centre. | Fixes today's misplaced lights in every off-centre hero room, and is required before several rooms can be shown at once. |
+| P8-D3 | **Whole apartment is a view mode, not a document change.** Like the tour: the document's active room, undo history and autosave are untouched; selection and gizmos are off; clicking a room enters it (the normal room switch). | Keeps editing per room (D4) and reuses the tour's view-only plumbing. |
+| P8-D4 | **One apartment scene compiler**, `compileApartmentScene(project)`: per-room floors, each wall once (shared walls de-duplicated by wall id), openings once, all objects, **no ceilings**, union bounds, one overview camera set. Pure and deterministic. | A union of per-room scenes would duplicate shared walls and ids. |
+| P8-D5 | **Overview lighting has a fixed light count.** Environment (HDRI) + one sun with a shadow fitted to the union bounds + hemisphere fill. Room fixtures are drawn as **emissive meshes only** (they look lit; they are not light sources). | 35–45 real sources would blow the budget and recompile shaders. A constant count keeps the overview fast and stable. Per-room fixture light stays in the room view. |
+| P8-D6 | **Performance before polish.** Re-enable frustum culling for GLB children (with correct bounds), and instance repeated GLBs (same catalog item + material slots). Measure before and after. | 100–150 unculled, cloned GLBs is the likely bottleneck at apartment scale. |
+| P8-D7 | **Walls stay full height; ceilings off.** A wall cut-height slider is an optional later step. | Full-height walls read as rooms from a high three-quarter view; cutting walls needs new geometry. |
+
+### 9.3 Sub-phases
+
+#### 8.0 — Room frame and recipe lights (own PR, first)
+
+- `roomFrame` helper; classic adapter moves each room into its centred
+  frame; remove the shift in `cabinetSceneRunExtras.ts`; map back to world
+  where positions leave the classic model (countertops, fillers, drawings,
+  schedule).
+- `worktopTopsByObjectId` and the BOM (filler widths, countertop lengths)
+  go through the same frame.
+- Recipe lights room-relative; directional targets at the room centre.
+- Grid and ContactShadows centred on the scene bounds, not the origin.
+
+**Exit gate:**
+- For every room of all four templates: countertops, fillers, hosted
+  worktop heights, drawings and schedule x/z sit on their cabinets in world
+  coordinates (one test per output).
+- Every enabled recipe light lies inside its room.
+- Single-room projects (starter, six catalog templates, golden run) give
+  byte-identical scenes, cut lists and drawings to before.
+
+#### 8.1 — Apartment scene compiler (no UI)
+
+- `compileApartmentScene(project)` per P8-D4, reusing `roomSceneCache`.
+
+**Exit gate:**
+- No duplicate node ids; each shared wall appears once; node count =
+  sum of room scenes − duplicated shared walls − ceilings.
+- Deterministic (two compiles are byte-identical JSON).
+- The union bounds contain every room.
+
+#### 8.2 — Overview lighting
+
+- Overview rig per P8-D5; fixtures render emissive only in this mode.
+
+**Exit gate:**
+- Light count is constant regardless of the project (no shader recompile
+  when entering or leaving the overview).
+- Overview stills of all four templates pass the exposure check
+  (`scripts/showcase-tour/still-exposure.mjs`).
+
+#### 8.3 — Whole apartment view mode
+
+- **Whole apartment** toggle in 3D for projects with two or more rooms.
+- Camera presets: four high corners and top-down, framed on the union bounds.
+- Hovering a room highlights it and shows its name; clicking enters it;
+  Escape returns to the room view.
+- View-only per P8-D3.
+
+**Exit gate:**
+- Undo depth unchanged after entering, orbiting and leaving (e2e, like the
+  tour).
+- Clicking a room makes it the active room and frames it.
+- Works on all four templates and on a two-room imported plan.
+
+#### 8.4 — Performance
+
+- Frustum culling for GLB children; instancing of repeated GLBs.
+
+**Exit gate (reference laptop, Standard quality, production build):**
+- 3 BHK overview: p95 frame time ≤ 33 ms while orbiting; first frame
+  ≤ 4 s warm.
+- Room view frame times no worse than before.
+
+#### 8.5 — Tour and marketing
+
+- The tour opens on the overview, then glides into the hero room.
+- Card stills switch to the overview shot (or one overview + one room shot).
+
+**Exit gate:**
+- Full 3 BHK tour, including the overview, with no frame stall > 100 ms.
+- Regenerated stills pass the exposure check; each is ≤ 120 KB.
+
+### 9.4 Out of scope
+
+- Editing in the overview (moving objects, drawing walls).
+- Render Studio of the whole apartment (stays per room).
+- Wall cut-height slider, room labels in 3D, multi-storey.
+- Per-room fixture light in the overview (a fixed pool of light slots is a
+  possible later step).
+
+### 9.5 Questions
+
+1. Should clicking a room in the overview enter it, or only highlight it
+   until a second click?
+2. Card image: overview only, or overview plus hero room?
+3. Is p95 ≤ 33 ms on Standard the right bar, or should the overview default
+   to Draft quality?

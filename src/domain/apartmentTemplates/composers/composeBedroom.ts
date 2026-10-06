@@ -82,7 +82,7 @@ export function composeBedroom(
     const placed = placeCatalogInRoom(
       next, roomId, "living:side-table", `${roomId}-side-${index === 0 ? "l" : "r"}`, idFactory, offset, bounds,
     );
-    const table = placed.objects.at(-1)!;
+    const table = placed.objects[placed.objects.length - 1]!;
     if (!next.objects.some((other) => other.roomId === roomId && objectsCollide(other, table))) next = placed;
   }
 
