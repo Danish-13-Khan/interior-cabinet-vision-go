@@ -1,16 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useLayoutEffect, useRef, useState, type RefObject } from "react";
-import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import type { RenderComposition } from "../../domain/interiorProject";
-import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
-import {
-  resolveHeldFitSnapshot,
-  type ModelViewFitMode,
-  type ModelViewFitSelection,
-  type ModelViewHeldFit,
-} from "../../domain/livingRoom/modelViewFit";
-import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
+import { useLayoutEffect, useRef, useState } from "react";
+import { resolveHeldFitSnapshot, type ModelViewHeldFit } from "../../domain/livingRoom/modelViewFit";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
 import { consumeOrbitEaseCancelGeneration } from "../../domain/livingRoom/modelViewCameraEase";
 import { takeShowcaseGlideMs } from "../../domain/apartmentTemplates/showcaseJump";
@@ -24,6 +14,8 @@ import {
 import { applyCameraPose, markCameraFrameUnsettled, publishLiveCameraFrame, readCameraPoseMeters } from "./cameraRigPose";
 import { createCameraGlide } from "./cameraRigGlide";
 import { applyCameraClipPlanes, buildCameraRigGoal } from "./cameraRigGoal";
+import { applyCardCaptureOverride, useCardCaptureRigRevision } from "./cameraRigCaptureOverride";
+import type { CameraRigProps } from "./cameraRigProps";
 
 export function CameraRig({
   scene,
@@ -42,24 +34,7 @@ export function CameraRig({
   orbitNavigatingRef,
   orbitEaseCancelGenerationRef,
   frameRun,
-}: {
-  scene: CompiledLivingRoomScene;
-  activeCameraId: string | null;
-  controlsRef: RefObject<OrbitControlsImpl | null>;
-  composition: RenderComposition;
-  renderMode?: RenderMode;
-  viewPreset?: ModelViewPresetId;
-  cameraHeightMm?: number;
-  fieldOfViewDegrees?: number;
-  assetRevision?: number;
-  fitVersion?: number;
-  fitMode?: ModelViewFitMode;
-  fitSelection?: ModelViewFitSelection;
-  dragging?: boolean;
-  orbitNavigatingRef?: RefObject<boolean>;
-  orbitEaseCancelGenerationRef?: RefObject<number>;
-  frameRun?: CabinetRunAudience;
-}) {
+}: CameraRigProps) {
   const { camera, size, invalidate, gl } = useThree();
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
@@ -67,6 +42,7 @@ export function CameraRig({
   const lastOrthoRef = useRef(modelViewUsesOrthographic(viewPreset));
   const heldFitTargetRef = useRef<ModelViewHeldFit | null>(null);
   const [glide] = useState(createCameraGlide);
+  const captureRevision = useCardCaptureRigRevision();
   const lastOrbitCancelGenerationRef = useRef(0);
   const lastIntentKeyRef = useRef("");
   const userOwnedPoseRef = useRef(false);
@@ -97,7 +73,19 @@ export function CameraRig({
   }
 
   useLayoutEffect(() => {
-    // Taken first: a showcase jump's glide belongs to the pass it triggered, even one that snaps or skips.
+    markCameraFrameUnsettled(gl.domElement);
+    if (applyCardCaptureOverride({
+      camera,
+      controls: controlsRef.current,
+      canvas: gl.domElement,
+      bounds: sceneRef.current.bounds,
+      viewport: { widthPx: size.width, heightPx: size.height },
+      walkthrough: viewPreset === "walkthrough",
+    })) {
+      glide.cancel();
+      invalidate();
+      return;
+    }
     const showcaseGlideMs = takeShowcaseGlideMs() ?? undefined;
     const current = sceneRef.current;
     const applyFitShot = fitVersion > lastFitVersionRef.current;
@@ -139,7 +127,6 @@ export function CameraRig({
     const publishSettled = () => publishLiveCameraFrame(
       gl.domElement, current.bounds, camera, controlsRef.current, built.orthographic, viewport, viewPreset === "walkthrough",
     );
-    markCameraFrameUnsettled(gl.domElement);
     const orthoSwitched = lastOrthoRef.current !== built.orthographic;
     lastOrthoRef.current = built.orthographic;
     userOwnedPoseRef.current = nextUserOwnedCameraPose({
@@ -173,7 +160,7 @@ export function CameraRig({
     projectCamera?.position.y, projectCamera?.position.z, projectCamera?.target.x,
     projectCamera?.target.y, projectCamera?.target.z, scene.projectId, scene.roomId,
     scene.bounds.size.widthMm, scene.bounds.size.heightMm, scene.bounds.size.depthMm,
-    size.height, size.width, viewPreset, frameRun,
+    size.height, size.width, viewPreset, frameRun, captureRevision,
   ]);
   useFrame(() => {
     if (latchOrbitCancel() || userIsNavigating()) {
@@ -184,12 +171,10 @@ export function CameraRig({
     if (!step) return;
     applyCameraPose(camera, controlsRef.current, step.pose);
     if (!step.settled) invalidate();
-    else {
-      publishLiveCameraFrame(
-        gl.domElement, sceneRef.current.bounds, camera, controlsRef.current, step.pose.orthographic,
-        { widthPx: size.width, heightPx: size.height }, viewPreset === "walkthrough",
-      );
-    }
+    else publishLiveCameraFrame(
+      gl.domElement, sceneRef.current.bounds, camera, controlsRef.current, step.pose.orthographic,
+      { widthPx: size.width, heightPx: size.height }, viewPreset === "walkthrough",
+    );
   });
 
   return null;

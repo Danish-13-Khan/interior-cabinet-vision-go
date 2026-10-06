@@ -1,5 +1,5 @@
 import type { ApartmentTemplateSpec } from "./types";
-import { apartmentPlanStillPath, apartmentStillPath } from "./apartmentStills";
+import { findCardMedia } from "../templateCardMedia";
 import { ONE_BHK_SHELL_SPEC } from "./specs/oneBhkShell";
 import { STUDIO_SHELL_SPEC } from "./specs/studioShell";
 import { THREE_BHK_SHELL_SPEC } from "./specs/threeBhkShell";
@@ -69,8 +69,8 @@ function card(spec: ApartmentTemplateSpec): ApartmentTemplateCard {
     carpetM2,
     areaM2: carpetM2,
     roomCount: spec.rooms.length,
-    thumbnail: apartmentStillPath(spec.id),
-    planThumbnail: apartmentPlanStillPath(spec.id),
+    thumbnail: findCardMedia(spec.id)?.poster.w800 ?? "",
+    planThumbnail: findCardMedia(spec.id)?.plan?.w800 ?? "",
   };
 }
 

@@ -3,19 +3,12 @@ import {
   LIVING_ROOM_CATALOG_TEMPLATE_ID,
   lookupBuiltInCatalogFile,
   lookupBuiltInCatalogTemplates,
-  type ProjectTemplate,
 } from "../../domain/catalog";
-import { publicAssetUrl } from "../../utils/publicAssetUrl";
+import { CatalogTemplateThumb } from "./CatalogTemplateThumb";
 
 type Props = {
   onCreate: (catalogTemplateId: string) => void;
 };
-
-function templateThumbnailUrl(template: ProjectTemplate): string | null {
-  const file = lookupBuiltInCatalogFile(template.images.thumbnailId);
-  if (!file || file.kind !== "image") return null;
-  return publicAssetUrl(file.objectKey);
-}
 
 /** Popular catalog templates on project home — Living Room first. */
 export function InteriorsPopularTemplates({ onCreate }: Props) {
@@ -38,7 +31,8 @@ export function InteriorsPopularTemplates({ onCreate }: Props) {
       </header>
       <div>
         {templates.map((template) => {
-          const thumb = templateThumbnailUrl(template);
+          const file = lookupBuiltInCatalogFile(template.images.thumbnailId);
+          const objectKey = file?.kind === "image" ? file.objectKey : null;
           return (
             <button
               type="button"
@@ -47,8 +41,8 @@ export function InteriorsPopularTemplates({ onCreate }: Props) {
               data-template-id={template.id}
               onClick={() => onCreate(template.id)}
             >
-              {thumb ? (
-                <img src={thumb} alt="" loading="lazy" width={160} height={120} />
+              {objectKey ? (
+                <CatalogTemplateThumb objectKey={objectKey} width={160} height={120} />
               ) : (
                 <span className="interiors-template-thumb-fallback" aria-hidden />
               )}

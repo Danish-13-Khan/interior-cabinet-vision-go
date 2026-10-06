@@ -1,0 +1,78 @@
+{
+  "template:apartment:studio:v1": {
+    "poster": {
+      "w800": "catalog/templates/apartment-studio-v2.webp",
+      "w1600": "catalog/templates/apartment-studio-v2-1600.webp"
+    },
+    "plan": {
+      "w800": "catalog/templates/apartment-studio-plan-v2.webp",
+      "w1600": "catalog/templates/apartment-studio-plan-v2-1600.webp"
+    }
+  },
+  "template:apartment:1bhk:v1": {
+    "poster": {
+      "w800": "catalog/templates/apartment-1bhk-v2.webp",
+      "w1600": "catalog/templates/apartment-1bhk-v2-1600.webp"
+    },
+    "plan": {
+      "w800": "catalog/templates/apartment-1bhk-plan-v2.webp",
+      "w1600": "catalog/templates/apartment-1bhk-plan-v2-1600.webp"
+    }
+  },
+  "template:apartment:2bhk:v1": {
+    "poster": {
+      "w800": "catalog/templates/apartment-2bhk-v2.webp",
+      "w1600": "catalog/templates/apartment-2bhk-v2-1600.webp"
+    },
+    "plan": {
+      "w800": "catalog/templates/apartment-2bhk-plan-v2.webp",
+      "w1600": "catalog/templates/apartment-2bhk-plan-v2-1600.webp"
+    }
+  },
+  "template:apartment:3bhk:v1": {
+    "poster": {
+      "w800": "catalog/templates/apartment-3bhk-v2.webp",
+      "w1600": "catalog/templates/apartment-3bhk-v2-1600.webp"
+    },
+    "plan": {
+      "w800": "catalog/templates/apartment-3bhk-plan-v2.webp",
+      "w1600": "catalog/templates/apartment-3bhk-plan-v2-1600.webp"
+    }
+  },
+  "template:core:living-room:v1": {
+    "poster": {
+      "w800": "catalog/templates/living-room-v2.webp",
+      "w1600": "catalog/templates/living-room-v2-1600.webp"
+    }
+  },
+  "template:core:empty-room:v1": {
+    "poster": {
+      "w800": "catalog/templates/empty-room-v2.webp",
+      "w1600": "catalog/templates/empty-room-v2-1600.webp"
+    }
+  },
+  "template:core:straight-kitchen:v1": {
+    "poster": {
+      "w800": "catalog/templates/straight-kitchen-v2.webp",
+      "w1600": "catalog/templates/straight-kitchen-v2-1600.webp"
+    }
+  },
+  "template:core:l-kitchen:v1": {
+    "poster": {
+      "w800": "catalog/templates/l-kitchen-v2.webp",
+      "w1600": "catalog/templates/l-kitchen-v2-1600.webp"
+    }
+  },
+  "template:core:bedroom:v1": {
+    "poster": {
+      "w800": "catalog/templates/bedroom-v2.webp",
+      "w1600": "catalog/templates/bedroom-v2-1600.webp"
+    }
+  },
+  "template:core:bathroom:v1": {
+    "poster": {
+      "w800": "catalog/templates/bathroom-v2.webp",
+      "w1600": "catalog/templates/bathroom-v2-1600.webp"
+    }
+  }
+}

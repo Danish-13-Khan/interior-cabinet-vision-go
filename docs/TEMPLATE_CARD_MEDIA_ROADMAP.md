@@ -1,6 +1,11 @@
 # Template card media roadmap (sharp stills and hover clips)
 
-**Status:** Approved (2026-10-06). Questions answered (§6). Not started.
+**Status:** Phases 0–2 done (2026-10-06), not yet committed. A full
+`npm run media:cards` run writes all 14 stills with no skips. The production
+bundle carries no capture code and the landing entry is 197 KB (main 196 KB).
+Exceptions, each with its reason where it is set: the 2 BHK plan is shot in
+daylight (walnut reads near-black at dusk), and its hero camera is turned
+(`heroCompositionOverrides.ts`). Phases 3–4 (hover clips) are next.
 Branch: `feat/template-card-media`.
 **Goal:** Every template card (four apartments and six catalog rooms) shows a
 sharp, well-composed render. When the cursor rests on a card, a short clip of
@@ -105,7 +110,7 @@ declare global { interface Window { __cardCapture?: CardCaptureHook } }
 ### 3.2 Card media manifest
 
 The capture script writes a generated, committed
-`src/domain/templateCards/cardMedia.generated.ts`:
+`src/domain/templateCardMedia/cardMedia.generated.ts`:
 
 ```ts
 interface CardMedia {
@@ -135,7 +140,7 @@ Marketing and app cards read paths from here instead of from the
 
 - `window.__cardCapture` behind `?capture=1` (§3.1), dev and preview only.
 - `overview-to-hero` and `room-arc` path builders as pure functions in
-  `src/domain/templateCards/cameraPaths.ts`, reusing tour stop poses.
+  `src/domain/templateCardsCapture/cameraPaths.ts`, reusing tour stop poses.
 - Composition pass on hero poses: a per-template override for the hero
   camera (position, target, fov), so a thumbnail can be framed better than
   the tour stop without changing the tour.

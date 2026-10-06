@@ -102,6 +102,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
           onWallContextMenu={viewOnly ? undefined : (wallId, point) => props.onWallMenu({ wallId, ...point })}
           onMechanismClick={props.onMechanism}
           instanceRepeatedModels={apartment}
+          captureFixedDpr={props.captureFixedDpr}
           overlay={apartment ? (
             <ApartmentRoomPick
               project={project} hoveredId={props.hoveredRoomId}

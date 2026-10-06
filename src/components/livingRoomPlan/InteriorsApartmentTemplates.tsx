@@ -1,4 +1,5 @@
 import { APARTMENT_TEMPLATE_CARDS } from "../../domain/apartmentTemplates/apartmentCards";
+import { TemplateCardPoster } from "./TemplateCardPoster";
 
 type Props = {
   onCreate: (apartmentTemplateId: string) => void;
@@ -25,12 +26,8 @@ export function InteriorsApartmentTemplates({ onCreate }: Props) {
             onClick={() => onCreate(card.id)}
           >
             <span className="interiors-apartment-thumbs">
-              <img src={`${import.meta.env.BASE_URL}${card.thumbnail}`} alt="" loading="lazy" width={160} height={120} />
-              <img
-                className="interiors-apartment-plan"
-                src={`${import.meta.env.BASE_URL}${card.planThumbnail}`}
-                alt="" loading="lazy" width={160} height={120}
-              />
+              <TemplateCardPoster templateId={card.id} width={160} height={120} />
+              <TemplateCardPoster className="interiors-apartment-plan" templateId={card.id} plan width={160} height={120} />
             </span>
             <strong>{card.name}</strong>
             <small>
