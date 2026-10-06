@@ -29,3 +29,14 @@ export function writeLightingMood(project: InteriorProject, mood: LightingMood):
 export function roomLightScaleForMood(mood: LightingMood): number {
   return mood === "evening" ? EVENING_ROOM_LIGHT_SCALE : 1;
 }
+
+/**
+ * Mood on screen: a view-only override (Showcase tour / Present) wins over the
+ * saved mood. Reading never writes, so toggling the override cannot dirty the project.
+ */
+export function viewLightingMood(
+  project: Pick<InteriorProject, "extensions">,
+  override: LightingMood | null,
+): LightingMood {
+  return override ?? readLightingMood(project);
+}

@@ -13,6 +13,7 @@ import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import { modelViewUsesOrthographic } from "../../domain/livingRoom/modelViewPresets";
 import { consumeOrbitEaseCancelGeneration } from "../../domain/livingRoom/modelViewCameraEase";
+import { takeShowcaseGlideMs } from "../../domain/apartmentTemplates/showcaseJump";
 import {
   cameraPoseFingerprint,
   modelViewFramingIntentKey,
@@ -67,6 +68,7 @@ export function CameraRig({
   const fromRef = useRef<CameraPoseMeters | null>(null);
   const goalRef = useRef<CameraPoseMeters | null>(null);
   const animStartRef = useRef(0);
+  const animDurationRef = useRef<number | undefined>(undefined);
   const animatingRef = useRef(false);
   const lastOrbitCancelGenerationRef = useRef(0);
   const lastIntentKeyRef = useRef("");
@@ -164,6 +166,7 @@ export function CameraRig({
     }
     fromRef.current = readCameraPoseMeters(camera, controlsRef.current, built.orthographic);
     goalRef.current = built.goal;
+    animDurationRef.current = takeShowcaseGlideMs() ?? undefined;
     animStartRef.current = performance.now();
     animatingRef.current = true;
     invalidate();
@@ -183,7 +186,7 @@ export function CameraRig({
     }
     if (!animatingRef.current || !fromRef.current || !goalRef.current) return;
     const step = easeTowardCameraGoal(
-      fromRef.current, goalRef.current, performance.now() - animStartRef.current,
+      fromRef.current, goalRef.current, performance.now() - animStartRef.current, animDurationRef.current,
     );
     applyCameraPose(camera, controlsRef.current, step.pose);
     if (!step.settled) invalidate();

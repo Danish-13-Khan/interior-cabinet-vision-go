@@ -1,0 +1,76 @@
+/* Showcase tour: floating pill centred above the Orbit / Walk dock of Model View. */
+.lr-showcase-tour {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--space-7) + var(--space-5));
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  pointer-events: auto;
+}
+
+.lr-showcase-tour button {
+  min-height: var(--control-h-dense);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.lr-showcase-tour .lr-showcase-tour-toggle {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.lr-showcase-tour .lr-showcase-tour-toggle:hover {
+  background: var(--accent-hover);
+}
+
+.lr-showcase-tour-status {
+  padding: 0 var(--space-2);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.lr-showcase-tour-mood {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+
+.lr-showcase-tour-mood button.is-active {
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.lr-showcase-tour button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+/* Present has no camera dock, so the pill sits at the bottom edge. */
+.lr-model-viewport.is-client-presentation .lr-showcase-tour {
+  bottom: var(--space-5);
+}
+
+/* Covers the canvas while the tour warms each room before the first glide. */
+.lr-showcase-tour-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: var(--canvas);
+}

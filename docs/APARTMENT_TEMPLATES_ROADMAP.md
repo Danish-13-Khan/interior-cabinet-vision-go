@@ -2,7 +2,8 @@
 
 **Status:** Phases 0, 1, 2, 4, 5 and 6 done on `feat/apartment-templates`
 (reviewed 2026-10-06); Phase 3 done on `feat/sliding-wardrobe` (awaiting
-review). **Next: Phase 7 (showcase tour).** Phase 8 stays deferred. Factory hardware values are built
+review); Phase 7 (showcase tour) done on `feat/sliding-wardrobe` (awaiting
+review). Phase 8 stays deferred. Factory hardware values are built
 as settings with industry defaults (D10); Ilyas confirms them, he no longer
 blocks a phase.
 **Goal:** Four ready-made apartments the user can open with one click. Between
@@ -420,8 +421,8 @@ gaps (buffer off), spring-free hinges. Push hardware lines now carry the
 
 ### Phase 6 — Entry points
 
-**Status:** Done. Open follow-ups: real apartment thumbnails for the marketing
-cards (Phase 7 stills can supply them) and editor-wide unique room ids.
+**Status:** Done. Open follow-up: editor-wide unique room ids. (Real
+apartment thumbnails: closed by the Phase 7 stills.)
 
 - Project home: an **Apartment templates** section above the single-room
   cards (Calm-light card style, area in m² and room count on each card).
@@ -441,7 +442,41 @@ cards (Phase 7 stills can supply them) and editor-wide unique room ids.
 
 ### Phase 7 — Showcase tour — after Phase 3
 
-**Status:** Not started; unblocked.
+**Status:** Done on `feat/sliding-wardrobe`.
+
+As built:
+- `showcaseTour.ts` (stop order), `showcaseTourController.ts` (timers:
+  1.5 s glide + 2.3 s hold per room), `showcaseTourInput.ts` (stop gestures)
+  and `showcaseTourSession.ts` (one run) are pure and unit-tested;
+  `useShowcaseTour` + `ShowcaseTourControls` wire them into Model View.
+- Order: spec room order rotated to start at the hero room (3 BHK: living,
+  kitchen, utility, study, balcony, passage, guest, kids, master, three baths,
+  walk-in, foyer). Rooms the user added follow in project order; projects that
+  are not apartments tour in project order from the active room.
+- View-only: the toured room overrides the document's active room for
+  rendering only, cameras move through `requestShowcaseCameraJump({ cameraId,
+  glideMs })`, shown as authored (`project-camera` composition). Per-room
+  scenes are memoized; the canvas never remounts. Ending (any reason) returns
+  to the document's room, camera and the preset from before the tour.
+- Stops on pointer press / wheel in the canvas (swallowed, so it does not also
+  select or orbit), Escape, Stop button, a manual room switch, another view
+  preset, or leaving 3D (unmount).
+- Warm-up pre-roll (~1.7 s, behind a veil): each room is shown once and the
+  tour waits for its GLBs (`glbLoadTracker`), so first-visit parsing and
+  shader compiles never land mid-glide.
+- Day/Evening in the tour pill is a local override; the toolbar's Evening
+  button stays the saved one.
+- Stills: `npm run stills:apartments` captures each template's first tour stop
+  in Present to `public/catalog/templates/apartment-<slug>-v1.png`, used by the
+  marketing and project-home cards. Studio and 1 BHK hero cameras were
+  re-aimed at their TV walls for these stills.
+- Measured (e2e `apartment-showcase-tour.spec.ts`, Apple M5 / Metal, full
+  3 BHK): max frame 25 ms on a production build, 67 ms on the dev server;
+  0 frames over 100 ms. Strict mode: `vite build && vite preview --port 4173`,
+  then `TOUR_PERF_STRICT=1 TOUR_PERF_BASE=http://127.0.0.1:4173 npx playwright
+  test tests/e2e/apartment-showcase-tour.spec.ts`. Undo/redo depths
+  (`data-undo-depth` / `data-redo-depth` on `<html>`) and the save state are
+  identical before and after.
 
 - A **Tour** button that steps through the rooms' showcase cameras with smooth
   camera moves, in spec room order starting from the hero room.
@@ -488,14 +523,12 @@ None of these block a phase any more. Send them to Ilyas as one
 
 ## 8. Suggested order
 
-Done: Phases 0, 1, 4, 2, 5, 6 and 3 (in that order).
+Done: Phases 0, 1, 4, 2, 5, 6, 3 and 7 (in that order).
 
 Next:
 1. Merge `feat/apartment-templates` (open the PR; don't stack new phases on
    an unmerged branch).
-2. **Phase 3** (sliding wardrobes, with D10 defaults and the "unconfirmed
-   default" flag). Review checkpoint on its own.
-3. **Phase 7** (showcase tour and marketing stills). Review checkpoint on its
-   own.
-4. Send Ilyas the §7 confirmation message; flip `confirmed` when he answers.
-5. Phase 8 (whole-apartment 3D) needs its own architecture pass first.
+2. Review checkpoints for **Phase 3** (sliding wardrobes) and **Phase 7**
+   (showcase tour and marketing stills), each on its own.
+3. Send Ilyas the §7 confirmation message; flip `confirmed` when he answers.
+4. Phase 8 (whole-apartment 3D) needs its own architecture pass first.

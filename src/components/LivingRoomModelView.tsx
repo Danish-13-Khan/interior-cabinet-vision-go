@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RenderQuality } from "../domain/interiorProject";
 import {
-  compileLivingRoomScene,
   describeModelViewHonesty,
   describeModelViewRuntimeProfile,
   getActiveLivingRoomStyleId,
@@ -16,7 +15,7 @@ import {
 } from "../domain/livingRoom";
 import { isWallRaised } from "../domain/interiorProject";
 import { mechanismTogglePatch } from "../domain/livingRoom/mechanismToggle";
-import { readLightingMood, roomLightScaleForMood } from "../domain/livingRoom/lightingMood";
+import { roomLightScaleForMood } from "../domain/livingRoom/lightingMood";
 import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
 import {
   persistModelGuideDismissal,
@@ -26,6 +25,8 @@ import { useDocumentCameraFollow } from "../hooks/useDocumentCameraFollow";
 import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useModelViewTransform } from "../hooks/useModelViewTransform";
 import { useRenderDiagnostics } from "../hooks/useRenderDiagnostics";
+import { useShowcaseTour } from "../hooks/useShowcaseTour";
+import { ShowcaseTourControls } from "./livingRoomScene/ShowcaseTourControls";
 import { CabinetSceneSemantics } from "./livingRoomScene/CabinetSceneSemantics";
 import { LivingRoomModelChrome } from "./livingRoomScene/LivingRoomModelChrome";
 import { type WallContextMenuState } from "./livingRoomScene/ModelWallVisibilityHost";
@@ -41,18 +42,21 @@ export function LivingRoomModelView({
   onSelect, onSelectOpening, onSelectWall, onSelectLight, lightActions, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
   onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
 }: LivingRoomModelViewProps) {
-  const scene = useMemo(() => compileLivingRoomScene(project), [project]);
-  const extrudedWalls = scene.nodes.filter(
-    (node) => node.metadata.role === "wall" && node.metadata.planTrace !== true,
-  ).length;
+  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
+  const camera = useModelViewCameraSession(!presentation, hasSelection);
+  const canvasHostRef = useRef<HTMLDivElement>(null);
+  const tour = useShowcaseTour({
+    project, presentation, viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
+    setActiveCameraId: (cameraId) => setActiveCameraId(cameraId), canvasHostRef,
+  });
+  const scene = tour.scene; // view-only: the toured room's scene, memoized per room
+  const extrudedWalls = scene.nodes.filter((node) => node.metadata.role === "wall" && node.metadata.planTrace !== true).length;
   const projectCameraId = project.renderSettings.activeCameraId ?? null;
   const [activeCameraId, setActiveCameraId] = useState<string | null>(
     () => (projectCameraId && scene.cameras.some((item) => item.id === projectCameraId)
       ? projectCameraId
       : preferModelViewCameraId(scene.cameras)),
   );
-  const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
-  const camera = useModelViewCameraSession(!presentation, hasSelection);
   // Showcase / Render Studio drive the document camera; jump revives after orbit.
   useDocumentCameraFollow({
     projectCameraId,
@@ -124,6 +128,7 @@ export function LivingRoomModelView({
       ) : null}
       {!presentation ? <ModelViewFeedbackBanners /> : null}
       <div
+        ref={canvasHostRef}
         className="lr-model-canvas-host"
         data-testid="lr-model-canvas-host"
         tabIndex={presentation ? undefined : 0}
@@ -140,7 +145,7 @@ export function LivingRoomModelView({
           lightingQuality={resolveModelViewLightingQuality(viewportQuality)}
           projectLightScale={modelViewProjectLightScale(viewportQuality)}
           windowKeyScale={modelViewWindowKeyScale(viewportQuality)}
-          roomLightScale={roomLightScaleForMood(readLightingMood(project))}
+          roomLightScale={roomLightScaleForMood(tour.mood)}
           selectedIds={clientView.selectedIds}
           activeOpeningId={clientView.activeOpeningId}
           activeWallId={clientView.activeWallId}
@@ -152,7 +157,7 @@ export function LivingRoomModelView({
           fieldOfViewDegrees={cameraOverrides.fieldOfViewDegrees}
           snapSizeMm={snapSizeMm} showGrid={clientView.showGrid} cutawayWalls={cutawayWalls}
           interactive={clientView.interactive}
-          frameRun={presentation ? "client" : "author"}
+          frameRun={tour.frameRun} renderComposition={tour.composition}
           fitVersion={camera.fitVersion} fitMode={camera.fitMode} fitSelection={fitSelection}
           onClearSelection={presentation ? noopSelect : onClearSelection}
           onSelect={presentation ? noopSelect : onSelect}
@@ -171,6 +176,10 @@ export function LivingRoomModelView({
         />
         {!presentation ? <PlanTraceRaisePrompt project={project} onPatchDocument={onPatchDocument} /> : null}
       </div>
+      <ShowcaseTourControls
+        available={tour.available} stops={tour.stops} tour={tour.tour} mood={tour.mood}
+        showMood={tour.showMood} onStart={tour.start} onStop={tour.stop} onMood={tour.setMood}
+      />
       {!presentation ? (
         <LivingRoomModelChrome
           showGuide={showGuide} viewPreset={camera.viewPreset}

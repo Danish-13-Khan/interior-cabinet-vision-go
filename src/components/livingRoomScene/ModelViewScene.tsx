@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
+import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type {
   CompiledLivingRoomScene,
   ModelViewPresetId,
@@ -57,6 +57,8 @@ type ModelViewSceneProps = {
   onTransformPreview?: (target: ModelTransformTarget, position: Point3Mm) => Point3Mm;
   onTransformCommit?: (target: ModelTransformTarget, position: Point3Mm) => void;
   frameRun?: CabinetRunAudience;
+  /** "project-camera" shows saved cameras exactly as authored (Showcase tour); default re-frames them. */
+  renderComposition?: RenderComposition;
 };
 
 export function ModelViewScene(props: ModelViewSceneProps) {
@@ -116,7 +118,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           cutawayWalls={cutawayWalls}
           interactive={interactive}
           renderQuality={viewportQuality}
-          renderComposition="architectural"
+          renderComposition={props.renderComposition ?? "architectural"}
           renderMode={renderMode}
           lightingQuality={lightingQuality}
           projectLightScale={projectLightScale}

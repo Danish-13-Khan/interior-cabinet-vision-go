@@ -1,4 +1,5 @@
 import type { ApartmentTemplateSpec } from "./types";
+import { apartmentStillPath } from "./apartmentStills";
 import { ONE_BHK_SHELL_SPEC } from "./specs/oneBhkShell";
 import { STUDIO_SHELL_SPEC } from "./specs/studioShell";
 import { THREE_BHK_SHELL_SPEC } from "./specs/threeBhkShell";
@@ -15,6 +16,8 @@ export type ApartmentTemplateCard = {
   /** @deprecated Kept for callers; equals `carpetM2`. */
   areaM2: number;
   roomCount: number;
+  /** Showcase-tour still (hero room), relative to the public base URL. */
+  thumbnail: string;
 };
 
 type Rect = { minX: number; maxX: number; minZ: number; maxZ: number };
@@ -64,6 +67,7 @@ function card(spec: ApartmentTemplateSpec): ApartmentTemplateCard {
     carpetM2,
     areaM2: carpetM2,
     roomCount: spec.rooms.length,
+    thumbnail: apartmentStillPath(spec.id),
   };
 }
 

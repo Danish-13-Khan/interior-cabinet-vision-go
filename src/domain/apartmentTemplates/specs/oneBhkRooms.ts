@@ -25,8 +25,9 @@ export const ONE_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
       },
     },
     camera: {
-      eyeMm: { x: -1650, y: 1600, z: 2800 },
-      targetMm: { x: -1650, y: 1000, z: -200 },
+      // From the far corner onto the TV console wall (the tour still / card thumbnail).
+      eyeMm: { x: -3100, y: 1600, z: 2900 },
+      targetMm: { x: -700, y: 1000, z: -400 },
     },
   },
   {

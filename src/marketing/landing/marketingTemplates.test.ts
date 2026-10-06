@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { BUILTIN_CATALOG_MANIFEST } from '../../domain/catalog/builtinCatalogManifest';
 import { APARTMENT_TEMPLATE_IDS } from '../../domain/apartmentTemplates';
+import { apartmentStillPath } from '../../domain/apartmentTemplates/apartmentStills';
 import { findMarketingTemplate, MARKETING_TEMPLATES, registerHrefForTemplate, TEMPLATE_QUERY_PARAM } from './marketingTemplates';
 
 describe('marketing templates', () => {
@@ -16,6 +17,12 @@ describe('marketing templates', () => {
   it('points every card at a shipped thumbnail', () => {
     for (const template of MARKETING_TEMPLATES) {
       expect(existsSync(join(process.cwd(), 'public', template.image))).toBe(true);
+    }
+  });
+  it('shows each apartment through its showcase-tour still', () => {
+    for (const template of MARKETING_TEMPLATES.filter((t) => t.kind === 'apartment')) {
+      expect(template.image).toBe(apartmentStillPath(template.id));
+      expect(template.image).toMatch(/^catalog\/templates\/apartment-[a-z0-9]+-v1\.png$/);
     }
   });
   it('builds register links that round-trip the template id', () => {

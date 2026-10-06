@@ -106,4 +106,11 @@ export {
   onShowcaseCameraJump,
   requestShowcaseCameraJump,
   resetShowcaseCameraJumpForTests,
+  takeShowcaseGlideMs,
 } from "./showcaseJump";
+export type { ShowcaseJumpTarget } from "./showcaseJump";
+export { showcaseTourAvailable, showcaseTourRoomOrder, showcaseTourStops } from "./showcaseTour";
+export type { ShowcaseTourStop } from "./showcaseTour";
+export { SHOWCASE_TOUR_TIMING, ShowcaseTourController, showcaseTourDurationMs } from "./showcaseTourController";
+export type { ShowcaseTourStopReason } from "./showcaseTourController";
+export { ShowcaseTourSession } from "./showcaseTourSession";
