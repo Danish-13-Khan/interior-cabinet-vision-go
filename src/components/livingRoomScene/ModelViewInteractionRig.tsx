@@ -91,7 +91,11 @@ export function ModelViewInteractionRig({
       <group userData={{ [EXCLUDE_FROM_EXPORT]: true }}>
         <ContactShadows
           key={`${renderQuality}-${renderMode}`}
-          position={[0, lightingQuality.contactShadowHeightOffsetMeters, 0]}
+          position={[
+            scene.bounds.center.x / 1000,
+            lightingQuality.contactShadowHeightOffsetMeters,
+            scene.bounds.center.z / 1000,
+          ]}
           scale={Math.max(8, roomSpan + 1)}
           opacity={contactShadow.opacity}
           blur={contactShadow.blur}

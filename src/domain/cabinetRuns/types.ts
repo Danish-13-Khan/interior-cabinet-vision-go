@@ -46,6 +46,8 @@ export type CabinetPlanningWorkflow = {
 };
 
 export const DEFAULT_COUNTERTOP_THICKNESS_MM = 28;
+/** Base-height carcasses take a run worktop. Taller hosts, such as a corner wardrobe, do not. */
+export const COUNTERTOP_HOST_MAX_HEIGHT_MM = 1200;
 export const DEFAULT_COUNTERTOP_OVERHANG_FRONT_MM = 25;
 export const DEFAULT_COUNTERTOP_OVERHANG_SIDE_MM = 20;
 

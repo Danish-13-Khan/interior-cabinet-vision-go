@@ -1,17 +1,35 @@
-import { createCabinetPlanningWorkflow, DEFAULT_COUNTERTOP_THICKNESS_MM } from "../cabinetRuns";
+import {
+  COUNTERTOP_HOST_MAX_HEIGHT_MM,
+  createCabinetPlanningWorkflow,
+  DEFAULT_COUNTERTOP_THICKNESS_MM,
+} from "../cabinetRuns";
 import { cabinetProjectFromInteriorProject, type InteriorObjectEntity, type InteriorProject } from "../interiorProject";
 import type { ApplianceHost } from "./parameters";
 
-/** Worktop top surface (mm above floor) per host object id, from the run's countertop segment. */
+/** Worktop top surface (mm above floor) per host object id, from each room's centred run. */
 export function worktopTopsByObjectId(project: InteriorProject): Map<string, number> {
   const adapted = cabinetProjectFromInteriorProject(project);
-  const { widthMm, depthMm, heightMm } = adapted.room.dimensions;
-  const workflow = createCabinetPlanningWorkflow(adapted.project, { widthMm, depthMm, heightMm });
-  const objectIdOf = new Map(adapted.project.cabinets.map((cabinet) => [cabinet.id, cabinet.interiorObjectId ?? cabinet.id]));
+  const rooms = adapted.project.rooms?.length
+    ? adapted.project.rooms
+    : [{ cabinets: adapted.project.cabinets, config: { dimensions: adapted.room.dimensions } }];
   const tops = new Map<string, number>();
-  for (const segment of workflow.countertops) {
-    for (const cabinetId of segment.cabinetIds) {
-      tops.set(objectIdOf.get(cabinetId) ?? cabinetId, segment.positionY + segment.thicknessMm);
+  for (const room of rooms) {
+    const { widthMm, depthMm, heightMm } = room.config.dimensions;
+    const workflow = createCabinetPlanningWorkflow(
+      { ...adapted.project, cabinets: room.cabinets },
+      { widthMm, depthMm, heightMm },
+    );
+    const objectIdOf = new Map(room.cabinets.map((cabinet) => [cabinet.id, cabinet.interiorObjectId ?? cabinet.id]));
+    const lowHost = (cabinetId: string) => {
+      const objectId = objectIdOf.get(cabinetId) ?? cabinetId;
+      const host = project.objects.find((object) => object.id === objectId);
+      return (host?.dimensions.heightMm ?? 0) <= COUNTERTOP_HOST_MAX_HEIGHT_MM;
+    };
+    for (const segment of workflow.countertops) {
+      if (!segment.cabinetIds.every(lowHost)) continue;
+      for (const cabinetId of segment.cabinetIds) {
+        tops.set(objectIdOf.get(cabinetId) ?? cabinetId, segment.positionY + segment.thicknessMm);
+      }
     }
   }
   return tops;

@@ -71,6 +71,12 @@ export type CabinetInstance = {
   displayCategory?: string;
   /** Interior object entity id when this cabinet was authored in Interiors. */
   interiorObjectId?: string;
+  /**
+   * Placement the Interiors → classic read produced. It rides on the cabinet,
+   * so it survives immutable edits, copies and history; write-back keeps the
+   * document's world position while `placement` still equals it.
+   */
+  readPlacement?: CabinetPlacement;
   /** Interiors run-filler stamp so Engineering keeps the same filler identity/role. */
   runFiller?: {
     runId: string;

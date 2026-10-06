@@ -19,7 +19,13 @@ import { CABINET_EXTENSION, MANAGED_BY, record } from "./cabinetAdapterShared";
 import { objectId, projectName, projectSlug } from "./cabinetAdapterIds";
 import { adapterWallsForRooms, openingsForRoom, topologyForRectangularAdapter } from "./cabinetAdapterWalls";
 import { roomConfigFromDocument, roomEntitiesFromProject } from "./cabinetAdapterRooms";
-import { cabinetFromObject, cabinetObject } from "./cabinetAdapterCabinets";
+import { cabinetFromObject } from "./cabinetAdapterCabinets";
+import {
+  cabinetsInWorld,
+  centreRoomCabinets,
+  keepOffCentrePlacements,
+  stampReadPlacements,
+} from "./cabinetAdapterFrame";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
   type InteriorProject,
@@ -106,7 +112,7 @@ export function interiorProjectFromCabinetProject(options: {
     openings: [...preservedOpenings, ...rooms.flatMap(openingsForRoom)],
     objects: [
       ...preservedObjects,
-      ...rooms.flatMap((room) => room.cabinets.map((cabinet) => cabinetObject(room.id, cabinet))),
+      ...cabinetsInWorld(base, rooms, options.project),
     ],
     extensions: {
       ...base.extensions,
@@ -141,12 +147,16 @@ export function cabinetProjectFromInteriorProject(input: unknown): {
     id: room.id,
     name: room.name,
     config: roomConfigFromDocument(document, room),
-    cabinets: document.objects
-      .filter((object) => object.roomId === room.id && object.kind === "cabinet")
-      .flatMap((object) => {
-        const cabinet = cabinetFromObject(object);
-        return cabinet ? [cabinet] : [];
-      }),
+    cabinets: centreRoomCabinets(
+      document,
+      room.id,
+      document.objects
+        .filter((object) => object.roomId === room.id && object.kind === "cabinet")
+        .flatMap((object) => {
+          const cabinet = cabinetFromObject(object);
+          return cabinet ? [cabinet] : [];
+        }),
+    ),
   }));
   const activeRoomId = rooms.some((room) => room.id === document.activeRoomId)
     ? document.activeRoomId
@@ -160,7 +170,11 @@ export function cabinetProjectFromInteriorProject(input: unknown): {
     activeRoomId,
     interiorDocument: document,
   };
-  const project = normalizeMultiRoomProject(clampCabinetProject(seeded), active.config);
+  const project = stampReadPlacements(keepOffCentrePlacements(
+    document,
+    rooms,
+    normalizeMultiRoomProject(clampCabinetProject(seeded), active.config),
+  ));
   return {
     project,
     room: active.config,

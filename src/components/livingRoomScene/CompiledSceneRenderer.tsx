@@ -169,7 +169,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
             Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)),
             environment.gridPrimaryColor, environment.gridSecondaryColor,
           ]}
-          position={[0, 0.002, 0]}
+          position={[scene.bounds.center.x / 1000, 0.002, scene.bounds.center.z / 1000]}
         />
       ) : null}
       <CompiledSceneObjectLayer

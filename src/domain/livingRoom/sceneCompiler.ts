@@ -27,6 +27,7 @@ import type { CompiledLivingRoomScene, CompiledMaterial } from "./sceneTypes";
 import { sampleWindowOpenings } from "./windowKeyLight";
 import { resolveLightAttachment } from "./lightAttachments";
 import { resolveRecipeLightSeed } from "./lighting";
+import { placeRecipeLight } from "./recipeLightFrame";
 
 export function compileMaterials(project: InteriorProject): CompiledMaterial[] {
   return [
@@ -124,7 +125,7 @@ export function compileLivingRoomScene(
   ];
   const materials = compileMaterials(project);
   const lights = project.lights.filter((light) => light.roomId === null || light.roomId === roomId)
-    .map((light) => resolveRecipeLightSeed(resolveLightAttachment(project, light)));
+    .map((light) => placeRecipeLight(project, resolveRecipeLightSeed(resolveLightAttachment(project, light))));
   const cameras = project.cameras.filter((camera) => camera.roomId === roomId);
   const stylePreset = resolveLivingRoomStyle(project);
   const style = {

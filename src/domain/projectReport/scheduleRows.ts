@@ -1,4 +1,5 @@
-import { cabinetTypeLabels, type CabinetProject } from "../cabinetDimensions";
+import { cabinetTypeLabels, type CabinetInstance, type CabinetProject } from "../cabinetDimensions";
+import { roomFrame } from "../interiorProject/roomFrame";
 import { getConstructionSummary, type CabinetConstruction } from "../cabinetConstruction";
 import { familyLabel } from "../cabinetIdentity";
 import type { CabinetPlanningWorkflow } from "../cabinetLibrary";
@@ -6,6 +7,22 @@ import type { CabinetCost } from "../costing";
 import type { ProductionCutlistLine } from "../productionCutlist";
 import { estimateRunLengthMm, formatRunLabel } from "./helpers";
 import type { CabinetScheduleRow, RunSummaryRow } from "./types";
+
+/** Schedule x/z leave the centred frame and land on the cabinet in world space. */
+function worldPlan(project: CabinetProject, cabinet: CabinetInstance) {
+  const document = project.interiorDocument;
+  const objectId = cabinet.interiorObjectId;
+  const roomId = (objectId && document?.objects.find((object) => object.id === objectId)?.roomId)
+    || project.activeRoomId;
+  if (!document || !roomId) {
+    return { x: Math.round(cabinet.placement.x), z: Math.round(cabinet.placement.z) };
+  }
+  const { centre } = roomFrame(document, roomId);
+  return {
+    x: Math.round(cabinet.placement.x + centre.x),
+    z: Math.round(cabinet.placement.z + centre.z),
+  };
+}
 
 export function buildReportItemList(project: CabinetProject) {
   return project.cabinets.map((cabinet) => ({
@@ -15,8 +32,7 @@ export function buildReportItemList(project: CabinetProject) {
     widthMm: cabinet.config.dimensions.width,
     heightMm: cabinet.config.dimensions.height,
     depthMm: cabinet.config.dimensions.depth,
-    x: Math.round(cabinet.placement.x),
-    z: Math.round(cabinet.placement.z),
+    ...worldPlan(project, cabinet),
     rotation: cabinet.placement.rotation,
   }));
 }
@@ -49,8 +65,7 @@ export function buildCabinetSchedule(
       widthMm: cabinet.config.dimensions.width,
       heightMm: cabinet.config.dimensions.height,
       depthMm: cabinet.config.dimensions.depth,
-      x: Math.round(cabinet.placement.x),
-      z: Math.round(cabinet.placement.z),
+      ...worldPlan(project, cabinet),
       rotation: cabinet.placement.rotation,
       partCount: lines.length,
       totalCost: cost?.totalCost ?? 0,

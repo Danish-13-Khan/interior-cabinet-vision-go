@@ -1,5 +1,10 @@
-import { createCabinetPlanningWorkflow, type CountertopSegment } from "../cabinetRuns";
-import { cabinetProjectFromInteriorProject, roomPlanViewBounds } from "../interiorProject";
+import {
+  COUNTERTOP_HOST_MAX_HEIGHT_MM,
+  createCabinetPlanningWorkflow,
+  type CountertopSegment,
+} from "../cabinetRuns";
+import { cabinetProjectFromInteriorProject } from "../interiorProject";
+import { roomFrame } from "../interiorProject/roomFrame";
 import type { InteriorProject } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { materialIdForCabinetRole } from "./cabinetSceneRoles";
@@ -44,15 +49,9 @@ export function countertopBoxSizeMm(segment: CountertopSegment) {
   return { width: alongX, height: segment.thicknessMm, depth: alongZ };
 }
 
-/** Worktops sit on base-height cabinets; a taller host (corner wardrobe) never gets one. */
-const COUNTERTOP_HOST_MAX_HEIGHT_MM = 1200;
-
 /**
- * Run countertops — never authored through tall cabinets. The cabinet run
- * workflow works in the classic room-centred frame, so cabinets are moved
- * into it (minus the room's plan centre) and the tops moved back out; an
- * apartment room that is not centred on the origin otherwise gets its tops
- * clamped into the wrong place.
+ * Run countertops — never authored through tall cabinets. The classic adapter
+ * already keeps each room in its centred frame; tops are shifted back to world.
  */
 export function compileCabinetRunExtras(project: InteriorProject): CompiledSceneNode[] {
   const visible = sceneVisibleObjects(project);
@@ -61,13 +60,15 @@ export function compileCabinetRunExtras(project: InteriorProject): CompiledScene
   const room = project.rooms.find((item) => item.id === project.activeRoomId)
     ?? project.rooms[0];
   if (!room) return [];
-  const bounds = roomPlanViewBounds(project, room.id);
-  const centre = { x: bounds.centerX, z: bounds.centerZ };
-  const centred = visible.map((object) => ({
-    ...object,
-    position: { ...object.position, x: object.position.x - centre.x, z: object.position.z - centre.z },
-  }));
-  const compatible = cabinetProjectFromInteriorProject({ ...project, objects: centred });
+  const frame = roomFrame(project, room.id);
+  const compatible = cabinetProjectFromInteriorProject({
+    ...project,
+    objects: project.objects.filter((object) => (
+      object.kind !== "cabinet"
+      || object.roomId !== room.id
+      || object.extensions?.layerVisible !== false
+    )),
+  });
   const workflow = createCabinetPlanningWorkflow(compatible.project, {
     widthMm: room.dimensions.widthMm,
     depthMm: room.dimensions.depthMm,
@@ -84,7 +85,7 @@ export function compileCabinetRunExtras(project: InteriorProject): CompiledScene
       `countertop-node:${segment.id}`,
       "Countertop",
       "countertop-v1",
-      { x: segment.positionX + centre.x, y: segment.positionY, z: segment.positionZ + centre.z },
+      { x: segment.positionX + frame.centre.x, y: segment.positionY, z: segment.positionZ + frame.centre.z },
       boxPrimitive(segment.id, countertopBoxSizeMm(segment), { x: 0, y: segment.thicknessMm / 2, z: 0 }, materialId),
       {
         role: "countertop",
