@@ -13,7 +13,7 @@ export const CARD_VIEWPORT = { widthPx: 800, heightPx: 600 };
 
 function heroStop(project: InteriorProject) {
   const stops = showcaseTourStops(project);
-  return stops.find((stop) => !stop.overview && stop.roomId) ?? stops.at(-1)!;
+  return stops.find((stop) => !stop.overview && stop.roomId) ?? stops[stops.length - 1]!;
 }
 
 function apartmentSlug(project: InteriorProject): string {
