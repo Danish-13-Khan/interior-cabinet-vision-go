@@ -14,6 +14,7 @@ const TOUR_SOURCES = [
   "src/domain/apartmentTemplates/showcaseTourController.ts",
   "src/domain/apartmentTemplates/showcaseTourInput.ts",
   "src/domain/apartmentTemplates/showcaseTourSession.ts",
+  "src/domain/apartmentTemplates/showcaseTourView.ts",
   "src/hooks/useShowcaseTour.ts",
   "src/components/livingRoomScene/ShowcaseTourControls.tsx",
 ];

@@ -43,6 +43,10 @@ export function useEditorHistory({
     if (!root) return;
     root.dataset.undoDepth = String(historyStacksRef.current.past.length);
     root.dataset.redoDepth = String(historyStacksRef.current.future.length);
+    return () => {
+      delete root.dataset.undoDepth;
+      delete root.dataset.redoDepth;
+    };
   }, [historyTick]);
 
   const commitSnapshot = useCallback(

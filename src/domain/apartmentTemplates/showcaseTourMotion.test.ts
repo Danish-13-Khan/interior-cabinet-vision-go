@@ -2,7 +2,7 @@ import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
 import { easeTowardCameraGoal, type CameraPoseMeters } from "../../components/livingRoomScene/cameraRigPose";
 import type { CameraEntity } from "../interiorProject";
-import { compileLivingRoomScene } from "../livingRoom";
+import { createRoomSceneCache } from "../livingRoom/roomSceneCache";
 import { MODEL_VIEW_CAMERA_EASE_MS } from "../livingRoom/modelViewCameraEase";
 import { COMPOSER_TEST_NOW } from "./composers/bareRoom";
 import { instantiateApartmentTemplate } from "./instantiateApartmentTemplate";
@@ -51,16 +51,18 @@ describe("Showcase tour motion (3 BHK frame-time check)", () => {
   });
 
   it("each room change costs far less than a 100 ms frame stall, and revisits are free", () => {
-    const cache = new Map<string, ReturnType<typeof compileLivingRoomScene>>();
+    const sceneFor = createRoomSceneCache(project);
     const costs: number[] = [];
     for (const stop of stops) {
       const started = performance.now();
-      cache.set(stop.roomId, compileLivingRoomScene({ ...project, activeRoomId: stop.roomId }));
+      sceneFor(stop.roomId);
       costs.push(performance.now() - started);
     }
     expect(Math.max(...costs)).toBeLessThan(STALL_BUDGET_MS / 2);
     for (const stop of stops) {
-      expect(cache.get(stop.roomId)!.cameras.some((camera) => camera.id === stop.cameraId)).toBe(true);
+      const started = performance.now();
+      expect(sceneFor(stop.roomId).cameras.some((camera) => camera.id === stop.cameraId)).toBe(true);
+      expect(performance.now() - started).toBeLessThan(1);
     }
     // Ease math per frame is negligible next to a 16.7 ms frame.
     const from = poseOf(project.cameras[0]!);

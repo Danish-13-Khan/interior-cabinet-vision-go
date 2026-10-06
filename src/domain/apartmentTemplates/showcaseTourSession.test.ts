@@ -6,10 +6,19 @@ import { showcaseTourDurationMs } from "./showcaseTourController";
 import { onShowcaseCameraJump, resetShowcaseCameraJumpForTests, takeShowcaseGlideMs, type ShowcaseJumpTarget } from "./showcaseJump";
 import { ShowcaseTourSession, type ShowcaseTourState } from "./showcaseTourSession";
 import { deepFreeze, manualScheduler } from "./showcaseTourTestSupport";
+import { pickModelViewCameraId } from "../livingRoom/modelViewDefaults";
 
 const project = deepFreeze(instantiateApartmentTemplate("template:apartment:3bhk:v1", { now: COMPOSER_TEST_NOW }));
 const stops = showcaseTourStops(project);
 const DOC_CAMERA = project.renderSettings.activeCameraId!;
+
+const savedRoomCameras = project.cameras.filter((camera) => camera.roomId === project.activeRoomId);
+/** A camera the user added to the room and picked in Model View, without making it the document's camera. */
+const USER_CAMERA = { ...savedRoomCameras[0]!, id: "camera:user-corner", name: "Corner", isDefault: false };
+const documentRoomCameras = [...savedRoomCameras, USER_CAMERA];
+/** As in useShowcaseTour: the pre-tour camera if it is in the document's room, else the document's camera. */
+const restoreInDocumentRoom = (cameraBefore: string | null) =>
+  pickModelViewCameraId(documentRoomCameras, [cameraBefore, DOC_CAMERA]);
 
 function harness() {
   const clock = manualScheduler();
@@ -22,12 +31,12 @@ function harness() {
     setTour: (state) => tours.push(state),
     setViewPreset: (preset) => presets.push(preset),
     setActiveCameraId: (cameraId) => cameras.push(cameraId),
-    restoreCameraId: () => DOC_CAMERA,
+    restoreCameraId: restoreInDocumentRoom,
   }, clock.scheduler);
   const canvasHost = new EventTarget();
   const keyboard = new EventTarget();
-  const start = (viewPreset = "dollhouse") => session.start(
-    stops, { activeRoomId: project.activeRoomId, viewPreset }, { canvasHost, keyboard },
+  const start = (viewPreset = "dollhouse", cameraId: string | null = DOC_CAMERA) => session.start(
+    stops, { activeRoomId: project.activeRoomId, viewPreset, cameraId }, { canvasHost, keyboard },
   );
   const lastReason = () => tours.at(-1)?.lastStopReason ?? null;
   return { clock, tours, presets, cameras, jumps, session, canvasHost, keyboard, start, lastReason };
@@ -88,6 +97,20 @@ describe("Showcase tour session (3 BHK)", () => {
     expect(h.tours.filter((state) => !state.active)).toHaveLength(1);
   });
 
+  it("stopping returns to the camera the user was on before the tour, not just the saved one", () => {
+    const h = harness();
+    h.start("dollhouse", USER_CAMERA.id);
+    h.clock.advance(2000);
+    h.session.stop("user");
+    expect(h.cameras).toEqual([USER_CAMERA.id]);
+    expect(h.presets).toEqual(["dollhouse"]);
+    // A pre-tour camera that is not in the document's room falls back to the document's camera.
+    const again = harness();
+    again.start("dollhouse", stops[2]!.cameraId);
+    again.session.stop("user");
+    expect(again.cameras).toEqual([DOC_CAMERA]);
+  });
+
   it("switching rooms stops it and keeps the user's new room", () => {
     const h = harness();
     h.start();
@@ -118,6 +141,6 @@ describe("Showcase tour session (3 BHK)", () => {
     expect(h.cameras).toEqual([]);
     h.keyboard.dispatchEvent(keydown("Escape"));
     expect(h.tours).toHaveLength(updates);
-    expect(h.session.start(stops, { activeRoomId: null, viewPreset: "dollhouse" })).toBe(false);
+    expect(h.session.start(stops, { activeRoomId: null, viewPreset: "dollhouse", cameraId: null })).toBe(false);
   });
 });

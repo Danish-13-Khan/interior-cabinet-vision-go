@@ -97,6 +97,8 @@ export function CameraRig({
   }
 
   useLayoutEffect(() => {
+    // Taken first: a showcase jump's glide belongs to the pass it triggered, even one that snaps or skips.
+    const showcaseGlideMs = takeShowcaseGlideMs() ?? undefined;
     const current = sceneRef.current;
     const applyFitShot = fitVersion > lastFitVersionRef.current;
     if (applyFitShot) lastFitVersionRef.current = fitVersion;
@@ -162,7 +164,7 @@ export function CameraRig({
       return;
     }
     const from = readCameraPoseMeters(camera, controlsRef.current, built.orthographic);
-    glide.start(from, built.goal, performance.now(), takeShowcaseGlideMs() ?? undefined);
+    glide.start(from, built.goal, performance.now(), showcaseGlideMs);
     invalidate();
   }, [
     activeCameraId, assetRevision, camera, composition, cameraHeightMm, controlsRef,

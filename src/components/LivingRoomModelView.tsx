@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RenderQuality } from "../domain/interiorProject";
 import {
   describeModelViewHonesty,
@@ -7,7 +7,7 @@ import {
   LIVING_ROOM_STYLE_PRESETS,
   modelViewProjectLightScale,
   modelViewWindowKeyScale,
-  preferModelViewCameraId,
+  pickModelViewCameraId,
   resolveModelViewCameraOverrides,
   resolveModelViewDefaultQuality,
   resolveModelViewLightingQuality,
@@ -16,6 +16,7 @@ import {
 import { isWallRaised } from "../domain/interiorProject";
 import { mechanismTogglePatch } from "../domain/livingRoom/mechanismToggle";
 import { roomLightScaleForMood } from "../domain/livingRoom/lightingMood";
+import { createRoomSceneCache } from "../domain/livingRoom/roomSceneCache";
 import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
 import {
   persistModelGuideDismissal,
@@ -45,18 +46,15 @@ export function LivingRoomModelView({
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
   const camera = useModelViewCameraSession(!presentation, hasSelection);
   const canvasHostRef = useRef<HTMLDivElement>(null);
+  const sceneFor = useMemo(() => createRoomSceneCache(project), [project]);
+  const projectCameraId = project.renderSettings.activeCameraId ?? null;
+  const [activeCameraId, setActiveCameraId] = useState(() => pickModelViewCameraId(sceneFor(null).cameras, [projectCameraId]));
   const tour = useShowcaseTour({
-    project, presentation, viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
-    setActiveCameraId: (cameraId) => setActiveCameraId(cameraId), canvasHostRef,
+    project, sceneFor, presentation, viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
+    activeCameraId, setActiveCameraId, canvasHostRef,
   });
   const scene = tour.scene; // view-only: the toured room's scene, memoized per room
   const extrudedWalls = scene.nodes.filter((node) => node.metadata.role === "wall" && node.metadata.planTrace !== true).length;
-  const projectCameraId = project.renderSettings.activeCameraId ?? null;
-  const [activeCameraId, setActiveCameraId] = useState<string | null>(
-    () => (projectCameraId && scene.cameras.some((item) => item.id === projectCameraId)
-      ? projectCameraId
-      : preferModelViewCameraId(scene.cameras)),
-  );
   // Showcase / Render Studio drive the document camera; jump revives after orbit.
   useDocumentCameraFollow({
     projectCameraId,
@@ -73,9 +71,7 @@ export function LivingRoomModelView({
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
   const [cutawayWalls, setCutawayWalls] = useState(true);
   const [wallMenu, setWallMenu] = useState<WallContextMenuState | null>(null);
-  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(
-    resolveModelViewDefaultQuality,
-  );
+  const [viewportQuality, setViewportQuality] = useState<RenderQuality>(resolveModelViewDefaultQuality);
   const honesty = describeModelViewHonesty(viewportQuality);
   const activeStyleId = getActiveLivingRoomStyleId(project);
   const activeStyle = LIVING_ROOM_STYLE_PRESETS.find((style) => style.id === activeStyleId)!;
@@ -91,9 +87,10 @@ export function LivingRoomModelView({
   );
   const exitWalkthrough = useCallback(() => camera.setViewPreset("dollhouse"), [camera.setViewPreset]);
   const fitSelection = { objectIds: selectedIds, wallId: activeWallId, openingId: activeOpeningId };
-  const clientView = modelViewClientPresentationProps({
-    presentation, selectedIds, activeOpeningId, activeWallId, showGrid,
-  });
+  const viewOnly = presentation || tour.tour.active; // the tour shows no outline or gizmo from the room being edited
+  const clientView = modelViewClientPresentationProps(viewOnly
+    ? { presentation, showGrid, selectedIds: [], activeOpeningId: null, activeWallId: null }
+    : { presentation, showGrid, selectedIds, activeOpeningId, activeWallId });
   const noopSelect = () => {};
 
   return (
@@ -149,7 +146,7 @@ export function LivingRoomModelView({
           selectedIds={clientView.selectedIds}
           activeOpeningId={clientView.activeOpeningId}
           activeWallId={clientView.activeWallId}
-          selectedLightId={presentation ? null : activeLightId}
+          selectedLightId={viewOnly ? null : activeLightId}
           onSelectLight={presentation ? noopSelect : onSelectLight}
           onMoveLight={presentation ? undefined : lightActions?.moveLight}
           activeCameraId={activeCameraId} viewPreset={camera.viewPreset}
@@ -164,7 +161,7 @@ export function LivingRoomModelView({
           onSelectOpening={presentation ? noopSelect : onSelectOpening}
           onSelectWall={presentation ? noopSelect : onSelectWall}
           onMove={onMove}
-          transformTarget={presentation ? null : transformTarget}
+          transformTarget={viewOnly ? null : transformTarget}
           onTransformPreview={resolveTransformPosition}
           onTransformCommit={commitTransformPosition}
           onExitWalkthrough={exitWalkthrough}

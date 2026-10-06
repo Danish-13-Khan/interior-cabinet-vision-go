@@ -32,8 +32,11 @@ export type ShowcaseTourSessionView<P extends string> = {
   setTour: (state: ShowcaseTourState) => void;
   setViewPreset: (preset: P) => void;
   setActiveCameraId: (cameraId: string | null) => void;
-  /** Camera to land on when the tour ends (the document's camera for its active room). */
-  restoreCameraId: () => string | null;
+  /**
+   * Camera to land on when the tour ends: the one the user was on before it,
+   * when it belongs to the document's active room, else the document's camera.
+   */
+  restoreCameraId: (cameraBefore: string | null) => string | null;
   /**
    * Resolves once the room on screen has its models loaded and drawn (enables
    * the warm-up pre-roll). Should resolve early once `signal` aborts (tour stopped).
@@ -47,14 +50,15 @@ export type ShowcaseTourInputTargets = { canvasHost: TourEventTarget; keyboard: 
  * One tour run in Model View: steps the camera through the stops via the
  * Showcase jump signal, stops on canvas input / Escape / room switch / preset
  * change, and on `dispose` (leaving 3D) stops without touching unmounted state.
- * Ending puts the view back on the document's room, camera and the preset the
- * user had before the tour.
+ * Ending puts the view back on the document's room, with the camera and preset
+ * the user had before the tour.
  */
 export class ShowcaseTourSession<P extends string> {
   private controller: ShowcaseTourController | null = null;
   private unbind: (() => void) | null = null;
   private atStart: TourWatchState | null = null;
   private presetBefore: P | null = null;
+  private cameraBefore: string | null = null;
   private warmAbort: AbortController | null = null;
   private disposed = false;
 
@@ -70,12 +74,13 @@ export class ShowcaseTourSession<P extends string> {
 
   start(
     stops: readonly ShowcaseTourStop[],
-    at: { activeRoomId: string | null; viewPreset: P },
+    at: { activeRoomId: string | null; viewPreset: P; cameraId: string | null },
     input?: ShowcaseTourInputTargets,
   ): boolean {
     if (this.active || this.disposed || stops.length === 0) return false;
     this.atStart = { activeRoomId: at.activeRoomId, viewPreset: "perspective" };
     this.presetBefore = at.viewPreset;
+    this.cameraBefore = at.cameraId;
     const warmAbort = new AbortController();
     this.warmAbort = warmAbort;
     this.controller = new ShowcaseTourController(stops, {
@@ -120,7 +125,7 @@ export class ShowcaseTourSession<P extends string> {
     this.warmAbort = null;
     if (this.disposed) return;
     this.view.setTour({ ...IDLE_SHOWCASE_TOUR, lastStopReason: reason });
-    this.view.setActiveCameraId(this.view.restoreCameraId());
+    this.view.setActiveCameraId(this.view.restoreCameraId(this.cameraBefore));
     // A preset the user just picked wins over the one from before the tour.
     if (reason !== "view-change" && this.presetBefore) this.view.setViewPreset(this.presetBefore);
   }

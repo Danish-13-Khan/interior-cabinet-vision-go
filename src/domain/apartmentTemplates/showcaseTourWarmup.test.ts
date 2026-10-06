@@ -63,7 +63,7 @@ describe("Showcase tour warm-up pre-roll (3 BHK)", () => {
       restoreCameraId: () => null,
       waitForRoomReady: ready.wait,
     }, manualScheduler().scheduler);
-    session.start(stops, { activeRoomId: project.activeRoomId, viewPreset: "dollhouse" });
+    session.start(stops, { activeRoomId: project.activeRoomId, viewPreset: "dollhouse", cameraId: null });
     await ready.readyAll();
     const preparing = states.filter((state) => state.preparing);
     expect(preparing.map((state) => state.roomId)).toEqual(stops.map((stop) => stop.roomId));
@@ -84,7 +84,7 @@ describe("Showcase tour warm-up pre-roll (3 BHK)", () => {
       restoreCameraId: () => null,
       waitForRoomReady: ready.wait,
     }, manualScheduler().scheduler);
-    session.start(stops, { activeRoomId: project.activeRoomId, viewPreset: "dollhouse" }, { canvasHost: new EventTarget(), keyboard });
+    session.start(stops, { activeRoomId: project.activeRoomId, viewPreset: "dollhouse", cameraId: null }, { canvasHost: new EventTarget(), keyboard });
     await ready.readyNext(); // room 0 ready, room 1 warming
     expect(states.at(-1)).toMatchObject({ preparing: true, index: 1 });
     const { signal } = ready.pending[0]!;
