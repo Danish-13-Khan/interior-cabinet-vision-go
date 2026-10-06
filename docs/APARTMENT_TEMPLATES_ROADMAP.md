@@ -621,6 +621,9 @@ coordinates (`PlanArchitectureLayer.tsx`, `PlanObjectsLayer.tsx`).
 
 #### 8.0 — Room frame and recipe lights (own PR, first)
 
+**Status:** Done (PR #55). Cabinets carry `readPlacement`, so switching to
+Interiors never moves an unedited cabinet.
+
 - `roomFrame` helper; classic adapter moves each room into its centred
   frame; remove the shift in `cabinetSceneRunExtras.ts`; map back to world
   where positions leave the classic model (countertops, fillers, drawings,
@@ -640,6 +643,9 @@ coordinates (`PlanArchitectureLayer.tsx`, `PlanObjectsLayer.tsx`).
 
 #### 8.1 — Apartment scene compiler (no UI)
 
+**Status:** Done. Shared walls and their openings are labelled `"interior"`,
+outside walls face the whole-plan centre, so the 8.3 cutaway is safe.
+
 - `compileApartmentScene(project)` per P8-D4, reusing `roomSceneCache`.
 
 **Exit gate:**
@@ -650,13 +656,22 @@ coordinates (`PlanArchitectureLayer.tsx`, `PlanObjectsLayer.tsx`).
 
 #### 8.2 — Overview lighting
 
+**Status:** Done. One sun on the union bounds (shadow fitted to the whole
+plan), HDRI and hemisphere fill unchanged, no window keys, no preset lights.
+Fixtures come from the resolved room scenes and render glow-only
+(`emissiveOnly`, `FixtureEmitter`), so they add no shader lights.
+
 - Overview rig per P8-D5; fixtures render emissive only in this mode.
 
 **Exit gate:**
-- Light count is constant regardless of the project (no shader recompile
-  when entering or leaving the overview).
-- Overview stills of all four templates pass the exposure check
-  (`scripts/showcase-tour/still-exposure.mjs`).
+- The overview's shader light count is the same for every project (one
+  cache key across all four templates; fixtures count zero).
+- Hosted fixtures sit where their host is now, not at their stored pose.
+- Note: entering or leaving the overview *does* change the light count
+  (the room view has that room's real fixture lights), so three.js
+  recompiles materials once. That recompile is hidden behind a warm-up in
+  8.3 and timed in 8.4. The overview stills exposure check moves to 8.3,
+  where there is a view to capture.
 
 #### 8.3 — Whole apartment view mode
 
@@ -665,12 +680,19 @@ coordinates (`PlanArchitectureLayer.tsx`, `PlanObjectsLayer.tsx`).
 - Hovering a room highlights it and shows its name; clicking enters it;
   Escape returns to the room view.
 - View-only per P8-D3.
+- Entering and leaving run a short warm-up behind a veil (like the tour), so
+  the one material recompile from the light-count change never shows as a
+  stall mid-orbit.
 
 **Exit gate:**
 - Undo depth unchanged after entering, orbiting and leaving (e2e, like the
   tour).
 - Clicking a room makes it the active room and frames it.
 - Works on all four templates and on a two-room imported plan.
+- No frame stall over 100 ms after the warm-up, entering or leaving.
+- Overview stills of all four templates pass the exposure check
+  (`scripts/showcase-tour/still-exposure.mjs`); tune the sun's intensity
+  (0.58 today) against it.
 
 #### 8.4 — Performance
 

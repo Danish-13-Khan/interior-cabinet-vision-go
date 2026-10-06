@@ -38,4 +38,23 @@ describe("overview lighting", () => {
       expect(resolveRoomFitFrustumHalfExtent(span)).toBeGreaterThanOrEqual(span * 0.55);
     }
   });
+
+  it("hosted fixtures follow their host's current position", () => {
+    const project = instantiateApartmentTemplate("template:apartment:2bhk:v1", { now: COMPOSER_TEST_NOW });
+    const hosted = project.lights.find((light) => isRoomLightFixture(light)
+      && typeof light.parameters.hostObjectId === "string" && light.parameters.hostObjectId !== "")!;
+    expect(hosted).toBeTruthy();
+    const hostId = String(hosted.parameters.hostObjectId);
+    // A host moved without re-resolving the light leaves the stored pose behind.
+    const moved = {
+      ...project,
+      objects: project.objects.map((object) => (object.id === hostId
+        ? { ...object, position: { ...object.position, x: object.position.x + 500 } }
+        : object)),
+    };
+    const before = compileApartmentScene(project).lights.find((light) => light.id === hosted.id)!;
+    const after = compileApartmentScene(moved).lights.find((light) => light.id === hosted.id)!;
+    expect(after.position.x - before.position.x).toBeCloseTo(500, 0);
+    expect(after.parameters.emissiveOnly).toBe(true);
+  });
 });

@@ -109,7 +109,7 @@ export function compileApartmentScene(
   const nodes = relabelApartmentWalls(project, apartmentSceneNodes(scenes));
   const materials = compileMaterials(project);
   const bounds = computeCompiledSceneBounds(nodes);
-  const lights = overviewLights(project, bounds);
+  const lights = overviewLights(scenes, bounds);
   const cameras = [overviewCamera(project, bounds)];
   const style = sceneStyle(project, scenes);
   const fingerprintSource = {

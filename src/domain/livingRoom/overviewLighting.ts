@@ -1,6 +1,6 @@
-import type { InteriorProject, LightEntity } from "../interiorProject";
+import type { LightEntity } from "../interiorProject";
 import { isRoomLightFixture } from "./roomLightFixtures";
-import type { CompiledSceneBounds } from "./sceneTypes";
+import type { CompiledLivingRoomScene, CompiledSceneBounds } from "./sceneTypes";
 
 /**
  * Sources that create three.js lights in the overview. Hemisphere fill and the
@@ -41,11 +41,21 @@ function overviewSun(bounds: CompiledSceneBounds): LightEntity {
   };
 }
 
-/** One sun for the union, plus every room fixture as an emissive mesh. */
-export function overviewLights(project: InteriorProject, bounds: CompiledSceneBounds): LightEntity[] {
-  const fixtures = project.lights
-    .filter(isRoomLightFixture)
-    .map(overviewFixture)
-    .sort((a, b) => a.id.localeCompare(b.id));
+/**
+ * One sun for the union, plus every room fixture as an emissive mesh. Fixtures
+ * come from the compiled room scenes, so a hosted fixture (under-cabinet, mirror
+ * rope, wall cove) sits where its host is now, not at its stored position.
+ */
+export function overviewLights(
+  roomScenes: readonly CompiledLivingRoomScene[],
+  bounds: CompiledSceneBounds,
+): LightEntity[] {
+  const byId = new Map<string, LightEntity>();
+  for (const scene of roomScenes) {
+    for (const light of scene.lights) {
+      if (isRoomLightFixture(light) && !byId.has(light.id)) byId.set(light.id, overviewFixture(light));
+    }
+  }
+  const fixtures = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
   return [overviewSun(bounds), ...fixtures];
 }
