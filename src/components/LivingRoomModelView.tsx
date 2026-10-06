@@ -21,6 +21,7 @@ import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRo
 import { persistModelGuideDismissal, shouldShowModelGuide } from "../domain/livingRoom/modelViewGuidePreference";
 import { compileApartmentScene } from "../domain/livingRoom/apartmentScene";
 import { apartmentOverviewAvailable, sceneWithOverviewCameras } from "../domain/livingRoom/overviewCameras";
+import { overviewQualityStep } from "../domain/livingRoom/overviewQuality";
 import { useDocumentCameraFollow } from "../hooks/useDocumentCameraFollow";
 import { useModelViewCameraSession } from "../hooks/useModelViewCameraSession";
 import { useModelViewTransform } from "../hooks/useModelViewTransform";
@@ -97,6 +98,14 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
     if (overview.showApartment && camera.viewPreset !== "perspective") camera.setViewPreset("perspective");
   }, [overview.showApartment, camera.viewPreset, camera.setViewPreset]);
   useEffect(() => { if (!overview.showApartment) setHoveredRoomId(null); }, [overview.showApartment]);
+  // The overview opens in Draft; leaving restores the room view's quality (view state only).
+  const qualityBeforeOverview = useRef<RenderQuality | null>(null);
+  useEffect(() => {
+    const step = overviewQualityStep(overview.showApartment, viewportQuality, qualityBeforeOverview.current);
+    qualityBeforeOverview.current = step.saved;
+    if (step.set) setViewportQuality(step.set);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on entering or leaving the overview
+  }, [overview.showApartment]);
 
   return (
     <LivingRoomModelViewport

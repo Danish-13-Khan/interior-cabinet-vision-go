@@ -40,14 +40,18 @@ function InstanceMeshes({
     cloneMeshMaterials(copy);
     return copy;
   }, [gltf.scene]);
-  const binding = members[0]!.renderBinding;
+  // Read members through a ref: the effect re-runs on memberKey, not on a new array with the same nodes.
+  const membersRef = useRef(members);
+  membersRef.current = members;
   const memberKey = members.map((node) => (
     `${node.id}:${node.positionMm.x}:${node.positionMm.y}:${node.positionMm.z}:${node.rotationDegrees.y}:${node.renderBinding.targetSizeMm?.widthMm ?? 0}`
   )).join(";");
 
   useLayoutEffect(() => {
     const root = host.current;
+    const members = membersRef.current;
     if (!root || members.length === 0) return;
+    const binding = members[0]!.renderBinding;
     const measured = normalizeGlbFloorOrigin(template);
     enableGlbFrustumCulling(template);
     applyGlbSlotMaterials(template, {
@@ -87,15 +91,11 @@ function InstanceMeshes({
     return () => {
       for (const mesh of created) {
         root.remove(mesh);
+        // Also frees the instance buffer: WebGLObjects removes instanceMatrix on this dispose event.
         mesh.dispose();
-        // dispose() frees the morph texture only; the instance buffer is separate.
-        mesh.instanceMatrix.dispose();
       }
     };
-  }, [
-    binding, definition, materials, memberKey, members, modelViewQuality,
-    renderMode, renderQuality, template,
-  ]);
+  }, [definition, materials, memberKey, modelViewQuality, renderMode, renderQuality, template]);
 
   return <group ref={host} />;
 }

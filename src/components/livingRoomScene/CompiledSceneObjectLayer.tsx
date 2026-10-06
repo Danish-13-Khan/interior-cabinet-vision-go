@@ -90,10 +90,17 @@ export function CompiledSceneObjectLayer(props: {
     () => (instancingOn ? instancedGlbNodeIds(props.nodes, liveIds) : new Set<string>()),
     [instancingOn, props.nodes, liveIds],
   );
+  // Keyed by the id list: a new Set with the same ids must not rebuild every batch.
+  const instancedKey = [...instancedIds].sort().join("|");
+  const instancedNodes = useMemo(
+    () => props.nodes.filter((node) => instancedIds.has(node.id)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- instancedKey stands in for instancedIds
+    [props.nodes, instancedKey],
+  );
   return (
     <>
       <GlbInstanceBatches
-        nodes={props.nodes.filter((node) => instancedIds.has(node.id))}
+        nodes={instancedNodes}
         materials={props.materials}
         renderMode={props.renderMode}
         renderQuality={props.renderQuality}
