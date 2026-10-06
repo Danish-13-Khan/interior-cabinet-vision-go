@@ -98,8 +98,8 @@
 .interiors-apartment-templates .card-media {
   aspect-ratio: 16 / 10;
   border-radius: 7px;
-  border: 1px solid var(--border, #e2e8e3);
-  background: var(--bg, #f3f6f3);
+  border: 1px solid var(--border);
+  background: var(--bg);
 }
 
 .interiors-popular-templates .card-media img,

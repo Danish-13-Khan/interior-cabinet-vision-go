@@ -24,7 +24,7 @@ describe("Phase 5 Empty Room template", () => {
     expect(template.room).toEqual({ widthMm: 5200, depthMm: 4200, heightMm: 2700 });
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
     expect(thumb?.kind).toBe("image");
-    expect(thumb?.objectKey).toBe("catalog/templates/empty-room-v1.png");
+    expect(thumb?.objectKey).toBe("catalog/templates/empty-room-v2.webp");
     expect(validateCatalogManifest(catalog).filter((issue) => issue.level === "error")).toEqual([]);
     expect(templateModelAssetIds(EMPTY_ROOM_CATALOG_TEMPLATE_ID)).toHaveLength(0);
   });

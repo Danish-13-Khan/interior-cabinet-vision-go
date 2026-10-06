@@ -47,7 +47,7 @@ describe("Phase 5 Bedroom template", () => {
     expect(template.room).toEqual({ widthMm: 5200, depthMm: 4200, heightMm: 2700 });
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
     expect(thumb?.kind).toBe("image");
-    expect(thumb?.objectKey).toBe("catalog/templates/bedroom-v1.png");
+    expect(thumb?.objectKey).toBe("catalog/templates/bedroom-v2.webp");
     expect(validateCatalogManifest(catalog).filter((issue) => issue.level === "error")).toEqual([]);
     expect(templateModelAssetIds(BEDROOM_CATALOG_TEMPLATE_ID)).toHaveLength(6);
   });

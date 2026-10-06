@@ -39,7 +39,7 @@ describe("Phase 4 Living Room vertical slice", () => {
     ].sort());
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
     expect(thumb?.kind).toBe("image");
-    expect(thumb?.objectKey).toBe("catalog/templates/living-room-v1.png");
+    expect(thumb?.objectKey).toBe("catalog/templates/living-room-v2.webp");
     expect(validateCatalogManifest(catalog).filter((issue) => issue.level === "error")).toEqual([]);
     expect(templateModelAssetIds(LIVING_ROOM_CATALOG_TEMPLATE_ID)).toHaveLength(8);
   });

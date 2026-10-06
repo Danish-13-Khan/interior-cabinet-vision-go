@@ -45,7 +45,7 @@ describe("Phase 5 Bathroom template", () => {
     expect(template.room).toEqual({ widthMm: 4200, depthMm: 3600, heightMm: 2700 });
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
     expect(thumb?.kind).toBe("image");
-    expect(thumb?.objectKey).toBe("catalog/templates/bathroom-v1.png");
+    expect(thumb?.objectKey).toBe("catalog/templates/bathroom-v2.webp");
     expect(lookupBuiltInCatalogMaterial(BATHROOM_TILE_CATALOG_MATERIAL_ID)?.tags).toContain("tile");
     expect(validateCatalogManifest(catalog).filter((issue) => issue.level === "error")).toEqual([]);
     expect(templateModelAssetIds(BATHROOM_CATALOG_TEMPLATE_ID)).toHaveLength(4);

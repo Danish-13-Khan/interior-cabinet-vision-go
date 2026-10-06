@@ -25,9 +25,12 @@ describe("clipTimeline", () => {
   });
 
   it("spreads the apartment glide across the motion frames", () => {
-    // Eased once: the middle of the glide is the middle of the path.
+    // Eased once: the middle of the glide is the middle of the path, and the
+    // camera moves forward on every motion frame (no stall, no jump back).
     expect(clipPathParameter("overview-to-hero", 48)).toBeCloseTo(0.5, 1);
-    expect(clipPathParameter("overview-to-hero", 30)).toBeGreaterThan(0.1);
+    for (let i = 13; i < 84; i += 1) {
+      expect(clipPathParameter("overview-to-hero", i)).toBeGreaterThan(clipPathParameter("overview-to-hero", i - 1));
+    }
   });
 
   it("loops room-arc from the poster pose with no repeated frames", () => {

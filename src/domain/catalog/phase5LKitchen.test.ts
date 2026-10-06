@@ -34,7 +34,7 @@ describe("Phase 5 L Kitchen template", () => {
     expect(template.objects.map((object) => object.catalogItemId).sort()).toEqual(APPLIANCE_IDS);
     expect(template.room).toEqual({ widthMm: 6000, depthMm: 4500, heightMm: 2800 });
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
-    expect(thumb?.objectKey).toBe("catalog/templates/l-kitchen-v1.png");
+    expect(thumb?.objectKey).toBe("catalog/templates/l-kitchen-v2.webp");
     expect(validateCatalogManifest(catalog).filter((issue) => issue.level === "error")).toEqual([]);
     expect(templateModelAssetIds(L_KITCHEN_CATALOG_TEMPLATE_ID)).toHaveLength(5);
   });

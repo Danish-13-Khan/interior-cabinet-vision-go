@@ -33,7 +33,7 @@ describe("Phase 5 Straight Kitchen template", () => {
     expect(template.objects.map((object) => object.catalogItemId).sort()).toEqual(APPLIANCE_IDS);
     expect(template.room).toEqual({ widthMm: 6000, depthMm: 4000, heightMm: 2800 });
     const thumb = catalog.files.find((file) => file.id === template.images.thumbnailId);
-    expect(thumb?.objectKey).toBe("catalog/templates/straight-kitchen-v1.png");
+    expect(thumb?.objectKey).toBe("catalog/templates/straight-kitchen-v2.webp");
     expect(validateCatalogManifest(catalog).filter((issue) => issue.level === "error")).toEqual([]);
     expect(templateModelAssetIds(STRAIGHT_KITCHEN_CATALOG_TEMPLATE_ID)).toHaveLength(4);
   });
