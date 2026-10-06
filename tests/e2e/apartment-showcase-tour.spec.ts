@@ -18,7 +18,7 @@ const STRICT = process.env.TOUR_PERF_STRICT === "1";
 const STALL_BUDGET_MS = 100;
 test.use({ ...TOUR_LAUNCH, ...(process.env.TOUR_PERF_BASE ? { baseURL: process.env.TOUR_PERF_BASE } : {}) });
 
-const EXPECTED_ROOMS = showcaseTourStops(instantiateApartmentTemplate(THREE_BHK_ID, { now: COMPOSER_TEST_NOW }))
+const EXPECTED_STOPS = showcaseTourStops(instantiateApartmentTemplate(THREE_BHK_ID, { now: COMPOSER_TEST_NOW }))
   .map((stop) => stop.roomName);
 
 test("3 BHK tour visits every room in order, glides without stalls, and adds no undo step", async ({ page }) => {
@@ -34,7 +34,7 @@ test("3 BHK tour visits every room in order, glides without stalls, and adds no 
   await expect(tour(page)).toHaveAttribute("data-tour-stop-reason", "finished");
 
   const probe = await readTourProbe(page);
-  expect(probe.rooms).toEqual(EXPECTED_ROOMS);
+  expect(probe.rooms).toEqual(EXPECTED_STOPS);
   const touring = probe.frames.filter((frame) => frame.phase === "touring").map((frame) => frame.dt);
   const preparing = probe.frames.filter((frame) => frame.phase === "preparing").map((frame) => frame.dt);
   const sorted = [...touring].sort((a, b) => a - b);
@@ -48,7 +48,7 @@ test("3 BHK tour visits every room in order, glides without stalls, and adds no 
     preRollMaxMs: Math.round(Math.max(0, ...preparing)),
   };
   test.info().annotations.push({ type: "tour-frames", description: JSON.stringify(stats) });
-  expect(touring.length).toBeGreaterThan(EXPECTED_ROOMS.length * 60);
+  expect(touring.length).toBeGreaterThan(EXPECTED_STOPS.length * 60);
   if (STRICT) expect(stats.maxMs).toBeLessThan(STALL_BUDGET_MS);
 
   // View-only: undo/redo stacks identical, never dirty, never autosaved during the tour.

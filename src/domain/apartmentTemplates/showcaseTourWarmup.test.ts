@@ -61,7 +61,7 @@ describe("Showcase tour warm-up pre-roll (3 BHK)", () => {
       setViewPreset: () => undefined,
       setActiveCameraId: () => undefined,
       restoreCameraId: () => null,
-      waitForRoomReady: ready.wait,
+      waitForStopReady: (_stop, signal) => ready.wait(signal),
     }, manualScheduler().scheduler);
     session.start(stops, { activeRoomId: project.activeRoomId, viewPreset: "dollhouse", cameraId: null });
     await ready.readyAll();
@@ -82,7 +82,7 @@ describe("Showcase tour warm-up pre-roll (3 BHK)", () => {
       setViewPreset: () => undefined,
       setActiveCameraId: () => undefined,
       restoreCameraId: () => null,
-      waitForRoomReady: ready.wait,
+      waitForStopReady: (_stop, signal) => ready.wait(signal),
     }, manualScheduler().scheduler);
     session.start(stops, { activeRoomId: project.activeRoomId, viewPreset: "dollhouse", cameraId: null }, { canvasHost: new EventTarget(), keyboard });
     await ready.readyNext(); // room 0 ready, room 1 warming

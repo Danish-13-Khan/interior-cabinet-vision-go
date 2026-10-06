@@ -55,9 +55,10 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
     viewPreset: camera.viewPreset, setViewPreset: camera.setViewPreset,
     activeCameraId, setActiveCameraId, stopTour: tour.stop, onFrameRoom: camera.fitRoom,
   });
+  const showApartment = overview.showApartment || tour.touringOverview;
   const apartmentScene = useMemo(() => (
-    overview.showApartment ? sceneWithOverviewCameras(compileApartmentScene(project, sceneFor)) : null
-  ), [overview.showApartment, project, sceneFor]);
+    showApartment ? sceneWithOverviewCameras(compileApartmentScene(project, sceneFor)) : null
+  ), [showApartment, project, sceneFor]);
   const scene = apartmentScene ?? tour.scene;
   useDocumentCameraFollow({
     projectCameraId, knownCameraIds: scene.cameras.map((item) => item.id),
@@ -101,11 +102,11 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   // The overview opens in Draft; leaving restores the room view's quality (view state only).
   const qualityBeforeOverview = useRef<RenderQuality | null>(null);
   useEffect(() => {
-    const step = overviewQualityStep(overview.showApartment, viewportQuality, qualityBeforeOverview.current);
+    const step = overviewQualityStep(showApartment, viewportQuality, qualityBeforeOverview.current);
     qualityBeforeOverview.current = step.saved;
     if (step.set) setViewportQuality(step.set);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on entering or leaving the overview
-  }, [overview.showApartment]);
+  }, [showApartment]);
 
   return (
     <LivingRoomModelViewport

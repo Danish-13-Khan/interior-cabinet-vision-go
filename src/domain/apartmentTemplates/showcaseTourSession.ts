@@ -41,7 +41,7 @@ export type ShowcaseTourSessionView<P extends string> = {
    * Resolves once the room on screen has its models loaded and drawn (enables
    * the warm-up pre-roll). Should resolve early once `signal` aborts (tour stopped or warm-up out of time).
    */
-  waitForRoomReady?: (signal: AbortSignal) => Promise<void>;
+  waitForStopReady?: (stop: ShowcaseTourStop, signal: AbortSignal) => Promise<void>;
 };
 
 export type ShowcaseTourInputTargets = { canvasHost: TourEventTarget; keyboard: TourEventTarget };
@@ -80,17 +80,19 @@ export class ShowcaseTourSession<P extends string> {
     this.atStart = { activeRoomId: at.activeRoomId, viewPreset: "perspective" };
     this.presetBefore = at.viewPreset;
     this.cameraBefore = at.cameraId;
-    const { waitForRoomReady } = this.view;
+    const { waitForStopReady } = this.view;
     this.controller = new ShowcaseTourController(stops, {
       show: (stop, index, glideMs) => {
+        if (stop.overview) this.view.setViewPreset("perspective" as P);
         this.view.setTour({ active: true, preparing: false, index, roomId: stop.roomId, lastStopReason: null });
         requestShowcaseCameraJump({ cameraId: stop.cameraId, glideMs });
       },
       end: (reason) => this.end(reason),
-      warm: waitForRoomReady ? (stop, index, signal) => {
+      warm: waitForStopReady ? (stop, index, signal) => {
+        if (stop.overview) this.view.setViewPreset("perspective" as P);
         this.view.setTour({ active: true, preparing: true, index, roomId: stop.roomId, lastStopReason: null });
         requestShowcaseCameraJump({ cameraId: stop.cameraId, glideMs: 1 });
-        return waitForRoomReady(signal);
+        return waitForStopReady(stop, signal);
       } : undefined,
     }, this.scheduler, this.timing);
     if (input) {

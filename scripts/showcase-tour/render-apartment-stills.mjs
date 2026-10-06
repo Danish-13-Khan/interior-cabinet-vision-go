@@ -1,17 +1,14 @@
 #!/usr/bin/env node
 /**
- * Marketing / project-home thumbnails for the apartment templates, captured
- * from the Showcase tour itself: open each template, enter Present, start the
- * tour in daylight, and grab the canvas once the first stop (the hero room's
- * wide still camera) has settled. Writes
- * public/catalog/templates/apartment-<slug>-v1.webp at 800×600 (4:3, about 2×
- * the landing card; project-home cards crop it to 16:10) and checks exposure
- * from the pixels: out-of-range stills are reported and the run exits 1.
+ * Marketing / project-home thumbnails for apartment templates: open each
+ * template in 3D, enter the whole-apartment view, and grab the canvas once
+ * the default high corner has settled. Writes
+ * public/catalog/templates/apartment-<slug>-v1.webp at 800×600 (4:3) and
+ * checks exposure and file size from the pixels.
  *
- *   npm run stills:apartments                     # every apartment, daylight
- *   npm run stills:apartments -- --mood=evening   # the evening look instead
- *   npm run stills:apartments -- 3bhk             # one template
- *   npm run stills:apartments -- --overview       # whole-apartment view, exposure only
+ *   npm run stills:apartments           # every apartment
+ *   npm run stills:apartments -- 3bhk   # one template
+ *   npm run stills:apartments -- --hero # hero room via the tour (legacy cards)
  *
  * Uses the Metal GPU on macOS and SwiftShader elsewhere (slower, same pixels).
  */
@@ -27,13 +24,14 @@ const SLUGS = ["studio", "1bhk", "2bhk", "3bhk"];
 const OUT_W = 800;
 const OUT_H = 600;
 const WEBP_QUALITY = 95;
+const STILL_MAX_KB = 120;
 const SESSION = JSON.stringify({ email: "stills@cabinet.studio", theme: "calm", at: "2026-01-01T00:00:00.000Z" });
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
+const hero = args.includes("--hero");
 const mood = args.find((arg) => arg.startsWith("--mood="))?.slice("--mood=".length) ?? "day";
 if (!["day", "evening"].includes(mood)) throw new Error(`--mood must be day or evening, not ${mood}`);
-const overview = args.includes("--overview");
 const only = args.filter((arg) => !arg.startsWith("--"));
 const slugs = only.length ? SLUGS.filter((slug) => only.includes(slug)) : SLUGS;
 
@@ -76,21 +74,7 @@ async function grabCanvas(page) {
   return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
 }
 
-async function captureStill(page, baseUrl, slug) {
-  await openTemplate(page, baseUrl, slug);
-  await page.getByTestId("interiors-present").click();
-  await page.locator(".lr-model-viewport.is-client-presentation").waitFor({ timeout: 60_000 });
-  await fitCanvasToCard(page);
-  const tour = page.getByTestId("showcase-tour");
-  await page.getByTestId("showcase-tour-toggle").click();
-  await page.getByTestId(`showcase-tour-mood-${mood}`).click();
-  await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="0"]')).waitFor({ timeout: 90_000 });
-  const card = await grabCanvas(page);
-  await page.keyboard.press("Escape");
-  return card;
-}
-
-/** Whole-apartment view from the default high corner. Does not replace the card stills. */
+/** Whole-apartment view from the default high corner (8.5 card still). */
 async function captureOverview(page, baseUrl, slug) {
   await openTemplate(page, baseUrl, slug);
   await page.getByRole("button", { name: "3D", exact: true }).click();
@@ -99,6 +83,21 @@ async function captureOverview(page, baseUrl, slug) {
   await page.getByTestId("apartment-overview-toggle").click();
   await page.getByTestId("apartment-overview").and(page.locator('[data-overview-phase="overview"]')).waitFor({ timeout: 90_000 });
   return grabCanvas(page);
+}
+
+/** Hero room via Present + tour (legacy). */
+async function captureHero(page, baseUrl, slug) {
+  await openTemplate(page, baseUrl, slug);
+  await page.getByTestId("interiors-present").click();
+  await page.locator(".lr-model-viewport.is-client-presentation").waitFor({ timeout: 60_000 });
+  await fitCanvasToCard(page);
+  const tour = page.getByTestId("showcase-tour");
+  await page.getByTestId("showcase-tour-toggle").click();
+  await page.getByTestId(`showcase-tour-mood-${mood}`).click();
+  await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="1"]')).waitFor({ timeout: 90_000 });
+  const card = await grabCanvas(page);
+  await page.keyboard.press("Escape");
+  return card;
 }
 
 const server = await createServer({ root, server: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
@@ -120,14 +119,15 @@ try {
       window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
     }, SESSION);
     const page = await context.newPage();
-    const { webp, exposure } = await (overview ? captureOverview : captureStill)(page, `http://127.0.0.1:${port}`, slug);
-    const output = overview
-      ? join(root, "test-results", "overview-stills", `apartment-${slug}-overview.webp`)
-      : join(root, "public", "catalog", "templates", `apartment-${slug}-v1.webp`);
+    const capture = hero ? captureHero : captureOverview;
+    const { webp, exposure } = await capture(page, `http://127.0.0.1:${port}`, slug);
+    const output = join(root, "public", "catalog", "templates", `apartment-${slug}-v1.webp`);
     await mkdir(dirname(output), { recursive: true });
     await writeFile(output, webp);
+    const kb = Math.round(webp.length / 1024);
     const problems = exposureProblems(exposure);
-    console.log(`${slug}: ${output} (${Math.round(webp.length / 1024)} KB) — ${formatExposure(exposure)}`);
+    console.log(`${slug}: ${output} (${kb} KB) — ${formatExposure(exposure)}`);
+    if (kb > STILL_MAX_KB) failures.push(`${slug}: ${kb} KB exceeds ${STILL_MAX_KB} KB`);
     for (const problem of problems) failures.push(`${slug}: ${problem}`);
     await context.close();
   }
@@ -136,6 +136,6 @@ try {
   await server.close();
 }
 if (failures.length) {
-  console.error(`Exposure out of range:\n  ${failures.join("\n  ")}`);
+  console.error(`Stills out of range:\n  ${failures.join("\n  ")}`);
   process.exitCode = 1;
 }

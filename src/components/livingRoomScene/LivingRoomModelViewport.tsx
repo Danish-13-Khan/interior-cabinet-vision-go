@@ -19,7 +19,7 @@ const quiet = () => {};
 export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
   const { handlers, camera, tour, scene, overview, transform, presentation, viewOnly } = props;
   const { project } = handlers;
-  const apartment = overview.showApartment;
+  const apartment = overview.showApartment || tour.touringOverview;
   const roomName = project.rooms.find((room) => room.id === props.hoveredRoomId)?.name ?? null;
   const extruded = scene.nodes.filter((node) => node.metadata.role === "wall" && node.metadata.planTrace !== true).length;
   const choosePreset = (preset: ModelViewPresetId) => { if (!apartment) camera.setViewPreset(preset); };
@@ -52,7 +52,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
           onCutawayWalls={props.onCutawayWalls} onSetRotation={props.onRotate}
           onViewportQuality={props.onViewportQuality} onOpenGuide={() => props.onShowGuide(true)}
           onClearSelection={viewOnly ? quiet : props.onClearSelection}
-          onFitRoom={apartment ? () => overview.chooseCorner("ne") : camera.fitRoom}
+          onFitRoom={stoppingTourFirst(tour.stop, apartment ? () => overview.chooseCorner("ne") : camera.fitRoom)}
           onFocusSelection={camera.focusSelection} onCloseWallMenu={() => props.onWallMenu(null)}
           onSelectWall={handlers.onSelectWall} onSelectLight={handlers.onSelectLight}
           lightActions={handlers.lightActions} onPatchDocument={props.onPatchDocument}
@@ -113,7 +113,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
         {!presentation ? <PlanTraceRaisePrompt project={project} onPatchDocument={props.onPatchDocument} /> : null}
       </div>
       <ApartmentOverviewControls
-        available={!presentation && apartmentOverviewAvailable(project.rooms.length)}
+        available={!presentation && apartmentOverviewAvailable(project.rooms.length) && !tour.tour.active}
         phase={overview.phase} corner={overview.corner} roomName={roomName}
         onEnter={overview.enter} onLeave={() => overview.leave(false)} onCorner={overview.chooseCorner}
       />

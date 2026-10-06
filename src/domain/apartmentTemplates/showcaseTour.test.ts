@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { InteriorProject } from "../interiorProject";
 import { COMPOSER_TEST_NOW } from "./composers/bareRoom";
 import { APARTMENT_SHELL_SPECS, instantiateApartmentTemplate } from "./index";
+import { SHOWCASE_TOUR_OVERVIEW_NAME } from "./showcaseTourOverview";
 import { showcaseTourAvailable, showcaseTourRoomOrder, showcaseTourStops } from "./showcaseTour";
 
 const THREE_BHK = "template:apartment:3bhk:v1";
@@ -32,12 +33,13 @@ describe("Showcase tour stops", () => {
   it("3 BHK follows the spec room order starting from the main (hero) room", () => {
     const project = instantiateApartmentTemplate(THREE_BHK, options);
     const stops = showcaseTourStops(project);
-    expect(keysOf(project, stops.map((stop) => stop.roomId))).toEqual([
+    expect(stops[0]).toMatchObject({ overview: true, roomName: SHOWCASE_TOUR_OVERVIEW_NAME, roomId: null });
+    expect(keysOf(project, stops.slice(1).map((stop) => stop.roomId!))).toEqual([
       "living", "kitchen", "utility", "study", "balcony", "passage", "guest", "kids",
       "master", "guest-bath", "common-bath", "master-bath", "walk-in", "foyer",
     ]);
-    expect(stops).toHaveLength(project.rooms.length);
-    for (const stop of stops) {
+    expect(stops).toHaveLength(project.rooms.length + 1);
+    for (const stop of stops.filter((item) => !item.overview)) {
       const camera = project.cameras.find((item) => item.id === stop.cameraId)!;
       expect(camera.roomId).toBe(stop.roomId);
       expect(camera.name).toContain("Showcase");
@@ -49,7 +51,8 @@ describe("Showcase tour stops", () => {
   it("every apartment template starts at its hero room and rotates the spec order", () => {
     for (const spec of APARTMENT_SHELL_SPECS) {
       const project = instantiateApartmentTemplate(spec.id, options);
-      const keys = keysOf(project, showcaseTourStops(project).map((stop) => stop.roomId));
+      const roomStops = showcaseTourStops(project).filter((stop) => !stop.overview);
+      const keys = keysOf(project, roomStops.map((stop) => stop.roomId!));
       const specKeys = spec.rooms.map((room) => room.key);
       const hero = specKeys.indexOf(spec.heroRoomKey);
       const expected = [...specKeys.slice(hero), ...specKeys.slice(0, hero)];
@@ -62,13 +65,14 @@ describe("Showcase tour stops", () => {
     const base = instantiateApartmentTemplate(THREE_BHK, options);
     const project = withoutRoomCameras(withoutRoomCameras(base, "kitchen"), "walk-in");
     const stops = showcaseTourStops(project);
-    const keys = keysOf(project, stops.map((stop) => stop.roomId));
+    const roomStops = stops.filter((stop) => !stop.overview);
+    const keys = keysOf(project, roomStops.map((stop) => stop.roomId!));
     expect(keys).not.toContain("kitchen");
     expect(keys).not.toContain("walk-in");
     expect(keys.slice(0, 3)).toEqual(["living", "utility", "study"]);
-    expect(stops).toHaveLength(base.rooms.length - 2);
+    expect(stops).toHaveLength(base.rooms.length - 2 + 1);
     // Each stop's camera lives in that stop's room — never a neighbour's camera.
-    for (const stop of stops) {
+    for (const stop of roomStops) {
       expect(project.cameras.find((camera) => camera.id === stop.cameraId)?.roomId).toBe(stop.roomId);
     }
     // The room order itself still lists them; only the stops skip them.
@@ -81,9 +85,13 @@ describe("Showcase tour stops", () => {
       ...base,
       renderSettings: { ...base.renderSettings, packageCameraBookmarks: [] },
     };
-    expect(showcaseTourStops(unbookmarked)).toHaveLength(base.rooms.length);
+    expect(showcaseTourStops(unbookmarked)).toHaveLength(base.rooms.length + 1);
     const living = base.rooms.find((room) => room.extensions?.apartmentRoomKey === "living")!;
-    const single = { ...base, cameras: base.cameras.filter((camera) => camera.roomId === living.id) };
+    const single = {
+      ...base,
+      rooms: [living],
+      cameras: base.cameras.filter((camera) => camera.roomId === living.id),
+    };
     expect(showcaseTourStops(single)).toHaveLength(1);
     expect(showcaseTourAvailable(showcaseTourStops(single))).toBe(false);
   });

@@ -4,6 +4,8 @@ import { pickModelViewCameraId } from "../domain/livingRoom";
 import type { RoomSceneLookup } from "../domain/livingRoom/roomSceneCache";
 import { lightingRecipeForMood, viewLightingMood, type LightingMood } from "../domain/livingRoom/lightingMood";
 import { glbLoadsPending } from "../domain/livingRoom/glbLoadTracker";
+import { waitForOverviewWarm } from "../domain/livingRoom/overviewWarmup";
+import type { ShowcaseTourStop } from "../domain/apartmentTemplates/showcaseTour";
 import { showcaseTourAvailable, showcaseTourStops } from "../domain/apartmentTemplates/showcaseTour";
 import {
   IDLE_SHOWCASE_TOUR,
@@ -32,6 +34,11 @@ async function waitForRoomReady(signal: AbortSignal): Promise<void> {
   const deadline = performance.now() + GLB_WAIT_LIMIT_MS;
   while (!signal.aborted && glbLoadsPending() > 0 && performance.now() < deadline) await nextFrame();
   await frames(4);
+}
+
+async function waitForStopReady(stop: ShowcaseTourStop, signal: AbortSignal): Promise<void> {
+  if (stop.overview) return waitForOverviewWarm(signal);
+  return waitForRoomReady(signal);
 }
 
 /**
@@ -72,7 +79,7 @@ export function useShowcaseTour<P extends string>(args: {
         const cameras = current.sceneFor(current.project.activeRoomId).cameras;
         return pickModelViewCameraId(cameras, [cameraBefore, current.project.renderSettings.activeCameraId]);
       },
-      waitForRoomReady,
+      waitForStopReady,
     });
     sessionRef.current = session;
     return () => {
@@ -102,7 +109,9 @@ export function useShowcaseTour<P extends string>(args: {
   const stop = useCallback(() => sessionRef.current?.stop("user"), []);
 
   const mood = viewLightingMood(project, showcaseMoodOverride(moodOverride, mode));
-  const roomScene = sceneFor(tour.roomId);
+  const activeStop = tour.active ? stops[tour.index] : undefined;
+  const touringOverview = Boolean(activeStop?.overview);
+  const roomScene = sceneFor(tour.roomId ?? project.activeRoomId);
   const scene = useMemo(() => {
     const lightingRecipeId = lightingRecipeForMood(roomScene.lightingRecipeId, mood);
     return lightingRecipeId === roomScene.lightingRecipeId ? roomScene : { ...roomScene, lightingRecipeId };
@@ -110,6 +119,7 @@ export function useShowcaseTour<P extends string>(args: {
 
   return {
     stops,
+    touringOverview,
     available: showcaseTourAvailable(stops),
     tour,
     scene,
