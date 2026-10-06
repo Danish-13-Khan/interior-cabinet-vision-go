@@ -26,13 +26,14 @@ export function DirectionalProjectLight({
 }) {
   const ref = useRef<DirectionalLight>(null);
   const targetX = light.parameters.targetXMm;
+  const targetY = light.parameters.targetYMm;
   const targetZ = light.parameters.targetZMm;
   useLayoutEffect(() => {
     const current = ref.current;
     if (!current || typeof targetX !== "number" || typeof targetZ !== "number") return;
-    current.target.position.set(targetX / 1000, 0, targetZ / 1000);
+    current.target.position.set(targetX / 1000, typeof targetY === "number" ? targetY / 1000 : 0, targetZ / 1000);
     current.target.updateMatrixWorld();
-  }, [targetX, targetZ]);
+  }, [targetX, targetY, targetZ]);
   return (
     <directionalLight
       ref={ref}

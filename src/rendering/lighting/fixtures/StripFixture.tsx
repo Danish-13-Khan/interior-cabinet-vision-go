@@ -1,3 +1,4 @@
+import { FixtureEmitter } from "./FixtureEmitter";
 import { readFixtureSize, STRIP_HALO_ROTATION, STRIP_HALO_STANDOFF_M, stripHaloIntensity } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
@@ -27,23 +28,25 @@ export function StripFixture(props: FixtureViewProps) {
         <boxGeometry args={[span[0] * 0.86, Math.max(span[1] * 0.62, 0.004), 0.003]} />
         <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={size.glow} roughness={0.32} />
       </mesh>
-      <rectAreaLight
-        position={[0, 0, -(front + 0.006)]}
-        color={props.light.color}
-        intensity={size.intensity}
-        width={span[0]}
-        height={Math.max(span[1], 0.01)}
-      />
-      {onWall ? (
+      <FixtureEmitter on={props.emitsLight !== false}>
         <rectAreaLight
-          position={[0, 0, -(front + STRIP_HALO_STANDOFF_M)]}
-          rotation={STRIP_HALO_ROTATION}
+          position={[0, 0, -(front + 0.006)]}
           color={props.light.color}
-          intensity={stripHaloIntensity(size.intensity)}
+          intensity={size.intensity}
           width={span[0]}
           height={Math.max(span[1], 0.01)}
         />
-      ) : null}
+        {onWall ? (
+          <rectAreaLight
+            position={[0, 0, -(front + STRIP_HALO_STANDOFF_M)]}
+            rotation={STRIP_HALO_ROTATION}
+            color={props.light.color}
+            intensity={stripHaloIntensity(size.intensity)}
+            width={span[0]}
+            height={Math.max(span[1], 0.01)}
+          />
+        ) : null}
+      </FixtureEmitter>
     </FixtureGroup>
   );
 }

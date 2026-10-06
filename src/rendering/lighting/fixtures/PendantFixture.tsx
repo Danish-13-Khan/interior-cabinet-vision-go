@@ -1,3 +1,4 @@
+import { FixtureEmitter } from "./FixtureEmitter";
 import { readFixtureSize } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
@@ -20,13 +21,15 @@ export function PendantFixture(props: FixtureViewProps) {
         <coneGeometry args={[radius, size.depth, 24]} />
         <meshStandardMaterial color={size.body} emissive={glow} emissiveIntensity={size.glow} roughness={0.42} />
       </mesh>
-      <pointLight
-        position={[0, 0, -size.depth * 0.35]}
-        color={props.light.color}
-        intensity={size.intensity}
-        distance={size.range}
-        castShadow={size.cast}
-      />
+      <FixtureEmitter on={props.emitsLight !== false}>
+        <pointLight
+          position={[0, 0, -size.depth * 0.35]}
+          color={props.light.color}
+          intensity={size.intensity}
+          distance={size.range}
+          castShadow={size.cast}
+        />
+      </FixtureEmitter>
     </FixtureGroup>
   );
 }

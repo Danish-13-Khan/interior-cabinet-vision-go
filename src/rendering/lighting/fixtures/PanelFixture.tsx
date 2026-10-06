@@ -1,3 +1,4 @@
+import { FixtureEmitter } from "./FixtureEmitter";
 import { readFixtureSize } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
@@ -17,13 +18,15 @@ export function PanelFixture(props: FixtureViewProps) {
         <boxGeometry args={[size.length * 0.94, size.across * 0.94, 0.004]} />
         <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={size.glow} roughness={0.3} />
       </mesh>
-      <rectAreaLight
-        position={[0, 0, -(size.depth / 2 + 0.008)]}
-        color={props.light.color}
-        intensity={size.intensity}
-        width={size.length}
-        height={size.across}
-      />
+      <FixtureEmitter on={props.emitsLight !== false}>
+        <rectAreaLight
+          position={[0, 0, -(size.depth / 2 + 0.008)]}
+          color={props.light.color}
+          intensity={size.intensity}
+          width={size.length}
+          height={size.across}
+        />
+      </FixtureEmitter>
     </FixtureGroup>
   );
 }

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Object3D } from "three";
+import { FixtureEmitter } from "./FixtureEmitter";
 import { beamHalfAngleRad, readFixtureSize } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
 import type { FixtureViewProps } from "./fixtureView";
@@ -29,16 +30,18 @@ export function CobFixture(props: FixtureViewProps) {
         <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={size.glow} roughness={0.28} />
       </mesh>
       <primitive object={target} />
-      <spotLight
-        position={[0, 0, -0.012]}
-        target={target}
-        color={props.light.color}
-        intensity={size.intensity}
-        distance={size.range}
-        angle={beamHalfAngleRad(props.light)}
-        penumbra={0.65}
-        castShadow={size.cast}
-      />
+      <FixtureEmitter on={props.emitsLight !== false}>
+        <spotLight
+          position={[0, 0, -0.012]}
+          target={target}
+          color={props.light.color}
+          intensity={size.intensity}
+          distance={size.range}
+          angle={beamHalfAngleRad(props.light)}
+          penumbra={0.65}
+          castShadow={size.cast}
+        />
+      </FixtureEmitter>
     </FixtureGroup>
   );
 }

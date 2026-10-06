@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest";
+import { APARTMENT_TEMPLATE_IDS, instantiateApartmentTemplate } from "../apartmentTemplates";
+import { COMPOSER_TEST_NOW } from "../apartmentTemplates/composers/bareRoom";
+import { isRoomLightFixture } from "./roomLightFixtures";
+import {
+  resolveRoomFitFrustumHalfExtent,
+  roomSpanMetersFromSizeMm,
+} from "./roomFitShadowFrustum";
+import { compileApartmentScene } from "./apartmentScene";
+import { computeArchitectureBounds } from "./sceneCompilerBounds";
+import {
+  OVERVIEW_DIRECTIONAL_LIGHTS,
+} from "./overviewLighting";
+import { shaderProgramCacheKey, shaderSourceTotal, sumShaderCounts } from "./fixtureLightBudget";
+
+const scenes = APARTMENT_TEMPLATE_IDS.map((id) => compileApartmentScene(
+  instantiateApartmentTemplate(id, { now: COMPOSER_TEST_NOW }),
+));
+
+describe("overview lighting", () => {
+  it("uses one sun and no fixture shader lights on every template", () => {
+    const keys = scenes.map((scene) => shaderProgramCacheKey(sumShaderCounts(scene.lights)));
+    expect(new Set(keys).size).toBe(1);
+    expect(shaderSourceTotal(sumShaderCounts(scenes[0]!.lights))).toBe(0);
+    for (const scene of scenes) {
+      const suns = scene.lights.filter((light) => light.parameters.overview === true);
+      expect(suns).toHaveLength(OVERVIEW_DIRECTIONAL_LIGHTS);
+      expect(suns[0]!.kind).toBe("directional");
+      expect(suns[0]!.parameters.castShadow).toBe(true);
+      expect(suns[0]!.parameters.targetXMm).toBe(scene.bounds.center.x);
+      expect(suns[0]!.parameters.targetZMm).toBe(scene.bounds.center.z);
+      expect(scene.windowOpenings).toEqual([]);
+      expect(scene.lights.some((light) => typeof light.parameters.recipeId === "string")).toBe(false);
+      const fixtures = scene.lights.filter(isRoomLightFixture);
+      expect(fixtures.length).toBeGreaterThan(0);
+      expect(fixtures.every((light) => light.parameters.emissiveOnly === true)).toBe(true);
+      const span = roomSpanMetersFromSizeMm(computeArchitectureBounds(scene.nodes).size);
+      expect(resolveRoomFitFrustumHalfExtent(span)).toBeGreaterThanOrEqual(span * 0.55);
+    }
+  });
+});

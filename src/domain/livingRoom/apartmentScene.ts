@@ -6,7 +6,6 @@ import { createRoomSceneCache, type RoomSceneLookup } from "./roomSceneCache";
 import { compileMaterials } from "./sceneCompiler";
 import { wallSideFromCentre } from "./sceneCompilerRoom";
 import {
-  computeArchitectureBounds,
   computeCompiledSceneBounds,
   hashString,
   stableStringify,
@@ -17,7 +16,7 @@ import {
   resolveLivingRoomEnvironment,
   resolveLivingRoomStyle,
 } from "./stylePresets";
-import { sampleWindowOpenings } from "./windowKeyLight";
+import { overviewLights } from "./overviewLighting";
 
 function isCeiling(node: CompiledSceneNode) {
   return node.metadata.surface === "ceiling";
@@ -96,8 +95,8 @@ function overviewCamera(project: InteriorProject, bounds: CompiledLivingRoomScen
 
 /**
  * One scene for every room. Shared walls and their openings are emitted once.
- * Ceilings are omitted. Lights stay empty until the overview rig (8.2); preset
- * fill exists only on the hero room, so this view must not copy per-room lights.
+ * Ceilings are omitted. Lighting is one sun plus emissive fixtures (8.2).
+ * Window keys stay off so their count cannot change between apartments.
  *
  * Each room compile still runs the classic adapter over the whole project for
  * that room's countertops (about 14 passes on a 3 BHK). Measure that in 8.4.
@@ -109,11 +108,10 @@ export function compileApartmentScene(
   const scenes = project.rooms.map((room) => sceneFor(room.id));
   const nodes = relabelApartmentWalls(project, apartmentSceneNodes(scenes));
   const materials = compileMaterials(project);
-  const lights: CompiledLivingRoomScene["lights"] = [];
   const bounds = computeCompiledSceneBounds(nodes);
+  const lights = overviewLights(project, bounds);
   const cameras = [overviewCamera(project, bounds)];
   const style = sceneStyle(project, scenes);
-  const architectureBounds = computeArchitectureBounds(nodes);
   const fingerprintSource = {
     nodes,
     materials,
@@ -132,11 +130,7 @@ export function compileApartmentScene(
     lights,
     cameras,
     lightingRecipeId: project.renderSettings.lightingRecipeId,
-    windowOpenings: sampleWindowOpenings({
-      walls: project.walls,
-      openings: project.openings,
-      roomCenterMm: architectureBounds.center,
-    }),
+    windowOpenings: [],
     style,
     bounds,
     fingerprint: `apt-scene-v1-${hashString(stableStringify(fingerprintSource))}`,

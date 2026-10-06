@@ -5,6 +5,8 @@ export type FixtureViewProps = {
   light: LightEntity;
   intensityScale: number;
   castShadow: boolean;
+  /** False in the apartment overview: the mesh stays, the shader light does not. */
+  emitsLight?: boolean;
   selected?: boolean;
   onSelect?: (id: string) => void;
   /** Commit of a 3D drag, world millimetres. Unset where lights cannot be moved. */

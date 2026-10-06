@@ -80,7 +80,7 @@ describe("compileApartmentScene", () => {
     const first = compileApartmentScene(project);
     const second = compileApartmentScene(project);
     expect(JSON.stringify(second)).toBe(JSON.stringify(first));
-    expect(first.lights).toEqual([]);
+    expect(first.lights.some((light) => light.parameters.overview === true)).toBe(true);
     expect(first.cameras).toHaveLength(1);
     expect(first.cameras[0]!.target.x).toBeCloseTo(first.bounds.center.x);
     expect(first.cameras[0]!.target.z).toBeCloseTo(first.bounds.center.z);

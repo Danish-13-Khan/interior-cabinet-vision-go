@@ -62,6 +62,7 @@ export function SceneProjectLights({
               light={light}
               intensityScale={intensityScale}
               castShadow={fillCast}
+              emitsLight={light.parameters.emissiveOnly !== true}
               selected={selectedLightId === light.id}
               onSelect={onSelectLight}
               onMove={onMoveLight}
