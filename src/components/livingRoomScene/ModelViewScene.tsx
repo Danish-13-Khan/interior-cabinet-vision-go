@@ -20,6 +20,7 @@ import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
 import { GlbInstancingProvider } from "./GlbInstanceBatch";
 import { ModelViewCanvasInvalidator } from "./ModelViewCanvasInvalidator";
 import { ModelViewSceneExportBridge } from "./ModelViewSceneExportBridge";
+import { StillSurfaceProbe } from "./StillSurfaceProbe";
 import type { ModelTransformTarget } from "./ModelMoveGizmo";
 
 type ModelViewSceneProps = {
@@ -65,7 +66,7 @@ type ModelViewSceneProps = {
   overlay?: ReactNode;
   /** Share one draw per repeated model. The room view leaves this off. */
   instanceRepeatedModels?: boolean;
-  /** Card-media capture: lock Canvas DPR at 2 for 1600×1200 stills. */
+  /** Still capture (`?capture=1`): lock Canvas DPR. Apartment and card scripts use 2. */
   captureFixedDpr?: number;
 };
 
@@ -112,6 +113,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
       <ModelViewPreviewProfileProvider quality={viewportQuality}>
         <ModelViewCanvasInvalidator revision={invalidateRevision} />
         <ModelViewSceneExportBridge />
+        {props.captureFixedDpr != null ? <StillSurfaceProbe /> : null}
         <GlbInstancingProvider enabled={props.instanceRepeatedModels === true}>
         <CompiledSceneRenderer
           scene={scene}

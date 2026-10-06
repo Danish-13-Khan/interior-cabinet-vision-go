@@ -67,6 +67,11 @@ export function useCardCaptureHook(args: Args): void {
         await waitForAssets();
         await waitForFrameSettled(latest.current.canvasHostRef.current);
       },
+      async readSurfaces() {
+        const read = window.__stillSurfaceProbe;
+        if (!read) throw new Error("Still surface probe is not mounted");
+        return read();
+      },
       async pose(path, t, options) {
         const current = latest.current;
         const view = resolveCardCaptureView(current.project, current.sceneFor, path, t, options?.scene);

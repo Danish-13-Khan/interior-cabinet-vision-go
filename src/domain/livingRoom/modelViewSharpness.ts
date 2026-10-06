@@ -13,7 +13,10 @@ export const MODEL_VIEW_MSAA = true as const;
 export function resolveModelViewMaxDpr(quality: RenderQuality): number {
   const preset = getRenderPresetBehavior(quality);
   if (!preset.modelViewSafe) {
-    if (import.meta.env.DEV && isCardCaptureSession() && quality === "presentation") return preset.pixelRatio;
+    // Still scripts pin the buffer at DPR 2. Interactive view stays on the Standard cap.
+    if (import.meta.env.DEV && isCardCaptureSession() && (quality === "client-preview" || quality === "presentation")) {
+      return 2;
+    }
     return getRenderPresetBehavior("standard").pixelRatio;
   }
   return preset.pixelRatio;
