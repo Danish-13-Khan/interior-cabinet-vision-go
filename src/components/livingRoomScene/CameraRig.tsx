@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useLayoutEffect, useRef, type RefObject } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
@@ -21,7 +21,8 @@ import {
   shouldApplyCameraFramingPose,
   shouldHoldFitFraming,
 } from "../../domain/livingRoom/modelViewCameraFramingPolicy";
-import { applyCameraPose, easeTowardCameraGoal, markCameraFrameUnsettled, publishLiveCameraFrame, readCameraPoseMeters, type CameraPoseMeters } from "./cameraRigPose";
+import { applyCameraPose, markCameraFrameUnsettled, publishLiveCameraFrame, readCameraPoseMeters } from "./cameraRigPose";
+import { createCameraGlide } from "./cameraRigGlide";
 import { applyCameraClipPlanes, buildCameraRigGoal } from "./cameraRigGoal";
 
 export function CameraRig({
@@ -65,11 +66,7 @@ export function CameraRig({
   const lastFitVersionRef = useRef(0);
   const lastOrthoRef = useRef(modelViewUsesOrthographic(viewPreset));
   const heldFitTargetRef = useRef<ModelViewHeldFit | null>(null);
-  const fromRef = useRef<CameraPoseMeters | null>(null);
-  const goalRef = useRef<CameraPoseMeters | null>(null);
-  const animStartRef = useRef(0);
-  const animDurationRef = useRef<number | undefined>(undefined);
-  const animatingRef = useRef(false);
+  const [glide] = useState(createCameraGlide);
   const lastOrbitCancelGenerationRef = useRef(0);
   const lastIntentKeyRef = useRef("");
   const userOwnedPoseRef = useRef(false);
@@ -95,7 +92,7 @@ export function CameraRig({
       orbitCancelled: result.cancel,
       wasOwned: userOwnedPoseRef.current,
     });
-    if (result.cancel) animatingRef.current = false;
+    if (result.cancel) glide.cancel();
     return result.cancel;
   }
 
@@ -153,26 +150,23 @@ export function CameraRig({
       orthoSwitched, intentChanged,
       userOwnedPose: userOwnedPoseRef.current, userNavigating: userIsNavigating(),
     })) {
-      animatingRef.current = false;
+      glide.cancel();
       publishSettled();
       return;
     }
     if (orthoSwitched) {
       applyCameraPose(camera, controlsRef.current, built.goal);
-      animatingRef.current = false;
+      glide.cancel();
       publishSettled();
       invalidate();
       return;
     }
-    fromRef.current = readCameraPoseMeters(camera, controlsRef.current, built.orthographic);
-    goalRef.current = built.goal;
-    animDurationRef.current = takeShowcaseGlideMs() ?? undefined;
-    animStartRef.current = performance.now();
-    animatingRef.current = true;
+    const from = readCameraPoseMeters(camera, controlsRef.current, built.orthographic);
+    glide.start(from, built.goal, performance.now(), takeShowcaseGlideMs() ?? undefined);
     invalidate();
   }, [
     activeCameraId, assetRevision, camera, composition, cameraHeightMm, controlsRef,
-    fitMode, fitVersion, fieldOfViewDegrees, gl, invalidate, renderMode,
+    fitMode, fitVersion, fieldOfViewDegrees, gl, glide, invalidate, renderMode,
     projectCamera?.fieldOfViewDegrees, projectCamera?.id, projectCamera?.position.x,
     projectCamera?.position.y, projectCamera?.position.z, projectCamera?.target.x,
     projectCamera?.target.y, projectCamera?.target.z, scene.projectId, scene.roomId,
@@ -181,17 +175,14 @@ export function CameraRig({
   ]);
   useFrame(() => {
     if (latchOrbitCancel() || userIsNavigating()) {
-      animatingRef.current = false;
+      glide.cancel();
       return;
     }
-    if (!animatingRef.current || !fromRef.current || !goalRef.current) return;
-    const step = easeTowardCameraGoal(
-      fromRef.current, goalRef.current, performance.now() - animStartRef.current, animDurationRef.current,
-    );
+    const step = glide.step(performance.now());
+    if (!step) return;
     applyCameraPose(camera, controlsRef.current, step.pose);
     if (!step.settled) invalidate();
     else {
-      animatingRef.current = false;
       publishLiveCameraFrame(
         gl.domElement, sceneRef.current.bounds, camera, controlsRef.current, step.pose.orthographic,
         { widthPx: size.width, heightPx: size.height }, viewPreset === "walkthrough",
