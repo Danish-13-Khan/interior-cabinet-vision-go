@@ -1,10 +1,12 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
 import type { Point3Mm, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene } from "../../domain/livingRoom";
 import { samePoint3Mm } from "../../domain/livingRoom/objectOrbitDragPolicy";
 import { modelNodeIsSelected, modelSelectionTarget } from "../../domain/livingRoom/modelSelection";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
+import { instancedGlbNodeIds } from "../../domain/livingRoom/glbInstancePlan";
 import { CompiledNodeView } from "./CompiledNodeView";
+import { GlbInstanceBatches, useGlbInstancing } from "./GlbInstanceBatch";
 import { ModelMoveGizmo, type ModelTransformTarget } from "./ModelMoveGizmo";
 
 function wallFragmentArea(node: CompiledLivingRoomScene["nodes"][number]) {
@@ -64,8 +66,38 @@ export function CompiledSceneObjectLayer(props: {
   onWallContextMenu?: (wallId: string, point: { x: number; y: number }) => void;
 }) {
   const wallLabelId = selectedWallLabelNodeId(props.nodes, props.selectedWallId);
+  const liveIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const node of props.nodes) {
+      if (modelNodeIsSelected(node, {
+        objectIds: props.selectedIds,
+        openingId: props.selectedOpeningId,
+        wallId: props.selectedWallId,
+      })) ids.add(node.id);
+    }
+    const moving = props.transformTarget;
+    if (moving) {
+      const match = props.nodes.find((node) => {
+        const target = modelSelectionTarget(node);
+        return target?.kind === moving.kind && target.id === moving.id;
+      });
+      if (match) ids.add(match.id);
+    }
+    return ids;
+  }, [props.nodes, props.selectedIds, props.selectedOpeningId, props.selectedWallId, props.transformTarget]);
+  const instancingOn = useGlbInstancing();
+  const instancedIds = useMemo(
+    () => (instancingOn ? instancedGlbNodeIds(props.nodes, liveIds) : new Set<string>()),
+    [instancingOn, props.nodes, liveIds],
+  );
   return (
     <>
+      <GlbInstanceBatches
+        nodes={props.nodes.filter((node) => instancedIds.has(node.id))}
+        materials={props.materials}
+        renderMode={props.renderMode}
+        renderQuality={props.renderQuality}
+      />
       {props.nodes.map((node) => {
         const target = modelSelectionTarget(node);
         const transformsNode = Boolean(props.transformTarget && target
@@ -124,6 +156,7 @@ export function CompiledSceneObjectLayer(props: {
           onAssetReady={props.onAssetReady}
           onWallContextMenu={props.onWallContextMenu}
           positionOverride={preview}
+          batched={instancedIds.has(node.id)}
         />;
       })}
       {props.interactive && props.transformTarget ? (

@@ -16,7 +16,7 @@ import {
   resolveLivingRoomEnvironment,
   resolveLivingRoomStyle,
 } from "./stylePresets";
-import { overviewLights } from "./overviewLighting";
+import { OVERVIEW_EXPOSURE, OVERVIEW_STAGE_COLOR, overviewLights } from "./overviewLighting";
 
 function isCeiling(node: CompiledSceneNode) {
   return node.metadata.surface === "ceiling";
@@ -70,13 +70,21 @@ function relabelApartmentWalls(project: InteriorProject, nodes: CompiledSceneNod
 }
 
 function sceneStyle(project: InteriorProject, scenes: readonly CompiledLivingRoomScene[]) {
-  if (scenes[0]) return scenes[0].style;
-  const stylePreset = resolveLivingRoomStyle(project);
-  return {
-    id: stylePreset.id,
-    name: stylePreset.name,
+  const preset = resolveLivingRoomStyle(project);
+  const style = scenes[0]?.style ?? {
+    id: preset.id,
+    name: preset.name,
     environment: resolveLivingRoomEnvironment(project),
     colorManagement: resolveLivingRoomColorManagement(project),
+  };
+  return {
+    ...style,
+    environment: {
+      ...style.environment,
+      backgroundColor: OVERVIEW_STAGE_COLOR,
+      fogColor: OVERVIEW_STAGE_COLOR,
+    },
+    colorManagement: { ...style.colorManagement, exposure: OVERVIEW_EXPOSURE },
   };
 }
 

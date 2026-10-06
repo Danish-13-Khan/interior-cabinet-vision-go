@@ -11,6 +11,7 @@
  *   npm run stills:apartments                     # every apartment, daylight
  *   npm run stills:apartments -- --mood=evening   # the evening look instead
  *   npm run stills:apartments -- 3bhk             # one template
+ *   npm run stills:apartments -- --overview       # whole-apartment view, exposure only
  *
  * Uses the Metal GPU on macOS and SwiftShader elsewhere (slower, same pixels).
  */
@@ -32,6 +33,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
 const mood = args.find((arg) => arg.startsWith("--mood="))?.slice("--mood=".length) ?? "day";
 if (!["day", "evening"].includes(mood)) throw new Error(`--mood must be day or evening, not ${mood}`);
+const overview = args.includes("--overview");
 const only = args.filter((arg) => !arg.startsWith("--"));
 const slugs = only.length ? SLUGS.filter((slug) => only.includes(slug)) : SLUGS;
 
@@ -59,10 +61,23 @@ async function fitCanvasToCard(page) {
   await page.waitForTimeout(300);
 }
 
-async function captureStill(page, baseUrl, slug) {
-  const templateId = `template:apartment:${slug}:v1`;
+async function openTemplate(page, baseUrl, slug) {
   await page.goto(`${baseUrl}/app`);
-  await page.getByTestId(`apartment-template-${templateId}`).click({ timeout: 90_000 });
+  await page.getByTestId(`apartment-template-template:apartment:${slug}:v1`).click({ timeout: 90_000 });
+}
+
+/** The rig marks the frame settled; give the lights one more beat, then read the canvas. */
+async function grabCanvas(page) {
+  await fitCanvasToCard(page);
+  const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
+  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
+  await page.waitForTimeout(400);
+  const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
+  return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
+}
+
+async function captureStill(page, baseUrl, slug) {
+  await openTemplate(page, baseUrl, slug);
   await page.getByTestId("interiors-present").click();
   await page.locator(".lr-model-viewport.is-client-presentation").waitFor({ timeout: 60_000 });
   await fitCanvasToCard(page);
@@ -70,13 +85,20 @@ async function captureStill(page, baseUrl, slug) {
   await page.getByTestId("showcase-tour-toggle").click();
   await page.getByTestId(`showcase-tour-mood-${mood}`).click();
   await tour.and(page.locator('[data-tour-phase="touring"][data-tour-stop-index="0"]')).waitFor({ timeout: 90_000 });
-  const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
-  // The first glide ends with the rig marking the frame settled; give lights one more beat.
-  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
-  await page.waitForTimeout(400);
-  const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
+  const card = await grabCanvas(page);
   await page.keyboard.press("Escape");
-  return cropToCard(Buffer.from(dataUrl.split(",")[1], "base64"));
+  return card;
+}
+
+/** Whole-apartment view from the default high corner. Does not replace the card stills. */
+async function captureOverview(page, baseUrl, slug) {
+  await openTemplate(page, baseUrl, slug);
+  await page.getByRole("button", { name: "3D", exact: true }).click();
+  await page.getByTestId("lr-model-viewport").waitFor({ timeout: 60_000 });
+  await fitCanvasToCard(page);
+  await page.getByTestId("apartment-overview-toggle").click();
+  await page.getByTestId("apartment-overview").and(page.locator('[data-overview-phase="overview"]')).waitFor({ timeout: 90_000 });
+  return grabCanvas(page);
 }
 
 const server = await createServer({ root, server: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
@@ -98,8 +120,10 @@ try {
       window.localStorage.setItem("cabinet-designer:3d-guide:j1", "dismissed");
     }, SESSION);
     const page = await context.newPage();
-    const { webp, exposure } = await captureStill(page, `http://127.0.0.1:${port}`, slug);
-    const output = join(root, "public", "catalog", "templates", `apartment-${slug}-v1.webp`);
+    const { webp, exposure } = await (overview ? captureOverview : captureStill)(page, `http://127.0.0.1:${port}`, slug);
+    const output = overview
+      ? join(root, "test-results", "overview-stills", `apartment-${slug}-overview.webp`)
+      : join(root, "public", "catalog", "templates", `apartment-${slug}-v1.webp`);
     await mkdir(dirname(output), { recursive: true });
     await writeFile(output, webp);
     const problems = exposureProblems(exposure);

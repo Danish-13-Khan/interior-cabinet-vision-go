@@ -31,9 +31,14 @@ export function DirectionalProjectLight({
   useLayoutEffect(() => {
     const current = ref.current;
     if (!current || typeof targetX !== "number" || typeof targetZ !== "number") return;
-    current.target.position.set(targetX / 1000, typeof targetY === "number" ? targetY / 1000 : 0, targetZ / 1000);
-    current.target.updateMatrixWorld();
-  }, [targetX, targetY, targetZ]);
+    const target = current.target;
+    target.position.set(targetX / 1000, typeof targetY === "number" ? targetY / 1000 : 0, targetZ / 1000);
+    // three.js ignores a target that is not in the scene, so the overview sun misses an off-centre plan.
+    const parent = current.parent;
+    if (light.parameters.overview === true && parent && target.parent !== parent) parent.add(target);
+    target.updateMatrixWorld();
+    return () => { if (target.parent) target.removeFromParent(); };
+  }, [light, targetX, targetY, targetZ]);
   return (
     <directionalLight
       ref={ref}

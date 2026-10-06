@@ -10,6 +10,9 @@ import { compileApartmentScene } from "./apartmentScene";
 import { computeArchitectureBounds } from "./sceneCompilerBounds";
 import {
   OVERVIEW_DIRECTIONAL_LIGHTS,
+  OVERVIEW_EXPOSURE,
+  OVERVIEW_STAGE_COLOR,
+  OVERVIEW_SUN_INTENSITY,
 } from "./overviewLighting";
 import { shaderProgramCacheKey, shaderSourceTotal, sumShaderCounts } from "./fixtureLightBudget";
 
@@ -26,6 +29,9 @@ describe("overview lighting", () => {
       const suns = scene.lights.filter((light) => light.parameters.overview === true);
       expect(suns).toHaveLength(OVERVIEW_DIRECTIONAL_LIGHTS);
       expect(suns[0]!.kind).toBe("directional");
+      expect(suns[0]!.intensity).toBe(OVERVIEW_SUN_INTENSITY);
+      expect(scene.style.environment.backgroundColor).toBe(OVERVIEW_STAGE_COLOR);
+      expect(scene.style.colorManagement.exposure).toBe(OVERVIEW_EXPOSURE);
       expect(suns[0]!.parameters.castShadow).toBe(true);
       expect(suns[0]!.parameters.targetXMm).toBe(scene.bounds.center.x);
       expect(suns[0]!.parameters.targetZMm).toBe(scene.bounds.center.z);

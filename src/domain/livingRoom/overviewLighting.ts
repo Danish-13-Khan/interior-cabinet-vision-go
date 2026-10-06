@@ -10,6 +10,17 @@ import type { CompiledLivingRoomScene, CompiledSceneBounds } from "./sceneTypes"
  */
 export const OVERVIEW_DIRECTIONAL_LIGHTS = 1;
 
+/**
+ * Left at 0.58 after `stills:apartments -- --overview`. Raising it barely
+ * moved the dollhouse (the frame is mostly stage). The stage colour and the
+ * shared exposure below are what put all four templates inside the check.
+ */
+export const OVERVIEW_SUN_INTENSITY = 0.58;
+/** Mid grey-blue. Luma sits inside the still check so the empty stage does not fail it. */
+export const OVERVIEW_STAGE_COLOR = "#9aa7b3";
+/** One exposure for every plan. Style exposures leave walnut under the near-black limit and nordic over it. */
+export const OVERVIEW_EXPOSURE = 1.55;
+
 /** Fixtures draw their mesh and add no spot, point, or rect light. */
 export function overviewFixture(light: LightEntity): LightEntity {
   return { ...light, parameters: { ...light.parameters, emissiveOnly: true } };
@@ -29,7 +40,7 @@ function overviewSun(bounds: CompiledSceneBounds): LightEntity {
     },
     rotation: { x: -48, y: 32, z: 0 },
     color: "#f4f8ff",
-    intensity: 0.58,
+    intensity: OVERVIEW_SUN_INTENSITY,
     enabled: true,
     parameters: {
       castShadow: true,
