@@ -4,6 +4,7 @@ import { Fog } from "three";
 import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { modelViewFogMeters } from "../../domain/livingRoom/modelViewExteriorFrame";
+import { environmentScaleForRoomLight } from "../../domain/livingRoom/lightingMood";
 import { cameraInsideRoomMeters } from "../../domain/livingRoom/modelViewRoomFog";
 import { MODEL_VIEW_STAGE_COLOR } from "../../domain/livingRoom/modelViewStage";
 import type { CompiledLivingRoomScene, CompiledSceneBounds } from "../../domain/livingRoom/sceneTypes";
@@ -60,7 +61,7 @@ export function CompiledSceneAtmosphere({
       <hemisphereLight
         color={environment.hemisphereSkyColor}
         groundColor={environment.hemisphereGroundColor}
-        intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale * roomLightScale}
+        intensity={environment.hemisphereIntensity * lightingQuality.hemisphereScale * environmentScaleForRoomLight(roomLightScale)}
       />
       {showGrid ? (
         <gridHelper

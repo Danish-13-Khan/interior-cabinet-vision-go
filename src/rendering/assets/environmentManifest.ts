@@ -2,8 +2,9 @@ import type { EnvironmentAssetDefinition } from "../../domain/livingRoom/renderA
 
 /**
  * Local HDR presets bound to living-room lighting recipes.
- * Files are Poly Haven CC0 1k (1024×512): studio_small_09, brown_photostudio_02,
- * photo_studio_01. Only the active recipe is mounted.
+ * Files are Poly Haven CC0 1k (1024×512) pure skies: kloppenheim_06 for
+ * daylight, belfast_sunset for neutral studio, qwantani_dusk_2 for warm evening.
+ * Even skies, so semi-gloss floors do not mirror a lamp grid. Only the active recipe is mounted.
  */
 export const ENVIRONMENT_ASSET_MANIFEST = [
   {
@@ -12,7 +13,7 @@ export const ENVIRONMENT_ASSET_MANIFEST = [
     lightingRecipeId: "daylight",
     assetKey: "environments/daylight.hdr",
     available: true,
-    intensity: 0.95,
+    intensity: 1.15,
     backgroundBlur: 0.35,
   },
   {
@@ -21,7 +22,7 @@ export const ENVIRONMENT_ASSET_MANIFEST = [
     lightingRecipeId: "warm-evening",
     assetKey: "environments/warm-evening.hdr",
     available: true,
-    intensity: 0.82,
+    intensity: 0.72,
     backgroundBlur: 0.45,
   },
   {

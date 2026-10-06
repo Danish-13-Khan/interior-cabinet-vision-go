@@ -73,7 +73,7 @@ export function createLivingRoomReleaseDemoProject(): InteriorProject {
       widthPx: 3840,
       heightPx: 2160,
       quality: "presentation",
-      exposure: 1.18,
+      exposure: styled.renderSettings.exposure,
       activeCameraId: tvWall?.id ?? arranged.renderSettings.activeCameraId,
     },
     extensions: {

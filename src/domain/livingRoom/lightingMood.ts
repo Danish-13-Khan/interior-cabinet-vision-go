@@ -12,6 +12,18 @@ const EXTENSION_KEY = "lightingMood";
 /** Share of the recipe's ambient, sun, sky and window light kept in evening. */
 export const EVENING_ROOM_LIGHT_SCALE = 0.18;
 
+/**
+ * Evening HDRI and hemisphere fill. The sun and window keys stay at
+ * {@link EVENING_ROOM_LIGHT_SCALE} so placed fixtures still lead. Those two
+ * stay at the daytime level: the 0.18 sun scale was turning walnut fronts black.
+ */
+export const EVENING_ENVIRONMENT_SCALE = 1;
+
+/** Day keeps the map as authored. Evening keeps the fill and drops the sun. */
+export function environmentScaleForRoomLight(roomLightScale: number): number {
+  return roomLightScale === 1 ? 1 : EVENING_ENVIRONMENT_SCALE;
+}
+
 export function readLightingMood(project: Pick<InteriorProject, "extensions">): LightingMood {
   return project.extensions?.[EXTENSION_KEY] === "evening" ? "evening" : "day";
 }

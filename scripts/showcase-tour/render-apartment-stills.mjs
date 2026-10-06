@@ -148,7 +148,7 @@ try {
       problems.push(...surfaces.map((problem) => `${slug} ${kind}: ${problem}`));
       if (problems.length) {
         failures.push(...problems);
-        console.error(`${slug} ${kind} left the previous file in place:\n  ${problems.join("\n  ")}`);
+        console.error(`${slug} ${kind} left the previous file in place — ${formatExposure(exposure)}:\n  ${problems.join("\n  ")}`);
       } else {
         await mkdir(dirname(output), { recursive: true });
         await writeFile(output, webp);

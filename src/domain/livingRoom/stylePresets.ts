@@ -97,7 +97,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     colorManagement: {
       toneMapping: "agx",
       outputColorSpace: "srgb",
-      exposure: 1.05,
+      exposure: 1.42,
       shadowMap: "pcf",
     },
   },
@@ -135,7 +135,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     colorManagement: {
       toneMapping: "agx",
       outputColorSpace: "srgb",
-      exposure: 1.18,
+      exposure: 1.42,
       shadowMap: "pcf",
     },
   },
@@ -144,13 +144,13 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     version: 1,
     name: "Moody Walnut",
     description: "Deep walnut, mineral walls and a warm evening light rig.",
-    swatches: ["#5a4034", "#817d73", "#a99884"],
+    swatches: ["#6a5342", "#817d73", "#a99884"],
     lightingRecipeId: "warm-evening",
     materialRecipes: {
       [LIVING_ROOM_MATERIAL_IDS.wallPaint]: materialRecipe("#817d73", 0.88),
       [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: materialRecipe("#d9d2c7", 0.92),
       [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#866a53", 0.64),
-      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#5a4034", 0.56),
+      [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#6a5342", 0.56),
       [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: materialRecipe("#a99884", 0.97),
       [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: materialRecipe("#555d48", 0.98),
       [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: materialRecipe("#1d2020", 0.28, 0.78),
