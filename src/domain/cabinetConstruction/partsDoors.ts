@@ -5,6 +5,7 @@ import type { ConstructionContext } from "./context";
 import { doorPieces, type DoorPieceKind } from "./doorPieces";
 import { resolveFrontGaps, type ResolvedOpeningFronts } from "./frontGaps";
 import { createPart } from "./helpers";
+import { SLIDING_OPENING_ID } from "./slidingFronts";
 
 /**
  * Door parts. Slab and bought shaker / glass doors stay one part per opening (cut list unchanged);
@@ -28,12 +29,17 @@ export function appendDoorParts(ctx: ConstructionContext, doorOpenings: Resolved
     rail: `${kindLabel} rail, fits between the stiles`,
     panel: `Shaker centre panel, ${DOOR_PANEL_GROOVE_MM} mm into the frame groove each side`,
   };
+  const sliding = constructionSpec.sliding;
   for (const { opening, leaves } of doorOpenings) {
     const suffix = doorOpenings.length === 1 ? "" : `-${opening.id}`;
+    const slidingNote = sliding && opening.id === SLIDING_OPENING_ID
+      ? `Sliding shutter · ${sliding.trackKind} track · ${sliding.overlapMm} mm overlap · ${leaves.length} leaves`
+      : null;
     for (const piece of doorPieces(leaves[0]!, style, constructionSpec.faceFrame, thickness)) {
       const own = piece.kind === "door" ? "" : `-${piece.kind}`;
+      const note = slidingNote && piece.kind === "door" ? slidingNote : notes[piece.kind];
       parts.push(part(`door${suffix}${own}`, piece.kind === "door" ? opening.label : `${opening.label} ${piece.kind}`,
-        leaves.length * piece.perLeaf, piece.lengthMm, piece.widthMm, piece.thicknessMm, notes[piece.kind]));
+        leaves.length * piece.perLeaf, piece.lengthMm, piece.widthMm, piece.thicknessMm, note));
     }
   }
 }

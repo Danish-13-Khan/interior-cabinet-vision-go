@@ -24,7 +24,7 @@ export function InteriorsApartmentTemplates({ onCreate }: Props) {
             data-template-id={card.id}
             onClick={() => onCreate(card.id)}
           >
-            <span className="interiors-template-thumb-fallback" aria-hidden />
+            <img src={`${import.meta.env.BASE_URL}${card.thumbnail}`} alt="" loading="lazy" width={160} height={120} />
             <strong>{card.name}</strong>
             <small>
               {card.carpetM2} m² carpet ({card.footprintM2} m² built-up) · {card.roomCount} rooms — {card.description}

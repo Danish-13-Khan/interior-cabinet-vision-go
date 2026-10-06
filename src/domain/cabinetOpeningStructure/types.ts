@@ -7,7 +7,8 @@ export type OpeningContentType =
 
 export type OpeningSplitAxis = "horizontal" | "vertical";
 
-export type DoorStyle = "none" | "single" | "double" | "bi-fold";
+/** "sliding" = bypass wardrobe leaves (Phase 3); leaf count comes from the sliding spec, not the opening. */
+export type DoorStyle = "none" | "single" | "double" | "bi-fold" | "sliding";
 export type DoorHinge = "left" | "right" | "both";
 export type OpeningStyle = "door" | "drawer" | "open" | "mixed";
 

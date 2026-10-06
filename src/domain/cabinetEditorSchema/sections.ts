@@ -1,3 +1,4 @@
+import { getCabinetDimensionLimits } from "../manufacturingRules/slidingLimits";
 import type { CabinetConfig, CabinetType } from "../cabinetDimensions";
 import {
   CABINET_DEPTH_STEP_MM,
@@ -7,7 +8,6 @@ import {
 } from "../cabinetDimensions";
 import { listEngineeredPresetsForFamily } from "../cabinetPresets";
 import { getFamilyOpeningRules } from "../cabinetFamilyRules";
-import { getFamilyDimensionLimits } from "../manufacturingRules";
 import type { PropertySectionDef } from "./types";
 import { appendOpeningsSection } from "./sectionsOpenings";
 import { appendConstructionHardwareSections } from "./sectionsShop";
@@ -16,7 +16,7 @@ import { appendMaterialsSection } from "./sectionsMaterials";
 
 export function getCabinetEditorSections(config: CabinetConfig): PropertySectionDef[] {
   const rules = getFamilyOpeningRules(config.type);
-  const limits = getFamilyDimensionLimits(config.type);
+  const limits = getCabinetDimensionLimits(config);
   const familyOptions = (Object.keys(cabinetTypeLabels) as CabinetType[]).map((type) => ({
     value: type,
     label: cabinetTypeLabels[type],

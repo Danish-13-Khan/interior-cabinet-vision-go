@@ -25,8 +25,9 @@ export const ONE_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
       },
     },
     camera: {
-      eyeMm: { x: -1650, y: 1600, z: 2800 },
-      targetMm: { x: -1650, y: 1000, z: -200 },
+      // Wide, high three-quarter view from the far corner: the tour's opening shot and the card still.
+      eyeMm: { x: -3550, y: 2350, z: 3150 },
+      targetMm: { x: -800, y: 800, z: -200 },
     },
   },
   {

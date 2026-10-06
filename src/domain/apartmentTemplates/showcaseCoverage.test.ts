@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { MODEL_VIEW_FIXTURE_SOURCE_BUDGET } from "../livingRoom/fixtureLightBudget";
 import { isLightFixtureKind } from "../livingRoom/lightFixtureRegistry";
-import { FRONT_SYSTEM_PARAMETER, DOOR_STYLE_PARAMETER } from "../frontSystem";
+import { FRONT_SYSTEM_PARAMETER, DOOR_STYLE_PARAMETER, slidingDoorsOf } from "../frontSystem";
+import { cabinetFromObject } from "../interiorProject/cabinetAdapterCabinets";
 import { readPlanningExtension } from "../cabinetIdentity";
 import type { CabinetConfig } from "../cabinetDimensions";
 import { COMPOSER_TEST_NOW } from "./composers/bareRoom";
@@ -122,9 +123,17 @@ describe("Phase 5 showcase coverage (§4 matrix)", () => {
       project.objects.some((o) => o.parameters.apartmentRole === "shoe-cabinet"))).toBe(true);
     expect(all.some(({ project }) =>
       project.objects.some((o) => o.catalogItemId === "living:corner-wardrobe"))).toBe(true);
-    // Sliding deferred to Phase 3 — Studio / 3 BHK ship hinged stand-ins.
-    expect(all.some(({ project }) =>
-      project.objects.some((o) => o.catalogItemId === "living:wardrobe-wall"))).toBe(true);
+    // Phase 3: the sliding row reads the built cabinets (Studio + 3 BHK master), not a stand-in.
+    const isSliding = (o: (typeof all)[number]["project"]["objects"][number]) => {
+      const cabinet = cabinetFromObject(o);
+      return Boolean(cabinet && slidingDoorsOf(cabinet.config));
+    };
+    const slidingIn = (id: string) => all.find((entry) => entry.id === id)!.project.objects.some(isSliding);
+    expect(slidingIn("template:apartment:studio:v1")).toBe(true);
+    expect(slidingIn("template:apartment:3bhk:v1")).toBe(true);
+    // Hinged wardrobes stay in the set too (1 BHK, 2 BHK kids, 3 BHK guest).
+    expect(all.some(({ project }) => project.objects.some((o) =>
+      o.catalogItemId === "living:wardrobe-wall" && !isSliding(o)))).toBe(true);
 
     const decor = new Set(all.flatMap(({ project }) => [...decorPresets(project)]));
     for (const preset of [

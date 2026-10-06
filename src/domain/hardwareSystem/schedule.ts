@@ -8,6 +8,9 @@ import type {
   HardwareScheduleRow,
 } from "./types";
 
+/** D10 flag text shown on hardware the factory has not confirmed yet. */
+export const UNCONFIRMED_DEFAULT_LABEL = "unconfirmed default";
+
 export function createHardwareSchedule(
   cabinets: CabinetInstance[],
   perCabinetLines: Map<string, HardwareLine[]>,
@@ -49,6 +52,7 @@ export function createHardwareSchedule(
           cabinetCount: 1,
           cabinetMarks: [mark],
           markSet: new Set([mark]),
+          ...(line.unconfirmedDefault ? { unconfirmedDefault: true as const } : {}),
         });
         continue;
       }
@@ -81,6 +85,7 @@ export function csvFromHardwareSchedule(rows: HardwareScheduleRow[]): string {
     "Total",
     "Cabinets",
     "Marks",
+    "Status",
   ];
   const body = rows.map((row) => [
     row.label,
@@ -90,6 +95,7 @@ export function csvFromHardwareSchedule(rows: HardwareScheduleRow[]): string {
     String(row.totalCost),
     String(row.cabinetCount),
     row.cabinetMarks.join(" "),
+    row.unconfirmedDefault ? UNCONFIRMED_DEFAULT_LABEL : "",
   ]);
   return [header, ...body]
     .map((line) =>

@@ -1,3 +1,4 @@
+import { getCabinetDimensionLimits } from "./slidingLimits";
 import {
   isStorageType,
   supportsShelves,
@@ -12,7 +13,6 @@ import type { CabinetConfig } from "../cabinetDimensions";
 import { resolveCabinetMaterialSpec } from "../materialSystem";
 import type { ManufacturingIssue } from "./types";
 import {
-  getFamilyDimensionLimits,
   getMaxUnsupportedShelfSpanMm,
   MIN_OPENING_HEIGHT_MM,
   MIN_OPENING_WIDTH_MM,
@@ -37,7 +37,7 @@ export function evaluateFamilyDimensions(
   issues: ManufacturingIssue[],
 ) {
   if (!isStorageType(config.type)) return;
-  const limits = getFamilyDimensionLimits(config.type);
+  const limits = getCabinetDimensionLimits(config);
   const { width, height, depth } = config.dimensions;
 
   if (width < limits.width.min || width > limits.width.max) {

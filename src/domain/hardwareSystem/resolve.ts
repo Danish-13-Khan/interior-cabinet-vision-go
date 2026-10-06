@@ -13,6 +13,7 @@ import {
   PUSH_MECHANISM_HARDWARE,
 } from "../frontSystem/pushDefaults";
 import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
+import { slidingHardwareQuantities } from "./slidingHardware";
 
 /** Metres of each gola profile on this cabinet; summed across a run by the hardware schedule. */
 export function golaProfileMetres(config: CabinetInstance["config"]): Map<string, number> {
@@ -98,6 +99,7 @@ export function buildHardwareLines(
       quantity,
       unitCost: item.costPerUnit,
       totalCost: Math.round(item.costPerUnit * quantity),
+      ...(item.unconfirmedDefault ? { unconfirmedDefault: true as const } : {}),
     });
   }
 
@@ -106,15 +108,19 @@ export function buildHardwareLines(
     hardware.insertKind === "dishwasher-gap" ||
     hardware.insertKind === "cooktop";
 
-  const frontSystem = normalizeConstructionSpec(
-    cabinet.config.type,
-    cabinet.config.construction,
-  ).frontSystem;
+  const spec = normalizeConstructionSpec(cabinet.config.type, cabinet.config.construction);
+  const frontSystem = spec.frontSystem;
   const isPush = frontSystem?.kind === "push";
   const pushMechanism = isPush ? frontSystem.mechanism : null;
 
   // Soft-close hinges fight mechanical push / Tip-On — schedule spring-free (Ilyas Q).
-  push(isPush ? PUSH_DOOR_HINGE_ID : hardware.hingeId, counts.hingeCount);
+  // Sliding wardrobes schedule zero hinges: track + rollers + flush pulls instead (§3.4).
+  push(isPush ? PUSH_DOOR_HINGE_ID : hardware.hingeId, spec.sliding ? 0 : counts.hingeCount);
+  if (spec.sliding) {
+    for (const [id, quantity] of slidingHardwareQuantities(cabinet.config, spec.sliding, resolveFrontGaps(cabinet.config))) {
+      push(id, quantity);
+    }
+  }
   // Q2: push fronts use push-open runners; drawers then need no separate latch.
   const slideId = isPush ? PUSH_DRAWER_SLIDE_ID : hardware.slideId;
   push(slideId, insertBlocksDrawers ? 0 : counts.drawerCount);

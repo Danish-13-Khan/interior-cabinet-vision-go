@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createEditorSnapshot,
   type EditorSnapshot,
@@ -37,7 +37,17 @@ export function useEditorHistory({
 
   const canUndo = historyStacksRef.current.past.length > 0;
   const canRedo = historyStacksRef.current.future.length > 0;
-  void historyTick;
+  // Diagnostics for e2e (like the canvas frame datasets): view-only features must leave these unchanged.
+  useEffect(() => {
+    const root = typeof document === "undefined" ? null : document.documentElement;
+    if (!root) return;
+    root.dataset.undoDepth = String(historyStacksRef.current.past.length);
+    root.dataset.redoDepth = String(historyStacksRef.current.future.length);
+    return () => {
+      delete root.dataset.undoDepth;
+      delete root.dataset.redoDepth;
+    };
+  }, [historyTick]);
 
   const commitSnapshot = useCallback(
     (snapshot: EditorSnapshot, status?: string) => {

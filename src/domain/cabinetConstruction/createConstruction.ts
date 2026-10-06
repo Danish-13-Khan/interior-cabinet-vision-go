@@ -15,9 +15,13 @@ import { appendExtraParts } from "./partsExtras";
 import { appendGolaNotchNotes } from "./golaParts";
 import type { ConstructionContext } from "./context";
 import type { CabinetConstruction, CabinetPart } from "./types";
+import { slidingCarcassConfig, slidingDoorsOf } from "../frontSystem/slidingSpec";
 
 export function createCabinetConstruction(config: CabinetConfig): CabinetConstruction {
-  const safeConfig = clampCabinetConfig(config);
+  const clamped = clampCabinetConfig(config);
+  // Sliding wardrobes: carcass is `depth − trackAllowance`; the track sits in front (§3.4).
+  const sliding = slidingDoorsOf(clamped);
+  const safeConfig = sliding ? slidingCarcassConfig(clamped, sliding) : clamped;
   const buildRules = resolveCabinetBuildRules(safeConfig);
   const constructionSpec = normalizeConstructionSpec(
     safeConfig.type,
@@ -69,10 +73,20 @@ export function createCabinetConstruction(config: CabinetConfig): CabinetConstru
   appendInteriorParts(ctx);
   appendExtraParts(ctx);
   appendGolaNotchNotes(parts, safeConfig);
+  if (sliding) keepEndPanelsFullDepth(parts, clamped.dimensions.depth);
 
   return {
     buildRules,
     constructionSpec,
     parts,
   };
+}
+
+/** End panels keep the overall depth so they hide the sliding track and rollers. */
+function keepEndPanelsFullDepth(parts: CabinetPart[], depthMm: number): void {
+  for (const part of parts) {
+    if (part.id !== "left-end-panel" && part.id !== "right-end-panel") continue;
+    part.widthMm = depthMm;
+    part.notes = "Full depth: covers the sliding track";
+  }
 }

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { loadInteriorProjectFile, serializeInteriorProjectFile } from "../interiorProject";
-import { EVENING_ROOM_LIGHT_SCALE, readLightingMood, roomLightScaleForMood, writeLightingMood } from "./lightingMood";
+import {
+  EVENING_ROOM_LIGHT_SCALE, lightingRecipeForMood, readLightingMood, roomLightScaleForMood, writeLightingMood,
+} from "./lightingMood";
 import { createLivingRoomStarterProject } from "./preset";
 
 const NOW = "2026-10-05T00:00:00.000Z";
@@ -21,5 +23,12 @@ describe("lighting mood", () => {
     const day = writeLightingMood(reopened, "day");
     expect(readLightingMood(day)).toBe("day");
     expect(day.extensions && "lightingMood" in day.extensions).toBe(false);
+  });
+
+  it("lights day mood under an evening recipe with daylight, and leaves other recipes alone", () => {
+    expect(lightingRecipeForMood("warm-evening", "day")).toBe("daylight");
+    expect(lightingRecipeForMood("warm-evening", "evening")).toBe("warm-evening");
+    expect(lightingRecipeForMood("neutral-studio", "day")).toBe("neutral-studio");
+    expect(lightingRecipeForMood("daylight", "evening")).toBe("daylight");
   });
 });

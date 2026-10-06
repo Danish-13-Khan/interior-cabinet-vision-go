@@ -26,8 +26,13 @@ export function useDocumentCameraFollow(args: {
     else if (idsRef.current.includes(projectCameraId)) setActiveCameraId(projectCameraId);
   }, [projectCameraId, setActiveCameraId]);
 
-  useEffect(() => onShowcaseCameraJump(() => {
+  useEffect(() => onShowcaseCameraJump((_nonce, target) => {
     setViewPreset?.("perspective");
+    if (target) {
+      // Tour stop: the room switches in the same render, so apply without the known-id guard.
+      setActiveCameraId(target.cameraId);
+      return;
+    }
     const id = cameraIdRef.current;
     // Clear then restore so CameraRig sees an intent change after orbit.
     setActiveCameraId(null);

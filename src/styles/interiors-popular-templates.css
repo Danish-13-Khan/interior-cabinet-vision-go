@@ -50,6 +50,7 @@
 }
 
 .interiors-popular-templates img,
+.interiors-apartment-templates img,
 .interiors-template-thumb-fallback {
   width: 100%;
   aspect-ratio: 16 / 10;

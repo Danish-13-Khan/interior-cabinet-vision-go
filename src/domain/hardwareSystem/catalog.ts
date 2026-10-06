@@ -4,9 +4,11 @@ import type {
   HardwareItem,
 } from "./types";
 import { PUSH_HARDWARE_ITEMS } from "./pushHardware";
+import { SLIDING_HARDWARE_ITEMS } from "./slidingHardware";
 
 export const HARDWARE_CATALOG: HardwareItem[] = [
   ...PUSH_HARDWARE_ITEMS,
+  ...SLIDING_HARDWARE_ITEMS,
   {
     id: "hinge-soft",
     label: "Soft-close hinge",
@@ -30,6 +32,7 @@ export const HARDWARE_CATALOG: HardwareItem[] = [
     costPerUnit: 35,
     softClose: false,
     description: "Non soft-close hinge for mechanical push / Tip-On; soft-close fights the latch (Ilyas Q — brand TBD)",
+    unconfirmedDefault: true,
   },
   {
     id: "hinge-inset",

@@ -88,14 +88,16 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
           displayNiche: false,
           wardrobeSide: "east",
           wardrobeWidthMm: 1800,
+          wardrobeDoors: "sliding",
           sofaSet: true,
           coveLight: true,
           downlight: true,
         },
       },
       camera: {
-        eyeMm: { x: 400, y: 1600, z: 2200 },
-        targetMm: { x: 0, y: 1000, z: -400 },
+        // Wide, high three-quarter view from the far corner: the tour's opening shot and the card still.
+        eyeMm: { x: -2800, y: 2350, z: 2500 },
+        targetMm: { x: 1200, y: 800, z: -500 },
       },
     },
   ],

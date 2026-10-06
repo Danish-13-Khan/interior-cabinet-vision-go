@@ -3,6 +3,8 @@ import { createFreestandingGeometry } from "./freestanding";
 import { getCabinetMeasurements } from "./measurements";
 import { openingComponentPanels } from "./storageOpeningPanels";
 import type { CabinetPanelGeometry } from "./types";
+import { slidingDoorsOf } from "../frontSystem/slidingSpec";
+import { slidingWardrobeGeometry } from "./slidingPanels";
 
 export function createCabinetGeometry(
   config: CabinetConfig,
@@ -10,7 +12,14 @@ export function createCabinetGeometry(
   if (!isStorageType(config.type)) {
     return createFreestandingGeometry(config);
   }
+  const sliding = slidingDoorsOf(config);
+  return sliding
+    ? slidingWardrobeGeometry(config, sliding, storageCarcassGeometry)
+    : storageCarcassGeometry(config);
+}
 
+/** Carcass, interior and hinged fronts; sliding leaves are drawn by `slidingWardrobeGeometry`. */
+function storageCarcassGeometry(config: CabinetConfig): CabinetPanelGeometry[] {
   const {
     safeConfig,
     outerWidth,

@@ -12,3 +12,15 @@ export function preferModelViewCameraId(
   const defaulted = cameras.find((camera) => camera.isDefault);
   return defaulted?.id ?? cameras[0]?.id ?? null;
 }
+
+/**
+ * First candidate that is one of the room's cameras (e.g. the camera the user
+ * was on, then the document's), else the Model entry camera above.
+ */
+export function pickModelViewCameraId(
+  cameras: readonly CameraEntity[],
+  candidates: ReadonlyArray<string | null | undefined>,
+): string | null {
+  const known = candidates.find((id) => id && cameras.some((camera) => camera.id === id));
+  return known ?? preferModelViewCameraId(cameras);
+}

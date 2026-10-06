@@ -190,7 +190,7 @@ export {
   readLivingRoomRecovery,
   type LivingRoomRecoverySnapshot,
 } from "./desktopExperience";
-export { preferModelViewCameraId } from "./modelViewDefaults";
+export { pickModelViewCameraId, preferModelViewCameraId } from "./modelViewDefaults";
 export {
   describeModelViewHonesty,
   describeModelViewRuntimeProfile,

@@ -2,6 +2,7 @@ import type { CabinetConfig } from "../cabinetDimensions";
 import { resolveCabinetBuildRules } from "../cabinetConstruction/buildRules";
 import { doorPieces, type DoorPieceKind } from "../cabinetConstruction/doorPieces";
 import { resolveFrontGaps } from "../cabinetConstruction/frontGaps";
+import { SLIDING_OPENING_ID } from "../cabinetConstruction/slidingFronts";
 import { normalizeConstructionSpec } from "../cabinetConstructionSpec";
 import type { CabinetCutlistItem } from "./types";
 
@@ -12,6 +13,14 @@ const DOOR_ROWS: Record<DoorPieceKind, { key: string; label: string }> = {
   stile: { key: "door-stiles", label: "Door Stile" },
   rail: { key: "door-rails", label: "Door Rail" },
   panel: { key: "door-panels", label: "Door Panel" },
+};
+
+/** Sliding wardrobe leaves (same door material and finish, own rows so the shop sees them). */
+const SLIDING_ROWS: Record<DoorPieceKind, { key: string; label: string }> = {
+  door: { key: "sliding-shutters", label: "Sliding Shutter" },
+  stile: { key: "sliding-shutter-stiles", label: "Sliding Shutter Stile" },
+  rail: { key: "sliding-shutter-rails", label: "Sliding Shutter Rail" },
+  panel: { key: "sliding-shutter-panels", label: "Sliding Shutter Panel" },
 };
 
 /** Groups equal sizes under one row; the first group keeps the bare key. */
@@ -54,8 +63,10 @@ export function frontCutlistItems(config: CabinetConfig): CabinetCutlistItem[] {
   const drawerRows = leavesOf("drawer").map((leaf): Row => ({
     key: "drawer-fronts", label: "Drawer Front", lengthMm: leaf.heightMm, widthMm: leaf.widthMm, thicknessMm: thickness, quantity: 1,
   }));
-  const doorRows = leavesOf("door").flatMap((leaf) => doorPieces(leaf, spec.frontStyle, spec.faceFrame, thickness).map((piece): Row => ({
-    ...DOOR_ROWS[piece.kind], lengthMm: piece.lengthMm, widthMm: piece.widthMm, thicknessMm: piece.thicknessMm, quantity: piece.perLeaf,
-  })));
+  const doorRows = openings.filter((entry) => entry.kind === "door").flatMap((entry) => entry.leaves.flatMap((leaf) =>
+    doorPieces(leaf, spec.frontStyle, spec.faceFrame, thickness).map((piece): Row => ({
+      ...(entry.opening.id === SLIDING_OPENING_ID ? SLIDING_ROWS : DOOR_ROWS)[piece.kind],
+      lengthMm: piece.lengthMm, widthMm: piece.widthMm, thicknessMm: piece.thicknessMm, quantity: piece.perLeaf,
+    }))));
   return [...groupRows(drawerRows), ...groupRows(doorRows)];
 }

@@ -73,7 +73,7 @@ export function EngineeringProductionOutputs(props: EngineeringProductionOutputs
 
         {tab === "hardware" ? <>
           <div className="epo-title"><div><strong>Hardware schedule</strong><span>Resolved fittings, accessories, and consumables</span></div><b>{money.format(cost.totalHardware)}</b></div>
-          <div className="epo-table-wrap"><table><thead><tr><th>Hardware</th><th>Kind</th><th>Quantity</th><th>Unit</th><th>Total</th><th>Cabinets</th></tr></thead><tbody>{report.hardwareSchedule.map((row) => <tr key={row.hardwareId}><td><strong>{row.label}</strong><small>{row.hardwareId}</small></td><td>{row.kind}</td><td>{row.quantity}</td><td>{money.format(row.unitCost)}</td><td><strong>{money.format(row.totalCost)}</strong></td><td>{row.cabinetMarks.join(", ")}</td></tr>)}</tbody></table></div>
+          <div className="epo-table-wrap"><table><thead><tr><th>Hardware</th><th>Kind</th><th>Quantity</th><th>Unit</th><th>Total</th><th>Cabinets</th></tr></thead><tbody>{report.hardwareSchedule.map((row) => <tr key={row.hardwareId}><td><strong>{row.label}</strong><small>{row.hardwareId}{row.unconfirmedDefault ? " · unconfirmed default" : ""}</small></td><td>{row.kind}</td><td>{row.quantity}</td><td>{money.format(row.unitCost)}</td><td><strong>{money.format(row.totalCost)}</strong></td><td>{row.cabinetMarks.join(", ")}</td></tr>)}</tbody></table></div>
         </> : null}
 
         {tab === "cutlist" ? <>

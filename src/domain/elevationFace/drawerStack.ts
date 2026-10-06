@@ -29,7 +29,8 @@ function drawerBoxes(
     return [...resolved.leaves].reverse().map((leaf) => ({
       ...faceRectToSvg(leaf, layout, cabinetSvgX, cabinetSvgY, scale),
       golaGrip: Boolean(leaf.golaGrip),
-      pushOpen: Boolean(leaf.pushOpen),
+      // Push-open and drawers behind sliding shutters both draw without a pull.
+      pushOpen: Boolean(leaf.pushOpen || leaf.behindSliding),
     }));
   }
   const count = Math.max(1, opening.drawerCount || 1);

@@ -1,20 +1,27 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
+import { createLivingRoomObject, type LivingRoomCatalogId } from "../../livingRoom/catalog";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { LivingComposeOptions, WallSide } from "../types";
 import { apartmentIdFactory } from "../ids";
-import { createLivingRoomObject } from "../../livingRoom/catalog";
 import {
   longestFreePieceOnSide,
   offsetTowardSide,
   oppositeSide,
-  placeCabinetOnWall,
   placeCatalogInRoom,
   placeCatalogOnWall,
   withActiveRoom,
 } from "./helpers";
 import { addDecorOnSide } from "./decorPlacement";
 import { addRoomFixtureKinds } from "./roomLights";
+import { placeWallWardrobe } from "./wardrobeModules";
+import { standClearOfWallPanels } from "./wallPanelClearance";
+
+/** Knee room between the sofa front and the coffee table. */
+const SEAT_TO_TABLE_MM = 350;
+
+const catalogDepthMm = (catalogItemId: LivingRoomCatalogId) =>
+  createLivingRoomObject(catalogItemId, { id: "probe", roomId: "probe", position: { x: 0, y: 0, z: 0 } }).dimensions.depthMm;
 
 export type ComposeLivingArgs = LivingComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -31,9 +38,12 @@ export function composeLiving(
   let next = withActiveRoom(project, roomId);
   const bounds = roomPlanViewBounds(next, roomId);
 
+  const tvId = idFactory("object", `${roomId}-tv`);
+  const nicheId = idFactory("object", `${roomId}-niche`);
   next = placeCatalogOnWall(
     next, roomId, tvSide, "living:tv-unit", `${roomId}-tv`, idFactory, 0.45,
   );
+  const tv = next.objects.find((object) => object.id === tvId);
   if (options.displayNiche) {
     next = placeCatalogOnWall(
       next, roomId, tvSide, "living:display-niche", `${roomId}-niche`, idFactory, 0.75,
@@ -43,29 +53,26 @@ export function composeLiving(
   if (options.featureWallPreset) {
     next = addDecorOnSide(
       next, roomId, tvSide, options.featureWallPreset,
-      idFactory("object", `${roomId}-feature-decor`), 600,
+      idFactory("object", `${roomId}-feature-decor`), 600, tv?.position,
     );
   } else {
     next = placeCatalogOnWall(
       next, roomId, tvSide, "living:feature-wall-fluted", `${roomId}-feature`, idFactory, 0.5,
     );
   }
+  next = standClearOfWallPanels(next, [tvId, nicheId]);
 
   if (options.wardrobeSide) {
     const widthMm = options.wardrobeWidthMm ?? 1800;
     const piece = longestFreePieceOnSide(next, roomId, options.wardrobeSide, widthMm);
     if (piece) {
-      const wardrobeId = idFactory("object", `${roomId}-wardrobe`);
-      const seed = createLivingRoomObject("living:wardrobe-wall", {
-        id: wardrobeId,
-        roomId,
-        position: { x: bounds.centerX, y: 0, z: bounds.centerZ },
+      // Hinged wardrobes wider than 900 mm become a run of almirah modules; sliding stays one carcass.
+      next = placeWallWardrobe(next, {
+        roomId, piece, widthMm, idFactory,
+        front: { wardrobeDoors: options.wardrobeDoors, slidingLeafCount: options.slidingLeafCount },
+        startAlongMm: piece.startAlongMm + Math.max(0, (piece.lengthMm - widthMm) / 2),
+        position: { x: bounds.centerX, z: bounds.centerZ },
       });
-      seed.dimensions = { ...seed.dimensions, widthMm };
-      const along = piece.startAlongMm
-        + Math.max(0, (piece.lengthMm - widthMm) / 2)
-        + widthMm / 2;
-      next = placeCabinetOnWall(next, seed, piece.wall, along);
     }
   }
 
@@ -76,9 +83,13 @@ export function composeLiving(
       { x: sofa.x, z: sofa.z, rotationY: sofa.rotationY },
       bounds,
     );
+    // Coffee table in front of the sofa, toward the TV, turned to match it.
+    const sofaReach = Math.hypot(sofa.x, sofa.z) || 1;
+    const tableGap = catalogDepthMm("living:sofa-3-seat") / 2 + SEAT_TO_TABLE_MM + catalogDepthMm("living:coffee-table") / 2;
+    const toTable = (sofaReach - tableGap) / sofaReach;
     next = placeCatalogInRoom(
       next, roomId, "living:coffee-table", `${roomId}-coffee`, idFactory,
-      { x: 0, z: 0 },
+      { x: sofa.x * toTable, z: sofa.z * toTable, rotationY: sofa.rotationY },
       bounds,
     );
     next = placeCatalogInRoom(

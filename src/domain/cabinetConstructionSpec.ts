@@ -9,6 +9,7 @@ import {
 } from "./cabinetConstructionOptions";
 import { normalizeFrontSystem, type FrontSystem } from "./frontSystem/golaProfiles";
 import { normalizeDoorFrontStyle, type DoorFrontStyle } from "./frontSystem/doorStyles";
+import { slidingDoorsField, type SlidingDoorSpec } from "./frontSystem/slidingDefaults";
 
 export { CARCASS_STYLE_OPTIONS, CASE_JOINERY_OPTIONS, DOOR_MOUNT_OPTIONS, DRAWER_BOX_STYLE_OPTIONS, SHELF_MOUNT_OPTIONS };
 
@@ -35,6 +36,8 @@ export type CabinetConstructionSpec = {
   frontSystem?: FrontSystem;
   /** Absent = slab doors. Shaker / glass frames reuse the face-frame stile and rail widths. */
   frontStyle?: DoorFrontStyle;
+  /** Absent = hinged. Wardrobes only; sliding normalises the front system to handled (§3.4). */
+  sliding?: SlidingDoorSpec;
 };
 
 function carriedFrontSystem(type: CabinetType, value: unknown): { frontSystem?: FrontSystem } {
@@ -202,8 +205,9 @@ export function normalizeConstructionSpec(
     drawerBoxStyle: isDrawerBoxStyle(merged.drawerBoxStyle)
       ? merged.drawerBoxStyle
       : defaults.drawerBoxStyle,
-    ...carriedFrontSystem(type, merged.frontSystem),
+    ...carriedFrontSystem(type, slidingDoorsField(type, merged.sliding).sliding ? undefined : merged.frontSystem),
     ...frontStyleField(type, merged.frontStyle),
+    ...slidingDoorsField(type, merged.sliding),
     faceFrame: {
       stileWidthMm: clampMm(
         merged.faceFrame.stileWidthMm,

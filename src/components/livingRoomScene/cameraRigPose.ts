@@ -114,8 +114,9 @@ export function easeTowardCameraGoal(
   from: CameraPoseMeters,
   goal: CameraPoseMeters,
   elapsedMs: number,
+  durationMs: number = MODEL_VIEW_CAMERA_EASE_MS,
 ): { pose: CameraPoseMeters; settled: boolean } {
-  const t = easeInOutCubic(elapsedMs / MODEL_VIEW_CAMERA_EASE_MS);
+  const t = easeInOutCubic(elapsedMs / Math.max(1, durationMs));
   const blend = (left: number | undefined, right: number | undefined) => (
     left !== undefined && right !== undefined ? lerpNumber(left, right, t) : right
   );

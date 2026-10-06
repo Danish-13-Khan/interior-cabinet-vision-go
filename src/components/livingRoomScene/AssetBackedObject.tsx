@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { type ThreeEvent } from "@react-three/fiber";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
@@ -11,6 +11,13 @@ import { reportModelGlbFallback } from "../../domain/livingRoom/modelQualityFeed
 import { AssetBackedGlbContent } from "./AssetBackedGlbContent";
 import { GlbLoadErrorBoundary } from "./GlbLoadErrorBoundary";
 import { ProceduralFallbackObject } from "./ProceduralFallbackObject";
+import { trackGlbLoad } from "../../domain/livingRoom/glbLoadTracker";
+
+/** Mounted with the Suspense fallback: counts the GLB as loading until it resolves. */
+function GlbLoadPending() {
+  useEffect(() => trackGlbLoad(), []);
+  return null;
+}
 
 type AssetBackedObjectProps = {
   url: string;
@@ -55,7 +62,7 @@ export function AssetBackedObject({
 
   return (
     <GlbLoadErrorBoundary fallback={fallback} onError={reportModelGlbFallback}>
-      <Suspense fallback={fallback}>
+      <Suspense fallback={<>{fallback}<GlbLoadPending /></>}>
         <AssetBackedGlbContent
           url={url}
           definition={definition}

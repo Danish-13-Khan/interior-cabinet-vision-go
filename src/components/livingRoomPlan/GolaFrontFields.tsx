@@ -24,11 +24,13 @@ type Props = {
   project: InteriorProject;
   cabinetType: CabinetType;
   onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
+  /** Sliding wardrobes are always handled: gola / push are disabled (§3.4). */
+  slidingLocked?: boolean;
 };
 
 /** Handles vs gola handleless, with profile sizes clamped to the standard ranges. */
-export function GolaFrontFields({ object, project, cabinetType, onSetParameters }: Props) {
-  const system = frontSystemFromParameters(object.parameters);
+export function GolaFrontFields({ object, project, cabinetType, onSetParameters, slidingLocked = false }: Props) {
+  const system = slidingLocked ? null : frontSystemFromParameters(object.parameters);
   const gola = system?.kind === "gola";
   const push = system?.kind === "push";
   const profiles = system?.kind === "gola" ? system.profiles : defaultGolaProfiles();
@@ -45,7 +47,8 @@ export function GolaFrontFields({ object, project, cabinetType, onSetParameters 
   return (
     <div className="lr-gola-fields" data-testid="cabinet-gola-fields">
       <label className="lr-select-field"><span>Fronts</span>
-        <select data-testid="cabinet-front-system"
+        <select data-testid="cabinet-front-system" disabled={slidingLocked}
+          title={slidingLocked ? "Sliding shutters use flush pulls; gola and push are off" : undefined}
           value={gola ? "gola" : push ? "push" : "handled"}
           onChange={(event) => {
             const value = event.target.value;
