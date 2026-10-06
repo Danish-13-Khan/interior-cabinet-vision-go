@@ -1,6 +1,6 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
-import { Raycaster, Vector2, type Material, type Object3D } from "three";
+import { InstancedMesh, Raycaster, Vector2, type Material, type Object3D } from "three";
 import {
   nearestStillSurface,
   stillLuma,
@@ -10,8 +10,10 @@ import {
 } from "../../domain/livingRoom/stillSurfaceClass";
 import { EXCLUDE_FROM_EXPORT } from "../../rendering/sceneExport/sceneExportFilter";
 
-const COLS = 8;
-const ROWS = 6;
+/** 12×9 at ±0.85 so side walls in a 4:3 card crop still reach the hit minimum. */
+const COLS = 12;
+const ROWS = 9;
+const NDC_SPAN = 0.85;
 
 function tagsFrom(object: Object3D) {
   let primitiveId: string | undefined;
@@ -75,8 +77,37 @@ function pixelAt(image: ImageData, x: number, y: number): StillRgb {
   return { r, g, b, luma: stillLuma(r, g, b) };
 }
 
+/**
+ * Instanced GLB batches turn raycasting off so picks go to their own node. The
+ * probe is about pixels, so furniture must block the floor behind it; restore
+ * the stock raycast only for the duration of one read.
+ */
+function withInstancedRaycast<T>(scene: Object3D, read: () => T): T {
+  const silenced: InstancedMesh[] = [];
+  scene.traverse((object) => {
+    if (object instanceof InstancedMesh && object.raycast !== InstancedMesh.prototype.raycast) {
+      silenced.push(object);
+    }
+  });
+  const overrides = silenced.map((mesh) => mesh.raycast);
+  silenced.forEach((mesh) => { mesh.raycast = InstancedMesh.prototype.raycast; });
+  try {
+    return read();
+  } finally {
+    silenced.forEach((mesh, index) => { mesh.raycast = overrides[index]; });
+  }
+}
+
 /** Read the framebuffer only where the nearest visible hit is wall, floor, or door. */
 export function sampleStillSurfaces(
+  camera: Parameters<Raycaster["setFromCamera"]>[1],
+  scene: Object3D,
+  canvas: HTMLCanvasElement,
+): StillSurfaceReading {
+  return withInstancedRaycast(scene, () => sampleVisibleSurfaces(camera, scene, canvas));
+}
+
+function sampleVisibleSurfaces(
   camera: Parameters<Raycaster["setFromCamera"]>[1],
   scene: Object3D,
   canvas: HTMLCanvasElement,
@@ -89,8 +120,8 @@ export function sampleStillSurfaces(
   camera.updateMatrixWorld();
   for (let row = 0; row < ROWS; row += 1) {
     for (let col = 0; col < COLS; col += 1) {
-      const ndcX = (col / (COLS - 1)) * 1.4 - 0.7;
-      const ndcY = (row / (ROWS - 1)) * 1.4 - 0.7;
+      const ndcX = (col / (COLS - 1)) * 2 * NDC_SPAN - NDC_SPAN;
+      const ndcY = (row / (ROWS - 1)) * 2 * NDC_SPAN - NDC_SPAN;
       pointer.set(ndcX, ndcY);
       raycaster.setFromCamera(pointer, camera);
       const hits = raycaster.intersectObject(scene, true).map((item) => ({
