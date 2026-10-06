@@ -5,12 +5,12 @@ import {
   shouldProjectDirectionalCast,
   shouldProjectFillCastShadow,
 } from "../../domain/livingRoom/directionalCasterBudget";
-import { shadowMapSizePair } from "./shadowMapSizePair";
 import { LIGHT_RENDER_SCALE } from "../../domain/livingRoom/lightFixtureTypes";
 import { projectLightIsMounted } from "../../domain/livingRoom/fixtureLightBudget";
 import { isRoomLightFixture } from "../../domain/livingRoom/roomLightFixtures";
 import { RoomLightFixture } from "./RoomLightFixture";
 import { ensureRectAreaLightSupport } from "./rectAreaLightSupport";
+import { DirectionalProjectLight } from "./DirectionalProjectLight";
 
 function degrees(value: number) {
   return value * Math.PI / 180;
@@ -85,22 +85,16 @@ export function SceneProjectLights({
           );
           if (castShadow) directionalCasterCount += 1;
           return (
-            <directionalLight
+            <DirectionalProjectLight
               key={light.id}
+              light={light}
               position={position}
-              color={light.color}
               intensity={light.intensity * LIGHT_RENDER_SCALE.recipeDirectionalScale * recipeScale}
               castShadow={castShadow}
-              shadow-mapSize={shadowMapSizePair(shadowMapSize)}
-              shadow-bias={cam.bias}
-              shadow-normalBias={cam.normalBias}
-              shadow-radius={shadowRadius + cam.radiusExtra}
-              shadow-camera-near={cam.near}
-              shadow-camera-far={cam.far}
-              shadow-camera-left={-half}
-              shadow-camera-right={half}
-              shadow-camera-top={half}
-              shadow-camera-bottom={-half}
+              shadowMapSize={shadowMapSize}
+              shadowRadius={shadowRadius}
+              cam={cam}
+              half={half}
             />
           );
         }
