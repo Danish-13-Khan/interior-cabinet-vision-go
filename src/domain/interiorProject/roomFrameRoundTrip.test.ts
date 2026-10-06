@@ -69,17 +69,40 @@ describe("cabinet positions survive a classic-model round trip", () => {
     }
   });
 
-  it("moves only the cabinet Engineering edited", () => {
-    const project = projects.find(([name]) => name === APARTMENT_TEMPLATE_IDS[0])![1];
+  it.each(projects)("%s survives a copied project (history, reload)", (_name, project) => {
     const adapted = cabinetProjectFromInteriorProject(project);
-    const cabinet = adapted.project.cabinets[0]!;
-    cabinet.placement = { ...cabinet.placement, x: cabinet.placement.x + 100 };
     const written = interiorProjectFromCabinetProject({
-      project: adapted.project,
+      project: structuredClone(adapted.project),
       activeRoom: adapted.room,
       now: project.updatedAt,
     });
-    const id = cabinet.interiorObjectId || cabinet.id;
+    expect(cabinetPose(written)).toEqual(cabinetPose(project));
+  });
+
+  // Engineering edits are immutable: a new project object with one changed cabinet.
+  it.each([
+    [APARTMENT_TEMPLATE_IDS[2]!, "kitchen"],
+    ["catalog L kitchen", null],
+  ] as const)("%s moves only the cabinet Engineering edited", (name, roomKey) => {
+    const base = projects.find(([entry]) => entry === name)![1];
+    const roomId = roomKey
+      ? base.rooms.find((room) => room.extensions?.apartmentRoomKey === roomKey)!.id
+      : base.activeRoomId;
+    const project = { ...base, activeRoomId: roomId };
+    const adapted = cabinetProjectFromInteriorProject(project);
+    const target = adapted.project.cabinets[0]!;
+    const edited = {
+      ...adapted.project,
+      cabinets: adapted.project.cabinets.map((cabinet) => (cabinet === target
+        ? { ...cabinet, placement: { ...cabinet.placement, x: cabinet.placement.x + 100 } }
+        : cabinet)),
+    };
+    const written = interiorProjectFromCabinetProject({
+      project: edited,
+      activeRoom: adapted.room,
+      now: project.updatedAt,
+    });
+    const id = target.interiorObjectId || target.id;
     const before = cabinetPose(project).find((item) => item.id === id)!;
     const after = cabinetPose(written).find((item) => item.id === id)!;
     expect(after).toEqual({ ...before, x: before.x + 100 });

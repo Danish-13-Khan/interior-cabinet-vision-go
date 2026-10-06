@@ -4,8 +4,6 @@ import { cabinetObject } from "./cabinetAdapterCabinets";
 import { frameIsOrigin, roomFrame } from "./roomFrame";
 import type { InteriorObjectEntity, InteriorProject } from "./types";
 
-const readPlacements = new WeakMap<CabinetProject, Map<string, CabinetPlacement>>();
-
 function cabinetKey(cabinet: CabinetInstance) {
   return cabinet.interiorObjectId || cabinet.id;
 }
@@ -28,14 +26,20 @@ export function incomingCabinets(project: CabinetProject): Map<string, CabinetIn
   return map;
 }
 
-/** Remember the placement read produced, so an unedited write can put the world position back. */
-export function rememberReadPlacements(project: CabinetProject): CabinetProject {
-  const map = new Map<string, CabinetPlacement>();
-  for (const cabinet of incomingCabinets(project).values()) {
-    map.set(cabinetKey(cabinet), { ...cabinet.placement });
-  }
-  readPlacements.set(project, map);
-  return project;
+/**
+ * Stamp every cabinet with the placement this read produced (`readPlacement`).
+ * The stamp lives on the cabinet, not beside the project, so an unedited cabinet
+ * is still recognised after Engineering's immutable edits, history or a reload.
+ */
+export function stampReadPlacements(project: CabinetProject): CabinetProject {
+  const stamp = (cabinet: CabinetInstance): CabinetInstance => ({
+    ...cabinet,
+    readPlacement: { ...cabinet.placement },
+  });
+  if (!project.rooms) return { ...project, cabinets: project.cabinets.map(stamp) };
+  const rooms = project.rooms.map((room) => ({ ...room, cabinets: room.cabinets.map(stamp) }));
+  const active = rooms.find((room) => room.id === project.activeRoomId);
+  return { ...project, rooms, cabinets: active?.cabinets ?? project.cabinets.map(stamp) };
 }
 
 /** Move world cabinet positions into the room's centred frame. Origin rooms stay as they are. */
@@ -88,25 +92,34 @@ export function keepOffCentrePlacements(
 }
 
 /**
- * Write a centred placement back to world. An unedited cabinet keeps the
- * position it had in the document. An edit is mapped out without a second clamp.
+ * Write a cabinet back to world. A stamped cabinet (`readPlacement`) keeps its
+ * document position plus exactly what Engineering moved it by, so an unedited
+ * cabinet never moves and an edit is not shifted by the read's clamp. Unstamped
+ * cabinets are mapped out of the room frame as before.
  */
 export function cabinetObjectInWorld(
   document: InteriorProject,
   roomId: string,
   cabinet: CabinetInstance,
-  host?: CabinetProject,
 ): InteriorObjectEntity {
   const drafted = cabinetObject(roomId, cabinet);
-  const sourceId = cabinet.interiorObjectId || drafted.id;
-  const source = document.objects.find((item) => item.id === sourceId);
-  const read = host ? readPlacements.get(host)?.get(cabinetKey(cabinet)) : undefined;
-  const rotation = source && read && cabinet.placement.rotation === read.rotation
-    ? { ...source.rotation }
-    : drafted.rotation;
-  if (source && read && samePlacement(read, cabinet.placement)) {
-    return { ...drafted, position: { ...source.position }, rotation };
+  const source = document.objects.find((item) => item.id === (cabinet.interiorObjectId || drafted.id));
+  const read = cabinet.readPlacement;
+  if (source && read) {
+    if (samePlacement(read, cabinet.placement)) {
+      return { ...drafted, position: { ...source.position }, rotation: { ...source.rotation } };
+    }
+    return {
+      ...drafted,
+      position: {
+        x: source.position.x + (cabinet.placement.x - read.x),
+        y: source.position.y + (cabinet.placement.y - read.y),
+        z: source.position.z + (cabinet.placement.z - read.z),
+      },
+      rotation: cabinet.placement.rotation === read.rotation ? { ...source.rotation } : drafted.rotation,
+    };
   }
+  const rotation = drafted.rotation;
   const frame = roomFrame(document, roomId);
   const position = frameIsOrigin(frame)
     ? drafted.position
@@ -118,18 +131,19 @@ export function cabinetObjectInWorld(
   return { ...drafted, position, rotation };
 }
 
-/** World cabinet objects for every room, using the pre-clamp Engineering placement. */
+/**
+ * World cabinet objects for every room. A stamped cabinet is written from the
+ * placement Engineering holds (before the write-back clamp); unstamped ones
+ * (classic-only projects) keep the clamped placement as before.
+ */
 export function cabinetsInWorld(
   document: InteriorProject,
   rooms: readonly ProjectRoom[],
   host: CabinetProject,
 ): InteriorObjectEntity[] {
   const incoming = incomingCabinets(host);
-  const remembered = readPlacements.get(host);
   return rooms.flatMap((room) => room.cabinets.map((cabinet) => {
-    const key = cabinet.interiorObjectId || cabinet.id;
-    const prior = incoming.get(key) ?? incoming.get(cabinet.id);
-    const placement = prior && remembered?.has(cabinetKey(prior)) ? prior : cabinet;
-    return cabinetObjectInWorld(document, room.id, placement, host);
+    const prior = incoming.get(cabinetKey(cabinet)) ?? incoming.get(cabinet.id);
+    return cabinetObjectInWorld(document, room.id, prior?.readPlacement ? prior : cabinet);
   }));
 }

@@ -24,7 +24,7 @@ import {
   cabinetsInWorld,
   centreRoomCabinets,
   keepOffCentrePlacements,
-  rememberReadPlacements,
+  stampReadPlacements,
 } from "./cabinetAdapterFrame";
 import {
   INTERIOR_PROJECT_SCHEMA_VERSION,
@@ -170,7 +170,7 @@ export function cabinetProjectFromInteriorProject(input: unknown): {
     activeRoomId,
     interiorDocument: document,
   };
-  const project = rememberReadPlacements(keepOffCentrePlacements(
+  const project = stampReadPlacements(keepOffCentrePlacements(
     document,
     rooms,
     normalizeMultiRoomProject(clampCabinetProject(seeded), active.config),
