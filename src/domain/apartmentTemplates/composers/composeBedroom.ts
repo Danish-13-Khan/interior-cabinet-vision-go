@@ -7,7 +7,6 @@ import { apartmentIdFactory } from "../ids";
 import {
   longestFreePieceOnSide,
   offsetTowardSide,
-  oppositeSide,
   placeCabinetOnWall,
   placeCatalogInRoom,
   withActiveRoom,
@@ -16,6 +15,9 @@ import { applyCabinetFrontOptions } from "./cabinetOptions";
 import { addRoomFixtureKinds } from "./roomLights";
 import { addDecorOnSide } from "./decorPlacement";
 import { placeWallWardrobe } from "./wardrobeModules";
+import { objectsCollide } from "./objectBounds";
+
+const BED_TO_SIDE_TABLE_MM = 60;
 
 export type ComposeBedroomArgs = BedroomComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -68,18 +70,21 @@ export function composeBedroom(
     { x: bed.x, z: bed.z, rotationY: bed.rotationY },
     bounds,
   );
-  const foot = offsetTowardSide(oppositeSide(bedSide), bounds, 0.12);
-  // Side tables near the headboard wall, flanking the bed.
+  // Side tables near the headboard wall, flanking the bed with a small gap.
+  const widthOf = (catalogItemId: "living:ottoman" | "living:side-table") =>
+    createLivingRoomObject(catalogItemId, { id: "probe", roomId, position: { x: 0, y: 0, z: 0 } }).dimensions.widthMm;
+  const reach = widthOf("living:ottoman") / 2 + BED_TO_SIDE_TABLE_MM + widthOf("living:side-table") / 2;
   const flank = bedSide === "north" || bedSide === "south"
-    ? [{ x: -bounds.widthMm * 0.22, z: bed.z }, { x: bounds.widthMm * 0.22, z: bed.z }]
-    : [{ x: bed.x, z: -bounds.depthMm * 0.22 }, { x: bed.x, z: bounds.depthMm * 0.22 }];
-  next = placeCatalogInRoom(
-    next, roomId, "living:side-table", `${roomId}-side-l`, idFactory, flank[0]!, bounds,
-  );
-  next = placeCatalogInRoom(
-    next, roomId, "living:side-table", `${roomId}-side-r`, idFactory, flank[1]!, bounds,
-  );
-  void foot;
+    ? [{ x: bed.x - reach, z: bed.z }, { x: bed.x + reach, z: bed.z }]
+    : [{ x: bed.x, z: bed.z - reach }, { x: bed.x, z: bed.z + reach }];
+  // A side table that would run into the wardrobe is left out.
+  for (const [index, offset] of flank.entries()) {
+    const placed = placeCatalogInRoom(
+      next, roomId, "living:side-table", `${roomId}-side-${index === 0 ? "l" : "r"}`, idFactory, offset, bounds,
+    );
+    const table = placed.objects.at(-1)!;
+    if (!next.objects.some((other) => other.roomId === roomId && objectsCollide(other, table))) next = placed;
+  }
 
   if (options.headboardDecor) {
     next = addDecorOnSide(

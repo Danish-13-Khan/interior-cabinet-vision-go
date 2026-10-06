@@ -7,7 +7,8 @@ import { fixedAlongToRoomAlongMm, freePiecesOnSide } from "./wallPieces";
 /**
  * Wall decoration on a free piece of `side`: sized to the piece and centred as
  * close to the room centre as the piece allows, so it never covers a door,
- * window or arch. Decor may sit behind hosted furniture (TV unit, vanity).
+ * window or arch. Decor may sit behind hosted furniture (TV unit, vanity);
+ * pass `near` to centre it on that furniture instead of the room.
  */
 export function addDecorOnSide(
   project: InteriorProject,
@@ -16,6 +17,7 @@ export function addDecorOnSide(
   presetId: string,
   objectId: string,
   minWidthMm = 400,
+  near?: { x: number; z: number },
 ): InteriorProject {
   const preset = getWallDecorationPreset(presetId);
   if (!preset) return project;
@@ -25,10 +27,11 @@ export function addDecorOnSide(
   const size = preset.size(piece.wall);
   const widthMm = Math.min(size.widthMm, piece.lengthMm);
   const bounds = roomPlanViewBounds(active, roomId);
+  const target = near ?? { x: bounds.centerX, z: bounds.centerZ };
   const horizontal = Math.abs(piece.wall.end.x - piece.wall.start.x) >= Math.abs(piece.wall.end.z - piece.wall.start.z);
   const centreAlong = horizontal
-    ? Math.abs(bounds.centerX - piece.wall.start.x)
-    : Math.abs(bounds.centerZ - piece.wall.start.z);
+    ? Math.abs(target.x - piece.wall.start.x)
+    : Math.abs(target.z - piece.wall.start.z);
   const lo = piece.startAlongMm + widthMm / 2;
   const hi = piece.startAlongMm + piece.lengthMm - widthMm / 2;
   const centre = Math.max(lo, Math.min(hi, centreAlong));
