@@ -11,7 +11,6 @@ type InteriorsWorkspaceFileMenuProps = {
   onSave: () => void;
   onExport: () => void;
   onOpenShortcuts?: () => void;
-  performanceAvailable?: boolean;
   performanceOpen?: boolean;
   onTogglePerformance?: () => void;
 };
@@ -25,7 +24,6 @@ export function InteriorsWorkspaceFileMenu({
   onSave,
   onExport,
   onOpenShortcuts,
-  performanceAvailable = false,
   performanceOpen = false,
   onTogglePerformance,
 }: InteriorsWorkspaceFileMenuProps) {
@@ -78,17 +76,7 @@ export function InteriorsWorkspaceFileMenu({
               Project tools…
             </button>
           ) : null}
-          <button type="button" role="menuitem" onClick={() => run(onOpen)}>
-            Open…
-          </button>
-          <button type="button" role="menuitem" onClick={() => run(onSave)}>
-            Save
-          </button>
-          <VersionHistoryMenu projectId={projectId} onChoose={(snapshot) => run(() => setPreview(snapshot))} />
-          <button type="button" role="menuitem" onClick={() => run(onExport)}>
-            Export JSON…
-          </button>
-          {performanceAvailable && onTogglePerformance ? (
+          {onTogglePerformance ? (
             <button
               type="button"
               role="menuitemcheckbox"
@@ -99,6 +87,16 @@ export function InteriorsWorkspaceFileMenu({
               {performanceOpen ? "✓ " : ""}Performance
             </button>
           ) : null}
+          <button type="button" role="menuitem" onClick={() => run(onOpen)}>
+            Open…
+          </button>
+          <button type="button" role="menuitem" onClick={() => run(onSave)}>
+            Save
+          </button>
+          <VersionHistoryMenu projectId={projectId} onChoose={(snapshot) => run(() => setPreview(snapshot))} />
+          <button type="button" role="menuitem" onClick={() => run(onExport)}>
+            Export JSON…
+          </button>
           {onOpenShortcuts ? (
             <button
               type="button"

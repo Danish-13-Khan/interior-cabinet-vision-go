@@ -34,7 +34,6 @@ type InteriorsWorkspaceHeaderProps = {
   onRedo: () => void;
   onPresent: () => void;
   onOpenShortcuts?: () => void;
-  performanceAvailable?: boolean;
   performanceOpen?: boolean;
   onTogglePerformance?: () => void;
 };
@@ -92,7 +91,6 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
             onSave={props.onSave}
             onExport={props.onExport}
             onOpenShortcuts={props.onOpenShortcuts}
-            performanceAvailable={props.performanceAvailable}
             performanceOpen={props.performanceOpen}
             onTogglePerformance={props.onTogglePerformance}
           />

@@ -36,7 +36,7 @@
 .lr-plan-shell.lr-product-shell-v2 .lr-catalog,
 .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
   display: flex;
-  width: 220px !important;
+  width: 220px;
   min-width: 220px;
   max-width: 220px;
   background: #fff;
@@ -46,7 +46,7 @@
 
 .lr-plan-shell.lr-product-shell-v2 .lr-inspector,
 .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
-  width: 260px !important;
+  width: 260px;
   min-width: 260px;
   max-width: 260px;
   background: #fff;
@@ -176,13 +176,13 @@
 @media (min-width: 1500px), (max-width: 1499px) {
   .lr-plan-shell.lr-product-shell-v2 .lr-catalog,
   .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
-    width: 220px !important;
+    width: 220px;
     min-width: 220px;
     max-width: 220px;
   }
   .lr-plan-shell.lr-product-shell-v2 .lr-inspector,
   .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
-    width: 260px !important;
+    width: 260px;
     min-width: 260px;
     max-width: 260px;
   }
@@ -192,7 +192,7 @@
   .lr-plan-shell.lr-product-shell-v2 .lr-catalog,
   .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
     position: static;
-    width: 200px !important;
+    width: 200px;
     min-width: 200px;
     max-width: 200px;
     box-shadow: none;

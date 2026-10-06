@@ -1,5 +1,6 @@
-import { Html } from "@react-three/drei";
-import type { RefObject } from "react";
+import { useThree } from "@react-three/fiber";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { CameraDebugSnapshot } from "../../domain/orbit/cameraDebug";
 import { usePerfHudSession } from "../../hooks/usePerfHudSession";
@@ -22,7 +23,35 @@ type CameraDebugHudMountProps = {
   onPointerActive?: (active: boolean) => void;
 };
 
-/** Probe plus the card. Model View portals the card over the canvas. */
+/** Screen-fixed host. A scene HTML layer would translate with the camera. */
+function ScreenFixedCard({ children }: { children: ReactNode }) {
+  const gl = useThree((state) => state.gl);
+  const rootRef = useRef<Root | null>(null);
+
+  useEffect(() => {
+    const parent = gl.domElement.parentElement;
+    if (!parent) return;
+    const host = document.createElement("div");
+    host.dataset.performanceHudHost = "";
+    host.style.cssText = "position:absolute;inset:0;pointer-events:none;z-index:30;";
+    parent.appendChild(host);
+    const root = createRoot(host);
+    rootRef.current = root;
+    return () => {
+      rootRef.current = null;
+      root.unmount();
+      host.remove();
+    };
+  }, [gl]);
+
+  useEffect(() => {
+    rootRef.current?.render(children);
+  });
+
+  return null;
+}
+
+/** Probe plus the card. The card stays pinned to the canvas corner. */
 export function CameraDebugHudMount(props: CameraDebugHudMountProps) {
   const hud = usePerfHudSession();
   const card = (
@@ -50,9 +79,7 @@ export function CameraDebugHudMount(props: CameraDebugHudMountProps) {
         punctualLights={props.punctualLights}
         onSnapshot={props.onSnapshot}
       />
-      <Html fullscreen style={{ pointerEvents: "none" }} zIndexRange={[100, 0]}>
-        <div style={{ pointerEvents: "none", position: "relative", width: "100%", height: "100%" }}>{card}</div>
-      </Html>
+      <ScreenFixedCard>{card}</ScreenFixedCard>
     </>
   );
 }

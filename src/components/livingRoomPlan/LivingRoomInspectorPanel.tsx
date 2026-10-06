@@ -124,7 +124,7 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
   return (
     <aside
       className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`}
-      style={props.maximized ? undefined : { width: props.widthPx }}
+      style={{ ["--studio-inspector-width" as string]: `${props.widthPx}px` }}
       data-testid="interiors-inspector"
       aria-label="Selection properties"
     >

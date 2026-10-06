@@ -70,7 +70,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     }) && catalogView ? (
       <aside
         className="lr-catalog lr-studio-panel"
-        style={props.paneMaximized ? undefined : { width: props.widthPx }}
+        style={{ ["--studio-catalog-width" as string]: `${props.widthPx}px` }}
         data-workflow-area={props.workflowArea}
       >
         <div className="lr-catalog-scroll">

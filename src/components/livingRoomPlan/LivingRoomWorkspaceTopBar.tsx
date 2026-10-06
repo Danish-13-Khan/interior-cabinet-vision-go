@@ -64,7 +64,6 @@ export function LivingRoomWorkspaceTopBar({ workspace: props, chrome, roomName }
       onRedo={props.onRedo}
       onPresent={chrome.present}
       onOpenShortcuts={props.onOpenShortcuts}
-      performanceAvailable={hud.showMenu}
       performanceOpen={hud.checked}
       onTogglePerformance={hud.toggle}
     />

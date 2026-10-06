@@ -11,7 +11,6 @@
 @import "./styles/workspace-inspector.css";
 @import "./styles/engineering-inspector.css";
 @import "./styles/workspace-split.css";
-@import "./styles/studio-panes.css";
 @import "./styles/status-strip.css";
 @import "./styles/report-center.css";
 @import "./styles/report-tables.css";
@@ -116,3 +115,4 @@
 @import "./styles/plan-guides.css";
 @import "./styles/cabinet-gola.css";
 @import "./styles/hosted-appliances.css";
+@import "./styles/studio-panes.css";

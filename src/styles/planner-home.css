@@ -203,7 +203,7 @@
 /* The contextual panel is required to actually build and furnish a room. */
 .lr-product-shell-v2 .lr-catalog {
   display: flex;
-  width: 280px !important;
+  width: 280px;
   min-width: 280px;
   max-width: 280px;
   background: #151b16;
@@ -212,7 +212,7 @@
 }
 
 .lr-product-shell-v2 .lr-studio-rail { width:220px; flex-basis:220px; padding:28px 14px; background: #151b16; }
-.lr-product-shell-v2 .lr-inspector { width:360px !important; min-width:360px; }
+.lr-product-shell-v2 .lr-inspector { width:360px; min-width:360px; }
 
 .lr-product-shell-v2 .context-panel-heading,
 .lr-product-shell-v2 .lr-asset-controls,
@@ -327,13 +327,13 @@
 }
 
 .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog {
-  width: 310px !important;
+  width: 310px;
   min-width: 310px;
   max-width: 310px;
 }
 
 .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
-  width: 350px !important;
+  width: 350px;
   min-width: 350px;
 }
 

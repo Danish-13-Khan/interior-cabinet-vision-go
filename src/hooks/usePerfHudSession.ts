@@ -6,11 +6,10 @@ import {
   subscribePerfHud,
   togglePerfHudOpen,
 } from "../domain/performance/perfHudSession";
-import { readPerfHudDebugStart, readPerformanceHudAllowedFromBrowser } from "../domain/performance/readPerfHudBrowser";
+import { readPerfHudDebugStart } from "../domain/performance/readPerfHudBrowser";
 
 /** Shared session: the job menu and both 3D canvases read the same open flag. */
 export function usePerfHudSession() {
-  const allowed = useMemo(() => readPerformanceHudAllowedFromBrowser(), []);
   const debug = useMemo(() => readPerfHudDebugStart(), []);
   bootPerfHud(debug);
   const [open, setOpen] = useState(readPerfHudOpen);
@@ -18,9 +17,8 @@ export function usePerfHudSession() {
   useEffect(() => subscribePerfHud(setOpen), []);
 
   return {
-    showMenu: allowed,
     checked: open,
-    visible: open && (allowed || debug),
+    visible: open,
     toggle: togglePerfHudOpen,
     close: () => setPerfHudOpen(false),
   };
