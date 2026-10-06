@@ -1,10 +1,12 @@
 # Template card media roadmap (sharp stills and hover clips)
 
-**Status:** Phases 0–3 done (2026-10-06); Phase 3 not yet committed.
-Stills: `npm run media:cards`. Clips (96 frames → WebM + MP4):
-`npm run media:cards:clips` or `npm run media:cards -- --with-clips`. All ten
-clips pass their checks (largest 268 KB WebM). Phase 4 (`CardMedia` hover UI)
-is next.
+**Status:** Phases 0–4 built (2026-10-06); Phase 4 not yet committed.
+Stills: `npm run media:cards`. Clips: `npm run media:cards:clips`. Hover:
+shared `CardMedia` on the website and both app pickers (`preload="none"`,
+150 ms hover delay, 220 ms fade in and out, apartments play once and hold,
+rooms loop, one clip at a time, reduced motion keeps the plan cross-fade).
+Still to check by hand in a visible tab: hover-to-first-frame ≤ 300 ms,
+keyboard focus, touch autoplay, and playback in Safari and Firefox.
 Branch: `feat/template-card-media`.
 **Goal:** Every template card (four apartments and six catalog rooms) shows a
 sharp, well-composed render. When the cursor rests on a card, a short clip of

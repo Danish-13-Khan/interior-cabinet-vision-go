@@ -1,0 +1,56 @@
+.card-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card-media__poster,
+.card-media__plan,
+.card-media__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.card-media__plan,
+.card-media__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.card-media__plan {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.card-media__video {
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.card-media__video.is-visible {
+  opacity: 1;
+}
+
+:is(.template-card, .interiors-apartment-templates button, .interiors-popular-templates button):hover
+  .card-media__plan,
+:is(.template-card, .interiors-apartment-templates button, .interiors-popular-templates button):focus-visible
+  .card-media__plan {
+  opacity: 1;
+}
+
+.card-media[data-clip-active="true"] .card-media__plan {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-media__plan,
+  .card-media__video {
+    transition: none;
+  }
+}

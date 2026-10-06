@@ -22,16 +22,6 @@
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
 }
-/* Apartments: the whole-apartment overview cross-fades over the hero room on hover / focus. */
-.cs-marketing .template-thumbs { position: relative; display: block; }
-.cs-marketing .template-thumb-plan {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 220ms ease;
-}
-.cs-marketing .template-card:hover .template-thumb-plan,
-.cs-marketing .template-card:focus-visible .template-thumb-plan { opacity: 1; }
 .cs-marketing .template-meta { display: grid; gap: var(--space-1); padding: var(--space-4) var(--space-5) var(--space-5); }
 .cs-marketing .template-meta strong { font-size: var(--text-lg); }
 .cs-marketing .template-meta > span { font-size: var(--text-md); color: var(--ink-muted); }
@@ -97,5 +87,4 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .cs-marketing .template-card, .cs-marketing .template-card:hover { transition: none; transform: none; }
-  .cs-marketing .template-thumb-plan { transition: none; }
 }

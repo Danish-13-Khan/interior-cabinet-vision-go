@@ -14,6 +14,7 @@ export {
   catalogPosterFromObjectKey,
   type CatalogPosterRef,
 } from "./cardMediaPaths";
+export { cardClipShouldLoop } from "./cardClipPolicy";
 export {
   APARTMENT_TEMPLATE_CARD_IDS,
   CATALOG_TEMPLATE_CARD_IDS,

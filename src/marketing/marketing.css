@@ -3,6 +3,7 @@
 @import "./styles/header.css";
 @import "./styles/hero.css";
 @import "./styles/sections.css";
+@import "../styles/card-media.css";
 @import "./styles/cards.css";
 @import "./styles/motion.css";
 @import "./styles/auth.css";

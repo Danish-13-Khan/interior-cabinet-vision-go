@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { TemplateCardPoster } from '../../components/livingRoomPlan/TemplateCardPoster'
+import { CardMedia } from '../../components/cardMedia'
 import type { TemplateCardId } from '../../domain/templateCardMedia'
 import { MARKETING_TEMPLATES, registerHrefForTemplate } from './marketingTemplates'
 
@@ -16,23 +16,12 @@ export function TemplatesSection() {
           {MARKETING_TEMPLATES.map((template) => (
             <li key={template.id} className="reveal">
               <Link className="template-card" to={registerHrefForTemplate(template.id)} data-template-id={template.id}>
-                <span className="template-thumbs">
-                  <TemplateCardPoster
-                    className="template-thumb"
-                    templateId={template.id as TemplateCardId}
-                    width={640}
-                    height={480}
-                  />
-                  {template.planImage ? (
-                    <TemplateCardPoster
-                      className="template-thumb template-thumb-plan"
-                      templateId={template.id as TemplateCardId}
-                      plan
-                      width={640}
-                      height={480}
-                    />
-                  ) : null}
-                </span>
+                <CardMedia
+                  className="template-thumb"
+                  templateId={template.id as TemplateCardId}
+                  width={640}
+                  height={480}
+                />
                 <span className="template-meta">
                   <strong>{template.name}</strong>
                   <span>{template.blurb}</span>
