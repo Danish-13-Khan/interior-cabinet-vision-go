@@ -1,36 +1,12 @@
-import {
-  DEFAULT_BUILD_RULES,
-  resolveCabinetMaterialSpec,
-} from "../materialSystem";
-import {
-  createDefaultComposition,
-  resolveCabinetComposition,
-  syncFlatFieldsFromComposition,
-} from "../cabinetComposition";
-import {
-  supportsDoors,
-  supportsDrawers,
-  supportsShelves,
-  supportsToeKick,
-} from "../cabinetCapabilities";
 import { clampCostingSettings } from "../costingSettings";
 import { clampProjectStandards } from "../projectStandards";
 import { clampJobMeta } from "../jobMeta";
-import {
-  applyManufacturingFixes,
-  getMinDividersForShelfSpan,
-  applyWallMountPlacementFix,
-} from "../manufacturingRules";
-import { getCabinetDimensionLimits } from "../manufacturingRules/slidingLimits";
+import { applyWallMountPlacementFix } from "../manufacturingRules";
 import {
   clampDraftingDisplay,
   clampProjectDrafting,
 } from "../draftingAnnotations";
 import { clampProjectSheetSet } from "../sheetDocuments";
-import {
-  normalizeConstructionSpec,
-  shelvesAreAdjustable,
-} from "../cabinetConstructionSpec";
 import {
   clampQuoteHistory,
   clampQuoteSettings,
@@ -40,324 +16,31 @@ import {
   clampRevisionHistory,
 } from "../projectReview/clamp";
 import { clampSheetOptimizerSettings } from "../sheetStock";
-import { normalizeCabinetHardware } from "../hardwareSystem";
-import { resolveFamilyId } from "../cabinetIdentity/families";
-import { isRunFillerCatalogId } from "../cabinetIdentity/catalogBindings";
 import type {
-  CabinetConfig,
-  CabinetDimensions,
   CabinetPlacement,
   CabinetProject, RoomBounds,
 } from "./types";
-import {
-  CABINET_DEPTH_MAX_MM,
-  CABINET_DEPTH_MIN_MM,
-  CABINET_DRAWER_MAX,
-  CABINET_DRAWER_MIN,
-  CABINET_GRID_SNAP_MM,
-  CABINET_HEIGHT_MAX_MM,
-  CABINET_HEIGHT_MIN_MM,
-  CABINET_SHELF_MAX,
-  CABINET_SHELF_MIN,
-  CABINET_TOE_KICK_HEIGHT_MAX_MM,
-  CABINET_TOE_KICK_HEIGHT_MIN_MM,
-  CABINET_TOE_KICK_INSET_MAX_MM,
-  CABINET_TOE_KICK_INSET_MIN_MM,
-  CABINET_WIDTH_MAX_MM,
-  CABINET_WIDTH_MIN_MM,
-  cabinetTypePresets,
-  defaultCabinetConfig,
-  defaultCabinetProject,
-} from "./defaults";
+import { CABINET_GRID_SNAP_MM, defaultCabinetProject } from "./defaults";
 import {
   clampCabinetPlacement,
   getDefaultBottomOffsetMm,
   normalizeRotationAngle,
   snapMillimetresToGrid,
 } from "./placement";
+import { cabinetPlacementGridMm, clampCabinetConfig } from "./clampConfig";
 
-function clampWithinRange(
-  value: number,
-  min: number,
-  max: number,
-  fallback: number,
-): number {
-  if (!Number.isFinite(value)) {
-    return fallback;
-  }
-
-  return Math.min(max, Math.max(min, value));
-}
-
-export function clampCabinetWidth(width: number): number {
-  return clampWithinRange(
-    width,
-    CABINET_WIDTH_MIN_MM,
-    CABINET_WIDTH_MAX_MM,
-    defaultCabinetConfig.dimensions.width,
-  );
-}
-
-export function clampCabinetHeight(height: number): number {
-  return clampWithinRange(
-    height,
-    CABINET_HEIGHT_MIN_MM,
-    CABINET_HEIGHT_MAX_MM,
-    defaultCabinetConfig.dimensions.height,
-  );
-}
-
-export function clampCabinetDepth(depth: number): number {
-  return clampWithinRange(
-    depth,
-    CABINET_DEPTH_MIN_MM,
-    CABINET_DEPTH_MAX_MM,
-    defaultCabinetConfig.dimensions.depth,
-  );
-}
-
-export function clampShelfCount(shelfCount: number): number {
-  return Math.round(
-    clampWithinRange(
-      shelfCount,
-      CABINET_SHELF_MIN,
-      CABINET_SHELF_MAX,
-      defaultCabinetConfig.shelfCount,
-    ),
-  );
-}
-
-export function clampDrawerCount(drawerCount: number): number {
-  return Math.round(
-    clampWithinRange(
-      drawerCount,
-      CABINET_DRAWER_MIN,
-      CABINET_DRAWER_MAX,
-      0,
-    ),
-  );
-}
-
-export function clampToeKickHeight(toeKickHeight: number): number {
-  return clampWithinRange(
-    toeKickHeight,
-    CABINET_TOE_KICK_HEIGHT_MIN_MM,
-    CABINET_TOE_KICK_HEIGHT_MAX_MM,
-    cabinetTypePresets.base.toeKickHeight,
-  );
-}
-
-export function clampToeKickInset(toeKickInset: number): number {
-  return clampWithinRange(
-    toeKickInset,
-    CABINET_TOE_KICK_INSET_MIN_MM,
-    CABINET_TOE_KICK_INSET_MAX_MM,
-    cabinetTypePresets.base.toeKickInset,
-  );
-}
-
-export function clampCabinetDimensions(
-  dimensions: CabinetDimensions,
-): CabinetDimensions {
-  return {
-    ...dimensions,
-    width: clampCabinetWidth(dimensions.width),
-    height: clampCabinetHeight(dimensions.height),
-    depth: clampCabinetDepth(dimensions.depth),
-    boardThickness: Math.max(1, dimensions.boardThickness),
-    backPanelThickness: Math.max(1, dimensions.backPanelThickness),
-  };
-}
-
-export function clampCabinetConfig(config: CabinetConfig): CabinetConfig {
-  if (isRunFillerCatalogId(config.catalogItemId)) {
-    return {
-      ...config,
-      type: config.type || "base",
-      familyId: config.familyId || "frameless-standard-base",
-      catalogItemId: config.catalogItemId,
-      hasDoors: false,
-      shelfCount: 0,
-      drawerCount: 0,
-      toeKickHeight: 0,
-      toeKickInset: 0,
-      dimensions: {
-        ...config.dimensions,
-        width: Math.max(1, config.dimensions.width),
-        height: Math.max(1, config.dimensions.height),
-        depth: Math.max(1, config.dimensions.depth),
-        boardThickness: Math.max(1, config.dimensions.boardThickness || 18),
-        backPanelThickness: Math.max(1, config.dimensions.backPanelThickness || 6),
-      },
-    };
-  }
-  const preset = cabinetTypePresets[config.type] ?? defaultCabinetConfig;
-  const manufacturing = applyManufacturingFixes({
-    ...preset,
-    ...config,
-    dimensions: {
-      ...preset.dimensions,
-      ...config.dimensions,
-    },
-    buildRules: {
-      ...(preset.buildRules ?? DEFAULT_BUILD_RULES),
-      ...(config.buildRules ?? {}),
-    },
-  });
-  const merged = manufacturing.config;
-  merged.dimensions = {
-    ...merged.dimensions,
-    boardThickness:
-      merged.buildRules?.carcassThicknessMm ?? merged.dimensions.boardThickness,
-    backPanelThickness:
-      merged.buildRules?.backPanelThicknessMm ?? merged.dimensions.backPanelThickness,
-  };
-  const resolvedMaterialSpec = resolveCabinetMaterialSpec(merged.buildRules);
-  const familyLimits = getCabinetDimensionLimits(merged);
-  const globallySafeDimensions = clampCabinetDimensions(merged.dimensions);
-  // Family ranges are stricter than the global safety limits, except for the
-  // 250/300 mm BPO pull-out base carcasses.
-  const safeDimensions = {
-    ...globallySafeDimensions,
-    width: clampWithinRange(
-      merged.dimensions.width,
-      familyLimits.width.min,
-      familyLimits.width.max,
-      preset.dimensions.width,
-    ),
-    height: clampWithinRange(
-      merged.dimensions.height,
-      familyLimits.height.min,
-      familyLimits.height.max,
-      preset.dimensions.height,
-    ),
-    depth: clampWithinRange(
-      merged.dimensions.depth,
-      familyLimits.depth.min,
-      familyLimits.depth.max,
-      preset.dimensions.depth,
-    ),
-  };
-  const hasToeKick = supportsToeKick(merged.type);
-  const hasShelves = supportsShelves(merged.type);
-  const hasDoors = supportsDoors(merged.type);
-  const hasDrawers = supportsDrawers(merged.type);
-
-  const shelfCount = hasShelves ? clampShelfCount(merged.shelfCount) : 0;
-  const drawerCount = hasDrawers ? clampDrawerCount(merged.drawerCount ?? 0) : 0;
-  const hasDoorsFlag = hasDoors ? Boolean(merged.hasDoors) : false;
-  const toeKickHeight = hasToeKick ? clampToeKickHeight(merged.toeKickHeight) : 0;
-  const toeKickInset = hasToeKick ? clampToeKickInset(merged.toeKickInset) : 0;
-  const seedComposition =
-    merged.composition ??
-    createDefaultComposition(merged.type, {
-      ...merged,
-      dimensions: safeDimensions,
-      shelfCount,
-      hasDoors: hasDoorsFlag,
-      drawerCount,
-      toeKickHeight,
-      toeKickInset,
-      leftEndPanel: Boolean(merged.leftEndPanel),
-      rightEndPanel: Boolean(merged.rightEndPanel),
-    });
-
-  const composition = resolveCabinetComposition({
-    ...merged,
-    dimensions: safeDimensions,
-    shelfCount,
-    hasDoors: hasDoorsFlag,
-    drawerCount,
-    toeKickHeight,
-    toeKickInset,
-    leftEndPanel: Boolean(merged.leftEndPanel),
-    rightEndPanel: Boolean(merged.rightEndPanel),
-    composition: {
-      ...seedComposition,
-      shelves: {
-        ...seedComposition.shelves,
-        count: shelfCount,
-      },
-      drawers: {
-        ...seedComposition.drawers,
-        count: drawerCount,
-      },
-      doors: {
-        ...seedComposition.doors,
-        enabled: hasDoorsFlag,
-        style: hasDoorsFlag
-          ? seedComposition.doors.style === "none"
-            ? safeDimensions.width < 600
-              ? "single"
-              : "double"
-            : seedComposition.doors.style
-          : "none",
-      },
-      toeKick: {
-        ...seedComposition.toeKick,
-        enabled: toeKickHeight > 0,
-        heightMm: toeKickHeight,
-        insetMm: toeKickInset,
-      },
-      endPanels: {
-        left: Boolean(merged.leftEndPanel),
-        right: Boolean(merged.rightEndPanel),
-      },
-      dividers: {
-        ...seedComposition.dividers,
-        count: Math.max(
-          seedComposition.dividers.count,
-          merged.composition?.dividers?.count ?? 0,
-          getMinDividersForShelfSpan({
-            ...merged,
-            dimensions: safeDimensions,
-            shelfCount,
-            composition: seedComposition,
-          }),
-        ),
-      },
-    },
-  });
-  const construction = normalizeConstructionSpec(merged.type, merged.construction, {
-    shelvesAdjustable: composition.shelves.adjustable,
-  });
-  const hardware = normalizeCabinetHardware(merged.type, merged.hardware);
-  const syncedComposition = {
-    ...composition,
-    shelves: {
-      ...composition.shelves,
-      adjustable: shelvesAreAdjustable(construction.shelfMount),
-    },
-  };
-  const flat = syncFlatFieldsFromComposition(syncedComposition);
-
-  return {
-    ...merged,
-    familyId: resolveFamilyId(merged.familyId, merged.type),
-    catalogItemId: merged.catalogItemId ?? `cabinet:${merged.type}`,
-    dimensions: safeDimensions,
-    ...flat,
-    composition: syncedComposition,
-    construction,
-    hardware,
-    buildRules: {
-      ...merged.buildRules,
-      carcassThicknessMm: resolvedMaterialSpec.carcassMaterial.thicknessMm,
-      backPanelThicknessMm: resolvedMaterialSpec.backMaterial.thicknessMm,
-      shelfThicknessMm: resolvedMaterialSpec.shelfMaterial.thicknessMm,
-      drawerBoxThicknessMm: resolvedMaterialSpec.drawerBoxMaterial.thicknessMm,
-      finishId: resolvedMaterialSpec.doorMaterial.finishId,
-      edgeBandingId: resolvedMaterialSpec.carcassMaterial.edgeBandingId,
-      grainDirection: resolvedMaterialSpec.carcassMaterial.grainDirection,
-      backPanelType: resolvedMaterialSpec.backMaterial.backPanelType,
-    },
-  };
-}
-
-/** Placement grid for a cabinet: run fillers keep 1 mm so they stay flush with cabinet fronts. */
-export function cabinetPlacementGridMm(config: Pick<CabinetConfig, "catalogItemId"> | undefined): number | undefined {
-  return isRunFillerCatalogId(config?.catalogItemId) ? 1 : undefined;
-}
+// Public clamp API (split across modules; this path stays the stable import).
+export {
+  clampCabinetDepth,
+  clampCabinetDimensions,
+  clampCabinetHeight,
+  clampCabinetWidth,
+  clampDrawerCount,
+  clampShelfCount,
+  clampToeKickHeight,
+  clampToeKickInset,
+} from "./clampScalars";
+export { cabinetPlacementGridMm, clampCabinetConfig } from "./clampConfig";
 
 export function clampCabinetProject(project: CabinetProject, roomBounds?: RoomBounds): CabinetProject {
   const layers = Array.isArray(project.layers) && project.layers.length > 0
