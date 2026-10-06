@@ -7,6 +7,11 @@
     "plan": {
       "w800": "catalog/templates/apartment-studio-plan-v2.webp",
       "w1600": "catalog/templates/apartment-studio-plan-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/apartment-studio-clip-v2.webm",
+      "mp4": "catalog/templates/apartment-studio-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:apartment:1bhk:v1": {
@@ -17,6 +22,11 @@
     "plan": {
       "w800": "catalog/templates/apartment-1bhk-plan-v2.webp",
       "w1600": "catalog/templates/apartment-1bhk-plan-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/apartment-1bhk-clip-v2.webm",
+      "mp4": "catalog/templates/apartment-1bhk-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:apartment:2bhk:v1": {
@@ -27,6 +37,11 @@
     "plan": {
       "w800": "catalog/templates/apartment-2bhk-plan-v2.webp",
       "w1600": "catalog/templates/apartment-2bhk-plan-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/apartment-2bhk-clip-v2.webm",
+      "mp4": "catalog/templates/apartment-2bhk-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:apartment:3bhk:v1": {
@@ -37,42 +52,77 @@
     "plan": {
       "w800": "catalog/templates/apartment-3bhk-plan-v2.webp",
       "w1600": "catalog/templates/apartment-3bhk-plan-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/apartment-3bhk-clip-v2.webm",
+      "mp4": "catalog/templates/apartment-3bhk-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:core:living-room:v1": {
     "poster": {
       "w800": "catalog/templates/living-room-v2.webp",
       "w1600": "catalog/templates/living-room-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/living-room-clip-v2.webm",
+      "mp4": "catalog/templates/living-room-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:core:empty-room:v1": {
     "poster": {
       "w800": "catalog/templates/empty-room-v2.webp",
       "w1600": "catalog/templates/empty-room-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/empty-room-clip-v2.webm",
+      "mp4": "catalog/templates/empty-room-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:core:straight-kitchen:v1": {
     "poster": {
       "w800": "catalog/templates/straight-kitchen-v2.webp",
       "w1600": "catalog/templates/straight-kitchen-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/straight-kitchen-clip-v2.webm",
+      "mp4": "catalog/templates/straight-kitchen-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:core:l-kitchen:v1": {
     "poster": {
       "w800": "catalog/templates/l-kitchen-v2.webp",
       "w1600": "catalog/templates/l-kitchen-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/l-kitchen-clip-v2.webm",
+      "mp4": "catalog/templates/l-kitchen-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:core:bedroom:v1": {
     "poster": {
       "w800": "catalog/templates/bedroom-v2.webp",
       "w1600": "catalog/templates/bedroom-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/bedroom-clip-v2.webm",
+      "mp4": "catalog/templates/bedroom-clip-v2.mp4",
+      "durationMs": 4000
     }
   },
   "template:core:bathroom:v1": {
     "poster": {
       "w800": "catalog/templates/bathroom-v2.webp",
       "w1600": "catalog/templates/bathroom-v2-1600.webp"
+    },
+    "clip": {
+      "webm": "catalog/templates/bathroom-clip-v2.webm",
+      "mp4": "catalog/templates/bathroom-clip-v2.mp4",
+      "durationMs": 4000
     }
   }
 }

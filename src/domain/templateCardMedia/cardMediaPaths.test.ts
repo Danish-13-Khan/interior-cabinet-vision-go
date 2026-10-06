@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { CARD_CLIP_DURATION_MS } from "../templateCardsCapture/clipTimeline";
 import { CARD_MEDIA } from "./cardMedia.generated";
-import { cardMediaForTemplate, catalogPosterFromObjectKey } from "./cardMediaPaths";
+import { cardClipSources, cardMediaForTemplate, catalogPosterFromObjectKey } from "./cardMediaPaths";
 import { TEMPLATE_CARD_IDS } from "./templateIds";
 
 describe("card media paths", () => {
@@ -18,6 +21,25 @@ describe("card media paths", () => {
 
   it("throws when manifest entry is missing", () => {
     expect(() => cardMediaForTemplate("template:apartment:missing:v1" as never)).toThrow(/CARD_MEDIA/);
+  });
+
+  it("resolves clip URLs when manifest lists a clip", () => {
+    const withClip = TEMPLATE_CARD_IDS.map((id) => CARD_MEDIA[id]?.clip).find(Boolean);
+    if (!withClip) return;
+    const sources = cardClipSources(withClip, "/");
+    expect(sources.durationMs).toBe(CARD_CLIP_DURATION_MS);
+    expect(sources.webm).toMatch(/-clip-v2\.webm$/);
+    expect(sources.mp4).toMatch(/-clip-v2\.mp4$/);
+  });
+
+  it("checks clip files on disk when manifest entries include clip", () => {
+    for (const id of TEMPLATE_CARD_IDS) {
+      const clip = CARD_MEDIA[id]?.clip;
+      if (!clip) continue;
+      expect(clip.durationMs).toBe(CARD_CLIP_DURATION_MS);
+      expect(existsSync(join(process.cwd(), "public", clip.webm))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", clip.mp4))).toBe(true);
+    }
   });
 
   it("builds catalog srcset or single PNG ref", () => {

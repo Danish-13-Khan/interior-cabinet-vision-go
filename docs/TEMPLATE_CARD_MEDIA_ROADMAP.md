@@ -1,11 +1,10 @@
 # Template card media roadmap (sharp stills and hover clips)
 
-**Status:** Phases 0–2 done (2026-10-06), not yet committed. A full
-`npm run media:cards` run writes all 14 stills with no skips. The production
-bundle carries no capture code and the landing entry is 197 KB (main 196 KB).
-Exceptions, each with its reason where it is set: the 2 BHK plan is shot in
-daylight (walnut reads near-black at dusk), and its hero camera is turned
-(`heroCompositionOverrides.ts`). Phases 3–4 (hover clips) are next.
+**Status:** Phases 0–3 done (2026-10-06); Phase 3 not yet committed.
+Stills: `npm run media:cards`. Clips (96 frames → WebM + MP4):
+`npm run media:cards:clips` or `npm run media:cards -- --with-clips`. All ten
+clips pass their checks (largest 268 KB WebM). Phase 4 (`CardMedia` hover UI)
+is next.
 Branch: `feat/template-card-media`.
 **Goal:** Every template card (four apartments and six catalog rooms) shows a
 sharp, well-composed render. When the cursor rests on a card, a short clip of
@@ -189,8 +188,17 @@ Marketing and app cards read paths from here instead of from the
   writes PNG frames to a temp dir, and encodes WebM VP9 and MP4 H.264 (yuv420p,
   `+faststart`).
 - Apartments use `overview-to-hero`, which holds 0.5 s on each end, with
-  3 s of motion between. Rooms
-  use `room-arc` played forward and back, so the loop is seamless.
+  3 s of motion between. The timeline (`clipTimeline.ts`) owns the easing;
+  the path moves across early and down late, so the camera is over the hero
+  room before it drops below wall height and never passes through a wall.
+  Frames with `t` in 0.3–0.7 are rendered in both the apartment and the room
+  scene and dissolved, so the scene swap is not a cut.
+- Rooms use `room-arc` as one sine cycle starting at the poster pose
+  (t = 0.5): it slows into each turn, repeats no frame, and loops seamlessly.
+- The 2 BHK clip is shot in daylight, like its plan still (walnut reads
+  near-black at dusk).
+- Nothing reaches `public/` until a clip passes exposure and size checks;
+  frames and encodes live in a temp folder that is always removed.
 
 **Exit gate:**
 - Ten clips within budget (§3.3).
@@ -210,6 +218,9 @@ Marketing and app cards read paths from here instead of from the
   60% visible, plays (IntersectionObserver), one at a time. Data saver
   (`navigator.connection.saveData`) disables clips.
 - Reduced motion: no video; the plan cross-fade stays (D5).
+- Apartment clips end on the hero view and start on the plan, so looping
+  them cuts every 4 s. Proposed: play apartment clips once and hold the last
+  frame (it matches the poster); room clips loop.
 - Adopt it in `TemplatesSection.tsx` (website), and in
   `InteriorsApartmentTemplates.tsx` and `InteriorsPopularTemplates.tsx` (app,
   D9). Remove the duplicated cross-fade CSS.

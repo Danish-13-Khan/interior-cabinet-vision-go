@@ -9,6 +9,7 @@ export { CARD_MEDIA } from "./cardMedia.generated";
 export {
   cardMediaForTemplate,
   findCardMedia,
+  cardClipSources,
   cardPosterSrcSet,
   catalogPosterFromObjectKey,
   type CatalogPosterRef,

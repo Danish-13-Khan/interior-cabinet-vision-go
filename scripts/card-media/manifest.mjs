@@ -34,9 +34,21 @@ export async function readExistingCardMedia(root) {
   }
 }
 
+function mergeEntry(existing, incoming) {
+  if (!existing) return incoming;
+  return {
+    poster: incoming.poster ?? existing.poster,
+    plan: incoming.plan ?? existing.plan,
+    clip: incoming.clip ?? existing.clip,
+  };
+}
+
 export async function writeCardMediaManifest(root, entries) {
   const existing = await readExistingCardMedia(root);
-  const merged = { ...existing, ...entries };
+  const merged = { ...existing };
+  for (const [id, entry] of Object.entries(entries)) {
+    merged[id] = mergeEntry(existing[id], entry);
+  }
   const jsonPath = cardMediaJsonPath(root);
   await writeFile(jsonPath, `${JSON.stringify(merged, null, 2)}\n`);
   const tsPath = join(root, "src/domain/templateCardMedia/cardMedia.generated.ts");

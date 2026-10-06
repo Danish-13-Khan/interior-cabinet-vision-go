@@ -17,20 +17,27 @@ export function cameraEntityToPose(camera: CameraEntity): CardCameraPose {
   };
 }
 
-export function blendCameraPoses(from: CardCameraPose, to: CardCameraPose, t: number): CardCameraPose {
-  const lerp = (a: number, b: number) => a + (b - a) * t;
+/**
+ * Overview-to-room glide that never passes through a wall: the camera moves
+ * across early (ease-out) and comes down late (ease-in), so it is over the
+ * room before it drops below wall height. The target follows the camera across.
+ */
+export function glideCameraPoses(from: CardCameraPose, to: CardCameraPose, t: number): CardCameraPose {
+  const across = 1 - (1 - t) ** 2;
+  const down = t * t;
+  const lerp = (a: number, b: number, u: number) => a + (b - a) * u;
   return {
     position: {
-      x: lerp(from.position.x, to.position.x),
-      y: lerp(from.position.y, to.position.y),
-      z: lerp(from.position.z, to.position.z),
+      x: lerp(from.position.x, to.position.x, across),
+      y: lerp(from.position.y, to.position.y, down),
+      z: lerp(from.position.z, to.position.z, across),
     },
     target: {
-      x: lerp(from.target.x, to.target.x),
-      y: lerp(from.target.y, to.target.y),
-      z: lerp(from.target.z, to.target.z),
+      x: lerp(from.target.x, to.target.x, across),
+      y: lerp(from.target.y, to.target.y, across),
+      z: lerp(from.target.z, to.target.z, across),
     },
-    fieldOfViewDegrees: lerp(from.fieldOfViewDegrees ?? 42, to.fieldOfViewDegrees ?? 42),
+    fieldOfViewDegrees: lerp(from.fieldOfViewDegrees ?? 42, to.fieldOfViewDegrees ?? 42, t),
     orthographic: false,
   };
 }

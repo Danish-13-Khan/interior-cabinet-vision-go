@@ -9,6 +9,9 @@ export const APARTMENT_TARGETS = [
     // so this plan is shot in daylight; walnut in daylight reads cast 0.97 and looks right.
     planMood: "day",
     planExposure: { castRatio: [0, 1] },
+    // The clip opens on that plan, so the whole clip is daylight too: an evening
+    // opening would be near-black and would not match the plan image.
+    clipMood: "day",
   },
   { id: "template:apartment:3bhk:v1", slug: "3bhk", testId: "template:apartment:3bhk:v1" },
 ];

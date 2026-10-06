@@ -3,7 +3,8 @@ export type CardCameraPathId = "hero" | "overview" | "overview-to-hero" | "room-
 export interface CardCaptureHook {
   ready(): Promise<void>;
   paths(): CardCameraPathId[];
-  pose(path: CardCameraPathId, t: number): Promise<void>;
+  /** `scene` forces the overview or room scene (overview-to-hero cross-fades); default follows `t`. */
+  pose(path: CardCameraPathId, t: number, options?: { scene?: "overview" | "room" }): Promise<void>;
   setLook(look: { quality: "presentation"; mood: "day" | "evening" }): Promise<void>;
 }
 

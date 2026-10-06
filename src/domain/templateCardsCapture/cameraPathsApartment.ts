@@ -5,10 +5,9 @@ import type { RoomSceneLookup } from "../livingRoom/roomSceneCache";
 import { resolveRenderCameraPose } from "../livingRoom/renderCameraPose";
 import { showcaseTourStops } from "../apartmentTemplates/showcaseTour";
 import { showcaseCameraForRoom } from "../apartmentTemplates/showcaseCamera";
-import { easeInOutCubic } from "../livingRoom/modelViewCameraEase";
 import { apartmentSlugFromId } from "../templateCardMedia/templateIds";
 import { applyHeroCompositionOverride, planCornerFor } from "./heroCompositionOverrides";
-import { blendCameraPoses, cameraEntityToPose, type CardCameraPose } from "./cameraPathPose";
+import { cameraEntityToPose, glideCameraPoses, type CardCameraPose } from "./cameraPathPose";
 
 export const CARD_VIEWPORT = { widthPx: 800, heightPx: 600 };
 
@@ -69,11 +68,23 @@ function heroPose(project: InteriorProject, sceneFor: RoomSceneLookup): CardCame
   return cameraEntityToPose(resolved);
 }
 
+/** Which scene renders a pose: the whole-apartment overview or the hero room. */
+export type CardCaptureScene = "overview" | "room";
+
+/** Below this `t` the overview-to-hero glide renders the apartment scene by default. */
+export const OVERVIEW_TO_HERO_SCENE_SWAP_T = 0.5;
+
+/**
+ * `overview-to-hero` follows `glideCameraPoses`; the clip timeline owns the overall easing.
+ * `scene` forces which scene renders, so the capture script can cross-fade
+ * the two around the swap instead of cutting between them.
+ */
 export function apartmentPathPose(
   project: InteriorProject,
   sceneFor: RoomSceneLookup,
   path: "hero" | "overview" | "overview-to-hero",
   t: number,
+  scene?: CardCaptureScene,
 ): { pose: CardCameraPose; overview: boolean; roomId: string | null; cameraId: string | null } {
   if (path === "overview") {
     return { pose: overviewPose(project, sceneFor), overview: true, roomId: null, cameraId: null };
@@ -82,11 +93,12 @@ export function apartmentPathPose(
     const stop = heroStop(project);
     return { pose: heroPose(project, sceneFor), overview: false, roomId: stop.roomId, cameraId: stop.cameraId };
   }
-  const eased = easeInOutCubic(t);
+  const overview = scene ? scene === "overview" : t < OVERVIEW_TO_HERO_SCENE_SWAP_T;
+  const stop = heroStop(project);
   return {
-    pose: blendCameraPoses(overviewPose(project, sceneFor), heroPose(project, sceneFor), eased),
-    overview: t < 0.5,
-    roomId: t >= 0.5 ? heroStop(project).roomId : null,
-    cameraId: t >= 0.5 ? heroStop(project).cameraId : null,
+    pose: glideCameraPoses(overviewPose(project, sceneFor), heroPose(project, sceneFor), t),
+    overview,
+    roomId: overview ? null : stop.roomId,
+    cameraId: overview ? null : stop.cameraId,
   };
 }

@@ -38,10 +38,11 @@ export async function waitForCaptureReady(page) {
   await page.evaluate(async () => window.__cardCapture?.ready());
 }
 
-export async function capturePose(page, path, t) {
-  await page.evaluate(async ({ path, t }) => {
-    await window.__cardCapture?.pose(path, t);
-  }, { path, t });
+/** @param {{ scene?: "overview" | "room" }} [options] force the scene (overview-to-hero cross-fade) */
+export async function capturePose(page, path, t, options = {}) {
+  await page.evaluate(async ({ path, t, options }) => {
+    await window.__cardCapture?.pose(path, t, options);
+  }, { path, t, options });
 }
 
 export async function setCaptureLook(page, mood = "evening") {
@@ -76,8 +77,8 @@ async function assertCanvasShape(page) {
   }
 }
 
-export async function grabCanvasPng(page) {
-  await prepareCaptureViewport(page);
+export async function grabCanvasPng(page, { skipViewportPrep = false } = {}) {
+  if (!skipViewportPrep) await prepareCaptureViewport(page);
   await assertCanvasShape(page);
   const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
   await page.waitForFunction(

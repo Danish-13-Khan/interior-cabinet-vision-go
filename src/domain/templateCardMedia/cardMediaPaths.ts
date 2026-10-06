@@ -42,3 +42,15 @@ export function catalogPosterFromObjectKey(objectKey: string): CatalogPosterRef 
 export function cardPosterSrcSet(poster: CardMediaVariantPaths, baseUrl: string): string {
   return `${baseUrl}${poster.w800} 800w, ${baseUrl}${poster.w1600} 1600w`;
 }
+
+/** Resolved clip URLs for `<video>` sources (Phase 4). */
+export function cardClipSources(
+  clip: NonNullable<CardMediaEntry["clip"]>,
+  baseUrl: string,
+): { webm: string; mp4: string; durationMs: number } {
+  return {
+    webm: `${baseUrl}${clip.webm}`,
+    mp4: `${baseUrl}${clip.mp4}`,
+    durationMs: clip.durationMs,
+  };
+}
