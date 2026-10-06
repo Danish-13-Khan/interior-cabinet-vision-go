@@ -32,7 +32,8 @@ const isSliding = (object: InteriorObjectEntity) => Boolean(slidingDoorsOf(cabin
 describe("Phase 3: authored apartments use sliding wardrobes where the matrix says (§4)", () => {
   it("Studio and the 3 BHK master slide; 1 BHK, 2 BHK and the 3 BHK guest stay hinged", () => {
     const summary = Object.fromEntries(APARTMENT_TEMPLATE_IDS.map((id) => [
-      id, wardrobes(id).map(({ object, room }) => `${room}:${isSliding(object) ? "sliding" : "hinged"}`).sort(),
+      // One entry per room: wide hinged wardrobes are runs of ≤ 900 mm modules.
+      id, [...new Set(wardrobes(id).map(({ object, room }) => `${room}:${isSliding(object) ? "sliding" : "hinged"}`))].sort(),
     ]));
     expect(summary).toEqual({
       "template:apartment:studio:v1": ["living:sliding"],

@@ -1,21 +1,19 @@
 import { roomPlanViewBounds, type InteriorProject } from "../../interiorProject";
 import { addRoomLightFixture } from "../../livingRoom/roomLightFixtures";
-import { applyCabinetFrontOptions } from "./cabinetOptions";
 import type { LivingRoomIdFactory } from "../../livingRoom/ids";
 import type { LivingComposeOptions, WallSide } from "../types";
 import { apartmentIdFactory } from "../ids";
-import { createLivingRoomObject } from "../../livingRoom/catalog";
 import {
   longestFreePieceOnSide,
   offsetTowardSide,
   oppositeSide,
-  placeCabinetOnWall,
   placeCatalogInRoom,
   placeCatalogOnWall,
   withActiveRoom,
 } from "./helpers";
 import { addDecorOnSide } from "./decorPlacement";
 import { addRoomFixtureKinds } from "./roomLights";
+import { placeWallWardrobe } from "./wardrobeModules";
 
 export type ComposeLivingArgs = LivingComposeOptions & {
   idFactory?: LivingRoomIdFactory;
@@ -56,21 +54,13 @@ export function composeLiving(
     const widthMm = options.wardrobeWidthMm ?? 1800;
     const piece = longestFreePieceOnSide(next, roomId, options.wardrobeSide, widthMm);
     if (piece) {
-      const wardrobeId = idFactory("object", `${roomId}-wardrobe`);
-      let seed = createLivingRoomObject("living:wardrobe-wall", {
-        id: wardrobeId,
-        roomId,
-        position: { x: bounds.centerX, y: 0, z: bounds.centerZ },
+      // Hinged wardrobes wider than 900 mm become a run of almirah modules; sliding stays one carcass.
+      next = placeWallWardrobe(next, {
+        roomId, piece, widthMm, idFactory,
+        front: { wardrobeDoors: options.wardrobeDoors, slidingLeafCount: options.slidingLeafCount },
+        startAlongMm: piece.startAlongMm + Math.max(0, (piece.lengthMm - widthMm) / 2),
+        position: { x: bounds.centerX, z: bounds.centerZ },
       });
-      seed.dimensions = { ...seed.dimensions, widthMm };
-      seed = applyCabinetFrontOptions(seed, {
-        wardrobeDoors: options.wardrobeDoors,
-        slidingLeafCount: options.slidingLeafCount,
-      });
-      const along = piece.startAlongMm
-        + Math.max(0, (piece.lengthMm - widthMm) / 2)
-        + widthMm / 2;
-      next = placeCabinetOnWall(next, seed, piece.wall, along);
     }
   }
 
