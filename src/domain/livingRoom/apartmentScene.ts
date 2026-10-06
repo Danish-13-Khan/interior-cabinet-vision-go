@@ -1,7 +1,10 @@
 import type { InteriorProject } from "../interiorProject";
+import { roomIdsUsingWall } from "../interiorProject/planTopology";
+import { roomPlanViewBounds } from "../interiorProject/roomPlanBounds";
 import { resolveModelViewPose } from "./modelViewPresets";
 import { createRoomSceneCache, type RoomSceneLookup } from "./roomSceneCache";
 import { compileMaterials } from "./sceneCompiler";
+import { wallSideFromCentre } from "./sceneCompilerRoom";
 import {
   computeArchitectureBounds,
   computeCompiledSceneBounds,
@@ -34,6 +37,39 @@ export function apartmentSceneNodes(scenes: readonly CompiledLivingRoomScene[]):
   return nodes;
 }
 
+function apartmentPlanCentre(project: InteriorProject) {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minZ = Infinity;
+  let maxZ = -Infinity;
+  for (const room of project.rooms) {
+    const bounds = roomPlanViewBounds(project, room.id);
+    minX = Math.min(minX, bounds.minX);
+    maxX = Math.max(maxX, bounds.maxX);
+    minZ = Math.min(minZ, bounds.minZ);
+    maxZ = Math.max(maxZ, bounds.maxZ);
+  }
+  if (!Number.isFinite(minX)) return { x: 0, z: 0 };
+  return { x: (minX + maxX) / 2, z: (minZ + maxZ) / 2 };
+}
+
+/** Shared partitions stay "interior" so cutaway cannot drop them. Outside walls face the whole plan. */
+function relabelApartmentWalls(project: InteriorProject, nodes: CompiledSceneNode[]) {
+  const centre = apartmentPlanCentre(project);
+  const sideByWall = new Map(project.walls.map((wall) => {
+    const shared = roomIdsUsingWall(project, wall.id).length > 1;
+    const side = shared ? "interior" : wallSideFromCentre(wall, centre);
+    return [wall.id, side] as const;
+  }));
+  return nodes.map((node) => {
+    const wallId = node.metadata.wallId;
+    if (typeof wallId !== "string" || node.metadata.wallSide === undefined) return node;
+    const wallSide = sideByWall.get(wallId);
+    if (!wallSide || node.metadata.wallSide === wallSide) return node;
+    return { ...node, metadata: { ...node.metadata, wallSide } };
+  });
+}
+
 function sceneStyle(project: InteriorProject, scenes: readonly CompiledLivingRoomScene[]) {
   if (scenes[0]) return scenes[0].style;
   const stylePreset = resolveLivingRoomStyle(project);
@@ -49,7 +85,7 @@ function overviewCamera(project: InteriorProject, bounds: CompiledLivingRoomScen
   const pose = resolveModelViewPose({ bounds } as CompiledLivingRoomScene, "dollhouse");
   return {
     id: "apartment-overview",
-    roomId: project.activeRoomId,
+    roomId: project.rooms[0]?.id ?? project.activeRoomId,
     name: "Whole apartment",
     position: pose.position,
     target: pose.target,
@@ -62,13 +98,16 @@ function overviewCamera(project: InteriorProject, bounds: CompiledLivingRoomScen
  * One scene for every room. Shared walls and their openings are emitted once.
  * Ceilings are omitted. Lights stay empty until the overview rig (8.2); preset
  * fill exists only on the hero room, so this view must not copy per-room lights.
+ *
+ * Each room compile still runs the classic adapter over the whole project for
+ * that room's countertops (about 14 passes on a 3 BHK). Measure that in 8.4.
  */
 export function compileApartmentScene(
   project: InteriorProject,
   sceneFor: RoomSceneLookup = createRoomSceneCache(project),
 ): CompiledLivingRoomScene {
   const scenes = project.rooms.map((room) => sceneFor(room.id));
-  const nodes = apartmentSceneNodes(scenes);
+  const nodes = relabelApartmentWalls(project, apartmentSceneNodes(scenes));
   const materials = compileMaterials(project);
   const lights: CompiledLivingRoomScene["lights"] = [];
   const bounds = computeCompiledSceneBounds(nodes);
@@ -76,7 +115,6 @@ export function compileApartmentScene(
   const style = sceneStyle(project, scenes);
   const architectureBounds = computeArchitectureBounds(nodes);
   const fingerprintSource = {
-    roomId: project.activeRoomId,
     nodes,
     materials,
     lights,

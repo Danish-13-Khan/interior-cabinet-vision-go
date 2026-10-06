@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { APARTMENT_TEMPLATE_IDS, instantiateApartmentTemplate } from "../apartmentTemplates";
 import { COMPOSER_TEST_NOW } from "../apartmentTemplates/composers/bareRoom";
+import { roomIdsUsingWall } from "../interiorProject/planTopology";
 import { roomPlanViewBounds } from "../interiorProject/roomPlanBounds";
 import type { InteriorProject } from "../interiorProject";
 import { compileApartmentScene } from "./apartmentScene";
@@ -90,5 +91,24 @@ describe("compileApartmentScene", () => {
       expect(plan.minZ).toBeGreaterThanOrEqual(first.bounds.min.z - 1);
       expect(plan.maxZ).toBeLessThanOrEqual(first.bounds.max.z + 1);
     }
+  });
+
+  it.each(projects)("%s labels walls from the whole plan, not room order", (_id, project) => {
+    const scene = compileApartmentScene(project);
+    const reversed = compileApartmentScene({ ...project, rooms: [...project.rooms].reverse() });
+    const sides = (compiled: CompiledLivingRoomScene) => compiled.nodes
+      .filter((node) => node.metadata.role === "wall")
+      .map((node) => [node.id, node.metadata.wallSide] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
+    expect(sides(reversed)).toEqual(sides(scene));
+    const outside = new Set(["front", "back", "left", "right"]);
+    for (const node of scene.nodes.filter((item) => item.metadata.role === "wall")) {
+      const shared = roomIdsUsingWall(project, String(node.metadata.wallId)).length > 1;
+      if (shared) expect(node.metadata.wallSide).toBe("interior");
+      else expect(outside.has(String(node.metadata.wallSide))).toBe(true);
+    }
+    const other = project.rooms.find((room) => room.id !== project.activeRoomId);
+    if (!other) return;
+    expect(compileApartmentScene({ ...project, activeRoomId: other.id }).fingerprint).toBe(scene.fingerprint);
   });
 });
