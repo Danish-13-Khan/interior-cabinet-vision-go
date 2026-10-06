@@ -1,3 +1,4 @@
+import { WALL_GRAPH_DOMAIN_VERSION } from "./boxRoomGraphMigration";
 import { wallIdsForRoomLoops } from "./planTopology";
 import { pickMaterialId } from "./roomDrawing";
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
@@ -138,5 +139,8 @@ export function formRoomFromClosedFreeWalls(project: InteriorProject, wallId: st
     rooms: [...project.rooms, room],
     walls: project.walls.map((item) => (cycleIds.has(item.id) ? { ...item, roomId } : item)),
     loops: [...project.loops, { id: loopId, wallUses }],
+    // The loop above is authoritative; without this stamp validation re-runs the box-room
+    // migration and rebuilds the loop from the first wall's direction, flipping the winding.
+    extensions: { ...project.extensions, wallGraphDomainVersion: WALL_GRAPH_DOMAIN_VERSION },
   }));
 }
