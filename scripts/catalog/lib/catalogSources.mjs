@@ -43,6 +43,13 @@ const TEMPLATE_THUMBNAILS = [
   { id: "image:template:l-kitchen:v1", objectKey: "catalog/templates/l-kitchen-v1.png" },
   { id: "image:template:bedroom:v1", objectKey: "catalog/templates/bedroom-v1.png" },
   { id: "image:template:bathroom:v1", objectKey: "catalog/templates/bathroom-v1.png" },
+  // v2: real 3D renders from `npm run media:cards` (docs/TEMPLATE_CARD_MEDIA_ROADMAP.md
+  // Phase 2). Template data points at these; the v1 diagrams stay for older pages.
+  ...["living-room", "empty-room", "straight-kitchen", "l-kitchen", "bedroom", "bathroom"].map((slug) => ({
+    id: `image:template:${slug}:v2`,
+    objectKey: `catalog/templates/${slug}-v2.webp`,
+    mimeType: "image/webp",
+  })),
 ];
 
 export function loadCatalogSources({ kenneyDataDir, materialsDir, templatesDir, root }) {
@@ -74,7 +81,7 @@ export function pushTemplateThumbnail(files, root) {
       kind: "image",
       role: "template-thumbnail",
       objectKey: thumb.objectKey,
-      mimeType: "image/png",
+      mimeType: thumb.mimeType ?? "image/png",
       byteSize,
       contentHash,
     });

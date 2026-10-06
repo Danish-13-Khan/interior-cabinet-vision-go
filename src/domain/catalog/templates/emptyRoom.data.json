@@ -5,7 +5,7 @@
   "category": "empty",
   "description": "Parametric room shell with a door and window — start from a blank interior.",
   "images": {
-    "thumbnailId": "image:template:empty-room:v1"
+    "thumbnailId": "image:template:empty-room:v2"
   },
   "room": {
     "widthMm": 5200,

@@ -180,7 +180,7 @@ export async function runStillsPass({
 
   if (Object.keys(manifest).length) {
     const { jsonPath, tsPath } = await writeCardMediaManifest(root, manifest);
-    patchCatalogTemplateThumbnails();
+    await patchCatalogTemplateThumbnails();
     console.log(`Wrote ${jsonPath} and ${tsPath}`);
   }
 }

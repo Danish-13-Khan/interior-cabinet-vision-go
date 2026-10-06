@@ -5,7 +5,7 @@
   "category": "bedroom",
   "description": "Furnished bedroom with bed, nightstands, storage, and soft finishes.",
   "images": {
-    "thumbnailId": "image:template:bedroom:v1"
+    "thumbnailId": "image:template:bedroom:v2"
   },
   "room": {
     "widthMm": 5200,

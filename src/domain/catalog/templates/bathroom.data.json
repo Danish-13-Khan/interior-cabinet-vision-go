@@ -5,7 +5,7 @@
   "category": "bathroom",
   "description": "Furnished bathroom with toilet, vanity, mirror, and shower.",
   "images": {
-    "thumbnailId": "image:template:bathroom:v1"
+    "thumbnailId": "image:template:bathroom:v2"
   },
   "room": {
     "widthMm": 4200,
