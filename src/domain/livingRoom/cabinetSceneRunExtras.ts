@@ -1,5 +1,5 @@
 import { createCabinetPlanningWorkflow, type CountertopSegment } from "../cabinetRuns";
-import { cabinetProjectFromInteriorProject } from "../interiorProject";
+import { cabinetProjectFromInteriorProject, roomPlanViewBounds } from "../interiorProject";
 import type { InteriorProject } from "../interiorProject";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { materialIdForCabinetRole } from "./cabinetSceneRoles";
@@ -44,21 +44,38 @@ export function countertopBoxSizeMm(segment: CountertopSegment) {
   return { width: alongX, height: segment.thicknessMm, depth: alongZ };
 }
 
-/** Run countertops — never authored through tall cabinets. */
+/** Worktops sit on base-height cabinets; a taller host (corner wardrobe) never gets one. */
+const COUNTERTOP_HOST_MAX_HEIGHT_MM = 1200;
+
+/**
+ * Run countertops — never authored through tall cabinets. The cabinet run
+ * workflow works in the classic room-centred frame, so cabinets are moved
+ * into it (minus the room's plan centre) and the tops moved back out; an
+ * apartment room that is not centred on the origin otherwise gets its tops
+ * clamped into the wrong place.
+ */
 export function compileCabinetRunExtras(project: InteriorProject): CompiledSceneNode[] {
   const visible = sceneVisibleObjects(project);
   const cabinets = visible.filter((object) => object.kind === "cabinet");
   if (cabinets.length === 0) return [];
-  const compatible = cabinetProjectFromInteriorProject({ ...project, objects: visible });
   const room = project.rooms.find((item) => item.id === project.activeRoomId)
     ?? project.rooms[0];
   if (!room) return [];
+  const bounds = roomPlanViewBounds(project, room.id);
+  const centre = { x: bounds.centerX, z: bounds.centerZ };
+  const centred = visible.map((object) => ({
+    ...object,
+    position: { ...object.position, x: object.position.x - centre.x, z: object.position.z - centre.z },
+  }));
+  const compatible = cabinetProjectFromInteriorProject({ ...project, objects: centred });
   const workflow = createCabinetPlanningWorkflow(compatible.project, {
     widthMm: room.dimensions.widthMm,
     depthMm: room.dimensions.depthMm,
     heightMm: room.dimensions.heightMm,
   });
-  return workflow.countertops.map((segment) => {
+  const isLowHost = (id: string) =>
+    (cabinets.find((object) => object.id === id)?.dimensions.heightMm ?? 0) <= COUNTERTOP_HOST_MAX_HEIGHT_MM;
+  return workflow.countertops.filter((segment) => segment.cabinetIds.every(isLowHost)).map((segment) => {
     const host = cabinets.find((object) => object.id === segment.cabinetIds[0]);
     const materialId = host
       ? materialIdForCabinetRole(host, "countertop")
@@ -67,7 +84,7 @@ export function compileCabinetRunExtras(project: InteriorProject): CompiledScene
       `countertop-node:${segment.id}`,
       "Countertop",
       "countertop-v1",
-      { x: segment.positionX, y: segment.positionY, z: segment.positionZ },
+      { x: segment.positionX + centre.x, y: segment.positionY, z: segment.positionZ + centre.z },
       boxPrimitive(segment.id, countertopBoxSizeMm(segment), { x: 0, y: segment.thicknessMm / 2, z: 0 }, materialId),
       {
         role: "countertop",
