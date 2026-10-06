@@ -103,8 +103,12 @@ export async function writeRecordedBands(root) {
     for (const kind of surfaceKindsForLabel(label)) {
       const sample = reading[kind];
       const count = reading.counts?.[kind] ?? 0;
-      if (!sample || count < MIN_HITS) continue;
-      samples[`${label}:${kind}`] = {
+      const key = `${label}:${kind}`;
+      if (!sample || count < MIN_HITS) {
+        delete samples[key];
+        continue;
+      }
+      samples[key] = {
         luma: Math.round(sample.luma),
         r: Math.round(sample.r),
         g: Math.round(sample.g),
@@ -116,7 +120,7 @@ export async function writeRecordedBands(root) {
   const payload = {
     quality: "client-preview",
     deviceScaleFactor: 2,
-    note: "Pass bands from the first client-preview DPR 2 re-render. A daylight wall near 231 is an overexposure warning, not a target.",
+    note: "Apartment still regression bands, ±12 luma. A daylight wall near 231 is an overexposure warning, not a target. Re-record after an intentional lighting change or a probe change.",
     samples,
   };
   const path = join(root, SURFACE_BANDS_FILE);

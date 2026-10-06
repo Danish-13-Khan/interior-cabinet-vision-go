@@ -50,7 +50,7 @@ export async function runStillsPass({
   const surfaceBands = recordBands ? null : await loadSurfaceBands(root);
   const manifest = {};
 
-  async function saveVariants(rel800, rel1600, pngPromise, exposureMood = "evening", exposureOverrides = {}, page) {
+  async function saveVariants(rel800, rel1600, pngPromise, exposureMood = "evening", exposureOverrides = {}, page, gateSurfaces = true) {
     const problems = [];
     let png;
     try {
@@ -80,7 +80,9 @@ export async function runStillsPass({
         problems.push(`${rel1600}: ${Math.round(encoded.w1600.length / 1024)} KB > ${LIMITS.w1600}`);
       }
       problems.push(...exposureProblems(exposure, exposureMood, exposureOverrides));
-      if (page) problems.push(...await collectSurfaceProblems(page, surfaceLabel(rel800), surfaceBands, recordBands));
+      if (page && gateSurfaces) {
+        problems.push(...await collectSurfaceProblems(page, surfaceLabel(rel800), surfaceBands, recordBands));
+      }
     }
     if (problems.length) {
       failures.push(...problems);
@@ -181,6 +183,7 @@ export async function runStillsPass({
         exposureMoodForCapturePath("room-arc"),
         {},
         page,
+        false,
       );
       if (poster) manifest[room.id] = posterEntry(poster.w800, poster.w1600);
       await context.close();

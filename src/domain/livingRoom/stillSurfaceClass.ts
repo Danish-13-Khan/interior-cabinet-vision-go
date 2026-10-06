@@ -14,7 +14,7 @@ export type StillSurfaceReading = {
   floor: StillRgb | null;
   door: StillRgb | null;
   counts: Record<StillSurfaceKind, number>;
-  /** Primitive ids reached by the sample rays, including hits behind furniture. */
+  /** Nearest visible hit on each sample ray. */
   firstHits?: Record<string, number>;
 };
 
@@ -35,6 +35,20 @@ export function classifyStillSurface(tags: StillSurfaceTags): StillSurfaceKind |
     || id.startsWith("right-door")
     || id.startsWith("drawer-front")
   ) return "door";
+  return null;
+}
+
+/**
+ * Sample the nearest drawn hit. Helpers are skipped. An unclassified mesh
+ * (a TV, a console) blocks the wall behind it.
+ */
+export function nearestStillSurface(
+  hits: { tags: StillSurfaceTags; helper?: boolean }[],
+): StillSurfaceKind | null {
+  for (const hit of hits) {
+    if (hit.helper) continue;
+    return classifyStillSurface(hit.tags);
+  }
   return null;
 }
 

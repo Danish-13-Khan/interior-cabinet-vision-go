@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyStillSurface, summarizeStillSurfaces, stillLuma } from "./stillSurfaceClass";
+import { classifyStillSurface, nearestStillSurface, summarizeStillSurfaces, stillLuma } from "./stillSurfaceClass";
 
 describe("still surface classes", () => {
   it("names floor, wall, and cabinet fronts", () => {
@@ -23,5 +23,21 @@ describe("still surface classes", () => {
     expect(reading.door!.luma).toBeCloseTo(stillLuma(60, 40, 30), 5);
     expect(reading.wall!.r).toBe(180);
     expect(reading.floor).toBeNull();
+  });
+
+  it("stops on the nearest visible mesh", () => {
+    expect(nearestStillSurface([
+      { tags: { primitiveId: "opening-pick" }, helper: true },
+      { tags: { primitiveId: "wall-panel" } },
+    ])).toBe("wall");
+    expect(nearestStillSurface([
+      { tags: { primitiveId: "television" } },
+      { tags: { primitiveId: "wall-panel" } },
+    ])).toBeNull();
+    expect(nearestStillSurface([
+      { tags: {}, helper: true },
+      { tags: { primitiveId: "front-1" } },
+      { tags: { primitiveId: "wall-panel" } },
+    ])).toBe("door");
   });
 });

@@ -1,20 +1,20 @@
 {
   "quality": "client-preview",
   "deviceScaleFactor": 2,
-  "note": "Pass bands from the first client-preview DPR 2 re-render. A daylight wall near 231 is an overexposure warning, not a target.",
+  "note": "Apartment still regression bands, ±12 luma. A daylight wall near 231 is an overexposure warning, not a target. Re-record after an intentional lighting change or a probe change.",
   "samples": {
     "apartment-2bhk-v1:wall": {
-      "luma": 106,
-      "r": 122,
-      "g": 103,
-      "b": 89,
+      "luma": 182,
+      "r": 202,
+      "g": 180,
+      "b": 153,
       "tolerance": 12
     },
     "apartment-2bhk-v1:floor": {
-      "luma": 200,
-      "r": 221,
-      "g": 197,
-      "b": 171,
+      "luma": 235,
+      "r": 243,
+      "g": 234,
+      "b": 222,
       "tolerance": 12
     },
     "apartment-2bhk-v1:door": {
@@ -39,24 +39,24 @@
       "tolerance": 12
     },
     "apartment-2bhk-plan-v2:wall": {
-      "luma": 88,
-      "r": 125,
-      "g": 82,
-      "b": 39,
+      "luma": 100,
+      "r": 141,
+      "g": 93,
+      "b": 45,
       "tolerance": 12
     },
     "apartment-2bhk-plan-v2:floor": {
-      "luma": 126,
-      "r": 169,
-      "g": 118,
-      "b": 71,
+      "luma": 135,
+      "r": 177,
+      "g": 129,
+      "b": 80,
       "tolerance": 12
     },
     "apartment-2bhk-v2:floor": {
-      "luma": 138,
-      "r": 194,
-      "g": 128,
-      "b": 70,
+      "luma": 164,
+      "r": 208,
+      "g": 158,
+      "b": 98,
       "tolerance": 12
     },
     "apartment-2bhk-v2:door": {
@@ -74,24 +74,24 @@
       "tolerance": 12
     },
     "apartment-studio-plan-v1:floor": {
-      "luma": 214,
-      "r": 216,
-      "g": 214,
-      "b": 211,
+      "luma": 219,
+      "r": 221,
+      "g": 219,
+      "b": 217,
       "tolerance": 12
     },
     "apartment-1bhk-v1:wall": {
-      "luma": 178,
-      "r": 189,
-      "g": 177,
-      "b": 166,
+      "luma": 234,
+      "r": 239,
+      "g": 233,
+      "b": 224,
       "tolerance": 12
     },
     "apartment-1bhk-v1:floor": {
-      "luma": 225,
+      "luma": 237,
       "r": 242,
-      "g": 222,
-      "b": 200,
+      "g": 237,
+      "b": 228,
       "tolerance": 12
     },
     "apartment-1bhk-v1:door": {
@@ -102,31 +102,24 @@
       "tolerance": 12
     },
     "apartment-1bhk-plan-v1:wall": {
-      "luma": 216,
-      "r": 221,
-      "g": 215,
-      "b": 207,
-      "tolerance": 12
-    },
-    "apartment-1bhk-plan-v1:floor": {
-      "luma": 201,
-      "r": 223,
-      "g": 197,
-      "b": 176,
+      "luma": 232,
+      "r": 235,
+      "g": 232,
+      "b": 226,
       "tolerance": 12
     },
     "apartment-3bhk-v1:wall": {
-      "luma": 140,
-      "r": 150,
-      "g": 138,
-      "b": 127,
+      "luma": 230,
+      "r": 239,
+      "g": 229,
+      "b": 216,
       "tolerance": 12
     },
     "apartment-3bhk-v1:floor": {
-      "luma": 228,
-      "r": 240,
-      "g": 227,
-      "b": 211,
+      "luma": 233,
+      "r": 239,
+      "g": 232,
+      "b": 222,
       "tolerance": 12
     },
     "apartment-3bhk-v1:door": {
@@ -137,31 +130,17 @@
       "tolerance": 12
     },
     "apartment-3bhk-plan-v1:wall": {
-      "luma": 137,
-      "r": 148,
-      "g": 136,
-      "b": 119,
-      "tolerance": 12
-    },
-    "apartment-3bhk-plan-v1:floor": {
       "luma": 149,
       "r": 158,
       "g": 149,
-      "b": 132,
-      "tolerance": 12
-    },
-    "apartment-studio-v1:wall": {
-      "luma": 134,
-      "r": 172,
-      "g": 126,
-      "b": 92,
+      "b": 131,
       "tolerance": 12
     },
     "apartment-studio-v1:floor": {
-      "luma": 187,
-      "r": 203,
-      "g": 184,
-      "b": 166,
+      "luma": 225,
+      "r": 228,
+      "g": 225,
+      "b": 219,
       "tolerance": 12
     }
   }
