@@ -335,9 +335,7 @@
 
 .lr-product-shell .lr-catalog,
 .lr-product-shell .lr-inspector {
-  width: 288px !important;
-  min-width: 260px;
-  max-width: 320px;
+  min-width: 160px;
   border-color: var(--lr-line);
   background: var(--lr-panel);
 }

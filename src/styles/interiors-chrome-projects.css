@@ -102,13 +102,42 @@
 
 .interiors-project-row {
   display: grid;
-  grid-template-columns: 82px minmax(130px, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   width: 100%;
   min-height: 86px;
   padding: 10px 12px;
   text-align: left;
+}
+
+.interiors-project-row > button {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.interiors-project-select {
+  display: flex;
+  align-items: center;
+}
+
+.interiors-projects-recents header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.interiors-projects-recents header button {
+  margin-left: auto;
 }
 
 .interiors-project-row img {
@@ -120,7 +149,7 @@
   background: #f3f6f3;
 }
 
-.interiors-project-row > span:nth-child(2) {
+.interiors-project-row-meta {
   display: grid;
   gap: 4px;
 }
@@ -145,8 +174,8 @@
 }
 
 @media (max-width: 760px) {
-  .interiors-project-row {
-    grid-template-columns: 72px minmax(0, 1fr) auto;
+  .interiors-project-row > button {
+    grid-template-columns: 72px minmax(0, 1fr);
   }
   .interiors-project-row > small { display: none; }
 }

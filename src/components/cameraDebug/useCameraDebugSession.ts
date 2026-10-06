@@ -1,11 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
-import {
-  readCameraDebugEnabledFromBrowser,
-  type CameraDebugSnapshot,
-} from "../../domain/orbit/cameraDebug";
+import { useCallback, useState } from "react";
+import type { CameraDebugSnapshot } from "../../domain/orbit/cameraDebug";
+import { usePerfHudSession } from "../../hooks/usePerfHudSession";
 
 export function useCameraDebugSession() {
-  const enabled = useMemo(() => readCameraDebugEnabledFromBrowser(), []);
+  const hud = usePerfHudSession();
   const [snapshot, setSnapshot] = useState<CameraDebugSnapshot | null>(null);
   const [wireframe, setWireframe] = useState(false);
   const [showGridOverride, setShowGridOverride] = useState<boolean | null>(null);
@@ -16,7 +14,8 @@ export function useCameraDebugSession() {
   }, []);
 
   return {
-    enabled,
+    enabled: hud.visible,
+    close: hud.close,
     snapshot,
     onSnapshot,
     wireframe,

@@ -11,6 +11,9 @@ type InteriorsWorkspaceFileMenuProps = {
   onSave: () => void;
   onExport: () => void;
   onOpenShortcuts?: () => void;
+  performanceAvailable?: boolean;
+  performanceOpen?: boolean;
+  onTogglePerformance?: () => void;
 };
 
 /** Job menu ▾ next to the job name: project tools plus File actions (open, save, export). */
@@ -22,6 +25,9 @@ export function InteriorsWorkspaceFileMenu({
   onSave,
   onExport,
   onOpenShortcuts,
+  performanceAvailable = false,
+  performanceOpen = false,
+  onTogglePerformance,
 }: InteriorsWorkspaceFileMenuProps) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<ProjectSnapshot | null>(null);
@@ -82,6 +88,17 @@ export function InteriorsWorkspaceFileMenu({
           <button type="button" role="menuitem" onClick={() => run(onExport)}>
             Export JSON…
           </button>
+          {performanceAvailable && onTogglePerformance ? (
+            <button
+              type="button"
+              role="menuitemcheckbox"
+              aria-checked={performanceOpen}
+              data-testid="interiors-open-performance"
+              onClick={() => run(onTogglePerformance)}
+            >
+              {performanceOpen ? "✓ " : ""}Performance
+            </button>
+          ) : null}
           {onOpenShortcuts ? (
             <button
               type="button"

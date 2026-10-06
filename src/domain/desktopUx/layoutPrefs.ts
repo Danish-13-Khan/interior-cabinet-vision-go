@@ -54,7 +54,7 @@ export const DEFAULT_DESKTOP_LAYOUT: DesktopLayoutPrefs = {
 };
 
 const WIDTH_MIN = 160;
-const WIDTH_MAX = 480;
+const WIDTH_MAX = 720;
 const DOCK_MIN = 160;
 const DOCK_MAX = 520;
 const SPLIT_MIN = 28;

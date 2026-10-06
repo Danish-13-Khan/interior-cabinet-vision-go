@@ -135,7 +135,7 @@ export function PlannerV2ProjectHome({
           />
         ) : null}
         {projectsLoading ? <p data-testid="projects-loading">Loading projects…</p> : null}
-        <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} />
+        <InteriorsProjectsRecents rows={recentRows} onOpen={workspace.onOpenRecentProject} onDelete={workspace.onDeleteRecentProject} />
         <InteriorsApartmentTemplates onCreate={createFromApartmentTemplate} />
         <InteriorsPopularTemplates onCreate={createFromCatalogTemplate} />
         {import.meta.env.DEV ? (

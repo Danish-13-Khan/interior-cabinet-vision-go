@@ -34,6 +34,9 @@ type InteriorsWorkspaceHeaderProps = {
   onRedo: () => void;
   onPresent: () => void;
   onOpenShortcuts?: () => void;
+  performanceAvailable?: boolean;
+  performanceOpen?: boolean;
+  onTogglePerformance?: () => void;
 };
 
 /** Single 48px top bar: brand · job ▾ · numbered steps · undo/redo · view · save · Present. */
@@ -89,6 +92,9 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
             onSave={props.onSave}
             onExport={props.onExport}
             onOpenShortcuts={props.onOpenShortcuts}
+            performanceAvailable={props.performanceAvailable}
+            performanceOpen={props.performanceOpen}
+            onTogglePerformance={props.onTogglePerformance}
           />
           {props.tools}
         </div>

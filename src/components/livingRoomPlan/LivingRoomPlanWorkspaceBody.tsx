@@ -14,6 +14,7 @@ import { LivingRoomPlanWorkspaceRail } from "./LivingRoomPlanWorkspaceRail";
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
+import { useStudioPanes } from "./useStudioPanes";
 
 export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyProps) {
   const { workspace: w, project, room, build } = props;
@@ -35,15 +36,29 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     onCommitDraft: () => build.dispatchBuildCommand({ type: "commitDraft" }),
   });
   const floorplanExtract = useFloorplanExtractFlow(props.underlay);
+  const panes = useStudioPanes({
+    catalogWidth: w.toolRailWidthPx,
+    inspectorWidth: w.inspectorWidthPx,
+    onCatalogWidth: w.onToolRailWidthChange,
+    onInspectorWidth: w.onInspectorWidthChange,
+  });
   useEffect(() => {
     if (props.workspaceView !== "model") setModelTransformPreview(null);
   }, [props.workspaceView]);
 
   return (
-    <div className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}>
+    <div
+      ref={panes.ref}
+      className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}${panes.maximized ? ` is-max-${panes.maximized}` : ""}`}
+    >
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanWorkspaceRail {...props} onImportUnderlay={planImport.onImportUnderlay}
-          floorplanExtract={floorplanExtract.launcher} />
+          floorplanExtract={floorplanExtract.launcher}
+          paneMaximized={panes.maximized === "catalog"}
+          paneMax={panes.catalogMax}
+          onPaneWidth={panes.onCatalogWidth}
+          onPaneMaximize={() => panes.toggle("catalog")}
+        />
       ) : null}
       {props.plannerMode === "render" ? (
         <InteriorsPresentPanel
@@ -65,7 +80,15 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         clientPackageBlocked={clientPackageBlocked}
         onTransformPreviewChange={setModelTransformPreview}
       />
-      <LivingRoomPlanWorkspaceInspector body={props} activeObject={activeObject} transformPreview={modelTransformPreview} />
+      <LivingRoomPlanWorkspaceInspector
+        body={props}
+        activeObject={activeObject}
+        transformPreview={modelTransformPreview}
+        maximized={panes.maximized === "inspector"}
+        paneMax={panes.inspectorMax}
+        onPaneWidth={panes.onInspectorWidth}
+        onPaneMaximize={() => panes.toggle("inspector")}
+      />
       <LivingRoomPlanImportOverlays
         roomWidthMm={room?.dimensions.widthMm ?? 6200}
         dwgFile={planImport.dwgImportFile}

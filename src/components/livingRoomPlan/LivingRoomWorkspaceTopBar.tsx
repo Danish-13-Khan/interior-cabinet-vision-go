@@ -6,6 +6,7 @@ import { InteriorsWorkspaceHeader } from "./InteriorsWorkspaceHeader";
 import { InteriorsWorkflowNav } from "./InteriorsWorkflowNav";
 import { InteriorProjectToolsLauncher } from "./InteriorProjectToolsLauncher";
 import type { LivingRoomPlanWorkspaceProps } from "./workspaceProps";
+import { usePerfHudSession } from "../../hooks/usePerfHudSession";
 
 type LivingRoomWorkspaceTopBarProps = {
   workspace: LivingRoomPlanWorkspaceProps;
@@ -16,6 +17,7 @@ type LivingRoomWorkspaceTopBarProps = {
 /** Wires the single top bar: job facts → numbered steps, job menu → project tools. */
 export function LivingRoomWorkspaceTopBar({ workspace: props, chrome, roomName }: LivingRoomWorkspaceTopBarProps) {
   const [toolsSignal, setToolsSignal] = useState(0);
+  const hud = usePerfHudSession();
   const project = props.project;
   const projectHome = props.projectHomeOpen || !project;
   const job = project ? readProposalCommercial(project).job : null;
@@ -62,6 +64,9 @@ export function LivingRoomWorkspaceTopBar({ workspace: props, chrome, roomName }
       onRedo={props.onRedo}
       onPresent={chrome.present}
       onOpenShortcuts={props.onOpenShortcuts}
+      performanceAvailable={hud.showMenu}
+      performanceOpen={hud.checked}
+      onTogglePerformance={hud.toggle}
     />
   );
 }

@@ -383,7 +383,7 @@ export const CabinetScene = forwardRef<CabinetSceneHandle, CabinetSceneProps>(fu
           onWireframeChange={cameraDebug.setWireframe}
           onShowGridOverrideChange={cameraDebug.setShowGridOverride}
           onPunctualLightsChange={cameraDebug.setPunctualLights}
-          gridToggleEnabled
+          gridToggleEnabled onClose={cameraDebug.close}
         />
       ) : null}
     </div>
