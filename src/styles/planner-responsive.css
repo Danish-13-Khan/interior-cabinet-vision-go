@@ -14,16 +14,16 @@
 @media (min-width: 1500px) {
   .lr-product-shell-v2 .lr-studio-rail { width: 180px; flex-basis: 180px; padding: 24px 12px; }
   .lr-product-shell-v2 .lr-studio-rail button { min-height: 76px; padding: 12px 14px; font-size: 18px; }
-  .lr-product-shell-v2 .lr-catalog { width: 285px !important; min-width: 285px; max-width: 285px; }
-  .lr-product-shell-v2 .lr-inspector { width: 340px !important; min-width: 340px; }
+  .lr-product-shell-v2 .lr-catalog { width: 285px; min-width: 285px; max-width: 285px; }
+  .lr-product-shell-v2 .lr-inspector { width: 340px; min-width: 340px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 160px; flex-basis: 160px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
     min-height: 76px;
     padding: 12px 14px;
     font-size: 18px;
   }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 285px !important; min-width: 285px; max-width: 285px; }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 340px !important; min-width: 340px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 285px; min-width: 285px; max-width: 285px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 340px; min-width: 340px; }
 }
 
 /* Standard desktop and tablet landscape: tighten controls before the canvas. */
@@ -32,8 +32,8 @@
   .lr-product-shell-v2 .lr-studio-rail { width: 140px; flex-basis: 140px; padding: 16px 8px; }
   .lr-product-shell-v2 .lr-studio-rail button { min-height: 62px; padding: 9px 11px; font-size: 16px; }
   .lr-product-shell-v2 .lr-studio-rail button small { font-size: var(--text-xs); }
-  .lr-product-shell-v2 .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
-  .lr-product-shell-v2 .lr-inspector { width: 300px !important; min-width: 300px; }
+  .lr-product-shell-v2 .lr-catalog { width: 250px; min-width: 250px; max-width: 250px; }
+  .lr-product-shell-v2 .lr-inspector { width: 300px; min-width: 300px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 140px; flex-basis: 140px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
     min-height: 62px;
@@ -41,8 +41,8 @@
     font-size: 16px;
   }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button small { font-size: var(--text-xs); }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 250px !important; min-width: 250px; max-width: 250px; }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 300px !important; min-width: 300px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 250px; min-width: 250px; max-width: 250px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector { width: 300px; min-width: 300px; }
   .lr-product-shell-v2 .lr-plan-titlebar { min-height: 44px; padding: 0 14px; }
   .lr-product-shell-v2 .lr-plan-titlebar span { font-size: 14px; }
 }
@@ -52,14 +52,14 @@
   .lr-product-shell-v2 .lr-inspector,
   .lr-plan-shell.lr-product-shell-v2 .lr-inspector,
   .lr-plan-shell.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-inspector {
-    display: flex !important;
+    display: flex;
     position: fixed;
     top: 72px;
     right: 12px;
     bottom: 12px;
     z-index: 46;
-    width: min(320px, calc(100vw - 24px)) !important;
-    min-width: 0 !important;
+    width: min(320px, calc(100vw - 24px));
+    min-width: 0;
     max-width: min(320px, calc(100vw - 24px));
     flex-direction: column;
     overflow: hidden;
@@ -77,7 +77,7 @@
   }
   .lr-product-shell-v2 .lr-studio-rail button span { display: block; font-size: 20px; }
   .lr-product-shell-v2 .lr-studio-rail button small { display: none; }
-  .lr-product-shell-v2 .lr-catalog { width: 260px !important; min-width: 260px; max-width: 260px; }
+  .lr-product-shell-v2 .lr-catalog { width: 260px; min-width: 260px; max-width: 260px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail { width: 84px; flex-basis: 84px; }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button {
     min-height: 56px;
@@ -90,7 +90,7 @@
     font-size: 20px;
   }
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-studio-rail button small { display: none; }
-  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 260px !important; min-width: 260px; max-width: 260px; }
+  .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-catalog { width: 260px; min-width: 260px; max-width: 260px; }
   .lr-product-shell-v2 .lr-plan-canvas,
   .lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: 0; }
 }
@@ -123,7 +123,7 @@
     -webkit-overflow-scrolling: touch;
   }
   .lr-product-shell-v2 .lr-studio-rail { display: none; }
-  .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px) !important; min-width: min(100%, 340px); max-width: 340px; }
+  .lr-product-shell-v2 .lr-catalog { width: min(100%, 340px); min-width: min(100%, 340px); max-width: 340px; }
   .lr-product-shell-v2 .lr-plan-center,
   .lr-product-shell-v2 .lr-plan-canvas { min-width: 0; }
   .lr-product-shell-v2 .planner-v2-review { width: min(280px, 100%); min-width: 0; }
@@ -137,8 +137,8 @@
     overflow: auto;
   }
   .lr-product-shell-v2 .lr-catalog {
-    width: 100% !important;
-    min-width: 0 !important;
+    width: 100%;
+    min-width: 0;
     max-width: none;
     max-height: min(42vh, 320px);
     flex: 0 0 auto;

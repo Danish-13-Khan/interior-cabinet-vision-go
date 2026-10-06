@@ -252,6 +252,8 @@ function App() {
             inspectorVisible={c.layout.inspectorVisible}
             toolRailWidthPx={c.layout.toolRailWidthPx}
             inspectorWidthPx={c.layout.inspectorWidthPx}
+            onToolRailWidthChange={(toolRailWidthPx) => c.setLayout({ toolRailWidthPx })}
+            onInspectorWidthChange={(inspectorWidthPx) => c.setLayout({ inspectorWidthPx })}
             projectHomeOpen={c.livingRoomProjectHomeOpen}
             isDirty={c.isProjectDirty}
             autosaveState={c.autosaveState}

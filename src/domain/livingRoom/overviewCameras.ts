@@ -22,6 +22,8 @@ const CORNER_LABEL: Record<OverviewCorner, string> = {
   top: "Top",
 };
 
+/** One-second ease for NE / NW / SE / SW / Top. The default Model View ease stays shorter. */
+export const OVERVIEW_CORNER_GLIDE_MS = 1000;
 const FIELD_OF_VIEW = 42;
 const FRAME_ASPECT = 1280 / 720;
 

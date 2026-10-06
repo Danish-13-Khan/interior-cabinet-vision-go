@@ -2,6 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, type RefObject } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { CameraDebugSnapshot } from "../../domain/orbit/cameraDebug";
+import { readProfilerSample } from "../../domain/orbit/cameraProfiler";
 
 type OrbitDebugProbeProps = {
   canvas: CameraDebugSnapshot["canvas"];
@@ -24,7 +25,7 @@ export function OrbitDebugProbe({
   punctualLights,
   onSnapshot,
 }: OrbitDebugProbeProps) {
-  const { gl, scene, frameloop } = useThree();
+  const { gl, scene, camera, frameloop } = useThree();
   const lastSampleRef = useRef(0);
   const fpsWindowRef = useRef<number[]>([]);
   const materialBackupRef = useRef<Map<string, boolean>>(new Map());
@@ -92,7 +93,7 @@ export function OrbitDebugProbe({
       }
     }
 
-    const info = gl.info?.render;
+    const render = gl.info?.render;
     onSnapshot({
       canvas,
       screenSpacePanning,
@@ -103,8 +104,9 @@ export function OrbitDebugProbe({
       polar,
       fps: avgFps,
       frameMs: avgFps ? 1000 / avgFps : null,
-      triangles: info?.triangles ?? null,
-      drawCalls: info?.calls ?? null,
+      triangles: render?.triangles ?? null,
+      drawCalls: render?.calls ?? null,
+      ...readProfilerSample(gl.info, camera),
       exposure,
       frameloop: typeof frameloop === "string" ? frameloop : String(frameloop ?? "—"),
     });

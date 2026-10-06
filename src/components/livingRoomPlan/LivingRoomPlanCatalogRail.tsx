@@ -12,6 +12,7 @@ import { InteriorsToolRail } from "./InteriorsToolRail";
 import { InteriorsWorkflowAreaPanel } from "./InteriorsWorkflowAreaPanel";
 import { SceneListSlot } from "./InspectorPlanSettingsSlot";
 import type { LivingRoomPlanCatalogRailProps } from "./livingRoomPlanCatalogRailProps";
+import { StudioPaneEdge } from "./StudioPaneEdge";
 
 export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps) {
   const underlayInputRef = useRef<HTMLInputElement | null>(null);
@@ -67,7 +68,11 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
       presenting: props.presenting ?? false,
       drawRoomActive: drawRoom,
     }) && catalogView ? (
-      <aside className="lr-catalog lr-studio-panel" style={{ width: props.widthPx }} data-workflow-area={props.workflowArea}>
+      <aside
+        className="lr-catalog lr-studio-panel"
+        style={{ ["--studio-catalog-width" as string]: `${props.widthPx}px` }}
+        data-workflow-area={props.workflowArea}
+      >
         <div className="lr-catalog-scroll">
         <InteriorsWorkflowAreaPanel
           view={catalogView}
@@ -137,6 +142,16 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         />
         </div>
         <SceneListSlot />
+        {props.onPaneWidth && props.onPaneMaximize ? (
+          <StudioPaneEdge
+            edge="end"
+            width={props.widthPx}
+            max={props.paneMax ?? props.widthPx}
+            maximized={props.paneMaximized === true}
+            onWidth={props.onPaneWidth}
+            onMaximize={props.onPaneMaximize}
+          />
+        ) : null}
       </aside>
     ) : null}
   </>;

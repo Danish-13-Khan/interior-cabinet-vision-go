@@ -19,6 +19,18 @@ export type CameraDebugSnapshot = {
   frameMs: number | null;
   triangles: number | null;
   drawCalls: number | null;
+  textures: number | null;
+  geometries: number | null;
+  programs: number | null;
+  renders: number | null;
+  points: number | null;
+  lines: number | null;
+  cameraType: string | null;
+  cameraFov: number | null;
+  cameraNear: number | null;
+  cameraFar: number | null;
+  cameraZoom: number | null;
+  cameraPosition: readonly [number, number, number] | null;
   exposure: number | null;
   frameloop: string | null;
 };

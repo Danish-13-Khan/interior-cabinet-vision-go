@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   InteriorObjectEntity,
   InteriorProject,
@@ -23,6 +24,8 @@ import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/light
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
   widthPx: number;
+  maximized?: boolean;
+  paneEdge?: ReactNode;
   project: InteriorProject;
   room: InteriorProject["rooms"][number] | null;
   activeObject: InteriorObjectEntity | null;
@@ -121,10 +124,11 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
   return (
     <aside
       className={`lr-inspector ${activeOpening ? "has-opening-selection" : ""}`}
-      style={{ width: props.widthPx }}
+      style={{ ["--studio-inspector-width" as string]: `${props.widthPx}px` }}
       data-testid="interiors-inspector"
       aria-label="Selection properties"
     >
+      {props.paneEdge}
       <div className="inspector-header">
         <span className="lr-chrome-eyebrow">{roomEssentials ? "Room essentials" : "Selected"}</span>
         <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>

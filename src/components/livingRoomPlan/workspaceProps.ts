@@ -41,6 +41,8 @@ export type LivingRoomPlanWorkspaceProps = {
   inspectorVisible: boolean;
   toolRailWidthPx: number;
   inspectorWidthPx: number;
+  onToolRailWidthChange: (widthPx: number) => void;
+  onInspectorWidthChange: (widthPx: number) => void;
   projectHomeOpen: boolean;
   isDirty: boolean;
   autosaveState: "idle" | "saving" | "saved" | "error";

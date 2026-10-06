@@ -29,7 +29,7 @@ describe("desktopUx layout", () => {
       workspaceTab: "front",
     });
     expect(layout.toolRailWidthPx).toBe(160);
-    expect(layout.inspectorWidthPx).toBe(480);
+    expect(layout.inspectorWidthPx).toBe(720);
     expect(layout.workspaceTab).toBe("front");
   });
 

@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ModelViewPresetId } from "../domain/livingRoom";
-import {
-  overviewCameraId,
-  type OverviewCorner,
-} from "../domain/livingRoom/overviewCameras";
+import { overviewCameraId, OVERVIEW_CORNER_GLIDE_MS, type OverviewCorner } from "../domain/livingRoom/overviewCameras";
+import { armNextCameraGlideMs } from "../domain/apartmentTemplates/showcaseJump";
 import { waitForOverviewWarm } from "../domain/livingRoom/overviewWarmup";
 
 export type OverviewPhase = "idle" | "warming-in" | "overview" | "warming-out";
@@ -65,6 +63,7 @@ export function useApartmentOverview(args: ApartmentOverviewArgs) {
     current.stopTour();
     const controller = replaceAbort();
     setCorner("ne");
+    armNextCameraGlideMs(OVERVIEW_CORNER_GLIDE_MS);
     current.setViewPreset("perspective");
     current.setActiveCameraId(overviewCameraId("ne"));
     phaseRef.current = "warming-in";
@@ -78,6 +77,7 @@ export function useApartmentOverview(args: ApartmentOverviewArgs) {
 
   const chooseCorner = useCallback((next: OverviewCorner) => {
     setCorner(next);
+    armNextCameraGlideMs(OVERVIEW_CORNER_GLIDE_MS);
     argsRef.current.setViewPreset("perspective");
     argsRef.current.setActiveCameraId(overviewCameraId(next));
   }, []);

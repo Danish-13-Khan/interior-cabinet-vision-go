@@ -1,6 +1,6 @@
-import { ContactShadows, Html, OrbitControls } from "@react-three/drei";
+import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { MOUSE } from "three";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RenderComposition, RenderQuality } from "../../domain/interiorProject";
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
@@ -26,8 +26,7 @@ import { WalkthroughNavigation } from "./WalkthroughNavigation";
 import { ModelPickHarness } from "./ModelPickHarness";
 import { CursorDollyPastMin } from "./CursorDollyPastMin";
 import { OrbitPivotFocus } from "./OrbitPivotFocus";
-import { CameraDebugOverlay } from "../cameraDebug/CameraDebugOverlay";
-import { OrbitDebugProbe } from "../cameraDebug/OrbitDebugProbe";
+import { CameraDebugHudMount } from "../cameraDebug/CameraDebugHudMount";
 import { useCameraDebugSession } from "../cameraDebug/useCameraDebugSession";
 
 type ModelViewInteractionRigProps = {
@@ -81,6 +80,7 @@ export function ModelViewInteractionRig({
   const orbitNavigatingRef = useRef(false);
   const orbitEaseCancelGenerationRef = useRef(0);
   const cameraDebug = useCameraDebugSession();
+  const [hudHot, setHudHot] = useState(false);
   const exposureReadout = scene.style?.colorManagement?.exposure ?? null;
   const contactShadow = resolveContactShadowLook({
     opacity: environment.contactShadowOpacity * lightingQuality.contactShadowOpacityScale,
@@ -108,7 +108,7 @@ export function ModelViewInteractionRig({
         <OrbitControls
           ref={controlsRef}
           makeDefault
-          enabled={!dragging}
+          enabled={!dragging && !(cameraDebug.enabled && hudHot)}
           {...resolveOrbitControlsSharedCommons()}
           dampingFactor={modelViewOrbitOverrides.dampingFactor}
           panSpeed={modelViewOrbitOverrides.panSpeed}
@@ -119,7 +119,9 @@ export function ModelViewInteractionRig({
           zoomToCursor={MODEL_VIEW_ZOOM_TO_CURSOR}
           minDistance={resolveModelViewOrbitMinDistance(inspectionSpanMeters)}
           maxDistance={resolveModelViewOrbitMaxDistance(roomSpan)}
-          minPolarAngle={resolveModelViewMinPolarAngle(viewPreset)}
+          minPolarAngle={resolveModelViewMinPolarAngle(
+            activeCameraId?.startsWith("apartment-overview-") ? "top" : viewPreset,
+          )}
           maxPolarAngle={resolveModelViewMaxPolarAngle()}
           onStart={() => {
             orbitNavigatingRef.current = true;
@@ -166,30 +168,20 @@ export function ModelViewInteractionRig({
       {interactive && import.meta.env.DEV ? <ModelPickHarness /> : null}
 
       {cameraDebug.enabled ? (
-        <OrbitDebugProbe
+        <CameraDebugHudMount
           canvas="model-view"
           controlsRef={controlsRef}
           exposure={exposureReadout}
+          snapshot={cameraDebug.snapshot}
           wireframe={cameraDebug.wireframe}
+          showGridOverride={cameraDebug.showGridOverride}
           punctualLights={cameraDebug.punctualLights}
           onSnapshot={cameraDebug.onSnapshot}
+          onWireframeChange={cameraDebug.setWireframe}
+          onShowGridOverrideChange={cameraDebug.setShowGridOverride}
+          onPunctualLightsChange={cameraDebug.setPunctualLights}
+          onPointerActive={setHudHot}
         />
-      ) : null}
-      {cameraDebug.enabled ? (
-        <Html fullscreen style={{ pointerEvents: "none" }} zIndexRange={[100, 0]}>
-          <div style={{ pointerEvents: "none", position: "relative", width: "100%", height: "100%" }}>
-            <CameraDebugOverlay
-              snapshot={cameraDebug.snapshot}
-              wireframe={cameraDebug.wireframe}
-              showGridOverride={cameraDebug.showGridOverride}
-              punctualLights={cameraDebug.punctualLights}
-              onWireframeChange={cameraDebug.setWireframe}
-              onShowGridOverrideChange={cameraDebug.setShowGridOverride}
-              onPunctualLightsChange={cameraDebug.setPunctualLights}
-              gridToggleEnabled={false}
-            />
-          </div>
-        </Html>
       ) : null}
     </>
   );

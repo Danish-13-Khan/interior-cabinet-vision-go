@@ -2,7 +2,7 @@
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-inspector,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-planner-build .lr-inspector {
-  width: 280px !important;
+  width: 280px;
   min-width: 280px;
   max-width: 280px;
 }

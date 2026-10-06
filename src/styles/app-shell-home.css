@@ -91,8 +91,8 @@
 .app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-3); }
 .app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-row {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  grid-template-areas: "thumb meta" "thumb status";
+  grid-template-columns: auto 72px minmax(0, 1fr);
+  grid-template-areas: "select thumb meta" "select thumb status";
   align-items: center;
   gap: var(--space-1) var(--space-3);
   min-height: 0;
@@ -103,6 +103,8 @@
   color: var(--ink);
   text-align: left;
 }
+.app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-row > button { display: contents; }
+.app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-select { grid-area: select; align-self: center; }
 .app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-row:hover { border-color: var(--accent); box-shadow: var(--shadow-1); }
 .app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-row img { grid-area: thumb; width: 72px; height: 54px; object-fit: cover; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--canvas); }
 .app-shell.lr-plan-shell.lr-product-shell-v2 .interiors-projects-home .interiors-project-row-meta { grid-area: meta; display: grid; min-width: 0; }

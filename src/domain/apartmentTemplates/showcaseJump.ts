@@ -35,6 +35,11 @@ export function onShowcaseCameraJump(listener: ShowcaseJumpListener): () => void
   };
 }
 
+/** Consumed by the next camera ease. Does not notify Showcase listeners. */
+export function armNextCameraGlideMs(ms: number) {
+  pendingGlideMs = ms;
+}
+
 /** Camera rig: duration for the ease the last jump started (once), else null for the default ease. */
 export function takeShowcaseGlideMs(): number | null {
   const glide = pendingGlideMs;
