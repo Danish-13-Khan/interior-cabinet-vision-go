@@ -65,6 +65,10 @@ describe("Showcase tour motion (3 BHK frame-time check)", () => {
 
   it("each room change costs far less than a 100 ms frame stall, and revisits are free", () => {
     // Room stops only: the overview scene is compiled once in the tour warm-up, behind the veil.
+    // That warm-up also runs every compile path once, so time the steady state the tour sees:
+    // a throwaway cache compiles the first room first, which keeps a cold JIT or a busy vitest
+    // worker from counting as a frame stall (seen at 50.6 ms once on 2026-10-07; the real cost is 0.1–4 ms).
+    createRoomSceneCache(project)(roomStops[0]!.roomId);
     const sceneFor = createRoomSceneCache(project);
     const costs: number[] = [];
     for (const stop of roomStops) {

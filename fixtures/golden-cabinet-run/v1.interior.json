@@ -1723,6 +1723,24 @@
         "roughness": 0.48,
         "metalness": 0,
         "opacity": 1
+      },
+      {
+        "id": "lr-material-laminate-white",
+        "name": "White Laminate",
+        "kind": "laminate",
+        "color": "#ffffff",
+        "roughness": 0.55,
+        "metalness": 0,
+        "opacity": 1
+      },
+      {
+        "id": "lr-material-laminate-grey",
+        "name": "Grey Laminate",
+        "kind": "laminate",
+        "color": "#8c8674",
+        "roughness": 0.7,
+        "metalness": 0,
+        "opacity": 1
       }
     ],
     "lights": [
