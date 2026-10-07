@@ -1,4 +1,5 @@
 import type { RenderQuality } from "../interiorProject";
+import { isRichModelViewQuality } from "./modelViewTier";
 
 /** Orthographic directional shadow-camera knobs (meters / bias units). */
 export type ShadowCameraTuning = {
@@ -34,12 +35,13 @@ export const STUDIO_WINDOW_KEY_SHADOW: ShadowCameraTuning = {
 
 /**
  * Model View–scoped shadow cameras (Policy A).
- * Standard gets slightly larger frustum + bias for GLB casters; Studio unchanged.
+ * Every tier above Draft gets the larger frustum + bias for GLB casters; Studio unchanged.
+ * The stills scripts pin client-preview, so that tier must match Standard here too.
  */
 export function resolveModelViewProjectShadow(
   quality: RenderQuality,
 ): ShadowCameraTuning {
-  const rich = quality === "standard";
+  const rich = isRichModelViewQuality(quality);
   return {
     ...STUDIO_PROJECT_SHADOW,
     bias: rich ? -0.00034 : -0.00028,
@@ -52,7 +54,7 @@ export function resolveModelViewProjectShadow(
 export function resolveModelViewWindowKeyShadow(
   quality: RenderQuality,
 ): ShadowCameraTuning {
-  const rich = quality === "standard";
+  const rich = isRichModelViewQuality(quality);
   return {
     ...STUDIO_WINDOW_KEY_SHADOW,
     bias: rich ? -0.00036 : -0.0003,

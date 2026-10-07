@@ -31,5 +31,8 @@ describe("shadowCameraTuning Policy A", () => {
   it("keeps Model View Draft closer to Studio project frustum", () => {
     const draft = resolveModelViewProjectShadow("draft");
     expect(draft.frustumHalfExtent).toBe(STUDIO_PROJECT_SHADOW.frustumHalfExtent);
+    // The stills scripts pin client-preview; it must get the Standard shadow cameras.
+    expect(resolveModelViewProjectShadow("client-preview")).toEqual(resolveModelViewProjectShadow("standard"));
+    expect(resolveModelViewWindowKeyShadow("client-preview")).toEqual(resolveModelViewWindowKeyShadow("standard"));
   });
 });

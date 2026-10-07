@@ -20,16 +20,14 @@ import {
   resolveModelViewMaxGlbCasters,
 } from "./modelViewPerf";
 import { MODEL_VIEW_DEFAULT_LOCKED_TO_DRAFT } from "./modelViewProductionBar";
+import { isRichModelViewQuality } from "./modelViewTier";
 
 /** Model view never uses hero/photoreal — review stays honest preview. */
 export function resolveModelViewRenderMode(): RenderMode {
   return "preview";
 }
 
-/** Draft is the fast authoring tier; Standard, Client Preview and Presentation share the rich path. */
-export function isRichModelViewQuality(quality: RenderQuality): boolean {
-  return quality !== "draft";
-}
+export { isRichModelViewQuality } from "./modelViewTier";
 
 /**
  * Soft studio lighting for 3D review — designed, not client export.

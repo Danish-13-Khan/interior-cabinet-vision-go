@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { skirtingKeepSpans } from "./skirtingGeometry";
-import type { OpeningEntity } from "../interiorProject";
+import { floorPanelCuts, skirtingKeepSpans } from "./skirtingGeometry";
+import type { InteriorObjectEntity, OpeningEntity, WallEntity } from "../interiorProject";
 
 function opening(offsetMm: number, widthMm: number, sillHeightMm: number): OpeningEntity {
   return {
@@ -41,6 +41,23 @@ describe("skirtingKeepSpans", () => {
   it("returns one inset span when nothing cuts the floor", () => {
     expect(skirtingKeepSpans(4000, [opening(500, 1200, 900)])).toEqual([
       { from: 10, to: 3990 },
+    ]);
+  });
+
+  it("stops the skirting behind a floor-standing wall panel", () => {
+    const wall = { id: "wall", start: { x: 0, z: 0 }, end: { x: 5000, z: 0 } } as unknown as WallEntity;
+    const panel = {
+      id: "panel", category: "wall-panel", roomId: "room", position: { x: 2500, y: 0, z: 9 },
+      dimensions: { widthMm: 2000, heightMm: 2400, depthMm: 18 },
+      extensions: { wallAttachment: { wallId: "wall", alongMm: 2500, floorOffsetMm: 0 } },
+    } as unknown as InteriorObjectEntity;
+    const raised = { ...panel, id: "shelf", position: { x: 2500, y: 1200, z: 9 },
+      extensions: { wallAttachment: { wallId: "wall", alongMm: 2500, floorOffsetMm: 1200 } } } as unknown as InteriorObjectEntity;
+    expect(floorPanelCuts(wall, [panel])).toEqual([{ start: 1500, end: 3500 }]);
+    expect(floorPanelCuts(wall, [raised])).toEqual([]);
+    expect(skirtingKeepSpans(5000, [], floorPanelCuts(wall, [panel]))).toEqual([
+      { from: 10, to: 1500 },
+      { from: 3500, to: 4990 },
     ]);
   });
 });

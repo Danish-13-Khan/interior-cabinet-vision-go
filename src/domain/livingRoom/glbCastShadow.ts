@@ -1,11 +1,12 @@
 import type { RenderQuality } from "../interiorProject";
 import type { RenderMode } from "./renderAssetContracts";
 import { resolveModelViewMaxGlbCasters } from "./modelViewPerf";
+import { isRichModelViewQuality } from "./modelViewTier";
 
 /**
- * GLB mesh shadow casting — additive Model View Standard on top of Studio hero.
+ * GLB mesh shadow casting — additive Model View rich tiers on top of Studio hero.
  * Studio Draft stays preview/non-casting; all hero tiers keep casting.
- * Model View Standard also respects a simultaneous GLB caster budget (Phase G).
+ * Model View Standard, Client Preview and Presentation respect a simultaneous GLB caster budget (Phase G).
  */
 export function resolveGlbCastShadow(args: {
   renderMode: RenderMode;
@@ -16,7 +17,7 @@ export function resolveGlbCastShadow(args: {
   maxGlbCasters?: number;
 }): boolean {
   if (args.renderMode === "hero") return true;
-  if (!(args.modelViewPreview && args.modelViewQuality === "standard")) return false;
+  if (!(args.modelViewPreview && isRichModelViewQuality(args.modelViewQuality))) return false;
   const max = args.maxGlbCasters
     ?? resolveModelViewMaxGlbCasters(args.modelViewQuality);
   if (typeof args.glbCasterSlot === "number") {

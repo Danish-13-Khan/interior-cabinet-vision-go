@@ -16,6 +16,7 @@ describe("modelViewPerf Phase G", () => {
   it("caps Model View Standard GLB casters and keeps Draft at zero", () => {
     expect(resolveModelViewMaxGlbCasters("draft")).toBe(0);
     expect(resolveModelViewMaxGlbCasters("standard")).toBe(10);
+    expect(resolveModelViewMaxGlbCasters("client-preview")).toBe(10);
     expect(resolveModelViewMaxGlbCasters(null)).toBe(0);
   });
 

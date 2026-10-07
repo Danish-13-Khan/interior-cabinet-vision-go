@@ -95,6 +95,7 @@ function compileLoopSkirting(
     rotationDegrees: { x: 0, y: 0, z: 0 },
     primitives: walls.flatMap((wall) => compileWallSkirtingPrimitives(
       project, room, wall, project.openings, materialId,
+      project.objects.filter((object) => object.roomId === room.id),
     )),
     placeholder: false, metadata: { role: "architecture", surface: "skirting" },
     renderBinding: createProceduralRenderBinding({ surface: materialId }),

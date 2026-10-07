@@ -1,4 +1,5 @@
 import type { RenderQuality } from "../interiorProject";
+import { isRichModelViewQuality } from "./modelViewTier";
 
 /** Phase G: idle GPU — Model View Canvas uses demand frameloop + invalidate. */
 export const MODEL_VIEW_FRAMELOOP = "demand" as const;
@@ -17,9 +18,9 @@ export function clampWalkthroughMoveDelta(deltaSeconds: number): number {
   return Math.min(deltaSeconds, MODEL_VIEW_WALKTHROUGH_MAX_DELTA_S);
 }
 
-/** Max simultaneous GLB map-casters in Model View Standard (Draft = 0). */
+/** Max simultaneous GLB map-casters in the rich Model View tiers (Draft = 0). */
 export function resolveModelViewMaxGlbCasters(
   quality: RenderQuality | null | undefined,
 ): number {
-  return quality === "standard" ? 10 : 0;
+  return isRichModelViewQuality(quality) ? 10 : 0;
 }
