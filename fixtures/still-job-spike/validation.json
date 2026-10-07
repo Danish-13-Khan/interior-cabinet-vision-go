@@ -73,7 +73,7 @@
     {
       "id": "material_ids",
       "pass": true,
-      "detail": "materials=10"
+      "detail": "materials=12"
     }
   ],
   "tolerances": {

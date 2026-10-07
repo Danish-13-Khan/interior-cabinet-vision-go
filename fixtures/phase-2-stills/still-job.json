@@ -3,8 +3,8 @@
   "jobId": "sj-p2a-daylight-sofa-camera-a",
   "createdAt": "2026-08-15T00:00:00.000Z",
   "projectId": "phase1-bench-daylight-sofa",
-  "projectContentHash": "sj-proj-db209541",
-  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-db209541",
+  "projectContentHash": "sj-proj-d52de819",
+  "snapshotId": "phase1-bench-daylight-sofa:lr-camera-bench-daylight-sofa-camera-a:sj-proj-d52de819",
   "cameraId": "lr-camera-bench-daylight-sofa-camera-a",
   "cameraPose": {
     "eye": {
@@ -86,6 +86,16 @@
       "materialId": "lr-material-stone-warm",
       "name": "Warm Honed Stone",
       "type": "stone"
+    },
+    {
+      "materialId": "lr-material-laminate-white",
+      "name": "White Laminate",
+      "type": "laminate"
+    },
+    {
+      "materialId": "lr-material-laminate-grey",
+      "name": "Grey Laminate",
+      "type": "laminate"
     }
   ],
   "objects": [

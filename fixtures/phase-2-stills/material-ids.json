@@ -48,5 +48,15 @@
     "materialId": "lr-material-stone-warm",
     "name": "Warm Honed Stone",
     "type": "stone"
+  },
+  {
+    "materialId": "lr-material-laminate-white",
+    "name": "White Laminate",
+    "type": "laminate"
+  },
+  {
+    "materialId": "lr-material-laminate-grey",
+    "name": "Grey Laminate",
+    "type": "laminate"
   }
 ]
