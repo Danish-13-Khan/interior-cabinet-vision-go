@@ -78,6 +78,6 @@
   height: auto;
   border: 1px solid var(--border);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
 }
 .lr-plan-shell.lr-product-shell-v2 .interiors-proposal-preview-pages small { color: var(--ink-muted); }
