@@ -94,4 +94,11 @@ describe("resolveGlbCastShadow", () => {
     expect(slots.get("c")).toBe(1);
     expect(slots.has("a")).toBe(false);
   });
+
+  it("casts in Model View client-preview and presentation like Standard", () => {
+    for (const quality of ["standard", "client-preview", "presentation"] as const) {
+      expect(resolveGlbCastShadow({ renderMode: "preview", modelViewPreview: true, modelViewQuality: quality, glbCasterSlot: 0 })).toBe(true);
+    }
+    expect(resolveGlbCastShadow({ renderMode: "preview", modelViewPreview: true, modelViewQuality: "draft", glbCasterSlot: 0 })).toBe(false);
+  });
 });

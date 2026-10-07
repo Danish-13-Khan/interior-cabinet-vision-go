@@ -37,10 +37,14 @@ export const STILL_EXPOSURE_LIMITS_EVENING = {
  * near-black and warm cast run slightly higher than a tight interior still.
  * Checked by eye on 2026-10-06: the 2 BHK hero (moody walnut) read 19.5%
  * near-black and cast 0.57, the 3 BHK 17.8% and 0.41, and both looked right.
+ * Checked again on 2026-10-07 after Phase 1 lifted the daylight-style exposures
+ * to 1.42: the 1 BHK hero (warm contemporary, white walls, evening) reads 179
+ * with 0% near-white and reads as a lit evening room in the viewport, so the
+ * ceiling moved from 175 to 185. The 2 BHK, 3 BHK and studio sit at 121–158.
  * Do not widen these without looking at the image that needs it.
  */
 export const STILL_EXPOSURE_LIMITS_EVENING_APARTMENT_HERO = {
-  meanLuma: [60, 175],
+  meanLuma: [60, 185],
   nearBlackPct: [0, 20],
   nearWhitePct: [0, 8],
   castRatio: [0, 0.6],

@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** Phase 3 **rendered and measured** on 2026-10-07 (`feat/photo-stills-p3-cycles`, Blender 5.2.2 LTS, Apple Silicon GPU): 2 BHK at 1080p in 35 s against the 180 s cap, rerun MAD 0.0035 against the 5.1 limit, card exposure gate passing, provenance material ids matching the job. Light units are at version 2 (calibrated). Phase 4 is not started.
+**Status:** Phases 0–4 built. Phase 3 rendered and measured 2026-10-07 (Blender 5.2.2, 1080p in 28–35 s, rerun MAD 0.000). Phase 4 done 2026-10-07: the console strip was skirting/panel z-fighting, fixed by a joinery cut; rich-tier shadows and GLB casters now reach client-preview. Bands and stills need one re-record on `feat/photo-stills-p4-grounding`.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -127,15 +127,19 @@ The bundle rebuilds **the lights the scene actually has**, one Cycles light per 
 
 **Measured (2026-10-07, Blender 5.2.2 LTS, M-series GPU, 1920×1080):** first render 130 s (one-off Metal kernel compile), then 24–35 s at 512 adaptive samples against the 180 s cap; `--rerun` MAD 0.0035 (limit 5.1); whole-frame luma 104, near-black 7.6 %, passing the evening card-hero gate; provenance echoes the job's 18 material ids. **Calibration found by this render** (light units v2): with every factor at 1 the cove was a 0.09 W area light and the frame read luma 32, half the pixels near black. Area, point and spot factors are now 250, sun 50, plus 1 stop of Cycles-only exposure. **Two scene fixes the render exposed:** wall and skirting boxes overlap the floor and ceiling by 20 mm and a dark ground slab sits under the floor, because a path tracer leaks sky through edge-to-edge seams; and the bundle compiles **every room of an apartment**, because a single-room scene turns each doorway into open sky. Blender 5 renamed the compositor API (node group on the scene, shared Mix node, group output, `Emission` pass); the script handles 4.x and 5.x.
 
-### Phase 4 — Viewport grounding within constraints (~1.5 days, after Phase 3)
+### Phase 4 — Viewport grounding within constraints (done 2026-10-07, `feat/photo-stills-p4-grounding`)
 
-Only what the quality roadmap already allows:
+Only what the quality roadmap already allows, and only what a measurement supported.
 
-- Shadow **bias / normalBias / radius** audit per room size (fixes the speckled strip under the console without moving geometry). The strip is still in the Phase 0 2 BHK hero at device pixel ratio 2, so it is not a capture-aliasing artefact.
-- `ContactShadows` tuned per tier; GLB casters at Standard (quality roadmap P0).
+- **The "speckled strip" under the 2 BHK console was never shadow acne.** Measured live at the card-hero pose with a local-contrast speckle metric: turning the only casting light off, and every bias / normalBias / radius / 2048-map variant, left the strip at 2.02 % speckle to the second decimal. Hiding the skirting halved it. A raycast through the strip found the full-height wall panel's `face` and `skirting:wall-1:1` at the **same distance**: the panel is 18 mm deep, the skirting is 18 mm deep, and their faces z-fought. **Fix (joinery, not bias):** `floorPanelCuts` stops the skirting behind any floor-standing wall panel or feature wall, the way a fitter would. Speckle 2.02 % → 0.96 %, the no-skirting floor, with no coplanar pairs left along the strip.
+- **Shadow bias audit:** no change. The Model View window-key and project shadow cameras keep their Policy A values; the audit showed bias had nothing to fix here.
+- **Tiers:** `resolveModelViewProjectShadow`, `resolveModelViewWindowKeyShadow`, `resolveGlbCastShadow` and `resolveModelViewMaxGlbCasters` keyed on `"standard"` alone, so client-preview (what the stills pin) rendered with Draft shadow cameras and **no GLB casters**. They now share `isRichModelViewQuality`. Live at client-preview: window key at bias −0.00036 / normalBias 0.04 / radius 9, and 20 of 20 GLB meshes casting (sofa, coffee table), no self-shadow acne on the sofa.
+- **Contact shadows:** assessed with casters on at client-preview; the floor under the sofa and table does not double-darken, so the per-tier ladder in `groundingQuality.ts` is unchanged.
 - Fixture read in the viewport stays as `WALL_DECOR_LIGHTING_ROADMAP.md` Phase 2 delivered it (emissive body, no bloom). Glow is a Phase 3 deliverable only.
 
-Dropped from rev 1: the "28–35 mm lens" change (already the current lens) and the "normal-map bevel" (does not move the silhouette; a real chamfer is cabinet-geometry work and belongs in the millwork docs if ever).
+Dropped from rev 1: the "28–35 mm lens" change (already the current lens) and the "normal-map bevel" (does not move the silhouette).
+
+**Re-record required:** the split skirting and the new casters move pixels in every apartment still, so `surface-bands.json` and the card stills must be re-recorded on this branch before merge.
 
 ---
 
