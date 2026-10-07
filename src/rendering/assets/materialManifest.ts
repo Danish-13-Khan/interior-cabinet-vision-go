@@ -153,7 +153,7 @@ export const MATERIAL_ASSET_MANIFEST = [
     id: LIVING_ROOM_MATERIAL_IDS.greyLaminate,
     name: "Grey Laminate",
     kind: "laminate",
-    baseColor: "#ffffff",
+    baseColor: "#8c8674",
     roughness: 0.7,
     metalness: 0,
     opacity: 1,

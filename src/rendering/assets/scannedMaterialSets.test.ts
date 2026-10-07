@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { LIVING_ROOM_MATERIAL_IDS } from "../../domain/livingRoom/materials";
@@ -52,5 +52,30 @@ describe("scanned material sets", () => {
     expect(rug?.colorMapId).toBe(oatmeal?.color);
     expect(rug?.normalMapId).toBe(oatmeal?.normal);
     expect(rug?.roughnessMapId).toBe(oatmeal?.roughness);
+  });
+
+  it("keeps each viewport set under a megabyte and block-aligned", () => {
+    const fabric = new Set<string>([
+      LIVING_ROOM_MATERIAL_IDS.oatmealFabric,
+      LIVING_ROOM_MATERIAL_IDS.oliveFabric,
+    ]);
+    for (const set of SCANNED_MATERIAL_SETS) {
+      let bytes = 0;
+      for (const slot of ["color", "normal", "roughness"] as const) {
+        const file = join(ROOT, "public", SCANNED_TEXTURE_URLS[set[slot]].slice(1));
+        const header = readFileSync(file).subarray(0, 48);
+        const width = header.readUInt32LE(20);
+        const height = header.readUInt32LE(24);
+        expect(width % 4, file).toBe(0);
+        expect(height % 4, file).toBe(0);
+        expect(header.readUInt32LE(44), file).toBe(slot === "normal" ? 2 : 1);
+        if (fabric.has(set.materialId)) {
+          expect(width, file).toBe(512);
+          expect(height, file).toBe(512);
+        }
+        bytes += statSync(file).size;
+      }
+      expect(bytes, set.materialId).toBeLessThanOrEqual(1024 * 1024);
+    }
   });
 });

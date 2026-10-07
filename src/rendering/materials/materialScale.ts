@@ -20,12 +20,7 @@ export function textureRepeatFromUvScaleMm(uvScaleMm: number, axisMm = 1000) {
   };
 }
 
-/** Scanned maps carry their own colour. Paint keeps the style tint. */
-export function colorForScannedMap(kind: string, hasColorMap: boolean, fallback: string) {
-  if (!hasColorMap || kind === "paint") return fallback;
-  return "#c4b8a8";
-}
-
+/** Extra normal relief on a scanned surface. Paint stays at 1. */
 export function reliefForScannedMap(kind: string, hasNormalMap: boolean) {
   if (!hasNormalMap || kind === "paint") return 1;
   return 2;

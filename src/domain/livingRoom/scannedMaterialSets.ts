@@ -12,7 +12,7 @@ export const SCANNED_MATERIAL_SETS = [
   },
   {
     materialId: LIVING_ROOM_MATERIAL_IDS.walnut,
-    polyhaven: "smoked_walnut_veneer",
+    polyhaven: "black_walnut_veneer_02",
     tileMm: 1000,
     color: "tex:walnut-color",
     normal: "tex:walnut-normal",

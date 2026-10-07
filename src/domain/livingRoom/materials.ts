@@ -125,7 +125,7 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     id: LIVING_ROOM_MATERIAL_IDS.greyLaminate,
     name: "Grey Laminate",
     kind: "laminate",
-    color: "#ffffff",
+    color: "#8c8674",
     roughness: 0.7,
     metalness: 0,
     opacity: 1,

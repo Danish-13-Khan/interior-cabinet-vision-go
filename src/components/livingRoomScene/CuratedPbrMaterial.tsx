@@ -18,7 +18,7 @@ import {
   resolveCuratedBumpMap,
   resolveCuratedMapAnisotropy,
 } from "../../rendering/materials/curatedMapQuality";
-import { colorForScannedMap, reliefForScannedMap, textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
+import { reliefForScannedMap, textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
 import { MaterialMapLoader } from "../../rendering/materials/materialMapLoader";
 import { grainRotationDeg } from "../../rendering/materials/grainRotation";
 import type { MaterialTextureUrls } from "../../rendering/materials/resolveMaterialTextureUrls";
@@ -131,7 +131,7 @@ export function CuratedPbrMaterial({
 
   return (
     <meshPhysicalMaterial
-      color={colorForScannedMap(material.kind, Boolean(textures.map), pbr.color)}
+      color={pbr.color}
       map={textures.map ?? pbr.maps.map}
       normalMap={textures.normalMap}
       normalScale={[reliefForScannedMap(material.kind, Boolean(textures.normalMap)), reliefForScannedMap(material.kind, Boolean(textures.normalMap))]}

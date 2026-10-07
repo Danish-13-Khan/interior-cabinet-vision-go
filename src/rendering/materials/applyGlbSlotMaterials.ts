@@ -19,7 +19,7 @@ import {
 } from "./glbSourceMaterial";
 import { type GlbMaterialBuildContext, resolveGlbMaterialBuildContext } from "./glbMaterialBuildContext";
 import { grainRotationDeg } from "./grainRotation";
-import { colorForScannedMap, reliefForScannedMap } from "./materialScale";
+import { reliefForScannedMap } from "./materialScale";
 import {
   asMeshMaterials,
   attachSlotTextures,
@@ -52,7 +52,8 @@ function buildPhysicalMaterial(
   };
   const material = new MeshPhysicalMaterial({
     name: sourceName,
-    color: new Color(colorForScannedMap(compiled.kind, Boolean(textureUrls.map), pbr.color)),
+    // Style colour is the tint. The colour map is mean-neutral detail.
+    color: new Color(pbr.color),
     ...(textureUrls.map ? {} : {
       ...(pbr.maps.map ? { map: pbr.maps.map } : {}),
       ...(pbr.maps.bumpMap ? { bumpMap: pbr.maps.bumpMap } : {}),

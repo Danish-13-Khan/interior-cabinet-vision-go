@@ -111,7 +111,7 @@ export const LIVING_ROOM_STYLE_PRESETS = [
     materialRecipes: {
       [LIVING_ROOM_MATERIAL_IDS.wallPaint]: materialRecipe("#ecece6", 0.9),
       [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: materialRecipe("#fbfaf5", 0.94),
-      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#b99a7c", 0.7),
+      [LIVING_ROOM_MATERIAL_IDS.naturalOak]: materialRecipe("#c89b6c", 0.7),
       [LIVING_ROOM_MATERIAL_IDS.walnut]: materialRecipe("#60463a", 0.65),
       [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: materialRecipe("#d7cec0", 0.98),
       [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: materialRecipe("#87937a", 0.98),
