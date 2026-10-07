@@ -15,7 +15,7 @@ export const AUTHORED_SHOWCASE_FOV = 44;
  * cut-list joinery (D2), else one that looks at the room's busiest wall (D2b).
  * The hero camera becomes the active default, and the proposal's default
  * views are stored as an explicit selection (D1): hero first, then joinery
- * rooms by cabinet count.
+ * rooms by cabinet count, leaving out rooms too tight for any photo.
  */
 export function applyShowcaseCameras(
   project: InteriorProject,
@@ -26,6 +26,7 @@ export function applyShowcaseCameras(
   const cameras: CameraEntity[] = [];
   const bookmarks: PackageCameraBookmark[] = [];
   const cabinetCount = new Map<string, number>();
+  const tightRooms = new Set<string>();
   for (const room of spec.rooms) {
     const roomId = roomKeyToId.get(room.key);
     if (!roomId) continue;
@@ -44,6 +45,7 @@ export function applyShowcaseCameras(
     });
     bookmarks.push({ cameraId, viewName: `${room.name} Showcase` });
     cabinetCount.set(cameraId, cutListCabinets(project, roomId).length);
+    if ("tight" in pose && pose.tight) tightRooms.add(cameraId);
   }
   if (!cameras.length) return project;
   const hero = cameras.find((camera) => camera.isDefault) ?? cameras[0]!;
@@ -74,6 +76,6 @@ export function applyShowcaseCameras(
         packageCameraBookmarks: [...keptBookmarks, ...ordered.map((cameraId) => byId.get(cameraId)!)],
       },
     },
-    ordered.filter((cameraId) => cameraId === hero.id || count(cameraId) > 0),
+    ordered.filter((cameraId) => cameraId === hero.id || (count(cameraId) > 0 && !tightRooms.has(cameraId))),
   );
 }

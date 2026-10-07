@@ -32,7 +32,7 @@ describe("proposalViewSelection (roadmap D1)", () => {
   it("keeps the template's explicit selection and reports the rest as unselected", () => {
     const selection = proposalViewSelection(project);
     expect(selection.explicit).toBe(true);
-    expect(selection.selectedIds).toHaveLength(8);
+    expect(selection.selectedIds).toHaveLength(7);
     const named = listProposalNamedViews(project);
     expect(named.filter((view) => view.selected).map((view) => view.cameraId)).toEqual(selection.selectedIds);
     expect(named.find((view) => view.viewName === "Balcony Showcase")?.selected).toBe(false);
@@ -41,7 +41,7 @@ describe("proposalViewSelection (roadmap D1)", () => {
   it("unticking one view drops only that view, and ticking appends", () => {
     const kitchen = cameraId("Kitchen Showcase");
     const withoutKitchen = toggleProposalView(project, kitchen);
-    expect(withoutKitchen).toHaveLength(7);
+    expect(withoutKitchen).toHaveLength(6);
     expect(withoutKitchen).not.toContain(kitchen);
     const bath = cameraId("Guest Bath Showcase");
     const next = setProposalSelectedViews(project, withoutKitchen);

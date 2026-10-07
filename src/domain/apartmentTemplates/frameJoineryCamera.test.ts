@@ -24,8 +24,16 @@ const options = { now: COMPOSER_TEST_NOW };
 const PARTIAL_VIEWS: Record<string, string[]> = {
   "template:apartment:studio:v1": ["entry"],
   "template:apartment:1bhk:v1": ["kitchen", "utility"],
-  "template:apartment:2bhk:v1": ["kitchen", "kids"],
+  "template:apartment:2bhk:v1": ["kitchen"],
   "template:apartment:3bhk:v1": ["kitchen", "utility", "master"],
+};
+
+/** Rooms with under 500 mm of floor in front of the run: the tall unit in a 1.2 m utility. Never a default view. */
+const TIGHT_VIEWS: Record<string, string[]> = {
+  "template:apartment:studio:v1": [],
+  "template:apartment:1bhk:v1": ["utility"],
+  "template:apartment:2bhk:v1": [],
+  "template:apartment:3bhk:v1": ["utility"],
 };
 
 describe("frameJoineryCamera (roadmap D2)", () => {
@@ -34,6 +42,7 @@ describe("frameJoineryCamera (roadmap D2)", () => {
       const project = composeApartment(spec, options);
       const ids = roomIdByKey(project);
       const partial: string[] = [];
+      const tight: string[] = [];
       for (const room of spec.rooms) {
         const roomId = ids.get(room.key)!;
         const label = `${spec.id} ${room.key}`;
@@ -51,6 +60,10 @@ describe("frameJoineryCamera (roadmap D2)", () => {
         expect(frame.position.z, label).toBeLessThanOrEqual(bounds.maxZ - inset);
         expect(frame.fieldOfViewDegrees, label).toBeGreaterThanOrEqual(JOINERY_FRAME.fovDegrees);
         expect(frame.fieldOfViewDegrees, label).toBeLessThanOrEqual(JOINERY_FRAME.maxFovDegrees);
+        if (frame.tight) {
+          expect(frame.partial, label).toBe(true);
+          tight.push(room.key);
+        }
         if (frame.partial) {
           partial.push(room.key);
           continue;
@@ -58,6 +71,7 @@ describe("frameJoineryCamera (roadmap D2)", () => {
         expect(joineryInsideFrame(frame, joineryBoxesMm(project, roomId)), label).toBe(true);
       }
       expect(partial, spec.id).toEqual(PARTIAL_VIEWS[spec.id]);
+      expect(tight, spec.id).toEqual(TIGHT_VIEWS[spec.id]);
     }
   });
 
@@ -98,7 +112,7 @@ describe("applyShowcaseCameras (roadmap D1, D2a)", () => {
     }
   });
 
-  it("selects the hero plus joinery rooms by cabinet count for the 3 BHK, leaving the rest to tick", () => {
+  it("selects the hero plus joinery rooms by cabinet count for the 3 BHK, leaving tight rooms and the rest to tick", () => {
     const project = composeApartment(THREE_BHK_SHELL_SPEC, options);
     const selection = proposalViewSelection(project);
     const name = (cameraId: string) => project.cameras.find((camera) => camera.id === cameraId)!.name;
@@ -108,7 +122,6 @@ describe("applyShowcaseCameras (roadmap D1, D2a)", () => {
       "Kitchen Showcase",
       "Guest Showcase",
       "Foyer Showcase",
-      "Utility Showcase",
       "Study Showcase",
       "Kids Showcase",
       "Master Showcase",
@@ -116,6 +129,7 @@ describe("applyShowcaseCameras (roadmap D1, D2a)", () => {
     expect(selection.availableIds).toHaveLength(THREE_BHK_SHELL_SPEC.rooms.length);
     const unselected = selection.availableIds.filter((id) => !selection.selectedIds.includes(id)).map(name);
     expect(unselected).toEqual([
+      "Utility Showcase",
       "Balcony Showcase",
       "Passage Showcase",
       "Guest Bath Showcase",
