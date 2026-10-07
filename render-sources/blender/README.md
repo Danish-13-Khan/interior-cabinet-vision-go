@@ -15,7 +15,7 @@ provenance file the app's Still review checks before the still can enter a clien
 
 ## Run it
 
-Blender 4.x must be installed (macOS: `/Applications/Blender.app`, or set `BLENDER=/path/to/blender`).
+Blender 4.x or 5.x must be installed (macOS: `/Applications/Blender.app`, or set `BLENDER=/path/to/blender`).
 
 ```bash
 npm run cycles:check                                   # finds Blender, cross-checks the transform math
@@ -61,9 +61,14 @@ Render it as above, then **Still review → Import photo still…** picks `prove
 | lux (sun) | strength W/m² | lux / 683 |
 | emissiveIntensity | emission strength | × 4 |
 
-`CALIBRATION` in `still_bundle_math.py` starts at 1 for every row. The first measured 2 BHK render
-sets it; change it only with that measurement and bump `CYCLES_LIGHT_UNITS_VERSION` in
-`src/domain/livingRoom/cyclesBundle/types.ts` and `LIGHT_UNITS_VERSION` here together.
+`CALIBRATION` in `still_bundle_math.py` multiplies those formulas. Version 2 (measured on the
+2 BHK, Blender 5.2, 2026-10-07): area 250, point 250, spot 250, sun 50, emission 1, plus
+`EXPOSURE_OFFSET_STOPS = 1`. At 1.0 everywhere the cove was a 0.09 W light and the frame read
+luma 32. Change the factors only from a measured render and bump `CYCLES_LIGHT_UNITS_VERSION`
+in `src/domain/livingRoom/cyclesBundle/types.ts` and `LIGHT_UNITS_VERSION` here together.
+
+Blender 4.x and 5.x are both supported; 5.x moved the compositor to a node group on the scene,
+shares the Mix node with shaders, ends in a group output and calls the pass `Emission`.
 
 ## Determinism
 

@@ -21,6 +21,13 @@ import {
   type CyclesVec3,
 } from "./types";
 
+/**
+ * Walls, skirting and floor meet edge-to-edge at y = 0 in the compiled scene. A path
+ * tracer leaks sky through that seam, so wall-family boxes are grown by this much
+ * at both ends: they sink into the floor slab and rise into the ceiling slab.
+ */
+export const CYCLES_WALL_SEAM_OVERLAP_M = 0.02;
+
 /** Phase 3 gate: 1080p in three minutes on the target box. Samples adapt under the cap. */
 export const CYCLES_DEFAULT_TIME_CAP_SECONDS = 180;
 export const CYCLES_DEFAULT_SAMPLES_MAX = 512;
@@ -68,7 +75,8 @@ function primitiveForCycles(primitive: CompiledPrimitive): CyclesPrimitive {
     receiveShadow: primitive.receiveShadow,
   };
   if (primitive.kind === "box") {
-    return { kind: "box", sizeM: { width: primitive.sizeMm.width / 1000, height: primitive.sizeMm.height / 1000, depth: primitive.sizeMm.depth / 1000 }, ...common };
+    const seam = /^(wall-panel|skirting)/.test(primitive.id) ? CYCLES_WALL_SEAM_OVERLAP_M * 2 : 0;
+    return { kind: "box", sizeM: { width: primitive.sizeMm.width / 1000, height: primitive.sizeMm.height / 1000 + seam, depth: primitive.sizeMm.depth / 1000 }, ...common };
   }
   if (primitive.kind === "rounded-box") {
     return {

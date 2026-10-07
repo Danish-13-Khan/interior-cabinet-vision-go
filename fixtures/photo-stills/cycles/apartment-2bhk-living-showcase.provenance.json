@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "engine": {
+    "id": "stilljob-cycles",
+    "version": "1.0.0"
+  },
+  "lightUnitsVersion": 2,
+  "jobId": "cy-showcase-muy55euv",
+  "projectId": "apt-2bhk:project:doc",
+  "projectContentHash": "sj-proj-4fd0c46d",
+  "snapshotId": "apt-2bhk:project:doc:apt-2bhk:camera:living-showcase:sj-proj-4fd0c46d",
+  "cameraId": "apt-2bhk:camera:living-showcase",
+  "seed": 0,
+  "materialIds": [
+    "lr-material-wall-warm-white",
+    "lr-material-ceiling-soft-white",
+    "lr-material-natural-oak",
+    "lr-material-walnut",
+    "lr-material-fabric-oatmeal",
+    "lr-material-fabric-olive",
+    "lr-material-metal-charcoal",
+    "lr-material-glass-clear",
+    "lr-material-rug-wool-sand",
+    "lr-material-stone-warm",
+    "lr-material-laminate-white",
+    "lr-material-laminate-grey",
+    "proj-material-core-metal-appliance-steel-v1",
+    "proj-material-core-wood-natural-oak-v1",
+    "proj-material-core-metal-charcoal-v1",
+    "proj-material-core-glass-dark-v1",
+    "proj-material-core-tile-ceramic-soft-gray-v1",
+    "proj-material-core-ceramic-white-v1"
+  ],
+  "lightCount": 20,
+  "bundleSha256": "10e222455c9a88b85e2afb0026aeaafb180dcbccf188e96da23ae5c967483b8a",
+  "blender": "5.2.2 LTS",
+  "platform": "Darwin arm64",
+  "device": "GPU",
+  "samplesMax": 512,
+  "timeCapSeconds": 180.0,
+  "elapsedSeconds": 28.22,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "denoise": "OpenImageDenoise (CPU)",
+  "viewTransform": "AgX",
+  "emissionGlow": true,
+  "deterministicRerun": {
+    "mad": 4.8546808102400973e-05,
+    "limit": 5.1000000000000005,
+    "pass": true,
+    "seconds": 28.299782624992076
+  },
+  "warnings": [
+    "Bathroom Sink (object-node:apt-2bhk:object:room-1-vanity) is a project-owned GLB; Cycles uses its placeholder primitives.",
+    "Toilet (object-node:apt-2bhk:object:room-1-wc) is a project-owned GLB; Cycles uses its placeholder primitives.",
+    "Kitchen Sink (object-node:apt-2bhk:object:room-3-sink) is a project-owned GLB; Cycles uses its placeholder primitives.",
+    "Electric Stove (object-node:apt-2bhk:object:room-3-hob) is a project-owned GLB; Cycles uses its placeholder primitives.",
+    "Bathroom Sink (object-node:apt-2bhk:object:room-5-vanity) is a project-owned GLB; Cycles uses its placeholder primitives.",
+    "Toilet (object-node:apt-2bhk:object:room-5-wc) is a project-owned GLB; Cycles uses its placeholder primitives."
+  ],
+  "stillPath": "still.png"
+}

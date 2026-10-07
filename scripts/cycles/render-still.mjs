@@ -107,6 +107,8 @@ child.on("exit", (code, signal) => {
     console.log(`[cycles] provenance → ${provenancePath}`);
     process.exit(0);
   }
-  console.error(`[cycles] Blender exited with ${signal ?? code} after ${seconds}s`);
+  console.error(code === 0
+    ? `[cycles] Blender exited cleanly after ${seconds}s but wrote no provenance; see the traceback above`
+    : `[cycles] Blender exited with ${signal ?? code} after ${seconds}s`);
   process.exit(1);
 });

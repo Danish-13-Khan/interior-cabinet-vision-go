@@ -11,7 +11,7 @@ import type { StillJob } from "../stillJob/types";
 export const CYCLES_BUNDLE_SCHEMA_VERSION = 1 as const;
 
 /** Light-unit and scene-build rules the Python script must match. Bump with the engine version. */
-export const CYCLES_LIGHT_UNITS_VERSION = 1 as const;
+export const CYCLES_LIGHT_UNITS_VERSION = 2 as const;
 
 export type CyclesVec3 = { x: number; y: number; z: number };
 

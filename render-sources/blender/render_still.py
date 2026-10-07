@@ -111,32 +111,97 @@ def configure_render(scene, bundle: dict, args: dict) -> dict:
     except TypeError:
         view.view_transform = "Filmic"
     view.look = "None"
-    view.exposure = m3.exposure_stops(float(bundle["environment"]["exposure"]))
+    view.exposure = m3.exposure_stops(float(bundle["environment"]["exposure"])) + m3.EXPOSURE_OFFSET_STOPS
     view.gamma = 1.0
     return {"device": device, "samples": cycles.samples, "timeLimit": cycles.time_limit}
 
 
-def configure_glow(scene):
-    """Glare only on the emission pass, added back to the image: fixtures glow, nothing else blooms."""
-    scene.view_layers[0].use_pass_emit = True
+def _compositor_tree(scene):
+    """Blender 5 keeps the compositor in a node group on the scene; 4.x uses scene.node_tree."""
+    if hasattr(scene, "compositing_node_group"):
+        tree = bpy.data.node_groups.new("still-glow", "CompositorNodeTree")
+        scene.compositing_node_group = tree
+        return tree
     scene.use_nodes = True
-    tree = scene.node_tree
-    for node in list(tree.nodes):
-        tree.nodes.remove(node)
-    layers = tree.nodes.new("CompositorNodeRLayers")
-    glare = tree.nodes.new("CompositorNodeGlare")
-    glare.glare_type = "FOG_GLOW"
-    glare.threshold = 1.0
-    glare.size = 7
-    glare.mix = 1.0  # output glare only
-    add = tree.nodes.new("CompositorNodeMixRGB")
-    add.blend_type = "ADD"
-    add.inputs[0].default_value = 0.6
-    composite = tree.nodes.new("CompositorNodeComposite")
-    tree.links.new(layers.outputs["Emit"], glare.inputs["Image"])
-    tree.links.new(layers.outputs["Image"], add.inputs[1])
-    tree.links.new(glare.outputs["Image"], add.inputs[2])
-    tree.links.new(add.outputs["Image"], composite.inputs["Image"])
+    return scene.node_tree
+
+
+def _set_glare(glare, name: str, value):
+    """Glare settings are inputs from 4.4 on and properties before that."""
+    socket = glare.inputs.get(name) if hasattr(glare, "inputs") else None
+    if socket is not None:
+        socket.default_value = value
+        return
+    attr = {"Threshold": "threshold", "Size": "size", "Strength": "mix"}.get(name)
+    if attr and hasattr(glare, attr):
+        setattr(glare, attr, value)
+
+
+def configure_glow(scene) -> bool:
+    """Glare only on the emission pass, added back to the image: fixtures glow, nothing else blooms.
+
+    Returns False (and leaves the plain image) when this Blender's compositor API differs.
+    """
+    try:
+        scene.view_layers[0].use_pass_emit = True
+        tree = _compositor_tree(scene)
+        for node in list(tree.nodes):
+            tree.nodes.remove(node)
+        layers = tree.nodes.new("CompositorNodeRLayers")
+        glare = tree.nodes.new("CompositorNodeGlare")
+        if "Type" in glare.inputs:
+            try:
+                glare.inputs["Type"].default_value = "FOG_GLOW"
+            except TypeError:
+                glare.inputs["Type"].default_value = "Fog Glow"  # Blender 5 names the enum by label
+        else:
+            glare.glare_type = "FOG_GLOW"
+        _set_glare(glare, "Threshold", 1.0)
+        _set_glare(glare, "Size", 7)
+        _set_glare(glare, "Strength", 1.0)
+        try:
+            add = tree.nodes.new("CompositorNodeMixRGB")
+            add.blend_type = "ADD"
+            add.inputs[0].default_value = 0.6
+            add_a, add_b, add_out = add.inputs[1], add.inputs[2], add.outputs[0]
+        except RuntimeError:
+            # Blender 5 shares the shader Mix node with the compositor.
+            try:
+                add = tree.nodes.new("CompositorNodeMix")
+            except RuntimeError:
+                add = tree.nodes.new("ShaderNodeMix")
+            add.data_type = "RGBA"
+            add.blend_type = "ADD"
+            for socket in add.inputs:
+                if socket.identifier == "Factor_Float":
+                    socket.default_value = 0.6
+            add_a = next(s for s in add.inputs if s.identifier == "A_Color")
+            add_b = next(s for s in add.inputs if s.identifier == "B_Color")
+            add_out = next(s for s in add.outputs if s.identifier == "Result_Color")
+        try:
+            composite = tree.nodes.new("CompositorNodeComposite")
+            composite_in = composite.inputs["Image"]
+        except RuntimeError:
+            # Blender 5: the compositing node group ends in a group output with an Image socket.
+            tree.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
+            composite = tree.nodes.new("NodeGroupOutput")
+            composite_in = composite.inputs["Image"]
+        emit = next((o for o in layers.outputs if o.name in ("Emit", "Emission")), None)
+        if emit is None:
+            raise KeyError("render layers expose no emission pass")
+        tree.links.new(emit, glare.inputs["Image"])
+        glare_out = glare.outputs["Glare"] if "Glare" in glare.outputs else glare.outputs["Image"]
+        tree.links.new(layers.outputs["Image"], add_a)
+        tree.links.new(glare_out, add_b)
+        tree.links.new(add_out, composite_in)
+        return True
+    except Exception as error:  # noqa: BLE001 - glow is cosmetic; the still must still render
+        print(f"[cycles] glow disabled: {error}")
+        if hasattr(scene, "compositing_node_group"):
+            scene.compositing_node_group = None
+        else:
+            scene.use_nodes = False
+        return False
 
 
 def render_to(scene, path: str) -> float:
@@ -181,7 +246,7 @@ def main():
     ambient = cs.build_recipe_lights(bundle)
     cs.build_camera(bundle)
     cs.build_world(bundle, root, ambient)
-    configure_glow(scene)
+    glow = configure_glow(scene)
 
     out = os.path.abspath(args["out"])
     os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -216,6 +281,7 @@ def main():
         "resolution": [scene.render.resolution_x, scene.render.resolution_y],
         "denoise": "OpenImageDenoise (CPU)" if scene.cycles.use_denoising else "none",
         "viewTransform": scene.view_settings.view_transform,
+        "emissionGlow": glow,
         "deterministicRerun": rerun,
         "warnings": bundle.get("warnings", []),
         "stillPath": os.path.basename(out),
@@ -228,4 +294,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:  # noqa: BLE001 - background Blender would otherwise exit 0 after a traceback
+        import traceback
+
+        traceback.print_exc()
+        sys.exit(1)

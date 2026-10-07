@@ -2,6 +2,7 @@ export {
   buildCyclesStillBundle,
   CYCLES_DEFAULT_SAMPLES_MAX,
   CYCLES_DEFAULT_TIME_CAP_SECONDS,
+  CYCLES_WALL_SEAM_OVERLAP_M,
   type BuildCyclesStillBundleInput,
   type CyclesModelAssetLookup,
 } from "./buildCyclesStillBundle";

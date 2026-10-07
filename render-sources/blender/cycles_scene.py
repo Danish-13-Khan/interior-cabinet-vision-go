@@ -85,7 +85,11 @@ def build_material(spec: dict, root: str):
     opacity = float(spec.get("opacity", 1.0))
     if opacity < 1.0:
         _socket(bsdf, "Alpha").default_value = opacity
-        mat.blend_method = "BLEND"
+        if hasattr(mat, "blend_method"):
+            try:
+                mat.blend_method = "BLEND"
+            except TypeError:
+                pass
 
     scan = spec.get("scan")
     source_dir = os.path.join(root, scan["sourceDir"]) if scan else None
@@ -249,7 +253,32 @@ def primitive_geometry(prim: dict):
 
 # ---------------------------------------------------------------- scene
 
+GROUND_SLAB_MARGIN_M = 3.0
+GROUND_SLAB_THICKNESS_M = 0.3
+
+
+def build_ground_slab(bundle: dict):
+    """A dark slab under every floor. Closes the floor/wall seams against sky from below."""
+    xs, ys, zs = [], [], []
+    for node in bundle["nodes"]:
+        p = node["world"]["position"]
+        xs.append(p["x"]); ys.append(p["y"]); zs.append(p["z"])
+    if not xs:
+        return
+    floor_bottom = min(ys) - 0.02
+    cx, cz = (min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2
+    w = (max(xs) - min(xs)) + GROUND_SLAB_MARGIN_M * 2
+    d = (max(zs) - min(zs)) + GROUND_SLAB_MARGIN_M * 2
+    verts, faces = box_geometry(w, GROUND_SLAB_THICKNESS_M, d)
+    material = bpy.data.materials.new("cycles-ground-slab")
+    material.use_nodes = True
+    _socket(material.node_tree.nodes["Principled BSDF"], "Base Color").default_value = (0.05, 0.045, 0.04, 1.0)
+    three = m3.translation(cx, floor_bottom - GROUND_SLAB_THICKNESS_M / 2, cz)
+    _mesh_object("cycles-ground-slab", verts, faces, material, bmatrix(m3.to_blender_keeping_local(three)))
+
+
 def build_nodes(bundle: dict, materials: dict, root: str):
+    build_ground_slab(bundle)
     fallback = bpy.data.materials.new("cycles-missing-material")
     for node in bundle["nodes"]:
         world = m3.transform_matrix(node["world"])

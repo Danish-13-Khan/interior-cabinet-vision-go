@@ -7,7 +7,7 @@ Conventions
 - Bundle positions are metres in three.js axes (Y up). Blender is Z up.
 - A three.js object matrix is T · R · S with R from an Euler in the bundle's order.
 - `C` maps three world coordinates to Blender world coordinates: (x, y, z) → (x, −z, y).
-- Light units follow `CYCLES_LIGHT_UNITS_VERSION = 1` in `src/domain/livingRoom/cyclesBundle/types.ts`.
+- Light units follow `CYCLES_LIGHT_UNITS_VERSION = 2` in `src/domain/livingRoom/cyclesBundle/types.ts`.
 """
 from __future__ import annotations
 
@@ -16,19 +16,27 @@ from typing import Sequence
 
 Matrix = list  # 4×4 nested lists; kept dependency-free so the self-check runs without Blender
 
-LIGHT_UNITS_VERSION = 1
+LIGHT_UNITS_VERSION = 2
 
 # Photometric → radiometric. 683 lm/W at 555 nm is the standard conversion; the
 # calibration factors are the only tunables and start at 1. Change them only
 # from a measured 2 BHK render and bump CYCLES_LIGHT_UNITS_VERSION with them.
 LUMENS_PER_WATT = 683.0
+# First measured pass (2 BHK, Blender 5.2, 2026-10-07): with every factor at 1 the cove
+# became a 0.09 W area light and the frame read luma 32 with half the pixels near black.
+# Blender's light "watts" are not the 683 lm/W radiant watt; a household bulb is ~1000 W
+# in Cycles. These factors bring the fixtures back to the viewport's intent.
 CALIBRATION = {
-    "area": 1.0,
-    "point": 1.0,
-    "spot": 1.0,
-    "sun": 1.0,
+    "area": 250.0,
+    "point": 250.0,
+    "spot": 250.0,
+    "sun": 50.0,
     "emission": 1.0,
 }
+
+# Stops added to the style exposure in Cycles only. The style exposure was tuned for the
+# viewport's non-physical fill; the path-traced frame needs more.
+EXPOSURE_OFFSET_STOPS = 1.0
 
 # Blender area light: radiance L = P / (π · A). Three rect lights are nits (cd/m² = lm/sr/m²).
 def area_light_watts(nits: float, width_m: float, height_m: float) -> float:

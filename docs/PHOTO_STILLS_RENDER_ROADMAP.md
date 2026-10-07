@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** Phase 3 pipeline is in the tree (`feat/photo-stills-p3-cycles`): Cycles bundle from the authored project, Blender scripts, Node runner, HTTP render service with a Docker image, Present → Export photo job, Still review → Render photo / Import photo still with the trust gates. **Not yet rendered**: no Blender on the build machine, so the light calibration and the 3-minute gate are unmeasured. Phase 4 is not started.
+**Status:** Phase 3 **rendered and measured** on 2026-10-07 (`feat/photo-stills-p3-cycles`, Blender 5.2.2 LTS, Apple Silicon GPU): 2 BHK at 1080p in 35 s against the 180 s cap, rerun MAD 0.0035 against the 5.1 limit, card exposure gate passing, provenance material ids matching the job. Light units are at version 2 (calibrated). Phase 4 is not started.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -125,7 +125,7 @@ The bundle rebuilds **the lights the scene actually has**, one Cycles light per 
 
 **Done when:** a 2 BHK still from Cycles passes review with cove, COB and pendant fixtures visibly lighting the room; provenance lists the same material ids as the job; render time ≤ 3 min at 1080p on the target box; the WebGL viewport is untouched.
 
-**Built so far (2026-10-07):** bundle export verified from both app entry points and the CLI (2 BHK: 33 nodes, 2 GLBs, 21 materials, 3 fixtures with 4 lights, 5 recipe lights, 1 window key, warm-evening HDRI at 0.32); import gates verified with a fabricated provenance (pass), a swapped material id (fail) and an edited project (fail). **Still owed:** the first real render, which sets the four `CALIBRATION` factors in `still_bundle_math.py` and measures the 3-minute gate. That needs Blender 4.x on a machine with this checkout.
+**Measured (2026-10-07, Blender 5.2.2 LTS, M-series GPU, 1920×1080):** first render 130 s (one-off Metal kernel compile), then 24–35 s at 512 adaptive samples against the 180 s cap; `--rerun` MAD 0.0035 (limit 5.1); whole-frame luma 104, near-black 7.6 %, passing the evening card-hero gate; provenance echoes the job's 18 material ids. **Calibration found by this render** (light units v2): with every factor at 1 the cove was a 0.09 W area light and the frame read luma 32, half the pixels near black. Area, point and spot factors are now 250, sun 50, plus 1 stop of Cycles-only exposure. **Two scene fixes the render exposed:** wall and skirting boxes overlap the floor and ceiling by 20 mm and a dark ground slab sits under the floor, because a path tracer leaks sky through edge-to-edge seams; and the bundle compiles **every room of an apartment**, because a single-room scene turns each doorway into open sky. Blender 5 renamed the compositor API (node group on the scene, shared Mix node, group output, `Emission` pass); the script handles 4.x and 5.x.
 
 ### Phase 4 — Viewport grounding within constraints (~1.5 days, after Phase 3)
 
