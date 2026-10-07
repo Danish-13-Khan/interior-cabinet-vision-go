@@ -17,6 +17,7 @@ import type {
   RenderMode,
 } from "../../domain/livingRoom/renderAssetContracts";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
+import { bindMaterialMapRenderer } from "../../rendering/materials/materialMapLoader";
 import { enableGlbFrustumCulling } from "../../domain/livingRoom/glbFrustumBounds";
 import { normalizeGlbFloorOrigin } from "../../rendering/loaders/normalizeGlbFloorOrigin";
 import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
@@ -72,6 +73,7 @@ export function AssetBackedGlbContent({
   const importedTextures = readStoredTextureUrls(binding.modelTextureUrls);
   const texturesKey = JSON.stringify(importedTextures ?? null);
   const invalidate = useThree((state) => state.invalidate);
+  const gl = useThree((state) => state.gl);
   const castShadow = resolveGlbCastShadow({
     renderMode,
     modelViewPreview: modelViewQuality != null,
@@ -115,6 +117,7 @@ export function AssetBackedGlbContent({
   }, [invalidate, modelRoot, scale.x, scale.y, scale.z]);
 
   useLayoutEffect(() => {
+    bindMaterialMapRenderer(gl, invalidate);
     applyGlbSlotMaterials(scene, {
       materialGroups: definition.materialGroups,
       materialBindings: binding.materialBindings,
@@ -131,7 +134,7 @@ export function AssetBackedGlbContent({
   }, [
     castShadow, groupsKey, materials, modelViewQuality, renderMode, renderQuality,
     scene, slotKey, texturesKey, binding.slotPolicies,
-    binding.preserveSourceMaterials,
+    binding.preserveSourceMaterials, gl, invalidate,
   ]);
 
   return (

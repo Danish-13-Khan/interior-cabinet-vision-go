@@ -19,10 +19,11 @@ import {
 } from "./glbSourceMaterial";
 import { type GlbMaterialBuildContext, resolveGlbMaterialBuildContext } from "./glbMaterialBuildContext";
 import { grainRotationDeg } from "./grainRotation";
+import { colorForScannedMap, reliefForScannedMap } from "./materialScale";
 import {
   asMeshMaterials,
+  attachSlotTextures,
   disposeMaterialTextures,
-  loadSlotTexture,
   type UvPlacement,
 } from "./glbTextureLoad";
 import { resolveMaterialTextureUrls } from "./resolveMaterialTextureUrls";
@@ -49,22 +50,13 @@ function buildPhysicalMaterial(
     uvOffsetU: compiled.uvOffsetU,
     uvOffsetV: compiled.uvOffsetV,
   };
-  const curatedMap = loadSlotTexture(textureUrls.map, compiled.uvScaleMm, build, true, placement);
-  const curatedNormal = loadSlotTexture(textureUrls.normalMap, compiled.uvScaleMm, build, false, placement);
-  const curatedRoughness = loadSlotTexture(textureUrls.roughnessMap, compiled.uvScaleMm, build, false, placement);
-  const curatedAo = loadSlotTexture(textureUrls.aoMap, compiled.uvScaleMm, build, false, placement);
-  const map = curatedMap ?? pbr.maps.map;
-  const maps = {
-    ...(map ? { map } : {}),
-    ...(curatedNormal ? { normalMap: curatedNormal } : {}),
-    ...(curatedRoughness ? { roughnessMap: curatedRoughness } : {}),
-    ...(curatedAo ? { aoMap: curatedAo } : {}),
-    ...(!curatedMap && pbr.maps.bumpMap ? { bumpMap: pbr.maps.bumpMap } : {}),
-  };
-  return new MeshPhysicalMaterial({
+  const material = new MeshPhysicalMaterial({
     name: sourceName,
-    color: new Color(pbr.color),
-    ...maps,
+    color: new Color(colorForScannedMap(compiled.kind, Boolean(textureUrls.map), pbr.color)),
+    ...(textureUrls.map ? {} : {
+      ...(pbr.maps.map ? { map: pbr.maps.map } : {}),
+      ...(pbr.maps.bumpMap ? { bumpMap: pbr.maps.bumpMap } : {}),
+    }),
     bumpScale: pbr.bumpScale,
     roughness: pbr.roughness,
     metalness: pbr.metalness,
@@ -82,6 +74,10 @@ function buildPhysicalMaterial(
     envMapIntensity: pbr.envMapIntensity,
     specularIntensity: pbr.specularIntensity,
   });
+  attachSlotTextures(material, textureUrls, compiled.uvScaleMm, build, placement);
+  const relief = reliefForScannedMap(compiled.kind, Boolean(textureUrls.normalMap));
+  material.normalScale.set(relief, relief);
+  return material;
 }
 
 function buildImportedMaterial(
@@ -90,22 +86,13 @@ function buildImportedMaterial(
   build: GlbMaterialBuildContext,
 ) {
   const response = resolveImportedGlbMaterialResponse(mode, build);
-  const map = loadSlotTexture(textures.map, 1000, build, true);
-  const normalMap = loadSlotTexture(textures.normalMap, 1000, build, false);
-  const roughnessMap = loadSlotTexture(textures.roughnessMap, 1000, build, false);
-  const metalnessMap = loadSlotTexture(textures.metalnessMap, 1000, build, false);
-  const maps = {
-    ...(map ? { map } : {}),
-    ...(normalMap ? { normalMap } : {}),
-    ...(roughnessMap ? { roughnessMap } : {}),
-    ...(metalnessMap ? { metalnessMap } : {}),
-  };
-  return new MeshPhysicalMaterial({
+  const material = new MeshPhysicalMaterial({
     color: new Color("white"),
     metalness: 0,
     ...response,
-    ...maps,
   });
+  attachSlotTextures(material, textures, 1000, build);
+  return material;
 }
 
 type ApplyGlbSlotArgs = {

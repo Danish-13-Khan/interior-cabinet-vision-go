@@ -20,17 +20,18 @@ public/
     floor-lamp.glb
     indoor-plant.glb
   textures/
-    wood/   oak-*.png  walnut-*.png
-    fabric/ oatmeal-color.png olive-color.png rug-wool-color.png
-    paint/  wall-color.png
+    wood/   oak-*.ktx2  walnut-*.ktx2
+    fabric/ oatmeal-*.ktx2 olive-*.ktx2
+    paint/  wall-*.ktx2
+    stone/  warm-*.ktx2
+    laminate/ white-*.ktx2 grey-*.ktx2
     metal/  charcoal-ao.png
+  basis/    basis_transcoder.js  basis_transcoder.wasm
 ```
 
-Regenerate with:
-
-```bash
-node scripts/curated-assets/generate-pack.mjs
-```
+Source PNGs for the offline still engine live in `render-sources/materials/<materialId>/`.
+The viewport loads the KTX2 files. `generate-pack.mjs` still rebuilds the GLBs;
+it no longer writes texture PNGs.
 
 ## GLB rules
 

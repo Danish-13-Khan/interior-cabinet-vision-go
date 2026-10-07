@@ -1,4 +1,4 @@
-import { applyStillCaptureLook } from "../showcase-tour/stillCaptureQuality.mjs";
+import { applyStillCaptureLook, waitForSettledFrame } from "../showcase-tour/stillCaptureQuality.mjs";
 
 export const CAPTURE_CSS = { width: 800, height: 600 };
 export const CAPTURE_PIXELS = { width: 1600, height: 1200 };
@@ -84,11 +84,7 @@ export async function grabCanvasPng(page, { skipViewportPrep = false } = {}) {
   if (!skipViewportPrep) await prepareCaptureViewport(page);
   await assertCanvasShape(page);
   const canvas = page.locator("[data-testid=lr-model-canvas-host] canvas");
-  await page.waitForFunction(
-    () => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1",
-    null,
-    { timeout: 45_000 },
-  );
+  await waitForSettledFrame(page);
   await page.waitForTimeout(300);
   const dataUrl = await canvas.evaluate((element) => element.toDataURL("image/png"));
   return Buffer.from(dataUrl.split(",")[1], "base64");

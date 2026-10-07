@@ -12,6 +12,8 @@ export const LIVING_ROOM_MATERIAL_IDS = {
   clearGlass: "lr-material-glass-clear",
   woolRug: "lr-material-rug-wool-sand",
   warmStone: "lr-material-stone-warm",
+  whiteLaminate: "lr-material-laminate-white",
+  greyLaminate: "lr-material-laminate-grey",
 } as const;
 
 const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
@@ -107,6 +109,24 @@ const LIVING_ROOM_MATERIAL_PRESETS: readonly MaterialEntity[] = [
     kind: "stone",
     color: "#d8d1c5",
     roughness: 0.48,
+    metalness: 0,
+    opacity: 1,
+  },
+  {
+    id: LIVING_ROOM_MATERIAL_IDS.whiteLaminate,
+    name: "White Laminate",
+    kind: "laminate",
+    color: "#ffffff",
+    roughness: 0.55,
+    metalness: 0,
+    opacity: 1,
+  },
+  {
+    id: LIVING_ROOM_MATERIAL_IDS.greyLaminate,
+    name: "Grey Laminate",
+    kind: "laminate",
+    color: "#ffffff",
+    roughness: 0.7,
     metalness: 0,
     opacity: 1,
   },

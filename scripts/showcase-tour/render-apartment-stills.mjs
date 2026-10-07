@@ -21,7 +21,7 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 import { exposureProblems, formatExposure, readExposure } from "./still-exposure.mjs";
-import { STILL_CAPTURE_DPR, applyStillCaptureLook, armTourHeroWatch, waitForTourHero } from "./stillCaptureQuality.mjs";
+import { STILL_CAPTURE_DPR, applyStillCaptureLook, armTourHeroWatch, waitForSettledFrame, waitForTourHero } from "./stillCaptureQuality.mjs";
 import { collectSurfaceProblems, loadSurfaceBands, writeRecordedBands } from "./still-surface-bands.mjs";
 
 const SLUGS = ["studio", "1bhk", "2bhk", "3bhk"];
@@ -92,7 +92,7 @@ async function captureOverview(page, baseUrl, slug) {
   await applyStillCaptureLook(page, mood);
   await page.getByTestId("apartment-overview-toggle").click();
   await page.getByTestId("apartment-overview").and(page.locator('[data-overview-phase="overview"]')).waitFor({ timeout: 90_000 });
-  await page.waitForFunction(() => document.querySelector("[data-testid=lr-model-canvas-host] canvas")?.dataset.frameSettled === "1", null, { timeout: 30_000 });
+  await waitForSettledFrame(page);
   return grabCanvas(page, `apartment-${slug}-plan-v1`);
 }
 
