@@ -128,17 +128,10 @@ export function useProposalWorkflow(args: {
   }
 
   function toggleView(cameraId: string) {
-    args.onPatchDocument((current) => {
-      const named = listProposalNamedViews(current);
-      return setProposalSelectedViews(
-        current,
-        toggleProposalView(
-          named.filter((view) => view.selected).map((view) => view.cameraId),
-          named.map((view) => view.cameraId),
-          cameraId,
-        ),
-      );
-    }, "Updated proposal views.");
+    args.onPatchDocument(
+      (current) => setProposalSelectedViews(current, toggleProposalView(current, cameraId)),
+      "Updated proposal views.",
+    );
   }
 
   async function createProposal() {

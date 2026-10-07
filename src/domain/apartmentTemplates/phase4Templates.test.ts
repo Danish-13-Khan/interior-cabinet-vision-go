@@ -40,7 +40,8 @@ describe("Phase 4 Studio and 1 BHK authored templates", () => {
       const project = composeApartment(spec, options);
       const ids = roomIdByKey(project);
       expect(spec.rooms.every((room) => room.compose.kind !== "none"), spec.id).toBe(true);
-      expect(spec.rooms.every((room) => room.camera), spec.id).toBe(true);
+      // Only the hero keeps a hand-authored camera; every other room's camera is derived (D2a).
+      expect(spec.rooms.filter((room) => room.camera).map((room) => room.key), spec.id).toEqual([spec.heroRoomKey]);
       for (const room of spec.rooms) {
         const roomId = ids.get(room.key)!;
         expect(project.objects.some((o) => o.roomId === roomId), `${spec.id} ${room.key}`).toBe(true);

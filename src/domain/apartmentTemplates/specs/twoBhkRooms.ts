@@ -53,10 +53,6 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: -2800, y: 1600, z: -800 },
-      targetMm: { x: -3450, y: 1100, z: -2800 },
-    },
   },
   {
     key: "master",
@@ -79,10 +75,6 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: 1800, y: 1600, z: 3200 },
-      targetMm: { x: 3000, y: 1100, z: 1400 },
-    },
   },
   {
     key: "kids",
@@ -104,10 +96,6 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: 2200, y: 1600, z: -1600 },
-      targetMm: { x: 3000, y: 1100, z: -2800 },
-    },
   },
   {
     key: "master-bath",
@@ -118,10 +106,6 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
     compose: {
       kind: "bathroom",
       options: { vanitySide: "north", mirrorRopeLight: true, cobLight: true },
-    },
-    camera: {
-      eyeMm: { x: 3900, y: 1600, z: 400 },
-      targetMm: { x: 3900, y: 1100, z: -600 },
     },
   },
   {
@@ -134,10 +118,6 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
       kind: "bathroom",
       options: { vanitySide: "west", mirrorRopeLight: true, cobLight: true },
     },
-    camera: {
-      eyeMm: { x: -400, y: 1600, z: -2700 },
-      targetMm: { x: -1000, y: 1100, z: -3400 },
-    },
   },
   {
     key: "hall",
@@ -146,10 +126,6 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
     roomType: "custom",
     floorMaterialId: floor,
     compose: { kind: "none" },
-    camera: {
-      eyeMm: { x: -750, y: 1600, z: -800 },
-      targetMm: { x: -750, y: 1100, z: -1800 },
-    },
   },
   {
     key: "walk-in",
@@ -158,9 +134,5 @@ export const TWO_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
     roomType: "custom",
     floorMaterialId: floor,
     compose: { kind: "none" },
-    camera: {
-      eyeMm: { x: 1500, y: 1600, z: 400 },
-      targetMm: { x: 1500, y: 1100, z: -600 },
-    },
   },
 ];

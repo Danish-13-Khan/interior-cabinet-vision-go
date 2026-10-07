@@ -12,10 +12,6 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
     roomType: "custom",
     floorMaterialId: floor,
     compose: { kind: "foyer", options: { shoeCabinetSide: "east" } },
-    camera: {
-      eyeMm: { x: -1650, y: 1600, z: -1400 },
-      targetMm: { x: -1650, y: 1100, z: -3200 },
-    },
   },
   {
     key: "living",
@@ -68,10 +64,6 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: -3000, y: 1600, z: -1600 },
-      targetMm: { x: -4000, y: 1100, z: -3200 },
-    },
   },
   {
     key: "utility",
@@ -80,10 +72,6 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
     roomType: "utility",
     floorMaterialId: floor,
     compose: { kind: "utility", options: { tallUnitSide: "west" } },
-    camera: {
-      eyeMm: { x: -5700, y: 1600, z: -1600 },
-      targetMm: { x: -5700, y: 1100, z: -3200 },
-    },
   },
   {
     key: "study",
@@ -95,10 +83,6 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
       kind: "study",
       options: { deskSide: "north", openShelfSide: "east" },
     },
-    camera: {
-      eyeMm: { x: 0, y: 1600, z: -1600 },
-      targetMm: { x: 0, y: 1100, z: -3200 },
-    },
   },
   {
     key: "balcony",
@@ -107,10 +91,6 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
     roomType: "custom",
     floorMaterialId: floor,
     compose: { kind: "none" },
-    camera: {
-      eyeMm: { x: -3600, y: 1600, z: 4200 },
-      targetMm: { x: -3600, y: 900, z: 3600 },
-    },
   },
   {
     key: "passage",
@@ -119,9 +99,5 @@ export const THREE_BHK_ROOMS_A: readonly ApartmentRoomSpec[] = [
     roomType: "custom",
     floorMaterialId: floor,
     compose: { kind: "none" },
-    camera: {
-      eyeMm: { x: 1200, y: 1600, z: -450 },
-      targetMm: { x: 4000, y: 1100, z: -450 },
-    },
   },
 ];

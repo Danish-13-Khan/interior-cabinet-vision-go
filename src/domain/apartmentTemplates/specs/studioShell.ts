@@ -43,10 +43,6 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
         kind: "bathroom",
         options: { vanitySide: "north", mirrorRopeLight: true, downlight: true },
       },
-      camera: {
-        eyeMm: { x: -1400, y: 1600, z: -1100 },
-        targetMm: { x: -2200, y: 1100, z: -2000 },
-      },
     },
     {
       key: "entry",
@@ -68,10 +64,6 @@ export const STUDIO_SHELL_SPEC: ApartmentTemplateSpec = {
           profileLight: true,
           downlight: true,
         },
-      },
-      camera: {
-        eyeMm: { x: 1050, y: 1600, z: -1050 },
-        targetMm: { x: 1050, y: 1000, z: -2200 },
       },
     },
     {

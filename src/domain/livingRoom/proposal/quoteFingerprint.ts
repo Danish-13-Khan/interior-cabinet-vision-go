@@ -3,6 +3,7 @@ import type { InteriorProject } from "../../interiorProject";
 import { hashString } from "../sceneCompilerBounds";
 import { ratesFingerprintFromBook } from "../../quoteExport";
 import { readProposalCommercial } from "./commercialState";
+import { proposalViewSelection } from "./proposalViewSelection";
 import type { LiveQuoteOptions } from "./liveQuoteOptions";
 import { readInteriorEstimate } from "../../interiorEstimate/state";
 
@@ -20,19 +21,14 @@ function fingerprintStringify(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function selectedCameraIds(document: InteriorProject) {
-  const { surface } = readProposalCommercial(document);
-  if (surface.selectedViewCameraIds.length) return new Set(surface.selectedViewCameraIds);
-  return new Set(document.renderSettings.packageCameraBookmarks.map((view) => view.cameraId));
-}
-
 export function createQuoteDesignFingerprint(
   document: InteriorProject,
   options: LiveQuoteOptions = {},
 ): string {
   const commercial = readProposalCommercial(document);
   const { project } = cabinetProjectFromInteriorProject(document);
-  const cameras = selectedCameraIds(document);
+  // Only the views the proposal prints: moving an unprinted camera does not stale the quote.
+  const cameras = new Set(proposalViewSelection(document).selectedIds);
   return hashString(fingerprintStringify({
     interiorEstimate: readInteriorEstimate(document),
     lights: document.lights,

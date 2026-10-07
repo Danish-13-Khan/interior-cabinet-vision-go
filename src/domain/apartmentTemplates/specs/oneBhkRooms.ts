@@ -52,10 +52,6 @@ export const ONE_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
         downlight: true,
       },
     },
-    camera: {
-      eyeMm: { x: -800, y: 1600, z: -900 },
-      targetMm: { x: -2200, y: 1100, z: -2400 },
-    },
   },
   {
     key: "bedroom",
@@ -78,10 +74,6 @@ export const ONE_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
         downlight: true,
       },
     },
-    camera: {
-      eyeMm: { x: 1400, y: 1600, z: 2800 },
-      targetMm: { x: 2400, y: 1100, z: 800 },
-    },
   },
   {
     key: "bath",
@@ -93,10 +85,6 @@ export const ONE_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
       kind: "bathroom",
       options: { vanitySide: "north", mirrorRopeLight: true, downlight: true },
     },
-    camera: {
-      eyeMm: { x: 2700, y: 1600, z: -1100 },
-      targetMm: { x: 2700, y: 1100, z: -2400 },
-    },
   },
   {
     key: "utility",
@@ -107,10 +95,6 @@ export const ONE_BHK_ROOMS: readonly ApartmentRoomSpec[] = [
     compose: {
       kind: "utility",
       options: { tallUnitSide: "east" },
-    },
-    camera: {
-      eyeMm: { x: 1050, y: 1600, z: -1100 },
-      targetMm: { x: 1050, y: 1100, z: -2400 },
     },
   },
 ];

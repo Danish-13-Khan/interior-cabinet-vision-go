@@ -27,10 +27,6 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: 2000, y: 1600, z: -1600 },
-      targetMm: { x: 3000, y: 1100, z: -3200 },
-    },
   },
   {
     key: "kids",
@@ -54,10 +50,6 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: 450, y: 1600, z: 3600 },
-      targetMm: { x: 450, y: 1100, z: 1400 },
-    },
   },
   {
     key: "master",
@@ -79,10 +71,6 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
         cobLight: true,
       },
     },
-    camera: {
-      eyeMm: { x: 2500, y: 1600, z: 3600 },
-      targetMm: { x: 3600, y: 1100, z: 1600 },
-    },
   },
   {
     key: "guest-bath",
@@ -93,10 +81,6 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
     compose: {
       kind: "bathroom",
       options: { vanitySide: "east", mirrorRopeLight: true, cobLight: true },
-    },
-    camera: {
-      eyeMm: { x: 5000, y: 1600, z: -3000 },
-      targetMm: { x: 5600, y: 1100, z: -4000 },
     },
   },
   {
@@ -109,10 +93,6 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
       kind: "bathroom",
       options: { vanitySide: "east", mirrorRopeLight: true, cobLight: true },
     },
-    camera: {
-      eyeMm: { x: 5000, y: 1600, z: -1400 },
-      targetMm: { x: 5600, y: 1100, z: -2200 },
-    },
   },
   {
     key: "master-bath",
@@ -124,10 +104,6 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
       kind: "bathroom",
       options: { vanitySide: "north", mirrorRopeLight: true, cobLight: true },
     },
-    camera: {
-      eyeMm: { x: 5550, y: 1600, z: 2000 },
-      targetMm: { x: 5550, y: 1100, z: 800 },
-    },
   },
   {
     key: "walk-in",
@@ -136,9 +112,5 @@ export const THREE_BHK_ROOMS_B: readonly ApartmentRoomSpec[] = [
     roomType: "custom",
     floorMaterialId: floor,
     compose: { kind: "none" },
-    camera: {
-      eyeMm: { x: 5550, y: 1600, z: 4000 },
-      targetMm: { x: 5550, y: 1100, z: 3000 },
-    },
   },
 ];

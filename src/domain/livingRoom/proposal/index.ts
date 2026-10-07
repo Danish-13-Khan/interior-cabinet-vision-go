@@ -36,6 +36,11 @@ export {
   toggleProposalView,
 } from "./proposalViews";
 export {
+  proposalViewSelection,
+  withProposalViewSelection,
+  type ProposalViewSelection,
+} from "./proposalViewSelection";
+export {
   collectProposalViewFrames,
   matchingProposalViewFrames,
   missingProposalViewCaptures,
