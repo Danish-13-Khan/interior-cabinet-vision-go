@@ -1,6 +1,7 @@
 import type { CabinetConfig } from "../../cabinetDimensions";
 import { readCabinetIdentity, readPlanningExtension } from "../../cabinetIdentity";
 import type { InteriorObjectEntity } from "../../interiorProject";
+import { applyCabinetObjectParameters } from "../../interiorProject/cabinetObjectParameters";
 
 export type HandoffAuthoredSource = {
   objectId: string;
@@ -36,7 +37,11 @@ export function readHandoffAuthoredSource(
 ): HandoffAuthoredSource {
   const identity = readCabinetIdentity(object);
   const planning = readPlanningExtension(object.extensions);
-  const config = asConfig(planning?.config);
+  const stored = asConfig(planning?.config);
+  // Front system, door style and hosted-appliance inserts are authored as object
+  // parameters; the adapter folds them into the config, so the authored side must too
+  // or every gola kitchen reads as "construction changed".
+  const config = stored ? applyCabinetObjectParameters(stored, object.parameters) : null;
   const attachment = typeof planning?.attachment === "string" ? planning.attachment : undefined;
   return {
     objectId: object.id,
@@ -49,7 +54,7 @@ export function readHandoffAuthoredSource(
     attachment,
     type: identity?.cabinetType ?? config?.type,
     familyId: identity?.familyId ?? config?.familyId,
-    planningDimensions: config?.dimensions,
+    planningDimensions: stored?.dimensions,
     composition: config?.composition,
     construction: config?.construction,
     hardware: config?.hardware,

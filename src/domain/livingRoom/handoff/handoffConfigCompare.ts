@@ -1,5 +1,6 @@
-import type { CabinetInstance } from "../../cabinetDimensions";
-import type { InteriorObjectEntity } from "../../interiorProject";
+import type { CabinetInstance, CabinetPlacement } from "../../cabinetDimensions";
+import type { InteriorObjectEntity, InteriorProject } from "../../interiorProject";
+import { frameIsOrigin, roomFrame } from "../../interiorProject/roomFrame";
 import { stableStringify } from "../sceneCompilerBounds";
 import { readHandoffAuthoredSource } from "./handoffConfigSource";
 import type { HandoffWarning } from "./types";
@@ -77,16 +78,37 @@ function compareObjectDims(
   return notes;
 }
 
+/**
+ * Engineering reads an off-origin room in its centred frame (`centreRoomCabinets`),
+ * so the authored world position is expected to shift by the room centre. Only a
+ * further move, the write-back clamp, is a loss.
+ */
+function expectedPlacement(
+  document: InteriorProject | undefined,
+  object: InteriorObjectEntity,
+  source: ReturnType<typeof readHandoffAuthoredSource>,
+): Pick<CabinetPlacement, "x" | "y" | "z"> {
+  if (!document) return source.position;
+  const frame = roomFrame(document, object.roomId);
+  if (frameIsOrigin(frame)) return source.position;
+  return {
+    x: source.position.x - frame.centre.x,
+    y: source.position.y,
+    z: source.position.z - frame.centre.z,
+  };
+}
+
 function comparePlacement(
   objectId: string,
+  expected: Pick<CabinetPlacement, "x" | "y" | "z">,
   source: ReturnType<typeof readHandoffAuthoredSource>,
   adapted: CabinetInstance,
 ): HandoffWarning[] {
   const notes: HandoffWarning[] = [];
   if (
-    source.position.x !== adapted.placement.x
-    || source.position.y !== adapted.placement.y
-    || source.position.z !== adapted.placement.z
+    expected.x !== adapted.placement.x
+    || expected.y !== adapted.placement.y
+    || expected.z !== adapted.placement.z
   ) {
     notes.push(fieldNote(
       objectId,
@@ -107,9 +129,11 @@ function comparePlacement(
 function compareMaterialSlots(
   objectId: string,
   slots: Record<string, string>,
+  adapted: CabinetInstance,
 ): HandoffWarning[] {
   const keys = Object.keys(slots);
   if (!keys.length) return [];
+  if (sameValue(slots, adapted.materialSlots ?? {})) return [];
   return [fieldNote(
     objectId,
     "materialSlots",
@@ -120,17 +144,18 @@ function compareMaterialSlots(
 export function compareAdaptedCabinet(
   object: InteriorObjectEntity,
   adapted: CabinetInstance,
+  document?: InteriorProject,
 ): HandoffWarning[] {
   const source = readHandoffAuthoredSource(object);
   return [
     ...compareObjectDims(object.id, source, adapted),
-    ...comparePlacement(object.id, source, adapted),
+    ...comparePlacement(object.id, expectedPlacement(document, object, source), source, adapted),
     ...compareAuthored(object.id, "type", "type", source.type, adapted.config.type),
     ...compareAuthored(object.id, "familyId", "family", source.familyId, adapted.config.familyId ?? ""),
     ...compareAuthored(object.id, "composition", "composition", source.composition, adapted.config.composition),
     ...compareAuthored(object.id, "construction", "construction", source.construction, adapted.config.construction),
     ...compareAuthored(object.id, "hardware", "hardware", source.hardware, adapted.config.hardware),
     ...compareAuthored(object.id, "buildRules", "material roles", source.buildRules, adapted.config.buildRules ?? {}),
-    ...compareMaterialSlots(object.id, source.materialSlots),
+    ...compareMaterialSlots(object.id, source.materialSlots, adapted),
   ];
 }

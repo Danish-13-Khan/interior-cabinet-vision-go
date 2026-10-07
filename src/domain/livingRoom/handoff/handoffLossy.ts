@@ -33,6 +33,7 @@ function rotationLoss(object: InteriorObjectEntity): HandoffWarning | null {
 }
 
 function goldenFieldLoss(
+  document: InteriorProject,
   object: InteriorObjectEntity,
   cabinet: NonNullable<ReturnType<typeof cabinetForInteriorObject>>,
 ): HandoffWarning[] {
@@ -57,7 +58,12 @@ function goldenFieldLoss(
       objectId: object.id,
     }));
   }
-  notes.push(...compareAdaptedCabinet(object, cabinet));
+  const compared = compareAdaptedCabinet(object, cabinet, document);
+  // A run filler is a blank panel: the adapter strips the family's default door leaf
+  // (`hasDoors: false` → open-shelf), which is normalisation, not a lost choice.
+  notes.push(...(isCabinetRunFiller(object)
+    ? compared.filter((note) => !note.path.endsWith(".composition"))
+    : compared));
   return notes;
 }
 
@@ -91,7 +97,7 @@ export function diagnoseHandoffLoss(document: InteriorProject): HandoffWarning[]
       }
       continue;
     }
-    notes.push(...goldenFieldLoss(object, cabinet));
+    notes.push(...goldenFieldLoss(document, object, cabinet));
   }
   return notes;
 }

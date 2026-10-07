@@ -72,6 +72,12 @@ export type CabinetInstance = {
   /** Interior object entity id when this cabinet was authored in Interiors. */
   interiorObjectId?: string;
   /**
+   * Interiors finish roles (carcass, fronts, countertop → material asset id).
+   * Engineering does not edit them; they ride along so the handoff write-back
+   * returns the cabinet with the finishes the designer chose.
+   */
+  materialSlots?: Record<string, string>;
+  /**
    * Placement the Interiors → classic read produced. It rides on the cabinet,
    * so it survives immutable edits, copies and history; write-back keeps the
    * document's world position while `placement` still equals it.

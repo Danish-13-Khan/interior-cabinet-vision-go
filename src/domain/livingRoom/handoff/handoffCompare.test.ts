@@ -3,6 +3,7 @@ import { CABINET_PLANNING_EXTENSION } from "../../cabinetIdentity";
 import type { InteriorProject } from "../../interiorProject";
 import { createGoldenCabinetSceneProject } from "../goldenCabinetScene";
 import { adaptHandoffProject, buildHandoffGate, diagnoseHandoffLoss } from ".";
+import { compareAdaptedCabinet } from "./handoffConfigCompare";
 
 function patchGoldenSource(
   document: InteriorProject,
@@ -58,15 +59,32 @@ function patchGoldenSource(
 }
 
 describe("golden handoff field compare", () => {
-  it("reports materialSlots the adapter drops before Engineering", () => {
-    const document = patchGoldenSource(createGoldenCabinetSceneProject(), {
-      materialSlots: { carcass: "authored-carcass", fronts: "authored-fronts" },
-    });
+  it("carries authored materialSlots through the adapter instead of dropping them", () => {
+    const slots = { carcass: "authored-carcass", fronts: "authored-fronts" };
+    const document = patchGoldenSource(createGoldenCabinetSceneProject(), { materialSlots: slots });
     const adapted = adaptHandoffProject(document);
     const notes = diagnoseHandoffLoss(document);
-    expect(adapted.project.cabinets.some((cabinet) => "materialSlots" in cabinet)).toBe(false);
-    expect(notes.some((note) => note.path.includes("materialSlots") && note.code === "lossy-field")).toBe(true);
-    expect(buildHandoffGate(document).items.some((item) => item.id === "lossy-golden")).toBe(true);
+    expect(adapted.project.cabinets.some((cabinet) => cabinet.materialSlots?.carcass === slots.carcass)).toBe(true);
+    expect(notes.some((note) => note.path.includes("materialSlots") && note.code === "lossy-field")).toBe(false);
+    expect(buildHandoffGate(document).items.some((item) => item.id === "lossy-golden")).toBe(false);
+  });
+
+  it("still reports materialSlots when Engineering holds different ones", () => {
+    const document = patchGoldenSource(createGoldenCabinetSceneProject(), {
+      materialSlots: { carcass: "authored-carcass" },
+    });
+    const adapted = adaptHandoffProject(document);
+    const stripped = {
+      ...adapted.project,
+      cabinets: adapted.project.cabinets.map((cabinet) => ({ ...cabinet, materialSlots: undefined })),
+      rooms: adapted.project.rooms?.map((room) => ({
+        ...room,
+        cabinets: room.cabinets.map((cabinet) => ({ ...cabinet, materialSlots: undefined })),
+      })),
+    };
+    const target = document.objects.find((object) => object.kind === "cabinet")!;
+    const cabinet = stripped.cabinets.find((item) => item.interiorObjectId === target.id || item.id === target.id)!;
+    expect(compareAdaptedCabinet(target, cabinet, document).some((note) => note.path.includes("materialSlots"))).toBe(true);
   });
 
   it("reports planning config the adapter overwrites from object fields", () => {

@@ -105,7 +105,7 @@ export function cabinetObject(roomId: string, cabinet: CabinetInstance): Interio
       heightMm: cabinet.config.dimensions.height,
       depthMm: cabinet.config.dimensions.depth,
     },
-    materialSlots: {},
+    materialSlots: { ...(cabinet.materialSlots ?? {}) },
     parameters: {
       shelfCount: cabinet.config.shelfCount,
       drawerCount: cabinet.config.drawerCount ?? 0,
@@ -187,12 +187,18 @@ export function cabinetFromObject(object: InteriorObjectEntity): CabinetInstance
   const rotation = Math.round(object.rotation.y / 90) * 90;
   const attachment = planning?.attachment;
   const runFiller = readRunFiller(object, planning);
+  const materialSlots = Object.fromEntries(
+    Object.entries(object.materialSlots ?? {}).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string" && Boolean(entry[1]),
+    ),
+  );
   return {
     id: typeof planning?.sourceId === "string" && planning.sourceId ? planning.sourceId : object.id,
     name: object.name,
     displayCategory: object.category,
     interiorObjectId: typeof planning?.entityId === "string" ? planning.entityId : object.id,
     ...(runFiller ? { runFiller } : {}),
+    ...(Object.keys(materialSlots).length ? { materialSlots } : {}),
     config: applyCabinetObjectParameters(config, object.parameters),
     placement: {
       x: object.position.x,
