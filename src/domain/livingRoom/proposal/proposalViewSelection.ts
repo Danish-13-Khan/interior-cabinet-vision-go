@@ -8,7 +8,7 @@ export { PROPOSAL_VIEW_SELECTION_LIMIT } from "./proposalSurface";
 export type ProposalViewSelection = {
   /** Every bookmarked camera that still exists, in bookmark order. */
   availableIds: string[];
-  /** The views the proposal prints, in bookmark order. */
+  /** The views the proposal prints, in bookmark order, never more than the print limit. */
   selectedIds: string[];
   /** False when the surface holds no selection and every bookmark prints. */
   explicit: boolean;
@@ -16,8 +16,9 @@ export type ProposalViewSelection = {
 
 /**
  * The one place that decides which bookmarked views a proposal prints (D1).
- * An empty stored selection means every bookmark. Present, the quote
- * fingerprint and the PDF all read this, so they cannot disagree.
+ * An empty stored selection means every bookmark, capped at the print limit
+ * like a stored one (a pre-Phase-1 3 BHK has 14 bookmarks and no selection).
+ * Present and the PDF read this, so the live and the frozen export agree.
  */
 export function proposalViewSelection(document: InteriorProject): ProposalViewSelection {
   const { surface } = readProposalCommercial(document);
@@ -29,7 +30,7 @@ export function proposalViewSelection(document: InteriorProject): ProposalViewSe
   const chosen = new Set(surface.selectedViewCameraIds);
   return {
     availableIds,
-    selectedIds: explicit ? availableIds.filter((id) => chosen.has(id)) : availableIds,
+    selectedIds: explicit ? availableIds.filter((id) => chosen.has(id)) : clampViewSelection(availableIds),
     explicit,
   };
 }

@@ -6,7 +6,8 @@ import { COMPOSER_TEST_NOW } from "./composers/bareRoom";
 import { composeApartment } from "./composeApartment";
 import { JOINERY_FRAME, frameJoineryCamera, joineryInsideFrame } from "./frameJoineryCamera";
 import { ROOM_FRAME, frameRoomCamera } from "./frameRoomCamera";
-import { cutListCabinets, joineryBoxesMm } from "./joineryBounds";
+import { cutListCabinets, joineryBoundsMm, joineryBoxesMm } from "./joineryBounds";
+import { standingRect } from "./joineryStanding";
 import { ONE_BHK_SHELL_SPEC } from "./specs/oneBhkShell";
 import { STUDIO_SHELL_SPEC } from "./specs/studioShell";
 import { THREE_BHK_SHELL_SPEC } from "./specs/threeBhkShell";
@@ -51,14 +52,13 @@ describe("frameJoineryCamera (roadmap D2)", () => {
           expect(cutListCabinets(project, roomId), label).toEqual([]);
           continue;
         }
-        const bounds = roomPlanViewBounds(project, roomId);
-        // Narrow rooms shrink the wall inset to the tight value; the eye is always at least that far inside.
-        const inset = JOINERY_FRAME.tightWallInsetMm - 1;
+        // Each room's own standing area: the 500 mm inset, shrunk to 150 mm only on a side the run crowds.
+        const standing = standingRect(joineryBoundsMm(project, roomId)!, roomPlanViewBounds(project, roomId));
         expect(frame.position.y, label).toBe(JOINERY_FRAME.eyeHeightMm);
-        expect(frame.position.x, label).toBeGreaterThanOrEqual(bounds.minX + inset);
-        expect(frame.position.x, label).toBeLessThanOrEqual(bounds.maxX - inset);
-        expect(frame.position.z, label).toBeGreaterThanOrEqual(bounds.minZ + inset);
-        expect(frame.position.z, label).toBeLessThanOrEqual(bounds.maxZ - inset);
+        expect(frame.position.x, label).toBeGreaterThanOrEqual(standing.minX - 1);
+        expect(frame.position.x, label).toBeLessThanOrEqual(standing.maxX + 1);
+        expect(frame.position.z, label).toBeGreaterThanOrEqual(standing.minZ - 1);
+        expect(frame.position.z, label).toBeLessThanOrEqual(standing.maxZ + 1);
         expect(frame.fieldOfViewDegrees, label).toBeGreaterThanOrEqual(JOINERY_FRAME.fovDegrees);
         expect(frame.fieldOfViewDegrees, label).toBeLessThanOrEqual(JOINERY_FRAME.maxFovDegrees);
         if (frame.tight) {

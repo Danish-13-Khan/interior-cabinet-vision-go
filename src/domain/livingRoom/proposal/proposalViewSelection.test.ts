@@ -24,13 +24,20 @@ function moveCamera(document: InteriorProject, id: string): InteriorProject {
 }
 
 describe("proposalViewSelection (roadmap D1)", () => {
-  it("treats an empty stored selection as every bookmark, in bookmark order", () => {
+  it("treats an empty stored selection as every bookmark up to the print limit, in bookmark order", () => {
+    // A 3 BHK saved before Phase 1: 14 bookmarks, nothing stored.
     const implicit = withProposalViewSelection(project, []);
     const selection = proposalViewSelection(implicit);
     expect(selection.explicit).toBe(false);
-    expect(selection.selectedIds).toEqual(selection.availableIds);
     expect(selection.availableIds).toHaveLength(THREE_BHK_SHELL_SPEC.rooms.length);
-    expect(listProposalNamedViews(implicit).every((view) => view.selected)).toBe(true);
+    expect(selection.selectedIds).toEqual(selection.availableIds.slice(0, PROPOSAL_VIEW_SELECTION_LIMIT));
+    const named = listProposalNamedViews(implicit);
+    expect(named.filter((view) => view.selected)).toHaveLength(PROPOSAL_VIEW_SELECTION_LIMIT);
+    expect(named.slice(PROPOSAL_VIEW_SELECTION_LIMIT).every((view) => !view.selected)).toBe(true);
+    // Unticking one of the printed views leaves eleven, not a list the cap then trims again.
+    const first = toggleProposalView(implicit, selection.selectedIds[0]!);
+    expect(first).toHaveLength(PROPOSAL_VIEW_SELECTION_LIMIT - 1);
+    expect(proposalViewSelection(setProposalSelectedViews(implicit, first)).selectedIds).toEqual(first);
   });
 
   it("keeps the template's explicit selection and reports the rest as unselected", () => {
@@ -51,11 +58,11 @@ describe("proposalViewSelection (roadmap D1)", () => {
     const next = setProposalSelectedViews(project, withoutKitchen);
     const withBath = toggleProposalView(next, bath);
     expect(withBath).toEqual([...withoutKitchen, bath]);
-    // Starting from an implicit "all" selection, the first untick must not re-select anything.
+    // Starting from an implicit selection, the first untick must not re-select dropped views.
     const implicit = withProposalViewSelection(project, []);
-    const first = toggleProposalView(implicit, bath);
-    expect(first).toHaveLength(THREE_BHK_SHELL_SPEC.rooms.length - 1);
-    expect(first).not.toContain(bath);
+    const printed = proposalViewSelection(implicit).selectedIds;
+    const first = toggleProposalView(implicit, printed[1]!);
+    expect(first).toEqual(printed.filter((id) => id !== printed[1]));
   });
 
   it("never unticks the last view, which would fall back to every bookmark", () => {
@@ -78,9 +85,13 @@ describe("proposalViewSelection (roadmap D1)", () => {
     expect(proposalViewToggleLock(full, availableIds[0]!)).toBeNull();
   });
 
-  it("fingerprints only the printed views", () => {
+  it("fingerprints only the printed views, but every bookmark when nothing is stored", () => {
     const base = createQuoteDesignFingerprint(project);
     expect(createQuoteDesignFingerprint(moveCamera(project, cameraId("Guest Bath Showcase")))).toBe(base);
     expect(createQuoteDesignFingerprint(moveCamera(project, cameraId("Kitchen Showcase")))).not.toBe(base);
+    // Pre-Phase-1 hashes covered all 14 bookmarks; an implicit selection keeps that so releases stay fresh.
+    const implicit = withProposalViewSelection(project, []);
+    const walkIn = proposalViewSelection(implicit).availableIds.at(-1)!;
+    expect(createQuoteDesignFingerprint(moveCamera(implicit, walkIn))).not.toBe(createQuoteDesignFingerprint(implicit));
   });
 });

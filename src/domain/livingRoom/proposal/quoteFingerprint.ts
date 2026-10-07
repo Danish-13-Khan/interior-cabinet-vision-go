@@ -28,7 +28,10 @@ export function createQuoteDesignFingerprint(
   const commercial = readProposalCommercial(document);
   const { project } = cabinetProjectFromInteriorProject(document);
   // Only the views the proposal prints: moving an unprinted camera does not stale the quote.
-  const cameras = new Set(proposalViewSelection(document).selectedIds);
+  // An implicit selection hashes every bookmark, uncapped, as it did before Phase 1, so
+  // released proposals on older projects with more than 12 bookmarks do not turn stale.
+  const { selectedIds, availableIds, explicit } = proposalViewSelection(document);
+  const cameras = new Set(explicit ? selectedIds : availableIds);
   return hashString(fingerprintStringify({
     interiorEstimate: readInteriorEstimate(document),
     lights: document.lights,
