@@ -27,3 +27,4 @@ artifacts/qa-3d/
 *.njsproj
 *.sln
 *.sw?
+.cycles/

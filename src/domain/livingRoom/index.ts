@@ -601,9 +601,33 @@ export {
   type ResolvedPackageCameraView,
 } from "./packageCameraBookmarks";
 export {
+  CYCLES_STILL_ENGINE,
+  CYCLES_STILL_ENHANCEMENTS,
   HERO_STILL_ENGINE,
   HERO_STILL_ENHANCEMENTS,
 } from "./stillEngine";
+export {
+  buildCyclesStillBundle,
+  CYCLES_BUNDLE_SCHEMA_VERSION,
+  CYCLES_DEFAULT_SAMPLES_MAX,
+  CYCLES_DEFAULT_TIME_CAP_SECONDS,
+  CYCLES_LIGHT_UNITS_VERSION,
+  cyclesMaterialsFor,
+  fixtureForCycles,
+  recipeLightForCycles,
+  scanSourceFor,
+  windowKeysForCycles,
+  type BuildCyclesStillBundleInput,
+  type CyclesFixture,
+  type CyclesFixtureLight,
+  type CyclesMaterial,
+  type CyclesModelAssetLookup,
+  type CyclesNode,
+  type CyclesPrimitive,
+  type CyclesRecipeLight,
+  type CyclesStillBundle,
+  type CyclesWindowKey,
+} from "./cyclesBundle";
 export {
   buildLivingRoomMillworkSchedule,
   exportMillworkSchedulePdf,

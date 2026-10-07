@@ -366,6 +366,12 @@ export function LivingRoomRenderStudio({
               onAccept={stills.accept}
               onReject={stills.reject}
               onRetry={() => void stills.retry()}
+              onExportCyclesJob={() => void stills.exportCyclesJob()}
+              onImportCyclesStill={() => void stills.importCyclesStill()}
+              onRenderCyclesPhoto={() => void stills.renderCyclesPhoto()}
+              onCancelCyclesPhoto={stills.cancelCyclesPhoto}
+              serviceConfigured={stills.serviceConfigured}
+              serviceStatus={stills.serviceStatus}
             />
           ) : null}
           {isRendering ? (

@@ -39,11 +39,13 @@ export function InteriorsPresentPanel({
   handoff,
   onCapture,
   onReturnToReview,
+  onExportPhotoJob,
 }: {
   proposal: Proposal;
   handoff: Handoff;
   onCapture: () => void;
   onReturnToReview: () => void;
+  onExportPhotoJob?: () => void;
 }) {
   const live = proposal.live;
   if (!live || !proposal.gate) return null;
@@ -81,6 +83,7 @@ export function InteriorsPresentPanel({
       <InteriorsPresentActions
         proposal={proposal} handoff={handoff} blocking={state.blocking}
         step={state.step} needsCapture={state.needsCapture} onCapture={onCapture}
+        onExportPhotoJob={onExportPhotoJob}
       />
     </aside>
   );
