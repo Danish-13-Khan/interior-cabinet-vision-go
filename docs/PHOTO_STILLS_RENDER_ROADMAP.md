@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** Phase 2 material sets are in the tree (eight CC0 Poly Haven scans as KTX2 for the viewport, source PNGs kept for Cycles, bands re-recorded). The viewport colour map is detail multiplied by the style colour. Phases 3–4 are not started.
+**Status:** Phase 3 pipeline is in the tree (`feat/photo-stills-p3-cycles`): Cycles bundle from the authored project, Blender scripts, Node runner, Present → Export photo job, Still review → Import photo still with the trust gates. **Not yet rendered**: no Blender on the build machine, so the light calibration and the 3-minute gate are unmeasured. Phase 4 is not started.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -76,9 +76,9 @@ This is Phase 2C's "controlled offline renderer". The trust contract already nam
 
 **Scene bundle (from the authored project, never from the open view)**
 
-1. `buildStillJob` (exists) gains a bundle: a GLB **compiled from `InteriorProject`** plus the StillJob JSON. `exportSceneGlb.ts` is *not* reused as-is: it exports whatever Model View shows, cutaways included. A compile-to-GLB path with cutaways off and editor objects excluded is added beside it, sharing `sceneExportFilter`.
-2. The GLB carries geometry, UVs and **material ids only** (no embedded maps). Blender binds the Phase 2 source PNGs by id. Clearcoat, sheen and transmission are mapped explicitly in the Python script, because glTF PBR is not 1:1 with Principled BSDF once those appear.
-3. Lights are stripped from the GLB (`sceneExportFilter.ts:24` already does this) and **rebuilt from the JSON light list**, see "Light fidelity" below.
+1. `buildCyclesStillBundle` (`domain/livingRoom/cyclesBundle/`) wraps the StillJob with a **description of the compiled scene**, not a GLB export: boxes, cylinders and polygon prisms with exact sizes in their three.js local frames, and catalog GLBs by public asset key with slot → material-id bindings. Blender rebuilds the meshes itself, so there are no cutaways, no editor helpers and no viewport state in the still. (The GLB-export route in rev 3 was dropped: `exportSceneGlb.ts` exports what Model View shows, and a mesh export carries nothing Blender cannot rebuild from the description.)
+2. The bundle carries **material ids and the style tint only**. Blender binds the Phase 2 source PNGs by id and multiplies each scan by `tint / mean`, with the means precomputed into `source.json` by `npm run cycles:means`, so the still's albedo is the style colour with the scan as detail, the viewport's rule. Glass maps to transmission; opacity to alpha.
+3. Lights are never exported as meshes: the bundle lists **every light the viewport creates**, see "Light fidelity" below, and `scripts/cycles/check-bundle-math.mjs` proves the Python transform math matches three.js to zero error for the YXZ fixture frames.
 4. Camera uses the job's `fovDeg` and pose directly (the contract allows 0.5° drift; today's default is 42°, already a ~32 mm equivalent). No second lens conversion.
 
 **Light fidelity — fixtures must read as real lights (the "Unity HDRP" bar)**
@@ -108,9 +108,11 @@ The bundle rebuilds **the lights the scene actually has**, one Cycles light per 
 - **Rerun gate: Cycles stays deterministic.** Same job, pinned seed, one recorded device, and the contract's existing **deterministic row** (MAD ≤ 2% on the interior mask, or SSIM ≥ 0.98). If the target box misses that with OIDN on, a denoise note is added to the deterministic row (CPU OIDN, fixed thread count) rather than loosening the tolerance. The Stochastic AI row stays reserved for image models.
 - UI: a **Render photo** action in Present and in the recent-jobs panel with progress and cancel, labelled "presentation still".
 
-**Transport (open, see §6):** a shared GPU render box means customer room geometry leaves the seat, and some shops have no such box or no network path. Both options stay on the table: (a) shared HTTP render service, (b) Blender as a local Tauri sidecar on seats that have a GPU. The job contract is identical; only the runner differs. A seat with neither still gets the WebGL hero still.
+**Transport (decided for v1: (b) per-seat runner, no sidecar yet):** the app writes `bundle.json` (Present → **Export photo job…**, or Still review), `npm run cycles:render <dir> --rerun` renders it with the local Blender, and Still review → **Import photo still…** takes `provenance.json` and `still.png` back through the trust gates with a freshly captured WebGL plate. Customer geometry never leaves the seat. The job contract is runner-agnostic, so a shared HTTP service (a) can consume the same bundle later. In-app spawn with progress and cancel needs the Tauri shell plugin and stays a follow-up; a seat without Blender still gets the WebGL hero still. The Render Studio itself is a QA surface (`interiors-qa-fixture` → `openRenderStudio`), so the customer-facing entry is the Present button.
 
 **Done when:** a 2 BHK still from Cycles passes review with cove, COB and pendant fixtures visibly lighting the room; provenance lists the same material ids as the job; render time ≤ 3 min at 1080p on the target box; the WebGL viewport is untouched.
+
+**Built so far (2026-10-07):** bundle export verified from both app entry points and the CLI (2 BHK: 33 nodes, 2 GLBs, 21 materials, 3 fixtures with 4 lights, 5 recipe lights, 1 window key, warm-evening HDRI at 0.32); import gates verified with a fabricated provenance (pass), a swapped material id (fail) and an edited project (fail). **Still owed:** the first real render, which sets the four `CALIBRATION` factors in `still_bundle_math.py` and measures the 3-minute gate. That needs Blender 4.x on a machine with this checkout.
 
 ### Phase 4 — Viewport grounding within constraints (~1.5 days, after Phase 3)
 

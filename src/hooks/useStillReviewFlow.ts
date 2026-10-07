@@ -11,6 +11,9 @@ import {
 } from "../domain/livingRoom";
 import type { RenderCaptureHandle } from "../components/livingRoomScene/RenderCaptureBridge";
 import { runStillGeneration } from "./runStillGeneration";
+import { exportCyclesBundleForProject } from "../rendering/stillEngine/cycles/exportCyclesBundle";
+import { importCyclesStill as importCyclesStillFiles, parseCyclesProvenance } from "../rendering/stillEngine/cycles/importCyclesStill";
+import { pickCyclesStillFiles, saveCyclesBundle } from "../platform/cyclesFiles";
 import {
   selectPackageAcceptedStillAssets,
   type AcceptedStillAsset,
@@ -103,6 +106,63 @@ export function useStillReviewFlow(args: {
     widthPx,
   ]);
 
+  /** Transport (b): write the Cycles job for `npm run cycles:render`. The project is not changed. */
+  const exportCyclesJob = useCallback(async () => {
+    if (!cameraId || busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError(null);
+    try {
+      const bundle = exportCyclesBundleForProject(project, { cameraId, widthPx, heightPx });
+      const path = await saveCyclesBundle(bundle);
+      if (path) setError(null);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not export the Cycles job.");
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }, [cameraId, heightPx, project, widthPx]);
+
+  /** Bring a rendered still back through the review step, with the WebGL plate captured now. */
+  const importCyclesStill = useCallback(async () => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError(null);
+    try {
+      const files = await pickCyclesStillFiles();
+      if (!files) return;
+      const provenance = parseCyclesProvenance(files.provenanceText);
+      await beforeCapture?.();
+      const liveCapture = captureRef.current;
+      if (!liveCapture) throw new Error("Render capture is not ready.");
+      const result = await importCyclesStillFiles({
+        project,
+        provenance,
+        stillDataUrl: files.stillDataUrl,
+        capture: liveCapture,
+        widthPx,
+        heightPx,
+        composition,
+      });
+      stillDataUrlRef.current = result.still;
+      setPlateDataUrl(result.plateDataUrl);
+      setStillDataUrl(result.still);
+      setDiffDataUrl(result.diffDataUrl);
+      setDepthDataUrl(null);
+      setValidation(result.validation);
+      setSession(result.session);
+      setCompareMode("split");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not import the Cycles still.");
+    } finally {
+      afterCapture?.();
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }, [afterCapture, beforeCapture, composition, heightPx, project, widthPx]);
+
   const accept = useCallback(() => {
     setSession((current) => {
       if (current.status !== "pending_review") return current;
@@ -157,6 +217,8 @@ export function useStillReviewFlow(args: {
     error,
     packageReady,
     generateStill,
+    exportCyclesJob,
+    importCyclesStill,
     accept,
     reject,
     retry,

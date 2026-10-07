@@ -12,6 +12,7 @@ import { LivingRoomPlanWorkspaceCanvas } from "./LivingRoomPlanWorkspaceCanvas";
 import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspector";
 import { LivingRoomPlanWorkspaceRail } from "./LivingRoomPlanWorkspaceRail";
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
+import { exportCyclesPhotoJob } from "../../platform/cyclesFiles";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { useStudioPanes } from "./useStudioPanes";
@@ -72,6 +73,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
             props.onWorkspaceView("render");
           }}
           onReturnToReview={props.onReturnToReview}
+          onExportPhotoJob={() => void exportCyclesPhotoJob(project)}
         />
       ) : null}
       <LivingRoomPlanWorkspaceCanvas

@@ -13,6 +13,7 @@ export function InteriorsPresentActions({
   step,
   needsCapture,
   onCapture,
+  onExportPhotoJob,
 }: {
   proposal: Proposal;
   handoff: Handoff;
@@ -20,6 +21,8 @@ export function InteriorsPresentActions({
   step: InteriorsPresentStep;
   needsCapture: boolean;
   onCapture: () => void;
+  /** Phase 3: write a Cycles photo job for `npm run cycles:render`. */
+  onExportPhotoJob?: () => void;
 }) {
   const ready = Boolean(proposal.gate?.ready);
   const proposalCommitted = Boolean(proposal.released || handoff.revisionApproved || handoff.sent);
@@ -45,6 +48,16 @@ export function InteriorsPresentActions({
       >
         Create Proposal
       </button> : null}
+      {onExportPhotoJob ? (
+        <button
+          type="button"
+          data-testid="interiors-present-export-photo"
+          title="Writes a Cycles job file; render it with npm run cycles:render and import the still in Still review"
+          onClick={onExportPhotoJob}
+        >
+          Export photo job…
+        </button>
+      ) : null}
       {proposal.status ? <p className="planner-v2-review-status">{proposal.status}</p> : null}
         <EngineeringHandoffSection handoff={handoff} compact />
     </>
