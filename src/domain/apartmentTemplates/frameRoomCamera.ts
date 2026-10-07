@@ -8,6 +8,7 @@ import { roomPlanViewBounds, type InteriorProject, type Point3Mm } from "../inte
 import type { RoomPlanViewBounds } from "../interiorProject/roomPlanBounds";
 import type { CameraPoseMm } from "../livingRoom/cameraScreenBounds";
 import { objectBox, type ObjectBox } from "./composers/objectBounds";
+import { isCutListCabinet } from "./joineryBounds";
 import { oppositeSide } from "./composers/helpers";
 import type { WallSide } from "./types";
 
@@ -41,14 +42,15 @@ function spanOnSide(box: ObjectBox, side: WallSide, room: RoomPlanViewBounds): n
 }
 
 /**
- * The wall with the largest span of placed objects (cabinets and lights
- * excluded), or null when nothing sits on a wall.
+ * The wall with the largest span of placed objects (cut-list cabinets and
+ * lights excluded; display pieces with cabinet kind count), or null when
+ * nothing sits on a wall.
  */
 export function busiestSide(project: InteriorProject, roomId: string): WallSide | null {
   const room = roomPlanViewBounds(project, roomId);
   const spans: Record<WallSide, number> = { north: 0, south: 0, east: 0, west: 0 };
   for (const object of project.objects) {
-    if (object.roomId !== roomId || object.kind === "cabinet" || object.kind === "lighting") continue;
+    if (object.roomId !== roomId || isCutListCabinet(object) || object.kind === "lighting") continue;
     const box = objectBox(object);
     for (const side of SIDES) spans[side] += spanOnSide(box, side, room);
   }

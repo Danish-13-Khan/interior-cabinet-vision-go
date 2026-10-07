@@ -52,7 +52,8 @@ describe("frameJoineryCamera (roadmap D2)", () => {
           continue;
         }
         const bounds = roomPlanViewBounds(project, roomId);
-        const inset = JOINERY_FRAME.wallInsetMm - 1;
+        // Narrow rooms shrink the wall inset to the tight value; the eye is always at least that far inside.
+        const inset = JOINERY_FRAME.tightWallInsetMm - 1;
         expect(frame.position.y, label).toBe(JOINERY_FRAME.eyeHeightMm);
         expect(frame.position.x, label).toBeGreaterThanOrEqual(bounds.minX + inset);
         expect(frame.position.x, label).toBeLessThanOrEqual(bounds.maxX - inset);

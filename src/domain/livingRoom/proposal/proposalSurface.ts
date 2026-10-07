@@ -5,6 +5,14 @@ import type {
   ProposalSurfaceState,
 } from "./types";
 
+/** Views a proposal can print and store; shared by the surface, Present and the client payload. */
+export const PROPOSAL_VIEW_SELECTION_LIMIT = 12;
+
+/** The stored selection never exceeds the print limit. */
+export function clampViewSelection(cameraIds: readonly string[]): string[] {
+  return cameraIds.slice(0, PROPOSAL_VIEW_SELECTION_LIMIT);
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -38,7 +46,7 @@ export function readFrozenClient(raw: Record<string, unknown> | null): ProposalC
         })
       : [],
     views: Array.isArray(raw.views)
-      ? raw.views.slice(0, 12).map((item) => {
+      ? raw.views.slice(0, PROPOSAL_VIEW_SELECTION_LIMIT).map((item) => {
           const row = asRecord(item);
           return {
             cameraId: text(row?.cameraId),
@@ -73,7 +81,7 @@ export function readProposalSurface(raw: Record<string, unknown> | null): Propos
     ? raw.selectedViewCameraIds.filter((id): id is string => typeof id === "string")
     : [];
   return {
-    selectedViewCameraIds: selected.slice(0, 12),
+    selectedViewCameraIds: clampViewSelection(selected),
     staleOverride: override
       ? {
           snapshotId: String(override.snapshotId ?? ""),

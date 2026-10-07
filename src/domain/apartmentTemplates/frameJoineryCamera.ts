@@ -40,6 +40,8 @@ export const JOINERY_FRAME = {
   /** A partial run with less floor than this in front of it has no photo at all; the room is not a default view. */
   minStandingDepthMm: 500,
   wallInsetMm: STANDING.wallInsetMm,
+  /** Narrow rooms let the eye stand this close to a wall. */
+  tightWallInsetMm: STANDING.tightWallInsetMm,
   aspect: JOINERY_FRAME_ASPECT,
 } as const;
 
@@ -131,7 +133,11 @@ export function frameJoineryCamera(
   for (const target of targets) {
     for (const fov of fieldLadder()) {
       const eye = eyeAlong(target, direction, fitDistance(box, boxes, target, direction, fov, aspect));
-      if (insideRect(eye, rect) && clearOfJoinery(eye, boxes)) return frame(poseAt(eye, target, fov), false);
+      const pose = poseAt(eye, target, fov);
+      // fitDistance steps back a bounded number of times, so the margin is checked here, not assumed.
+      if (insideRect(eye, rect) && clearOfJoinery(eye, boxes) && joineryInsideFrame(pose, boxes, aspect)) {
+        return frame(pose, false);
+      }
     }
   }
   for (const target of targets) {

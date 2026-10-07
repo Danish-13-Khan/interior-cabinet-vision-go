@@ -13,7 +13,7 @@ import {
 } from "../../quoteSettings";
 import type { InteriorProject } from "../../interiorProject";
 import { CABINET_EXTENSION } from "../../interiorProject/cabinetAdapterShared";
-import { readProposalSurface } from "./proposalSurface";
+import { clampViewSelection, readProposalSurface } from "./proposalSurface";
 import type {
   ProposalClientPayload,
   ProposalStaleOverride,
@@ -153,7 +153,7 @@ export function setProposalSelectedViews(
 ): InteriorProject {
   const current = readProposalCommercial(document);
   return writeProposalCommercial(document, {
-    surface: { ...current.surface, selectedViewCameraIds: cameraIds.slice(0, 12) },
+    surface: { ...current.surface, selectedViewCameraIds: clampViewSelection(cameraIds) },
   });
 }
 

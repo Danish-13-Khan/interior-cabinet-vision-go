@@ -1,6 +1,9 @@
 import type { InteriorProject } from "../../interiorProject";
 import { resolvePackageCameraViews } from "../packageCameraBookmarks";
 import { PROPOSAL_EXTENSION, readProposalCommercial } from "./commercialState";
+import { clampViewSelection } from "./proposalSurface";
+
+export { PROPOSAL_VIEW_SELECTION_LIMIT } from "./proposalSurface";
 
 export type ProposalViewSelection = {
   /** Every bookmarked camera that still exists, in bookmark order. */
@@ -31,12 +34,11 @@ export function proposalViewSelection(document: InteriorProject): ProposalViewSe
   };
 }
 
-/** Stored selection limit; matches `readProposalSurface`. */
-export const PROPOSAL_VIEW_SELECTION_LIMIT = 12;
-
 /**
  * Store an explicit selection without touching the rest of the commercial
- * shell (templates write their default views here at apply time).
+ * shell. Templates write their default views here at apply time; Present goes
+ * through `setProposalSelectedViews`, which also normalises the shell. Both
+ * cap the list with `clampViewSelection`, so the two paths cannot drift.
  */
 export function withProposalViewSelection(
   document: InteriorProject,
@@ -52,7 +54,7 @@ export function withProposalViewSelection(
       ...document.extensions,
       [PROPOSAL_EXTENSION]: {
         ...surface,
-        selectedViewCameraIds: cameraIds.slice(0, PROPOSAL_VIEW_SELECTION_LIMIT),
+        selectedViewCameraIds: clampViewSelection(cameraIds),
       },
     },
   };

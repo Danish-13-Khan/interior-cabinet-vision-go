@@ -32,10 +32,12 @@ export {
 export { buildProposalGate, isProposalExportBlocked } from "./proposalGate";
 export {
   listProposalNamedViews,
+  proposalViewToggleLock,
   selectedProposalViews,
   toggleProposalView,
 } from "./proposalViews";
 export {
+  PROPOSAL_VIEW_SELECTION_LIMIT,
   proposalViewSelection,
   withProposalViewSelection,
   type ProposalViewSelection,

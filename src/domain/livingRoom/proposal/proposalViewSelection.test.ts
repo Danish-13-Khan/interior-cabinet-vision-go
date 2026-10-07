@@ -4,8 +4,12 @@ import { composeApartment } from "../../apartmentTemplates/composeApartment";
 import { THREE_BHK_SHELL_SPEC } from "../../apartmentTemplates/specs/threeBhkShell";
 import type { InteriorProject } from "../../interiorProject";
 import { setProposalSelectedViews } from "./commercialState";
-import { listProposalNamedViews, toggleProposalView } from "./proposalViews";
-import { proposalViewSelection, withProposalViewSelection } from "./proposalViewSelection";
+import { listProposalNamedViews, proposalViewToggleLock, toggleProposalView } from "./proposalViews";
+import {
+  PROPOSAL_VIEW_SELECTION_LIMIT,
+  proposalViewSelection,
+  withProposalViewSelection,
+} from "./proposalViewSelection";
 import { createQuoteDesignFingerprint } from "./quoteFingerprint";
 
 const project = composeApartment(THREE_BHK_SHELL_SPEC, { now: COMPOSER_TEST_NOW });
@@ -52,6 +56,26 @@ describe("proposalViewSelection (roadmap D1)", () => {
     const first = toggleProposalView(implicit, bath);
     expect(first).toHaveLength(THREE_BHK_SHELL_SPEC.rooms.length - 1);
     expect(first).not.toContain(bath);
+  });
+
+  it("never unticks the last view, which would fall back to every bookmark", () => {
+    const kitchen = cameraId("Kitchen Showcase");
+    const only = withProposalViewSelection(project, [kitchen]);
+    expect(proposalViewToggleLock(only, kitchen)).toBe("last-view");
+    expect(toggleProposalView(only, kitchen)).toEqual([kitchen]);
+    expect(proposalViewSelection(setProposalSelectedViews(only, toggleProposalView(only, kitchen))).selectedIds)
+      .toEqual([kitchen]);
+    expect(proposalViewToggleLock(only, cameraId("Guest Bath Showcase"))).toBeNull();
+  });
+
+  it("stops ticking at the print limit instead of silently dropping the new view", () => {
+    const { availableIds } = proposalViewSelection(project);
+    const full = withProposalViewSelection(project, availableIds.slice(0, PROPOSAL_VIEW_SELECTION_LIMIT));
+    const extra = availableIds[PROPOSAL_VIEW_SELECTION_LIMIT]!;
+    expect(proposalViewToggleLock(full, extra)).toBe("limit");
+    expect(toggleProposalView(full, extra)).toHaveLength(PROPOSAL_VIEW_SELECTION_LIMIT);
+    expect(toggleProposalView(full, extra)).not.toContain(extra);
+    expect(proposalViewToggleLock(full, availableIds[0]!)).toBeNull();
   });
 
   it("fingerprints only the printed views", () => {
