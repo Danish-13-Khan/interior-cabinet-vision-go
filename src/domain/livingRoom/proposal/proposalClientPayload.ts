@@ -63,7 +63,8 @@ export function proposalMaterialLines(document: InteriorProject): ProposalMateri
   for (const line of buildLivingRoomMillworkSchedule(document).lines) {
     for (const [slot, name] of Object.entries(line.materialLabels)) {
       const role = CLIENT_MATERIAL_ROLES[slot] ?? slot;
-      const key = `${role}:${name}`;
+      // "back" and "Back" are the same role to the client; one line per finish and role.
+      const key = `${role.toLowerCase()}:${name.trim().toLowerCase()}`;
       if (!seen.has(key)) seen.set(key, { name, kind: slot, role });
     }
   }

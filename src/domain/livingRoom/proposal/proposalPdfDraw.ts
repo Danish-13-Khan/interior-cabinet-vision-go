@@ -4,6 +4,20 @@ import { ensurePageSpace } from "../../pdfExport/helpers";
 import { formatProposalMoney } from "./proposalDocument";
 import type { ProposalDocument } from "./types";
 
+/**
+ * jsPDF's built-in fonts are WinAnsi: a rupee sign prints as a superscript "1".
+ * Spell out the symbols a quote can carry; anything else outside Latin-1 is dropped.
+ */
+export function pdfSafeText(text: string): string {
+  return text
+    .replace(/\u20B9\s?/g, "Rs ")
+    .replace(/\u20AC\s?/g, "EUR ")
+    .replace(/\u00A3/g, "GBP ")
+    .replace(/[\u2014\u2013]/g, "-")
+    .replace(/[^\u0000-\u00FF]/g, "");
+}
+
+
 export function drawProposalHeader(layout: PdfLayout, proposal: ProposalDocument) {
   const { doc, margin, pageWidth } = layout;
   doc.setFillColor(36, 52, 48);
@@ -34,12 +48,14 @@ export function drawProposalIdentity(
   const { doc, margin, contentWidth } = layout;
   doc.setFontSize(16);
   doc.setTextColor(28, 38, 34);
-  doc.text(proposal.customerName.slice(0, 42), margin, y);
+  doc.text(pdfSafeText(proposal.customerName).slice(0, 42), margin, y);
   y += 6;
   doc.setFontSize(9);
   doc.setTextColor(95, 110, 102);
   doc.text(
-    `${proposal.projectNumber} · ${proposal.roomName} · Rev ${proposal.revision}`,
+    pdfSafeText([proposal.projectNumber, proposal.projectName, `Rev ${proposal.revision}`]
+      .filter((part) => part.trim())
+      .join(" · ")),
     margin,
     y,
   );
@@ -84,7 +100,7 @@ export function drawWrappedNote(layout: PdfLayout, y: number, label: string, tex
   y = drawProposalSectionTitle(layout, y, label);
   doc.setFontSize(8.5);
   doc.setTextColor(55, 68, 60);
-  const lines = doc.splitTextToSize(text || "—", contentWidth);
+  const lines = doc.splitTextToSize(pdfSafeText(text || "-"), contentWidth);
   for (const line of lines) {
     y = ensurePageSpace(doc, y, 5, pageHeight, margin);
     doc.text(line, margin, y);
@@ -96,19 +112,21 @@ export function drawWrappedNote(layout: PdfLayout, y: number, label: string, tex
 export function drawProposalTotals(layout: PdfLayout, y: number, proposal: ProposalDocument) {
   const { doc, margin, contentWidth, pageHeight } = layout;
   y = drawProposalSectionTitle(layout, y, "Price summary");
-  for (const line of proposal.summaryLines) {
+  // The summary lines end with the total; it is drawn once, large, below.
+  const lines = proposal.summaryLines.filter((line) => !/^total$/i.test(line.label.trim()));
+  for (const line of lines) {
     y = ensurePageSpace(doc, y, 6, pageHeight, margin);
     doc.setFontSize(8.5);
     doc.setTextColor(45, 58, 48);
-    doc.text(line.label, margin, y);
-    doc.text(formatProposalMoney(proposal, line.amount), margin + contentWidth, y, { align: "right" });
+    doc.text(pdfSafeText(line.label), margin, y);
+    doc.text(pdfSafeText(formatProposalMoney(proposal, line.amount)), margin + contentWidth, y, { align: "right" });
     y += 5;
   }
   y += 2;
   doc.setFontSize(12);
   doc.setTextColor(28, 38, 34);
   doc.text("Total", margin, y);
-  doc.text(formatProposalMoney(proposal, proposal.sellTotal), margin + contentWidth, y, { align: "right" });
+  doc.text(pdfSafeText(formatProposalMoney(proposal, proposal.sellTotal)), margin + contentWidth, y, { align: "right" });
   return y + 8;
 }
 
