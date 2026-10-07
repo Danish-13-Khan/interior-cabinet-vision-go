@@ -10,6 +10,7 @@ import type { jsPDF } from "jspdf";
 import { publicAssetUrl } from "../../../utils/publicAssetUrl";
 import { pdfSafeText } from "./proposalPdfDraw";
 import type { ProposalTypeface } from "./proposalPdfTheme";
+import type { ProposalDocument } from "./types";
 
 export const PROPOSAL_FONT_FAMILY = "NotoSansProposal";
 
@@ -51,14 +52,44 @@ async function readFontBytes(assetKey: string): Promise<Uint8Array | null> {
 
 let binaries: Promise<Record<keyof typeof FILES, string> | null> | null = null;
 
-/** Both weights as jsPDF binary strings, loaded once per session; null when either is missing. */
+/**
+ * Both weights as jsPDF binary strings, loaded once per session. A failed
+ * load (offline, missing asset) is not remembered, so the next export tries again.
+ */
 export function loadProposalFontBinaries() {
   binaries ??= (async () => {
     const [normal, bold] = await Promise.all([readFontBytes(FILES.normal), readFontBytes(FILES.bold)]);
-    if (!normal || !bold) return null;
+    if (!normal || !bold) {
+      binaries = null;
+      return null;
+    }
     return { normal: toBinaryString(normal), bold: toBinaryString(bold) };
   })();
   return binaries;
+}
+
+/** True when the embedded subset would drop characters from this text. */
+export function hasUnprintableText(text: string): boolean {
+  return new RegExp(SUBSET.source, "u").test(text);
+}
+
+/**
+ * Proposal fields whose characters the subset cannot print (a customer name in
+ * another script, a tick in the inclusions). The page drops them; Present warns.
+ */
+export function proposalUnprintableFields(proposal: ProposalDocument): string[] {
+  const fields: Array<[string, string]> = [
+    ["Customer name", proposal.customerName],
+    ["Project name", proposal.projectName],
+    ["Studio name", proposal.brand.name],
+    ["Contact line", proposal.brand.contact],
+    ["Inclusions", proposal.inclusions],
+    ["Exclusions", proposal.exclusions],
+    ...proposal.rooms.map((room): [string, string] => [`Room ${room.roomName}`, `${room.roomName} ${room.viewName}`]),
+    ...proposal.cabinets.map((line): [string, string] => [`Item ${line.mark}`, line.name]),
+    ...proposal.materials.map((line): [string, string] => [`Finish ${line.name}`, `${line.name} ${line.role}`]),
+  ];
+  return fields.filter(([, text]) => hasUnprintableText(text)).map(([label]) => label);
 }
 
 export const CORE_TYPEFACE: ProposalTypeface = { family: "helvetica", embedded: false, text: pdfSafeText };

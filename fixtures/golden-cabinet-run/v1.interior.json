@@ -2154,7 +2154,10 @@
               "exclusions": "Site installation, appliances, plumbing, and electrical not included.",
               "currencyLabel": "INR",
               "taxLabel": "GST",
-              "priceDetail": "summary"
+              "priceDetail": "summary",
+              "brandName": "Cabinet Studio",
+              "brandContact": "",
+              "brandLogoDataUrl": ""
             }
           },
           "job": {

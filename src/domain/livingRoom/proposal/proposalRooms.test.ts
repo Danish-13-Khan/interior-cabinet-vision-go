@@ -3,7 +3,7 @@ import { COMPOSER_TEST_NOW } from "../../apartmentTemplates/composers/bareRoom";
 import { composeApartment } from "../../apartmentTemplates/composeApartment";
 import { THREE_BHK_SHELL_SPEC } from "../../apartmentTemplates/specs/threeBhkShell";
 import { readInteriorEstimate, writeInteriorEstimate } from "../../interiorEstimate/state";
-import { BRAND_LOGO_MAX_BYTES, clampBrandLogo } from "../../quoteSettings";
+import { BRAND_LOGO_MAX_BYTES, clampBrandLogo } from "../../quoteBrand";
 import { patchProposalQuoteSettings } from "./commercialState";
 import { PROPOSAL_TEST_PNG } from "./goldenProposal";
 import { buildProposalDocument } from "./proposalDocument";
@@ -36,6 +36,26 @@ describe("proposal room pages and brand (roadmap D3, D5)", () => {
     // Every cabinet line lands on exactly one room page.
     const paged = itemized.rooms.flatMap((room) => room.cabinets.map((line) => line.mark));
     expect(new Set(paged).size).toBe(paged.length);
+  });
+
+  it("lists lines from rooms without a page under Other rooms, so the subtotals reach the total", () => {
+    const itemized = buildProposalDocument(
+      patchProposalQuoteSettings(project, { priceDetail: "itemized" }),
+      { now: NOW },
+    );
+    // The utility is a default view no longer; its tall unit and the bath finishes still have to be shown.
+    expect(itemized.otherRooms.map((room) => room.roomName)).toContain("Utility");
+    expect(itemized.otherRooms.find((room) => room.roomName === "Utility")?.cabinets.map((line) => line.name))
+      .toContain("Utility tall unit");
+    const pagedMarks = itemized.rooms.flatMap((room) => room.cabinets.map((line) => line.mark));
+    const otherMarks = itemized.otherRooms.flatMap((room) => room.cabinets.map((line) => line.mark));
+    expect([...pagedMarks, ...otherMarks].sort()).toEqual(itemized.cabinets.map((line) => line.mark).sort());
+    const subtotals = [...itemized.rooms, ...itemized.otherRooms].reduce((sum, room) => sum + (room.subtotal ?? 0), 0);
+    expect(subtotals).toBe(itemized.cabinets.reduce((sum, line) => sum + line.sellPrice, 0));
+    expect(subtotals).toBe(itemized.sellTotal);
+    // Summary pricing: the block still names the rooms, without amounts.
+    const summary = buildProposalDocument(project, { now: NOW });
+    expect(summary.otherRooms.every((room) => room.subtotal === null)).toBe(true);
   });
 
   it("carries swatch colours and room usage on the finish lines", () => {

@@ -9,7 +9,7 @@ import {
   proposalMaterialLines,
 } from "./proposalClientPayload";
 import { proposalExportViews } from "./proposalRevision";
-import { proposalRoomPages } from "./proposalRooms";
+import { proposalOtherRooms, proposalRoomPages } from "./proposalRooms";
 import type { ProposalCabinetLine, ProposalDocument, ProposalMaterialLine } from "./types";
 
 function resolveClientLines(
@@ -77,6 +77,14 @@ export function buildProposalDocument(
   const snapshotId = frozen?.id ?? "draft";
   const client = resolveClientLines(document, staleDisclosed);
   const priceDetail = frozen?.priceDetail ?? settings.priceDetail;
+  const roomInput = {
+    views: client.views,
+    cabinets: client.cabinets,
+    materials: client.materials,
+    liveCabinetLines: live.quote.cabinetLines,
+    itemized: priceDetail === "itemized",
+  };
+  const rooms = proposalRoomPages(document, roomInput);
   return {
     brand: {
       name: settings.brandName,
@@ -101,13 +109,8 @@ export function buildProposalDocument(
     views: client.views,
     materials: client.materials,
     cabinets: client.cabinets,
-    rooms: proposalRoomPages(document, {
-      views: client.views,
-      cabinets: client.cabinets,
-      materials: client.materials,
-      liveCabinetLines: live.quote.cabinetLines,
-      itemized: priceDetail === "itemized",
-    }),
+    rooms,
+    otherRooms: proposalOtherRooms(document, roomInput, rooms),
     summaryLines: client.summaryLines,
     inclusions: frozen?.inclusions ?? settings.inclusions,
     exclusions: frozen?.exclusions ?? settings.exclusions,

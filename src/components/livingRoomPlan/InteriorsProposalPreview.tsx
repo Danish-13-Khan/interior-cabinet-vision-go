@@ -26,6 +26,11 @@ export function InteriorsProposalPreview({ proposal, hidden }: { proposal: Propo
         <small>Draft preview: the gate still blocks Create Proposal.</small>
       ) : null}
       {preview.error ? <p className="interiors-present-photo-error">{preview.error}</p> : null}
+      {preview.warnings.length ? (
+        <p className="interiors-present-photo-error" data-testid="interiors-proposal-preview-warning">
+          Characters the proposal font cannot print were dropped from: {preview.warnings.join(", ")}.
+        </p>
+      ) : null}
       {preview.pages.length ? (
         <ol className="interiors-proposal-preview-pages" aria-label="Proposal pages">
           {preview.pages.map((page) => (

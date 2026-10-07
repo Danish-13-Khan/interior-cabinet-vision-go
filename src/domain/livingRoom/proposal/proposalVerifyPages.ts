@@ -76,12 +76,11 @@ export function collectImagePaintGaps(rasters: RasterizedPdfPage[], expected: nu
 
 function collectViewImageGaps(rasters: RasterizedPdfPage[], expected: number) {
   const missing = collectImagePaintGaps(rasters, expected);
-  const ink = rasters.map((page) => page.viewInk).find((item) => item);
-  if (!ink) {
-    missing.push("blank-view-image");
-    return missing;
-  }
-  const host = rasters.find((page) => page.viewInk);
+  // The clipping check reads the golden stills, which are solid red. Real stills are not,
+  // and the finish board's swatches are vector fills: only a page that paints a red image counts.
+  const host = rasters.find((page) => page.viewInk && page.imagePaintCount > 0);
+  const ink = host?.viewInk;
+  if (!host || !ink) return missing;
   if (host && viewInkLooksClipped(ink, host.width, host.height)) {
     missing.push("clipped-view-image");
   }

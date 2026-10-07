@@ -4,6 +4,7 @@ import type {
   ProposalCabinetLine,
   ProposalMaterialLine,
   ProposalNamedView,
+  ProposalOtherRoom,
   ProposalRoomPage,
 } from "./types";
 
@@ -38,21 +39,24 @@ function lineRoomResolver(document: InteriorProject, liveCabinetLines: QuoteCabi
   };
 }
 
+export type ProposalRoomInput = {
+  views: ProposalNamedView[];
+  cabinets: ProposalCabinetLine[];
+  materials: ProposalMaterialLine[];
+  liveCabinetLines: QuoteCabinetLine[];
+  itemized: boolean;
+};
+
+function subtotal(lines: ProposalCabinetLine[], itemized: boolean): number | null {
+  return itemized ? lines.reduce((sum, line) => sum + line.sellPrice, 0) : null;
+}
+
 /**
  * One page per printed view (roadmap D3): the view's room, the client lines
  * that sit in it, the finishes used there, and the itemized subtotal.
  * Project-wide lines never appear here; they belong to the price page.
  */
-export function proposalRoomPages(
-  document: InteriorProject,
-  input: {
-    views: ProposalNamedView[];
-    cabinets: ProposalCabinetLine[];
-    materials: ProposalMaterialLine[];
-    liveCabinetLines: QuoteCabinetLine[];
-    itemized: boolean;
-  },
-): ProposalRoomPage[] {
+export function proposalRoomPages(document: InteriorProject, input: ProposalRoomInput): ProposalRoomPage[] {
   const roomName = new Map(document.rooms.map((room) => [room.id, room.name]));
   const roomOf = lineRoomResolver(document, input.liveCabinetLines);
   return input.views.flatMap((view) => {
@@ -68,7 +72,33 @@ export function proposalRoomPages(
       viewName: view.viewName,
       cabinets,
       finishes,
-      subtotal: input.itemized ? cabinets.reduce((sum, line) => sum + line.sellPrice, 0) : null,
+      subtotal: subtotal(cabinets, input.itemized),
     }];
   });
+}
+
+/**
+ * Lines whose room has no page (an unticked view, or no room at all), grouped
+ * by room for the price page, so room subtotals plus this block reach the total.
+ */
+export function proposalOtherRooms(
+  document: InteriorProject,
+  input: ProposalRoomInput,
+  pages: ProposalRoomPage[],
+): ProposalOtherRoom[] {
+  const paged = new Set(pages.map((page) => page.roomId));
+  const roomName = new Map(document.rooms.map((room) => [room.id, room.name]));
+  const roomOf = lineRoomResolver(document, input.liveCabinetLines);
+  const groups = new Map<string, ProposalCabinetLine[]>();
+  for (const line of input.cabinets) {
+    const roomId = roomOf(line);
+    if (roomId && paged.has(roomId)) continue;
+    const name = (roomId && roomName.get(roomId)) || "Whole project";
+    groups.set(name, [...(groups.get(name) ?? []), line]);
+  }
+  return [...groups.entries()].map(([name, cabinets]) => ({
+    roomName: name,
+    cabinets,
+    subtotal: subtotal(cabinets, input.itemized),
+  }));
 }

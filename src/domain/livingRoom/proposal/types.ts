@@ -69,6 +69,13 @@ export type ProposalCabinetLine = {
   sellPrice: number;
 };
 
+export type ProposalOtherRoom = {
+  roomName: string;
+  cabinets: ProposalCabinetLine[];
+  /** Sum of the room's itemized lines; null when prices are summarised. */
+  subtotal: number | null;
+};
+
 export type ProposalClientPayload = {
   snapshotId: string;
   cabinets: ProposalCabinetLine[];
@@ -120,6 +127,8 @@ export type ProposalDocument = {
   cabinets: ProposalCabinetLine[];
   /** Derived from views, cabinets and materials; the flat lists above stay the frozen payload. */
   rooms: ProposalRoomPage[];
+  /** Priced lines in rooms without a page (unticked views), grouped by room for the price page. */
+  otherRooms: ProposalOtherRoom[];
   summaryLines: Array<{ label: string; amount: number }>;
   inclusions: string;
   exclusions: string;

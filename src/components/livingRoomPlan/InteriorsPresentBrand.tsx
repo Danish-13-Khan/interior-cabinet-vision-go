@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BRAND_LOGO_MAX_BYTES, clampBrandLogo, type QuoteSettings } from "../../domain/quoteSettings";
+import { BRAND_LOGO_MAX_BYTES, clampBrandLogo } from "../../domain/quoteBrand";
+import type { QuoteSettings } from "../../domain/quoteSettings";
 
 function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

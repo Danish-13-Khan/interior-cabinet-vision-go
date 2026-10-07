@@ -1,8 +1,8 @@
 import { optimizeSceneImage } from "../../pdfExport/helpers";
 import { drawProposalSectionTitle, drawRows, pdfMoney } from "./proposalPdfDraw";
 import {
-  drawPageFooter,
   INK,
+  drawPageFooter,
   fill,
   imageAspect,
   imageFormat,
@@ -15,6 +15,14 @@ import {
 import type { ProposalCabinetLine, ProposalDocument, ProposalRoomPage, ProposalViewFrame } from "./types";
 
 const STILL_MAX_HEIGHT_MM = 118;
+const STILL_MIN_HEIGHT_MM = 48;
+const TITLE_MM = 14;
+const SECTION_TITLE_MM = 6;
+const ROW_MM = 5;
+const ROWS_TAIL_MM = 3;
+const SUBTOTAL_MM = 12;
+const FOOTER_MM = 10;
+const MAX_FINISH_ROWS = 8;
 const INTERIOR_MARK = /^I\d+$/;
 
 /** Cabinets one per line with their mark; the per-surface finish lines fold into one row. */
@@ -45,7 +53,29 @@ export function roomLineRows(
   return rows;
 }
 
-async function drawStill(layout: ProposalPdfLayout, frame: ProposalViewFrame | null, y: number): Promise<number> {
+/** Keep the first rows that fit and fold the rest into one "+n more items" row with their sum. */
+function foldRows(
+  layout: ProposalPdfLayout,
+  proposal: ProposalDocument,
+  rows: Array<{ left: string; right: string }>,
+  lines: ProposalCabinetLine[],
+  maxRows: number,
+): Array<{ left: string; right: string }> {
+  if (rows.length <= maxRows) return rows;
+  const keep = Math.max(1, maxRows - 1);
+  const shown = new Set(rows.slice(0, keep).map((row) => row.left.split(" · ")[0]));
+  const rest = lines.filter((line) => !shown.has(line.mark));
+  const amount = rest.reduce((sum, line) => sum + line.sellPrice, 0);
+  return [
+    ...rows.slice(0, keep),
+    {
+      left: `+${rest.length} more item${rest.length === 1 ? "" : "s"}`,
+      right: proposal.priceDetail === "itemized" ? pdfMoney(layout, proposal, amount) : "Included",
+    },
+  ];
+}
+
+async function drawStill(layout: ProposalPdfLayout, frame: ProposalViewFrame | null, y: number, maxHeight: number): Promise<number> {
   const { doc, margin, contentWidth } = layout;
   const image = frame ? await optimizeSceneImage(frame.dataUrl) : null;
   if (!image) {
@@ -56,16 +86,15 @@ async function drawStill(layout: ProposalPdfLayout, frame: ProposalViewFrame | n
     return y + 30;
   }
   const aspect = imageAspect(doc, image);
-  const width = Math.min(contentWidth, STILL_MAX_HEIGHT_MM * aspect);
+  const width = Math.min(contentWidth, maxHeight * aspect);
   const height = width / aspect;
   doc.addImage(image, imageFormat(image), margin + (contentWidth - width) / 2, y, width, height);
   return y + height + 8;
 }
 
 /**
- * One page per printed view (roadmap D3): the room's still at its own aspect,
- * what is in the room with marks, the finishes used there, and the itemized
- * subtotal. Project-wide lines never appear here.
+ * One page per printed view (roadmap D3), and exactly one: the still gives way
+ * first, then long lists fold, so page counts and labels stay true.
  */
 export async function drawRoomPage(
   layout: ProposalPdfLayout,
@@ -73,27 +102,43 @@ export async function drawRoomPage(
   room: ProposalRoomPage,
   frame: ProposalViewFrame | null,
 ): Promise<void> {
-  const { doc, margin, contentWidth } = layout;
+  const { doc, margin, contentWidth, pageHeight } = layout;
+  const finishRows = room.finishes.slice(0, MAX_FINISH_ROWS).map((line) => ({ left: line.name, right: line.role }));
+  const fixedMm = TITLE_MM + SECTION_TITLE_MM + ROWS_TAIL_MM + 8
+    + (finishRows.length ? SECTION_TITLE_MM + finishRows.length * ROW_MM + ROWS_TAIL_MM : 0)
+    + (room.subtotal != null ? SUBTOTAL_MM : 0);
+  const budget = pageHeight - margin * 2 - FOOTER_MM - fixedMm;
+  let rows = roomLineRows(layout, proposal, room.cabinets);
+  let stillMax = Math.min(STILL_MAX_HEIGHT_MM, budget - rows.length * ROW_MM);
+  if (stillMax < STILL_MIN_HEIGHT_MM) {
+    stillMax = STILL_MIN_HEIGHT_MM;
+    rows = foldRows(layout, proposal, rows, room.cabinets, Math.floor((budget - stillMax) / ROW_MM));
+  }
   let y = newPage(layout);
   setType(layout, 18, INK.title, "bold");
   writeText(layout, room.roomName, margin, y + 6, { maxChars: 40 });
   setType(layout, 8, INK.muted);
   writeText(layout, room.viewName, margin + contentWidth, y + 6, { align: "right", maxChars: 48 });
-  y += 14;
-  y = await drawStill(layout, frame, y);
-  if (room.cabinets.length) {
-    y = drawProposalSectionTitle(layout, y, "In this room", 12);
-    y = drawRows(layout, y, roomLineRows(layout, proposal, room.cabinets));
+  y += TITLE_MM;
+  y = await drawStill(layout, frame, y, stillMax);
+  if (rows.length) {
+    y = drawProposalSectionTitle(layout, y, "In this room");
+    y = drawRows(layout, y, rows);
   } else {
     setType(layout, 8.5, INK.muted);
-    writeText(layout, "No priced joinery in this room.", margin, y + 2);
+    writeText(
+      layout,
+      proposal.staleDisclosed ? "Itemized pricing follows in the revised quote." : "No priced joinery in this room.",
+      margin,
+      y + 2,
+    );
     y += 10;
   }
-  if (room.finishes.length) {
-    y = drawProposalSectionTitle(layout, y, "Finishes here", 12);
-    y = drawRows(layout, y, room.finishes.slice(0, 8).map((line) => ({ left: line.name, right: line.role })));
+  if (finishRows.length) {
+    y = drawProposalSectionTitle(layout, y, "Finishes here");
+    y = drawRows(layout, y, finishRows);
   }
-  if (room.subtotal != null && room.cabinets.length) {
+  if (room.subtotal != null && rows.length) {
     stroke(doc, INK.rule);
     doc.line(margin, y, margin + contentWidth, y);
     y += 6;

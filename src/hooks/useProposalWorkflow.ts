@@ -1,5 +1,5 @@
 import { useCommercialStorageRevision } from "./useCommercialStorageRevision";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import type { ProjectJobMeta } from "../domain/jobMeta";
 import type { QuoteSettings } from "../domain/quoteSettings";
@@ -20,8 +20,8 @@ import {
   setProposalStaleOverride,
   toggleProposalView,
 } from "../domain/livingRoom/proposal";
-import type { ProposalPreviewPage } from "../domain/livingRoom/proposal/proposalPreview";
 import type { AcceptedStillAsset } from "./selectPackageAcceptedStillAssets";
+import { useProposalPreview } from "./useProposalPreview";
 import { getErrorMessage } from "../utils/errors";
 import { promptSavePath, writeBinaryBlob } from "../platform/desktopFiles";
 import { readPersonalPriceBook } from "../domain/priceBook";
@@ -46,11 +46,6 @@ export function useProposalWorkflow(args: {
   const [busy, setBusy] = useState(false);
   const [staleOverride, setStaleOverride] = useState(false);
   const [overrideReason, setOverrideReason] = useState("");
-  const [preview, setPreview] = useState<{ pages: ProposalPreviewPage[]; busy: boolean; error: string | null }>({
-    pages: [],
-    busy: false,
-    error: null,
-  });
   const account = useAccountPlan();
   const priceBook = readPersonalPriceBook();
   const priceBookKey = JSON.stringify(priceBook);
@@ -133,25 +128,7 @@ export function useProposalWorkflow(args: {
     setStatus(ledgerStatus ?? "Quote frozen for this revision.");
   }
 
-  // A preview shows one revision of the design and its frames; any change makes it stale.
-  useEffect(() => {
-    setPreview((current) => (current.pages.length ? { pages: [], busy: false, error: null } : current));
-  }, [args.project, viewFrames]);
-
-  /** Render the pages "Create Proposal" would save, without saving or recording a release. */
-  async function previewProposal() {
-    if (!args.project) return;
-    setPreview({ pages: [], busy: true, error: null });
-    try {
-      const proposalDoc = buildProposalDocument(args.project, { staleOverride });
-      const blob = await exportInteriorProposalPdf(args.project, viewFrames, { staleOverride });
-      const { renderProposalPreview } = await import("../domain/livingRoom/proposal/proposalPreview");
-      const pages = await renderProposalPreview(blob, proposalDoc);
-      setPreview({ pages, busy: false, error: null });
-    } catch (error) {
-      setPreview({ pages: [], busy: false, error: `Preview failed: ${getErrorMessage(error)}` });
-    }
-  }
+  const { preview, previewProposal } = useProposalPreview({ project: args.project, viewFrames, staleOverride });
 
   function toggleView(cameraId: string) {
     args.onPatchDocument(
