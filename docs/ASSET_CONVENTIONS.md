@@ -20,17 +20,20 @@ public/
     floor-lamp.glb
     indoor-plant.glb
   textures/
-    wood/   oak-*.png  walnut-*.png
-    fabric/ oatmeal-color.png olive-color.png rug-wool-color.png
-    paint/  wall-color.png
+    wood/   oak-*.ktx2  walnut-*.ktx2
+    fabric/ oatmeal-*.ktx2 olive-*.ktx2
+    paint/  wall-*.ktx2
+    stone/  warm-*.ktx2
+    laminate/ white-*.ktx2 grey-*.ktx2
     metal/  charcoal-ao.png
+  basis/    basis_transcoder.js  basis_transcoder.wasm
 ```
 
-Regenerate with:
-
-```bash
-node scripts/curated-assets/generate-pack.mjs
-```
+Source PNGs for the offline still engine live in `render-sources/materials/<materialId>/`.
+The viewport loads the KTX2 files. Colour and roughness are ETC1S; normals are
+UASTC with Zstandard. Fabric delivery is 512 px. Colour and roughness KTX2
+files are detail maps multiplied by the material colour and roughness. Paint and stone sit near a linear mean of 0.64, fabric and laminate near 0.82, and wood near 0.32.
+`generate-pack.mjs` still rebuilds the GLBs; it no longer writes texture PNGs.
 
 ## GLB rules
 
@@ -59,9 +62,9 @@ node scripts/curated-assets/generate-pack.mjs
 ## Texture rules
 
 - Paths are registry `assetKey` values only — never stored in InteriorProject JSON.
-- Prefer PNG/JPG under `public/textures/...`.
+- Viewport maps are KTX2 under `public/textures/...`. Metal AO stays PNG.
 - If a texture `available` flag is false or load fails, procedural canvas maps are used.
-- Material entities keep color/roughness/metalness as authoring truth; maps add surface detail.
+- Material colour is the tint. A colour map adds grain, weave or mottling around that tint.
 
 ## Product boundary
 

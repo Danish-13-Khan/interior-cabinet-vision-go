@@ -51,7 +51,7 @@ describe("curated living-room asset pack", () => {
   it("resolves curated PBR texture URLs with procedural-safe fallbacks", () => {
     const oak = getTextureAsset("tex:oak-color");
     expect(oak?.available).toBe(true);
-    expect(resolveModelAssetUrl(oak!.assetKey)).toBe("/textures/wood/oak-color.png");
+    expect(resolveModelAssetUrl(oak!.assetKey)).toBe("/textures/wood/oak-color.ktx2");
     expect(existsSync(join(ROOT, "public", oak!.assetKey))).toBe(true);
 
     const urls = resolveMaterialTextureUrls({
@@ -66,8 +66,8 @@ describe("curated living-room asset pack", () => {
       uvScaleMm: 900,
     });
     expect(hasCuratedTextureUrls(urls)).toBe(true);
-    expect(urls.map).toContain("oak-color.png");
-    expect(urls.normalMap).toContain("oak-normal.png");
+    expect(urls.map).toContain("oak-color.ktx2");
+    expect(urls.normalMap).toContain("oak-normal.ktx2");
 
     const walnut = resolveMaterialTextureUrls({
       id: LIVING_ROOM_MATERIAL_IDS.walnut,
@@ -80,7 +80,7 @@ describe("curated living-room asset pack", () => {
       materialAssetId: LIVING_ROOM_MATERIAL_IDS.walnut,
       uvScaleMm: 900,
     });
-    expect(walnut.roughnessMap).toContain("walnut-rough.png");
-    expect(existsSync(join(ROOT, "public", "textures/wood/walnut-rough.png"))).toBe(true);
+    expect(walnut.roughnessMap).toContain("walnut-rough.ktx2");
+    expect(existsSync(join(ROOT, "public", "textures/wood/walnut-rough.ktx2"))).toBe(true);
   });
 });

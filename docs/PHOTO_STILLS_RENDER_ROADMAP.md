@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** Phase 1 lighting is in the tree (Poly Haven 1k pure-sky HDRIs, AgX, neutral backgrounds, fog off inside the room, walnut `#6a5342`, exposures retuned, bands re-recorded). Phases 2–4 are not started.
+**Status:** Phase 2 material sets are in the tree (eight CC0 Poly Haven scans as KTX2 for the viewport, source PNGs kept for Cycles, bands re-recorded). The viewport colour map is detail multiplied by the style colour. Phases 3–4 are not started.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -63,9 +63,9 @@ Its **spending plan is wrong for this project**:
 
 ### Phase 2 — Real material sets, shared by both engines (~2 days)
 
-- Six to eight CC0 sets (oak, walnut, white laminate, grey laminate, fabric, stone, matte paint): colour + roughness + normal at 1k, with known physical tile size so `uvScaleMm` stays honest.
-- Web delivery as KTX2 via three's bundled `KTX2Loader` (Basis transcoder wasm in `public/`, no npm package). **Source PNGs are kept on the render side**, keyed by material id, so Cycles never consumes the viewport's compressed or procedural maps.
-- Wired to existing finish IDs in `CuratedPbrMaterial.tsx`; procedural generators stay as fallback for thumbnails and un-mapped finishes.
+- Eight CC0 Poly Haven 1k scans, colour + roughness + normal, tile size in millimetres: `red_oak_veneer` (oak, 1000), `black_walnut_veneer_02` (walnut, 1000), `hessian_230` (oatmeal fabric and the wool rug, 269), `polar_fleece` (olive fabric, 273), `marble_01` (stone floor, 1500), `beige_wall_001` (matte paint, 3000), `leather_white` (white laminate, 300), `grey_plaster` (grey laminate, 1000). White and grey laminate are new finish ids; the others stay on the existing living-room ids. Walnut is the dark veneer, not the pale `smoked_walnut_veneer` scan.
+- Web delivery is KTX2 via three's `KTX2Loader`. Colour and roughness are ETC1S; normals are UASTC with Zstandard. Fabric delivery is 512 px so every map is a multiple of four. The Basis transcoder lives in `public/basis/` (no npm package). Source PNGs are `render-sources/materials/<materialId>/{color,normal,roughness}.png` plus `source.json`, so Cycles never consumes the viewport's compressed maps. The old sine-wave PNGs are gone. Metal AO stays a PNG. A set stays inside the 0.3–1 MB budget.
+- Wired through `CuratedPbrMaterial` and the GLB slot loader. Procedural generators stay the fallback for thumbnails and any finish without a scan. Paint and stone colour maps sit near a linear mean of 0.64, and fabric and laminate near 0.82, so the wall and floor scans stop muddying the Phase 1 exposure without blowing the daylight cap. Every roughness map is lifted near a linear mean of 1. Wood colour maps sit near 0.32 so the style brown stays in the walnut under the cove light and a full-height panel stays inside the daylight exposure cap. The style colour and roughness multiply those maps. Normal relief is 2 on non-paint scans. Grey laminate's own colour is the plaster mean (`#8c8674`) so the detail map does not turn it white.
 - Finish identity law is the **StillJob material-id rule** (trust contract §3.1: exact slot → material id), not apartment-template D9, which is about generic roles versus brand SKUs.
 
 **Done when:** door, table and sofa in the 2 BHK still show grain / weave with no sine-wave stripes; landing-page weight unchanged (it only ships WebP stills).

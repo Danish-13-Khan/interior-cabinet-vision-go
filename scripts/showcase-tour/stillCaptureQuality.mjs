@@ -60,9 +60,19 @@ export async function armTourHeroWatch(page) {
 export async function waitForTourHero(page) {
   await page.waitForFunction((canvasSelector) => {
     const canvas = document.querySelector(canvasSelector);
-    return window.__stillPoseWatch?.moved === true && canvas?.dataset.frameSettled === "1";
-  }, CANVAS, { timeout: 30_000 });
+    return window.__stillPoseWatch?.moved === true
+      && canvas?.dataset.frameSettled === "1"
+      && canvas?.dataset.materialMaps !== "0";
+  }, CANVAS, { timeout: 60_000 });
   await page.evaluate(() => window.clearInterval(window.__stillPoseTimer));
+}
+
+/** Pose is settled and KTX2 maps are no longer in flight. An absent flag counts as ready. */
+export async function waitForSettledFrame(page, timeout = 60_000) {
+  await page.waitForFunction((canvasSelector) => {
+    const canvas = document.querySelector(canvasSelector);
+    return canvas?.dataset.frameSettled === "1" && canvas?.dataset.materialMaps !== "0";
+  }, CANVAS, { timeout });
 }
 
 /** @param {import("playwright").Page} page */

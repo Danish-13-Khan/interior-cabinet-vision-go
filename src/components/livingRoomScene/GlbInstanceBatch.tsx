@@ -1,4 +1,5 @@
 import { createContext, useContext, Suspense, useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
+import { useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Group, InstancedMesh, Mesh, type Material, type Object3D } from "three";
 import type { RenderQuality } from "../../domain/interiorProject";
@@ -10,6 +11,7 @@ import { computeGlbScaleFactors } from "../../domain/livingRoom/glbScale";
 import type { ModelAssetDefinition, RenderMode } from "../../domain/livingRoom/renderAssetContracts";
 import { readStoredAssetUrl, readStoredTextureUrls } from "../../platform/storedAssetUrls";
 import { applyGlbSlotMaterials } from "../../rendering/materials/applyGlbSlotMaterials";
+import { bindMaterialMapRenderer } from "../../rendering/materials/materialMapLoader";
 import { normalizeGlbFloorOrigin } from "../../rendering/loaders/normalizeGlbFloorOrigin";
 import { useModelAsset } from "../../rendering/loaders/useModelAsset";
 import { useModelViewPreviewQuality } from "../../rendering/ModelViewPreviewProfile";
@@ -33,6 +35,8 @@ function InstanceMeshes({
   renderQuality?: RenderQuality;
 }) {
   const gltf = useGLTF(readStoredAssetUrl(url));
+  const gl = useThree((state) => state.gl);
+  const invalidate = useThree((state) => state.invalidate);
   const host = useRef<Group>(null);
   const modelViewQuality = useModelViewPreviewQuality();
   const template = useMemo(() => {
@@ -51,6 +55,7 @@ function InstanceMeshes({
     const root = host.current;
     const members = membersRef.current;
     if (!root || members.length === 0) return;
+    bindMaterialMapRenderer(gl, invalidate);
     const binding = members[0]!.renderBinding;
     const measured = normalizeGlbFloorOrigin(template);
     enableGlbFrustumCulling(template);
@@ -95,7 +100,7 @@ function InstanceMeshes({
         mesh.dispose();
       }
     };
-  }, [definition, materials, memberKey, modelViewQuality, renderMode, renderQuality, template]);
+  }, [definition, gl, invalidate, materials, memberKey, modelViewQuality, renderMode, renderQuality, template]);
 
   return <group ref={host} />;
 }

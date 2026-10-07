@@ -20,6 +20,12 @@ export function textureRepeatFromUvScaleMm(uvScaleMm: number, axisMm = 1000) {
   };
 }
 
+/** Extra normal relief on a scanned surface. Paint stays at 1. */
+export function reliefForScannedMap(kind: string, hasNormalMap: boolean) {
+  if (!hasNormalMap || kind === "paint") return 1;
+  return 2;
+}
+
 export function anisotropyForRenderMode(
   mode: RenderMode,
   quality?: RenderQuality,

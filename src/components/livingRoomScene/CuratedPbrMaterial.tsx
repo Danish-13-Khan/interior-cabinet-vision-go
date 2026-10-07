@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useTexture } from "@react-three/drei";
+import { useLoader, useThree } from "@react-three/fiber";
 import {
   RepeatWrapping,
   SRGBColorSpace,
@@ -18,7 +18,8 @@ import {
   resolveCuratedBumpMap,
   resolveCuratedMapAnisotropy,
 } from "../../rendering/materials/curatedMapQuality";
-import { textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
+import { reliefForScannedMap, textureRepeatFromUvScaleMm } from "../../rendering/materials/materialScale";
+import { MaterialMapLoader } from "../../rendering/materials/materialMapLoader";
 import { grainRotationDeg } from "../../rendering/materials/grainRotation";
 import type { MaterialTextureUrls } from "../../rendering/materials/resolveMaterialTextureUrls";
 
@@ -62,13 +63,21 @@ export function CuratedPbrMaterial({
   urls: MaterialTextureUrls;
 }) {
   const modelViewQuality = useModelViewPreviewQuality();
+  const gl = useThree((state) => state.gl);
+  const invalidate = useThree((state) => state.invalidate);
   const modeQuality = modelViewQuality
     ? resolveModelViewMaterialQuality(modelViewQuality)
     : undefined;
   const pbr = usePbrMaterial(material, renderMode, primitiveId, renderQuality);
   const entries = (Object.entries(urls) as Array<[Slot, string | undefined]>)
     .filter((entry): entry is [Slot, string] => Boolean(entry[1]));
-  const loaded = useTexture(entries.map(([, url]) => url));
+  const loaded = useLoader(
+    MaterialMapLoader,
+    entries.map(([, url]) => url),
+    (loader) => {
+      loader.setRenderer(gl, invalidate);
+    },
+  );
   const list = Array.isArray(loaded) ? loaded : [loaded];
   const shared = Object.fromEntries(
     entries.map(([key], index) => [key, list[index]]),
@@ -125,6 +134,7 @@ export function CuratedPbrMaterial({
       color={pbr.color}
       map={textures.map ?? pbr.maps.map}
       normalMap={textures.normalMap}
+      normalScale={[reliefForScannedMap(material.kind, Boolean(textures.normalMap)), reliefForScannedMap(material.kind, Boolean(textures.normalMap))]}
       roughnessMap={textures.roughnessMap}
       aoMap={textures.aoMap}
       bumpMap={resolveCuratedBumpMap(textures.normalMap, pbr.maps.bumpMap)}

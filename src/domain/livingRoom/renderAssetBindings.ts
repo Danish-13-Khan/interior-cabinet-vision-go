@@ -13,6 +13,9 @@ import type { CompiledSceneNode } from "./sceneTypes";
 import { resolveMaterialAssetId } from "./catalogMaterialRegistry";
 import { createImportedObjectRenderBinding } from "./importedAssetBinding";
 import { createKenneyCatalogRenderBinding } from "./kenneyCatalogBinding";
+import { defaultUvScaleMmForMaterial } from "./materialUvScale";
+
+export { defaultUvScaleMmForMaterial } from "./materialUvScale";
 
 /** Soft-goods catalog items intended for future GLB-backed presentation. */
 export const GLB_INTENT_CATALOG_IDS = [
@@ -49,19 +52,6 @@ const GLB_MODEL_BY_CATALOG: Record<GlbIntentCatalogId, string> = {
 
 const DEFAULT_UV_SCALE_MM = 1000;
 
-const MATERIAL_UV_SCALE_MM: Record<string, number> = {
-  [LIVING_ROOM_MATERIAL_IDS.wallPaint]: 2400,
-  [LIVING_ROOM_MATERIAL_IDS.ceilingPaint]: 3200,
-  [LIVING_ROOM_MATERIAL_IDS.naturalOak]: 900,
-  [LIVING_ROOM_MATERIAL_IDS.walnut]: 900,
-  [LIVING_ROOM_MATERIAL_IDS.oatmealFabric]: 450,
-  [LIVING_ROOM_MATERIAL_IDS.oliveFabric]: 450,
-  [LIVING_ROOM_MATERIAL_IDS.charcoalMetal]: 600,
-  [LIVING_ROOM_MATERIAL_IDS.clearGlass]: 1200,
-  [LIVING_ROOM_MATERIAL_IDS.woolRug]: 1600,
-  [LIVING_ROOM_MATERIAL_IDS.warmStone]: 1800,
-};
-
 function isGlbIntentCatalogId(id: string): id is GlbIntentCatalogId {
   return id in GLB_MODEL_BY_CATALOG;
 }
@@ -71,10 +61,6 @@ export function materialAssetIdForEntity(
   material?: Pick<MaterialEntity, "extensions"> | null,
 ) {
   return resolveMaterialAssetId(materialId, material);
-}
-
-export function defaultUvScaleMmForMaterial(materialId: string) {
-  return MATERIAL_UV_SCALE_MM[materialId] ?? DEFAULT_UV_SCALE_MM;
 }
 
 export function createObjectRenderBinding(
