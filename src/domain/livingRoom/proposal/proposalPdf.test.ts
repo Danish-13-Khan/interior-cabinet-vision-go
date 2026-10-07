@@ -34,6 +34,7 @@ describe("proposal PDF", () => {
       expectedPageCount: proposalPageCount(proposal.rooms.length),
       expectedViewImages: frames.length,
       expectedRoomPages: proposal.rooms.length,
+      expectGoldenStills: true,
     });
     expect(pages.missing).toEqual([]);
     expect(pages.pageCount).toBe(GOLDEN_PROPOSAL_PAGE_COUNT);
@@ -69,6 +70,7 @@ describe("proposal PDF", () => {
       expectedPageCount: proposalPageCount(proposal.rooms.length),
       expectedViewImages: frames.length,
       expectedRoomPages: proposal.rooms.length,
+      expectGoldenStills: true,
     });
     expect(pages.missing).toEqual([]);
     expect(pages.ok).toBe(true);
@@ -85,9 +87,11 @@ describe("proposal PDF", () => {
     const proposal = buildProposalDocument(project, { now: NOW });
     const pages = await verifyProposalPdfPages(await exportProposalPdf(proposal), proposal, {
       expectedViewImages: 1,
+      expectGoldenStills: true,
     });
     expect(pages.ok).toBe(false);
-    expect(pages.missing.some((item) => item.includes("view-image"))).toBe(true);
+    expect(pages.missing).toContain("missing-view-image:0<1");
+    expect(pages.missing).toContain("blank-view-image");
   });
 
   it("labels draft and stale proposals and keeps itemized prices client-facing", async () => {

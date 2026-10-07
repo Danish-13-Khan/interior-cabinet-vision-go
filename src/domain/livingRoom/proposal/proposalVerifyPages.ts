@@ -16,6 +16,8 @@ export type ProposalPageVerifyOptions = {
   expectedViewImages?: number;
   /** Pages 2..n+1 must each paint a still; with any still expected, so must the cover. */
   expectedRoomPages?: number;
+  /** The stills are the golden solid-red PNG: a page must show that red, or the image painted blank. */
+  expectGoldenStills?: boolean;
 };
 
 export type RasterLayoutPage = {
@@ -74,13 +76,17 @@ export function collectImagePaintGaps(rasters: RasterizedPdfPage[], expected: nu
   return paints < expected ? [`missing-view-image:${paints}<${expected}`] : [];
 }
 
-function collectViewImageGaps(rasters: RasterizedPdfPage[], expected: number) {
+function collectViewImageGaps(rasters: RasterizedPdfPage[], expected: number, golden: boolean) {
   const missing = collectImagePaintGaps(rasters, expected);
-  // The clipping check reads the golden stills, which are solid red. Real stills are not,
-  // and the finish board's swatches are vector fills: only a page that paints a red image counts.
+  // The red-ink checks read the golden stills, which are solid red. Real stills are not,
+  // and the finish board's swatches are vector fills: only a page that paints a red image counts,
+  // and its absence is a blank image only when the stills are known to be golden.
   const host = rasters.find((page) => page.viewInk && page.imagePaintCount > 0);
   const ink = host?.viewInk;
-  if (!host || !ink) return missing;
+  if (!host || !ink) {
+    if (golden) missing.push("blank-view-image");
+    return missing;
+  }
   if (host && viewInkLooksClipped(ink, host.width, host.height)) {
     missing.push("clipped-view-image");
   }
@@ -113,7 +119,7 @@ export async function verifyProposalPdfPages(
   if (approvalBlockSplit(rasters)) missing.push("split-approval-block");
   if (proposal.views.length && !rasters.length) missing.push("no-raster-pages");
   if ((options.expectedViewImages ?? 0) > 0) {
-    missing.push(...collectViewImageGaps(rasters, options.expectedViewImages ?? 0));
+    missing.push(...collectViewImageGaps(rasters, options.expectedViewImages ?? 0, Boolean(options.expectGoldenStills)));
     if (options.expectedRoomPages != null && (cover?.imagePaintCount ?? 0) < 1) {
       missing.push("missing-cover-still");
     }
