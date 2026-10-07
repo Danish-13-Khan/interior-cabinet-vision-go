@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CABINET_PLANNING_EXTENSION } from "../../cabinetIdentity";
-import type { InteriorProject } from "../../interiorProject";
+import type { InteriorProject, MaterialEntity } from "../../interiorProject";
 import { createGoldenCabinetSceneProject } from "../goldenCabinetScene";
 import { adaptHandoffProject, buildHandoffGate, diagnoseHandoffLoss } from ".";
 import { compareAdaptedCabinet } from "./handoffConfigCompare";
@@ -15,8 +15,16 @@ function patchGoldenSource(
 ): InteriorProject {
   const target = document.objects.find((object) => object.kind === "cabinet");
   if (!target) throw new Error("Expected a golden cabinet.");
+  // Validation drops a slot whose material is unknown, so the authored finishes must exist.
+  const authoredMaterials: MaterialEntity[] = Object.values(patch.materialSlots ?? {}).map((id) => ({
+    id, name: id, kind: "wood", color: "#a67c52", roughness: 0.6, metalness: 0, opacity: 1,
+  }));
   return {
     ...document,
+    materials: [
+      ...document.materials,
+      ...authoredMaterials.filter((material) => !document.materials.some((item) => item.id === material.id)),
+    ],
     objects: document.objects.map((object) => {
       if (object.id !== target.id) return object;
       const planning = object.extensions?.[CABINET_PLANNING_EXTENSION];
