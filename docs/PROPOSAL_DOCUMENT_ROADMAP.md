@@ -1,6 +1,6 @@
 # Proposal document roadmap (client PDF and its views)
 
-**Status:** Phase 0 done 2026-10-07 (content bugs in the current PDF). Phases 1–3 proposed; pick one before any `src/` edit.
+**Status:** Phase 0 done 2026-10-07 (content bugs in the current PDF). Revised 2026-10-07 after review (view rule, camera rule, estimates). Phases 1–3 proposed; pick one before any `src/` edit.
 **Goal:** The proposal a customer receives looks like it came from a studio: a cover with the hero photo, one page per room with the view and what is in it, a finish board, a clear price, terms and signatures. Every view in it shows the joinery the customer is paying for.
 **Scope:** `domain/livingRoom/proposal/*` (document model, jsPDF layout, verification), the proposal view selection, and the showcase camera authoring in `domain/apartmentTemplates/specs/*`.
 **Relationship to other docs:** Views come from the apartment showcase cameras in
@@ -24,21 +24,29 @@ Read from the exported PDF and the code that wrote it (`proposalPdf.ts`, `propos
 | "Smoked Walnut — Back" twice, roles in lower case | slot keys differ by case | Fixed (Phase 0) |
 | "Named client views" repeats the 12 captions | redundant section | Shown only when a view has no still (Phase 0) |
 | 12 views; Foyer shows a door, Utility a door leaf, Balcony the floor, Passage a corridor, Kids a wardrobe edge, Master two doors, both baths a tile wall | cameras are hand-authored eye/target points per room; the proposal selects every bookmark by default | Open: Phase 1 |
+| 12 views printed, but the template authors 14 cameras (7 in `threeBhkRoomsA.ts`, 7 in `threeBhkRoomsB.ts`) and an empty selection means "all" | unknown: an explicit selection in that project, or two views without a still | Open: Phase 1 step 0 |
 | No cover, no company identity, no per-room story or per-room price, one long flow | the layout is the Phase B "readable branded PDF" minimum | Open: Phase 2 |
 | Validity and quote id in cards, approval block at the end | fine, keep | — |
 
-**Camera authoring today.** Each `ApartmentRoomSpec.camera` is `{ eyeMm, targetMm }` typed by hand (`specs/threeBhkRoomsA.ts`, `threeBhkRoomsB.ts`, …). Eye height 1600, target 1100, no reference to where the composer put the joinery. The rooms that read well (Living, Kitchen) are the ones whose joinery happens to sit where the author looked. `applyShowcaseCameras` turns each into a `CameraEntity` and a package bookmark; `listProposalNamedViews` selects all bookmarks when the surface has no explicit selection.
+**Camera authoring today.** Each `ApartmentRoomSpec.camera` is `{ eyeMm, targetMm }` typed by hand. Thirteen rooms use eye 1600 / target 1100 with no reference to where the composer put the joinery. Living is the exception: a raised three-quarter shot (eye 2450, target 800) that is also the tour's opening shot and the card still. `applyShowcaseCameras` turns each into a `CameraEntity` and a package bookmark.
 
-**Verification today.** `proposalPdf.test.ts` rasterises the golden proposal with `pdfjs-dist`, checks A4, no clipping, legible fonts, that the red golden stills paint and are not clipped, and `GOLDEN_PROPOSAL_PAGE_COUNT = 2`. Phase 0 kept the still's longest edge at 70 mm so that page count holds.
+**What counts as joinery today.** Only cut-list cabinets (`seedCabinet` / `placeCabinetOnWall` / `placeWallWardrobe`) reach `quote.cabinetLines` and the proposal's cabinet list. In the 3 BHK that is Foyer (shoe cabinet), Kitchen, Utility (tall unit), Guest, Kids and Master (wardrobes). The bath vanity (`bathroom-sink-1`), the Study desk and shelf, and the Living TV unit, niche and feature wall are catalog objects: shown, not priced. So a rule that reads "has a production cabinet" drops Study, all three baths, and the Living hero room.
+
+**Selection default today.** "Empty selection means every bookmark" is coded three times: `listProposalNamedViews`, `toggleProposalView` (starts from `availableIds`) in `proposalViews.ts`, and `selectedCameraIds` in `quoteFingerprint.ts`. Changing one without the others re-selects dropped views on the first untick in Present, or makes the fingerprint disagree with the printed views.
+
+**Framing helper today.** `cabinetRunFrame.ts` already fits a camera to the cabinet bounding box (`cabinetSceneBoundsMm`, `aabbFitDistanceMm`, fill 0.7, client elevation 22°, cutaway sides) and `cameraScreenBounds.ts` projects a box into the frame. It works on a whole scene, not one room, and assumes walls on the camera side can be cut away, which a photo still cannot do.
+
+**Verification today.** `proposalPdf.test.ts` rasterises the golden proposal with `pdfjs-dist`, checks A4, no clipping, legible fonts, and `GOLDEN_PROPOSAL_PAGE_COUNT = 2`. `collectViewImageGaps` checks only the first page that carries a still; "missing-header-band" requires ink in the top 90 mm of page 1, which a full-bleed cover satisfies.
 
 ## 2. Decisions
 
-- **D1 Views default to joinery rooms.** A proposal view is a room with at least one production cabinet or wardrobe. Passage, balcony, walk-in without joinery and baths without vanities are not selected by default. The user can still tick them in Present. Order: hero room first, then by cabinet count.
-- **D2 Frame on the joinery, not on a wall.** A camera is derived per room from the composed joinery: target at the centre of the joinery bounding box at 1100 mm; eye on the far side of the room's free area, 1500 mm high, far enough that the whole run fits a 44° field with 10 % margin, clamped 500 mm inside the room. Authored `camera` in the spec stays as an override. A test projects the joinery corners and asserts they land inside the frame.
-- **D3 One document, four kinds of page.** Cover (hero still full width, customer, project, date, revision, validity); one page per view (still at its own aspect, that room's cabinets with marks, finishes used there, room subtotal when itemized); finish board (one swatch per finish, drawn from the material colour, name and where it is used); price page (summary lines, tax, total, inclusions, exclusions, approval). A4 portrait stays.
-- **D4 Photo first.** When an accepted Cycles still exists for a view it is used; otherwise the WebGL capture. The caption says which.
-- **D5 Identity from settings.** Brand name, contact line and an optional logo come from quote settings, not a constant.
-- **D6 Real glyphs.** Embed one Unicode sans (Inter or Noto Sans, regular and semibold) so ₹ and dashes print; `pdfSafeText` stays as the fallback for unembedded text.
+- **D1 Views default to the hero room plus cut-list rooms.** When a template is applied, `applyShowcaseCameras` writes an explicit `selectedViewCameraIds`: the hero room first, then every room with at least one cut-list cabinet, by cabinet count. The meaning of an empty selection ("all bookmarks") does not change, so released and hand-authored projects keep their views. The three empty-selection sites collapse into one helper, `proposalViewSelection(document)`, so Present, the fingerprint and the PDF agree. For the 3 BHK this is 7 views: Living, Kitchen, Master, Guest, Kids, Foyer, Utility. Study, the three baths, Passage, Balcony and Walk-in stay available to tick in Present.
+- **D2 Frame on the joinery, not on a wall.** For a room whose spec has no `camera`, derive one from that room's cut-list cabinets with the fit in `cabinetRunFrame.ts` restricted to the room's nodes: target at the centre of the cabinet bounding box, eye on the far side of the room's free floor at 1500 mm, no cutaway. Field of view is vertical, as in Three.js and every `fieldOfViewDegrees` in the repo: 42° (about 67° wide at 16:9), with a 10 % margin. The bounding box is cut-list cabinets only; catalog objects do not pull the frame. When the fit distance would put the eye closer than 500 mm to a wall, in this order: widen the vertical field to at most 60°; then move the eye to the free-floor corner farthest from the box; then keep that frame and mark the view `partial`. Rooms without cut-list cabinets and no authored camera keep today's eye 1600 / target 1100 at the room centre.
+- **D2a Authored cameras are overrides.** Living keeps its authored three-quarter shot (hero, tour opening, card still). Every other hand-typed 3 BHK camera is removed so the rule applies. The same holds for the Studio, 1 BHK and 2 BHK specs: the hero keeps its camera, the rest go.
+- **D3 One document, four kinds of page.** Cover (hero still full width, customer, project, date, revision, validity); one page per view (still at its own aspect, that room's cabinets with marks, finishes used there, room subtotal when itemized); finish board (one swatch per finish, drawn from the material colour, name and where it is used); price page (summary lines, tax, total, inclusions, exclusions, approval). Project-wide lines (installation, transport, tax) appear on the price page only and are never spread across rooms. A4 portrait stays.
+- **D4 Photo first.** When an accepted Cycles still exists for a view it is used; otherwise the WebGL capture. Which one was used is recorded in the release record and shown in Present, not printed.
+- **D5 Identity from settings.** Brand name, contact line and an optional logo come from quote settings. The logo is a data URL stored in quote settings (project-local, no build asset), capped at 200 KB, PNG or SVG. This fixes the shape of `brand` in the document model before Phase 2.
+- **D6 Real glyphs.** Embed one Unicode sans (Noto Sans regular and semibold) so ₹ and dashes print; `pdfSafeText` stays as the fallback. The font is a subset (Latin, ₹, dashes, quotes) produced by a script into `public/fonts/*.b64` and fetched lazily at export; tests read the same file from disk. No base64 TypeScript module, which would break the 200-line file ceiling.
 
 ## 3. Phases
 
@@ -46,29 +54,29 @@ Read from the exported PDF and the code that wrote it (`proposalPdf.ts`, `propos
 
 Aspect-correct stills, `Rs` for ₹, single Total, room-grouped finish lines, deduplicated finishes, views list only when a still is missing, identity line without an empty project number. Verified by regenerating the 3 BHK proposal with real stills through `exportProposalPdf` and rasterising it.
 
-### Phase 1 — Views that show the joinery (~1 day)
+### Phase 1 — Views that show the joinery (~1.5 days)
 
-- `proposalViews.ts`: default selection = joinery rooms (D1), with the existing explicit selection untouched.
-- `apartmentTemplates/frameJoineryCamera.ts`: derive `{ eyeMm, targetMm }` from the room's joinery bounds (D2); `applyShowcaseCameras` uses it when the spec has no `camera`. Remove the hand-typed cameras for the rooms in the evidence table; keep Living and Kitchen where they read well, or let the rule replace them if the test shows the rule frames better.
-- Test: for every template and every selected view, project the joinery bounding box with the camera and assert all corners fall inside 90 % of the frame.
-- Re-record card stills and hover clips for the rooms whose cameras changed (`TEMPLATE_CARD_MEDIA_ROADMAP.md` gates).
+0. Regenerate the 3 BHK proposal and explain 12 views against 14 cameras before changing the default.
+1. `proposalViewSelection.ts`: the one empty-selection helper; `listProposalNamedViews`, `toggleProposalView` and `quoteFingerprint.ts` call it. `applyShowcaseCameras` writes the explicit selection (D1).
+2. `apartmentTemplates/frameJoineryCamera.ts`: per-room fit built on `cabinetRunFrame.ts` with the fallback ladder (D2); `applyShowcaseCameras` uses it when the spec has no `camera`. Remove the non-hero hand-typed cameras (D2a).
+3. Test: for every template and every default view with cut-list cabinets, project the cabinet bounding box with the camera and assert all corners fall inside 90 % of the frame. Views marked `partial` are listed in the test as an allowlist so a new one fails the build. Kitchen (L-shaped) and Utility are the likely entries.
+4. Re-record hover clips for rooms whose cameras changed (`TEMPLATE_CARD_MEDIA_ROADMAP.md` gates). The card still is the hero and does not change.
 
-**Done when:** the 3 BHK proposal defaults to 7 views (Foyer, Living, Kitchen, Utility, Study, Guest, Kids, Master minus any without joinery) and each still shows its cabinets.
+**Done when:** the 3 BHK proposal defaults to the 7 views in D1, each still shows its cabinets, unticking one view in Present drops only that view, and the quote fingerprint matches the printed views.
 
-### Phase 2 — The document (~2 days)
+### Phase 2 — The document (~2.5 days)
 
 - `proposalDocument.ts`: add `rooms[]` (view, cabinets, finishes, subtotal) and `brand` from settings (D5); keep the flat lists for the frozen payload.
-- `proposalPdfCover.ts`, `proposalPdfRoom.ts`, `proposalPdfFinishBoard.ts`, `proposalPdfPricing.ts` (D3). Embed the font (D6) through `jsPDF.addFileToVFS`/`addFont` from a base64 module.
-- Verification: `GOLDEN_PROPOSAL_PAGE_COUNT` becomes a function of view count; the raster checks gain "cover has a still" and "every room page has a still".
+- `proposalPdfCover.ts`, `proposalPdfRoom.ts`, `proposalPdfFinishBoard.ts`, `proposalPdfPricing.ts` (D3). Font subset script plus lazy load through `jsPDF.addFileToVFS`/`addFont` (D6).
+- Verification: `GOLDEN_PROPOSAL_PAGE_COUNT` becomes a function of view count; `collectViewImageGaps` gains a per-page pass so "every room page has a still" is checked on each page, not only the first; "cover has a still" is added. The "missing-header-band" rule (ink in the top 90 mm of page 1) stays as is and is satisfied by the full-bleed cover; do not loosen it.
 
 **Done when:** the golden proposal and the 3 BHK proposal both pass the raster checks, and the 3 BHK PDF reads cover → rooms → finishes → price → approval with ₹ printed.
 
-### Phase 3 — Preview before export (~0.5 day)
+### Phase 3 — Preview before export (~1 day)
 
-Present shows the rendered pages (reuse `proposalPdfRaster`) before "Create Proposal" commits the release, so a bad frame is caught in the app, not in the customer's inbox.
+Present shows the rendered pages before "Create Proposal" commits the release, so a bad frame is caught in the app, not in the customer's inbox. `proposalPdfRaster.ts` is Node-only (it resolves the pdf.js worker with `createRequire`), so this phase splits it into a worker-agnostic core and two worker setups: the existing Node one for tests, and the browser `?url` worker that `planUnderlayPdf.ts` already configures.
 
 ## 4. Open questions
 
-1. Logo: file upload in settings (data URL in the project) or a brand asset bundled with the build?
-2. Per-room subtotals when `priceDetail` is "included": show nothing, or "Included" per room as now?
-3. Should the tour clips follow the new cameras automatically, or stay on the hand-authored path for the hero room?
+1. Per-room subtotals when `priceDetail` is "included": show nothing, or "Included" per room as now?
+2. Should the Study become a proposal view by giving it a cut-list desk or shelf, or stay a catalog-only room that the user ticks by hand?
