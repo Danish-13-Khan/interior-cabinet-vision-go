@@ -37,7 +37,11 @@
     "catalog:thumbnail": "node scripts/catalog/generate-living-room-thumbnail.mjs && node scripts/catalog/generate-empty-room-thumbnail.mjs && node scripts/catalog/generate-straight-kitchen-thumbnail.mjs && node scripts/catalog/generate-l-kitchen-thumbnail.mjs && node scripts/catalog/generate-bedroom-thumbnail.mjs && node scripts/catalog/generate-bathroom-thumbnail.mjs",
     "tauri": "tauri",
     "release:check": "npm run catalog:verify && npm test && npm run build && npm run test:e2e && cargo test --manifest-path src-tauri/Cargo.toml",
-    "release:mac": "npm run tauri build -- --bundles app,dmg"
+    "release:mac": "npm run tauri build -- --bundles app,dmg",
+    "cycles:bundle": "vite-node scripts/cycles/export-bundle.ts --",
+    "cycles:render": "node scripts/cycles/render-still.mjs",
+    "cycles:check": "node scripts/cycles/render-still.mjs --check && node scripts/cycles/check-bundle-math.mjs",
+    "cycles:means": "node scripts/cycles/scan-means.mjs"
   },
   "dependencies": {
     "@gltf-transform/core": "^4.5.1",
