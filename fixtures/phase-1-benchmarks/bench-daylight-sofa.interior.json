@@ -796,7 +796,7 @@
         "id": "lr-material-natural-oak",
         "name": "Natural Oak",
         "kind": "wood",
-        "color": "#b99a7c",
+        "color": "#c89b6c",
         "roughness": 0.7,
         "metalness": 0,
         "opacity": 1,
@@ -903,6 +903,32 @@
         "kind": "stone",
         "color": "#d8d1c5",
         "roughness": 0.48,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "nordic-light",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-laminate-white",
+        "name": "White Laminate",
+        "kind": "laminate",
+        "color": "#ffffff",
+        "roughness": 0.55,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "nordic-light",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-laminate-grey",
+        "name": "Grey Laminate",
+        "kind": "laminate",
+        "color": "#8c8674",
+        "roughness": 0.7,
         "metalness": 0,
         "opacity": 1,
         "extensions": {
@@ -1307,7 +1333,7 @@
       "widthPx": 1920,
       "heightPx": 1080,
       "quality": "client-preview",
-      "exposure": 1.18,
+      "exposure": 1.42,
       "transparentBackground": false,
       "activeCameraId": "lr-camera-bench-daylight-sofa-camera-a",
       "lightingRecipeId": "daylight",
@@ -1323,8 +1349,8 @@
         "id": "nordic-light",
         "version": 1,
         "environment": {
-          "backgroundColor": "#c3ced8",
-          "fogColor": "#c3ced8",
+          "backgroundColor": "#cccccc",
+          "fogColor": "#cccccc",
           "fogNearMm": 11000,
           "fogFarMm": 25000,
           "hemisphereSkyColor": "#f1f7ff",
@@ -1336,9 +1362,9 @@
           "contactShadowBlur": 3.2
         },
         "colorManagement": {
-          "toneMapping": "aces-filmic",
+          "toneMapping": "agx",
           "outputColorSpace": "srgb",
-          "exposure": 1.18,
+          "exposure": 1.42,
           "shadowMap": "pcf"
         }
       },

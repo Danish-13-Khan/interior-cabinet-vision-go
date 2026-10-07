@@ -909,6 +909,32 @@
           "stylePresetId": "warm-contemporary",
           "stylePresetVersion": 1
         }
+      },
+      {
+        "id": "lr-material-laminate-white",
+        "name": "White Laminate",
+        "kind": "laminate",
+        "color": "#ffffff",
+        "roughness": 0.55,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "warm-contemporary",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-laminate-grey",
+        "name": "Grey Laminate",
+        "kind": "laminate",
+        "color": "#8c8674",
+        "roughness": 0.7,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "warm-contemporary",
+          "stylePresetVersion": 1
+        }
       }
     ],
     "lights": [
@@ -1307,7 +1333,7 @@
       "widthPx": 1920,
       "heightPx": 1080,
       "quality": "client-preview",
-      "exposure": 1.05,
+      "exposure": 1.42,
       "transparentBackground": false,
       "activeCameraId": "lr-camera-bench-millwork-media-camera-a",
       "lightingRecipeId": "neutral-studio",
@@ -1323,8 +1349,8 @@
         "id": "warm-contemporary",
         "version": 1,
         "environment": {
-          "backgroundColor": "#7f93a8",
-          "fogColor": "#7f93a8",
+          "backgroundColor": "#8f8f8f",
+          "fogColor": "#8f8f8f",
           "fogNearMm": 10500,
           "fogFarMm": 23000,
           "hemisphereSkyColor": "#eaf2fb",
@@ -1336,9 +1362,9 @@
           "contactShadowBlur": 2.8
         },
         "colorManagement": {
-          "toneMapping": "aces-filmic",
+          "toneMapping": "agx",
           "outputColorSpace": "srgb",
-          "exposure": 1.05,
+          "exposure": 1.42,
           "shadowMap": "pcf"
         }
       },

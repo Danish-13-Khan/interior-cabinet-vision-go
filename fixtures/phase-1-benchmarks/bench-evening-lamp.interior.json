@@ -810,7 +810,7 @@
         "id": "lr-material-walnut",
         "name": "Smoked Walnut",
         "kind": "wood",
-        "color": "#3d2d26",
+        "color": "#6a5342",
         "roughness": 0.56,
         "metalness": 0,
         "opacity": 1,
@@ -903,6 +903,32 @@
         "kind": "stone",
         "color": "#d8d1c5",
         "roughness": 0.48,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-laminate-white",
+        "name": "White Laminate",
+        "kind": "laminate",
+        "color": "#ffffff",
+        "roughness": 0.55,
+        "metalness": 0,
+        "opacity": 1,
+        "extensions": {
+          "stylePresetId": "moody-walnut",
+          "stylePresetVersion": 1
+        }
+      },
+      {
+        "id": "lr-material-laminate-grey",
+        "name": "Grey Laminate",
+        "kind": "laminate",
+        "color": "#8c8674",
+        "roughness": 0.7,
         "metalness": 0,
         "opacity": 1,
         "extensions": {
@@ -1307,7 +1333,7 @@
       "widthPx": 1920,
       "heightPx": 1080,
       "quality": "client-preview",
-      "exposure": 0.92,
+      "exposure": 1.05,
       "transparentBackground": false,
       "activeCameraId": "lr-camera-bench-evening-lamp-camera-a",
       "lightingRecipeId": "warm-evening",
@@ -1323,8 +1349,8 @@
         "id": "moody-walnut",
         "version": 1,
         "environment": {
-          "backgroundColor": "#54575a",
-          "fogColor": "#54575a",
+          "backgroundColor": "#6a6a6a",
+          "fogColor": "#6a6a6a",
           "fogNearMm": 9000,
           "fogFarMm": 19000,
           "hemisphereSkyColor": "#9aa6b0",
@@ -1336,9 +1362,9 @@
           "contactShadowBlur": 2.3
         },
         "colorManagement": {
-          "toneMapping": "aces-filmic",
+          "toneMapping": "agx",
           "outputColorSpace": "srgb",
-          "exposure": 0.92,
+          "exposure": 1.05,
           "shadowMap": "pcf"
         }
       },
