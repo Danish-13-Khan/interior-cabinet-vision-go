@@ -195,4 +195,4 @@
   }
 }
 
-.interiors-present-photo-error { margin:6px 0; color:#9a3412; font-size:var(--text-xs); line-height:1.4; }
+.interiors-present-photo-error { margin:6px 0; color:var(--danger); font-size:var(--text-xs); line-height:1.4; }
