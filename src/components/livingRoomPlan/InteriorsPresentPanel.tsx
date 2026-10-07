@@ -7,6 +7,7 @@ import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import { InspectorProposalGateChecks } from "./InspectorProposalGateChecks";
 import { InteriorsPresentActions, type InteriorsPresentPhoto } from "./InteriorsPresentActions";
+import { InteriorsPresentBrand } from "./InteriorsPresentBrand";
 import { InteriorsPresentCommercial } from "./InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "./InteriorsPresentQuote";
 import { InteriorsProposalIdentity } from "./InteriorsProposalIdentity";
@@ -75,6 +76,7 @@ export function InteriorsPresentPanel({
           <InteriorsProposalIdentity job={live.quote.job} onJob={proposal.patchJob} />
           <InteriorsPresentQuote proposal={proposal} />
           <InteriorsPresentCommercial quote={live.quote.settings} onQuote={proposal.patchQuote} />
+          <InteriorsPresentBrand quote={live.quote.settings} onQuote={proposal.patchQuote} />
           <InspectorProposalGateChecks
             items={proposal.gate.items}
             blockingCount={proposal.gate.blockingCount}

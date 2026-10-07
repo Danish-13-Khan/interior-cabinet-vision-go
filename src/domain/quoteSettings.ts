@@ -15,7 +15,26 @@ export type QuoteSettings = {
   currencyLabel: string;
   taxLabel: string;
   priceDetail: QuotePriceDetail;
+  /** Studio identity printed on the proposal (roadmap D5). */
+  brandName: string;
+  brandContact: string;
+  /** PNG or JPEG data URL under BRAND_LOGO_MAX_BYTES, else empty. */
+  brandLogoDataUrl: string;
 };
+
+export const BRAND_LOGO_MAX_BYTES = 200_000;
+const BRAND_LOGO_PATTERN = /^data:image\/(png|jpeg);base64,([A-Za-z0-9+/]+=*)$/;
+
+/** jsPDF embeds raster logos only, so SVG and oversized uploads are dropped, not stored. */
+export function clampBrandLogo(value: unknown): string {
+  const text = String(value ?? "").trim();
+  const match = BRAND_LOGO_PATTERN.exec(text);
+  if (!match) return "";
+  const payload = match[2] ?? "";
+  const padding = payload.endsWith("==") ? 2 : payload.endsWith("=") ? 1 : 0;
+  const bytes = Math.floor((payload.length * 3) / 4) - padding;
+  return bytes > 0 && bytes <= BRAND_LOGO_MAX_BYTES ? text : "";
+}
 
 export const DEFAULT_QUOTE_SETTINGS: QuoteSettings = {
   markupPercent: 18,
@@ -29,6 +48,9 @@ export const DEFAULT_QUOTE_SETTINGS: QuoteSettings = {
   currencyLabel: "INR",
   taxLabel: "GST",
   priceDetail: "summary",
+  brandName: "Cabinet Studio",
+  brandContact: "",
+  brandLogoDataUrl: "",
 };
 
 export function clampQuoteSettings(
@@ -54,6 +76,10 @@ export function clampQuoteSettings(
     currencyLabel: String(seed.currencyLabel ?? "INR").trim().slice(0, 12) || "INR",
     taxLabel: String(seed.taxLabel ?? DEFAULT_QUOTE_SETTINGS.taxLabel).trim().slice(0, 16) || "GST",
     priceDetail: seed.priceDetail === "itemized" ? "itemized" : "summary",
+    brandName: String(seed.brandName ?? DEFAULT_QUOTE_SETTINGS.brandName).trim().slice(0, 60)
+      || DEFAULT_QUOTE_SETTINGS.brandName,
+    brandContact: String(seed.brandContact ?? "").trim().slice(0, 120),
+    brandLogoDataUrl: clampBrandLogo(seed.brandLogoDataUrl),
   };
 }
 

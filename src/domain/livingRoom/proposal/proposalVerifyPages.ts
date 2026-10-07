@@ -3,12 +3,19 @@ import { isA4MediaBox, rasterizePdfPages, type RasterizedPdfPage } from "./propo
 import { pageHasInk, viewInkLooksClipped } from "./proposalPdfViewInk";
 import type { ProposalDocument } from "./types";
 
-export const GOLDEN_PROPOSAL_PAGE_COUNT = 2;
+/** Cover, one page per printed view, the finish board, the price page (roadmap D3). */
+export function proposalPageCount(roomPages: number) {
+  return roomPages + 3;
+}
+/** The golden proposals print one view. */
+export const GOLDEN_PROPOSAL_PAGE_COUNT = proposalPageCount(1);
 export const MIN_LEGIBLE_FONT_PT = 7;
 
 export type ProposalPageVerifyOptions = {
   expectedPageCount?: number;
   expectedViewImages?: number;
+  /** Pages 2..n+1 must each paint a still; with any still expected, so must the cover. */
+  expectedRoomPages?: number;
 };
 
 export type RasterLayoutPage = {
@@ -108,6 +115,12 @@ export async function verifyProposalPdfPages(
   if (proposal.views.length && !rasters.length) missing.push("no-raster-pages");
   if ((options.expectedViewImages ?? 0) > 0) {
     missing.push(...collectViewImageGaps(rasters, options.expectedViewImages ?? 0));
+    if (options.expectedRoomPages != null && (cover?.imagePaintCount ?? 0) < 1) {
+      missing.push("missing-cover-still");
+    }
+  }
+  for (let index = 1; index <= (options.expectedRoomPages ?? 0); index += 1) {
+    if ((rasters[index]?.imagePaintCount ?? 0) < 1) missing.push(`missing-room-still:${index + 1}`);
   }
   return { ok: missing.length === 0, missing, pageCount, pages: layout.pages };
 }

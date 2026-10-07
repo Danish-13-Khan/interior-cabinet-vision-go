@@ -43,3 +43,18 @@
   }
   .lr-plan-shell.lr-product-shell-v2.is-project-home .lr-chrome-brand strong { display: none; }
 }
+
+/* Brand on the proposal: logo preview beside its remove button. */
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-present-brand-logo img {
+  max-height: 36px;
+  max-width: 120px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-2);
+  padding: 2px;
+}

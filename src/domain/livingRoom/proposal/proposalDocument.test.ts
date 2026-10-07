@@ -19,7 +19,9 @@ describe("proposal document and gate", () => {
     const project = createFrozenGoldenProposalProject(NOW);
     const proposal = buildProposalDocument(project, { now: NOW });
     const liveFrozen = proposal.quoteSnapshotId;
-    expect(proposal.brand).toBe("Cabinet Studio");
+    expect(proposal.brand.name).toBe("Cabinet Studio");
+    expect(proposal.rooms).toHaveLength(1);
+    expect(proposal.rooms[0]?.viewName).toBe("Hero perspective");
     expect(proposal.customerName).toBe("Rivera Residence");
     expect(proposal.projectNumber).toBe("JOB-317");
     expect(proposal.revision).toBe("A");

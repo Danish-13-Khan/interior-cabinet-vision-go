@@ -1,8 +1,10 @@
+import { extractPdfPageTexts } from "./proposalPdfRaster";
 import type { ProposalDocument } from "./types";
 
+/** The words on the pages, as PDF.js reads them; the embedded font writes glyph ids, not Latin-1 bytes. */
 export async function extractPdfText(blob: Blob): Promise<string> {
-  const buffer = await blob.arrayBuffer();
-  return new TextDecoder("latin1").decode(buffer);
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  return (await extractPdfPageTexts(bytes)).join("\n");
 }
 
 export type ProposalVerification = {
@@ -16,7 +18,7 @@ export function verifyProposalPdfText(
   proposal: ProposalDocument,
 ): ProposalVerification {
   const required = [
-    proposal.brand.toUpperCase(),
+    proposal.brand.name.toUpperCase(),
     proposal.draft ? "Draft Proposal" : "Proposal",
     proposal.customerName,
     proposal.projectNumber,

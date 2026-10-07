@@ -9,6 +9,7 @@ import {
   proposalMaterialLines,
 } from "./proposalClientPayload";
 import { proposalExportViews } from "./proposalRevision";
+import { proposalRoomPages } from "./proposalRooms";
 import type { ProposalCabinetLine, ProposalDocument, ProposalMaterialLine } from "./types";
 
 function resolveClientLines(
@@ -75,8 +76,13 @@ export function buildProposalDocument(
   const job = live.quote.job;
   const snapshotId = frozen?.id ?? "draft";
   const client = resolveClientLines(document, staleDisclosed);
+  const priceDetail = frozen?.priceDetail ?? settings.priceDetail;
   return {
-    brand: "Cabinet Studio",
+    brand: {
+      name: settings.brandName,
+      contact: settings.brandContact,
+      logoDataUrl: settings.brandLogoDataUrl || null,
+    },
     customerName: frozen?.customerName || job.customerName,
     projectNumber: frozen?.projectNumber || job.projectNumber,
     projectName: document.name,
@@ -89,12 +95,19 @@ export function buildProposalDocument(
     sellTotal: frozen?.sellTotal ?? live.quote.sellTotal,
     currencyLabel: frozen?.currencyLabel ?? settings.currencyLabel,
     taxLabel: frozen?.taxLabel ?? settings.taxLabel,
-    priceDetail: frozen?.priceDetail ?? settings.priceDetail,
+    priceDetail,
     draft,
     staleDisclosed,
     views: client.views,
     materials: client.materials,
     cabinets: client.cabinets,
+    rooms: proposalRoomPages(document, {
+      views: client.views,
+      cabinets: client.cabinets,
+      materials: client.materials,
+      liveCabinetLines: live.quote.cabinetLines,
+      itemized: priceDetail === "itemized",
+    }),
     summaryLines: client.summaryLines,
     inclusions: frozen?.inclusions ?? settings.inclusions,
     exclusions: frozen?.exclusions ?? settings.exclusions,

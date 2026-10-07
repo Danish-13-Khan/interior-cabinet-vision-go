@@ -59,6 +59,8 @@ export {
   clientProposalSummaryLines,
 } from "./proposalClientPayload";
 export { exportInteriorProposalPdf, exportProposalPdf } from "./proposalPdf";
+export { proposalRoomPages } from "./proposalRooms";
+export { GOLDEN_PROPOSAL_PAGE_COUNT, proposalPageCount, verifyProposalPdfPages } from "./proposalVerifyPages";
 export { extractPdfText, verifyProposalPdf, verifyProposalPdfText } from "./proposalVerify";
 export {
   createFrozenGoldenProposalProject,
@@ -69,6 +71,7 @@ export {
 } from "./goldenProposal";
 export type {
   LiveInteriorQuote,
+  ProposalBrand,
   ProposalCabinetLine,
   ProposalClientPayload,
   ProposalCommercialState,
@@ -78,6 +81,7 @@ export type {
   ProposalMaterialLine,
   ProposalNamedView,
   ProposalReleaseRecord,
+  ProposalRoomPage,
   ProposalStaleOverride,
   ProposalSurfaceState,
   ProposalViewFrame,

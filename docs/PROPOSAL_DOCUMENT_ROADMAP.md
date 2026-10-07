@@ -1,6 +1,6 @@
 # Proposal document roadmap (client PDF and its views)
 
-**Status:** Phase 0 done 2026-10-07 (content bugs in the current PDF). Phase 1 built 2026-10-08 (views and derived cameras; see §3 for what is left). Phases 2–3 proposed; pick one before any `src/` edit.
+**Status:** Phase 0 done 2026-10-07 (content bugs in the current PDF). Phase 1 built 2026-10-08 (views and derived cameras). Phase 2 built 2026-10-08 (the four-page document, embedded font, brand). Phase 3 proposed; see §3 for what is left.
 **Goal:** The proposal a customer receives looks like it came from a studio: a cover with the hero photo, one page per room with the view and what is in it, a finish board, a clear price, terms and signatures. Every view in it shows the joinery the customer is paying for.
 **Scope:** `domain/livingRoom/proposal/*` (document model, jsPDF layout, verification), the proposal view selection, and the showcase camera authoring in `domain/apartmentTemplates/specs/*`.
 **Relationship to other docs:** Views come from the apartment showcase cameras in
@@ -67,11 +67,13 @@ Aspect-correct stills, `Rs` for ₹, single Total, room-grouped finish lines, de
 
 **Done when:** the 3 BHK proposal defaults to the 7 views in D1, each still shows its cabinets, unticking one view in Present drops only that view, and the quote fingerprint matches the printed views.
 
-### Phase 2 — The document (~2.5 days)
+### Phase 2 — The document (built 2026-10-08)
 
 - `proposalDocument.ts`: add `rooms[]` (view, cabinets, finishes, subtotal) and `brand` from settings (D5); keep the flat lists for the frozen payload.
 - `proposalPdfCover.ts`, `proposalPdfRoom.ts`, `proposalPdfFinishBoard.ts`, `proposalPdfPricing.ts` (D3). Font subset script plus lazy load through `jsPDF.addFileToVFS`/`addFont` (D6).
 - Verification: `GOLDEN_PROPOSAL_PAGE_COUNT` becomes a function of view count; `collectViewImageGaps` gains a per-page pass so "every room page has a still" is checked on each page, not only the first; "cover has a still" is added. The "missing-header-band" rule (ink in the top 90 mm of page 1) stays as is and is satisfied by the full-bleed cover; do not loosen it.
+
+**Built:** `proposalRooms.ts` derives one page per printed view (cabinets by quote mark, finishes by room, itemized subtotal); `proposalPdfCover.ts`, `proposalPdfRoom.ts`, `proposalPdfFinishBoard.ts`, `proposalPdfPricing.ts` write the four page kinds over `proposalPdfTheme.ts`; `proposalPdfFont.ts` embeds the Noto Sans subset built by `scripts/proposal-font/build_subset.py` into `public/fonts` (20 KB per weight, OFL notice beside them) and falls back to Helvetica plus `pdfSafeText`; brand name, contact and a PNG/JPEG logo under 200 KB live in quote settings (`InteriorsPresentBrand`); finish lines carry their swatch colour and rooms. Verification reads page text through PDF.js (the embedded font writes glyph ids, not Latin-1 bytes), `proposalPageCount(rooms)` replaces the fixed count, and `expectedRoomPages` checks the cover and every room page paint a still. Checked end to end on the golden proposals and a branded, itemized 3 BHK (10 pages, ₹ printed); the quote spans every room only with the interior estimate enabled, as the app's apartment projects have it.
 
 **Done when:** the golden proposal and the 3 BHK proposal both pass the raster checks, and the 3 BHK PDF reads cover → rooms → finishes → price → approval with ₹ printed.
 

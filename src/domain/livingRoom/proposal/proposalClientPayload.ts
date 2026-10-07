@@ -58,14 +58,24 @@ const CLIENT_MATERIAL_ROLES: Record<string, string> = {
   shelves: "Shelves",
 };
 
+/** One line per finish and role, with its swatch colour and the rooms it is used in (finish board, room pages). */
 export function proposalMaterialLines(document: InteriorProject): ProposalMaterialLine[] {
   const seen = new Map<string, ProposalMaterialLine>();
+  const materialColor = new Map(document.materials.map((material) => [material.id, material.color]));
+  const roomName = new Map(document.rooms.map((room) => [room.id, room.name]));
   for (const line of buildLivingRoomMillworkSchedule(document).lines) {
     for (const [slot, name] of Object.entries(line.materialLabels)) {
-      const role = CLIENT_MATERIAL_ROLES[slot] ?? slot;
+      const role = CLIENT_MATERIAL_ROLES[slot] ?? (slot.charAt(0).toUpperCase() + slot.slice(1));
       // "back" and "Back" are the same role to the client; one line per finish and role.
       const key = `${role.toLowerCase()}:${name.trim().toLowerCase()}`;
-      if (!seen.has(key)) seen.set(key, { name, kind: slot, role });
+      let entry = seen.get(key);
+      if (!entry) {
+        const color = materialColor.get(line.materialSlots[slot] ?? "");
+        entry = { name, kind: slot, role, ...(color ? { color } : {}), rooms: [] };
+        seen.set(key, entry);
+      }
+      const room = roomName.get(line.roomId);
+      if (room && !entry.rooms!.includes(room)) entry.rooms!.push(room);
     }
   }
   return [...seen.values()].slice(0, 12);

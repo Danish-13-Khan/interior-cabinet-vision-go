@@ -12,7 +12,7 @@ export function verifyProposalVisualContent(
   const text = pages.map((page) => page.text).join(" ");
   const compact = compactPdfText(text);
   const required = [
-    proposal.brand.toUpperCase(),
+    proposal.brand.name.toUpperCase(),
     proposal.draft ? "Draft Proposal" : "Proposal",
     `Rev ${proposal.revision}`,
     proposal.inclusions.slice(0, 24),

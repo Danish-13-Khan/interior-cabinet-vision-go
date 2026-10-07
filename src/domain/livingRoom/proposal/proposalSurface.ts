@@ -42,7 +42,17 @@ export function readFrozenClient(raw: Record<string, unknown> | null): ProposalC
     materials: Array.isArray(raw.materials)
       ? raw.materials.slice(0, 12).map((item) => {
           const row = asRecord(item);
-          return { name: text(row?.name), kind: text(row?.kind), role: text(row?.role) };
+          const rooms = Array.isArray(row?.rooms)
+            ? row.rooms.filter((item): item is string => typeof item === "string").slice(0, 16)
+            : undefined;
+          const color = text(row?.color);
+          return {
+            name: text(row?.name),
+            kind: text(row?.kind),
+            role: text(row?.role),
+            ...(color ? { color } : {}),
+            ...(rooms?.length ? { rooms } : {}),
+          };
         })
       : [],
     views: Array.isArray(raw.views)

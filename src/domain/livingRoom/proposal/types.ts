@@ -39,6 +39,28 @@ export type ProposalMaterialLine = {
   name: string;
   kind: string;
   role: string;
+  /** Swatch colour from the project material, when known. */
+  color?: string;
+  /** Rooms the finish is used in. */
+  rooms?: string[];
+};
+
+export type ProposalBrand = {
+  name: string;
+  contact: string;
+  logoDataUrl: string | null;
+};
+
+/** One page per printed view: the still, the room's cabinets, its finishes and subtotal (roadmap D3). */
+export type ProposalRoomPage = {
+  roomId: string;
+  roomName: string;
+  cameraId: string;
+  viewName: string;
+  cabinets: ProposalCabinetLine[];
+  finishes: ProposalMaterialLine[];
+  /** Sum of the room's itemized lines; null when prices are summarised. */
+  subtotal: number | null;
 };
 
 export type ProposalCabinetLine = {
@@ -78,7 +100,7 @@ export type ProposalCommercialState = {
 };
 
 export type ProposalDocument = {
-  brand: string;
+  brand: ProposalBrand;
   customerName: string;
   projectNumber: string;
   projectName: string;
@@ -96,6 +118,8 @@ export type ProposalDocument = {
   views: ProposalNamedView[];
   materials: ProposalMaterialLine[];
   cabinets: ProposalCabinetLine[];
+  /** Derived from views, cabinets and materials; the flat lists above stay the frozen payload. */
+  rooms: ProposalRoomPage[];
   summaryLines: Array<{ label: string; amount: number }>;
   inclusions: string;
   exclusions: string;

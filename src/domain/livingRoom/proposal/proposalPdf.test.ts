@@ -8,8 +8,10 @@ import {
 } from ".";
 import {
   GOLDEN_PROPOSAL_PAGE_COUNT,
+  proposalPageCount,
   verifyProposalPdfPages,
 } from "./proposalVerifyPages";
+import { extractPdfText } from "./proposalVerify";
 import { verifyProposalVisualContent } from "./proposalVerifyVisual";
 import { createGoldenCabinetRunProject } from "../goldenRun";
 import { freezeProposal } from "./freezeProposal";
@@ -29,11 +31,20 @@ describe("proposal PDF", () => {
     expect(check.missing).toEqual([]);
     expect(check.ok).toBe(true);
     const pages = await verifyProposalPdfPages(blob, proposal, {
-      expectedPageCount: GOLDEN_PROPOSAL_PAGE_COUNT,
+      expectedPageCount: proposalPageCount(proposal.rooms.length),
       expectedViewImages: frames.length,
+      expectedRoomPages: proposal.rooms.length,
     });
+    expect(pages.missing).toEqual([]);
     expect(pages.pageCount).toBe(GOLDEN_PROPOSAL_PAGE_COUNT);
     expect(pages.pages).toHaveLength(GOLDEN_PROPOSAL_PAGE_COUNT);
+    // Cover, room, finishes, price: the still paints on the cover and on the room page.
+    expect(pages.pages[0]?.imagePaintCount).toBeGreaterThan(0);
+    expect(pages.pages[1]?.imagePaintCount).toBeGreaterThan(0);
+    expect(pages.pages[2]?.text).toContain("Materials and finishes");
+    expect(pages.pages[3]?.text).toContain("Approval");
+    // The embedded font prints the rupee sign instead of "Rs".
+    expect(await extractPdfText(blob)).toContain("₹");
     expect(pages.pages.every((page) => page.nonblank && page.a4 && !page.clipped)).toBe(true);
     expect(pages.pages.some((page) => page.hasViewInk && page.imagePaintCount > 0)).toBe(true);
     const approvalPage = pages.pages.findIndex((page) => page.text.includes("Approval"));
@@ -55,9 +66,11 @@ describe("proposal PDF", () => {
     expect(proposal.materials.length).toBeGreaterThan(0);
     expect(proposal.views.some((view) => view.viewName === "Run elevation")).toBe(true);
     const pages = await verifyProposalPdfPages(blob, proposal, {
-      expectedPageCount: GOLDEN_PROPOSAL_PAGE_COUNT,
+      expectedPageCount: proposalPageCount(proposal.rooms.length),
       expectedViewImages: frames.length,
+      expectedRoomPages: proposal.rooms.length,
     });
+    expect(pages.missing).toEqual([]);
     expect(pages.ok).toBe(true);
     expect(pages.pages.every((page) => page.nonblank && page.a4 && !page.clipped)).toBe(true);
     expect(pages.pages.some((page) => page.hasViewInk && page.imagePaintCount > 0)).toBe(true);
