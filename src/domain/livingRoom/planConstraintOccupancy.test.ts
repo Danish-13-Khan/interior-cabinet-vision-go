@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { InteriorObjectEntity } from "../interiorProject";
+import { HOST_CABINET_ID, INSERT_KIND } from "../hostedAppliances/parameters";
 import {
+  isHostedApplianceObject,
   isPlanObstacle,
   isRugLikeObject,
   isSurfaceMountedObject,
@@ -175,5 +177,34 @@ describe("plan constraint occupancy", () => {
     expect(inspectLivingRoomPlan(stacked).some((issue) => (
       issue.code === "overlap" && issue.objectIds.includes(rug.id)
     ))).toBe(false);
+  });
+
+  it("treats a sink hosted in a base cabinet as part of the cabinet, not an obstacle", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const base = objectStub({
+      id: "base", catalogItemId: "frameless-standard-base", category: "cabinet", name: "base 900",
+      kind: "cabinet", roomId: project.activeRoomId,
+      position: { x: 2650, y: 0, z: -2020 }, dimensions: { widthMm: 900, heightMm: 720, depthMm: 560 },
+    });
+    const wall = objectStub({
+      id: "wall", catalogItemId: "frameless-standard-wall", category: "cabinet", name: "wall 900",
+      kind: "cabinet", roomId: project.activeRoomId,
+      position: { x: 2650, y: 1400, z: -2125 }, dimensions: { widthMm: 900, heightMm: 720, depthMm: 350 },
+    });
+    const sink = objectStub({
+      id: "sink", catalogItemId: "kitchen-sink-1", category: "kitchen-and-appliances", name: "Kitchen Sink",
+      roomId: project.activeRoomId,
+      position: { x: 2650, y: 748, z: -2020 }, dimensions: { widthMm: 800, heightMm: 900, depthMm: 560 },
+      parameters: { [HOST_CABINET_ID]: "base", [INSERT_KIND]: "sink-bowl" },
+    });
+    expect(isHostedApplianceObject(sink)).toBe(true);
+    expect(isPlanObstacle(sink)).toBe(false);
+    const hosted = inspectLivingRoomPlan({ ...project, objects: [...project.objects, base, wall, sink] });
+    expect(hosted.filter((issue) => issue.objectIds.includes("sink"))).toEqual([]);
+
+    const loose = { ...sink, parameters: {} };
+    expect(isPlanObstacle(loose)).toBe(true);
+    const standalone = inspectLivingRoomPlan({ ...project, objects: [...project.objects, base, wall, loose] });
+    expect(standalone.some((issue) => issue.code === "overlap" && issue.objectIds.includes("sink") && issue.objectIds.includes("wall"))).toBe(true);
   });
 });

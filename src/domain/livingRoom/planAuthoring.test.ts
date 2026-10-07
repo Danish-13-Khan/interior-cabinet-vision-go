@@ -180,4 +180,31 @@ describe("living-room plan authoring", () => {
     expect(run.objects[0]!.rotation.y).toBe(0);
     expect(run.objects[0]!.position.x).toBeLessThan(run.objects[1]!.position.x);
   });
+
+  it("accepts a cabinet set flush into the room corner and still flags one a millimetre outside", () => {
+    const source = createLivingRoomStarterProject({ now: NOW });
+    const template = source.objects.find((object) => object.kind === "cabinet")!;
+    // Room spans x −3100…3100, z −2300…2300; back-right corner, back against the wall.
+    const flush = {
+      ...template, id: "corner-base", kind: "cabinet" as const, category: "cabinet", name: "base 900",
+      position: { x: 2650, y: 0, z: -2020 }, rotation: { x: 0, y: 0, z: 0 },
+      dimensions: { widthMm: 900, heightMm: 720, depthMm: 560 },
+    };
+    const outside = (project: typeof source) => inspectLivingRoomPlan(project)
+      .filter((issue) => issue.code === "outside-room" && issue.objectIds.includes("corner-base"));
+    expect(outside({ ...source, objects: [...source.objects, flush] })).toEqual([]);
+    expect(outside({ ...source, objects: [...source.objects, { ...flush, position: { ...flush.position, x: 2651 } }] })).toHaveLength(1);
+  });
+
+  it("warns about a tight walkway but not about pieces set against each other", () => {
+    const source = createLivingRoomStarterProject({ now: NOW });
+    const sofa = source.objects.find((object) => object.category === "sofa")!;
+    const table = source.objects.find((object) => object.name === "Side Table")!;
+    const sofaFront = sofa.position.z + sofa.dimensions.depthMm / 2;
+    const between = (gapMm: number) => inspectLivingRoomPlan(
+      moveLivingRoomObject(source, table.id, { x: sofa.position.x, y: 0, z: sofaFront + gapMm + table.dimensions.depthMm / 2 }),
+    ).filter((issue) => issue.code === "circulation" && issue.objectIds.includes(sofa.id) && issue.objectIds.includes(table.id));
+    expect(between(60)).toEqual([]);
+    expect(between(200)).toHaveLength(1);
+  });
 });

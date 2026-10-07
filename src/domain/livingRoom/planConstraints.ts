@@ -22,6 +22,11 @@ export function isBlockingLivingRoomPlanIssue(issue: LivingRoomPlanIssue) {
   return issue.severity === "error";
 }
 
+/** Below this nobody walks between the two pieces: a side table set against an ottoman is a join, not a tight walkway. */
+export const CIRCULATION_ABUTTING_MM = 100;
+/** Gaps narrower than this but wider than an abutting join are a tight walkway. */
+export const CIRCULATION_MIN_CLEARANCE_MM = 350;
+
 function openingZone(opening: OpeningEntity, wall: WallEntity): Point2Mm[] {
   const dx = wall.end.x - wall.start.x;
   const dz = wall.end.z - wall.start.z;
@@ -103,7 +108,7 @@ export function inspectLivingRoomPlan(project: InteriorProject): LivingRoomPlanI
           });
         } else {
           const clearance = footprintDistance(getObjectPlanCorners(first), getObjectPlanCorners(second));
-          if (clearance > 0 && clearance < 350) {
+          if (clearance >= CIRCULATION_ABUTTING_MM && clearance < CIRCULATION_MIN_CLEARANCE_MM) {
             issues.push({
               code: "circulation",
               severity: "warning",

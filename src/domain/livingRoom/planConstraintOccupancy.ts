@@ -1,5 +1,6 @@
 import type { InteriorObjectEntity, Point2Mm } from "../interiorProject";
 import { pointInPolygon } from "../interiorProject";
+import { readApplianceHost } from "../hostedAppliances/parameters";
 import { getObjectPlanCorners } from "./planGeometry";
 
 /** Categories that never obstruct circulation (legacy procedural catalog). */
@@ -23,6 +24,15 @@ const SOFT_GOODS_NEST_MIN_RATIO = 0.45;
 function placementOf(object: InteriorObjectEntity): string | undefined {
   const value = object.extensions?.placement;
   return typeof value === "string" ? value : undefined;
+}
+
+/**
+ * A sink or hob hosted in a cabinet occupies that cabinet's footprint; the cabinet
+ * is the obstacle. Checking the appliance too reports the wall unit above the
+ * counter as an overlap and the appliance itself as a door obstruction.
+ */
+export function isHostedApplianceObject(object: InteriorObjectEntity): boolean {
+  return readApplianceHost(object) !== null;
 }
 
 /** Floor rugs / mats — may sit under furniture without counting as collision. */
@@ -110,12 +120,13 @@ export function shouldIgnoreCollisionPair(
 
 /**
  * Objects that participate in outside-room and opening-clearance checks.
- * Rugs stay excluded; wall mirrors stay included so dragged fixtures still
+ * Rugs and hosted appliances stay excluded; wall mirrors stay included so dragged fixtures still
  * warn when they leave the room or cover an opening. Collision/circulation
  * for mirrors is suppressed via `shouldIgnoreCollisionPair`.
  */
 export function isPlanObstacle(object: InteriorObjectEntity): boolean {
   if (NON_BLOCKING_CATEGORIES.has(object.category)) return false;
   if (isRugLikeObject(object)) return false;
+  if (isHostedApplianceObject(object)) return false;
   return true;
 }

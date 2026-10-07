@@ -72,6 +72,26 @@ export function getObjectPlanCorners(
     }));
 }
 
+/**
+ * A cabinet set flush against a wall has an edge collinear with the room loop;
+ * the loop itself carries sub-micron float noise from unit conversion. Testing the
+ * footprint inset by this much keeps "flush" inside and still catches 1 mm outside.
+ */
+const ROOM_FIT_INSET_MM = 0.5;
+
+function insetCorners(corners: Point2Mm[], insetMm: number): Point2Mm[] {
+  const centerX = corners.reduce((sum, point) => sum + point.x, 0) / corners.length;
+  const centerZ = corners.reduce((sum, point) => sum + point.z, 0) / corners.length;
+  return corners.map((point) => {
+    const dx = point.x - centerX;
+    const dz = point.z - centerZ;
+    const length = Math.hypot(dx, dz);
+    if (length <= insetMm) return { x: centerX, z: centerZ };
+    const scale = (length - insetMm) / length;
+    return { x: centerX + dx * scale, z: centerZ + dz * scale };
+  });
+}
+
 export function objectFitsRoom(
   project: InteriorProject,
   object: InteriorObjectEntity,
@@ -79,7 +99,7 @@ export function objectFitsRoom(
 ) {
   const polygon = roomPlanPolygon(project, object.roomId);
   if (!polygon) return false;
-  const corners = getObjectPlanCorners(object, position);
+  const corners = insetCorners(getObjectPlanCorners(object, position), ROOM_FIT_INSET_MM);
   if (!corners.every((point) => pointInRoomPolygon(point, polygon))) return false;
   if (polygonsIntersect(corners, polygon.outer)) return false;
   return polygon.holes.every((hole) =>
