@@ -58,3 +58,26 @@
   background: var(--surface-2);
   padding: 2px;
 }
+
+/* Proposal preview: the rendered pages, one under the other, at panel width. */
+.lr-plan-shell.lr-product-shell-v2 .interiors-proposal-preview-pages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  max-height: 60vh;
+  overflow: auto;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-proposal-preview-pages li {
+  display: grid;
+  gap: 4px;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-proposal-preview-pages img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+}
+.lr-plan-shell.lr-product-shell-v2 .interiors-proposal-preview-pages small { color: var(--ink-muted); }

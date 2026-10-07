@@ -10,6 +10,7 @@ import { InteriorsPresentActions, type InteriorsPresentPhoto } from "./Interiors
 import { InteriorsPresentBrand } from "./InteriorsPresentBrand";
 import { InteriorsPresentCommercial } from "./InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "./InteriorsPresentQuote";
+import { InteriorsProposalPreview } from "./InteriorsProposalPreview";
 import { InteriorsProposalIdentity } from "./InteriorsProposalIdentity";
 import { formatQuoteMoney } from "../../domain/quoteSettings";
 
@@ -84,6 +85,10 @@ export function InteriorsPresentPanel({
           />
         </>
       )}
+      <InteriorsProposalPreview
+        proposal={proposal}
+        hidden={Boolean(proposal.released || handoff.revisionApproved || handoff.sent)}
+      />
       <InteriorsPresentActions
         proposal={proposal} handoff={handoff} blocking={state.blocking}
         step={state.step} needsCapture={state.needsCapture} onCapture={onCapture}

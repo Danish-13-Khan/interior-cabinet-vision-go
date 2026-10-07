@@ -60,7 +60,6 @@ export {
 } from "./proposalClientPayload";
 export { exportInteriorProposalPdf, exportProposalPdf } from "./proposalPdf";
 export { proposalRoomPages } from "./proposalRooms";
-export { GOLDEN_PROPOSAL_PAGE_COUNT, proposalPageCount, verifyProposalPdfPages } from "./proposalVerifyPages";
 export { extractPdfText, verifyProposalPdf, verifyProposalPdfText } from "./proposalVerify";
 export {
   createFrozenGoldenProposalProject,

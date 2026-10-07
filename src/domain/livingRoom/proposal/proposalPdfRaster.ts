@@ -1,7 +1,8 @@
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { PDFPageProxy } from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { PdfMediaBox } from "./proposalPdfParse";
 import { ProposalCanvasFactory, readCanvasPixels } from "./proposalPdfCanvas";
+import { ensurePdfWorker } from "./proposalPdfWorker";
 import {
   countImagePaints,
   measureInkBounds,
@@ -26,17 +27,6 @@ export type RasterizedPdfPage = {
 };
 
 const RENDER_SCALE = 2;
-
-type NodeCreateRequire = (url: string) => { resolve: (id: string) => string };
-
-async function ensurePdfWorker() {
-  if (GlobalWorkerOptions.workerSrc) return;
-  const nodeModule = "node:module";
-  const { createRequire } = (await import(nodeModule)) as { createRequire: NodeCreateRequire };
-  GlobalWorkerOptions.workerSrc = createRequire(import.meta.url).resolve(
-    "pdfjs-dist/legacy/build/pdf.worker.mjs",
-  );
-}
 
 async function rasterizePdfPage(
   page: PDFPageProxy,
@@ -105,32 +95,6 @@ export async function rasterizePdfPages(
     await pdf.destroy();
   }
   return pages;
-}
-
-/**
- * Page texts through PDF.js, so an embedded Unicode font (glyph ids on the
- * wire) reads back as the words the page shows. No canvas is needed.
- */
-export async function extractPdfPageTexts(bytes: Uint8Array): Promise<string[]> {
-  await ensurePdfWorker();
-  const pdf = await getDocument({
-    data: bytes.slice(),
-    isEvalSupported: false,
-    useSystemFonts: true,
-    disableFontFace: true,
-    verbosity: 0,
-  }).promise;
-  const texts: string[] = [];
-  try {
-    for (let index = 1; index <= pdf.numPages; index += 1) {
-      const page = await pdf.getPage(index);
-      const content = await page.getTextContent();
-      texts.push((content.items as Array<{ str?: string }>).map((item) => item.str ?? "").join(" "));
-    }
-  } finally {
-    await pdf.destroy();
-  }
-  return texts;
 }
 
 export function isA4MediaBox(box: PdfMediaBox) {

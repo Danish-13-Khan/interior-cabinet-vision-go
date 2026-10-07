@@ -1,6 +1,6 @@
 # Proposal document roadmap (client PDF and its views)
 
-**Status:** Phase 0 done 2026-10-07 (content bugs in the current PDF). Phase 1 built 2026-10-08 (views and derived cameras). Phase 2 built 2026-10-08 (the four-page document, embedded font, brand). Phase 3 proposed; see §3 for what is left.
+**Status:** Phase 0 done 2026-10-07 (content bugs in the current PDF). Phase 1 built 2026-10-08 (views and derived cameras). Phase 2 built 2026-10-08 (the four-page document, embedded font, brand). Phase 3 built 2026-10-08 (preview in Present). See §3 for what is left.
 **Goal:** The proposal a customer receives looks like it came from a studio: a cover with the hero photo, one page per room with the view and what is in it, a finish board, a clear price, terms and signatures. Every view in it shows the joinery the customer is paying for.
 **Scope:** `domain/livingRoom/proposal/*` (document model, jsPDF layout, verification), the proposal view selection, and the showcase camera authoring in `domain/apartmentTemplates/specs/*`.
 **Relationship to other docs:** Views come from the apartment showcase cameras in
@@ -63,7 +63,7 @@ Aspect-correct stills, `Rs` for ₹, single Total, room-grouped finish lines, de
 3. Test: for every template and every default view with cut-list cabinets, project the cabinet bounding box with the camera and assert all corners fall inside 90 % of the frame. Views marked `partial` are listed in the test as an allowlist so a new one fails the build. Kitchen (L-shaped) and Utility are the likely entries.
 4. Re-record hover clips for rooms whose cameras changed (`TEMPLATE_CARD_MEDIA_ROADMAP.md` gates). The card still is the hero and does not change.
 
-**Built:** steps 0–3 (`proposalViewSelection.ts`, `joineryBounds.ts`, `joineryStanding.ts`, `joineryScreenBounds.ts`, `frameJoineryCamera.ts`, `frameRoomCamera.ts`, `applyShowcaseCameras.ts`, non-hero cameras removed from every spec, tests). Checked in the app on a fresh 3 BHK: the tour shows the hero Living, the kitchen from its free corner, the foyer shoe cabinet and study shelf from the far corner, wardrobes in the bedrooms, vanity mirrors in the baths. **Left:** step 4, the media re-record, and a visual pass over the eight partial rooms.
+**Built:** steps 0–3 (`proposalViewSelection.ts`, `joineryBounds.ts`, `joineryStanding.ts`, `joineryScreenBounds.ts`, `frameJoineryCamera.ts`, `frameRoomCamera.ts`, `applyShowcaseCameras.ts`, non-hero cameras removed from every spec, tests). Checked in the app on a fresh 3 BHK: the tour shows the hero Living, the kitchen from its free corner, the foyer shoe cabinet and study shelf from the far corner, wardrobes in the bedrooms, vanity mirrors in the baths. **Left:** step 4, the media re-record, and a visual pass over the seven partial rooms.
 
 **Done when:** the 3 BHK proposal defaults to the 7 views in D1, each still shows its cabinets, unticking one view in Present drops only that view, and the quote fingerprint matches the printed views.
 
@@ -77,9 +77,11 @@ Aspect-correct stills, `Rs` for ₹, single Total, room-grouped finish lines, de
 
 **Done when:** the golden proposal and the 3 BHK proposal both pass the raster checks, and the 3 BHK PDF reads cover → rooms → finishes → price → approval with ₹ printed.
 
-### Phase 3 — Preview before export (~1 day)
+### Phase 3 — Preview before export (built 2026-10-08)
 
-Present shows the rendered pages before "Create Proposal" commits the release, so a bad frame is caught in the app, not in the customer's inbox. `proposalPdfRaster.ts` is Node-only (it resolves the pdf.js worker with `createRequire`), so this phase splits it into a worker-agnostic core and two worker setups: the existing Node one for tests, and the browser `?url` worker that `planUnderlayPdf.ts` already configures.
+Present shows the rendered pages before "Create Proposal" commits the release, so a bad frame is caught in the app, not in the customer's inbox.
+
+**Built:** `proposalPreview.ts` renders every page of the PDF that Create Proposal would save to JPEG data URLs through `loadPdfDocument` in `planUnderlayPdf.ts` (the browser worker it already configures), with labels Cover · room names · Finishes · Price and approval. `useProposalWorkflow` gains `preview` and `previewProposal()`; the preview clears whenever the project or its frames change. `InteriorsProposalPreview` sits above the actions in the Present panel; a draft previews too, marked as such, so a wrong frame is seen before the quote is frozen. The Node rasteriser was not split: `proposalPdfWorker.ts` (the `createRequire` worker) and `proposalPdfText.ts` (PDF.js text extraction) were pulled out instead, so nothing reachable from the app imports the native canvas; the proposal index no longer exports `verifyProposalPdfPages`. Checked in the app on a fresh 3 BHK: the draft preview renders in the panel with the brand band and cover.
 
 ## 4. Open questions
 

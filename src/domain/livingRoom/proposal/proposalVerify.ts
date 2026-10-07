@@ -1,4 +1,4 @@
-import { extractPdfPageTexts } from "./proposalPdfRaster";
+import { extractPdfPageTexts } from "./proposalPdfText";
 import type { ProposalDocument } from "./types";
 
 /** The words on the pages, as PDF.js reads them; the embedded font writes glyph ids, not Latin-1 bytes. */
