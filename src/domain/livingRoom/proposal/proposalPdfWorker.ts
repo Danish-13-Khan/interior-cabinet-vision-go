@@ -11,7 +11,7 @@ type NodeCreateRequire = (url: string) => { resolve: (id: string) => string };
 export async function ensurePdfWorker() {
   if (GlobalWorkerOptions.workerSrc) return;
   const nodeModule = "node:module";
-  const { createRequire } = (await import(nodeModule)) as { createRequire: NodeCreateRequire };
+  const { createRequire } = (await import(/* @vite-ignore */ nodeModule)) as { createRequire: NodeCreateRequire };
   GlobalWorkerOptions.workerSrc = createRequire(import.meta.url).resolve(
     "pdfjs-dist/legacy/build/pdf.worker.mjs",
   );

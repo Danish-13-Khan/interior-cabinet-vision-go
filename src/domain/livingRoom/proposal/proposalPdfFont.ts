@@ -42,9 +42,11 @@ async function readFontBytes(assetKey: string): Promise<Uint8Array | null> {
       return new Uint8Array(await response.arrayBuffer());
     }
     // Node (tests, proof scripts): read the same file from the repository's public folder.
+    // The path is joined, not a template literal, so Vite does not treat it as an asset glob.
     const fsModule = "node:fs/promises";
-    const { readFile } = (await import(fsModule)) as { readFile: (path: URL) => Promise<Uint8Array> };
-    return await readFile(new URL(`../../../../public/${assetKey}`, import.meta.url));
+    const { readFile } = (await import(/* @vite-ignore */ fsModule)) as { readFile: (path: URL) => Promise<Uint8Array> };
+    const relative = ["..", "..", "..", "..", "public", assetKey].join("/");
+    return await readFile(new URL(relative, import.meta.url));
   } catch {
     return null;
   }
