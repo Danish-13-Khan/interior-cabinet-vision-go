@@ -194,3 +194,5 @@
     flex-wrap: wrap;
   }
 }
+
+.interiors-present-photo-error { margin:6px 0; color:#9a3412; font-size:var(--text-xs); line-height:1.4; }

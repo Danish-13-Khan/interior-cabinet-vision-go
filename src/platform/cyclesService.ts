@@ -30,6 +30,40 @@ export function setCyclesServiceUrl(url: string | null) {
   }
 }
 
+const LOCAL_SERVICE_URL = "http://localhost:8787";
+let discovered: string | null | undefined;
+
+function onLocalhost(): boolean {
+  if (typeof location === "undefined") return false;
+  return /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+}
+
+/**
+ * The URL the seat should render on: the configured one, or, on a localhost page,
+ * a render service found on its default port. `npm run dev:photo` starts both the
+ * app and that service, so a local run needs no configuration at all.
+ */
+export async function discoverCyclesService(): Promise<string | null> {
+  const configured = cyclesServiceUrl();
+  if (configured) return configured;
+  if (discovered !== undefined) return discovered;
+  if (!onLocalhost()) {
+    discovered = null;
+    return null;
+  }
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 1500);
+    const response = await fetch(`${LOCAL_SERVICE_URL}/health`, { signal: controller.signal });
+    clearTimeout(timer);
+    const body = (await response.json()) as { ok?: boolean; blender?: string | null };
+    discovered = response.ok && body.ok ? LOCAL_SERVICE_URL : null;
+  } catch {
+    discovered = null;
+  }
+  return discovered;
+}
+
 export type CyclesServiceJob = {
   id: string;
   status: "queued" | "rendering" | "done" | "failed" | "cancelled";
@@ -63,10 +97,10 @@ async function request(base: string, path: string, init: RequestInit = {}) {
 /** Post the bundle, poll until done, then fetch the still and provenance. */
 export async function renderBundleOnService(
   bundle: CyclesStillBundle,
-  options: { onStatus?: (job: CyclesServiceJob) => void; signal?: AbortSignal } = {},
+  options: { onStatus?: (job: CyclesServiceJob) => void; signal?: AbortSignal; baseUrl?: string } = {},
 ): Promise<CyclesServiceResult> {
-  const base = cyclesServiceUrl();
-  if (!base) throw new Error("No render service configured.");
+  const base = options.baseUrl ?? (await discoverCyclesService());
+  if (!base) throw new Error("No render service is running. Start the app with `npm run dev:photo`, or set its URL.");
   const created = await request(base, "/jobs", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

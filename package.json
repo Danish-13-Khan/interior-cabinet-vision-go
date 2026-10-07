@@ -42,7 +42,8 @@
     "cycles:render": "node scripts/cycles/render-still.mjs",
     "cycles:check": "node scripts/cycles/render-still.mjs --check && node scripts/cycles/check-bundle-math.mjs",
     "cycles:means": "node scripts/cycles/scan-means.mjs",
-    "cycles:serve": "node scripts/cycles/serve.mjs"
+    "cycles:serve": "node scripts/cycles/serve.mjs",
+    "dev:photo": "node scripts/cycles/dev-photo.mjs"
   },
   "dependencies": {
     "@gltf-transform/core": "^4.5.1",

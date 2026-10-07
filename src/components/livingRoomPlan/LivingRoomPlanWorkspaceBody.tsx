@@ -13,6 +13,7 @@ import { LivingRoomPlanWorkspaceInspector } from "./LivingRoomPlanWorkspaceInspe
 import { LivingRoomPlanWorkspaceRail } from "./LivingRoomPlanWorkspaceRail";
 import { InteriorsPresentPanel } from "./InteriorsPresentPanel";
 import { exportCyclesPhotoJob } from "../../platform/cyclesFiles";
+import { useCyclesPhotoFlow } from "../../hooks/useCyclesPhotoFlow";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
 import { useStudioPanes } from "./useStudioPanes";
@@ -37,6 +38,11 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
     onCommitDraft: () => build.dispatchBuildCommand({ type: "commitDraft" }),
   });
   const floorplanExtract = useFloorplanExtractFlow(props.underlay);
+  const photo = useCyclesPhotoFlow({
+    project,
+    onRenderResult: props.onRenderResults,
+    onAcceptedStillAssetsChange: props.onAcceptedStillAssetsChange,
+  });
   const panes = useStudioPanes({
     catalogWidth: w.toolRailWidthPx,
     inspectorWidth: w.inspectorWidthPx,
@@ -74,6 +80,14 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
           }}
           onReturnToReview={props.onReturnToReview}
           onExportPhotoJob={() => void exportCyclesPhotoJob(project)}
+          photo={{
+            serviceUrl: photo.serviceUrl,
+            busy: photo.busy,
+            status: photo.status,
+            error: photo.error,
+            onRender: () => void photo.renderPhotos(),
+            onCancel: photo.cancel,
+          }}
         />
       ) : null}
       <LivingRoomPlanWorkspaceCanvas

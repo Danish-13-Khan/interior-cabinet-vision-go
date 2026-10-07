@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 1420
+    },
+    {
+      "name": "web-photo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:photo"],
+      "port": 1420
     }
   ]
 }

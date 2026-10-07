@@ -78,8 +78,9 @@ export function cyclesProvenanceGates(provenance: CyclesProvenanceFile, job: Sti
 
 export type CyclesImportResult = {
   still: string;
-  plateDataUrl: string;
-  diffDataUrl: string;
+  /** Null when no live capture was available (Present renders without the studio canvas). */
+  plateDataUrl: string | null;
+  diffDataUrl: string | null;
   validation: StillJobValidation;
   session: StillReviewSession;
   provenance: CyclesProvenanceFile;
@@ -94,7 +95,7 @@ export async function importCyclesStill(args: {
   project: InteriorProject;
   provenance: CyclesProvenanceFile;
   stillDataUrl: string;
-  capture: RenderCaptureHandle;
+  capture: RenderCaptureHandle | null;
   widthPx: number;
   heightPx: number;
   composition: RenderComposition;
@@ -110,19 +111,21 @@ export async function importCyclesStill(args: {
     allowedEnhancements: [...CYCLES_STILL_ENHANCEMENTS],
     attachments: { heroPngPath: `${provenance.jobId}-webgl-plate.png` },
   });
-  const plateDataUrl = await args.capture.capturePng({
-    cameraId: provenance.cameraId,
-    widthPx: args.widthPx,
-    heightPx: args.heightPx,
-    transparentBackground: false,
-    composition: args.composition,
-  });
+  const plateDataUrl = args.capture
+    ? await args.capture.capturePng({
+      cameraId: provenance.cameraId,
+      widthPx: args.widthPx,
+      heightPx: args.heightPx,
+      transparentBackground: false,
+      composition: args.composition,
+    })
+    : null;
   const gates = cyclesProvenanceGates(provenance, job);
   const validation = mergeStillValidations(
     validateStillJobAgainstProject(job, project),
     { ok: gates.every((item) => item.pass), gates, tolerances: STILL_JOB_TOLERANCES },
   );
-  const diffDataUrl = await stillDiffOverlayDataUrl(plateDataUrl, args.stillDataUrl);
+  const diffDataUrl = plateDataUrl ? await stillDiffOverlayDataUrl(plateDataUrl, args.stillDataUrl) : null;
   return {
     still: args.stillDataUrl,
     plateDataUrl,

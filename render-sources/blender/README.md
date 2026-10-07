@@ -32,12 +32,22 @@ docker build -f docker/cycles/Dockerfile -t cabinet-cycles .   # after git lfs p
 docker run --rm -p 8787:8787 -v cycles-jobs:/jobs cabinet-cycles
 ```
 
-Point a seat at it with `localStorage.setItem("cabinet-designer:cycles-service-url", "http://localhost:8787")`
-or build with `VITE_CYCLES_RENDER_URL`. Still review then shows **Render photo…**.
+### App and service together, one command
 
-In the app, **Present → Export photo job…** writes the same `bundle.json` for the saved camera.
-Render it as above, then **Still review → Import photo still…** picks `provenance.json` and
-`still.png`, captures the WebGL plate for the overlay and runs the trust gates.
+```bash
+npm run dev:photo        # app on http://localhost:1420 + render service on http://localhost:8787
+```
+
+Open the app, pick a project, **Present → Render photo stills**. Every selected client view is
+rendered with Cycles, gated, accepted and bound to the proposal; **Create Proposal** then uses the
+photo stills. No console or local-storage step: a page on localhost finds the service by itself,
+and a production build carries the URL in `VITE_CYCLES_RENDER_URL`. `APP_PORT` and `CYCLES_PORT`
+override the ports. A seat can still be pointed at another box with
+`localStorage.setItem("cabinet-designer:cycles-service-url", "http://host:8787")`.
+
+Without a service, **Present → Export photo job…** writes the same `bundle.json` for the saved
+camera. Render it as above, then **Still review → Import photo still…** picks `provenance.json`
+and `still.png`, captures the WebGL plate for the overlay and runs the trust gates.
 
 ## What the bundle carries
 

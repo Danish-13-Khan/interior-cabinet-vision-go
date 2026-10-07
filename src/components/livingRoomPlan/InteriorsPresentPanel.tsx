@@ -6,7 +6,7 @@ import {
 import type { useProposalWorkflow } from "../../hooks/useProposalWorkflow";
 import type { useEngineeringHandoff } from "../../hooks/useEngineeringHandoff";
 import { InspectorProposalGateChecks } from "./InspectorProposalGateChecks";
-import { InteriorsPresentActions } from "./InteriorsPresentActions";
+import { InteriorsPresentActions, type InteriorsPresentPhoto } from "./InteriorsPresentActions";
 import { InteriorsPresentCommercial } from "./InteriorsPresentCommercial";
 import { InteriorsPresentQuote } from "./InteriorsPresentQuote";
 import { InteriorsProposalIdentity } from "./InteriorsProposalIdentity";
@@ -40,12 +40,14 @@ export function InteriorsPresentPanel({
   onCapture,
   onReturnToReview,
   onExportPhotoJob,
+  photo,
 }: {
   proposal: Proposal;
   handoff: Handoff;
   onCapture: () => void;
   onReturnToReview: () => void;
   onExportPhotoJob?: () => void;
+  photo?: InteriorsPresentPhoto;
 }) {
   const live = proposal.live;
   if (!live || !proposal.gate) return null;
@@ -84,6 +86,7 @@ export function InteriorsPresentPanel({
         proposal={proposal} handoff={handoff} blocking={state.blocking}
         step={state.step} needsCapture={state.needsCapture} onCapture={onCapture}
         onExportPhotoJob={onExportPhotoJob}
+        photo={photo}
       />
     </aside>
   );
