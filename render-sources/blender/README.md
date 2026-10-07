@@ -23,6 +23,18 @@ npm run cycles:bundle -- --template 2bhk --out .cycles/2bhk   # or --project my-
 npm run cycles:render -- .cycles/2bhk --rerun          # still.png + provenance.json next to bundle.json
 ```
 
+### As a service (local Blender, Docker, or EC2)
+
+```bash
+npm run cycles:serve                                   # http://localhost:8787 using the local Blender
+CYCLES_FAKE_RENDER=1 npm run cycles:serve              # no Blender: placeholder still, real provenance shape
+docker build -f docker/cycles/Dockerfile -t cabinet-cycles .   # after git lfs pull
+docker run --rm -p 8787:8787 -v cycles-jobs:/jobs cabinet-cycles
+```
+
+Point a seat at it with `localStorage.setItem("cabinet-designer:cycles-service-url", "http://localhost:8787")`
+or build with `VITE_CYCLES_RENDER_URL`. Still review then shows **Render photo…**.
+
 In the app, **Present → Export photo job…** writes the same `bundle.json` for the saved camera.
 Render it as above, then **Still review → Import photo still…** picks `provenance.json` and
 `still.png`, captures the WebGL plate for the overlay and runs the trust gates.

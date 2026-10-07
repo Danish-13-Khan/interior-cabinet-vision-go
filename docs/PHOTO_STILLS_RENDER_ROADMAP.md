@@ -1,6 +1,6 @@
 # Photo stills render roadmap
 
-**Status:** Phase 3 pipeline is in the tree (`feat/photo-stills-p3-cycles`): Cycles bundle from the authored project, Blender scripts, Node runner, Present → Export photo job, Still review → Import photo still with the trust gates. **Not yet rendered**: no Blender on the build machine, so the light calibration and the 3-minute gate are unmeasured. Phase 4 is not started.
+**Status:** Phase 3 pipeline is in the tree (`feat/photo-stills-p3-cycles`): Cycles bundle from the authored project, Blender scripts, Node runner, HTTP render service with a Docker image, Present → Export photo job, Still review → Render photo / Import photo still with the trust gates. **Not yet rendered**: no Blender on the build machine, so the light calibration and the 3-minute gate are unmeasured. Phase 4 is not started.
 **Goal:** Client-showcase renders that look like photographs, where lights read as real fixtures, **and** show exactly the finishes, models and layout the customer picked.
 **Scope:** Shared lighting and material assets, the stills job, and a controlled offline still engine. The live WebGL viewport gets only cheap, constraint-safe fixes.
 **Relationship to other docs:** Fills the open **Phase 2C "controlled offline renderer"** slot in
@@ -109,6 +109,19 @@ The bundle rebuilds **the lights the scene actually has**, one Cycles light per 
 - UI: a **Render photo** action in Present and in the recent-jobs panel with progress and cancel, labelled "presentation still".
 
 **Transport (decided for v1: (b) per-seat runner, no sidecar yet):** the app writes `bundle.json` (Present → **Export photo job…**, or Still review), `npm run cycles:render <dir> --rerun` renders it with the local Blender, and Still review → **Import photo still…** takes `provenance.json` and `still.png` back through the trust gates with a freshly captured WebGL plate. Customer geometry never leaves the seat. The job contract is runner-agnostic, so a shared HTTP service (a) can consume the same bundle later. In-app spawn with progress and cancel needs the Tauri shell plugin and stays a follow-up; a seat without Blender still gets the WebGL hero still. The Render Studio itself is a QA surface (`interiors-qa-fixture` → `openRenderStudio`), so the customer-facing entry is the Present button.
+
+**Render service and where it runs (decided 2026-10-07).** One bundle, one runner, three places to run it. The app never knows which; it only knows a URL, or writes a file.
+
+| Mode | How | When |
+| --- | --- | --- |
+| **Local Blender** | Install Blender 4.x, `npm run cycles:serve` (or `npm run cycles:render <dir>` by hand) | A designer's or factory seat with a GPU; data stays on the machine |
+| **Docker, locally** | `docker build -f docker/cycles/Dockerfile -t cabinet-cycles .` then `docker run -p 8787:8787 cabinet-cycles` | Same seat, no Blender install to manage; also how the image is tested before it ships |
+| **Docker on EC2** (later) | Same image on a `g5.xlarge` / `g4dn.xlarge` with the NVIDIA runtime, auto-stopped when idle | Browser users and shops without a GPU; room geometry leaves the seat, see §6 |
+
+- **Service API** (`scripts/cycles/serve.mjs`): `POST /jobs` with the bundle → `{ id }`; `GET /jobs/:id` → status and log tail; `GET /jobs/:id/still.png` and `/provenance.json`; `DELETE /jobs/:id` cancels. Jobs run one at a time with `--rerun`, so every provenance carries the deterministic gate. `CYCLES_TOKEN` adds a bearer token; `CYCLES_FAKE_RENDER=1` serves a placeholder still so the app round trip can be tested on a machine without Blender.
+- **App side**: the service URL is `VITE_CYCLES_RENDER_URL` at build time or the `cabinet-designer:cycles-service-url` local-storage key per seat. With a URL set, Still review shows **Render photo…** (post, poll, import through the gates, cancel). Without one, **Export photo job…** / **Import photo still…** work by file, and Present's **Export photo job…** stays for customers.
+- **Downloads stay local.** The still and provenance come back to the seat that asked; the service keeps a job folder only until it is cleaned. Persisting jobs and results to S3 is a later step, not part of this phase.
+- **Order of testing**: fake service → local Blender → Docker locally → Docker on EC2. Each step reuses the previous step's bundle and provenance, so a difference shows exactly where it entered.
 
 **Done when:** a 2 BHK still from Cycles passes review with cove, COB and pendant fixtures visibly lighting the room; provenance lists the same material ids as the job; render time ≤ 3 min at 1080p on the target box; the WebGL viewport is untouched.
 

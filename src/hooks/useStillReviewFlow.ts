@@ -14,6 +14,7 @@ import { runStillGeneration } from "./runStillGeneration";
 import { exportCyclesBundleForProject } from "../rendering/stillEngine/cycles/exportCyclesBundle";
 import { importCyclesStill as importCyclesStillFiles, parseCyclesProvenance } from "../rendering/stillEngine/cycles/importCyclesStill";
 import { pickCyclesStillFiles, saveCyclesBundle } from "../platform/cyclesFiles";
+import { cyclesServiceUrl, renderBundleOnService, type CyclesServiceJob } from "../platform/cyclesService";
 import {
   selectPackageAcceptedStillAssets,
   type AcceptedStillAsset,
@@ -52,6 +53,16 @@ export function useStillReviewFlow(args: {
   const captureRef = useRef(capture);
   captureRef.current = capture;
   const stillDataUrlRef = useRef<string | null>(null);
+  /** The hero lock remounts the live canvas; wait for its capture handle to come back. */
+  const awaitCapture = useCallback(async (): Promise<RenderCaptureHandle> => {
+    const started = Date.now();
+    while (Date.now() - started < 6000) {
+      const live = captureRef.current;
+      if (live) return live;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error("Render capture is not ready.");
+  }, []);
   const [session, setSession] = useState<StillReviewSession>(createIdleStillReview);
   const [plateDataUrl, setPlateDataUrl] = useState<string | null>(null);
   const [stillDataUrl, setStillDataUrl] = useState<string | null>(null);
@@ -61,6 +72,9 @@ export function useStillReviewFlow(args: {
   const [compareMode, setCompareMode] = useState<StillReviewCompareMode>("split");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Progress line while the render service works; null when idle. */
+  const [serviceStatus, setServiceStatus] = useState<string | null>(null);
+  const serviceAbortRef = useRef<AbortController | null>(null);
 
   const generateStill = useCallback(async () => {
     if (!cameraId || busyRef.current) return;
@@ -69,8 +83,7 @@ export function useStillReviewFlow(args: {
     setError(null);
     try {
       await beforeCapture?.();
-      const liveCapture = captureRef.current;
-      if (!liveCapture) throw new Error("Render capture is not ready.");
+      const liveCapture = await awaitCapture();
       const result = await runStillGeneration({
         project,
         cameraId,
@@ -97,6 +110,7 @@ export function useStillReviewFlow(args: {
     }
   }, [
     afterCapture,
+    awaitCapture,
     beforeCapture,
     cameraId,
     composition,
@@ -124,19 +138,12 @@ export function useStillReviewFlow(args: {
     }
   }, [cameraId, heightPx, project, widthPx]);
 
-  /** Bring a rendered still back through the review step, with the WebGL plate captured now. */
-  const importCyclesStill = useCallback(async () => {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    setBusy(true);
-    setError(null);
+  /** Every Cycles still, picked or fetched, enters review the same way: gates plus a fresh WebGL plate. */
+  const applyCyclesFiles = useCallback(async (files: { provenanceText: string; stillDataUrl: string }) => {
+    const provenance = parseCyclesProvenance(files.provenanceText);
+    await beforeCapture?.();
     try {
-      const files = await pickCyclesStillFiles();
-      if (!files) return;
-      const provenance = parseCyclesProvenance(files.provenanceText);
-      await beforeCapture?.();
-      const liveCapture = captureRef.current;
-      if (!liveCapture) throw new Error("Render capture is not ready.");
+      const liveCapture = await awaitCapture();
       const result = await importCyclesStillFiles({
         project,
         provenance,
@@ -154,14 +161,62 @@ export function useStillReviewFlow(args: {
       setValidation(result.validation);
       setSession(result.session);
       setCompareMode("split");
+    } finally {
+      afterCapture?.();
+    }
+  }, [afterCapture, awaitCapture, beforeCapture, composition, heightPx, project, widthPx]);
+
+  /** Bring a rendered still back through the review step from files on disk. */
+  const importCyclesStill = useCallback(async () => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError(null);
+    try {
+      const files = await pickCyclesStillFiles();
+      if (files) await applyCyclesFiles(files);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not import the Cycles still.");
     } finally {
-      afterCapture?.();
       busyRef.current = false;
       setBusy(false);
     }
-  }, [afterCapture, beforeCapture, composition, heightPx, project, widthPx]);
+  }, [applyCyclesFiles]);
+
+  /** Transport (a): post the bundle to the configured render service and import what comes back. */
+  const renderCyclesPhoto = useCallback(async () => {
+    if (!cameraId || busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError(null);
+    const abort = new AbortController();
+    serviceAbortRef.current = abort;
+    try {
+      const bundle = exportCyclesBundleForProject(project, { cameraId, widthPx, heightPx });
+      setServiceStatus("Sending job…");
+      const result = await renderBundleOnService(bundle, {
+        signal: abort.signal,
+        onStatus: (job: CyclesServiceJob) => {
+          const last = job.log[job.log.length - 1];
+          setServiceStatus(job.status === "queued" ? "Queued on the render service…" : `Rendering… ${last ?? ""}`.trim());
+        },
+      });
+      setServiceStatus("Importing still…");
+      await applyCyclesFiles(result);
+      setServiceStatus(null);
+    } catch (caught) {
+      setServiceStatus(null);
+      setError(caught instanceof Error ? caught.message : "Render service failed.");
+    } finally {
+      serviceAbortRef.current = null;
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }, [applyCyclesFiles, cameraId, heightPx, project, widthPx]);
+
+  const cancelCyclesPhoto = useCallback(() => {
+    serviceAbortRef.current?.abort();
+  }, []);
 
   const accept = useCallback(() => {
     setSession((current) => {
@@ -219,6 +274,10 @@ export function useStillReviewFlow(args: {
     generateStill,
     exportCyclesJob,
     importCyclesStill,
+    renderCyclesPhoto,
+    cancelCyclesPhoto,
+    serviceStatus,
+    serviceConfigured: cyclesServiceUrl() !== null,
     accept,
     reject,
     retry,

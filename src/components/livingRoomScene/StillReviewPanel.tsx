@@ -22,6 +22,11 @@ type StillReviewPanelProps = {
   onExportCyclesJob?: () => void;
   /** Phase 3: pick provenance.json and still.png rendered by Cycles. */
   onImportCyclesStill?: () => void;
+  /** Phase 3, transport (a): post the job to the configured render service. */
+  onRenderCyclesPhoto?: () => void;
+  onCancelCyclesPhoto?: () => void;
+  serviceConfigured?: boolean;
+  serviceStatus?: string | null;
 };
 
 const MODES: { id: StillReviewCompareMode; label: string }[] = [
@@ -48,6 +53,10 @@ export function StillReviewPanel({
   onRetry,
   onExportCyclesJob,
   onImportCyclesStill,
+  onRenderCyclesPhoto,
+  onCancelCyclesPhoto,
+  serviceConfigured = false,
+  serviceStatus = null,
 }: StillReviewPanelProps) {
   const pending = session.status === "pending_review";
   const cycles = session.job?.engine.id === CYCLES_STILL_ENGINE.id;
@@ -109,6 +118,7 @@ export function StillReviewPanel({
           : "Hero still engine · faithful enhance (grade, contact, sharpen). Not AI. Does not edit the project."}
       </p>
       <StillTrustPanel validation={validation} provenance={session.provenance} />
+      {serviceStatus ? <p className="lr-still-review-note" role="status" data-testid="still-service-status">{serviceStatus}</p> : null}
       {error ? <p className="is-fail">{error}</p> : null}
       <div className="lr-still-review-actions">
         <button type="button" className="is-primary" onClick={onAccept} disabled={!pending || busy || validation?.ok === false}>
@@ -116,6 +126,14 @@ export function StillReviewPanel({
         </button>
         <button type="button" onClick={onReject} disabled={!pending || busy}>Reject</button>
         <button type="button" onClick={onRetry} disabled={!session.job || busy}>Retry</button>
+        {onRenderCyclesPhoto && serviceConfigured ? (
+          <button type="button" className="is-primary" data-testid="still-render-cycles" onClick={onRenderCyclesPhoto} disabled={busy} title="Render on the configured Cycles service and review the result">
+            Render photo…
+          </button>
+        ) : null}
+        {serviceStatus && onCancelCyclesPhoto ? (
+          <button type="button" data-testid="still-cancel-cycles" onClick={onCancelCyclesPhoto}>Cancel render</button>
+        ) : null}
         {onExportCyclesJob ? (
           <button type="button" data-testid="still-export-cycles-job" onClick={onExportCyclesJob} disabled={busy} title="Write a Cycles job for npm run cycles:render">
             Export photo job…
