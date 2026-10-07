@@ -13,8 +13,8 @@
     "apartment-2bhk-v1:floor": {
       "luma": 216,
       "r": 226,
-      "g": 215,
-      "b": 206,
+      "g": 214,
+      "b": 205,
       "tolerance": 12
     },
     "apartment-2bhk-v1:door": {
@@ -49,7 +49,7 @@
       "luma": 176,
       "r": 179,
       "g": 175,
-      "b": 185,
+      "b": 184,
       "tolerance": 12
     },
     "apartment-2bhk-v2:floor": {
@@ -90,8 +90,8 @@
     "apartment-1bhk-v1:floor": {
       "luma": 217,
       "r": 225,
-      "g": 216,
-      "b": 212,
+      "g": 215,
+      "b": 211,
       "tolerance": 12
     },
     "apartment-1bhk-v1:door": {
@@ -138,7 +138,7 @@
     },
     "apartment-studio-v1:floor": {
       "luma": 201,
-      "r": 201,
+      "r": 200,
       "g": 201,
       "b": 202,
       "tolerance": 12
@@ -147,14 +147,14 @@
       "luma": 207,
       "r": 204,
       "g": 208,
-      "b": 211,
+      "b": 210,
       "tolerance": 12
     },
     "apartment-studio-v1:door": {
-      "luma": 147,
-      "r": 157,
+      "luma": 148,
+      "r": 163,
       "g": 145,
-      "b": 136,
+      "b": 129,
       "tolerance": 12
     },
     "apartment-1bhk-plan-v1:floor": {
@@ -162,6 +162,111 @@
       "r": 194,
       "g": 191,
       "b": 196,
+      "tolerance": 12
+    },
+    "apartment-studio-v2:wall": {
+      "luma": 158,
+      "r": 154,
+      "g": 159,
+      "b": 163,
+      "tolerance": 12
+    },
+    "apartment-studio-v2:floor": {
+      "luma": 146,
+      "r": 144,
+      "g": 147,
+      "b": 150,
+      "tolerance": 12
+    },
+    "apartment-studio-v2:door": {
+      "luma": 95,
+      "r": 110,
+      "g": 93,
+      "b": 78,
+      "tolerance": 12
+    },
+    "apartment-studio-plan-v2:wall": {
+      "luma": 154,
+      "r": 150,
+      "g": 154,
+      "b": 158,
+      "tolerance": 12
+    },
+    "apartment-studio-plan-v2:floor": {
+      "luma": 137,
+      "r": 130,
+      "g": 138,
+      "b": 146,
+      "tolerance": 12
+    },
+    "apartment-1bhk-v2:wall": {
+      "luma": 189,
+      "r": 202,
+      "g": 187,
+      "b": 178,
+      "tolerance": 12
+    },
+    "apartment-1bhk-v2:floor": {
+      "luma": 192,
+      "r": 207,
+      "g": 189,
+      "b": 178,
+      "tolerance": 12
+    },
+    "apartment-1bhk-v2:door": {
+      "luma": 87,
+      "r": 113,
+      "g": 81,
+      "b": 67,
+      "tolerance": 12
+    },
+    "apartment-1bhk-plan-v2:wall": {
+      "luma": 169,
+      "r": 179,
+      "g": 167,
+      "b": 163,
+      "tolerance": 12
+    },
+    "apartment-1bhk-plan-v2:floor": {
+      "luma": 146,
+      "r": 149,
+      "g": 145,
+      "b": 152,
+      "tolerance": 12
+    },
+    "apartment-3bhk-v2:wall": {
+      "luma": 183,
+      "r": 208,
+      "g": 177,
+      "b": 159,
+      "tolerance": 12
+    },
+    "apartment-3bhk-v2:floor": {
+      "luma": 181,
+      "r": 199,
+      "g": 177,
+      "b": 168,
+      "tolerance": 12
+    },
+    "apartment-3bhk-v2:door": {
+      "luma": 68,
+      "r": 103,
+      "g": 60,
+      "b": 45,
+      "tolerance": 12
+    },
+    "apartment-3bhk-plan-v2:wall": {
+      "luma": 171,
+      "r": 182,
+      "g": 168,
+      "b": 164,
+      "tolerance": 12
+    },
+    "apartment-3bhk-plan-v2:floor": {
+      "luma": 148,
+      "r": 150,
+      "g": 147,
+      "b": 155,
       "tolerance": 12
     }
   }
