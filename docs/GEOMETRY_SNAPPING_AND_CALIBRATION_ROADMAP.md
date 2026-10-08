@@ -287,13 +287,18 @@ calibration unchanged. A 230 mm wall draws thicker than a 100 mm one.
 the underlay `<image>`; the line-style and print-export opacity rules are gone,
 so `underlay.opacity` is the only opacity. The wall `<line>` sets
 `--lr-wall-thickness` from `thicknessMm` and the plan, drafting and export
-stylesheets read it (partition, plan-only and active strokes keep their own
-widths). Calibrate clicks use `calibrationSnapCandidates` (DWG endpoints only)
+stylesheets read it. The shell always carries `is-drafting-studio`, so its
+rule is scoped to solid walls outside Line style: Line style stays 28 px and
+partition / plan-only traces keep their thin dashed strokes. The selected
+wall keeps the real thickness (the old 32 px accent rule has been masked by
+the drafting shell since 2026-09-10 and is not revived here). Calibrate clicks use `calibrationSnapCandidates` (DWG endpoints only)
 and `snapMeasurePoint(…, { grid: false })`, so a raster reads the raw pointer
 and shows "Free". The **Width** field no longer sets `calibrated`.
 `carryUnderlayPose` (`planUnderlayTransform.ts`) keeps size, pose, opacity and
 calibration on Replace file when both are rasters with the same aspect within
-1 %; DWG replacements always start fresh. Not run: the unit and e2e suites
+1 %; DWG replacements always start fresh. The commit status says which
+happened (`describeUnderlayReplace`): "position, scale and calibration kept"
+or "different shape … reset. Calibrate again." Not run: the unit and e2e suites
 (by project rule); `tsc --noEmit` was run.
 
 ### Phase 1 — Snap engine and indicator (3–5 days)

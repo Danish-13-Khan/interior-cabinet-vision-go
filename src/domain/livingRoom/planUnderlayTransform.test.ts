@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 import {
+  canCarryUnderlayPose,
   canMoveUnderlay,
   carryUnderlayPose,
+  describeUnderlayReplace,
   centreUnderlayOnOrigin,
   normalizeUnderlayRotationDeg,
   rotateUnderlayBy,
@@ -84,7 +86,15 @@ describe("plan underlay transform", () => {
     });
 
     it("returns the fresh import when the aspect differs by more than 1 %", () => {
+      expect(canCarryUnderlayPose(calibrated, fresh)).toBe(true);
+      expect(canCarryUnderlayPose(calibrated, { ...fresh, heightMm: 4000 })).toBe(false);
       expect(carryUnderlayPose(calibrated, { ...fresh, heightMm: 4000 })).toEqual({ ...fresh, heightMm: 4000 });
+    });
+
+    it("describes a replace as kept, reset or plain for DWG", () => {
+      expect(describeUnderlayReplace(calibrated, fresh)).toMatch(/kept/);
+      expect(describeUnderlayReplace(calibrated, { ...fresh, heightMm: 4000 })).toMatch(/reset.*Calibrate again/);
+      expect(describeUnderlayReplace(calibrated, { ...fresh, sourceType: "dwg" })).toBe("Replaced plan underlay.");
     });
 
     it("never carries a pose onto or from a DWG underlay, or when nothing was there", () => {

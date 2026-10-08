@@ -27,6 +27,10 @@
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-line {
   stroke: var(--ink);
+}
+
+/* Real thickness for solid walls only: Line style, partitions and plan-only traces keep their thin dashed strokes (S8). */
+.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-plan-svg:not(.is-line-style) .lr-wall-line:not(.is-partition):not(.is-plan-only) {
   stroke-width: var(--lr-wall-thickness, 128);
 }
 

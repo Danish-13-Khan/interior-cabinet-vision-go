@@ -47,15 +47,23 @@ export const UNDERLAY_ASPECT_CARRY_TOLERANCE = 0.01;
  * replaced onto the newly imported one when both are rasters with matching aspect
  * ratio (within 1 %). Otherwise the fresh import is returned as is.
  */
+/** True when `next` can inherit `previous`'s pose: both rasters, same aspect within 1 %. */
+export function canCarryUnderlayPose(
+  previous: LivingRoomPlanUnderlay | null | undefined,
+  next: LivingRoomPlanUnderlay,
+): boolean {
+  if (!previous || previous.sourceType === "dwg" || next.sourceType === "dwg") return false;
+  if (!(previous.widthMm > 0 && previous.heightMm > 0 && next.widthMm > 0 && next.heightMm > 0)) return false;
+  const previousAspect = previous.widthMm / previous.heightMm;
+  const nextAspect = next.widthMm / next.heightMm;
+  return Math.abs(previousAspect - nextAspect) / previousAspect <= UNDERLAY_ASPECT_CARRY_TOLERANCE;
+}
+
 export function carryUnderlayPose(
   previous: LivingRoomPlanUnderlay | null | undefined,
   next: LivingRoomPlanUnderlay,
 ): LivingRoomPlanUnderlay {
-  if (!previous || previous.sourceType === "dwg" || next.sourceType === "dwg") return next;
-  if (!(previous.widthMm > 0 && previous.heightMm > 0 && next.widthMm > 0 && next.heightMm > 0)) return next;
-  const previousAspect = previous.widthMm / previous.heightMm;
-  const nextAspect = next.widthMm / next.heightMm;
-  if (Math.abs(previousAspect - nextAspect) / previousAspect > UNDERLAY_ASPECT_CARRY_TOLERANCE) return next;
+  if (!previous || !canCarryUnderlayPose(previous, next)) return next;
   return {
     ...next,
     widthMm: previous.widthMm,
@@ -66,4 +74,16 @@ export function carryUnderlayPose(
     opacity: previous.opacity,
     calibrated: Boolean(previous.calibrated),
   };
+}
+
+/** Status line for a Replace file commit, so a reset pose is never silent (S7). */
+export function describeUnderlayReplace(
+  previous: LivingRoomPlanUnderlay,
+  next: LivingRoomPlanUnderlay,
+): string {
+  if (previous.sourceType === "dwg" || next.sourceType === "dwg") return "Replaced plan underlay.";
+  if (canCarryUnderlayPose(previous, next)) {
+    return "Replaced plan underlay — position, scale and calibration kept.";
+  }
+  return "Replaced plan underlay — the new file has a different shape, so position, scale and calibration were reset. Calibrate again.";
 }
