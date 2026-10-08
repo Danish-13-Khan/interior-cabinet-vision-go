@@ -1,4 +1,5 @@
-import { supportsDoors, supportsDrawers, type CabinetConfig } from "../cabinetDimensions";
+import { supportsDoors, supportsDrawers } from "../cabinetCapabilities";
+import type { CabinetConfig } from "../cabinetDimensions";
 import { DOOR_GAP, normalizeConstructionSpec, type DoorMount } from "../cabinetConstructionSpec";
 import { golaProfilesForType, type GolaProfileKind, type GolaProfiles } from "../frontSystem/golaProfiles";
 import { APPLY_PUSH_LATCH_BUFFER, PUSH_LATCH_BUFFER_MM } from "../frontSystem/pushDefaults";

@@ -1021,7 +1021,6 @@ export {
   setProposalSelectedViews,
   setProposalStaleOverride,
   toggleProposalView,
-  verifyProposalPdf,
   type LiveInteriorQuote,
   type ProposalDocument,
   type ProposalGate,

@@ -4,14 +4,13 @@ import {
   createFrozenGoldenProposalProject,
   exportProposalPdf,
   goldenProposalViewFrames,
-  verifyProposalPdf,
 } from ".";
 import {
   GOLDEN_PROPOSAL_PAGE_COUNT,
   proposalPageCount,
   verifyProposalPdfPages,
 } from "./proposalVerifyPages";
-import { extractPdfText } from "./proposalVerify";
+import { extractPdfText, verifyProposalPdf } from "./proposalVerify";
 import { verifyProposalVisualContent } from "./proposalVerifyVisual";
 import { createGoldenCabinetRunProject } from "../goldenRun";
 import { freezeProposal } from "./freezeProposal";

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { InteriorProject } from "../domain/interiorProject";
 import { buildProposalDocument, exportInteriorProposalPdf } from "../domain/livingRoom/proposal";
+import { proposalUnprintableFields } from "../domain/livingRoom/proposal/proposalPdfFont";
 import type { ProposalPreviewPage } from "../domain/livingRoom/proposal/proposalPreview";
 import type { ProposalViewFrame } from "../domain/livingRoom/proposal";
 import { getErrorMessage } from "../utils/errors";
@@ -41,10 +42,7 @@ export function useProposalPreview(args: {
     try {
       const proposalDoc = buildProposalDocument(args.project, { staleOverride: args.staleOverride });
       const blob = await exportInteriorProposalPdf(args.project, args.viewFrames, { staleOverride: args.staleOverride });
-      const [{ renderProposalPreview }, { proposalUnprintableFields }] = await Promise.all([
-        import("../domain/livingRoom/proposal/proposalPreview"),
-        import("../domain/livingRoom/proposal/proposalPdfFont"),
-      ]);
+      const { renderProposalPreview } = await import("../domain/livingRoom/proposal/proposalPreview");
       const pages = await renderProposalPreview(blob, proposalDoc);
       if (seq !== renderSeq.current) return;
       setPreview({ pages, busy: false, error: null, warnings: proposalUnprintableFields(proposalDoc) });

@@ -10,9 +10,19 @@ const githubPages = process.env.GITHUB_PAGES === "true";
 // because GitHub redirects that host to the custom domain.
 const pagesBase = "/";
 
+// @gltf-transform/core (NodeIO) and libredwg-web's Emscripten loader import
+// these only behind Node-environment checks. Marking them external skips
+// Vite's "externalized for browser compatibility" warning; the branch never runs.
+const nodeOnlyImports = ["node:fs", "node:path", "module"];
+
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react()],
+  worker: {
+    rollupOptions: {
+      external: nodeOnlyImports,
+    },
+  },
   resolve: {
     dedupe: ["three"],
   },
@@ -46,7 +56,7 @@ export default defineConfig(async () => ({
   build: {
     chunkSizeWarningLimit: 800,
     rollupOptions: {
-      external: ["@napi-rs/canvas"],
+      external: ["@napi-rs/canvas", ...nodeOnlyImports],
       output: {
         manualChunks(id) {
           // Shared loader helpers must not pull PDF/export code into the homepage.
@@ -65,7 +75,8 @@ export default defineConfig(async () => ({
             return "react-vendor";
           }
 
-          if (id.includes("/three/")) {
+          // Core only: examples/jsm loaders and exporters follow their lazy importers.
+          if (id.includes("/three/") && !id.includes("/three/examples/")) {
             return "three-core";
           }
 

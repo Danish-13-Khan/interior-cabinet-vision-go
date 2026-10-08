@@ -60,7 +60,6 @@ export {
 } from "./proposalClientPayload";
 export { exportInteriorProposalPdf, exportProposalPdf } from "./proposalPdf";
 export { proposalRoomPages } from "./proposalRooms";
-export { extractPdfText, verifyProposalPdf, verifyProposalPdfText } from "./proposalVerify";
 export {
   createFrozenGoldenProposalProject,
   createGoldenProposalProject,

@@ -3,12 +3,11 @@ import {
   supportsEndPanels,
   supportsToeKick,
 } from "./cabinetCapabilities";
-import {
-  getCompositionCapabilities,
-  supportsFillers,
-  type CabinetEndPanelSpec,
-  type CabinetFillerSpec,
-  type CabinetToeKickSpec,
+import { getCompositionCapabilities, supportsFillers } from "./cabinetComposition/capabilities";
+import type {
+  CabinetEndPanelSpec,
+  CabinetFillerSpec,
+  CabinetToeKickSpec,
 } from "./cabinetComposition";
 import { getFamilyOpeningRules, type FamilyOpeningRules } from "./cabinetFamilyRules";
 
