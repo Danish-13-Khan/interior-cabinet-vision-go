@@ -41,6 +41,8 @@ type ModelViewSceneProps = {
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
+  /** Keep the ceiling in exterior presets (toolbar toggle). */
+  showCeiling?: boolean;
   interactive?: boolean;
   fitVersion?: number;
   fitMode?: ModelViewFitMode;
@@ -76,7 +78,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     scene, viewportQuality, renderMode, lightingQuality, projectLightScale,
     windowKeyScale, selectedIds, activeOpeningId, activeWallId, activeCameraId, viewPreset,
     cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
-    interactive = true,
+    showCeiling = false, interactive = true,
     fitVersion = 0, fitMode = "room", fitSelection, onClearSelection, onSelect,
     onSelectOpening, onSelectWall, selectedLightId = null, onSelectLight, onMove, onExitWalkthrough, onMechanismClick,
     onWallContextMenu, transformTarget, onTransformPreview, onTransformCommit,
@@ -100,6 +102,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     activeWallId,
     selectedLightId,
     cutawayWalls,
+    showCeiling,
     showGrid,
     cameraHeightMm,
     fieldOfViewDegrees,
@@ -131,6 +134,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
+          showCeiling={showCeiling}
           cutawayStyle={props.captureFixedDpr != null ? "remove" : "ghost"}
           interactive={interactive}
           renderQuality={viewportQuality}

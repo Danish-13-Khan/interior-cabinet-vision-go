@@ -23,6 +23,8 @@ type ModelViewToolbarProps = {
   activeCameraId: string | null;
   cameras: readonly CameraEntity[];
   cutawayWalls: boolean;
+  /** Keep the ceiling slab in exterior presets; Walkthrough always shows it. */
+  showCeiling: boolean;
   activeRotation: number;
   hasActiveObject: boolean;
   viewportQuality: RenderQuality;
@@ -33,6 +35,7 @@ type ModelViewToolbarProps = {
   onFieldOfViewDegrees: (value: number) => void;
   onActiveCameraId: (cameraId: string | null) => void;
   onCutawayWalls: (value: boolean) => void;
+  onShowCeiling: (value: boolean) => void;
   onSetRotation: (rotationY: number) => void;
   onViewportQuality: (quality: RenderQuality) => void;
   onOpenGuide: () => void;
@@ -109,6 +112,19 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
         onClick={() => props.onCutawayWalls(!props.cutawayWalls)}
       >
         Cutaway
+      </button>
+      <button
+        type="button"
+        className={props.showCeiling || props.viewPreset === "walkthrough" ? "is-active" : ""}
+        data-testid="model-show-ceiling"
+        title={props.viewPreset === "walkthrough"
+          ? "Walkthrough always shows the ceiling"
+          : "Show the ceiling slab in this view — viewing only, the room is not changed"}
+        aria-pressed={props.showCeiling || props.viewPreset === "walkthrough"}
+        disabled={props.viewPreset === "walkthrough"}
+        onClick={() => props.onShowCeiling(!props.showCeiling)}
+      >
+        Ceiling
       </button>
       {props.hasSelection ? (
         <button type="button" data-testid="model-clear-selection" onClick={props.onClearSelection}>

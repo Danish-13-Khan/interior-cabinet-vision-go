@@ -20,8 +20,12 @@ export function resolveModelCutawaySides(
   return new Set([dz < 0 ? "back" : "front"]);
 }
 
-/** Exterior presets hide the ceiling so the shell is open. Walkthrough stays enclosed. */
-export function modelViewHidesCeiling(preset: string | undefined) {
+/**
+ * Exterior presets hide the ceiling so the shell is open. Walkthrough stays
+ * enclosed, and the toolbar's Ceiling toggle (`showCeiling`) keeps it in any preset.
+ */
+export function modelViewHidesCeiling(preset: string | undefined, showCeiling = false) {
+  if (showCeiling) return false;
   return Boolean(preset) && preset !== "walkthrough";
 }
 

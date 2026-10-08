@@ -28,6 +28,8 @@ export type LivingRoomModelViewportProps = {
   onFieldOfViewDegrees: (value: number) => void;
   cutawayWalls: boolean;
   onCutawayWalls: (value: boolean) => void;
+  showCeiling: boolean;
+  onShowCeiling: (value: boolean) => void;
   wallMenu: WallContextMenuState | null;
   onWallMenu: (menu: WallContextMenuState | null) => void;
   viewportQuality: RenderQuality;

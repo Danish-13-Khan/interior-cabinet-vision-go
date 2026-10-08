@@ -37,6 +37,8 @@ type SceneRendererProps = {
   cutawayWalls: boolean;
   /** "ghost" keeps cut walls as translucent shells (live view); "remove" drops them (captures). */
   cutawayStyle?: "ghost" | "remove";
+  /** Keep the ceiling slab in exterior presets (toolbar toggle). Client framing still drops it. */
+  showCeiling?: boolean;
   interactive?: boolean;
   renderQuality?: RenderQuality;
   renderComposition?: RenderComposition;
@@ -72,7 +74,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const {
     scene, selectedIds, selectedOpeningId = null, selectedWallId = null, activeCameraId,
     viewPreset, cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
-    cutawayStyle = "ghost", interactive = true, renderQuality = "standard", renderComposition = "project-camera",
+    cutawayStyle = "ghost", showCeiling = false, interactive = true, renderQuality = "standard", renderComposition = "project-camera",
     renderMode = "preview", lightingQuality: lightingQualityOverride, projectLightScale = 1,
     windowKeyScale = 1, roomLightScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
@@ -118,7 +120,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   );
   const cutawaySides = clientCutaway
     ?? ((cutawayWalls && interactive) || cutNearWall ? orbitCutawaySides : savedCutawaySides);
-  const hideCeiling = modelViewHidesCeiling(viewPreset) || Boolean(clientCutaway);
+  const hideCeiling = modelViewHidesCeiling(viewPreset, showCeiling) || Boolean(clientCutaway);
   // A selected wall light keeps its host wall standing, as selecting the wall would.
   const selectedLightHost = selectedLightId
     ? scene.lights.find((light) => light.id === selectedLightId)?.parameters.hostWallId

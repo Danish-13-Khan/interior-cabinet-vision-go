@@ -1,8 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Draft 2026-10-09. Item 2 of the brief (a room face "missing" in 3D)
-is fixed in code on `main` this session and is not a phase (see §0). Phases 0–4
-below are proposed; pick one before any further `src/` work.
+**Status:** Phase 0 built 2026-10-09 on `feat/ceiling-cutouts` (Ceiling plan layer, 3D Ceiling toggle, `modelViewHidesCeiling(preset, showCeiling)`). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 1–4 remain proposed; pick one before further `src/` work.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with

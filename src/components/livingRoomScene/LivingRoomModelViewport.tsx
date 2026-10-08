@@ -43,6 +43,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
           viewPreset={camera.viewPreset} cameraHeightMm={props.cameraHeightMm}
           fieldOfViewDegrees={props.fieldOfViewDegrees} activeCameraId={props.activeCameraId}
           cameras={scene.cameras} cutawayWalls={props.cutawayWalls}
+          showCeiling={props.showCeiling} onShowCeiling={props.onShowCeiling}
           activeRotation={transform.activeObject ? Math.round(transform.activeObject.rotation.y) : 0}
           hasActiveObject={Boolean(transform.activeObject)} viewportQuality={props.viewportQuality}
           honesty={props.honesty} hasSelection={handlers.selectedIds.length > 0}
@@ -85,6 +86,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
           cameraHeightMm={props.cameraOverrides.cameraHeightMm}
           fieldOfViewDegrees={props.cameraOverrides.fieldOfViewDegrees}
           snapSizeMm={props.snapSizeMm} showGrid={props.clientView.showGrid} cutawayWalls={props.cutawayWalls}
+          showCeiling={props.showCeiling}
           interactive={props.clientView.interactive}
           frameRun={apartment ? undefined : tour.frameRun}
           renderComposition={apartment ? "project-camera" : tour.composition}
