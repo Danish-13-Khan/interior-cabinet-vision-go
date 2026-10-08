@@ -19,13 +19,18 @@ export function useRoomDrawing(input: PlanSnapInput & {
   onPointCount: (count: number) => void;
 }) {
   const engine = usePlanSnap(input);
-  const snapAt = (event: ReactPointerEvent<Element>): PlanSnapResult =>
-    engine.snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), event);
   const [polygon, setPolygon] = useState<Point[]>([]);
   const [rectangleStart, setRectangleStart] = useState<Point | null>(null);
   const [cursor, setCursor] = useState<Point | null>(null);
   const [snap, setSnap] = useState<PlanSnapResult | null>(null);
   const startRef = useRef<Point | null>(null);
+  // Polygon mode: the last placed vertex anchors the axis snap for the next edge.
+  const snapAt = (event: ReactPointerEvent<Element>): PlanSnapResult =>
+    engine.snap(
+      input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>),
+      event,
+      { anchor: startRef.current ? null : polygon[polygon.length - 1] ?? null },
+    );
   const onCommitRef = useRef(input.onCommit);
   const onPointCountRef = useRef(input.onPointCount);
   onCommitRef.current = input.onCommit;

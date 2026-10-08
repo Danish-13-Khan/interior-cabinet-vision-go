@@ -21,6 +21,7 @@ export {
   type WallPlanPatch,
 } from "./wallTransform";
 export { joinPlanNodes, mergeCoincidentPlanNodes } from "./wallEditingJoin";
+export { WALL_JOIN_TOLERANCE_MM, resolveWallEndpoint, wallSpanHit, weldNodeIntoWalls } from "./wallEditingWeld";
 export {
   clampOpeningsToWallLengths,
   movePlanNodeWithOpenings,

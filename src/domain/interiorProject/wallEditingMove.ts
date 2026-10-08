@@ -5,6 +5,7 @@ import { roomIdsUsingWall } from "./planTopology";
 import { roomPlanPolygon, roomPolygonIsValid } from "./roomGeometry";
 import { createWallGraphIndex, movePlanNode, synchronizeWallCaches } from "./wallGraph";
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
+import { weldNodeIntoWalls } from "./wallEditingWeld";
 import type { InteriorProject, Point2Mm } from "./types";
 
 function lengthOf(start: Point2Mm, end: Point2Mm) {
@@ -98,7 +99,7 @@ export function movePlanNodeWithOpenings(
   if (nodeMoveCollapsesEdge(project, nodeId, target)) return project;
   const oldLengths = wallLengthMap(project);
   let next = clampOpeningsToWallLengths(movePlanNode(project, nodeId, target), oldLengths);
-  if (options?.joinCoincident !== false) next = mergeCoincidentPlanNodes(next);
+  if (options?.joinCoincident !== false) next = weldNodeIntoWalls(mergeCoincidentPlanNodes(next), nodeId);
   if (!affectedRoomsRemainValid(next, [nodeId])) return project;
   return next;
 }
@@ -147,7 +148,9 @@ export function translatePlanWall(
     }),
   }));
   let next = clampOpeningsToWallLengths(moved, oldLengths);
-  if (options?.joinCoincident !== false) next = mergeCoincidentPlanNodes(next);
+  if (options?.joinCoincident !== false) {
+    next = weldNodeIntoWalls(weldNodeIntoWalls(mergeCoincidentPlanNodes(next), startNode.id), endNode.id);
+  }
   if (!affectedRoomsRemainValid(next, [startNode.id, endNode.id])) return project;
   return next;
 }

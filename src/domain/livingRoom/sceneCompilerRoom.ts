@@ -6,6 +6,7 @@ import type {
 } from "../interiorProject";
 import { clampOpeningVertical, polygonBounds, roomPlanPolygon, selectRoomOpenings, selectRoomWalls } from "../interiorProject";
 import { compileWallHeightMm, isWallRaised } from "../interiorProject/wallRaise";
+import { createWallGraphIndex, type WallGraphIndex } from "../interiorProject/wallGraph";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { compileOpeningNode, wallPoint } from "./sceneCompilerOpenings";
 import { boxPrimitive } from "./scenePrimitives";
@@ -80,17 +81,53 @@ function wallSegment(
   };
 }
 
-function compileWall(project: InteriorProject, room: InteriorRoomEntity, wall: WallEntity, openings: OpeningEntity[]) {
+/**
+ * How far a wall box runs past its node so a two-wall corner closes (roadmap S9):
+ * half the thickness divided by tan(θ/2), which is t/2 at a right angle and 0
+ * for a straight continuation. Capped so acute corners do not spike.
+ */
+export function wallCornerExtensionMm(index: WallGraphIndex, wall: WallEntity, nodeId: string | undefined): number {
+  if (!nodeId) return 0;
+  const incident = index.incidentWallIdsByNode.get(nodeId) ?? [];
+  if (incident.length !== 2) return 0;
+  const other = index.wallsById.get(incident.find((id) => id !== wall.id) ?? "");
+  const node = index.nodesById.get(nodeId);
+  if (!other || !node) return 0;
+  const away = (item: WallEntity) => {
+    const far = item.startNodeId === nodeId ? item.end : item.start;
+    const dx = far.x - node.position.x;
+    const dz = far.z - node.position.z;
+    const length = Math.hypot(dx, dz) || 1;
+    return { x: dx / length, z: dz / length };
+  };
+  const a = away(wall);
+  const b = away(other);
+  const theta = Math.acos(Math.max(-1, Math.min(1, a.x * b.x + a.z * b.z)));
+  if (theta > Math.PI - 1e-3) return 0;
+  const halfTan = Math.tan(theta / 2);
+  if (halfTan < 1e-6) return 0;
+  return Math.min((wall.thicknessMm / 2) / halfTan, wall.thicknessMm * 2);
+}
+
+function compileWall(
+  project: InteriorProject,
+  room: InteriorRoomEntity,
+  wall: WallEntity,
+  openings: OpeningEntity[],
+  index: WallGraphIndex,
+) {
   const length = Math.hypot(wall.end.x - wall.start.x, wall.end.z - wall.start.z);
   const materialId = wall.materialId ?? FALLBACK_MATERIAL_ID;
   const wallSide = outerWallSide(project, room, wall);
   const topMm = compileWallHeightMm(wall);
+  const startExtension = wallCornerExtensionMm(index, wall, wall.startNodeId);
+  const endExtension = wallCornerExtensionMm(index, wall, wall.endNodeId);
   if (!isWallRaised(wall)) {
-    const trace = wallSegment(wall, `${wall.id}:trace`, 0, length, 0, topMm, materialId, wallSide);
+    const trace = wallSegment(wall, `${wall.id}:trace`, -startExtension, length + endExtension, 0, topMm, materialId, wallSide);
     return trace ? [trace] : [];
   }
   const nodes: CompiledSceneNode[] = [];
-  let cursor = 0;
+  let cursor = -startExtension;
   const sorted = [...openings]
     .filter((opening) => opening.wallId === wall.id)
     .sort((a, b) => a.offsetMm - b.offsetMm);
@@ -109,7 +146,7 @@ function compileWall(project: InteriorProject, room: InteriorRoomEntity, wall: W
     if (above) nodes.push(above);
     cursor = Math.max(cursor, end);
   }
-  const remainder = wallSegment(wall, `${wall.id}:remainder`, cursor, length, 0, topMm, materialId, wallSide);
+  const remainder = wallSegment(wall, `${wall.id}:remainder`, cursor, length + endExtension, 0, topMm, materialId, wallSide);
   if (remainder) nodes.push(remainder);
   return nodes;
 }
@@ -119,11 +156,12 @@ export function compileLivingRoomArchitecture(
 ): CompiledSceneNode[] {
   const room = project.rooms.find((candidate) => candidate.id === project.activeRoomId);
   if (!room) return [];
+  const index = createWallGraphIndex(project);
   return [
     ...compileRoomLoopSurfaces(project, room),
     ...selectRoomWalls(project, room.id)
       .filter((wall) => wall.visible)
-      .flatMap((wall) => compileWall(project, room, wall, project.openings.filter((opening) => opening.extensions?.layerVisible !== false))),
+      .flatMap((wall) => compileWall(project, room, wall, project.openings.filter((opening) => opening.extensions?.layerVisible !== false), index)),
     ...selectRoomOpenings(project, room.id)
       .filter((opening) => opening.extensions?.layerVisible !== false)
       .map((opening) => {

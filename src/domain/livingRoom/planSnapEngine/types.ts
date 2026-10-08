@@ -42,6 +42,8 @@ export type PlanSnapContext = {
   gridMm: number;
   /** Segment start: enables the horizontal / vertical axis candidates. */
   anchor?: Point2Mm | null;
+  /** Shift held: force the dominant axis through the anchor regardless of angle (roadmap S3). */
+  axisLock?: boolean;
   /** The thing being dragged, so it cannot snap to itself. */
   exclude?: { nodeIds?: readonly string[]; wallIds?: readonly string[] };
   /** Restrict to these kinds; the calibrate tool passes ["dwg-end"]. */

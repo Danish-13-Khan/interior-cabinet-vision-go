@@ -1,6 +1,6 @@
 # Wall geometry, snapping and plan calibration roadmap
 
-**Status:** In progress — Phases 0 and 1 built 2026-10-08 on `feat/plan-snap-geometry`; Phases 2–5 proposed.
+**Status:** In progress — Phases 0, 1 and 2 built 2026-10-08 on `feat/plan-snap-geometry`; Phases 3–5 proposed.
 **Source:** Tester requirements doc, 2026-10-08: wall centre / axis alignment,
 midpoint and corner snap points, straight drawing, floor-plan import fidelity,
 import after a room exists, calibration, and a unified snapping system
@@ -360,6 +360,33 @@ without Shift; all four walls are axis-aligned and the room closes with four
 nodes. Draw a partition ending on a room wall: the wall splits, the node has
 degree 3, Undo restores one wall. In 3D the outside corners of a 120 mm wall
 room show no notch; the golden cut list is unchanged.
+
+**Landed (2026-10-08):** S3 — wall drawing passes its start as the engine
+`anchor`, so a segment within 2° of horizontal or vertical (or within the pick
+radius of the axis) locks to it with the "Horizontal" / "Vertical" label;
+Shift sets `axisLock`, which projects onto the dominant axis first and lets
+only on-axis candidates still win (`pick.ts`). Polygon room drawing anchors on
+its last vertex. With Snap off, Shift still constrains to the axis.
+S4 — `wallEditingWeld.ts`: `resolveWallEndpoint` welds a drawn endpoint to a
+node within 1 mm or splits the wall whose span it sits on (offsets kept
+≥ 150 mm from either end), and `createWallSegment` resolves both ends before
+the room-split check, so a wall between two boundary walls still splits the
+room through the welded nodes; `weldNodeIntoWalls` does the same after
+`movePlanNodeWithOpenings` and both ends of `translatePlanWall` (the existing
+node keeps its coordinates on a node join; the moved node keeps its snapped
+position on a span join). The default tolerance is 1 mm because the engine
+already put the point on the node or line; `joinToleranceMm` on the request
+widens it. S9 — `wallCornerExtensionMm` extends each wall box past a
+degree-2 node by t/2 ÷ tan(θ/2) (t/2 at a right angle, 0 when straight,
+capped at 2t); boxes overlap on the inside of the corner, which is hidden.
+Degree ≥ 3 nodes are unchanged.
+**Verified in the app:** a rectangle traced in four strokes, each 1–2° off
+axis and without Shift, produced four axis-aligned walls, four nodes and a
+valid room; a wall drawn from inside the room onto its bottom wall split
+that wall into a degree-3 node (6 walls), and one Undo restored the four;
+the 3D dollhouse shows closed outside corners. Not run: unit and e2e suites
+(project rule); `tsc --noEmit` is clean. Not verified by hand: Shift lock
+(unit-tested) and node-drag welds (unit-tested).
 
 ### Phase 3 — Calibration that also rotates and aligns (3–4 days)
 

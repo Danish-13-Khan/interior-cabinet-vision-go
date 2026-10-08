@@ -22,7 +22,7 @@ export type PlanSnapInput = {
   snapEnabled?: boolean;
 };
 
-export type PlanSnapPointer = { altKey?: boolean };
+export type PlanSnapPointer = { altKey?: boolean; shiftKey?: boolean };
 
 /**
  * Memoises the fixed candidates for the project and returns a `snap(raw, event, extra)`
@@ -58,9 +58,20 @@ export function usePlanSnap(input: PlanSnapInput, options: {
     [context, input.thresholdMm],
   );
 
+  /**
+   * `extra.anchor` is the segment start: it enables the automatic axis snap, and
+   * Shift on the pointer event turns it into a hard lock (roadmap S3). Alt or the
+   * Snap toggle off returns the raw pointer.
+   */
   function snap(raw: Point2Mm, pointer?: PlanSnapPointer, extra?: { anchor?: Point2Mm | null }): PlanSnapResult {
-    if (input.snapEnabled === false || pointer?.altKey) return { point: raw, candidate: null };
-    const ctx = extra?.anchor ? { ...context, anchor: extra.anchor } : context;
+    if (input.snapEnabled === false || pointer?.altKey) {
+      if (extra?.anchor && pointer?.shiftKey) {
+        const horizontal = Math.abs(raw.x - extra.anchor.x) >= Math.abs(raw.z - extra.anchor.z);
+        return { point: horizontal ? { x: raw.x, z: extra.anchor.z } : { x: extra.anchor.x, z: raw.z }, candidate: null };
+      }
+      return { point: raw, candidate: null };
+    }
+    const ctx = extra?.anchor ? { ...context, anchor: extra.anchor, axisLock: Boolean(pointer?.shiftKey) } : context;
     return pickPlanSnap(ctx, raw, input.thresholdMm, candidates);
   }
 

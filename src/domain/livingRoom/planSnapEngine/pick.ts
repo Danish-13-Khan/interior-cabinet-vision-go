@@ -83,13 +83,26 @@ export function pickPlanSnap(
   thresholdMm: number,
   candidates: readonly PlanSnapCandidate[] = collectPlanSnapCandidates(ctx, thresholdMm),
 ): PlanSnapResult {
-  const nearest = nearestPlanSnapCandidate(candidates, pointer, thresholdMm);
-  if (nearest) return { point: { ...nearest.point }, candidate: nearest };
-
   let xLock: AxisLock = null;
   let zLock: AxisLock = null;
 
-  if (ctx.anchor) {
+  if (ctx.anchor && ctx.axisLock) {
+    // Hard lock: project onto the dominant axis first; only candidates on that axis may still win.
+    const horizontal = Math.abs(pointer.x - ctx.anchor.x) >= Math.abs(pointer.z - ctx.anchor.z);
+    const projected = horizontal ? { x: pointer.x, z: ctx.anchor.z } : { x: ctx.anchor.x, z: pointer.z };
+    const anchor = ctx.anchor;
+    const onAxis = candidates.filter((item) =>
+      horizontal ? Math.abs(item.point.z - anchor.z) < 0.5 : Math.abs(item.point.x - anchor.x) < 0.5);
+    const nearestOnAxis = nearestPlanSnapCandidate(onAxis, projected, thresholdMm);
+    if (nearestOnAxis) return { point: { ...nearestOnAxis.point }, candidate: nearestOnAxis };
+    if (horizontal) zLock = { value: anchor.z, candidate: candidate("axis-h", { x: 0, z: 0 }, "Horizontal") };
+    else xLock = { value: anchor.x, candidate: candidate("axis-v", { x: 0, z: 0 }, "Vertical") };
+  } else {
+    const nearest = nearestPlanSnapCandidate(candidates, pointer, thresholdMm);
+    if (nearest) return { point: { ...nearest.point }, candidate: nearest };
+  }
+
+  if (ctx.anchor && !ctx.axisLock) {
     const dx = pointer.x - ctx.anchor.x;
     const dz = pointer.z - ctx.anchor.z;
     const length = Math.hypot(dx, dz);

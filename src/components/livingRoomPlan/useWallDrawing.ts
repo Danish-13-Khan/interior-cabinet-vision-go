@@ -23,8 +23,13 @@ export function useWallDrawing(input: PlanSnapInput & {
   onCommitRef.current = input.onCommit;
   const engine = usePlanSnap(input);
 
+  /** The start point is the axis anchor once the drag is under way (automatic axis snap, Shift to lock). */
   function snapped(event: ReactPointerEvent<Element>): PlanSnapResult {
-    return engine.snap(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>), event);
+    return engine.snap(
+      input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>),
+      event,
+      { anchor: startRef.current },
+    );
   }
 
   /** Begin from paper or wall geometry — capture on the SVG root so drag keeps streaming. */

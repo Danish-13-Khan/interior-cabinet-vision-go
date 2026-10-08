@@ -127,6 +127,25 @@ describe("plan snap engine", () => {
     expect(diagonal.point).toEqual({ x: 3000, z: 400 });
   });
 
+  it("locks hard to the dominant axis with Shift, keeping only on-axis candidates", () => {
+    const anchor = { x: 0, z: 0 };
+    const locked = pickPlanSnap({ ...ctx, anchor, axisLock: true, gridMm: 0 }, { x: 3000, z: 400 }, 20);
+    expect(locked.candidate?.kind).toBe("axis-h");
+    expect(locked.point).toEqual({ x: 3000, z: 0 });
+    // n6 (3000, 2000) is near the pointer but off the axis, so it does not win.
+    const offAxis = pickPlanSnap({ ...ctx, anchor, axisLock: true, gridMm: 0 }, { x: 3000, z: 1990 }, 30);
+    expect(offAxis.candidate?.kind).toBe("axis-h");
+    expect(offAxis.point).toEqual({ x: 3000, z: 0 });
+    // n2 (4000, 0) is on the axis and within reach of the projected pointer.
+    const onAxis = pickPlanSnap({ ...ctx, anchor, axisLock: true, gridMm: 0 }, { x: 3990, z: 300 }, 20);
+    expect(onAxis.candidate?.kind).toBe("node");
+    expect(onAxis.point).toEqual({ x: 4000, z: 0 });
+    // The free coordinate still takes the grid.
+    const gridded = pickPlanSnap({ ...ctx, anchor, axisLock: true }, { x: 2987, z: 900 }, 20);
+    expect(gridded.point).toEqual({ x: 3000, z: 0 });
+    expect(gridded.candidate?.label).toBe("Horizontal");
+  });
+
   it("falls back to the grid within the pick radius, else to the raw pointer", () => {
     const grid = pickPlanSnap(ctx, { x: 1234, z: 2567 }, 20);
     expect(grid.candidate?.kind).toBe("grid");
