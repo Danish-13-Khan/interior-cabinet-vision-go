@@ -1,6 +1,6 @@
 # Wall geometry, snapping and plan calibration roadmap
 
-**Status:** In progress — Phase 0 built 2026-10-08 on `feat/plan-snap-geometry`; Phases 1–5 proposed.
+**Status:** In progress — Phases 0 and 1 built 2026-10-08 on `feat/plan-snap-geometry`; Phases 2–5 proposed.
 **Source:** Tester requirements doc, 2026-10-08: wall centre / axis alignment,
 midpoint and corner snap points, straight drawing, floor-plan import fidelity,
 import after a room exists, calibration, and a unified snapping system
@@ -319,6 +319,32 @@ walls shows "Intersection"; the indicator is the same pixel size at 25 % and
 400 % zoom; the nearest of two nodes 40 mm apart wins at any grid size; room
 drawing joins an existing node. `planMeasure`, `planGuides`, `wallEditing` and
 `dwgTraceAssist` tests updated and green.
+
+**Landed (2026-10-08):** `src/domain/livingRoom/planSnapEngine/` —
+`collectPlanSnapCandidates(ctx, extendMm)` gathers the fixed kinds (node, DWG
+endpoint, wall-line intersection extended by the pick radius, wall midpoint,
+opening centre / edge, cabinet centre / edge; room-scoped where the measure
+tool was) and `pickPlanSnap(ctx, pointer, thresholdMm, candidates)` takes the
+nearest point candidate within the zoom-aware radius (ties by S2 priority),
+then resolves the line-like kinds per axis: axis through the anchor (2°, used
+from Phase 2), on-wall projection, guides, grid. Grid is unconditional while
+enabled so drawing keeps its sketch feel; `gridMm: 0` or `allow` turns it off.
+`usePlanSnap` memoises the candidates per project and returns the raw pointer
+when the toolbar **Snap** is off or **Alt** is held. Adopted by wall drawing,
+room drawing (which now joins existing nodes), node drag and wall translate
+(the dragged geometry is excluded), measure and calibrate. `snapPlanPointToDwg`,
+`snapMeasurePoint`, `collectMeasureSnapPoints` and `snapPointToGuides` are
+deleted; `snapPlanPoint` stays as the commit-time fallback for domain callers
+that pass `snapSizeMm` (tests only) and now picks the nearest node from the raw
+point. `PlanSnapMarker` is the one indicator (square node, diamond DWG, cross
+intersection, triangle midpoint, bar on-wall, dashed axis, dot grid, dashed
+circle "Free") sized from the 8 px radius with non-scaling strokes.
+**Verified in the app:** "Wall midpoint", "Intersection", "Node", "Grid" and
+"Free" (Snap off) labels at the right points; a drawn wall ends exactly on a
+wall midpoint; a second room drawn from an existing corner reuses that node
+(13 unique endpoints, not 14); the on-wall bar is 22.4 px wide at 7.4 and at
+12.9 mm per px. Not run: unit and e2e suites (project rule); `tsc --noEmit`
+is clean. Not verified by hand: the 40 mm two-node case (unit test only).
 
 ### Phase 2 — Straight drawing and accurate connection (3–4 days)
 

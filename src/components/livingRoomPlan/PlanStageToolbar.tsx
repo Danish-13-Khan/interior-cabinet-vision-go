@@ -3,10 +3,11 @@ import { PlanReadabilityToolbar } from "./PlanReadabilityToolbar";
 
 export function PlanStageToolbar(props: {
   canUndo: boolean; canRedo: boolean; hasSelection: boolean; selectedCount: number;
-  showGrid: boolean; snapSizeMm: number; readability: PlanReadabilitySettings;
+  showGrid: boolean; snapEnabled: boolean; snapSizeMm: number; readability: PlanReadabilitySettings;
   onUndo: () => void; onRedo: () => void; onDuplicate: () => void; onDelete: () => void;
   onRotate: (delta: number) => void; onAlign: (mode: LivingRoomAlignMode) => void;
   onCreateRun: () => void; onShowGrid: (value: boolean) => void; onSnapSize: (value: number) => void;
+  onSnapEnabled: (value: boolean) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
   onFitPlan?: () => void; onFitSelection?: () => void; onZoomIn?: () => void; onZoomOut?: () => void;
 }) {
@@ -36,6 +37,7 @@ export function PlanStageToolbar(props: {
     </div>
     <div className="lr-toolbar-group lr-toolbar-view"><span>Drawing</span>
       <label><input type="checkbox" checked={props.showGrid} onChange={(event) => props.onShowGrid(event.target.checked)} /> Grid</label>
+      <label title="Snap to walls, guides and the grid (hold Alt to draw free)"><input type="checkbox" data-testid="lr-snap-toggle" checked={props.snapEnabled} onChange={(event) => props.onSnapEnabled(event.target.checked)} /> Snap</label>
       <select aria-label="Snap size" value={props.snapSizeMm} onChange={(event) => props.onSnapSize(Number(event.target.value))}>
         <option value="25">25 mm</option><option value="50">50 mm</option><option value="100">100 mm</option>
       </select>

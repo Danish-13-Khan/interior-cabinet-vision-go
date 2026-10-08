@@ -1,24 +1,24 @@
-import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject, Point2Mm } from "../../domain/interiorProject";
 import {
   appendMeasurePoint,
   calibrateUnderlayScale,
-  calibrationSnapCandidates,
-  collectMeasureSnapPoints,
   parseKnownLengthMm,
-  snapMeasurePoint,
   type BuildTool,
   type LivingRoomPlanUnderlay,
-  type MeasureSnapPoint,
 } from "../../domain/livingRoom";
+import type { PlanSnapKind, PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { usePlanSnap, type PlanSnapInput } from "./usePlanSnap";
+
+/** Calibration must read the picture, not the plan: only CAD endpoints may snap (roadmap S6). */
+const CALIBRATE_SNAP_KINDS: readonly PlanSnapKind[] = ["dwg-end"];
 
 /** Measure and Calibrate tools: snapped click points, running lengths and the known-length prompt. */
-export function usePlanMeasureTool(input: {
+export function usePlanMeasureTool(input: Omit<PlanSnapInput, "gridMm"> & {
   project: InteriorProject;
   tool: BuildTool;
   underlay: LivingRoomPlanUnderlay | null;
   snapSizeMm: number;
-  pointerSnapMm: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point2Mm;
   onSetPlanUnderlay?: (underlay: LivingRoomPlanUnderlay | null) => void;
   onCalibrateComplete?: () => void;
@@ -33,9 +33,15 @@ export function usePlanMeasureTool(input: {
 
   const [points, setPoints] = useState<Point2Mm[]>([]);
   const [cursor, setCursor] = useState<Point2Mm | null>(null);
-  const [snap, setSnap] = useState<MeasureSnapPoint | null>(null);
+  const [snap, setSnap] = useState<PlanSnapResult | null>(null);
   const [prompt, setPrompt] = useState<{ a: Point2Mm; b: Point2Mm } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Calibrate: DWG endpoints only and no grid, so a raster reads the raw pointer.
+  const engine = usePlanSnap(
+    { ...input, gridMm: calibrating ? 0 : input.snapSizeMm },
+    { allow: calibrating ? CALIBRATE_SNAP_KINDS : undefined },
+  );
 
   function clearPoints() {
     setPoints([]);
@@ -49,22 +55,16 @@ export function usePlanMeasureTool(input: {
     setError(null);
   }, [input.tool, input.project.id, input.project.activeRoomId]);
 
-  // Calibrate reads the picture: drawn walls, cabinets and the grid would bias the scale (S6).
-  const candidates = useMemo(() => {
-    if (!active) return [];
-    const all = collectMeasureSnapPoints(input.project, input.snapSizeMm);
-    return calibrating ? calibrationSnapCandidates(all) : all;
-  }, [active, calibrating, input.project, input.snapSizeMm]);
-
   function snapped(event: ReactPointerEvent<SVGElement>) {
     const raw = input.worldPoint(event as ReactPointerEvent<SVGSVGElement>);
-    const point = snapMeasurePoint(raw, candidates, input.pointerSnapMm, input.snapSizeMm, { grid: !calibrating });
-    setSnap(point);
-    setCursor(point);
-    return point;
+    const result = engine.snap(raw, event);
+    setSnap(result);
+    setCursor(result.point);
+    return result.point;
   }
 
   function hover(event: ReactPointerEvent<SVGSVGElement>) {
+    if (!active) return;
     snapped(event);
   }
 

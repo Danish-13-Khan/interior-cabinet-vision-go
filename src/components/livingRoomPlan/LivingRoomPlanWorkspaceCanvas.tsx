@@ -19,7 +19,7 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       snapSizeMm={props.snapSizeMm} showGrid={props.showGrid} canUndo={w.canUndo} canRedo={w.canRedo}
       hasSelection={Boolean(props.activeObject)}
       latestRender={props.renderResults.latest} previousRender={props.renderResults.previous}
-      onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
+      onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} snapEnabled={props.snapEnabled} onSnapEnabled={props.onSnapEnabled}
       onSelect={(objectId, additive) => inspectPlanTarget(props, { objectId, additive })}
       onClearSelection={() => inspectPlanTarget(props)}
       onSelectRoom={() => inspectPlanTarget(props, { inspectRoom: true })}

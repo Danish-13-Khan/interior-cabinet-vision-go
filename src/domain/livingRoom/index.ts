@@ -700,17 +700,20 @@ export {
 } from "./planViewTransform";
 export {
   appendMeasurePoint,
-  collectMeasureSnapPoints,
   formatMeasureLengthMm,
   measureLengthMm,
   measureSegmentsFromPoints,
-  snapMeasurePoint,
   type MeasureSegment,
-  type MeasureSnapKind,
-  type MeasureSnapPoint,
-  calibrationSnapCandidates,
-  type MeasureSnapOptions,
 } from "./planMeasure";
+export {
+  collectPlanSnapCandidates,
+  pickPlanSnap,
+  PLAN_SNAP_PRIORITY,
+  type PlanSnapCandidate,
+  type PlanSnapContext,
+  type PlanSnapKind,
+  type PlanSnapResult as PlanSnapEngineResult,
+} from "./planSnapEngine";
 export {
   DEFAULT_WALL_LENGTH_ANCHOR,
   describeTypedWallLengthChange,
@@ -775,7 +778,7 @@ export {
   isDwgFile,
   isPdfFile,
 } from "./planUnderlayImport";
-export { collectDwgPlanEndpoints, collectProjectDwgPlanEndpoints, snapPlanPointToDwg } from "./dwgPlanSnap";
+export { collectDwgPlanEndpoints, collectProjectDwgPlanEndpoints } from "./dwgPlanSnap";
 export { cadToPlanPoint } from "./dwgPlanMap";
 export { suggestRoomPolygonFromDwg } from "./dwgSuggestRoom";
 export { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";

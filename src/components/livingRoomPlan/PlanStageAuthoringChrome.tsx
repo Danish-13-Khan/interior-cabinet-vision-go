@@ -34,7 +34,7 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
         activeWallId={props.activeWallId} openingCatalogItemId={props.openingCatalogItemId}
         roomPolygonPointCount={props.roomPolygonPointCount ?? 0} showGrid={props.showGrid}
         snapSizeMm={props.snapSizeMm} readability={props.readability} commands={props.drawCommands}
-        onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} onReadability={props.onReadability}
+        onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} snapEnabled={props.snapEnabled} onSnapEnabled={props.onSnapEnabled} onReadability={props.onReadability}
         onOpeningCatalogItem={props.onOpeningCatalogItem} onCloseRoomPolygon={props.onCloseRoomPolygon}
         onCommitOpening={props.onCommitOpening}
         onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection}
@@ -49,7 +49,7 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
         tool={props.chromeTool} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
         readability={props.readability} commands={props.cabinetRunCommands}
         project={props.project} onPatchDocument={props.onPatchDocument!}
-        onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} onReadability={props.onReadability}
+        onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} snapEnabled={props.snapEnabled} onSnapEnabled={props.onSnapEnabled} onReadability={props.onReadability}
       />
     );
   }
@@ -60,7 +60,7 @@ export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
           selectedCount={props.selectedIds.length} showGrid={props.showGrid} snapSizeMm={props.snapSizeMm}
           readability={props.readability} onUndo={props.onUndo} onRedo={props.onRedo} onDuplicate={props.onDuplicate}
           onDelete={props.onDelete} onRotate={props.onRotateSelection} onAlign={props.onAlign}
-          onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize}
+          onCreateRun={props.onCreateCabinetRun} onShowGrid={props.onShowGrid} onSnapSize={props.onSnapSize} snapEnabled={props.snapEnabled} onSnapEnabled={props.onSnapEnabled}
           onReadability={props.onReadability}
           onFitPlan={props.onFitPlan} onFitSelection={props.onFitSelection}
           onZoomIn={props.onZoomIn} onZoomOut={props.onZoomOut} />

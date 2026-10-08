@@ -1,5 +1,5 @@
 export type { WallSegmentRequest } from "./wallEditingHelpers";
-export { snapPlanPoint, createWallSegment, createWallSegmentResult } from "./wallEditingSegment";
+export { createWallSegment, createWallSegmentResult } from "./wallEditingSegment";
 export { attachSharedWallToRoom } from "./wallEditingSharedEdge";
 export {
   splitPlanWall,

@@ -1,22 +1,27 @@
 import type { Point2Mm } from "../../domain/interiorProject";
 import { DraftFeedbackOverlay } from "./DraftFeedbackOverlay";
 import { formatPlanDimension, type PlanDisplayUnit } from "../../domain/livingRoom";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { PlanSnapMarker } from "./PlanSnapMarker";
 
 function path(points: Point2Mm[], close = false) {
   if (!points.length) return "";
   return `${points.map((point, index) => `${index ? "L" : "M"} ${point.x} ${point.z}`).join(" ")}${close ? " Z" : ""}`;
 }
 
-export function RoomDrawingOverlay({ polygon, rectangle, cursor, active, unit, showHint = true }: {
+export function RoomDrawingOverlay({ polygon, rectangle, cursor, snap, markerMm, active, unit, showHint = true }: {
   polygon: Point2Mm[]; rectangle: Point2Mm[] | null; cursor: Point2Mm | null; active: boolean; unit: PlanDisplayUnit;
+  snap?: PlanSnapResult | null;
+  markerMm?: number;
   showHint?: boolean;
 }) {
   if (!active) return null;
   const lastPoint = polygon.length ? polygon[polygon.length - 1]! : null;
   return <g className="lr-room-drawing-overlay" pointerEvents="none">
-    {rectangle ? <DraftFeedbackOverlay start={rectangle[0]!} end={rectangle[2]!} unit={unit} label={`${formatPlanDimension(Math.abs(rectangle[2]!.x - rectangle[0]!.x), unit)} × ${formatPlanDimension(Math.abs(rectangle[2]!.z - rectangle[0]!.z), unit)}`} /> : null}
-    {!rectangle && lastPoint && cursor ? <><DraftFeedbackOverlay start={lastPoint} end={cursor} unit={unit} />
+    {rectangle ? <DraftFeedbackOverlay start={rectangle[0]!} end={rectangle[2]!} unit={unit} snap={snap} markerMm={markerMm} label={`${formatPlanDimension(Math.abs(rectangle[2]!.x - rectangle[0]!.x), unit)} × ${formatPlanDimension(Math.abs(rectangle[2]!.z - rectangle[0]!.z), unit)}`} /> : null}
+    {!rectangle && lastPoint && cursor ? <><DraftFeedbackOverlay start={lastPoint} end={cursor} unit={unit} snap={snap} markerMm={markerMm} />
       <line className="lr-room-draft-tail" x1={lastPoint.x} y1={lastPoint.z} x2={cursor.x} y2={cursor.z} /></> : null}
+    {!rectangle && !lastPoint && snap?.candidate ? <PlanSnapMarker snap={snap} sizeMm={markerMm ?? 40} testId="lr-draft-snap" /> : null}
     {polygon.length ? <><path d={path(polygon)} /><g>{polygon.map((point, index) => <circle key={index} cx={point.x} cy={point.z} r="45" />)}</g></> : null}
     {rectangle ? <path className="is-rectangle" d={path(rectangle, true)} /> : null}
     {showHint ? <text x="0" y="-420">Click points for a polygon, or drag for a rectangle</text> : null}

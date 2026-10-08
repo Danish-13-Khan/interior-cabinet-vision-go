@@ -18,10 +18,12 @@ export function InteriorsDrawRoomChrome({
   openingCatalogItemId,
   roomPolygonPointCount,
   showGrid,
+  snapEnabled,
   snapSizeMm,
   readability,
   commands,
   onShowGrid,
+  onSnapEnabled,
   onSnapSize,
   onReadability,
   onOpeningCatalogItem,
@@ -41,10 +43,12 @@ export function InteriorsDrawRoomChrome({
   openingCatalogItemId?: string;
   roomPolygonPointCount: number;
   showGrid: boolean;
+  snapEnabled: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
   commands: InteriorsDrawRoomCommands;
   onShowGrid: (value: boolean) => void;
+  onSnapEnabled: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
   onOpeningCatalogItem?: (catalogItemId: string) => void;
@@ -67,6 +71,7 @@ export function InteriorsDrawRoomChrome({
         project={project} tool={tool} buildTool={activeBuildTool} showGrid={showGrid} snapSizeMm={snapSizeMm}
         readability={readability} onPatchDocument={onPatchDocument}
         onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
+        snapEnabled={snapEnabled} onSnapEnabled={onSnapEnabled}
         onFitPlan={onFitPlan} onFitSelection={onFitSelection} hasSelection={hasSelection}
         onZoomIn={onZoomIn} onZoomOut={onZoomOut}
         commands={commands}

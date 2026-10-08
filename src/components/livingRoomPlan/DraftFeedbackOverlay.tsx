@@ -1,13 +1,17 @@
 import type { Point2Mm } from "../../domain/interiorProject";
 import { formatPlanDimension, type PlanDisplayUnit } from "../../domain/livingRoom";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { PlanSnapMarker } from "./PlanSnapMarker";
 
 function dimension(value: number, unit: PlanDisplayUnit) { return formatPlanDimension(Math.abs(value), unit); }
 
+/** Crosshair, axis legs, length labels and the shared snap marker for wall / room drafts and wall edits. */
 export function DraftFeedbackOverlay(props: {
   start: Point2Mm;
   end: Point2Mm;
-  snapTarget?: Point2Mm | null;
-  snapLabel?: string;
+  snap?: PlanSnapResult | null;
+  /** Pick radius in world mm; keeps the marker the same size on screen at any zoom. */
+  markerMm?: number;
   label?: string;
   unit: PlanDisplayUnit;
 }) {
@@ -27,7 +31,6 @@ export function DraftFeedbackOverlay(props: {
     </text>
     <text className="lr-draft-axis-label" x={mid.x} y={start.z - 65}>{dimension(dx, props.unit)}</text>
     <text className="lr-draft-axis-label" x={end.x + 65} y={mid.z}>{dimension(dz, props.unit)}</text>
-    {props.snapTarget ? <><circle className="lr-draft-snap-target" cx={props.snapTarget.x} cy={props.snapTarget.z} r="95" />
-      <text className="lr-draft-snap-label" x={props.snapTarget.x} y={props.snapTarget.z - 130}>{props.snapLabel ?? "Node snap"}</text></> : null}
+    {props.snap?.candidate ? <PlanSnapMarker snap={props.snap} sizeMm={props.markerMm ?? 40} testId="lr-draft-snap" /> : null}
   </g>;
 }

@@ -49,6 +49,8 @@ import { useWallDrawing } from "./livingRoomPlan/useWallDrawing";
 type Props = {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
   snapSizeMm: number; showGrid: boolean; activeWallId: string | null; activeOpeningId: string | null;
+  /** Toolbar Snap toggle; off means every tool reads the raw pointer. */
+  snapEnabled?: boolean;
   activeSurfaceId: string | null; activeLightId?: string | null; surfaceMaterialId: string;
   onSelectLight?: (lightId: string) => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
@@ -157,6 +159,19 @@ export function LivingRoomPlanView(props: Props) {
     return nav.worldFromClient(event.clientX, event.clientY);
   }
 
+  const dwgSnap = useDwgPlanSnap(underlay);
+  const planGuides = usePlanGuideInteraction({
+    project: props.project, tool, snapSizeMm: props.snapSizeMm, worldPoint,
+    onPatchDocument: props.onPatchDocument, onClearSelection: () => props.onSelect(null),
+    otherSelectionKey: [...props.selectedIds, props.activeWallId, props.activeOpeningId, props.activeSurfaceId, props.activeLightId]
+      .filter(Boolean).join("|"),
+  });
+  /** One snap engine input for every plan tool (roadmap S1). */
+  const snapInput = {
+    project: props.project, dwgEndpoints: dwgSnap.endpoints, guides: planGuides.stored,
+    gridMm: props.snapSizeMm, thresholdMm: pointerSnapMm, snapEnabled: props.snapEnabled,
+  };
+
   const openings = usePlanOpeningInteraction({
     project: props.project, snapSizeMm: props.snapSizeMm, worldPoint,
     onSelectOpening: props.onSelectOpening, onMoveOpening: props.onMoveOpening,
@@ -168,7 +183,7 @@ export function LivingRoomPlanView(props: Props) {
     onDragEnd: props.onDragEnd,
   });
   const walls = usePlanWallInteraction({
-    active: editWalls, project: props.project, snapSizeMm: props.snapSizeMm, moveThresholdMm: wallMoveMm, worldPoint,
+    ...snapInput, active: editWalls, moveThresholdMm: wallMoveMm, worldPoint,
     onSelectWall: props.onSelectWall, onMoveNode: props.onMoveNode, onTranslateWall: props.onTranslateWall,
   });
   const marquee = usePlanMarquee({
@@ -180,20 +195,12 @@ export function LivingRoomPlanView(props: Props) {
     active: movingUnderlay, underlay, worldPoint, onCommit: props.onSetPlanUnderlay,
   });
   const measure = usePlanMeasureTool({
-    project: props.project, tool, underlay, snapSizeMm: props.snapSizeMm, pointerSnapMm, worldPoint,
+    ...snapInput, tool, underlay, snapSizeMm: props.snapSizeMm, worldPoint,
     onSetPlanUnderlay: props.onSetPlanUnderlay, onCalibrateComplete: props.onCalibrateComplete,
   });
   const measureLike = measure.active;
-  const planGuides = usePlanGuideInteraction({
-    project: props.project, tool, snapSizeMm: props.snapSizeMm, worldPoint,
-    onPatchDocument: props.onPatchDocument, onClearSelection: () => props.onSelect(null),
-    otherSelectionKey: [...props.selectedIds, props.activeWallId, props.activeOpeningId, props.activeSurfaceId, props.activeLightId]
-      .filter(Boolean).join("|"),
-  });
-  const dwgSnap = useDwgPlanSnap(underlay);
   const roomDrawing = useRoomDrawing({
-    active: drawRoom || drawSurface, snapSizeMm: props.snapSizeMm,
-    extraPoints: dwgSnap.extraPoints, guides: planGuides.stored, guideToleranceMm: pointerSnapMm,
+    ...snapInput, active: drawRoom || drawSurface,
     closeRequest: props.roomPolygonCloseRequest, worldPoint,
     onCommit: (drawing) => {
       if (drawSurface) props.onDrawSurface(drawing, props.surfaceMaterialId);
@@ -202,9 +209,7 @@ export function LivingRoomPlanView(props: Props) {
     onPointCount: props.onRoomPolygonPointCount,
   });
   const wallDrawing = useWallDrawing({
-    active: drawWall || drawPartition, snapSizeMm: props.snapSizeMm,
-    nodes: [...props.project.nodes, ...dwgSnap.extraNodes], worldPoint,
-    guides: planGuides.stored, guideToleranceMm: pointerSnapMm,
+    ...snapInput, active: drawWall || drawPartition, worldPoint,
     onCommit: (start, end) => props.onDrawWallSegment(start, end, drawPartition ? "partition" : "wall"),
   });
 
@@ -344,13 +349,13 @@ export function LivingRoomPlanView(props: Props) {
       interactive={planGuides.interactive} lineHit={planGuides.placing} hitWidthMm={pointerSnapMm} onStart={planGuides.start} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
-    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />
-    <WallDrawingOverlay preview={wallDrawing.preview} snapTarget={wallDrawing.snapTarget} active={drawWall || drawPartition} unit={props.readability.unit} />
+    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} snap={roomDrawing.snap} markerMm={pointerSnapMm} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />
+    <WallDrawingOverlay preview={wallDrawing.preview} snap={wallDrawing.snap} markerMm={pointerSnapMm} active={drawWall || drawPartition} unit={props.readability.unit} />
     <PlanWallNodesLayer project={props.project} activeWallId={props.activeWallId} editable={editWalls}
       previewNodes={walls.previewNodes} translatePreview={walls.translatePreview}
       onNodePointerDown={(event, nodeId) => walls.beginNode(event, nodeId)} />
     {walls.feedback ? <DraftFeedbackOverlay start={walls.feedback.start} end={walls.feedback.end}
-      snapTarget={walls.feedback.snapTarget} snapLabel={walls.feedback.snapLabel} unit={props.readability.unit} /> : null}
+      snap={walls.feedback.snap} markerMm={pointerSnapMm} unit={props.readability.unit} /> : null}
     <PlanOpeningsLayer project={props.project} activeOpeningId={props.activeOpeningId}
       openingPreview={openings.openingPreview} onSelectOpening={props.onSelectOpening}
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit}
@@ -369,7 +374,7 @@ export function LivingRoomPlanView(props: Props) {
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}
       settings={props.readability} referenceDims={referenceDims} selectedIds={props.selectedIds}
       onSetWallLength={props.onSetWallLength} /> : null}
-    <PlanMeasureOverlay active={measureLike} points={measure.points} cursor={measure.cursor} snap={measure.snap} mode={measure.calibrating ? "calibrate" : "measure"} />
+    <PlanMeasureOverlay active={measureLike} points={measure.points} cursor={measure.cursor} snap={measure.snap} markerMm={pointerSnapMm} mode={measure.calibrating ? "calibrate" : "measure"} />
     {measure.blockedReason ? (
       <text className="lr-empty-plan-hint" data-testid="lr-calibrate-blocked" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
         {measure.blockedReason}

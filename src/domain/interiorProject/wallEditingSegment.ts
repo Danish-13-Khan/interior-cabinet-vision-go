@@ -16,21 +16,30 @@ import {
   wallSegmentKey,
 } from "./wallEditingHelpers";
 
+/**
+ * Commit-time fallback for domain callers that pass `snapSizeMm` without the
+ * plan snap engine: the nearest node within half a grid step, else the grid.
+ * Interactive tools use `planSnapEngine` instead.
+ */
 export function snapPlanPoint(
   point: Point2Mm,
   snapSizeMm: number,
   nodes: PlanNodeEntity[],
 ): Point2Mm {
-  const snapped = {
+  let best: PlanNodeEntity | null = null;
+  let bestDistance = snapSizeMm / 2;
+  for (const node of nodes) {
+    const distance = Math.hypot(node.position.x - point.x, node.position.z - point.z);
+    if (distance <= bestDistance) {
+      best = node;
+      bestDistance = distance;
+    }
+  }
+  if (best) return { ...best.position };
+  return {
     x: Math.round(point.x / snapSizeMm) * snapSizeMm,
     z: Math.round(point.z / snapSizeMm) * snapSizeMm,
   };
-  for (const node of nodes) {
-    if (Math.hypot(node.position.x - snapped.x, node.position.z - snapped.z) <= snapSizeMm / 2) {
-      return { ...node.position };
-    }
-  }
-  return snapped;
 }
 
 function defaultWallMaterialId(project: InteriorProject, roomId: string | null): string | null {

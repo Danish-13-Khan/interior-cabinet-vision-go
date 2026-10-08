@@ -181,7 +181,6 @@ export {
   setPlanWallHeight,
   setPlanWallThickness,
   setPlanWallsRaised,
-  snapPlanPoint,
   splitPlanWall,
   splitPlanWallResult,
   translatePlanWall,
