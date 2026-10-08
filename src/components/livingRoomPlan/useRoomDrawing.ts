@@ -1,33 +1,36 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { rectanglePoints, type Point2Mm, type RoomDrawingRequest } from "../../domain/interiorProject";
-import { snapPlanPointToDwg } from "../../domain/livingRoom/dwgPlanSnap";
-import { snapPointToGuides, type PlanGuide } from "../../domain/livingRoom/planGuides";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { usePlanSnap, type PlanSnapInput } from "./usePlanSnap";
 
 type Point = Point2Mm;
-
-function snap(point: Point, size: number, extra: readonly Point[] = []): Point {
-  return snapPlanPointToDwg(point, size, extra);
-}
 
 function distance(a: Point, b: Point) {
   return Math.hypot(a.x - b.x, a.z - b.z);
 }
 
-export function useRoomDrawing(input: {
-  active: boolean; snapSizeMm: number; closeRequest: number;
-  extraPoints?: readonly Point[];
-  guides?: readonly PlanGuide[];
-  guideToleranceMm?: number;
+/** A drag shorter than this adds a polygon vertex instead of a rectangle. */
+const MIN_RECTANGLE_MM = 150;
+
+export function useRoomDrawing(input: PlanSnapInput & {
+  active: boolean; closeRequest: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point;
   onCommit: (drawing: RoomDrawingRequest) => void;
   onPointCount: (count: number) => void;
 }) {
-  const snapAt = (raw: Point) =>
-    snapPointToGuides(snap(raw, input.snapSizeMm, input.extraPoints), raw, input.guides ?? [], input.guideToleranceMm ?? 0, input.extraPoints);
+  const engine = usePlanSnap(input);
   const [polygon, setPolygon] = useState<Point[]>([]);
   const [rectangleStart, setRectangleStart] = useState<Point | null>(null);
   const [cursor, setCursor] = useState<Point | null>(null);
+  const [snap, setSnap] = useState<PlanSnapResult | null>(null);
   const startRef = useRef<Point | null>(null);
+  // Polygon mode: the last placed vertex anchors the axis snap for the next edge.
+  const snapAt = (event: ReactPointerEvent<Element>): PlanSnapResult =>
+    engine.snap(
+      input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>),
+      event,
+      { anchor: startRef.current ? null : polygon[polygon.length - 1] ?? null },
+    );
   const onCommitRef = useRef(input.onCommit);
   const onPointCountRef = useRef(input.onPointCount);
   onCommitRef.current = input.onCommit;
@@ -37,46 +40,47 @@ export function useRoomDrawing(input: {
   useEffect(() => {
     if (input.active) return;
     startRef.current = null;
-    setRectangleStart(null); setCursor(null); setPolygon([]);
+    setRectangleStart(null); setCursor(null); setSnap(null); setPolygon([]);
   }, [input.active]);
   useEffect(() => {
     if (!input.closeRequest || polygon.length < 3) return;
     onCommitRef.current({ kind: "polygon", points: polygon });
-    setPolygon([]); setCursor(null);
+    setPolygon([]); setCursor(null); setSnap(null);
   }, [input.closeRequest, polygon]);
 
   function start(event: ReactPointerEvent<SVGRectElement>) {
     if (!input.active || event.button !== 0) return false;
     event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId);
-    const point = snapAt(input.worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>));
-    startRef.current = point; setRectangleStart(point); setCursor(point);
+    const result = snapAt(event);
+    startRef.current = result.point; setRectangleStart(result.point); setCursor(result.point); setSnap(result);
     return true;
   }
 
   function move(event: ReactPointerEvent<SVGSVGElement>) {
     if (!input.active || (!startRef.current && polygon.length === 0)) return false;
-    setCursor(snapAt(input.worldPoint(event)));
+    const result = snapAt(event);
+    setCursor(result.point); setSnap(result);
     return true;
   }
 
   function finish(event: ReactPointerEvent<SVGSVGElement>) {
     const startPoint = startRef.current;
     if (!input.active || !startPoint) return false;
-    const end = snapAt(input.worldPoint(event));
-    if (distance(startPoint, end) >= input.snapSizeMm * 3) {
+    const end = snapAt(event).point;
+    if (distance(startPoint, end) >= Math.max(input.gridMm * 3, MIN_RECTANGLE_MM)) {
       onCommitRef.current({ kind: "rectangle", points: rectanglePoints(startPoint, end) });
       setPolygon([]);
     } else {
       setPolygon((points) => [...points, startPoint]);
     }
-    startRef.current = null; setRectangleStart(null); setCursor(null);
+    startRef.current = null; setRectangleStart(null); setCursor(null); setSnap(null);
     return true;
   }
 
   function cancel() {
-    startRef.current = null; setRectangleStart(null); setCursor(null); setPolygon([]);
+    startRef.current = null; setRectangleStart(null); setCursor(null); setSnap(null); setPolygon([]);
   }
 
   const rectangle = rectangleStart && cursor ? rectanglePoints(rectangleStart, cursor) : null;
-  return { polygon, rectangle, cursor, start, move, finish, cancel };
+  return { polygon, rectangle, cursor, snap, start, move, finish, cancel };
 }

@@ -3,6 +3,9 @@ export {
 } from "./planCommands";
 export {
   openingOffsetAtPoint,
+  openingCentreAtPoint,
+  snapOpeningOffset,
+  centredOpeningOffset,
   moveOpeningOffset,
   resizeOpeningWidth,
   resizeOpeningFromStart,
@@ -700,15 +703,28 @@ export {
 } from "./planViewTransform";
 export {
   appendMeasurePoint,
-  collectMeasureSnapPoints,
   formatMeasureLengthMm,
   measureLengthMm,
   measureSegmentsFromPoints,
-  snapMeasurePoint,
   type MeasureSegment,
-  type MeasureSnapKind,
-  type MeasureSnapPoint,
 } from "./planMeasure";
+export {
+  snapSpanAlongWall,
+  spanSnapMarker,
+  wallOffsetCandidates,
+  wallOffsetOf,
+  wallPointAt,
+  type WallOffsetCandidate,
+} from "./wallOffsetSnap";
+export {
+  collectPlanSnapCandidates,
+  pickPlanSnap,
+  PLAN_SNAP_PRIORITY,
+  type PlanSnapCandidate,
+  type PlanSnapContext,
+  type PlanSnapKind,
+  type PlanSnapResult as PlanSnapEngineResult,
+} from "./planSnapEngine";
 export {
   DEFAULT_WALL_LENGTH_ANCHOR,
   describeTypedWallLengthChange,
@@ -765,6 +781,11 @@ export {
 export {
   calibrateUnderlayScale,
   parseKnownLengthMm,
+  calibrateUnderlayToAxis,
+  calibrateUnderlayToWall,
+  describeUnderlayCalibration,
+  rotateUnderlayAbout,
+  type UnderlayAxis,
 } from "./planUnderlayCalibrate";
 export {
   dataUrlToUnderlay,
@@ -773,7 +794,7 @@ export {
   isDwgFile,
   isPdfFile,
 } from "./planUnderlayImport";
-export { collectDwgPlanEndpoints, collectProjectDwgPlanEndpoints, snapPlanPointToDwg } from "./dwgPlanSnap";
+export { collectDwgPlanEndpoints, collectProjectDwgPlanEndpoints } from "./dwgPlanSnap";
 export { cadToPlanPoint } from "./dwgPlanMap";
 export { suggestRoomPolygonFromDwg } from "./dwgSuggestRoom";
 export { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";
@@ -826,6 +847,7 @@ export {
   reflowCabinetRunsForWalls,
   reflowCornerCabinetsForWalls,
   snapCabinetToWall,
+  snapCabinetToWallWithSnap,
   syncCabinetRunFillers,
   updateCabinetRun,
   updateCabinetRunLayout,

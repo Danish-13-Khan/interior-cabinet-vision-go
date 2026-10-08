@@ -27,7 +27,7 @@ export const PLAN_EXPORT_STYLESHEET = `
 }
 .lr-wall-line {
   stroke: #14202b;
-  stroke-width: 120;
+  stroke-width: var(--lr-wall-thickness, 120);
   stroke-linecap: square;
 }
 .lr-opening line {
@@ -221,7 +221,6 @@ export const PLAN_EXPORT_STYLESHEET = `
 }
 .lr-plan-underlay-image {
   pointer-events: none;
-  opacity: 0.55;
 }
 .lr-plan-svg.is-print-export .lr-snap-guide-group,
 .lr-plan-svg.is-print-export .lr-free-wall-segments,

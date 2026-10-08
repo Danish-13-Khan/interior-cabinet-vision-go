@@ -24,6 +24,7 @@ export type LivingRoomPlanStageProps = {
   issues: LivingRoomPlanIssue[];
   snapSizeMm: number;
   showGrid: boolean;
+  snapEnabled: boolean;
   canUndo: boolean;
   canRedo: boolean;
   hasSelection: boolean;
@@ -31,10 +32,11 @@ export type LivingRoomPlanStageProps = {
   previousRender: LivingRoomRenderResult | null;
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
+  onSnapEnabled: (value: boolean) => void;
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onClearSelection: () => void;
   onMove: (objectId: string, position: Point3Mm) => void;
-  onMovePreview?: (objectId: string, position: Point3Mm) => import("./usePlanObjectInteraction").SnappedMovePose | null | void;
+  onMovePreview?: (objectId: string, position: Point3Mm, thresholdMm?: number) => import("./usePlanObjectInteraction").SnappedMovePose | null | void;
   onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   activeWallId: string | null;

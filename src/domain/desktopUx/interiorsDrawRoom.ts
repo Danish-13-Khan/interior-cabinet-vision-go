@@ -26,7 +26,7 @@ export function interiorsChromeBuildTool(tool: InteriorsChromeTool) {
 
 export function interiorsDrawRoomHint(tool: InteriorsChromeTool, buildTool?: BuildTool): string {
   if (buildTool === "measure") return "Click points to measure · Esc clears · snaps to walls/openings/cabinets";
-  if (buildTool === "calibrate-underlay") return "Click A → B on the underlay, then enter the known length in mm";
+  if (buildTool === "calibrate-underlay") return "Click the two ends of a wall you measured on the picture, then type its real length";
   if (buildTool === "place-guide-x") return "Click to place a vertical guide (A, B…) · drag to move · Delete removes";
   if (buildTool === "place-guide-z") return "Click to place a horizontal guide (1, 2…) · drag to move · Delete removes";
   if (buildTool === "move-underlay") return "Drag the underlay to move it · Space-drag pans the view · Esc finishes";

@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { moveOpeningOffset, openingOffsetAtPoint, resizeOpeningFromStart, resizeOpeningWidth } from "./openingPlacement";
+import type { InteriorProject } from "../interiorProject";
+import {
+  centredOpeningOffset,
+  moveOpeningOffset,
+  openingCentreAtPoint,
+  openingOffsetAtPoint,
+  resizeOpeningFromStart,
+  resizeOpeningWidth,
+  snapOpeningOffset,
+} from "./openingPlacement";
 
 const wall = {
   id: "wall", roomId: "room", start: { x: 0, z: 0 }, end: { x: 6000, z: 0 },
@@ -25,5 +34,40 @@ describe("openingOffsetAtPoint", () => {
       offsetMm: 650,
       widthMm: 750,
     });
+  });
+});
+
+describe("snapOpeningOffset (Phase 4)", () => {
+  const project = {
+    walls: [wall],
+    openings: [{ id: "existing", wallId: "wall", kind: "window", offsetMm: 1000, widthMm: 1200, heightMm: 1200, sillHeightMm: 900 }],
+    objects: [],
+  } as unknown as InteriorProject;
+
+  it("centres a 900 door on the wall midpoint within the radius and names it", () => {
+    const hit = snapOpeningOffset(project, wall, { centreMm: 3030, widthMm: 900, thresholdMm: 60, gridMm: 50 });
+    expect(hit.offsetMm).toBe(2550);
+    expect(hit.snap?.candidate?.label).toBe("Wall midpoint");
+    expect(hit.snap?.point).toEqual({ x: 3000, z: 0 });
+  });
+
+  it("abuts another opening's edge", () => {
+    const hit = snapOpeningOffset(project, wall, { centreMm: 2680, widthMm: 900, thresholdMm: 60, gridMm: 50 });
+    expect(hit.offsetMm).toBe(2200);
+    expect(hit.snap?.candidate?.label).toBe("Window edge");
+  });
+
+  it("ignores its own edges and falls back to the grid on the start offset", () => {
+    const own = snapOpeningOffset(project, wall, { centreMm: 1600, widthMm: 1200, excludeOpeningId: "existing", thresholdMm: 60, gridMm: 50 });
+    expect(own.snap).toBeNull();
+    expect(own.offsetMm).toBe(1000);
+    const free = snapOpeningOffset(project, wall, { centreMm: 4327, widthMm: 900, thresholdMm: 60, gridMm: 50 });
+    expect(free.snap).toBeNull();
+    expect(free.offsetMm).toBe(3900);
+  });
+
+  it("projects a pointer onto the wall and computes the centred offset", () => {
+    expect(openingCentreAtPoint(wall, { x: 2577, z: 400 })).toBe(2577);
+    expect(centredOpeningOffset(wall, 900)).toBe(2550);
   });
 });

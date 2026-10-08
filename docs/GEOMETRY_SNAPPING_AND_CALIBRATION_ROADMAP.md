@@ -1,6 +1,6 @@
 # Wall geometry, snapping and plan calibration roadmap
 
-**Status:** Proposed — assessment written 2026-10-08, no code changed.
+**Status:** Phases 0–4 built 2026-10-08 on `feat/plan-snap-geometry`; Phase 5 deferred (S11) until a tester brings a case.
 **Source:** Tester requirements doc, 2026-10-08: wall centre / axis alignment,
 midpoint and corner snap points, straight drawing, floor-plan import fidelity,
 import after a room exists, calibration, and a unified snapping system
@@ -283,6 +283,24 @@ same with the grid hidden. Replace the file with the same scan: pose and
 calibration unchanged. A 230 mm wall draws thicker than a 100 mm one.
 `tsc --noEmit` clean; e2e `phase-2-measured-room` and `underlay-gestures` pass.
 
+**Landed (2026-10-08):** `PlanArchitectureLayer` draws the floor fill before
+the underlay `<image>`; the line-style and print-export opacity rules are gone,
+so `underlay.opacity` is the only opacity. The wall `<line>` sets
+`--lr-wall-thickness` from `thicknessMm` and the plan, drafting and export
+stylesheets read it. The shell always carries `is-drafting-studio`, so its
+rule is scoped to solid walls outside Line style: Line style stays 28 px and
+partition / plan-only traces keep their thin dashed strokes. The selected
+wall keeps the real thickness (the old 32 px accent rule has been masked by
+the drafting shell since 2026-09-10 and is not revived here). Calibrate clicks use `calibrationSnapCandidates` (DWG endpoints only)
+and `snapMeasurePoint(…, { grid: false })`, so a raster reads the raw pointer
+and shows "Free". The **Width** field no longer sets `calibrated`.
+`carryUnderlayPose` (`planUnderlayTransform.ts`) keeps size, pose, opacity and
+calibration on Replace file when both are rasters with the same aspect within
+1 %; DWG replacements always start fresh. The commit status says which
+happened (`describeUnderlayReplace`): "position, scale and calibration kept"
+or "different shape … reset. Calibrate again." Not run: the unit and e2e suites
+(by project rule); `tsc --noEmit` was run.
+
 ### Phase 1 — Snap engine and indicator (3–5 days)
 
 - §4.1 module with unit tests per kind (node, dwg-end, midpoint, on-wall,
@@ -302,6 +320,34 @@ walls shows "Intersection"; the indicator is the same pixel size at 25 % and
 drawing joins an existing node. `planMeasure`, `planGuides`, `wallEditing` and
 `dwgTraceAssist` tests updated and green.
 
+**Landed (2026-10-08):** `src/domain/livingRoom/planSnapEngine/` —
+`collectPlanSnapCandidates(ctx, extendMm)` gathers the fixed kinds (node, DWG
+endpoint, wall-line intersection extended by the pick radius, wall midpoint,
+opening centre / edge, cabinet centre / edge; room-scoped where the measure
+tool was) and `pickPlanSnap(ctx, pointer, thresholdMm, candidates)` takes the
+nearest point candidate within the zoom-aware radius (ties by S2 priority),
+then resolves the line-like kinds per axis: axis through the anchor (2°, used
+from Phase 2), on-wall projection, guides, grid, each only within the pick
+radius; `gridMm: 0` or `allow` turns the grid off. A node drag excludes the
+node and the midpoint / line of its own walls, but keeps those walls'
+crossings, so the node can land exactly where its wall meets another.
+`usePlanSnap` memoises the candidates per project and returns the raw pointer
+when the toolbar **Snap** is off or **Alt** is held. Adopted by wall drawing,
+room drawing (which now joins existing nodes), node drag and wall translate
+(the dragged geometry is excluded), measure and calibrate. `snapPlanPointToDwg`,
+`snapMeasurePoint`, `collectMeasureSnapPoints` and `snapPointToGuides` are
+deleted; `snapPlanPoint` stays as the commit-time fallback for domain callers
+that pass `snapSizeMm` (tests only) and now picks the nearest node from the raw
+point. `PlanSnapMarker` is the one indicator (square node, diamond DWG, cross
+intersection, triangle midpoint, bar on-wall, dashed axis, dot grid, dashed
+circle "Free") sized from the 8 px radius with non-scaling strokes.
+**Verified in the app:** "Wall midpoint", "Intersection", "Node", "Grid" and
+"Free" (Snap off) labels at the right points; a drawn wall ends exactly on a
+wall midpoint; a second room drawn from an existing corner reuses that node
+(13 unique endpoints, not 14); the on-wall bar is 22.4 px wide at 7.4 and at
+12.9 mm per px. Not run: unit and e2e suites (project rule); `tsc --noEmit`
+is clean. Not verified by hand: the 40 mm two-node case (unit test only).
+
 ### Phase 2 — Straight drawing and accurate connection (3–4 days)
 
 - S3 axis snap + Shift hard lock; labels "Horizontal" / "Vertical".
@@ -315,6 +361,41 @@ nodes. Draw a partition ending on a room wall: the wall splits, the node has
 degree 3, Undo restores one wall. In 3D the outside corners of a 120 mm wall
 room show no notch; the golden cut list is unchanged.
 
+**Landed (2026-10-08):** S3 — wall drawing passes its start as the engine
+`anchor`, so a segment within 2° of horizontal or vertical (or within the pick
+radius of the axis) locks to it with the "Horizontal" / "Vertical" label;
+Shift sets `axisLock`, which projects onto the dominant axis first and lets
+only on-axis candidates still win (`pick.ts`); the automatic lock re-checks
+on-axis candidates against the projected pointer the same way, so a node the
+raw pointer just missed still wins. With one axis locked the free
+coordinate lands where a wall crosses the locked line when that crossing is
+within the pick radius ("Horizontal · On wall"), ahead of guides and grid, so
+an off-grid wall still receives the T-junction weld. Polygon room drawing
+anchors on its last vertex. With Snap off, Shift still constrains to the axis.
+S4 — `wallEditingWeld.ts`: `resolveWallEndpoint` welds a drawn endpoint to a
+node within 1 mm or splits the wall whose span it sits on (offsets kept
+≥ 150 mm from either end), and `createWallSegment` resolves both ends before
+the room-split check, so a wall between two boundary walls still splits the
+room through the welded nodes; `weldNodeIntoWalls` does the same after
+`movePlanNodeWithOpenings` and both ends of `translatePlanWall` (the existing
+node keeps its coordinates on a node join; the moved node keeps its snapped
+position on a span join; the room validity check follows whichever node
+survived). **Offset wall** goes through the same commit, so a partition
+offset across a rectangular room now joins both side walls (three new wall
+ids: the partition and two split halves) instead of leaving dangling ends. The default tolerance is 1 mm because the engine
+already put the point on the node or line; `joinToleranceMm` on the request
+widens it. S9 — `wallCornerExtensionMm` extends each wall box past a
+degree-2 node by t/2 ÷ tan(θ/2) (t/2 at a right angle, 0 when straight,
+capped at 2t); boxes overlap on the inside of the corner, which is hidden.
+Degree ≥ 3 nodes are unchanged.
+**Verified in the app:** a rectangle traced in four strokes, each 1–2° off
+axis and without Shift, produced four axis-aligned walls, four nodes and a
+valid room; a wall drawn from inside the room onto its bottom wall split
+that wall into a degree-3 node (6 walls), and one Undo restored the four;
+the 3D dollhouse shows closed outside corners. Not run: unit and e2e suites
+(project rule); `tsc --noEmit` is clean. Not verified by hand: Shift lock
+(unit-tested) and node-drag welds (unit-tested).
+
 ### Phase 3 — Calibration that also rotates and aligns (3–4 days)
 
 - §4.4: axis option in the calibrate prompt; **Align to wall** flow.
@@ -327,6 +408,33 @@ imported over an existing room is aligned to the room's long wall with one
 Align to wall gesture, scale correct within 1 % of the typed length, and the
 room's walls still sit on the picture after Lock.
 
+**Landed (2026-10-08):** `planUnderlayCalibrate.ts` gains
+`rotateUnderlayAbout` (turn about any world pivot; the centre moves by the
+same rotation), `axisTurnDeg` (smallest turn onto an axis),
+`calibrateUnderlayToAxis` (scale about A, then turn about A so A→B is
+horizontal or vertical) and `calibrateUnderlayToWall` (scale so |AB| is the
+wall length, turn about A onto the wall direction choosing the wall end that
+needs the smaller turn, then slide A onto that end). Every calibration
+records `underlay.calibration = { referenceMm, mode }`, read back by
+`getLivingRoomPlanUnderlay`; the chip shows "Calibrated · 3,200 mm" and the
+commit status says "Calibrated plan underlay — 3,200 mm reference, made
+horizontal." with " Locked." when the dialog's lock option was ticked (one
+undo step). `CalibrateUnderlayDialog` replaces the generic prompt: known
+length, **Then make A → B** (leave / horizontal / vertical), **Lock the
+underlay afterwards**, and **Align these two points to a drawn wall instead**,
+which closes the dialog and waits for a wall click (canvas hint "Now click
+the drawn wall these two points belong to"; Esc cancels). The toolbar hint
+reads "Click the two ends of a wall you measured on the picture, then type its
+real length". Test ids stay in the `calibrate-known-length` family.
+**Verified in the app:** a picture tilted 3° was squared by one calibration
+(rotation −3.001°, the edge at 0.000°, 3,200.0 mm over the typed 3,200);
+a second calibration aligned the same edge to the room's top wall: the two
+points landed on (0, 0) and (3000, 0) exactly, the status read "3,000 mm
+reference, aligned to the drawn wall. Locked.", and Calibrate was then
+blocked by the lock. Not run: unit and e2e suites (project rule);
+`tsc --noEmit` and the style lint are clean. The Phase 2 e2e calibrate flow
+still types into the same input and presses the same confirm button.
+
 ### Phase 4 — Centring openings and cabinets (2–3 days)
 
 - Door / window placement and drag snap the **opening centre** to engine
@@ -338,6 +446,33 @@ room's walls still sit on the picture after Lock.
 **Exit gate:** a 900 door drags to the wall midpoint and shows "Wall
 midpoint"; a 600 base cabinet centres on a 3000 wall at 1200 offset with the
 label shown; reference dimensions update.
+
+**Landed (2026-10-08):** `wallOffsetSnap.ts` is the one-dimensional snapper
+along a wall: `wallOffsetCandidates` (wall midpoint, the edges of the wall's
+other openings, the edges of other cabinets attached to it, all projected onto
+the given wall so an oriented copy works) and `snapSpanAlongWall` (the span's
+centre to a midpoint target, either edge to an edge target, nearest within the
+pick radius with S2 priority; otherwise the start edge rounds to the grid, or
+stays free with `gridMm: 0`), plus `spanSnapMarker` for the shared indicator.
+Openings: `snapOpeningOffset` drives placement clicks, the move drag
+(`usePlanOpeningInteraction` takes the zoom-aware `thresholdMm`; Alt or Snap
+off gives 0) and shows the marker in `PlanOpeningsLayer`; resize keeps the grid
+step. The inspector gains **Centre on wall** (`centredOpeningOffset`).
+Cabinets: `snapCabinetToWallWithSnap` snaps the along-wall centre after the
+wall-flush snap (the pointer radius during a drag via
+`onMovePreview(objectId, position, thresholdMm)`; the commit passes 0, so a
+drop lands exactly where the ghost was and Alt / Snap off are honoured), and
+the drag preview carries `snap` to `PlanObjectsLayer`'s marker. A target the
+span cannot reach inside the wall is dropped rather than clamped onto. Wall-flush snapping is
+unchanged with Snap off.
+**Verified in the app:** a 900 door dragged toward the 3000 wall's midpoint
+showed "Wall midpoint" and committed at offset 1050; Alt-dragging it to 250
+then **Centre on wall** returned it to 1050; a 600 Tall Pantry dragged to
+25 mm short of the bottom wall's midpoint showed "Wall midpoint" and committed
+at the wall centre (start offset 1200), with the reference dimension moving
+1414 → 1348 → 1414 mm across the two drags; Alt showed no marker and left it
+at the pointer. Not run: unit and e2e suites (project rule); `tsc --noEmit`
+and the style lint are clean.
 
 ### Phase 5 — Advanced alignment (deferred, S11)
 
@@ -368,3 +503,7 @@ Phase 0 (1–2 days) → Phase 1 (3–5) → Phase 2 (3–4) → Phase 3 (3–4)
 (2–3). Roughly three working weeks for everything the tester marked P0 and P1,
 with Phase 0 answering most of the fidelity complaints in the first two days.
 Phase 5 waits. Each phase is its own review checkpoint.
+
+**Outcome (2026-10-08):** Phases 0–4 were built and verified in one day on
+`feat/plan-snap-geometry`, each with its own review round. Phase 5 stays
+deferred under S11.

@@ -43,24 +43,3 @@ export function collectDwgPlanEndpoints(underlay: LivingRoomPlanUnderlay | null)
 export function collectProjectDwgPlanEndpoints(project: InteriorProject): Point2Mm[] {
   return collectDwgPlanEndpoints(getLivingRoomPlanUnderlay(project));
 }
-
-export function snapPlanPointToDwg(
-  point: Point2Mm,
-  snapSizeMm: number,
-  extra: readonly Point2Mm[],
-): Point2Mm {
-  const snapped = {
-    x: Math.round(point.x / snapSizeMm) * snapSizeMm,
-    z: Math.round(point.z / snapSizeMm) * snapSizeMm,
-  };
-  let best = snapped;
-  let bestDist = snapSizeMm / 2;
-  for (const candidate of extra) {
-    const dist = Math.hypot(candidate.x - point.x, candidate.z - point.z);
-    if (dist <= bestDist) {
-      best = candidate;
-      bestDist = dist;
-    }
-  }
-  return best;
-}

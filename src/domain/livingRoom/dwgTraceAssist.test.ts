@@ -4,7 +4,8 @@ import { drawRoomFromPoints } from "../interiorProject";
 import { parseAsciiDxf } from "./dwgDxfParse";
 import { buildDwgPreview, dwgPreviewDataUrl } from "./dwgGeometry";
 import { cadToPlanPoint } from "./dwgPlanMap";
-import { collectDwgPlanEndpoints, snapPlanPointToDwg } from "./dwgPlanSnap";
+import { collectDwgPlanEndpoints } from "./dwgPlanSnap";
+import { pickPlanSnap } from "./planSnapEngine";
 import { suggestRoomPolygonFromDwg } from "./dwgSuggestRoom";
 import { placeRecognizedDwgCabinets, recognizedCabinetInserts } from "./dwgCabinetBlocks";
 import { applyPlannerStarterTemplate } from "./plannerStarters";
@@ -35,7 +36,13 @@ describe("DWG trace assist", () => {
     expect(cadToPlanPoint({ x: 4000, y: 0 }, underlay, bounds)).toEqual({ x: 2000, z: 1500 });
     const ends = collectDwgPlanEndpoints(underlay);
     expect(ends).toContainEqual({ x: -2000, z: 1500 });
-    expect(snapPlanPointToDwg({ x: -1988, z: 1492 }, 50, ends)).toEqual({ x: -2000, z: 1500 });
+    const snapped = pickPlanSnap(
+      { project: createLivingRoomStarterProject(), gridMm: 50, dwgEndpoints: ends, allow: ["dwg-end"] },
+      { x: -1988, z: 1492 },
+      25,
+    );
+    expect(snapped.point).toEqual({ x: -2000, z: 1500 });
+    expect(snapped.candidate?.kind).toBe("dwg-end");
   });
 
   it("suggests the L-shaped Walls layer as a closed room", () => {

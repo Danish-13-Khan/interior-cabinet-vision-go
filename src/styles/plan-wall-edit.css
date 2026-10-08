@@ -58,8 +58,20 @@
 }
 
 .lr-product-shell-v2 .lr-draft-axis-label { font-size: 86px !important; fill: #c4e8cf !important; }
-.lr-product-shell-v2 .lr-draft-snap-target { fill: none; stroke: #f0c75e; stroke-width: 22; }
-.lr-product-shell-v2 .lr-draft-snap-label { font-size: 76px !important; fill: #f9dd87 !important; }
+/* One snap indicator for every plan tool; shapes are sized in world mm from the 8 px pick radius. */
+.lr-product-shell-v2 .lr-snap-marker { fill: none; stroke: var(--warning); stroke-width: 2px; }
+.lr-product-shell-v2 .lr-snap-marker.is-grid { fill: var(--warning); stroke: none; }
+.lr-product-shell-v2 .lr-snap-marker.is-free { stroke: var(--ink-faint); stroke-dasharray: 3 3; }
+.lr-product-shell-v2 .lr-snap-marker.is-axis-h,
+.lr-product-shell-v2 .lr-snap-marker.is-axis-v { stroke-dasharray: 8 6; }
+.lr-product-shell-v2 .lr-snap-marker-label,
+.lr-product-shell-v2 .lr-draft-feedback .lr-snap-marker-label {
+  fill: var(--warning);
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+}
 .lr-product-shell-v2 .lr-room-draft-tail { stroke: #51a870; stroke-width: 22; stroke-dasharray: 48 28; }
 
 .lr-product-shell-v2 .lr-inspector-section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }

@@ -28,6 +28,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
   const draftingAppearance = useDraftingAppearance();
   const [snapSizeMm, setSnapSizeMm] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
+  const [snapEnabled, setSnapEnabled] = useState(true);
   const [assetQuery, setAssetQuery] = useState("");
   const [assetCategory, setAssetCategory] = useState("all");
   const [importError, setImportError] = useState("");
@@ -165,7 +166,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
         assetQuery={assetQuery} assetCategory={assetCategory} assetCategories={assetCategories}
         importError={importError} onAssetQuery={setAssetQuery} onAssetCategory={setAssetCategory}
         onImportError={setImportError} snapSizeMm={snapSizeMm} showGrid={showGrid}
-        onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm}
+        onShowGrid={setShowGrid} onSnapSize={setSnapSizeMm} snapEnabled={snapEnabled} onSnapEnabled={setSnapEnabled}
         activeWallId={activeWallId} activeOpeningId={activeOpeningId} activeOpening={activeOpening}
         activeSurfaceId={activeSurfaceId} activeLightId={activeLightId} setActiveSurfaceId={setActiveSurfaceId}
         setActiveWallId={setActiveWallId} setActiveOpeningId={setActiveOpeningId} setActiveLightId={setActiveLightId}

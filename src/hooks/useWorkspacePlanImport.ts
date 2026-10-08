@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { LivingRoomPlanUnderlay } from "../domain/livingRoom/planUnderlay";
+import { carryUnderlayPose } from "../domain/livingRoom/planUnderlayTransform";
 import {
   imageFileToUnderlay,
   PLAN_UNDERLAY_UNSUPPORTED_MESSAGE,
@@ -9,6 +10,8 @@ import type { BuildTool, StudioPanel } from "../components/livingRoomPlan/worksp
 
 type PlanImportArgs = {
   roomWidthMm: number;
+  /** Underlay being replaced; a same-shape raster keeps its pose and calibration (S7). */
+  currentUnderlay: LivingRoomPlanUnderlay | null;
   onImportError: (message: string) => void;
   onSetPlanUnderlay: (underlay: LivingRoomPlanUnderlay) => void;
   onStudioPanel: (panel: StudioPanel) => void;
@@ -40,7 +43,7 @@ export function useWorkspacePlanImport(args: PlanImportArgs) {
     }
     try {
       const underlay = await imageFileToUnderlay(file, args.roomWidthMm);
-      args.onSetPlanUnderlay(underlay);
+      args.onSetPlanUnderlay(carryUnderlayPose(args.currentUnderlay, underlay));
       args.onStudioPanel("build");
       args.onCommitDraft();
     } catch (error) {
@@ -57,7 +60,7 @@ export function useWorkspacePlanImport(args: PlanImportArgs) {
 
   function confirmPdf(underlay: LivingRoomPlanUnderlay) {
     setPdfImportFile(null);
-    args.onSetPlanUnderlay(underlay);
+    args.onSetPlanUnderlay(carryUnderlayPose(args.currentUnderlay, underlay));
     args.onStudioPanel("build");
     args.onCommitDraft();
   }

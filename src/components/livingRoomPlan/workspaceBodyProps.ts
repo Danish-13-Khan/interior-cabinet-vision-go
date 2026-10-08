@@ -37,8 +37,10 @@ export type LivingRoomPlanWorkspaceBodyProps = {
   onImportError: (message: string) => void;
   snapSizeMm: number;
   showGrid: boolean;
+  snapEnabled: boolean;
   onShowGrid: (value: boolean) => void;
   onSnapSize: (value: number) => void;
+  onSnapEnabled: (value: boolean) => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
   activeSurfaceId: string | null;

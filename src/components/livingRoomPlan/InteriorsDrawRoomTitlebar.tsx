@@ -15,10 +15,12 @@ export function InteriorsDrawRoomTitlebar({
   tool,
   buildTool,
   showGrid,
+  snapEnabled,
   snapSizeMm,
   readability,
   onPatchDocument,
   onShowGrid,
+  onSnapEnabled,
   onSnapSize,
   onReadability,
   onFitPlan,
@@ -32,6 +34,7 @@ export function InteriorsDrawRoomTitlebar({
   tool: InteriorsChromeTool;
   buildTool?: BuildTool;
   showGrid: boolean;
+  snapEnabled: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
   onPatchDocument: (
@@ -39,6 +42,7 @@ export function InteriorsDrawRoomTitlebar({
     status: string,
   ) => void;
   onShowGrid: (value: boolean) => void;
+  onSnapEnabled: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
   onFitPlan?: () => void;
@@ -83,6 +87,10 @@ export function InteriorsDrawRoomTitlebar({
           <button type="button" data-testid="fit-selection" title="Fit selection" onClick={() => onFitSelection?.()} disabled={!hasSelection}>Fit sel</button>
           <button type="button" className={showGrid ? "is-active" : ""} aria-pressed={showGrid} onClick={() => onShowGrid(!showGrid)}>
             Grid
+          </button>
+          <button type="button" className={snapEnabled ? "is-active" : ""} aria-pressed={snapEnabled} data-testid="lr-snap-toggle"
+            title="Snap to walls, guides and the grid (hold Alt to draw free)" onClick={() => onSnapEnabled(!snapEnabled)}>
+            Snap
           </button>
           <select aria-label="Snap size" value={snapSizeMm} onChange={(event) => onSnapSize(Number(event.target.value))}>
             <option value="25">Snap 25 mm</option>

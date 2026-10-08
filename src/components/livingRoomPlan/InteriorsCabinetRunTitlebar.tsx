@@ -9,17 +9,20 @@ import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands"
 export function InteriorsCabinetRunTitlebar({
   tool,
   showGrid,
+  snapEnabled,
   snapSizeMm,
   readability,
   commands,
   project,
   onPatchDocument,
   onShowGrid,
+  onSnapEnabled,
   onSnapSize,
   onReadability,
 }: {
   tool: InteriorsChromeTool;
   showGrid: boolean;
+  snapEnabled: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
   commands?: InteriorsCabinetRunCommands;
@@ -29,6 +32,7 @@ export function InteriorsCabinetRunTitlebar({
     status: string,
   ) => void;
   onShowGrid: (value: boolean) => void;
+  onSnapEnabled: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
 }) {
@@ -55,6 +59,10 @@ export function InteriorsCabinetRunTitlebar({
           <span className="lr-plan-units">Units: {readability.unit}</span>
           <button type="button" className={showGrid ? "is-active" : ""} aria-pressed={showGrid} onClick={() => onShowGrid(!showGrid)}>
             Grid
+          </button>
+          <button type="button" className={snapEnabled ? "is-active" : ""} aria-pressed={snapEnabled} data-testid="lr-snap-toggle"
+            title="Snap to walls, guides and the grid (hold Alt to draw free)" onClick={() => onSnapEnabled(!snapEnabled)}>
+            Snap
           </button>
           <select aria-label="Snap size" value={snapSizeMm} onChange={(event) => onSnapSize(Number(event.target.value))}>
             <option value="25">Snap 25 mm</option>

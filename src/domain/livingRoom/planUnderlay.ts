@@ -2,6 +2,22 @@ import { dwgPreviewDataUrl } from "./dwgGeometry";
 import { readDwgSource, type DwgSource } from "./dwgSource";
 import type { InteriorProject } from "../interiorProject";
 
+/** What the last calibration measured and did; shown in the status line and the Calibrated chip. */
+export type UnderlayCalibration = {
+  referenceMm: number;
+  mode: "scale" | "horizontal" | "vertical" | "wall";
+};
+
+const CALIBRATION_MODES = new Set<UnderlayCalibration["mode"]>(["scale", "horizontal", "vertical", "wall"]);
+
+function readCalibration(value: unknown): UnderlayCalibration | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<UnderlayCalibration>;
+  if (!Number.isFinite(candidate.referenceMm) || Number(candidate.referenceMm) <= 0) return undefined;
+  if (!candidate.mode || !CALIBRATION_MODES.has(candidate.mode)) return undefined;
+  return { referenceMm: Number(candidate.referenceMm), mode: candidate.mode };
+}
+
 export type LivingRoomPlanUnderlay = {
   sourceType?: "dwg";
   dwg?: DwgSource;
@@ -17,6 +33,7 @@ export type LivingRoomPlanUnderlay = {
   locked?: boolean;
   hidden?: boolean;
   calibrated?: boolean;
+  calibration?: UnderlayCalibration;
   /** Width/height captured at import — used by Reset scale. */
   importWidthMm?: number;
   importHeightMm?: number;
@@ -71,6 +88,7 @@ export function getLivingRoomPlanUnderlay(
     locked: optionalBool(candidate.locked),
     hidden: optionalBool(candidate.hidden),
     calibrated: optionalBool(candidate.calibrated),
+    calibration: readCalibration(candidate.calibration),
     importWidthMm: Number.isFinite(candidate.importWidthMm) ? Number(candidate.importWidthMm) : undefined,
     importHeightMm: Number.isFinite(candidate.importHeightMm) ? Number(candidate.importHeightMm) : undefined,
   };

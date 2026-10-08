@@ -1,12 +1,14 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import {
-  moveOpeningOffset,
   resizeOpeningFromStart,
   resizeOpeningWidth,
+  snapOpeningOffset,
   type PlanDisplayUnit,
 } from "../../domain/livingRoom";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
 import { PlanOpeningGroup } from "./PlanOpeningGroup";
+import { PlanSnapMarker } from "./PlanSnapMarker";
 
 type OpeningDrag = {
   openingId: string;
@@ -21,12 +23,15 @@ type OpeningPreview = { id: string; offsetMm: number; widthMm: number };
 export function usePlanOpeningInteraction(input: {
   project: InteriorProject;
   snapSizeMm: number;
+  /** Zoom-aware pick radius in mm for the along-wall targets (Phase 4); 0 disables them. */
+  thresholdMm?: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => { x: number; z: number };
   onSelectOpening: (openingId: string) => void;
   onMoveOpening: (openingId: string, offsetMm: number) => void;
   onResizeOpening: (openingId: string, widthMm: number, offsetMm?: number) => void;
 }) {
   const [openingPreview, setOpeningPreview] = useState<OpeningPreview | null>(null);
+  const [openingSnap, setOpeningSnap] = useState<PlanSnapResult | null>(null);
   const openingDragRef = useRef<OpeningDrag | null>(null);
   const openingPreviewRef = useRef<OpeningPreview | null>(null);
 
@@ -52,6 +57,7 @@ export function usePlanOpeningInteraction(input: {
     openingDragRef.current = nextDrag;
     openingPreviewRef.current = nextPreview;
     setOpeningPreview(nextPreview);
+    setOpeningSnap(null);
   }
 
   function openingDragMove(event: ReactPointerEvent<SVGSVGElement>) {
@@ -67,14 +73,18 @@ export function usePlanOpeningInteraction(input: {
     const delta = ((point.x - activeDrag.startPoint.x) * dx + (point.z - activeDrag.startPoint.z) * dz) / length;
     let offsetMm = activeDrag.offsetMm;
     let widthMm = activeDrag.widthMm;
+    let snap: PlanSnapResult | null = null;
     if (activeDrag.mode === "move") {
-      offsetMm = moveOpeningOffset({
-        startOffsetMm: activeDrag.offsetMm,
+      // Centre follows the pointer; the along-wall targets or the grid decide where it lands.
+      const result = snapOpeningOffset(input.project, wall, {
+        centreMm: activeDrag.offsetMm + activeDrag.widthMm / 2 + delta,
         widthMm: activeDrag.widthMm,
-        wallLengthMm: length,
-        deltaMm: delta,
-        snapMm: input.snapSizeMm,
+        excludeOpeningId: opening.id,
+        thresholdMm: event.altKey ? 0 : input.thresholdMm ?? 0,
+        gridMm: input.snapSizeMm,
       });
+      offsetMm = result.offsetMm;
+      snap = result.snap;
     } else if (activeDrag.mode === "resize-end") {
       widthMm = resizeOpeningWidth({
         startWidthMm: activeDrag.widthMm,
@@ -97,6 +107,7 @@ export function usePlanOpeningInteraction(input: {
     const nextPreview = { id: opening.id, offsetMm, widthMm };
     openingPreviewRef.current = nextPreview;
     setOpeningPreview(nextPreview);
+    setOpeningSnap(snap);
     return true;
   }
 
@@ -115,10 +126,12 @@ export function usePlanOpeningInteraction(input: {
     openingDragRef.current = null;
     openingPreviewRef.current = null;
     setOpeningPreview(null);
+    setOpeningSnap(null);
   }
 
   return {
     openingPreview,
+    openingSnap,
     startOpeningDrag,
     openingDragMove,
     finishOpeningDrag,
@@ -129,6 +142,8 @@ export function PlanOpeningsLayer({
   project,
   activeOpeningId,
   openingPreview,
+  snap = null,
+  markerMm,
   onSelectOpening,
   onStartDrag,
   unit,
@@ -137,6 +152,9 @@ export function PlanOpeningsLayer({
   project: InteriorProject;
   activeOpeningId: string | null;
   openingPreview: OpeningPreview | null;
+  /** Along-wall target the dragged opening landed on (Phase 4). */
+  snap?: PlanSnapResult | null;
+  markerMm?: number;
   onSelectOpening: (openingId: string) => void;
   onStartDrag: (
     event: ReactPointerEvent<SVGGElement | SVGCircleElement>,
@@ -167,6 +185,7 @@ export function PlanOpeningsLayer({
             />
           );
         })}
+      {snap ? <PlanSnapMarker snap={snap} sizeMm={markerMm ?? 40} testId="lr-opening-snap" /> : null}
     </g>
   );
 }

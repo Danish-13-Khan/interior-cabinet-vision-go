@@ -5,6 +5,7 @@ import { roomIdsUsingWall } from "./planTopology";
 import { roomPlanPolygon, roomPolygonIsValid } from "./roomGeometry";
 import { createWallGraphIndex, movePlanNode, synchronizeWallCaches } from "./wallGraph";
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
+import { weldNodeIntoWalls } from "./wallEditingWeld";
 import type { InteriorProject, Point2Mm } from "./types";
 
 function lengthOf(start: Point2Mm, end: Point2Mm) {
@@ -83,6 +84,12 @@ export function affectedRoomsRemainValid(
   return true;
 }
 
+/** The node that now stands where `nodeId` was moved to: itself, or the node it was folded into. */
+function survivingNodeId(project: InteriorProject, nodeId: string, position: Point2Mm): string | null {
+  if (project.nodes.some((node) => node.id === nodeId)) return nodeId;
+  return project.nodes.find((node) => lengthOf(node.position, position) <= 1)?.id ?? null;
+}
+
 /** Move a graph node, clamp openings, and optionally join coincident endpoints. */
 export function movePlanNodeWithOpenings(
   project: InteriorProject,
@@ -98,8 +105,9 @@ export function movePlanNodeWithOpenings(
   if (nodeMoveCollapsesEdge(project, nodeId, target)) return project;
   const oldLengths = wallLengthMap(project);
   let next = clampOpeningsToWallLengths(movePlanNode(project, nodeId, target), oldLengths);
-  if (options?.joinCoincident !== false) next = mergeCoincidentPlanNodes(next);
-  if (!affectedRoomsRemainValid(next, [nodeId])) return project;
+  if (options?.joinCoincident !== false) next = weldNodeIntoWalls(mergeCoincidentPlanNodes(next), nodeId);
+  const survivor = survivingNodeId(next, nodeId, target);
+  if (!affectedRoomsRemainValid(next, survivor ? [survivor] : [])) return project;
   return next;
 }
 
@@ -147,7 +155,13 @@ export function translatePlanWall(
     }),
   }));
   let next = clampOpeningsToWallLengths(moved, oldLengths);
-  if (options?.joinCoincident !== false) next = mergeCoincidentPlanNodes(next);
-  if (!affectedRoomsRemainValid(next, [startNode.id, endNode.id])) return project;
+  if (options?.joinCoincident !== false) {
+    next = weldNodeIntoWalls(weldNodeIntoWalls(mergeCoincidentPlanNodes(next), startNode.id), endNode.id);
+  }
+  const survivors = [
+    survivingNodeId(next, startNode.id, movedStart),
+    survivingNodeId(next, endNode.id, movedEnd),
+  ].filter((id): id is string => id !== null);
+  if (!affectedRoomsRemainValid(next, survivors)) return project;
   return next;
 }

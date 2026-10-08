@@ -28,12 +28,12 @@ These go into the reply to Ilyas, not into phases.
 
 ## 2. Evidence (verified in code, 2026-10-05)
 
-- **Underlay rotation is typed only.** `LivingRoomPlanUnderlay.rotationDeg`
-  (`domain/livingRoom/planUnderlay.ts:5-23`) is edited by a number field in
-  `PlanUnderlayControls.tsx:86-100`. The `<image>` has `pointerEvents="none"`
-  (`PlanArchitectureLayer.tsx:41-43`), so it cannot be dragged. Pan is the
-  **Pan X / Pan Y** fields only. Every field change is one undo snapshot
-  (`finishCommands.ts:39-52` → `commitSnapshot`), with no coalescing.
+- **Underlay rotation was typed only** (superseded 2026-10-05 by Phase 1:
+  **Rotate −90° / +90°**, **Move underlay** drag and **Centre on origin** in
+  `PlanUnderlayTransformActions.tsx` / `usePlanUnderlayDrag.ts`; the `<image>`
+  takes pointer events while Move is on). Each gesture is one undo step (G2).
+  Earlier state for the record: `rotationDeg` edited by a number field only,
+  `pointerEvents="none"` on the image, **Pan X / Pan Y** fields only.
 - **Rotation is inconsistent.** `rotateLivingRoomObject`
   (`planCommands.ts:66-76`) snaps to **15°**, the inspector
   (`InspectorObjectSection.tsx:65-74`) offers only **45°** steps, and wall-snap

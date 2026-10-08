@@ -8,7 +8,6 @@ import {
   nextPlanGuideLabel,
   removePlanGuide,
   shouldShowAutoCenterLine,
-  snapPointToGuides,
   updatePlanGuide,
   type PlanGuide,
 } from ".";
@@ -64,17 +63,7 @@ describe("guide snapping", () => {
     { id: "b", axis: "z", positionMm: -500 },
   ];
 
-  it("pulls each axis onto the nearest guide within tolerance", () => {
-    expect(snapPointToGuides({ x: 1000, z: 300 }, { x: 1030, z: 310 }, guides, 50)).toEqual({ x: 1000, z: 300 });
-    expect(snapPointToGuides({ x: 950, z: -450 }, { x: 970, z: -470 }, guides, 50)).toEqual({ x: 1000, z: -500 });
-    expect(snapPointToGuides({ x: 900, z: 0 }, { x: 900, z: 0 }, guides, 50)).toEqual({ x: 900, z: 0 });
-  });
-
-  it("keeps a point that already landed on a wall node instead of pulling it onto a guide", () => {
-    const node = { x: 1020, z: 300 };
-    expect(snapPointToGuides(node, { x: 1025, z: 305 }, guides, 50, [node])).toEqual(node);
-    expect(snapPointToGuides({ x: 1050, z: 300 }, { x: 1030, z: 305 }, guides, 50, [node])).toEqual({ x: 1000, z: 300 });
-  });
+  // Guide snapping itself is covered by planSnapEngine.test.ts ("snaps each axis to a guide").
 
   it("shows the automatic centre line only without guides and when enabled", () => {
     expect(shouldShowAutoCenterLine([], undefined)).toBe(true);

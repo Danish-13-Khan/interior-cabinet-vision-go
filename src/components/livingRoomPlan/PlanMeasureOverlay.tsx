@@ -1,14 +1,17 @@
 import {
   formatMeasureLengthMm,
   measureSegmentsFromPoints,
-  type MeasureSnapPoint,
 } from "../../domain/livingRoom";
 import type { Point2Mm } from "../../domain/interiorProject";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { PlanSnapMarker } from "./PlanSnapMarker";
 
 export function PlanMeasureOverlay(props: {
   points: Point2Mm[];
   cursor: Point2Mm | null;
-  snap: MeasureSnapPoint | null;
+  snap: PlanSnapResult | null;
+  /** Pick radius in world mm; keeps the marker the same size on screen at any zoom. */
+  markerMm?: number;
   active: boolean;
   mode?: "measure" | "calibrate";
 }) {
@@ -45,14 +48,7 @@ export function PlanMeasureOverlay(props: {
           data-testid={mode === "calibrate" ? "lr-calibrate-point" : "lr-measure-point"}
         />
       ))}
-      {props.snap ? (
-        <g>
-          <circle cx={props.snap.x} cy={props.snap.z} r={45} className={`lr-measure-snap is-${props.snap.kind}`} />
-          <text x={props.snap.x + 60} y={props.snap.z - 60} className="lr-measure-snap-label">
-            {props.snap.label}
-          </text>
-        </g>
-      ) : null}
+      <PlanSnapMarker snap={props.snap} sizeMm={props.markerMm ?? 40} freeLabel="Free" testId="lr-measure-snap" />
     </g>
   );
 }

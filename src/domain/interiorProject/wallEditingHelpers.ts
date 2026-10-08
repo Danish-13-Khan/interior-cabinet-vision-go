@@ -11,6 +11,8 @@ export type WallSegmentRequest = {
   thicknessMm?: number;
   materialId?: string | null;
   raised?: boolean;
+  /** Endpoints within this distance of a node weld to it; on a wall's span they split it (S4). Default 1 mm. */
+  joinToleranceMm?: number;
 };
 
 export const MIN_SEGMENT_MM = 150;

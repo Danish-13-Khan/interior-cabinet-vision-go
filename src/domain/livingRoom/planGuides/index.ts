@@ -9,4 +9,4 @@ export {
   type PlanGuide,
   type PlanGuidePatch,
 } from "./planGuides";
-export { shouldShowAutoCenterLine, snapPointToGuides } from "./planGuideSnap";
+export { shouldShowAutoCenterLine } from "./planGuideSnap";

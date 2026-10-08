@@ -5,6 +5,7 @@ import { splitRoomByWall } from "./roomSplit";
 import type { InteriorProject, PlanNodeEntity, Point2Mm, WallEntity } from "./types";
 import { attachSharedWallToRoom } from "./wallEditingSharedEdge";
 import { synchronizeWallCaches } from "./wallGraph";
+import { WALL_JOIN_TOLERANCE_MM, resolveWallEndpoint } from "./wallEditingWeld";
 import {
   MIN_SEGMENT_MM,
   cloneNodes,
@@ -16,21 +17,30 @@ import {
   wallSegmentKey,
 } from "./wallEditingHelpers";
 
+/**
+ * Commit-time fallback for domain callers that pass `snapSizeMm` without the
+ * plan snap engine: the nearest node within half a grid step, else the grid.
+ * Interactive tools use `planSnapEngine` instead.
+ */
 export function snapPlanPoint(
   point: Point2Mm,
   snapSizeMm: number,
   nodes: PlanNodeEntity[],
 ): Point2Mm {
-  const snapped = {
+  let best: PlanNodeEntity | null = null;
+  let bestDistance = snapSizeMm / 2;
+  for (const node of nodes) {
+    const distance = Math.hypot(node.position.x - point.x, node.position.z - point.z);
+    if (distance <= bestDistance) {
+      best = node;
+      bestDistance = distance;
+    }
+  }
+  if (best) return { ...best.position };
+  return {
     x: Math.round(point.x / snapSizeMm) * snapSizeMm,
     z: Math.round(point.z / snapSizeMm) * snapSizeMm,
   };
-  for (const node of nodes) {
-    if (Math.hypot(node.position.x - snapped.x, node.position.z - snapped.z) <= snapSizeMm / 2) {
-      return { ...node.position };
-    }
-  }
-  return snapped;
 }
 
 function defaultWallMaterialId(project: InteriorProject, roomId: string | null): string | null {
@@ -47,11 +57,21 @@ function defaultWallMaterialId(project: InteriorProject, roomId: string | null):
  * Without an active room (an empty site or an imported plan) the wall is a free trace; once
  * free walls close into a loop they become the room.
  */
-export function createWallSegment(project: InteriorProject, request: WallSegmentRequest): InteriorProject {
-  const roomId = request.roomId ?? project.activeRoomId;
-  const room = project.rooms.find((item) => item.id === roomId) ?? null;
+export function createWallSegment(source: InteriorProject, request: WallSegmentRequest): InteriorProject {
+  const roomId = request.roomId ?? source.activeRoomId;
+  const room = source.rooms.find((item) => item.id === roomId) ?? null;
   if (Math.hypot(request.end.x - request.start.x, request.end.z - request.start.z) < MIN_SEGMENT_MM) {
-    return project;
+    return source;
+  }
+
+  // Weld each end to a node, or split the wall it lands on, before anything else sees the segment (S4).
+  const toleranceMm = request.joinToleranceMm ?? WALL_JOIN_TOLERANCE_MM;
+  const startResolved = resolveWallEndpoint(source, request.start, toleranceMm);
+  const endResolved = resolveWallEndpoint(startResolved.project, request.end, toleranceMm);
+  const project = endResolved.project;
+  request = { ...request, start: startResolved.point, end: endResolved.point };
+  if (Math.hypot(request.end.x - request.start.x, request.end.z - request.start.z) < MIN_SEGMENT_MM) {
+    return source;
   }
 
   if (room && request.kind !== "partition") {
@@ -62,7 +82,7 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
   const { nodes, nodeByPoint, usedNodeIds } = cloneNodes(project);
   const startNodeId = ensureNode(request.start, nodes, nodeByPoint, usedNodeIds);
   const endNodeId = ensureNode(request.end, nodes, nodeByPoint, usedNodeIds);
-  if (startNodeId === endNodeId) return project;
+  if (startNodeId === endNodeId) return source;
 
   const partition = request.kind === "partition";
   const candidate: WallEntity = {
@@ -88,7 +108,7 @@ export function createWallSegment(project: InteriorProject, request: WallSegment
     : project.walls.find((wall) => compatibleSharedEdge(wall, candidate));
   if (sharedWall) {
     // A free trace over an existing segment adds nothing.
-    if (!room) return project;
+    if (!room) return source;
     const synced = synchronizeWallCaches({ ...project, nodes });
     return attachSharedWallToRoom(synced, sharedWall, roomId, { start: request.start, end: request.end });
   }

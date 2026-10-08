@@ -8,17 +8,20 @@ import type { InteriorsCabinetRunCommands } from "./interiorsCabinetRunCommands"
 export function InteriorsCabinetRunChrome({
   tool,
   showGrid,
+  snapEnabled,
   snapSizeMm,
   readability,
   commands,
   project,
   onPatchDocument,
   onShowGrid,
+  onSnapEnabled,
   onSnapSize,
   onReadability,
 }: {
   tool: InteriorsChromeTool;
   showGrid: boolean;
+  snapEnabled: boolean;
   snapSizeMm: number;
   readability: PlanReadabilitySettings;
   commands: InteriorsCabinetRunCommands;
@@ -28,6 +31,7 @@ export function InteriorsCabinetRunChrome({
     status: string,
   ) => void;
   onShowGrid: (value: boolean) => void;
+  onSnapEnabled: (value: boolean) => void;
   onSnapSize: (value: number) => void;
   onReadability: (patch: Partial<PlanReadabilitySettings>) => void;
 }) {
@@ -37,6 +41,7 @@ export function InteriorsCabinetRunChrome({
         tool={tool} showGrid={showGrid} snapSizeMm={snapSizeMm} readability={readability}
         commands={commands} project={project} onPatchDocument={onPatchDocument}
         onShowGrid={onShowGrid} onSnapSize={onSnapSize} onReadability={onReadability}
+        snapEnabled={snapEnabled} onSnapEnabled={onSnapEnabled}
       />
       <InteriorsCabinetRunTray commands={commands} />
     </>

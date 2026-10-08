@@ -2,11 +2,8 @@ import { useMemo } from "react";
 import { collectDwgPlanEndpoints } from "../../domain/livingRoom/dwgPlanSnap";
 import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderlay";
 
+/** DWG / DXF path endpoints in plan mm, fed to the snap engine as `dwg-end` candidates. */
 export function useDwgPlanSnap(underlay: LivingRoomPlanUnderlay | null) {
-  const extraPoints = useMemo(() => collectDwgPlanEndpoints(underlay), [underlay]);
-  const extraNodes = useMemo(
-    () => extraPoints.map((position, index) => ({ id: `dwg-end-${index}`, position })),
-    [extraPoints],
-  );
-  return { extraPoints, extraNodes };
+  const endpoints = useMemo(() => collectDwgPlanEndpoints(underlay), [underlay]);
+  return { endpoints };
 }

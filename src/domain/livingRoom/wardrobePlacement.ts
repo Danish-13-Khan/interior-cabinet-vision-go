@@ -1,7 +1,9 @@
 import type { InteriorObjectEntity, InteriorProject } from "../interiorProject";
 import { orientWallForRoom, selectRoomWalls } from "../interiorProject";
 import { isWallCabinetObject } from "./cabinetSceneMount";
+import type { PlanSnapResult } from "./planSnapEngine";
 import { attached, placementAt, wallLength, type WallPlacement } from "./wallSegmentPlacement";
+import { snapSpanAlongWall, spanSnapMarker, wallOffsetCandidates } from "./wallOffsetSnap";
 
 export type { WallPlacement } from "./wallSegmentPlacement";
 export {
@@ -76,8 +78,20 @@ export function attachToWall(
   };
 }
 
-export function snapCabinetToWall(project: InteriorProject, object: InteriorObjectEntity, desired: { x: number; y: number; z: number }) {
-  if (object.kind !== "cabinet") return { ...object, position: desired };
+/**
+ * Snap a cabinet to the nearest room wall. Along the wall its centre snaps to the
+ * wall midpoint and its edges to opening and neighbour-cabinet edges within
+ * `thresholdMm` (Phase 4); `snap` carries the winning target for the marker.
+ * The default radius is 0: only a drag, which knows the pointer radius, snaps
+ * along the wall, so a drop commits exactly what the ghost showed.
+ */
+export function snapCabinetToWallWithSnap(
+  project: InteriorProject,
+  object: InteriorObjectEntity,
+  desired: { x: number; y: number; z: number },
+  options: { thresholdMm?: number } = {},
+): { object: InteriorObjectEntity; snap: PlanSnapResult | null } {
+  if (object.kind !== "cabinet") return { object: { ...object, position: desired }, snap: null };
   const nearest = selectRoomWalls(project, object.roomId)
     .filter((wall) => wallLength(wall) >= object.dimensions.widthMm)
     .map((storedWall) => {
@@ -91,8 +105,16 @@ export function snapCabinetToWall(project: InteriorProject, object: InteriorObje
       return { wall, offset, distance: Math.hypot(desired.x - px, desired.z - pz) };
     })
     .sort((a, b) => a.distance - b.distance)[0];
-  if (!nearest || nearest.distance > object.dimensions.depthMm + 350) return { ...object, position: desired };
-  const placement = placementAt(nearest.wall, object, nearest.offset);
+  if (!nearest || nearest.distance > object.dimensions.depthMm + 350) return { object: { ...object, position: desired }, snap: null };
+  const along = snapSpanAlongWall({
+    centreMm: nearest.offset,
+    widthMm: object.dimensions.widthMm,
+    lengthMm: wallLength(nearest.wall),
+    candidates: wallOffsetCandidates(project, nearest.wall, { excludeObjectId: object.id }),
+    thresholdMm: options.thresholdMm ?? 0,
+    gridMm: 0,
+  });
+  const placement = placementAt(nearest.wall, object, along.centreMm);
   const y = Math.min(
     Math.max(0, nearest.wall.heightMm - object.dimensions.heightMm),
     Math.max(0, desired.y),
@@ -101,7 +123,17 @@ export function snapCabinetToWall(project: InteriorProject, object: InteriorObje
     ...placement,
     position: { ...placement.position, y },
   });
-  return isWallCabinetObject(snapped)
+  const result = isWallCabinetObject(snapped)
     ? { ...snapped, parameters: { ...snapped.parameters, mountHeightMm: y } }
     : snapped;
+  return { object: result, snap: spanSnapMarker(nearest.wall, along) };
+}
+
+export function snapCabinetToWall(
+  project: InteriorProject,
+  object: InteriorObjectEntity,
+  desired: { x: number; y: number; z: number },
+  options: { thresholdMm?: number } = {},
+) {
+  return snapCabinetToWallWithSnap(project, object, desired, options).object;
 }

@@ -48,7 +48,11 @@ export function PlanUnderlayControls({
       <small>{Math.round(underlay.widthMm)} × {Math.round(underlay.heightMm)} mm</small>
       <div className="lr-underlay-status" data-testid="lr-underlay-status" aria-label="Underlay status">
         <span className={calibrated ? "is-on" : ""} data-testid="lr-underlay-calibrated-chip">
-          {calibrated ? "Calibrated" : "Not calibrated"}
+          {calibrated
+            ? underlay.calibration
+              ? `Calibrated · ${Math.round(underlay.calibration.referenceMm).toLocaleString("en-US")} mm`
+              : "Calibrated"
+            : "Not calibrated"}
         </span>
         {locked ? <span className="is-on" data-testid="lr-underlay-locked-chip">Locked</span> : null}
         {hidden ? <span className="is-on" data-testid="lr-underlay-hidden-chip">Hidden</span> : null}
@@ -115,10 +119,10 @@ export function PlanUnderlayControls({
             disabled={locked}
             onChange={(event) => {
               const widthMm = Math.max(100, Number(event.target.value) || underlay.widthMm);
+              // A typed width is a guess, not a measurement: only Calibrate sets `calibrated` (S6).
               update({
                 widthMm,
                 heightMm: underlay.heightMm * widthMm / underlay.widthMm,
-                calibrated: true,
               });
             }}
           />

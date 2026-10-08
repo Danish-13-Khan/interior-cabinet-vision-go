@@ -7,7 +7,7 @@ import {
   type Point3Mm,
   type WallEntity,
 } from "../../domain/interiorProject";
-import { getOpeningCatalogItem, openingOffsetAtPoint } from "../../domain/livingRoom";
+import { centredOpeningOffset, getOpeningCatalogItem, openingOffsetAtPoint } from "../../domain/livingRoom";
 import { HeightPresetRow } from "./HeightPresetRow";
 import { NumberField } from "./NumberField";
 import { MaterialSlotList } from "./MaterialSlotList";
@@ -91,6 +91,13 @@ export function OpeningInspector({ opening, wall, positionOverride, snapSizeMm, 
       <NumberField label="Y" value={position.y} onChange={(sillHeightMm) => updateWithinWall({ sillHeightMm })} />
       <NumberField label="Z" value={position.z} onChange={(z) => patchPlanPosition("z", z)} />
     </div>
+    {wall ? (
+      <button type="button" className="is-secondary" data-testid="lr-opening-centre-on-wall"
+        title="Put the opening in the middle of its wall"
+        onClick={() => onUpdate(opening.id, { offsetMm: centredOpeningOffset(wall, opening.widthMm) })}>
+        Centre on wall
+      </button>
+    ) : null}
     <h4>Size <small>millimetres</small></h4>
     <div className="lr-dimension-cards">
       <NumberField className="lr-dimension-card" label="W" value={opening.widthMm} onChange={(widthMm) => onUpdate(opening.id, { widthMm })} />

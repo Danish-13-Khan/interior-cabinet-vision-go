@@ -1,5 +1,7 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { snapPlanPoint, type InteriorProject, type Point2Mm } from "../../domain/interiorProject";
+import type { Point2Mm } from "../../domain/interiorProject";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { usePlanSnap, type PlanSnapInput } from "./usePlanSnap";
 
 export type WallTranslatePreview = {
   wallId: string;
@@ -8,13 +10,14 @@ export type WallTranslatePreview = {
   nodeIds: [string, string];
 };
 
-export type WallEditFeedback = { start: Point2Mm; end: Point2Mm; snapTarget: Point2Mm | null; snapLabel?: string };
+export type WallEditFeedback = { start: Point2Mm; end: Point2Mm; snap: PlanSnapResult | null };
 
 type NodeDrag = {
   kind: "node";
   nodeId: string;
   origin: Point2Mm;
   position: Point2Mm;
+  snap: PlanSnapResult | null;
 };
 
 type WallDrag = {
@@ -27,13 +30,12 @@ type WallDrag = {
   endNodeId: string;
   delta: Point2Mm;
   moved: boolean;
+  snap: PlanSnapResult | null;
 };
 
 /** Select-tool drag for wall endpoints and whole-wall translate (preview locally, commit on up). */
-export function usePlanWallInteraction(input: {
+export function usePlanWallInteraction(input: PlanSnapInput & {
   active: boolean;
-  project: InteriorProject;
-  snapSizeMm: number;
   /** Zoom-aware click-vs-drag threshold in world mm (from ~6 screen px). */
   moveThresholdMm?: number;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => Point2Mm;
@@ -43,6 +45,14 @@ export function usePlanWallInteraction(input: {
 }) {
   const [drag, setDrag] = useState<NodeDrag | WallDrag | null>(null);
   const dragRef = useRef<NodeDrag | WallDrag | null>(null);
+  // The dragged geometry never snaps to itself (roadmap §4.1 `exclude`).
+  const engine = usePlanSnap(input, {
+    exclude: drag?.kind === "node"
+      ? { nodeIds: [drag.nodeId] }
+      : drag?.kind === "wall"
+        ? { nodeIds: [drag.startNodeId, drag.endNodeId], wallIds: [drag.wallId] }
+        : undefined,
+  });
 
   function setDragState(next: NodeDrag | WallDrag | null) {
     dragRef.current = next;
@@ -59,7 +69,7 @@ export function usePlanWallInteraction(input: {
     const wall = input.project.walls.find((item) =>
       item.startNodeId === nodeId || item.endNodeId === nodeId);
     if (wall) input.onSelectWall(wall.id);
-    setDragState({ kind: "node", nodeId, origin: { ...node.position }, position: { ...node.position } });
+    setDragState({ kind: "node", nodeId, origin: { ...node.position }, position: { ...node.position }, snap: null });
     return true;
   }
 
@@ -82,6 +92,7 @@ export function usePlanWallInteraction(input: {
       endNodeId: wall.endNodeId,
       delta: { x: 0, z: 0 },
       moved: false,
+      snap: null,
     });
     return true;
   }
@@ -91,25 +102,21 @@ export function usePlanWallInteraction(input: {
     if (!current) return false;
     const point = input.worldPoint(event);
     if (current.kind === "node") {
-      const others = input.project.nodes.filter((node) => node.id !== current.nodeId);
-      const position = snapPlanPoint(point, input.snapSizeMm, others);
-      setDragState({ ...current, position });
+      const snap = engine.snap(point, event);
+      setDragState({ ...current, position: snap.point, snap });
       return true;
     }
     const raw = { x: point.x - current.startPointer.x, z: point.z - current.startPointer.z };
-    const snappedStart = snapPlanPoint(
-      { x: current.originStart.x + raw.x, z: current.originStart.z + raw.z },
-      input.snapSizeMm,
-      input.project.nodes.filter((node) =>
-        node.id !== current.startNodeId && node.id !== current.endNodeId),
-    );
+    // Snap the moved start node; the end node follows by the same delta.
+    const snap = engine.snap({ x: current.originStart.x + raw.x, z: current.originStart.z + raw.z }, event);
     const delta = {
-      x: snappedStart.x - current.originStart.x,
-      z: snappedStart.z - current.originStart.z,
+      x: snap.point.x - current.originStart.x,
+      z: snap.point.z - current.originStart.z,
     };
     setDragState({
       ...current,
       delta,
+      snap,
       moved: current.moved || Math.hypot(delta.x, delta.z) >= (input.moveThresholdMm ?? 40),
     });
     return true;
@@ -149,23 +156,13 @@ export function usePlanWallInteraction(input: {
     }
     : null;
   const feedback: WallEditFeedback | null = drag?.kind === "node"
-    ? {
-      start: drag.origin,
-      end: drag.position,
-      snapTarget: input.project.nodes.find((node) => node.id !== drag.nodeId
-        && Math.hypot(node.position.x - drag.position.x, node.position.z - drag.position.z) < 0.1)?.position ?? null,
-    }
+    ? { start: drag.origin, end: drag.position, snap: drag.snap }
     : drag?.kind === "wall"
-      ? (() => {
-        const movedStart = { x: drag.originStart.x + drag.delta.x, z: drag.originStart.z + drag.delta.z };
-        const movedEnd = { x: drag.originEnd.x + drag.delta.x, z: drag.originEnd.z + drag.delta.z };
-        const others = input.project.nodes.filter((node) => node.id !== drag.startNodeId && node.id !== drag.endNodeId);
-        const startTarget = others.find((node) => Math.hypot(node.position.x - movedStart.x, node.position.z - movedStart.z) < 0.1);
-        const endTarget = others.find((node) => Math.hypot(node.position.x - movedEnd.x, node.position.z - movedEnd.z) < 0.1);
-        return { start: drag.originStart, end: movedStart,
-          snapTarget: startTarget && endTarget ? startTarget.position : null,
-          snapLabel: startTarget && endTarget ? "Wall snap" : undefined };
-      })()
+      ? {
+        start: drag.originStart,
+        end: { x: drag.originStart.x + drag.delta.x, z: drag.originStart.z + drag.delta.z },
+        snap: drag.moved ? drag.snap : null,
+      }
       : null;
 
   return {
