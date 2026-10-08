@@ -1,6 +1,7 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InteriorObjectEntity, InteriorProject, Point3Mm, Size3Mm } from "../../domain/interiorProject";
 import { snapLivingRoomObject, type PlanSnapGuide } from "../../domain/livingRoom";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
 
 export type ObjectPreview = {
   objectId: string;
@@ -12,6 +13,8 @@ export type ObjectPreview = {
 export type SnappedMovePose = {
   position: Point3Mm;
   rotationY: number;
+  /** Along-wall target a cabinet landed on (Phase 4), for the shared marker. */
+  snap?: PlanSnapResult | null;
 };
 
 type ObjectDrag = ObjectPreview & { mode: "move" | "resize"; startPointer: { x: number; z: number } };
@@ -20,6 +23,8 @@ export function usePlanObjectInteraction(input: {
   project: InteriorProject; snapSizeMm: number;
   /** Zoom-aware semantic snap radius in world mm (from screen px). */
   snapThresholdMm?: number;
+  /** Toolbar Snap toggle; off disables the along-wall targets (the wall-flush snap stays). */
+  snapEnabled?: boolean;
   worldPoint: (event: ReactPointerEvent<SVGSVGElement>) => { x: number; z: number };
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
@@ -28,7 +33,7 @@ export function usePlanObjectInteraction(input: {
    * Live pre-drop validation during drag. When a pose is returned, the ghost
    * uses that wall-snapped position + rotation so it matches the validated drop.
    */
-  onMovePreview?: (objectId: string, position: Point3Mm) => SnappedMovePose | null | void;
+  onMovePreview?: (objectId: string, position: Point3Mm, thresholdMm?: number) => SnappedMovePose | null | void;
   onResizePreview?: (objectId: string, dimensions: Size3Mm) => void;
   /** Called when a drag gesture ends (after optional commit). */
   onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
@@ -36,6 +41,7 @@ export function usePlanObjectInteraction(input: {
   const [drag, setDrag] = useState<ObjectDrag | null>(null);
   const [preview, setPreview] = useState<ObjectPreview | null>(null);
   const [guides, setGuides] = useState<PlanSnapGuide[]>([]);
+  const [wallSnap, setWallSnap] = useState<PlanSnapResult | null>(null);
 
   function start(event: ReactPointerEvent<SVGGElement | SVGRectElement>, object: InteriorObjectEntity, mode: ObjectDrag["mode"]) {
     if (event.button !== 0) return;
@@ -67,7 +73,8 @@ export function usePlanObjectInteraction(input: {
         input.snapSizeMm,
         input.snapThresholdMm,
       );
-      const snapped = input.onMovePreview?.(drag.objectId, result.position);
+      const alongThreshold = input.snapEnabled === false || event.altKey ? 0 : input.snapThresholdMm;
+      const snapped = input.onMovePreview?.(drag.objectId, result.position, alongThreshold);
       if (snapped && typeof snapped === "object" && "position" in snapped) {
         setPreview({
           objectId: drag.objectId,
@@ -75,7 +82,9 @@ export function usePlanObjectInteraction(input: {
           dimensions: drag.dimensions,
           rotationY: snapped.rotationY,
         });
+        setWallSnap(snapped.snap ?? null);
       } else {
+        setWallSnap(null);
         setPreview({
           objectId: drag.objectId,
           position: result.position,
@@ -102,6 +111,7 @@ export function usePlanObjectInteraction(input: {
       rotationY: drag.rotationY,
     });
     setGuides([]);
+    setWallSnap(null);
     input.onResizePreview?.(drag.objectId, dimensions);
     return true;
   }
@@ -132,8 +142,8 @@ export function usePlanObjectInteraction(input: {
     if (drag) {
       input.onDragEnd?.({ committed, mode });
     }
-    setDrag(null); setPreview(null); setGuides([]);
+    setDrag(null); setPreview(null); setGuides([]); setWallSnap(null);
   }
 
-  return { dragging: Boolean(drag), preview, guides, start, move, finish };
+  return { dragging: Boolean(drag), preview, guides, wallSnap, start, move, finish };
 }

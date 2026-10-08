@@ -1,6 +1,6 @@
 # Wall geometry, snapping and plan calibration roadmap
 
-**Status:** In progress — Phases 0–3 built 2026-10-08 on `feat/plan-snap-geometry`; Phase 4 proposed, Phase 5 deferred.
+**Status:** Phases 0–4 built 2026-10-08 on `feat/plan-snap-geometry`; Phase 5 deferred (S11) until a tester brings a case.
 **Source:** Tester requirements doc, 2026-10-08: wall centre / axis alignment,
 midpoint and corner snap points, straight drawing, floor-plan import fidelity,
 import after a room exists, calibration, and a unified snapping system
@@ -447,6 +447,31 @@ still types into the same input and presses the same confirm button.
 midpoint"; a 600 base cabinet centres on a 3000 wall at 1200 offset with the
 label shown; reference dimensions update.
 
+**Landed (2026-10-08):** `wallOffsetSnap.ts` is the one-dimensional snapper
+along a wall: `wallOffsetCandidates` (wall midpoint, the edges of the wall's
+other openings, the edges of other cabinets attached to it, all projected onto
+the given wall so an oriented copy works) and `snapSpanAlongWall` (the span's
+centre to a midpoint target, either edge to an edge target, nearest within the
+pick radius with S2 priority; otherwise the start edge rounds to the grid, or
+stays free with `gridMm: 0`), plus `spanSnapMarker` for the shared indicator.
+Openings: `snapOpeningOffset` drives placement clicks, the move drag
+(`usePlanOpeningInteraction` takes the zoom-aware `thresholdMm`; Alt or Snap
+off gives 0) and shows the marker in `PlanOpeningsLayer`; resize keeps the grid
+step. The inspector gains **Centre on wall** (`centredOpeningOffset`).
+Cabinets: `snapCabinetToWallWithSnap` snaps the along-wall centre after the
+wall-flush snap (default radius 40 mm on commit, the pointer radius during a
+drag via `onMovePreview(objectId, position, thresholdMm)`), and the drag
+preview carries `snap` to `PlanObjectsLayer`'s marker. Wall-flush snapping is
+unchanged with Snap off.
+**Verified in the app:** a 900 door dragged toward the 3000 wall's midpoint
+showed "Wall midpoint" and committed at offset 1050; Alt-dragging it to 250
+then **Centre on wall** returned it to 1050; a 600 Tall Pantry dragged to
+25 mm short of the bottom wall's midpoint showed "Wall midpoint" and committed
+at the wall centre (start offset 1200), with the reference dimension moving
+1414 → 1348 → 1414 mm across the two drags; Alt showed no marker and left it
+at the pointer. Not run: unit and e2e suites (project rule); `tsc --noEmit`
+and the style lint are clean.
+
 ### Phase 5 — Advanced alignment (deferred, S11)
 
 Perpendicular and parallel candidates (from the anchor against every wall
@@ -476,3 +501,7 @@ Phase 0 (1–2 days) → Phase 1 (3–5) → Phase 2 (3–4) → Phase 3 (3–4)
 (2–3). Roughly three working weeks for everything the tester marked P0 and P1,
 with Phase 0 answering most of the fidelity complaints in the first two days.
 Phase 5 waits. Each phase is its own review checkpoint.
+
+**Outcome (2026-10-08):** Phases 0–4 were built and verified in one day on
+`feat/plan-snap-geometry`, each with its own review round. Phase 5 stays
+deferred under S11.

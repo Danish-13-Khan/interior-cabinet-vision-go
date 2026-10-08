@@ -2,6 +2,8 @@ import { useEffect, useState, type FocusEvent as ReactFocusEvent, type PointerEv
 import type { InteriorObjectEntity, InteriorProject } from "../../domain/interiorProject";
 import { readCabinetIdentity } from "../../domain/cabinetIdentity";
 import { isCabinetRunFiller } from "../../domain/livingRoom/wardrobePlacement";
+import type { PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import { PlanSnapMarker } from "./PlanSnapMarker";
 import {
   cabinetRunForObject,
   formatCabinetInlineDims,
@@ -41,6 +43,9 @@ function runIdFor(object: InteriorObjectEntity): string | null {
 export function PlanObjectsLayer(props: {
   project: InteriorProject; selectedIds: string[]; issues: LivingRoomPlanIssue[];
   preview: ObjectPreview | null; guides: PlanSnapGuide[]; unit: PlanDisplayUnit;
+  /** Along-wall target the dragged cabinet landed on (Phase 4). */
+  snapMarker?: PlanSnapResult | null;
+  markerMm?: number;
   selectedRunId?: string | null;
   freeSegments?: FreeWallSegment[];
   freeSegmentWallPose?: { x1: number; z1: number; x2: number; z2: number; lengthMm: number } | null;
@@ -237,6 +242,7 @@ export function PlanObjectsLayer(props: {
         ) : null}
       </g>;
     })}
+    {props.snapMarker ? <PlanSnapMarker snap={props.snapMarker} sizeMm={props.markerMm ?? 40} testId="lr-object-snap" /> : null}
     {props.guides.map((guide, index) => (
       <g key={`${guide.axis}-${index}`} className={`lr-snap-guide-group is-${guide.kind}`} data-snap-kind={guide.kind} data-snap-label={guide.label ?? guide.kind}>
         {guide.axis === "x"

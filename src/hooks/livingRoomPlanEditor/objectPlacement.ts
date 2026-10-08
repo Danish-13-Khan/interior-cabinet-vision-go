@@ -13,6 +13,7 @@ import {
   preferredRoomWallCorner,
   readPanelAttachment,
   snapCabinetToWall,
+  snapCabinetToWallWithSnap,
   validateCabinetRunPreDrop,
   type ImportedAsset,
   type LivingRoomCatalogId,
@@ -71,7 +72,7 @@ export function objectPlacementCommands(ctx: EditorCommandContext) {
     );
   }
 
-  function previewMoveObject(objectId: string, position: Point3Mm) {
+  function previewMoveObject(objectId: string, position: Point3Mm, thresholdMm?: number) {
     if (!document) return null;
     const object = document.objects.find((item) => item.id === objectId);
     if (object && isWallPanelObject(object)) {
@@ -83,7 +84,7 @@ export function objectPlacementCommands(ctx: EditorCommandContext) {
       setPreDropReason(null);
       return null;
     }
-    const snapped = snapCabinetToWall(document, object, position);
+    const { object: snapped, snap } = snapCabinetToWallWithSnap(document, object, position, { thresholdMm });
     const result = validateCabinetRunPreDrop(
       { ...document, objects: document.objects.filter((item) => item.id !== objectId) },
       { object: snapped, wallId: attachedWallId(snapped.extensions) },
@@ -93,7 +94,7 @@ export function objectPlacementCommands(ctx: EditorCommandContext) {
     } else {
       setPreDropReason(result.advisory ? result.message : null);
     }
-    return { position: snapped.position, rotationY: snapped.rotation.y };
+    return { position: snapped.position, rotationY: snapped.rotation.y, snap };
   }
 
   function addCatalogObject(catalogItemId: string, wallId?: string) {

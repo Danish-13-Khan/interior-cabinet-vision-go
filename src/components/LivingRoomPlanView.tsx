@@ -12,7 +12,8 @@ import {
   getLivingRoomPlanUnderlay,
   getObjectPlanBounds,
   getOpeningCatalogItem,
-  openingOffsetAtPoint,
+  openingCentreAtPoint,
+  snapOpeningOffset,
   type BuildTool,
   type LivingRoomPlanIssue,
   type LivingRoomPlanUnderlay,
@@ -56,7 +57,7 @@ type Props = {
   onSelect: (objectId: string | null, additive?: boolean) => void;
   onSelectMany?: (objectIds: string[]) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
-  onMovePreview?: (objectId: string, position: Point3Mm) => import("./livingRoomPlan/usePlanObjectInteraction").SnappedMovePose | null | void;
+  onMovePreview?: (objectId: string, position: Point3Mm, thresholdMm?: number) => import("./livingRoomPlan/usePlanObjectInteraction").SnappedMovePose | null | void;
   onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
   onResize: (objectId: string, dimensions: Size3Mm) => void;
   onSelectWall: (wallId: string) => void; onSelectOpening: (openingId: string) => void;
@@ -173,12 +174,12 @@ export function LivingRoomPlanView(props: Props) {
   };
 
   const openings = usePlanOpeningInteraction({
-    project: props.project, snapSizeMm: props.snapSizeMm, worldPoint,
+    project: props.project, snapSizeMm: props.snapSizeMm, thresholdMm: props.snapEnabled === false ? 0 : pointerSnapMm, worldPoint,
     onSelectOpening: props.onSelectOpening, onMoveOpening: props.onMoveOpening,
     onResizeOpening: props.onResizeOpening,
   });
   const objects = usePlanObjectInteraction({
-    project: props.project, snapSizeMm: props.snapSizeMm, snapThresholdMm: pointerSnapMm, worldPoint,
+    project: props.project, snapSizeMm: props.snapSizeMm, snapThresholdMm: pointerSnapMm, snapEnabled: props.snapEnabled, worldPoint,
     onSelect: props.onSelect, onMove: props.onMove, onMovePreview: props.onMovePreview, onResize: props.onResize,
     onDragEnd: props.onDragEnd,
   });
@@ -233,7 +234,10 @@ export function LivingRoomPlanView(props: Props) {
     const catalog = getOpeningCatalogItem(props.openingCatalogItemId);
     const widthMm = catalog.kind === kind ? catalog.defaults.widthMm : kind === "door" ? 900 : 1200;
     const point = worldPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
-    const offsetMm = openingOffsetAtPoint(wall, point, widthMm, props.snapSizeMm);
+    const { offsetMm } = snapOpeningOffset(props.project, wall, {
+      centreMm: openingCentreAtPoint(wall, point), widthMm,
+      thresholdMm: props.snapEnabled === false ? 0 : pointerSnapMm, gridMm: props.snapSizeMm,
+    });
     props.onSelectWall(wallId); props.onPlaceOpening(wallId, kind, offsetMm);
   }
 
@@ -353,11 +357,11 @@ export function LivingRoomPlanView(props: Props) {
     {walls.feedback ? <DraftFeedbackOverlay start={walls.feedback.start} end={walls.feedback.end}
       snap={walls.feedback.snap} markerMm={pointerSnapMm} unit={props.readability.unit} /> : null}
     <PlanOpeningsLayer project={props.project} activeOpeningId={props.activeOpeningId}
-      openingPreview={openings.openingPreview} onSelectOpening={props.onSelectOpening}
+      openingPreview={openings.openingPreview} snap={openings.openingSnap} markerMm={pointerSnapMm} onSelectOpening={props.onSelectOpening}
       onStartDrag={openings.startOpeningDrag} unit={props.readability.unit}
       interactive={!measureLike} />
     <PlanObjectsLayer project={props.project} selectedIds={props.selectedIds} issues={props.issues}
-      preview={objects.preview} guides={objects.guides} unit={props.readability.unit}
+      preview={objects.preview} guides={objects.guides} snapMarker={objects.wallSnap} markerMm={pointerSnapMm} unit={props.readability.unit}
       selectedRunId={selectedRunId}
       freeSegments={placementPreview?.freeSegments}
       freeSegmentWallPose={freeSegmentWallPose}

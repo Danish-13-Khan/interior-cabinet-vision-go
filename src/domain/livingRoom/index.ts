@@ -3,6 +3,9 @@ export {
 } from "./planCommands";
 export {
   openingOffsetAtPoint,
+  openingCentreAtPoint,
+  snapOpeningOffset,
+  centredOpeningOffset,
   moveOpeningOffset,
   resizeOpeningWidth,
   resizeOpeningFromStart,
@@ -706,6 +709,14 @@ export {
   type MeasureSegment,
 } from "./planMeasure";
 export {
+  snapSpanAlongWall,
+  spanSnapMarker,
+  wallOffsetCandidates,
+  wallOffsetOf,
+  wallPointAt,
+  type WallOffsetCandidate,
+} from "./wallOffsetSnap";
+export {
   collectPlanSnapCandidates,
   pickPlanSnap,
   PLAN_SNAP_PRIORITY,
@@ -836,6 +847,8 @@ export {
   reflowCabinetRunsForWalls,
   reflowCornerCabinetsForWalls,
   snapCabinetToWall,
+  snapCabinetToWallWithSnap,
+  CABINET_ALONG_WALL_SNAP_MM,
   syncCabinetRunFillers,
   updateCabinetRun,
   updateCabinetRunLayout,
