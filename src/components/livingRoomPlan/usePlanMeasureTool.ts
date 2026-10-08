@@ -3,17 +3,23 @@ import type { InteriorProject, Point2Mm } from "../../domain/interiorProject";
 import {
   appendMeasurePoint,
   calibrateUnderlayScale,
+  calibrateUnderlayToAxis,
+  calibrateUnderlayToWall,
   parseKnownLengthMm,
   type BuildTool,
   type LivingRoomPlanUnderlay,
 } from "../../domain/livingRoom";
 import type { PlanSnapKind, PlanSnapResult } from "../../domain/livingRoom/planSnapEngine";
+import type { CalibrateUnderlayRequest } from "./CalibrateUnderlayDialog";
 import { usePlanSnap, type PlanSnapInput } from "./usePlanSnap";
 
 /** Calibration must read the picture, not the plan: only CAD endpoints may snap (roadmap S6). */
 const CALIBRATE_SNAP_KINDS: readonly PlanSnapKind[] = ["dwg-end"];
 
-/** Measure and Calibrate tools: snapped click points, running lengths and the known-length prompt. */
+/**
+ * Measure and Calibrate tools: snapped click points, running lengths, the
+ * known-length prompt (with the axis and lock options) and Align to wall.
+ */
 export function usePlanMeasureTool(input: Omit<PlanSnapInput, "gridMm"> & {
   project: InteriorProject;
   tool: BuildTool;
@@ -35,6 +41,8 @@ export function usePlanMeasureTool(input: Omit<PlanSnapInput, "gridMm"> & {
   const [cursor, setCursor] = useState<Point2Mm | null>(null);
   const [snap, setSnap] = useState<PlanSnapResult | null>(null);
   const [prompt, setPrompt] = useState<{ a: Point2Mm; b: Point2Mm } | null>(null);
+  /** After "Align to a drawn wall": the next wall click finishes the calibration. */
+  const [awaitingWall, setAwaitingWall] = useState<{ a: Point2Mm; b: Point2Mm; lockAfter: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Calibrate: DWG endpoints only and no grid, so a raster reads the raw pointer.
@@ -52,6 +60,7 @@ export function usePlanMeasureTool(input: Omit<PlanSnapInput, "gridMm"> & {
   useEffect(() => {
     clearPoints();
     setPrompt(null);
+    setAwaitingWall(null);
     setError(null);
   }, [input.tool, input.project.id, input.project.activeRoomId]);
 
@@ -64,11 +73,13 @@ export function usePlanMeasureTool(input: Omit<PlanSnapInput, "gridMm"> & {
   }
 
   function hover(event: ReactPointerEvent<SVGSVGElement>) {
-    if (!active) return;
+    if (!active || awaitingWall) return;
     snapped(event);
   }
 
   function click(event: ReactPointerEvent<SVGElement>) {
+    // While waiting for a wall, let the click reach the wall line.
+    if (awaitingWall) return;
     event.preventDefault();
     event.stopPropagation();
     if (calibrating && (blockedReason || prompt)) return;
@@ -85,31 +96,61 @@ export function usePlanMeasureTool(input: Omit<PlanSnapInput, "gridMm"> & {
     });
   }
 
-  function applyKnownLength(rawValue: string) {
+  function commit(underlay: LivingRoomPlanUnderlay, lockAfter: boolean) {
+    input.onSetPlanUnderlay?.(lockAfter ? { ...underlay, locked: true } : underlay);
+    setError(null);
+    setPrompt(null);
+    setAwaitingWall(null);
+    clearPoints();
+    input.onCalibrateComplete?.();
+  }
+
+  function applyKnownLength(request: CalibrateUnderlayRequest) {
     if (!prompt || !input.underlay || !input.onSetPlanUnderlay) {
       setPrompt(null);
       return;
     }
     try {
-      const known = parseKnownLengthMm(rawValue);
-      input.onSetPlanUnderlay(calibrateUnderlayScale(input.underlay, prompt.a, prompt.b, known));
-      setError(null);
-      setPrompt(null);
-      clearPoints();
-      input.onCalibrateComplete?.();
+      const known = parseKnownLengthMm(request.knownLength);
+      const next = request.axis === "leave"
+        ? calibrateUnderlayScale(input.underlay, prompt.a, prompt.b, known)
+        : calibrateUnderlayToAxis(input.underlay, prompt.a, prompt.b, known, request.axis);
+      commit(next, request.lockAfter);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Calibration failed.");
     }
   }
 
+  function startAlignToWall(lockAfter: boolean) {
+    if (!prompt) return;
+    setAwaitingWall({ ...prompt, lockAfter });
+    setPrompt(null);
+    setError(null);
+  }
+
+  function pickWall(wallId: string) {
+    if (!awaitingWall || !input.underlay || !input.onSetPlanUnderlay) return;
+    const wall = input.project.walls.find((item) => item.id === wallId);
+    if (!wall) return;
+    try {
+      commit(calibrateUnderlayToWall(input.underlay, awaitingWall.a, awaitingWall.b, wall.start, wall.end), awaitingWall.lockAfter);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Calibration failed.");
+      setAwaitingWall(null);
+      clearPoints();
+    }
+  }
+
   function cancelPrompt() {
     setPrompt(null);
+    setAwaitingWall(null);
     clearPoints();
     setError(null);
   }
 
   return {
     measuring, calibrating, active, blockedReason, points, cursor, snap, prompt, error,
-    clearError: () => setError(null), hover, click, applyKnownLength, cancelPrompt,
+    awaitingWall: Boolean(awaitingWall),
+    clearError: () => setError(null), hover, click, applyKnownLength, startAlignToWall, pickWall, cancelPrompt,
   };
 }

@@ -770,6 +770,11 @@ export {
 export {
   calibrateUnderlayScale,
   parseKnownLengthMm,
+  calibrateUnderlayToAxis,
+  calibrateUnderlayToWall,
+  describeUnderlayCalibration,
+  rotateUnderlayAbout,
+  type UnderlayAxis,
 } from "./planUnderlayCalibrate";
 export {
   dataUrlToUnderlay,

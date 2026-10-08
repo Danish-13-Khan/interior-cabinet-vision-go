@@ -1,5 +1,6 @@
 import type { RenderSettings } from "../../domain/interiorProject";
 import type { FinishUvRebind } from "../../domain/catalog/finishRebind";
+import { describeUnderlayCalibration } from "../../domain/livingRoom/planUnderlayCalibrate";
 import { describeUnderlayReplace } from "../../domain/livingRoom/planUnderlayTransform";
 import {
   applyLivingRoomLightingRecipe,
@@ -41,15 +42,20 @@ export function finishCommands(ctx: EditorCommandContext) {
     const previous = document ? getLivingRoomPlanUnderlay(document) : null;
     const replaced = Boolean(underlay && previous
       && (underlay.fileName !== previous.fileName || underlay.dataUrl !== previous.dataUrl));
+    const calibrated = Boolean(underlay && previous && underlay.calibration
+      && JSON.stringify(underlay.calibration) !== JSON.stringify(previous.calibration ?? null));
+    const lockedNow = Boolean(underlay?.locked && !previous?.locked);
     const status = !underlay
       ? "Removed plan underlay."
       : !previous
         ? "Imported plan underlay."
         : replaced
           ? describeUnderlayReplace(previous, underlay)
-          : Boolean(underlay.calibrated) && !previous.calibrated
-            ? "Calibrated plan underlay."
-            : "Updated plan underlay.";
+          : calibrated && underlay.calibration
+            ? `Calibrated plan underlay — ${describeUnderlayCalibration(underlay.calibration)}.${lockedNow ? " Locked." : ""}`
+            : Boolean(underlay.calibrated) && !previous.calibrated
+              ? "Calibrated plan underlay."
+              : "Updated plan underlay.";
     commitDocument(
       (current) => setLivingRoomPlanUnderlay(current, underlay),
       status,

@@ -22,7 +22,7 @@ import {
   type WallLengthAnchor,
 } from "../domain/livingRoom";
 import { shouldShowAutoCenterLine } from "../domain/livingRoom/planGuides";
-import { PromptDialog } from "./PromptDialog";
+import { CalibrateUnderlayDialog } from "./livingRoomPlan/CalibrateUnderlayDialog";
 import { useDwgPlanSnap } from "./livingRoomPlan/useDwgPlanSnap";
 import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
@@ -219,6 +219,7 @@ export function LivingRoomPlanView(props: Props) {
   );
 
   function handleWall(event: ReactPointerEvent<SVGLineElement>, wallId: string) {
+    if (measure.awaitingWall) { event.stopPropagation(); measure.pickWall(wallId); return; }
     if (measureLike || nav.spaceDown) return;
     if (drawWall || drawPartition) { wallDrawing.begin(event); return; }
     if (editWalls && walls.beginWall(event, wallId)) return;
@@ -300,18 +301,13 @@ export function LivingRoomPlanView(props: Props) {
   const marqueeRect = marquee.rect;
 
   return <>
-  <PromptDialog
+  <CalibrateUnderlayDialog
     open={Boolean(measure.prompt)}
-    title="Calibrate underlay"
-    message="Enter the known real-world distance between the two points (millimetres)."
-    label="Known length (mm)"
-    initialValue=""
-    confirmLabel="Apply scale"
-    cancelLabel="Cancel"
-    testId="calibrate-known-length"
+    canAlignToWall={props.project.walls.some((wall) => wall.visible)}
     error={measure.error}
     onClearError={measure.clearError}
     onConfirm={measure.applyKnownLength}
+    onAlignToWall={measure.startAlignToWall}
     onCancel={measure.cancelPrompt}
   />
   <svg ref={nav.svgRef}
@@ -378,6 +374,11 @@ export function LivingRoomPlanView(props: Props) {
     {measure.blockedReason ? (
       <text className="lr-empty-plan-hint" data-testid="lr-calibrate-blocked" x={bounds.centerX} y={bounds.centerZ} textAnchor="middle">
         {measure.blockedReason}
+      </text>
+    ) : null}
+    {measure.awaitingWall ? (
+      <text className="lr-empty-plan-hint" data-testid="lr-calibrate-pick-wall" x={bounds.centerX} y={bounds.minZ + 120} textAnchor="middle">
+        Now click the drawn wall these two points belong to. Esc cancels.
       </text>
     ) : null}
     {!measure.prompt && measure.error ? (

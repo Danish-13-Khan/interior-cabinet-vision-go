@@ -120,3 +120,27 @@ body > .app-confirm-backdrop .app-confirm-actions button.is-danger,
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
 }
+
+/* Calibrate dialog: the "then make A→B" choice and the lock-afterwards option. */
+.app-prompt-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 8px 0 0;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+.app-prompt-choices > span { flex-basis: 100%; color: var(--ink); font-weight: 600; }
+.app-prompt-choices label { display: inline-flex; align-items: center; gap: 6px; }
+.app-prompt-option { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: var(--text-sm); color: var(--ink-muted); }
+.app-prompt-link {
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}

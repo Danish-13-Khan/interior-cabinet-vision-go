@@ -1,6 +1,6 @@
 # Wall geometry, snapping and plan calibration roadmap
 
-**Status:** In progress — Phases 0, 1 and 2 built 2026-10-08 on `feat/plan-snap-geometry`; Phases 3–5 proposed.
+**Status:** In progress — Phases 0–3 built 2026-10-08 on `feat/plan-snap-geometry`; Phase 4 proposed, Phase 5 deferred.
 **Source:** Tester requirements doc, 2026-10-08: wall centre / axis alignment,
 midpoint and corner snap points, straight drawing, floor-plan import fidelity,
 import after a room exists, calibration, and a unified snapping system
@@ -407,6 +407,33 @@ the 3D dollhouse shows closed outside corners. Not run: unit and e2e suites
 imported over an existing room is aligned to the room's long wall with one
 Align to wall gesture, scale correct within 1 % of the typed length, and the
 room's walls still sit on the picture after Lock.
+
+**Landed (2026-10-08):** `planUnderlayCalibrate.ts` gains
+`rotateUnderlayAbout` (turn about any world pivot; the centre moves by the
+same rotation), `axisTurnDeg` (smallest turn onto an axis),
+`calibrateUnderlayToAxis` (scale about A, then turn about A so A→B is
+horizontal or vertical) and `calibrateUnderlayToWall` (scale so |AB| is the
+wall length, turn about A onto the wall direction choosing the wall end that
+needs the smaller turn, then slide A onto that end). Every calibration
+records `underlay.calibration = { referenceMm, mode }`, read back by
+`getLivingRoomPlanUnderlay`; the chip shows "Calibrated · 3,200 mm" and the
+commit status says "Calibrated plan underlay — 3,200 mm reference, made
+horizontal." with " Locked." when the dialog's lock option was ticked (one
+undo step). `CalibrateUnderlayDialog` replaces the generic prompt: known
+length, **Then make A → B** (leave / horizontal / vertical), **Lock the
+underlay afterwards**, and **Align these two points to a drawn wall instead**,
+which closes the dialog and waits for a wall click (canvas hint "Now click
+the drawn wall these two points belong to"; Esc cancels). The toolbar hint
+reads "Click the two ends of a wall you measured on the picture, then type its
+real length". Test ids stay in the `calibrate-known-length` family.
+**Verified in the app:** a picture tilted 3° was squared by one calibration
+(rotation −3.001°, the edge at 0.000°, 3,200.0 mm over the typed 3,200);
+a second calibration aligned the same edge to the room's top wall: the two
+points landed on (0, 0) and (3000, 0) exactly, the status read "3,000 mm
+reference, aligned to the drawn wall. Locked.", and Calibrate was then
+blocked by the lock. Not run: unit and e2e suites (project rule);
+`tsc --noEmit` and the style lint are clean. The Phase 2 e2e calibrate flow
+still types into the same input and presses the same confirm button.
 
 ### Phase 4 — Centring openings and cabinets (2–3 days)
 
