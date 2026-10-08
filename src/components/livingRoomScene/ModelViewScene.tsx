@@ -131,6 +131,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           snapSizeMm={snapSizeMm}
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
+          cutawayStyle={props.captureFixedDpr != null ? "remove" : "ghost"}
           interactive={interactive}
           renderQuality={viewportQuality}
           renderComposition={props.renderComposition ?? "architectural"}

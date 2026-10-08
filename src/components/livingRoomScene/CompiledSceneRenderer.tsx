@@ -4,7 +4,7 @@ import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/in
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
-import { filterModelReviewNodes, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
+import { filterModelReviewNodes, modelCutawayNodeIds, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
 import { useOrbitCutawaySides } from "./useOrbitCutawaySides";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import {
@@ -35,6 +35,8 @@ type SceneRendererProps = {
   snapSizeMm: number;
   showGrid: boolean;
   cutawayWalls: boolean;
+  /** "ghost" keeps cut walls as translucent shells (live view); "remove" drops them (captures). */
+  cutawayStyle?: "ghost" | "remove";
   interactive?: boolean;
   renderQuality?: RenderQuality;
   renderComposition?: RenderComposition;
@@ -70,7 +72,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const {
     scene, selectedIds, selectedOpeningId = null, selectedWallId = null, activeCameraId,
     viewPreset, cameraHeightMm, fieldOfViewDegrees, snapSizeMm, showGrid, cutawayWalls,
-    interactive = true, renderQuality = "standard", renderComposition = "project-camera",
+    cutawayStyle = "ghost", interactive = true, renderQuality = "standard", renderComposition = "project-camera",
     renderMode = "preview", lightingQuality: lightingQualityOverride, projectLightScale = 1,
     windowKeyScale = 1, roomLightScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
@@ -122,9 +124,21 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     ? scene.lights.find((light) => light.id === selectedLightId)?.parameters.hostWallId
     : undefined;
   const lightHostWallId = typeof selectedLightHost === "string" ? selectedLightHost : null;
+  const cutawayActive = cutawayWalls || cutNearWall || Boolean(clientCutaway);
+  const keepWallId = selectedWallId ?? lightHostWallId;
+  // Ghosted cutaway keeps every wall in the scene and only changes how it draws,
+  // so a freshly drawn room never reads as a box with a missing face.
   const nodes = filterModelReviewNodes(
-    scene.nodes, cutawayWalls || cutNearWall || Boolean(clientCutaway), cutawaySides,
-    selectedOpeningId, hideCeiling, selectedWallId ?? lightHostWallId,
+    scene.nodes, cutawayActive && cutawayStyle === "remove", cutawaySides,
+    selectedOpeningId, hideCeiling, keepWallId,
+  );
+  const cutawaySidesKey = [...cutawaySides].sort().join(",");
+  const ghostIds = useMemo(
+    () => (cutawayActive && cutawayStyle === "ghost"
+      ? modelCutawayNodeIds(nodes, cutawaySides, selectedOpeningId, keepWallId)
+      : new Set<string>()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cutawaySidesKey stands in for the Set
+    [nodes, cutawayActive, cutawayStyle, cutawaySidesKey, selectedOpeningId, keepWallId],
   );
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
@@ -161,7 +175,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         onLightDragState={handleDragStateChange}
       />
       <CompiledSceneObjectLayer
-        nodes={nodes} materials={materialMap} selectedIds={selectedIds}
+        nodes={nodes} ghostIds={ghostIds} materials={materialMap} selectedIds={selectedIds}
         selectedOpeningId={selectedOpeningId} selectedWallId={selectedWallId}
         lightSelected={Boolean(selectedLightId)}
         snapSizeMm={snapSizeMm} renderMode={renderMode} renderQuality={renderQuality}

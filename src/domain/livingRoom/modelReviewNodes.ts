@@ -31,8 +31,40 @@ export function modelViewCutsNearWall(preset: string | undefined) {
 }
 
 /**
- * Applies architectural cutaway. Openings on cutaway sides are removed unless
- * selected; the selected opening's host wall and any selected wall stay visible.
+ * Nodes the architectural cutaway takes out of the way: walls and openings on
+ * the near side. Openings stay when selected; the selected opening's host wall
+ * and any selected wall stay too. The live viewport draws these as ghosts so
+ * the room still reads as a closed shell; captures and exports drop them.
+ */
+export function modelCutawayNodeIds(
+  nodes: readonly CompiledSceneNode[],
+  cutawaySides: ReadonlySet<string>,
+  selectedOpeningId: string | null,
+  selectedWallId: string | null = null,
+): Set<string> {
+  const selectedOpening = selectedOpeningId
+    ? nodes.find((node) => node.metadata.openingId === selectedOpeningId)
+    : undefined;
+  const hostWallId = selectedOpening && typeof selectedOpening.metadata.wallId === "string"
+    ? selectedOpening.metadata.wallId
+    : null;
+  const ids = new Set<string>();
+  for (const node of nodes) {
+    const role = String(node.metadata.role);
+    if (role !== "wall" && role !== "opening") continue;
+    if (!cutawaySides.has(String(node.metadata.wallSide))) continue;
+    if (node.metadata.openingId === selectedOpeningId) continue;
+    if (role === "wall" && selectedWallId && node.metadata.wallId === selectedWallId) continue;
+    if (role === "wall" && hostWallId && node.metadata.wallId === hostWallId) continue;
+    ids.add(node.id);
+  }
+  return ids;
+}
+
+/**
+ * Applies architectural cutaway by removal. Openings on cutaway sides are
+ * removed unless selected; the selected opening's host wall and any selected
+ * wall stay visible.
  */
 export function filterModelReviewNodes(
   nodes: readonly CompiledSceneNode[],
@@ -43,20 +75,11 @@ export function filterModelReviewNodes(
   selectedWallId: string | null = null,
 ): CompiledSceneNode[] {
   if (!cutawayWalls && !hideCeiling) return [...nodes];
-  const selectedOpening = selectedOpeningId
-    ? nodes.find((node) => node.metadata.openingId === selectedOpeningId)
-    : undefined;
-  const hostWallId = selectedOpening && typeof selectedOpening.metadata.wallId === "string"
-    ? selectedOpening.metadata.wallId
-    : null;
+  const cut = cutawayWalls
+    ? modelCutawayNodeIds(nodes, cutawaySides, selectedOpeningId, selectedWallId)
+    : new Set<string>();
   return nodes.filter((node) => {
     if (hideCeiling && node.metadata.surface === "ceiling") return false;
-    if (!cutawayWalls) return true;
-    if (node.metadata.openingId === selectedOpeningId) return true;
-    const role = String(node.metadata.role);
-    const wallSide = String(node.metadata.wallSide);
-    if (role === "wall" && selectedWallId && node.metadata.wallId === selectedWallId) return true;
-    if (hostWallId && role === "wall" && node.metadata.wallId === hostWallId) return true;
-    return !["wall", "opening"].includes(role) || !cutawaySides.has(wallSide);
+    return !cut.has(node.id);
   });
 }

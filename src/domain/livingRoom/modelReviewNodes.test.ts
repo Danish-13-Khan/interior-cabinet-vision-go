@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CompiledSceneNode } from "./sceneTypes";
-import { filterModelReviewNodes, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "./modelReviewNodes";
+import { filterModelReviewNodes, modelCutawayNodeIds, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "./modelReviewNodes";
 
 function node(
   id: string,
@@ -76,6 +76,43 @@ describe("model review node filtering", () => {
     expect(
       filterModelReviewNodes(nodes, true, new Set(["back"]), null, false, "w-back").map((item) => item.id),
     ).toEqual(["back-wall", "front-wall", "sofa"]);
+  });
+});
+
+describe("modelCutawayNodeIds", () => {
+  it("ghosts the near wall and its openings instead of dropping them from the scene", () => {
+    const nodes = [
+      node("front-wall", "wall", "front", { wallId: "w-front" }),
+      node("front-door", "opening", "front", { wallId: "w-front" }),
+      node("back-wall", "wall", "back", { wallId: "w-back" }),
+      node("sofa", "object"),
+    ];
+    expect([...modelCutawayNodeIds(nodes, new Set(["front"]), null)].sort())
+      .toEqual(["front-door", "front-wall"]);
+  });
+
+  it("keeps a selected wall, a selected opening and its host wall solid", () => {
+    const nodes = [
+      node("front-wall", "wall", "front", { wallId: "w-front" }),
+      node("front-door", "opening", "front", { wallId: "w-front" }),
+      node("left-wall", "wall", "left", { wallId: "w-left" }),
+      node("left-window", "opening", "left", { wallId: "w-left" }),
+    ];
+    expect([...modelCutawayNodeIds(nodes, new Set(["front", "left"]), "front-door", "w-left")].sort())
+      .toEqual(["left-window"]);
+  });
+
+  it("matches what removal would have filtered out", () => {
+    const nodes = [
+      node("front-wall", "wall", "front", { wallId: "w-front" }),
+      node("front-door", "opening", "front", { wallId: "w-front" }),
+      node("back-wall", "wall", "back", { wallId: "w-back" }),
+      node("ceiling", "architecture", "front", { surface: "ceiling" }),
+      node("sofa", "object"),
+    ];
+    const ghost = modelCutawayNodeIds(nodes, new Set(["front"]), null);
+    const kept = filterModelReviewNodes(nodes, true, new Set(["front"]), null).map((item) => item.id);
+    expect(nodes.filter((item) => !ghost.has(item.id)).map((item) => item.id)).toEqual(kept);
   });
 });
 

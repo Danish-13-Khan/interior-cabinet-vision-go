@@ -104,7 +104,7 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
         type="button"
         className={props.cutawayWalls ? "is-active" : ""}
         data-testid="model-cutaway-walls"
-        title="View cutaway only — does not lower walls to a plan trace or change wall height"
+        title="Ghost the wall nearest the camera so you can see in — viewing only, walls are not changed"
         aria-pressed={props.cutawayWalls}
         onClick={() => props.onCutawayWalls(!props.cutawayWalls)}
       >
@@ -175,7 +175,7 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
           </button>
         </div>
         <p className="lr-model-advanced-hint">
-          Cutaway hides walls for viewing only. Use Raise / Lower on the plan wall inspector to change height or plan trace.
+          Cutaway ghosts the near wall for viewing only; every wall stays in the model. Use Raise / Lower on the plan wall inspector to change height or plan trace.
         </p>
       </ModelViewAdvancedCameraPopover>
     </div>

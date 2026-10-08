@@ -38,6 +38,8 @@ function latchPreview(
 
 export function CompiledSceneObjectLayer(props: {
   nodes: CompiledLivingRoomScene["nodes"];
+  /** Cut-away walls and openings drawn as translucent, non-pickable shells. */
+  ghostIds?: ReadonlySet<string>;
   materials: Map<string, CompiledLivingRoomScene["materials"][number]>;
   selectedIds: string[];
   selectedOpeningId: string | null;
@@ -121,6 +123,7 @@ export function CompiledSceneObjectLayer(props: {
           key={node.id}
           node={node}
           materials={props.materials}
+          ghosted={props.ghostIds?.has(node.id) ?? false}
           selected={modelNodeIsSelected(node, {
             objectIds: props.selectedIds,
             openingId: props.selectedOpeningId,

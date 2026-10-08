@@ -8,6 +8,7 @@ type ProceduralFallbackObjectProps = {
   primitives: CompiledPrimitive[];
   materials: Map<string, CompiledMaterial>;
   selected: boolean;
+  ghosted?: boolean;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
@@ -18,6 +19,7 @@ export function ProceduralFallbackObject({
   primitives,
   materials,
   selected,
+  ghosted = false,
   renderMode,
   renderQuality,
   onPointerDown,
@@ -30,6 +32,7 @@ export function ProceduralFallbackObject({
           primitive={primitive}
           material={materials.get(primitive.materialId) ?? materials.get("compiled:fallback")!}
           selected={selected}
+          ghosted={ghosted}
           renderMode={renderMode}
           renderQuality={renderQuality}
           onPointerDown={onPointerDown}

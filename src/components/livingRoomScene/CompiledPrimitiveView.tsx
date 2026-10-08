@@ -13,10 +13,17 @@ function degrees(value: number) {
   return value * Math.PI / 180;
 }
 
+/** Calm-neutral shell for a cut-away wall: present, see-through, never in the way. */
+const GHOST_FILL = "#dcd6ce";
+const GHOST_EDGE = "#b7bec6";
+const GHOST_OPACITY = 0.12;
+const passThroughRaycast = () => null;
+
 export function CompiledPrimitiveView({
   primitive,
   material,
   selected,
+  ghosted = false,
   renderMode,
   renderQuality,
   onPointerDown,
@@ -24,6 +31,8 @@ export function CompiledPrimitiveView({
   primitive: CompiledPrimitive;
   material: CompiledMaterial;
   selected: boolean;
+  /** Draw as a translucent cutaway shell that rays and shadows ignore. */
+  ghosted?: boolean;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
@@ -36,6 +45,40 @@ export function CompiledPrimitiveView({
     // Geometry keys encode every dimension; material/position changes reuse the mesh.
   }, [primitive.geometryKey]);
   if (!geometry) return null;
+  if (ghosted) {
+    return (
+      <mesh
+        geometry={geometry}
+        dispose={null}
+        raycast={passThroughRaycast}
+        userData={{ materialId: material.id, primitiveId: primitive.id, [EXCLUDE_FROM_EXPORT]: true }}
+        position={[
+          primitive.positionMm.x / 1000,
+          primitive.positionMm.y / 1000,
+          primitive.positionMm.z / 1000,
+        ]}
+        rotation={[
+          degrees(primitive.rotationDegrees.x),
+          degrees(primitive.rotationDegrees.y),
+          degrees(primitive.rotationDegrees.z),
+        ]}
+        castShadow={false}
+        receiveShadow={false}
+        renderOrder={1}
+      >
+        <meshStandardMaterial
+          color={GHOST_FILL}
+          transparent
+          opacity={GHOST_OPACITY}
+          depthWrite={false}
+          roughness={1}
+          metalness={0}
+        />
+        <Edges color={GHOST_EDGE} threshold={12} lineWidth={1}
+          userData={{ [EXCLUDE_FROM_EXPORT]: true }} />
+      </mesh>
+    );
+  }
   return (
     <mesh
       geometry={geometry}
