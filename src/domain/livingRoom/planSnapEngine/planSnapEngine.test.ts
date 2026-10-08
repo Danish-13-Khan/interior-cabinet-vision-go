@@ -126,11 +126,17 @@ describe("plan snap engine", () => {
     expect(diagonal.point).toEqual({ x: 3000, z: 400 });
   });
 
-  it("falls back to the grid, and to the raw pointer when the grid is off", () => {
-    const grid = pickPlanSnap(ctx, { x: 1234, z: 2567 }, 10);
+  it("falls back to the grid within the pick radius, else to the raw pointer", () => {
+    const grid = pickPlanSnap(ctx, { x: 1234, z: 2567 }, 20);
     expect(grid.candidate?.kind).toBe("grid");
     expect(grid.point).toEqual({ x: 1250, z: 2550 });
-    const free = pickPlanSnap({ ...ctx, gridMm: 0 }, { x: 1234, z: 2567 }, 10);
+    const beyond = pickPlanSnap(ctx, { x: 1234, z: 2567 }, 10);
+    expect(beyond.candidate).toBeNull();
+    expect(beyond.point).toEqual({ x: 1234, z: 2567 });
+    const oneAxis = pickPlanSnap(ctx, { x: 1248, z: 2567 }, 10);
+    expect(oneAxis.candidate?.kind).toBe("grid");
+    expect(oneAxis.point).toEqual({ x: 1250, z: 2567 });
+    const free = pickPlanSnap({ ...ctx, gridMm: 0 }, { x: 1234, z: 2567 }, 20);
     expect(free.candidate).toBeNull();
     expect(free.point).toEqual({ x: 1234, z: 2567 });
   });
@@ -144,12 +150,22 @@ describe("plan snap engine", () => {
     expect(nearNode.point).toEqual({ x: 5, z: 5 });
   });
 
-  it("excludes the dragged node and its walls from the candidates", () => {
+  it("excludes the dragged node and its walls' own lines, but keeps their crossings", () => {
     const dragging = { ...ctx, exclude: { nodeIds: ["n2"] } };
     const candidates = collectPlanSnapCandidates(dragging);
     expect(candidates.some((item) => item.sourceId === "n2")).toBe(false);
     expect(candidates.some((item) => item.kind === "midpoint" && item.sourceId === "w1")).toBe(false);
     expect(candidates.some((item) => item.kind === "midpoint" && item.sourceId === "w3")).toBe(true);
+    // n2 is an end of w1; dragging it near where w1 crosses w2 still reads "Intersection".
+    const hit = pickPlanSnap(dragging, { x: 1990, z: 12 }, 30);
+    expect(hit.candidate?.kind).toBe("intersection");
+    expect(hit.point).toEqual({ x: 2000, z: 0 });
+    // The projection onto w1 itself is not offered while its node moves.
+    const own = pickPlanSnap({ ...dragging, gridMm: 0 }, { x: 1000, z: 14 }, 20);
+    expect(own.candidate).toBeNull();
+    // A translated wall is dropped entirely.
+    const translating = { ...ctx, exclude: { nodeIds: ["n1", "n2"], wallIds: ["w1"] } };
+    expect(collectPlanSnapCandidates(translating).some((item) => item.kind === "intersection")).toBe(false);
   });
 
   it("collects opening centres and edges on the host wall", () => {

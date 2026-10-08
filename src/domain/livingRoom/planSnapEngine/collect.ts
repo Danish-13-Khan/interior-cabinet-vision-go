@@ -6,13 +6,22 @@ import { PLAN_SNAP_PRIORITY, type PlanSnapCandidate, type PlanSnapContext, type 
 /** Two candidates closer than this are the same point; the earlier (higher-priority) one wins. */
 const DEDUPE_MM = 0.5;
 
+/** Visible walls minus the ones being translated; these still offer their crossings. */
+function wallsForIntersections(ctx: PlanSnapContext): WallEntity[] {
+  const wallIds = new Set(ctx.exclude?.wallIds ?? []);
+  return ctx.project.walls.filter((wall) => wall.visible && !wallIds.has(wall.id));
+}
+
+/**
+ * Walls whose own line can be a target (midpoint, on-wall). A wall attached to
+ * the dragged node moves with it, so its midpoint and its line are not targets;
+ * its crossing with a static wall still is, because landing there puts the node
+ * exactly on the other wall (collect.ts handles that in `wallsForIntersections`).
+ */
 function wallsForSnapping(ctx: PlanSnapContext): WallEntity[] {
   const nodeIds = new Set(ctx.exclude?.nodeIds ?? []);
-  const wallIds = new Set(ctx.exclude?.wallIds ?? []);
-  return ctx.project.walls.filter((wall) =>
-    wall.visible
-    && !wallIds.has(wall.id)
-    && !(wall.startNodeId && nodeIds.has(wall.startNodeId))
+  return wallsForIntersections(ctx).filter((wall) =>
+    !(wall.startNodeId && nodeIds.has(wall.startNodeId))
     && !(wall.endNodeId && nodeIds.has(wall.endNodeId)));
 }
 
@@ -67,15 +76,15 @@ export function collectPlanSnapCandidates(ctx: PlanSnapContext, intersectionExte
 
   for (const point of ctx.dwgEndpoints ?? []) push("dwg-end", point, "DWG endpoint");
 
-  const walls = wallsForSnapping(ctx);
-  for (let i = 0; i < walls.length; i += 1) {
-    for (let j = i + 1; j < walls.length; j += 1) {
-      const hit = wallLineIntersection(walls[i]!, walls[j]!, intersectionExtendMm);
-      if (hit) push("intersection", hit, "Intersection", `${walls[i]!.id}|${walls[j]!.id}`);
+  const crossing = wallsForIntersections(ctx);
+  for (let i = 0; i < crossing.length; i += 1) {
+    for (let j = i + 1; j < crossing.length; j += 1) {
+      const hit = wallLineIntersection(crossing[i]!, crossing[j]!, intersectionExtendMm);
+      if (hit) push("intersection", hit, "Intersection", `${crossing[i]!.id}|${crossing[j]!.id}`);
     }
   }
 
-  for (const wall of walls) {
+  for (const wall of wallsForSnapping(ctx)) {
     push("midpoint", { x: (wall.start.x + wall.end.x) / 2, z: (wall.start.z + wall.end.z) / 2 }, "Wall midpoint", wall.id);
   }
 

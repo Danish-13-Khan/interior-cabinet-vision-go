@@ -72,9 +72,10 @@ function onWall(ctx: PlanSnapContext, pointer: Point2Mm, thresholdMm: number): P
 /**
  * Snap a pointer. Point candidates win when one is within the threshold;
  * otherwise the pointer is pulled, axis by axis, onto the segment axis through
- * the anchor, the nearest wall, user guides, and finally the grid. The grid
- * applies whenever it is enabled, so drawing keeps its sketch feel; measure
- * and calibrate disable it through `allow` / `gridMm: 0`.
+ * the anchor, the nearest wall, user guides, and finally the grid. Every
+ * line-like kind, the grid included, only pulls within the pick radius, so a
+ * pointer far from any grid line stays free; calibrate disables the grid
+ * through `gridMm: 0` and `allow: ["dwg-end"]`.
  */
 export function pickPlanSnap(
   ctx: PlanSnapContext,
@@ -111,9 +112,12 @@ export function pickPlanSnap(
   if (!zLock) zLock = nearestGuide(ctx, "z", pointer.z, thresholdMm);
 
   const gridOn = ctx.gridMm > 0 && allowed(ctx, "grid");
-  const gridLock = (value: number): AxisLock => gridOn
-    ? { value: Math.round(value / ctx.gridMm) * ctx.gridMm, candidate: candidate("grid", { x: 0, z: 0 }, "Grid") }
-    : null;
+  const gridLock = (value: number): AxisLock => {
+    if (!gridOn) return null;
+    const rounded = Math.round(value / ctx.gridMm) * ctx.gridMm;
+    if (Math.abs(rounded - value) > thresholdMm) return null;
+    return { value: rounded, candidate: candidate("grid", { x: 0, z: 0 }, "Grid") };
+  };
   if (!xLock) xLock = gridLock(pointer.x);
   if (!zLock) zLock = gridLock(pointer.z);
 

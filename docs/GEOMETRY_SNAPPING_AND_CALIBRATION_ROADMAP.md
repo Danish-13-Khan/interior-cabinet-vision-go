@@ -327,8 +327,10 @@ opening centre / edge, cabinet centre / edge; room-scoped where the measure
 tool was) and `pickPlanSnap(ctx, pointer, thresholdMm, candidates)` takes the
 nearest point candidate within the zoom-aware radius (ties by S2 priority),
 then resolves the line-like kinds per axis: axis through the anchor (2°, used
-from Phase 2), on-wall projection, guides, grid. Grid is unconditional while
-enabled so drawing keeps its sketch feel; `gridMm: 0` or `allow` turns it off.
+from Phase 2), on-wall projection, guides, grid, each only within the pick
+radius; `gridMm: 0` or `allow` turns the grid off. A node drag excludes the
+node and the midpoint / line of its own walls, but keeps those walls'
+crossings, so the node can land exactly where its wall meets another.
 `usePlanSnap` memoises the candidates per project and returns the raw pointer
 when the toolbar **Snap** is off or **Alt** is held. Adopted by wall drawing,
 room drawing (which now joins existing nodes), node drag and wall translate
