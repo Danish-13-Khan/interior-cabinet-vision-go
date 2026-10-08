@@ -68,7 +68,6 @@ export function InteriorsWorkspaceHeader(props: InteriorsWorkspaceHeaderProps) {
       {projectHome ? (
         <nav className="lr-projects-nav" aria-label="Projects navigation">
           <span className="is-active">Projects</span>
-          <span>Library</span>
         </nav>
       ) : (
         <div className="app-topbar-job">

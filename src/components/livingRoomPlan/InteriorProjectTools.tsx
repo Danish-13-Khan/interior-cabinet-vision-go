@@ -1,6 +1,6 @@
 import { InteriorCompanyPanel } from "./InteriorCompanyPanel";
 import { InteriorClientPanel } from "./InteriorClientPanel";
-import { useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type { InteriorProject } from "../../domain/interiorProject";
 import { measureInteriorEstimate, interiorEstimateSummary } from "../../domain/interiorEstimate/measure";
 import { readInteriorEstimate, writeInteriorEstimate, patchEstimateLine, type EstimateUnit } from "../../domain/interiorEstimate/state";
@@ -20,16 +20,31 @@ export function InteriorProjectTools(props: ProjectToolsProps) {
 }
 export function InteriorProjectToolsDialog({ dialogRef: dialog, ...props }: ProjectToolsProps & { dialogRef: RefObject<HTMLDialogElement | null> }) {
   const [tab, setTab] = useState("Estimate");
+  const open = useDialogOpen(dialog);
   return <dialog ref={dialog} className="interior-project-tools" aria-labelledby="project-tools-title">
       <header><div><h2 id="project-tools-title">{props.project.name} · Project tools</h2><p>Design details, your rates and commercial records.</p></div><button type="button" onClick={() => dialog.current?.close()} aria-label="Close project tools">Close</button></header>
       <nav aria-label="Project tools sections">{["Estimate", "Finishes", "Price book", "Client", "Payments", "Company"].map(name => <button type="button" key={name} aria-pressed={tab === name} onClick={() => setTab(name)}>{name}</button>)}</nav>
-      {tab === "Estimate" && <InteriorEstimatePanel {...props} />}
-      {tab === "Finishes" && <InteriorFinishesPanel {...props} />}
-      {tab === "Price book" && <InteriorPriceBookPanel />}
-      {tab === "Client" && <InteriorClientPanel {...props} />}
-      {tab === "Company" && <InteriorCompanyPanel project={props.project} />}
-      {tab === "Payments" && <InteriorPaymentsPanel project={props.project} />}
+      {open && tab === "Estimate" && <InteriorEstimatePanel {...props} />}
+      {open && tab === "Finishes" && <InteriorFinishesPanel {...props} />}
+      {open && tab === "Price book" && <InteriorPriceBookPanel />}
+      {open && tab === "Client" && <InteriorClientPanel {...props} />}
+      {open && tab === "Company" && <InteriorCompanyPanel project={props.project} />}
+      {open && tab === "Payments" && <InteriorPaymentsPanel project={props.project} />}
     </dialog>;
+}
+/** The dialog stays mounted for its openers; its panels (and the estimate measure) only run while it is open. */
+function useDialogOpen(dialog: RefObject<HTMLDialogElement | null>) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const node = dialog.current;
+    if (!node) return;
+    const sync = () => setOpen(node.open);
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(node, { attributes: true, attributeFilter: ["open"] });
+    return () => observer.disconnect();
+  }, [dialog]);
+  return open;
 }
 function InteriorEstimatePanel({ project, onPatchDocument }: ProjectToolsProps) {
   const { priceBook } = usePriceBook();

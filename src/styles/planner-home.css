@@ -344,7 +344,8 @@
   padding: 0 22px;
 }
 
-.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: 520px; }
+/* Never wider than its column: a fixed 520px pushed the plan under the inspector on narrow layouts. */
+.lr-product-shell-v2 .lr-workspace-body.is-planner-build .lr-plan-canvas { min-width: min(520px, 100%); }
 
 /* C5: readable selection subtitle — no 30px ellipsis clip. */
 .lr-product-shell-v2 .inspector-header {

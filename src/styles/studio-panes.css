@@ -79,6 +79,39 @@
   max-width: none;
 }
 
+/*
+ * The 2D plan body is a grid (interiors-drafting-toolbar.css), so flex sizes do
+ * nothing there: size the grid columns instead. A legacy rule pins the plan
+ * inspector's width at 500px; min-width and max-width outrank width, so they
+ * set the used width without escalating. Below 961px the plan stacks and keeps
+ * its own full-width rules.
+ */
+@media (min-width: 961px) {
+  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan > .lr-inspector {
+    min-width: var(--studio-inspector-width, 300px);
+    max-width: var(--studio-inspector-width, 300px);
+  }
+
+  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-inspector {
+    grid-template-columns: auto 280px minmax(0, 1fr);
+  }
+
+  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-catalog {
+    grid-template-columns: minmax(0, 1fr) 280px auto;
+  }
+
+  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-catalog > .lr-plan-center,
+  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-inspector > .lr-plan-center {
+    width: auto;
+    min-width: 0;
+  }
+
+  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-inspector > .lr-inspector {
+    min-width: 100%;
+    max-width: none;
+  }
+}
+
 @media (max-width: 780px) {
   .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body .lr-catalog,
   .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body .lr-inspector,

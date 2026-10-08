@@ -15,6 +15,7 @@ import {
 } from "../../domain/livingRoom/modelViewSharpness";
 import { resolveModelViewCameraFarMeters } from "../../domain/livingRoom/modelViewCameraEase";
 import { MODEL_VIEW_FRAMELOOP } from "../../domain/livingRoom/modelViewPerf";
+import { useViewportCovered } from "../../hooks/useViewportCovered";
 import { ModelViewPreviewProfileProvider } from "../../rendering/ModelViewPreviewProfile";
 import { CompiledSceneRenderer } from "./CompiledSceneRenderer";
 import { GlbInstancingProvider } from "./GlbInstanceBatch";
@@ -85,7 +86,10 @@ export function ModelViewScene(props: ModelViewSceneProps) {
     scene.bounds.size.depthMm,
   ) / 1000;
   const cameraFar = resolveModelViewCameraFarMeters(roomSpanMeters);
+  // A modal dialog hides the canvas: stop drawing until it closes, then redraw once.
+  const covered = useViewportCovered();
   const invalidateRevision = [
+    covered,
     scene.fingerprint,
     viewportQuality,
     viewPreset,
@@ -103,7 +107,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
 
   return (
     <Canvas
-      frameloop={MODEL_VIEW_FRAMELOOP}
+      frameloop={covered ? "never" : MODEL_VIEW_FRAMELOOP}
       shadows="percentage"
       dpr={props.captureFixedDpr ?? resolveModelViewDprRange(viewportQuality)}
       gl={{ antialias: MODEL_VIEW_MSAA, preserveDrawingBuffer: true }}

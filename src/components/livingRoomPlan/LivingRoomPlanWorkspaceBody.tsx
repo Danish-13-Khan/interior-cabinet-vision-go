@@ -62,6 +62,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanWorkspaceRail {...props} onImportUnderlay={planImport.onImportUnderlay}
           floorplanExtract={floorplanExtract.launcher}
+          paneWidth={panes.catalogWidth}
           paneMaximized={panes.maximized === "catalog"}
           paneMax={panes.catalogMax}
           onPaneWidth={panes.onCatalogWidth}
@@ -101,6 +102,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         body={props}
         activeObject={activeObject}
         transformPreview={modelTransformPreview}
+        widthPx={panes.inspectorWidth}
         maximized={panes.maximized === "inspector"}
         paneMax={panes.inspectorMax}
         onPaneWidth={panes.onInspectorWidth}

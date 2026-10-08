@@ -1,6 +1,7 @@
 import { hasInteriorsInspectorSelection, isInteriorsCabinetRunTool, isInteriorsDrawRoomTool } from "../../domain/desktopUx";
 import { LivingRoomInspectorPanel } from "./LivingRoomInspectorPanel";
 import { StudioPaneEdge } from "./StudioPaneEdge";
+import { STUDIO_INSPECTOR_MIN } from "./useStudioPanes";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import type { ModelTransformPreview } from "../livingRoomScene/ModelMoveGizmo";
@@ -12,6 +13,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   body: LivingRoomPlanWorkspaceBodyProps;
   activeObject: InteriorObjectEntity | null;
   transformPreview: ModelTransformPreview | null;
+  widthPx?: number;
   maximized?: boolean;
   paneMax?: number;
   onPaneWidth?: (widthPx: number) => void;
@@ -31,6 +33,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     ? transformPreview.positionMm
     : null;
   const w = p.workspace;
+  const widthPx = props.widthPx ?? w.inspectorWidthPx;
   const activeSurface = p.project.surfaces.find((surface) => surface.id === p.activeSurfaceId) ?? null;
   const emptyRoomEssentials =
     p.workflowArea === "room" &&
@@ -57,9 +60,9 @@ export function LivingRoomPlanWorkspaceInspector(props: {
     return null;
   }
   return (
-    <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={w.inspectorWidthPx}
+    <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={widthPx}
       maximized={props.maximized} paneEdge={props.onPaneWidth && props.onPaneMaximize ? (
-        <StudioPaneEdge edge="start" width={w.inspectorWidthPx} max={props.paneMax ?? w.inspectorWidthPx} maximized={props.maximized === true} onWidth={props.onPaneWidth} onMaximize={props.onPaneMaximize} />
+        <StudioPaneEdge edge="start" width={widthPx} min={STUDIO_INSPECTOR_MIN} max={props.paneMax ?? widthPx} maximized={props.maximized === true} onWidth={props.onPaneWidth} onMaximize={props.onPaneMaximize} />
       ) : null} project={p.project} room={p.room} drawRoom={isInteriorsDrawRoomTool(p.chromeTool)}
       cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
       runToolActive={p.chromeTool === "run"}

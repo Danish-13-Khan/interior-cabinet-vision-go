@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 export const STUDIO_PANE_MIN = 160;
+/** Below this the inspector's W/H/D fields and finish cards truncate. */
+export const STUDIO_INSPECTOR_MIN = 300;
 export const STUDIO_PANE_MAX = 720;
 const CANVAS_MIN = 280;
 
@@ -10,6 +12,11 @@ export type StudioPaneId = "catalog" | "inspector";
 export function studioPaneMax(hostWidth: number, otherWidth: number) {
   const room = hostWidth - otherWidth - CANVAS_MIN;
   return Math.max(STUDIO_PANE_MIN, Math.min(STUDIO_PANE_MAX, Math.round(room)));
+}
+
+/** A stored width that fits the current host: never under the pane minimum, never over the canvas-safe max. */
+export function studioPaneWidth(stored: number, min: number, max: number) {
+  return Math.round(Math.max(STUDIO_PANE_MIN, Math.min(max, Math.max(min, stored))));
 }
 
 export function useStudioPanes(args: {
@@ -36,11 +43,16 @@ export function useStudioPanes(args: {
     setMaximized((current) => (current === id ? null : id));
   }
 
+  const catalogMax = studioPaneMax(host, args.inspectorWidth);
+  const inspectorMax = studioPaneMax(host, args.catalogWidth);
+
   return {
     ref,
     maximized,
-    catalogMax: studioPaneMax(host, args.inspectorWidth),
-    inspectorMax: studioPaneMax(host, args.catalogWidth),
+    catalogMax,
+    inspectorMax,
+    catalogWidth: studioPaneWidth(args.catalogWidth, STUDIO_PANE_MIN, catalogMax),
+    inspectorWidth: studioPaneWidth(args.inspectorWidth, STUDIO_INSPECTOR_MIN, inspectorMax),
     onCatalogWidth: args.onCatalogWidth,
     onInspectorWidth: args.onInspectorWidth,
     toggle,

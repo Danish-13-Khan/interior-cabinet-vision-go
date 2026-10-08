@@ -8,6 +8,7 @@ import type { FloorplanExtractLauncherState } from "../../hooks/useFloorplanExtr
 export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyProps & {
   onImportUnderlay: (file: File | null) => void | Promise<void>;
   floorplanExtract?: FloorplanExtractLauncherState;
+  paneWidth?: number;
   paneMaximized?: boolean;
   paneMax?: number;
   onPaneWidth?: (widthPx: number) => void;
@@ -16,7 +17,7 @@ export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyPr
   const { workspace: w, project, room, build } = props;
   return (
     <LivingRoomPlanCatalogRail
-      widthPx={w.toolRailWidthPx} toolRailVisible={w.toolRailVisible}
+      widthPx={props.paneWidth ?? w.toolRailWidthPx} toolRailVisible={w.toolRailVisible}
       paneMaximized={props.paneMaximized} paneMax={props.paneMax}
       onPaneWidth={props.onPaneWidth} onPaneMaximize={props.onPaneMaximize}
       workflowArea={props.workflowArea}

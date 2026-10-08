@@ -1,3 +1,4 @@
+import { memo, useRef } from "react";
 import type { InteriorObjectEntity } from "../../domain/interiorProject";
 import { wallLengthMm } from "../../domain/livingRoom";
 import { cutOpeningOffsetMm } from "../../domain/livingRoom/cutOpening";
@@ -6,12 +7,27 @@ import { inspectPlanTarget, interiorsCabinetRunStageCommands, interiorsDrawRoomS
 import { interiorsPresentStageCommands } from "./interiorsPresentStage";
 import { LivingRoomPlanStage } from "./LivingRoomPlanStage";
 import type { LivingRoomPlanWorkspaceBodyProps } from "./workspaceBodyProps";
+import { useViewportCovered } from "../../hooks/useViewportCovered";
 
-export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBodyProps & {
+type WorkspaceCanvasProps = LivingRoomPlanWorkspaceBodyProps & {
   activeObject: InteriorObjectEntity | null;
   clientPackageBlocked: boolean;
   onTransformPreviewChange: (preview: ModelTransformPreview | null) => void;
-}) {
+};
+
+/**
+ * While a modal dialog covers the workspace, keep handing the stage the props
+ * it last drew with, so edits made in the dialog do not re-render the hidden
+ * plan or 3D scene. The stage catches up once when the dialog closes.
+ */
+export function LivingRoomPlanWorkspaceCanvas(props: WorkspaceCanvasProps) {
+  const covered = useViewportCovered();
+  const held = useRef(props);
+  if (!covered) held.current = props;
+  return <WorkspaceCanvasStage {...held.current} />;
+}
+
+const WorkspaceCanvasStage = memo(function WorkspaceCanvasStage(props: WorkspaceCanvasProps) {
   const { workspace: w, project, build } = props;
   return (
     <LivingRoomPlanStage
@@ -90,4 +106,4 @@ export function LivingRoomPlanWorkspaceCanvas(props: LivingRoomPlanWorkspaceBody
       }}
     />
   );
-}
+});
