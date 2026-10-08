@@ -2,14 +2,14 @@
    and, from Phase 1, its cutouts. Drawn beneath walls; never catches the pointer. */
 .lr-plan-ceiling {
   fill: url(#lr-ceiling-hatch);
-  stroke: #6f7f8e;
+  stroke: var(--ink-muted);
   stroke-width: 12;
   stroke-dasharray: 140 70;
   opacity: 0.85;
 }
 
 .lr-ceiling-hatch-line {
-  stroke: #7d8a97;
+  stroke: var(--ink-faint);
   stroke-width: 28;
   opacity: 0.55;
 }

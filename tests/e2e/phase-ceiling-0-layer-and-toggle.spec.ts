@@ -1,10 +1,32 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { clickInteriorsTool, createBlankPlan, drawRectangleRoom } from "./plannerStart";
+import { waitForRecoveryAutosave } from "./phase-7-hardening.helpers";
+import { E2E_SESSION_JSON, clickInteriorsTool, drawRectangleRoom, expectInteriorsHome } from "./plannerStart";
 
 async function clickWall(page: Page, wall: Locator) {
   const box = await wall.boundingBox();
   if (!box) throw new Error("Wall is not rendered");
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+}
+
+/**
+ * Blank job that survives a reload: `createBlankPlan` installs an init script
+ * that wipes storage on every load, which would also wipe the autosaved job.
+ */
+async function createBlankPlanForReopen(page: Page) {
+  await page.addInitScript((session) => {
+    if (!window.localStorage.getItem("cabinetStudioSession")) {
+      window.localStorage.setItem("cabinetStudioSession", session);
+    }
+  }, E2E_SESSION_JSON);
+  await page.goto("/app");
+  await page.evaluate((session) => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+    window.localStorage.setItem("cabinetStudioSession", session);
+  }, E2E_SESSION_JSON);
+  await page.goto("/app");
+  await expectInteriorsHome(page);
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
 }
 
 async function enterModel(page: Page) {
@@ -21,7 +43,7 @@ async function enterModel(page: Page) {
  */
 test("Phase 0: ceiling layer in plan and Ceiling toggle in 3D", async ({ page }) => {
   test.setTimeout(120_000);
-  await createBlankPlan(page);
+  await createBlankPlanForReopen(page);
   await drawRectangleRoom(page);
   await expect(page.locator("[data-wall-id]")).toHaveCount(4);
 
@@ -66,7 +88,9 @@ test("Phase 0: ceiling layer in plan and Ceiling toggle in 3D", async ({ page })
   // Reopen: the plan layer is a remembered preference, the 3D toggle is not.
   await toggle.click();
   await expect(model).toHaveAttribute("data-ceiling-hidden", "0");
+  await waitForRecoveryAutosave(page);
   await page.reload();
+  await expect(page.getByTestId("interiors-projects-home")).toHaveCount(0);
   await expect(page.locator("[data-wall-id]")).toHaveCount(4);
   await expect(ceilingPath).toHaveCount(1);
   await enterModel(page);
