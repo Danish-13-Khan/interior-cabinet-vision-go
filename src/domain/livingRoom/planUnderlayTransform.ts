@@ -73,6 +73,7 @@ export function carryUnderlayPose(
     rotationDeg: previous.rotationDeg ?? 0,
     opacity: previous.opacity,
     calibrated: Boolean(previous.calibrated),
+    calibration: previous.calibration,
   };
 }
 

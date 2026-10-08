@@ -65,6 +65,7 @@ describe("plan underlay transform", () => {
   describe("carryUnderlayPose (Replace file)", () => {
     const calibrated: LivingRoomPlanUnderlay = {
       ...base, widthMm: 7400, heightMm: 5550, xMm: 320, zMm: -180, rotationDeg: -90, opacity: 0.3, calibrated: true,
+      calibration: { referenceMm: 3200, mode: "horizontal" },
     };
     const fresh: LivingRoomPlanUnderlay = {
       fileName: "rescan.png", dataUrl: "data:image/png;base64,BBBB", widthMm: 6200, heightMm: 4650, opacity: 0.42,
@@ -82,6 +83,7 @@ describe("plan underlay transform", () => {
       expect(carried.rotationDeg).toBe(-90);
       expect(carried.opacity).toBe(0.3);
       expect(carried.calibrated).toBe(true);
+      expect(carried.calibration).toEqual({ referenceMm: 3200, mode: "horizontal" });
       expect(carried.importWidthMm).toBe(6200);
     });
 
