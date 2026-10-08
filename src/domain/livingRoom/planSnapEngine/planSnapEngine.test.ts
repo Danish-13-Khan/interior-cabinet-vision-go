@@ -19,6 +19,7 @@ function wall(id: string, a: PlanNodeEntity, b: PlanNodeEntity): WallEntity {
  *   n1 (0,0) ── w1 ── n2 (4000,0)
  *   n3 (2000,-1000) ── w2 ── n4 (2000,1000)      (crosses w1 at 2000,0)
  *   n5 (0,2000) ── w3 ── n6 (3000,2000)         (stops 1000 short of x = 4000)
+ *   n2 ── w4 ── n6                               (makes n2 a degree-2 corner)
  */
 function graphProject(): InteriorProject {
   const base = createLivingRoomStarterProject({ now: "2026-10-08T00:00:00.000Z" });
@@ -31,7 +32,7 @@ function graphProject(): InteriorProject {
   return {
     ...base,
     nodes: [n1, n2, n3, n4, n5, n6],
-    walls: [wall("w1", n1, n2), wall("w2", n3, n4), wall("w3", n5, n6)],
+    walls: [wall("w1", n1, n2), wall("w2", n3, n4), wall("w3", n5, n6), wall("w4", n2, n6)],
     loops: [],
     rooms: [],
     openings: [],
@@ -163,6 +164,11 @@ describe("plan snap engine", () => {
     // The projection onto w1 itself is not offered while its node moves.
     const own = pickPlanSnap({ ...dragging, gridMm: 0 }, { x: 1000, z: 14 }, 20);
     expect(own.candidate).toBeNull();
+    // The corner being dragged (w1 meets w4 at n2) is not offered as an "Intersection".
+    const corner = pickPlanSnap({ ...dragging, gridMm: 0 }, { x: 4010, z: 8 }, 30);
+    expect(corner.candidate?.kind).not.toBe("intersection");
+    expect(collectPlanSnapCandidates(dragging).some((item) =>
+      item.kind === "intersection" && Math.hypot(item.point.x - 4000, item.point.z) < 1)).toBe(false);
     // A translated wall is dropped entirely.
     const translating = { ...ctx, exclude: { nodeIds: ["n1", "n2"], wallIds: ["w1"] } };
     expect(collectPlanSnapCandidates(translating).some((item) => item.kind === "intersection")).toBe(false);

@@ -77,8 +77,12 @@ export function collectPlanSnapCandidates(ctx: PlanSnapContext, intersectionExte
   for (const point of ctx.dwgEndpoints ?? []) push("dwg-end", point, "DWG endpoint");
 
   const crossing = wallsForIntersections(ctx);
+  const touchesExcluded = (wall: WallEntity) =>
+    Boolean((wall.startNodeId && excludedNodes.has(wall.startNodeId)) || (wall.endNodeId && excludedNodes.has(wall.endNodeId)));
   for (let i = 0; i < crossing.length; i += 1) {
     for (let j = i + 1; j < crossing.length; j += 1) {
+      // Two walls meeting at the dragged node cross at that node: never a target.
+      if (touchesExcluded(crossing[i]!) && touchesExcluded(crossing[j]!)) continue;
       const hit = wallLineIntersection(crossing[i]!, crossing[j]!, intersectionExtendMm);
       if (hit) push("intersection", hit, "Intersection", `${crossing[i]!.id}|${crossing[j]!.id}`);
     }
