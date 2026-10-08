@@ -44,7 +44,7 @@ describe("interiorsDrawRoom", () => {
     expect(interiorsDrawRoomHint("door")).toBe("Click a wall to place a door");
     expect(interiorsDrawRoomHint("select", "draw-partition")).toBe("Drag a partition segment on the plan");
     expect(interiorsDrawRoomHint("select", "calibrate-underlay")).toBe(
-      "Click A → B on the underlay, then enter the known length in mm",
+      "Click the two ends of a wall you measured on the picture, then type its real length",
     );
   });
 
