@@ -146,6 +146,23 @@ describe("plan snap engine", () => {
     expect(gridded.candidate?.label).toBe("Horizontal");
   });
 
+  it("lets an axis-locked stroke land where a wall crosses the axis, even off the grid", () => {
+    const n7 = node("n7", 2320, -1000);
+    const n8 = node("n8", 2320, 1000);
+    const offGrid = { ...project, nodes: [...project.nodes, n7, n8], walls: [...project.walls, wall("w5", n7, n8)] };
+    const anchor = { x: 500, z: 500 };
+    // 0.8° off horizontal: the automatic lock takes z = 500; x lands on w5 at 2320, not the grid's 2300.
+    const auto = pickPlanSnap({ project: offGrid, roomId: null, gridMm: 50, anchor }, { x: 2310, z: 520 }, 20);
+    expect(auto.point).toEqual({ x: 2320, z: 500 });
+    expect(auto.candidate?.label).toBe("Horizontal · On wall");
+    // Shift does the same from any angle.
+    const shift = pickPlanSnap({ project: offGrid, roomId: null, gridMm: 50, anchor, axisLock: true }, { x: 2312, z: 900 }, 20);
+    expect(shift.point).toEqual({ x: 2320, z: 500 });
+    // Beyond the pick radius the grid is used as before.
+    const far = pickPlanSnap({ project: offGrid, roomId: null, gridMm: 50, anchor }, { x: 2280, z: 520 }, 20);
+    expect(far.point).toEqual({ x: 2300, z: 500 });
+  });
+
   it("falls back to the grid within the pick radius, else to the raw pointer", () => {
     const grid = pickPlanSnap(ctx, { x: 1234, z: 2567 }, 20);
     expect(grid.candidate?.kind).toBe("grid");

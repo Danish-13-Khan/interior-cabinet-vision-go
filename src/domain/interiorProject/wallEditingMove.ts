@@ -84,6 +84,12 @@ export function affectedRoomsRemainValid(
   return true;
 }
 
+/** The node that now stands where `nodeId` was moved to: itself, or the node it was folded into. */
+function survivingNodeId(project: InteriorProject, nodeId: string, position: Point2Mm): string | null {
+  if (project.nodes.some((node) => node.id === nodeId)) return nodeId;
+  return project.nodes.find((node) => lengthOf(node.position, position) <= 1)?.id ?? null;
+}
+
 /** Move a graph node, clamp openings, and optionally join coincident endpoints. */
 export function movePlanNodeWithOpenings(
   project: InteriorProject,
@@ -100,7 +106,8 @@ export function movePlanNodeWithOpenings(
   const oldLengths = wallLengthMap(project);
   let next = clampOpeningsToWallLengths(movePlanNode(project, nodeId, target), oldLengths);
   if (options?.joinCoincident !== false) next = weldNodeIntoWalls(mergeCoincidentPlanNodes(next), nodeId);
-  if (!affectedRoomsRemainValid(next, [nodeId])) return project;
+  const survivor = survivingNodeId(next, nodeId, target);
+  if (!affectedRoomsRemainValid(next, survivor ? [survivor] : [])) return project;
   return next;
 }
 
@@ -151,6 +158,10 @@ export function translatePlanWall(
   if (options?.joinCoincident !== false) {
     next = weldNodeIntoWalls(weldNodeIntoWalls(mergeCoincidentPlanNodes(next), startNode.id), endNode.id);
   }
-  if (!affectedRoomsRemainValid(next, [startNode.id, endNode.id])) return project;
+  const survivors = [
+    survivingNodeId(next, startNode.id, movedStart),
+    survivingNodeId(next, endNode.id, movedEnd),
+  ].filter((id): id is string => id !== null);
+  if (!affectedRoomsRemainValid(next, survivors)) return project;
   return next;
 }

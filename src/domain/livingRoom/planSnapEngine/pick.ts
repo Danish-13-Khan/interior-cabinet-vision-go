@@ -49,6 +49,38 @@ function nearestGuide(ctx: PlanSnapContext, axis: "x" | "z", value: number, thre
   return best;
 }
 
+/**
+ * With one axis locked, the free coordinate can still land on a wall: where
+ * the wall's span crosses the locked line, if that crossing is within the pick
+ * radius of the pointer along the free axis.
+ */
+function wallCrossingOnAxis(
+  ctx: PlanSnapContext,
+  locked: "x" | "z",
+  lockedValue: number,
+  freeValue: number,
+  thresholdMm: number,
+): AxisLock {
+  if (!allowed(ctx, "on-wall")) return null;
+  let best: AxisLock = null;
+  let bestDistance = thresholdMm;
+  for (const wall of snapWallsForContext(ctx)) {
+    const a = locked === "z" ? wall.start.z : wall.start.x;
+    const b = locked === "z" ? wall.end.z : wall.end.x;
+    if (Math.abs(b - a) < 1e-9) continue;
+    const t = (lockedValue - a) / (b - a);
+    if (t <= 0 || t >= 1) continue;
+    const crossing = locked === "z"
+      ? wall.start.x + (wall.end.x - wall.start.x) * t
+      : wall.start.z + (wall.end.z - wall.start.z) * t;
+    const distance = Math.abs(crossing - freeValue);
+    if (distance > bestDistance) continue;
+    bestDistance = distance;
+    best = { value: crossing, candidate: candidate("on-wall", { x: 0, z: 0 }, "On wall", wall.id) };
+  }
+  return best;
+}
+
 function onWall(ctx: PlanSnapContext, pointer: Point2Mm, thresholdMm: number): PlanSnapCandidate | null {
   if (!allowed(ctx, "on-wall")) return null;
   let best: PlanSnapCandidate | null = null;
@@ -119,6 +151,10 @@ export function pickPlanSnap(
   if (!xLock && !zLock) {
     const wall = onWall(ctx, pointer, thresholdMm);
     if (wall) return { point: { ...wall.point }, candidate: wall };
+  } else if (zLock && !xLock) {
+    xLock = wallCrossingOnAxis(ctx, "z", zLock.value, pointer.x, thresholdMm);
+  } else if (xLock && !zLock) {
+    zLock = wallCrossingOnAxis(ctx, "x", xLock.value, pointer.z, thresholdMm);
   }
 
   if (!xLock) xLock = nearestGuide(ctx, "x", pointer.x, thresholdMm);
@@ -138,8 +174,11 @@ export function pickPlanSnap(
   const locks = [xLock, zLock].filter((lock): lock is NonNullable<AxisLock> => lock !== null);
   if (locks.length === 0) return { point, candidate: null };
   const primary = locks.reduce((best, lock) => (lock.candidate.priority < best.candidate.priority ? lock : best));
+  const onWallLock = locks.find((lock) => lock.candidate.kind === "on-wall");
   const label = xLock && zLock && xLock.candidate.kind === "guide" && zLock.candidate.kind === "guide"
     ? `${xLock.candidate.label} × ${zLock.candidate.label.replace(/^Guide ?/, "")}`.trim()
-    : primary.candidate.label;
+    : onWallLock && primary.candidate.kind !== "on-wall"
+      ? `${primary.candidate.label} · On wall`
+      : primary.candidate.label;
   return { point, candidate: { ...primary.candidate, point, label } };
 }

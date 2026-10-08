@@ -102,6 +102,18 @@ describe("commit-time weld and T-junction (roadmap S4)", () => {
     expect(degreeAt(moved, 3100, -2300)).toBe(3);
   });
 
+  it("rolls back a corner drag that folds into a node outside the room, even though the corner id is gone", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    // A free partition to the left of the room gives a node at (-3500, 0) that no room edge touches.
+    const { project: withStub } = createWallSegmentResult(project, {
+      start: { x: -3500, z: 0 }, end: { x: -4500, z: 0 }, kind: "partition", raised: true,
+    });
+    const corner = withStub.nodes.find((node) => Math.abs(node.position.x - 3100) < 1 && Math.abs(node.position.z - 2300) < 1)!;
+    // Folding the far corner onto that node makes the room outline cross itself.
+    const moved = movePlanNodeWithOpenings(withStub, corner.id, { x: -3500, z: 0.4 });
+    expect(moved).toBe(withStub);
+  });
+
   it("translating a partition onto a wall welds both ends", () => {
     const project = createLivingRoomStarterProject({ now: NOW });
     const { project: withPartition, wallId } = createWallSegmentResult(project, {

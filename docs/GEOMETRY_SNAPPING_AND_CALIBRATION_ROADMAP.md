@@ -365,8 +365,11 @@ room show no notch; the golden cut list is unchanged.
 `anchor`, so a segment within 2° of horizontal or vertical (or within the pick
 radius of the axis) locks to it with the "Horizontal" / "Vertical" label;
 Shift sets `axisLock`, which projects onto the dominant axis first and lets
-only on-axis candidates still win (`pick.ts`). Polygon room drawing anchors on
-its last vertex. With Snap off, Shift still constrains to the axis.
+only on-axis candidates still win (`pick.ts`). With one axis locked the free
+coordinate lands where a wall crosses the locked line when that crossing is
+within the pick radius ("Horizontal · On wall"), ahead of guides and grid, so
+an off-grid wall still receives the T-junction weld. Polygon room drawing
+anchors on its last vertex. With Snap off, Shift still constrains to the axis.
 S4 — `wallEditingWeld.ts`: `resolveWallEndpoint` welds a drawn endpoint to a
 node within 1 mm or splits the wall whose span it sits on (offsets kept
 ≥ 150 mm from either end), and `createWallSegment` resolves both ends before
@@ -374,7 +377,8 @@ the room-split check, so a wall between two boundary walls still splits the
 room through the welded nodes; `weldNodeIntoWalls` does the same after
 `movePlanNodeWithOpenings` and both ends of `translatePlanWall` (the existing
 node keeps its coordinates on a node join; the moved node keeps its snapped
-position on a span join). The default tolerance is 1 mm because the engine
+position on a span join; the room validity check follows whichever node
+survived). The default tolerance is 1 mm because the engine
 already put the point on the node or line; `joinToleranceMm` on the request
 widens it. S9 — `wallCornerExtensionMm` extends each wall box past a
 degree-2 node by t/2 ÷ tan(θ/2) (t/2 at a right angle, 0 when straight,

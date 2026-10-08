@@ -38,8 +38,9 @@ describe("3D wall corner joins (roadmap S9)", () => {
 
   it("does not extend a straight continuation, a free end, or a three-wall node", () => {
     const project = rectangularRoom();
-    const first = project.walls.find((wall) => Math.abs(wall.start.z) < 1 && Math.abs(wall.end.z) < 1)!;
-    const beyond = { x: first.end.x + (first.end.x - first.start.x), z: 0 };
+    const horizontal = project.walls.filter((wall) => Math.abs(wall.start.z - wall.end.z) < 1);
+    const first = horizontal.sort((a, b) => a.start.z - b.start.z)[0]!;
+    const beyond = { x: first.end.x + (first.end.x - first.start.x), z: first.end.z };
     // A node with one wall: no partner, no extension.
     const lone = { ...project, walls: [first] };
     expect(wallCornerExtensionMm(createWallGraphIndex(lone), first, first.endNodeId)).toBe(0);
@@ -51,7 +52,7 @@ describe("3D wall corner joins (roadmap S9)", () => {
     };
     expect(wallCornerExtensionMm(createWallGraphIndex(straight), first, first.endNodeId)).toBe(0);
     // Degree three keeps today's overlap.
-    const out = { x: first.end.x, z: -2000 };
+    const out = { x: first.end.x, z: first.end.z - 2000 };
     const tee = {
       ...project,
       nodes: [...project.nodes, { id: "out", position: out }],
