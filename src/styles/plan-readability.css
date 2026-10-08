@@ -31,10 +31,6 @@
   stroke-width: 28px;
 }
 
-.lr-plan-svg.is-line-style .lr-plan-underlay-image {
-  opacity: .65;
-}
-
 .lr-plan-svg.is-line-style .lr-grid-line,
 .lr-plan-svg.is-line-style .lr-grid-major-line {
   opacity: .45;

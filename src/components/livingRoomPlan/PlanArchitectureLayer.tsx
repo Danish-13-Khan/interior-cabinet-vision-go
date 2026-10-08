@@ -1,5 +1,5 @@
 import { planSiteBoundsForCanvas, underlayPlanBounds, unionPlanBounds } from "../../domain/livingRoom/planUnderlayBounds";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import {
   roomPlanPolygon, roomPlanViewBounds, selectWallsForRoom,
   type InteriorProject, type InteriorRoomEntity, type Point2Mm,
@@ -46,15 +46,16 @@ export function PlanArchitectureLayer(props: {
       <clipPath id={clipId}><path d={floorPath} fillRule="evenodd" /></clipPath>
     </defs>
     <rect data-plan-paper x={paperBounds.minX-1000} y={paperBounds.minZ-1000} width={paperBounds.maxX-paperBounds.minX+2000} height={paperBounds.maxZ-paperBounds.minZ+2000} className="lr-plan-paper" onPointerDown={props.onPaper} />
+    {/* Floor fill sits under the underlay so a traced plan stays readable inside the room (S5). */}
+    {props.room ? <path data-room-floor={props.room.id} d={floorPath} fill={floorColor} fillRule="evenodd"
+      opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onFloor ? "fill" : "none"}
+      onPointerDown={(event) => { if (!props.onFloor) return; props.onFloor(event); }} /> : null}
     {underlay && !underlay.hidden ? <image href={underlay.dataUrl} x={-underlay.widthMm / 2} y={-underlay.heightMm / 2} width={underlay.widthMm} height={underlay.heightMm}
       opacity={underlay.opacity} preserveAspectRatio="none" data-testid="lr-plan-underlay-image"
       className={`lr-plan-underlay-image${props.onUnderlayPointerDown ? " is-movable" : ""}`}
       pointerEvents={props.onUnderlayPointerDown ? "visiblePainted" : "none"}
       onPointerDown={props.onUnderlayPointerDown}
       transform={`translate(${underlayX} ${underlayZ}) rotate(${underlay.rotationDeg ?? 0})`} /> : null}
-    {props.room ? <path data-room-floor={props.room.id} d={floorPath} fill={floorColor} fillRule="evenodd"
-      opacity={props.visualStyle === "fill" ? ".55" : "0"} pointerEvents={props.onFloor ? "fill" : "none"}
-      onPointerDown={(event) => { if (!props.onFloor) return; props.onFloor(event); }} /> : null}
     {props.showGrid ? <rect className="lr-plan-grid" data-testid="lr-plan-grid" x={bounds.minX} y={bounds.minZ} width={bounds.widthMm} height={bounds.depthMm} fill="url(#lr-grid-major)" clipPath={props.room ? `url(#${clipId})` : undefined} pointerEvents="none" /> : null}
     {props.showCenterLine !== false ? <>
       <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" data-testid="lr-auto-center-line" pointerEvents="none" />
@@ -67,7 +68,11 @@ export function PlanArchitectureLayer(props: {
         x1={start.x} y1={start.z} x2={end.x} y2={end.z}
         className={`lr-wall-line ${wall.extensions?.isPartition ? "is-partition" : ""} ${wall.raised === false ? "is-plan-only" : ""} ${wall.id === props.activeWallId ? "is-active" : ""}`}
         data-raised={wall.raised === false ? "false" : "true"}
-        style={{ stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color }}
+        style={{
+          stroke: wall.id === props.activeWallId ? undefined : materials.get(wall.materialId ?? "")?.color,
+          // Plan stroke follows the real wall thickness so the screen matches the technical export (S8).
+          "--lr-wall-thickness": String(Math.max(1, wall.thicknessMm)),
+        } as CSSProperties}
         onPointerDown={(event) => props.onWall(event, wall.id)} />;
     })}
   </>;

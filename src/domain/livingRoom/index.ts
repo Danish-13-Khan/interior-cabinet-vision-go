@@ -708,6 +708,8 @@ export {
   type MeasureSegment,
   type MeasureSnapKind,
   type MeasureSnapPoint,
+  calibrationSnapCandidates,
+  type MeasureSnapOptions,
 } from "./planMeasure";
 export {
   DEFAULT_WALL_LENGTH_ANCHOR,

@@ -115,10 +115,10 @@ export function PlanUnderlayControls({
             disabled={locked}
             onChange={(event) => {
               const widthMm = Math.max(100, Number(event.target.value) || underlay.widthMm);
+              // A typed width is a guess, not a measurement: only Calibrate sets `calibrated` (S6).
               update({
                 widthMm,
                 heightMm: underlay.heightMm * widthMm / underlay.widthMm,
-                calibrated: true,
               });
             }}
           />

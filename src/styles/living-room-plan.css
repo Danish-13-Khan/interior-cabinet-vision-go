@@ -1157,7 +1157,7 @@
 
 .lr-wall-line {
   stroke: #14202b;
-  stroke-width: 120;
+  stroke-width: var(--lr-wall-thickness, 120);
   stroke-linecap: square;
 }
 

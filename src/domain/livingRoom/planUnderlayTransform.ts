@@ -38,3 +38,32 @@ export function translateUnderlay(
 export function canMoveUnderlay(underlay: LivingRoomPlanUnderlay | null): underlay is LivingRoomPlanUnderlay {
   return Boolean(underlay && !underlay.locked && !underlay.hidden);
 }
+
+/** Replace file keeps the pose only when the new picture has the same shape (S7). */
+export const UNDERLAY_ASPECT_CARRY_TOLERANCE = 0.01;
+
+/**
+ * Carry position, rotation, size, opacity and calibration from the underlay being
+ * replaced onto the newly imported one when both are rasters with matching aspect
+ * ratio (within 1 %). Otherwise the fresh import is returned as is.
+ */
+export function carryUnderlayPose(
+  previous: LivingRoomPlanUnderlay | null | undefined,
+  next: LivingRoomPlanUnderlay,
+): LivingRoomPlanUnderlay {
+  if (!previous || previous.sourceType === "dwg" || next.sourceType === "dwg") return next;
+  if (!(previous.widthMm > 0 && previous.heightMm > 0 && next.widthMm > 0 && next.heightMm > 0)) return next;
+  const previousAspect = previous.widthMm / previous.heightMm;
+  const nextAspect = next.widthMm / next.heightMm;
+  if (Math.abs(previousAspect - nextAspect) / previousAspect > UNDERLAY_ASPECT_CARRY_TOLERANCE) return next;
+  return {
+    ...next,
+    widthMm: previous.widthMm,
+    heightMm: previous.heightMm,
+    xMm: previous.xMm ?? 0,
+    zMm: previous.zMm ?? 0,
+    rotationDeg: previous.rotationDeg ?? 0,
+    opacity: previous.opacity,
+    calibrated: Boolean(previous.calibrated),
+  };
+}

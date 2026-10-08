@@ -132,12 +132,23 @@ const SNAP_PRIORITY: Record<MeasureSnapKind, number> = {
   grid: 6,
 };
 
+export type MeasureSnapOptions = {
+  /** `false` skips the grid fallback and returns the free pointer when no candidate is near. */
+  grid?: boolean;
+};
+
+/** Calibration must read the picture, not the plan: only CAD endpoints may snap (S6). */
+export function calibrationSnapCandidates(candidates: readonly MeasureSnapPoint[]): MeasureSnapPoint[] {
+  return candidates.filter((candidate) => candidate.kind === "dwg-end");
+}
+
 /** Snap to semantic candidates; round to grid on demand if nothing nearer. */
 export function snapMeasurePoint(
   desired: Point2Mm,
   candidates: readonly MeasureSnapPoint[],
   thresholdMm: number,
   gridSizeMm = 50,
+  options: MeasureSnapOptions = {},
 ): MeasureSnapPoint {
   let best: MeasureSnapPoint | null = null;
   let bestDist = thresholdMm;
@@ -155,6 +166,7 @@ export function snapMeasurePoint(
     }
   }
   if (best) return best;
+  if (options.grid === false) return { ...desired, kind: "grid", label: "Free" };
 
   const grid = Math.max(1, gridSizeMm);
   const gx = Math.round(desired.x / grid) * grid;

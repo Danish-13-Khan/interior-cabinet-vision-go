@@ -3,6 +3,7 @@ import type { InteriorProject, Point2Mm } from "../../domain/interiorProject";
 import {
   appendMeasurePoint,
   calibrateUnderlayScale,
+  calibrationSnapCandidates,
   collectMeasureSnapPoints,
   parseKnownLengthMm,
   snapMeasurePoint,
@@ -48,14 +49,16 @@ export function usePlanMeasureTool(input: {
     setError(null);
   }, [input.tool, input.project.id, input.project.activeRoomId]);
 
-  const candidates = useMemo(
-    () => (active ? collectMeasureSnapPoints(input.project, input.snapSizeMm) : []),
-    [active, input.project, input.snapSizeMm],
-  );
+  // Calibrate reads the picture: drawn walls, cabinets and the grid would bias the scale (S6).
+  const candidates = useMemo(() => {
+    if (!active) return [];
+    const all = collectMeasureSnapPoints(input.project, input.snapSizeMm);
+    return calibrating ? calibrationSnapCandidates(all) : all;
+  }, [active, calibrating, input.project, input.snapSizeMm]);
 
   function snapped(event: ReactPointerEvent<SVGElement>) {
     const raw = input.worldPoint(event as ReactPointerEvent<SVGSVGElement>);
-    const point = snapMeasurePoint(raw, candidates, input.pointerSnapMm, input.snapSizeMm);
+    const point = snapMeasurePoint(raw, candidates, input.pointerSnapMm, input.snapSizeMm, { grid: !calibrating });
     setSnap(point);
     setCursor(point);
     return point;

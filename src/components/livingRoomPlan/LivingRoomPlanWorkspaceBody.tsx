@@ -31,6 +31,7 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   const [modelTransformPreview, setModelTransformPreview] = useState<ModelTransformPreview | null>(null);
   const planImport = useWorkspacePlanImport({
     roomWidthMm: room?.dimensions.widthMm ?? 6200,
+    currentUnderlay: props.underlay,
     onImportError: props.onImportError,
     onSetPlanUnderlay: w.onSetPlanUnderlay,
     onStudioPanel: props.onStudioPanel,

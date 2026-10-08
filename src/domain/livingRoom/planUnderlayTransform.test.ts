@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { LivingRoomPlanUnderlay } from "./planUnderlay";
 import {
   canMoveUnderlay,
+  carryUnderlayPose,
   centreUnderlayOnOrigin,
   normalizeUnderlayRotationDeg,
   rotateUnderlayBy,
@@ -57,5 +58,39 @@ describe("plan underlay transform", () => {
     expect(canMoveUnderlay(base)).toBe(true);
     expect(canMoveUnderlay({ ...base, locked: true })).toBe(false);
     expect(canMoveUnderlay({ ...base, hidden: true })).toBe(false);
+  });
+
+  describe("carryUnderlayPose (Replace file)", () => {
+    const calibrated: LivingRoomPlanUnderlay = {
+      ...base, widthMm: 7400, heightMm: 5550, xMm: 320, zMm: -180, rotationDeg: -90, opacity: 0.3, calibrated: true,
+    };
+    const fresh: LivingRoomPlanUnderlay = {
+      fileName: "rescan.png", dataUrl: "data:image/png;base64,BBBB", widthMm: 6200, heightMm: 4650, opacity: 0.42,
+      xMm: 0, zMm: 0, rotationDeg: 0, calibrated: false, importWidthMm: 6200, importHeightMm: 4650,
+    };
+
+    it("keeps size, pose, opacity and calibration when the aspect matches", () => {
+      const carried = carryUnderlayPose(calibrated, fresh);
+      expect(carried.fileName).toBe("rescan.png");
+      expect(carried.dataUrl).toBe(fresh.dataUrl);
+      expect(carried.widthMm).toBe(7400);
+      expect(carried.heightMm).toBe(5550);
+      expect(carried.xMm).toBe(320);
+      expect(carried.zMm).toBe(-180);
+      expect(carried.rotationDeg).toBe(-90);
+      expect(carried.opacity).toBe(0.3);
+      expect(carried.calibrated).toBe(true);
+      expect(carried.importWidthMm).toBe(6200);
+    });
+
+    it("returns the fresh import when the aspect differs by more than 1 %", () => {
+      expect(carryUnderlayPose(calibrated, { ...fresh, heightMm: 4000 })).toEqual({ ...fresh, heightMm: 4000 });
+    });
+
+    it("never carries a pose onto or from a DWG underlay, or when nothing was there", () => {
+      expect(carryUnderlayPose(null, fresh)).toBe(fresh);
+      expect(carryUnderlayPose({ ...calibrated, sourceType: "dwg" }, fresh)).toBe(fresh);
+      expect(carryUnderlayPose(calibrated, { ...fresh, sourceType: "dwg" }).calibrated).toBe(false);
+    });
   });
 });

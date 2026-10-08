@@ -1,6 +1,6 @@
 # Wall geometry, snapping and plan calibration roadmap
 
-**Status:** Proposed — assessment written 2026-10-08, no code changed.
+**Status:** In progress — Phase 0 built 2026-10-08 on `feat/plan-snap-geometry`; Phases 1–5 proposed.
 **Source:** Tester requirements doc, 2026-10-08: wall centre / axis alignment,
 midpoint and corner snap points, straight drawing, floor-plan import fidelity,
 import after a room exists, calibration, and a unified snapping system
@@ -282,6 +282,19 @@ export. Calibrate A→B on a raster with a 100 mm grid showing: the result is th
 same with the grid hidden. Replace the file with the same scan: pose and
 calibration unchanged. A 230 mm wall draws thicker than a 100 mm one.
 `tsc --noEmit` clean; e2e `phase-2-measured-room` and `underlay-gestures` pass.
+
+**Landed (2026-10-08):** `PlanArchitectureLayer` draws the floor fill before
+the underlay `<image>`; the line-style and print-export opacity rules are gone,
+so `underlay.opacity` is the only opacity. The wall `<line>` sets
+`--lr-wall-thickness` from `thicknessMm` and the plan, drafting and export
+stylesheets read it (partition, plan-only and active strokes keep their own
+widths). Calibrate clicks use `calibrationSnapCandidates` (DWG endpoints only)
+and `snapMeasurePoint(…, { grid: false })`, so a raster reads the raw pointer
+and shows "Free". The **Width** field no longer sets `calibrated`.
+`carryUnderlayPose` (`planUnderlayTransform.ts`) keeps size, pose, opacity and
+calibration on Replace file when both are rasters with the same aspect within
+1 %; DWG replacements always start fresh. Not run: the unit and e2e suites
+(by project rule); `tsc --noEmit` was run.
 
 ### Phase 1 — Snap engine and indicator (3–5 days)
 

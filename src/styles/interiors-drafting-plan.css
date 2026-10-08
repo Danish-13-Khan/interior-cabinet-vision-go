@@ -27,7 +27,7 @@
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-wall-line {
   stroke: var(--ink);
-  stroke-width: 128;
+  stroke-width: var(--lr-wall-thickness, 128);
 }
 
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-opening line:not(.lr-opening-hit) {
