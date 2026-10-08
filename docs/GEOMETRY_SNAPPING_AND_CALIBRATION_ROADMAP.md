@@ -380,7 +380,9 @@ room through the welded nodes; `weldNodeIntoWalls` does the same after
 `movePlanNodeWithOpenings` and both ends of `translatePlanWall` (the existing
 node keeps its coordinates on a node join; the moved node keeps its snapped
 position on a span join; the room validity check follows whichever node
-survived). The default tolerance is 1 mm because the engine
+survived). **Offset wall** goes through the same commit, so a partition
+offset across a rectangular room now joins both side walls (three new wall
+ids: the partition and two split halves) instead of leaving dangling ends. The default tolerance is 1 mm because the engine
 already put the point on the node or line; `joinToleranceMm` on the request
 widens it. S9 — `wallCornerExtensionMm` extends each wall box past a
 degree-2 node by t/2 ÷ tan(θ/2) (t/2 at a right angle, 0 when straight,
