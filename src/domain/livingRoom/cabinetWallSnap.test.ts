@@ -52,9 +52,9 @@ describe("cabinet along-wall snapping (Phase 4)", () => {
     expect(attached.extensions?.wallAttachment).toEqual({ wallId: backWall.id });
   });
 
-  it("a zero radius turns the along-wall targets off but keeps the wall-flush snap", () => {
+  it("the default (commit) radius is zero: no along-wall pull, wall-flush snap kept", () => {
     const { project, base, backWall } = fixture();
-    const { object, snap } = snapCabinetToWallWithSnap(project, base, { x: 30, y: 0, z: -2000 }, { thresholdMm: 0 });
+    const { object, snap } = snapCabinetToWallWithSnap(project, base, { x: 30, y: 0, z: -2000 });
     expect(object.position.x).toBeCloseTo(30, 6);
     expect(object.extensions?.wallAttachment).toEqual({ wallId: backWall.id });
     expect(snap).toBeNull();

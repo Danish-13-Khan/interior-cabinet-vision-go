@@ -848,7 +848,6 @@ export {
   reflowCornerCabinetsForWalls,
   snapCabinetToWall,
   snapCabinetToWallWithSnap,
-  CABINET_ALONG_WALL_SNAP_MM,
   syncCabinetRunFillers,
   updateCabinetRun,
   updateCabinetRunLayout,

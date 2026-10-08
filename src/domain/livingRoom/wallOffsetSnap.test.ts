@@ -66,6 +66,14 @@ describe("along-wall snapping (Phase 4)", () => {
     expect(clamped.candidate).toBeNull();
   });
 
+  it("drops a target the span cannot reach inside the wall", () => {
+    const candidates = wallOffsetCandidates(project, wall);
+    // Abutting the cabinet edge at 2700 would put a 900 span's centre at 3150, past the 3000 wall.
+    const past = snapSpanAlongWall({ centreMm: 3120, widthMm: 900, lengthMm: 3000, candidates, thresholdMm: 40, gridMm: 50 });
+    expect(past.candidate).toBeNull();
+    expect(past.centreMm).toBe(2550);
+  });
+
   it("falls back to the grid on the start edge, or stays free with no grid", () => {
     const candidates = wallOffsetCandidates(project, wall);
     const gridded = snapSpanAlongWall({ centreMm: 777, widthMm: 900, lengthMm: 3000, candidates, thresholdMm: 20, gridMm: 50 });

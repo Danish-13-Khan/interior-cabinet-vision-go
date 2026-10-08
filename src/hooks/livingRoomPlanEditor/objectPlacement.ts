@@ -45,7 +45,8 @@ export function objectPlacementCommands(ctx: EditorCommandContext) {
       return;
     }
     if (object?.kind === "cabinet") {
-      const snapped = snapCabinetToWall(document, object, position);
+      // The drag already applied the along-wall targets (or Alt / Snap off declined them); commit as shown.
+      const snapped = snapCabinetToWall(document, object, position, { thresholdMm: 0 });
       const result = validateCabinetRunPreDrop(
         { ...document, objects: document.objects.filter((item) => item.id !== objectId) },
         { object: snapped, wallId: attachedWallId(snapped.extensions) },

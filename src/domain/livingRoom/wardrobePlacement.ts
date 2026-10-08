@@ -5,9 +5,6 @@ import type { PlanSnapResult } from "./planSnapEngine";
 import { attached, placementAt, wallLength, type WallPlacement } from "./wallSegmentPlacement";
 import { snapSpanAlongWall, spanSnapMarker, wallOffsetCandidates } from "./wallOffsetSnap";
 
-/** Default along-wall pick radius for a commit, where no pointer radius is known. */
-export const CABINET_ALONG_WALL_SNAP_MM = 40;
-
 export type { WallPlacement } from "./wallSegmentPlacement";
 export {
   arrangeCabinetRun,
@@ -85,6 +82,8 @@ export function attachToWall(
  * Snap a cabinet to the nearest room wall. Along the wall its centre snaps to the
  * wall midpoint and its edges to opening and neighbour-cabinet edges within
  * `thresholdMm` (Phase 4); `snap` carries the winning target for the marker.
+ * The default radius is 0: only a drag, which knows the pointer radius, snaps
+ * along the wall, so a drop commits exactly what the ghost showed.
  */
 export function snapCabinetToWallWithSnap(
   project: InteriorProject,
@@ -112,7 +111,7 @@ export function snapCabinetToWallWithSnap(
     widthMm: object.dimensions.widthMm,
     lengthMm: wallLength(nearest.wall),
     candidates: wallOffsetCandidates(project, nearest.wall, { excludeObjectId: object.id }),
-    thresholdMm: options.thresholdMm ?? CABINET_ALONG_WALL_SNAP_MM,
+    thresholdMm: options.thresholdMm ?? 0,
     gridMm: 0,
   });
   const placement = placementAt(nearest.wall, object, along.centreMm);

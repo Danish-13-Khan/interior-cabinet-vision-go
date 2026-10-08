@@ -459,9 +459,11 @@ Openings: `snapOpeningOffset` drives placement clicks, the move drag
 off gives 0) and shows the marker in `PlanOpeningsLayer`; resize keeps the grid
 step. The inspector gains **Centre on wall** (`centredOpeningOffset`).
 Cabinets: `snapCabinetToWallWithSnap` snaps the along-wall centre after the
-wall-flush snap (default radius 40 mm on commit, the pointer radius during a
-drag via `onMovePreview(objectId, position, thresholdMm)`), and the drag
-preview carries `snap` to `PlanObjectsLayer`'s marker. Wall-flush snapping is
+wall-flush snap (the pointer radius during a drag via
+`onMovePreview(objectId, position, thresholdMm)`; the commit passes 0, so a
+drop lands exactly where the ghost was and Alt / Snap off are honoured), and
+the drag preview carries `snap` to `PlanObjectsLayer`'s marker. A target the
+span cannot reach inside the wall is dropped rather than clamped onto. Wall-flush snapping is
 unchanged with Snap off.
 **Verified in the app:** a 900 door dragged toward the 3000 wall's midpoint
 showed "Wall midpoint" and committed at offset 1050; Alt-dragging it to 250

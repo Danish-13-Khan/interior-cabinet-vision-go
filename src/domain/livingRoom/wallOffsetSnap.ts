@@ -123,7 +123,10 @@ export function snapSpanAlongWall(input: {
       }
     }
   }
-  if (best) return { centreMm: clamp(best.centre), candidate: best.candidate, gridded: false };
+  // A target the span cannot actually reach inside the wall is no target.
+  if (best && Math.abs(clamp(best.centre) - best.centre) <= 0.01) {
+    return { centreMm: best.centre, candidate: best.candidate, gridded: false };
+  }
   if (input.gridMm > 0) {
     const start = Math.round((input.centreMm - half) / input.gridMm) * input.gridMm;
     return { centreMm: clamp(start + half), candidate: null, gridded: true };
