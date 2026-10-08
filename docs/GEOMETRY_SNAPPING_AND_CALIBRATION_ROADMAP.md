@@ -365,7 +365,9 @@ room show no notch; the golden cut list is unchanged.
 `anchor`, so a segment within 2° of horizontal or vertical (or within the pick
 radius of the axis) locks to it with the "Horizontal" / "Vertical" label;
 Shift sets `axisLock`, which projects onto the dominant axis first and lets
-only on-axis candidates still win (`pick.ts`). With one axis locked the free
+only on-axis candidates still win (`pick.ts`); the automatic lock re-checks
+on-axis candidates against the projected pointer the same way, so a node the
+raw pointer just missed still wins. With one axis locked the free
 coordinate lands where a wall crosses the locked line when that crossing is
 within the pick radius ("Horizontal · On wall"), ahead of guides and grid, so
 an off-grid wall still receives the T-junction weld. Polygon room drawing

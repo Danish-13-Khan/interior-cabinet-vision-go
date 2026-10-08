@@ -118,17 +118,25 @@ export function pickPlanSnap(
   let xLock: AxisLock = null;
   let zLock: AxisLock = null;
 
+  /** Once an axis is chosen, a point candidate on that axis within reach of the projected pointer wins. */
+  const onAxisCandidate = (horizontal: boolean): PlanSnapCandidate | null => {
+    const anchor = ctx.anchor!;
+    const projected = horizontal ? { x: pointer.x, z: anchor.z } : { x: anchor.x, z: pointer.z };
+    const onAxis = candidates.filter((item) =>
+      horizontal ? Math.abs(item.point.z - anchor.z) < 0.5 : Math.abs(item.point.x - anchor.x) < 0.5);
+    return nearestPlanSnapCandidate(onAxis, projected, thresholdMm);
+  };
+  const axisLock = (horizontal: boolean): AxisLock => horizontal
+    ? { value: ctx.anchor!.z, candidate: candidate("axis-h", { x: 0, z: 0 }, "Horizontal") }
+    : { value: ctx.anchor!.x, candidate: candidate("axis-v", { x: 0, z: 0 }, "Vertical") };
+
   if (ctx.anchor && ctx.axisLock) {
     // Hard lock: project onto the dominant axis first; only candidates on that axis may still win.
     const horizontal = Math.abs(pointer.x - ctx.anchor.x) >= Math.abs(pointer.z - ctx.anchor.z);
-    const projected = horizontal ? { x: pointer.x, z: ctx.anchor.z } : { x: ctx.anchor.x, z: pointer.z };
-    const anchor = ctx.anchor;
-    const onAxis = candidates.filter((item) =>
-      horizontal ? Math.abs(item.point.z - anchor.z) < 0.5 : Math.abs(item.point.x - anchor.x) < 0.5);
-    const nearestOnAxis = nearestPlanSnapCandidate(onAxis, projected, thresholdMm);
+    const nearestOnAxis = onAxisCandidate(horizontal);
     if (nearestOnAxis) return { point: { ...nearestOnAxis.point }, candidate: nearestOnAxis };
-    if (horizontal) zLock = { value: anchor.z, candidate: candidate("axis-h", { x: 0, z: 0 }, "Horizontal") };
-    else xLock = { value: anchor.x, candidate: candidate("axis-v", { x: 0, z: 0 }, "Vertical") };
+    if (horizontal) zLock = axisLock(true);
+    else xLock = axisLock(false);
   } else {
     const nearest = nearestPlanSnapCandidate(candidates, pointer, thresholdMm);
     if (nearest) return { point: { ...nearest.point }, candidate: nearest };
@@ -140,10 +148,14 @@ export function pickPlanSnap(
     const length = Math.hypot(dx, dz);
     const tolerance = Math.max(thresholdMm, length * Math.tan(PLAN_AXIS_SNAP_DEGREES * Math.PI / 180));
     if (length > thresholdMm) {
-      if (allowed(ctx, "axis-h") && Math.abs(dz) <= tolerance && Math.abs(dx) > Math.abs(dz)) {
-        zLock = { value: ctx.anchor.z, candidate: candidate("axis-h", { x: 0, z: 0 }, "Horizontal") };
-      } else if (allowed(ctx, "axis-v") && Math.abs(dx) <= tolerance && Math.abs(dz) > Math.abs(dx)) {
-        xLock = { value: ctx.anchor.x, candidate: candidate("axis-v", { x: 0, z: 0 }, "Vertical") };
+      const horizontal = allowed(ctx, "axis-h") && Math.abs(dz) <= tolerance && Math.abs(dx) > Math.abs(dz);
+      const vertical = !horizontal && allowed(ctx, "axis-v") && Math.abs(dx) <= tolerance && Math.abs(dz) > Math.abs(dx);
+      if (horizontal || vertical) {
+        // The raw pointer may have missed a node that the projected pointer reaches (Shift path parity).
+        const nearestOnAxis = onAxisCandidate(horizontal);
+        if (nearestOnAxis) return { point: { ...nearestOnAxis.point }, candidate: nearestOnAxis };
+        if (horizontal) zLock = axisLock(true);
+        else xLock = axisLock(false);
       }
     }
   }

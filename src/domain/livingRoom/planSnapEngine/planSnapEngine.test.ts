@@ -163,6 +163,17 @@ describe("plan snap engine", () => {
     expect(far.point).toEqual({ x: 2300, z: 500 });
   });
 
+  it("after the automatic lock, a node on the axis beats a wall crossing the axis", () => {
+    const n7 = node("n7", 2320, -1000);
+    const n8 = node("n8", 2320, 1000);
+    const n9 = node("n9", 2300, 0);
+    const near = { ...project, nodes: [...project.nodes, n7, n8, n9], walls: [...project.walls, wall("w5", n7, n8)] };
+    // 25.5 mm from n9 as pointed, 5 mm once projected onto the axis: the node wins over w5 at 2320.
+    const hit = pickPlanSnap({ project: near, roomId: null, gridMm: 50, anchor: { x: 0, z: 0 } }, { x: 2305, z: 25 }, 20);
+    expect(hit.candidate?.kind).toBe("node");
+    expect(hit.point).toEqual({ x: 2300, z: 0 });
+  });
+
   it("falls back to the grid within the pick radius, else to the raw pointer", () => {
     const grid = pickPlanSnap(ctx, { x: 1234, z: 2567 }, 20);
     expect(grid.candidate?.kind).toBe("grid");
