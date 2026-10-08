@@ -175,10 +175,21 @@ Cycles bundle reads the same table (`cyclesLights.ts` cob branch).
 
 **Exit gate:** fresh rectangle room → 3D → Ceiling on shows a lit slab at wall
 height from Dollhouse; Walkthrough unchanged; save → reopen keeps the toggle
-off (view state, not document state).
+off (view state, not document state). Covered by
+`tests/e2e/phase-ceiling-0-layer-and-toggle.spec.ts`.
+
+Known Phase 0 limits: the plan draws the ceiling for the active room only
+(3D compiles one per raised room); the 3D toggle is component state and resets
+when the model view unmounts; with the slab held open from above it lets rays
+through (`pickThroughIds`) so cabinets stay clickable until Phase 1's holes
+make the view useful.
 
 ### Phase 1 — Ceiling cutouts
 
+- Ceiling and cutouts move out of `PlanArchitectureLayer` into their own
+  `PlanCeilingLayer` drawn **above** the object layers, so a cutout under a
+  cabinet glyph stays visible and editable. Phase 0 draws the slab beneath
+  objects, which is fine for an outline but not for editing.
 - Ceiling layer on → the Room tool's rectangle / polygon gesture draws a cutout
   instead of a room (same `RoomDrawingOverlay`, status copy "Drag a rectangle
   for a ceiling cutout").

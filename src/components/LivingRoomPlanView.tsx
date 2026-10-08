@@ -344,8 +344,7 @@ export function LivingRoomPlanView(props: Props) {
       previewNodes={walls.previewNodes} onPaper={paperDown} onWall={handleWall}
       onFloor={editWalls || measureLike || placeColumn ? floorDown : undefined}
       underlayOffset={underlayDrag.preview} onUnderlayPointerDown={underlayDrag.movable ? underlayDrag.start : undefined}
-      showCenterLine={shouldShowAutoCenterLine(planGuides.stored, props.readability.showCenterLine)}
-      showCeiling={props.readability.showCeiling === true} />
+      showCenterLine={shouldShowAutoCenterLine(planGuides.stored, props.readability.showCenterLine)} showCeiling={props.readability.showCeiling === true} />
     <PlanGuidesLayer guides={planGuides.guides} extent={bounds} selectedId={planGuides.selectedId}
       interactive={planGuides.interactive} lineHit={planGuides.placing} hitWidthMm={pointerSnapMm} onStart={planGuides.start} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}

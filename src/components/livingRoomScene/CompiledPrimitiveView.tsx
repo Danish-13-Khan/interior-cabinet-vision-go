@@ -1,7 +1,7 @@
 import { Edges } from "@react-three/drei";
 import { type ThreeEvent } from "@react-three/fiber";
 import { useLayoutEffect, useState } from "react";
-import type { BufferGeometry } from "three";
+import { Mesh, type BufferGeometry } from "three";
 import type { CompiledMaterial, CompiledPrimitive } from "../../domain/livingRoom";
 import type { RenderQuality } from "../../domain/interiorProject";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
@@ -24,6 +24,7 @@ export function CompiledPrimitiveView({
   material,
   selected,
   ghosted = false,
+  pickThrough = false,
   renderMode,
   renderQuality,
   onPointerDown,
@@ -33,6 +34,8 @@ export function CompiledPrimitiveView({
   selected: boolean;
   /** Draw as a translucent cutaway shell that rays and shadows ignore. */
   ghosted?: boolean;
+  /** Keep the normal look but let rays through (ceiling slab seen from above). */
+  pickThrough?: boolean;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;
@@ -83,6 +86,7 @@ export function CompiledPrimitiveView({
     <mesh
       geometry={geometry}
       dispose={null}
+      raycast={pickThrough ? passThroughRaycast : Mesh.prototype.raycast}
       userData={{ materialId: material.id, primitiveId: primitive.id }}
       position={[
         primitive.positionMm.x / 1000,

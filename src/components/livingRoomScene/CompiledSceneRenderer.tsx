@@ -4,8 +4,7 @@ import type { Point3Mm, RenderComposition, RenderQuality } from "../../domain/in
 import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/livingRoom";
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
-import { filterModelReviewNodes, modelCutawayNodeIds, modelViewCutsNearWall, modelViewHidesCeiling, resolveModelCutawaySides } from "../../domain/livingRoom/modelReviewNodes";
-import { useOrbitCutawaySides } from "./useOrbitCutawaySides";
+import { useModelReviewNodes } from "./useModelReviewNodes";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import {
   resolveModelViewSelectionBoundsMm,
@@ -13,7 +12,7 @@ import {
   type ModelViewFitSelection,
 } from "../../domain/livingRoom/modelViewFit";
 import type { RenderMode } from "../../domain/livingRoom/renderAssetContracts";
-import { resolveCabinetRunFrame, type CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
+import type { CabinetRunAudience } from "../../domain/livingRoom/cabinetRunFrame";
 import { RenderLightingRig } from "../../rendering/lighting/RenderLightingRig";
 import { CompiledSceneAtmosphere } from "./CompiledSceneAtmosphere";
 import { CompiledSceneObjectLayer } from "./CompiledSceneObjectLayer";
@@ -103,45 +102,10 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
   const renderCamera = projectCamera
     ? resolveRenderCameraPose(projectCamera, architectureBounds, renderComposition, renderMode)
     : null;
-  const savedCutawaySides = resolveModelCutawaySides(
-    renderCamera?.position ?? null, architectureBounds.center,
-  );
-  const cutNearWall = modelViewCutsNearWall(viewPreset);
-  const orbitCutawaySides = useOrbitCutawaySides(
-    (cutawayWalls && interactive) || cutNearWall,
-    architectureBounds.center.x, architectureBounds.center.z,
-    renderCamera?.position.x ?? null, renderCamera?.position.z ?? null,
-  );
-  const clientCutaway = useMemo(
-    () => (frameRun === "client"
-      ? resolveCabinetRunFrame(scene, { widthPx: 16, heightPx: 9 }, { audience: "client" })?.cutawaySides ?? null
-      : null),
-    [scene, frameRun],
-  );
-  const cutawaySides = clientCutaway
-    ?? ((cutawayWalls && interactive) || cutNearWall ? orbitCutawaySides : savedCutawaySides);
-  const hideCeiling = modelViewHidesCeiling(viewPreset, showCeiling) || Boolean(clientCutaway);
-  // A selected wall light keeps its host wall standing, as selecting the wall would.
-  const selectedLightHost = selectedLightId
-    ? scene.lights.find((light) => light.id === selectedLightId)?.parameters.hostWallId
-    : undefined;
-  const lightHostWallId = typeof selectedLightHost === "string" ? selectedLightHost : null;
-  const cutawayActive = cutawayWalls || cutNearWall || Boolean(clientCutaway);
-  const keepWallId = selectedWallId ?? lightHostWallId;
-  // Ghosted cutaway keeps every wall in the scene and only changes how it draws,
-  // so a freshly drawn room never reads as a box with a missing face.
-  const nodes = filterModelReviewNodes(
-    scene.nodes, cutawayActive && cutawayStyle === "remove", cutawaySides,
-    selectedOpeningId, hideCeiling, keepWallId,
-  );
-  const cutawaySidesKey = [...cutawaySides].sort().join(",");
-  const ghostIds = useMemo(
-    () => (cutawayActive && cutawayStyle === "ghost"
-      ? modelCutawayNodeIds(nodes, cutawaySides, selectedOpeningId, keepWallId)
-      : new Set<string>()),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- cutawaySidesKey stands in for the Set
-    [nodes, cutawayActive, cutawayStyle, cutawaySidesKey, selectedOpeningId, keepWallId],
-  );
+  const { nodes, ghostIds, pickThroughIds } = useModelReviewNodes({
+    scene, center: architectureBounds.center, renderCamera, viewPreset, cutawayWalls, cutawayStyle,
+    showCeiling, interactive, frameRun, selectedOpeningId, selectedWallId, selectedLightId,
+  });
   const glbCasterSlots = useMemo(() => assignGlbCasterSlots(nodes), [nodes]);
   const roomSpan = Math.max(architectureBounds.size.widthMm, architectureBounds.size.depthMm) / 1000;
   const inspection = resolveModelViewSelectionBoundsMm(scene, {
@@ -177,7 +141,8 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         onLightDragState={handleDragStateChange}
       />
       <CompiledSceneObjectLayer
-        nodes={nodes} ghostIds={ghostIds} materials={materialMap} selectedIds={selectedIds}
+        nodes={nodes} ghostIds={ghostIds} pickThroughIds={pickThroughIds}
+        materials={materialMap} selectedIds={selectedIds}
         selectedOpeningId={selectedOpeningId} selectedWallId={selectedWallId}
         lightSelected={Boolean(selectedLightId)}
         snapSizeMm={snapSizeMm} renderMode={renderMode} renderQuality={renderQuality}

@@ -1161,21 +1161,6 @@
   stroke-linecap: square;
 }
 
-/* Ceiling layer: dashed slab outline with a light hatch; never catches the pointer. */
-.lr-plan-ceiling {
-  fill: url(#lr-ceiling-hatch);
-  stroke: #6f7f8e;
-  stroke-width: 12;
-  stroke-dasharray: 140 70;
-  opacity: 0.85;
-}
-
-.lr-ceiling-hatch-line {
-  stroke: #7d8a97;
-  stroke-width: 28;
-  opacity: 0.55;
-}
-
 .lr-opening line {
   stroke: #f7f8f9;
   stroke-width: 145;

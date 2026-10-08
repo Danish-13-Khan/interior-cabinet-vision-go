@@ -10,6 +10,7 @@ import {
 import type { PresetHonestyDescription } from "../../domain/livingRoom/presetHonesty";
 import { ModelViewAdvancedCameraPopover } from "./ModelViewAdvancedCameraPopover";
 import { ModelViewDollhousePanel } from "./ModelViewDollhousePanel";
+import { ModelViewToolbarToggles } from "./ModelViewToolbarToggles";
 import { RenderPresetHonestyBadge } from "./RenderPresetHonestyBadge";
 import type { RoomLightFixturesPanelProps } from "./RoomLightFixturesPanel";
 import { RoomLightFixturesPopover } from "./RoomLightFixturesPopover";
@@ -103,29 +104,10 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
           Focus
         </button>
       </div>
-      <button
-        type="button"
-        className={props.cutawayWalls ? "is-active" : ""}
-        data-testid="model-cutaway-walls"
-        title="Ghost the wall nearest the camera so you can see in — viewing only, walls are not changed"
-        aria-pressed={props.cutawayWalls}
-        onClick={() => props.onCutawayWalls(!props.cutawayWalls)}
-      >
-        Cutaway
-      </button>
-      <button
-        type="button"
-        className={props.showCeiling || props.viewPreset === "walkthrough" ? "is-active" : ""}
-        data-testid="model-show-ceiling"
-        title={props.viewPreset === "walkthrough"
-          ? "Walkthrough always shows the ceiling"
-          : "Show the ceiling slab in this view — viewing only, the room is not changed"}
-        aria-pressed={props.showCeiling || props.viewPreset === "walkthrough"}
-        disabled={props.viewPreset === "walkthrough"}
-        onClick={() => props.onShowCeiling(!props.showCeiling)}
-      >
-        Ceiling
-      </button>
+      <ModelViewToolbarToggles
+        viewPreset={props.viewPreset} cutawayWalls={props.cutawayWalls} showCeiling={props.showCeiling}
+        onCutawayWalls={props.onCutawayWalls} onShowCeiling={props.onShowCeiling}
+      />
       {props.hasSelection ? (
         <button type="button" data-testid="model-clear-selection" onClick={props.onClearSelection}>
           Clear
