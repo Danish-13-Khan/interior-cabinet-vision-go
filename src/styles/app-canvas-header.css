@@ -126,42 +126,6 @@
   box-shadow: var(--shadow-2);
 }
 
-/* Room & plan settings inside the inspector (nothing selected). */
-.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-inspector-plan-settings:empty { display: none; }
-.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-inspector-plan-settings {
-  margin: 0 0 var(--space-3);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-in-inspector {
-  margin: 0;
-  padding: var(--space-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-}
-.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-in-inspector > summary {
-  color: var(--ink);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-}
-.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-in-inspector .lr-draw-tray {
-  display: grid;
-  /* The canvas-header tray is three columns in a 150px scroll box; in the
-     254px inspector that squeezes the underlay controls into a 0px column. */
-  grid-template-columns: minmax(0, 1fr);
-  max-height: none;
-  overflow: visible;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
 /* The door / window tray wraps its commit button onto a second row. It must keep
    that height; as a shrinkable flex item the plan canvas slid over the button. */
 .app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-center > .lr-draw-tray { flex: 0 0 auto; }

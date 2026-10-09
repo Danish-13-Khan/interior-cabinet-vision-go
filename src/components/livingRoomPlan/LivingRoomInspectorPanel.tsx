@@ -17,7 +17,7 @@ import { OpeningInspector } from "./OpeningInspector";
 import { PlanArchitectureInspector } from "./PlanArchitectureInspector";
 import type { WallEditingActions } from "./WallEditingPanel";
 import { InspectorObjectList } from "./InspectorObjectList";
-import { InspectorModelExtrasSlot, InspectorPlanSettingsSlot } from "./InspectorPlanSettingsSlot";
+import { InspectorModelExtrasSlot } from "./InspectorPlanSettingsSlot";
 import { SurfaceInspector } from "./SurfaceInspector";
 import { LightFixtureInspector } from "./LightFixtureInspector";
 import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
@@ -135,7 +135,6 @@ export function LivingRoomInspectorPanel(props: LivingRoomInspectorPanelProps) {
         <strong>{roomEssentials && room ? `${room.name} · measured plan` : selectionTitle}</strong>
       </div>
       <div className="lr-inspector-scroll">
-        {roomEssentials && props.drawRoom ? <InspectorPlanSettingsSlot /> : null}
         {props.mode === "model" && !activeObject ? <InspectorModelExtrasSlot /> : null}
         {room && !props.drawRoom && !activeOpening && !activeWall && !activeSurface && !activeLight ? (
           <InspectorObjectList

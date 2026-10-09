@@ -15,6 +15,7 @@ type ApartmentRoomPickProps = {
   project: InteriorProject;
   hoveredId: string | null;
   onHover: (roomId: string | null) => void;
+  /** Click a room space (living room, kitchen, …) to open it. */
   onActivate: (roomId: string) => void;
 };
 
@@ -42,7 +43,11 @@ function RoomHighlight({ room }: { room: OverviewRoom }) {
   );
 }
 
-/** Hover highlights a room; a click (not a drag) enters it. Ray hits the floor, not the meshes. */
+/**
+ * Whole-apartment view. The cursor picks the room space under it (living room,
+ * kitchen, passage), not the walls or wardrobes inside that space. A click
+ * opens that room, where walls and wardrobes can be selected.
+ */
 export function ApartmentRoomPick(props: ApartmentRoomPickProps) {
   const rooms = useMemo(() => overviewRooms(props.project), [props.project]);
   const { camera, gl } = useThree();

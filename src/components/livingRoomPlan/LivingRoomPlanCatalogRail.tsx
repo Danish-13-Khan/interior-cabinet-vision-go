@@ -10,7 +10,7 @@ import {
 } from "../../domain/desktopUx";
 import { InteriorsToolRail } from "./InteriorsToolRail";
 import { InteriorsWorkflowAreaPanel } from "./InteriorsWorkflowAreaPanel";
-import { SceneListSlot } from "./InspectorPlanSettingsSlot";
+import { CatalogPlanSettingsSlot, SceneListSlot } from "./InspectorPlanSettingsSlot";
 import type { LivingRoomPlanCatalogRailProps } from "./livingRoomPlanCatalogRailProps";
 import { StudioPaneEdge } from "./StudioPaneEdge";
 
@@ -36,6 +36,16 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
     props.selectedIds.includes(object.id) && object.kind === "cabinet",
   ).length;
   const drawRoom = props.workflowArea === "room" && isInteriorsDrawRoomTool(props.chromeTool);
+  const showCatalog = designUxShowsCatalogRail({
+    area: props.workflowArea,
+    toolRailVisible: props.toolRailVisible,
+    presenting: props.presenting ?? false,
+    drawRoomActive: drawRoom,
+  }) && catalogView !== null;
+  // Room tools hide the Build Room catalogue (it repeats the room manager and underlay
+  // controls), so the same column holds only Room & plan settings. One <aside> for both
+  // keeps the portal slot mounted when the tool changes.
+  const showSettingsDock = !showCatalog && drawRoom && props.toolRailVisible && !props.presenting;
   const showRail = designUxShowsToolRail({
     area: props.workflowArea,
     toolRailVisible: props.toolRailVisible,
@@ -62,19 +72,16 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         void props.onImportUnderlay(file);
       }}
     />
-    {designUxShowsCatalogRail({
-      area: props.workflowArea,
-      toolRailVisible: props.toolRailVisible,
-      presenting: props.presenting ?? false,
-      drawRoomActive: drawRoom,
-    }) && catalogView ? (
+    {showCatalog || showSettingsDock ? (
       <aside
-        className="lr-catalog lr-studio-panel"
+        className={`lr-catalog lr-studio-panel${showSettingsDock ? " is-plan-settings-dock" : ""}`}
         style={{ ["--studio-catalog-width" as string]: `${props.widthPx}px` }}
         data-workflow-area={props.workflowArea}
+        data-testid={showSettingsDock ? "plan-settings-dock" : undefined}
       >
         <div className="lr-catalog-scroll">
-        <InteriorsWorkflowAreaPanel
+        <CatalogPlanSettingsSlot />
+        {showCatalog && catalogView ? <InteriorsWorkflowAreaPanel
           view={catalogView}
           project={props.project}
           roomName={props.roomName}
@@ -139,7 +146,7 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
           onSelect={props.onSelect}
           onSelectIssue={props.onSelectIssue}
           onPresent={props.onPresent}
-        />
+        /> : null}
         </div>
         <SceneListSlot />
         {props.onPaneWidth ? (

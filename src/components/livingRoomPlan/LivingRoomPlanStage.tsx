@@ -7,7 +7,8 @@ import {
   contextualRailKindFromStage,
 } from "./ContextualCommandRail";
 import { InteriorsClientCaptureView } from "./InteriorsClientCaptureView";
-import { PlanStageAuthoringChrome } from "./PlanStageAuthoringChrome";
+import { InteriorsDrawRoomManage } from "./InteriorsDrawRoomManage";
+import { PlanStageAuthoringChrome, planStageShowsRoomSettings } from "./PlanStageAuthoringChrome";
 import { PlanStageStatus } from "./PlanStageStatus";
 import type { LivingRoomPlanStageProps } from "./planStageProps";
 import { deleteLightOrObject, duplicateLightOrObject } from "./lightOnlySelectionEdit";
@@ -65,6 +66,13 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
       ) : null}
       <PlanStageAuthoringChrome {...props} />
       <div className="lr-plan-canvas" data-testid="lr-plan-canvas">
+        {/* Docks into the left column; floats on the canvas only while that column is hidden. */}
+        {planStageShowsRoomSettings(props) && props.chromeTool && props.drawCommands ? (
+          <InteriorsDrawRoomManage
+            project={props.project} tool={props.chromeTool} activeBuildTool={props.activeBuildTool}
+            commands={props.drawCommands} onPatchDocument={props.onPatchDocument}
+          />
+        ) : null}
         {props.workspaceView === "plan" ? (
           <LivingRoomPlanView
             project={props.project} selectedIds={props.selectedIds} issues={props.issues}

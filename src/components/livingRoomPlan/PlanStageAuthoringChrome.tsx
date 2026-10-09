@@ -18,6 +18,15 @@ export function planStagePresent(props: LivingRoomPlanStageProps) {
   return Boolean(props.presenting);
 }
 
+/** Room & plan settings: Room step only, with a room tool, in 2D or 3D, never while presenting. */
+export function planStageShowsRoomSettings(props: LivingRoomPlanStageProps) {
+  return Boolean(
+    !props.presenting && props.workflowArea === "room" && props.drawCommands &&
+    props.chromeTool && isInteriorsDrawRoomTool(props.chromeTool) &&
+    (props.workspaceView === "plan" || props.workspaceView === "model"),
+  );
+}
+
 export function PlanStageAuthoringChrome(props: LivingRoomPlanStageProps) {
   if (props.presenting && props.presentCommands) {
     return (

@@ -292,8 +292,9 @@ without help; every top-bar control ≥ 32px high.
   `--control-h`; Export sheet is secondary.
 - `interiors-drafting-plan.css` now uses tokens only: paper `--canvas`, walls
   `--ink`, cabinets `--accent` on `--accent-soft`, selection `--info`.
-- Room & plan settings portal into the inspector (`InspectorPlanSettingsSlot`)
-  while it shows room essentials; with a selection they stay above the canvas.
+- Room & plan settings dock at the top of the left column on the Room step, in
+  2D and 3D (`CatalogPlanSettingsSlot`). With a room tool that column holds only
+  the settings; when it is hidden they float as a card on the canvas.
 - The 2D / 3D switch remains in the top bar; the canvas header keeps view tools.
 
 ### Phase 4 — 3D view and Present

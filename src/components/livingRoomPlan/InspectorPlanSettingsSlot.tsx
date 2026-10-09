@@ -1,9 +1,9 @@
 import { createPortalSlot } from "./portalSlot";
 
-/** Room & plan settings while the inspector shows room essentials (nothing selected). */
-const planSettings = createPortalSlot("lr-inspector-plan-settings", "inspector-plan-settings");
-export const InspectorPlanSettingsSlot = planSettings.Slot;
-export const useInspectorPlanSettingsSlot = planSettings.useSlot;
+/** Room & plan settings, docked at the top of the left catalogue in every view. */
+const planSettings = createPortalSlot("lr-catalog-plan-settings", "catalog-plan-settings");
+export const CatalogPlanSettingsSlot = planSettings.Slot;
+export const useCatalogPlanSettingsSlot = planSettings.useSlot;
 
 /** 3D-only extras (cabinet fronts, style picker on the Materials step). */
 const modelExtras = createPortalSlot("lr-inspector-model-extras", "inspector-model-extras");

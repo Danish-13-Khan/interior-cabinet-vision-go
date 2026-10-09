@@ -1,0 +1,77 @@
+/* Room & plan settings live in the left column on the Room step, in 2D and 3D.
+   With a room tool the Build Room catalogue is hidden, so that column
+   (.is-plan-settings-dock) holds only these settings. */
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-catalog-plan-settings:empty { display: none; }
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-docked-left {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-docked-left > summary {
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+/* The canvas-header tray is three columns in a short scroll box; a side column
+   needs one column at full height or the underlay controls collapse to 0px. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings.is-docked-left .lr-draw-tray,
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas > .lr-plan-secondary-settings.is-floating .lr-draw-tray {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-height: none;
+  overflow: visible;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* Left column hidden: the same panel floats as a card on the canvas itself,
+   below the canvas header, so it never covers the header or command rail. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas > .lr-plan-secondary-settings.is-floating {
+  position: absolute;
+  z-index: 30;
+  top: var(--space-3);
+  left: var(--space-3);
+  width: min(320px, calc(100% - 2 * var(--space-3)));
+  max-height: calc(100% - 2 * var(--space-3));
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+}
+
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas > .lr-plan-secondary-settings.is-floating .lr-draw-tray {
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+/* The room name and merge fields are sized for the wide canvas header. In a
+   resizable side column, stack each label over its control at full width. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings:is(.is-docked-left, .is-floating) .lr-room-switcher-actions {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings:is(.is-docked-left, .is-floating) .lr-room-switcher label {
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-secondary-settings:is(.is-docked-left, .is-floating) .lr-room-switcher :is(input, select) {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The 3D Hide wall action sits at the canvas's top-left; move it beside the card. */
+.app-shell.lr-plan-shell.lr-product-shell-v2 .lr-plan-canvas:has(> .lr-plan-secondary-settings.is-floating) .lr-model-left-chrome {
+  left: calc(min(320px, 100% - 2 * var(--space-3)) + 2 * var(--space-3));
+}

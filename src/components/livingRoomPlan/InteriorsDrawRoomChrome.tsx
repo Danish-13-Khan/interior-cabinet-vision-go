@@ -5,7 +5,6 @@ import {
 } from "../../domain/desktopUx";
 import type { InteriorProject } from "../../domain/interiorProject";
 import type { BuildTool, PlanReadabilitySettings } from "../../domain/livingRoom";
-import { InteriorsDrawRoomManage } from "./InteriorsDrawRoomManage";
 import { InteriorsDrawRoomTitlebar } from "./InteriorsDrawRoomTitlebar";
 import { InteriorsDrawRoomTray } from "./InteriorsDrawRoomTray";
 import type { InteriorsDrawRoomCommands } from "./interiorsDrawRoomCommands";
@@ -76,8 +75,6 @@ export function InteriorsDrawRoomChrome({
         onZoomIn={onZoomIn} onZoomOut={onZoomOut}
         commands={commands}
       />
-      <InteriorsDrawRoomManage project={project} tool={tool} activeBuildTool={activeBuildTool} commands={commands}
-        onPatchDocument={onPatchDocument} />
       <InteriorsDrawRoomTray
         tool={tool} activeBuildTool={activeBuildTool} wallId={wallId}
         openingCatalogItemId={openingCatalogItemId} roomPolygonPointCount={roomPolygonPointCount}
