@@ -1,5 +1,5 @@
 import type { InteriorProject, LightEntity } from "../../domain/interiorProject";
-import { selectRoomWalls } from "../../domain/interiorProject";
+import { readCeilingCutouts, selectRoomWalls } from "../../domain/interiorProject";
 import { readLightMount } from "../../domain/livingRoom/lightAttachments";
 import { lightFixtureDefinitionFor, type LightMountKind } from "../../domain/livingRoom/lightFixtureTypes";
 import { chooseFixtureHost, mountSelectValue } from "./lightFixtureEdits";
@@ -24,6 +24,7 @@ export function LightMountSection(props: {
   const roomId = project.activeRoomId;
   const walls = roomId ? selectRoomWalls(project, roomId) : [];
   const cabinets = project.objects.filter((object) => object.roomId === roomId && object.kind === "cabinet");
+  const cutouts = readCeilingCutouts(project.rooms.find((room) => room.id === roomId));
   const apply = (nextMount: ReturnType<typeof readLightMount>) => actions.setLightMount(light.id, nextMount);
   return (
     <>
@@ -36,6 +37,9 @@ export function LightMountSection(props: {
           }}>
           {offers(light, "free") ? <option value="free">Free</option> : null}
           {offers(light, "ceiling") ? <option value="ceiling">Ceiling</option> : null}
+          {offers(light, "ceiling") ? cutouts.map((cutout) => (
+            <option key={cutout.id} value={`cutout:${cutout.id}`}>Ceiling cutout {cutout.label ?? cutout.id}</option>
+          )) : null}
           {offers(light, "wall") ? walls.map((wall) => (
             <option key={wall.id} value={`wall:${wall.id}`}>{wallLabel(wall)}</option>
           )) : null}
@@ -69,7 +73,11 @@ export function LightMountSection(props: {
       ) : null}
       {mount.kind === "ceiling" ? (
         <LightNumberField label="Ceiling drop (mm)" value={mount.ceilingDropMm} min={0} step={10}
-          onChange={(ceilingDropMm) => apply({ kind: "ceiling", ceilingDropMm })} />
+          onChange={(ceilingDropMm) => apply({ ...mount, ceilingDropMm })} />
+      ) : null}
+      {mount.kind === "ceiling" && mount.hostCutoutId ? (
+        <button type="button" aria-label={`Fit ${mount.hostCutoutId} to ${light.name}`}
+          onClick={() => actions.fitCutoutToLight(mount.hostCutoutId!, light.id)}>Fit cutout to fixture</button>
       ) : null}
     </>
   );

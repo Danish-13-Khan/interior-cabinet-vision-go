@@ -7,6 +7,8 @@ import type { WallLightMount } from "./lightWallPose";
 export type CeilingLightMount = {
   kind: "ceiling";
   ceilingDropMm: number;
+  /** Centred in this ceiling cutout; x/z follow the cutout at read time. */
+  hostCutoutId?: string;
 };
 
 export type LightMount =
@@ -44,7 +46,12 @@ export function readLightMount(light: LightEntity): LightMount {
     };
   }
   if (light.parameters.hostSurface === "ceiling") {
-    return { kind: "ceiling", ceilingDropMm: fixtureNumber(light, "ceilingDropMm", 0) };
+    const hostCutoutId = light.parameters.hostCutoutId;
+    return {
+      kind: "ceiling",
+      ceilingDropMm: fixtureNumber(light, "ceilingDropMm", 0),
+      ...(typeof hostCutoutId === "string" && hostCutoutId ? { hostCutoutId } : {}),
+    };
   }
   return { kind: "free" };
 }

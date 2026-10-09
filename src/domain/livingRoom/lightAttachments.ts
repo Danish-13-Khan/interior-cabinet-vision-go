@@ -4,6 +4,7 @@ import { readLightMount, type LightMount } from "./lightMountRead";
 import { markLightAttachmentMissing, stripLightMountParameters } from "./lightMountParameters";
 import { resolveObjectLightPose, type ObjectLightMount } from "./lightObjectPose";
 import { resolveWallLightPose, type WallLightMount } from "./lightWallPose";
+import { flushCeilingDropMm } from "./lightCutoutMount";
 
 export type { LightMount } from "./lightMountRead";
 export type { ObjectLightMount } from "./lightObjectPose";
@@ -88,15 +89,29 @@ export function attachLightToCeiling(
   project: InteriorProject,
   lightId: string,
   ceilingDropMm: number,
+  hostCutoutId?: string,
 ): InteriorProject {
-  return mapActiveLight(project, lightId, (light) =>
-    commitMount(project, light, { hostSurface: "ceiling", ceilingDropMm }));
+  return mapActiveLight(project, lightId, (light) => commitMount(project, light, {
+    hostSurface: "ceiling", ceilingDropMm, ...(hostCutoutId ? { hostCutoutId } : {}),
+  }));
+}
+
+/** Centre a fixture in a ceiling cutout; the default drop leaves it flush with the slab underside. */
+export function attachLightToCutout(
+  project: InteriorProject,
+  lightId: string,
+  cutoutId: string,
+  ceilingDropMm?: number,
+): InteriorProject {
+  const light = project.lights.find((item) => item.id === lightId);
+  if (!light) return project;
+  return attachLightToCeiling(project, lightId, ceilingDropMm ?? flushCeilingDropMm(light), cutoutId);
 }
 
 export function updateLightMount(project: InteriorProject, lightId: string, mount: LightMount): InteriorProject {
   if (mount.kind === "free") return detachLight(project, lightId);
   if (mount.kind === "wall") return attachLightToWall(project, lightId, mount);
-  if (mount.kind === "ceiling") return attachLightToCeiling(project, lightId, mount.ceilingDropMm);
+  if (mount.kind === "ceiling") return attachLightToCeiling(project, lightId, mount.ceilingDropMm, mount.hostCutoutId);
   return writeObjectMount(project, lightId, mount);
 }
 

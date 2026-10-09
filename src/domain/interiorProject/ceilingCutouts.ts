@@ -130,6 +130,23 @@ export function moveCeilingCutout(
     cutout.id === cutoutId ? { ...cutout, polygon } : cutout)));
 }
 
+/** Replace a cutout's outline (fit to a fixture, Phase 3 handles); refused when it would not fit. */
+export function setCeilingCutoutPolygon(
+  project: InteriorProject,
+  roomId: string,
+  cutoutId: string,
+  points: Point2Mm[],
+): InteriorProject {
+  const room = project.rooms.find((item) => item.id === roomId);
+  const existing = readCeilingCutouts(room);
+  if (!existing.some((cutout) => cutout.id === cutoutId)) return project;
+  const polygon = normalizeRoomPolygon(points);
+  if (!polygon || !isCeilingCutoutPolygonValid(polygon)) return project;
+  if (!ceilingCutoutFitsRoom(project, roomId, polygon, cutoutId)) return project;
+  return writeCeilingCutouts(project, roomId, existing.map((cutout) => (
+    cutout.id === cutoutId ? { ...cutout, polygon } : cutout)));
+}
+
 export function validateCeilingCutouts(project: InteriorProject, issues: InteriorValidationIssue[]) {
   for (const room of project.rooms) {
     for (const cutout of readCeilingCutouts(room)) {

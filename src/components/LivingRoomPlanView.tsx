@@ -27,7 +27,7 @@ import { CalibrateUnderlayDialog } from "./livingRoomPlan/CalibrateUnderlayDialo
 import { useDwgPlanSnap } from "./livingRoomPlan/useDwgPlanSnap";
 import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
-import { PlanCeilingLayer } from "./livingRoomPlan/PlanCeilingLayer";
+import { PlanCeilingLayer, cutoutHostedLightIds } from "./livingRoomPlan/PlanCeilingLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
 import { PlanGuidesLayer } from "./livingRoomPlan/PlanGuidesLayer";
 import { PlanMeasureOverlay } from "./livingRoomPlan/PlanMeasureOverlay";
@@ -130,6 +130,7 @@ export function LivingRoomPlanView(props: Props) {
 
   const drawRoom = tool === "draw-room";
   const drawSurface = tool === "draw-surface"; const drawCutout = tool === "draw-ceiling-cutout";
+  const ceilingVisible = props.readability.showCeiling === true || drawCutout;
   const drawWall = tool === "draw-wall";
   const drawPartition = tool === "draw-partition";
   const placeColumn = tool === "place-column";
@@ -367,9 +368,10 @@ export function LivingRoomPlanView(props: Props) {
       freeSegmentWallPose={freeSegmentWallPose}
       onSetCabinetDims={props.onSetCabinetInlineDims}
       onStart={objects.start} interactive={!measureLike && !underlayDrag.movable} />
-    <PlanCeilingLayer project={props.project} room={room} unit={props.readability.unit} visible={props.readability.showCeiling === true || drawCutout} />
+    <PlanCeilingLayer project={props.project} room={room} unit={props.readability.unit} visible={ceilingVisible} onSelectLight={props.onSelectLight}
+      snapSizeMm={props.snapSizeMm} interactive={editWalls} onPatchDocument={props.onPatchDocument} />
     {props.onSelectLight ? (
-      <PlanLightsLayer project={props.project} activeLightId={props.activeLightId ?? null}
+      <PlanLightsLayer project={props.project} activeLightId={props.activeLightId ?? null} passThroughLightIds={ceilingVisible ? cutoutHostedLightIds(props.project) : undefined}
         hidden={measureLike} onSelectLight={props.onSelectLight} />
     ) : null}
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}

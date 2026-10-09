@@ -1,6 +1,7 @@
 import type { InteriorProject } from "../../domain/interiorProject";
 import { attachLightToObject, updateLightMount, type LightMount } from "../../domain/livingRoom/lightAttachments";
 import { getLightFixtureDefinition, type LightFixtureKind } from "../../domain/livingRoom/lightFixtureRegistry";
+import { fitCeilingCutoutToLight } from "../../domain/livingRoom/lightCutoutMount";
 import { relocateLight } from "../../domain/livingRoom/lightRelocate";
 import {
   addRoomLightFixture,
@@ -14,6 +15,8 @@ import type { CommitDocument, EditorCommandContext } from "./context";
 
 export type AddLivingRoomLightOptions = {
   orientation?: "horizontal" | "vertical";
+  /** With a cutout mount: resize the cutout to the new fixture in the same undo step. */
+  fitCutout?: boolean;
 };
 
 /** What the inspector, popover, and entry points call instead of patching the document. */
@@ -29,6 +32,8 @@ export type LightFixtureActions = {
   setLightMount: (id: string, mount: LightMount) => void;
   /** Drag in 3D: one undo step, the mount is kept. Millimetres, world space. */
   moveLight: (id: string, point: { x: number; y: number; z: number }) => void;
+  /** Resize a ceiling cutout to the fixture's footprint plus clearance. */
+  fitCutoutToLight: (cutoutId: string, lightId: string) => void;
 };
 
 export function lightFixtureActions(
@@ -51,6 +56,9 @@ export function lightFixtureActions(
     },
     moveLight: (id, point) => {
       commitDocument((current) => relocateLight(current, id, point), "Moved room light.");
+    },
+    fitCutoutToLight: (cutoutId, lightId) => {
+      commitDocument((current) => fitCeilingCutoutToLight(current, cutoutId, lightId), "Fitted cutout to fixture.");
     },
   };
 }
@@ -78,6 +86,9 @@ function addLivingRoomLight(
     if (createdId && options?.orientation) {
       next = updateRoomLightFixture(next, createdId, { parameters: { orientation: options.orientation } });
     }
+    if (createdId && options?.fitCutout && mount?.kind === "cutout") {
+      next = fitCeilingCutoutToLight(next, mount.cutoutId, createdId);
+    }
     return next;
   }, `Added ${name.toLowerCase()}.`);
   return createdId;
@@ -93,5 +104,6 @@ export function lightCommands(ctx: EditorCommandContext) {
     duplicateLivingRoomLight: actions.duplicateLight,
     setLivingRoomLightMount: actions.setLightMount,
     moveLivingRoomLight: actions.moveLight,
+    fitLivingRoomCutoutToLight: actions.fitCutoutToLight,
   };
 }

@@ -90,7 +90,8 @@ export function PlanArchitectureInspector(props: Props) {
         <CeilingLightingSection actions={props.lightActions} onSelectLight={props.onSelectLight} />
       ) : null}
       {props.onDeleteCeilingCutout ? (
-        <CeilingCutoutsSection room={room} unit={props.unit} onDelete={props.onDeleteCeilingCutout} />
+        <CeilingCutoutsSection project={props.project} room={room} unit={props.unit} onDelete={props.onDeleteCeilingCutout}
+          lightActions={props.lightActions} />
       ) : null}
       {props.onSetFloorBuild ? <FloorBuildSection room={room} onChange={props.onSetFloorBuild} /> : null}
       <InspectorSection title="Advanced" testId="inspector-room-advanced">

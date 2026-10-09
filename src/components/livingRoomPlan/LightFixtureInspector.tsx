@@ -26,8 +26,8 @@ export function LightFixtureInspector(props: {
   onRemoved?: () => void;
 }) {
   const { project, light, actions } = props;
-  const mountKind = readLightMount(light).kind;
-  const poseLocked = mountKind === "wall" || mountKind === "object";
+  const mount = readLightMount(light);
+  const poseLocked = mount.kind === "wall" || mount.kind === "object" || (mount.kind === "ceiling" && Boolean(mount.hostCutoutId));
   return (
     <div className="lr-light-inspector" data-testid="light-fixture-inspector">
       <div className="lr-inspector-section-heading"><h3>{hostCaption(project, light)}</h3></div>

@@ -12,7 +12,8 @@ function round(value: number) {
 /**
  * Move a light to a point chosen in the 3D view, keeping its mount.
  * Wall: the point becomes a distance along the wall and a centre height.
- * Ceiling: x and z move, height stays with the room. Free: the point is the position.
+ * Ceiling: x and z move, height stays with the room; a light centred in a cutout leaves it.
+ * Free: the point is the position.
  * A light fixed to a cabinet follows the cabinet and is not moved here.
  */
 export function relocateLight(project: InteriorProject, lightId: string, point: PointMm): InteriorProject {
@@ -40,8 +41,9 @@ export function relocateLight(project: InteriorProject, lightId: string, point: 
   const position = mount.kind === "ceiling"
     ? { ...light.position, x: round(point.x), z: round(point.z) }
     : { x: round(point.x), y: round(Math.max(0, point.y)), z: round(point.z) };
+  const { hostCutoutId: _cutout, ...parameters } = light.parameters;
   return {
     ...project,
-    lights: project.lights.map((item) => (item.id === lightId ? { ...item, position } : item)),
+    lights: project.lights.map((item) => (item.id === lightId ? { ...item, position, parameters } : item)),
   };
 }

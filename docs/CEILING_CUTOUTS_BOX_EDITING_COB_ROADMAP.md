@@ -1,6 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Phases 0–1 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 2–4 remain proposed; pick one before further `src/` work.
+**Status:** Phases 0–2 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list; Phase 2: `hostCutoutId` on the ceiling mount, COB / panel in a cutout, Fit, cutout drag on the plan). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 3–4 remain proposed; pick one before further `src/` work.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with
@@ -218,15 +218,23 @@ layer does not take the pointer yet.
 
 ### Phase 2 — Fixtures in cutouts
 
-- "Add COB here" on a cutout: mounts a COB on the ceiling centred in the cutout,
-  with `hostCutoutId` in the mount so it follows cutout moves. Checking that
-  needs a way to move a cutout: a simple drag on the plan layer in this phase,
-  or Phase 3's handles.
-- Cutout → "Fit to fixture" sizes the cutout to the fixture's diameter + 10 mm.
-- Panel light option: a cutout the size of the panel, panel sits flush.
+- The ceiling mount gains `hostCutoutId` (`CeilingLightMount`); the resolver
+  puts x/z at the cutout's centre at read time, so moving the cutout moves the
+  fixture with no light edit. A deleted cutout leaves the light where it was
+  as a plain ceiling mount; a 3D drag of the light leaves the cutout.
+- Room inspector cutout rows: **COB** and **Panel** drop a fixture in flush
+  (`flushCeilingDropMm`: 0 for recessed spots, half the depth for a panel),
+  **Fit** resizes the cutout to the fixture's footprint plus 10 mm clearance
+  (`fitCeilingCutoutToLight`; refused through a wall). The light inspector's
+  Mount select lists "Ceiling cutout …" and shows Fit when hosted.
+- The plan ceiling layer drags a cutout in Select mode (snapped, refused
+  moves not recorded); Phase 3's handles will resize it.
 
 **Exit gate:** a 600 × 600 cutout with a panel reads flush in Walkthrough; a
-90 mm COB in a 100 mm cutout; moving the cutout moves the fixture.
+90 mm COB in a 100 mm cutout; moving the cutout moves the fixture. Covered by
+`lightCutoutMount.test.ts` (resolved poses, fit sizes, fallbacks, reopen) and
+`tests/e2e/phase-ceiling-2-fixtures.spec.ts`; "reads flush in Walkthrough" is
+checked by the resolved y in the unit test, not by pixels.
 
 ### Phase 3 — Two-sided adjustment
 

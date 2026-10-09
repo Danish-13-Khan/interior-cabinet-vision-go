@@ -23,6 +23,13 @@
   stroke-dasharray: 70 40;
 }
 
+.lr-plan-cutout.is-movable { cursor: move; }
+
+.lr-plan-cutout.is-dragging path {
+  stroke: var(--accent);
+  fill-opacity: 0.75;
+}
+
 .lr-plan-cutout text {
   font-family: var(--font-sans);
   font-size: 110px;
