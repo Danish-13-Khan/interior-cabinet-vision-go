@@ -320,11 +320,16 @@ gimbal fields, reopen). A ceiling-mounted surface cylinder is lifted by the moun
 and selection outline are centred on the body (`spanOffset`), not the pose;
 `bodyFinish` is the one body-colour rule for both renderers; the Cycles
 builders live in `cyclesStripFixtures.ts`, `cyclesSpotFixtures.ts` and
-`cyclesCobShade.ts`. Not done: the render-QA reference images for the
-COB fixtures were not regenerated (needs the Playwright render pipeline);
-"reads distinct at Dollhouse zoom" was checked by eye in the browser, not
-by pixel readout; the trim finish replaces the strip `profileFinish` for
-COB kinds only.
+`cyclesCobShade.ts`. Not done: no render reference includes a COB or
+downlight at all. The only image snapshots in the repo are the calm-light
+visual spec's, which mask the canvas, and the render-QA smoke spec loads the
+release demo (no COB in it) without capturing an image. So "a Cycles still
+matches the viewport" is checked only by the parts list, trim colour,
+penumbra and gimbal frame; checking it by image is new work: add a COB to a
+QA fixture and capture a still and a viewport frame as fresh references,
+through the Playwright render run. "Reads distinct at Dollhouse zoom" was
+checked by eye in the browser, not by pixel readout; the trim finish
+replaces the strip `profileFinish` for COB kinds only.
 
 ## 6. Open questions
 
