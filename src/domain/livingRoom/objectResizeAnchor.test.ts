@@ -20,4 +20,16 @@ describe("anchorResizedObject", () => {
     expect(anchorResizedObject(wider, object.id, before, { x: "centre" })).toBe(wider);
     expect(anchorResizedObject(wider, object.id, before, undefined)).toBe(wider);
   });
+
+  it("keeps the anchored edge of a 90° rotated object along its own width axis", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const source = project.objects[0]!;
+    const rotated = { ...project, objects: project.objects.map((item) => (item.id === source.id ? { ...item, rotation: { ...item.rotation, y: 90 } } : item)) };
+    const before = source.dimensions;
+    const wider = resizeLivingRoomObject(rotated, source.id, { ...before, widthMm: before.widthMm + 400 });
+    const moved = anchorResizedObject(wider, source.id, before, { x: "max" }).objects.find((item) => item.id === source.id)!;
+    // Local +X at yaw 90° is plan (cos 90°, −sin 90°) = (0, −1): the right edge sits at z − w/2 and must not move.
+    expect(moved.position.x).toBeCloseTo(source.position.x, 0);
+    expect(moved.position.z - moved.dimensions.widthMm / 2).toBeCloseTo(source.position.z - before.widthMm / 2, 0);
+  });
 });

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { InteriorObjectEntity, InteriorProject, ResizeAnchor, Size3Mm } from "../../domain/interiorProject";
 import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import {
@@ -51,6 +51,7 @@ export function LivingRoomObjectInspector({
   finishesOpen = false, runOpen = false,
 }: LivingRoomObjectInspectorProps) {
   const [widthAnchor, setWidthAnchor] = useState<ResizeAnchor>("centre");
+  useEffect(() => setWidthAnchor("centre"), [object.id]);
   function patchDimension(axis: keyof Size3Mm, value: number) {
     onResize(object.id, { ...object.dimensions, [axis]: value }, { x: widthAnchor });
   }
@@ -76,9 +77,9 @@ export function LivingRoomObjectInspector({
             <NumberField className="lr-dimension-card" label="H" value={object.dimensions.heightMm} onChange={(value) => patchDimension("heightMm", value)} />
             <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
           </div>
-          <ResizeAnchorSegment label="Width anchor" value={widthAnchor} minLabel="Left" maxLabel="Right" testId="object-width-anchor" onChange={setWidthAnchor} />
+          {wallPanel ? null : <ResizeAnchorSegment label="Width anchor" value={widthAnchor} minLabel="Left" maxLabel="Right" testId="object-width-anchor" onChange={setWidthAnchor} />}
           {object.kind === "cabinet" && !wallPanel ? (
-            <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} />
+            <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions, { x: widthAnchor })} />
           ) : null}
         </div>
       </details>

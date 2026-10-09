@@ -159,7 +159,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         onAssetReady={() => setAssetRevision((revision) => revision + 1)}
         onWallContextMenu={onWallContextMenu}
       />
-      {interactive && !transformTarget && wallResize && wallResize.walls.length > 0 ? (
+      {interactive && !transformTarget && viewPreset !== "walkthrough" && wallResize && wallResize.walls.length > 0 ? (
         <ModelWallResizeHandles {...wallResize} onDragStateChange={handleDragStateChange} />
       ) : null}
       <ModelViewInteractionRig

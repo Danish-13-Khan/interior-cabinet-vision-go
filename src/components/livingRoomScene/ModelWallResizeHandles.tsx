@@ -9,14 +9,15 @@ export type WallResizeHandlesProps = {
   walls: WallResizeHandleSpec[];
   selectedWallId: string | null;
   snapSizeMm: number;
-  /** Face handle: move the whole wall along its outward normal (one-sided room resize). */
+  /** Face plate: move the whole wall along its outward normal (one-sided room resize). */
   onTranslateWall: (wallId: string, delta: { x: number; z: number }) => void;
-  /** End handle: new length with the other end fixed. */
+  /** End knob: new length with the other end fixed (partitions and free walls only). */
   onSetWallLength: (wallId: string, lengthMm: number, anchor: "start" | "end") => void;
 };
 
 type Handle = { kind: "face"; wall: WallResizeHandleSpec } | { kind: "end"; wall: WallResizeHandleSpec; end: "start" | "end" };
-type Drag = { pointerId: number; handle: Handle; axis: Vector3; plane: Plane; startCoordinate: number; captureTarget: Element };
+type Drag = { pointerId: number; handle: Handle; axis: Vector3; plane: Plane; startCoordinate: number; captureTarget: Element; mm: number };
+type Live = { handle: Handle; mm: number };
 
 const FACE_COLOR = "#3f6b52";
 const END_COLOR = "#2f6690";
@@ -27,16 +28,21 @@ function wallDirection(wall: WallResizeHandleSpec) {
   return { x: dx / length, z: dz / length, length };
 }
 
+function endLength(handle: Extract<Handle, { kind: "end" }>, mm: number) {
+  // Dragging the end along +direction lengthens; dragging the start along +direction shortens.
+  return wallDirection(handle.wall).length + (handle.end === "end" ? mm : -mm);
+}
+
 /**
  * 3D resize handles. A plate on each outer wall drags the wall along its
- * outward normal, so the opposite wall stays put; two knobs on the selected
- * wall drag its ends along the wall. Geometry commits on release, with a live
- * readout while dragging. Excluded from export and from picking as scene objects.
+ * outward normal, so the opposite wall stays put; knobs on a selected partition
+ * or free wall drag its ends along the wall. Geometry commits on release, with
+ * a live readout beside the handle. Excluded from export.
  */
 export function ModelWallResizeHandles(props: WallResizeHandlesProps & { onDragStateChange: (dragging: boolean) => void }) {
   const { camera } = useThree();
   const dragRef = useRef<Drag | null>(null);
-  const [offsetMm, setOffsetMm] = useState<{ handle: Handle; mm: number } | null>(null);
+  const [live, setLive] = useState<Live | null>(null);
   const step = Math.max(1, props.snapSizeMm);
 
   function dragPlane(axis: Vector3, origin: Vector3) {
@@ -55,8 +61,8 @@ export function ModelWallResizeHandles(props: WallResizeHandlesProps & { onDragS
     if (!hit) return;
     const captureTarget = event.target as Element;
     captureTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { pointerId: event.pointerId, handle, axis, plane, startCoordinate: hit.dot(axis), captureTarget };
-    setOffsetMm({ handle, mm: 0 });
+    dragRef.current = { pointerId: event.pointerId, handle, axis, plane, startCoordinate: hit.dot(axis), captureTarget, mm: 0 };
+    setLive({ handle, mm: 0 });
     props.onDragStateChange(true);
   }
 
@@ -66,8 +72,9 @@ export function ModelWallResizeHandles(props: WallResizeHandlesProps & { onDragS
     event.stopPropagation();
     const hit = event.ray.intersectPlane(drag.plane, new Vector3());
     if (!hit) return;
-    const mm = Math.round(((hit.dot(drag.axis) - drag.startCoordinate) * 1000) / step) * step;
-    setOffsetMm({ handle: drag.handle, mm });
+    // The ref carries the latest millimetres so a fast release never commits a stale render.
+    drag.mm = Math.round(((hit.dot(drag.axis) - drag.startCoordinate) * 1000) / step) * step;
+    setLive({ handle: drag.handle, mm: drag.mm });
   }
 
   function finish(event: ThreeEvent<PointerEvent>) {
@@ -77,23 +84,27 @@ export function ModelWallResizeHandles(props: WallResizeHandlesProps & { onDragS
     dragRef.current = null;
     try { drag.captureTarget.releasePointerCapture(event.pointerId); } catch { /* released */ }
     props.onDragStateChange(false);
-    const mm = offsetMm?.mm ?? 0;
-    setOffsetMm(null);
+    setLive(null);
+    const { handle, mm } = drag;
     if (mm === 0) return;
-    const { handle } = drag;
     if (handle.kind === "face") {
-      props.onTranslateWall(handle.wall.wallId, { x: handle.wall.outward.x * mm, z: handle.wall.outward.z * mm });
+      if (handle.wall.outward) props.onTranslateWall(handle.wall.wallId, { x: handle.wall.outward.x * mm, z: handle.wall.outward.z * mm });
       return;
     }
-    const { length } = wallDirection(handle.wall);
-    // Dragging the end along +direction lengthens; dragging the start along +direction shortens.
-    const nextLength = handle.end === "end" ? length + mm : length - mm;
-    props.onSetWallLength(handle.wall.wallId, Math.max(100, Math.round(nextLength)), handle.end === "end" ? "start" : "end");
+    props.onSetWallLength(handle.wall.wallId, Math.max(100, Math.round(endLength(handle, mm))), handle.end === "end" ? "start" : "end");
   }
 
-  const readout = offsetMm ? (offsetMm.handle.kind === "face"
-    ? `${offsetMm.handle.wall.label} ${offsetMm.mm >= 0 ? "+" : ""}${offsetMm.mm} mm`
-    : `Length ${Math.round(wallDirection(offsetMm.handle.wall).length + (offsetMm.handle.end === "end" ? offsetMm.mm : -offsetMm.mm))} mm`) : null;
+  const liveMm = (predicate: (handle: Handle) => boolean) => (live && predicate(live.handle) ? live.mm : 0);
+  const readoutFor = (handle: Handle, mm: number) => (handle.kind === "face"
+    ? `${handle.wall.label} ${mm >= 0 ? "+" : ""}${mm} mm`
+    : `Length ${Math.round(endLength(handle, mm))} mm · other end stays`);
+  const readout = (handle: Handle) => (
+    live && live.handle === handle ? (
+      <Html position={[0, 0.2, 0]} center style={{ pointerEvents: "none" }}>
+        <div className="lr-model-gizmo-readout" data-testid="model-wall-resize-readout">{readoutFor(handle, live.mm)}</div>
+      </Html>
+    ) : null
+  );
 
   return (
     <group userData={{ [EXCLUDE_FROM_EXPORT]: true }} renderOrder={1000}>
@@ -101,40 +112,40 @@ export function ModelWallResizeHandles(props: WallResizeHandlesProps & { onDragS
         const direction = wallDirection(wall);
         const mid = { x: (wall.start.x + wall.end.x) / 2, z: (wall.start.z + wall.end.z) / 2 };
         const y = wall.heightMm / 2;
-        const faceOffset = offsetMm?.handle.kind === "face" && offsetMm.handle.wall.wallId === wall.wallId ? offsetMm.mm : 0;
-        const faceAt = { x: mid.x + wall.outward.x * (120 + faceOffset), y, z: mid.z + wall.outward.z * (120 + faceOffset) };
-        const faceAxis = new Vector3(wall.outward.x, 0, wall.outward.z);
-        const yaw = Math.atan2(-direction.z, direction.x);
         const selected = wall.wallId === props.selectedWallId;
-        return (
-          <group key={wall.wallId}>
-            <group position={[faceAt.x / 1000, faceAt.y / 1000, faceAt.z / 1000]} rotation={[0, yaw, 0]}
+        if (wall.onLoop && wall.outward) {
+          const handle: Handle = live?.handle.kind === "face" && live.handle.wall.wallId === wall.wallId ? live.handle : { kind: "face", wall };
+          const offset = liveMm((h) => h.kind === "face" && h.wall.wallId === wall.wallId);
+          const at = { x: mid.x + wall.outward.x * (120 + offset), y, z: mid.z + wall.outward.z * (120 + offset) };
+          const yaw = Math.atan2(-direction.z, direction.x);
+          return (
+            <group key={wall.wallId} position={[at.x / 1000, at.y / 1000, at.z / 1000]} rotation={[0, yaw, 0]}
               userData={{ modelPickId: `wall-face:${wall.wallId}`, modelPickKind: "handle" }}
-              onPointerDown={(event) => begin(event, { kind: "face", wall }, faceAxis, faceAt)}
+              onPointerDown={(event) => begin(event, handle, new Vector3(wall.outward!.x, 0, wall.outward!.z), at)}
               onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish}>
               <mesh><boxGeometry args={[0.26, 0.26, 0.05]} /><meshBasicMaterial color={FACE_COLOR} transparent opacity={selected ? 0.95 : 0.75} depthTest={false} depthWrite={false} /></mesh>
+              {readout(handle)}
             </group>
-            {selected ? (["start", "end"] as const).map((end) => {
-              const at = end === "start" ? wall.start : wall.end;
-              const endOffset = offsetMm?.handle.kind === "end" && offsetMm.handle.wall.wallId === wall.wallId && offsetMm.handle.end === end ? offsetMm.mm : 0;
-              const pos = { x: at.x + direction.x * endOffset, y, z: at.z + direction.z * endOffset };
-              return (
-                <group key={end} position={[pos.x / 1000, pos.y / 1000, pos.z / 1000]}
-                  userData={{ modelPickId: `wall-end:${wall.wallId}:${end}`, modelPickKind: "handle" }}
-                  onPointerDown={(event) => begin(event, { kind: "end", wall, end }, new Vector3(direction.x, 0, direction.z), pos)}
-                  onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish}>
-                  <mesh><sphereGeometry args={[0.09, 16, 12]} /><meshBasicMaterial color={END_COLOR} depthTest={false} depthWrite={false} /></mesh>
-                </group>
-              );
-            }) : null}
-          </group>
-        );
+          );
+        }
+        if (!selected) return null;
+        return (["start", "end"] as const).map((end) => {
+          const handle: Handle = live?.handle.kind === "end" && live.handle.wall.wallId === wall.wallId && live.handle.end === end
+            ? live.handle : { kind: "end", wall, end };
+          const offset = liveMm((h) => h.kind === "end" && h.wall.wallId === wall.wallId && h.end === end);
+          const base = end === "start" ? wall.start : wall.end;
+          const at = { x: base.x + direction.x * offset, y, z: base.z + direction.z * offset };
+          return (
+            <group key={`${wall.wallId}:${end}`} position={[at.x / 1000, at.y / 1000, at.z / 1000]}
+              userData={{ modelPickId: `wall-end:${wall.wallId}:${end}`, modelPickKind: "handle" }}
+              onPointerDown={(event) => begin(event, handle, new Vector3(direction.x, 0, direction.z), at)}
+              onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish}>
+              <mesh><sphereGeometry args={[0.09, 16, 12]} /><meshBasicMaterial color={END_COLOR} depthTest={false} depthWrite={false} /></mesh>
+              {readout(handle)}
+            </group>
+          );
+        });
       })}
-      {readout && offsetMm ? (
-        <Html position={[0, 0, 0]} center={false} style={{ pointerEvents: "none" }}>
-          <div className="lr-model-gizmo-readout" data-testid="model-wall-resize-readout">{readout}</div>
-        </Html>
-      ) : null}
     </group>
   );
 }
