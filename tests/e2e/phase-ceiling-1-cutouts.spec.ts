@@ -77,7 +77,8 @@ test("Phase 1: ceiling cutouts draw on the plan, reach 3D, and survive a reopen"
   await expect(model).toHaveAttribute("data-ceiling-holes", "2");
   await page.getByTestId("model-show-ceiling").click();
   await expect(model).toHaveAttribute("data-ceiling-hidden", "0");
-  await page.getByRole("button", { name: "2D", exact: true }).click();
+  await page.getByRole("button", { name: "2D plan", exact: true }).click();
+  await expect(page.locator("[data-wall-id]")).toHaveCount(4);
 
   // The inspector lists both and deletes one.
   await expect(page.locator("[data-ceiling-cutout-row]")).toHaveCount(2);
