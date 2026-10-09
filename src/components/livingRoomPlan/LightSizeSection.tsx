@@ -3,6 +3,7 @@ import { readLightMount } from "../../domain/livingRoom/lightAttachments";
 import { fixtureNumber } from "../../domain/livingRoom/lightFixtureProperties";
 import { lightFixtureDefinitionFor } from "../../domain/livingRoom/lightFixtureTypes";
 import { LIGHT_PARAMETER_LIMITS } from "../../domain/livingRoom/lightParameterLimits";
+import { isCobShadeKind } from "../../domain/livingRoom/lightShade";
 import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
 import { LightNumberField } from "./LightNumberField";
 
@@ -36,7 +37,7 @@ export function LightSizeSection(props: {
         <LightNumberField label="Beam (°)" value={fixtureNumber(light, "beamAngleDeg", 36)}
           min={limits.beamAngleDeg.min} max={limits.beamAngleDeg.max} step={1} onChange={(value) => set("beamAngleDeg", value)} />
       ) : null}
-      {has(light, "aimAngleDeg") ? (
+      {has(light, "aimAngleDeg") && !isCobShadeKind(light.parameters.fixtureKind) ? (
         <LightNumberField label="Aim (°)" value={fixtureNumber(light, "aimAngleDeg", 0)}
           min={limits.aimAngleDeg.min} max={limits.aimAngleDeg.max} step={1} onChange={(value) => set("aimAngleDeg", value)} />
       ) : null}

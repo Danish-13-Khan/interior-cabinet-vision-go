@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Object3D } from "three";
 import { fixtureNumber } from "../../../domain/livingRoom/lightFixtureProperties";
+import { BeamCone } from "./BeamCone";
 import { FixtureEmitter } from "./FixtureEmitter";
 import { beamHalfAngleRad, clampedHeadCount, readFixtureSize } from "./fixtureMeasures";
 import { FixtureGroup } from "./FixtureGroup";
@@ -51,6 +52,7 @@ export function TrackFixture(props: FixtureViewProps) {
               castShadow={size.cast}
             />
           </FixtureEmitter>
+          {props.selected ? <BeamCone color={props.light.color} halfAngleRad={angle} rangeM={size.range} z={-size.depth * 0.55} /> : null}
         </group>
       ))}
     </FixtureGroup>
