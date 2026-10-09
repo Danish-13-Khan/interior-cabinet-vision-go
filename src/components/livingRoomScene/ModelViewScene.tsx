@@ -43,6 +43,7 @@ type ModelViewSceneProps = {
   cutawayWalls: boolean;
   /** Keep the ceiling in exterior presets (toolbar toggle). */
   showCeiling?: boolean;
+  wallResize?: import("./ModelWallResizeHandles").WallResizeHandlesProps;
   interactive?: boolean;
   fitVersion?: number;
   fitMode?: ModelViewFitMode;
@@ -135,6 +136,7 @@ export function ModelViewScene(props: ModelViewSceneProps) {
           showGrid={showGrid}
           cutawayWalls={cutawayWalls}
           showCeiling={showCeiling}
+          wallResize={props.wallResize}
           cutawayStyle={props.captureFixedDpr != null ? "remove" : "ghost"}
           interactive={interactive}
           renderQuality={viewportQuality}

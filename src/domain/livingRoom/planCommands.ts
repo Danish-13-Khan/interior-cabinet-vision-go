@@ -1,5 +1,6 @@
 import { persistCabinetIdentityOnObject } from "../cabinetIdentity";
 import {
+  type ResizeAnchors,
   validateInteriorProject,
   resizeRoomPlanGeometry,
   type InteriorObjectEntity,
@@ -167,8 +168,9 @@ export function resizeLivingRoom(
   project: InteriorProject,
   roomId: string,
   dimensions: Size3Mm,
+  anchors?: ResizeAnchors,
 ) {
-  return safe(resizeRoomPlanGeometry(project, roomId, dimensions));
+  return safe(resizeRoomPlanGeometry(project, roomId, dimensions, anchors));
 }
 
 /** Adds an editable interior partition; perimeter walls remain owned by the room shell. */

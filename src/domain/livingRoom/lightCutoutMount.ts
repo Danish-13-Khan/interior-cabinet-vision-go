@@ -1,7 +1,7 @@
 import {
-  ceilingCutoutSizeMm, compiledCeilingCutouts, deleteCeilingCutout, moveCeilingCutout, readCeilingCutouts,
-  setCeilingCutoutPolygon,
-  type InteriorProject, type LightEntity, type Point2Mm,
+  ceilingCutoutSizeMm, compiledCeilingCutouts, deleteCeilingCutout, moveCeilingCutout, polygonBounds,
+  readCeilingCutouts, resizeAlongAxis, setCeilingCutoutPolygon,
+  type InteriorProject, type LightEntity, type Point2Mm, type ResizeAnchors,
 } from "../interiorProject";
 import { fixtureNumber } from "./lightFixtureProperties";
 
@@ -83,6 +83,41 @@ export function moveCeilingCutoutWithLights(
   return {
     ...moved,
     lights: moved.lights.map((light) => (hosted.has(light.id)
+      ? { ...light, position: { ...light.position, x: light.position.x + delta.x, z: light.position.z + delta.z } }
+      : light)),
+  };
+}
+
+/** Smallest cutout side a handle drag can leave. */
+export const MIN_CUTOUT_SIDE_MM = 100;
+
+/**
+ * Resize a rectangular cutout to a new width / depth about the anchored edges
+ * (Phase 3 handles) and carry its lights by the centre shift. Same project
+ * back when the new rim would not fit.
+ */
+export function resizeCeilingCutoutWithLights(
+  project: InteriorProject,
+  roomId: string,
+  cutoutId: string,
+  size: { widthMm: number; depthMm: number },
+  anchors?: ResizeAnchors,
+): InteriorProject {
+  const room = project.rooms.find((item) => item.id === roomId);
+  const cutout = readCeilingCutouts(room).find((item) => item.id === cutoutId);
+  if (!cutout) return project;
+  const bounds = polygonBounds(cutout.polygon);
+  const x = resizeAlongAxis(bounds.minX, bounds.maxX, Math.max(MIN_CUTOUT_SIDE_MM, size.widthMm), anchors?.x);
+  const z = resizeAlongAxis(bounds.minZ, bounds.maxZ, Math.max(MIN_CUTOUT_SIDE_MM, size.depthMm), anchors?.z);
+  const resized = setCeilingCutoutPolygon(project, roomId, cutoutId, [
+    { x: x.minMm, z: z.minMm }, { x: x.maxMm, z: z.minMm }, { x: x.maxMm, z: z.maxMm }, { x: x.minMm, z: z.maxMm },
+  ]);
+  if (resized === project) return project;
+  const delta = { x: (x.minMm + x.maxMm) / 2 - (bounds.minX + bounds.maxX) / 2, z: (z.minMm + z.maxMm) / 2 - (bounds.minZ + bounds.maxZ) / 2 };
+  const hosted = new Set(lightsInCutout(project, cutoutId, roomId).map((light) => light.id));
+  return {
+    ...resized,
+    lights: resized.lights.map((light) => (hosted.has(light.id)
       ? { ...light, position: { ...light.position, x: light.position.x + delta.x, z: light.position.z + delta.z } }
       : light)),
   };

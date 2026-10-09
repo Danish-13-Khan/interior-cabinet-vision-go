@@ -6,7 +6,7 @@ import {
 import { attachLightToCutout, readLightMount, resolveLightAttachment } from "./lightAttachments";
 import {
   cutoutSizeForLight, deleteCeilingCutoutAndDetach, fitCeilingCutoutToLight, flushCeilingDropMm, lightsInCutout,
-  moveCeilingCutoutWithLights, whyCutoutFitRefused,
+  moveCeilingCutoutWithLights, resizeCeilingCutoutWithLights, whyCutoutFitRefused,
 } from "./lightCutoutMount";
 import { relocateLight } from "./lightRelocate";
 import { createLivingRoomStarterProject } from "./preset";
@@ -136,5 +136,22 @@ describe("fixtures in ceiling cutouts", () => {
     const stored = reopened.lights.find((item) => item.id === light.id)!;
     expect(stored.parameters.hostCutoutId).toBe(cutoutId);
     expect(resolved(reopened, light.id).position.x).toBe(cx);
+  });
+
+  it("resizes a cutout from one edge and carries its light by the centre shift", () => {
+    const { project, cutoutId, cx, cz } = roomWithCutout(400);
+    const added = addRoomLightFixture(project, "cob", { kind: "cutout", cutoutId });
+    const light = added.lights.at(-1)!;
+    const roomId = added.activeRoomId;
+    // Drag the right edge out by 400: the left edge stays, the centre moves 200.
+    const grown = resizeCeilingCutoutWithLights(added, roomId, cutoutId, { widthMm: 800, depthMm: 400 }, { x: "min" });
+    const bounds = polygonBounds(readCeilingCutouts(grown.rooms[0])[0]!.polygon);
+    expect(bounds).toMatchObject({ minX: cx - 200, maxX: cx + 600, widthMm: 800, depthMm: 400 });
+    expect(grown.lights.find((item) => item.id === light.id)!.position).toMatchObject({ x: cx + 200, z: cz });
+    expect(resolved(grown, light.id).position).toMatchObject({ x: cx + 200, z: cz });
+    // Below the minimum side the cutout stays 100 wide; through the wall it is refused.
+    const tiny = resizeCeilingCutoutWithLights(added, roomId, cutoutId, { widthMm: 10, depthMm: 400 });
+    expect(polygonBounds(readCeilingCutouts(tiny.rooms[0])[0]!.polygon).widthMm).toBe(100);
+    expect(resizeCeilingCutoutWithLights(added, roomId, cutoutId, { widthMm: 50_000, depthMm: 400 })).toBe(added);
   });
 });

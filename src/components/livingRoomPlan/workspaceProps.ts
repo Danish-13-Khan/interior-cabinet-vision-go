@@ -71,7 +71,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onMovePreview?: (objectId: string, position: Point3Mm, thresholdMm?: number) => import("./usePlanObjectInteraction").SnappedMovePose | null | void;
   onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
   onClearPreDropReason?: () => void;
-  onResize: (objectId: string, dimensions: Size3Mm) => void;
+  onResize: (objectId: string, dimensions: Size3Mm, anchors?: import("../../domain/interiorProject").ResizeAnchors) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
@@ -109,7 +109,7 @@ export type LivingRoomPlanWorkspaceProps = {
   onSetCabinetInlineDims?: (objectId: string, dims: { widthMm?: number; depthMm?: number; heightMm?: number }) => void;
   preDropReason?: string | null;
   onNudge: (dx: number, dz: number) => void;
-  onRoomDimensions: (dimensions: Size3Mm) => void;
+  onRoomDimensions: (dimensions: Size3Mm, anchors?: import("../../domain/interiorProject").ResizeAnchors) => void;
   onSetFloorBuild: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onActiveRoom: (roomId: string) => void;
   onRenameRoom: (roomId: string, name: string) => void;

@@ -1,4 +1,4 @@
-import type { OpeningEntity, OpeningKind, Point2Mm, RoomDrawingRequest, Size3Mm } from "../interiorProject";
+import type { OpeningEntity, OpeningKind, Point2Mm, ResizeAnchors, RoomDrawingRequest, Size3Mm } from "../interiorProject";
 
 export type OpeningCommandPatch = Partial<Pick<OpeningEntity, "kind" | "offsetMm" | "widthMm" | "heightMm" | "sillHeightMm" | "swingDirection" | "materialSlots" | "parameters">>;
 export type WallCommandPatch = { thicknessMm?: number; heightMm?: number };
@@ -34,7 +34,7 @@ export type BuildCommand =
   | { type: "beginDraft"; tool: BuildTool }
   | { type: "cancelDraft" }
   | { type: "commitDraft" }
-  | { type: "resizeRoom"; dimensions: Size3Mm }
+  | { type: "resizeRoom"; dimensions: Size3Mm; anchors?: ResizeAnchors }
   | { type: "createWall" }
   | { type: "createWallSegment"; start: Point2Mm; end: Point2Mm; wallKind?: "wall" | "partition" }
   | { type: "createRoom"; drawing: RoomDrawingRequest }
@@ -58,7 +58,7 @@ export type BuildCommand =
   | { type: "requestUnderlayUpload" };
 
 export type BuildCommandHandlers = {
-  resizeRoom: (dimensions: Size3Mm) => void;
+  resizeRoom: (dimensions: Size3Mm, anchors?: ResizeAnchors) => void;
   createWall: () => void;
   createWallSegment: (start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") => void;
   createRoom: (drawing: RoomDrawingRequest) => void;

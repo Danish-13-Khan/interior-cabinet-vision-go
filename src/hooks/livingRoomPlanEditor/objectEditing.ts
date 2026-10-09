@@ -1,3 +1,5 @@
+import type { ResizeAnchors } from "../../domain/interiorProject";
+import { anchorResizedObject } from "../../domain/livingRoom/objectResizeAnchor";
 import type { Size3Mm } from "../../domain/interiorProject";
 import {
   alignLivingRoomObjects,
@@ -52,17 +54,17 @@ export function objectEditingCommands(ctx: EditorCommandContext) {
     }
   }
 
-  function resizeObject(objectId: string, dimensions: Size3Mm) {
+  function resizeObject(objectId: string, dimensions: Size3Mm, anchors?: ResizeAnchors) {
     commitDocument(
       (current) => {
         const object = current.objects.find((item) => item.id === objectId);
-        if (object && isWallPanelObject(object)) {
-          return resizeWallPanelCommand(current, objectId, dimensions);
-        }
-        if (object?.kind === "cabinet") {
-          return setCabinetInlineDimensions(current, objectId, dimensions);
-        }
-        return resizeLivingRoomObject(current, objectId, dimensions);
+        if (!object) return current;
+        if (isWallPanelObject(object)) return resizeWallPanelCommand(current, objectId, dimensions);
+        const resized = object.kind === "cabinet"
+          ? setCabinetInlineDimensions(current, objectId, dimensions)
+          : resizeLivingRoomObject(current, objectId, dimensions);
+        // Keep the chosen edge in place; cabinets in a run are reflowed by the run afterwards.
+        return anchorResizedObject(resized, objectId, object.dimensions, anchors);
       },
       "Resized living-room object.",
     );

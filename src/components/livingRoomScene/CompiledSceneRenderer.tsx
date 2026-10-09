@@ -5,6 +5,7 @@ import type { CompiledLivingRoomScene, ModelViewPresetId } from "../../domain/li
 import type { EnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { resolveEnvironmentLightingQuality } from "../../domain/livingRoom/environmentLightingQuality";
 import { useModelReviewNodes } from "./useModelReviewNodes";
+import { ModelWallResizeHandles, type WallResizeHandlesProps } from "./ModelWallResizeHandles";
 import { computeArchitectureBounds, resolveRenderCameraPose } from "../../domain/livingRoom";
 import {
   resolveModelViewSelectionBoundsMm,
@@ -38,6 +39,8 @@ type SceneRendererProps = {
   cutawayStyle?: "ghost" | "remove";
   /** Keep the ceiling slab in exterior presets (toolbar toggle). Client framing still drops it. */
   showCeiling?: boolean;
+  /** Face / end handles for the active room's walls (Phase 3); shown when nothing else is being moved. */
+  wallResize?: WallResizeHandlesProps;
   interactive?: boolean;
   renderQuality?: RenderQuality;
   renderComposition?: RenderComposition;
@@ -78,7 +81,7 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
     windowKeyScale = 1, roomLightScale = 1, onSelect, onSelectOpening = () => {}, onSelectWall = () => {},
     onClearSelection = () => onSelect(null), onMove, onMechanismClick, onExitWalkthrough,
     onWallContextMenu, fitVersion = 0, fitMode = "room", fitSelection,
-    transformTarget = null, onTransformPreview, onTransformCommit, frameRun,
+    transformTarget = null, onTransformPreview, onTransformCommit, frameRun, wallResize,
     selectedLightId = null, onSelectLight, onMoveLight,
   } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -156,6 +159,9 @@ export function CompiledSceneRenderer(props: SceneRendererProps) {
         onAssetReady={() => setAssetRevision((revision) => revision + 1)}
         onWallContextMenu={onWallContextMenu}
       />
+      {interactive && !transformTarget && wallResize && wallResize.walls.length > 0 ? (
+        <ModelWallResizeHandles {...wallResize} onDragStateChange={handleDragStateChange} />
+      ) : null}
       <ModelViewInteractionRig
         scene={scene} controlsRef={controlsRef} activeCameraId={activeCameraId}
         viewPreset={viewPreset} cameraHeightMm={cameraHeightMm}

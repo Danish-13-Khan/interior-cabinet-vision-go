@@ -1,4 +1,4 @@
-import type { InteriorProject, Point3Mm } from "../domain/interiorProject";
+import type { InteriorProject, Point2Mm, Point3Mm } from "../domain/interiorProject";
 import type { LivingRoomStyleId } from "../domain/livingRoom";
 import type { LightFixtureActions } from "../hooks/livingRoomPlanEditor/lightCommands";
 import type { ModelTransformPreview } from "./livingRoomScene/ModelMoveGizmo";
@@ -25,6 +25,9 @@ export type LivingRoomModelViewProps = {
   onApplyStyle: (styleId: LivingRoomStyleId) => void;
   onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onPatchDocument?: (update: (current: InteriorProject) => InteriorProject, status: string) => void;
+  /** 3D wall handles (Phase 3): face drag = one-sided room resize, end drag = wall length. */
+  onTranslateWall?: (wallId: string, delta: Point2Mm) => void;
+  onSetWallLength?: (wallId: string, lengthMm: number, anchor: "start" | "end") => void;
   presentation?: boolean;
   showStylePalette?: boolean;
 };

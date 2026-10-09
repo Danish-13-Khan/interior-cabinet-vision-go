@@ -38,7 +38,7 @@ export type LivingRoomPlanStageProps = {
   onMove: (objectId: string, position: Point3Mm) => void;
   onMovePreview?: (objectId: string, position: Point3Mm, thresholdMm?: number) => import("./usePlanObjectInteraction").SnappedMovePose | null | void;
   onDragEnd?: (info: { committed: boolean; mode: "move" | "resize" }) => void;
-  onResize: (objectId: string, dimensions: Size3Mm) => void;
+  onResize: (objectId: string, dimensions: Size3Mm, anchors?: import("../../domain/interiorProject").ResizeAnchors) => void;
   activeWallId: string | null;
   activeOpeningId: string | null;
   activeSurfaceId: string | null;

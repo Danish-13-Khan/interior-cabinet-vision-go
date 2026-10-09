@@ -2,6 +2,7 @@ import { roomPlanPolygon, polygonBounds } from "./roomGeometry";
 import { wallIdsForRoomLoops } from "./planTopology";
 import { synchronizeRoomSurfaceZones } from "./roomSurfaces";
 import { synchronizeWallCaches } from "./wallGraph";
+import { resizeAlongAxis, type ResizeAnchors } from "./resizeAnchor";
 import type { InteriorProject, Size3Mm } from "./types";
 
 function wallLength(project: InteriorProject, wallId: string) {
@@ -13,11 +14,16 @@ function roundedMm(value: number) {
   return Math.round(value * 1_000_000) / 1_000_000;
 }
 
-/** Scale a room's graph envelope while keeping shared nodes and hosted openings coherent. */
+/**
+ * Scale a room's graph envelope while keeping shared nodes and hosted openings
+ * coherent. `anchors` pick which side of each axis stays put (default: centre,
+ * both walls move). Ceiling cutouts keep their plan coordinates.
+ */
 export function resizeRoomPlanGeometry(
   project: InteriorProject,
   roomId: string,
   dimensions: Size3Mm,
+  anchors?: ResizeAnchors,
 ): InteriorProject {
   const room = project.rooms.find((item) => item.id === roomId);
   const polygon = roomPlanPolygon(project, roomId);
@@ -27,8 +33,8 @@ export function resizeRoomPlanGeometry(
   const widthMm = Math.max(2500, dimensions.widthMm);
   const depthMm = Math.max(2500, dimensions.depthMm);
   const heightMm = Math.max(2200, dimensions.heightMm);
-  const centerX = (bounds.minX + bounds.maxX) / 2;
-  const centerZ = (bounds.minZ + bounds.maxZ) / 2;
+  const nextX = resizeAlongAxis(bounds.minX, bounds.maxX, widthMm, anchors?.x);
+  const nextZ = resizeAlongAxis(bounds.minZ, bounds.maxZ, depthMm, anchors?.z);
   const scaleX = widthMm / bounds.widthMm;
   const scaleZ = depthMm / bounds.depthMm;
   const wallIds = wallIdsForRoomLoops(project, roomId);
@@ -40,8 +46,8 @@ export function resizeRoomPlanGeometry(
     nodes: project.nodes.map((node) => nodeIds.has(node.id) ? {
       ...node,
       position: {
-        x: roundedMm(centerX + (node.position.x - centerX) * scaleX),
-        z: roundedMm(centerZ + (node.position.z - centerZ) * scaleZ),
+        x: roundedMm(nextX.minMm + (node.position.x - bounds.minX) * scaleX),
+        z: roundedMm(nextZ.minMm + (node.position.z - bounds.minZ) * scaleZ),
       },
     } : node),
     rooms: project.rooms.map((item) => item.id === roomId ? {

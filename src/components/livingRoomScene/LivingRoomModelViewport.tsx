@@ -90,6 +90,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
           fieldOfViewDegrees={props.cameraOverrides.fieldOfViewDegrees}
           snapSizeMm={props.snapSizeMm} showGrid={props.clientView.showGrid} cutawayWalls={props.cutawayWalls}
           showCeiling={props.showCeiling}
+          wallResize={viewOnly || apartment ? undefined : props.wallResize}
           interactive={props.clientView.interactive}
           frameRun={apartment ? undefined : tour.frameRun}
           renderComposition={apartment ? "project-camera" : tour.composition}

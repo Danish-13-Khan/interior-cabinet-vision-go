@@ -1,6 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Phases 0–2 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list; Phase 2: `hostCutoutId` on the ceiling mount, COB / panel in a cutout, Fit, cutout drag on the plan). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 3–4 remain proposed; pick one before further `src/` work.
+**Status:** Phases 0–2 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list; Phase 2: `hostCutoutId` on the ceiling mount, COB / panel in a cutout, Fit, cutout drag on the plan). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phase 3 built 2026-10-09 on `feat/resize-anchors` (`resizeAlongAxis` + anchors on room, cabinet and cutout resizes, inspector anchor segments, 2D cutout edge handles, 3D wall face and end handles). Phase 4 remains proposed.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with
@@ -263,7 +263,21 @@ outline ("not in ceiling") that can be dragged back in or deleted.
 
 **Exit gate:** drag the right face of a room in 3D; the left wall does not
 move; openings on the moved wall stay inside it; cabinets reflow; 2D shows the
-same geometry.
+same geometry. Covered by `tests/e2e/phase-resize-3-wall-handles.spec.ts`
+(face drag, left wall fixed, Width field agrees) and the unit tests
+`resizeAnchor.test.ts`, `roomResizeAnchors.test.ts`, `objectResizeAnchor.test.ts`,
+`wallResizeHandles.test.ts` and the cutout case in `lightCutoutMount.test.ts`.
+The face drag commits through the existing wall-translate command, which
+already keeps openings inside and reflows cabinet runs and panels.
+
+Built as: the 3D face handle moves the wall along its outward normal
+(`translatePlanWall`), so the opposite wall stays; the end handles on the
+selected wall drive `setPlanWallLength` with the other end anchored. The 2D
+room already had this through wall and node drags, so only cutouts gained
+edge handles there. Known Phase 3 limits: 3D geometry updates on release with
+a live readout, not a live mesh preview; cutouts have no 3D selection, so they
+resize in 2D only; a cabinet's width anchor is applied after the run reflow
+and a run-managed cabinet is placed by its run.
 
 ### Phase 4 — COB shades and lighting preview
 

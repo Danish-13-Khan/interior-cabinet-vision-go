@@ -1,3 +1,4 @@
+import type { ResizeAnchors } from "../../domain/interiorProject";
 import type { ReactNode } from "react";
 import type {
   InteriorObjectEntity,
@@ -35,11 +36,11 @@ type LivingRoomInspectorPanelProps = {
   snapSizeMm: number;
   selectedCount: number;
   issues: LivingRoomPlanIssue[];
-  onRoomDimensions: (dimensions: Size3Mm) => void;
+  onRoomDimensions: (dimensions: Size3Mm, anchors?: ResizeAnchors) => void;
   onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onDeleteCeilingCutout?: (roomId: string, cutoutId: string) => void;
   onMove: (objectId: string, position: Point3Mm) => void;
-  onResize: (objectId: string, dimensions: Size3Mm) => void;
+  onResize: (objectId: string, dimensions: Size3Mm, anchors?: ResizeAnchors) => void;
   onSetRotation: (objectId: string, rotationY: number) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;

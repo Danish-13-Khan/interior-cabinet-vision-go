@@ -155,6 +155,7 @@ export { renameInteriorRoom, setActiveInteriorRoom } from "./roomActivation";
 export { deleteInteriorRoom, mergeInteriorRooms } from "./roomOperations";
 export { explainInteriorRoomMergeBlock, type InteriorRoomMergeBlock } from "./roomMergeExplain";
 export { resizeRoomPlanGeometry } from "./roomResize";
+export { anchorForDraggedEdge, resizeAlongAxis, type ResizeAnchor, type ResizeAnchors } from "./resizeAnchor";
 export {
   createSurfaceZone,
   deleteSurfaceZone,
