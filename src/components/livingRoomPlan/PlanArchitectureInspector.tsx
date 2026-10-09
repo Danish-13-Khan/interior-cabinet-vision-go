@@ -27,6 +27,7 @@ import { RoomFinishFields } from "./RoomFinishFields";
 import { WallDrawingPanel } from "./WallDrawingPanel";
 import { InspectorSection } from "./InspectorSection";
 import { CeilingLightingSection } from "./CeilingLightingSection";
+import { CeilingCutoutsSection } from "./CeilingCutoutsSection";
 import { FloorBuildSection } from "./FloorBuildSection";
 import { WallEditingPanel, type WallEditingActions } from "./WallEditingPanel";
 import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
@@ -39,6 +40,7 @@ type Props = {
   wall: WallEntity | null;
   onRoomDimensions: (dimensions: Size3Mm) => void;
   onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
+  onDeleteCeilingCutout?: (roomId: string, cutoutId: string) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
   unit: PlanDisplayUnit;
   onSetWallMaterial: (wallId: string, materialId: string | null) => void;
@@ -86,6 +88,9 @@ export function PlanArchitectureInspector(props: Props) {
       <p className="lr-authoring-hint">Select Draw wall, then click two points on the plan.</p>
       {props.lightActions && props.onSelectLight ? (
         <CeilingLightingSection actions={props.lightActions} onSelectLight={props.onSelectLight} />
+      ) : null}
+      {props.onDeleteCeilingCutout ? (
+        <CeilingCutoutsSection room={room} unit={props.unit} onDelete={props.onDeleteCeilingCutout} />
       ) : null}
       {props.onSetFloorBuild ? <FloorBuildSection room={room} onChange={props.onSetFloorBuild} /> : null}
       <InspectorSection title="Advanced" testId="inspector-room-advanced">

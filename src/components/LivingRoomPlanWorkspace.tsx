@@ -63,6 +63,7 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onRoomDimensions: props.onRoomDimensions, onAddPartitionWall: props.onAddPartitionWall,
     onCreateRoom: props.onCreateRoom, onDrawWallSegment: props.onDrawWallSegment,
     onDrawSurface: props.onDrawSurface, onUpdateSurface: props.onUpdateSurface,
+    onDrawCeilingCutout: props.onDrawCeilingCutout,
     onDeleteSurface: props.onDeleteSurface, onPlaceColumn: props.onPlaceColumn,
     onSplitWall: props.onSplitWall, onDeleteWall: props.onDeleteWall, onUpdateWall: props.onUpdateWall,
     onJoinCoincidentNodes: props.onJoinCoincidentNodes, onMoveNode: props.onMoveNode,

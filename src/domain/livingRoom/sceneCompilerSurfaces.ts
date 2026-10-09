@@ -10,6 +10,7 @@ import {
   type InteriorRoomEntity,
 } from "../interiorProject";
 import { isWallRaised, outerLoopWallsRaised } from "../interiorProject/wallRaise";
+import { readCeilingCutouts } from "../interiorProject/ceilingCutouts";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { polygonPrismPrimitive } from "./scenePrimitives";
@@ -51,11 +52,13 @@ export function compileRoomLoopSurfaces(
   };
   const zones = compileSurfaceZoneNodes(project, room);
   if (!outerLoopWallsRaised(project, room)) return [floor, ...zones];
+  // Cutouts are holes in the slab only; the floor, skirting and fixtures never see them.
+  const ceilingHoles = [...polygon.holes, ...readCeilingCutouts(room).map((cutout) => cutout.polygon)];
   const ceiling: CompiledSceneNode = {
     id: `room-ceiling:${room.id}`, name: `${room.name} Ceiling`, sourceObjectId: null,
     adapterId: "room-loop-ceiling-v2", positionMm: { x: 0, y: 0, z: 0 },
     rotationDegrees: { x: 0, y: 0, z: 0 },
-    primitives: [polygonPrismPrimitive("ceiling", polygon.outer, polygon.holes, CEILING_SLAB_THICKNESS_MM, room.dimensions.heightMm + CEILING_SLAB_THICKNESS_MM / 2, ceilingMaterial)],
+    primitives: [polygonPrismPrimitive("ceiling", polygon.outer, ceilingHoles, CEILING_SLAB_THICKNESS_MM, room.dimensions.heightMm + CEILING_SLAB_THICKNESS_MM / 2, ceilingMaterial)],
     placeholder: false, metadata: { role: "architecture", surface: "ceiling", topology: "closed-loop" },
     renderBinding: createProceduralRenderBinding({ surface: ceilingMaterial }),
   };

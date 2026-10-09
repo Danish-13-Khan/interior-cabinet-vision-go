@@ -82,6 +82,27 @@ export async function createBlankPlan(page: Page) {
   await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
 }
 
+/**
+ * Blank job that survives a reload: `createBlankPlan` installs an init script
+ * that wipes storage on every load, which would also wipe the autosaved job.
+ */
+export async function createBlankPlanForReopen(page: Page) {
+  await page.addInitScript((session) => {
+    if (!window.localStorage.getItem("cabinetStudioSession")) {
+      window.localStorage.setItem("cabinetStudioSession", session);
+    }
+  }, E2E_SESSION_JSON);
+  await page.goto("/app");
+  await page.evaluate((session) => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+    window.localStorage.setItem("cabinetStudioSession", session);
+  }, E2E_SESSION_JSON);
+  await page.goto("/app");
+  await expectInteriorsHome(page);
+  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
+}
+
 /** Rectangular living-room shell with openings (wardrobe starter, empty of furniture). */
 export async function createShellPlan(page: Page, options?: PlannerStartOptions) {
   await openInteriorsHome(page, options);

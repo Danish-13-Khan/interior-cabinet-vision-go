@@ -9,6 +9,7 @@ const tools: Array<{ id: BuildTool; label: string; note: string }> = [
   { id: "draw-wall", label: "Draw Wall", note: "Drag segments · split · join nodes" },
   { id: "draw-partition", label: "Draw Partition", note: "Interior walls · split · delete" },
   { id: "draw-surface", label: "Draw Surface", note: "Polygon zones · material finish" },
+  { id: "draw-ceiling-cutout", label: "Ceiling Cutout", note: "Rectangle or polygon hole in the ceiling" },
   { id: "place-door", label: "Place Doors", note: "Arm tool, then place on a wall" },
   { id: "place-window", label: "Place Windows", note: "Arm tool, then place on a wall" },
   { id: "place-column", label: "Place Column", note: "Click the plan to drop a column" },

@@ -22,6 +22,8 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
   const apartment = overview.showApartment || tour.touringOverview;
   const roomName = project.rooms.find((room) => room.id === props.hoveredRoomId)?.name ?? null;
   const extruded = scene.nodes.filter((node) => node.metadata.role === "wall" && node.metadata.planTrace !== true).length;
+  const ceilingHoles = scene.nodes.filter((node) => node.metadata.surface === "ceiling").reduce((count, node) =>
+    count + node.primitives.reduce((holes, primitive) => holes + (primitive.kind === "polygon-prism" ? primitive.holesMm.length : 0), 0), 0);
   const choosePreset = (preset: ModelViewPresetId) => { if (!apartment) camera.setViewPreset(preset); };
   return (
     <div
@@ -32,6 +34,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
       data-scene-height-mm={Math.round(scene.bounds.size.heightMm)}
       data-extruded-walls={extruded}
       data-ceiling-hidden={props.ceilingHidden ? "1" : "0"}
+      data-ceiling-cutouts={ceilingHoles}
       data-near-wall-cut={props.nearWallCut ? "1" : "0"}
       data-active-room-id={project.activeRoomId}
       data-overview-phase={overview.phase}

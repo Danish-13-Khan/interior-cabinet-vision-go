@@ -7,6 +7,7 @@ import {
 } from "./roomGeometry";
 import type { InteriorProject, InteriorValidationIssue } from "./types";
 import { validateSurfaceZones } from "./surfaceZoneValidation";
+import { validateCeilingCutouts } from "./ceilingCutouts";
 
 function issue(
   issues: InteriorValidationIssue[],
@@ -85,4 +86,5 @@ export function validateTopologyGeometry(
     }
   }
   validateSurfaceZones(project, issues);
+  validateCeilingCutouts(project, issues);
 }

@@ -87,6 +87,9 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
           />
         </section>
       ) : null}
+      {tool === "draw-ceiling-cutout" ? <section className="lr-room-authoring lr-build-commit"><strong>Ceiling cutout · armed</strong>
+        <p>Drag a rectangle inside the room, or click points and close the polygon. Layers → Ceiling shows the slab.</p>
+        <button type="button" disabled={polygonCount < 3} onClick={props.onCloseSurfacePolygon}>Close cutout polygon ({polygonCount})</button></section> : null}
       {tool === "draw-partition" || tool === "place-column" ? (
         <StructuralBuildPanel
           tool={tool}

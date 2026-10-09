@@ -4,7 +4,6 @@ import {
   roomPlanPolygon, roomPlanViewBounds, selectWallsForRoom,
   type InteriorProject, type InteriorRoomEntity, type Point2Mm,
 } from "../../domain/interiorProject";
-import { outerLoopWallsRaised } from "../../domain/interiorProject/wallRaise";
 import { getLivingRoomPlanUnderlay, type PlanVisualStyle } from "../../domain/livingRoom";
 
 export function PlanArchitectureLayer(props: {
@@ -20,8 +19,6 @@ export function PlanArchitectureLayer(props: {
   onUnderlayPointerDown?: (event: ReactPointerEvent<SVGImageElement>) => void;
   /** Automatic site centre line; the caller hides it when guides exist. */
   showCenterLine?: boolean;
-  /** Ceiling layer: the slab outline the 3D view compiles, drawn only once the room's walls are raised. */
-  showCeiling?: boolean;
 }) {
   const underlay = getLivingRoomPlanUnderlay(props.project);
   const underlayX = props.underlayOffset?.xMm ?? underlay?.xMm ?? 0;
@@ -42,13 +39,11 @@ export function PlanArchitectureLayer(props: {
     : `M${bounds.minX} ${bounds.minZ} H${bounds.maxX} V${bounds.maxZ} H${bounds.minX} Z`;
   const clipId = "lr-active-room-floor-clip";
   const roomWallIds = new Set(props.room ? selectWallsForRoom(props.project, props.room.id).map((wall) => wall.id) : []);
-  const ceilingCompiled = Boolean(props.showCeiling && props.room && polygon && outerLoopWallsRaised(props.project, props.room));
   return <>
     <defs>
       <pattern id="lr-grid-small" width={props.snapSizeMm} height={props.snapSizeMm} patternUnits="userSpaceOnUse"><path d={`M ${props.snapSizeMm} 0 L 0 0 0 ${props.snapSizeMm}`} className="lr-grid-line" /></pattern>
       <pattern id="lr-grid-major" width={props.snapSizeMm * 10} height={props.snapSizeMm * 10} patternUnits="userSpaceOnUse"><rect width="100%" height="100%" fill="url(#lr-grid-small)" /><path d={`M ${props.snapSizeMm * 10} 0 L 0 0 0 ${props.snapSizeMm * 10}`} className="lr-grid-major-line" /></pattern>
       <clipPath id={clipId}><path d={floorPath} fillRule="evenodd" /></clipPath>
-      <pattern id="lr-ceiling-hatch" width="420" height="420" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="420" className="lr-ceiling-hatch-line" /></pattern>
     </defs>
     <rect data-plan-paper x={paperBounds.minX-1000} y={paperBounds.minZ-1000} width={paperBounds.maxX-paperBounds.minX+2000} height={paperBounds.maxZ-paperBounds.minZ+2000} className="lr-plan-paper" onPointerDown={props.onPaper} />
     {/* Floor fill sits under the underlay so a traced plan stays readable inside the room (S5). */}
@@ -66,7 +61,6 @@ export function PlanArchitectureLayer(props: {
       <line x1={bounds.minX} y1={bounds.centerZ} x2={bounds.maxX} y2={bounds.centerZ} className="lr-center-line" data-testid="lr-auto-center-line" pointerEvents="none" />
       <line x1={bounds.centerX} y1={bounds.minZ} x2={bounds.centerX} y2={bounds.maxZ} className="lr-center-line" pointerEvents="none" />
     </> : null}
-    {ceilingCompiled ? <path data-testid="lr-plan-ceiling" className="lr-plan-ceiling" d={floorPath} fillRule="evenodd" pointerEvents="none" /> : null}
     {props.project.walls.filter((wall) => wall.visible).map((wall) => {
       const start = (wall.startNodeId && props.previewNodes?.get(wall.startNodeId)) || wall.start;
       const end = (wall.endNodeId && props.previewNodes?.get(wall.endNodeId)) || wall.end;

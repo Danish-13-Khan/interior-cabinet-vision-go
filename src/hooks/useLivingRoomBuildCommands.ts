@@ -18,6 +18,7 @@ type BuildBridgeInput = Pick<
   | "onCreateRoom"
   | "onDrawWallSegment"
   | "onDrawSurface"
+  | "onDrawCeilingCutout"
   | "onUpdateSurface"
   | "onDeleteSurface"
   | "onPlaceColumn"
@@ -55,6 +56,7 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
     createWallSegment: (start: Point2Mm, end: Point2Mm, kind) => { setPendingWallDraw(true); input.onDrawWallSegment(start, end, kind); },
     createRoom: input.onCreateRoom,
     createSurface: (drawing, materialId) => { setPendingSurfaceDraw(true); input.onDrawSurface(drawing, materialId); },
+    createCeilingCutout: input.onDrawCeilingCutout,
     updateSurface: input.onUpdateSurface,
     deleteSurface: input.onDeleteSurface,
     placeColumn: input.onPlaceColumn,
@@ -82,6 +84,7 @@ export function useLivingRoomBuildCommands(input: BuildBridgeInput) {
     createWallSegment: (start, end, kind) => { setPendingWallDraw(true); input.onDrawWallSegment(start, end, kind); },
     createRoom: input.onCreateRoom,
     createSurface: (drawing, materialId) => { setPendingSurfaceDraw(true); input.onDrawSurface(drawing, materialId); },
+    createCeilingCutout: input.onDrawCeilingCutout,
     updateSurface: input.onUpdateSurface,
     deleteSurface: input.onDeleteSurface,
     placeColumn: input.onPlaceColumn,

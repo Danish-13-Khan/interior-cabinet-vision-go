@@ -1,7 +1,9 @@
 import { noteProjectSnapshot } from "../../domain/projectSnapshots/capture";
 import {
+  addCeilingCutout,
   createSurfaceZone,
   createWallSegmentResult,
+  deleteCeilingCutout,
   deleteInteriorRoom,
   deleteSurfaceZone,
   drawRoomFromPoints,
@@ -152,6 +154,17 @@ export function roomCommands(ctx: EditorCommandContext) {
     },
     deleteLivingRoomSurface: (surfaceId: string) => {
       commitDocument((current) => deleteSurfaceZone(current, surfaceId), "Deleted surface zone.");
+    },
+    drawLivingRoomCeilingCutout: (drawing: RoomDrawingRequest) => {
+      if (!document) return;
+      if (addCeilingCutout(document, drawing.points) === document) {
+        onStatus?.("Ceiling cutouts must sit inside the room and clear of other cutouts.");
+        return;
+      }
+      commitDocument((current) => addCeilingCutout(current, drawing.points), "Added ceiling cutout.");
+    },
+    deleteLivingRoomCeilingCutout: (roomId: string, cutoutId: string) => {
+      commitDocument((current) => deleteCeilingCutout(current, roomId, cutoutId), "Deleted ceiling cutout.");
     },
     placeLivingRoomColumn: placeColumn,
     setLivingRoomFloorBuild: (patch: Partial<FloorBuild>) => {

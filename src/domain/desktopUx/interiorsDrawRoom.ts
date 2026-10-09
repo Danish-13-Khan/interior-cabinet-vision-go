@@ -6,6 +6,7 @@ import { INTERIORS_CHROME_TOOLS, mapInteriorsChromeTool } from "./interiorsChrom
 export const INTERIORS_DRAW_ROOM_ARCHITECTURE_TOOLS = [
   { id: "draw-partition" as const, label: "Partition" },
   { id: "draw-surface" as const, label: "Surface" },
+  { id: "draw-ceiling-cutout" as const, label: "Ceiling cutout" },
   { id: "place-column" as const, label: "Column" },
 ];
 
@@ -32,6 +33,7 @@ export function interiorsDrawRoomHint(tool: InteriorsChromeTool, buildTool?: Bui
   if (buildTool === "move-underlay") return "Drag the underlay to move it · Space-drag pans the view · Esc finishes";
   if (buildTool === "draw-partition") return "Drag a partition segment on the plan";
   if (buildTool === "draw-surface") return "Click points, then close the surface polygon";
+  if (buildTool === "draw-ceiling-cutout") return "Drag a rectangle inside the room, or click points and close, for a ceiling cutout";
   if (buildTool === "place-column") return "Click the plan to place a column";
   if (tool === "room") return "Drag a rectangle, or click points and close the polygon";
   if (tool === "wall") return "Drag a wall segment on the plan";

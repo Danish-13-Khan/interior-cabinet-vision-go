@@ -1,6 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Phase 0 built 2026-10-09 on `feat/ceiling-cutouts` (Ceiling plan layer, 3D Ceiling toggle, `modelViewHidesCeiling(preset, showCeiling)`). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 1–4 remain proposed; pick one before further `src/` work.
+**Status:** Phases 0–1 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 1–4 remain proposed; pick one before further `src/` work.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with
@@ -190,9 +190,12 @@ make the view useful.
   `PlanCeilingLayer` drawn **above** the object layers, so a cutout under a
   cabinet glyph stays visible and editable. Phase 0 draws the slab beneath
   objects, which is fine for an outline but not for editing.
-- Ceiling layer on → the Room tool's rectangle / polygon gesture draws a cutout
-  instead of a room (same `RoomDrawingOverlay`, status copy "Drag a rectangle
-  for a ceiling cutout").
+- A dedicated **Ceiling cutout** build tool (`draw-ceiling-cutout`, beside
+  Partition / Surface / Column in Room & plan settings) reuses the Room tool's
+  rectangle / polygon gesture. Built this way rather than overloading the Room
+  tool when the layer is on: a layer toggle must not change what a gesture
+  creates, and a user with the layer on still needs to draw rooms. Arming the
+  tool shows the ceiling layer even when Layers → Ceiling is off.
 - `addCeilingCutout`, `deleteCeilingCutout`, `moveCeilingCutout` on the room;
   validation per §4.1 with the existing plan status chip ("Cutout outside room").
 - Compiler feeds cutouts as prism holes; skirting and fixtures unaffected.

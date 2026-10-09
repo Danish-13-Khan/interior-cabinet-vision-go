@@ -61,6 +61,7 @@ const WorkspaceCanvasStage = memo(function WorkspaceCanvasStage(props: Workspace
       onPlaceOpening={(wallId, kind, offsetMm) => build.dispatchBuildCommand({ type: "placeOpening", wallId, kind, offsetMm, catalogItemId: build.openingCatalogItemId })}
       onCreateRoom={(drawing) => build.dispatchBuildCommand({ type: "createRoom", drawing })}
       onDrawSurface={(drawing, materialId) => build.dispatchBuildCommand({ type: "createSurface", drawing, materialId })}
+      onDrawCeilingCutout={(drawing) => build.dispatchBuildCommand({ type: "createCeilingCutout", drawing })}
       onDrawWallSegment={(start, end, wallKind) => build.dispatchBuildCommand({ type: "createWallSegment", start, end, wallKind })}
       onPlaceColumn={(position) => build.dispatchBuildCommand({ type: "placeColumn", position })}
       roomPolygonCloseRequest={props.roomPolygonCloseRequest} onRoomPolygonPointCount={props.onRoomPolygonPointCount}

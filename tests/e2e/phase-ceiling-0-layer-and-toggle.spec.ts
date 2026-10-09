@@ -1,32 +1,11 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { waitForRecoveryAutosave } from "./phase-7-hardening.helpers";
-import { E2E_SESSION_JSON, clickInteriorsTool, drawRectangleRoom, expectInteriorsHome } from "./plannerStart";
+import { clickInteriorsTool, createBlankPlanForReopen, drawRectangleRoom } from "./plannerStart";
 
 async function clickWall(page: Page, wall: Locator) {
   const box = await wall.boundingBox();
   if (!box) throw new Error("Wall is not rendered");
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-}
-
-/**
- * Blank job that survives a reload: `createBlankPlan` installs an init script
- * that wipes storage on every load, which would also wipe the autosaved job.
- */
-async function createBlankPlanForReopen(page: Page) {
-  await page.addInitScript((session) => {
-    if (!window.localStorage.getItem("cabinetStudioSession")) {
-      window.localStorage.setItem("cabinetStudioSession", session);
-    }
-  }, E2E_SESSION_JSON);
-  await page.goto("/app");
-  await page.evaluate((session) => {
-    window.localStorage.clear();
-    window.sessionStorage.clear();
-    window.localStorage.setItem("cabinetStudioSession", session);
-  }, E2E_SESSION_JSON);
-  await page.goto("/app");
-  await expectInteriorsHome(page);
-  await page.getByRole("button", { name: "New cabinet job", exact: true }).click();
 }
 
 async function enterModel(page: Page) {
