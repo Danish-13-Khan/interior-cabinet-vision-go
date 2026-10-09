@@ -17,6 +17,7 @@ import {
   type Point2Mm,
   type RoomDrawingRequest,
   type Size3Mm,
+  whyCeilingCutoutRefused,
 } from "../../domain/interiorProject";
 import { createCutOpening, cutOpeningOffsetMm } from "../../domain/livingRoom/cutOpening";
 import {
@@ -157,10 +158,8 @@ export function roomCommands(ctx: EditorCommandContext) {
     },
     drawLivingRoomCeilingCutout: (drawing: RoomDrawingRequest) => {
       if (!document) return;
-      if (addCeilingCutout(document, drawing.points) === document) {
-        onStatus?.("Ceiling cutouts must sit inside the room and clear of other cutouts.");
-        return;
-      }
+      const refused = whyCeilingCutoutRefused(document, drawing.points);
+      if (refused) { onStatus?.(refused); return; }
       commitDocument((current) => addCeilingCutout(current, drawing.points), "Added ceiling cutout.");
     },
     deleteLivingRoomCeilingCutout: (roomId: string, cutoutId: string) => {

@@ -1,6 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Phases 0–1 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 1–4 remain proposed; pick one before further `src/` work.
+**Status:** Phases 0–1 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 2–4 remain proposed; pick one before further `src/` work.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with
@@ -204,12 +204,24 @@ make the view useful.
 
 **Exit gate:** fresh room → two rectangular cutouts → 3D with Ceiling on shows
 two holes with the floor visible through them → GLB export has the holes →
-save → reopen preserves them.
+save → reopen preserves them. Covered by `tests/e2e/phase-ceiling-1-cutouts.spec.ts`
+and the unit tests in `ceilingCutouts.test.ts` / `ceilingCutoutsCompile.test.ts`;
+the GLB criterion is covered only indirectly (the export reads the slab
+geometry the unit test checks), not asserted on an exported file.
+
+Known Phase 1 limits: cutouts are fixed plan coordinates and do not follow
+room edits (Width / Depth, node drags, wall moves). A cutout the room shrinks
+away from is left out of the slab by `compiledCeilingCutouts` and flagged by
+validation until moved or deleted; moving or scaling them with the room is
+Phase 3's anchor work. `moveCeilingCutout` exists in the domain only; the plan
+layer does not take the pointer yet.
 
 ### Phase 2 — Fixtures in cutouts
 
 - "Add COB here" on a cutout: mounts a COB on the ceiling centred in the cutout,
-  with `hostCutoutId` in the mount so it follows cutout moves.
+  with `hostCutoutId` in the mount so it follows cutout moves. Checking that
+  needs a way to move a cutout: a simple drag on the plan layer in this phase,
+  or Phase 3's handles.
 - Cutout → "Fit to fixture" sizes the cutout to the fixture's diameter + 10 mm.
 - Panel light option: a cutout the size of the panel, panel sits flush.
 

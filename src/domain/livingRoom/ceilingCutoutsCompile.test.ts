@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addCeilingCutout, polygonBounds, roomPlanPolygon } from "../interiorProject";
+import { addCeilingCutout, polygonBounds, resizeRoomPlanGeometry, roomPlanPolygon } from "../interiorProject";
 import { compileLivingRoomScene, createLivingRoomStarterProject } from ".";
 
 const NOW = "2026-10-09T09:00:00.000Z";
@@ -29,5 +29,22 @@ describe("ceiling cutouts in the compiled scene", () => {
     const floor = compileLivingRoomScene(next).nodes.find((node) => node.id === `room-floor:${next.activeRoomId}`);
     const floorPrism = floor?.primitives[0];
     expect(floorPrism?.kind === "polygon-prism" ? floorPrism.holesMm.length : -1).toBe(before);
+  });
+
+  it("drops a cutout from the slab once the room shrinks away from it", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const room = project.rooms.find((item) => item.id === project.activeRoomId)!;
+    const bounds = polygonBounds(roomPlanPolygon(project, room.id)!.outer);
+    const cz = (bounds.minZ + bounds.maxZ) / 2;
+    const before = ceilingHoles(project).length;
+    const nearEdge = addCeilingCutout(project, [
+      { x: bounds.maxX - 800, z: cz - 300 }, { x: bounds.maxX - 200, z: cz - 300 },
+      { x: bounds.maxX - 200, z: cz + 300 }, { x: bounds.maxX - 800, z: cz + 300 },
+    ]);
+    expect(ceilingHoles(nearEdge)).toHaveLength(before + 1);
+    const shrunk = resizeRoomPlanGeometry(nearEdge, room.id, {
+      ...room.dimensions, widthMm: Math.max(2500, room.dimensions.widthMm - 1600),
+    });
+    expect(ceilingHoles(shrunk)).toHaveLength(before);
   });
 });

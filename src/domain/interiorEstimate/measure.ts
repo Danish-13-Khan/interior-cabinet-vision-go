@@ -1,4 +1,4 @@
-import { selectRoomWalls, type InteriorProject, type Point2Mm } from "../interiorProject";
+import { selectRoomWalls, type InteriorProject, type Point2Mm, compiledCeilingCutouts } from "../interiorProject";
 import { roomPlanPolygon } from "../interiorProject/roomGeometry";
 import { isRoomLightFixture } from "../livingRoom/roomLightFixtures";
 import { resolveLightAttachment } from "../livingRoom/lightAttachments";
@@ -42,13 +42,15 @@ export function measureInteriorEstimate(
     const polygon = roomPlanPolygon(project, room.id);
     const area = polygon ? polygonAreaM2(polygon.outer) - polygon.holes.reduce((sum, hole) => sum + polygonAreaM2(hole), 0)
       : room.dimensions.widthMm * room.dimensions.depthMm / 1e6;
+    const cutoutsM2 = polygon ? compiledCeilingCutouts(project, room).reduce((sum, cutout) => sum + polygonAreaM2(cutout.polygon), 0) : 0;
     for (const kind of ["floor", "ceiling"] as const) {
       const zone = project.surfaces.find((surface) => surface.roomId === room.id && surface.kind === kind);
       const extensionId = kind === "floor" ? room.extensions?.floorMaterialId : room.extensions?.ceilingMaterialId;
       const materialKind = surfaceMaterialKind(project, zone?.materialId
         ?? (typeof extensionId === "string" ? extensionId : null));
-      add(`room:${room.id}:${kind}`, room.id, `${kind === "floor" ? "Floor" : "Ceiling"} finish — whole room`, "m2", area,
-        `${room.id}: ${polygon ? "room polygon minus holes" : "room width × depth"}; full coverage, zones not added separately`,
+      add(`room:${room.id}:${kind}`, room.id, `${kind === "floor" ? "Floor" : "Ceiling"} finish — whole room`, "m2",
+        kind === "ceiling" ? area - cutoutsM2 : area,
+        `${room.id}: ${polygon ? "room polygon minus holes" : "room width × depth"}${kind === "ceiling" && cutoutsM2 > 0 ? " minus ceiling cutouts" : ""}; full coverage, zones not added separately`,
         surfaceRateCategory(kind, materialKind));
     }
     for (const wall of selectRoomWalls(project, room.id)) {

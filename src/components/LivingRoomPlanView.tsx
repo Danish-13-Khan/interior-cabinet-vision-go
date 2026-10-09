@@ -129,8 +129,7 @@ export function LivingRoomPlanView(props: Props) {
   }, [previewWallId, props.project, room]);
 
   const drawRoom = tool === "draw-room";
-  const drawSurface = tool === "draw-surface";
-  const drawCutout = tool === "draw-ceiling-cutout";
+  const drawSurface = tool === "draw-surface"; const drawCutout = tool === "draw-ceiling-cutout";
   const drawWall = tool === "draw-wall";
   const drawPartition = tool === "draw-partition";
   const placeColumn = tool === "place-column";

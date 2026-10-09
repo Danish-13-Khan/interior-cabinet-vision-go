@@ -326,7 +326,7 @@ function App() {
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onSetFloorBuild={c.setLivingRoomFloorBuild}
-            onDeleteCeilingCutout={c.deleteLivingRoomCeilingCutout}
+            onDrawCeilingCutout={c.drawLivingRoomCeilingCutout} onDeleteCeilingCutout={c.deleteLivingRoomCeilingCutout}
             onActiveRoom={c.setActiveLivingRoom}
             onRenameRoom={c.renameLivingRoom}
             onDeleteRoom={c.deleteLivingRoom}
@@ -335,7 +335,6 @@ function App() {
             onCreateRoom={c.drawLivingRoomRoom}
             onDrawWallSegment={c.drawLivingRoomWallSegment}
             onDrawSurface={c.drawLivingRoomSurface}
-            onDrawCeilingCutout={c.drawLivingRoomCeilingCutout}
             onUpdateSurface={c.updateLivingRoomSurface}
             onDeleteSurface={c.deleteLivingRoomSurface}
             onPlaceColumn={c.placeLivingRoomColumn}

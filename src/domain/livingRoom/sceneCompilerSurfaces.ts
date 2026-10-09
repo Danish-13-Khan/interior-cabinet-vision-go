@@ -10,7 +10,7 @@ import {
   type InteriorRoomEntity,
 } from "../interiorProject";
 import { isWallRaised, outerLoopWallsRaised } from "../interiorProject/wallRaise";
-import { readCeilingCutouts } from "../interiorProject/ceilingCutouts";
+import { compiledCeilingCutouts } from "../interiorProject/ceilingCutouts";
 import { LIVING_ROOM_MATERIAL_IDS } from "./materials";
 import { createProceduralRenderBinding } from "./renderAssetBindings";
 import { polygonPrismPrimitive } from "./scenePrimitives";
@@ -52,8 +52,9 @@ export function compileRoomLoopSurfaces(
   };
   const zones = compileSurfaceZoneNodes(project, room);
   if (!outerLoopWallsRaised(project, room)) return [floor, ...zones];
-  // Cutouts are holes in the slab only; the floor, skirting and fixtures never see them.
-  const ceilingHoles = [...polygon.holes, ...readCeilingCutouts(room).map((cutout) => cutout.polygon)];
+  // Cutouts are holes in the slab only; the floor, skirting and fixtures never see them. A cutout the
+  // room has shrunk away from is skipped (validation flags it) so the slab never gets a hole across its edge.
+  const ceilingHoles = [...polygon.holes, ...compiledCeilingCutouts(project, room).map((cutout) => cutout.polygon)];
   const ceiling: CompiledSceneNode = {
     id: `room-ceiling:${room.id}`, name: `${room.name} Ceiling`, sourceObjectId: null,
     adapterId: "room-loop-ceiling-v2", positionMm: { x: 0, y: 0, z: 0 },

@@ -34,7 +34,7 @@ export function LivingRoomModelViewport(props: LivingRoomModelViewportProps) {
       data-scene-height-mm={Math.round(scene.bounds.size.heightMm)}
       data-extruded-walls={extruded}
       data-ceiling-hidden={props.ceilingHidden ? "1" : "0"}
-      data-ceiling-cutouts={ceilingHoles}
+      data-ceiling-holes={ceilingHoles}
       data-near-wall-cut={props.nearWallCut ? "1" : "0"}
       data-active-room-id={project.activeRoomId}
       data-overview-phase={overview.phase}
