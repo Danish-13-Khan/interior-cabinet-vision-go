@@ -1,6 +1,6 @@
 import { useRef, type ComponentProps, type ReactNode, type RefObject } from "react";
 import { AppToolRail } from "./AppToolRail";
-import { AppWorkspace } from "./AppWorkspace";
+import { AppWorkspace } from "./lazyWorkspaces";
 import { AppInspector } from "./AppInspector";
 import { PaneResizeHandle } from "./PaneResizeHandle";
 import type { CabinetSceneHandle } from "./CabinetScene";

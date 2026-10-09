@@ -6,7 +6,7 @@ import type { WholeProjectReport } from "../domain/projectRooms";
 import type { MachineJobDocument } from "../domain/machineExport";
 import type { ReviewNoteSeverity } from "../domain/projectReview";
 import type { ViewportHudState } from "../domain/desktopUx";
-import { ReportCenter } from "./ReportCenter";
+import { ReportCenter } from "./lazyWorkspaces";
 import { PaneResizeHandle } from "./PaneResizeHandle";
 import { StatusHudSegments } from "./StatusHudSegments";
 import { EngineeringDriftChip } from "./EngineeringDriftChip";

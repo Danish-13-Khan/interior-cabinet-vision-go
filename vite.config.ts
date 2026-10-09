@@ -67,6 +67,11 @@ export default defineConfig(async () => ({
             return undefined;
           }
 
+          // ~300 kB of LTC lookup tables; keep them out of the app shell.
+          if (id.includes("/three/examples/jsm/lights/RectAreaLight")) {
+            return "three-area-lights";
+          }
+
           if (
             id.includes("/react/") ||
             id.includes("/react-dom/") ||

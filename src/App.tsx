@@ -3,10 +3,12 @@ import { AppRibbon } from "./components/AppRibbon";
 import { AppCommandSurfaces } from "./components/AppCommandSurfaces";
 import { AppStatusDock } from "./components/AppStatusDock";
 import { AppMainBody } from "./components/AppMainBody";
-import { ReportCenter } from "./components/ReportCenter";
 import { JobWorkspace } from "./components/JobWorkspace";
-import { LivingRoomPlanWorkspace } from "./components/LivingRoomPlanWorkspace";
-import { EngineeringReviewWorkspace } from "./components/EngineeringReviewWorkspace";
+import {
+  EngineeringReviewWorkspace,
+  LivingRoomPlanWorkspace,
+  ReportCenter,
+} from "./components/lazyWorkspaces";
 import { createWallLayoutSummary, type WallLayoutSide } from "./domain/wallLayout";
 import { useAppController } from "./hooks/useAppController";
 import { getProjectSheetSet } from "./domain/sheetDocuments";
