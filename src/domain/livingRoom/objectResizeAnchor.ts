@@ -1,5 +1,9 @@
-import type { InteriorProject, Size3Mm } from "../interiorProject";
-import type { ResizeAnchors } from "../interiorProject";
+import type { InteriorProject, ResizeAnchors, Size3Mm } from "../interiorProject";
+import { cabinetRunForObject } from "./cabinetRunLayout";
+import { setCabinetInlineDimensions } from "./cabinetRunInlineDims";
+import { resizeLivingRoomObject } from "./planCommands";
+import { isWallPanelObject } from "./panelAttachment";
+import { resizeWallPanel } from "./panelCommands";
 
 /**
  * After an object's size changed, shift its centre so the anchored edge stays
@@ -29,4 +33,29 @@ export function anchorResizedObject(
     z: Math.round(object.position.z + uz * alongX + vz * alongZ),
   };
   return { ...project, objects: project.objects.map((item) => (item.id === objectId ? { ...item, position } : item)) };
+}
+
+/** A cabinet inside a run is placed by the run's reflow; an anchor would fight it. */
+export function isRunManagedObject(project: InteriorProject, objectId: string) {
+  const object = project.objects.find((item) => item.id === objectId);
+  return Boolean(object && object.kind === "cabinet" && cabinetRunForObject(object) !== null);
+}
+
+/**
+ * The editor's resize: wall panels and run cabinets keep their own placement
+ * rules; everything else may keep an anchored edge.
+ */
+export function resizeInteriorObjectAnchored(
+  project: InteriorProject,
+  objectId: string,
+  dimensions: Size3Mm,
+  anchors?: ResizeAnchors,
+): InteriorProject {
+  const object = project.objects.find((item) => item.id === objectId);
+  if (!object) return project;
+  if (isWallPanelObject(object)) return resizeWallPanel(project, objectId, dimensions);
+  const resized = object.kind === "cabinet"
+    ? setCabinetInlineDimensions(project, objectId, dimensions)
+    : resizeLivingRoomObject(project, objectId, dimensions);
+  return isRunManagedObject(project, objectId) ? resized : anchorResizedObject(resized, objectId, object.dimensions, anchors);
 }

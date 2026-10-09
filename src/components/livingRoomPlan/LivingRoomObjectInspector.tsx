@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { InteriorObjectEntity, InteriorProject, ResizeAnchor, Size3Mm } from "../../domain/interiorProject";
 import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import {
+  cabinetRunForObject,
   isMillworkObject,
   isWallPanelObject,
   type PanelAttachment,
@@ -58,6 +59,7 @@ export function LivingRoomObjectInspector({
   const onSchedule = isMillworkObject(object);
   const wallPanel = isWallPanelObject(object);
   const boxCabinet = object.kind === "cabinet" && object.category !== "filler" && !wallPanel;
+  const runManaged = object.kind === "cabinet" && cabinetRunForObject(object) !== null;
 
   return (
     <section className="lr-object-inspector">
@@ -77,7 +79,7 @@ export function LivingRoomObjectInspector({
             <NumberField className="lr-dimension-card" label="H" value={object.dimensions.heightMm} onChange={(value) => patchDimension("heightMm", value)} />
             <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
           </div>
-          {wallPanel ? null : <ResizeAnchorSegment label="Width anchor" value={widthAnchor} minLabel="Left" maxLabel="Right" testId="object-width-anchor" onChange={setWidthAnchor} />}
+          {wallPanel || runManaged ? null : <ResizeAnchorSegment label="Width anchor" value={widthAnchor} minLabel="Left" maxLabel="Right" testId="object-width-anchor" onChange={setWidthAnchor} />}
           {object.kind === "cabinet" && !wallPanel ? (
             <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions, { x: widthAnchor })} />
           ) : null}
