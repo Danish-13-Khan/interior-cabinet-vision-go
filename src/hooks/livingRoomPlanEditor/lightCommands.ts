@@ -83,7 +83,8 @@ function addLivingRoomLight(
   const preview = addRoomLightFixture(document, kind, mount);
   if (preview === document) return null;
   if (options?.fitCutout && mount?.kind === "cutout") {
-    const refused = whyCutoutFitRefused(preview, mount.cutoutId, preview.lights.at(-1)!.id);
+    const created = preview.lights[preview.lights.length - 1];
+    const refused = created ? whyCutoutFitRefused(preview, mount.cutoutId, created.id) : null;
     if (refused) { onStatus?.(refused); return null; }
   }
   let createdId: string | null = null;
