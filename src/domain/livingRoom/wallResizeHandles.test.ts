@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createEmptyInteriorProject } from "../interiorProject/defaults";
 import { drawRoomFromPoints } from "../interiorProject/roomDrawing";
-import { pointInPolygon, roomPlanPolygon } from "../interiorProject";
+import { pointInPolygon, polygonSignedArea, roomPlanPolygon } from "../interiorProject";
 import { createWallSegmentResult } from "../interiorProject";
 import { createLivingRoomStarterProject } from "./preset";
 import { wallResizeHandleSpecs } from "./wallResizeHandles";
@@ -33,6 +33,21 @@ describe("wallResizeHandleSpecs", () => {
     ] }, { raised: true });
     expectOutwardLeavesRoom(project as ReturnType<typeof createLivingRoomStarterProject>);
     expect(wallResizeHandleSpecs(project).filter((spec) => spec.onLoop)).toHaveLength(6);
+  });
+
+  it("still points outward when the loop runs clockwise", () => {
+    const project = createLivingRoomStarterProject({ now: NOW });
+    const room = project.rooms.find((item) => item.id === project.activeRoomId)!;
+    // Walk the outer loop the other way: reversed use order, every direction flipped.
+    const loops = project.loops.map((loop) => (loop.id === room.outerLoopId
+      ? { ...loop, wallUses: [...loop.wallUses].reverse().map((use) => ({
+        ...use, direction: use.direction === "forward" ? "reverse" as const : "forward" as const,
+      })) }
+      : loop));
+    const clockwise = { ...project, loops };
+    const area = polygonSignedArea(roomPlanPolygon(clockwise, room.id)!.outer);
+    expect(Math.sign(area)).toBe(-Math.sign(polygonSignedArea(roomPlanPolygon(project, room.id)!.outer)));
+    expectOutwardLeavesRoom(clockwise);
   });
 
   it("gives a partition end knobs, not a face plate", () => {
