@@ -20,6 +20,7 @@ import {
   type PlanViewBox,
 } from "../domain/livingRoom/planViewTransform";
 import { usePlanCanvasFit } from "./usePlanCanvasFit";
+import { usePlanCanvasWheel } from "./usePlanCanvasWheel";
 
 type SvgSize = { width: number; height: number };
 
@@ -76,23 +77,7 @@ export function usePlanCanvasNavigation(options: {
     };
   }, []);
 
-  useEffect(() => {
-    const svg = svgEl;
-    if (!svg) return;
-    function handleWheel(event: WheelEvent) {
-      event.preventDefault();
-      const current = viewRef.current;
-      const factor = event.ctrlKey
-        ? Math.exp(-event.deltaY * 0.01)
-        : (event.deltaY < 0 ? PLAN_VIEW_ZOOM_STEP : 1 / PLAN_VIEW_ZOOM_STEP);
-      const fromCtm = clientToPlanPointFromSvg(svg!, event.clientX, event.clientY);
-      const rect = svg!.getBoundingClientRect();
-      const origin = fromCtm ?? clientToPlanPoint(current, event.clientX, event.clientY, rect);
-      setView((prev) => zoomPlanViewToward(prev, factor, origin.x, origin.z));
-    }
-    svg.addEventListener("wheel", handleWheel, { passive: false });
-    return () => svg.removeEventListener("wheel", handleWheel);
-  }, [svgEl]);
+  usePlanCanvasWheel({ svg: svgEl, viewRef, setView });
 
   function worldFromClient(clientX: number, clientY: number) {
     const svg = svgRef.current;
@@ -110,9 +95,9 @@ export function usePlanCanvasNavigation(options: {
   }
 
   function beginPan(event: ReactPointerEvent<SVGSVGElement>) {
-    const middle = event.button === 1;
+    const middleOrRight = event.button === 1 || event.button === 2;
     const space = spaceDown && event.button === 0;
-    if (!middle && !space) return false;
+    if (!middleOrRight && !space) return false;
     event.preventDefault();
     event.stopPropagation();
     panDrag.current = { pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };

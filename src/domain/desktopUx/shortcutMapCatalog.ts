@@ -155,7 +155,9 @@ export const SHORTCUT_FIXED_REFERENCES: ReadonlyArray<{
   group: ShortcutGroupId;
 }> = [
   { id: "pan-space", label: "Temporary pan (plan)", keys: "Space + drag", group: "plan" },
-  { id: "pan-mmb", label: "Pan", keys: "Middle mouse", group: "plan" },
+  { id: "pan-mmb", label: "Pan", keys: "Middle / right mouse drag", group: "plan" },
+  { id: "pan-trackpad", label: "Pan (plan)", keys: "Two-finger scroll / Shift + wheel", group: "plan" },
+  { id: "zoom-plan", label: "Zoom at cursor (plan)", keys: "Pinch / ⌘ or Ctrl + scroll / mouse wheel", group: "plan" },
   { id: "nudge", label: "Nudge selection", keys: "Arrow keys", group: "editing" },
   { id: "clear", label: "Cancel tool / clear selection", keys: "Esc", group: "editing" },
   { id: "orbit-drag", label: "Orbit camera", keys: "Drag in 3D", group: "model" },

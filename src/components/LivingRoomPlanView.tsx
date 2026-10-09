@@ -334,7 +334,7 @@ export function LivingRoomPlanView(props: Props) {
       if (placeColumn) placeColumnAt(event);
     }}
     onPointerDown={(event) => {
-      if (nav.spaceDown || event.button === 1) { nav.beginPan(event); return; }
+      if (nav.beginPan(event)) return;
       if (measureLike) { if (event.button === 0) measure.click(event); return; }
       if (event.target === event.currentTarget) { props.onSelect(null); props.onSelectSurface(null); }
     }}
