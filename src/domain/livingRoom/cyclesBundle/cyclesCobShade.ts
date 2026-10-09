@@ -1,6 +1,6 @@
 import type { LightEntity } from "../../interiorProject";
 import { fixtureNumber } from "../lightFixtureProperties";
-import { cobShadeParts, gimbalEulerDeg, penumbraForDiffusion, readCobShade } from "../lightShade";
+import { cobShadeParts, gimbalEulerDeg, penumbraForDiffusion, readCobShade, surfaceLiftM } from "../lightShade";
 import { at, cylinder, kelvinOf } from "./cyclesPartHelpers";
 import type { CyclesFixtureLight, CyclesFixturePart, CyclesTransform } from "./types";
 
@@ -23,7 +23,8 @@ export function cobShadeFixtureParts(
   const radius = Math.max(size.length, size.across) / 2;
   const tilted: CyclesTransform | undefined = spec.shade === "gimbal"
     ? at(0, 0, 0, gimbalEulerDeg(spec.aimAngleDeg, spec.aimRotationDeg)) : undefined;
-  const parts: CyclesFixturePart[] = cobShadeParts(spec, radius, size.depth, glowColor).map((part) => ({
+  const lift = surfaceLiftM(light);
+  const parts: CyclesFixturePart[] = cobShadeParts(spec, radius, size.depth, glowColor, lift).map((part) => ({
     ...cylinder("cylinder", { radiusTop: part.radiusTop, radiusBottom: part.radiusBottom, height: part.height, segments: 28 },
       at(0, 0, part.z, [90, 0, 0]), part.color, part.metalness, part.roughness, part.glow ? glow : null),
     ...(part.tilted && tilted ? { within: tilted } : {}),
@@ -32,7 +33,7 @@ export function cobShadeFixtureParts(
     kind: "spot",
     id: `${light.id}:spot`,
     role: "head",
-    local: at(0, 0, spec.shade === "surface" ? -(size.depth * 2 + 0.012) : -0.012),
+    local: at(0, 0, spec.shade === "surface" ? -(size.depth * 2 + 0.012) + lift : -0.012),
     ...(tilted ? { within: tilted } : {}),
     color: light.color,
     kelvin: kelvinOf(light),

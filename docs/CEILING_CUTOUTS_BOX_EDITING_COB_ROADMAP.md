@@ -286,8 +286,9 @@ handles there. Known Phase 3 limits: 3D geometry updates on release with a
 live readout beside the handle, not a live mesh preview; cutouts have no 3D
 selection, so they resize in 2D only; hosted light glyphs snap into place on
 release of a cutout edge drag; a cabinet's width anchor is applied after the
-run reflow and a run-managed cabinet is placed by its run; wall panels show
-no anchor since their resize ignores it.
+run reflow for a free cabinet; a run-managed cabinet gets no anchor at all,
+the run places it (`resizeInteriorObjectAnchored`); wall panels show no
+anchor since their resize ignores it.
 
 ### Phase 4 — COB shades and lighting preview
 
@@ -314,7 +315,12 @@ Euler against the viewport's nested groups. The beam cone (`BeamCone.tsx`)
 is a static translucent mesh under the selected COB, downlight or track
 head: no light, no shadow, no picking, excluded from export, no frameloop
 change. Covered by `tests/e2e/phase-cob-4-shades.spec.ts` (inspector,
-gimbal fields, reopen). Not done: the render-QA reference images for the
+gimbal fields, reopen). A ceiling-mounted surface cylinder is lifted by the mount's
+`ceilingDropMm` so its top sits on the slab (`surfaceLiftM`); the pick box
+and selection outline are centred on the body (`spanOffset`), not the pose;
+`bodyFinish` is the one body-colour rule for both renderers; the Cycles
+builders live in `cyclesStripFixtures.ts`, `cyclesSpotFixtures.ts` and
+`cyclesCobShade.ts`. Not done: the render-QA reference images for the
 COB fixtures were not regenerated (needs the Playwright render pipeline);
 "reads distinct at Dollhouse zoom" was checked by eye in the browser, not
 by pixel readout; the trim finish replaces the strip `profileFinish` for

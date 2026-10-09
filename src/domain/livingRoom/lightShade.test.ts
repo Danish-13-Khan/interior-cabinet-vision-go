@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { Euler, Quaternion, Vector3 } from "three";
+import { Mesh } from "three";
+import { EXCLUDE_FROM_EXPORT, isEditorOnlyObject } from "../../rendering/sceneExport/sceneExportFilter";
 import { validParameters } from "./lightParameterLimits";
 import {
-  beamConeDimensions, cobShadeParts, gimbalEulerDeg, penumbraForDiffusion, readCobShade, trimFinishColor,
+  beamConeDimensions, bodyFinish, cobShadeParts, gimbalEulerDeg, penumbraForDiffusion, readCobShade, surfaceLiftM, trimFinishColor,
 } from "./lightShade";
 
 const light = (parameters: Record<string, string | number | boolean>) => ({ parameters: { fixtureKind: "cob", ...parameters } });
@@ -63,5 +65,23 @@ describe("COB shades", () => {
     expect(narrow.lengthM).toBe(2.2);
     expect(wide.radiusM).toBeGreaterThan(narrow.radiusM);
     expect(beamConeDimensions(0.3, 1.2).lengthM).toBe(1.2);
+  });
+
+  it("lifts a ceiling-mounted surface cylinder by its drop and gives every fixture one body finish", () => {
+    expect(surfaceLiftM({ parameters: { fixtureKind: "cob", shade: "surface", hostSurface: "ceiling", ceilingDropMm: 40 } })).toBeCloseTo(0.04);
+    expect(surfaceLiftM({ parameters: { fixtureKind: "cob", shade: "open", hostSurface: "ceiling", ceilingDropMm: 40 } })).toBe(0);
+    expect(surfaceLiftM({ parameters: { fixtureKind: "cob", shade: "surface" } })).toBe(0);
+    const lifted = cobShadeParts({ ...readCobShade(light({ shade: "surface" })) }, 0.045, 0.04, "#fff", 0.04);
+    expect(lifted[0]!.z + lifted[0]!.height / 2).toBeCloseTo(0.04);
+    expect(bodyFinish({ enabled: true, parameters: { fixtureKind: "cob", trimFinish: "brass" } }).body).toBe("#b08d57");
+    expect(bodyFinish({ enabled: true, parameters: { fixtureKind: "rope", profileFinish: "black" } }).body).toBe("#1c1c1c");
+    expect(bodyFinish({ enabled: false, parameters: { fixtureKind: "cob", trimFinish: "brass" } }).body).toBe("#dedbd5");
+  });
+
+  it("keeps a beam cone out of exports through the editor-only flag", () => {
+    const cone = new Mesh();
+    cone.userData = { [EXCLUDE_FROM_EXPORT]: true, beamCone: true };
+    expect(isEditorOnlyObject(cone)).toBe(true);
+    expect(isEditorOnlyObject(new Mesh())).toBe(false);
   });
 });

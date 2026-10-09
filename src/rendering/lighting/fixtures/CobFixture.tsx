@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Object3D } from "three";
-import { cobShadeParts, penumbraForDiffusion, readCobShade } from "../../../domain/livingRoom/lightShade";
+import { cobShadeParts, penumbraForDiffusion, readCobShade, surfaceLiftM } from "../../../domain/livingRoom/lightShade";
 import { BeamCone } from "./BeamCone";
 import { FixtureEmitter } from "./FixtureEmitter";
 import { beamHalfAngleRad, readFixtureSize } from "./fixtureMeasures";
@@ -18,14 +18,17 @@ export function CobFixture(props: FixtureViewProps) {
   const spec = readCobShade(props.light);
   const radius = Math.max(size.length, size.across) / 2;
   const glow = props.light.enabled ? props.light.color : size.body;
-  const parts = cobShadeParts(spec, radius, size.depth, glow);
+  const lift = surfaceLiftM(props.light);
+  const parts = cobShadeParts(spec, radius, size.depth, glow, lift);
   const target = useMemo(() => {
     const object = new Object3D();
     object.position.set(0, 0, -1);
     return object;
   }, []);
-  const emitterZ = spec.shade === "surface" ? -(size.depth * 2 + 0.012) : -0.012;
+  const emitterZ = spec.shade === "surface" ? -(size.depth * 2 + 0.012) + lift : -0.012;
   const span: [number, number, number] = [radius * 2, radius * 2, spec.shade === "surface" ? size.depth * 2 : size.depth];
+  // The can sits on +Z and a surface body on −Z: centre the pick box and outline on the body, not the pose.
+  const spanOffset: [number, number, number] = [0, 0, spec.shade === "surface" ? -size.depth + lift : size.depth / 2];
   const tilt = spec.shade === "gimbal" ? spec.aimAngleDeg * Math.PI / 180 : 0;
   const spin = spec.shade === "gimbal" ? spec.aimRotationDeg * Math.PI / 180 : 0;
   const mesh = (part: typeof parts[number]) => (
@@ -37,7 +40,7 @@ export function CobFixture(props: FixtureViewProps) {
     </mesh>
   );
   return (
-    <FixtureGroup {...props} span={span}>
+    <FixtureGroup {...props} span={span} spanOffset={spanOffset}>
       {parts.filter((part) => !part.tilted).map(mesh)}
       <group rotation={[0, 0, spin]}>
         <group rotation={[tilt, 0, 0]}>

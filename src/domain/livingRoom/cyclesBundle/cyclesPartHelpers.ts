@@ -2,6 +2,18 @@ import type { LightEntity } from "../../interiorProject";
 import type { CyclesFixtureLight, CyclesFixturePart, CyclesTransform } from "./types";
 
 /** Part and light constructors shared by the fixture builders (metres, degrees, XYZ Euler). */
+
+export type FixtureSize = {
+  length: number;
+  across: number;
+  depth: number;
+  body: string;
+  metal: number;
+  glow: number;
+  intensity: number;
+  range: number;
+};
+
 export function at(x: number, y: number, z: number, rotation: [number, number, number] = [0, 0, 0]): CyclesTransform {
   return {
     position: { x, y, z },

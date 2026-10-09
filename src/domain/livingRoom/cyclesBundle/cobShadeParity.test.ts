@@ -23,7 +23,8 @@ describe("COB shade parity between viewport and Cycles", () => {
     expect(fixture!.parts).toHaveLength(expected.length);
     expect(fixture!.parts.map((part) => part.cyl?.radiusTop)).toEqual(expected.map((part) => part.radiusTop));
     expect(fixture!.parts[0]?.color).toBe("#b08d57");
-    expect(fixture!.lights[0]).toMatchObject({ kind: "spot", penumbra: 0.46 });
+    expect(fixture!.lights[0]?.kind).toBe("spot");
+    expect(fixture!.lights[0]?.penumbra).toBeCloseTo(0.46, 6);
   });
 
   it("tilts a gimbal's cup, disc and spot in one frame and leaves the can fixed", () => {
@@ -34,9 +35,12 @@ describe("COB shade parity between viewport and Cycles", () => {
     expect(fixture!.lights[0]?.within).toEqual(tilted[0]!.within);
   });
 
-  it("hangs a surface cylinder below the ceiling plane", () => {
-    const { fixture } = cobFixture({ shade: "surface" });
-    expect(fixture!.parts.every((part) => part.local.position.z < 0)).toBe(true);
-    expect(fixture!.lights[0]?.local.position.z).toBeLessThan(-0.08);
+  it("sits a surface cylinder on the ceiling: lifted by the mount's drop so its top touches the slab", () => {
+    const { light, fixture } = cobFixture({ shade: "surface" });
+    const dropM = Number(light.parameters.ceilingDropMm) / 1000;
+    expect(dropM).toBeGreaterThan(0);
+    const body = fixture!.parts[0]!;
+    expect(body.local.position.z + body.cyl!.height / 2).toBeCloseTo(dropM, 6);
+    expect(fixture!.lights[0]?.local.position.z).toBeLessThan(dropM - 0.08);
   });
 });

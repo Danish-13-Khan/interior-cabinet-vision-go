@@ -6,10 +6,11 @@ import {
   fixtureRenderIntensity,
   LIGHT_RENDER_SCALE,
 } from "../lightFixtureTypes";
-import { LIGHT_PARAMETER_LIMITS } from "../lightParameterLimits";
-import { isCobShadeKind, readCobShade, trimFinishColor } from "../lightShade";
+import { bodyFinish } from "../lightShade";
 import { cobShadeFixtureParts } from "./cyclesCobShade";
-import { area, at, box, cylinder, kelvinOf } from "./cyclesPartHelpers";
+import { spotFixtureParts } from "./cyclesSpotFixtures";
+import { stripFixtureParts } from "./cyclesStripFixtures";
+import { at, box, type FixtureSize } from "./cyclesPartHelpers";
 import type { CompiledLivingRoomScene } from "../sceneTypes";
 import { resolveWindowKeyLights } from "../windowKeyLight";
 import type {
@@ -29,37 +30,13 @@ import type {
  * carries the saved rotation with the viewport's YXZ order. Metres and degrees.
  */
 
-const STRIP_HALO_STANDOFF_M = 0.06;
-
 function metres(point: Point3Mm): CyclesVec3 {
   return { x: point.x / 1000, y: point.y / 1000, z: point.z / 1000 };
 }
 
-type FixtureSize = {
-  length: number;
-  across: number;
-  depth: number;
-  body: string;
-  metal: number;
-  glow: number;
-  intensity: number;
-  range: number;
-};
-
 /** Same table as `readFixtureSize`, at the authored (scale 1) physical intensity. */
 function fixtureSize(light: LightEntity): FixtureSize {
-  const finish = light.parameters.profileFinish;
-  const metal = finish === "aluminium" ? 0.72 : finish === "black" ? 0.28 : 0.05;
-  let body = "#d8d3cb";
-  if (finish === "aluminium") body = "#c5c8cc";
-  else if (finish === "black") body = "#1c1c1c";
-  else if (finish === "white") body = "#f3f1ec";
-  if (!light.enabled) body = "#dedbd5";
-  let metalness = metal;
-  if (isCobShadeKind(light.parameters.fixtureKind) && light.enabled) {
-    const trim = trimFinishColor(readCobShade(light).trimFinish);
-    body = trim.body; metalness = trim.metal;
-  }
+  const { body, metal: metalness } = bodyFinish(light);
   return {
     length: Math.max(0.02, fixtureNumber(light, "widthMm", 1000) / 1000),
     across: Math.max(0.004, fixtureNumber(light, "heightMm", 20) / 1000),
@@ -72,25 +49,6 @@ function fixtureSize(light: LightEntity): FixtureSize {
   };
 }
 
-function beamAngleDeg(light: LightEntity) {
-  return fixtureNumber(light, "beamAngleDeg", 36);
-}
-
-function headCount(light: LightEntity) {
-  const raw = Math.round(fixtureNumber(light, "headCount", 3));
-  const { min, max } = LIGHT_PARAMETER_LIMITS.headCount;
-  return Math.min(max, Math.max(min, Number.isFinite(raw) ? raw : min));
-}
-
-function headOffsets(count: number, length: number, across: number) {
-  if (count <= 1) return [0];
-  const inset = Math.min(across, length / 2);
-  const usable = Math.max(0, length - inset * 2);
-  const step = usable / (count - 1);
-  const origin = -usable / 2;
-  return Array.from({ length: count }, (_, index) => origin + step * index);
-}
-
 function fixtureParts(light: LightEntity, kind: string, size: FixtureSize): { parts: CyclesFixturePart[]; lights: CyclesFixtureLight[] } {
   const glowColor = light.enabled ? light.color : size.body;
   const glow = { color: glowColor, strength: size.glow };
@@ -99,134 +57,14 @@ function fixtureParts(light: LightEntity, kind: string, size: FixtureSize): { pa
   const parts: CyclesFixturePart[] = [];
   const lights: CyclesFixtureLight[] = [];
 
-  if (kind === "cove") {
-    const board = size.across;
-    const emitZ = -(board / 2 + 0.006);
-    parts.push(box([size.length, size.depth, board], at(0, 0, 0), size.body, 0.25, 0.48));
-    parts.push(box([size.length * 0.92, size.depth * 0.55, 0.004], at(0, 0, emitZ), glowColor, 0, 0.35, glow));
-    if (emits) {
-      lights.push(area(`${light.id}:up`, "emitter", at(0, 0, emitZ - 0.004), { width: size.length, height: size.depth }, light, size.intensity, cast));
-      lights.push(area(
-        `${light.id}:wall`,
-        "wall-band",
-        at(0, -size.depth * 0.2, emitZ, [90, 0, 0]),
-        { width: size.length, height: size.depth },
-        light,
-        size.intensity * LIGHT_RENDER_SCALE.coveWallShare,
-        cast,
-      ));
-    }
-    return { parts, lights };
-  }
-
-  if (kind === "rope" || kind === "profile" || kind === "under-cabinet") {
-    const vertical = kind === "profile" && light.parameters.orientation === "vertical";
-    const rope = kind === "rope";
-    const span: [number, number, number] = vertical
-      ? [size.across, size.length, size.depth]
-      : [size.length, size.across, size.depth];
-    const front = rope ? Math.min(size.across, size.depth) / 2 : size.depth / 2;
-    const onWall = typeof light.parameters.hostWallId === "string" && light.parameters.hostWallId !== "";
-    if (rope) {
-      parts.push(cylinder("cylinder", { radiusTop: front, radiusBottom: front, height: size.length, segments: 20 }, at(0, 0, 0, [0, 0, 90]), size.body, 0, 0.45));
-    } else {
-      parts.push(box(span, at(0, 0, 0), size.body, size.metal, 0.38));
-    }
-    parts.push(box([span[0] * 0.86, Math.max(span[1] * 0.62, 0.004), 0.003], at(0, 0, -(front + 0.001)), glowColor, 0, 0.32, glow));
-    if (emits) {
-      const sizeM = { width: span[0], height: Math.max(span[1], 0.01) };
-      lights.push(area(`${light.id}:emit`, "emitter", at(0, 0, -(front + 0.006)), sizeM, light, size.intensity, cast));
-      if (onWall) {
-        lights.push(area(
-          `${light.id}:halo`,
-          "halo",
-          at(0, 0, -(front + STRIP_HALO_STANDOFF_M), [0, 180, 0]),
-          sizeM,
-          light,
-          size.intensity * LIGHT_RENDER_SCALE.stripHaloShare,
-          cast,
-        ));
-      }
-    }
-    return { parts, lights };
-  }
-
-  if (kind === "panel") {
-    parts.push(box([size.length, size.across, size.depth], at(0, 0, 0), size.body, 0.12, 0.46));
-    parts.push(box([size.length * 0.94, size.across * 0.94, 0.004], at(0, 0, -(size.depth / 2 + 0.001)), glowColor, 0, 0.3, glow));
-    if (emits) {
-      lights.push(area(`${light.id}:emit`, "emitter", at(0, 0, -(size.depth / 2 + 0.008)), { width: size.length, height: size.across }, light, size.intensity, cast));
-    }
-    return { parts, lights };
-  }
-
+  const strip = stripFixtureParts(light, kind, size, glowColor, glow, emits, cast);
+  if (strip) return strip;
   if (kind === "cob" || kind === "ceiling-downlight") {
     return cobShadeFixtureParts(light, size, glowColor, glow, emits, cast);
   }
 
-  if (kind === "track") {
-    const heads = headCount(light);
-    const aim = fixtureNumber(light, "aimAngleDeg", 20);
-    const offsets = headOffsets(heads, size.length, size.across);
-    parts.push(box([size.length, size.across * 0.45, size.depth * 0.4], at(0, 0, 0), size.body, size.metal, 0.36));
-    offsets.forEach((x, index) => {
-      // Heads alternate the tilt sign so the pools straddle the rail.
-      const tilt = index % 2 === 0 ? aim : -aim;
-      const head: CyclesTransform = at(x, 0, -(size.depth * 0.28), [tilt, 0, 0]);
-      parts.push({
-        ...cylinder(
-          "cylinder",
-          { radiusTop: size.across * 0.28, radiusBottom: size.across * 0.36, height: size.depth * 0.7, segments: 16 },
-          at(0, 0, -size.depth * 0.35, [90, 0, 0]),
-          size.body,
-          size.metal,
-          0.4,
-          glow,
-        ),
-        within: head,
-      });
-      if (emits) {
-        lights.push({
-          kind: "spot",
-          id: `${light.id}:head-${index + 1}`,
-          role: "head",
-          local: at(0, 0, -size.depth * 0.55),
-          within: head,
-          color: light.color,
-          kelvin: kelvinOf(light),
-          candela: size.intensity,
-          beamAngleDeg: beamAngleDeg(light),
-          penumbra: 0.55,
-          rangeM: size.range,
-          castShadow: cast,
-        });
-      }
-    });
-    return { parts, lights };
-  }
-
-  if (kind === "pendant") {
-    const radius = Math.max(size.length, size.across) / 2;
-    const stem = Math.min(0.008, radius * 0.12);
-    parts.push(cylinder("cylinder", { radiusTop: stem, radiusBottom: stem, height: size.depth, segments: 8 }, at(0, 0, size.depth / 2, [90, 0, 0]), size.body, 0.4, 0.35));
-    parts.push(cylinder("cone", { radiusTop: 0, radiusBottom: radius, height: size.depth, segments: 24 }, at(0, 0, 0, [90, 0, 0]), size.body, 0, 0.42, glow));
-    if (emits) {
-      lights.push({
-        kind: "point",
-        id: `${light.id}:point`,
-        role: "pendant",
-        local: at(0, 0, -size.depth * 0.35),
-        color: light.color,
-        kelvin: kelvinOf(light),
-        candela: size.intensity,
-        radiusM: Math.max(0.01, radius * 0.3),
-        rangeM: size.range,
-        castShadow: cast,
-      });
-    }
-    return { parts, lights };
-  }
-
+  const spot = spotFixtureParts(light, kind, size, glowColor, glow, emits, cast);
+  if (spot) return spot;
   // Unknown fixture kind: body only, no light, so nothing invents illumination.
   parts.push(box([size.length, size.across, size.depth], at(0, 0, 0), size.body, size.metal, 0.4));
   return { parts, lights };

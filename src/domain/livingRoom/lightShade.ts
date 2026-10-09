@@ -58,6 +58,30 @@ export function penumbraForDiffusion(lensDiffusion: number) {
   return 0.35 + Math.min(1, Math.max(0, lensDiffusion)) * 0.55;
 }
 
+/**
+ * Body colour and metalness for any fixture: strip finishes from
+ * `profileFinish`, COB kinds from their trim, a switched-off body greyed.
+ * One place, so the viewport and the Cycles bundle cannot drift.
+ */
+export function bodyFinish(light: Pick<LightEntity, "parameters" | "enabled">): { body: string; metal: number } {
+  if (!light.enabled) return { body: "#dedbd5", metal: 0.05 };
+  if (isCobShadeKind(light.parameters.fixtureKind)) return trimFinishColor(readCobShade(light).trimFinish);
+  const finish = light.parameters.profileFinish;
+  if (finish === "aluminium") return { body: "#c5c8cc", metal: 0.72 };
+  if (finish === "black") return { body: "#1c1c1c", metal: 0.28 };
+  if (finish === "white") return { body: "#f3f1ec", metal: 0.05 };
+  return { body: "#d8d3cb", metal: 0.05 };
+}
+
+/**
+ * A surface cylinder sits on the ceiling, not at the light's pose, which a
+ * ceiling mount keeps `ceilingDropMm` below the slab. Lift it by that drop.
+ */
+export function surfaceLiftM(light: Pick<LightEntity, "parameters">): number {
+  if (readCobShade(light).shade !== "surface" || light.parameters.hostSurface !== "ceiling") return 0;
+  return Math.max(0, fixtureNumber(light, "ceilingDropMm", 0)) / 1000;
+}
+
 /** Body colour and metalness for a trim finish (viewport and Cycles share these). */
 export function trimFinishColor(finish: TrimFinish): { body: string; metal: number } {
   if (finish === "black") return { body: "#1c1c1c", metal: 0.28 };
@@ -88,7 +112,7 @@ const BAFFLE_BLACK = "#1c1c1c";
  * The parts every shade is built from, in metres. The viewport maps them to
  * meshes and the Cycles bundle to cylinders, so a still matches the view.
  */
-export function cobShadeParts(spec: CobShadeSpec, radius: number, depth: number, glowColor: string): ShadePart[] {
+export function cobShadeParts(spec: CobShadeSpec, radius: number, depth: number, glowColor: string, liftM = 0): ShadePart[] {
   const trim = trimFinishColor(spec.trimFinish);
   const can = (id: string, top: number, bottom: number, height: number, z: number): ShadePart =>
     ({ id, radiusTop: top, radiusBottom: bottom, height, z, color: trim.body, metalness: trim.metal, roughness: 0.34, glow: false, tilted: false });
@@ -115,8 +139,8 @@ export function cobShadeParts(spec: CobShadeSpec, radius: number, depth: number,
       ];
     case "surface":
       return [
-        can("body", radius, radius, depth * 2, -depth),
-        disc("glow", radius * 0.72, -(depth * 2 + 0.001)),
+        can("body", radius, radius, depth * 2, -depth + liftM),
+        disc("glow", radius * 0.72, -(depth * 2 + 0.001) + liftM),
       ];
     default:
       return [can("can", radius, radius * 0.82, depth, depth / 2), disc("glow", radius * 0.72, -0.001)];

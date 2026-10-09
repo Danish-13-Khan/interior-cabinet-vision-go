@@ -24,6 +24,7 @@ type DragState = { plane: Plane; offset: Vector3; moved: boolean };
 export function FixtureGroup({
   light,
   span,
+  spanOffset = [0, 0, 0],
   selected = false,
   onSelect,
   onMove,
@@ -33,6 +34,8 @@ export function FixtureGroup({
   light: LightEntity;
   /** Local axis-aligned body, metres, before the saved rotation. */
   span: [number, number, number];
+  /** Where that body is centred, when it is not on the light's origin (recessed cans, surface cylinders). */
+  spanOffset?: [number, number, number];
   selected?: boolean;
   onSelect?: (id: string) => void;
   onMove?: (id: string, point: { x: number; y: number; z: number }) => void;
@@ -116,8 +119,8 @@ export function FixtureGroup({
     <>
       <group position={shown} rotation={roomLightRotation(light.rotation)} {...pick} {...move}>
         {children}
-        {selectable ? <PickProxy span={span} /> : null}
-        {selected ? <SelectionOutline span={span} /> : null}
+        {selectable ? <PickProxy span={span} offset={spanOffset} /> : null}
+        {selected ? <SelectionOutline span={span} offset={spanOffset} /> : null}
       </group>
       {selected ? (
         // World-up offset, outside the rotated group, so the tag sits above any mount.
@@ -139,18 +142,18 @@ export function FixtureGroup({
 const PICK_MIN_M = 0.08;
 
 /** Invisible, fatter body so thin strips can be clicked and dragged. Casts and writes nothing. */
-function PickProxy({ span }: { span: [number, number, number] }) {
+function PickProxy({ span, offset }: { span: [number, number, number]; offset: [number, number, number] }) {
   return (
-    <mesh>
+    <mesh position={offset}>
       <boxGeometry args={[Math.max(span[0], PICK_MIN_M), Math.max(span[1], PICK_MIN_M), Math.max(span[2], PICK_MIN_M)]} />
       <meshBasicMaterial transparent opacity={0} depthWrite={false} />
     </mesh>
   );
 }
 
-function SelectionOutline({ span }: { span: [number, number, number] }) {
+function SelectionOutline({ span, offset }: { span: [number, number, number]; offset: [number, number, number] }) {
   return (
-    <mesh raycast={() => null}>
+    <mesh raycast={() => null} position={offset}>
       <boxGeometry args={[span[0] + 0.016, span[1] + 0.016, span[2] + 0.016]} />
       <meshBasicMaterial color={selectionAccentColor()} wireframe depthTest={false} />
     </mesh>
