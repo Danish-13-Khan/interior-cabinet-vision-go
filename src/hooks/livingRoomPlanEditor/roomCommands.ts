@@ -14,6 +14,7 @@ import {
   type InteriorProject,
   type OpeningKind,
   type Point2Mm,
+  type ResizeAnchors,
   type RoomDrawingRequest,
   type Size3Mm,
   whyCeilingCutoutRefused,
@@ -39,11 +40,11 @@ import { uniqueObjectId, type EditorCommandContext } from "./context";
 export function roomCommands(ctx: EditorCommandContext) {
   const { document, commitDocument, setSelectedObjectIds, onStatus } = ctx;
 
-  function setRoomDimensions(dimensions: Size3Mm) {
+  function setRoomDimensions(dimensions: Size3Mm, anchors?: ResizeAnchors) {
     if (!document) return;
     commitDocument(
       (current) => {
-        const next = resizeLivingRoom(current, current.activeRoomId, dimensions);
+        const next = resizeLivingRoom(current, current.activeRoomId, dimensions, anchors);
         const cabinetWallIds = roomWallIds(next, current.activeRoomId);
         const panelWallIds = panelHostWallIds(next, current.activeRoomId);
         return reflowPanelsForWalls(

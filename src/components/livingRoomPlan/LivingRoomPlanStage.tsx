@@ -109,6 +109,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onSetRotation={props.onSetRotation} onApplyStyle={props.onApplyStyle}
             onSetParameters={props.onSetParameters}
             onPatchDocument={props.onPatchDocument}
+            onTranslateWall={props.onTranslateWall} onSetWallLength={props.onSetWallLength}
             presentation={props.presenting}
             showStylePalette={props.workflowArea === "materials"}
           />

@@ -30,6 +30,7 @@ export type LivingRoomModelViewportProps = {
   onCutawayWalls: (value: boolean) => void;
   showCeiling: boolean;
   onShowCeiling: (value: boolean) => void;
+  wallResize?: import("./ModelWallResizeHandles").WallResizeHandlesProps;
   wallMenu: WallContextMenuState | null;
   onWallMenu: (menu: WallContextMenuState | null) => void;
   viewportQuality: RenderQuality;

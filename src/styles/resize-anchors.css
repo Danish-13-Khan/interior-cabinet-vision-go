@@ -1,0 +1,38 @@
+/* Resize anchors (roadmap Phase 3): which edge a typed size keeps, and the 2D cutout edge handles. */
+.lr-resize-anchor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: calc(-1 * var(--space-1)) 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
+}
+
+.lr-resize-anchor span { margin-right: var(--space-1); }
+
+.lr-resize-anchor button {
+  min-height: var(--control-h-dense);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+}
+
+.lr-resize-anchor button.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Cutout edge handles on the plan: small squares at each edge midpoint. */
+.lr-plan-cutout-handle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 10;
+}
+
+.lr-plan-cutout-handle.is-x { cursor: ew-resize; }
+.lr-plan-cutout-handle.is-z { cursor: ns-resize; }
+.lr-plan-cutout.is-stranded .lr-plan-cutout-handle { stroke: var(--danger); }

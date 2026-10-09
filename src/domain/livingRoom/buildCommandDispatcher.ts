@@ -20,7 +20,7 @@ export function applyBuildCommand(
     case "beginDraft":
       if (command.tool === "upload-underlay") handlers.requestUnderlayUpload();
       return next;
-    case "resizeRoom": handlers.resizeRoom(command.dimensions); return next;
+    case "resizeRoom": handlers.resizeRoom(command.dimensions, command.anchors); return next;
     case "createWall": handlers.createWall(); return committed(next);
     case "createWallSegment":
       if (command.wallKind) handlers.createWallSegment(command.start, command.end, command.wallKind);

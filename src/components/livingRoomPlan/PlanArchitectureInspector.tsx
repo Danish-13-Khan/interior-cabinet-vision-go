@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   polygonBounds,
   roomPlanPolygon,
@@ -6,6 +7,7 @@ import {
   STANDARD_WALL_THICKNESSES_MM,
   type InteriorProject,
   type InteriorRoomEntity,
+  type ResizeAnchor,
   type Size3Mm,
   type WallEntity,
   type WallPlanPatch,
@@ -28,6 +30,7 @@ import { WallDrawingPanel } from "./WallDrawingPanel";
 import { InspectorSection } from "./InspectorSection";
 import { CeilingLightingSection } from "./CeilingLightingSection";
 import { CeilingCutoutsSection } from "./CeilingCutoutsSection";
+import { ResizeAnchorSegment } from "./ResizeAnchorSegment";
 import { FloorBuildSection } from "./FloorBuildSection";
 import { WallEditingPanel, type WallEditingActions } from "./WallEditingPanel";
 import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/lightCommands";
@@ -38,7 +41,7 @@ type Props = {
   project: InteriorProject;
   room: InteriorRoomEntity;
   wall: WallEntity | null;
-  onRoomDimensions: (dimensions: Size3Mm) => void;
+  onRoomDimensions: (dimensions: Size3Mm, anchors?: { x?: ResizeAnchor; z?: ResizeAnchor }) => void;
   onSetFloorBuild?: (patch: Partial<import("../../domain/interiorProject").FloorBuild>) => void;
   onDeleteCeilingCutout?: (roomId: string, cutoutId: string) => void;
   onUpdateWall: (wallId: string, patch: { thicknessMm?: number; heightMm?: number }) => void;
@@ -66,6 +69,8 @@ type Props = {
 
 export function PlanArchitectureInspector(props: Props) {
   const { room, wall } = props;
+  const [anchorX, setAnchorX] = useState<ResizeAnchor>("centre");
+  const [anchorZ, setAnchorZ] = useState<ResizeAnchor>("centre");
   const polygon = roomPlanPolygon(props.project, room.id)?.outer ?? [];
   const bounds = polygon.length ? polygonBounds(polygon) : null;
   const previewPath = polygon.map((point, index) => {
@@ -82,9 +87,11 @@ export function PlanArchitectureInspector(props: Props) {
       <NumberField label="Wall height · mm" value={room.dimensions.heightMm}
         onChange={(heightMm) => props.onRoomDimensions({ ...room.dimensions, heightMm })} />
       <NumberField label="Width · mm" value={room.dimensions.widthMm}
-        onChange={(widthMm) => props.onRoomDimensions({ ...room.dimensions, widthMm })} />
+        onChange={(widthMm) => props.onRoomDimensions({ ...room.dimensions, widthMm }, { x: anchorX, z: anchorZ })} />
+      <ResizeAnchorSegment label="Width anchor" value={anchorX} minLabel="Left" maxLabel="Right" testId="room-width-anchor" onChange={setAnchorX} />
       <NumberField label="Depth · mm" value={room.dimensions.depthMm}
-        onChange={(depthMm) => props.onRoomDimensions({ ...room.dimensions, depthMm })} />
+        onChange={(depthMm) => props.onRoomDimensions({ ...room.dimensions, depthMm }, { x: anchorX, z: anchorZ })} />
+      <ResizeAnchorSegment label="Depth anchor" value={anchorZ} minLabel="Back" maxLabel="Front" testId="room-depth-anchor" onChange={setAnchorZ} />
       <p className="lr-authoring-hint">Select Draw wall, then click two points on the plan.</p>
       {props.lightActions && props.onSelectLight ? (
         <CeilingLightingSection actions={props.lightActions} onSelectLight={props.onSelectLight} />

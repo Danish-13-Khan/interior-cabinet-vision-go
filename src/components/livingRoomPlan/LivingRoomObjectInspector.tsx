@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import type { InteriorObjectEntity, InteriorProject, Size3Mm } from "../../domain/interiorProject";
+import { useEffect, useState, type ReactNode } from "react";
+import type { InteriorObjectEntity, InteriorProject, ResizeAnchor, Size3Mm } from "../../domain/interiorProject";
 import { catalogSlotPoliciesForObject } from "../../domain/catalog";
 import {
   isMillworkObject,
@@ -7,6 +7,7 @@ import {
   type PanelAttachment,
 } from "../../domain/livingRoom";
 import { NumberField } from "./NumberField";
+import { ResizeAnchorSegment } from "./ResizeAnchorSegment";
 import { DimensionPresetMenu } from "./DimensionPresetMenu";
 import { CabinetConstructionSection } from "./CabinetConstructionSection";
 import { CabinetRunInspector } from "./CabinetRunInspector";
@@ -17,7 +18,7 @@ type LivingRoomObjectInspectorProps = {
   object: InteriorObjectEntity;
   project: InteriorProject;
   materials: InteriorProject["materials"];
-  onResize: (objectId: string, dimensions: Size3Mm) => void;
+  onResize: (objectId: string, dimensions: Size3Mm, anchors?: { x?: ResizeAnchor; z?: ResizeAnchor }) => void;
   onSetMaterial: (objectId: string, slotName: string, materialId: string) => void;
   onSetParameters: (objectId: string | readonly string[], patch: Record<string, string | number | boolean>) => void;
   onUpdateRun: (runId: string, options: {
@@ -49,8 +50,10 @@ export function LivingRoomObjectInspector({
   onUpdatePanelAttachment, onSetPanelVisible, onAddWallPanel, onImportFinish, actions, positionEditor,
   finishesOpen = false, runOpen = false,
 }: LivingRoomObjectInspectorProps) {
+  const [widthAnchor, setWidthAnchor] = useState<ResizeAnchor>("centre");
+  useEffect(() => setWidthAnchor("centre"), [object.id]);
   function patchDimension(axis: keyof Size3Mm, value: number) {
-    onResize(object.id, { ...object.dimensions, [axis]: value });
+    onResize(object.id, { ...object.dimensions, [axis]: value }, { x: widthAnchor });
   }
   const onSchedule = isMillworkObject(object);
   const wallPanel = isWallPanelObject(object);
@@ -74,8 +77,9 @@ export function LivingRoomObjectInspector({
             <NumberField className="lr-dimension-card" label="H" value={object.dimensions.heightMm} onChange={(value) => patchDimension("heightMm", value)} />
             <NumberField className="lr-dimension-card" label="D" value={object.dimensions.depthMm} onChange={(value) => patchDimension("depthMm", value)} />
           </div>
+          {wallPanel ? null : <ResizeAnchorSegment label="Width anchor" value={widthAnchor} minLabel="Left" maxLabel="Right" testId="object-width-anchor" onChange={setWidthAnchor} />}
           {object.kind === "cabinet" && !wallPanel ? (
-            <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions)} />
+            <DimensionPresetMenu dimensions={object.dimensions} onChange={(dimensions) => onResize(object.id, dimensions, { x: widthAnchor })} />
           ) : null}
         </div>
       </details>

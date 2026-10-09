@@ -18,6 +18,7 @@ import { mechanismTogglePatch } from "../domain/livingRoom/mechanismToggle";
 import { roomLightScaleForMood } from "../domain/livingRoom/lightingMood";
 import { createRoomSceneCache } from "../domain/livingRoom/roomSceneCache";
 import { modelViewCutsNearWall, modelViewHidesCeiling } from "../domain/livingRoom/modelReviewNodes";
+import { wallResizeHandleSpecs } from "../domain/livingRoom/wallResizeHandles";
 import { persistModelGuideDismissal, shouldShowModelGuide } from "../domain/livingRoom/modelViewGuidePreference";
 import { compileApartmentScene } from "../domain/livingRoom/apartmentScene";
 import { apartmentOverviewAvailable, sceneWithOverviewCameras } from "../domain/livingRoom/overviewCameras";
@@ -42,7 +43,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   const {
     project, selectedIds, activeOpeningId, activeWallId, activeLightId = null, snapSizeMm, showGrid,
     onSelect, onClearSelection, onMove, onMovePreview, onUpdateOpening, onTransformPreviewChange, onSetRotation,
-    onApplyStyle, onSetParameters, onPatchDocument, presentation = false, showStylePalette = false,
+    onApplyStyle, onSetParameters, onPatchDocument, onTranslateWall, onSetWallLength, presentation = false, showStylePalette = false,
   } = props;
   const hasSelection = selectedIds.length > 0 || Boolean(activeOpeningId) || Boolean(activeWallId) || Boolean(activeLightId);
   const cardCapture = import.meta.env.DEV && isCardCaptureSession();
@@ -143,6 +144,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
       fieldOfViewDegrees={fieldOfViewDegrees} onFieldOfViewDegrees={setFieldOfViewDegrees}
       cutawayWalls={cutawayWalls} onCutawayWalls={setCutawayWalls}
       showCeiling={showCeiling} onShowCeiling={setShowCeiling}
+      wallResize={onTranslateWall && onSetWallLength ? { walls: wallResizeHandleSpecs(project), selectedWallId: props.activeWallId, snapSizeMm, onTranslateWall, onSetWallLength } : undefined}
       wallMenu={wallMenu} onWallMenu={setWallMenu}
       viewportQuality={viewportQuality} onViewportQuality={setViewportQuality}
       honesty={honesty} activeStyleId={activeStyleId} activeStyleName={activeStyle.name}
