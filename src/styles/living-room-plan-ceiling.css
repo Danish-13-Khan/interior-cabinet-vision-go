@@ -25,6 +25,15 @@
 
 .lr-plan-cutout.is-movable { cursor: move; }
 
+/* Outside the room (after a resize): drawn, not a hole, until dragged back in or deleted. */
+.lr-plan-cutout.is-stranded path {
+  fill: none;
+  stroke: var(--danger);
+  stroke-dasharray: 30 30;
+}
+
+.lr-plan-cutout.is-stranded text { fill: var(--danger); }
+
 .lr-plan-cutout.is-dragging path {
   stroke: var(--accent);
   fill-opacity: 0.75;

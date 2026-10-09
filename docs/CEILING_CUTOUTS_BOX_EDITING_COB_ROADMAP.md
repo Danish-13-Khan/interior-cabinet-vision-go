@@ -220,8 +220,11 @@ layer does not take the pointer yet.
 
 - The ceiling mount gains `hostCutoutId` (`CeilingLightMount`); the resolver
   puts x/z at the cutout's centre at read time, so moving the cutout moves the
-  fixture with no light edit. A deleted cutout leaves the light where it was
-  as a plain ceiling mount; a 3D drag of the light leaves the cutout.
+  fixture with no light edit. Moving a cutout also carries its lights' stored
+  positions; deleting one detaches them at its last centre
+  (`deleteCeilingCutoutAndDetach`); cutout ids are never reused, so a later cutout cannot inherit a light. A cutout the room
+  has shrunk away from is not followed (`hostableCeilingCutout`); a 3D drag
+  of the light leaves the cutout.
 - Room inspector cutout rows: **COB** and **Panel** drop a fixture in flush
   (`flushCeilingDropMm`: 0 for recessed spots, half the depth for a panel),
   **Fit** resizes the cutout to the fixture's footprint plus 10 mm clearance
@@ -235,6 +238,13 @@ layer does not take the pointer yet.
 `lightCutoutMount.test.ts` (resolved poses, fit sizes, fallbacks, reopen) and
 `tests/e2e/phase-ceiling-2-fixtures.spec.ts`; "reads flush in Walkthrough" is
 checked by the resolved y in the unit test, not by pixels.
+
+Known Phase 2 limits: the hosted light's glyph only jumps to the new spot on
+drop (the drag preview translates the cutout alone); with the ceiling layer
+on, a cutout over a cabinet glyph takes the pointer, since showing the layer
+means editing the ceiling; Fit sizes to the first hosted light when the Mount
+select has put two in one cutout; stranded cutouts draw as a red dashed
+outline ("not in ceiling") that can be dragged back in or deleted.
 
 ### Phase 3 — Two-sided adjustment
 

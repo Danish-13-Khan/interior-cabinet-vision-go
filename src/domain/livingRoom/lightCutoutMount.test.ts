@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
-  addCeilingCutout, deleteCeilingCutout, loadInteriorProjectFile, moveCeilingCutout, polygonBounds,
-  readCeilingCutouts, roomPlanPolygon, serializeInteriorProjectFile,
+  addCeilingCutout, loadInteriorProjectFile, moveCeilingCutout, polygonBounds,
+  readCeilingCutouts, resizeRoomPlanGeometry, roomPlanPolygon, serializeInteriorProjectFile,
 } from "../interiorProject";
 import { attachLightToCutout, readLightMount, resolveLightAttachment } from "./lightAttachments";
-import { cutoutSizeForLight, fitCeilingCutoutToLight, flushCeilingDropMm, lightsInCutout } from "./lightCutoutMount";
+import {
+  cutoutSizeForLight, deleteCeilingCutoutAndDetach, fitCeilingCutoutToLight, flushCeilingDropMm, lightsInCutout,
+  whyCutoutFitRefused,
+} from "./lightCutoutMount";
 import { relocateLight } from "./lightRelocate";
 import { createLivingRoomStarterProject } from "./preset";
 import { addRoomLightFixture } from "./roomLightFixtures";
@@ -56,23 +59,49 @@ describe("fixtures in ceiling cutouts", () => {
     expect(cutoutSizeForLight(cob)).toEqual({ widthMm: 100, depthMm: 100 });
   });
 
-  it("refuses a fit that would push the cutout through the wall", () => {
-    const { project, cutoutId, bounds } = roomWithCutout(200, 0);
+  it("refuses a fit that would push the cutout through the wall, and says so", () => {
+    const { bounds } = roomWithCutout(200, 0);
     const edge = roomWithCutout(200, (bounds.maxX - bounds.minX) / 2 - 150);
     const added = addRoomLightFixture(edge.project, "panel", { kind: "cutout", cutoutId: edge.cutoutId });
-    expect(fitCeilingCutoutToLight(added, edge.cutoutId, added.lights.at(-1)!.id)).toBe(added);
-    expect(project.activeRoomId).toBe(edge.project.activeRoomId);
+    const lightId = added.lights.at(-1)!.id;
+    expect(fitCeilingCutoutToLight(added, edge.cutoutId, lightId)).toBe(added);
+    expect(whyCutoutFitRefused(added, edge.cutoutId, lightId)).toMatch(/cross the wall/);
   });
 
-  it("falls back to a plain ceiling mount when the cutout is deleted, and leaves the cutout on a 3D drag", () => {
+  it("deleting a moved cutout leaves its light at the moved centre, detached, and a new cutout inherits nothing", () => {
     const { project, cutoutId, cx, cz } = roomWithCutout();
     const added = addRoomLightFixture(project, "cob", { kind: "cutout", cutoutId });
     const light = added.lights.at(-1)!;
-    const gone = deleteCeilingCutout(added, added.activeRoomId, cutoutId);
-    const after = resolved(gone, light.id);
-    expect(readLightMount(after)).toEqual({ kind: "ceiling", ceilingDropMm: 0 });
-    expect(after.position).toMatchObject({ x: cx, z: cz });
-    expect(after.enabled).toBe(true);
+    const roomId = added.activeRoomId;
+    const moved = moveCeilingCutout(added, roomId, cutoutId, { x: 600, z: 0 });
+    const gone = deleteCeilingCutoutAndDetach(moved, roomId, cutoutId);
+    const stored = gone.lights.find((item) => item.id === light.id)!;
+    expect(stored.parameters.hostCutoutId).toBeUndefined();
+    expect(stored.position).toMatchObject({ x: cx + 600, z: cz });
+    expect(readLightMount(resolved(gone, light.id))).toEqual({ kind: "ceiling", ceilingDropMm: 0 });
+    const redrawn = addCeilingCutout(gone, [
+      { x: cx - 100, z: cz - 100 }, { x: cx + 100, z: cz - 100 }, { x: cx + 100, z: cz + 100 }, { x: cx - 100, z: cz + 100 },
+    ]);
+    const ids = readCeilingCutouts(redrawn.rooms[0]).map((cutout) => cutout.id);
+    expect(ids).toEqual(["cutout-2"]);
+    expect(lightsInCutout(redrawn, "cutout-2")).toEqual([]);
+    expect(resolved(redrawn, light.id).position.x).toBe(cx + 600);
+  });
+
+  it("stops following a cutout the room has shrunk away from, and leaves the cutout on a 3D drag", () => {
+    const { project, cutoutId, cx, cz, bounds } = roomWithCutout(400, 0);
+    const nearEdge = roomWithCutout(400, (bounds.maxX - bounds.minX) / 2 - 500);
+    const hosted = addRoomLightFixture(nearEdge.project, "cob", { kind: "cutout", cutoutId: nearEdge.cutoutId });
+    const hostedLight = hosted.lights.at(-1)!;
+    const room = hosted.rooms.find((item) => item.id === hosted.activeRoomId)!;
+    // A move carries the stored position, so the fallback after the shrink is the moved centre, not the attach point.
+    const nudged = moveCeilingCutout(hosted, room.id, nearEdge.cutoutId, { x: 0, z: 200 });
+    expect(nudged.lights.find((item) => item.id === hostedLight.id)!.position.z).toBe(hostedLight.position.z + 200);
+    const shrunk = resizeRoomPlanGeometry(nudged, room.id, { ...room.dimensions, widthMm: Math.max(2500, room.dimensions.widthMm - 1600) });
+    expect(readLightMount(resolved(shrunk, hostedLight.id))).toEqual({ kind: "ceiling", ceilingDropMm: 0 });
+    expect(resolved(shrunk, hostedLight.id).position).toMatchObject({ x: hostedLight.position.x, z: hostedLight.position.z + 200 });
+    const added = addRoomLightFixture(project, "cob", { kind: "cutout", cutoutId });
+    const light = added.lights.at(-1)!;
     const dragged = relocateLight(added, light.id, { x: cx + 900, y: 0, z: cz });
     expect(readLightMount(dragged.lights.find((item) => item.id === light.id)!)).toEqual({ kind: "ceiling", ceilingDropMm: 0 });
     expect(resolved(dragged, light.id).position.x).toBe(cx + 900);

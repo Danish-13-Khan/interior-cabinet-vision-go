@@ -3,7 +3,6 @@ import {
   addCeilingCutout,
   createSurfaceZone,
   createWallSegmentResult,
-  deleteCeilingCutout,
   deleteInteriorRoom,
   deleteSurfaceZone,
   drawRoomFromPoints,
@@ -33,6 +32,7 @@ import {
   roomWallIds,
 } from "../../domain/livingRoom";
 import { resolveFloorBuild, writeFloorBuild, type FloorBuild } from "../../domain/interiorProject";
+import { deleteCeilingCutoutAndDetach } from "../../domain/livingRoom/lightCutoutMount";
 import { uniqueObjectId, type EditorCommandContext } from "./context";
 
 /** Rooms, drawing, openings, surface zones, and columns. */
@@ -163,7 +163,7 @@ export function roomCommands(ctx: EditorCommandContext) {
       commitDocument((current) => addCeilingCutout(current, drawing.points), "Added ceiling cutout.");
     },
     deleteLivingRoomCeilingCutout: (roomId: string, cutoutId: string) => {
-      commitDocument((current) => deleteCeilingCutout(current, roomId, cutoutId), "Deleted ceiling cutout.");
+      commitDocument((current) => deleteCeilingCutoutAndDetach(current, roomId, cutoutId), "Deleted ceiling cutout.");
     },
     placeLivingRoomColumn: placeColumn,
     setLivingRoomFloorBuild: (patch: Partial<FloorBuild>) => {

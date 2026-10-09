@@ -1,17 +1,19 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
-  ceilingCutoutSizeMm, moveCeilingCutout, readCeilingCutouts, roomPlanPolygon,
+  ceilingCutoutSizeMm, compiledCeilingCutouts, moveCeilingCutout, readCeilingCutouts, roomPlanPolygon,
   type InteriorProject, type InteriorRoomEntity, type Point2Mm,
 } from "../../domain/interiorProject";
 import { outerLoopWallsRaised } from "../../domain/interiorProject/wallRaise";
 import { formatPlanDimension, type PlanDisplayUnit } from "../../domain/livingRoom";
 import { lightsInCutout } from "../../domain/livingRoom/lightCutoutMount";
 
-/** Active-room lights centred in a cutout; their plan glyphs defer to the cutout beneath. */
+/** Active-room lights centred in a cutout still in the ceiling; their plan glyphs defer to the cutout beneath. */
 export function cutoutHostedLightIds(project: InteriorProject): ReadonlySet<string> {
+  const room = project.rooms.find((item) => item.id === project.activeRoomId);
+  const cutoutIds = new Set(room ? compiledCeilingCutouts(project, room).map((cutout) => cutout.id) : []);
   return new Set(project.lights
     .filter((light) => light.roomId === project.activeRoomId && light.parameters.hostSurface === "ceiling"
-      && typeof light.parameters.hostCutoutId === "string")
+      && typeof light.parameters.hostCutoutId === "string" && cutoutIds.has(light.parameters.hostCutoutId))
     .map((light) => light.id));
 }
 
@@ -50,7 +52,9 @@ export function PlanCeilingLayer(props: {
   if (!polygon || !outerLoopWallsRaised(props.project, props.room)) return null;
   const roomId = props.room.id;
   const cutouts = readCeilingCutouts(props.room);
-  const slabPath = [polygon.outer, ...polygon.holes, ...cutouts.map((cutout) => cutout.polygon)]
+  // Only cutouts still inside the room are holes in the slab; a stranded one is drawn as an outline to drag back in.
+  const inCeiling = new Set(compiledCeilingCutouts(props.project, props.room).map((cutout) => cutout.id));
+  const slabPath = [polygon.outer, ...polygon.holes, ...cutouts.filter((cutout) => inCeiling.has(cutout.id)).map((cutout) => cutout.polygon)]
     .map(loopPath).join(" ");
   const movable = props.interactive && Boolean(props.onPatchDocument);
   const snap = (value: number) => Math.round(value / props.snapSizeMm) * props.snapSizeMm;
@@ -90,15 +94,17 @@ export function PlanCeilingLayer(props: {
       {cutouts.map((cutout) => {
         const size = ceilingCutoutSizeMm(cutout);
         const dragging = drag?.cutoutId === cutout.id ? drag.delta : null;
+        const stranded = !inCeiling.has(cutout.id);
         return (
-          <g key={cutout.id} className={`lr-plan-cutout${movable ? " is-movable" : ""}${dragging ? " is-dragging" : ""}`}
+          <g key={cutout.id} className={`lr-plan-cutout${movable ? " is-movable" : ""}${dragging ? " is-dragging" : ""}${stranded ? " is-stranded" : ""}`}
+            data-stranded={stranded ? "1" : undefined}
             data-ceiling-cutout-id={cutout.id} pointerEvents={movable ? "auto" : "none"}
             transform={dragging ? `translate(${dragging.x} ${dragging.z})` : undefined}
             onPointerDown={(event) => begin(event, cutout.id)} onPointerMove={move}
             onPointerUp={finish} onPointerCancel={finish}>
             <path d={loopPath(cutout.polygon)} />
             <text x={size.centerX} y={size.centerZ}>
-              {cutout.label ?? cutout.id} · {formatPlanDimension(size.widthMm, props.unit)} × {formatPlanDimension(size.depthMm, props.unit)}
+              {cutout.label ?? cutout.id} · {formatPlanDimension(size.widthMm, props.unit)} × {formatPlanDimension(size.depthMm, props.unit)}{stranded ? " · not in ceiling" : ""}
             </text>
           </g>
         );

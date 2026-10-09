@@ -1,5 +1,5 @@
 import {
-  ceilingCutoutSizeMm, readCeilingCutouts, type InteriorProject, type InteriorRoomEntity,
+  ceilingCutoutSizeMm, compiledCeilingCutouts, readCeilingCutouts, type InteriorProject, type InteriorRoomEntity,
 } from "../../domain/interiorProject";
 import { formatPlanDimension, type PlanDisplayUnit } from "../../domain/livingRoom";
 import { lightsInCutout } from "../../domain/livingRoom/lightCutoutMount";
@@ -19,6 +19,7 @@ export function CeilingCutoutsSection(props: {
 }) {
   const { project, room, lightActions } = props;
   const cutouts = readCeilingCutouts(room);
+  const inCeiling = new Set(compiledCeilingCutouts(project, room).map((cutout) => cutout.id));
   // One commit: a second commit in the same tick would start from the stale document and drop the light.
   const addPanel = (cutoutId: string) => lightActions?.addLight("panel", { kind: "cutout", cutoutId }, { fitCutout: true });
   return (
@@ -33,7 +34,7 @@ export function CeilingCutoutsSection(props: {
             const hosted = lightsInCutout(project, cutout.id);
             return (
               <li key={cutout.id} data-ceiling-cutout-row={cutout.id}>
-                <span>{cutout.label ?? cutout.id}{hosted.length ? ` · ${hosted.map((light) => light.name).join(", ")}` : ""}</span>
+                <span>{cutout.label ?? cutout.id}{hosted.length ? ` · ${hosted.map((light) => light.name).join(", ")}` : ""}{inCeiling.has(cutout.id) ? "" : " · not in ceiling"}</span>
                 <small>{formatPlanDimension(size.widthMm, props.unit)} × {formatPlanDimension(size.depthMm, props.unit)}</small>
                 {lightActions && hosted.length === 0 ? (
                   <>

@@ -1,11 +1,13 @@
 import type { InteriorProject, LightEntity } from "../interiorProject";
-import { ceilingCutoutSizeMm, readCeilingCutouts } from "../interiorProject";
+import { ceilingCutoutSizeMm } from "../interiorProject";
+import { hostableCeilingCutout } from "./lightCutoutMount";
 import type { CeilingLightMount } from "./lightMountRead";
 
 /**
  * Ceiling lock: y follows room height; x/z and yaw stay authored, unless the
  * mount names a cutout, in which case x/z follow the cutout's centre. A cutout
- * that no longer exists leaves the light where it was as a plain ceiling mount.
+ * that no longer exists, or that the room has shrunk away from, leaves the
+ * light at its stored position as a plain ceiling mount.
  */
 export function resolveCeilingLightPose(
   project: InteriorProject,
@@ -15,9 +17,7 @@ export function resolveCeilingLightPose(
   if (!light.roomId) return null;
   const room = project.rooms.find((item) => item.id === light.roomId);
   if (!room) return null;
-  const cutout = mount.hostCutoutId
-    ? readCeilingCutouts(room).find((item) => item.id === mount.hostCutoutId)
-    : undefined;
+  const cutout = mount.hostCutoutId ? hostableCeilingCutout(project, room.id, mount.hostCutoutId) : undefined;
   const centre = cutout ? ceilingCutoutSizeMm(cutout) : null;
   const { hostCutoutId: _stale, ...parameters } = light.parameters;
   return {
