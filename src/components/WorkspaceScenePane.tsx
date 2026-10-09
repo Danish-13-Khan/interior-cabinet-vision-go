@@ -28,7 +28,6 @@ type WorkspaceScenePaneProps = {
   activeCabinetId: string | null;
   selectedPanelName: PanelName | null;
   onFocus: () => void;
-  onToggleMaximize: () => void;
   onCabinetMove: (cabinetId: string, placement: CabinetPlacement) => boolean;
   onCabinetRotate: (cabinetId: string, rotation: number) => boolean;
   onCabinetResize: (cabinetId: string, dimensions: CabinetDimensions) => void;
@@ -54,7 +53,6 @@ export function WorkspaceScenePane({
   activeCabinetId,
   selectedPanelName,
   onFocus,
-  onToggleMaximize,
   onCabinetMove,
   onCabinetRotate,
   onCabinetResize,
@@ -81,7 +79,6 @@ export function WorkspaceScenePane({
       focused={focused}
       maximized={maximized}
       onFocus={onFocus}
-      onToggleMaximize={onToggleMaximize}
       toolbar={
         <>
           <WorkspacePaneNavTools

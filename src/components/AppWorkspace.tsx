@@ -212,14 +212,6 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
       }
     }, [maximizedPane, workspaceTab]);
 
-    function handleToggleMaximize(tab: WorkspaceTabId) {
-      setMaximizedPane((current) => (current === tab ? null : tab));
-      onWorkspaceTabChange(tab);
-      if (tab === "plan" || tab === "front" || tab === "side") {
-        onActiveSheetChange(tab);
-      }
-    }
-
     function handleSelectSheet(sheetId: string) {
       onActiveSheetChange(sheetId);
       const catalogId = catalogIdFromSheetId(sheetId, project);
@@ -412,7 +404,6 @@ export const AppWorkspace = forwardRef<CabinetSceneHandle, AppWorkspaceProps>(
               focusedWallCabinetIds={workbenchMode === "cabinets" ? wallCabinetIds : null}
               onFocusPane={onWorkspaceTabChange}
               onSelectSheet={handleSelectSheet}
-              onToggleMaximize={handleToggleMaximize}
               onSplitPlanWidthChange={onSplitPlanWidthChange}
               onSplitTopRowChange={onSplitTopRowChange}
               onDraftingToolChange={onDraftingToolChange}

@@ -1,10 +1,12 @@
-import type { ComponentProps, ReactNode, RefObject } from "react";
+import { useRef, type ComponentProps, type ReactNode, type RefObject } from "react";
 import { AppToolRail } from "./AppToolRail";
 import { AppWorkspace } from "./AppWorkspace";
 import { AppInspector } from "./AppInspector";
 import { PaneResizeHandle } from "./PaneResizeHandle";
 import type { CabinetSceneHandle } from "./CabinetScene";
 import type { WorkbenchMode } from "../domain/desktopUx";
+import { fitStudioPanes, STUDIO_PANE_MIN } from "../domain/desktopUx/studioPaneFit";
+import { useElementWidth } from "../hooks/useElementWidth";
 
 type AppMainBodyProps = {
   workbenchMode: WorkbenchMode;
@@ -48,16 +50,30 @@ export function AppMainBody({
     workbenchMode !== "interiors" &&
     workbenchMode !== "engineering" &&
     !isOutputWorkspace;
+  const showInspector =
+    !isOutputWorkspace && workbenchMode !== "interiors" && workbenchMode !== "engineering" && inspectorVisible;
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const hostWidth = useElementWidth(bodyRef, 1280);
+  const panes = fitStudioPanes({
+    hostWidth,
+    chromeWidth: 0,
+    catalog: toolRailWidthPx,
+    inspector: inspectorWidthPx,
+    catalogShown: showToolRail,
+    inspectorShown: showInspector,
+    inspectorMin: STUDIO_PANE_MIN,
+  });
 
   return (
-    <div className="app-body">
+    <div className="app-body" ref={bodyRef}>
       {showToolRail ? (
         <>
-          <AppToolRail {...toolRailProps} style={{ width: toolRailWidthPx }} />
+          <AppToolRail {...toolRailProps} style={{ width: panes.catalogWidth }} />
           <PaneResizeHandle
             axis="x"
-            value={toolRailWidthPx}
-            min={160}
+            value={panes.catalogWidth}
+            min={STUDIO_PANE_MIN}
+            max={panes.catalogMax}
             ariaLabel="Resize tool rail"
             onChange={onToolRailWidthChange}
           />
@@ -74,17 +90,18 @@ export function AppMainBody({
             ? engineeringWorkspace
           : <AppWorkspace ref={sceneRef} {...workspaceProps} />}
 
-      {!isOutputWorkspace && workbenchMode !== "interiors" && workbenchMode !== "engineering" && inspectorVisible ? (
+      {showInspector ? (
         <>
           <PaneResizeHandle
             axis="x"
-            value={inspectorWidthPx}
-            min={160}
+            value={panes.inspectorWidth}
+            min={STUDIO_PANE_MIN}
+            max={panes.inspectorMax}
             invert
             ariaLabel="Resize inspector"
             onChange={onInspectorWidthChange}
           />
-          <AppInspector {...inspectorProps} style={{ width: inspectorWidthPx }} />
+          <AppInspector {...inspectorProps} style={{ width: panes.inspectorWidth }} />
         </>
       ) : null}
     </div>

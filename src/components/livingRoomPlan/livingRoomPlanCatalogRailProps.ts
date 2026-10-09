@@ -86,8 +86,6 @@ export type LivingRoomPlanCatalogRailProps = {
   onUpdateSurface?: (surfaceId: string, materialId: string) => void;
   onDeleteSurface?: (surfaceId: string) => void;
   presenting?: boolean;
-  paneMaximized?: boolean;
   paneMax?: number;
   onPaneWidth?: (widthPx: number) => void;
-  onPaneMaximize?: () => void;
 };

@@ -6,13 +6,14 @@ import { autosaveStatus, cleanProjectId, projectFileAdoption, recoveryOffer, web
 import { clearDraftPending } from "../domain/projectDrafts/pendingMarker";
 import { acceptOpenedFileAsDraft } from "../domain/projectDrafts/openedFileRecovery";
 import { indexedDbDraftStore } from "../platform/indexedDbDraftStore";
+import { clearPostLoginLanding, readPostLoginLanding } from "../domain/desktopUx/postLoginLanding";
 
 type AutosaveState = "idle" | "saving" | "saved" | "error";
 
 type Args = {
   project: InteriorProject | null;
   isDirty: boolean;
-  onRestore: (project: InteriorProject) => void;
+  onRestore: (project: InteriorProject, options?: { keepHome?: boolean }) => void;
   onStatus: (message: string) => void;
 };
 
@@ -22,20 +23,23 @@ export function useLivingRoomRecovery({ onRestore, onStatus }: Args) {
   const [autosaveState, setAutosaveState] = useState<AutosaveState>("idle");
   const [lastAutosavedAt, setLastAutosavedAt] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>(null);
+  const [landOnHome] = useState(() => readPostLoginLanding());
   const restored = useRef(false);
+
+  useEffect(() => clearPostLoginLanding(), []);
 
   useEffect(() => webDraftRestore.subscribe((request) => {
     const interior = request?.entry.project.interiorDocument;
     if (!request || !interior || restored.current) return;
     restored.current = true;
     projectFileAdoption.set(request.filePath);
-    onRestore(interior);
+    onRestore(interior, { keepHome: landOnHome });
     cleanProjectId.set(interior.id);
     setAutosaveState("saved");
     setLastAutosavedAt(request.entry.updatedAt);
     clearDraftPending(localStorage, interior.id);
     if (request.notice) onStatus(request.notice);
-  }), [onRestore, onStatus]);
+  }), [landOnHome, onRestore, onStatus]);
 
   useEffect(() => recoveryOffer.subscribe((offer) => {
     if (!offer?.entry.project.interiorDocument) {

@@ -25,7 +25,6 @@ import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/light
 type LivingRoomInspectorPanelProps = {
   mode: "plan" | "model";
   widthPx: number;
-  maximized?: boolean;
   paneEdge?: ReactNode;
   project: InteriorProject;
   room: InteriorProject["rooms"][number] | null;

@@ -51,7 +51,6 @@ type WorkspaceSplitCanvasProps = {
   focusedWallCabinetIds?: string[] | null;
   onFocusPane: (tab: WorkspaceTabId) => void;
   onSelectSheet: (sheetId: string) => void;
-  onToggleMaximize: (tab: WorkspaceTabId) => void;
   onSplitPlanWidthChange: (pct: number) => void;
   onSplitTopRowChange: (pct: number) => void;
   onDraftingToolChange: (tool: DraftingTool) => void;
@@ -114,7 +113,6 @@ export const WorkspaceSplitCanvas = forwardRef<
     focusedWallCabinetIds = null,
     onFocusPane,
     onSelectSheet,
-    onToggleMaximize,
     onSplitPlanWidthChange,
     onSplitTopRowChange,
     onDraftingToolChange,
@@ -295,11 +293,6 @@ export const WorkspaceSplitCanvas = forwardRef<
     />
   );
 
-  const restoreSheetId: DrawingSheetId =
-    workspaceTab === "plan" || workspaceTab === "front" || workspaceTab === "side"
-      ? workspaceTab
-      : "front";
-
   const singleView =
     catalogSheetId === "report"
       ? "report"
@@ -349,10 +342,6 @@ export const WorkspaceSplitCanvas = forwardRef<
             }
             banner={objectToolbar}
             onFocus={() => onSelectSheet(singleSheetId)}
-            onToggleMaximize={() => {
-              onSelectSheet(restoreSheetId);
-              onFocusPane(workspaceTab);
-            }}
             twoDProps={{
               ...twoDCommon,
               draftingTool:
@@ -376,7 +365,6 @@ export const WorkspaceSplitCanvas = forwardRef<
                 onSelectSheet("plan");
                 onFocusPane("plan");
               }}
-              onToggleMaximize={() => onToggleMaximize("plan")}
               twoDProps={twoDCommon}
             />
 
@@ -430,7 +418,6 @@ export const WorkspaceSplitCanvas = forwardRef<
                 onSelectSheet(elevSheetId);
                 onFocusPane(elevTab);
               }}
-              onToggleMaximize={() => onToggleMaximize(elevTab)}
               twoDProps={elevationTwoDCommon}
             />
 
@@ -459,7 +446,6 @@ export const WorkspaceSplitCanvas = forwardRef<
               activeCabinetId={activeCabinetId}
               selectedPanelName={selectedPanelName}
               onFocus={() => onFocusPane("3d")}
-              onToggleMaximize={() => onToggleMaximize("3d")}
               onCabinetMove={onCabinetMove}
               onCabinetRotate={onCabinetRotate}
               onCabinetResize={onCabinetResize}

@@ -316,12 +316,6 @@
   gap: 1px;
 }
 
-.workspace-pane-max-btn {
-  padding: 1px 4px !important;
-  font-size: var(--text-xs) !important;
-  min-height: 16px !important;
-}
-
 .workspace-pane-body {
   flex: 1;
   min-height: 0;

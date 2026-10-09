@@ -57,16 +57,14 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
   return (
     <div
       ref={panes.ref}
-      className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}${panes.maximized ? ` is-max-${panes.maximized}` : ""}`}
+      className={`lr-workspace-body is-${props.workspaceView} is-planner-${props.plannerMode}`}
     >
       {props.workspaceView !== "render" || props.plannerMode === "render" ? (
         <LivingRoomPlanWorkspaceRail {...props} onImportUnderlay={planImport.onImportUnderlay}
           floorplanExtract={floorplanExtract.launcher}
           paneWidth={panes.catalogWidth}
-          paneMaximized={panes.maximized === "catalog"}
           paneMax={panes.catalogMax}
           onPaneWidth={panes.onCatalogWidth}
-          onPaneMaximize={() => panes.toggle("catalog")}
         />
       ) : null}
       {props.plannerMode === "render" ? (
@@ -103,10 +101,8 @@ export function LivingRoomPlanWorkspaceBody(props: LivingRoomPlanWorkspaceBodyPr
         activeObject={activeObject}
         transformPreview={modelTransformPreview}
         widthPx={panes.inspectorWidth}
-        maximized={panes.maximized === "inspector"}
         paneMax={panes.inspectorMax}
         onPaneWidth={panes.onInspectorWidth}
-        onPaneMaximize={() => panes.toggle("inspector")}
       />
       <LivingRoomPlanImportOverlays
         roomWidthMm={room?.dimensions.widthMm ?? 6200}

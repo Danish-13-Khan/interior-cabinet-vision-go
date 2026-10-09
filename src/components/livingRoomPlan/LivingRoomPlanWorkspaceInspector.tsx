@@ -14,10 +14,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   activeObject: InteriorObjectEntity | null;
   transformPreview: ModelTransformPreview | null;
   widthPx?: number;
-  maximized?: boolean;
   paneMax?: number;
   onPaneWidth?: (widthPx: number) => void;
-  onPaneMaximize?: () => void;
 }) {
   const { body: p, transformPreview } = props;
   const activeObject = props.activeObject && transformPreview?.kind === "object" && transformPreview.id === props.activeObject.id
@@ -61,8 +59,8 @@ export function LivingRoomPlanWorkspaceInspector(props: {
   }
   return (
     <LivingRoomInspectorPanel mode={p.workspaceView === "model" ? "model" : "plan"} widthPx={widthPx}
-      maximized={props.maximized} paneEdge={props.onPaneWidth && props.onPaneMaximize ? (
-        <StudioPaneEdge edge="start" width={widthPx} min={STUDIO_INSPECTOR_MIN} max={props.paneMax ?? widthPx} maximized={props.maximized === true} onWidth={props.onPaneWidth} onMaximize={props.onPaneMaximize} />
+      paneEdge={props.onPaneWidth ? (
+        <StudioPaneEdge edge="start" width={widthPx} min={STUDIO_INSPECTOR_MIN} max={props.paneMax ?? widthPx} onWidth={props.onPaneWidth} />
       ) : null} project={p.project} room={p.room} drawRoom={isInteriorsDrawRoomTool(p.chromeTool)}
       cabinetRun={isInteriorsCabinetRunTool(p.chromeTool)}
       runToolActive={p.chromeTool === "run"}

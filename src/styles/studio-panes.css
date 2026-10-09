@@ -1,17 +1,21 @@
 /* Loaded last. Higher specificity than the fixed pane widths, without !important. */
 
+/* The panes are positioned only to anchor their resize edge; offsets left over from drawer rules must not shift them over the canvas. */
 .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body .lr-catalog.lr-studio-panel,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body .lr-catalog.lr-studio-panel {
   position: relative;
+  inset: auto;
   flex: 0 0 var(--studio-catalog-width, 220px);
   width: var(--studio-catalog-width, 220px);
   min-width: 160px;
   max-width: none;
+  box-shadow: none;
 }
 
 .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body .lr-inspector,
 .lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-planner-build .lr-inspector {
   position: relative;
+  inset: auto;
   flex: 0 0 var(--studio-inspector-width, 260px);
   width: var(--studio-inspector-width, 260px);
   min-width: 160px;
@@ -36,47 +40,8 @@
   margin: 0;
 }
 
-.studio-pane-edge button {
-  position: absolute;
-  top: 8px;
-  z-index: 2;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: var(--text-xs);
-  line-height: 1.2;
-  padding: 4px 6px;
-  cursor: pointer;
-}
-
-.studio-pane-edge.is-end button { right: 14px; }
-.studio-pane-edge.is-start button { left: 14px; }
-
-.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-max-catalog > .lr-inspector,
-.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-max-inspector > .lr-catalog {
-  display: none;
-}
-
-.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-max-catalog > .lr-plan-center,
-.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-max-inspector > .lr-plan-center {
-  flex: 0 0 280px;
-  width: 280px;
-  min-width: 240px;
-}
-
-.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-max-catalog > .lr-catalog.lr-studio-panel,
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-max-catalog > .lr-catalog.lr-studio-panel {
-  flex: 1 1 auto;
-  width: auto;
-  max-width: none;
-}
-
-.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-max-inspector > .lr-inspector,
-.lr-plan-shell.lr-product-shell-v2.is-drafting-studio .lr-workspace-body.is-max-inspector > .lr-inspector {
-  flex: 1 1 auto;
-  width: auto;
-  max-width: none;
+.lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body > .lr-plan-center {
+  min-width: 280px;
 }
 
 /*
@@ -91,25 +56,11 @@
     min-width: var(--studio-inspector-width, 300px);
     max-width: var(--studio-inspector-width, 300px);
   }
+}
 
-  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-inspector {
-    grid-template-columns: auto 280px minmax(0, 1fr);
-  }
-
-  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-catalog {
-    grid-template-columns: minmax(0, 1fr) 280px auto;
-  }
-
-  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-catalog > .lr-plan-center,
-  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-inspector > .lr-plan-center {
-    width: auto;
-    min-width: 0;
-  }
-
-  .lr-plan-shell.lr-product-shell.lr-product-shell-v2 .lr-workspace-body.is-plan.is-max-inspector > .lr-inspector {
-    min-width: 100%;
-    max-width: none;
-  }
+/* The stacked plan has full-width rows, so there is no side edge to drag. */
+@media (max-width: 960px) {
+  .lr-workspace-body.is-plan .studio-pane-edge { display: none; }
 }
 
 @media (max-width: 780px) {

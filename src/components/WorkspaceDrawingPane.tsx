@@ -34,7 +34,6 @@ type WorkspaceDrawingPaneProps = {
   banner?: ReactNode;
   statusExtra?: string;
   onFocus: () => void;
-  onToggleMaximize: () => void;
   twoDProps: Omit<TwoDProps, "view" | "draftingDisplay"> & {
     draftingDisplay?: TwoDProps["draftingDisplay"];
   };
@@ -68,7 +67,6 @@ export function WorkspaceDrawingPane({
   banner,
   statusExtra,
   onFocus,
-  onToggleMaximize,
   twoDProps,
 }: WorkspaceDrawingPaneProps) {
   const chrome = useMemo(
@@ -131,7 +129,6 @@ export function WorkspaceDrawingPane({
       focused={focused}
       maximized={maximized}
       onFocus={onFocus}
-      onToggleMaximize={onToggleMaximize}
       toolbar={
         <>
           <WorkspacePaneNavTools

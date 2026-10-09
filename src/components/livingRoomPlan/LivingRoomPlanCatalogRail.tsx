@@ -142,14 +142,12 @@ export function LivingRoomPlanCatalogRail(props: LivingRoomPlanCatalogRailProps)
         />
         </div>
         <SceneListSlot />
-        {props.onPaneWidth && props.onPaneMaximize ? (
+        {props.onPaneWidth ? (
           <StudioPaneEdge
             edge="end"
             width={props.widthPx}
             max={props.paneMax ?? props.widthPx}
-            maximized={props.paneMaximized === true}
             onWidth={props.onPaneWidth}
-            onMaximize={props.onPaneMaximize}
           />
         ) : null}
       </aside>

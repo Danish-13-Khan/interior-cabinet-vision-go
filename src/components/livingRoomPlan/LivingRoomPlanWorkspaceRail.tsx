@@ -9,17 +9,14 @@ export function LivingRoomPlanWorkspaceRail(props: LivingRoomPlanWorkspaceBodyPr
   onImportUnderlay: (file: File | null) => void | Promise<void>;
   floorplanExtract?: FloorplanExtractLauncherState;
   paneWidth?: number;
-  paneMaximized?: boolean;
   paneMax?: number;
   onPaneWidth?: (widthPx: number) => void;
-  onPaneMaximize?: () => void;
 }) {
   const { workspace: w, project, room, build } = props;
   return (
     <LivingRoomPlanCatalogRail
       widthPx={props.paneWidth ?? w.toolRailWidthPx} toolRailVisible={w.toolRailVisible}
-      paneMaximized={props.paneMaximized} paneMax={props.paneMax}
-      onPaneWidth={props.onPaneWidth} onPaneMaximize={props.onPaneMaximize}
+      paneMax={props.paneMax} onPaneWidth={props.onPaneWidth}
       workflowArea={props.workflowArea}
       studioPanel={props.studioPanel} onStudioPanel={props.onStudioPanel}
       chromeTool={props.chromeTool} onChromeTool={props.onChromeTool}

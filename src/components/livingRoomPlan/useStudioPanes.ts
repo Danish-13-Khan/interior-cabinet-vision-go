@@ -1,22 +1,37 @@
 import { useEffect, useRef, useState } from "react";
+import { fitStudioPanes } from "../../domain/desktopUx/studioPaneFit";
 
-export const STUDIO_PANE_MIN = 160;
-/** Below this the inspector's W/H/D fields and finish cards truncate. */
-export const STUDIO_INSPECTOR_MIN = 300;
-export const STUDIO_PANE_MAX = 720;
-const CANVAS_MIN = 280;
+export {
+  STUDIO_INSPECTOR_MIN,
+  STUDIO_PANE_MAX,
+  STUDIO_PANE_MIN,
+  studioPaneMax,
+  studioPaneWidth,
+} from "../../domain/desktopUx/studioPaneFit";
 
-export type StudioPaneId = "catalog" | "inspector";
+type BodyLayout = { hostWidth: number; chromeWidth: number; catalogShown: boolean; inspectorShown: boolean };
 
-/** Drag widths stay inside the viewport so the canvas keeps a minimum strip. */
-export function studioPaneMax(hostWidth: number, otherWidth: number) {
-  const room = hostWidth - otherWidth - CANVAS_MIN;
-  return Math.max(STUDIO_PANE_MIN, Math.min(STUDIO_PANE_MAX, Math.round(room)));
+const INITIAL_LAYOUT: BodyLayout = { hostWidth: 1280, chromeWidth: 0, catalogShown: true, inspectorShown: true };
+
+function measureBody(node: HTMLElement): BodyLayout {
+  const bodyHeight = node.clientHeight;
+  const layout: BodyLayout = { hostWidth: node.clientWidth, chromeWidth: 0, catalogShown: false, inspectorShown: false };
+  for (const child of Array.from(node.children)) {
+    const classes = child.classList;
+    if (classes.contains("lr-catalog")) layout.catalogShown = true;
+    else if (classes.contains("lr-inspector")) layout.inspectorShown = true;
+    else if (!classes.contains("lr-plan-center")) {
+      const rect = child.getBoundingClientRect();
+      // Only full-height side columns (the 3D tool rail) compete with the panes for width.
+      if (rect.width > 0 && rect.height >= bodyHeight * 0.9) layout.chromeWidth += Math.round(rect.width);
+    }
+  }
+  return layout;
 }
 
-/** A stored width that fits the current host: never under the pane minimum, never over the canvas-safe max. */
-export function studioPaneWidth(stored: number, min: number, max: number) {
-  return Math.round(Math.max(STUDIO_PANE_MIN, Math.min(max, Math.max(min, stored))));
+function sameLayout(a: BodyLayout, b: BodyLayout) {
+  return a.hostWidth === b.hostWidth && a.chromeWidth === b.chromeWidth
+    && a.catalogShown === b.catalogShown && a.inspectorShown === b.inspectorShown;
 }
 
 export function useStudioPanes(args: {
@@ -26,35 +41,32 @@ export function useStudioPanes(args: {
   onInspectorWidth: (width: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [host, setHost] = useState(1280);
-  const [maximized, setMaximized] = useState<StudioPaneId | null>(null);
+  const [layout, setLayout] = useState<BodyLayout>(INITIAL_LAYOUT);
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    const measure = () => setHost(node.clientWidth);
+    const measure = () => {
+      const next = measureBody(node);
+      setLayout((current) => (sameLayout(current, next) ? current : next));
+    };
     measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => observer.disconnect();
+    const resize = new ResizeObserver(measure);
+    resize.observe(node);
+    const mutation = new MutationObserver(measure);
+    mutation.observe(node, { childList: true, attributes: true, attributeFilter: ["class"] });
+    return () => {
+      resize.disconnect();
+      mutation.disconnect();
+    };
   }, []);
 
-  function toggle(id: StudioPaneId) {
-    setMaximized((current) => (current === id ? null : id));
-  }
-
-  const catalogMax = studioPaneMax(host, args.inspectorWidth);
-  const inspectorMax = studioPaneMax(host, args.catalogWidth);
+  const fit = fitStudioPanes({ ...layout, catalog: args.catalogWidth, inspector: args.inspectorWidth });
 
   return {
     ref,
-    maximized,
-    catalogMax,
-    inspectorMax,
-    catalogWidth: studioPaneWidth(args.catalogWidth, STUDIO_PANE_MIN, catalogMax),
-    inspectorWidth: studioPaneWidth(args.inspectorWidth, STUDIO_INSPECTOR_MIN, inspectorMax),
+    ...fit,
     onCatalogWidth: args.onCatalogWidth,
     onInspectorWidth: args.onInspectorWidth,
-    toggle,
   };
 }

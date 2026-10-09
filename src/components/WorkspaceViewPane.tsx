@@ -9,7 +9,6 @@ type WorkspaceViewPaneProps = {
   toolbar?: ReactNode;
   status?: ReactNode;
   onFocus: () => void;
-  onToggleMaximize: () => void;
   children: ReactNode;
 };
 
@@ -22,7 +21,6 @@ export function WorkspaceViewPane({
   toolbar,
   status,
   onFocus,
-  onToggleMaximize,
   children,
 }: WorkspaceViewPaneProps) {
   return (
@@ -43,20 +41,7 @@ export function WorkspaceViewPane({
           <span>{title}</span>
           {subtitle ? <small>{subtitle}</small> : null}
         </button>
-        <div className="workspace-pane-tools">
-          {toolbar}
-          <button
-            type="button"
-            className="tb-btn workspace-pane-max-btn"
-            title={maximized ? "Restore split view" : "Maximize pane"}
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleMaximize();
-            }}
-          >
-            {maximized ? "Restore" : "Max"}
-          </button>
-        </div>
+        <div className="workspace-pane-tools">{toolbar}</div>
       </header>
       <div className="workspace-pane-body">{children}</div>
       {status ? (

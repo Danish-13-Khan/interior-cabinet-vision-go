@@ -69,7 +69,7 @@ export function useLivingRoomPlanEditor({
     [document],
   );
 
-  function openDocument(nextDocument: InteriorProject, status: string, selectedId: string | undefined) {
+  function openDocument(nextDocument: InteriorProject, status: string, selectedId: string | undefined, keepHome = false) {
     const compatible = cabinetProjectFromInteriorProject(nextDocument);
     commitSnapshot(
       {
@@ -82,7 +82,7 @@ export function useLivingRoomPlanEditor({
       status,
     );
     setSelectedObjectIds(selectedId ? [selectedId] : []);
-    setProjectHomeOpen(false);
+    setProjectHomeOpen(keepHome);
   }
 
   function createStarter(options: {
@@ -100,8 +100,8 @@ export function useLivingRoomPlanEditor({
     openDocument(starter, `Created a ${label}.`, starter.objects[0]?.id);
   }
 
-  function restoreDocument(nextDocument: InteriorProject) {
-    openDocument(nextDocument, `Opened ${nextDocument.name}.`, nextDocument.objects[0]?.id);
+  function restoreDocument(nextDocument: InteriorProject, options: { keepHome?: boolean } = {}) {
+    openDocument(nextDocument, `Opened ${nextDocument.name}.`, nextDocument.objects[0]?.id, options.keepHome === true);
   }
 
   const commitDocument = createCommitDocument(commitProjectChange);

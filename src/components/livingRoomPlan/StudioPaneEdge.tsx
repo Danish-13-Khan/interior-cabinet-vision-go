@@ -6,23 +6,13 @@ type StudioPaneEdgeProps = {
   width: number;
   max: number;
   min?: number;
-  maximized: boolean;
   onWidth: (width: number) => void;
-  onMaximize: () => void;
 };
 
-/** Drag to resize, or fill the workspace and restore. */
-export function StudioPaneEdge({ edge, width, max, min = STUDIO_PANE_MIN, maximized, onWidth, onMaximize }: StudioPaneEdgeProps) {
+/** Drag to resize the side pane. */
+export function StudioPaneEdge({ edge, width, max, min = STUDIO_PANE_MIN, onWidth }: StudioPaneEdgeProps) {
   return (
     <div className={`studio-pane-edge is-${edge}`}>
-      <button
-        type="button"
-        aria-pressed={maximized}
-        data-testid={edge === "end" ? "catalog-pane-maximize" : "inspector-pane-maximize"}
-        onClick={onMaximize}
-      >
-        {maximized ? "Restore" : "Maximize"}
-      </button>
       <PaneResizeHandle
         axis="x"
         value={width}

@@ -1,5 +1,5 @@
 import type { ThemeId } from './theme'
-import { openJobWorkbench } from '../../domain/desktopUx'
+import { markPostLoginLanding, openJobWorkbench } from '../../domain/desktopUx'
 import {
   clearLocalAccount,
   ensureLocalAccountForSession,
@@ -55,5 +55,6 @@ export function createSession(partial: {
   }
   setSession(session)
   openJobWorkbench()
+  markPostLoginLanding()
   return session
 }
