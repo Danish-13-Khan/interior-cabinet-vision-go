@@ -69,7 +69,9 @@ export function CompiledSceneAtmosphere({
             Math.max(8, roomSpan + 2), Math.max(16, Math.round((roomSpan + 2) * 2)),
             environment.gridPrimaryColor, environment.gridSecondaryColor,
           ]}
-          position={[scene.bounds.center.x / 1000, 0.002, scene.bounds.center.z / 1000]}
+          // Just under the floor top (y = 0): the floor slab hides it inside the room so it
+          // never paints over tile or wood, and it still reads as ground outside the room.
+          position={[scene.bounds.center.x / 1000, -0.002, scene.bounds.center.z / 1000]}
         />
       ) : null}
     </>

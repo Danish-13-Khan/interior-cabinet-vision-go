@@ -104,6 +104,7 @@ export {
   LIGHT_PARAMETER_LIMITS,
   isRoomLightFixture,
   addRoomLightFixture,
+  defaultRoomLightMount,
   updateRoomLightFixture,
   removeRoomLightFixture,
   duplicateRoomLightFixture,

@@ -5,7 +5,7 @@ import {
   LIGHT_FIXTURE_CATEGORY_LABELS,
   type LightFixtureCategory,
 } from "../../domain/livingRoom/lightFixtureTypes";
-import { isRoomLightFixture, ROOM_LIGHT_FIXTURES } from "../../domain/livingRoom/roomLightFixtures";
+import { defaultRoomLightMount, isRoomLightFixture, ROOM_LIGHT_FIXTURES } from "../../domain/livingRoom/roomLightFixtures";
 import {
   lightFixtureActions,
   type LightFixtureActions,
@@ -21,9 +21,11 @@ export type RoomLightFixturesPanelProps = {
   onPatchDocument?: LightDocumentPatch;
   lightActions?: LightFixtureActions;
   onSelectLight?: (id: string) => void;
+  /** Wall fixtures mount here when it belongs to the active room. */
+  activeWallId?: string | null;
 };
 
-export function RoomLightFixturesPanel({ project, onPatchDocument, lightActions, onSelectLight }: RoomLightFixturesPanelProps) {
+export function RoomLightFixturesPanel({ project, onPatchDocument, lightActions, onSelectLight, activeWallId }: RoomLightFixturesPanelProps) {
   const actions = lightActions ?? (onPatchDocument ? lightFixtureActions(onPatchDocument, project) : null);
   if (!actions) return null;
   const lights = project.lights
@@ -39,7 +41,7 @@ export function RoomLightFixturesPanel({ project, onPatchDocument, lightActions,
           <div className="lr-render-quality-grid">
             {ROOM_LIGHT_FIXTURES.filter((preset) => preset.category === category).map((preset) => (
               <button type="button" key={preset.id}
-                onClick={() => actions.addLight(preset.id)}>
+                onClick={() => actions.addLight(preset.id, defaultRoomLightMount(project, preset.id, activeWallId))}>
                 {preset.name}
               </button>
             ))}

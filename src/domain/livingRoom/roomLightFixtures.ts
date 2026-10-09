@@ -109,6 +109,28 @@ export function addRoomLightFixture(
   return attachAddedWall(withLight, light.id, mount.wallId, definition);
 }
 
+/**
+ * Where a one-click add should mount a fixture. Wall fixtures go on the selected wall,
+ * else the room's longest wall, so they never float unrotated in the room centre.
+ */
+export function defaultRoomLightMount(
+  project: InteriorProject,
+  kind: RoomLightFixtureKind,
+  preferredWallId?: string | null,
+): RoomLightMountTarget | undefined {
+  const roomId = project.activeRoomId;
+  if (!roomId || !isLightFixtureKind(kind)) return undefined;
+  const definition = getLightFixtureDefinition(kind);
+  if (definition.category !== "wall" || !definition.mounts.includes("wall")) return undefined;
+  const walls = selectRoomWalls(project, roomId);
+  if (preferredWallId && walls.some((wall) => wall.id === preferredWallId)) return { kind: "wall", wallId: preferredWallId };
+  const longest = walls.reduce<{ id: string; length: number } | null>((best, stored) => {
+    const length = wallLength(orientWallForRoom(project, roomId, stored));
+    return !best || length > best.length ? { id: stored.id, length } : best;
+  }, null);
+  return longest ? { kind: "wall", wallId: longest.id } : undefined;
+}
+
 function attachAddedWall(
   project: InteriorProject,
   lightId: string,
