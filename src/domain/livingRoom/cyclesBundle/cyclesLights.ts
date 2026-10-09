@@ -7,6 +7,9 @@ import {
   LIGHT_RENDER_SCALE,
 } from "../lightFixtureTypes";
 import { LIGHT_PARAMETER_LIMITS } from "../lightParameterLimits";
+import { isCobShadeKind, readCobShade, trimFinishColor } from "../lightShade";
+import { cobShadeFixtureParts } from "./cyclesCobShade";
+import { area, at, box, cylinder, kelvinOf } from "./cyclesPartHelpers";
 import type { CompiledLivingRoomScene } from "../sceneTypes";
 import { resolveWindowKeyLights } from "../windowKeyLight";
 import type {
@@ -32,18 +35,6 @@ function metres(point: Point3Mm): CyclesVec3 {
   return { x: point.x / 1000, y: point.y / 1000, z: point.z / 1000 };
 }
 
-function at(x: number, y: number, z: number, rotation: [number, number, number] = [0, 0, 0]): CyclesTransform {
-  return {
-    position: { x, y, z },
-    rotation: { x: rotation[0], y: rotation[1], z: rotation[2], order: "XYZ" },
-  };
-}
-
-function kelvinOf(light: LightEntity): number | null {
-  const value = light.parameters.colorTemperatureK;
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
 type FixtureSize = {
   length: number;
   across: number;
@@ -64,69 +55,21 @@ function fixtureSize(light: LightEntity): FixtureSize {
   else if (finish === "black") body = "#1c1c1c";
   else if (finish === "white") body = "#f3f1ec";
   if (!light.enabled) body = "#dedbd5";
+  let metalness = metal;
+  if (isCobShadeKind(light.parameters.fixtureKind) && light.enabled) {
+    const trim = trimFinishColor(readCobShade(light).trimFinish);
+    body = trim.body; metalness = trim.metal;
+  }
   return {
     length: Math.max(0.02, fixtureNumber(light, "widthMm", 1000) / 1000),
     across: Math.max(0.004, fixtureNumber(light, "heightMm", 20) / 1000),
     depth: Math.max(0.004, fixtureNumber(light, "depthMm", 20) / 1000),
     body,
-    metal,
+    metal: metalness,
     glow: fixtureEmissiveIntensity(light),
     intensity: fixtureRenderIntensity(light, light.kind, 1),
     range: Math.max(0.05, fixtureNumber(light, "rangeMm", 5000) / 1000),
   };
-}
-
-function box(
-  size: [number, number, number],
-  local: CyclesTransform,
-  color: string,
-  metalness: number,
-  roughness: number,
-  emissive: { color: string; strength: number } | null = null,
-): CyclesFixturePart {
-  return {
-    shape: "box",
-    box: { width: size[0], height: size[1], depth: size[2] },
-    local,
-    color,
-    metalness,
-    roughness,
-    emissiveColor: emissive?.color ?? null,
-    emissiveStrength: emissive?.strength ?? 0,
-  };
-}
-
-function cylinder(
-  shape: "cylinder" | "cone",
-  cyl: { radiusTop: number; radiusBottom: number; height: number; segments: number },
-  local: CyclesTransform,
-  color: string,
-  metalness: number,
-  roughness: number,
-  emissive: { color: string; strength: number } | null = null,
-): CyclesFixturePart {
-  return {
-    shape,
-    cyl,
-    local,
-    color,
-    metalness,
-    roughness,
-    emissiveColor: emissive?.color ?? null,
-    emissiveStrength: emissive?.strength ?? 0,
-  };
-}
-
-function area(
-  id: string,
-  role: "emitter" | "wall-band" | "halo",
-  local: CyclesTransform,
-  sizeM: { width: number; height: number },
-  light: LightEntity,
-  nits: number,
-  castShadow: boolean,
-): CyclesFixtureLight {
-  return { kind: "area", id, role, local, sizeM, color: light.color, kelvin: kelvinOf(light), nits, castShadow };
 }
 
 function beamAngleDeg(light: LightEntity) {
@@ -218,25 +161,7 @@ function fixtureParts(light: LightEntity, kind: string, size: FixtureSize): { pa
   }
 
   if (kind === "cob" || kind === "ceiling-downlight") {
-    const radius = Math.max(size.length, size.across) / 2;
-    parts.push(cylinder("cylinder", { radiusTop: radius, radiusBottom: radius * 0.82, height: size.depth, segments: 28 }, at(0, 0, size.depth / 2, [90, 0, 0]), size.body, size.metal, 0.34));
-    parts.push(cylinder("cylinder", { radiusTop: radius * 0.72, radiusBottom: radius * 0.72, height: 0.004, segments: 28 }, at(0, 0, -0.001, [90, 0, 0]), glowColor, 0, 0.28, glow));
-    if (emits) {
-      lights.push({
-        kind: "spot",
-        id: `${light.id}:spot`,
-        role: "head",
-        local: at(0, 0, -0.012),
-        color: light.color,
-        kelvin: kelvinOf(light),
-        candela: size.intensity,
-        beamAngleDeg: beamAngleDeg(light),
-        penumbra: 0.65,
-        rangeM: size.range,
-        castShadow: cast,
-      });
-    }
-    return { parts, lights };
+    return cobShadeFixtureParts(light, size, glowColor, glow, emits, cast);
   }
 
   if (kind === "track") {

@@ -6,6 +6,7 @@ import {
   LIGHT_RENDER_SCALE,
 } from "../../../domain/livingRoom/lightFixtureTypes";
 import { LIGHT_PARAMETER_LIMITS } from "../../../domain/livingRoom/lightParameterLimits";
+import { isCobShadeKind, readCobShade, trimFinishColor } from "../../../domain/livingRoom/lightShade";
 
 /**
  * Every fixture body is authored so its emitter faces local −Z.
@@ -78,12 +79,18 @@ export function readFixtureSize(light: LightEntity, intensityScale: number, cast
   else if (finish === "black") body = "#1c1c1c";
   else if (finish === "white") body = "#f3f1ec";
   if (!light.enabled) body = "#dedbd5";
+  // COB / downlight trim finish replaces the strip finishes (roadmap §4.3).
+  let metalness = metal;
+  if (isCobShadeKind(light.parameters.fixtureKind) && light.enabled) {
+    const trim = trimFinishColor(readCobShade(light).trimFinish);
+    body = trim.body; metalness = trim.metal;
+  }
   return {
     length: Math.max(0.02, fixtureNumber(light, "widthMm", 1000) / 1000),
     across: Math.max(0.004, fixtureNumber(light, "heightMm", 20) / 1000),
     depth: Math.max(0.004, fixtureNumber(light, "depthMm", 20) / 1000),
     body,
-    metal,
+    metal: metalness,
     glow: fixtureEmissiveIntensity(light),
     intensity: fixtureRenderIntensity(light, light.kind, intensityScale),
     cast: castShadow && light.enabled,
