@@ -126,7 +126,17 @@ export function LivingRoomPlanWorkspace(props: LivingRoomPlanWorkspaceProps) {
     onUndo: props.onUndo,
     onRedo: props.onRedo,
     onDuplicate: () => duplicateLightOrObject(lightEdit),
-    onDelete: () => deleteLightOrObject(lightEdit),
+    // Delete key: a lone light first, then the selected door/window or wall, then objects.
+    onDelete: () => {
+      const lightOnly = Boolean(activeLightId) && props.selectedIds.length === 0;
+      if (!lightOnly && props.selectedIds.length === 0 && activeOpeningId) {
+        props.onDeleteOpening(activeOpeningId);
+        clearArchitecture();
+      } else if (!lightOnly && props.selectedIds.length === 0 && activeWallId) {
+        props.onDeleteWall(activeWallId);
+        clearArchitecture();
+      } else deleteLightOrObject(lightEdit);
+    },
     onRotateSelection: props.onRotateSelection,
     onNudge: props.onNudge,
     onSelect: (id) => { setActiveOpeningId(null); setActiveSurfaceId(null); setActiveLightId(null); props.onSelect(id); },
