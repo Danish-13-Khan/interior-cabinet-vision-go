@@ -19,10 +19,14 @@ export const LIGHT_PARAMETER_LIMITS = {
   offsetYmm: { min: -100_000, max: 100_000 },
   offsetZmm: { min: -100_000, max: 100_000 },
   colorTemperatureK: { min: MIN_LIGHT_KELVIN, max: MAX_LIGHT_KELVIN },
+  lensDiffusion: { min: 0, max: 1 },
+  aimRotationDeg: { min: 0, max: 360 },
 } as const satisfies Record<string, Limit>;
 
 const PROFILE_FINISH = new Set(["aluminium", "black", "white"]);
 const ORIENTATION = new Set(["horizontal", "vertical"]);
+const COB_SHADE = new Set(["open", "baffle", "pinhole", "gimbal", "surface"]);
+const TRIM_FINISH = new Set(["white", "black", "brass", "aluminium"]);
 
 function within(value: number, band: Limit) {
   const aboveMin = band.minExclusive ? value > band.min : value >= band.min;
@@ -42,6 +46,10 @@ export function validParameters(parameters: Record<string, ParameterValue>): boo
   if (finish !== undefined && (typeof finish !== "string" || !PROFILE_FINISH.has(finish))) return false;
   const orientation = parameters.orientation;
   if (orientation !== undefined && (typeof orientation !== "string" || !ORIENTATION.has(orientation))) return false;
+  const shade = parameters.shade;
+  if (shade !== undefined && (typeof shade !== "string" || !COB_SHADE.has(shade))) return false;
+  const trim = parameters.trimFinish;
+  if (trim !== undefined && (typeof trim !== "string" || !TRIM_FINISH.has(trim))) return false;
   const wallSide = parameters.wallSide;
   if (wallSide !== undefined && wallSide !== "interior" && wallSide !== "exterior") return false;
   if (parameters.hostSurface !== undefined && parameters.hostSurface !== "ceiling") return false;

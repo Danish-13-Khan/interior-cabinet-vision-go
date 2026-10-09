@@ -6,6 +6,7 @@ import {
   LIGHT_RENDER_SCALE,
 } from "../../../domain/livingRoom/lightFixtureTypes";
 import { LIGHT_PARAMETER_LIMITS } from "../../../domain/livingRoom/lightParameterLimits";
+import { bodyFinish } from "../../../domain/livingRoom/lightShade";
 
 /**
  * Every fixture body is authored so its emitter faces local −Z.
@@ -71,19 +72,13 @@ export type FixtureSize = {
 
 /** Metres and physical intensity for one fixture. Missing sizes fall back to the strip. */
 export function readFixtureSize(light: LightEntity, intensityScale: number, castShadow: boolean): FixtureSize {
-  const finish = light.parameters.profileFinish;
-  const metal = finish === "aluminium" ? 0.72 : finish === "black" ? 0.28 : 0.05;
-  let body = "#d8d3cb";
-  if (finish === "aluminium") body = "#c5c8cc";
-  else if (finish === "black") body = "#1c1c1c";
-  else if (finish === "white") body = "#f3f1ec";
-  if (!light.enabled) body = "#dedbd5";
+  const { body, metal: metalness } = bodyFinish(light);
   return {
     length: Math.max(0.02, fixtureNumber(light, "widthMm", 1000) / 1000),
     across: Math.max(0.004, fixtureNumber(light, "heightMm", 20) / 1000),
     depth: Math.max(0.004, fixtureNumber(light, "depthMm", 20) / 1000),
     body,
-    metal,
+    metal: metalness,
     glow: fixtureEmissiveIntensity(light),
     intensity: fixtureRenderIntensity(light, light.kind, intensityScale),
     cast: castShadow && light.enabled,

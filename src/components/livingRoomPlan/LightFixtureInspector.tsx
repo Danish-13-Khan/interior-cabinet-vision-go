@@ -5,7 +5,9 @@ import type { LightFixtureActions } from "../../hooks/livingRoomPlanEditor/light
 import { hostCaption } from "./lightFixtureEdits";
 import { LightMountSection } from "./LightMountSection";
 import { LightPoseSection } from "./LightPoseSection";
+import { LightShadeSection } from "./LightShadeSection";
 import { LightSizeSection } from "./LightSizeSection";
+import { isCobShadeKind } from "../../domain/livingRoom/lightShade";
 import { LightToneSection } from "./LightToneSection";
 
 /** Same collapsible card the cabinet and wall inspectors use. */
@@ -43,6 +45,9 @@ export function LightFixtureInspector(props: {
       <Section title="Light"><LightToneSection light={light} actions={actions} /></Section>
       <Section title="Mount"><LightMountSection project={project} light={light} actions={actions} /></Section>
       <Section title="Size"><LightSizeSection light={light} actions={actions} /></Section>
+      {isCobShadeKind(light.parameters.fixtureKind) ? (
+        <Section title="Shade"><LightShadeSection light={light} actions={actions} /></Section>
+      ) : null}
       {/* A mounted light takes its pose from the host, so these fields are read-only there. */}
       <Section title="Position" open={!poseLocked}><LightPoseSection light={light} actions={actions} /></Section>
     </div>

@@ -1,6 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Phases 0–2 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list; Phase 2: `hostCutoutId` on the ceiling mount, COB / panel in a cutout, Fit, cutout drag on the plan). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phase 3 built 2026-10-09 on `feat/resize-anchors` (`resizeAlongAxis` + anchors on room, cabinet and cutout resizes, inspector anchor segments, 2D cutout edge handles, 3D wall face and end handles). Phase 4 remains proposed.
+**Status:** Phases 0–2 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list; Phase 2: `hostCutoutId` on the ceiling mount, COB / panel in a cutout, Fit, cutout drag on the plan). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phase 3 built 2026-10-09 on `feat/resize-anchors` (`resizeAlongAxis` + anchors on room, cabinet and cutout resizes, inspector anchor segments, 2D cutout edge handles, 3D wall face and end handles). Phase 4 built 2026-10-09 on `feat/cob-shades` (`lightShade.ts`: five shade bodies shared by `CobFixture` and the Cycles bundle, trim finishes, lens diffusion → penumbra, gimbal aim, beam cone on selected spots, Shade inspector section). Q3 (which shades the catalogue sells) is still open; the five are the roadmap's guess.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with
@@ -286,8 +286,9 @@ handles there. Known Phase 3 limits: 3D geometry updates on release with a
 live readout beside the handle, not a live mesh preview; cutouts have no 3D
 selection, so they resize in 2D only; hosted light glyphs snap into place on
 release of a cutout edge drag; a cabinet's width anchor is applied after the
-run reflow and a run-managed cabinet is placed by its run; wall panels show
-no anchor since their resize ignores it.
+run reflow for a free cabinet; a run-managed cabinet gets no anchor at all,
+the run places it (`resizeInteriorObjectAnchored`); wall panels show no
+anchor since their resize ignores it.
 
 ### Phase 4 — COB shades and lighting preview
 
@@ -302,6 +303,33 @@ no anchor since their resize ignores it.
 **Exit gate:** each shade reads distinct at Dollhouse zoom; a Cycles still of
 the same room matches the viewport body and beam; perf: no new continuous
 frameloop, caster budget unchanged.
+
+Built as: shade, trim, diffusion and aim live in `parameters` (`shade`,
+`trimFinish`, `lensDiffusion`, `aimAngleDeg`, `aimRotationDeg`) with defaults
+in `lightShade.ts` rather than seeded on every new fixture, so older files
+read as "open / white / 0.5". `cobShadeParts` is one part list that both
+`CobFixture.tsx` and `cyclesLights.ts` map to geometry, so parity is by
+construction; `cobShadeParity.test.ts` checks the parts, the trim colour, the
+penumbra and the gimbal frame, and `lightShade.test.ts` checks the gimbal
+Euler against the viewport's nested groups. The beam cone (`BeamCone.tsx`)
+is a static translucent mesh under the selected COB, downlight or track
+head: no light, no shadow, no picking, excluded from export, no frameloop
+change. Covered by `tests/e2e/phase-cob-4-shades.spec.ts` (inspector,
+gimbal fields, reopen). A ceiling-mounted surface cylinder is lifted by the mount's
+`ceilingDropMm` so its top sits on the slab (`surfaceLiftM`); the pick box
+and selection outline are centred on the body (`spanOffset`), not the pose;
+`bodyFinish` is the one body-colour rule for both renderers; the Cycles
+builders live in `cyclesStripFixtures.ts`, `cyclesSpotFixtures.ts` and
+`cyclesCobShade.ts`. Not done: no render reference includes a COB or
+downlight at all. The only image snapshots in the repo are the calm-light
+visual spec's, which mask the canvas, and the render-QA smoke spec loads the
+release demo (no COB in it) without capturing an image. So "a Cycles still
+matches the viewport" is checked only by the parts list, trim colour,
+penumbra and gimbal frame; checking it by image is new work: add a COB to a
+QA fixture and capture a still and a viewport frame as fresh references,
+through the Playwright render run. "Reads distinct at Dollhouse zoom" was
+checked by eye in the browser, not by pixel readout; the trim finish
+replaces the strip `profileFinish` for COB kinds only.
 
 ## 6. Open questions
 
