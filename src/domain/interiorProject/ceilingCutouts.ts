@@ -79,13 +79,24 @@ export function whyCeilingCutoutRefused(
   return null;
 }
 
-/** Highest existing number plus one, so a deleted cutout's id is never handed to a new one. */
-function nextCutoutId(existing: readonly CeilingCutout[]) {
-  const highest = existing.reduce((max, cutout) => {
-    const match = /^cutout-(\d+)$/.exec(cutout.id);
-    return match ? Math.max(max, Number(match[1])) : max;
-  }, 0);
-  return `cutout-${highest + 1}`;
+function cutoutNumber(id: unknown) {
+  const match = typeof id === "string" ? /^cutout-(\d+)$/.exec(id) : null;
+  return match ? Number(match[1]) : 0;
+}
+
+/**
+ * Ids are never reused: a counter on the room (`extensions.ceilingCutoutSeq`)
+ * advances on every add. Files from before the counter fall back to the highest
+ * number still present on a cutout or on a light's `hostCutoutId`.
+ */
+function nextCutoutNumber(project: InteriorProject, room: InteriorRoomEntity, existing: readonly CeilingCutout[]) {
+  const stored = room.extensions?.ceilingCutoutSeq;
+  const seq = typeof stored === "number" && Number.isFinite(stored) ? stored : 0;
+  const onCutouts = Math.max(0, ...existing.map((cutout) => cutoutNumber(cutout.id)));
+  const onLights = Math.max(0, ...project.lights
+    .filter((light) => light.roomId === room.id)
+    .map((light) => cutoutNumber(light.parameters.hostCutoutId)));
+  return Math.max(seq, onCutouts, onLights) + 1;
 }
 
 /** Adds a cutout to the active (or given) room; returns the same project when `whyCeilingCutoutRefused` has a reason. */
@@ -99,15 +110,26 @@ export function addCeilingCutout(
   const polygon = normalizeRoomPolygon(points);
   if (!room || !polygon || whyCeilingCutoutRefused(project, points, roomId)) return project;
   const existing = readCeilingCutouts(room);
+  const number = nextCutoutNumber(project, room, existing);
   const cutout: CeilingCutout = {
-    id: nextCutoutId(existing),
+    id: `cutout-${number}`,
     polygon,
     ...(options?.purpose ? { purpose: options.purpose } : {}),
     ...(options?.label ? { label: options.label } : {}),
   };
-  return writeCeilingCutouts(project, roomId, [...existing, cutout]);
+  const counted = {
+    ...project,
+    rooms: project.rooms.map((item) => (item.id === roomId
+      ? { ...item, extensions: { ...item.extensions, ceilingCutoutSeq: number } }
+      : item)),
+  };
+  return writeCeilingCutouts(counted, roomId, [...existing, cutout]);
 }
 
+/**
+ * Removes the cutout record only. Editors call `deleteCeilingCutoutAndDetach`
+ * (livingRoom/lightCutoutMount) so lights centred in it are left where it was.
+ */
 export function deleteCeilingCutout(project: InteriorProject, roomId: string, cutoutId: string): InteriorProject {
   const room = project.rooms.find((item) => item.id === roomId);
   const existing = readCeilingCutouts(room);
@@ -116,9 +138,10 @@ export function deleteCeilingCutout(project: InteriorProject, roomId: string, cu
 }
 
 /**
- * Translates a cutout; refused when the moved polygon leaves the room or lands
- * on another cutout. Lights centred in it carry their stored position along,
- * so a later fallback (delete, or the room shrinking away) keeps them here.
+ * Translates the cutout record; refused when the moved polygon leaves the room
+ * or lands on another cutout. Editors call `moveCeilingCutoutWithLights`
+ * (livingRoom/lightCutoutMount) so lights centred in it carry their stored
+ * position along.
  */
 export function moveCeilingCutout(
   project: InteriorProject,
@@ -132,11 +155,7 @@ export function moveCeilingCutout(
   if (!target) return project;
   const polygon = target.polygon.map((point) => ({ x: point.x + delta.x, z: point.z + delta.z }));
   if (!ceilingCutoutFitsRoom(project, roomId, polygon, cutoutId)) return project;
-  const lights = project.lights.map((light) => (
-    light.roomId === roomId && light.parameters.hostSurface === "ceiling" && light.parameters.hostCutoutId === cutoutId
-      ? { ...light, position: { ...light.position, x: light.position.x + delta.x, z: light.position.z + delta.z } }
-      : light));
-  return writeCeilingCutouts({ ...project, lights }, roomId, existing.map((cutout) => (
+  return writeCeilingCutouts(project, roomId, existing.map((cutout) => (
     cutout.id === cutoutId ? { ...cutout, polygon } : cutout)));
 }
 

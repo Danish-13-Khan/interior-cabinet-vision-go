@@ -1,11 +1,11 @@
 import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
-  ceilingCutoutSizeMm, compiledCeilingCutouts, moveCeilingCutout, readCeilingCutouts, roomPlanPolygon,
+  ceilingCutoutSizeMm, compiledCeilingCutouts, readCeilingCutouts, roomPlanPolygon,
   type InteriorProject, type InteriorRoomEntity, type Point2Mm,
 } from "../../domain/interiorProject";
 import { outerLoopWallsRaised } from "../../domain/interiorProject/wallRaise";
 import { formatPlanDimension, type PlanDisplayUnit } from "../../domain/livingRoom";
-import { lightsInCutout } from "../../domain/livingRoom/lightCutoutMount";
+import { lightsInCutout, moveCeilingCutoutWithLights } from "../../domain/livingRoom/lightCutoutMount";
 
 /** Active-room lights centred in a cutout still in the ceiling; their plan glyphs defer to the cutout beneath. */
 export function cutoutHostedLightIds(project: InteriorProject): ReadonlySet<string> {
@@ -80,8 +80,8 @@ export function PlanCeilingLayer(props: {
       return;
     }
     // Refused moves (out of the room, onto another cutout) are not recorded as a change.
-    if (moveCeilingCutout(props.project, roomId, cutoutId, delta) === props.project) return;
-    props.onPatchDocument?.((current) => moveCeilingCutout(current, roomId, cutoutId, delta), "Moved ceiling cutout.");
+    if (moveCeilingCutoutWithLights(props.project, roomId, cutoutId, delta) === props.project) return;
+    props.onPatchDocument?.((current) => moveCeilingCutoutWithLights(current, roomId, cutoutId, delta), "Moved ceiling cutout.");
   };
   return (
     <g className="lr-plan-ceiling-layer" data-testid="lr-plan-ceiling-layer" pointerEvents="none">

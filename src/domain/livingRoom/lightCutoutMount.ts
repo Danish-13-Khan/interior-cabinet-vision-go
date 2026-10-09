@@ -1,5 +1,6 @@
 import {
-  ceilingCutoutSizeMm, compiledCeilingCutouts, deleteCeilingCutout, readCeilingCutouts, setCeilingCutoutPolygon,
+  ceilingCutoutSizeMm, compiledCeilingCutouts, deleteCeilingCutout, moveCeilingCutout, readCeilingCutouts,
+  setCeilingCutoutPolygon,
   type InteriorProject, type LightEntity, type Point2Mm,
 } from "../interiorProject";
 import { fixtureNumber } from "./lightFixtureProperties";
@@ -63,6 +64,28 @@ export function deleteCeilingCutoutAndDetach(project: InteriorProject, roomId: s
     return { ...light, position: { ...light.position, x: centerX, z: centerZ }, parameters };
   });
   return deleteCeilingCutout({ ...project, lights }, roomId, cutoutId);
+}
+
+/**
+ * Move a cutout and carry the stored positions of the lights centred in it, so
+ * a later fallback (delete, or the room shrinking away) keeps them at the
+ * moved centre. Same project back when the move is refused.
+ */
+export function moveCeilingCutoutWithLights(
+  project: InteriorProject,
+  roomId: string,
+  cutoutId: string,
+  delta: Point2Mm,
+): InteriorProject {
+  const moved = moveCeilingCutout(project, roomId, cutoutId, delta);
+  if (moved === project) return project;
+  const hosted = new Set(lightsInCutout(project, cutoutId, roomId).map((light) => light.id));
+  return {
+    ...moved,
+    lights: moved.lights.map((light) => (hosted.has(light.id)
+      ? { ...light, position: { ...light.position, x: light.position.x + delta.x, z: light.position.z + delta.z } }
+      : light)),
+  };
 }
 
 /** Why Fit would be refused, in the user's words, or null. */

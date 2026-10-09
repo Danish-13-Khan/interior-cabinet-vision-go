@@ -6,7 +6,7 @@ import {
 import { attachLightToCutout, readLightMount, resolveLightAttachment } from "./lightAttachments";
 import {
   cutoutSizeForLight, deleteCeilingCutoutAndDetach, fitCeilingCutoutToLight, flushCeilingDropMm, lightsInCutout,
-  whyCutoutFitRefused,
+  moveCeilingCutoutWithLights, whyCutoutFitRefused,
 } from "./lightCutoutMount";
 import { relocateLight } from "./lightRelocate";
 import { createLivingRoomStarterProject } from "./preset";
@@ -73,7 +73,7 @@ describe("fixtures in ceiling cutouts", () => {
     const added = addRoomLightFixture(project, "cob", { kind: "cutout", cutoutId });
     const light = added.lights.at(-1)!;
     const roomId = added.activeRoomId;
-    const moved = moveCeilingCutout(added, roomId, cutoutId, { x: 600, z: 0 });
+    const moved = moveCeilingCutoutWithLights(added, roomId, cutoutId, { x: 600, z: 0 });
     const gone = deleteCeilingCutoutAndDetach(moved, roomId, cutoutId);
     const stored = gone.lights.find((item) => item.id === light.id)!;
     expect(stored.parameters.hostCutoutId).toBeUndefined();
@@ -88,6 +88,25 @@ describe("fixtures in ceiling cutouts", () => {
     expect(resolved(redrawn, light.id).position.x).toBe(cx + 600);
   });
 
+  it("never hands a new cutout an id a light from an older file still carries", () => {
+    const { project, cx, cz } = roomWithCutout();
+    const room = project.rooms[0]!;
+    // Older file: the cutout list is empty but a light still names cutout-3 and the room has no counter.
+    const older = {
+      ...project,
+      rooms: [{ ...room, extensions: { ...room.extensions, ceilingCutouts: [], ceilingCutoutSeq: undefined } }],
+      lights: [...project.lights, {
+        ...addRoomLightFixture(project, "cob", { kind: "free" }).lights.at(-1)!,
+        parameters: { fixtureKind: "cob", hostSurface: "ceiling", ceilingDropMm: 0, hostCutoutId: "cutout-3" },
+      }],
+    };
+    const redrawn = addCeilingCutout(older, [
+      { x: cx - 100, z: cz - 100 }, { x: cx + 100, z: cz - 100 }, { x: cx + 100, z: cz + 100 }, { x: cx - 100, z: cz + 100 },
+    ]);
+    expect(readCeilingCutouts(redrawn.rooms[0]).map((cutout) => cutout.id)).toEqual(["cutout-4"]);
+    expect(redrawn.rooms[0]!.extensions?.ceilingCutoutSeq).toBe(4);
+  });
+
   it("stops following a cutout the room has shrunk away from, and leaves the cutout on a 3D drag", () => {
     const { project, cutoutId, cx, cz, bounds } = roomWithCutout(400, 0);
     const nearEdge = roomWithCutout(400, (bounds.maxX - bounds.minX) / 2 - 500);
@@ -95,7 +114,7 @@ describe("fixtures in ceiling cutouts", () => {
     const hostedLight = hosted.lights.at(-1)!;
     const room = hosted.rooms.find((item) => item.id === hosted.activeRoomId)!;
     // A move carries the stored position, so the fallback after the shrink is the moved centre, not the attach point.
-    const nudged = moveCeilingCutout(hosted, room.id, nearEdge.cutoutId, { x: 0, z: 200 });
+    const nudged = moveCeilingCutoutWithLights(hosted, room.id, nearEdge.cutoutId, { x: 0, z: 200 });
     expect(nudged.lights.find((item) => item.id === hostedLight.id)!.position.z).toBe(hostedLight.position.z + 200);
     const shrunk = resizeRoomPlanGeometry(nudged, room.id, { ...room.dimensions, widthMm: Math.max(2500, room.dimensions.widthMm - 1600) });
     expect(readLightMount(resolved(shrunk, hostedLight.id))).toEqual({ kind: "ceiling", ceilingDropMm: 0 });

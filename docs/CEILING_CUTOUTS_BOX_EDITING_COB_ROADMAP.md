@@ -252,7 +252,9 @@ outline ("not in ceiling") that can be dragged back in or deleted.
   takes anchors; Room inspector Width / Depth get an anchor segment
   (Left · Centre · Right, Front · Centre · Back).
 - 2D: edge handles on the active room rectangle and on cutouts (drag an edge,
-  the opposite edge stays; Alt = centre).
+  the opposite edge stays; Alt = centre). A one-sided cutout resize moves its
+  centre, so it must carry hosted lights the way `moveCeilingCutoutWithLights`
+  does; `setCeilingCutoutPolygon` alone does not touch lights.
 - 3D: `ModelMoveGizmo` gains face handles for the active room (four wall faces),
   the selected wall (two ends, reusing `setPlanWallLength`) and cutouts. Same
   snap step as move.
