@@ -14,6 +14,7 @@ function loadSettings(): PlanReadabilitySettings {
       alwaysShowWallLengths: Boolean(parsed?.alwaysShowWallLengths),
       visualStyle: parsed?.visualStyle === "line" ? "line" : "fill",
       showCenterLine: parsed?.showCenterLine !== false,
+      showCeiling: parsed?.showCeiling === true,
     };
   } catch {
     return DEFAULT_PLAN_READABILITY;

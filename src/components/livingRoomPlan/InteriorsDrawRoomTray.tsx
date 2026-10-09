@@ -22,11 +22,12 @@ export function InteriorsDrawRoomTray({
   onCloseRoomPolygon?: () => void;
   onCommitOpening?: (wallId: string, kind: "door" | "window") => void;
 }) {
-  if (activeBuildTool === "draw-surface") {
+  if (activeBuildTool === "draw-surface" || activeBuildTool === "draw-ceiling-cutout") {
+    const noun = activeBuildTool === "draw-surface" ? "surface" : "cutout";
     return (
       <div className="lr-draw-tray" data-testid="interiors-draw-tray">
         <button type="button" disabled={roomPolygonPointCount < 3} onClick={onCloseRoomPolygon}>
-          Close surface polygon ({roomPolygonPointCount})
+          Close {noun} polygon ({roomPolygonPointCount})
         </button>
       </div>
     );

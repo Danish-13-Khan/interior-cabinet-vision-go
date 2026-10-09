@@ -15,6 +15,7 @@ export type BuildTool =
   | "draw-wall"
   | "draw-partition"
   | "draw-surface"
+  | "draw-ceiling-cutout"
   | "place-door"
   | "place-window"
   | "place-column";
@@ -38,6 +39,7 @@ export type BuildCommand =
   | { type: "createWallSegment"; start: Point2Mm; end: Point2Mm; wallKind?: "wall" | "partition" }
   | { type: "createRoom"; drawing: RoomDrawingRequest }
   | { type: "createSurface"; drawing: RoomDrawingRequest; materialId: string }
+  | { type: "createCeilingCutout"; drawing: RoomDrawingRequest }
   | { type: "updateSurface"; surfaceId: string; materialId: string }
   | { type: "deleteSurface"; surfaceId: string }
   | { type: "placeColumn"; position: Point2Mm }
@@ -61,6 +63,7 @@ export type BuildCommandHandlers = {
   createWallSegment: (start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") => void;
   createRoom: (drawing: RoomDrawingRequest) => void;
   createSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  createCeilingCutout: (drawing: RoomDrawingRequest) => void;
   updateSurface: (surfaceId: string, materialId: string) => void;
   deleteSurface: (surfaceId: string) => void;
   placeColumn: (position: Point2Mm) => void;
@@ -82,6 +85,7 @@ const DRAFT_TOOLS: ReadonlySet<BuildTool> = new Set([
   "draw-wall",
   "draw-partition",
   "draw-surface",
+  "draw-ceiling-cutout",
   "place-door",
   "place-window",
   "place-column",

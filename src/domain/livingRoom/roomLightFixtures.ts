@@ -3,6 +3,7 @@ import { orientWallForRoom, roomPlanViewBounds, selectRoomWalls } from "../inter
 import { isLightKelvin, kelvinToHex } from "./lightColorTemperature";
 import {
   attachLightToCeiling,
+  attachLightToCutout,
   attachLightToObject,
   attachLightToWall,
   readLightMount,
@@ -28,10 +29,7 @@ export const ROOM_LIGHT_FIXTURES: readonly {
   kind: LightFixtureDefinition["kind"];
   category: LightFixtureDefinition["category"];
 }[] = LIGHT_FIXTURE_DEFINITIONS.map((definition) => ({
-  id: definition.id,
-  name: definition.name,
-  kind: definition.kind,
-  category: definition.category,
+  id: definition.id, name: definition.name, kind: definition.kind, category: definition.category,
 }));
 
 export type RoomLightFixtureKind = LightFixtureKind;
@@ -40,7 +38,8 @@ export type RoomLightMountTarget =
   | { kind: "free" }
   | { kind: "object"; hostObjectId: string }
   | { kind: "wall"; wallId: string }
-  | { kind: "ceiling" };
+  | { kind: "ceiling" }
+  | { kind: "cutout"; cutoutId: string };
 
 export function isRoomLightFixture(light: LightEntity) {
   return isLightFixtureKind(light.parameters.fixtureKind);
@@ -97,7 +96,7 @@ export function addRoomLightFixture(
   const roomId = project.activeRoomId;
   if (!roomId || !isLightFixtureKind(kind)) return project;
   const definition = getLightFixtureDefinition(kind);
-  if (mount && !definition.mounts.includes(mount.kind)) return project;
+  if (mount && !definition.mounts.includes(mount.kind === "cutout" ? "ceiling" : mount.kind)) return project;
   const light = freeLight(project, roomId, definition);
   if (!light) return project;
   if (mount?.kind === "object" && !project.objects.some((object) => object.id === mount.hostObjectId && object.roomId === roomId)) return project;
@@ -106,6 +105,7 @@ export function addRoomLightFixture(
   if (!mount || mount.kind === "free") return withLight;
   if (mount.kind === "object") return attachLightToObject(withLight, light.id, mount.hostObjectId);
   if (mount.kind === "ceiling") return attachLightToCeiling(withLight, light.id, definition.defaults.ceilingDropMm);
+  if (mount.kind === "cutout") return attachLightToCutout(withLight, light.id, mount.cutoutId);
   return attachAddedWall(withLight, light.id, mount.wallId, definition);
 }
 

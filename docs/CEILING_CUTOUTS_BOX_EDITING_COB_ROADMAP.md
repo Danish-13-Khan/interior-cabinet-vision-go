@@ -1,8 +1,6 @@
 # Ceiling cutouts, two-sided box editing and COB shades roadmap
 
-**Status:** Draft 2026-10-09. Item 2 of the brief (a room face "missing" in 3D)
-is fixed in code on `main` this session and is not a phase (see §0). Phases 0–4
-below are proposed; pick one before any further `src/` work.
+**Status:** Phases 0–2 built 2026-10-09 on `feat/ceiling-cutouts` (Phase 0: Ceiling plan layer, 3D Ceiling toggle; Phase 1: `draw-ceiling-cutout` tool, `room.extensions.ceilingCutouts`, slab holes, inspector list; Phase 2: `hostCutoutId` on the ceiling mount, COB / panel in a cutout, Fit, cutout drag on the plan). Item 2 of the brief (a room face "missing" in 3D) was fixed on `main` the same day and is not a phase (see §0). Phases 3–4 remain proposed; pick one before further `src/` work.
 **Source:** Tester feedback, 2026-10-09, four items with screenshots: a plain
 ceiling drawn from rectangles with cutouts for light fixtures; a room face that
 renders hollow after manual room creation; rectangular model creation with
@@ -177,13 +175,27 @@ Cycles bundle reads the same table (`cyclesLights.ts` cob branch).
 
 **Exit gate:** fresh rectangle room → 3D → Ceiling on shows a lit slab at wall
 height from Dollhouse; Walkthrough unchanged; save → reopen keeps the toggle
-off (view state, not document state).
+off (view state, not document state). Covered by
+`tests/e2e/phase-ceiling-0-layer-and-toggle.spec.ts`.
+
+Known Phase 0 limits: the plan draws the ceiling for the active room only
+(3D compiles one per raised room); the 3D toggle is component state and resets
+when the model view unmounts; with the slab held open from above it lets rays
+through (`pickThroughIds`) so cabinets stay clickable until Phase 1's holes
+make the view useful.
 
 ### Phase 1 — Ceiling cutouts
 
-- Ceiling layer on → the Room tool's rectangle / polygon gesture draws a cutout
-  instead of a room (same `RoomDrawingOverlay`, status copy "Drag a rectangle
-  for a ceiling cutout").
+- Ceiling and cutouts move out of `PlanArchitectureLayer` into their own
+  `PlanCeilingLayer` drawn **above** the object layers, so a cutout under a
+  cabinet glyph stays visible and editable. Phase 0 draws the slab beneath
+  objects, which is fine for an outline but not for editing.
+- A dedicated **Ceiling cutout** build tool (`draw-ceiling-cutout`, beside
+  Partition / Surface / Column in Room & plan settings) reuses the Room tool's
+  rectangle / polygon gesture. Built this way rather than overloading the Room
+  tool when the layer is on: a layer toggle must not change what a gesture
+  creates, and a user with the layer on still needs to draw rooms. Arming the
+  tool shows the ceiling layer even when Layers → Ceiling is off.
 - `addCeilingCutout`, `deleteCeilingCutout`, `moveCeilingCutout` on the room;
   validation per §4.1 with the existing plan status chip ("Cutout outside room").
 - Compiler feeds cutouts as prism holes; skirting and fixtures unaffected.
@@ -192,17 +204,47 @@ off (view state, not document state).
 
 **Exit gate:** fresh room → two rectangular cutouts → 3D with Ceiling on shows
 two holes with the floor visible through them → GLB export has the holes →
-save → reopen preserves them.
+save → reopen preserves them. Covered by `tests/e2e/phase-ceiling-1-cutouts.spec.ts`
+and the unit tests in `ceilingCutouts.test.ts` / `ceilingCutoutsCompile.test.ts`;
+the GLB criterion is covered only indirectly (the export reads the slab
+geometry the unit test checks), not asserted on an exported file.
+
+Known Phase 1 limits: cutouts are fixed plan coordinates and do not follow
+room edits (Width / Depth, node drags, wall moves). A cutout the room shrinks
+away from is left out of the slab by `compiledCeilingCutouts` and flagged by
+validation until moved or deleted; moving or scaling them with the room is
+Phase 3's anchor work. `moveCeilingCutout` exists in the domain only; the plan
+layer does not take the pointer yet.
 
 ### Phase 2 — Fixtures in cutouts
 
-- "Add COB here" on a cutout: mounts a COB on the ceiling centred in the cutout,
-  with `hostCutoutId` in the mount so it follows cutout moves.
-- Cutout → "Fit to fixture" sizes the cutout to the fixture's diameter + 10 mm.
-- Panel light option: a cutout the size of the panel, panel sits flush.
+- The ceiling mount gains `hostCutoutId` (`CeilingLightMount`); the resolver
+  puts x/z at the cutout's centre at read time, so moving the cutout moves the
+  fixture with no light edit. Moving a cutout also carries its lights' stored
+  positions; deleting one detaches them at its last centre
+  (`deleteCeilingCutoutAndDetach`); cutout ids are never reused, so a later cutout cannot inherit a light. A cutout the room
+  has shrunk away from is not followed (`hostableCeilingCutout`); a 3D drag
+  of the light leaves the cutout.
+- Room inspector cutout rows: **COB** and **Panel** drop a fixture in flush
+  (`flushCeilingDropMm`: 0 for recessed spots, half the depth for a panel),
+  **Fit** resizes the cutout to the fixture's footprint plus 10 mm clearance
+  (`fitCeilingCutoutToLight`; refused through a wall). The light inspector's
+  Mount select lists "Ceiling cutout …" and shows Fit when hosted.
+- The plan ceiling layer drags a cutout in Select mode (snapped, refused
+  moves not recorded); Phase 3's handles will resize it.
 
 **Exit gate:** a 600 × 600 cutout with a panel reads flush in Walkthrough; a
-90 mm COB in a 100 mm cutout; moving the cutout moves the fixture.
+90 mm COB in a 100 mm cutout; moving the cutout moves the fixture. Covered by
+`lightCutoutMount.test.ts` (resolved poses, fit sizes, fallbacks, reopen) and
+`tests/e2e/phase-ceiling-2-fixtures.spec.ts`; "reads flush in Walkthrough" is
+checked by the resolved y in the unit test, not by pixels.
+
+Known Phase 2 limits: the hosted light's glyph only jumps to the new spot on
+drop (the drag preview translates the cutout alone); with the ceiling layer
+on, a cutout over a cabinet glyph takes the pointer, since showing the layer
+means editing the ceiling; Fit sizes to the first hosted light when the Mount
+select has put two in one cutout; stranded cutouts draw as a red dashed
+outline ("not in ceiling") that can be dragged back in or deleted.
 
 ### Phase 3 — Two-sided adjustment
 
@@ -210,7 +252,9 @@ save → reopen preserves them.
   takes anchors; Room inspector Width / Depth get an anchor segment
   (Left · Centre · Right, Front · Centre · Back).
 - 2D: edge handles on the active room rectangle and on cutouts (drag an edge,
-  the opposite edge stays; Alt = centre).
+  the opposite edge stays; Alt = centre). A one-sided cutout resize moves its
+  centre, so it must carry hosted lights the way `moveCeilingCutoutWithLights`
+  does; `setCeilingCutoutPolygon` alone does not touch lights.
 - 3D: `ModelMoveGizmo` gains face handles for the active room (four wall faces),
   the selected wall (two ends, reusing `setPlanWallLength`) and cutouts. Same
   snap step as move.

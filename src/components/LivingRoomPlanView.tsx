@@ -27,6 +27,7 @@ import { CalibrateUnderlayDialog } from "./livingRoomPlan/CalibrateUnderlayDialo
 import { useDwgPlanSnap } from "./livingRoomPlan/useDwgPlanSnap";
 import { usePlanCanvasNavigation } from "../hooks/usePlanCanvasNavigation";
 import { PlanArchitectureLayer } from "./livingRoomPlan/PlanArchitectureLayer";
+import { PlanCeilingLayer, cutoutHostedLightIds } from "./livingRoomPlan/PlanCeilingLayer";
 import { PlanDimensionsLayer } from "./livingRoomPlan/PlanDimensionsLayer";
 import { PlanGuidesLayer } from "./livingRoomPlan/PlanGuidesLayer";
 import { PlanMeasureOverlay } from "./livingRoomPlan/PlanMeasureOverlay";
@@ -71,6 +72,7 @@ type Props = {
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
   onCreateRoom: (drawing: RoomDrawingRequest) => void;
   onDrawSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  onDrawCeilingCutout: (drawing: RoomDrawingRequest) => void;
   onDrawWallSegment: (start: Point2Mm, end: Point2Mm, wallKind?: "wall" | "partition") => void;
   onPlaceColumn: (position: Point2Mm) => void;
   roomPolygonCloseRequest: number;
@@ -127,7 +129,8 @@ export function LivingRoomPlanView(props: Props) {
   }, [previewWallId, props.project, room]);
 
   const drawRoom = tool === "draw-room";
-  const drawSurface = tool === "draw-surface";
+  const drawSurface = tool === "draw-surface"; const drawCutout = tool === "draw-ceiling-cutout";
+  const ceilingVisible = props.readability.showCeiling === true || drawCutout;
   const drawWall = tool === "draw-wall";
   const drawPartition = tool === "draw-partition";
   const placeColumn = tool === "place-column";
@@ -201,12 +204,10 @@ export function LivingRoomPlanView(props: Props) {
   });
   const measureLike = measure.active;
   const roomDrawing = useRoomDrawing({
-    ...snapInput, active: drawRoom || drawSurface,
+    ...snapInput, active: drawRoom || drawSurface || drawCutout,
     closeRequest: props.roomPolygonCloseRequest, worldPoint,
-    onCommit: (drawing) => {
-      if (drawSurface) props.onDrawSurface(drawing, props.surfaceMaterialId);
-      else props.onCreateRoom(drawing);
-    },
+    onCommit: (drawing) => (drawSurface ? props.onDrawSurface(drawing, props.surfaceMaterialId)
+      : drawCutout ? props.onDrawCeilingCutout(drawing) : props.onCreateRoom(drawing)),
     onPointCount: props.onRoomPolygonPointCount,
   });
   const wallDrawing = useWallDrawing({
@@ -349,7 +350,7 @@ export function LivingRoomPlanView(props: Props) {
       interactive={planGuides.interactive} lineHit={planGuides.placing} hitWidthMm={pointerSnapMm} onStart={planGuides.start} />
     <PlanSurfaceZonesLayer project={props.project} roomId={room?.id ?? ""} selectable={tool === "select" || tool === "draw-surface"}
       activeSurfaceId={props.activeSurfaceId} onSelectSurface={props.onSelectSurface} />
-    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} snap={roomDrawing.snap} markerMm={pointerSnapMm} active={drawRoom || drawSurface} unit={props.readability.unit} showHint={!underlay} />
+    <RoomDrawingOverlay polygon={roomDrawing.polygon} rectangle={roomDrawing.rectangle} cursor={roomDrawing.cursor} snap={roomDrawing.snap} markerMm={pointerSnapMm} active={drawRoom || drawSurface || drawCutout} unit={props.readability.unit} showHint={!underlay} />
     <WallDrawingOverlay preview={wallDrawing.preview} snap={wallDrawing.snap} markerMm={pointerSnapMm} active={drawWall || drawPartition} unit={props.readability.unit} />
     <PlanWallNodesLayer project={props.project} activeWallId={props.activeWallId} editable={editWalls}
       previewNodes={walls.previewNodes} translatePreview={walls.translatePreview}
@@ -367,8 +368,10 @@ export function LivingRoomPlanView(props: Props) {
       freeSegmentWallPose={freeSegmentWallPose}
       onSetCabinetDims={props.onSetCabinetInlineDims}
       onStart={objects.start} interactive={!measureLike && !underlayDrag.movable} />
+    <PlanCeilingLayer project={props.project} room={room} unit={props.readability.unit} visible={ceilingVisible} onSelectLight={props.onSelectLight}
+      snapSizeMm={props.snapSizeMm} interactive={editWalls} onPatchDocument={props.onPatchDocument} />
     {props.onSelectLight ? (
-      <PlanLightsLayer project={props.project} activeLightId={props.activeLightId ?? null}
+      <PlanLightsLayer project={props.project} activeLightId={props.activeLightId ?? null} passThroughLightIds={ceilingVisible ? cutoutHostedLightIds(props.project) : undefined}
         hidden={measureLike} onSelectLight={props.onSelectLight} />
     ) : null}
     {room ? <PlanDimensionsLayer project={props.project} room={room} activeWallId={props.activeWallId}

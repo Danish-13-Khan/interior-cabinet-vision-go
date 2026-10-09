@@ -24,6 +24,7 @@ type ModelViewAuthoringOverlaysProps = {
   activeCameraId: string | null;
   cameras: readonly CameraEntity[];
   cutawayWalls: boolean;
+  showCeiling: boolean;
   activeRotation: number;
   hasActiveObject: boolean;
   viewportQuality: RenderQuality;
@@ -34,6 +35,7 @@ type ModelViewAuthoringOverlaysProps = {
   onFieldOfViewDegrees: (value: number) => void;
   onActiveCameraId: (cameraId: string | null) => void;
   onCutawayWalls: (value: boolean) => void;
+  onShowCeiling: (value: boolean) => void;
   onSetRotation: (rotationY: number) => void;
   onViewportQuality: (quality: RenderQuality) => void;
   onOpenGuide: () => void;
@@ -66,6 +68,7 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
             activeCameraId={props.activeCameraId}
             cameras={props.cameras}
             cutawayWalls={props.cutawayWalls}
+            showCeiling={props.showCeiling}
             activeRotation={props.activeRotation}
             hasActiveObject={props.hasActiveObject}
             viewportQuality={props.viewportQuality}
@@ -76,6 +79,7 @@ export function ModelViewAuthoringOverlays(props: ModelViewAuthoringOverlaysProp
             onFieldOfViewDegrees={props.onFieldOfViewDegrees}
             onActiveCameraId={props.onActiveCameraId}
             onCutawayWalls={props.onCutawayWalls}
+            onShowCeiling={props.onShowCeiling}
             onSetRotation={props.onSetRotation}
             onViewportQuality={props.onViewportQuality}
             onOpenGuide={props.onOpenGuide}

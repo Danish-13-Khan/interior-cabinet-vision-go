@@ -16,7 +16,7 @@ import type { LivingRoomPlanUnderlay } from "../../domain/livingRoom/planUnderla
 import type { SiteMeasureUserKey } from "../../domain/livingRoom";
 import { RoomDrawingPanel } from "./RoomDrawingPanel";
 import { StructuralBuildPanel } from "./StructuralBuildPanel";
-import { SurfaceDrawingPanel } from "./SurfaceDrawingPanel";
+import { DrawToolArmedPanel } from "./DrawToolArmedPanel";
 import { WallDrawingPanel } from "./WallDrawingPanel";
 
 type BuildRoomCatalogPanelProps = {
@@ -75,18 +75,9 @@ export function BuildRoomCatalogPanel(props: BuildRoomCatalogPanelProps) {
           onRenderSettingsChange={props.onRenderSettingsChange}
         />
       ) : null}
-      {tool === "draw-surface" ? (
-        <section className="lr-room-authoring lr-build-commit">
-          <strong>Draw Surface · armed</strong>
-          <SurfaceDrawingPanel
-            pointCount={polygonCount}
-            materialId={props.surfaceMaterialId ?? project.materials[0]?.id ?? ""}
-            materials={project.materials}
-            onMaterialId={props.onSurfaceMaterialId ?? (() => {})}
-            onClosePolygon={props.onCloseSurfacePolygon}
-          />
-        </section>
-      ) : null}
+      <DrawToolArmedPanel tool={tool} pointCount={polygonCount} materials={project.materials}
+        materialId={props.surfaceMaterialId ?? project.materials[0]?.id ?? ""}
+        onMaterialId={props.onSurfaceMaterialId ?? (() => {})} onClosePolygon={props.onCloseSurfacePolygon} />
       {tool === "draw-partition" || tool === "place-column" ? (
         <StructuralBuildPanel
           tool={tool}

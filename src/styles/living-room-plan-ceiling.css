@@ -1,0 +1,69 @@
+/* Ceiling plan layer (Layers → Ceiling, or while the cutout tool is armed): the slab
+   outline the 3D view compiles and its cutouts. Drawn above objects; never catches the pointer. */
+.lr-plan-ceiling {
+  fill: url(#lr-ceiling-hatch);
+  stroke: var(--ink-muted);
+  stroke-width: 12;
+  stroke-dasharray: 140 70;
+  opacity: 0.85;
+}
+
+.lr-ceiling-hatch-line {
+  stroke: var(--ink-faint);
+  stroke-width: 28;
+  opacity: 0.55;
+}
+
+/* A cutout reads as a hole: the hatch is punched out, the paper shows through, a dashed rim and a size label. */
+.lr-plan-cutout path {
+  fill: var(--canvas);
+  fill-opacity: 0.55;
+  stroke: var(--ink);
+  stroke-width: 14;
+  stroke-dasharray: 70 40;
+}
+
+.lr-plan-cutout.is-movable { cursor: move; }
+
+/* Outside the room (after a resize): drawn, not a hole, until dragged back in or deleted. */
+.lr-plan-cutout.is-stranded path {
+  fill: none;
+  stroke: var(--danger);
+  stroke-dasharray: 30 30;
+}
+
+.lr-plan-cutout.is-stranded text { fill: var(--danger); }
+
+.lr-plan-cutout.is-dragging path {
+  stroke: var(--accent);
+  fill-opacity: 0.75;
+}
+
+.lr-plan-cutout text {
+  font-family: var(--font-sans);
+  font-size: 110px;
+  fill: var(--ink-muted);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* Room inspector list of cutouts. */
+.lr-ceiling-cutout-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.lr-ceiling-cutout-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.lr-ceiling-cutout-list small {
+  color: var(--ink-muted);
+  margin-left: auto;
+}

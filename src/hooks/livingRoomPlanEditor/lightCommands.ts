@@ -1,6 +1,7 @@
 import type { InteriorProject } from "../../domain/interiorProject";
 import { attachLightToObject, updateLightMount, type LightMount } from "../../domain/livingRoom/lightAttachments";
 import { getLightFixtureDefinition, type LightFixtureKind } from "../../domain/livingRoom/lightFixtureRegistry";
+import { fitCeilingCutoutToLight, whyCutoutFitRefused } from "../../domain/livingRoom/lightCutoutMount";
 import { relocateLight } from "../../domain/livingRoom/lightRelocate";
 import {
   addRoomLightFixture,
@@ -14,6 +15,8 @@ import type { CommitDocument, EditorCommandContext } from "./context";
 
 export type AddLivingRoomLightOptions = {
   orientation?: "horizontal" | "vertical";
+  /** With a cutout mount: resize the cutout to the new fixture in the same undo step. */
+  fitCutout?: boolean;
 };
 
 /** What the inspector, popover, and entry points call instead of patching the document. */
@@ -29,14 +32,17 @@ export type LightFixtureActions = {
   setLightMount: (id: string, mount: LightMount) => void;
   /** Drag in 3D: one undo step, the mount is kept. Millimetres, world space. */
   moveLight: (id: string, point: { x: number; y: number; z: number }) => void;
+  /** Resize a ceiling cutout to the fixture's footprint plus clearance. */
+  fitCutoutToLight: (cutoutId: string, lightId: string) => void;
 };
 
 export function lightFixtureActions(
   commitDocument: CommitDocument,
   document: InteriorProject | null,
+  onStatus?: (status: string) => void,
 ): LightFixtureActions {
   return {
-    addLight: (kind, mount, options) => addLivingRoomLight(commitDocument, document, kind, mount, options),
+    addLight: (kind, mount, options) => addLivingRoomLight(commitDocument, document, kind, mount, options, onStatus),
     updateLight: (id, patch) => {
       commitDocument((current) => updateRoomLightFixture(current, id, patch), "Updated room light.");
     },
@@ -52,6 +58,11 @@ export function lightFixtureActions(
     moveLight: (id, point) => {
       commitDocument((current) => relocateLight(current, id, point), "Moved room light.");
     },
+    fitCutoutToLight: (cutoutId, lightId) => {
+      const refused = document ? whyCutoutFitRefused(document, cutoutId, lightId) : null;
+      if (refused) { onStatus?.(refused); return; }
+      commitDocument((current) => fitCeilingCutoutToLight(current, cutoutId, lightId), "Fitted cutout to fixture.");
+    },
   };
 }
 
@@ -66,9 +77,15 @@ function addLivingRoomLight(
   kind: LightFixtureKind,
   mount?: RoomLightMountTarget,
   options?: AddLivingRoomLightOptions,
+  onStatus?: (status: string) => void,
 ): string | null {
   if (!document) return null;
-  if (addRoomLightFixture(document, kind, mount) === document) return null;
+  const preview = addRoomLightFixture(document, kind, mount);
+  if (preview === document) return null;
+  if (options?.fitCutout && mount?.kind === "cutout") {
+    const refused = whyCutoutFitRefused(preview, mount.cutoutId, preview.lights.at(-1)!.id);
+    if (refused) { onStatus?.(refused); return null; }
+  }
   let createdId: string | null = null;
   const name = getLightFixtureDefinition(kind).name;
   commitDocument((current) => {
@@ -78,6 +95,9 @@ function addLivingRoomLight(
     if (createdId && options?.orientation) {
       next = updateRoomLightFixture(next, createdId, { parameters: { orientation: options.orientation } });
     }
+    if (createdId && options?.fitCutout && mount?.kind === "cutout") {
+      next = fitCeilingCutoutToLight(next, mount.cutoutId, createdId);
+    }
     return next;
   }, `Added ${name.toLowerCase()}.`);
   return createdId;
@@ -85,7 +105,7 @@ function addLivingRoomLight(
 
 /** Named editor commands. Spread into useLivingRoomPlanEditor. */
 export function lightCommands(ctx: EditorCommandContext) {
-  const actions = lightFixtureActions(ctx.commitDocument, ctx.document);
+  const actions = lightFixtureActions(ctx.commitDocument, ctx.document, ctx.onStatus);
   return {
     addLivingRoomLight: actions.addLight,
     updateLivingRoomLight: actions.updateLight,
@@ -93,5 +113,6 @@ export function lightCommands(ctx: EditorCommandContext) {
     duplicateLivingRoomLight: actions.duplicateLight,
     setLivingRoomLightMount: actions.setLightMount,
     moveLivingRoomLight: actions.moveLight,
+    fitLivingRoomCutoutToLight: actions.fitCutoutToLight,
   };
 }

@@ -19,6 +19,10 @@ export function PlanReadabilityToolbar({ settings, onChange, planMarksEnabled, o
       <input type="checkbox" aria-label="Show centre line" data-testid="lr-center-line-toggle"
         checked={settings.showCenterLine !== false} onChange={(event) => onChange({ showCenterLine: event.target.checked })} /> Centre line
     </label>
+    <label title="Show the ceiling outline over the plan">
+      <input type="checkbox" aria-label="Show ceiling" data-testid="lr-ceiling-layer-toggle"
+        checked={settings.showCeiling === true} onChange={(event) => onChange({ showCeiling: event.target.checked })} /> Ceiling
+    </label>
     {onPlanMarks ? (
       <label title="Show compact plan marks (B600)">
         <input

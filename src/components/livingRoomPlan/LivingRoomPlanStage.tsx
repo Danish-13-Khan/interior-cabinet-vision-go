@@ -80,6 +80,7 @@ export function LivingRoomPlanStage(props: LivingRoomPlanStageProps) {
             onTranslateWall={props.onTranslateWall} activeBuildTool={props.activeBuildTool}
             openingCatalogItemId={props.openingCatalogItemId} onPlaceOpening={props.onPlaceOpening}
             onCreateRoom={props.onCreateRoom} onDrawSurface={props.onDrawSurface}
+            onDrawCeilingCutout={props.onDrawCeilingCutout}
             onDrawWallSegment={props.onDrawWallSegment} onPlaceColumn={props.onPlaceColumn}
             roomPolygonCloseRequest={props.roomPolygonCloseRequest}
             onRoomPolygonPointCount={props.onRoomPolygonPointCount} readability={props.readability}

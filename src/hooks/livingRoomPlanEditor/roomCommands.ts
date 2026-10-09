@@ -1,5 +1,6 @@
 import { noteProjectSnapshot } from "../../domain/projectSnapshots/capture";
 import {
+  addCeilingCutout,
   createSurfaceZone,
   createWallSegmentResult,
   deleteInteriorRoom,
@@ -15,6 +16,7 @@ import {
   type Point2Mm,
   type RoomDrawingRequest,
   type Size3Mm,
+  whyCeilingCutoutRefused,
 } from "../../domain/interiorProject";
 import { createCutOpening, cutOpeningOffsetMm } from "../../domain/livingRoom/cutOpening";
 import {
@@ -30,6 +32,7 @@ import {
   roomWallIds,
 } from "../../domain/livingRoom";
 import { resolveFloorBuild, writeFloorBuild, type FloorBuild } from "../../domain/interiorProject";
+import { deleteCeilingCutoutAndDetach } from "../../domain/livingRoom/lightCutoutMount";
 import { uniqueObjectId, type EditorCommandContext } from "./context";
 
 /** Rooms, drawing, openings, surface zones, and columns. */
@@ -152,6 +155,15 @@ export function roomCommands(ctx: EditorCommandContext) {
     },
     deleteLivingRoomSurface: (surfaceId: string) => {
       commitDocument((current) => deleteSurfaceZone(current, surfaceId), "Deleted surface zone.");
+    },
+    drawLivingRoomCeilingCutout: (drawing: RoomDrawingRequest) => {
+      if (!document) return;
+      const refused = whyCeilingCutoutRefused(document, drawing.points);
+      if (refused) { onStatus?.(refused); return; }
+      commitDocument((current) => addCeilingCutout(current, drawing.points), "Added ceiling cutout.");
+    },
+    deleteLivingRoomCeilingCutout: (roomId: string, cutoutId: string) => {
+      commitDocument((current) => deleteCeilingCutoutAndDetach(current, roomId, cutoutId), "Deleted ceiling cutout.");
     },
     placeLivingRoomColumn: placeColumn,
     setLivingRoomFloorBuild: (patch: Partial<FloorBuild>) => {

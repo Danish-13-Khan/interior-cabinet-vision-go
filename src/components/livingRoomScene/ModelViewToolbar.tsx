@@ -10,6 +10,7 @@ import {
 import type { PresetHonestyDescription } from "../../domain/livingRoom/presetHonesty";
 import { ModelViewAdvancedCameraPopover } from "./ModelViewAdvancedCameraPopover";
 import { ModelViewDollhousePanel } from "./ModelViewDollhousePanel";
+import { ModelViewToolbarToggles } from "./ModelViewToolbarToggles";
 import { RenderPresetHonestyBadge } from "./RenderPresetHonestyBadge";
 import type { RoomLightFixturesPanelProps } from "./RoomLightFixturesPanel";
 import { RoomLightFixturesPopover } from "./RoomLightFixturesPopover";
@@ -23,6 +24,8 @@ type ModelViewToolbarProps = {
   activeCameraId: string | null;
   cameras: readonly CameraEntity[];
   cutawayWalls: boolean;
+  /** Keep the ceiling slab in exterior presets; Walkthrough always shows it. */
+  showCeiling: boolean;
   activeRotation: number;
   hasActiveObject: boolean;
   viewportQuality: RenderQuality;
@@ -33,6 +36,7 @@ type ModelViewToolbarProps = {
   onFieldOfViewDegrees: (value: number) => void;
   onActiveCameraId: (cameraId: string | null) => void;
   onCutawayWalls: (value: boolean) => void;
+  onShowCeiling: (value: boolean) => void;
   onSetRotation: (rotationY: number) => void;
   onViewportQuality: (quality: RenderQuality) => void;
   onOpenGuide: () => void;
@@ -100,16 +104,10 @@ export function ModelViewToolbar(props: ModelViewToolbarProps) {
           Focus
         </button>
       </div>
-      <button
-        type="button"
-        className={props.cutawayWalls ? "is-active" : ""}
-        data-testid="model-cutaway-walls"
-        title="Ghost the wall nearest the camera so you can see in — viewing only, walls are not changed"
-        aria-pressed={props.cutawayWalls}
-        onClick={() => props.onCutawayWalls(!props.cutawayWalls)}
-      >
-        Cutaway
-      </button>
+      <ModelViewToolbarToggles
+        viewPreset={props.viewPreset} cutawayWalls={props.cutawayWalls} showCeiling={props.showCeiling}
+        onCutawayWalls={props.onCutawayWalls} onShowCeiling={props.onShowCeiling}
+      />
       {props.hasSelection ? (
         <button type="button" data-testid="model-clear-selection" onClick={props.onClearSelection}>
           Clear

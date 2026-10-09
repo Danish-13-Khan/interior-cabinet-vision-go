@@ -60,6 +60,7 @@ export type LivingRoomPlanStageProps = {
   onPlaceOpening: (wallId: string, kind: "door" | "window", offsetMm: number) => void;
   onCreateRoom: (drawing: RoomDrawingRequest) => void;
   onDrawSurface: (drawing: RoomDrawingRequest, materialId: string) => void;
+  onDrawCeilingCutout: (drawing: RoomDrawingRequest) => void;
   onDrawWallSegment: (start: import("../../domain/interiorProject").Point2Mm, end: import("../../domain/interiorProject").Point2Mm, wallKind?: "wall" | "partition") => void;
   onPlaceColumn: (position: import("../../domain/interiorProject").Point2Mm) => void;
   roomPolygonCloseRequest: number;

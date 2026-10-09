@@ -72,6 +72,7 @@ export function LivingRoomPlanWorkspaceInspector(props: {
       selectedCount={w.selectedIds.length}
       issues={p.issues}
       onRoomDimensions={w.onRoomDimensions} onSetFloorBuild={w.onSetFloorBuild} onMove={w.onMove} onResize={w.onResize}
+      onDeleteCeilingCutout={w.onDeleteCeilingCutout}
       onSetRotation={w.onSetRotation} onSetMaterial={w.onSetMaterial} onSetParameters={w.onSetParameters}
       onUpdateCabinetRun={w.onUpdateCabinetRun}
       onCompleteCabinetRun={w.onCompleteCabinetRun}

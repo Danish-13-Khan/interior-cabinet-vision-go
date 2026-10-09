@@ -1,6 +1,7 @@
 import type { InteriorProject, LightEntity } from "../../domain/interiorProject";
 import { orientWallForRoom, selectRoomWalls } from "../../domain/interiorProject";
 import {
+  attachLightToCutout,
   attachLightToObject,
   detachLight,
   readLightMount,
@@ -20,13 +21,13 @@ export function mountSelectValue(light: LightEntity): string {
   const mount = readLightMount(light);
   if (mount.kind === "wall") return `wall:${mount.hostWallId}`;
   if (mount.kind === "object") return `object:${mount.hostObjectId}`;
-  if (mount.kind === "ceiling") return "ceiling";
+  if (mount.kind === "ceiling") return mount.hostCutoutId ? `cutout:${mount.hostCutoutId}` : "ceiling";
   return "free";
 }
 
 export function hostCaption(project: InteriorProject, light: LightEntity): string {
   const mount = readLightMount(light);
-  if (mount.kind === "ceiling") return `${light.name} on the ceiling`;
+  if (mount.kind === "ceiling") return mount.hostCutoutId ? `${light.name} in ${mount.hostCutoutId}` : `${light.name} on the ceiling`;
   if (mount.kind === "object") {
     const host = project.objects.find((object) => object.id === mount.hostObjectId);
     return `${light.name} on ${host?.name ?? "cabinet"}`;
@@ -47,6 +48,7 @@ export function chooseFixtureHost(project: InteriorProject, light: LightEntity, 
     const drop = fixtureNumber(light, "ceilingDropMm", definition?.defaults.ceilingDropMm ?? 80);
     return updateLightMount(project, light.id, { kind: "ceiling", ceilingDropMm: drop });
   }
+  if (value.startsWith("cutout:")) return attachLightToCutout(project, light.id, value.slice("cutout:".length));
   if (value.startsWith("object:")) return attachLightToObject(project, light.id, value.slice("object:".length));
   if (value.startsWith("wall:")) return attachToWall(project, light, value.slice("wall:".length));
   return project;

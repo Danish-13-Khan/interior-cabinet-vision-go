@@ -29,6 +29,7 @@ export function applyBuildCommand(
     case "createRoom": handlers.createRoom(command.drawing); return committed(next);
     case "createSurface":
       handlers.createSurface(command.drawing, command.materialId); return committed(next);
+    case "createCeilingCutout": handlers.createCeilingCutout(command.drawing); return committed(next);
     case "updateSurface":
       handlers.updateSurface(command.surfaceId, command.materialId); return committed(next);
     case "deleteSurface": handlers.deleteSurface(command.surfaceId); return committed(next);

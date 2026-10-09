@@ -138,4 +138,11 @@ describe("resolveModelCutawaySides", () => {
     expect(modelViewCutsNearWall("dollhouse")).toBe(false);
     expect(modelViewHidesCeiling("walkthrough")).toBe(false);
   });
+
+  it("keeps the ceiling in any preset when the Ceiling toggle is on", () => {
+    expect(modelViewHidesCeiling("dollhouse", true)).toBe(false);
+    expect(modelViewHidesCeiling("perspective", true)).toBe(false);
+    expect(modelViewHidesCeiling("dollhouse", false)).toBe(true);
+    expect(modelViewHidesCeiling("walkthrough", false)).toBe(false);
+  });
 });

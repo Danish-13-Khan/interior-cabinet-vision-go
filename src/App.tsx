@@ -326,6 +326,7 @@ function App() {
             onNudge={c.nudgeInteriorSelection}
             onRoomDimensions={c.setLivingRoomDimensions}
             onSetFloorBuild={c.setLivingRoomFloorBuild}
+            onDrawCeilingCutout={c.drawLivingRoomCeilingCutout} onDeleteCeilingCutout={c.deleteLivingRoomCeilingCutout}
             onActiveRoom={c.setActiveLivingRoom}
             onRenameRoom={c.renameLivingRoom}
             onDeleteRoom={c.deleteLivingRoom}
@@ -362,7 +363,7 @@ function App() {
               removeLight: c.removeLivingRoomLight,
               duplicateLight: c.duplicateLivingRoomLight,
               setLightMount: c.setLivingRoomLightMount,
-              moveLight: c.moveLivingRoomLight,
+              moveLight: c.moveLivingRoomLight, fitCutoutToLight: c.fitLivingRoomCutoutToLight,
             }}
             onEnterEngineering={() => {
               const bridge = resolvePostHandoffBridge();

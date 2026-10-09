@@ -80,6 +80,8 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
   const [cameraHeightMm, setCameraHeightMm] = useState(3300);
   const [fieldOfViewDegrees, setFieldOfViewDegrees] = useState(42);
   const [cutawayWalls, setCutawayWalls] = useState(true);
+  // View state only: the document never records whether the ceiling is shown.
+  const [showCeiling, setShowCeiling] = useState(false);
   const [wallMenu, setWallMenu] = useState<{ wallId: string; x: number; y: number } | null>(null);
   const [viewportQuality, setViewportQuality] = useState<RenderQuality>(resolveModelViewDefaultQuality);
   const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
@@ -140,6 +142,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
       cameraHeightMm={cameraHeightMm} onCameraHeightMm={setCameraHeightMm}
       fieldOfViewDegrees={fieldOfViewDegrees} onFieldOfViewDegrees={setFieldOfViewDegrees}
       cutawayWalls={cutawayWalls} onCutawayWalls={setCutawayWalls}
+      showCeiling={showCeiling} onShowCeiling={setShowCeiling}
       wallMenu={wallMenu} onWallMenu={setWallMenu}
       viewportQuality={viewportQuality} onViewportQuality={setViewportQuality}
       honesty={honesty} activeStyleId={activeStyleId} activeStyleName={activeStyle.name}
@@ -150,7 +153,7 @@ export function LivingRoomModelView(props: LivingRoomModelViewProps) {
       showStylePalette={showStylePalette} presentation={presentation}
       captureFixedDpr={cardCapture ? 2 : undefined}
       profile={describeModelViewRuntimeProfile(viewportQuality)}
-      ceilingHidden={modelViewHidesCeiling(camera.viewPreset)}
+      ceilingHidden={modelViewHidesCeiling(camera.viewPreset, showCeiling)}
       nearWallCut={modelViewCutsNearWall(camera.viewPreset)}
       lightScale={modelViewProjectLightScale(viewportQuality)}
       windowScale={modelViewWindowKeyScale(viewportQuality)}

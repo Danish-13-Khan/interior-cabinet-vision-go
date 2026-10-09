@@ -13,6 +13,7 @@ export const LIGHT_MOUNT_PARAMETER_KEYS = [
   "wallSide",
   "hostSurface",
   "ceilingDropMm",
+  "hostCutoutId",
   "attachmentMissing",
 ] as const;
 

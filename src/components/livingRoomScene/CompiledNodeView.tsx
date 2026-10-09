@@ -18,7 +18,7 @@ function degrees(value: number) {
 }
 
 export function CompiledNodeView({
-  node, materials, selected, ghosted = false, snapSizeMm, renderMode, renderQuality, showSelectedLabel,
+  node, materials, selected, ghosted = false, pickThrough = false, snapSizeMm, renderMode, renderQuality, showSelectedLabel,
   onSelect, onSelectOpening, onSelectWall, onClearSelection, onMove, onDragStateChange,
   onMovePreview,
   interactive, onMechanismClick, onAssetReady, onWallContextMenu,
@@ -32,6 +32,8 @@ export function CompiledNodeView({
   selected: boolean;
   /** Cut away for viewing: translucent, unlit by shadows, and rays pass through. */
   ghosted?: boolean;
+  /** Drawn normally; rays pass through so the room behind stays clickable. */
+  pickThrough?: boolean;
   snapSizeMm: number;
   renderMode: RenderMode;
   renderQuality?: RenderQuality;
@@ -133,6 +135,7 @@ export function CompiledNodeView({
       ) : (
         <ProceduralFallbackObject
           primitives={node.primitives} materials={materials} selected={selected} ghosted={ghosted}
+          pickThrough={pickThrough}
           renderMode={renderMode} renderQuality={renderQuality} onPointerDown={handlePointerDown}
         />
       )}

@@ -8,6 +8,8 @@ export type PlanReadabilitySettings = {
   visualStyle: PlanVisualStyle;
   /** Automatic site centre line; drawn only when the plan has no guides. */
   showCenterLine?: boolean;
+  /** Ceiling layer: outline and hatch of the room ceiling (and its cutouts). Off by default. */
+  showCeiling?: boolean;
 };
 
 export type PlanDimensionPair = {
@@ -22,6 +24,7 @@ export const DEFAULT_PLAN_READABILITY: PlanReadabilitySettings = {
   alwaysShowWallLengths: false,
   visualStyle: "fill",
   showCenterLine: true,
+  showCeiling: false,
 };
 
 function trimmed(value: number, digits: number) {

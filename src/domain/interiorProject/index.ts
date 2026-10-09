@@ -163,6 +163,9 @@ export {
   surfaceZoneFitsRoom,
   type SurfaceZoneRequest,
 } from "./surfaceEditing";
+export { MIN_CEILING_CUTOUT_AREA_MM2, addCeilingCutout, ceilingCutoutFitProblem, ceilingCutoutFitsRoom, ceilingCutoutSizeMm,
+  compiledCeilingCutouts, deleteCeilingCutout, isCeilingCutoutPolygonValid, moveCeilingCutout, readCeilingCutouts, setCeilingCutoutPolygon,
+  validateCeilingCutouts, whyCeilingCutoutRefused, type CeilingCutout, type CeilingCutoutFitProblem, type CeilingCutoutPurpose } from "./ceilingCutouts";
 export {
   createWallSegment,
   createWallSegmentResult,
